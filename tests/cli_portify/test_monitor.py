@@ -376,3 +376,107 @@ class TestOutputMonitor:
             "line_count", "convergence_iteration", "findings_count", "placeholder_count",
         }
         assert expected == fields
+
+
+# ---------------------------------------------------------------------------
+# T09.02 acceptance criteria: monitor_complete and convergence_tracking
+# ---------------------------------------------------------------------------
+
+
+class TestOutputMonitorComplete:
+    """T09.02 — OutputMonitor has all 8 NFR-009 fields and update methods.
+
+    Validation command: uv run pytest tests/ -k "monitor_complete"
+    """
+
+    def test_monitor_complete_all_eight_fields_present(self):
+        """All 8 NFR-009 fields present in OutputMonitor.state."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        from superclaude.cli.cli_portify.models import MonitorState
+        mon = OutputMonitor()
+        expected = {
+            "output_bytes", "growth_rate_bps", "stall_seconds", "events",
+            "line_count", "convergence_iteration", "findings_count", "placeholder_count",
+        }
+        assert set(MonitorState.__dataclass_fields__.keys()) == expected
+
+    def test_monitor_complete_set_convergence_iteration(self):
+        """set_convergence_iteration(2) updates monitor.convergence_iteration to 2."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        mon.set_convergence_iteration(2)
+        assert mon.state.convergence_iteration == 2
+
+    def test_monitor_complete_increment_findings(self):
+        """increment_findings() accumulates count."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        mon.increment_findings(3)
+        mon.increment_findings(2)
+        assert mon.state.findings_count == 5
+
+    def test_monitor_complete_set_placeholder_count(self):
+        """set_placeholder_count(0) reflects in monitor state."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        mon.set_placeholder_count(7)
+        assert mon.state.placeholder_count == 7
+        mon.set_placeholder_count(0)
+        assert mon.state.placeholder_count == 0
+
+    def test_monitor_complete_initial_state_all_zero(self):
+        """All 8 fields initialize to zero."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        assert mon.state.output_bytes == 0
+        assert mon.state.growth_rate_bps == 0.0
+        assert mon.state.stall_seconds == 0.0
+        assert mon.state.events == 0
+        assert mon.state.line_count == 0
+        assert mon.state.convergence_iteration == 0
+        assert mon.state.findings_count == 0
+        assert mon.state.placeholder_count == 0
+
+
+class TestConvergenceTracking:
+    """T09.02 — OutputMonitor convergence tracking integration.
+
+    Validation command: uv run pytest tests/ -k "convergence_tracking"
+    """
+
+    def test_convergence_tracking_iteration_sequence(self):
+        """set_convergence_iteration() advances through 1, 2, 3."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        for i in range(1, 4):
+            mon.set_convergence_iteration(i)
+            assert mon.state.convergence_iteration == i
+
+    def test_convergence_tracking_findings_accumulate(self):
+        """increment_findings() called multiple times accumulates."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        mon.increment_findings(5)
+        mon.increment_findings(3)
+        assert mon.state.findings_count == 8
+
+    def test_convergence_tracking_placeholder_scan_result(self):
+        """set_placeholder_count() reflects scan result correctly."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        mon.set_placeholder_count(12)
+        assert mon.state.placeholder_count == 12
+        # After resolution, should drop to 0
+        mon.set_placeholder_count(0)
+        assert mon.state.placeholder_count == 0
+
+    def test_convergence_tracking_combined_state(self):
+        """All convergence state fields updated in concert."""
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
+        mon = OutputMonitor()
+        mon.set_convergence_iteration(2)
+        mon.increment_findings(4)
+        mon.set_placeholder_count(1)
+        assert mon.state.convergence_iteration == 2
+        assert mon.state.findings_count == 4
+        assert mon.state.placeholder_count == 1

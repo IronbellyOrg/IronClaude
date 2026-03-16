@@ -7,6 +7,7 @@ import pytest
 from superclaude.cli.cli_portify.tui import (
     DashboardState,
     PIPELINE_STEPS,
+    PortifyTUI,
     StepDisplayState,
     TuiDashboard,
     _build_dashboard_table,
@@ -226,3 +227,107 @@ class TestTuiLifecycle:
     def test_tui_lifecycle_initializes_seven_steps(self):
         dashboard = TuiDashboard()
         assert len(dashboard.state.steps) == 7
+
+
+# ---------------------------------------------------------------------------
+# T09.01 acceptance criteria: tui_update and tui_complete
+# ---------------------------------------------------------------------------
+
+
+class TestPortifyTUIUpdate:
+    """T09.01 — PortifyTUI update_step and update_convergence (NFR-008).
+
+    Validation command: uv run pytest tests/ -k "tui_update"
+    """
+
+    def test_tui_update_step_callable_for_all_statuses(self):
+        """update_step() callable without exception for all PortifyStatus values."""
+        from superclaude.cli.cli_portify.models import PortifyStatus
+        tui = PortifyTUI()
+        tui.start()
+        for status in PortifyStatus:
+            tui.update_step("validate-config", status=status.value)
+        tui.stop()
+
+    def test_tui_update_step_sets_running(self):
+        tui = PortifyTUI()
+        tui.start()
+        tui.update_step("validate-config", status="running", bytes_written=0, elapsed_s=0.0)
+        assert tui._dashboard.state.steps[0].status == "running"
+        tui.stop()
+
+    def test_tui_update_step_sets_bytes_and_elapsed(self):
+        tui = PortifyTUI()
+        tui.start()
+        tui.update_step("analyze-workflow", status="running", bytes_written=1024, elapsed_s=3.5)
+        step = tui._dashboard.state._find_step("analyze-workflow")
+        assert step is not None
+        assert step.duration_seconds == 3.5
+        tui.stop()
+
+    def test_tui_update_convergence_iteration_1_to_3(self):
+        """update_convergence() callable with iteration 1–3 without exception."""
+        tui = PortifyTUI()
+        tui.start()
+        for i in range(1, 4):
+            tui.update_convergence(iteration=i, findings_count=5, placeholder_count=2)
+        assert tui._convergence_iteration == 3
+        tui.stop()
+
+    def test_tui_update_convergence_tracks_state(self):
+        tui = PortifyTUI()
+        tui.start()
+        tui.update_convergence(iteration=2, findings_count=3, placeholder_count=1)
+        assert tui._convergence_iteration == 2
+        assert tui._findings_count == 3
+        assert tui._placeholder_count == 1
+        tui.stop()
+
+    def test_tui_update_convergence_updates_panel_review_iteration(self):
+        tui = PortifyTUI()
+        tui.start()
+        tui.update_convergence(iteration=2, findings_count=0, placeholder_count=0)
+        step = tui._dashboard.state._find_step("panel-review")
+        assert step is not None
+        assert step.iteration == 2
+        tui.stop()
+
+
+class TestPortifyTUIComplete:
+    """T09.01 — PortifyTUI complete lifecycle test (NFR-008).
+
+    Validation command: uv run pytest tests/ -k "tui_complete"
+    """
+
+    def test_tui_complete_start_stop_lifecycle(self):
+        """PortifyTUI start/stop lifecycle tested end-to-end."""
+        tui = PortifyTUI()
+        tui.start()
+        assert not tui.is_live  # non-terminal test env
+        tui.stop()
+
+    def test_tui_complete_stop_idempotent(self):
+        tui = PortifyTUI()
+        tui.start()
+        tui.stop()
+        tui.stop()  # second stop should not crash
+
+    def test_tui_complete_full_pipeline_simulation(self):
+        """Simulate a full 5-step pipeline run with real-time updates."""
+        import time
+        tui = PortifyTUI()
+        tui.start()
+        for step in ["validate-config", "discover-components", "analyze-workflow"]:
+            tui.update_step(step, status="running", bytes_written=0, elapsed_s=0.0)
+            tui.update_step(step, status="running", bytes_written=512, elapsed_s=0.5)
+            tui.update_step(step, status="pass", bytes_written=1024, elapsed_s=1.0)
+        tui.stop()
+
+    def test_tui_complete_convergence_loop_simulation(self):
+        """Simulate panel-review convergence iterations."""
+        tui = PortifyTUI()
+        tui.start()
+        for i in range(1, 4):
+            tui.update_convergence(iteration=i, findings_count=max(0, 5 - i * 2), placeholder_count=0)
+        tui.stop()
+        assert tui._convergence_iteration == 3

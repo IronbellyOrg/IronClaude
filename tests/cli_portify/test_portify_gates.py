@@ -43,7 +43,9 @@ class TestGateRegistry:
     """Gate functions exist for SC-001 through SC-007."""
 
     def test_registry_has_seven_entries(self):
-        assert len(GATE_REGISTRY) == 7
+        # Phase 6 adds 4 new gates (step-graph-design, models-gates-design,
+        # prompts-executor-design, pipeline-spec-assembly) → 11 total
+        assert len(GATE_REGISTRY) == 11
 
     EXPECTED_STEPS = [
         "validate-config",

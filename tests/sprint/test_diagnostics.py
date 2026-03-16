@@ -6,6 +6,8 @@ and exceptions in diagnostics do not abort the sprint.
 
 from __future__ import annotations
 
+import os
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -64,7 +66,11 @@ class TestFailureTriggersCollector:
         def _factory(*args, **kwargs):
             phase = config.phases[0]
             config.results_dir.mkdir(parents=True, exist_ok=True)
-            config.result_file(phase).write_text("EXIT_RECOMMENDATION: HALT\n")
+            result = config.result_file(phase)
+            result.write_text("EXIT_RECOMMENDATION: HALT\n")
+            # Set mtime to future so freshness guard treats file as agent-written
+            future = time.time() + 60
+            os.utime(result, (future, future))
             config.output_file(phase).write_text("output\n")
             return _HaltPopen()
 
@@ -118,7 +124,11 @@ class TestDiagnosticsExceptionNonFatal:
         def _factory(*args, **kwargs):
             phase = config.phases[0]
             config.results_dir.mkdir(parents=True, exist_ok=True)
-            config.result_file(phase).write_text("EXIT_RECOMMENDATION: HALT\n")
+            result = config.result_file(phase)
+            result.write_text("EXIT_RECOMMENDATION: HALT\n")
+            # Set mtime to future so freshness guard treats file as agent-written
+            future = time.time() + 60
+            os.utime(result, (future, future))
             config.output_file(phase).write_text("output\n")
             return _HaltPopen()
 

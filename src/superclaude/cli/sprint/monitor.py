@@ -60,36 +60,46 @@ def detect_error_max_turns(output_path: Path) -> bool:
     return False
 
 
-def detect_prompt_too_long(output_path: Path) -> bool:
+def detect_prompt_too_long(output_path: Path, *, error_path: Path | None = None) -> bool:
     """Check if NDJSON output contains a prompt-too-long error.
 
     Scans the last 10 non-empty lines of the output file for the
     ``"Prompt is too long"`` pattern, which signals that the subprocess
     context window was exhausted.
 
+    If ``error_path`` is provided, the same last-10-lines scan is also
+    applied to that file. Returns True if the pattern is found in either
+    file.
+
     Returns True if the pattern is found, False otherwise.
     """
-    try:
-        content = output_path.read_text(errors="replace")
-    except (FileNotFoundError, OSError):
+    def _scan(path: Path) -> bool:
+        try:
+            content = path.read_text(errors="replace")
+        except (FileNotFoundError, OSError):
+            return False
+
+        if not content.strip():
+            return False
+
+        lines = content.strip().splitlines()
+        # Scan last 10 non-empty lines (pattern may not be in the final line)
+        count = 0
+        for line in reversed(lines):
+            line = line.strip()
+            if not line:
+                continue
+            if PROMPT_TOO_LONG_PATTERN.search(line):
+                return True
+            count += 1
+            if count >= 10:
+                break
         return False
 
-    if not content.strip():
-        return False
-
-    lines = content.strip().splitlines()
-    # Scan last 10 non-empty lines (pattern may not be in the final line)
-    count = 0
-    for line in reversed(lines):
-        line = line.strip()
-        if not line:
-            continue
-        if PROMPT_TOO_LONG_PATTERN.search(line):
-            return True
-        count += 1
-        if count >= 10:
-            break
-
+    if _scan(output_path):
+        return True
+    if error_path is not None and _scan(error_path):
+        return True
     return False
 
 

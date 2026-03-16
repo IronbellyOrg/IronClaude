@@ -88,6 +88,75 @@ class TestClaudeProcess:
         prompt = proc.build_prompt()
         assert "--compliance strict" in prompt
 
+    # ---------------------------------------------------------------------------
+    # T04.02 — Prompt contract: ## Result File section (SC-013, FR-006)
+    # ---------------------------------------------------------------------------
+
+    def test_build_prompt_result_file_section_present(self):
+        """## Result File section is present in the built prompt."""
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+        assert "## Result File" in prompt
+
+    def test_build_prompt_result_file_after_important(self):
+        """## Result File must appear after ## Important (SC-013)."""
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+        assert "## Important" in prompt
+        assert "## Result File" in prompt
+        assert prompt.rindex("## Result File") > prompt.rindex("## Important")
+
+    def test_build_prompt_result_file_path_uses_as_posix(self):
+        """Path in prompt matches config.result_file(phase).as_posix() exactly (FR-006)."""
+        config = _make_config()
+        phase = config.phases[0]
+        proc = ClaudeProcess(config, phase)
+        prompt = proc.build_prompt()
+        expected_path = config.result_file(phase).as_posix()
+        assert expected_path in prompt
+
+    def test_build_prompt_result_file_continue_instruction(self):
+        """CONTINUE content instruction is present in the result file section."""
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+        assert "EXIT_RECOMMENDATION: CONTINUE" in prompt
+
+    def test_build_prompt_result_file_halt_instruction(self):
+        """Conditional HALT instruction is present for STRICT-tier failure scenarios."""
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+        assert "EXIT_RECOMMENDATION: HALT" in prompt
+
+    def test_build_prompt_existing_sections_not_displaced(self):
+        """Existing prompt sections retain their relative order (no displacement)."""
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+        # Verify canonical section ordering is preserved
+        sprint_ctx_pos = prompt.index("## Sprint Context")
+        exec_rules_pos = prompt.index("## Execution Rules")
+        scope_pos = prompt.index("## Scope Boundary")
+        important_pos = prompt.index("## Important")
+        result_file_pos = prompt.index("## Result File")
+        assert sprint_ctx_pos < exec_rules_pos < scope_pos < important_pos < result_file_pos
+
+    def test_build_prompt_result_file_is_last_h2_section(self):
+        """## Result File is the last ##-level section in the prompt (SC-013)."""
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+        result_file_pos = prompt.rindex("## Result File")
+        # No ## heading should appear after ## Result File
+        remainder = prompt[result_file_pos + len("## Result File"):]
+        import re
+        assert not re.search(r"^##\s", remainder, re.MULTILINE), (
+            "Found a ##-level section after ## Result File"
+        )
+
     def test_timeout_calculation(self):
         config = _make_config(max_turns=50)
         proc = ClaudeProcess(config, config.phases[0])

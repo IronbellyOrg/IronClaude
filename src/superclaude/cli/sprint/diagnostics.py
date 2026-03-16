@@ -47,6 +47,17 @@ class DiagnosticBundle:
     watchdog_triggered: bool = False
     stall_duration: float = 0.0
     classification_evidence: list[str] = field(default_factory=list)
+    config: SprintConfig | None = field(default=None, kw_only=True)
+
+    def __post_init__(self) -> None:
+        if self.config is None:
+            import warnings
+
+            warnings.warn(
+                "DiagnosticBundle.config=None is deprecated; pass SprintConfig",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
     @property
     def summary(self) -> str:
@@ -78,6 +89,7 @@ class DiagnosticCollector:
         bundle = DiagnosticBundle(
             phase=phase,
             phase_result=phase_result,
+            config=self.config,
         )
 
         # Capture monitor state
@@ -97,8 +109,7 @@ class DiagnosticCollector:
         if self.config.debug and self.config.debug_log_path.exists():
             bundle.debug_log_entries = self._read_phase_debug_entries(phase)
             bundle.watchdog_triggered = any(
-                "watchdog_triggered" in entry
-                for entry in bundle.debug_log_entries
+                "watchdog_triggered" in entry for entry in bundle.debug_log_entries
             )
             # Extract last N events
             bundle.last_events = bundle.debug_log_entries[-20:]
@@ -180,7 +191,22 @@ class FailureClassifier:
         # 2.5. Context exhaustion (prompt too long)
         from .monitor import detect_prompt_too_long
 
-        output_file = bundle.phase_result.phase.file.parent.parent / "results" / f"phase-{bundle.phase_result.phase.number}-output.txt"
+        if bundle.config is not None:
+            output_file = bundle.config.output_file(bundle.phase_result.phase)
+        else:
+            import warnings
+
+            warnings.warn(
+                "DiagnosticBundle.config=None is deprecated; pass SprintConfig",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            output_file = (
+                bundle.phase_result.phase.file.parent.parent
+                / "results"
+                / f"phase-{bundle.phase_result.phase.number}-output.txt"
+            )
+
         if exit_code != 0 and detect_prompt_too_long(output_file):
             evidence.append(f"Context exhaustion detected (exit code {exit_code})")
             bundle.classification_evidence = evidence
@@ -188,7 +214,9 @@ class FailureClassifier:
 
         # 3. Crash (non-zero exit, not timeout, low stall)
         if exit_code != 0 and bundle.stall_duration < 30:
-            evidence.append(f"Process crash (exit code {exit_code}, stall {bundle.stall_duration:.0f}s)")
+            evidence.append(
+                f"Process crash (exit code {exit_code}, stall {bundle.stall_duration:.0f}s)"
+            )
             bundle.classification_evidence = evidence
             return FailureCategory.CRASH
 

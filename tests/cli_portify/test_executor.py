@@ -22,6 +22,7 @@ from superclaude.cli.cli_portify.executor import (
     _calculate_suggested_resume_budget,
     _determine_status,
     _emit_return_contract,
+    run_with_timeout,
 )
 from superclaude.cli.cli_portify.models import (
     PortifyOutcome,
@@ -123,12 +124,17 @@ class TestExecutorSequentialExecution:
         assert contract_path.exists()
 
     def test_executor_dry_run_filters_phase_types(self, tmp_path):
+        """SC-012: dry-run execution filters steps to PREREQUISITES, ANALYSIS,
+        USER_REVIEW, SPECIFICATION phase types only. SYNTHESIS, CONVERGENCE,
+        and any other non-allowed phase types must not execute."""
         executed = []
         steps = [
             _make_step("s1", PortifyPhaseType.PREREQUISITES),
             _make_step("s2", PortifyPhaseType.SYNTHESIS),
             _make_step("s3", PortifyPhaseType.ANALYSIS),
             _make_step("s4", PortifyPhaseType.CONVERGENCE),
+            _make_step("s5", PortifyPhaseType.USER_REVIEW),
+            _make_step("s6", PortifyPhaseType.SPECIFICATION),
         ]
 
         def runner(step: PortifyStep):
@@ -137,11 +143,13 @@ class TestExecutorSequentialExecution:
 
         ex = PortifyExecutor(steps, tmp_path, dry_run=True, step_runner=runner)
         ex.run()
-        # Only PREREQUISITES and ANALYSIS are in DRY_RUN_PHASE_TYPES
-        assert "s1" in executed  # PREREQUISITES
+        # SC-012: Only PREREQUISITES, ANALYSIS, USER_REVIEW, SPECIFICATION run
+        assert "s1" in executed  # PREREQUISITES — allowed
         assert "s2" not in executed  # SYNTHESIS — excluded
-        assert "s3" in executed  # ANALYSIS
+        assert "s3" in executed  # ANALYSIS — allowed
         assert "s4" not in executed  # CONVERGENCE — excluded
+        assert "s5" in executed  # USER_REVIEW — allowed
+        assert "s6" in executed  # SPECIFICATION — allowed
 
     def test_executor_resume_skips_prior_steps(self, tmp_path):
         executed = []
@@ -482,3 +490,79 @@ class TestReturnContract:
         # All PENDING → 3 * 25 = 75
         budget = _calculate_suggested_resume_budget(steps)
         assert budget == 75
+
+
+# ---------------------------------------------------------------------------
+# T02.09: run_with_timeout() — NFR-001 enforcement tests
+# ---------------------------------------------------------------------------
+
+
+class TestRunWithTimeout:
+    """T02.09 acceptance criteria:
+    - Input-validation step with mocked 31s execution raises TimeoutError (SC-001).
+    - Component-discovery step with mocked 61s execution raises TimeoutError (SC-002).
+    - Fast functions complete normally within timeout.
+    """
+
+    def test_fast_function_completes_normally(self):
+        """A function completing instantly is returned without error."""
+        result = run_with_timeout(lambda: 42, timeout_s=5.0)
+        assert result == 42
+
+    def test_fast_function_with_args(self):
+        """Arguments are forwarded to the function correctly."""
+        result = run_with_timeout(lambda x, y: x + y, 5.0, 3, 4)
+        assert result == 7
+
+    def test_slow_function_raises_timeout_error(self):
+        """A function exceeding the timeout raises TimeoutError (not hanging)."""
+        import threading
+
+        def _slow():
+            threading.Event().wait(timeout=10)  # simulate blocking
+
+        with pytest.raises(TimeoutError):
+            run_with_timeout(_slow, timeout_s=0.1)
+
+    def test_step0_validate_config_timeout_boundary(self):
+        """Mocked slow validate-config execution raises TimeoutError (SC-001: ≤30s boundary)."""
+        import threading
+        # Use 0.05s timeout to test boundary behavior without waiting 30s in CI
+        def _mock_slow_validate():
+            threading.Event().wait(timeout=10)
+
+        with pytest.raises(TimeoutError):
+            run_with_timeout(_mock_slow_validate, timeout_s=0.05)
+
+    def test_step1_discover_components_timeout_boundary(self):
+        """Mocked slow discover-components execution raises TimeoutError (SC-002: ≤60s boundary)."""
+        import threading
+        # Use 0.05s timeout to test boundary behavior without waiting 60s in CI
+        def _mock_slow_discover():
+            threading.Event().wait(timeout=10)
+
+        with pytest.raises(TimeoutError):
+            run_with_timeout(_mock_slow_discover, timeout_s=0.05)
+
+    def test_timeout_error_message_contains_limit(self):
+        """TimeoutError message includes the timeout limit."""
+        import threading
+
+        def _slow():
+            threading.Event().wait(timeout=10)
+
+        with pytest.raises(TimeoutError, match="5.0"):
+            run_with_timeout(_slow, timeout_s=5.0)
+
+    def test_return_value_passed_through(self):
+        """Return value from a successful call is passed through unchanged."""
+        result = run_with_timeout(lambda: {"key": "value"}, 5.0)
+        assert result == {"key": "value"}
+
+    def test_exception_propagated_from_function(self):
+        """Exceptions raised inside the function are re-raised to the caller."""
+        def _raises():
+            raise ValueError("inner error")
+
+        with pytest.raises(ValueError, match="inner error"):
+            run_with_timeout(_raises, timeout_s=5.0)

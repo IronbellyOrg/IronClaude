@@ -248,6 +248,18 @@ class OutputMonitor:
         self._last_bytes = new_bytes
         self._last_update_time = now
 
+    def set_convergence_iteration(self, n: int) -> None:
+        """Set the current convergence iteration number."""
+        self.state.convergence_iteration = n
+
+    def increment_findings(self, n: int) -> None:
+        """Increment the findings count by n."""
+        self.state.findings_count += n
+
+    def set_placeholder_count(self, n: int) -> None:
+        """Set the current placeholder sentinel count."""
+        self.state.placeholder_count = n
+
 
 # ---------------------------------------------------------------------------
 # generate_diagnostic_report()

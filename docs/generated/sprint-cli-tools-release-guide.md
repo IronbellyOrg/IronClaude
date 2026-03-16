@@ -61,6 +61,9 @@ superclaude sprint run <index_path> [options]
 - `--dry-run` discovery/validation only; no execution
 - `--no-tmux` run in foreground even if tmux is available
 - `--permission-flag` permission mode passed to Claude CLI
+- `--force-fidelity-fail 'reason'` Bypass spec fidelity check
+  - supported values: `--dangerously-skip-permissions` (default) and `--allow-hierarchical-permissions`
+  
 
 ### Examples
 ```bash
@@ -75,6 +78,10 @@ superclaude sprint run .dev/releases/current/tasklist-index.md --dry-run
 
 # Foreground execution for CI/local debugging
 superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux
+
+# Use Claude hierarchical permissions instead of the default skip-permissions mode
+superclaude sprint run .dev/releases/current/tasklist-index.md \
+  --permission-flag --allow-hierarchical-permissions
 ```
 
 ---
@@ -230,6 +237,7 @@ claude \
 
 Important details:
 - `--no-session-persistence` ensures phase isolation.
+- The runtime forwards the configured permission flag verbatim; supported choices are `--dangerously-skip-permissions` and `--allow-hierarchical-permissions`.
 - `CLAUDECODE=""` is injected into child env to avoid nested session detection behavior.
 - stdout/stderr are redirected to per-phase files in `results/`.
 
@@ -388,6 +396,9 @@ superclaude sprint run <index> --dry-run
 
 # Force foreground
 superclaude sprint run <index> --no-tmux
+
+# Run with hierarchical permissions
+superclaude sprint run <index> --permission-flag --allow-hierarchical-permissions
 
 # Attach to running tmux sprint
 superclaude sprint attach
