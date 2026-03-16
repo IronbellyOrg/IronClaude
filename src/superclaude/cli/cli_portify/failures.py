@@ -1,43 +1,57 @@
-"""Failure-path handlers for all 7 failure types in cli-portify pipeline.
+"""Failure handlers for the CLI Portify pipeline.
 
-Each failure type has an explicit handler producing a populated
-PortifyStepResult with clear error messages, remediation guidance,
-and contract-compatible fields (no None/empty per NFR-009).
+Implements 7 failure type handlers per NFR-009:
+  1. MISSING_ARTIFACT    — handle_missing_template()
+  2. MALFORMED_FRONTMATTER — handle_malformed_artifact()
+  3. TIMEOUT             — handle_timeout()
+  4. PARTIAL_ARTIFACT    — handle_partial_artifact()
+  5. BUDGET_EXHAUSTION   — handle_budget_exhausted()
+  6. USER_REJECTION      — handled by review module (no handler here)
+  7. GATE_FAILURE        — handled inline (no handler here)
 
-Failure types:
-1. Missing template — fail-fast with clear error and remediation path
-2. Missing skills — graceful fallback with warning
-3. Malformed artifact — diagnostic classification and targeted retry
-4. Timeout — per-iteration and total budget handling
-5. Partial artifact — re-run policy (prefer re-run over trust)
-6. Non-writable output — early detection in validate-config
-7. Exhausted budget — ESCALATED terminal state with resume guidance
-
-Per D-0039 / R-027.
+T02.06 — handle_timeout() enforces Step 0 (30s) and Step 1 (60s) limits.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
+from dataclasses import dataclass, field
+from typing import Callable, Optional
 
-from superclaude.cli.cli_portify.models import (
+from .models import (
     FailureClassification,
     PortifyStatus,
     PortifyStepResult,
     ResumeContext,
 )
-from superclaude.cli.cli_portify.resume import build_resume_command, is_resumable
+
+# Steps that support --start <step-name> resume
+_RESUMABLE_STEPS = frozenset({"brainstorm-gaps", "synthesize-spec", "panel-review"})
+
+# Step 0 and Step 1 timeout limits (NFR-001)
+STEP_0_TIMEOUT_SECONDS = 30
+STEP_1_TIMEOUT_SECONDS = 60
 
 
 @dataclass
 class FailureHandlerResult:
-    """Result from a failure handler with message and remediation."""
+    """Result from a failure handler invocation.
 
-    step_result: PortifyStepResult
-    error_message: str
-    remediation: str
-    is_terminal: bool
+    Attributes:
+        step_result: Populated PortifyStepResult with failure metadata.
+        error_message: Human-readable description of the failure.
+        remediation: Suggested action for the user.
+        is_terminal: Whether the failure stops the pipeline.
+    """
+
+    step_result: PortifyStepResult = field(default_factory=PortifyStepResult)
+    error_message: str = ""
+    remediation: str = ""
+    is_terminal: bool = True
+
+
+# ---------------------------------------------------------------------------
+# Handler implementations
+# ---------------------------------------------------------------------------
 
 
 def handle_missing_template(
@@ -46,62 +60,28 @@ def handle_missing_template(
     phase: int,
     template_path: str,
 ) -> FailureHandlerResult:
-    """Handle missing template failure — fail-fast with remediation.
-
-    This is a non-recoverable configuration error. The user must
-    provide the missing template before re-running.
-    """
-    error_msg = f"Required template not found: {template_path}"
-    remediation = (
-        f"Ensure the template file exists at '{template_path}' "
-        "before running the pipeline. Check that the workflow "
-        "directory contains all required source files."
+    """Handle a missing template/artifact failure (MISSING_ARTIFACT)."""
+    resume_cmd = (
+        f"superclaude portify --start {step_name}"
+        if step_name in _RESUMABLE_STEPS
+        else ""
     )
-
+    step_result = PortifyStepResult(
+        step_name=step_name,
+        step_number=step_number,
+        phase=phase,
+        portify_status=PortifyStatus.FAIL,
+        failure_classification=FailureClassification.MISSING_ARTIFACT,
+        resume_context=ResumeContext(resume_command=resume_cmd, resume_step=step_name),
+    )
     return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.FAIL,
-            step_name=step_name,
-            step_number=step_number,
-            phase=phase,
-            failure_classification=FailureClassification.MISSING_ARTIFACT,
-            artifact_path=template_path,
+        step_result=step_result,
+        error_message=f"Template artifact not found: {template_path}",
+        remediation=(
+            f"Ensure the template file exists at '{template_path}'. "
+            "Check that the workflow directory contains all required templates."
         ),
-        error_message=error_msg,
-        remediation=remediation,
         is_terminal=True,
-    )
-
-
-def handle_missing_skills(
-    step_name: str,
-    step_number: int,
-    phase: int,
-    missing_skills: list[str],
-) -> FailureHandlerResult:
-    """Handle missing skills — graceful fallback with warning.
-
-    Pipeline continues with reduced functionality. The missing skills
-    are noted as warnings but do not block execution.
-    """
-    skills_str = ", ".join(missing_skills)
-    error_msg = f"Optional skills not found: {skills_str}"
-    remediation = (
-        f"Install missing skills ({skills_str}) for full functionality. "
-        "Pipeline will continue with fallback behavior."
-    )
-
-    return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.PASS,
-            step_name=step_name,
-            step_number=step_number,
-            phase=phase,
-            failure_classification=None,
-        ),
-        error_message=error_msg,
-        remediation=remediation,
-        is_terminal=False,
     )
 
 
@@ -112,40 +92,32 @@ def handle_malformed_artifact(
     artifact_path: str,
     diagnostic: str = "",
 ) -> FailureHandlerResult:
-    """Handle malformed artifact — diagnostic classification with retry suggestion.
-
-    The artifact exists but has invalid structure (e.g., missing
-    frontmatter, wrong format). Suggests targeted retry.
-    """
-    error_msg = f"Malformed artifact at '{artifact_path}'"
-    if diagnostic:
-        error_msg += f": {diagnostic}"
-    remediation = (
-        "Re-run the step that produced this artifact. "
-        "If the problem persists, check the prompt template "
-        "for formatting issues or increase --max-turns."
+    """Handle a malformed artifact (MALFORMED_FRONTMATTER)."""
+    resume_cmd = (
+        f"superclaude portify --start {step_name}"
+        if step_name in _RESUMABLE_STEPS
+        else ""
     )
+    msg = f"Artifact has malformed frontmatter: {artifact_path}"
+    if diagnostic:
+        msg += f" — {diagnostic}"
 
-    resume_cmd = build_resume_command(step_name) if is_resumable(step_name) else ""
-
+    step_result = PortifyStepResult(
+        step_name=step_name,
+        step_number=step_number,
+        phase=phase,
+        portify_status=PortifyStatus.FAIL,
+        failure_classification=FailureClassification.MALFORMED_FRONTMATTER,
+        resume_context=ResumeContext(resume_command=resume_cmd, resume_step=step_name),
+    )
     return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.FAIL,
-            step_name=step_name,
-            step_number=step_number,
-            phase=phase,
-            artifact_path=artifact_path,
-            failure_classification=FailureClassification.MALFORMED_FRONTMATTER,
-            resume_context=ResumeContext(
-                failed_step=step_name,
-                failed_step_number=step_number,
-                failure_classification=FailureClassification.MALFORMED_FRONTMATTER,
-                re_run_required=True,
-                resume_command=resume_cmd,
-            ),
+        step_result=step_result,
+        error_message=msg,
+        remediation=(
+            "Verify the artifact file starts with '---' frontmatter delimiter. "
+            f"Re-run from this step: `{resume_cmd}`" if resume_cmd else
+            "Verify the artifact file starts with '---' frontmatter delimiter."
         ),
-        error_message=error_msg,
-        remediation=remediation,
         is_terminal=True,
     )
 
@@ -155,61 +127,63 @@ def handle_timeout(
     step_number: int,
     phase: int,
     timeout_seconds: float,
-    is_per_iteration: bool = True,
-    iteration: int = 0,
+    is_per_iteration: bool = False,
     total_budget_exhausted: bool = False,
+    iteration: int = 0,
 ) -> FailureHandlerResult:
-    """Handle timeout — distinguish per-iteration and total budget.
+    """Handle a step timeout failure (TIMEOUT or BUDGET_EXHAUSTION).
 
-    Per-iteration timeouts may be retried. Total budget exhaustion
-    is a terminal ESCALATED state.
+    T02.06: Step 0 enforces 30s, Step 1 enforces 60s.
+
+    Args:
+        step_name: Name of the timed-out step.
+        step_number: Step number (1-12).
+        phase: Pipeline phase number.
+        timeout_seconds: The timeout limit that was exceeded.
+        is_per_iteration: True if this is a per-iteration timeout.
+        total_budget_exhausted: True if total convergence budget exhausted.
+        iteration: Current iteration number (for convergence steps).
     """
-    if total_budget_exhausted:
-        error_msg = (
-            f"Total budget exhausted after {iteration} iterations "
-            f"(timeout: {timeout_seconds}s per iteration)"
-        )
-        classification = FailureClassification.BUDGET_EXHAUSTION
-        is_terminal = True
-    elif is_per_iteration:
-        error_msg = (
-            f"Step '{step_name}' timed out after {timeout_seconds}s "
-            f"(iteration {iteration})"
-        )
-        classification = FailureClassification.TIMEOUT
-        is_terminal = True
-    else:
-        error_msg = f"Step '{step_name}' timed out after {timeout_seconds}s"
-        classification = FailureClassification.TIMEOUT
-        is_terminal = True
-
-    remediation = (
-        "Increase --iteration-timeout or --max-convergence, "
-        "or simplify the workflow to reduce processing time."
+    resume_cmd = (
+        f"superclaude portify --start {step_name}"
+        if step_name in _RESUMABLE_STEPS
+        else ""
     )
 
-    resume_cmd = build_resume_command(step_name) if is_resumable(step_name) else ""
+    if total_budget_exhausted:
+        classification = FailureClassification.BUDGET_EXHAUSTION
+        msg = (
+            f"Total convergence budget exhausted at iteration {iteration} "
+            f"in step '{step_name}' (limit: {int(timeout_seconds)}s)"
+        )
+    elif is_per_iteration and iteration:
+        classification = FailureClassification.TIMEOUT
+        msg = (
+            f"Step '{step_name}' timed out at iteration {iteration} "
+            f"after {int(timeout_seconds)}s"
+        )
+    else:
+        classification = FailureClassification.TIMEOUT
+        msg = f"Step '{step_name}' timed out after {int(timeout_seconds)}s"
 
+    step_result = PortifyStepResult(
+        step_name=step_name,
+        step_number=step_number,
+        phase=phase,
+        portify_status=PortifyStatus.TIMEOUT,
+        failure_classification=classification,
+        resume_context=ResumeContext(resume_command=resume_cmd, resume_step=step_name),
+        iteration_number=iteration,
+        iteration_timeout=int(timeout_seconds),
+    )
     return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.TIMEOUT,
-            step_name=step_name,
-            step_number=step_number,
-            phase=phase,
-            iteration_timeout=int(timeout_seconds),
-            iteration_number=iteration,
-            failure_classification=classification,
-            resume_context=ResumeContext(
-                failed_step=step_name,
-                failed_step_number=step_number,
-                failure_classification=classification,
-                re_run_required=True,
-                resume_command=resume_cmd,
-            ),
-        ),
-        error_message=error_msg,
-        remediation=remediation,
-        is_terminal=is_terminal,
+        step_result=step_result,
+        error_message=msg,
+        remediation=(
+            "Increase the timeout with --timeout or reduce input complexity. "
+            + (f"Resume from this step: `{resume_cmd}`" if resume_cmd else "")
+        ).strip(),
+        is_terminal=True,
     )
 
 
@@ -220,42 +194,35 @@ def handle_partial_artifact(
     artifact_path: str,
     placeholder_count: int = 0,
 ) -> FailureHandlerResult:
-    """Handle partial artifact — prefer re-run over trust.
-
-    The artifact exists but contains placeholder sentinels or
-    incomplete sections. Policy: always re-run rather than
-    trusting partial output.
-    """
-    error_msg = (
-        f"Partial artifact at '{artifact_path}': "
-        f"{placeholder_count} placeholder(s) remain"
+    """Handle a partial artifact with unresolved placeholders (PARTIAL_ARTIFACT)."""
+    resume_cmd = (
+        f"superclaude portify --start {step_name}"
+        if step_name in _RESUMABLE_STEPS
+        else ""
     )
-    remediation = (
-        "Re-run the step to regenerate the artifact. "
-        "Partial artifacts are never trusted — the re-run policy "
-        "ensures output completeness."
+    placeholder_str = (
+        f"Found {placeholder_count} placeholder(s) still unresolved. "
+        if placeholder_count
+        else ""
     )
-
-    resume_cmd = build_resume_command(step_name) if is_resumable(step_name) else ""
-
+    step_result = PortifyStepResult(
+        step_name=step_name,
+        step_number=step_number,
+        phase=phase,
+        portify_status=PortifyStatus.FAIL,
+        failure_classification=FailureClassification.PARTIAL_ARTIFACT,
+        resume_context=ResumeContext(resume_command=resume_cmd, resume_step=step_name),
+    )
     return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.FAIL,
-            step_name=step_name,
-            step_number=step_number,
-            phase=phase,
-            artifact_path=artifact_path,
-            failure_classification=FailureClassification.PARTIAL_ARTIFACT,
-            resume_context=ResumeContext(
-                failed_step=step_name,
-                failed_step_number=step_number,
-                failure_classification=FailureClassification.PARTIAL_ARTIFACT,
-                re_run_required=True,
-                resume_command=resume_cmd,
-            ),
-        ),
-        error_message=error_msg,
-        remediation=remediation,
+        step_result=step_result,
+        error_message=(
+            f"Artifact at '{artifact_path}' is incomplete. "
+            + placeholder_str
+        ).strip(),
+        remediation=(
+            "Re-run the step to complete the artifact. "
+            + (f"Use: `{resume_cmd}`" if resume_cmd else "")
+        ).strip(),
         is_terminal=True,
     )
 
@@ -263,28 +230,23 @@ def handle_partial_artifact(
 def handle_non_writable_output(
     output_dir: str,
 ) -> FailureHandlerResult:
-    """Handle non-writable output directory — early detection in validate-config.
-
-    Detected during Step 1 (validate-config). Pipeline cannot proceed
-    if it cannot write artifacts.
-    """
-    error_msg = f"Output directory is not writable: {output_dir}"
-    remediation = (
-        f"Ensure the directory '{output_dir}' exists and is writable, "
-        "or specify a different --output directory."
+    """Handle a non-writable output directory (validate-config step)."""
+    step_result = PortifyStepResult(
+        step_name="validate-config",
+        step_number=1,
+        phase=1,
+        portify_status=PortifyStatus.FAIL,
+        failure_classification=FailureClassification.MISSING_ARTIFACT,
+        gate_tier="EXEMPT",
+        resume_context=ResumeContext(),
     )
-
     return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.FAIL,
-            step_name="validate-config",
-            step_number=1,
-            phase=1,
-            gate_tier="EXEMPT",
-            failure_classification=FailureClassification.MISSING_ARTIFACT,
+        step_result=step_result,
+        error_message=f"Output directory is not writable: {output_dir}",
+        remediation=(
+            f"Ensure the output directory '{output_dir}' is writable. "
+            "Try: `chmod +w <directory>` or choose a different output path."
         ),
-        error_message=error_msg,
-        remediation=remediation,
         is_terminal=True,
     )
 
@@ -293,70 +255,91 @@ def handle_budget_exhausted(
     step_name: str,
     step_number: int,
     phase: int,
-    iterations_completed: int,
+    current_iteration: int,
     max_convergence: int,
 ) -> FailureHandlerResult:
-    """Handle exhausted budget — ESCALATED terminal state with resume guidance.
-
-    The convergence budget (max iterations) has been exhausted without
-    reaching convergence. This is a terminal ESCALATED state.
-    """
-    error_msg = (
-        f"Convergence budget exhausted: {iterations_completed}/{max_convergence} "
-        f"iterations completed without convergence"
+    """Handle convergence budget exhaustion (BUDGET_EXHAUSTION)."""
+    resume_cmd = (
+        f"superclaude portify --start {step_name} --max-convergence {max_convergence + 2}"
+        if step_name in _RESUMABLE_STEPS
+        else ""
     )
-    remediation = (
-        "Increase --max-convergence to allow more iterations, "
-        "or review the brainstorm-gaps output for persistent issues "
-        "preventing convergence."
+    step_result = PortifyStepResult(
+        step_name=step_name,
+        step_number=step_number,
+        phase=phase,
+        portify_status=PortifyStatus.FAIL,
+        failure_classification=FailureClassification.BUDGET_EXHAUSTION,
+        resume_context=ResumeContext(resume_command=resume_cmd, resume_step=step_name),
+        iteration_number=current_iteration,
     )
-
-    resume_cmd = build_resume_command(
-        step_name, max_convergence=max_convergence + 2
-    )
-
     return FailureHandlerResult(
-        step_result=PortifyStepResult(
-            portify_status=PortifyStatus.FAIL,
-            step_name=step_name,
-            step_number=step_number,
-            phase=phase,
-            iteration_number=iterations_completed,
-            failure_classification=FailureClassification.BUDGET_EXHAUSTION,
-            resume_context=ResumeContext(
-                failed_step=step_name,
-                failed_step_number=step_number,
-                failure_classification=FailureClassification.BUDGET_EXHAUSTION,
-                re_run_required=True,
-                resume_command=resume_cmd,
-            ),
+        step_result=step_result,
+        error_message=(
+            f"Convergence budget exhausted after {current_iteration}/{max_convergence} iterations "
+            f"in step '{step_name}'"
         ),
-        error_message=error_msg,
-        remediation=remediation,
+        remediation=(
+            "Increase convergence budget: "
+            + (f"`{resume_cmd}`" if resume_cmd else "--max-convergence <n>")
+        ),
         is_terminal=True,
     )
 
 
-# --- Dispatcher ---
+def handle_missing_skills(
+    step_name: str,
+    step_number: int,
+    phase: int,
+    missing_skills: list[str],
+) -> FailureHandlerResult:
+    """Handle missing skill files (graceful fallback — non-terminal PASS)."""
+    skills_str = ", ".join(missing_skills)
+    step_result = PortifyStepResult(
+        step_name=step_name,
+        step_number=step_number,
+        phase=phase,
+        portify_status=PortifyStatus.PASS,
+        failure_classification=None,
+        resume_context=ResumeContext(),
+    )
+    return FailureHandlerResult(
+        step_result=step_result,
+        error_message=(
+            f"Some skills could not be found: {skills_str}. "
+            "Continuing with available skills."
+        ),
+        remediation=(
+            f"Install the missing skills: {skills_str}. "
+            "Use `superclaude install` to install all skills."
+        ),
+        is_terminal=False,
+    )
 
-FAILURE_HANDLERS = {
-    FailureClassification.MISSING_ARTIFACT: "handle_missing_template",
-    FailureClassification.MALFORMED_FRONTMATTER: "handle_malformed_artifact",
-    FailureClassification.TIMEOUT: "handle_timeout",
-    FailureClassification.PARTIAL_ARTIFACT: "handle_partial_artifact",
-    FailureClassification.BUDGET_EXHAUSTION: "handle_budget_exhausted",
-    FailureClassification.USER_REJECTION: None,  # Handled by review module
-    FailureClassification.GATE_FAILURE: None,  # Handled inline by gate logic
+
+# ---------------------------------------------------------------------------
+# Registry
+# ---------------------------------------------------------------------------
+
+FAILURE_HANDLERS: dict[FailureClassification, Optional[Callable]] = {
+    FailureClassification.MISSING_ARTIFACT: handle_missing_template,
+    FailureClassification.MALFORMED_FRONTMATTER: handle_malformed_artifact,
+    FailureClassification.TIMEOUT: handle_timeout,
+    FailureClassification.PARTIAL_ARTIFACT: handle_partial_artifact,
+    FailureClassification.BUDGET_EXHAUSTION: handle_budget_exhausted,
+    # USER_REJECTION handled by review module (no callable handler registered)
+    FailureClassification.USER_REJECTION: None,
+    # GATE_FAILURE handled inline by executor (no callable handler registered)
+    FailureClassification.GATE_FAILURE: None,
 }
 
 
-def get_failure_handler_name(
-    classification: FailureClassification,
-) -> str | None:
-    """Get the handler function name for a failure classification."""
-    return FAILURE_HANDLERS.get(classification)
-
-
 def has_handler(classification: FailureClassification) -> bool:
-    """Check if a failure classification has a dedicated handler."""
+    """Return True if a callable failure handler exists for the given classification."""
     return FAILURE_HANDLERS.get(classification) is not None
+
+
+def get_failure_handler_name(classification: FailureClassification) -> Optional[str]:
+    """Return the name of the handler function for a classification, or None."""
+    handler = FAILURE_HANDLERS.get(classification)
+    return handler.__name__ if handler else None

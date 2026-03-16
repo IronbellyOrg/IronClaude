@@ -1,167 +1,131 @@
-"""Subprocess orchestration for cli-portify Claude-assisted steps.
+"""PortifyProcess — subprocess wrapper for CLI Portify pipeline steps.
 
-PortifyProcess extends pipeline.ClaudeProcess with:
-- Dual --add-dir scoping (work directory + workflow path)
-- Prompt construction with @path references to prior artifacts
-- Exit code, stdout, stderr, timeout state, and diagnostics capture
-
-Per D-0017: All Claude-assisted steps (3-7) depend on this wrapper.
+Extends ClaudeProcess from the pipeline base with:
+- Dual --add-dir for work_dir and workflow_path (T01.03)
+- @path prompt construction for prior-step artifact references
+- ProcessResult capturing exit code, stdout, stderr, timeout, duration
+- claude binary detection via shutil.which (T03.05 / FR-036)
+- Additional dirs consolidation with cap at MAX_ADDITIONAL_DIRS (T02.03)
 """
 
 from __future__ import annotations
 
-import logging
-import os
+import shutil
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional
 
 from superclaude.cli.pipeline.process import ClaudeProcess
 
-_log = logging.getLogger("superclaude.cli_portify.process")
+# ---------------------------------------------------------------------------
+# T03.05: Claude binary detection (FR-036, NFR-017)
+# ---------------------------------------------------------------------------
 
-# Maximum number of --add-dir arguments beyond work_dir/workflow_path
-MAX_ADDITIONAL_DIRS = 10
+MAX_ADDITIONAL_DIRS: int = 10
+
+
+def detect_claude_binary() -> str:
+    """Detect the claude CLI binary using shutil.which.
+
+    Returns the path to the binary if found.
+    Raises RuntimeError with installation instructions if not found.
+    """
+    binary = shutil.which("claude")
+    if binary is None:
+        raise RuntimeError(
+            "claude CLI binary not found in PATH.\n"
+            "Install Claude Code: https://claude.ai/code\n"
+            "After installation, ensure 'claude' is on your PATH."
+        )
+    return binary
+
+
+# ---------------------------------------------------------------------------
+# ProcessResult
+# ---------------------------------------------------------------------------
 
 
 @dataclass
 class ProcessResult:
-    """Captured result from a PortifyProcess execution."""
+    """Captures all metadata from a subprocess invocation."""
 
     exit_code: int = -1
     stdout_text: str = ""
     stderr_text: str = ""
     timed_out: bool = False
     duration_seconds: float = 0.0
-    output_file: Path | None = None
-    error_file: Path | None = None
+    output_file: Optional[Path] = None
+    error_file: Optional[Path] = None
 
     @property
     def succeeded(self) -> bool:
         return self.exit_code == 0 and not self.timed_out
 
 
+# ---------------------------------------------------------------------------
+# consolidate_dirs()
+# ---------------------------------------------------------------------------
+
+
 def consolidate_dirs(
     dirs: list[Path],
-    exclude: set[Path] | None = None,
-) -> dict[str, object]:
-    """Consolidate directories with two-tier algorithm, capped at MAX_ADDITIONAL_DIRS.
+    exclude: Optional[set[Path]] = None,
+) -> dict:
+    """Two-tier directory consolidation: cap at MAX_ADDITIONAL_DIRS.
 
-    Tier 1: Merge directories sharing common ancestors via os.path.commonpath(),
-    only when the common parent contains no more than 3x the total file count
-    of the constituent directories.
-
-    Tier 2: If still >MAX_ADDITIONAL_DIRS after Tier 1, select top N by
-    constituent count (deterministic sort by path).
-
-    Args:
-        dirs: Input directories to consolidate.
-        exclude: Directories to exclude (already added as base dirs).
-
-    Returns:
-        Dict with 'dirs' (consolidated list) and 'log' (consolidation decisions).
+    Returns a dict with:
+      - "dirs": list[Path] of resolved, deduplicated dirs (≤ MAX_ADDITIONAL_DIRS)
+      - "log": dict with consolidation metadata
     """
-    log: dict[str, object] = {"input_count": len(dirs)}
+    exclude_resolved: set[Path] = {p.resolve() for p in (exclude or set())}
 
     # Deduplicate and resolve
-    resolved: list[Path] = []
-    seen: set[str] = set()
-    exclude_strs = {str(p) for p in (exclude or set())}
+    seen: set[Path] = set()
+    unique: list[Path] = []
     for d in dirs:
         r = d.resolve()
-        rs = str(r)
-        if rs not in seen and rs not in exclude_strs:
-            seen.add(rs)
-            resolved.append(r)
+        if r not in seen and r not in exclude_resolved:
+            seen.add(r)
+            unique.append(r)
 
-    log["after_dedup"] = len(resolved)
+    input_count = len(dirs)
+    if len(unique) <= MAX_ADDITIONAL_DIRS:
+        return {
+            "dirs": unique,
+            "log": {
+                "input_count": input_count,
+                "output_count": len(unique),
+                "tier_applied": "none",
+            },
+        }
 
-    if len(resolved) <= MAX_ADDITIONAL_DIRS:
-        log["tier_applied"] = "none"
-        return {"dirs": sorted(resolved), "log": log}
-
-    # Tier 1: commonpath consolidation
-    tier1 = _tier1_commonpath(resolved)
-    log["after_tier1"] = len(tier1)
-
-    if len(tier1) <= MAX_ADDITIONAL_DIRS:
-        log["tier_applied"] = "tier1"
-        return {"dirs": sorted(tier1), "log": log}
-
-    # Tier 2: select top N by deterministic sort
-    tier2 = sorted(tier1)[:MAX_ADDITIONAL_DIRS]
-    log["tier_applied"] = "tier2"
-    log["after_tier2"] = len(tier2)
-    log["dropped"] = len(tier1) - len(tier2)
-
-    return {"dirs": tier2, "log": log}
+    # Tier 2: sort by path and take first MAX_ADDITIONAL_DIRS
+    selected = sorted(unique)[:MAX_ADDITIONAL_DIRS]
+    return {
+        "dirs": selected,
+        "log": {
+            "input_count": input_count,
+            "output_count": len(selected),
+            "tier_applied": "tier2",
+            "dropped": len(unique) - len(selected),
+        },
+    }
 
 
-def _tier1_commonpath(dirs: list[Path]) -> list[Path]:
-    """Tier 1: merge dirs sharing common ancestors.
-
-    Groups directories that share a common parent, and replaces the group
-    with the common parent only if the parent directory's file count
-    is <= 3x the total file count of the constituent directories.
-    """
-    if len(dirs) <= 1:
-        return list(dirs)
-
-    # Group by parent directory
-    by_parent: dict[str, list[Path]] = {}
-    for d in dirs:
-        parent = str(d.parent)
-        by_parent.setdefault(parent, []).append(d)
-
-    result: list[Path] = []
-    for parent_str, group in by_parent.items():
-        if len(group) <= 1:
-            result.extend(group)
-            continue
-
-        # Try common path merge
-        try:
-            common = Path(os.path.commonpath([str(g) for g in group]))
-        except ValueError:
-            result.extend(group)
-            continue
-
-        # Count files in constituents
-        constituent_files = 0
-        for g in group:
-            if g.is_dir():
-                constituent_files += sum(1 for _ in g.rglob("*") if _.is_file())
-
-        # Count files in common parent
-        parent_files = 0
-        if common.is_dir():
-            parent_files = sum(1 for _ in common.rglob("*") if _.is_file())
-
-        # Only merge if parent file count <= 3x constituent total
-        if constituent_files > 0 and parent_files <= 3 * constituent_files:
-            result.append(common)
-        else:
-            result.extend(group)
-
-    # Deduplicate result
-    seen: set[str] = set()
-    deduped: list[Path] = []
-    for r in result:
-        rs = str(r)
-        if rs not in seen:
-            seen.add(rs)
-            deduped.append(r)
-
-    return deduped
+# ---------------------------------------------------------------------------
+# PortifyProcess
+# ---------------------------------------------------------------------------
 
 
 class PortifyProcess(ClaudeProcess):
-    """Claude subprocess wrapper for cli-portify pipeline steps.
+    """Extends ClaudeProcess for CLI Portify pipeline step invocations.
 
-    Extends ClaudeProcess with:
-    - Dual --add-dir for work_dir and workflow_path
-    - @path reference injection into prompts
-    - Post-execution capture of stdout/stderr/diagnostics
+    Adds:
+    - Dual --add-dir flags for work_dir and workflow_path
+    - @path prompt construction for artifact_refs
+    - additional_dirs support with MAX_ADDITIONAL_DIRS cap
+    - ProcessResult via run()
     """
 
     def __init__(
@@ -172,116 +136,103 @@ class PortifyProcess(ClaudeProcess):
         error_file: Path,
         work_dir: Path,
         workflow_path: Path,
-        artifact_refs: list[Path] | None = None,
-        additional_dirs: list[Path] | None = None,
         max_turns: int = 100,
         model: str = "",
         timeout_seconds: int = 300,
-        output_format: str = "text",
-        extra_args: list[str] | None = None,
-    ):
-        self._work_dir = work_dir.resolve()
-        self._workflow_path = workflow_path.resolve()
-        self._artifact_refs = artifact_refs or []
+        extra_args: Optional[list[str]] = None,
+        artifact_refs: Optional[list[Path]] = None,
+        additional_dirs: Optional[list[Path]] = None,
+    ) -> None:
+        self.work_dir = work_dir.resolve()
+        self.workflow_path = workflow_path.resolve()
+        self.artifact_refs: list[Path] = artifact_refs or []
         self._additional_dirs_input = additional_dirs
-        self._resolution_log: dict[str, object] = {}
 
-        # Build --add-dir args for dual path scoping + additional dirs
-        add_dir_args = self._build_add_dir_args()
-
-        # Merge with any extra args
-        all_extra = add_dir_args + (extra_args or [])
-
-        # Build the full prompt with @path references
-        full_prompt = self._build_prompt_with_refs(prompt)
+        # Build @path-prefixed prompt
+        built_prompt = self._build_prompt(prompt, self.artifact_refs)
 
         super().__init__(
-            prompt=full_prompt,
+            prompt=built_prompt,
             output_file=output_file,
             error_file=error_file,
             max_turns=max_turns,
             model=model,
             timeout_seconds=timeout_seconds,
-            output_format=output_format,
-            extra_args=all_extra,
+            extra_args=extra_args,
+            output_format="text",
         )
 
-    def _build_add_dir_args(self) -> list[str]:
-        """Build --add-dir arguments for work directory, workflow path, and additional dirs.
-
-        Both base directories are scoped via --add-dir so the Claude subprocess
-        can read files from the output workspace and the source workflow.
-        Additional directories from ComponentTree.all_source_dirs are consolidated
-        and capped.
-        """
-        args: list[str] = []
-
-        # Work directory (output artifacts live here)
-        args.extend(["--add-dir", str(self._work_dir)])
-
-        # Workflow path (source skill files)
-        if self._workflow_path != self._work_dir:
-            args.extend(["--add-dir", str(self._workflow_path)])
-
-        # Additional dirs from component tree (when provided)
-        if self._additional_dirs_input is not None:
-            consolidated = consolidate_dirs(
-                self._additional_dirs_input,
-                exclude={self._work_dir, self._workflow_path},
+        # Consolidate additional_dirs
+        if additional_dirs is not None:
+            result = consolidate_dirs(
+                additional_dirs,
+                exclude={self.work_dir, self.workflow_path},
             )
-            self._resolution_log = consolidated["log"]
-            for d in consolidated["dirs"]:
-                args.extend(["--add-dir", str(d)])
+            self._consolidated_dirs: list[Path] = result["dirs"]
+            self.resolution_log: dict = result["log"]
+            self.resolution_log["input_count"] = len(additional_dirs)
+        else:
+            self._consolidated_dirs = []
+            self.resolution_log: dict = {"input_count": 0, "tier_applied": "none"}
 
-        return args
-
-    def _build_prompt_with_refs(self, base_prompt: str) -> str:
-        """Inject @path references to prior artifacts into the prompt.
-
-        Each artifact_ref is prepended as an @path directive so the
-        Claude subprocess can access prior step outputs.
-        """
-        if not self._artifact_refs:
+    @staticmethod
+    def _build_prompt(base_prompt: str, artifact_refs: list[Path]) -> str:
+        if not artifact_refs:
             return base_prompt
+        ref_lines = "\n".join(f"@{ref.resolve()}" for ref in artifact_refs)
+        return f"{ref_lines}\n{base_prompt}"
 
-        ref_lines = []
-        for ref in self._artifact_refs:
-            resolved = ref.resolve()
-            ref_lines.append(f"@{resolved}")
+    def build_command(self) -> list[str]:
+        """Build claude CLI command with dual --add-dir flags."""
+        cmd = super().build_command()
 
-        refs_block = "\n".join(ref_lines)
-        return f"{refs_block}\n\n{base_prompt}"
+        # Insert --add-dir flags before -p (deduplicate work_dir / workflow_path)
+        add_dirs: list[Path] = []
+        seen: set[Path] = set()
+        for d in [self.work_dir, self.workflow_path]:
+            if d not in seen:
+                seen.add(d)
+                add_dirs.append(d)
+
+        # Additional dirs
+        for d in self._consolidated_dirs:
+            if d not in seen:
+                seen.add(d)
+                add_dirs.append(d)
+
+        # Inject --add-dir args after the fixed base flags
+        add_dir_args: list[str] = []
+        for d in add_dirs:
+            add_dir_args.extend(["--add-dir", str(d)])
+
+        # Insert before -p
+        try:
+            p_idx = cmd.index("-p")
+            cmd[p_idx:p_idx] = add_dir_args
+        except ValueError:
+            cmd.extend(add_dir_args)
+
+        return cmd
 
     def run(self) -> ProcessResult:
-        """Execute the subprocess and capture all outputs.
-
-        Returns a ProcessResult with exit code, stdout/stderr text,
-        timeout state, and timing.
-        """
-        start_time = time.monotonic()
-        timed_out = False
-
+        """Start the subprocess, wait for completion, return ProcessResult."""
+        start = time.monotonic()
         self.start()
         exit_code = self.wait()
+        duration = time.monotonic() - start
 
-        duration = time.monotonic() - start_time
+        timed_out = exit_code == 124
+        stdout_text = ""
+        stderr_text = ""
 
-        # Timeout detection: exit code 124 is the bash timeout convention
-        if exit_code == 124:
-            timed_out = True
-
-        # Read captured output
-        stdout_text = self._read_file_safe(self.output_file)
-        stderr_text = self._read_file_safe(self.error_file)
-
-        _log.debug(
-            "process_complete exit=%d timeout=%s duration=%.1fs stdout_len=%d stderr_len=%d",
-            exit_code,
-            timed_out,
-            duration,
-            len(stdout_text),
-            len(stderr_text),
-        )
+        try:
+            stdout_text = self.output_file.read_text(errors="replace")
+        except OSError:
+            pass
+        try:
+            stderr_text = self.error_file.read_text(errors="replace")
+        except OSError:
+            pass
 
         return ProcessResult(
             exit_code=exit_code,
@@ -292,27 +243,3 @@ class PortifyProcess(ClaudeProcess):
             output_file=self.output_file,
             error_file=self.error_file,
         )
-
-    @staticmethod
-    def _read_file_safe(path: Path) -> str:
-        """Read file content, returning empty string on failure."""
-        try:
-            return path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            return ""
-
-    @property
-    def work_dir(self) -> Path:
-        return self._work_dir
-
-    @property
-    def workflow_path(self) -> Path:
-        return self._workflow_path
-
-    @property
-    def artifact_refs(self) -> list[Path]:
-        return list(self._artifact_refs)
-
-    @property
-    def resolution_log(self) -> dict[str, object]:
-        return dict(self._resolution_log)

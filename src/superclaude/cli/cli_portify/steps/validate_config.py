@@ -1,23 +1,27 @@
-"""Step 1: validate-config — deterministic config validation.
+"""Step 1: validate-config — deterministic input validation (Step 0 equivalent).
 
-Resolves workflow path, derives CLI name, validates output directory
-writability, and detects name collisions. Runs without Claude subprocesses.
+Validates PortifyConfig without invoking Claude. Emits a JSON artifact.
+Enforces SC-001: completes in <30s (in practice <1s for filesystem checks).
 
-Produces: validate-config-result.json
-
-Per SC-001: must complete under 1s for both valid and invalid inputs.
+Error codes (per spec):
+  ERR_INVALID_PATH        — workflow path does not exist
+  ERR_MISSING_SKILL       — SKILL.md not found at resolved path
+  ERR_OUTPUT_NOT_WRITABLE — output dir cannot be created or is not writable
+  ERR_NAME_COLLISION      — derived CLI name collides with existing module
+  ERR_BROKEN_ACTIVATION   — command_path set but workflow path is not a valid dir
 """
 
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
-from superclaude.cli.cli_portify.config import validate_portify_config
-from superclaude.cli.cli_portify.models import (
+from ..config import validate_portify_config
+from ..models import (
     ERR_BROKEN_ACTIVATION,
     WARN_MISSING_AGENTS,
     PortifyConfig,
@@ -25,40 +29,47 @@ from superclaude.cli.cli_portify.models import (
     PortifyStepResult,
 )
 
+# Step-level error code constants
+ERR_INVALID_PATH: str = "ERR_INVALID_PATH"
+ERR_MISSING_SKILL: str = "ERR_MISSING_SKILL"
+ERR_OUTPUT_NOT_WRITABLE: str = "ERR_OUTPUT_NOT_WRITABLE"
+ERR_NAME_COLLISION: str = "ERR_NAME_COLLISION"
 
-# --- Error Codes ---
+STEP_NAME = "validate-config"
+STEP_NUMBER = 1
+PHASE = 1
+GATE_TIER = "EXEMPT"
 
-ERR_INVALID_PATH = "ERR_INVALID_PATH"
-ERR_MISSING_SKILL = "ERR_MISSING_SKILL"
-ERR_OUTPUT_NOT_WRITABLE = "ERR_OUTPUT_NOT_WRITABLE"
-ERR_NAME_COLLISION = "ERR_NAME_COLLISION"
+# Steps that support --start resume
+_RESUMABLE_STEPS = {"brainstorm-gaps", "synthesize-spec", "panel-review"}
 
 
 @dataclass
 class ValidateConfigResult:
-    """Result of the validate-config step.
+    """Structured output of the validate-config step.
 
-    v2.24.1: Extended with command_path, skill_dir, target_type,
-    agent_count, and warnings fields (R-037).
+    Contains 13 fields (exactly) in to_dict() output.
     """
 
-    valid: bool = True
+    valid: bool = False
     cli_name_kebab: str = ""
     cli_name_snake: str = ""
     workflow_path_resolved: str = ""
     output_dir: str = ""
     errors: list[dict[str, str]] = field(default_factory=list)
     duration_seconds: float = 0.0
-    # v2.24.1 resolution metadata
+    # v2.24.1 fields
     command_path: str = ""
     skill_dir: str = ""
     target_type: str = ""
     agent_count: int = 0
     warnings: list[str] = field(default_factory=list)
+    step: str = STEP_NAME
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize to a JSON-serializable dict with exactly 13 fields."""
         return {
-            "step": "validate-config",
+            "step": self.step,
             "valid": self.valid,
             "cli_name_kebab": self.cli_name_kebab,
             "cli_name_snake": self.cli_name_snake,
@@ -76,148 +87,207 @@ class ValidateConfigResult:
 
 def run_validate_config(
     config: PortifyConfig,
-    output_dir: Path | None = None,
+    output_dir: Optional[Path] = None,
 ) -> tuple[ValidateConfigResult, PortifyStepResult]:
     """Execute the validate-config step.
 
-    Args:
-        config: Pipeline configuration to validate.
-        output_dir: Directory to write the result JSON artifact.
-            Defaults to config.results_dir.
-
     Returns:
-        Tuple of (ValidateConfigResult, PortifyStepResult).
+        (ValidateConfigResult, PortifyStepResult) tuple.
+
+    Does not invoke Claude. All checks are pure Python filesystem operations.
     """
     start = time.monotonic()
-    result = ValidateConfigResult()
+    errors: list[dict[str, str]] = []
+    warnings: list[str] = []
 
-    # Run the 4 validation checks
-    errors = _classify_errors(config)
+    # --- Check 1: Workflow path existence ---
+    resolved_path = ""
+    try:
+        resolved = config.resolve_workflow_path()
+        resolved_path = str(resolved)
+    except Exception as exc:
+        errors.append({"code": ERR_INVALID_PATH, "message": str(exc)})
+        resolved = None
 
-    if errors:
-        result.valid = False
-        result.errors = errors
-    else:
-        # Derive names on success
-        cli_name = config.derive_cli_name()
-        result.cli_name_kebab = cli_name
-        result.cli_name_snake = config.to_snake_case(cli_name)
-        try:
-            result.workflow_path_resolved = str(config.resolve_workflow_path())
-        except (FileNotFoundError, ValueError):
-            result.workflow_path_resolved = str(config.workflow_path)
-        result.output_dir = str(config.output_dir)
+    if resolved is not None and not resolved.exists():
+        errors.append({
+            "code": ERR_INVALID_PATH,
+            "message": f"Workflow path does not exist: {resolved}",
+        })
+        resolved = None  # Skip remaining path-dependent checks
 
-        # v2.24.1 resolution metadata
-        result.command_path = str(config.command_path) if config.command_path else ""
-        result.skill_dir = str(config.workflow_path)
-        result.target_type = config.target_type.value if config.target_type else ""
-        if config.component_tree is not None:
-            result.agent_count = len(config.component_tree.agents)
+    # --- Check 2: SKILL.md ---
+    skill_dir_str = ""
+    if resolved is not None:
+        skill_md = resolved / "SKILL.md"
+        if not skill_md.exists():
+            errors.append({
+                "code": ERR_MISSING_SKILL,
+                "message": f"SKILL.md not found at {resolved}",
+            })
+        else:
+            skill_dir_str = str(resolved)
 
-    # Warnings are non-fatal — always run regardless of errors
-    result.warnings = _classify_warnings(config)
+    # --- Check 3: Output directory writability ---
+    if config.output_dir is not None:
+        out_path = config.output_dir
+        if out_path.exists() and not os.access(out_path, os.W_OK):
+            errors.append({
+                "code": ERR_OUTPUT_NOT_WRITABLE,
+                "message": f"Output path is not writable: {out_path}",
+            })
+        elif not out_path.exists():
+            try:
+                out_path.mkdir(parents=True, exist_ok=True)
+            except (PermissionError, OSError) as exc:
+                errors.append({
+                    "code": ERR_OUTPUT_NOT_WRITABLE,
+                    "message": f"Cannot create output directory {out_path}: {exc}",
+                })
 
+    # --- Check 4: Name collision ---
+    cli_name_kebab = ""
+    cli_name_snake = ""
+    try:
+        cli_name_kebab = config.derive_cli_name()
+        cli_name_snake = config.to_snake_case(cli_name_kebab)
+    except Exception as exc:
+        errors.append({"code": ERR_NAME_COLLISION, "message": str(exc)})
+
+    if cli_name_kebab:
+        # Use the same collision check as validate_portify_config
+        from ..config import _check_collision
+        collision_errors = _check_collision(cli_name_kebab, config)
+        for msg in collision_errors:
+            errors.append({"code": ERR_NAME_COLLISION, "message": msg})
+
+    # --- Check 5: Broken activation (command_path set but skill dir invalid) ---
+    cmd_path_str = ""
+    command_path = getattr(config, "command_path", None)
+    if command_path is not None:
+        cmd_path_str = str(command_path)
+        # When command_path is set, verify the workflow path resolves to a
+        # directory that contains SKILL.md (i.e., a valid skill directory).
+        if resolved is None:
+            errors.append({
+                "code": ERR_BROKEN_ACTIVATION,
+                "message": "command_path set but workflow path could not be resolved",
+            })
+        elif not resolved.is_dir():
+            errors.append({
+                "code": ERR_BROKEN_ACTIVATION,
+                "message": (
+                    f"command_path is set but workflow path '{resolved}' "
+                    "is not a valid skill directory"
+                ),
+            })
+        elif not (resolved / "SKILL.md").exists():
+            # SKILL.md missing but also command_path set → broken activation
+            # (ERR_MISSING_SKILL may already be in errors, but also report broken link)
+            errors.append({
+                "code": ERR_BROKEN_ACTIVATION,
+                "message": (
+                    f"command_path is set but workflow path '{resolved}' "
+                    "does not contain SKILL.md"
+                ),
+            })
+
+    # --- Check 6: Missing agents (non-fatal warnings) ---
+    agent_count = 0
+    component_tree = getattr(config, "component_tree", None)
+    if component_tree is not None:
+        all_agents = getattr(component_tree, "agents", [])
+        agent_count = len(all_agents)
+        for agent in all_agents:
+            if not agent.found:
+                warnings.append(f"{WARN_MISSING_AGENTS}: {agent.name}")
+
+    # --- Determine validity ---
+    valid = len(errors) == 0
+
+    # --- Build result ---
     elapsed = time.monotonic() - start
-    result.duration_seconds = round(elapsed, 4)
+    result = ValidateConfigResult(
+        valid=valid,
+        cli_name_kebab=cli_name_kebab,
+        cli_name_snake=cli_name_snake,
+        workflow_path_resolved=resolved_path,
+        output_dir=str(config.output_dir) if config.output_dir else "",
+        errors=errors,
+        duration_seconds=elapsed,
+        command_path=cmd_path_str,
+        skill_dir=skill_dir_str,
+        target_type="",  # Populated by resolution step if available
+        agent_count=agent_count,
+        warnings=warnings,
+    )
 
-    # Write artifact — try results_dir, fall back to work_dir or cwd
-    artifact_dir = output_dir or config.results_dir
-    artifact_path: Path | None = None
-    for candidate in [artifact_dir, config.work_dir, Path(".")]:
-        try:
-            candidate.mkdir(parents=True, exist_ok=True)
-            artifact_path = candidate / "validate-config-result.json"
-            artifact_path.write_text(
-                json.dumps(result.to_dict(), indent=2), encoding="utf-8"
-            )
-            break
-        except OSError:
-            continue
+    # --- Write artifact ---
+    artifact_path = _write_artifact(result, config, output_dir)
 
-    if artifact_path is None:
-        artifact_path = Path("validate-config-result.json")
-
-    # Build step result
     step_result = PortifyStepResult(
-        portify_status=PortifyStatus.PASS if result.valid else PortifyStatus.FAIL,
-        step_name="validate-config",
-        step_number=1,
-        phase=1,
-        artifact_path=str(artifact_path),
-        gate_tier="EXEMPT",
+        step_name=STEP_NAME,
+        step_number=STEP_NUMBER,
+        phase=PHASE,
+        portify_status=PortifyStatus.PASS if valid else PortifyStatus.FAIL,
+        gate_tier=GATE_TIER,
+        artifact_path=artifact_path,
+        duration_seconds=elapsed,
     )
 
     return result, step_result
 
 
-def _classify_errors(config: PortifyConfig) -> list[dict[str, str]]:
-    """Run all 6 validation checks and classify each error.
+def _write_artifact(
+    result: ValidateConfigResult,
+    config: PortifyConfig,
+    output_dir: Optional[Path],
+) -> str:
+    """Write validate-config-result.json to the output directory.
 
-    Checks 1-4 produce errors; checks 5-6 produce warnings that are
-    non-fatal but reported in the validation result.
-
-    Returns a list of dicts with 'code' and 'message' keys.
+    Falls back to a temp directory if neither output_dir nor config.output_dir
+    is accessible.
     """
-    classified: list[dict[str, str]] = []
+    import tempfile
 
-    # 1. Workflow path exists
+    # Determine write location
+    write_dir: Optional[Path] = None
+    if output_dir is not None:
+        try:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            write_dir = output_dir
+        except OSError:
+            pass
+
+    if write_dir is None and config.output_dir is not None:
+        try:
+            config.output_dir.mkdir(parents=True, exist_ok=True)
+            write_dir = config.output_dir
+        except OSError:
+            pass
+
+    if write_dir is None:
+        write_dir = Path(tempfile.mkdtemp())
+
+    artifact_path = write_dir / "validate-config-result.json"
     try:
-        config.resolve_workflow_path()
-    except FileNotFoundError as exc:
-        classified.append({"code": ERR_INVALID_PATH, "message": str(exc)})
-        # If path doesn't exist, remaining checks may still be meaningful
-    except ValueError as exc:
-        classified.append({"code": ERR_MISSING_SKILL, "message": str(exc)})
+        artifact_path.write_text(json.dumps(result.to_dict(), indent=2))
+    except OSError:
+        artifact_path = Path(tempfile.mkdtemp()) / "validate-config-result.json"
+        artifact_path.write_text(json.dumps(result.to_dict(), indent=2))
 
-    # 2. Output directory writability
-    try:
-        config.check_output_writable()
-    except PermissionError as exc:
-        classified.append({"code": ERR_OUTPUT_NOT_WRITABLE, "message": str(exc)})
-
-    # 3. Name collision
-    collision = config.check_name_collision()
-    if collision:
-        classified.append({
-            "code": ERR_NAME_COLLISION,
-            "message": (
-                f"CLI name '{collision}' collides with existing command. "
-                f"Use --cli-name to specify a different name."
-            ),
-        })
-
-    # 4 is implicit (covered by checks 1-3 above — no separate check needed)
-
-    # 5. Command-to-skill link validity (R-038)
-    if config.command_path is not None and config.command_path.exists():
-        # If command_path is set but no skill_dir can be resolved, the link is broken
-        skill_dir = config.workflow_path
-        if not skill_dir.is_dir():
-            classified.append({
-                "code": ERR_BROKEN_ACTIVATION,
-                "message": (
-                    f"Command '{config.command_path}' has no linked skill directory. "
-                    f"Workflow path '{skill_dir}' is not a valid directory."
-                ),
-            })
-
-    return classified
+    return str(artifact_path)
 
 
-def _classify_warnings(config: PortifyConfig) -> list[str]:
-    """Run warning-only validation checks (checks 5b and 6).
+def _classify_warnings(component_tree: Any) -> list[str]:
+    """Classify agent warnings from a component tree.
 
-    Returns a list of warning strings (non-fatal).
+    Returns list of warning strings in format: 'WARN_MISSING_AGENTS: <name>'
     """
     warnings: list[str] = []
-
-    # 6. Referenced agent existence (R-039)
-    if config.component_tree is not None:
-        for agent in config.component_tree.agents:
-            if not agent.found:
-                warnings.append(
-                    f"{WARN_MISSING_AGENTS}: {agent.name}"
-                )
-
+    if component_tree is None:
+        return warnings
+    for agent in getattr(component_tree, "agents", []):
+        if not agent.found:
+            warnings.append(f"{WARN_MISSING_AGENTS}: {agent.name}")
     return warnings

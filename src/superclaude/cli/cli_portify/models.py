@@ -1,46 +1,191 @@
-"""Domain models for cli-portify pipeline.
+"""Domain models for the CLI Portify pipeline.
 
-Extends shared pipeline base types with portify-specific
-configuration, status tracking, and result telemetry.
+Extends shared pipeline base types with CliPortify-specific status tracking,
+configuration, and result telemetry.
 
-Per D-0002 Ownership Boundary 1 (Config/Model Layer), this module
-contains: PortifyConfig, PortifyStepResult, PortifyStatus,
-PortifyOutcome, ComponentInventory, PortifyMonitorState.
+Error code constants (Phase 2 — T02.07):
+  NAME_COLLISION, OUTPUT_NOT_WRITABLE, AMBIGUOUS_PATH, INVALID_PATH, DERIVATION_FAILED
+
+Target resolution types (from v2.24.1):
+  TargetInputType, ResolvedTarget, ComponentEntry, ComponentInventory, ComponentTree,
+  CommandEntry, SkillEntry, AgentEntry
+  ERR_TARGET_NOT_FOUND, ERR_AMBIGUOUS_TARGET, ERR_BROKEN_ACTIVATION, WARN_MISSING_AGENTS
 """
 
 from __future__ import annotations
 
-import re
-import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Literal
-
-from superclaude.cli.pipeline.models import (
-    PipelineConfig,
-    StepResult,
-    StepStatus,
-)
+from typing import Optional
 
 
-# --- Error Code Constants (R-012) ---
+# ---------------------------------------------------------------------------
+# Phase 2 T02.07: Error Code Constants
+# ---------------------------------------------------------------------------
 
-ERR_TARGET_NOT_FOUND = "ERR_TARGET_NOT_FOUND"
-ERR_AMBIGUOUS_TARGET = "ERR_AMBIGUOUS_TARGET"
-ERR_BROKEN_ACTIVATION = "ERR_BROKEN_ACTIVATION"
-WARN_MISSING_AGENTS = "WARN_MISSING_AGENTS"
+NAME_COLLISION: str = "NAME_COLLISION"
+OUTPUT_NOT_WRITABLE: str = "OUTPUT_NOT_WRITABLE"
+AMBIGUOUS_PATH: str = "AMBIGUOUS_PATH"
+INVALID_PATH: str = "INVALID_PATH"
+DERIVATION_FAILED: str = "DERIVATION_FAILED"
+
+# Legacy / v2.24.1 target-resolution error constants
+ERR_TARGET_NOT_FOUND: str = "ERR_TARGET_NOT_FOUND"
+ERR_AMBIGUOUS_TARGET: str = "ERR_AMBIGUOUS_TARGET"
+ERR_BROKEN_ACTIVATION: str = "ERR_BROKEN_ACTIVATION"
+WARN_MISSING_AGENTS: str = "WARN_MISSING_AGENTS"
 
 
-# --- Enums ---
+# ---------------------------------------------------------------------------
+# Phase 2 T02.07: PortifyValidationError Base Exception
+# ---------------------------------------------------------------------------
+
+
+class PortifyValidationError(Exception):
+    """Base exception for portify validation failures.
+
+    Attributes:
+        error_code: One of the 5 error code constants.
+        details: Optional additional diagnostic information.
+    """
+
+    def __init__(self, error_code: str, message: str, details: str = "") -> None:
+        self.error_code = error_code
+        self.details = details
+        super().__init__(f"[{error_code}] {message}" + (f" — {details}" if details else ""))
+
+
+class NameCollisionError(PortifyValidationError):
+    """Raised when the derived CLI name collides with an existing non-portified module."""
+
+    def __init__(self, cli_name: str, existing_path: str = "") -> None:
+        super().__init__(
+            NAME_COLLISION,
+            f"CLI name '{cli_name}' collides with an existing module that was not portified",
+            existing_path,
+        )
+
+
+class OutputNotWritableError(PortifyValidationError):
+    """Raised when the output destination is not writable."""
+
+    def __init__(self, path: str) -> None:
+        super().__init__(
+            OUTPUT_NOT_WRITABLE,
+            f"Output path is not writable: {path}",
+        )
+
+
+class AmbiguousPathError(PortifyValidationError):
+    """Raised when a partial skill name matches multiple skill directories."""
+
+    def __init__(self, name: str, candidates: list[str]) -> None:
+        super().__init__(
+            AMBIGUOUS_PATH,
+            f"Ambiguous skill name '{name}': matches {candidates}",
+            ", ".join(candidates),
+        )
+
+
+class InvalidPathError(PortifyValidationError):
+    """Raised when the resolved path does not contain SKILL.md."""
+
+    def __init__(self, path: str) -> None:
+        super().__init__(
+            INVALID_PATH,
+            f"Path does not contain SKILL.md: {path}",
+        )
+
+
+class DerivationFailedError(PortifyValidationError):
+    """Raised when automatic CLI name derivation yields an empty or invalid result."""
+
+    def __init__(self, workflow_name: str) -> None:
+        super().__init__(
+            DERIVATION_FAILED,
+            f"Could not derive a valid CLI name from workflow '{workflow_name}'. "
+            "Use --name to provide an explicit name.",
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 T03.01: PortifyPhaseType enum
+# ---------------------------------------------------------------------------
+
+
+class PortifyPhaseType(Enum):
+    """Pipeline phase classification for dry-run filtering (SC-012)."""
+
+    PREREQUISITES = "PREREQUISITES"
+    ANALYSIS = "ANALYSIS"
+    USER_REVIEW = "USER_REVIEW"
+    SPECIFICATION = "SPECIFICATION"
+    SYNTHESIS = "SYNTHESIS"
+    CONVERGENCE = "CONVERGENCE"
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 T03.01: ConvergenceState enum
+# ---------------------------------------------------------------------------
+
+
+class ConvergenceState(Enum):
+    """State of the convergence loop for iterative review steps."""
+
+    NOT_STARTED = "NOT_STARTED"
+    REVIEWING = "REVIEWING"
+    INCORPORATING = "INCORPORATING"
+    SCORING = "SCORING"
+    CONVERGED = "CONVERGED"
+    ESCALATED = "ESCALATED"
+
+
+# ---------------------------------------------------------------------------
+# PortifyStatus
+# ---------------------------------------------------------------------------
+
+
+class PortifyStatus(Enum):
+    """Step-level status for the CLI Portify pipeline."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    PASS = "pass"
+    PASS_NO_SIGNAL = "pass_no_signal"
+    PASS_NO_REPORT = "pass_no_report"
+    INCOMPLETE = "incomplete"
+    HALT = "halt"
+    TIMEOUT = "timeout"
+    ERROR = "error"
+    FAIL = "fail"
+    SKIPPED = "skipped"
+
+
+# ---------------------------------------------------------------------------
+# FailureClassification
+# ---------------------------------------------------------------------------
+
+
+class FailureClassification(Enum):
+    """Classification of failure types for the portify pipeline."""
+
+    MISSING_ARTIFACT = "missing_artifact"
+    MALFORMED_FRONTMATTER = "malformed_frontmatter"
+    TIMEOUT = "timeout"
+    PARTIAL_ARTIFACT = "partial_artifact"
+    BUDGET_EXHAUSTION = "budget_exhaustion"
+    USER_REJECTION = "user_rejection"
+    GATE_FAILURE = "gate_failure"
+
+
+# ---------------------------------------------------------------------------
+# TargetInputType
+# ---------------------------------------------------------------------------
 
 
 class TargetInputType(Enum):
-    """Classification of the 5 input forms for target resolution.
-
-    Used by resolve_target() to classify how the user specified the
-    portify target.
-    """
+    """Classification of the input form provided by the user."""
 
     COMMAND_NAME = "command_name"
     COMMAND_PATH = "command_path"
@@ -49,305 +194,108 @@ class TargetInputType(Enum):
     SKILL_FILE = "skill_file"
 
 
+# ---------------------------------------------------------------------------
+# ResolvedTarget
+# ---------------------------------------------------------------------------
+
+
 @dataclass
 class ResolvedTarget:
-    """Result of resolve_target() — the resolved command/skill pair.
+    """The fully-resolved input target after path resolution.
 
-    All path fields use Path for internal manipulation; boundary
-    conversion to str happens via to_flat_inventory() on ComponentTree.
+    Attributes:
+        input_form: Raw user input string (command name, path, etc.)
+        input_type: Classification of how the input was interpreted.
+        command_path: Resolved path to the command .md file (if any).
+        skill_dir: Resolved path to the skill directory (if any).
+        project_root: Project root directory.
+        commands_dir: Resolved commands directory.
+        skills_dir: Resolved skills directory.
+        agents_dir: Resolved agents directory.
     """
 
     input_form: str
     input_type: TargetInputType
-    command_path: Path | None = None
-    skill_dir: Path | None = None
-    project_root: Path | None = None
-    commands_dir: Path | None = None
-    skills_dir: Path | None = None
-    agents_dir: Path | None = None
+    command_path: Optional[Path] = None
+    skill_dir: Optional[Path] = None
+    project_root: Optional[Path] = None
+    commands_dir: Optional[Path] = None
+    skills_dir: Optional[Path] = None
+    agents_dir: Optional[Path] = None
 
 
-class PortifyStatus(Enum):
-    """Step-level status for cli-portify pipeline."""
-
-    PENDING = "pending"
-    RUNNING = "running"
-    PASS = "pass"
-    FAIL = "fail"
-    TIMEOUT = "timeout"
-    SKIPPED = "skipped"
-    ERROR = "error"
-
-
-class PortifyOutcome(Enum):
-    """Aggregate pipeline outcome."""
-
-    SUCCESS = "success"
-    PARTIAL = "partial"
-    FAILED = "failed"
-    DRY_RUN = "dry_run"
-
-
-class FailureClassification(Enum):
-    """Classification of step failures for diagnostics and resume logic.
-
-    Per D-0003 NFR-009 failure/default population rules.
-    """
-
-    TIMEOUT = "timeout"
-    MISSING_ARTIFACT = "missing_artifact"
-    MALFORMED_FRONTMATTER = "malformed_frontmatter"
-    GATE_FAILURE = "gate_failure"
-    USER_REJECTION = "user_rejection"
-    BUDGET_EXHAUSTION = "budget_exhaustion"
-    PARTIAL_ARTIFACT = "partial_artifact"
-
-
-# --- Configuration ---
-
-
-@dataclass
-class PortifyConfig(PipelineConfig):
-    """Cli-portify pipeline configuration.
-
-    Extends PipelineConfig with portify-specific settings:
-    - Workflow path resolution (directory containing SKILL.md)
-    - CLI name derivation (strip sc-/-protocol, kebab/snake conversion)
-    - Output directory writability check
-    - Name collision detection
-
-    Per D-0001 Resolution 1: iteration_timeout is per-iteration
-    independent (default 300s). max_convergence controls iteration
-    count, not timeout division.
-    """
-
-    workflow_path: Path = field(default_factory=lambda: Path("."))
-    output_dir: Path = field(default_factory=lambda: Path("."))
-    cli_name: str = ""
-    skip_review: bool = False
-    start_step: str | None = None
-    iteration_timeout: int = 300
-    max_convergence: int = 3
-    # v2.24.1 resolution fields (R-008)
-    target_input: str | None = None
-    target_type: TargetInputType | None = None
-    command_path: Path | None = None
-    commands_dir: Path | None = None
-    skills_dir: Path | None = None
-    agents_dir: Path | None = None
-    project_root: Path | None = None
-    include_agents: bool = True
-    save_manifest_path: Path | None = None
-    component_tree: ComponentTree | None = None
-
-    def __post_init__(self) -> None:
-        """Resolve workflow path and derive CLI name."""
-        if not self.work_dir or self.work_dir == Path("."):
-            self.work_dir = self.output_dir
-
-    def resolve_workflow_path(self) -> Path:
-        """Resolve and validate the workflow path.
-
-        Returns the resolved path to the directory containing SKILL.md.
-
-        Raises:
-            FileNotFoundError: If workflow_path does not exist.
-            ValueError: If no SKILL.md found in workflow_path.
-        """
-        resolved = self.workflow_path.resolve()
-        if not resolved.exists():
-            raise FileNotFoundError(
-                f"Workflow path does not exist: {resolved}"
-            )
-        if resolved.is_file():
-            if resolved.name == "SKILL.md":
-                return resolved.parent
-            raise ValueError(
-                f"Workflow path is a file but not SKILL.md: {resolved}"
-            )
-        skill_file = resolved / "SKILL.md"
-        if not skill_file.exists():
-            raise ValueError(
-                f"No SKILL.md found in workflow directory: {resolved}"
-            )
-        return resolved
-
-    def derive_cli_name(self) -> str:
-        """Derive CLI command name from workflow directory name.
-
-        Prefers resolved command filename (R-009) when ``command_path``
-        is set, stripping the ``.md`` extension.  Falls back to the
-        existing workflow-directory logic: strips ``sc-`` prefix and
-        ``-protocol`` suffix, then converts to kebab-case.  If
-        ``cli_name`` is already set, returns it unchanged.
-
-        Returns:
-            Derived CLI name in kebab-case.
-        """
-        if self.cli_name:
-            return self.cli_name
-        # R-009: prefer resolved command name when available
-        if self.command_path is not None:
-            name = self.command_path.stem
-            name = name.replace("_", "-")
-            return name
-        name = self.workflow_path.resolve().name
-        # Strip sc- prefix
-        if name.startswith("sc-"):
-            name = name[3:]
-        # Strip -protocol suffix
-        if name.endswith("-protocol"):
-            name = name[: -len("-protocol")]
-        # Normalise to kebab-case (replace underscores)
-        name = name.replace("_", "-")
-        return name
-
-    def check_output_writable(self) -> None:
-        """Check that the output directory is writable.
-
-        Creates the directory if it doesn't exist.
-
-        Raises:
-            PermissionError: If the output directory is not writable.
-        """
-        out = self.output_dir.resolve()
-        try:
-            out.mkdir(parents=True, exist_ok=True)
-        except OSError as exc:
-            raise PermissionError(
-                f"Cannot create output directory: {out}"
-            ) from exc
-        if not out.is_dir():
-            raise PermissionError(
-                f"Output path exists but is not a directory: {out}"
-            )
-
-    def check_name_collision(self, existing_commands: list[str] | None = None) -> str | None:
-        """Check if the derived CLI name collides with existing commands.
-
-        Args:
-            existing_commands: List of existing CLI command names. If None,
-                checks against known built-in superclaude commands.
-
-        Returns:
-            The colliding command name if collision detected, else None.
-        """
-        cli_name = self.derive_cli_name()
-        builtins = existing_commands or [
-            "install", "mcp", "update", "install-skill", "doctor",
-            "version", "sprint", "roadmap", "cleanup-audit", "tasklist",
-        ]
-        if cli_name in builtins:
-            return cli_name
-        return None
-
-    def to_snake_case(self, name: str | None = None) -> str:
-        """Convert a kebab-case name to snake_case.
-
-        Args:
-            name: Name to convert. Defaults to derived CLI name.
-
-        Returns:
-            snake_case version of the name.
-        """
-        target = name or self.derive_cli_name()
-        return target.replace("-", "_")
-
-    @property
-    def results_dir(self) -> Path:
-        return self.output_dir / "results"
-
-    @property
-    def artifacts_dir(self) -> Path:
-        return self.output_dir / "artifacts"
-
-
-# --- Resume Metadata (Typed Fields per D-0001) ---
-
-
-@dataclass
-class ResumeContext:
-    """Typed resume metadata for pipeline re-entry.
-
-    Per D-0001 Resolution 2: resume uses typed fields, not generic dict.
-    """
-
-    last_completed_step: str = ""
-    last_completed_step_number: int = 0
-    failed_step: str = ""
-    failed_step_number: int = 0
-    failure_classification: FailureClassification | None = None
-    re_run_required: bool = False
-    artifacts_preserved: list[str] = field(default_factory=list)
-    resume_command: str = ""
-
-
-# --- Step Result ---
-
-
-@dataclass
-class PortifyStepResult(StepResult):
-    """Result for a single cli-portify pipeline step.
-
-    Extends StepResult with portify-specific metadata:
-    - Step metadata (name, number, phase)
-    - Artifact paths
-    - Gate tier metadata
-    - Timeout settings (per-iteration, per D-0001)
-    - Review flags
-    - Typed resume metadata (not generic dict)
-    """
-
-    portify_status: PortifyStatus = PortifyStatus.PENDING
-    step_name: str = ""
-    step_number: int = 0
-    phase: int = 0
-    artifact_path: str = ""
-    gate_tier: Literal["STRICT", "STANDARD", "LIGHT", "EXEMPT"] = "STANDARD"
-    iteration_timeout: int = 300
-    iteration_number: int = 0
-    review_required: bool = False
-    review_accepted: bool | None = None
-    failure_classification: FailureClassification | None = None
-    resume_context: ResumeContext = field(default_factory=ResumeContext)
-
-    @property
-    def is_resumable(self) -> bool:
-        """Whether this failed step can be resumed."""
-        non_resumable = {
-            FailureClassification.USER_REJECTION,
-        }
-        if self.failure_classification in non_resumable:
-            return False
-        return self.portify_status in (
-            PortifyStatus.FAIL,
-            PortifyStatus.TIMEOUT,
-            PortifyStatus.ERROR,
-        )
-
-
-# --- Component Inventory ---
+# ---------------------------------------------------------------------------
+# Component Entries
+# ---------------------------------------------------------------------------
 
 
 @dataclass
 class ComponentEntry:
-    """A single component discovered in a workflow."""
+    """A single component discovered during inventory scan."""
 
-    name: str
-    path: str
-    component_type: str
-    line_count: int
+    name: str = ""
+    path: str = ""
+    component_type: str = ""
+    line_count: int = 0
+    purpose: str = ""
+
+
+@dataclass
+class CommandEntry:
+    """A command-tier component (Tier 0)."""
+
+    name: str = ""
+    path: Optional[Path] = None
+    line_count: int = 0
+    source_dir: Optional[Path] = None
+    tier: int = field(default=0, init=False)
+
+    def __post_init__(self) -> None:
+        self.tier = 0
+
+
+@dataclass
+class SkillEntry:
+    """A skill-tier component (Tier 1)."""
+
+    name: str = ""
+    path: Optional[Path] = None
+    line_count: int = 0
+    source_dir: Optional[Path] = None
+    tier: int = field(default=1, init=False)
+
+    def __post_init__(self) -> None:
+        self.tier = 1
+
+
+@dataclass
+class AgentEntry:
+    """An agent-tier component (Tier 2)."""
+
+    name: str = ""
+    path: Optional[Path] = None
+    line_count: int = 0
+    source_dir: Optional[Path] = None
+    found: bool = False
+    referenced_in: str = "auto"
+    tier: int = field(default=2, init=False)
+
+    def __post_init__(self) -> None:
+        self.tier = 2
+
+
+# ---------------------------------------------------------------------------
+# ComponentInventory
+# ---------------------------------------------------------------------------
 
 
 @dataclass
 class ComponentInventory:
-    """Inventory of components discovered in a workflow.
+    """Flat list inventory produced by component discovery."""
 
-    Produced by Step 2 (discover-components).
-    """
-
-    source_skill: str = ""
     components: list[ComponentEntry] = field(default_factory=list)
+    source_skill: str = ""
+    source_command: str = ""
 
     @property
     def component_count(self) -> int:
@@ -358,54 +306,22 @@ class ComponentInventory:
         return sum(c.line_count for c in self.components)
 
 
-# --- Tiered Component Entries (v2.24.1 Resolution) ---
-
-
-@dataclass
-class CommandEntry:
-    """Tier 0: Command file entry."""
-
-    tier: int = 0
-    name: str = ""
-    path: Path | None = None
-    line_count: int = 0
-    source_dir: Path | None = None
-
-
-@dataclass
-class SkillEntry:
-    """Tier 1: Skill directory entry."""
-
-    tier: int = 1
-    name: str = ""
-    path: Path | None = None
-    line_count: int = 0
-    source_dir: Path | None = None
-
-
-@dataclass
-class AgentEntry:
-    """Tier 2: Agent file entry."""
-
-    tier: int = 2
-    name: str = ""
-    path: Path | None = None
-    line_count: int = 0
-    source_dir: Path | None = None
-    found: bool = True
-    referenced_in: str = "auto"
+# ---------------------------------------------------------------------------
+# ComponentTree
+# ---------------------------------------------------------------------------
 
 
 @dataclass
 class ComponentTree:
-    """Aggregated component hierarchy from resolution.
+    """Tiered component tree assembled from resolution results.
 
-    Holds the resolved command (Tier 0), skill (Tier 1), and
-    agents (Tier 2) discovered for a target.
+    Tier 0 — command (.md file)
+    Tier 1 — skill (SKILL.md + supporting files)
+    Tier 2 — agents (referenced agent .md files)
     """
 
-    command: CommandEntry | None = None
-    skill: SkillEntry | None = None
+    command: Optional[CommandEntry] = None
+    skill: Optional[SkillEntry] = None
     agents: list[AgentEntry] = field(default_factory=list)
 
     @property
@@ -425,117 +341,342 @@ class ComponentTree:
             total += self.command.line_count
         if self.skill is not None:
             total += self.skill.line_count
-        total += sum(a.line_count for a in self.agents)
+        for agent in self.agents:
+            total += agent.line_count
         return total
 
     @property
     def all_source_dirs(self) -> list[Path]:
         dirs: list[Path] = []
-        if self.command is not None and self.command.source_dir is not None:
-            dirs.append(self.command.source_dir)
-        if self.skill is not None and self.skill.source_dir is not None:
-            if self.skill.source_dir not in dirs:
-                dirs.append(self.skill.source_dir)
-        for agent in self.agents:
-            if agent.source_dir is not None and agent.source_dir not in dirs:
-                dirs.append(agent.source_dir)
+        seen: set[Path] = set()
+        for entry in [self.command, self.skill, *self.agents]:
+            if entry is not None and entry.source_dir is not None:
+                if entry.source_dir not in seen:
+                    seen.add(entry.source_dir)
+                    dirs.append(entry.source_dir)
         return dirs
 
     def to_flat_inventory(self) -> ComponentInventory:
-        """Convert to backward-compatible ComponentInventory (Path -> str boundary).
-
-        All Path fields are converted to str for the legacy interface.
-        """
+        """Convert the tiered tree to a flat ComponentInventory."""
         components: list[ComponentEntry] = []
+        source_skill = ""
+        source_command = ""
+
         if self.command is not None:
-            components.append(ComponentEntry(
-                name=self.command.name,
-                path=str(self.command.path) if self.command.path else "",
-                component_type="command",
-                line_count=self.command.line_count,
-            ))
+            source_command = self.command.name
+            components.append(
+                ComponentEntry(
+                    name=self.command.name,
+                    path=str(self.command.path) if self.command.path else "",
+                    component_type="command",
+                    line_count=self.command.line_count,
+                    purpose="command entry point",
+                )
+            )
+
         if self.skill is not None:
-            components.append(ComponentEntry(
-                name=self.skill.name,
-                path=str(self.skill.path) if self.skill.path else "",
-                component_type="skill",
-                line_count=self.skill.line_count,
-            ))
+            source_skill = self.skill.name
+            components.append(
+                ComponentEntry(
+                    name=self.skill.name,
+                    path=str(self.skill.path) if self.skill.path else "",
+                    component_type="skill",
+                    line_count=self.skill.line_count,
+                    purpose="skill definition",
+                )
+            )
+
         for agent in self.agents:
-            components.append(ComponentEntry(
-                name=agent.name,
-                path=str(agent.path) if agent.path else "",
-                component_type="agent",
-                line_count=agent.line_count,
-            ))
-        source_skill = self.skill.name if self.skill else ""
+            components.append(
+                ComponentEntry(
+                    name=agent.name,
+                    path=str(agent.path) if agent.path else "",
+                    component_type="agent",
+                    line_count=agent.line_count,
+                    purpose="agent definition",
+                )
+            )
+
         return ComponentInventory(
-            source_skill=source_skill,
             components=components,
+            source_skill=source_skill,
+            source_command=source_command,
         )
 
     def to_manifest_markdown(self) -> str:
-        """Produce human-readable Markdown manifest with YAML frontmatter."""
-        cmd_name = self.command.name if self.command else ""
-        skill_name = self.skill.name if self.skill else ""
+        """Render a Markdown manifest with YAML frontmatter."""
+        source_command = self.command.name if self.command else ""
+        source_skill = self.skill.name if self.skill else ""
+
         lines = [
             "---",
-            f"source_command: {cmd_name}",
-            f"source_skill: {skill_name}",
+            f"source_command: {source_command}",
+            f"source_skill: {source_skill}",
             f"component_count: {self.component_count}",
             f"total_lines: {self.total_lines}",
             "---",
             "",
-            "# Component Manifest",
-            "",
         ]
-        if self.command is not None:
-            lines.append(f"## Command (Tier 0)")
-            lines.append(f"- **{self.command.name}**: {self.command.path} ({self.command.line_count} lines)")
-            lines.append("")
-        if self.skill is not None:
-            lines.append(f"## Skill (Tier 1)")
-            lines.append(f"- **{self.skill.name}**: {self.skill.path} ({self.skill.line_count} lines)")
-            lines.append("")
-        if self.agents:
-            lines.append(f"## Agents (Tier 2)")
-            for agent in self.agents:
-                lines.append(f"- **{agent.name}**: {agent.path} ({agent.line_count} lines)")
-            lines.append("")
+
         if self.component_count == 0:
             lines.append("No components discovered.")
+            return "\n".join(lines)
+
+        if self.command is not None:
+            lines += [
+                "## Command (Tier 0)",
+                f"- **{self.command.name}** ({self.command.line_count} lines)",
+                "",
+            ]
+
+        if self.skill is not None:
+            lines += [
+                "## Skill (Tier 1)",
+                f"- **{self.skill.name}** ({self.skill.line_count} lines)",
+                "",
+            ]
+
+        if self.agents:
+            lines += ["## Agents (Tier 2)"]
+            for agent in self.agents:
+                status = "found" if agent.found else "missing"
+                lines.append(f"- **{agent.name}** ({agent.line_count} lines) [{status}]")
             lines.append("")
+
         return "\n".join(lines)
 
 
-# --- Monitor State ---
+# ---------------------------------------------------------------------------
+# ResumeContext
+# ---------------------------------------------------------------------------
 
 
 @dataclass
-class PortifyMonitorState:
-    """Live execution state for TUI rendering."""
+class ResumeContext:
+    """Context needed to resume a failed step."""
+
+    resume_command: str = ""
+    resume_step: str = ""
+    resume_phase: int = 0
+
+
+# ---------------------------------------------------------------------------
+# PortifyStepResult
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class PortifyStepResult:
+    """Result of executing a single CLI Portify pipeline step."""
+
+    step_name: str = ""
+    step_number: int = 0
+    phase: int = 0
+    portify_status: PortifyStatus = PortifyStatus.PENDING
+    failure_classification: Optional[FailureClassification] = None
+    gate_tier: str = "STANDARD"
+    artifact_path: str = ""
+    resume_context: ResumeContext = field(default_factory=ResumeContext)
+    iteration_number: int = 0
+    iteration_timeout: int = 0
+    error_message: str = ""
+    duration_seconds: float = 0.0
+
+
+# ---------------------------------------------------------------------------
+# PortifyConfig
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class PortifyConfig:
+    """Configuration for a cli-portify pipeline run.
+
+    Stores all resolved paths and user overrides needed to execute
+    the full 12-step portification pipeline.
+    """
+
+    workflow_path: Path = field(default_factory=lambda: Path("."))
+    cli_name: str = ""
+    output_dir: Optional[Path] = None
+    workdir_path: Optional[Path] = None
+
+    # Optional CLI-override directories
+    commands_dir: Optional[Path] = None
+    skills_dir: Optional[Path] = None
+    agents_dir: Optional[Path] = None
+
+    # Agent selection
+    include_agents: bool = False
+    _include_agents_list: list[str] = field(default_factory=list)
+
+    # Manifest output
+    save_manifest_path: Optional[Path] = None
+
+    # Raw target input (for resolution)
+    target_input: str = ""
+
+    # Optional resolved command path (populated by resolution step)
+    command_path: Optional[Path] = None
+
+    # Optional component tree (populated by discover step)
+    component_tree: Optional["ComponentTree"] = None
+
+    # Pipeline options
+    dry_run: bool = False
+    debug: bool = False
+    max_turns: int = 200
+    model: str = ""
+    stall_timeout: int = 300
+
+    def derive_cli_name(self) -> str:
+        """Return the CLI name: explicit override or derived from workflow dir name.
+
+        Derivation: strip sc- prefix, strip -protocol suffix, normalize to kebab-case.
+        Raises DerivationFailedError if derivation yields empty string.
+        """
+        if self.cli_name:
+            return self.cli_name
+        return _derive_name_from_path(self.workflow_path)
+
+    def resolve_workflow_path(self) -> Path:
+        """Resolve workflow_path: if a file, return parent dir."""
+        p = self.workflow_path
+        if p.is_file():
+            return p.parent
+        return p
+
+    @staticmethod
+    def to_snake_case(kebab: str) -> str:
+        """Convert a kebab-case string to snake_case."""
+        return kebab.replace("-", "_")
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 T03.01: PortifyOutcome enum
+# ---------------------------------------------------------------------------
+
+
+class PortifyOutcome(Enum):
+    """Pipeline-level outcome classification (return contract)."""
+
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+    TIMEOUT = "TIMEOUT"
+    INTERRUPTED = "INTERRUPTED"
+    HALTED = "HALTED"
+    DRY_RUN = "DRY_RUN"
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 T03.01: PortifyStep dataclass
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class PortifyStep:
+    """A single step in the CLI Portify pipeline (extends Step contract).
+
+    Extends pipeline base types per AC-003 / NFR-016.
+    """
+
+    step_id: str = ""
+    phase_type: PortifyPhaseType = PortifyPhaseType.PREREQUISITES
+    prompt: str = ""
+    output_file: Optional[Path] = None
+    error_file: Optional[Path] = None
+    timeout_seconds: int = 300
+    retry_limit: int = 1
+    artifact_refs: list = field(default_factory=list)
+    status: PortifyStatus = PortifyStatus.PENDING
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 T03.01: MonitorState dataclass
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class MonitorState:
+    """Live telemetry captured by the OutputMonitor (NFR-009)."""
 
     output_bytes: int = 0
-    output_bytes_prev: int = 0
-    last_growth_time: float = 0.0
-    last_event_time: float = 0.0
-    step_started_at: float = 0.0
-    events_received: int = 0
-    lines_total: int = 0
     growth_rate_bps: float = 0.0
     stall_seconds: float = 0.0
-    current_step: str = ""
-    current_iteration: int = 0
+    events: int = 0
+    line_count: int = 0
+    convergence_iteration: int = 0
+    findings_count: int = 0
+    placeholder_count: int = 0
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 T03.01: TurnLedger (executor-internal budget tracker, OQ-001)
+# ---------------------------------------------------------------------------
+
+
+class TurnLedger:
+    """Tracks turn budget for Claude-assisted steps.
+
+    One "turn" = one Claude subprocess invocation (including retries).
+    can_launch() must return False when remaining turns are insufficient,
+    triggering a HALTED outcome (FR-040).
+    """
+
+    def __init__(self, total_budget: int) -> None:
+        self._total_budget: int = total_budget
+        self._consumed: int = 0
 
     @property
-    def stall_status(self) -> str:
-        if self.events_received == 0:
-            elapsed = (
-                time.time() - self.step_started_at if self.step_started_at else 0
-            )
-            return "waiting..." if elapsed < 30 else "STALLED"
-        if self.stall_seconds > 120:
-            return "STALLED"
-        if self.stall_seconds > 30:
-            return "thinking..."
-        return "active"
+    def total_budget(self) -> int:
+        return self._total_budget
+
+    @property
+    def consumed(self) -> int:
+        return self._consumed
+
+    @property
+    def remaining(self) -> int:
+        return max(0, self._total_budget - self._consumed)
+
+    def consume(self, turns: int = 1) -> None:
+        """Record that `turns` turns were consumed."""
+        self._consumed += turns
+
+    def can_launch(self) -> bool:
+        """Return True if at least one turn remains."""
+        return self.remaining > 0
+
+    def reset(self) -> None:
+        """Reset consumed turns (for testing only)."""
+        self._consumed = 0
+
+
+def _derive_name_from_path(workflow_path: Path) -> str:
+    """Derive CLI module name from a workflow directory path.
+
+    Algorithm:
+      1. Take directory name (not full path).
+      2. Strip leading 'sc-' prefix (case-insensitive).
+      3. Strip trailing '-protocol' suffix (case-insensitive).
+      4. Normalize to lowercase kebab-case.
+      5. If result is empty, raise DerivationFailedError.
+    """
+    name = workflow_path.name if workflow_path.is_file() else workflow_path.name
+    # Normalize to lowercase
+    name = name.lower()
+    # Strip sc- prefix
+    if name.startswith("sc-"):
+        name = name[3:]
+    # Strip -protocol suffix
+    if name.endswith("-protocol"):
+        name = name[: -len("-protocol")]
+    # Normalize: keep only lowercase letters, digits, hyphens
+    import re
+    name = re.sub(r"[^a-z0-9-]", "-", name)
+    # Collapse multiple hyphens
+    name = re.sub(r"-+", "-", name).strip("-")
+
+    if not name:
+        raise DerivationFailedError(workflow_path.name)
+    return name

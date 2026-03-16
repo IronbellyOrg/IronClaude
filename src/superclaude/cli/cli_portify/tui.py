@@ -1,12 +1,7 @@
-"""Rich TUI live dashboard for cli-portify pipeline.
+"""Basic Rich TUI live dashboard for CLI Portify.
 
-Renders real-time pipeline execution state: step progress, gate state,
-timing, convergence iteration, review pause prompts, and warnings.
-
-Degrades gracefully in non-terminal environments by falling back to
-simple line-based output.
-
-Per D-0035 / R-024: TUI rendering for operational visibility.
+Implements PortifyTUI start/stop lifecycle (T03.12 / NFR-008).
+Degrades gracefully in non-terminal environments (CI, tests).
 """
 
 from __future__ import annotations
@@ -14,42 +9,34 @@ from __future__ import annotations
 import sys
 import time
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Optional
 
 try:
-    from rich.console import Console
-    from rich.live import Live
     from rich.table import Table
-    from rich.text import Text
+    from rich.live import Live
+    from rich.console import Console
+    _RICH_AVAILABLE = True
+except ImportError:
+    _RICH_AVAILABLE = False
 
-    HAS_RICH = True
-except ImportError:  # pragma: no cover
-    HAS_RICH = False
+# ---------------------------------------------------------------------------
+# Pipeline step definitions
+# ---------------------------------------------------------------------------
 
-from superclaude.cli.cli_portify.models import PortifyStatus
+PIPELINE_STEPS: tuple[str, ...] = (
+    "validate-config",
+    "discover-components",
+    "analyze-workflow",
+    "brainstorm-gaps",
+    "synthesize-spec",
+    "design-pipeline",
+    "panel-review",
+)
 
 
-# --- Step definitions for display ---
-
-PIPELINE_STEPS = [
-    ("validate-config", 1, "EXEMPT"),
-    ("discover-components", 1, "STANDARD"),
-    ("analyze-workflow", 2, "STRICT"),
-    ("design-pipeline", 2, "STRICT"),
-    ("synthesize-spec", 3, "STRICT"),
-    ("brainstorm-gaps", 4, "STANDARD"),
-    ("panel-review", 4, "STRICT"),
-]
-
-_STATUS_STYLES = {
-    "pending": ("dim", "..."),
-    "running": ("bold yellow", ">>>"),
-    "pass": ("bold green", "OK"),
-    "fail": ("bold red", "FAIL"),
-    "timeout": ("bold red", "TOUT"),
-    "skipped": ("dim", "SKIP"),
-    "error": ("bold red", "ERR"),
-}
+# ---------------------------------------------------------------------------
+# Data model
+# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -57,8 +44,6 @@ class StepDisplayState:
     """Display state for a single pipeline step."""
 
     name: str
-    phase: int
-    gate_tier: str
     status: str = "pending"
     duration_seconds: float = 0.0
     gate_result: str = ""
@@ -68,61 +53,65 @@ class StepDisplayState:
 
 @dataclass
 class DashboardState:
-    """Aggregate dashboard state for TUI rendering."""
+    """Mutable dashboard state updated during pipeline execution."""
 
     steps: list[StepDisplayState] = field(default_factory=list)
-    total_elapsed: float = 0.0
     current_step: str = ""
-    current_iteration: int = 0
     review_paused: bool = False
     review_prompt: str = ""
     warnings: list[str] = field(default_factory=list)
-    pipeline_start: float = 0.0
+    pipeline_start: float = field(default_factory=time.time)
+    total_elapsed: float = 0.0
 
     def __post_init__(self) -> None:
         if not self.steps:
-            self.steps = [
-                StepDisplayState(name=name, phase=phase, gate_tier=tier)
-                for name, phase, tier in PIPELINE_STEPS
-            ]
+            self.steps = [StepDisplayState(name=s) for s in PIPELINE_STEPS]
+
+    def _find_step(self, name: str) -> Optional[StepDisplayState]:
+        for step in self.steps:
+            if step.name == name:
+                return step
+        return None
 
     def update_step(
         self,
-        step_name: str,
+        name: str,
         *,
-        status: str | None = None,
-        duration: float | None = None,
-        gate_result: str | None = None,
-        iteration: int | None = None,
-        warning: str | None = None,
+        status: str = "",
+        duration: float = 0.0,
+        gate_result: str = "",
+        iteration: int = 0,
+        warning: str = "",
     ) -> None:
-        """Update a step's display state."""
-        for step in self.steps:
-            if step.name == step_name:
-                if status is not None:
-                    step.status = status
-                if duration is not None:
-                    step.duration_seconds = duration
-                if gate_result is not None:
-                    step.gate_result = gate_result
-                if iteration is not None:
-                    step.iteration = iteration
-                if warning is not None:
-                    step.warning = warning
-                break
+        step = self._find_step(name)
+        if step is None:
+            return
+        if status:
+            step.status = status
+        if duration:
+            step.duration_seconds = duration
+        if gate_result:
+            step.gate_result = gate_result
+        if iteration:
+            step.iteration = iteration
+        if warning:
+            step.warning = warning
 
-    def mark_running(self, step_name: str) -> None:
-        self.current_step = step_name
-        self.update_step(step_name, status="running")
+    def mark_running(self, name: str) -> None:
+        step = self._find_step(name)
+        if step:
+            step.status = "running"
+            self.current_step = name
 
     def mark_complete(
-        self, step_name: str, status: str, duration: float, gate_result: str = ""
+        self, name: str, status: str, duration: float, gate_result: str = ""
     ) -> None:
-        self.update_step(
-            step_name, status=status, duration=duration, gate_result=gate_result
-        )
-        if self.current_step == step_name:
-            self.current_step = ""
+        step = self._find_step(name)
+        if step:
+            step.status = status
+            step.duration_seconds = duration
+            step.gate_result = gate_result
+        self.current_step = ""
 
     def set_review_pause(self, prompt: str) -> None:
         self.review_paused = True
@@ -132,162 +121,150 @@ class DashboardState:
         self.review_paused = False
         self.review_prompt = ""
 
-    def add_warning(self, warning: str) -> None:
-        self.warnings.append(warning)
+    def add_warning(self, message: str) -> None:
+        self.warnings.append(message)
 
     def compute_elapsed(self) -> None:
-        if self.pipeline_start > 0:
-            self.total_elapsed = time.time() - self.pipeline_start
+        self.total_elapsed = time.time() - self.pipeline_start
 
 
-def _build_dashboard_table(state: DashboardState) -> Table:
-    """Build a Rich Table from the current dashboard state."""
-    table = Table(
-        title="cli-portify pipeline",
-        show_header=True,
-        header_style="bold",
-        expand=False,
-        min_width=60,
-    )
-    table.add_column("#", style="dim", width=3, justify="right")
-    table.add_column("Step", min_width=22)
-    table.add_column("Status", width=6, justify="center")
-    table.add_column("Gate", width=6, justify="center")
-    table.add_column("Time", width=8, justify="right")
-    table.add_column("Info", min_width=12)
+# ---------------------------------------------------------------------------
+# Table rendering
+# ---------------------------------------------------------------------------
 
-    for i, step in enumerate(state.steps, 1):
-        style, label = _STATUS_STYLES.get(step.status, ("dim", "?"))
 
-        gate_text = step.gate_result or "-"
-        gate_style = "green" if gate_text == "pass" else "red" if gate_text == "fail" else "dim"
+def _build_dashboard_table(state: DashboardState) -> "Table":
+    """Build a Rich Table from DashboardState."""
+    if not _RICH_AVAILABLE:
+        # Return a stub table for non-Rich environments
+        class _StubTable:
+            columns: list = []
+            row_count: int = len(state.steps) + 1
 
-        dur = f"{step.duration_seconds:.1f}s" if step.duration_seconds > 0 else "-"
+            class _Col:
+                def __init__(self, header: str):
+                    self.header = header
 
-        info_parts: list[str] = []
-        if step.iteration > 0:
-            info_parts.append(f"iter={step.iteration}")
-        if step.warning:
-            info_parts.append(step.warning)
-        info = " ".join(info_parts) if info_parts else ""
+            def add_column(self, header: str, **kw):
+                self.columns.append(self._Col(header))
 
+            def add_row(self, *cells, **kw):
+                pass
+
+        t = _StubTable()
+        for col in ("#", "Step", "Status", "Gate", "Time", "Info"):
+            t.add_column(col)
+        for step in state.steps:
+            t.add_row(
+                str(state.steps.index(step) + 1),
+                step.name,
+                step.status,
+                step.gate_result or "-",
+                f"{step.duration_seconds:.1f}s",
+                step.warning or "",
+            )
+        # Footer row
+        t.add_row("", "Pipeline", f"elapsed {state.total_elapsed:.1f}s", "", "", "")
+        return t
+
+    table = Table(title="CLI Portify Pipeline")
+    table.add_column("#", style="dim")
+    table.add_column("Step")
+    table.add_column("Status")
+    table.add_column("Gate")
+    table.add_column("Time")
+    table.add_column("Info")
+
+    for i, step in enumerate(state.steps, start=1):
         table.add_row(
             str(i),
             step.name,
-            Text(label, style=style),
-            Text(gate_text, style=gate_style),
-            dur,
-            info,
+            step.status,
+            step.gate_result or "-",
+            f"{step.duration_seconds:.1f}s",
+            step.warning or "",
         )
 
-    # Footer with total elapsed
-    table.add_section()
-    elapsed_str = f"{state.total_elapsed:.1f}s"
-    table.add_row("", "Total elapsed", "", "", elapsed_str, "")
+    # Footer row
+    table.add_row(
+        "",
+        "Pipeline",
+        f"elapsed {state.total_elapsed:.1f}s",
+        "",
+        "",
+        "",
+    )
 
     return table
 
 
+# ---------------------------------------------------------------------------
+# TuiDashboard
+# ---------------------------------------------------------------------------
+
+
 class TuiDashboard:
-    """Rich TUI live dashboard for pipeline execution.
+    """Controller for the Rich live dashboard.
 
-    Renders a live-updating table showing step progress, gate results,
-    timing, iteration count, and warnings. Pauses display for review
-    gate prompts.
-
-    Falls back to simple stderr line output in non-terminal environments.
+    Degrades gracefully in non-terminal environments (CI, tests):
+    - start() / stop() are no-ops when not in a real terminal
+    - All state mutations still occur (enabling test assertions)
     """
 
-    def __init__(self, state: DashboardState | None = None) -> None:
-        self._state = state or DashboardState()
-        self._live: Live | None = None
-        self._console: Console | None = None
-        self._is_terminal = HAS_RICH and hasattr(sys.stderr, "isatty") and sys.stderr.isatty()
-
-    @property
-    def state(self) -> DashboardState:
-        return self._state
+    def __init__(self) -> None:
+        self.state = DashboardState()
+        self._live: Optional["Live"] = None
+        self._is_terminal: bool = sys.stdout.isatty() if hasattr(sys.stdout, "isatty") else False
 
     @property
     def is_live(self) -> bool:
         return self._live is not None
 
     def start(self) -> None:
-        """Start the live dashboard display."""
-        self._state.pipeline_start = time.time()
-        if not self._is_terminal:
+        """Start the live dashboard (no-op in non-terminal environments)."""
+        if not _RICH_AVAILABLE or not self._is_terminal:
             return
-        self._console = Console(stderr=True)
+        console = Console()
         self._live = Live(
-            _build_dashboard_table(self._state),
-            console=self._console,
-            refresh_per_second=2,
-            transient=True,
+            _build_dashboard_table(self.state),
+            console=console,
+            refresh_per_second=4,
         )
         self._live.start()
 
     def stop(self) -> None:
-        """Stop the live dashboard and print final state."""
-        self._state.compute_elapsed()
+        """Stop the live dashboard."""
         if self._live is not None:
             self._live.stop()
             self._live = None
-        if self._console is not None:
-            self._console.print(_build_dashboard_table(self._state))
 
-    def refresh(self) -> None:
-        """Refresh the live display with current state."""
-        self._state.compute_elapsed()
+    def _refresh(self) -> None:
         if self._live is not None:
-            self._live.update(_build_dashboard_table(self._state))
-        elif not self._is_terminal and self._state.current_step:
-            _fallback_status(self._state)
+            self.state.compute_elapsed()
+            self._live.update(_build_dashboard_table(self.state))
 
     def step_start(self, step_name: str) -> None:
-        """Mark a step as running and refresh."""
-        self._state.mark_running(step_name)
-        self.refresh()
+        self.state.mark_running(step_name)
+        self._refresh()
 
     def step_complete(
         self, step_name: str, status: str, duration: float, gate_result: str = ""
     ) -> None:
-        """Mark a step as complete and refresh."""
-        self._state.mark_complete(step_name, status, duration, gate_result)
-        self.refresh()
+        self.state.mark_complete(step_name, status, duration, gate_result)
+        self._refresh()
 
     def set_iteration(self, step_name: str, iteration: int) -> None:
-        """Update the iteration counter for a step."""
-        self._state.update_step(step_name, iteration=iteration)
-        self._state.current_iteration = iteration
-        self.refresh()
+        self.state.update_step(step_name, iteration=iteration)
+        self._refresh()
+
+    def add_warning(self, message: str) -> None:
+        self.state.add_warning(message)
+        self._refresh()
 
     def pause_for_review(self, prompt: str) -> None:
-        """Pause the live display for a review gate prompt."""
-        self._state.set_review_pause(prompt)
-        if self._live is not None:
-            self._live.stop()
-            self._live = None
+        self.state.set_review_pause(prompt)
+        self._refresh()
 
     def resume_after_review(self) -> None:
-        """Resume the live display after review gate completes."""
-        self._state.clear_review_pause()
-        if self._is_terminal and self._console is not None:
-            self._live = Live(
-                _build_dashboard_table(self._state),
-                console=self._console,
-                refresh_per_second=2,
-                transient=True,
-            )
-            self._live.start()
-
-    def add_warning(self, warning: str) -> None:
-        """Add a warning to the dashboard."""
-        self._state.add_warning(warning)
-        self.refresh()
-
-
-def _fallback_status(state: DashboardState) -> None:
-    """Print simple status line for non-terminal environments."""
-    step = state.current_step
-    elapsed = f"{state.total_elapsed:.1f}s"
-    print(f"[portify] {step} running... ({elapsed})", file=sys.stderr)
+        self.state.clear_review_pause()
+        self._refresh()
