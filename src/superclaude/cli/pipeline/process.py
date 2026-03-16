@@ -49,6 +49,7 @@ class ClaudeProcess:
         on_spawn: Callable[[int], None] | None = None,
         on_signal: Callable[[int, str], None] | None = None,
         on_exit: Callable[[int, int | None], None] | None = None,
+        env_vars: dict[str, str] | None = None,
     ):
         self.prompt = prompt
         self.output_file = output_file
@@ -62,6 +63,7 @@ class ClaudeProcess:
         self._on_spawn = on_spawn
         self._on_signal = on_signal
         self._on_exit = on_exit
+        self._extra_env_vars = env_vars
         self._process: Optional[subprocess.Popen] = None
         self._stdout_fh = None
         self._stderr_fh = None
@@ -88,15 +90,21 @@ class ClaudeProcess:
         cmd.extend(self.extra_args)
         return cmd
 
-    def build_env(self) -> dict[str, str]:
+    def build_env(self, *, env_vars: dict[str, str] | None = None) -> dict[str, str]:
         """Build environment for the child process.
 
         Remove CLAUDECODE and CLAUDE_CODE_ENTRYPOINT to prevent
         nested-session detection in the child claude process.
+
+        env_vars, if provided, are merged with override semantics after
+        os.environ.copy() so callers can inject isolation variables
+        (e.g. CLAUDE_WORK_DIR) without affecting the base environment.
         """
         env = os.environ.copy()
         env.pop("CLAUDECODE", None)
         env.pop("CLAUDE_CODE_ENTRYPOINT", None)
+        if env_vars:
+            env.update(env_vars)
         return env
 
     def start(self) -> subprocess.Popen:
@@ -110,7 +118,7 @@ class ClaudeProcess:
             "stdin": subprocess.DEVNULL,
             "stdout": self._stdout_fh,
             "stderr": self._stderr_fh,
-            "env": self.build_env(),
+            "env": self.build_env(env_vars=self._extra_env_vars),
         }
         if hasattr(os, "setpgrp"):
             popen_kwargs["preexec_fn"] = os.setpgrp

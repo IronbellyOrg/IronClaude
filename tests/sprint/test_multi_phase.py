@@ -6,6 +6,8 @@ across >1 phase before any refactoring in Phase 2.
 
 from __future__ import annotations
 
+import os
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -124,10 +126,14 @@ class TestHaltAtPhaseThree:
             config.results_dir.mkdir(parents=True, exist_ok=True)
             config.output_file(current_phase).write_text(f"output phase {current_phase.number}\n")
 
+            result = config.result_file(current_phase)
             if phase_counter[0] <= 2:
-                config.result_file(current_phase).write_text("EXIT_RECOMMENDATION: CONTINUE\n")
+                result.write_text("EXIT_RECOMMENDATION: CONTINUE\n")
             else:
-                config.result_file(current_phase).write_text("EXIT_RECOMMENDATION: HALT\n")
+                result.write_text("EXIT_RECOMMENDATION: HALT\n")
+            # Set mtime to future so freshness guard treats file as agent-written
+            future = time.time() + 60
+            os.utime(result, (future, future))
             return _Popen()
 
         captured = []

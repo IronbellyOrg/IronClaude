@@ -268,3 +268,89 @@ class TuiDashboard:
     def resume_after_review(self) -> None:
         self.state.clear_review_pause()
         self._refresh()
+
+
+# ---------------------------------------------------------------------------
+# PortifyTUI — NFR-008 compliant TUI with update_step / update_convergence
+# ---------------------------------------------------------------------------
+
+
+class PortifyTUI:
+    """NFR-008 compliant TUI providing real-time step and convergence updates.
+
+    Wraps TuiDashboard and adds:
+    - update_step(step_id, status, bytes_written, elapsed_s) — real-time per-step update
+    - update_convergence(iteration, findings_count, placeholder_count) — Phase 8 loop display
+    - start() / stop() lifecycle (delegates to TuiDashboard)
+
+    Degrades gracefully in non-terminal (CI, test) environments.
+    """
+
+    def __init__(self) -> None:
+        self._dashboard = TuiDashboard()
+        # Convergence tracking state
+        self._convergence_iteration: int = 0
+        self._findings_count: int = 0
+        self._placeholder_count: int = 0
+
+    def start(self) -> None:
+        """Start the live TUI dashboard."""
+        self._dashboard.start()
+
+    def stop(self) -> None:
+        """Stop the live TUI dashboard."""
+        self._dashboard.stop()
+
+    @property
+    def is_live(self) -> bool:
+        return self._dashboard.is_live
+
+    def update_step(
+        self,
+        step_id: str,
+        status: str,
+        bytes_written: int = 0,
+        elapsed_s: float = 0.0,
+    ) -> None:
+        """Update a pipeline step with real-time status, byte count, and elapsed time.
+
+        Args:
+            step_id: Step identifier matching a PIPELINE_STEPS name.
+            status: One of 'running', 'pass', 'fail', 'timeout', 'error', 'pending'.
+            bytes_written: Bytes written to the step's output so far.
+            elapsed_s: Elapsed time in seconds for this step.
+        """
+        self._dashboard.state.update_step(
+            step_id,
+            status=status,
+            duration=elapsed_s,
+        )
+        self._dashboard._refresh()
+
+    def update_convergence(
+        self,
+        iteration: int,
+        findings_count: int,
+        placeholder_count: int,
+    ) -> None:
+        """Update convergence loop display state for Phase 8 panel-review.
+
+        Args:
+            iteration: Current iteration number (1-3).
+            findings_count: Number of findings from the current iteration.
+            placeholder_count: Number of unresolved placeholder sentinels.
+        """
+        self._convergence_iteration = iteration
+        self._findings_count = findings_count
+        self._placeholder_count = placeholder_count
+        self._dashboard.set_iteration("panel-review", iteration)
+
+    def step_start(self, step_name: str) -> None:
+        """Mark a step as running."""
+        self._dashboard.step_start(step_name)
+
+    def step_complete(
+        self, step_name: str, status: str, duration: float, gate_result: str = ""
+    ) -> None:
+        """Mark a step as complete."""
+        self._dashboard.step_complete(step_name, status, duration, gate_result)

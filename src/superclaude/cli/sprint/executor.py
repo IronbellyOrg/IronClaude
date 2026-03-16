@@ -523,218 +523,283 @@ def execute_sprint(config: SprintConfig):
 
     tui.start()
 
+    # Startup orphan cleanup: remove stale isolation dirs from crashed previous runs
+    shutil.rmtree(config.results_dir / ".isolation", ignore_errors=True)
+
+    # Execute all python-mode phases via preflight executor before the main loop.
+    # Removing this single call reverts to all-Claude behavior (R-051 rollback property).
+    # Lazy import breaks the preflight → executor → preflight circular import cycle.
+    from .preflight import execute_preflight_phases  # noqa: PLC0415
+    preflight_results = execute_preflight_phases(config)
+
     try:
         for phase in config.active_phases:
             if signal_handler.shutdown_requested:
                 sprint_result.outcome = SprintOutcome.INTERRUPTED
                 break
 
-            # Reset monitor for this phase
-            output_path = config.output_file(phase)
-            monitor.reset(output_path)
-            monitor.start()
+            # Python-mode phases were already executed by preflight; skip here.
+            if phase.execution_mode == "python":
+                continue
 
-            # Update tmux tail pane if running in tmux
-            if config.tmux_session_name:
-                update_tail_pane(config.tmux_session_name, output_path)
-
-            # Launch claude
-            proc_manager = ClaudeProcess(config, phase)
-            proc_manager.start()
-            started_at = datetime.now(timezone.utc)
-            # Use monotonic clock for deadline enforcement to be immune to NTP adjustments
-            deadline = time.monotonic() + proc_manager.timeout_seconds
-            logger.write_phase_start(phase, started_at)
-
-            debug_log(_dbg, "PHASE_BEGIN", phase=phase.number, file=str(phase.file))
-
-            tui.update(sprint_result, monitor.state, phase)
-
-            # Poll loop: wait for process to finish while updating TUI
-            # Enforces monotonic timeout via deadline check.
-            _timed_out = False
-            _stall_acted = False  # single-fire guard for watchdog
-            _poll_start = time.monotonic()
-            while proc_manager._process.poll() is None:
-                if signal_handler.shutdown_requested:
-                    proc_manager.terminate()
-                    break
-                if time.monotonic() > deadline:
-                    # Timeout reached: kill the process, exit loop
-                    _timed_out = True
-                    proc_manager.terminate()
-                    break
-
-                ms = monitor.state
-                _elapsed = time.monotonic() - _poll_start
-
-                debug_log(
-                    _dbg,
-                    "poll_tick",
-                    phase=phase.number,
-                    pid=proc_manager._process.pid,
-                    poll_result="running",
-                    elapsed=round(_elapsed, 1),
-                    output_bytes=ms.output_bytes,
-                    growth_rate=round(ms.growth_rate_bps, 1),
-                    stall_seconds=round(ms.stall_seconds, 1),
-                    stall_status=ms.stall_status,
+            # Skip-mode phases: record SKIPPED with no subprocess launched.
+            if phase.execution_mode == "skip":
+                _now = datetime.now(timezone.utc)
+                skip_result = PhaseResult(
+                    phase=phase,
+                    status=PhaseStatus.SKIPPED,
+                    exit_code=0,
+                    started_at=_now,
+                    finished_at=_now,
                 )
+                sprint_result.phase_results.append(skip_result)
+                logger.write_phase_result(skip_result)
+                continue
 
-                # --- Watchdog: stall timeout check ---
-                if (
-                    config.stall_timeout > 0
-                    and ms.stall_seconds > config.stall_timeout
-                    and ms.events_received > 0  # don't trigger during startup
-                    and not _stall_acted
-                ):
-                    _stall_acted = True
-                    debug_log(
-                        _dbg,
-                        "watchdog_triggered",
-                        phase=phase.number,
-                        action=config.stall_action,
-                        stall_seconds=round(ms.stall_seconds, 1),
-                        pid=proc_manager._process.pid,
-                    )
-                    if config.stall_action == "kill":
-                        import sys
-                        print(
-                            f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
-                            f"{config.stall_timeout}s) — killing phase {phase.number}",
-                            file=sys.stderr,
-                        )
+            # Per-phase isolation directory: exactly one file (the phase file)
+            isolation_dir = config.results_dir / ".isolation" / f"phase-{phase.number}"
+            isolation_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(phase.file, isolation_dir / phase.file.name)
+
+            try:
+                # Reset monitor for this phase
+                output_path = config.output_file(phase)
+                monitor.reset(output_path)
+                monitor.start()
+
+                # Update tmux tail pane if running in tmux
+                if config.tmux_session_name:
+                    update_tail_pane(config.tmux_session_name, output_path)
+
+                # Launch claude with isolation env vars (CLAUDE_WORK_DIR → isolation_dir)
+                _phase_env_vars = {
+                    "CLAUDE_WORK_DIR": str(isolation_dir),
+                }
+                proc_manager = ClaudeProcess(config, phase, env_vars=_phase_env_vars)
+                proc_manager.start()
+                started_at = datetime.now(timezone.utc)
+                # Use monotonic clock for deadline enforcement to be immune to NTP adjustments
+                deadline = time.monotonic() + proc_manager.timeout_seconds
+                logger.write_phase_start(phase, started_at)
+
+                debug_log(_dbg, "PHASE_BEGIN", phase=phase.number, file=str(phase.file))
+
+                tui.update(sprint_result, monitor.state, phase)
+
+                # Poll loop: wait for process to finish while updating TUI
+                # Enforces monotonic timeout via deadline check.
+                _timed_out = False
+                _stall_acted = False  # single-fire guard for watchdog
+                _poll_start = time.monotonic()
+                while proc_manager._process.poll() is None:
+                    if signal_handler.shutdown_requested:
+                        proc_manager.terminate()
+                        break
+                    if time.monotonic() > deadline:
+                        # Timeout reached: kill the process, exit loop
                         _timed_out = True
                         proc_manager.terminate()
                         break
-                    else:
-                        # warn action: log and continue
-                        import sys
-                        print(
-                            f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
-                            f"{config.stall_timeout}s) — warning for phase {phase.number}",
-                            file=sys.stderr,
-                        )
 
-                # Reset single-fire guard when output resumes
-                if _stall_acted and ms.stall_seconds == 0.0:
-                    _stall_acted = False
+                    ms = monitor.state
+                    _elapsed = time.monotonic() - _poll_start
 
-                # Update TUI at ~2 Hz (monitor thread handles data extraction)
-                # Wrap in try/except so a display glitch cannot abort the sprint
-                try:
-                    tui.update(sprint_result, monitor.state, phase)
-                except Exception as _tui_exc:
-                    import sys
-                    print(f"[TUI] Display error (continuing sprint): {_tui_exc}", file=sys.stderr)
-                time.sleep(0.5)
-
-            # Safely read exit code: returncode may be None if terminate raced.
-            # Use _timed_out flag instead of assigning directly to returncode.
-            raw_rc = proc_manager._process.returncode
-            if _timed_out:
-                exit_code = 124
-            else:
-                exit_code = raw_rc if raw_rc is not None else -1
-            monitor.stop()
-            finished_at = datetime.now(timezone.utc)
-            _phase_dur = (finished_at - started_at).total_seconds()
-            debug_log(
-                _dbg,
-                "PHASE_END",
-                phase=phase.number,
-                exit_code=exit_code,
-                duration=round(_phase_dur, 1),
-            )
-
-            # If shutdown was requested during the poll loop, classify as
-            # INTERRUPTED rather than letting _determine_phase_status see
-            # exit_code=-1 (None→-1 fallback) and return PhaseStatus.ERROR,
-            # which would incorrectly set the outcome to HALTED.
-            if signal_handler.shutdown_requested:
-                logger.write_phase_interrupt(phase, started_at, finished_at, exit_code)
-                sprint_result.outcome = SprintOutcome.INTERRUPTED
-                break
-
-            # Determine phase status
-            status = _determine_phase_status(
-                exit_code=exit_code,
-                result_file=config.result_file(phase),
-                output_file=config.output_file(phase),
-                config=config,
-                phase=phase,
-                started_at=started_at.timestamp(),
-            )
-
-            # Write executor result file for downstream consumers.
-            # Written AFTER status determination to avoid circularity.
-            # Overwrites any agent-written file — executor is authoritative.
-            _write_executor_result_file(
-                config=config,
-                phase=phase,
-                status=status,
-                exit_code=exit_code,
-                monitor_state=monitor.state,
-                started_at=started_at,
-                finished_at=finished_at,
-            )
-
-            # Collect stderr size for telemetry
-            error_file = config.error_file(phase)
-            error_bytes = error_file.stat().st_size if error_file.exists() else 0
-
-            phase_result = PhaseResult(
-                phase=phase,
-                status=status,
-                exit_code=exit_code,
-                started_at=started_at,
-                finished_at=finished_at,
-                output_bytes=monitor.state.output_bytes,
-                error_bytes=error_bytes,
-                last_task_id=monitor.state.last_task_id,
-                files_changed=monitor.state.files_changed,
-            )
-            sprint_result.phase_results.append(phase_result)
-
-            debug_log(
-                _dbg,
-                "phase_complete",
-                phase=phase.number,
-                status=status.value,
-                exit_code=exit_code,
-                duration=round(_phase_dur, 1),
-            )
-
-            # Log and notify
-            logger.write_phase_result(phase_result)
-            notify_phase_complete(phase_result)
-
-            tui.update(sprint_result, monitor.state, None)
-
-            # Decide: continue or halt?
-            if status.is_failure:
-                # Collect diagnostics for the failed phase
-                try:
-                    collector = DiagnosticCollector(config)
-                    bundle = collector.collect(phase, phase_result, monitor.state)
-                    classifier = FailureClassifier()
-                    bundle.category = classifier.classify(bundle)
-                    reporter = ReportGenerator()
-                    diag_path = config.results_dir / f"phase-{phase.number}-diagnostic.md"
-                    reporter.write(bundle, diag_path)
                     debug_log(
                         _dbg,
-                        "diagnostic_report",
+                        "poll_tick",
                         phase=phase.number,
-                        category=bundle.category.value,
-                        path=str(diag_path),
+                        pid=proc_manager._process.pid,
+                        poll_result="running",
+                        elapsed=round(_elapsed, 1),
+                        output_bytes=ms.output_bytes,
+                        growth_rate=round(ms.growth_rate_bps, 1),
+                        stall_seconds=round(ms.stall_seconds, 1),
+                        stall_status=ms.stall_status,
                     )
-                except Exception as _diag_exc:
-                    debug_log(_dbg, "diagnostic_error", phase=phase.number, error=str(_diag_exc))
 
-                sprint_result.outcome = SprintOutcome.HALTED
-                sprint_result.halt_phase = phase.number
-                break
+                    # --- Watchdog: stall timeout check ---
+                    if (
+                        config.stall_timeout > 0
+                        and ms.stall_seconds > config.stall_timeout
+                        and ms.events_received > 0  # don't trigger during startup
+                        and not _stall_acted
+                    ):
+                        _stall_acted = True
+                        debug_log(
+                            _dbg,
+                            "watchdog_triggered",
+                            phase=phase.number,
+                            action=config.stall_action,
+                            stall_seconds=round(ms.stall_seconds, 1),
+                            pid=proc_manager._process.pid,
+                        )
+                        if config.stall_action == "kill":
+                            import sys
+                            print(
+                                f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
+                                f"{config.stall_timeout}s) — killing phase {phase.number}",
+                                file=sys.stderr,
+                            )
+                            _timed_out = True
+                            proc_manager.terminate()
+                            break
+                        else:
+                            # warn action: log and continue
+                            import sys
+                            print(
+                                f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
+                                f"{config.stall_timeout}s) — warning for phase {phase.number}",
+                                file=sys.stderr,
+                            )
+
+                    # Reset single-fire guard when output resumes
+                    if _stall_acted and ms.stall_seconds == 0.0:
+                        _stall_acted = False
+
+                    # Update TUI at ~2 Hz (monitor thread handles data extraction)
+                    # Wrap in try/except so a display glitch cannot abort the sprint
+                    try:
+                        tui.update(sprint_result, monitor.state, phase)
+                    except Exception as _tui_exc:
+                        import sys
+                        print(f"[TUI] Display error (continuing sprint): {_tui_exc}", file=sys.stderr)
+                    time.sleep(0.5)
+
+                # Safely read exit code: returncode may be None if terminate raced.
+                # Use _timed_out flag instead of assigning directly to returncode.
+                raw_rc = proc_manager._process.returncode
+                if _timed_out:
+                    exit_code = 124
+                else:
+                    exit_code = raw_rc if raw_rc is not None else -1
+                monitor.stop()
+                finished_at = datetime.now(timezone.utc)
+                _phase_dur = (finished_at - started_at).total_seconds()
+                debug_log(
+                    _dbg,
+                    "PHASE_END",
+                    phase=phase.number,
+                    exit_code=exit_code,
+                    duration=round(_phase_dur, 1),
+                )
+
+                # If shutdown was requested during the poll loop, classify as
+                # INTERRUPTED rather than letting _determine_phase_status see
+                # exit_code=-1 (None→-1 fallback) and return PhaseStatus.ERROR,
+                # which would incorrectly set the outcome to HALTED.
+                if signal_handler.shutdown_requested:
+                    logger.write_phase_interrupt(phase, started_at, finished_at, exit_code)
+                    sprint_result.outcome = SprintOutcome.INTERRUPTED
+                    break
+
+                # Write a preliminary result sentinel so _determine_phase_status()
+                # always finds a result file for exit_code=0 phases that wrote no report.
+                # Guard: only for successful exits; non-zero paths must not reach this.
+                if exit_code == 0:
+                    _wrote_preliminary = _write_preliminary_result(
+                        config, phase, started_at.timestamp()
+                    )
+                    debug_log(
+                        _dbg,
+                        "preliminary_result_write",
+                        path=f"{'executor-preliminary (option_d)' if _wrote_preliminary else 'agent-written/option_a_or_noop'}",
+                    )
+
+                # Determine phase status
+                status = _determine_phase_status(
+                    exit_code=exit_code,
+                    result_file=config.result_file(phase),
+                    output_file=config.output_file(phase),
+                    config=config,
+                    phase=phase,
+                    started_at=started_at.timestamp(),
+                    error_file=config.error_file(phase),
+                )
+
+                # Write executor result file for downstream consumers.
+                # Written AFTER status determination to avoid circularity.
+                # Overwrites any agent-written file — executor is authoritative.
+                _write_executor_result_file(
+                    config=config,
+                    phase=phase,
+                    status=status,
+                    exit_code=exit_code,
+                    monitor_state=monitor.state,
+                    started_at=started_at,
+                    finished_at=finished_at,
+                )
+
+                # Collect stderr size for telemetry
+                error_file = config.error_file(phase)
+                error_bytes = error_file.stat().st_size if error_file.exists() else 0
+
+                phase_result = PhaseResult(
+                    phase=phase,
+                    status=status,
+                    exit_code=exit_code,
+                    started_at=started_at,
+                    finished_at=finished_at,
+                    output_bytes=monitor.state.output_bytes,
+                    error_bytes=error_bytes,
+                    last_task_id=monitor.state.last_task_id,
+                    files_changed=monitor.state.files_changed,
+                )
+                sprint_result.phase_results.append(phase_result)
+
+                debug_log(
+                    _dbg,
+                    "phase_complete",
+                    phase=phase.number,
+                    status=status.value,
+                    exit_code=exit_code,
+                    duration=round(_phase_dur, 1),
+                )
+
+                # Log and notify
+                logger.write_phase_result(phase_result)
+                notify_phase_complete(phase_result)
+
+                tui.update(sprint_result, monitor.state, None)
+
+                # Decide: continue or halt?
+                if status.is_failure:
+                    # Collect diagnostics for the failed phase
+                    try:
+                        collector = DiagnosticCollector(config)
+                        bundle = collector.collect(phase, phase_result, monitor.state)
+                        classifier = FailureClassifier()
+                        bundle.category = classifier.classify(bundle)
+                        reporter = ReportGenerator()
+                        diag_path = config.results_dir / f"phase-{phase.number}-diagnostic.md"
+                        reporter.write(bundle, diag_path)
+                        debug_log(
+                            _dbg,
+                            "diagnostic_report",
+                            phase=phase.number,
+                            category=bundle.category.value,
+                            path=str(diag_path),
+                        )
+                    except Exception as _diag_exc:
+                        debug_log(_dbg, "diagnostic_error", phase=phase.number, error=str(_diag_exc))
+
+                    sprint_result.outcome = SprintOutcome.HALTED
+                    sprint_result.halt_phase = phase.number
+                    break
+
+            finally:
+                shutil.rmtree(isolation_dir, ignore_errors=True)
+
+        # Merge preflight results with main-loop results in original phase order.
+        # Build a lookup from phase number → PhaseResult, main-loop results win
+        # on conflict (they are the authoritative executor record for claude phases).
+        _merged: dict[int, PhaseResult] = {r.phase.number: r for r in preflight_results}
+        for r in sprint_result.phase_results:
+            _merged[r.phase.number] = r
+        sprint_result.phase_results = [
+            _merged[p.number]
+            for p in config.active_phases
+            if p.number in _merged
+        ]
 
         # Sprint finished
         sprint_result.finished_at = datetime.now(timezone.utc)
@@ -870,6 +935,72 @@ def _write_crash_recovery_log(
         pass
 
 
+def _write_preliminary_result(
+    config: SprintConfig,
+    phase: Phase,
+    started_at: float,
+) -> bool:
+    """Write a preliminary result file with EXIT_RECOMMENDATION: CONTINUE sentinel.
+
+    This function is a deterministic fallback ensuring ``_determine_phase_status()``
+    always finds a valid result file for phases that exit 0 but write no report.
+    Without it, such phases return ``PASS_NO_REPORT`` because no result file is present.
+
+    **Ordering invariant**: Call *after* ``finished_at`` is captured and *before*
+    ``_determine_phase_status()`` is called. If called after status determination,
+    the sentinel file will not affect the already-computed status.
+
+    **Concurrency**: Assumes single-threaded execution (one phase at a time). If the
+    sprint loop is parallelised in future, this function must be replaced with an
+    ``O_EXCL``-based atomic write to prevent TOCTOU races between the exists-check
+    and the write.
+
+    **Sentinel contract**: Writes ``EXIT_RECOMMENDATION: CONTINUE\\n`` so that
+    ``_determine_phase_status()`` branch 3 (``result_file.exists()`` → CONTINUE check
+    at line 1024) returns ``PhaseStatus.PASS`` instead of falling through to the
+    ``PASS_NO_REPORT`` branch (line 1045). This sentinel is intentionally minimal;
+    the executor result file written by ``_write_executor_result_file()`` afterwards
+    will overwrite it with the authoritative structured report.
+
+    Args:
+        config: Sprint configuration providing ``result_file(phase)`` path.
+        phase: The phase whose result file to write.
+        started_at: Phase start time as a POSIX timestamp (``datetime.timestamp()``).
+            Used for the freshness guard: if a result file already exists with
+            ``st_mtime >= started_at`` and ``st_size > 0``, it is assumed to be a
+            valid agent-written file and is left untouched (no-op).
+
+    Returns:
+        ``True`` if the sentinel file was written, ``False`` if the file was preserved
+        (freshness guard triggered) or an ``OSError`` prevented the write. The boolean
+        is intended for telemetry logging only; callers should not branch on it.
+    """
+    import logging as _logging
+
+    result_path = config.result_file(phase)
+    # Freshness guard: if a valid, fresh agent-written file is present, do not overwrite.
+    if result_path.exists():
+        try:
+            st = result_path.stat()
+            if st.st_size > 0 and st.st_mtime >= started_at:
+                # Fresh, non-empty agent file — preserve it
+                return False
+        except OSError:
+            pass  # Treat stat failure as absent; fall through to write
+
+    # Write the sentinel: zero-byte, stale, or missing files are all overwritten.
+    try:
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+        result_path.write_text("EXIT_RECOMMENDATION: CONTINUE\n")
+        return True
+    except OSError as exc:
+        _logging.getLogger(__name__).warning(
+            "preliminary result write failed: %s; phase may report PASS_NO_REPORT",
+            exc,
+        )
+        return False
+
+
 def _write_executor_result_file(
     config: SprintConfig,
     phase: Phase,
@@ -925,6 +1056,7 @@ def _determine_phase_status(
     config: SprintConfig | None = None,
     phase: Phase | None = None,
     started_at: float = 0.0,
+    error_file: Path | None = None,
 ) -> PhaseStatus:
     """Parse result file and exit code to determine phase status.
 
@@ -942,7 +1074,7 @@ def _determine_phase_status(
     if exit_code != 0:
         # Path 1 — Specific: context exhaustion (Spec B S2)
         # detect_prompt_too_long reads NDJSON output for "Prompt is too long"
-        if detect_prompt_too_long(output_file):
+        if detect_prompt_too_long(output_file, error_path=error_file):
             # Check if the agent managed to write a result file before exhaustion
             result_status = _classify_from_result_file(result_file, started_at)
             if result_status is not None:
@@ -968,6 +1100,12 @@ def _determine_phase_status(
         # model output that varies in casing. When both CONTINUE and HALT appear
         # (conflicting signals), HALT wins — the stronger/safer outcome.
         upper = content.upper()
+        # Sentinel contract: EXIT_RECOMMENDATION: CONTINUE is written by
+        # _write_preliminary_result() as a deterministic fallback for phases that
+        # exit 0 but produce no agent result file. The presence of this sentinel
+        # here causes the phase to return PASS rather than fall through to
+        # PASS_NO_REPORT (branch 4). _write_executor_result_file() overwrites this
+        # file after status determination with the authoritative structured report.
         has_continue = "EXIT_RECOMMENDATION: CONTINUE" in upper
         has_halt = "EXIT_RECOMMENDATION: HALT" in upper
         if has_halt:

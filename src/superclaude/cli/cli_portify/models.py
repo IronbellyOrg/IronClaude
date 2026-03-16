@@ -29,6 +29,7 @@ OUTPUT_NOT_WRITABLE: str = "OUTPUT_NOT_WRITABLE"
 AMBIGUOUS_PATH: str = "AMBIGUOUS_PATH"
 INVALID_PATH: str = "INVALID_PATH"
 DERIVATION_FAILED: str = "DERIVATION_FAILED"
+CONTENT_TOO_LARGE: str = "CONTENT_TOO_LARGE"
 
 # Legacy / v2.24.1 target-resolution error constants
 ERR_TARGET_NOT_FOUND: str = "ERR_TARGET_NOT_FOUND"
@@ -481,6 +482,33 @@ class PortifyStepResult:
     iteration_timeout: int = 0
     error_message: str = ""
     duration_seconds: float = 0.0
+    review_accepted: Optional[bool] = None
+    review_required: bool = False
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 T07.02: BrainstormFinding dataclass (FR-027)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class BrainstormFinding:
+    """A gap or risk finding produced by a single brainstorm persona (FR-027).
+
+    Attributes:
+        gap_id: Unique identifier for this finding (e.g. GAP-001).
+        description: Human-readable description of the gap or risk.
+        severity: One of CRITICAL, MAJOR, MINOR, INFO.
+        affected_section: The spec section number or name this finding affects.
+        persona: The brainstorm persona that produced this finding
+                 (architect, analyzer, or backend).
+    """
+
+    gap_id: str = ""
+    description: str = ""
+    severity: str = "MINOR"
+    affected_section: str = ""
+    persona: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -528,6 +556,16 @@ class PortifyConfig:
     max_turns: int = 200
     model: str = ""
     stall_timeout: int = 300
+    skip_review: bool = False
+    max_convergence: int = 3
+    iteration_timeout: int = 300
+
+    @property
+    def results_dir(self) -> Optional[Path]:
+        """Return the results subdirectory under output_dir, or None."""
+        if self.output_dir is None:
+            return None
+        return self.output_dir / "results"
 
     def derive_cli_name(self) -> str:
         """Return the CLI name: explicit override or derived from workflow dir name.

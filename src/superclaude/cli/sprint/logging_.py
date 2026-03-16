@@ -120,7 +120,7 @@ class SprintLogger:
 
         # Screen severity routing
         # DEBUG -> JSONL only (PASS_NO_SIGNAL)
-        # INFO  -> screen + JSONL (PASS/PASS_NO_REPORT)
+        # INFO  -> screen + JSONL (PASS/PASS_NO_REPORT/PASS_RECOVERED)
         # WARN  -> highlighted stderr + JSONL (HALT/TIMEOUT)
         # ERROR -> highlighted stderr + JSONL + bell (ERROR)
         if result.status == PhaseStatus.ERROR:
@@ -133,10 +133,19 @@ class SprintLogger:
                 f"Phase {result.phase.number}: {result.status.value} "
                 f"({result.duration_display})"
             )
-        elif result.status in (PhaseStatus.PASS, PhaseStatus.PASS_NO_REPORT):
+        elif result.status in (PhaseStatus.PASS, PhaseStatus.PASS_NO_REPORT, PhaseStatus.PASS_RECOVERED):
             self._screen_info(
                 f"Phase {result.phase.number}: {result.status.value} "
                 f"({result.duration_display})"
+            )
+        elif result.status == PhaseStatus.PREFLIGHT_PASS:
+            self._screen_info(
+                f"Phase {result.phase.number}: {result.status.value} "
+                f"({result.duration_display})"
+            )
+        elif result.status == PhaseStatus.SKIPPED:
+            self._screen_info(
+                f"Phase {result.phase.number}: {result.status.value}"
             )
 
     def write_summary(self, sprint: SprintResult):

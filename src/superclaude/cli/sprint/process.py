@@ -94,9 +94,16 @@ class ClaudeProcess(_PipelineClaudeProcess):
     via lifecycle hook factories.
     """
 
-    def __init__(self, config: SprintConfig, phase: Phase):
+    def __init__(
+        self,
+        config: SprintConfig,
+        phase: Phase,
+        *,
+        env_vars: dict[str, str] | None = None,
+    ):
         self.config = config
         self.phase = phase
+        self._extra_env_vars = env_vars
         prompt = self.build_prompt()
         super().__init__(
             prompt=prompt,
@@ -110,16 +117,57 @@ class ClaudeProcess(_PipelineClaudeProcess):
             on_spawn=_make_spawn_hook(phase, config),
             on_signal=_make_signal_hook(phase, config),
             on_exit=_make_exit_hook(phase, config),
+            env_vars=env_vars,
         )
 
     def build_prompt(self) -> str:
         """Build the /sc:task-unified prompt for this phase."""
         pn = self.phase.number
         phase_file = self.phase.file
+        config = self.config
+
+        # Sprint Context header (FR-007/FR-008)
+        sprint_name = getattr(config, "release_name", None) or config.release_dir.name
+        total_phases = len(config.phases) if config.phases else pn
+        artifact_root = config.release_dir / "artifacts"
+        results_dir = config.results_dir
+        prior_artifact_dirs = [
+            artifact_root / f"D-{i:04d}"
+            for i in range(1, pn)
+            if (artifact_root / f"D-{i:04d}").exists()
+        ] if pn > 1 else []
+        prior_phase_dirs = [
+            config.release_dir / f"phase-{i}"
+            for i in range(1, pn)
+        ] if pn > 1 else []
+
+        sprint_context_lines = [
+            "## Sprint Context",
+            f"- Sprint: {sprint_name}",
+            f"- Phase: {pn} of {total_phases}",
+            f"- Artifact root: {artifact_root}",
+            f"- Results directory: {results_dir}",
+        ]
+        if prior_artifact_dirs:
+            sprint_context_lines.append(
+                "- Prior-phase artifact directories: "
+                + ", ".join(str(d) for d in prior_artifact_dirs)
+            )
+        if prior_phase_dirs:
+            sprint_context_lines.append(
+                "- Prior-phase directories: "
+                + ", ".join(str(d) for d in prior_phase_dirs)
+            )
+        sprint_context_lines.append(
+            "- All task details are in the phase file. Do not seek additional index files."
+        )
+        sprint_context = "\n".join(sprint_context_lines)
 
         return (
             f"/sc:task-unified Execute all tasks in @{phase_file} "
             f"--compliance strict --strategy systematic\n"
+            f"\n"
+            f"{sprint_context}\n"
             f"\n"
             f"## Execution Rules\n"
             f"- Execute tasks in order (T{pn:02d}XX.01, T{pn:02d}XX.02, etc.)\n"
@@ -141,7 +189,15 @@ class ClaudeProcess(_PipelineClaudeProcess):
             f"- This is Phase {pn} of a multi-phase sprint\n"
             f"- Previous phases have already been executed in separate sessions\n"
             f"- Do not re-execute work from prior phases\n"
-            f"- Focus only on the tasks defined in the phase file"
+            f"- Focus only on the tasks defined in the phase file\n"
+            f"\n"
+            f"## Result File\n"
+            f"- When all tasks in this phase are complete, write the result file to:\n"
+            f"  `{config.result_file(self.phase).as_posix()}`\n"
+            f"- The file content must be exactly: `EXIT_RECOMMENDATION: CONTINUE`\n"
+            f"- Write this file as the final action of this phase\n"
+            f"- If a STRICT-tier task fails and you are halting, write instead:\n"
+            f"  `EXIT_RECOMMENDATION: HALT`"
         )
 
 

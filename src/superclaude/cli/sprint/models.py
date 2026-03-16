@@ -33,6 +33,8 @@ class TaskEntry:
     title: str
     description: str = ""
     dependencies: list[str] = field(default_factory=list)
+    command: str = ""
+    classifier: str = ""
 
 
 class TaskStatus(Enum):
@@ -210,6 +212,7 @@ class PhaseStatus(Enum):
     PASS_NO_SIGNAL = "pass_no_signal"
     PASS_NO_REPORT = "pass_no_report"
     PASS_RECOVERED = "pass_recovered"  # non-zero exit but evidence of success
+    PREFLIGHT_PASS = "preflight_pass"  # completed by preflight execution (python/skip mode)
     INCOMPLETE = "incomplete"
     HALT = "halt"
     TIMEOUT = "timeout"
@@ -223,6 +226,7 @@ class PhaseStatus(Enum):
             PhaseStatus.PASS_NO_SIGNAL,
             PhaseStatus.PASS_NO_REPORT,
             PhaseStatus.PASS_RECOVERED,
+            PhaseStatus.PREFLIGHT_PASS,
             PhaseStatus.INCOMPLETE,
             PhaseStatus.HALT,
             PhaseStatus.TIMEOUT,
@@ -237,6 +241,7 @@ class PhaseStatus(Enum):
             PhaseStatus.PASS_NO_SIGNAL,
             PhaseStatus.PASS_NO_REPORT,
             PhaseStatus.PASS_RECOVERED,
+            PhaseStatus.PREFLIGHT_PASS,
         )
 
     @property
@@ -260,6 +265,7 @@ class Phase:
     number: int
     file: Path
     name: str = ""  # extracted from phase file heading, or auto-generated
+    execution_mode: str = "claude"  # claude, python, or skip
 
     @property
     def basename(self) -> str:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 from pathlib import Path
 from typing import Any
@@ -70,14 +71,53 @@ def parse_frontmatter(content: str) -> tuple[dict[str, Any], str]:
     return fm, body
 
 
-def verify_additive_only(original: str, updated: str) -> bool:
-    """Verify that updated content only adds to original (no removals).
+def hash_section(content: str) -> str:
+    """Return a stable SHA-256 hex digest for section content.
 
-    Returns True if every line in original appears in updated.
+    Leading/trailing whitespace is stripped before hashing.
     """
-    original_lines = set(original.splitlines())
-    updated_lines = set(updated.splitlines())
-    return original_lines.issubset(updated_lines)
+    normalized = content.strip()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def extract_sections(content: str) -> dict[str, str]:
+    """Extract ## headings and their body text from Markdown content.
+
+    Returns a dict of {section_title: body_text} for every ## heading found.
+    Only top-level (##) headings are captured.
+    """
+    sections: dict[str, str] = {}
+    pattern = re.compile(r"^## (.+)$", re.MULTILINE)
+    matches = list(pattern.finditer(content))
+    for i, match in enumerate(matches):
+        title = match.group(1).strip()
+        start = match.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(content)
+        body = content[start:end].strip()
+        sections[title] = body
+    return sections
+
+
+def verify_additive_only(old_hashes: dict[str, str], updated: str) -> list[str]:
+    """Verify that updated content does not remove or modify existing sections.
+
+    Args:
+        old_hashes: Dict of {section_title: hash} from before the update.
+        updated: New Markdown content to check.
+
+    Returns:
+        List of violation strings (empty if no violations).
+    """
+    new_sections = extract_sections(updated)
+    violations: list[str] = []
+    for title, old_hash in old_hashes.items():
+        if title not in new_sections:
+            violations.append(f"Section '{title}' was removed")
+        else:
+            new_hash = hash_section(new_sections[title])
+            if new_hash != old_hash:
+                violations.append(f"Section '{title}' was modified")
+    return violations
 
 
 def count_lines(path: Path) -> int:

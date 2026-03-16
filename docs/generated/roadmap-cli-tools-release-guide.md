@@ -14,8 +14,9 @@ This guide covers the `superclaude roadmap` CLI tooling, including:
 ## 1) Release Summary (What is included)
 
 ### Core command surface
-The `superclaude roadmap` command group provides 1 subcommand:
+The `superclaude roadmap` command group provides 2 subcommands:
 1. `run` — Execute the 8-step adversarial roadmap generation pipeline
+2. `validate` — Validate pipeline outputs against 7 structural and semantic dimensions
 
 ### Architecture overview
 The roadmap CLI orchestrates an **adversarial dual-agent pipeline** that:
@@ -30,12 +31,15 @@ The roadmap CLI orchestrates an **adversarial dual-agent pipeline** that:
 ### Module structure
 ```
 src/superclaude/cli/roadmap/
-├── __init__.py      # Exports roadmap_group
-├── commands.py      # Click CLI definition (FR-009)
-├── models.py        # AgentSpec + RoadmapConfig dataclasses
-├── executor.py      # 8-step pipeline orchestration
-├── gates.py         # Gate criteria + semantic check functions
-└── prompts.py       # Pure prompt builder functions (NFR-004)
+├── __init__.py           # Exports roadmap_group
+├── commands.py           # Click CLI definition (run + validate)
+├── models.py             # AgentSpec, RoadmapConfig, ValidateConfig dataclasses
+├── executor.py           # 8-step pipeline orchestration + auto-validate hook
+├── gates.py              # Gate criteria + semantic check functions
+├── prompts.py            # Pure prompt builder functions (NFR-004)
+├── validate_executor.py  # Validation pipeline orchestration
+├── validate_gates.py     # REFLECT_GATE + ADVERSARIAL_MERGE_GATE definitions
+└── validate_prompts.py   # Reflect + adversarial-merge prompt builders
 ```
 
 ### Shared pipeline dependency
@@ -153,6 +157,60 @@ superclaude roadmap run .dev/releases/current/v2.20/spec.md \
   --output .dev/releases/current/v2.20/ \
   --max-turns 150 \
   --debug
+```
+
+---
+
+## `superclaude roadmap validate`
+
+### What it does
+Validates the outputs of a prior `roadmap run` across 7 structural and semantic dimensions. Reads `roadmap.md`, `test-strategy.md`, and `extraction.md` from a completed pipeline output directory, runs one or more agent reflections, and produces a `validate/validation-report.md` with severity-classified findings.
+
+**Auto-invocation**: `roadmap run` automatically invokes validation after a successful 8-step pipeline (unless `--no-validate` is passed). You only need to call `validate` explicitly to re-run validation on a previously completed output directory, or to run with different agents/options.
+
+### Use when
+- Checking whether a generated `roadmap.md` is ready for tasklist generation.
+- Re-running validation after manually editing roadmap artifacts.
+- Running with different agents than the auto-invoked defaults.
+- CI/CD gate: confirm no BLOCKING issues before proceeding to `/sc:tasklist`.
+
+### Syntax
+```bash
+superclaude roadmap validate <OUTPUT_DIR> [options]
+```
+
+### Positional arguments
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `OUTPUT_DIR` | Yes | Path to a directory produced by `roadmap run`. Must contain `roadmap.md`, `test-strategy.md`, and `extraction.md`. |
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--agents` | String | `opus:architect` | Comma-separated agent specs (`model[:persona]`). 1 agent = single-agent mode; N agents = parallel reflect + adversarial merge. |
+| `--model` | String | `""` | Override model for all validation steps. |
+| `--max-turns` | Integer | `100` | Max agent turns per Claude subprocess. |
+| `--debug` | Flag | Off | Enable debug logging. |
+
+### Exit behavior
+Always exits 0 (NFR-006). Blocking issues are surfaced as yellow CLI warnings; the caller decides whether to treat them as hard failures.
+
+### Examples
+
+```bash
+# Basic validation with default single agent (opus:architect)
+superclaude roadmap validate ./output
+
+# Dual-agent adversarial validation
+superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+
+# Validate with a specific model override
+superclaude roadmap validate ./output --model claude-sonnet-4-20250514
+
+# Disable auto-validation during roadmap run, validate manually later
+superclaude roadmap run spec.md --no-validate
+superclaude roadmap validate ./output --agents sonnet:architect,haiku:security
 ```
 
 ---
@@ -294,6 +352,116 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
 
 ### Retry behavior
 Each step has `retry_limit=1`, meaning **2 total attempts** before the pipeline halts. If the first attempt fails its gate, the step is re-run once. If the retry also fails, the pipeline halts with a diagnostic error message.
+
+---
+
+## 4b) The Validate Pipeline
+
+### Overview
+
+The validate pipeline is a lightweight post-generation quality gate. It reads three artifacts produced by `roadmap run` and produces a single `validation-report.md` file that classifies any structural or semantic issues found.
+
+**Pipeline routing** depends on agent count:
+
+```
+Single agent (default):
+  INPUT: roadmap.md + test-strategy.md + extraction.md
+       │
+  Step 1: reflect  ──────────────────────────────────────► validation-report.md
+
+Multi-agent (N agents):
+  INPUT: roadmap.md + test-strategy.md + extraction.md
+       │
+  ┌────┴─────────────────────────────┐
+  Step 1a: reflect-{agent_a.id}    Step 1b: reflect-{agent_b.id}   ← parallel
+  ├── reflect-opus-architect.md     └── reflect-haiku-qa.md
+  └────┬─────────────────────────────┘
+       │
+  Step 2: adversarial-merge ───────────────────────────────► validation-report.md
+```
+
+### Validation dimensions (7 total)
+
+Each finding is classified as **BLOCKING**, **WARNING**, or **INFO**.
+
+#### BLOCKING dimensions (failure = roadmap not ready for tasklist generation)
+
+| # | Dimension | What is checked |
+|---|-----------|-----------------|
+| 1 | **Schema** | YAML frontmatter fields present, non-empty, correctly typed |
+| 2 | **Structure** | Milestone DAG acyclic, all refs resolve, no duplicate deliverable IDs, heading hierarchy valid (no H2→H4 gaps) |
+| 3 | **Traceability** | Every deliverable traces to a requirement; every requirement traces to a deliverable |
+| 4 | **Cross-file consistency** | `test-strategy.md` milestone refs match `roadmap.md` milestones exactly; no dangling refs in either direction |
+| 5 | **Parseability** | Content is parseable into actionable items by `sc:tasklist`'s splitter via headings, bullets, and numbered lists |
+
+#### WARNING dimensions (non-blocking)
+
+| # | Dimension | What is checked |
+|---|-----------|-----------------|
+| 6 | **Interleave** | `interleave_ratio = unique_phases_with_deliverables / total_phases`; must be in [0.1, 1.0]; test activities must not be back-loaded |
+| 7 | **Decomposition** | Compound deliverables that describe multiple distinct outputs joined by "and"/"or" (would need splitting by `sc:tasklist`) |
+
+### Output artifacts
+
+All artifacts are written to `<OUTPUT_DIR>/validate/`.
+
+| Artifact | Mode | Description |
+|----------|------|-------------|
+| `validate/validation-report.md` | Both | Final validation report with YAML frontmatter and classified findings |
+| `validate/reflect-{agent.id}.md` | Multi-agent only | Per-agent reflection report (one per agent) |
+
+### Gate criteria
+
+#### REFLECT_GATE (STRICT)
+- **Min lines**: 20
+- **Required frontmatter**: `blocking_issues_count`, `warnings_count`, `tasklist_ready`
+- **Semantic checks**: `frontmatter_values_non_empty`
+
+#### ADVERSARIAL_MERGE_GATE (STRICT, multi-agent only)
+- **Min lines**: 30
+- **Required frontmatter**: `blocking_issues_count`, `warnings_count`, `tasklist_ready`, `validation_mode`, `validation_agents`
+- **Semantic checks**: `frontmatter_values_non_empty`, `agreement_table_present` (requires a markdown table with "agree"/"agreement" column header)
+
+### Report frontmatter
+
+```yaml
+---
+blocking_issues_count: 2       # integer — total BLOCKING findings
+warnings_count: 1              # integer — total WARNING findings
+tasklist_ready: false          # boolean — true only if blocking_issues_count == 0
+# (multi-agent only)
+validation_mode: adversarial
+validation_agents: opus-architect, haiku-qa
+---
+```
+
+### CLI output format
+
+```
+WARNING: 2 blocking issue(s) found        ← yellow, only if blocking > 0
+Warnings: 1                               ← only if warning > 0
+Info: 3                                   ← only if info > 0
+
+[validate] Complete: 2 blocking, 1 warning, 3 info
+```
+
+### Auto-invocation from `roadmap run`
+
+After a successful 8-step pipeline, `execute_roadmap()` automatically calls `_auto_invoke_validate()`. It:
+- Inherits `--model`, `--max-turns`, `--debug` from the parent `roadmap run` invocation.
+- Uses the first 2 agents from `--agents` for dual-agent rigor (or 1 agent if only 1 was specified).
+- Saves validation status (`pass`/`fail`/`skipped`) to `.roadmap-state.json`.
+- Prints `[roadmap] Auto-invoking validation...` before running.
+
+To skip auto-validation:
+```bash
+superclaude roadmap run spec.md --no-validate
+```
+Note: `--no-validate` skips the post-pipeline validation subsystem only. It does **not** skip the spec-fidelity step (FR-010, AC-005).
+
+### Degraded mode (multi-agent partial failure)
+
+If some (but not all) reflect steps fail in multi-agent mode, the executor writes a degraded report with a `_write_degraded_report()` call, logging which agents passed and which failed. The adversarial-merge step is skipped and the degraded report becomes `validation-report.md`.
 
 ---
 
@@ -506,6 +674,21 @@ class RoadmapConfig(PipelineConfig):
     grace_period: int       # Default: 0
 ```
 
+### ValidateConfig (extends PipelineConfig)
+
+```python
+@dataclass
+class ValidateConfig(PipelineConfig):
+    output_dir: Path          # Directory containing roadmap run outputs
+    agents: list[AgentSpec]   # Default: [opus:architect, haiku:architect]
+
+# Inherited from PipelineConfig:
+    work_dir: Path          # Default: Path(".")
+    max_turns: int          # Default: 100
+    model: str              # Default: "" (use per-agent models)
+    debug: bool             # Default: False
+```
+
 ### GateCriteria
 
 ```python
@@ -541,6 +724,15 @@ Create a specification markdown file with project requirements, constraints, and
 superclaude roadmap run spec.md --depth standard
 ```
 Produces `roadmap.md` (merged, adversarially validated) + `test-strategy.md`.
+Automatically invokes validation on success (unless `--no-validate`).
+
+### Stage B2: Validate (quality gate) ← **This tool**
+```bash
+# Automatic after roadmap run (unless --no-validate)
+# To re-run manually:
+superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+```
+Produces `validate/validation-report.md`. Check `tasklist_ready: true` before proceeding.
 
 ### Stage C: Tasklist (execution plan)
 ```bash
@@ -717,6 +909,8 @@ The `/sc:roadmap` slash command (defined in `src/superclaude/commands/roadmap.md
 ## 13) Quick Command Cheat Sheet
 
 ```bash
+# --- roadmap run ---
+
 # Basic roadmap generation
 superclaude roadmap run spec.md
 
@@ -754,6 +948,21 @@ superclaude roadmap run spec.md \
   --output .dev/releases/current/v2.20/ \
   --max-turns 150 \
   --debug
+
+# --- roadmap validate ---
+
+# Basic validation (single-agent, default opus:architect)
+superclaude roadmap validate ./output
+
+# Dual-agent adversarial validation
+superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+
+# Skip auto-validation during run, validate manually later
+superclaude roadmap run spec.md --no-validate
+superclaude roadmap validate ./output --agents sonnet:architect,haiku:security
+
+# Validate with model override
+superclaude roadmap validate ./output --model claude-sonnet-4-20250514
 ```
 
 ---
@@ -786,12 +995,19 @@ superclaude roadmap run spec.md \
 | `Heading level gap detected` | Merge produced H2→H4 jump | Re-run merge step; check variant heading structure |
 | `spec-file has changed since last run` (with `--resume`) | Spec was edited after previous run | Expected behavior — extract is forced to re-run |
 | All steps skipped with `--resume` | All outputs already pass gates | Pipeline already complete; inspect `roadmap.md` |
+| `Required validation input not found: …/roadmap.md` | Validate called on dir without a completed run | Run `superclaude roadmap run` first; all 3 inputs required |
+| `agreement_table_present` failure (multi-agent) | Adversarial merge missing agreement/disagreement table | Re-run; if persistent, switch to single-agent with `--agents opus:architect` |
+| `tasklist_ready: false` in validation report | BLOCKING issues found during validation | Inspect `validate/validation-report.md` findings and fix the roadmap, then re-validate |
+| Validation skipped with `[validate] Skipped:` | Auto-validate called before `roadmap.md` was written (unusual) | Run `superclaude roadmap validate <output_dir>` manually |
 
 ---
 
 ## 15) Notes for Pipeline Operators
 
-- The roadmap CLI is the **generation** layer. It produces `roadmap.md` and `test-strategy.md` that feed into the **tasklist** layer (`/sc:tasklist`) and then the **execution** layer (`superclaude sprint run`).
+- The roadmap CLI covers two layers: **generation** (`roadmap run` → `roadmap.md` + `test-strategy.md`) and **validation** (`roadmap validate` → `validate/validation-report.md`). Both feed into the **tasklist** layer (`/sc:tasklist`) and then the **execution** layer (`superclaude sprint run`).
+- Validation runs automatically after `roadmap run` unless `--no-validate` is passed. Check `tasklist_ready: true` in `validate/validation-report.md` before invoking `/sc:tasklist`.
+- For CI/CD pipelines: use `--no-validate` during `roadmap run` to control timing, then call `roadmap validate` as a separate gate step and parse `blocking_issues_count` from the report frontmatter.
+- Single-agent validation (`--agents opus:architect`) is faster and cheaper. Dual-agent (`--agents opus:architect,haiku:qa`) produces an adversarial merge with an agreement table for richer analysis.
 - Use `--dry-run` as an automated gate between spec authoring and pipeline execution.
 - Use `--resume` for efficient iteration: edit spec → re-run → only changed steps execute.
 - The `.roadmap-state.json` file is the source of truth for resume decisions. Delete it to force a full re-run.

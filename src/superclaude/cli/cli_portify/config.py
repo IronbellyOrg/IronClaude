@@ -54,6 +54,9 @@ def load_portify_config(
     max_turns: int = 200,
     model: str = "",
     stall_timeout: int = 300,
+    skip_review: bool = False,
+    max_convergence: int = 3,
+    iteration_timeout: int = 300,
 ) -> PortifyConfig:
     """Construct a PortifyConfig from CLI arguments.
 
@@ -112,6 +115,9 @@ def load_portify_config(
         max_turns=max_turns,
         model=model,
         stall_timeout=stall_timeout,
+        skip_review=skip_review,
+        max_convergence=max_convergence,
+        iteration_timeout=iteration_timeout,
     )
     return config
 

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -10,6 +12,7 @@ import pytest
 
 from superclaude.cli.sprint.executor import (
     _determine_phase_status,
+    _write_preliminary_result,
     aggregate_task_results,
     AggregatedPhaseReport,
     check_budget_guard,
@@ -389,7 +392,11 @@ class TestExecuteSprintIntegrationCoverage:
         def _factory(*args, **kwargs):
             phase = config.phases[0]
             config.results_dir.mkdir(parents=True, exist_ok=True)
-            config.result_file(phase).write_text("EXIT_RECOMMENDATION: HALT\n")
+            result = config.result_file(phase)
+            result.write_text("EXIT_RECOMMENDATION: HALT\n")
+            # Set mtime to future so freshness guard treats file as agent-written
+            future = time.time() + 60
+            os.utime(result, (future, future))
             config.output_file(phase).write_text("output\n")
             return _HaltPopen()
 
@@ -1290,3 +1297,79 @@ class TestBackwardCompat:
         source = Path(mod.__file__).read_text()
         assert "threading" not in source
         assert "Thread(" not in source
+
+
+class TestWritePreliminaryResult:
+    """Unit tests for _write_preliminary_result() — T-001, T-002, T-002b, T-005."""
+
+    def test_t001_absent_file_written_with_sentinel(self, tmp_path):
+        """T-001: When result file is absent, writes CONTINUE sentinel and returns True."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        # Ensure the result file does not exist
+        result_path = config.result_file(phase)
+        assert not result_path.exists()
+
+        started_at = datetime.now(timezone.utc).timestamp() - 1.0  # 1 s in the past
+
+        return_val = _write_preliminary_result(config, phase, started_at)
+
+        assert return_val is True
+        assert result_path.exists()
+        assert result_path.read_text() == "EXIT_RECOMMENDATION: CONTINUE\n"
+
+    def test_t002_fresh_agent_file_preserved(self, tmp_path):
+        """T-002: Fresh non-empty agent file (st_mtime >= started_at) is untouched; returns False."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        result_path = config.result_file(phase)
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write a non-empty file and capture its mtime
+        original_content = "EXIT_RECOMMENDATION: HALT\n"
+        result_path.write_text(original_content)
+        file_mtime = result_path.stat().st_mtime
+
+        # started_at strictly before the file mtime → file is fresh
+        started_at = file_mtime - 1.0
+
+        return_val = _write_preliminary_result(config, phase, started_at)
+
+        assert return_val is False
+        assert result_path.read_text() == original_content  # file unchanged
+
+    def test_t002b_zero_byte_file_overwritten(self, tmp_path):
+        """T-002b: Zero-byte file is treated as absent and overwritten with sentinel; returns True."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        result_path = config.result_file(phase)
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write an empty (zero-byte) file — even a fresh one should be overwritten
+        result_path.write_text("")
+        file_mtime = result_path.stat().st_mtime
+        started_at = file_mtime - 1.0  # started_at before mtime, but file is zero-byte
+
+        return_val = _write_preliminary_result(config, phase, started_at)
+
+        assert return_val is True
+        assert result_path.read_text() == "EXIT_RECOMMENDATION: CONTINUE\n"
+
+    def test_t005_oserror_returns_false_with_warning(self, tmp_path, caplog):
+        """T-005: OSError on write returns False (no exception raised) and logs a WARNING."""
+        import logging
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        # Ensure the result file does not pre-exist so the freshness guard doesn't fire
+        result_path = config.result_file(phase)
+        assert not result_path.exists()
+        started_at = datetime.now(timezone.utc).timestamp() - 1.0
+
+        with caplog.at_level(logging.WARNING, logger="superclaude.cli.sprint.executor"):
+            with patch("pathlib.Path.write_text", side_effect=OSError("disk full")):
+                return_val = _write_preliminary_result(config, phase, started_at)
+
+        assert return_val is False
+        warning_messages = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+        assert any("preliminary result write failed" in m for m in warning_messages)

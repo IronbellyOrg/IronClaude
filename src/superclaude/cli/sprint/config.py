@@ -27,7 +27,8 @@ PHASE_FILE_PATTERN = re.compile(
 def discover_phases(index_path: Path) -> list[Phase]:
     """Discover phase files from the index and/or directory.
 
-    Strategy 1: grep the index file for phase file references.
+    Strategy 1: grep the index file for phase file references, also reading
+    the optional ``Execution Mode`` column from the phase table.
     Strategy 2: scan the directory for files matching the pattern.
     Deduplicates by phase number, sorts ascending.
     """
@@ -37,12 +38,64 @@ def discover_phases(index_path: Path) -> list[Phase]:
 
     # Strategy 1: parse index file
     index_text = index_path.read_text(errors="replace")
+
+    # Try to extract Execution Mode column values from a markdown table that
+    # contains a "File" column and optionally an "Execution Mode" column.
+    # We build a mapping: filename -> execution_mode
+    exec_mode_by_file: dict[str, str] = {}
+    _exec_mode_re = re.compile(
+        r"^\|(?P<cols>[^\n]+)\|$",
+        re.MULTILINE,
+    )
+    # Locate all pipe-table rows and detect header
+    table_rows = [m.group("cols") for m in _exec_mode_re.finditer(index_text)]
+    if table_rows:
+        # Find the header row that contains "File" (case-insensitive)
+        header_idx = None
+        for idx, row in enumerate(table_rows):
+            cols = [c.strip().lower() for c in row.split("|")]
+            if "file" in cols:
+                header_idx = idx
+                break
+        if header_idx is not None:
+            header_cols = [c.strip().lower() for c in table_rows[header_idx].split("|")]
+            file_col_idx = header_cols.index("file")
+            exec_mode_col_idx = (
+                header_cols.index("execution mode")
+                if "execution mode" in header_cols
+                else None
+            )
+            # Rows after header (skip separator row which contains only dashes/colons/pipes)
+            _sep_re = re.compile(r"^[\s\-|:]*$")
+            for row in table_rows[header_idx + 1 :]:
+                if _sep_re.match(row):
+                    continue
+                raw_cols = [c.strip() for c in row.split("|")]
+                if len(raw_cols) > file_col_idx:
+                    filename = raw_cols[file_col_idx].strip()
+                    # Strip markdown link syntax if present: [text](url)
+                    link_m = re.match(r"\[([^\]]+)\]\([^\)]+\)", filename)
+                    if link_m:
+                        filename = link_m.group(1)
+                    if exec_mode_col_idx is not None and len(raw_cols) > exec_mode_col_idx:
+                        raw_mode = raw_cols[exec_mode_col_idx].strip().lower()
+                        allowed = {"claude", "python", "skip"}
+                        if raw_mode not in allowed:
+                            raise click.ClickException(
+                                f"Unknown execution mode '{raw_mode}' for file '{filename}'. "
+                                f"Allowed: claude, python, skip"
+                            )
+                        exec_mode_by_file[filename] = raw_mode
+                    else:
+                        exec_mode_by_file[filename] = "claude"
+
     for match in PHASE_FILE_PATTERN.finditer(index_text):
         num = int(next(g for g in match.groups() if g is not None))
         filename = match.group(0)
         filepath = index_dir / filename
         if filepath.exists() and num not in phases:
-            phases[num] = Phase(number=num, file=filepath)
+            exec_mode = exec_mode_by_file.get(filename, "claude")
+            phases[num] = Phase(number=num, file=filepath, execution_mode=exec_mode)
 
     # Strategy 2: scan directory if nothing found
     if not phases:
@@ -53,7 +106,8 @@ def discover_phases(index_path: Path) -> list[Phase]:
             if m:
                 num = int(next(g for g in m.groups() if g is not None))
                 if num not in phases:
-                    phases[num] = Phase(number=num, file=f)
+                    exec_mode = exec_mode_by_file.get(f.name, "claude")
+                    phases[num] = Phase(number=num, file=f, execution_mode=exec_mode)
 
     return [phases[k] for k in sorted(phases)]
 
@@ -190,19 +244,35 @@ _DEPENDENCY_RE = re.compile(
 
 _TASK_ID_REF_RE = re.compile(r"T\d{2}\.\d{2}")
 
+# Matches: **Command:** `some command` or **Command:** some command
+_COMMAND_RE = re.compile(
+    r"\*\*Command:\*\*\s*`?([^`\n]+)`?",
+    re.IGNORECASE,
+)
+
+# Matches a pipe-table row: | Classifier | value |
+_CLASSIFIER_RE = re.compile(
+    r"^\|\s*Classifier\s*\|\s*([^|]+)\|",
+    re.IGNORECASE | re.MULTILINE,
+)
+
 _logger = logging.getLogger("superclaude.sprint.config")
 
 
-def parse_tasklist(content: str) -> list[TaskEntry]:
+def parse_tasklist(content: str, execution_mode: str = "claude") -> list[TaskEntry]:
     """Parse phase tasklist markdown into a structured task inventory.
 
-    Extracts task ID, title, and dependency annotations from each
-    ``### T<PP>.<TT> -- Title`` block. Malformed input (missing headings,
-    invalid IDs, empty content) is handled gracefully — invalid blocks
-    are skipped with a logged warning.
+    Extracts task ID, title, dependency annotations, command, and classifier
+    from each ``### T<PP>.<TT> -- Title`` block. Malformed input (missing
+    headings, invalid IDs, empty content) is handled gracefully — invalid
+    blocks are skipped with a logged warning.
 
     Args:
         content: Raw markdown text of a phase tasklist file.
+        execution_mode: The phase execution mode (``claude``, ``python``, or
+            ``skip``). When ``python``, every task must have a non-empty
+            ``**Command:**`` field; a :class:`click.ClickException` is raised
+            on the first task found without one.
 
     Returns:
         Ordered list of :class:`TaskEntry` instances.
@@ -233,6 +303,18 @@ def parse_tasklist(content: str) -> list[TaskEntry]:
             if dep_text.lower() not in ("none", ""):
                 dependencies = _TASK_ID_REF_RE.findall(dep_text)
 
+        # Extract **Command:** field (strip surrounding backticks)
+        command = ""
+        cmd_match = _COMMAND_RE.search(block)
+        if cmd_match:
+            command = cmd_match.group(1).strip().strip("`")
+
+        # Extract | Classifier | table row
+        classifier = ""
+        cls_match = _CLASSIFIER_RE.search(block)
+        if cls_match:
+            classifier = cls_match.group(1).strip()
+
         # Build description from the deliverables section if present
         description = ""
         for line in block.splitlines():
@@ -253,23 +335,32 @@ def parse_tasklist(content: str) -> list[TaskEntry]:
                 description = " ".join(desc_lines)
                 break
 
+        # Validate python-mode tasks have a command (fail fast at parse time)
+        if execution_mode == "python" and not command:
+            raise click.ClickException(
+                f"Task {task_id} in python-mode phase has no command"
+            )
+
         tasks.append(
             TaskEntry(
                 task_id=task_id,
                 title=title,
                 description=description,
                 dependencies=dependencies,
+                command=command,
+                classifier=classifier,
             )
         )
 
     return tasks
 
 
-def parse_tasklist_file(path: Path) -> list[TaskEntry]:
+def parse_tasklist_file(path: Path, execution_mode: str = "claude") -> list[TaskEntry]:
     """Read a phase tasklist file and parse it into a task inventory.
 
     Args:
         path: Path to the phase tasklist markdown file.
+        execution_mode: The phase execution mode (passed to :func:`parse_tasklist`).
 
     Returns:
         Ordered list of :class:`TaskEntry` instances.
@@ -278,4 +369,4 @@ def parse_tasklist_file(path: Path) -> list[TaskEntry]:
         FileNotFoundError: If the path does not exist.
     """
     content = path.read_text(errors="replace")
-    return parse_tasklist(content)
+    return parse_tasklist(content, execution_mode=execution_mode)
