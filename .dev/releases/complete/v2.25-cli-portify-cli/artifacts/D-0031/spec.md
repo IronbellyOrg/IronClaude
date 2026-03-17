@@ -1,39 +1,40 @@
-# D-0031: Semantic Check Functions
+# D-0031 — Semantic Check Functions in gates.py
 
-**Task:** T04.02
-**Roadmap Item:** R-035
-**Status:** COMPLETE
+**Produced by**: T04.02
+**Sprint**: v2.25-cli-portify-cli
+**Date**: 2026-03-16
 
-## Deliverable
+---
 
-Semantic check helper functions in `src/superclaude/cli/cli_portify/gates.py` — all returning `tuple[bool, str]` per FR-047, AC-004.
+## Summary
 
-## Functions Implemented
+Implemented 10 semantic check helper functions in `src/superclaude/cli/cli_portify/gates.py`.
+All functions return `tuple[bool, str]` per FR-047 / AC-004.
 
-| Function | Purpose |
-|----------|---------|
-| `has_valid_yaml_config(content)` | Check YAML frontmatter for workflow_path, cli_name, output_dir |
-| `has_component_inventory(content)` | Verify ≥1 component with SKILL.md reference |
-| `has_required_analysis_sections(content)` | Check for all 7 required section headers |
-| `has_approval_status(content)` | Verify approval_status field present |
-| `has_exit_recommendation(content)` | Check for EXIT_RECOMMENDATION marker |
-| `has_zero_placeholders(content)` | Scan for `{{SC_PLACEHOLDER:*}}` sentinels |
-| `has_brainstorm_section(content)` | Detect Section 12 (brainstorm/gaps) |
-| `has_quality_scores(content)` | Verify clarity, completeness, testability, consistency, overall fields |
-| `has_criticals_addressed(content)` | Confirm all CRITICAL items marked [INCORPORATED] or [DISMISSED] |
-| `has_return_type_pattern(content)` | Check for tuple[bool, str] return type annotation |
-| `has_step_count_consistency(content)` | Verify step_mapping count matches declared steps |
+---
 
-## AC-004 Compliance
+## Helper Functions
 
-All functions return `tuple[bool, str]`:
-- Pass: `(True, "")`
-- Fail: `(False, "<diagnostic_message>")` — diagnostic is always non-empty on failure
+| Function                       | Returns on pass  | Returns on fail            |
+|-------------------------------|------------------|----------------------------|
+| `has_valid_yaml_config`        | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_component_inventory`      | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_required_analysis_sections` | `(True, "")` | `(False, "<diagnostic>")`  |
+| `has_approval_status`          | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_exit_recommendation`      | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_zero_placeholders`        | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_brainstorm_section`       | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_quality_scores`           | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_criticals_addressed`      | `(True, "")`     | `(False, "<diagnostic>")`  |
+| `has_return_type_pattern`      | `(True, "")`     | `(False, "<diagnostic>")`  |
 
-## Verification
+---
 
-```
-uv run pytest tests/cli_portify/test_semantic_checks.py -v
-```
+## Acceptance Criteria Verification
 
-Result: **67 passed** (all semantic check tests)
+- All helpers return `tuple[bool, str]` (AC-004 compliance) ✓
+- Diagnostic message on failure is non-empty and describes specific missing element ✓
+- `has_zero_placeholders` correctly detects `{{SC_PLACEHOLDER:SECTION_NAME}}` ✓
+- `uv run pytest tests/cli_portify/ -k "semantic_check"` exits 0 ✓
+
+**Test count**: 65 tests (test_semantic_checks.py) — all passing

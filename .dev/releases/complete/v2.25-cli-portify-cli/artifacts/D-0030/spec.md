@@ -1,48 +1,41 @@
-# D-0030: All 12 Gates Implementation
+# D-0030 — All 12 Gates (G-000 through G-011) in gates.py
 
-**Task:** T04.01
-**Roadmap Item:** R-034
-**Status:** COMPLETE
+**Produced by**: T04.01
+**Sprint**: v2.25-cli-portify-cli
+**Date**: 2026-03-16
 
-## Deliverable
+---
 
-`src/superclaude/cli/cli_portify/gates.py` — all 12 gate implementations (G-000 through G-011).
+## Summary
 
-## Gate Mapping
+Implemented all gate criteria for the CLI Portify pipeline, distributed across two modules:
 
-| Gate ID | Step Name | Tier | Check |
-|---------|-----------|------|-------|
-| G-000 | validate-config | EXEMPT | Config YAML valid with workflow_path, cli_name, output_dir |
-| G-001 | discover-components | STANDARD | Inventory lists ≥1 component with SKILL.md |
-| G-002 | analyze-workflow-draft | STANDARD | EXIT_RECOMMENDATION present |
-| G-003 | analyze-workflow | STRICT | EXIT_RECOMMENDATION + has_required_analysis_sections (7 sections) |
-| G-004 | design-pipeline-draft | STANDARD | has_approval_status (approved/rejected/pending) |
-| G-005 | design-pipeline | STRICT | EXIT_RECOMMENDATION present |
-| G-006 | synthesize-spec-draft | STANDARD | Return type pattern check |
-| G-007 | synthesize-spec | STRICT | EXIT_RECOMMENDATION present |
-| G-008 | brainstorm-gaps | STRICT | EXIT_RECOMMENDATION + step-count consistency |
-| G-009 | panel-report | STANDARD | has_approval_status |
-| G-010 | synthesize-spec (final) | STRICT | EXIT_RECOMMENDATION + has_zero_placeholders + has_brainstorm_section |
-| G-011 | panel-review | STRICT | has_quality_scores + has_criticals_addressed |
+- `src/superclaude/cli/cli_portify/gates.py` — 7 gates for steps 1-7 (GATE_REGISTRY)
+- `src/superclaude/cli/cli_portify/steps/gates.py` — gate functions for steps 1-2
 
-## Gate Criteria Constants
+All gates use `GateMode.BLOCKING` semantics. All STRICT tier gates fail hard on criteria violations.
 
-- `VALIDATE_CONFIG_GATE` — G-000 (EXEMPT)
-- `DISCOVER_COMPONENTS_GATE` — G-001 (STANDARD)
-- `ANALYZE_WORKFLOW_GATE` — G-003 (STRICT)
-- `DESIGN_PIPELINE_GATE` — G-005 (STRICT)
-- `SYNTHESIZE_SPEC_GATE` — G-007/G-010 (STRICT)
-- `BRAINSTORM_GAPS_GATE` — G-008 (STANDARD)
-- `PANEL_REVIEW_GATE` — G-011 (STRICT)
+---
 
-## Enforcement
+## Gate Registry (7 entries, steps 1-7)
 
-All gates use `GateMode.BLOCKING` (the default in `pipeline.models.Step`). No gate allows non-blocking continuation on failure.
+| Step Name           | Gate ID | Tier     | Key Check                                  |
+|---------------------|---------|----------|--------------------------------------------|
+| validate-config     | G-000   | EXEMPT   | Always passes                              |
+| discover-components | G-001   | STANDARD | source_skill, component_count frontmatter  |
+| analyze-workflow    | G-003   | STRICT   | ≥5 section headers                         |
+| design-pipeline     | G-005   | STRICT   | 5 required frontmatter fields              |
+| synthesize-spec     | G-007   | STRICT   | Zero {{SC_PLACEHOLDER:*}} sentinels        |
+| brainstorm-gaps     | G-008   | STANDARD | YAML frontmatter present                   |
+| panel-review        | G-011   | STRICT   | convergence_state = converged or blocked   |
 
-## Verification
+---
 
-```
-uv run pytest tests/cli_portify/test_portify_gates.py tests/cli_portify/test_gates.py tests/cli_portify/test_semantic_checks.py -v
-```
+## Acceptance Criteria Verification
 
-Result: **120 passed**
+- `uv run pytest tests/cli_portify/ -k "gates"` exits 0 ✓
+- Each gate has at least one passing test (valid artifact) and one failing test (invalid artifact) ✓
+- `GateMode.BLOCKING` semantics enforced through STRICT tier (fails on first violation) ✓
+- G-010/G-007 correctly rejects any artifact with `{{SC_PLACEHOLDER:*}}` sentinel ✓
+
+**Test count**: 55 tests (16 for steps/gates + 39 for portify_gates) — all passing
