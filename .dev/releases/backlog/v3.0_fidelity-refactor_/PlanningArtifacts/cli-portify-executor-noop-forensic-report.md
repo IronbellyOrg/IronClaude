@@ -20,9 +20,6 @@
 9. [Validated Root Causes](#9-validated-root-causes)
 10. [Recommended Mitigations](#10-recommended-mitigations)
 11. [Key File References](#11-key-file-references)
-12. [Appendix A: Mock Test Analysis](#appendix-a-mock-test-analysis--why-mocks-were-specified-and-where-that-went-wrong)
-13. [Appendix B: v2.24.1 Release Findings](#appendix-b-v2241-release--full-findings)
-14. [Appendix C: Fidelity Gate Technical Details](#appendix-c-fidelity-gate-technical-details)
 
 ---
 
@@ -511,65 +508,11 @@ Before any release can be marked complete:
 
 ---
 
-## Appendix A: Mock Test Analysis — Why Mocks Were Specified and Where That Went Wrong
-
-### What Mock Tests Legitimately Validate
-
-Mock tests are correct for testing **orchestration mechanics in isolation**:
-
-- Does the loop iterate steps in `STEP_REGISTRY` order?
-- Does `--resume` skip completed steps?
-- Does `SIGINT` produce `INTERRUPTED` outcome?
-- Does budget exhaustion produce `HALTED`?
-- Does `return-contract.yaml` emit on all code paths?
-
-These are **container tests** — testing the executor loop, not the step implementations. Mocking steps makes sense here because the executor's job is sequencing, not step content.
-
-### Why the Agent Specified Mock-Only Testing
-
-The "mocked steps" language **did not come from the pipeline prompts**. All pipeline prompt code was searched:
-
-| Prompt Source | Contains "mock" instructions? |
-|---------------|------------------------------|
-| `roadmap/prompts.py` — `build_generate_prompt()` | No |
-| `roadmap/prompts.py` — `build_test_strategy_prompt()` | No — actually asks for ALL test categories (unit, integration, E2E, acceptance) |
-| `tasklist/prompts.py` — `build_tasklist_fidelity_prompt()` | No |
-| `sc-roadmap-protocol/SKILL.md` | No |
-| `sc-tasklist-protocol/SKILL.md` | No |
-
-The "mocked steps" framing **originated in the roadmap output itself** — it was a design decision made by the LLM agent generating the roadmap. The agent decomposed the executor work into Phase 2 with milestone: *"Sequential pipeline runs end-to-end with mocked steps."*
-
-This is a **reasonable Phase 2 waypoint** — you build the skeleton first, then fill it in. The failure was that the agent **never created a companion milestone in a later phase** for real dispatch wiring and integration testing. The mock-test milestone became the terminal validation because "elsewhere/later" was never specified.
-
-### The Propagation Chain
-
-1. **Spec** said: three-way dispatch with `PROGRAMMATIC_RUNNERS` + `test_programmatic_step_routing` integration test
-2. **Roadmap agent** produced milestone: "mocked steps" (reasonable Phase 2 waypoint) — but dropped the spec's dispatch design and integration test from all subsequent phases
-3. **SPEC_FIDELITY_GATE** either didn't notice or didn't classify the dropped dispatch design as HIGH severity
-4. **Tasklist agent** faithfully reproduced "mocked steps" into T03.04 acceptance criteria
-5. **Sprint agent** faithfully built an executor with mocked step tests that pass — exactly what the tasklist asked for
-
-Each agent was faithful to its parent. The corruption entered at step 2 and was not caught at step 3.
-
-### The Cognitive Trap
-
-"Mocked steps" as a milestone implies real dispatch is handled elsewhere/later. But "elsewhere/later" was never specified. The mock test became the definition of done because no subsequent milestone said "now do it for real." This is a **specification completeness failure**, not a testing methodology failure.
-
-### Mitigation
-
-The roadmap generation prompt should be augmented with an instruction like:
-
-> "For any phase that introduces a skeleton, scaffold, or mock-based milestone, you MUST include a subsequent phase milestone that replaces mocks with real implementations and validates end-to-end behavior with actual component execution."
-
-This prevents the "build skeleton with mocks" → "never fill it in" pattern.
-
----
-
-## Appendix B: v2.24.1 Release — Full Findings
+## Appendix A: v2.24.1 Release — Full Findings
 
 v2.24.1 focused exclusively on three design gaps: input target resolution (6 input forms), component tree discovery, and subprocess scoping (`PortifyProcess.additional_dirs`). It added **zero changes to executor dispatch wiring**. The executor was not listed as a modified file in any specification document. The roadmap module dependency graph omitted `executor.py` entirely. All 18 acceptance criteria were scoped to resolution, tree building, and subprocess scoping. The release inherited an unexamined assumption that the executor already works and spent its entire scope on layers that are unreachable because the executor never calls any step.
 
-## Appendix C: Fidelity Gate Technical Details
+## Appendix B: Fidelity Gate Technical Details
 
 ### How SPEC_FIDELITY_GATE Works
 
