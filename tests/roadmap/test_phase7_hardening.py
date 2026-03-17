@@ -428,8 +428,13 @@ class TestDeliberateFailure:
         assert results[2]["result"] == "FAIL"
         assert "still lowercase" in results[1]["justification"]
 
-    def test_certification_report_with_failures_passes_gate(self, tmp_path):
-        """Certification report with FAIL entries still passes CERTIFY_GATE."""
+    def test_certification_report_with_failures_blocks_gate(self, tmp_path):
+        """Certification report with FAIL entries sets certified: false, blocking CERTIFY_GATE (v2.26).
+
+        In v2.26, _certified_is_true semantic check enforces that certified: true
+        is required for CERTIFY_GATE to pass. A report with FAIL entries has
+        certified: false and therefore fails the gate.
+        """
         findings = [
             _make_finding("F-01", severity="BLOCKING"),
             _make_finding("F-02", severity="WARNING"),
@@ -444,7 +449,9 @@ class TestDeliberateFailure:
         report_file.write_text(report)
 
         passed, reason = gate_passed(report_file, CERTIFY_GATE)
-        assert passed, f"CERTIFY_GATE should pass even with FAILs: {reason}"
+        # v2.26: certified: false causes gate failure (SC-5)
+        assert not passed, "CERTIFY_GATE should block when certified: false"
+        assert reason is not None
 
 
 # ═══════════════════════════════════════════════════════════════

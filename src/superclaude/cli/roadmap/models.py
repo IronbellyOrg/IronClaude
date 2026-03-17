@@ -14,6 +14,7 @@ from ..pipeline.models import PipelineConfig
 
 
 VALID_FINDING_STATUSES = frozenset({"PENDING", "FIXED", "FAILED", "SKIPPED"})
+VALID_DEVIATION_CLASSES = frozenset({"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"})
 
 
 @dataclass
@@ -22,6 +23,9 @@ class Finding:
 
     Fields align with spec §2.3.1. Status lifecycle defined in D-0003:
     PENDING -> FIXED | FAILED | SKIPPED (all terminal).
+
+    deviation_class classifies the deviation source (v2.26):
+    SLIP, INTENTIONAL, AMBIGUOUS, PRE_APPROVED, or UNCLASSIFIED (default).
     """
 
     id: str
@@ -34,12 +38,18 @@ class Finding:
     files_affected: list[str] = field(default_factory=list)
     status: str = "PENDING"
     agreement_category: str = ""
+    deviation_class: str = "UNCLASSIFIED"
 
     def __post_init__(self) -> None:
         if self.status not in VALID_FINDING_STATUSES:
             raise ValueError(
                 f"Invalid Finding status {self.status!r}. "
                 f"Must be one of: {', '.join(sorted(VALID_FINDING_STATUSES))}"
+            )
+        if self.deviation_class not in VALID_DEVIATION_CLASSES:
+            raise ValueError(
+                f"Invalid deviation_class {self.deviation_class!r}. "
+                f"Must be one of: {', '.join(sorted(VALID_DEVIATION_CLASSES))}"
             )
 
 

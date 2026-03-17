@@ -13,6 +13,8 @@ import pytest
 from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.roadmap.remediate import (
     RemediationScope,
+    _parse_routing_list,
+    deviations_to_findings,
     filter_findings,
     format_validation_summary,
     generate_remediation_tasklist,
@@ -491,3 +493,136 @@ class TestRemediateGateIntegration:
             if c.name == "all_actionable_have_status"
         )
         assert status_check.check_fn(tasklist) is False
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.03 -- _parse_routing_list and deviations_to_findings (v2.26)
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestParseRoutingList:
+    """T06.03: _parse_routing_list -- empty, whitespace, invalid, valid, mixed inputs."""
+
+    def test_empty_string_returns_empty(self):
+        assert _parse_routing_list("") == []
+
+    def test_whitespace_only_returns_empty(self):
+        assert _parse_routing_list("   ") == []
+
+    def test_single_valid_id(self):
+        assert _parse_routing_list("DEV-001") == ["DEV-001"]
+
+    def test_multiple_valid_ids_space_separated(self):
+        assert _parse_routing_list("DEV-001 DEV-002") == ["DEV-001", "DEV-002"]
+
+    def test_multiple_valid_ids_comma_separated(self):
+        assert _parse_routing_list("DEV-001,DEV-002") == ["DEV-001", "DEV-002"]
+
+    def test_invalid_id_dropped(self):
+        assert _parse_routing_list("INVALID-001") == []
+
+    def test_mixed_valid_invalid_keeps_valid(self):
+        result = _parse_routing_list("DEV-001 BAD DEV-002")
+        assert result == ["DEV-001", "DEV-002"]
+
+    def test_lowercase_dev_invalid(self):
+        """dev-001 is not a valid DEV-\\d+ ID."""
+        assert _parse_routing_list("dev-001") == []
+
+    def test_high_number_valid(self):
+        assert _parse_routing_list("DEV-999") == ["DEV-999"]
+
+    def test_pure_function_deterministic(self):
+        r1 = _parse_routing_list("DEV-001 DEV-002")
+        r2 = _parse_routing_list("DEV-001 DEV-002")
+        assert r1 == r2
+
+
+def _make_deviation_record(
+    dev_id: str = "DEV-001",
+    severity: str = "HIGH",
+    deviation_class: str = "SLIP",
+    routing: str = "DEV-001",
+) -> dict:
+    return {
+        "id": dev_id,
+        "severity": severity,
+        "dimension": "Test",
+        "description": f"Deviation {dev_id}",
+        "location": "roadmap.md:1",
+        "evidence": "test evidence",
+        "fix_guidance": "fix it",
+        "files_affected": ["roadmap.md"],
+        "status": "PENDING",
+        "agreement_category": "",
+        "deviation_class": deviation_class,
+        "routing": routing,
+    }
+
+
+class TestDeviationsToFindings:
+    """T06.03: deviations_to_findings -- severity mappings, empty routing, missing IDs."""
+
+    def test_high_maps_to_blocking(self):
+        records = [_make_deviation_record("DEV-001", severity="HIGH", deviation_class="SLIP", routing="DEV-001")]
+        findings = deviations_to_findings(records)
+        assert findings[0].severity == "BLOCKING"
+
+    def test_medium_maps_to_warning(self):
+        records = [_make_deviation_record("DEV-001", severity="MEDIUM", deviation_class="INTENTIONAL", routing="")]
+        findings = deviations_to_findings(records)
+        assert findings[0].severity == "WARNING"
+
+    def test_low_maps_to_info(self):
+        records = [_make_deviation_record("DEV-001", severity="LOW", deviation_class="PRE_APPROVED", routing="")]
+        findings = deviations_to_findings(records)
+        assert findings[0].severity == "INFO"
+
+    def test_empty_routing_with_slip_raises_value_error(self):
+        """ValueError raised when routing is empty but slip records exist."""
+        records = [_make_deviation_record("DEV-001", severity="HIGH", deviation_class="SLIP", routing="")]
+        with pytest.raises(ValueError, match="Empty routing_fix_roadmap"):
+            deviations_to_findings(records)
+
+    def test_no_slips_empty_routing_ok(self):
+        """No SLIP records with empty routing is valid (no ValueError)."""
+        records = [_make_deviation_record("DEV-001", severity="LOW", deviation_class="INTENTIONAL", routing="")]
+        findings = deviations_to_findings(records)
+        assert len(findings) == 1
+
+    def test_missing_fidelity_table_id_logs_warning(self, caplog):
+        """WARNING logged when routing ID not found in fidelity table."""
+        import logging
+        records = [_make_deviation_record("DEV-001", severity="HIGH", deviation_class="SLIP", routing="DEV-001")]
+        fidelity = {"DEV-002": {}}  # DEV-001 not in table
+        with caplog.at_level(logging.WARNING, logger="superclaude.roadmap.remediate"):
+            findings = deviations_to_findings(records, fidelity_table=fidelity)
+        assert any("DEV-001" in msg for msg in caplog.messages)
+        assert len(findings) == 1
+
+    def test_deviation_class_preserved(self):
+        records = [_make_deviation_record("DEV-001", severity="HIGH", deviation_class="SLIP", routing="DEV-001")]
+        findings = deviations_to_findings(records)
+        assert findings[0].deviation_class == "SLIP"
+
+    def test_multiple_records(self):
+        records = [
+            _make_deviation_record("DEV-001", "HIGH", "SLIP", "DEV-001"),
+            _make_deviation_record("DEV-002", "MEDIUM", "INTENTIONAL", ""),
+            _make_deviation_record("DEV-003", "LOW", "PRE_APPROVED", ""),
+        ]
+        findings = deviations_to_findings(records)
+        assert len(findings) == 3
+        severities = [f.severity for f in findings]
+        assert "BLOCKING" in severities
+        assert "WARNING" in severities
+        assert "INFO" in severities
+
+    def test_empty_records_returns_empty(self):
+        findings = deviations_to_findings([])
+        assert findings == []
+
+    def test_finding_ids_preserved(self):
+        records = [_make_deviation_record("DEV-042", "HIGH", "SLIP", "DEV-042")]
+        findings = deviations_to_findings(records)
+        assert findings[0].id == "DEV-042"

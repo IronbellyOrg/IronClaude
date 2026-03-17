@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import io
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -18,12 +21,15 @@ from superclaude.cli.pipeline.models import (
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.roadmap.executor import (
     _build_steps,
+    _check_annotate_deviations_freshness,
+    _check_remediation_budget,
     _format_halt_output,
+    _print_terminal_halt,
     _sanitize_output,
     _save_state,
     execute_roadmap,
 )
-from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
+from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
 
 
 def _now():
@@ -281,3 +287,280 @@ class TestSanitizeOutput:
         assert call_args[1] == f
         # Final file has correct content
         assert f.read_text(encoding="utf-8") == body
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.04 -- _check_annotate_deviations_freshness (9 SC-8 cases)
+# ═══════════════════════════════════════════════════════════════
+
+
+def _write_spec_deviations(path: Path, roadmap_hash: str) -> None:
+    """Write a valid spec-deviations.md with the given roadmap_hash."""
+    path.write_text(
+        f"---\nroadmap_hash: {roadmap_hash}\nschema_version: 2.25\n---\n"
+        "## Spec Deviations\n- DEV-001: test deviation\n",
+        encoding="utf-8",
+    )
+
+
+class TestCheckAnnotateDeviationsFreshness:
+    """T06.04: _check_annotate_deviations_freshness -- 9 SC-8 test cases."""
+
+    def test_matching_hash_returns_true(self, tmp_path):
+        """SC-8 case 1: matching hash -> True."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap content\n", encoding="utf-8")
+        expected_hash = hashlib.sha256(roadmap.read_bytes()).hexdigest()
+        _write_spec_deviations(tmp_path / "spec-deviations.md", expected_hash)
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is True
+
+    def test_mismatched_hash_returns_false(self, tmp_path):
+        """SC-8 case 2: mismatched hash -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap content\n", encoding="utf-8")
+        _write_spec_deviations(tmp_path / "spec-deviations.md", "deadbeef" * 8)
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_missing_spec_deviations_returns_false(self, tmp_path):
+        """SC-8 case 3: missing spec-deviations.md -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        # No spec-deviations.md written
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_missing_roadmap_hash_field_returns_false(self, tmp_path):
+        """SC-8 case 4: missing roadmap_hash field -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        (tmp_path / "spec-deviations.md").write_text(
+            "---\nschema_version: 2.25\n---\n## Report\n",
+            encoding="utf-8",
+        )
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_empty_spec_deviations_returns_false(self, tmp_path):
+        """SC-8 case 5: empty spec-deviations.md -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        (tmp_path / "spec-deviations.md").write_text("", encoding="utf-8")
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_corrupt_frontmatter_returns_false(self, tmp_path):
+        """SC-8 case 6: corrupt frontmatter (no closing ---) -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        (tmp_path / "spec-deviations.md").write_text(
+            "---\nroadmap_hash: abc123\nno closing fence here",
+            encoding="utf-8",
+        )
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_missing_roadmap_md_returns_false(self, tmp_path):
+        """SC-8 case 7: roadmap.md not found -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        # roadmap not written
+        _write_spec_deviations(tmp_path / "spec-deviations.md", "abc123")
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_empty_hash_field_returns_false(self, tmp_path):
+        """SC-8 case 8: roadmap_hash field is empty -> False."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        (tmp_path / "spec-deviations.md").write_text(
+            "---\nroadmap_hash: \nschema_version: 2.25\n---\n## Report\n",
+            encoding="utf-8",
+        )
+
+        assert _check_annotate_deviations_freshness(tmp_path, roadmap) is False
+
+    def test_hash_mismatch_resets_gate_pass_state(self, tmp_path):
+        """SC-8: hash mismatch resets spec-fidelity and deviation-analysis gate state (FR-084)."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Current roadmap\n", encoding="utf-8")
+        _write_spec_deviations(tmp_path / "spec-deviations.md", "stale_hash" * 4)
+
+        gate_state = {"spec-fidelity": True, "deviation-analysis": True, "other": True}
+        result = _check_annotate_deviations_freshness(tmp_path, roadmap, gate_pass_state=gate_state)
+
+        assert result is False
+        assert gate_state["spec-fidelity"] is False
+        assert gate_state["deviation-analysis"] is False
+        assert gate_state["other"] is True  # Other gates not affected
+
+    def test_fresh_hash_does_not_modify_gate_state(self, tmp_path):
+        """Matching hash does not modify gate_pass_state."""
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        expected_hash = hashlib.sha256(roadmap.read_bytes()).hexdigest()
+        _write_spec_deviations(tmp_path / "spec-deviations.md", expected_hash)
+
+        gate_state = {"spec-fidelity": True}
+        result = _check_annotate_deviations_freshness(tmp_path, roadmap, gate_pass_state=gate_state)
+
+        assert result is True
+        assert gate_state["spec-fidelity"] is True  # Unchanged
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.04 -- _check_remediation_budget
+# ═══════════════════════════════════════════════════════════════
+
+
+def _write_state(path: Path, attempts: int) -> None:
+    """Write a .roadmap-state.json with the given remediation_attempts."""
+    state = {
+        "schema_version": 1,
+        "steps": {},
+        "remediation_attempts": attempts,
+    }
+    path.write_text(json.dumps(state), encoding="utf-8")
+
+
+class TestCheckRemediationBudget:
+    """T06.04: _check_remediation_budget -- SC-6 budget enforcement."""
+
+    def test_attempt_1_returns_true(self, tmp_path):
+        """First attempt (0 previous) -> True (allowed)."""
+        _write_state(tmp_path / ".roadmap-state.json", 0)
+        assert _check_remediation_budget(tmp_path) is True
+
+    def test_attempt_2_returns_true(self, tmp_path):
+        """Second attempt (1 previous) -> True (allowed)."""
+        _write_state(tmp_path / ".roadmap-state.json", 1)
+        assert _check_remediation_budget(tmp_path) is True
+
+    def test_attempt_3_returns_false(self, tmp_path):
+        """Third attempt (2 previous) -> False (budget exhausted)."""
+        _write_state(tmp_path / ".roadmap-state.json", 2)
+        halt_called = []
+
+        def mock_halt(output_dir, findings, count):
+            halt_called.append(count)
+
+        assert _check_remediation_budget(tmp_path, halt_fn=mock_halt) is False
+        assert len(halt_called) == 1
+
+    def test_budget_exhaustion_calls_halt(self, tmp_path):
+        """Budget exhaustion calls halt_fn with correct attempt count."""
+        _write_state(tmp_path / ".roadmap-state.json", 2)
+        captured = {}
+
+        def mock_halt(output_dir, findings, count):
+            captured["count"] = count
+            captured["output_dir"] = output_dir
+
+        _check_remediation_budget(tmp_path, halt_fn=mock_halt)
+        assert captured["count"] == 3
+        assert captured["output_dir"] == tmp_path
+
+    def test_no_state_file_returns_true(self, tmp_path):
+        """No state file -> first attempt, allowed."""
+        # No .roadmap-state.json written
+        assert _check_remediation_budget(tmp_path) is True
+
+    def test_configurable_max_attempts_1(self, tmp_path):
+        """max_attempts=1: second attempt triggers halt."""
+        _write_state(tmp_path / ".roadmap-state.json", 1)
+        halt_called = []
+        assert _check_remediation_budget(tmp_path, max_attempts=1, halt_fn=lambda *a: halt_called.append(1)) is False
+        assert len(halt_called) == 1
+
+    def test_configurable_max_attempts_3(self, tmp_path):
+        """max_attempts=3: second attempt still allowed."""
+        _write_state(tmp_path / ".roadmap-state.json", 1)
+        assert _check_remediation_budget(tmp_path, max_attempts=3) is True
+
+    def test_non_integer_attempts_treated_as_zero(self, tmp_path):
+        """Non-integer remediation_attempts coerced to 0 with WARNING log."""
+        state = {"schema_version": 1, "steps": {}, "remediation_attempts": "not_a_number"}
+        (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
+        assert _check_remediation_budget(tmp_path) is True
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.04 -- _print_terminal_halt stderr content assertions
+# ═══════════════════════════════════════════════════════════════
+
+
+def _make_finding(finding_id: str = "F-01", severity: str = "BLOCKING") -> Finding:
+    return Finding(
+        id=finding_id,
+        severity=severity,
+        dimension="Test",
+        description=f"Test finding {finding_id}",
+        location="file.py:1",
+        evidence="test evidence",
+        fix_guidance="fix it",
+    )
+
+
+class TestPrintTerminalHalt:
+    """T06.04: _print_terminal_halt -- stderr content assertions (SC-6)."""
+
+    def test_outputs_attempt_count(self, tmp_path):
+        """stderr includes attempt count."""
+        buf = io.StringIO()
+        _print_terminal_halt(tmp_path, [], attempt_count=3, file=buf)
+        output = buf.getvalue()
+        assert "3" in output
+
+    def test_outputs_remaining_finding_count(self, tmp_path):
+        """stderr includes remaining failing finding count."""
+        buf = io.StringIO()
+        findings = [_make_finding("F-01"), _make_finding("F-02")]
+        _print_terminal_halt(tmp_path, findings, attempt_count=3, file=buf)
+        output = buf.getvalue()
+        assert "2" in output
+
+    def test_outputs_per_finding_details(self, tmp_path):
+        """stderr includes per-finding ID and description."""
+        buf = io.StringIO()
+        findings = [_make_finding("F-01", "BLOCKING"), _make_finding("F-02", "WARNING")]
+        _print_terminal_halt(tmp_path, findings, attempt_count=3, file=buf)
+        output = buf.getvalue()
+        assert "F-01" in output
+        assert "F-02" in output
+        assert "BLOCKING" in output
+
+    def test_outputs_certification_report_path(self, tmp_path):
+        """stderr includes path to certification report."""
+        buf = io.StringIO()
+        _print_terminal_halt(tmp_path, [], attempt_count=2, file=buf)
+        output = buf.getvalue()
+        assert "certify" in output.lower() or str(tmp_path) in output
+
+    def test_outputs_resume_command(self, tmp_path):
+        """stderr includes resume command instructions."""
+        buf = io.StringIO()
+        _print_terminal_halt(tmp_path, [], attempt_count=2, file=buf)
+        output = buf.getvalue()
+        assert "resume" in output.lower()
+
+    def test_outputs_manual_fix_instructions(self, tmp_path):
+        """stderr includes manual fix instructions."""
+        buf = io.StringIO()
+        _print_terminal_halt(tmp_path, [], attempt_count=2, file=buf)
+        output = buf.getvalue()
+        assert "manual" in output.lower() or "fix" in output.lower()
+
+    def test_no_findings_still_outputs_header(self, tmp_path):
+        """Empty findings list still produces terminal halt header."""
+        buf = io.StringIO()
+        _print_terminal_halt(tmp_path, [], attempt_count=1, file=buf)
+        output = buf.getvalue()
+        assert "TERMINAL HALT" in output or "halt" in output.lower()
+
+    def test_spec_patch_budget_exhausted_adds_note(self, tmp_path):
+        """spec_patch_budget_exhausted=True adds dual-budget note."""
+        buf = io.StringIO()
+        _print_terminal_halt(tmp_path, [], attempt_count=3, spec_patch_budget_exhausted=True, file=buf)
+        output = buf.getvalue()
+        assert "budget" in output.lower()
+        assert "v2.26" in output

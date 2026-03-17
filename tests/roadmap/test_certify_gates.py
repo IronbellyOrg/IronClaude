@@ -39,12 +39,13 @@ class TestCertifyGateDefinition:
 
     def test_has_semantic_checks(self):
         assert CERTIFY_GATE.semantic_checks is not None
-        assert len(CERTIFY_GATE.semantic_checks) == 2
+        assert len(CERTIFY_GATE.semantic_checks) == 3
 
     def test_semantic_check_names(self):
         check_names = {c.name for c in CERTIFY_GATE.semantic_checks}
         assert "frontmatter_values_non_empty" in check_names
         assert "per_finding_table_present" in check_names
+        assert "certified_is_true" in check_names
 
 
 # ═══════════════════════════════════════════════════════════════

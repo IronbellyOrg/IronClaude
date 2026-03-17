@@ -295,6 +295,229 @@ def _convergence_score_valid(content: str) -> bool:
     return False  # convergence_score field not found
 
 
+# --- DEVIATION_ANALYSIS_GATE semantic check functions ---
+
+
+def _no_ambiguous_deviations(content: str) -> bool:
+    """Fail-closed: ambiguous_deviations must equal 0.
+
+    Returns True only if frontmatter contains ambiguous_deviations: 0.
+    Returns False for:
+    - Missing frontmatter
+    - Missing ambiguous_deviations field
+    - Non-integer value (fail-closed, no exception raised)
+    - Value > 0
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("ambiguous_deviations")
+    if value is None:
+        return False
+
+    try:
+        count = int(value)
+    except (ValueError, TypeError):
+        return False
+
+    return count == 0
+
+
+def _certified_is_true(content: str) -> bool:
+    """certified frontmatter field must equal boolean true (case-insensitive).
+
+    Accepts: 'true', 'True', 'TRUE'.
+    Rejects: 'false', 'yes', '1', empty, missing, no frontmatter.
+    Fail-closed: any non-true value returns False.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("certified")
+    if value is None:
+        return False
+
+    return value.lower() == "true"
+
+
+def _validation_complete_true(content: str) -> bool:
+    """analysis_complete frontmatter field must equal true.
+
+    Returns True only if frontmatter has analysis_complete: true.
+    Returns False for missing field, missing frontmatter, or false value.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("analysis_complete")
+    if value is None:
+        return False
+
+    return value.lower() == "true"
+
+
+def _routing_ids_valid(content: str) -> bool:
+    """All routing IDs in deviation-analysis must match DEV-\\d+ pattern.
+
+    Checks routing_fix_roadmap, routing_update_spec, routing_no_action,
+    routing_human_review fields. Empty values are valid (no IDs routed there).
+    Returns False if any ID does not match DEV-\\d+.
+    Returns True if all routing fields are absent or contain only valid IDs.
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    routing_fields = [
+        "routing_fix_roadmap",
+        "routing_update_spec",
+        "routing_no_action",
+        "routing_human_review",
+    ]
+    id_pattern = re.compile(r"^DEV-\d+$")
+
+    for field in routing_fields:
+        raw = fm.get(field, "")
+        if not raw:
+            continue
+        for token in re.split(r"[\s,]+", raw):
+            token = token.strip()
+            if not token:
+                continue
+            if not id_pattern.match(token):
+                return False
+
+    return True
+
+
+def _slip_count_matches_routing(content: str) -> bool:
+    """slip_count must equal the number of IDs in routing_fix_roadmap.
+
+    Returns False if:
+    - Frontmatter missing
+    - slip_count field missing or non-integer
+    - routing_fix_roadmap field count != slip_count
+    Returns True when counts match (including both == 0).
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    slip_str = fm.get("slip_count")
+    if slip_str is None:
+        return False
+
+    try:
+        slip_count = int(slip_str)
+    except (ValueError, TypeError):
+        return False
+
+    routing_raw = fm.get("routing_fix_roadmap", "")
+    if not routing_raw:
+        routing_ids = []
+    else:
+        routing_ids = [t.strip() for t in re.split(r"[\s,]+", routing_raw) if t.strip()]
+
+    return slip_count == len(routing_ids)
+
+
+def _routing_consistent_with_slip_count(content: str) -> bool:
+    """Alias for _slip_count_matches_routing for gate naming consistency."""
+    return _slip_count_matches_routing(content)
+
+
+def _pre_approved_not_in_fix_roadmap(content: str) -> bool:
+    """IDs in routing_no_action (pre-approved) must not appear in routing_fix_roadmap.
+
+    Returns False if any ID appears in both routing_no_action and routing_fix_roadmap.
+    Returns True if no overlap, or if either field is empty.
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    def parse_ids(raw: str) -> set[str]:
+        if not raw:
+            return set()
+        return {t.strip() for t in re.split(r"[\s,]+", raw) if t.strip()}
+
+    no_action = parse_ids(fm.get("routing_no_action", ""))
+    fix_roadmap = parse_ids(fm.get("routing_fix_roadmap", ""))
+
+    return len(no_action & fix_roadmap) == 0
+
+
+def _total_analyzed_consistent(content: str) -> bool:
+    """total_analyzed must equal sum of slip_count + intentional_count + pre_approved_count + ambiguous_count.
+
+    Returns False if:
+    - Frontmatter missing
+    - total_analyzed or any count field missing
+    - Any count is non-integer (fail-closed)
+    - Sum does not match total_analyzed
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    fields = ["total_analyzed", "slip_count", "intentional_count", "pre_approved_count", "ambiguous_count"]
+    values: dict[str, int] = {}
+    for f in fields:
+        raw = fm.get(f)
+        if raw is None:
+            return False
+        try:
+            values[f] = int(raw)
+        except (ValueError, TypeError):
+            return False
+
+    expected_total = values["slip_count"] + values["intentional_count"] + values["pre_approved_count"] + values["ambiguous_count"]
+    return values["total_analyzed"] == expected_total
+
+
+def _total_annotated_consistent(content: str) -> bool:
+    """total_annotated (if present) must equal slip_count + intentional_count + pre_approved_count.
+
+    The total_annotated field sums the three classified (non-ambiguous) deviations.
+    Returns True if field is absent (optional field).
+    Returns False if present but doesn't match the sum.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    total_str = fm.get("total_annotated")
+    if total_str is None:
+        return True  # Optional field; absence is valid
+
+    try:
+        total_annotated = int(total_str)
+    except (ValueError, TypeError):
+        return False
+
+    component_fields = ["slip_count", "intentional_count", "pre_approved_count"]
+    total_components = 0
+    for f in component_fields:
+        raw = fm.get(f)
+        if raw is None:
+            return False
+        try:
+            total_components += int(raw)
+        except (ValueError, TypeError):
+            return False
+
+    return total_annotated == total_components
+
+
 # --- GateCriteria instances ---
 
 EXTRACT_GATE = GateCriteria(
@@ -478,6 +701,59 @@ CERTIFY_GATE = GateCriteria(
             check_fn=_has_per_finding_table,
             failure_message="Certification report missing per-finding results table",
         ),
+        SemanticCheck(
+            name="certified_is_true",
+            check_fn=_certified_is_true,
+            failure_message="certified field must be true for certification gate to pass",
+        ),
+    ],
+)
+
+DEVIATION_ANALYSIS_GATE = GateCriteria(
+    required_frontmatter_fields=[
+        "schema_version",
+        "total_analyzed",
+        "slip_count",
+        "intentional_count",
+        "pre_approved_count",
+        "ambiguous_count",
+        "routing_fix_roadmap",
+        "routing_no_action",
+        "analysis_complete",
+    ],
+    min_lines=20,
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="no_ambiguous_deviations",
+            check_fn=_no_ambiguous_deviations,
+            failure_message="ambiguous_deviations must be 0; ambiguous items require human review before pipeline can continue",
+        ),
+        SemanticCheck(
+            name="validation_complete_true",
+            check_fn=_validation_complete_true,
+            failure_message="analysis_complete must be true for deviation analysis gate to pass",
+        ),
+        SemanticCheck(
+            name="routing_ids_valid",
+            check_fn=_routing_ids_valid,
+            failure_message="All routing IDs must match DEV-\\d+ pattern",
+        ),
+        SemanticCheck(
+            name="slip_count_matches_routing",
+            check_fn=_slip_count_matches_routing,
+            failure_message="slip_count must equal the number of IDs in routing_fix_roadmap",
+        ),
+        SemanticCheck(
+            name="pre_approved_not_in_fix_roadmap",
+            check_fn=_pre_approved_not_in_fix_roadmap,
+            failure_message="Pre-approved IDs (routing_no_action) must not appear in routing_fix_roadmap",
+        ),
+        SemanticCheck(
+            name="total_analyzed_consistent",
+            check_fn=_total_analyzed_consistent,
+            failure_message="total_analyzed must equal slip_count + intentional_count + pre_approved_count + ambiguous_count",
+        ),
     ],
 )
 
@@ -492,6 +768,7 @@ ALL_GATES = [
     ("merge", MERGE_GATE),
     ("test-strategy", TEST_STRATEGY_GATE),
     ("spec-fidelity", SPEC_FIDELITY_GATE),
+    ("deviation-analysis", DEVIATION_ANALYSIS_GATE),
     ("remediate", REMEDIATE_GATE),
     ("certify", CERTIFY_GATE),
 ]

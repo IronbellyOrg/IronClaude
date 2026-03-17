@@ -518,6 +518,211 @@ def _get_all_step_ids(config: RoadmapConfig) -> list[str]:
     ]
 
 
+def _print_terminal_halt(
+    output_dir: Path,
+    remaining_findings: list,
+    attempt_count: int,
+    spec_patch_budget_exhausted: bool = False,
+    file=None,
+) -> None:
+    """Print terminal halt message to stderr with finding details (SC-6).
+
+    Outputs:
+    - Attempt count and remaining failing finding count
+    - Per-finding details (ID, severity, description)
+    - Manual-fix instructions including certification report path and resume command
+
+    Args:
+        output_dir: Pipeline output directory (for certification report path)
+        remaining_findings: List of Finding objects that failed remediation
+        attempt_count: Number of remediation attempts made
+        spec_patch_budget_exhausted: If True, note that spec-patch budget is also exhausted
+        file: Output stream (defaults to sys.stderr)
+    """
+    if file is None:
+        file = sys.stderr
+
+    certify_path = output_dir / "certify.md"
+
+    lines = [
+        "",
+        "=" * 72,
+        "TERMINAL HALT: Remediation budget exhausted",
+        "=" * 72,
+        f"Attempt count: {attempt_count}",
+        f"Remaining failing findings: {len(remaining_findings)}",
+        "",
+    ]
+
+    if remaining_findings:
+        lines.append("Failing findings:")
+        for finding in remaining_findings:
+            severity = getattr(finding, "severity", "UNKNOWN")
+            description = getattr(finding, "description", "")
+            finding_id = getattr(finding, "id", "UNKNOWN")
+            lines.append(f"  - {finding_id} [{severity}]: {description}")
+        lines.append("")
+
+    lines.extend([
+        "Manual fix required:",
+        f"  1. Review certification report: {certify_path}",
+        "  2. Fix remaining findings manually",
+        "  3. Resume pipeline with:",
+        f"     superclaude roadmap run --resume",
+        "",
+    ])
+
+    if spec_patch_budget_exhausted:
+        lines.extend([
+            "Note: Both the remediation budget and the spec-patch cycle budget",
+            "are exhausted. Full dual-budget recovery is deferred to v2.26.",
+            "# TODO(v2.26): implement dual-budget-exhaustion recovery mechanism",
+            "",
+        ])
+
+    lines.append("=" * 72)
+
+    print("\n".join(lines), file=file, flush=True)
+
+
+def _check_annotate_deviations_freshness(
+    output_dir: Path,
+    roadmap_file: Path,
+    gate_pass_state: dict[str, bool] | None = None,
+) -> bool:
+    """Check if spec-deviations.md hash matches current roadmap.md (SC-8).
+
+    Reads roadmap_hash from spec-deviations.md frontmatter and compares
+    against sha256(roadmap.md). Fail-closed for all error conditions.
+
+    On hash mismatch, resets spec-fidelity and deviation-analysis gate
+    pass state to force re-run (FR-084).
+
+    Returns:
+        True if hash matches (fresh), False for any failure or mismatch.
+    """
+    spec_deviations = output_dir / "spec-deviations.md"
+
+    # Case 1: spec-deviations.md not found
+    if not spec_deviations.exists():
+        _log.warning("Freshness check: spec-deviations.md not found")
+        return False
+
+    # Case 2: Read error
+    try:
+        content = spec_deviations.read_text(encoding="utf-8")
+    except OSError as e:
+        _log.warning("Freshness check: read error for spec-deviations.md: %s", e)
+        return False
+
+    # Case 3: Empty file
+    if not content.strip():
+        _log.warning("Freshness check: spec-deviations.md is empty")
+        return False
+
+    # Case 4: Corrupt/missing frontmatter
+    stripped = content.lstrip()
+    if not stripped.startswith("---"):
+        _log.warning("Freshness check: spec-deviations.md has no frontmatter")
+        return False
+
+    rest = stripped[3:].lstrip("\n")
+    end_idx = rest.find("\n---")
+    if end_idx == -1:
+        _log.warning("Freshness check: spec-deviations.md has corrupt frontmatter")
+        return False
+
+    # Parse roadmap_hash from frontmatter
+    saved_hash: str | None = None
+    for line in rest[:end_idx].splitlines():
+        line = line.strip()
+        if line.startswith("roadmap_hash:"):
+            saved_hash = line.split(":", 1)[1].strip()
+            break
+
+    # Case 5: roadmap_hash field missing or empty
+    if not saved_hash:
+        _log.warning("Freshness check: roadmap_hash field missing or empty in spec-deviations.md")
+        return False
+
+    # Case 6: roadmap.md not found
+    if not roadmap_file.exists():
+        _log.warning("Freshness check: roadmap.md not found at %s", roadmap_file)
+        return False
+
+    # Case 7: roadmap.md read error
+    try:
+        roadmap_content = roadmap_file.read_bytes()
+    except OSError as e:
+        _log.warning("Freshness check: read error for roadmap.md: %s", e)
+        return False
+
+    # Case 8: Hash comparison
+    current_hash = hashlib.sha256(roadmap_content).hexdigest()
+    if saved_hash != current_hash:
+        _log.warning(
+            "Freshness check: hash mismatch -- saved=%s current=%s",
+            saved_hash[:12], current_hash[:12],
+        )
+        # FR-084: reset gate pass state for downstream steps
+        if gate_pass_state is not None:
+            for key in ("spec-fidelity", "deviation-analysis"):
+                if key in gate_pass_state:
+                    gate_pass_state[key] = False
+        return False
+
+    return True
+
+
+def _check_remediation_budget(
+    output_dir: Path,
+    max_attempts: int = 2,
+    halt_fn: "Callable[[Path, list, int], None] | None" = None,
+) -> bool:
+    """Check if remediation budget allows another attempt (SC-6).
+
+    Reads remediation_attempts from .roadmap-state.json.
+    If attempts >= max_attempts, calls halt_fn (or _print_terminal_halt)
+    and returns False.
+
+    Non-integer remediation_attempts is coerced to 0 with a WARNING log.
+
+    Args:
+        output_dir: Pipeline output directory containing .roadmap-state.json
+        max_attempts: Maximum allowed remediation attempts (default 2)
+        halt_fn: Optional callable for terminal halt; defaults to _print_terminal_halt
+
+    Returns:
+        True if budget allows another attempt, False if exhausted.
+    """
+    state_file = output_dir / ".roadmap-state.json"
+    state = read_state(state_file)
+
+    attempts = 0
+    if state is not None:
+        raw = state.get("remediation_attempts", 0)
+        try:
+            attempts = int(raw)
+        except (ValueError, TypeError):
+            _log.warning(
+                "Non-integer remediation_attempts %r coerced to 0", raw
+            )
+            attempts = 0
+
+    if attempts >= max_attempts:
+        if halt_fn is not None:
+            halt_fn(output_dir, [], attempts + 1)
+        else:
+            _print_terminal_halt(
+                output_dir=output_dir,
+                remaining_findings=[],
+                attempt_count=attempts + 1,
+            )
+        return False
+
+    return True
+
+
 def _print_step_start(step: Step) -> None:
     """Print progress output when a step starts."""
     print(f"[roadmap] Starting step: {step.id}", flush=True)

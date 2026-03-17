@@ -7,6 +7,7 @@ import pytest
 from superclaude.cli.roadmap.gates import (
     ALL_GATES,
     DEBATE_GATE,
+    DEVIATION_ANALYSIS_GATE,
     DIFF_GATE,
     EXTRACT_GATE,
     GENERATE_A_GATE,
@@ -15,14 +16,23 @@ from superclaude.cli.roadmap.gates import (
     SCORE_GATE,
     SPEC_FIDELITY_GATE,
     TEST_STRATEGY_GATE,
+    _certified_is_true,
     _convergence_score_valid,
     _cross_refs_resolve,
     _frontmatter_values_non_empty,
     _has_actionable_content,
     _high_severity_count_zero,
+    _no_ambiguous_deviations,
     _no_duplicate_headings,
     _no_heading_gaps,
+    _pre_approved_not_in_fix_roadmap,
+    _routing_consistent_with_slip_count,
+    _routing_ids_valid,
+    _slip_count_matches_routing,
     _tasklist_ready_consistent,
+    _total_analyzed_consistent,
+    _total_annotated_consistent,
+    _validation_complete_true,
 )
 from superclaude.cli.pipeline.models import GateCriteria
 
@@ -32,8 +42,8 @@ class TestGateInstances:
         for name, gate in ALL_GATES:
             assert isinstance(gate, GateCriteria), f"{name} is not GateCriteria"
 
-    def test_eleven_gates_defined(self):
-        assert len(ALL_GATES) == 11
+    def test_twelve_gates_defined(self):
+        assert len(ALL_GATES) == 12
 
     def test_extract_gate_fields(self):
         assert "functional_requirements" in EXTRACT_GATE.required_frontmatter_fields
@@ -371,3 +381,330 @@ class TestSpecFidelityGate:
         assert "spec-fidelity" in gate_names
         gate = next(g for name, g in ALL_GATES if name == "spec-fidelity")
         assert gate is SPEC_FIDELITY_GATE
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.01 -- DEVIATION_ANALYSIS_GATE semantic check functions
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestNoAmbiguousDeviations:
+    """_no_ambiguous_deviations: boundary-input unit tests."""
+
+    def test_zero_passes(self):
+        assert _no_ambiguous_deviations("---\nambiguous_deviations: 0\n---\n") is True
+
+    def test_nonzero_fails(self):
+        assert _no_ambiguous_deviations("---\nambiguous_deviations: 1\n---\n") is False
+
+    def test_missing_field_fail_closed(self):
+        assert _no_ambiguous_deviations("---\nslip_count: 3\n---\n") is False
+
+    def test_no_frontmatter_fail_closed(self):
+        assert _no_ambiguous_deviations("No frontmatter.\n") is False
+
+    def test_non_integer_fail_closed(self):
+        assert _no_ambiguous_deviations("---\nambiguous_deviations: not_a_number\n---\n") is False
+
+    def test_large_count_fails(self):
+        assert _no_ambiguous_deviations("---\nambiguous_deviations: 10\n---\n") is False
+
+
+class TestCertifiedIsTrue:
+    """_certified_is_true: true/false/missing/malformed boundary tests (SC-5)."""
+
+    def test_true_passes(self):
+        assert _certified_is_true("---\ncertified: true\n---\n") is True
+
+    def test_true_mixed_case_passes(self):
+        assert _certified_is_true("---\ncertified: True\n---\n") is True
+
+    def test_false_fails(self):
+        assert _certified_is_true("---\ncertified: false\n---\n") is False
+
+    def test_missing_field_fails(self):
+        assert _certified_is_true("---\nfindings_verified: 3\n---\n") is False
+
+    def test_malformed_yes_fails(self):
+        assert _certified_is_true("---\ncertified: yes\n---\n") is False
+
+    def test_malformed_one_fails(self):
+        assert _certified_is_true("---\ncertified: 1\n---\n") is False
+
+    def test_empty_value_fails(self):
+        assert _certified_is_true("---\ncertified: \n---\n") is False
+
+    def test_no_frontmatter_fails(self):
+        assert _certified_is_true("No frontmatter here.\n") is False
+
+
+class TestValidationCompleteTrue:
+    """_validation_complete_true: analysis_complete boundary tests."""
+
+    def test_true_passes(self):
+        assert _validation_complete_true("---\nanalysis_complete: true\n---\n") is True
+
+    def test_false_fails(self):
+        assert _validation_complete_true("---\nanalysis_complete: false\n---\n") is False
+
+    def test_missing_field_fails(self):
+        assert _validation_complete_true("---\nslip_count: 2\n---\n") is False
+
+    def test_no_frontmatter_fails(self):
+        assert _validation_complete_true("No frontmatter.\n") is False
+
+    def test_malformed_value_fails(self):
+        assert _validation_complete_true("---\nanalysis_complete: yes\n---\n") is False
+
+
+class TestRoutingIdsValid:
+    """_routing_ids_valid: DEV-\\d+ validation boundary tests."""
+
+    def test_valid_single_id(self):
+        assert _routing_ids_valid("---\nrouting_fix_roadmap: DEV-001\n---\n") is True
+
+    def test_valid_multiple_ids(self):
+        content = "---\nrouting_fix_roadmap: DEV-001 DEV-002\nrouting_no_action: DEV-003\n---\n"
+        assert _routing_ids_valid(content) is True
+
+    def test_empty_routing_fields(self):
+        content = "---\nrouting_fix_roadmap: \nrouting_no_action: \n---\n"
+        assert _routing_ids_valid(content) is True
+
+    def test_invalid_id_fails(self):
+        assert _routing_ids_valid("---\nrouting_fix_roadmap: INVALID-001\n---\n") is False
+
+    def test_mixed_valid_invalid_fails(self):
+        assert _routing_ids_valid("---\nrouting_fix_roadmap: DEV-001 bad-id\n---\n") is False
+
+    def test_no_routing_fields(self):
+        assert _routing_ids_valid("---\nslip_count: 0\n---\n") is True
+
+    def test_no_frontmatter_fails(self):
+        assert _routing_ids_valid("No frontmatter.\n") is False
+
+
+class TestSlipCountMatchesRouting:
+    """_slip_count_matches_routing: slip_count vs routing_fix_roadmap count."""
+
+    def test_zero_slip_empty_routing_matches(self):
+        content = "---\nslip_count: 0\nrouting_fix_roadmap: \n---\n"
+        assert _slip_count_matches_routing(content) is True
+
+    def test_one_slip_one_routing_matches(self):
+        content = "---\nslip_count: 1\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _slip_count_matches_routing(content) is True
+
+    def test_two_slips_two_routing_matches(self):
+        content = "---\nslip_count: 2\nrouting_fix_roadmap: DEV-001 DEV-002\n---\n"
+        assert _slip_count_matches_routing(content) is True
+
+    def test_mismatch_fails(self):
+        content = "---\nslip_count: 2\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _slip_count_matches_routing(content) is False
+
+    def test_missing_slip_count_fails(self):
+        content = "---\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _slip_count_matches_routing(content) is False
+
+    def test_non_integer_slip_count_fails(self):
+        content = "---\nslip_count: many\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _slip_count_matches_routing(content) is False
+
+    def test_no_frontmatter_fails(self):
+        assert _slip_count_matches_routing("No frontmatter.\n") is False
+
+
+class TestRoutingConsistentWithSlipCount:
+    """_routing_consistent_with_slip_count: alias for _slip_count_matches_routing."""
+
+    def test_consistent_passes(self):
+        content = "---\nslip_count: 1\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _routing_consistent_with_slip_count(content) is True
+
+    def test_inconsistent_fails(self):
+        content = "---\nslip_count: 2\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _routing_consistent_with_slip_count(content) is False
+
+
+class TestPreApprovedNotInFixRoadmap:
+    """_pre_approved_not_in_fix_roadmap: no overlap between routing_no_action and routing_fix_roadmap."""
+
+    def test_no_overlap_passes(self):
+        content = "---\nrouting_no_action: DEV-003\nrouting_fix_roadmap: DEV-001 DEV-002\n---\n"
+        assert _pre_approved_not_in_fix_roadmap(content) is True
+
+    def test_overlap_fails(self):
+        content = "---\nrouting_no_action: DEV-001\nrouting_fix_roadmap: DEV-001 DEV-002\n---\n"
+        assert _pre_approved_not_in_fix_roadmap(content) is False
+
+    def test_empty_both_passes(self):
+        content = "---\nrouting_no_action: \nrouting_fix_roadmap: \n---\n"
+        assert _pre_approved_not_in_fix_roadmap(content) is True
+
+    def test_empty_no_action_passes(self):
+        content = "---\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _pre_approved_not_in_fix_roadmap(content) is True
+
+    def test_no_frontmatter_fails(self):
+        assert _pre_approved_not_in_fix_roadmap("No frontmatter.\n") is False
+
+
+class TestTotalAnalyzedConsistent:
+    """_total_analyzed_consistent: sum of component fields equals total_analyzed."""
+
+    def test_consistent_passes(self):
+        content = (
+            "---\ntotal_analyzed: 4\nslip_count: 1\nintentional_count: 2\n"
+            "pre_approved_count: 1\nambiguous_count: 0\n---\n"
+        )
+        assert _total_analyzed_consistent(content) is True
+
+    def test_inconsistent_fails(self):
+        content = (
+            "---\ntotal_analyzed: 5\nslip_count: 1\nintentional_count: 2\n"
+            "pre_approved_count: 1\nambiguous_count: 0\n---\n"
+        )
+        assert _total_analyzed_consistent(content) is False
+
+    def test_all_zeros_consistent(self):
+        content = (
+            "---\ntotal_analyzed: 0\nslip_count: 0\nintentional_count: 0\n"
+            "pre_approved_count: 0\nambiguous_count: 0\n---\n"
+        )
+        assert _total_analyzed_consistent(content) is True
+
+    def test_missing_field_fails(self):
+        content = (
+            "---\ntotal_analyzed: 3\nslip_count: 1\nintentional_count: 2\n---\n"
+        )
+        assert _total_analyzed_consistent(content) is False
+
+    def test_non_integer_fails(self):
+        content = (
+            "---\ntotal_analyzed: many\nslip_count: 1\nintentional_count: 2\n"
+            "pre_approved_count: 0\nambiguous_count: 0\n---\n"
+        )
+        assert _total_analyzed_consistent(content) is False
+
+    def test_no_frontmatter_fails(self):
+        assert _total_analyzed_consistent("No frontmatter.\n") is False
+
+
+class TestTotalAnnotatedConsistent:
+    """_total_annotated_consistent: optional total_annotated equals classified sum."""
+
+    def test_consistent_passes(self):
+        content = (
+            "---\ntotal_annotated: 3\nslip_count: 1\n"
+            "intentional_count: 1\npre_approved_count: 1\n---\n"
+        )
+        assert _total_annotated_consistent(content) is True
+
+    def test_inconsistent_fails(self):
+        content = (
+            "---\ntotal_annotated: 5\nslip_count: 1\n"
+            "intentional_count: 1\npre_approved_count: 1\n---\n"
+        )
+        assert _total_annotated_consistent(content) is False
+
+    def test_absent_field_passes(self):
+        """total_annotated is optional; absent means valid."""
+        content = "---\nslip_count: 1\nintentional_count: 1\npre_approved_count: 0\n---\n"
+        assert _total_annotated_consistent(content) is True
+
+    def test_non_integer_fails(self):
+        content = (
+            "---\ntotal_annotated: many\nslip_count: 1\n"
+            "intentional_count: 1\npre_approved_count: 1\n---\n"
+        )
+        assert _total_annotated_consistent(content) is False
+
+    def test_no_frontmatter_fails(self):
+        assert _total_annotated_consistent("No frontmatter.\n") is False
+
+
+class TestDeviationAnalysisGate:
+    """DEVIATION_ANALYSIS_GATE: structure and semantic check tests."""
+
+    def test_gate_is_gate_criteria(self):
+        from superclaude.cli.pipeline.models import GateCriteria
+        assert isinstance(DEVIATION_ANALYSIS_GATE, GateCriteria)
+
+    def test_gate_is_strict(self):
+        assert DEVIATION_ANALYSIS_GATE.enforcement_tier == "STRICT"
+
+    def test_gate_requires_ambiguous_count(self):
+        assert "ambiguous_count" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+
+    def test_gate_requires_analysis_complete(self):
+        assert "analysis_complete" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+
+    def test_gate_has_six_semantic_checks(self):
+        assert DEVIATION_ANALYSIS_GATE.semantic_checks is not None
+        assert len(DEVIATION_ANALYSIS_GATE.semantic_checks) == 6
+
+    def test_gate_semantic_check_names(self):
+        names = {c.name for c in DEVIATION_ANALYSIS_GATE.semantic_checks}
+        expected = {
+            "no_ambiguous_deviations",
+            "validation_complete_true",
+            "routing_ids_valid",
+            "slip_count_matches_routing",
+            "pre_approved_not_in_fix_roadmap",
+            "total_analyzed_consistent",
+        }
+        assert names == expected
+
+    def test_gate_in_all_gates(self):
+        gate_names = {name for name, _ in ALL_GATES}
+        assert "deviation-analysis" in gate_names
+
+    def test_gate_passes_clean_document(self, tmp_path):
+        """A well-formed deviation-analysis document passes all checks."""
+        from superclaude.cli.pipeline.gates import gate_passed
+        content = (
+            "---\n"
+            "schema_version: 1.0\n"
+            "total_analyzed: 3\n"
+            "slip_count: 1\n"
+            "intentional_count: 1\n"
+            "pre_approved_count: 1\n"
+            "ambiguous_count: 0\n"
+            "ambiguous_deviations: 0\n"
+            "routing_fix_roadmap: DEV-001\n"
+            "routing_update_spec: \n"
+            "routing_no_action: DEV-002\n"
+            "routing_human_review: \n"
+            "analysis_complete: true\n"
+            "---\n"
+        ) + "\n".join([f"- deviation line {i}" for i in range(25)])
+        doc = tmp_path / "deviation-analysis.md"
+        doc.write_text(content, encoding="utf-8")
+        passed, reason = gate_passed(doc, DEVIATION_ANALYSIS_GATE)
+        assert passed is True, f"Expected pass, got reason: {reason}"
+
+    def test_gate_fails_ambiguous_deviation(self, tmp_path):
+        """Ambiguous deviation (ambiguous_deviations=1) fails gate (SC-T05.03)."""
+        from superclaude.cli.pipeline.gates import gate_passed
+        content = (
+            "---\n"
+            "schema_version: 1.0\n"
+            "total_analyzed: 2\n"
+            "slip_count: 1\n"
+            "intentional_count: 0\n"
+            "pre_approved_count: 0\n"
+            "ambiguous_count: 1\n"
+            "ambiguous_deviations: 1\n"
+            "routing_fix_roadmap: DEV-001\n"
+            "routing_update_spec: \n"
+            "routing_no_action: \n"
+            "routing_human_review: DEV-002\n"
+            "analysis_complete: true\n"
+            "---\n"
+        ) + "\n".join([f"- deviation line {i}" for i in range(25)])
+        doc = tmp_path / "deviation-analysis.md"
+        doc.write_text(content, encoding="utf-8")
+        passed, reason = gate_passed(doc, DEVIATION_ANALYSIS_GATE)
+        assert passed is False
+        assert reason is not None
