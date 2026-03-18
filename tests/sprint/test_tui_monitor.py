@@ -73,8 +73,14 @@ class TestTUIUpdateCalledWithMonitorState:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -93,6 +99,7 @@ class TestTUIUpdateCalledWithMonitorState:
         assert tui_mock.update.call_count >= 1
         # At least one call should have a MonitorState as second arg
         from superclaude.cli.sprint.models import MonitorState
+
         monitor_state_seen = False
         for c in tui_mock.update.call_args_list:
             args = c[0]
@@ -113,6 +120,7 @@ class TestTUIExceptionNonFatal:
 
         class _SlowPopen:
             """Popen that runs for a few poll cycles to trigger TUI update in poll loop."""
+
             def __init__(self):
                 self.returncode = 0
                 self.pid = 4001
@@ -135,8 +143,14 @@ class TestTUIExceptionNonFatal:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -153,6 +167,7 @@ class TestTUIExceptionNonFatal:
             # as 3rd arg AND is not the first call with a non-None 3rd arg.
             # Simplest: track calls and only raise on 2nd call (first poll loop iteration).
             call_count = [0]
+
             def _tui_update(*args, **kwargs):
                 call_count[0] += 1
                 # Call 1 = line 92 (before poll loop, phase arg)
@@ -161,6 +176,7 @@ class TestTUIExceptionNonFatal:
                 # Call 4 = line 271 (final, None arg)
                 if call_count[0] == 2:
                     raise RuntimeError("TUI rendering crashed")
+
             tui_mock.update.side_effect = _tui_update
             tui_cls.return_value = tui_mock
 
@@ -203,8 +219,14 @@ class TestOutputMonitorLifecycle:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -216,6 +238,7 @@ class TestOutputMonitorLifecycle:
 
             monitor_mock = MagicMock()
             from superclaude.cli.sprint.models import MonitorState
+
             monitor_mock.state = MonitorState()
             monitor_cls.return_value = monitor_mock
 
@@ -248,8 +271,14 @@ class TestTmuxUpdateWithSessionName:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -278,8 +307,14 @@ class TestTmuxUpdateWithSessionName:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,

@@ -75,4 +75,8 @@ def _detect_project_root(workflow_path: Path) -> Path:
         if parent == search:
             break
         search = parent
-    return workflow_path.parent.parent if workflow_path.parent != workflow_path else workflow_path.parent
+    return (
+        workflow_path.parent.parent
+        if workflow_path.parent != workflow_path
+        else workflow_path.parent
+    )

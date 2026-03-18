@@ -57,21 +57,27 @@ class TestClassifyFileType:
 
 class TestVerifyClassification:
     def _make_result(
-        self, path: str, action: V2Action, evidence: list[str],
+        self,
+        path: str,
+        action: V2Action,
+        evidence: list[str],
     ) -> ClassificationResult:
         tier = V2Tier.TIER_2 if action == V2Action.KEEP else V2Tier.TIER_1
         return ClassificationResult(
             file_path=path,
             tier=tier,
             action=action,
-            v1_category=V1Category.KEEP if action == V2Action.KEEP else V1Category.DELETE,
+            v1_category=V1Category.KEEP
+            if action == V2Action.KEEP
+            else V1Category.DELETE,
             confidence=0.85,
             evidence=evidence,
         )
 
     def test_source_keep_with_import_evidence(self):
         result = self._make_result(
-            "src/main.py", V2Action.KEEP,
+            "src/main.py",
+            V2Action.KEEP,
             ["import reference found in app.py"],
         )
         verification = verify_classification(result)
@@ -80,7 +86,9 @@ class TestVerifyClassification:
 
     def test_source_keep_without_evidence_fails(self):
         result = self._make_result(
-            "src/main.py", V2Action.KEEP, [],
+            "src/main.py",
+            V2Action.KEEP,
+            [],
         )
         verification = verify_classification(result)
         assert verification.file_type == FileType.SOURCE
@@ -88,7 +96,8 @@ class TestVerifyClassification:
 
     def test_config_keep_with_reference(self):
         result = self._make_result(
-            "config/settings.json", V2Action.KEEP,
+            "config/settings.json",
+            V2Action.KEEP,
             ["reference in main.py config loader"],
         )
         verification = verify_classification(result)
@@ -97,7 +106,9 @@ class TestVerifyClassification:
 
     def test_config_keep_without_reference_fails(self):
         result = self._make_result(
-            "config/settings.json", V2Action.KEEP, [],
+            "config/settings.json",
+            V2Action.KEEP,
+            [],
         )
         verification = verify_classification(result)
         assert verification.file_type == FileType.CONFIG
@@ -106,7 +117,9 @@ class TestVerifyClassification:
     def test_docs_keep_no_evidence_still_passes(self):
         """Docs can exist without references (min_evidence_count=0)."""
         result = self._make_result(
-            "docs/guide.md", V2Action.KEEP, [],
+            "docs/guide.md",
+            V2Action.KEEP,
+            [],
         )
         verification = verify_classification(result)
         assert verification.file_type == FileType.DOCS
@@ -114,7 +127,8 @@ class TestVerifyClassification:
 
     def test_test_keep_with_target(self):
         result = self._make_result(
-            "tests/test_auth.py", V2Action.KEEP,
+            "tests/test_auth.py",
+            V2Action.KEEP,
             ["import from auth module"],
         )
         verification = verify_classification(result)
@@ -123,7 +137,8 @@ class TestVerifyClassification:
 
     def test_binary_keep_with_reference(self):
         result = self._make_result(
-            "assets/logo.png", V2Action.KEEP,
+            "assets/logo.png",
+            V2Action.KEEP,
             ["reference in index.html"],
         )
         verification = verify_classification(result)
@@ -154,7 +169,8 @@ class TestVerifyClassification:
         }
         for file_type, path in paths.items():
             result = self._make_result(
-                path, V2Action.KEEP,
+                path,
+                V2Action.KEEP,
                 ["reference evidence for testing"],
             )
             verification = verify_classification(result)
@@ -163,7 +179,8 @@ class TestVerifyClassification:
     def test_dispatch_log(self):
         """Verification result includes rule dispatch info."""
         result = self._make_result(
-            "src/main.py", V2Action.KEEP,
+            "src/main.py",
+            V2Action.KEEP,
             ["import reference found"],
         )
         verification = verify_classification(result)

@@ -78,12 +78,24 @@ class TestFixtureGateCompatibility:
 
     def test_analyze_workflow_frontmatter_fields(self):
         fm, _ = parse_frontmatter(get_fixture("analyze-workflow"))
-        for field in ["step", "source_skill", "cli_name", "component_count", "analysis_sections"]:
+        for field in [
+            "step",
+            "source_skill",
+            "cli_name",
+            "component_count",
+            "analysis_sections",
+        ]:
             assert field in fm
 
     def test_design_pipeline_frontmatter_fields(self):
         fm, _ = parse_frontmatter(get_fixture("design-pipeline"))
-        for field in ["step", "source_skill", "cli_name", "pipeline_steps", "gate_count"]:
+        for field in [
+            "step",
+            "source_skill",
+            "cli_name",
+            "pipeline_steps",
+            "gate_count",
+        ]:
             assert field in fm
 
     def test_synthesize_spec_zero_placeholders(self):
@@ -94,7 +106,13 @@ class TestFixtureGateCompatibility:
 
     def test_brainstorm_gaps_frontmatter_fields(self):
         fm, _ = parse_frontmatter(get_fixture("brainstorm-gaps"))
-        for field in ["step", "source_skill", "cli_name", "gaps_found", "severity_high"]:
+        for field in [
+            "step",
+            "source_skill",
+            "cli_name",
+            "gaps_found",
+            "severity_high",
+        ]:
             assert field in fm
 
     def test_panel_review_convergence_state(self):

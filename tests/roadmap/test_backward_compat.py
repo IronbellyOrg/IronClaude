@@ -395,10 +395,14 @@ class TestMetadataBuilders:
 
     def test_timestamps_are_iso_format(self):
         meta = build_remediate_metadata(
-            status="PASS", scope="all",
-            findings_total=0, findings_actionable=0,
-            findings_fixed=0, findings_failed=0,
-            findings_skipped=0, agents_spawned=0,
+            status="PASS",
+            scope="all",
+            findings_total=0,
+            findings_actionable=0,
+            findings_fixed=0,
+            findings_failed=0,
+            findings_skipped=0,
+            agents_spawned=0,
             tasklist_file="t.md",
         )
         # Should parse without error

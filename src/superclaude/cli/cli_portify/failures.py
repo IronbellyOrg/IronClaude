@@ -115,8 +115,9 @@ def handle_malformed_artifact(
         error_message=msg,
         remediation=(
             "Verify the artifact file starts with '---' frontmatter delimiter. "
-            f"Re-run from this step: `{resume_cmd}`" if resume_cmd else
-            "Verify the artifact file starts with '---' frontmatter delimiter."
+            f"Re-run from this step: `{resume_cmd}`"
+            if resume_cmd
+            else "Verify the artifact file starts with '---' frontmatter delimiter."
         ),
         is_terminal=True,
     )
@@ -216,8 +217,7 @@ def handle_partial_artifact(
     return FailureHandlerResult(
         step_result=step_result,
         error_message=(
-            f"Artifact at '{artifact_path}' is incomplete. "
-            + placeholder_str
+            f"Artifact at '{artifact_path}' is incomplete. " + placeholder_str
         ).strip(),
         remediation=(
             "Re-run the step to complete the artifact. "

@@ -14,12 +14,19 @@ def _dummy_check(content: str) -> bool:
     return True
 
 
-def _make_step(id: str, output: str, gate: GateCriteria | None = None, model: str = "", parallel: bool = False) -> Step:
+def _make_step(
+    id: str,
+    output: str,
+    gate: GateCriteria | None = None,
+    model: str = "",
+    parallel: bool = False,
+) -> Step:
     return Step(
         id=id,
         prompt=f"prompt for {id}",
         output_file=Path(f"/tmp/roadmap/{output}"),
-        gate=gate or GateCriteria(
+        gate=gate
+        or GateCriteria(
             required_frontmatter_fields=["field1"],
             min_lines=50,
             enforcement_tier="STANDARD",
@@ -42,15 +49,27 @@ class TestDryRunOutput:
             min_lines=100,
             enforcement_tier="STRICT",
             semantic_checks=[
-                SemanticCheck(name="check_1", check_fn=_dummy_check, failure_message="fail"),
+                SemanticCheck(
+                    name="check_1", check_fn=_dummy_check, failure_message="fail"
+                ),
             ],
         )
 
         return [
             _make_step("extract", "extraction.md", gate_standard),
             [
-                _make_step("generate-opus-architect", "roadmap-opus.md", gate_strict, model="opus"),
-                _make_step("generate-haiku-architect", "roadmap-haiku.md", gate_strict, model="haiku"),
+                _make_step(
+                    "generate-opus-architect",
+                    "roadmap-opus.md",
+                    gate_strict,
+                    model="opus",
+                ),
+                _make_step(
+                    "generate-haiku-architect",
+                    "roadmap-haiku.md",
+                    gate_strict,
+                    model="haiku",
+                ),
             ],
             _make_step("diff", "diff-analysis.md", gate_standard),
             _make_step("debate", "debate-transcript.md", gate_strict),
@@ -129,6 +148,7 @@ class TestDryRunOutput:
         # _dry_run_output is a pure function that only prints.
         # This test verifies the function signature takes no config/runner args.
         import inspect
+
         sig = inspect.signature(_dry_run_output)
         params = list(sig.parameters.keys())
         assert params == ["steps"]

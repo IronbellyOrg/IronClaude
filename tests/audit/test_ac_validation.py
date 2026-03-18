@@ -12,11 +12,17 @@ from pathlib import Path
 import pytest
 
 from superclaude.cli.audit.classification import (
-    ClassificationResult, V1Category, V2Action, V2Tier,
-    classify_finding, map_to_v1, all_v1_categories_covered,
+    ClassificationResult,
+    V1Category,
+    V2Action,
+    V2Tier,
+    classify_finding,
+    map_to_v1,
+    all_v1_categories_covered,
 )
 from superclaude.cli.audit.consolidation import (
-    ConsolidatedFinding, ConsolidationReport,
+    ConsolidatedFinding,
+    ConsolidationReport,
 )
 
 
@@ -74,8 +80,11 @@ class TestAC2Coverage:
 
         tracker = CoverageTracker(total_files_scanned=100)
         result = ClassificationResult(
-            file_path="a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE,
-            v1_category=V1Category.DELETE, confidence=0.9,
+            file_path="a.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.DELETE,
+            v1_category=V1Category.DELETE,
+            confidence=0.9,
         )
         tracker.add(result)
         artifact = tracker.emit()
@@ -93,13 +102,20 @@ class TestAC3Checkpointing:
 
     def test_checkpoint_write_and_read(self, tmp_path):
         from superclaude.cli.audit.checkpoint import (
-            CheckpointWriter, CheckpointReader, CheckpointState, BatchStatus,
+            CheckpointWriter,
+            CheckpointReader,
+            CheckpointState,
+            BatchStatus,
         )
 
         state = CheckpointState(
             run_id="run-001",
             total_batches=2,
-            batches=[BatchStatus(batch_id="batch_001", status="COMPLETED", files_processed=10)],
+            batches=[
+                BatchStatus(
+                    batch_id="batch_001", status="COMPLETED", files_processed=10
+                )
+            ],
         )
         writer = CheckpointWriter(tmp_path / "progress.json")
         writer.write(state)
@@ -110,14 +126,21 @@ class TestAC3Checkpointing:
 
     def test_resume_controller(self, tmp_path):
         from superclaude.cli.audit.checkpoint import (
-            CheckpointWriter, CheckpointReader, CheckpointState, BatchStatus,
+            CheckpointWriter,
+            CheckpointReader,
+            CheckpointState,
+            BatchStatus,
         )
         from superclaude.cli.audit.resume import ResumeController
 
         state = CheckpointState(
             run_id="run-001",
             total_batches=2,
-            batches=[BatchStatus(batch_id="batch_001", status="COMPLETED", files_processed=10)],
+            batches=[
+                BatchStatus(
+                    batch_id="batch_001", status="COMPLETED", files_processed=10
+                )
+            ],
         )
         writer = CheckpointWriter(tmp_path / "progress.json")
         writer.write(state)
@@ -144,8 +167,11 @@ class TestAC4EvidenceDelete:
         from superclaude.cli.audit.evidence_gate import check_delete_evidence
 
         result = ClassificationResult(
-            file_path="src/unused.py", tier=V2Tier.TIER_1, action=V2Action.DELETE,
-            v1_category=V1Category.DELETE, confidence=0.95,
+            file_path="src/unused.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.DELETE,
+            v1_category=V1Category.DELETE,
+            confidence=0.95,
             evidence=["zero references found by grep"],
         )
         gate = check_delete_evidence(result)
@@ -155,8 +181,11 @@ class TestAC4EvidenceDelete:
         from superclaude.cli.audit.evidence_gate import check_delete_evidence
 
         result = ClassificationResult(
-            file_path="src/used.py", tier=V2Tier.TIER_1, action=V2Action.DELETE,
-            v1_category=V1Category.DELETE, confidence=0.5,
+            file_path="src/used.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.DELETE,
+            v1_category=V1Category.DELETE,
+            confidence=0.5,
             evidence=[],
         )
         gate = check_delete_evidence(result)
@@ -175,8 +204,11 @@ class TestAC5EvidenceKeep:
         from superclaude.cli.audit.evidence_gate import check_keep_evidence
 
         result = ClassificationResult(
-            file_path="src/core.py", tier=V2Tier.TIER_1, action=V2Action.KEEP,
-            v1_category=V1Category.KEEP, confidence=0.9,
+            file_path="src/core.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.KEEP,
+            v1_category=V1Category.KEEP,
+            confidence=0.9,
             evidence=["referenced by main.py"],
         )
         gate = check_keep_evidence(result)
@@ -186,8 +218,11 @@ class TestAC5EvidenceKeep:
         from superclaude.cli.audit.evidence_gate import check_keep_evidence
 
         result = ClassificationResult(
-            file_path="src/core.py", tier=V2Tier.TIER_1, action=V2Action.KEEP,
-            v1_category=V1Category.KEEP, confidence=0.9,
+            file_path="src/core.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.KEEP,
+            v1_category=V1Category.KEEP,
+            confidence=0.9,
             evidence=[],
         )
         gate = check_keep_evidence(result)
@@ -219,10 +254,7 @@ class TestAC6SpotCheck:
     def test_spot_check_validate_runs(self):
         from superclaude.cli.audit.spot_check import spot_check_validate
 
-        findings = [
-            _make_finding(file_path=f"file_{i}.py")
-            for i in range(20)
-        ]
+        findings = [_make_finding(file_path=f"file_{i}.py") for i in range(20)]
         report = ConsolidationReport(
             findings=findings,
             total_input_findings=20,
@@ -298,7 +330,9 @@ class TestAC9Budget:
 
     def test_budget_enforcement_warn_at_75pct(self):
         from superclaude.cli.audit.budget import (
-            BudgetAccountant, BudgetConfig, EnforcementAction,
+            BudgetAccountant,
+            BudgetConfig,
+            EnforcementAction,
         )
 
         config = BudgetConfig(total_budget=1000)
@@ -309,7 +343,9 @@ class TestAC9Budget:
 
     def test_budget_enforcement_halt_at_100pct(self):
         from superclaude.cli.audit.budget import (
-            BudgetAccountant, BudgetConfig, EnforcementAction,
+            BudgetAccountant,
+            BudgetConfig,
+            EnforcementAction,
         )
 
         config = BudgetConfig(total_budget=1000)
@@ -386,13 +422,17 @@ class TestAC12DependencyGraph:
 
     def test_graph_with_edges_has_nodes(self):
         from superclaude.cli.audit.dependency_graph import (
-            DependencyGraph, DependencyEdge, EdgeTier,
+            DependencyGraph,
+            DependencyEdge,
+            EdgeTier,
         )
 
         graph = DependencyGraph()
         edge = DependencyEdge(
-            source="src/main.py", target="src/utils.py",
-            tier=EdgeTier.TIER_A, confidence=1.0,
+            source="src/main.py",
+            target="src/utils.py",
+            tier=EdgeTier.TIER_A,
+            confidence=1.0,
             evidence_type="static",
         )
         graph.add_edge(edge)
@@ -479,8 +519,7 @@ class TestAC16DirectoryAssessment:
         from superclaude.cli.audit.dir_assessment import build_assessment_block
 
         findings = [
-            _make_finding(file_path=f"src/components/file_{i}.py")
-            for i in range(75)
+            _make_finding(file_path=f"src/components/file_{i}.py") for i in range(75)
         ]
         block = build_assessment_block("src/components", findings)
         assert block.file_count == 75
@@ -507,8 +546,10 @@ class TestAC17InvestigateCap:
         from superclaude.cli.audit.escalation import detect_signals
 
         result = ClassificationResult(
-            file_path="src/maybe.py", tier=V2Tier.TIER_1,
-            action=V2Action.INVESTIGATE, v1_category=V1Category.INVESTIGATE,
+            file_path="src/maybe.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.INVESTIGATE,
+            v1_category=V1Category.INVESTIGATE,
             confidence=0.3,
         )
         signals = detect_signals(result)
@@ -536,8 +577,7 @@ class TestAC18FailureHandling:
             _make_finding(file_path=f"f{i}.py", action=V2Action.DELETE)
             for i in range(95)
         ] + [
-            _make_finding(file_path=f"k{i}.py", action=V2Action.KEEP)
-            for i in range(5)
+            _make_finding(file_path=f"k{i}.py", action=V2Action.KEEP) for i in range(5)
         ]
         result = check_batch_uniformity("batch_001", findings, threshold=0.90)
         assert result is not None  # UniformityFlag returned
@@ -549,8 +589,7 @@ class TestAC18FailureHandling:
             _make_finding(file_path=f"f{i}.py", action=V2Action.DELETE)
             for i in range(50)
         ] + [
-            _make_finding(file_path=f"k{i}.py", action=V2Action.KEEP)
-            for i in range(50)
+            _make_finding(file_path=f"k{i}.py", action=V2Action.KEEP) for i in range(50)
         ]
         result = check_batch_uniformity("batch_002", findings, threshold=0.90)
         assert result is None  # No flag
@@ -600,16 +639,22 @@ class TestAC20RunIsolation:
 
     def test_known_issues_registry_per_run(self, tmp_path):
         from superclaude.cli.audit.known_issues import (
-            KnownIssuesRegistry, RegistryEntry,
-            save_registry, load_registry,
+            KnownIssuesRegistry,
+            RegistryEntry,
+            save_registry,
+            load_registry,
         )
 
-        reg1 = KnownIssuesRegistry(entries=[
-            RegistryEntry("KI-R1", "*.py", "DELETE", "2026-01-01"),
-        ])
-        reg2 = KnownIssuesRegistry(entries=[
-            RegistryEntry("KI-R2", "*.js", "KEEP", "2026-01-01"),
-        ])
+        reg1 = KnownIssuesRegistry(
+            entries=[
+                RegistryEntry("KI-R1", "*.py", "DELETE", "2026-01-01"),
+            ]
+        )
+        reg2 = KnownIssuesRegistry(
+            entries=[
+                RegistryEntry("KI-R2", "*.js", "KEEP", "2026-01-01"),
+            ]
+        )
 
         path1 = tmp_path / "run1" / "registry.json"
         path2 = tmp_path / "run2" / "registry.json"

@@ -17,8 +17,10 @@ def tmp_dir(tmp_path: Path) -> Path:
 @pytest.fixture
 def make_file(tmp_path: Path):
     """Factory fixture to create files with given content."""
+
     def _make(name: str, content: str) -> Path:
         p = tmp_path / name
         p.write_text(content, encoding="utf-8")
         return p
+
     return _make

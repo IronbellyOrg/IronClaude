@@ -42,8 +42,7 @@ def load_cleanup_audit_config(
 
     if focus not in SUPPORTED_FOCUS:
         raise ValueError(
-            f"Unsupported focus: {focus}. "
-            f"Supported: {', '.join(SUPPORTED_FOCUS)}"
+            f"Unsupported focus: {focus}. Supported: {', '.join(SUPPORTED_FOCUS)}"
         )
 
     resolved_output = Path(output_dir).resolve() if output_dir else target_path

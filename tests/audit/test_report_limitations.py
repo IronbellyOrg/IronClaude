@@ -41,4 +41,5 @@ class TestLimitationsSection:
     def test_section_serializable(self):
         section = build_limitations_section()
         import json
+
         json.dumps(section)  # Should not raise

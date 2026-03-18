@@ -442,9 +442,7 @@ class TestWaitForPendingTimeout:
         assert len(results) == 5
         step_ids = {r.step_id for r in results}
         expected_ids = {f"fast-{i}" for i in range(5)}
-        assert step_ids == expected_ids, (
-            f"Missing step IDs: {expected_ids - step_ids}"
-        )
+        assert step_ids == expected_ids, f"Missing step IDs: {expected_ids - step_ids}"
 
 
 # ---------------------------------------------------------------------------
@@ -469,7 +467,7 @@ class TestMixedPassFailConcurrency:
             barrier.wait()
             for i in range(steps_per_thread):
                 step_id = f"t{thread_idx}-s{i}"
-                should_pass = (i % 2 == 0)
+                should_pass = i % 2 == 0
                 step = _make_step(step_id, gate=gate)
                 runner.submit(
                     step,

@@ -587,11 +587,21 @@ class TestTurnLedger:
         ledger = TurnLedger(initial_budget=200)
         prev_consumed = 0
         ops = [
-            ("debit", 10), ("debit", 5), ("credit", 3),
-            ("debit", 20), ("credit", 10), ("debit", 1),
-            ("credit", 0), ("debit", 15), ("debit", 0),
-            ("credit", 5), ("debit", 8), ("credit", 2),
-            ("debit", 12), ("debit", 3), ("credit", 7),
+            ("debit", 10),
+            ("debit", 5),
+            ("credit", 3),
+            ("debit", 20),
+            ("credit", 10),
+            ("debit", 1),
+            ("credit", 0),
+            ("debit", 15),
+            ("debit", 0),
+            ("credit", 5),
+            ("debit", 8),
+            ("credit", 2),
+            ("debit", 12),
+            ("debit", 3),
+            ("credit", 7),
         ]
         for op, amount in ops:
             if op == "debit":
@@ -642,7 +652,9 @@ class TestTurnLedger:
         """Verify sustainability boundary: budget=200, rate=0.8, net_cost=4/task → ~50 tasks (spec §4.2)."""
         import math
 
-        ledger = TurnLedger(initial_budget=200, reimbursement_rate=0.8, minimum_allocation=8)
+        ledger = TurnLedger(
+            initial_budget=200, reimbursement_rate=0.8, minimum_allocation=8
+        )
         task_count = 0
         while ledger.can_launch():
             ledger.debit(8)
@@ -681,7 +693,11 @@ class TestTurnLedger:
             budget = rng.randint(50, 500)
             rate = round(rng.uniform(0.1, 0.99), 2)
             turns_per_task = rng.randint(1, 50)
-            ledger = TurnLedger(initial_budget=budget, reimbursement_rate=rate, minimum_allocation=turns_per_task)
+            ledger = TurnLedger(
+                initial_budget=budget,
+                reimbursement_rate=rate,
+                minimum_allocation=turns_per_task,
+            )
 
             prev_available = ledger.available()
             steps = 0
@@ -697,7 +713,9 @@ class TestTurnLedger:
                 prev_available = ledger.available()
                 steps += 1
             # Budget must have been exhausted in finite steps
-            assert not ledger.can_launch(), f"Budget never exhausted after {steps} steps"
+            assert not ledger.can_launch(), (
+                f"Budget never exhausted after {steps} steps"
+            )
 
     def test_rate_boundary_validation(self):
         """SC-001: verify TurnLedger behavior at rate boundary values."""
@@ -886,5 +904,9 @@ class TestTaskResult:
         )
         tr1 = TaskResult(**kwargs)
         tr2 = TaskResult(**kwargs)
-        assert tr1.to_context_summary(verbose=True) == tr2.to_context_summary(verbose=True)
-        assert tr1.to_context_summary(verbose=False) == tr2.to_context_summary(verbose=False)
+        assert tr1.to_context_summary(verbose=True) == tr2.to_context_summary(
+            verbose=True
+        )
+        assert tr1.to_context_summary(verbose=False) == tr2.to_context_summary(
+            verbose=False
+        )

@@ -142,7 +142,13 @@ class TestClaudeProcess:
         scope_pos = prompt.index("## Scope Boundary")
         important_pos = prompt.index("## Important")
         result_file_pos = prompt.index("## Result File")
-        assert sprint_ctx_pos < exec_rules_pos < scope_pos < important_pos < result_file_pos
+        assert (
+            sprint_ctx_pos
+            < exec_rules_pos
+            < scope_pos
+            < important_pos
+            < result_file_pos
+        )
 
     def test_build_prompt_result_file_is_last_h2_section(self):
         """## Result File is the last ##-level section in the prompt (SC-013)."""
@@ -151,8 +157,9 @@ class TestClaudeProcess:
         prompt = proc.build_prompt()
         result_file_pos = prompt.rindex("## Result File")
         # No ## heading should appear after ## Result File
-        remainder = prompt[result_file_pos + len("## Result File"):]
+        remainder = prompt[result_file_pos + len("## Result File") :]
         import re
+
         assert not re.search(r"^##\s", remainder, re.MULTILINE), (
             "Found a ##-level section after ## Result File"
         )
@@ -180,8 +187,18 @@ class TestClaudeProcessPlatformFallback:
 
         fake_process = MagicMock()
         with (
-            patch("superclaude.cli.pipeline.process.hasattr", side_effect=lambda obj, name: False if obj.__name__ == "os" and name == "setpgrp" else builtins.hasattr(obj, name)),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_process) as mock_popen,
+            patch(
+                "superclaude.cli.pipeline.process.hasattr",
+                side_effect=lambda obj, name: (
+                    False
+                    if obj.__name__ == "os" and name == "setpgrp"
+                    else builtins.hasattr(obj, name)
+                ),
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                return_value=fake_process,
+            ) as mock_popen,
         ):
             proc.start()
 
@@ -203,9 +220,11 @@ class TestClaudeProcessPlatformFallback:
 
         with patch(
             "superclaude.cli.pipeline.process.hasattr",
-            side_effect=lambda obj, name: False
-            if obj.__name__ == "os" and name in {"getpgid", "killpg"}
-            else builtins.hasattr(obj, name),
+            side_effect=lambda obj, name: (
+                False
+                if obj.__name__ == "os" and name in {"getpgid", "killpg"}
+                else builtins.hasattr(obj, name)
+            ),
         ):
             proc.terminate()
 
@@ -297,11 +316,13 @@ class TestBuildTaskContext:
 
     def test_context_injection_single_result(self):
         """Single prior result appears in context with full detail."""
-        results = [_make_task_result(
-            task=_make_task_entry(task_id="T01.01", title="Setup"),
-            status=TaskStatus.PASS,
-            gate_outcome=GateOutcome.PASS,
-        )]
+        results = [
+            _make_task_result(
+                task=_make_task_entry(task_id="T01.01", title="Setup"),
+                status=TaskStatus.PASS,
+                gate_outcome=GateOutcome.PASS,
+            )
+        ]
         ctx = build_task_context(results)
         assert "## Prior Task Context" in ctx
         assert "T01.01" in ctx
@@ -368,9 +389,7 @@ class TestBuildTaskContext:
     def test_context_injection_includes_git_diff(self):
         """Git diff summary is included when start_commit is provided."""
         results = [_make_task_result()]
-        with patch(
-            "superclaude.cli.sprint.process._subprocess.run"
-        ) as mock_run:
+        with patch("superclaude.cli.sprint.process._subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=" file1.py | 10 ++++\n file2.py | 5 ++\n 2 files changed\n",
@@ -441,6 +460,7 @@ class TestGetGitDiffContext:
     def test_git_diff_context_timeout(self):
         """Timeout returns empty string."""
         import subprocess
+
         with patch(
             "superclaude.cli.sprint.process._subprocess.run",
             side_effect=subprocess.TimeoutExpired(cmd="git", timeout=10),

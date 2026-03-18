@@ -46,13 +46,18 @@ class TestNoSubagentType:
         assert "CRITICAL" in skill_md_content
         assert "subagent_type" in skill_md_content
         # The warning text
-        assert "does NOT have" in skill_md_content or "does not have" in skill_md_content.lower()
+        assert (
+            "does NOT have" in skill_md_content
+            or "does not have" in skill_md_content.lower()
+        )
 
     def test_agent_type_in_prompt(self, skill_md_content):
         """Agent type should be embedded in the prompt text."""
         # Look for prompts that specify agent identity
-        assert "You are a quality-engineer" in skill_md_content or \
-               "quality-engineer agent" in skill_md_content
+        assert (
+            "You are a quality-engineer" in skill_md_content
+            or "quality-engineer agent" in skill_md_content
+        )
         assert "self-review" in skill_md_content
 
 
@@ -82,4 +87,7 @@ class TestParallelTaskExecution:
 
     def test_quality_and_review_are_independent(self, skill_md_content):
         """Quality engineer and self-review should be marked as independent."""
-        assert "independent" in skill_md_content.lower() or "parallel_eligible" in skill_md_content
+        assert (
+            "independent" in skill_md_content.lower()
+            or "parallel_eligible" in skill_md_content
+        )

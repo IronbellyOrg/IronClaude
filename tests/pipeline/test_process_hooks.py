@@ -44,7 +44,9 @@ class TestOnSpawnHook:
         fake_popen = MagicMock(spec=subprocess.Popen)
         fake_popen.pid = 12345
 
-        with patch("superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_popen):
+        with patch(
+            "superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_popen
+        ):
             proc.start()
 
         on_spawn.assert_called_once_with(12345)
@@ -55,7 +57,9 @@ class TestOnSpawnHook:
         fake_popen = MagicMock(spec=subprocess.Popen)
         fake_popen.pid = 99
 
-        with patch("superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_popen):
+        with patch(
+            "superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_popen
+        ):
             proc.start()
         # Should not raise
 

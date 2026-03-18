@@ -25,7 +25,7 @@ feature_id: {{SC_PLACEHOLDER:fr_id}}
 parent_feature: {{SC_PLACEHOLDER:parent_feature_or_null}}
 spec_type: {{SC_PLACEHOLDER:new_feature_or_refactoring_or_portification_or_infrastructure}}
 complexity_score: {{SC_PLACEHOLDER:0.0_to_1.0}}
-complexity_class: {{SC_PLACEHOLDER:simple_or_moderate_or_high}}
+complexity_class: {{SC_PLACEHOLDER:LOW_or_MEDIUM_or_HIGH}}
 target_release: {{SC_PLACEHOLDER:version}}
 authors: [user, claude]
 created: {{SC_PLACEHOLDER:yyyy_mm_dd}}

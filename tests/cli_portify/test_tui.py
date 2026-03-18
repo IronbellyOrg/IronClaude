@@ -243,6 +243,7 @@ class TestPortifyTUIUpdate:
     def test_tui_update_step_callable_for_all_statuses(self):
         """update_step() callable without exception for all PortifyStatus values."""
         from superclaude.cli.cli_portify.models import PortifyStatus
+
         tui = PortifyTUI()
         tui.start()
         for status in PortifyStatus:
@@ -252,14 +253,18 @@ class TestPortifyTUIUpdate:
     def test_tui_update_step_sets_running(self):
         tui = PortifyTUI()
         tui.start()
-        tui.update_step("validate-config", status="running", bytes_written=0, elapsed_s=0.0)
+        tui.update_step(
+            "validate-config", status="running", bytes_written=0, elapsed_s=0.0
+        )
         assert tui._dashboard.state.steps[0].status == "running"
         tui.stop()
 
     def test_tui_update_step_sets_bytes_and_elapsed(self):
         tui = PortifyTUI()
         tui.start()
-        tui.update_step("analyze-workflow", status="running", bytes_written=1024, elapsed_s=3.5)
+        tui.update_step(
+            "analyze-workflow", status="running", bytes_written=1024, elapsed_s=3.5
+        )
         step = tui._dashboard.state._find_step("analyze-workflow")
         assert step is not None
         assert step.duration_seconds == 3.5
@@ -315,6 +320,7 @@ class TestPortifyTUIComplete:
     def test_tui_complete_full_pipeline_simulation(self):
         """Simulate a full 5-step pipeline run with real-time updates."""
         import time
+
         tui = PortifyTUI()
         tui.start()
         for step in ["validate-config", "discover-components", "analyze-workflow"]:
@@ -328,6 +334,8 @@ class TestPortifyTUIComplete:
         tui = PortifyTUI()
         tui.start()
         for i in range(1, 4):
-            tui.update_convergence(iteration=i, findings_count=max(0, 5 - i * 2), placeholder_count=0)
+            tui.update_convergence(
+                iteration=i, findings_count=max(0, 5 - i * 2), placeholder_count=0
+            )
         tui.stop()
         assert tui._convergence_iteration == 3

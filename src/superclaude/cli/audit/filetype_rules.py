@@ -34,26 +34,73 @@ class FileType(Enum):
 
 
 # Extension-based classification
-_SOURCE_EXTS = frozenset({
-    ".py", ".ts", ".js", ".jsx", ".tsx", ".vue", ".svelte",
-    ".go", ".rs", ".java", ".rb", ".php", ".c", ".cpp", ".h",
-})
+_SOURCE_EXTS = frozenset(
+    {
+        ".py",
+        ".ts",
+        ".js",
+        ".jsx",
+        ".tsx",
+        ".vue",
+        ".svelte",
+        ".go",
+        ".rs",
+        ".java",
+        ".rb",
+        ".php",
+        ".c",
+        ".cpp",
+        ".h",
+    }
+)
 
-_CONFIG_EXTS = frozenset({
-    ".json", ".yaml", ".yml", ".toml", ".ini", ".cfg",
-    ".env", ".properties", ".xml",
-})
+_CONFIG_EXTS = frozenset(
+    {
+        ".json",
+        ".yaml",
+        ".yml",
+        ".toml",
+        ".ini",
+        ".cfg",
+        ".env",
+        ".properties",
+        ".xml",
+    }
+)
 
-_DOCS_EXTS = frozenset({
-    ".md", ".rst", ".txt", ".adoc",
-})
+_DOCS_EXTS = frozenset(
+    {
+        ".md",
+        ".rst",
+        ".txt",
+        ".adoc",
+    }
+)
 
-_BINARY_EXTS = frozenset({
-    ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg",
-    ".woff", ".woff2", ".ttf", ".eot",
-    ".pyc", ".pyo", ".class", ".o", ".so", ".dll",
-    ".zip", ".tar", ".gz", ".bz2",
-})
+_BINARY_EXTS = frozenset(
+    {
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".ico",
+        ".svg",
+        ".woff",
+        ".woff2",
+        ".ttf",
+        ".eot",
+        ".pyc",
+        ".pyo",
+        ".class",
+        ".o",
+        ".so",
+        ".dll",
+        ".zip",
+        ".tar",
+        ".gz",
+        ".bz2",
+    }
+)
 
 # Test file name patterns
 _TEST_PREFIXES = ("test_", "spec_")
@@ -76,8 +123,10 @@ def classify_file_type(file_path: str) -> FileType:
         return FileType.TEST
     lower_path = file_path.lower().replace("\\", "/")
     if (
-        "/tests/" in lower_path or "/test/" in lower_path
-        or lower_path.startswith("tests/") or lower_path.startswith("test/")
+        "/tests/" in lower_path
+        or "/test/" in lower_path
+        or lower_path.startswith("tests/")
+        or lower_path.startswith("test/")
     ):
         return FileType.TEST
 
@@ -231,7 +280,7 @@ def _check_rule(
         rule_name=rule.name,
         passed=False,
         reason=f"Insufficient evidence: need {rule.min_evidence_count} of types "
-               f"{rule.required_evidence_types}, found {len(matched)}",
+        f"{rule.required_evidence_types}, found {len(matched)}",
         matched_evidence=matched,
     )
 

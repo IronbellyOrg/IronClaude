@@ -37,8 +37,7 @@ def check_delete_evidence(result: ClassificationResult) -> GateResult:
         return GateResult(passed=True)
 
     has_zero_ref_evidence = any(
-        "zero" in e.lower() and "ref" in e.lower()
-        for e in result.evidence
+        "zero" in e.lower() and "ref" in e.lower() for e in result.evidence
     )
     if not has_zero_ref_evidence:
         return GateResult(
@@ -60,9 +59,7 @@ def check_keep_evidence(result: ClassificationResult) -> GateResult:
     if result.tier not in (V2Tier.TIER_1, V2Tier.TIER_2):
         return GateResult(passed=True)
 
-    has_ref_evidence = any(
-        "ref" in e.lower() for e in result.evidence
-    )
+    has_ref_evidence = any("ref" in e.lower() for e in result.evidence)
     if not has_ref_evidence:
         return GateResult(
             passed=False,

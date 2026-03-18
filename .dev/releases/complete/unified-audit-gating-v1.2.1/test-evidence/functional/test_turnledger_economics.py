@@ -21,6 +21,7 @@ from superclaude.cli.sprint.models import TurnLedger
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def simulate_cycle(ledger: TurnLedger, spend: int) -> int:
     """Simulate one debit+credit cycle and return the new available budget.
 
@@ -38,6 +39,7 @@ def simulate_cycle(ledger: TurnLedger, spend: int) -> int:
 # ---------------------------------------------------------------------------
 # Core economic invariant: budget decays under repeated cycles
 # ---------------------------------------------------------------------------
+
 
 class TestBudgetDecay:
     """After N debit+credit cycles at rate < 1.0, budget must decay."""
@@ -111,6 +113,7 @@ class TestBudgetDecay:
 # ---------------------------------------------------------------------------
 # Pre-launch guard: HALT when budget is exhausted
 # ---------------------------------------------------------------------------
+
 
 class TestPreLaunchGuard:
     """can_launch() and can_remediate() must deny when budget is too low."""
@@ -187,6 +190,7 @@ class TestPreLaunchGuard:
 # Input validation
 # ---------------------------------------------------------------------------
 
+
 class TestInputValidation:
     """Negative amounts must raise ValueError."""
 
@@ -205,6 +209,7 @@ class TestInputValidation:
 # Accounting identity
 # ---------------------------------------------------------------------------
 
+
 class TestAccountingIdentity:
     """available() must always equal initial_budget - consumed + reimbursed."""
 
@@ -214,7 +219,7 @@ class TestAccountingIdentity:
         operations = [
             ("debit", 10),
             ("debit", 15),
-            ("credit", 9),   # reimburse for first debit
+            ("credit", 9),  # reimburse for first debit
             ("debit", 20),
             ("credit", 13),  # reimburse for second debit (floor(15*0.9)=13)
             ("credit", 18),  # reimburse for third debit (floor(20*0.9)=18)

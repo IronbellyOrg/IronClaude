@@ -46,7 +46,10 @@ from superclaude.cli.roadmap.gates import (
     _total_analyzed_consistent,
 )
 from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
-from superclaude.cli.roadmap.remediate import _parse_routing_list, deviations_to_findings
+from superclaude.cli.roadmap.remediate import (
+    _parse_routing_list,
+    deviations_to_findings,
+)
 
 
 # ──────────────────────────────────────────────────────────────────
@@ -88,12 +91,12 @@ _V224_FM_VALUES = {
     "nonfunctional_requirements": "4",
     "total_requirements": "12",
     "complexity_score": "0.65",
-    "complexity_class": "moderate",
-    "domains_detected": "3",
+    "complexity_class": "MEDIUM",
+    "domains_detected": "[backend, frontend, security]",
     "risks_identified": "4",
     "dependencies_identified": "5",
     "success_criteria_count": "6",
-    "extraction_mode": "full",
+    "extraction_mode": "standard",
     "primary_persona": "architect",
     "total_diff_points": "6",
     "shared_assumptions_count": "5",
@@ -102,8 +105,11 @@ _V224_FM_VALUES = {
     "base_variant": "A",
     "variant_scores": "A:81 B:74",
     "adversarial": "true",
+    "validation_philosophy": "continuous-parallel",
     "validation_milestones": "4",
-    "interleave_ratio": "1:3",
+    "work_milestones": "8",
+    "interleave_ratio": "1:2",
+    "major_issue_policy": "stop-and-fix",
     # SC-2: D-02 (DEV-004 INTENTIONAL) and D-04 (DEV-003 PRE_APPROVED) pre-approved
     # high_severity_count=0 because INTENTIONAL and PRE_APPROVED excluded
     "high_severity_count": "0",
@@ -163,16 +169,18 @@ def _build_step_content(step: Step) -> str:
 
     # Add certification table for certify step
     if step.id == "certify":
-        lines.extend([
-            "",
-            "## Certification Results",
-            "",
-            "| Finding | Severity | Result | Justification |",
-            "| --- | --- | --- | --- |",
-            "| F-001 | BLOCKING | PASSED | Added Success Criteria section |",
-            "| F-002 | BLOCKING | PASSED | Added Performance Budget table |",
-            "",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Certification Results",
+                "",
+                "| Finding | Severity | Result | Justification |",
+                "| --- | --- | --- | --- |",
+                "| F-001 | BLOCKING | PASSED | Added Success Criteria section |",
+                "| F-002 | BLOCKING | PASSED | Added Performance Budget table |",
+                "",
+            ]
+        )
 
     return "\n".join(lines)
 
@@ -332,12 +340,7 @@ class TestSC3SlipRouting:
 
     def test_slip_count_matches_routing(self):
         """slip_count=2 matches 2 IDs in routing_fix_roadmap."""
-        content = (
-            "---\n"
-            "slip_count: 2\n"
-            "routing_fix_roadmap: DEV-001 DEV-002\n"
-            "---\n"
-        )
+        content = "---\nslip_count: 2\nrouting_fix_roadmap: DEV-001 DEV-002\n---\n"
         assert _slip_count_matches_routing(content) is True
 
     def test_deviation_analysis_gate_passes_v224_scenario(self):
@@ -453,22 +456,62 @@ class TestSC4SlipOnlyRemediation:
     def test_finding_deviation_class_slip_only_in_remediation(self):
         """Only SLIP findings are included in remediation scope."""
         records = [
-            {"id": "DEV-001", "severity": "HIGH", "dimension": "D", "description": "desc",
-             "location": "l", "evidence": "e", "fix_guidance": "f",
-             "files_affected": [], "status": "PENDING", "agreement_category": "",
-             "deviation_class": "SLIP", "routing": "DEV-001"},
-            {"id": "DEV-002", "severity": "HIGH", "dimension": "D", "description": "desc",
-             "location": "l", "evidence": "e", "fix_guidance": "f",
-             "files_affected": [], "status": "PENDING", "agreement_category": "",
-             "deviation_class": "SLIP", "routing": "DEV-002"},
-            {"id": "DEV-003", "severity": "LOW", "dimension": "D", "description": "desc",
-             "location": "l", "evidence": "e", "fix_guidance": "",
-             "files_affected": [], "status": "PENDING", "agreement_category": "",
-             "deviation_class": "PRE_APPROVED", "routing": ""},
-            {"id": "DEV-004", "severity": "LOW", "dimension": "D", "description": "desc",
-             "location": "l", "evidence": "e", "fix_guidance": "",
-             "files_affected": [], "status": "PENDING", "agreement_category": "",
-             "deviation_class": "INTENTIONAL", "routing": ""},
+            {
+                "id": "DEV-001",
+                "severity": "HIGH",
+                "dimension": "D",
+                "description": "desc",
+                "location": "l",
+                "evidence": "e",
+                "fix_guidance": "f",
+                "files_affected": [],
+                "status": "PENDING",
+                "agreement_category": "",
+                "deviation_class": "SLIP",
+                "routing": "DEV-001",
+            },
+            {
+                "id": "DEV-002",
+                "severity": "HIGH",
+                "dimension": "D",
+                "description": "desc",
+                "location": "l",
+                "evidence": "e",
+                "fix_guidance": "f",
+                "files_affected": [],
+                "status": "PENDING",
+                "agreement_category": "",
+                "deviation_class": "SLIP",
+                "routing": "DEV-002",
+            },
+            {
+                "id": "DEV-003",
+                "severity": "LOW",
+                "dimension": "D",
+                "description": "desc",
+                "location": "l",
+                "evidence": "e",
+                "fix_guidance": "",
+                "files_affected": [],
+                "status": "PENDING",
+                "agreement_category": "",
+                "deviation_class": "PRE_APPROVED",
+                "routing": "",
+            },
+            {
+                "id": "DEV-004",
+                "severity": "LOW",
+                "dimension": "D",
+                "description": "desc",
+                "location": "l",
+                "evidence": "e",
+                "fix_guidance": "",
+                "files_affected": [],
+                "status": "PENDING",
+                "agreement_category": "",
+                "deviation_class": "INTENTIONAL",
+                "routing": "",
+            },
         ]
         all_findings = deviations_to_findings(records)
         slip_only = [f for f in all_findings if f.deviation_class == "SLIP"]
@@ -501,6 +544,7 @@ class TestSC6TerminalHalt:
         (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
 
         halt_invoked = []
+
         def mock_halt(output_dir, findings, count):
             halt_invoked.append({"count": count})
 
@@ -514,9 +558,13 @@ class TestSC6TerminalHalt:
         buf = io.StringIO()
         remaining = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Completeness",
-                description="Missing Success Criteria", location="roadmap.md",
-                evidence="ev", fix_guidance="fix",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Completeness",
+                description="Missing Success Criteria",
+                location="roadmap.md",
+                evidence="ev",
+                fix_guidance="fix",
             ),
         ]
         _print_terminal_halt(tmp_path, remaining, attempt_count=3, file=buf)
@@ -528,12 +576,22 @@ class TestSC6TerminalHalt:
         buf = io.StringIO()
         remaining = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="D",
-                description="desc 1", location="l", evidence="e", fix_guidance="f",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="D",
+                description="desc 1",
+                location="l",
+                evidence="e",
+                fix_guidance="f",
             ),
             Finding(
-                id="F-02", severity="WARNING", dimension="D",
-                description="desc 2", location="l", evidence="e", fix_guidance="f",
+                id="F-02",
+                severity="WARNING",
+                dimension="D",
+                description="desc 2",
+                location="l",
+                evidence="e",
+                fix_guidance="f",
             ),
         ]
         _print_terminal_halt(tmp_path, remaining, attempt_count=3, file=buf)
@@ -545,9 +603,13 @@ class TestSC6TerminalHalt:
         buf = io.StringIO()
         remaining = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="D",
-                description="Missing Success Criteria section", location="l",
-                evidence="e", fix_guidance="f",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="D",
+                description="Missing Success Criteria section",
+                location="l",
+                evidence="e",
+                fix_guidance="f",
             ),
         ]
         _print_terminal_halt(tmp_path, remaining, attempt_count=3, file=buf)
@@ -669,9 +731,12 @@ class TestCompleteV224PipelineFlow:
         (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
 
         halt_called = []
+
         def capture_halt(output_dir, findings, count):
             halt_called.append(count)
 
         result = _check_remediation_budget(tmp_path, halt_fn=capture_halt)
         assert result is False, "Third attempt should exhaust budget"
-        assert halt_called == [3], f"Expected halt called with count=3, got {halt_called}"
+        assert halt_called == [3], (
+            f"Expected halt called with count=3, got {halt_called}"
+        )

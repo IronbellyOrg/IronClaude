@@ -21,8 +21,14 @@ class TestSkillPathConvention:
         """Source skill should be at src/superclaude/skills/sc-roadmap-protocol/SKILL.md."""
         expected = os.path.join(
             os.path.dirname(__file__),
-            "..", "..", "..",
-            "src", "superclaude", "skills", "sc-roadmap-protocol", "SKILL.md",
+            "..",
+            "..",
+            "..",
+            "src",
+            "superclaude",
+            "skills",
+            "sc-roadmap-protocol",
+            "SKILL.md",
         )
         expected = os.path.normpath(expected)
         assert os.path.exists(expected), f"Source SKILL.md not found at: {expected}"
@@ -31,8 +37,13 @@ class TestSkillPathConvention:
         """Installed skill should be at .claude/skills/sc-roadmap-protocol/SKILL.md."""
         expected = os.path.join(
             os.path.dirname(__file__),
-            "..", "..", "..",
-            ".claude", "skills", "sc-roadmap-protocol", "SKILL.md",
+            "..",
+            "..",
+            "..",
+            ".claude",
+            "skills",
+            "sc-roadmap-protocol",
+            "SKILL.md",
         )
         expected = os.path.normpath(expected)
         # May not exist if sync hasn't been run
@@ -42,7 +53,9 @@ class TestSkillPathConvention:
 
     def test_skill_frontmatter(self, skill_md_content):
         """SKILL.md should have valid YAML frontmatter."""
-        assert skill_md_content.startswith("---"), "SKILL.md should start with YAML frontmatter"
+        assert skill_md_content.startswith("---"), (
+            "SKILL.md should start with YAML frontmatter"
+        )
         # Find closing ---
         second_fence = skill_md_content.find("---", 3)
         assert second_fence > 3, "SKILL.md should have closing frontmatter fence"
@@ -66,8 +79,13 @@ class TestTemplatePathConvention:
         """Plugin template directory should exist."""
         template_dir = os.path.join(
             os.path.dirname(__file__),
-            "..", "..", "..",
-            "plugins", "superclaude", "templates", "roadmaps",
+            "..",
+            "..",
+            "..",
+            "plugins",
+            "superclaude",
+            "templates",
+            "roadmaps",
         )
         template_dir = os.path.normpath(template_dir)
         if not os.path.exists(template_dir):
@@ -97,7 +115,12 @@ class TestFileNamingConventions:
 
     def test_artifact_extensions(self, skill_md_content):
         """All artifacts should have .md extension."""
-        artifacts = ["roadmap.md", "extraction.md", "test-strategy.md", "execution-prompt.md"]
+        artifacts = [
+            "roadmap.md",
+            "extraction.md",
+            "test-strategy.md",
+            "execution-prompt.md",
+        ]
         for artifact in artifacts:
             assert artifact in skill_md_content
 
@@ -105,7 +128,10 @@ class TestFileNamingConventions:
         """Generated files should use lowercase naming."""
         # SKILL.md itself is uppercase (convention), but generated files are lowercase
         expected_lowercase = [
-            "roadmap.md", "extraction.md", "test-strategy.md", "execution-prompt.md",
+            "roadmap.md",
+            "extraction.md",
+            "test-strategy.md",
+            "execution-prompt.md",
         ]
         for name in expected_lowercase:
             assert name == name.lower(), f"Filename should be lowercase: {name}"

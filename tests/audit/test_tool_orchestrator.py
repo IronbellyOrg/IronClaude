@@ -50,8 +50,8 @@ class TestResultCache:
         result = FileAnalysis(file_path="a.py", content_hash="abc")
         cache.put("abc", result)
 
-        cache.get("abc")   # hit
-        cache.get("xyz")   # miss
+        cache.get("abc")  # hit
+        cache.get("xyz")  # miss
 
         assert cache.stats.hits == 1
         assert cache.stats.misses == 1

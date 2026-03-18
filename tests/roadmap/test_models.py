@@ -5,7 +5,12 @@ from pathlib import Path
 import pytest
 
 from superclaude.cli.pipeline.models import PipelineConfig
-from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig, VALID_DEVIATION_CLASSES
+from superclaude.cli.roadmap.models import (
+    AgentSpec,
+    Finding,
+    RoadmapConfig,
+    VALID_DEVIATION_CLASSES,
+)
 
 
 class TestAgentSpec:
@@ -112,8 +117,13 @@ class TestFindingDeviationClass:
     def test_default_is_unclassified(self):
         """Finding() without deviation_class defaults to 'UNCLASSIFIED'."""
         f = Finding(
-            id="F-01", severity="BLOCKING", dimension="Test",
-            description="desc", location="loc", evidence="ev", fix_guidance="fix",
+            id="F-01",
+            severity="BLOCKING",
+            dimension="Test",
+            description="desc",
+            location="loc",
+            evidence="ev",
+            fix_guidance="fix",
         )
         assert f.deviation_class == "UNCLASSIFIED"
 
@@ -184,6 +194,6 @@ class TestFindingDeviationClass:
 
     def test_valid_deviation_classes_set_completeness(self):
         """VALID_DEVIATION_CLASSES contains exactly the 5 expected classes."""
-        assert VALID_DEVIATION_CLASSES == frozenset({
-            "SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"
-        })
+        assert VALID_DEVIATION_CLASSES == frozenset(
+            {"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"}
+        )

@@ -66,7 +66,9 @@ class TestGuardPassIntegration:
         assert len(ambiguous) >= 1
         zero_states = []
         for det in ambiguous:
-            zero_states.extend(s for s in det.states if s.value == "0" and s.is_ambiguous)
+            zero_states.extend(
+                s for s in det.states if s.value == "0" and s.is_ambiguous
+            )
         assert len(zero_states) >= 1
 
         # Release gate warning with mandatory owner
@@ -135,7 +137,10 @@ class TestGuardPassIntegration:
                     scope="module-level",
                     invariant_predicate="replay >= 0",
                     mutation_sites=[
-                        MutationSite(deliverable_id="D-0001", expression="introduced as replacement"),
+                        MutationSite(
+                            deliverable_id="D-0001",
+                            expression="introduced as replacement",
+                        ),
                     ],
                 ),
             ],
@@ -194,6 +199,10 @@ class TestGuardPassIntegration:
         # Only D-0001 (high severity) should elevate
         elevated_vars = set(result.fmea_elevations)
         # The variable from D-0001 should be elevated
-        d1_detections = [d for d in result.detections if d.deliverable_id == "D-0001" and d.has_ambiguity]
+        d1_detections = [
+            d
+            for d in result.detections
+            if d.deliverable_id == "D-0001" and d.has_ambiguity
+        ]
         if d1_detections:
             assert d1_detections[0].guard_variable in elevated_vars

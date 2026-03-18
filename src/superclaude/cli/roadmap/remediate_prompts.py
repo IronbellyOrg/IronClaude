@@ -61,9 +61,15 @@ def build_remediation_prompt(
     lines.append("## Constraints")
     lines.append("")
     lines.append(f"1. You may ONLY edit the target file: `{target_file}`")
-    lines.append("2. Apply ONLY the fixes listed above -- do not make unrelated changes")
-    lines.append("3. Preserve YAML frontmatter structure and values (unless a fix explicitly targets them)")
-    lines.append("4. Preserve heading hierarchy -- do not add, remove, or reorder headings (unless a fix explicitly targets them)")
+    lines.append(
+        "2. Apply ONLY the fixes listed above -- do not make unrelated changes"
+    )
+    lines.append(
+        "3. Preserve YAML frontmatter structure and values (unless a fix explicitly targets them)"
+    )
+    lines.append(
+        "4. Preserve heading hierarchy -- do not add, remove, or reorder headings (unless a fix explicitly targets them)"
+    )
     lines.append("5. Preserve existing content that is not targeted by a fix")
     lines.append("")
 

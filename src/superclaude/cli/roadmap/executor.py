@@ -143,17 +143,44 @@ def _inject_pipeline_diagnostics(
     diagnostics_line = (
         f"pipeline_diagnostics: "
         f"{{elapsed_seconds: {elapsed:.1f}, "
-        f"started_at: \"{started_at.isoformat()}\", "
-        f"finished_at: \"{finished_at.isoformat()}\"}}"
+        f'started_at: "{started_at.isoformat()}", '
+        f'finished_at: "{finished_at.isoformat()}"}}'
     )
 
     # Insert before the closing ---
-    new_content = (
-        content[: end_idx]
-        + "\n"
-        + diagnostics_line
-        + content[end_idx:]
+    new_content = content[:end_idx] + "\n" + diagnostics_line + content[end_idx:]
+    output_file.write_text(new_content, encoding="utf-8")
+
+
+def _inject_provenance_fields(
+    output_file: Path,
+    spec_source: str,
+) -> None:
+    """Inject provenance fields into test-strategy frontmatter.
+
+    The test-strategy step's LLM output may omit provenance metadata
+    (spec_source, generated, generator) since the prompt focuses on
+    test strategy content. The executor injects these fields post-subprocess
+    to satisfy TEST_STRATEGY_GATE required_frontmatter_fields.
+    """
+    content = output_file.read_text(encoding="utf-8")
+    if not content.startswith("---"):
+        return
+
+    # Find end of frontmatter
+    end_idx = content.find("\n---", 3)
+    if end_idx == -1:
+        return
+
+    generated = datetime.now(timezone.utc).isoformat()
+    provenance_lines = (
+        f"spec_source: {spec_source}\n"
+        f'generated: "{generated}"\n'
+        f"generator: superclaude-roadmap-executor"
     )
+
+    # Insert before the closing ---
+    new_content = content[:end_idx] + "\n" + provenance_lines + content[end_idx:]
     output_file.write_text(new_content, encoding="utf-8")
 
 
@@ -256,6 +283,13 @@ def roadmap_run_step(
     # Inject executor-populated fields into extract step frontmatter (FR-033)
     if step.id == "extract" and step.output_file.exists():
         _inject_pipeline_diagnostics(step.output_file, started_at, finished_at)
+
+    # Inject provenance fields into test-strategy output
+    if step.id == "test-strategy" and step.output_file.exists():
+        spec_source = (
+            config.spec_file.name if hasattr(config, "spec_file") else "unknown"
+        )
+        _inject_provenance_fields(step.output_file, spec_source)
 
     # Process completed successfully; gate check happens in execute_pipeline
     return StepResult(
@@ -487,14 +521,16 @@ def _format_halt_output(results: list[StepResult], config: RoadmapConfig) -> str
     if skipped_ids:
         lines.append(f"Skipped steps:   {', '.join(skipped_ids)}")
 
-    lines.extend([
-        "",
-        "To retry from this step:",
-        f"  superclaude roadmap run {config.spec_file} --resume",
-        "",
-        "To inspect the failing output:",
-        f"  cat {step.output_file}",
-    ])
+    lines.extend(
+        [
+            "",
+            "To retry from this step:",
+            f"  superclaude roadmap run {config.spec_file} --resume",
+            "",
+            "To inspect the failing output:",
+            f"  cat {step.output_file}",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -563,22 +599,26 @@ def _print_terminal_halt(
             lines.append(f"  - {finding_id} [{severity}]: {description}")
         lines.append("")
 
-    lines.extend([
-        "Manual fix required:",
-        f"  1. Review certification report: {certify_path}",
-        "  2. Fix remaining findings manually",
-        "  3. Resume pipeline with:",
-        f"     superclaude roadmap run --resume",
-        "",
-    ])
+    lines.extend(
+        [
+            "Manual fix required:",
+            f"  1. Review certification report: {certify_path}",
+            "  2. Fix remaining findings manually",
+            "  3. Resume pipeline with:",
+            f"     superclaude roadmap run --resume",
+            "",
+        ]
+    )
 
     if spec_patch_budget_exhausted:
-        lines.extend([
-            "Note: Both the remediation budget and the spec-patch cycle budget",
-            "are exhausted. Full dual-budget recovery is deferred to v2.26.",
-            "# TODO(v2.26): implement dual-budget-exhaustion recovery mechanism",
-            "",
-        ])
+        lines.extend(
+            [
+                "Note: Both the remediation budget and the spec-patch cycle budget",
+                "are exhausted. Full dual-budget recovery is deferred to v2.26.",
+                "# TODO(v2.26): implement dual-budget-exhaustion recovery mechanism",
+                "",
+            ]
+        )
 
     lines.append("=" * 72)
 
@@ -642,7 +682,9 @@ def _check_annotate_deviations_freshness(
 
     # Case 5: roadmap_hash field missing or empty
     if not saved_hash:
-        _log.warning("Freshness check: roadmap_hash field missing or empty in spec-deviations.md")
+        _log.warning(
+            "Freshness check: roadmap_hash field missing or empty in spec-deviations.md"
+        )
         return False
 
     # Case 6: roadmap.md not found
@@ -662,7 +704,8 @@ def _check_annotate_deviations_freshness(
     if saved_hash != current_hash:
         _log.warning(
             "Freshness check: hash mismatch -- saved=%s current=%s",
-            saved_hash[:12], current_hash[:12],
+            saved_hash[:12],
+            current_hash[:12],
         )
         # FR-084: reset gate pass state for downstream steps
         if gate_pass_state is not None:
@@ -704,9 +747,7 @@ def _check_remediation_budget(
         try:
             attempts = int(raw)
         except (ValueError, TypeError):
-            _log.warning(
-                "Non-integer remediation_attempts %r coerced to 0", raw
-            )
+            _log.warning("Non-integer remediation_attempts %r coerced to 0", raw)
             attempts = 0
 
     if attempts >= max_attempts:
@@ -770,7 +811,9 @@ def _print_step_plan(num: int, step: Step, parallel: bool = False) -> None:
         print(f"  Gate tier: {step.gate.enforcement_tier}")
         print(f"  Gate min_lines: {step.gate.min_lines}")
         if step.gate.required_frontmatter_fields:
-            print(f"  Gate frontmatter: {', '.join(step.gate.required_frontmatter_fields)}")
+            print(
+                f"  Gate frontmatter: {', '.join(step.gate.required_frontmatter_fields)}"
+            )
         if step.gate.semantic_checks:
             checks = [c.name for c in step.gate.semantic_checks]
             print(f"  Semantic checks: {', '.join(checks)}")
@@ -1094,7 +1137,8 @@ def execute_roadmap(
     if failures:
         # FR-2.24.1.9: Check if spec-fidelity failed and auto-resume is possible
         spec_fidelity_failed = any(
-            r.step and r.step.id == "spec-fidelity"
+            r.step
+            and r.step.id == "spec-fidelity"
             and r.status in (StepStatus.FAIL, StepStatus.TIMEOUT)
             for r in results
         )
@@ -1140,7 +1184,6 @@ def execute_roadmap(
                 return
 
     _auto_invoke_validate(config)
-
 
 
 def _find_qualifying_deviation_files(
@@ -1304,8 +1347,7 @@ def _apply_resume_after_spec_patch(
 
     # Check if resumed pipeline also failed
     resumed_failures = [
-        r for r in resumed_results
-        if r.status in (StepStatus.FAIL, StepStatus.TIMEOUT)
+        r for r in resumed_results if r.status in (StepStatus.FAIL, StepStatus.TIMEOUT)
     ]
     if resumed_failures:
         # FR-2.24.1.13: Normal failure on cycle exhaustion
@@ -1320,6 +1362,7 @@ def _apply_resume_after_spec_patch(
         flush=True,
     )
     return True
+
 
 def _save_validation_status(
     config: RoadmapConfig,
@@ -1533,7 +1576,10 @@ def _apply_resume(
                     break
             if all_pass:
                 skipped += len(entry)
-                print(f"[roadmap] Skipping {', '.join(s.id for s in entry)} (gates pass)", flush=True)
+                print(
+                    f"[roadmap] Skipping {', '.join(s.id for s in entry)} (gates pass)",
+                    flush=True,
+                )
             else:
                 found_failure = True
                 result.append(entry)

@@ -1,6 +1,5 @@
 """Tests for sprint config — phase discovery, validation, and loading."""
 
-
 import click
 import pytest
 
@@ -75,11 +74,7 @@ class TestDiscoverPhases:
         (tmp_path / "phase-1-tasklist.md").write_text("# Phase 1")
         (tmp_path / "phase-2-tasklist.md").write_text("# Phase 2")
         index = tmp_path / "tasklist-index.md"
-        index.write_text(
-            "Phases:\n"
-            "- phase-1-tasklist.md\n"
-            "- phase-2-tasklist.md\n"
-        )
+        index.write_text("Phases:\n- phase-1-tasklist.md\n- phase-2-tasklist.md\n")
 
         phases = discover_phases(index)
         assert len(phases) == 2
@@ -204,9 +199,7 @@ class TestLoadSprintConfig:
         (tmp_path / "phase-1-tasklist.md").write_text("# Phase 1: Foundation\n")
         (tmp_path / "phase-2-tasklist.md").write_text("# Phase 2: Backend\n")
         index = tmp_path / "tasklist-index.md"
-        index.write_text(
-            "Phases:\n- phase-1-tasklist.md\n- phase-2-tasklist.md\n"
-        )
+        index.write_text("Phases:\n- phase-1-tasklist.md\n- phase-2-tasklist.md\n")
 
         config = load_sprint_config(index_path=index)
         assert len(config.phases) == 2
@@ -333,10 +326,14 @@ class TestTasklistParser:
         assert parse_tasklist("   \n\n  ") == []
 
     def test_no_headings_returns_empty(self):
-        assert parse_tasklist("# Just a title\n\nSome text without task headings.") == []
+        assert (
+            parse_tasklist("# Just a title\n\nSome text without task headings.") == []
+        )
 
     def test_malformed_heading_skipped(self):
-        content = "### T02.01 -- Valid Task\n\nContent\n\n### Not a task ID\n\nMore content"
+        content = (
+            "### T02.01 -- Valid Task\n\nContent\n\n### Not a task ID\n\nMore content"
+        )
         tasks = parse_tasklist(content)
         assert len(tasks) == 1
         assert tasks[0].task_id == "T02.01"

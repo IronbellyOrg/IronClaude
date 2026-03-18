@@ -79,7 +79,9 @@ class TestAllowlistEnforcement:
 
     def test_editable_files_constant(self):
         """EDITABLE_FILES contains exactly the spec-defined files."""
-        assert EDITABLE_FILES == frozenset({"roadmap.md", "extraction.md", "test-strategy.md"})
+        assert EDITABLE_FILES == frozenset(
+            {"roadmap.md", "extraction.md", "test-strategy.md"}
+        )
 
     def test_allowed_files_pass_through(self):
         """Findings targeting only allowlisted files are allowed."""
@@ -107,9 +109,13 @@ class TestAllowlistEnforcement:
     def test_no_files_affected_rejected(self):
         """Findings with empty files_affected are SKIPPED."""
         finding = Finding(
-            id="F-01", severity="BLOCKING", dimension="Test",
-            description="Test", location="unknown:0",
-            evidence="test", fix_guidance="test",
+            id="F-01",
+            severity="BLOCKING",
+            dimension="Test",
+            description="Test",
+            location="unknown:0",
+            evidence="test",
+            fix_guidance="test",
             files_affected=[],
         )
         allowed, rejected = enforce_allowlist([finding])
@@ -149,12 +155,14 @@ class TestAllowlistEnforcement:
 
         # Verify: non-allowlist files unchanged
         for name in ["other.py"]:
-            assert pre_checksums[name] == post_checksums[name], \
+            assert pre_checksums[name] == post_checksums[name], (
                 f"Non-allowlist file {name} was modified"
+            )
 
         # Verify: at least one allowlist file changed
         changed = [
-            name for name in EDITABLE_FILES
+            name
+            for name in EDITABLE_FILES
             if name in pre_checksums and pre_checksums[name] != post_checksums.get(name)
         ]
         assert len(changed) > 0
@@ -255,11 +263,15 @@ class TestPerformanceOverhead:
 
         # Extract timing from state
         extract_start = datetime.fromisoformat(loaded["steps"]["extract"]["started_at"])
-        fidelity_end = datetime.fromisoformat(loaded["steps"]["spec-fidelity"]["completed_at"])
+        fidelity_end = datetime.fromisoformat(
+            loaded["steps"]["spec-fidelity"]["completed_at"]
+        )
         steps_1_9 = (fidelity_end - extract_start).total_seconds()
 
         certify_ts = datetime.fromisoformat(loaded["certify"]["timestamp"])
-        fidelity_ts = datetime.fromisoformat(loaded["steps"]["spec-fidelity"]["completed_at"])
+        fidelity_ts = datetime.fromisoformat(
+            loaded["steps"]["spec-fidelity"]["completed_at"]
+        )
         steps_10_11 = (certify_ts - fidelity_ts).total_seconds()
 
         overhead = (steps_10_11 / steps_1_9) * 100
@@ -299,12 +311,18 @@ class TestTasklistRoundTrip:
 
         # Parse frontmatter
         from superclaude.cli.roadmap.gates import _parse_frontmatter
+
         fm = _parse_frontmatter(tasklist)
         assert fm is not None
 
         expected_fields = {
-            "type", "source_report", "source_report_hash",
-            "generated", "total_findings", "actionable", "skipped",
+            "type",
+            "source_report",
+            "source_report_hash",
+            "generated",
+            "total_findings",
+            "actionable",
+            "skipped",
         }
         assert set(fm.keys()) == expected_fields
 
@@ -331,6 +349,7 @@ class TestTasklistRoundTrip:
         tasklist = generate_remediation_tasklist(findings, "report.md", source)
 
         from superclaude.cli.roadmap.gates import _parse_frontmatter
+
         fm = _parse_frontmatter(tasklist)
         assert fm["source_report_hash"] == expected_hash
 
@@ -362,8 +381,16 @@ class TestDeliberateFailure:
             _make_finding("F-02", severity="WARNING"),
         ]
         results = [
-            {"finding_id": "F-01", "result": "PASS", "justification": "Fixed correctly"},
-            {"finding_id": "F-02", "result": "FAIL", "justification": "Section unchanged"},
+            {
+                "finding_id": "F-01",
+                "result": "PASS",
+                "justification": "Fixed correctly",
+            },
+            {
+                "finding_id": "F-02",
+                "result": "FAIL",
+                "justification": "Section unchanged",
+            },
         ]
 
         report = generate_certification_report(results, findings)
@@ -391,8 +418,11 @@ class TestDeliberateFailure:
         """Each FAIL entry includes a specific justification (not generic)."""
         findings = [_make_finding("F-01")]
         results = [
-            {"finding_id": "F-01", "result": "FAIL",
-             "justification": "Milestone count still shows 4 instead of required 5"},
+            {
+                "finding_id": "F-01",
+                "result": "FAIL",
+                "justification": "Milestone count still shows 4 instead of required 5",
+            },
         ]
 
         report = generate_certification_report(results, findings)

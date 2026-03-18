@@ -99,6 +99,7 @@ class _VerbPattern:
 
     def finditer(self, text: str):
         import itertools
+
         return itertools.chain(
             self._paren.finditer(text),
             self._bare.finditer(text),
@@ -146,6 +147,7 @@ class _PathPattern:
 
     def finditer(self, text: str):
         import itertools
+
         return itertools.chain(
             self._agents.finditer(text),
             self._type.finditer(text),
@@ -346,6 +348,7 @@ def build_component_tree(resolved: ResolvedTarget) -> ComponentTree:
 # Directory scanner
 # ---------------------------------------------------------------------------
 
+
 def _scan_skill_dir(workflow_dir: Path) -> list[ComponentEntry]:
     """Scan a skill directory and return all component entries.
 
@@ -414,6 +417,7 @@ def _scan_skill_dir(workflow_dir: Path) -> list[ComponentEntry]:
 # Inventory artifact rendering
 # ---------------------------------------------------------------------------
 
+
 def render_enriched_inventory(
     tree: ComponentTree,
     duration_seconds: float,
@@ -476,7 +480,10 @@ def render_enriched_inventory(
         # Agents section
         if tree.agents:
             lines += ["## Agents (Tier 2)", ""]
-            lines += ["| Agent | Lines | Found | Referenced In |", "| --- | --- | --- | --- |"]
+            lines += [
+                "| Agent | Lines | Found | Referenced In |",
+                "| --- | --- | --- | --- |",
+            ]
             for agent in tree.agents:
                 found_str = "**YES**" if agent.found else "**NO**"
                 lines.append(
@@ -512,6 +519,7 @@ def render_enriched_inventory(
 # ---------------------------------------------------------------------------
 # run_discover_components (Step 2 entrypoint)
 # ---------------------------------------------------------------------------
+
 
 def run_discover_components(
     config: PortifyConfig,
@@ -612,6 +620,7 @@ def _render_simple_inventory(
 def _write_inventory_artifact(content: str, out_dir: Path) -> Path:
     """Write component-inventory.md to the output directory."""
     import tempfile
+
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
         artifact = out_dir / "component-inventory.md"

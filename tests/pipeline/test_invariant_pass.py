@@ -18,12 +18,13 @@ from superclaude.cli.pipeline.invariant_pass import (
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
 
 
-def _d(id: str, desc: str, kind: DeliverableKind = DeliverableKind.IMPLEMENT) -> Deliverable:
+def _d(
+    id: str, desc: str, kind: DeliverableKind = DeliverableKind.IMPLEMENT
+) -> Deliverable:
     return Deliverable(id=id, description=desc, kind=kind)
 
 
 class TestInvariantRegistryPass:
-
     def test_state_variables_produce_registry_section(self):
         """Spec with state variable introductions -> registry section present."""
         deliverables = [
@@ -72,7 +73,9 @@ class TestInvariantRegistryPass:
         result2 = run_invariant_registry_pass(deliverables)
 
         assert result1.section_markdown == result2.section_markdown
-        assert len(result1.generated_deliverables) == len(result2.generated_deliverables)
+        assert len(result1.generated_deliverables) == len(
+            result2.generated_deliverables
+        )
         assert len(result1.entries) == len(result2.entries)
 
     def test_idempotent_with_generated_input(self):
@@ -85,7 +88,9 @@ class TestInvariantRegistryPass:
         all_deliverables = deliverables + result1.generated_deliverables
         result2 = run_invariant_registry_pass(all_deliverables)
 
-        assert len(result2.generated_deliverables) == len(result1.generated_deliverables)
+        assert len(result2.generated_deliverables) == len(
+            result1.generated_deliverables
+        )
 
     def test_no_state_variables(self):
         """No state variables -> empty section."""

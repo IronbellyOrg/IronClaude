@@ -13,7 +13,9 @@ from superclaude.cli.audit.dependency_graph import (
 from superclaude.cli.audit.tool_orchestrator import FileAnalysis
 
 
-def _analysis(path: str, imports: list[str] = None, exports: list[str] = None) -> FileAnalysis:
+def _analysis(
+    path: str, imports: list[str] = None, exports: list[str] = None
+) -> FileAnalysis:
     return FileAnalysis(
         file_path=path,
         content_hash="abc123",
@@ -25,35 +27,51 @@ def _analysis(path: str, imports: list[str] = None, exports: list[str] = None) -
 class TestDependencyGraph:
     def test_no_self_loops(self):
         g = DependencyGraph()
-        g.add_edge(DependencyEdge(
-            source="a.py", target="a.py",
-            tier=EdgeTier.TIER_A, confidence=0.9,
-            evidence_type="test",
-        ))
+        g.add_edge(
+            DependencyEdge(
+                source="a.py",
+                target="a.py",
+                tier=EdgeTier.TIER_A,
+                confidence=0.9,
+                evidence_type="test",
+            )
+        )
         assert len(g.edges) == 0
 
     def test_adds_nodes(self):
         g = DependencyGraph()
-        g.add_edge(DependencyEdge(
-            source="a.py", target="b.py",
-            tier=EdgeTier.TIER_A, confidence=0.9,
-            evidence_type="test",
-        ))
+        g.add_edge(
+            DependencyEdge(
+                source="a.py",
+                target="b.py",
+                tier=EdgeTier.TIER_A,
+                confidence=0.9,
+                evidence_type="test",
+            )
+        )
         assert "a.py" in g.nodes
         assert "b.py" in g.nodes
 
     def test_stats(self):
         g = DependencyGraph()
-        g.add_edge(DependencyEdge(
-            source="a.py", target="b.py",
-            tier=EdgeTier.TIER_A, confidence=0.9,
-            evidence_type="test",
-        ))
-        g.add_edge(DependencyEdge(
-            source="c.py", target="b.py",
-            tier=EdgeTier.TIER_B, confidence=0.65,
-            evidence_type="test",
-        ))
+        g.add_edge(
+            DependencyEdge(
+                source="a.py",
+                target="b.py",
+                tier=EdgeTier.TIER_A,
+                confidence=0.9,
+                evidence_type="test",
+            )
+        )
+        g.add_edge(
+            DependencyEdge(
+                source="c.py",
+                target="b.py",
+                tier=EdgeTier.TIER_B,
+                confidence=0.65,
+                evidence_type="test",
+            )
+        )
         stats = g.stats
         assert stats["node_count"] == 3
         assert stats["edge_count"] == 2
@@ -62,11 +80,15 @@ class TestDependencyGraph:
 
     def test_importers_of(self):
         g = DependencyGraph()
-        g.add_edge(DependencyEdge(
-            source="a.py", target="b.py",
-            tier=EdgeTier.TIER_A, confidence=0.9,
-            evidence_type="test",
-        ))
+        g.add_edge(
+            DependencyEdge(
+                source="a.py",
+                target="b.py",
+                tier=EdgeTier.TIER_A,
+                confidence=0.9,
+                evidence_type="test",
+            )
+        )
         importers = g.importers_of("b.py")
         assert len(importers) == 1
         assert importers[0].source == "a.py"
@@ -75,7 +97,9 @@ class TestDependencyGraph:
 class TestBuildDependencyGraph:
     def test_tier_a_from_ast_imports(self):
         analyses = {
-            "src/main.py": _analysis("src/main.py", imports=["from src.utils import helper"]),
+            "src/main.py": _analysis(
+                "src/main.py", imports=["from src.utils import helper"]
+            ),
             "src/utils.py": _analysis("src/utils.py", exports=["__all__ = ['helper']"]),
         }
         graph = build_dependency_graph(analyses)

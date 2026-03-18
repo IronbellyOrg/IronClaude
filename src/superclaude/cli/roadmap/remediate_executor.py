@@ -129,8 +129,7 @@ def enforce_allowlist(
 
         # Check if any file is outside the allowlist
         non_allowed = [
-            f for f in finding.files_affected
-            if _basename(f) not in EDITABLE_FILES
+            f for f in finding.files_affected if _basename(f) not in EDITABLE_FILES
         ]
 
         if non_allowed:
@@ -183,7 +182,11 @@ def _run_agent_for_file(
             )
         prompt = composed
     except OSError as exc:
-        _log.warning("remediate_executor: could not read '%s': %s; using base prompt", target_file, exc)
+        _log.warning(
+            "remediate_executor: could not read '%s': %s; using base prompt",
+            target_file,
+            exc,
+        )
         prompt = base_prompt
 
     output_file = output_dir / f"remediate-{Path(target_file).stem}.md"
@@ -218,9 +221,7 @@ def _run_agent_with_retry(
     Returns (target_file, exit_code, attempt_count).
     """
     # Attempt 1
-    target, exit_code = _run_agent_for_file(
-        target_file, findings, config, output_dir
-    )
+    target, exit_code = _run_agent_for_file(target_file, findings, config, output_dir)
 
     if exit_code == 0:
         return target, exit_code, 1
@@ -242,9 +243,7 @@ def _run_agent_with_retry(
         os.replace(str(tmp), str(snapshot))
 
     # Attempt 2
-    target, exit_code = _run_agent_for_file(
-        target_file, findings, config, output_dir
-    )
+    target, exit_code = _run_agent_for_file(target_file, findings, config, output_dir)
 
     return target, exit_code, 2
 

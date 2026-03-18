@@ -73,6 +73,7 @@ class TestWriteConfig:
     def test_config_logged(self, tmp_path, sample_profile, caplog):
         """AC: config generation is logged."""
         import logging
+
         with caplog.at_level(logging.INFO):
             config = generate_config(sample_profile)
             write_config(config, tmp_path)
@@ -87,7 +88,12 @@ class TestEnsureConfig:
         assert (tmp_path / CONFIG_FILENAME).exists()
 
     def test_existing_config_loaded(self, tmp_path, sample_profile):
-        data = {"batch_size": 99, "depth": "deep", "report_mode": "summary", "budget": 77777}
+        data = {
+            "batch_size": 99,
+            "depth": "deep",
+            "report_mode": "summary",
+            "budget": 77777,
+        }
         (tmp_path / CONFIG_FILENAME).write_text(json.dumps(data))
         config = ensure_config(tmp_path, sample_profile)
         assert config.batch_size == 99

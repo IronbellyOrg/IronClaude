@@ -43,6 +43,7 @@ _AMBIGUOUS_PATTERNS = [
 @dataclass
 class MutationInventoryResult:
     """Result of mutation inventory for a single variable."""
+
     variable_name: str
     mutation_sites: list[MutationSite]
     ambiguous_sites: list[MutationSite]
@@ -72,11 +73,13 @@ def generate_mutation_inventory(
         seen_deliverables: set[str] = set()
 
         # Always include the birth site
-        mutation_sites.append(MutationSite(
-            deliverable_id=detection.deliverable_id,
-            expression=f"introduced as {detection.introduction_type.value}",
-            context="birth site",
-        ))
+        mutation_sites.append(
+            MutationSite(
+                deliverable_id=detection.deliverable_id,
+                expression=f"introduced as {detection.introduction_type.value}",
+                context="birth site",
+            )
+        )
         seen_deliverables.add(detection.deliverable_id)
 
         # Scan all deliverables for mutations
@@ -97,11 +100,13 @@ def generate_mutation_inventory(
                     if _is_variable_match(target, var_name):
                         key = (d.id, indicator_name)
                         if d.id not in seen_deliverables:
-                            mutation_sites.append(MutationSite(
-                                deliverable_id=d.id,
-                                expression=f"{indicator_name} {var_name}",
-                                context=d.description[:100],
-                            ))
+                            mutation_sites.append(
+                                MutationSite(
+                                    deliverable_id=d.id,
+                                    expression=f"{indicator_name} {var_name}",
+                                    context=d.description[:100],
+                                )
+                            )
                             seen_deliverables.add(d.id)
 
             # Check ambiguous patterns
@@ -110,18 +115,22 @@ def generate_mutation_inventory(
                     target = match.group(1).lower()
                     if _is_variable_match(target, var_name):
                         if d.id not in seen_deliverables:
-                            ambiguous_sites.append(MutationSite(
-                                deliverable_id=d.id,
-                                expression=f"ambiguous mutation of {var_name}",
-                                context=d.description[:100],
-                            ))
+                            ambiguous_sites.append(
+                                MutationSite(
+                                    deliverable_id=d.id,
+                                    expression=f"ambiguous mutation of {var_name}",
+                                    context=d.description[:100],
+                                )
+                            )
                             seen_deliverables.add(d.id)
 
-        results.append(MutationInventoryResult(
-            variable_name=var_name,
-            mutation_sites=mutation_sites,
-            ambiguous_sites=ambiguous_sites,
-        ))
+        results.append(
+            MutationInventoryResult(
+                variable_name=var_name,
+                mutation_sites=mutation_sites,
+                ambiguous_sites=ambiguous_sites,
+            )
+        )
 
     return results
 

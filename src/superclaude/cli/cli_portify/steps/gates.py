@@ -60,9 +60,7 @@ def gate_validate_config(result: ValidateConfigResult) -> tuple[bool, str]:
     """
     # Consistency check: valid=True must correlate with empty errors
     if result.valid and result.errors:
-        return False, (
-            f"Inconsistency: valid=True but errors present: {result.errors}"
-        )
+        return False, (f"Inconsistency: valid=True but errors present: {result.errors}")
     if not result.valid and not result.errors:
         return False, "Inconsistency: valid=False but no errors reported"
 
@@ -128,7 +126,10 @@ def gate_discover_components(
             return False, f"Missing required frontmatter field: '{field}'"
 
     # Timing advisory
-    if actual_duration is not None and actual_duration > _DISCOVER_COMPONENTS_TIMING_LIMIT:
+    if (
+        actual_duration is not None
+        and actual_duration > _DISCOVER_COMPONENTS_TIMING_LIMIT
+    ):
         return False, (
             f"Timing advisory exceeded: {actual_duration:.3f}s > "
             f"{_DISCOVER_COMPONENTS_TIMING_LIMIT}s limit for discover-components"

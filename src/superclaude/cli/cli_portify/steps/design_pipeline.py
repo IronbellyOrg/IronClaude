@@ -43,7 +43,9 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
     Review gate: prompts user for approval (y/n) unless config.skip_review=True.
     """
     start = time.monotonic()
-    results_dir = config.output_dir / "results" if config.output_dir else Path("results")
+    results_dir = (
+        config.output_dir / "results" if config.output_dir else Path("results")
+    )
     results_dir.mkdir(parents=True, exist_ok=True)
 
     artifact_path = results_dir / ARTIFACT_NAME
@@ -134,6 +136,7 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
     # Dry-run halt (SC-011 / SC-012): emit dry_run contract and return SKIPPED
     if getattr(config, "dry_run", False):
         from ..contract import build_dry_run_contract, StepTiming
+
         contract = build_dry_run_contract(
             step_results=[],
             artifacts=[str(artifact_path)],
@@ -154,10 +157,13 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
     # Review gate (unless skip_review)
     if not getattr(config, "skip_review", True):
         try:
-            answer = input(
-                f"\nReview the pipeline design at {artifact_path}\n"
-                "Accept? [y/n]: "
-            ).strip().lower()
+            answer = (
+                input(
+                    f"\nReview the pipeline design at {artifact_path}\nAccept? [y/n]: "
+                )
+                .strip()
+                .lower()
+            )
         except (EOFError, KeyboardInterrupt):
             answer = "n"
 
@@ -202,6 +208,7 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
 def _check_gate(content: str) -> bool:
     """SC-004: pipeline_steps frontmatter field must be present and > 0."""
     from ..utils import parse_frontmatter
+
     frontmatter, _ = parse_frontmatter(content)
     return bool(frontmatter) and int(frontmatter.get("pipeline_steps", 0)) > 0
 

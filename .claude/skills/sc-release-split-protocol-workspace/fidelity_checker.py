@@ -29,11 +29,12 @@ from typing import Optional
 @dataclass
 class Fact:
     """A verifiable fact extracted from the original spec."""
+
     id: str
     category: str
     description: str
     search_patterns: list[str]
-    anti_patterns: list[str]     # kept for reference but NOT used for grading
+    anti_patterns: list[str]  # kept for reference but NOT used for grading
     required_context: list[str]  # kept for reference but NOT used for grading
     source_section: str
     severity: str
@@ -42,6 +43,7 @@ class Fact:
 @dataclass
 class FactCheckResult:
     """Result of checking a single fact against the outputs."""
+
     fact_id: str
     category: str
     description: str
@@ -147,11 +149,15 @@ Verdict definitions:
         json_match = re.search(r'\{[^{}]*"verdict"[^{}]*\}', response, re.DOTALL)
         if json_match:
             data = json.loads(json_match.group(0))
-            return data.get("verdict", "ERROR"), data.get("reasoning", "No reasoning provided")
+            return data.get("verdict", "ERROR"), data.get(
+                "reasoning", "No reasoning provided"
+            )
         else:
             # Try parsing the whole response as JSON
             data = json.loads(response)
-            return data.get("verdict", "ERROR"), data.get("reasoning", "No reasoning provided")
+            return data.get("verdict", "ERROR"), data.get(
+                "reasoning", "No reasoning provided"
+            )
 
     except subprocess.TimeoutExpired:
         return "ERROR", "LLM grading timed out after 60s"
@@ -208,7 +214,11 @@ def check_fact(
 
         if llm_verdict == "ERROR":
             # Fall back to regex-only: if search patterns matched, call it PRESERVED
-            status = "PRESERVED" if len(search_hits) == len(fact.search_patterns) else "WEAKENED"
+            status = (
+                "PRESERVED"
+                if len(search_hits) == len(fact.search_patterns)
+                else "WEAKENED"
+            )
             evidence = f"LLM grading failed ({llm_reasoning}). Regex fallback: {len(search_hits)}/{len(fact.search_patterns)} patterns matched."
         else:
             status = llm_verdict
@@ -297,9 +307,13 @@ def main():
     )
     parser.add_argument("--original", required=True, help="Path to original spec")
     parser.add_argument("--facts", required=True, help="Path to facts JSON")
-    parser.add_argument("--outputs", required=True, help="Path to split output directory")
+    parser.add_argument(
+        "--outputs", required=True, help="Path to split output directory"
+    )
     parser.add_argument("--report", default=None, help="Path to write report JSON")
-    parser.add_argument("--no-llm", action="store_true", help="Disable LLM grading (regex only)")
+    parser.add_argument(
+        "--no-llm", action="store_true", help="Disable LLM grading (regex only)"
+    )
     args = parser.parse_args()
 
     facts = load_facts(Path(args.facts))
@@ -311,13 +325,17 @@ def main():
         sys.exit(1)
 
     mode = "regex + LLM semantic" if use_llm else "regex only"
-    print(f"Checking {len(facts)} facts against {len(outputs)} output files ({mode})...")
+    print(
+        f"Checking {len(facts)} facts against {len(outputs)} output files ({mode})..."
+    )
 
     results = []
     for i, fact in enumerate(facts, 1):
         print(f"  [{i}/{len(facts)}] {fact.id}: {fact.description[:60]}...", flush=True)
         result = check_fact(fact, outputs, use_llm=use_llm)
-        status_marker = "PASS" if result.status == "PRESERVED" else f"FAIL:{result.status}"
+        status_marker = (
+            "PASS" if result.status == "PRESERVED" else f"FAIL:{result.status}"
+        )
         print(f"           -> {status_marker}", flush=True)
         results.append(result)
 
@@ -325,10 +343,12 @@ def main():
 
     # Print summary
     s = report["summary"]
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"FIDELITY CHECK RESULTS")
-    print(f"{'='*60}")
-    print(f"Score: {s['fidelity_score']:.1%} ({s['preserved']}/{report['metadata']['total_facts_checked']} facts preserved)")
+    print(f"{'=' * 60}")
+    print(
+        f"Score: {s['fidelity_score']:.1%} ({s['preserved']}/{report['metadata']['total_facts_checked']} facts preserved)"
+    )
     print(f"  PRESERVED:    {s['preserved']}")
     print(f"  WEAKENED:     {s['weakened']}")
     print(f"  MUTATED:      {s['mutated']}")
@@ -337,9 +357,9 @@ def main():
     print(f"  CRITICAL FAILURES: {s['critical_failures']}")
 
     if report["critical_failures"]:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("CRITICAL FAILURES:")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         for cf in report["critical_failures"]:
             print(f"\n  [{cf['fact_id']}] {cf['description']}")
             print(f"    Status: {cf['status']}")
@@ -352,9 +372,7 @@ def main():
         print(f"  {marker} {cat}: {stats['preserved']}/{stats['total']} preserved")
 
     # Write report
-    report_path = args.report or str(
-        Path(args.outputs) / "fidelity-check-results.json"
-    )
+    report_path = args.report or str(Path(args.outputs) / "fidelity-check-results.json")
     with open(report_path, "w") as f:
         json.dump(report, f, indent=2)
     print(f"\nFull report written to: {report_path}")

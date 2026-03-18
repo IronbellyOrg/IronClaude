@@ -48,42 +48,64 @@ def _assert_tuple_bool_str(result):
 # T04.02: Semantic check helper functions — tuple[bool, str] return type
 # ---------------------------------------------------------------------------
 
+
 class TestSemanticCheckReturnTypes:
     """All semantic check helpers return tuple[bool, str] per AC-004."""
 
-    @pytest.mark.parametrize("fn,valid_input", [
-        (has_valid_yaml_config, "---\nworkflow_path: /foo\ncli_name: bar\noutput_dir: /out\n---\n"),
-        (has_component_inventory, "---\ncomponent_count: 1\n---\n\nSKILL.md present.\n"),
-        (has_required_analysis_sections, (
-            "## Source Components\n## Step Graph\n## Parallel Groups\n"
-            "## Gates Summary\n## Data Flow\n## Classifications\n## Recommendations\n"
-        )),
-        (has_approval_status, "---\napproval_status: pending\n---\n"),
-        (has_exit_recommendation, "EXIT_RECOMMENDATION: CONTINUE\n"),
-        (has_zero_placeholders, "Clean content with no placeholders.\n"),
-        (has_brainstorm_section, "## Brainstorm\nSome content.\n"),
-        (has_quality_scores, "clarity: 4\ncompleteness: 5\ntestability: 3\nconsistency: 4\noverall: 4\n"),
-        (has_criticals_addressed, "No critical items here.\n"),
-        (has_return_type_pattern, "tuple[bool, str]\n"),
-        (has_step_count_consistency, "pipeline_steps: 3\n### Step 1: foo\n### Step 2: bar\n### Step 3: baz\n"),
-    ])
+    @pytest.mark.parametrize(
+        "fn,valid_input",
+        [
+            (
+                has_valid_yaml_config,
+                "---\nworkflow_path: /foo\ncli_name: bar\noutput_dir: /out\n---\n",
+            ),
+            (
+                has_component_inventory,
+                "---\ncomponent_count: 1\n---\n\nSKILL.md present.\n",
+            ),
+            (
+                has_required_analysis_sections,
+                (
+                    "## Source Components\n## Step Graph\n## Parallel Groups\n"
+                    "## Gates Summary\n## Data Flow\n## Classifications\n## Recommendations\n"
+                ),
+            ),
+            (has_approval_status, "---\napproval_status: pending\n---\n"),
+            (has_exit_recommendation, "EXIT_RECOMMENDATION: CONTINUE\n"),
+            (has_zero_placeholders, "Clean content with no placeholders.\n"),
+            (has_brainstorm_section, "## Brainstorm\nSome content.\n"),
+            (
+                has_quality_scores,
+                "clarity: 4\ncompleteness: 5\ntestability: 3\nconsistency: 4\noverall: 4\n",
+            ),
+            (has_criticals_addressed, "No critical items here.\n"),
+            (has_return_type_pattern, "tuple[bool, str]\n"),
+            (
+                has_step_count_consistency,
+                "pipeline_steps: 3\n### Step 1: foo\n### Step 2: bar\n### Step 3: baz\n",
+            ),
+        ],
+    )
     def test_semantic_check_returns_tuple_bool_str(self, fn, valid_input):
         result = fn(valid_input)
         passed, msg = _assert_tuple_bool_str(result)
         assert passed is True, f"{fn.__name__} failed on valid input: {msg}"
         assert msg == ""
 
-    @pytest.mark.parametrize("fn,invalid_input", [
-        (has_valid_yaml_config, "---\nother_field: value\n---\n"),
-        (has_component_inventory, "# No components here\nJust text.\n"),
-        (has_required_analysis_sections, "## Only One Section\nContent.\n"),
-        (has_approval_status, "---\nstep: analyze\n---\n"),
-        (has_exit_recommendation, "No marker here.\n"),
-        (has_zero_placeholders, "Has {{SC_PLACEHOLDER:SECTION_NAME}} sentinel.\n"),
-        (has_brainstorm_section, "## Overview\nNo brainstorm.\n"),
-        (has_quality_scores, "---\nstep: test\n---\nNo scores.\n"),
-        (has_return_type_pattern, "Just some text without types.\n"),
-    ])
+    @pytest.mark.parametrize(
+        "fn,invalid_input",
+        [
+            (has_valid_yaml_config, "---\nother_field: value\n---\n"),
+            (has_component_inventory, "# No components here\nJust text.\n"),
+            (has_required_analysis_sections, "## Only One Section\nContent.\n"),
+            (has_approval_status, "---\nstep: analyze\n---\n"),
+            (has_exit_recommendation, "No marker here.\n"),
+            (has_zero_placeholders, "Has {{SC_PLACEHOLDER:SECTION_NAME}} sentinel.\n"),
+            (has_brainstorm_section, "## Overview\nNo brainstorm.\n"),
+            (has_quality_scores, "---\nstep: test\n---\nNo scores.\n"),
+            (has_return_type_pattern, "Just some text without types.\n"),
+        ],
+    )
     def test_semantic_check_fails_on_invalid_input(self, fn, invalid_input):
         result = fn(invalid_input)
         passed, msg = _assert_tuple_bool_str(result)
@@ -95,11 +117,14 @@ class TestSemanticCheckReturnTypes:
 # T04.02: Individual semantic check behavior
 # ---------------------------------------------------------------------------
 
+
 class TestHasValidYamlConfig:
     """has_valid_yaml_config checks for workflow_path, cli_name, output_dir."""
 
     def test_passes_with_all_fields(self):
-        content = "---\nworkflow_path: /skills/foo\ncli_name: foo\noutput_dir: /out\n---\n"
+        content = (
+            "---\nworkflow_path: /skills/foo\ncli_name: foo\noutput_dir: /out\n---\n"
+        )
         passed, msg = has_valid_yaml_config(content)
         assert passed is True
 
@@ -228,7 +253,9 @@ class TestHasZeroPlaceholders:
         assert passed is True
 
     def test_fails_on_placeholder(self):
-        passed, msg = has_zero_placeholders("Has {{SC_PLACEHOLDER:SECTION_NAME}} here.\n")
+        passed, msg = has_zero_placeholders(
+            "Has {{SC_PLACEHOLDER:SECTION_NAME}} here.\n"
+        )
         assert passed is False
         assert "placeholder" in msg.lower()
 
@@ -269,7 +296,9 @@ class TestHasQualityScores:
     """has_quality_scores checks for 5 quality score fields."""
 
     def test_passes_with_all_scores(self):
-        content = "clarity: 4\ncompleteness: 5\ntestability: 3\nconsistency: 4\noverall: 4\n"
+        content = (
+            "clarity: 4\ncompleteness: 5\ntestability: 3\nconsistency: 4\noverall: 4\n"
+        )
         passed, _ = has_quality_scores(content)
         assert passed is True
 
@@ -307,35 +336,71 @@ class TestHasCriticalsAddressed:
 # T04.03: Gate diagnostics formatting
 # ---------------------------------------------------------------------------
 
+
 class TestFormatGateFailure:
     """format_gate_failure produces human-readable gate failure messages."""
 
     def test_returns_string(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "analysis.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "analysis.md",
+        )
         assert isinstance(result, str)
 
     def test_contains_gate_id(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "analysis.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "analysis.md",
+        )
         assert "G-003" in result
 
     def test_contains_check_name(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "analysis.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "analysis.md",
+        )
         assert "has_required_analysis_sections" in result
 
     def test_contains_artifact_path(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "portify-analysis-report.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "portify-analysis-report.md",
+        )
         assert "portify-analysis-report.md" in result
 
     def test_contains_reason(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "analysis.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "analysis.md",
+        )
         assert "Missing: Step Graph" in result
 
     def test_contains_fix_hint(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "analysis.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "analysis.md",
+        )
         assert "Fix:" in result
 
     def test_is_multiline(self):
-        result = format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "analysis.md")
+        result = format_gate_failure(
+            "G-003",
+            "has_required_analysis_sections",
+            "Missing: Step Graph",
+            "analysis.md",
+        )
         assert "\n" in result
         assert len(result.splitlines()) >= 4
 
@@ -353,12 +418,19 @@ class TestFormatGateFailure:
         assert "Missing: Step Graph" in result
 
     def test_unknown_check_name_has_default_hint(self):
-        result = format_gate_failure("G-000", "unknown_check", "Some diagnostic", "artifact.md")
+        result = format_gate_failure(
+            "G-000", "unknown_check", "Some diagnostic", "artifact.md"
+        )
         assert "Fix:" in result
         assert len(result.splitlines()) >= 4
 
     def test_diagnostic_never_empty_in_output(self):
-        result = format_gate_failure("G-010", "has_zero_placeholders", "Placeholder found: {{SC_PLACEHOLDER:X}}", "spec.md")
+        result = format_gate_failure(
+            "G-010",
+            "has_zero_placeholders",
+            "Placeholder found: {{SC_PLACEHOLDER:X}}",
+            "spec.md",
+        )
         assert "Placeholder found" in result
 
 
@@ -367,6 +439,7 @@ class TestGateFailureDataclass:
 
     def test_importable(self):
         from superclaude.cli.cli_portify.gates import GateFailure
+
         assert GateFailure is not None
 
     def test_constructable(self):

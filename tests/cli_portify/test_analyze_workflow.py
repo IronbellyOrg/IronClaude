@@ -113,9 +113,7 @@ class TestAnalyzeWorkflowFailures:
 
     def test_subprocess_timeout(self, config_with_inventory):
         """Subprocess timeout should return TIMEOUT."""
-        with patch_portify_process(
-            "analyze-workflow", exit_code=124, timed_out=True
-        ):
+        with patch_portify_process("analyze-workflow", exit_code=124, timed_out=True):
             result = run_analyze_workflow(config_with_inventory)
 
         assert result.portify_status == PortifyStatus.TIMEOUT

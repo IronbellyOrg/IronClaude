@@ -12,9 +12,7 @@ from typing import List, Tuple
 _EXCLUDE_FILES = {"README.md", "__init__.py"}
 
 
-def install_agents(
-    target_path: Path = None, force: bool = False
-) -> Tuple[bool, str]:
+def install_agents(target_path: Path = None, force: bool = False) -> Tuple[bool, str]:
     """
     Install all SuperClaude agent definitions to Claude Code
 
@@ -36,9 +34,7 @@ def install_agents(
     target_path.mkdir(parents=True, exist_ok=True)
 
     agent_files = [
-        f
-        for f in sorted(agent_source.glob("*.md"))
-        if f.name not in _EXCLUDE_FILES
+        f for f in sorted(agent_source.glob("*.md")) if f.name not in _EXCLUDE_FILES
     ]
 
     if not agent_files:
@@ -125,9 +121,7 @@ def list_available_agents() -> List[str]:
         return []
 
     return sorted(
-        f.stem
-        for f in agent_source.glob("*.md")
-        if f.name not in _EXCLUDE_FILES
+        f.stem for f in agent_source.glob("*.md") if f.name not in _EXCLUDE_FILES
     )
 
 
@@ -144,7 +138,5 @@ def list_installed_agents() -> List[str]:
         return []
 
     return sorted(
-        f.stem
-        for f in agents_dir.glob("*.md")
-        if f.name not in _EXCLUDE_FILES
+        f.stem for f in agents_dir.glob("*.md") if f.name not in _EXCLUDE_FILES
     )

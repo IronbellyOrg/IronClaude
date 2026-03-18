@@ -79,7 +79,10 @@ class TestAdversarialMergeGate:
         assert ADVERSARIAL_MERGE_GATE.semantic_checks is not None
         assert len(ADVERSARIAL_MERGE_GATE.semantic_checks) == 2
         check_names = {c.name for c in ADVERSARIAL_MERGE_GATE.semantic_checks}
-        assert check_names == {"frontmatter_values_non_empty", "agreement_table_present"}
+        assert check_names == {
+            "frontmatter_values_non_empty",
+            "agreement_table_present",
+        }
 
     def test_valid_input_passes_all_semantics(self):
         content = (
@@ -114,7 +117,8 @@ class TestAdversarialMergeGate:
             "No table here, just text.\n"
         )
         agreement_check = next(
-            c for c in ADVERSARIAL_MERGE_GATE.semantic_checks
+            c
+            for c in ADVERSARIAL_MERGE_GATE.semantic_checks
             if c.name == "agreement_table_present"
         )
         assert agreement_check.check_fn(content) is False
@@ -122,7 +126,8 @@ class TestAdversarialMergeGate:
     def test_empty_frontmatter_value_fails(self):
         content = "---\nblocking_issues_count: \nwarnings_count: 0\ntasklist_ready: true\nvalidation_mode: adversarial\nvalidation_agents: opus\n---\n"
         fm_check = next(
-            c for c in ADVERSARIAL_MERGE_GATE.semantic_checks
+            c
+            for c in ADVERSARIAL_MERGE_GATE.semantic_checks
             if c.name == "frontmatter_values_non_empty"
         )
         assert fm_check.check_fn(content) is False

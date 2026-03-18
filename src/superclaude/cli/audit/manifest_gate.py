@@ -15,27 +15,50 @@ logger = logging.getLogger(__name__)
 DEFAULT_COVERAGE_THRESHOLD = 0.95
 
 # File patterns excluded from completeness check (binary, vendor)
-_EXCLUDED_PATTERNS: frozenset[str] = frozenset({
-    ".git/",
-    "node_modules/",
-    "vendor/",
-    "__pycache__/",
-    ".venv/",
-    "venv/",
-    ".tox/",
-    "dist/",
-    "build/",
-    ".egg-info/",
-})
+_EXCLUDED_PATTERNS: frozenset[str] = frozenset(
+    {
+        ".git/",
+        "node_modules/",
+        "vendor/",
+        "__pycache__/",
+        ".venv/",
+        "venv/",
+        ".tox/",
+        "dist/",
+        "build/",
+        ".egg-info/",
+    }
+)
 
-_EXCLUDED_EXTENSIONS: frozenset[str] = frozenset({
-    ".pyc", ".pyo", ".so", ".dylib", ".dll",
-    ".exe", ".bin", ".dat",
-    ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg",
-    ".woff", ".woff2", ".ttf", ".eot",
-    ".zip", ".tar", ".gz", ".bz2",
-    ".pdf", ".doc", ".docx",
-})
+_EXCLUDED_EXTENSIONS: frozenset[str] = frozenset(
+    {
+        ".pyc",
+        ".pyo",
+        ".so",
+        ".dylib",
+        ".dll",
+        ".exe",
+        ".bin",
+        ".dat",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".ico",
+        ".svg",
+        ".woff",
+        ".woff2",
+        ".ttf",
+        ".eot",
+        ".zip",
+        ".tar",
+        ".gz",
+        ".bz2",
+        ".pdf",
+        ".doc",
+        ".docx",
+    }
+)
 
 
 @dataclass

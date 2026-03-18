@@ -53,7 +53,9 @@ class TestBuildSteps:
     def test_produces_8_entries(self, tmp_path):
         config = _make_config(tmp_path)
         steps = _build_steps(config)
-        assert len(steps) == 8  # 6 sequential + 1 parallel group (2 steps) + spec-fidelity
+        assert (
+            len(steps) == 8
+        )  # 6 sequential + 1 parallel group (2 steps) + spec-fidelity
 
     def test_second_entry_is_parallel(self, tmp_path):
         config = _make_config(tmp_path)
@@ -99,12 +101,12 @@ class TestIntegrationMockSubprocess:
                 "nonfunctional_requirements": "3",
                 "total_requirements": "8",
                 "complexity_score": "0.7",
-                "complexity_class": "moderate",
-                "domains_detected": "2",
+                "complexity_class": "MEDIUM",
+                "domains_detected": "[backend, frontend]",
                 "risks_identified": "3",
                 "dependencies_identified": "4",
                 "success_criteria_count": "5",
-                "extraction_mode": "full",
+                "extraction_mode": "standard",
                 "primary_persona": "architect",
                 "total_diff_points": "3",
                 "shared_assumptions_count": "4",
@@ -113,8 +115,11 @@ class TestIntegrationMockSubprocess:
                 "base_variant": "A",
                 "variant_scores": "A:78 B:72",
                 "adversarial": "true",
+                "validation_philosophy": "continuous-parallel",
                 "validation_milestones": "3",
-                "interleave_ratio": "1:3",
+                "work_milestones": "6",
+                "interleave_ratio": "1:2",
+                "major_issue_policy": "stop-and-fix",
                 "high_severity_count": "0",
                 "medium_severity_count": "0",
                 "low_severity_count": "0",
@@ -198,8 +203,11 @@ class TestSaveAndReloadState:
     def test_state_roundtrip(self, tmp_path):
         config = _make_config(tmp_path)
         step = Step(
-            id="extract", prompt="p", output_file=config.output_dir / "extract.md",
-            gate=None, timeout_seconds=300,
+            id="extract",
+            prompt="p",
+            output_file=config.output_dir / "extract.md",
+            gate=None,
+            timeout_seconds=300,
         )
         results = [
             StepResult(
@@ -214,6 +222,7 @@ class TestSaveAndReloadState:
         _save_state(config, results)
 
         from superclaude.cli.roadmap.executor import read_state
+
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
         assert state["schema_version"] == 1
@@ -387,7 +396,9 @@ class TestCheckAnnotateDeviationsFreshness:
         _write_spec_deviations(tmp_path / "spec-deviations.md", "stale_hash" * 4)
 
         gate_state = {"spec-fidelity": True, "deviation-analysis": True, "other": True}
-        result = _check_annotate_deviations_freshness(tmp_path, roadmap, gate_pass_state=gate_state)
+        result = _check_annotate_deviations_freshness(
+            tmp_path, roadmap, gate_pass_state=gate_state
+        )
 
         assert result is False
         assert gate_state["spec-fidelity"] is False
@@ -402,7 +413,9 @@ class TestCheckAnnotateDeviationsFreshness:
         _write_spec_deviations(tmp_path / "spec-deviations.md", expected_hash)
 
         gate_state = {"spec-fidelity": True}
-        result = _check_annotate_deviations_freshness(tmp_path, roadmap, gate_pass_state=gate_state)
+        result = _check_annotate_deviations_freshness(
+            tmp_path, roadmap, gate_pass_state=gate_state
+        )
 
         assert result is True
         assert gate_state["spec-fidelity"] is True  # Unchanged
@@ -469,7 +482,12 @@ class TestCheckRemediationBudget:
         """max_attempts=1: second attempt triggers halt."""
         _write_state(tmp_path / ".roadmap-state.json", 1)
         halt_called = []
-        assert _check_remediation_budget(tmp_path, max_attempts=1, halt_fn=lambda *a: halt_called.append(1)) is False
+        assert (
+            _check_remediation_budget(
+                tmp_path, max_attempts=1, halt_fn=lambda *a: halt_called.append(1)
+            )
+            is False
+        )
         assert len(halt_called) == 1
 
     def test_configurable_max_attempts_3(self, tmp_path):
@@ -479,7 +497,11 @@ class TestCheckRemediationBudget:
 
     def test_non_integer_attempts_treated_as_zero(self, tmp_path):
         """Non-integer remediation_attempts coerced to 0 with WARNING log."""
-        state = {"schema_version": 1, "steps": {}, "remediation_attempts": "not_a_number"}
+        state = {
+            "schema_version": 1,
+            "steps": {},
+            "remediation_attempts": "not_a_number",
+        }
         (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
         assert _check_remediation_budget(tmp_path) is True
 
@@ -560,7 +582,9 @@ class TestPrintTerminalHalt:
     def test_spec_patch_budget_exhausted_adds_note(self, tmp_path):
         """spec_patch_budget_exhausted=True adds dual-budget note."""
         buf = io.StringIO()
-        _print_terminal_halt(tmp_path, [], attempt_count=3, spec_patch_budget_exhausted=True, file=buf)
+        _print_terminal_halt(
+            tmp_path, [], attempt_count=3, spec_patch_budget_exhausted=True, file=buf
+        )
         output = buf.getvalue()
         assert "budget" in output.lower()
         assert "v2.26" in output

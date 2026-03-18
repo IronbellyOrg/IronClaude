@@ -47,9 +47,7 @@ class TestResumePoint:
         """Without checkpoint, resume from beginning."""
         reader = CheckpointReader(tmp_path / "progress.json")
         ctrl = ResumeController(reader)
-        point = ctrl.determine_resume_point(
-            ["phase1", "phase2"], ["B-0001", "B-0002"]
-        )
+        point = ctrl.determine_resume_point(["phase1", "phase2"], ["B-0001", "B-0002"])
         assert not point.has_checkpoint
         assert point.next_phase == "phase1"
         assert point.next_batch_id == "B-0001"
@@ -105,12 +103,20 @@ class TestMergeResults:
         ctrl = ResumeController(reader)
 
         prev_finding = ConsolidatedFinding(
-            file_path="a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE,
-            confidence=0.70, evidence=["old"], source_phases=["surface"],
+            file_path="a.py",
+            tier=V2Tier.TIER_1,
+            action=V2Action.DELETE,
+            confidence=0.70,
+            evidence=["old"],
+            source_phases=["surface"],
         )
         new_finding = ConsolidatedFinding(
-            file_path="a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP,
-            confidence=0.90, evidence=["new"], source_phases=["structural"],
+            file_path="a.py",
+            tier=V2Tier.TIER_2,
+            action=V2Action.KEEP,
+            confidence=0.90,
+            evidence=["new"],
+            source_phases=["structural"],
         )
         merged = ctrl.merge_results([prev_finding], [new_finding])
         a = [f for f in merged.findings if f.file_path == "a.py"][0]

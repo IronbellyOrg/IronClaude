@@ -160,7 +160,9 @@ def classify_failure_modes(
 
         for domain in domains:
             # Run both signals
-            s1 = _signal_1_invariant_cross_reference(desc, d.id, domain, invariant_lookup)
+            s1 = _signal_1_invariant_cross_reference(
+                desc, d.id, domain, invariant_lookup
+            )
             s2 = _signal_2_no_error_path(desc, d.id, domain)
 
             # Combine signals
@@ -234,8 +236,11 @@ def _signal_2_no_error_path(
     from .fmea_domains import DomainCategory
 
     degenerate_categories = {
-        DomainCategory.EMPTY, DomainCategory.NULL, DomainCategory.ZERO,
-        DomainCategory.NEGATIVE, DomainCategory.FILTER_ALL,
+        DomainCategory.EMPTY,
+        DomainCategory.NULL,
+        DomainCategory.ZERO,
+        DomainCategory.NEGATIVE,
+        DomainCategory.FILTER_ALL,
     }
     is_degenerate = domain.category in degenerate_categories
 
@@ -270,7 +275,9 @@ def _signal_2_no_error_path(
 
     if has_return and is_degenerate and not has_error_path:
         # Returns value on degenerate input without error
-        detection = DetectionDifficulty.DELAYED if has_delayed else DetectionDifficulty.SILENT
+        detection = (
+            DetectionDifficulty.DELAYED if has_delayed else DetectionDifficulty.SILENT
+        )
         return FMEAFailureMode(
             deliverable_id=deliverable_id,
             domain_description=domain.description,
@@ -324,9 +331,7 @@ def _combine_signals(
             detection_difficulty=combined_difficulty,
             severity=combined_severity,
             signal_source="both",
-            description=(
-                f"Dual signal detection: {s1.description} | {s2.description}"
-            ),
+            description=(f"Dual signal detection: {s1.description} | {s2.description}"),
             invariant_predicate=s1.invariant_predicate,
         )
 
@@ -356,7 +361,9 @@ def _infer_severity_from_description(description: str) -> Severity:
 
     if any(kw in desc_lower for kw in ("data loss", "corrupt", "destroy", "delete")):
         return Severity.DATA_LOSS
-    if any(kw in desc_lower for kw in ("wrong", "incorrect", "invalid state", "mismatch")):
+    if any(
+        kw in desc_lower for kw in ("wrong", "incorrect", "invalid state", "mismatch")
+    ):
         return Severity.WRONG_STATE
     if any(kw in desc_lower for kw in ("slow", "degraded", "suboptimal", "partial")):
         return Severity.DEGRADED

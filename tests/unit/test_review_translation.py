@@ -18,6 +18,7 @@ import json
 # SCORING SYSTEM TESTS
 # =============================================================================
 
+
 class TestScoringKPIs:
     """Test suite for 6-KPI weighted scoring system"""
 
@@ -78,9 +79,9 @@ class TestScoringKPIs:
     def test_mixed_scores(self):
         """Test realistic mixed scores"""
         scores = {
-            "accuracy": 85,      # 85 * 0.25 = 21.25
-            "fluency": 80,       # 80 * 0.20 = 16.00
-            "terminology": 75,   # 75 * 0.20 = 15.00
+            "accuracy": 85,  # 85 * 0.25 = 21.25
+            "fluency": 80,  # 80 * 0.20 = 16.00
+            "terminology": 75,  # 75 * 0.20 = 15.00
             "tone_alignment": 70,  # 70 * 0.15 = 10.50
             "cultural_adaptation": 65,  # 65 * 0.10 = 6.50
             "technical_compliance": 95,  # 95 * 0.10 = 9.50
@@ -93,6 +94,7 @@ class TestScoringKPIs:
 # =============================================================================
 # GRADING CRITERIA TESTS
 # =============================================================================
+
 
 class TestGradingCriteria:
     """Test suite for three-tier grading system"""
@@ -162,18 +164,37 @@ class TestGradingCriteria:
 # SEVERITY CLASSIFICATION TESTS
 # =============================================================================
 
+
 class TestSeverityClassification:
     """Test suite for issue severity classification"""
 
     SEVERITY_LEVELS = {
-        "CRITICAL": ["meaning_reversal", "offensive_content", "broken_placeholder",
-                     "legal_violation", "missing_critical_content"],
-        "HIGH": ["notable_accuracy", "grammar_error_comprehension",
-                 "inconsistent_terminology", "tone_misaligned", "formatting_display"],
-        "MEDIUM": ["minor_fluency", "style_inconsistency", "non_optimal_word",
-                   "minor_formatting"],
-        "LOW": ["preference_improvement", "minor_polish", "alternative_phrasing",
-                "regional_optimization"],
+        "CRITICAL": [
+            "meaning_reversal",
+            "offensive_content",
+            "broken_placeholder",
+            "legal_violation",
+            "missing_critical_content",
+        ],
+        "HIGH": [
+            "notable_accuracy",
+            "grammar_error_comprehension",
+            "inconsistent_terminology",
+            "tone_misaligned",
+            "formatting_display",
+        ],
+        "MEDIUM": [
+            "minor_fluency",
+            "style_inconsistency",
+            "non_optimal_word",
+            "minor_formatting",
+        ],
+        "LOW": [
+            "preference_improvement",
+            "minor_polish",
+            "alternative_phrasing",
+            "regional_optimization",
+        ],
     }
 
     def classify_issue(self, issue_type: str) -> str:
@@ -208,16 +229,17 @@ class TestSeverityClassification:
 # PLACEHOLDER VALIDATION TESTS
 # =============================================================================
 
+
 class TestPlaceholderValidation:
     """Test suite for placeholder preservation validation"""
 
     # Patterns from Phase 0 automated validation
     PLACEHOLDER_PATTERNS = [
-        r"\{.*?\}",           # {0}, {name}
-        r"\[.*?\]",           # [button]
-        r"%[sd]",             # %s, %d
-        r"\$\w+\$",           # $VAR$
-        r"<<.*?>>",           # <<special>>
+        r"\{.*?\}",  # {0}, {name}
+        r"\[.*?\]",  # [button]
+        r"%[sd]",  # %s, %d
+        r"\$\w+\$",  # $VAR$
+        r"<<.*?>>",  # <<special>>
     ]
 
     def extract_placeholders(self, text: str) -> list:
@@ -289,6 +311,7 @@ class TestPlaceholderValidation:
 # FILE DETECTION TESTS
 # =============================================================================
 
+
 class TestFileDetection:
     """Test suite for translation file detection patterns"""
 
@@ -338,6 +361,7 @@ class TestFileDetection:
 # JSON STRUCTURE VALIDATION TESTS
 # =============================================================================
 
+
 class TestJSONValidation:
     """Test suite for JSON structure validation"""
 
@@ -380,6 +404,7 @@ class TestJSONValidation:
 # =============================================================================
 # BBCODE/HTML PRESERVATION TESTS
 # =============================================================================
+
 
 class TestFormattingPreservation:
     """Test suite for BBCode/HTML tag preservation (Steam platform)"""
@@ -429,6 +454,7 @@ class TestFormattingPreservation:
 # TONE CALIBRATION TESTS (Optional Feature)
 # =============================================================================
 
+
 class TestToneCalibration:
     """Test suite for tone calibration matrix (--tone-matrix flag)"""
 
@@ -443,8 +469,14 @@ class TestToneCalibration:
         """Calculate deviation between source and target tone"""
         return target - source
 
-    def validate_deviation(self, lang: str, dimension: str,
-                           source: float, target: float, tolerance: float = 0.5) -> bool:
+    def validate_deviation(
+        self,
+        lang: str,
+        dimension: str,
+        source: float,
+        target: float,
+        tolerance: float = 0.5,
+    ) -> bool:
         """Check if actual deviation is within expected range"""
         expected = self.CULTURAL_DEVIATIONS.get(lang, {}).get(dimension, 0)
         actual = self.calculate_deviation(source, target)
@@ -468,6 +500,7 @@ class TestToneCalibration:
 # =============================================================================
 # INTEGRATION FIXTURE TESTS
 # =============================================================================
+
 
 @pytest.fixture
 def sample_translation_pair():

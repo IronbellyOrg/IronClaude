@@ -33,7 +33,10 @@ from .tmux import update_tail_pane
 from .tui import SprintTUI
 
 from superclaude.cli.pipeline.models import Step, StepResult
-from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy, TrailingGateResult
+from superclaude.cli.pipeline.trailing_gate import (
+    TrailingGatePolicy,
+    TrailingGateResult,
+)
 
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
@@ -93,6 +96,7 @@ class SprintGatePolicy:
 # ---------------------------------------------------------------------------
 # 4-Layer Subprocess Isolation
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class IsolationLayers:
@@ -177,6 +181,7 @@ def setup_isolation(config: SprintConfig) -> IsolationLayers:
 # Result Aggregation — runner-constructed phase reports
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class AggregatedPhaseReport:
     """Runner-constructed phase report from collected TaskResults.
@@ -231,7 +236,7 @@ class AggregatedPhaseReport:
         ]
         for tr in self.task_results:
             lines.append(f"  - task_id: {tr.task.task_id}")
-            lines.append(f"    title: \"{tr.task.title}\"")
+            lines.append(f'    title: "{tr.task.title}"')
             lines.append(f"    status: {tr.status.value}")
             lines.append(f"    gate_outcome: {tr.gate_outcome.value}")
             lines.append(f"    turns_consumed: {tr.turns_consumed}")
@@ -310,12 +315,8 @@ def aggregate_task_results(
     )
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
-    report.tasks_passed = sum(
-        1 for r in task_results if r.status == TaskStatus.PASS
-    )
-    report.tasks_failed = sum(
-        1 for r in task_results if r.status == TaskStatus.FAIL
-    )
+    report.tasks_passed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
+    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL)
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
     )
@@ -324,9 +325,7 @@ def aggregate_task_results(
     )
     report.tasks_not_attempted = len(report.remaining_task_ids)
     report.total_turns_consumed = sum(r.turns_consumed for r in task_results)
-    report.total_duration_seconds = sum(
-        r.duration_seconds for r in task_results
-    )
+    report.total_duration_seconds = sum(r.duration_seconds for r in task_results)
 
     return report
 
@@ -468,6 +467,7 @@ def _run_task_subprocess(
     proc.config = config
     proc.phase = phase
     from superclaude.cli.pipeline.process import ClaudeProcess as _Base
+
     _Base.__init__(
         proc,
         prompt=prompt,
@@ -511,6 +511,7 @@ def execute_sprint(config: SprintConfig):
 
     setup_debug_logger(config)
     import logging as _logging
+
     _dbg = _logging.getLogger(_DBG_NAME)
 
     logger = SprintLogger(config)
@@ -530,6 +531,7 @@ def execute_sprint(config: SprintConfig):
     # Removing this single call reverts to all-Claude behavior (R-051 rollback property).
     # Lazy import breaks the preflight → executor → preflight circular import cycle.
     from .preflight import execute_preflight_phases  # noqa: PLC0415
+
     preflight_results = execute_preflight_phases(config)
 
     try:
@@ -635,6 +637,7 @@ def execute_sprint(config: SprintConfig):
                         )
                         if config.stall_action == "kill":
                             import sys
+
                             print(
                                 f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
                                 f"{config.stall_timeout}s) — killing phase {phase.number}",
@@ -646,6 +649,7 @@ def execute_sprint(config: SprintConfig):
                         else:
                             # warn action: log and continue
                             import sys
+
                             print(
                                 f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
                                 f"{config.stall_timeout}s) — warning for phase {phase.number}",
@@ -662,7 +666,11 @@ def execute_sprint(config: SprintConfig):
                         tui.update(sprint_result, monitor.state, phase)
                     except Exception as _tui_exc:
                         import sys
-                        print(f"[TUI] Display error (continuing sprint): {_tui_exc}", file=sys.stderr)
+
+                        print(
+                            f"[TUI] Display error (continuing sprint): {_tui_exc}",
+                            file=sys.stderr,
+                        )
                     time.sleep(0.5)
 
                 # Safely read exit code: returncode may be None if terminate raced.
@@ -688,7 +696,9 @@ def execute_sprint(config: SprintConfig):
                 # exit_code=-1 (None→-1 fallback) and return PhaseStatus.ERROR,
                 # which would incorrectly set the outcome to HALTED.
                 if signal_handler.shutdown_requested:
-                    logger.write_phase_interrupt(phase, started_at, finished_at, exit_code)
+                    logger.write_phase_interrupt(
+                        phase, started_at, finished_at, exit_code
+                    )
                     sprint_result.outcome = SprintOutcome.INTERRUPTED
                     break
 
@@ -770,7 +780,9 @@ def execute_sprint(config: SprintConfig):
                         classifier = FailureClassifier()
                         bundle.category = classifier.classify(bundle)
                         reporter = ReportGenerator()
-                        diag_path = config.results_dir / f"phase-{phase.number}-diagnostic.md"
+                        diag_path = (
+                            config.results_dir / f"phase-{phase.number}-diagnostic.md"
+                        )
                         reporter.write(bundle, diag_path)
                         debug_log(
                             _dbg,
@@ -780,7 +792,12 @@ def execute_sprint(config: SprintConfig):
                             path=str(diag_path),
                         )
                     except Exception as _diag_exc:
-                        debug_log(_dbg, "diagnostic_error", phase=phase.number, error=str(_diag_exc))
+                        debug_log(
+                            _dbg,
+                            "diagnostic_error",
+                            phase=phase.number,
+                            error=str(_diag_exc),
+                        )
 
                     sprint_result.outcome = SprintOutcome.HALTED
                     sprint_result.halt_phase = phase.number
@@ -796,9 +813,7 @@ def execute_sprint(config: SprintConfig):
         for r in sprint_result.phase_results:
             _merged[r.phase.number] = r
         sprint_result.phase_results = [
-            _merged[p.number]
-            for p in config.active_phases
-            if p.number in _merged
+            _merged[p.number] for p in config.active_phases if p.number in _merged
         ]
 
         # Sprint finished
@@ -883,7 +898,9 @@ def _classify_from_result_file(
 
 def _check_checkpoint_pass(config: SprintConfig, phase: Phase) -> bool:
     """Return True if the end-of-phase checkpoint file exists with status PASS."""
-    checkpoint_path = config.release_dir / "checkpoints" / f"CP-P{phase.number:02d}-END.md"
+    checkpoint_path = (
+        config.release_dir / "checkpoints" / f"CP-P{phase.number:02d}-END.md"
+    )
     if not checkpoint_path.exists():
         return False
     try:
@@ -924,7 +941,11 @@ def _write_crash_recovery_log(
         f"**Timestamp**: {datetime.now(timezone.utc).isoformat()}\n"
         f"**Checkpoint**: checkpoints/CP-P{phase.number:02d}-END.md (PASS)\n"
         f"**Contamination check**: "
-        + ("CLEAN" if not contaminated else f"WARNING — {len(contaminated)} file(s): {contaminated}")
+        + (
+            "CLEAN"
+            if not contaminated
+            else f"WARNING — {len(contaminated)} file(s): {contaminated}"
+        )
         + "\n"
         "**Action**: Phase reclassified ERROR→PASS_RECOVERED.\n"
     )

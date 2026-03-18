@@ -68,7 +68,9 @@ def _runner_success_with_exit_rec(prompt: str, output_path: Path):
 def _runner_success_no_signal(prompt: str, output_path: Path):
     """Mock runner: writes artifact but no EXIT_RECOMMENDATION."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text("---\nstep: protocol-mapping\n---\ncontent", encoding="utf-8")
+    output_path.write_text(
+        "---\nstep: protocol-mapping\n---\ncontent", encoding="utf-8"
+    )
     return 0, "", False
 
 
@@ -89,16 +91,22 @@ class TestProtocolMappingPrompt:
         prompt = build_protocol_mapping_prompt("my-cli", sample_inventory)
         assert len(prompt) > 0
 
-    def test_protocol_mapping_prompt_contains_inventory_reference(self, sample_inventory):
+    def test_protocol_mapping_prompt_contains_inventory_reference(
+        self, sample_inventory
+    ):
         prompt = build_protocol_mapping_prompt("my-cli", sample_inventory)
         assert "my-cli" in prompt
         assert "cmd-entry" in prompt
 
-    def test_protocol_mapping_prompt_contains_exit_recommendation_instruction(self, sample_inventory):
+    def test_protocol_mapping_prompt_contains_exit_recommendation_instruction(
+        self, sample_inventory
+    ):
         prompt = build_protocol_mapping_prompt("my-cli", sample_inventory)
         assert "EXIT_RECOMMENDATION" in prompt
 
-    def test_protocol_mapping_prompt_contains_yaml_frontmatter_requirement(self, sample_inventory):
+    def test_protocol_mapping_prompt_contains_yaml_frontmatter_requirement(
+        self, sample_inventory
+    ):
         prompt = build_protocol_mapping_prompt("my-cli", sample_inventory)
         assert "---" in prompt
         assert "step: protocol-mapping" in prompt
@@ -109,7 +117,9 @@ class TestProtocolMappingPrompt:
         assert "empty-cli" in prompt
 
     def test_protocol_mapping_prompt_with_source_skill(self, sample_inventory):
-        prompt = build_protocol_mapping_prompt("my-cli", sample_inventory, source_skill="my-skill")
+        prompt = build_protocol_mapping_prompt(
+            "my-cli", sample_inventory, source_skill="my-skill"
+        )
         assert "my-skill" in prompt
 
 
@@ -132,7 +142,9 @@ class TestProtocolMappingExecution:
         assert (workdir / "protocol-map.md").exists()
         assert result.step_name == "protocol-mapping"
 
-    def test_protocol_mapping_pass_status_with_exit_rec(self, sample_inventory, workdir):
+    def test_protocol_mapping_pass_status_with_exit_rec(
+        self, sample_inventory, workdir
+    ):
         workdir.mkdir(parents=True, exist_ok=True)
         result = execute_protocol_mapping_step(
             "test-cli",
@@ -160,7 +172,9 @@ class TestProtocolMappingExecution:
             call_count["n"] += 1
             output_path.parent.mkdir(parents=True, exist_ok=True)
             if call_count["n"] == 1:
-                output_path.write_text("---\nstep: test\n---\ncontent", encoding="utf-8")
+                output_path.write_text(
+                    "---\nstep: test\n---\ncontent", encoding="utf-8"
+                )
                 return 0, "", False
             output_path.write_text(
                 "---\nstep: test\n---\ncontent\nEXIT_RECOMMENDATION: CONTINUE",
@@ -199,7 +213,9 @@ class TestAnalysisSynthesisPrompt:
         prompt = build_analysis_synthesis_prompt("my-cli", sample_inventory, "")
         assert len(prompt) > 0
 
-    def test_analysis_synthesis_prompt_contains_all_7_section_names(self, sample_inventory):
+    def test_analysis_synthesis_prompt_contains_all_7_section_names(
+        self, sample_inventory
+    ):
         prompt = build_analysis_synthesis_prompt("my-cli", sample_inventory, "")
         required_sections = [
             "Source Components",
@@ -213,18 +229,26 @@ class TestAnalysisSynthesisPrompt:
         for section in required_sections:
             assert section in prompt, f"Missing section '{section}' in prompt"
 
-    def test_analysis_synthesis_prompt_contains_exit_recommendation_instruction(self, sample_inventory):
+    def test_analysis_synthesis_prompt_contains_exit_recommendation_instruction(
+        self, sample_inventory
+    ):
         prompt = build_analysis_synthesis_prompt("my-cli", sample_inventory, "")
         assert "EXIT_RECOMMENDATION" in prompt
 
-    def test_analysis_synthesis_prompt_contains_yaml_frontmatter_requirement(self, sample_inventory):
+    def test_analysis_synthesis_prompt_contains_yaml_frontmatter_requirement(
+        self, sample_inventory
+    ):
         prompt = build_analysis_synthesis_prompt("my-cli", sample_inventory, "")
         assert "---" in prompt
         assert "step: analysis-synthesis" in prompt
 
-    def test_analysis_synthesis_prompt_includes_protocol_map_content(self, sample_inventory):
+    def test_analysis_synthesis_prompt_includes_protocol_map_content(
+        self, sample_inventory
+    ):
         protocol_content = "## Protocol Map\nStep 1: validate"
-        prompt = build_analysis_synthesis_prompt("my-cli", sample_inventory, protocol_content)
+        prompt = build_analysis_synthesis_prompt(
+            "my-cli", sample_inventory, protocol_content
+        )
         assert "my-cli" in prompt
 
     def test_analysis_synthesis_prompt_with_source_skill(self, sample_inventory):
@@ -271,7 +295,9 @@ class TestAnalysisSynthesisExecution:
         assert (workdir / "portify-analysis-report.md").exists()
         assert result.step_name == "analysis-synthesis"
 
-    def test_analysis_synthesis_pass_status_with_exit_rec(self, sample_inventory, workdir):
+    def test_analysis_synthesis_pass_status_with_exit_rec(
+        self, sample_inventory, workdir
+    ):
         workdir.mkdir(parents=True, exist_ok=True)
         result = execute_analysis_synthesis_step(
             "test-cli",
@@ -365,7 +391,9 @@ class TestTimeout600:
         )
         assert result.portify_status == PortifyStatus.TIMEOUT
 
-    def test_timeout_600_protocol_mapping_iteration_recorded(self, sample_inventory, workdir):
+    def test_timeout_600_protocol_mapping_iteration_recorded(
+        self, sample_inventory, workdir
+    ):
         workdir.mkdir(parents=True, exist_ok=True)
         result = execute_protocol_mapping_step(
             "test-cli",
@@ -375,7 +403,9 @@ class TestTimeout600:
         )
         assert result.iteration_timeout == 600
 
-    def test_timeout_600_analysis_synthesis_iteration_recorded(self, sample_inventory, workdir):
+    def test_timeout_600_analysis_synthesis_iteration_recorded(
+        self, sample_inventory, workdir
+    ):
         workdir.mkdir(parents=True, exist_ok=True)
         result = execute_analysis_synthesis_step(
             "test-cli",
@@ -480,7 +510,10 @@ class TestResumeValidation:
         )
         with pytest.raises(PortifyValidationError) as exc_info:
             _validate_phase1_approval(workdir)
-        assert "malformed" in str(exc_info.value).lower() or "yaml" in str(exc_info.value).lower()
+        assert (
+            "malformed" in str(exc_info.value).lower()
+            or "yaml" in str(exc_info.value).lower()
+        )
 
     def test_resume_validation_missing_status_field_raises_error(self, workdir):
         workdir.mkdir(parents=True, exist_ok=True)

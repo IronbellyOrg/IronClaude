@@ -28,17 +28,13 @@ class TestBuildExtractPromptRetrospective:
 
     def test_accepts_retrospective_content_explicit_none(self):
         """Explicit None produces the same as default."""
-        prompt = build_extract_prompt(
-            Path("/tmp/spec.md"), retrospective_content=None
-        )
+        prompt = build_extract_prompt(Path("/tmp/spec.md"), retrospective_content=None)
         assert "areas to watch" not in prompt.lower()
 
     def test_retrospective_content_framed_as_advisory(self):
         """Retrospective text is framed as advisory 'areas to watch'."""
         retro = "Gate strictness caused false positives in v2.19."
-        prompt = build_extract_prompt(
-            Path("/tmp/spec.md"), retrospective_content=retro
-        )
+        prompt = build_extract_prompt(Path("/tmp/spec.md"), retrospective_content=retro)
         assert "areas to watch" in prompt.lower()
         assert "advisory" in prompt.lower()
         assert retro in prompt
@@ -46,9 +42,7 @@ class TestBuildExtractPromptRetrospective:
     def test_retrospective_not_framed_as_requirements(self):
         """Retrospective content must NOT be framed as requirements."""
         retro = "Performance regression in merge step."
-        prompt = build_extract_prompt(
-            Path("/tmp/spec.md"), retrospective_content=retro
-        )
+        prompt = build_extract_prompt(Path("/tmp/spec.md"), retrospective_content=retro)
         assert "NOT" in prompt
         assert "not additional requirements" in prompt.lower() or (
             "not" in prompt.lower() and "requirements" in prompt.lower()
@@ -56,17 +50,13 @@ class TestBuildExtractPromptRetrospective:
 
     def test_retrospective_empty_string_treated_as_absent(self):
         """Empty string is falsy, so no advisory section is appended."""
-        prompt = build_extract_prompt(
-            Path("/tmp/spec.md"), retrospective_content=""
-        )
+        prompt = build_extract_prompt(Path("/tmp/spec.md"), retrospective_content="")
         assert "areas to watch" not in prompt.lower()
 
     def test_prompt_still_valid_with_retrospective(self):
         """Core prompt structure is preserved when retrospective is provided."""
         retro = "Some retrospective content."
-        prompt = build_extract_prompt(
-            Path("/tmp/spec.md"), retrospective_content=retro
-        )
+        prompt = build_extract_prompt(Path("/tmp/spec.md"), retrospective_content=retro)
         # Core extraction instructions still present
         assert "requirements extraction specialist" in prompt.lower()
         assert "spec_source" in prompt

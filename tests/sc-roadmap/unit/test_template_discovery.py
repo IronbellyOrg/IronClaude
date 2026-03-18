@@ -80,8 +80,13 @@ class TestPluginTemplates:
         """Plugin templates should exist at the expected path."""
         plugin_path = os.path.join(
             os.path.dirname(__file__),
-            "..", "..", "..",
-            "plugins", "superclaude", "templates", "roadmaps",
+            "..",
+            "..",
+            "..",
+            "plugins",
+            "superclaude",
+            "templates",
+            "roadmaps",
         )
         if not os.path.exists(plugin_path):
             pytest.skip("Plugin templates directory not found")

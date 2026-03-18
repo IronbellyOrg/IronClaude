@@ -46,9 +46,7 @@ class CheckpointState:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CheckpointState:
-        batches = [
-            BatchStatus(**b) for b in data.get("batches", [])
-        ]
+        batches = [BatchStatus(**b) for b in data.get("batches", [])]
         return cls(
             run_id=data["run_id"],
             total_batches=data["total_batches"],
@@ -108,6 +106,4 @@ class CheckpointReader:
         state = self.read()
         if state is None:
             return set()
-        return {
-            b.batch_id for b in state.batches if b.status == "COMPLETED"
-        }
+        return {b.batch_id for b in state.batches if b.status == "COMPLETED"}

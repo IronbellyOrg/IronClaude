@@ -113,17 +113,13 @@ class TestManifestGateCustomThreshold:
     def test_lower_threshold(self):
         all_files = [f"src/file_{i}.py" for i in range(100)]
         profiled = set(all_files[:80])
-        result = check_manifest_completeness(
-            all_files, profiled, threshold=0.75
-        )
+        result = check_manifest_completeness(all_files, profiled, threshold=0.75)
         assert result.passed is True
 
     def test_higher_threshold(self):
         all_files = [f"src/file_{i}.py" for i in range(100)]
         profiled = set(all_files[:95])
-        result = check_manifest_completeness(
-            all_files, profiled, threshold=0.99
-        )
+        result = check_manifest_completeness(all_files, profiled, threshold=0.99)
         assert result.passed is False
 
 

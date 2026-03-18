@@ -80,8 +80,7 @@ class TestReportSemanticsInvariant:
             "blocking_issues_count: 0\n"
             "warnings_count: 3\n"
             "tasklist_ready: true\n"
-            "---\n"
-            + "\n".join(f"line {i}" for i in range(25)),
+            "---\n" + "\n".join(f"line {i}" for i in range(25)),
             encoding="utf-8",
         )
         counts = _parse_report_counts(report)
@@ -96,8 +95,7 @@ class TestReportSemanticsInvariant:
             "blocking_issues_count: 2\n"
             "warnings_count: 1\n"
             "tasklist_ready: false\n"
-            "---\n"
-            + "\n".join(f"line {i}" for i in range(25)),
+            "---\n" + "\n".join(f"line {i}" for i in range(25)),
             encoding="utf-8",
         )
         counts = _parse_report_counts(report)
@@ -118,8 +116,7 @@ class TestReportSemanticsInvariant:
                 f"blocking_issues_count: {blocking}\n"
                 f"warnings_count: 0\n"
                 f"tasklist_ready: {'true' if expected_ready else 'false'}\n"
-                f"---\n"
-                + "\n".join(f"line {i}" for i in range(25)),
+                f"---\n" + "\n".join(f"line {i}" for i in range(25)),
                 encoding="utf-8",
             )
             counts = _parse_report_counts(report)
@@ -134,8 +131,7 @@ class TestReportSemanticsInvariant:
             "blocking_issues_count: 0\n"
             "warnings_count: 10\n"
             "tasklist_ready: true\n"
-            "---\n"
-            + "\n".join(f"line {i}" for i in range(25)),
+            "---\n" + "\n".join(f"line {i}" for i in range(25)),
             encoding="utf-8",
         )
         counts = _parse_report_counts(report)

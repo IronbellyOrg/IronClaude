@@ -110,10 +110,12 @@ def run_validate_config(
         resolved = None
 
     if resolved is not None and not resolved.exists():
-        errors.append({
-            "code": ERR_INVALID_PATH,
-            "message": f"Workflow path does not exist: {resolved}",
-        })
+        errors.append(
+            {
+                "code": ERR_INVALID_PATH,
+                "message": f"Workflow path does not exist: {resolved}",
+            }
+        )
         resolved = None  # Skip remaining path-dependent checks
 
     # --- Check 2: SKILL.md ---
@@ -121,10 +123,12 @@ def run_validate_config(
     if resolved is not None:
         skill_md = resolved / "SKILL.md"
         if not skill_md.exists():
-            errors.append({
-                "code": ERR_MISSING_SKILL,
-                "message": f"SKILL.md not found at {resolved}",
-            })
+            errors.append(
+                {
+                    "code": ERR_MISSING_SKILL,
+                    "message": f"SKILL.md not found at {resolved}",
+                }
+            )
         else:
             skill_dir_str = str(resolved)
 
@@ -132,18 +136,22 @@ def run_validate_config(
     if config.output_dir is not None:
         out_path = config.output_dir
         if out_path.exists() and not os.access(out_path, os.W_OK):
-            errors.append({
-                "code": ERR_OUTPUT_NOT_WRITABLE,
-                "message": f"Output path is not writable: {out_path}",
-            })
+            errors.append(
+                {
+                    "code": ERR_OUTPUT_NOT_WRITABLE,
+                    "message": f"Output path is not writable: {out_path}",
+                }
+            )
         elif not out_path.exists():
             try:
                 out_path.mkdir(parents=True, exist_ok=True)
             except (PermissionError, OSError) as exc:
-                errors.append({
-                    "code": ERR_OUTPUT_NOT_WRITABLE,
-                    "message": f"Cannot create output directory {out_path}: {exc}",
-                })
+                errors.append(
+                    {
+                        "code": ERR_OUTPUT_NOT_WRITABLE,
+                        "message": f"Cannot create output directory {out_path}: {exc}",
+                    }
+                )
 
     # --- Check 4: Name collision ---
     cli_name_kebab = ""
@@ -157,6 +165,7 @@ def run_validate_config(
     if cli_name_kebab:
         # Use the same collision check as validate_portify_config
         from ..config import _check_collision
+
         collision_errors = _check_collision(cli_name_kebab, config)
         for msg in collision_errors:
             errors.append({"code": ERR_NAME_COLLISION, "message": msg})
@@ -169,28 +178,34 @@ def run_validate_config(
         # When command_path is set, verify the workflow path resolves to a
         # directory that contains SKILL.md (i.e., a valid skill directory).
         if resolved is None:
-            errors.append({
-                "code": ERR_BROKEN_ACTIVATION,
-                "message": "command_path set but workflow path could not be resolved",
-            })
+            errors.append(
+                {
+                    "code": ERR_BROKEN_ACTIVATION,
+                    "message": "command_path set but workflow path could not be resolved",
+                }
+            )
         elif not resolved.is_dir():
-            errors.append({
-                "code": ERR_BROKEN_ACTIVATION,
-                "message": (
-                    f"command_path is set but workflow path '{resolved}' "
-                    "is not a valid skill directory"
-                ),
-            })
+            errors.append(
+                {
+                    "code": ERR_BROKEN_ACTIVATION,
+                    "message": (
+                        f"command_path is set but workflow path '{resolved}' "
+                        "is not a valid skill directory"
+                    ),
+                }
+            )
         elif not (resolved / "SKILL.md").exists():
             # SKILL.md missing but also command_path set → broken activation
             # (ERR_MISSING_SKILL may already be in errors, but also report broken link)
-            errors.append({
-                "code": ERR_BROKEN_ACTIVATION,
-                "message": (
-                    f"command_path is set but workflow path '{resolved}' "
-                    "does not contain SKILL.md"
-                ),
-            })
+            errors.append(
+                {
+                    "code": ERR_BROKEN_ACTIVATION,
+                    "message": (
+                        f"command_path is set but workflow path '{resolved}' "
+                        "does not contain SKILL.md"
+                    ),
+                }
+            )
 
     # --- Check 6: Missing agents (non-fatal warnings) ---
     agent_count = 0

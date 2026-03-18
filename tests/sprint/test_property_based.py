@@ -44,14 +44,16 @@ positive_budget = st.integers(min_value=1, max_value=10000)
 @st.composite
 def budget_operation_sequence(draw):
     """Generate a random sequence of (op_type, amount) tuples."""
-    ops = draw(st.lists(
-        st.tuples(
-            st.sampled_from(["debit", "credit"]),
-            budget_amount,
-        ),
-        min_size=1,
-        max_size=200,
-    ))
+    ops = draw(
+        st.lists(
+            st.tuples(
+                st.sampled_from(["debit", "credit"]),
+                budget_amount,
+            ),
+            min_size=1,
+            max_size=200,
+        )
+    )
     return ops
 
 
@@ -62,12 +64,14 @@ def gate_result_batch(draw):
     count = draw(st.integers(min_value=1, max_value=50))
     results = []
     for i in range(count):
-        results.append(TrailingGateResult(
-            step_id=f"step-{i}",
-            passed=draw(st.booleans()),
-            evaluation_ms=draw(st.floats(min_value=0.0, max_value=1000.0)),
-            failure_reason="fail" if not results or draw(st.booleans()) else None,
-        ))
+        results.append(
+            TrailingGateResult(
+                step_id=f"step-{i}",
+                passed=draw(st.booleans()),
+                evaluation_ms=draw(st.floats(min_value=0.0, max_value=1000.0)),
+                failure_reason="fail" if not results or draw(st.booleans()) else None,
+            )
+        )
     return results
 
 
@@ -116,10 +120,16 @@ class TestPropertyBudgetMonotonicity:
                 ledger.credit(amount)
 
         # INVARIANT: accounting identity
-        assert ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        assert (
+            ledger.available()
+            == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        )
 
     @pytest.mark.property_based
-    @given(initial=positive_budget, debits=st.lists(budget_amount, min_size=1, max_size=100))
+    @given(
+        initial=positive_budget,
+        debits=st.lists(budget_amount, min_size=1, max_size=100),
+    )
     @settings(max_examples=200, deadline=None)
     def test_consumed_equals_sum_of_debits(self, initial, debits):
         """Property: consumed == sum of all debit amounts."""
@@ -131,7 +141,10 @@ class TestPropertyBudgetMonotonicity:
         assert ledger.consumed == sum(debits)
 
     @pytest.mark.property_based
-    @given(initial=positive_budget, credits=st.lists(budget_amount, min_size=1, max_size=100))
+    @given(
+        initial=positive_budget,
+        credits=st.lists(budget_amount, min_size=1, max_size=100),
+    )
     @settings(max_examples=200, deadline=None)
     def test_reimbursed_equals_sum_of_credits(self, initial, credits):
         """Property: reimbursed == sum of all credit amounts."""
@@ -217,11 +230,13 @@ class TestPropertyGateResultOrdering:
 
         def _producer(idx):
             barrier.wait()
-            queue.put(TrailingGateResult(
-                step_id=f"step-{idx}",
-                passed=True,
-                evaluation_ms=1.0,
-            ))
+            queue.put(
+                TrailingGateResult(
+                    step_id=f"step-{idx}",
+                    passed=True,
+                    evaluation_ms=1.0,
+                )
+            )
 
         threads = [threading.Thread(target=_producer, args=(i,)) for i in range(count)]
         for t in threads:
@@ -240,9 +255,13 @@ class TestPropertyGateResultOrdering:
         queue = GateResultQueue()
 
         for i in range(count):
-            queue.put(TrailingGateResult(
-                step_id=f"step-{i}", passed=True, evaluation_ms=1.0,
-            ))
+            queue.put(
+                TrailingGateResult(
+                    step_id=f"step-{i}",
+                    passed=True,
+                    evaluation_ms=1.0,
+                )
+            )
 
         first = queue.drain()
         assert len(first) == count
@@ -260,14 +279,20 @@ class TestPropertyRemediationIdempotency:
     """DeferredRemediationLog.mark_remediated is idempotent."""
 
     @pytest.mark.property_based
-    @given(step_ids=st.lists(
-        st.text(min_size=1, max_size=20, alphabet=st.characters(
-            whitelist_categories=("L", "N"),
-        )),
-        min_size=1,
-        max_size=30,
-        unique=True,
-    ))
+    @given(
+        step_ids=st.lists(
+            st.text(
+                min_size=1,
+                max_size=20,
+                alphabet=st.characters(
+                    whitelist_categories=("L", "N"),
+                ),
+            ),
+            min_size=1,
+            max_size=30,
+            unique=True,
+        )
+    )
     @settings(max_examples=200, deadline=None)
     def test_double_mark_remediated_idempotent(self, step_ids):
         """Property: marking the same entry remediated twice produces
@@ -276,10 +301,14 @@ class TestPropertyRemediationIdempotency:
 
         # Populate with failed gate results
         for sid in step_ids:
-            log.append(TrailingGateResult(
-                step_id=sid, passed=False,
-                evaluation_ms=1.0, failure_reason="test failure",
-            ))
+            log.append(
+                TrailingGateResult(
+                    step_id=sid,
+                    passed=False,
+                    evaluation_ms=1.0,
+                    failure_reason="test failure",
+                )
+            )
 
         # Pick a random entry to remediate
         target = step_ids[0]
@@ -300,24 +329,34 @@ class TestPropertyRemediationIdempotency:
         assert pending_after_first == pending_after_second
 
     @pytest.mark.property_based
-    @given(step_ids=st.lists(
-        st.text(min_size=1, max_size=20, alphabet=st.characters(
-            whitelist_categories=("L", "N"),
-        )),
-        min_size=2,
-        max_size=20,
-        unique=True,
-    ))
+    @given(
+        step_ids=st.lists(
+            st.text(
+                min_size=1,
+                max_size=20,
+                alphabet=st.characters(
+                    whitelist_categories=("L", "N"),
+                ),
+            ),
+            min_size=2,
+            max_size=20,
+            unique=True,
+        )
+    )
     @settings(max_examples=200, deadline=None)
     def test_remediate_preserves_other_entries(self, step_ids):
         """Property: remediating one entry does not affect other entries."""
         log = DeferredRemediationLog()
 
         for sid in step_ids:
-            log.append(TrailingGateResult(
-                step_id=sid, passed=False,
-                evaluation_ms=1.0, failure_reason="test failure",
-            ))
+            log.append(
+                TrailingGateResult(
+                    step_id=sid,
+                    passed=False,
+                    evaluation_ms=1.0,
+                    failure_reason="test failure",
+                )
+            )
 
         # Remediate first entry
         log.mark_remediated(step_ids[0])
@@ -328,27 +367,37 @@ class TestPropertyRemediationIdempotency:
         assert pending == expected_pending
 
     @pytest.mark.property_based
-    @given(step_ids=st.lists(
-        st.text(min_size=1, max_size=20, alphabet=st.characters(
-            whitelist_categories=("L", "N"),
-        )),
-        min_size=1,
-        max_size=20,
-        unique=True,
-    ))
+    @given(
+        step_ids=st.lists(
+            st.text(
+                min_size=1,
+                max_size=20,
+                alphabet=st.characters(
+                    whitelist_categories=("L", "N"),
+                ),
+            ),
+            min_size=1,
+            max_size=20,
+            unique=True,
+        )
+    )
     @settings(max_examples=200, deadline=None)
     def test_serialize_deserialize_roundtrip(self, step_ids):
         """Property: serialize → deserialize produces identical state."""
         log = DeferredRemediationLog()
 
         for sid in step_ids:
-            log.append(TrailingGateResult(
-                step_id=sid, passed=False,
-                evaluation_ms=1.0, failure_reason=f"fail-{sid}",
-            ))
+            log.append(
+                TrailingGateResult(
+                    step_id=sid,
+                    passed=False,
+                    evaluation_ms=1.0,
+                    failure_reason=f"fail-{sid}",
+                )
+            )
 
         # Remediate some
-        for sid in step_ids[:len(step_ids) // 2]:
+        for sid in step_ids[: len(step_ids) // 2]:
             log.mark_remediated(sid)
 
         # Round-trip
@@ -365,16 +414,26 @@ class TestPropertyRemediationIdempotency:
 
     @pytest.mark.property_based
     @settings(max_examples=100, deadline=None)
-    @given(nonexistent_id=st.text(min_size=1, max_size=20, alphabet=st.characters(
-        whitelist_categories=("L", "N"),
-    )))
+    @given(
+        nonexistent_id=st.text(
+            min_size=1,
+            max_size=20,
+            alphabet=st.characters(
+                whitelist_categories=("L", "N"),
+            ),
+        )
+    )
     def test_mark_nonexistent_returns_false(self, nonexistent_id):
         """Property: marking a non-existent step_id returns False."""
         log = DeferredRemediationLog()
-        log.append(TrailingGateResult(
-            step_id="existing", passed=False,
-            evaluation_ms=1.0, failure_reason="fail",
-        ))
+        log.append(
+            TrailingGateResult(
+                step_id="existing",
+                passed=False,
+                evaluation_ms=1.0,
+                failure_reason="fail",
+            )
+        )
 
         assume(nonexistent_id != "existing")
         assert log.mark_remediated(nonexistent_id) is False

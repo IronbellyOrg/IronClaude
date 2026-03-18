@@ -76,13 +76,23 @@ class TestFailureTriggersCollector:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
-            patch("superclaude.cli.sprint.executor.DiagnosticCollector") as collector_cls,
-            patch("superclaude.cli.sprint.executor.FailureClassifier") as classifier_cls,
+            patch(
+                "superclaude.cli.sprint.executor.DiagnosticCollector"
+            ) as collector_cls,
+            patch(
+                "superclaude.cli.sprint.executor.FailureClassifier"
+            ) as classifier_cls,
             patch("superclaude.cli.sprint.executor.ReportGenerator") as reporter_cls,
         ):
             logger = MagicMock()
@@ -134,12 +144,20 @@ class TestDiagnosticsExceptionNonFatal:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
-            patch("superclaude.cli.sprint.executor.DiagnosticCollector") as collector_cls,
+            patch(
+                "superclaude.cli.sprint.executor.DiagnosticCollector"
+            ) as collector_cls,
         ):
             logger = MagicMock()
             logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))

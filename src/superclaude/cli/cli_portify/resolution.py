@@ -91,7 +91,11 @@ def resolve_target(
     target_path = Path(target)
 
     # --- Form 2: COMMAND_PATH — existing .md file ---
-    if target_path.is_file() and target.endswith(".md") and target_path.name != "SKILL.md":
+    if (
+        target_path.is_file()
+        and target.endswith(".md")
+        and target_path.name != "SKILL.md"
+    ):
         skill_dir = _find_skill_for_command(target_path, skills_dir)
         return ResolvedTarget(
             input_form=target,
@@ -188,7 +192,11 @@ def _parse_activation_skill(content: str) -> Optional[str]:
     # Extract content from Activation heading to next heading
     start = activation_match.end()
     next_heading = re.search(r"^#{1,3}\s+", content[start:], re.MULTILINE)
-    section = content[start: start + next_heading.start()] if next_heading else content[start:]
+    section = (
+        content[start : start + next_heading.start()]
+        if next_heading
+        else content[start:]
+    )
 
     # Match "> Skill sc:<name>"
     skill_match = re.search(r">\s*Skill\s+sc:(\S+)", section)
@@ -250,7 +258,9 @@ def _find_command_for_skill(
             continue
         skill_name = _parse_activation_skill(content)
         if skill_name is not None:
-            resolved = commands_dir.parent / "skills" / skill_name if commands_dir else None
+            resolved = (
+                commands_dir.parent / "skills" / skill_name if commands_dir else None
+            )
             # Direct check: does this command reference our skill?
             if skill_name == skill_dir.name:
                 return cmd_file

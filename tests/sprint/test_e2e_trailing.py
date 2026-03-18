@@ -108,10 +108,14 @@ def _make_step(step_id: str, tmp_path: Path, gate: GateCriteria | None = None) -
     )
 
 
-def _make_gate_result(step_id: str, passed: bool, reason: str | None = None) -> TrailingGateResult:
+def _make_gate_result(
+    step_id: str, passed: bool, reason: str | None = None
+) -> TrailingGateResult:
     return TrailingGateResult(
-        step_id=step_id, passed=passed,
-        evaluation_ms=5.0, failure_reason=reason,
+        step_id=step_id,
+        passed=passed,
+        evaluation_ms=5.0,
+        failure_reason=reason,
     )
 
 
@@ -163,7 +167,9 @@ class TestE2ETrailingGates:
             return (0, turn_costs[idx], 1024 * (idx + 1))
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             ledger=ledger,
             _subprocess_factory=subprocess_factory,
         )
@@ -176,7 +182,10 @@ class TestE2ETrailingGates:
         assert all(r.status == TaskStatus.PASS for r in results)
 
         # Budget accounting identity: available == initial - consumed + reimbursed
-        assert ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        assert (
+            ledger.available()
+            == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        )
 
         # Consumed should reflect actual turn costs with pre-allocation reconciliation
         # Pre-alloc is 5 per task; actual costs are [8, 12, 6, 10]
@@ -233,15 +242,23 @@ class TestE2ETrailingGates:
             return (0, 10, 500)
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             ledger=ledger,
             _subprocess_factory=subprocess_factory,
         )
 
         # Accounting identity: consumed - reimbursed + available == initial_budget
-        assert ledger.consumed - ledger.reimbursed + ledger.available() == ledger.initial_budget
+        assert (
+            ledger.consumed - ledger.reimbursed + ledger.available()
+            == ledger.initial_budget
+        )
         # Equivalent: available == initial_budget - consumed + reimbursed
-        assert ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        assert (
+            ledger.available()
+            == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        )
 
     # -----------------------------------------------------------------------
     # No silent incompletion: error_max_turns triggers INCOMPLETE
@@ -264,7 +281,9 @@ class TestE2ETrailingGates:
             return (exit_codes[idx], 5, 500)
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             ledger=ledger,
             _subprocess_factory=subprocess_factory,
         )
@@ -294,7 +313,9 @@ class TestE2ETrailingGates:
             return (0, 6, 500)
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             ledger=ledger,
             _subprocess_factory=subprocess_factory,
         )
@@ -327,27 +348,36 @@ class TestE2ETrailingGates:
         )
 
         # Step 1: Task execution
-        step = _make_step("T09.01", tmp_path, gate=GateCriteria(
-            required_frontmatter_fields=["title"],
-            min_lines=5,
-            enforcement_tier="STRICT",
-        ))
+        step = _make_step(
+            "T09.01",
+            tmp_path,
+            gate=GateCriteria(
+                required_frontmatter_fields=["title"],
+                min_lines=5,
+                enforcement_tier="STRICT",
+            ),
+        )
         ledger.debit(10)
 
         # Step 2: Trailing gate evaluation (fails)
         gate_result = _make_gate_result(
-            "T09.01", passed=False,
+            "T09.01",
+            passed=False,
             reason="Missing required field 'title'",
         )
 
         # Record in deferred remediation log
-        remediation_log = DeferredRemediationLog(persist_path=tmp_path / "remediation.json")
+        remediation_log = DeferredRemediationLog(
+            persist_path=tmp_path / "remediation.json"
+        )
         remediation_log.append(gate_result)
         assert remediation_log.entry_count == 1
         assert len(remediation_log.pending_remediations()) == 1
 
         # Step 3: Build remediation prompt (verifies context injection)
-        prompt = build_remediation_prompt(gate_result, step, file_paths={step.output_file})
+        prompt = build_remediation_prompt(
+            gate_result, step, file_paths={step.output_file}
+        )
         assert "Missing required field 'title'" in prompt
         assert "T09.01" in prompt
 
@@ -431,7 +461,9 @@ class TestE2ETrailingGates:
             return outcomes[idx]
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             ledger=ledger,
             _subprocess_factory=subprocess_factory,
         )
@@ -458,7 +490,10 @@ class TestE2ETrailingGates:
         assert report.status == "PARTIAL"
 
         # Budget identity still holds
-        assert ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        assert (
+            ledger.available()
+            == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        )
 
     # -----------------------------------------------------------------------
     # HALT output with resume and diagnostic chain
@@ -521,16 +556,22 @@ class TestE2ETrailingGates:
         tasks = _make_tasks(3)
         task_results = [
             TaskResult(
-                task=tasks[0], status=TaskStatus.PASS,
-                turns_consumed=10, exit_code=0,
+                task=tasks[0],
+                status=TaskStatus.PASS,
+                turns_consumed=10,
+                exit_code=0,
             ),
             TaskResult(
-                task=tasks[1], status=TaskStatus.FAIL,
-                turns_consumed=8, exit_code=1,
+                task=tasks[1],
+                status=TaskStatus.FAIL,
+                turns_consumed=8,
+                exit_code=1,
             ),
             TaskResult(
-                task=tasks[2], status=TaskStatus.PASS,
-                turns_consumed=12, exit_code=0,
+                task=tasks[2],
+                status=TaskStatus.PASS,
+                turns_consumed=12,
+                exit_code=0,
             ),
         ]
 

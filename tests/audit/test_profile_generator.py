@@ -78,6 +78,7 @@ def test_files():
 
 # --- Tests ---
 
+
 class TestComputeComplexity:
     def test_empty_content(self):
         assert compute_complexity("") == 1.0
@@ -100,7 +101,10 @@ class TestComputeComplexity:
 class TestFullFileProfile:
     def test_to_dict_has_all_fields(self, generator: ProfileGenerator):
         profile = generator.profile_file(
-            "src/main.py", SAMPLE_PY, all_analyses={}, all_files=[],
+            "src/main.py",
+            SAMPLE_PY,
+            all_analyses={},
+            all_files=[],
         )
         d = profile.to_dict()
         assert "imports" in d
@@ -114,7 +118,10 @@ class TestFullFileProfile:
 
     def test_to_schema_dict_valid(self, generator: ProfileGenerator):
         profile = generator.profile_file(
-            "src/main.py", SAMPLE_PY, all_analyses={}, all_files=[],
+            "src/main.py",
+            SAMPLE_PY,
+            all_analyses={},
+            all_files=[],
         )
         schema = profile.to_schema_dict()
         result = validate_phase2(schema)
@@ -122,7 +129,10 @@ class TestFullFileProfile:
 
     def test_has_full_profile(self, generator: ProfileGenerator):
         profile = generator.profile_file(
-            "src/main.py", SAMPLE_PY, all_analyses={}, all_files=[],
+            "src/main.py",
+            SAMPLE_PY,
+            all_analyses={},
+            all_files=[],
         )
         schema = profile.to_schema_dict()
         assert has_full_profile(schema)

@@ -38,9 +38,7 @@ class SpotCheckResult:
             "consistent_count": self.consistent_count,
             "inconsistent_count": self.inconsistent_count,
             "overall_consistency_rate": round(self.overall_consistency_rate, 4),
-            "per_tier_rates": {
-                k: round(v, 4) for k, v in self.per_tier_rates.items()
-            },
+            "per_tier_rates": {k: round(v, 4) for k, v in self.per_tier_rates.items()},
             "per_tier_sample_counts": self.per_tier_sample_counts,
             "inconsistencies": self.inconsistencies,
         }
@@ -127,13 +125,15 @@ def spot_check_validate(
             per_tier_correct[tier_key] = per_tier_correct.get(tier_key, 0) + 1
         else:
             inconsistent += 1
-            inconsistencies.append({
-                "file_path": finding.file_path,
-                "original_tier": finding.tier.value,
-                "original_action": finding.action.value,
-                "re_tier": re_result.tier.value,
-                "re_action": re_result.action.value,
-            })
+            inconsistencies.append(
+                {
+                    "file_path": finding.file_path,
+                    "original_tier": finding.tier.value,
+                    "original_action": finding.action.value,
+                    "re_tier": re_result.tier.value,
+                    "re_action": re_result.action.value,
+                }
+            )
 
     total = consistent + inconsistent
     overall_rate = consistent / total if total > 0 else 1.0

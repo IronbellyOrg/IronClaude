@@ -91,11 +91,15 @@ class TestConflictResolution:
         findings = [
             PhaseFinding(
                 "surface",
-                _make_result("a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.70),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.70
+                ),
             ),
             PhaseFinding(
                 "structural",
-                _make_result("a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.95),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.95
+                ),
             ),
         ]
         report = consolidate(findings)
@@ -109,11 +113,15 @@ class TestConflictResolution:
         findings = [
             PhaseFinding(
                 "surface",
-                _make_result("a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.70),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.70
+                ),
             ),
             PhaseFinding(
                 "structural",
-                _make_result("a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.95),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.95
+                ),
             ),
         ]
         report = consolidate(findings)
@@ -135,11 +143,15 @@ class TestConflictResolution:
         findings = [
             PhaseFinding(
                 "surface",
-                _make_result("a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.60),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.60
+                ),
             ),
             PhaseFinding(
                 "structural",
-                _make_result("a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.90),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.90
+                ),
             ),
         ]
         report = consolidate(findings)
@@ -167,11 +179,15 @@ class TestConsolidationReport:
         findings = [
             PhaseFinding(
                 "surface",
-                _make_result("a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.70),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE, confidence=0.70
+                ),
             ),
             PhaseFinding(
                 "structural",
-                _make_result("a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.95),
+                _make_result(
+                    "a.py", tier=V2Tier.TIER_2, action=V2Action.KEEP, confidence=0.95
+                ),
             ),
         ]
         report = consolidate(findings)

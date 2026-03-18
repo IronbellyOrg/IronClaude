@@ -97,7 +97,11 @@ def _matches_pattern(file_path: str, pattern: str) -> bool:
     # Pattern with ** wildcard
     if "**" in clean:
         parts = clean.split("**")
-        if len(parts) == 2 and file_path.startswith(parts[0].rstrip("/")) and file_path.endswith(parts[1].lstrip("/")):
+        if (
+            len(parts) == 2
+            and file_path.startswith(parts[0].rstrip("/"))
+            and file_path.endswith(parts[1].lstrip("/"))
+        ):
             return True
 
     # Directory prefix match (e.g., "build/" matches "build/output.js")

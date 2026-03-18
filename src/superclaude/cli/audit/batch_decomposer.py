@@ -17,25 +17,29 @@ from typing import Any
 from .profiler import FileProfile
 
 # Workspace config files that indicate a monorepo segment root
-_SEGMENT_MARKERS: frozenset[str] = frozenset({
-    "package.json",
-    "Cargo.toml",
-    "go.mod",
-    "pyproject.toml",
-    "setup.py",
-    "pom.xml",
-    "build.gradle",
-})
+_SEGMENT_MARKERS: frozenset[str] = frozenset(
+    {
+        "package.json",
+        "Cargo.toml",
+        "go.mod",
+        "pyproject.toml",
+        "setup.py",
+        "pom.xml",
+        "build.gradle",
+    }
+)
 
 # Common monorepo root directories
-_MONOREPO_ROOTS: frozenset[str] = frozenset({
-    "packages",
-    "apps",
-    "services",
-    "modules",
-    "libs",
-    "crates",
-})
+_MONOREPO_ROOTS: frozenset[str] = frozenset(
+    {
+        "packages",
+        "apps",
+        "services",
+        "modules",
+        "libs",
+        "crates",
+    }
+)
 
 DEFAULT_BATCH_SIZE = 50
 
@@ -178,9 +182,7 @@ def decompose(
                 batch_id=f"B-{batch_counter:04d}",
                 segment=segment_name,
                 files=chunk,
-                estimated_tokens=sum(
-                    _estimate_tokens(f, file_sizes) for f in chunk
-                ),
+                estimated_tokens=sum(_estimate_tokens(f, file_sizes) for f in chunk),
             )
             manifest.batches.append(batch)
 

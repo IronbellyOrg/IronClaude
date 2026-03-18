@@ -123,8 +123,7 @@ class TestDeterminePhaseStatusGaps:
         # CONTINUE listed before HALT — HALT still wins
         result_file = tmp_path / "result_a.md"
         result_file.write_text(
-            "EXIT_RECOMMENDATION: CONTINUE\n"
-            "EXIT_RECOMMENDATION: HALT\n"
+            "EXIT_RECOMMENDATION: CONTINUE\nEXIT_RECOMMENDATION: HALT\n"
         )
         output_file = tmp_path / "output.txt"
         status = _determine_phase_status(
@@ -137,8 +136,7 @@ class TestDeterminePhaseStatusGaps:
         # HALT listed before CONTINUE — HALT also wins
         result_file_b = tmp_path / "result_b.md"
         result_file_b.write_text(
-            "EXIT_RECOMMENDATION: HALT\n"
-            "EXIT_RECOMMENDATION: CONTINUE\n"
+            "EXIT_RECOMMENDATION: HALT\nEXIT_RECOMMENDATION: CONTINUE\n"
         )
         status_b = _determine_phase_status(
             exit_code=0,
@@ -253,6 +251,7 @@ class TestOutputMonitorIdempotency:
         monitor.start()
 
         import time
+
         time.sleep(0.1)  # let monitor poll once with missing file
 
         output_file.write_text("T05.01\n")
@@ -381,7 +380,10 @@ class TestExecutorShutdownBeforePhase:
         captured_results = []
 
         with (
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=counting_popen),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=counting_popen,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SignalHandler", _PresetShutdown),
@@ -452,12 +454,18 @@ class TestExecutorTimeoutPath:
             return real_monotonic()
 
         with (
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=popen_factory),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=popen_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=77777),
             patch("superclaude.cli.pipeline.process.os.killpg"),
             patch("superclaude.cli.sprint.notify._notify"),
-            patch("superclaude.cli.sprint.executor.time.monotonic", side_effect=fast_monotonic),
+            patch(
+                "superclaude.cli.sprint.executor.time.monotonic",
+                side_effect=fast_monotonic,
+            ),
             patch("superclaude.cli.sprint.executor.time.sleep"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as mock_logger_cls,
         ):
@@ -617,8 +625,13 @@ class TestNotifyModule:
         from superclaude.cli.sprint.notify import _notify
 
         with (
-            patch("superclaude.cli.sprint.notify.platform.system", return_value="Linux"),
-            patch("superclaude.cli.sprint.notify.shutil.which", return_value="/usr/bin/notify-send"),
+            patch(
+                "superclaude.cli.sprint.notify.platform.system", return_value="Linux"
+            ),
+            patch(
+                "superclaude.cli.sprint.notify.shutil.which",
+                return_value="/usr/bin/notify-send",
+            ),
             patch(
                 "superclaude.cli.sprint.notify.subprocess.run",
                 side_effect=OSError("notify-send not found"),
@@ -752,7 +765,9 @@ class TestTmuxModule:
         from superclaude.cli.sprint.tmux import is_tmux_available
 
         with (
-            patch("superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"),
+            patch(
+                "superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"
+            ),
             patch.dict("os.environ", {"TMUX": "/tmp/tmux-123/default,1234,0"}),
         ):
             assert is_tmux_available() is False
@@ -766,8 +781,12 @@ class TestTmuxModule:
         fake_result.stdout = "other-session\nanother\n"
 
         with (
-            patch("superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"),
-            patch("superclaude.cli.sprint.tmux.subprocess.run", return_value=fake_result),
+            patch(
+                "superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"
+            ),
+            patch(
+                "superclaude.cli.sprint.tmux.subprocess.run", return_value=fake_result
+            ),
         ):
             result = find_running_session()
 
@@ -782,8 +801,12 @@ class TestTmuxModule:
         fake_result.stdout = "other-session\nsc-sprint-abcd1234\nanother\n"
 
         with (
-            patch("superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"),
-            patch("superclaude.cli.sprint.tmux.subprocess.run", return_value=fake_result),
+            patch(
+                "superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"
+            ),
+            patch(
+                "superclaude.cli.sprint.tmux.subprocess.run", return_value=fake_result
+            ),
         ):
             result = find_running_session()
 

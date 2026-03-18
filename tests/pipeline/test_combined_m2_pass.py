@@ -85,7 +85,8 @@ class TestCombinedM2Pass:
         output = run_combined_m2_pass(deliverables)
 
         inv_checks = [
-            d for d in output.all_generated_deliverables
+            d
+            for d in output.all_generated_deliverables
             if d.kind == DeliverableKind.INVARIANT_CHECK
         ]
         assert len(inv_checks) >= 1
@@ -146,7 +147,9 @@ class TestIdempotency:
         output2 = run_combined_m2_pass(deliverables)
 
         assert output1.section_markdown == output2.section_markdown
-        assert len(output1.all_generated_deliverables) == len(output2.all_generated_deliverables)
+        assert len(output1.all_generated_deliverables) == len(
+            output2.all_generated_deliverables
+        )
         assert len(output1.failure_modes) == len(output2.failure_modes)
 
     def test_idempotent_with_generated_fed_back(self):
@@ -160,7 +163,9 @@ class TestIdempotency:
         output2 = run_combined_m2_pass(all_deliverables)
 
         # Same number of invariant entries (generated are filtered out)
-        assert len(output1.invariant_output.entries) == len(output2.invariant_output.entries)
+        assert len(output1.invariant_output.entries) == len(
+            output2.invariant_output.entries
+        )
 
 
 class TestCombinedOutput:

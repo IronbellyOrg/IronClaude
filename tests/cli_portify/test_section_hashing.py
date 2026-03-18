@@ -21,7 +21,6 @@ from superclaude.cli.cli_portify.steps.panel_review import capture_section_hashe
 
 
 class TestHashSection:
-
     def test_deterministic_hash(self):
         h1 = hash_section("Hello world")
         h2 = hash_section("Hello world")
@@ -40,7 +39,6 @@ class TestHashSection:
 
 
 class TestExtractSections:
-
     def test_single_section(self):
         content = "## Section One\n\nContent here.\n"
         sections = extract_sections(content)
@@ -74,7 +72,6 @@ Gamma content.
 
 
 class TestVerifyAdditiveOnly:
-
     def test_no_changes_passes(self):
         content = "## Section A\n\nContent A.\n"
         hashes = {h: hash_section(b) for h, b in extract_sections(content).items()}

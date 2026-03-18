@@ -24,6 +24,7 @@ from .invariants import InvariantEntry
 
 class ConflictKind(Enum):
     """Classification of conflict type."""
+
     DIRECT_CONTRADICTION = "direct_contradiction"
     SCOPE_MISMATCH = "scope_mismatch"
     TYPE_MISMATCH = "type_mismatch"
@@ -42,6 +43,7 @@ class ConflictDetection:
         suggested_resolution: Recommended action to resolve.
         severity: "high" | "medium" | "low" based on conflict kind.
     """
+
     contract: ImplicitContract
     kind: ConflictKind
     description: str
@@ -91,7 +93,15 @@ def are_synonyms(word1: str, word2: str) -> bool:
 # ---------------------------------------------------------------------------
 
 _SCOPE_ALL = {"all", "every", "complete", "full", "entire", "total", "whole"}
-_SCOPE_FILTERED = {"filtered", "subset", "partial", "selected", "matching", "some", "qualifying"}
+_SCOPE_FILTERED = {
+    "filtered",
+    "subset",
+    "partial",
+    "selected",
+    "matching",
+    "some",
+    "qualifying",
+}
 
 # Type indicators
 _TYPE_BOOLEAN = {"boolean", "bool", "flag", "true", "false", "toggle"}
@@ -100,8 +110,23 @@ _TYPE_STRING = {"string", "str", "text", "name"}
 _TYPE_GROUPS = [_TYPE_BOOLEAN, _TYPE_INTEGER, _TYPE_STRING]
 
 # Contradiction indicators
-_POSITIVE_INDICATORS = {"delivered", "processed", "completed", "sent", "written", "all", "total"}
-_NEGATIVE_INDICATORS = {"undelivered", "unprocessed", "pending", "remaining", "failed", "none"}
+_POSITIVE_INDICATORS = {
+    "delivered",
+    "processed",
+    "completed",
+    "sent",
+    "written",
+    "all",
+    "total",
+}
+_NEGATIVE_INDICATORS = {
+    "undelivered",
+    "unprocessed",
+    "pending",
+    "remaining",
+    "failed",
+    "none",
+}
 
 
 def _tokenize(text: str) -> set[str]:
@@ -116,13 +141,15 @@ def _detect_scope_mismatch(writer_tokens: set[str], reader_tokens: set[str]) -> 
     reader_has_all = bool(reader_tokens & _SCOPE_ALL)
     reader_has_filtered = bool(reader_tokens & _SCOPE_FILTERED)
 
-    return (writer_has_all and reader_has_filtered) or (writer_has_filtered and reader_has_all)
+    return (writer_has_all and reader_has_filtered) or (
+        writer_has_filtered and reader_has_all
+    )
 
 
 def _detect_type_mismatch(writer_tokens: set[str], reader_tokens: set[str]) -> bool:
     """Detect type mismatch: writer implies one type, reader implies another."""
     for i, group_a in enumerate(_TYPE_GROUPS):
-        for group_b in _TYPE_GROUPS[i + 1:]:
+        for group_b in _TYPE_GROUPS[i + 1 :]:
             writer_in_a = bool(writer_tokens & group_a)
             reader_in_b = bool(reader_tokens & group_b)
             writer_in_b = bool(writer_tokens & group_b)
@@ -132,7 +159,9 @@ def _detect_type_mismatch(writer_tokens: set[str], reader_tokens: set[str]) -> b
     return False
 
 
-def _detect_direct_contradiction(writer_tokens: set[str], reader_tokens: set[str]) -> bool:
+def _detect_direct_contradiction(
+    writer_tokens: set[str], reader_tokens: set[str]
+) -> bool:
     """Detect direct contradiction: writer says positive, reader says negative or vice versa."""
     writer_pos = bool(writer_tokens & _POSITIVE_INDICATORS)
     writer_neg = bool(writer_tokens & _NEGATIVE_INDICATORS)
@@ -173,6 +202,7 @@ def _detect_completeness_mismatch(
 # Main detector
 # ---------------------------------------------------------------------------
 
+
 def detect_conflicts(
     contracts: list[ImplicitContract],
     invariant_entries: list[InvariantEntry] | None = None,
@@ -203,37 +233,41 @@ def detect_conflicts(
     for contract in contracts:
         # Rule: UNSPECIFIED writer always conflicts (cannot verify compatibility)
         if contract.writer_semantics == UNSPECIFIED:
-            conflicts.append(ConflictDetection(
-                contract=contract,
-                kind=ConflictKind.UNSPECIFIED_WRITER,
-                description=(
-                    f"Writer semantics for '{contract.variable}' are UNSPECIFIED "
-                    f"in {contract.writer_deliverable}. Cannot verify compatibility "
-                    f"with reader {contract.reader_deliverable}."
-                ),
-                suggested_resolution=(
-                    f"Add explicit semantic declaration for '{contract.variable}' "
-                    f"in deliverable {contract.writer_deliverable}."
-                ),
-                severity="high",
-            ))
+            conflicts.append(
+                ConflictDetection(
+                    contract=contract,
+                    kind=ConflictKind.UNSPECIFIED_WRITER,
+                    description=(
+                        f"Writer semantics for '{contract.variable}' are UNSPECIFIED "
+                        f"in {contract.writer_deliverable}. Cannot verify compatibility "
+                        f"with reader {contract.reader_deliverable}."
+                    ),
+                    suggested_resolution=(
+                        f"Add explicit semantic declaration for '{contract.variable}' "
+                        f"in deliverable {contract.writer_deliverable}."
+                    ),
+                    severity="high",
+                )
+            )
             continue
 
         # Skip if reader is also unspecified (already flagged via needs_human_review)
         if contract.reader_assumption == UNSPECIFIED:
-            conflicts.append(ConflictDetection(
-                contract=contract,
-                kind=ConflictKind.UNSPECIFIED_WRITER,
-                description=(
-                    f"Reader assumption for '{contract.variable}' is UNSPECIFIED "
-                    f"in {contract.reader_deliverable}."
-                ),
-                suggested_resolution=(
-                    f"Add explicit assumption for '{contract.variable}' "
-                    f"in deliverable {contract.reader_deliverable}."
-                ),
-                severity="high",
-            ))
+            conflicts.append(
+                ConflictDetection(
+                    contract=contract,
+                    kind=ConflictKind.UNSPECIFIED_WRITER,
+                    description=(
+                        f"Reader assumption for '{contract.variable}' is UNSPECIFIED "
+                        f"in {contract.reader_deliverable}."
+                    ),
+                    suggested_resolution=(
+                        f"Add explicit assumption for '{contract.variable}' "
+                        f"in deliverable {contract.reader_deliverable}."
+                    ),
+                    severity="high",
+                )
+            )
             continue
 
         writer_tokens = _tokenize(contract.writer_semantics)
@@ -242,65 +276,73 @@ def detect_conflicts(
 
         # Check each conflict type (in order of severity)
         if _detect_direct_contradiction(writer_tokens, reader_tokens):
-            conflicts.append(ConflictDetection(
-                contract=contract,
-                kind=ConflictKind.DIRECT_CONTRADICTION,
-                description=(
-                    f"Direct contradiction for '{contract.variable}': "
-                    f"writer says '{contract.writer_semantics}', "
-                    f"reader assumes '{contract.reader_assumption}'."
-                ),
-                suggested_resolution=(
-                    f"Align writer and reader on the semantic meaning of "
-                    f"'{contract.variable}' across milestones."
-                ),
-                severity="high",
-            ))
+            conflicts.append(
+                ConflictDetection(
+                    contract=contract,
+                    kind=ConflictKind.DIRECT_CONTRADICTION,
+                    description=(
+                        f"Direct contradiction for '{contract.variable}': "
+                        f"writer says '{contract.writer_semantics}', "
+                        f"reader assumes '{contract.reader_assumption}'."
+                    ),
+                    suggested_resolution=(
+                        f"Align writer and reader on the semantic meaning of "
+                        f"'{contract.variable}' across milestones."
+                    ),
+                    severity="high",
+                )
+            )
         elif _detect_scope_mismatch(writer_tokens, reader_tokens):
-            conflicts.append(ConflictDetection(
-                contract=contract,
-                kind=ConflictKind.SCOPE_MISMATCH,
-                description=(
-                    f"Scope mismatch for '{contract.variable}': "
-                    f"writer says '{contract.writer_semantics}', "
-                    f"reader assumes '{contract.reader_assumption}'."
-                ),
-                suggested_resolution=(
-                    f"Clarify whether '{contract.variable}' represents a "
-                    f"filtered subset or the complete set."
-                ),
-                severity="high",
-            ))
+            conflicts.append(
+                ConflictDetection(
+                    contract=contract,
+                    kind=ConflictKind.SCOPE_MISMATCH,
+                    description=(
+                        f"Scope mismatch for '{contract.variable}': "
+                        f"writer says '{contract.writer_semantics}', "
+                        f"reader assumes '{contract.reader_assumption}'."
+                    ),
+                    suggested_resolution=(
+                        f"Clarify whether '{contract.variable}' represents a "
+                        f"filtered subset or the complete set."
+                    ),
+                    severity="high",
+                )
+            )
         elif _detect_type_mismatch(writer_tokens, reader_tokens):
-            conflicts.append(ConflictDetection(
-                contract=contract,
-                kind=ConflictKind.TYPE_MISMATCH,
-                description=(
-                    f"Type mismatch for '{contract.variable}': "
-                    f"writer implies '{contract.writer_semantics}', "
-                    f"reader assumes '{contract.reader_assumption}'."
-                ),
-                suggested_resolution=(
-                    f"Standardize the type of '{contract.variable}' "
-                    f"across writer and reader deliverables."
-                ),
-                severity="medium",
-            ))
+            conflicts.append(
+                ConflictDetection(
+                    contract=contract,
+                    kind=ConflictKind.TYPE_MISMATCH,
+                    description=(
+                        f"Type mismatch for '{contract.variable}': "
+                        f"writer implies '{contract.writer_semantics}', "
+                        f"reader assumes '{contract.reader_assumption}'."
+                    ),
+                    suggested_resolution=(
+                        f"Standardize the type of '{contract.variable}' "
+                        f"across writer and reader deliverables."
+                    ),
+                    severity="medium",
+                )
+            )
         elif _detect_completeness_mismatch(writer_tokens, reader_tokens, inv_entry):
-            conflicts.append(ConflictDetection(
-                contract=contract,
-                kind=ConflictKind.COMPLETENESS_MISMATCH,
-                description=(
-                    f"Completeness mismatch for '{contract.variable}': "
-                    f"writer says '{contract.writer_semantics}', "
-                    f"reader assumes '{contract.reader_assumption}'."
-                ),
-                suggested_resolution=(
-                    f"Verify whether '{contract.variable}' represents complete "
-                    f"or partial data across milestones."
-                ),
-                severity="medium",
-            ))
+            conflicts.append(
+                ConflictDetection(
+                    contract=contract,
+                    kind=ConflictKind.COMPLETENESS_MISMATCH,
+                    description=(
+                        f"Completeness mismatch for '{contract.variable}': "
+                        f"writer says '{contract.writer_semantics}', "
+                        f"reader assumes '{contract.reader_assumption}'."
+                    ),
+                    suggested_resolution=(
+                        f"Verify whether '{contract.variable}' represents complete "
+                        f"or partial data across milestones."
+                    ),
+                    severity="medium",
+                )
+            )
         # No conflict detected for identical or compatible semantics
 
     return conflicts

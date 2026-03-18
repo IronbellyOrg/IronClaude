@@ -19,16 +19,36 @@ from .tool_orchestrator import FileAnalysis
 
 # Default entry point patterns
 _ENTRY_POINT_PATTERNS: list[str] = [
-    "__main__", "main.py", "cli.py", "app.py", "wsgi.py",
-    "asgi.py", "manage.py", "setup.py", "conftest.py",
-    "__init__.py", "index.js", "index.ts", "server.js", "server.ts",
+    "__main__",
+    "main.py",
+    "cli.py",
+    "app.py",
+    "wsgi.py",
+    "asgi.py",
+    "manage.py",
+    "setup.py",
+    "conftest.py",
+    "__init__.py",
+    "index.js",
+    "index.ts",
+    "server.js",
+    "server.ts",
 ]
 
 # Framework hook patterns (exports used by frameworks, not direct imports)
 _FRAMEWORK_HOOK_PATTERNS: list[str] = [
-    "pytest_", "conftest", "plugin", "middleware",
-    "migration", "fixture", "hook", "signal",
-    "celery", "task", "command", "admin",
+    "pytest_",
+    "conftest",
+    "plugin",
+    "middleware",
+    "migration",
+    "fixture",
+    "hook",
+    "signal",
+    "celery",
+    "task",
+    "command",
+    "admin",
 ]
 
 
@@ -135,18 +155,22 @@ def detect_dead_code(
 
         # Exclusion: entry points
         if _is_entry_point(file_path) or file_path in extra_entries:
-            report.excluded.append(ExcludedCandidate(
-                file_path=file_path,
-                exclusion_reason="entry_point",
-            ))
+            report.excluded.append(
+                ExcludedCandidate(
+                    file_path=file_path,
+                    exclusion_reason="entry_point",
+                )
+            )
             continue
 
         # Exclusion: framework hooks
         if _is_framework_hook(file_path, analysis):
-            report.excluded.append(ExcludedCandidate(
-                file_path=file_path,
-                exclusion_reason="framework_hook",
-            ))
+            report.excluded.append(
+                ExcludedCandidate(
+                    file_path=file_path,
+                    exclusion_reason="framework_hook",
+                )
+            )
             continue
 
         # Check importers
@@ -155,13 +179,15 @@ def detect_dead_code(
 
         if len(tier_a) == 0 and len(tier_b) == 0:
             exports_str = "; ".join(analysis.exports[:3])
-            report.candidates.append(DeadCodeCandidate(
-                file_path=file_path,
-                export_location=exports_str,
-                boundary_search_scope=f"all {len(analyses)} files",
-                tier_a_importers=0,
-                tier_b_importers=0,
-                reason="Zero Tier-A importers and zero Tier-B references",
-            ))
+            report.candidates.append(
+                DeadCodeCandidate(
+                    file_path=file_path,
+                    export_location=exports_str,
+                    boundary_search_scope=f"all {len(analyses)} files",
+                    tier_a_importers=0,
+                    tier_b_importers=0,
+                    reason="Zero Tier-A importers and zero Tier-B references",
+                )
+            )
 
     return report

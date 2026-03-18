@@ -40,11 +40,13 @@ class ContractStatus(Enum):
 # RESUMABLE_STEPS — steps 5-7 are resumable
 # ---------------------------------------------------------------------------
 
-RESUMABLE_STEPS: frozenset[str] = frozenset({
-    "synthesize-spec",
-    "brainstorm-gaps",
-    "panel-review",
-})
+RESUMABLE_STEPS: frozenset[str] = frozenset(
+    {
+        "synthesize-spec",
+        "brainstorm-gaps",
+        "panel-review",
+    }
+)
 
 
 # ---------------------------------------------------------------------------

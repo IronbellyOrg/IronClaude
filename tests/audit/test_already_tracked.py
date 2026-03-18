@@ -79,12 +79,18 @@ class TestAlreadyTrackedSection:
     def test_section_lists_both_suppressed_findings(self):
         matches = [
             MatchResult(
-                file_path="a.py", classification="DELETE", matched=True,
-                registry_entry_id="KI-001", matched_pattern="*.py",
+                file_path="a.py",
+                classification="DELETE",
+                matched=True,
+                registry_entry_id="KI-001",
+                matched_pattern="*.py",
             ),
             MatchResult(
-                file_path="b.py", classification="DELETE", matched=True,
-                registry_entry_id="KI-002", matched_pattern="b.*",
+                file_path="b.py",
+                classification="DELETE",
+                matched=True,
+                registry_entry_id="KI-002",
+                matched_pattern="b.*",
             ),
         ]
         section = build_already_tracked_section(matches)

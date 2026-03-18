@@ -86,14 +86,12 @@ class DependencyGraph:
 
     def tier_a_importers_of(self, target: str) -> list[DependencyEdge]:
         return [
-            e for e in self.edges
-            if e.target == target and e.tier == EdgeTier.TIER_A
+            e for e in self.edges if e.target == target and e.tier == EdgeTier.TIER_A
         ]
 
     def tier_b_importers_of(self, target: str) -> list[DependencyEdge]:
         return [
-            e for e in self.edges
-            if e.target == target and e.tier == EdgeTier.TIER_B
+            e for e in self.edges if e.target == target and e.tier == EdgeTier.TIER_B
         ]
 
     @property
@@ -179,8 +177,12 @@ def _infer_cooccurrence(
     target_stem = os.path.splitext(os.path.basename(target_path))[0]
 
     # Naming convention: test_X <-> X, X.test <-> X
-    stripped_source = source_stem.replace("test_", "").replace("_test", "").replace(".test", "")
-    stripped_target = target_stem.replace("test_", "").replace("_test", "").replace(".test", "")
+    stripped_source = (
+        source_stem.replace("test_", "").replace("_test", "").replace(".test", "")
+    )
+    stripped_target = (
+        target_stem.replace("test_", "").replace("_test", "").replace(".test", "")
+    )
 
     if stripped_source == stripped_target and source_stem != target_stem:
         return True
@@ -223,14 +225,16 @@ def build_dependency_graph(
         for imp in analysis.imports:
             target = _resolve_import_target(imp, source_path, known_files)
             if target and target != source_path:
-                graph.add_edge(DependencyEdge(
-                    source=source_path,
-                    target=target,
-                    tier=EdgeTier.TIER_A,
-                    confidence=TIER_CONFIDENCE[EdgeTier.TIER_A],
-                    evidence_type="ast_import",
-                    evidence_detail=imp,
-                ))
+                graph.add_edge(
+                    DependencyEdge(
+                        source=source_path,
+                        target=target,
+                        tier=EdgeTier.TIER_A,
+                        confidence=TIER_CONFIDENCE[EdgeTier.TIER_A],
+                        evidence_type="ast_import",
+                        evidence_detail=imp,
+                    )
+                )
 
         # Tier-B: Grep string references
         if source_path in contents:
@@ -238,22 +242,27 @@ def build_dependency_graph(
                 if target_path == source_path:
                     continue
                 target_stem = os.path.splitext(os.path.basename(target_path))[0]
-                if _find_grep_references(target_stem, source_path, contents[source_path]):
+                if _find_grep_references(
+                    target_stem, source_path, contents[source_path]
+                ):
                     # Avoid duplicating Tier-A edges
                     already_tier_a = any(
-                        e.source == source_path and e.target == target_path
+                        e.source == source_path
+                        and e.target == target_path
                         and e.tier == EdgeTier.TIER_A
                         for e in graph.edges
                     )
                     if not already_tier_a:
-                        graph.add_edge(DependencyEdge(
-                            source=source_path,
-                            target=target_path,
-                            tier=EdgeTier.TIER_B,
-                            confidence=TIER_CONFIDENCE[EdgeTier.TIER_B],
-                            evidence_type="grep_reference",
-                            evidence_detail=f"'{target_stem}' found in {source_path}",
-                        ))
+                        graph.add_edge(
+                            DependencyEdge(
+                                source=source_path,
+                                target=target_path,
+                                tier=EdgeTier.TIER_B,
+                                confidence=TIER_CONFIDENCE[EdgeTier.TIER_B],
+                                evidence_type="grep_reference",
+                                evidence_detail=f"'{target_stem}' found in {source_path}",
+                            )
+                        )
 
         # Tier-C: Co-occurrence inference
         for target_path in known_files:
@@ -262,18 +271,21 @@ def build_dependency_graph(
             if _infer_cooccurrence(source_path, target_path):
                 # Avoid duplicating higher-tier edges
                 already_higher = any(
-                    e.source == source_path and e.target == target_path
+                    e.source == source_path
+                    and e.target == target_path
                     and e.tier in (EdgeTier.TIER_A, EdgeTier.TIER_B)
                     for e in graph.edges
                 )
                 if not already_higher:
-                    graph.add_edge(DependencyEdge(
-                        source=source_path,
-                        target=target_path,
-                        tier=EdgeTier.TIER_C,
-                        confidence=TIER_CONFIDENCE[EdgeTier.TIER_C],
-                        evidence_type="inferred_cooccurrence",
-                        evidence_detail=f"naming/co-location: {source_path} <-> {target_path}",
-                    ))
+                    graph.add_edge(
+                        DependencyEdge(
+                            source=source_path,
+                            target=target_path,
+                            tier=EdgeTier.TIER_C,
+                            confidence=TIER_CONFIDENCE[EdgeTier.TIER_C],
+                            evidence_type="inferred_cooccurrence",
+                            evidence_detail=f"naming/co-location: {source_path} <-> {target_path}",
+                        )
+                    )
 
     return graph

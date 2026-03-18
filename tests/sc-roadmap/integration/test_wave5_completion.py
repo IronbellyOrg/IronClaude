@@ -30,7 +30,10 @@ class TestCompletionCheck:
 
     def test_completion_criteria_in_skill_md(self, skill_md_content):
         """SKILL.md should define completion criteria."""
-        assert "completion_criteria" in skill_md_content or "completion_check" in skill_md_content
+        assert (
+            "completion_criteria" in skill_md_content
+            or "completion_check" in skill_md_content
+        )
 
     def test_think_step_documented(self, skill_md_content):
         """SKILL.md should include think_about_whether_you_are_done()."""
@@ -71,11 +74,16 @@ class TestMemoryPersistence:
 
     def test_memory_persistence_in_skill_md(self, skill_md_content):
         """SKILL.md should define memory persistence behavior."""
-        assert "write_memory" in skill_md_content or "memory" in skill_md_content.lower()
+        assert (
+            "write_memory" in skill_md_content or "memory" in skill_md_content.lower()
+        )
 
     def test_circuit_breaker_for_serena(self, skill_md_content):
         """SKILL.md should define circuit breaker for Serena."""
-        assert "circuit" in skill_md_content.lower() or "fallback" in skill_md_content.lower()
+        assert (
+            "circuit" in skill_md_content.lower()
+            or "fallback" in skill_md_content.lower()
+        )
 
 
 class TestGitOperations:

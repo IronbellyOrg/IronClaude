@@ -28,6 +28,7 @@ from superclaude.cli.roadmap.gates import (
 # T05.01 -- Anti-Laundering: Bogus INTENTIONAL_IMPROVEMENT rejected as HIGH (R-069)
 # ───────────────────────────────────────────────────────────────────────────────
 
+
 class TestBogusIntentionalClaims:
     """R-069: INTENTIONAL_IMPROVEMENT without valid D-XX + round citation must be
     promoted to HIGH severity in spec-fidelity, causing SPEC_FIDELITY_GATE failure.
@@ -150,6 +151,7 @@ class TestBogusIntentionalClaims:
 # T05.03 -- Ambiguous Continuation: ambiguous_count > 0 causes STRICT gate failure
 # ───────────────────────────────────────────────────────────────────────────────
 
+
 class TestAmbiguousContinuation:
     """R-071: ambiguous_count > 0 must cause _no_ambiguous_deviations() to return False.
     DEVIATION_ANALYSIS_GATE (STRICT) enforces ambiguity rejection.
@@ -231,6 +233,7 @@ class TestAmbiguousContinuation:
 # ───────────────────────────────────────────────────────────────────────────────
 # T05.04 -- False Certification: certified: false blocks pipeline (R-072)
 # ───────────────────────────────────────────────────────────────────────────────
+
 
 class TestFalseCertification:
     """R-072: certified: false causes CERTIFY_GATE failure; pipeline does not advance.

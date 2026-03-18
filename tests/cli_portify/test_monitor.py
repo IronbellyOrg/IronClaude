@@ -170,8 +170,12 @@ class TestFailureClassification:
     def test_all_seven_types_covered(self):
         """Verify all 7 FailureClassification values exist."""
         expected = {
-            "timeout", "missing_artifact", "malformed_frontmatter",
-            "gate_failure", "user_rejection", "budget_exhaustion",
+            "timeout",
+            "missing_artifact",
+            "malformed_frontmatter",
+            "gate_failure",
+            "user_rejection",
+            "budget_exhaustion",
             "partial_artifact",
         }
         actual = {fc.value for fc in FailureClassification}
@@ -253,7 +257,12 @@ class TestDiagnosticReport:
             events=[],
             step_results=[
                 {"step": "s1", "status": "pass", "duration": 1.0},
-                {"step": "s2", "status": "fail", "duration": 2.0, "failure_type": "timeout"},
+                {
+                    "step": "s2",
+                    "status": "fail",
+                    "duration": 2.0,
+                    "failure_type": "timeout",
+                },
             ],
         )
         assert "# Portify Pipeline Diagnostic Report" in report
@@ -324,18 +333,21 @@ class TestOutputMonitor:
 
     def test_output_monitor_instantiates(self):
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         assert mon.state.output_bytes == 0
         assert mon.state.growth_rate_bps == 0.0
 
     def test_output_monitor_tracks_output_bytes(self):
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.update(1024)
         assert mon.state.output_bytes == 1024
 
     def test_output_monitor_tracks_events(self):
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.update(100)
         mon.update(200)
@@ -343,6 +355,7 @@ class TestOutputMonitor:
 
     def test_output_monitor_tracks_line_count(self):
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.update(100, new_lines=5)
         mon.update(200, new_lines=3)
@@ -350,15 +363,17 @@ class TestOutputMonitor:
 
     def test_output_monitor_stall_detection_triggers_kill(self):
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         killed = [False]
 
         def kill():
             killed[0] = True
 
         import time
+
         mon = OutputMonitor(
             stall_threshold_bps=1000.0,  # High threshold → immediate stall
-            stall_timeout_seconds=0.0,   # Zero timeout → trigger immediately
+            stall_timeout_seconds=0.0,  # Zero timeout → trigger immediately
             kill_fn=kill,
         )
         # First call establishes baseline
@@ -370,10 +385,17 @@ class TestOutputMonitor:
 
     def test_output_monitor_has_all_eight_fields(self):
         from superclaude.cli.cli_portify.models import MonitorState
+
         fields = set(MonitorState.__dataclass_fields__.keys())
         expected = {
-            "output_bytes", "growth_rate_bps", "stall_seconds", "events",
-            "line_count", "convergence_iteration", "findings_count", "placeholder_count",
+            "output_bytes",
+            "growth_rate_bps",
+            "stall_seconds",
+            "events",
+            "line_count",
+            "convergence_iteration",
+            "findings_count",
+            "placeholder_count",
         }
         assert expected == fields
 
@@ -393,16 +415,24 @@ class TestOutputMonitorComplete:
         """All 8 NFR-009 fields present in OutputMonitor.state."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
         from superclaude.cli.cli_portify.models import MonitorState
+
         mon = OutputMonitor()
         expected = {
-            "output_bytes", "growth_rate_bps", "stall_seconds", "events",
-            "line_count", "convergence_iteration", "findings_count", "placeholder_count",
+            "output_bytes",
+            "growth_rate_bps",
+            "stall_seconds",
+            "events",
+            "line_count",
+            "convergence_iteration",
+            "findings_count",
+            "placeholder_count",
         }
         assert set(MonitorState.__dataclass_fields__.keys()) == expected
 
     def test_monitor_complete_set_convergence_iteration(self):
         """set_convergence_iteration(2) updates monitor.convergence_iteration to 2."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.set_convergence_iteration(2)
         assert mon.state.convergence_iteration == 2
@@ -410,6 +440,7 @@ class TestOutputMonitorComplete:
     def test_monitor_complete_increment_findings(self):
         """increment_findings() accumulates count."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.increment_findings(3)
         mon.increment_findings(2)
@@ -418,6 +449,7 @@ class TestOutputMonitorComplete:
     def test_monitor_complete_set_placeholder_count(self):
         """set_placeholder_count(0) reflects in monitor state."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.set_placeholder_count(7)
         assert mon.state.placeholder_count == 7
@@ -427,6 +459,7 @@ class TestOutputMonitorComplete:
     def test_monitor_complete_initial_state_all_zero(self):
         """All 8 fields initialize to zero."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         assert mon.state.output_bytes == 0
         assert mon.state.growth_rate_bps == 0.0
@@ -447,6 +480,7 @@ class TestConvergenceTracking:
     def test_convergence_tracking_iteration_sequence(self):
         """set_convergence_iteration() advances through 1, 2, 3."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         for i in range(1, 4):
             mon.set_convergence_iteration(i)
@@ -455,6 +489,7 @@ class TestConvergenceTracking:
     def test_convergence_tracking_findings_accumulate(self):
         """increment_findings() called multiple times accumulates."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.increment_findings(5)
         mon.increment_findings(3)
@@ -463,6 +498,7 @@ class TestConvergenceTracking:
     def test_convergence_tracking_placeholder_scan_result(self):
         """set_placeholder_count() reflects scan result correctly."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.set_placeholder_count(12)
         assert mon.state.placeholder_count == 12
@@ -473,6 +509,7 @@ class TestConvergenceTracking:
     def test_convergence_tracking_combined_state(self):
         """All convergence state fields updated in concert."""
         from superclaude.cli.cli_portify.monitor import OutputMonitor
+
         mon = OutputMonitor()
         mon.set_convergence_iteration(2)
         mon.increment_findings(4)

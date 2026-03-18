@@ -58,7 +58,9 @@ class TestPromptBuilderRegistry:
 
     def test_all_builders_extend_base(self):
         for name, cls in PROMPT_BUILDERS.items():
-            assert issubclass(cls, BasePromptBuilder), f"{name} does not extend BasePromptBuilder"
+            assert issubclass(cls, BasePromptBuilder), (
+                f"{name} does not extend BasePromptBuilder"
+            )
 
     def test_get_prompt_builder_returns_correct_type(self, ctx):
         builder = get_prompt_builder("analyze-workflow", ctx)
@@ -75,7 +77,9 @@ class TestAtPathReferences:
     def test_analyze_workflow_refs_inventory(self, ctx):
         builder = AnalyzeWorkflowPrompt(ctx)
         prompt = builder.build()
-        expected_ref = str((ctx.work_dir / "results" / "component-inventory.md").resolve())
+        expected_ref = str(
+            (ctx.work_dir / "results" / "component-inventory.md").resolve()
+        )
         assert f"@{expected_ref}" in prompt
 
     def test_design_pipeline_refs_two_artifacts(self, ctx):

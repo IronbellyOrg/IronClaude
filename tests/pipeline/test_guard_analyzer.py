@@ -38,7 +38,9 @@ class TestGuardAnalyzer:
         assert len(results) >= 1
 
         # Find the type change detection
-        type_detections = [r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT]
+        type_detections = [
+            r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT
+        ]
         assert len(type_detections) >= 1
 
         det = type_detections[0]
@@ -52,7 +54,10 @@ class TestGuardAnalyzer:
         assert len(zero_states[0].semantic_meanings) >= 2
         # Both meanings documented
         meanings_text = [m.meaning for m in zero_states[0].semantic_meanings]
-        assert any("replay" in m or "no events" in m or "start offset" in m for m in meanings_text)
+        assert any(
+            "replay" in m or "no events" in m or "start offset" in m
+            for m in meanings_text
+        )
 
     def test_boolean_clear_semantics_no_flag(self):
         """Scenario 2: Boolean guard with clear true/false semantics -> no ambiguity flag."""
@@ -77,7 +82,9 @@ class TestGuardAnalyzer:
             "Replace boolean enabled with 3-state enum (ACTIVE, PAUSED, DISABLED)"
         )
         results = detect_guards([d])
-        type_detections = [r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_ENUM]
+        type_detections = [
+            r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_ENUM
+        ]
         assert len(type_detections) >= 1
 
         det = type_detections[0]
@@ -93,7 +100,9 @@ class TestGuardAnalyzer:
             "Replace boolean processed with integer count for tracking"
         )
         results = detect_guards([d])
-        type_detections = [r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT]
+        type_detections = [
+            r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT
+        ]
         assert len(type_detections) >= 1
 
         det = type_detections[0]
@@ -109,7 +118,9 @@ class TestGuardAnalyzer:
             "Replace boolean replay guard with integer offset for tracking events"
         )
         results = detect_guards([d])
-        type_detections = [r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT]
+        type_detections = [
+            r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT
+        ]
         assert len(type_detections) >= 1
 
         det = type_detections[0]
@@ -121,7 +132,9 @@ class TestGuardAnalyzer:
             "Replace boolean guard with integer offset @no-ambiguity-check(zero semantics documented in ADR-42)"
         )
         results = detect_guards([d])
-        type_detections = [r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT]
+        type_detections = [
+            r for r in results if r.type_transition == TypeTransitionKind.BOOL_TO_INT
+        ]
         assert len(type_detections) >= 1
 
         det = type_detections[0]

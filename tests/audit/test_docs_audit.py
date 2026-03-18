@@ -46,14 +46,18 @@ class TestCheckBrokenLinks:
     def test_existing_link_not_broken(self):
         known = {"docs/guide.md"}
         broken = check_broken_links(
-            "docs/README.md", "[Guide](guide.md)", known,
+            "docs/README.md",
+            "[Guide](guide.md)",
+            known,
         )
         assert len(broken) == 0
 
     def test_missing_link_detected(self):
         known = {"docs/README.md"}
         broken = check_broken_links(
-            "docs/README.md", "[Guide](./missing.md)", known,
+            "docs/README.md",
+            "[Guide](./missing.md)",
+            known,
         )
         assert len(broken) == 1
         assert broken[0].target_path == "./missing.md"
@@ -72,8 +76,10 @@ class TestCheckStaleness:
     def test_stale_doc(self):
         now = datetime(2026, 3, 5, tzinfo=timezone.utc)
         result = check_staleness(
-            "old.md", "2024-01-01T00:00:00+00:00",
-            threshold_days=365, current_date=now,
+            "old.md",
+            "2024-01-01T00:00:00+00:00",
+            threshold_days=365,
+            current_date=now,
         )
         assert result is not None
         assert result.days_stale > 365
@@ -81,8 +87,10 @@ class TestCheckStaleness:
     def test_fresh_doc(self):
         now = datetime(2026, 3, 5, tzinfo=timezone.utc)
         result = check_staleness(
-            "new.md", "2026-01-01T00:00:00+00:00",
-            threshold_days=365, current_date=now,
+            "new.md",
+            "2026-01-01T00:00:00+00:00",
+            threshold_days=365,
+            current_date=now,
         )
         assert result is None
 
@@ -104,8 +112,11 @@ class TestAuditDocs:
             "docs/old.md": "2023-01-01T00:00:00+00:00",
         }
         result = audit_docs(
-            doc_files, known_files, last_modified,
-            threshold_days=365, current_date=now,
+            doc_files,
+            known_files,
+            last_modified,
+            threshold_days=365,
+            current_date=now,
         )
         # 1 broken link (missing.md)
         assert result.broken_links[0].target_path == "./missing.md"

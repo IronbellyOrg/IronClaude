@@ -16,6 +16,7 @@ from ..pipeline.models import GateCriteria, SemanticCheck
 
 # --- Semantic check functions (pure: content -> bool) ---
 
+
 def _no_heading_gaps(content: str) -> bool:
     """Verify heading levels increment by at most 1 (no H2 -> H4 skip)."""
     prev_level = 0
@@ -122,8 +123,9 @@ def _frontmatter_values_non_empty(content: str) -> bool:
 def _has_actionable_content(content: str) -> bool:
     """At least one section contains numbered or bulleted items."""
     import re
+
     # Look for markdown list items: "- ", "* ", "1. ", "2. ", etc.
-    return bool(re.search(r'^\s*(?:[-*]|\d+\.)\s+\S', content, re.MULTILINE))
+    return bool(re.search(r"^\s*(?:[-*]|\d+\.)\s+\S", content, re.MULTILINE))
 
 
 def _parse_frontmatter(content: str) -> dict[str, str] | None:
@@ -171,9 +173,7 @@ def _high_severity_count_zero(content: str) -> bool:
     try:
         count = int(value)
     except (ValueError, TypeError):
-        raise TypeError(
-            f"high_severity_count must be an integer, got: {value!r}"
-        )
+        raise TypeError(f"high_severity_count must be an integer, got: {value!r}")
 
     return count == 0
 
@@ -185,17 +185,22 @@ def _has_per_finding_table(content: str) -> bool:
     Finding | Severity | Result | Justification
     """
     import re
+
     # Look for the table header row with required columns
-    has_header = bool(re.search(
-        r"\|\s*Finding\s*\|\s*Severity\s*\|\s*Result\s*\|\s*Justification\s*\|",
-        content,
-        re.IGNORECASE,
-    ))
+    has_header = bool(
+        re.search(
+            r"\|\s*Finding\s*\|\s*Severity\s*\|\s*Result\s*\|\s*Justification\s*\|",
+            content,
+            re.IGNORECASE,
+        )
+    )
     # Also check for at least one data row (| F-XX | ... |)
-    has_data = bool(re.search(
-        r"\|\s*F-\d+\s*\|",
-        content,
-    ))
+    has_data = bool(
+        re.search(
+            r"\|\s*F-\d+\s*\|",
+            content,
+        )
+    )
     return has_header and has_data
 
 
@@ -469,7 +474,13 @@ def _total_analyzed_consistent(content: str) -> bool:
     if fm is None:
         return False
 
-    fields = ["total_analyzed", "slip_count", "intentional_count", "pre_approved_count", "ambiguous_count"]
+    fields = [
+        "total_analyzed",
+        "slip_count",
+        "intentional_count",
+        "pre_approved_count",
+        "ambiguous_count",
+    ]
     values: dict[str, int] = {}
     for f in fields:
         raw = fm.get(f)
@@ -480,7 +491,12 @@ def _total_analyzed_consistent(content: str) -> bool:
         except (ValueError, TypeError):
             return False
 
-    expected_total = values["slip_count"] + values["intentional_count"] + values["pre_approved_count"] + values["ambiguous_count"]
+    expected_total = (
+        values["slip_count"]
+        + values["intentional_count"]
+        + values["pre_approved_count"]
+        + values["ambiguous_count"]
+    )
     return values["total_analyzed"] == expected_total
 
 
@@ -518,6 +534,114 @@ def _total_annotated_consistent(content: str) -> bool:
     return total_annotated == total_components
 
 
+def _complexity_class_valid(content: str) -> bool:
+    """Validate complexity_class is one of LOW, MEDIUM, HIGH (case-insensitive)."""
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("complexity_class")
+    if value is None:
+        return False
+
+    return value.strip().upper() in ("LOW", "MEDIUM", "HIGH")
+
+
+def _extraction_mode_valid(content: str) -> bool:
+    """Validate extraction_mode is 'standard' or starts with 'chunked' (case-insensitive).
+
+    Accepts: 'standard', 'chunked', 'chunked (3 chunks)', etc.
+    Rejects: 'full', 'partial', 'incremental'.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("extraction_mode")
+    if value is None:
+        return False
+
+    normalized = value.strip().lower()
+    return normalized == "standard" or normalized.startswith("chunked")
+
+
+def _interleave_ratio_consistent(content: str) -> bool:
+    """Validate interleave_ratio is consistent with complexity_class.
+
+    Required mapping: LOW→1:3, MEDIUM→1:2, HIGH→1:1.
+    Rejects mismatches like LOW+1:1 or HIGH+1:3.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    complexity = fm.get("complexity_class")
+    ratio = fm.get("interleave_ratio")
+    if complexity is None or ratio is None:
+        return False
+
+    expected = {
+        "LOW": "1:3",
+        "MEDIUM": "1:2",
+        "HIGH": "1:1",
+    }
+    normalized_complexity = complexity.strip().upper()
+    expected_ratio = expected.get(normalized_complexity)
+    if expected_ratio is None:
+        return False
+
+    return ratio.strip() == expected_ratio
+
+
+def _milestone_counts_positive(content: str) -> bool:
+    """Validate validation_milestones and work_milestones are positive integers."""
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    for field in ("validation_milestones", "work_milestones"):
+        value = fm.get(field)
+        if value is None:
+            return False
+        try:
+            count = int(value)
+        except (ValueError, TypeError):
+            return False
+        if count <= 0:
+            return False
+
+    return True
+
+
+def _validation_philosophy_correct(content: str) -> bool:
+    """Validate validation_philosophy is exactly 'continuous-parallel' (hyphenated).
+
+    Rejects: 'continuous_parallel' (underscore), 'continuous parallel' (space).
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("validation_philosophy")
+    if value is None:
+        return False
+
+    return value.strip() == "continuous-parallel"
+
+
+def _major_issue_policy_correct(content: str) -> bool:
+    """Validate major_issue_policy is exactly 'stop-and-fix'."""
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("major_issue_policy")
+    if value is None:
+        return False
+
+    return value.strip() == "stop-and-fix"
+
+
 # --- GateCriteria instances ---
 
 EXTRACT_GATE = GateCriteria(
@@ -538,6 +662,18 @@ EXTRACT_GATE = GateCriteria(
     ],
     min_lines=50,
     enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="complexity_class_valid",
+            check_fn=_complexity_class_valid,
+            failure_message="complexity_class must be one of LOW, MEDIUM, HIGH",
+        ),
+        SemanticCheck(
+            name="extraction_mode_valid",
+            check_fn=_extraction_mode_valid,
+            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+        ),
+    ],
 )
 
 GENERATE_A_GATE = GateCriteria(
@@ -625,9 +761,46 @@ MERGE_GATE = GateCriteria(
 )
 
 TEST_STRATEGY_GATE = GateCriteria(
-    required_frontmatter_fields=["validation_milestones", "interleave_ratio"],
+    required_frontmatter_fields=[
+        "spec_source",
+        "generated",
+        "generator",
+        "complexity_class",
+        "validation_philosophy",
+        "validation_milestones",
+        "work_milestones",
+        "interleave_ratio",
+        "major_issue_policy",
+    ],
     min_lines=40,
-    enforcement_tier="STANDARD",
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="complexity_class_valid",
+            check_fn=_complexity_class_valid,
+            failure_message="complexity_class must be one of LOW, MEDIUM, HIGH",
+        ),
+        SemanticCheck(
+            name="interleave_ratio_consistent",
+            check_fn=_interleave_ratio_consistent,
+            failure_message="interleave_ratio must match complexity_class: LOW→1:3, MEDIUM→1:2, HIGH→1:1",
+        ),
+        SemanticCheck(
+            name="milestone_counts_positive",
+            check_fn=_milestone_counts_positive,
+            failure_message="validation_milestones and work_milestones must be positive integers",
+        ),
+        SemanticCheck(
+            name="validation_philosophy_correct",
+            check_fn=_validation_philosophy_correct,
+            failure_message="validation_philosophy must be exactly 'continuous-parallel' (hyphenated)",
+        ),
+        SemanticCheck(
+            name="major_issue_policy_correct",
+            check_fn=_major_issue_policy_correct,
+            failure_message="major_issue_policy must be exactly 'stop-and-fix'",
+        ),
+    ],
 )
 
 SPEC_FIDELITY_GATE = GateCriteria(

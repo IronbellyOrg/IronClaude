@@ -83,6 +83,7 @@ NDJSON_WHITESPACE_ONLY = "   \n\n   \n"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _write_output(tmp_path: Path, content: str, name: str = "output.txt") -> Path:
     """Write synthetic NDJSON content to a temporary file."""
     p = tmp_path / name
@@ -93,6 +94,7 @@ def _write_output(tmp_path: Path, content: str, name: str = "output.txt") -> Pat
 # ---------------------------------------------------------------------------
 # Test Suite 1: Regex pattern matching (ERROR_MAX_TURNS_PATTERN)
 # ---------------------------------------------------------------------------
+
 
 class TestErrorMaxTurnsPattern:
     """Verify the regex matches real and varied NDJSON error_max_turns lines."""
@@ -131,6 +133,7 @@ class TestErrorMaxTurnsPattern:
 # Test Suite 2: detect_error_max_turns() function
 # ---------------------------------------------------------------------------
 
+
 class TestDetectErrorMaxTurns:
     """Verify the file-level detection function scans the last NDJSON line."""
 
@@ -168,6 +171,7 @@ class TestDetectErrorMaxTurns:
 # ---------------------------------------------------------------------------
 # Test Suite 3: _determine_phase_status() reclassification
 # ---------------------------------------------------------------------------
+
 
 class TestDeterminePhaseStatusReclassification:
     """Verify the executor reclassifies PASS_NO_REPORT to INCOMPLETE
@@ -267,6 +271,7 @@ class TestDeterminePhaseStatusReclassification:
 # ---------------------------------------------------------------------------
 # Test Suite 4: PhaseStatus.INCOMPLETE properties
 # ---------------------------------------------------------------------------
+
 
 class TestPhaseStatusIncompleteProperties:
     """Confirm INCOMPLETE is classified correctly in the status hierarchy."""

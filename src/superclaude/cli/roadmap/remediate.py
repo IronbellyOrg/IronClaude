@@ -58,7 +58,9 @@ def format_validation_summary(findings: list[Finding]) -> str:
 
     total = len(findings)
     lines.append(f"  Total findings: {total}")
-    lines.append(f"  BLOCKING: {len(blocking)}  |  WARNING: {len(warning)}  |  INFO: {len(info)}")
+    lines.append(
+        f"  BLOCKING: {len(blocking)}  |  WARNING: {len(warning)}  |  INFO: {len(info)}"
+    )
     lines.append("")
 
     if blocking:
@@ -246,22 +248,24 @@ def generate_stub_tasklist(
     source_hash = hashlib.sha256(source_report_content.encode("utf-8")).hexdigest()
     generated = datetime.now(timezone.utc).isoformat()
 
-    return "\n".join([
-        "---",
-        "type: remediation-tasklist",
-        f"source_report: {source_report_path}",
-        f"source_report_hash: {source_hash}",
-        f"generated: {generated}",
-        "total_findings: 0",
-        "actionable: 0",
-        "skipped: 0",
-        "---",
-        "",
-        "# Remediation Tasklist",
-        "",
-        "No actionable findings. All entries SKIPPED or no findings detected.",
-        "",
-    ])
+    return "\n".join(
+        [
+            "---",
+            "type: remediation-tasklist",
+            f"source_report: {source_report_path}",
+            f"source_report_hash: {source_hash}",
+            f"generated: {generated}",
+            "total_findings: 0",
+            "actionable: 0",
+            "skipped: 0",
+            "---",
+            "",
+            "# Remediation Tasklist",
+            "",
+            "No actionable findings. All entries SKIPPED or no findings detected.",
+            "",
+        ]
+    )
 
 
 def _parse_routing_list(routing_value: str) -> list[str]:

@@ -102,11 +102,13 @@ class TestGateResultQueue:
 
         def producer(start_id: int, count: int):
             for i in range(count):
-                q.put(TrailingGateResult(
-                    step_id=f"s{start_id + i}",
-                    passed=True,
-                    evaluation_ms=float(i),
-                ))
+                q.put(
+                    TrailingGateResult(
+                        step_id=f"s{start_id + i}",
+                        passed=True,
+                        evaluation_ms=float(i),
+                    )
+                )
 
         def consumer(collected: list):
             time.sleep(0.05)  # let producers get ahead
@@ -136,7 +138,11 @@ class TestGateResultQueue:
         """Results are associated with correct step_id (no cross-contamination)."""
         q = GateResultQueue()
         q.put(TrailingGateResult(step_id="alpha", passed=True, evaluation_ms=1.0))
-        q.put(TrailingGateResult(step_id="beta", passed=False, evaluation_ms=2.0, failure_reason="bad"))
+        q.put(
+            TrailingGateResult(
+                step_id="beta", passed=False, evaluation_ms=2.0, failure_reason="bad"
+            )
+        )
         results = q.drain()
         by_id = {r.step_id: r for r in results}
         assert by_id["alpha"].passed is True
@@ -260,7 +266,9 @@ class TestDeferredRemediationLog:
 
     def test_append_and_pending(self):
         log = DeferredRemediationLog()
-        result = TrailingGateResult(step_id="s1", passed=False, evaluation_ms=10.0, failure_reason="bad output")
+        result = TrailingGateResult(
+            step_id="s1", passed=False, evaluation_ms=10.0, failure_reason="bad output"
+        )
         log.append(result)
         pending = log.pending_remediations()
         assert len(pending) == 1
@@ -269,7 +277,11 @@ class TestDeferredRemediationLog:
 
     def test_mark_remediated(self):
         log = DeferredRemediationLog()
-        log.append(TrailingGateResult(step_id="s1", passed=False, evaluation_ms=1.0, failure_reason="fail"))
+        log.append(
+            TrailingGateResult(
+                step_id="s1", passed=False, evaluation_ms=1.0, failure_reason="fail"
+            )
+        )
         assert len(log.pending_remediations()) == 1
         assert log.mark_remediated("s1") is True
         assert len(log.pending_remediations()) == 0
@@ -281,8 +293,16 @@ class TestDeferredRemediationLog:
     def test_serialize_deserialize(self):
         """Serialization to disk produces valid JSON; deserialize recovers exact state."""
         log = DeferredRemediationLog()
-        log.append(TrailingGateResult(step_id="s1", passed=False, evaluation_ms=1.0, failure_reason="fail1"))
-        log.append(TrailingGateResult(step_id="s2", passed=False, evaluation_ms=2.0, failure_reason="fail2"))
+        log.append(
+            TrailingGateResult(
+                step_id="s1", passed=False, evaluation_ms=1.0, failure_reason="fail1"
+            )
+        )
+        log.append(
+            TrailingGateResult(
+                step_id="s2", passed=False, evaluation_ms=2.0, failure_reason="fail2"
+            )
+        )
         log.mark_remediated("s1")
 
         json_str = log.serialize()
@@ -299,7 +319,11 @@ class TestDeferredRemediationLog:
         """Persistence to disk and recovery for --resume."""
         persist_path = tmp_path / "remediation.json"
         log = DeferredRemediationLog(persist_path=persist_path)
-        log.append(TrailingGateResult(step_id="s1", passed=False, evaluation_ms=1.0, failure_reason="fail"))
+        log.append(
+            TrailingGateResult(
+                step_id="s1", passed=False, evaluation_ms=1.0, failure_reason="fail"
+            )
+        )
 
         assert persist_path.exists()
         content = persist_path.read_text()
@@ -324,10 +348,14 @@ class TestDeferredRemediationLog:
 
         def writer():
             for i in range(20):
-                log.append(TrailingGateResult(
-                    step_id=f"w-{i}", passed=False,
-                    evaluation_ms=float(i), failure_reason=f"fail-{i}",
-                ))
+                log.append(
+                    TrailingGateResult(
+                        step_id=f"w-{i}",
+                        passed=False,
+                        evaluation_ms=float(i),
+                        failure_reason=f"fail-{i}",
+                    )
+                )
 
         def reader():
             for _ in range(20):
@@ -361,8 +389,13 @@ class TestScopeGateStrategy:
     def test_release_always_blocking(self):
         """Release gates are always BLOCKING regardless of configuration."""
         assert resolve_gate_mode(GateScope.RELEASE) == GateMode.BLOCKING
-        assert resolve_gate_mode(GateScope.RELEASE, GateMode.TRAILING) == GateMode.BLOCKING
-        assert resolve_gate_mode(GateScope.RELEASE, GateMode.TRAILING, grace_period=60) == GateMode.BLOCKING
+        assert (
+            resolve_gate_mode(GateScope.RELEASE, GateMode.TRAILING) == GateMode.BLOCKING
+        )
+        assert (
+            resolve_gate_mode(GateScope.RELEASE, GateMode.TRAILING, grace_period=60)
+            == GateMode.BLOCKING
+        )
 
     def test_milestone_default_blocking(self):
         """Milestone gates default to BLOCKING."""
@@ -370,7 +403,10 @@ class TestScopeGateStrategy:
 
     def test_milestone_configurable_trailing(self):
         """Milestone gates configurable to TRAILING."""
-        assert resolve_gate_mode(GateScope.MILESTONE, GateMode.TRAILING) == GateMode.TRAILING
+        assert (
+            resolve_gate_mode(GateScope.MILESTONE, GateMode.TRAILING)
+            == GateMode.TRAILING
+        )
 
     def test_task_default_blocking_no_grace(self):
         """Task gates default to BLOCKING when grace_period=0."""
@@ -397,9 +433,13 @@ class TestExecutorBranchLogic:
         def runner(step, config, cancel_check):
             now = datetime.now(timezone.utc)
             return StepResult(
-                step=step, status=status, attempt=1,
-                started_at=now, finished_at=now,
+                step=step,
+                status=status,
+                attempt=1,
+                started_at=now,
+                finished_at=now,
             )
+
         return runner
 
     def test_blocking_mode_synchronous(self, tmp_path):
@@ -450,7 +490,9 @@ class TestExecutorBranchLogic:
             min_lines=3,
             enforcement_tier="STANDARD",
         )
-        step1 = _make_step(step_id="t1", gate=gate, gate_mode=GateMode.TRAILING, tmp_path=tmp_path)
+        step1 = _make_step(
+            step_id="t1", gate=gate, gate_mode=GateMode.TRAILING, tmp_path=tmp_path
+        )
         step2 = _make_step(step_id="t2", gate=None, tmp_path=tmp_path)
 
         # Create passing output for step1
@@ -506,11 +548,13 @@ class TestTrailingGatePolicy:
     def test_protocol_is_importable(self):
         """TrailingGatePolicy is importable from pipeline module."""
         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy
+
         assert TrailingGatePolicy is not None
 
     def test_protocol_is_runtime_checkable(self):
         """TrailingGatePolicy is runtime_checkable."""
         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy
+
         assert hasattr(TrailingGatePolicy, "__protocol_attrs__") or hasattr(
             TrailingGatePolicy, "_is_runtime_protocol"
         )
@@ -533,8 +577,10 @@ class TestTrailingGatePolicy:
         config = SprintConfig(index_path=Path("test.md"), work_dir=tmp_path)
         policy = SprintGatePolicy(config)
         gate_result = TrailingGateResult(
-            step_id="task-1", passed=False,
-            evaluation_ms=50.0, failure_reason="Missing required field 'title'",
+            step_id="task-1",
+            passed=False,
+            evaluation_ms=50.0,
+            failure_reason="Missing required field 'title'",
         )
         step = policy.build_remediation_step(gate_result)
         assert step.id == "task-1_remediation"
@@ -552,8 +598,11 @@ class TestTrailingGatePolicy:
         output_file = tmp_path / "output.md"
         output_file.write_text("content")
         step = Step(
-            id="s1", prompt="test", output_file=output_file,
-            gate=None, timeout_seconds=60,
+            id="s1",
+            prompt="test",
+            output_file=output_file,
+            gate=None,
+            timeout_seconds=60,
         )
         result = StepResult(step=step, status=StepStatus.PASS)
         changed = policy.files_changed(result)
@@ -568,8 +617,11 @@ class TestTrailingGatePolicy:
         policy = SprintGatePolicy(config)
 
         step = Step(
-            id="s1", prompt="test", output_file=tmp_path / "nonexistent.md",
-            gate=None, timeout_seconds=60,
+            id="s1",
+            prompt="test",
+            output_file=tmp_path / "nonexistent.md",
+            gate=None,
+            timeout_seconds=60,
         )
         result = StepResult(step=step, status=StepStatus.FAIL)
         changed = policy.files_changed(result)
@@ -598,12 +650,18 @@ class TestRemediationPrompt:
         from superclaude.cli.pipeline.trailing_gate import build_remediation_prompt
 
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="Missing required field 'title'",
         )
-        step = _make_step(gate=GateCriteria(
-            required_frontmatter_fields=["title"], min_lines=3,
-        ), tmp_path=tmp_path)
+        step = _make_step(
+            gate=GateCriteria(
+                required_frontmatter_fields=["title"],
+                min_lines=3,
+            ),
+            tmp_path=tmp_path,
+        )
         prompt = build_remediation_prompt(gate_result, step)
         assert "Missing required field 'title'" in prompt
 
@@ -617,7 +675,9 @@ class TestRemediationPrompt:
             enforcement_tier="STRICT",
         )
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="Too few lines",
         )
         step = _make_step(gate=gate, tmp_path=tmp_path)
@@ -632,7 +692,9 @@ class TestRemediationPrompt:
         from superclaude.cli.pipeline.trailing_gate import build_remediation_prompt
 
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="fail",
         )
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -646,7 +708,9 @@ class TestRemediationPrompt:
         from superclaude.cli.pipeline.trailing_gate import build_remediation_prompt
 
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="fail",
         )
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -659,12 +723,18 @@ class TestRemediationPrompt:
         from superclaude.cli.pipeline.trailing_gate import build_remediation_prompt
 
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="fail",
         )
-        step = _make_step(gate=GateCriteria(
-            required_frontmatter_fields=["title"], min_lines=3,
-        ), tmp_path=tmp_path)
+        step = _make_step(
+            gate=GateCriteria(
+                required_frontmatter_fields=["title"],
+                min_lines=3,
+            ),
+            tmp_path=tmp_path,
+        )
         prompt1 = build_remediation_prompt(gate_result, step)
         prompt2 = build_remediation_prompt(gate_result, step)
         assert prompt1 == prompt2
@@ -674,7 +744,9 @@ class TestRemediationPrompt:
         from superclaude.cli.pipeline.trailing_gate import build_remediation_prompt
 
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="External failure",
         )
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -693,14 +765,17 @@ class TestRemediationRetry:
 
     def _make_gate_result(self, passed: bool, reason: str | None = None):
         return TrailingGateResult(
-            step_id="s1", passed=passed,
-            evaluation_ms=10.0, failure_reason=reason,
+            step_id="s1",
+            passed=passed,
+            evaluation_ms=10.0,
+            failure_reason=reason,
         )
 
     def test_pass_first_attempt(self, tmp_path):
         """Task passes gate on first remediation attempt."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus, attempt_remediation,
+            RemediationRetryStatus,
+            attempt_remediation,
         )
 
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -723,7 +798,8 @@ class TestRemediationRetry:
     def test_fail_then_pass(self, tmp_path):
         """Task fails first attempt, passes on second."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus, attempt_remediation,
+            RemediationRetryStatus,
+            attempt_remediation,
         )
 
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -751,7 +827,8 @@ class TestRemediationRetry:
     def test_persistent_failure(self, tmp_path):
         """Both attempts fail -> PERSISTENT_FAILURE, both debited."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus, attempt_remediation,
+            RemediationRetryStatus,
+            attempt_remediation,
         )
 
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -774,7 +851,8 @@ class TestRemediationRetry:
     def test_budget_exhausted_before_first_attempt(self, tmp_path):
         """can_remediate() returns False -> BUDGET_EXHAUSTED, no attempts."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus, attempt_remediation,
+            RemediationRetryStatus,
+            attempt_remediation,
         )
 
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -795,7 +873,8 @@ class TestRemediationRetry:
     def test_budget_exhausted_before_second_attempt(self, tmp_path):
         """Budget exhausted after first fail, before second attempt."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus, attempt_remediation,
+            RemediationRetryStatus,
+            attempt_remediation,
         )
 
         step = _make_step(gate=None, tmp_path=tmp_path)
@@ -821,7 +900,8 @@ class TestRemediationRetry:
     def test_can_remediate_checked_before_each_attempt(self, tmp_path):
         """can_remediate() is called before each attempt (Gap 1 compliance)."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus, attempt_remediation,
+            RemediationRetryStatus,
+            attempt_remediation,
         )
 
         step = _make_step(gate=None, tmp_path=tmp_path)

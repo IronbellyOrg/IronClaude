@@ -62,7 +62,9 @@ def validate(path: str) -> int:
         items.append((current_item_id, "\n".join(current_lines)))
 
     if not items:
-        errors.append("ERROR: No item sections found (no '### ITEM-ID —' headings detected)")
+        errors.append(
+            "ERROR: No item sections found (no '### ITEM-ID —' headings detected)"
+        )
         print(f"Schema validation FAILED: {len(errors)} error(s)")
         for e in errors:
             print(f"  {e}")
@@ -89,7 +91,9 @@ def validate(path: str) -> int:
 
         # Check effort field present (optional per D-0030 but expected in this backlog)
         if not VALID_EFFORT.search(item_text):
-            warnings.append(f"WARN [{item_id}]: Missing **Effort**: field (optional per D-0030)")
+            warnings.append(
+                f"WARN [{item_id}]: Missing **Effort**: field (optional per D-0030)"
+            )
 
         # Check change description has at least one file path reference
         if re.search(r"\*\*Change description\*\*:", item_text):

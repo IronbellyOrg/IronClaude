@@ -64,12 +64,7 @@ class TestDuplicateDIDDetection:
 
     def test_unique_headings_pass(self):
         """Unique headings pass the check."""
-        content = (
-            "## Phase 1\n"
-            "### D-001: Auth\n"
-            "## Phase 2\n"
-            "### D-002: Database\n"
-        )
+        content = "## Phase 1\n### D-001: Auth\n## Phase 2\n### D-002: Database\n"
         assert _no_duplicate_headings(content) is True
 
     def test_gate_rejects_duplicate_headings_in_strict_mode(self, tmp_path):
@@ -93,8 +88,7 @@ class TestDuplicateDIDDetection:
             "### D-001: Module A\n"
             "Content\n"
             "### D-001: Module A\n"  # Duplicate
-            "More content\n"
-            + "\n".join(f"line {i}" for i in range(10)),
+            "More content\n" + "\n".join(f"line {i}" for i in range(10)),
         )
         passed, reason = gate_passed(f, gate)
         assert passed is False
@@ -112,8 +106,7 @@ class TestMissingMilestoneDetection:
             "blocking_issues_count: 0\n"
             "warnings_count: 0\n"
             # tasklist_ready missing!
-            "---\n"
-            + "\n".join(f"line {i}" for i in range(25)),
+            "---\n" + "\n".join(f"line {i}" for i in range(25)),
         )
         passed, reason = gate_passed(f, REFLECT_GATE)
         assert passed is False
@@ -129,8 +122,7 @@ class TestMissingMilestoneDetection:
             "tasklist_ready: true\n"
             # validation_mode missing!
             "validation_agents: opus,haiku\n"
-            "---\n"
-            + "\n".join(f"line {i}" for i in range(35)),
+            "---\n" + "\n".join(f"line {i}" for i in range(35)),
         )
         passed, reason = gate_passed(f, ADVERSARIAL_MERGE_GATE)
         assert passed is False
@@ -144,8 +136,7 @@ class TestMissingMilestoneDetection:
             "blocking_issues_count: 0\n"
             "warnings_count: 0\n"
             "tasklist_ready: true\n"
-            "---\n"
-            + "\n".join(f"line {i}" for i in range(25))
+            "---\n" + "\n".join(f"line {i}" for i in range(25))
         )
         f.write_text(content)
         passed, reason = gate_passed(f, REFLECT_GATE)
@@ -170,11 +161,7 @@ class TestUntracedRequirementDetection:
     def test_all_empty_values_detected(self):
         """All-empty frontmatter values are rejected."""
         content = (
-            "---\n"
-            "blocking_issues_count: \n"
-            "warnings_count: \n"
-            "tasklist_ready: \n"
-            "---\n"
+            "---\nblocking_issues_count: \nwarnings_count: \ntasklist_ready: \n---\n"
         )
         assert _frontmatter_values_non_empty(content) is False
 
@@ -204,8 +191,7 @@ class TestUntracedRequirementDetection:
             "## Agreement Table\n"
             "| Item | Agreement |\n"
             "|------|----------|\n"
-            "| R-001 | Yes |\n"
-            + "\n".join(f"line {i}" for i in range(25)),
+            "| R-001 | Yes |\n" + "\n".join(f"line {i}" for i in range(25)),
         )
         passed, reason = gate_passed(f, ADVERSARIAL_MERGE_GATE)
         assert passed is False
@@ -226,12 +212,7 @@ class TestCrossFileInconsistencyDetection:
 
     def test_no_heading_gap_passes(self):
         """Proper heading hierarchy passes."""
-        content = (
-            "## Phase 1\n"
-            "### Milestone 1\n"
-            "#### D-001: Implementation\n"
-            "Content\n"
-        )
+        content = "## Phase 1\n### Milestone 1\n#### D-001: Implementation\nContent\n"
         assert _no_heading_gaps(content) is True
 
     def test_missing_agreement_table_in_adversarial_merge(self, tmp_path):
@@ -250,8 +231,7 @@ class TestCrossFileInconsistencyDetection:
             "No findings.\n"
             "\n"
             "## Summary\n"
-            "All good.\n"
-            + "\n".join(f"line {i}" for i in range(25)),
+            "All good.\n" + "\n".join(f"line {i}" for i in range(25)),
         )
         passed, reason = gate_passed(f, ADVERSARIAL_MERGE_GATE)
         assert passed is False

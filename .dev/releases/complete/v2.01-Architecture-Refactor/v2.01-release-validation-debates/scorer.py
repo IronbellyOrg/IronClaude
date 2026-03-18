@@ -23,6 +23,7 @@ def _tier_distance(actual: str, expected: str) -> int:
 
 # --- Prose fallback helpers ---
 
+
 def _find_prose_tier(output: str) -> str | None:
     """Find a tier name mentioned in prose output (not in a structured header).
 
@@ -37,8 +38,7 @@ def _find_prose_tier(output: str) -> str | None:
     # First, check if the output is enumerating tiers (lists 3+ tier names).
     # In that case, we need stronger contextual signal to identify the *selected* tier.
     tier_mention_counts = {
-        tier: len(re.findall(rf"\b{tier}\b", output))
-        for tier in TIER_ORDER
+        tier: len(re.findall(rf"\b{tier}\b", output)) for tier in TIER_ORDER
     }
     tiers_mentioned = sum(1 for c in tier_mention_counts.values() if c > 0)
     is_enumeration = tiers_mentioned >= 3
@@ -84,8 +84,7 @@ def _find_prose_tier(output: str) -> str | None:
         max_count = max(tier_mention_counts.values())
         if max_count >= 2:
             leaders = [
-                t for t, c in tier_mention_counts.items()
-                if c == max_count and c >= 2
+                t for t, c in tier_mention_counts.items() if c == max_count and c >= 2
             ]
             # Only return if exactly one tier dominates
             if len(leaders) == 1:
@@ -170,33 +169,51 @@ def _find_prose_keywords(output: str, expected_tier: str) -> float:
     # Tier-specific keyword families
     tier_keywords = {
         "STRICT": [
-            r"\bsecurit(?:y|ies)\b", r"\bvulnerabilit(?:y|ies)\b",
-            r"\bauth(?:entication|orization)?\b", r"\bdatabase\b",
-            r"\bmulti-?file\b", r"\brefactor\b", r"\bcompliance\b",
-            r"\bthreat\b", r"\bcritical\b",
+            r"\bsecurit(?:y|ies)\b",
+            r"\bvulnerabilit(?:y|ies)\b",
+            r"\bauth(?:entication|orization)?\b",
+            r"\bdatabase\b",
+            r"\bmulti-?file\b",
+            r"\brefactor\b",
+            r"\bcompliance\b",
+            r"\bthreat\b",
+            r"\bcritical\b",
         ],
         "STANDARD": [
-            r"\badd\b", r"\bimplement\b", r"\bfix\b", r"\bupdate\b",
-            r"\bfeature\b", r"\bendpoint\b", r"\bpagination\b",
-            r"\bdevelop\b", r"\bcreate\b",
+            r"\badd\b",
+            r"\bimplement\b",
+            r"\bfix\b",
+            r"\bupdate\b",
+            r"\bfeature\b",
+            r"\bendpoint\b",
+            r"\bpagination\b",
+            r"\bdevelop\b",
+            r"\bcreate\b",
         ],
         "LIGHT": [
-            r"\btypo\b", r"\bcomment\b", r"\bformatting\b",
-            r"\bminor\b", r"\btrivial\b", r"\bwhitespace\b",
+            r"\btypo\b",
+            r"\bcomment\b",
+            r"\bformatting\b",
+            r"\bminor\b",
+            r"\btrivial\b",
+            r"\bwhitespace\b",
             r"\bspelling\b",
         ],
         "EXEMPT": [
-            r"\bexplain\b", r"\bread-?only\b", r"\bsearch\b",
-            r"\bbrainstorm\b", r"\bgit\s+status\b", r"\bunderstand\b",
-            r"\bexploration\b", r"\bno\s+(?:code\s+)?modif(?:ication|y)\b",
+            r"\bexplain\b",
+            r"\bread-?only\b",
+            r"\bsearch\b",
+            r"\bbrainstorm\b",
+            r"\bgit\s+status\b",
+            r"\bunderstand\b",
+            r"\bexploration\b",
+            r"\bno\s+(?:code\s+)?modif(?:ication|y)\b",
         ],
     }
 
     # Check expected tier keywords
     expected_kws = tier_keywords.get(expected_tier.upper(), [])
-    matches = sum(
-        1 for pat in expected_kws if re.search(pat, output, re.IGNORECASE)
-    )
+    matches = sum(1 for pat in expected_kws if re.search(pat, output, re.IGNORECASE))
 
     if matches >= 2:
         return 1.0
@@ -205,8 +222,12 @@ def _find_prose_keywords(output: str, expected_tier: str) -> float:
 
     # General classification vocabulary
     general_patterns = [
-        r"\btier\b", r"\bclassif(?:y|ication)\b", r"\bcompliance\b",
-        r"\bscope\b", r"\brisk\b", r"\bseverity\b",
+        r"\btier\b",
+        r"\bclassif(?:y|ication)\b",
+        r"\bcompliance\b",
+        r"\bscope\b",
+        r"\brisk\b",
+        r"\bseverity\b",
     ]
     general_matches = sum(
         1 for pat in general_patterns if re.search(pat, output, re.IGNORECASE)
@@ -372,9 +393,7 @@ def score_classification(output: str, expected_tier: str) -> dict:
         "confidence_adequate": 0.20,
         "keywords_relevant": 0.15,
     }
-    scores["weighted_total"] = sum(
-        scores.get(k, 0) * w for k, w in weights.items()
-    )
+    scores["weighted_total"] = sum(scores.get(k, 0) * w for k, w in weights.items())
     scores["parsed"] = parsed or {}
 
     return scores
@@ -442,8 +461,6 @@ def score_wiring(output: str, detection_patterns: list[str]) -> dict:
         "no_raw_dump": 0.15,
         "tool_engagement": 0.15,
     }
-    scores["weighted_total"] = sum(
-        scores.get(k, 0) * w for k, w in weights.items()
-    )
+    scores["weighted_total"] = sum(scores.get(k, 0) * w for k, w in weights.items())
 
     return scores

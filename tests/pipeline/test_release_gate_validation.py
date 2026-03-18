@@ -61,7 +61,9 @@ class TestReleaseGateRule1Enforcement:
 
         if output.has_blocking_violations:
             for v in output.release_gate_violations:
-                accept_violation(v, "team_lead", "Reviewed and mitigated via boundary test")
+                accept_violation(
+                    v, "team_lead", "Reviewed and mitigated via boundary test"
+                )
 
             assert not output.has_blocking_violations
 
@@ -128,7 +130,9 @@ class TestPhase2ExitCriteria:
         base = "/config/workspace/SuperClaude_Framework/.dev/releases/complete/v.2.11-roadmap-v4/tasklist/artifacts"
 
         if not os.path.isdir(base):
-            pytest.skip(f"Artifact base directory not present in this environment: {base}")
+            pytest.skip(
+                f"Artifact base directory not present in this environment: {base}"
+            )
 
         for d_num in range(11, 29):
             d_dir = os.path.join(base, f"D-{d_num:04d}")
@@ -162,5 +166,7 @@ class TestPhase2ExitCriteria:
         domains = {"D5.1": [InputDomain(DomainCategory.ZERO, "Zero numeric input")]}
 
         results = classify_failure_modes([d], domains, invariant_entries=[])
-        silent = [r for r in results if r.detection_difficulty == DetectionDifficulty.SILENT]
+        silent = [
+            r for r in results if r.detection_difficulty == DetectionDifficulty.SILENT
+        ]
         assert len(silent) >= 1, "Signal 2 must detect independently"

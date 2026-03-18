@@ -44,7 +44,9 @@ def run_analyze_workflow(config: PortifyConfig) -> PortifyStepResult:
     Produces portify-analysis.md with 5 required sections (SC-003).
     """
     start = time.monotonic()
-    results_dir = config.output_dir / "results" if config.output_dir else Path("results")
+    results_dir = (
+        config.output_dir / "results" if config.output_dir else Path("results")
+    )
     results_dir.mkdir(parents=True, exist_ok=True)
 
     artifact_path = results_dir / ARTIFACT_NAME
@@ -147,6 +149,7 @@ def run_analyze_workflow(config: PortifyConfig) -> PortifyStepResult:
 def _check_gate(content: str) -> PortifyStatus:
     """SC-003: All 5 required sections must be present."""
     from ..utils import parse_frontmatter
+
     _, body = parse_frontmatter(content)
     for section in REQUIRED_SECTIONS:
         if section.lower() not in body.lower():

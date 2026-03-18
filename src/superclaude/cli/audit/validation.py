@@ -127,13 +127,15 @@ def validate_consistency(
             consistent += 1
         else:
             inconsistent += 1
-            inconsistencies.append({
-                "file_path": original.file_path,
-                "original_tier": original.tier.value,
-                "original_action": original.action.value,
-                "re_tier": re_result.tier.value,
-                "re_action": re_result.action.value,
-            })
+            inconsistencies.append(
+                {
+                    "file_path": original.file_path,
+                    "original_tier": original.tier.value,
+                    "original_action": original.action.value,
+                    "re_tier": re_result.tier.value,
+                    "re_action": re_result.action.value,
+                }
+            )
 
     total = consistent + inconsistent
     rate = consistent / total if total > 0 else 1.0

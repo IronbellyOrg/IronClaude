@@ -93,9 +93,7 @@ def validate(
     )
 
     resolved_tasklist_dir = (
-        tasklist_dir.resolve()
-        if tasklist_dir is not None
-        else resolved_output
+        tasklist_dir.resolve() if tasklist_dir is not None else resolved_output
     )
 
     config = TasklistValidateConfig(
@@ -117,15 +115,7 @@ def validate(
         click.echo("[tasklist validate] No report generated", err=True)
 
     if not passed:
-        click.echo(
-            click.style(
-                "FAIL: HIGH-severity deviations found", fg="red"
-            )
-        )
+        click.echo(click.style("FAIL: HIGH-severity deviations found", fg="red"))
         sys.exit(1)
     else:
-        click.echo(
-            click.style(
-                "PASS: No HIGH-severity deviations", fg="green"
-            )
-        )
+        click.echo(click.style("PASS: No HIGH-severity deviations", fg="green"))

@@ -63,7 +63,6 @@ def config_with_analysis(workflow_dir: Path, tmp_path: Path):
 
 
 class TestDesignPipelineHappyPath:
-
     def test_produces_pass_result(self, config_with_analysis):
         config_with_analysis.skip_review = True
         with patch_portify_process("design-pipeline"):
@@ -143,7 +142,6 @@ class TestDesignPipelineReviewGate:
 
 
 class TestDesignPipelineFailures:
-
     def test_missing_analysis_fails(self, workflow_dir, tmp_path):
         output = tmp_path / "empty-output"
         output.mkdir()

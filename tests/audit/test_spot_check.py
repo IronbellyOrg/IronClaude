@@ -44,11 +44,13 @@ def _make_report(count: int = 30) -> ConsolidationReport:
     findings = []
     for i in range(count):
         if i % 3 == 0:
-            findings.append(_make_consolidated(
-                f"file_{i}.py",
-                tier=V2Tier.TIER_1,
-                action=V2Action.DELETE,
-            ))
+            findings.append(
+                _make_consolidated(
+                    f"file_{i}.py",
+                    tier=V2Tier.TIER_1,
+                    action=V2Action.DELETE,
+                )
+            )
         else:
             findings.append(_make_consolidated(f"file_{i}.py"))
     return ConsolidationReport(
@@ -81,9 +83,7 @@ class TestStratifiedSampling:
         """Each populated tier gets at least 1 sample."""
         findings = [
             _make_consolidated("a.py", tier=V2Tier.TIER_1, action=V2Action.DELETE),
-        ] + [
-            _make_consolidated(f"keep_{i}.py") for i in range(20)
-        ]
+        ] + [_make_consolidated(f"keep_{i}.py") for i in range(20)]
         report = ConsolidationReport(findings=findings, total_consolidated=21)
         sample = _stratified_sample(report.findings, sample_fraction=0.10, seed=42)
         tiers = {f.tier for f in sample}
@@ -151,8 +151,7 @@ class TestSpotCheckValidation:
 
         # All KEEP findings should be inconsistent with DELETE re-classification
         keep_in_sample = sum(
-            1 for f in findings[:result.sample_size]
-            if f.action == V2Action.KEEP
+            1 for f in findings[: result.sample_size] if f.action == V2Action.KEEP
         )
         assert result.inconsistent_count > 0
         assert len(result.inconsistencies) > 0

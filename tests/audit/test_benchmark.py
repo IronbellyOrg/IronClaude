@@ -13,16 +13,23 @@ import pytest
 
 from superclaude.cli.audit.batch_decomposer import decompose
 from superclaude.cli.audit.classification import (
-    ClassificationResult, V1Category, V2Action, V2Tier,
+    ClassificationResult,
+    V1Category,
+    V2Action,
+    V2Tier,
     classify_finding,
 )
 from superclaude.cli.audit.consolidation import (
-    ConsolidatedFinding, ConsolidationReport, consolidate,
+    ConsolidatedFinding,
+    ConsolidationReport,
+    consolidate,
 )
 from superclaude.cli.audit.coverage import CoverageTracker
 from superclaude.cli.audit.dead_code import detect_dead_code
 from superclaude.cli.audit.dependency_graph import (
-    DependencyGraph, DependencyEdge, EdgeTier,
+    DependencyGraph,
+    DependencyEdge,
+    EdgeTier,
 )
 from superclaude.cli.audit.dry_run import dry_run
 from superclaude.cli.audit.profiler import profile_file, FileProfile
@@ -80,14 +87,21 @@ def _dead_code_repo() -> tuple[list[str], set[str]]:
     """
     live_files = [f"src/core/live_{i}.py" for i in range(20)]
     dead_files = [f"src/legacy/dead_{i}.py" for i in range(10)]
-    all_files = live_files + dead_files + [
-        "README.md", "setup.py", "src/__init__.py",
-    ]
+    all_files = (
+        live_files
+        + dead_files
+        + [
+            "README.md",
+            "setup.py",
+            "src/__init__.py",
+        ]
+    )
     return all_files, set(dead_files)
 
 
 def _build_graph_for_files(
-    files: list[str], dead_files: set[str] | None = None,
+    files: list[str],
+    dead_files: set[str] | None = None,
 ) -> DependencyGraph:
     """Build a dependency graph where dead files have no inbound edges."""
     graph = DependencyGraph()
@@ -218,7 +232,9 @@ class TestBenchmarkDeadCodeRepo:
 
         # Verify >= 80% detection rate
         true_positives = detected_files & expected_dead
-        detection_rate = len(true_positives) / len(expected_dead) if expected_dead else 0
+        detection_rate = (
+            len(true_positives) / len(expected_dead) if expected_dead else 0
+        )
         assert detection_rate >= 0.80, (
             f"Detection rate {detection_rate:.0%} < 80%: "
             f"detected {len(true_positives)}/{len(expected_dead)}"
@@ -238,9 +254,11 @@ class TestBenchmarkDeadCodeRepo:
         live_files = set(all_files) - expected_dead
 
         # Live files that are entry points or __init__ should not be flagged
-        entry_points = {f for f in live_files if any(
-            f.endswith(p) for p in ("__init__.py", "setup.py", "conftest.py")
-        )}
+        entry_points = {
+            f
+            for f in live_files
+            if any(f.endswith(p) for p in ("__init__.py", "setup.py", "conftest.py"))
+        }
         false_positives = detected_files & entry_points
         assert len(false_positives) == 0, (
             f"False positives on entry points: {false_positives}"
@@ -258,4 +276,6 @@ class TestBenchmarkDeadCodeRepo:
 
         # Excluded candidates should have exclusion reasons
         for exc in report.excluded:
-            assert exc.exclusion_reason, f"Excluded candidate {exc.file_path} has no reason"
+            assert exc.exclusion_reason, (
+                f"Excluded candidate {exc.file_path} has no reason"
+            )

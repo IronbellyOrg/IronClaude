@@ -71,14 +71,22 @@ class TestThreePhaseHappyPath:
                     phase_execution_order.append(phase.number)
                     config.results_dir.mkdir(parents=True, exist_ok=True)
                     result_file.write_text("EXIT_RECOMMENDATION: CONTINUE\n")
-                    config.output_file(phase).write_text(f"output phase {phase.number}\n")
+                    config.output_file(phase).write_text(
+                        f"output phase {phase.number}\n"
+                    )
                     break
             return _PassPopen()
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -124,7 +132,9 @@ class TestHaltAtPhaseThree:
             phase_counter[0] += 1
             current_phase = config.phases[phase_counter[0] - 1]
             config.results_dir.mkdir(parents=True, exist_ok=True)
-            config.output_file(current_phase).write_text(f"output phase {current_phase.number}\n")
+            config.output_file(current_phase).write_text(
+                f"output phase {current_phase.number}\n"
+            )
 
             result = config.result_file(current_phase)
             if phase_counter[0] <= 2:
@@ -138,8 +148,14 @@ class TestHaltAtPhaseThree:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,

@@ -34,13 +34,19 @@ class TestContractCaptured:
     def test_explicit_writer_reader_captured(self):
         """Writer 'set offset to events delivered' + reader 'assumes offset equals events processed'."""
         writer_desc = "Set offset to track events delivered in this batch"
-        reader_desc = "Assumes offset equals events processed so far to determine resume point"
+        reader_desc = (
+            "Assumes offset equals events processed so far to determine resume point"
+        )
 
         w_sem, w_conf = extract_writer_semantics(writer_desc, "offset")
         r_asm, r_conf = extract_reader_assumption(reader_desc, "offset")
 
-        assert w_sem != UNSPECIFIED, f"Writer semantics should be captured, got UNSPECIFIED (conf={w_conf})"
-        assert r_asm != UNSPECIFIED, f"Reader assumption should be captured, got UNSPECIFIED (conf={r_conf})"
+        assert w_sem != UNSPECIFIED, (
+            f"Writer semantics should be captured, got UNSPECIFIED (conf={w_conf})"
+        )
+        assert r_asm != UNSPECIFIED, (
+            f"Reader assumption should be captured, got UNSPECIFIED (conf={r_conf})"
+        )
         assert w_conf >= CONFIDENCE_THRESHOLD
         assert r_conf >= CONFIDENCE_THRESHOLD
 
@@ -149,9 +155,7 @@ class TestConfidenceCalibration:
         )
 
         # Low-confidence writer (no clear pattern)
-        _, conf_low = extract_writer_semantics(
-            "Handle the offset somehow", "offset"
-        )
+        _, conf_low = extract_writer_semantics("Handle the offset somehow", "offset")
 
         # Verify calibration: not all the same
         scores = {round(conf_high, 1), round(conf_med, 1), round(conf_low, 1)}
@@ -168,9 +172,7 @@ class TestConfidenceCalibration:
         _, conf_high = extract_reader_assumption(
             "Assumes offset equals total events processed", "offset"
         )
-        _, conf_low = extract_reader_assumption(
-            "Uses offset", "offset"
-        )
+        _, conf_low = extract_reader_assumption("Uses offset", "offset")
 
         assert conf_high > conf_low
 

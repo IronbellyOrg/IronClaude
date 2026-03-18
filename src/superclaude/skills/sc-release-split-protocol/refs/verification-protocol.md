@@ -6,7 +6,7 @@
 
 This reference defines the detailed verification checklist for auditing fidelity between an original release artifact and the split (or validated) outputs. The goal is an auditable, traceable proof that 100% of original scope is preserved.
 
-## 6-Point Verification Checklist
+## 8-Point Verification Checklist
 
 ### Check 1: Coverage Matrix
 
@@ -127,6 +127,51 @@ Scan all validation, testing, and verification items across all outputs:
 
 For each flagged item, suggest a real-world validation replacement.
 
+### Check 7: Exact-Match Contract Verification
+
+Scan the original spec for exact contract strings — format strings, error messages, API signatures, protocol messages, or any text that downstream code or systems would parse or match against.
+
+**Identification rules** — treat the following as exact contracts:
+- Strings containing template variables (e.g., `{gate_id}`, `{run_id}`, `${var}`)
+- Text inside backtick-quoted inline code or fenced code blocks
+- Strings labeled as "format", "output", "message", "error", "response", or "schema"
+- Any string that a downstream parser, regex, or string-match would consume
+
+**Verification procedure**:
+1. Extract every exact contract string from the original spec
+2. Locate the corresponding string in each split output
+3. Perform a **character-level diff** between the original and output strings
+4. Any difference — added tokens, removed tokens, reordered tokens, changed punctuation, changed whitespace within the string — is a finding
+
+**Severity**:
+- `CONTRACT-MUTATED` (severity: CRITICAL): Any token added to, removed from, or changed in a contract string. This includes "helpful" additions (e.g., appending extra context to an error message) that change what a parser would see.
+- Semantic equivalence is NOT a defense. If the original says `stale_dependency_output: {gate_a_id} output from run {old_run_id}` and the output says `stale_dependency_output: {gate_a_id} output from run {old_run_id}, current run {current_run_id}`, this is CONTRACT-MUTATED even though the added information is useful.
+
+**Fidelity impact**: A requirement with a CONTRACT-MUTATED finding MUST NOT be classified as PRESERVED. It must be classified as TRANSFORMED with the mutation documented, and the fidelity score must reflect it.
+
+### Check 8: Intra-Release Ordering Constraint Preservation
+
+When multiple phases, stages, or sequentially-dependent items from the original spec land in the same release, verify that their internal ordering constraints survive the bundling.
+
+**Identification rules** — scan the original spec for:
+- "Phase N must complete before Phase M begins"
+- "MUST NOT be parallelized"
+- "Sequential dependency", "ordering gate", "prerequisite"
+- Any language establishing that item X must be done before item Y starts
+- Numbered phases or stages with explicit sequencing requirements
+
+**Verification procedure**:
+1. For each ordering constraint found in the original spec, identify the two (or more) items it governs
+2. Determine which release(s) those items were assigned to
+3. If the items land in **different releases** (e.g., X in R1, Y in R2): the ordering is naturally preserved by the release boundary — PASS
+4. If the items land in the **same release**: check whether the split output explicitly preserves the ordering constraint (e.g., "Phase 1 must be code-complete and passing all tests before Phase 2 implementation begins")
+
+**Severity**:
+- `ORDERING-DISSOLVED` (severity: CRITICAL): An intra-release ordering constraint from the original spec is absent from the split output. The items are present but their sequencing requirement was silently dropped.
+- Bundling items into a single release does NOT automatically satisfy their ordering constraint — it removes the release boundary that would have enforced sequencing, making explicit preservation even more important.
+
+**Remediation**: For each ORDERING-DISSOLVED finding, the split output must add an explicit intra-release sequencing statement that reproduces the original constraint verbatim or with equivalent force.
+
 ## Output Template
 
 ```markdown
@@ -167,6 +212,12 @@ For each flagged item, suggest a real-world validation replacement.
 
 ## Real-World Validation Status
 [Flagged items, suggested replacements]
+
+## Contract Fidelity Status
+[Exact contract strings checked, CONTRACT-MUTATED findings]
+
+## Intra-Release Ordering Status
+[Ordering constraints checked, ORDERING-DISSOLVED findings]
 
 ## Remediation Required
 [Ordered list of items to fix before proceeding]

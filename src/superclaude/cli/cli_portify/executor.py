@@ -56,12 +56,14 @@ from superclaude.cli.cli_portify.models import (
 # ---------------------------------------------------------------------------
 
 # Phase types allowed during --dry-run (SC-012)
-DRY_RUN_PHASE_TYPES: frozenset[PortifyPhaseType] = frozenset({
-    PortifyPhaseType.PREREQUISITES,
-    PortifyPhaseType.ANALYSIS,
-    PortifyPhaseType.USER_REVIEW,
-    PortifyPhaseType.SPECIFICATION,
-})
+DRY_RUN_PHASE_TYPES: frozenset[PortifyPhaseType] = frozenset(
+    {
+        PortifyPhaseType.PREREQUISITES,
+        PortifyPhaseType.ANALYSIS,
+        PortifyPhaseType.USER_REVIEW,
+        PortifyPhaseType.SPECIFICATION,
+    }
+)
 
 # Exit code constants
 EXIT_CODE_TIMEOUT: int = 124
@@ -87,6 +89,7 @@ def _is_dry_run_eligible(step: "PortifyStep") -> bool:
         True if the step's phase_type is in DRY_RUN_PHASE_TYPES.
     """
     return step.phase_type in DRY_RUN_PHASE_TYPES
+
 
 # ---------------------------------------------------------------------------
 # Phase 5: STEP_REGISTRY — step definitions with timeout_s (T05.03, NFR-001)
@@ -178,7 +181,9 @@ STEP_REGISTRY: dict[str, dict] = {
 # ---------------------------------------------------------------------------
 
 
-def run_with_timeout(fn: Callable[..., _T], timeout_s: float, *args: Any, **kwargs: Any) -> _T:
+def run_with_timeout(
+    fn: Callable[..., _T], timeout_s: float, *args: Any, **kwargs: Any
+) -> _T:
     """Run *fn* in a thread and raise TimeoutError if it exceeds *timeout_s* seconds.
 
     Used to enforce:
@@ -201,9 +206,7 @@ def run_with_timeout(fn: Callable[..., _T], timeout_s: float, *args: Any, **kwar
         try:
             return future.result(timeout=timeout_s)
         except concurrent.futures.TimeoutError:
-            raise TimeoutError(
-                f"Operation timed out after {timeout_s}s"
-            )
+            raise TimeoutError(f"Operation timed out after {timeout_s}s")
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +266,8 @@ def _calculate_suggested_resume_budget(steps: list[PortifyStep]) -> int:
     remaining = steps with PENDING or INCOMPLETE status.
     """
     remaining = sum(
-        1 for s in steps
+        1
+        for s in steps
         if s.status in (PortifyStatus.PENDING, PortifyStatus.INCOMPLETE)
     )
     return remaining * 25
@@ -280,8 +284,14 @@ def _emit_return_contract(
 
     Returns the path to the emitted file.
     """
-    remaining_steps = [s.step_id for s in steps if s.status in (PortifyStatus.PENDING, PortifyStatus.INCOMPLETE)]
-    resume_command = _build_resume_command(resume_from_step_id) if resume_from_step_id else ""
+    remaining_steps = [
+        s.step_id
+        for s in steps
+        if s.status in (PortifyStatus.PENDING, PortifyStatus.INCOMPLETE)
+    ]
+    resume_command = (
+        _build_resume_command(resume_from_step_id) if resume_from_step_id else ""
+    )
     suggested_budget = _calculate_suggested_resume_budget(steps)
 
     contract = {
@@ -352,6 +362,7 @@ class PortifyExecutor:
 
     def _install_signal_handlers(self) -> None:
         """Register SIGINT / SIGTERM handlers for graceful shutdown."""
+
         def _handle(signum: int, frame) -> None:
             self._interrupted = True
 
@@ -422,7 +433,7 @@ class PortifyExecutor:
         """Execute all steps sequentially. Returns pipeline outcome."""
         self._install_signal_handlers()
         outcome = PortifyOutcome.SUCCESS
-        resume_started = (self.resume_from == "")  # True if no resume target
+        resume_started = self.resume_from == ""  # True if no resume target
 
         try:
             for step in self.steps:
@@ -453,7 +464,11 @@ class PortifyExecutor:
                 status = self._execute_step(step)
                 step.status = status
 
-                if status in (PortifyStatus.PASS, PortifyStatus.PASS_NO_SIGNAL, PortifyStatus.PASS_NO_REPORT):
+                if status in (
+                    PortifyStatus.PASS,
+                    PortifyStatus.PASS_NO_SIGNAL,
+                    PortifyStatus.PASS_NO_REPORT,
+                ):
                     self._completed_steps.append(step.step_id)
                 elif status == PortifyStatus.TIMEOUT:
                     outcome = PortifyOutcome.TIMEOUT
@@ -521,7 +536,11 @@ def execute_protocol_mapping_step(
     if process_runner is not None:
         exit_code, stdout, timed_out = process_runner(prompt, output_path)
     else:
-        exit_code, stdout, timed_out = 0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False
+        exit_code, stdout, timed_out = (
+            0,
+            EXIT_RECOMMENDATION_MARKER + " CONTINUE",
+            False,
+        )
 
     artifact_path = output_path if output_path.exists() else None
     status = _determine_status(exit_code, timed_out, stdout, artifact_path)
@@ -571,13 +590,19 @@ def execute_analysis_synthesis_step(
     if protocol_map_path.exists():
         protocol_map_content = protocol_map_path.read_text(encoding="utf-8")
 
-    prompt = build_analysis_synthesis_prompt(config_cli_name, inventory, protocol_map_content)
+    prompt = build_analysis_synthesis_prompt(
+        config_cli_name, inventory, protocol_map_content
+    )
     output_path = workdir / "portify-analysis-report.md"
 
     if process_runner is not None:
         exit_code, stdout, timed_out = process_runner(prompt, output_path)
     else:
-        exit_code, stdout, timed_out = 0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False
+        exit_code, stdout, timed_out = (
+            0,
+            EXIT_RECOMMENDATION_MARKER + " CONTINUE",
+            False,
+        )
 
     artifact_path = output_path if output_path.exists() else None
     status = _determine_status(exit_code, timed_out, stdout, artifact_path)
@@ -732,7 +757,11 @@ def execute_step_graph_design_step(
     if process_runner is not None:
         exit_code, stdout, timed_out = process_runner(prompt, output_path)
     else:
-        exit_code, stdout, timed_out = 0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False
+        exit_code, stdout, timed_out = (
+            0,
+            EXIT_RECOMMENDATION_MARKER + " CONTINUE",
+            False,
+        )
 
     artifact_path = output_path if output_path.exists() else None
     status = _determine_status(exit_code, timed_out, stdout, artifact_path)
@@ -849,7 +878,11 @@ def execute_prompts_executor_design_step(
     if process_runner is not None:
         exit_code, stdout, timed_out = process_runner(prompt, output_path)
     else:
-        exit_code, stdout, timed_out = 0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False
+        exit_code, stdout, timed_out = (
+            0,
+            EXIT_RECOMMENDATION_MARKER + " CONTINUE",
+            False,
+        )
 
     artifact_path = output_path if output_path.exists() else None
     status = _determine_status(exit_code, timed_out, stdout, artifact_path)
@@ -898,7 +931,9 @@ def assemble_specs_programmatic(
         sections.append("## Models and Gates Design\n\n" + models_gates_content.strip())
 
     if prompts_executor_content.strip():
-        sections.append("## Prompts and Executor Design\n\n" + prompts_executor_content.strip())
+        sections.append(
+            "## Prompts and Executor Design\n\n" + prompts_executor_content.strip()
+        )
 
     assembled = "\n\n".join(sections)
 
@@ -906,12 +941,13 @@ def assemble_specs_programmatic(
     # A frontmatter block starts at the beginning of a line with exactly "---"
     # followed by key: value lines and closed by another "---" line.
     import re as _re
+
     frontmatter_pattern = _re.compile(r"^---\n(?:[^\n]+\n)*?---\n", _re.MULTILINE)
     matches = list(frontmatter_pattern.finditer(assembled))
     if len(matches) > 1:
         # Remove all but the first frontmatter block (reverse order to preserve offsets)
         for match in reversed(matches[1:]):
-            assembled = assembled[:match.start()] + assembled[match.end():]
+            assembled = assembled[: match.start()] + assembled[match.end() :]
 
     return assembled
 
@@ -966,7 +1002,11 @@ def execute_pipeline_spec_assembly_step(
     if process_runner is not None:
         exit_code, stdout, timed_out = process_runner(prompt, output_path)
     else:
-        exit_code, stdout, timed_out = 0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False
+        exit_code, stdout, timed_out = (
+            0,
+            EXIT_RECOMMENDATION_MARKER + " CONTINUE",
+            False,
+        )
 
     artifact_path = output_path if output_path.exists() else None
     status = _determine_status(exit_code, timed_out, stdout, artifact_path)
@@ -1028,7 +1068,10 @@ def execute_user_review_p2(
         }
         for result in step_results:
             if result.step_name in blocking_steps:
-                if result.portify_status not in (PortifyStatus.PASS, PortifyStatus.PASS_NO_SIGNAL):
+                if result.portify_status not in (
+                    PortifyStatus.PASS,
+                    PortifyStatus.PASS_NO_SIGNAL,
+                ):
                     raise PortifyValidationError(
                         INVALID_PATH,
                         f"Blocking gate not passed for step '{result.step_name}' "
@@ -1047,6 +1090,7 @@ def execute_user_review_p2(
 
     spec_content = portify_spec_path.read_text(encoding="utf-8")
     import re as _re
+
     step_mapping_match = _re.search(
         r"##\s+Step\s+Mapping\s*\n(.*?)(?=\n##|\Z)",
         spec_content,
@@ -1151,6 +1195,7 @@ def scan_for_placeholders(content: str) -> list[str]:
         Empty list means zero placeholders remain.
     """
     import re as _re
+
     pattern = _re.compile(r"\{\{SC_PLACEHOLDER:([^}]+)\}\}")
     return [m.group(1) for m in pattern.finditer(content)]
 
@@ -1225,13 +1270,23 @@ def execute_release_spec_synthesis_step(
 
     # Read source artifacts (portify-spec.md, portify-analysis-report.md)
     portify_spec_path = workdir / "portify-spec.md"
-    portify_spec = portify_spec_path.read_text(encoding="utf-8") if portify_spec_path.exists() else ""
+    portify_spec = (
+        portify_spec_path.read_text(encoding="utf-8")
+        if portify_spec_path.exists()
+        else ""
+    )
 
     analysis_report_path = workdir / "portify-analysis-report.md"
-    analysis_report = analysis_report_path.read_text(encoding="utf-8") if analysis_report_path.exists() else ""
+    analysis_report = (
+        analysis_report_path.read_text(encoding="utf-8")
+        if analysis_report_path.exists()
+        else ""
+    )
 
     # --- Substep 3b: 13-section population via Claude ---
-    population_prompt = build_section_population_prompt(working_copy, portify_spec, analysis_report)
+    population_prompt = build_section_population_prompt(
+        working_copy, portify_spec, analysis_report
+    )
     draft_path = workdir / "release-spec-draft.md"
 
     if process_runner is not None:
@@ -1239,7 +1294,11 @@ def execute_release_spec_synthesis_step(
     else:
         # Default no-op: write an empty draft
         draft_path.write_text(working_copy, encoding="utf-8")
-        exit_code, stdout, timed_out = 0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False
+        exit_code, stdout, timed_out = (
+            0,
+            EXIT_RECOMMENDATION_MARKER + " CONTINUE",
+            False,
+        )
 
     if timed_out or exit_code == EXIT_CODE_TIMEOUT:
         return PortifyStepResult(
@@ -1263,7 +1322,9 @@ def execute_release_spec_synthesis_step(
             iteration_timeout=STEP_REGISTRY["release-spec-synthesis"]["timeout_s"],
         )
 
-    draft_content = draft_path.read_text(encoding="utf-8") if draft_path.exists() else working_copy
+    draft_content = (
+        draft_path.read_text(encoding="utf-8") if draft_path.exists() else working_copy
+    )
 
     # --- Substep 3c: 3-persona brainstorm ---
     all_findings: list[BrainstormFinding] = []
@@ -1272,7 +1333,9 @@ def execute_release_spec_synthesis_step(
         brainstorm_path = workdir / f"brainstorm-{persona}.md"
 
         if process_runner is not None:
-            b_exit, b_stdout, b_timed_out = process_runner(brainstorm_prompt, brainstorm_path)
+            b_exit, b_stdout, b_timed_out = process_runner(
+                brainstorm_prompt, brainstorm_path
+            )
         else:
             b_stdout = EXIT_RECOMMENDATION_MARKER + " CONTINUE"
             b_timed_out = False
@@ -1280,6 +1343,7 @@ def execute_release_spec_synthesis_step(
         # Parse JSON findings from stdout
         import json as _json
         import re as _re
+
         for line in b_stdout.splitlines():
             line = line.strip()
             if line.startswith("{") and line.endswith("}"):
@@ -1326,7 +1390,10 @@ def execute_release_spec_synthesis_step(
     )
     # Strip existing frontmatter if present
     import re as _re
-    final_content_stripped = _re.sub(r"^---\n.*?---\n\n?", "", final_content, count=1, flags=_re.DOTALL)
+
+    final_content_stripped = _re.sub(
+        r"^---\n.*?---\n\n?", "", final_content, count=1, flags=_re.DOTALL
+    )
     final_output = frontmatter + final_content_stripped
 
     # Write portify-release-spec.md
@@ -1335,6 +1402,7 @@ def execute_release_spec_synthesis_step(
 
     # G-010 gate: zero placeholders + Section 12 present
     import re as _re2
+
     has_section12 = bool(_re2.search(r"^##\s+12\b", final_output, _re2.MULTILINE))
     if not has_section12:
         return PortifyStepResult(

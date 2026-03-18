@@ -203,6 +203,7 @@ class TestCrossModuleImports:
         from superclaude.cli.pipeline import trailing_gate as tg  # noqa: F811
         from superclaude.cli.pipeline import conflict_review as cr  # noqa: F811
         from superclaude.cli.pipeline import diagnostic_chain as dc  # noqa: F811
+
         # If we get here, no circular import
         assert pm is not None
         assert tg is not None
@@ -214,6 +215,7 @@ class TestCrossModuleImports:
         from superclaude.cli.pipeline import trailing_gate as tg  # noqa: F811
         from superclaude.cli.sprint import models as sm  # noqa: F811
         from superclaude.cli.sprint import kpi as sk  # noqa: F811
+
         assert pm is not None
         assert tg is not None
         assert sm is not None
@@ -379,9 +381,18 @@ class TestEnumValues:
             is_valid_gate_transition,
         )
 
-        assert is_valid_gate_transition(GateDisplayState.NONE, GateDisplayState.CHECKING) is True
-        assert is_valid_gate_transition(GateDisplayState.CHECKING, GateDisplayState.PASS) is True
-        assert is_valid_gate_transition(GateDisplayState.PASS, GateDisplayState.HALT) is False
+        assert (
+            is_valid_gate_transition(GateDisplayState.NONE, GateDisplayState.CHECKING)
+            is True
+        )
+        assert (
+            is_valid_gate_transition(GateDisplayState.CHECKING, GateDisplayState.PASS)
+            is True
+        )
+        assert (
+            is_valid_gate_transition(GateDisplayState.PASS, GateDisplayState.HALT)
+            is False
+        )
 
     def test_SprintOutcome_values(self):
         from superclaude.cli.sprint.models import SprintOutcome
@@ -542,7 +553,9 @@ class TestTrailingGateInstantiation:
 
         log.append(
             TrailingGateResult(
-                step_id="s1", passed=False, evaluation_ms=5.0,
+                step_id="s1",
+                passed=False,
+                evaluation_ms=5.0,
                 failure_reason="test failure",
             )
         )
@@ -562,7 +575,9 @@ class TestTrailingGateInstantiation:
         log = DeferredRemediationLog()
         log.append(
             TrailingGateResult(
-                step_id="s2", passed=False, evaluation_ms=3.0,
+                step_id="s2",
+                passed=False,
+                evaluation_ms=3.0,
                 failure_reason="too short",
             )
         )
@@ -616,7 +631,9 @@ class TestTrailingGateInstantiation:
             timeout_seconds=60,
         )
         gate_result = TrailingGateResult(
-            step_id="s1", passed=False, evaluation_ms=10.0,
+            step_id="s1",
+            passed=False,
+            evaluation_ms=10.0,
             failure_reason="Missing frontmatter: title",
         )
         prompt = build_remediation_prompt(gate_result, step)
@@ -903,8 +920,12 @@ class TestSprintKpiInstantiation:
 
         results = [
             TrailingGateResult(step_id="s1", passed=True, evaluation_ms=5.0),
-            TrailingGateResult(step_id="s2", passed=False, evaluation_ms=15.0,
-                               failure_reason="too short"),
+            TrailingGateResult(
+                step_id="s2",
+                passed=False,
+                evaluation_ms=15.0,
+                failure_reason="too short",
+            ),
         ]
         log = DeferredRemediationLog()
         log.append(results[1])

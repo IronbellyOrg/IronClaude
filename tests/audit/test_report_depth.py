@@ -22,14 +22,16 @@ def _make_report(count: int = 20) -> ConsolidationReport:
     for i in range(count):
         action = V2Action.DELETE if i % 4 == 0 else V2Action.KEEP
         tier = V2Tier.TIER_1 if action == V2Action.DELETE else V2Tier.TIER_2
-        findings.append(ConsolidatedFinding(
-            file_path=f"src/file_{i}.py",
-            tier=tier,
-            action=action,
-            confidence=0.80 + (i % 5) * 0.04,
-            evidence=[f"ev_{i}"],
-            source_phases=["surface"],
-        ))
+        findings.append(
+            ConsolidatedFinding(
+                file_path=f"src/file_{i}.py",
+                tier=tier,
+                action=action,
+                confidence=0.80 + (i % 5) * 0.04,
+                evidence=[f"ev_{i}"],
+                source_phases=["surface"],
+            )
+        )
     return ConsolidationReport(
         findings=findings,
         total_input_findings=count,

@@ -23,6 +23,7 @@ from .models import Deliverable, DeliverableKind
 @dataclass
 class AcceptedRisk:
     """Accepted risk for guard ambiguity, requiring non-empty rationale and owner."""
+
     owner: str
     rationale: str
 
@@ -39,6 +40,7 @@ class ReleaseGateWarning:
 
     Blocking: pipeline must not advance without owner assignment.
     """
+
     guard_variable: str
     deliverable_id: str
     message: str
@@ -66,6 +68,7 @@ class GuardResolutionOutput:
         gate_warnings: Release Gate Rule 2 warnings.
         section_markdown: Rendered markdown section.
     """
+
     guard_test_deliverables: list[Deliverable] = field(default_factory=list)
     gate_warnings: list[ReleaseGateWarning] = field(default_factory=list)
     section_markdown: str = ""
@@ -220,7 +223,9 @@ def _render_resolution_section(
     lines.append(f"**Release gate warnings**: {len(warnings)}")
     blocking = sum(1 for w in warnings if w.is_blocking)
     if blocking:
-        lines.append(f"**BLOCKING**: {blocking} unresolved warning(s) — pipeline cannot advance")
+        lines.append(
+            f"**BLOCKING**: {blocking} unresolved warning(s) — pipeline cannot advance"
+        )
     lines.append("")
 
     if deliverables:
@@ -231,7 +236,9 @@ def _render_resolution_section(
         for d in deliverables:
             test_type = d.metadata.get("test_type", "unknown")
             var = d.metadata.get("guard_variable", "?")
-            lines.append(f"| {d.id} | {test_type} | `{var}` | {d.description[:80]}... |")
+            lines.append(
+                f"| {d.id} | {test_type} | `{var}` | {d.description[:80]}... |"
+            )
         lines.append("")
 
     if warnings:

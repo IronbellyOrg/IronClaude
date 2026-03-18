@@ -18,7 +18,10 @@ import pytest
 # Validates: M2, M4, V2
 # ---------------------------------------------------------------------------
 
-@pytest.mark.skip(reason="Implementing milestone: M2 (DAG builder) + M4 (Phase Executor)")
+
+@pytest.mark.skip(
+    reason="Implementing milestone: M2 (DAG builder) + M4 (Phase Executor)"
+)
 def test_sc_001_canonical_pipeline_end_to_end():
     """
     SC-001: Canonical 8-step --pipeline "generate:... -> generate:... -> compare --blind"
@@ -45,6 +48,7 @@ def test_sc_001_canonical_pipeline_end_to_end():
 # Validates: M2
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skip(reason="Implementing milestone: M2 (DAG builder)")
 def test_sc_002_dry_run_matches_execution_plan():
     """
@@ -67,6 +71,7 @@ def test_sc_002_dry_run_matches_execution_plan():
 # SC-003: Blind mode strips model names
 # Validates: M4, V2
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skip(reason="Implementing milestone: M4 (Phase Executor)")
 def test_sc_003_blind_mode_strips_model_names():
@@ -94,6 +99,7 @@ def test_sc_003_blind_mode_strips_model_names():
 # Validates: M4
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skip(reason="Implementing milestone: M4 (Phase Executor)")
 def test_sc_004_plateau_detection():
     """
@@ -113,8 +119,10 @@ def test_sc_004_plateau_detection():
         - Return contract contains plateau_detected: true
     """
     convergence_scores = [0.82, 0.84, 0.85]
-    deltas = [abs(convergence_scores[i] - convergence_scores[i - 1])
-              for i in range(1, len(convergence_scores))]
+    deltas = [
+        abs(convergence_scores[i] - convergence_scores[i - 1])
+        for i in range(1, len(convergence_scores))
+    ]
     consecutive_below_threshold = sum(1 for d in deltas if d < 0.05)
     assert consecutive_below_threshold >= 2, "Plateau should be detected"
 
@@ -123,6 +131,7 @@ def test_sc_004_plateau_detection():
 # SC-005: V0.04 variant replay catches escaped bug classes
 # Validates: M3, V1
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skip(reason="Implementing milestone: M3 (Protocol Quality Phase 1)")
 def test_sc_005_v004_variant_replay():
@@ -149,6 +158,7 @@ def test_sc_005_v004_variant_replay():
 # SC-006: AD-2 acceptance criteria (shared assumption extraction)
 # Validates: M3, V1
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skip(reason="Implementing milestone: M3 (Protocol Quality Phase 1)")
 def test_sc_006_ad2_shared_assumption_extraction():
@@ -179,6 +189,7 @@ def test_sc_006_ad2_shared_assumption_extraction():
 # Validates: M3, V1
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skip(reason="Implementing milestone: M3 (Protocol Quality Phase 1)")
 def test_sc_007_ad5_taxonomy_coverage_gate():
     """
@@ -207,6 +218,7 @@ def test_sc_007_ad5_taxonomy_coverage_gate():
 # SC-008: AD-1 acceptance criteria (invariant probe)
 # Validates: M5, V2
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skip(reason="Implementing milestone: M5 (Protocol Quality Phase 2)")
 def test_sc_008_ad1_invariant_probe():
@@ -246,6 +258,7 @@ def test_sc_008_ad1_invariant_probe():
 # Validates: M5, V2
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skip(reason="Implementing milestone: M5 (Protocol Quality Phase 2)")
 def test_sc_009_ad3_edge_case_scoring():
     """
@@ -282,6 +295,7 @@ def test_sc_009_ad3_edge_case_scoring():
 # SC-010: Total overhead <= 40% above baseline
 # Validates: V2
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skip(reason="Implementing milestone: V2 (End-to-End Validation)")
 def test_sc_010_overhead_within_budget():

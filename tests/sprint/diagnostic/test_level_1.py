@@ -78,15 +78,11 @@ class TestDebugLogReaderEntry:
     """Individual entry parsing."""
 
     def test_timestamp_extracted(self, log_reader_factory):
-        reader = log_reader_factory(
-            "2026-03-04T19:00:00.123 DEBUG    [test] event\n"
-        )
+        reader = log_reader_factory("2026-03-04T19:00:00.123 DEBUG    [test] event\n")
         assert reader.entries[0].timestamp == "2026-03-04T19:00:00.123"
 
     def test_level_extracted(self, log_reader_factory):
-        reader = log_reader_factory(
-            "2026-01-01T00:00:00.000 WARNING  [test] event\n"
-        )
+        reader = log_reader_factory("2026-01-01T00:00:00.000 WARNING  [test] event\n")
         assert reader.entries[0].level == "WARNING"
 
     def test_component_extracted(self, log_reader_factory):

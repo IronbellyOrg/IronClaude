@@ -14,7 +14,9 @@ from ..pipeline.models import PipelineConfig
 
 
 VALID_FINDING_STATUSES = frozenset({"PENDING", "FIXED", "FAILED", "SKIPPED"})
-VALID_DEVIATION_CLASSES = frozenset({"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"})
+VALID_DEVIATION_CLASSES = frozenset(
+    {"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"}
+)
 
 
 @dataclass

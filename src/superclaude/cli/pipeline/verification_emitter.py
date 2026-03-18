@@ -96,8 +96,11 @@ def emit_invariant_check_deliverables(
             generated.append(d)
 
         # Update InvariantEntry with generated verification IDs
-        entry.verification_deliverable_ids = [d.id for d in generated if
-            d.metadata.get("variable_name") == entry.variable_name]
+        entry.verification_deliverable_ids = [
+            d.id
+            for d in generated
+            if d.metadata.get("variable_name") == entry.variable_name
+        ]
 
     return generated
 

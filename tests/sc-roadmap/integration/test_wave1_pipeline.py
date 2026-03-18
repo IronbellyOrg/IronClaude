@@ -23,8 +23,12 @@ def extract_requirements(content: str) -> dict:
     fr_pattern = re.compile(r"- FR-(\d{3}):\s*(.+)", re.MULTILINE)
     nfr_pattern = re.compile(r"- NFR-(\d{3}):\s*(.+)", re.MULTILINE)
 
-    frs = [(f"FR-{m.group(1)}", m.group(2).strip()) for m in fr_pattern.finditer(content)]
-    nfrs = [(f"NFR-{m.group(1)}", m.group(2).strip()) for m in nfr_pattern.finditer(content)]
+    frs = [
+        (f"FR-{m.group(1)}", m.group(2).strip()) for m in fr_pattern.finditer(content)
+    ]
+    nfrs = [
+        (f"NFR-{m.group(1)}", m.group(2).strip()) for m in nfr_pattern.finditer(content)
+    ]
 
     return {"functional": frs, "nonfunctional": nfrs}
 
@@ -45,7 +49,9 @@ def classify_domains(content: str, domain_keywords: dict) -> dict:
     return {d: (s / total) * 100 for d, s in scores.items()}
 
 
-def calculate_complexity(req_count, dep_depth, domain_spread, risk_severity, scope_size):
+def calculate_complexity(
+    req_count, dep_depth, domain_spread, risk_severity, scope_size
+):
     """Simplified complexity calculation."""
     # Requirement count scoring
     if req_count <= 5:
@@ -80,7 +86,13 @@ def calculate_complexity(req_count, dep_depth, domain_spread, risk_severity, sco
     risk_s = risk_map.get(risk_severity, 0.5)
 
     # Scope size mapping
-    scope_map = {"small": 0.2, "medium": 0.4, "large": 0.6, "xlarge": 0.8, "massive": 1.0}
+    scope_map = {
+        "small": 0.2,
+        "medium": 0.4,
+        "large": 0.6,
+        "xlarge": 0.8,
+        "massive": 1.0,
+    }
     scope_s = scope_map.get(scope_size, 0.4)
 
     return req_s * 0.25 + dep_s * 0.25 + dom_s * 0.20 + risk_s * 0.15 + scope_s * 0.15
@@ -111,7 +123,11 @@ def select_personas(domain_dist):
     if fallback_used:
         primary = "architect"
 
-    return {"primary": primary, "consulting": consulting, "fallback_used": fallback_used}
+    return {
+        "primary": primary,
+        "consulting": consulting,
+        "fallback_used": fallback_used,
+    }
 
 
 class TestWave1FullPipeline:

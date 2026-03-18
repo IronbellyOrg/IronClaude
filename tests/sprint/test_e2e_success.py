@@ -25,7 +25,9 @@ def _make_config(tmp_path: Path) -> SprintConfig:
         phases.append(Phase(number=i, file=pf, name=f"Test Phase {i}"))
 
     index = tmp_path / "tasklist-index.md"
-    index.write_text("- phase-1-tasklist.md\n- phase-2-tasklist.md\n- phase-3-tasklist.md\n")
+    index.write_text(
+        "- phase-1-tasklist.md\n- phase-2-tasklist.md\n- phase-3-tasklist.md\n"
+    )
 
     return SprintConfig(
         index_path=index,
@@ -92,8 +94,13 @@ class TestE2ESuccess:
         factory = _popen_factory_all_pass(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -109,15 +116,22 @@ class TestE2ESuccess:
         factory = _popen_factory_all_pass(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
             execute_sprint(config)
 
         jsonl_path = config.execution_log_jsonl
-        events = [json.loads(line) for line in jsonl_path.read_text().strip().split("\n")]
+        events = [
+            json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
+        ]
 
         # Should have: sprint_start + 3x(phase_start + phase_complete) + sprint_complete = 8
         # write_phase_start is called when each phase begins RUNNING,
@@ -139,7 +153,10 @@ class TestE2ESuccess:
         assert all(e["status"] == "pass" for e in phase_events)
 
         # INFO severities should appear on screen path for success phases
-        assert all(e["status"] in {"pass", "pass_no_report", "pass_no_signal"} for e in phase_events)
+        assert all(
+            e["status"] in {"pass", "pass_no_report", "pass_no_signal"}
+            for e in phase_events
+        )
 
         # Last event is sprint_complete
         assert events[-1]["event"] == "sprint_complete"
@@ -150,8 +167,13 @@ class TestE2ESuccess:
         factory = _popen_factory_all_pass(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -167,8 +189,13 @@ class TestE2ESuccess:
         factory = _popen_factory_all_pass(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -194,8 +221,13 @@ class TestE2ESuccess:
         factory = _popen_factory_all_pass(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -209,8 +241,13 @@ class TestE2ESuccess:
         factory = _popen_factory_all_pass(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):

@@ -27,7 +27,9 @@ def _make_config(tmp_path: Path) -> SprintConfig:
         phases.append(Phase(number=i, file=pf, name=f"Phase {i}"))
 
     index = tmp_path / "tasklist-index.md"
-    index.write_text("- phase-1-tasklist.md\n- phase-2-tasklist.md\n- phase-3-tasklist.md\n")
+    index.write_text(
+        "- phase-1-tasklist.md\n- phase-2-tasklist.md\n- phase-3-tasklist.md\n"
+    )
 
     return SprintConfig(
         index_path=index,
@@ -99,8 +101,13 @@ class TestE2EHalt:
         factory = _popen_factory_fail_phase2(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -110,7 +117,9 @@ class TestE2EHalt:
 
         # Read JSONL to verify
         jsonl_path = config.execution_log_jsonl
-        events = [json.loads(line) for line in jsonl_path.read_text().strip().split("\n")]
+        events = [
+            json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
+        ]
         summary = [e for e in events if e["event"] == "sprint_complete"]
         assert len(summary) == 1
         assert summary[0]["outcome"] == "halted"
@@ -120,8 +129,13 @@ class TestE2EHalt:
         factory = _popen_factory_fail_phase2(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -131,7 +145,9 @@ class TestE2EHalt:
                 pass
 
         jsonl_path = config.execution_log_jsonl
-        events = [json.loads(line) for line in jsonl_path.read_text().strip().split("\n")]
+        events = [
+            json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
+        ]
         phase_events = [e for e in events if e["event"] == "phase_complete"]
 
         # Only phase 1 and 2 should have events, not phase 3
@@ -146,8 +162,13 @@ class TestE2EHalt:
         factory = _popen_factory_fail_phase2(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -165,8 +186,13 @@ class TestE2EHalt:
         factory = _popen_factory_fail_phase2(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -183,8 +209,13 @@ class TestE2EHalt:
         factory = _popen_factory_fail_phase2(config)
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen", side_effect=factory
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -194,6 +225,8 @@ class TestE2EHalt:
                 pass
 
         jsonl_path = config.execution_log_jsonl
-        events = [json.loads(line) for line in jsonl_path.read_text().strip().split("\n")]
+        events = [
+            json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
+        ]
         phase_events = [e for e in events if e["event"] == "phase_complete"]
         assert phase_events[0]["status"] == "pass"

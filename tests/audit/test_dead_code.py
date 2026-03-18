@@ -15,18 +15,25 @@ from superclaude.cli.audit.tool_orchestrator import FileAnalysis
 
 def _analysis(path, exports=None, imports=None):
     return FileAnalysis(
-        file_path=path, content_hash="h",
-        imports=imports or [], exports=exports or [],
+        file_path=path,
+        content_hash="h",
+        imports=imports or [],
+        exports=exports or [],
     )
 
 
 def _graph_with_edges(edges):
     g = DependencyGraph()
     for src, tgt, tier in edges:
-        g.add_edge(DependencyEdge(
-            source=src, target=tgt, tier=tier,
-            confidence=0.9, evidence_type="test",
-        ))
+        g.add_edge(
+            DependencyEdge(
+                source=src,
+                target=tgt,
+                tier=tier,
+                confidence=0.9,
+                evidence_type="test",
+            )
+        )
     return g
 
 
@@ -47,9 +54,11 @@ class TestDetectDeadCode:
             "src/utils.py": _analysis("src/utils.py", exports=["__all__ = ['x']"]),
             "src/main.py": _analysis("src/main.py"),
         }
-        graph = _graph_with_edges([
-            ("src/main.py", "src/utils.py", EdgeTier.TIER_A),
-        ])
+        graph = _graph_with_edges(
+            [
+                ("src/main.py", "src/utils.py", EdgeTier.TIER_A),
+            ]
+        )
         report = detect_dead_code(graph, analyses)
         paths = [c.file_path for c in report.candidates]
         assert "src/utils.py" not in paths
@@ -76,12 +85,16 @@ class TestDetectDeadCode:
 
     def test_custom_entry_point(self):
         analyses = {
-            "src/startup.py": _analysis("src/startup.py", exports=["__all__ = ['boot']"]),
+            "src/startup.py": _analysis(
+                "src/startup.py", exports=["__all__ = ['boot']"]
+            ),
         }
         graph = _graph_with_edges([])
         graph.nodes = set(analyses.keys())
         report = detect_dead_code(
-            graph, analyses, entry_points=["src/startup.py"],
+            graph,
+            analyses,
+            entry_points=["src/startup.py"],
         )
         excluded = [e.file_path for e in report.excluded]
         assert "src/startup.py" in excluded

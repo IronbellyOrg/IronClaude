@@ -367,6 +367,7 @@ class TestToDictCompleteness:
     def test_no_path_objects_in_dict(self):
         """All values in to_dict() must be JSON-serializable (no Path objects)."""
         from pathlib import Path
+
         result = ValidateConfigResult(
             command_path=str(Path("/tmp/cmd.md")),
             skill_dir=str(Path("/tmp/skill")),
@@ -378,6 +379,7 @@ class TestToDictCompleteness:
     def test_roundtrip_json_serializable(self):
         """to_dict() output is JSON-serializable."""
         import json
+
         result = ValidateConfigResult(
             valid=True,
             cli_name_kebab="test",

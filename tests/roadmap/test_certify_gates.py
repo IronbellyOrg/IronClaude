@@ -78,15 +78,7 @@ class TestHasPerFindingTable:
         assert _has_per_finding_table(content) is True
 
     def test_missing_table_header_fails(self):
-        content = (
-            "---\n"
-            "findings_verified: 1\n"
-            "---\n"
-            "\n"
-            "# Report\n"
-            "\n"
-            "No table here.\n"
-        )
+        content = "---\nfindings_verified: 1\n---\n\n# Report\n\nNo table here.\n"
         assert _has_per_finding_table(content) is False
 
     def test_missing_data_rows_fails(self):

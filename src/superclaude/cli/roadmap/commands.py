@@ -241,9 +241,7 @@ def validate(
 
     if blocking > 0:
         click.echo(
-            click.style(
-                f"WARNING: {blocking} blocking issue(s) found", fg="yellow"
-            )
+            click.style(f"WARNING: {blocking} blocking issue(s) found", fg="yellow")
         )
     if warning > 0:
         click.echo(f"Warnings: {warning}")

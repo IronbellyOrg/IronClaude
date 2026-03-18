@@ -62,7 +62,9 @@ class TestDiagnosticChain:
         solutions = report.get_stage(DiagnosticStage.SOLUTIONS)
         assert solutions is not None
         assert solutions.success
-        assert "solution" in solutions.output.lower() or "fix" in solutions.output.lower()
+        assert (
+            "solution" in solutions.output.lower() or "fix" in solutions.output.lower()
+        )
 
     def test_chain_includes_summary(self):
         """Chain produces a summary report."""
@@ -135,6 +137,7 @@ class TestDiagnosticChain:
         # TurnLedger parameter and operates purely on provided data.
         # If it accepted a ledger, its signature would be different.
         import inspect
+
         sig = inspect.signature(run_diagnostic_chain)
         param_names = list(sig.parameters.keys())
         assert "ledger" not in param_names
@@ -158,7 +161,8 @@ class TestDiagnosticChain:
             side_effect=RuntimeError("fail"),
         ):
             report = run_diagnostic_chain(
-                step_id="task-1", failure_reason="fail",
+                step_id="task-1",
+                failure_reason="fail",
             )
         assert report.stages_completed == 3  # 4 stages, 1 failed
         assert not report.is_complete

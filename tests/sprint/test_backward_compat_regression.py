@@ -90,6 +90,7 @@ def _make_config(tmp_path: Path, num_phases: int = 1) -> SprintConfig:
 
 class _FakePopenPass:
     """Minimal fake Popen that exits 0 after one poll cycle."""
+
     def __init__(self):
         self.returncode = 0
         self.pid = 30000
@@ -138,9 +139,11 @@ class TestBackwardCompatRegression:
     def test_default_gate_mode_is_blocking(self):
         """Step.gate_mode defaults to BLOCKING, matching v1.2.1."""
         step = Step(
-            id="test", prompt="test",
+            id="test",
+            prompt="test",
             output_file=Path("/tmp/out.md"),
-            gate=None, timeout_seconds=60,
+            gate=None,
+            timeout_seconds=60,
         )
         assert step.gate_mode == GateMode.BLOCKING
 
@@ -178,8 +181,14 @@ class TestBackwardCompatRegression:
         baseline_threads = threading.active_count()
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -204,9 +213,11 @@ class TestBackwardCompatRegression:
 
         steps = [
             Step(
-                id="step-1", prompt="test",
+                id="step-1",
+                prompt="test",
                 output_file=tmp_path / "out.md",
-                gate=None, timeout_seconds=60,
+                gate=None,
+                timeout_seconds=60,
             ),
         ]
 
@@ -236,15 +247,16 @@ class TestBackwardCompatRegression:
         config = _make_config(tmp_path)
         phase = config.phases[0]
         tasks = [
-            TaskEntry(task_id=f"T01.{i:02d}", title=f"Task {i}")
-            for i in range(1, 6)
+            TaskEntry(task_id=f"T01.{i:02d}", title=f"Task {i}") for i in range(1, 6)
         ]
 
         def subprocess_factory(task, cfg, ph):
             return (0, 10, 500)
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             ledger=None,  # No budget tracking (v1.2.1 behavior)
             _subprocess_factory=subprocess_factory,
         )
@@ -275,15 +287,19 @@ class TestBackwardCompatRegression:
             config.result_file(phase).write_text(
                 "---\nstatus: PASS\n---\n\nEXIT_RECOMMENDATION: CONTINUE\n"
             )
-            config.output_file(phase).write_text(
-                f"Phase {call_count[0]} output\n"
-            )
+            config.output_file(phase).write_text(f"Phase {call_count[0]} output\n")
             return _FakePopenPass()
 
         captured_result = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -319,13 +335,18 @@ class TestBackwardCompatRegression:
         # 1. Timeout always wins
         output_file.write_text("content")
         result_file.write_text("EXIT_RECOMMENDATION: CONTINUE\n")
-        assert _determine_phase_status(124, result_file, output_file) == PhaseStatus.TIMEOUT
+        assert (
+            _determine_phase_status(124, result_file, output_file)
+            == PhaseStatus.TIMEOUT
+        )
 
         # 2. Non-zero exit -> ERROR
         assert _determine_phase_status(1, result_file, output_file) == PhaseStatus.ERROR
 
         # 3. HALT signal wins over CONTINUE when both present
-        result_file.write_text("EXIT_RECOMMENDATION: HALT\nEXIT_RECOMMENDATION: CONTINUE\n")
+        result_file.write_text(
+            "EXIT_RECOMMENDATION: HALT\nEXIT_RECOMMENDATION: CONTINUE\n"
+        )
         assert _determine_phase_status(0, result_file, output_file) == PhaseStatus.HALT
 
         # 4. CONTINUE signal -> PASS
@@ -342,7 +363,10 @@ class TestBackwardCompatRegression:
 
         # 7. No result file but output exists -> PASS_NO_REPORT
         result_file.unlink()
-        assert _determine_phase_status(0, result_file, output_file) == PhaseStatus.PASS_NO_REPORT
+        assert (
+            _determine_phase_status(0, result_file, output_file)
+            == PhaseStatus.PASS_NO_REPORT
+        )
 
         # 8. No result file, no output -> ERROR
         output_file.unlink()
@@ -368,8 +392,10 @@ class TestBackwardCompatRegression:
         tasks = [TaskEntry(task_id="T01.01", title="Test task")]
         results = [
             TaskResult(
-                task=tasks[0], status=TaskStatus.PASS,
-                turns_consumed=10, exit_code=0,
+                task=tasks[0],
+                status=TaskStatus.PASS,
+                turns_consumed=10,
+                exit_code=0,
             )
         ]
         report = aggregate_task_results(
@@ -401,7 +427,8 @@ class TestBackwardCompatRegression:
 
         # EXEMPT: always passes
         gate = GateCriteria(
-            required_frontmatter_fields=[], min_lines=0,
+            required_frontmatter_fields=[],
+            min_lines=0,
             enforcement_tier="EXEMPT",
         )
         passed, reason = gate_passed(output_file, gate)
@@ -409,7 +436,8 @@ class TestBackwardCompatRegression:
 
         # LIGHT: file must exist and be non-empty
         gate = GateCriteria(
-            required_frontmatter_fields=[], min_lines=0,
+            required_frontmatter_fields=[],
+            min_lines=0,
             enforcement_tier="LIGHT",
         )
         passed, reason = gate_passed(output_file, gate)
@@ -451,8 +479,14 @@ class TestBackwardCompatRegression:
             return _FakePopenPass()
 
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
         ):
@@ -460,7 +494,9 @@ class TestBackwardCompatRegression:
 
         jsonl_path = config.execution_log_jsonl
         assert jsonl_path.exists()
-        events = [json.loads(line) for line in jsonl_path.read_text().strip().split("\n")]
+        events = [
+            json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
+        ]
 
         # v1.2.1 event types must be present
         event_types = {e["event"] for e in events}

@@ -46,10 +46,9 @@ class TestIdentifyLargeDirectories:
 
     def test_mixed_directories(self):
         """Only directories exceeding threshold are returned."""
-        findings = (
-            [_make_finding(f"big/file_{i}.py") for i in range(55)]
-            + [_make_finding(f"small/file_{i}.py") for i in range(10)]
-        )
+        findings = [_make_finding(f"big/file_{i}.py") for i in range(55)] + [
+            _make_finding(f"small/file_{i}.py") for i in range(10)
+        ]
         large = identify_large_directories(findings, threshold=50)
         assert "big" in large
         assert "small" not in large
@@ -69,9 +68,7 @@ class TestBuildAssessmentBlock:
         findings = [
             _make_finding(f"dir/f_{i}.py", tier=V2Tier.TIER_1, action=V2Action.DELETE)
             for i in range(20)
-        ] + [
-            _make_finding(f"dir/k_{i}.py") for i in range(40)
-        ]
+        ] + [_make_finding(f"dir/k_{i}.py") for i in range(40)]
         block = build_assessment_block("dir", findings)
         assert block.tier_distribution["tier-1"] == 20
         assert block.tier_distribution["tier-2"] == 40
@@ -117,10 +114,9 @@ class TestGenerateAssessmentBlocks:
 
     def test_mixed_replacement(self):
         """Large dirs get blocks, small dirs get per-file entries."""
-        findings = (
-            [_make_finding(f"big/f_{i}.py") for i in range(55)]
-            + [_make_finding(f"small/f_{i}.py") for i in range(10)]
-        )
+        findings = [_make_finding(f"big/f_{i}.py") for i in range(55)] + [
+            _make_finding(f"small/f_{i}.py") for i in range(10)
+        ]
         blocks, remaining = generate_assessment_blocks(findings, threshold=50)
         assert len(blocks) == 1
         assert len(remaining) == 10

@@ -206,8 +206,14 @@ class TestLoggingComplete:
     def test_logging_complete_all_eight_event_types(self, tmp_path):
         """All 8 event types are present in ALL_EVENT_TYPES constant."""
         expected = {
-            "step_start", "step_end", "gate_eval", "gate_fail",
-            "convergence_transition", "signal_received", "budget_warning", "pipeline_outcome",
+            "step_start",
+            "step_end",
+            "gate_eval",
+            "gate_fail",
+            "convergence_transition",
+            "signal_received",
+            "budget_warning",
+            "pipeline_outcome",
         }
         assert set(ALL_EVENT_TYPES) == expected
 

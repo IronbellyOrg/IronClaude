@@ -133,7 +133,11 @@ class SprintLogger:
                 f"Phase {result.phase.number}: {result.status.value} "
                 f"({result.duration_display})"
             )
-        elif result.status in (PhaseStatus.PASS, PhaseStatus.PASS_NO_REPORT, PhaseStatus.PASS_RECOVERED):
+        elif result.status in (
+            PhaseStatus.PASS,
+            PhaseStatus.PASS_NO_REPORT,
+            PhaseStatus.PASS_RECOVERED,
+        ):
             self._screen_info(
                 f"Phase {result.phase.number}: {result.status.value} "
                 f"({result.duration_display})"
@@ -144,9 +148,7 @@ class SprintLogger:
                 f"({result.duration_display})"
             )
         elif result.status == PhaseStatus.SKIPPED:
-            self._screen_info(
-                f"Phase {result.phase.number}: {result.status.value}"
-            )
+            self._screen_info(f"Phase {result.phase.number}: {result.status.value}")
 
     def write_summary(self, sprint: SprintResult):
         """Write sprint summary to both logs."""

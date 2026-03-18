@@ -184,9 +184,7 @@ def _validate_input_files(output_dir: Path) -> list[Path]:
     for name in _REQUIRED_INPUTS:
         p = output_dir / name
         if not p.exists():
-            raise FileNotFoundError(
-                f"Required validation input not found: {p}"
-            )
+            raise FileNotFoundError(f"Required validation input not found: {p}")
         paths.append(p)
     return paths
 
@@ -203,7 +201,9 @@ def _build_single_agent_steps(
         Step(
             id="reflect",
             prompt=build_reflect_prompt(
-                str(roadmap), str(test_strategy), str(extraction),
+                str(roadmap),
+                str(test_strategy),
+                str(extraction),
             ),
             output_file=validate_dir / "validation-report.md",
             gate=REFLECT_GATE,
@@ -236,7 +236,9 @@ def _build_multi_agent_steps(
             Step(
                 id=f"reflect-{agent.id}",
                 prompt=build_reflect_prompt(
-                    str(roadmap), str(test_strategy), str(extraction),
+                    str(roadmap),
+                    str(test_strategy),
+                    str(extraction),
                 ),
                 output_file=output,
                 gate=REFLECT_GATE,
@@ -260,7 +262,7 @@ def _build_multi_agent_steps(
 
     return [
         reflect_steps,  # parallel group
-        merge_step,     # sequential after all reflections
+        merge_step,  # sequential after all reflections
     ]
 
 
@@ -303,7 +305,7 @@ def _parse_report_counts(report_path: Path) -> dict:
                 pass
 
     # Count INFO findings from body
-    body = content[end_idx + 4:]  # skip closing ---
+    body = content[end_idx + 4 :]  # skip closing ---
     info_count = 0
     for line in body.splitlines():
         if "[INFO]" in line:
@@ -416,8 +418,7 @@ def execute_validate(config: ValidateConfig) -> dict:
         # Partial failure: some agents may have succeeded
         failed_ids = [r.step.id for r in failures if r.step]
         passed_ids = [
-            r.step.id for r in results
-            if r.status == StepStatus.PASS and r.step
+            r.step.id for r in results if r.status == StepStatus.PASS and r.step
         ]
         _log.error(
             "Validation partial failure: passed=%s, failed=%s",

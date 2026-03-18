@@ -15,10 +15,16 @@ import pytest
 
 from superclaude.cli.audit.batch_decomposer import decompose
 from superclaude.cli.audit.checkpoint import (
-    BatchStatus, CheckpointState, CheckpointWriter, CheckpointReader,
+    BatchStatus,
+    CheckpointState,
+    CheckpointWriter,
+    CheckpointReader,
 )
 from superclaude.cli.audit.known_issues import (
-    KnownIssuesRegistry, RegistryEntry, save_registry, load_registry,
+    KnownIssuesRegistry,
+    RegistryEntry,
+    save_registry,
+    load_registry,
 )
 from superclaude.cli.audit.tool_orchestrator import ResultCache
 
@@ -80,7 +86,9 @@ class TestProgressIsolation:
                     run_id=run_id,
                     total_batches=1,
                     batches=[
-                        BatchStatus(batch_id=batch_id, status="COMPLETED", files_processed=5),
+                        BatchStatus(
+                            batch_id=batch_id, status="COMPLETED", files_processed=5
+                        ),
                     ],
                 )
                 writer = CheckpointWriter(run_dir / "progress.json")
@@ -135,8 +143,8 @@ class TestCacheIsolation:
 
         fa = FileAnalysis(file_path="a.py", content_hash="h1")
         cache1.put("h1", fa)
-        cache1.get("h1")     # hit
-        cache2.get("h1")     # miss
+        cache1.get("h1")  # hit
+        cache2.get("h1")  # miss
 
         stats1 = cache1.stats
         stats2 = cache2.stats
@@ -148,12 +156,16 @@ class TestRegistryIsolation:
     """Known-issues registries are independent per run."""
 
     def test_registries_on_separate_paths(self, tmp_path):
-        reg1 = KnownIssuesRegistry(entries=[
-            RegistryEntry("KI-R1", "src/*.py", "DELETE", "2026-01-01"),
-        ])
-        reg2 = KnownIssuesRegistry(entries=[
-            RegistryEntry("KI-R2", "lib/*.js", "KEEP", "2026-01-01"),
-        ])
+        reg1 = KnownIssuesRegistry(
+            entries=[
+                RegistryEntry("KI-R1", "src/*.py", "DELETE", "2026-01-01"),
+            ]
+        )
+        reg2 = KnownIssuesRegistry(
+            entries=[
+                RegistryEntry("KI-R2", "lib/*.js", "KEEP", "2026-01-01"),
+            ]
+        )
 
         path1 = tmp_path / "run1" / "registry.json"
         path2 = tmp_path / "run2" / "registry.json"
@@ -167,9 +179,11 @@ class TestRegistryIsolation:
         assert loaded2.entries[0].issue_id == "KI-R2"
 
     def test_match_does_not_cross_registries(self, tmp_path):
-        reg1 = KnownIssuesRegistry(entries=[
-            RegistryEntry("KI-R1", "src/*.py", "DELETE", "2026-01-01"),
-        ])
+        reg1 = KnownIssuesRegistry(
+            entries=[
+                RegistryEntry("KI-R1", "src/*.py", "DELETE", "2026-01-01"),
+            ]
+        )
         reg2 = KnownIssuesRegistry()
 
         m1 = reg1.match_finding("src/old.py", "DELETE")

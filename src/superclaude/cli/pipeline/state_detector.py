@@ -26,6 +26,7 @@ from .models import Deliverable
 
 class IntroductionType(Enum):
     """How a state variable was introduced."""
+
     SELF_ASSIGNMENT = "self_assignment"
     COUNTER = "counter"
     OFFSET = "offset"
@@ -45,6 +46,7 @@ class DetectionResult:
         introduction_type: How the variable was introduced.
         confidence: Detection confidence (0.0-1.0). Below 0.7 = flagged for review.
     """
+
     variable_name: str
     deliverable_id: str
     introduction_type: IntroductionType
@@ -65,21 +67,89 @@ _SELF_FIELD_RE = re.compile(r"self\.(_\w+)")
 # Explicit introduction patterns
 _INTRO_PATTERNS = [
     # "introduce <variable_name>" / "add <type> <variable_name>"
-    (re.compile(r"\bintroduce\s+(?:a\s+|an\s+)?(?:new\s+)?(\w+)", re.IGNORECASE), IntroductionType.GENERIC, 0.85),
-    (re.compile(r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?counter\b[\s:]*(\w*)", re.IGNORECASE), IntroductionType.COUNTER, 0.9),
-    (re.compile(r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?offset\b[\s:]*(\w*)", re.IGNORECASE), IntroductionType.OFFSET, 0.9),
-    (re.compile(r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?cursor\b[\s:]*(\w*)", re.IGNORECASE), IntroductionType.CURSOR, 0.9),
-    (re.compile(r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?flag\b[\s:]*(\w*)", re.IGNORECASE), IntroductionType.FLAG, 0.9),
+    (
+        re.compile(r"\bintroduce\s+(?:a\s+|an\s+)?(?:new\s+)?(\w+)", re.IGNORECASE),
+        IntroductionType.GENERIC,
+        0.85,
+    ),
+    (
+        re.compile(
+            r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?counter\b[\s:]*(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.COUNTER,
+        0.9,
+    ),
+    (
+        re.compile(
+            r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?offset\b[\s:]*(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.OFFSET,
+        0.9,
+    ),
+    (
+        re.compile(
+            r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?cursor\b[\s:]*(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.CURSOR,
+        0.9,
+    ),
+    (
+        re.compile(
+            r"\badd\s+(?:a\s+|an\s+)?(?:new\s+)?flag\b[\s:]*(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.FLAG,
+        0.9,
+    ),
     # Reverse patterns: "add X counter/offset/cursor/flag" (type keyword after qualifier)
-    (re.compile(r"\badd\s+((?:\w+\s+)+)counter\b", re.IGNORECASE), IntroductionType.COUNTER, 0.85),
-    (re.compile(r"\badd\s+((?:\w+\s+)+)offset\b", re.IGNORECASE), IntroductionType.OFFSET, 0.85),
-    (re.compile(r"\badd\s+((?:\w+\s+)+)cursor\b", re.IGNORECASE), IntroductionType.CURSOR, 0.85),
-    (re.compile(r"\badd\s+((?:\w+\s+)+)flag\b", re.IGNORECASE), IntroductionType.FLAG, 0.85),
+    (
+        re.compile(r"\badd\s+((?:\w+\s+)+)counter\b", re.IGNORECASE),
+        IntroductionType.COUNTER,
+        0.85,
+    ),
+    (
+        re.compile(r"\badd\s+((?:\w+\s+)+)offset\b", re.IGNORECASE),
+        IntroductionType.OFFSET,
+        0.85,
+    ),
+    (
+        re.compile(r"\badd\s+((?:\w+\s+)+)cursor\b", re.IGNORECASE),
+        IntroductionType.CURSOR,
+        0.85,
+    ),
+    (
+        re.compile(r"\badd\s+((?:\w+\s+)+)flag\b", re.IGNORECASE),
+        IntroductionType.FLAG,
+        0.85,
+    ),
     # "introduce cursor for ..."
-    (re.compile(r"\bintroduce\s+(?:a\s+|an\s+)?cursor\b\s+(?:for\s+)?(\w*)", re.IGNORECASE), IntroductionType.CURSOR, 0.9),
-    (re.compile(r"\bintroduce\s+(?:a\s+|an\s+)?counter\b\s+(?:for\s+)?(\w*)", re.IGNORECASE), IntroductionType.COUNTER, 0.9),
-    (re.compile(r"\bintroduce\s+(?:a\s+|an\s+)?offset\b\s+(?:for\s+)?(\w*)", re.IGNORECASE), IntroductionType.OFFSET, 0.9),
-    (re.compile(r"\bintroduce\s+(?:a\s+|an\s+)?flag\b\s+(?:for\s+)?(\w*)", re.IGNORECASE), IntroductionType.FLAG, 0.9),
+    (
+        re.compile(
+            r"\bintroduce\s+(?:a\s+|an\s+)?cursor\b\s+(?:for\s+)?(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.CURSOR,
+        0.9,
+    ),
+    (
+        re.compile(
+            r"\bintroduce\s+(?:a\s+|an\s+)?counter\b\s+(?:for\s+)?(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.COUNTER,
+        0.9,
+    ),
+    (
+        re.compile(
+            r"\bintroduce\s+(?:a\s+|an\s+)?offset\b\s+(?:for\s+)?(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.OFFSET,
+        0.9,
+    ),
+    (
+        re.compile(
+            r"\bintroduce\s+(?:a\s+|an\s+)?flag\b\s+(?:for\s+)?(\w*)", re.IGNORECASE
+        ),
+        IntroductionType.FLAG,
+        0.9,
+    ),
 ]
 
 # Type replacement pattern: "replace X with Y"
@@ -90,9 +160,22 @@ _REPLACEMENT_RE = re.compile(
 
 # State-tracking type synonyms (extensible)
 STATE_TYPE_SYNONYMS: set[str] = {
-    "int", "integer", "offset", "counter", "cursor", "flag",
-    "boolean", "bool", "enum", "state", "index", "tracker",
-    "accumulator", "pointer", "sentinel", "marker",
+    "int",
+    "integer",
+    "offset",
+    "counter",
+    "cursor",
+    "flag",
+    "boolean",
+    "bool",
+    "enum",
+    "state",
+    "index",
+    "tracker",
+    "accumulator",
+    "pointer",
+    "sentinel",
+    "marker",
 }
 
 # Documentation suppression patterns
@@ -151,12 +234,14 @@ def _detect_from_description(desc: str, deliverable_id: str) -> list[DetectionRe
         var_name = match.group(1)
         if var_name not in seen_vars:
             seen_vars.add(var_name)
-            results.append(DetectionResult(
-                variable_name=var_name,
-                deliverable_id=deliverable_id,
-                introduction_type=IntroductionType.SELF_ASSIGNMENT,
-                confidence=0.95,
-            ))
+            results.append(
+                DetectionResult(
+                    variable_name=var_name,
+                    deliverable_id=deliverable_id,
+                    introduction_type=IntroductionType.SELF_ASSIGNMENT,
+                    confidence=0.95,
+                )
+            )
 
     # 2. Explicit introduction patterns
     for pattern, intro_type, confidence in _INTRO_PATTERNS:
@@ -166,12 +251,14 @@ def _detect_from_description(desc: str, deliverable_id: str) -> list[DetectionRe
                 var_name = intro_type.value
             if var_name not in seen_vars:
                 seen_vars.add(var_name)
-                results.append(DetectionResult(
-                    variable_name=var_name,
-                    deliverable_id=deliverable_id,
-                    introduction_type=intro_type,
-                    confidence=confidence,
-                ))
+                results.append(
+                    DetectionResult(
+                        variable_name=var_name,
+                        deliverable_id=deliverable_id,
+                        introduction_type=intro_type,
+                        confidence=confidence,
+                    )
+                )
 
     # 3. Type replacement patterns
     for match in _REPLACEMENT_RE.finditer(desc):
@@ -183,11 +270,13 @@ def _detect_from_description(desc: str, deliverable_id: str) -> list[DetectionRe
             var_name = old_type
             if var_name not in seen_vars:
                 seen_vars.add(var_name)
-                results.append(DetectionResult(
-                    variable_name=var_name,
-                    deliverable_id=deliverable_id,
-                    introduction_type=IntroductionType.REPLACEMENT,
-                    confidence=0.85,
-                ))
+                results.append(
+                    DetectionResult(
+                        variable_name=var_name,
+                        deliverable_id=deliverable_id,
+                        introduction_type=IntroductionType.REPLACEMENT,
+                        confidence=0.85,
+                    )
+                )
 
     return results

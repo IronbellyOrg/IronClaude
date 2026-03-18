@@ -12,7 +12,11 @@ import pytest
 
 pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l0]
 
-from superclaude.cli.sprint.debug_logger import DEBUG_LOG_VERSION, LOGGER_NAME, debug_log
+from superclaude.cli.sprint.debug_logger import (
+    DEBUG_LOG_VERSION,
+    LOGGER_NAME,
+    debug_log,
+)
 
 
 class TestL0DebugLogPipeline:
@@ -24,17 +28,23 @@ class TestL0DebugLogPipeline:
 
     def test_event_appears_in_log(self, harness):
         phase = harness.phases[0]
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100, "elapsed": 0.5}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100, "elapsed": 0.5}),
+            ],
+        )
         reader = harness.get_log_reader()
         assert len(reader.events("poll_tick")) >= 1
 
     def test_phase_begin_end_bracketing(self, harness):
         phase = harness.phases[0]
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100}),
+            ],
+        )
         reader = harness.get_log_reader()
         begins = reader.events("PHASE_BEGIN")
         ends = reader.events("PHASE_END")
@@ -43,10 +53,13 @@ class TestL0DebugLogPipeline:
 
     def test_phase_events_extraction(self, harness):
         phase = harness.phases[0]
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100}),
-            ("poll_tick", {"phase": 1, "pid": 100}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100}),
+                ("poll_tick", {"phase": 1, "pid": 100}),
+            ],
+        )
         reader = harness.get_log_reader()
         phase_events = reader.phase_events(1)
         # PHASE_BEGIN + 2 poll_tick + PHASE_END = 4
@@ -54,9 +67,12 @@ class TestL0DebugLogPipeline:
 
     def test_entry_fields_parsed(self, harness):
         phase = harness.phases[0]
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 1234, "elapsed": 5.2}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 1234, "elapsed": 5.2}),
+            ],
+        )
         reader = harness.get_log_reader()
         ticks = reader.events("poll_tick")
         assert ticks[0].fields["pid"] == "1234"
@@ -64,6 +80,7 @@ class TestL0DebugLogPipeline:
 
     def test_empty_log_when_disabled(self, tmp_path):
         from tests.sprint.diagnostic.conftest import DiagnosticTestHarness
+
         h = DiagnosticTestHarness(tmp_path, debug=False)
         reader = h.get_log_reader()
         assert len(reader.entries) == 0

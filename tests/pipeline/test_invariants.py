@@ -95,10 +95,12 @@ class TestMutationSite:
         assert restored.context == ms.context
 
     def test_empty_context_default(self):
-        ms = MutationSite.from_dict({
-            "deliverable_id": "D-0001",
-            "expression": "reset counter",
-        })
+        ms = MutationSite.from_dict(
+            {
+                "deliverable_id": "D-0001",
+                "expression": "reset counter",
+            }
+        )
         assert ms.context == ""
 
 

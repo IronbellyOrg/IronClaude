@@ -70,7 +70,9 @@ class SprintTUI:
         # Per-phase gate display state; updated via update() by executor.
         # Only rendered when grace_period > 0 (trailing gates enabled).
         self.gate_states: dict[int, GateDisplayState] = {}
-        self._show_gate_column: bool = getattr(config, "grace_period", 0) > 0  # silences future updates after first render error
+        self._show_gate_column: bool = (
+            getattr(config, "grace_period", 0) > 0
+        )  # silences future updates after first render error
 
     def start(self) -> Live:
         """Start the Live display and return it for the executor to use."""
@@ -116,9 +118,17 @@ class SprintTUI:
                 )
             except Exception as exc:
                 import sys
+
                 self._live_failed = True
-                debug_log(_dbg, "tui_live_failed", error=str(exc), error_type=type(exc).__name__)
-                print(f"[TUI] Display error (continuing sprint): {exc}", file=sys.stderr)
+                debug_log(
+                    _dbg,
+                    "tui_live_failed",
+                    error=str(exc),
+                    error_type=type(exc).__name__,
+                )
+                print(
+                    f"[TUI] Display error (continuing sprint): {exc}", file=sys.stderr
+                )
 
     def _render(self) -> Panel:
         """Build the complete TUI layout."""
@@ -139,9 +149,7 @@ class SprintTUI:
     def _build_header(self) -> Text:
         elapsed = self.sprint_result.duration_display if self.sprint_result else "0s"
         index_name = self.config.index_path.parent.name
-        return Text.from_markup(
-            f"[dim]{index_name}[/]    Elapsed: [bold]{elapsed}[/]"
-        )
+        return Text.from_markup(f"[dim]{index_name}[/]    Elapsed: [bold]{elapsed}[/]")
 
     def _build_phase_table(self) -> Table:
         table = Table(
@@ -172,7 +180,9 @@ class SprintTUI:
                 None,
             )
             status = result.status if result else PhaseStatus.PENDING
-            if phase == self.current_phase and not (result and result.status.is_terminal):
+            if phase == self.current_phase and not (
+                result and result.status.is_terminal
+            ):
                 status = PhaseStatus.RUNNING
 
             style = STATUS_STYLES[status]
@@ -259,15 +269,17 @@ class SprintTUI:
                 f"Result:  [bold green]ALL PHASES PASSED[/]\n"
                 f"Log:     {self.config.execution_log_md}"
             )
-            return Panel(content, title="[bold green]Sprint Complete[/]", border_style="green")
+            return Panel(
+                content, title="[bold green]Sprint Complete[/]", border_style="green"
+            )
         else:
-            lines = [
-                f"Result:  [bold red]{sr.outcome.value.upper()}[/]"
-            ]
+            lines = [f"Result:  [bold red]{sr.outcome.value.upper()}[/]"]
             if sr.halt_phase:
                 lines.append(f"Halted at Phase {sr.halt_phase}")
             resume = sr.resume_command()
             if resume:
                 lines.append(f"\nResume:  [bold]{resume}[/]")
             content = "\n".join(lines)
-            return Panel(content, title="[bold red]Sprint Halted[/]", border_style="red")
+            return Panel(
+                content, title="[bold red]Sprint Halted[/]", border_style="red"
+            )

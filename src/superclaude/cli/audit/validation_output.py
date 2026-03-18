@@ -42,11 +42,13 @@ def format_validation_report(result: SpotCheckResult) -> dict[str, Any]:
     per_tier_summary = []
     for tier_key, rate in sorted(result.per_tier_rates.items()):
         count = result.per_tier_sample_counts.get(tier_key, 0)
-        per_tier_summary.append({
-            "tier": tier_key,
-            "consistency_rate": round(rate, 4),
-            "sample_count": count,
-        })
+        per_tier_summary.append(
+            {
+                "tier": tier_key,
+                "consistency_rate": round(rate, 4),
+                "sample_count": count,
+            }
+        )
 
     return {
         "title": "Post-Consolidation Consistency Validation",
@@ -73,8 +75,8 @@ def render_validation_text(result: SpotCheckResult) -> str:
         f"**Overall Consistency Rate:** {result.overall_consistency_rate:.1%}",
         f"**Sample Size:** {result.sample_size} of {result.total_consolidated} "
         f"({result.sample_size / result.total_consolidated * 100:.1f}%)"
-        if result.total_consolidated > 0 else
-        f"**Sample Size:** {result.sample_size}",
+        if result.total_consolidated > 0
+        else f"**Sample Size:** {result.sample_size}",
         "",
         "### Per-Tier Consistency Rates",
         "",
@@ -86,11 +88,13 @@ def render_validation_text(result: SpotCheckResult) -> str:
         lines.append(f"- **{tier_key}:** {rate:.1%} (n={count})")
 
     if result.inconsistencies:
-        lines.extend([
-            "",
-            f"### Inconsistencies ({result.inconsistent_count})",
-            "",
-        ])
+        lines.extend(
+            [
+                "",
+                f"### Inconsistencies ({result.inconsistent_count})",
+                "",
+            ]
+        )
         for inc in result.inconsistencies:
             lines.append(
                 f"- `{inc['file_path']}`: "
@@ -98,13 +102,15 @@ def render_validation_text(result: SpotCheckResult) -> str:
                 f"{inc['re_tier']}/{inc['re_action']}"
             )
 
-    lines.extend([
-        "",
-        "### Calibration Notes",
-        "",
-        CALIBRATION_NOTES,
-        "",
-        METHODOLOGY_LIMITATIONS,
-    ])
+    lines.extend(
+        [
+            "",
+            "### Calibration Notes",
+            "",
+            CALIBRATION_NOTES,
+            "",
+            METHODOLOGY_LIMITATIONS,
+        ]
+    )
 
     return "\n".join(lines)

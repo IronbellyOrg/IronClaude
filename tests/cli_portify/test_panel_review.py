@@ -134,7 +134,6 @@ class TestDownstreamReadinessGate:
 
 
 class TestCriticalCounting:
-
     def test_count_unresolved_criticals(self):
         content = """\
 ## Findings
@@ -241,7 +240,12 @@ class TestPanelReportGeneration:
             state=ConvergenceState.CONVERGED,
             iterations_completed=2,
         )
-        scores = {"clarity": 8.0, "completeness": 7.5, "testability": 9.0, "consistency": 8.5}
+        scores = {
+            "clarity": 8.0,
+            "completeness": 7.5,
+            "testability": 9.0,
+            "consistency": 8.5,
+        }
         overall = compute_overall_score(scores)
         report_path = tmp_path / "panel-report.md"
 
@@ -285,7 +289,6 @@ class TestPanelReportGeneration:
 
 
 class TestPanelReviewHappyPath:
-
     def test_produces_pass_result(self, config_with_prior_artifacts):
         with patch_portify_process("panel-review"):
             result = run_panel_review(config_with_prior_artifacts)
@@ -314,7 +317,6 @@ class TestPanelReviewHappyPath:
 
 
 class TestPanelReviewFailures:
-
     def test_missing_synthesized_spec_fails(self, workflow_dir, tmp_path):
         output = tmp_path / "output"
         output.mkdir()

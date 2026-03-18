@@ -45,8 +45,10 @@ class TestCriticalCorrection2:
 
     def test_template_check_exists(self, skill_md_content):
         """SKILL.md should check for template directory existence."""
-        assert "template_directory" in skill_md_content.lower() or \
-               "template directory" in skill_md_content.lower()
+        assert (
+            "template_directory" in skill_md_content.lower()
+            or "template directory" in skill_md_content.lower()
+        )
 
     def test_on_not_found_handling(self, skill_md_content):
         """SKILL.md should handle missing template directory."""
@@ -67,7 +69,10 @@ class TestCriticalCorrection3:
 
     def test_escalation_conditions(self, skill_md_content):
         """SKILL.md should define escalation from STANDARD to STRICT."""
-        assert "escalation" in skill_md_content.lower() or "escalat" in skill_md_content.lower()
+        assert (
+            "escalation" in skill_md_content.lower()
+            or "escalat" in skill_md_content.lower()
+        )
 
 
 class TestCriticalCorrection4:
@@ -85,15 +90,23 @@ class TestCriticalCorrection4:
     def test_blocked_workaround_documented(self, skill_md_content):
         """SKILL.md should document the [BLOCKED:] prefix workaround."""
         assert "[BLOCKED:" in skill_md_content
-        assert "workaround" in skill_md_content.lower() or "prefix" in skill_md_content.lower()
+        assert (
+            "workaround" in skill_md_content.lower()
+            or "prefix" in skill_md_content.lower()
+        )
 
 
 class TestCriticalCorrection5:
     """CC5: 7 wave-enabled commands."""
 
     WAVE_ENABLED_COMMANDS = [
-        "/analyze", "/build", "/design", "/implement",
-        "/improve", "/task", "/workflow",
+        "/analyze",
+        "/build",
+        "/design",
+        "/implement",
+        "/improve",
+        "/task",
+        "/workflow",
     ]
 
     def test_seven_wave_enabled(self):

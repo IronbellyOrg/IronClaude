@@ -149,14 +149,40 @@ class TestStepResult:
     def test_duration(self):
         t1 = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         t2 = datetime(2026, 1, 1, 0, 1, 30, tzinfo=timezone.utc)
-        step = Step(id="s", prompt="p", output_file=Path("/tmp/o"), gate=None, timeout_seconds=60)
-        sr = StepResult(step=step, status=StepStatus.PASS, attempt=1, gate_failure_reason=None, started_at=t1, finished_at=t2)
+        step = Step(
+            id="s",
+            prompt="p",
+            output_file=Path("/tmp/o"),
+            gate=None,
+            timeout_seconds=60,
+        )
+        sr = StepResult(
+            step=step,
+            status=StepStatus.PASS,
+            attempt=1,
+            gate_failure_reason=None,
+            started_at=t1,
+            finished_at=t2,
+        )
         assert sr.duration_seconds == 90.0
 
     def test_gate_failure_reason(self):
-        step = Step(id="s", prompt="p", output_file=Path("/tmp/o"), gate=None, timeout_seconds=60)
+        step = Step(
+            id="s",
+            prompt="p",
+            output_file=Path("/tmp/o"),
+            gate=None,
+            timeout_seconds=60,
+        )
         now = datetime.now(timezone.utc)
-        sr = StepResult(step=step, status=StepStatus.FAIL, attempt=2, gate_failure_reason="Missing field 'title'", started_at=now, finished_at=now)
+        sr = StepResult(
+            step=step,
+            status=StepStatus.FAIL,
+            attempt=2,
+            gate_failure_reason="Missing field 'title'",
+            started_at=now,
+            finished_at=now,
+        )
         assert sr.gate_failure_reason == "Missing field 'title'"
         assert sr.attempt == 2
 

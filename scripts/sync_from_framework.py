@@ -33,20 +33,21 @@ import logging
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 class ProtectionViolationError(RuntimeError):
     """Raised when sync would overwrite a Plugin-owned file listed in PROTECTED_PATHS."""
+
     pass
 
 
 @dataclass
 class SyncResult:
     """Results from sync operation."""
+
     success: bool
     timestamp: str
     framework_commit: str
@@ -67,10 +68,10 @@ class ContentTransformer:
     """Transforms Framework content for Plugin namespace."""
 
     # Regex patterns for transformation
-    COMMAND_HEADER_PATTERN = re.compile(r'^(#+\s+)/(\w+)', re.MULTILINE)
-    COMMAND_REF_PATTERN = re.compile(r'(?<![/\w])/(\w+)(?=\s|$|:|`|\)|\])')
-    LINK_REF_PATTERN = re.compile(r'\[/(\w+)\]')
-    FRONTMATTER_NAME_PATTERN = re.compile(r'^name:\s*(.+)$', re.MULTILINE)
+    COMMAND_HEADER_PATTERN = re.compile(r"^(#+\s+)/(\w+)", re.MULTILINE)
+    COMMAND_REF_PATTERN = re.compile(r"(?<![/\w])/(\w+)(?=\s|$|:|`|\)|\])")
+    LINK_REF_PATTERN = re.compile(r"\[/(\w+)\]")
+    FRONTMATTER_NAME_PATTERN = re.compile(r"^name:\s*(.+)$", re.MULTILINE)
 
     @staticmethod
     def transform_command(content: str, filename: str) -> str:
@@ -92,22 +93,13 @@ class ContentTransformer:
         logger.debug(f"Transforming command: {filename}")
 
         # Transform main header
-        content = ContentTransformer.COMMAND_HEADER_PATTERN.sub(
-            r'\1/sc:\2',
-            content
-        )
+        content = ContentTransformer.COMMAND_HEADER_PATTERN.sub(r"\1/sc:\2", content)
 
         # Transform command references in text
-        content = ContentTransformer.COMMAND_REF_PATTERN.sub(
-            r'/sc:\1',
-            content
-        )
+        content = ContentTransformer.COMMAND_REF_PATTERN.sub(r"/sc:\1", content)
 
         # Transform command references in links
-        content = ContentTransformer.LINK_REF_PATTERN.sub(
-            r'[/sc:\1]',
-            content
-        )
+        content = ContentTransformer.LINK_REF_PATTERN.sub(r"[/sc:\1]", content)
 
         return content
 
@@ -129,10 +121,7 @@ class ContentTransformer:
         logger.debug(f"Transforming agent: {filename}")
 
         # Parse frontmatter
-        frontmatter_pattern = re.compile(
-            r'^---\n(.*?)\n---',
-            re.DOTALL | re.MULTILINE
-        )
+        frontmatter_pattern = re.compile(r"^---\n(.*?)\n---", re.DOTALL | re.MULTILINE)
 
         match = frontmatter_pattern.search(content)
         if not match:
@@ -144,21 +133,16 @@ class ContentTransformer:
         # Transform name field (add sc- prefix if not already present)
         def add_prefix(match):
             name = match.group(1).strip()
-            if not name.startswith('sc-'):
-                return f'name: sc-{name}'
+            if not name.startswith("sc-"):
+                return f"name: sc-{name}"
             return match.group(0)
 
         frontmatter = ContentTransformer.FRONTMATTER_NAME_PATTERN.sub(
-            add_prefix,
-            frontmatter
+            add_prefix, frontmatter
         )
 
         # Replace frontmatter
-        content = frontmatter_pattern.sub(
-            f'---\n{frontmatter}\n---',
-            content,
-            count=1
-        )
+        content = frontmatter_pattern.sub(f"---\n{frontmatter}\n---", content, count=1)
 
         return content
 
@@ -175,14 +159,16 @@ class FileSyncer:
         """Check if git is available and repo is initialized."""
         try:
             subprocess.run(
-                ['git', 'rev-parse', '--git-dir'],
+                ["git", "rev-parse", "--git-dir"],
                 cwd=self.plugin_root,
                 capture_output=True,
-                check=True
+                check=True,
             )
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
-            logger.warning("Git not available - file operations will not preserve history")
+            logger.warning(
+                "Git not available - file operations will not preserve history"
+            )
             return False
 
     def sync_directory(
@@ -190,7 +176,7 @@ class FileSyncer:
         source_dir: Path,
         dest_dir: Path,
         filename_prefix: str = "",
-        transform_fn=None
+        transform_fn=None,
     ) -> Dict[str, int]:
         """
         Sync directory with namespace prefix and transformation.
@@ -204,7 +190,7 @@ class FileSyncer:
         Returns:
             Statistics dict with counts of synced/modified files
         """
-        stats = {'synced': 0, 'modified': 0, 'renamed': 0}
+        stats = {"synced": 0, "modified": 0, "renamed": 0}
 
         if not source_dir.exists():
             logger.warning(f"Source directory not found: {source_dir}")
@@ -213,17 +199,17 @@ class FileSyncer:
         dest_dir.mkdir(parents=True, exist_ok=True)
 
         # Get existing files in dest (with sc- prefix)
-        existing_files = {f.name: f for f in dest_dir.glob('*.md')}
+        existing_files = {f.name: f for f in dest_dir.glob("*.md")}
         synced_files = set()
 
-        for source_file in source_dir.glob('*.md'):
+        for source_file in source_dir.glob("*.md"):
             # Apply filename prefix
             new_name = f"{filename_prefix}{source_file.name}"
             synced_files.add(new_name)
             dest_file = dest_dir / new_name
 
             # Read and transform content
-            content = source_file.read_text(encoding='utf-8')
+            content = source_file.read_text(encoding="utf-8")
             if transform_fn:
                 content = transform_fn(content, source_file.name)
 
@@ -235,22 +221,22 @@ class FileSyncer:
                 # File needs renaming: use git mv to preserve history
                 if self.git_available:
                     self._git_mv(old_file_path, dest_file)
-                    stats['renamed'] += 1
+                    stats["renamed"] += 1
                 else:
                     # Fallback to regular rename
                     if not self.dry_run:
                         old_file_path.rename(dest_file)
-                    stats['renamed'] += 1
+                    stats["renamed"] += 1
                     logger.info(f"  📝 Renamed: {old_unprefixed} → {new_name}")
 
             # Write content
             if not self.dry_run:
-                dest_file.write_text(content, encoding='utf-8')
+                dest_file.write_text(content, encoding="utf-8")
 
             if dest_file.exists():
-                stats['modified'] += 1
+                stats["modified"] += 1
             else:
-                stats['synced'] += 1
+                stats["synced"] += 1
 
         # Remove files that no longer exist in source
         # (only remove files with prefix that aren't in synced set)
@@ -270,10 +256,10 @@ class FileSyncer:
 
         try:
             subprocess.run(
-                ['git', 'mv', str(old_path), str(new_path)],
+                ["git", "mv", str(old_path), str(new_path)],
                 cwd=self.plugin_root,
                 check=True,
-                capture_output=True
+                capture_output=True,
             )
             logger.info(f"  📝 Renamed (git mv): {old_path.name} → {new_path.name}")
         except subprocess.CalledProcessError as e:
@@ -299,7 +285,7 @@ class FileSyncer:
         dest_dir.mkdir(parents=True, exist_ok=True)
         count = 0
 
-        for source_file in source_dir.glob('**/*'):
+        for source_file in source_dir.glob("**/*"):
             if source_file.is_file():
                 rel_path = source_file.relative_to(source_dir)
                 dest_file = dest_dir / rel_path
@@ -330,10 +316,10 @@ class PluginJsonGenerator:
         Returns:
             Complete plugin.json dictionary
         """
-        commands_dir = self.plugin_root / 'commands'
+        commands_dir = self.plugin_root / "commands"
 
         # Base metadata from existing plugin.json
-        root_plugin_json = self.plugin_root / 'plugin.json'
+        root_plugin_json = self.plugin_root / "plugin.json"
         if root_plugin_json.exists():
             base_metadata = json.loads(root_plugin_json.read_text())
         else:
@@ -341,16 +327,16 @@ class PluginJsonGenerator:
                 "name": "sc",
                 "description": "SuperClaude Plugin",
                 "author": {"name": "SuperClaude Team"},
-                "license": "MIT"
+                "license": "MIT",
             }
 
         # Build command mappings
         commands = {}
         if commands_dir.exists():
-            for cmd_file in sorted(commands_dir.glob('sc-*.md')):
+            for cmd_file in sorted(commands_dir.glob("sc-*.md")):
                 # Extract command name from filename
                 # sc-brainstorm.md → brainstorm
-                cmd_name = cmd_file.stem.replace('sc-', '')
+                cmd_name = cmd_file.stem.replace("sc-", "")
 
                 # Map sc:brainstorm to path
                 commands[f"sc:{cmd_name}"] = f"commands/{cmd_file.name}"
@@ -363,7 +349,7 @@ class PluginJsonGenerator:
             "homepage": base_metadata.get("homepage", ""),
             "repository": base_metadata.get("repository", ""),
             "license": base_metadata.get("license", "MIT"),
-            "keywords": base_metadata.get("keywords", [])
+            "keywords": base_metadata.get("keywords", []),
         }
 
         logger.info(f"✅ Generated plugin.json with {len(commands)} commands")
@@ -372,7 +358,7 @@ class PluginJsonGenerator:
 
     def write(self, plugin_json: dict, dry_run: bool = False):
         """Write plugin.json to .claude-plugin/ directory."""
-        output_path = self.plugin_root / '.claude-plugin' / 'plugin.json'
+        output_path = self.plugin_root / ".claude-plugin" / "plugin.json"
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         if dry_run:
@@ -381,8 +367,7 @@ class PluginJsonGenerator:
             return
 
         output_path.write_text(
-            json.dumps(plugin_json, indent=2) + '\n',
-            encoding='utf-8'
+            json.dumps(plugin_json, indent=2) + "\n", encoding="utf-8"
         )
         logger.info(f"✅ Written: {output_path}")
 
@@ -393,11 +378,7 @@ class McpMerger:
     def __init__(self, plugin_root: Path):
         self.plugin_root = plugin_root
 
-    def merge(
-        self,
-        framework_mcp: dict,
-        plugin_mcp: dict
-    ) -> Tuple[dict, List[str]]:
+    def merge(self, framework_mcp: dict, plugin_mcp: dict) -> Tuple[dict, List[str]]:
         """
         Merge MCP configurations with conflict detection.
 
@@ -424,9 +405,7 @@ class McpMerger:
         for name, config in plugin_mcp.items():
             if name not in merged:
                 merged[name] = config
-                warnings.append(
-                    f"Preserved plugin-specific MCP server: {name}"
-                )
+                warnings.append(f"Preserved plugin-specific MCP server: {name}")
             else:
                 # Check if configurations differ
                 if config != merged[name]:
@@ -438,15 +417,15 @@ class McpMerger:
 
     def backup_current(self) -> Optional[Path]:
         """Create backup of current plugin.json."""
-        plugin_json = self.plugin_root / 'plugin.json'
+        plugin_json = self.plugin_root / "plugin.json"
         if not plugin_json.exists():
             return None
 
-        backup_dir = self.plugin_root / 'backups'
+        backup_dir = self.plugin_root / "backups"
         backup_dir.mkdir(exist_ok=True)
 
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_path = backup_dir / f'plugin.json.{timestamp}.backup'
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = backup_dir / f"plugin.json.{timestamp}.backup"
 
         shutil.copy2(plugin_json, backup_path)
         logger.info(f"📦 Backup created: {backup_path}")
@@ -462,8 +441,8 @@ class FrameworkSyncer:
     # Symmetric pair with PROTECTED_PATHS below: a path appears in one or the other,
     # never both.
     SYNC_MAPPINGS = {
-        "src/superclaude/commands": "commands",   # /cmd → /sc:cmd, sc- prefix
-        "src/superclaude/agents":   "agents",     # name → sc-name in frontmatter
+        "src/superclaude/commands": "commands",  # /cmd → /sc:cmd, sc- prefix
+        "src/superclaude/agents": "agents",  # name → sc-name in frontmatter
         # core/ and modes/ are intentionally absent — they live in PROTECTED_PATHS
     }
 
@@ -500,12 +479,7 @@ class FrameworkSyncer:
         "modes/",
     ]
 
-    def __init__(
-        self,
-        framework_repo: str,
-        plugin_root: Path,
-        dry_run: bool = False
-    ):
+    def __init__(self, framework_repo: str, plugin_root: Path, dry_run: bool = False):
         self.framework_repo = framework_repo
         self.plugin_root = plugin_root
         self.dry_run = dry_run
@@ -554,13 +528,13 @@ class FrameworkSyncer:
                 timestamp=datetime.now().isoformat(),
                 framework_commit=framework_commit,
                 framework_version=framework_version,
-                files_synced=stats['files_synced'],
-                files_modified=stats['files_modified'],
-                commands_transformed=stats['commands'],
-                agents_transformed=stats['agents'],
+                files_synced=stats["files_synced"],
+                files_modified=stats["files_modified"],
+                commands_transformed=stats["commands"],
+                agents_transformed=stats["agents"],
                 mcp_servers_merged=mcp_merged,
                 warnings=self.warnings,
-                errors=self.errors
+                errors=self.errors,
             )
 
         except ProtectionViolationError as e:
@@ -577,7 +551,7 @@ class FrameworkSyncer:
                 agents_transformed=0,
                 mcp_servers_merged=0,
                 warnings=self.warnings,
-                errors=self.errors
+                errors=self.errors,
             )
         except Exception as e:
             logger.error(f"❌ Sync failed: {e}", exc_info=True)
@@ -593,7 +567,7 @@ class FrameworkSyncer:
                 agents_transformed=0,
                 mcp_servers_merged=0,
                 warnings=self.warnings,
-                errors=self.errors
+                errors=self.errors,
             )
         finally:
             self._cleanup()
@@ -623,11 +597,13 @@ class FrameworkSyncer:
                 rel = protected
                 snapshot[rel] = self._hash_file(target)
             elif target.is_dir():
-                for f in sorted(target.rglob('*')):
+                for f in sorted(target.rglob("*")):
                     if f.is_file():
                         rel = str(f.relative_to(self.plugin_root))
                         snapshot[rel] = self._hash_file(f)
-        logger.info(f"🔒 Protection snapshot: {len(snapshot)} Plugin-owned files hashed")
+        logger.info(
+            f"🔒 Protection snapshot: {len(snapshot)} Plugin-owned files hashed"
+        )
         return snapshot
 
     def _validate_protected_files(self, snapshot: Dict[str, str]) -> None:
@@ -658,7 +634,9 @@ class FrameworkSyncer:
             logger.error(msg)
             raise ProtectionViolationError(msg)
 
-        logger.info(f"🔒 Protection check passed — {len(snapshot)} Plugin-owned files unchanged")
+        logger.info(
+            f"🔒 Protection check passed — {len(snapshot)} Plugin-owned files unchanged"
+        )
 
     # ── Core sync workflow ─────────────────────────────────────────────────────
 
@@ -666,15 +644,22 @@ class FrameworkSyncer:
         """Clone Framework repository to temp directory."""
         logger.info(f"📥 Cloning Framework: {self.framework_repo}")
 
-        self.temp_dir = tempfile.mkdtemp(prefix='superclaude_framework_')
-        framework_path = Path(self.temp_dir) / 'framework'
+        self.temp_dir = tempfile.mkdtemp(prefix="superclaude_framework_")
+        framework_path = Path(self.temp_dir) / "framework"
 
         try:
             subprocess.run(
-                ['git', 'clone', '--depth', '1', self.framework_repo, str(framework_path)],
+                [
+                    "git",
+                    "clone",
+                    "--depth",
+                    "1",
+                    self.framework_repo,
+                    str(framework_path),
+                ],
                 check=True,
                 capture_output=True,
-                text=True
+                text=True,
             )
             logger.info(f"✅ Cloned to: {framework_path}")
             return framework_path
@@ -687,11 +672,11 @@ class FrameworkSyncer:
         """Get current commit hash from repository."""
         try:
             result = subprocess.run(
-                ['git', 'rev-parse', 'HEAD'],
+                ["git", "rev-parse", "HEAD"],
                 cwd=repo_path,
                 check=True,
                 capture_output=True,
-                text=True
+                text=True,
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError:
@@ -700,26 +685,26 @@ class FrameworkSyncer:
     def _get_version(self, framework_path: Path) -> str:
         """Extract version from Framework."""
         # Try to read version from plugin.json or package.json
-        for version_file in ['plugin.json', 'package.json']:
+        for version_file in ["plugin.json", "package.json"]:
             version_path = framework_path / version_file
             if version_path.exists():
                 try:
                     data = json.loads(version_path.read_text())
-                    if 'version' in data:
-                        return data['version']
+                    if "version" in data:
+                        return data["version"]
                 except (json.JSONDecodeError, KeyError):
                     continue
 
         # Fallback to current Plugin version
-        plugin_json = self.plugin_root / 'plugin.json'
+        plugin_json = self.plugin_root / "plugin.json"
         if plugin_json.exists():
             try:
                 data = json.loads(plugin_json.read_text())
-                return data.get('version', '1.0.0')
+                return data.get("version", "1.0.0")
             except json.JSONDecodeError:
                 pass
 
-        return '1.0.0'
+        return "1.0.0"
 
     def _create_backup(self):
         """Create backup of current plugin state."""
@@ -736,45 +721,40 @@ class FrameworkSyncer:
         logger.info("🔄 Syncing content...")
 
         file_syncer = FileSyncer(self.plugin_root, self.dry_run)
-        stats = {
-            'files_synced': 0,
-            'files_modified': 0,
-            'commands': 0,
-            'agents': 0
-        }
+        stats = {"files_synced": 0, "files_modified": 0, "commands": 0, "agents": 0}
 
         # Sync commands with transformation
         logger.info("📝 Syncing commands...")
-        source_commands = framework_path / 'src/superclaude/commands'
-        dest_commands = self.plugin_root / 'commands'
+        source_commands = framework_path / "src/superclaude/commands"
+        dest_commands = self.plugin_root / "commands"
 
         if source_commands.exists():
             cmd_stats = file_syncer.sync_directory(
                 source_commands,
                 dest_commands,
-                filename_prefix='sc-',
-                transform_fn=ContentTransformer.transform_command
+                filename_prefix="sc-",
+                transform_fn=ContentTransformer.transform_command,
             )
-            stats['commands'] = cmd_stats['synced'] + cmd_stats['modified']
-            stats['files_synced'] += cmd_stats['synced']
-            stats['files_modified'] += cmd_stats['modified']
+            stats["commands"] = cmd_stats["synced"] + cmd_stats["modified"]
+            stats["files_synced"] += cmd_stats["synced"]
+            stats["files_modified"] += cmd_stats["modified"]
             logger.info(f"✅ Commands: {stats['commands']} transformed")
 
         # Sync agents with transformation
         logger.info("📝 Syncing agents...")
-        source_agents = framework_path / 'src/superclaude/agents'
-        dest_agents = self.plugin_root / 'agents'
+        source_agents = framework_path / "src/superclaude/agents"
+        dest_agents = self.plugin_root / "agents"
 
         if source_agents.exists():
             agent_stats = file_syncer.sync_directory(
                 source_agents,
                 dest_agents,
-                filename_prefix='sc-',
-                transform_fn=ContentTransformer.transform_agent
+                filename_prefix="sc-",
+                transform_fn=ContentTransformer.transform_agent,
             )
-            stats['agents'] = agent_stats['synced'] + agent_stats['modified']
-            stats['files_synced'] += agent_stats['synced']
-            stats['files_modified'] += agent_stats['modified']
+            stats["agents"] = agent_stats["synced"] + agent_stats["modified"]
+            stats["files_synced"] += agent_stats["synced"]
+            stats["files_modified"] += agent_stats["modified"]
             logger.info(f"✅ Agents: {stats['agents']} transformed")
 
         # core/ and modes/ are in PROTECTED_PATHS — Plugin maintains its own versions.
@@ -798,24 +778,24 @@ class FrameworkSyncer:
         logger.info("🔗 Merging MCP configurations...")
 
         # Read Framework MCP config
-        framework_plugin_json = framework_path / 'plugin.json'
+        framework_plugin_json = framework_path / "plugin.json"
         framework_mcp = {}
 
         if framework_plugin_json.exists():
             try:
                 data = json.loads(framework_plugin_json.read_text())
-                framework_mcp = data.get('mcpServers', {})
+                framework_mcp = data.get("mcpServers", {})
             except json.JSONDecodeError:
                 logger.warning("Failed to read Framework plugin.json")
 
         # Read Plugin MCP config
-        plugin_json_path = self.plugin_root / 'plugin.json'
+        plugin_json_path = self.plugin_root / "plugin.json"
         plugin_mcp = {}
 
         if plugin_json_path.exists():
             try:
                 data = json.loads(plugin_json_path.read_text())
-                plugin_mcp = data.get('mcpServers', {})
+                plugin_mcp = data.get("mcpServers", {})
             except json.JSONDecodeError:
                 logger.warning("Failed to read Plugin plugin.json")
 
@@ -831,10 +811,9 @@ class FrameworkSyncer:
         # Update plugin.json with merged MCP config
         if not self.dry_run and plugin_json_path.exists():
             data = json.loads(plugin_json_path.read_text())
-            data['mcpServers'] = merged_mcp
+            data["mcpServers"] = merged_mcp
             plugin_json_path.write_text(
-                json.dumps(data, indent=2) + '\n',
-                encoding='utf-8'
+                json.dumps(data, indent=2) + "\n", encoding="utf-8"
             )
 
         logger.info(f"✅ MCP servers merged: {len(merged_mcp)}")
@@ -845,19 +824,19 @@ class FrameworkSyncer:
         logger.info("🔍 Validating sync...")
 
         # Check commands directory
-        commands_dir = self.plugin_root / 'commands'
+        commands_dir = self.plugin_root / "commands"
         if commands_dir.exists():
-            sc_commands = list(commands_dir.glob('sc-*.md'))
+            sc_commands = list(commands_dir.glob("sc-*.md"))
             logger.info(f"✅ Found {len(sc_commands)} sc- prefixed commands")
 
         # Check agents directory
-        agents_dir = self.plugin_root / 'agents'
+        agents_dir = self.plugin_root / "agents"
         if agents_dir.exists():
-            sc_agents = list(agents_dir.glob('sc-*.md'))
+            sc_agents = list(agents_dir.glob("sc-*.md"))
             logger.info(f"✅ Found {len(sc_agents)} sc- prefixed agents")
 
         # Check plugin.json
-        plugin_json_path = self.plugin_root / '.claude-plugin' / 'plugin.json'
+        plugin_json_path = self.plugin_root / ".claude-plugin" / "plugin.json"
         if plugin_json_path.exists():
             logger.info(f"✅ plugin.json exists at {plugin_json_path}")
         else:
@@ -873,35 +852,27 @@ class FrameworkSyncer:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Sync SuperClaude Framework to Plugin with namespace isolation'
+        description="Sync SuperClaude Framework to Plugin with namespace isolation"
     )
     parser.add_argument(
-        '--framework-repo',
-        default='https://github.com/SuperClaude-Org/SuperClaude_Framework',
-        help='Framework repository URL'
+        "--framework-repo",
+        default="https://github.com/SuperClaude-Org/SuperClaude_Framework",
+        help="Framework repository URL",
     )
     parser.add_argument(
-        '--plugin-root',
+        "--plugin-root",
         type=Path,
         default=Path.cwd(),
-        help='Plugin repository root path'
+        help="Plugin repository root path",
     )
     parser.add_argument(
-        '--dry-run',
-        type=lambda x: x.lower() in ('true', '1', 'yes'),
+        "--dry-run",
+        type=lambda x: x.lower() in ("true", "1", "yes"),
         default=False,
-        help='Preview changes without applying'
+        help="Preview changes without applying",
     )
-    parser.add_argument(
-        '--output-report',
-        type=Path,
-        help='Save sync report to file'
-    )
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose logging'
-    )
+    parser.add_argument("--output-report", type=Path, help="Save sync report to file")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
     args = parser.parse_args()
 
@@ -915,16 +886,14 @@ def main():
     syncer = FrameworkSyncer(
         framework_repo=args.framework_repo,
         plugin_root=args.plugin_root,
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
     )
 
     result = syncer.sync()
 
     # Output report
     if args.output_report:
-        args.output_report.write_text(
-            json.dumps(result.to_dict(), indent=2) + '\n'
-        )
+        args.output_report.write_text(json.dumps(result.to_dict(), indent=2) + "\n")
         logger.info(f"📊 Report saved to: {args.output_report}")
 
     # Print summary
@@ -955,5 +924,5 @@ def main():
     sys.exit(0 if result.success else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

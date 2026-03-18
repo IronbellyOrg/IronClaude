@@ -186,8 +186,12 @@ class TestFindingDataclass:
 
     def test_default_status_is_pending(self):
         f = Finding(
-            id="F-01", severity="BLOCKING", dimension="Schema",
-            description="test", location="file:1", evidence="ev",
+            id="F-01",
+            severity="BLOCKING",
+            dimension="Schema",
+            description="test",
+            location="file:1",
+            evidence="ev",
             fix_guidance="fix",
         )
         assert f.status == "PENDING"
@@ -195,42 +199,65 @@ class TestFindingDataclass:
     def test_all_valid_statuses(self):
         for status in VALID_FINDING_STATUSES:
             f = Finding(
-                id="F-01", severity="BLOCKING", dimension="d",
-                description="d", location="l", evidence="e",
-                fix_guidance="fg", status=status,
+                id="F-01",
+                severity="BLOCKING",
+                dimension="d",
+                description="d",
+                location="l",
+                evidence="e",
+                fix_guidance="fg",
+                status=status,
             )
             assert f.status == status
 
     def test_invalid_status_raises(self):
         with pytest.raises(ValueError, match="Invalid Finding status"):
             Finding(
-                id="F-01", severity="BLOCKING", dimension="d",
-                description="d", location="l", evidence="e",
-                fix_guidance="fg", status="INVALID",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="d",
+                description="d",
+                location="l",
+                evidence="e",
+                fix_guidance="fg",
+                status="INVALID",
             )
 
     def test_default_files_affected_empty(self):
         f = Finding(
-            id="F-01", severity="BLOCKING", dimension="d",
-            description="d", location="l", evidence="e",
+            id="F-01",
+            severity="BLOCKING",
+            dimension="d",
+            description="d",
+            location="l",
+            evidence="e",
             fix_guidance="fg",
         )
         assert f.files_affected == []
 
     def test_default_agreement_category_empty(self):
         f = Finding(
-            id="F-01", severity="BLOCKING", dimension="d",
-            description="d", location="l", evidence="e",
+            id="F-01",
+            severity="BLOCKING",
+            dimension="d",
+            description="d",
+            location="l",
+            evidence="e",
             fix_guidance="fg",
         )
         assert f.agreement_category == ""
 
     def test_all_ten_fields_present(self):
         f = Finding(
-            id="F-01", severity="BLOCKING", dimension="Schema",
-            description="desc", location="file.py:1",
-            evidence="evidence text", fix_guidance="fix it",
-            files_affected=["file.py"], status="PENDING",
+            id="F-01",
+            severity="BLOCKING",
+            dimension="Schema",
+            description="desc",
+            location="file.py:1",
+            evidence="evidence text",
+            fix_guidance="fix it",
+            files_affected=["file.py"],
+            status="PENDING",
             agreement_category="BOTH_AGREE",
         )
         assert f.id == "F-01"

@@ -56,26 +56,34 @@ class TestBuildSpecFidelityPrompt:
     """T03.01: build_spec_fidelity_prompt() function tests."""
 
     def test_spec_fidelity_prompt_returns_string(self):
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert isinstance(prompt, str)
 
     def test_spec_fidelity_prompt_includes_severity_definitions(self):
         """Prompt includes explicit severity definitions (HIGH/MEDIUM/LOW)."""
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert "**HIGH**:" in prompt
         assert "**MEDIUM**:" in prompt
         assert "**LOW**:" in prompt
 
     def test_spec_fidelity_prompt_requires_quoting_both_docs(self):
         """Prompt requires quoting both spec and roadmap text for each deviation."""
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert "Spec Quote" in prompt
         assert "Roadmap Quote" in prompt
         assert "[MISSING]" in prompt
 
     def test_spec_fidelity_prompt_specifies_yaml_frontmatter(self):
         """Output format specifies YAML frontmatter with severity_counts and tasklist_ready."""
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert "high_severity_count" in prompt
         assert "medium_severity_count" in prompt
         assert "low_severity_count" in prompt
@@ -85,13 +93,17 @@ class TestBuildSpecFidelityPrompt:
 
     def test_spec_fidelity_prompt_includes_output_format_block(self):
         """Prompt includes the standard output format block."""
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert "<output_format>" in prompt
         assert "YAML frontmatter" in prompt
 
     def test_spec_fidelity_prompt_comparison_dimensions(self):
         """Prompt includes all 5 comparison dimensions."""
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert "Signatures" in prompt
         assert "Data Models" in prompt
         assert "Gates" in prompt
@@ -100,7 +112,9 @@ class TestBuildSpecFidelityPrompt:
 
     def test_spec_fidelity_prompt_deviation_format(self):
         """Prompt specifies the 7-column deviation format."""
-        prompt = build_spec_fidelity_prompt(Path("/tmp/spec.md"), Path("/tmp/roadmap.md"))
+        prompt = build_spec_fidelity_prompt(
+            Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
+        )
         assert "DEV-NNN" in prompt
         assert "Impact" in prompt
         assert "Recommended Correction" in prompt
@@ -200,12 +214,14 @@ class TestDeriveFidelityStatus:
     def test_pass_status(self, tmp_path):
         out = tmp_path / "spec-fidelity.md"
         out.write_text(
-            "---\nhigh_severity_count: 0\nvalidation_complete: true\n---\n"
-            "## Clean\n"
+            "---\nhigh_severity_count: 0\nvalidation_complete: true\n---\n## Clean\n"
         )
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=out,
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=out,
+            gate=None,
+            timeout_seconds=600,
         )
         result = StepResult(step=step, status=StepStatus.PASS)
         assert _derive_fidelity_status(result) == "pass"
@@ -217,32 +233,44 @@ class TestDeriveFidelityStatus:
             "## Degraded\n"
         )
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=out,
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=out,
+            gate=None,
+            timeout_seconds=600,
         )
         result = StepResult(step=step, status=StepStatus.PASS)
         assert _derive_fidelity_status(result) == "degraded"
 
     def test_fail_status(self):
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=Path("/tmp/x.md"),
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=Path("/tmp/x.md"),
+            gate=None,
+            timeout_seconds=600,
         )
         result = StepResult(step=step, status=StepStatus.FAIL)
         assert _derive_fidelity_status(result) == "fail"
 
     def test_timeout_status(self):
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=Path("/tmp/x.md"),
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=Path("/tmp/x.md"),
+            gate=None,
+            timeout_seconds=600,
         )
         result = StepResult(step=step, status=StepStatus.TIMEOUT)
         assert _derive_fidelity_status(result) == "fail"
 
     def test_skipped_status(self):
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=Path("/tmp/x.md"),
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=Path("/tmp/x.md"),
+            gate=None,
+            timeout_seconds=600,
         )
         result = StepResult(step=step, status=StepStatus.SKIPPED)
         assert _derive_fidelity_status(result) == "skipped"
@@ -256,15 +284,19 @@ class TestStatePersistence:
         config = _make_config(tmp_path)
         out = config.output_dir / "spec-fidelity.md"
         out.write_text(
-            "---\nhigh_severity_count: 0\nvalidation_complete: true\n---\n"
-            "## Clean\n"
+            "---\nhigh_severity_count: 0\nvalidation_complete: true\n---\n## Clean\n"
         )
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=out,
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=out,
+            gate=None,
+            timeout_seconds=600,
         )
         results = [
-            StepResult(step=step, status=StepStatus.PASS, started_at=_now(), finished_at=_now()),
+            StepResult(
+                step=step, status=StepStatus.PASS, started_at=_now(), finished_at=_now()
+            ),
         ]
         _save_state(config, results)
 
@@ -275,11 +307,16 @@ class TestStatePersistence:
     def test_state_includes_fidelity_status_fail(self, tmp_path):
         config = _make_config(tmp_path)
         step = Step(
-            id="spec-fidelity", prompt="p", output_file=config.output_dir / "spec-fidelity.md",
-            gate=None, timeout_seconds=600,
+            id="spec-fidelity",
+            prompt="p",
+            output_file=config.output_dir / "spec-fidelity.md",
+            gate=None,
+            timeout_seconds=600,
         )
         results = [
-            StepResult(step=step, status=StepStatus.FAIL, started_at=_now(), finished_at=_now()),
+            StepResult(
+                step=step, status=StepStatus.FAIL, started_at=_now(), finished_at=_now()
+            ),
         ]
         _save_state(config, results)
 
@@ -301,11 +338,16 @@ class TestStatePersistence:
                     "---\nhigh_severity_count: 0\nvalidation_complete: true\n---\nClean\n"
                 )
             step = Step(
-                id="spec-fidelity", prompt="p", output_file=out,
-                gate=None, timeout_seconds=600,
+                id="spec-fidelity",
+                prompt="p",
+                output_file=out,
+                gate=None,
+                timeout_seconds=600,
             )
             results = [
-                StepResult(step=step, status=status_val, started_at=_now(), finished_at=_now()),
+                StepResult(
+                    step=step, status=status_val, started_at=_now(), finished_at=_now()
+                ),
             ]
             _save_state(config, results)
             state = read_state(config.output_dir / ".roadmap-state.json")

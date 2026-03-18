@@ -107,8 +107,12 @@ def execute_pipeline(
         else:
             # Sequential step -- branch on gate_mode
             result = _execute_single_step(
-                entry, config, run_step, cancel_check,
-                on_step_start, on_step_complete,
+                entry,
+                config,
+                run_step,
+                cancel_check,
+                on_step_start,
+                on_step_complete,
                 trailing_runner=_trailing,
             )
             all_results.append(result)
@@ -221,7 +225,13 @@ def _execute_single_step(
             return result
 
         # Gate failed
-        _log.info("Gate failed for step '%s' (attempt %d/%d): %s", step.id, attempt, max_attempts, reason)
+        _log.info(
+            "Gate failed for step '%s' (attempt %d/%d): %s",
+            step.id,
+            attempt,
+            max_attempts,
+            reason,
+        )
 
         if attempt < max_attempts:
             continue  # retry
@@ -289,14 +299,16 @@ def _run_parallel_steps(
             final.append(r)
         else:
             now = datetime.now(timezone.utc)
-            final.append(StepResult(
-                step=steps[i],
-                status=StepStatus.CANCELLED,
-                attempt=0,
-                gate_failure_reason="Thread did not produce a result",
-                started_at=now,
-                finished_at=now,
-            ))
+            final.append(
+                StepResult(
+                    step=steps[i],
+                    status=StepStatus.CANCELLED,
+                    attempt=0,
+                    gate_failure_reason="Thread did not produce a result",
+                    started_at=now,
+                    finished_at=now,
+                )
+            )
 
     return final
 

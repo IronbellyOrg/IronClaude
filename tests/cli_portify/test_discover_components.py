@@ -121,7 +121,9 @@ class TestComponentDiscovery:
             output_dir=tmp_path / "output",
         )
         inventory, _ = run_discover_components(config)
-        skills = [c for c in inventory.components if c.component_type == COMPONENT_SKILL]
+        skills = [
+            c for c in inventory.components if c.component_type == COMPONENT_SKILL
+        ]
         assert len(skills) == 1
         assert skills[0].name == "SKILL.md"
 
@@ -150,7 +152,9 @@ class TestComponentDiscovery:
             output_dir=tmp_path / "output",
         )
         inventory, _ = run_discover_components(config)
-        templates = [c for c in inventory.components if c.component_type == COMPONENT_TEMPLATE]
+        templates = [
+            c for c in inventory.components if c.component_type == COMPONENT_TEMPLATE
+        ]
         assert len(templates) == 1
 
     def test_discovers_scripts(self, rich_workflow, tmp_path):
@@ -159,7 +163,9 @@ class TestComponentDiscovery:
             output_dir=tmp_path / "output",
         )
         inventory, _ = run_discover_components(config)
-        scripts = [c for c in inventory.components if c.component_type == COMPONENT_SCRIPT]
+        scripts = [
+            c for c in inventory.components if c.component_type == COMPONENT_SCRIPT
+        ]
         assert len(scripts) == 1
 
     def test_discovers_command_files(self, rich_workflow, tmp_path):
@@ -168,7 +174,9 @@ class TestComponentDiscovery:
             output_dir=tmp_path / "output",
         )
         inventory, _ = run_discover_components(config)
-        commands = [c for c in inventory.components if c.component_type == COMPONENT_COMMAND]
+        commands = [
+            c for c in inventory.components if c.component_type == COMPONENT_COMMAND
+        ]
         assert len(commands) == 1
         assert commands[0].name == "COMMAND.md"
 
@@ -200,7 +208,9 @@ class TestLineCountAccuracy:
             output_dir=tmp_path / "output",
         )
         inventory, _ = run_discover_components(config)
-        skill = [c for c in inventory.components if c.component_type == COMPONENT_SKILL][0]
+        skill = [
+            c for c in inventory.components if c.component_type == COMPONENT_SKILL
+        ][0]
         # "# Example Skill\n\nLine 2\nLine 3\n" = 4 lines
         assert skill.line_count == 4
 
@@ -336,7 +346,9 @@ class TestAgentPatternYamlArray:
     """Pattern 2: YAML array items."""
 
     def test_matches_yaml_item(self):
-        matches = AGENT_PATTERN_YAML_ARRAY.findall("- quality-engineer\n- audit-scanner")
+        matches = AGENT_PATTERN_YAML_ARRAY.findall(
+            "- quality-engineer\n- audit-scanner"
+        )
         assert "quality-engineer" in matches
         assert "audit-scanner" in matches
 
@@ -345,7 +357,9 @@ class TestAgentPatternVerb:
     """Pattern 3: Spawn/delegate/invoke verbs."""
 
     def test_spawn_with_parens(self):
-        matches = AGENT_PATTERN_VERB.findall("Spawn verification agent (backend-architect)")
+        matches = AGENT_PATTERN_VERB.findall(
+            "Spawn verification agent (backend-architect)"
+        )
         assert "backend-architect" in matches
 
     def test_delegate_to(self):
@@ -393,9 +407,15 @@ class TestExtractAgents:
         agents_dir.mkdir()
         # Create some agent files
         for name in [
-            "audit-scanner", "audit-analyzer", "audit-consolidator",
-            "quality-engineer", "backend-architect", "performance-engineer",
-            "deep-research-agent", "audit-validator", "merge-executor",
+            "audit-scanner",
+            "audit-analyzer",
+            "audit-consolidator",
+            "quality-engineer",
+            "backend-architect",
+            "performance-engineer",
+            "deep-research-agent",
+            "audit-validator",
+            "merge-executor",
             "frontend-architect",
         ]:
             (agents_dir / f"{name}.md").write_text(f"# {name}\nAgent definition.\n")
@@ -595,8 +615,7 @@ class TestMissingAgentWarning:
         agents_dir.mkdir()
         (agents_dir / "audit-scanner.md").write_text("# Scanner\n")
         content = (
-            "`audit-scanner` (Haiku) is found.\n"
-            "Delegate to ghost-agent for testing."
+            "`audit-scanner` (Haiku) is found.\nDelegate to ghost-agent for testing."
         )
         agents = extract_agents(content, agents_dir)
         names = {a.name for a in agents}
@@ -609,6 +628,7 @@ class TestMissingAgentWarning:
 
     def test_warning_logged_for_missing_agent(self, tmp_path, caplog):
         import logging
+
         agents_dir = tmp_path / "agents"
         agents_dir.mkdir()
         with caplog.at_level(logging.WARNING):
@@ -713,8 +733,13 @@ class TestRenderEnrichedInventory:
         md = render_enriched_inventory(tree, 0.05)
         fm, _ = parse_frontmatter(md)
         required = [
-            "source_command", "source_skill", "component_count",
-            "total_lines", "agent_count", "has_command", "has_skill",
+            "source_command",
+            "source_skill",
+            "component_count",
+            "total_lines",
+            "agent_count",
+            "has_command",
+            "has_skill",
             "duration_seconds",
         ]
         for key in required:
@@ -800,7 +825,9 @@ class TestInventory:
     def test_inventory_contains_skill_md(self, tmp_path):
         """Inventory contains at least one component referencing SKILL.md."""
         from superclaude.cli.cli_portify.config import load_portify_config
-        from superclaude.cli.cli_portify.steps.discover_components import run_discover_components
+        from superclaude.cli.cli_portify.steps.discover_components import (
+            run_discover_components,
+        )
 
         wf = tmp_path / "sc-test-proto"
         wf.mkdir()
@@ -814,7 +841,9 @@ class TestInventory:
     def test_inventory_component_has_required_fields(self, tmp_path):
         """Each component has: path, lines, purpose, type."""
         from superclaude.cli.cli_portify.config import load_portify_config
-        from superclaude.cli.cli_portify.steps.discover_components import run_discover_components
+        from superclaude.cli.cli_portify.steps.discover_components import (
+            run_discover_components,
+        )
 
         wf = tmp_path / "sc-test-proto"
         wf.mkdir()
@@ -825,13 +854,17 @@ class TestInventory:
         for comp in inventory.components:
             assert hasattr(comp, "path"), "ComponentEntry missing 'path'"
             assert hasattr(comp, "line_count"), "ComponentEntry missing 'line_count'"
-            assert hasattr(comp, "component_type"), "ComponentEntry missing 'component_type'"
+            assert hasattr(comp, "component_type"), (
+                "ComponentEntry missing 'component_type'"
+            )
             assert hasattr(comp, "purpose"), "ComponentEntry missing 'purpose'"
 
     def test_inventory_source_skill_populated(self, tmp_path):
         """Inventory source_skill reflects the scanned skill directory name."""
         from superclaude.cli.cli_portify.config import load_portify_config
-        from superclaude.cli.cli_portify.steps.discover_components import run_discover_components
+        from superclaude.cli.cli_portify.steps.discover_components import (
+            run_discover_components,
+        )
 
         wf = tmp_path / "sc-my-skill-protocol"
         wf.mkdir()
@@ -844,7 +877,9 @@ class TestInventory:
     def test_inventory_line_count_accurate(self, tmp_path):
         """Line counts in inventory accurately reflect file contents."""
         from superclaude.cli.cli_portify.config import load_portify_config
-        from superclaude.cli.cli_portify.steps.discover_components import run_discover_components
+        from superclaude.cli.cli_portify.steps.discover_components import (
+            run_discover_components,
+        )
 
         wf = tmp_path / "sc-line-count-proto"
         wf.mkdir()
@@ -860,7 +895,9 @@ class TestInventory:
     def test_inventory_discovers_subdirs(self, tmp_path):
         """Inventory discovers components in refs/, rules/, templates/, scripts/."""
         from superclaude.cli.cli_portify.config import load_portify_config
-        from superclaude.cli.cli_portify.steps.discover_components import run_discover_components
+        from superclaude.cli.cli_portify.steps.discover_components import (
+            run_discover_components,
+        )
 
         wf = tmp_path / "sc-subdir-proto"
         wf.mkdir()
@@ -873,12 +910,20 @@ class TestInventory:
         config = load_portify_config(workflow_path=wf, output_dir=tmp_path / "out")
         inventory, _ = run_discover_components(config)
         discovered_types = {c.component_type for c in inventory.components}
-        assert "ref" in discovered_types or "rule" in discovered_types or "template" in discovered_types or "script" in discovered_types or len(inventory.components) > 1
+        assert (
+            "ref" in discovered_types
+            or "rule" in discovered_types
+            or "template" in discovered_types
+            or "script" in discovered_types
+            or len(inventory.components) > 1
+        )
 
     def test_inventory_artifact_written_to_output_dir(self, tmp_path):
         """run_discover_components writes artifact to output directory."""
         from superclaude.cli.cli_portify.config import load_portify_config
-        from superclaude.cli.cli_portify.steps.discover_components import run_discover_components
+        from superclaude.cli.cli_portify.steps.discover_components import (
+            run_discover_components,
+        )
 
         wf = tmp_path / "sc-artifact-proto"
         wf.mkdir()

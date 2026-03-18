@@ -226,7 +226,9 @@ class TestGenerateCertificationReport:
         assert "| Finding | Severity | Result | Justification |" in report
 
     def test_per_finding_table_data(self):
-        results = [{"finding_id": "F-01", "result": "PASS", "justification": "All good"}]
+        results = [
+            {"finding_id": "F-01", "result": "PASS", "justification": "All good"}
+        ]
         report = generate_certification_report(results, [_make_finding()])
         assert "| F-01 | BLOCKING | PASS | All good |" in report
 
@@ -273,11 +275,7 @@ class TestParseCertificationOutput:
         assert len(results) == 3
 
     def test_skip_non_matching_lines(self):
-        output = (
-            "Some preamble text\n"
-            "F-01: PASS -- Fixed\n"
-            "More text\n"
-        )
+        output = "Some preamble text\nF-01: PASS -- Fixed\nMore text\n"
         results = parse_certification_output(output)
         assert len(results) == 1
 

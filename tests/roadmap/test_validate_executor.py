@@ -267,9 +267,7 @@ class TestPartialFailure:
 
             # Agent A succeeds, agent B fails
             # Write agent A's reflection file
-            agent_a_step.output_file.write_text(
-                _known_good_report(), encoding="utf-8"
-            )
+            agent_a_step.output_file.write_text(_known_good_report(), encoding="utf-8")
             return [
                 StepResult(
                     step=agent_a_step,
@@ -319,9 +317,7 @@ class TestPartialFailure:
             agent_b_step = parallel_group[1]
 
             # Agent A succeeds -- write its file
-            agent_a_step.output_file.write_text(
-                _known_good_report(), encoding="utf-8"
-            )
+            agent_a_step.output_file.write_text(_known_good_report(), encoding="utf-8")
             return [
                 StepResult(
                     step=agent_a_step,

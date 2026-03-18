@@ -73,9 +73,13 @@ class TestFMEAClassifier:
         assert len(results) >= 1
 
         immediate_results = [
-            r for r in results if r.detection_difficulty == DetectionDifficulty.IMMEDIATE
+            r
+            for r in results
+            if r.detection_difficulty == DetectionDifficulty.IMMEDIATE
         ]
-        assert len(immediate_results) >= 1, f"Expected immediate detection, got: {results}"
+        assert len(immediate_results) >= 1, (
+            f"Expected immediate detection, got: {results}"
+        )
 
     def test_filter_returns_empty_delayed(self):
         """filter returns empty instead of raising on bad predicate -> delayed/silent + high."""
@@ -84,17 +88,23 @@ class TestFMEAClassifier:
             description="Filter events by type, returns empty list on unmatched predicate, later causing downstream degradation",
             kind=DeliverableKind.IMPLEMENT,
         )
-        domains = {"D4.1": [
-            InputDomain(DomainCategory.FILTER_ALL, "Filter predicate removes all elements"),
-        ]}
+        domains = {
+            "D4.1": [
+                InputDomain(
+                    DomainCategory.FILTER_ALL, "Filter predicate removes all elements"
+                ),
+            ]
+        }
 
         results = classify_failure_modes([d], domains, invariant_entries=[])
         assert len(results) >= 1
 
         # Should detect delayed or silent corruption
         non_immediate = [
-            r for r in results
-            if r.detection_difficulty in (DetectionDifficulty.DELAYED, DetectionDifficulty.SILENT)
+            r
+            for r in results
+            if r.detection_difficulty
+            in (DetectionDifficulty.DELAYED, DetectionDifficulty.SILENT)
         ]
         assert len(non_immediate) >= 1, f"Expected delayed/silent, got: {results}"
 
@@ -111,7 +121,9 @@ class TestFMEAClassifier:
         results = classify_failure_modes([d], domains, invariant_entries=[])
         assert len(results) >= 1
 
-        silent = [r for r in results if r.detection_difficulty == DetectionDifficulty.SILENT]
+        silent = [
+            r for r in results if r.detection_difficulty == DetectionDifficulty.SILENT
+        ]
         assert len(silent) >= 1, (
             f"Signal 2 should detect silent corruption independently. Got: {results}"
         )
@@ -136,10 +148,14 @@ class TestSeverityOrdering:
             description="Compute display label, returns stale value silently",
             kind=DeliverableKind.IMPLEMENT,
         )
-        domains = {"D6.1": [InputDomain(DomainCategory.EMPTY, "Empty input collection/string")]}
+        domains = {
+            "D6.1": [InputDomain(DomainCategory.EMPTY, "Empty input collection/string")]
+        }
 
         results = classify_failure_modes([d], domains)
-        silent = [r for r in results if r.detection_difficulty == DetectionDifficulty.SILENT]
+        silent = [
+            r for r in results if r.detection_difficulty == DetectionDifficulty.SILENT
+        ]
         for r in silent:
             assert r.severity >= Severity.WRONG_STATE
 
@@ -167,12 +183,20 @@ class TestEdgeCases:
         assert results == []
 
     def test_no_domains_no_results(self):
-        d = Deliverable(id="D7.1", description="Non-computational setup", kind=DeliverableKind.IMPLEMENT)
+        d = Deliverable(
+            id="D7.1",
+            description="Non-computational setup",
+            kind=DeliverableKind.IMPLEMENT,
+        )
         results = classify_failure_modes([d], {}, [])
         assert results == []
 
     def test_non_computational_excluded(self):
         """Non-computational deliverables with no domains produce no failure modes."""
-        d = Deliverable(id="D8.1", description="Document the API design", kind=DeliverableKind.IMPLEMENT)
+        d = Deliverable(
+            id="D8.1",
+            description="Document the API design",
+            kind=DeliverableKind.IMPLEMENT,
+        )
         results = classify_failure_modes([d], {}, [])
         assert results == []

@@ -20,6 +20,7 @@ from .models import Deliverable
 
 class DomainCategory(Enum):
     """Input domain categories ordered by priority (degenerate first)."""
+
     EMPTY = "empty"
     NULL = "null"
     ZERO = "zero"
@@ -36,6 +37,7 @@ class DomainCategory(Enum):
 @dataclass
 class InputDomain:
     """A single input domain for FMEA analysis."""
+
     category: DomainCategory
     description: str
 
@@ -43,34 +45,54 @@ class InputDomain:
 # Domain generation rules keyed by computational verb patterns
 _DOMAIN_RULES: dict[str, list[DomainCategory]] = {
     "filter": [
-        DomainCategory.NORMAL, DomainCategory.EMPTY,
-        DomainCategory.FILTER_ALL, DomainCategory.FILTER_NONE,
-        DomainCategory.SINGLE, DomainCategory.NULL,
-        DomainCategory.DUPLICATE, DomainCategory.MAXIMUM,
+        DomainCategory.NORMAL,
+        DomainCategory.EMPTY,
+        DomainCategory.FILTER_ALL,
+        DomainCategory.FILTER_NONE,
+        DomainCategory.SINGLE,
+        DomainCategory.NULL,
+        DomainCategory.DUPLICATE,
+        DomainCategory.MAXIMUM,
     ],
     "count": [
-        DomainCategory.NORMAL, DomainCategory.ZERO,
-        DomainCategory.SINGLE, DomainCategory.MAXIMUM,
-        DomainCategory.EMPTY, DomainCategory.NEGATIVE,
-        DomainCategory.DUPLICATE, DomainCategory.NULL,
+        DomainCategory.NORMAL,
+        DomainCategory.ZERO,
+        DomainCategory.SINGLE,
+        DomainCategory.MAXIMUM,
+        DomainCategory.EMPTY,
+        DomainCategory.NEGATIVE,
+        DomainCategory.DUPLICATE,
+        DomainCategory.NULL,
     ],
     "compute": [
-        DomainCategory.NORMAL, DomainCategory.ZERO,
-        DomainCategory.NEGATIVE, DomainCategory.EMPTY,
-        DomainCategory.SINGLE, DomainCategory.MAXIMUM,
-        DomainCategory.NULL, DomainCategory.OUT_OF_ORDER,
+        DomainCategory.NORMAL,
+        DomainCategory.ZERO,
+        DomainCategory.NEGATIVE,
+        DomainCategory.EMPTY,
+        DomainCategory.SINGLE,
+        DomainCategory.MAXIMUM,
+        DomainCategory.NULL,
+        DomainCategory.OUT_OF_ORDER,
     ],
     "aggregate": [
-        DomainCategory.NORMAL, DomainCategory.EMPTY,
-        DomainCategory.SINGLE, DomainCategory.ZERO,
-        DomainCategory.MAXIMUM, DomainCategory.DUPLICATE,
-        DomainCategory.NULL, DomainCategory.NEGATIVE,
+        DomainCategory.NORMAL,
+        DomainCategory.EMPTY,
+        DomainCategory.SINGLE,
+        DomainCategory.ZERO,
+        DomainCategory.MAXIMUM,
+        DomainCategory.DUPLICATE,
+        DomainCategory.NULL,
+        DomainCategory.NEGATIVE,
     ],
     "_default": [
-        DomainCategory.NORMAL, DomainCategory.EMPTY,
-        DomainCategory.NULL, DomainCategory.ZERO,
-        DomainCategory.NEGATIVE, DomainCategory.SINGLE,
-        DomainCategory.MAXIMUM, DomainCategory.DUPLICATE,
+        DomainCategory.NORMAL,
+        DomainCategory.EMPTY,
+        DomainCategory.NULL,
+        DomainCategory.ZERO,
+        DomainCategory.NEGATIVE,
+        DomainCategory.SINGLE,
+        DomainCategory.MAXIMUM,
+        DomainCategory.DUPLICATE,
     ],
 }
 

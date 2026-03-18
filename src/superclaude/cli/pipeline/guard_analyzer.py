@@ -25,6 +25,7 @@ from .models import Deliverable, DeliverableKind
 
 class GuardKind(Enum):
     """Classification of guard/conditional pattern detected."""
+
     IF_ELSE = "if_else"
     EARLY_RETURN = "early_return"
     SENTINEL_VALUE = "sentinel_value"
@@ -34,6 +35,7 @@ class GuardKind(Enum):
 
 class TypeTransitionKind(Enum):
     """Classification of type transition detected."""
+
     BOOL_TO_INT = "bool_to_int"
     BOOL_TO_ENUM = "bool_to_enum"
     ENUM_TO_STRING = "enum_to_string"
@@ -44,6 +46,7 @@ class TypeTransitionKind(Enum):
 @dataclass
 class SemanticMeaning:
     """A single semantic meaning for a guard value."""
+
     value: str
     meaning: str
 
@@ -51,6 +54,7 @@ class SemanticMeaning:
 @dataclass
 class GuardState:
     """Enumerated state of a guard variable."""
+
     value: str
     semantic_meanings: list[SemanticMeaning] = field(default_factory=list)
 
@@ -74,6 +78,7 @@ class GuardDetection:
         suppressed: True if @no-ambiguity-check annotation present.
         suppression_rationale: Rationale from the suppression annotation.
     """
+
     deliverable_id: str
     guard_variable: str
     guard_kind: GuardKind
@@ -102,15 +107,30 @@ class GuardDetection:
 _GUARD_PATTERNS = [
     # "if <condition> ... else ..." or "check if"
     (re.compile(r"\bif\s+(\w+)\b.*\belse\b", re.IGNORECASE), GuardKind.IF_ELSE),
-    (re.compile(r"\bcheck\s+(?:if|whether)\s+(\w+)", re.IGNORECASE), GuardKind.FLAG_CHECK),
+    (
+        re.compile(r"\bcheck\s+(?:if|whether)\s+(\w+)", re.IGNORECASE),
+        GuardKind.FLAG_CHECK,
+    ),
     # "early return when <condition>"
-    (re.compile(r"\bearly\s+return\b.*?\b(\w+)", re.IGNORECASE), GuardKind.EARLY_RETURN),
+    (
+        re.compile(r"\bearly\s+return\b.*?\b(\w+)", re.IGNORECASE),
+        GuardKind.EARLY_RETURN,
+    ),
     # "sentinel value" or "<variable> as sentinel"
-    (re.compile(r"\b(\w+)\s+(?:as\s+)?sentinel\b", re.IGNORECASE), GuardKind.SENTINEL_VALUE),
-    (re.compile(r"\bsentinel\s+(?:value\s+)?(?:for\s+)?(\w+)", re.IGNORECASE), GuardKind.SENTINEL_VALUE),
+    (
+        re.compile(r"\b(\w+)\s+(?:as\s+)?sentinel\b", re.IGNORECASE),
+        GuardKind.SENTINEL_VALUE,
+    ),
+    (
+        re.compile(r"\bsentinel\s+(?:value\s+)?(?:for\s+)?(\w+)", re.IGNORECASE),
+        GuardKind.SENTINEL_VALUE,
+    ),
     # "guard" keyword
     (re.compile(r"\b(\w+)\s+guard\b", re.IGNORECASE), GuardKind.FLAG_CHECK),
-    (re.compile(r"\bguard\s+(?:on\s+|for\s+|using\s+)?(\w+)", re.IGNORECASE), GuardKind.FLAG_CHECK),
+    (
+        re.compile(r"\bguard\s+(?:on\s+|for\s+|using\s+)?(\w+)", re.IGNORECASE),
+        GuardKind.FLAG_CHECK,
+    ),
     # "flag" check
     (re.compile(r"\b(\w+)\s+flag\b", re.IGNORECASE), GuardKind.FLAG_CHECK),
     (re.compile(r"\bflag\s+(\w+)", re.IGNORECASE), GuardKind.FLAG_CHECK),
@@ -123,23 +143,51 @@ _GUARD_PATTERNS = [
 _TYPE_CHANGE_PATTERNS = [
     # "replace boolean/bool X [qualifier...] with integer/int ..."
     # Captures multi-word name between bool and with (e.g. "replay guard")
-    (re.compile(r"\breplace\s+(?:a\s+)?bool(?:ean)?\s+([\w\s]+?)\s+with\s+(?:an?\s+)?int(?:eger)?", re.IGNORECASE),
-     TypeTransitionKind.BOOL_TO_INT),
+    (
+        re.compile(
+            r"\breplace\s+(?:a\s+)?bool(?:ean)?\s+([\w\s]+?)\s+with\s+(?:an?\s+)?int(?:eger)?",
+            re.IGNORECASE,
+        ),
+        TypeTransitionKind.BOOL_TO_INT,
+    ),
     # "change X from bool to int"
-    (re.compile(r"\b([\w]+)\s+from\s+bool(?:ean)?\s+to\s+int(?:eger)?", re.IGNORECASE),
-     TypeTransitionKind.BOOL_TO_INT),
+    (
+        re.compile(
+            r"\b([\w]+)\s+from\s+bool(?:ean)?\s+to\s+int(?:eger)?", re.IGNORECASE
+        ),
+        TypeTransitionKind.BOOL_TO_INT,
+    ),
     # "bool->int" or "boolean->integer"
-    (re.compile(r"\b(\w+)\b.*\bbool(?:ean)?\s*(?:->|→|to)\s*int(?:eger)?", re.IGNORECASE),
-     TypeTransitionKind.BOOL_TO_INT),
+    (
+        re.compile(
+            r"\b(\w+)\b.*\bbool(?:ean)?\s*(?:->|→|to)\s*int(?:eger)?", re.IGNORECASE
+        ),
+        TypeTransitionKind.BOOL_TO_INT,
+    ),
     # "replace boolean/bool X [qualifier...] with [N-state] enum ..."
-    (re.compile(r"\breplace\s+(?:a\s+)?bool(?:ean)?\s+([\w\s]+?)\s+with\s+(?:an?\s+)?(?:\d+-state\s+)?enum", re.IGNORECASE),
-     TypeTransitionKind.BOOL_TO_ENUM),
+    (
+        re.compile(
+            r"\breplace\s+(?:a\s+)?bool(?:ean)?\s+([\w\s]+?)\s+with\s+(?:an?\s+)?(?:\d+-state\s+)?enum",
+            re.IGNORECASE,
+        ),
+        TypeTransitionKind.BOOL_TO_ENUM,
+    ),
     # "bool->enum" / "bool to 3-state enum"
-    (re.compile(r"\b(\w+)\b.*\bbool(?:ean)?\s*(?:->|→|to)\s*(?:\d+-state\s+)?enum", re.IGNORECASE),
-     TypeTransitionKind.BOOL_TO_ENUM),
+    (
+        re.compile(
+            r"\b(\w+)\b.*\bbool(?:ean)?\s*(?:->|→|to)\s*(?:\d+-state\s+)?enum",
+            re.IGNORECASE,
+        ),
+        TypeTransitionKind.BOOL_TO_ENUM,
+    ),
     # "replace enum X with string"
-    (re.compile(r"\breplace\s+(?:an?\s+)?enum\s+(\w+)\s+with\s+(?:a\s+)?string", re.IGNORECASE),
-     TypeTransitionKind.ENUM_TO_STRING),
+    (
+        re.compile(
+            r"\breplace\s+(?:an?\s+)?enum\s+(\w+)\s+with\s+(?:a\s+)?string",
+            re.IGNORECASE,
+        ),
+        TypeTransitionKind.ENUM_TO_STRING,
+    ),
 ]
 
 # Suppression annotation
@@ -158,17 +206,26 @@ _KNOWN_ARCHETYPES: dict[str, list[GuardState]] = {
                 SemanticMeaning("0", "start offset for replay"),
             ],
         ),
-        GuardState(value="N>0", semantic_meanings=[
-            SemanticMeaning("N>0", "offset into event list"),
-        ]),
+        GuardState(
+            value="N>0",
+            semantic_meanings=[
+                SemanticMeaning("N>0", "offset into event list"),
+            ],
+        ),
     ],
     "boolean": [
-        GuardState(value="true", semantic_meanings=[
-            SemanticMeaning("true", "condition active"),
-        ]),
-        GuardState(value="false", semantic_meanings=[
-            SemanticMeaning("false", "condition inactive"),
-        ]),
+        GuardState(
+            value="true",
+            semantic_meanings=[
+                SemanticMeaning("true", "condition active"),
+            ],
+        ),
+        GuardState(
+            value="false",
+            semantic_meanings=[
+                SemanticMeaning("false", "condition inactive"),
+            ],
+        ),
     ],
 }
 
@@ -212,8 +269,12 @@ def detect_guards(
                 var_name = raw_name.split()[0] if raw_name else raw_name
                 seen_transitions.add(transition_kind)
                 detection = _build_type_change_detection(
-                    d.id, var_name, transition_kind, desc_lower,
-                    suppressed, suppression_rationale,
+                    d.id,
+                    var_name,
+                    transition_kind,
+                    desc_lower,
+                    suppressed,
+                    suppression_rationale,
                 )
                 results.append(detection)
 
@@ -229,8 +290,12 @@ def detect_guards(
                 seen_vars.add(var_name)
 
                 detection = _build_guard_detection(
-                    d.id, var_name, guard_kind, desc_lower,
-                    suppressed, suppression_rationale,
+                    d.id,
+                    var_name,
+                    guard_kind,
+                    desc_lower,
+                    suppressed,
+                    suppression_rationale,
                 )
                 results.append(detection)
 
@@ -304,36 +369,60 @@ def _enumerate_type_change_states(
                     SemanticMeaning("0", "zero numeric value"),
                 ],
             ),
-            GuardState(value="N>0", semantic_meanings=[
-                SemanticMeaning("N>0", "positive numeric value"),
-            ]),
-            GuardState(value="N<0", semantic_meanings=[
-                SemanticMeaning("N<0", "negative numeric value (if applicable)"),
-            ]),
+            GuardState(
+                value="N>0",
+                semantic_meanings=[
+                    SemanticMeaning("N>0", "positive numeric value"),
+                ],
+            ),
+            GuardState(
+                value="N<0",
+                semantic_meanings=[
+                    SemanticMeaning("N<0", "negative numeric value (if applicable)"),
+                ],
+            ),
         ]
     elif transition_kind == TypeTransitionKind.BOOL_TO_ENUM:
         return [
-            GuardState(value="state_A", semantic_meanings=[
-                SemanticMeaning("state_A", "first enum state (maps to old true)"),
-            ]),
-            GuardState(value="state_B", semantic_meanings=[
-                SemanticMeaning("state_B", "second enum state (maps to old false)"),
-            ]),
-            GuardState(value="state_C", semantic_meanings=[
-                SemanticMeaning("state_C", "new third state"),
-            ]),
+            GuardState(
+                value="state_A",
+                semantic_meanings=[
+                    SemanticMeaning("state_A", "first enum state (maps to old true)"),
+                ],
+            ),
+            GuardState(
+                value="state_B",
+                semantic_meanings=[
+                    SemanticMeaning("state_B", "second enum state (maps to old false)"),
+                ],
+            ),
+            GuardState(
+                value="state_C",
+                semantic_meanings=[
+                    SemanticMeaning("state_C", "new third state"),
+                ],
+            ),
         ]
     elif transition_kind == TypeTransitionKind.ENUM_TO_STRING:
         return [
-            GuardState(value="valid_string", semantic_meanings=[
-                SemanticMeaning("valid_string", "matches expected enum name"),
-            ]),
-            GuardState(value="empty_string", semantic_meanings=[
-                SemanticMeaning("empty_string", "empty/missing value"),
-            ]),
-            GuardState(value="unknown_string", semantic_meanings=[
-                SemanticMeaning("unknown_string", "unrecognized value"),
-            ]),
+            GuardState(
+                value="valid_string",
+                semantic_meanings=[
+                    SemanticMeaning("valid_string", "matches expected enum name"),
+                ],
+            ),
+            GuardState(
+                value="empty_string",
+                semantic_meanings=[
+                    SemanticMeaning("empty_string", "empty/missing value"),
+                ],
+            ),
+            GuardState(
+                value="unknown_string",
+                semantic_meanings=[
+                    SemanticMeaning("unknown_string", "unrecognized value"),
+                ],
+            ),
         ]
     return []
 
@@ -349,12 +438,18 @@ def _enumerate_guard_states(
         if _matches_archetype(desc_lower, "boolean"):
             return list(_KNOWN_ARCHETYPES["boolean"])
         return [
-            GuardState(value="true", semantic_meanings=[
-                SemanticMeaning("true", f"{var_name} active"),
-            ]),
-            GuardState(value="false", semantic_meanings=[
-                SemanticMeaning("false", f"{var_name} inactive"),
-            ]),
+            GuardState(
+                value="true",
+                semantic_meanings=[
+                    SemanticMeaning("true", f"{var_name} active"),
+                ],
+            ),
+            GuardState(
+                value="false",
+                semantic_meanings=[
+                    SemanticMeaning("false", f"{var_name} inactive"),
+                ],
+            ),
         ]
     elif guard_kind == GuardKind.SENTINEL_VALUE:
         # Sentinel: has a special value + normal range
@@ -374,12 +469,18 @@ def _enumerate_guard_states(
         ]
     elif guard_kind in (GuardKind.IF_ELSE, GuardKind.EARLY_RETURN):
         return [
-            GuardState(value="truthy", semantic_meanings=[
-                SemanticMeaning("truthy", f"condition on {var_name} met"),
-            ]),
-            GuardState(value="falsy", semantic_meanings=[
-                SemanticMeaning("falsy", f"condition on {var_name} not met"),
-            ]),
+            GuardState(
+                value="truthy",
+                semantic_meanings=[
+                    SemanticMeaning("truthy", f"condition on {var_name} met"),
+                ],
+            ),
+            GuardState(
+                value="falsy",
+                semantic_meanings=[
+                    SemanticMeaning("falsy", f"condition on {var_name} not met"),
+                ],
+            ),
         ]
     return []
 

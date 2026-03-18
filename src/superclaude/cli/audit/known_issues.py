@@ -148,7 +148,9 @@ class KnownIssuesRegistry:
         unsuppressed = []
         for f in findings:
             result = self.match_finding(
-                f["file_path"], f["classification"], now=now,
+                f["file_path"],
+                f["classification"],
+                now=now,
             )
             if result.matched:
                 suppressed.append(result)
@@ -183,11 +185,13 @@ class KnownIssuesRegistry:
                     ref_date = ref_date.replace(tzinfo=timezone.utc)
                 days_since = (current - ref_date).days
                 if days_since > entry.ttl_days:
-                    events.append(EvictionEvent(
-                        issue_id=entry.issue_id,
-                        reason="ttl_expired",
-                        detail=f"TTL {entry.ttl_days}d exceeded by {days_since - entry.ttl_days}d",
-                    ))
+                    events.append(
+                        EvictionEvent(
+                            issue_id=entry.issue_id,
+                            reason="ttl_expired",
+                            detail=f"TTL {entry.ttl_days}d exceeded by {days_since - entry.ttl_days}d",
+                        )
+                    )
                 else:
                     surviving.append(entry)
             except (ValueError, TypeError):

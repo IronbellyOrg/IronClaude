@@ -16,8 +16,12 @@ def _make_finding(
 ) -> ConsolidatedFinding:
     tier = V2Tier.TIER_2 if action == V2Action.KEEP else V2Tier.TIER_1
     return ConsolidatedFinding(
-        file_path=path, tier=tier, action=action,
-        confidence=0.85, evidence=["ev"], source_phases=["surface"],
+        file_path=path,
+        tier=tier,
+        action=action,
+        confidence=0.85,
+        evidence=["ev"],
+        source_phases=["surface"],
     )
 
 
@@ -34,20 +38,18 @@ class TestBatchUniformity:
 
     def test_48_of_50_flagged(self):
         """48 KEEP + 2 DELETE in 50 files: 96% > 90% → flagged."""
-        findings = (
-            [_make_finding(f"k_{i}.py") for i in range(48)]
-            + [_make_finding(f"d_{i}.py", V2Action.DELETE) for i in range(2)]
-        )
+        findings = [_make_finding(f"k_{i}.py") for i in range(48)] + [
+            _make_finding(f"d_{i}.py", V2Action.DELETE) for i in range(2)
+        ]
         flag = check_batch_uniformity("B-001", findings, threshold=0.90)
         assert flag is not None
         assert flag.uniformity_ratio == pytest.approx(0.96)
 
     def test_diverse_not_flagged(self):
         """Diverse batch (50% KEEP, 50% DELETE) is not flagged."""
-        findings = (
-            [_make_finding(f"k_{i}.py") for i in range(25)]
-            + [_make_finding(f"d_{i}.py", V2Action.DELETE) for i in range(25)]
-        )
+        findings = [_make_finding(f"k_{i}.py") for i in range(25)] + [
+            _make_finding(f"d_{i}.py", V2Action.DELETE) for i in range(25)
+        ]
         flag = check_batch_uniformity("B-001", findings, threshold=0.90)
         assert flag is None
 
