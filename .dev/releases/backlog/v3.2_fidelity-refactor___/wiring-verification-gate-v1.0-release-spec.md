@@ -546,6 +546,10 @@ before the task status is finalized.
 ```python
 # In execute_phase_tasks() or _run_task_subprocess(), after classification:
 
+if config.wiring_gate_mode == "off":
+    # Skip wiring analysis entirely; no report emitted
+    return
+
 wiring_report_path = work_dir / f"{task_id}-wiring-report.md"
 report = run_wiring_analysis(target_dir=config.source_dir)
 emit_report(report, wiring_report_path)
@@ -595,7 +599,7 @@ added to `SPEC_FIDELITY_GATE.semantic_checks` in `roadmap/gates.py`.
 |------|--------|---------------|---------|
 | `src/superclaude/cli/audit/wiring_gate.py` | CREATE | 250-300 | Core analysis engine, report emitter, gate definition |
 | `src/superclaude/cli/audit/wiring_config.py` | CREATE | 40-60 | Configuration dataclass, patterns, whitelist loader |
-| `src/superclaude/cli/sprint/config.py` | MODIFY | +5 | Add `wiring_gate_mode` field |
+| `src/superclaude/cli/sprint/models.py` | MODIFY | +5 | Add `wiring_gate_mode` field to `SprintConfig` |
 | `src/superclaude/cli/sprint/executor.py` | MODIFY | +25 | Post-task wiring analysis hook |
 | `src/superclaude/cli/roadmap/gates.py` | MODIFY | +40 | `_deviation_counts_reconciled` semantic check |
 | `tests/audit/test_wiring_gate.py` | CREATE | 200-250 | Unit tests for all analysis functions |

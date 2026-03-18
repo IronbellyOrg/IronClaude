@@ -1,259 +1,188 @@
-# Adversarial Debate Transcript: Unified Audit Gating System v1.2.1
+---
+convergence_score: 0.78
+rounds_completed: 3
+---
 
-**Pipeline**: 3-variant adversarial debate
-**Depth**: deep (3 rounds)
-**Timestamp**: 2026-03-03T00:00:00Z
-**Advocates**: opus:architect (V1), sonnet:qa (V2), haiku:analyzer (V3)
-**Orchestrator**: debate-orchestrator (neutral)
+# Adversarial Debate: Wiring Verification Gate v3.0 Roadmap
+
+**Variant A**: Opus Architect (task-oriented, implementation-first)
+**Variant B**: Haiku Architect (governance-oriented, architecture-first)
+
+**Shared foundation**: 18 shared assumptions confirmed across both variants. Debate focuses on the 12 divergence points identified in diff analysis.
 
 ---
 
-## Round 1: Opening Positions and Steelmanning
+## Round 1: Initial Positions
 
-### opus:architect (V1) -- Opening Position
+### D01 — Phase 0: Architecture Confirmation
 
-**Core thesis**: Contracts-first ordering is the only structurally sound approach because every downstream component depends on the shape and invariants of the data contracts. Changing contracts after implementation begins creates cascading rework proportional to the number of dependent modules.
+**Variant A (Opus):**
+Phase 0 is unnecessary overhead. The open questions are enumerable and concrete — `provider_dir_names`, `ToolOrchestrator` seam inspection, merge coordination. These are resolvable in a focused 30-minute investigation at the start of T01, not a dedicated phase. Adding a phase-unit of calendar time before any code ships delays value delivery. The spec already identifies exactly what needs resolution and when each question blocks. Treating "confirm assumptions" as a separate phase implies the team doesn't trust the spec — but the spec is already merged and validated through adversarial review.
 
-**Strongest arguments**:
-
-1. **Closed-world state machine (U-001)**: By declaring that only explicitly listed transitions are legal and all others are illegal by default, the system eliminates an entire class of bypass vulnerabilities. Any new state added in the future is automatically blocked until transitions are explicitly declared. This is a security-by-design decision that no other variant makes explicit.
-
-2. **Compile-time release override prohibition (U-002)**: Rejecting release-scope overrides at OverrideRecord construction time, not just at transition validation time, provides defense-in-depth. If the transition validator has a bug, the construction-time check catches it. Two independent enforcement layers.
-
-3. **Contract immutability before implementation**: M1 locks all schemas (GateResult, OverrideRecord, event types) before any evaluator, validator, or CLI code is written. This eliminates the scenario where schema changes mid-implementation force rework across M2-M5.
-
-**Steelmanning V2**: The QA variant's front-loaded blocker resolution (M1) correctly identifies that threshold-dependent tests cannot be deterministic without finalized values. The sprint CLI regression gate (M5) is a genuine risk that the Architect variant underweights. The adversarial release override test (M4-D7) catches a failure mode that testing only for absent records would miss.
-
-**Steelmanning V3**: The Analyzer's dedicated reliability hardening milestone (M3) with fault-injection suite as a gate before rollout is sound engineering. Proving that lease/heartbeat/retry controls work under adversarial conditions before shadow deployment reduces the risk of discovering reliability issues during rollout. The three rollout gate milestones provide the most granular tracking of promotion readiness.
+**Variant B (Haiku):**
+Phase 0 is cheap insurance against expensive rework. This initiative touches roadmap execution, sprint enforcement, gate evaluation, audit tooling, and agent extensions simultaneously. A single misaligned assumption — say, `ToolOrchestrator.__init__()` lacking the `analyzer` param — discovered in Phase 3 would cascade into rework across T06, T10–T12, and potentially T08's special-casing logic. Phase 0 costs 0.5–1 phase-unit. Rework from a misaligned seam costs 2–4 phase-units. The ROI is obvious. Furthermore, Phase 0 assigns *owners* to open questions — without that, questions linger because nobody is accountable.
 
 ---
 
-### sonnet:qa (V2) -- Opening Position
+### D02 — Phase Structure: 6 vs 7 Phases
 
-**Core thesis**: Testing milestones cannot be deferred when the feature under test is itself a gating mechanism. A state machine that controls completions will be exercised under adversarial conditions from the moment the first prototype exists. Testing must be interleaved with every implementation phase, and blocker resolution must come first because non-deterministic inputs produce non-deterministic tests.
+**Variant A (Opus):**
+Six phases with bundled roadmap+sprint integration (Phase 3, T07–T09) minimizes phase transition overhead. Sprint integration (T09) directly depends on the same `WIRING_GATE` and core analyzer that roadmap integration uses. Separating them into distinct phases creates an artificial boundary — the implementer will naturally build T09 immediately after T08 because the context is warm. Fewer phases = fewer handoff points = fewer places for momentum to stall.
 
-**Strongest arguments**:
-
-1. **Blocker resolution as M1 (C-001)**: The four blockers (profile thresholds, retry values, rollback triggers, decision ownership) are not documentation gaps -- they are inputs to test parameterization. Until these values are finalized, any test that depends on them is testing against a placeholder. The Architect variant defines schemas in M1 but defers the values those schemas carry until M6, making 5 milestones of tests operate against provisional data.
-
-2. **Sprint CLI regression gate (U-004/C-003)**: The files `models.py` and `tui.py` are shared infrastructure. The Architect variant adds audit states to these files in M1-M4 without a dedicated regression gate. If a change to `PhaseStatus` silently breaks the existing sprint runner, it will not be caught until a user encounters it. A standalone milestone with baseline audit, backward-compatibility assertions, and zero-failure gate is the only way to guarantee non-regression.
-
-3. **Adversarial release override test (U-003)**: Testing with a fully valid OverrideRecord at release scope is the correct adversarial approach. The dangerous failure mode is not "no record present, completion blocked" (trivially correct) but "valid record present at forbidden scope, completion still blocked" (the actual invariant). Only V2 tests this case.
-
-4. **Explicit test counts as acceptance criteria**: V2 specifies exact numbers -- 17 legal-transition tests, 6 illegal-transition class tests, 9 determinism assertions, 11+ field-absence tests. These are auditable acceptance criteria, not aspirational statements. You can verify completeness by counting.
-
-**Steelmanning V1**: The Architect's closed-world state machine enforcement (U-001) is a powerful architectural decision that V2 does not make explicit. The compile-time release override prohibition (U-002) adds a defense-in-depth layer at construction time that V2 tests for but does not specify as an implementation constraint. The per-deliverable requirement traceability ("Reqs Covered" column) is more systematic than V2's acceptance-gate-level FR references.
-
-**Steelmanning V3**: The Analyzer's fault-injection suite (D3.5) as a standalone gate is more rigorous than V2's approach of embedding reliability tests within M4. Proving resilience under adversarial conditions before any rollout phase begins is a stronger ordering than V2's, where runtime controls and override tests share a milestone. The three separate rollout gate milestones provide clearer promotion checkpoints.
+**Variant B (Haiku):**
+Seven phases (including Phase 0) with separated roadmap (Phase 3) and sprint (Phase 4) integration provides three concrete benefits: (1) Phase 4 can begin once Phase 1 stabilizes, enabling parallel work before roadmap integration is complete. (2) Sprint integration has distinct performance requirements (<2s) and a distinct control surface (`SprintConfig`) — bundling it with roadmap work obscures these differences. (3) Separated phases give project managers cleaner milestone boundaries for tracking. The "warm context" argument assumes a single implementer in a single session, which may not hold.
 
 ---
 
-### haiku:analyzer (V3) -- Opening Position
+### D03 — Task Granularity: IDs vs Narrative
 
-**Core thesis**: Risk-first ordering prevents unsafe rollout assumptions from being embedded into runtime behavior. All implementation work must be blocked until NO-GO blockers are resolved. Reliability controls must be hardened and proven under fault injection before any rollout phase begins. Rollout itself requires three separate gate milestones with phase-specific acceptance criteria.
+**Variant A (Opus):**
+T01–T15 with file paths, CREATE/MODIFY annotations, and a dependency DAG is directly consumable by the sprint CLI tasklist generator. This is a roadmap for *execution*, not a PowerPoint for stakeholders. Every task has explicit inputs, outputs, and blockers. The dependency DAG enables automated parallelism detection. Narrative descriptions are pleasant to read but unusable for automated tooling.
 
-**Strongest arguments**:
-
-1. **Dedicated reliability hardening milestone (U-005)**: M3 is entirely focused on proving that lease/heartbeat/retry/deadlock controls work under adversarial conditions. This includes a fault-injection suite (D3.5), deadlock-resistance package (D3.2), and stale-state recovery (D3.3) as standalone deliverables. Neither V1 nor V2 isolates reliability hardening as a gate before rollout.
-
-2. **Three rollout gate milestones (U-006)**: M4 (Shadow + Shadow-to-Soft gate), M5 (Soft Enforcement + Rollback Drill), M6 (Full Enforcement + Soft-to-Full gate). Each rollout phase has its own milestone with phase-specific acceptance criteria. This is the most granular rollout tracking. Promotion from one phase to the next requires a dedicated milestone sign-off, not a deliverable within a larger milestone.
-
-3. **Risk-first ordering**: Blocker closure (M1) before contracts (M2) before reliability (M3) before rollout (M4/M5/M6). This ordering ensures that policy decisions inform contract design, contract correctness informs reliability testing, and reliability proof informs rollout safety. Each layer builds on the proven correctness of the previous one.
-
-**Steelmanning V1**: The Architect's contract-first approach has merit: defining schemas before implementation prevents mid-stream contract changes. The closed-world state machine (U-001) and compile-time release override prohibition (U-002) are high-value architectural decisions that V3 does not make explicit.
-
-**Steelmanning V2**: The QA variant's explicit test counts and adversarial release override test are more auditable than V3's abstract acceptance criteria. The Sprint CLI regression gate is a genuine gap in V3 -- the shared-file regression risk is real and V3 does not address it.
+**Variant B (Haiku):**
+Milestones (M1.1–M1.5, M2.1–M2.3, etc.) provide richer progress decomposition. A task ID tells you what to build; a milestone tells you what "done" looks like at each checkpoint. Both are needed. The narrative format also communicates *architectural rationale* alongside deliverables — why the report emitter separates from the analyzer, why semantic checks must be pure. Task IDs without rationale produce implementers who follow instructions without understanding constraints, leading to subtle violations.
 
 ---
 
-## Round 1 Convergence Matrix
+### D04 — File Layout: Up-front vs Deferred
 
-| Diff Point | Agreement Level | Notes |
-|------------|----------------|-------|
-| S-001 (Naming) | 70% | All accept QA naming is most traceable; Architect prefers artifact naming for planning |
-| S-002 (Rollout granularity) | 40% | Fundamental disagreement: 1 vs 1+regression vs 3 milestones |
-| C-001 (Blocker timing) | 60% | V2/V3 agree on M1; V1 concedes value but argues schema-value decoupling |
-| C-002 (Testing approach) | 50% | V2 approach most auditable; V1 argues embedded is sufficient; V3 argues fault-injection is undervalued |
-| C-003 (Sprint CLI regression) | 60% | V2 makes strongest case; V1 acknowledges gap; V3 silent |
-| X-001 (Blocker contradiction) | 65% | V2/V3 aligned; V1 acknowledges testability concern |
-| X-002 (Rollout contradiction) | 45% | Three-way disagreement on granularity |
-| U-001 (Closed-world) | 90% | All agree this is high-value; V2/V3 steelman it |
-| U-002 (Compile-time override) | 85% | All agree defense-in-depth is valuable |
-| U-003 (Adversarial override test) | 90% | All agree this is the correct test approach |
-| U-004 (Sprint CLI regression gate) | 70% | V1 acknowledges gap; V3 does not address |
-| U-005 (Reliability hardening) | 75% | V1/V2 agree on value; disagree on milestone isolation |
-| U-006 (3 rollout gates) | 50% | V3 strongest case; V2 argues sub-phase sign-offs suffice |
+**Variant A (Opus):**
+Committing to `audit/wiring_config.py` as a separate file for `WiringConfig` is a clear, testable decision. Config is loaded once, referenced everywhere, and has its own validation logic (whitelist loading, `provider_dir_names` defaults). Separating it from `wiring_gate.py` follows single-responsibility and makes unit testing config validation independent of analysis logic. Deferring file layout decisions just means making them later with less time and more pressure.
 
-**Round 1 aggregate convergence**: 62%
+**Variant B (Haiku):**
+Deferring file-level layout to Phase 0 is consistent with architecture-first philosophy. The right module boundary depends on how `WiringConfig` actually interacts with `WiringReport` and `WiringFinding` — if config validation needs to reference finding types, a separate file creates circular import risk. Phase 0's job is precisely to confirm these boundaries with evidence from the actual codebase, not from abstract design principles.
+
+---
+
+### D05 — Report Body Section Enumeration
+
+**Variant A (Opus):**
+The spec defines the report contract. The roadmap's job is to sequence implementation, not re-specify the artifact. Enumerating all 7 body sections in the roadmap is redundant with the spec and creates a maintenance burden — if the spec changes a section name, the roadmap must also be updated.
+
+**Variant B (Haiku):**
+The roadmap is the implementer's primary reference during coding. Requiring them to cross-reference the spec for section names during `emit_report()` implementation adds friction and error risk. Listing the 7 sections costs 7 lines and eliminates ambiguity. The maintenance concern is theoretical — the spec is locked before implementation begins.
+
+---
+
+### D06 — Whitelist Error Escalation
+
+**Variant A (Opus):**
+Strict validation from day one. A malformed whitelist entry is a configuration error. Logging a warning and continuing means the implementer might not notice the error during development, leading to silent data quality issues. Fail fast, fix fast.
+
+**Variant B (Haiku):**
+Phase-aware escalation (warn in Phase 1, error in Phase 2+) is operationally mature. During initial development, the whitelist format is still being defined — strict errors would block iteration on the whitelist schema itself. Once the schema stabilizes (Phase 2+), strict validation is appropriate. This is standard practice for configuration systems under active development.
+
+---
+
+### D07–D09 — SprintConfig Type, Staffing, Operational Dependencies
+
+**Variant A (Opus):**
+D07: The type system is an implementation detail, not a roadmap concern. D08: A staffing model for 4 engineers is irrelevant when the implementer is a Claude Code session. D09: Operational dependencies like "whitelist governance owner" are organizational concerns that belong in a project plan, not a technical roadmap.
+
+**Variant B (Haiku):**
+D07: `Literal["off", "shadow", "soft", "full"]` with explicit `"off"` is a design decision, not an implementation detail — it determines the API contract. D08: Even in a single-implementer scenario, the staffing model communicates which *expertise domains* are involved, helping the implementer context-switch appropriately. D09: Operational dependencies that block rollout belong in the roadmap because they're on the critical path to value delivery. A technically complete gate that can't be promoted because nobody owns whitelist governance delivers zero value.
+
+---
+
+### D10–D12 — Risk Framework, Deliverable Framing, Critical Path
+
+**Variant A (Opus):**
+D10: A compact risk table with Impact/Mitigation is directly actionable. A 4-layer meta-framework is academic overhead. D11: "Shadow mode is the primary deliverable" is a crisp, unambiguous statement of scope. D12: Task-level critical path (T01→T02→T03→T05→T08) tells the implementer exactly what to work on next.
+
+**Variant B (Haiku):**
+D10: The 4-layer model (Prevent→Detect→Contain→Recover) ensures no risk mitigation category is overlooked — it's a checklist, not academic theory. D11: "Controlled architecture rollout" frames v3.0 correctly for stakeholders who might otherwise expect enforcement on day one. D12: Phase-level critical path with explicit parallelism opportunities (Phase 4 after Phase 1) is more useful for scheduling than a task chain that doesn't show parallel tracks.
 
 ---
 
 ## Round 2: Rebuttals
 
-### opus:architect responds to sonnet:qa's blocker-timing critique
+### Variant A rebuts Variant B
 
-**QA's claim**: Deferring blocker closure to M6 makes early tests non-deterministic.
+**On Phase 0:** Haiku claims rework from misaligned seams costs 2–4 phase-units. But the *specific* open questions are already identified. Inspecting `ToolOrchestrator.__init__()` takes 5 minutes with a `grep`. Confirming `provider_dir_names` takes one directory listing. These are not architectural mysteries requiring a dedicated phase — they're concrete lookups. The risk of "lingering questions without owners" is solved by the open question priority table in Section 4, which assigns blocking relationships. Phase 0 solves a coordination problem that doesn't exist for a single-implementer workflow.
 
-**Architect's rebuttal**: This is partially correct but overstated. There are two categories of tests:
+**On separated phases:** Haiku's argument that Phase 4 can start after Phase 1 is theoretically true but practically irrelevant. Sprint integration (T09) is a single task that adds `wiring_gate_mode` to `SprintConfig` and hooks the analyzer into post-task flow. It takes one session. Creating a separate phase for one session of work adds organizational overhead without enabling meaningful parallelism.
 
-1. **Schema shape tests** (M1.1-M1.7 in V1): These test that GateResult has the right fields, that OverrideRecord rejects release scope, that enums are exhaustive. These tests do not depend on threshold values. They are fully deterministic from M1.
+**On narrative milestones:** Milestones are useful for tracking but they're orthogonal to task IDs. The Opus variant's tasks *include* milestones (M1–M5). The difference is that Opus's milestones are tied to concrete deliverables (M1: "`run_wiring_analysis()` returns correct `WiringReport` for test fixtures") rather than sub-numbered checkpoints on narrative paragraphs. Both formats can coexist — the question is which is the primary organizational unit.
 
-2. **Threshold-dependent tests** (profile pass/fail, retry budget exhaustion): These do depend on finalized values. V1 parameterizes them -- the tests accept threshold values as inputs, so when values are finalized, only the fixture changes, not the test logic.
+**On operational dependencies:** Haiku surfaces valid concerns (whitelist governance, promotion ownership) but locating them in the roadmap conflates *what to build* with *how to deploy*. A roadmap that includes staffing models and governance ownership becomes a project plan — a different document with a different audience. The roadmap should remain focused on technical sequencing.
 
-However, the Architect concedes that V2's approach is still stronger for one reason: **parametrized tests with provisional values can produce misleading coverage metrics**. A test that passes with provisional threshold=0.7 might fail with finalized threshold=0.8. The test "passes" in CI but does not validate the production configuration. Front-loading blocker resolution eliminates this class of false confidence.
+### Variant B rebuts Variant A
 
-**Architect's modified position on X-001**: Blocker resolution should be in M1, not M6. The Architect's original M6.1 (blocker closure) should move to M1, co-located with the QA/Analyzer approach. Contract schemas should still be defined in M1 but with finalized values from the blocker resolution, not provisional values.
+**On Phase 0 cost:** Opus dismisses Phase 0 as "overhead" but the cost is 0.5–1 phase-unit — less than a single implementation phase. The return is *certainty* that all architectural seams hold before committing to file layouts, import structures, and API shapes across 7 new files. Opus's own roadmap recommends "Resolve Open Question #7 early" and "Resolve Open Question #1 before T01" — that *is* Phase 0 work, just without the discipline of a named phase and explicit exit criteria. Naming it makes it accountable.
 
----
+**On bundled integration:** Opus argues sprint integration is "one session of work." But the diff analysis identifies distinct concerns: `SprintConfig` type design (D07), performance requirements (<2s), governance compatibility, and per-task artifact emission. These are not trivial additions — they're design decisions that benefit from being evaluated after the core analyzer is validated, not rushed as the tail end of roadmap integration. Bundling them risks sprint-specific concerns being treated as afterthoughts.
 
-### sonnet:qa responds to opus:architect's critique that the Sprint CLI regression gate is redundant
+**On task IDs as primary unit:** Opus's T01–T15 are excellent for sprint tooling but they encode *one particular decomposition*. If Phase 0 reveals that `WiringConfig` should not be a separate file (D04), the entire T01/T02 split changes. Task IDs create rigidity. Phases with milestones create structure while preserving flexibility to adjust decomposition based on what's learned. The final tasklist should be generated *after* architectural decisions are locked, not before.
 
-**Architect's claim**: In-milestone testing (M2-D7 "No regression in existing sprint CLI tests" and M4 risk mitigation "Run full sprint regression suite") is sufficient without a standalone milestone.
-
-**QA's rebuttal**: The Architect's M2-D7 says "All tests in `tests/sprint/` that were passing before this milestone continue to pass." This is a deliverable within M2, not a gate. If M2-D7 fails, the M2 milestone is blocked, but the failure is buried within a milestone that has 6 other deliverables competing for attention. A standalone milestone forces dedicated regression analysis with:
-
-1. **Baseline audit** (M5-D1): Record pass counts before changes land, not after. This captures the "before" state.
-2. **Backward-compatibility assertions** (M5-D2): Explicit tests that all pre-existing PhaseStatus and SprintOutcome values retain their semantics.
-3. **Guard isolation** (M5-D4): Explicit test that the new audit guard does not fire on non-audit transitions. This is not tested anywhere in V1.
-4. **Zero-failure acceptance criterion** (M5-D5): Post-merge total failing test count in `tests/sprint/` must be 0.
-
-The critical difference is that M5 runs after both M2 and M4 changes have landed, testing the combined effect. V1's M2-D7 only tests after M2 changes. The interaction between M2 changes (state enums) and M4 changes (TUI guards) could introduce regressions that neither M2-D7 nor M4's risk mitigation catches individually.
-
-**QA's position unchanged**: Sprint CLI regression gate must remain a standalone milestone.
+**On scope of the roadmap:** Opus argues operational dependencies belong in a "project plan, not a roadmap." But in practice, roadmaps that ignore deployment prerequisites produce technically complete features that sit unshipped. The wiring gate in shadow mode is useless without a telemetry collection process. The promotion to soft mode is blocked without a governance owner. These are first-class delivery risks, not administrative footnotes.
 
 ---
 
-### haiku:analyzer responds to both on rollout granularity
+## Round 3: Concessions and Remaining Disagreements
 
-**V1/V2 claim**: A single rollout milestone with sub-phase deliverables provides adequate granularity.
+### Variant A concessions
 
-**Analyzer's rebuttal**: There is a fundamental difference between a deliverable sign-off and a milestone sign-off:
+1. **Phase 0 as lightweight gate**: A named checkpoint (not a full phase) before T01 to confirm `provider_dir_names`, inspect `ToolOrchestrator` seam, and assign governance owners is reasonable. It should be timeboxed to one session maximum and should not delay T01 if the answers are available.
 
-1. **Deliverable sign-off**: An individual item within a larger milestone is marked complete. The milestone can still be "in progress" with some deliverables passing and others not.
-2. **Milestone sign-off**: The entire milestone is accepted or rejected. All deliverables must pass. This is a binary gate.
+2. **Report body sections**: Including the 7 section names in the roadmap costs nothing and eliminates a cross-reference step. Conceded.
 
-When Shadow-to-Soft promotion is a deliverable (V2's M6-D9), it can be "signed off" while other M6 deliverables are still in progress. This means Soft enforcement could theoretically begin before the rollback drill (M6-D8) is complete, because both are deliverables within the same milestone. Ordering within a milestone is not enforced at the same level as ordering between milestones.
+3. **`Literal["off", "shadow", "soft", "full"]`**: The explicit `"off"` mode is a genuine design decision that should be in the roadmap, not deferred to implementation. Conceded.
 
-When Shadow-to-Soft promotion is a milestone gate (V3's M4), it is impossible to begin M5 (Soft enforcement) until M4 is fully accepted. This provides a harder gate.
+4. **Operational dependencies as appendix**: Whitelist governance and promotion ownership are legitimate delivery prerequisites. They can be included as an appendix or "deployment readiness" section without inflating the core phase structure.
 
-**However**, the Analyzer concedes that three rollout milestones consume 50% of the milestone budget. If the total milestone count is constrained to 6, this leaves only 3 milestones for all implementation work (contracts, state machine, evaluator, runtime controls, CLI, override governance). This is too compressed for the complexity of the implementation.
+### Variant B concessions
 
-**Analyzer's modified position**: The three-rollout-milestone approach is the most rigorous but is impractical within a 6-milestone budget. The QA approach (single M6 with explicit sub-phase sign-offs) is acceptable IF the sub-phase deliverables are structured with explicit ordering constraints: M6-D9 (Shadow-to-Soft) must be signed off before M6-D6/D7/D8 (Soft-phase deliverables) can begin, and M6-D8 (Rollback drill) must be signed off before M6-D10 (Soft-to-Full). This makes the deliverable ordering within M6 enforceable.
+1. **Task IDs are necessary for tooling**: The sprint CLI requires formal task identifiers. Phase narratives alone are insufficient for automated tasklist generation. The final roadmap should include task IDs, even if they're generated after Phase 0 locks architectural decisions.
 
----
+2. **Staffing model is over-specified**: For a Claude Code single-implementer scenario, 4 named engineering roles add noise. The expertise domains can be noted as annotations on phases rather than a standalone staffing section.
 
-## Round 2 Convergence Matrix
+3. **Separate `wiring_config.py` is likely correct**: Config with whitelist loading and validation logic is substantial enough to warrant its own file. This can be confirmed in Phase 0 but the default assumption should be separation, not co-location.
 
-| Diff Point | R1 | R2 | Delta | Notes |
-|------------|----|----|-------|-------|
-| S-001 (Naming) | 70% | 80% | +10% | Architect concedes QA naming more traceable |
-| S-002 (Rollout granularity) | 40% | 65% | +25% | Analyzer concedes 3-milestone impractical; accepts QA sub-phase approach with ordering constraints |
-| C-001 (Blocker timing) | 60% | 90% | +30% | Architect concedes M1 blocker resolution is stronger; false-confidence argument decisive |
-| C-002 (Testing approach) | 50% | 70% | +20% | Architect acknowledges explicit counts more auditable; Analyzer concedes fault-injection should be within broader milestone |
-| C-003 (Sprint CLI regression) | 60% | 80% | +20% | Architect acknowledges M2+M4 interaction gap; standalone milestone covers combined effect |
-| X-001 (Blocker contradiction) | 65% | 95% | +30% | Architect formally concedes; M1 blocker resolution adopted |
-| X-002 (Rollout contradiction) | 45% | 75% | +30% | Analyzer modifies position; accepts QA M6 with ordering constraints |
-| U-001 (Closed-world) | 90% | 95% | +5% | All agree to integrate |
-| U-002 (Compile-time override) | 85% | 95% | +10% | All agree to integrate |
-| U-003 (Adversarial override test) | 90% | 95% | +5% | Consensus |
-| U-004 (Sprint CLI regression gate) | 70% | 85% | +15% | Architect now supports standalone milestone |
-| U-005 (Reliability hardening) | 75% | 85% | +10% | All agree fault-injection should be explicit deliverable |
-| U-006 (3 rollout gates) | 50% | 75% | +25% | Analyzer accepts sub-phase within M6 |
+4. **Whitelist error escalation adds complexity**: Phase-aware warn→error behavior requires tracking which "phase" the system is in at runtime, which is non-trivial. Strict validation from the start with a clear error message is simpler and sufficient if the whitelist schema is defined before coding begins.
 
-**Round 2 aggregate convergence**: 84%
+### Remaining disagreements
+
+1. **Phase 0 as dedicated phase vs lightweight gate**: Variant A accepts a checkpoint; Variant B insists on a named phase with exit criteria. The disagreement is about formality, not substance. Variant A believes naming it a "phase" creates unnecessary ceremony; Variant B believes the ceremony is what makes it accountable.
+
+2. **Phase structure (6 vs 7)**: Variant A maintains that bundling roadmap+sprint integration is appropriate given the single-implementer context. Variant B maintains that separation enables parallelism and cleaner milestone tracking. Neither has conceded.
+
+3. **Risk framework granularity**: Variant A considers the 4-layer model academic; Variant B considers the flat table incomplete. Both acknowledge the individual risks are the same — the disagreement is about the organizational meta-structure.
+
+4. **Roadmap scope boundary**: Variant A draws the line at technical sequencing; Variant B includes operational prerequisites. This is a philosophical difference about what a "roadmap" is — project plan or implementation plan.
 
 ---
 
-## Round 3: Final Positions
+## Convergence Assessment
 
-### opus:architect -- Final Position
+### Areas of full agreement (18 shared + 4 concessions = 22 points)
 
-The Architect concedes three points and maintains two:
+- All 18 shared assumptions from diff analysis remain uncontested
+- Report body sections should be enumerated in the roadmap (D05 resolved → Haiku)
+- `Literal["off", "shadow", "soft", "full"]` type should be specified (D07 resolved → Haiku)
+- Task IDs are necessary alongside milestone narratives (D03 resolved → both formats needed)
+- Separate `wiring_config.py` is the default file layout (D04 resolved → Opus, confirmable in Phase 0)
+- Whitelist error handling should be strict from the start (D06 resolved → Opus)
+- Staffing model should be reduced to phase annotations (D08 resolved → compromise)
 
-**Conceded**:
-1. **X-001**: Blocker resolution belongs in M1, not M6. The false-confidence argument is decisive: parametrized tests with provisional values produce misleading coverage. M1 should contain both blocker resolution AND contract schemas, with finalized values informing the schemas.
-2. **C-003**: Sprint CLI regression gate should be a standalone milestone. The M2+M4 interaction gap is a real risk that in-milestone testing does not cover.
-3. **X-002**: Single rollout milestone with sub-phase ordering is acceptable.
+### Areas of partial agreement (3 points)
 
-**Maintained**:
-1. **U-001**: Closed-world state machine must be an explicit architectural decision in the base, not an implicit implementation detail. It eliminates a class of bypass vulnerabilities.
-2. **U-002**: Compile-time release override prohibition provides defense-in-depth that should be specified as a design constraint, not just tested for.
+- **Phase 0**: Both agree the work must happen; disagree on whether it's a named phase or a pre-T01 checkpoint (D01)
+- **Operational dependencies**: Both agree they matter; disagree on whether they belong in the roadmap body or an appendix (D09)
+- **Critical path**: Both views are useful at different abstraction levels; a merged roadmap can include both (D12)
 
----
+### Areas of genuine disagreement (2 points)
 
-### sonnet:qa -- Final Position
+- **Phase count (D02)**: 6 bundled phases vs 7 separated phases — depends on implementer context (single vs multi-session, single vs multiple contributors)
+- **Risk framework meta-structure (D10)**: Flat table vs 4-layer model — stylistic difference with no functional impact on risk mitigation
 
-The QA advocate maintains all core positions and accepts two integrations:
+### Recommendation for merge
 
-**Maintained**:
-1. **M1 blocker resolution**: Non-negotiable. Tests are meaningless without finalized inputs.
-2. **M5 Sprint CLI regression gate**: Non-negotiable. Shared-file regression is a distinct risk.
-3. **M4-D7 adversarial override test**: Must test with a fully valid record at forbidden scope.
-4. **Explicit test counts**: Acceptance criteria must be countable.
-
-**Accepted integrations**:
-1. **U-001**: Add closed-world state machine as an explicit design constraint in M2 (state machine milestone). This strengthens the transition validator's correctness argument.
-2. **U-002**: Add compile-time release override prohibition as an M2 deliverable requirement on OverrideRecord. This adds defense-in-depth at the data model layer.
-3. **U-005**: Add fault-injection suite as an explicit deliverable within M4 (Runtime Controls). This proves resilience before rollout.
-4. **U-006**: Structure M6 with explicit sub-phase ordering (Shadow-to-Soft sign-off before Soft deliverables; Rollback drill before Soft-to-Full sign-off).
-
----
-
-### haiku:analyzer -- Final Position
-
-The Analyzer concedes on milestone structure and maintains on reliability:
-
-**Conceded**:
-1. **Milestone structure**: Accept 6-milestone QA structure rather than 3-implementation + 3-rollout. The implementation complexity requires at least 4 milestones.
-2. **Sprint CLI regression**: Accept as valid gap in V3. The QA variant's standalone M5 addresses a real shared-file risk.
-
-**Maintained**:
-1. **Reliability hardening must be explicit**: Whether as a standalone milestone or as explicit deliverables within M4, fault-injection suite, deadlock-resistance argument, and stale-state recovery must be proven before any rollout phase begins.
-2. **Sub-phase ordering in M6**: Shadow-to-Soft and Soft-to-Full must have explicit ordering constraints, not just parallel deliverables.
-3. **Continuous post-full monitoring**: The system must have ongoing reliability monitors after full enforcement, not just a GO decision.
-
----
-
-## Round 3 Final Convergence Matrix
-
-| Diff Point | R1 | R2 | R3 | Final | Resolution |
-|------------|----|----|----|----|------------|
-| S-001 (Naming) | 70% | 80% | 90% | 90% | QA naming convention adopted (deliverable+test in title) |
-| S-002 (Rollout granularity) | 40% | 65% | 85% | 85% | Single M6 with explicit sub-phase ordering constraints |
-| C-001 (Blocker timing) | 60% | 90% | 95% | 95% | M1 = Blocker Resolution (QA/Analyzer position wins) |
-| C-002 (Testing approach) | 50% | 70% | 85% | 85% | QA interleaved approach with explicit counts; fault-injection added from Analyzer |
-| C-003 (Sprint CLI regression) | 60% | 80% | 90% | 90% | Standalone M5 milestone (QA position wins) |
-| X-001 (Blocker contradiction) | 65% | 95% | 98% | 98% | RESOLVED: M1 blocker resolution. Architect formally concedes. |
-| X-002 (Rollout contradiction) | 45% | 75% | 88% | 88% | RESOLVED: Single M6 with sub-phase ordering. Analyzer concedes milestone split. |
-| U-001 (Closed-world) | 90% | 95% | 98% | 98% | RESOLVED: Integrate into M2 as explicit design constraint |
-| U-002 (Compile-time override) | 85% | 95% | 98% | 98% | RESOLVED: Integrate into M2 as OverrideRecord requirement |
-| U-003 (Adversarial override test) | 90% | 95% | 98% | 98% | RESOLVED: Preserve in M4-D7 (already in QA base) |
-| U-004 (Sprint CLI regression gate) | 70% | 85% | 95% | 95% | RESOLVED: Preserve as standalone M5 (already in QA base) |
-| U-005 (Reliability hardening) | 75% | 85% | 92% | 92% | RESOLVED: Add fault-injection + deadlock-resistance to M4 |
-| U-006 (3 rollout gates) | 50% | 75% | 88% | 88% | RESOLVED: Sub-phase structure in M6 with ordering constraints |
-
-**Final aggregate convergence**: 92%
-
----
-
-## Unresolved Items (8% non-convergence)
-
-1. **S-001 partial**: Architect still prefers artifact-centric naming for internal planning even if QA naming is used for milestone titles. Resolution: use QA naming in the merged roadmap; Architect naming can be used in internal tracking.
-
-2. **S-002 partial**: Analyzer would prefer milestone-level gates for rollout phases if the total budget were >6. Acknowledged as a valid concern but impractical within the 6-milestone constraint. Document as a "if we had 8 milestones" alternative in the decision summary.
-
-3. **C-002 partial**: Analyzer's fault-injection emphasis is partially integrated but the Analyzer would prefer a dedicated reliability milestone rather than embedding within M4. Acknowledged but overruled by milestone budget constraint.
-
----
-
-## Debate Summary
-
-The debate converged from 62% (Round 1) to 84% (Round 2) to 92% (Round 3). Key resolutions:
-
-- **X-001 (Blocker timing)**: QA/Analyzer win. Blockers in M1, not M6.
-- **X-002 (Rollout granularity)**: QA wins with Analyzer's modification. Single M6 with sub-phase ordering.
-- **C-003 (Sprint CLI regression)**: QA wins. Standalone M5 milestone.
-- **U-001/U-002**: Architect contributions integrated into QA base's M2.
-- **U-005/U-006**: Analyzer contributions integrated into QA base's M4 and M6.
-
-The QA variant (V2) emerges as the strongest base with targeted integrations from V1 (architectural decisions) and V3 (reliability hardening and rollout granularity).
+The merged roadmap should:
+1. Include a **Phase 0 checkpoint** (Haiku's substance, Opus's brevity) — timeboxed, with exit criteria, but not inflated into a full implementation phase
+2. Use **Opus's task ID scheme** (T01–T15) as the primary organizational unit, augmented with **Haiku's milestone sub-numbering** for progress tracking
+3. **Separate roadmap and sprint integration** into distinct phases (Haiku) but note they can be combined in single-implementer scenarios
+4. Include **report body section enumeration** and **`Literal` type specification** (Haiku)
+5. Use **Opus's compact risk table** augmented with **Haiku's 4-layer summary** as a one-paragraph framing
+6. Include **operational dependencies as an appendix** (compromise)
+7. Default to **strict whitelist validation** (Opus) — simpler, no phase-tracking complexity
+8. Include both **task-level and phase-level critical paths** for different audiences

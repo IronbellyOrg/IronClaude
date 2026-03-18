@@ -24,6 +24,7 @@ from superclaude.cli.roadmap.gates import (
     _frontmatter_values_non_empty,
     _interleave_ratio_consistent,
     _major_issue_policy_correct,
+    _parse_frontmatter,
     _milestone_counts_positive,
     _has_actionable_content,
     _high_severity_count_zero,
@@ -1038,3 +1039,116 @@ class TestDeviationAnalysisGate:
         passed, reason = gate_passed(doc, DEVIATION_ANALYSIS_GATE)
         assert passed is False
         assert reason is not None
+
+
+# ═══════════════════════════════════════════════════════════════
+# yaml.safe_load parser replacement -- quote tolerance tests
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestParseFrontmatterYaml:
+    """Tests for yaml.safe_load-based _parse_frontmatter."""
+
+    def test_quoted_colon_value_stripped(self):
+        """The original bug: quoted '1:1' must not retain quote chars."""
+        content = '---\ninterleave_ratio: "1:1"\n---\n'
+        fm = _parse_frontmatter(content)
+        assert fm is not None
+        assert fm["interleave_ratio"] == "1:1"
+
+    def test_unquoted_colon_value(self):
+        """Unquoted colon value parsed correctly."""
+        content = "---\ninterleave_ratio: 1:1\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm is not None
+        assert fm["interleave_ratio"] == "1:1"
+
+    def test_single_quoted_value(self):
+        content = "---\ninterleave_ratio: '1:1'\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm["interleave_ratio"] == "1:1"
+
+    def test_integer_value_unchanged(self):
+        content = "---\nhigh_severity_count: 0\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm["high_severity_count"] == "0"
+
+    def test_float_value_unchanged(self):
+        content = "---\nconvergence_score: 0.85\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm["convergence_score"] == "0.85"
+
+    def test_boolean_value_unchanged(self):
+        """Hand-rolled parser keeps booleans as strings (no type coercion)."""
+        content = "---\ncertified: true\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm["certified"] == "true"
+
+    def test_empty_value_is_empty_string(self):
+        content = "---\ntitle:\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm["title"] == ""
+
+    def test_no_frontmatter_returns_none(self):
+        assert _parse_frontmatter("No frontmatter here.") is None
+
+    def test_quoted_string_stripped(self):
+        content = '---\nspec_source: "my-spec.md"\n---\n'
+        fm = _parse_frontmatter(content)
+        assert fm["spec_source"] == "my-spec.md"
+
+    def test_single_quoted_string_stripped(self):
+        content = "---\nspec_source: 'my-spec.md'\n---\n"
+        fm = _parse_frontmatter(content)
+        assert fm["spec_source"] == "my-spec.md"
+
+
+class TestInterleaveRatioQuotedValues:
+    """Regression tests for the quoted-value bug (RC-1)."""
+
+    def test_quoted_high_1_1_passes(self):
+        """The exact failure case from production."""
+        content = '---\ncomplexity_class: HIGH\ninterleave_ratio: "1:1"\n---\n'
+        assert _interleave_ratio_consistent(content) is True
+
+    def test_quoted_medium_1_2_passes(self):
+        content = '---\ncomplexity_class: MEDIUM\ninterleave_ratio: "1:2"\n---\n'
+        assert _interleave_ratio_consistent(content) is True
+
+    def test_quoted_low_1_3_passes(self):
+        content = '---\ncomplexity_class: LOW\ninterleave_ratio: "1:3"\n---\n'
+        assert _interleave_ratio_consistent(content) is True
+
+    def test_single_quoted_high_1_1_passes(self):
+        content = "---\ncomplexity_class: HIGH\ninterleave_ratio: '1:1'\n---\n"
+        assert _interleave_ratio_consistent(content) is True
+
+
+class TestValidationPhilosophyQuoteTolerance:
+    def test_quoted_value_passes(self):
+        content = '---\nvalidation_philosophy: "continuous-parallel"\n---\n'
+        assert _validation_philosophy_correct(content) is True
+
+
+class TestMajorIssuePolicyQuoteTolerance:
+    def test_quoted_value_passes(self):
+        content = '---\nmajor_issue_policy: "stop-and-fix"\n---\n'
+        assert _major_issue_policy_correct(content) is True
+
+
+class TestHighSeverityCountQuoteTolerance:
+    def test_quoted_zero_passes(self):
+        content = '---\nhigh_severity_count: "0"\n---\n'
+        assert _high_severity_count_zero(content) is True
+
+
+class TestConvergenceScoreQuoteTolerance:
+    def test_quoted_float_passes(self):
+        content = '---\nconvergence_score: "0.85"\n---\n'
+        assert _convergence_score_valid(content) is True
+
+
+class TestCertifiedIsTrueQuoteTolerance:
+    def test_quoted_true_passes(self):
+        content = '---\ncertified: "true"\n---\n'
+        assert _certified_is_true(content) is True

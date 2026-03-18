@@ -101,22 +101,12 @@ def _no_duplicate_headings(content: str) -> bool:
 
 def _frontmatter_values_non_empty(content: str) -> bool:
     """All YAML frontmatter fields have non-empty values."""
-    stripped = content.lstrip()
-    if not stripped.startswith("---"):
+    fm = _parse_frontmatter(content)
+    if fm is None:
         return False
-
-    rest = stripped[3:].lstrip("\n")
-    end_idx = rest.find("\n---")
-    if end_idx == -1:
-        return False
-
-    frontmatter_text = rest[:end_idx]
-    for line in frontmatter_text.splitlines():
-        line = line.strip()
-        if ":" in line:
-            _key, value = line.split(":", 1)
-            if not value.strip():
-                return False
+    for _key, value in fm.items():
+        if not value.strip():
+            return False
     return True
 
 
@@ -128,10 +118,29 @@ def _has_actionable_content(content: str) -> bool:
     return bool(re.search(r"^\s*(?:[-*]|\d+\.)\s+\S", content, re.MULTILINE))
 
 
+def _strip_yaml_quotes(value: str) -> str:
+    """Strip matching outer YAML quotes (single or double) from a value.
+
+    Handles the common case where LLMs wrap values in quotes:
+      '"1:1"'  -> '1:1'
+      "'1:1'"  -> '1:1'
+
+    Does NOT strip if quotes are unmatched:
+      '"1:1'   -> '"1:1'   (unmatched -- leave as-is)
+    """
+    if len(value) >= 2:
+        if (value[0] == '"' and value[-1] == '"') or (
+            value[0] == "'" and value[-1] == "'"
+        ):
+            return value[1:-1]
+    return value
+
+
 def _parse_frontmatter(content: str) -> dict[str, str] | None:
     """Extract YAML frontmatter key-value pairs from content.
 
     Returns a dict of key→value strings, or None if no frontmatter found.
+    Values are stripped of whitespace and matching outer YAML quotes.
     """
     stripped = content.lstrip()
     if not stripped.startswith("---"):
@@ -147,7 +156,7 @@ def _parse_frontmatter(content: str) -> dict[str, str] | None:
         line = line.strip()
         if ":" in line:
             key, value = line.split(":", 1)
-            result[key.strip()] = value.strip()
+            result[key.strip()] = _strip_yaml_quotes(value.strip())
     return result
 
 
@@ -278,26 +287,17 @@ def _tasklist_ready_consistent(content: str) -> bool:
 
 def _convergence_score_valid(content: str) -> bool:
     """convergence_score frontmatter value parses as float in [0.0, 1.0]."""
-    stripped = content.lstrip()
-    if not stripped.startswith("---"):
+    fm = _parse_frontmatter(content)
+    if fm is None:
         return False
-
-    rest = stripped[3:].lstrip("\n")
-    end_idx = rest.find("\n---")
-    if end_idx == -1:
+    value = fm.get("convergence_score")
+    if value is None:
         return False
-
-    frontmatter_text = rest[:end_idx]
-    for line in frontmatter_text.splitlines():
-        line = line.strip()
-        if line.startswith("convergence_score:"):
-            value = line.split(":", 1)[1].strip()
-            try:
-                score = float(value)
-                return 0.0 <= score <= 1.0
-            except ValueError:
-                return False
-    return False  # convergence_score field not found
+    try:
+        score = float(value)
+        return 0.0 <= score <= 1.0
+    except (ValueError, TypeError):
+        return False
 
 
 # --- DEVIATION_ANALYSIS_GATE semantic check functions ---

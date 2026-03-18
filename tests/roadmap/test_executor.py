@@ -24,6 +24,8 @@ from superclaude.cli.roadmap.executor import (
     _check_annotate_deviations_freshness,
     _check_remediation_budget,
     _format_halt_output,
+    _inject_pipeline_diagnostics,
+    _inject_provenance_fields,
     _print_terminal_halt,
     _sanitize_output,
     _save_state,
@@ -296,6 +298,272 @@ class TestSanitizeOutput:
         assert call_args[1] == f
         # Final file has correct content
         assert f.read_text(encoding="utf-8") == body
+
+
+# ═══════════════════════════════════════════════════════════════
+# Solution C -- Leading whitespace fix tests
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestSanitizeOutputLeadingWhitespace:
+    """Tests for _sanitize_output leading-whitespace stripping (Solution C Fix 1)."""
+
+    def test_leading_newlines_stripped(self, tmp_path):
+        """Leading \\n\\n before --- should be stripped."""
+        f = tmp_path / "output.md"
+        body = "---\ntitle: test\n---\n## Content\n"
+        f.write_text("\n\n" + body, encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == 2  # two newline bytes stripped
+        assert f.read_text(encoding="utf-8") == body
+
+    def test_leading_crlf_stripped(self, tmp_path):
+        """Leading \\r\\n before --- should be stripped.
+
+        Python text mode normalizes \\r\\n → \\n on read, so the function
+        sees \\n\\n (2 bytes) even when the file contains \\r\\n\\n.
+        """
+        f = tmp_path / "output.md"
+        body = "---\ntitle: test\n---\n## Content\n"
+        f.write_bytes(b"\r\n\n" + body.encode("utf-8"))
+
+        result = _sanitize_output(f)
+
+        # read_text normalizes \r\n -> \n, so function sees \n\n = 2 bytes
+        assert result == 2
+        assert f.read_text(encoding="utf-8") == body
+
+    def test_single_leading_newline_stripped(self, tmp_path):
+        """Single leading \\n before --- should be stripped."""
+        f = tmp_path / "output.md"
+        body = "---\ntitle: test\n---\n## Content\n"
+        f.write_text("\n" + body, encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == 1
+        assert f.read_text(encoding="utf-8") == body
+
+    def test_no_leading_whitespace_unchanged(self, tmp_path):
+        """No leading whitespace: file unchanged, returns 0."""
+        f = tmp_path / "output.md"
+        content = "---\ntitle: test\n---\n## Content\n"
+        f.write_text(content, encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == 0
+        assert f.read_text(encoding="utf-8") == content
+
+    def test_no_frontmatter_with_leading_whitespace(self, tmp_path):
+        """Leading whitespace but no frontmatter: file unchanged, returns 0."""
+        f = tmp_path / "output.md"
+        content = "\n\nJust text, no frontmatter.\n"
+        f.write_text(content, encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == 0
+        assert f.read_text(encoding="utf-8") == content
+
+    def test_leading_newlines_plus_preamble(self, tmp_path):
+        """Leading newlines followed by preamble text should all be stripped."""
+        f = tmp_path / "output.md"
+        preamble = "Here is the result:\n\n"
+        body = "---\ntitle: test\n---\n## Content\n"
+        f.write_text("\n\n" + preamble + body, encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == len(("\n\n" + preamble).encode("utf-8"))
+        assert f.read_text(encoding="utf-8") == body
+
+    def test_empty_file(self, tmp_path):
+        """Empty file should return 0 and remain unchanged."""
+        f = tmp_path / "output.md"
+        f.write_text("", encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == 0
+        assert f.read_text(encoding="utf-8") == ""
+
+    def test_only_whitespace(self, tmp_path):
+        """Whitespace-only file: no frontmatter found, returns 0, unchanged."""
+        f = tmp_path / "output.md"
+        f.write_text("\n\n\n", encoding="utf-8")
+
+        result = _sanitize_output(f)
+
+        assert result == 0
+        assert f.read_text(encoding="utf-8") == "\n\n\n"
+
+
+class TestInjectProvenanceFields:
+    """Unit tests for _inject_provenance_fields whitespace and idempotency."""
+
+    def test_injects_into_clean_frontmatter(self, tmp_path):
+        """Baseline: fields injected when frontmatter starts at byte 0."""
+        f = tmp_path / "test.md"
+        f.write_text("---\ntitle: foo\n---\nbody\n", encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        content = f.read_text(encoding="utf-8")
+        assert "spec_source: spec.md" in content
+        assert "generator: superclaude-roadmap-executor" in content
+        assert content.startswith("---")
+
+    def test_injects_with_leading_blank_lines(self, tmp_path):
+        """THE BUG: leading \\n\\n before --- must not prevent injection."""
+        f = tmp_path / "test.md"
+        f.write_text("\n\n---\ntitle: foo\n---\nbody\n", encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        content = f.read_text(encoding="utf-8")
+        assert "spec_source: spec.md" in content
+        assert content.startswith("---")  # leading whitespace stripped
+
+    def test_noop_without_frontmatter(self, tmp_path):
+        """Plain text file is left unchanged."""
+        f = tmp_path / "test.md"
+        original = "Just text, no frontmatter"
+        f.write_text(original, encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        assert f.read_text(encoding="utf-8") == original
+
+    def test_noop_empty_file(self, tmp_path):
+        """Empty file is left unchanged."""
+        f = tmp_path / "test.md"
+        f.write_text("", encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        assert f.read_text(encoding="utf-8") == ""
+
+    def test_noop_unclosed_frontmatter(self, tmp_path):
+        """Unclosed frontmatter (no closing ---) is left unchanged."""
+        f = tmp_path / "test.md"
+        original = "---\ntitle: foo\nbody\n"
+        f.write_text(original, encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        assert f.read_text(encoding="utf-8") == original
+
+    def test_idempotent_double_call(self, tmp_path):
+        """Calling twice does not duplicate provenance fields."""
+        f = tmp_path / "test.md"
+        f.write_text("---\ntitle: foo\n---\nbody\n", encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        _inject_provenance_fields(f, "spec.md")
+        content = f.read_text(encoding="utf-8")
+        assert content.count("spec_source:") == 1
+        assert content.count("generator:") == 1
+
+    def test_partial_provenance_present(self, tmp_path):
+        """Only missing fields are injected when some already exist."""
+        f = tmp_path / "test.md"
+        f.write_text(
+            "---\ntitle: foo\nspec_source: other.md\n---\nbody\n",
+            encoding="utf-8",
+        )
+        _inject_provenance_fields(f, "spec.md")
+        content = f.read_text(encoding="utf-8")
+        assert content.count("spec_source:") == 1  # not overwritten
+        assert "spec_source: other.md" in content  # original preserved
+        assert "generator:" in content  # missing field added
+
+    def test_empty_frontmatter_block(self, tmp_path):
+        """Empty frontmatter (just --- / ---) gets fields injected."""
+        f = tmp_path / "test.md"
+        f.write_text("---\n---\nbody\n", encoding="utf-8")
+        _inject_provenance_fields(f, "spec.md")
+        content = f.read_text(encoding="utf-8")
+        assert "spec_source: spec.md" in content
+
+
+class TestInjectPipelineDiagnostics:
+    """Whitespace hardening tests for _inject_pipeline_diagnostics."""
+
+    def test_injects_with_leading_blank_lines(self, tmp_path):
+        """Leading whitespace before --- must not prevent injection."""
+        f = tmp_path / "test.md"
+        f.write_text("\n\n---\ntitle: foo\n---\nbody\n", encoding="utf-8")
+        t0 = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        t1 = datetime(2025, 1, 1, 0, 1, tzinfo=timezone.utc)
+        _inject_pipeline_diagnostics(f, t0, t1)
+        content = f.read_text(encoding="utf-8")
+        assert "pipeline_diagnostics:" in content
+        assert content.startswith("---")
+
+    def test_idempotent_double_call(self, tmp_path):
+        """Calling twice does not duplicate diagnostics."""
+        f = tmp_path / "test.md"
+        f.write_text("---\ntitle: foo\n---\nbody\n", encoding="utf-8")
+        t0 = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        t1 = datetime(2025, 1, 1, 0, 1, tzinfo=timezone.utc)
+        _inject_pipeline_diagnostics(f, t0, t1)
+        _inject_pipeline_diagnostics(f, t0, t1)
+        content = f.read_text(encoding="utf-8")
+        assert content.count("pipeline_diagnostics:") == 1
+
+
+class TestSanitizeEnablesInjection:
+    """E2E: sanitize + inject + gate flow works with leading whitespace."""
+
+    def test_sanitize_enables_provenance_injection(self, tmp_path):
+        """After sanitize strips leading newlines, _inject_provenance_fields succeeds."""
+        f = tmp_path / "output.md"
+        f.write_text(
+            "\n\n---\ncomplexity_class: MEDIUM\n---\n## Content\n",
+            encoding="utf-8",
+        )
+
+        _sanitize_output(f)
+        _inject_provenance_fields(f, "my-spec.md")
+
+        result = f.read_text(encoding="utf-8")
+        assert "spec_source: my-spec.md" in result
+        assert result.startswith("---")
+
+    def test_sanitize_enables_diagnostics_injection(self, tmp_path):
+        """After sanitize strips leading newlines, _inject_pipeline_diagnostics succeeds."""
+        f = tmp_path / "output.md"
+        f.write_text(
+            "\n---\ntitle: extract\n---\n## Extraction\n",
+            encoding="utf-8",
+        )
+
+        _sanitize_output(f)
+        t0 = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        t1 = datetime(2025, 1, 1, 0, 1, tzinfo=timezone.utc)
+        _inject_pipeline_diagnostics(f, t0, t1)
+
+        result = f.read_text(encoding="utf-8")
+        assert "pipeline_diagnostics:" in result
+        assert result.startswith("---")
+
+    def test_full_chain_sanitize_inject_verify(self, tmp_path):
+        """Full chain: leading blanks -> sanitize -> inject provenance -> verify all fields."""
+        f = tmp_path / "output.md"
+        f.write_text(
+            "\n\n---\ncomplexity_class: HIGH\nvalidation_philosophy: continuous-parallel\n"
+            "validation_milestones: 6\nwork_milestones: 6\n"
+            'interleave_ratio: "1:1"\nmajor_issue_policy: stop-and-fix\n'
+            "---\n## Test Strategy\n- item\n",
+            encoding="utf-8",
+        )
+
+        # Step 1: sanitize strips leading \n\n
+        sanitize_result = _sanitize_output(f)
+        assert sanitize_result == 2
+
+        # Step 2: inject provenance
+        _inject_provenance_fields(f, "test-spec.md")
+
+        # Step 3: verify
+        content = f.read_text(encoding="utf-8")
+        assert content.startswith("---")
+        assert "spec_source: test-spec.md" in content
+        assert "generated:" in content
+        assert "generator: superclaude-roadmap-executor" in content
+        assert "complexity_class: HIGH" in content  # original fields preserved
 
 
 # ═══════════════════════════════════════════════════════════════

@@ -1,0 +1,17 @@
+completed_steps:
+- validate-config
+- discover-components
+- protocol-mapping
+- analysis-synthesis
+- user-review-p1
+- step-graph-design
+- models-gates-design
+- prompts-executor-design
+- pipeline-spec-assembly
+- user-review-p2
+- release-spec-synthesis
+- panel-review
+outcome: SUCCESS
+remaining_steps: []
+resume_command: ''
+suggested_resume_budget: 0

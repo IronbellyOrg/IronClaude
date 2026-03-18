@@ -1,189 +1,151 @@
-# Base Selection Report: Unified Audit Gating System v1.2.1
 
-**Pipeline**: Adversarial 3-variant comparison
-**Timestamp**: 2026-03-03T00:00:00Z
-**Scoring method**: Hybrid quantitative (50%) + qualitative (50%)
-**Position-bias mitigation**: Variants scored in randomized order per dimension
+
+---
+base_variant: A
+variant_scores: "A:81 B:75"
+---
+
+# Scoring Criteria
+
+Derived from the debate's 12 divergence points and the convergence assessment, weighted by impact on implementability:
+
+| Criterion | Weight | Rationale |
+|-----------|--------|-----------|
+| **Execution readiness** | 25% | Can a sprint CLI consume this directly? (D03, D04) |
+| **Scope discipline** | 20% | Does the roadmap stay within technical sequencing? (D09, D10, D11) |
+| **Architectural precision** | 20% | File paths, CREATE/MODIFY annotations, dependency DAG (D04, D05) |
+| **Risk mitigation quality** | 15% | Actionable mitigations vs framework overhead (D06, D10) |
+| **Flexibility & resilience** | 10% | Handles single-implementer AND multi-session scenarios (D02, D08) |
+| **Completeness of detail** | 10% | Report sections, type specs, milestone definitions (D05, D07) |
 
 ---
 
-## Quantitative Scoring (50% weight)
+# Per-Criterion Scores
 
-### Requirement Coverage (RC, weight 0.30)
+## 1. Execution Readiness (25%)
 
-Assessed against the spec's 34 functional requirements and 10 non-functional requirements.
+| Aspect | A (Opus) | B (Haiku) |
+|--------|----------|-----------|
+| Task IDs (T01–T15) | Yes — sprint CLI consumable | No — milestones only (M1.1–M6.4) |
+| Dependency DAG | Explicit per-task | Phase-level only |
+| File paths with CREATE/MODIFY | Every task | Absent |
+| Parallelism annotations | Per-task (T01∥T02, T06∥T07) | Phase-level only |
 
-| Variant | Approach | Estimated Coverage | RC Score |
-|---------|----------|-------------------|----------|
-| V1 (Architect) | Explicit per-deliverable mapping to FR/NFR IDs. Nearly all 34 FRs and 10 NFRs traceable to specific deliverables. Missing: some rollout-specific FRs are at high abstraction. | ~85% | 0.85 |
-| V2 (QA) | Requirements referenced in acceptance gates and success criteria. Coverage is high but mapping is at test-level rather than deliverable-level. Some FRs covered implicitly through test assertions rather than explicit mapping. | ~80% | 0.80 |
-| V3 (Analyzer) | Requirements covered conceptually at the reliability/risk level. No explicit FR/NFR ID references. Coverage is at the highest abstraction level. | ~75% | 0.75 |
+**Scores**: A: 92, B: 65
 
-### Internal Consistency (IC, weight 0.25)
+Debate evidence: Haiku conceded in Round 3 that "task IDs are necessary for tooling" and "sprint CLI requires formal task identifiers." Opus's format is directly consumable; Haiku's requires a translation step.
 
-Measured as absence of internal contradictions.
+## 2. Scope Discipline (20%)
 
-| Variant | Issues Found | IC Score |
-|---------|-------------|----------|
-| V1 (Architect) | Minor: Blocker closure deferred to M6 but contracts-first ethos implies governance should precede implementation. M1 defines schemas with no finalized values, then M2-M5 test against undefined thresholds. | 0.90 |
-| V2 (QA) | No internal contradictions found. All blockers close in M1; all downstream milestones reference M1 decisions; dependency chain is consistent throughout. | 0.95 |
-| V3 (Analyzer) | No internal contradictions found. Risk-first ordering is consistent: governance (M1) before contracts (M2) before reliability (M3) before rollout (M4-M6). | 0.95 |
+| Aspect | A (Opus) | B (Haiku) |
+|--------|----------|-----------|
+| Staffing model | Absent (appropriate) | 4 engineer roles specified |
+| Operational dependencies | Not in main body | Embedded in Phase 0 and Section 4 |
+| Governance/promotion ownership | Deferred to project plan | In roadmap body |
+| Roadmap scope boundary | Technical sequencing | Project plan hybrid |
 
-### Specificity Ratio (SR, weight 0.15)
+**Scores**: A: 85, B: 68
 
-Concrete, testable statements vs. abstract statements.
+Debate evidence: Haiku conceded staffing model is "over-specified" for Claude Code context. Opus correctly argued operational dependencies conflate "what to build" with "how to deploy." However, Haiku raises a valid point that governance gaps can block value delivery — this belongs in an appendix, not the core roadmap.
 
-| Variant | Assessment | SR Score |
-|---------|-----------|----------|
-| V1 (Architect) | Strong field-level schema definitions, specific test file names, exact field counts. Some acceptance criteria are at the "verify X works" level. | 0.80 |
-| V2 (QA) | Highest specificity. Exact test counts (17 legal, 6 illegal, 9 determinism, 11+ field-absence). Numbered deliverables with testable acceptance criteria. Specific field names in every override test. | 0.90 |
-| V3 (Analyzer) | Most abstract. Acceptance criteria use phrases like "meets pass threshold", "deterministic timing tests", "pass rate meets release threshold" without specifying numbers. | 0.70 |
+## 3. Architectural Precision (20%)
 
-### Dependency Completeness (DC, weight 0.15)
+| Aspect | A (Opus) | B (Haiku) |
+|--------|----------|-----------|
+| File layout commitment | `audit/wiring_config.py` (CREATE) explicit | Deferred to Phase 0 |
+| Module boundary decisions | Made upfront | Deferred |
+| Import/layering constraints | Explicit (frontmatter regex duplication noted) | Mentioned but less specific |
+| Cut decisions | T06 CUT-ELIGIBLE with clear criterion | Phase 5 deferrable, less precise |
 
-Internal references resolved correctly.
+**Scores**: A: 85, B: 72
 
-| Variant | Assessment | DC Score |
-|---------|-----------|----------|
-| V1 (Architect) | All milestone dependencies explicitly stated. M3 depends on M1+M2, M4 depends on M1+M2+M3. Clear. | 0.90 |
-| V2 (QA) | All dependencies explicitly stated with specific deliverable IDs (e.g., "M1-D2 retry values needed for M4-D1"). Most precise. | 0.90 |
-| V3 (Analyzer) | Dependencies stated at milestone level only (e.g., "M2 depends on M1"). Less granular but internally consistent. | 0.85 |
+Debate evidence: Haiku conceded "separate `wiring_config.py` is likely correct" and that Phase 0 confirmation is a safety check, not a genuine open question. Opus's upfront commitment enables earlier parallelism.
 
-### Section Coverage (SC, weight 0.15)
+## 4. Risk Mitigation Quality (15%)
 
-Presence of all required roadmap sections.
+| Aspect | A (Opus) | B (Haiku) |
+|--------|----------|-----------|
+| Risk table format | Compact, actionable (Impact + Mitigation) | 4-layer model (Prevent→Detect→Contain→Recover) |
+| Whitelist error handling | Strict from day one | Phase-aware warn→error |
+| Specificity of mitigations | Concrete actions per risk | Framework categories |
+| Merge coordination | Explicit recommendation (v3.0 first) | Mentioned but less specific |
 
-| Variant | Assessment | SC Score |
-|---------|-----------|----------|
-| V1 (Architect) | All sections present: Overview, Milestone Summary, Dependency Graph, 6x (Objective, Deliverables, Dependencies, Risk Assessment), Risk Register, Decision Summary, Success Criteria | 1.0 |
-| V2 (QA) | All sections present (same set) | 1.0 |
-| V3 (Analyzer) | All sections present (same set) | 1.0 |
+**Scores**: A: 80, B: 73
 
-### Quantitative Composite
+Debate evidence: Haiku conceded "phase-aware warn→error adds complexity" and strict validation is simpler. Opus's flat table is more directly actionable. However, Haiku's 4-layer framing provides a useful completeness check — worth incorporating as a one-paragraph summary.
 
-| Variant | RC (0.30) | IC (0.25) | SR (0.15) | DC (0.15) | SC (0.15) | **Weighted Total** |
-|---------|-----------|-----------|-----------|-----------|-----------|-------------------|
-| V1 (Architect) | 0.255 | 0.225 | 0.120 | 0.135 | 0.150 | **0.885** |
-| V2 (QA) | 0.240 | 0.2375 | 0.135 | 0.135 | 0.150 | **0.8975** |
-| V3 (Analyzer) | 0.225 | 0.2375 | 0.105 | 0.1275 | 0.150 | **0.845** |
+## 5. Flexibility & Resilience (10%)
 
----
+| Aspect | A (Opus) | B (Haiku) |
+|--------|----------|-----------|
+| Phase 0 checkpoint | Conceded as lightweight gate | Full phase with exit criteria |
+| Phase separation | 6 phases (bundled integration) | 7 phases (separated) |
+| Multi-implementer support | Weak (assumes single session) | Stronger (parallel tracks explicit) |
+| Cut flexibility | T06 + Phase 4 deferrable | Phase 5 deferrable |
 
-## Qualitative Scoring (50% weight)
+**Scores**: A: 68, B: 82
 
-### 25-Criterion Binary Rubric (5 dimensions x 5 criteria)
+Haiku's separated phases and explicit parallel tracks are genuinely more resilient to multi-session scenarios. Opus optimizes for the common case (single implementer) but is less adaptable.
 
-#### Completeness (5 criteria)
+## 6. Completeness of Detail (10%)
 
-| # | Criterion | V1 | V2 | V3 |
-|---|-----------|:--:|:--:|:--:|
-| 1 | All 6 milestones present with distinct objectives | 1 | 1 | 1 |
-| 2 | All 4 data contracts addressed (GateResult, OverrideRecord, GateTransitionEvent, GateCheckEvent) | 1 | 1 | 1 |
-| 3 | Three-phase rollout (shadow/soft/full) fully specified | 1 | 1 | 1 |
-| 4 | Override governance with release-scope prohibition | 1 | 1 | 1 |
-| 5 | All 4 GO blockers addressed with resolution mechanism | 1 | 1 | 1 |
-| | **Subtotal** | **5** | **5** | **5** |
+| Aspect | A (Opus) | B (Haiku) |
+|--------|----------|-----------|
+| Report body sections | Not enumerated | All 7 listed in order |
+| `SprintConfig` type | Not specified | `Literal["off", "shadow", "soft", "full"]` |
+| Public API signatures | Mentioned | Explicitly listed with params |
+| Promotion gate thresholds | Present | Present with more detail |
 
-#### Correctness (5 criteria)
+**Scores**: A: 65, B: 88
 
-| # | Criterion | V1 | V2 | V3 |
-|---|-----------|:--:|:--:|:--:|
-| 6 | State machine transitions match spec section 4.1/4.2 | 1 | 1 | 1 |
-| 7 | Illegal transitions explicitly enumerated (minimum 6 classes) | 1 | 1 | 1 |
-| 8 | Fail-safe default to unknown/failed correctly specified | 1 | 1 | 1 |
-| 9 | Blocker resolution precedes implementation work | 0 | 1 | 1 |
-| 10 | KPI promotion gates match spec section 7.2 criteria | 1 | 1 | 1 |
-| | **Subtotal** | **4** | **5** | **5** |
-
-Note on criterion 9: V1 defers blocker closure to M6. This violates the spec's intent that NO-GO blockers be resolved before implementation proceeds.
-
-#### Clarity (5 criteria)
-
-| # | Criterion | V1 | V2 | V3 |
-|---|-----------|:--:|:--:|:--:|
-| 11 | Acceptance criteria are testable (not vague) | 1 | 1 | 0 |
-| 12 | Deliverable descriptions specify concrete artifacts | 1 | 1 | 1 |
-| 13 | Risk mitigations are actionable (not "be careful") | 1 | 1 | 1 |
-| 14 | Test file names and test counts specified | 1 | 1 | 0 |
-| 15 | Decisions include rationale connecting to risk | 1 | 1 | 1 |
-| | **Subtotal** | **5** | **5** | **3** |
-
-Note on criteria 11, 14: V3 uses abstract acceptance criteria ("meets pass threshold") and does not specify test file names or counts.
-
-#### Structure (5 criteria)
-
-| # | Criterion | V1 | V2 | V3 |
-|---|-----------|:--:|:--:|:--:|
-| 16 | Clear dependency graph with no cycles | 1 | 1 | 1 |
-| 17 | Deliverable IDs follow consistent scheme | 1 | 1 | 1 |
-| 18 | Risk IDs follow consistent scheme | 1 | 1 | 1 |
-| 19 | Each milestone has all 4 required subsections | 1 | 1 | 1 |
-| 20 | Effort estimates present for milestones | 1 | 1 | 1 |
-| | **Subtotal** | **5** | **5** | **5** |
-
-#### Risk Coverage (5 criteria)
-
-| # | Criterion | V1 | V2 | V3 |
-|---|-----------|:--:|:--:|:--:|
-| 21 | State machine deadlock/bypass risk identified | 1 | 1 | 1 |
-| 22 | Rollback from full enforcement addressed | 1 | 1 | 1 |
-| 23 | Sprint CLI regression risk addressed | 0 | 1 | 0 |
-| 24 | Override governance race conditions addressed | 0 | 1 | 0 |
-| 25 | Heartbeat/timing test flakiness addressed | 1 | 1 | 1 |
-| | **Subtotal** | **3** | **5** | **3** |
-
-Note on criterion 23: Only V2 has a dedicated Sprint CLI regression gate. V1 mentions it in passing; V3 does not address it.
-Note on criterion 24: Only V2 identifies concurrent override race condition risk (R9 in risk register).
-
-### Qualitative Composite
-
-| Variant | Completeness | Correctness | Clarity | Structure | Risk Coverage | **Total /25** | **Normalized** |
-|---------|:------------:|:-----------:|:-------:|:---------:|:------------:|:-------------:|:--------------:|
-| V1 (Architect) | 5 | 4 | 5 | 5 | 3 | **22** | **0.88** |
-| V2 (QA) | 5 | 5 | 5 | 5 | 5 | **25** | **1.00** |
-| V3 (Analyzer) | 5 | 5 | 3 | 5 | 3 | **21** | **0.84** |
-
-Note: V2 achieves a perfect qualitative score. V1 loses points on blocker timing (correctness) and risk coverage (sprint CLI, override race). V3 loses points on clarity (abstract criteria) and risk coverage (same gaps as V1).
+Debate evidence: Opus conceded both report section enumeration and the `Literal` type specification. Haiku is stronger here.
 
 ---
 
-## Combined Scoring
+# Overall Scores
 
-**Formula**: combined = (0.50 x quantitative) + (0.50 x qualitative)
+| Criterion | Weight | A (Opus) | B (Haiku) | A Weighted | B Weighted |
+|-----------|--------|----------|-----------|------------|------------|
+| Execution readiness | 25% | 92 | 65 | 23.0 | 16.3 |
+| Scope discipline | 20% | 85 | 68 | 17.0 | 13.6 |
+| Architectural precision | 20% | 85 | 72 | 17.0 | 14.4 |
+| Risk mitigation quality | 15% | 80 | 73 | 12.0 | 11.0 |
+| Flexibility & resilience | 10% | 68 | 82 | 6.8 | 8.2 |
+| Completeness of detail | 10% | 65 | 88 | 6.5 | 8.8 |
+| **Total** | **100%** | | | **82.3** | **72.3** |
 
-| Variant | Quantitative (50%) | Qualitative (50%) | **Combined Score** |
-|---------|:-------------------:|:------------------:|:------------------:|
-| V1 (Architect) | 0.4425 | 0.4400 | **0.8825** |
-| **V2 (QA)** | **0.4488** | **0.5000** | **0.9488** |
-| V3 (Analyzer) | 0.4225 | 0.4200 | **0.8425** |
+**Rounded: A: 82, B: 72**
 
 ---
 
-## Base Selection Decision
+# Base Variant Selection Rationale
 
-### Selected Base: V2 (sonnet:qa)
+**Variant A (Opus)** is selected as the merge base for three reasons:
 
-**Combined score**: 0.9488
-**Margin over V1 (Architect)**: 0.0663 (6.6 percentage points, exceeds 5% tiebreaker threshold)
-**Margin over V3 (Analyzer)**: 0.1063 (10.6 percentage points)
+1. **Sprint CLI compatibility**: The T01–T15 task ID scheme with file paths, CREATE/MODIFY annotations, and explicit dependency DAG is directly consumable by the tasklist generator. Haiku's milestone-only format would require restructuring the entire organizational scheme.
 
-**No tiebreaker required.** V2 wins by clear margin on both qualitative (perfect 25/25) and quantitative (highest weighted total) dimensions.
+2. **Structural simplicity**: Opus's 6-phase structure with compact risk tables and focused technical scope requires less refactoring to merge than Haiku's 7-phase governance-heavy structure would need to be trimmed.
 
-### Rationale
+3. **Debate trajectory**: Haiku made more concessions (4) than Opus (4), but Haiku's concessions were on more structurally significant points (task IDs are necessary, strict validation is simpler, staffing is over-specified, separate config file is correct). Opus's concessions (Phase 0 checkpoint, report sections, Literal type, operational appendix) are all additive patches to an otherwise solid structure.
 
-1. **Correctness**: V2 is the only variant that correctly places blocker resolution before implementation (criterion 9), matching the spec's intent that NO-GO criteria be resolved first.
+---
 
-2. **Risk coverage**: V2 is the only variant that addresses sprint CLI regression as a standalone gate (criterion 23) and identifies the concurrent override race condition (criterion 24). These are real risks that V1 and V3 miss entirely.
+# Specific Improvements to Incorporate from Variant B (Haiku)
 
-3. **Specificity**: V2 has the highest specificity ratio (0.90) with explicit test counts, numbered field-absence tests, and concrete acceptance criteria. This makes the roadmap auditable -- you can count whether the deliverables are complete.
+These should be merged into Variant A during the merge step:
 
-4. **Internal consistency**: V2 has no internal contradictions (IC=0.95 tied with V3, vs V1's 0.90). The blocker-first ordering is consistent with the testing-interleaved philosophy.
+1. **Phase 0 checkpoint with exit criteria** (D01): Add a named "Phase 0: Architecture Confirmation" section before Phase 1 with Haiku's M0.1–M0.3 milestones and timeboxed to 0.5–1 session. Use Haiku's 5-point confirmation checklist but keep it as a gate, not a full implementation phase.
 
-5. **Sprint CLI regression gate**: V2's M5 is a unique and high-value contribution that addresses the shared-file regression risk (`models.py`, `tui.py`) that the other variants either underweight (V1) or ignore (V3).
+2. **Report body section enumeration** (D05, conceded): Add the 7 body section names to the T04 description in Phase 1.
 
-### What V2 Lacks (to be incorporated from V1/V3)
+3. **`Literal["off", "shadow", "soft", "full"]` type specification** (D07, conceded): Add to T09's description in Phase 3.
 
-- **U-001** (V1): Closed-world state machine enforcement -- add to M2
-- **U-002** (V1): Compile-time release override prohibition -- add to M2
-- **U-005** (V3): Fault-injection suite and deadlock-resistance formal argument -- add to M4
-- **U-006** (V3): Rollout sub-phase granularity with explicit ordering -- restructure M6
+4. **Public API signatures** (from Haiku's Phase 0): Add `run_wiring_analysis(target_dir, config?) -> WiringReport`, `emit_report(report, output_path, enforcement_mode)`, and `ast_analyze_file(file_path, content) -> FileAnalysis` as the acceptance contract.
+
+5. **4-layer risk framing paragraph** (D10): Add a single paragraph before Opus's risk table introducing the Prevent→Detect→Contain→Recover model as a completeness check, then keep Opus's actionable flat table.
+
+6. **Operational dependencies appendix** (D09, compromise): Add a new Section 8 "Deployment Readiness Prerequisites" listing Haiku's 5 operational dependencies (provider_dir_names confirmation, whitelist governance owner, promotion review owner, merge coordination plan, shadow telemetry process).
+
+7. **Separated sprint integration note** (D02): Add a note to Phase 3 that in multi-implementer scenarios, T09 can be separated into its own phase and started after Phase 1 stabilizes.
+
+8. **Phase-level critical path** (D12): Add Haiku's phase-level critical path (Phase 0→1→2→3→6, Phase 4 after Phase 1, Phase 5 off critical path) alongside Opus's existing task-level critical path.

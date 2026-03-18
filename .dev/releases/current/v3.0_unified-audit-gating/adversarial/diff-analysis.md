@@ -1,108 +1,138 @@
-# Diff Analysis: Unified Audit Gating System v1.2.1 Roadmap Variants
+---
+total_diff_points: 12
+shared_assumptions_count: 18
+---
 
-**Pipeline**: Adversarial 3-variant comparison (Mode B)
-**Timestamp**: 2026-03-03T00:00:00Z
-**Depth**: deep (3 debate rounds)
-**Variants analyzed**: 3
+## 1. Shared Assumptions and Agreements
 
-| Variant | File | Persona | Approach |
-|---------|------|---------|----------|
-| V1 | `variant-1-opus-architect.md` | opus:architect | Contracts-first, 6 milestones (Lock Data Contracts, Evaluator, Runtime Controls, CLI Integration, Rollout, Release Gate) |
-| V2 | `variant-2-sonnet-qa.md` | sonnet:qa | Validation rigor, 6 milestones (Blocker Resolution, State Machine+Tests, Evaluator+Profile Tests, Runtime+Override Tests, Sprint CLI Regression Gate, Rollout Validation+Rollback Drill) |
-| V3 | `variant-3-haiku-analyzer.md` | haiku:analyzer | Risk-first, 6 milestones (Blocker Closure, Contract Foundation, Reliability Hardening, Shadow+Calibration Gate, Soft Enforcement+Rollback Drill, Full Enforcement Gate) |
+Both variants agree on these foundational points:
+
+1. **Three failure classes**: Unwired optional callable injections, orphan provider modules, unregistered dispatch registry entries
+2. **Deterministic Python-only analysis** using `ast` module — no LLM synthesis
+3. **Zero substrate modifications**: Consume `SemanticCheck`, `GateCriteria`, `gate_passed()` as-is
+4. **Shadow → soft → full promotion** with quantitative FPR/TPR thresholds
+5. **`WIRING_GATE` as `GateCriteria`** with 5 semantic checks (analysis complete, recognized mode, counts consistent, severity consistent, zero blocking for mode)
+6. **Frontmatter regex duplication is intentional** — do not refactor into shared module (NFR-007)
+7. **`retry_limit=0`** and `GateMode.TRAILING` for the roadmap step
+8. **ToolOrchestrator/T06 is CUT-ELIGIBLE** — defer to v3.1 if needed
+9. **Agent extensions are additive-only** — no existing rules or tools removed
+10. **Promotion thresholds**: Soft requires FPR <15%, TPR >50%, p95 <5s; Full requires FPR <5%, TPR >80%, whitelist stable 5+ sprints
+11. **Minimum 2 release cycles** of shadow before promotion
+12. **Coverage ≥90%** on `wiring_gate.py` and `wiring_analyzer.py`; 20+ unit tests, 3+ integration tests
+13. **Performance targets**: <5s for 50 files, <2s sprint post-task
+14. **`provider_dir_names` misconfiguration** is the highest-priority risk
+15. **Merge v3.0 before v3.1** to minimize rebase conflicts in `gates.py`
+16. **Whitelist mechanism** with YAML loading and suppression counting
+17. **Graceful degradation** on AST parse errors — log, skip, count
+18. **cli-portify no-op retrospective** as a validation fixture
 
 ---
 
-## Structural Differences
+## 2. Divergence Points
 
-| ID | Aspect | V1 (Architect) | V2 (QA) | V3 (Analyzer) | Severity |
-|----|--------|-----------------|----------|----------------|----------|
-| S-001 | Milestone naming convention | Named by technical artifact: "Lock Data Contracts", "Deterministic Evaluator", "Runtime Controls", "CLI Integration", "Rollout Execution", "Release Decision Gate" | Named by deliverable+test suite: "State Machine Implementation AND Illegal-Transition Test Suite", "Deterministic Gate Evaluator AND Profile Test Suite" | Named by reliability phase: "Blocker Closure", "Contract Foundation", "Reliability Hardening", "Shadow+Calibration Gate", "Soft Enforcement+Rollback Drill", "Full Enforcement Gate" | Medium |
-| S-002 | Rollout milestone granularity | Single M5 milestone covers Shadow, Soft, and Full rollout phases with 6 deliverables | Single M6 milestone covers rollout validation with 10 deliverables; separate M5 for Sprint CLI regression | Three separate milestones: M4 (Shadow+Calibration+Shadow-to-Soft gate), M5 (Soft+Rollback Drill), M6 (Full Enforcement+Soft-to-Full gate) | High |
+### D01: Phase 0 — Architecture Confirmation Phase
 
-### S-001 Analysis
+- **Haiku variant**: Includes an explicit **Phase 0** (0.5–1 phase-unit) dedicated to confirming architectural seams, assigning owners for open questions, defining module boundaries, and locking the acceptance contract before any code.
+- **Opus variant**: Has no Phase 0. Addresses open questions in a table (Section 4) and recommends resolving them "before implementation" but does not allocate a dedicated phase.
+- **Impact**: Haiku's approach reduces rework risk at the cost of a slight schedule delay. Opus's approach gets to code faster but risks discovering misaligned assumptions mid-implementation.
 
-The naming convention reflects each persona's priorities. The Architect names milestones after what is being built (artifact-centric), which aids technical planning. The QA persona names milestones after what is being validated alongside what is built (deliverable+test pairing), which aids acceptance tracking. The Analyzer names milestones after the risk phase they address (risk-centric), which aids rollout confidence. The QA naming approach provides the clearest traceability from milestone title to acceptance gate.
+### D02: Phase Structure — 6 vs 7 Phases
 
-### S-002 Analysis
+- **Opus**: 6 phases — Core Analysis → Gate Definition → Pipeline Integration → Agent Extensions → Testing → Shadow Calibration. Roadmap and sprint integration are bundled into Phase 3.
+- **Haiku**: 7 phases (including Phase 0). Roadmap integration (Phase 3) and sprint integration (Phase 4) are separate phases. ToolOrchestrator and agent extensions are bundled into Phase 5.
+- **Impact**: Haiku's separation of roadmap and sprint integration provides cleaner milestone boundaries and allows sprint work to start once Phase 1 stabilizes (parallel path). Opus bundles them for fewer phase transitions.
 
-This is the highest-severity structural difference. The Architect collapses all three rollout phases into one milestone (M5), which reduces milestone count but makes it harder to gate promotion independently. The QA variant collapses rollout into M6 but adds a standalone Sprint CLI regression gate (M5), acknowledging that shared-file regression is a distinct risk deserving its own acceptance criterion. The Analyzer splits rollout into three milestones (M4/M5/M6), providing the most granular phase-gate tracking but consuming 50% of the milestone budget on rollout alone.
+### D03: Task Granularity and Numbering
+
+- **Opus**: Defines 15 explicit tasks (T01–T15) with file-level CREATE/MODIFY/EXTEND annotations and dependency DAG.
+- **Haiku**: Describes work items narratively within each phase without formal task IDs. Milestones are sub-numbered (M1.1–M1.5, etc.) with more granular checkpoints.
+- **Impact**: Opus is more directly actionable for sprint planning and tasklist generation. Haiku provides richer milestone decomposition for progress tracking.
+
+### D04: File Layout — Separate Config File
+
+- **Opus**: Creates `audit/wiring_config.py` as a separate file for `WiringConfig` (T01), with `WiringFinding` + `WiringReport` in `audit/wiring_gate.py` (T02).
+- **Haiku**: Does not prescribe separate config file — lists all core models together in Phase 1 without file-level split decisions.
+- **Impact**: Opus's separate config file improves modularity and testability. Haiku defers this decision, which is consistent with its Phase 0 "confirm boundaries first" approach.
+
+### D05: Report Body Section Enumeration
+
+- **Opus**: Does not enumerate the required report body sections.
+- **Haiku**: Explicitly lists all 7 required report body sections in exact order (Summary, Unwired Optional Callable Injections, Orphan Modules/Symbols, etc.).
+- **Impact**: Haiku provides a more complete implementation contract for the report emitter, reducing ambiguity during coding.
+
+### D06: Whitelist Error Handling Evolution
+
+- **Opus**: Whitelist is loaded in T01 with validation, but no phase-aware error escalation described.
+- **Haiku**: Specifies **phase-aware malformed-entry behavior** — warning in Phase 1, `WiringConfigError` in Phase 2+.
+- **Impact**: Haiku's approach is more operationally mature, allowing early development flexibility while hardening for production.
+
+### D07: SprintConfig Type Specification
+
+- **Opus**: Adds `wiring_gate_mode` to `SprintConfig` without specifying the type system.
+- **Haiku**: Specifies `wiring_gate_mode: Literal["off", "shadow", "soft", "full"]` with an explicit `"off"` option.
+- **Impact**: Haiku's `"off"` mode provides a clean disable mechanism. Opus implicitly handles this through mode semantics but doesn't call it out.
+
+### D08: Resource/Staffing Model
+
+- **Opus**: Does not define engineering roles or staffing requirements.
+- **Haiku**: Defines 4 explicit engineering roles (backend/static analysis, pipeline/architecture, QA/quality, agent/tooling).
+- **Impact**: Haiku is more useful for project planning and resource allocation. Opus treats this as an implementation-focused roadmap without organizational concerns.
+
+### D09: Operational Dependencies
+
+- **Opus**: Lists compute/tooling requirements (stdlib, PyYAML, test fixtures).
+- **Haiku**: Lists 5 **operational dependencies** (confirmed `provider_dir_names`, whitelist governance owner, promotion review owner, merge coordination plan, shadow telemetry collection process).
+- **Impact**: Haiku surfaces non-code prerequisites that could block rollout. Opus assumes these will be resolved as part of open question resolution.
+
+### D10: Risk Handling Framework
+
+- **Opus**: Traditional risk table with Impact/Mitigation columns, organized by priority tier.
+- **Haiku**: Adds a **4-layer risk handling model** (Prevent → Detect → Contain → Recover) as a meta-framework on top of individual risk descriptions. Also elevates "rollout ambiguity and governance gaps" as a top-5 risk.
+- **Impact**: Haiku's layered model provides a systematic approach to risk management. Opus is more compact and directly actionable.
+
+### D11: Scope of "Primary Deliverable" Framing
+
+- **Opus**: Frames shadow mode as "the primary deliverable" (Recommendation #4) — enforcement is a future promotion decision.
+- **Haiku**: Frames the entire initiative as a "controlled architecture rollout, not just a feature build" — the right success condition is "trusted shadow visibility with stable integration."
+- **Impact**: Both arrive at the same conclusion but Haiku's framing more explicitly manages stakeholder expectations about what v3.0 means.
+
+### D12: Critical Path Definition
+
+- **Opus**: Critical path: T01 → T02 → T03 → T05 → T08 (task-level).
+- **Haiku**: Critical path: Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6 (phase-level), with Phase 4 starting after Phase 1 stabilizes and Phase 5 explicitly off critical path.
+- **Impact**: Opus gives implementers a concrete task chain. Haiku gives project managers a phase-level view with explicit parallelism opportunities.
 
 ---
 
-## Content Differences
+## 3. Areas Where One Variant Is Clearly Stronger
 
-| ID | Aspect | V1 (Architect) | V2 (QA) | V3 (Analyzer) | Severity |
-|----|--------|-----------------|----------|----------------|----------|
-| C-001 | Blocker resolution placement | Deferred to M6 (Release Decision Gate) as M6.1 deliverable. M1 is pure contract/schema work with no governance content. | Standalone M1 with 5 explicit deliverables (M1-D1 through M1-D5). Blocks all downstream testing. | Standalone M1 with 5 deliverables (D1.1 through D1.5). Blocks all downstream implementation. | High |
-| C-002 | Testing approach | Tests embedded within each implementation milestone as deliverable items (e.g., M1.5, M2.5, M2.6). Test files named per milestone. | Dedicated test suite paired with each implementation milestone in the same milestone scope. Test counts explicit (e.g., "17 legal-transition tests", "11+ field-absence tests", "9 determinism assertions"). | Fault-injection suite as standalone M3 deliverable (D3.5). Tests referenced but not individually enumerated. | Medium |
-| C-003 | Sprint CLI regression gate | Mentioned in M4 risk assessment ("Run full sprint regression suite") but no dedicated milestone or deliverable. | Standalone M5 milestone with 5 deliverables: baseline audit (M5-D1), PhaseStatus backward-compatibility (M5-D2), existing regression test pass-through (M5-D3), guard isolation test (M5-D4), zero-failure gate (M5-D5). | Not addressed. No mention of sprint CLI regression risk or models.py/tui.py shared-file concern. | High |
+### Opus is stronger in:
+- **Task-level actionability**: T01–T15 with file paths, CREATE/MODIFY annotations, and dependency DAG — directly convertible to a sprint tasklist
+- **Parallelism identification**: Explicitly calls out Wave 1 (T01 ∥ T02), T06 ∥ T07, T10–T12 ∥ T13
+- **Architectural recommendations section**: 5 crisp, numbered recommendations with specific rationale (especially #3 on frontmatter regex duplication)
+- **Scope quantification**: "7 new files, 7 modified files, ~500 LOC production, ~400 LOC test"
+- **Cut decision clarity**: Both T06 and Phase 4 explicitly marked as deferrable with clear criteria
 
-### C-001 Analysis
-
-The Architect's choice to defer blocker closure to M6 is architecturally clean (contracts can be defined with provisional values) but creates a testability problem: any test that depends on finalized threshold values, retry budgets, or rollback triggers produces non-deterministic results until M6 completes -- which is the final milestone. The QA and Analyzer variants front-load blocker resolution as M1, ensuring all downstream tests are deterministic from the start. The QA variant provides the strongest rationale: "no downstream testing is meaningful without this."
-
-### C-002 Analysis
-
-The Architect embeds tests alongside deliverables within each milestone, keeping implementation and validation co-located. The QA variant makes the test suite a co-equal deliverable in the milestone title itself, with explicit test counts that serve as acceptance metrics. The Analyzer focuses on fault-injection as a standalone reliability gate (M3-D3.5), which proves resilience but does not enumerate individual test cases. The QA approach provides the highest auditability.
-
-### C-003 Analysis
-
-The QA variant uniquely identifies sprint CLI regression as a standalone risk worthy of its own milestone. The files `models.py` and `tui.py` are shared infrastructure used by the existing sprint runner. Changes to these files for audit gating could silently break sprint execution. The Architect acknowledges this risk in M4 but does not dedicate a milestone. The Analyzer does not address it at all. This is a significant gap in V1 and V3.
+### Haiku is stronger in:
+- **Phase 0 governance**: Dedicated architecture confirmation phase prevents costly rework
+- **Report specification completeness**: Enumerates all 7 body sections in order; specifies 15-field frontmatter
+- **Operational maturity**: Staffing model, operational dependencies, governance ownership, whitelist error escalation
+- **Risk framework**: 4-layer Prevent/Detect/Contain/Recover model provides systematic coverage
+- **Delivery strategy**: Three-tranche model (implementation → optional extension → operational readiness) with explicit exit criteria per phase
+- **Sprint integration specifics**: `Literal["off", "shadow", "soft", "full"]` type, per-task artifact emission, governance compatibility checks
 
 ---
 
-## Contradictions
+## 4. Areas Requiring Debate to Resolve
 
-| ID | Aspect | V1 (Architect) | V2 (QA) / V3 (Analyzer) | Severity | Resolution Required |
-|----|--------|-----------------|--------------------------|----------|---------------------|
-| X-001 | Blocker timing | Blocker closure in M6 (end of release cycle). Contracts defined in M1 with no finalized policy values. | Blocker closure in M1 (beginning of release cycle). All policy values finalized before implementation begins. | High | Yes -- incompatible orderings. If blockers are not closed before implementation, test suites for threshold-dependent behavior cannot produce deterministic results. |
-| X-002 | Rollout granularity | Single M5 milestone for Shadow+Soft+Full (6 deliverables). Promotion criteria are deliverables within M5. | V3: Three separate milestones (M4/M5/M6) with per-phase acceptance gates. V2: Single M6 with explicit sub-phase sign-offs (M6-D9 Shadow-to-Soft, M6-D10 Soft-to-Full). | Medium | Yes -- determines whether promotion gates are milestone-level or deliverable-level checkpoints. |
+1. **Phase 0: Yes or No?** — Does a dedicated architecture confirmation phase add enough value to justify delaying code? Or are the open questions resolvable inline during T01 development? The answer depends on team familiarity with the codebase.
 
-### X-001 Resolution Guidance
+2. **Roadmap + Sprint bundled vs. separated** — Opus bundles both into Phase 3 (T07–T09). Haiku separates them (Phase 3 roadmap, Phase 4 sprint). The right choice depends on whether sprint integration genuinely depends on validated roadmap integration or can proceed independently from the core analyzer.
 
-The QA/Analyzer position is stronger. The specification itself (Section 12.3) identifies the four blockers as NO-GO criteria, meaning they must be resolved before the release can proceed. Deferring them to M6 means all intermediate milestones operate against provisional values that may change, invalidating test assertions. The Architect's approach creates technical debt in the form of test rewrites when values are finalized. Front-loading blocker resolution (M1) eliminates this class of rework entirely.
+3. **Task IDs vs. narrative phases** — For tasklist generation, Opus's T01–T15 scheme is directly consumable. For roadmap communication, Haiku's milestone-heavy narrative is more readable. Should the final roadmap include both?
 
-### X-002 Resolution Guidance
+4. **File layout decisions up-front or deferred** — Opus commits to `wiring_config.py` as a separate file now. Haiku defers file-level decisions to Phase 0. The trade-off is early clarity vs. flexibility to discover the right boundaries.
 
-The QA approach (single milestone with explicit sub-phase sign-offs) provides adequate granularity without consuming additional milestone slots. The Analyzer's three-milestone approach is the most granular but consumes 50% of milestones on rollout. A pragmatic resolution is to keep a single rollout milestone but require explicit sub-phase acceptance gates within it, as the QA variant does with M6-D9 and M6-D10.
+5. **Staffing model inclusion** — Haiku's 4-role model is useful for resource planning but may over-specify for a single-implementer scenario (Claude Code sessions). Should it be kept, simplified, or dropped?
 
----
-
-## Unique Contributions
-
-| ID | Source | Description | Value | Integration Recommendation |
-|----|--------|-------------|-------|---------------------------|
-| U-001 | V1 (Architect) | **Closed-world state machine enforcement**: only listed transitions are legal; all others are illegal by default. Explicit architectural decision in M1.5 risk mitigation and M2.2 validator design. | High | Integrate into base. Eliminates an entire category of bypass vulnerabilities -- any new state added without declaring transitions is automatically blocked. |
-| U-002 | V1 (Architect) | **Compile-time enforcement of release override prohibition**: OverrideRecord validator rejects release scope at construction time (M1.2), not only at transition validation time (M2.2). Defense-in-depth. | High | Integrate into base. Catches invalid overrides at the earliest possible point (object creation) rather than relying solely on the transition validator. |
-| U-003 | V2 (QA) | **Adversarial test for release override** (M4-D7): test supplies a fully valid OverrideRecord at release scope and asserts it is still rejected. Tests the dangerous case (valid record + forbidden scope), not just the trivial case (absent record). | High | Already in QA base. Preserve. |
-| U-004 | V2 (QA) | **Sprint CLI Regression Gate** (M5): standalone milestone with baseline audit (M5-D1), PhaseStatus backward-compatibility assertions (M5-D2), parametrized threshold fixtures, and zero-regression acceptance criterion (M5-D5). | High | Already in QA base. Preserve. |
-| U-005 | V3 (Analyzer) | **Dedicated reliability hardening milestone** (M3): fault-injection suite (D3.5) as a standalone gate before any rollout begins. Proves lease/heartbeat/retry/deadlock controls work under adversarial conditions before shadow deployment. Includes deadlock-resistance package (D3.2) and stale-state recovery (D3.3). | High | Integrate key elements into base M4 (Runtime Controls). Add explicit fault-injection suite deliverable and formal deadlock-resistance argument. |
-| U-006 | V3 (Analyzer) | **Three separate rollout gate milestones** with phase-specific acceptance criteria: M4 (Shadow+Shadow-to-Soft gate), M5 (Soft+Rollback Drill), M6 (Full+Soft-to-Full gate). Most granular rollout tracking with per-phase sign-off. | High | Integrate granularity into base M6 by structuring it with explicit sub-phases (Shadow-to-Soft and Soft-to-Full) with separate sign-off criteria, without adding new milestones. |
-
----
-
-## Summary
-
-### Areas of Agreement (All 3 Variants)
-
-- 6-milestone structure with strict sequential dependencies
-- Rollback drill as a mandatory, non-waivable gate
-- Release override prohibition with no exceptions
-- Two shadow windows required for KPI calibration
-- Shadow-to-Soft and Soft-to-Full as distinct promotion gates
-- Fail-closed behavior for unknown/missing inputs (failed(unknown))
-- Override governance limited to task and milestone scope only
-- Three-phase rollout: shadow, soft, full
-- Ordered rollback: full -> soft -> shadow
-
-### Key Disagreements Requiring Debate Resolution
-
-1. **X-001 Blocker timing** (High): M1 (QA/Analyzer) vs M6 (Architect)
-2. **X-002 Rollout granularity** (Medium): 1 milestone (Architect/QA) vs 3 milestones (Analyzer)
-3. **C-003 Sprint CLI regression gate** (High): standalone M5 (QA) vs embedded (Architect) vs absent (Analyzer)
-4. **C-002 Testing approach** (Medium): embedded (Architect) vs paired (QA) vs fault-injection-focused (Analyzer)
-
-### Unique Contributions to Integrate
-
-6 items identified (U-001 through U-006), all assessed as high value. Two are already present in the QA base (U-003, U-004). Four require integration from Architect (U-001, U-002) and Analyzer (U-005, U-006).
+6. **Whitelist error escalation timing** — Haiku's phase-aware behavior (warn → error) adds operational safety but also implementation complexity. Is this warranted for v3.0 or should strict validation be the default from the start?

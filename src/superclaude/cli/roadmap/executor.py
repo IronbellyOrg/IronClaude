@@ -80,36 +80,53 @@ def _embed_inputs(input_paths: list[Path]) -> str:
 
 
 def _sanitize_output(output_file: Path) -> int:
-    """Strip conversational preamble before YAML frontmatter in a step output file.
+    """Strip conversational preamble and leading blank lines before YAML
+    frontmatter in a step output file.
 
-    Reads the file, finds the first ``^---`` line, and removes everything before
-    it.  Uses atomic write (write to ``.tmp`` then ``os.replace()``) to prevent
-    partial file states.
+    Reads the file, strips leading blank lines, finds the first ``^---``
+    line, and removes everything before it.  Uses atomic write (write to
+    ``.tmp`` then ``os.replace()``) to prevent partial file states.
 
-    Returns the byte count of the stripped preamble (0 when file already starts
-    with ``---`` or no frontmatter delimiter is found).
+    Returns the byte count of the stripped content (0 when file already
+    starts with ``---`` and has no preamble).
     """
     import os
     import re
 
     try:
-        content = output_file.read_text(encoding="utf-8")
+        raw = output_file.read_text(encoding="utf-8")
     except FileNotFoundError:
         return 0
 
-    # Already starts with frontmatter delimiter -- nothing to strip
-    if content.lstrip().startswith("---"):
-        return 0
+    # Strip leading blank lines (LLMs sometimes emit \n\n before ---)
+    content = raw.lstrip("\n\r\t ")
 
-    # Search for the first ^--- line
+    # Already starts with frontmatter delimiter -- no preamble to strip
+    if content.startswith("---"):
+        if content == raw:
+            return 0
+        # Leading whitespace only -- write back the stripped version
+        preamble_bytes = len(raw.encode("utf-8")) - len(content.encode("utf-8"))
+        tmp_file = output_file.with_suffix(output_file.suffix + ".tmp")
+        tmp_file.write_text(content, encoding="utf-8")
+        os.replace(tmp_file, output_file)
+        _log.info(
+            "Stripped %d-byte leading whitespace from %s",
+            preamble_bytes,
+            output_file,
+        )
+        return preamble_bytes
+
+    # Search for the first ^--- line (conversational preamble case)
     match = re.search(r"^---[ \t]*$", content, re.MULTILINE)
     if match is None:
         # No frontmatter found at all -- leave file unchanged
         return 0
 
     preamble = content[: match.start()]
-    cleaned = content[match.start() :]
-    preamble_bytes = len(preamble.encode("utf-8"))
+    cleaned = content[match.start():]
+    # Total bytes stripped = leading whitespace + conversational preamble
+    preamble_bytes = len(raw.encode("utf-8")) - len(cleaned.encode("utf-8"))
 
     # Atomic write: tmp file + os.replace
     tmp_file = output_file.with_suffix(output_file.suffix + ".tmp")
@@ -130,13 +147,18 @@ def _inject_pipeline_diagnostics(
     The LLM cannot reliably produce execution timing or environment metadata,
     so the executor injects these fields post-subprocess (FR-033).
     """
-    content = output_file.read_text(encoding="utf-8")
+    content = output_file.read_text(encoding="utf-8").lstrip("\n\r\t ")
     if not content.startswith("---"):
         return
 
     # Find end of frontmatter
     end_idx = content.find("\n---", 3)
     if end_idx == -1:
+        return
+
+    # Idempotency: skip if already injected
+    frontmatter = content[3:end_idx]
+    if "pipeline_diagnostics:" in frontmatter:
         return
 
     elapsed = (finished_at - started_at).total_seconds()
@@ -163,7 +185,7 @@ def _inject_provenance_fields(
     test strategy content. The executor injects these fields post-subprocess
     to satisfy TEST_STRATEGY_GATE required_frontmatter_fields.
     """
-    content = output_file.read_text(encoding="utf-8")
+    content = output_file.read_text(encoding="utf-8").lstrip("\n\r\t ")
     if not content.startswith("---"):
         return
 
@@ -172,15 +194,23 @@ def _inject_provenance_fields(
     if end_idx == -1:
         return
 
-    generated = datetime.now(timezone.utc).isoformat()
-    provenance_lines = (
-        f"spec_source: {spec_source}\n"
-        f'generated: "{generated}"\n'
-        f"generator: superclaude-roadmap-executor"
-    )
+    # Idempotency: only inject fields that are missing
+    frontmatter = content[3:end_idx]
 
-    # Insert before the closing ---
-    new_content = content[:end_idx] + "\n" + provenance_lines + content[end_idx:]
+    fields_to_inject = []
+    if "spec_source:" not in frontmatter:
+        fields_to_inject.append(f"spec_source: {spec_source}")
+    if "generated:" not in frontmatter:
+        generated = datetime.now(timezone.utc).isoformat()
+        fields_to_inject.append(f'generated: "{generated}"')
+    if "generator:" not in frontmatter:
+        fields_to_inject.append("generator: superclaude-roadmap-executor")
+
+    if not fields_to_inject:
+        return  # All fields already present
+
+    provenance_block = "\n".join(fields_to_inject)
+    new_content = content[:end_idx] + "\n" + provenance_block + content[end_idx:]
     output_file.write_text(new_content, encoding="utf-8")
 
 
