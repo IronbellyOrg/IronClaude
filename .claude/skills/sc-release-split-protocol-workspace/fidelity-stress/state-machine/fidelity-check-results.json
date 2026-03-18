@@ -1,0 +1,402 @@
+{
+  "metadata": {
+    "original_spec": "/config/workspace/IronClaude/.claude/skills/sc-release-split-protocol-workspace/evals/files/fidelity-stress-state-machine.md",
+    "output_dir": "/config/workspace/IronClaude/.claude/skills/sc-release-split-protocol-workspace/fidelity-stress/state-machine/outputs/",
+    "total_facts_checked": 25,
+    "checker": "adversarial_fidelity_checker_v1"
+  },
+  "summary": {
+    "fidelity_score": 1.0,
+    "preserved": 25,
+    "weakened": 0,
+    "mutated": 0,
+    "missing": 0,
+    "context_lost": 0,
+    "critical_failures": 0
+  },
+  "critical_failures": [],
+  "all_results": [
+    {
+      "fact_id": "SM-01",
+      "category": "state_transition",
+      "description": "GATING\u2192RUNNING retry backoff formula: min(2^retry * 500, 30000) with base_delay_ms=500 and max_delay_ms=30000",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output preserves the retry backoff semantics in two places: in \u00a72.2 the `GATING \u2192 RUNNING` row specifies `min(2^retry * base_delay_ms, max_delay_ms)` with `base_delay_ms=500` and `max_delay_ms=30000`, and in \u00a73.1 it restates the exact formula `delay_ms = min(2^retry_count * 500, 30000)`. The transition context is also intact: this applies specifically to the `GATING \u2192 RUNNING` retry path for gate retries, so neither the quantitative values nor the state-transition meaning was changed.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output preserves the retry backoff semantics in two places: in \u00a72.2 the `GATING \u2192 RUNNING` row specifies `min(2^retry * base_delay_ms, max_delay_ms)` with `base_delay_ms=500` and `max_delay_ms=30000`, and in \u00a73.1 it restates the exact formula `delay_ms = min(2^retry_count * 500, 30000)`. The transition context is also intact: this applies specifically to the `GATING \u2192 RUNNING` retry path for gate retries, so neither the quantitative values nor the state-transition meaning was changed."
+    },
+    {
+      "fact_id": "SM-02",
+      "category": "invariant",
+      "description": "INV-T3: Task MUST NOT transition to COMPLETE if any STRICT gate has passed==False",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The validated spec preserves INV-T3 verbatim in the task-scope invariants: 'A task MUST NOT transition to COMPLETE if any gate with enforcement_tier == \"STRICT\" has passed == False.' It also preserves the same semantic contract in \u00a78.2 via the INC-047 regression test, which requires rejecting `task.GATING \u2192 task.COMPLETE` when a STRICT gate has `passed == False`.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The validated spec preserves INV-T3 verbatim in the task-scope invariants: 'A task MUST NOT transition to COMPLETE if any gate with enforcement_tier == \"STRICT\" has passed == False.' It also preserves the same semantic contract in \u00a78.2 via the INC-047 regression test, which requires rejecting `task.GATING \u2192 task.COMPLETE` when a STRICT gate has `passed == False`."
+    },
+    {
+      "fact_id": "SM-03",
+      "category": "behavioral_contract",
+      "description": "Circuit breaker counts CONSECUTIVE failures only; COMPLETE resets counter; SKIPPED is transparent (does not reset)",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "LLM grading failed (LLM grading timed out after 60s). Regex fallback: 3/3 patterns matched.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "ERROR",
+      "llm_reasoning": "LLM grading timed out after 60s"
+    },
+    {
+      "fact_id": "SM-04",
+      "category": "negative_requirement",
+      "description": "Phase-level retry is explicitly OUT OF SCOPE for v2.0, deferred to v2.1",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The validated spec preserves this requirement verbatim in `\u00a73.1 Retry Semantics`: 'Phase-level retry is explicitly OUT OF SCOPE for this release' and 'Phase retry is deferred to v2.1 pending state machine hardening validation.' This fully retains both the negative requirement for v2.0 and the deferred target version, with no weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The validated spec preserves this requirement verbatim in `\u00a73.1 Retry Semantics`: 'Phase-level retry is explicitly OUT OF SCOPE for this release' and 'Phase retry is deferred to v2.1 pending state machine hardening validation.' This fully retains both the negative requirement for v2.0 and the deferred target version, with no weakening or mutation."
+    },
+    {
+      "fact_id": "SM-05",
+      "category": "ordering_constraint",
+      "description": "INV-P1: Phase MUST NOT enter RUNNING while predecessor is in RUNNING, GATING, PENDING, or BLOCKED \u2014 ONLY COMPLETE satisfies",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves this requirement verbatim in `release-spec-validated.md` \u00a72.3 Invariants: `INV-P1: A phase MUST NOT enter RUNNING while any predecessor phase is in RUNNING, GATING, PENDING, or BLOCKED state. ONLY COMPLETE satisfies the predecessor guard.` This fully retains the original ordering constraint, the strict `MUST NOT` prohibition, and the exact predecessor states that block transition to `RUNNING`.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves this requirement verbatim in `release-spec-validated.md` \u00a72.3 Invariants: `INV-P1: A phase MUST NOT enter RUNNING while any predecessor phase is in RUNNING, GATING, PENDING, or BLOCKED state. ONLY COMPLETE satisfies the predecessor guard.` This fully retains the original ordering constraint, the strict `MUST NOT` prohibition, and the exact predecessor states that block transition to `RUNNING`."
+    },
+    {
+      "fact_id": "SM-06",
+      "category": "quantitative_constraint",
+      "description": "Task timeout default 300s (5 min), measured from start_timestamp NOT enqueue_timestamp",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The validated spec preserves this requirement exactly in Section 3.2: it states `task.timeout_seconds` default is `300` (5 minutes) and that timeout is measured from `start_timestamp_utc`, NOT from `enqueue_timestamp_utc`. Both the quantitative value and the measurement anchor are intact with no weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The validated spec preserves this requirement exactly in Section 3.2: it states `task.timeout_seconds` default is `300` (5 minutes) and that timeout is measured from `start_timestamp_utc`, NOT from `enqueue_timestamp_utc`. Both the quantitative value and the measurement anchor are intact with no weakening or mutation."
+    },
+    {
+      "fact_id": "SM-07",
+      "category": "quantitative_constraint",
+      "description": "Phase timeout 1800s (30 min), Pipeline timeout 7200s (2 hours)",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "LLM grading failed (LLM grading timed out after 60s). Regex fallback: 2/2 patterns matched.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "ERROR",
+      "llm_reasoning": "LLM grading timed out after 60s"
+    },
+    {
+      "fact_id": "SM-08",
+      "category": "concurrency_rule",
+      "description": "GATING tasks do NOT count against concurrency limit \u2014 only RUNNING tasks count. Max concurrency 10 hard cap.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "Section 5.1 preserves both parts of SM-08 exactly: it states the concurrency limit applies to `RUNNING` tasks only and that `GATING` tasks do not count against the limit. It also preserves the quantitative constraint with `Maximum: 10 (hard cap, not configurable above this)`, so neither the behavior nor the cap was weakened or changed.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "Section 5.1 preserves both parts of SM-08 exactly: it states the concurrency limit applies to `RUNNING` tasks only and that `GATING` tasks do not count against the limit. It also preserves the quantitative constraint with `Maximum: 10 (hard cap, not configurable above this)`, so neither the behavior nor the cap was weakened or changed."
+    },
+    {
+      "fact_id": "SM-09",
+      "category": "behavioral_contract",
+      "description": "Emergency stop: SIGTERM first, wait exactly 5 seconds, then SIGKILL. MUST NOT send SIGKILL without grace period.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The validated spec preserves this requirement verbatim in `\u00a72.4 Invariants, INV-PL2`: the emergency stop sequence 'MUST send SIGTERM first, wait exactly 5 seconds, then send SIGKILL' and 'MUST NOT send SIGKILL without the 5-second grace period.' The same ordering and grace-period semantics are also reinforced in the `RUNNING \u2192 FAILED` pipeline transition side effect and again in `\u00a73.2 Timeout Handling`, so the behavioral contract remains intact.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The validated spec preserves this requirement verbatim in `\u00a72.4 Invariants, INV-PL2`: the emergency stop sequence 'MUST send SIGTERM first, wait exactly 5 seconds, then send SIGKILL' and 'MUST NOT send SIGKILL without the 5-second grace period.' The same ordering and grace-period semantics are also reinforced in the `RUNNING \u2192 FAILED` pipeline transition side effect and again in `\u00a73.2 Timeout Handling`, so the behavioral contract remains intact."
+    },
+    {
+      "fact_id": "SM-10",
+      "category": "behavioral_contract",
+      "description": "Lock acquisition timeout 10s; after 3 consecutive failures \u2192 QUEUED\u2192FAILED with lock_acquisition_timeout reason",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The validated output preserves this requirement verbatim in \u00a75.3 Lock Semantics: lock acquisition timeout is '10 seconds,' a failed acquisition returns the task to `QUEUED` with `lock_acquisition_failures += 1`, and 'After 3 consecutive lock acquisition failures, the task transitions `QUEUED \u2192 FAILED` with `failure_reason = \"lock_acquisition_timeout\"`.' Both the quantitative values (10s, 3 failures) and the conditional behavior chain are intact, so the semantic contract is fully preserved.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The validated output preserves this requirement verbatim in \u00a75.3 Lock Semantics: lock acquisition timeout is '10 seconds,' a failed acquisition returns the task to `QUEUED` with `lock_acquisition_failures += 1`, and 'After 3 consecutive lock acquisition failures, the task transitions `QUEUED \u2192 FAILED` with `failure_reason = \"lock_acquisition_timeout\"`.' Both the quantitative values (10s, 3 failures) and the conditional behavior chain are intact, so the semantic contract is fully preserved."
+    },
+    {
+      "fact_id": "SM-11",
+      "category": "behavioral_contract",
+      "description": "Stale lock detection: lock held longer than timeout_seconds + 30 without transition \u2192 forcibly released",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves SM-11 exactly in `\u00a75.3 Lock Semantics`: 'if a task has held a lock for longer than `task.timeout_seconds + 30` seconds without any state transition, the lock is considered stale and is forcibly released with a `stale_lock_released` event.' This retains the quantitative threshold (`timeout_seconds + 30`), the required extra condition (no state transition), and the behavioral outcome (forced release), so the semantic meaning is intact.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves SM-11 exactly in `\u00a75.3 Lock Semantics`: 'if a task has held a lock for longer than `task.timeout_seconds + 30` seconds without any state transition, the lock is considered stale and is forcibly released with a `stale_lock_released` event.' This retains the quantitative threshold (`timeout_seconds + 30`), the required extra condition (no state transition), and the behavioral outcome (forced release), so the semantic meaning is intact."
+    },
+    {
+      "fact_id": "SM-12",
+      "category": "scope_boundary",
+      "description": "parallel_phases flag does NOT override phase DAG \u2014 only enables concurrency between unrelated phases",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves the exact semantic contract in `release-spec-validated.md` \u00a75.2: it states that phases run sequentially by default, may run concurrently only when they have no dependency relationship and `pipeline.parallel_phases == True`, and that predecessor constraints are still enforced. It explicitly says `parallel_phases` 'does NOT override the phase DAG' and 'only enables concurrency between phases that have no ordering constraint,' which matches SM-12 without weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves the exact semantic contract in `release-spec-validated.md` \u00a75.2: it states that phases run sequentially by default, may run concurrently only when they have no dependency relationship and `pipeline.parallel_phases == True`, and that predecessor constraints are still enforced. It explicitly says `parallel_phases` 'does NOT override the phase DAG' and 'only enables concurrency between phases that have no ordering constraint,' which matches SM-12 without weakening or mutation."
+    },
+    {
+      "fact_id": "SM-13",
+      "category": "exception_path",
+      "description": "Timed-out task MUST NOT enter GATING state \u2014 timeout preempts gate evaluation",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves this requirement verbatim in `\u00a73.2 Timeout Handling`: 'A timed-out task MUST NOT enter `GATING` state \u2014 timeout preempts gate evaluation.' The surrounding transition logic also matches the original semantics: `RUNNING \u2192 GATING` requires a successful exit code, while `RUNNING \u2192 FAILED` explicitly covers `task.wall_time > task.timeout_seconds`, confirming timeout takes precedence over gate evaluation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves this requirement verbatim in `\u00a73.2 Timeout Handling`: 'A timed-out task MUST NOT enter `GATING` state \u2014 timeout preempts gate evaluation.' The surrounding transition logic also matches the original semantics: `RUNNING \u2192 GATING` requires a successful exit code, while `RUNNING \u2192 FAILED` explicitly covers `task.wall_time > task.timeout_seconds`, confirming timeout takes precedence over gate evaluation."
+    },
+    {
+      "fact_id": "SM-14",
+      "category": "cross_requirement_coupling",
+      "description": "INV-T5: Terminal states (COMPLETE, FAILED, SKIPPED) accept no further transitions \u2014 validator MUST reject and log",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output preserves this requirement verbatim in `release-spec-validated.md` under task-scope invariants: `INV-T5: A task in a terminal state (COMPLETE, FAILED, SKIPPED) MUST NOT accept any further transitions. The transition validator MUST reject and log the attempt.` This keeps all critical semantics intact: the exact terminal states, the prohibition on further transitions, and the mandatory validator behavior to both reject and log invalid attempts.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output preserves this requirement verbatim in `release-spec-validated.md` under task-scope invariants: `INV-T5: A task in a terminal state (COMPLETE, FAILED, SKIPPED) MUST NOT accept any further transitions. The transition validator MUST reject and log the attempt.` This keeps all critical semantics intact: the exact terminal states, the prohibition on further transitions, and the mandatory validator behavior to both reject and log invalid attempts."
+    },
+    {
+      "fact_id": "SM-15",
+      "category": "behavioral_contract",
+      "description": "Event buffer capacity 10000; oldest evicted when full; events NEVER dropped silently \u2014 buffer_overflow warning logged",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves the full semantic contract in `release-spec-validated.md` \u00a74.2: it states `Event buffer capacity: 10,000 events`, `When buffer is full, oldest events are evicted`, and `Events are NEVER dropped silently` with a `buffer_overflow` warning logged. The quantitative value, eviction policy, and explicit negative requirement against silent drops are all intact with no weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves the full semantic contract in `release-spec-validated.md` \u00a74.2: it states `Event buffer capacity: 10,000 events`, `When buffer is full, oldest events are evicted`, and `Events are NEVER dropped silently` with a `buffer_overflow` warning logged. The quantitative value, eviction policy, and explicit negative requirement against silent drops are all intact with no weakening or mutation."
+    },
+    {
+      "fact_id": "SM-16",
+      "category": "conditional_logic",
+      "description": "INV-PL1: critical_phase_failures counts ONLY phases where abort_on_failure==True AND state==FAILED; non-critical failures do NOT increment",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves this requirement verbatim in `release-spec-validated.md` under \u00a72.4 Pipeline Scope invariants: `INV-PL1: pipeline.critical_phase_failures counts ONLY phases where abort_on_failure == True AND state == FAILED. Non-critical phase failures do NOT increment this counter.` Both required conditions (`abort_on_failure == True` and `state == FAILED`) are intact, and the exclusion of non-critical failures is explicitly retained with no weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves this requirement verbatim in `release-spec-validated.md` under \u00a72.4 Pipeline Scope invariants: `INV-PL1: pipeline.critical_phase_failures counts ONLY phases where abort_on_failure == True AND state == FAILED. Non-critical phase failures do NOT increment this counter.` Both required conditions (`abort_on_failure == True` and `state == FAILED`) are intact, and the exclusion of non-critical failures is explicitly retained with no weakening or mutation."
+    },
+    {
+      "fact_id": "SM-17",
+      "category": "cross_requirement_coupling",
+      "description": "Migration gate: Phase 2 activation requires zero state divergences for minimum 50 pipeline runs",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves this requirement exactly in the Validation Strategy section: \u201cPhase 2 activation requires zero state divergences between v1.0 and v2.0 for a minimum of 50 pipeline runs.\u201d It also preserves the original migration context in \u00a77.2 Migration Strategy, keeping the same activation condition, zero-divergence threshold, and 50-run quantitative gate.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves this requirement exactly in the Validation Strategy section: \u201cPhase 2 activation requires zero state divergences between v1.0 and v2.0 for a minimum of 50 pipeline runs.\u201d It also preserves the original migration context in \u00a77.2 Migration Strategy, keeping the same activation condition, zero-divergence threshold, and 50-run quantitative gate."
+    },
+    {
+      "fact_id": "SM-18",
+      "category": "behavioral_contract",
+      "description": "INV-T6: GATING\u2192RUNNING retry MUST NOT fire if gate_retry_count >= max_gate_retries; ONLY valid transition is GATING\u2192FAILED",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves INV-T6 verbatim in `release-spec-validated.md` Section 2.2: `The GATING \u2192 RUNNING retry transition MUST NOT fire if gate_retry_count >= max_gate_retries. If this condition is met, the ONLY valid transition is GATING \u2192 FAILED.` This retains both the negative prohibition (`MUST NOT fire`) and the exclusive fallback transition requirement (`ONLY valid transition is GATING \u2192 FAILED`), with no weakening or altered condition.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves INV-T6 verbatim in `release-spec-validated.md` Section 2.2: `The GATING \u2192 RUNNING retry transition MUST NOT fire if gate_retry_count >= max_gate_retries. If this condition is met, the ONLY valid transition is GATING \u2192 FAILED.` This retains both the negative prohibition (`MUST NOT fire`) and the exclusive fallback transition requirement (`ONLY valid transition is GATING \u2192 FAILED`), with no weakening or altered condition."
+    },
+    {
+      "fact_id": "SM-19",
+      "category": "exception_path",
+      "description": "Phase timeout cancels all QUEUED tasks in that phase; RUNNING tasks get individual timeout handling",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves the full semantic contract in `release-spec-validated.md` \u00a73.2 Timeout Handling: \"Phase timeout triggers `RUNNING \u2192 FAILED` for the phase AND cancels all `QUEUED` tasks in that phase\" and \"`RUNNING` tasks within a timed-out phase receive individual timeout handling per above.\" This matches the original distinction between bulk cancellation of queued tasks and separate per-task timeout handling for already running tasks, with no weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves the full semantic contract in `release-spec-validated.md` \u00a73.2 Timeout Handling: \"Phase timeout triggers `RUNNING \u2192 FAILED` for the phase AND cancels all `QUEUED` tasks in that phase\" and \"`RUNNING` tasks within a timed-out phase receive individual timeout handling per above.\" This matches the original distinction between bulk cancellation of queued tasks and separate per-task timeout handling for already running tasks, with no weakening or mutation."
+    },
+    {
+      "fact_id": "SM-20",
+      "category": "quantitative_constraint",
+      "description": "Non-functional: transition latency p99 < 5ms, audit write p99 < 2ms, event emission p99 < 1ms, memory < 50MB for 100 tasks/10 phases",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves the Section 9 non-functional requirements exactly: `p99 < 5ms` for state transition latency, `p99 < 2ms` for audit trail write latency, `p99 < 1ms` for event emission latency, and memory footprint `< 50MB for a pipeline with 100 tasks across 10 phases` in `release-spec-validated.md` \u00a79. The quantitative values, latency percentiles, and workload context are unchanged, so the semantic meaning of SM-20 is fully intact.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves the Section 9 non-functional requirements exactly: `p99 < 5ms` for state transition latency, `p99 < 2ms` for audit trail write latency, `p99 < 1ms` for event emission latency, and memory footprint `< 50MB for a pipeline with 100 tasks across 10 phases` in `release-spec-validated.md` \u00a79. The quantitative values, latency percentiles, and workload context are unchanged, so the semantic meaning of SM-20 is fully intact."
+    },
+    {
+      "fact_id": "SM-21",
+      "category": "invariant",
+      "description": "INV-T4: Timestamps must be monotonically increasing: enqueue < start < completion",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves this invariant verbatim in `release-spec-validated.md` under \u00a72.2 Invariants: `INV-T4: Transition timestamps MUST be monotonically increasing: enqueue_timestamp_utc < start_timestamp_utc < completion_timestamp_utc`. The required ordering constraint and strict inequality between enqueue, start, and completion timestamps are fully intact with no weakening or value change.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves this invariant verbatim in `release-spec-validated.md` under \u00a72.2 Invariants: `INV-T4: Transition timestamps MUST be monotonically increasing: enqueue_timestamp_utc < start_timestamp_utc < completion_timestamp_utc`. The required ordering constraint and strict inequality between enqueue, start, and completion timestamps are fully intact with no weakening or value change."
+    },
+    {
+      "fact_id": "SM-22",
+      "category": "conditional_logic",
+      "description": "Task PENDING\u2192SKIPPED has two triggers: skip_condition==True OR predecessor FAILED when skip_on_predecessor_failure==True",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The validated spec preserves this exactly in `## 2.2 Transition Table \u2014 Task Scope`, where the `PENDING | SKIPPED` row states: ``skip_condition(task) == True` OR `any_predecessor(task).state == FAILED` AND `task.skip_on_predecessor_failure == True``. Both original triggers are present with the same logical structure, so the conditional guard was not simplified or weakened.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The validated spec preserves this exactly in `## 2.2 Transition Table \u2014 Task Scope`, where the `PENDING | SKIPPED` row states: ``skip_condition(task) == True` OR `any_predecessor(task).state == FAILED` AND `task.skip_on_predecessor_failure == True``. Both original triggers are present with the same logical structure, so the conditional guard was not simplified or weakened."
+    },
+    {
+      "fact_id": "SM-23",
+      "category": "scope_boundary",
+      "description": "v1.0 mapping: is_running=True, has_error=True maps to RUNNING (error flag was ignored \u2014 INC-041 root cause); unmappable combos \u2192 PENDING",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The compatibility mapping in `release-spec-validated.md` \u00a77.1 preserves the fact exactly: `is_running=True, has_error=True, is_complete=False` maps to `RUNNING`, with the explanation that the error flag was previously ignored and that this was INC-041's root cause. It also preserves the fallback behavior that all other unmappable combinations map to `PENDING`, matching the original semantic boundary without weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The compatibility mapping in `release-spec-validated.md` \u00a77.1 preserves the fact exactly: `is_running=True, has_error=True, is_complete=False` maps to `RUNNING`, with the explanation that the error flag was previously ignored and that this was INC-041's root cause. It also preserves the fallback behavior that all other unmappable combinations map to `PENDING`, matching the original semantic boundary without weakening or mutation."
+    },
+    {
+      "fact_id": "SM-24",
+      "category": "behavioral_contract",
+      "description": "Audit trail: rejected transitions logged at WARNING level; MUST NOT raise exceptions \u2014 state machine silently rejects and continues",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The output preserves the requirement exactly in `release-spec-validated.md` \u00a74.3 Audit Trail: rejected transitions are logged at `WARNING` level with rejection reason and violated invariants, and they `MUST NOT raise exceptions`. It also preserves the full behavioral contract that the state machine silently rejects invalid transitions and continues operating, with no weakening or mutation of severity, logging level, or exception behavior.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output preserves the requirement exactly in `release-spec-validated.md` \u00a74.3 Audit Trail: rejected transitions are logged at `WARNING` level with rejection reason and violated invariants, and they `MUST NOT raise exceptions`. It also preserves the full behavioral contract that the state machine silently rejects invalid transitions and continues operating, with no weakening or mutation of severity, logging level, or exception behavior."
+    },
+    {
+      "fact_id": "SM-25",
+      "category": "behavioral_contract",
+      "description": "Health check: healthy=false if ANY of: stale_locks>0, event_buffer_utilization>0.9, invariant_violations_last_hour>0",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The output document preserves the requirement exactly in `release-spec-validated.md` \u00a76.2 Health Check: it states `healthy` is `false` if ANY of `stale_locks > 0`, `event_buffer_utilization > 0.9`, or `invariant_violations_last_hour > 0`. The conditional logic, threshold value `0.9`, and the three-way OR semantics are all intact with no weakening or mutation.",
+      "found_in_files": [
+        "release-spec-validated.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The output document preserves the requirement exactly in `release-spec-validated.md` \u00a76.2 Health Check: it states `healthy` is `false` if ANY of `stale_locks > 0`, `event_buffer_utilization > 0.9`, or `invariant_violations_last_hour > 0`. The conditional logic, threshold value `0.9`, and the three-way OR semantics are all intact with no weakening or mutation."
+    }
+  ],
+  "by_category": {
+    "state_transition": {
+      "total": 1,
+      "preserved": 1,
+      "failures": 0
+    },
+    "invariant": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    },
+    "behavioral_contract": {
+      "total": 8,
+      "preserved": 8,
+      "failures": 0
+    },
+    "negative_requirement": {
+      "total": 1,
+      "preserved": 1,
+      "failures": 0
+    },
+    "ordering_constraint": {
+      "total": 1,
+      "preserved": 1,
+      "failures": 0
+    },
+    "quantitative_constraint": {
+      "total": 3,
+      "preserved": 3,
+      "failures": 0
+    },
+    "concurrency_rule": {
+      "total": 1,
+      "preserved": 1,
+      "failures": 0
+    },
+    "scope_boundary": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    },
+    "exception_path": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    },
+    "cross_requirement_coupling": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    },
+    "conditional_logic": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "eval_id": 1,
+  "eval_name": "splittable-auth-system",
+  "prompt": "I've got this auth system release spec that's feeling really big — it combines building the core identity model, the permission engine, the token service AND a migration framework plus admin dashboard and SDK updates. I'm worried about shipping it all at once. Can you run /sc:release-split on evals/files/spec-splittable-auth-system.md and tell me if we should break it up? Use --depth quick --interactive false to keep it fast.",
+  "assertions": [
+    "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS (not NO SPLIT)",
+    "split-proposal.md exists and contains discovery analysis with mandatory questions answered",
+    "split-proposal-final.md exists and contains adversarial review with Advocate/Skeptic/Pragmatist positions",
+    "release-1-spec.md exists with YAML frontmatter containing release: 1 and parent-spec fields",
+    "release-2-spec.md exists with YAML frontmatter containing release: 2 and validation-gate field",
+    "release-2-spec.md contains a Planning Gate section that blocks R2 until R1 real-world validation passes",
+    "boundary-rationale.md exists with Split Point, Why This Boundary, and Cross-Release Dependencies sections",
+    "fidelity-audit.md exists with a Coverage Matrix mapping every original requirement (R1-R7)",
+    "fidelity-audit.md shows fidelity score >= 0.95",
+    "release-split-report.md exists with Verdict, all four Part summaries, and Artifacts Produced sections",
+    "No requirement from the original spec is missing from the combined R1+R2 scope (losslessness)",
+    "Real-world validation requirements appear in release specs (no mocks or simulated tests accepted)",
+    "R1 scope includes foundational infrastructure (identity model, permissions, tokens) not just easy items"
+  ]
+}

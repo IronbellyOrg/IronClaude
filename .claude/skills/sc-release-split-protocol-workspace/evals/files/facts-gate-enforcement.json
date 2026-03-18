@@ -1,0 +1,275 @@
+{
+  "spec": "fidelity-stress-gate-enforcement.md",
+  "facts": [
+    {
+      "id": "GE-01",
+      "category": "quantitative_constraint",
+      "description": "Override reason minimum 10 characters; rejection error message includes exact format: 'Override reason must be at least 10 characters (got {len})'",
+      "search_patterns": [
+        "10.*character|minimum.*10|at least 10",
+        "got.*\\{len\\}|got.*len|Override reason must be"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R2: Enforcement Profiles",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-02",
+      "category": "behavioral_contract",
+      "description": "strict profile MUST NOT accept overrides under ANY circumstances including --force, env vars, or config files. Enforced at registry level, not CLI level.",
+      "search_patterns": [
+        "strict.*MUST NOT.*override|strict.*no.*override|ANY.*circumstanc",
+        "registry.*level|not.*CLI.*level|no.*code.*path.*bypass"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R2: Enforcement Profiles",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-03",
+      "category": "scope_boundary",
+      "description": "Release-scope overrides PROHIBITED in BOTH strict AND standard profiles. ONLY legacy_migration permits release-scope overrides.",
+      "search_patterns": [
+        "release.*scope.*prohibit|release.*override.*prohibit",
+        "ONLY.*legacy_migration.*release|legacy_migration.*permit.*release"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R2: Enforcement Profiles",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-04",
+      "category": "cross_requirement_coupling",
+      "description": "Profile x Level matrix: strict has ALL gates HARD; wiring-verification is SOFT in standard but SHADOW in legacy; anti-instinct is OFF in legacy_migration",
+      "search_patterns": [
+        "strict.*HARD|strict.*all.*HARD",
+        "wiring.*SOFT.*standard|wiring.*verification.*SOFT",
+        "anti.?instinct.*OFF|anti.?instinct.*legacy.*OFF"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "Section 3.2 Profile x Level matrix",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-05",
+      "category": "behavioral_contract",
+      "description": "Evaluation order: ascending by evaluation_order, ties broken by lexicographic gate_id. Deterministic, MUST NOT vary between runs.",
+      "search_patterns": [
+        "evaluation_order.*ascending|ascending.*evaluation_order",
+        "lexicographic.*gate_id|tie.*gate_id|disambiguat.*gate_id",
+        "deterministic|MUST NOT.*vary"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R1: Unified Gate Registry",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-06",
+      "category": "conditional_logic",
+      "description": "Gate dependency: if B depends on A and A hard_fails, B is SKIPPED (not failed) with skip_reason='dependency_failed: {gate_b_id}'. If A soft_fails, B still evaluates.",
+      "search_patterns": [
+        "SKIPPED.*not.*failed|SKIPPED.*dependency_failed",
+        "soft_fail.*still.*evaluat|soft.*failure.*advisory"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R1: Dependency contract",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-07",
+      "category": "behavioral_contract",
+      "description": "Circular dependencies MUST be detected at registry load time and MUST raise GateConfigurationError — pipeline MUST NOT start",
+      "search_patterns": [
+        "circular.*depend.*detect|detect.*circular",
+        "GateConfigurationError|pipeline.*MUST NOT.*start"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R1: Dependency contract",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-08",
+      "category": "behavioral_contract",
+      "description": "DeferredRemediationLog ratchet: at release scope ALL entries must be resolved (remediated==True AND remediation_evidence non-empty) or release gate fails with 'unresolved_deferred_remediations: {count}'",
+      "search_patterns": [
+        "remediated.*True|resolved.*remediated",
+        "remediation_evidence.*non.*empty|remediation_evidence.*not.*None",
+        "unresolved_deferred_remediations"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R4: Remediation enforcement contract",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-09",
+      "category": "behavioral_contract",
+      "description": "Audit trail chain hash: SHA-256(previous_chain_hash + json(current_record)). First record uses chain_hash = SHA-256('genesis'). Records are append-only, flushed after each evaluation.",
+      "search_patterns": [
+        "SHA-256.*previous.*chain.*hash|chain.*hash.*SHA",
+        "genesis|SHA-256.*genesis",
+        "append.*only|flushed.*after.*each"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R7: Audit Trail",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-10",
+      "category": "behavioral_contract",
+      "description": "Artifact classification on gate failure: VALID (before failing checkpoint), TAINTED (same checkpoint), INVALIDATED (after, if depends on tainted)",
+      "search_patterns": [
+        "VALID.*before|VALID.*produced.*before",
+        "TAINTED.*same.*checkpoint|TAINTED.*during",
+        "INVALIDATED.*after|INVALIDATED.*depend.*tainted"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R5: Rollback Contract",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-11",
+      "category": "behavioral_contract",
+      "description": "Resume mechanism verifies VALID artifacts unmodified via SHA-256 comparison. Modified 'valid' artifacts reclassified as TAINTED.",
+      "search_patterns": [
+        "SHA-256.*comparison|SHA-256.*verif|verify.*modified",
+        "reclassified.*TAINTED|modified.*valid.*TAINTED"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R5: Resume contract",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-12",
+      "category": "behavioral_contract",
+      "description": "Deprecation: --skip-gate, --skip-wiring-gate, --no-smoke, --strictness are deprecated. Removed in v5.0. Auto-generates override reason 'legacy flag migration' with actor='deprecation_shim'",
+      "search_patterns": [
+        "skip-gate.*deprecat|deprecated.*skip-gate|--skip-wiring-gate.*deprecat",
+        "v5\\.0|removed.*v5",
+        "legacy flag migration|deprecation_shim"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R6: Deprecated flags",
+      "severity": "major"
+    },
+    {
+      "id": "GE-13",
+      "category": "conditional_logic",
+      "description": "evaluate_all mode: gate depending on failed gate is SKIPPED not evaluated, preventing cascading failures from missing gate output",
+      "search_patterns": [
+        "depend.*failed.*SKIPPED|SKIPPED.*not.*evaluated",
+        "cascading.*failure|missing.*gate.*output|prevent.*cascad"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "Section 4.2 Recovery Semantics",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-14",
+      "category": "behavioral_contract",
+      "description": "Override attempted on strict profile raises OverrideProhibitedError; pipeline continues WITHOUT the override (does not abort)",
+      "search_patterns": [
+        "OverrideProhibitedError",
+        "continues.*WITHOUT.*override|without.*override|rejected.*continue"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "Section 4.1 Gate Evaluation Errors",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-15",
+      "category": "cross_requirement_coupling",
+      "description": "Cross-gate staleness detection: dependent gate MUST verify predecessor output is from CURRENT run_id, reject stale with 'stale_dependency_output: {gate_a_id} output from run {old_run_id}'",
+      "search_patterns": [
+        "stale.*dependency|staleness.*detect",
+        "current.*run_id|CURRENT.*pipeline.*run",
+        "stale_dependency_output"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R8: Cross-Gate Dependency Resolution",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-16",
+      "category": "ordering_constraint",
+      "description": "Delivery order is strict: Phase N depends on N-1, MUST NOT be parallelized. Phase 1 code-complete before Phase 2 begins. Hard constraint.",
+      "search_patterns": [
+        "MUST NOT.*paralleliz|phases.*MUST NOT.*parallel",
+        "Phase 1.*code.*complete.*Phase 2|Phase N.*depends.*N-1"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "Section 5 Migration Path",
+      "severity": "critical"
+    },
+    {
+      "id": "GE-17",
+      "category": "quantitative_constraint",
+      "description": "NFR thresholds: registry load <100ms/20 gates, checkpoint overhead <200ms, audit write <5ms, chain hash <1ms, remediation query <50ms/1000 entries",
+      "search_patterns": [
+        "100.*ms.*20.*gate|registry.*load.*100",
+        "200.*ms.*checkpoint|checkpoint.*overhead.*200",
+        "audit.*write.*5.*ms|5.*ms.*audit",
+        "50.*ms.*1000|remediation.*query.*50"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "Section 7 Non-Functional Requirements",
+      "severity": "major"
+    },
+    {
+      "id": "GE-18",
+      "category": "behavioral_contract",
+      "description": "Gate timeout default 60 seconds. On timeout, treat as hard_fail with failure_reason='evaluation_timeout'",
+      "search_patterns": [
+        "timeout.*60|default.*60.*second",
+        "evaluation_timeout|timeout.*hard_fail"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R1 and R3",
+      "severity": "major"
+    },
+    {
+      "id": "GE-19",
+      "category": "behavioral_contract",
+      "description": "Inter-gate data passing via filesystem only — no in-memory. Outputs to {checkpoint_dir}/{gate_id}/output/",
+      "search_patterns": [
+        "no.*in.*memory|filesystem.*artifact|via.*filesystem",
+        "checkpoint_dir.*gate_id.*output|gate_id.*output"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R8: Data passing mechanism",
+      "severity": "major"
+    },
+    {
+      "id": "GE-20",
+      "category": "cross_requirement_coupling",
+      "description": "Known dependency chains: WIRING→SPEC_FIDELITY, SPEC_FIDELITY→RELEASE, ANTI_INSTINCT→TRAILING",
+      "search_patterns": [
+        "WIRING.*SPEC_FIDELITY|wiring.*spec.*fidelity",
+        "SPEC_FIDELITY.*RELEASE|spec.*fidelity.*release",
+        "ANTI_INSTINCT.*TRAILING|anti.*instinct.*trailing"
+      ],
+      "anti_patterns": [],
+      "required_context": [],
+      "source_section": "R8: Known dependency chains",
+      "severity": "major"
+    }
+  ]
+}

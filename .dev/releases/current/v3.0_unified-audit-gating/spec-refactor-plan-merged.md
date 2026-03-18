@@ -1,7 +1,7 @@
-# Merged Spec Refactoring Plan — Unified Audit Gating v1.2.1
+# Merged Spec Refactoring Plan — Unified Audit Gating 
 
 **Date**: 2026-03-17
-**Target document**: `unified-audit-gating-v1.2.1-release-spec.md`
+**Target document**: `unified-audit-gating-release-spec.md`
 **Plan type**: Document refactoring plan only — no files modified here
 **Status**: PLAN ONLY — do not edit spec until this plan is approved
 
@@ -138,7 +138,7 @@ Changes are presented in dependency order (see Dependency Order section at end o
 > - **D-01 (FR-NNN identifier coverage)** and **D-05 (stub sentinel detection)** from the
 >   spec fidelity hardening proposal -- D-01 is non-load-bearing for specs using prose/pseudocode
 >   rather than formal identifier notation; D-05 requires section-scope filtering before it is
->   safe to ship (high false positive risk in TDD workflows). Both are deferred post-v1.2.1.
+>   safe to ship (high false positive risk in TDD workflows). Both are deferred post release.
 
 **Rationale**: C-2 resolution requires an explicit scope boundary for the standalone command.
 Explicit exclusion of D-01 and D-05 from scope prevents scope creep during implementation.

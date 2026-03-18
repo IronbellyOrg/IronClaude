@@ -74,3 +74,4 @@ Traceability source: D-0022 merged-strategy.md. All items trace to one or more o
 **Dependencies**: AP-002 (CEV structure establishes what an evidence failure looks like)
 **Acceptance criteria**: scoring-protocol.md has a "Failure Mode Classification" section with all four categories; each category has at least one example; dev copy is synced.
 **Risk**: Low. Document addition to existing scoring protocol; no structural change to the scoring algorithm.
+/resu

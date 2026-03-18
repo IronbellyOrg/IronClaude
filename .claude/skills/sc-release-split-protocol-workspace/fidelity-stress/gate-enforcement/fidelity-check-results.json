@@ -1,0 +1,357 @@
+{
+  "metadata": {
+    "original_spec": "/config/workspace/IronClaude/.claude/skills/sc-release-split-protocol-workspace/evals/files/fidelity-stress-gate-enforcement.md",
+    "output_dir": "/config/workspace/IronClaude/.claude/skills/sc-release-split-protocol-workspace/fidelity-stress/gate-enforcement/outputs/",
+    "total_facts_checked": 20,
+    "checker": "adversarial_fidelity_checker_v1"
+  },
+  "summary": {
+    "fidelity_score": 0.9,
+    "preserved": 18,
+    "weakened": 1,
+    "mutated": 1,
+    "missing": 0,
+    "context_lost": 0,
+    "critical_failures": 2
+  },
+  "critical_failures": [
+    {
+      "fact_id": "GE-15",
+      "category": "cross_requirement_coupling",
+      "description": "Cross-gate staleness detection: dependent gate MUST verify predecessor output is from CURRENT run_id, reject stale with 'stale_dependency_output: {gate_a_id} output from run {old_run_id}'",
+      "severity": "critical",
+      "status": "MUTATED",
+      "evidence": "Release 2 preserves the core behavior that a dependent gate must check the predecessor output's `run_id` and reject stale outputs: `release-2-spec.md` R8 says gate B `MUST verify` gate A's output is from the current run and reject stale output. However, the required rejection format was changed from `stale_dependency_output: {gate_a_id} output from run {old_run_id}` to `stale_dependency_output: {gate_a_id} output from run {old_run_id}, current run {current_run_id}`, so the specified contract was not preserved exactly.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "MUTATED",
+      "llm_reasoning": "Release 2 preserves the core behavior that a dependent gate must check the predecessor output's `run_id` and reject stale outputs: `release-2-spec.md` R8 says gate B `MUST verify` gate A's output is from the current run and reject stale output. However, the required rejection format was changed from `stale_dependency_output: {gate_a_id} output from run {old_run_id}` to `stale_dependency_output: {gate_a_id} output from run {old_run_id}, current run {current_run_id}`, so the specified contract was not preserved exactly."
+    },
+    {
+      "fact_id": "GE-16",
+      "category": "ordering_constraint",
+      "description": "Delivery order is strict: Phase N depends on N-1, MUST NOT be parallelized. Phase 1 code-complete before Phase 2 begins. Hard constraint.",
+      "severity": "critical",
+      "status": "WEAKENED",
+      "evidence": "The outputs preserve the general sequencing rule and anti-parallelization requirement: `boundary-rationale.md` says Section 5 defines '4 sequential phases with an explicit prohibition on parallelization,' and `release-2-spec.md` restates that Phase N depends on Phase N-1 and phases 'MUST NOT be parallelized.' However, the specific hard constraint that Phase 1 must be code-complete before Phase 2 begins is not carried forward; `release-1-spec.md` bundles Migration Phases 1 and 2 into one release without explicitly preserving that internal ordering gate.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "WEAKENED",
+      "llm_reasoning": "The outputs preserve the general sequencing rule and anti-parallelization requirement: `boundary-rationale.md` says Section 5 defines '4 sequential phases with an explicit prohibition on parallelization,' and `release-2-spec.md` restates that Phase N depends on Phase N-1 and phases 'MUST NOT be parallelized.' However, the specific hard constraint that Phase 1 must be code-complete before Phase 2 begins is not carried forward; `release-1-spec.md` bundles Migration Phases 1 and 2 into one release without explicitly preserving that internal ordering gate."
+    }
+  ],
+  "all_results": [
+    {
+      "fact_id": "GE-01",
+      "category": "quantitative_constraint",
+      "description": "Override reason minimum 10 characters; rejection error message includes exact format: 'Override reason must be at least 10 characters (got {len})'",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "LLM grading failed (LLM grading timed out after 60s). Regex fallback: 2/2 patterns matched.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "ERROR",
+      "llm_reasoning": "LLM grading timed out after 60s"
+    },
+    {
+      "fact_id": "GE-02",
+      "category": "behavioral_contract",
+      "description": "strict profile MUST NOT accept overrides under ANY circumstances including --force, env vars, or config files. Enforced at registry level, not CLI level.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The fact is stated explicitly in `release-1-spec.md` under R2 Override governance: the `strict` profile 'MUST NOT accept overrides under ANY circumstances, including `--force` flags, environment variables, or configuration file entries' and this policy is 'enforced at the registry level, not the CLI level.' It is reinforced in `boundary-rationale.md` handoff criterion 7, which requires that strict rejects overrides via flag, env, and config at the registry level, preserving both the no-exceptions contract and the enforcement location.",
+      "found_in_files": [
+        "release-1-spec.md",
+        "boundary-rationale.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The fact is stated explicitly in `release-1-spec.md` under R2 Override governance: the `strict` profile 'MUST NOT accept overrides under ANY circumstances, including `--force` flags, environment variables, or configuration file entries' and this policy is 'enforced at the registry level, not the CLI level.' It is reinforced in `boundary-rationale.md` handoff criterion 7, which requires that strict rejects overrides via flag, env, and config at the registry level, preserving both the no-exceptions contract and the enforcement location."
+    },
+    {
+      "fact_id": "GE-03",
+      "category": "scope_boundary",
+      "description": "Release-scope overrides PROHIBITED in BOTH strict AND standard profiles. ONLY legacy_migration permits release-scope overrides.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The exact semantic rule is carried forward in `release-1-spec.md` under R2 Override governance: 'Release-scope overrides are PROHIBITED in both `strict` and `standard` profiles. ONLY `legacy_migration` permits release-scope overrides.' It is also reinforced in `boundary-rationale.md` ('release-scope prohibition in strict + standard') and `release-2-spec.md` dependencies/exclusions, so the prohibition, affected profiles, and sole exception are all preserved intact.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The exact semantic rule is carried forward in `release-1-spec.md` under R2 Override governance: 'Release-scope overrides are PROHIBITED in both `strict` and `standard` profiles. ONLY `legacy_migration` permits release-scope overrides.' It is also reinforced in `boundary-rationale.md` ('release-scope prohibition in strict + standard') and `release-2-spec.md` dependencies/exclusions, so the prohibition, affected profiles, and sole exception are all preserved intact."
+    },
+    {
+      "fact_id": "GE-04",
+      "category": "cross_requirement_coupling",
+      "description": "Profile x Level matrix: strict has ALL gates HARD; wiring-verification is SOFT in standard but SHADOW in legacy; anti-instinct is OFF in legacy_migration",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The fact is explicitly preserved in `release-1-spec.md` under `Profile \u00d7 Level Matrix`, where `strict` has every gate set to `HARD`, `wiring-verification` is `SOFT` in `standard` and `SHADOW` in `legacy_migration`, and `anti-instinct` is `OFF` in `legacy_migration`. The surrounding invariant is also retained: `release-1-spec.md` states that no gate in `strict` may be `OFF`, `SHADOW`, or `SOFT`, preserving the original cross-requirement coupling.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The fact is explicitly preserved in `release-1-spec.md` under `Profile \u00d7 Level Matrix`, where `strict` has every gate set to `HARD`, `wiring-verification` is `SOFT` in `standard` and `SHADOW` in `legacy_migration`, and `anti-instinct` is `OFF` in `legacy_migration`. The surrounding invariant is also retained: `release-1-spec.md` states that no gate in `strict` may be `OFF`, `SHADOW`, or `SOFT`, preserving the original cross-requirement coupling."
+    },
+    {
+      "fact_id": "GE-05",
+      "category": "behavioral_contract",
+      "description": "Evaluation order: ascending by evaluation_order, ties broken by lexicographic gate_id. Deterministic, MUST NOT vary between runs.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The fact is explicitly preserved in `release-1-spec.md` under R1: 'Gates evaluate in evaluation_order ascending. When two gates have the same evaluation_order, they are disambiguated by lexicographic sort of gate_id. This ordering is deterministic and MUST NOT vary between runs.' It is also reinforced in `boundary-rationale.md` ('Deterministic evaluation ordering') and `release-2-spec.md` ('Sort gates by evaluation_order (ties \u2192 lexicographic gate_id)'), so both the ordering rule and the determinism contract remain intact.",
+      "found_in_files": [
+        "release-1-spec.md",
+        "boundary-rationale.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The fact is explicitly preserved in `release-1-spec.md` under R1: 'Gates evaluate in evaluation_order ascending. When two gates have the same evaluation_order, they are disambiguated by lexicographic sort of gate_id. This ordering is deterministic and MUST NOT vary between runs.' It is also reinforced in `boundary-rationale.md` ('Deterministic evaluation ordering') and `release-2-spec.md` ('Sort gates by evaluation_order (ties \u2192 lexicographic gate_id)'), so both the ordering rule and the determinism contract remain intact."
+    },
+    {
+      "fact_id": "GE-06",
+      "category": "conditional_logic",
+      "description": "Gate dependency: if B depends on A and A hard_fails, B is SKIPPED (not failed) with skip_reason='dependency_failed: {gate_b_id}'. If A soft_fails, B still evaluates.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "`release-1-spec.md` preserves the full dependency contract in R1: it states that when a dependency hard-fails, the dependent gate is `SKIPPED (not failed)` with `skip_reason = \"dependency_failed: {gate_b_id}\"`, and that a dependency soft-fail is advisory so the dependent gate still evaluates. `release-2-spec.md` reinforces this behavior by stating in recovery semantics that a gate depending on a failed gate is skipped rather than evaluated, so the semantic meaning is intact across the split.",
+      "found_in_files": [
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "`release-1-spec.md` preserves the full dependency contract in R1: it states that when a dependency hard-fails, the dependent gate is `SKIPPED (not failed)` with `skip_reason = \"dependency_failed: {gate_b_id}\"`, and that a dependency soft-fail is advisory so the dependent gate still evaluates. `release-2-spec.md` reinforces this behavior by stating in recovery semantics that a gate depending on a failed gate is skipped rather than evaluated, so the semantic meaning is intact across the split."
+    },
+    {
+      "fact_id": "GE-07",
+      "category": "behavioral_contract",
+      "description": "Circular dependencies MUST be detected at registry load time and MUST raise GateConfigurationError \u2014 pipeline MUST NOT start",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "Release 1 preserves the full contract verbatim: under `R1: Unified Gate Registry`, it states that circular dependencies `MUST be detected at registry load time` and `MUST raise GateConfigurationError \u2014 the pipeline MUST NOT start`. This is reinforced again in `Configuration Error Handling` (`Circular gate dependency detected | GateConfigurationError | Pipeline refuses to start`) and in validation requirements/hand-off criteria, so the timing, exception type, and startup-blocking behavior are all intact.",
+      "found_in_files": [
+        "boundary-rationale.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "Release 1 preserves the full contract verbatim: under `R1: Unified Gate Registry`, it states that circular dependencies `MUST be detected at registry load time` and `MUST raise GateConfigurationError \u2014 the pipeline MUST NOT start`. This is reinforced again in `Configuration Error Handling` (`Circular gate dependency detected | GateConfigurationError | Pipeline refuses to start`) and in validation requirements/hand-off criteria, so the timing, exception type, and startup-blocking behavior are all intact."
+    },
+    {
+      "fact_id": "GE-08",
+      "category": "behavioral_contract",
+      "description": "DeferredRemediationLog ratchet: at release scope ALL entries must be resolved (remediated==True AND remediation_evidence non-empty) or release gate fails with 'unresolved_deferred_remediations: {count}'",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "release-2-spec.md explicitly preserves the full R4 contract: at release scope, ALL `DeferredRemediationLog` entries for the current run MUST be resolved before the release gate passes, where resolved means `remediated == True` AND `remediation_evidence` is non-null and non-empty. It also preserves the exact failure behavior and message: the release gate MUST fail with `failure_reason = \"unresolved_deferred_remediations: {count}\"` if any entries remain unresolved, and the validation section re-tests the ratchet semantics with decreasing unresolved counts.",
+      "found_in_files": [
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "release-2-spec.md explicitly preserves the full R4 contract: at release scope, ALL `DeferredRemediationLog` entries for the current run MUST be resolved before the release gate passes, where resolved means `remediated == True` AND `remediation_evidence` is non-null and non-empty. It also preserves the exact failure behavior and message: the release gate MUST fail with `failure_reason = \"unresolved_deferred_remediations: {count}\"` if any entries remain unresolved, and the validation section re-tests the ratchet semantics with decreasing unresolved counts."
+    },
+    {
+      "fact_id": "GE-09",
+      "category": "behavioral_contract",
+      "description": "Audit trail chain hash: SHA-256(previous_chain_hash + json(current_record)). First record uses chain_hash = SHA-256('genesis'). Records are append-only, flushed after each evaluation.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The fact is preserved in `release-2-spec.md` under **R7: Audit Trail and Compliance**. It explicitly states that audit records are append-only, are flushed to disk after each gate evaluation, and that each record\u2019s `chain_hash` is computed as `SHA-256(previous_chain_hash + json(current_record))`, with the first record using `SHA-256(\"genesis\")`. The same requirement is also reinforced in the validation section, which checks both the genesis hash and subsequent chained hashes.",
+      "found_in_files": [
+        "release-2-spec.md",
+        "boundary-rationale.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The fact is preserved in `release-2-spec.md` under **R7: Audit Trail and Compliance**. It explicitly states that audit records are append-only, are flushed to disk after each gate evaluation, and that each record\u2019s `chain_hash` is computed as `SHA-256(previous_chain_hash + json(current_record))`, with the first record using `SHA-256(\"genesis\")`. The same requirement is also reinforced in the validation section, which checks both the genesis hash and subsequent chained hashes."
+    },
+    {
+      "fact_id": "GE-10",
+      "category": "behavioral_contract",
+      "description": "Artifact classification on gate failure: VALID (before failing checkpoint), TAINTED (same checkpoint), INVALIDATED (after, if depends on tainted)",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The semantic contract is fully preserved in `release-2-spec.md` under **R5: Rollback Contract**: it explicitly defines `VALID` as artifacts produced before the failing scope checkpoint, `TAINTED` as artifacts produced during the same checkpoint, and `INVALIDATED` as artifacts produced after the checkpoint that depend on tainted artifacts. `boundary-rationale.md` also reinforces this with the cross-release dependency row for rollback artifact classification, noting that checkpoint scope drives which artifacts are tainted.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The semantic contract is fully preserved in `release-2-spec.md` under **R5: Rollback Contract**: it explicitly defines `VALID` as artifacts produced before the failing scope checkpoint, `TAINTED` as artifacts produced during the same checkpoint, and `INVALIDATED` as artifacts produced after the checkpoint that depend on tainted artifacts. `boundary-rationale.md` also reinforces this with the cross-release dependency row for rollback artifact classification, noting that checkpoint scope drives which artifacts are tainted."
+    },
+    {
+      "fact_id": "GE-11",
+      "category": "behavioral_contract",
+      "description": "Resume mechanism verifies VALID artifacts unmodified via SHA-256 comparison. Modified 'valid' artifacts reclassified as TAINTED.",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The semantic contract is explicitly preserved in `release-2-spec.md` under **R5: Rollback Contract**, which states: `The resume mechanism MUST verify that no VALID artifact has been modified since the original run (SHA-256 comparison). Modified \"valid\" artifacts are reclassified as TAINTED.` The same behavior is reinforced in the validation requirements (`SHA-256 comparison catches modified \"valid\" artifacts and reclassifies as TAINTED`) and success criteria (`SHA-256 verification catches modified \"valid\" artifacts`), so both the verification method and reclassification behavior remain intact.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The semantic contract is explicitly preserved in `release-2-spec.md` under **R5: Rollback Contract**, which states: `The resume mechanism MUST verify that no VALID artifact has been modified since the original run (SHA-256 comparison). Modified \"valid\" artifacts are reclassified as TAINTED.` The same behavior is reinforced in the validation requirements (`SHA-256 comparison catches modified \"valid\" artifacts and reclassifies as TAINTED`) and success criteria (`SHA-256 verification catches modified \"valid\" artifacts`), so both the verification method and reclassification behavior remain intact."
+    },
+    {
+      "fact_id": "GE-12",
+      "category": "behavioral_contract",
+      "description": "Deprecation: --skip-gate, --skip-wiring-gate, --no-smoke, --strictness are deprecated. Removed in v5.0. Auto-generates override reason 'legacy flag migration' with actor='deprecation_shim'",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "release-1-spec.md fully preserves this contract in `Partial CLI Interface (R6)`: all four legacy flags (`--skip-gate`, `--skip-wiring-gate`, `--no-smoke`, `--strictness`) are explicitly marked deprecated, the warning states they will be removed in `v5.0`, and deprecated usage is internally mapped to the new interface with auto-generated reason `\"legacy flag migration\"`. The same section also preserves the audit behavior by requiring the mapping to be recorded with `actor = \"deprecation_shim\"`, and the validation requirements repeat these exact expectations for all four flags.",
+      "found_in_files": [
+        "release-1-spec.md",
+        "boundary-rationale.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "release-1-spec.md fully preserves this contract in `Partial CLI Interface (R6)`: all four legacy flags (`--skip-gate`, `--skip-wiring-gate`, `--no-smoke`, `--strictness`) are explicitly marked deprecated, the warning states they will be removed in `v5.0`, and deprecated usage is internally mapped to the new interface with auto-generated reason `\"legacy flag migration\"`. The same section also preserves the audit behavior by requiring the mapping to be recorded with `actor = \"deprecation_shim\"`, and the validation requirements repeat these exact expectations for all four flags."
+    },
+    {
+      "fact_id": "GE-13",
+      "category": "conditional_logic",
+      "description": "evaluate_all mode: gate depending on failed gate is SKIPPED not evaluated, preventing cascading failures from missing gate output",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The semantic requirement is explicitly preserved in `release-2-spec.md` under Section 4.2 Recovery Semantics: 'In `evaluate_all` mode, a gate that depends on a failed gate is SKIPPED, not evaluated. This prevents cascading failures where gate B produces a misleading result because gate A's output is missing.' It is also reinforced earlier in the Release 2 evaluation sequence (`If dependencies unsatisfied \u2192 SKIP gate`) and in validation requirements (`dependent gates SKIPPED (not evaluated)`), so both the behavior and its purpose are intact.",
+      "found_in_files": [
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The semantic requirement is explicitly preserved in `release-2-spec.md` under Section 4.2 Recovery Semantics: 'In `evaluate_all` mode, a gate that depends on a failed gate is SKIPPED, not evaluated. This prevents cascading failures where gate B produces a misleading result because gate A's output is missing.' It is also reinforced earlier in the Release 2 evaluation sequence (`If dependencies unsatisfied \u2192 SKIP gate`) and in validation requirements (`dependent gates SKIPPED (not evaluated)`), so both the behavior and its purpose are intact."
+    },
+    {
+      "fact_id": "GE-14",
+      "category": "behavioral_contract",
+      "description": "Override attempted on strict profile raises OverrideProhibitedError; pipeline continues WITHOUT the override (does not abort)",
+      "severity": "critical",
+      "status": "PRESERVED",
+      "evidence": "The fact is explicitly preserved in `release-1-spec.md` under **Configuration Error Handling (partial R4.1)**: `Override attempted on strict profile | OverrideProhibitedError | Override rejected; pipeline continues WITHOUT the override`. This keeps both critical semantics intact: the error type is `OverrideProhibitedError`, and the pipeline does not abort\u2014it continues while ignoring the attempted override.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The fact is explicitly preserved in `release-1-spec.md` under **Configuration Error Handling (partial R4.1)**: `Override attempted on strict profile | OverrideProhibitedError | Override rejected; pipeline continues WITHOUT the override`. This keeps both critical semantics intact: the error type is `OverrideProhibitedError`, and the pipeline does not abort\u2014it continues while ignoring the attempted override."
+    },
+    {
+      "fact_id": "GE-15",
+      "category": "cross_requirement_coupling",
+      "description": "Cross-gate staleness detection: dependent gate MUST verify predecessor output is from CURRENT run_id, reject stale with 'stale_dependency_output: {gate_a_id} output from run {old_run_id}'",
+      "severity": "critical",
+      "status": "MUTATED",
+      "evidence": "Release 2 preserves the core behavior that a dependent gate must check the predecessor output's `run_id` and reject stale outputs: `release-2-spec.md` R8 says gate B `MUST verify` gate A's output is from the current run and reject stale output. However, the required rejection format was changed from `stale_dependency_output: {gate_a_id} output from run {old_run_id}` to `stale_dependency_output: {gate_a_id} output from run {old_run_id}, current run {current_run_id}`, so the specified contract was not preserved exactly.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "MUTATED",
+      "llm_reasoning": "Release 2 preserves the core behavior that a dependent gate must check the predecessor output's `run_id` and reject stale outputs: `release-2-spec.md` R8 says gate B `MUST verify` gate A's output is from the current run and reject stale output. However, the required rejection format was changed from `stale_dependency_output: {gate_a_id} output from run {old_run_id}` to `stale_dependency_output: {gate_a_id} output from run {old_run_id}, current run {current_run_id}`, so the specified contract was not preserved exactly."
+    },
+    {
+      "fact_id": "GE-16",
+      "category": "ordering_constraint",
+      "description": "Delivery order is strict: Phase N depends on N-1, MUST NOT be parallelized. Phase 1 code-complete before Phase 2 begins. Hard constraint.",
+      "severity": "critical",
+      "status": "WEAKENED",
+      "evidence": "The outputs preserve the general sequencing rule and anti-parallelization requirement: `boundary-rationale.md` says Section 5 defines '4 sequential phases with an explicit prohibition on parallelization,' and `release-2-spec.md` restates that Phase N depends on Phase N-1 and phases 'MUST NOT be parallelized.' However, the specific hard constraint that Phase 1 must be code-complete before Phase 2 begins is not carried forward; `release-1-spec.md` bundles Migration Phases 1 and 2 into one release without explicitly preserving that internal ordering gate.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "WEAKENED",
+      "llm_reasoning": "The outputs preserve the general sequencing rule and anti-parallelization requirement: `boundary-rationale.md` says Section 5 defines '4 sequential phases with an explicit prohibition on parallelization,' and `release-2-spec.md` restates that Phase N depends on Phase N-1 and phases 'MUST NOT be parallelized.' However, the specific hard constraint that Phase 1 must be code-complete before Phase 2 begins is not carried forward; `release-1-spec.md` bundles Migration Phases 1 and 2 into one release without explicitly preserving that internal ordering gate."
+    },
+    {
+      "fact_id": "GE-17",
+      "category": "quantitative_constraint",
+      "description": "NFR thresholds: registry load <100ms/20 gates, checkpoint overhead <200ms, audit write <5ms, chain hash <1ms, remediation query <50ms/1000 entries",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The full Section 7 quantitative constraint is preserved across the split specs without value changes. `release-1-spec.md` carries the Release 1 portion (`Gate registry load time: < 100ms for 20 registered gates`), and `release-2-spec.md` preserves the remaining thresholds exactly: checkpoint overhead `< 200ms`, audit trail write `< 5ms per record`, chain hash computation `< 1ms per record`, and DeferredRemediationLog query `< 50ms for 1000 entries`.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The full Section 7 quantitative constraint is preserved across the split specs without value changes. `release-1-spec.md` carries the Release 1 portion (`Gate registry load time: < 100ms for 20 registered gates`), and `release-2-spec.md` preserves the remaining thresholds exactly: checkpoint overhead `< 200ms`, audit trail write `< 5ms per record`, chain hash computation `< 1ms per record`, and DeferredRemediationLog query `< 50ms for 1000 entries`."
+    },
+    {
+      "fact_id": "GE-18",
+      "category": "behavioral_contract",
+      "description": "Gate timeout default 60 seconds. On timeout, treat as hard_fail with failure_reason='evaluation_timeout'",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The split preserves both halves of the contract in the correct releases. Release 1 defines `GateRegistryEntry.timeout_seconds` with `default 60` in R1 (`release-1-spec.md`), and Release 2 defines the timeout behavior in R3: `On timeout \u2192 treat as hard_fail with failure_reason = \"evaluation_timeout\"` (`release-2-spec.md`), with matching reinforcement in error handling and validation requirements.",
+      "found_in_files": [
+        "release-1-spec.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The split preserves both halves of the contract in the correct releases. Release 1 defines `GateRegistryEntry.timeout_seconds` with `default 60` in R1 (`release-1-spec.md`), and Release 2 defines the timeout behavior in R3: `On timeout \u2192 treat as hard_fail with failure_reason = \"evaluation_timeout\"` (`release-2-spec.md`), with matching reinforcement in error handling and validation requirements."
+    },
+    {
+      "fact_id": "GE-19",
+      "category": "behavioral_contract",
+      "description": "Inter-gate data passing via filesystem only \u2014 no in-memory. Outputs to {checkpoint_dir}/{gate_id}/output/",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The fact is explicitly preserved in `release-2-spec.md` under R8: 'Gate outputs are written to `{checkpoint_dir}/{gate_id}/output/`' and 'No in-memory data passing \u2014 all inter-gate communication is via filesystem artifacts.' This retains both the exclusive filesystem-only contract and the exact output path structure from the original requirement.",
+      "found_in_files": [
+        "boundary-rationale.md",
+        "release-2-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The fact is explicitly preserved in `release-2-spec.md` under R8: 'Gate outputs are written to `{checkpoint_dir}/{gate_id}/output/`' and 'No in-memory data passing \u2014 all inter-gate communication is via filesystem artifacts.' This retains both the exclusive filesystem-only contract and the exact output path structure from the original requirement."
+    },
+    {
+      "fact_id": "GE-20",
+      "category": "cross_requirement_coupling",
+      "description": "Known dependency chains: WIRING\u2192SPEC_FIDELITY, SPEC_FIDELITY\u2192RELEASE, ANTI_INSTINCT\u2192TRAILING",
+      "severity": "major",
+      "status": "PRESERVED",
+      "evidence": "The semantic content of GE-20 is preserved in `release-2-spec.md` under **R8: Cross-Gate Dependency Resolution**, which explicitly lists all three dependency chains: `WIRING_GATE \u2192 SPEC_FIDELITY_GATE`, `SPEC_FIDELITY_GATE \u2192 RELEASE_GATE`, and `ANTI_INSTINCT_GATE \u2192 TRAILING_GATE`. The surrounding contract is also retained: the spec states these are actionable dependencies used for filesystem-based data passing and enforced by staleness checks, so the cross-requirement coupling is not merely mentioned but operationalized.",
+      "found_in_files": [
+        "release-2-spec.md",
+        "release-1-spec.md"
+      ],
+      "llm_verdict": "PRESERVED",
+      "llm_reasoning": "The semantic content of GE-20 is preserved in `release-2-spec.md` under **R8: Cross-Gate Dependency Resolution**, which explicitly lists all three dependency chains: `WIRING_GATE \u2192 SPEC_FIDELITY_GATE`, `SPEC_FIDELITY_GATE \u2192 RELEASE_GATE`, and `ANTI_INSTINCT_GATE \u2192 TRAILING_GATE`. The surrounding contract is also retained: the spec states these are actionable dependencies used for filesystem-based data passing and enforced by staleness checks, so the cross-requirement coupling is not merely mentioned but operationalized."
+    }
+  ],
+  "by_category": {
+    "quantitative_constraint": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    },
+    "behavioral_contract": {
+      "total": 11,
+      "preserved": 11,
+      "failures": 0
+    },
+    "scope_boundary": {
+      "total": 1,
+      "preserved": 1,
+      "failures": 0
+    },
+    "cross_requirement_coupling": {
+      "total": 3,
+      "preserved": 2,
+      "failures": 1
+    },
+    "conditional_logic": {
+      "total": 2,
+      "preserved": 2,
+      "failures": 0
+    },
+    "ordering_constraint": {
+      "total": 1,
+      "preserved": 0,
+      "failures": 1
+    }
+  }
+}

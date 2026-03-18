@@ -1,0 +1,94 @@
+{
+  "skill_name": "sc-release-split-protocol",
+  "evals": [
+    {
+      "id": 1,
+      "name": "splittable-auth-system",
+      "prompt": "I've got this auth system release spec that's feeling really big — it combines building the core identity model, the permission engine, the token service AND a migration framework plus admin dashboard and SDK updates. I'm worried about shipping it all at once. Can you run /sc:release-split on evals/files/spec-splittable-auth-system.md and tell me if we should break it up? Use --depth quick --interactive false to keep it fast.",
+      "expected_output": "The skill should recommend SPLIT because there's a clear foundation (R1-R3: identity model, permission store, token service) vs application (R4-R7: middleware consolidation, migration, dashboard, SDK) seam. Release 1 should focus on the core identity/permission/token infrastructure. Release 2 builds on that with consumer-facing integrations. The output should include all required artifacts: split-proposal.md, split-proposal-final.md, release-1-spec.md, release-2-spec.md, boundary-rationale.md, fidelity-audit.md, and release-split-report.md.",
+      "files": ["evals/files/spec-splittable-auth-system.md"],
+      "expectations": [
+        "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS (not NO SPLIT)",
+        "split-proposal.md exists and contains discovery analysis with mandatory questions answered",
+        "split-proposal-final.md exists and contains adversarial review with Advocate/Skeptic/Pragmatist positions",
+        "release-1-spec.md exists with YAML frontmatter containing release: 1 and parent-spec fields",
+        "release-2-spec.md exists with YAML frontmatter containing release: 2 and validation-gate field",
+        "release-2-spec.md contains a Planning Gate section that blocks R2 until R1 real-world validation passes",
+        "boundary-rationale.md exists with Split Point, Why This Boundary, and Cross-Release Dependencies sections",
+        "fidelity-audit.md exists with a Coverage Matrix mapping every original requirement (R1-R7)",
+        "fidelity-audit.md shows fidelity score >= 0.95",
+        "release-split-report.md exists with Verdict, all four Part summaries, and Artifacts Produced sections",
+        "No requirement from the original spec is missing from the combined R1+R2 scope (losslessness)",
+        "Real-world validation requirements appear in release specs (no mocks or simulated tests accepted)",
+        "R1 scope includes foundational infrastructure (identity model, permissions, tokens) not just easy items"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "nosplit-bugfix-hardening",
+      "prompt": "hey, my tech lead wants me to check if we should split this sprint executor bugfix release into two parts. honestly I don't think so — it's only 3 related bugs in 2 files and they share root cause — but she insists we run the analysis. here's the spec: evals/files/spec-nosplit-bugfix.md. just run /sc:release-split on it with defaults please",
+      "expected_output": "The skill should recommend NO SPLIT because: the scope is small (150-200 lines, 2 files), all three bugs share a root cause (poll loop error classification), the fixes are interdependent (R3 cleanup affects R1 timeout handling), and splitting would create more overhead than value. Output should include split-proposal.md, split-proposal-final.md, release-spec-validated.md, fidelity-audit.md, and release-split-report.md.",
+      "files": ["evals/files/spec-nosplit-bugfix.md"],
+      "expectations": [
+        "Final verdict is NO SPLIT (not SPLIT or SPLIT-WITH-MODIFICATIONS)",
+        "split-proposal.md exists and articulates why splitting is NOT recommended",
+        "The no-split rationale mentions shared root cause, small scope, or interdependency as reasons",
+        "split-proposal-final.md exists with adversarial review that converges on NO SPLIT",
+        "release-spec-validated.md exists (NOT release-1-spec.md or release-2-spec.md)",
+        "release-spec-validated.md contains YAML frontmatter with split-analysis: no-split-recommended",
+        "release-spec-validated.md contains Why This Release Stays Intact section",
+        "fidelity-audit.md exists and maps all 4 original requirements (R1-R4)",
+        "fidelity-audit.md shows fidelity score of 1.0 or >= 0.95",
+        "release-split-report.md exists with NO SPLIT verdict",
+        "The analysis does NOT manufacture artificial split points just to justify splitting",
+        "Alternatives to splitting are mentioned (e.g., phased rollout, feature flags, incremental testing)"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ambiguous-large-plugin-system",
+      "prompt": "We're planning v5.0 which is the full plugin system — registry, marketplace, sandbox runtime, the works. It's massive (10 requirements, 3000-4000 lines estimated). I suspect it should be split but I'm not sure where the seam is. Some parts feel foundational (package format, CLI manager, sandbox) but the registry and marketplace are also kind of core. Run /sc:release-split evals/files/spec-ambiguous-plugin-system.md --depth standard and help me figure this out.",
+      "expected_output": "This is the hardest case — the seam is genuinely ambiguous. The skill should produce a well-reasoned recommendation (likely SPLIT given the massive scope) but the adversarial phase should surface real tension about where to draw the line. If SPLIT: R1 likely gets package format + CLI install + sandbox (local-only plugin experience), R2 gets registry + marketplace + enterprise features. The key quality signal is that the adversarial debate is substantive, not a rubber stamp.",
+      "files": ["evals/files/spec-ambiguous-plugin-system.md"],
+      "expectations": [
+        "split-proposal.md exists with thorough discovery that addresses all 6 mandatory questions",
+        "split-proposal-final.md exists with adversarial debate showing genuine disagreement or nuance",
+        "The adversarial review contains a Key Contested Points table with multiple rows",
+        "If SPLIT: release-1-spec.md and release-2-spec.md exist with proper frontmatter",
+        "If SPLIT: R1 delivers standalone value (users can install and run local plugins without registry)",
+        "If SPLIT: R2 planning is gated on R1 real-world validation",
+        "If NO SPLIT: release-spec-validated.md exists with strong justification",
+        "fidelity-audit.md exists and covers all 10 original requirements (R1-R10)",
+        "fidelity-audit.md Coverage Matrix accounts for every requirement with PRESERVED/TRANSFORMED/DEFERRED status",
+        "release-split-report.md exists with complete structure",
+        "The boundary rationale (if split) addresses cross-release dependencies explicitly",
+        "Real-world validation requirements are concrete scenarios, not mock/simulated tests",
+        "The analysis acknowledges the ambiguity rather than presenting certainty about the seam location"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "learning-loop-observability",
+      "prompt": "I need to ship an observability system for our CLI pipelines — telemetry collection, metrics dashboards, and adaptive alerting that learns from historical data. The thing is, the alerting literally can't work until we've collected enough telemetry to establish baselines. So there's a natural chicken-and-egg here: you need telemetry data before you can build intelligent alerts. I want to know if we should split this so we can ship telemetry first, learn from real usage patterns, and then use those learnings to design better alerting thresholds in the second release. Run /sc:release-split evals/files/spec-learning-loop-observability.md --depth standard",
+      "expected_output": "The skill should recommend SPLIT with strong conviction because this spec has the ideal split characteristic: R1 (telemetry SDK, instrumentation, metrics engine) produces real-world data that fundamentally informs R2's design (adaptive alerting, thresholds, cross-pipeline correlation). The spec itself says 'you can't build intelligent alerting without historical data to learn from' and the alert engine needs a bootstrap period of 20+ runs. R1 delivers standalone value (observability and metrics) while generating the data R2 needs. This is the textbook 'foundation that enables learning' split.",
+      "files": ["evals/files/spec-learning-loop-observability.md"],
+      "expectations": [
+        "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS (not NO SPLIT)",
+        "The split rationale explicitly identifies the learning loop: R1 generates data that R2 needs to learn from",
+        "split-proposal.md discovery analysis mentions the bootstrap/chicken-and-egg dependency",
+        "release-1-spec.md scope includes telemetry SDK, pipeline instrumentation, and metrics engine (R1-R3)",
+        "release-1-spec.md includes Real-World Validation Requirements with concrete scenarios (not mocks)",
+        "R1 real-world validation plan describes collecting telemetry from actual pipeline runs and verifying metrics accuracy",
+        "release-2-spec.md scope includes adaptive alerting, alert configuration, and cross-pipeline correlation (R5-R8)",
+        "release-2-spec.md contains a Planning Gate section that blocks R2 until R1 telemetry data validates",
+        "The Planning Gate specifies what R1 must demonstrate before R2 proceeds (e.g., N runs collected, baseline established)",
+        "release-2-spec.md references R1 telemetry data as input to threshold learning",
+        "boundary-rationale.md explains that the seam follows the data dependency: collection before analysis",
+        "fidelity-audit.md covers all 8 original requirements (R1-R8) with no missing items",
+        "fidelity-audit.md shows fidelity score >= 0.95",
+        "Dashboard (R4) is assigned to whichever release makes sense, with justification either way",
+        "The split proposal does NOT place the dashboard arbitrarily — it reasons about whether R4 needs R5's alerting data or just R3's metrics"
+      ]
+    }
+  ]
+}

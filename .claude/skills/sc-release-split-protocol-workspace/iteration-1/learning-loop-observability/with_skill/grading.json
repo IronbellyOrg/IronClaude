@@ -1,0 +1,135 @@
+{
+  "expectations": [
+    {
+      "text": "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS (not NO SPLIT)",
+      "passed": true,
+      "evidence": "split-proposal-final.md states '## Verdict: SPLIT' and release-split-report.md states '## Verdict: SPLIT'. The adversarial review confirmed with modifications (forward-compatible schema, dashboard placeholder, documentation) but the final verdict label is 'SPLIT'."
+    },
+    {
+      "text": "The split rationale explicitly identifies the learning loop: R1 generates data that R2 needs to learn from",
+      "passed": true,
+      "evidence": "split-proposal.md: 'R1 also actively enables R2's success by collecting the baseline data that makes adaptive thresholds meaningful rather than arbitrary.' split-proposal-final.md: 'Shipping telemetry first transforms an unknowable design problem (what should thresholds be?) into a data-informed one.' boundary-rationale.md: 'R5 (Adaptive Alert Engine) specifies a bootstrap period requiring N accumulated pipeline runs (default 20) before alerts can activate.'"
+    },
+    {
+      "text": "split-proposal.md discovery analysis mentions the bootstrap/chicken-and-egg dependency",
+      "passed": true,
+      "evidence": "split-proposal.md: 'The spec itself identifies the chicken-and-egg problem: adaptive alerting requires historical data that doesn't exist yet.' Also: 'R5 (Adaptive Alerts) has a data dependency — it requires a \"bootstrap period\" of N runs (default 20) before it can activate.'"
+    },
+    {
+      "text": "release-1-spec.md scope includes telemetry SDK, pipeline instrumentation, and metrics engine (R1-R3)",
+      "passed": true,
+      "evidence": "release-1-spec.md Included section lists: '1. R1: Telemetry Collection SDK (P0)', '2. R2: Pipeline Instrumentation (P0)', '3. R3: Metrics Aggregation Engine (P0)' with full requirement details for each."
+    },
+    {
+      "text": "release-1-spec.md includes Real-World Validation Requirements with concrete scenarios (not mocks)",
+      "passed": true,
+      "evidence": "release-1-spec.md contains a '## Real-World Validation Requirements' section with the header: 'These validation scenarios must use actual pipeline functionality in production-like conditions. No mocks or simulated tests.' It lists 7 concrete scenarios including telemetry emission validation, overhead measurement, metrics aggregation accuracy, anomaly detection signal quality, dashboard rendering, historical import fidelity, and privacy verification."
+    },
+    {
+      "text": "R1 real-world validation plan describes collecting telemetry from actual pipeline runs and verifying metrics accuracy",
+      "passed": true,
+      "evidence": "release-1-spec.md Validation #1: 'Execute each of the 4 CLI pipelines (sprint, roadmap, tasklist, audit) on a real project. After each run, verify that the JSONL telemetry file...contains correctly structured events with accurate timestamps, durations, and status codes.' Validation #3: 'After accumulating 5+ pipeline runs, execute superclaude metrics show sprint --period 7d. Manually calculate mean duration and token count from the raw JSONL data. Verify the CLI output matches manual calculations within rounding tolerance.'"
+    },
+    {
+      "text": "release-2-spec.md scope includes adaptive alerting, alert configuration, and cross-pipeline correlation (R5-R8)",
+      "passed": true,
+      "evidence": "release-2-spec.md Included section lists: '1. R5: Adaptive Alert Engine (P1)', '2. R6: Alert Rule Configuration (P1)', '3. R8: Cross-Pipeline Correlation (P2)'. Note: R7 was placed in R1, so R2 contains R5, R6, R8 — three of the four items in the R5-R8 range."
+    },
+    {
+      "text": "release-2-spec.md contains a Planning Gate section that blocks R2 until R1 telemetry data validates",
+      "passed": true,
+      "evidence": "release-2-spec.md contains a '## Planning Gate' section stating: 'This release's roadmap and tasklist generation may proceed only after Release 1 has passed real-world validation and the results have been reviewed.' It lists 6 validation criteria from R1 that must pass, a review process, and failure handling procedures."
+    },
+    {
+      "text": "The Planning Gate specifies what R1 must demonstrate before R2 proceeds (e.g., N runs collected, baseline established)",
+      "passed": true,
+      "evidence": "release-2-spec.md Planning Gate lists specific criteria: 'All 4 pipelines confirmed emitting structured telemetry in production use', 'Metrics aggregation producing accurate rollups verified against manual calculation', 'Anomaly detection (>2sigma) producing useful signals', 'Dashboard rendering real pipeline data correctly', 'Telemetry overhead confirmed <5% of pipeline runtime', 'Metrics DB has accumulated sufficient data for meaningful baseline computation (minimum 20 pipeline runs across at least 2 pipeline types)'."
+    },
+    {
+      "text": "release-2-spec.md references R1 telemetry data as input to threshold learning",
+      "passed": true,
+      "evidence": "release-2-spec.md R5 scope: 'Design informed by R1 data: Alert threshold initial values and bootstrap configuration should be calibrated using real baseline data collected during Release 1's operational period.' Also the Objective: 'Using real baseline data collected during Release 1's operational period, design adaptive alert thresholds that learn from observed pipeline behavior rather than relying on arbitrary static values.'"
+    },
+    {
+      "text": "boundary-rationale.md explains that the seam follows the data dependency: collection before analysis",
+      "passed": true,
+      "evidence": "boundary-rationale.md: 'The boundary falls between data collection and visibility (R1, R2, R3, R4, R7) and intelligent automation (R5, R6, R8). Release 1 answers \"What is happening in my pipelines?\" Release 2 answers \"What should I do about what's happening?\"' Under 'Why This Boundary' point 1: 'Temporal data dependency: R5 (Adaptive Alert Engine) specifies a bootstrap period requiring N accumulated pipeline runs (default 20) before alerts can activate. This creates an irreducible temporal dependency — the alert engine cannot be meaningfully validated without baseline data that only exists after R1 has been running in production.'"
+    },
+    {
+      "text": "fidelity-audit.md covers all 8 original requirements (R1-R8) with no missing items",
+      "passed": true,
+      "evidence": "fidelity-audit.md Coverage Matrix covers R1 (REQ-001 through REQ-006), R2 (REQ-007 through REQ-011), R3 (REQ-012 through REQ-017), R4 (REQ-018 through REQ-023), R5 (REQ-024 through REQ-030), R6 (REQ-031 through REQ-035), R7 (REQ-036 through REQ-040), R8 (REQ-041 through REQ-042). Summary states: 'Missing: 0 (0%)'."
+    },
+    {
+      "text": "fidelity-audit.md shows fidelity score >= 0.95",
+      "passed": true,
+      "evidence": "fidelity-audit.md states: 'Fidelity score: 0.952 (40/42 PRESERVED or TRANSFORMED_valid)'. 0.952 >= 0.95."
+    },
+    {
+      "text": "Dashboard (R4) is assigned to whichever release makes sense, with justification either way",
+      "passed": true,
+      "evidence": "split-proposal.md: 'R4: Dashboard UI (P1) — included because it consumes R3 directly and provides immediate operator value'. release-1-spec.md includes R4 with full scope. Boundary rationale confirms R4 placement with assessment: 'R4: Dashboard UI — Yes — consumes R3 directly — No (alert placeholder is static text) — CORRECT'."
+    },
+    {
+      "text": "The split proposal does NOT place the dashboard arbitrarily — it reasons about whether R4 needs R5's alerting data or just R3's metrics",
+      "passed": true,
+      "evidence": "split-proposal.md: 'R4 (Dashboard) also integrates naturally with R3 — it visualizes the same metrics R3 produces. Including it in a first release is viable.' The adversarial review in split-proposal-final.md explicitly debates this: 'R4 in R1 creates UI commitment' vs 'Provides immediate value, low risk' with resolution: 'Solvable with reserved panel approach' and 'R4 stays in R1 with alert placeholder.' This demonstrates reasoning about R4's relationship to both R3 (direct consumption) and R5 (future alert visualization reserved via placeholder)."
+    }
+  ],
+  "summary": {
+    "passed": 15,
+    "failed": 0,
+    "total": 15,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "total_duration_seconds": 810.8
+  },
+  "claims": [
+    {
+      "claim": "Adversarial review used fallback Mode A with conceptual roles, not primary Skill invocation",
+      "type": "process",
+      "verified": true,
+      "evidence": "split-proposal-final.md header: 'fallback_mode: true' and warning: 'Adversarial result produced via fallback path (not primary Skill invocation). Quality may be reduced.'"
+    },
+    {
+      "claim": "42 functional requirements were extracted from the original spec",
+      "type": "factual",
+      "verified": true,
+      "evidence": "fidelity-audit.md Coverage Matrix lists REQ-001 through REQ-042, each mapped to a specific section of the original spec"
+    },
+    {
+      "claim": "Convergence score of 0.82 in adversarial review",
+      "type": "factual",
+      "verified": true,
+      "evidence": "split-proposal-final.md YAML frontmatter: 'convergence_score: 0.82'"
+    },
+    {
+      "claim": "All dependency arrows flow one direction (R2 depends on R1, not vice versa)",
+      "type": "quality",
+      "verified": true,
+      "evidence": "boundary-rationale.md Cross-Release Dependencies table shows all dependencies flow from R2 items to R1 items. fidelity-audit.md Boundary Integrity section confirms 0 boundary violations and 0 circular dependencies."
+    },
+    {
+      "claim": "Reversal cost estimated at 1-2 days",
+      "type": "factual",
+      "verified": false,
+      "evidence": "boundary-rationale.md states 'Estimated reversal effort: 1-2 days of integration work' but this is an estimate with no supporting calculation. Unverifiable."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "release-2-spec.md scope includes adaptive alerting, alert configuration, and cross-pipeline correlation (R5-R8)",
+        "reason": "The assertion says R5-R8 but R7 is in R1. The assertion passes because R5, R6, R8 are present, but the '(R5-R8)' label is slightly misleading. Consider changing to '(R5, R6, R8)' to avoid suggesting R7 should also be in R2."
+      },
+      {
+        "reason": "No assertion checks whether the adversarial review actually challenged the split (as opposed to rubber-stamping it). The adversarial review did raise substantive concerns (schema coupling, UI commitment, bootstrap period configurability), so this isn't a problem here, but a discriminating assertion would check that the skeptic position identifies at least one concrete risk."
+      },
+      {
+        "reason": "No assertion verifies that the release specs include traceability back to the original spec sections. Both release specs do include traceability tables, which is a quality indicator the evals don't check."
+      }
+    ],
+    "overall": "Strong assertion set that covers the key outcomes well. The assertions effectively test for the learning-loop reasoning, planning gate mechanics, and fidelity preservation. The R5-R8 labeling is a minor imprecision. Consider adding an assertion about traceability or adversarial rigor for completeness."
+  }
+}

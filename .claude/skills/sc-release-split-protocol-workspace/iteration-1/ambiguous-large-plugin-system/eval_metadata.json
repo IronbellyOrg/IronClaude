@@ -1,0 +1,20 @@
+{
+  "eval_id": 3,
+  "eval_name": "ambiguous-large-plugin-system",
+  "prompt": "We're planning v5.0 which is the full plugin system — registry, marketplace, sandbox runtime, the works. It's massive (10 requirements, 3000-4000 lines estimated). I suspect it should be split but I'm not sure where the seam is. Some parts feel foundational (package format, CLI manager, sandbox) but the registry and marketplace are also kind of core. Run /sc:release-split evals/files/spec-ambiguous-plugin-system.md --depth standard and help me figure this out.",
+  "assertions": [
+    "split-proposal.md exists with thorough discovery that addresses all 6 mandatory questions",
+    "split-proposal-final.md exists with adversarial debate showing genuine disagreement or nuance",
+    "The adversarial review contains a Key Contested Points table with multiple rows",
+    "If SPLIT: release-1-spec.md and release-2-spec.md exist with proper frontmatter",
+    "If SPLIT: R1 delivers standalone value (users can install and run local plugins without registry)",
+    "If SPLIT: R2 planning is gated on R1 real-world validation",
+    "If NO SPLIT: release-spec-validated.md exists with strong justification",
+    "fidelity-audit.md exists and covers all 10 original requirements (R1-R10)",
+    "fidelity-audit.md Coverage Matrix accounts for every requirement with PRESERVED/TRANSFORMED/DEFERRED status",
+    "release-split-report.md exists with complete structure",
+    "The boundary rationale (if split) addresses cross-release dependencies explicitly",
+    "Real-world validation requirements are concrete scenarios, not mock/simulated tests",
+    "The analysis acknowledges the ambiguity rather than presenting certainty about the seam location"
+  ]
+}
