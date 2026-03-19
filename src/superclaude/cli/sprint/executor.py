@@ -38,6 +38,10 @@ from superclaude.cli.pipeline.trailing_gate import (
     TrailingGateResult,
 )
 
+import logging as _logging
+
+_wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
+
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
 
@@ -346,6 +350,159 @@ def check_budget_guard(ledger: TurnLedger | None) -> str | None:
     )
 
 
+def run_wiring_safeguard_checks(
+    config: SprintConfig,
+    report: object | None = None,
+) -> list[str]:
+    """Pre-activation safeguards for wiring analysis (SC-010, section 7 Phase 1).
+
+    Checks run before the first wiring analysis in a sprint session:
+    1. Zero-match warning: >50 files scanned but 0 findings → suspicious
+    2. Whitelist validation: attempt to load whitelist, warn if parse fails
+    3. provider_dir_names check: verify configured directories exist
+
+    Safeguards produce warnings only; they never block sprint execution.
+
+    Returns a list of warning messages (empty if all checks pass).
+    """
+    from superclaude.cli.audit.wiring_config import WiringConfig, load_whitelist
+
+    warnings: list[str] = []
+
+    # Check 1: Zero-match warning (requires a report from a prior run)
+    if report is not None:
+        files_scanned = getattr(report, "files_analyzed", 0)
+        total_findings = getattr(report, "total_findings", 0)
+        if files_scanned > 50 and total_findings == 0:
+            msg = (
+                f"Zero-match warning: {files_scanned} files scanned but "
+                f"0 findings produced — verify wiring analysis configuration"
+            )
+            _wiring_logger.warning(msg)
+            warnings.append(msg)
+
+    # Check 2: Whitelist validation
+    # Try to parse with "soft" mode so malformed YAML raises instead of silently
+    # returning empty. This is a safeguard check, not runtime behavior.
+    whitelist_path = config.release_dir / "src" / "superclaude" / "cli" / "audit" / "wiring_whitelist.yaml"
+    if whitelist_path.exists():
+        try:
+            import yaml as _yaml
+            raw = _yaml.safe_load(whitelist_path.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict):
+                msg = f"Whitelist validation failed: file at {whitelist_path} is not a YAML mapping"
+                _wiring_logger.warning(msg)
+                warnings.append(msg)
+        except Exception as exc:
+            msg = f"Whitelist validation failed: {exc}"
+            _wiring_logger.warning(msg)
+            warnings.append(msg)
+
+    # Check 3: provider_dir_names sanity check
+    wiring_config = WiringConfig()
+    source_dir = config.release_dir
+    for dir_name in wiring_config.provider_dir_names:
+        found = list(source_dir.rglob(dir_name))
+        dirs_found = [d for d in found if d.is_dir()]
+        if not dirs_found:
+            msg = (
+                f"Provider directory '{dir_name}' not found under "
+                f"{source_dir} — orphan module detection may miss files"
+            )
+            _wiring_logger.warning(msg)
+            warnings.append(msg)
+
+    return warnings
+
+
+def run_post_task_wiring_hook(
+    task: TaskEntry,
+    config: SprintConfig,
+    task_result: TaskResult,
+) -> TaskResult:
+    """Run post-task wiring analysis based on config.wiring_gate_mode.
+
+    Mode behavior:
+    - off: skip analysis entirely, return task_result unchanged
+    - shadow: run analysis, log findings, task status unchanged (SC-006)
+    - soft: run analysis, warn on critical findings, task status unchanged
+    - full: run analysis, block (set FAIL) on critical+major findings
+
+    Returns the (possibly modified) TaskResult. Only full mode may change
+    task status to FAIL when blocking findings exist.
+    """
+    mode = config.wiring_gate_mode
+
+    if mode == "off":
+        return task_result
+
+    # Lazy import to avoid circular dependency at module level
+    from superclaude.cli.audit.wiring_gate import run_wiring_analysis, WiringReport
+    from superclaude.cli.audit.wiring_config import WiringConfig
+
+    source_dir = config.release_dir
+    wiring_config = WiringConfig(rollout_mode="shadow" if mode == "off" else mode if mode in ("shadow", "soft", "full") else "shadow")
+
+    try:
+        report = run_wiring_analysis(wiring_config, source_dir)
+    except Exception as exc:
+        _wiring_logger.warning(
+            "Wiring analysis failed for task %s: %s — continuing",
+            task.task_id,
+            exc,
+        )
+        return task_result
+
+    total = report.total_findings
+    blocking = report.blocking_count(mode)
+
+    _wiring_logger.info(
+        "Wiring hook [%s] task=%s: %d findings, %d blocking (%.4fs)",
+        mode,
+        task.task_id,
+        total,
+        blocking,
+        report.scan_duration_seconds,
+    )
+
+    if mode == "shadow":
+        # SC-006: log findings without affecting task status
+        if total > 0:
+            _wiring_logger.info(
+                "Shadow mode: %d findings logged for task %s (status unchanged)",
+                total,
+                task.task_id,
+            )
+        return task_result
+
+    if mode == "soft":
+        # Warn on critical findings but don't change status
+        critical_count = sum(
+            1 for f in report.unsuppressed_findings if f.severity == "critical"
+        )
+        if critical_count > 0:
+            _wiring_logger.warning(
+                "Soft mode: %d critical findings for task %s",
+                critical_count,
+                task.task_id,
+            )
+        return task_result
+
+    if mode == "full":
+        # Block on critical+major findings
+        if blocking > 0:
+            _wiring_logger.error(
+                "Full mode: %d blocking findings for task %s — marking FAIL",
+                blocking,
+                task.task_id,
+            )
+            task_result.status = TaskStatus.FAIL
+            task_result.gate_outcome = GateOutcome.FAIL
+        return task_result
+
+    return task_result
+
+
 def execute_phase_tasks(
     tasks: list[TaskEntry],
     config: SprintConfig,
@@ -431,17 +588,20 @@ def execute_phase_tasks(
             elif actual < pre_allocated:
                 ledger.credit(pre_allocated - actual)
 
-        results.append(
-            TaskResult(
-                task=task,
-                status=status,
-                turns_consumed=turns_consumed,
-                exit_code=exit_code,
-                started_at=started_at,
-                finished_at=finished_at,
-                output_bytes=output_bytes,
-            )
+        result = TaskResult(
+            task=task,
+            status=status,
+            turns_consumed=turns_consumed,
+            exit_code=exit_code,
+            started_at=started_at,
+            finished_at=finished_at,
+            output_bytes=output_bytes,
         )
+
+        # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
+        result = run_post_task_wiring_hook(task, config, result)
+
+        results.append(result)
 
     return results, remaining
 

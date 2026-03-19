@@ -41,7 +41,11 @@ A unified command with **orthogonal dimensions** that merges orchestration capab
 /sc:task [operation] [target] [flags]
 ```
 
-Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--force-strict`, `--parallel`, `--delegate`. See protocol skill for full flag reference.
+Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--force-strict`, `--parallel`, `--delegate`, `--no-escalation`. See protocol skill for full flag reference.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--no-escalation` | `false` | Bypass TFEP (Test Failure Escalation Protocol) triggers. When set, agents may fix test failures directly without structured forensic analysis. **WARNING**: Using `--no-escalation` voids TFEP protection against ad-hoc fixes. |
 
 ## Classification (MANDATORY FIRST OUTPUT)
 
@@ -152,6 +156,10 @@ RATIONALE: Typical feature addition, moderate scope
 - Support user overrides with documented justification
 - Coordinate MCP servers based on tier requirements
 
+**Will:**
+- Enforce TFEP (Test Failure Escalation Protocol) when test failures meet escalation thresholds
+- Block ad-hoc fixes when pre-existing tests fail during task execution
+
 **Will Not:**
 - Skip safety-critical verification for STRICT tasks
 - Apply STRICT overhead to genuinely trivial changes
@@ -159,3 +167,4 @@ RATIONALE: Typical feature addition, moderate scope
 - Proceed with <70% confidence without user confirmation
 - Execute unbounded batches (max 15 changes per batch)
 - Use deprecated `/sc:task-mcp` (use `--compliance [tier]` instead)
+- Allow ad-hoc code fixes in response to test failures without TFEP workflow (unless `--no-escalation` is set)

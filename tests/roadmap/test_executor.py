@@ -13,6 +13,7 @@ import pytest
 
 from superclaude.cli.pipeline.models import (
     GateCriteria,
+    GateMode,
     PipelineConfig,
     Step,
     StepResult,
@@ -52,12 +53,12 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
 
 
 class TestBuildSteps:
-    def test_produces_8_entries(self, tmp_path):
+    def test_produces_9_entries(self, tmp_path):
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         assert (
-            len(steps) == 8
-        )  # 6 sequential + 1 parallel group (2 steps) + spec-fidelity
+            len(steps) == 9
+        )  # 7 sequential + 1 parallel group (2 steps) + wiring-verification
 
     def test_second_entry_is_parallel(self, tmp_path):
         config = _make_config(tmp_path)
@@ -83,6 +84,7 @@ class TestBuildSteps:
         assert ids[6] == "merge"
         assert ids[7] == "test-strategy"
         assert ids[8] == "spec-fidelity"
+        assert ids[9] == "wiring-verification"
 
 
 class TestIntegrationMockSubprocess:
@@ -128,6 +130,22 @@ class TestIntegrationMockSubprocess:
                 "total_deviations": "0",
                 "validation_complete": "true",
                 "tasklist_ready": "true",
+                "gate": "wiring-verification",
+                "target_dir": ".",
+                "files_analyzed": "10",
+                "files_skipped": "2",
+                "rollout_mode": "shadow",
+                "analysis_complete": "true",
+                "audit_artifacts_used": "0",
+                "unwired_callable_count": "0",
+                "orphan_module_count": "0",
+                "unwired_registry_count": "0",
+                "critical_count": "0",
+                "major_count": "0",
+                "info_count": "0",
+                "total_findings": "0",
+                "blocking_findings": "0",
+                "whitelist_entries_applied": "0",
             }
             fm_fields = {}
             if step.gate and step.gate.required_frontmatter_fields:
@@ -162,7 +180,7 @@ class TestIntegrationMockSubprocess:
             run_step=mock_runner,
         )
 
-        assert len(results) == 9  # 8 entries -> 9 individual steps
+        assert len(results) == 10  # 9 entries -> 10 individual steps
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_pipeline_halts_on_gate_failure(self, tmp_path):
@@ -185,9 +203,14 @@ class TestIntegrationMockSubprocess:
             run_step=failing_runner,
         )
 
-        # First step (extract) should fail gate (no output written)
-        assert results[-1].status == StepStatus.FAIL
-        assert len(results) < 9  # Not all steps executed
+        # Pipeline should halt at first gate failure, then run deferred TRAILING steps.
+        # Find the first FAIL result (extract's gate failure).
+        fail_results = [r for r in results if r.status == StepStatus.FAIL]
+        assert len(fail_results) >= 1, "Expected at least one FAIL from gate failure"
+        # Deferred TRAILING steps (wiring-verification) may append after halt,
+        # but total should still be less than full pipeline (10 steps).
+        non_deferred = [r for r in results if r.step.gate_mode != GateMode.TRAILING]
+        assert len(non_deferred) < 10  # Not all non-trailing steps executed
 
 
 class TestContextIsolation:

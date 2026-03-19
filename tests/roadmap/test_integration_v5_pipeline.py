@@ -131,6 +131,21 @@ _V224_FM_VALUES = {
     "routing_no_action": "DEV-003 DEV-004",
     "routing_human_review": "",
     "analysis_complete": "true",
+    # Wiring verification (must be consistent with total_findings=2)
+    "gate": "wiring-verification",
+    "target_dir": ".",
+    "files_analyzed": "10",
+    "files_skipped": "2",
+    "rollout_mode": "shadow",
+    "audit_artifacts_used": "0",
+    "unwired_callable_count": "1",
+    "orphan_module_count": "1",
+    "unwired_registry_count": "0",
+    "critical_count": "1",
+    "major_count": "1",
+    "info_count": "0",
+    "blocking_findings": "0",
+    "whitelist_entries_applied": "0",
     # Remediation
     "type": "remediation-tasklist",
     "source_report": "spec-deviations.md",
@@ -218,11 +233,11 @@ class TestSC1PipelineComplete:
             run_step=_mock_runner_all_pass,
         )
 
-        assert len(results) == 9
+        assert len(results) == 10
         assert all(r.status == StepStatus.PASS for r in results)
 
-    def test_spec_fidelity_step_is_last(self, tmp_path):
-        """spec-fidelity is the final step in the roadmap generation pipeline.
+    def test_wiring_verification_step_is_last(self, tmp_path):
+        """wiring-verification is the final step in the roadmap generation pipeline.
 
         Note: remediate and certify are part of the validate pipeline, not
         the roadmap generation pipeline. SC-1 'completes to certify' refers
@@ -239,7 +254,7 @@ class TestSC1PipelineComplete:
         )
 
         last_step_id = results[-1].step.id
-        assert last_step_id == "spec-fidelity"
+        assert last_step_id == "wiring-verification"
 
     def test_no_step_fails(self, tmp_path):
         """Zero steps with FAIL status in the v2.24 clean scenario."""
@@ -655,15 +670,15 @@ class TestCompleteV224PipelineFlow:
             run_step=_mock_runner_all_pass,
         )
 
-        # SC-1: All 9 steps pass (pipeline reaches certify without manual intervention)
-        assert len(results) == 9, f"Expected 9 results, got {len(results)}"
+        # SC-1: All 10 steps pass (pipeline reaches certify without manual intervention)
+        assert len(results) == 10, f"Expected 10 results, got {len(results)}"
         assert all(r.status == StepStatus.PASS for r in results), (
             f"Failed steps: {[r.step.id for r in results if r.status != StepStatus.PASS]}"
         )
 
-        # SC-1: spec-fidelity is last step of roadmap generation pipeline
+        # SC-1: wiring-verification is last step of roadmap generation pipeline
         # (certify is part of the subsequent validate pipeline)
-        assert results[-1].step.id == "spec-fidelity"
+        assert results[-1].step.id == "wiring-verification"
 
         # Verify step IDs follow expected pipeline order
         step_ids = [r.step.id for r in results]

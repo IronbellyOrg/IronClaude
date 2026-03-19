@@ -13,14 +13,15 @@
     }
   ],
   "depth": "standard",
-  "last_run": "2026-03-18T17:43:17.309315+00:00",
+  "last_run": "2026-03-18T19:05:55.159580+00:00",
   "steps": {
-    "test-strategy": {
+    "spec-fidelity": {
       "status": "FAIL",
       "attempt": 2,
-      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/adversarial/test-strategy.md",
-      "started_at": "2026-03-18T17:41:28.285401+00:00",
-      "completed_at": "2026-03-18T17:43:17.307766+00:00"
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/adversarial/spec-fidelity.md",
+      "started_at": "2026-03-18T18:58:23.080766+00:00",
+      "completed_at": "2026-03-18T19:05:55.158863+00:00"
     }
-  }
+  },
+  "fidelity_status": "fail"
 }

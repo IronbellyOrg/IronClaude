@@ -122,6 +122,127 @@ Route to appropriate verification based on tier and paths:
 
 **Trivial Path Override**: Paths matching `*.md`, `docs/`, `*test*.py` may skip verification.
 
+### 4.5 Test Failure Escalation Protocol (TFEP)
+
+**CRITICAL**: When tests fail during the Verification Phase (Section 4), agents MUST follow this protocol. Ad-hoc fixes are PROHIBITED.
+
+#### TFEP Prohibition Rules (VIOLATION-level)
+
+These rules apply to ALL compliance tiers that run tests (STRICT, STANDARD):
+
+1. **VIOLATION**: Agents MUST NOT fix any code in response to test failures without completing the TFEP workflow.
+2. **VIOLATION**: Agents MUST NOT modify test expectations to make failing tests pass without adversarial validation.
+3. **VIOLATION**: Ad-hoc patches derived from test output are PROHIBITED. The agent must not read a traceback and immediately edit code to resolve it.
+
+**Permitted Exceptions** (MAY fix directly without TFEP):
+- Single `ImportError`/`NameError` in test scaffolding the agent just wrote, affecting <=2 tests, where the error is in the test file itself (not in implementation code).
+- Lint/formatting failures (trivially fixable, unambiguous root cause).
+- Deprecation warnings (not failures).
+
+**Valid Adversarial Outcome**: "Test expectations are wrong" is a legitimate conclusion from adversarial debate. When the debate concludes that test expectations are outdated rather than the code being wrong, this is NOT grounds for the agent to directly edit the tests — it must be presented to the user for review.
+
+#### Test Baseline Snapshot (Pre-Implementation)
+
+Before implementation begins, the agent MUST record a test baseline:
+
+1. Capture the list of all existing test files and test function names at task start (e.g., via `uv run pytest --collect-only -q` or directory listing).
+2. Store this baseline in memory for the duration of the task.
+3. On any test failure, classify each failing test as:
+   - **Pre-existing**: Test name appears in the baseline (existed before this task).
+   - **New**: Test name does NOT appear in the baseline (written by the agent during this task).
+4. This classification drives the MUST-escalate vs MAY-fix-directly decision below.
+
+#### Escalation Trigger Detection
+
+**MUST escalate (trigger TFEP):**
+- Any **pre-existing test** fails (tests in the baseline that were not modified by the agent). This is the primary trigger — regressions in existing tests indicate the implementation broke something.
+- **3 or more new tests** fail simultaneously (indicates a systemic issue, not a simple typo).
+- **Runtime exceptions in implementation code** (TypeError, AttributeError, KeyError, etc. in the code being tested, not in the test scaffolding itself).
+
+**Escalation gradient (within-TFEP, for future forensic integration):**
+- Repeated failure (same test cluster fails after fix attempt) → escalate from light to standard
+- Multi-file blast radius from recent changes → escalate
+- Low-confidence root cause from adversarial debate → escalate
+- Unresolved adversarial outcome (no winner/tie) → escalate
+- Second failed retest → escalate
+- Cross-domain or non-obvious regression → escalate
+
+#### TFEP Execution Flow
+
+When TFEP triggers, execute the following steps:
+
+**Step 1: Halt and freeze**
+1. **STOP** testing immediately.
+2. **FREEZE** implementation — no further code changes permitted.
+
+**Step 2: Construct failure context**
+3. Build a `failure_context` YAML package containing:
+   - `test_names`: list of failing test function names
+   - `test_files`: list of test files containing failures
+   - `error_output`: full traceback/error output
+   - `expected_behavior`: what was expected
+   - `actual_behavior`: what actually happened
+   - `changes_made`: files changed during this task with descriptions
+   - `task_description`: current task description
+   - `test_baseline`: the pre-implementation test baseline
+   - `escalation_count`: which TFEP trigger this is (1, 2, or 3)
+4. Write context to `{output_dir}/context.yaml`.
+
+**Step 3: Invoke forensic**
+5. Determine the forensic tier based on escalation count:
+   - 1st trigger → `--tier light --intent triage`
+   - 2nd trigger → `--tier standard`
+   - 3rd trigger → **FULL STOP**. Report to user. Do not attempt further fixes.
+6. Invoke: `/sc:forensic --tier {tier} --intent triage --caller task-unified --context {context_path} --output {output_dir} --depth quick`
+7. The forensic pipeline runs autonomously through all its phases and returns a structured return contract.
+
+**Step 4: Consume forensic results**
+8. Read the forensic return contract from `{output_dir}/return-contract.yaml`.
+9. Handle based on status:
+   - If `test_is_wrong == true`: Present to user for review. Do NOT auto-fix tests.
+   - If `status == "success"`: Proceed to Step 5 (tasklist insertion).
+   - If `status == "partial"` or `recommended_escalation != "none"`: Increment `escalation_count` and return to Step 3.
+   - If `status == "failed"`: Report to user, halt execution.
+
+**Step 5: Tasklist insertion**
+10. Read `tasklist_insertion_path` from the return contract.
+11. Insert the remediation block into the current tasklist:
+    - Add `## Failure Remediation Plan (Adjudicated)` heading.
+    - Insert remediation tasks BEFORE existing test/verification tasks.
+    - Preserve original tasklist structure — append, don't replace.
+
+**Step 6: Resume**
+12. Resume execution with `--compliance strict` starting from the inserted remediation tasks.
+13. After remediation tasks complete, re-run the original test suite.
+14. If tests pass: TFEP resolved successfully. Produce incident report and continue.
+15. If tests fail again: Increment `escalation_count`, return to Step 2.
+
+#### TFEP Incident Reporting
+
+After each TFEP resolution (success or escalation), produce `tfep-incident-report.md`:
+
+```markdown
+# TFEP Incident Report
+
+- **Trigger**: {which threshold rule fired}
+- **Escalation count**: {1, 2, or 3}
+- **Failing tests**: {test names and classification}
+- **Root cause**: {summary from rca-verdict.md}
+- **Solution**: {summary from solution-verdict.md}
+- **Outcome**: {success / escalated / failed}
+- **Forensic artifacts**: {path to output_dir}
+```
+
+This report is committed to git alongside other forensic artifacts.
+
+#### Escalation Budget
+
+```
+1st TFEP trigger  → /sc:forensic --tier light --intent triage    (~5-8K tokens)
+2nd TFEP trigger  → /sc:forensic --tier standard                 (~15-20K tokens)
+3rd TFEP trigger  → FULL STOP. Report to user. Do not attempt further fixes.
+```
+
 ### 5. Feedback Collection
 
 After completion, collect implicit feedback:

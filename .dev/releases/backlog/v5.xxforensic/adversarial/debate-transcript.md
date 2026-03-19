@@ -1,165 +1,159 @@
 # Adversarial Debate Transcript
 
 ## Metadata
-- Depth: deep
-- Rounds completed: 2 (Round 3 skipped: convergence achieved)
-- Convergence achieved: 90.9% (20/22 proposals resolved)
-- Convergence threshold: 85%
-- Focus areas: implementation-feasibility, spec-quality, practical-impact
-- Advocate count: 3
+- Depth: standard
+- Rounds completed: 2 (+ invariant probe)
+- Convergence achieved: 76%
+- Convergence threshold: 80%
+- Focus areas: All
+- Advocate count: 2
+- Variant A: forensic-refactor-handoff.md (opus:architect advocate)
+- Variant B: tfep-refactoring-context.md (opus:analyzer advocate)
 
 ---
 
 ## Round 1: Advocate Statements
 
-### Architect Advocate
+### Variant A Advocate (opus:architect)
 
-**Position Summary**: The spec needs pragmatic fixes that unblock implementation without over-specifying internals. Proposals addressing path inconsistencies, semantic conflicts, and feasibility gaps should be accepted. Proposals that prescribe implementation mechanisms (scheduler algorithms, calculation formulas, configurable policy frameworks) should be simplified or rejected for v1.
+**Position Summary**: Variant A provides the architecturally superior foundation by treating the problem at the correct level of abstraction -- separating design concerns that Variant B conflates, preserving strategic flexibility, and identifying a critical naming collision in `--depth` that Variant B would worsen.
 
-**Steelman of Quality-Engineer**: The QE perspective correctly identifies that every optional field is a potential test gap, and that determinism requires defined computation methods. A spec that says "produce a score" without saying how is technically untestable. The QE's insistence on mandatory fields for progress.json is grounded in real resume safety concerns.
+**Steelman of Variant B**: Variant B's specificity is itself a form of quality. Concrete phase tables, YAML schemas, token budgets, binary thresholds, and two-phase implementation reduce ambiguity and deliver immediate value. The two-phase approach decouples the safety value from forensic readiness -- a genuine insight Variant A lacks.
 
-**Steelman of Analyzer**: The Analyzer correctly identifies that most forensic runs are single-root, fresh-run, complete-pipeline executions. Optimizing for the common case while gracefully handling edge cases is sound engineering. The timeout threshold for baseline tests is a practical concern that the spec should address.
+**Strengths Claimed**:
+1. Correct 3-axis flag model (`--intent`, `--tier`, `--debate-depth`) avoids semantic collision (S12.A, S11)
+2. Strategic framing with explicit open questions empowers planning agent (S15)
+3. Documented existing command boundaries as integration constraints (S3, S14)
+4. `--caller`/`--trigger` concept for caller-aware defaults (S12.B)
+5. Profiles abstraction for composable phase configurations (S12.C)
+6. Comprehensive responsibility split between task-unified and forensic (S8)
 
-**Key Arguments**:
-1. P-007: Mandating a calculation formula for risk score conflates specification with implementation. The spec should define the contract (field exists, 0.0-1.0 range, drives model selection) not the algorithm.
-2. P-008: git_head as mandatory creates a hard git dependency. The spec supports non-git targets (any codebase). Making it mandatory breaks universality.
-3. P-009: UUID/hash IDs sacrifice readability for theoretical purity. Deterministic slugs from domain names are stable, readable, and trivial to implement.
-4. P-022: MCP scheduling is a framework concern, not a per-command concern. Specifying it here creates maintenance conflicts with MCP.md.
-
-**Concessions**:
-- P-012: The QE's three-level model (soft target, hard ceiling, overflow) is stronger than my two-level proposal. The hard ceiling provides a testable bound while acknowledging real-world variability. I concede this point.
-- P-017: Baseline tests are more important than I initially weighted. The inability to distinguish introduced vs preexisting failures is a real quality gap, not a theoretical one.
-
-### Quality-Engineer Advocate
-
-**Position Summary**: The spec must produce deterministic, testable, reproducible behavior. Every "optional" field and "implementation-defined" behavior is a test gap that will produce divergent implementations. Quality gates should not be weakened for v1 convenience -- technical debt in quality infrastructure compounds faster than in feature code.
-
-**Steelman of Architect**: The Architect correctly identifies that over-specification of algorithms constrains implementation flexibility. A spec should define observable behavior, not internal mechanisms. The git dependency concern is valid for non-git targets. Slug-based IDs are a creative solution that achieves stability without UUID overhead.
-
-**Steelman of Analyzer**: The Analyzer's focus on practical frequency is sound -- designing for the common case should not be penalized. The timeout threshold for baseline tests addresses a real concern about pipeline blocking that I did not adequately consider.
-
-**Key Arguments**:
-1. P-007: Without a defined calculation method, two implementations scoring the same codebase will assign different model tiers. "Document your rationale" is not deterministic.
-2. P-008: Resume across git states without HEAD verification can produce silently wrong results. The cost of an optional field is one JSON key; the cost of a corrupted resume is a full pipeline rerun.
-3. P-020: Intermediate artifacts with secrets are the primary leakage vector. A simple flag is better than nothing but insufficient for environments with regulatory requirements.
+**Weaknesses in Variant B**:
+1. Overloading `--depth` creates semantic collision with FR-038
+2. Premature specification may constrain planning agent
+3. Two-phase Phase 1 breaks autonomous workflow temporarily
+4. Binary escalation thresholds too rigid for some scenarios
 
 **Concessions**:
-- P-009: The Architect's slug-based approach is superior to UUID for this use case. Human readability aids debugging and the determinism requirement is met.
-- P-019: The Architect/Analyzer position on restricting --clean to terminal success is simpler and sufficient for v1. I withdraw support for the archive sub-option.
-- P-022: I concede that the full scheduler specification belongs in the framework, not here. However, the spec should state the behavioral requirement (respect concurrency limits, do not silently drop requests). I revise my position from MODIFY to a lighter requirement statement.
-- P-015: The Analyzer's point about warning for tiny targets is reasonable. Minimum 1 domain with a warning is sufficient without my proposed modification.
+1. No token budget estimates
+2. No implementation phasing strategy
+3. No "MAY fix directly" exceptions
+4. No section-by-section forensic spec change mapping
+5. Missing "test is wrong" as valid outcome
 
-### Analyzer Advocate
+**Shared Assumptions**: A-001: QUALIFY (Phase 1 can ship without forensic); A-002: ACCEPT; A-003: ACCEPT
 
-**Position Summary**: Proposals should be evaluated by their impact on the first implementation attempt. Path fixes, semantic clarity, and feasibility gaps are high-impact. Schema perfection, configurable policies, and scheduler specifications are low-impact for v1 and can be deferred.
+---
 
-**Steelman of Architect**: The Architect's framework-delegation argument for P-022 is correct -- the forensic spec should not duplicate framework-level MCP handling. The slug-based domain ID proposal elegantly solves the stability problem without UUID complexity.
+### Variant B Advocate (opus:analyzer)
 
-**Steelman of Quality-Engineer**: The QE correctly identifies that every "optional" field creates a potential failure mode during resume. The three-level token budget (soft/hard/overflow) is better engineering than the two-level model I initially supported. Baseline tests are genuinely important for validation quality.
+**Position Summary**: Variant B is superior because it provides concrete, actionable specifications -- per-phase behavior tables, YAML context schemas, binary escalation thresholds, token budgets, and a two-phase delivery strategy that delivers immediate value. A strategic narrative without specifics is not a refactoring plan input.
 
-**Key Arguments**:
-1. P-009: Full stable IDs add complexity for a scenario (mid-pipeline resume with regenerated domains) that is practically rare. Reading existing artifacts on resume is sufficient.
-2. P-017: Making baseline tests MUST creates a pipeline that blocks on slow test suites. SHOULD with timeout escape preserves the quality goal while handling the practical constraint.
-3. P-021: Domain-level root provenance covers 95%+ of multi-root cases. Record-level root provenance adds O(n) schema complexity for diminishing returns.
+**Steelman of Variant A**: Variant A correctly identifies the three-dimensional flag space complexity and the `--depth` semantic collision. Its 8 planning questions surface decisions a planner must answer. Its command boundary documentation reduces integration risk.
+
+**Strengths Claimed**:
+1. Concrete per-phase specification in table format (S3.1)
+2. Binary, testable escalation thresholds with exceptions (S4)
+3. YAML context interface with example values (S3.3)
+4. Token budget quantification: ~5-8K quick, ~15-20K standard (S3.1, S4)
+5. Two-phase implementation: immediate guard + full integration (S8)
+6. Complete artifact directory tree with filenames (S3.5)
+7. Section-by-section forensic spec change mapping (S6)
+8. "Test is wrong" as valid outcome (S9)
+
+**Weaknesses in Variant A**:
+1. Leaves all hard decisions to next agent (S15, S19)
+2. Qualitative escalation triggers are unenforceable (S10)
+3. No immediate deliverable
+4. 36-cell flag matrix complexity
 
 **Concessions**:
-- P-007: The QE has a point that undetermined risk scoring produces different model assignments. I accept that a minimum calculation guidance (e.g., "max of category scores" as default) should be provided, though not a rigid formula.
-- P-008: I concede that `git_head` should be recommended rather than ignored. Optional-with-warning is the right level.
-- P-012: I concede the QE's three-level model is superior. Hard ceilings provide a testable bound.
-- P-017: Reflecting on the QE's argument, baseline tests are indeed necessary for the pipeline's core value proposition (distinguishing introduced vs preexisting failures). I revise to ACCEPT as MUST, but maintain the timeout escape as a practical implementation note.
-- P-020: I maintain that full configurable policy is over-engineering, but accept that a simple `--redact` flag should default to true for all artifacts.
+1. `--depth` overloading concern is legitimate
+2. 2-agent count assumption needs justification
+3. Lacks existing command boundary documentation
+
+**Shared Assumptions**: A-001: REJECT (Phase 1 proves forensic isn't needed first); A-002: QUALIFY; A-003: ACCEPT
 
 ---
 
 ## Round 2: Rebuttals
 
-### Architect Rebuttal
+### Variant A Rebuttal
 
-**Responding to QE criticism on P-007 (risk score calculation)**:
-The QE claims non-determinism, but the spec already accepts non-determinism in agent reasoning -- investigation agents use judgment to assess risk. Mandating a formula (max of categories) constrains agent intelligence. COUNTER-PROPOSAL: Require the field, define the range, and add "recommended default: max of category scores" as guidance, not mandate. This gives implementations a baseline while allowing improvement.
+**On "leaves all hard decisions"**: Variant A delivers concrete decisions (architectural split S5, coupling contract S9, responsibility boundaries S8, mode semantics S7) while correctly scoping 8 implementation-level questions for the planning agent. This is a structured handoff, not a transcript.
 
-**Responding to QE criticism on P-008 (git_head)**:
-I accept the resume safety argument but maintain the universality concern. REVISED POSITION: Make `git_head` required when target is a git repository (auto-detected), optional when not. This satisfies both concerns.
+**On "qualitative triggers"**: 3 of 6 triggers are binary (repeated failure, unresolved adversarial outcome, second failed retest). The qualitative triggers address escalation *within* TFEP (light->standard->deep), while B's binary thresholds address *entry gate*. These are complementary, not competing.
 
-**Updated positions**:
-- P-007: MODIFY with recommended-default approach (converging with Analyzer)
-- P-008: MODIFY with conditional requirement (converging with QE on git targets)
-- P-012: ACCEPT QE's three-level model (full concession)
-- P-017: ACCEPT as MUST (revised from original position)
-- P-019: Maintain MODIFY (restrict to terminal success)
+**On "no immediate deliverable"**: Variant A's Section 4 describes the same circuit-breaker that B's Phase 1 implements. Both prescribe the same action. B's advantage is presentation clarity, not content.
 
-### Quality-Engineer Rebuttal
+**On "36-cell matrix"**: Variant B overloads `--depth` and adds `--mode triage` without resolving overlap. Variant A identifies the conflict; B ignores it.
 
-**Responding to Architect on P-007 (recommended vs mandatory formula)**:
-The "recommended default" approach is acceptable -- it provides determinism for implementations that don't want to invent their own scoring while allowing improvement. I accept this convergence.
+**New evidence**: Variant A uniquely preserves genericity (S12.D) — forensic must serve roadmap, QA, regression, not just task-unified. B's TFEP-centric framing risks narrowing the command.
 
-**Responding to Architect on P-008 (conditional git_head)**:
-Conditional requirement based on auto-detection is reasonable. This preserves resume safety for git targets without breaking non-git targets. I accept this convergence.
+---
 
-**Responding to Analyzer on P-017 (baseline timeout)**:
-I accept MUST with a timeout escape as an implementation note. The quality requirement is preserved; the timeout prevents pathological blocking. This is a reasonable convergence.
+### Variant B Rebuttal
 
-**Responding to Analyzer on P-021 (domain-level root)**:
-Domain-level root is insufficient if a single domain spans files from multiple target roots (possible with `--focus` hints). However, this is a rare edge case for v1. I accept domain-level root for v1 with a noted limitation.
+**On "--depth overloading"**: P-002 in proposal-verdicts.md (8.30/10, 1.00 convergence, unanimously ACCEPTED) already resolved this conflict with a precedence rule: circuit-breaker override > explicit CLI flag > phase-specific default. Variant B aligns with this accepted resolution; Variant A contradicts it.
 
-**Updated positions**:
-- P-007: MODIFY with recommended-default (converging with Architect)
-- P-008: MODIFY with conditional git requirement (converging with Architect)
-- P-015: ACCEPT (withdraw modification)
-- P-019: MODIFY to terminal-success-only (converging with Architect/Analyzer)
-- P-021: ACCEPT Analyzer's domain-level approach for v1
-- P-022: Revise to REJECT with a single-sentence behavioral requirement added to FR
+**On "premature specification"**: Variant B's concrete elements trace to user-approved decisions (Section 9 documents 9 explicit user decisions). These are requirements, not premature commitments.
 
-### Analyzer Rebuttal
+**On "Phase 1 coupling risk"**: Phase 1 converts invisible dangerous behavior (silent ad-hoc fix) into visible user-controlled decision point. This is a feature. Variant A has no phasing at all.
 
-**Responding to QE on P-017 (baseline MUST)**:
-With the timeout escape accepted as an implementation note, I am satisfied that MUST does not create an unbounded blocking risk. I accept MUST.
+**On "rigid thresholds"**: MAY-fix-directly exceptions (S4) add nuance. "Any pre-existing test fails" already excludes test scaffolding errors. Adjustable by planning agent.
 
-**Responding to Architect on P-009 (slug-based IDs)**:
-The slug approach is pragmatic and addresses the readability concern while providing stability. I revise my position to accept slug-based domain IDs rather than my minimal "just read existing artifacts" approach, since slugs also help fresh runs with restarts.
-
-**Updated positions**:
-- P-007: MODIFY with recommended-default approach (converged)
-- P-009: MODIFY to slug-based IDs (converging with Architect)
-- P-012: ACCEPT QE's three-level model (converged)
-- P-017: ACCEPT as MUST (converged)
-- P-021: MODIFY to domain-level root (maintained)
+**New evidence**: FR-013 and FR-022 already hardcode per-phase adversarial depths, proving `--depth` is already a pipeline-level control. Variant B's expansion is evolutionary; Variant A's three-flag model is revolutionary and contradicts P-002.
 
 ---
 
 ## Scoring Matrix
 
-| Proposal | Winner | Confidence | Evidence Summary |
-|----------|--------|------------|-----------------|
-| P-001 | ACCEPT (unanimous) | 96% | All three cite implementation-blocking document integrity issue |
-| P-002 | ACCEPT (unanimous) | 92% | All three cite non-deterministic behavior from precedence ambiguity |
-| P-003 | ACCEPT (unanimous) | 88% | All three cite user trust and auditability requirements |
-| P-004 | ACCEPT (unanimous) | 94% | All three cite path failures as #1 bug source |
-| P-005 | ACCEPT (unanimous) | 90% | Consistent with P-004 reasoning |
-| P-006 | ACCEPT (unanimous) | 89% | All agree schema-less mandatory artifact is a quality gap |
-| P-007 | MODIFY (converged) | 85% | Converged on: require field + range + recommended default calculation |
-| P-008 | MODIFY (converged) | 84% | Converged on: core fields required, git_head conditional on git targets |
-| P-009 | MODIFY (converged) | 82% | Converged on slug-based domain IDs |
-| P-010 | ACCEPT (unanimous) | 91% | All cite --fix-tier runtime failure without constraint |
-| P-011 | ACCEPT (unanimous) | 84% | All cite architectural invariant + token budget preservation |
-| P-012 | MODIFY (converged) | 83% | Converged on QE's three-level model (soft/hard/overflow) |
-| P-013 | ACCEPT (unanimous) | 93% | All cite feasibility as highest-impact concern |
-| P-014 | ACCEPT (unanimous) | 90% | All cite real runtime blocker from undeclared tool deps |
-| P-015 | ACCEPT (majority) | 87% | Architect/Analyzer: adaptive min=1; QE conceded in Round 2 |
-| P-016 | ACCEPT (unanimous) | 88% | All cite threshold immutability for reproducibility |
-| P-017 | ACCEPT (converged) | 85% | Converged on MUST with timeout implementation note |
-| P-018 | ACCEPT (unanimous) | 91% | All cite CI integration as high-value practical capability |
-| P-019 | MODIFY (converged) | 78% | Converged on terminal-success-only restriction, no sub-options |
-| P-020 | MODIFY (converged) | 77% | Converged on simple --redact flag (default: true) for all artifacts |
-| P-021 | MODIFY (converged) | 80% | Converged on domain-level target_root for v1 |
-| P-022 | REJECT (majority) | 76% | 2/3 reject; QE revised to reject with single behavioral requirement |
+| Diff Point | Taxonomy | Winner | Confidence | Evidence Summary |
+|------------|----------|--------|------------|-----------------|
+| S-001 | L1 | Variant B | 60% | More actionable format for downstream consumption |
+| S-002 | L1 | Variant A | 55% | Progressive narrative builds better understanding |
+| S-003 | L2 | Variant B | 72% | Concrete specs more useful than open questions for planning agent |
+| S-004 | L1 | Variant B | 58% | Numerical scores more falsifiable than narrative pros/cons |
+| S-005 | L2 | Split | 50% | A's questions useful; B answers them implicitly |
+| C-001 | L3 | Variant A | 65% | Three-axis model cleaner, but B's P-002 evidence partially rebuts |
+| C-002 | L2 | Variant B | 80% | Phase table directly actionable; A's description is conceptual |
+| C-003 | L2 | Variant B | 85% | Token estimates valuable; A has none |
+| C-004 | L3 | Variant B | 75% | Binary thresholds enforceable by LLM agents; qualitative are not |
+| C-005 | L2 | Tie | 50% | Both agree on 2+2 agents |
+| C-006 | L1 | Tie | 50% | Cosmetic naming difference |
+| C-007 | L2 | Variant B | 78% | YAML schema with examples > bullet list |
+| C-008 | L3 | Variant B | 82% | Two-phase strategy delivers immediate value; A has no phasing |
+| C-009 | L2 | Variant B | 80% | Section-by-section mapping; A has none |
+| C-010 | L2 | Variant B | 75% | "Test is wrong" outcome explicitly included |
+| X-001 | L3 | Variant A | 60% | Cleaner flag model, but B's P-002 evidence weakens margin |
+| X-002 | L2 | Variant B | 65% | More focused scope for refactoring plan |
+| X-003 | L2 | Tie | 50% | Both agree quick mode is diagnosis/planning only |
+| A-001 | L3 | Variant B | 70% | Two-phase approach proves forensic need not exist first |
+| A-002 | L2 | Tie | 50% | Both accept/qualify similarly |
+| A-003 | L2 | Tie | 50% | Both accept |
+
+**Taxonomy Coverage**: L1: 4 points, L2: 12 points, L3: 5 points — all levels covered.
+
+---
+
+## Invariant Probe (Round 2.5)
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|----|----------|------------|--------|----------|----------|
+| INV-001 | state_variables | The circuit-breaker can detect "pre-existing tests" vs "new tests" without a baseline snapshot mechanism | UNADDRESSED | HIGH | Neither variant specifies how task-unified distinguishes pre-existing from agent-written tests. Requires test inventory baseline. |
+| INV-002 | guard_conditions | `--mode triage` / `--tier light` can be automatically selected without user input | ADDRESSED | LOW | Both variants specify automatic invocation with defaults (A: S10; B: S3.4) |
+| INV-003 | count_divergence | "3+ new tests fail" threshold assumes reliable test count; parameterized tests inflate counts | UNADDRESSED | MEDIUM | B S4 uses count threshold. pytest parametrize multiplies logical tests into many counted failures. |
+| INV-004 | interaction_effects | Forensic quick mode output artifacts are compatible with task-unified tasklist insertion format | UNADDRESSED | HIGH | B S3.5 defines artifacts but not tasklist-compatible format. A S13 says "insertion-ready markdown" but no schema. |
+| INV-005 | collection_boundaries | Escalation gradient handles same-failure-recurring vs new-different-failure after fix | UNADDRESSED | MEDIUM | Both describe escalation on "repeated failure" but don't distinguish same vs different failure. |
+
+**Summary**: 5 findings. ADDRESSED: 1. UNADDRESSED: 4 (HIGH: 2, MEDIUM: 2).
+
+---
 
 ## Convergence Assessment
-
-- Points resolved: 22 of 22
-- Alignment: 100% (all proposals reached majority or unanimous verdict after Round 2)
-- Threshold: 85%
-- Status: CONVERGED
-- Unresolved points: None (Round 3 skipped: convergence 100% >= 85% threshold)
-
-Note: P-022 resolved as REJECT with 2/3 agreement after QE revised position in Round 2. The QE's residual suggestion (add a single behavioral requirement about concurrency limits to an existing FR) is captured as a minor addendum to the rejection rationale.
+- Points resolved: 16 of 21
+- Alignment: 76%
+- Threshold: 80%
+- Status: NOT_CONVERGED
+- Blocking: 2 HIGH-severity UNADDRESSED invariants (INV-001, INV-004)
+- Unresolved points: S-005, C-005, C-006, X-003, A-002, A-003

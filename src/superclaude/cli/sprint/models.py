@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from superclaude.cli.pipeline.models import (
     PipelineConfig,
@@ -316,6 +316,9 @@ class SprintConfig(PipelineConfig):
     phase_timeout: int = 0  # 0 = disabled
     # Shadow mode: trailing gates run in parallel, results are metrics-only
     shadow_gates: bool = False
+    # Wiring gate mode: controls post-task wiring analysis behavior
+    # off=disabled, shadow=log only, soft=warn on critical, full=block on critical+major
+    wiring_gate_mode: Literal["off", "shadow", "soft", "full"] = "soft"
 
     def __post_init__(self):
         # Sync release_dir to PipelineConfig.work_dir so both access paths

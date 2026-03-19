@@ -1,13 +1,16 @@
-
-
 ---
 complexity_class: HIGH
 validation_philosophy: continuous-parallel
-validation_milestones: 5
-work_milestones: 5
+validation_milestones: 9
+work_milestones: 9
 interleave_ratio: "1:1"
 major_issue_policy: stop-and-fix
+spec_source: merged-spec.md
+generated: "2026-03-19T01:59:39.414373+00:00"
+generator: superclaude-roadmap-executor
 ---
+
+# Unified Audit Gating — Test Strategy
 
 ## Issue Classification
 
@@ -22,100 +25,94 @@ major_issue_policy: stop-and-fix
 
 ## 1. Validation Milestones Mapped to Roadmap Phases
 
-Each roadmap phase (P0–P4) receives a paired validation milestone (V0–V4) executed at phase completion before the go/no-go gate.
-
-| Validation Milestone | Roadmap Phase | Gate Focus | Key Success Criteria |
-|---------------------|---------------|------------|---------------------|
-| **V0** | P0 — Prerequisites & P0 Defect Fixes | Defect verification, dead code retirement, governance closure | SC-003, SC-004, FR-046 |
-| **V1** | P1 — Foundation | Core detection correctness, deterministic replay, standalone emission | SC-001, SC-002, SC-005, SC-009, SC-010, SC-012, SC-013 |
-| **V2** | P2 — Integration | Cross-subsystem wiring, lease/retry determinism, shadow readiness | SC-011, NFR-005, Blocker 6 resolved |
-| **V3** | P3 — Enforcement | Transition blocking, override rules, TUI rendering, audit trail completeness | SC-006, SC-008, SC-014, SC-016 |
-| **V4** | P4 — Promotion | KPI stability, rollback drill, calibration sign-off, production hardening | SC-007, SC-015, NFR-010, NFR-011 |
+| Validation Milestone | Roadmap Phase | Gate Description | Blocking Criteria |
+|---------------------|---------------|------------------|-------------------|
+| **VM-0** | Phase 0 — Decision Checkpoint | Decision completeness gate | All 7 open questions resolved with rationale documented |
+| **VM-1** | Phase 1 — Core Analysis Engine | Analyzer correctness gate | SC-001–003 pass; whitelist works; SyntaxError handled; <2s for 50-file fixture |
+| **VM-2** | Phase 2 — Report & Gate Definition | Report conformance gate | 17 frontmatter fields present; `gate_passed()` evaluates WIRING_GATE; mode semantics correct; 90% coverage |
+| **VM-3a** | Phase 3a — Roadmap Integration | Pipeline integration gate | Step ordering correct; shadow gate non-blocking; no layering violations |
+| **VM-3b** | Phase 3b — Sprint Integration | Sprint hook gate | Shadow/soft/full semantics honored; no performance regression |
+| **VM-4** | Phase 4 — Agent Extensions | Agent regression gate | All extensions additive; 9-field profiles correct; no regression in prior outputs |
+| **VM-5** | Phase 5 — ToolOrchestrator Plugin | Plugin correctness gate (conditional) | `FileAnalysis.references` populated; dual evidence rule functional |
+| **VM-6a** | Phase 6a — Shadow Calibration | Statistical readiness gate | FPR < 15%, TPR > 50%, p95 < 5s, ≥2 release cycles data |
+| **VM-6b** | Phase 6b — Activation | Operational stability gate | FPR < 5%, TPR > 80%, whitelist stable 5+ sprints |
 
 ---
 
 ## 2. Test Categories
 
-### 2.1 Unit Tests
+### 2.1 Unit Tests (target: ≥20)
 
-| Test Area | Files Under Test | Key Assertions |
-|-----------|-----------------|----------------|
-| Suspicion score calculation | `silent_success.py` | Composite formula correctness, band boundaries (0.29/0.30, 0.49/0.50, 0.74/0.75), weight sum = 1.0 |
-| Signal suite S1/S2/S3 | `silent_success.py` | Individual signal scoring, edge cases (empty artifacts, zero traces, stale timestamps) |
-| Failure class taxonomy | `audit_gate_models.py` | `policy.silent_success`, `policy.smoke_failure.*`, `policy.fidelity_deterministic` correctly instantiated |
-| Regex inventory extraction | `fidelity_inventory.py` | `_DISPATCH_TABLE_PATTERN` matches `UPPER_CASE = {` and `dict()`; `_STEP_DISPATCH_CALL` matches `_run_*()` and `step_result =` |
-| D-03/D-04 deterministic override | `fidelity_inventory.py` | `dispatch_tables_preserved: false` → gate failed regardless of `high_severity_count` |
-| Artifact hash freshness | `audit_gate_models.py` | SHA-256 hash comparison, stale detection logic |
-| Smoke test check hierarchy | `smoke_gate.py` | Timing < 5s = WARN only; artifact absence = ERROR; content evidence = ERROR |
-| Smoke test constants | `smoke_gate.py` | `SMOKE_NOOP_CEILING_S=5`, `SMOKE_MIN_REAL_EXECUTION_S=10`, `SMOKE_TIMEOUT_S=600` |
-| `AuditGateResult` schema | `audit_gate_models.py` | All three extension blocks present, required fields populated, naming disambiguation from `GateResult` |
-| Outcome enum extension | `cli/cli_portify/models.py` | `SILENT_SUCCESS_SUSPECTED` and `SUSPICIOUS_SUCCESS` values exist and are distinct |
-| `SilentSuccessConfig` disable | `silent_success.py` | `enabled=False` bypasses detection cleanly |
-| All-EXEMPT detection | `silent_success.py` | Zero real steps without `--dry-run` → `policy` failure |
-| Lease field validation | `audit_lease.py` | ISO-8601 UTC format enforcement, heartbeat interval ≤ timeout/3 |
-| Retry budget counter | `audit_lease.py` | Durable counter increments, budget exhaustion produces terminal state |
-| `audit_gate_required` derivation | tasklist generator | `Tier == STRICT OR Risk == High OR Critical Path Override == true` → `true` |
+| ID | Test | Phase | Requirements | Priority |
+|----|------|-------|-------------|----------|
+| UT-01 | Unwired callable detection on fixture with `Optional[Callable]=None` never provided | 1 | FR-001, FR-012, SC-001 | P0 |
+| UT-02 | Unwired callable — callable IS provided at call site → no finding | 1 | FR-012 | P0 |
+| UT-03 | Orphan module detection on fixture with zero importers | 1 | FR-002, FR-015, SC-002 | P0 |
+| UT-04 | Orphan exclusion: `__init__.py`, `conftest.py`, `test_*.py` not flagged | 1 | FR-016 | P0 |
+| UT-05 | Registry detection — unresolvable function reference | 1 | FR-003, FR-018, SC-003 | P0 |
+| UT-06 | Registry classification — three detection types correctly assigned | 1 | FR-019 | P1 |
+| UT-07 | Whitelist suppression — matching entries excluded, count incremented | 1 | FR-013, SC-007 | P0 |
+| UT-08 | Whitelist malformed entry — WARNING logged (shadow mode) | 1 | FR-013 | P1 |
+| UT-09 | `ast_analyze_file()` — SyntaxError returns empty `FileAnalysis` | 1 | FR-021 | P0 |
+| UT-10 | `ast_analyze_file()` — valid file populates imports/exports/metadata | 1 | FR-020 | P1 |
+| UT-11 | Severity assignment — critical/major/info correctly mapped | 1 | FR-014 | P0 |
+| UT-12 | Report frontmatter contains all 17 required fields | 2 | FR-022, SC-004 | P0 |
+| UT-13 | Report body contains 7 sections in correct order | 2 | FR-023 | P1 |
+| UT-14 | `_extract_frontmatter_values()` parses frontmatter correctly | 2 | FR-024 | P0 |
+| UT-15 | `_analysis_complete_true` semantic check | 2 | FR-026 | P1 |
+| UT-16 | `_recognized_rollout_mode` semantic check | 2 | FR-026 | P1 |
+| UT-17 | `_finding_counts_consistent` semantic check | 2 | FR-026 | P0 |
+| UT-18 | `_severity_summary_consistent` semantic check | 2 | FR-026 | P0 |
+| UT-19 | `_zero_blocking_findings_for_mode` — shadow always True | 2 | FR-027, SC-014 | P0 |
+| UT-20 | `_zero_blocking_findings_for_mode` — full blocks on findings | 2 | FR-027, SC-014 | P0 |
+| UT-21 | `blocking_findings` computation per rollout mode | 2 | FR-028 | P0 |
+| UT-22 | `WIRING_GATE` GateCriteria well-formed (tier, min_lines, fields, checks) | 2 | FR-025 | P1 |
+| UT-23 | YAML safe_dump used for string frontmatter values | 2 | NFR-005 | P1 |
+| UT-24 | ToolOrchestrator plugin — references populated for import-bearing files | 5 | FR-008, SC-013 | P1 |
+| UT-25 | Dual evidence rule — orphan requires both AST + no audit justification | 5 | FR-017 | P1 |
 
-### 2.2 Integration Tests
+### 2.2 Integration Tests (target: ≥3)
 
-| Test Area | Components Involved | Key Assertions |
-|-----------|-------------------|----------------|
-| Executor instrumentation | `executor.run()` + `SilentSuccessDetector` | `_step_traces` populated, `time.monotonic()` wrapping active, `snapshot_pre_run()` called |
-| Standalone emission (P0-B) | Executor → `return-contract.yaml` | `SilentSuccessResult` block emitted before `_emit_return_contract()` |
-| Sprint executor wiring | `execute_sprint()` + `SprintGatePolicy` | Gate evaluation triggered at post-subprocess point |
-| `OutputMonitor` heartbeat | `OutputMonitor` + lease model | Heartbeat events parsed as distinct event class |
-| `TrailingGateRunner` scopes | `TrailingGateRunner` + `GateScope.MILESTONE/RELEASE` | Phase-scope and release-scope evaluation paths exercised |
-| G-012 registration | `GATE_REGISTRY` + `smoke_gate.py` | G-012 registered after G-011, invoked in gate sequence |
-| D-03/D-04 in `SPEC_FIDELITY_GATE` | `roadmap/gates.py` + `fidelity_inventory.py` | Check functions wired and invoked during spec fidelity evaluation |
-| Deviation analysis step | `_build_steps()` + `_get_all_step_ids()` | Step appears after `spec-fidelity`, `deviation-analysis.md` produced |
-| Tasklist `audit_gate_required` | Tasklist generator → phase files | Per-task flag emitted, phase-level aggregation correct |
-| Gate state persistence | `_save_state()` + audit block | Gate results survive persistence round-trip |
-| Lease timeout → failure | Lease model + executor | Missing heartbeat past timeout → `audit_*_failed(timeout)` |
-| Wall-clock ceiling | Retry budget + outer timeout | Evaluation terminates within `max_turns * 120 + 300 s` |
+| ID | Test | Phase | Requirements | Priority |
+|----|------|-------|-------------|----------|
+| IT-01 | Unmodified `gate_passed()` evaluates `WIRING_GATE` correctly | 2–3a | SC-005, NFR-006 | P0 |
+| IT-02 | Roadmap pipeline executes wiring-verification step end-to-end in shadow | 3a | FR-006, FR-030, FR-031 | P0 |
+| IT-03 | Sprint task status unchanged with shadow-mode wiring findings | 3b | FR-035, SC-006 | P0 |
+| IT-04 | Sprint soft mode warns on critical findings | 3b | FR-035 | P0 |
+| IT-05 | Sprint full mode blocks on critical+major findings | 3b | FR-035 | P0 |
+| IT-06 | Pre-activation zero-match warning with misconfigured `provider_dir_names` | 3b | SC-010 | P1 |
 
-### 2.3 Regression Tests
+### 2.3 End-to-End Tests
 
-| Test Area | Fixtures Required | Key Assertions |
-|-----------|------------------|----------------|
-| v2.25 dispatch table regression | `.dev/releases/complete/v2.25-cli-portify-cli/` spec + roadmap | `dispatch_tables_preserved: false`, `dispatch_functions_preserved: false`, gate rejects (SC-002) |
-| Smoke fixture content anchors | `sc-smoke-skill/SKILL.md` | `InputValidator`, `DataProcessor`, `OutputFormatter` present (`test_fixture_content_matches_gate_patterns`) |
-| Stale gate result rejection | Persisted gate result with outdated artifact hash | Re-evaluation triggered, staleness recorded in `OverrideRecord` |
-| Deterministic replay | Identical input executed twice | Byte-identical `AuditGateResult` output (SC-010, NFR-006) |
-| No-op pipeline detection | Executor with no `step_runner` | `suspicion_score = 1.0`, `SILENT_SUCCESS_SUSPECTED`, non-zero exit (SC-001) |
+| ID | Test | Phase | Purpose |
+|----|------|-------|---------|
+| E2E-01 | Full roadmap pipeline with wiring step → report emitted → gate evaluated | 3a | Validates complete pipeline path |
+| E2E-02 | Sprint execution loop with wiring hook in each mode | 3b | Validates sprint integration path |
+| E2E-03 | Audit pipeline produces 9-field profiles with Wiring path on test repo | 4 | Validates agent extension path |
 
-### 2.4 End-to-End Tests
+### 2.4 Acceptance / Validation Tests
 
-| Test Area | Scope | Key Assertions |
-|-----------|-------|----------------|
-| Full pipeline no-op detection | CLI invocation → `return-contract.yaml` | Complete flow from executor through detector to contract emission |
-| G-012 against known-bad executor | CLI + broken executor + fixture | Fails with both `policy.smoke_failure.timing` AND `policy.smoke_failure.artifact_absence` (SC-005) |
-| G-012 after P0-A fixes | CLI + fixed executor + fixture | All checks pass (SC-006) |
-| Transition blocking end-to-end | Sprint executor + gates + TUI | Phase completion blocked on gate failure; release blocked on gate failure |
-| Shadow mode full cycle | Gates evaluate + metrics emitted + no blocking | KPI data collected without transition interference |
-| Override flow | Soft-fail + override attempt | Task/milestone override accepted with `OverrideRecord`; release override rejected |
-| `--mock-llm` CI flow | G-012 + mock mode | Gate evaluates without LLM API; artifact-absence checks remain active |
+| ID | Test | Phase | Method |
+|----|------|-------|--------|
+| AT-01 | Retrospective: analyzer detects known `step_runner` bug in cli-portify | 6a | SC-009 — manual run, documented evidence |
+| AT-02 | Shadow FPR/TPR/p95 within thresholds | 6a | Statistical analysis of shadow data |
+| AT-03 | Alias noise floor characterization | 6a | Documented analysis separating signal from re-export noise |
+| AT-04 | Soft-mode stability over 5+ sprints | 6b | Operational monitoring evidence |
 
-### 2.5 Acceptance Tests
+### 2.5 Static Verification Tests
 
-| Test Area | Acceptance Criteria | Owner |
-|-----------|-------------------|-------|
-| P0-A defect resolution | `run_portify()` produces intermediate artifacts (SC-003); CLI exits non-zero on validation errors (SC-004) | Phase 0 delivery |
-| Silent success blocks release | No-op pipeline cannot reach "Sprint Complete" | QA |
-| Spec fidelity blocks release | Missing dispatch tables block gate regardless of LLM output | QA |
-| Smoke gate blocks release | Artifact-absent execution blocked at release tier | QA |
-| Override scoping | Release-scope override impossible for hard-fail; task/milestone override requires `OverrideRecord` | Policy Owner |
-| TUI operator guidance | `audit_*_failed` states show actionable guidance panel | TUI Engineer + QA |
-| Rollback drill | Full rollback from Full → Soft → Shadow completes successfully | Reliability Owner |
+| ID | Check | Phase | Method |
+|----|-------|-------|--------|
+| SV-01 | No signature changes to pipeline substrate | All | `grep` for changed signatures in `pipeline/*.py` (NFR-006) |
+| SV-02 | No `pipeline/*` imports from `roadmap/*`, `audit/*`, `sprint/*` | All | Import graph analysis (NFR-007) |
+| SV-03 | Agent extensions are additive only — no rules removed, no tools changed | 4 | Diff analysis against prior agent specs (NFR-013) |
 
-### 2.6 Operational / Stress Tests
+### 2.6 Benchmark Tests
 
-| Test Area | Method | Key Assertions |
-|-----------|--------|----------------|
-| Lease expiry and recovery | Simulate heartbeat loss | Timeout transition fires, retry budget decremented, recovery on next attempt |
-| Retry exhaustion | Exhaust `audit_attempts` budget | Terminal failure state, no infinite retry loops |
-| Deadlock detection | Concurrent lease acquisition + timeout + retry | All paths terminate (NFR-005), no hung states |
-| Shadow metric emission | Shadow mode with known inputs | M1, M7, M9 metrics emitted to instrumentation sink |
-| TUI state rendering | Rapid state transitions | `AuditWorkflowState` values render without flicker or stale display |
+| ID | Test | Phase | Threshold |
+|----|------|-------|-----------|
+| BM-01 | 50-file analysis completes within budget | 1 | < 2s target, < 5s hard limit (NFR-001, SC-008) |
+| BM-02 | Sprint hook latency impact | 3b | No measurable regression on task execution path |
 
 ---
 
@@ -123,242 +120,216 @@ Each roadmap phase (P0–P4) receives a paired validation milestone (V0–V4) ex
 
 ### Ratio Justification
 
-**Complexity class HIGH → 1:1 interleave ratio**. Every implementation phase receives a full validation milestone before the go/no-go gate permits progression. This is non-negotiable given:
+**Complexity class**: HIGH (0.78 score) → **1:1 interleave ratio**
 
-- **0.92 complexity score** with cross-cutting concerns spanning 6 subsystems
-- **State machine with lease/heartbeat/retry** — correctness failures compound across phases
-- **Deterministic gate semantics** — silent regressions in Phase 1 would invalidate all Phase 2+ integration work
-- **Provisional thresholds** throughout — validation surfaces miscalibration before enforcement
+Every implementation phase has a paired validation milestone. This is justified by:
+
+1. **Integration breadth**: 3 subsystems + 5 agent specs. Defects compound across boundaries if not caught immediately.
+2. **Constraint density**: Zero-change pipeline contract, layering rules, frontmatter invariants. Each constraint is a potential silent violation.
+3. **Rollout irreversibility**: Shadow → soft → full progression depends on clean data from prior phases. A false-positive bug in Phase 1 corrupts Phase 6a calibration data.
+4. **Agent behavioral risk**: LLM-interpreted spec changes have emergent effects that only surface through end-to-end agent testing.
 
 ### Interleaving Schedule
 
 ```
-P0 (Implement) → V0 (Validate) → GO/NO-GO
-P1 (Implement) → V1 (Validate) → GO/NO-GO
-P2 (Implement) → V2 (Validate) → GO/NO-GO
-P3 (Implement) → V3 (Validate) → GO/NO-GO
-P4 (Implement) → V4 (Validate) → GO/NO-GO
+Phase 0 (implement) → VM-0 (validate decisions)
+Phase 1 (implement) → VM-1 (validate analyzers)
+Phase 2 (implement) → VM-2 (validate report + gate)
+Phase 3a (implement) → VM-3a (validate roadmap integration)
+Phase 3b (implement) → VM-3b (validate sprint integration)
+Phase 4 (implement) → VM-4 (validate agent extensions)
+Phase 5 (implement) → VM-5 (validate plugin) [conditional]
+Phase 6a (observe) → VM-6a (validate statistical readiness)
+Phase 6b (activate) → VM-6b (validate operational stability)
 ```
 
-### Within-Phase Test Cadence
-
-Tests are written **concurrently with implementation**, not after. Specifically:
-
-- **Unit tests**: Written alongside each module (TDD where appropriate — especially for `silent_success.py` signal math and `fidelity_inventory.py` regex patterns)
-- **Integration tests**: Written as soon as integration points are wired (e.g., executor instrumentation tests written with FR-034)
-- **Regression tests**: Prepared during Phase 0 using v2.25 fixtures; executed from Phase 1 onward
-- **E2E tests**: Written in the phase where the full path becomes testable (G-012 E2E in Phase 1 for known-bad, Phase 3 for post-fix)
+**Rule**: No phase may begin until the prior phase's validation milestone passes with zero CRITICAL and zero MAJOR issues.
 
 ---
 
 ## 4. Risk-Based Test Prioritization
 
-### Priority 1 — CRITICAL (Test First, Block on Failure)
+### Tier 0 — Must pass before ANY code ships to shadow
 
-| Risk | Test Priority Rationale | When |
-|------|------------------------|------|
-| **R3: P0-A defects block G-012** | If defects aren't fixed and verified, all downstream smoke testing is invalid | V0 — must pass before P1 starts |
-| **R2: EXEMPT aggregate bypass** | False-pass on all-EXEMPT is a silent security hole in the gate system | V1 — `test_all_exempt_produces_policy_failure` |
-| **R6: State machine deadlocks** | Deadlocks in lease/retry are unrecoverable in production | V2 — stress tests for all timeout/retry paths |
-| **R5: Stale gate results** | Stale results allowing incorrect transitions defeats the entire gating purpose | V2 — freshness validation integration test |
+These tests guard against the highest-severity risks and the hardest-to-fix-later defects:
 
-### Priority 2 — HIGH (Test Early, Major Issue if Failing)
+| Tests | Risk Mitigated |
+|-------|---------------|
+| UT-01 through UT-05 (core detection) | R1: False positives undermine trust |
+| UT-07 (whitelist suppression) | R1: No escape hatch for intentional optionals |
+| UT-09 (SyntaxError handling) | R2: Unhandled parse errors crash pipeline |
+| UT-12, UT-14 (frontmatter completeness) | Corrupt reports produce meaningless shadow data |
+| UT-19, UT-20, UT-21 (mode semantics) | R8: Shadow mode blocks unexpectedly |
+| IT-01 (unmodified gate_passed) | NFR-006: Pipeline substrate integrity |
+| SV-01, SV-02 (static layering) | NFR-006, NFR-007: Architectural violations |
+| BM-01 (performance) | R4: Sprint performance degradation |
 
-| Risk | Test Priority Rationale | When |
-|------|------------------------|------|
-| **R1: S2 calibration gap** | Uncalibrated thresholds produce false positives in production | V1 — deterministic replay; V4 — calibration review |
-| **R4: Orphaned dead code** | Accidental activation under pressure creates undefined behavior | V0 — verify zero references after retirement |
-| **R7: C3 per-task artifact addressability** | Structural blocker for task-scope path in v1.3 | V1 — explicit C3 validation checkpoint |
-| **R9: `reimbursement_rate` dead field** | Unresolved dead field creates maintenance confusion | V2 — verify resolution (wired or removed) |
+### Tier 1 — Must pass before soft-mode activation
 
-### Priority 3 — MEDIUM (Test in Phase, Minor Issue if Failing)
+| Tests | Risk Mitigated |
+|-------|---------------|
+| IT-02, IT-03 (pipeline + sprint integration) | Integration defects masked by shadow pass-through |
+| IT-04, IT-05 (soft/full mode behavior) | Enforcement semantics incorrect when mode changes |
+| IT-06 (zero-match warning) | R5: Misconfigured provider_dir_names silently succeeds |
+| E2E-01, E2E-02 (end-to-end paths) | Cross-subsystem interaction failures |
+| AT-01 (retrospective detection) | Validates real-world detection capability |
+| AT-02 (FPR/TPR thresholds) | R3, R6: Insufficient or noisy data |
 
-| Risk | Test Priority Rationale | When |
-|------|------------------------|------|
-| **R6: Fixture drift** | Content anchor breaks are caught by unit test | V1 — `test_fixture_content_matches_gate_patterns` |
-| **R8: Smoke test CI false positives** | Timing-as-WARN design mitigates; verify in CI | V1 — verify timing is WARN-only |
-| **R11: `--mock-llm` scope** | Must be defined before Phase 2 CI | V2 — mock mode test matrix |
-| **R13: Regex undercoverage** | D-03/D-04 patterns may miss edge cases | V1 — test against representative spec corpus |
+### Tier 2 — Must pass before full-mode activation
 
-### Priority 4 — LOW (Test When Convenient)
-
-| Risk | Test Priority Rationale | When |
-|------|------------------------|------|
-| **R17: Anti-Instincts overlap** | Feature flag is cheap insurance; test flag toggle | V1 — feature flag unit test |
-| **R18: M1/M8 KPI miscalibration** | Addressed by shadow mode recalibration | V4 — verify recalibrated thresholds |
+| Tests | Risk Mitigated |
+|-------|---------------|
+| E2E-03 (audit pipeline) | R7: Agent regression |
+| SV-03 (additive-only check) | R7: Spec changes remove existing behavior |
+| AT-03 (alias noise floor) | R6: FPR inseparable from noise |
+| AT-04 (soft-mode stability) | Premature full activation |
 
 ---
 
 ## 5. Acceptance Criteria per Milestone
 
-### V0 — Prerequisites Validated
+### VM-0 — Decision Checkpoint
+- [ ] All 7 open questions (OQ-1 through OQ-7) have committed answers
+- [ ] Each answer includes rationale and source
+- [ ] Decision log committed to repository
+- **Gate**: Proceed only when all 7 answered. Missing answers = MAJOR.
 
-| ID | Criterion | Method | Severity if Failing |
-|----|-----------|--------|-------------------|
-| V0-1 | SC-003 passes: `run_portify()` produces intermediate artifacts | Integration test | CRITICAL |
-| V0-2 | SC-004 passes: `commands.py` exits non-zero on validation errors | CLI exit code test | CRITICAL |
-| V0-3 | `_apply_resume_after_spec_patch()` has zero references | `find_referencing_symbols` | MAJOR |
-| V0-4 | `_find_qualifying_deviation_files()` has zero references | `find_referencing_symbols` | MAJOR |
-| V0-5 | 6 canonical terms documented in spec glossary | Document review | MAJOR |
-| V0-6 | All Phase 1 prerequisites have named owners and deadlines | Registry check | MAJOR |
-| V0-7 | v1.2.1 scope boundaries unambiguous (task-scope deferred) | Document review | MAJOR |
+### VM-1 — Core Analysis Engine
+- [ ] UT-01 through UT-11 pass (all analyzer unit tests)
+- [ ] Whitelist suppression increments `whitelist_entries_applied`
+- [ ] `SyntaxError` produces empty `FileAnalysis`, no crash
+- [ ] BM-01: < 2s for 50-file fixture (< 5s hard limit)
+- [ ] `WiringFinding`, `WiringReport`, `WiringConfig` dataclasses match FR-009–011
+- **Gate**: All P0 unit tests green. Performance within budget. Coverage ≥ 80% on analyzer.
 
-### V1 — Foundation Validated
+### VM-2 — Report & Gate Definition
+- [ ] UT-12 through UT-23 pass (all report + gate unit tests)
+- [ ] Report frontmatter: exactly 17 fields present
+- [ ] `gate_passed(WIRING_GATE, report)` returns True for well-formed shadow report
+- [ ] Mode semantics: shadow always passes; soft blocks on critical; full blocks on critical+major
+- [ ] Coverage ≥ 90% on `wiring_gate.py` and `wiring_analyzer.py` (NFR-003)
+- [ ] ≥ 20 unit tests total (NFR-004)
+- **Gate**: Coverage target met. All semantic checks verified. YAML injection prevention confirmed.
 
-| ID | Criterion | Method | Severity if Failing |
-|----|-----------|--------|-------------------|
-| V1-1 | SC-001: No-op pipeline → `suspicion_score = 1.0`, non-zero exit | Unit + E2E test | CRITICAL |
-| V1-2 | SC-002: v2.25 regression → `dispatch_tables_preserved: false`, gate rejects | Regression test | CRITICAL |
-| V1-3 | SC-005: G-012 against known-bad executor fails correctly | E2E test | CRITICAL |
-| V1-4 | SC-009: All-EXEMPT → `failed(policy.silent_success)` | Unit test | CRITICAL |
-| V1-5 | SC-010: Deterministic replay — identical results | Regression test | CRITICAL |
-| V1-6 | SC-012: `deviation-analysis.md` produced | Pipeline output test | MAJOR |
-| V1-7 | SC-013: C3 per-task artifacts individually addressable | Structural validation | MAJOR (escalate if failing) |
-| V1-8 | NFR-006: Same input → same gate result | Deterministic replay | CRITICAL |
-| V1-9 | `AuditGateResult` has no naming collision with existing `GateResult` | Import/instantiation test | MAJOR |
-| V1-10 | All three extension blocks schema-valid | Schema validation test | MAJOR |
-| V1-11 | `SilentSuccessConfig(enabled=False)` disables detection | Unit test | MINOR |
-| V1-12 | Fixture stability test passes | `test_fixture_content_matches_gate_patterns` | MAJOR |
-| V1-13 | Standalone emission to `return-contract.yaml` complete | Integration test | MAJOR |
+### VM-3a — Roadmap Integration
+- [ ] IT-02 passes: wiring-verification step executes in pipeline
+- [ ] `_get_all_step_ids()` returns wiring-verification between spec-fidelity and remediate
+- [ ] SV-01: No pipeline substrate signature changes
+- [ ] SV-02: No layering violations (`pipeline/*` imports clean)
+- [ ] Shadow gate does not block pipeline completion
+- **Gate**: End-to-end pipeline runs with wiring step. Zero layering violations.
 
-### V2 — Integration Validated
+### VM-3b — Sprint Integration
+- [ ] IT-03: Shadow mode — task status unchanged with findings
+- [ ] IT-04: Soft mode — warning emitted on critical findings
+- [ ] IT-05: Full mode — blocked on critical+major findings
+- [ ] IT-06: Zero-match warning emitted for misconfigured dirs
+- [ ] BM-02: No measurable performance regression on task path
+- [ ] ≥ 3 integration tests total (NFR-004)
+- **Gate**: All three modes behave correctly. Performance neutral.
 
-| ID | Criterion | Method | Severity if Failing |
-|----|-----------|--------|-------------------|
-| V2-1 | NFR-005: All timeout/retry paths terminate, no deadlocks | Stress test + path analysis | CRITICAL |
-| V2-2 | SC-011: Timeout/retry determinism verified | Stress test | CRITICAL |
-| V2-3 | Lease heartbeat renewal functional | Integration test | CRITICAL |
-| V2-4 | Missing heartbeat → `audit_*_failed(timeout)` | Integration test | CRITICAL |
-| V2-5 | Shadow mode collects metrics without blocking | E2E test | CRITICAL |
-| V2-6 | Blocker 6 (`reimbursement_rate`) resolved | Code review | MAJOR |
-| V2-7 | `SprintGatePolicy` wired at correct integration point | Integration test | MAJOR |
-| V2-8 | `OutputMonitor` handles heartbeat events | Integration test | MAJOR |
-| V2-9 | `TrailingGateRunner` evaluates at MILESTONE and RELEASE scope | Integration test | MAJOR |
-| V2-10 | KPI instrumentation (M1, M7, M9) emitting data | Instrumentation test | MAJOR |
-| V2-11 | Wall-clock ceiling enforced | Timeout test | MAJOR |
-| V2-12 | `audit_gate_required` derivation correct in tasklist output | Integration test | MAJOR |
-| V2-13 | Gate state persists across `_save_state()` round-trip | Persistence test | MAJOR |
+### VM-4 — Agent Extensions
+- [ ] SV-03: All extensions additive — diff shows no removals
+- [ ] Scanner classifies wiring-indicator files as `REVIEW:wiring`
+- [ ] Analyzer produces 9-field profiles with Wiring path (chain or "MISSING")
+- [ ] Validator flags DELETE on files with live wiring paths as critical fail
+- [ ] Comparator includes cross-file wiring consistency check
+- [ ] Consolidator includes Wiring Health section
+- [ ] No regression in existing audit output quality (compare against baseline)
+- **Gate**: All 5 agents extended. Regression test against prior outputs passes.
 
-### V3 — Enforcement Validated
+### VM-5 — ToolOrchestrator Plugin (conditional)
+- [ ] UT-24: `FileAnalysis.references` populated for import-bearing files
+- [ ] UT-25: Dual evidence rule functional
+- [ ] Plugin integrates without modifying `ToolOrchestrator` contract
+- **Gate**: Plugin works or is deferred per NFR-012 cut criteria.
 
-| ID | Criterion | Method | Severity if Failing |
-|----|-----------|--------|-------------------|
-| V3-1 | SC-014: Milestone gate blocks phase completion on failure | E2E test | CRITICAL |
-| V3-2 | SC-014: Release gate blocks sprint release on failure | E2E test | CRITICAL |
-| V3-3 | SC-008: `SilentSuccessResult` in audit trail with correct `failure_class` | Audit trail inspection | CRITICAL |
-| V3-4 | SC-008: Release-scope override blocked for hard-fail | Override attempt test | CRITICAL |
-| V3-5 | SC-008: Task/milestone override requires valid `OverrideRecord` | Override flow test | MAJOR |
-| V3-6 | SC-006: G-012 passes against smoke fixture post-P0-A | E2E test | MAJOR |
-| V3-7 | SC-016: All 9 blockers closed with owner/deadline | Registry audit | MAJOR |
-| V3-8 | Stale gate result triggers re-evaluation | Staleness test | MAJOR |
-| V3-9 | TUI displays `AuditWorkflowState` correctly | TUI rendering test | MINOR |
-| V3-10 | TUI blocks "Sprint Complete" unless `audit_release_passed` | TUI interaction test | MAJOR |
-| V3-11 | Operator guidance panel renders for `audit_*_failed` | TUI rendering test | MINOR |
-| V3-12 | Audit block written even when `suspicion_score = 0.0` | Unit test | MAJOR |
+### VM-6a — Shadow Calibration
+- [ ] AT-01: Retrospective detects known `step_runner` defect
+- [ ] AT-02: FPR < 15%, TPR > 50%, p95 < 5s
+- [ ] AT-03: Alias noise floor characterized and separable from signal
+- [ ] Shadow data from ≥ 2 release cycles
+- [ ] `measured_FPR + 2σ < 15%` (NFR-014)
+- [ ] Readiness report produced with explicit go/no-go recommendation
+- **Gate**: Statistical thresholds met OR shadow period extended. No activation on marginal data.
 
-### V4 — Promotion Validated
-
-| ID | Criterion | Method | Severity if Failing |
-|----|-----------|--------|-------------------|
-| V4-1 | SC-007: S2 calibration documented and approved | Document review + sign-off | CRITICAL |
-| V4-2 | SC-015: Shadow → Soft promotion criteria (M1, M4, M5, M7, M9) met | KPI review | CRITICAL |
-| V4-3 | SC-015: Soft → Full criteria (M1–M12, two consecutive windows) met | KPI review | CRITICAL |
-| V4-4 | SC-015: Rollback drill (M10) completed successfully | Operational test | CRITICAL |
-| V4-5 | NFR-010: Full promotion sequence Shadow → Soft → Full completed | Process review | CRITICAL |
-| V4-6 | NFR-011: All promotion gate criteria met at each transition | Gate evidence | CRITICAL |
-| V4-7 | Suspicion rate within thresholds (NFR-009) | Metric analysis | MAJOR |
-| V4-8 | M1 recalibrated for phase-scope (NFR-012) | Calibration review | MAJOR |
-| V4-9 | Provisional KPI defaults → normative (NFR-018) | Reliability Owner sign-off | MAJOR |
-| V4-10 | False-positive/false-negative rates acceptable | Production data review | MAJOR |
-| V4-11 | v1.3 handoff document with task-scope inventory | Document review | MINOR |
+### VM-6b — Activation & Hardening
+- [ ] FPR < 5%, TPR > 80%
+- [ ] Whitelist stable for 5+ sprints
+- [ ] No material audit regressions during soft-mode period
+- [ ] AT-04: Operational stability confirmed
+- **Gate**: Full enforcement activated only on measured evidence. Regression = rollback to soft.
 
 ---
 
 ## 6. Quality Gates Between Phases
 
-### Gate G0: P0 → P1
+### Gate Structure
 
-| Gate Criterion | Evidence Required | Blocking? |
-|---------------|-------------------|-----------|
-| SC-003 passing | Test report showing artifact production | Yes |
-| SC-004 passing | Test report showing non-zero exit on validation error | Yes |
-| Dead code retired (FR-046) | `find_referencing_symbols` output showing zero references | Yes |
-| Canonical terms documented (FR-008) | Updated spec glossary | Yes |
-| Phase 1 owners and deadlines assigned | Blocker registry | Yes |
-| Scope boundaries documented | Updated spec with `[v1.3 -- deferred]` markers | Yes |
+Each gate follows the same protocol:
 
-### Gate G1: P1 → P2
+```
+1. Run all tests for the completed phase
+2. Run static verification (SV-01, SV-02) — always
+3. Run coverage check — Phases 1+ require ≥ 90% on touched files
+4. Classify any failures by severity
+5. Apply issue policy:
+   - CRITICAL → stop-and-fix immediately, re-run gate
+   - MAJOR → stop-and-fix before next phase begins
+   - MINOR → log in backlog, proceed
+   - COSMETIC → log in backlog, proceed
+6. Document gate result in phase completion record
+```
 
-| Gate Criterion | Evidence Required | Blocking? |
-|---------------|-------------------|-----------|
-| SC-001 passing (no-op detection) | Test report | Yes |
-| SC-002 passing (v2.25 regression) | Test report with v2.25 fixtures | Yes |
-| SC-005 passing (G-012 known-bad) | Test report | Yes |
-| SC-009 passing (all-EXEMPT = fail) | Test report | Yes |
-| SC-010 passing (deterministic replay) | Two identical runs compared | Yes |
-| SC-012 passing (deviation-analysis.md) | Artifact produced and validated | Yes |
-| SC-013 resolved (C3 per-task artifacts) | Validation report or escalation decision | Yes |
-| NFR-006 verified | Replay test evidence | Yes |
-| `AuditGateResult` coexists with `GateResult` | Import test passing | Yes |
-| Fixture stability test passing | `test_fixture_content_matches_gate_patterns` | Yes |
+### Gate Definitions
 
-### Gate G2: P2 → P3
+| Gate | Between | Must Pass | Blocks On |
+|------|---------|-----------|-----------|
+| **G0→1** | Decision → Core Engine | VM-0 all criteria | Any unanswered question |
+| **G1→2** | Core Engine → Report | VM-1 all criteria | Any P0 unit test failure; performance budget exceeded |
+| **G2→3a** | Report → Roadmap Integration | VM-2 all criteria | Coverage < 90%; mode semantics incorrect |
+| **G3a→3b** | Roadmap → Sprint Integration | VM-3a all criteria | Layering violation; pipeline regression |
+| **G3b→6a** | Sprint → Shadow Calibration | VM-3b all criteria | Any mode behavior incorrect; performance regression |
+| **G4→merge** | Agent Extensions → Merge | VM-4 all criteria | Any agent regression; non-additive change |
+| **G5→merge** | Plugin → Merge | VM-5 all criteria OR cut decision | Plugin breaks contract (CRITICAL) |
+| **G6a→6b** | Shadow → Activation | VM-6a all criteria | FPR/TPR thresholds not met; insufficient data |
+| **G6b→done** | Activation → Complete | VM-6b all criteria | Regression during soft-mode operation |
 
-| Gate Criterion | Evidence Required | Blocking? |
-|---------------|-------------------|-----------|
-| NFR-005 verified (no deadlocks) | Stress test report + path analysis | Yes |
-| SC-011 passing (timeout determinism) | Test report | Yes |
-| Lease model functional | Heartbeat + timeout test reports | Yes |
-| Shadow mode collecting without blocking | E2E test report | Yes |
-| Blocker 6 resolved | Code change or removal commit | Yes |
-| Reliability Owner approves timeout values | Written approval | Yes |
-| KPI instrumentation emitting | Metric sample data | Yes |
+### Parallel Gate Considerations
 
-### Gate G3: P3 → P4
+Phases 3a, 3b, and 4 have parallel execution windows:
 
-| Gate Criterion | Evidence Required | Blocking? |
-|---------------|-------------------|-----------|
-| SC-006 passing (G-012 post-fix) | Test report | Yes |
-| SC-008 passing (audit trail + overrides) | Audit trail sample + override test report | Yes |
-| SC-014 passing (transition enforcement) | Integration test report | Yes |
-| SC-016 verified (all blockers closed) | Blocker registry — all rows have owner + deadline + status=closed | Yes |
-| TUI renders audit states | TUI test evidence (screenshot or test report) | Yes |
-| Release guard blocks without `audit_release_passed` | TUI interaction test | Yes |
+- **Phase 4** may begin after Phase 1 completes (needs analyzer context)
+- **Phase 4** gate (VM-4) is independent of VM-3a/VM-3b
+- **Phase 3b** must wait for VM-3a to pass
+- All three must pass their respective gates before shadow calibration begins
 
-### Gate G4: P4 → Release
+```
+G1→2 ──→ G2→3a ──→ G3a→3b ──→ G3b→6a ──→ G6a→6b
+              │                      ↑
+              └──→ G4→merge ─────────┘ (must merge before 6a)
+```
 
-| Gate Criterion | Evidence Required | Blocking? |
-|---------------|-------------------|-----------|
-| SC-007 (S2 calibration approved) | Signed document from Reliability Owner | Yes |
-| Shadow → Soft criteria met (M1, M4, M5, M7, M9) | KPI dashboard or report | Yes |
-| Soft → Full criteria met (M1–M12, two consecutive windows) | KPI evidence for both windows | Yes |
-| Rollback drill successful (M10) | Drill report with rollback + recovery evidence | Yes |
-| Suspicion rate within NFR-009 thresholds | Metric analysis report | Yes |
-| Provisional → normative KPI approval (NFR-018) | Reliability Owner sign-off | Yes |
-| v1.3 handoff document complete | Document review | No (MINOR) |
+### Regression Policy
 
----
+After any gate passes, subsequent phases must not break prior gate criteria. If a later phase introduces a regression detected by a prior phase's tests:
 
-## 7. Sequencing Guardrails for Test Strategy
+1. Classify the regression (CRITICAL/MAJOR/MINOR)
+2. CRITICAL/MAJOR: Stop current phase, fix regression, re-run both gates
+3. MINOR: Fix in current phase, re-run prior gate before proceeding
 
-These override schedule pressure and are non-negotiable:
+### Test Fixture Requirements
 
-1. **No Phase 1 tests assume P0-A defects are fixed** — V0 must pass G0 before any P1 test execution begins.
-2. **No integration testing without deterministic replay proof** — SC-010 must pass in V1 before V2 integration tests rely on gate output stability.
-3. **No shadow mode activation without KPI instrumentation verified** — V2-10 must pass before P4 begins.
-4. **No promotion gate testing without two full consecutive KPI windows** — cannot be accelerated by combining partial windows.
-5. **Deadlock freedom (NFR-005) is a hard prerequisite for enforcement testing** — V2-1 must pass before any V3 transition-blocking tests execute.
-
----
-
-## 8. Test Infrastructure Requirements
-
-| Requirement | Purpose | Phase Needed |
-|-------------|---------|--------------|
-| v2.25 spec/roadmap fixture archive | D-03/D-04 regression tests | V1 |
-| `sc-smoke-skill/SKILL.md` stability contract | Content anchor verification | V1 |
-| Mock LLM harness | G-012 CI integration without API | V1 (basic), V2 (full matrix) |
-| Lease timeout simulator | Heartbeat loss and recovery testing | V2 |
-| KPI metric sink (test double) | Shadow mode instrumentation verification | V2 |
-| TUI test harness | State rendering and interaction testing | V3 |
-| Multi-window KPI data generator | Promotion gate validation | V4 |
+| Fixture | Purpose | Phase |
+|---------|---------|-------|
+| `fixtures/unwired_callable.py` | Class with `Optional[Callable]=None` never provided | 1 |
+| `fixtures/wired_callable.py` | Class with callable properly provided (negative case) | 1 |
+| `fixtures/orphan_module.py` | Module in provider dir with zero importers | 1 |
+| `fixtures/valid_module.py` | Module with active import chain (negative case) | 1 |
+| `fixtures/broken_registry.py` | Registry dict with unresolvable function ref | 1 |
+| `fixtures/valid_registry.py` | Registry with all entries resolvable (negative case) | 1 |
+| `fixtures/syntax_error.py` | Intentionally malformed Python file | 1 |
+| `fixtures/whitelist.yaml` | Suppression config with valid + malformed entries | 1 |
+| `fixtures/50_file_benchmark/` | 50 Python files for performance testing | 1 |
+| `fixtures/golden_report.yaml` | Known-good report for regression comparison | 2 |
+| `fixtures/audit_baseline/` | Prior audit outputs for agent regression testing | 4 |

@@ -109,6 +109,23 @@ def _gate_passing_content(step: Step) -> str:
         "validation_complete": "true",
         "tasklist_ready": "true",
         "fidelity_check_attempted": "true",
+        # Wiring verification (all counts consistent with total_findings=0)
+        "gate": "wiring-verification",
+        "target_dir": ".",
+        "files_analyzed": "10",
+        "files_skipped": "2",
+        "rollout_mode": "shadow",
+        "analysis_complete": "true",
+        "audit_artifacts_used": "0",
+        "unwired_callable_count": "0",
+        "orphan_module_count": "0",
+        "unwired_registry_count": "0",
+        "critical_count": "0",
+        "major_count": "0",
+        "info_count": "0",
+        "total_findings": "0",
+        "blocking_findings": "0",
+        "whitelist_entries_applied": "0",
     }
 
     fm_fields = {}
@@ -160,8 +177,8 @@ class TestE2EFullPipeline:
             run_step=_mock_runner,
         )
 
-        # 9 individual steps (2 parallel generate + 7 sequential)
-        assert len(results) == 9
+        # 10 individual steps (2 parallel generate + 8 sequential)
+        assert len(results) == 10
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_e2e_state_saved_after_steps_1_9(self, tmp_path):
@@ -393,8 +410,8 @@ class TestE2EFullPipeline:
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
 
-        # Verify all 9 step results + remediate + certify metadata
-        assert len(state["steps"]) == 9
+        # Verify all 10 step results + remediate + certify metadata
+        assert len(state["steps"]) == 10
         assert all(state["steps"][sid]["status"] == "PASS" for sid in state["steps"])
         assert state["remediate"]["status"] == "PASS"
         assert state["certify"]["certified"] is True

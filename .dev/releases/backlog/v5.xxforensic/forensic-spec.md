@@ -61,6 +61,9 @@
 - Delegated validation (lint, test, self-review)
 - Checkpoint/resume for long-running sessions
 - Final report synthesis
+- **Quick/triage mode** for fast failure analysis invoked by `sc:task-unified` (TFEP integration)
+- **Caller-provided context** interface for bypassing Phase 0 reconnaissance
+- **Tiered operating modes** (light/standard/deep) controlling pipeline scope independently of adversarial debate depth
 
 **Out of scope:**
 - Production deployment of fixes
@@ -101,6 +104,10 @@ This command addresses 10 weaknesses identified in the original hardcoded forens
 | **Specialist Agent** | A domain-specific implementation agent (e.g., `python-expert`, `backend-architect`) delegated to in Phase 4. |
 | **Confidence Threshold** | The minimum hypothesis confidence score (default 0.7) required for a hypothesis to proceed to fix proposal generation. |
 | **Convergence** | The adversarial debate alignment threshold (default 0.80) at which debate rounds conclude. |
+| **TFEP** | Test Failure Escalation Protocol. The structured escalation mechanism in `sc:task-unified` that triggers forensic analysis when tests fail above severity thresholds. |
+| **Triage** | An investigation intent (`--intent triage`) optimized for "tests just failed, tell me why and how to fix it." Implies caller-provided context and scoped, fast analysis. |
+| **Operating Tier** | One of three pipeline scope levels (`--tier light\|standard\|deep`) controlling which phases execute and how many agents are spawned. Independent of adversarial debate depth. |
+| **Caller Context** | A structured YAML package provided via `--context <file>` that replaces Phase 0 reconnaissance with pre-collected failure information from the invoking command. |
 
 ---
 
@@ -188,8 +195,11 @@ This command addresses 10 weaknesses identified in the original hardcoded forens
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR-036 | The command SHALL accept one or more target paths as positional arguments. If no paths are provided, the current directory (`.`) SHALL be used. | MUST |
-| FR-037 | The command SHALL support `--mode debug\|qa\|regression` to specify investigation intent. Default: auto-detect from target structure. | MUST |
-| FR-038 | The command SHALL support `--depth quick\|standard\|deep` mapping directly to adversarial debate depth. Default: `standard`. | MUST |
+| FR-037 | The command SHALL support `--intent debug\|qa\|regression\|auto\|triage` to specify investigation intent. Default: `auto`. When `--intent triage`, caller-provided context is expected and Phase 0 is skipped. | MUST |
+| FR-038 | The command SHALL support `--depth quick\|standard\|deep` controlling adversarial debate depth ONLY (not pipeline scope). Default: `standard`. This flag is orthogonal to `--tier`. | MUST |
+| FR-056 | The command SHALL support `--tier light\|standard\|deep` controlling the overall pipeline operating tier (which phases execute, agent count, and scope). Default: `standard`. This flag is orthogonal to `--depth`. | MUST |
+| FR-057 | The command SHALL support `--context <file>` to provide caller-supplied failure context as a YAML file. When provided, Phase 0 reconnaissance is skipped. Required when `--tier light`. | MUST |
+| FR-058 | The command SHALL support `--caller <command>` to identify the invoking command. When set, forensic auto-selects appropriate defaults for that caller (e.g., `--caller task-unified` implies `--tier light --intent triage`). | SHOULD |
 | FR-039 | The command SHALL support `--concurrency N` to set maximum parallel agents. Default: 10. Range: 1-15. | MUST |
 | FR-040 | The command SHALL support `--focus "domain1,domain2"` as optional domain hints that supplement (not replace) auto-discovery. | MUST |
 | FR-041 | The command SHALL support `--confidence-threshold` (0.0-1.0) for hypothesis filtering. Default: 0.7. | MUST |
@@ -263,7 +273,40 @@ Phase 5 (Haiku + Sonnet)  <---+
 Phase 6 (Opus)             <--+  --> final-report.md
 ```
 
-### 4.3 Orchestrator Constraints
+### 4.3 Operating Tier Phase Behavior Matrix
+
+The `--tier` flag controls which phases execute and with what scope. This is independent of `--depth` (adversarial debate depth).
+
+| Forensic Phase | Light Tier | Standard Tier | Deep Tier |
+|----------------|-----------|---------------|-----------|
+| Phase 0 (Recon) | **SKIP** — caller provides context via `--context` | 3 Haiku agents (full reconnaissance) | 3 Haiku agents (full reconnaissance) |
+| Phase 1 (RCA) | **2 agents** (fixed), Sonnet, `/sc:troubleshoot` prompts | N agents (3-10), model-tiered by risk score | N agents (3-10), model-tiered by risk score |
+| Phase 2 (Debate-H) | `/sc:adversarial --depth quick` | `/sc:adversarial --depth {depth}` | `/sc:adversarial --depth deep` |
+| Phase 3 (Fix) | **2 agents** (fixed), Sonnet, `/sc:brainstorm` prompts | M agents (per cluster), Sonnet | M agents (per cluster), Sonnet |
+| Phase 3b (Debate-F) | `/sc:adversarial --depth quick` | `/sc:adversarial --depth {depth}` | `/sc:adversarial --depth deep` |
+| Phase 4 (Implement) | **SKIP** — returns fix plan to caller | Specialist agents | Specialist agents |
+| Phase 5 (Validate) | **SKIP** — caller handles retesting | 3 validation agents | 3 validation agents |
+| Phase 6 (Report) | **Abbreviated** `tfep-report.md` | Full `final-report.md` | Full `final-report.md` |
+
+**Token budgets by tier:**
+- Light: ~5-8K total (4 agents + 2 adversarial rounds = 6 invocations)
+- Standard: ~50-60K total (N+M+3 agents + 2 full adversarial rounds + implementation + validation)
+- Deep: ~70-80K total (same as standard with deeper adversarial debates and more thorough analysis)
+
+**Light tier constraints:**
+- Phase 1 agents MUST use `/sc:troubleshoot` prompt prefix (diagnosis-only, no code changes)
+- Phase 3 agents MUST use `/sc:brainstorm` prompt prefix (proposal-only, no implementation)
+- Light mode is diagnosis/planning ONLY — no code implementation
+- Output is a fix plan returned to the caller, not applied fixes
+
+**Caller-aware defaults (when `--caller` is specified):**
+
+| Caller | Default Tier | Default Intent | Default Depth |
+|--------|-------------|---------------|---------------|
+| `task-unified` | `light` | `triage` | `quick` |
+| (none) | `standard` | `auto` | `standard` |
+
+### 4.4 Orchestrator Constraints
 
 The orchestrator is the top-level coordinating agent. Its behavior is strictly bounded:
 
@@ -306,8 +349,11 @@ personas: [analyzer, architect, qa, security, performance]
 | Flag | Short | Required | Default | Type | Constraints | Description |
 |------|-------|----------|---------|------|-------------|-------------|
 | `[target-paths]` | -- | No | `.` | string[] | Valid directory or file paths | One or more paths to investigate |
-| `--mode` | `-m` | No | `auto` | enum | `debug\|qa\|regression\|auto` | Investigation intent. `auto` infers from target structure. |
-| `--depth` | `-d` | No | `standard` | enum | `quick\|standard\|deep` | Maps to adversarial debate depth parameter |
+| `--intent` | `-m` | No | `auto` | enum | `debug\|qa\|regression\|auto\|triage` | Investigation intent. `auto` infers from target structure. `triage` expects caller-provided context. |
+| `--tier` | `-T` | No | `standard` | enum | `light\|standard\|deep` | Pipeline operating tier (controls phase execution, agent count, scope). Orthogonal to `--depth`. |
+| `--depth` | `-d` | No | `standard` | enum | `quick\|standard\|deep` | Adversarial debate depth ONLY. Does not control pipeline scope. |
+| `--context` | `-C` | No | (none) | path | Valid YAML file | Caller-provided failure context. Required when `--tier light`. Skips Phase 0. |
+| `--caller` | | No | (none) | string | Command name | Identifies invoking command for caller-aware defaults (e.g., `task-unified`). |
 | `--concurrency` | `-n` | No | `10` | integer | 1-15 | Maximum parallel agents across all phases |
 | `--focus` | `-f` | No | (none) | string | Comma-separated domain hints | Supplemental domain hints added to auto-discovery results |
 | `--confidence-threshold` | `-t` | No | `0.7` | float | 0.0-1.0 | Minimum hypothesis confidence to proceed to fix proposals |
@@ -336,6 +382,15 @@ personas: [analyzer, architect, qa, security, performance]
 
 # Minimal fixes with reduced concurrency
 /sc:forensic src/ --fix-tier minimal --concurrency 5
+
+# Quick triage mode (called by task-unified on test failure)
+/sc:forensic --tier light --intent triage --context .forensic-qa/context.yaml --caller task-unified
+
+# Standard investigation with quick adversarial debates
+/sc:forensic src/ --tier standard --depth quick
+
+# Deep pipeline with deep adversarial debates
+/sc:forensic src/ --tier deep --depth deep --confidence-threshold 0.8
 ```
 
 ### 5.5 Activation
@@ -358,6 +413,9 @@ The full behavioral specification is in the protocol skill.
 - Produce a comprehensive evidence-backed forensic report
 - Support checkpoint/resume for long-running sessions
 - Operate as a generic tool applicable to any language, framework, or codebase
+- Support light/standard/deep operating tiers with caller-provided context
+- Accept structured failure context from invoking commands (TFEP integration)
+- Return structured contracts for programmatic consumption by callers
 
 **Will Not:**
 - Read source code at the orchestrator level (delegates all code reading to sub-agents)
@@ -365,6 +423,7 @@ The full behavioral specification is in the protocol skill.
 - Validate domain-specific correctness beyond lint and test execution
 - Operate without the `sc:forensic-protocol` skill loaded
 - Hardcode investigation domains -- always discovers dynamically
+- Implement code fixes in light tier (returns fix plan to caller instead)
 
 ### 5.7 Related Commands
 
@@ -1167,6 +1226,74 @@ properties:
         type: integer
 ```
 
+### 9.4b Failure Context Schema (Caller-Provided)
+
+```yaml
+# failure-context.yaml (provided via --context flag)
+type: object
+required: [test_names, test_files, error_output, expected_behavior, actual_behavior, changes_made, task_description]
+properties:
+  test_names:
+    type: array
+    items:
+      type: string
+    minItems: 1
+    description: "Names of failing test functions"
+    example: ["test_no_model_when_empty", "test_routing_with_agents"]
+  test_files:
+    type: array
+    items:
+      type: string
+    minItems: 1
+    description: "Paths to test files containing failures"
+    example: ["tests/roadmap/test_cli_contract.py"]
+  error_output:
+    type: string
+    description: "Full error output / traceback from test execution"
+    example: |
+      E   KeyError: None
+      tests/roadmap/test_cli_contract.py:85: in test_no_model_when_empty
+  expected_behavior:
+    type: string
+    description: "What was expected to happen"
+    example: "Tests should pass -- they were passing before this task"
+  actual_behavior:
+    type: string
+    description: "What actually happened"
+    example: "10 tests fail with KeyError: None"
+  changes_made:
+    type: array
+    items:
+      type: object
+      required: [file, description]
+      properties:
+        file:
+          type: string
+        description:
+          type: string
+    description: "Files changed as part of the current task"
+  task_description:
+    type: string
+    description: "Description of the task being executed when failure occurred"
+  test_baseline:
+    type: array
+    items:
+      type: string
+    description: "List of pre-existing test names from baseline snapshot (optional, used for pre-existing vs new classification)"
+  escalation_count:
+    type: integer
+    minimum: 1
+    maximum: 3
+    default: 1
+    description: "Which TFEP escalation iteration this is (1st, 2nd, or 3rd trigger)"
+```
+
+**Validation rules:**
+- `--context` file MUST exist and parse as valid YAML.
+- All required fields must be present.
+- `test_names` must have at least 1 entry.
+- When `--tier light` is specified without `--context`, the command SHALL abort with error: "Light tier requires --context <file> with caller-provided failure context."
+
 ### 9.5 Hypothesis Finding Schema
 
 ```yaml
@@ -1399,6 +1526,19 @@ properties:
 | 5 | Self-review (5c) | Sonnet | Must reason about change completeness and regressions |
 | 6 | Final report synthesis | Opus | Highest-value synthesis step requiring comprehensive judgment |
 
+#### Light Tier Model Assignments
+
+In light tier (`--tier light`), model tiering is simplified — Sonnet is used for all 4 agents:
+
+| Phase | Agent Role | Light Tier Model | Rationale |
+|-------|-----------|-----------------|-----------|
+| 1 | RCA agent alpha | Sonnet | Deep analysis needed even in quick mode |
+| 1 | RCA agent bravo | Sonnet | Deep analysis needed even in quick mode |
+| 3 | Solution agent alpha | Sonnet | Solution design requires code understanding |
+| 3 | Solution agent bravo | Sonnet | Solution design requires code understanding |
+
+No Haiku or Opus agents are used in light tier. Adversarial debates (Phases 2, 3b) use the standard adversarial protocol's own model assignments.
+
 **Cost efficiency summary:**
 
 | Tier | Phases | Use Case | Token Cost Profile |
@@ -1472,6 +1612,41 @@ properties:
   progress.json                        # Resume checkpoint
   final-report.md                      # Phase 6 output
 ```
+
+### 12.1b Artifact Directory Structure (Light Tier / Quick Mode)
+
+When `--tier light` is used (e.g., TFEP invocations from `task-unified`), the artifact directory is simplified:
+
+```
+{output_dir}/                          # Specified by caller or default .forensic-qa/
+  context.md                           # Caller-provided failure context (from --context)
+  phase-1/
+    rca-alpha.md                       # Troubleshoot agent A findings
+    rca-bravo.md                       # Troubleshoot agent B findings
+  phase-2/
+    adversarial/                       # Standard adversarial output
+      debate-transcript.md
+      base-selection.md
+  rca-verdict.md                       # Synthesized root cause verdict
+  phase-3/
+    solution-alpha.md                  # Brainstorm agent A proposal
+    solution-bravo.md                  # Brainstorm agent B proposal
+  phase-3b/
+    adversarial/                       # Standard adversarial output
+      debate-transcript.md
+      base-selection.md
+  solution-verdict.md                  # Synthesized solution verdict
+  tasklist-insertion.md                # Insertion-ready remediation block for task-unified
+  tfep-report.md                       # Abbreviated final report
+  progress.json                        # Checkpoint (reuses existing schema)
+```
+
+**Key differences from standard/deep tier:**
+- No `phase-0/` directory (Phase 0 is skipped; context provided by caller)
+- No `phase-4/` or `phase-5/` directories (implementation and validation are skipped)
+- `tfep-report.md` replaces `final-report.md` (abbreviated format)
+- `tasklist-insertion.md` is a new artifact: insertion-ready markdown formatted as tasklist entries compatible with `sc:task-unified`
+- All artifacts MUST be committed to git (user requirement)
 
 ### 12.2 Checkpoint Update Protocol
 
@@ -1671,11 +1846,13 @@ The forensic pipeline borrows two patterns from the cleanup-audit protocol:
 
 ### 15.4 sc:task-unified-protocol
 
-**Integration point**: Fix risk classification.
+**Integration points**: Fix risk classification + TFEP escalation target.
 
-The compliance tiering concept from `sc:task-unified-protocol` (STRICT/STANDARD/LIGHT/EXEMPT) informs the fix risk classification in Phase 3b. Fixes touching security paths, multi-file changes, or database operations are classified at higher risk tiers, influencing the orchestrator's greenlight decision.
+1. **Fix risk classification**: The compliance tiering concept from `sc:task-unified-protocol` (STRICT/STANDARD/LIGHT/EXEMPT) informs the fix risk classification in Phase 3b. Fixes touching security paths, multi-file changes, or database operations are classified at higher risk tiers, influencing the orchestrator's greenlight decision.
 
-**Reference**: `/config/workspace/SuperClaude_Framework/src/superclaude/skills/sc-task-unified-protocol/SKILL.md`
+2. **TFEP integration**: `task-unified` invokes `/sc:forensic --tier light --intent triage --caller task-unified --context <file>` when test failures meet escalation thresholds. The forensic pipeline returns a structured return contract (Section 17.2) that task-unified consumes to insert remediation tasks and resume with `--compliance strict`. See Section 17 for full integration specification.
+
+**Reference**: `src/superclaude/skills/sc-task-unified-protocol/SKILL.md`
 
 ### 15.5 Agent Definitions
 
@@ -1709,6 +1886,22 @@ All agents referenced in this specification are existing SuperClaude agent defin
 | Phase 4 (Implement) | ~8K (orchestrator) | ~6K (specialist agents) | ~25% |
 | Phase 5 (Validate) | ~3K | ~4K (3x agents) | -33% (more thorough) |
 
+### 16.1b Token Budget Summary (Light Tier)
+
+| Component | Light Tier | Comparison to Standard |
+|-----------|-----------|----------------------|
+| Phase 0 (Recon) | 0 tokens (SKIP) | vs ~3K (3x Haiku) |
+| Phase 1 (RCA) | ~2-3K (2x Sonnet) | vs ~20-30K (Nx agents) |
+| Phase 2 (Debate-H) | ~1-2K (quick adversarial) | vs ~8K (deep adversarial) |
+| Phase 3 (Fix proposals) | ~2-3K (2x Sonnet) | vs ~10K (Mx agents) |
+| Phase 3b (Debate-F) | ~1K (quick adversarial) | vs ~5K (standard adversarial) |
+| Phase 4 (Implement) | 0 tokens (SKIP) | vs ~6K (specialist agents) |
+| Phase 5 (Validate) | 0 tokens (SKIP) | vs ~4K (3x agents) |
+| Phase 6 (Report) | ~0.5K (abbreviated) | vs ~2K (full report) |
+| **Total** | **~5-8K** | **vs ~50-60K** |
+
+**Agent invocations (light tier):** 4 agents + 2 adversarial rounds = 6 invocations.
+
 ### 16.2 Quality Metrics
 
 | Metric | Target | Measurement |
@@ -1723,7 +1916,133 @@ All agents referenced in this specification are existing SuperClaude agent defin
 
 ---
 
-## 17. Expert Panel Review
+## 17. Task-Unified Integration (TFEP)
+
+### 17.1 Tasklist Insertion Format
+
+When operating in light tier, the forensic pipeline produces a `tasklist-insertion.md` artifact containing remediation entries formatted for `sc:task-unified` consumption. The format is:
+
+```markdown
+## Failure Remediation Plan (Adjudicated)
+
+<!-- Generated by /sc:forensic --tier light --intent triage -->
+<!-- Root cause: {rca-verdict summary} -->
+<!-- Solution: {solution-verdict summary} -->
+
+### Remediation Task 1: {descriptive title}
+
+**File(s)**: `{file_path_1}`, `{file_path_2}`
+**Change**: {description of what to change and why}
+**Expected outcome**: {what should be true after this change}
+**Test criteria**: {how to verify this fix works}
+
+- [ ] {specific implementation step 1}
+- [ ] {specific implementation step 2}
+- [ ] {specific implementation step 3}
+
+### Remediation Task N: ...
+(repeat for each discrete change)
+```
+
+**Insertion rules:**
+- The remediation block is inserted BEFORE existing test/verification tasks in the current tasklist.
+- Each remediation task is a discrete, independently verifiable change.
+- The format is compatible with `sc:task-unified --compliance strict` execution.
+- The `<!-- Generated by -->` comment provides provenance tracing.
+
+### 17.2 Forensic Return Contract
+
+When invoked by another command (e.g., `task-unified`), `/sc:forensic` returns a structured contract:
+
+```yaml
+return_contract:
+  status: "success|partial|failed"
+  root_cause_path: "path/to/rca-verdict.md"
+  solution_plan_path: "path/to/solution-verdict.md"
+  tasklist_insertion_path: "path/to/tasklist-insertion.md"
+  recommended_resume_mode: "strict"
+  recommended_escalation: "none|standard|deep"
+  requires_user_review: false
+  test_is_wrong: false
+  artifacts_dir: "path/to/output_dir/"
+```
+
+**Field definitions:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | enum | `success` (RCA + solution found), `partial` (RCA found but no confident solution), `failed` (unable to determine root cause) |
+| `root_cause_path` | string | Path to the adjudicated root cause verdict |
+| `solution_plan_path` | string\|null | Path to the adjudicated solution verdict; null if status=failed |
+| `tasklist_insertion_path` | string\|null | Path to insertion-ready remediation block; null if status=failed |
+| `recommended_resume_mode` | string | Always `strict` for TFEP invocations |
+| `recommended_escalation` | enum | `none` (fix should work), `standard` (increase scope on next attempt), `deep` (full investigation needed) |
+| `requires_user_review` | boolean | True when adversarial debate was inconclusive or confidence is low |
+| `test_is_wrong` | boolean | True when adversarial debate concluded that test expectations are outdated, not that the code is wrong. When true, the caller MUST present to user for review rather than auto-fixing. |
+| `artifacts_dir` | string | Path to the output directory containing all forensic artifacts |
+
+**Write-on-failure**: If the pipeline aborts at any stage, the return contract MUST still be written with `status: "failed"` and all unreached fields set to `null`.
+
+### 17.3 Escalation Gradient
+
+When invoked by `task-unified` via TFEP, the escalation gradient is:
+
+```
+1st TFEP trigger  → /sc:forensic --tier light --intent triage    (~5-8K tokens)
+2nd TFEP trigger  → /sc:forensic --tier standard                 (~15-20K tokens)
+3rd TFEP trigger  → FULL STOP. Report to user. Do not attempt further.
+```
+
+**Same failure vs new failure:**
+- "Same failure" = the same test function(s) that triggered the previous TFEP still fail after the remediation was applied.
+- "New failure" = different test function(s) fail. This resets the escalation counter to 1 (treated as a fresh TFEP trigger).
+- The `escalation_count` field in the failure context schema tracks the current iteration.
+
+### 17.4 TFEP Agent Prompting Requirements
+
+**Phase 1 (RCA) — Light Tier:**
+
+Each of the 2 agents' prompts MUST begin with `/sc:troubleshoot` and include:
+- Full failure context (test names, errors, expected vs actual behavior)
+- What code was changed as part of the task
+- What tests were passing before
+- Instruction: "Propose a root cause. Save to `{output_path}`."
+
+These 2 agents run in **parallel**.
+
+**Phase 2 (RCA Debate) — Light Tier:**
+
+Invoke: `/sc:adversarial --compare rca-alpha.md,rca-bravo.md --depth quick`
+
+The adversarial process debates both root causes, selects the best one, and saves to `rca-verdict.md`.
+
+**Phase 3 (Solution) — Light Tier:**
+
+Each of the 2 agents' prompts MUST begin with `/sc:brainstorm` and include:
+- Failure context
+- The RCA verdict
+- Instruction: "Propose a solution with implementation steps. Save to `{output_path}`."
+
+These 2 agents run in **parallel**.
+
+**Phase 3b (Solution Debate) — Light Tier:**
+
+Invoke: `/sc:adversarial --compare solution-alpha.md,solution-bravo.md --depth quick`
+
+The adversarial process debates both solutions, selects the best one, and saves to `solution-verdict.md`.
+
+**Phase 6 (Report) — Light Tier:**
+
+Produce an abbreviated `tfep-report.md` containing:
+- Root cause verdict summary
+- Solution verdict summary
+- Files that need to change
+- Implementation steps
+- Test criteria for verification
+
+---
+
+## 18. Expert Panel Review
 
 ### Panel Composition and Focus
 
@@ -1970,8 +2289,11 @@ properties:
 | Flag | Short | Default | Type | Description |
 |------|-------|---------|------|-------------|
 | `[target-paths]` | -- | `.` | string[] | Paths to investigate |
-| `--mode` | `-m` | `auto` | enum | `debug\|qa\|regression\|auto` |
-| `--depth` | `-d` | `standard` | enum | `quick\|standard\|deep` |
+| `--intent` | `-m` | `auto` | enum | `debug\|qa\|regression\|auto\|triage` |
+| `--tier` | `-T` | `standard` | enum | `light\|standard\|deep` (pipeline scope) |
+| `--depth` | `-d` | `standard` | enum | `quick\|standard\|deep` (adversarial debate depth only) |
+| `--context` | `-C` | (none) | path | Caller-provided failure context YAML. Required for `--tier light`. |
+| `--caller` | -- | (none) | string | Invoking command name for caller-aware defaults |
 | `--concurrency` | `-n` | `10` | integer (1-15) | Max parallel agents |
 | `--focus` | `-f` | (none) | string | Comma-separated domain hints |
 | `--confidence-threshold` | `-t` | `0.7` | float (0.0-1.0) | Minimum hypothesis confidence |

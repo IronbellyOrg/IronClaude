@@ -1,416 +1,250 @@
 ---
-spec_source: "spec-refactor-plan-merged.md"
-complexity_score: 0.92
+spec_source: merged-spec.md
+complexity_score: 0.78
 primary_persona: architect
 ---
 
-# Unified Audit-Gating Roadmap — v1.2.1
+# Unified Audit Gating — Wiring Verification Roadmap
 
-## Executive Summary
+## 1. Executive Summary
 
-This roadmap delivers a **multi-scope audit gate framework** (milestone + release) with three behavioral gate extensions: Silent Success Detection, Smoke Test Gate (G-012), and Spec Fidelity Deterministic Checks (D-03/D-04). The system integrates into the existing sprint executor and pipeline gate infrastructure, blocking completion/release transitions unless gates pass.
+This roadmap delivers a **static wiring verification gate** for the SuperClaude pipeline that detects three classes of integration defects — unwired injectable callables, orphan modules, and broken dispatch registries — using deterministic AST analysis. The system integrates into the roadmap pipeline as a post-merge step, extends the sprint executor with a mode-aware hook, and enriches the cleanup-audit agent suite with wiring-aware behavioral rules.
 
-**Scope**: 47 functional + 18 non-functional requirements across 6 domains (backend, security, CLI, testing, devops, observability). Task-scope gating is explicitly deferred to v1.3.
+**Key architectural constraint**: Zero modifications to the `pipeline/*` substrate. All new code consumes existing contracts (`GateCriteria`, `SemanticCheck`, `Step`, `GateMode`) without altering them.
 
-**Delivery strategy**: 4-phase rollout (Foundation → Integration → Enforcement → Promotion) with go/no-go gates at each transition. Estimated 25+ files changed across sprint executor, cli-portify, roadmap, audit, tasklist, and TUI subsystems.
+**Rollout strategy**: Three-phase shadow → soft → full enforcement with statistical FPR calibration gates between phases.
 
-**Key architectural decision**: All new gate logic builds on the existing `cli/pipeline/` gate substrate (`GateCriteria`, `TrailingGateRunner`, `GateScope`). The new `AuditGateResult` dataclass avoids namespace collision with the existing 2-field `GateResult` in `cli/audit/evidence_gate.py`.
-
----
-
-## Phase 0: Prerequisites & P0 Defect Fixes
-
-**Duration**: 3–5 days
-**Milestone**: P0 blockers resolved, canonical terms defined, dead code retired
-
-### 0.1 — P0-A Defect Fixes (Blockers 9)
-
-1. **Fix Defect 1** (FR-031): `run_portify()` in `cli/cli_portify/executor.py` must pass `step_runner` to `PortifyExecutor`; create `STEP_DISPATCH` mapping from step IDs to imported step functions
-2. **Fix Defect 2** (FR-032): `cli/cli_portify/commands.py` must call `validate_portify_config()` before `run_portify()`; exit non-zero on validation errors
-3. Verify SC-003 and SC-004 pass after fixes
-
-### 0.2 — Dead Code Retirement (FR-046)
-
-1. Retire `_apply_resume_after_spec_patch()` from roadmap executor
-2. Retire `_find_qualifying_deviation_files()` from roadmap executor
-3. Confirm no live references via `find_referencing_symbols`
-
-### 0.3 — Canonical Term Definition (FR-008)
-
-1. Define and document 6 terms in glossary: `AuditLease`, `audit_lease_timeout`, `max_turns`, `Critical Path Override`, `audit_gate_required`, `audit_attempts`
-2. Add `[v1.3 -- deferred]` markers to all task-scope transitions in SS4.1 (FR-009)
-
-### 0.4 — Locked Decision Registration (FR-006)
-
-1. Register locked decision #6 in SS2.1: v1.2.1 = phase-scope + sprint-scope only
-
-### Go/No-Go Criteria
-- [ ] SC-003: `run_portify()` produces intermediate artifacts
-- [ ] SC-004: `commands.py` exits non-zero on validation errors
-- [ ] Dead code retired with zero remaining references
-- [ ] All 6 canonical terms documented
+**Scope**: ~52 requirements, ~500 LOC production code, ~400 LOC test code, touching 3 subsystems (roadmap, sprint, audit) plus 5 agent specs.
 
 ---
 
-## Phase 1: Foundation — Data Models, Detectors & Gates
+## 2. Phased Implementation Plan
 
-**Duration**: 10–14 days
-**Milestone**: All three behavioral gate extensions pass unit tests; standalone emission works
+### Phase 1 — Core Analysis Engine (Sprint 1)
 
-### 1.1 — Core Data Models
+**Goal**: Standalone wiring analyzer producing structured findings, no pipeline integration yet.
 
-1. **`AuditGateResult` dataclass** (FR-022, FR-023):
-   - Disambiguated name to avoid collision with `cli/audit/evidence_gate.py::GateResult`
-   - Include `artifacts` block with SHA-256 version hashes for freshness validation
-   - Include `silent_success_audit` block (FR-018): `suspicion_score`, per-signal scores (S1-S3), `band`, `diagnostics`, `gate_decision`, `thresholds`
-   - Include `smoke_test_result` block (FR-019): `gate_id`, `fixture_path`, `elapsed_s`, `artifacts_found`, `checks_passed`, `checks_failed`, `failure_class`, `tmpdir_cleaned`
-   - Include `fidelity_deterministic` block (FR-020): dispatch tables/functions found/preserved booleans, checks run/excluded lists
+**Milestone**: `run_wiring_analysis()` returns correct `WiringReport` for all three detection types against test fixtures.
 
-2. **Failure class taxonomy** (FR-014):
-   - Extend `policy` failure class with sub-types: `policy.silent_success`, `policy.smoke_failure` (`.timing`, `.artifact_absence`, `.content_evidence`), `policy.fidelity_deterministic`
+| Task | Files | Requirements | Est. LOC |
+|------|-------|-------------|----------|
+| 1.1 Define `WiringFinding`, `WiringReport`, `WiringConfig` dataclasses | `audit/wiring_gate.py` | FR-009, FR-010, FR-011 | 60-80 |
+| 1.2 Implement unwired callable analysis | `audit/wiring_analyzer.py` | FR-012, FR-014 | 80-100 |
+| 1.3 Implement orphan module analysis | `audit/wiring_analyzer.py` | FR-015, FR-016, FR-017 | 70-90 |
+| 1.4 Implement registry analysis | `audit/wiring_analyzer.py` | FR-018, FR-019 | 60-80 |
+| 1.5 Implement whitelist loading + suppression | `audit/wiring_analyzer.py` | FR-013 | 30-40 |
+| 1.6 Implement `ast_analyze_file()` utility | `audit/wiring_analyzer.py` | FR-020, FR-021 | 40-50 |
+| 1.7 Unit tests for all three analyzers + whitelist | `tests/audit/` | NFR-003, NFR-004, SC-001–SC-003, SC-007 | 200-250 |
 
-3. **Outcome enum extension** (FR-035):
-   - Add `PortifyOutcome.SILENT_SUCCESS_SUSPECTED` and `PortifyOutcome.SUSPICIOUS_SUCCESS` to `cli/cli_portify/models.py`
-
-### 1.2 — Silent Success Detector (FR-002, FR-024, FR-025, FR-033)
-
-1. Implement `silent_success.py` (~300 lines) in `cli/pipeline/` or `cli/audit/`:
-   - `FileSnapshot`, `StepTrace`, `SilentSuccessConfig`, `SilentSuccessDetector`, `SilentSuccessResult`, `SilentSuccessError`
-   - Signal suite: S1 (Artifact Content, 0.35), S2 (Execution Trace, 0.35), S3 (Output Freshness, 0.30)
-   - Composite formula: `suspicion_score = ((1-S1) × 0.35) + ((1-S2) × 0.35) + ((1-S3) × 0.30)`
-   - Bands: 0.0-0.29 pass, 0.30-0.49 warn, 0.50-0.74 soft-fail, 0.75-1.00 hard-fail
-2. `SilentSuccessConfig(enabled=False)` for test harnesses (NFR-002)
-3. All-EXEMPT/SKIPPED with zero real steps = `policy` failure unless `--dry-run` (FR-007, FR-017)
-4. Absence of `silent_success_audit` block = `failed` at STRICT tier (NFR-004)
-
-### 1.3 — Smoke Test Gate G-012 (FR-003, FR-027, FR-037)
-
-1. Implement `smoke_gate.py` (~400 lines):
-   - `SmokeTestConfig`, `SmokeTestResult` dataclasses
-   - `run_smoke_test()` function
-   - Check hierarchy: timing (<5s = WARN only), artifact absence (ERROR, blocking), content evidence (ERROR, blocking)
-   - Constants: `SMOKE_NOOP_CEILING_S=5`, `SMOKE_MIN_REAL_EXECUTION_S=10`, `SMOKE_TIMEOUT_S=600`
-2. Register G-012 as `smoke-test` in `GATE_REGISTRY` (cli_portify/gates.py) after G-011
-3. Failure routing (FR-015): API/network errors → `transient`; timing/artifact/content → `policy.smoke_failure.*`
-4. `--mock-llm` mode for CI (FR-028)
-5. `tmpdir_cleaned: bool` for AC-006 compliance (NFR-015)
-
-### 1.4 — Spec Fidelity Deterministic Checks D-03/D-04 (FR-004, FR-029, FR-030, FR-036)
-
-1. Implement `fidelity_inventory.py` (~150 lines):
-   - `SpecInventory` dataclass, `build_spec_inventory()`
-   - `_DISPATCH_TABLE_PATTERN`: regex for `UPPER_CASE_NAME = {` or `dict(`
-   - `_STEP_DISPATCH_CALL`: regex for `_run_*()` or `step_result =`
-   - `_DEP_ARROW_PATTERN` regex
-2. Wire D-03 and D-04 into `SPEC_FIDELITY_GATE` in `cli/roadmap/gates.py`
-3. Deterministic checks override LLM output (FR-021): `dispatch_tables_preserved: false` OR `dispatch_functions_preserved: false` → gate failed regardless of `high_severity_count`
-4. Feature flag consideration for Anti-Instincts overlap (NFR-014)
-
-### 1.5 — Standalone Emission (P0-B)
-
-1. Instrument executor with `_step_traces`, `time.monotonic()` wrapping (FR-034)
-2. `snapshot_pre_run()` call before execution
-3. Post-loop detector invocation
-4. `SilentSuccessResult` standalone emission to `return-contract.yaml` (FR-002)
-
-### 1.6 — Deviation Analysis Integration (FR-047)
-
-1. Wire `deviation-analysis` step into roadmap `_build_steps()` after `spec-fidelity`
-2. Update `_get_all_step_ids()`
-3. Write `build_deviation_analysis_prompt()`
-
-### Go/No-Go Criteria
-- [ ] SC-001: No-op pipeline → `suspicion_score = 1.0`, `SILENT_SUCCESS_SUSPECTED`, non-zero exit
-- [ ] SC-002: v2.25 regression → `dispatch_tables_preserved: false`, gate rejects
-- [ ] SC-005: G-012 against known-bad executor fails correctly
-- [ ] SC-009: All-EXEMPT registry → `failed(policy.silent_success)`
-- [ ] SC-010: Deterministic replay stability verified
-- [ ] SC-012: Roadmap pipeline produces `deviation-analysis.md`
-- [ ] SC-013: C3 validation — per-task artifacts individually addressable
-- [ ] NFR-006: Same input → same gate result
+**Validation checkpoint**:
+- All 3 detection types produce correct findings against known fixtures
+- Whitelist suppression works; `SyntaxError` handled gracefully
+- Performance: < 2s for 50-file fixture (NFR-001)
 
 ---
 
-## Phase 2: Integration — State Machine, Leases & Executor Wiring
+### Phase 2 — Report Emission & Gate Definition (Sprint 2)
 
-**Duration**: 10–14 days
-**Milestone**: Audit gates operational in shadow mode within sprint executor
+**Goal**: Structured YAML+Markdown report that passes `gate_passed()` validation. Gate criteria defined but not yet wired into pipeline.
 
-### 2.1 — Lease Model (FR-010, FR-011)
+**Milestone**: `gate_passed(WIRING_GATE, report_content)` returns `True` for well-formed shadow-mode reports.
 
-1. Implement `AuditLease` with fields: `lease_id`, `owner`, `acquired_at`, `expires_at`, `renewed_at` (all ISO-8601 UTC)
-2. Heartbeat renewal interval ≤ `audit_lease_timeout / 3`
-3. Missing heartbeat past timeout → `audit_*_failed(timeout)`
-4. Per-scope configurable timeout values (requires Reliability Owner approval)
-5. Lease timeout independent of and ≤ outer subprocess wall-clock timeout (NFR-001)
+| Task | Files | Requirements | Est. LOC |
+|------|-------|-------------|----------|
+| 2.1 Implement report emitter (frontmatter + 7 Markdown sections) | `audit/wiring_gate.py` | FR-004, FR-022, FR-023, NFR-005 | 80-100 |
+| 2.2 Implement `_extract_frontmatter_values()` helper | `audit/wiring_gate.py` | FR-024 | 15 |
+| 2.3 Define `WIRING_GATE` as `GateCriteria` | `audit/wiring_gate.py` | FR-025 | 20-30 |
+| 2.4 Implement 5 semantic check functions | `audit/wiring_gate.py` | FR-026, FR-027, FR-028 | 40-50 |
+| 2.5 Implement `blocking_for_mode()` logic | `audit/wiring_gate.py` | FR-010, FR-028 | 15-20 |
+| 2.6 Unit tests for report + gate + semantic checks | `tests/audit/` | SC-004, SC-014, NFR-003 | 100-130 |
 
-### 2.2 — Retry Budget (FR-012, FR-013)
-
-1. Durable `audit_attempts` counter per scope
-2. Provisional defaults: milestone=2, release=1 (normative after calibration per SS8.2)
-3. Outer wall-clock ceiling: `max_turns * 120 + 300 s`
-4. Audit gate evaluation must complete within ceiling
-
-### 2.3 — Sprint Executor Integration
-
-1. **Wire `SprintGatePolicy`** into `execute_sprint()` at post-subprocess point (FR-038)
-   - Sprint executor already imports `TrailingGatePolicy` and `TrailingGateResult` from pipeline
-2. **Extend `OutputMonitor`** for audit lease heartbeat events (FR-039)
-3. **Wire `TrailingGateRunner`** for phase-scope evaluation with `GateScope.MILESTONE` and `GateScope.RELEASE` (FR-040)
-4. **Wire `ShadowGateMetrics`** for shadow mode data collection (FR-041)
-5. Expose `--grace-period` CLI flag in sprint commands (FR-042)
-
-### 2.4 — Audit Gate Derivation (FR-043)
-
-1. `audit_gate_required` per-task: `true` when `Tier == STRICT OR Risk == High OR Critical Path Override == true`
-2. Phase-level aggregation: `phase_requires_audit = any(task.audit_gate_required for task in phase.tasks)`
-3. Wire into tasklist generator (`cli/tasklist/`) for parsing and emission
-
-### 2.5 — Gate State Persistence (FR-045)
-
-1. Add `audit` block to `_save_state()` for gate result persistence
-2. Artifact version hashes enable freshness validation (FR-016)
-3. Stale gate results trigger re-evaluation; staleness recorded in `OverrideRecord`
-
-### 2.6 — KPI Instrumentation (NFR-017)
-
-1. Lease acquisition/duration → M1
-2. Lease timeouts → M7
-3. OverrideRecord events → M9
-4. All wired before shadow mode activation
-
-### 2.7 — `reimbursement_rate` Resolution (Blocker 6)
-
-1. Decision: wire as turn-recovery credit OR remove entirely
-2. Must be resolved before Phase 2 GO
-
-### Go/No-Go Criteria
-- [ ] NFR-005: All timeout/retry paths terminate deterministically, no deadlocks
-- [ ] SC-011: Timeout/retry determinism verified
-- [ ] Lease model functional with heartbeat renewal
-- [ ] Shadow mode collecting metrics without blocking transitions
-- [ ] Blocker 6 (`reimbursement_rate`) resolved
-- [ ] Reliability Owner approves per-scope timeout values
+**Validation checkpoint**:
+- Report frontmatter contains all 17 required fields
+- `gate_passed()` (unmodified) correctly evaluates `WIRING_GATE`
+- Mode-aware semantics: shadow always passes; soft blocks on critical; full blocks on critical+major
+- 90% coverage on `wiring_gate.py` and `wiring_analyzer.py`
 
 ---
 
-## Phase 3: Enforcement — Transition Blocking & TUI
+### Phase 3 — Pipeline Integration (Sprint 3)
 
-**Duration**: 7–10 days
-**Milestone**: Gates enforce transition blocking at milestone + release scope
+**Goal**: Wiring verification runs as a pipeline step in shadow mode. Sprint hook active.
 
-### 3.1 — Transition Enforcement (FR-001, FR-005, FR-016)
+**Milestone**: End-to-end roadmap pipeline executes wiring-verification step and emits report without blocking.
 
-1. Milestone gate: blocks phase completion unless gate passes
-2. Release gate: blocks sprint release unless gate passes
-3. Current gate result must reference artifact version under evaluation
-4. Stale results trigger re-evaluation with staleness in `OverrideRecord`
+| Task | Files | Requirements | Est. LOC |
+|------|-------|-------------|----------|
+| 3.1 Add `build_wiring_verification_prompt()` stub | `roadmap/prompts.py` | FR-029 | 5 |
+| 3.2 Add wiring-verification `Step` to `_build_steps()` | `roadmap/executor.py` | FR-030, FR-032 | 15-20 |
+| 3.3 Special-case executor for wiring-verification step | `roadmap/executor.py` | FR-031, NFR-011 | 20-30 |
+| 3.4 Register `WIRING_GATE` in `ALL_GATES` | `roadmap/gates.py` | FR-033 | 3 |
+| 3.5 Add `wiring_gate_mode` to `SprintConfig` | `sprint/models.py` | FR-034 | 5 |
+| 3.6 Implement sprint post-task wiring hook | `sprint/executor.py` | FR-035 | 30-40 |
+| 3.7 Integration tests (pipeline + sprint) | `tests/integration/` | SC-005, SC-006, NFR-004 | 70-100 |
 
-### 3.2 — Override Rules (FR-026)
-
-1. Soft-fail (0.50-0.74) overridable at task/milestone scope
-2. Hard-fail (≥0.75) never overridable at release tier (LD-3)
-3. Override at release scope blocked; task/milestone override requires valid `OverrideRecord` (SC-008)
-4. EXEMPT aggregate bypass prohibition enforced (FR-017)
-
-### 3.3 — TUI Extension (FR-044)
-
-1. Extend phase table to display `AuditWorkflowState` values
-2. Release guard blocking "Sprint Complete" unless `audit_release_passed`
-3. Operator guidance panel for `audit_*_failed` states
-
-### 3.4 — Unified Audit Trail
-
-1. `SilentSuccessResult` appears in trail with `failure_class: policy.silent_success` (SC-008)
-2. `AuditGateResult` blocks include all three extension blocks when their gates ran
-3. Block MUST be written even when `suspicion_score = 0.0` (FR-018)
-
-### Go/No-Go Criteria
-- [ ] SC-006: G-012 after P0-A fixes passes against smoke fixture
-- [ ] SC-008: Silent success in audit trail, override enforcement correct
-- [ ] SC-014: Transition blocking/override rules enforced per scope
-- [ ] SC-016: All 9 blockers closed with owner/deadline
+**Validation checkpoint**:
+- `_get_all_step_ids()` returns wiring-verification between spec-fidelity and remediate
+- Pipeline runs end-to-end with shadow gate (no blocking)
+- Sprint hook logs findings without affecting task status
+- No imports from `pipeline/*` into `roadmap/*` or `audit/*` violating layering (NFR-007)
 
 ---
 
-## Phase 4: Promotion — Shadow → Soft → Full Rollout
+### Phase 4 — Audit Agent Extensions (Sprint 3-4, parallelizable with Phase 3)
 
-**Duration**: 14–21 days (plus observation windows)
-**Milestone**: Full production enforcement with calibrated KPIs
+**Goal**: Cleanup-audit agents enriched with wiring-aware rules.
 
-### 4.1 — Shadow Mode
+**Milestone**: Audit pipeline produces wiring path information in analyzer profiles and validates wiring claims.
 
-1. Gates evaluate but do not block; results logged for calibration
-2. Collect data for M13/M14 provisional → normative calibration
-3. Recalibrate M1 runtime threshold for phase-scope (NFR-012)
-4. Document S2 calibration methodology (SC-007, NFR-013)
+| Task | Files | Requirements | Est. LOC |
+|------|-------|-------------|----------|
+| 4.1 Extend audit-scanner with `REVIEW:wiring` signal | `agents/audit-scanner.md` | FR-036, SC-011 | Behavioral spec |
+| 4.2 Extend audit-analyzer with 9th field + finding types | `agents/audit-analyzer.md` | FR-037, SC-012 | Behavioral spec |
+| 4.3 Extend audit-validator with Check 5 | `agents/audit-validator.md` | FR-038 | Behavioral spec |
+| 4.4 Extend audit-comparator with cross-file wiring check | `agents/audit-comparator.md` | FR-007 | Behavioral spec |
+| 4.5 Extend audit-consolidator with Wiring Health section | `agents/audit-consolidator.md` | FR-007 | Behavioral spec |
+| 4.6 Agent integration tests | `tests/audit/` | SC-011, SC-012, NFR-013 | Behavioral validation |
 
-### 4.2 — Shadow → Soft Promotion (NFR-011)
-
-**Requires passing**: M1, M4, M5, M7, M9
-
-1. Soft enforcement: gates block with override path available
-2. Monitor suspicion rate: warn >5% in 0.30-0.49 range; fail >1% soft/hard-fail (NFR-009)
-
-### 4.3 — Soft → Full Promotion (NFR-011)
-
-**Requires**: M1-M12 passing for two consecutive windows + rollback drill (M10)
-
-1. Full enforcement: gates block with no override at release scope
-2. Provisional KPI defaults (M13, M14) become normative after Reliability Owner approval (NFR-018)
-
-### Go/No-Go Criteria
-- [ ] SC-007: S2 calibration documented and approved
-- [ ] SC-015: Phase gates pass by KPI criteria + rollback drill
-- [ ] NFR-010: Shadow → Soft → Full promotion sequence completed
-- [ ] NFR-011: All promotion gate criteria met at each transition
+**Validation checkpoint**:
+- All extensions are strictly additive (NFR-013)
+- Scanner classifies wiring-indicator files correctly
+- Analyzer produces complete 9-field profiles with Wiring path
+- Validator catches DELETE recommendations on files with live wiring
 
 ---
 
-## Risk Assessment & Mitigation
+### Phase 5 — ToolOrchestrator Plugin (Sprint 4, conditional)
 
-### HIGH Risks
+**Goal**: AST analyzer plugin for `ToolOrchestrator` injection seam.
 
-| # | Risk | Mitigation | Owner |
-|---|------|-----------|-------|
-| R1 | S2 calibration methodology gap — 50ms/10ms thresholds lack empirical basis | Blocker 7: document calibration protocol before soft-phase M14 activation | Reliability Owner [TBD] |
-| R2 | EXEMPT aggregate bypass — all-EXEMPT produces false pass | C-1 normative rule: treat as `policy` failure (FR-017) | Implemented in Phase 1 |
-| R3 | P0-A defects block G-012 validity | Phase 0 fixes with Blocker 9 scheduling | Phase 0 delivery |
-| R4 | Orphaned `execute_phase_tasks()` dead code | Branch (b) defers to v1.3; no activation under pressure | Architectural constraint |
+**Milestone**: `FileAnalysis.references` populated for files with imports.
 
-### MEDIUM Risks
+**Cut criteria (NFR-012)**: If not complete before Sprint 5 (Phase 6) begins, defer to v2.1.
 
-| # | Risk | Mitigation | Owner |
-|---|------|-----------|-------|
-| R5 | Smoke test CI false positives from timing | Timing is WARN-only, not blocking | By design |
-| R6 | Fixture drift breaks content checks | Stability contract + `test_fixture_content_matches_gate_patterns` unit test | QA |
-| R7 | D-05 stub sentinel false positives | Explicitly deferred until section-scope filtering | Deferred |
-| R8 | `--mock-llm` scope undefined | Blocker 8 + user decision 8 before Phase 2 CI | Policy Owner [TBD] |
-| R9 | `reimbursement_rate` dead field | Blocker 6: wire-or-remove before Phase 2 GO | [TBD] |
-| R10 | Per-task artifact addressability (C3) | Phase 1 go/no-go validation; escalation path defined | Program Manager [TBD] |
-
-### LOW Risks
-
-| # | Risk | Mitigation | Owner |
-|---|------|-----------|-------|
-| R11 | Anti-Instincts overlap with D-03/D-04 | Feature flag if Anti-Instincts ships first | NFR-014 |
-| R12 | M1/M8 KPI miscalibration | Recalibrate from shadow mode data | NFR-012 |
+| Task | Files | Requirements | Est. LOC |
+|------|-------|-------------|----------|
+| 5.1 Implement AST plugin for `ToolOrchestrator` | `audit/wiring_analyzer.py` | FR-008, FR-020 | 40-50 |
+| 5.2 Wire dual evidence rule using plugin output | `audit/wiring_analyzer.py` | FR-017 | 15-20 |
+| 5.3 Unit tests for plugin integration | `tests/audit/` | SC-013 | 30-40 |
 
 ---
 
-## Resource Requirements & Dependencies
+### Phase 6 — Shadow Calibration & Rollout Preparation (Sprint 5+)
 
-### Internal Dependencies (Must Exist Before Integration)
+**Goal**: Collect shadow data, calibrate FPR/TPR, prepare soft-mode activation.
 
-| Dependency | Location | Phase Needed |
-|------------|----------|--------------|
-| `GateResult` (existing 2-field) | `cli/audit/evidence_gate.py` | Phase 1 (coexistence) |
-| `TrailingGateRunner` | `cli/pipeline/trailing_gate.py` | Phase 2 |
-| `GateScope.MILESTONE`, `GateScope.RELEASE` | `cli/pipeline/trailing_gate.py` | Phase 2 |
-| `GATE_REGISTRY` | `cli_portify/gates.py` | Phase 1 |
-| `SPEC_FIDELITY_GATE` | `cli/roadmap/gates.py` | Phase 1 |
-| Sprint executor | `cli/sprint/executor.py` | Phase 2 |
-| `OutputMonitor` | `cli/sprint/monitor.py` | Phase 2 |
-| Tasklist generator | `cli/tasklist/` | Phase 2 |
-| `return-contract.yaml` | Project root | Phase 1 |
-| v2.25 artifacts | `.dev/releases/complete/v2.25-cli-portify-cli/` | Phase 1 (tests) |
+**Milestone**: Statistical evidence supports Phase 2 (soft mode) activation criteria.
 
-### External Dependencies
-
-| Dependency | Impact | Mitigation |
-|------------|--------|-----------|
-| LLM API | Non-mock smoke gate runs | `--mock-llm` mode; unavailability → `transient` failure |
-| `sc-smoke-skill/SKILL.md` | Content evidence anchors | Stability contract (NFR-003) |
-| `sc-audit-gate-protocol/SKILL.md` | Transition table definition | Created in Phase 2 |
-| `sc-tasklist-protocol/SKILL.md` | `audit_gate_required` derivation | Updated in Phase 2 |
-
-### Roles Required (Open Questions 1)
-
-- **Reliability Owner**: Timeout values, S2 calibration, M1 recalibration, KPI approval
-- **Policy Owner**: Override rules, `--mock-llm` scope, profile model
-- **Tasklist Owner**: `audit_gate_required` field integration
-- **Program Manager**: C3 escalation, blocker deadline enforcement
-
-### New Files (~7)
-
-| File | Lines (est.) | Phase |
-|------|-------------|-------|
-| `silent_success.py` | ~300 | Phase 1 |
-| `smoke_gate.py` | ~400 | Phase 1 |
-| `fidelity_inventory.py` | ~150 | Phase 1 |
-| `audit_gate_models.py` | ~200 | Phase 1 |
-| `audit_lease.py` | ~150 | Phase 2 |
-| `shadow_metrics.py` | ~100 | Phase 2 |
-| `audit_gate_tui.py` | ~150 | Phase 3 |
-
-### New Test Files (~7)
-
-| Test File | Validates |
-|-----------|----------|
-| `test_silent_success.py` | SC-001, SC-009, FR-024/25/26 |
-| `test_smoke_gate.py` | SC-005, SC-006, FR-027/28 |
-| `test_fidelity_inventory.py` | SC-002, FR-029/30 |
-| `test_audit_gate_models.py` | FR-018/19/20/22/23 |
-| `test_audit_lease.py` | FR-010/11, NFR-001/005 |
-| `test_transition_enforcement.py` | SC-008, SC-014, FR-016/17 |
-| `test_fixture_stability.py` | NFR-003 (fixture content anchors) |
+| Task | Description | Requirements |
+|------|-------------|-------------|
+| 6.1 Run shadow mode across 2+ release cycles | Collect findings data | NFR-008 |
+| 6.2 Compute FPR, TPR, p95 latency from shadow data | Statistical analysis | NFR-008, NFR-014 |
+| 6.3 Validate `measured_FPR + 2σ < 15%` threshold | Calibration gate | NFR-014 |
+| 6.4 Activate soft mode if criteria met | Config change | NFR-008 |
+| 6.5 Monitor soft mode for 5+ sprints | Stability tracking | NFR-009 |
+| 6.6 Activate full mode if criteria met | Config change | NFR-009 |
 
 ---
 
-## Success Criteria Validation Matrix
+## 3. Risk Assessment & Mitigation
 
-| Criterion | Phase | Validation Method |
-|-----------|-------|-------------------|
-| SC-001 (no-op pipeline detection) | P1 | `test_no_op_pipeline_scores_1_0` |
-| SC-002 (v2.25 regression) | P1 | `test_run_deterministic_inventory_cli_portify_case` |
-| SC-003 (P0-A Fix 1) | P0 | Integration test: `run_portify()` produces artifacts |
-| SC-004 (P0-A Fix 2) | P0 | CLI exit code test |
-| SC-005 (G-012 known-bad) | P1 | Smoke gate against broken executor |
-| SC-006 (G-012 after fix) | P3 | Smoke gate against fixture post-P0-A |
-| SC-007 (S2 calibration) | P4 | Document review + Reliability Owner sign-off |
-| SC-008 (silent success trail) | P3 | Audit trail inspection + override blocking |
-| SC-009 (all-EXEMPT = fail) | P1 | Unit test: zero real steps → policy failure |
-| SC-010 (deterministic replay) | P1 | Repeated execution comparison |
-| SC-011 (no deadlocks) | P2 | Timeout path analysis + stress test |
-| SC-012 (deviation-analysis.md) | P1 | Roadmap pipeline output validation |
-| SC-013 (per-task artifacts) | P1 | C3 structural validation |
-| SC-014 (transition enforcement) | P3 | Integration test: blocked transitions |
-| SC-015 (KPI + rollback drill) | P4 | Shadow/soft/full promotion gates |
-| SC-016 (blockers closed) | P3 | Blocker registry audit |
+| Risk | Severity | Impact | Mitigation | Phase Affected |
+|------|----------|--------|------------|----------------|
+| **R1**: False positives from intentional `Optional[Callable]` | HIGH | Gate blocks legitimate code | Whitelist mechanism (Phase 1); shadow calibration (Phase 6); alias pre-pass deferred to v2.1 | 1, 6 |
+| **R5**: `provider_dir_names` misconfiguration | HIGH | Orphan analysis scans wrong dirs | Pre-activation sanity check: >50 files must produce >0 findings (SC-010); integration test | 1, 3 |
+| **R6**: Re-export aliases cause 30-70% FPR | HIGH | Shadow data unusable for calibration | Document noise floor; v2.1 alias pre-pass; if FPR cannot separate from noise, block Phase 2 activation (NFR-014) | 6 |
+| **R3**: Insufficient shadow data | MEDIUM | Cannot calibrate for soft mode | Minimum 2-release shadow period; extend if data insufficient | 6 |
+| **R4**: Sprint performance degradation | MEDIUM | Developer experience impact | AST-only analysis; <2s target; <5s hard budget; benchmark tests | 1, 3 |
+| **R7**: Agent spec regression | MEDIUM | Existing audit functionality breaks | Strictly additive extensions; no tools changed, no rules removed (NFR-013) | 4 |
+| **R8**: `resolve_gate_mode()` overrides shadow TRAILING | LOW | Shadow mode blocks unexpectedly | Explicit `gate_mode=GateMode.TRAILING` on Step; shadow semantic checks always return True | 2, 3 |
+| **R2**: AST parsing failures on complex patterns | LOW | Missed findings | Graceful degradation: log, skip, continue; empty `FileAnalysis` returned | 1 |
+| **R9** (new): Merge conflicts with concurrent PRs | MEDIUM | Integration delays | Sequence: complete Phase 1-2 before touching shared files (`roadmap/gates.py`); coordinate with Anti-Instincts PR | 3 |
 
 ---
 
-## Open Decisions Requiring Resolution
+## 4. Resource Requirements & Dependencies
 
-These must be resolved by the indicated phase to avoid blocking:
+### External Dependencies (no changes required)
+- Python `ast`, `re`, `yaml` stdlib modules
+- `pipeline/models.py`: `SemanticCheck`, `GateCriteria`, `Step`, `GateMode`
+- `pipeline/gates.py`: `gate_passed()`
+- `pipeline/trailing_gate.py`: `TrailingGateRunner`, `DeferredRemediationLog`, `resolve_gate_mode()`
+- `audit/tool_orchestrator.py`: `ToolOrchestrator`, `FileAnalysis`
 
-| # | Decision | Required By | Assignee |
-|---|----------|-------------|----------|
-| 1 | Owner assignments for Blockers 5-9 | Phase 0 GO | Program Manager |
-| 2 | `audit_lease_timeout` per-scope defaults | Phase 2 | Reliability Owner |
-| 3 | `reimbursement_rate` wire-or-remove | Phase 2 GO | [TBD] |
-| 4 | Per-task artifact addressability (C3) | Phase 1 GO | Architect + PM |
-| 5 | `--mock-llm` check matrix | Phase 2 | Policy Owner |
-| 6 | D-03/D-04 regex generality | Phase 1 | Architect |
-| 7 | Anti-Instincts timeline vs D-03/D-04 | Phase 1 | PM |
-| 8 | Shadow mode observation window | Phase 4 | Reliability Owner |
-| 9 | M1 phase-scope threshold | Phase 4 (shadow) | Reliability Owner |
-| 10 | Audit gate time budget fraction | Phase 2 | Reliability Owner |
-| 11 | `SilentSuccessConfig` defaults owner | Phase 4 (soft) | PM |
-| 12 | Branch (b) reversal escalation timeline | Phase 1 GO | PM |
+### Internal Dependencies (modifications required)
+- `roadmap/executor.py`: `_build_steps()`, `_get_all_step_ids()`, `roadmap_run_step()`
+- `roadmap/gates.py`: `ALL_GATES`
+- `roadmap/prompts.py`: new prompt builder
+- `sprint/executor.py`: post-task hook
+- `sprint/models.py`: `SprintConfig` field addition
+- 5 audit agent behavioral specs
+
+### New Files
+- `src/superclaude/audit/wiring_gate.py` — gate criteria, report emitter, frontmatter helper
+- `src/superclaude/audit/wiring_analyzer.py` — three analysis algorithms, AST utility, whitelist
+- `wiring_whitelist.yaml` — optional suppression config
+- `tests/audit/test_wiring_analyzer.py`
+- `tests/audit/test_wiring_gate.py`
+- `tests/integration/test_wiring_pipeline.py`
+
+### Merge Coordination
+- `roadmap/gates.py` is a shared modification point with Anti-Instincts and Unified Audit Gating PRs
+- **Recommended sequence**: Phase 1-2 (no shared files) → coordinate merge window → Phase 3 (shared files)
 
 ---
 
-## Architect Recommendations
+## 5. Success Criteria & Validation Approach
 
-1. **Locate new modules under `cli/pipeline/`** for silent success and lease model — these are cross-cutting pipeline concerns, not audit-specific. The smoke gate belongs in `cli/cli_portify/` since it tests portify execution. Fidelity inventory belongs in `cli/roadmap/`.
+### Automated Validation (CI-enforceable)
 
-2. **Resolve C3 (per-task artifact addressability) before Phase 1 GO** — this is the highest-uncertainty architectural question. If phase subprocess output cannot provide individually addressable per-task artifacts, the entire audit-gate-required derivation model changes. Do not proceed past Phase 1 without a validated answer.
+| Criterion | Test Type | Pass Condition |
+|-----------|-----------|----------------|
+| SC-001–003 | Unit | Each analyzer detects ≥1 finding from known fixture |
+| SC-004 | Unit | `gate_passed(WIRING_GATE, report)` returns True |
+| SC-005 | Integration | Unmodified `gate_passed()` processes WIRING_GATE |
+| SC-006 | Integration | Sprint task status unchanged with shadow findings |
+| SC-007 | Unit | `whitelist_entries_applied > 0` when whitelist matches |
+| SC-008 | Benchmark | < 5s for 50 Python files |
+| SC-014 | Unit | Shadow passes; full blocks on findings |
+| NFR-003 | Coverage | ≥ 90% on `wiring_gate.py` + `wiring_analyzer.py` |
+| NFR-004 | Count | ≥ 20 unit + 3 integration tests |
+| NFR-006 | Static | No signature changes to pipeline substrate (grep verification) |
+| NFR-007 | Static | No `pipeline/*` imports from `roadmap/*`, `audit/*`, `sprint/*` |
 
-3. **Shadow mode is non-negotiable** — with a 0.92 complexity score and provisional thresholds throughout, skipping shadow mode would produce immediate false-positive cascades in production. Plan for a minimum 2-week shadow observation window.
+### Manual / Observational Validation
 
-4. **Treat the `GateResult` naming collision as a canary** — the existing duplication between `evidence_gate.py` and `manifest_gate.py` indicates the audit subsystem needs a naming convention audit. Consider this during Phase 1 model design.
+| Criterion | Method |
+|-----------|--------|
+| SC-009 | Retrospective: run analyzer on cli-portify executor, confirm `step_runner` detected |
+| SC-010 | Run with misconfigured `provider_dir_names`, verify WARNING emitted |
+| SC-011–012 | Run audit pipeline on test repo, inspect agent output |
+| SC-013 | Conditional on Phase 5 completion |
 
-5. **D-03/D-04 feature flag is cheap insurance** — even if Anti-Instincts is months away, the feature flag costs ~10 lines and prevents a forced hotfix if timelines shift.
+---
 
-6. **Assign Reliability Owner immediately** — 4 of 12 open decisions and 3 of 9 blockers require this role. This is the single highest-leverage staffing decision for this release.
+## 6. Timeline Estimates
+
+| Phase | Sprint | Duration | Dependencies | Parallelizable |
+|-------|--------|----------|-------------|----------------|
+| **1 — Core Engine** | Sprint 1 | 3-4 days | None | — |
+| **2 — Report & Gate** | Sprint 2 | 2-3 days | Phase 1 | — |
+| **3 — Pipeline Integration** | Sprint 3 | 2-3 days | Phase 2 | Yes, with Phase 4 |
+| **4 — Agent Extensions** | Sprint 3-4 | 2 days | Phase 1 (for context) | Yes, with Phase 3 |
+| **5 — ToolOrchestrator Plugin** | Sprint 4 | 1-2 days | Phase 1 | Cut if late |
+| **6 — Shadow Calibration** | Sprint 5+ | 2+ release cycles | Phase 3 | Ongoing |
+
+**Total implementation time**: ~12-16 days of active development across 4 sprints.
+**Total to soft-mode activation**: 2+ release cycles after shadow deployment.
+**Total to full enforcement**: 5+ sprints of stable soft-mode operation after soft activation.
+
+---
+
+## 7. Open Questions Requiring Resolution Before Implementation
+
+These must be resolved before or during Phase 1-2 to avoid rework:
+
+1. **OQ-1** (blocks Phase 2): How are `audit_artifacts_used` located and counted at runtime? Propose: glob for `*-audit-report.yaml` in output dir, count matched files.
+2. **OQ-2** (blocks Phase 1): Are `exclude_patterns` matches counted in `files_skipped`? Propose: yes, to provide visibility.
+3. **OQ-3** (blocks Phase 6): Is whitelist strictness derived from `rollout_mode`? Propose: `shadow` → WARNING, `soft`/`full` → `WiringConfigError`.
+4. **OQ-4** (blocks Phase 3): Does `SprintConfig.source_dir` already exist? Verify before implementation.
+5. **OQ-9** (blocks Phase 3): Merge sequencing with concurrent PRs — establish coordination plan.

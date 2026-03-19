@@ -94,7 +94,37 @@ For each sampled finding, independently verify:
 {Any patterns in discrepancies, suggestions for improving agent accuracy}
 ```
 
+### Check 5: Wiring Claim Verification
+
+For files with a `REVIEW:wiring` classification or a populated "Wiring path" field in their analyzer profile, perform additional wiring-specific validation:
+
+#### 5a: DELETE + Live Wiring Guard
+- If a file is recommended for DELETE, verify it has **no live wiring connections**:
+  - No inbound imports from other modules (check `import` / `from ... import` statements across the repo)
+  - No registry key references pointing to symbols in this file
+  - No injectable callable consumers that depend on this file's exports
+- **CRITICAL FAIL**: A DELETE recommendation on a file with any live wiring connection
+
+#### 5b: Wiring Path Completeness
+- Verify the "Wiring path" field (9th field) has a complete chain: Declaration → Registration → Invocation
+- Each link must cite a specific `file:line` or be explicitly marked "MISSING"
+- A chain with all "MISSING" links and no justification → INCOMPLETE EVIDENCE
+
+#### 5c: Registry Entry Resolution
+- For files containing dispatch registries, verify at least one registry entry resolves to an importable symbol
+- Re-run the import check independently (do not trust the analyzer's claim)
+- **Discrepancy**: Analyzer claims entry is resolvable but you cannot import it → FALSE POSITIVE
+
+#### Wiring Discrepancy Types
+
+| Type | Trigger |
+|------|---------|
+| **WIRING_FALSE_NEGATIVE** | DELETE recommended on file with live wiring connections |
+| **INCOMPLETE_WIRING_PATH** | Wiring path field missing links without justification |
+| **REGISTRY_RESOLUTION_MISMATCH** | Analyzer's registry resolution claim does not match independent verification |
+
 ## Pass/Fail Criteria
 - **PASS**: Discrepancy rate < 20% (fewer than 1 in 5 sampled findings has issues)
 - **FAIL**: Discrepancy rate >= 20% → recommend re-auditing the affected batches
 - **CRITICAL FAIL**: Any FALSE NEGATIVE on a DELETE (agent recommended deleting an actively referenced file)
+- **CRITICAL FAIL**: Any WIRING_FALSE_NEGATIVE (DELETE on file with live wiring connections)

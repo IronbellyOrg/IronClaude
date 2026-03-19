@@ -11,8 +11,8 @@ GateCriteria instances.
 
 from __future__ import annotations
 
+from ..audit.wiring_gate import WIRING_GATE
 from ..pipeline.models import GateCriteria, SemanticCheck
-
 
 # --- Semantic check functions (pure: content -> bool) ---
 
@@ -941,6 +941,7 @@ ALL_GATES = [
     ("merge", MERGE_GATE),
     ("test-strategy", TEST_STRATEGY_GATE),
     ("spec-fidelity", SPEC_FIDELITY_GATE),
+    ("wiring-verification", WIRING_GATE),
     ("deviation-analysis", DEVIATION_ANALYSIS_GATE),
     ("remediate", REMEDIATE_GATE),
     ("certify", CERTIFY_GATE),

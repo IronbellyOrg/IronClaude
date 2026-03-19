@@ -1,549 +1,630 @@
 ---
-spec_source: "spec-refactor-plan-merged.md"
-complexity_score: 0.92
+spec_source: merged-spec.md
+complexity_score: 0.78
 primary_persona: architect
 ---
 
-# 1. Executive summary
+## 1. Executive summary
 
-This roadmap delivers **unified audit-gating for milestone and release scope in v1.2.1**, while explicitly **deferring task-scope gating to v1.3**. The program is architecturally high-risk because it spans the sprint executor, audit model, roadmap fidelity checks, CLI-portify smoke validation, workflow state persistence, and operational rollout controls.
+This roadmap delivers a deterministic, AST-based wiring verification capability across the roadmap, sprint, and audit subsystems without violating existing pipeline contracts or dependency layering. The implementation must detect three failure classes—unwired optional callable injections, orphan provider modules, and broken dispatch registries—then emit a gate-valid report that supports phased rollout from shadow to soft and full enforcement.
 
-## Strategic objectives
-1. **Prevent false-success releases** by introducing mandatory behavioral audit gates.
-2. **Make gate decisions deterministic and auditable** through explicit result schemas, freshness validation, and deterministic semantic checks.
-3. **Harden transition control** so milestone/release completion cannot proceed on stale, missing, or bypassed evidence.
-4. **Roll out safely** via Shadow → Soft → Full promotion with measurable KPI gates and rollback readiness.
+From an architectural perspective, the primary challenge is not raw implementation size; it is controlled integration breadth under strict constraints. The roadmap therefore prioritizes:
 
-## Architectural priorities
-- **Priority 1:** Fix blocking defects that make legitimate execution indistinguishable from no-op execution.
-- **Priority 2:** Establish canonical domain model and state machine before broad integration.
-- **Priority 3:** Integrate behavioral gates as first-class audit results, not side-channel checks.
-- **Priority 4:** Validate deterministic replay, timeout handling, and override restrictions before promotion.
-- **Priority 5:** Preserve extensibility for v1.3 task-scope activation without implementing it now.
+1. **Stable analysis core first**
+   - Build the wiring data model, AST analyzers, report emitter, and semantic checks before touching orchestration surfaces.
 
-## Scope boundaries
-### In scope for v1.2.1
-- Milestone-scope and release-scope audit gates
-- `SilentSuccessDetector`
-- Smoke Test Gate G-012
-- Spec Fidelity checks D-03 and D-04
-- Lease/heartbeat/retry model
-- Audit persistence, freshness validation, TUI exposure, rollout telemetry
+2. **Contract-safe integration second**
+   - Add the roadmap step, sprint hook, and audit extensions only after the analysis/report artifacts prove compliant with existing gate infrastructure.
 
-### Explicitly deferred to v1.3
-- Task-scope gate enforcement
-- Activation of task-scope transitions beyond annotation and deferral markers
+3. **Operational rollout third**
+   - Use shadow-mode evidence to calibrate false-positive behavior before enabling any blocking semantics.
 
----
+4. **Risk containment throughout**
+   - Preserve zero pipeline substrate changes, additive-only agent extensions, and deterministic execution guarantees.
 
-# 2. Phased implementation plan with milestones
+## 2. Phased implementation plan with milestones
 
-## Phase 0 — Governance, defect closure, and architecture baseline
+### Phase 0 — Architecture alignment and decision closure
 
-### Goals
-- Resolve blockers that would invalidate later gates.
-- Freeze terminology, ownership, and rollout constraints.
-- Remove known dead/orphaned paths before integrating new behavior.
+**Objective:** Eliminate ambiguity before code changes begin.
 
-### Workstreams
-1. **Governance and decision closure**
-   - Assign named owners for Reliability, Policy, Tasklist, and Program Management.
-   - Ratify canonical terms:
-     - `AuditLease`
-     - `audit_lease_timeout`
-     - `max_turns`
-     - `Critical Path Override`
-     - `audit_gate_required`
-     - `audit_attempts`
-   - Lock per-scope implementation policy:
-     - v1.2.1 = milestone + release only
-     - task scope retained with `[v1.3 -- deferred]` markers
+#### Key actions
+1. Confirm unresolved specification decisions:
+   - `audit_artifacts_used` discovery and counting rules
+   - `files_skipped` semantics
+   - whitelist strictness runtime boundary
+   - whether `SprintConfig.source_dir` already exists
+   - comparator/consolidator extension scope
+   - rollout ownership for `grace_period`
+   - merge sequencing for concurrent `roadmap/gates.py` work
 
-2. **Blocking defect remediation**
-   - Fix `run_portify()` to pass `step_runner` and establish `STEP_DISPATCH`.
-   - Enforce `validate_portify_config()` before `run_portify()` with non-zero exit on validation failure.
-   - Retire:
-     - `_apply_resume_after_spec_patch()`
-     - `_find_qualifying_deviation_files()`
+2. Lock architectural rules into implementation checklist:
+   - no changes to `pipeline/*`
+   - no LLM or subprocess usage in wiring analysis
+   - artifact-based enforcement only
+   - duplicate `_FRONTMATTER_RE` privately in `audit/wiring_gate.py`
 
-3. **Architecture survey and collision avoidance**
-   - Survey `cli/audit/` for naming and model overlap.
-   - Introduce `AuditGateResult` to avoid collision with existing `GateResult`.
-   - Confirm integration points:
-     - sprint executor
-     - trailing gate runner
-     - output monitor
-     - tasklist generator
-     - roadmap gate system
-     - TUI/state persistence
+3. Define phase-exit acceptance criteria:
+   - decisions recorded
+   - impacted files identified
+   - test strategy mapped to FR/NFR and success criteria
 
-### Milestones
-- **M0.1** Owners and unresolved decisions assigned.
-- **M0.2** P0-A defect fixes verified.
-- **M0.3** Dead roadmap executor paths removed.
-- **M0.4** Canonical architecture contract approved.
+#### Deliverables
+- Architecture decision log for open questions
+- File-level implementation map
+- Test matrix traceability draft
 
-### Exit criteria
-- SC-003 and SC-004 pass.
-- All Phase 1 prerequisites have explicit owners and deadlines.
-- No ambiguity remains about v1.2.1 scope boundaries.
+#### Milestone
+- **M0: Spec ambiguities resolved and architecture frozen**
+
+#### Timeline estimate
+- **0.5-1 phase-day**
 
 ---
 
-## Phase 1 — Deterministic audit foundation
+### Phase 1 — Core domain models and analysis engine
 
-### Goals
-- Build the core data model and deterministic evidence layer.
-- Enable reliable post-run behavioral detection before gate orchestration.
-- Add deterministic fidelity validation and roadmap deviation analysis.
+**Objective:** Build the deterministic wiring analysis substrate.
 
-### Workstreams
-1. **Audit result model and persistence**
-   - Implement `AuditGateResult` with:
-     - artifact hashes
-     - freshness metadata
-     - `silent_success_audit`
-     - `smoke_test_result`
-     - `fidelity_deterministic`
-   - Persist audit block in `_save_state()`.
-   - Enforce completeness rules for STRICT tier.
+#### Key actions
+1. Implement core dataclasses:
+   - `WiringFinding`
+   - `WiringReport`
+   - `WiringConfig`
 
-2. **Silent Success Detection**
-   - Implement `silent_success.py`:
-     - `FileSnapshot`
-     - `StepTrace`
-     - `SilentSuccessConfig`
-     - `SilentSuccessDetector`
-     - `SilentSuccessResult`
-     - `SilentSuccessError`
-   - Instrument executor:
-     - pre-run snapshot
-     - step timing capture
-     - post-loop detector invocation
-     - return-contract emission ordering
-   - Add new outcomes:
-     - `SILENT_SUCCESS_SUSPECTED`
-     - `SUSPICIOUS_SUCCESS`
+2. Implement AST analysis primitives:
+   - unwired optional callable detection
+   - orphan module detection
+   - registry verification detection
 
-3. **Deterministic spec fidelity**
-   - Implement `fidelity_inventory.py`.
-   - Add D-03 and D-04 to `SPEC_FIDELITY_GATE`.
-   - Ensure deterministic findings fail the gate even when LLM severity is zero.
+3. Add config and suppression handling:
+   - provider directory configuration
+   - registry pattern configuration
+   - exclusion rules
+   - `wiring_whitelist.yaml` loading and validation behavior by rollout phase
 
-4. **Roadmap execution correction**
-   - Insert `deviation-analysis` after `spec-fidelity`.
-   - Update step registry and prompt builder.
+4. Implement severity classification:
+   - critical
+   - major
+   - info
 
-### Milestones
-- **M1.1** `AuditGateResult` schema finalized and persisted.
-- **M1.2** `SilentSuccessDetector` operational in executor.
-- **M1.3** D-03/D-04 deterministic checks wired and failing correctly.
-- **M1.4** `deviation-analysis.md` produced by roadmap pipeline.
+5. Add graceful degradation behavior:
+   - SyntaxError-safe file analysis
+   - skip/continue on malformed source where required
 
-### Exit criteria
-- SC-001, SC-002, SC-010, SC-012 pass.
-- Deterministic replay produces stable gate results.
-- Missing/unknown deterministic inputs fail safely.
+#### Architectural notes
+- Keep analysis logic isolated in `audit/*` or equivalent consumer-side layer.
+- Do not couple AST logic to roadmap or sprint orchestration.
+- Treat false-positive reduction as a first-class design concern, especially for alias/re-export patterns.
+
+#### Deliverables
+- Working analysis engine
+- Config loading and whitelist handling
+- Severity and blocking semantics support
+
+#### Milestone
+- **M1: Analysis engine detects all three finding classes from fixtures**
+
+#### Timeline estimate
+- **2-3 phase-days**
 
 ---
 
-## Phase 2 — Gate implementation and workflow integration
+### Phase 2 — ToolOrchestrator AST plugin integration
 
-### Goals
-- Convert behavioral checks into enforceable milestone/release audit gates.
-- Introduce lease/heartbeat/retry safety controls.
-- Integrate operational state transitions and observability.
+**Objective:** Populate reusable file-level analysis data without breaking dependency boundaries.
 
-### Workstreams
-1. **Lease and retry model**
-   - Implement audit lease model with:
-     - `lease_id`
-     - `owner`
-     - `acquired_at`
-     - `renewed_at`
-     - `expires_at`
-   - Heartbeat renewal interval:
-     - `<= audit_lease_timeout / 3`
-   - Timeout transition to `audit_*_failed(timeout)`.
-   - Durable `audit_attempts` counter with provisional defaults.
+#### Key actions
+1. Implement `ast_analyze_file()` plugin for `ToolOrchestrator`.
+2. Populate `FileAnalysis` fields:
+   - `references`
+   - `imports`
+   - `exports`
+   - metadata: `has_dispatch_registry`, `injectable_callables`
+3. Handle parse failures deterministically by returning empty analysis objects.
+4. Validate whether T06 cut criteria can be met before T08 begins.
 
-2. **Smoke Test Gate G-012**
-   - Implement `smoke_gate.py` with:
-     - configs
-     - results
-     - execution runner
-     - timing/artifact/content checks
-   - Register as release-tier blocking gate.
-   - Support `--mock-llm` mode for CI.
-   - Enforce failure routing:
-     - network/API failures → transient
-     - timing/artifact/content evidence failures → policy.smoke_failure.*
+#### Architectural notes
+- This phase is a leverage point: it improves reuse across audit logic and reduces duplicated scanning paths.
+- Because this item has explicit defer criteria, it should be isolated behind a clean boundary so v2.1 deferral does not destabilize the main rollout.
 
-3. **Execution and policy integration**
-   - Wire `SprintGatePolicy` into `execute_sprint()`.
-   - Wire `TrailingGateRunner` with:
-     - `GateScope.MILESTONE`
-     - `GateScope.RELEASE`
-   - Extend `OutputMonitor` for lease heartbeats.
-   - Add `--grace-period` CLI support.
+#### Deliverables
+- AST plugin implementation
+- Plugin-backed test fixtures
+- Go/no-go recommendation against T06 cut criteria
 
-4. **Tasklist and rule propagation**
-   - Add `audit_gate_required` derivation to tasklist generation.
-   - Preserve task-scope sections with deferral annotations only.
+#### Milestone
+- **M2: FileAnalysis is populated correctly and remains contract-safe**
 
-5. **TUI and operator experience**
-   - Surface `AuditWorkflowState` in phase table.
-   - Add release guard for “Sprint Complete”.
-   - Add operator guidance for audit failure states.
-
-### Milestones
-- **M2.1** Lease/heartbeat/retry state machine works end-to-end.
-- **M2.2** G-012 fails known-bad executor correctly.
-- **M2.3** G-012 passes after defect fixes.
-- **M2.4** Milestone/release transition blocking enforced.
-- **M2.5** TUI/state persistence/operator flows complete.
-
-### Exit criteria
-- SC-005, SC-006, SC-008, SC-009, SC-011, SC-014 pass.
-- No deadlocks in timeout/retry flows.
-- Current-artifact freshness validation blocks stale gate reuse.
+#### Timeline estimate
+- **1-1.5 phase-days**
 
 ---
 
-## Phase 3 — Validation, calibration, and shadow rollout
+### Phase 3 — Report generation and gate contract compliance
 
-### Goals
-- Validate real-world behavior without blocking production flows.
-- Calibrate timing/KPI thresholds from evidence.
-- Ensure rollout readiness with complete telemetry.
+**Objective:** Emit an artifact that can be validated by existing gate machinery with zero substrate changes.
 
-### Workstreams
-1. **Shadow mode instrumentation**
-   - Wire `ShadowGateMetrics`.
-   - Emit:
-     - lease acquisition/duration
-     - lease timeout counts
-     - override events
-     - suspicion-score band distributions
-     - smoke gate outcomes
-     - fidelity deterministic failure rates
+#### Key actions
+1. Implement report emitter with:
+   - exact 17 required frontmatter fields
+   - exact Markdown section order
+   - YAML-safe serialization using `yaml.safe_dump()` for string values
 
-2. **Threshold calibration**
-   - Recalibrate:
-     - M1 runtime thresholds for phase scope
-     - S2 silent-success timing thresholds
-     - M13/M14 provisional KPI defaults
-   - Secure Reliability Owner approval.
+2. Implement private helper:
+   - `_extract_frontmatter_values()`
 
-3. **Regression and replay validation**
-   - Run v2.25 artifact regressions.
-   - Validate deterministic replay stability across repeated runs.
-   - Verify per-task artifact addressability checkpoint C3.
+3. Define `WIRING_GATE`:
+   - required fields
+   - enforcement tier
+   - semantic checks
 
-4. **Operational readiness**
-   - Produce rollback drill.
-   - Validate override restrictions by scope.
-   - Confirm no source-file line citations in prohibited sections.
+4. Implement semantic checks:
+   - `_analysis_complete_true`
+   - `_recognized_rollout_mode`
+   - `_finding_counts_consistent`
+   - `_severity_summary_consistent`
+   - `_zero_blocking_findings_for_mode`
 
-### Milestones
-- **M3.1** Shadow mode enabled with full telemetry.
-- **M3.2** Calibration protocol documented and approved.
-- **M3.3** C3 checkpoint resolved.
-- **M3.4** Promotion decision package prepared.
+5. Validate mode-aware blocking logic:
+   - shadow = 0
+   - soft = critical only
+   - full = critical + major
 
-### Exit criteria
-- SC-007, SC-013, SC-015 readiness evidence complete.
-- NFR rollout promotion criteria satisfied for Shadow → Soft.
+#### Architectural notes
+- This phase is the contract boundary between analysis and enforcement.
+- The report must encode policy clearly enough that gate behavior is artifact-driven, not repo-state-driven.
 
----
+#### Deliverables
+- Gate-valid report emitter
+- Gate definition and semantic checks
+- Unit tests for frontmatter invariants and mode logic
 
-## Phase 4 — Soft enforcement to full promotion
+#### Milestone
+- **M3: `gate_passed()` validates a compliant wiring report without pipeline changes**
 
-### Goals
-- Progress from advisory visibility to blocking enforcement.
-- Verify sustained KPI compliance across consecutive windows.
-- Complete rollback and release-readiness validation.
-
-### Workstreams
-1. **Soft enforcement**
-   - Enable blocking where approved.
-   - Allow only authorized override paths at milestone scope.
-   - Prohibit release-scope overrides.
-
-2. **Full promotion**
-   - Require all M1-M12 criteria across two consecutive windows.
-   - Complete rollback drill successfully.
-   - Lock normative thresholds after approval.
-
-3. **Post-promotion hardening**
-   - Review false-positive/false-negative rates.
-   - Confirm operator workflow clarity.
-   - Freeze v1.2.1 scope and open v1.3 backlog for task-scope activation.
-
-### Milestones
-- **M4.1** Soft mode enabled.
-- **M4.2** KPI windows pass consecutively.
-- **M4.3** Full mode enabled for release blocking.
-- **M4.4** v1.2.1 closeout and v1.3 handoff complete.
-
-### Exit criteria
-- SC-015 and SC-016 pass.
-- Full promotion approved with rollback evidence and sustained KPI performance.
+#### Timeline estimate
+- **1.5-2 phase-days**
 
 ---
 
-# 3. Risk assessment and mitigation strategies
+### Phase 4 — Roadmap pipeline integration
 
-## High-risk items
+**Objective:** Add wiring verification as a deterministic post-merge roadmap step.
 
-1. **Silent-success threshold miscalibration**
-   - **Impact:** False positives or missed no-op executions.
+#### Key actions
+1. Add `build_wiring_verification_prompt()` returning empty string.
+2. Add `wiring-verification` step in `_build_steps()`:
+   - after `spec-fidelity`
+   - before `remediate`
+   - `GateMode.TRAILING`
+   - `retry_limit=0`
+   - `timeout_seconds=60`
+
+3. Update executor special-case path:
+   - `step.id == "wiring-verification"` runs deterministic analysis + report emission
+
+4. Update step ordering:
+   - `_get_all_step_ids()`
+
+5. Register gate:
+   - add `WIRING_GATE` to `ALL_GATES`
+
+#### Architectural notes
+- This phase must preserve static gate wiring and avoid dynamic registry behavior.
+- Special-casing the step is acceptable because the spec explicitly defines it as non-LLM.
+
+#### Deliverables
+- End-to-end roadmap pipeline wiring step
+- Valid generated report artifact in roadmap runs
+
+#### Milestone
+- **M4: Roadmap pipeline executes wiring verification as a non-LLM trailing gate step**
+
+#### Timeline estimate
+- **1-1.5 phase-days**
+
+---
+
+### Phase 5 — Sprint integration and rollout controls
+
+**Objective:** Apply the same analysis to sprint execution with mode-aware behavior.
+
+#### Key actions
+1. Add `wiring_gate_mode` to `SprintConfig`.
+2. Implement sprint post-task hook behavior:
+   - shadow: log only
+   - soft: warn
+   - full: affect `gate_passed()` and remediation path
+
+3. Add pre-activation operator safeguards:
+   - provider directory zero-match warning
+   - whitelist validation escalation by mode
+   - performance guardrails
+
+4. Confirm `source_dir` contract and wire target directory correctly.
+
+#### Architectural notes
+- Sprint integration is operationally sensitive because it affects developer workflow directly.
+- Keep enforcement behavior explicit and observable; avoid silent state changes.
+
+#### Deliverables
+- Sprint hook implementation
+- Mode-aware operator messaging
+- Integration tests for task status behavior
+
+#### Milestone
+- **M5: Sprint execution honors shadow/soft/full semantics without regressions**
+
+#### Timeline estimate
+- **1-1.5 phase-days**
+
+---
+
+### Phase 6 — Cleanup-audit agent extensions
+
+**Objective:** Extend audit capabilities additively to incorporate wiring evidence.
+
+#### Key actions
+1. Extend `audit-scanner`:
+   - emit `REVIEW:wiring` classification
+
+2. Extend `audit-analyzer`:
+   - add 9th mandatory field: Wiring path
+   - support `UNWIRED_DECLARATION`
+   - support `BROKEN_REGISTRATION`
+
+3. Extend `audit-validator`:
+   - add Wiring Claim Verification check
+   - critical fail if DELETE is recommended for files with live wiring paths
+
+4. Clarify and implement additive behavior for:
+   - `audit-comparator`
+   - `audit-consolidator`
+
+#### Architectural notes
+- Do not create new audit agent types.
+- Extensions must be strictly additive and non-breaking.
+
+#### Deliverables
+- Updated agent specs
+- Agent tests covering new wiring behavior
+- Consolidated audit compatibility review
+
+#### Milestone
+- **M6: Cleanup-audit pipeline incorporates wiring-aware signals without altering existing audit behavior**
+
+#### Timeline estimate
+- **1-2 phase-days**
+
+---
+
+### Phase 7 — Validation, benchmarking, and rollout readiness
+
+**Objective:** Prove correctness, performance, and calibration readiness.
+
+#### Key actions
+1. Build test suite:
+   - minimum 20 unit tests
+   - minimum 3 integration tests
+   - benchmark coverage for <5s/50 files
+
+2. Achieve coverage targets:
+   - >=90% on `wiring_gate.py`
+   - >=90% on `wiring_analyzer.py`
+
+3. Run retrospective validation:
+   - known cli-portify no-op bug fixture
+   - alias/re-export noise characterization
+   - provider-dir sanity checks
+
+4. Collect shadow-mode quality metrics:
+   - false positive rate
+   - true positive rate
+   - p95 runtime
+   - whitelist churn stability across sprints
+
+5. Prepare activation recommendation:
+   - remain shadow, advance to soft, or defer
+
+#### Deliverables
+- Full test evidence bundle
+- Benchmark results
+- Shadow-mode readiness report
+
+#### Milestone
+- **M7: System is validated for shadow deployment and objectively assessed for soft-mode readiness**
+
+#### Timeline estimate
+- **2-3 phase-days plus shadow observation period**
+
+---
+
+### Phase 8 — Rollout progression and operational hardening
+
+**Objective:** Move safely from shadow to soft and, later, full enforcement.
+
+#### Key actions
+1. Shadow mode rollout:
+   - enable in roadmap pipeline
+   - enable in sprint hook
+   - observe for minimum 2 release cycles
+
+2. Soft mode activation gate:
+   - FPR < 15%
+   - TPR > 50%
+   - p95 < 5s
+   - noise floor separation for unwired-callable detection
+
+3. Full mode activation gate:
+   - FPR < 5%
+   - TPR > 80%
+   - whitelist stable for 5+ sprints
+
+4. Schedule v2.1 improvements if blocked by alias noise:
+   - import alias pre-pass
+   - re-export chain handling
+   - additional dynamic-retention evidence heuristics
+
+#### Deliverables
+- Rollout scorecard
+- Phase advancement decision record
+- Deferred enhancement plan if needed
+
+#### Milestone
+- **M8: Enforcement level advanced only on measured operational evidence**
+
+#### Timeline estimate
+- **Shadow: 2 release cycles minimum**
+- **Soft-to-full: dependent on observed quality metrics**
+
+## 3. Risk assessment and mitigation strategies
+
+### High-priority architectural risks
+
+1. **R1 — False positives from intentional Optional[Callable] seams**
+   - **Impact:** Undermines trust in gate output and blocks safe rollout.
    - **Mitigation:**
-     - Require documented calibration methodology before soft activation.
-     - Run shadow data collection before normative thresholds.
-     - Separate warn/soft-fail/hard-fail bands operationally.
+     - whitelist support from initial release
+     - shadow-first rollout
+     - explicit severity/info classification for intentional optional seams
+     - collect alias/re-export false-positive patterns as structured evidence
 
-2. **Blocking defects invalidate smoke gate**
-   - **Impact:** Legitimate executions appear empty; G-012 becomes misleading.
+2. **R5 — Misconfigured provider directories**
+   - **Impact:** Orphan analysis becomes useless or misleading.
    - **Mitigation:**
-     - Make defect fixes a hard dependency before Phase 2.
-     - Keep SC-003 and SC-004 as mandatory preconditions.
+     - first-run sanity warning if configured directories produce zero matches
+     - pre-activation checklist
+     - integration test for zero-match warning path
+     - operator-visible configuration summary in report/log output
 
-3. **State-machine deadlocks in lease/retry flows**
-   - **Impact:** Hung audit states block completion or require manual recovery.
+3. **R6 — Alias and re-export noise**
+   - **Impact:** Inflates FPR enough to invalidate soft/full activation.
    - **Mitigation:**
-     - Deterministic timeout transitions.
-     - Outer wall-clock ceiling enforcement.
-     - Explicit lease expiry handling and retry budget exhaustion tests.
+     - explicitly treat as known limitation
+     - calibrate against measured noise floor
+     - block activation if unwired-callable FPR cannot be separated from noise
+     - isolate v2.1 alias pre-pass as an enhancement seam
 
-4. **Stale gate results allow incorrect transitions**
-   - **Impact:** Completion or release may be approved on old evidence.
+4. **R7 — Audit agent regression from extensions**
+   - **Impact:** Existing cleanup-audit workflows degrade.
    - **Mitigation:**
-     - Artifact hash storage in `AuditGateResult`.
-     - Mandatory freshness validation against current artifact version.
-     - Re-evaluation on mismatch.
+     - additive-only changes
+     - no removal of existing rules
+     - regression tests for prior audit outputs
+     - staged validation of scanner, analyzer, validator independently
 
-5. **Per-task artifact addressability uncertainty**
-   - **Impact:** v1.3 task-scope path may be structurally blocked.
+### Medium-priority operational risks
+
+5. **R3 — Insufficient shadow data for calibration**
    - **Mitigation:**
-     - Treat C3 as explicit go/no-go checkpoint.
-     - Escalate early if outputs are not individually addressable.
-     - Avoid backdoor task-scope activation in v1.2.1.
+     - require minimum 2-release shadow period
+     - track structured FPR/TPR evidence
+     - do not compress observation period to meet schedule pressure
 
-## Medium-risk items
-
-6. **Smoke fixture drift**
+6. **R4 — Sprint performance regression**
    - **Mitigation:**
-     - Stability contract for named fixture components.
-     - Dedicated fixture-content regression test.
+     - AST-only deterministic analysis
+     - benchmark on 50-file fixture
+     - instrument runtime by phase
+     - short-circuit on excluded/skipped files
 
-7. **`--mock-llm` ambiguity**
+7. **R8 — Gate mode resolution conflicts with trailing shadow intent**
    - **Mitigation:**
-     - Define active vs skipped check matrix before CI adoption.
-     - Preserve artifact-absence checks as non-negotiable.
+     - set explicit step `gate_mode`
+     - semantic check always passes shadow mode
+     - integration tests for shadow/non-blocking behavior
 
-8. **Regex undercoverage in deterministic fidelity checks**
+### Low-priority but important correctness risks
+
+8. **R2 — SyntaxError and complex AST patterns**
    - **Mitigation:**
-     - Validate against representative spec corpus.
-     - Add allowlist/feature flag if authoring conventions diverge.
+     - parse-fail-safe behavior
+     - skipped-file accounting
+     - Evidence and Limitations section in report
 
-9. **Overlap with Anti-Instincts**
-   - **Mitigation:**
-     - Gate D-03/D-04 behind feature flag if sequencing requires coexistence.
+## 4. Resource requirements and dependencies
 
-10. **KPI threshold drift between scopes**
-    - **Mitigation:**
-      - Treat task-scope and phase-scope thresholds independently.
-      - Require fresh calibration rather than inherited defaults.
+### Engineering roles
 
-## Governance risk
-11. **Unowned blockers and decisions**
-    - **Mitigation:**
-      - No phase GO without named owner + deadline for each blocker.
-      - Program manager tracks closure before each promotion gate.
+1. **Architect/lead engineer**
+   - Owns design decisions, layering enforcement, rollout criteria, and cross-subsystem sequencing.
 
-12. **Scope creep into task-gating**
-    - **Mitigation:**
-      - Preserve annotations only.
-      - Reject implementation work that activates task scope in v1.2.1.
+2. **Backend/Python implementation engineer**
+   - Implements AST analyzers, report emitter, and integrations.
 
----
+3. **QA/test engineer**
+   - Builds fixtures, coverage, benchmark tests, and rollout validation evidence.
 
-# 4. Resource requirements and dependencies
+4. **Audit workflow owner**
+   - Reviews additive agent behavior changes and validates no regression in cleanup-audit flows.
 
-## Required roles
-1. **Architect / Technical Lead**
-   - Owns cross-subsystem design, interface contracts, rollout sequencing.
+### Technical dependencies
 
-2. **Reliability Owner**
-   - Owns timeout values, calibration protocols, KPI approval, rollout readiness.
+1. Existing pipeline contracts:
+   - `pipeline/models.py`
+   - `pipeline/gates.py`
+   - `pipeline/trailing_gate.py`
 
-3. **Policy Owner**
-   - Owns failure-class taxonomy, override restrictions, strictness/profile alignment.
+2. Existing orchestration surfaces:
+   - `roadmap/executor.py`
+   - `roadmap/gates.py`
+   - `roadmap/prompts.py`
+   - `sprint/executor.py`
+   - `sprint/models.py`
+   - `audit/tool_orchestrator.py`
 
-4. **CLI / Execution Engineer**
-   - Implements executor instrumentation, smoke gate, command validation, trailing gate wiring.
+3. Standard library/runtime dependencies:
+   - `ast`
+   - `re`
+   - `yaml.safe_dump()`
 
-5. **Audit / State Machine Engineer**
-   - Implements `AuditGateResult`, lease model, retries, persistence, freshness checks.
+4. Optional operational artifact:
+   - `wiring_whitelist.yaml`
 
-6. **Roadmap / Semantic Validation Engineer**
-   - Implements D-03/D-04, deviation-analysis step, spec inventory.
+5. Agent-spec dependencies:
+   - scanner
+   - analyzer
+   - validator
+   - comparator
+   - consolidator
 
-7. **TUI / UX Engineer**
-   - Surfaces audit workflow states and operator guidance.
+### Coordination dependencies
 
-8. **QA / Validation Engineer**
-   - Owns regression fixtures, replay stability, deadlock testing, smoke test matrices.
+1. **Concurrent modification coordination**
+   - `roadmap/gates.py` merge sequencing must be agreed early to avoid rebasing churn.
 
-9. **Program Manager**
-   - Tracks blocker closure, owner assignments, promotion evidence, and go/no-go readiness.
+2. **Rollout ownership**
+   - one owner must be accountable for shadow metrics and activation decisions.
 
-## Technical dependencies
-1. Existing `GateResult` in `cli/audit/evidence_gate.py`
-2. Sprint executor integration point
-3. `OutputMonitor` extension point
-4. `TrailingGateRunner`
-5. `GATE_REGISTRY`
-6. `SPEC_FIDELITY_GATE`
-7. `return-contract.yaml`
-8. v2.25 regression artifacts
-9. `sc-audit-gate-protocol/SKILL.md`
-10. `sc-tasklist-protocol/SKILL.md`
-11. Tasklist generator
-12. LLM API availability for non-mock smoke runs
-13. TUI state rendering infrastructure
-14. Audit persistence path in state save/load lifecycle
+3. **Spec clarification owners**
+   - unresolved fields like `audit_artifacts_used` and comparator/consolidator behavior need explicit decisions before implementation finalization.
 
-## Infrastructure and tooling needs
-- Stable smoke fixture repository path
-- CI lane supporting `--mock-llm`
-- Replay test harness
-- Shadow telemetry capture and dashboarding
-- Artifact hashing capability
-- UTC timestamp normalization for lease tracking
+## 5. Success criteria and validation approach
 
----
+### Functional validation
 
-# 5. Success criteria and validation approach
+1. **Detection coverage**
+   - Validate each core finding class with dedicated fixtures:
+     - unwired optional callable
+     - orphan provider module
+     - broken registry entry
 
-## Validation strategy
+2. **Gate contract compliance**
+   - Confirm well-formed report passes existing gate evaluation unchanged.
 
-### A. Foundation validation
-1. Verify broken executor triggers silent-success hard evidence.
-2. Verify deterministic fidelity checks fail incorrect roadmap/spec pairs.
-3. Verify config validation prevents invalid execution before runtime.
+3. **Mode-aware behavior**
+   - Prove:
+     - shadow passes regardless of findings
+     - soft blocks only critical findings
+     - full blocks critical + major findings
 
-### B. Integration validation
-1. Verify smoke gate fails known-bad executor for the correct reasons.
-2. Verify smoke gate passes after executor defects are fixed.
-3. Verify current-artifact freshness is enforced during milestone/release transitions.
-4. Verify all-EXEMPT flows fail unless valid dry-run conditions apply.
+4. **Whitelist behavior**
+   - Confirm suppressions reduce active findings and increment `whitelist_entries_applied`.
 
-### C. Reliability validation
-1. Verify deterministic replay stability.
-2. Verify timeout/retry paths terminate without deadlock.
-3. Verify lease renewal and expiry behavior under delayed or missing heartbeats.
-4. Verify retry budgets are durable and scope-aware.
+### Non-functional validation
 
-### D. Governance validation
-1. Verify release-scope overrides are impossible.
-2. Verify milestone overrides require valid `OverrideRecord`.
-3. Verify deterministic D-03/D-04 failures cannot be masked by LLM output.
-4. Verify missing audit-result blocks fail STRICT tier checks.
+1. **Performance**
+   - < 5 seconds for 50 files
+   - capture p95 runtime during shadow rollout
 
-### E. Rollout validation
-1. Shadow metrics collected and analyzed.
-2. KPI thresholds recalibrated and approved.
-3. Rollback drill executed successfully.
-4. Two consecutive promotion windows pass before full rollout.
+2. **Determinism**
+   - no subprocesses
+   - no LLM path
+   - repeatable outputs for same repository state
 
-## Success criteria mapping
-- **Build correctness:** SC-001 through SC-006
-- **Determinism and auditability:** SC-007 through SC-012
-- **Structural future-readiness:** SC-013
-- **Operational policy enforcement:** SC-014 through SC-016
+3. **Coverage**
+   - >=90% for target modules
+   - minimum test count thresholds met
 
-## Recommended test suites
-1. **Unit tests**
-   - score bands
-   - regex inventory extraction
-   - failure-class routing
-   - artifact hash freshness logic
+4. **Layering compliance**
+   - verify no forbidden imports introduced
+   - review import graph for `pipeline/*` isolation
 
-2. **Integration tests**
-   - executor instrumentation
-   - smoke gate end-to-end
-   - trailing gate evaluation
-   - tasklist derivation of `audit_gate_required`
+### Operational validation
 
-3. **Regression tests**
-   - v2.25 spec/roadmap pairs
-   - smoke fixture content anchors
-   - stale gate result rejection
+1. **Retrospective known-bug detection**
+   - detect cli-portify executor no-op issue
 
-4. **Operational tests**
-   - lease expiry and recovery
-   - retry exhaustion
-   - shadow metric emission
-   - TUI state rendering and operator messaging
+2. **Pre-activation safety checks**
+   - warning on zero provider-dir matches
+   - operator visibility for malformed whitelist behavior by mode
 
----
+3. **Audit extension quality**
+   - scanner emits `REVIEW:wiring`
+   - analyzer emits 9-field profile with Wiring path
+   - validator blocks unsafe DELETE recommendations
 
-# 6. Timeline estimates per phase
+### Exit criteria by rollout stage
 
-Given the **0.92 / HIGH** complexity score and cross-cutting integration density, the roadmap should be planned as a **multi-wave delivery** rather than a single sprint.
+1. **Shadow ready**
+   - all core functional tests green
+   - gate-valid report emitted
+   - benchmark target met
+   - roadmap and sprint integration stable
 
-## Estimated phase durations
+2. **Soft ready**
+   - FPR < 15%
+   - TPR > 50%
+   - p95 < 5s
+   - shadow data sufficient
+   - alias noise separable from signal
 
-1. **Phase 0 — Governance and defect closure**
-   - **Estimate:** 1-2 weeks
-   - **Reasoning:** blocker closure, owner assignment, design ratification, removal of dead paths
+3. **Full ready**
+   - FPR < 5%
+   - TPR > 80%
+   - whitelist stable for 5+ sprints
+   - no material audit regressions
 
-2. **Phase 1 — Deterministic audit foundation**
-   - **Estimate:** 2-3 weeks
-   - **Reasoning:** new result model, executor instrumentation, silent-success detector, fidelity inventory, roadmap step changes
+## 6. Timeline estimates per phase
 
-3. **Phase 2 — Gate implementation and workflow integration**
-   - **Estimate:** 3-4 weeks
-   - **Reasoning:** state-machine integration, lease/heartbeat/retry logic, smoke gate, transition enforcement, TUI/state persistence
+| Phase | Name | Estimate | Exit milestone |
+|---|---|---:|---|
+| 0 | Architecture alignment and decision closure | 0.5-1 phase-day | M0 |
+| 1 | Core domain models and analysis engine | 2-3 phase-days | M1 |
+| 2 | ToolOrchestrator AST plugin integration | 1-1.5 phase-days | M2 |
+| 3 | Report generation and gate compliance | 1.5-2 phase-days | M3 |
+| 4 | Roadmap pipeline integration | 1-1.5 phase-days | M4 |
+| 5 | Sprint integration and rollout controls | 1-1.5 phase-days | M5 |
+| 6 | Cleanup-audit agent extensions | 1-2 phase-days | M6 |
+| 7 | Validation, benchmarking, rollout readiness | 2-3 phase-days | M7 |
+| 8 | Rollout progression and hardening | 2 release cycles minimum for shadow, then metrics-driven | M8 |
 
-4. **Phase 3 — Shadow rollout and calibration**
-   - **Estimate:** 2-4 weeks
-   - **Reasoning:** data collection window, KPI calibration, replay validation, C3 checkpoint, operational readiness evidence
+### Aggregate implementation estimate
+1. **Build-to-shadow-ready engineering effort**
+   - approximately **9.5-15.5 phase-days**
 
-5. **Phase 4 — Soft to full promotion**
-   - **Estimate:** 2-3 weeks
-   - **Reasoning:** consecutive KPI windows, rollback drill, production hardening, closeout
+2. **Shadow observation window**
+   - **minimum 2 release cycles**
 
-## Overall program estimate
-- **Best-case:** 10 weeks
-- **Expected architectural planning range:** 12-16 weeks
-- **Primary schedule drivers:**
-  - blocker ownership latency
-  - calibration window length
-  - C3 per-task artifact decision
-  - `--mock-llm` CI semantics
-  - rollout KPI stability
+3. **Soft/full activation**
+   - **metrics-gated, not schedule-gated**
 
-## Recommended sequencing guardrails
-1. Do not start Phase 2 until P0-A fixes are verified.
-2. Do not promote to Soft until calibration protocol is approved.
-3. Do not promote to Full until two consecutive KPI windows pass.
-4. Do not expand scope into task gating during v1.2.1.
+## Recommended architectural priorities
 
----
+1. **Prioritize correctness over breadth**
+   - Ship the core analyzer and gate-valid report before deeper ToolOrchestrator optimization if schedule pressure emerges.
 
-# Recommended architect decisions to make immediately
+2. **Protect the dependency boundaries aggressively**
+   - The layering rule is a structural asset; violating it would create more long-term cost than deferring secondary enhancements.
 
-1. Assign owners and deadlines for all unresolved blockers.
-2. Approve provisional milestone/release lease timeout defaults.
-3. Decide whether `reimbursement_rate` is removed or productized.
-4. Define the exact `--mock-llm` check matrix.
-5. Approve the shadow observation window required for KPI normalization.
-6. Resolve C3 escalation authority before Phase 3 begins.
-7. Decide whether D-03/D-04 ship behind a feature flag based on Anti-Instincts timing.
+3. **Treat rollout as part of the architecture, not postscript**
+   - Shadow telemetry and false-positive calibration are essential system components, not operational extras.
 
-# Final recommendation
+4. **Design for auditability**
+   - Every enforcement decision should be explainable from report frontmatter and evidence sections alone.
 
-Proceed with a **four-phase delivery plus rollout promotion**, treating **Phase 0 and Phase 1 as mandatory architectural stabilization**. The highest-value path is to first make false-success detection and deterministic fidelity failures undeniable in the system, then enforce milestone/release gating only after timeout, freshness, and rollout controls are operationally proven. This sequencing minimizes release risk while preserving a clean v1.3 path for task-scope expansion.
+5. **Use explicit deferral if T06 slips**
+   - The ToolOrchestrator AST plugin is valuable, but the roadmap should not jeopardize the primary gate rollout if the cut criterion triggers.
+
+## Final milestone sequence
+
+1. **M0** — Spec ambiguities resolved and architecture frozen  
+2. **M1** — Analysis engine detects all required finding classes  
+3. **M2** — FileAnalysis AST plugin integrated or explicitly deferred  
+4. **M3** — Gate-valid report emitted and validated by existing gate machinery  
+5. **M4** — Roadmap pipeline step operational  
+6. **M5** — Sprint hook operational with shadow/soft/full behavior  
+7. **M6** — Cleanup-audit extensions operational and additive  
+8. **M7** — Tests, coverage, benchmarks, and retrospective validations complete  
+9. **M8** — Shadow rollout complete; evidence-based decision on soft/full enforcement

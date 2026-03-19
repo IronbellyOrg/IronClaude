@@ -148,6 +148,11 @@ class ToolOrchestrator:
 
     Dispatches analysis for each file, using cached results when
     content hasn't changed. Tracks cache statistics.
+
+    Supports plugins via register_plugin(). Plugins are callables with
+    signature (str, str, FileAnalysis) -> FileAnalysis that post-process
+    analysis results (e.g., to enrich FileAnalysis.references with
+    AST-derived cross-file references).
     """
 
     def __init__(
@@ -157,13 +162,35 @@ class ToolOrchestrator:
     ) -> None:
         self._analyzer = analyzer or _default_analyzer
         self._cache = cache or ResultCache()
+        self._plugins: list[Callable[[str, str, FileAnalysis], FileAnalysis]] = []
+
+    def register_plugin(
+        self,
+        plugin: Callable[[str, str, FileAnalysis], FileAnalysis],
+    ) -> None:
+        """Register a post-analysis plugin.
+
+        Plugins receive (file_path, content, FileAnalysis) and return
+        an enriched FileAnalysis. They are called in registration order
+        after the primary analyzer.
+        """
+        self._plugins.append(plugin)
+
+    @property
+    def plugins(self) -> list[Callable[[str, str, FileAnalysis], FileAnalysis]]:
+        """Registered plugins (read-only)."""
+        return list(self._plugins)
 
     @property
     def cache(self) -> ResultCache:
         return self._cache
 
     def analyze_file(self, file_path: str, content: str) -> FileAnalysis:
-        """Analyze a single file, using cache when possible."""
+        """Analyze a single file, using cache when possible.
+
+        After primary analysis, runs all registered plugins in order
+        to enrich the result (e.g., populating FileAnalysis.references).
+        """
         content_hash = compute_content_hash(content)
 
         cached = self._cache.get(content_hash)
@@ -171,6 +198,10 @@ class ToolOrchestrator:
             return cached
 
         result = self._analyzer(file_path, content)
+
+        for plugin in self._plugins:
+            result = plugin(file_path, content, result)
+
         self._cache.put(content_hash, result)
         return result
 

@@ -1,5 +1,3 @@
-
-
 ---
 total_diff_points: 12
 shared_assumptions_count: 14
@@ -7,126 +5,128 @@ shared_assumptions_count: 14
 
 ## 1. Shared Assumptions and Agreements
 
-Both variants align on these foundational points:
+Both variants agree on the following foundational points:
 
-1. **Complexity score**: 0.92 / HIGH — both treat this as architecturally significant
-2. **Scope boundary**: v1.2.1 = milestone + release scope only; task-scope deferred to v1.3
-3. **Phase structure**: Phase 0 (defects/governance) → Foundation → Integration → Rollout promotion
-4. **P0-A defects**: `run_portify()` step_runner fix and `validate_portify_config()` enforcement are hard prerequisites
-5. **Dead code retirement**: Both retire `_apply_resume_after_spec_patch()` and `_find_qualifying_deviation_files()`
-6. **Canonical terms**: Same 6 terms defined (`AuditLease`, `audit_lease_timeout`, `max_turns`, `Critical Path Override`, `audit_gate_required`, `audit_attempts`)
-7. **`AuditGateResult` naming**: Both introduce a new dataclass to avoid collision with existing `GateResult`
-8. **Silent Success Detector**: Same signal suite (S1/S2/S3), same composite formula, same band thresholds
-9. **Smoke Test Gate G-012**: Same check hierarchy (timing/artifact/content), same failure routing
-10. **D-03/D-04 fidelity checks**: Deterministic findings override LLM severity in both
-11. **Lease model**: Same fields, same heartbeat formula (`≤ timeout/3`), same timeout behavior
-12. **Rollout sequence**: Shadow → Soft → Full with KPI gates at each transition
-13. **Override rules**: Hard-fail never overridable at release scope; soft-fail overridable at task/milestone
-14. **Required roles**: Both identify the same role gaps (Reliability Owner, Policy Owner, Tasklist Owner, Program Manager)
+1. **Three detection classes**: Unwired optional callable injections, orphan provider modules, broken dispatch registries
+2. **Zero pipeline substrate modifications**: All new code consumes existing contracts (`GateCriteria`, `SemanticCheck`, `Step`, `GateMode`)
+3. **Deterministic AST-only analysis**: No LLM, no subprocesses
+4. **Three-phase rollout**: Shadow → soft → full enforcement with statistical gates between phases
+5. **Same core dataclasses**: `WiringFinding`, `WiringReport`, `WiringConfig`
+6. **Same gate definition**: `WIRING_GATE` with 5 semantic checks and 17 frontmatter fields
+7. **Same rollout thresholds**: FPR <15% for soft, <5% for full; TPR >50%/80%; whitelist stable 5+ sprints
+8. **Same performance targets**: <5s for 50 files; 90% coverage on core modules; 20+ unit / 3+ integration tests
+9. **Additive-only agent extensions**: No new agent types, no removal of existing rules (NFR-013)
+10. **Same internal/external dependency set**: Identical files to modify and consume
+11. **ToolOrchestrator plugin has explicit cut criteria**: Defer to v2.1 if late
+12. **Merge coordination required**: `roadmap/gates.py` shared modification point needs sequencing
+13. **Same open questions**: `audit_artifacts_used`, `files_skipped`, whitelist strictness, `SprintConfig.source_dir`
+14. **v2.1 alias pre-pass**: Both defer import alias/re-export handling as a future enhancement
 
 ---
 
 ## 2. Divergence Points
 
-### D-01: Phase Count and Boundary Placement
+### D1 — Phase 0: Explicit Architecture Alignment Phase
 
-- **Opus**: 5 phases (P0–P4). Smoke Test Gate G-012 is in **Phase 1** alongside Silent Success and D-03/D-04. TUI is a separate **Phase 3** (Enforcement).
-- **Haiku**: 5 phases (P0–P4). Smoke Test Gate G-012 is deferred to **Phase 2** alongside lease/retry integration. TUI is also in Phase 2.
-- **Impact**: Opus front-loads all three behavioral gates before any integration work, enabling earlier standalone validation. Haiku couples G-012 with the infrastructure it needs (lease model, executor wiring), reducing rework risk but delaying smoke gate availability.
+- **Opus**: Jumps directly into Phase 1 (Core Engine). Open questions listed in Section 7 as blockers but no dedicated resolution phase.
+- **Haiku**: Introduces Phase 0 (0.5–1 day) to resolve all spec ambiguities, lock architectural rules, and define phase-exit criteria before any code.
+- **Impact**: Haiku's approach reduces rework risk by front-loading decisions. Opus's approach saves calendar time if open questions are resolved informally. For a project with 5+ unresolved questions, Phase 0 is likely the safer choice.
 
-### D-02: TUI Placement
+### D2 — ToolOrchestrator Plugin Sequencing
 
-- **Opus**: TUI is isolated in Phase 3 (Enforcement), after integration is complete.
-- **Haiku**: TUI is bundled into Phase 2 alongside gate integration.
-- **Impact**: Opus allows operator experience design to benefit from integration learnings. Haiku enables earlier operator feedback but risks TUI rework if integration surfaces unexpected state shapes.
+- **Opus**: Places ToolOrchestrator plugin as Phase 5 (late, Sprint 4, conditional). Treats it as an enhancement after pipeline integration.
+- **Haiku**: Places it as Phase 2 (early, right after core engine). Argues it's a "leverage point" that improves reuse and reduces duplicated scanning.
+- **Impact**: Early placement (Haiku) means the plugin informs the report and gate phases, potentially improving quality. Late placement (Opus) de-risks the critical path by ensuring core gate functionality ships first regardless of plugin status. This is the most consequential structural disagreement.
 
-### D-03: Timeline Estimates
+### D3 — Sprint and Roadmap Integration: Bundled vs. Separated
 
-- **Opus**: Phase durations given as day ranges (P0: 3–5d, P1: 10–14d, P2: 10–14d, P3: 7–10d, P4: 14–21d). No overall estimate.
-- **Haiku**: Phase durations in week ranges (P0: 1–2w, P1: 2–3w, P2: 3–4w, P3: 2–4w, P4: 2–3w). Overall: 10–16 weeks.
-- **Impact**: Haiku's estimates are more conservative and realistic for a 0.92-complexity program. Opus's day-level precision implies tighter control but may underestimate integration friction. Haiku explicitly names schedule drivers.
+- **Opus**: Phase 3 bundles roadmap pipeline integration AND sprint hook into a single phase.
+- **Haiku**: Separates them into Phase 4 (roadmap) and Phase 5 (sprint), treating sprint as operationally sensitive enough to warrant its own phase.
+- **Impact**: Haiku's separation allows independent validation of each integration surface. Opus's bundling is more efficient if both are straightforward. Given that sprint affects developer workflow directly, separation is arguably safer.
 
-### D-04: Module Placement Recommendations
+### D4 — Validation and Testing: Distributed vs. Consolidated
 
-- **Opus**: Explicit architect recommendation — `silent_success.py` and `audit_lease.py` under `cli/pipeline/`, `smoke_gate.py` under `cli/cli_portify/`, `fidelity_inventory.py` under `cli/roadmap/`.
-- **Haiku**: Mentions `silent_success.py` implementation but does not prescribe directory placement.
-- **Impact**: Opus provides actionable file-level guidance that reduces ambiguity during implementation. Haiku leaves this to implementers.
+- **Opus**: Tests are written within each phase (Phase 1 includes 200–250 LOC of tests; Phase 2 includes 100–130 LOC).
+- **Haiku**: Includes per-phase tests but also adds a dedicated Phase 7 (Validation, Benchmarking, Rollout Readiness) for consolidated validation, benchmark runs, and retrospective analysis.
+- **Impact**: Opus catches issues earlier with in-phase testing. Haiku provides a formal validation gate before shadow deployment. Best practice: both — write tests per phase AND have a final validation sweep. The consolidated phase also covers cross-cutting concerns like retrospective known-bug detection.
 
-### D-05: New File Inventory
+### D5 — Rollout as Separate Phase
 
-- **Opus**: Enumerates exactly 7 new source files and 7 new test files with estimated line counts.
-- **Haiku**: Lists workstreams and components but does not provide a file manifest.
-- **Impact**: Opus is immediately actionable for sprint planning and code review scoping. Haiku requires a follow-up decomposition step.
+- **Opus**: Phase 6 combines shadow calibration with soft/full activation in a single phase.
+- **Haiku**: Splits into Phase 7 (readiness assessment) and Phase 8 (actual rollout progression), with explicit activation gates at each transition.
+- **Impact**: Haiku's two-phase rollout provides clearer decision points. The separation between "are we ready?" and "activate it" reduces the risk of premature activation.
 
-### D-06: `reimbursement_rate` Handling
+### D6 — LOC Estimates and Task Granularity
 
-- **Opus**: Lists as "Blocker 6" with binary decision: wire as turn-recovery credit OR remove. Must resolve before Phase 2 GO.
-- **Haiku**: Frames as an architect decision to make "immediately" — remove or productize.
-- **Impact**: Substantively identical, but Opus ties it to a specific gate (Phase 2 GO) while Haiku treats it as pre-program governance.
+- **Opus**: Provides detailed LOC estimates per task (e.g., "60-80 LOC", "80-100 LOC") and maps specific requirement IDs to tasks.
+- **Haiku**: Uses narrative descriptions without LOC estimates. Groups work by concern rather than by file.
+- **Impact**: Opus is more actionable for sprint planning and progress tracking. Haiku is more readable for architectural review. For tasklist generation, Opus's format is directly convertible.
 
-### D-07: Shadow Mode Observation Window
+### D7 — Total Phase Count
 
-- **Opus**: Architect recommendation: "minimum 2-week shadow observation window" — stated as non-negotiable.
-- **Haiku**: Identifies shadow window length as a schedule driver but does not prescribe a minimum.
-- **Impact**: Opus provides a concrete guardrail. Haiku is more flexible but risks insufficient observation under schedule pressure.
+- **Opus**: 6 phases (Phases 1–6)
+- **Haiku**: 9 phases (Phases 0–8)
+- **Impact**: Haiku's finer granularity provides more checkpoints but increases coordination overhead. Opus's fewer phases move faster but have larger blast radius per phase.
 
-### D-08: Deviation Analysis Placement
+### D8 — Resource Requirements: Roles vs. Files
 
-- **Opus**: Deviation analysis wiring is Phase 1 (section 1.6), treated as part of the foundation.
-- **Haiku**: Also Phase 1 (workstream 4), aligned.
-- **Impact**: No practical divergence — both agree this is foundational. Included for completeness since Opus gives it a dedicated subsection while Haiku embeds it in a workstream.
+- **Opus**: Focuses on files (new files, modified files, external dependencies) without naming engineering roles.
+- **Haiku**: Explicitly defines 4 engineering roles (architect, backend engineer, QA, audit workflow owner) and assigns accountability areas.
+- **Impact**: Haiku's role definitions are valuable for team coordination. Opus assumes a single implementer or doesn't prescribe team structure.
 
-### D-09: Document Structure and Readability
+### D9 — Performance Target in Phase 1
 
-- **Opus**: Uses numbered subsections (0.1–0.4, 1.1–1.6, etc.) with inline FR/NFR/SC traceability codes throughout. Go/no-go criteria as checklists per phase.
-- **Haiku**: Uses narrative workstream descriptions with milestone labels (M0.1, M1.1, etc.). Validation strategy organized by concern type (Foundation, Integration, Reliability, Governance, Rollout).
-- **Impact**: Opus is optimized for requirement traceability and sprint-level task extraction. Haiku is optimized for architectural communication and stakeholder alignment.
+- **Opus**: Sets an aggressive Phase 1 checkpoint of "<2s for 50-file fixture" (NFR-001), with <5s as the hard budget.
+- **Haiku**: Uses only the <5s target throughout, without an intermediate tighter target.
+- **Impact**: Opus's tighter early target catches performance issues before integration adds overhead. Haiku relies on the final benchmark phase to validate performance.
 
-### D-10: Risk Table Granularity
+### D10 — Open Questions Treatment
 
-- **Opus**: 12 risks (4 HIGH, 6 MEDIUM, 2 LOW) with owner column and specific mitigations.
-- **Haiku**: 12 risks (5 high, 5 medium, 2 governance) with narrative mitigations, no explicit owner assignment in the risk table.
-- **Impact**: Opus is more actionable for risk tracking. Haiku's governance-risk category is a useful framing absent from Opus.
+- **Opus**: Lists 5 open questions in a dedicated Section 7, with proposed answers and phase-blocking annotations.
+- **Haiku**: Embeds the same questions into Phase 0 actions without proposed resolutions, plus adds 2 additional items (comparator/consolidator scope, rollout ownership for `grace_period`).
+- **Impact**: Opus's proposed answers accelerate decision-making. Haiku's broader question set is more thorough. Best approach: combine both — Haiku's question scope with Opus's proposed defaults.
 
-### D-11: Success Criteria Organization
+### D11 — Architectural Priorities Section
 
-- **Opus**: Full SC-001 through SC-016 validation matrix with phase mapping and test method per criterion.
-- **Haiku**: Groups success criteria by concern domain (build correctness, determinism, structural readiness, operational policy) with recommended test suite types.
-- **Impact**: Opus enables direct test-to-requirement traceability. Haiku provides better conceptual grouping for test strategy design.
+- **Opus**: No dedicated architectural priorities section; constraints are embedded in the executive summary.
+- **Haiku**: Includes a "Recommended architectural priorities" section with 5 explicit principles (correctness over breadth, protect dependency boundaries, rollout as architecture, design for auditability, explicit deferral).
+- **Impact**: Haiku's explicit priorities serve as a decision framework for edge cases during implementation.
 
-### D-12: Sequencing Guardrails
+### D12 — Risk Assessment: Additional Detail on R7
 
-- **Opus**: Guardrails embedded in go/no-go checklists per phase.
-- **Haiku**: Four explicit sequencing guardrails stated as rules at the end of the timeline section (e.g., "Do not start Phase 2 until P0-A fixes are verified").
-- **Impact**: Haiku's standalone guardrails are easier to enforce as policy. Opus's embedded checklists are more granular but require reading each phase to extract the constraints.
+- **Opus**: Treats R7 (agent regression) as MEDIUM with one-line mitigation.
+- **Haiku**: Elevates R7 to HIGH priority, adds staged independent validation of scanner/analyzer/validator, and regression tests against prior audit outputs.
+- **Impact**: Given that audit agents are behavioral specs read by LLMs, Haiku's caution is warranted — regressions in agent behavior are harder to detect than code regressions.
 
 ---
 
 ## 3. Areas Where One Variant Is Clearly Stronger
 
 ### Opus is stronger in:
-- **Implementation specificity**: File manifest with line estimates, module placement recommendations, exact regex pattern names — directly usable for sprint planning
-- **Requirement traceability**: Every subsection maps to FR/NFR/SC codes, making audit and compliance straightforward
-- **Naming collision awareness**: Explicitly calls out the `GateResult` duplication as a "canary" for broader naming audit
-- **Go/no-go granularity**: Per-phase checklists with specific test names
+- **Task-level granularity**: File paths, LOC estimates, requirement traceability per task — directly usable for tasklist generation
+- **Concreteness**: Named functions (`run_wiring_analysis()`, `_extract_frontmatter_values()`), specific file locations, exact line counts
+- **Sprint mapping**: Tasks explicitly mapped to Sprints 1–5
+- **Proposed answers to open questions**: Provides default resolutions instead of just listing questions
+- **Parallelization annotation**: Explicitly marks Phase 4 as parallelizable with Phase 3
 
 ### Haiku is stronger in:
-- **Strategic framing**: Architectural priorities numbered 1–5 provide clear decision-making hierarchy
-- **Timeline realism**: Week-level estimates with named schedule drivers and an overall program range (10–16 weeks)
-- **Validation strategy organization**: Concern-based grouping (Foundation/Integration/Reliability/Governance/Rollout) is more useful for test planning
-- **Governance risk treatment**: Explicitly categorizes scope creep and unowned blockers as governance risks, not just technical risks
-- **Sequencing guardrails**: Standalone rules are easier to enforce as program policy
+- **Process discipline**: Phase 0 decision closure, Phase 7 consolidated validation, Phase 8 rollout progression
+- **Architectural reasoning**: Explains *why* decisions are made, not just what to do
+- **Role accountability**: Defines who owns what
+- **Risk elevation**: More conservative on agent regression risk (R7 as HIGH)
+- **Decision framework**: Explicit architectural priorities section for edge-case guidance
+- **ToolOrchestrator leverage argument**: Makes the case for early integration clearly
 
 ---
 
 ## 4. Areas Requiring Debate to Resolve
 
-1. **G-012 phase placement (D-01)**: Should the smoke gate be built standalone in Phase 1 (Opus) or integrated alongside its infrastructure in Phase 2 (Haiku)? Opus enables earlier unit testing but may require rework when wiring. Haiku reduces rework but delays validation.
+1. **ToolOrchestrator plugin timing (D2)**: This is the highest-impact structural disagreement. Early (Haiku) risks blocking the critical path if the plugin is complex. Late (Opus) risks building the report/gate phases without the reuse benefits. **Resolution approach**: Timeboxed spike — if plugin can be built in 1 day, do it early; if not, defer.
 
-2. **TUI timing (D-02)**: Should TUI work wait until after integration (Opus/Phase 3) or ship alongside it (Haiku/Phase 2)? Depends on whether operator feedback is needed during integration or whether integration stability is needed for TUI design.
+2. **Phase 0 necessity (D1)**: Is a formal decision-closure phase worth 0.5–1 day, or can open questions be resolved as implementation proceeds? **Resolution approach**: If all 5+ open questions have proposed answers (Opus provides these), Phase 0 can be compressed to a review meeting rather than a full phase.
 
-3. **Shadow window minimum (D-07)**: Should the 2-week minimum be a hard constraint (Opus) or left to Reliability Owner discretion (Haiku)? Opus is safer but may conflict with delivery pressure.
+3. **Sprint/roadmap bundling (D3)**: Should pipeline and sprint integration share a phase? **Resolution approach**: If the same engineer does both and sprint hook is <40 LOC, bundling is fine. If different owners or sprint has operational sensitivity, separate.
 
-4. **Document format for downstream consumption (D-09)**: The team should decide whether FR/NFR inline tracing (Opus) or concern-based validation grouping (Haiku) better serves their sprint planning and QA processes. A merged approach — Opus's traceability with Haiku's validation strategy organization — may be optimal.
+4. **Consolidated validation phase (D4/D5)**: Is Phase 7 redundant if tests are written per phase? **Resolution approach**: The retrospective validation (cli-portify known bug, noise characterization) is genuinely new work not covered by per-phase tests. A lightweight validation phase (1 day) is justified; 2–3 days may be excessive.
 
-5. **Timeline granularity (D-03)**: Day-level estimates (Opus) vs. week-level with schedule drivers (Haiku). For a 0.92-complexity program spanning 10+ weeks, week-level with explicit uncertainty drivers is likely more honest, but day-level may be needed for sprint commitments within phases.
+5. **Agent regression risk level (D12)**: MEDIUM (Opus) vs. HIGH (Haiku). **Resolution approach**: Check how many downstream consumers depend on current agent specs. If cleanup-audit is actively used in production workflows, HIGH is appropriate.

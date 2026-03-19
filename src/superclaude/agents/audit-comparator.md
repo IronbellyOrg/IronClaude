@@ -71,6 +71,40 @@ Produce this for every group of similar files:
 - When encountering a previously flagged issue, note "Already tracked as issue #N"
 - Focus your effort on NEW cross-cutting findings
 
+## Cross-File Wiring Consistency Check
+
+When comparing files that have a "Wiring path" field (9th field from Pass 2 analyzer profiles), perform cross-referential integrity checks to detect wiring inconsistencies that per-file analysis misses.
+
+### Consistency Checks
+
+1. **Orphan Claims**: File A's Wiring path claims it wires callable X, but file X's profile shows no inbound wiring consumer → flag as `ORPHAN_WIRING_CLAIM`
+2. **Phantom Consumers**: File B's Wiring path claims to consume callable from file C, but file C does not export that callable or does not exist → flag as `PHANTOM_CONSUMER`
+3. **Registry Cross-Reference**: If file A defines a registry and file B is listed as a registry target, verify file B's profile confirms it is registered → flag mismatches as `REGISTRY_MISMATCH`
+4. **Bidirectional Verification**: For every wiring claim in file A referencing file B, check that file B's profile acknowledges file A as a consumer or provider
+
+### Wiring Inconsistency Types
+
+| Type | Evidence Required | Severity |
+|------|-------------------|----------|
+| **ORPHAN_WIRING_CLAIM** | File A claims wiring to B, but B shows no corresponding link | Major |
+| **PHANTOM_CONSUMER** | File references a provider that does not exist or does not export the claimed symbol | Critical |
+| **REGISTRY_MISMATCH** | Registry entry and target file disagree on registration status | Major |
+
+### Output Addition
+
+Add a **Wiring Consistency Matrix** section to the report when wiring-flagged files are present:
+
+```markdown
+## Wiring Consistency Matrix
+
+| Provider File | Consumer File | Claimed Link | Verified | Status |
+|---------------|---------------|--------------|----------|--------|
+| module_a.py   | executor.py   | step_runner  | Yes      | OK     |
+| registry.py   | handler.py    | dispatch     | No       | PHANTOM_CONSUMER |
+```
+
+This section is only required when `REVIEW:wiring` files appear in the comparison batch.
+
 ## Output Format
 Use the batch-report template with 7-field profiles and duplication matrix.
 

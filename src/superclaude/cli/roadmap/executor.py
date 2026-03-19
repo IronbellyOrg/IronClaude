@@ -22,7 +22,7 @@ from typing import Callable
 
 from ..pipeline.deliverables import decompose_deliverables
 from ..pipeline.executor import execute_pipeline
-from ..pipeline.models import Deliverable, PipelineConfig, Step, StepResult, StepStatus
+from ..pipeline.models import Deliverable, GateMode, PipelineConfig, Step, StepResult, StepStatus
 from ..pipeline.process import ClaudeProcess
 from .gates import (
     CERTIFY_GATE,
@@ -36,7 +36,8 @@ from .gates import (
     SPEC_FIDELITY_GATE,
     TEST_STRATEGY_GATE,
 )
-from .models import RoadmapConfig
+from ..audit.wiring_gate import WIRING_GATE
+from .models import AgentSpec, RoadmapConfig
 from .prompts import (
     build_debate_prompt,
     build_diff_prompt,
@@ -46,6 +47,7 @@ from .prompts import (
     build_score_prompt,
     build_spec_fidelity_prompt,
     build_test_strategy_prompt,
+    build_wiring_verification_prompt,
 )
 from .certify_prompts import build_certification_prompt
 
@@ -228,6 +230,26 @@ def roadmap_run_step(
 
     if config.dry_run:
         _log.info("[dry-run] Would execute step '%s'", step.id)
+        return StepResult(
+            step=step,
+            status=StepStatus.PASS,
+            attempt=1,
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+
+    # Wiring-verification: run static analysis directly, no Claude subprocess.
+    # Returns PASS unconditionally; gate evaluation is handled separately by
+    # the trailing gate runner (section 5.7.1).
+    if step.id == "wiring-verification":
+        from ..audit.wiring_gate import run_wiring_analysis, emit_report
+        from ..audit.wiring_config import WiringConfig
+
+        wiring_config = WiringConfig(rollout_mode="soft")
+        source_dir = config.output_dir.parent if hasattr(config, 'output_dir') else Path(".")
+        report = run_wiring_analysis(wiring_config, source_dir)
+        step.output_file.parent.mkdir(parents=True, exist_ok=True)
+        emit_report(report, step.output_file)
         return StepResult(
             step=step,
             status=StepStatus.PASS,
@@ -496,10 +518,23 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             id="spec-fidelity",
             prompt=build_spec_fidelity_prompt(config.spec_file, merge_file),
             output_file=spec_fidelity_file,
-            gate=SPEC_FIDELITY_GATE,
+            gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
             timeout_seconds=600,
             inputs=[config.spec_file, merge_file],
             retry_limit=1,
+        ),
+        # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)
+        Step(
+            id="wiring-verification",
+            prompt=build_wiring_verification_prompt(
+                merge_file, config.spec_file.name
+            ),
+            output_file=out / "wiring-verification.md",
+            gate=WIRING_GATE,
+            timeout_seconds=60,
+            inputs=[merge_file, spec_fidelity_file],
+            retry_limit=0,
+            gate_mode=GateMode.TRAILING,
         ),
     ]
 
@@ -579,6 +614,7 @@ def _get_all_step_ids(config: RoadmapConfig) -> list[str]:
         "merge",
         "test-strategy",
         "spec-fidelity",
+        "wiring-verification",
         "remediate",
         "certify",
     ]
@@ -861,16 +897,54 @@ def _save_state(
     Preserves existing ``validation``, ``fidelity_status``, ``remediate``,
     and ``certify`` keys if present. Accepts optional remediate/certify
     metadata dicts for Phase 6 state finalization.
+
+    Defense-in-depth guards:
+    - No-progress guard: skip write when no steps passed (prevents corruption
+      from broken resumes that fail immediately).
+    - Agent-mismatch guard: preserve original agents in state when no generate
+      steps ran (prevents overwriting correct agent config with wrong agents).
     """
     state_file = config.output_dir / ".roadmap-state.json"
-    spec_hash = hashlib.sha256(config.spec_file.read_bytes()).hexdigest()
+
+    # No-progress guard: if the results list is empty (no steps were even
+    # attempted), do not write state. This prevents corruption from broken
+    # resumes that produce zero results. Any non-empty results list indicates
+    # the pipeline made progress and state should be recorded.
+    step_results = [r for r in results if r.step]
+    if not step_results:
+        _log.info("State not saved: no step results in this run")
+        return
 
     # Preserve existing keys across state rewrites
     existing = read_state(state_file)
+
+    # Agent-mismatch guard: if agents differ from state and no generate steps
+    # ran, preserve original agents to prevent corruption
+    if existing is not None:
+        saved_agents = existing.get("agents", [])
+        current_agents = [
+            {"model": a.model, "persona": a.persona} for a in config.agents
+        ]
+        if saved_agents and saved_agents != current_agents:
+            generate_ran = any(
+                r.step
+                and r.step.id.startswith("generate-")
+                and r.status == StepStatus.PASS
+                for r in results
+            )
+            if not generate_ran:
+                _log.warning(
+                    "Agents differ from state file and no generate steps ran; "
+                    "preserving original agents in state"
+                )
+                return
+
     existing_validation = existing.get("validation") if existing else None
     existing_fidelity = existing.get("fidelity_status") if existing else None
     existing_remediate = existing.get("remediate") if existing else None
     existing_certify = existing.get("certify") if existing else None
+
+    spec_hash = hashlib.sha256(config.spec_file.read_bytes()).hexdigest()
 
     state = {
         "schema_version": 1,
@@ -891,6 +965,13 @@ def _save_state(
             if r.step
         },
     }
+
+    # Merge with existing state (preserve steps not in this run)
+    if existing:
+        existing_steps = existing.get("steps", {})
+        for step_id, step_data in existing_steps.items():
+            if step_id not in state["steps"]:
+                state["steps"][step_id] = step_data
 
     if existing_validation is not None:
         state["validation"] = existing_validation
@@ -1105,11 +1186,80 @@ def apply_decomposition_pass(deliverables: list[Deliverable]) -> list[Deliverabl
     return decompose_deliverables(deliverables)
 
 
+def _restore_from_state(
+    config: RoadmapConfig,
+    agents_explicit: bool,
+    depth_explicit: bool,
+) -> RoadmapConfig:
+    """Restore agent/depth specs from .roadmap-state.json when not explicit.
+
+    On --resume, if the user did not explicitly pass --agents or --depth,
+    restore the values from the state file so the pipeline uses the same
+    configuration as the original run.
+    """
+    state_file = config.output_dir / ".roadmap-state.json"
+    state = read_state(state_file)
+    if state is None:
+        if not agents_explicit or not depth_explicit:
+            print(
+                "WARNING: --resume with no state file found. "
+                "Using defaults for unspecified options.",
+                file=sys.stderr,
+                flush=True,
+            )
+        _log.info("No state file found; using CLI agents for fresh run")
+        return config
+
+    # Restore agents from state if user did not explicitly pass --agents
+    if not agents_explicit:
+        saved_agents = state.get("agents")
+        if saved_agents and isinstance(saved_agents, list):
+            try:
+                restored = [
+                    AgentSpec(model=a["model"], persona=a["persona"])
+                    for a in saved_agents
+                ]
+            except (KeyError, TypeError) as exc:
+                _log.warning(
+                    "Malformed agents in state file (%s); using CLI agents", exc
+                )
+                return config
+
+            if restored != config.agents:
+                agent_str = ", ".join(f"{a.model}:{a.persona}" for a in restored)
+                print(
+                    f"[roadmap] Restoring agents from state file: {agent_str}",
+                    flush=True,
+                )
+            config.agents = restored
+        else:
+            _log.warning("State file has no agents key; using CLI agents")
+
+    # Restore depth from state if user did not explicitly pass --depth
+    if not depth_explicit:
+        saved_depth = state.get("depth")
+        if saved_depth:
+            if saved_depth != config.depth:
+                print(
+                    f"WARNING: --depth mismatch.\n"
+                    f"  State file depth: {saved_depth}\n"
+                    f"  Current depth:    {config.depth}\n"
+                    f"  Using state file depth: {saved_depth}\n",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            config.depth = saved_depth
+
+    return config
+
+
 def execute_roadmap(
     config: RoadmapConfig,
     resume: bool = False,
     no_validate: bool = False,
     auto_accept: bool = False,
+    agents_explicit: bool = True,
+    depth_explicit: bool = True,
 ) -> None:
     """Execute the roadmap generation pipeline.
 
@@ -1128,8 +1278,24 @@ def execute_roadmap(
             interactive prompt and proceeds automatically if evidence is
             found. When False (default), the cycle prompts the user.
             This is an internal parameter, not exposed on the CLI.
+        agents_explicit: Whether --agents was explicitly passed on the CLI.
+        depth_explicit: Whether --depth was explicitly passed on the CLI.
     """
     config.output_dir.mkdir(parents=True, exist_ok=True)
+
+    # On --resume with defaulted agents/depth, restore from state file
+    if resume:
+        config = _restore_from_state(
+            config,
+            agents_explicit=agents_explicit,
+            depth_explicit=depth_explicit,
+        )
+
+    # Apply hardcoded defaults for any still-None fields (non-resume or no state)
+    if not config.agents:
+        config.agents = [AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")]
+    if not config.depth:
+        config.depth = "standard"
 
     # FR-2.24.1.11: Recursion guard — local variable, per-invocation
     _spec_patch_cycle_count = 0
@@ -1556,18 +1722,81 @@ def _check_tasklist_hash_current(
     return saved_hash == current_hash
 
 
+def _step_needs_rerun(
+    step: Step,
+    gate_fn: Callable,
+    dirty_outputs: set[Path],
+    force_extract: bool,
+    state_paths: dict[str, Path],
+) -> tuple[bool, str]:
+    """Determine if a single step needs re-running.
+
+    A step needs re-run if:
+    1. force_extract and step is 'extract', OR
+    2. Any of its input files are in the dirty set, OR
+    3. Its own gate check fails (using state-recorded paths when available).
+
+    Returns:
+        (needs_rerun: bool, reason: str)
+    """
+    if force_extract and step.id == "extract":
+        return True, "spec file changed; forcing extract rerun"
+
+    # If any input was re-generated, must re-run
+    if any(inp in dirty_outputs for inp in (step.inputs or [])):
+        deps = [str(inp) for inp in (step.inputs or []) if inp in dirty_outputs]
+        return True, f"input dependency regenerated: {deps}"
+
+    # Defense-in-depth: use state-recorded path for gate check
+    check_path = state_paths.get(step.id, step.output_file)
+    if check_path != step.output_file:
+        _log.info(
+            "Resume: step '%s' using state-recorded path %s "
+            "(config-derived: %s)",
+            step.id,
+            check_path,
+            step.output_file,
+        )
+
+    # Check own gate
+    if step.gate:
+        passed, reason = gate_fn(check_path, step.gate)
+        if passed:
+            return False, "gate passes"
+        # Log the failure reason with diagnostic hint
+        if reason and "File not found" in reason:
+            print(
+                f"[roadmap] {step.id}: output missing ({check_path.name})\n"
+                f"  Hint: Were different --agents used in the original run?",
+                file=sys.stderr,
+                flush=True,
+            )
+        else:
+            print(f"[roadmap] {step.id}: gate failed -- {reason}", flush=True)
+        return True, f"gate failed: {reason}"
+
+    # No gate defined -- must run
+    return True, "no gate defined"
+
+
 def _apply_resume(
     steps: list[Step | list[Step]],
     config: RoadmapConfig,
     gate_fn: Callable,
 ) -> list[Step | list[Step]]:
-    """Apply --resume logic: skip steps whose outputs already pass gates.
+    """Apply --resume logic: skip steps whose outputs pass gates.
 
-    Also checks for stale spec detection.
+    Uses dependency tracking: if a step's inputs include the output of a
+    step that will be re-run, it must also re-run regardless of gate status.
+
+    Includes state-driven path resolution and parallel group semantics.
     """
     state_file = config.output_dir / ".roadmap-state.json"
     state = read_state(state_file)
     force_extract = False
+
+    # State-driven path resolution: build lookup step_id -> recorded output_file
+    state_paths: dict[str, Path] = {}
     if state is not None:
         saved_hash = state.get("spec_hash", "")
         current_hash = hashlib.sha256(config.spec_file.read_bytes()).hexdigest()
@@ -1582,52 +1811,59 @@ def _apply_resume(
             )
             force_extract = True
 
+        # Extract recorded output paths from state
+        for step_id, step_data in state.get("steps", {}).items():
+            recorded_path = step_data.get("output_file")
+            if recorded_path:
+                state_paths[step_id] = Path(recorded_path)
+
     skipped = 0
     result: list[Step | list[Step]] = []
-    found_failure = False
+    dirty_outputs: set[Path] = set()  # files that will be regenerated
 
     for entry in steps:
-        if found_failure:
-            # After first failing step, include all remaining steps
-            result.append(entry)
-            continue
-
         if isinstance(entry, list):
-            # Parallel group: check all steps
-            all_pass = True
+            # Parallel group: check each step, re-run entire group if any needs it
+            group_needs_rerun = False
+            rerun_reasons: list[str] = []
+
             for s in entry:
-                if s.gate:
-                    passed, _reason = gate_fn(s.output_file, s.gate)
-                    if not passed:
-                        all_pass = False
-                        break
-                else:
-                    all_pass = False
-                    break
-            if all_pass:
+                needs, reason = _step_needs_rerun(
+                    s, gate_fn, dirty_outputs, force_extract, state_paths,
+                )
+                if needs:
+                    group_needs_rerun = True
+                    rerun_reasons.append(f"{s.id}: {reason}")
+
+            if group_needs_rerun:
+                _log.info(
+                    "Parallel group [%s] marked for rerun: %s",
+                    ", ".join(s.id for s in entry),
+                    "; ".join(rerun_reasons),
+                )
+                result.append(entry)
+                # Mark all group outputs as dirty (atomic group completion)
+                for s in entry:
+                    dirty_outputs.add(s.output_file)
+            else:
                 skipped += len(entry)
                 print(
                     f"[roadmap] Skipping {', '.join(s.id for s in entry)} (gates pass)",
                     flush=True,
                 )
-            else:
-                found_failure = True
-                result.append(entry)
         else:
-            # Force re-run of extract on stale spec
-            if force_extract and entry.id == "extract":
-                found_failure = True
-                result.append(entry)
-                continue
+            # Single step
+            needs, reason = _step_needs_rerun(
+                entry, gate_fn, dirty_outputs, force_extract, state_paths,
+            )
 
-            if entry.gate:
-                passed, _reason = gate_fn(entry.output_file, entry.gate)
-                if passed:
-                    skipped += 1
-                    print(f"[roadmap] Skipping {entry.id} (gate passes)", flush=True)
-                    continue
-            found_failure = True
-            result.append(entry)
+            if needs:
+                _log.info("Step '%s' marked for rerun: %s", entry.id, reason)
+                dirty_outputs.add(entry.output_file)
+                result.append(entry)
+            else:
+                skipped += 1
+                print(f"[roadmap] Skipping {entry.id} (gate passes)", flush=True)
 
     if skipped > 0:
         print(f"[roadmap] Skipped {skipped} steps (gates pass)", flush=True)

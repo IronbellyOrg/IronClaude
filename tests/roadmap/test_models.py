@@ -197,3 +197,89 @@ class TestFindingDeviationClass:
         assert VALID_DEVIATION_CLASSES == frozenset(
             {"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"}
         )
+
+
+# ═══════════════════════════════════════════════════════════════
+# BF-1: ACTIVE status support in Finding
+# ═══════════════════════════════════════════════════════════════
+
+from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES
+
+
+def test_active_status_in_valid_set():
+    """ACTIVE is a recognized status."""
+    assert "ACTIVE" in VALID_FINDING_STATUSES
+
+
+def test_finding_with_active_status():
+    """Finding can be created with status='ACTIVE'."""
+    f = Finding(
+        id="test-001",
+        severity="HIGH",
+        dimension="signatures",
+        description="test finding",
+        location="FR-1",
+        evidence="spec says X",
+        fix_guidance="add X",
+        status="ACTIVE",
+    )
+    assert f.status == "ACTIVE"
+
+
+def test_finding_with_pending_status():
+    """PENDING still works (backward compat)."""
+    f = Finding(
+        id="test-002",
+        severity="HIGH",
+        dimension="signatures",
+        description="test",
+        location="FR-1",
+        evidence="evidence",
+        fix_guidance="fix",
+        status="PENDING",
+    )
+    assert f.status == "PENDING"
+
+
+def test_finding_invalid_status_raises():
+    """Invalid status still raises ValueError."""
+    with pytest.raises(ValueError, match="Invalid Finding status"):
+        Finding(
+            id="test-003",
+            severity="HIGH",
+            dimension="signatures",
+            description="test",
+            location="FR-1",
+            evidence="evidence",
+            fix_guidance="fix",
+            status="INVALID",
+        )
+
+
+def test_finding_default_source_layer():
+    """Default source_layer is 'structural' (BF-3)."""
+    f = Finding(
+        id="test-004",
+        severity="HIGH",
+        dimension="signatures",
+        description="test",
+        location="FR-1",
+        evidence="evidence",
+        fix_guidance="fix",
+    )
+    assert f.source_layer == "structural"
+
+
+def test_finding_semantic_source_layer():
+    """source_layer can be set to 'semantic'."""
+    f = Finding(
+        id="test-005",
+        severity="HIGH",
+        dimension="signatures",
+        description="test",
+        location="FR-1",
+        evidence="evidence",
+        fix_guidance="fix",
+        source_layer="semantic",
+    )
+    assert f.source_layer == "semantic"

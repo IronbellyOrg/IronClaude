@@ -61,6 +61,56 @@ Look for:
 - Common broken reference patterns
 - Systematic misplacements
 
+## Wiring Health Section (Final Report Addition)
+
+When consolidating final reports, include a **Wiring Health** section that aggregates wiring-related findings across all analyzed files. This section appears after the existing report sections.
+
+### Section Template
+
+```markdown
+## Wiring Health
+
+### Summary Metrics
+- **Total wiring findings**: {count}
+- **By type**:
+  - Unwired declarations (UNWIRED_DECLARATION): {count}
+  - Broken registrations (BROKEN_REGISTRATION): {count}
+  - Orphan providers (ORPHAN_PROVIDER): {count}
+  - Orphan wiring claims (ORPHAN_WIRING_CLAIM): {count}
+  - Phantom consumers (PHANTOM_CONSUMER): {count}
+  - Registry mismatches (REGISTRY_MISMATCH): {count}
+- **Suppressed (whitelisted)**: {count}
+- **Wiring health score**: {HEALTHY | DEGRADED | CRITICAL}
+
+### Files with Wiring Issues
+| File | Finding Type | Severity | Wiring Path Status |
+|------|-------------|----------|-------------------|
+| {filepath} | {type} | {critical/major/info} | {complete/incomplete/missing} |
+
+### Cross-File Consistency
+- **Verified wiring links**: {count}
+- **Inconsistent links**: {count}
+- **Consistency rate**: {percentage}%
+
+### Recommendations
+{Aggregated remediation guidance based on finding patterns}
+```
+
+### Aggregation Rules
+
+1. Collect all "Wiring path" fields (9th field) from analyzer profiles across all batches
+2. Merge with wiring gate report data if available (`wiring-verification.md` artifacts)
+3. Collect cross-file consistency results from comparator reports
+4. Compute health score:
+   - **HEALTHY**: 0 critical findings, ≤2 major findings
+   - **DEGRADED**: 1-3 critical findings or >2 major findings
+   - **CRITICAL**: >3 critical findings
+
+### Deduplication
+
+- Same wiring finding reported by both analyzer and comparator → keep most detailed, note duplicate
+- Wiring gate findings that overlap with audit findings → cross-reference, do not duplicate counts
+
 ## Output Format
 Follow the appropriate template exactly:
 - Pass summary: `templates/pass-summary.md`

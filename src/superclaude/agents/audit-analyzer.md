@@ -75,6 +75,50 @@ For EVERY file, produce this complete profile:
 - Do values match current architecture?
 - Is it loaded by at least one runtime/build/CI system?
 
+## 9th Mandatory Field: Wiring Path (for REVIEW:wiring files)
+
+For files classified as `REVIEW:wiring` by Pass 1 (audit-scanner), the per-file profile is extended to 9 fields. The 9th field is:
+
+| Field | Requirement |
+|-------|-------------|
+| **Wiring path** | Declaration → Registration → Invocation chain. Each link stated explicitly or marked "MISSING" |
+
+### Wiring Path Structure
+
+Trace the complete wiring chain for each injectable or registry pattern found in the file:
+
+```
+Declaration: ClassName.__init__(param: Optional[Callable] = None) [file:line]
+  → Registration: where param is provided a concrete value [file:line] or MISSING
+    → Invocation: where the callable is actually called [file:line] or MISSING
+```
+
+For registry patterns:
+```
+Declaration: REGISTRY_NAME = {...} [file:line]
+  → Registration: entries map to functions [file:line per entry]
+    → Invocation: REGISTRY_NAME[key](...) or accessor call [file:line] or MISSING
+```
+
+### Wiring-Specific Finding Types
+
+In addition to existing finding types, the following wiring-specific types apply to `REVIEW:wiring` files:
+
+| Type | Meaning | Severity |
+|------|---------|----------|
+| **UNWIRED_DECLARATION** | Symbol declared (e.g., `Optional[Callable] = None`) but never registered or invoked by any consumer | Critical |
+| **BROKEN_REGISTRATION** | Registry entry references a function that cannot be imported or does not exist at the specified path | Critical |
+| **ORPHAN_PROVIDER** | File in a provider directory exports functions never imported by any consumer | Major |
+
+### Population Instructions
+
+To populate the Wiring path field:
+1. Identify all injectable callable parameters (`Optional[Callable]` with `= None` default)
+2. Search for call sites that construct the class and provide the parameter by keyword
+3. For registries, verify each entry's target is importable
+4. Record complete chain or mark missing links as "MISSING"
+5. If `run_wiring_analysis()` output is available, cross-reference findings for consistency
+
 ## Evidence Standards
 - Every KEEP: at least one verified reference (file:line)
 - Every DELETE: grep proof + dynamic loading check

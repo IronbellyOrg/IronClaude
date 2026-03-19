@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **CRITICAL**: This project uses **UV** for all Python operations. Never use `python -m`, `pip install`, or `python script.py` directly.
 
+## ABSOLUTE RULE: Custom Command Skill Invocation
+When ANY message starts with /sc:<command>, you MUST invoke the corresponding skill via the Skill tool BEFORE generating any other output. If the command file says "invoke Skill X", that is BLOCKING. 
+  Generating protocol output without invoking the skill is a VIOLATION.  No exceptions. No "I already loaded it." No "I know the protocol."
+
+In the event where context pressure would otherwise have the agent take shortcuts or improvise instead of initiating the command/skill/protoco - ALWAYS WARN THE USER AND INSTRUCT THEM TO RUN THE CUSTOM COMMAND IN A NEW CHAT.
+
+
 ### Required Commands
 
 ```bash

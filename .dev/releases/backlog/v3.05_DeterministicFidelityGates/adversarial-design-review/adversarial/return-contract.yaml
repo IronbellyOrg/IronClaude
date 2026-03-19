@@ -1,0 +1,39 @@
+return_contract:
+  merged_output_path: null  # Validation run — no merge produced
+  convergence_score: null  # Not applicable for validation mode
+  artifacts_dir: ".dev/releases/backlog/v3.05_DeterministicFidelityGates/adversarial-design-review/adversarial/"
+  status: "partial"  # CONDITIONAL verdict — blocking findings remain
+  base_variant: null  # Not applicable for validation mode
+  unresolved_conflicts: 7  # 7 blocking findings
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "BF-1"
+      category: "state_variables"
+      assumption: "ACTIVE status is valid in Finding.__post_init__"
+      severity: "CRITICAL"
+    - id: "BF-2"
+      category: "guard_conditions"
+      assumption: "Registry and SPEC_FIDELITY_GATE cannot conflict"
+      severity: "HIGH"
+    - id: "BF-3"
+      category: "interaction_effects"
+      assumption: "Semantic non-determinism isolated from monotonic progress"
+      severity: "HIGH"
+    - id: "BF-4"
+      category: "interaction_effects"
+      assumption: "Worktrees isolate all relevant inputs"
+      severity: "HIGH"
+    - id: "BF-5"
+      category: "guard_conditions"
+      assumption: "--allow-regeneration flag exists"
+      severity: "HIGH"
+    - id: "BF-6"
+      category: "state_variables"
+      assumption: "Lightweight debate protocol is specified"
+      severity: "HIGH"
+    - id: "BF-7"
+      category: "guard_conditions"
+      assumption: "Prompt size enforcement mechanism exists"
+      severity: "HIGH"

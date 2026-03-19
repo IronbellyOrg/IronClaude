@@ -86,6 +86,32 @@ Write your report following this structure:
 - DELETE: N | REVIEW: N | KEEP: N | .gitignore: N
 ```
 
+## Wiring Indicator Detection (REVIEW:wiring Signal)
+
+For Python source files (`.py`), check for wiring indicators before finalizing classification. A file receives the `REVIEW:wiring` sub-signal if ANY of the following conditions are met:
+
+### Trigger Conditions
+
+1. **Injectable Callable Parameters**: File contains `Optional[Callable]` (or `Callable | None`) parameter with `= None` default in a class `__init__` or function signature
+2. **Dispatch Registry Patterns**: File defines a module-level dictionary whose name matches `*_REGISTRY`, `*_DISPATCH`, `*_HANDLERS`, `*_ROUTER`, or `*_BUILDERS`
+3. **Provider Directory Membership**: File resides in a provider directory (`steps/`, `handlers/`, `validators/`, `checks/`)
+
+### Classification Behavior
+
+- Files matching any trigger condition receive `REVIEW:wiring` classification
+- `REVIEW:wiring` files proceed to Pass 2 even if they would otherwise be classified as `KEEP`
+- This signal is additive: it does not replace or modify existing DELETE/REVIEW/KEEP classifications
+- When a file is both KEEP (by reference count) and has wiring indicators, classify as `REVIEW:wiring`
+
+### Output Format Addition
+
+In the report, wiring-flagged files appear in the **Need Decision** section with the prefix `[wiring]`:
+
+```markdown
+## Need Decision
+- [ ] `filepath` — [wiring] Contains Optional[Callable] parameter with None default; requires wiring path verification
+```
+
 ## Incremental Save Protocol
 1. Create output file with header before auditing
 2. Work in mini-batches of 5-10 files

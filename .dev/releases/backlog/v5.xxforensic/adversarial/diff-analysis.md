@@ -1,134 +1,93 @@
-# Diff Analysis: Proposal Assessments Comparison
+# Diff Analysis: Forensic Refactor Specification Comparison
 
 ## Metadata
-- Generated: 2026-02-28
-- Variants compared: 3 (architect, quality-engineer, analyzer)
-- Total proposals assessed: 22
-- Verdict agreements: 10 unanimous ACCEPT
-- Verdict disagreements: 12 (verdict or modification differences)
+- Generated: 2026-03-19
+- Variants compared: 2
+- Variant A: forensic-refactor-handoff.md (637 lines, strategic handoff)
+- Variant B: tfep-refactoring-context.md (404 lines, tactical context brief)
+- Total differences found: 30
+- Categories: structural (5), content (10), contradictions (3), unique (8), shared assumptions (4)
 
-## Verdict Agreement Matrix
-
-| Proposal | Architect | Quality-Engineer | Analyzer | Agreement |
-|----------|-----------|-----------------|----------|-----------|
-| P-001 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-002 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-003 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-004 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-005 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-006 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-007 | MODIFY | ACCEPT | MODIFY | 2/3 MODIFY |
-| P-008 | MODIFY | ACCEPT | MODIFY | 2/3 MODIFY |
-| P-009 | MODIFY | ACCEPT | MODIFY | 2/3 MODIFY |
-| P-010 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-011 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-012 | ACCEPT | MODIFY | ACCEPT | 2/3 ACCEPT |
-| P-013 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-014 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-015 | ACCEPT | MODIFY | ACCEPT | 2/3 ACCEPT |
-| P-016 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-017 | ACCEPT | ACCEPT | MODIFY | 2/3 ACCEPT |
-| P-018 | ACCEPT | ACCEPT | ACCEPT | Unanimous |
-| P-019 | MODIFY | ACCEPT | MODIFY | 2/3 MODIFY |
-| P-020 | MODIFY | ACCEPT | MODIFY | 2/3 MODIFY |
-| P-021 | ACCEPT | ACCEPT | MODIFY | 2/3 ACCEPT |
-| P-022 | REJECT | MODIFY | REJECT | 2/3 REJECT |
+---
 
 ## Structural Differences
 
-### S-001: Risk tolerance gradient
-- **Severity**: Medium
-- Architect and Analyzer favor pragmatic simplification (reduce scope for v1)
-- Quality-Engineer consistently favors comprehensive coverage (no weakened gates)
-- Pattern: QE accepts proposals as-is more often; Architect/Analyzer modify to reduce scope
+| # | Area | Variant A | Variant B | Severity |
+|---|------|-----------|-----------|----------|
+| S-001 | Document framing | 19 sections, strategic handoff format with progressive narrative | 10 sections, actionable context brief with tables and code blocks | Medium |
+| S-002 | Problem statement depth | 3 sections (S2-S4) build incrementally from problem → gaps → original recommendation | 1 section (S1) with concise problem + transcript example | Low |
+| S-003 | Design guidance structure | Section 12 presents 5 design directions (A-E) as open questions | Sections 3.1-3.5 present concrete specifications with tables | High |
+| S-004 | Decision documentation | Section 5 documents adversarial debate with pros/cons narrative | Section 2 documents with numerical scores (4.62 vs 7.85/10) | Low |
+| S-005 | Planning questions | Section 15 lists 8 open questions for next agent | No equivalent — answers are embedded throughout sections 3-6 | Medium |
 
-### S-002: Schema completeness vs. implementation burden
-- **Severity**: Medium
-- Quality-Engineer treats every optional field as a quality gap
-- Architect treats optional fields as implementation burden for marginal benefit
-- Analyzer treats optional fields based on practical frequency of the use case
+---
 
 ## Content Differences
 
-### C-001: Token ceiling approach (P-012)
-- Quality-Engineer wants three levels (soft target, hard ceiling, overflow action) to preserve testability
-- Architect/Analyzer want soft target + overflow policy, accepting that hard ceilings are not enforceable
-- Core tension: testability of constraints vs. feasibility of enforcement
+| # | Topic | Variant A Approach | Variant B Approach | Severity |
+|---|-------|-------------------|-------------------|----------|
+| C-001 | Mode/tier naming | Proposes 3 orthogonal dimensions: `--intent`, `--tier`, `--debate-depth` (S12.A) | Reuses existing `--depth quick\|standard\|deep` + adds `--mode triage` (S3.1-3.2) | High |
+| C-002 | Quick mode phase behavior | Describes light mode conceptually: "fast failure triage", "scope limited to changed files" (S7) | Specifies per-phase behavior with table: SKIP/2-agents/abbreviated for each phase (S3.1) | High |
+| C-003 | Token budget | No specific token estimates mentioned | Concrete: ~5-8K for quick, ~15-20K for standard, ~50-80K for deep (S3.1, S4) | Medium |
+| C-004 | Escalation thresholds | Lists 6 qualitative triggers: "repeated failure", "multi-file blast radius", etc. (S10) | Specifies binary rules: "any pre-existing test fails", "3+ new tests fail", specific exceptions (S4) | High |
+| C-005 | Agent count in quick mode | "exactly 2 root-cause analyses" + "exactly 2 solution proposals" (S7) | Same: 2 troubleshoot + 2 brainstorm = 4 agents + 2 adversarial = 6 invocations (S3.1) | Low |
+| C-006 | Artifact naming | Proposes: `failure-root-cause-{A,B}.md`, `failure-solution-{A,B}.md` (S13) | Proposes: `rca-{alpha,bravo}.md`, `solution-{alpha,bravo}.md` (S3.5) | Low |
+| C-007 | Caller context interface | Lists 10 input fields as bullet points (S9) | Provides YAML schema with structured types and example values (S3.3) | Medium |
+| C-008 | Implementation phasing | Single-phase: produce refactoring plan (S16, S19) | Two-phase: Phase 1 = immediate guard (~30 lines), Phase 2 = full integration (S8) | High |
+| C-009 | Forensic spec sections to change | Not addressed — defers to planning agent | Detailed section-by-section mapping of changes needed (S6) | Medium |
+| C-010 | "Test is wrong" as valid outcome | Not mentioned | Explicitly stated as valid adversarial outcome (S9) | Medium |
 
-### C-002: progress.json field requirements (P-008)
-- Quality-Engineer wants all fields mandatory for reproducibility
-- Architect/Analyzer want tiered requirements (essential = required, nice-to-have = optional)
-- Core tension: resume safety guarantee vs. implementation simplicity
-
-### C-003: Domain ID stability mechanism (P-009)
-- Architect proposes deterministic slugs (e.g., `dom-subprocess-lifecycle`)
-- Quality-Engineer accepts any stable ID mechanism (UUID, hash, or slug)
-- Analyzer proposes minimal fix: just read IDs from existing artifacts on resume
-- Core tension: full stability vs. "good enough" for the common case
-
-### C-004: Baseline test requirement level (P-017)
-- Architect/Quality-Engineer: MUST requirement
-- Analyzer: SHOULD requirement with timeout escape hatch
-- Core tension: quality completeness vs. pipeline runtime impact
-
-### C-005: Redaction scope (P-020)
-- Quality-Engineer: full configurable redaction policy
-- Architect: single flag with basic pattern matching
-- Analyzer: agent prompt requirement + simple flag
-- Core tension: enterprise security needs vs. v1 scope
-
-### C-006: Clean behavior (P-019)
-- Quality-Engineer: `--clean=archive|delete` sub-options
-- Architect: restrict to terminal success only
-- Analyzer: document success-only behavior, no sub-options
-- Core tension: CLI completeness vs. simplicity
-
-### C-007: Multi-root provenance granularity (P-021)
-- Architect/Quality-Engineer: `target_root` on path-bearing records
-- Analyzer: `target_root` at domain level only
-- Core tension: correctness of path resolution vs. schema weight
-
-### C-008: MCP scheduler (P-022)
-- Quality-Engineer: define observable behavior contract (testable)
-- Architect/Analyzer: reject/defer to framework-level handling
-- Core tension: spec self-containment vs. framework delegation
+---
 
 ## Contradictions
 
-### X-001: P-007 risk score calculation
-- Quality-Engineer says calculation method MUST be defined for determinism
-- Architect says calculation method should NOT be specified to avoid over-specification
-- **Impact**: High -- affects model-tier assignment determinism
+| # | Point of Conflict | Variant A Position | Variant B Position | Impact |
+|---|-------------------|-------------------|-------------------|--------|
+| X-001 | Flag model for forensic operating tier | Proposes NEW `--tier light\|standard\|deep` dimension separate from existing `--depth` (S11, S12.A) | Proposes REUSING existing `--depth quick\|standard\|deep` and expanding its scope from "adversarial depth only" to "entire pipeline profile" (S3.1) | High |
+| X-002 | Implementation scope of refactoring plan | Refactoring plan should cover: architectural target state, CLI redesign, mode/profile model, phase refactor strategy, migration plan, acceptance criteria (S19) | Refactoring plan should produce: quick mode spec, triage mode, context interface, task-unified integration point, artifact directory (S3) | Medium |
+| X-003 | Whether forensic implements code in quick mode | "The discussion leaned toward keeping light mode optimized for diagnosis/adjudication/planning and letting task-unified resume strict implementation" (S15.7) | Phase 4 (Implement) = SKIP for quick mode, but Phase 3b debate produces solution-verdict.md with implementation steps that get inserted as tasklist entries (S3.1, S5) | Low |
 
-### X-002: P-008 git_head requirement level
-- Quality-Engineer says mandatory for reproducibility
-- Architect says creates unwanted git dependency
-- Analyzer says over-engineering for v1
-- **Impact**: Medium -- affects resume validation strictness
-
-### X-003: P-017 baseline test requirement level
-- Quality-Engineer says MUST for quality completeness
-- Analyzer says SHOULD with timeout to avoid blocking pipeline
-- **Impact**: Medium -- affects validation phase completeness guarantee
+---
 
 ## Unique Contributions
 
-### U-001: Architect -- P-009 slug-based domain IDs
-- Proposes human-readable deterministic slugs rather than UUIDs/hashes
-- **Value**: High -- combines readability with stability
+| # | Variant | Contribution | Value |
+|---|---------|-------------|-------|
+| U-001 | A | Detailed pros/cons analysis of Option A (bake-in) vs Option B (separate command) with 6 criteria per option (S5) | Medium |
+| U-002 | A | Proposes `--trigger task-unified` / `--caller task-unified` flag for caller-aware defaults (S12.B) | High |
+| U-003 | A | Proposes forensic "profiles" concept: triage/investigation/full (S12.C) | Medium |
+| U-004 | A | Documents existing `/sc:troubleshoot` and `/sc:brainstorm` boundary semantics as integration constraints (S3) | Medium |
+| U-005 | B | Concrete escalation gradient with token costs: 1st=quick(5-8K), 2nd=standard(15-20K), 3rd=FULL STOP (S4) | High |
+| U-006 | B | Two-phase implementation strategy: immediate guard now, full integration later (S8) | High |
+| U-007 | B | Complete artifact directory tree with phase subdirectories and specific filenames (S3.5) | Medium |
+| U-008 | B | Explicit "MAY fix directly" exceptions: single ImportError in test scaffolding, lint failures, deprecation warnings (S4) | High |
 
-### U-002: Quality-Engineer -- P-006 schema_version field
-- Suggests adding schema_version to new-tests-manifest for forward compatibility
-- **Value**: Medium -- good practice but not blocking for v1
+---
 
-### U-003: Quality-Engineer -- P-012 three-level token budget
-- Proposes soft target + hard ceiling + overflow action (three distinct levels)
-- **Value**: Medium -- preserves testability better than two-level approach
+## Shared Assumptions
 
-### U-004: Analyzer -- P-017 baseline timeout threshold
-- Proposes configurable timeout for baseline test runs to prevent pipeline blocking
-- **Value**: Medium -- practical concern for large test suites
+| # | Agreement Source | Assumption | Classification | Promoted |
+|---|----------------|------------|----------------|----------|
+| A-001 | Both variants agree task-unified must invoke forensic on failure | The forensic command will exist and be invocable as a first-class command before task-unified integration ships | UNSTATED | Yes |
+| A-002 | Both variants agree on 2 parallel agents for RCA + 2 for solutions | Two agents provide sufficient diversity for quick-mode adversarial comparison | UNSTATED | Yes |
+| A-003 | Both variants assume `/sc:adversarial --depth quick` is adequate for quick-mode debates | Quick adversarial depth produces meaningfully different outcomes from no adversarial review | UNSTATED | Yes |
+| A-004 | Both variants reference existing forensic-spec.md phases | The current 7-phase forensic pipeline architecture is correct and should be preserved as the standard/deep baseline | STATED | No |
 
-### U-005: Analyzer -- P-021 domain-level root instead of record-level
-- Proposes simpler provenance model at domain granularity
-- **Value**: High -- significantly reduces schema complexity for common case
+### Promoted Shared Assumptions (UNSTATED)
+
+| # | Assumption | Impact | Status |
+|---|-----------|--------|--------|
+| A-001 | Forensic command must exist before task-unified integration | High — sequencing dependency for implementation | Debate required |
+| A-002 | 2 agents sufficient for quick-mode diversity | Medium — could miss edge cases with only 2 perspectives | Debate required |
+| A-003 | Quick adversarial adds value over single-agent analysis | Medium — token cost vs benefit tradeoff | Debate required |
+
+---
+
+## Summary
+- Total structural differences: 5
+- Total content differences: 10
+- Total contradictions: 3
+- Total unique contributions: 8
+- Total shared assumptions surfaced: 4 (UNSTATED: 3, STATED: 1, CONTRADICTED: 0)
+- Highest-severity items: S-003, C-001, C-002, C-004, C-008, X-001 (all High)
+- Similarity assessment: ~45% overlap — variants are complementary rather than competing. Variant A provides strategic framing; Variant B provides tactical specification. Full debate warranted.
