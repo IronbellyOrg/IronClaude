@@ -71,7 +71,9 @@ class TestRetryBehavior:
         def always_fail(batch_id: str) -> BatchResult:
             nonlocal call_count
             call_count += 1
-            return BatchResult(batch_id=batch_id, success=False, error=f"err-{call_count}")
+            return BatchResult(
+                batch_id=batch_id, success=False, error=f"err-{call_count}"
+            )
 
         result = handler.execute_batch("b1", always_fail, state)
         assert not result.success
@@ -127,7 +129,9 @@ class TestCascadingFailure:
         self, handler: BatchRetryHandler, state: CheckpointState
     ) -> None:
         def always_fail(batch_id: str) -> BatchResult:
-            return BatchResult(batch_id=batch_id, success=False, error=f"err-{batch_id}")
+            return BatchResult(
+                batch_id=batch_id, success=False, error=f"err-{batch_id}"
+            )
 
         handler.execute_all(["b1", "b2", "b3"], always_fail, state)
         report = handler.minimum_viable_report(state)
@@ -166,9 +170,7 @@ class TestRetryPolicy:
         handler = BatchRetryHandler(writer, max_retries=5)
         assert handler.max_retries == 5
 
-    def test_three_retries(
-        self, tmp_progress: Path, state: CheckpointState
-    ) -> None:
+    def test_three_retries(self, tmp_progress: Path, state: CheckpointState) -> None:
         writer = CheckpointWriter(tmp_progress)
         handler = BatchRetryHandler(writer, max_retries=3)
         call_count = 0

@@ -94,6 +94,7 @@ class TestModelRouting:
         # This test verifies the contract is documented.
         from superclaude.cli.roadmap.executor import roadmap_run_step
         import inspect
+
         source = inspect.getsource(roadmap_run_step)
         assert "--continue" not in source
         assert "--session" not in source
@@ -139,9 +140,9 @@ class TestAcceptanceCriteriaAC01:
         _dry_run_output(steps)
         captured = capsys.readouterr()
 
-        # Count "Step N" lines -> 9 individual steps (8 entries, 2 parallel = 9)
+        # Count "Step N" lines -> 10 individual steps (9 entries, 2 parallel = 10)
         step_lines = [l for l in captured.out.splitlines() if l.startswith("Step ")]
-        assert len(step_lines) == 9
+        assert len(step_lines) == 10
 
     def test_dry_run_no_files_created(self, tmp_path, capsys):
         from superclaude.cli.roadmap.executor import _build_steps, _dry_run_output
@@ -171,22 +172,32 @@ class TestAcceptanceCriteriaAC03:
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec")
         config = RoadmapConfig(
-            spec_file=spec, output_dir=tmp_path,
+            spec_file=spec,
+            output_dir=tmp_path,
             agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
         )
 
         now = datetime.now(timezone.utc)
         step_obj = Step(
-            id="debate", prompt="p", output_file=tmp_path / "debate.md",
-            gate=GateCriteria(required_frontmatter_fields=[], min_lines=10, enforcement_tier="STANDARD"),
+            id="debate",
+            prompt="p",
+            output_file=tmp_path / "debate.md",
+            gate=GateCriteria(
+                required_frontmatter_fields=[],
+                min_lines=10,
+                enforcement_tier="STANDARD",
+            ),
             timeout_seconds=300,
         )
 
         results = [
             StepResult(
-                step=step_obj, status=StepStatus.FAIL, attempt=2,
+                step=step_obj,
+                status=StepStatus.FAIL,
+                attempt=2,
                 gate_failure_reason="Below minimum line count: 5 < 10",
-                started_at=now, finished_at=now + timedelta(seconds=30),
+                started_at=now,
+                finished_at=now + timedelta(seconds=30),
             ),
         ]
 
@@ -209,7 +220,9 @@ class TestAcceptanceCriteriaAC04:
         output = tmp_path / "output"
         output.mkdir()
 
-        gate = GateCriteria(required_frontmatter_fields=[], min_lines=1, enforcement_tier="LIGHT")
+        gate = GateCriteria(
+            required_frontmatter_fields=[], min_lines=1, enforcement_tier="LIGHT"
+        )
 
         # Pre-populate output files for completed steps
         extract_out = output / "e.md"
@@ -218,8 +231,20 @@ class TestAcceptanceCriteriaAC04:
         diff_out = output / "d.md"  # Not created -> should remain
 
         steps = [
-            Step(id="extract", prompt="p", output_file=extract_out, gate=gate, timeout_seconds=60),
-            Step(id="diff", prompt="p", output_file=diff_out, gate=gate, timeout_seconds=60),
+            Step(
+                id="extract",
+                prompt="p",
+                output_file=extract_out,
+                gate=gate,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="diff",
+                prompt="p",
+                output_file=diff_out,
+                gate=gate,
+                timeout_seconds=60,
+            ),
         ]
 
         config = RoadmapConfig(spec_file=spec, output_dir=output)
@@ -244,15 +269,29 @@ class TestAcceptanceCriteriaAC05:
         output = tmp_path / "output"
         output.mkdir()
 
-        state = {"schema_version": 1, "spec_hash": "0000000000000000000000000000000000000000000000000000000000000000"}
+        state = {
+            "schema_version": 1,
+            "spec_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        }
         write_state(state, output / ".roadmap-state.json")
 
         from superclaude.cli.pipeline.models import GateCriteria
-        gate = GateCriteria(required_frontmatter_fields=[], min_lines=1, enforcement_tier="LIGHT")
+
+        gate = GateCriteria(
+            required_frontmatter_fields=[], min_lines=1, enforcement_tier="LIGHT"
+        )
         extract_out = output / "e.md"
         extract_out.write_text("content\n")
 
-        steps = [Step(id="extract", prompt="p", output_file=extract_out, gate=gate, timeout_seconds=60)]
+        steps = [
+            Step(
+                id="extract",
+                prompt="p",
+                output_file=extract_out,
+                gate=gate,
+                timeout_seconds=60,
+            )
+        ]
         config = RoadmapConfig(spec_file=spec, output_dir=output)
 
         def gate_fn(f, c):

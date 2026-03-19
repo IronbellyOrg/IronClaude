@@ -32,8 +32,12 @@ def _make_runner(write_output=True, status=StepStatus.PASS):
                 "---\ntitle: T\nversion: 1.0\n---\n" + "\n".join(["line"] * 20)
             )
         return StepResult(
-            step=step, status=status, attempt=1,
-            gate_failure_reason=None, started_at=_now(), finished_at=_now(),
+            step=step,
+            status=status,
+            attempt=1,
+            gate_failure_reason=None,
+            started_at=_now(),
+            finished_at=_now(),
         )
 
     return runner, calls
@@ -44,9 +48,27 @@ class TestSequentialFlow:
         cfg = PipelineConfig(work_dir=tmp_path)
         gate = GateCriteria(required_frontmatter_fields=["title"], min_lines=5)
         steps = [
-            Step(id="s1", prompt="p", output_file=tmp_path / "o1.md", gate=gate, timeout_seconds=60),
-            Step(id="s2", prompt="p", output_file=tmp_path / "o2.md", gate=gate, timeout_seconds=60),
-            Step(id="s3", prompt="p", output_file=tmp_path / "o3.md", gate=gate, timeout_seconds=60),
+            Step(
+                id="s1",
+                prompt="p",
+                output_file=tmp_path / "o1.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="s2",
+                prompt="p",
+                output_file=tmp_path / "o2.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="s3",
+                prompt="p",
+                output_file=tmp_path / "o3.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
         ]
         runner, calls = _make_runner()
         results = execute_pipeline(steps=steps, config=cfg, run_step=runner)
@@ -56,7 +78,13 @@ class TestSequentialFlow:
 
     def test_no_gate_trusts_runner_status(self, tmp_path):
         cfg = PipelineConfig(work_dir=tmp_path)
-        step = Step(id="s1", prompt="p", output_file=tmp_path / "o.md", gate=None, timeout_seconds=60)
+        step = Step(
+            id="s1",
+            prompt="p",
+            output_file=tmp_path / "o.md",
+            gate=None,
+            timeout_seconds=60,
+        )
         runner, calls = _make_runner(write_output=False)
         results = execute_pipeline(steps=[step], config=cfg, run_step=runner)
         assert len(results) == 1
@@ -67,7 +95,14 @@ class TestRetryLogic:
     def test_retry_on_gate_failure(self, tmp_path):
         cfg = PipelineConfig(work_dir=tmp_path)
         gate = GateCriteria(required_frontmatter_fields=["title"], min_lines=5)
-        step = Step(id="s1", prompt="p", output_file=tmp_path / "missing.md", gate=gate, timeout_seconds=60, retry_limit=1)
+        step = Step(
+            id="s1",
+            prompt="p",
+            output_file=tmp_path / "missing.md",
+            gate=gate,
+            timeout_seconds=60,
+            retry_limit=1,
+        )
 
         runner, calls = _make_runner(write_output=False)
         results = execute_pipeline(steps=[step], config=cfg, run_step=runner)
@@ -81,16 +116,28 @@ class TestRetryLogic:
         """First attempt fails gate, second attempt succeeds."""
         cfg = PipelineConfig(work_dir=tmp_path)
         gate = GateCriteria(required_frontmatter_fields=["title"], min_lines=3)
-        step = Step(id="s1", prompt="p", output_file=tmp_path / "out.md", gate=gate, timeout_seconds=60, retry_limit=1)
+        step = Step(
+            id="s1",
+            prompt="p",
+            output_file=tmp_path / "out.md",
+            gate=gate,
+            timeout_seconds=60,
+            retry_limit=1,
+        )
 
         attempt_num = [0]
+
         def retry_runner(step, config, cancel_check):
             attempt_num[0] += 1
             if attempt_num[0] == 2:
                 step.output_file.write_text("---\ntitle: T\n---\ncontent\nmore\n")
             return StepResult(
-                step=step, status=StepStatus.PASS, attempt=1,
-                gate_failure_reason=None, started_at=_now(), finished_at=_now(),
+                step=step,
+                status=StepStatus.PASS,
+                attempt=1,
+                gate_failure_reason=None,
+                started_at=_now(),
+                finished_at=_now(),
             )
 
         results = execute_pipeline(steps=[step], config=cfg, run_step=retry_runner)
@@ -102,8 +149,20 @@ class TestCallbackInvocation:
     def test_callbacks_called_in_order(self, tmp_path):
         cfg = PipelineConfig(work_dir=tmp_path)
         steps = [
-            Step(id="s1", prompt="p", output_file=tmp_path / "o.md", gate=None, timeout_seconds=60),
-            Step(id="s2", prompt="p", output_file=tmp_path / "o2.md", gate=None, timeout_seconds=60),
+            Step(
+                id="s1",
+                prompt="p",
+                output_file=tmp_path / "o.md",
+                gate=None,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="s2",
+                prompt="p",
+                output_file=tmp_path / "o2.md",
+                gate=None,
+                timeout_seconds=60,
+            ),
         ]
         runner, _ = _make_runner(write_output=False)
 
@@ -131,8 +190,21 @@ class TestHaltOnFailure:
         cfg = PipelineConfig(work_dir=tmp_path)
         gate = GateCriteria(required_frontmatter_fields=["x"], min_lines=5)
         steps = [
-            Step(id="s1", prompt="p", output_file=tmp_path / "missing.md", gate=gate, timeout_seconds=60, retry_limit=0),
-            Step(id="s2", prompt="p", output_file=tmp_path / "o2.md", gate=None, timeout_seconds=60),
+            Step(
+                id="s1",
+                prompt="p",
+                output_file=tmp_path / "missing.md",
+                gate=gate,
+                timeout_seconds=60,
+                retry_limit=0,
+            ),
+            Step(
+                id="s2",
+                prompt="p",
+                output_file=tmp_path / "o2.md",
+                gate=None,
+                timeout_seconds=60,
+            ),
         ]
         runner, calls = _make_runner(write_output=False)
         results = execute_pipeline(steps=steps, config=cfg, run_step=runner)
@@ -145,17 +217,32 @@ class TestCancelCheck:
     def test_cancel_stops_execution(self, tmp_path):
         cfg = PipelineConfig(work_dir=tmp_path)
         steps = [
-            Step(id="s1", prompt="p", output_file=tmp_path / "o.md", gate=None, timeout_seconds=60),
-            Step(id="s2", prompt="p", output_file=tmp_path / "o2.md", gate=None, timeout_seconds=60),
+            Step(
+                id="s1",
+                prompt="p",
+                output_file=tmp_path / "o.md",
+                gate=None,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="s2",
+                prompt="p",
+                output_file=tmp_path / "o2.md",
+                gate=None,
+                timeout_seconds=60,
+            ),
         ]
         runner, calls = _make_runner(write_output=False)
         # Cancel after first step
         call_count = [0]
+
         def cancel():
             call_count[0] += 1
             return call_count[0] > 1
 
-        results = execute_pipeline(steps=steps, config=cfg, run_step=runner, cancel_check=cancel)
+        results = execute_pipeline(
+            steps=steps, config=cfg, run_step=runner, cancel_check=cancel
+        )
         # First step completes, second sees cancel
         assert len(results) <= 2
 
@@ -165,8 +252,21 @@ class TestRetryExhaustion:
         """All retries fail gate -> result is FAIL with correct attempt count -> pipeline halts."""
         cfg = PipelineConfig(work_dir=tmp_path)
         gate = GateCriteria(required_frontmatter_fields=["title"], min_lines=5)
-        step1 = Step(id="s1", prompt="p", output_file=tmp_path / "s1.md", gate=gate, timeout_seconds=60, retry_limit=2)
-        step2 = Step(id="s2", prompt="p", output_file=tmp_path / "s2.md", gate=None, timeout_seconds=60)
+        step1 = Step(
+            id="s1",
+            prompt="p",
+            output_file=tmp_path / "s1.md",
+            gate=gate,
+            timeout_seconds=60,
+            retry_limit=2,
+        )
+        step2 = Step(
+            id="s2",
+            prompt="p",
+            output_file=tmp_path / "s2.md",
+            gate=None,
+            timeout_seconds=60,
+        )
 
         runner, calls = _make_runner(write_output=False)
         results = execute_pipeline(steps=[step1, step2], config=cfg, run_step=runner)
@@ -182,8 +282,22 @@ class TestRetryExhaustion:
         cfg = PipelineConfig(work_dir=tmp_path)
         gate = GateCriteria(required_frontmatter_fields=["title"], min_lines=5)
         steps = [
-            Step(id="s1", prompt="p", output_file=tmp_path / "o1.md", gate=gate, timeout_seconds=60, retry_limit=2),
-            Step(id="s2", prompt="p", output_file=tmp_path / "o2.md", gate=gate, timeout_seconds=60, retry_limit=2),
+            Step(
+                id="s1",
+                prompt="p",
+                output_file=tmp_path / "o1.md",
+                gate=gate,
+                timeout_seconds=60,
+                retry_limit=2,
+            ),
+            Step(
+                id="s2",
+                prompt="p",
+                output_file=tmp_path / "o2.md",
+                gate=gate,
+                timeout_seconds=60,
+                retry_limit=2,
+            ),
         ]
         runner, calls = _make_runner()
         results = execute_pipeline(steps=steps, config=cfg, run_step=runner)

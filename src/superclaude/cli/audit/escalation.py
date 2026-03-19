@@ -71,11 +71,13 @@ class EscalationResult:
             "bounded": self.bounded,
             "original_confidence": (
                 self.original_classification.confidence
-                if self.original_classification else None
+                if self.original_classification
+                else None
             ),
             "escalated_confidence": (
                 self.escalated_classification.confidence
-                if self.escalated_classification else None
+                if self.escalated_classification
+                else None
             ),
         }
 
@@ -90,11 +92,13 @@ def detect_signals(
 
     # Signal 1: Low confidence
     if result.confidence < cfg.confidence_threshold:
-        signals.append(EscalationSignal(
-            signal_type="low_confidence",
-            description=f"Confidence {result.confidence:.2f} < threshold {cfg.confidence_threshold}",
-            original_confidence=result.confidence,
-        ))
+        signals.append(
+            EscalationSignal(
+                signal_type="low_confidence",
+                description=f"Confidence {result.confidence:.2f} < threshold {cfg.confidence_threshold}",
+                original_confidence=result.confidence,
+            )
+        )
 
     # Signal 2: Conflicting evidence
     has_keep_evidence = any(
@@ -105,19 +109,23 @@ def detect_signals(
         for e in result.evidence
     )
     if has_keep_evidence and has_delete_evidence:
-        signals.append(EscalationSignal(
-            signal_type="conflicting_evidence",
-            description="Evidence contains both KEEP and DELETE indicators",
-            original_confidence=result.confidence,
-        ))
+        signals.append(
+            EscalationSignal(
+                signal_type="conflicting_evidence",
+                description="Evidence contains both KEEP and DELETE indicators",
+                original_confidence=result.confidence,
+            )
+        )
 
     # Signal 3: INVESTIGATE status
     if result.action == V2Action.INVESTIGATE:
-        signals.append(EscalationSignal(
-            signal_type="investigate_status",
-            description="INVESTIGATE classification requires deeper analysis",
-            original_confidence=result.confidence,
-        ))
+        signals.append(
+            EscalationSignal(
+                signal_type="investigate_status",
+                description="INVESTIGATE classification requires deeper analysis",
+                original_confidence=result.confidence,
+            )
+        )
 
     return signals
 
@@ -164,7 +172,7 @@ def escalate(
         lines = file_content.splitlines()
         if len(lines) > cfg.max_file_lines:
             # Truncate to bounds
-            file_content = "\n".join(lines[:cfg.max_file_lines])
+            file_content = "\n".join(lines[: cfg.max_file_lines])
             bounded = True
         tokens_needed = _estimate_tokens(file_content)
         if tokens_needed > cfg.token_budget:
@@ -180,13 +188,9 @@ def escalate(
         new_evidence.extend(additional_evidence)
 
     # Re-classify with enhanced evidence
-    has_refs = any(
-        "ref" in e.lower() or "import" in e.lower()
-        for e in new_evidence
-    )
+    has_refs = any("ref" in e.lower() or "import" in e.lower() for e in new_evidence)
     is_test_or_config = any(
-        "test" in e.lower() or "config" in e.lower()
-        for e in new_evidence
+        "test" in e.lower() or "config" in e.lower() for e in new_evidence
     )
 
     escalated = classify_finding(
@@ -199,10 +203,7 @@ def escalate(
 
     # If escalated confidence isn't higher and action unchanged,
     # keep INVESTIGATE to signal human review needed
-    if (
-        escalated.confidence <= result.confidence
-        and escalated.action == result.action
-    ):
+    if escalated.confidence <= result.confidence and escalated.action == result.action:
         escalated = ClassificationResult(
             file_path=result.file_path,
             tier=V2Tier.TIER_1,

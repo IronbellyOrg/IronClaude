@@ -50,15 +50,20 @@ from superclaude.cli.sprint.models import (
 def _make_step(step_id: str, tmp_path: Path, gate: GateCriteria | None = None) -> Step:
     output = tmp_path / f"{step_id}_output.md"
     return Step(
-        id=step_id, prompt=f"Execute {step_id}",
-        output_file=output, gate=gate, timeout_seconds=60,
+        id=step_id,
+        prompt=f"Execute {step_id}",
+        output_file=output,
+        gate=gate,
+        timeout_seconds=60,
     )
 
 
 def _make_gate_result(step_id: str, passed: bool, reason: str | None = None):
     return TrailingGateResult(
-        step_id=step_id, passed=passed,
-        evaluation_ms=10.0, failure_reason=reason,
+        step_id=step_id,
+        passed=passed,
+        evaluation_ms=10.0,
+        failure_reason=reason,
     )
 
 
@@ -127,14 +132,16 @@ class TestFullFlowIntegration:
 
         # Gate fails
         gate_result = _make_gate_result(
-            "task-2", passed=False,
+            "task-2",
+            passed=False,
             reason="Missing required field 'title'",
         )
         assert not gate_result.passed
 
         # Build remediation prompt
         prompt = build_remediation_prompt(
-            gate_result, step,
+            gate_result,
+            step,
             file_paths={step.output_file},
         )
         assert "Missing required field 'title'" in prompt
@@ -186,7 +193,8 @@ class TestFullFlowIntegration:
 
         # Gate fails
         gate_result = _make_gate_result(
-            "task-3", passed=False,
+            "task-3",
+            passed=False,
             reason="Output too short and missing frontmatter",
         )
 
@@ -257,7 +265,8 @@ class TestFullFlowIntegration:
 
         # Gate fails
         gate_result = _make_gate_result(
-            "task-4", passed=False,
+            "task-4",
+            passed=False,
             reason="Gate failure",
         )
 

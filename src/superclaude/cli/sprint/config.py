@@ -77,7 +77,10 @@ def discover_phases(index_path: Path) -> list[Phase]:
                     link_m = re.match(r"\[([^\]]+)\]\([^\)]+\)", filename)
                     if link_m:
                         filename = link_m.group(1)
-                    if exec_mode_col_idx is not None and len(raw_cols) > exec_mode_col_idx:
+                    if (
+                        exec_mode_col_idx is not None
+                        and len(raw_cols) > exec_mode_col_idx
+                    ):
                         raw_mode = raw_cols[exec_mode_col_idx].strip().lower()
                         allowed = {"claude", "python", "skip"}
                         if raw_mode not in allowed:
@@ -149,7 +152,7 @@ def validate_phases(
     for i in range(1, len(numbers)):
         if numbers[i] != numbers[i - 1] + 1:
             warnings.append(
-                f"WARN: Gap in sequence: Phase {numbers[i-1]} -> Phase {numbers[i]}"
+                f"WARN: Gap in sequence: Phase {numbers[i - 1]} -> Phase {numbers[i]}"
             )
 
     return {"errors": errors, "warnings": warnings}

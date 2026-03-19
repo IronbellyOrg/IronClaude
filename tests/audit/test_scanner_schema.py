@@ -57,7 +57,13 @@ class TestPhase1Schema:
         assert any(e.field == "confidence" for e in result.errors)
 
     def test_all_required_fields_defined(self):
-        assert PHASE1_REQUIRED_FIELDS == {"file_path", "classification", "evidence", "confidence", "tier"}
+        assert PHASE1_REQUIRED_FIELDS == {
+            "file_path",
+            "classification",
+            "evidence",
+            "confidence",
+            "tier",
+        }
 
     def test_empty_output_fails(self):
         result = validate_phase1({})
@@ -92,8 +98,14 @@ class TestPhase2Schema:
     def test_all_8_profile_fields(self):
         assert len(PHASE2_PROFILE_FIELDS) == 8
         assert PHASE2_PROFILE_FIELDS == {
-            "imports", "exports", "size", "complexity",
-            "age", "churn", "coupling", "test_coverage",
+            "imports",
+            "exports",
+            "size",
+            "complexity",
+            "age",
+            "churn",
+            "coupling",
+            "test_coverage",
         }
 
     def test_has_full_profile(self):

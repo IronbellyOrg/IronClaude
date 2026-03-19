@@ -14,7 +14,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from superclaude.cli.sprint.debug_logger import LOGGER_NAME, debug_log, setup_debug_logger
+from superclaude.cli.sprint.debug_logger import (
+    LOGGER_NAME,
+    debug_log,
+    setup_debug_logger,
+)
 from superclaude.cli.sprint.models import MonitorState, Phase, SprintConfig
 
 
@@ -93,7 +97,12 @@ class TestExecutorInstrumentation:
             )
             content = read()
             assert "poll_tick" in content
-            for field in ["phase=1", "pid=1234", "output_bytes=4096", "stall_status=active"]:
+            for field in [
+                "phase=1",
+                "pid=1234",
+                "output_bytes=4096",
+                "stall_status=active",
+            ]:
                 assert field in content, f"Missing field: {field}"
         finally:
             cleanup()
@@ -117,22 +126,52 @@ class TestExecutorInstrumentation:
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.executor")
             debug_log(dbg, "PHASE_BEGIN", phase=1, file="test.md")
-            debug_log(dbg, "poll_tick", phase=1, pid=100, poll_result="running",
-                      elapsed=0.5, output_bytes=0, growth_rate=0, stall_seconds=0, stall_status="waiting...")
-            debug_log(dbg, "poll_tick", phase=1, pid=100, poll_result="running",
-                      elapsed=1.0, output_bytes=100, growth_rate=50, stall_seconds=0, stall_status="active")
-            debug_log(dbg, "phase_complete", phase=1, status="pass", exit_code=0, duration=1.5)
+            debug_log(
+                dbg,
+                "poll_tick",
+                phase=1,
+                pid=100,
+                poll_result="running",
+                elapsed=0.5,
+                output_bytes=0,
+                growth_rate=0,
+                stall_seconds=0,
+                stall_status="waiting...",
+            )
+            debug_log(
+                dbg,
+                "poll_tick",
+                phase=1,
+                pid=100,
+                poll_result="running",
+                elapsed=1.0,
+                output_bytes=100,
+                growth_rate=50,
+                stall_seconds=0,
+                stall_status="active",
+            )
+            debug_log(
+                dbg, "phase_complete", phase=1, status="pass", exit_code=0, duration=1.5
+            )
             debug_log(dbg, "PHASE_END", phase=1, exit_code=0, duration=1.5)
 
             content = read()
-            lines = [l for l in content.split("\n") if l.strip() and not l.startswith("#")]
+            lines = [
+                l for l in content.split("\n") if l.strip() and not l.startswith("#")
+            ]
             events = []
             for line in lines:
                 # Extract event name (first word after [component])
                 parts = line.split("] ", 1)
                 if len(parts) == 2:
                     events.append(parts[1].split(" ")[0])
-            assert events == ["PHASE_BEGIN", "poll_tick", "poll_tick", "phase_complete", "PHASE_END"]
+            assert events == [
+                "PHASE_BEGIN",
+                "poll_tick",
+                "poll_tick",
+                "phase_complete",
+                "PHASE_END",
+            ]
         finally:
             cleanup()
 
@@ -150,7 +189,13 @@ class TestProcessInstrumentation:
         root, read, cleanup = _setup_debug_and_get_content(tmp_path, config)
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.process")
-            debug_log(dbg, "spawn", pid=5678, cmd="['claude', '--print', '--verbose']", phase=1)
+            debug_log(
+                dbg,
+                "spawn",
+                pid=5678,
+                cmd="['claude', '--print', '--verbose']",
+                phase=1,
+            )
             content = read()
             assert "spawn" in content
             assert "pid=5678" in content
@@ -210,7 +255,8 @@ class TestMonitorInstrumentation:
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.monitor")
             debug_log(
-                dbg, "output_file_stat",
+                dbg,
+                "output_file_stat",
                 path="/tmp/output.txt",
                 size=2048,
                 events_received=10,
@@ -250,7 +296,13 @@ class TestTUIInstrumentation:
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.tui")
             debug_log(dbg, "tui_start")
-            debug_log(dbg, "tui_update", events_received=5, stall_status="active", last_event_time=100.0)
+            debug_log(
+                dbg,
+                "tui_update",
+                events_received=5,
+                stall_status="active",
+                last_event_time=100.0,
+            )
             debug_log(dbg, "tui_stop")
             content = read()
             assert "tui_start" in content
@@ -264,7 +316,9 @@ class TestTUIInstrumentation:
         root, read, cleanup = _setup_debug_and_get_content(tmp_path, config)
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.tui")
-            debug_log(dbg, "tui_live_failed", error="Terminal resize", error_type="ValueError")
+            debug_log(
+                dbg, "tui_live_failed", error="Terminal resize", error_type="ValueError"
+            )
             content = read()
             assert "tui_live_failed" in content
             assert "error_type=ValueError" in content
@@ -327,7 +381,9 @@ class TestTmuxFlagForwarding:
     def test_existing_flags_unchanged(self, tmp_path):
         from superclaude.cli.sprint.tmux import _build_foreground_command
 
-        config = _make_config(tmp_path, debug=False, stall_timeout=0, stall_action="warn")
+        config = _make_config(
+            tmp_path, debug=False, stall_timeout=0, stall_action="warn"
+        )
         cmd = _build_foreground_command(config)
         # Existing flags still present
         assert "--no-tmux" in cmd
@@ -381,8 +437,14 @@ class TestWatchdogMechanism:
         root, read, cleanup = _setup_debug_and_get_content(tmp_path, config)
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.executor")
-            debug_log(dbg, "watchdog_triggered", phase=1, action="warn",
-                      stall_seconds=130.0, pid=1234)
+            debug_log(
+                dbg,
+                "watchdog_triggered",
+                phase=1,
+                action="warn",
+                stall_seconds=130.0,
+                pid=1234,
+            )
             content = read()
             assert "watchdog_triggered" in content
             assert "action=warn" in content
@@ -394,8 +456,14 @@ class TestWatchdogMechanism:
         root, read, cleanup = _setup_debug_and_get_content(tmp_path, config)
         try:
             dbg = logging.getLogger(f"{LOGGER_NAME}.executor")
-            debug_log(dbg, "watchdog_triggered", phase=1, action="kill",
-                      stall_seconds=130.0, pid=1234)
+            debug_log(
+                dbg,
+                "watchdog_triggered",
+                phase=1,
+                action="kill",
+                stall_seconds=130.0,
+                pid=1234,
+            )
             content = read()
             assert "watchdog_triggered" in content
             assert "action=kill" in content
@@ -430,7 +498,7 @@ class TestWatchdogMechanism:
         scenarios = [
             (110, 110),  # stall > timeout, no growth
             (120, 120),  # still stalled
-            (0, 0),      # growth detected
+            (0, 0),  # growth detected
             (110, 110),  # stall again
         ]
 
@@ -459,9 +527,7 @@ class TestWatchdogMechanism:
         stall_seconds = 200
 
         triggered = (
-            stall_timeout > 0
-            and stall_seconds > stall_timeout
-            and events_received > 0
+            stall_timeout > 0 and stall_seconds > stall_timeout and events_received > 0
         )
         assert not triggered
 

@@ -111,7 +111,9 @@ class TestClaudeProcessEnv:
             output_file=tmp_path / "out.txt",
             error_file=tmp_path / "err.txt",
         )
-        with patch.dict("os.environ", {"CLAUDECODE": "1", "CLAUDE_CODE_ENTRYPOINT": "cli"}):
+        with patch.dict(
+            "os.environ", {"CLAUDECODE": "1", "CLAUDE_CODE_ENTRYPOINT": "cli"}
+        ):
             env = p.build_env()
             assert "CLAUDECODE" not in env
             assert "CLAUDE_CODE_ENTRYPOINT" not in env

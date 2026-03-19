@@ -16,7 +16,15 @@ class TestGateDisplayStateEnum:
         assert len(GateDisplayState) == 7
 
     def test_expected_members(self):
-        expected = {"NONE", "CHECKING", "PASS", "FAIL_DEFERRED", "REMEDIATING", "REMEDIATED", "HALT"}
+        expected = {
+            "NONE",
+            "CHECKING",
+            "PASS",
+            "FAIL_DEFERRED",
+            "REMEDIATING",
+            "REMEDIATED",
+            "HALT",
+        }
         actual = {m.name for m in GateDisplayState}
         assert actual == expected
 
@@ -48,28 +56,44 @@ class TestGateDisplayTransitions:
     """State transitions follow the gate lifecycle."""
 
     def test_none_to_checking(self):
-        assert is_valid_gate_transition(GateDisplayState.NONE, GateDisplayState.CHECKING)
+        assert is_valid_gate_transition(
+            GateDisplayState.NONE, GateDisplayState.CHECKING
+        )
 
     def test_checking_to_pass(self):
-        assert is_valid_gate_transition(GateDisplayState.CHECKING, GateDisplayState.PASS)
+        assert is_valid_gate_transition(
+            GateDisplayState.CHECKING, GateDisplayState.PASS
+        )
 
     def test_checking_to_fail_deferred(self):
-        assert is_valid_gate_transition(GateDisplayState.CHECKING, GateDisplayState.FAIL_DEFERRED)
+        assert is_valid_gate_transition(
+            GateDisplayState.CHECKING, GateDisplayState.FAIL_DEFERRED
+        )
 
     def test_fail_deferred_to_remediating(self):
-        assert is_valid_gate_transition(GateDisplayState.FAIL_DEFERRED, GateDisplayState.REMEDIATING)
+        assert is_valid_gate_transition(
+            GateDisplayState.FAIL_DEFERRED, GateDisplayState.REMEDIATING
+        )
 
     def test_remediating_to_remediated(self):
-        assert is_valid_gate_transition(GateDisplayState.REMEDIATING, GateDisplayState.REMEDIATED)
+        assert is_valid_gate_transition(
+            GateDisplayState.REMEDIATING, GateDisplayState.REMEDIATED
+        )
 
     def test_remediating_to_halt(self):
-        assert is_valid_gate_transition(GateDisplayState.REMEDIATING, GateDisplayState.HALT)
+        assert is_valid_gate_transition(
+            GateDisplayState.REMEDIATING, GateDisplayState.HALT
+        )
 
     def test_invalid_transition_none_to_pass(self):
-        assert not is_valid_gate_transition(GateDisplayState.NONE, GateDisplayState.PASS)
+        assert not is_valid_gate_transition(
+            GateDisplayState.NONE, GateDisplayState.PASS
+        )
 
     def test_invalid_transition_pass_to_checking(self):
-        assert not is_valid_gate_transition(GateDisplayState.PASS, GateDisplayState.CHECKING)
+        assert not is_valid_gate_transition(
+            GateDisplayState.PASS, GateDisplayState.CHECKING
+        )
 
     def test_invalid_transition_halt_to_anything(self):
         for state in GateDisplayState:
@@ -81,8 +105,12 @@ class TestGateDisplayTransitions:
 
     def test_full_happy_path(self):
         """NONE → CHECKING → PASS is valid."""
-        assert is_valid_gate_transition(GateDisplayState.NONE, GateDisplayState.CHECKING)
-        assert is_valid_gate_transition(GateDisplayState.CHECKING, GateDisplayState.PASS)
+        assert is_valid_gate_transition(
+            GateDisplayState.NONE, GateDisplayState.CHECKING
+        )
+        assert is_valid_gate_transition(
+            GateDisplayState.CHECKING, GateDisplayState.PASS
+        )
 
     def test_full_remediation_path(self):
         """NONE → CHECKING → FAIL_DEFERRED → REMEDIATING → REMEDIATED is valid."""
@@ -94,7 +122,9 @@ class TestGateDisplayTransitions:
             GateDisplayState.REMEDIATED,
         ]
         for i in range(len(path) - 1):
-            assert is_valid_gate_transition(path[i], path[i + 1]), f"Invalid: {path[i]} → {path[i+1]}"
+            assert is_valid_gate_transition(path[i], path[i + 1]), (
+                f"Invalid: {path[i]} → {path[i + 1]}"
+            )
 
     def test_full_halt_path(self):
         """NONE → CHECKING → FAIL_DEFERRED → REMEDIATING → HALT is valid."""
@@ -106,4 +136,6 @@ class TestGateDisplayTransitions:
             GateDisplayState.HALT,
         ]
         for i in range(len(path) - 1):
-            assert is_valid_gate_transition(path[i], path[i + 1]), f"Invalid: {path[i]} → {path[i+1]}"
+            assert is_valid_gate_transition(path[i], path[i + 1]), (
+                f"Invalid: {path[i]} → {path[i + 1]}"
+            )

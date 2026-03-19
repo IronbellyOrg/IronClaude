@@ -31,21 +31,54 @@ class TestFullDiagnosticScenarios:
         phase = harness.phases[0]
 
         # Simulate NDJSON output that stops
-        harness.simulate_phase_output(phase, [
-            {"type": "text", "text": "Starting task T01.01"},
-            {"type": "tool_use", "tool": "Read"},
-            {"type": "tool_use", "tool": "Edit"},
-        ])
+        harness.simulate_phase_output(
+            phase,
+            [
+                {"type": "text", "text": "Starting task T01.01"},
+                {"type": "tool_use", "tool": "Read"},
+                {"type": "tool_use", "tool": "Edit"},
+            ],
+        )
 
         harness.simulate_phase_error(phase, "")
 
         # Emit debug events
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0, "stall_status": "active"}),
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 30, "stall_status": "thinking..."}),
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 121, "stall_status": "STALLED"}),
-            ("watchdog_triggered", {"phase": 1, "action": "warn", "stall_seconds": 130}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                (
+                    "poll_tick",
+                    {
+                        "phase": 1,
+                        "pid": 100,
+                        "stall_seconds": 0,
+                        "stall_status": "active",
+                    },
+                ),
+                (
+                    "poll_tick",
+                    {
+                        "phase": 1,
+                        "pid": 100,
+                        "stall_seconds": 30,
+                        "stall_status": "thinking...",
+                    },
+                ),
+                (
+                    "poll_tick",
+                    {
+                        "phase": 1,
+                        "pid": 100,
+                        "stall_seconds": 121,
+                        "stall_status": "STALLED",
+                    },
+                ),
+                (
+                    "watchdog_triggered",
+                    {"phase": 1, "action": "warn", "stall_seconds": 130},
+                ),
+            ],
+        )
 
         # Collect, classify, report
         pr = harness.make_phase_result(phase, status=PhaseStatus.ERROR, exit_code=1)
@@ -101,9 +134,12 @@ class TestFullDiagnosticScenarios:
         harness.simulate_phase_output(phase, [])
         harness.simulate_phase_error(phase, "Segmentation fault (core dumped)\n")
 
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
+            ],
+        )
 
         pr = harness.make_phase_result(phase, status=PhaseStatus.ERROR, exit_code=139)
         ms = MonitorState(stall_seconds=1.0, events_received=0)
@@ -130,9 +166,12 @@ class TestFullDiagnosticScenarios:
         result_file.parent.mkdir(parents=True, exist_ok=True)
         result_file.write_text("EXIT_RECOMMENDATION: HALT\nstatus: FAIL\n")
 
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
+            ],
+        )
 
         pr = harness.make_phase_result(phase, status=PhaseStatus.HALT, exit_code=0)
         ms = MonitorState(stall_seconds=0, events_received=10)

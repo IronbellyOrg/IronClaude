@@ -26,6 +26,7 @@ from superclaude.cli.roadmap.executor import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def setup_dirs(tmp_path: Path):
     """Create a complete output directory with state, spec, and deviation files."""
@@ -118,6 +119,7 @@ def _make_mock_results(status_value="FAIL"):
 # TestCycleGuard (FR-2.24.1.11, AC-6)
 # ---------------------------------------------------------------------------
 
+
 class TestCycleGuard:
     """FR-2.24.1.11, AC-6: Cycle fires at most once per invocation."""
 
@@ -147,10 +149,12 @@ class TestCycleGuard:
         results = _make_mock_results()
 
         # Mock the pipeline re-execution to avoid actually running
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume, \
-             patch("superclaude.cli.roadmap.executor._save_state"):
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
+            patch("superclaude.cli.roadmap.executor._save_state"),
+        ):
             mock_build.return_value = []
             mock_resume.return_value = []
             mock_exec.return_value = []
@@ -168,6 +172,7 @@ class TestCycleGuard:
 # ---------------------------------------------------------------------------
 # TestDiskReread (FR-2.24.1.10, AC-7)
 # ---------------------------------------------------------------------------
+
 
 class TestDiskReread:
     """FR-2.24.1.10, AC-7: Resume uses post-write disk state."""
@@ -188,10 +193,15 @@ class TestDiskReread:
             resume_state_seen["spec_hash"] = state["spec_hash"]
             return steps
 
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume", side_effect=capture_resume), \
-             patch("superclaude.cli.roadmap.executor._save_state"):
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch(
+                "superclaude.cli.roadmap.executor._apply_resume",
+                side_effect=capture_resume,
+            ),
+            patch("superclaude.cli.roadmap.executor._save_state"),
+        ):
             mock_build.return_value = []
             mock_exec.return_value = []
 
@@ -210,6 +220,7 @@ class TestDiskReread:
 # ---------------------------------------------------------------------------
 # TestConditionChecks (FR-2.24.1.9)
 # ---------------------------------------------------------------------------
+
 
 class TestConditionChecks:
     """FR-2.24.1.9: All three conditions required."""
@@ -297,6 +308,7 @@ class TestConditionChecks:
 # TestAutoAccept (FR-2.24.1.8, AC-9)
 # ---------------------------------------------------------------------------
 
+
 class TestAutoAccept:
     """FR-2.24.1.8, AC-9: auto_accept behavior."""
 
@@ -310,11 +322,13 @@ class TestAutoAccept:
         results = _make_mock_results()
 
         # Should not call input()
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume, \
-             patch("superclaude.cli.roadmap.executor._save_state"), \
-             patch("builtins.input") as mock_input:
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
+            patch("superclaude.cli.roadmap.executor._save_state"),
+            patch("builtins.input") as mock_input,
+        ):
             mock_build.return_value = []
             mock_resume.return_value = []
             mock_exec.return_value = []
@@ -332,6 +346,7 @@ class TestAutoAccept:
 # ---------------------------------------------------------------------------
 # TestBackwardCompat (AC-10)
 # ---------------------------------------------------------------------------
+
 
 class TestBackwardCompat:
     """AC-10: execute_roadmap() callable without auto_accept."""
@@ -353,6 +368,7 @@ class TestBackwardCompat:
 # TestCycleExhaustion (FR-2.24.1.13, AC-8)
 # ---------------------------------------------------------------------------
 
+
 class TestCycleExhaustion:
     """FR-2.24.1.13, AC-8: Second fidelity fail → exit 1, no loop."""
 
@@ -370,15 +386,21 @@ class TestCycleExhaustion:
         mock_fail_step.id = "spec-fidelity"
         mock_fail_result.step = mock_fail_step
         from superclaude.cli.roadmap.executor import StepStatus
+
         mock_fail_result.status = StepStatus.FAIL
         mock_fail_result.started_at = datetime.now(timezone.utc)
         mock_fail_result.finished_at = datetime.now(timezone.utc)
 
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume, \
-             patch("superclaude.cli.roadmap.executor._save_state"), \
-             patch("superclaude.cli.roadmap.executor._format_halt_output", return_value="HALT"):
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
+            patch("superclaude.cli.roadmap.executor._save_state"),
+            patch(
+                "superclaude.cli.roadmap.executor._format_halt_output",
+                return_value="HALT",
+            ),
+        ):
             mock_build.return_value = []
             mock_resume.return_value = []
             mock_exec.return_value = [mock_fail_result]
@@ -398,6 +420,7 @@ class TestCycleExhaustion:
 # TestWriteFailure (FR-2.24.1.10 Step 3, AC-13)
 # ---------------------------------------------------------------------------
 
+
 class TestWriteFailure:
     """FR-2.24.1.10 Step 3: Atomic write failure → abort cycle."""
 
@@ -409,7 +432,10 @@ class TestWriteFailure:
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
 
-        with patch("superclaude.cli.roadmap.executor.write_state", side_effect=OSError("disk full")):
+        with patch(
+            "superclaude.cli.roadmap.executor.write_state",
+            side_effect=OSError("disk full"),
+        ):
             result = _apply_resume_after_spec_patch(
                 config=config,
                 results=results,
@@ -429,7 +455,10 @@ class TestWriteFailure:
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
 
-        with patch("superclaude.cli.roadmap.executor.write_state", side_effect=OSError("disk full")):
+        with patch(
+            "superclaude.cli.roadmap.executor.write_state",
+            side_effect=OSError("disk full"),
+        ):
             _apply_resume_after_spec_patch(
                 config=config,
                 results=results,
@@ -453,7 +482,10 @@ class TestWriteFailure:
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
 
-        with patch("superclaude.cli.roadmap.executor.write_state", side_effect=OSError("disk full")):
+        with patch(
+            "superclaude.cli.roadmap.executor.write_state",
+            side_effect=OSError("disk full"),
+        ):
             _apply_resume_after_spec_patch(
                 config=config,
                 results=results,
@@ -476,7 +508,10 @@ class TestWriteFailure:
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
 
-        with patch("superclaude.cli.roadmap.executor.write_state", side_effect=OSError("disk full")):
+        with patch(
+            "superclaude.cli.roadmap.executor.write_state",
+            side_effect=OSError("disk full"),
+        ):
             _apply_resume_after_spec_patch(
                 config=config,
                 results=results,
@@ -491,6 +526,7 @@ class TestWriteFailure:
 # ---------------------------------------------------------------------------
 # TestStateIntegrity (T04.04)
 # ---------------------------------------------------------------------------
+
 
 class TestStateIntegrity:
     """State integrity across all mutation and abort paths."""
@@ -507,10 +543,12 @@ class TestStateIntegrity:
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
 
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume, \
-             patch("superclaude.cli.roadmap.executor._save_state"):
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
+            patch("superclaude.cli.roadmap.executor._save_state"),
+        ):
             mock_build.return_value = []
             mock_resume.return_value = []
             mock_exec.return_value = []
@@ -529,7 +567,9 @@ class TestStateIntegrity:
         # All other keys must be byte-identical
         for key in state_before:
             if key != "spec_hash":
-                assert state_after[key] == state_before[key], f"Key '{key}' changed unexpectedly"
+                assert state_after[key] == state_before[key], (
+                    f"Key '{key}' changed unexpectedly"
+                )
 
     def test_disk_reread_passed_to_apply_resume(self, setup_dirs) -> None:
         """AC-7: _apply_resume receives disk-reread state, not in-memory."""
@@ -548,10 +588,14 @@ class TestStateIntegrity:
             resume_called_with_config["spec_hash"] = state["spec_hash"]
             return steps
 
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume", side_effect=spy_resume), \
-             patch("superclaude.cli.roadmap.executor._save_state"):
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch(
+                "superclaude.cli.roadmap.executor._apply_resume", side_effect=spy_resume
+            ),
+            patch("superclaude.cli.roadmap.executor._save_state"),
+        ):
             mock_build.return_value = []
             mock_exec.return_value = []
 
@@ -577,8 +621,11 @@ class TestStateIntegrity:
         mtime_before = os.path.getmtime(state_path)
 
         from superclaude.cli.roadmap.spec_patch import prompt_accept_spec_change
-        with patch("builtins.input", return_value="n"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin:
+
+        with (
+            patch("builtins.input", return_value="n"),
+            patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin,
+        ):
             mock_stdin.isatty.return_value = True
             prompt_accept_spec_change(tmp_path)
 
@@ -589,6 +636,7 @@ class TestStateIntegrity:
 # ---------------------------------------------------------------------------
 # TestLogging (FR-2.24.1.12, AC-12)
 # ---------------------------------------------------------------------------
+
 
 class TestLogging:
     """FR-2.24.1.12, AC-12: Log messages with [roadmap] prefix."""
@@ -601,10 +649,12 @@ class TestLogging:
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
 
-        with patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec, \
-             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build, \
-             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume, \
-             patch("superclaude.cli.roadmap.executor._save_state"):
+        with (
+            patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
+            patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
+            patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
+            patch("superclaude.cli.roadmap.executor._save_state"),
+        ):
             mock_build.return_value = []
             mock_resume.return_value = []
             mock_exec.return_value = []
@@ -620,7 +670,10 @@ class TestLogging:
         captured = capsys.readouterr()
         assert "[roadmap] Spec patched by subprocess." in captured.out
         assert "accepted deviation record(s)" in captured.out
-        assert "[roadmap] Triggering spec-hash sync and resume (cycle 1/1)." in captured.out
+        assert (
+            "[roadmap] Triggering spec-hash sync and resume (cycle 1/1)."
+            in captured.out
+        )
         assert "[roadmap] Spec-patch resume cycle complete." in captured.out
 
     def test_cycle_guard_preserves_state_mtime(self, setup_dirs) -> None:

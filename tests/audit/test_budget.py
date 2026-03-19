@@ -31,7 +31,9 @@ class TestBudgetConfig:
         assert len(cfg.validate()) > 0
 
     def test_invalid_threshold_order(self):
-        cfg = BudgetConfig(total_budget=10000, warn_threshold=0.95, degrade_threshold=0.80)
+        cfg = BudgetConfig(
+            total_budget=10000, warn_threshold=0.95, degrade_threshold=0.80
+        )
         assert len(cfg.validate()) > 0
 
 

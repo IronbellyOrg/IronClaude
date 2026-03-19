@@ -16,15 +16,21 @@ def _make_100_results():
     """Create 100 classification results: 30 tier-1, 70 tier-2."""
     results = []
     for i in range(30):
-        results.append(classify_finding(
-            f"orphan_{i}.py", has_references=False,
-            evidence=["zero references found"],
-        ))
+        results.append(
+            classify_finding(
+                f"orphan_{i}.py",
+                has_references=False,
+                evidence=["zero references found"],
+            )
+        )
     for i in range(70):
-        results.append(classify_finding(
-            f"used_{i}.py", has_references=True,
-            evidence=["referenced by main.py"],
-        ))
+        results.append(
+            classify_finding(
+                f"used_{i}.py",
+                has_references=True,
+                evidence=["referenced by main.py"],
+            )
+        )
     return results
 
 

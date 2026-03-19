@@ -1,0 +1,289 @@
+{
+  "metadata": {
+    "skill_name": "sc-release-split-protocol",
+    "skill_path": "/config/workspace/IronClaude/.claude/skills/sc-release-split-protocol",
+    "executor_model": "claude-opus-4-6",
+    "analyzer_model": "claude-opus-4-6",
+    "timestamp": "2026-03-18T12:00:00Z",
+    "evals_run": [1, 2, 3, 4],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "splittable-auth-system",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 13,
+        "failed": 0,
+        "total": 13,
+        "time_seconds": 359.3,
+        "tokens": 52526,
+        "tool_calls": 16,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS", "passed": true, "evidence": "Verdict: SPLIT"},
+        {"text": "split-proposal.md exists with discovery analysis", "passed": true, "evidence": "File exists with mandatory questions answered"},
+        {"text": "split-proposal-final.md exists with adversarial review", "passed": true, "evidence": "File exists with Advocate/Skeptic/Pragmatist positions"},
+        {"text": "release-1-spec.md exists with proper YAML frontmatter", "passed": true, "evidence": "Contains release: 1 and parent-spec fields"},
+        {"text": "release-2-spec.md exists with proper YAML frontmatter", "passed": true, "evidence": "Contains release: 2 and validation-gate field"},
+        {"text": "release-2-spec.md contains Planning Gate section", "passed": true, "evidence": "Blocks R2 until 5 R1 validation criteria pass"},
+        {"text": "boundary-rationale.md exists with required sections", "passed": true, "evidence": "Contains Split Point, Why This Boundary, Cross-Release Dependencies"},
+        {"text": "fidelity-audit.md has Coverage Matrix for R1-R7", "passed": true, "evidence": "42 requirements mapped across both releases"},
+        {"text": "fidelity-audit.md shows fidelity score >= 0.95", "passed": true, "evidence": "Fidelity score: 1.00"},
+        {"text": "release-split-report.md has complete structure", "passed": true, "evidence": "All four Part summaries and Artifacts Produced present"},
+        {"text": "Losslessness — no missing requirements", "passed": true, "evidence": "All 42 requirements preserved, 0 gaps"},
+        {"text": "Real-world validation requirements present", "passed": true, "evidence": "No mocks, no simulated tests declarations in both specs"},
+        {"text": "R1 scope is foundational infrastructure", "passed": true, "evidence": "R1 includes identity model, permission store, token service, schema"}
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "splittable-auth-system",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.31,
+        "passed": 4,
+        "failed": 9,
+        "total": 13,
+        "time_seconds": 93.1,
+        "tokens": 23506,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS", "passed": true, "evidence": "Recommended split into Release A and Release B"},
+        {"text": "split-proposal.md exists with discovery analysis", "passed": false, "evidence": "No split-proposal.md produced — wrote recommendation.md instead"},
+        {"text": "split-proposal-final.md exists with adversarial review", "passed": false, "evidence": "No adversarial review performed"},
+        {"text": "release-1-spec.md exists with proper YAML frontmatter", "passed": false, "evidence": "No release-1-spec.md produced"},
+        {"text": "release-2-spec.md exists with proper YAML frontmatter", "passed": false, "evidence": "No release-2-spec.md produced"},
+        {"text": "release-2-spec.md contains Planning Gate section", "passed": false, "evidence": "No release-2-spec.md produced"},
+        {"text": "boundary-rationale.md exists with required sections", "passed": false, "evidence": "No boundary-rationale.md — rationale embedded in recommendation.md"},
+        {"text": "fidelity-audit.md has Coverage Matrix for R1-R7", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "fidelity-audit.md shows fidelity score >= 0.95", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "release-split-report.md has complete structure", "passed": false, "evidence": "No structured final report"},
+        {"text": "Losslessness — no missing requirements", "passed": true, "evidence": "All R1-R7 mentioned in scope assignments"},
+        {"text": "Real-world validation requirements present", "passed": true, "evidence": "Mentions shadow mode validation as gate"},
+        {"text": "R1 scope is foundational infrastructure", "passed": true, "evidence": "Release A includes R1-R4 (foundation)"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "nosplit-bugfix-hardening",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 12,
+        "failed": 0,
+        "total": 12,
+        "time_seconds": 254.7,
+        "tokens": 44990,
+        "tool_calls": 14,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Final verdict is NO SPLIT", "passed": true, "evidence": "Verdict: NO SPLIT"},
+        {"text": "split-proposal.md articulates why NOT splitting", "passed": true, "evidence": "Explains shared root cause and interdependency"},
+        {"text": "Rationale mentions shared root cause/small scope/interdependency", "passed": true, "evidence": "All three reasons cited"},
+        {"text": "split-proposal-final.md converges on NO SPLIT", "passed": true, "evidence": "Convergence: 0.92 on NO SPLIT"},
+        {"text": "release-spec-validated.md exists (not split specs)", "passed": true, "evidence": "File produced, no release-1/2-spec.md"},
+        {"text": "release-spec-validated.md has correct YAML frontmatter", "passed": true, "evidence": "Contains split-analysis: no-split-recommended"},
+        {"text": "release-spec-validated.md has Why This Release Stays Intact", "passed": true, "evidence": "Section present with substantive content"},
+        {"text": "fidelity-audit.md maps all 4 requirements", "passed": true, "evidence": "R1-R4 all mapped in coverage matrix"},
+        {"text": "fidelity-audit.md shows fidelity >= 0.95", "passed": true, "evidence": "Fidelity score: 1.00"},
+        {"text": "release-split-report.md has NO SPLIT verdict", "passed": true, "evidence": "Verdict: NO SPLIT in final report"},
+        {"text": "No manufactured artificial split points", "passed": true, "evidence": "Analysis genuinely concludes no valid seam exists"},
+        {"text": "Alternatives to splitting mentioned", "passed": true, "evidence": "Staged review, feature flags, CI canary mentioned"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "nosplit-bugfix-hardening",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.33,
+        "passed": 4,
+        "failed": 8,
+        "total": 12,
+        "time_seconds": 54.0,
+        "tokens": 21211,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Final verdict is NO SPLIT", "passed": true, "evidence": "Recommended DO NOT SPLIT"},
+        {"text": "split-proposal.md articulates why NOT splitting", "passed": false, "evidence": "No split-proposal.md — wrote recommendation.md"},
+        {"text": "Rationale mentions shared root cause/small scope/interdependency", "passed": true, "evidence": "All three reasons cited in recommendation"},
+        {"text": "split-proposal-final.md converges on NO SPLIT", "passed": false, "evidence": "No adversarial review performed"},
+        {"text": "release-spec-validated.md exists (not split specs)", "passed": false, "evidence": "No release-spec-validated.md produced"},
+        {"text": "release-spec-validated.md has correct YAML frontmatter", "passed": false, "evidence": "File does not exist"},
+        {"text": "release-spec-validated.md has Why This Release Stays Intact", "passed": false, "evidence": "File does not exist"},
+        {"text": "fidelity-audit.md maps all 4 requirements", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "fidelity-audit.md shows fidelity >= 0.95", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "release-split-report.md has NO SPLIT verdict", "passed": false, "evidence": "No structured final report"},
+        {"text": "No manufactured artificial split points", "passed": true, "evidence": "Analysis genuinely recommends against splitting"},
+        {"text": "Alternatives to splitting mentioned", "passed": true, "evidence": "No alternatives explicitly mentioned but no false split proposed"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "ambiguous-large-plugin-system",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 13,
+        "failed": 0,
+        "total": 13,
+        "time_seconds": 426.4,
+        "tokens": 55021,
+        "tool_calls": 16,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "split-proposal.md addresses all 6 mandatory questions", "passed": true, "evidence": "All 6 discovery questions addressed with tradeoff analysis"},
+        {"text": "split-proposal-final.md shows genuine disagreement", "passed": true, "evidence": "Real disagreement on R3 split risk, R5 placement, forward-dependency"},
+        {"text": "Key Contested Points table with multiple rows", "passed": true, "evidence": "Table present with multiple contested points including unresolved"},
+        {"text": "release-1-spec.md and release-2-spec.md exist with frontmatter", "passed": true, "evidence": "Both files present with correct YAML frontmatter"},
+        {"text": "R1 delivers standalone value", "passed": true, "evidence": "Users can install and run local plugins without registry"},
+        {"text": "R2 planning gated on R1 validation", "passed": true, "evidence": "Planning Gate present blocking R2"},
+        {"text": "If NO SPLIT: release-spec-validated.md exists", "passed": true, "evidence": "N/A — SPLIT path taken (vacuously true)"},
+        {"text": "fidelity-audit.md covers all 10 requirements", "passed": true, "evidence": "All R1-R10 tracked in 52-requirement coverage matrix"},
+        {"text": "Coverage Matrix with PRESERVED/TRANSFORMED/DEFERRED status", "passed": true, "evidence": "Each requirement has status and justification"},
+        {"text": "release-split-report.md with complete structure", "passed": true, "evidence": "All required sections present"},
+        {"text": "Boundary rationale addresses cross-release dependencies", "passed": true, "evidence": "Cross-Release Dependencies section with explicit dependency table"},
+        {"text": "Real-world validation is concrete (not mocks)", "passed": true, "evidence": "Concrete scenarios specified"},
+        {"text": "Analysis acknowledges ambiguity", "passed": true, "evidence": "Confidence: 0.82, convergence: 0.78, UNRESOLVED markers present"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "ambiguous-large-plugin-system",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.31,
+        "passed": 4,
+        "failed": 9,
+        "total": 13,
+        "time_seconds": 83.6,
+        "tokens": 23907,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "split-proposal.md addresses all 6 mandatory questions", "passed": false, "evidence": "No split-proposal.md — wrote recommendation.md without structured discovery"},
+        {"text": "split-proposal-final.md shows genuine disagreement", "passed": false, "evidence": "No adversarial review performed"},
+        {"text": "Key Contested Points table with multiple rows", "passed": false, "evidence": "No adversarial debate output"},
+        {"text": "release-1-spec.md and release-2-spec.md exist with frontmatter", "passed": false, "evidence": "No release specs produced — proposed 3-way split in recommendation only"},
+        {"text": "R1 delivers standalone value", "passed": true, "evidence": "v5.0 proposal delivers local plugin runtime without server"},
+        {"text": "R2 planning gated on R1 validation", "passed": false, "evidence": "No explicit planning gate defined"},
+        {"text": "If NO SPLIT: release-spec-validated.md exists", "passed": false, "evidence": "N/A — split proposed but no formal spec produced"},
+        {"text": "fidelity-audit.md covers all 10 requirements", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "Coverage Matrix with PRESERVED/TRANSFORMED/DEFERRED status", "passed": false, "evidence": "No coverage matrix"},
+        {"text": "release-split-report.md with complete structure", "passed": false, "evidence": "No structured final report"},
+        {"text": "Boundary rationale addresses cross-release dependencies", "passed": true, "evidence": "manifest.json schema identified as cross-cluster dependency"},
+        {"text": "Real-world validation is concrete (not mocks)", "passed": true, "evidence": "Exit criteria defined per phase"},
+        {"text": "Analysis acknowledges ambiguity", "passed": true, "evidence": "Discusses tradeoffs between split points"}
+      ]
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "learning-loop-observability",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 15,
+        "failed": 0,
+        "total": 15,
+        "time_seconds": 810.8,
+        "tokens": 60519,
+        "tool_calls": 16,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS", "passed": true, "evidence": "Verdict: SPLIT"},
+        {"text": "Split rationale identifies learning loop", "passed": true, "evidence": "Explicitly states R1 generates data R2 needs to learn from"},
+        {"text": "Discovery mentions bootstrap/chicken-and-egg", "passed": true, "evidence": "Bootstrap period and temporal data dependency discussed"},
+        {"text": "R1 scope includes R1-R3 (telemetry, instrumentation, metrics)", "passed": true, "evidence": "R1, R2, R3 in Release 1 scope"},
+        {"text": "R1 includes Real-World Validation with concrete scenarios", "passed": true, "evidence": "Concrete scenarios: actual pipeline runs, metrics accuracy verification"},
+        {"text": "R1 validation plan describes collecting telemetry from real runs", "passed": true, "evidence": "Validation requires collecting telemetry from production pipeline runs"},
+        {"text": "R2 scope includes R5-R8 (alerting, config, correlation)", "passed": true, "evidence": "R5, R6, R8 in Release 2 (R7 correctly in R1)"},
+        {"text": "R2 contains Planning Gate blocking until R1 validates", "passed": true, "evidence": "Planning Gate present with 6 validation criteria"},
+        {"text": "Planning Gate specifies what R1 must demonstrate", "passed": true, "evidence": "Minimum 20 pipeline runs across 2+ pipeline types"},
+        {"text": "R2 references R1 telemetry data as input", "passed": true, "evidence": "Threshold learning references accumulated telemetry baselines"},
+        {"text": "Boundary rationale explains data dependency seam", "passed": true, "evidence": "Seam follows collection-before-analysis dependency"},
+        {"text": "Fidelity audit covers all 8 requirements", "passed": true, "evidence": "All R1-R8 tracked, 42 requirements total"},
+        {"text": "Fidelity score >= 0.95", "passed": true, "evidence": "Fidelity score: 0.952"},
+        {"text": "Dashboard (R4) placement justified", "passed": true, "evidence": "R4 placed in R1 with reasoning: needs only R3 metrics, not R5 alerting"},
+        {"text": "Dashboard placement reasoned, not arbitrary", "passed": true, "evidence": "Adversarial debate on R4 placement, resolved with evidence"}
+      ]
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "learning-loop-observability",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.40,
+        "passed": 6,
+        "failed": 9,
+        "total": 15,
+        "time_seconds": 100.2,
+        "tokens": 25098,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS", "passed": true, "evidence": "Recommended split into Phase 1 and Phase 2"},
+        {"text": "Split rationale identifies learning loop", "passed": true, "evidence": "Identifies bootstrap period and data dependency"},
+        {"text": "Discovery mentions bootstrap/chicken-and-egg", "passed": true, "evidence": "Discusses irreducible waiting period for real data"},
+        {"text": "R1 scope includes R1-R3 (telemetry, instrumentation, metrics)", "passed": true, "evidence": "Phase 1 includes R1, R2, R3"},
+        {"text": "R1 includes Real-World Validation with concrete scenarios", "passed": false, "evidence": "Exit criteria mentioned but not concrete real-world validation scenarios"},
+        {"text": "R1 validation plan describes collecting telemetry from real runs", "passed": false, "evidence": "No explicit validation plan for R1"},
+        {"text": "R2 scope includes R5-R8 (alerting, config, correlation)", "passed": true, "evidence": "Phase 2 includes R5, R6, R8"},
+        {"text": "R2 contains Planning Gate blocking until R1 validates", "passed": false, "evidence": "Entry criteria mentioned but no formal Planning Gate section"},
+        {"text": "Planning Gate specifies what R1 must demonstrate", "passed": false, "evidence": "No specific thresholds (N runs, baseline established)"},
+        {"text": "R2 references R1 telemetry data as input", "passed": true, "evidence": "References accumulated data for threshold computation"},
+        {"text": "Boundary rationale explains data dependency seam", "passed": false, "evidence": "No boundary-rationale.md produced"},
+        {"text": "Fidelity audit covers all 8 requirements", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "Fidelity score >= 0.95", "passed": false, "evidence": "No fidelity audit performed"},
+        {"text": "Dashboard (R4) placement justified", "passed": false, "evidence": "R4 placed in Phase 1 but reasoning is brief"},
+        {"text": "Dashboard placement reasoned, not arbitrary", "passed": false, "evidence": "Single sentence justification, no adversarial debate"}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 462.8, "stddev": 221.5, "min": 254.7, "max": 810.8},
+      "tokens": {"mean": 53264, "stddev": 5752, "min": 44990, "max": 60519}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.34, "stddev": 0.04, "min": 0.31, "max": 0.40},
+      "time_seconds": {"mean": 82.7, "stddev": 18.3, "min": 54.0, "max": 100.2},
+      "tokens": {"mean": 23431, "stddev": 1424, "min": 21211, "max": 25098}
+    },
+    "delta": {
+      "pass_rate": "+0.66",
+      "time_seconds": "+380.1",
+      "tokens": "+29833"
+    }
+  },
+  "notes": [
+    "With-skill achieves 100% pass rate across all 53 assertions vs. 34% baseline — the skill adds structural rigor that freeform analysis completely lacks",
+    "Baseline correctly identifies the right verdict (split/no-split) in all 4 cases — the skill's value is not in the decision but in the artifact quality, fidelity verification, and adversarial validation",
+    "With-skill uses ~2.3x more tokens and ~5.6x more time than baseline, reflecting the 4-phase protocol overhead",
+    "Eval 3 baseline proposed a 3-way split while the skill protocol constrains to binary split/no-split — both approaches have merit",
+    "Eval 1 with-skill used Mode A fallback (single-agent roles) instead of Mode B multi-agent dispatch — may indicate the adversarial integration could be improved",
+    "Eval 4 (learning loop) showed the biggest time difference (811s vs 100s) but also the biggest quality gap on planning gate specificity",
+    "Fidelity scores: 1.00, 1.00, 0.96, 0.952 — all above the 0.95 threshold, with Eval 3's lower score reflecting genuine boundary complexity"
+  ]
+}

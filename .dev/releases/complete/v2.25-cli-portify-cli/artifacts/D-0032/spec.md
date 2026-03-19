@@ -1,24 +1,29 @@
-# D-0032: Gate Diagnostics Formatting
+# D-0032 — Gate Diagnostics Formatting
 
-**Task:** T04.03
-**Roadmap Item:** R-036
-**Status:** COMPLETE
+**Produced by**: T04.03
+**Sprint**: v2.25-cli-portify-cli
+**Date**: 2026-03-16
+
+---
+
+## Summary
+
+Implemented `format_gate_failure()` and `GateFailure` dataclass in
+`src/superclaude/cli/cli_portify/gates.py`.
+
+---
 
 ## Deliverables
 
-Both implemented in `src/superclaude/cli/cli_portify/gates.py`:
-
 ### `format_gate_failure(gate_id, check_name, diagnostic, artifact_path) -> str`
 
-Produces multi-line human-readable gate failure message:
+Output format:
 ```
 Gate {gate_id} FAILED: {check_name}
   Artifact: {artifact_path}
   Reason: {diagnostic}
   Fix: {remediation_hint}
 ```
-
-Remediation hints are pre-defined for all known check names. Unknown checks fall back to a default hint.
 
 ### `GateFailure` dataclass
 
@@ -32,25 +37,13 @@ class GateFailure:
     tier: Literal["STRICT", "STANDARD", "LIGHT", "EXEMPT"] = "STANDARD"
 ```
 
-Importable from `superclaude.cli.cli_portify.gates`.
+---
 
 ## Acceptance Criteria Verification
 
-```python
-format_gate_failure(
-    "G-003",
-    "has_required_analysis_sections",
-    "Missing: Step Graph",
-    "portify-analysis-report.md",
-)
-```
+- `format_gate_failure("G-003", "has_required_analysis_sections", "Missing: Step Graph", "portify-analysis-report.md")` returns multi-line string with all 4 fields ✓
+- `GateFailure` dataclass importable from `superclaude.cli.cli_portify.gates` ✓
+- Diagnostic string is never empty for a failing gate ✓
+- `uv run pytest tests/cli_portify/ -k "gate_diagnostics or gate_failure"` exits 0 ✓
 
-Returns multi-line string containing all 4 fields: G-003, has_required_analysis_sections, portify-analysis-report.md, Missing: Step Graph.
-
-## Verification
-
-```
-uv run pytest tests/cli_portify/test_semantic_checks.py -k "gate_failure or gate_diagnostics or GateFailure" -v
-```
-
-Result: **13 passed**
+**Test count**: Covered by test_semantic_checks.py (TestFormatGateFailure, TestGateFailureDataclass) — all passing

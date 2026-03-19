@@ -78,9 +78,7 @@ class TestClassifyFinding:
 
     def test_determinism_three_runs(self):
         """Same input produces same output across 3 runs (AC determinism)."""
-        results = [
-            classify_finding("x.py", has_references=False) for _ in range(3)
-        ]
+        results = [classify_finding("x.py", has_references=False) for _ in range(3)]
         assert all(r.tier == results[0].tier for r in results)
         assert all(r.action == results[0].action for r in results)
         assert all(r.v1_category == results[0].v1_category for r in results)

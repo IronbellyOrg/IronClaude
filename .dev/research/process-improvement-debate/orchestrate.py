@@ -322,6 +322,7 @@ When debating proposals, agents should:
 
 # ── Phase 3: Adversarial Debate Prompt ────────────────────────────────────
 
+
 def build_adversarial_prompt():
     """Build the adversarial debate prompt that references the brainstorm outputs."""
     return textwrap.dedent(f"""\
@@ -405,6 +406,7 @@ For each proposal:
 
 # ── Write All Artifacts ───────────────────────────────────────────────────
 
+
 def write_artifacts():
     """Write all prompt files and the manifest."""
 
@@ -447,7 +449,7 @@ def write_artifacts():
                         "output_file": "brainstorm-spec-panel.md",
                         "model": "opus",
                         "agent_type": "general-purpose",
-                        "description": "Brainstorm spec-panel improvements"
+                        "description": "Brainstorm spec-panel improvements",
                     },
                     {
                         "id": "brainstorm-adversarial",
@@ -455,7 +457,7 @@ def write_artifacts():
                         "output_file": "brainstorm-adversarial.md",
                         "model": "opus",
                         "agent_type": "general-purpose",
-                        "description": "Brainstorm adversarial improvements"
+                        "description": "Brainstorm adversarial improvements",
                     },
                     {
                         "id": "brainstorm-roadmap",
@@ -463,9 +465,9 @@ def write_artifacts():
                         "output_file": "brainstorm-roadmap.md",
                         "model": "opus",
                         "agent_type": "general-purpose",
-                        "description": "Brainstorm roadmap improvements"
-                    }
-                ]
+                        "description": "Brainstorm roadmap improvements",
+                    },
+                ],
             },
             {
                 "phase": 2,
@@ -480,14 +482,14 @@ def write_artifacts():
                             "debate-transcript.md",
                             "scoring-results.md",
                             "final-recommendations.md",
-                            "cross-cutting-analysis.md"
+                            "cross-cutting-analysis.md",
                         ],
                         "model": "opus",
                         "agent_type": "general-purpose",
-                        "description": "Adversarial debate on all proposals"
+                        "description": "Adversarial debate on all proposals",
                     }
-                ]
-            }
+                ],
+            },
         ],
         "expected_outputs": [
             "brainstorm-spec-panel.md",
@@ -497,8 +499,8 @@ def write_artifacts():
             "debate-transcript.md",
             "scoring-results.md",
             "final-recommendations.md",
-            "cross-cutting-analysis.md"
-        ]
+            "cross-cutting-analysis.md",
+        ],
     }
 
     manifest_path = OUTPUT_DIR / "manifest.json"

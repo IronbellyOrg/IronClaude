@@ -108,6 +108,7 @@ def format_gate_failure(
         f"  Fix: {remediation}"
     )
 
+
 # ---------------------------------------------------------------------------
 # Semantic check helper functions (FR-047, AC-004)
 # All return tuple[bool, str] — (passed, diagnostic_message)
@@ -209,7 +210,13 @@ def has_brainstorm_section(content: str) -> tuple[bool, str]:
 
 def has_quality_scores(content: str) -> tuple[bool, str]:
     """Check for quality score fields: clarity, completeness, testability, consistency, overall."""
-    required_scores = ["clarity", "completeness", "testability", "consistency", "overall"]
+    required_scores = [
+        "clarity",
+        "completeness",
+        "testability",
+        "consistency",
+        "overall",
+    ]
     missing = []
     for score in required_scores:
         if not re.search(rf"\b{score}\b\s*:", content, re.IGNORECASE):
@@ -231,13 +238,18 @@ def has_criticals_addressed(content: str) -> tuple[bool, str]:
         content,
     )
     if unresolved:
-        return False, f"Found {len(unresolved)} CRITICAL item(s) not marked [INCORPORATED] or [DISMISSED]"
+        return (
+            False,
+            f"Found {len(unresolved)} CRITICAL item(s) not marked [INCORPORATED] or [DISMISSED]",
+        )
     return True, ""
 
 
 def has_return_type_pattern(content: str) -> tuple[bool, str]:
     """Check for return type pattern (tuple[bool, str] or return type annotation)."""
-    if re.search(r"tuple\[bool,\s*str\]|-> tuple|return.*bool.*str", content, re.IGNORECASE):
+    if re.search(
+        r"tuple\[bool,\s*str\]|-> tuple|return.*bool.*str", content, re.IGNORECASE
+    ):
         return True, ""
     return False, "Missing return type pattern (tuple[bool, str])"
 
@@ -245,7 +257,9 @@ def has_return_type_pattern(content: str) -> tuple[bool, str]:
 def has_step_count_consistency(content: str) -> tuple[bool, str]:
     """Check that step_mapping count matches declared steps."""
     # Look for a declared step count and a step_mapping/step_definitions section
-    count_match = re.search(r"(?:pipeline_steps|step_count|steps)\s*:\s*(\d+)", content, re.IGNORECASE)
+    count_match = re.search(
+        r"(?:pipeline_steps|step_count|steps)\s*:\s*(\d+)", content, re.IGNORECASE
+    )
     if not count_match:
         return True, ""  # Can't verify without declared count, pass
     declared = int(count_match.group(1))
@@ -254,7 +268,10 @@ def has_step_count_consistency(content: str) -> tuple[bool, str]:
     if actual_steps == 0:
         return True, ""  # No step headings to count against
     if actual_steps != declared:
-        return False, f"Step count mismatch: declared {declared} but found {actual_steps} step definitions"
+        return (
+            False,
+            f"Step count mismatch: declared {declared} but found {actual_steps} step definitions",
+        )
     return True, ""
 
 
@@ -281,7 +298,13 @@ DISCOVER_COMPONENTS_GATE = GateCriteria(
 # G-002: (not mapped to named step — EXIT_RECOMMENDATION present, STANDARD)
 # G-003: analyze-workflow (STRICT)
 ANALYZE_WORKFLOW_GATE = GateCriteria(
-    required_frontmatter_fields=["step", "source_skill", "cli_name", "component_count", "analysis_sections"],
+    required_frontmatter_fields=[
+        "step",
+        "source_skill",
+        "cli_name",
+        "component_count",
+        "analysis_sections",
+    ],
     min_lines=20,
     enforcement_tier="STRICT",
     semantic_checks=[
@@ -296,7 +319,13 @@ ANALYZE_WORKFLOW_GATE = GateCriteria(
 # G-004: (approval_status gate, STANDARD)
 # G-005: design-pipeline (STRICT)
 DESIGN_PIPELINE_GATE = GateCriteria(
-    required_frontmatter_fields=["step", "source_skill", "cli_name", "pipeline_steps", "gate_count"],
+    required_frontmatter_fields=[
+        "step",
+        "source_skill",
+        "cli_name",
+        "pipeline_steps",
+        "gate_count",
+    ],
     min_lines=30,
     enforcement_tier="STRICT",
     semantic_checks=None,
@@ -305,7 +334,13 @@ DESIGN_PIPELINE_GATE = GateCriteria(
 # G-006: (return type pattern, STANDARD)
 # G-007: synthesize-spec (STRICT)
 SYNTHESIZE_SPEC_GATE = GateCriteria(
-    required_frontmatter_fields=["step", "source_skill", "cli_name", "synthesis_version", "placeholder_count"],
+    required_frontmatter_fields=[
+        "step",
+        "source_skill",
+        "cli_name",
+        "synthesis_version",
+        "placeholder_count",
+    ],
     min_lines=20,
     enforcement_tier="STRICT",
     semantic_checks=[
@@ -329,7 +364,13 @@ BRAINSTORM_GAPS_GATE = GateCriteria(
 )
 
 PANEL_REVIEW_GATE = GateCriteria(
-    required_frontmatter_fields=["step", "source_skill", "cli_name", "iteration", "convergence_state"],
+    required_frontmatter_fields=[
+        "step",
+        "source_skill",
+        "cli_name",
+        "iteration",
+        "convergence_state",
+    ],
     min_lines=20,
     enforcement_tier="STRICT",
     semantic_checks=[
@@ -530,7 +571,10 @@ def gate_panel_review(artifact_path: Path) -> tuple[bool, str]:
         return False, "Missing convergence_state field in frontmatter"
     state = match.group(1).lower()
     if state not in ("converged", "blocked"):
-        return False, f"Non-terminal convergence state '{state}' — must be 'converged' or 'blocked'"
+        return (
+            False,
+            f"Non-terminal convergence state '{state}' — must be 'converged' or 'blocked'",
+        )
     return True, ""
 
 

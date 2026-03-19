@@ -54,7 +54,9 @@ class PortifyValidationError(Exception):
     def __init__(self, error_code: str, message: str, details: str = "") -> None:
         self.error_code = error_code
         self.details = details
-        super().__init__(f"[{error_code}] {message}" + (f" — {details}" if details else ""))
+        super().__init__(
+            f"[{error_code}] {message}" + (f" — {details}" if details else "")
+        )
 
 
 class NameCollisionError(PortifyValidationError):
@@ -441,7 +443,9 @@ class ComponentTree:
             lines += ["## Agents (Tier 2)"]
             for agent in self.agents:
                 status = "found" if agent.found else "missing"
-                lines.append(f"- **{agent.name}** ({agent.line_count} lines) [{status}]")
+                lines.append(
+                    f"- **{agent.name}** ({agent.line_count} lines) [{status}]"
+                )
             lines.append("")
 
         return "\n".join(lines)
@@ -711,6 +715,7 @@ def _derive_name_from_path(workflow_path: Path) -> str:
         name = name[: -len("-protocol")]
     # Normalize: keep only lowercase letters, digits, hyphens
     import re
+
     name = re.sub(r"[^a-z0-9-]", "-", name)
     # Collapse multiple hyphens
     name = re.sub(r"-+", "-", name).strip("-")

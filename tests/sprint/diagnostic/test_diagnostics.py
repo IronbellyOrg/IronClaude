@@ -192,7 +192,9 @@ class TestDiagnosticCollector:
 class TestFailureClassifier:
     def _make_bundle(self, **kwargs):
         phase = Phase(number=1, file=Path("test.md"))
-        pr = _make_phase_result(phase, **{k: v for k, v in kwargs.items() if k in ("status", "exit_code")})
+        pr = _make_phase_result(
+            phase, **{k: v for k, v in kwargs.items() if k in ("status", "exit_code")}
+        )
         bundle = DiagnosticBundle(phase=phase, phase_result=pr)
         for k, v in kwargs.items():
             if hasattr(bundle, k) and k not in ("status", "exit_code"):
@@ -215,12 +217,16 @@ class TestFailureClassifier:
         assert classifier.classify(bundle) == FailureCategory.TIMEOUT
 
     def test_classify_crash(self):
-        bundle = self._make_bundle(exit_code=1, stall_duration=5.0, status=PhaseStatus.ERROR)
+        bundle = self._make_bundle(
+            exit_code=1, stall_duration=5.0, status=PhaseStatus.ERROR
+        )
         classifier = FailureClassifier()
         assert classifier.classify(bundle) == FailureCategory.CRASH
 
     def test_classify_error_halt(self):
-        bundle = self._make_bundle(exit_code=0, stall_duration=5.0, status=PhaseStatus.HALT)
+        bundle = self._make_bundle(
+            exit_code=0, stall_duration=5.0, status=PhaseStatus.HALT
+        )
         classifier = FailureClassifier()
         assert classifier.classify(bundle) == FailureCategory.ERROR
 

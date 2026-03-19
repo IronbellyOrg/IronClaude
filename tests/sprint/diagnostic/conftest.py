@@ -63,9 +63,7 @@ class DebugLogReader:
         timestamp LEVEL    [component] event key=value key=value
     """
 
-    LOG_LINE_PATTERN = re.compile(
-        r"^(\S+)\s+(\w+)\s+\[(\w+)\]\s+(\S+)\s*(.*)?$"
-    )
+    LOG_LINE_PATTERN = re.compile(r"^(\S+)\s+(\w+)\s+\[(\w+)\]\s+(\S+)\s*(.*)?$")
 
     def __init__(self, log_path: Path):
         self.log_path = log_path
@@ -93,14 +91,16 @@ class DebugLogReader:
                         if "=" in pair:
                             k, v = pair.split("=", 1)
                             fields[k] = v
-                entries.append(DebugLogEntry(
-                    timestamp=ts,
-                    level=level,
-                    component=component,
-                    event=event,
-                    fields=fields,
-                    raw=line,
-                ))
+                entries.append(
+                    DebugLogEntry(
+                        timestamp=ts,
+                        level=level,
+                        component=component,
+                        event=event,
+                        fields=fields,
+                        raw=line,
+                    )
+                )
         return entries
 
     def events(self, event_name: str | None = None) -> list[DebugLogEntry]:
@@ -114,11 +114,15 @@ class DebugLogReader:
         result = []
         in_phase = False
         for entry in self.entries:
-            if entry.event == "PHASE_BEGIN" and entry.fields.get("phase") == str(phase_num):
+            if entry.event == "PHASE_BEGIN" and entry.fields.get("phase") == str(
+                phase_num
+            ):
                 in_phase = True
             if in_phase:
                 result.append(entry)
-            if entry.event == "PHASE_END" and entry.fields.get("phase") == str(phase_num):
+            if entry.event == "PHASE_END" and entry.fields.get("phase") == str(
+                phase_num
+            ):
                 break
         return result
 
@@ -145,7 +149,9 @@ class DiagnosticTestHarness:
     scenarios for testing the diagnostic pipeline.
     """
 
-    def __init__(self, tmp_path: Path, num_phases: int = 1, debug: bool = True, **config_kwargs):
+    def __init__(
+        self, tmp_path: Path, num_phases: int = 1, debug: bool = True, **config_kwargs
+    ):
         self.tmp_path = tmp_path
         self.phases = []
         for i in range(1, num_phases + 1):
@@ -154,9 +160,7 @@ class DiagnosticTestHarness:
             self.phases.append(Phase(number=i, file=phase_file))
 
         index_file = tmp_path / "tasklist-index.md"
-        index_file.write_text(
-            "\n".join(f"- {p.file.name}" for p in self.phases)
-        )
+        index_file.write_text("\n".join(f"- {p.file.name}" for p in self.phases))
 
         self.config = SprintConfig(
             index_path=index_file,
@@ -248,8 +252,10 @@ def multi_phase_harness(tmp_path):
 @pytest.fixture
 def log_reader_factory(tmp_path):
     """Factory for creating DebugLogReader instances."""
+
     def factory(content: str) -> DebugLogReader:
         log_path = tmp_path / "debug.log"
         log_path.write_text(content)
         return DebugLogReader(log_path)
+
     return factory

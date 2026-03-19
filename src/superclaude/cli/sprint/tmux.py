@@ -200,27 +200,43 @@ def kill_sprint(force: bool = False):
             text=True,
             check=False,
         )
-        pane_pid = int(pane_pid_result.stdout.strip()) if pane_pid_result.returncode == 0 and pane_pid_result.stdout.strip().isdigit() else None
+        pane_pid = (
+            int(pane_pid_result.stdout.strip())
+            if pane_pid_result.returncode == 0
+            and pane_pid_result.stdout.strip().isdigit()
+            else None
+        )
 
         if pane_pid is not None:
             try:
                 os.kill(pane_pid, signal.SIGTERM)
-                click.echo(f"Sent SIGTERM to {name} pane pid {pane_pid}. Waiting 10s...")
+                click.echo(
+                    f"Sent SIGTERM to {name} pane pid {pane_pid}. Waiting 10s..."
+                )
             except ProcessLookupError:
-                click.echo(f"Sprint process already exited for {name}. Cleaning session...")
+                click.echo(
+                    f"Sprint process already exited for {name}. Cleaning session..."
+                )
         else:
             # Fallback when pane pid is unavailable
-            subprocess.run(["tmux", "send-keys", "-t", f"{name}:0.0", "C-c"], check=False)
-            click.echo(f"Sent interrupt to {name}. Waiting 10s for graceful shutdown...")
+            subprocess.run(
+                ["tmux", "send-keys", "-t", f"{name}:0.0", "C-c"], check=False
+            )
+            click.echo(
+                f"Sent interrupt to {name}. Waiting 10s for graceful shutdown..."
+            )
 
         time.sleep(10)
 
-        has_session = subprocess.run(
-            ["tmux", "has-session", "-t", name],
-            check=False,
-            capture_output=True,
-            text=True,
-        ).returncode == 0
+        has_session = (
+            subprocess.run(
+                ["tmux", "has-session", "-t", name],
+                check=False,
+                capture_output=True,
+                text=True,
+            ).returncode
+            == 0
+        )
         if has_session:
             if pane_pid is not None:
                 try:

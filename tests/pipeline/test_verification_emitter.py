@@ -21,13 +21,19 @@ from superclaude.cli.pipeline.verification_emitter import (
 )
 
 
-def _inv(var: str, scope: str, pred: str, sites: list[MutationSite]) -> tuple[InvariantEntry, MutationInventoryResult]:
+def _inv(
+    var: str, scope: str, pred: str, sites: list[MutationSite]
+) -> tuple[InvariantEntry, MutationInventoryResult]:
     entry = InvariantEntry(
-        variable_name=var, scope=scope, invariant_predicate=pred,
+        variable_name=var,
+        scope=scope,
+        invariant_predicate=pred,
         mutation_sites=sites,
     )
     result = MutationInventoryResult(
-        variable_name=var, mutation_sites=sites, ambiguous_sites=[],
+        variable_name=var,
+        mutation_sites=sites,
+        ambiguous_sites=[],
     )
     return entry, result
 
@@ -96,20 +102,25 @@ class TestVerificationEmitter:
         sites = [MutationSite(f"D{i}.0", f"mutation {i}", f"ctx {i}") for i in range(8)]
         entry, inv_result = _inv("z", "Mod", "z >= 0", sites)
 
-        deliverables = emit_invariant_check_deliverables([inv_result], [entry], max_checks_per_variable=5)
+        deliverables = emit_invariant_check_deliverables(
+            [inv_result], [entry], max_checks_per_variable=5
+        )
         assert len(deliverables) == 5
 
     def test_configurable_cap(self):
         """Cap is configurable via max_checks_per_variable."""
-        sites = [MutationSite(f"D{i}.0", f"mutation {i}", f"ctx {i}") for i in range(10)]
+        sites = [
+            MutationSite(f"D{i}.0", f"mutation {i}", f"ctx {i}") for i in range(10)
+        ]
         entry, inv_result = _inv("w", "Mod", "w >= 0", sites)
 
-        deliverables = emit_invariant_check_deliverables([inv_result], [entry], max_checks_per_variable=3)
+        deliverables = emit_invariant_check_deliverables(
+            [inv_result], [entry], max_checks_per_variable=3
+        )
         assert len(deliverables) == 3
 
 
 class TestEdgeCases:
-
     def test_empty_inventory(self):
         deliverables = emit_invariant_check_deliverables([], [])
         assert deliverables == []

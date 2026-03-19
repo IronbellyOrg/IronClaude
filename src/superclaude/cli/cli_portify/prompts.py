@@ -147,7 +147,12 @@ class BasePromptBuilder:
     ) -> str:
         """Build a retry prompt that includes the original prompt plus retry context."""
         base = self.build()
-        retry_parts = [base, "", "## RETRY CONTEXT", f"Previous attempt failed: {failure_reason}"]
+        retry_parts = [
+            base,
+            "",
+            "## RETRY CONTEXT",
+            f"Previous attempt failed: {failure_reason}",
+        ]
 
         if remaining_placeholders:
             retry_parts.append("")
@@ -172,7 +177,13 @@ class AnalyzeWorkflowPrompt(BasePromptBuilder):
         return [self.ctx.work_dir / "results" / "component-inventory.md"]
 
     def required_frontmatter(self) -> list[str]:
-        return ["step", "source_skill", "cli_name", "component_count", "analysis_sections"]
+        return [
+            "step",
+            "source_skill",
+            "cli_name",
+            "component_count",
+            "analysis_sections",
+        ]
 
     def output_contract(self) -> list[str]:
         return [
@@ -240,7 +251,13 @@ class SynthesizeSpecPrompt(BasePromptBuilder):
         ]
 
     def required_frontmatter(self) -> list[str]:
-        return ["step", "source_skill", "cli_name", "synthesis_version", "placeholder_count"]
+        return [
+            "step",
+            "source_skill",
+            "cli_name",
+            "synthesis_version",
+            "placeholder_count",
+        ]
 
     def output_contract(self) -> list[str]:
         return [
@@ -380,7 +397,9 @@ def build_protocol_mapping_prompt(
         line_count = getattr(comp, "line_count", 0)
         component_lines.append(f"  - {name} ({comp_type}, {line_count} lines)")
 
-    inventory_text = "\n".join(component_lines) if component_lines else "  (empty inventory)"
+    inventory_text = (
+        "\n".join(component_lines) if component_lines else "  (empty inventory)"
+    )
 
     return (
         f"Analyze the following component inventory for CLI '{config_cli_name}' "
@@ -443,7 +462,9 @@ def build_analysis_synthesis_prompt(
         comp_type = getattr(comp, "component_type", "unknown")
         component_lines.append(f"  - {name} ({comp_type})")
 
-    inventory_text = "\n".join(component_lines) if component_lines else "  (empty inventory)"
+    inventory_text = (
+        "\n".join(component_lines) if component_lines else "  (empty inventory)"
+    )
 
     return (
         f"Synthesize a comprehensive analysis report for CLI '{config_cli_name}'.\n\n"
@@ -678,7 +699,9 @@ def load_release_spec_template(project_root: Path) -> str:
     """
     from superclaude.cli.cli_portify.models import INVALID_PATH, PortifyValidationError
 
-    template_path = project_root / "src" / "superclaude" / "examples" / "release-spec-template.md"
+    template_path = (
+        project_root / "src" / "superclaude" / "examples" / "release-spec-template.md"
+    )
     if not template_path.exists():
         raise PortifyValidationError(
             INVALID_PATH,

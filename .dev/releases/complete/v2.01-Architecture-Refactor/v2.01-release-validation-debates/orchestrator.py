@@ -231,7 +231,10 @@ async def run_classification_with_semaphore(
         prompt = f'/sc:task "{test["prompt"]}"'
         start = time.monotonic()
         output, exit_code = await run_behavioral_test(
-            prompt, model, max_turns=test.get("max_turns", 5), repo_root=REPO_ROOT,
+            prompt,
+            model,
+            max_turns=test.get("max_turns", 5),
+            repo_root=REPO_ROOT,
             concurrency=concurrency,
         )
         duration_ms = int((time.monotonic() - start) * 1000)
@@ -286,7 +289,9 @@ async def run_wiring_with_semaphore(
             Path(tmpdir, "b.md").write_text(
                 "# Draft B\n\n## Approach\nMonolith-first with modular boundaries.\n"
             )
-            command = f'/sc:adversarial --compare {tmpdir}/a.md,{tmpdir}/b.md --depth quick'
+            command = (
+                f"/sc:adversarial --compare {tmpdir}/a.md,{tmpdir}/b.md --depth quick"
+            )
 
         start = time.monotonic()
         output, exit_code = await run_behavioral_test(
@@ -331,8 +336,12 @@ async def run_wiring_with_semaphore(
 
 
 async def main():
-    parser = argparse.ArgumentParser(description="v2.01 Release Validation Orchestrator")
-    parser.add_argument("--runs", type=int, default=5, help="Number of parallel runs (default: 5)")
+    parser = argparse.ArgumentParser(
+        description="v2.01 Release Validation Orchestrator"
+    )
+    parser.add_argument(
+        "--runs", type=int, default=5, help="Number of parallel runs (default: 5)"
+    )
     parser.add_argument(
         "--models",
         type=str,
@@ -358,8 +367,8 @@ async def main():
 
     # Calculate expected data points
     structural_points = num_runs * len(STRUCTURAL_TESTS)
-    behavioral_points = num_runs * len(models) * (
-        len(CLASSIFICATION_TESTS) + len(WIRING_TESTS)
+    behavioral_points = (
+        num_runs * len(models) * (len(CLASSIFICATION_TESTS) + len(WIRING_TESTS))
     )
     total_points = structural_points + behavioral_points
 
@@ -368,8 +377,12 @@ async def main():
     print(f"╚═══════════════════════════════════════════════════════════════╝")
     print(f"  Runs:          {num_runs}")
     print(f"  Models:        {', '.join(models)}")
-    print(f"  Concurrency:   {args.concurrency} claude -p / {args.structural_concurrency} structural")
-    print(f"  Data points:   {total_points} ({structural_points} structural + {behavioral_points} behavioral)")
+    print(
+        f"  Concurrency:   {args.concurrency} claude -p / {args.structural_concurrency} structural"
+    )
+    print(
+        f"  Data points:   {total_points} ({structural_points} structural + {behavioral_points} behavioral)"
+    )
     print(f"  Results dir:   {RESULTS_DIR}")
     print()
 
@@ -389,7 +402,9 @@ async def main():
     start = time.monotonic()
 
     team_tasks = [
-        run_team(run_num, models, claude_sem, structural_sem, concurrency=args.concurrency)
+        run_team(
+            run_num, models, claude_sem, structural_sem, concurrency=args.concurrency
+        )
         for run_num in range(1, num_runs + 1)
     ]
     team_results = await asyncio.gather(*team_tasks, return_exceptions=True)

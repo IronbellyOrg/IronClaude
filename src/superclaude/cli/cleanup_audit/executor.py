@@ -208,7 +208,9 @@ def _build_steps(config: CleanupAuditConfig) -> list[CleanupAuditStep]:
     steps.append(
         CleanupAuditStep(
             id="G-002",
-            prompt=build_structural_analysis_prompt(config, [], "surface-scan-result.md"),
+            prompt=build_structural_analysis_prompt(
+                config, [], "surface-scan-result.md"
+            ),
             output_file=Path("structural-analysis-result.md"),
             gate=ALL_GATES["G-002"],
             timeout_seconds=900,
@@ -223,7 +225,9 @@ def _build_steps(config: CleanupAuditConfig) -> list[CleanupAuditStep]:
     steps.append(
         CleanupAuditStep(
             id="G-003",
-            prompt=build_structural_analysis_prompt(config, [], "surface-scan-result.md"),
+            prompt=build_structural_analysis_prompt(
+                config, [], "surface-scan-result.md"
+            ),
             output_file=Path("per-file-profiles-result.md"),
             gate=ALL_GATES["G-003"],
             timeout_seconds=900,

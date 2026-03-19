@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude-eval-global-A/.dev/releases/current/v3.0_unified-audit-gating/eval-spec.md",
+  "spec_hash": "461093a903229770e439f81c6b401efc70fddeafe1cee9995862c08547b56f02",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-19T17:39:38.774017+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-eval-global-A/.dev/releases/current/v3.0_unified-audit-gating/eval-runs/global-B/extraction.md",
+      "started_at": "2026-03-19T17:33:36.719130+00:00",
+      "completed_at": "2026-03-19T17:34:16.724941+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude-eval-global-A/.dev/releases/current/v3.0_unified-audit-gating/eval-runs/global-B/roadmap-opus-architect.md",
+      "started_at": "2026-03-19T17:36:57.747752+00:00",
+      "completed_at": "2026-03-19T17:39:38.773639+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-eval-global-A/.dev/releases/current/v3.0_unified-audit-gating/eval-runs/global-B/roadmap-haiku-architect.md",
+      "started_at": "2026-03-19T17:34:16.725922+00:00",
+      "completed_at": "2026-03-19T17:36:20.742157+00:00"
+    }
+  }
+}

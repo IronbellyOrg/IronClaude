@@ -319,12 +319,7 @@ class TestCheckTasklistHashCurrent:
         assert _check_tasklist_hash_current(tasklist_path, tmp_path) is False
 
     def test_empty_hash_returns_false(self, tmp_path):
-        tasklist_content = (
-            "---\n"
-            "source_report: report.md\n"
-            "source_report_hash:\n"
-            "---\n"
-        )
+        tasklist_content = "---\nsource_report: report.md\nsource_report_hash:\n---\n"
         tasklist_path = tmp_path / "remediation-tasklist.md"
         tasklist_path.write_text(tasklist_content)
 
@@ -369,7 +364,10 @@ class TestDerivePipelineStatus:
         assert derive_pipeline_status({"validation": {"status": "pass"}}) == "validated"
 
     def test_validated_with_issues_on_fail(self):
-        assert derive_pipeline_status({"validation": {"status": "fail"}}) == "validated-with-issues"
+        assert (
+            derive_pipeline_status({"validation": {"status": "fail"}})
+            == "validated-with-issues"
+        )
 
     def test_remediated_overrides_validation(self):
         state = {
@@ -398,12 +396,16 @@ class TestDerivePipelineStatus:
         # Each additional entry moves pipeline forward
         s1 = derive_pipeline_status({})
         s2 = derive_pipeline_status({"validation": {"status": "pass"}})
-        s3 = derive_pipeline_status({"validation": {"status": "pass"}, "remediate": {"status": "PASS"}})
-        s4 = derive_pipeline_status({
-            "validation": {"status": "pass"},
-            "remediate": {"status": "PASS"},
-            "certify": {"certified": True},
-        })
+        s3 = derive_pipeline_status(
+            {"validation": {"status": "pass"}, "remediate": {"status": "PASS"}}
+        )
+        s4 = derive_pipeline_status(
+            {
+                "validation": {"status": "pass"},
+                "remediate": {"status": "PASS"},
+                "certify": {"certified": True},
+            }
+        )
 
         assert s1 == "pending"
         assert s2 == "validated"

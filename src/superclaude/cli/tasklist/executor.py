@@ -40,9 +40,7 @@ def _collect_tasklist_files(tasklist_dir: Path) -> list[Path]:
     Returns sorted list of .md files for deterministic ordering.
     """
     if not tasklist_dir.is_dir():
-        raise FileNotFoundError(
-            f"Tasklist directory not found: {tasklist_dir}"
-        )
+        raise FileNotFoundError(f"Tasklist directory not found: {tasklist_dir}")
     files = sorted(tasklist_dir.glob("*.md"))
     if not files:
         raise FileNotFoundError(
@@ -77,7 +75,7 @@ def _sanitize_output(output_file: Path) -> int:
         return 0
 
     preamble = content[: match.start()]
-    cleaned = content[match.start():]
+    cleaned = content[match.start() :]
     preamble_bytes = len(preamble.encode("utf-8"))
 
     tmp_file = output_file.with_suffix(output_file.suffix + ".tmp")
@@ -196,7 +194,8 @@ def _build_steps(config: TasklistValidateConfig) -> list[Step]:
         Step(
             id="tasklist-fidelity",
             prompt=build_tasklist_fidelity_prompt(
-                config.roadmap_file, config.tasklist_dir,
+                config.roadmap_file,
+                config.tasklist_dir,
             ),
             output_file=config.output_dir / "tasklist-fidelity.md",
             gate=TASKLIST_FIDELITY_GATE,

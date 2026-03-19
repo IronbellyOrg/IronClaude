@@ -165,8 +165,7 @@ class CleanupAuditResult:
         return sum(
             1
             for r in self.step_results
-            if r.status
-            in (CleanupAuditStatus.PASS, CleanupAuditStatus.PASS_NO_SIGNAL)
+            if r.status in (CleanupAuditStatus.PASS, CleanupAuditStatus.PASS_NO_SIGNAL)
         )
 
     @property
@@ -213,9 +212,7 @@ class CleanupAuditMonitorState:
     @property
     def stall_status(self) -> str:
         if self.events_received == 0:
-            elapsed = (
-                time.time() - self.step_started_at if self.step_started_at else 0
-            )
+            elapsed = time.time() - self.step_started_at if self.step_started_at else 0
             return "waiting..." if elapsed < 30 else "STALLED"
         if self.stall_seconds > 120:
             return "STALLED"

@@ -88,7 +88,9 @@ class TestReleaseScopeAlwaysBlocking:
         )
 
     @pytest.mark.parametrize("config_mode", list(GateMode))
-    def test_release_blocking_across_all_gate_modes(self, config_mode: GateMode) -> None:
+    def test_release_blocking_across_all_gate_modes(
+        self, config_mode: GateMode
+    ) -> None:
         """Release scope must be BLOCKING regardless of any config_gate_mode value."""
         result = resolve_gate_mode(
             scope=GateScope.RELEASE,

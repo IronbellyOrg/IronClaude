@@ -20,13 +20,15 @@ def _make_spot_check_result() -> SpotCheckResult:
         overall_consistency_rate=0.90,
         per_tier_rates={"tier-1": 0.80, "tier-2": 0.95},
         per_tier_sample_counts={"tier-1": 4, "tier-2": 6},
-        inconsistencies=[{
-            "file_path": "bad.py",
-            "original_tier": "tier-1",
-            "original_action": "DELETE",
-            "re_tier": "tier-2",
-            "re_action": "KEEP",
-        }],
+        inconsistencies=[
+            {
+                "file_path": "bad.py",
+                "original_tier": "tier-1",
+                "original_action": "DELETE",
+                "re_tier": "tier-2",
+                "re_action": "KEEP",
+            }
+        ],
     )
 
 

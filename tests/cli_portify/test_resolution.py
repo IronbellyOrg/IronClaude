@@ -139,7 +139,9 @@ class TestCommandName:
         assert rt.command_path == project_tree["roadmap_cmd"]
         assert rt.skill_dir == project_tree["roadmap_skill"]
 
-    def test_command_name_with_project_root(self, project_tree: dict[str, Path]) -> None:
+    def test_command_name_with_project_root(
+        self, project_tree: dict[str, Path]
+    ) -> None:
         rt = resolve_target(
             "roadmap",
             project_root=project_tree["root"],
@@ -270,7 +272,9 @@ class TestEdgeCases:
         )
         assert rt.input_type == TargetInputType.COMMAND_NAME
 
-    def test_multi_skill_command_returns_primary(self, project_tree: dict[str, Path]) -> None:
+    def test_multi_skill_command_returns_primary(
+        self, project_tree: dict[str, Path]
+    ) -> None:
         """Command with multiple Skill references uses first (primary) only."""
         rt = resolve_target(
             "multi",
@@ -306,10 +310,7 @@ class TestParseActivationSkill:
     """Verify ## Activation section parsing."""
 
     def test_standard_activation(self) -> None:
-        content = (
-            "## Activation\n\n"
-            "> Skill sc:roadmap-protocol\n"
-        )
+        content = "## Activation\n\n> Skill sc:roadmap-protocol\n"
         assert _parse_activation_skill(content) == "sc-roadmap-protocol"
 
     def test_no_activation_section(self) -> None:
@@ -320,8 +321,7 @@ class TestParseActivationSkill:
 
     def test_activation_stops_at_next_section(self) -> None:
         content = (
-            "## Activation\n\nSome text.\n"
-            "## Usage\n\n> Skill sc:should-not-match\n"
+            "## Activation\n\nSome text.\n## Usage\n\n> Skill sc:should-not-match\n"
         )
         assert _parse_activation_skill(content) is None
 

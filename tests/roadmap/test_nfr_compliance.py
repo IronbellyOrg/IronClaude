@@ -14,7 +14,9 @@ from pathlib import Path
 import pytest
 
 
-_SRC_ROOT = Path(__file__).resolve().parent.parent.parent / "src" / "superclaude" / "cli"
+_SRC_ROOT = (
+    Path(__file__).resolve().parent.parent.parent / "src" / "superclaude" / "cli"
+)
 
 
 class TestNFR003PureGates:
@@ -99,8 +101,16 @@ class TestNFR005GateDataSeparation:
         )
         from superclaude.cli.pipeline.models import GateCriteria
 
-        for gate in [EXTRACT_GATE, GENERATE_A_GATE, GENERATE_B_GATE,
-                     DIFF_GATE, DEBATE_GATE, SCORE_GATE, MERGE_GATE, TEST_STRATEGY_GATE]:
+        for gate in [
+            EXTRACT_GATE,
+            GENERATE_A_GATE,
+            GENERATE_B_GATE,
+            DIFF_GATE,
+            DEBATE_GATE,
+            SCORE_GATE,
+            MERGE_GATE,
+            TEST_STRATEGY_GATE,
+        ]:
             assert isinstance(gate, GateCriteria)
 
 
@@ -158,16 +168,18 @@ class TestNFR007NoCrossModuleImports:
         for py_file in pipeline_dir.glob("*.py"):
             import_lines = self._get_import_lines(py_file)
             for line in import_lines:
-                assert "sprint" not in line, \
+                assert "sprint" not in line, (
                     f"{py_file.name} imports from sprint/: {line}"
+                )
 
     def test_no_roadmap_imports_in_pipeline(self):
         pipeline_dir = _SRC_ROOT / "pipeline"
         for py_file in pipeline_dir.glob("*.py"):
             import_lines = self._get_import_lines(py_file)
             for line in import_lines:
-                assert "roadmap" not in line, \
+                assert "roadmap" not in line, (
                     f"{py_file.name} imports from roadmap/: {line}"
+                )
 
     def test_pipeline_init_has_no_cross_module_imports(self):
         init_path = _SRC_ROOT / "pipeline" / "__init__.py"

@@ -15,25 +15,29 @@ from dataclasses import dataclass
 from typing import Any
 
 # Phase-1 required fields
-PHASE1_REQUIRED_FIELDS = frozenset({
-    "file_path",
-    "classification",
-    "evidence",
-    "confidence",
-    "tier",
-})
+PHASE1_REQUIRED_FIELDS = frozenset(
+    {
+        "file_path",
+        "classification",
+        "evidence",
+        "confidence",
+        "tier",
+    }
+)
 
 # Phase-2 additional profile fields (all optional for backward compat)
-PHASE2_PROFILE_FIELDS = frozenset({
-    "imports",
-    "exports",
-    "size",
-    "complexity",
-    "age",
-    "churn",
-    "coupling",
-    "test_coverage",
-})
+PHASE2_PROFILE_FIELDS = frozenset(
+    {
+        "imports",
+        "exports",
+        "size",
+        "complexity",
+        "age",
+        "churn",
+        "coupling",
+        "test_coverage",
+    }
+)
 
 # Expected types for Phase-1 fields
 _PHASE1_TYPES: dict[str, type | tuple[type, ...]] = {
@@ -94,17 +98,21 @@ def validate_phase1(output: dict[str, Any]) -> SchemaValidationResult:
 
     for field_name in PHASE1_REQUIRED_FIELDS:
         if field_name not in output:
-            errors.append(ValidationError(
-                field=field_name,
-                error=f"Missing required field: {field_name}",
-            ))
+            errors.append(
+                ValidationError(
+                    field=field_name,
+                    error=f"Missing required field: {field_name}",
+                )
+            )
         else:
             expected = _PHASE1_TYPES[field_name]
             if not isinstance(output[field_name], expected):
-                errors.append(ValidationError(
-                    field=field_name,
-                    error=f"Wrong type for {field_name}: expected {expected}, got {type(output[field_name]).__name__}",
-                ))
+                errors.append(
+                    ValidationError(
+                        field=field_name,
+                        error=f"Wrong type for {field_name}: expected {expected}, got {type(output[field_name]).__name__}",
+                    )
+                )
 
     return SchemaValidationResult(
         valid=len(errors) == 0,
@@ -126,27 +134,33 @@ def validate_phase2(output: dict[str, Any]) -> SchemaValidationResult:
     # Phase-1 fields still required
     for field_name in PHASE1_REQUIRED_FIELDS:
         if field_name not in output:
-            errors.append(ValidationError(
-                field=field_name,
-                error=f"Missing required field: {field_name}",
-            ))
+            errors.append(
+                ValidationError(
+                    field=field_name,
+                    error=f"Missing required field: {field_name}",
+                )
+            )
         else:
             expected = _PHASE1_TYPES[field_name]
             if not isinstance(output[field_name], expected):
-                errors.append(ValidationError(
-                    field=field_name,
-                    error=f"Wrong type for {field_name}: expected {expected}, got {type(output[field_name]).__name__}",
-                ))
+                errors.append(
+                    ValidationError(
+                        field=field_name,
+                        error=f"Wrong type for {field_name}: expected {expected}, got {type(output[field_name]).__name__}",
+                    )
+                )
 
     # Phase-2 profile fields: optional, but type-checked if present
     for field_name in PHASE2_PROFILE_FIELDS:
         if field_name in output:
             expected = _PHASE2_TYPES[field_name]
             if not isinstance(output[field_name], expected):
-                errors.append(ValidationError(
-                    field=field_name,
-                    error=f"Wrong type for {field_name}: expected {expected}, got {type(output[field_name]).__name__}",
-                ))
+                errors.append(
+                    ValidationError(
+                        field=field_name,
+                        error=f"Wrong type for {field_name}: expected {expected}, got {type(output[field_name]).__name__}",
+                    )
+                )
 
     return SchemaValidationResult(
         valid=len(errors) == 0,

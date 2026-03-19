@@ -60,7 +60,9 @@ def detect_error_max_turns(output_path: Path) -> bool:
     return False
 
 
-def detect_prompt_too_long(output_path: Path, *, error_path: Path | None = None) -> bool:
+def detect_prompt_too_long(
+    output_path: Path, *, error_path: Path | None = None
+) -> bool:
     """Check if NDJSON output contains a prompt-too-long error.
 
     Scans the last 10 non-empty lines of the output file for the
@@ -73,6 +75,7 @@ def detect_prompt_too_long(output_path: Path, *, error_path: Path | None = None)
 
     Returns True if the pattern is found, False otherwise.
     """
+
     def _scan(path: Path) -> bool:
         try:
             content = path.read_text(errors="replace")
@@ -292,13 +295,20 @@ class OutputMonitor:
         task_matches = TASK_ID_PATTERN.findall(text)
         if task_matches:
             self.state.last_task_id = task_matches[-1]
-            debug_log(_dbg, "signal_extracted", signal_type="task_id", value=task_matches[-1])
+            debug_log(
+                _dbg, "signal_extracted", signal_type="task_id", value=task_matches[-1]
+            )
 
         # Last tool used (only if not already set by structured extraction)
         tool_matches = TOOL_PATTERN.findall(text)
         if tool_matches:
             self.state.last_tool_used = tool_matches[-1]
-            debug_log(_dbg, "signal_extracted", signal_type="tool_name", value=tool_matches[-1])
+            debug_log(
+                _dbg,
+                "signal_extracted",
+                signal_type="tool_name",
+                value=tool_matches[-1],
+            )
 
         # Files changed (accumulate unique paths)
         file_matches = FILES_CHANGED_PATTERN.findall(text)

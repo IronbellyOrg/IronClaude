@@ -163,15 +163,17 @@ def consolidate(
             action = best.result.action
             confidence = best.result.confidence
 
-        findings.append(ConsolidatedFinding(
-            file_path=file_path,
-            tier=tier,
-            action=action,
-            confidence=confidence,
-            evidence=merged_evidence,
-            source_phases=source_phases,
-            conflict=conflict,
-        ))
+        findings.append(
+            ConsolidatedFinding(
+                file_path=file_path,
+                tier=tier,
+                action=action,
+                confidence=confidence,
+                evidence=merged_evidence,
+                source_phases=source_phases,
+                conflict=conflict,
+            )
+        )
 
     report.findings = findings
     report.total_consolidated = len(findings)

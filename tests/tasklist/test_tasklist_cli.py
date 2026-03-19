@@ -78,27 +78,33 @@ class TestTasklistModuleStructure:
 
     def test_init_exists(self):
         from superclaude.cli import tasklist
+
         assert hasattr(tasklist, "__all__")
 
     def test_commands_module_exists(self):
         from superclaude.cli.tasklist import commands
+
         assert hasattr(commands, "tasklist_group")
         assert hasattr(commands, "validate")
 
     def test_executor_module_exists(self):
         from superclaude.cli.tasklist import executor
+
         assert hasattr(executor, "execute_tasklist_validate")
 
     def test_gates_module_exists(self):
         from superclaude.cli.tasklist import gates
+
         assert hasattr(gates, "TASKLIST_FIDELITY_GATE")
 
     def test_prompts_module_exists(self):
         from superclaude.cli.tasklist import prompts
+
         assert hasattr(prompts, "build_tasklist_fidelity_prompt")
 
     def test_models_module_exists(self):
         from superclaude.cli.tasklist import models
+
         assert hasattr(models, "TasklistValidateConfig")
 
 

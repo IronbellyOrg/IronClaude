@@ -82,11 +82,11 @@ def _parse_consolidated_findings(text: str) -> list[Finding]:
     if not match:
         return []
 
-    section_text = text[match.end():]
+    section_text = text[match.end() :]
     # Truncate at next H2
     next_h2 = re.search(r"^## ", section_text, re.MULTILINE)
     if next_h2:
-        section_text = section_text[:next_h2.start()]
+        section_text = section_text[: next_h2.start()]
 
     return _extract_finding_blocks(section_text)
 
@@ -97,10 +97,10 @@ def _parse_flat_findings(text: str) -> list[Finding]:
     if not match:
         return []
 
-    section_text = text[match.end():]
+    section_text = text[match.end() :]
     next_h2 = re.search(r"^## ", section_text, re.MULTILINE)
     if next_h2:
-        section_text = section_text[:next_h2.start()]
+        section_text = section_text[: next_h2.start()]
 
     return _extract_finding_blocks(section_text)
 
@@ -119,11 +119,11 @@ def _extract_finding_blocks(section_text: str) -> list[Finding]:
     # Also matches: - **[SEVERITY] Dimension**: Description (individual reports)
     finding_pattern = re.compile(
         r"[-*]*\s*\*\*"
-        r"(?:\[?(F-\d+)\]?\s+)?"          # Optional finding ID
-        r"\[(BLOCKING|WARNING|INFO)\]\s+"   # Severity (required)
-        r"([^:*]+)"                         # Dimension
-        r"[:\s]*"                           # Separator
-        r"([^*]+)?"                         # Description (optional inline)
+        r"(?:\[?(F-\d+)\]?\s+)?"  # Optional finding ID
+        r"\[(BLOCKING|WARNING|INFO)\]\s+"  # Severity (required)
+        r"([^:*]+)"  # Dimension
+        r"[:\s]*"  # Separator
+        r"([^*]+)?"  # Description (optional inline)
         r"\*\*",
         re.IGNORECASE,
     )
@@ -155,18 +155,20 @@ def _extract_finding_blocks(section_text: str) -> list[Finding]:
 
         files_affected = _extract_files_from_location(location)
 
-        findings.append(Finding(
-            id=finding_id,
-            severity=severity,
-            dimension=dimension,
-            description=description,
-            location=location,
-            evidence=evidence,
-            fix_guidance=fix_guidance,
-            files_affected=files_affected,
-            status="PENDING",
-            agreement_category=agreement,
-        ))
+        findings.append(
+            Finding(
+                id=finding_id,
+                severity=severity,
+                dimension=dimension,
+                description=description,
+                location=location,
+                evidence=evidence,
+                fix_guidance=fix_guidance,
+                files_affected=files_affected,
+                status="PENDING",
+                agreement_category=agreement,
+            )
+        )
 
     return findings
 
@@ -226,9 +228,7 @@ def _extract_files_from_location(location: str) -> list[str]:
     return result
 
 
-def _validate_required_fields(
-    finding_id: str, severity: str, description: str
-) -> None:
+def _validate_required_fields(finding_id: str, severity: str, description: str) -> None:
     """Validate that required structured fields are present.
 
     Raises ValueError when required fields are absent.
@@ -251,10 +251,10 @@ def _overlay_agreement_categories(text: str, findings: list[Finding]) -> None:
     """Overlay agreement_category from Agreement Table onto findings."""
     # Match Agreement Table rows: | F-XX... | ... | ... | CATEGORY |
     table_pattern = re.compile(
-        r"\|\s*(F-\d+)[^|]*\|"   # Finding ID column
-        r"[^|]*\|"               # Agent A or Description column
-        r"[^|]*\|"               # Agent B or another column
-        r"[^|]*\|?"              # Possible extra column
+        r"\|\s*(F-\d+)[^|]*\|"  # Finding ID column
+        r"[^|]*\|"  # Agent A or Description column
+        r"[^|]*\|"  # Agent B or another column
+        r"[^|]*\|?"  # Possible extra column
         r"\s*(BOTH_AGREE|ONLY_A|ONLY_B|CONFLICT)\s*\|",
         re.IGNORECASE,
     )
@@ -277,9 +277,9 @@ def _overlay_remediation_status(text: str, findings: list[Finding]) -> None:
     """
     # Look for remediation status pattern in Agreement Table rows
     status_pattern = re.compile(
-        r"\|\s*(F-\d+)[^|]*\|"       # Finding ID
-        r"[^|]*\|[^|]*\|[^|]*\|"     # Middle columns
-        r"\s*\*\*([A-Z_]+)\*\*",      # Bold status value
+        r"\|\s*(F-\d+)[^|]*\|"  # Finding ID
+        r"[^|]*\|[^|]*\|[^|]*\|"  # Middle columns
+        r"\s*\*\*([A-Z_]+)\*\*",  # Bold status value
         re.IGNORECASE,
     )
     for match in status_pattern.finditer(text):

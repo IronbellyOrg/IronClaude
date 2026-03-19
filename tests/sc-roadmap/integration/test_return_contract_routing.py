@@ -60,7 +60,9 @@ def parse_return_contract(raw_response):
 
     # Validate convergence_score is numeric
     score = result.get("convergence_score")
-    if not isinstance(score, (int, float)) or (isinstance(score, float) and math.isnan(score)):
+    if not isinstance(score, (int, float)) or (
+        isinstance(score, float) and math.isnan(score)
+    ):
         result["convergence_score"] = 0.5
 
     return result
@@ -107,16 +109,16 @@ def route_contract(contract):
 # -- Canonical field set from SKILL.md §Return Contract + adversarial-integration.md --
 
 CANONICAL_RETURN_CONTRACT_FIELDS = {
-    "status",               # success|partial|failed
-    "convergence_score",    # float 0.0-1.0
-    "merged_output_path",   # path|null
-    "fallback_mode",        # bool
-    "invocation_method",    # enum
-    "unresolved_conflicts", # list[string] or integer
-    "artifacts_dir",        # string (directory path)
-    "base_variant",         # string (model:persona)
-    "debate_rounds",        # integer
-    "variant_count",        # integer
+    "status",  # success|partial|failed
+    "convergence_score",  # float 0.0-1.0
+    "merged_output_path",  # path|null
+    "fallback_mode",  # bool
+    "invocation_method",  # enum
+    "unresolved_conflicts",  # list[string] or integer
+    "artifacts_dir",  # string (directory path)
+    "base_variant",  # string (model:persona)
+    "debate_rounds",  # integer
+    "variant_count",  # integer
 }
 
 

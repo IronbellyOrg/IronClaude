@@ -35,6 +35,7 @@ class GuardAnalysisOutput:
         section_markdown: Rendered markdown section for pipeline output.
         can_advance_to_m4: False if Release Gate Rule 2 blocks advancement.
     """
+
     detections: list[GuardDetection] = field(default_factory=list)
     resolution: GuardResolutionOutput = field(default_factory=GuardResolutionOutput)
     invariant_cross_refs: dict[str, InvariantEntry | None] = field(default_factory=dict)
@@ -79,7 +80,8 @@ def run_guard_analysis_pass(
 
     # Step 2: Cross-reference with invariant predicates
     invariant_cross_refs = _cross_reference_invariants(
-        detections, invariant_output.entries,
+        detections,
+        invariant_output.entries,
     )
 
     # Step 3: Check FMEA severity for elevation to silent corruption
@@ -90,7 +92,10 @@ def run_guard_analysis_pass(
 
     # Step 5: Render section
     section = _render_guard_analysis_section(
-        detections, resolution, invariant_cross_refs, fmea_elevations,
+        detections,
+        resolution,
+        invariant_cross_refs,
+        fmea_elevations,
     )
 
     return GuardAnalysisOutput(
@@ -172,8 +177,12 @@ def _render_guard_analysis_section(
     # State enumeration table
     lines.append("### State Enumeration")
     lines.append("")
-    lines.append("| Variable | Kind | States | Ambiguous | Invariant Registered | FMEA Elevated |")
-    lines.append("|----------|------|--------|-----------|---------------------|---------------|")
+    lines.append(
+        "| Variable | Kind | States | Ambiguous | Invariant Registered | FMEA Elevated |"
+    )
+    lines.append(
+        "|----------|------|--------|-----------|---------------------|---------------|"
+    )
     for det in detections:
         states_str = ", ".join(s.value for s in det.states)
         ambig = "YES" if det.has_ambiguity else "no"
@@ -195,6 +204,8 @@ def _render_guard_analysis_section(
         lines.append("")
         lines.append("### Release Gate Rule 2: BLOCKING")
         lines.append("")
-        lines.append("Pipeline cannot advance to M4. Unresolved guard ambiguity requires owner assignment.")
+        lines.append(
+            "Pipeline cannot advance to M4. Unresolved guard ambiguity requires owner assignment."
+        )
 
     return "\n".join(lines)

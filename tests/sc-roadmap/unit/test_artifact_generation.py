@@ -79,7 +79,9 @@ class TestRoadmapMdStructure:
 
     def test_roadmap_defined_as_master(self, skill_md_content):
         """roadmap.md should be described as the master roadmap document."""
-        assert "Master roadmap" in skill_md_content or "master roadmap" in skill_md_content
+        assert (
+            "Master roadmap" in skill_md_content or "master roadmap" in skill_md_content
+        )
 
     def test_milestone_hierarchy_described(self, skill_md_content):
         """Roadmap should describe milestone hierarchy."""

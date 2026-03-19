@@ -102,7 +102,9 @@ class TestFMEAPromotion:
         assert len(output_default.promoted_deliverables) == 0
 
         # Lowered threshold should promote
-        output_low = promote_failure_modes([mode], promotion_threshold=Severity.DEGRADED)
+        output_low = promote_failure_modes(
+            [mode], promotion_threshold=Severity.DEGRADED
+        )
         assert len(output_low.promoted_deliverables) == 1
 
     def test_zero_above_threshold_no_entries(self):

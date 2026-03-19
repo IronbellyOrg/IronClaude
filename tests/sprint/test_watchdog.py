@@ -80,11 +80,20 @@ class TestWatchdogKillAction:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=9999),
-            patch("superclaude.cli.pipeline.process.os.killpg", side_effect=lambda *a, **k: terminated.__setitem__(0, True)),
+            patch(
+                "superclaude.cli.pipeline.process.os.killpg",
+                side_effect=lambda *a, **k: terminated.__setitem__(0, True),
+            ),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
             patch("superclaude.cli.sprint.executor.time.sleep"),
@@ -144,8 +153,14 @@ class TestWatchdogWarnAction:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -203,11 +218,17 @@ class TestWatchdogStallReset:
         # Sequence of states: stalled -> resumed -> stalled again -> resumed
         # This exercises the _stall_acted reset path (line 161-162)
         states = [
-            MonitorState(stall_seconds=15.0, events_received=5),   # stall triggers warn
-            MonitorState(stall_seconds=15.0, events_received=5),   # still stalled, _stall_acted=True
-            MonitorState(stall_seconds=0.0, events_received=10),   # resumed → reset _stall_acted
-            MonitorState(stall_seconds=15.0, events_received=15),  # stall again → warn again
-            MonitorState(stall_seconds=0.0, events_received=20),   # resumed
+            MonitorState(stall_seconds=15.0, events_received=5),  # stall triggers warn
+            MonitorState(
+                stall_seconds=15.0, events_received=5
+            ),  # still stalled, _stall_acted=True
+            MonitorState(
+                stall_seconds=0.0, events_received=10
+            ),  # resumed → reset _stall_acted
+            MonitorState(
+                stall_seconds=15.0, events_received=15
+            ),  # stall again → warn again
+            MonitorState(stall_seconds=0.0, events_received=20),  # resumed
         ]
         state_idx = [0]
 
@@ -220,8 +241,14 @@ class TestWatchdogStallReset:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,

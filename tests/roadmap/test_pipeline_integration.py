@@ -83,12 +83,12 @@ def _gate_passing_content(step: Step) -> str:
         "nonfunctional_requirements": "3",
         "total_requirements": "8",
         "complexity_score": "0.7",
-        "complexity_class": "moderate",
-        "domains_detected": "2",
+        "complexity_class": "MEDIUM",
+        "domains_detected": "[backend, frontend]",
         "risks_identified": "3",
         "dependencies_identified": "4",
         "success_criteria_count": "5",
-        "extraction_mode": "full",
+        "extraction_mode": "standard",
         "primary_persona": "architect",
         "total_diff_points": "3",
         "shared_assumptions_count": "4",
@@ -97,8 +97,11 @@ def _gate_passing_content(step: Step) -> str:
         "base_variant": "A",
         "variant_scores": "A:78 B:72",
         "adversarial": "true",
+        "validation_philosophy": "continuous-parallel",
         "validation_milestones": "3",
-        "interleave_ratio": "1:3",
+        "work_milestones": "6",
+        "interleave_ratio": "1:2",
+        "major_issue_policy": "stop-and-fix",
         "high_severity_count": "0",
         "medium_severity_count": "0",
         "low_severity_count": "0",
@@ -106,6 +109,23 @@ def _gate_passing_content(step: Step) -> str:
         "validation_complete": "true",
         "tasklist_ready": "true",
         "fidelity_check_attempted": "true",
+        # Wiring verification (all counts consistent with total_findings=0)
+        "gate": "wiring-verification",
+        "target_dir": ".",
+        "files_analyzed": "10",
+        "files_skipped": "2",
+        "rollout_mode": "shadow",
+        "analysis_complete": "true",
+        "audit_artifacts_used": "0",
+        "unwired_callable_count": "0",
+        "orphan_module_count": "0",
+        "unwired_registry_count": "0",
+        "critical_count": "0",
+        "major_count": "0",
+        "info_count": "0",
+        "total_findings": "0",
+        "blocking_findings": "0",
+        "whitelist_entries_applied": "0",
     }
 
     fm_fields = {}
@@ -157,8 +177,8 @@ class TestE2EFullPipeline:
             run_step=_mock_runner,
         )
 
-        # 9 individual steps (2 parallel generate + 7 sequential)
-        assert len(results) == 9
+        # 10 individual steps (2 parallel generate + 8 sequential)
+        assert len(results) == 10
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_e2e_state_saved_after_steps_1_9(self, tmp_path):
@@ -209,15 +229,23 @@ class TestE2EFullPipeline:
         """Step 11: Remediation tasklist generated from findings."""
         findings = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Completeness",
-                description="Missing milestone", location="roadmap.md:45",
-                evidence="Only 4 milestones", fix_guidance="Add milestone 5",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Completeness",
+                description="Missing milestone",
+                location="roadmap.md:45",
+                evidence="Only 4 milestones",
+                fix_guidance="Add milestone 5",
                 files_affected=["roadmap.md"],
             ),
             Finding(
-                id="F-02", severity="WARNING", dimension="Clarity",
-                description="Ambiguous criteria", location="roadmap.md:100",
-                evidence="SC-003 lacks target", fix_guidance="Add metric",
+                id="F-02",
+                severity="WARNING",
+                dimension="Clarity",
+                description="Ambiguous criteria",
+                location="roadmap.md:100",
+                evidence="SC-003 lacks target",
+                fix_guidance="Add metric",
                 files_affected=["roadmap.md"],
             ),
         ]
@@ -234,14 +262,22 @@ class TestE2EFullPipeline:
         """Step 12: Certification report generated from verification results."""
         findings = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Completeness",
-                description="Missing milestone", location="roadmap.md:45",
-                evidence="Only 4 milestones", fix_guidance="Add milestone 5",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Completeness",
+                description="Missing milestone",
+                location="roadmap.md:45",
+                evidence="Only 4 milestones",
+                fix_guidance="Add milestone 5",
                 files_affected=["roadmap.md"],
             ),
         ]
         results = [
-            {"finding_id": "F-01", "result": "PASS", "justification": "Milestone 5 added"},
+            {
+                "finding_id": "F-01",
+                "result": "PASS",
+                "justification": "Milestone 5 added",
+            },
         ]
         report = generate_certification_report(results, findings)
 
@@ -255,14 +291,22 @@ class TestE2EFullPipeline:
         """Certification report passes CERTIFY_GATE validation."""
         findings = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Completeness",
-                description="Missing milestone", location="roadmap.md:45",
-                evidence="test", fix_guidance="test",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Completeness",
+                description="Missing milestone",
+                location="roadmap.md:45",
+                evidence="test",
+                fix_guidance="test",
                 files_affected=["roadmap.md"],
             ),
         ]
         results = [
-            {"finding_id": "F-01", "result": "PASS", "justification": "Fixed correctly"},
+            {
+                "finding_id": "F-01",
+                "result": "PASS",
+                "justification": "Fixed correctly",
+            },
         ]
         report = generate_certification_report(results, findings)
 
@@ -279,15 +323,22 @@ class TestE2EFullPipeline:
         Two-write model: first write generates PENDING entries, second write
         (update_remediation_tasklist) stamps terminal statuses (FIXED/FAILED).
         """
-        from superclaude.cli.roadmap.remediate_executor import update_remediation_tasklist
+        from superclaude.cli.roadmap.remediate_executor import (
+            update_remediation_tasklist,
+        )
 
         # Step 1: Generate tasklist with all-PENDING findings (no SKIPPED)
         findings_pending = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Completeness",
-                description="Missing milestone", location="roadmap.md:45",
-                evidence="test", fix_guidance="test",
-                files_affected=["roadmap.md"], status="PENDING",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Completeness",
+                description="Missing milestone",
+                location="roadmap.md:45",
+                evidence="test",
+                fix_guidance="test",
+                files_affected=["roadmap.md"],
+                status="PENDING",
             ),
         ]
         source_content = "# Report\n"
@@ -300,10 +351,15 @@ class TestE2EFullPipeline:
         # Step 2: Simulate remediation -> mark F-01 as FIXED
         findings_done = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Completeness",
-                description="Missing milestone", location="roadmap.md:45",
-                evidence="test", fix_guidance="test",
-                files_affected=["roadmap.md"], status="FIXED",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Completeness",
+                description="Missing milestone",
+                location="roadmap.md:45",
+                evidence="test",
+                fix_guidance="test",
+                files_affected=["roadmap.md"],
+                status="FIXED",
             ),
         ]
         update_remediation_tasklist(str(tasklist_file), findings_done)
@@ -318,35 +374,45 @@ class TestE2EFullPipeline:
 
         # Run steps 1-9
         results = execute_pipeline(
-            steps=steps, config=config, run_step=_mock_runner,
+            steps=steps,
+            config=config,
+            run_step=_mock_runner,
         )
 
         # Add remediate and certify metadata
         remediate_meta = build_remediate_metadata(
-            status="PASS", scope="all",
-            findings_total=2, findings_actionable=1,
-            findings_fixed=1, findings_failed=0, findings_skipped=1,
-            agents_spawned=1, tasklist_file="output/remediation-tasklist.md",
+            status="PASS",
+            scope="all",
+            findings_total=2,
+            findings_actionable=1,
+            findings_fixed=1,
+            findings_failed=0,
+            findings_skipped=1,
+            agents_spawned=1,
+            tasklist_file="output/remediation-tasklist.md",
         )
         certify_meta = build_certify_metadata(
-            status="certified", findings_verified=1,
-            findings_passed=1, findings_failed=0,
-            certified=True, report_file="output/certification-report.md",
+            status="certified",
+            findings_verified=1,
+            findings_passed=1,
+            findings_failed=0,
+            certified=True,
+            report_file="output/certification-report.md",
         )
 
-        _save_state(config, results,
-                     remediate_metadata=remediate_meta,
-                     certify_metadata=certify_meta)
+        _save_state(
+            config,
+            results,
+            remediate_metadata=remediate_meta,
+            certify_metadata=certify_meta,
+        )
 
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
 
-        # Verify all 9 step results + remediate + certify metadata
-        assert len(state["steps"]) == 9
-        assert all(
-            state["steps"][sid]["status"] == "PASS"
-            for sid in state["steps"]
-        )
+        # Verify all 10 step results + remediate + certify metadata
+        assert len(state["steps"]) == 10
+        assert all(state["steps"][sid]["status"] == "PASS" for sid in state["steps"])
         assert state["remediate"]["status"] == "PASS"
         assert state["certify"]["certified"] is True
 
@@ -362,7 +428,10 @@ class TestE2EFullPipeline:
         assert derive_pipeline_status({"validation": {"status": "pass"}}) == "validated"
 
         # Step 10: Post-validate (fail)
-        assert derive_pipeline_status({"validation": {"status": "fail"}}) == "validated-with-issues"
+        assert (
+            derive_pipeline_status({"validation": {"status": "fail"}})
+            == "validated-with-issues"
+        )
 
         # Step 11: Post-remediate
         state = {"validation": {"status": "fail"}, "remediate": {"status": "PASS"}}
@@ -381,9 +450,13 @@ class TestE2EFullPipeline:
         config = _make_config(tmp_path)
         findings = [
             Finding(
-                id="F-01", severity="BLOCKING", dimension="Test",
-                description="Test finding", location="roadmap.md:1",
-                evidence="test", fix_guidance="test",
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Test",
+                description="Test finding",
+                location="roadmap.md:1",
+                evidence="test",
+                fix_guidance="test",
                 files_affected=["roadmap.md"],
             ),
         ]
@@ -423,9 +496,11 @@ class TestE2EFullPipeline:
         assert "WARNING: 1" in summary
 
         # 3. Filter by scope
-        actionable, skipped = filter_findings(findings, RemediationScope.BLOCKING_WARNING)
+        actionable, skipped = filter_findings(
+            findings, RemediationScope.BLOCKING_WARNING
+        )
         assert len(actionable) == 2  # BLOCKING + WARNING
-        assert len(skipped) == 1     # INFO
+        assert len(skipped) == 1  # INFO
 
         # 4. Generate tasklist
         tasklist = generate_remediation_tasklist(
@@ -442,8 +517,16 @@ class TestE2EFullPipeline:
 
         # 6. Generate certification results
         cert_results = [
-            {"finding_id": "F-01", "result": "PASS", "justification": "Milestone 5 added"},
-            {"finding_id": "F-02", "result": "PASS", "justification": "Metric added to SC-003"},
+            {
+                "finding_id": "F-01",
+                "result": "PASS",
+                "justification": "Milestone 5 added",
+            },
+            {
+                "finding_id": "F-02",
+                "result": "PASS",
+                "justification": "Metric added to SC-003",
+            },
         ]
 
         # 7. Generate report

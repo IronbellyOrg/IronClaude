@@ -31,10 +31,12 @@ class ReviewDecision(Enum):
 # ---------------------------------------------------------------------------
 
 #: Step IDs that require a user review gate before proceeding.
-REVIEW_GATE_STEPS: frozenset[str] = frozenset({
-    "design-pipeline",
-    "panel-review",
-})
+REVIEW_GATE_STEPS: frozenset[str] = frozenset(
+    {
+        "design-pipeline",
+        "panel-review",
+    }
+)
 
 
 # ---------------------------------------------------------------------------

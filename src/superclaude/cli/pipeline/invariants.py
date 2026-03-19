@@ -28,9 +28,20 @@ from dataclasses import dataclass, field
 # Constrained grammar for invariant predicates
 # ---------------------------------------------------------------------------
 
-_COMPARISON_OPS = frozenset({
-    "==", "!=", "<", "<=", ">", ">=", "is", "is not", "in", "not in",
-})
+_COMPARISON_OPS = frozenset(
+    {
+        "==",
+        "!=",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "is",
+        "is not",
+        "in",
+        "not in",
+    }
+)
 
 # Regex matching: identifier comparison_op expression
 # We tokenize by splitting on AND/OR logic operators first, then validate each clause.
@@ -89,6 +100,7 @@ def validate_predicate(predicate: str) -> tuple[bool, str | None]:
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class MutationSite:

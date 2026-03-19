@@ -114,7 +114,9 @@ class TestTasklistValidatesAgainstRoadmapNotSpec:
         prompt = build_tasklist_fidelity_prompt(
             Path("/tmp/roadmap.md"), Path("/tmp/tasklist/")
         )
-        assert "Do NOT compare the tasklist against the original specification" in prompt
+        assert (
+            "Do NOT compare the tasklist against the original specification" in prompt
+        )
 
     def test_prompt_restricts_to_roadmap_tasklist(self):
         """Prompt restricts validation to roadmap→tasklist alignment."""
@@ -182,7 +184,8 @@ class TestTasklistFidelityGate:
             "- DEV-003: MEDIUM severity\n"
         )
         hsc_check = next(
-            c for c in TASKLIST_FIDELITY_GATE.semantic_checks
+            c
+            for c in TASKLIST_FIDELITY_GATE.semantic_checks
             if c.name == "high_severity_count_zero"
         )
         assert hsc_check.check_fn(content) is False

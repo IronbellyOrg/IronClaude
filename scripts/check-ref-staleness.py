@@ -102,7 +102,10 @@ def check_ref_file(ref_path: Path, live_fields: dict) -> list[str]:
                 f"{ref_path.name}: uses 'tier=' instead of 'enforcement_tier='"
             )
 
-    if "required_frontmatter=" in content and "required_frontmatter_fields=" not in content:
+    if (
+        "required_frontmatter=" in content
+        and "required_frontmatter_fields=" not in content
+    ):
         errors.append(
             f"{ref_path.name}: uses 'required_frontmatter=' instead of 'required_frontmatter_fields='"
         )
@@ -119,9 +122,7 @@ def check_ref_file(ref_path: Path, live_fields: dict) -> list[str]:
     for match in re.finditer(r'(?<!\w)tier\s*=\s*"(\w+)"', content):
         val = match.group(1)
         if val != val.upper():
-            errors.append(
-                f"{ref_path.name}: tier value '{val}' should be UPPER_CASE"
-            )
+            errors.append(f"{ref_path.name}: tier value '{val}' should be UPPER_CASE")
 
     # Check SemanticCheck field names
     sc_fields = live_fields["SemanticCheck"]

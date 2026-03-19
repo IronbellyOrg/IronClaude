@@ -112,9 +112,19 @@ def _git_file_age(file_path: str, repo_root: str) -> str:
     """
     try:
         result = subprocess.run(
-            ["git", "log", "--follow", "--diff-filter=A",
-             "--format=%aI", "--", file_path],
-            capture_output=True, text=True, cwd=repo_root, timeout=10,
+            [
+                "git",
+                "log",
+                "--follow",
+                "--diff-filter=A",
+                "--format=%aI",
+                "--",
+                file_path,
+            ],
+            capture_output=True,
+            text=True,
+            cwd=repo_root,
+            timeout=10,
         )
         dates = result.stdout.strip().splitlines()
         if dates:
@@ -132,7 +142,10 @@ def _git_file_churn(file_path: str, repo_root: str) -> int:
     try:
         result = subprocess.run(
             ["git", "log", "--follow", "--oneline", "--", file_path],
-            capture_output=True, text=True, cwd=repo_root, timeout=10,
+            capture_output=True,
+            text=True,
+            cwd=repo_root,
+            timeout=10,
         )
         return len(result.stdout.strip().splitlines())
     except (subprocess.SubprocessError, FileNotFoundError):
@@ -240,10 +253,12 @@ class ProfileGenerator:
             age=_git_file_age(file_path, self._repo_root),
             churn=_git_file_churn(file_path, self._repo_root),
             coupling=_compute_coupling(
-                file_path, all_analyses or {},
+                file_path,
+                all_analyses or {},
             ),
             test_coverage=_find_test_coverage(
-                file_path, all_files or [],
+                file_path,
+                all_files or [],
             ),
         )
 
@@ -272,7 +287,8 @@ class ProfileGenerator:
         profiles = []
         for path, content in files.items():
             profile = self.profile_file(
-                path, content,
+                path,
+                content,
                 all_analyses=analyses,
                 all_files=all_paths,
             )
@@ -281,7 +297,8 @@ class ProfileGenerator:
         return profiles
 
     def validate_profiles(
-        self, profiles: list[FullFileProfile],
+        self,
+        profiles: list[FullFileProfile],
     ) -> list[dict[str, Any]]:
         """Validate all profiles against Phase-2 schema.
 

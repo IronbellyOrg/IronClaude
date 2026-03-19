@@ -135,11 +135,15 @@ class TestContextInjectionFiveTasks:
     @pytest.mark.context_injection_test
     def test_context_injection_test_five_tasks_gate_outcomes(self):
         """All 5 gate outcomes visible in Gate Outcomes section."""
-        outcomes = [GateOutcome.PASS, GateOutcome.FAIL, GateOutcome.DEFERRED,
-                    GateOutcome.PASS, GateOutcome.PENDING]
+        outcomes = [
+            GateOutcome.PASS,
+            GateOutcome.FAIL,
+            GateOutcome.DEFERRED,
+            GateOutcome.PASS,
+            GateOutcome.PENDING,
+        ]
         results = [
-            _result(task_id=f"T01.{i:02d}", gate=outcomes[i - 1])
-            for i in range(1, 6)
+            _result(task_id=f"T01.{i:02d}", gate=outcomes[i - 1]) for i in range(1, 6)
         ]
         ctx = build_task_context(results, compress_threshold=3)
         assert "T01.01: pass" in ctx
@@ -245,8 +249,7 @@ class TestContextInjectionProgressiveSummarization:
     def test_context_injection_test_all_gate_outcomes_in_ten(self):
         """All 10 gate outcomes appear in Gate Outcomes section."""
         results = [
-            _result(task_id=f"T01.{i:02d}", gate=GateOutcome.PASS)
-            for i in range(1, 11)
+            _result(task_id=f"T01.{i:02d}", gate=GateOutcome.PASS) for i in range(1, 11)
         ]
         results[2] = _result(task_id="T01.03", gate=GateOutcome.FAIL)
         results[6] = _result(task_id="T01.07", gate=GateOutcome.DEFERRED)
@@ -271,12 +274,16 @@ class TestContextInjectionMixedOutcomes:
     def test_context_injection_test_mixed_pass_fail_deferred(self):
         """Context correctly represents mixed pass/fail/deferred outcomes."""
         results = [
-            _result(task_id="T01.01", status=TaskStatus.PASS,
-                    gate=GateOutcome.PASS),
-            _result(task_id="T01.02", status=TaskStatus.FAIL,
-                    gate=GateOutcome.FAIL, reimbursement=5),
-            _result(task_id="T01.03", status=TaskStatus.PASS,
-                    gate=GateOutcome.DEFERRED),
+            _result(task_id="T01.01", status=TaskStatus.PASS, gate=GateOutcome.PASS),
+            _result(
+                task_id="T01.02",
+                status=TaskStatus.FAIL,
+                gate=GateOutcome.FAIL,
+                reimbursement=5,
+            ),
+            _result(
+                task_id="T01.03", status=TaskStatus.PASS, gate=GateOutcome.DEFERRED
+            ),
         ]
         ctx = build_task_context(results)
         # All three visible

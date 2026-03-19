@@ -58,15 +58,22 @@ from superclaude.cli.pipeline.gates import gate_passed
 
 # ═══════════════════════════════════════════════════════════════════════
 DIVIDER = "=" * 80
-SUBDIV  = "-" * 80
+SUBDIV = "-" * 80
 
-def banner(msg): print(f"\n{DIVIDER}\n  {msg}\n{DIVIDER}")
-def log(msg): print(f"  {msg}")
+
+def banner(msg):
+    print(f"\n{DIVIDER}\n  {msg}\n{DIVIDER}")
+
+
+def log(msg):
+    print(f"  {msg}")
 
 
 def main() -> int:
     t0 = time.monotonic()
-    banner("REAL INTEGRATION TEST: execute_phase_tasks + TurnLedger + TrailingGateRunner")
+    banner(
+        "REAL INTEGRATION TEST: execute_phase_tasks + TurnLedger + TrailingGateRunner"
+    )
     log(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
     log("All functions are PRODUCTION CODE — only subprocess is replaced")
     log("")
@@ -78,7 +85,9 @@ def main() -> int:
 
     # Create real phase file and index
     phase_file = work_dir / "phase-1-tasklist.md"
-    phase_file.write_text("# Phase 1 — Evidence Test\n\n### T01.01 -- Task Alpha\n### T01.02 -- Task Beta\n### T01.03 -- Task Gamma\n### T01.04 -- Task Delta\n### T01.05 -- Task Epsilon\n")
+    phase_file.write_text(
+        "# Phase 1 — Evidence Test\n\n### T01.01 -- Task Alpha\n### T01.02 -- Task Beta\n### T01.03 -- Task Gamma\n### T01.04 -- Task Delta\n### T01.05 -- Task Epsilon\n"
+    )
     index_file = work_dir / "tasklist-index.md"
     index_file.write_text("- phase-1-tasklist.md\n")
 
@@ -161,13 +170,15 @@ def main() -> int:
         output_bytes = output_path.stat().st_size
         time.sleep(0.05)  # Simulate non-zero execution time
 
-        task_trace.append({
-            "task_id": task.task_id,
-            "turns_consumed": turns,
-            "output_bytes": output_bytes,
-            "output_file": str(output_path),
-            "exit_code": 0,
-        })
+        task_trace.append(
+            {
+                "task_id": task.task_id,
+                "turns_consumed": turns,
+                "output_bytes": output_bytes,
+                "output_file": str(output_path),
+                "exit_code": 0,
+            }
+        )
 
         return (0, turns, output_bytes)
 
@@ -219,19 +230,27 @@ def main() -> int:
 
     # ═══════════════════════════════════════════════════════════════════
     banner("STEP 3: LEDGER TRACE — Every debit/credit operation")
-    log(f"{'Op':<8} {'Amount':>6} {'Consumed':>10} {'Reimbursed':>12} {'Available':>10} {'Time':>8}")
-    log(f"{'-'*8} {'-'*6} {'-'*10} {'-'*12} {'-'*10} {'-'*8}")
+    log(
+        f"{'Op':<8} {'Amount':>6} {'Consumed':>10} {'Reimbursed':>12} {'Available':>10} {'Time':>8}"
+    )
+    log(f"{'-' * 8} {'-' * 6} {'-' * 10} {'-' * 12} {'-' * 10} {'-' * 8}")
     for entry in ledger_trace:
-        log(f"{entry['op']:<8} {entry['amount']:>6} {entry['consumed']:>10} "
-            f"{entry['reimbursed']:>12} {entry['available']:>10} {entry['ts']:>7.3f}s")
+        log(
+            f"{entry['op']:<8} {entry['amount']:>6} {entry['consumed']:>10} "
+            f"{entry['reimbursed']:>12} {entry['available']:>10} {entry['ts']:>7.3f}s"
+        )
 
     # ═══════════════════════════════════════════════════════════════════
     banner("STEP 4: TASK RESULTS — Per-task execution outcomes")
-    log(f"{'Task ID':<10} {'Status':<12} {'Turns':>6} {'ExitCode':>9} {'OutputBytes':>12}")
-    log(f"{'-'*10} {'-'*12} {'-'*6} {'-'*9} {'-'*12}")
+    log(
+        f"{'Task ID':<10} {'Status':<12} {'Turns':>6} {'ExitCode':>9} {'OutputBytes':>12}"
+    )
+    log(f"{'-' * 10} {'-' * 12} {'-' * 6} {'-' * 9} {'-' * 12}")
     for r in results:
-        log(f"{r.task.task_id:<10} {r.status.value:<12} {r.turns_consumed:>6} "
-            f"{r.exit_code:>9} {r.output_bytes:>12}")
+        log(
+            f"{r.task.task_id:<10} {r.status.value:<12} {r.turns_consumed:>6} "
+            f"{r.exit_code:>9} {r.output_bytes:>12}"
+        )
 
     if remaining:
         log("")
@@ -248,7 +267,9 @@ def main() -> int:
 
     executed_results = [r for r in results if r.status != TaskStatus.SKIPPED]
     log(f"Submitting {len(executed_results)} gate evaluations to TrailingGateRunner...")
-    log(f"Gate criteria: frontmatter={gate_criteria.required_frontmatter_fields}, min_lines={gate_criteria.min_lines}")
+    log(
+        f"Gate criteria: frontmatter={gate_criteria.required_frontmatter_fields}, min_lines={gate_criteria.min_lines}"
+    )
     log("")
 
     for r in executed_results:
@@ -264,7 +285,9 @@ def main() -> int:
             gate_mode=GateMode.TRAILING,
         )
         gate_runner.submit(step)  # Uses REAL gate_passed() function
-        log(f"  Submitted gate for {r.task.task_id} (output: {output_path.name}, {output_path.stat().st_size} bytes)")
+        log(
+            f"  Submitted gate for {r.task.task_id} (output: {output_path.name}, {output_path.stat().st_size} bytes)"
+        )
 
     log("")
     log("Waiting for trailing gate daemon threads to complete...")
@@ -274,21 +297,27 @@ def main() -> int:
     log(f"Collected {len(gate_results)} gate results:")
     log("")
     log(f"{'Step ID':<10} {'Passed':>8} {'Eval ms':>10} {'Reason'}")
-    log(f"{'-'*10} {'-'*8} {'-'*10} {'-'*30}")
+    log(f"{'-' * 10} {'-' * 8} {'-' * 10} {'-' * 30}")
     for gr in gate_results:
         reason = gr.failure_reason or "—"
         log(f"{gr.step_id:<10} {str(gr.passed):>8} {gr.evaluation_ms:>9.1f}ms {reason}")
 
     # ═══════════════════════════════════════════════════════════════════
     banner("STEP 6: REIMBURSEMENT — Credit turns back for passed gates")
-    log("Applying 50% reimbursement for each PASSED gate (production reimbursement logic):")
+    log(
+        "Applying 50% reimbursement for each PASSED gate (production reimbursement logic):"
+    )
     log("")
 
     for gr in gate_results:
         task_result = next(r for r in results if r.task.task_id == gr.step_id)
         if gr.passed:
-            reimburse_amount = int(task_result.turns_consumed * ledger.reimbursement_rate)
-            log(f"  {gr.step_id}: PASS → credit({reimburse_amount}) = floor({task_result.turns_consumed} × {ledger.reimbursement_rate})")
+            reimburse_amount = int(
+                task_result.turns_consumed * ledger.reimbursement_rate
+            )
+            log(
+                f"  {gr.step_id}: PASS → credit({reimburse_amount}) = floor({task_result.turns_consumed} × {ledger.reimbursement_rate})"
+            )
             ledger.credit(reimburse_amount)
         else:
             log(f"  {gr.step_id}: FAIL → zero reimbursement (turns permanently lost)")
@@ -304,15 +333,22 @@ def main() -> int:
     log("")
 
     # Verify identity
-    identity = ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+    identity = (
+        ledger.available()
+        == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+    )
     log(f"ACCOUNTING IDENTITY: available == initial - consumed + reimbursed")
-    log(f"  {ledger.available()} == {ledger.initial_budget} - {ledger.consumed} + {ledger.reimbursed}")
+    log(
+        f"  {ledger.available()} == {ledger.initial_budget} - {ledger.consumed} + {ledger.reimbursed}"
+    )
     log(f"  VERIFIED: {identity}")
 
     # Budget decay
     log(f"")
-    log(f"BUDGET DECAY: {ledger.initial_budget} → {ledger.available()} "
-        f"(net loss: {ledger.initial_budget - ledger.available()} turns)")
+    log(
+        f"BUDGET DECAY: {ledger.initial_budget} → {ledger.available()} "
+        f"(net loss: {ledger.initial_budget - ledger.available()} turns)"
+    )
 
     # ═══════════════════════════════════════════════════════════════════
     banner("STEP 8: PHASE REPORT — aggregate_task_results() [PRODUCTION CODE]")
@@ -348,17 +384,21 @@ def main() -> int:
         if entry["op"] == "DEBIT" and entry["amount"] == pre_alloc:
             task_idx += 1
             if task_idx <= len(tasks):
-                annotation = f"  ← pre-allocate for {tasks[task_idx-1].task_id}"
+                annotation = f"  ← pre-allocate for {tasks[task_idx - 1].task_id}"
         elif entry["op"] == "DEBIT":
-            annotation = f"  ← reconcile: actual exceeded pre-alloc by {entry['amount']}"
+            annotation = (
+                f"  ← reconcile: actual exceeded pre-alloc by {entry['amount']}"
+            )
         elif entry["op"] == "CREDIT" and i < len(ledger_trace) - len(gate_results):
             annotation = f"  ← reconcile: actual was less than pre-alloc"
         elif entry["op"] == "CREDIT":
             annotation = f"  ← gate PASS reimbursement"
 
-        log(f"  [{i+1:>2}] {entry['op']:<6} {entry['amount']:>3} turns | "
+        log(
+            f"  [{i + 1:>2}] {entry['op']:<6} {entry['amount']:>3} turns | "
             f"consumed={entry['consumed']:>3} reimbursed={entry['reimbursed']:>3} "
-            f"available={entry['available']:>3}{annotation}")
+            f"available={entry['available']:>3}{annotation}"
+        )
 
     # ═══════════════════════════════════════════════════════════════════
     banner("VERDICT")
@@ -366,7 +406,9 @@ def main() -> int:
 
     checks = []
     checks.append(("Accounting identity holds", identity))
-    checks.append(("Budget decayed (not static)", ledger.available() < ledger.initial_budget))
+    checks.append(
+        ("Budget decayed (not static)", ledger.available() < ledger.initial_budget)
+    )
     checks.append(("At least 1 task executed", len(executed_results) > 0))
     checks.append(("Gate evaluation ran on real files", len(gate_results) > 0))
     checks.append(("All gates passed", all(gr.passed for gr in gate_results)))

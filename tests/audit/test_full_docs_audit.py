@@ -150,7 +150,7 @@ class TestFullDocsAudit:
         assert len(result.stale_docs) >= 1
         assert len(result.coverage_gaps) >= 1
         assert len(result.orphaned_docs) >= 1  # widget.md has no code match
-        assert len(result.style_issues) >= 1   # multiple H1
+        assert len(result.style_issues) >= 1  # multiple H1
 
     def test_to_dict_has_all_sections(self):
         result = full_docs_audit({}, set())

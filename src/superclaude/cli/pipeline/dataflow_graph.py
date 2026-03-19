@@ -28,6 +28,7 @@ from .state_detector import DetectionResult
 
 class NodeOperation(Enum):
     """Operation type for a data flow node."""
+
     BIRTH = "birth"
     WRITE = "write"
     READ = "read"
@@ -42,6 +43,7 @@ class DataFlowNode:
         variable_name: Name of the state variable.
         operation: The operation type (birth, write, read).
     """
+
     deliverable_id: str
     variable_name: str
     operation: NodeOperation
@@ -50,6 +52,7 @@ class DataFlowNode:
     def milestone(self) -> str:
         """Extract milestone from deliverable_id (e.g. 'D2.3' -> 'M2', 'D-0015' -> 'M0015')."""
         import re
+
         m = re.match(r"D(\d+)\.", self.deliverable_id)
         if m:
             return f"M{m.group(1)}"
@@ -70,6 +73,7 @@ class DataFlowEdge:
         source_milestone: Milestone of the source node.
         target_milestone: Milestone of the target node.
     """
+
     source: DataFlowNode
     target: DataFlowNode
     is_cross_milestone: bool = False
@@ -91,10 +95,12 @@ class DataFlowGraph:
 
     Uses adjacency list representation for O(V+E) operations.
     """
+
     nodes: list[DataFlowNode] = field(default_factory=list)
     edges: list[DataFlowEdge] = field(default_factory=list)
     _adjacency: dict[DataFlowNode, list[DataFlowEdge]] = field(
-        default_factory=dict, repr=False,
+        default_factory=dict,
+        repr=False,
     )
     _node_set: set[DataFlowNode] = field(default_factory=set, repr=False)
 
@@ -191,18 +197,42 @@ _PERFORMANCE_WARNING_THRESHOLD = 100
 
 # Read indicator patterns for scanning deliverable descriptions
 _READ_INDICATORS = [
-    "read", "reads", "reading",
-    "consume", "consumes", "consuming",
-    "use", "uses", "using",
-    "check", "checks", "checking",
-    "access", "accesses", "accessing",
-    "query", "queries", "querying",
-    "fetch", "fetches", "fetching",
-    "load", "loads", "loading",
-    "get", "gets", "getting",
-    "retrieve", "retrieves", "retrieving",
-    "based on", "depends on", "requires",
-    "assumes", "expects", "when",
+    "read",
+    "reads",
+    "reading",
+    "consume",
+    "consumes",
+    "consuming",
+    "use",
+    "uses",
+    "using",
+    "check",
+    "checks",
+    "checking",
+    "access",
+    "accesses",
+    "accessing",
+    "query",
+    "queries",
+    "querying",
+    "fetch",
+    "fetches",
+    "fetching",
+    "load",
+    "loads",
+    "loading",
+    "get",
+    "gets",
+    "getting",
+    "retrieve",
+    "retrieves",
+    "retrieving",
+    "based on",
+    "depends on",
+    "requires",
+    "assumes",
+    "expects",
+    "when",
 ]
 
 

@@ -245,7 +245,9 @@ class TestStepGraphExecution:
 
         def _capture_runner(prompt: str, output_path: Path):
             captured["prompt"] = prompt
-            return _runner_success_with_exit_rec("step-graph-design")(prompt, output_path)
+            return _runner_success_with_exit_rec("step-graph-design")(
+                prompt, output_path
+            )
 
         execute_step_graph_design_step(
             "test-cli",
@@ -286,9 +288,13 @@ class TestStepGraphExecution:
             call_count["n"] += 1
             output_path.parent.mkdir(parents=True, exist_ok=True)
             if call_count["n"] == 1:
-                output_path.write_text("---\nstep: test\n---\ncontent", encoding="utf-8")
+                output_path.write_text(
+                    "---\nstep: test\n---\ncontent", encoding="utf-8"
+                )
                 return 0, "", False
-            return _runner_success_with_exit_rec("step-graph-design")(prompt, output_path)
+            return _runner_success_with_exit_rec("step-graph-design")(
+                prompt, output_path
+            )
 
         execute_step_graph_design_step(
             "test-cli",
@@ -403,7 +409,9 @@ class TestPromptsExecutorDesignPrompt:
     """Tests for build_prompts_executor_design_prompt (T06.03, FR-022)."""
 
     def test_prompts_executor_prompt_not_empty(self):
-        prompt = build_prompts_executor_design_prompt("my-cli", "step graph", "models gates")
+        prompt = build_prompts_executor_design_prompt(
+            "my-cli", "step graph", "models gates"
+        )
         assert len(prompt) > 0
 
     def test_prompts_executor_prompt_contains_cli_name(self):
@@ -447,7 +455,9 @@ class TestPromptsExecutorExecution:
         assert (workdir_with_models_gates / "prompts-executor-spec.md").exists()
         assert result.step_name == "prompts-executor-design"
 
-    def test_prompts_executor_pass_status_with_exit_rec(self, workdir_with_models_gates):
+    def test_prompts_executor_pass_status_with_exit_rec(
+        self, workdir_with_models_gates
+    ):
         result = execute_prompts_executor_design_step(
             "test-cli",
             workdir_with_models_gates,
@@ -460,7 +470,9 @@ class TestPromptsExecutorExecution:
 
         def _capture_runner(prompt: str, output_path: Path):
             captured["prompt"] = prompt
-            return _runner_success_with_exit_rec("prompts-executor-design")(prompt, output_path)
+            return _runner_success_with_exit_rec("prompts-executor-design")(
+                prompt, output_path
+            )
 
         execute_prompts_executor_design_step(
             "test-cli",
@@ -496,7 +508,9 @@ class TestAssembleSpecsProgrammatic:
     """Tests for assemble_specs_programmatic (T06.04, FR-023, SC-005)."""
 
     def test_assemble_combines_three_sections(self):
-        result = assemble_specs_programmatic("step graph", "models gates", "prompts executor")
+        result = assemble_specs_programmatic(
+            "step graph", "models gates", "prompts executor"
+        )
         assert "step graph" in result
         assert "models gates" in result
         assert "prompts executor" in result
@@ -521,7 +535,9 @@ class TestAssembleSpecsProgrammatic:
         assert fm_count <= 1
 
     def test_assemble_partial_inputs_handled(self):
-        result = assemble_specs_programmatic("step graph content", "", "prompts content")
+        result = assemble_specs_programmatic(
+            "step graph content", "", "prompts content"
+        )
         assert "step graph content" in result
         assert "prompts content" in result
         assert "## Models and Gates Design" not in result
@@ -557,7 +573,9 @@ class TestPipelineSpecAssemblyExecution:
 
         def _capture_runner(prompt: str, output_path: Path):
             captured["prompt"] = prompt
-            return _runner_success_with_exit_rec("pipeline-spec-assembly")(prompt, output_path)
+            return _runner_success_with_exit_rec("pipeline-spec-assembly")(
+                prompt, output_path
+            )
 
         execute_pipeline_spec_assembly_step(
             "test-cli",
@@ -624,7 +642,9 @@ class TestPhase2Timeout:
         assert "prompts-executor-design" in STEP_REGISTRY
         assert "pipeline-spec-assembly" in STEP_REGISTRY
 
-    def test_phase2_timeout_step_graph_iteration_timeout_recorded(self, workdir_with_analysis):
+    def test_phase2_timeout_step_graph_iteration_timeout_recorded(
+        self, workdir_with_analysis
+    ):
         result = execute_step_graph_design_step(
             "test-cli",
             workdir_with_analysis,
@@ -632,7 +652,9 @@ class TestPhase2Timeout:
         )
         assert result.iteration_timeout == 600
 
-    def test_phase2_timeout_models_gates_iteration_timeout_recorded(self, workdir_with_step_graph):
+    def test_phase2_timeout_models_gates_iteration_timeout_recorded(
+        self, workdir_with_step_graph
+    ):
         result = execute_models_gates_design_step(
             "test-cli",
             workdir_with_step_graph,
@@ -650,7 +672,9 @@ class TestPhase2Timeout:
         )
         assert result.iteration_timeout == 600
 
-    def test_phase2_timeout_spec_assembly_iteration_timeout_recorded(self, workdir_with_all_specs):
+    def test_phase2_timeout_spec_assembly_iteration_timeout_recorded(
+        self, workdir_with_all_specs
+    ):
         result = execute_pipeline_spec_assembly_step(
             "test-cli",
             workdir_with_all_specs,
@@ -708,7 +732,9 @@ class TestPhase2ExitRecEnforcement:
         passed, _ = gate_models_gates_design(artifact)
         assert passed is True
 
-    def test_phase2_exit_rec_g006_models_gates_fails_without_return_type(self, tmp_path):
+    def test_phase2_exit_rec_g006_models_gates_fails_without_return_type(
+        self, tmp_path
+    ):
         artifact = tmp_path / "models-gates-spec.md"
         artifact.write_text(
             "---\nstep: models-gates-design\ncli_name: x\ngate_count: 3\n---\ncontent only\n",
@@ -762,7 +788,9 @@ class TestPhase2ExitRecEnforcement:
         assert passed is False
         assert "EXIT_RECOMMENDATION" in diagnostic
 
-    def test_phase2_exit_rec_g008_spec_assembly_fails_on_step_count_mismatch(self, tmp_path):
+    def test_phase2_exit_rec_g008_spec_assembly_fails_on_step_count_mismatch(
+        self, tmp_path
+    ):
         artifact = tmp_path / "portify-spec.md"
         # Declares 5 steps but only defines 2
         artifact.write_text(
@@ -822,7 +850,9 @@ class TestPhase2Approval:
         )
         assert data["workflow"] == "my-workflow"
 
-    def test_phase2_approval_yaml_contains_review_artifacts(self, workdir_with_portify_spec):
+    def test_phase2_approval_yaml_contains_review_artifacts(
+        self, workdir_with_portify_spec
+    ):
         execute_user_review_p2("test-cli", workdir_with_portify_spec, _exit=False)
         data = yaml.safe_load(
             (workdir_with_portify_spec / "phase2-approval.yaml").read_text()
@@ -831,7 +861,9 @@ class TestPhase2Approval:
         assert "portify-spec.md" in artifacts
         assert "step-graph-spec.md" in artifacts
 
-    def test_phase2_approval_prints_resume_instructions(self, workdir_with_portify_spec, capsys):
+    def test_phase2_approval_prints_resume_instructions(
+        self, workdir_with_portify_spec, capsys
+    ):
         execute_user_review_p2("test-cli", workdir_with_portify_spec, _exit=False)
         captured = capsys.readouterr()
         assert "superclaude cli-portify run" in captured.out
@@ -864,7 +896,10 @@ class TestPhase2Approval:
         )
         with pytest.raises(PortifyValidationError) as exc_info:
             execute_user_review_p2("test-cli", workdir, _exit=False)
-        assert "step mapping" in str(exc_info.value).lower() or "empty" in str(exc_info.value).lower()
+        assert (
+            "step mapping" in str(exc_info.value).lower()
+            or "empty" in str(exc_info.value).lower()
+        )
 
     def test_phase2_approval_raises_when_blocking_gate_not_passed(
         self, workdir_with_portify_spec
@@ -882,7 +917,9 @@ class TestPhase2Approval:
             )
         assert "step-graph-design" in str(exc_info.value)
 
-    def test_phase2_approval_passes_when_all_gates_passed(self, workdir_with_portify_spec):
+    def test_phase2_approval_passes_when_all_gates_passed(
+        self, workdir_with_portify_spec
+    ):
         passed_results = [
             PortifyStepResult(
                 step_name="step-graph-design",
@@ -949,7 +986,10 @@ class TestResumeValidationPhase2:
         )
         with pytest.raises(PortifyValidationError) as exc_info:
             _validate_phase2_approval(workdir)
-        assert "malformed" in str(exc_info.value).lower() or "yaml" in str(exc_info.value).lower()
+        assert (
+            "malformed" in str(exc_info.value).lower()
+            or "yaml" in str(exc_info.value).lower()
+        )
 
     def test_user_review_p2_missing_status_field_raises_error(self, workdir):
         workdir.mkdir(parents=True, exist_ok=True)

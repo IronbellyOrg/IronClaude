@@ -39,16 +39,21 @@ from superclaude.cli.sprint.models import SprintConfig
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_step(
     step_id: str,
     gate_mode: GateMode = GateMode.BLOCKING,
     with_gate: bool = True,
 ) -> Step:
     """Build a minimal Step for testing."""
-    gate = GateCriteria(
-        required_frontmatter_fields=["title"],
-        min_lines=1,
-    ) if with_gate else None
+    gate = (
+        GateCriteria(
+            required_frontmatter_fields=["title"],
+            min_lines=1,
+        )
+        if with_gate
+        else None
+    )
     return Step(
         id=step_id,
         prompt=f"Test prompt for {step_id}",
@@ -74,6 +79,7 @@ def _passing_runner(step: Step, config: PipelineConfig, cancel_check) -> StepRes
 # ---------------------------------------------------------------------------
 # 1. GateMode defaults to BLOCKING on the Step dataclass
 # ---------------------------------------------------------------------------
+
 
 class TestGateModeDefault:
     """Verify that Step.gate_mode defaults to BLOCKING -- the pre-trailing-gate
@@ -101,6 +107,7 @@ class TestGateModeDefault:
 # 2. PipelineConfig and SprintConfig default grace_period=0
 # ---------------------------------------------------------------------------
 
+
 class TestGracePeriodDefaults:
     """Verify both config classes default grace_period to 0."""
 
@@ -124,6 +131,7 @@ class TestGracePeriodDefaults:
 # ---------------------------------------------------------------------------
 # 3. No daemon threads spawned at grace_period=0
 # ---------------------------------------------------------------------------
+
 
 class TestNoDaemonThreadsAtGracePeriodZero:
     """The executor must not spawn any daemon threads when grace_period=0.
@@ -160,6 +168,7 @@ class TestNoDaemonThreadsAtGracePeriodZero:
 # 4. TrailingGateRunner is NOT instantiated at grace_period=0
 # ---------------------------------------------------------------------------
 
+
 class TestNoTrailingGateRunnerAtGracePeriodZero:
     """When grace_period=0 and no external trailing_runner is provided,
     the executor must never construct a TrailingGateRunner."""
@@ -168,20 +177,24 @@ class TestNoTrailingGateRunnerAtGracePeriodZero:
         config = PipelineConfig(grace_period=0)
         steps = [_make_step("s1", with_gate=False)]
 
-        with patch(
-            "superclaude.cli.pipeline.executor.TrailingGateRunner",
-            wraps=TrailingGateRunner,
-        ) as mock_cls, patch(
-            "superclaude.cli.pipeline.executor.gate_passed",
-            return_value=(True, None),
+        with (
+            patch(
+                "superclaude.cli.pipeline.executor.TrailingGateRunner",
+                wraps=TrailingGateRunner,
+            ) as mock_cls,
+            patch(
+                "superclaude.cli.pipeline.executor.gate_passed",
+                return_value=(True, None),
+            ),
         ):
             execute_pipeline(
                 steps=steps,
                 config=config,
                 run_step=_passing_runner,
             )
-            mock_cls.assert_not_called(), (
-                "TrailingGateRunner should not be instantiated when grace_period=0"
+            (
+                mock_cls.assert_not_called(),
+                ("TrailingGateRunner should not be instantiated when grace_period=0"),
             )
 
     def test_trailing_gate_runner_constructed_when_grace_period_positive(self):
@@ -189,26 +202,31 @@ class TestNoTrailingGateRunnerAtGracePeriodZero:
         config = PipelineConfig(grace_period=10)
         steps = [_make_step("s1", with_gate=False)]
 
-        with patch(
-            "superclaude.cli.pipeline.executor.TrailingGateRunner",
-            wraps=TrailingGateRunner,
-        ) as mock_cls, patch(
-            "superclaude.cli.pipeline.executor.gate_passed",
-            return_value=(True, None),
+        with (
+            patch(
+                "superclaude.cli.pipeline.executor.TrailingGateRunner",
+                wraps=TrailingGateRunner,
+            ) as mock_cls,
+            patch(
+                "superclaude.cli.pipeline.executor.gate_passed",
+                return_value=(True, None),
+            ),
         ):
             execute_pipeline(
                 steps=steps,
                 config=config,
                 run_step=_passing_runner,
             )
-            mock_cls.assert_called_once(), (
-                "TrailingGateRunner should be instantiated when grace_period > 0"
+            (
+                mock_cls.assert_called_once(),
+                ("TrailingGateRunner should be instantiated when grace_period > 0"),
             )
 
 
 # ---------------------------------------------------------------------------
 # 5. Executor takes the BLOCKING path when grace_period=0
 # ---------------------------------------------------------------------------
+
 
 class TestExecutorBlockingPathAtGracePeriodZero:
     """Verify the executor evaluates gates synchronously (calls gate_passed
@@ -233,8 +251,9 @@ class TestExecutorBlockingPathAtGracePeriodZero:
                 config=config,
                 run_step=_passing_runner,
             )
-            mock_gate.assert_called_once(), (
-                "gate_passed should be called synchronously at grace_period=0"
+            (
+                mock_gate.assert_called_once(),
+                ("gate_passed should be called synchronously at grace_period=0"),
             )
 
         assert results[0].status == StepStatus.PASS
@@ -250,12 +269,16 @@ class TestExecutorBlockingPathAtGracePeriodZero:
 
         submit_calls = []
 
-        with patch(
-            "superclaude.cli.pipeline.executor.gate_passed",
-            return_value=(True, None),
-        ), patch.object(
-            TrailingGateRunner, "submit",
-            side_effect=lambda s, **kw: submit_calls.append(s),
+        with (
+            patch(
+                "superclaude.cli.pipeline.executor.gate_passed",
+                return_value=(True, None),
+            ),
+            patch.object(
+                TrailingGateRunner,
+                "submit",
+                side_effect=lambda s, **kw: submit_calls.append(s),
+            ),
         ):
             execute_pipeline(
                 steps=[step],
@@ -295,6 +318,7 @@ class TestExecutorBlockingPathAtGracePeriodZero:
 # 6. Full integration: multi-step pipeline at grace_period=0
 # ---------------------------------------------------------------------------
 
+
 class TestFullPipelineBackwardCompat:
     """End-to-end: run a multi-step pipeline at grace_period=0 and verify
     all steps execute synchronously with blocking gates, no trailing
@@ -319,12 +343,15 @@ class TestFullPipelineBackwardCompat:
             execution_order.append(step.id)
             return _passing_runner(step, cfg, cancel_check)
 
-        with patch(
-            "superclaude.cli.pipeline.executor.TrailingGateRunner",
-            wraps=TrailingGateRunner,
-        ) as mock_cls, patch(
-            "superclaude.cli.pipeline.executor.gate_passed",
-            return_value=(True, None),
+        with (
+            patch(
+                "superclaude.cli.pipeline.executor.TrailingGateRunner",
+                wraps=TrailingGateRunner,
+            ) as mock_cls,
+            patch(
+                "superclaude.cli.pipeline.executor.gate_passed",
+                return_value=(True, None),
+            ),
         ):
             results = execute_pipeline(
                 steps=steps,

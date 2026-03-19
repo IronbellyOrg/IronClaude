@@ -1,0 +1,19 @@
+{
+  "eval_id": 2,
+  "eval_name": "nosplit-bugfix-hardening",
+  "prompt": "hey, my tech lead wants me to check if we should split this sprint executor bugfix release into two parts. honestly I don't think so — it's only 3 related bugs in 2 files and they share root cause — but she insists we run the analysis. here's the spec: evals/files/spec-nosplit-bugfix.md. just run /sc:release-split on it with defaults please",
+  "assertions": [
+    "Final verdict is NO SPLIT (not SPLIT or SPLIT-WITH-MODIFICATIONS)",
+    "split-proposal.md exists and articulates why splitting is NOT recommended",
+    "The no-split rationale mentions shared root cause, small scope, or interdependency as reasons",
+    "split-proposal-final.md exists with adversarial review that converges on NO SPLIT",
+    "release-spec-validated.md exists (NOT release-1-spec.md or release-2-spec.md)",
+    "release-spec-validated.md contains YAML frontmatter with split-analysis: no-split-recommended",
+    "release-spec-validated.md contains Why This Release Stays Intact section",
+    "fidelity-audit.md exists and maps all 4 original requirements (R1-R4)",
+    "fidelity-audit.md shows fidelity score of 1.0 or >= 0.95",
+    "release-split-report.md exists with NO SPLIT verdict",
+    "The analysis does NOT manufacture artificial split points just to justify splitting",
+    "Alternatives to splitting are mentioned (e.g., phased rollout, feature flags, incremental testing)"
+  ]
+}

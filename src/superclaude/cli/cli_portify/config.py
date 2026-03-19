@@ -87,7 +87,9 @@ def load_portify_config(
     resolved_commands = Path(commands_dir).resolve() if commands_dir else None
     resolved_skills = Path(skills_dir).resolve() if skills_dir else None
     resolved_agents = Path(agents_dir).resolve() if agents_dir else None
-    resolved_manifest = Path(save_manifest_path).resolve() if save_manifest_path else None
+    resolved_manifest = (
+        Path(save_manifest_path).resolve() if save_manifest_path else None
+    )
     resolved_output = Path(output_dir).resolve() if output_dir else None
 
     # Handle include_agents
@@ -144,9 +146,7 @@ def validate_portify_config(config: PortifyConfig) -> list[str]:
         return errors
 
     if not resolved.exists():
-        errors.append(
-            f"Workflow path does not exist: {resolved}"
-        )
+        errors.append(f"Workflow path does not exist: {resolved}")
         return errors  # No point continuing if path missing
 
     # --- 2. SKILL.md check ---
@@ -224,7 +224,8 @@ def resolve_workflow_path(
     if skills_root and skills_root.exists():
         name = Path(name_or_path).name
         candidates = [
-            d for d in skills_root.iterdir()
+            d
+            for d in skills_root.iterdir()
             if d.is_dir() and name.lower() in d.name.lower()
         ]
         if len(candidates) == 1:
@@ -234,6 +235,7 @@ def resolve_workflow_path(
             return candidate
         elif len(candidates) > 1:
             from .models import AmbiguousPathError
+
             raise AmbiguousPathError(str(name), [str(c) for c in candidates])
         # No match under skills_root → fall through to not-found
 
@@ -326,6 +328,7 @@ def _find_cli_root(config: PortifyConfig) -> Optional[Path]:
     # Fallback: look relative to the package
     import superclaude.cli
     import importlib
+
     try:
         spec = importlib.util.find_spec("superclaude.cli")
         if spec and spec.submodule_search_locations:

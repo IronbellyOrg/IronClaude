@@ -126,7 +126,12 @@ class TestValidateConfigConstruction:
         ):
             result = cli_runner.invoke(
                 roadmap_group,
-                ["validate", str(pipeline_output_dir), "--agents", "sonnet:security,haiku:qa"],
+                [
+                    "validate",
+                    str(pipeline_output_dir),
+                    "--agents",
+                    "sonnet:security,haiku:qa",
+                ],
             )
 
         assert result.exit_code == 0
@@ -190,7 +195,9 @@ class TestAutoInvocation:
 
         with (
             patch("superclaude.cli.roadmap.executor.execute_pipeline", return_value=[]),
-            patch("superclaude.cli.roadmap.executor._auto_invoke_validate") as mock_validate,
+            patch(
+                "superclaude.cli.roadmap.executor._auto_invoke_validate"
+            ) as mock_validate,
         ):
             execute_roadmap(config)
 
@@ -211,7 +218,9 @@ class TestAutoInvocation:
 
         with (
             patch("superclaude.cli.roadmap.executor.execute_pipeline", return_value=[]),
-            patch("superclaude.cli.roadmap.executor._auto_invoke_validate") as mock_validate,
+            patch(
+                "superclaude.cli.roadmap.executor._auto_invoke_validate"
+            ) as mock_validate,
         ):
             execute_roadmap(config, no_validate=True)
 
@@ -307,7 +316,10 @@ class TestResumeSkipsValidation:
             {
                 "schema_version": 1,
                 "spec_hash": "",
-                "validation": {"status": "pass", "timestamp": "2026-01-01T00:00:00+00:00"},
+                "validation": {
+                    "status": "pass",
+                    "timestamp": "2026-01-01T00:00:00+00:00",
+                },
             },
             output / ".roadmap-state.json",
         )
@@ -320,7 +332,9 @@ class TestResumeSkipsValidation:
 
         with (
             patch("superclaude.cli.roadmap.executor.execute_pipeline", return_value=[]),
-            patch("superclaude.cli.roadmap.executor._auto_invoke_validate") as mock_validate,
+            patch(
+                "superclaude.cli.roadmap.executor._auto_invoke_validate"
+            ) as mock_validate,
             patch("superclaude.cli.roadmap.executor._apply_resume", return_value=[]),
         ):
             execute_roadmap(config, resume=True)
@@ -349,7 +363,9 @@ class TestResumeSkipsValidation:
 
         with (
             patch("superclaude.cli.roadmap.executor.execute_pipeline", return_value=[]),
-            patch("superclaude.cli.roadmap.executor._auto_invoke_validate") as mock_validate,
+            patch(
+                "superclaude.cli.roadmap.executor._auto_invoke_validate"
+            ) as mock_validate,
             patch("superclaude.cli.roadmap.executor._apply_resume", return_value=[]),
         ):
             execute_roadmap(config, resume=True)

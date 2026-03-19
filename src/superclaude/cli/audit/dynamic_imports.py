@@ -89,12 +89,14 @@ def scan_for_dynamic_imports(
     for line_num, line in enumerate(content.splitlines(), start=1):
         for pattern_name, pattern in _DYNAMIC_PATTERNS:
             if pattern.search(line):
-                detections.append(DynamicImportDetection(
-                    file_path=file_path,
-                    pattern_name=pattern_name,
-                    line_number=line_num,
-                    line_content=line.strip(),
-                ))
+                detections.append(
+                    DynamicImportDetection(
+                        file_path=file_path,
+                        pattern_name=pattern_name,
+                        line_number=line_num,
+                        line_content=line.strip(),
+                    )
+                )
                 break  # one detection per line
     return detections
 
@@ -144,9 +146,8 @@ def apply_keep_monitor(
                 action=V2Action.KEEP,
                 v1_category=V1Category.KEEP,
                 confidence=0.75,
-                evidence=classification.evidence + [
-                    "dynamic import detected: KEEP:monitor policy applied"
-                ],
+                evidence=classification.evidence
+                + ["dynamic import detected: KEEP:monitor policy applied"],
                 qualifiers=classification.qualifiers + ["monitor", "dynamic_import"],
             )
     return classification

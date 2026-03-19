@@ -81,7 +81,13 @@ class BudgetConfig:
         errors = []
         if self.total_budget <= 0:
             errors.append("total_budget must be positive")
-        if not (0 < self.warn_threshold < self.degrade_threshold < self.halt_threshold <= 1.0):
+        if not (
+            0
+            < self.warn_threshold
+            < self.degrade_threshold
+            < self.halt_threshold
+            <= 1.0
+        ):
             errors.append("thresholds must be ordered: warn < degrade < halt <= 1.0")
         return errors
 
@@ -136,7 +142,9 @@ class BudgetStatus:
                 }
                 for k, v in self.phases.items()
             },
-            "active_degradation_levels": [l.value for l in self.active_degradation_levels],
+            "active_degradation_levels": [
+                l.value for l in self.active_degradation_levels
+            ],
             "degradation_log": [
                 {
                     "level": e.level.value,
@@ -220,12 +228,8 @@ class BudgetAccountant:
             utilization=self.utilization,
             enforcement=self._evaluate_enforcement(),
             phases=dict(self._phases),
-            active_degradation_levels=(
-                handler.active_levels if handler else []
-            ),
-            degradation_log=(
-                handler.log if handler else []
-            ),
+            active_degradation_levels=(handler.active_levels if handler else []),
+            degradation_log=(handler.log if handler else []),
         )
 
 
@@ -309,11 +313,13 @@ class DegradationHandler:
 
         level = self._effective_order[self._next_index]
         self._active.append(level)
-        self._log.append(DegradationEvent(
-            level=level,
-            triggered_at_utilization=utilization,
-            capability_skipped=CAPABILITY_NAMES[level],
-        ))
+        self._log.append(
+            DegradationEvent(
+                level=level,
+                triggered_at_utilization=utilization,
+                capability_skipped=CAPABILITY_NAMES[level],
+            )
+        )
         self._next_index += 1
         return level
 
@@ -329,11 +335,13 @@ class DegradationHandler:
                     break
                 continue
             self._active.append(level)
-            self._log.append(DegradationEvent(
-                level=level,
-                triggered_at_utilization=0.0,
-                capability_skipped=CAPABILITY_NAMES[level],
-            ))
+            self._log.append(
+                DegradationEvent(
+                    level=level,
+                    triggered_at_utilization=0.0,
+                    capability_skipped=CAPABILITY_NAMES[level],
+                )
+            )
             activated.append(level)
             if level == target_level:
                 break
@@ -368,6 +376,12 @@ class DegradationHandler:
         if self.is_active(DegradationLevel.L4_REDUCE_PROFILE):
             return ["imports", "exports", "size", "complexity"]
         return [
-            "imports", "exports", "size", "complexity",
-            "age", "churn", "coupling", "test_coverage",
+            "imports",
+            "exports",
+            "size",
+            "complexity",
+            "age",
+            "churn",
+            "coupling",
+            "test_coverage",
         ]

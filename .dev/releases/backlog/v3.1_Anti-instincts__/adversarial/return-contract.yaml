@@ -1,0 +1,10 @@
+merged_output_path: ".dev/releases/backlog/Anti-instincts/adversarial/anti-instincts-gate-unified.md"
+convergence_score: 0.85
+artifacts_dir: ".dev/releases/backlog/Anti-instincts/adversarial/"
+status: "success"
+base_variant: "V2+V5 co-bases"
+unresolved_conflicts: 1  # V4 advocate dissent on negative-space prompting deferral
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

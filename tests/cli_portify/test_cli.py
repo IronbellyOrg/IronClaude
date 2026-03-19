@@ -46,11 +46,16 @@ class TestTargetArgument:
         assert "WORKFLOW_PATH" not in result.output
 
     def test_skill_dir_invocation_works(self, runner, skill_dir, tmp_path):
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
         assert "dry-run" in result.output
 
@@ -81,34 +86,52 @@ class TestNewCliOptions:
     def test_commands_dir_accepted(self, runner, skill_dir, tmp_path):
         cmds = tmp_path / "commands"
         cmds.mkdir()
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--commands-dir", str(cmds),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--commands-dir",
+                str(cmds),
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
 
     def test_skills_dir_accepted(self, runner, skill_dir, tmp_path):
         skills = tmp_path / "skills"
         skills.mkdir()
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--skills-dir", str(skills),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--skills-dir",
+                str(skills),
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
 
     def test_agents_dir_accepted(self, runner, skill_dir, tmp_path):
         agents = tmp_path / "agents"
         agents.mkdir()
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--agents-dir", str(agents),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--agents-dir",
+                str(agents),
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
 
 
@@ -116,23 +139,36 @@ class TestIncludeAgentFiltering:
     """--include-agent filters empty strings and accepts multiple values."""
 
     def test_multiple_include_agent(self, runner, skill_dir, tmp_path):
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--include-agent", "audit-scanner",
-            "--include-agent", "quality-engineer",
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--include-agent",
+                "audit-scanner",
+                "--include-agent",
+                "quality-engineer",
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
 
     def test_empty_string_filtered(self, runner, skill_dir, tmp_path):
         """Empty --include-agent values are filtered out."""
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--include-agent", "",
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--include-agent",
+                "",
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
 
 
@@ -140,22 +176,33 @@ class TestLegacyBackwardCompat:
     """Existing skill-directory invocations work identically."""
 
     def test_legacy_dir_invocation(self, runner, skill_dir, tmp_path):
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
         assert "dry-run" in result.output
         assert "sc-test-protocol" in result.output or "test" in result.output.lower()
 
     def test_legacy_with_cli_name(self, runner, skill_dir, tmp_path):
-        result = runner.invoke(cli_portify_group, [
-            "run", str(skill_dir),
-            "--output", str(tmp_path / "output"),
-            "--cli-name", "custom-name",
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli_portify_group,
+            [
+                "run",
+                str(skill_dir),
+                "--output",
+                str(tmp_path / "output"),
+                "--cli-name",
+                "custom-name",
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
         assert "custom-name" in result.output
 
@@ -342,7 +389,9 @@ class TestMissingAgentsIntegration:
     """SC-8: Missing agents warn, don't fail (integration test)."""
 
     def test_missing_agent_warns_not_fails_in_pipeline(self, tmp_path):
-        from superclaude.cli.cli_portify.steps.validate_config import run_validate_config
+        from superclaude.cli.cli_portify.steps.validate_config import (
+            run_validate_config,
+        )
         from superclaude.cli.cli_portify.models import (
             AgentEntry,
             ComponentTree,

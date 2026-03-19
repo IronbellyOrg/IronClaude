@@ -79,7 +79,7 @@ class TestLRUEviction:
         entries = [
             _make_entry(
                 issue_id=f"KI-{i:03d}",
-                last_matched=f"2026-03-{i+1:02d}T00:00:00+00:00",
+                last_matched=f"2026-03-{i + 1:02d}T00:00:00+00:00",
             )
             for i in range(10)
         ]

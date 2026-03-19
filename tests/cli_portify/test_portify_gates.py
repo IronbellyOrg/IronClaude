@@ -151,7 +151,8 @@ class TestDesignPipelineGate:
         assert passed is True
 
     def test_fails_on_missing_frontmatter_fields(self, tmp_path):
-        content = """\
+        content = (
+            """\
 ---
 step: design-pipeline
 ---
@@ -159,7 +160,9 @@ step: design-pipeline
 ## Pipeline Overview
 
 Some content here.
-""" + "\n" * 30
+"""
+            + "\n" * 30
+        )
         artifact = _write_artifact(tmp_path / "design.md", content)
         passed, msg = gate_design_pipeline(artifact)
         assert passed is False
@@ -179,7 +182,8 @@ class TestSynthesizeSpecGate:
         assert passed is True
 
     def test_fails_on_placeholder_sentinels(self, tmp_path):
-        content = """\
+        content = (
+            """\
 ---
 step: synthesize-spec
 source_skill: test
@@ -191,7 +195,9 @@ placeholder_count: 1
 ## Spec
 
 Content with {{SC_PLACEHOLDER:missing_section}} sentinel.
-""" + "\n" * 10
+"""
+            + "\n" * 10
+        )
         artifact = _write_artifact(tmp_path / "synth.md", content)
         passed, msg = gate_synthesize_spec(artifact)
         assert passed is False
@@ -205,9 +211,7 @@ class TestBrainstormGapsGate:
     """STANDARD gate for SC-006."""
 
     def test_passes_on_good_fixture(self, tmp_path):
-        artifact = _write_artifact(
-            tmp_path / "gaps.md", get_fixture("brainstorm-gaps")
-        )
+        artifact = _write_artifact(tmp_path / "gaps.md", get_fixture("brainstorm-gaps"))
         passed, msg = gate_brainstorm_gaps(artifact)
         assert passed is True
 
@@ -225,9 +229,7 @@ class TestPanelReviewGate:
     """STRICT gate for SC-007: convergence terminal state."""
 
     def test_passes_on_converged(self, tmp_path):
-        artifact = _write_artifact(
-            tmp_path / "review.md", get_fixture("panel-review")
-        )
+        artifact = _write_artifact(tmp_path / "review.md", get_fixture("panel-review"))
         passed, msg = gate_panel_review(artifact)
         assert passed is True
 

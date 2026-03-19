@@ -101,9 +101,7 @@ def map_to_v1(tier: V2Tier, action: V2Action) -> V1Category:
     """
     key = (tier, action)
     if key not in _TIER_ACTION_TO_V1:
-        raise ValueError(
-            f"No v1 mapping for tier={tier.value}, action={action.value}"
-        )
+        raise ValueError(f"No v1 mapping for tier={tier.value}, action={action.value}")
     return _TIER_ACTION_TO_V1[key]
 
 

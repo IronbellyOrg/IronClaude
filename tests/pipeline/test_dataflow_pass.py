@@ -25,15 +25,23 @@ from superclaude.cli.pipeline.state_detector import DetectionResult, Introductio
 def _make_6_milestone_scenario():
     """Build a 6+ milestone scenario with cross-milestone variable flow."""
     deliverables = [
-        Deliverable(id="D1.1", description="Introduce offset counter for event tracking"),
+        Deliverable(
+            id="D1.1", description="Introduce offset counter for event tracking"
+        ),
         Deliverable(id="D1.2", description="Implement batch processor"),
         Deliverable(id="D2.1", description="Increment offset by step size after batch"),
         Deliverable(id="D2.2", description="Implement retry logic"),
-        Deliverable(id="D3.1", description="Read offset to determine resume position, uses offset value"),
+        Deliverable(
+            id="D3.1",
+            description="Read offset to determine resume position, uses offset value",
+        ),
         Deliverable(id="D3.2", description="Implement checkpoint system"),
         Deliverable(id="D4.1", description="Update offset with filtered events only"),
         Deliverable(id="D4.2", description="Implement monitoring"),
-        Deliverable(id="D5.1", description="Assumes offset equals all events processed for final count"),
+        Deliverable(
+            id="D5.1",
+            description="Assumes offset equals all events processed for final count",
+        ),
         Deliverable(id="D5.2", description="Implement reporting"),
         Deliverable(id="D6.1", description="Archive offset data"),
         Deliverable(id="D6.2", description="Implement cleanup"),
@@ -52,9 +60,21 @@ def _make_6_milestone_scenario():
         MutationInventoryResult(
             variable_name="offset",
             mutation_sites=[
-                MutationSite(deliverable_id="D1.1", expression="introduced as offset", context="birth site"),
-                MutationSite(deliverable_id="D2.1", expression="increment offset", context="advance by step"),
-                MutationSite(deliverable_id="D4.1", expression="update offset", context="filtered events"),
+                MutationSite(
+                    deliverable_id="D1.1",
+                    expression="introduced as offset",
+                    context="birth site",
+                ),
+                MutationSite(
+                    deliverable_id="D2.1",
+                    expression="increment offset",
+                    context="advance by step",
+                ),
+                MutationSite(
+                    deliverable_id="D4.1",
+                    expression="update offset",
+                    context="filtered events",
+                ),
             ],
             ambiguous_sites=[],
         ),
@@ -83,7 +103,9 @@ def _make_3_milestone_scenario():
         MutationInventoryResult(
             variable_name="counter",
             mutation_sites=[
-                MutationSite(deliverable_id="D1.1", expression="birth", context="birth site"),
+                MutationSite(
+                    deliverable_id="D1.1", expression="birth", context="birth site"
+                ),
             ],
             ambiguous_sites=[],
         ),

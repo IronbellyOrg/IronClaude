@@ -1,0 +1,82 @@
+[
+  {
+    "query": "ok so we've got this v3.2 release spec at .dev/releases/backlog/v3.2-auth-unification/release-spec.md and it's gotten massive — unified identity model, permission engine, token service, migration framework, admin dashboard, SDK updates. my eng lead is worried we're biting off too much. can you analyze whether we should break it into two releases? I want the full adversarial analysis not just a gut check",
+    "should_trigger": true
+  },
+  {
+    "query": "run /sc:release-split on docs/specs/plugin-system-v5.md --depth standard",
+    "should_trigger": true
+  },
+  {
+    "query": "I wrote a release spec for our observability system and I'm not sure if we should ship telemetry and alerting together or split them. The alerting needs historical data from the telemetry to work properly so there might be a natural seam there. Can you do a proper split analysis with fidelity verification?",
+    "should_trigger": true
+  },
+  {
+    "query": "we just finished the v2.28 release spec (sprint executor timeout fixes) and the PM wants a formal analysis showing we considered splitting it but decided against it. even though it's tiny — 3 bugs in 2 files. can you run the release split protocol and produce the artifacts showing no-split is the right call?",
+    "should_trigger": true
+  },
+  {
+    "query": "I have two release specs — release-1-spec.md and release-2-spec.md — that were split from a parent spec last week. Before we start the roadmap I want to verify that nothing got lost in the split. Can you do a fidelity check between the original and the two split specs?",
+    "should_trigger": true
+  },
+  {
+    "query": "this release has like 15 requirements across backend infra, a new web dashboard, and mobile SDK updates. feels like it should be 2 releases but idk where to draw the line. the backend stuff has to land first because the dashboard and SDK depend on the API changes. help me figure out where the natural seam is",
+    "should_trigger": true
+  },
+  {
+    "query": "we're planning a big refactor that touches the CLI pipeline, the sprint executor, and the roadmap generator. my worry is that shipping it all at once means if something breaks we won't know which change caused it. should we split this into a foundation release and an integration release? the spec is at .dev/releases/backlog/v4.0-pipeline-refactor/spec.md",
+    "should_trigger": true
+  },
+  {
+    "query": "I need to evaluate whether our v6 release scope is too ambitious. It combines a new plugin marketplace with enterprise SSO and an analytics dashboard. each piece could arguably ship independently. run the split analysis with adversarial validation — I want to see the advocate and skeptic positions before deciding",
+    "should_trigger": true
+  },
+  {
+    "query": "/sc:release-split .dev/releases/backlog/v3.1-audit-gates/unified-audit-gating-v1.2.1-release-spec.md --resume-from .dev/releases/backlog/v3.1-audit-gates/split-proposal-final.md --depth deep",
+    "should_trigger": true
+  },
+  {
+    "query": "can you check if splitting our migration release would let us deliver the schema changes first, validate them in production, and then ship the data migration in a second release based on what we learn?",
+    "should_trigger": true
+  },
+  {
+    "query": "I need to generate a roadmap from this release spec. it's at .dev/releases/backlog/v3.2/release-spec.md and I want milestones with dependencies and a timeline. use /sc:roadmap",
+    "should_trigger": false
+  },
+  {
+    "query": "can you review this PR? it touches the auth middleware and I want to make sure it doesn't break the existing permission checks. PR #247 on the main repo",
+    "should_trigger": false
+  },
+  {
+    "query": "I need to break this large task into smaller subtasks for the sprint. the feature is 'add webhook support to the notification system' and it has about 8 components. can you decompose it into a tasklist?",
+    "should_trigger": false
+  },
+  {
+    "query": "we need to do a cleanup audit of the repo — there's a bunch of dead code in src/superclaude/cli/ and some unused test fixtures. can you scan and recommend what to remove?",
+    "should_trigger": false
+  },
+  {
+    "query": "run the adversarial debate on these two architecture proposals — proposal-a.md uses microservices and proposal-b.md uses a monolith. I want a structured comparison with scoring",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm trying to decide between React and Svelte for our dashboard frontend. can you do a structured comparison? we care most about bundle size and developer experience for a team that's mostly backend engineers",
+    "should_trigger": false
+  },
+  {
+    "query": "the sprint executor is failing with a TimeoutError on phase 3. can you look at the logs in .dev/sprint-logs/latest/ and figure out what's going wrong? I think it's related to the max_turns setting",
+    "should_trigger": false
+  },
+  {
+    "query": "I want to split this Python function into two smaller functions for readability. it's the _poll_subprocess method in src/superclaude/cli/sprint/executor.py — it's doing too much (timeout handling AND retry logic AND status classification)",
+    "should_trigger": false
+  },
+  {
+    "query": "can you design the API for our new plugin registry? I need endpoints for publish, search, download, and version listing. REST with JSON responses. write a design spec",
+    "should_trigger": false
+  },
+  {
+    "query": "our release process is too slow — it takes 3 weeks from spec to ship. can you analyze our workflow and suggest ways to speed it up? maybe we should parallelize some of the review steps or automate the gating",
+    "should_trigger": false
+  }
+]

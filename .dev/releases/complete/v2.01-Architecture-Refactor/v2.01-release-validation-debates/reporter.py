@@ -8,9 +8,7 @@ import statistics
 from collections import defaultdict
 
 
-def generate_report(
-    all_results: list[dict], models: list[str], num_runs: int
-) -> str:
+def generate_report(all_results: list[dict], models: list[str], num_runs: int) -> str:
     """Generate the aggregate validation report."""
     lines = []
 
@@ -27,7 +25,9 @@ def generate_report(
     lines.append("=" * 70)
     lines.append(f"  Runs:          {num_runs}")
     lines.append(f"  Models:        {', '.join(models)}")
-    lines.append(f"  Data points:   {total} ({len(structural)} structural + {len(behavioral)} behavioral)")
+    lines.append(
+        f"  Data points:   {total} ({len(structural)} structural + {len(behavioral)} behavioral)"
+    )
     if errors:
         lines.append(f"  Errors:        {len(errors)}")
     lines.append("")
@@ -45,12 +45,14 @@ def generate_report(
         passed = sum(1 for s in scores if s >= 0.8)
         bar = _bar(mean)
         name = _test_name(test_id)
-        lines.append(f"  {test_id} {name:<25s} {passed}/{len(scores)}  {bar}  {mean*100:.0f}%")
+        lines.append(
+            f"  {test_id} {name:<25s} {passed}/{len(scores)}  {bar}  {mean * 100:.0f}%"
+        )
 
     structural_mean = (
         statistics.mean(r.get("score", 0) for r in structural) if structural else 0
     )
-    lines.append(f"\n  Structural aggregate: {structural_mean*100:.1f}%")
+    lines.append(f"\n  Structural aggregate: {structural_mean * 100:.1f}%")
     lines.append("")
 
     # --- Classification Results by Model ---
@@ -91,7 +93,7 @@ def generate_report(
         if classification
         else 0
     )
-    lines.append(f"\n  Classification aggregate: {classification_mean*100:.1f}%")
+    lines.append(f"\n  Classification aggregate: {classification_mean * 100:.1f}%")
     lines.append("")
 
     # --- Wiring Results by Model ---
@@ -101,9 +103,7 @@ def generate_report(
 
     wiring_by_id = defaultdict(lambda: defaultdict(list))
     for r in wiring:
-        wiring_by_id[r["test_id"]][r.get("model", "unknown")].append(
-            r.get("score", 0)
-        )
+        wiring_by_id[r["test_id"]][r.get("model", "unknown")].append(r.get("score", 0))
 
     for test_id in sorted(wiring_by_id.keys()):
         row = f"  {test_id:6s}"
@@ -121,10 +121,8 @@ def generate_report(
             row += f"  {statistics.mean(all_scores):.2f}"
         lines.append(row)
 
-    wiring_mean = (
-        statistics.mean(r.get("score", 0) for r in wiring) if wiring else 0
-    )
-    lines.append(f"\n  Wiring aggregate: {wiring_mean*100:.1f}%")
+    wiring_mean = statistics.mean(r.get("score", 0) for r in wiring) if wiring else 0
+    lines.append(f"\n  Wiring aggregate: {wiring_mean * 100:.1f}%")
     lines.append("")
 
     # --- Model Comparison ---
@@ -132,9 +130,7 @@ def generate_report(
     lines.append("-" * 70)
 
     for model in models:
-        model_results = [
-            r for r in behavioral if r.get("model") == model
-        ]
+        model_results = [r for r in behavioral if r.get("model") == model]
         if not model_results:
             lines.append(f"  {model:>8s}:  No results")
             continue
@@ -145,8 +141,8 @@ def generate_report(
         mn = min(scores)
         mx = max(scores)
         lines.append(
-            f"  {model:>8s}:  Mean {m*100:.1f}%  Std {s*100:.1f}%  "
-            f"Min {mn*100:.0f}%  Max {mx*100:.0f}%"
+            f"  {model:>8s}:  Mean {m * 100:.1f}%  Std {s * 100:.1f}%  "
+            f"Min {mn * 100:.0f}%  Max {mx * 100:.0f}%"
         )
 
     behavioral_mean = (
@@ -164,14 +160,20 @@ def generate_report(
             continue
         run_score = statistics.mean(r.get("score", 0) for r in run_results)
         run_struct = [r for r in run_results if r.get("test_type") == "structural"]
-        run_behav = [r for r in run_results if r.get("test_type") in ("classification", "wiring")]
+        run_behav = [
+            r for r in run_results if r.get("test_type") in ("classification", "wiring")
+        ]
 
-        struct_score = statistics.mean(r.get("score", 0) for r in run_struct) if run_struct else 0
-        behav_score = statistics.mean(r.get("score", 0) for r in run_behav) if run_behav else 0
+        struct_score = (
+            statistics.mean(r.get("score", 0) for r in run_struct) if run_struct else 0
+        )
+        behav_score = (
+            statistics.mean(r.get("score", 0) for r in run_behav) if run_behav else 0
+        )
 
         lines.append(
-            f"  Run {run}: {run_score*100:.1f}% overall  "
-            f"(structural: {struct_score*100:.0f}%, behavioral: {behav_score*100:.1f}%)"
+            f"  Run {run}: {run_score * 100:.1f}% overall  "
+            f"(structural: {struct_score * 100:.0f}%, behavioral: {behav_score * 100:.1f}%)"
         )
 
     lines.append("")
@@ -180,7 +182,9 @@ def generate_report(
     lines.append("AGGREGATE VERDICT")
     lines.append("=" * 70)
 
-    overall_mean = statistics.mean(r.get("score", 0) for r in all_results) if all_results else 0
+    overall_mean = (
+        statistics.mean(r.get("score", 0) for r in all_results) if all_results else 0
+    )
 
     # Model-specific behavioral scores
     model_behavioral_means = {}
@@ -192,7 +196,11 @@ def generate_report(
             statistics.mean(model_scores) if model_scores else 0
         )
 
-    best_model = max(model_behavioral_means, key=model_behavioral_means.get) if model_behavioral_means else "N/A"
+    best_model = (
+        max(model_behavioral_means, key=model_behavioral_means.get)
+        if model_behavioral_means
+        else "N/A"
+    )
     best_model_score = model_behavioral_means.get(best_model, 0)
 
     # Cross-model std
@@ -210,18 +218,23 @@ def generate_report(
             test_minimums[tid] = score
     worst_test_min = min(test_minimums.values()) if test_minimums else 0
 
-    lines.append(f"  Overall mean:         {overall_mean*100:.1f}%")
-    lines.append(f"  Structural:           {structural_mean*100:.1f}%")
-    lines.append(f"  Behavioral mean:      {behavioral_mean*100:.1f}%")
-    lines.append(f"  Best model:           {best_model} ({best_model_score*100:.1f}%)")
-    lines.append(f"  Cross-model std:      {cross_model_std*100:.1f}%")
-    lines.append(f"  Worst per-test min:   {worst_test_min*100:.0f}%")
+    lines.append(f"  Overall mean:         {overall_mean * 100:.1f}%")
+    lines.append(f"  Structural:           {structural_mean * 100:.1f}%")
+    lines.append(f"  Behavioral mean:      {behavioral_mean * 100:.1f}%")
+    lines.append(
+        f"  Best model:           {best_model} ({best_model_score * 100:.1f}%)"
+    )
+    lines.append(f"  Cross-model std:      {cross_model_std * 100:.1f}%")
+    lines.append(f"  Worst per-test min:   {worst_test_min * 100:.0f}%")
     lines.append("")
 
     # Threshold checks
     thresholds = [
         ("Structural = 100%", structural_mean >= 1.0),
-        ("Behavioral (any model) >= 80%", any(v >= 0.80 for v in model_behavioral_means.values())),
+        (
+            "Behavioral (any model) >= 80%",
+            any(v >= 0.80 for v in model_behavioral_means.values()),
+        ),
         ("Behavioral (best model) >= 90%", best_model_score >= 0.90),
         ("Cross-model std <= 15%", cross_model_std <= 0.15),
         ("Per-test minimum >= 50%", worst_test_min >= 0.50),

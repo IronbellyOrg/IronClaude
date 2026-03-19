@@ -13,15 +13,21 @@ from superclaude.cli.audit.tool_orchestrator import FileAnalysis
 
 def _analysis(path, imports=None, exports=None):
     return FileAnalysis(
-        file_path=path, content_hash="h",
-        imports=imports or [], exports=exports or [],
+        file_path=path,
+        content_hash="h",
+        imports=imports or [],
+        exports=exports or [],
     )
 
 
 class TestComputeSimilarity:
     def test_identical_files(self):
-        a = _analysis("a.py", imports=["import os", "import sys"], exports=["__all__ = ['x']"])
-        b = _analysis("b.py", imports=["import os", "import sys"], exports=["__all__ = ['x']"])
+        a = _analysis(
+            "a.py", imports=["import os", "import sys"], exports=["__all__ = ['x']"]
+        )
+        b = _analysis(
+            "b.py", imports=["import os", "import sys"], exports=["__all__ = ['x']"]
+        )
         sim, shared_imp, shared_exp = compute_similarity(a, b)
         assert sim == 1.0
 
@@ -47,12 +53,16 @@ class TestComputeSimilarity:
 class TestBuildDuplicationMatrix:
     def test_known_duplicates(self):
         analyses = {
-            "a.py": _analysis("a.py",
+            "a.py": _analysis(
+                "a.py",
                 imports=["import os", "import sys", "import json"],
-                exports=["__all__ = ['x']"]),
-            "b.py": _analysis("b.py",
+                exports=["__all__ = ['x']"],
+            ),
+            "b.py": _analysis(
+                "b.py",
                 imports=["import os", "import sys", "import json"],
-                exports=["__all__ = ['x']"]),
+                exports=["__all__ = ['x']"],
+            ),
         }
         matrix = build_duplication_matrix(analyses)
         assert len(matrix.pairs) == 1
@@ -62,10 +72,26 @@ class TestBuildDuplicationMatrix:
     def test_investigate_threshold(self):
         # 4 shared out of 5 unique = Jaccard 0.8 -> consolidate
         analyses = {
-            "a.py": _analysis("a.py",
-                imports=["import os", "import sys", "import json", "import re", "import io"]),
-            "b.py": _analysis("b.py",
-                imports=["import os", "import sys", "import json", "import re", "import pathlib"]),
+            "a.py": _analysis(
+                "a.py",
+                imports=[
+                    "import os",
+                    "import sys",
+                    "import json",
+                    "import re",
+                    "import io",
+                ],
+            ),
+            "b.py": _analysis(
+                "b.py",
+                imports=[
+                    "import os",
+                    "import sys",
+                    "import json",
+                    "import re",
+                    "import pathlib",
+                ],
+            ),
         }
         matrix = build_duplication_matrix(analyses, threshold=0.50)
         if matrix.pairs:
@@ -83,12 +109,12 @@ class TestBuildDuplicationMatrix:
 
     def test_matrix_includes_shared_imports(self):
         analyses = {
-            "a.py": _analysis("a.py",
-                imports=["import os", "import sys"],
-                exports=["__all__ = ['x']"]),
-            "b.py": _analysis("b.py",
-                imports=["import os", "import sys"],
-                exports=["__all__ = ['x']"]),
+            "a.py": _analysis(
+                "a.py", imports=["import os", "import sys"], exports=["__all__ = ['x']"]
+            ),
+            "b.py": _analysis(
+                "b.py", imports=["import os", "import sys"], exports=["__all__ = ['x']"]
+            ),
         }
         matrix = build_duplication_matrix(analyses)
         p = matrix.pairs[0]

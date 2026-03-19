@@ -24,7 +24,6 @@ from superclaude.cli.cli_portify.convergence import (
 
 
 class TestConvergencePath:
-
     def test_zero_criticals_converges(self):
         """Zero unaddressed CRITICALs should produce CONVERGED state."""
         engine = ConvergenceEngine(max_iterations=3)
@@ -32,7 +31,12 @@ class TestConvergencePath:
         result = IterationResult(
             iteration=1,
             unaddressed_criticals=0,
-            quality_scores={"clarity": 8.0, "completeness": 7.5, "testability": 9.0, "consistency": 8.5},
+            quality_scores={
+                "clarity": 8.0,
+                "completeness": 7.5,
+                "testability": 9.0,
+                "consistency": 8.5,
+            },
         )
         state = engine.submit(result)
 
@@ -58,7 +62,6 @@ class TestConvergencePath:
 
 
 class TestEscalationPath:
-
     def test_max_iterations_escalates(self):
         """Reaching max iterations with remaining criticals -> ESCALATED."""
         engine = ConvergenceEngine(max_iterations=2)
@@ -84,7 +87,6 @@ class TestEscalationPath:
 
 
 class TestBudgetExhaustionPath:
-
     def test_budget_exhaustion_escalates(self):
         """Budget guard should trigger ESCALATED when budget is exhausted."""
         guard = SimpleBudgetGuard(total_budget=1.5, per_iteration_cost=1.0)
@@ -115,7 +117,6 @@ class TestBudgetExhaustionPath:
 
 
 class TestUserRejection:
-
     def test_user_rejection_escalates(self):
         engine = ConvergenceEngine(max_iterations=3)
         engine.submit(IterationResult(iteration=1, unaddressed_criticals=0))
@@ -130,7 +131,6 @@ class TestUserRejection:
 
 
 class TestStateMachineInvariants:
-
     def test_cannot_submit_after_terminal(self):
         engine = ConvergenceEngine(max_iterations=3)
         engine.submit(IterationResult(iteration=1, unaddressed_criticals=0))
@@ -154,7 +154,6 @@ class TestStateMachineInvariants:
 
 
 class TestIterationResultScoring:
-
     def test_overall_score_is_mean(self):
         result = IterationResult(
             quality_scores={
@@ -172,15 +171,12 @@ class TestIterationResultScoring:
         assert result.overall_score == 0.0
 
     def test_partial_scores(self):
-        result = IterationResult(
-            quality_scores={"clarity": 8.0, "completeness": 6.0}
-        )
+        result = IterationResult(quality_scores={"clarity": 8.0, "completeness": 6.0})
         # (8 + 6 + 0 + 0) / 4 = 3.5
         assert result.overall_score == pytest.approx(3.5, abs=0.01)
 
 
 class TestSimpleBudgetGuard:
-
     def test_has_budget(self):
         g = SimpleBudgetGuard(total_budget=10.0, spent=3.0)
         assert g.has_budget(5.0)
@@ -199,7 +195,6 @@ class TestSimpleBudgetGuard:
 
 
 class TestConvergenceResult:
-
     def test_converged_result(self):
         r = ConvergenceResult(
             state=ConvergenceState.CONVERGED,

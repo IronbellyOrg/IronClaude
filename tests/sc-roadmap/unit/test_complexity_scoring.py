@@ -83,8 +83,8 @@ class TestFactorScoring:
     def test_requirement_count_scoring(self, complexity_factors):
         """Verify requirement count ranges."""
         scoring = complexity_factors["requirement_count"]["scoring"]
-        assert score_factor(3, scoring) == 0.2   # 1-5 range
-        assert score_factor(8, scoring) == 0.4   # 6-10 range
+        assert score_factor(3, scoring) == 0.2  # 1-5 range
+        assert score_factor(8, scoring) == 0.4  # 6-10 range
         assert score_factor(15, scoring) == 0.6  # 11-20 range
         assert score_factor(25, scoring) == 0.8  # 21-35 range
         assert score_factor(50, scoring) == 1.0  # 36+ range
@@ -92,10 +92,10 @@ class TestFactorScoring:
     def test_dependency_depth_scoring(self, complexity_factors):
         """Verify dependency depth ranges."""
         scoring = complexity_factors["dependency_depth"]["scoring"]
-        assert score_factor(0, scoring) == 0.1   # none
-        assert score_factor(2, scoring) == 0.3   # 1-2
-        assert score_factor(4, scoring) == 0.5   # 3-5
-        assert score_factor(7, scoring) == 0.7   # 6-10
+        assert score_factor(0, scoring) == 0.1  # none
+        assert score_factor(2, scoring) == 0.3  # 1-2
+        assert score_factor(4, scoring) == 0.5  # 3-5
+        assert score_factor(7, scoring) == 0.7  # 6-10
         assert score_factor(15, scoring) == 1.0  # 11+
 
     def test_domain_spread_scoring(self, complexity_factors):
@@ -134,11 +134,11 @@ class TestComplexityCalculation:
     def test_sample_auth_spec(self, complexity_factors):
         """Auth system with 18 reqs, 4 deps, 3 domains, high risk, large scope."""
         score = calculate_complexity(
-            req_count=18,      # 11-20 → 0.6
-            dep_depth=4,       # 3-5 → 0.5
-            domain_spread=3,   # 3 → 0.6
+            req_count=18,  # 11-20 → 0.6
+            dep_depth=4,  # 3-5 → 0.5
+            domain_spread=3,  # 3 → 0.6
             risk_severity="high_risks",  # 0.7
-            scope_size="large",          # 0.6
+            scope_size="large",  # 0.6
             factors=complexity_factors,
         )
         # 0.6*0.25 + 0.5*0.25 + 0.6*0.20 + 0.7*0.15 + 0.6*0.15
@@ -184,7 +184,11 @@ class TestComplexityCalculation:
             for dep in [0, 5, 15]:
                 for dom in [1, 3, 5]:
                     score = calculate_complexity(
-                        req, dep, dom, "medium_risks", "medium",
+                        req,
+                        dep,
+                        dom,
+                        "medium_risks",
+                        "medium",
                         complexity_factors,
                     )
                     assert 0.0 <= score <= 1.0, f"Score out of range: {score}"

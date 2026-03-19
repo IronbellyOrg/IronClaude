@@ -49,6 +49,7 @@ class DataFlowTracingOutput:
         was_skipped: True if milestone count below threshold (summary only).
         milestone_count: Number of milestones detected.
     """
+
     graph: DataFlowGraph = field(default_factory=DataFlowGraph)
     contracts: list[ImplicitContract] = field(default_factory=list)
     conflicts: list[ConflictDetection] = field(default_factory=list)
@@ -209,7 +210,11 @@ def run_dataflow_tracing_pass(
 
     # Step 5: Render section
     section = _render_dataflow_section(
-        graph, contracts, conflicts, generated, milestone_count,
+        graph,
+        contracts,
+        conflicts,
+        generated,
+        milestone_count,
     )
 
     return DataFlowTracingOutput(
@@ -273,8 +278,12 @@ def _render_dataflow_section(
     if contracts:
         lines.append("### Implicit Contracts")
         lines.append("")
-        lines.append("| Variable | Writer | Reader | Writer Semantics | Reader Assumption | Confidence |")
-        lines.append("|----------|--------|--------|-----------------|-------------------|------------|")
+        lines.append(
+            "| Variable | Writer | Reader | Writer Semantics | Reader Assumption | Confidence |"
+        )
+        lines.append(
+            "|----------|--------|--------|-----------------|-------------------|------------|"
+        )
         for c in contracts:
             lines.append(
                 f"| `{c.variable}` | {c.writer_deliverable} | {c.reader_deliverable} | "

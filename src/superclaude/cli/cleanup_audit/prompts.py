@@ -17,7 +17,9 @@ from pathlib import Path
 from .models import CleanupAuditConfig
 
 
-def build_surface_scan_prompt(config: CleanupAuditConfig, batch_files: list[str]) -> str:
+def build_surface_scan_prompt(
+    config: CleanupAuditConfig, batch_files: list[str]
+) -> str:
     """Build prompt for Pass 1: Surface scanning (file classification)."""
     file_list = "\n".join(f"- {f}" for f in batch_files)
     return (

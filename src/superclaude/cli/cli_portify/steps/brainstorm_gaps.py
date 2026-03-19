@@ -57,6 +57,7 @@ def check_brainstorm_skill_available() -> bool:
     Checks for the brainstorm skill directory in ~/.claude/skills/.
     """
     import os
+
     skills_base = Path(os.path.expanduser("~/.claude/skills"))
     brainstorm_skill = skills_base / "sc-brainstorm"
     brainstorm_protocol = skills_base / "sc-brainstorm-protocol"
@@ -90,13 +91,15 @@ def parse_findings(content: str) -> list[GapFinding]:
         if re.match(r"^[-:]+$", gap_id) or not gap_id.startswith("GAP-"):
             continue
 
-        findings.append(GapFinding(
-            gap_id=gap_id,
-            description=description,
-            severity=severity,
-            affected_section=section,
-            persona=persona,
-        ))
+        findings.append(
+            GapFinding(
+                gap_id=gap_id,
+                description=description,
+                severity=severity,
+                affected_section=section,
+                persona=persona,
+            )
+        )
     return findings
 
 
@@ -112,9 +115,11 @@ def has_section_12_content(content: str) -> bool:
     if not heading_match:
         return False
     # Must have actual content beyond the heading (at least one GAP entry or descriptive line)
-    after_heading = content[heading_match.end():]
+    after_heading = content[heading_match.end() :]
     return bool(
-        re.search(r"GAP-\d+|CRITICAL|MAJOR|MINOR|INFO|gap|risk", after_heading, re.IGNORECASE)
+        re.search(
+            r"GAP-\d+|CRITICAL|MAJOR|MINOR|INFO|gap|risk", after_heading, re.IGNORECASE
+        )
     )
 
 
@@ -125,7 +130,9 @@ def run_brainstorm_gaps(config: PortifyConfig) -> PortifyStepResult:
     Produces brainstorm-gaps.md with Section 12 content.
     """
     start = time.monotonic()
-    results_dir = config.output_dir / "results" if config.output_dir else Path("results")
+    results_dir = (
+        config.output_dir / "results" if config.output_dir else Path("results")
+    )
     results_dir.mkdir(parents=True, exist_ok=True)
 
     artifact_path = results_dir / ARTIFACT_NAME

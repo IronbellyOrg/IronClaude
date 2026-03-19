@@ -159,9 +159,7 @@ def update_spec_hash(state_path: Path, new_hash: str) -> None:
     os.replace(str(tmp), str(state_path))
 
 
-def prompt_accept_spec_change(
-    output_dir: Path, auto_accept: bool = False
-) -> int:
+def prompt_accept_spec_change(output_dir: Path, auto_accept: bool = False) -> int:
     """Interactive spec-change acceptance workflow.
 
     Returns:
@@ -173,8 +171,7 @@ def prompt_accept_spec_change(
     # FR-2.24.1.1: Locate state file
     if not state_path.exists():
         print(
-            f"No .roadmap-state.json found in {output_dir}. "
-            "Run `roadmap run` first.",
+            f"No .roadmap-state.json found in {output_dir}. Run `roadmap run` first.",
             file=sys.stderr,
         )
         return 1
@@ -231,7 +228,11 @@ def prompt_accept_spec_change(
         f"record(s) with spec_update_required: true:\n"
     )
     for rec in records:
-        sections = ", ".join(rec.affects_spec_sections) if rec.affects_spec_sections else "(none)"
+        sections = (
+            ", ".join(rec.affects_spec_sections)
+            if rec.affects_spec_sections
+            else "(none)"
+        )
         print(f"  {rec.id}  affects_spec_sections: {sections}")
         if rec.acceptance_rationale:
             print(f"           acceptance_rationale: {rec.acceptance_rationale}")

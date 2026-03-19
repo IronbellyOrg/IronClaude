@@ -91,7 +91,8 @@ def run_combined_m2_pass(
     """
     # Idempotency: filter out previously generated M2 deliverables
     source_deliverables = [
-        d for d in deliverables
+        d
+        for d in deliverables
         if d.kind not in (DeliverableKind.INVARIANT_CHECK, DeliverableKind.FMEA_TEST)
     ]
 
@@ -103,7 +104,9 @@ def run_combined_m2_pass(
 
     # --- FMEA Sub-Pass ---
     # Step 1: Enumerate input domains for computational deliverables
-    domain_map = enumerate_all_domains(source_deliverables, max_domains=max_fmea_domains)
+    domain_map = enumerate_all_domains(
+        source_deliverables, max_domains=max_fmea_domains
+    )
 
     # Step 2: Classify failure modes using dual-signal detection
     failure_modes = classify_failure_modes(
@@ -125,14 +128,15 @@ def run_combined_m2_pass(
     )
 
     # --- Combine Generated Deliverables ---
-    all_generated = (
-        list(invariant_output.generated_deliverables)
-        + list(promotion_output.promoted_deliverables)
+    all_generated = list(invariant_output.generated_deliverables) + list(
+        promotion_output.promoted_deliverables
     )
 
     # --- Render Combined Section ---
     section = _render_combined_section(
-        invariant_output, failure_modes, promotion_output,
+        invariant_output,
+        failure_modes,
+        promotion_output,
     )
 
     return CombinedM2Output(

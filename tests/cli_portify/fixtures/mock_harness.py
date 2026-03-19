@@ -305,7 +305,9 @@ def get_fixture(step_name: str) -> str:
         KeyError: If step_name is not a known step.
     """
     if step_name not in STEP_FIXTURES:
-        raise KeyError(f"No fixture for step '{step_name}'. Known: {', '.join(STEP_FIXTURES)}")
+        raise KeyError(
+            f"No fixture for step '{step_name}'. Known: {', '.join(STEP_FIXTURES)}"
+        )
     return STEP_FIXTURES[step_name]
 
 
@@ -316,7 +318,9 @@ def get_edge_case(case_name: str) -> str:
         KeyError: If case_name is not a known edge case.
     """
     if case_name not in EDGE_CASE_FIXTURES:
-        raise KeyError(f"No edge case '{case_name}'. Known: {', '.join(EDGE_CASE_FIXTURES)}")
+        raise KeyError(
+            f"No edge case '{case_name}'. Known: {', '.join(EDGE_CASE_FIXTURES)}"
+        )
     return EDGE_CASE_FIXTURES[case_name]
 
 
@@ -337,7 +341,9 @@ def mock_process_run(
     Returns:
         A callable that patches PortifyProcess.run.
     """
-    content = fixture_override if fixture_override is not None else get_fixture(step_name)
+    content = (
+        fixture_override if fixture_override is not None else get_fixture(step_name)
+    )
 
     def _mock_run(self: PortifyProcess) -> ProcessResult:
         # Write fixture content to the output file

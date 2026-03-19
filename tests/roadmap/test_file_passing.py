@@ -60,7 +60,9 @@ class TestPromptContainsEmbeddedContent:
             instance = MagicMock()
             instance._process = None
             MockProc.return_value = instance
-            MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured_prompt, instance)
+            MockProc.side_effect = lambda **kw: _capture_and_return(
+                kw, captured_prompt, instance
+            )
             instance.wait.return_value = 0
 
             result = roadmap_run_step(step, config, cancel_check=lambda: False)
@@ -91,7 +93,9 @@ class TestPathsWithSpaces:
             instance = MagicMock()
             instance._process = None
             MockProc.return_value = instance
-            MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured_prompt, instance)
+            MockProc.side_effect = lambda **kw: _capture_and_return(
+                kw, captured_prompt, instance
+            )
             instance.wait.return_value = 0
 
             result = roadmap_run_step(step, config, cancel_check=lambda: False)
@@ -124,10 +128,14 @@ class TestEmbedSizeGuardFallback:
             instance = MagicMock()
             instance._process = None
             MockProc.return_value = instance
-            MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured_prompt, instance)
+            MockProc.side_effect = lambda **kw: _capture_and_return(
+                kw, captured_prompt, instance
+            )
             instance.wait.return_value = 0
 
-            with caplog.at_level(logging.WARNING, logger="superclaude.roadmap.executor"):
+            with caplog.at_level(
+                logging.WARNING, logger="superclaude.roadmap.executor"
+            ):
                 result = roadmap_run_step(step, config, cancel_check=lambda: False)
 
         assert result.status == StepStatus.PASS
@@ -161,7 +169,9 @@ class TestComposedStringGuard:
         input_file.write_text("y" * file_size)
 
         # Prompt large enough to push the composed string over the limit.
-        remaining = _EMBED_SIZE_LIMIT - file_size  # gap before limit is hit by file alone
+        remaining = (
+            _EMBED_SIZE_LIMIT - file_size
+        )  # gap before limit is hit by file alone
         large_prompt = "P" * (remaining + 1024)  # overshoot by 1 KB
 
         step = Step(
@@ -179,10 +189,14 @@ class TestComposedStringGuard:
         with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
             instance = MagicMock()
             instance._process = None
-            MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured_prompt, instance)
+            MockProc.side_effect = lambda **kw: _capture_and_return(
+                kw, captured_prompt, instance
+            )
             instance.wait.return_value = 0
 
-            with caplog.at_level(logging.WARNING, logger="superclaude.roadmap.executor"):
+            with caplog.at_level(
+                logging.WARNING, logger="superclaude.roadmap.executor"
+            ):
                 result = roadmap_run_step(step, config, cancel_check=lambda: False)
 
         assert result.status == StepStatus.PASS
@@ -233,7 +247,9 @@ class TestExactLimitBoundary:
         with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
             instance = MagicMock()
             instance._process = None
-            MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured_prompt, instance)
+            MockProc.side_effect = lambda **kw: _capture_and_return(
+                kw, captured_prompt, instance
+            )
             instance.wait.return_value = 0
 
             result = roadmap_run_step(step, config, cancel_check=lambda: False)
@@ -243,7 +259,9 @@ class TestExactLimitBoundary:
         assert "z" * 100 in captured_prompt["value"]
         assert captured_prompt["extra_args"] == []  # No --file flags
 
-    def test_one_over_limit_triggers_warning_and_embeds_inline(self, tmp_path: Path, caplog):
+    def test_one_over_limit_triggers_warning_and_embeds_inline(
+        self, tmp_path: Path, caplog
+    ):
         """Composed string of _EMBED_SIZE_LIMIT + 1 bytes logs a warning but embeds inline.
 
         Validates the over-limit case: --file fallback is gone; content still delivered inline.
@@ -274,10 +292,14 @@ class TestExactLimitBoundary:
         with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
             instance = MagicMock()
             instance._process = None
-            MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured_prompt, instance)
+            MockProc.side_effect = lambda **kw: _capture_and_return(
+                kw, captured_prompt, instance
+            )
             instance.wait.return_value = 0
 
-            with caplog.at_level(logging.WARNING, logger="superclaude.roadmap.executor"):
+            with caplog.at_level(
+                logging.WARNING, logger="superclaude.roadmap.executor"
+            ):
                 result = roadmap_run_step(step, config, cancel_check=lambda: False)
 
         assert result.status == StepStatus.PASS

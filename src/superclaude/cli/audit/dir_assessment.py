@@ -117,7 +117,9 @@ def build_assessment_block(
     action_dist = dict(action_counter)
 
     dominant_tier = tier_counter.most_common(1)[0][0] if tier_counter else "unknown"
-    dominant_action = action_counter.most_common(1)[0][0] if action_counter else "unknown"
+    dominant_action = (
+        action_counter.most_common(1)[0][0] if action_counter else "unknown"
+    )
 
     risk_summary = _compute_risk_summary(tier_dist, action_dist, file_count)
     sample_files = [f.file_path for f in findings[:max_sample]]
@@ -159,7 +161,8 @@ def generate_assessment_blocks(
         blocks.append(build_assessment_block(directory, dir_findings))
 
     remaining = [
-        f for f in findings
+        f
+        for f in findings
         if (os.path.dirname(f.file_path) or ".") not in large_dir_set
     ]
 

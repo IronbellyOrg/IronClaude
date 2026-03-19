@@ -19,16 +19,16 @@ import pytest
 # -- Canonical return contract schema --
 
 CANONICAL_RETURN_CONTRACT_FIELDS = {
-    "status",               # success|partial|failed
-    "convergence_score",    # float 0.0-1.0
-    "merged_output_path",   # path|null
-    "fallback_mode",        # bool
-    "invocation_method",    # enum
-    "unresolved_conflicts", # list[string] or integer
-    "artifacts_dir",        # string (directory path)
-    "base_variant",         # string (model:persona)
-    "debate_rounds",        # integer
-    "variant_count",        # integer
+    "status",  # success|partial|failed
+    "convergence_score",  # float 0.0-1.0
+    "merged_output_path",  # path|null
+    "fallback_mode",  # bool
+    "invocation_method",  # enum
+    "unresolved_conflicts",  # list[string] or integer
+    "artifacts_dir",  # string (directory path)
+    "base_variant",  # string (model:persona)
+    "debate_rounds",  # integer
+    "variant_count",  # integer
 }
 
 REQUIRED_STATUS_VALUES = {"success", "partial", "failed"}
@@ -57,12 +57,14 @@ def f1_variant_generation(agent_specs):
     for i, spec in enumerate(agent_specs):
         model = spec.get("model", "unknown")
         persona = spec.get("persona", "default")
-        variants.append({
-            "id": f"variant-{i + 1}",
-            "agent": f"{model}:{persona}",
-            "content": f"Roadmap variant from {model}:{persona}",
-            "score": None,  # Populated by F2/3
-        })
+        variants.append(
+            {
+                "id": f"variant-{i + 1}",
+                "agent": f"{model}:{persona}",
+                "content": f"Roadmap variant from {model}:{persona}",
+                "score": None,  # Populated by F2/3
+            }
+        )
 
     return {"error": None, "variants": variants}
 
@@ -104,7 +106,9 @@ def f2_f3_diff_and_debate(variants, debate_rounds=2):
     }
 
 
-def f4_f5_selection_and_merge(scored_variants, convergence_score, artifacts_dir="/output/artifacts/"):
+def f4_f5_selection_and_merge(
+    scored_variants, convergence_score, artifacts_dir="/output/artifacts/"
+):
     """
     F4/5: Base selection + merge + contract output (merged stage).
 
@@ -152,7 +156,9 @@ def f4_f5_selection_and_merge(scored_variants, convergence_score, artifacts_dir=
     }
 
 
-def run_fallback_protocol(agent_specs, debate_rounds=2, artifacts_dir="/output/artifacts/"):
+def run_fallback_protocol(
+    agent_specs, debate_rounds=2, artifacts_dir="/output/artifacts/"
+):
     """
     Execute full fallback protocol: F1 → F2/3 → F4/5.
 

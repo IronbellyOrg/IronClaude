@@ -115,25 +115,29 @@ def promote_failure_modes(
 
             # Silent corruption triggers Release Gate Rule 1
             if mode.detection_difficulty == DetectionDifficulty.SILENT:
-                violations.append(ReleaseGateViolation(
-                    failure_mode=mode,
-                    reason=(
-                        f"Silent corruption detected in {mode.deliverable_id}: "
-                        f"{mode.description[:150]}"
-                    ),
-                ))
+                violations.append(
+                    ReleaseGateViolation(
+                        failure_mode=mode,
+                        reason=(
+                            f"Silent corruption detected in {mode.deliverable_id}: "
+                            f"{mode.description[:150]}"
+                        ),
+                    )
+                )
         else:
             # Below threshold: record as accepted risk
-            accepted_risks.append({
-                "deliverable_id": mode.deliverable_id,
-                "domain_description": mode.domain_description,
-                "detection_difficulty": mode.detection_difficulty.value,
-                "severity": mode.severity.value,
-                "rationale": (
-                    f"Below promotion threshold ({promotion_threshold.value}). "
-                    f"Severity: {mode.severity.value}."
-                ),
-            })
+            accepted_risks.append(
+                {
+                    "deliverable_id": mode.deliverable_id,
+                    "domain_description": mode.domain_description,
+                    "detection_difficulty": mode.detection_difficulty.value,
+                    "severity": mode.severity.value,
+                    "rationale": (
+                        f"Below promotion threshold ({promotion_threshold.value}). "
+                        f"Severity: {mode.severity.value}."
+                    ),
+                }
+            )
 
     section = _render_promotion_section(promoted, accepted_risks, violations)
 

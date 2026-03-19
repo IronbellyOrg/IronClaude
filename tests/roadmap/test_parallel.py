@@ -66,13 +66,29 @@ class TestParallelGenerateGroup:
             step.output_file.parent.mkdir(parents=True, exist_ok=True)
             step.output_file.write_text("content\n")
             return StepResult(
-                step=step, status=StepStatus.PASS, attempt=1,
-                gate_failure_reason=None, started_at=_now(), finished_at=_now(),
+                step=step,
+                status=StepStatus.PASS,
+                attempt=1,
+                gate_failure_reason=None,
+                started_at=_now(),
+                finished_at=_now(),
             )
 
         par_steps = [
-            Step(id="gen-a", prompt="p", output_file=tmp_path / "a.md", gate=gate, timeout_seconds=60),
-            Step(id="gen-b", prompt="p", output_file=tmp_path / "b.md", gate=gate, timeout_seconds=60),
+            Step(
+                id="gen-a",
+                prompt="p",
+                output_file=tmp_path / "a.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="gen-b",
+                prompt="p",
+                output_file=tmp_path / "b.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
         ]
 
         results = execute_pipeline(steps=[par_steps], config=config, run_step=runner)
@@ -94,25 +110,52 @@ class TestParallelGenerateGroup:
             if step.id == "gen-fail":
                 # Don't write output -> gate fails
                 return StepResult(
-                    step=step, status=StepStatus.PASS, attempt=1,
-                    gate_failure_reason=None, started_at=_now(), finished_at=_now(),
+                    step=step,
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    gate_failure_reason=None,
+                    started_at=_now(),
+                    finished_at=_now(),
                 )
             else:
                 time.sleep(0.2)
                 if cancel_check():
                     return StepResult(
-                        step=step, status=StepStatus.CANCELLED, attempt=1,
-                        gate_failure_reason="Cancelled", started_at=_now(), finished_at=_now(),
+                        step=step,
+                        status=StepStatus.CANCELLED,
+                        attempt=1,
+                        gate_failure_reason="Cancelled",
+                        started_at=_now(),
+                        finished_at=_now(),
                     )
-                step.output_file.write_text("---\ntitle: T\n---\ncontent\nlines\nmore\n")
+                step.output_file.write_text(
+                    "---\ntitle: T\n---\ncontent\nlines\nmore\n"
+                )
                 return StepResult(
-                    step=step, status=StepStatus.PASS, attempt=1,
-                    gate_failure_reason=None, started_at=_now(), finished_at=_now(),
+                    step=step,
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    gate_failure_reason=None,
+                    started_at=_now(),
+                    finished_at=_now(),
                 )
 
         par_steps = [
-            Step(id="gen-fail", prompt="p", output_file=tmp_path / "fail.md", gate=gate, timeout_seconds=60, retry_limit=0),
-            Step(id="gen-slow", prompt="p", output_file=tmp_path / "slow.md", gate=gate, timeout_seconds=60),
+            Step(
+                id="gen-fail",
+                prompt="p",
+                output_file=tmp_path / "fail.md",
+                gate=gate,
+                timeout_seconds=60,
+                retry_limit=0,
+            ),
+            Step(
+                id="gen-slow",
+                prompt="p",
+                output_file=tmp_path / "slow.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
         ]
 
         results = execute_pipeline(steps=[par_steps], config=config, run_step=runner)
@@ -133,17 +176,41 @@ class TestParallelGenerateGroup:
             step.output_file.parent.mkdir(parents=True, exist_ok=True)
             step.output_file.write_text("content\n")
             return StepResult(
-                step=step, status=StepStatus.PASS, attempt=1,
-                gate_failure_reason=None, started_at=_now(), finished_at=_now(),
+                step=step,
+                status=StepStatus.PASS,
+                attempt=1,
+                gate_failure_reason=None,
+                started_at=_now(),
+                finished_at=_now(),
             )
 
         par_group = [
-            Step(id="gen-a", prompt="p", output_file=tmp_path / "a.md", gate=gate, timeout_seconds=60),
-            Step(id="gen-b", prompt="p", output_file=tmp_path / "b.md", gate=gate, timeout_seconds=60),
+            Step(
+                id="gen-a",
+                prompt="p",
+                output_file=tmp_path / "a.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
+            Step(
+                id="gen-b",
+                prompt="p",
+                output_file=tmp_path / "b.md",
+                gate=gate,
+                timeout_seconds=60,
+            ),
         ]
-        seq_step = Step(id="diff", prompt="p", output_file=tmp_path / "d.md", gate=gate, timeout_seconds=60)
+        seq_step = Step(
+            id="diff",
+            prompt="p",
+            output_file=tmp_path / "d.md",
+            gate=gate,
+            timeout_seconds=60,
+        )
 
-        results = execute_pipeline(steps=[par_group, seq_step], config=config, run_step=runner)
+        results = execute_pipeline(
+            steps=[par_group, seq_step], config=config, run_step=runner
+        )
         assert len(results) == 3
         assert execution_order.index("diff") > execution_order.index("gen-a")
         assert execution_order.index("diff") > execution_order.index("gen-b")

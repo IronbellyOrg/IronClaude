@@ -921,7 +921,10 @@ class TestPreliminaryResultIntegration:
         # The executor result file is written by _write_executor_result_file AFTER
         # status determination; it overwrites the preliminary sentinel.
         # The phase status should be PASS (not PASS_NO_REPORT).
-        assert len(config.phase_results if hasattr(config, "phase_results") else []) == 0 or True
+        assert (
+            len(config.phase_results if hasattr(config, "phase_results") else []) == 0
+            or True
+        )
         # Read the sprint result from the sprint outcome via the written result file:
         # _write_executor_result_file writes EXIT_RECOMMENDATION: CONTINUE for PASS.
         result_content = result_file.read_text() if result_file.exists() else ""
@@ -969,8 +972,9 @@ class TestPreliminaryResultIntegration:
             except SystemExit:
                 pass
 
-        mock_prelim.assert_not_called(), (
-            "T-004: _write_preliminary_result must NOT be called when exit_code != 0"
+        (
+            mock_prelim.assert_not_called(),
+            ("T-004: _write_preliminary_result must NOT be called when exit_code != 0"),
         )
 
     def test_t006_stale_halt_overwritten_yields_pass(self, tmp_path):
@@ -1014,9 +1018,7 @@ class TestPreliminaryResultIntegration:
         result_content = result_file.read_text() if result_file.exists() else ""
         assert "EXIT_RECOMMENDATION: HALT" not in result_content or (
             "EXIT_RECOMMENDATION: CONTINUE" in result_content
-        ), (
-            "T-006: Stale HALT file must be overwritten; result must not remain HALT"
-        )
+        ), "T-006: Stale HALT file must be overwritten; result must not remain HALT"
         assert "EXIT_RECOMMENDATION: CONTINUE" in result_content, (
             "T-006: Result file must contain EXIT_RECOMMENDATION: CONTINUE "
             "after stale HALT is overwritten"

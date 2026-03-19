@@ -110,7 +110,9 @@ class TrailingGateRunner:
     def submit(
         self,
         step: Step,
-        gate_check: Callable[[Path, GateCriteria], tuple[bool, str | None]] = gate_passed,
+        gate_check: Callable[
+            [Path, GateCriteria], tuple[bool, str | None]
+        ] = gate_passed,
     ) -> None:
         """Spawn a daemon thread to evaluate gate criteria on step output.
 
@@ -183,7 +185,10 @@ class TrailingGateRunner:
         for t in list(self._threads):
             remaining = deadline - time.monotonic()
             if remaining <= 0:
-                _log.warning("wait_for_pending timed out with %d threads still active", self._pending_count)
+                _log.warning(
+                    "wait_for_pending timed out with %d threads still active",
+                    self._pending_count,
+                )
                 break
             t.join(timeout=remaining)
 
@@ -211,7 +216,6 @@ class TrailingGateRunner:
 # ---------------------------------------------------------------------------
 # T05.03 -- DeferredRemediationLog
 # ---------------------------------------------------------------------------
-
 
 
 # ---------------------------------------------------------------------------
@@ -287,15 +291,11 @@ def build_remediation_prompt(
     sections: list[str] = []
 
     # Header
-    sections.append(
-        f"# Remediation for step '{gate_result.step_id}'\n"
-    )
+    sections.append(f"# Remediation for step '{gate_result.step_id}'\n")
 
     # Failure reason
     reason = gate_result.failure_reason or "Unknown gate failure"
-    sections.append(
-        f"## Gate Failure\n{reason}\n"
-    )
+    sections.append(f"## Gate Failure\n{reason}\n")
 
     # Original acceptance criteria
     if original_step.gate is not None:
@@ -308,16 +308,12 @@ def build_remediation_prompt(
         if gate.semantic_checks:
             for check in gate.semantic_checks:
                 criteria_lines.append(f"- Semantic check: {check.name}")
-        sections.append(
-            "## Acceptance Criteria\n" + "\n".join(criteria_lines) + "\n"
-        )
+        sections.append("## Acceptance Criteria\n" + "\n".join(criteria_lines) + "\n")
 
     # File paths
     if file_paths:
         path_lines = [f"- {p}" for p in sorted(file_paths)]
-        sections.append(
-            "## Files Involved\n" + "\n".join(path_lines) + "\n"
-        )
+        sections.append("## Files Involved\n" + "\n".join(path_lines) + "\n")
 
     # Instructions
     sections.append(
@@ -411,7 +407,8 @@ def attempt_remediation(
 
     _log.info(
         "Remediation attempt 1 for '%s' failed: %s",
-        remediation_step.id, gate_1.failure_reason,
+        remediation_step.id,
+        gate_1.failure_reason,
     )
 
     # Pre-check before attempt 2
@@ -439,7 +436,8 @@ def attempt_remediation(
 
     _log.info(
         "Remediation attempt 2 for '%s' failed (persistent): %s",
-        remediation_step.id, gate_2.failure_reason,
+        remediation_step.id,
+        gate_2.failure_reason,
     )
 
     # Persistent failure: both attempts' turns lost
@@ -482,7 +480,9 @@ class RemediationEntry:
             step_id=data["step_id"],
             gate_result=data["gate_result"],
             failure_reason=data["failure_reason"],
-            remediation_status=data.get("remediation_status", RemediationStatus.PENDING.value),
+            remediation_status=data.get(
+                "remediation_status", RemediationStatus.PENDING.value
+            ),
         )
 
 
@@ -519,7 +519,8 @@ class DeferredRemediationLog:
         """Return all unresolved remediation entries."""
         with self._lock:
             return [
-                e for e in self._entries
+                e
+                for e in self._entries
                 if e.remediation_status == RemediationStatus.PENDING.value
             ]
 
@@ -527,7 +528,10 @@ class DeferredRemediationLog:
         """Mark a remediation entry as resolved. Returns True if found."""
         with self._lock:
             for entry in self._entries:
-                if entry.step_id == step_id and entry.remediation_status == RemediationStatus.PENDING.value:
+                if (
+                    entry.step_id == step_id
+                    and entry.remediation_status == RemediationStatus.PENDING.value
+                ):
                     entry.remediation_status = RemediationStatus.REMEDIATED.value
                     break
             else:
@@ -543,7 +547,9 @@ class DeferredRemediationLog:
         return json.dumps(data, indent=2)
 
     @classmethod
-    def deserialize(cls, json_str: str, persist_path: Path | None = None) -> DeferredRemediationLog:
+    def deserialize(
+        cls, json_str: str, persist_path: Path | None = None
+    ) -> DeferredRemediationLog:
         """Recover state from JSON string for --resume support."""
         data = json.loads(json_str)
         log = cls(persist_path=persist_path)

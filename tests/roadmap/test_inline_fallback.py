@@ -115,9 +115,13 @@ class TestInlineEmbedFallbackWhenFileBroken:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured, instance)
+                MockProc.side_effect = lambda **kw: _capture_and_return(
+                    kw, captured, instance
+                )
 
-                with caplog.at_level(logging.WARNING, logger=module_path.replace("/", ".")):
+                with caplog.at_level(
+                    logging.WARNING, logger=module_path.replace("/", ".")
+                ):
                     module._run_agent_for_file(str(target), [finding], config, tmp_path)
 
             # Content must be embedded inline (not absent due to --file fallback)
@@ -145,7 +149,9 @@ class TestInlineEmbedFallbackWhenFileBroken:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured, instance)
+                MockProc.side_effect = lambda **kw: _capture_and_return(
+                    kw, captured, instance
+                )
 
                 with caplog.at_level(logging.WARNING):
                     result = run_fn(step, config, cancel_check=cancel_check)
@@ -184,7 +190,9 @@ class TestInlineEmbedFallbackWhenFileBroken:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured, instance)
+                MockProc.side_effect = lambda **kw: _capture_and_return(
+                    kw, captured, instance
+                )
 
                 module._run_agent_for_file(str(target), [finding], config, tmp_path)
 
@@ -205,7 +213,9 @@ class TestInlineEmbedFallbackWhenFileBroken:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(kw, captured, instance)
+                MockProc.side_effect = lambda **kw: _capture_and_return(
+                    kw, captured, instance
+                )
 
                 result = run_fn(step, config, cancel_check=lambda: False)
 

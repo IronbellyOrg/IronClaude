@@ -62,7 +62,9 @@ def run_synthesize_spec(
     Produces synthesized-spec.md with zero sentinels (SC-005).
     """
     start = time.monotonic()
-    results_dir = config.output_dir / "results" if config.output_dir else Path("results")
+    results_dir = (
+        config.output_dir / "results" if config.output_dir else Path("results")
+    )
     results_dir.mkdir(parents=True, exist_ok=True)
 
     artifact_path = results_dir / ARTIFACT_NAME

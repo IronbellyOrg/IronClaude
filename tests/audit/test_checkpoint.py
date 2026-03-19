@@ -26,8 +26,18 @@ class TestCheckpointWriteAndRead:
             run_id="test-001",
             total_batches=3,
             batches=[
-                BatchStatus(batch_id="b1", status="COMPLETED", files_processed=5, files_remaining=0),
-                BatchStatus(batch_id="b2", status="PENDING", files_processed=0, files_remaining=5),
+                BatchStatus(
+                    batch_id="b1",
+                    status="COMPLETED",
+                    files_processed=5,
+                    files_remaining=0,
+                ),
+                BatchStatus(
+                    batch_id="b2",
+                    status="PENDING",
+                    files_processed=0,
+                    files_remaining=5,
+                ),
             ],
         )
         writer.write(state)
@@ -48,7 +58,12 @@ class TestCheckpointWriteAndRead:
             run_id="r1",
             total_batches=2,
             batches=[
-                BatchStatus(batch_id="b1", status="COMPLETED", files_processed=3, files_remaining=0),
+                BatchStatus(
+                    batch_id="b1",
+                    status="COMPLETED",
+                    files_processed=3,
+                    files_remaining=0,
+                ),
             ],
         )
         writer.write(state)
@@ -74,9 +89,21 @@ class TestCheckpointWriteAndRead:
             run_id="r1",
             total_batches=3,
             batches=[
-                BatchStatus(batch_id="b1", status="COMPLETED", files_processed=5, files_remaining=0),
-                BatchStatus(batch_id="b2", status="FAILED", files_processed=2, files_remaining=3),
-                BatchStatus(batch_id="b3", status="PENDING", files_processed=0, files_remaining=5),
+                BatchStatus(
+                    batch_id="b1",
+                    status="COMPLETED",
+                    files_processed=5,
+                    files_remaining=0,
+                ),
+                BatchStatus(
+                    batch_id="b2", status="FAILED", files_processed=2, files_remaining=3
+                ),
+                BatchStatus(
+                    batch_id="b3",
+                    status="PENDING",
+                    files_processed=0,
+                    files_remaining=5,
+                ),
             ],
         )
         writer.write(state)
@@ -97,7 +124,12 @@ class TestResumeScenario:
             run_id="r1",
             total_batches=3,
             batches=[
-                BatchStatus(batch_id="b1", status="COMPLETED", files_processed=5, files_remaining=0),
+                BatchStatus(
+                    batch_id="b1",
+                    status="COMPLETED",
+                    files_processed=5,
+                    files_remaining=0,
+                ),
             ],
         )
         writer.write(state)

@@ -44,6 +44,7 @@ class ImplicitContract:
         reader_confidence: Confidence score for reader assumption extraction (0.0-1.0).
         needs_human_review: True if either confidence < CONFIDENCE_THRESHOLD.
     """
+
     variable: str
     writer_deliverable: str
     reader_deliverable: str
@@ -86,19 +87,52 @@ class ImplicitContract:
 
 _WRITER_PATTERNS: list[tuple[re.Pattern, float]] = [
     # "set X to mean Y" / "set X to represent Y"
-    (re.compile(r"\bset\s+\w+\s+to\s+(?:mean|represent|indicate|track)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.85),
+    (
+        re.compile(
+            r"\bset\s+\w+\s+to\s+(?:mean|represent|indicate|track)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.85,
+    ),
     # "X represents Y after this"
     (re.compile(r"\b\w+\s+represents?\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.80),
     # "X tracks Y" / "X counts Y"
-    (re.compile(r"\b\w+\s+(?:tracks?|counts?|measures?|records?)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.80),
+    (
+        re.compile(
+            r"\b\w+\s+(?:tracks?|counts?|measures?|records?)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.80,
+    ),
     # "store Y in X" / "write Y to X"
-    (re.compile(r"\b(?:store|write|save|persist)\s+(.+?)\s+(?:in|to|into)\s+\w+", re.IGNORECASE), 0.75),
+    (
+        re.compile(
+            r"\b(?:store|write|save|persist)\s+(.+?)\s+(?:in|to|into)\s+\w+",
+            re.IGNORECASE,
+        ),
+        0.75,
+    ),
     # "X equals Y after" / "X will be Y"
-    (re.compile(r"\b\w+\s+(?:equals?|will\s+be|becomes?|is\s+set\s+to)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.75),
+    (
+        re.compile(
+            r"\b\w+\s+(?:equals?|will\s+be|becomes?|is\s+set\s+to)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.75,
+    ),
     # "update X with Y" / "update X to Y"
-    (re.compile(r"\bupdate\s+\w+\s+(?:with|to)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.70),
+    (
+        re.compile(r"\bupdate\s+\w+\s+(?:with|to)\s+(.+?)(?:\.|,|$)", re.IGNORECASE),
+        0.70,
+    ),
     # "increment X by Y" / "advance X by Y"
-    (re.compile(r"\b(?:increment|advance|increase|decrease)\s+\w+\s+by\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.75),
+    (
+        re.compile(
+            r"\b(?:increment|advance|increase|decrease)\s+\w+\s+by\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.75,
+    ),
     # Weaker: "X is Y"
     (re.compile(r"\b\w+\s+is\s+(?:the\s+)?(.+?)(?:\.|,|$)", re.IGNORECASE), 0.55),
 ]
@@ -109,21 +143,62 @@ _WRITER_PATTERNS: list[tuple[re.Pattern, float]] = [
 
 _READER_PATTERNS: list[tuple[re.Pattern, float]] = [
     # "assumes X is Y" / "assumes X equals Y"
-    (re.compile(r"\bassumes?\s+\w+\s+(?:is|equals?|contains?|represents?)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.90),
+    (
+        re.compile(
+            r"\bassumes?\s+\w+\s+(?:is|equals?|contains?|represents?)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.90,
+    ),
     # "when X equals Y" / "when X is Y"
-    (re.compile(r"\bwhen\s+\w+\s+(?:equals?|is|reaches?|exceeds?)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.85),
+    (
+        re.compile(
+            r"\bwhen\s+\w+\s+(?:equals?|is|reaches?|exceeds?)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.85,
+    ),
     # "based on X" / "depends on X"
-    (re.compile(r"\b(?:based\s+on|depends?\s+on|relies?\s+on)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.70),
+    (
+        re.compile(
+            r"\b(?:based\s+on|depends?\s+on|relies?\s+on)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.70,
+    ),
     # "expects X to be Y"
-    (re.compile(r"\bexpects?\s+\w+\s+to\s+(?:be|equal|contain|represent)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.85),
+    (
+        re.compile(
+            r"\bexpects?\s+\w+\s+to\s+(?:be|equal|contain|represent)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.85,
+    ),
     # "if X then" / "check if X"
-    (re.compile(r"\b(?:if|check\s+(?:if|whether))\s+\w+\s+(?:is|equals?|has|contains?)\s+(.+?)(?:\s+then|\.|,|$)", re.IGNORECASE), 0.75),
+    (
+        re.compile(
+            r"\b(?:if|check\s+(?:if|whether))\s+\w+\s+(?:is|equals?|has|contains?)\s+(.+?)(?:\s+then|\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.75,
+    ),
     # "X should be Y" / "X must be Y"
-    (re.compile(r"\b\w+\s+(?:should|must|shall)\s+(?:be|equal|contain)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.80),
+    (
+        re.compile(
+            r"\b\w+\s+(?:should|must|shall)\s+(?:be|equal|contain)\s+(.+?)(?:\.|,|$)",
+            re.IGNORECASE,
+        ),
+        0.80,
+    ),
     # "requires X" / "needs X"
     (re.compile(r"\b(?:requires?|needs?)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.60),
     # Weaker: "uses X" / "reads X"
-    (re.compile(r"\b(?:uses?|reads?|accesses?|fetches?)\s+(.+?)(?:\.|,|$)", re.IGNORECASE), 0.50),
+    (
+        re.compile(
+            r"\b(?:uses?|reads?|accesses?|fetches?)\s+(.+?)(?:\.|,|$)", re.IGNORECASE
+        ),
+        0.50,
+    ),
 ]
 
 
@@ -131,8 +206,10 @@ _READER_PATTERNS: list[tuple[re.Pattern, float]] = [
 # Extraction
 # ---------------------------------------------------------------------------
 
+
 def extract_writer_semantics(
-    description: str, variable_name: str,
+    description: str,
+    variable_name: str,
 ) -> tuple[str, float]:
     """Extract writer semantics from a deliverable description.
 
@@ -153,7 +230,12 @@ def extract_writer_semantics(
 
             # Boost confidence if variable name is near the match
             var_lower = variable_name.lower().lstrip("_")
-            proximity_boost = 0.05 if var_lower in description.lower()[max(0, m.start()-50):m.end()+50] else 0.0
+            proximity_boost = (
+                0.05
+                if var_lower
+                in description.lower()[max(0, m.start() - 50) : m.end() + 50]
+                else 0.0
+            )
             confidence = min(base_confidence + proximity_boost, 1.0)
 
             if confidence > best_confidence:
@@ -167,7 +249,8 @@ def extract_writer_semantics(
 
 
 def extract_reader_assumption(
-    description: str, variable_name: str,
+    description: str,
+    variable_name: str,
 ) -> tuple[str, float]:
     """Extract reader assumption from a deliverable description.
 
@@ -187,7 +270,12 @@ def extract_reader_assumption(
                 continue
 
             var_lower = variable_name.lower().lstrip("_")
-            proximity_boost = 0.05 if var_lower in description.lower()[max(0, m.start()-50):m.end()+50] else 0.0
+            proximity_boost = (
+                0.05
+                if var_lower
+                in description.lower()[max(0, m.start() - 50) : m.end() + 50]
+                else 0.0
+            )
             confidence = min(base_confidence + proximity_boost, 1.0)
 
             if confidence > best_confidence:
@@ -217,7 +305,11 @@ def extract_implicit_contracts(
     seen_pairs: set[tuple[str, str, str]] = set()
 
     for edge in graph.cross_milestone_edges:
-        pair_key = (edge.source.variable_name, edge.source.deliverable_id, edge.target.deliverable_id)
+        pair_key = (
+            edge.source.variable_name,
+            edge.source.deliverable_id,
+            edge.target.deliverable_id,
+        )
         if pair_key in seen_pairs:
             continue
         seen_pairs.add(pair_key)
@@ -230,7 +322,9 @@ def extract_implicit_contracts(
         reader_desc = reader_d.description if reader_d else ""
 
         writer_semantics, writer_conf = extract_writer_semantics(writer_desc, variable)
-        reader_assumption, reader_conf = extract_reader_assumption(reader_desc, variable)
+        reader_assumption, reader_conf = extract_reader_assumption(
+            reader_desc, variable
+        )
 
         contract = ImplicitContract(
             variable=variable,

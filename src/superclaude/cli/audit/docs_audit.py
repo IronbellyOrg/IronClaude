@@ -121,12 +121,14 @@ def check_broken_links(
         resolved = os.path.normpath(os.path.join(file_dir, target))
 
         if resolved not in known_files:
-            broken.append(BrokenLink(
-                source_file=file_path,
-                target_path=target,
-                line_number=line_num,
-                link_text=text,
-            ))
+            broken.append(
+                BrokenLink(
+                    source_file=file_path,
+                    target_path=target,
+                    line_number=line_num,
+                    link_text=text,
+                )
+            )
 
     return broken
 
@@ -381,19 +383,23 @@ def check_style_issues(
             if level == 1:
                 h1_count += 1
                 if h1_count > 1:
-                    issues.append(StyleIssue(
+                    issues.append(
+                        StyleIssue(
+                            file_path=file_path,
+                            line_number=i,
+                            issue_type="heading_hierarchy",
+                            description="Multiple H1 headings",
+                        )
+                    )
+            if last_heading_level > 0 and level > last_heading_level + 1:
+                issues.append(
+                    StyleIssue(
                         file_path=file_path,
                         line_number=i,
                         issue_type="heading_hierarchy",
-                        description="Multiple H1 headings",
-                    ))
-            if last_heading_level > 0 and level > last_heading_level + 1:
-                issues.append(StyleIssue(
-                    file_path=file_path,
-                    line_number=i,
-                    issue_type="heading_hierarchy",
-                    description=f"Heading level skipped: H{last_heading_level} -> H{level}",
-                ))
+                        description=f"Heading level skipped: H{last_heading_level} -> H{level}",
+                    )
+                )
             last_heading_level = level
 
         # Bare URL check (URLs not inside markdown link syntax or code)
@@ -402,21 +408,25 @@ def check_style_issues(
             # Skip if inside a markdown link [text](url)
             if f"]({url})" in line:
                 continue
-            issues.append(StyleIssue(
-                file_path=file_path,
-                line_number=i,
-                issue_type="link_format",
-                description=f"Bare URL: {url}",
-            ))
+            issues.append(
+                StyleIssue(
+                    file_path=file_path,
+                    line_number=i,
+                    issue_type="link_format",
+                    description=f"Bare URL: {url}",
+                )
+            )
 
     # Unclosed code block
     if in_code_block:
-        issues.append(StyleIssue(
-            file_path=file_path,
-            line_number=code_block_start,
-            issue_type="code_block_convention",
-            description="Unclosed fenced code block",
-        ))
+        issues.append(
+            StyleIssue(
+                file_path=file_path,
+                line_number=code_block_start,
+                issue_type="code_block_convention",
+                description="Unclosed fenced code block",
+            )
+        )
 
     return issues
 
@@ -443,12 +453,17 @@ def full_docs_audit(
     """
     # Sections 1 & 2: reuse minimal audit
     minimal = audit_docs(
-        doc_files, known_files, last_modified, threshold_days, current_date,
+        doc_files,
+        known_files,
+        last_modified,
+        threshold_days,
+        current_date,
     )
 
     # Section 3: coverage gaps
     coverage_gaps = detect_coverage_gaps(
-        exported_symbols or {}, doc_files,
+        exported_symbols or {},
+        doc_files,
     )
 
     # Section 4: orphaned docs

@@ -33,9 +33,18 @@ class TestTodoWriteStateReferences:
 
         # Patterns that indicate documentation/warning context, not prescriptive usage
         doc_context_patterns = [
-            "WRONG", "Anti-Pattern", "Never use", "never use",
-            "cause:", "error", "warning", "don't", "do not",
-            "avoid", "invalid", "incorrect",
+            "WRONG",
+            "Anti-Pattern",
+            "Never use",
+            "never use",
+            "cause:",
+            "error",
+            "warning",
+            "don't",
+            "do not",
+            "avoid",
+            "invalid",
+            "incorrect",
         ]
 
         for i, line in enumerate(lines, 1):

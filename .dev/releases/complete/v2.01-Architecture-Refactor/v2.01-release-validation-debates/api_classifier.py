@@ -172,9 +172,7 @@ async def run_api_classification(
             await asyncio.sleep(delay)
 
         except asyncio.TimeoutError:
-            last_error = TimeoutError(
-                f"API call timed out after {API_TIMEOUT}s"
-            )
+            last_error = TimeoutError(f"API call timed out after {API_TIMEOUT}s")
             delay = RETRY_BASE_DELAY * (2 ** (attempt - 1))
             print(
                 f"    Timeout on {test['id']} (attempt {attempt}/{MAX_RETRIES}), "
@@ -363,7 +361,9 @@ def print_summary_table(all_results: list[dict], models: list[str]) -> None:
     total_tests = len(all_results)
     print(
         f"\n  Overall: {total_pass}/{total_tests} passed "
-        f"({100 * total_pass / total_tests:.0f}%)" if total_tests else ""
+        f"({100 * total_pass / total_tests:.0f}%)"
+        if total_tests
+        else ""
     )
     print()
 
@@ -397,7 +397,9 @@ async def main() -> None:
     args = parser.parse_args()
 
     # Validate API credentials — support both standard key and proxy auth
-    api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")
+    api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get(
+        "ANTHROPIC_AUTH_TOKEN"
+    )
     base_url = os.environ.get("ANTHROPIC_BASE_URL")
     if not api_key:
         print(
@@ -505,11 +507,7 @@ async def main() -> None:
                     ),
                     "avg_score": round(
                         (
-                            sum(
-                                r["score"]
-                                for r in all_results
-                                if r["model"] == m
-                            )
+                            sum(r["score"] for r in all_results if r["model"] == m)
                             / len([r for r in all_results if r["model"] == m])
                         )
                         if [r for r in all_results if r["model"] == m]
@@ -527,10 +525,7 @@ async def main() -> None:
 
     # Also save per-test raw outputs for debugging
     for r in all_results:
-        output_path = (
-            RESULTS_DIR
-            / f"api_{r['test_id']}_{r['model']}_output.txt"
-        )
+        output_path = RESULTS_DIR / f"api_{r['test_id']}_{r['model']}_output.txt"
         output_path.write_text(r.get("output_text", ""))
 
     print(f"  Raw outputs saved to: {RESULTS_DIR}/api_*_output.txt")

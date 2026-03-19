@@ -18,10 +18,16 @@ from typing import Any
 # Code reference patterns for env key extraction
 _CODE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("process_env", re.compile(r"process\.env\.([A-Z_][A-Z0-9_]*)")),
-    ("os_environ_bracket", re.compile(r"""os\.environ\[["']([A-Z_][A-Z0-9_]*)["']\]""")),
+    (
+        "os_environ_bracket",
+        re.compile(r"""os\.environ\[["']([A-Z_][A-Z0-9_]*)["']\]"""),
+    ),
     ("os_getenv", re.compile(r"""os\.getenv\(["']([A-Z_][A-Z0-9_]*)["']""")),
     ("os_environ_get", re.compile(r"""os\.environ\.get\(["']([A-Z_][A-Z0-9_]*)["']""")),
-    ("dotenv_key", re.compile(r"""(?:ENV|config)\[["']([A-Z_][A-Z0-9_]*)["']\]""", re.IGNORECASE)),
+    (
+        "dotenv_key",
+        re.compile(r"""(?:ENV|config)\[["']([A-Z_][A-Z0-9_]*)["']\]""", re.IGNORECASE),
+    ),
 ]
 
 
@@ -74,14 +80,15 @@ class EnvKeyMatrix:
         for key, entry in sorted(self.entries.items()):
             categories = entry.drift_categories
             if categories:
-                drifts.append({
-                    "key": key,
-                    "categories": categories,
-                    "present_in": {
-                        s: entry.present_in.get(s, False)
-                        for s in self.sources
-                    },
-                })
+                drifts.append(
+                    {
+                        "key": key,
+                        "categories": categories,
+                        "present_in": {
+                            s: entry.present_in.get(s, False) for s in self.sources
+                        },
+                    }
+                )
         return drifts
 
     def to_dict(self) -> dict[str, Any]:

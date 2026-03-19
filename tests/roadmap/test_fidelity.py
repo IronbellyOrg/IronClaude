@@ -49,6 +49,7 @@ class TestFidelityDeviationDataclass:
     def test_fidelity_deviation_all_seven_fields(self):
         """Dataclass has exactly 7 fields matching canonical schema."""
         import dataclasses
+
         fields = dataclasses.fields(FidelityDeviation)
         assert len(fields) == 7
         field_names = [f.name for f in fields]
@@ -103,4 +104,5 @@ class TestFidelityDeviationDataclass:
     def test_fidelity_deviation_importable(self):
         """Dataclass is importable from the fidelity module."""
         from superclaude.cli.roadmap.fidelity import FidelityDeviation as FD
+
         assert FD is FidelityDeviation

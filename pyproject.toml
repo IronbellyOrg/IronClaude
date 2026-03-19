@@ -128,6 +128,7 @@ markers = [
     "gate_performance: Gate evaluation performance benchmarks",
     "context_injection_test: Context injection and task summary tests",
     "thread_safety: Thread safety and concurrency tests",
+    "agent_regression: Agent spec extension regression tests (Phase 6, R7 mitigation)",
 ]
 
 [tool.coverage.run]

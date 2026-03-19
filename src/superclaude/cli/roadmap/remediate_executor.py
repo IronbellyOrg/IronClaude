@@ -41,6 +41,9 @@ _MAX_ARG_STRLEN = 128 * 1024
 _PROMPT_TEMPLATE_OVERHEAD = 8 * 1024
 _EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD
 
+# FR-9: Diff-size threshold (percentage of file changed)
+_DIFF_SIZE_THRESHOLD_PCT = 50
+
 
 # ═══════════════════════════════════════════════════════════════
 # T04.03 -- Pre-Remediate File Snapshots
@@ -129,8 +132,7 @@ def enforce_allowlist(
 
         # Check if any file is outside the allowlist
         non_allowed = [
-            f for f in finding.files_affected
-            if _basename(f) not in EDITABLE_FILES
+            f for f in finding.files_affected if _basename(f) not in EDITABLE_FILES
         ]
 
         if non_allowed:
@@ -183,7 +185,11 @@ def _run_agent_for_file(
             )
         prompt = composed
     except OSError as exc:
-        _log.warning("remediate_executor: could not read '%s': %s; using base prompt", target_file, exc)
+        _log.warning(
+            "remediate_executor: could not read '%s': %s; using base prompt",
+            target_file,
+            exc,
+        )
         prompt = base_prompt
 
     output_file = output_dir / f"remediate-{Path(target_file).stem}.md"
@@ -218,9 +224,7 @@ def _run_agent_with_retry(
     Returns (target_file, exit_code, attempt_count).
     """
     # Attempt 1
-    target, exit_code = _run_agent_for_file(
-        target_file, findings, config, output_dir
-    )
+    target, exit_code = _run_agent_for_file(target_file, findings, config, output_dir)
 
     if exit_code == 0:
         return target, exit_code, 1
@@ -242,9 +246,7 @@ def _run_agent_with_retry(
         os.replace(str(tmp), str(snapshot))
 
     # Attempt 2
-    target, exit_code = _run_agent_for_file(
-        target_file, findings, config, output_dir
-    )
+    target, exit_code = _run_agent_for_file(target_file, findings, config, output_dir)
 
     return target, exit_code, 2
 
@@ -411,10 +413,71 @@ def _update_finding_entries(content: str, status_map: dict[str, str]) -> str:
 # ═══════════════════════════════════════════════════════════════
 
 
+def _check_diff_size(
+    target_file: str,
+    allow_regeneration: bool = False,
+) -> bool:
+    """Check whether the patch for a target file exceeds the diff-size threshold.
+
+    Compares the .pre-remediate snapshot against the current file content.
+    Returns True if the diff is within threshold (or override is set), False otherwise.
+    """
+    snapshot = Path(f"{target_file}.pre-remediate")
+    current = Path(target_file)
+
+    if not snapshot.exists() or not current.exists():
+        return True  # Cannot check; allow to proceed
+
+    original_size = snapshot.stat().st_size
+    if original_size == 0:
+        return True  # Empty original; allow any change
+
+    original_content = snapshot.read_text(encoding="utf-8")
+    current_content = current.read_text(encoding="utf-8")
+
+    # Calculate diff as percentage of changed lines
+    original_lines = original_content.splitlines()
+    current_lines = current_content.splitlines()
+
+    # Simple diff metric: lines that differ / max(original, current) lines
+    max_lines = max(len(original_lines), len(current_lines))
+    if max_lines == 0:
+        return True
+
+    matching = sum(
+        1 for a, b in zip(original_lines, current_lines) if a == b
+    )
+    changed_lines = max_lines - matching
+    diff_pct = (changed_lines / max_lines) * 100
+
+    if diff_pct > _DIFF_SIZE_THRESHOLD_PCT:
+        if allow_regeneration:
+            _log.warning(
+                "Patch exceeds %d%% threshold for %s (%.1f%%) but"
+                " --allow-regeneration is set; proceeding",
+                _DIFF_SIZE_THRESHOLD_PCT,
+                target_file,
+                diff_pct,
+            )
+            return True
+        else:
+            _log.error(
+                "Patch exceeds %d%% threshold for %s (%.1f%%); rejecting."
+                " Use --allow-regeneration to override.",
+                _DIFF_SIZE_THRESHOLD_PCT,
+                target_file,
+                diff_pct,
+            )
+            return False
+
+    return True
+
+
 def execute_remediation(
     findings_by_file: dict[str, list[Finding]],
     config: PipelineConfig,
     output_dir: Path,
+    allow_regeneration: bool = False,
 ) -> tuple[str, list[Finding]]:
     """Execute remediation agents in parallel across file groups.
 
@@ -460,6 +523,23 @@ def execute_remediation(
                         file_path,
                         attempts,
                     )
+                    failed_findings = _handle_failure(
+                        file_path,
+                        all_target_files,
+                        findings_by_file,
+                        executor,
+                    )
+                    return "FAIL", failed_findings
+
+                # FR-9: Diff-size guard -- reject patches that change too much
+                if not _check_diff_size(file_path, allow_regeneration):
+                    _log.error(
+                        "Diff-size threshold exceeded for %s, triggering rollback",
+                        file_path,
+                    )
+                    # Mark findings for this file as FAILED
+                    for f in findings_by_file.get(file_path, []):
+                        f.status = "FAILED"
                     failed_findings = _handle_failure(
                         file_path,
                         all_target_files,

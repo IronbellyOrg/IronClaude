@@ -140,7 +140,9 @@ def build_kpi_report(
     if remediation_log is not None:
         report.total_remediations = remediation_log.entry_count
         report.remediations_pending = len(remediation_log.pending_remediations())
-        report.remediations_resolved = report.total_remediations - report.remediations_pending
+        report.remediations_resolved = (
+            report.total_remediations - report.remediations_pending
+        )
 
     # Conflict review metrics
     report.total_conflict_reviews = conflict_reviews_total

@@ -63,8 +63,10 @@ def build_certification_prompt(
         lines.append(f"- **Original Issue**: {f.description}")
         lines.append(f"- **Location**: {f.location}")
         lines.append(f"- **Fix Guidance**: {f.fix_guidance}")
-        lines.append(f"- **Check Instruction**: Verify that the fix at `{f.location}` "
-                      f"addresses: {f.description}")
+        lines.append(
+            f"- **Check Instruction**: Verify that the fix at `{f.location}` "
+            f"addresses: {f.description}"
+        )
         lines.append("")
 
     # Output format requirement
@@ -79,7 +81,9 @@ def build_certification_prompt(
     lines.append("Example:")
     lines.append("```")
     lines.append("F-01: PASS -- Milestone count updated from 3 to 5 matching spec")
-    lines.append("F-02: FAIL -- Section header changed but content still references old value")
+    lines.append(
+        "F-02: FAIL -- Section header changed but content still references old value"
+    )
     lines.append("```")
     lines.append("")
 
@@ -259,11 +263,13 @@ def parse_certification_output(output: str) -> list[dict]:
     for line in output.splitlines():
         match = pattern.search(line)
         if match:
-            results.append({
-                "finding_id": match.group(1),
-                "result": match.group(2).upper(),
-                "justification": match.group(3).strip(),
-            })
+            results.append(
+                {
+                    "finding_id": match.group(1),
+                    "result": match.group(2).upper(),
+                    "justification": match.group(3).strip(),
+                }
+            )
     return results
 
 
@@ -293,9 +299,7 @@ def route_certification_outcome(
             "loop": False,  # NFR-012: no automatic loop
         }
     else:
-        failed_ids = [
-            r["finding_id"] for r in results if r.get("result") == "FAIL"
-        ]
+        failed_ids = [r["finding_id"] for r in results if r.get("result") == "FAIL"]
         return {
             "status": "certified-with-caveats",
             "tasklist_ready": False,

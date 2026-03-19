@@ -131,15 +131,18 @@ class ClaudeProcess(_PipelineClaudeProcess):
         total_phases = len(config.phases) if config.phases else pn
         artifact_root = config.release_dir / "artifacts"
         results_dir = config.results_dir
-        prior_artifact_dirs = [
-            artifact_root / f"D-{i:04d}"
-            for i in range(1, pn)
-            if (artifact_root / f"D-{i:04d}").exists()
-        ] if pn > 1 else []
-        prior_phase_dirs = [
-            config.release_dir / f"phase-{i}"
-            for i in range(1, pn)
-        ] if pn > 1 else []
+        prior_artifact_dirs = (
+            [
+                artifact_root / f"D-{i:04d}"
+                for i in range(1, pn)
+                if (artifact_root / f"D-{i:04d}").exists()
+            ]
+            if pn > 1
+            else []
+        )
+        prior_phase_dirs = (
+            [config.release_dir / f"phase-{i}" for i in range(1, pn)] if pn > 1 else []
+        )
 
         sprint_context_lines = [
             "## Sprint Context",
@@ -272,7 +275,9 @@ def build_task_context(
 
     # Apply progressive summarization
     if len(prior_results) > compress_threshold:
-        compressed = compress_context_summary(prior_results, keep_recent=compress_threshold)
+        compressed = compress_context_summary(
+            prior_results, keep_recent=compress_threshold
+        )
         sections.append(compressed)
     else:
         for result in prior_results:
@@ -282,9 +287,7 @@ def build_task_context(
     # Gate outcome summary
     sections.append("\n### Gate Outcomes\n")
     for result in prior_results:
-        sections.append(
-            f"- {result.task.task_id}: {result.gate_outcome.value}"
-        )
+        sections.append(f"- {result.task.task_id}: {result.gate_outcome.value}")
 
     # Remediation history (only tasks with reimbursement)
     remediated = [r for r in prior_results if r.reimbursement_amount > 0]
@@ -323,10 +326,7 @@ def get_git_diff_context(start_commit: str) -> str:
         if result.returncode != 0 or not result.stdout.strip():
             return ""
         return (
-            "### Git Changes Since Sprint Start\n\n"
-            "```\n"
-            f"{result.stdout.strip()}\n"
-            "```"
+            f"### Git Changes Since Sprint Start\n\n```\n{result.stdout.strip()}\n```"
         )
     except (FileNotFoundError, _subprocess.TimeoutExpired, OSError):
         return ""

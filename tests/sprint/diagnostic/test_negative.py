@@ -20,14 +20,23 @@ from superclaude.cli.sprint.diagnostics import (
     FailureClassifier,
     ReportGenerator,
 )
-from superclaude.cli.sprint.models import MonitorState, Phase, PhaseResult, PhaseStatus, SprintConfig
+from superclaude.cli.sprint.models import (
+    MonitorState,
+    Phase,
+    PhaseResult,
+    PhaseStatus,
+    SprintConfig,
+)
 
 
 def _make_result(phase, **kwargs):
     now = datetime.now(timezone.utc)
     defaults = dict(
-        phase=phase, status=PhaseStatus.ERROR, exit_code=1,
-        started_at=now, finished_at=now,
+        phase=phase,
+        status=PhaseStatus.ERROR,
+        exit_code=1,
+        started_at=now,
+        finished_at=now,
     )
     defaults.update(kwargs)
     return PhaseResult(**defaults)
@@ -90,7 +99,9 @@ class TestCorruptData:
     def test_classifier_with_empty_bundle(self):
         phase = Phase(number=1, file=Path("test.md"))
         pr = PhaseResult(
-            phase=phase, status=PhaseStatus.PASS, exit_code=0,
+            phase=phase,
+            status=PhaseStatus.PASS,
+            exit_code=0,
             started_at=datetime.now(timezone.utc),
             finished_at=datetime.now(timezone.utc),
         )

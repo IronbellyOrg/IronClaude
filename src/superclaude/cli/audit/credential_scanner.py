@@ -17,12 +17,32 @@ from typing import Any
 # Real secret patterns (compiled for performance)
 _SECRET_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("aws_access_key", re.compile(r"AKIA[0-9A-Z]{16}")),
-    ("aws_secret_key", re.compile(r"(?:aws_secret_access_key|AWS_SECRET)\s*[=:]\s*[A-Za-z0-9/+=]{40}")),
+    (
+        "aws_secret_key",
+        re.compile(r"(?:aws_secret_access_key|AWS_SECRET)\s*[=:]\s*[A-Za-z0-9/+=]{40}"),
+    ),
     ("github_token", re.compile(r"gh[ps]_[A-Za-z0-9_]{36,}")),
     ("github_classic_token", re.compile(r"ghp_[A-Za-z0-9_]{36}")),
-    ("generic_api_key", re.compile(r"""(?:api[_-]?key|apikey|api[_-]?secret)\s*[=:"']\s*[A-Za-z0-9_\-]{20,}""", re.IGNORECASE)),
-    ("generic_token", re.compile(r"""(?:token|bearer|auth[_-]?token)\s*[=:"']\s*[A-Za-z0-9_\-\.]{20,}""", re.IGNORECASE)),
-    ("generic_password", re.compile(r"""(?:password|passwd|pwd)\s*[=:]\s*["']?([^\s"']{8,})""", re.IGNORECASE)),
+    (
+        "generic_api_key",
+        re.compile(
+            r"""(?:api[_-]?key|apikey|api[_-]?secret)\s*[=:"']\s*[A-Za-z0-9_\-]{20,}""",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "generic_token",
+        re.compile(
+            r"""(?:token|bearer|auth[_-]?token)\s*[=:"']\s*[A-Za-z0-9_\-\.]{20,}""",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "generic_password",
+        re.compile(
+            r"""(?:password|passwd|pwd)\s*[=:]\s*["']?([^\s"']{8,})""", re.IGNORECASE
+        ),
+    ),
     ("private_key", re.compile(r"-----BEGIN (?:RSA |EC |DSA )?PRIVATE KEY-----")),
     ("slack_token", re.compile(r"xox[baprs]-[0-9a-zA-Z\-]{10,}")),
     ("stripe_key", re.compile(r"sk_(?:live|test)_[0-9a-zA-Z]{24,}")),
@@ -30,12 +50,15 @@ _SECRET_PATTERNS: list[tuple[str, re.Pattern]] = [
 
 # Template/placeholder patterns to exclude
 _PLACEHOLDER_PATTERNS: list[re.Pattern] = [
-    re.compile(r"\$\{[A-Z_]+\}"),                   # ${VAR_NAME}
+    re.compile(r"\$\{[A-Z_]+\}"),  # ${VAR_NAME}
     re.compile(r"<YOUR[_\-]?[A-Z_]*>", re.IGNORECASE),  # <YOUR_API_KEY>
-    re.compile(r"(?:xxx+|XXX+|placeholder|PLACEHOLDER|changeme|CHANGEME|your[_-]?(?:key|token|password|secret))", re.IGNORECASE),
-    re.compile(r"process\.env\.[A-Z_]+"),            # process.env.VAR
-    re.compile(r"os\.environ\.get\("),               # os.environ.get(
-    re.compile(r"os\.getenv\("),                     # os.getenv(
+    re.compile(
+        r"(?:xxx+|XXX+|placeholder|PLACEHOLDER|changeme|CHANGEME|your[_-]?(?:key|token|password|secret))",
+        re.IGNORECASE,
+    ),
+    re.compile(r"process\.env\.[A-Z_]+"),  # process.env.VAR
+    re.compile(r"os\.environ\.get\("),  # os.environ.get(
+    re.compile(r"os\.getenv\("),  # os.getenv(
 ]
 
 REDACTION_MARKER = "[REDACTED]"
@@ -56,7 +79,11 @@ class SecretDetection:
             "pattern_name": self.pattern_name,
             "line_number": self.line_number,
             "is_placeholder": self.is_placeholder,
-            "redacted_line": self.line_content.replace(self.match_text, REDACTION_MARKER) if not self.is_placeholder else self.line_content,
+            "redacted_line": self.line_content.replace(
+                self.match_text, REDACTION_MARKER
+            )
+            if not self.is_placeholder
+            else self.line_content,
         }
 
 

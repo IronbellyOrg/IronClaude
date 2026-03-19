@@ -46,7 +46,9 @@ class TestFullPipelineE2E:
     def test_spec_file_is_mandatory_input(self, skill_md_content):
         """Specification file should be mandatory."""
         assert "MANDATORY" in skill_md_content
-        assert "spec-file-path" in skill_md_content or "spec" in skill_md_content.lower()
+        assert (
+            "spec-file-path" in skill_md_content or "spec" in skill_md_content.lower()
+        )
 
 
 class TestPipelineDataConsistency:
@@ -55,14 +57,20 @@ class TestPipelineDataConsistency:
     def test_wave1_output_feeds_wave2(self, skill_md_content):
         """Wave 1 outputs should feed Wave 2 inputs."""
         # Wave 1 produces extraction.md with domain distribution
-        assert "domain_distribution" in skill_md_content or "Domain Distribution" in skill_md_content
+        assert (
+            "domain_distribution" in skill_md_content
+            or "Domain Distribution" in skill_md_content
+        )
         # Wave 2 uses domain distribution for template selection
         assert "template" in skill_md_content.lower()
 
     def test_wave2_output_feeds_wave3(self, skill_md_content):
         """Wave 2 template selection should feed Wave 3 generation."""
         assert "template" in skill_md_content.lower()
-        assert "generation" in skill_md_content.lower() or "generate" in skill_md_content.lower()
+        assert (
+            "generation" in skill_md_content.lower()
+            or "generate" in skill_md_content.lower()
+        )
 
     def test_wave3_output_feeds_wave4(self, skill_md_content):
         """Wave 3 artifacts should feed Wave 4 validation."""
@@ -74,7 +82,9 @@ class TestPipelineDataConsistency:
         assert "PASS" in skill_md_content
         assert "REVISE" in skill_md_content
         assert "REJECT" in skill_md_content
-        assert "completion" in skill_md_content.lower() or "Completion" in skill_md_content
+        assert (
+            "completion" in skill_md_content.lower() or "Completion" in skill_md_content
+        )
 
 
 class TestPipelineErrorHandling:
@@ -112,8 +122,11 @@ class TestOutputConventions:
     def test_five_artifact_types(self, skill_md_content):
         """Should produce exactly 5 artifact types."""
         artifacts = [
-            "roadmap.md", "extraction.md", "test-strategy.md",
-            "execution-prompt.md", "tasklists/",
+            "roadmap.md",
+            "extraction.md",
+            "test-strategy.md",
+            "execution-prompt.md",
+            "tasklists/",
         ]
         for artifact in artifacts:
             assert artifact in skill_md_content

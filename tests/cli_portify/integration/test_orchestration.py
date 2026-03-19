@@ -247,8 +247,10 @@ class TestDryRunIntegration:
     def test_dry_run_contract_builder(self):
         """build_dry_run_contract marks phases 3-4 as skipped per SC-011."""
         contract = build_dry_run_contract(
-            step_results=[], artifacts=["inv.md"],
-            step_timings=[], total_duration=1.0,
+            step_results=[],
+            artifacts=["inv.md"],
+            step_timings=[],
+            total_duration=1.0,
         )
         d = contract.to_dict()
         assert d["status"] == "dry_run"
@@ -367,12 +369,18 @@ class TestConvergenceBoundaryIntegration:
         """Quality scores flow through convergence to result."""
         engine = ConvergenceEngine(max_iterations=3)
         scores = {
-            "clarity": 8.0, "completeness": 7.0,
-            "testability": 9.0, "consistency": 8.0,
+            "clarity": 8.0,
+            "completeness": 7.0,
+            "testability": 9.0,
+            "consistency": 8.0,
         }
-        engine.submit(IterationResult(
-            iteration=1, unaddressed_criticals=0, quality_scores=scores,
-        ))
+        engine.submit(
+            IterationResult(
+                iteration=1,
+                unaddressed_criticals=0,
+                quality_scores=scores,
+            )
+        )
         result = engine.result()
         assert result.is_converged
         # Overall = mean(8, 7, 9, 8) = 8.0
@@ -472,9 +480,12 @@ class TestContractExitPathIntegration:
 
     def test_partial_contract_populated(self):
         c = build_partial_contract(
-            step_results=[], artifacts=["a.md"],
-            step_timings=[], gate_results={},
-            total_duration=3.0, resume_step="panel-review",
+            step_results=[],
+            artifacts=["a.md"],
+            step_timings=[],
+            gate_results={},
+            total_duration=3.0,
+            resume_step="panel-review",
         )
         d = c.to_dict()
         assert d["status"] == "partial"
@@ -482,9 +493,12 @@ class TestContractExitPathIntegration:
 
     def test_failed_contract_populated(self):
         c = build_failed_contract(
-            step_results=[], artifacts=[],
-            step_timings=[], gate_results={},
-            total_duration=2.0, error_message="Gate failure",
+            step_results=[],
+            artifacts=[],
+            step_timings=[],
+            gate_results={},
+            total_duration=2.0,
+            error_message="Gate failure",
             resume_step="synthesize-spec",
         )
         d = c.to_dict()
@@ -494,8 +508,10 @@ class TestContractExitPathIntegration:
 
     def test_dry_run_contract_populated(self):
         c = build_dry_run_contract(
-            step_results=[], artifacts=["inv.md"],
-            step_timings=[], total_duration=1.0,
+            step_results=[],
+            artifacts=["inv.md"],
+            step_timings=[],
+            total_duration=1.0,
         )
         d = c.to_dict()
         assert d["status"] == "dry_run"

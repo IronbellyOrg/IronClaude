@@ -201,7 +201,8 @@ class TestDetermineStatus:
         artifact = tmp_path / "out.md"
         artifact.write_text("content")
         status = _determine_status(
-            0, timed_out=False,
+            0,
+            timed_out=False,
             stdout="EXIT_RECOMMENDATION: CONTINUE",
             artifact_path=artifact,
         )
@@ -211,13 +212,18 @@ class TestDetermineStatus:
         artifact = tmp_path / "out.md"
         artifact.write_text("content")
         status = _determine_status(
-            0, timed_out=False, stdout="", artifact_path=artifact,
+            0,
+            timed_out=False,
+            stdout="",
+            artifact_path=artifact,
         )
         assert status == PortifyStatus.PASS_NO_SIGNAL
 
     def test_determine_status_pass_no_report_no_artifact(self, tmp_path):
         status = _determine_status(
-            0, timed_out=False, stdout="",
+            0,
+            timed_out=False,
+            stdout="",
             artifact_path=tmp_path / "nonexistent.md",
         )
         assert status == PortifyStatus.PASS_NO_REPORT
@@ -230,7 +236,9 @@ class TestDetermineStatus:
         """PASS_NO_SIGNAL triggers retry (not PASS_NO_REPORT)."""
         artifact = tmp_path / "out.md"
         artifact.write_text("content")
-        status = _determine_status(0, timed_out=False, stdout="", artifact_path=artifact)
+        status = _determine_status(
+            0, timed_out=False, stdout="", artifact_path=artifact
+        )
         assert status == PortifyStatus.PASS_NO_SIGNAL
         # Verify it's distinct from PASS_NO_REPORT
         assert status != PortifyStatus.PASS_NO_REPORT
@@ -348,7 +356,9 @@ class TestTurnLedger:
 
     def test_turn_ledger_halted_emits_return_contract(self, tmp_path):
         steps = [_make_step("s1")]
-        ex = PortifyExecutor(steps, tmp_path, turn_budget=0, step_runner=_runner_success)
+        ex = PortifyExecutor(
+            steps, tmp_path, turn_budget=0, step_runner=_runner_success
+        )
         ex.run()
         assert (tmp_path / "return-contract.yaml").exists()
 
@@ -449,7 +459,9 @@ class TestReturnContract:
 
     def test_return_contract_emitted_on_halted(self, tmp_path):
         steps = [_make_step("s1")]
-        ex = PortifyExecutor(steps, tmp_path, turn_budget=0, step_runner=_runner_success)
+        ex = PortifyExecutor(
+            steps, tmp_path, turn_budget=0, step_runner=_runner_success
+        )
         ex.run()
         assert (tmp_path / "return-contract.yaml").exists()
 
@@ -527,6 +539,7 @@ class TestRunWithTimeout:
     def test_step0_validate_config_timeout_boundary(self):
         """Mocked slow validate-config execution raises TimeoutError (SC-001: ≤30s boundary)."""
         import threading
+
         # Use 0.05s timeout to test boundary behavior without waiting 30s in CI
         def _mock_slow_validate():
             threading.Event().wait(timeout=10)
@@ -537,6 +550,7 @@ class TestRunWithTimeout:
     def test_step1_discover_components_timeout_boundary(self):
         """Mocked slow discover-components execution raises TimeoutError (SC-002: ≤60s boundary)."""
         import threading
+
         # Use 0.05s timeout to test boundary behavior without waiting 60s in CI
         def _mock_slow_discover():
             threading.Event().wait(timeout=10)
@@ -561,6 +575,7 @@ class TestRunWithTimeout:
 
     def test_exception_propagated_from_function(self):
         """Exceptions raised inside the function are re-raised to the caller."""
+
         def _raises():
             raise ValueError("inner error")
 

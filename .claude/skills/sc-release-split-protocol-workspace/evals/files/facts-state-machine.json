@@ -1,0 +1,436 @@
+{
+  "spec": "fidelity-stress-state-machine.md",
+  "facts": [
+    {
+      "id": "SM-01",
+      "category": "state_transition",
+      "description": "GATING→RUNNING retry backoff formula: min(2^retry * 500, 30000) with base_delay_ms=500 and max_delay_ms=30000",
+      "search_patterns": [
+        "2\\^retry.*500|2\\*\\*retry.*500|base_delay.*500",
+        "max.*delay.*30000|30000|30,?000\\s*ms",
+        "min\\(.*2.*retry.*500.*30000|backoff.*formula"
+      ],
+      "anti_patterns": [
+        "base_delay.*1000(?!0)",
+        "max_delay.*60000",
+        "base_delay.*250(?!0)"
+      ],
+      "required_context": [
+        "GATING.*RUNNING|retry.*transition|gate.*retry"
+      ],
+      "source_section": "Section 3.1 Retry Semantics",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-02",
+      "category": "invariant",
+      "description": "INV-T3: Task MUST NOT transition to COMPLETE if any STRICT gate has passed==False",
+      "search_patterns": [
+        "MUST NOT.*transition.*COMPLETE.*STRICT.*passed.*False|INV-T3",
+        "STRICT.*gate.*passed.*False|enforcement_tier.*STRICT"
+      ],
+      "anti_patterns": [
+        "may.*transition.*COMPLETE.*regardless",
+        "STRICT.*gate.*warning|STRICT.*gate.*soft"
+      ],
+      "required_context": [
+        "GATING.*COMPLETE|task.*scope"
+      ],
+      "source_section": "Section 2.2 Transition Table",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-03",
+      "category": "behavioral_contract",
+      "description": "Circuit breaker counts CONSECUTIVE failures only; COMPLETE resets counter; SKIPPED is transparent (does not reset)",
+      "search_patterns": [
+        "consecutive.*failure|circuit.?breaker.*consecutive",
+        "COMPLETE.*reset|reset.*counter.*COMPLETE|reset.*0",
+        "SKIPPED.*transparent|SKIPPED.*not.*reset|SKIPPED.*do.*NOT.*reset"
+      ],
+      "anti_patterns": [
+        "SKIPPED.*reset.*counter|SKIPPED.*resets",
+        "any.*failure.*increment|total.*failure.*count"
+      ],
+      "required_context": [
+        "circuit.?breaker.*threshold|default.*3"
+      ],
+      "source_section": "Section 3.3 Circuit Breaker",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-04",
+      "category": "negative_requirement",
+      "description": "Phase-level retry is explicitly OUT OF SCOPE for v2.0, deferred to v2.1",
+      "search_patterns": [
+        "phase.*retry.*out.*scope|phase.*retry.*not.*support|phase.*retry.*deferred",
+        "v2\\.1|deferred.*v2\\.1"
+      ],
+      "anti_patterns": [
+        "phase.*retry.*supported|phase.*retry.*implement|phase.*retry.*enabled"
+      ],
+      "required_context": [],
+      "source_section": "Section 3.1 Retry Semantics",
+      "severity": "major"
+    },
+    {
+      "id": "SM-05",
+      "category": "ordering_constraint",
+      "description": "INV-P1: Phase MUST NOT enter RUNNING while predecessor is in RUNNING, GATING, PENDING, or BLOCKED — ONLY COMPLETE satisfies",
+      "search_patterns": [
+        "INV-P1|predecessor.*COMPLETE.*satisf|MUST NOT.*RUNNING.*predecessor.*RUNNING"
+      ],
+      "anti_patterns": [
+        "predecessor.*RUNNING.*or.*COMPLETE|predecessor.*GATING.*allowed"
+      ],
+      "required_context": [
+        "phase.*scope|phase.*transition"
+      ],
+      "source_section": "Section 2.3 Transition Table",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-06",
+      "category": "quantitative_constraint",
+      "description": "Task timeout default 300s (5 min), measured from start_timestamp NOT enqueue_timestamp",
+      "search_patterns": [
+        "timeout.*300|timeout.*5.*min",
+        "start_timestamp|measured.*from.*start|NOT.*enqueue"
+      ],
+      "anti_patterns": [
+        "timeout.*600|timeout.*10.*min",
+        "measured.*from.*enqueue|enqueue_timestamp.*timeout"
+      ],
+      "required_context": [
+        "task.*timeout|timeout.*seconds"
+      ],
+      "source_section": "Section 3.2 Timeout Handling",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-07",
+      "category": "quantitative_constraint",
+      "description": "Phase timeout 1800s (30 min), Pipeline timeout 7200s (2 hours)",
+      "search_patterns": [
+        "phase.*timeout.*1800|phase.*timeout.*30.*min",
+        "pipeline.*timeout.*7200|pipeline.*timeout.*2.*hour"
+      ],
+      "anti_patterns": [
+        "phase.*timeout.*3600|phase.*timeout.*60.*min",
+        "pipeline.*timeout.*3600|pipeline.*timeout.*1.*hour"
+      ],
+      "required_context": [],
+      "source_section": "Section 3.2 Timeout Handling",
+      "severity": "major"
+    },
+    {
+      "id": "SM-08",
+      "category": "concurrency_rule",
+      "description": "GATING tasks do NOT count against concurrency limit — only RUNNING tasks count. Max concurrency 10 hard cap.",
+      "search_patterns": [
+        "GATING.*NOT.*count.*concurrency|GATING.*do.*not.*count",
+        "maximum.*10|hard.*cap.*10|max.*10"
+      ],
+      "anti_patterns": [
+        "GATING.*count.*against.*concurrency|GATING.*included.*limit",
+        "maximum.*20|hard.*cap.*20"
+      ],
+      "required_context": [
+        "concurrency.*limit|concurrent.*task"
+      ],
+      "source_section": "Section 5.1 Task Concurrency",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-09",
+      "category": "behavioral_contract",
+      "description": "Emergency stop: SIGTERM first, wait exactly 5 seconds, then SIGKILL. MUST NOT send SIGKILL without grace period.",
+      "search_patterns": [
+        "SIGTERM.*5.*second.*SIGKILL|SIGTERM.*then.*SIGKILL",
+        "MUST NOT.*SIGKILL.*without.*grace|5.*second.*grace"
+      ],
+      "anti_patterns": [
+        "SIGKILL.*immediately|SIGKILL.*first|SIGKILL.*without.*SIGTERM",
+        "10.*second.*grace|3.*second.*grace"
+      ],
+      "required_context": [
+        "emergency.*stop|should_abort|pipeline.*FAILED"
+      ],
+      "source_section": "Section 2.4 Pipeline Scope INV-PL2",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-10",
+      "category": "behavioral_contract",
+      "description": "Lock acquisition timeout 10s; after 3 consecutive failures → QUEUED→FAILED with lock_acquisition_timeout reason",
+      "search_patterns": [
+        "lock.*acquisition.*10.*second|lock.*timeout.*10",
+        "3.*consecutive.*lock.*fail|lock_acquisition_timeout"
+      ],
+      "anti_patterns": [
+        "lock.*acquisition.*30.*second|lock.*timeout.*30",
+        "5.*consecutive.*lock.*fail"
+      ],
+      "required_context": [
+        "QUEUED.*FAILED|lock.*semantics"
+      ],
+      "source_section": "Section 5.3 Lock Semantics",
+      "severity": "major"
+    },
+    {
+      "id": "SM-11",
+      "category": "behavioral_contract",
+      "description": "Stale lock detection: lock held longer than timeout_seconds + 30 without transition → forcibly released",
+      "search_patterns": [
+        "timeout_seconds.*\\+.*30|stale.*lock.*timeout.*30",
+        "forcib.*releas|stale_lock_released"
+      ],
+      "anti_patterns": [
+        "timeout_seconds.*\\+.*60|stale.*lock.*timeout.*60"
+      ],
+      "required_context": [
+        "stale.*lock|lock.*detection"
+      ],
+      "source_section": "Section 5.3 Lock Semantics",
+      "severity": "major"
+    },
+    {
+      "id": "SM-12",
+      "category": "scope_boundary",
+      "description": "parallel_phases flag does NOT override phase DAG — only enables concurrency between unrelated phases",
+      "search_patterns": [
+        "parallel_phases.*NOT.*override.*DAG|does.*NOT.*override.*DAG",
+        "predecessor.*constraints.*enforced|ordering.*constraint"
+      ],
+      "anti_patterns": [
+        "parallel_phases.*override.*ordering|parallel_phases.*ignore.*depend"
+      ],
+      "required_context": [
+        "parallel_phases|phase.*concurrency"
+      ],
+      "source_section": "Section 5.2 Phase Concurrency",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-13",
+      "category": "exception_path",
+      "description": "Timed-out task MUST NOT enter GATING state — timeout preempts gate evaluation",
+      "search_patterns": [
+        "timed.*out.*MUST NOT.*GATING|timeout.*preempt.*gate"
+      ],
+      "anti_patterns": [
+        "timed.*out.*proceed.*gating|timeout.*allow.*gate"
+      ],
+      "required_context": [
+        "task.*timeout|RUNNING.*FAILED"
+      ],
+      "source_section": "Section 3.2 Timeout Handling",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-14",
+      "category": "cross_requirement_coupling",
+      "description": "INV-T5: Terminal states (COMPLETE, FAILED, SKIPPED) accept no further transitions — validator MUST reject and log",
+      "search_patterns": [
+        "INV-T5|terminal.*state.*MUST NOT.*accept.*transition",
+        "COMPLETE.*FAILED.*SKIPPED.*terminal|reject.*and.*log"
+      ],
+      "anti_patterns": [
+        "terminal.*state.*may.*transition|COMPLETE.*can.*transition.*to"
+      ],
+      "required_context": [
+        "transition.*validator|task.*scope"
+      ],
+      "source_section": "Section 2.2 Invariants",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-15",
+      "category": "behavioral_contract",
+      "description": "Event buffer capacity 10000; oldest evicted when full; events NEVER dropped silently — buffer_overflow warning logged",
+      "search_patterns": [
+        "10,?000.*event|buffer.*capacity.*10",
+        "NEVER.*dropped.*silent|buffer_overflow.*warning"
+      ],
+      "anti_patterns": [
+        "5,?000.*event|buffer.*capacity.*5",
+        "events.*may.*be.*dropped|silently.*discard"
+      ],
+      "required_context": [
+        "event.*buffer|event.*system"
+      ],
+      "source_section": "Section 4.2 Event Ordering",
+      "severity": "major"
+    },
+    {
+      "id": "SM-16",
+      "category": "conditional_logic",
+      "description": "INV-PL1: critical_phase_failures counts ONLY phases where abort_on_failure==True AND state==FAILED; non-critical failures do NOT increment",
+      "search_patterns": [
+        "INV-PL1|critical_phase_failures.*ONLY.*abort_on_failure",
+        "non.*critical.*do.*NOT.*increment|abort_on_failure.*True.*FAILED"
+      ],
+      "anti_patterns": [
+        "all.*phase.*failure.*increment|any.*failure.*critical"
+      ],
+      "required_context": [
+        "pipeline.*scope|FINALIZING"
+      ],
+      "source_section": "Section 2.4 Pipeline Scope",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-17",
+      "category": "cross_requirement_coupling",
+      "description": "Migration gate: Phase 2 activation requires zero state divergences for minimum 50 pipeline runs",
+      "search_patterns": [
+        "zero.*divergence.*50.*run|50.*pipeline.*run.*zero.*divergen"
+      ],
+      "anti_patterns": [
+        "10.*pipeline.*run|100.*pipeline.*run|zero.*divergence.*20.*run"
+      ],
+      "required_context": [
+        "migration|v1\\.0.*v2\\.0|shadow.*mode"
+      ],
+      "source_section": "Section 7.2 Migration Strategy",
+      "severity": "major"
+    },
+    {
+      "id": "SM-18",
+      "category": "behavioral_contract",
+      "description": "INV-T6: GATING→RUNNING retry MUST NOT fire if gate_retry_count >= max_gate_retries; ONLY valid transition is GATING→FAILED",
+      "search_patterns": [
+        "INV-T6|MUST NOT.*fire.*gate_retry_count.*max_gate_retries",
+        "ONLY.*valid.*transition.*GATING.*FAILED|GATING.*FAILED.*only.*option"
+      ],
+      "anti_patterns": [
+        "retry.*unlimited|no.*max.*retry|ignore.*max_gate_retries"
+      ],
+      "required_context": [
+        "gate_retry_count|max_gate_retries|default.*3"
+      ],
+      "source_section": "Section 2.2 Invariants",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-19",
+      "category": "exception_path",
+      "description": "Phase timeout cancels all QUEUED tasks in that phase; RUNNING tasks get individual timeout handling",
+      "search_patterns": [
+        "phase.*timeout.*cancel.*QUEUED|QUEUED.*tasks.*cancel",
+        "RUNNING.*tasks.*individual.*timeout|individual.*timeout.*handling"
+      ],
+      "anti_patterns": [
+        "phase.*timeout.*cancel.*RUNNING|kill.*all.*task.*immediately"
+      ],
+      "required_context": [
+        "phase.*timeout|phase.*RUNNING.*FAILED"
+      ],
+      "source_section": "Section 3.2 Timeout Handling",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-20",
+      "category": "quantitative_constraint",
+      "description": "Non-functional: transition latency p99 < 5ms, audit write p99 < 2ms, event emission p99 < 1ms, memory < 50MB for 100 tasks/10 phases",
+      "search_patterns": [
+        "p99.*<.*5.*ms|transition.*latency.*5",
+        "audit.*write.*<.*2.*ms|audit.*2.*ms",
+        "event.*emission.*<.*1.*ms|emission.*1.*ms",
+        "50.*MB|memory.*100.*task|100.*tasks.*10.*phase"
+      ],
+      "anti_patterns": [
+        "p99.*<.*50.*ms|transition.*latency.*50",
+        "audit.*write.*<.*20.*ms",
+        "100.*MB|memory.*200.*task"
+      ],
+      "required_context": [],
+      "source_section": "Section 9 Non-Functional Requirements",
+      "severity": "major"
+    },
+    {
+      "id": "SM-21",
+      "category": "invariant",
+      "description": "INV-T4: Timestamps must be monotonically increasing: enqueue < start < completion",
+      "search_patterns": [
+        "INV-T4|enqueue.*<.*start.*<.*completion|monotonically.*increasing.*timestamp"
+      ],
+      "anti_patterns": [],
+      "required_context": [
+        "timestamp|transition"
+      ],
+      "source_section": "Section 2.2 Invariants",
+      "severity": "major"
+    },
+    {
+      "id": "SM-22",
+      "category": "conditional_logic",
+      "description": "Task PENDING→SKIPPED has two triggers: skip_condition==True OR predecessor FAILED when skip_on_predecessor_failure==True",
+      "search_patterns": [
+        "skip_condition.*True|skip_on_predecessor_failure",
+        "predecessor.*FAILED.*skip|PENDING.*SKIPPED"
+      ],
+      "anti_patterns": [
+        "always.*skip.*predecessor.*fail|unconditional.*skip"
+      ],
+      "required_context": [
+        "task.*scope|PENDING.*SKIPPED"
+      ],
+      "source_section": "Section 2.2 Transition Table",
+      "severity": "major"
+    },
+    {
+      "id": "SM-23",
+      "category": "scope_boundary",
+      "description": "v1.0 mapping: is_running=True, has_error=True maps to RUNNING (error flag was ignored — INC-041 root cause); unmappable combos → PENDING",
+      "search_patterns": [
+        "is_running.*True.*has_error.*True.*RUNNING|error.*flag.*ignored",
+        "INC-041.*root.*cause|unmappable.*PENDING"
+      ],
+      "anti_patterns": [
+        "is_running.*True.*has_error.*True.*FAILED|error.*flag.*respected"
+      ],
+      "required_context": [
+        "migration|v1\\.0.*v2\\.0|compatibility"
+      ],
+      "source_section": "Section 7.1 Compatibility",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-24",
+      "category": "behavioral_contract",
+      "description": "Audit trail: rejected transitions logged at WARNING level; MUST NOT raise exceptions — state machine silently rejects and continues",
+      "search_patterns": [
+        "rejected.*WARNING|WARNING.*level.*reject",
+        "MUST NOT.*raise.*exception|silently.*reject.*continue"
+      ],
+      "anti_patterns": [
+        "rejected.*raise.*exception|rejected.*error.*level|rejected.*halt"
+      ],
+      "required_context": [
+        "audit.*trail|AuditEntry|transition.*validator"
+      ],
+      "source_section": "Section 4.3 Audit Trail",
+      "severity": "critical"
+    },
+    {
+      "id": "SM-25",
+      "category": "behavioral_contract",
+      "description": "Health check: healthy=false if ANY of: stale_locks>0, event_buffer_utilization>0.9, invariant_violations_last_hour>0",
+      "search_patterns": [
+        "stale_locks.*>.*0|stale_locks.*greater",
+        "event_buffer_utilization.*>.*0\\.9|buffer.*utilization.*0\\.9|90%",
+        "invariant_violations_last_hour.*>.*0"
+      ],
+      "anti_patterns": [
+        "stale_locks.*>.*5|event_buffer_utilization.*>.*0\\.95",
+        "invariant_violations_last_hour.*>.*5"
+      ],
+      "required_context": [
+        "health.*check|healthy.*false"
+      ],
+      "source_section": "Section 6.2 Health Check",
+      "severity": "major"
+    }
+  ]
+}

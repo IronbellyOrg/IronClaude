@@ -61,10 +61,12 @@ class TestCheckTieredKeep:
         assert not gate.passed
 
     def test_medium_risk_2_refs_passes(self):
-        result = _make_keep([
-            "reference found in app.py",
-            "imported by main.py",
-        ])
+        result = _make_keep(
+            [
+                "reference found in app.py",
+                "imported by main.py",
+            ]
+        )
         gate = check_tiered_keep(result, "medium")
         assert gate.passed
 
@@ -74,19 +76,23 @@ class TestCheckTieredKeep:
         assert not gate.passed
 
     def test_high_risk_3_refs_passes(self):
-        result = _make_keep([
-            "reference found in app.py",
-            "imported by main.py",
-            "used by test_main.py",
-        ])
+        result = _make_keep(
+            [
+                "reference found in app.py",
+                "imported by main.py",
+                "used by test_main.py",
+            ]
+        )
         gate = check_tiered_keep(result, "high")
         assert gate.passed
 
     def test_high_risk_2_refs_fails(self):
-        result = _make_keep([
-            "reference found in app.py",
-            "imported by main.py",
-        ])
+        result = _make_keep(
+            [
+                "reference found in app.py",
+                "imported by main.py",
+            ]
+        )
         gate = check_tiered_keep(result, "high")
         assert not gate.passed
 
@@ -99,7 +105,8 @@ class TestCheckTieredKeep:
     def test_escalation_with_additional_evidence(self):
         result = _make_keep(["reference found in app.py"])
         gate = check_tiered_keep(
-            result, "high",
+            result,
+            "high",
             additional_evidence=[
                 "imported by utils.py",
                 "used by cli.py",
@@ -111,7 +118,8 @@ class TestCheckTieredKeep:
     def test_escalation_still_fails(self):
         result = _make_keep(["reference found in app.py"])
         gate = check_tiered_keep(
-            result, "high",
+            result,
+            "high",
             additional_evidence=["no matching evidence here"],
         )
         assert not gate.passed

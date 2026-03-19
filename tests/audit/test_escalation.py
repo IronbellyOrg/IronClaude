@@ -49,10 +49,12 @@ class TestDetectSignals:
         assert "low_confidence" not in types
 
     def test_conflicting_evidence_triggers(self):
-        result = _make_result(evidence=[
-            "import reference found in app.py",
-            "zero references from external modules",
-        ])
+        result = _make_result(
+            evidence=[
+                "import reference found in app.py",
+                "zero references from external modules",
+            ]
+        )
         signals = detect_signals(result)
         types = [s.signal_type for s in signals]
         assert "conflicting_evidence" in types
@@ -95,10 +97,7 @@ class TestEscalate:
         ec = esc.escalated_classification
         assert ec is not None
         # Should either have higher confidence or explicit INVESTIGATE
-        assert (
-            ec.confidence > result.confidence
-            or ec.action == V2Action.INVESTIGATE
-        )
+        assert ec.confidence > result.confidence or ec.action == V2Action.INVESTIGATE
 
     def test_token_budget_respected(self):
         result = _make_result(confidence=0.50)

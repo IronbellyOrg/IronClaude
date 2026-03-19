@@ -23,8 +23,12 @@ def _d(id: str, desc: str) -> Deliverable:
     return Deliverable(id=id, description=desc, kind=DeliverableKind.IMPLEMENT)
 
 
-def _det(var: str, did: str, itype: IntroductionType = IntroductionType.OFFSET) -> DetectionResult:
-    return DetectionResult(variable_name=var, deliverable_id=did, introduction_type=itype)
+def _det(
+    var: str, did: str, itype: IntroductionType = IntroductionType.OFFSET
+) -> DetectionResult:
+    return DetectionResult(
+        variable_name=var, deliverable_id=did, introduction_type=itype
+    )
 
 
 class TestMutationInventory:
@@ -53,7 +57,7 @@ class TestMutationInventory:
         deliverables = [
             _d("D1.1", "Add counter for retries"),
             _d("D2.1", "Log the results to file"),  # no counter reference
-            _d("D3.1", "Update documentation"),       # no counter mutation
+            _d("D3.1", "Update documentation"),  # no counter mutation
         ]
         results = generate_mutation_inventory(detections, deliverables)
         assert len(results) == 1
@@ -84,7 +88,6 @@ class TestMutationInventory:
 
 
 class TestEdgeCases:
-
     def test_empty_detections(self):
         results = generate_mutation_inventory([], [_d("D1", "something")])
         assert results == []

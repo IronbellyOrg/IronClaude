@@ -15,6 +15,7 @@ try:
     from rich.table import Table
     from rich.live import Live
     from rich.console import Console
+
     _RICH_AVAILABLE = True
 except ImportError:
     _RICH_AVAILABLE = False
@@ -214,7 +215,9 @@ class TuiDashboard:
     def __init__(self) -> None:
         self.state = DashboardState()
         self._live: Optional["Live"] = None
-        self._is_terminal: bool = sys.stdout.isatty() if hasattr(sys.stdout, "isatty") else False
+        self._is_terminal: bool = (
+            sys.stdout.isatty() if hasattr(sys.stdout, "isatty") else False
+        )
 
     @property
     def is_live(self) -> bool:

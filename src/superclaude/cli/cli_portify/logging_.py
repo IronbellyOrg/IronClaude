@@ -52,7 +52,9 @@ ALL_EVENT_TYPES: tuple[str, ...] = (
 
 def _iso_now() -> str:
     """Return current UTC time as ISO-8601 string."""
-    return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds")
+    return datetime.datetime.now(datetime.timezone.utc).isoformat(
+        timespec="milliseconds"
+    )
 
 
 class ExecutionLog:
@@ -90,9 +92,13 @@ class ExecutionLog:
         """Record a step_start event."""
         self.record(EV_STEP_START, step_id=step_id, **kwargs)
 
-    def step_end(self, step_id: str, status: str, duration_s: float = 0.0, **kwargs) -> None:
+    def step_end(
+        self, step_id: str, status: str, duration_s: float = 0.0, **kwargs
+    ) -> None:
         """Record a step_end event."""
-        self.record(EV_STEP_END, step_id=step_id, status=status, duration_s=duration_s, **kwargs)
+        self.record(
+            EV_STEP_END, step_id=step_id, status=status, duration_s=duration_s, **kwargs
+        )
 
     def gate_eval(self, step_id: str, gate_id: str, tier: str = "", **kwargs) -> None:
         """Record a gate_eval event."""
@@ -100,7 +106,9 @@ class ExecutionLog:
 
     def gate_fail(self, step_id: str, gate_id: str, reason: str = "", **kwargs) -> None:
         """Record a gate_fail event."""
-        self.record(EV_GATE_FAIL, step_id=step_id, gate_id=gate_id, reason=reason, **kwargs)
+        self.record(
+            EV_GATE_FAIL, step_id=step_id, gate_id=gate_id, reason=reason, **kwargs
+        )
 
     def convergence_transition(
         self, step_id: str, from_state: str, to_state: str, iteration: int = 0, **kwargs
@@ -117,9 +125,13 @@ class ExecutionLog:
 
     def signal_received(self, signal_name: str, step_id: str = "", **kwargs) -> None:
         """Record a signal_received event."""
-        self.record(EV_SIGNAL_RECEIVED, step_id=step_id, signal_name=signal_name, **kwargs)
+        self.record(
+            EV_SIGNAL_RECEIVED, step_id=step_id, signal_name=signal_name, **kwargs
+        )
 
-    def budget_warning(self, remaining: int, total: int, step_id: str = "", **kwargs) -> None:
+    def budget_warning(
+        self, remaining: int, total: int, step_id: str = "", **kwargs
+    ) -> None:
         """Record a budget_warning event (when remaining < 10% of total)."""
         self.record(
             EV_BUDGET_WARNING,
@@ -163,7 +175,9 @@ class ExecutionLog:
                 fh.write("|-------|--------|---------|--------|\n")
 
         with open(md_path, "a", encoding="utf-8") as fh:
-            fh.write(f"| {phase} | {status} | {elapsed:.3f}s | {len(self._entries)} |\n")
+            fh.write(
+                f"| {phase} | {status} | {elapsed:.3f}s | {len(self._entries)} |\n"
+            )
 
         self._entries.clear()
 

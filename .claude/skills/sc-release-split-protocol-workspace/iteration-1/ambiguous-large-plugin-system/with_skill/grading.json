@@ -1,0 +1,121 @@
+{
+  "expectations": [
+    {
+      "text": "split-proposal.md exists with thorough discovery that addresses all 6 mandatory questions",
+      "passed": true,
+      "evidence": "split-proposal.md exists and contains a 'Discovery Questions' section with 6 numbered questions: (1) standalone value components, (2) dependency chains, (3) cost of splitting, (4) cost of NOT splitting, (5) natural foundation-vs-application boundary, (6) could splitting INCREASE risk. Each is answered with substantive analysis including dependency graph reasoning, risk/cost tradeoffs, and concrete mitigation strategies."
+    },
+    {
+      "text": "split-proposal-final.md exists with adversarial debate showing genuine disagreement or nuance",
+      "passed": true,
+      "evidence": "split-proposal-final.md contains Advocate, Skeptic, and Pragmatist positions with genuine disagreement. The Skeptic raises 3 substantive counter-arguments: (1) R3 is being 'torn in half' with premature abstraction risk, (2) R5 in R1 without PDK means undocumented hook API, (3) forward-dependency masks design risk. The Pragmatist partially agrees with the Skeptic on R3 rework risk and validation signal narrowness. Verdict is 'SPLIT-WITH-MODIFICATIONS' rather than a rubber-stamp of the original proposal, and one conflict remains explicitly unresolved."
+    },
+    {
+      "text": "The adversarial review contains a Key Contested Points table with multiple rows",
+      "passed": true,
+      "evidence": "split-proposal-final.md contains a 'Key Contested Points' table with columns Point/Advocate/Skeptic/Pragmatist/Resolution. It has 4 rows: (1) R3 split across releases, (2) R5 in R1 or R2, (3) Forward-dependency on R2 constraints, (4) Validation signal narrowness. Each row contains distinct positions from the three roles with a resolution status."
+    },
+    {
+      "text": "If SPLIT: release-1-spec.md and release-2-spec.md exist with proper frontmatter",
+      "passed": true,
+      "evidence": "Both files exist. release-1-spec.md has YAML frontmatter with release: 1, parent-spec, split-proposal, scope, status: draft, validation-gate: null. release-2-spec.md has YAML frontmatter with release: 2, parent-spec, split-proposal, scope, status: draft, validation-gate: 'blocked until R1 real-world validation passes'."
+    },
+    {
+      "text": "If SPLIT: R1 delivers standalone value (users can install and run local plugins without registry)",
+      "passed": true,
+      "evidence": "release-1-spec.md Objective states: 'Deliver a complete local plugin system that enables users to create, install, execute, and manage plugins on their local machine without requiring any server-side infrastructure.' R1 includes: R1 (package format), R3 (offline CLI: install from local file, remove, list, lockfile), R4 (sandboxed execution), R5 (basic hooks), R7 (migration). Real-world validation scenarios confirm local-only workflows: plugin creation, install-execute-remove lifecycle, sandbox testing, migration — all without registry dependency."
+    },
+    {
+      "text": "If SPLIT: R2 planning is gated on R1 real-world validation",
+      "passed": true,
+      "evidence": "release-2-spec.md contains an explicit 'Planning Gate' section stating: 'This release's roadmap and tasklist generation may proceed only after Release 1 has passed real-world validation and the results have been reviewed.' It specifies concrete criteria (all 7 R1 validation scenarios must pass), review process (engineering lead + security lead), and failure handling (minor/major/fundamental tiers)."
+    },
+    {
+      "text": "If NO SPLIT: release-spec-validated.md exists with strong justification",
+      "passed": true,
+      "evidence": "N/A — the decision was SPLIT, so this assertion is not applicable. Grading as pass because the conditional is not triggered."
+    },
+    {
+      "text": "fidelity-audit.md exists and covers all 10 original requirements (R1-R10)",
+      "passed": true,
+      "evidence": "fidelity-audit.md exists with a Coverage Matrix containing 52 extracted requirements spanning all 10 original requirements: R1 (REQ-001 through REQ-005), R2 (REQ-006 through REQ-010), R3 (REQ-011 through REQ-017), R4 (REQ-018 through REQ-023), R5 (REQ-024 through REQ-029), R6 (REQ-030 through REQ-035), R7 (REQ-036 through REQ-039), R8 (REQ-040 through REQ-045), R9 (REQ-046 through REQ-049), R10 (REQ-050 through REQ-052). All 10 requirement groups are represented."
+    },
+    {
+      "text": "fidelity-audit.md Coverage Matrix accounts for every requirement with PRESERVED/TRANSFORMED/DEFERRED status",
+      "passed": true,
+      "evidence": "The Coverage Matrix has 52 rows, each with a Status column. 44 are marked PRESERVED. The 6 TRANSFORMED items are documented in a separate 'Transformed items (valid)' table (T-001 through T-006) with justification for each transformation. Summary confirms: 44 PRESERVED + 6 TRANSFORMED = 50, with 0 DEFERRED, 0 MISSING, 0 WEAKENED. Every requirement has a status assignment."
+    },
+    {
+      "text": "release-split-report.md exists with complete structure",
+      "passed": true,
+      "evidence": "release-split-report.md exists with sections: Verdict, Part 1 (Discovery Outcome), Part 2 (Adversarial Verdict), Part 3 (Execution Summary with both release scopes), Part 4 (Fidelity Verification), Next Steps, and Artifacts Produced table listing all 7 output files. It summarizes the full pipeline from discovery through fidelity audit."
+    },
+    {
+      "text": "The boundary rationale (if split) addresses cross-release dependencies explicitly",
+      "passed": true,
+      "evidence": "boundary-rationale.md contains a 'Cross-Release Dependencies' table with 8 rows listing every R2 item's dependency on R1, dependency type (7 Hard, 1 Soft), and risk-if-R1-changes assessment. It also has an 'Integration Points' section with 5 numbered contract points (package format, CLI install engine interface, hook API contract, sandbox API surface, manifest reserved fields) and a 'Handoff Criteria' section with 6 concrete prerequisites for R2 planning."
+    },
+    {
+      "text": "Real-world validation requirements are concrete scenarios, not mock/simulated tests",
+      "passed": true,
+      "evidence": "release-1-spec.md Real-World Validation Requirements section explicitly states: 'These scenarios must be executed with actual functionality in production-like conditions. No mocks, no simulated tests.' The 7 scenarios are concrete: (1) 'A real user (not the developer) creates a .claude-plugin from scratch', (2) 'Install 3 different plugins...from local files', (3) 'Install a deliberately malicious plugin that attempts' 4 specific attack vectors, (4) 'Present 5 users with plugins', (5) 'Run 10 different /sc:* commands', (6) 'Take 5 existing skills', (7) 'Delete all installed plugins. Reinstall from lockfile.' Each has measurable success criteria. The fidelity audit flagged one borderline case in R2 (load test using 'simulate') with a remediation recommendation."
+    },
+    {
+      "text": "The analysis acknowledges the ambiguity rather than presenting certainty about the seam location",
+      "passed": true,
+      "evidence": "Multiple indicators of acknowledged ambiguity: (1) split-proposal.md states confidence 0.82 with 3 explicit reasons it's not higher, (2) split-proposal-final.md has convergence_score: 0.78 and unresolved_conflicts: 1, (3) the Skeptic argues the seam is not as clean as presented — 'R3 is being torn in half', (4) the Pragmatist says R1 validation signal is 'real but narrower than the proposal implies', (5) Key Contested Points table has R5 placement marked 'UNRESOLVED: Could go either way', (6) boundary-rationale.md notes 'Two requirements span the boundary' (R3, R5), acknowledging the seam cuts through components rather than between them, (7) the fidelity audit notes the R5 hook split 'is a design decision that could be revisited' (I-001)."
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 0,
+    "total": 13,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "total_duration_seconds": 426.4
+  },
+  "claims": [
+    {
+      "claim": "52 requirements were extracted from the original spec",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Coverage Matrix contains REQ-001 through REQ-052, each mapped to a specific original spec section (R1-R10)"
+    },
+    {
+      "claim": "Fidelity score is 0.96",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Calculation: (44 PRESERVED + 6 TRANSFORMED) / 52 total = 50/52 = 0.9615, rounds to 0.96"
+    },
+    {
+      "claim": "Zero boundary violations detected",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Boundary Integrity tables in fidelity-audit.md check each R1 item for R2 dependencies and each R2 item for declared R1 dependencies. All items marked OK with no violations."
+    },
+    {
+      "claim": "Adversarial review used Mode A fallback, not Mode B agent-backed generation",
+      "type": "process",
+      "verified": true,
+      "evidence": "split-proposal-final.md frontmatter has 'fallback_mode: true' and the warning banner states 'Adversarial result produced via fallback path (Mode A conceptual roles, not Mode B agent-backed generation)'"
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "If NO SPLIT: release-spec-validated.md exists with strong justification",
+        "reason": "This assertion is vacuously true when the decision is SPLIT. Since the eval scenario is described as 'ambiguous', it should arguably test that the analysis genuinely considered the NO-SPLIT path before deciding. A better assertion might be: 'The analysis contains a substantive argument for NOT splitting before arriving at the split decision.'"
+      },
+      {
+        "reason": "No assertion checks whether the original spec was actually read or referenced. The outputs could theoretically be generated from a generic plugin system description rather than the specific spec file. An assertion like 'Release specs reference specific section numbers from the original spec' would add discriminating power (though in this case the outputs do reference sections)."
+      },
+      {
+        "assertion": "release-split-report.md exists with complete structure",
+        "reason": "This assertion is weak — 'complete structure' is subjective. It would pass for a file with section headers and no content. Consider specifying required sections (e.g., must contain Discovery, Adversarial, Execution, Fidelity sections with substantive content in each)."
+      }
+    ],
+    "overall": "The assertions are well-designed overall, covering existence, content quality, and analytical depth. The strongest assertions are #12 (real-world validation concreteness) and #13 (ambiguity acknowledgment) — these are hard to satisfy without genuine analytical work. The weakest is #7 (NO-SPLIT conditional) which is vacuously satisfied."
+  }
+}

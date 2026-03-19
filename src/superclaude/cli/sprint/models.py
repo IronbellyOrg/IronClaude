@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from superclaude.cli.pipeline.models import (
     PipelineConfig,
@@ -104,17 +104,23 @@ class GateDisplayState(Enum):
 
 
 # Valid transitions: frozenset of (from_state, to_state) pairs
-GATE_DISPLAY_TRANSITIONS: frozenset[tuple[GateDisplayState, GateDisplayState]] = frozenset({
-    (GateDisplayState.NONE, GateDisplayState.CHECKING),
-    (GateDisplayState.CHECKING, GateDisplayState.PASS),
-    (GateDisplayState.CHECKING, GateDisplayState.FAIL_DEFERRED),
-    (GateDisplayState.FAIL_DEFERRED, GateDisplayState.REMEDIATING),
-    (GateDisplayState.REMEDIATING, GateDisplayState.REMEDIATED),
-    (GateDisplayState.REMEDIATING, GateDisplayState.HALT),
-})
+GATE_DISPLAY_TRANSITIONS: frozenset[tuple[GateDisplayState, GateDisplayState]] = (
+    frozenset(
+        {
+            (GateDisplayState.NONE, GateDisplayState.CHECKING),
+            (GateDisplayState.CHECKING, GateDisplayState.PASS),
+            (GateDisplayState.CHECKING, GateDisplayState.FAIL_DEFERRED),
+            (GateDisplayState.FAIL_DEFERRED, GateDisplayState.REMEDIATING),
+            (GateDisplayState.REMEDIATING, GateDisplayState.REMEDIATED),
+            (GateDisplayState.REMEDIATING, GateDisplayState.HALT),
+        }
+    )
+)
 
 
-def is_valid_gate_transition(from_state: GateDisplayState, to_state: GateDisplayState) -> bool:
+def is_valid_gate_transition(
+    from_state: GateDisplayState, to_state: GateDisplayState
+) -> bool:
     """Check whether a gate display state transition is valid."""
     return (from_state, to_state) in GATE_DISPLAY_TRANSITIONS
 
@@ -212,7 +218,9 @@ class PhaseStatus(Enum):
     PASS_NO_SIGNAL = "pass_no_signal"
     PASS_NO_REPORT = "pass_no_report"
     PASS_RECOVERED = "pass_recovered"  # non-zero exit but evidence of success
-    PREFLIGHT_PASS = "preflight_pass"  # completed by preflight execution (python/skip mode)
+    PREFLIGHT_PASS = (
+        "preflight_pass"  # completed by preflight execution (python/skip mode)
+    )
     INCOMPLETE = "incomplete"
     HALT = "halt"
     TIMEOUT = "timeout"
@@ -246,7 +254,12 @@ class PhaseStatus(Enum):
 
     @property
     def is_failure(self) -> bool:
-        return self in (PhaseStatus.INCOMPLETE, PhaseStatus.HALT, PhaseStatus.TIMEOUT, PhaseStatus.ERROR)
+        return self in (
+            PhaseStatus.INCOMPLETE,
+            PhaseStatus.HALT,
+            PhaseStatus.TIMEOUT,
+            PhaseStatus.ERROR,
+        )
 
 
 class SprintOutcome(Enum):
@@ -303,6 +316,9 @@ class SprintConfig(PipelineConfig):
     phase_timeout: int = 0  # 0 = disabled
     # Shadow mode: trailing gates run in parallel, results are metrics-only
     shadow_gates: bool = False
+    # Wiring gate mode: controls post-task wiring analysis behavior
+    # off=disabled, shadow=log only, soft=warn on critical, full=block on critical+major
+    wiring_gate_mode: Literal["off", "shadow", "soft", "full"] = "soft"
 
     def __post_init__(self):
         # Sync release_dir to PipelineConfig.work_dir so both access paths
@@ -415,9 +431,7 @@ class SprintResult:
 
     def resume_command(self) -> str:
         if self.halt_phase is not None:
-            end = self.config.end_phase or max(
-                p.number for p in self.config.phases
-            )
+            end = self.config.end_phase or max(p.number for p in self.config.phases)
             return (
                 f"superclaude sprint run {self.config.index_path} "
                 f"--start {self.halt_phase} --end {end}"

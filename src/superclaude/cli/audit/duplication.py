@@ -132,16 +132,19 @@ def build_duplication_matrix(
             path_a = paths[i]
             path_b = paths[j]
             sim, shared_imp, shared_exp = compute_similarity(
-                analyses[path_a], analyses[path_b],
+                analyses[path_a],
+                analyses[path_b],
             )
             if sim >= threshold:
-                matrix.pairs.append(DuplicatePair(
-                    file_a=path_a,
-                    file_b=path_b,
-                    similarity=sim,
-                    shared_imports=shared_imp,
-                    shared_exports=shared_exp,
-                    recommendation=_recommendation(sim),
-                ))
+                matrix.pairs.append(
+                    DuplicatePair(
+                        file_a=path_a,
+                        file_b=path_b,
+                        similarity=sim,
+                        shared_imports=shared_imp,
+                        shared_exports=shared_exp,
+                        recommendation=_recommendation(sim),
+                    )
+                )
 
     return matrix

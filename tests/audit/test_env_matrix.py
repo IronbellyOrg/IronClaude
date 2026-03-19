@@ -180,7 +180,9 @@ class TestBuildMatrix:
         # At least these drift types should be detected
         assert "missing_from_example" in categories or "missing_from_env" in categories
         # NEW_RELIC_KEY and REDIS_URL are in code but not in env files
-        code_only_keys = [d["key"] for d in drifts if "missing_from_env" in d["categories"]]
+        code_only_keys = [
+            d["key"] for d in drifts if "missing_from_env" in d["categories"]
+        ]
         assert any(k in code_only_keys for k in ["NEW_RELIC_KEY", "REDIS_URL"])
 
     def test_matrix_serializable(self):

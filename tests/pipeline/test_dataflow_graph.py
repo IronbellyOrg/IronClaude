@@ -45,17 +45,33 @@ class TestCrossMilestoneChain:
             MutationInventoryResult(
                 variable_name="offset",
                 mutation_sites=[
-                    MutationSite(deliverable_id="D1.1", expression="introduced as offset", context="birth site"),
-                    MutationSite(deliverable_id="D2.3", expression="increment offset", context="advance offset by step"),
+                    MutationSite(
+                        deliverable_id="D1.1",
+                        expression="introduced as offset",
+                        context="birth site",
+                    ),
+                    MutationSite(
+                        deliverable_id="D2.3",
+                        expression="increment offset",
+                        context="advance offset by step",
+                    ),
                 ],
                 ambiguous_sites=[],
             ),
         ]
 
         deliverables = [
-            Deliverable(id="D1.1", description="Introduce offset counter for event tracking"),
-            Deliverable(id="D2.3", description="Increment offset by step size after batch processing"),
-            Deliverable(id="D3.1", description="Read offset to determine resume position, uses offset value"),
+            Deliverable(
+                id="D1.1", description="Introduce offset counter for event tracking"
+            ),
+            Deliverable(
+                id="D2.3",
+                description="Increment offset by step size after batch processing",
+            ),
+            Deliverable(
+                id="D3.1",
+                description="Read offset to determine resume position, uses offset value",
+            ),
         ]
 
         graph = build_dataflow_graph(detections, inventory, deliverables)
@@ -99,7 +115,11 @@ class TestSameDeliverableBirthRead:
             MutationInventoryResult(
                 variable_name="flag",
                 mutation_sites=[
-                    MutationSite(deliverable_id="D1.1", expression="introduced as flag", context="birth site"),
+                    MutationSite(
+                        deliverable_id="D1.1",
+                        expression="introduced as flag",
+                        context="birth site",
+                    ),
                 ],
                 ambiguous_sites=[],
             ),
@@ -107,7 +127,10 @@ class TestSameDeliverableBirthRead:
 
         deliverables = [
             Deliverable(id="D1.1", description="Introduce flag for tracking state"),
-            Deliverable(id="D1.2", description="Read flag to check if processing is complete, uses flag"),
+            Deliverable(
+                id="D1.2",
+                description="Read flag to check if processing is complete, uses flag",
+            ),
         ]
 
         graph = build_dataflow_graph(detections, inventory, deliverables)
@@ -141,7 +164,11 @@ class TestReadBeforeBirth:
             MutationInventoryResult(
                 variable_name="cursor",
                 mutation_sites=[
-                    MutationSite(deliverable_id="D2.1", expression="introduced as cursor", context="birth site"),
+                    MutationSite(
+                        deliverable_id="D2.1",
+                        expression="introduced as cursor",
+                        context="birth site",
+                    ),
                 ],
                 ambiguous_sites=[],
             ),
@@ -149,8 +176,13 @@ class TestReadBeforeBirth:
 
         # D1.1 reads cursor BEFORE D2.1 births it (ordering by list position)
         deliverables = [
-            Deliverable(id="D1.1", description="Read cursor to determine position, uses cursor value"),
-            Deliverable(id="D2.1", description="Introduce cursor for pagination tracking"),
+            Deliverable(
+                id="D1.1",
+                description="Read cursor to determine position, uses cursor value",
+            ),
+            Deliverable(
+                id="D2.1", description="Introduce cursor for pagination tracking"
+            ),
         ]
 
         with pytest.raises(ValueError, match="Read-before-birth"):
@@ -175,8 +207,16 @@ class TestDeadWrite:
             MutationInventoryResult(
                 variable_name="counter",
                 mutation_sites=[
-                    MutationSite(deliverable_id="D1.1", expression="introduced as counter", context="birth site"),
-                    MutationSite(deliverable_id="D2.1", expression="increment counter", context="update counter value"),
+                    MutationSite(
+                        deliverable_id="D1.1",
+                        expression="introduced as counter",
+                        context="birth site",
+                    ),
+                    MutationSite(
+                        deliverable_id="D2.1",
+                        expression="increment counter",
+                        context="update counter value",
+                    ),
                 ],
                 ambiguous_sites=[],
             ),
@@ -260,7 +300,9 @@ class TestPerformanceWarning:
             MutationInventoryResult(
                 variable_name="x",
                 mutation_sites=[
-                    MutationSite(deliverable_id="D1.1", expression="birth", context="birth site"),
+                    MutationSite(
+                        deliverable_id="D1.1", expression="birth", context="birth site"
+                    ),
                 ],
                 ambiguous_sites=[],
             ),

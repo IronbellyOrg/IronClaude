@@ -104,7 +104,9 @@ class TestRedaction:
         d = result.to_dict()
         # Verify no raw secret value in the serialized output
         serialized = str(d)
-        assert "AKIAIOSFODNN7EXAMPLE" not in serialized or REDACTION_MARKER in serialized
+        assert (
+            "AKIAIOSFODNN7EXAMPLE" not in serialized or REDACTION_MARKER in serialized
+        )
 
 
 class TestScanResultSerialization:

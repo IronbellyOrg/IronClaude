@@ -83,12 +83,14 @@ class TestDiagnosticsCollector:
         """Multiple gate failures are all recorded."""
         collector = DiagnosticsCollector()
         for i in range(3):
-            collector.record_gate_failure(GateFailure(
-                gate_id=f"G-00{i}",
-                check_name="test_check",
-                diagnostic=f"failure {i}",
-                artifact_path="/workdir/out.md",
-            ))
+            collector.record_gate_failure(
+                GateFailure(
+                    gate_id=f"G-00{i}",
+                    check_name="test_check",
+                    diagnostic=f"failure {i}",
+                    artifact_path="/workdir/out.md",
+                )
+            )
         bundle = collector.build_bundle()
         assert len(bundle.gate_failures) == 3
 
@@ -152,13 +154,15 @@ class TestDiagnosticsEmit:
     def test_diagnostics_emit_contains_gate_failure(self, tmp_path):
         """diagnostics.md contains gate failure details."""
         collector = DiagnosticsCollector()
-        collector.record_gate_failure(GateFailure(
-            gate_id="G-003",
-            check_name="has_required_analysis_sections",
-            diagnostic="Missing sections: ['Step Graph']",
-            artifact_path="/workdir/analyze-workflow.md",
-            tier="STRICT",
-        ))
+        collector.record_gate_failure(
+            GateFailure(
+                gate_id="G-003",
+                check_name="has_required_analysis_sections",
+                diagnostic="Missing sections: ['Step Graph']",
+                artifact_path="/workdir/analyze-workflow.md",
+                tier="STRICT",
+            )
+        )
         path = collector.emit_diagnostics(tmp_path, step_id="analyze-workflow")
         content = path.read_text()
         assert "G-003" in content
@@ -183,13 +187,15 @@ class TestDiagnosticsEmit:
     def test_diagnostics_emit_all_collected_fields(self, tmp_path):
         """diagnostics.md mirrors all collected fields."""
         collector = DiagnosticsCollector()
-        collector.record_gate_failure(GateFailure(
-            gate_id="G-010",
-            check_name="has_zero_placeholders",
-            diagnostic="Placeholder sentinel found: {{SC_PLACEHOLDER:missing}}",
-            artifact_path="/workdir/portify-release-spec.md",
-            tier="STRICT",
-        ))
+        collector.record_gate_failure(
+            GateFailure(
+                gate_id="G-010",
+                check_name="has_zero_placeholders",
+                diagnostic="Placeholder sentinel found: {{SC_PLACEHOLDER:missing}}",
+                artifact_path="/workdir/portify-release-spec.md",
+                tier="STRICT",
+            )
+        )
         collector.record_exit_code(2)
         collector.record_missing_artifact("/workdir/release-spec.md")
         collector.set_resume_guidance("superclaude portify --start synthesize-spec")

@@ -25,7 +25,6 @@ def _d(id: str, desc: str) -> Deliverable:
 
 
 class TestFMEADomainEnumerator:
-
     def test_filter_domains(self):
         """'filter events by type' produces expected domains."""
         d = _d("D1", "Filter events by type from the event stream")

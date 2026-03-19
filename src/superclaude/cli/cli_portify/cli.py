@@ -31,7 +31,8 @@ def cli_portify_group():
 @cli_portify_group.command()
 @click.argument("target", metavar="TARGET")
 @click.option(
-    "--cli-name", "--name",
+    "--cli-name",
+    "--name",
     "cli_name",
     default="",
     help="Override derived CLI name for the portified pipeline",
@@ -178,6 +179,7 @@ def run(
             return
 
         from superclaude.cli.cli_portify.executor import run_portify
+
         run_portify(config)
 
     except PortifyValidationError as exc:

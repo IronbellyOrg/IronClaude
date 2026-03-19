@@ -44,7 +44,10 @@ class TestHandleMissingTemplate:
 
     def test_classifies_as_missing_artifact(self):
         result = handle_missing_template("synthesize-spec", 5, 3, "/path/template.md")
-        assert result.step_result.failure_classification == FailureClassification.MISSING_ARTIFACT
+        assert (
+            result.step_result.failure_classification
+            == FailureClassification.MISSING_ARTIFACT
+        )
 
     def test_is_terminal(self):
         result = handle_missing_template("synthesize-spec", 5, 3, "/path/template.md")
@@ -99,7 +102,10 @@ class TestHandleMalformedArtifact:
 
     def test_classifies_as_malformed_frontmatter(self):
         result = handle_malformed_artifact("brainstorm-gaps", 6, 4, "/path/artifact.md")
-        assert result.step_result.failure_classification == FailureClassification.MALFORMED_FRONTMATTER
+        assert (
+            result.step_result.failure_classification
+            == FailureClassification.MALFORMED_FRONTMATTER
+        )
 
     def test_is_terminal(self):
         result = handle_malformed_artifact("brainstorm-gaps", 6, 4, "/path/artifact.md")
@@ -107,17 +113,26 @@ class TestHandleMalformedArtifact:
 
     def test_includes_diagnostic(self):
         result = handle_malformed_artifact(
-            "brainstorm-gaps", 6, 4, "/path/artifact.md", diagnostic="Missing --- delimiter"
+            "brainstorm-gaps",
+            6,
+            4,
+            "/path/artifact.md",
+            diagnostic="Missing --- delimiter",
         )
         assert "Missing --- delimiter" in result.error_message
 
     def test_resumable_step_has_resume_command(self):
         result = handle_malformed_artifact("brainstorm-gaps", 6, 4, "/path/artifact.md")
         assert result.step_result.resume_context.resume_command != ""
-        assert "--start brainstorm-gaps" in result.step_result.resume_context.resume_command
+        assert (
+            "--start brainstorm-gaps"
+            in result.step_result.resume_context.resume_command
+        )
 
     def test_non_resumable_step_has_empty_resume(self):
-        result = handle_malformed_artifact("analyze-workflow", 3, 2, "/path/artifact.md")
+        result = handle_malformed_artifact(
+            "analyze-workflow", 3, 2, "/path/artifact.md"
+        )
         assert result.step_result.resume_context.resume_command == ""
 
 
@@ -132,14 +147,19 @@ class TestHandleTimeout:
         result = handle_timeout(
             "panel-review", 7, 4, 300.0, is_per_iteration=True, iteration=2
         )
-        assert result.step_result.failure_classification == FailureClassification.TIMEOUT
+        assert (
+            result.step_result.failure_classification == FailureClassification.TIMEOUT
+        )
         assert "iteration 2" in result.error_message
 
     def test_total_budget_exhausted(self):
         result = handle_timeout(
             "panel-review", 7, 4, 300.0, total_budget_exhausted=True, iteration=3
         )
-        assert result.step_result.failure_classification == FailureClassification.BUDGET_EXHAUSTION
+        assert (
+            result.step_result.failure_classification
+            == FailureClassification.BUDGET_EXHAUSTION
+        )
         assert "budget exhausted" in result.error_message.lower()
 
     def test_is_terminal(self):
@@ -172,7 +192,10 @@ class TestHandlePartialArtifact:
 
     def test_classifies_as_partial_artifact(self):
         result = handle_partial_artifact("synthesize-spec", 5, 3, "/path/spec.md", 3)
-        assert result.step_result.failure_classification == FailureClassification.PARTIAL_ARTIFACT
+        assert (
+            result.step_result.failure_classification
+            == FailureClassification.PARTIAL_ARTIFACT
+        )
 
     def test_is_terminal(self):
         result = handle_partial_artifact("synthesize-spec", 5, 3, "/path/spec.md")
@@ -229,7 +252,10 @@ class TestHandleBudgetExhausted:
 
     def test_classifies_as_budget_exhaustion(self):
         result = handle_budget_exhausted("panel-review", 7, 4, 3, 3)
-        assert result.step_result.failure_classification == FailureClassification.BUDGET_EXHAUSTION
+        assert (
+            result.step_result.failure_classification
+            == FailureClassification.BUDGET_EXHAUSTION
+        )
 
     def test_is_terminal(self):
         result = handle_budget_exhausted("panel-review", 7, 4, 3, 3)

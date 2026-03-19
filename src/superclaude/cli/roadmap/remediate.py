@@ -58,7 +58,9 @@ def format_validation_summary(findings: list[Finding]) -> str:
 
     total = len(findings)
     lines.append(f"  Total findings: {total}")
-    lines.append(f"  BLOCKING: {len(blocking)}  |  WARNING: {len(warning)}  |  INFO: {len(info)}")
+    lines.append(
+        f"  BLOCKING: {len(blocking)}  |  WARNING: {len(warning)}  |  INFO: {len(info)}"
+    )
     lines.append("")
 
     if blocking:
@@ -246,19 +248,128 @@ def generate_stub_tasklist(
     source_hash = hashlib.sha256(source_report_content.encode("utf-8")).hexdigest()
     generated = datetime.now(timezone.utc).isoformat()
 
-    return "\n".join([
-        "---",
-        "type: remediation-tasklist",
-        f"source_report: {source_report_path}",
-        f"source_report_hash: {source_hash}",
-        f"generated: {generated}",
-        "total_findings: 0",
-        "actionable: 0",
-        "skipped: 0",
-        "---",
-        "",
-        "# Remediation Tasklist",
-        "",
-        "No actionable findings. All entries SKIPPED or no findings detected.",
-        "",
-    ])
+    return "\n".join(
+        [
+            "---",
+            "type: remediation-tasklist",
+            f"source_report: {source_report_path}",
+            f"source_report_hash: {source_hash}",
+            f"generated: {generated}",
+            "total_findings: 0",
+            "actionable: 0",
+            "skipped: 0",
+            "---",
+            "",
+            "# Remediation Tasklist",
+            "",
+            "No actionable findings. All entries SKIPPED or no findings detected.",
+            "",
+        ]
+    )
+
+
+def _parse_routing_list(routing_value: str) -> list[str]:
+    """Parse a whitespace/comma-separated routing value into a list of IDs.
+
+    Valid IDs match DEV-\\d+. Invalid tokens are silently dropped.
+    Empty string or whitespace-only input returns empty list.
+
+    Pure function: no I/O or side effects.
+    """
+    import logging
+    import re
+
+    _log = logging.getLogger("superclaude.roadmap.remediate")
+
+    if not routing_value or not routing_value.strip():
+        return []
+
+    result: list[str] = []
+    id_pattern = re.compile(r"^DEV-\d+$")
+    for token in re.split(r"[\s,]+", routing_value):
+        token = token.strip()
+        if not token:
+            continue
+        if id_pattern.match(token):
+            result.append(token)
+        else:
+            _log.warning("Invalid routing ID ignored: %r", token)
+    return result
+
+
+# Severity mapping for deviations_to_findings (v2.26)
+_DEVIATION_SEVERITY_MAP: dict[str, str] = {
+    "HIGH": "BLOCKING",
+    "MEDIUM": "WARNING",
+    "LOW": "INFO",
+}
+
+
+def deviations_to_findings(
+    deviation_records: list[dict],
+    fidelity_table: dict[str, dict] | None = None,
+) -> list[Finding]:
+    """Convert deviation analysis records to Finding objects.
+
+    Severity mapping (FR-082):
+    - HIGH -> BLOCKING
+    - MEDIUM -> WARNING
+    - LOW -> INFO
+
+    Raises ValueError if routing is empty but slip_count > 0.
+    Logs WARNING if a routing ID is not found in fidelity_table.
+
+    Pure function aside from logging.
+
+    Args:
+        deviation_records: list of dicts with keys:
+            id, severity, dimension, description, location, evidence,
+            fix_guidance, files_affected, deviation_class, routing
+        fidelity_table: optional dict mapping DEV-ID -> metadata dict
+
+    Returns:
+        list of Finding objects
+    """
+    import logging
+
+    _log = logging.getLogger("superclaude.roadmap.remediate")
+
+    if fidelity_table is None:
+        fidelity_table = {}
+
+    slip_records = [r for r in deviation_records if r.get("deviation_class") == "SLIP"]
+    routing_ids = _parse_routing_list(
+        ",".join(r.get("routing", "") for r in slip_records if r.get("routing"))
+    )
+
+    if slip_records and not routing_ids:
+        raise ValueError(
+            f"Empty routing_fix_roadmap with slip_count={len(slip_records)} > 0. "
+            "SLIP deviations require routing IDs."
+        )
+
+    findings: list[Finding] = []
+    for record in deviation_records:
+        dev_id = record.get("id", "UNKNOWN")
+        raw_severity = record.get("severity", "LOW")
+        severity = _DEVIATION_SEVERITY_MAP.get(raw_severity, "INFO")
+
+        if dev_id not in fidelity_table and fidelity_table:
+            _log.warning("Routing ID %r not found in fidelity table", dev_id)
+
+        finding = Finding(
+            id=dev_id,
+            severity=severity,
+            dimension=record.get("dimension", ""),
+            description=record.get("description", ""),
+            location=record.get("location", ""),
+            evidence=record.get("evidence", ""),
+            fix_guidance=record.get("fix_guidance", ""),
+            files_affected=record.get("files_affected", []),
+            status=record.get("status", "PENDING"),
+            agreement_category=record.get("agreement_category", ""),
+            deviation_class=record.get("deviation_class", "UNCLASSIFIED"),
+        )
+        findings.append(finding)
+
+    return findings

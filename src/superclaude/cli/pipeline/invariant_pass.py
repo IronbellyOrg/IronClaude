@@ -30,6 +30,7 @@ class InvariantRegistryOutput:
         warnings: Any duplicate variable warnings.
         section_markdown: Rendered markdown section for roadmap output.
     """
+
     entries: list[InvariantEntry] = field(default_factory=list)
     generated_deliverables: list[Deliverable] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -56,14 +57,12 @@ def run_invariant_registry_pass(
     """
     # Idempotency: filter out previously generated invariant_check deliverables
     source_deliverables = [
-        d for d in deliverables
-        if d.kind != DeliverableKind.INVARIANT_CHECK
+        d for d in deliverables if d.kind != DeliverableKind.INVARIANT_CHECK
     ]
 
     # Step 1: Focus on implement deliverables for detection
     implement_deliverables = [
-        d for d in source_deliverables
-        if d.kind == DeliverableKind.IMPLEMENT
+        d for d in source_deliverables if d.kind == DeliverableKind.IMPLEMENT
     ]
 
     if not implement_deliverables:
@@ -99,7 +98,9 @@ def run_invariant_registry_pass(
 
     # Step 5: Emit verification deliverables
     generated = emit_invariant_check_deliverables(
-        inventory, entries, max_checks_per_variable=max_checks_per_variable,
+        inventory,
+        entries,
+        max_checks_per_variable=max_checks_per_variable,
     )
 
     # Step 6: Check for duplicates

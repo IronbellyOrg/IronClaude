@@ -87,7 +87,12 @@ class TestConfigValidationErrors:
         )
         errors = validate_portify_config(config)
         assert len(errors) >= 1
-        assert any("Cannot create" in e or "not writable" in e.lower() or "not a directory" in e.lower() for e in errors)
+        assert any(
+            "Cannot create" in e
+            or "not writable" in e.lower()
+            or "not a directory" in e.lower()
+            for e in errors
+        )
 
     def test_name_collision(self, tmp_workflow, tmp_output):
         """Error path 4: CLI name collides with existing command."""
@@ -310,9 +315,11 @@ class TestCollisionDetection:
         # Patch config output_dir to point at our fake cli root parent
         config.output_dir = cli_root.parent
 
-        errors = _check_collision.__wrapped__(
-            "my-test-module", config
-        ) if hasattr(_check_collision, "__wrapped__") else []
+        errors = (
+            _check_collision.__wrapped__("my-test-module", config)
+            if hasattr(_check_collision, "__wrapped__")
+            else []
+        )
         # The collision check is tested via validate_portify_config with a known name
         # Verify the pattern: known module names produce collision errors
         cfg2 = load_portify_config(
@@ -358,7 +365,9 @@ class TestCollisionDetection:
         errors = validate_portify_config(config)
         assert len(errors) >= 1
         assert any(
-            "Cannot create" in e or "not writable" in e.lower() or "not a directory" in e.lower()
+            "Cannot create" in e
+            or "not writable" in e.lower()
+            or "not a directory" in e.lower()
             for e in errors
         )
 
@@ -384,7 +393,9 @@ class TestWorkdirCreation:
         assert workdir.exists()
         assert workdir.is_dir()
         # Path must be under .dev/portify-workdir/
-        assert ".dev/portify-workdir" in str(workdir) or "portify-workdir" in str(workdir)
+        assert ".dev/portify-workdir" in str(workdir) or "portify-workdir" in str(
+            workdir
+        )
 
     def test_workdir_uses_cli_name_snake_case(self, tmp_workflow, tmp_path):
         """Workdir directory name is snake_case of CLI name."""
@@ -399,7 +410,10 @@ class TestWorkdirCreation:
 
     def test_portify_config_yaml_emitted(self, tmp_workflow, tmp_path):
         """emit_portify_config_yaml writes portify-config.yaml to workdir."""
-        from superclaude.cli.cli_portify.workdir import create_workdir, emit_portify_config_yaml
+        from superclaude.cli.cli_portify.workdir import (
+            create_workdir,
+            emit_portify_config_yaml,
+        )
 
         config = load_portify_config(
             workflow_path=tmp_workflow,
@@ -412,7 +426,10 @@ class TestWorkdirCreation:
 
     def test_portify_config_yaml_required_fields(self, tmp_workflow, tmp_path):
         """portify-config.yaml contains all required fields: workflow_path, cli_name, output_dir, workdir_path."""
-        from superclaude.cli.cli_portify.workdir import create_workdir, emit_portify_config_yaml
+        from superclaude.cli.cli_portify.workdir import (
+            create_workdir,
+            emit_portify_config_yaml,
+        )
 
         config = load_portify_config(
             workflow_path=tmp_workflow,
@@ -429,7 +446,10 @@ class TestWorkdirCreation:
     def test_portify_config_yaml_parseable(self, tmp_workflow, tmp_path):
         """portify-config.yaml is valid YAML."""
         import yaml
-        from superclaude.cli.cli_portify.workdir import create_workdir, emit_portify_config_yaml
+        from superclaude.cli.cli_portify.workdir import (
+            create_workdir,
+            emit_portify_config_yaml,
+        )
 
         config = load_portify_config(
             workflow_path=tmp_workflow,

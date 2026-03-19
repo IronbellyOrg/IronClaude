@@ -73,7 +73,6 @@ def config_with_prior_artifacts(workflow_dir: Path, tmp_path: Path):
 
 
 class TestSynthesizeSpecHappyPath:
-
     def test_produces_pass_result(self, config_with_prior_artifacts, workflow_dir):
         with patch_portify_process("synthesize-spec"):
             result = run_synthesize_spec(
@@ -121,7 +120,6 @@ class TestSentinelScan:
 
 
 class TestSynthesizeSpecFailures:
-
     def test_missing_template_fails(self, tmp_path):
         """Missing release-spec-template.md should trigger fail-fast."""
         wf = tmp_path / "sc-test-protocol"
@@ -174,9 +172,7 @@ class TestSynthesizeSpecFailures:
 
     def test_sentinels_exhaust_retries(self, config_with_prior_artifacts, workflow_dir):
         """Persistent sentinels should exhaust retries and return FAIL."""
-        with patch_portify_process(
-            "synthesize-spec", fixture_override=PARTIAL_OUTPUT
-        ):
+        with patch_portify_process("synthesize-spec", fixture_override=PARTIAL_OUTPUT):
             result = run_synthesize_spec(
                 config_with_prior_artifacts,
                 template_path=workflow_dir / "release-spec-template.md",

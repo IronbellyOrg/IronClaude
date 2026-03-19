@@ -30,6 +30,7 @@ from superclaude.cli.roadmap.spec_patch import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def output_dir(tmp_path: Path) -> Path:
     """Create an output directory with a valid .roadmap-state.json."""
@@ -97,6 +98,7 @@ def _modify_spec(output_dir: Path) -> str:
 # TestLocateStateFile (FR-2.24.1.1)
 # ---------------------------------------------------------------------------
 
+
 class TestLocateStateFile:
     """FR-2.24.1.1: Missing or unreadable state file exits 1."""
 
@@ -114,6 +116,7 @@ class TestLocateStateFile:
 # TestRecomputeHash (FR-2.24.1.2)
 # ---------------------------------------------------------------------------
 
+
 class TestRecomputeHash:
     """FR-2.24.1.2: Missing spec file exits 1."""
 
@@ -127,6 +130,7 @@ class TestRecomputeHash:
 # ---------------------------------------------------------------------------
 # TestHashMismatchCheck (FR-2.24.1.3)
 # ---------------------------------------------------------------------------
+
 
 class TestHashMismatchCheck:
     """FR-2.24.1.3: Hash equality exits 0 (idempotent), AC-3."""
@@ -183,6 +187,7 @@ class TestHashMismatchCheck:
 # TestScanDeviationRecords (FR-2.24.1.4)
 # ---------------------------------------------------------------------------
 
+
 class TestScanDeviationRecords:
     """FR-2.24.1.4: Glob, parse, filter, zero-records exit; AC-1, AC-14."""
 
@@ -192,7 +197,9 @@ class TestScanDeviationRecords:
         result = prompt_accept_spec_change(output_dir)
         assert result == 1
 
-    def test_accepted_record_found(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_accepted_record_found(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         records = scan_accepted_deviation_records(output_dir)
         assert len(records) == 1
         assert records[0].id == "DEV-001"
@@ -224,7 +231,9 @@ class TestScanDeviationRecords:
         records = scan_accepted_deviation_records(output_dir)
         assert len(records) == 0
 
-    def test_malformed_yaml_skipped(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_malformed_yaml_skipped(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         """AC-14: Malformed YAML → warning + skip, valid files still processed."""
         (output_dir / "dev-005-accepted-deviation.md").write_text(
             "---\n: invalid yaml {{{\n---\n", encoding="utf-8"
@@ -264,6 +273,7 @@ class TestScanDeviationRecords:
 # TestPromptBehavior (FR-2.24.1.5)
 # ---------------------------------------------------------------------------
 
+
 class TestPromptBehavior:
     """FR-2.24.1.5: Input normalization, non-interactive; AC-4, AC-11."""
 
@@ -271,8 +281,10 @@ class TestPromptBehavior:
         """AC-4: Answer N → Aborted, no state modification."""
         _modify_spec(output_dir)
         mtime_before = os.path.getmtime(output_dir / ".roadmap-state.json")
-        with patch("builtins.input", return_value="n"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin:
+        with (
+            patch("builtins.input", return_value="n"),
+            patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin,
+        ):
             mock_stdin.isatty.return_value = True
             result = prompt_accept_spec_change(output_dir)
         assert result == 0
@@ -282,21 +294,27 @@ class TestPromptBehavior:
     def test_answer_yes_aborts(self, output_dir: Path, deviation_file: Path) -> None:
         """Only single-char y/Y confirms — 'yes' is treated as N."""
         _modify_spec(output_dir)
-        with patch("builtins.input", return_value="yes"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin:
+        with (
+            patch("builtins.input", return_value="yes"),
+            patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin,
+        ):
             mock_stdin.isatty.return_value = True
             result = prompt_accept_spec_change(output_dir)
         assert result == 0  # Aborted
 
     def test_empty_input_aborts(self, output_dir: Path, deviation_file: Path) -> None:
         _modify_spec(output_dir)
-        with patch("builtins.input", return_value=""), \
-             patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin:
+        with (
+            patch("builtins.input", return_value=""),
+            patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin,
+        ):
             mock_stdin.isatty.return_value = True
             result = prompt_accept_spec_change(output_dir)
         assert result == 0  # Aborted
 
-    def test_non_interactive_aborts(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_non_interactive_aborts(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         """AC-11: Non-interactive + auto_accept=False → Aborted."""
         _modify_spec(output_dir)
         with patch("sys.stdin") as mock_stdin:
@@ -304,24 +322,34 @@ class TestPromptBehavior:
             result = prompt_accept_spec_change(output_dir, auto_accept=False)
         assert result == 0
 
-    def test_auto_accept_skips_prompt(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_auto_accept_skips_prompt(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         """auto_accept=True → proceeds without prompt."""
         _modify_spec(output_dir)
         result = prompt_accept_spec_change(output_dir, auto_accept=True)
         assert result == 0
 
-    def test_answer_y_lowercase_confirms(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_answer_y_lowercase_confirms(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         _modify_spec(output_dir)
-        with patch("builtins.input", return_value="y"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin:
+        with (
+            patch("builtins.input", return_value="y"),
+            patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin,
+        ):
             mock_stdin.isatty.return_value = True
             result = prompt_accept_spec_change(output_dir)
         assert result == 0
 
-    def test_answer_uppercase_y_confirms(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_answer_uppercase_y_confirms(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         _modify_spec(output_dir)
-        with patch("builtins.input", return_value="Y"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin:
+        with (
+            patch("builtins.input", return_value="Y"),
+            patch("superclaude.cli.roadmap.spec_patch.sys.stdin") as mock_stdin,
+        ):
             mock_stdin.isatty.return_value = True
             result = prompt_accept_spec_change(output_dir)
         assert result == 0
@@ -331,10 +359,13 @@ class TestPromptBehavior:
 # TestAtomicWrite (FR-2.24.1.6)
 # ---------------------------------------------------------------------------
 
+
 class TestAtomicWrite:
     """FR-2.24.1.6: Only spec_hash changed, all keys preserved; AC-2."""
 
-    def test_only_spec_hash_changes(self, output_dir: Path, deviation_file: Path) -> None:
+    def test_only_spec_hash_changes(
+        self, output_dir: Path, deviation_file: Path
+    ) -> None:
         """AC-2: All other keys preserved verbatim."""
         state_before = json.loads(
             (output_dir / ".roadmap-state.json").read_text(encoding="utf-8")
@@ -370,6 +401,7 @@ class TestAtomicWrite:
 # TestConfirmationOutput (FR-2.24.1.7)
 # ---------------------------------------------------------------------------
 
+
 class TestConfirmationOutput:
     """FR-2.24.1.7: Both hashes truncated to 12 chars."""
 
@@ -393,6 +425,7 @@ class TestConfirmationOutput:
 # TestIdempotency (AC-3)
 # ---------------------------------------------------------------------------
 
+
 class TestIdempotency:
     """AC-3: Running twice → second exits 0 with 'nothing to do'."""
 
@@ -413,6 +446,7 @@ class TestIdempotency:
 # TestExtractFrontmatter
 # ---------------------------------------------------------------------------
 
+
 class TestExtractFrontmatter:
     def test_valid_frontmatter(self) -> None:
         text = "---\nkey: value\n---\nbody"
@@ -432,6 +466,7 @@ class TestExtractFrontmatter:
 # TestDeviationRecord dataclass
 # ---------------------------------------------------------------------------
 
+
 class TestDeviationRecord:
     def test_frozen(self, tmp_path: Path) -> None:
         rec = DeviationRecord(
@@ -450,6 +485,7 @@ class TestDeviationRecord:
 # ---------------------------------------------------------------------------
 # Integration tests (T02.03) — CLI invocation via click.testing.CliRunner
 # ---------------------------------------------------------------------------
+
 
 class TestCLIIntegration:
     """Integration tests using CliRunner with real file fixtures."""
@@ -560,8 +596,10 @@ class TestCLIIntegration:
         # CliRunner replaces sys.stdin with a non-tty stream. The code checks
         # sys.stdin.isatty() before calling input(). Mock both to simulate
         # an interactive session via CliRunner.
-        with patch("builtins.input", return_value="y"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys") as mock_sys:
+        with (
+            patch("builtins.input", return_value="y"),
+            patch("superclaude.cli.roadmap.spec_patch.sys") as mock_sys,
+        ):
             mock_sys.stdin.isatty.return_value = True
             mock_sys.stderr = sys.stderr
             mock_sys.exit = sys.exit
@@ -588,8 +626,10 @@ class TestCLIIntegration:
         runner = CliRunner()
 
         # First run: accept
-        with patch("builtins.input", return_value="y"), \
-             patch("superclaude.cli.roadmap.spec_patch.sys") as mock_sys:
+        with (
+            patch("builtins.input", return_value="y"),
+            patch("superclaude.cli.roadmap.spec_patch.sys") as mock_sys,
+        ):
             mock_sys.stdin.isatty.return_value = True
             mock_sys.stderr = sys.stderr
             mock_sys.exit = sys.exit

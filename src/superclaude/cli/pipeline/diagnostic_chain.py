@@ -189,7 +189,9 @@ def run_diagnostic_chain(
         _log.warning("Diagnostic stage TROUBLESHOOT failed: %s", e)
         troubleshoot = StageResult(
             stage=DiagnosticStage.TROUBLESHOOT,
-            output="", success=False, error=str(e),
+            output="",
+            success=False,
+            error=str(e),
         )
         report.stage_results.append(troubleshoot)
 
@@ -204,7 +206,9 @@ def run_diagnostic_chain(
         _log.warning("Diagnostic stage ROOT_CAUSES failed: %s", e)
         root_causes = StageResult(
             stage=DiagnosticStage.ROOT_CAUSES,
-            output="", success=False, error=str(e),
+            output="",
+            success=False,
+            error=str(e),
         )
         report.stage_results.append(root_causes)
 
@@ -219,7 +223,9 @@ def run_diagnostic_chain(
         _log.warning("Diagnostic stage SOLUTIONS failed: %s", e)
         solutions = StageResult(
             stage=DiagnosticStage.SOLUTIONS,
-            output="", success=False, error=str(e),
+            output="",
+            success=False,
+            error=str(e),
         )
         report.stage_results.append(solutions)
 
@@ -230,9 +236,13 @@ def run_diagnostic_chain(
         report.summary = summary.output
     except Exception as e:
         _log.warning("Diagnostic stage SUMMARY failed: %s", e)
-        report.stage_results.append(StageResult(
-            stage=DiagnosticStage.SUMMARY,
-            output="", success=False, error=str(e),
-        ))
+        report.stage_results.append(
+            StageResult(
+                stage=DiagnosticStage.SUMMARY,
+                output="",
+                success=False,
+                error=str(e),
+            )
+        )
 
     return report

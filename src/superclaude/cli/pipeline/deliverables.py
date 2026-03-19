@@ -12,37 +12,89 @@ import re
 from .models import Deliverable, DeliverableKind
 
 # Computational verbs that signal behavioral deliverables
-_COMPUTATIONAL_VERBS = frozenset({
-    "compute", "extract", "filter", "count", "calculate", "determine",
-    "select", "track", "increment", "update", "replace", "introduce",
-    "implement", "retry", "parse", "validate", "transform", "convert",
-    "aggregate", "merge", "split", "normalize", "encode", "decode",
-    "generate", "emit", "dispatch", "invoke", "execute", "process",
-    "build", "construct", "create", "initialize", "register",
-})
+_COMPUTATIONAL_VERBS = frozenset(
+    {
+        "compute",
+        "extract",
+        "filter",
+        "count",
+        "calculate",
+        "determine",
+        "select",
+        "track",
+        "increment",
+        "update",
+        "replace",
+        "introduce",
+        "implement",
+        "retry",
+        "parse",
+        "validate",
+        "transform",
+        "convert",
+        "aggregate",
+        "merge",
+        "split",
+        "normalize",
+        "encode",
+        "decode",
+        "generate",
+        "emit",
+        "dispatch",
+        "invoke",
+        "execute",
+        "process",
+        "build",
+        "construct",
+        "create",
+        "initialize",
+        "register",
+    }
+)
 
 # State mutation patterns (regex)
 _STATE_MUTATION_PATTERNS = [
-    r"self\._\w+",          # self._field access
-    r"\bcounter\b",         # counter variable
-    r"\boffset\b",          # offset variable
-    r"\bcursor\b",          # cursor variable
-    r"\bmutate\b",          # explicit mutation
-    r"\bstate\b",           # state reference
+    r"self\._\w+",  # self._field access
+    r"\bcounter\b",  # counter variable
+    r"\boffset\b",  # offset variable
+    r"\bcursor\b",  # cursor variable
+    r"\bmutate\b",  # explicit mutation
+    r"\bstate\b",  # state reference
 ]
 
 # Conditional logic patterns
-_CONDITIONAL_PATTERNS = frozenset({
-    "guard", "sentinel", "flag", "early return", "bounded",
-    "retry", "fallback", "threshold", "limit", "cap",
-})
+_CONDITIONAL_PATTERNS = frozenset(
+    {
+        "guard",
+        "sentinel",
+        "flag",
+        "early return",
+        "bounded",
+        "retry",
+        "fallback",
+        "threshold",
+        "limit",
+        "cap",
+    }
+)
 
 # Documentation verbs that suppress behavioral classification
-_DOC_VERBS = frozenset({
-    "document", "describe", "explain", "list", "outline",
-    "summarize", "catalog", "enumerate", "write", "draft",
-    "update readme", "add readme",
-})
+_DOC_VERBS = frozenset(
+    {
+        "document",
+        "describe",
+        "explain",
+        "list",
+        "outline",
+        "summarize",
+        "catalog",
+        "enumerate",
+        "write",
+        "draft",
+        "update readme",
+        "add readme",
+    }
+)
 
 
 def is_behavioral(description: str) -> bool:
@@ -68,7 +120,7 @@ def is_behavioral(description: str) -> bool:
     if doc_signals > 0:
         # Check if any strong behavioral signal overrides
         has_strong_behavioral = False
-        words = set(re.findall(r'\b\w+\b', lower))
+        words = set(re.findall(r"\b\w+\b", lower))
         behavioral_verb_hits = words & _COMPUTATIONAL_VERBS
         # Doc verbs win unless there are more behavioral signals
         if len(behavioral_verb_hits) <= doc_signals:
@@ -76,7 +128,7 @@ def is_behavioral(description: str) -> bool:
         has_strong_behavioral = True
 
     # Check computational verbs
-    words = set(re.findall(r'\b\w+\b', lower))
+    words = set(re.findall(r"\b\w+\b", lower))
     if words & _COMPUTATIONAL_VERBS:
         return True
 

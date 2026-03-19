@@ -78,7 +78,9 @@ def parse_quality_scores(content: str) -> dict[str, float]:
     # Table format: "| clarity | 8.5 |"
     if not scores:
         table_pattern = re.compile(
-            r"\|\s*(" + "|".join(_QUALITY_DIMENSIONS) + r")\s*\|\s*(\d+(?:\.\d+)?)\s*\|",
+            r"\|\s*("
+            + "|".join(_QUALITY_DIMENSIONS)
+            + r")\s*\|\s*(\d+(?:\.\d+)?)\s*\|",
             re.IGNORECASE,
         )
         for m in table_pattern.finditer(content):
@@ -121,7 +123,11 @@ def count_unaddressed_criticals(content: str) -> int:
         # Skip if any resolved marker appears anywhere before CRITICAL
         critical_pos = upper.find("CRITICAL")
         prefix = upper[:critical_pos]
-        if "[RESOLVED]" in prefix or "[INCORPORATED]" in prefix or "[DISMISSED]" in prefix:
+        if (
+            "[RESOLVED]" in prefix
+            or "[INCORPORATED]" in prefix
+            or "[DISMISSED]" in prefix
+        ):
             continue
         count += 1
     return count
@@ -184,7 +190,9 @@ def generate_panel_report(
             fm_lines.append(f"{dim}: {quality_scores[dim]}")
 
     if convergence_result.escalation_reason is not None:
-        fm_lines.append(f"escalation_reason: {convergence_result.escalation_reason.value}")
+        fm_lines.append(
+            f"escalation_reason: {convergence_result.escalation_reason.value}"
+        )
 
     fm_lines.append("---")
     fm_lines.append("")
@@ -200,7 +208,9 @@ def generate_panel_report(
     ]
 
     if convergence_result.escalation_reason is not None:
-        body_lines.append(f"**Escalation Reason**: {convergence_result.escalation_reason.value}")
+        body_lines.append(
+            f"**Escalation Reason**: {convergence_result.escalation_reason.value}"
+        )
 
     body_lines += ["", "## Quality Scores", ""]
     body_lines.append("| Dimension | Score |")
@@ -362,11 +372,13 @@ def run_panel_review(config: PortifyConfig) -> PortifyStepResult:
 
     # --- Run convergence engine (internal loop, not outer retry) ---
     engine = ConvergenceEngine(max_iterations=3)
-    engine.submit(IterationResult(
-        iteration=1,
-        unaddressed_criticals=unaddressed,
-        quality_scores=quality_scores,
-    ))
+    engine.submit(
+        IterationResult(
+            iteration=1,
+            unaddressed_criticals=unaddressed,
+            quality_scores=quality_scores,
+        )
+    )
     convergence_result = engine.result()
 
     # --- Determine downstream_ready ---
@@ -401,6 +413,7 @@ def run_panel_review(config: PortifyConfig) -> PortifyStepResult:
     panel_review_path = results_dir / "panel-review.md"
     if output_artifact.exists() and not panel_review_path.exists():
         import shutil as _shutil
+
         _shutil.copy2(str(output_artifact), str(panel_review_path))
 
     return PortifyStepResult(

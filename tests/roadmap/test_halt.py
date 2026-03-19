@@ -205,6 +205,7 @@ class TestHaltOutputFormat:
     def test_halt_output_written_to_stderr(self, tmp_path, capsys):
         """Verify execute_roadmap sends HALT to stderr (integration-level check)."""
         import sys
+
         config = _make_config(tmp_path)
         step = _make_step("debate", tmp_path)
         now = datetime.now(timezone.utc)

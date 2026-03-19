@@ -46,8 +46,7 @@ class TestGuardResolution:
         # At minimum 2 guard_test deliverables (semantic doc + uniqueness test)
         assert len(result.guard_test_deliverables) >= 2
         assert all(
-            d.kind == DeliverableKind.GUARD_TEST
-            for d in result.guard_test_deliverables
+            d.kind == DeliverableKind.GUARD_TEST for d in result.guard_test_deliverables
         )
 
         # Release gate warning with mandatory owner
@@ -87,7 +86,9 @@ class TestGuardResolution:
     def test_accepted_risk_validation(self):
         """Scenario 4: Accepted-risk rationale is non-empty string with owner name."""
         # Valid accepted risk
-        risk = AcceptedRisk(owner="John Doe", rationale="Zero semantics documented in ADR-42")
+        risk = AcceptedRisk(
+            owner="John Doe", rationale="Zero semantics documented in ADR-42"
+        )
         assert risk.owner == "John Doe"
         assert risk.rationale == "Zero semantics documented in ADR-42"
 
@@ -133,7 +134,8 @@ class TestGuardResolution:
 
         # Should include a transition mapping deliverable
         trans_deliverables = [
-            d for d in result.guard_test_deliverables
+            d
+            for d in result.guard_test_deliverables
             if d.metadata.get("test_type") == "transition_mapping"
         ]
         assert len(trans_deliverables) >= 1
@@ -141,9 +143,7 @@ class TestGuardResolution:
 
     def test_output_can_advance_blocks_on_unresolved(self):
         """GuardResolutionOutput.can_advance is False when warnings are blocking."""
-        d = _make_deliverable(
-            "Replace boolean replay guard with integer offset"
-        )
+        d = _make_deliverable("Replace boolean replay guard with integer offset")
         detections = detect_guards([d])
         result = resolve_guards(detections)
 

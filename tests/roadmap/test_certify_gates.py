@@ -39,12 +39,13 @@ class TestCertifyGateDefinition:
 
     def test_has_semantic_checks(self):
         assert CERTIFY_GATE.semantic_checks is not None
-        assert len(CERTIFY_GATE.semantic_checks) == 2
+        assert len(CERTIFY_GATE.semantic_checks) == 3
 
     def test_semantic_check_names(self):
         check_names = {c.name for c in CERTIFY_GATE.semantic_checks}
         assert "frontmatter_values_non_empty" in check_names
         assert "per_finding_table_present" in check_names
+        assert "certified_is_true" in check_names
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -77,15 +78,7 @@ class TestHasPerFindingTable:
         assert _has_per_finding_table(content) is True
 
     def test_missing_table_header_fails(self):
-        content = (
-            "---\n"
-            "findings_verified: 1\n"
-            "---\n"
-            "\n"
-            "# Report\n"
-            "\n"
-            "No table here.\n"
-        )
+        content = "---\nfindings_verified: 1\n---\n\n# Report\n\nNo table here.\n"
         assert _has_per_finding_table(content) is False
 
     def test_missing_data_rows_fails(self):

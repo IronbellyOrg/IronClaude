@@ -1,0 +1,112 @@
+{
+  "expectations": [
+    {
+      "text": "Final verdict is NO SPLIT (not SPLIT or SPLIT-WITH-MODIFICATIONS)",
+      "passed": true,
+      "evidence": "release-split-report.md opens with '## Verdict: NO SPLIT'. split-proposal.md recommends 'DO NOT SPLIT'. split-proposal-final.md verdict is 'DON'T SPLIT'. All artifacts consistently report no-split."
+    },
+    {
+      "text": "split-proposal.md exists and articulates why splitting is NOT recommended",
+      "passed": true,
+      "evidence": "split-proposal.md exists (7338 bytes). The Recommendation section states 'DO NOT SPLIT' with 5 numbered rationale points: shared root cause, shared code, no natural seam, disproportionate overhead, and splitting increases risk."
+    },
+    {
+      "text": "The no-split rationale mentions shared root cause, small scope, or interdependency as reasons",
+      "passed": true,
+      "evidence": "split-proposal.md rationale point 1: 'Shared root cause: All three bugs stem from the poll loop treating errors as terminal.' Point 2: 'Shared code: R1 and R2 modify the same function.' Point 4: 'Disproportionate overhead: Two releases for 150-200 lines of code in 2 files.' All three categories (shared root cause, small scope, interdependency) are explicitly cited."
+    },
+    {
+      "text": "split-proposal-final.md exists with adversarial review that converges on NO SPLIT",
+      "passed": true,
+      "evidence": "split-proposal-final.md exists (8234 bytes). Contains Advocate, Skeptic, and Pragmatist positions. YAML frontmatter shows convergence_score: 0.92, unresolved_conflicts: 0. Verdict section: 'DON'T SPLIT'. Skeptic conclusion: 'No credible split point exists.'"
+    },
+    {
+      "text": "release-spec-validated.md exists (NOT release-1-spec.md or release-2-spec.md)",
+      "passed": true,
+      "evidence": "release-spec-validated.md exists (5104 bytes). No release-1-spec.md or release-2-spec.md files exist in the outputs directory (only 5 files present: split-proposal.md, split-proposal-final.md, release-spec-validated.md, fidelity-audit.md, release-split-report.md)."
+    },
+    {
+      "text": "release-spec-validated.md contains YAML frontmatter with split-analysis: no-split-recommended",
+      "passed": true,
+      "evidence": "release-spec-validated.md YAML frontmatter contains: split-analysis: \"no-split-recommended\""
+    },
+    {
+      "text": "release-spec-validated.md contains Why This Release Stays Intact section",
+      "passed": true,
+      "evidence": "release-spec-validated.md contains '## Why This Release Stays Intact' section with 4 numbered points covering no natural seam, shared root cause, splitting increases risk, and disproportionate overhead."
+    },
+    {
+      "text": "fidelity-audit.md exists and maps all 4 original requirements (R1-R4)",
+      "passed": true,
+      "evidence": "fidelity-audit.md exists (7014 bytes). Coverage Matrix maps: REQ-001 through REQ-003 from R1, REQ-004 through REQ-006 from R2, REQ-007 through REQ-010 from R3, REQ-011 through REQ-014 from R4. All four requirement groups are fully covered."
+    },
+    {
+      "text": "fidelity-audit.md shows fidelity score of 1.0 or >= 0.95",
+      "passed": true,
+      "evidence": "fidelity-audit.md states 'Fidelity score: 1.00' in the Summary section. Sign-Off section confirms: 'Fidelity score: 1.00. No remediation required.'"
+    },
+    {
+      "text": "release-split-report.md exists with NO SPLIT verdict",
+      "passed": true,
+      "evidence": "release-split-report.md exists (4708 bytes). Opens with '## Verdict: NO SPLIT'. Return contract YAML shows 'status: no-split'."
+    },
+    {
+      "text": "The analysis does NOT manufacture artificial split points just to justify splitting",
+      "passed": true,
+      "evidence": "The adversarial review (split-proposal-final.md) explicitly considers and rejects potential split points: P0/P1 priority split ('priority reflects business impact, not implementation independence'), enum as schema hardening ('5 lines and has zero value without the behavioral change'), file-based split ('does not correspond to a conceptual split'). Each is dismissed with substantive reasoning, not manufactured."
+    },
+    {
+      "text": "Alternatives to splitting are mentioned (e.g., phased rollout, feature flags, incremental testing)",
+      "passed": true,
+      "evidence": "split-proposal.md 'Alternative Strategies for Early Validation Without Splitting' section lists: 1) Staged code review (sequential commits within single PR), 2) Feature flag (gate retry behavior behind a flag), 3) CI canary (deploy to CI first, monitor flake rate 24 hours). release-spec-validated.md elaborates on staged code review, CI canary deployment, targeted regression testing, and real-world validation."
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 0,
+    "total": 12,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "total_duration_seconds": 254.7
+  },
+  "claims": [
+    {
+      "claim": "All three bugs share root cause in the poll loop",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistently stated across all artifacts with specific code-level justification: R1 and R2 modify _poll_subprocess(), R3 is called from the same error path"
+    },
+    {
+      "claim": "Total scope is 150-200 lines in 2 files",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Cannot verify against actual code — this is taken from the input spec. The claim is plausible but unverifiable from available outputs alone."
+    },
+    {
+      "claim": "Adversarial convergence score is 0.92",
+      "type": "process",
+      "verified": true,
+      "evidence": "YAML frontmatter in split-proposal-final.md shows convergence_score: 0.92"
+    },
+    {
+      "claim": "14 explicit requirements all preserved",
+      "type": "quality",
+      "verified": true,
+      "evidence": "fidelity-audit.md Coverage Matrix lists REQ-001 through REQ-014, all marked PRESERVED. Cross-checked against release-spec-validated.md Traceability table which lists R1-R4 plus architecture and rollout items."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "fidelity-audit.md shows fidelity score of 1.0 or >= 0.95",
+        "reason": "A perfect 1.0 score is self-reported by the skill. Consider adding an assertion that cross-checks the fidelity audit claims against the actual validated spec content, rather than trusting the stated number."
+      },
+      {
+        "reason": "No assertion checks whether the adversarial review actually contains substantive counter-arguments (not just straw men). The skeptic section is genuinely rigorous here, but a weaker output could pass all assertions with a token skeptic that immediately concedes."
+      }
+    ],
+    "overall": "Strong eval set — assertions cover file existence, content quality, and behavioral correctness (not manufacturing splits). The assertions are well-targeted for a no-split scenario. Minor gap: no assertion verifies the return contract YAML in release-split-report.md matches the actual outputs."
+  }
+}

@@ -52,7 +52,9 @@ def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | 
 
     # STANDARD, STRICT: YAML frontmatter fields
     if criteria.required_frontmatter_fields:
-        ok, reason = _check_frontmatter(content, criteria.required_frontmatter_fields, output_file)
+        ok, reason = _check_frontmatter(
+            content, criteria.required_frontmatter_fields, output_file
+        )
         if not ok:
             return False, reason
 
@@ -64,7 +66,10 @@ def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | 
     if criteria.semantic_checks:
         for check in criteria.semantic_checks:
             if not check.check_fn(content):
-                return False, f"Semantic check '{check.name}' failed: {check.failure_message}"
+                return (
+                    False,
+                    f"Semantic check '{check.name}' failed: {check.failure_message}",
+                )
 
     return True, None
 
@@ -103,6 +108,9 @@ def _check_frontmatter(
 
     for field in required_fields:
         if field not in found_keys:
-            return False, f"Missing required frontmatter field '{field}' in {output_file}"
+            return (
+                False,
+                f"Missing required frontmatter field '{field}' in {output_file}",
+            )
 
     return True, None

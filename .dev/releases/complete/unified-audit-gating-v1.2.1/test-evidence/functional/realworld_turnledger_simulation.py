@@ -51,19 +51,24 @@ from superclaude.cli.pipeline.models import (
 
 # ─── Helpers ─────────────────────────────────────────────────────────
 DIVIDER = "=" * 78
-SUBDIV  = "-" * 78
+SUBDIV = "-" * 78
+
 
 def banner(msg: str) -> None:
     print(f"\n{DIVIDER}")
     print(f"  {msg}")
     print(DIVIDER)
 
+
 def ledger_snapshot(ledger: TurnLedger, label: str = "") -> None:
     tag = f" ({label})" if label else ""
-    print(f"  [LEDGER{tag}] initial={ledger.initial_budget}  "
-          f"consumed={ledger.consumed}  reimbursed={ledger.reimbursed}  "
-          f"available={ledger.available()}  "
-          f"can_launch={ledger.can_launch()}  can_remediate={ledger.can_remediate()}")
+    print(
+        f"  [LEDGER{tag}] initial={ledger.initial_budget}  "
+        f"consumed={ledger.consumed}  reimbursed={ledger.reimbursed}  "
+        f"available={ledger.available()}  "
+        f"can_launch={ledger.can_launch()}  can_remediate={ledger.can_remediate()}"
+    )
+
 
 # ─── Simulated task definitions ──────────────────────────────────────
 
@@ -120,16 +125,20 @@ def main() -> int:
 
         # PRE-LAUNCH BUDGET CHECK (real production code path)
         if not ledger.can_launch():
-            print(f"  │  !! BUDGET GUARD TRIGGERED: available={ledger.available()} < min_alloc={ledger.minimum_allocation}")
+            print(
+                f"  │  !! BUDGET GUARD TRIGGERED: available={ledger.available()} < min_alloc={ledger.minimum_allocation}"
+            )
             remaining_ids = [t.task_id for t in TASKS[i:]]
             print(f"  │  Remaining tasks skipped: {remaining_ids}")
             for t in TASKS[i:]:
-                results.append(TaskResult(
-                    task=t,
-                    status=TaskStatus.SKIPPED,
-                    started_at=task_start,
-                    finished_at=datetime.now(timezone.utc),
-                ))
+                results.append(
+                    TaskResult(
+                        task=t,
+                        status=TaskStatus.SKIPPED,
+                        started_at=task_start,
+                        finished_at=datetime.now(timezone.utc),
+                    )
+                )
             ledger_snapshot(ledger, "HALT — budget exhausted")
             print(f"  └─ SKIPPED (budget exhausted)")
             break
@@ -149,19 +158,25 @@ def main() -> int:
         if actual > pre_alloc:
             extra = actual - pre_alloc
             ledger.debit(extra)
-            print(f"  │  [DEBIT] additional {extra} turns (actual={actual} > pre_alloc={pre_alloc})")
+            print(
+                f"  │  [DEBIT] additional {extra} turns (actual={actual} > pre_alloc={pre_alloc})"
+            )
         elif actual < pre_alloc:
             refund = pre_alloc - actual
             ledger.credit(refund)
-            print(f"  │  [CREDIT] refund {refund} turns (actual={actual} < pre_alloc={pre_alloc})")
+            print(
+                f"  │  [CREDIT] refund {refund} turns (actual={actual} < pre_alloc={pre_alloc})"
+            )
         else:
-            print(f"  │  [EXACT] actual={actual} == pre_alloc={pre_alloc}, no adjustment")
+            print(
+                f"  │  [EXACT] actual={actual} == pre_alloc={pre_alloc}, no adjustment"
+            )
 
         ledger_snapshot(ledger, f"after reconciliation")
 
         # TRAILING GATE: submit async gate evaluation
         # Create a temp output file with simulated content
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
             f.write(f"# Task {task.task_id} Output\nSimulated output for gate check.\n")
             output_path = Path(f.name)
 
@@ -172,6 +187,7 @@ def main() -> int:
                 if passes:
                     return (True, None)
                 return (False, f"Simulated gate failure for testing")
+
             return _check
 
         gate_step = Step(
@@ -182,7 +198,9 @@ def main() -> int:
             timeout_seconds=300,
         )
         gate_runner.submit(gate_step, gate_check=make_gate_check(gate_passes))
-        print(f"  │  [GATE] submitted trailing gate (will {'PASS' if gate_passes else 'FAIL'})")
+        print(
+            f"  │  [GATE] submitted trailing gate (will {'PASS' if gate_passes else 'FAIL'})"
+        )
 
         # REIMBURSEMENT: if gate passes, credit back 50% of actual turns
         # (In production this happens after gate result is drained;
@@ -196,8 +214,12 @@ def main() -> int:
                     reimburse = int(actual * ledger.reimbursement_rate)
                     ledger.credit(reimburse)
                     gate_outcome = GateOutcome.PASS
-                    print(f"  │  [GATE RESULT] PASS — evaluation took {gr.evaluation_ms:.1f}ms")
-                    print(f"  │  [CREDIT] reimbursed {reimburse} turns ({ledger.reimbursement_rate*100:.0f}% of {actual})")
+                    print(
+                        f"  │  [GATE RESULT] PASS — evaluation took {gr.evaluation_ms:.1f}ms"
+                    )
+                    print(
+                        f"  │  [CREDIT] reimbursed {reimburse} turns ({ledger.reimbursement_rate * 100:.0f}% of {actual})"
+                    )
                 else:
                     gate_outcome = GateOutcome.FAIL
                     print(f"  │  [GATE RESULT] FAIL — reason: {gr.failure_reason}")
@@ -205,54 +227,71 @@ def main() -> int:
 
                     # Check if we can remediate
                     if ledger.can_remediate():
-                        print(f"  │  [REMEDIATION] budget allows remediation (available={ledger.available()} >= min_remediate={ledger.minimum_remediation_budget})")
+                        print(
+                            f"  │  [REMEDIATION] budget allows remediation (available={ledger.available()} >= min_remediate={ledger.minimum_remediation_budget})"
+                        )
                     else:
-                        print(f"  │  [REMEDIATION SKIP] insufficient budget for remediation")
+                        print(
+                            f"  │  [REMEDIATION SKIP] insufficient budget for remediation"
+                        )
 
         ledger_snapshot(ledger, f"end of {task.task_id}")
 
         status = TaskStatus.PASS if gate_passes else TaskStatus.FAIL
-        results.append(TaskResult(
-            task=task,
-            status=status,
-            turns_consumed=turns_this_task,
-            exit_code=0,
-            started_at=task_start,
-            finished_at=datetime.now(timezone.utc),
-            gate_outcome=gate_outcome,
-        ))
-        print(f"  └─ {status.value.upper()} (consumed={turns_this_task}, gate={gate_outcome.value})")
+        results.append(
+            TaskResult(
+                task=task,
+                status=status,
+                turns_consumed=turns_this_task,
+                exit_code=0,
+                started_at=task_start,
+                finished_at=datetime.now(timezone.utc),
+                gate_outcome=gate_outcome,
+            )
+        )
+        print(
+            f"  └─ {status.value.upper()} (consumed={turns_this_task}, gate={gate_outcome.value})"
+        )
 
     # ─── PHASE 2: Final accounting ────────────────────────────────────
     banner("PHASE 2: Final Accounting")
 
     print(f"\n  Task Results:")
     print(f"  {'Task ID':<12} {'Status':<12} {'Turns':<8} {'Gate':<12}")
-    print(f"  {'-'*12} {'-'*12} {'-'*8} {'-'*12}")
+    print(f"  {'-' * 12} {'-' * 12} {'-' * 8} {'-' * 12}")
     for r in results:
         turns_str = str(r.turns_consumed) if r.turns_consumed else "-"
         gate_str = r.gate_outcome.value if r.gate_outcome else "-"
-        print(f"  {r.task.task_id:<12} {r.status.value:<12} {turns_str:<8} {gate_str:<12}")
+        print(
+            f"  {r.task.task_id:<12} {r.status.value:<12} {turns_str:<8} {gate_str:<12}"
+        )
 
     print()
     ledger_snapshot(ledger, "FINAL STATE")
 
     # Verify accounting identity
     identity_holds = (
-        ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        ledger.available()
+        == ledger.initial_budget - ledger.consumed + ledger.reimbursed
     )
     print(f"\n  Accounting identity: available == initial - consumed + reimbursed")
-    print(f"    {ledger.available()} == {ledger.initial_budget} - {ledger.consumed} + {ledger.reimbursed}")
+    print(
+        f"    {ledger.available()} == {ledger.initial_budget} - {ledger.consumed} + {ledger.reimbursed}"
+    )
     print(f"    Identity holds: {identity_holds}")
 
     # Verify monotonicity: budget should have decayed
-    print(f"\n  Budget decay: {ledger.initial_budget} → {ledger.available()} "
-          f"(net loss: {ledger.initial_budget - ledger.available()} turns)")
+    print(
+        f"\n  Budget decay: {ledger.initial_budget} → {ledger.available()} "
+        f"(net loss: {ledger.initial_budget - ledger.available()} turns)"
+    )
 
     passed = sum(1 for r in results if r.status == TaskStatus.PASS)
     failed = sum(1 for r in results if r.status == TaskStatus.FAIL)
     skipped = sum(1 for r in results if r.status == TaskStatus.SKIPPED)
-    print(f"\n  Summary: {passed} passed, {failed} failed, {skipped} skipped out of {len(TASKS)} tasks")
+    print(
+        f"\n  Summary: {passed} passed, {failed} failed, {skipped} skipped out of {len(TASKS)} tasks"
+    )
 
     # ─── PHASE 3: Scope-based gate strategy ───────────────────────────
     banner("PHASE 3: Scope-Based Gate Strategy Verification")
@@ -266,7 +305,9 @@ def main() -> int:
                     grace_period=gp,
                 )
                 override_str = mode_override.value
-                print(f"  scope={scope.value:<10} config={override_str:<10} grace_period={gp:<4} → {resolved.value}")
+                print(
+                    f"  scope={scope.value:<10} config={override_str:<10} grace_period={gp:<4} → {resolved.value}"
+                )
 
     # ─── PHASE 4: Resume semantics ────────────────────────────────────
     if remaining_ids:
@@ -323,10 +364,14 @@ def main() -> int:
     thread_ids_after = {t.ident for t in threading.enumerate() if t.daemon}
     new_daemons = thread_ids_after - thread_ids_before
 
-    print(f"  Submitted {NUM_CONCURRENT} gate evaluations from {NUM_CONCURRENT} concurrent threads")
+    print(
+        f"  Submitted {NUM_CONCURRENT} gate evaluations from {NUM_CONCURRENT} concurrent threads"
+    )
     print(f"  Collected {len(concurrent_results)} results")
     print(f"  All passed: {all(r.passed for r in concurrent_results)}")
-    print(f"  New daemon threads still alive: {len(new_daemons)} (should be 0 after wait)")
+    print(
+        f"  New daemon threads still alive: {len(new_daemons)} (should be 0 after wait)"
+    )
     for r in concurrent_results:
         print(f"    step={r.step_id}  passed={r.passed}  eval_ms={r.evaluation_ms:.1f}")
 
@@ -339,7 +384,9 @@ def main() -> int:
     print(f"  Budget reimbursed: {ledger.reimbursed}")
     print(f"  Final available: {ledger.available()}")
     print(f"  Identity verified: {identity_holds}")
-    print(f"  Concurrent gate safety: {len(concurrent_results)}/{NUM_CONCURRENT} collected")
+    print(
+        f"  Concurrent gate safety: {len(concurrent_results)}/{NUM_CONCURRENT} collected"
+    )
 
     if not identity_holds:
         print("\n  !! FAILURE: Accounting identity violated")

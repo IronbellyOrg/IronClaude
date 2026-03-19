@@ -62,7 +62,6 @@ def config_with_prior_artifacts(workflow_dir: Path, tmp_path: Path):
 
 
 class TestBrainstormGapsHappyPath:
-
     def test_produces_pass_result(self, config_with_prior_artifacts):
         with patch_portify_process("brainstorm-gaps"):
             result = run_brainstorm_gaps(config_with_prior_artifacts)
@@ -82,7 +81,6 @@ class TestBrainstormGapsHappyPath:
 
 
 class TestSkillAvailability:
-
     def test_skill_not_available_returns_false(self, tmp_path):
         """When skill directories don't exist, returns False."""
         with patch(
@@ -106,7 +104,6 @@ class TestSkillAvailability:
 
 
 class TestFindingParsing:
-
     def test_parse_standard_table(self):
         content = """\
 | Gap ID | Description | Severity | Affected Section | Persona |
@@ -138,7 +135,6 @@ class TestFindingParsing:
 
 
 class TestSection12Validation:
-
     def test_section_12_with_findings_table(self):
         content = """\
 ## Section 12: Gap Analysis Summary
@@ -174,7 +170,6 @@ Some open items here.
 
 
 class TestBrainstormGapsFailures:
-
     def test_missing_synthesized_spec_fails(self, workflow_dir, tmp_path):
         output = tmp_path / "output"
         output.mkdir()

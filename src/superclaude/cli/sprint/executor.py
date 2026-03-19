@@ -33,7 +33,14 @@ from .tmux import update_tail_pane
 from .tui import SprintTUI
 
 from superclaude.cli.pipeline.models import Step, StepResult
-from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy, TrailingGateResult
+from superclaude.cli.pipeline.trailing_gate import (
+    TrailingGatePolicy,
+    TrailingGateResult,
+)
+
+import logging as _logging
+
+_wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
 
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
@@ -93,6 +100,7 @@ class SprintGatePolicy:
 # ---------------------------------------------------------------------------
 # 4-Layer Subprocess Isolation
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class IsolationLayers:
@@ -177,6 +185,7 @@ def setup_isolation(config: SprintConfig) -> IsolationLayers:
 # Result Aggregation — runner-constructed phase reports
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class AggregatedPhaseReport:
     """Runner-constructed phase report from collected TaskResults.
@@ -231,7 +240,7 @@ class AggregatedPhaseReport:
         ]
         for tr in self.task_results:
             lines.append(f"  - task_id: {tr.task.task_id}")
-            lines.append(f"    title: \"{tr.task.title}\"")
+            lines.append(f'    title: "{tr.task.title}"')
             lines.append(f"    status: {tr.status.value}")
             lines.append(f"    gate_outcome: {tr.gate_outcome.value}")
             lines.append(f"    turns_consumed: {tr.turns_consumed}")
@@ -310,12 +319,8 @@ def aggregate_task_results(
     )
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
-    report.tasks_passed = sum(
-        1 for r in task_results if r.status == TaskStatus.PASS
-    )
-    report.tasks_failed = sum(
-        1 for r in task_results if r.status == TaskStatus.FAIL
-    )
+    report.tasks_passed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
+    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL)
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
     )
@@ -324,9 +329,7 @@ def aggregate_task_results(
     )
     report.tasks_not_attempted = len(report.remaining_task_ids)
     report.total_turns_consumed = sum(r.turns_consumed for r in task_results)
-    report.total_duration_seconds = sum(
-        r.duration_seconds for r in task_results
-    )
+    report.total_duration_seconds = sum(r.duration_seconds for r in task_results)
 
     return report
 
@@ -345,6 +348,159 @@ def check_budget_guard(ledger: TurnLedger | None) -> str | None:
         f"Budget exhausted: {ledger.available()} turns remaining, "
         f"minimum {ledger.minimum_allocation} required for launch"
     )
+
+
+def run_wiring_safeguard_checks(
+    config: SprintConfig,
+    report: object | None = None,
+) -> list[str]:
+    """Pre-activation safeguards for wiring analysis (SC-010, section 7 Phase 1).
+
+    Checks run before the first wiring analysis in a sprint session:
+    1. Zero-match warning: >50 files scanned but 0 findings → suspicious
+    2. Whitelist validation: attempt to load whitelist, warn if parse fails
+    3. provider_dir_names check: verify configured directories exist
+
+    Safeguards produce warnings only; they never block sprint execution.
+
+    Returns a list of warning messages (empty if all checks pass).
+    """
+    from superclaude.cli.audit.wiring_config import WiringConfig, load_whitelist
+
+    warnings: list[str] = []
+
+    # Check 1: Zero-match warning (requires a report from a prior run)
+    if report is not None:
+        files_scanned = getattr(report, "files_analyzed", 0)
+        total_findings = getattr(report, "total_findings", 0)
+        if files_scanned > 50 and total_findings == 0:
+            msg = (
+                f"Zero-match warning: {files_scanned} files scanned but "
+                f"0 findings produced — verify wiring analysis configuration"
+            )
+            _wiring_logger.warning(msg)
+            warnings.append(msg)
+
+    # Check 2: Whitelist validation
+    # Try to parse with "soft" mode so malformed YAML raises instead of silently
+    # returning empty. This is a safeguard check, not runtime behavior.
+    whitelist_path = config.release_dir / "src" / "superclaude" / "cli" / "audit" / "wiring_whitelist.yaml"
+    if whitelist_path.exists():
+        try:
+            import yaml as _yaml
+            raw = _yaml.safe_load(whitelist_path.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict):
+                msg = f"Whitelist validation failed: file at {whitelist_path} is not a YAML mapping"
+                _wiring_logger.warning(msg)
+                warnings.append(msg)
+        except Exception as exc:
+            msg = f"Whitelist validation failed: {exc}"
+            _wiring_logger.warning(msg)
+            warnings.append(msg)
+
+    # Check 3: provider_dir_names sanity check
+    wiring_config = WiringConfig()
+    source_dir = config.release_dir
+    for dir_name in wiring_config.provider_dir_names:
+        found = list(source_dir.rglob(dir_name))
+        dirs_found = [d for d in found if d.is_dir()]
+        if not dirs_found:
+            msg = (
+                f"Provider directory '{dir_name}' not found under "
+                f"{source_dir} — orphan module detection may miss files"
+            )
+            _wiring_logger.warning(msg)
+            warnings.append(msg)
+
+    return warnings
+
+
+def run_post_task_wiring_hook(
+    task: TaskEntry,
+    config: SprintConfig,
+    task_result: TaskResult,
+) -> TaskResult:
+    """Run post-task wiring analysis based on config.wiring_gate_mode.
+
+    Mode behavior:
+    - off: skip analysis entirely, return task_result unchanged
+    - shadow: run analysis, log findings, task status unchanged (SC-006)
+    - soft: run analysis, warn on critical findings, task status unchanged
+    - full: run analysis, block (set FAIL) on critical+major findings
+
+    Returns the (possibly modified) TaskResult. Only full mode may change
+    task status to FAIL when blocking findings exist.
+    """
+    mode = config.wiring_gate_mode
+
+    if mode == "off":
+        return task_result
+
+    # Lazy import to avoid circular dependency at module level
+    from superclaude.cli.audit.wiring_gate import run_wiring_analysis, WiringReport
+    from superclaude.cli.audit.wiring_config import WiringConfig
+
+    source_dir = config.release_dir
+    wiring_config = WiringConfig(rollout_mode="shadow" if mode == "off" else mode if mode in ("shadow", "soft", "full") else "shadow")
+
+    try:
+        report = run_wiring_analysis(wiring_config, source_dir)
+    except Exception as exc:
+        _wiring_logger.warning(
+            "Wiring analysis failed for task %s: %s — continuing",
+            task.task_id,
+            exc,
+        )
+        return task_result
+
+    total = report.total_findings
+    blocking = report.blocking_count(mode)
+
+    _wiring_logger.info(
+        "Wiring hook [%s] task=%s: %d findings, %d blocking (%.4fs)",
+        mode,
+        task.task_id,
+        total,
+        blocking,
+        report.scan_duration_seconds,
+    )
+
+    if mode == "shadow":
+        # SC-006: log findings without affecting task status
+        if total > 0:
+            _wiring_logger.info(
+                "Shadow mode: %d findings logged for task %s (status unchanged)",
+                total,
+                task.task_id,
+            )
+        return task_result
+
+    if mode == "soft":
+        # Warn on critical findings but don't change status
+        critical_count = sum(
+            1 for f in report.unsuppressed_findings if f.severity == "critical"
+        )
+        if critical_count > 0:
+            _wiring_logger.warning(
+                "Soft mode: %d critical findings for task %s",
+                critical_count,
+                task.task_id,
+            )
+        return task_result
+
+    if mode == "full":
+        # Block on critical+major findings
+        if blocking > 0:
+            _wiring_logger.error(
+                "Full mode: %d blocking findings for task %s — marking FAIL",
+                blocking,
+                task.task_id,
+            )
+            task_result.status = TaskStatus.FAIL
+            task_result.gate_outcome = GateOutcome.FAIL
+        return task_result
+
+    return task_result
 
 
 def execute_phase_tasks(
@@ -432,17 +588,20 @@ def execute_phase_tasks(
             elif actual < pre_allocated:
                 ledger.credit(pre_allocated - actual)
 
-        results.append(
-            TaskResult(
-                task=task,
-                status=status,
-                turns_consumed=turns_consumed,
-                exit_code=exit_code,
-                started_at=started_at,
-                finished_at=finished_at,
-                output_bytes=output_bytes,
-            )
+        result = TaskResult(
+            task=task,
+            status=status,
+            turns_consumed=turns_consumed,
+            exit_code=exit_code,
+            started_at=started_at,
+            finished_at=finished_at,
+            output_bytes=output_bytes,
         )
+
+        # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
+        result = run_post_task_wiring_hook(task, config, result)
+
+        results.append(result)
 
     return results, remaining
 
@@ -468,6 +627,7 @@ def _run_task_subprocess(
     proc.config = config
     proc.phase = phase
     from superclaude.cli.pipeline.process import ClaudeProcess as _Base
+
     _Base.__init__(
         proc,
         prompt=prompt,
@@ -511,6 +671,7 @@ def execute_sprint(config: SprintConfig):
 
     setup_debug_logger(config)
     import logging as _logging
+
     _dbg = _logging.getLogger(_DBG_NAME)
 
     logger = SprintLogger(config)
@@ -530,6 +691,7 @@ def execute_sprint(config: SprintConfig):
     # Removing this single call reverts to all-Claude behavior (R-051 rollback property).
     # Lazy import breaks the preflight → executor → preflight circular import cycle.
     from .preflight import execute_preflight_phases  # noqa: PLC0415
+
     preflight_results = execute_preflight_phases(config)
 
     try:
@@ -635,6 +797,7 @@ def execute_sprint(config: SprintConfig):
                         )
                         if config.stall_action == "kill":
                             import sys
+
                             print(
                                 f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
                                 f"{config.stall_timeout}s) — killing phase {phase.number}",
@@ -646,6 +809,7 @@ def execute_sprint(config: SprintConfig):
                         else:
                             # warn action: log and continue
                             import sys
+
                             print(
                                 f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
                                 f"{config.stall_timeout}s) — warning for phase {phase.number}",
@@ -662,7 +826,11 @@ def execute_sprint(config: SprintConfig):
                         tui.update(sprint_result, monitor.state, phase)
                     except Exception as _tui_exc:
                         import sys
-                        print(f"[TUI] Display error (continuing sprint): {_tui_exc}", file=sys.stderr)
+
+                        print(
+                            f"[TUI] Display error (continuing sprint): {_tui_exc}",
+                            file=sys.stderr,
+                        )
                     time.sleep(0.5)
 
                 # Safely read exit code: returncode may be None if terminate raced.
@@ -688,7 +856,9 @@ def execute_sprint(config: SprintConfig):
                 # exit_code=-1 (None→-1 fallback) and return PhaseStatus.ERROR,
                 # which would incorrectly set the outcome to HALTED.
                 if signal_handler.shutdown_requested:
-                    logger.write_phase_interrupt(phase, started_at, finished_at, exit_code)
+                    logger.write_phase_interrupt(
+                        phase, started_at, finished_at, exit_code
+                    )
                     sprint_result.outcome = SprintOutcome.INTERRUPTED
                     break
 
@@ -770,7 +940,9 @@ def execute_sprint(config: SprintConfig):
                         classifier = FailureClassifier()
                         bundle.category = classifier.classify(bundle)
                         reporter = ReportGenerator()
-                        diag_path = config.results_dir / f"phase-{phase.number}-diagnostic.md"
+                        diag_path = (
+                            config.results_dir / f"phase-{phase.number}-diagnostic.md"
+                        )
                         reporter.write(bundle, diag_path)
                         debug_log(
                             _dbg,
@@ -780,7 +952,12 @@ def execute_sprint(config: SprintConfig):
                             path=str(diag_path),
                         )
                     except Exception as _diag_exc:
-                        debug_log(_dbg, "diagnostic_error", phase=phase.number, error=str(_diag_exc))
+                        debug_log(
+                            _dbg,
+                            "diagnostic_error",
+                            phase=phase.number,
+                            error=str(_diag_exc),
+                        )
 
                     sprint_result.outcome = SprintOutcome.HALTED
                     sprint_result.halt_phase = phase.number
@@ -796,9 +973,7 @@ def execute_sprint(config: SprintConfig):
         for r in sprint_result.phase_results:
             _merged[r.phase.number] = r
         sprint_result.phase_results = [
-            _merged[p.number]
-            for p in config.active_phases
-            if p.number in _merged
+            _merged[p.number] for p in config.active_phases if p.number in _merged
         ]
 
         # Sprint finished
@@ -883,7 +1058,9 @@ def _classify_from_result_file(
 
 def _check_checkpoint_pass(config: SprintConfig, phase: Phase) -> bool:
     """Return True if the end-of-phase checkpoint file exists with status PASS."""
-    checkpoint_path = config.release_dir / "checkpoints" / f"CP-P{phase.number:02d}-END.md"
+    checkpoint_path = (
+        config.release_dir / "checkpoints" / f"CP-P{phase.number:02d}-END.md"
+    )
     if not checkpoint_path.exists():
         return False
     try:
@@ -924,7 +1101,11 @@ def _write_crash_recovery_log(
         f"**Timestamp**: {datetime.now(timezone.utc).isoformat()}\n"
         f"**Checkpoint**: checkpoints/CP-P{phase.number:02d}-END.md (PASS)\n"
         f"**Contamination check**: "
-        + ("CLEAN" if not contaminated else f"WARNING — {len(contaminated)} file(s): {contaminated}")
+        + (
+            "CLEAN"
+            if not contaminated
+            else f"WARNING — {len(contaminated)} file(s): {contaminated}"
+        )
         + "\n"
         "**Action**: Phase reclassified ERROR→PASS_RECOVERED.\n"
     )

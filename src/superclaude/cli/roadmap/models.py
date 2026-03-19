@@ -13,7 +13,10 @@ from typing import Literal
 from ..pipeline.models import PipelineConfig
 
 
-VALID_FINDING_STATUSES = frozenset({"PENDING", "FIXED", "FAILED", "SKIPPED"})
+VALID_FINDING_STATUSES = frozenset({"PENDING", "ACTIVE", "FIXED", "FAILED", "SKIPPED"})
+VALID_DEVIATION_CLASSES = frozenset(
+    {"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"}
+)
 
 
 @dataclass
@@ -21,7 +24,10 @@ class Finding:
     """A single validation finding extracted from a report.
 
     Fields align with spec §2.3.1. Status lifecycle defined in D-0003:
-    PENDING -> FIXED | FAILED | SKIPPED (all terminal).
+    PENDING/ACTIVE -> FIXED | FAILED | SKIPPED (all terminal).
+
+    deviation_class classifies the deviation source (v2.26):
+    SLIP, INTENTIONAL, AMBIGUOUS, PRE_APPROVED, or UNCLASSIFIED (default).
     """
 
     id: str
@@ -34,12 +40,19 @@ class Finding:
     files_affected: list[str] = field(default_factory=list)
     status: str = "PENDING"
     agreement_category: str = ""
+    deviation_class: str = "UNCLASSIFIED"
+    source_layer: str = "structural"
 
     def __post_init__(self) -> None:
         if self.status not in VALID_FINDING_STATUSES:
             raise ValueError(
                 f"Invalid Finding status {self.status!r}. "
                 f"Must be one of: {', '.join(sorted(VALID_FINDING_STATUSES))}"
+            )
+        if self.deviation_class not in VALID_DEVIATION_CLASSES:
+            raise ValueError(
+                f"Invalid deviation_class {self.deviation_class!r}. "
+                f"Must be one of: {', '.join(sorted(VALID_DEVIATION_CLASSES))}"
             )
 
 
@@ -91,6 +104,8 @@ class RoadmapConfig(PipelineConfig):
     depth: Literal["quick", "standard", "deep"] = "standard"
     output_dir: Path = field(default_factory=lambda: Path("."))
     retrospective_file: Path | None = None
+    convergence_enabled: bool = False  # v3.05: enable deterministic fidelity convergence engine
+    allow_regeneration: bool = False  # FR-9: override diff-size guard for full regeneration
 
 
 @dataclass

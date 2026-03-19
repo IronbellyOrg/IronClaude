@@ -300,7 +300,13 @@ class TestErrorCodes:
 
     def test_error_codes_all_five_are_importable(self) -> None:
         """All 5 error codes are importable from models.py."""
-        codes = [NAME_COLLISION, OUTPUT_NOT_WRITABLE, AMBIGUOUS_PATH, INVALID_PATH, DERIVATION_FAILED]
+        codes = [
+            NAME_COLLISION,
+            OUTPUT_NOT_WRITABLE,
+            AMBIGUOUS_PATH,
+            INVALID_PATH,
+            DERIVATION_FAILED,
+        ]
         assert len(codes) == 5
         assert all(isinstance(c, str) for c in codes)
 
@@ -367,18 +373,36 @@ class TestDomainModels:
     """
 
     def test_domain_models_portify_phase_type_enum_exists(self) -> None:
-        assert issubclass(PortifyPhaseType, type(PortifyPhaseType.PREREQUISITES).__mro__[0])
+        assert issubclass(
+            PortifyPhaseType, type(PortifyPhaseType.PREREQUISITES).__mro__[0]
+        )
 
     def test_domain_models_portify_phase_type_members(self) -> None:
-        expected = {"PREREQUISITES", "ANALYSIS", "USER_REVIEW", "SPECIFICATION", "SYNTHESIS", "CONVERGENCE"}
+        expected = {
+            "PREREQUISITES",
+            "ANALYSIS",
+            "USER_REVIEW",
+            "SPECIFICATION",
+            "SYNTHESIS",
+            "CONVERGENCE",
+        }
         actual = {m.name for m in PortifyPhaseType}
         assert actual == expected
 
     def test_domain_models_convergence_state_enum_exists(self) -> None:
-        assert issubclass(ConvergenceState, type(ConvergenceState.NOT_STARTED).__mro__[0])
+        assert issubclass(
+            ConvergenceState, type(ConvergenceState.NOT_STARTED).__mro__[0]
+        )
 
     def test_domain_models_convergence_state_members(self) -> None:
-        expected = {"NOT_STARTED", "REVIEWING", "INCORPORATING", "SCORING", "CONVERGED", "ESCALATED"}
+        expected = {
+            "NOT_STARTED",
+            "REVIEWING",
+            "INCORPORATING",
+            "SCORING",
+            "CONVERGED",
+            "ESCALATED",
+        }
         actual = {m.name for m in ConvergenceState}
         assert actual == expected
 
@@ -411,8 +435,14 @@ class TestDomainModels:
     def test_domain_models_monitor_state_has_all_fields(self) -> None:
         fields = set(MonitorState.__dataclass_fields__.keys())
         expected = {
-            "output_bytes", "growth_rate_bps", "stall_seconds", "events",
-            "line_count", "convergence_iteration", "findings_count", "placeholder_count",
+            "output_bytes",
+            "growth_rate_bps",
+            "stall_seconds",
+            "events",
+            "line_count",
+            "convergence_iteration",
+            "findings_count",
+            "placeholder_count",
         }
         assert expected.issubset(fields)
 
@@ -434,9 +464,17 @@ class TestDomainModels:
     def test_domain_models_nine_models_importable(self) -> None:
         """All 9 domain models are importable."""
         from superclaude.cli.cli_portify.models import PortifyConfig, PortifyStepResult
+
         models = [
-            PortifyPhaseType, ConvergenceState, PortifyConfig, PortifyStep,
-            PortifyStepResult, PortifyOutcome, PortifyStatus, MonitorState, TurnLedger,
+            PortifyPhaseType,
+            ConvergenceState,
+            PortifyConfig,
+            PortifyStep,
+            PortifyStepResult,
+            PortifyOutcome,
+            PortifyStatus,
+            MonitorState,
+            TurnLedger,
         ]
         assert len(models) == 9
         for m in models:
@@ -457,40 +495,62 @@ class TestStepOrder:
     def test_step_order_mandated_sequence(self) -> None:
         """MANDATED_STEP_ORDER matches the exact 13-step mandated sequence."""
         from superclaude.cli.cli_portify.registry import MANDATED_STEP_ORDER
+
         expected = [
-            "models", "gates", "prompts", "config", "inventory", "monitor",
-            "process", "executor", "tui", "logging_", "diagnostics", "commands", "__init__",
+            "models",
+            "gates",
+            "prompts",
+            "config",
+            "inventory",
+            "monitor",
+            "process",
+            "executor",
+            "tui",
+            "logging_",
+            "diagnostics",
+            "commands",
+            "__init__",
         ]
         assert list(MANDATED_STEP_ORDER) == expected
 
     def test_step_order_is_immutable_tuple(self) -> None:
         """MANDATED_STEP_ORDER is a tuple (immutable at runtime)."""
         from superclaude.cli.cli_portify.registry import MANDATED_STEP_ORDER
+
         assert isinstance(MANDATED_STEP_ORDER, tuple)
 
     def test_step_order_has_thirteen_entries(self) -> None:
         from superclaude.cli.cli_portify.registry import MANDATED_STEP_ORDER
+
         assert len(MANDATED_STEP_ORDER) == 13
 
     def test_step_order_get_step_order_returns_tuple(self) -> None:
         from superclaude.cli.cli_portify.registry import get_step_order
+
         order = get_step_order()
         assert isinstance(order, tuple)
         assert len(order) == 13
 
     def test_step_order_assert_step_order_passes_on_correct_order(self) -> None:
-        from superclaude.cli.cli_portify.registry import assert_step_order, MANDATED_STEP_ORDER
+        from superclaude.cli.cli_portify.registry import (
+            assert_step_order,
+            MANDATED_STEP_ORDER,
+        )
+
         assert_step_order(list(MANDATED_STEP_ORDER))  # should not raise
 
     def test_step_order_assert_step_order_fails_on_wrong_order(self) -> None:
         from superclaude.cli.cli_portify.registry import assert_step_order
+
         with pytest.raises(AssertionError):
             assert_step_order(["executor", "models"])  # wrong order
 
     def test_step_order_models_is_first(self) -> None:
         from superclaude.cli.cli_portify.registry import MANDATED_STEP_ORDER
+
         assert MANDATED_STEP_ORDER[0] == "models"
 
     def test_step_order_init_is_last(self) -> None:
         from superclaude.cli.cli_portify.registry import MANDATED_STEP_ORDER
+
         assert MANDATED_STEP_ORDER[-1] == "__init__"

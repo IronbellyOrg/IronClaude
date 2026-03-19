@@ -68,10 +68,14 @@ def temp_files(tmp_path):
     roadmap.write_text("---\ntitle: roadmap\n---\n\n# Roadmap\n", encoding="utf-8")
 
     test_strat = tmp_path / "test-strategy.md"
-    test_strat.write_text("---\ntitle: test\n---\n\n# Test Strategy\n", encoding="utf-8")
+    test_strat.write_text(
+        "---\ntitle: test\n---\n\n# Test Strategy\n", encoding="utf-8"
+    )
 
     extraction = tmp_path / "extraction.md"
-    extraction.write_text("---\ntitle: extract\n---\n\n# Extraction\n", encoding="utf-8")
+    extraction.write_text(
+        "---\ntitle: extract\n---\n\n# Extraction\n", encoding="utf-8"
+    )
 
     return {
         "roadmap": str(roadmap),
@@ -199,9 +203,9 @@ class TestEditableFilesConstant:
     """T04.04: EDITABLE_FILES allowlist constant."""
 
     def test_contains_exactly_three_files(self):
-        assert EDITABLE_FILES == frozenset({
-            "roadmap.md", "extraction.md", "test-strategy.md"
-        })
+        assert EDITABLE_FILES == frozenset(
+            {"roadmap.md", "extraction.md", "test-strategy.md"}
+        )
 
     def test_is_frozenset(self):
         assert isinstance(EDITABLE_FILES, frozenset)
@@ -261,11 +265,19 @@ class TestEnforceAllowlist:
         assert len(allowed) == 1
 
     def test_no_files_affected_rejected(self):
-        findings = [Finding(
-            id="F-01", severity="BLOCKING", dimension="Test",
-            description="No files", location="", evidence="ev",
-            fix_guidance="fix", files_affected=[], status="PENDING",
-        )]
+        findings = [
+            Finding(
+                id="F-01",
+                severity="BLOCKING",
+                dimension="Test",
+                description="No files",
+                location="",
+                evidence="ev",
+                fix_guidance="fix",
+                files_affected=[],
+                status="PENDING",
+            )
+        ]
         allowed, rejected = enforce_allowlist(findings)
         assert len(rejected) == 1
 
@@ -489,11 +501,13 @@ class TestRemediateStepRegistration:
 
     def test_remediate_gate_in_all_gates(self):
         from superclaude.cli.roadmap.gates import ALL_GATES, REMEDIATE_GATE
+
         gate_names = [name for name, _ in ALL_GATES]
         assert "remediate" in gate_names
 
     def test_remediate_gate_is_strict(self):
         from superclaude.cli.roadmap.gates import REMEDIATE_GATE
+
         assert REMEDIATE_GATE.enforcement_tier == "STRICT"
 
     def test_agent_timeout_300s(self):
@@ -503,6 +517,7 @@ class TestRemediateStepRegistration:
     def test_yaml_preservation_in_prompt(self):
         """NFR-013: Agent prompts include YAML/heading preservation."""
         from superclaude.cli.roadmap.remediate_prompts import build_remediation_prompt
+
         f = _make_finding("F-01")
         prompt = build_remediation_prompt("roadmap.md", [f])
         assert "Preserve YAML frontmatter" in prompt
@@ -531,11 +546,14 @@ class TestRemediateInlineEmbedReplacesFileFlag:
         config_obj.permission_flag = "--dangerously-skip-permissions"
 
         from superclaude.cli.pipeline.models import PipelineConfig
+
         config = PipelineConfig(max_turns=5, dry_run=False)
 
         captured: dict = {}
 
-        with patch("superclaude.cli.roadmap.remediate_executor.ClaudeProcess") as MockProc:
+        with patch(
+            "superclaude.cli.roadmap.remediate_executor.ClaudeProcess"
+        ) as MockProc:
             instance = MagicMock()
             instance._process = None
             instance.wait.return_value = 0
@@ -556,7 +574,9 @@ class TestRemediateInlineEmbedReplacesFileFlag:
         # The prompt should contain the fenced block header
         assert "Current File Content" in captured["prompt"]
 
-    def test_remediate_inline_embed_oversized_still_no_file_flag(self, tmp_path, caplog):
+    def test_remediate_inline_embed_oversized_still_no_file_flag(
+        self, tmp_path, caplog
+    ):
         """Oversized target file embeds inline with a warning; --file never used."""
         import logging
 
@@ -566,11 +586,14 @@ class TestRemediateInlineEmbedReplacesFileFlag:
         finding = _make_finding("F-01", files_affected=[str(target)])
 
         from superclaude.cli.pipeline.models import PipelineConfig
+
         config = PipelineConfig(max_turns=5, dry_run=False)
 
         captured: dict = {}
 
-        with patch("superclaude.cli.roadmap.remediate_executor.ClaudeProcess") as MockProc:
+        with patch(
+            "superclaude.cli.roadmap.remediate_executor.ClaudeProcess"
+        ) as MockProc:
             instance = MagicMock()
             instance._process = None
             instance.wait.return_value = 0
@@ -582,7 +605,9 @@ class TestRemediateInlineEmbedReplacesFileFlag:
 
             MockProc.side_effect = capture_and_return
 
-            with caplog.at_level(logging.WARNING, logger="superclaude.roadmap.remediate_executor"):
+            with caplog.at_level(
+                logging.WARNING, logger="superclaude.roadmap.remediate_executor"
+            ):
                 _run_agent_for_file(str(target), [finding], config, tmp_path)
 
         # Even oversized content must be embedded inline

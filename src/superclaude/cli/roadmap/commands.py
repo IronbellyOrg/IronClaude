@@ -33,7 +33,7 @@ def roadmap_group():
 @click.argument("spec_file", type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--agents",
-    default="opus:architect,haiku:architect",
+    default=None,
     help=(
         "Comma-separated agent specs: model[:persona]. "
         "Default: opus:architect,haiku:architect"
@@ -49,7 +49,7 @@ def roadmap_group():
 @click.option(
     "--depth",
     type=click.Choice(["quick", "standard", "deep"], case_sensitive=False),
-    default="standard",
+    default=None,
     help="Debate round depth: quick=1, standard=2, deep=3. Default: standard.",
 )
 @click.option(
@@ -87,6 +87,12 @@ def roadmap_group():
     help="Skip post-pipeline validation step.",
 )
 @click.option(
+    "--allow-regeneration",
+    is_flag=True,
+    default=False,
+    help="Allow patches that exceed the diff-size threshold (FR-9). Use with caution.",
+)
+@click.option(
     "--retrospective",
     type=click.Path(exists=False, path_type=Path),
     default=None,
@@ -96,17 +102,20 @@ def roadmap_group():
         "Missing file is not an error -- extraction proceeds normally."
     ),
 )
+@click.pass_context
 def run(
+    ctx: click.Context,
     spec_file: Path,
-    agents: str,
+    agents: str | None,
     output_dir: Path | None,
-    depth: str,
+    depth: str | None,
     resume: bool,
     dry_run: bool,
     model: str,
     max_turns: int,
     debug: bool,
     no_validate: bool,
+    allow_regeneration: bool,
     retrospective: Path | None,
 ) -> None:
     """Run the roadmap generation pipeline on SPEC_FILE.
@@ -116,8 +125,20 @@ def run(
     from .executor import execute_roadmap
     from .models import AgentSpec, RoadmapConfig
 
-    # Parse agents
-    agent_specs = [AgentSpec.parse(a.strip()) for a in agents.split(",")]
+    # Detect whether --agents and --depth were explicitly provided
+    agents_explicit = (
+        ctx.get_parameter_source("agents") == click.core.ParameterSource.COMMANDLINE
+    )
+    depth_explicit = (
+        ctx.get_parameter_source("depth") == click.core.ParameterSource.COMMANDLINE
+    )
+
+    # Parse agents only when explicitly provided
+    agent_specs = (
+        [AgentSpec.parse(a.strip()) for a in agents.split(",")]
+        if agents is not None
+        else None
+    )
 
     # Resolve output directory
     resolved_output = output_dir if output_dir is not None else spec_file.parent
@@ -134,20 +155,35 @@ def run(
             )
             retro_path = None
 
-    config = RoadmapConfig(
-        spec_file=spec_file.resolve(),
-        agents=agent_specs,
-        depth=depth,
-        output_dir=resolved_output.resolve(),
-        work_dir=resolved_output.resolve(),
-        dry_run=dry_run,
-        max_turns=max_turns,
-        model=model,
-        debug=debug,
-        retrospective_file=retro_path,
-    )
+    # Build config kwargs — only include agents/depth when explicitly provided,
+    # so RoadmapConfig's own defaults apply when user omitted them.
+    # Click's None never reaches the model; agents_explicit/depth_explicit
+    # booleans handle resume-state restoration.
+    config_kwargs: dict = {
+        "spec_file": spec_file.resolve(),
+        "output_dir": resolved_output.resolve(),
+        "work_dir": resolved_output.resolve(),
+        "dry_run": dry_run,
+        "max_turns": max_turns,
+        "model": model,
+        "debug": debug,
+        "retrospective_file": retro_path,
+        "allow_regeneration": allow_regeneration,
+    }
+    if agent_specs is not None:
+        config_kwargs["agents"] = agent_specs
+    if depth is not None:
+        config_kwargs["depth"] = depth
 
-    execute_roadmap(config, resume=resume, no_validate=no_validate)
+    config = RoadmapConfig(**config_kwargs)
+
+    execute_roadmap(
+        config,
+        resume=resume,
+        no_validate=no_validate,
+        agents_explicit=agents_explicit,
+        depth_explicit=depth_explicit,
+    )
 
 
 @roadmap_group.command("accept-spec-change")
@@ -241,9 +277,7 @@ def validate(
 
     if blocking > 0:
         click.echo(
-            click.style(
-                f"WARNING: {blocking} blocking issue(s) found", fg="yellow"
-            )
+            click.style(f"WARNING: {blocking} blocking issue(s) found", fg="yellow")
         )
     if warning > 0:
         click.echo(f"Warnings: {warning}")

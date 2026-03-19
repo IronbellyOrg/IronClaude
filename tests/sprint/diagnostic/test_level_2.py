@@ -29,11 +29,17 @@ class TestLogToClassificationPipeline:
         phase = harness.phases[0]
 
         # Emit events including watchdog
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 60}),
-            ("watchdog_triggered", {"phase": 1, "action": "warn", "stall_seconds": 130}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
+                ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 60}),
+                (
+                    "watchdog_triggered",
+                    {"phase": 1, "action": "warn", "stall_seconds": 130},
+                ),
+            ],
+        )
 
         # Create phase result for failure
         pr = harness.make_phase_result(phase, status=PhaseStatus.ERROR, exit_code=1)
@@ -51,9 +57,12 @@ class TestLogToClassificationPipeline:
     def test_timeout_scenario_classified_correctly(self, harness):
         phase = harness.phases[0]
 
-        harness.emit_debug_events(phase, [
-            ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
-        ])
+        harness.emit_debug_events(
+            phase,
+            [
+                ("poll_tick", {"phase": 1, "pid": 100, "stall_seconds": 0}),
+            ],
+        )
 
         pr = harness.make_phase_result(phase, status=PhaseStatus.TIMEOUT, exit_code=124)
         ms = MonitorState(events_received=10)
@@ -102,13 +111,22 @@ class TestMultiPhaseDiagnostics:
         h = multi_phase_harness
 
         # Emit events for phase 1 and 2
-        h.emit_debug_events(h.phases[0], [
-            ("poll_tick", {"phase": 1, "pid": 100}),
-        ])
-        h.emit_debug_events(h.phases[1], [
-            ("poll_tick", {"phase": 2, "pid": 200}),
-            ("watchdog_triggered", {"phase": 2, "action": "warn", "stall_seconds": 130}),
-        ])
+        h.emit_debug_events(
+            h.phases[0],
+            [
+                ("poll_tick", {"phase": 1, "pid": 100}),
+            ],
+        )
+        h.emit_debug_events(
+            h.phases[1],
+            [
+                ("poll_tick", {"phase": 2, "pid": 200}),
+                (
+                    "watchdog_triggered",
+                    {"phase": 2, "action": "warn", "stall_seconds": 130},
+                ),
+            ],
+        )
 
         reader = h.get_log_reader()
         p1_events = reader.phase_events(1)

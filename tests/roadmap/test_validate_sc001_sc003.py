@@ -269,7 +269,9 @@ class TestSC001SingleAgentValidation:
 class TestSC003MultiAgentValidation:
     """SC-003: Multi-agent produces per-agent reflection files and merged report."""
 
-    def test_multi_agent_builds_parallel_reflects_and_merge(self, tmp_path, monkeypatch):
+    def test_multi_agent_builds_parallel_reflects_and_merge(
+        self, tmp_path, monkeypatch
+    ):
         """Multi-agent mode produces parallel reflect steps + sequential merge."""
         output_dir = tmp_path / "output"
         output_dir.mkdir()
@@ -291,9 +293,7 @@ class TestSC003MultiAgentValidation:
             # Write per-agent reflection files
             parallel_group = steps[0]
             for s in parallel_group:
-                s.output_file.write_text(
-                    _valid_single_agent_report(), encoding="utf-8"
-                )
+                s.output_file.write_text(_valid_single_agent_report(), encoding="utf-8")
 
             # Write merged report
             (validate_dir / "validation-report.md").write_text(
@@ -356,9 +356,7 @@ class TestSC003MultiAgentValidation:
 
             parallel_group = steps[0]
             for s in parallel_group:
-                s.output_file.write_text(
-                    _valid_single_agent_report(), encoding="utf-8"
-                )
+                s.output_file.write_text(_valid_single_agent_report(), encoding="utf-8")
 
             (validate_dir / "validation-report.md").write_text(
                 _valid_multi_agent_merged_report(), encoding="utf-8"
@@ -367,12 +365,22 @@ class TestSC003MultiAgentValidation:
             results = []
             for s in parallel_group:
                 results.append(
-                    StepResult(step=s, status=StepStatus.PASS, attempt=1,
-                               started_at=_now(), finished_at=_now())
+                    StepResult(
+                        step=s,
+                        status=StepStatus.PASS,
+                        attempt=1,
+                        started_at=_now(),
+                        finished_at=_now(),
+                    )
                 )
             results.append(
-                StepResult(step=steps[1], status=StepStatus.PASS, attempt=1,
-                           started_at=_now(), finished_at=_now())
+                StepResult(
+                    step=steps[1],
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    started_at=_now(),
+                    finished_at=_now(),
+                )
             )
             return results
 
@@ -403,22 +411,30 @@ class TestSC003MultiAgentValidation:
             validate_dir.mkdir(parents=True, exist_ok=True)
 
             for s in steps[0]:
-                s.output_file.write_text(
-                    _valid_single_agent_report(), encoding="utf-8"
-                )
+                s.output_file.write_text(_valid_single_agent_report(), encoding="utf-8")
 
             (validate_dir / "validation-report.md").write_text(
                 _valid_multi_agent_merged_report(), encoding="utf-8"
             )
 
             results = [
-                StepResult(step=s, status=StepStatus.PASS, attempt=1,
-                           started_at=_now(), finished_at=_now())
+                StepResult(
+                    step=s,
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    started_at=_now(),
+                    finished_at=_now(),
+                )
                 for s in steps[0]
             ]
             results.append(
-                StepResult(step=steps[1], status=StepStatus.PASS, attempt=1,
-                           started_at=_now(), finished_at=_now())
+                StepResult(
+                    step=steps[1],
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    started_at=_now(),
+                    finished_at=_now(),
+                )
             )
             return results
 
@@ -450,22 +466,30 @@ class TestSC003MultiAgentValidation:
             validate_dir.mkdir(parents=True, exist_ok=True)
 
             for s in steps[0]:
-                s.output_file.write_text(
-                    _valid_single_agent_report(), encoding="utf-8"
-                )
+                s.output_file.write_text(_valid_single_agent_report(), encoding="utf-8")
 
             (validate_dir / "validation-report.md").write_text(
                 _valid_multi_agent_merged_report(), encoding="utf-8"
             )
 
             results = [
-                StepResult(step=s, status=StepStatus.PASS, attempt=1,
-                           started_at=_now(), finished_at=_now())
+                StepResult(
+                    step=s,
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    started_at=_now(),
+                    finished_at=_now(),
+                )
                 for s in steps[0]
             ]
             results.append(
-                StepResult(step=steps[1], status=StepStatus.PASS, attempt=1,
-                           started_at=_now(), finished_at=_now())
+                StepResult(
+                    step=steps[1],
+                    status=StepStatus.PASS,
+                    attempt=1,
+                    started_at=_now(),
+                    finished_at=_now(),
+                )
             )
             return results
 

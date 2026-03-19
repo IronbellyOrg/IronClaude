@@ -1,0 +1,122 @@
+{
+  "expectations": [
+    {
+      "text": "Final verdict is SPLIT or SPLIT-WITH-MODIFICATIONS (not NO SPLIT)",
+      "passed": true,
+      "evidence": "split-proposal-final.md states '## Verdict: SPLIT' and release-split-report.md opens with '## Verdict: SPLIT'."
+    },
+    {
+      "text": "split-proposal.md exists and contains discovery analysis with mandatory questions answered",
+      "passed": true,
+      "evidence": "split-proposal.md exists with a '## Discovery Analysis' section containing 6 numbered discovery questions (Q1-Q6) all with substantive answers covering standalone value, cost of splitting, cost of not splitting, natural boundary, risk increase, and R1 scope bias."
+    },
+    {
+      "text": "split-proposal-final.md exists and contains adversarial review with Advocate/Skeptic/Pragmatist positions",
+      "passed": true,
+      "evidence": "split-proposal-final.md exists with three clearly labeled sections: '## Advocate Position (FOR the Split)', '## Skeptic Position (AGAINST the Split)', and '## Pragmatist Assessment', each with substantive arguments. YAML frontmatter notes fallback mode was used (Mode A conceptual roles rather than Mode B agent dispatch)."
+    },
+    {
+      "text": "release-1-spec.md exists with YAML frontmatter containing release: 1 and parent-spec fields",
+      "passed": true,
+      "evidence": "release-1-spec.md has YAML frontmatter with 'release: 1' and 'parent-spec: /config/workspace/IronClaude/.claude/skills/sc-release-split-protocol-workspace/evals/files/spec-splittable-auth-system.md'."
+    },
+    {
+      "text": "release-2-spec.md exists with YAML frontmatter containing release: 2 and validation-gate field",
+      "passed": true,
+      "evidence": "release-2-spec.md has YAML frontmatter with 'release: 2' and 'validation-gate: \"blocked until R1 real-world validation passes\"'."
+    },
+    {
+      "text": "release-2-spec.md contains a Planning Gate section that blocks R2 until R1 real-world validation passes",
+      "passed": true,
+      "evidence": "release-2-spec.md contains a '## Planning Gate' section stating 'Release 2 roadmap and tasklist generation may proceed only after Release 1 has passed real-world validation and the results have been reviewed.' It specifies 5 validation criteria, review process (engineering lead + security lead), and failure handling (minor issues remediated in R1, schema issues trigger revision, fundamental issues trigger merge back)."
+    },
+    {
+      "text": "boundary-rationale.md exists with Split Point, Why This Boundary, and Cross-Release Dependencies sections",
+      "passed": true,
+      "evidence": "boundary-rationale.md contains '## Split Point', '## Why This Boundary' (with 4 numbered justifications), and '## Cross-Release Dependencies' (with a detailed table of 11 dependencies including type classification: Hard/Soft)."
+    },
+    {
+      "text": "fidelity-audit.md exists with a Coverage Matrix mapping every original requirement (R1-R7)",
+      "passed": true,
+      "evidence": "fidelity-audit.md contains a '## Coverage Matrix' table with 42 rows (REQ-001 through REQ-042) covering all requirements from R1 (REQ-001 to REQ-005), R2 (REQ-006 to REQ-009), R3 (REQ-010 to REQ-013), R4 (REQ-014 to REQ-017), R5 (REQ-018 to REQ-021), R6 (REQ-022 to REQ-025), R7 (REQ-026 to REQ-029), database schema (REQ-030 to REQ-036), testing (REQ-037 to REQ-041), and rollout (REQ-042). Additionally maps 5 success criteria (SC-001 to SC-005)."
+    },
+    {
+      "text": "fidelity-audit.md shows fidelity score >= 0.95",
+      "passed": true,
+      "evidence": "fidelity-audit.md states 'Fidelity score: 1.00' in the Summary section."
+    },
+    {
+      "text": "release-split-report.md exists with Verdict, all four Part summaries, and Artifacts Produced sections",
+      "passed": true,
+      "evidence": "release-split-report.md contains '## Verdict: SPLIT', '## Part 1 — Discovery Outcome', '## Part 2 — Adversarial Verdict', '## Part 3 — Execution Summary', '## Part 4 — Fidelity Verification', and '## Artifacts Produced' (listing all 7 artifacts in a table)."
+    },
+    {
+      "text": "No requirement from the original spec is missing from the combined R1+R2 scope (losslessness)",
+      "passed": true,
+      "evidence": "Cross-referencing the original spec against the coverage matrix: R1 (4 bullets) mapped to REQ-001 through REQ-005, R2 (4 bullets) to REQ-006 through REQ-009, R3 (4 bullets) to REQ-010 through REQ-013, R4 (4 bullets) to REQ-014 through REQ-017, R5 (4 bullets) to REQ-018 through REQ-021, R6 (4 bullets) to REQ-022 through REQ-025, R7 (4 bullets) to REQ-026 through REQ-029, database schema (7 tables) to REQ-030 through REQ-036, testing (5 items) to REQ-037 through REQ-041, rollout plan (6 steps) to REQ-042, and all 5 success criteria mapped. Fidelity audit confirms 0 missing, 0 weakened. Release 2 spec explicitly states 'Combined, Release 1 and Release 2 cover 100% of original scope.'"
+    },
+    {
+      "text": "Real-world validation requirements appear in release specs (no mocks or simulated tests accepted)",
+      "passed": true,
+      "evidence": "Release 1 spec states 'All validation must use actual functionality in production-like conditions. No mocks, no simulated tests.' and lists 5 validation requirements using real production data. Release 2 spec repeats the same declaration and lists 7 validation requirements (real HTTP requests, production traffic shadow mode, actual user migration, operations team dashboard usage, developer SDK usage, production switchover). Fidelity audit confirms all 12 validation items are real-world with no mocks."
+    },
+    {
+      "text": "R1 scope includes foundational infrastructure (identity model, permissions, tokens) not just easy items",
+      "passed": true,
+      "evidence": "Release 1 includes R1 (Unified Identity Model — canonical UUID, multi-credential support, credential rotation), R2 (Centralized Permission Store — RBAC hierarchy, resource-level permissions), R3 (Unified Token Service — JWT tokens, revocation, introspection), and all 7 database tables. The split-proposal.md explicitly addresses this: 'The identity model and permission engine are the hardest design decisions in this release, not the easiest. Getting the schema right — canonical UUID, credential types, role hierarchy, resource-level permissions — is the highest-risk work.' All three P0 requirements are in R1."
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 0,
+    "total": 13,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "total_duration_seconds": 359.3,
+    "total_tokens": 52526
+  },
+  "claims": [
+    {
+      "claim": "42 requirements extracted from the original spec",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Counting the coverage matrix: R1 has 5 entries (REQ-001 to REQ-005), R2 has 4 (REQ-006 to REQ-009), R3 has 4 (REQ-010 to REQ-013), R4 has 4 (REQ-014 to REQ-017), R5 has 4 (REQ-018 to REQ-021), R6 has 4 (REQ-022 to REQ-025), R7 has 4 (REQ-026 to REQ-029), schema has 7 (REQ-030 to REQ-036), testing has 5 (REQ-037 to REQ-041), rollout has 1 (REQ-042). Total: 42."
+    },
+    {
+      "claim": "Convergence score: 0.82",
+      "type": "process",
+      "verified": false,
+      "evidence": "The convergence score is stated in YAML frontmatter of split-proposal-final.md but there is no underlying computation visible — the adversarial review was produced via fallback Mode A (conceptual roles within a single agent), not Mode B multi-agent dispatch. The number appears asserted rather than computed."
+    },
+    {
+      "claim": "Fidelity score: 1.00",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The fidelity audit shows 38 preserved + 4 validly transformed = 42 total, with 0 missing and 0 weakened. The score of 1.00 is consistent with the formula (preserved + valid transformations) / total = 42/42 = 1.00."
+    },
+    {
+      "claim": "0 scope creep additions",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The fidelity audit identifies 3 additions (Planning Gate, R3 integration validation in R2, incident-specific validation scenarios) and classifies all as 'valid — necessary for split coherence, not scope creep.' The Planning Gate is a protocol requirement, R3 integration validation addresses a gap identified by the adversarial review, and incident references elaborate on original spec intent. Classification is reasonable."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "split-proposal-final.md exists and contains adversarial review with Advocate/Skeptic/Pragmatist positions",
+        "reason": "The adversarial review was produced via Mode A fallback (single-agent conceptual roles) rather than Mode B (multi-agent dispatch). The assertion checks for the presence of positions but not whether they were produced by genuinely independent agents. A file where one agent writes all three positions is qualitatively different from a true multi-agent debate. Consider adding an assertion that checks whether Mode B was used or at minimum that the fallback is flagged."
+      },
+      {
+        "assertion": "fidelity-audit.md shows fidelity score >= 0.95",
+        "reason": "A fidelity score of 1.00 on a non-trivial split is suspicious — it could indicate the audit is too generous in its 'PRESERVED' classifications. Consider an assertion that checks whether the audit identifies any warnings or caveats, since a perfect score with zero warnings may indicate rubber-stamping rather than rigorous analysis. In this case the audit does appear substantive, but the assertion alone cannot distinguish."
+      },
+      {
+        "reason": "No assertion checks the quality or specificity of the real-world validation requirements. The current assertion (#12) checks for presence but a spec that says 'test with real data' without specifying what to measure or what pass/fail looks like would also satisfy it. The actual outputs here are strong (they reference specific incidents, specific timing requirements like 1-second revocation), but the assertion would pass weaker outputs too."
+      }
+    ],
+    "overall": "The assertion set is comprehensive and covers the key structural and semantic requirements of the release-split protocol. The main gap is around adversarial review quality (Mode A vs Mode B) and validation specificity."
+  }
+}

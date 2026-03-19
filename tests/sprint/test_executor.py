@@ -358,8 +358,14 @@ class TestExecuteSprintIntegrationCoverage:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -402,8 +408,14 @@ class TestExecuteSprintIntegrationCoverage:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -448,13 +460,22 @@ class TestExecuteSprintIntegrationCoverage:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=1003),
             patch("superclaude.cli.pipeline.process.os.killpg"),
             patch("superclaude.cli.sprint.notify._notify"),
-            patch("superclaude.cli.sprint.executor.time.monotonic", side_effect=_fast_monotonic),
+            patch(
+                "superclaude.cli.sprint.executor.time.monotonic",
+                side_effect=_fast_monotonic,
+            ),
             patch("superclaude.cli.sprint.executor.time.sleep"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
         ):
@@ -510,13 +531,21 @@ class TestExecuteSprintIntegrationCoverage:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=1004),
             patch("superclaude.cli.pipeline.process.os.killpg"),
             patch("superclaude.cli.sprint.notify._notify"),
-            patch("superclaude.cli.sprint.executor.SignalHandler", _TrackingSignalHandler),
+            patch(
+                "superclaude.cli.sprint.executor.SignalHandler", _TrackingSignalHandler
+            ),
             patch("superclaude.cli.sprint.executor.time.sleep", side_effect=_sleep),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
         ):
@@ -573,7 +602,7 @@ class TestPerTaskOrchestration:
             TaskEntry(
                 task_id=f"T02.{i:02d}",
                 title=f"Task {i}",
-                dependencies=[f"T02.{i-1:02d}"] if i > 1 else [],
+                dependencies=[f"T02.{i - 1:02d}"] if i > 1 else [],
             )
             for i in range(1, count + 1)
         ]
@@ -630,7 +659,10 @@ class TestPerTaskOrchestration:
             return (0, 5, 100)
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=consume_factory,
         )
         # First task succeeds, next two should be skipped due to budget
@@ -650,7 +682,10 @@ class TestPerTaskOrchestration:
         initial = ledger.available()
 
         results, _ = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=self._pass_factory,
         )
         # Factory returns 3 turns consumed; ledger should reflect that
@@ -698,7 +733,10 @@ class TestPerTaskOrchestration:
         tasks = self._make_tasks(5)
 
         results, remaining = execute_phase_tasks(
-            tasks, config, phase, ledger=None,
+            tasks,
+            config,
+            phase,
+            ledger=None,
             _subprocess_factory=self._pass_factory,
         )
         assert len(results) == 5
@@ -769,7 +807,9 @@ class TestResultAggregation:
     """Tests for runner-constructed phase report aggregation."""
 
     @staticmethod
-    def _make_task_result(task_id: str, status: TaskStatus, turns: int = 3) -> TaskResult:
+    def _make_task_result(
+        task_id: str, status: TaskStatus, turns: int = 3
+    ) -> TaskResult:
         return TaskResult(
             task=TaskEntry(task_id=task_id, title=f"Task {task_id}"),
             status=status,
@@ -877,14 +917,19 @@ class TestPhaseYamlReport:
     """Tests for phase-level YAML report aggregation (T04.03)."""
 
     @staticmethod
-    def _make_task_result(task_id: str, status: TaskStatus, turns: int = 3) -> TaskResult:
+    def _make_task_result(
+        task_id: str, status: TaskStatus, turns: int = 3
+    ) -> TaskResult:
         from superclaude.cli.sprint.models import GateOutcome
+
         return TaskResult(
             task=TaskEntry(task_id=task_id, title=f"Task {task_id}"),
             status=status,
             turns_consumed=turns,
             exit_code=0 if status == TaskStatus.PASS else 1,
-            gate_outcome=GateOutcome.PASS if status == TaskStatus.PASS else GateOutcome.FAIL,
+            gate_outcome=GateOutcome.PASS
+            if status == TaskStatus.PASS
+            else GateOutcome.FAIL,
         )
 
     def test_phase_yaml_contains_required_fields(self):
@@ -906,7 +951,9 @@ class TestPhaseYamlReport:
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
         ]
-        report = aggregate_task_results(3, results, remaining_task_ids=["T03.02", "T03.03"], budget_remaining=10)
+        report = aggregate_task_results(
+            3, results, remaining_task_ids=["T03.02", "T03.03"], budget_remaining=10
+        )
         yaml_str = report.to_yaml()
         assert "tasks_not_attempted: 2" in yaml_str
         assert "remaining_tasks:" in yaml_str
@@ -980,7 +1027,10 @@ class TestTurnCountDebit:
             return (0, 7, 100)  # 7 turns consumed per task
 
         results, _ = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=factory,
         )
         # 2 tasks * 7 turns = 14 consumed
@@ -1018,7 +1068,10 @@ class TestTurnCountDebit:
             return (0, 0, 100)  # 0 turns consumed
 
         execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=zero_turn_factory,
         )
         # Pre-debited 5, actual 0, so credited 5 back
@@ -1040,7 +1093,7 @@ class TestIntegrationSubprocess:
                 task_id=f"T03.{i:02d}",
                 title=f"Integration Task {i}",
                 description=f"Test task {i} for integration",
-                dependencies=[f"T03.{i-1:02d}"] if i > 1 else [],
+                dependencies=[f"T03.{i - 1:02d}"] if i > 1 else [],
             )
             for i in range(1, count + 1)
         ]
@@ -1053,11 +1106,11 @@ class TestIntegrationSubprocess:
 
         # Track per-task consumption: task 1=3, task 2=7, task 3=2, task 4=5, task 5=4
         outcomes = [
-            (0, 3, 1024),    # PASS, 3 turns
-            (0, 7, 2048),    # PASS, 7 turns
-            (1, 2, 512),     # FAIL, 2 turns
-            (0, 5, 1536),    # PASS, 5 turns
-            (124, 4, 256),   # INCOMPLETE (timeout), 4 turns
+            (0, 3, 1024),  # PASS, 3 turns
+            (0, 7, 2048),  # PASS, 7 turns
+            (1, 2, 512),  # FAIL, 2 turns
+            (0, 5, 1536),  # PASS, 5 turns
+            (124, 4, 256),  # INCOMPLETE (timeout), 4 turns
         ]
         call_index = [0]
 
@@ -1068,7 +1121,10 @@ class TestIntegrationSubprocess:
 
         ledger = TurnLedger(initial_budget=100, minimum_allocation=5)
         results, remaining = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=mixed_factory,
         )
 
@@ -1091,7 +1147,10 @@ class TestIntegrationSubprocess:
         net_consumed = sum(actual_turns)  # 21
         assert ledger.available() == 100 - net_consumed  # = 79
         # Verify internal accounting is consistent
-        assert ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        assert (
+            ledger.available()
+            == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        )
 
         # Aggregate into phase report
         report = aggregate_task_results(
@@ -1120,7 +1179,10 @@ class TestIntegrationSubprocess:
 
         ledger = TurnLedger(initial_budget=25, minimum_allocation=5)
         results, remaining = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=heavy_factory,
         )
 
@@ -1146,7 +1208,10 @@ class TestIntegrationSubprocess:
 
         ledger = TurnLedger(initial_budget=100, minimum_allocation=5)
         results, remaining = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=pass_factory,
         )
 
@@ -1176,6 +1241,7 @@ class TestBackwardCompat:
     def test_backward_compat_grace_period_zero_is_default(self):
         """SprintConfig inherits grace_period=0 from PipelineConfig by default."""
         from superclaude.cli.pipeline.models import PipelineConfig
+
         pc = PipelineConfig()
         assert pc.grace_period == 0
 
@@ -1189,6 +1255,7 @@ class TestBackwardCompat:
     def test_backward_compat_gate_mode_blocking_is_default(self):
         """GateMode.BLOCKING is the default for pipeline steps, matching v1.2.1 behavior."""
         from superclaude.cli.pipeline.models import GateMode, Step
+
         step = Step(
             id="test",
             prompt="test",
@@ -1230,8 +1297,14 @@ class TestBackwardCompat:
 
         captured = []
         with (
-            patch("superclaude.cli.sprint.executor.shutil.which", return_value="/usr/bin/claude"),
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=_factory),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
@@ -1268,14 +1341,19 @@ class TestBackwardCompat:
 
         # No ledger = v1.2.1 behavior (no budget tracking)
         results, remaining = execute_phase_tasks(
-            tasks, config, phase, ledger=None,
+            tasks,
+            config,
+            phase,
+            ledger=None,
             _subprocess_factory=pass_factory,
         )
         assert len(results) == 3
         assert all(r.status == TaskStatus.PASS for r in results)
         assert remaining == []
 
-    def test_backward_compat_existing_tests_pass_under_grace_period_zero(self, tmp_path):
+    def test_backward_compat_existing_tests_pass_under_grace_period_zero(
+        self, tmp_path
+    ):
         """Verify the default config has grace_period=0 and still supports
         all standard sprint operations (this test documents the invariant)."""
         config = _make_config(tmp_path, num_phases=2)
@@ -1294,6 +1372,7 @@ class TestBackwardCompat:
         """The executor module does not import or use threading directly.
         All daemon threads come from OutputMonitor (pre-existing in v1.2.1)."""
         import superclaude.cli.sprint.executor as mod
+
         source = Path(mod.__file__).read_text()
         assert "threading" not in source
         assert "Thread(" not in source
@@ -1371,5 +1450,7 @@ class TestWritePreliminaryResult:
                 return_val = _write_preliminary_result(config, phase, started_at)
 
         assert return_val is False
-        warning_messages = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+        warning_messages = [
+            r.message for r in caplog.records if r.levelno == logging.WARNING
+        ]
         assert any("preliminary result write failed" in m for m in warning_messages)

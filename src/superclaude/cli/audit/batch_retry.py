@@ -114,7 +114,9 @@ class BatchRetryHandler:
             if result.success:
                 record.final_status = "COMPLETED"
                 self._update_batch_status(
-                    state, batch_id, "COMPLETED",
+                    state,
+                    batch_id,
+                    "COMPLETED",
                     files_processed=result.files_processed,
                 )
                 self._writer.write(state)
@@ -125,7 +127,9 @@ class BatchRetryHandler:
         # All retries exhausted
         record.final_status = "FAILED"
         self._update_batch_status(
-            state, batch_id, "FAILED",
+            state,
+            batch_id,
+            "FAILED",
             failure_reason=record.errors[-1] if record.errors else "Unknown failure",
         )
         self._writer.write(state)
@@ -157,9 +161,7 @@ class BatchRetryHandler:
         """Check if all executed batches failed (cascading failure)."""
         if not self._retry_records:
             return False
-        return all(
-            r.final_status == "FAILED" for r in self._retry_records.values()
-        )
+        return all(r.final_status == "FAILED" for r in self._retry_records.values())
 
     def minimum_viable_report(self, state: CheckpointState) -> MinimumViableReport:
         """Generate a minimum viable report for cascading failure.
@@ -169,11 +171,13 @@ class BatchRetryHandler:
         error_summary = []
         for batch_id, record in self._retry_records.items():
             if record.final_status == "FAILED":
-                error_summary.append({
-                    "batch_id": batch_id,
-                    "attempts": record.attempts,
-                    "last_error": record.errors[-1] if record.errors else "Unknown",
-                })
+                error_summary.append(
+                    {
+                        "batch_id": batch_id,
+                        "attempts": record.attempts,
+                        "last_error": record.errors[-1] if record.errors else "Unknown",
+                    }
+                )
 
         return MinimumViableReport(
             run_id=state.run_id,
@@ -199,9 +203,11 @@ class BatchRetryHandler:
                 batch.failure_reason = failure_reason
                 return
 
-        state.batches.append(BatchStatus(
-            batch_id=batch_id,
-            status=status,
-            files_processed=files_processed,
-            failure_reason=failure_reason,
-        ))
+        state.batches.append(
+            BatchStatus(
+                batch_id=batch_id,
+                status=status,
+                files_processed=files_processed,
+                failure_reason=failure_reason,
+            )
+        )

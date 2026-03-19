@@ -39,7 +39,7 @@ _OUTPUT_FORMAT_BLOCK = (
     "\n\n<output_format>\n"
     "CRITICAL: Your response MUST begin with YAML frontmatter (--- delimited block).\n"
     "Do NOT include any text, preamble, or commentary before the opening ---.\n"
-    "Do NOT say \"Here is...\", \"Sure!\", or any conversational text before the frontmatter.\n"
+    'Do NOT say "Here is...", "Sure!", or any conversational text before the frontmatter.\n'
     "\n"
     "Correct start:\n"
     "---\n"
@@ -85,18 +85,25 @@ def build_extract_prompt(
         "- nonfunctional_requirements: (integer) count of identified non-functional requirements\n"
         "- total_requirements: (integer) sum of functional + non-functional requirements\n"
         "- complexity_score: (float 0.0-1.0) assessing overall complexity\n"
-        "- complexity_class: (string) one of: simple, moderate, complex, enterprise\n"
-        "- domains_detected: (integer) count of distinct technical domains identified\n"
+        "- complexity_class: (string) one of: LOW, MEDIUM, HIGH\n"
+        "- domains_detected: (list) array of domain name strings, e.g. [backend, security, frontend]\n"
         "- risks_identified: (integer) count of risks found in the specification\n"
         "- dependencies_identified: (integer) count of external dependencies\n"
         "- success_criteria_count: (integer) count of measurable success criteria\n"
-        "- extraction_mode: (string) one of: full, partial, incremental\n\n"
+        "- extraction_mode: (string) one of: standard, chunked\n\n"
         "After the frontmatter, provide the following 8 structured sections:\n\n"
         "## Functional Requirements\n"
-        "Numbered list with FR-NNN IDs (e.g. FR-001, FR-002). "
-        "Extract every functional requirement, even implicit ones.\n\n"
+        "Use the spec's exact requirement identifiers verbatim as primary IDs. "
+        "Do NOT create a new numbering scheme (e.g., do NOT renumber as FR-001, FR-002). "
+        "If a spec uses FR-EVAL-001.1, use FR-EVAL-001.1. "
+        "If a requirement needs sub-decomposition, use suffixes on the original ID "
+        "(e.g., FR-EVAL-001.1a, FR-EVAL-001.1b). "
+        "If the spec has no requirement IDs, then use FR-NNN as a fallback. "
+        "The functional_requirements frontmatter count must equal the number of "
+        "top-level requirements in the spec, not sub-decompositions.\n\n"
         "## Non-Functional Requirements\n"
-        "Numbered list with NFR-NNN IDs (e.g. NFR-001, NFR-002). "
+        "Use the spec's exact NFR identifiers verbatim. Do NOT renumber. "
+        "If the spec has no NFR IDs, use NFR-NNN as a fallback. "
         "Include performance, security, scalability, maintainability.\n\n"
         "## Complexity Assessment\n"
         "Provide complexity_score and complexity_class with detailed scoring rationale.\n\n"
@@ -143,7 +150,7 @@ def build_generate_prompt(agent: AgentSpec, extraction_path: Path) -> str:
         "- spec_source, generated, generator: provenance metadata\n"
         "- functional_requirements, nonfunctional_requirements, total_requirements: scope counts\n"
         "- complexity_score, complexity_class: complexity assessment\n"
-        "- domains_detected: number of technical domains to address\n"
+        "- domains_detected: list of technical domain names to address\n"
         "- risks_identified: number of risks to mitigate in the roadmap\n"
         "- dependencies_identified: external dependencies to plan around\n"
         "- success_criteria_count: measurable criteria to validate against\n"
@@ -161,7 +168,10 @@ def build_generate_prompt(agent: AgentSpec, extraction_path: Path) -> str:
         "6. Timeline estimates per phase\n\n"
         f"Apply your {agent.persona} perspective throughout: prioritize concerns, "
         f"risks, and recommendations that a {agent.persona} would emphasize.\n\n"
-        "Use numbered and bulleted lists for actionable items. Be specific and concrete."
+        "Use numbered and bulleted lists for actionable items. Be specific and concrete.\n\n"
+        "IMPORTANT: Preserve exact requirement IDs from the extraction document. "
+        "Do NOT renumber, relabel, or create new requirement IDs. "
+        "If the extraction uses FR-EVAL-001.1, your roadmap must use FR-EVAL-001.1."
     ) + _OUTPUT_FORMAT_BLOCK
 
 
@@ -347,25 +357,103 @@ def build_spec_fidelity_prompt(
     ) + _OUTPUT_FORMAT_BLOCK
 
 
+def build_wiring_verification_prompt(
+    merge_file: Path,
+    spec_source: str,
+) -> str:
+    """Prompt for step 'wiring-verification'.
+
+    Instructs Claude to perform static wiring analysis on the merged
+    roadmap output directory, checking for unwired callables, orphan
+    modules, and unregistered dispatch entries (section 5.7 Step 2).
+
+    Parameters
+    ----------
+    merge_file:
+        Path to the merged roadmap file (roadmap.md).
+    spec_source:
+        The source specification filename for provenance.
+    """
+    return (
+        "You are a static wiring verification analyst.\n\n"
+        "Read the provided merged roadmap and verify the structural wiring "
+        "integrity of the codebase described in the roadmap. Check for:\n\n"
+        "1. **Unwired Optional Callable Injections (G-001)**: Constructor "
+        "parameters typed as Optional[Callable] or Callable | None with "
+        "default None that are never wired via keyword arguments.\n\n"
+        "2. **Orphan Modules (G-002)**: Modules under provider directories "
+        "(steps/, handlers/, validators/, checks/) with zero inbound imports "
+        "from outside those directories.\n\n"
+        "3. **Unregistered Dispatch Entries (G-003)**: Dict-based registries "
+        "containing callable references that cannot be resolved in scope.\n\n"
+        "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
+        "- gate: wiring-verification\n"
+        f"- target_dir: (the directory analyzed)\n"
+        "- files_analyzed: (integer count)\n"
+        "- files_skipped: (integer count)\n"
+        "- rollout_mode: shadow\n"
+        "- analysis_complete: true\n"
+        "- audit_artifacts_used: 0\n"
+        "- unwired_callable_count: (integer)\n"
+        "- orphan_module_count: (integer)\n"
+        "- unwired_registry_count: (integer)\n"
+        "- critical_count: (integer)\n"
+        "- major_count: (integer)\n"
+        "- info_count: (integer)\n"
+        "- total_findings: (integer)\n"
+        "- blocking_findings: (integer)\n"
+        "- whitelist_entries_applied: (integer)\n\n"
+        "After the frontmatter, provide:\n"
+        "1. Summary of analysis scope and findings\n"
+        "2. Unwired Optional Callable Injections (if any)\n"
+        "3. Orphan Modules / Symbols (if any)\n"
+        "4. Unregistered Dispatch Entries (if any)\n"
+        "5. Suppressions and Dynamic Retention notes\n"
+        "6. Recommended Remediation actions\n"
+        "7. Evidence and Limitations\n\n"
+        "In shadow mode, report all findings but do not block the pipeline."
+    ) + _OUTPUT_FORMAT_BLOCK
+
+
 def build_test_strategy_prompt(
     roadmap_path: Path,
     extraction_path: Path,
 ) -> str:
     """Prompt for step 'test-strategy'.
 
-    Instructs Claude to produce a test strategy for the roadmap.
+    Instructs Claude to produce a test strategy for the roadmap with
+    6 frontmatter fields, complexity-to-ratio mapping, and issue
+    classification table.
     """
     return (
         "You are a test strategy specialist.\n\n"
         "Read the final roadmap and the requirements extraction document. "
         "Produce a comprehensive test strategy.\n\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
-        "- validation_milestones: (integer count of validation milestones defined)\n"
-        "- interleave_ratio: (string describing test-to-implementation ratio, e.g. '1:3')\n\n"
+        "- complexity_class: (string) one of: LOW, MEDIUM, HIGH -- from the extraction\n"
+        "- validation_philosophy: (string) MUST be exactly 'continuous-parallel' (hyphenated, not underscored)\n"
+        "- validation_milestones: (integer) count of validation milestones defined -- "
+        "count M# or Phase headings in the roadmap\n"
+        "- work_milestones: (integer) count of implementation work milestones -- "
+        "count M# or Phase headings in the roadmap\n"
+        "- interleave_ratio: (string) test-to-implementation ratio, determined by complexity_class:\n"
+        "  LOW → 1:3 (one validation milestone per three work milestones)\n"
+        "  MEDIUM → 1:2 (one validation milestone per two work milestones)\n"
+        "  HIGH → 1:1 (one validation milestone per work milestone)\n"
+        "- major_issue_policy: (string) MUST be exactly 'stop-and-fix' -- "
+        "major issues halt progress until resolved\n\n"
+        "## Issue Classification\n\n"
+        "Classify issues found during validation as:\n"
+        "| Severity | Action | Gate Impact |\n"
+        "|----------|--------|-------------|\n"
+        "| CRITICAL | stop-and-fix immediately | Blocks current phase |\n"
+        "| MAJOR | stop-and-fix before next phase | Blocks next phase |\n"
+        "| MINOR | Track and fix in next sprint | No gate impact |\n"
+        "| COSMETIC | Backlog | No gate impact |\n\n"
         "After the frontmatter, provide:\n"
         "1. Validation milestones mapped to roadmap phases\n"
         "2. Test categories (unit, integration, E2E, acceptance)\n"
-        "3. Test-implementation interleaving strategy\n"
+        "3. Test-implementation interleaving strategy with ratio justification\n"
         "4. Risk-based test prioritization\n"
         "5. Acceptance criteria per milestone\n"
         "6. Quality gates between phases\n\n"

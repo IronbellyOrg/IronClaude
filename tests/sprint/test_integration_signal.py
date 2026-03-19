@@ -110,14 +110,19 @@ class TestGracefulShutdown:
                 slow_proc._terminated = True  # poll() now returns -15
 
         with (
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=popen_factory),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=popen_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=99999),
             patch("superclaude.cli.pipeline.process.os.killpg"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.update_tail_pane"),
             patch("superclaude.cli.sprint.executor.time.sleep", side_effect=fake_sleep),
-            patch("superclaude.cli.sprint.executor.SignalHandler", _TrackingSignalHandler),
+            patch(
+                "superclaude.cli.sprint.executor.SignalHandler", _TrackingSignalHandler
+            ),
             patch("superclaude.cli.sprint.executor.SprintLogger") as mock_logger_cls,
         ):
             logger_inst = MagicMock()
@@ -175,8 +180,10 @@ class TestGracefulShutdown:
         captured_results = []
 
         with (
-            patch("superclaude.cli.pipeline.process.subprocess.Popen",
-                  side_effect=lambda *a, **kw: _FailPopen()),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=lambda *a, **kw: _FailPopen(),
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.sprint.notify._notify"),
             patch("superclaude.cli.sprint.executor.SprintLogger") as mock_logger_cls,
@@ -217,8 +224,10 @@ class TestGracefulShutdown:
         timer = threading.Timer(0.3, send_sigterm)
 
         with (
-            patch("superclaude.cli.pipeline.process.subprocess.Popen",
-                  side_effect=popen_factory),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=popen_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=99999),
             patch("superclaude.cli.pipeline.process.os.killpg"),
@@ -235,10 +244,13 @@ class TestGracefulShutdown:
             timer.start()
             try:
                 with patch.object(
-                    type(slow_proc), "wait",
+                    type(slow_proc),
+                    "wait",
                     side_effect=lambda timeout=None: (
-                        setattr(slow_proc, "returncode", -15) or -15
-                    ) if slow_proc._terminated else None,
+                        (setattr(slow_proc, "returncode", -15) or -15)
+                        if slow_proc._terminated
+                        else None
+                    ),
                 ):
                     execute_sprint(config)
             except SystemExit:
@@ -308,7 +320,10 @@ class TestGracefulShutdown:
         timer = threading.Timer(0.5, send_sigint)
 
         with (
-            patch("superclaude.cli.pipeline.process.subprocess.Popen", side_effect=popen_factory),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=popen_factory,
+            ),
             patch("superclaude.cli.pipeline.process.os.setpgrp"),
             patch("superclaude.cli.pipeline.process.os.getpgid", return_value=11111),
             patch("superclaude.cli.pipeline.process.os.killpg"),
@@ -317,7 +332,9 @@ class TestGracefulShutdown:
             patch("superclaude.cli.sprint.executor.SprintLogger") as mock_logger_cls,
         ):
             logger_inst = MagicMock()
-            logger_inst.write_summary = MagicMock(side_effect=lambda sr: captured_results.append(sr))
+            logger_inst.write_summary = MagicMock(
+                side_effect=lambda sr: captured_results.append(sr)
+            )
             mock_logger_cls.return_value = logger_inst
 
             timer.start()

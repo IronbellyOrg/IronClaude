@@ -11,10 +11,11 @@ GateCriteria instances.
 
 from __future__ import annotations
 
+from ..audit.wiring_gate import WIRING_GATE
 from ..pipeline.models import GateCriteria, SemanticCheck
 
-
 # --- Semantic check functions (pure: content -> bool) ---
+
 
 def _no_heading_gaps(content: str) -> bool:
     """Verify heading levels increment by at most 1 (no H2 -> H4 skip)."""
@@ -100,36 +101,46 @@ def _no_duplicate_headings(content: str) -> bool:
 
 def _frontmatter_values_non_empty(content: str) -> bool:
     """All YAML frontmatter fields have non-empty values."""
-    stripped = content.lstrip()
-    if not stripped.startswith("---"):
+    fm = _parse_frontmatter(content)
+    if fm is None:
         return False
-
-    rest = stripped[3:].lstrip("\n")
-    end_idx = rest.find("\n---")
-    if end_idx == -1:
-        return False
-
-    frontmatter_text = rest[:end_idx]
-    for line in frontmatter_text.splitlines():
-        line = line.strip()
-        if ":" in line:
-            _key, value = line.split(":", 1)
-            if not value.strip():
-                return False
+    for _key, value in fm.items():
+        if not value.strip():
+            return False
     return True
 
 
 def _has_actionable_content(content: str) -> bool:
     """At least one section contains numbered or bulleted items."""
     import re
+
     # Look for markdown list items: "- ", "* ", "1. ", "2. ", etc.
-    return bool(re.search(r'^\s*(?:[-*]|\d+\.)\s+\S', content, re.MULTILINE))
+    return bool(re.search(r"^\s*(?:[-*]|\d+\.)\s+\S", content, re.MULTILINE))
+
+
+def _strip_yaml_quotes(value: str) -> str:
+    """Strip matching outer YAML quotes (single or double) from a value.
+
+    Handles the common case where LLMs wrap values in quotes:
+      '"1:1"'  -> '1:1'
+      "'1:1'"  -> '1:1'
+
+    Does NOT strip if quotes are unmatched:
+      '"1:1'   -> '"1:1'   (unmatched -- leave as-is)
+    """
+    if len(value) >= 2:
+        if (value[0] == '"' and value[-1] == '"') or (
+            value[0] == "'" and value[-1] == "'"
+        ):
+            return value[1:-1]
+    return value
 
 
 def _parse_frontmatter(content: str) -> dict[str, str] | None:
     """Extract YAML frontmatter key-value pairs from content.
 
     Returns a dict of key→value strings, or None if no frontmatter found.
+    Values are stripped of whitespace and matching outer YAML quotes.
     """
     stripped = content.lstrip()
     if not stripped.startswith("---"):
@@ -145,7 +156,7 @@ def _parse_frontmatter(content: str) -> dict[str, str] | None:
         line = line.strip()
         if ":" in line:
             key, value = line.split(":", 1)
-            result[key.strip()] = value.strip()
+            result[key.strip()] = _strip_yaml_quotes(value.strip())
     return result
 
 
@@ -171,9 +182,7 @@ def _high_severity_count_zero(content: str) -> bool:
     try:
         count = int(value)
     except (ValueError, TypeError):
-        raise TypeError(
-            f"high_severity_count must be an integer, got: {value!r}"
-        )
+        raise TypeError(f"high_severity_count must be an integer, got: {value!r}")
 
     return count == 0
 
@@ -185,17 +194,22 @@ def _has_per_finding_table(content: str) -> bool:
     Finding | Severity | Result | Justification
     """
     import re
+
     # Look for the table header row with required columns
-    has_header = bool(re.search(
-        r"\|\s*Finding\s*\|\s*Severity\s*\|\s*Result\s*\|\s*Justification\s*\|",
-        content,
-        re.IGNORECASE,
-    ))
+    has_header = bool(
+        re.search(
+            r"\|\s*Finding\s*\|\s*Severity\s*\|\s*Result\s*\|\s*Justification\s*\|",
+            content,
+            re.IGNORECASE,
+        )
+    )
     # Also check for at least one data row (| F-XX | ... |)
-    has_data = bool(re.search(
-        r"\|\s*F-\d+\s*\|",
-        content,
-    ))
+    has_data = bool(
+        re.search(
+            r"\|\s*F-\d+\s*\|",
+            content,
+        )
+    )
     return has_header and has_data
 
 
@@ -273,26 +287,359 @@ def _tasklist_ready_consistent(content: str) -> bool:
 
 def _convergence_score_valid(content: str) -> bool:
     """convergence_score frontmatter value parses as float in [0.0, 1.0]."""
-    stripped = content.lstrip()
-    if not stripped.startswith("---"):
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+    value = fm.get("convergence_score")
+    if value is None:
+        return False
+    try:
+        score = float(value)
+        return 0.0 <= score <= 1.0
+    except (ValueError, TypeError):
         return False
 
-    rest = stripped[3:].lstrip("\n")
-    end_idx = rest.find("\n---")
-    if end_idx == -1:
+
+# --- DEVIATION_ANALYSIS_GATE semantic check functions ---
+
+
+def _no_ambiguous_deviations(content: str) -> bool:
+    """Fail-closed: ambiguous_deviations must equal 0.
+
+    Returns True only if frontmatter contains ambiguous_deviations: 0.
+    Returns False for:
+    - Missing frontmatter
+    - Missing ambiguous_deviations field
+    - Non-integer value (fail-closed, no exception raised)
+    - Value > 0
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
         return False
 
-    frontmatter_text = rest[:end_idx]
-    for line in frontmatter_text.splitlines():
-        line = line.strip()
-        if line.startswith("convergence_score:"):
-            value = line.split(":", 1)[1].strip()
-            try:
-                score = float(value)
-                return 0.0 <= score <= 1.0
-            except ValueError:
+    value = fm.get("ambiguous_deviations")
+    if value is None:
+        return False
+
+    try:
+        count = int(value)
+    except (ValueError, TypeError):
+        return False
+
+    return count == 0
+
+
+def _certified_is_true(content: str) -> bool:
+    """certified frontmatter field must equal boolean true (case-insensitive).
+
+    Accepts: 'true', 'True', 'TRUE'.
+    Rejects: 'false', 'yes', '1', empty, missing, no frontmatter.
+    Fail-closed: any non-true value returns False.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("certified")
+    if value is None:
+        return False
+
+    return value.lower() == "true"
+
+
+def _validation_complete_true(content: str) -> bool:
+    """analysis_complete frontmatter field must equal true.
+
+    Returns True only if frontmatter has analysis_complete: true.
+    Returns False for missing field, missing frontmatter, or false value.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("analysis_complete")
+    if value is None:
+        return False
+
+    return value.lower() == "true"
+
+
+def _routing_ids_valid(content: str) -> bool:
+    """All routing IDs in deviation-analysis must match DEV-\\d+ pattern.
+
+    Checks routing_fix_roadmap, routing_update_spec, routing_no_action,
+    routing_human_review fields. Empty values are valid (no IDs routed there).
+    Returns False if any ID does not match DEV-\\d+.
+    Returns True if all routing fields are absent or contain only valid IDs.
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    routing_fields = [
+        "routing_fix_roadmap",
+        "routing_update_spec",
+        "routing_no_action",
+        "routing_human_review",
+    ]
+    id_pattern = re.compile(r"^DEV-\d+$")
+
+    for field in routing_fields:
+        raw = fm.get(field, "")
+        if not raw:
+            continue
+        for token in re.split(r"[\s,]+", raw):
+            token = token.strip()
+            if not token:
+                continue
+            if not id_pattern.match(token):
                 return False
-    return False  # convergence_score field not found
+
+    return True
+
+
+def _slip_count_matches_routing(content: str) -> bool:
+    """slip_count must equal the number of IDs in routing_fix_roadmap.
+
+    Returns False if:
+    - Frontmatter missing
+    - slip_count field missing or non-integer
+    - routing_fix_roadmap field count != slip_count
+    Returns True when counts match (including both == 0).
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    slip_str = fm.get("slip_count")
+    if slip_str is None:
+        return False
+
+    try:
+        slip_count = int(slip_str)
+    except (ValueError, TypeError):
+        return False
+
+    routing_raw = fm.get("routing_fix_roadmap", "")
+    if not routing_raw:
+        routing_ids = []
+    else:
+        routing_ids = [t.strip() for t in re.split(r"[\s,]+", routing_raw) if t.strip()]
+
+    return slip_count == len(routing_ids)
+
+
+def _routing_consistent_with_slip_count(content: str) -> bool:
+    """Alias for _slip_count_matches_routing for gate naming consistency."""
+    return _slip_count_matches_routing(content)
+
+
+def _pre_approved_not_in_fix_roadmap(content: str) -> bool:
+    """IDs in routing_no_action (pre-approved) must not appear in routing_fix_roadmap.
+
+    Returns False if any ID appears in both routing_no_action and routing_fix_roadmap.
+    Returns True if no overlap, or if either field is empty.
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    def parse_ids(raw: str) -> set[str]:
+        if not raw:
+            return set()
+        return {t.strip() for t in re.split(r"[\s,]+", raw) if t.strip()}
+
+    no_action = parse_ids(fm.get("routing_no_action", ""))
+    fix_roadmap = parse_ids(fm.get("routing_fix_roadmap", ""))
+
+    return len(no_action & fix_roadmap) == 0
+
+
+def _total_analyzed_consistent(content: str) -> bool:
+    """total_analyzed must equal sum of slip_count + intentional_count + pre_approved_count + ambiguous_count.
+
+    Returns False if:
+    - Frontmatter missing
+    - total_analyzed or any count field missing
+    - Any count is non-integer (fail-closed)
+    - Sum does not match total_analyzed
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    fields = [
+        "total_analyzed",
+        "slip_count",
+        "intentional_count",
+        "pre_approved_count",
+        "ambiguous_count",
+    ]
+    values: dict[str, int] = {}
+    for f in fields:
+        raw = fm.get(f)
+        if raw is None:
+            return False
+        try:
+            values[f] = int(raw)
+        except (ValueError, TypeError):
+            return False
+
+    expected_total = (
+        values["slip_count"]
+        + values["intentional_count"]
+        + values["pre_approved_count"]
+        + values["ambiguous_count"]
+    )
+    return values["total_analyzed"] == expected_total
+
+
+def _total_annotated_consistent(content: str) -> bool:
+    """total_annotated (if present) must equal slip_count + intentional_count + pre_approved_count.
+
+    The total_annotated field sums the three classified (non-ambiguous) deviations.
+    Returns True if field is absent (optional field).
+    Returns False if present but doesn't match the sum.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    total_str = fm.get("total_annotated")
+    if total_str is None:
+        return True  # Optional field; absence is valid
+
+    try:
+        total_annotated = int(total_str)
+    except (ValueError, TypeError):
+        return False
+
+    component_fields = ["slip_count", "intentional_count", "pre_approved_count"]
+    total_components = 0
+    for f in component_fields:
+        raw = fm.get(f)
+        if raw is None:
+            return False
+        try:
+            total_components += int(raw)
+        except (ValueError, TypeError):
+            return False
+
+    return total_annotated == total_components
+
+
+def _complexity_class_valid(content: str) -> bool:
+    """Validate complexity_class is one of LOW, MEDIUM, HIGH (case-insensitive)."""
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("complexity_class")
+    if value is None:
+        return False
+
+    return value.strip().upper() in ("LOW", "MEDIUM", "HIGH")
+
+
+def _extraction_mode_valid(content: str) -> bool:
+    """Validate extraction_mode is 'standard' or starts with 'chunked' (case-insensitive).
+
+    Accepts: 'standard', 'chunked', 'chunked (3 chunks)', etc.
+    Rejects: 'full', 'partial', 'incremental'.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("extraction_mode")
+    if value is None:
+        return False
+
+    normalized = value.strip().lower()
+    return normalized == "standard" or normalized.startswith("chunked")
+
+
+def _interleave_ratio_consistent(content: str) -> bool:
+    """Validate interleave_ratio is consistent with complexity_class.
+
+    Required mapping: LOW→1:3, MEDIUM→1:2, HIGH→1:1.
+    Rejects mismatches like LOW+1:1 or HIGH+1:3.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    complexity = fm.get("complexity_class")
+    ratio = fm.get("interleave_ratio")
+    if complexity is None or ratio is None:
+        return False
+
+    expected = {
+        "LOW": "1:3",
+        "MEDIUM": "1:2",
+        "HIGH": "1:1",
+    }
+    normalized_complexity = complexity.strip().upper()
+    expected_ratio = expected.get(normalized_complexity)
+    if expected_ratio is None:
+        return False
+
+    return ratio.strip() == expected_ratio
+
+
+def _milestone_counts_positive(content: str) -> bool:
+    """Validate validation_milestones and work_milestones are positive integers."""
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    for field in ("validation_milestones", "work_milestones"):
+        value = fm.get(field)
+        if value is None:
+            return False
+        try:
+            count = int(value)
+        except (ValueError, TypeError):
+            return False
+        if count <= 0:
+            return False
+
+    return True
+
+
+def _validation_philosophy_correct(content: str) -> bool:
+    """Validate validation_philosophy is exactly 'continuous-parallel' (hyphenated).
+
+    Rejects: 'continuous_parallel' (underscore), 'continuous parallel' (space).
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("validation_philosophy")
+    if value is None:
+        return False
+
+    return value.strip() == "continuous-parallel"
+
+
+def _major_issue_policy_correct(content: str) -> bool:
+    """Validate major_issue_policy is exactly 'stop-and-fix'."""
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("major_issue_policy")
+    if value is None:
+        return False
+
+    return value.strip() == "stop-and-fix"
 
 
 # --- GateCriteria instances ---
@@ -315,6 +662,18 @@ EXTRACT_GATE = GateCriteria(
     ],
     min_lines=50,
     enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="complexity_class_valid",
+            check_fn=_complexity_class_valid,
+            failure_message="complexity_class must be one of LOW, MEDIUM, HIGH",
+        ),
+        SemanticCheck(
+            name="extraction_mode_valid",
+            check_fn=_extraction_mode_valid,
+            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+        ),
+    ],
 )
 
 GENERATE_A_GATE = GateCriteria(
@@ -402,9 +761,46 @@ MERGE_GATE = GateCriteria(
 )
 
 TEST_STRATEGY_GATE = GateCriteria(
-    required_frontmatter_fields=["validation_milestones", "interleave_ratio"],
+    required_frontmatter_fields=[
+        "spec_source",
+        "generated",
+        "generator",
+        "complexity_class",
+        "validation_philosophy",
+        "validation_milestones",
+        "work_milestones",
+        "interleave_ratio",
+        "major_issue_policy",
+    ],
     min_lines=40,
-    enforcement_tier="STANDARD",
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="complexity_class_valid",
+            check_fn=_complexity_class_valid,
+            failure_message="complexity_class must be one of LOW, MEDIUM, HIGH",
+        ),
+        SemanticCheck(
+            name="interleave_ratio_consistent",
+            check_fn=_interleave_ratio_consistent,
+            failure_message="interleave_ratio must match complexity_class: LOW→1:3, MEDIUM→1:2, HIGH→1:1",
+        ),
+        SemanticCheck(
+            name="milestone_counts_positive",
+            check_fn=_milestone_counts_positive,
+            failure_message="validation_milestones and work_milestones must be positive integers",
+        ),
+        SemanticCheck(
+            name="validation_philosophy_correct",
+            check_fn=_validation_philosophy_correct,
+            failure_message="validation_philosophy must be exactly 'continuous-parallel' (hyphenated)",
+        ),
+        SemanticCheck(
+            name="major_issue_policy_correct",
+            check_fn=_major_issue_policy_correct,
+            failure_message="major_issue_policy must be exactly 'stop-and-fix'",
+        ),
+    ],
 )
 
 SPEC_FIDELITY_GATE = GateCriteria(
@@ -478,6 +874,59 @@ CERTIFY_GATE = GateCriteria(
             check_fn=_has_per_finding_table,
             failure_message="Certification report missing per-finding results table",
         ),
+        SemanticCheck(
+            name="certified_is_true",
+            check_fn=_certified_is_true,
+            failure_message="certified field must be true for certification gate to pass",
+        ),
+    ],
+)
+
+DEVIATION_ANALYSIS_GATE = GateCriteria(
+    required_frontmatter_fields=[
+        "schema_version",
+        "total_analyzed",
+        "slip_count",
+        "intentional_count",
+        "pre_approved_count",
+        "ambiguous_count",
+        "routing_fix_roadmap",
+        "routing_no_action",
+        "analysis_complete",
+    ],
+    min_lines=20,
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="no_ambiguous_deviations",
+            check_fn=_no_ambiguous_deviations,
+            failure_message="ambiguous_deviations must be 0; ambiguous items require human review before pipeline can continue",
+        ),
+        SemanticCheck(
+            name="validation_complete_true",
+            check_fn=_validation_complete_true,
+            failure_message="analysis_complete must be true for deviation analysis gate to pass",
+        ),
+        SemanticCheck(
+            name="routing_ids_valid",
+            check_fn=_routing_ids_valid,
+            failure_message="All routing IDs must match DEV-\\d+ pattern",
+        ),
+        SemanticCheck(
+            name="slip_count_matches_routing",
+            check_fn=_slip_count_matches_routing,
+            failure_message="slip_count must equal the number of IDs in routing_fix_roadmap",
+        ),
+        SemanticCheck(
+            name="pre_approved_not_in_fix_roadmap",
+            check_fn=_pre_approved_not_in_fix_roadmap,
+            failure_message="Pre-approved IDs (routing_no_action) must not appear in routing_fix_roadmap",
+        ),
+        SemanticCheck(
+            name="total_analyzed_consistent",
+            check_fn=_total_analyzed_consistent,
+            failure_message="total_analyzed must equal slip_count + intentional_count + pre_approved_count + ambiguous_count",
+        ),
     ],
 )
 
@@ -492,6 +941,8 @@ ALL_GATES = [
     ("merge", MERGE_GATE),
     ("test-strategy", TEST_STRATEGY_GATE),
     ("spec-fidelity", SPEC_FIDELITY_GATE),
+    ("wiring-verification", WIRING_GATE),
+    ("deviation-analysis", DEVIATION_ANALYSIS_GATE),
     ("remediate", REMEDIATE_GATE),
     ("certify", CERTIFY_GATE),
 ]

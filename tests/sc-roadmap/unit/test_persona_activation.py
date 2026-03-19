@@ -79,26 +79,50 @@ class TestPrimaryPersonaActivation:
 
     def test_security_dominant(self):
         """When security >= 40%, primary should be 'security'."""
-        dist = {"frontend": 10, "backend": 25, "security": 45, "performance": 10, "documentation": 10}
+        dist = {
+            "frontend": 10,
+            "backend": 25,
+            "security": 45,
+            "performance": 10,
+            "documentation": 10,
+        }
         result = select_personas(dist)
         assert result["primary"] == "security"
         assert not result["fallback_used"]
 
     def test_frontend_dominant(self):
         """When frontend >= 40%, primary should be 'frontend'."""
-        dist = {"frontend": 55, "backend": 20, "security": 10, "performance": 10, "documentation": 5}
+        dist = {
+            "frontend": 55,
+            "backend": 20,
+            "security": 10,
+            "performance": 10,
+            "documentation": 5,
+        }
         result = select_personas(dist)
         assert result["primary"] == "frontend"
 
     def test_backend_dominant(self):
         """When backend >= 40%, primary should be 'backend'."""
-        dist = {"frontend": 5, "backend": 60, "security": 15, "performance": 15, "documentation": 5}
+        dist = {
+            "frontend": 5,
+            "backend": 60,
+            "security": 15,
+            "performance": 15,
+            "documentation": 5,
+        }
         result = select_personas(dist)
         assert result["primary"] == "backend"
 
     def test_exactly_40_activates(self):
         """Exactly 40% should activate primary."""
-        dist = {"frontend": 40, "backend": 30, "security": 15, "performance": 10, "documentation": 5}
+        dist = {
+            "frontend": 40,
+            "backend": 30,
+            "security": 15,
+            "performance": 10,
+            "documentation": 5,
+        }
         result = select_personas(dist)
         assert result["primary"] == "frontend"
         assert not result["fallback_used"]
@@ -109,7 +133,13 @@ class TestConsultingPersonaActivation:
 
     def test_consulting_personas_detected(self):
         """Domains >= 15% but < 40% should be consulting."""
-        dist = {"frontend": 10, "backend": 45, "security": 25, "performance": 15, "documentation": 5}
+        dist = {
+            "frontend": 10,
+            "backend": 45,
+            "security": 25,
+            "performance": 15,
+            "documentation": 5,
+        }
         result = select_personas(dist)
         assert result["primary"] == "backend"
         assert "security" in result["consulting"]
@@ -117,7 +147,13 @@ class TestConsultingPersonaActivation:
 
     def test_no_consulting_when_all_below_15(self):
         """No consulting when all non-primary domains < 15%."""
-        dist = {"frontend": 70, "backend": 10, "security": 10, "performance": 5, "documentation": 5}
+        dist = {
+            "frontend": 70,
+            "backend": 10,
+            "security": 10,
+            "performance": 5,
+            "documentation": 5,
+        }
         result = select_personas(dist)
         assert result["primary"] == "frontend"
         assert len(result["consulting"]) == 0
@@ -128,14 +164,26 @@ class TestFallbackBehavior:
 
     def test_fallback_when_no_domain_reaches_40(self):
         """When no domain reaches 40%, fallback to architect."""
-        dist = {"frontend": 25, "backend": 25, "security": 20, "performance": 15, "documentation": 15}
+        dist = {
+            "frontend": 25,
+            "backend": 25,
+            "security": 20,
+            "performance": 15,
+            "documentation": 15,
+        }
         result = select_personas(dist)
         assert result["primary"] == "architect"
         assert result["fallback_used"] is True
 
     def test_fallback_with_consulting(self):
         """Fallback should still assign consulting personas."""
-        dist = {"frontend": 30, "backend": 30, "security": 20, "performance": 10, "documentation": 10}
+        dist = {
+            "frontend": 30,
+            "backend": 30,
+            "security": 20,
+            "performance": 10,
+            "documentation": 10,
+        }
         result = select_personas(dist)
         assert result["primary"] == "architect"
         assert "frontend" in result["consulting"]
@@ -144,7 +192,13 @@ class TestFallbackBehavior:
 
     def test_all_zero_distribution(self):
         """All-zero distribution should fallback to architect."""
-        dist = {"frontend": 0, "backend": 0, "security": 0, "performance": 0, "documentation": 0}
+        dist = {
+            "frontend": 0,
+            "backend": 0,
+            "security": 0,
+            "performance": 0,
+            "documentation": 0,
+        }
         result = select_personas(dist)
         assert result["primary"] == "architect"
         assert result["fallback_used"] is True

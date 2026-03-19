@@ -20,9 +20,7 @@ from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
 
 def has_classification_table(content: str) -> bool:
     """Check that content contains a classification results table."""
-    return bool(
-        re.search(r"\|.*File.*\|.*Classification.*\|", content, re.IGNORECASE)
-    )
+    return bool(re.search(r"\|.*File.*\|.*Classification.*\|", content, re.IGNORECASE))
 
 
 def has_per_file_profiles(content: str) -> bool:
@@ -39,16 +37,12 @@ def has_cross_cutting_findings(content: str) -> bool:
 
 def has_consolidation_opportunities(content: str) -> bool:
     """Check that content identifies consolidation opportunities."""
-    return bool(
-        re.search(r"(?:consolidat|merg|deduplic)", content, re.IGNORECASE)
-    )
+    return bool(re.search(r"(?:consolidat|merg|deduplic)", content, re.IGNORECASE))
 
 
 def has_deduplication_evidence(content: str) -> bool:
     """Check that the summary contains deduplication analysis evidence."""
-    return bool(
-        re.search(r"(?:deduplic|duplicate|overlap)", content, re.IGNORECASE)
-    )
+    return bool(re.search(r"(?:deduplic|duplicate|overlap)", content, re.IGNORECASE))
 
 
 def has_exit_recommendation(content: str) -> bool:
@@ -58,9 +52,7 @@ def has_exit_recommendation(content: str) -> bool:
 
 def has_validation_verdicts(content: str) -> bool:
     """Check that validation output contains pass/fail verdicts."""
-    return bool(
-        re.search(r"(?:PASS|FAIL|verdict|validated)", content, re.IGNORECASE)
-    )
+    return bool(re.search(r"(?:PASS|FAIL|verdict|validated)", content, re.IGNORECASE))
 
 
 # --- Gate Definitions ---

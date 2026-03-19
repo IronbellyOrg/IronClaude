@@ -160,6 +160,7 @@ class TestScanForPlaceholders:
 
     def test_content_with_placeholder_raises_on_spec_emit(self, tmp_path):
         """A content containing placeholders should not pass G-010 in synthesis step."""
+
         # Simulate a process_runner that writes content with a placeholder
         def process_runner(prompt: str, output_path: Path):
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -167,7 +168,9 @@ class TestScanForPlaceholders:
             return 0, "EXIT_RECOMMENDATION: CONTINUE", False
 
         # Create fake portify-spec.md to satisfy the executor
-        (tmp_path / "portify-spec.md").write_text("## Step Mapping\n- step1\n", encoding="utf-8")
+        (tmp_path / "portify-spec.md").write_text(
+            "## Step Mapping\n- step1\n", encoding="utf-8"
+        )
 
         result = execute_release_spec_synthesis_step(
             "test-cli",
@@ -177,7 +180,10 @@ class TestScanForPlaceholders:
         )
         # Should fail because the draft still has placeholders
         assert result.portify_status == PortifyStatus.ERROR
-        assert "Placeholder" in result.error_message or "placeholder" in result.error_message.lower()
+        assert (
+            "Placeholder" in result.error_message
+            or "placeholder" in result.error_message.lower()
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -399,7 +405,11 @@ class TestStepRegistryTimeout:
     def test_release_spec_synthesis_phase_type_is_synthesis(self):
         """Phase type is SYNTHESIS."""
         from superclaude.cli.cli_portify.models import PortifyPhaseType
-        assert STEP_REGISTRY["release-spec-synthesis"]["phase_type"] == PortifyPhaseType.SYNTHESIS
+
+        assert (
+            STEP_REGISTRY["release-spec-synthesis"]["phase_type"]
+            == PortifyPhaseType.SYNTHESIS
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -412,10 +422,12 @@ class TestExecuteReleaseSpecSynthesisStep:
 
     def _make_runner_with_section12(self, draft_content: str):
         """Make a process_runner that writes a section-12-containing draft."""
+
         def runner(prompt: str, output_path: Path) -> tuple[int, str, bool]:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(draft_content, encoding="utf-8")
             return 0, "EXIT_RECOMMENDATION: CONTINUE", False
+
         return runner
 
     def _setup_workdir(self, tmp_path: Path) -> None:
@@ -430,9 +442,7 @@ class TestExecuteReleaseSpecSynthesisStep:
     def test_synthesis_step_returns_pass_with_section12(self, tmp_path):
         """Step returns PASS when draft has no placeholders and Section 12."""
         self._setup_workdir(tmp_path)
-        draft_content = (
-            "# Spec\nNo placeholders here.\n\n## 12. Brainstorm Gap Analysis\n\nSome content.\n"
-        )
+        draft_content = "# Spec\nNo placeholders here.\n\n## 12. Brainstorm Gap Analysis\n\nSome content.\n"
         runner = self._make_runner_with_section12(draft_content)
         result = execute_release_spec_synthesis_step(
             "test-cli", tmp_path, project_root=REPO_ROOT, process_runner=runner
@@ -503,9 +513,7 @@ class TestExecuteReleaseSpecSynthesisStep:
     def test_synthesis_step_creates_working_copy(self, tmp_path):
         """release-spec-working.md is created as substep 3a."""
         self._setup_workdir(tmp_path)
-        draft_content = (
-            "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
-        )
+        draft_content = "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
         runner = self._make_runner_with_section12(draft_content)
         execute_release_spec_synthesis_step(
             "test-cli", tmp_path, project_root=REPO_ROOT, process_runner=runner
@@ -515,9 +523,7 @@ class TestExecuteReleaseSpecSynthesisStep:
     def test_synthesis_step_step_name_is_correct(self, tmp_path):
         """Result step_name == 'release-spec-synthesis'."""
         self._setup_workdir(tmp_path)
-        draft_content = (
-            "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
-        )
+        draft_content = "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
         runner = self._make_runner_with_section12(draft_content)
         result = execute_release_spec_synthesis_step(
             "test-cli", tmp_path, project_root=REPO_ROOT, process_runner=runner
@@ -527,9 +533,7 @@ class TestExecuteReleaseSpecSynthesisStep:
     def test_synthesis_step_gate_tier_is_strict(self, tmp_path):
         """Gate tier is STRICT for the release-spec-synthesis step."""
         self._setup_workdir(tmp_path)
-        draft_content = (
-            "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
-        )
+        draft_content = "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
         runner = self._make_runner_with_section12(draft_content)
         result = execute_release_spec_synthesis_step(
             "test-cli", tmp_path, project_root=REPO_ROOT, process_runner=runner
@@ -539,9 +543,7 @@ class TestExecuteReleaseSpecSynthesisStep:
     def test_synthesis_step_iteration_timeout_is_900(self, tmp_path):
         """iteration_timeout reflects 900s from STEP_REGISTRY."""
         self._setup_workdir(tmp_path)
-        draft_content = (
-            "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
-        )
+        draft_content = "# Spec\nContent.\n\n## 12. Brainstorm Gap Analysis\n\nGood.\n"
         runner = self._make_runner_with_section12(draft_content)
         result = execute_release_spec_synthesis_step(
             "test-cli", tmp_path, project_root=REPO_ROOT, process_runner=runner

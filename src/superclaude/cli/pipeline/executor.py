@@ -107,8 +107,12 @@ def execute_pipeline(
         else:
             # Sequential step -- branch on gate_mode
             result = _execute_single_step(
-                entry, config, run_step, cancel_check,
-                on_step_start, on_step_complete,
+                entry,
+                config,
+                run_step,
+                cancel_check,
+                on_step_start,
+                on_step_complete,
                 trailing_runner=_trailing,
             )
             all_results.append(result)
@@ -116,6 +120,40 @@ def execute_pipeline(
 
             if result.status != StepStatus.PASS:
                 break
+
+    # Deferred execution: run any not-yet-reached TRAILING-mode steps.
+    # These steps are designed for advisory/shadow execution and should
+    # run even when the main pipeline halts (e.g., wiring-verification).
+    executed_ids = {r.step.id for r in all_results}
+    remaining_steps = []
+    for entry in steps:
+        if isinstance(entry, list):
+            for s in entry:
+                if s.id not in executed_ids and s.gate_mode == GateMode.TRAILING:
+                    remaining_steps.append(s)
+        else:
+            if entry.id not in executed_ids and entry.gate_mode == GateMode.TRAILING:
+                remaining_steps.append(entry)
+
+    for deferred_step in remaining_steps:
+        if cancel_check():
+            break
+        _log.info(
+            "Executing deferred TRAILING step '%s' after pipeline halt",
+            deferred_step.id,
+        )
+        result = run_step(deferred_step, config, cancel_check)
+        result = StepResult(
+            step=result.step,
+            status=result.status,
+            attempt=1,
+            gate_failure_reason=result.gate_failure_reason,
+            started_at=result.started_at,
+            finished_at=result.finished_at,
+        )
+        all_results.append(result)
+        on_step_complete(deferred_step, result)
+        on_state_update(_build_state(all_results))
 
     # Sync point: collect all trailing gate results at end of pipeline
     if _trailing is not None:
@@ -221,7 +259,13 @@ def _execute_single_step(
             return result
 
         # Gate failed
-        _log.info("Gate failed for step '%s' (attempt %d/%d): %s", step.id, attempt, max_attempts, reason)
+        _log.info(
+            "Gate failed for step '%s' (attempt %d/%d): %s",
+            step.id,
+            attempt,
+            max_attempts,
+            reason,
+        )
 
         if attempt < max_attempts:
             continue  # retry
@@ -289,14 +333,16 @@ def _run_parallel_steps(
             final.append(r)
         else:
             now = datetime.now(timezone.utc)
-            final.append(StepResult(
-                step=steps[i],
-                status=StepStatus.CANCELLED,
-                attempt=0,
-                gate_failure_reason="Thread did not produce a result",
-                started_at=now,
-                finished_at=now,
-            ))
+            final.append(
+                StepResult(
+                    step=steps[i],
+                    status=StepStatus.CANCELLED,
+                    attempt=0,
+                    gate_failure_reason="Thread did not produce a result",
+                    started_at=now,
+                    finished_at=now,
+                )
+            )
 
     return final
 

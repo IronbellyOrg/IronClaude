@@ -32,7 +32,9 @@ class TestStateVariableDetector:
         deliverables = [_make_deliverable("D-001", "Replace boolean with int offset")]
         results = detect_state_variables(deliverables)
         assert len(results) >= 1
-        replacement = [r for r in results if r.introduction_type == IntroductionType.REPLACEMENT]
+        replacement = [
+            r for r in results if r.introduction_type == IntroductionType.REPLACEMENT
+        ]
         assert len(replacement) >= 1
         assert replacement[0].variable_name == "boolean"
 
@@ -40,7 +42,9 @@ class TestStateVariableDetector:
         """'Add replay guard flag' -> flag type."""
         deliverables = [_make_deliverable("D-002", "Add replay guard flag")]
         results = detect_state_variables(deliverables)
-        flag_results = [r for r in results if r.introduction_type == IntroductionType.FLAG]
+        flag_results = [
+            r for r in results if r.introduction_type == IntroductionType.FLAG
+        ]
         assert len(flag_results) >= 1
 
     def test_document_not_detected(self):
@@ -53,15 +57,19 @@ class TestStateVariableDetector:
         """'Introduce cursor for pagination' -> cursor type."""
         deliverables = [_make_deliverable("D-004", "Introduce cursor for pagination")]
         results = detect_state_variables(deliverables)
-        cursor_results = [r for r in results if r.introduction_type == IntroductionType.CURSOR]
+        cursor_results = [
+            r for r in results if r.introduction_type == IntroductionType.CURSOR
+        ]
         assert len(cursor_results) >= 1
 
     def test_multiple_variables_one_deliverable(self):
         """Multiple variables in one deliverable all detected."""
-        deliverables = [_make_deliverable(
-            "D-005",
-            "Add counter for retries and introduce cursor for pagination and add flag for completion"
-        )]
+        deliverables = [
+            _make_deliverable(
+                "D-005",
+                "Add counter for retries and introduce cursor for pagination and add flag for completion",
+            )
+        ]
         results = detect_state_variables(deliverables)
         types = {r.introduction_type for r in results}
         assert IntroductionType.COUNTER in types
@@ -73,15 +81,18 @@ class TestSelfFieldDetection:
     """self._field pattern detection."""
 
     def test_self_field(self):
-        deliverables = [_make_deliverable("D-010", "Set self._loaded_start_index to initial value")]
+        deliverables = [
+            _make_deliverable("D-010", "Set self._loaded_start_index to initial value")
+        ]
         results = detect_state_variables(deliverables)
         assert any(r.variable_name == "_loaded_start_index" for r in results)
 
     def test_multiple_self_fields(self):
-        deliverables = [_make_deliverable(
-            "D-011",
-            "Initialize self._offset and self._cursor from config"
-        )]
+        deliverables = [
+            _make_deliverable(
+                "D-011", "Initialize self._offset and self._cursor from config"
+            )
+        ]
         results = detect_state_variables(deliverables)
         names = {r.variable_name for r in results}
         assert "_offset" in names
@@ -102,6 +113,8 @@ class TestConfidenceFlagging:
         assert len(results) == 0
 
     def test_non_state_description_empty(self):
-        deliverables = [_make_deliverable("D-022", "Update README with usage instructions")]
+        deliverables = [
+            _make_deliverable("D-022", "Update README with usage instructions")
+        ]
         results = detect_state_variables(deliverables)
         assert len(results) == 0

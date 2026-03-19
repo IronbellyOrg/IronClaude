@@ -1,0 +1,21 @@
+# Wiring Whitelist — Suppression entries for wiring analysis findings.
+#
+# Schema:
+#   Each top-level key corresponds to a finding type. Under each key,
+#   provide a list of entries with:
+#     - symbol: The fully-qualified symbol name to suppress (required)
+#     - reason: Human-readable justification for suppression (optional)
+#
+# Suppressed findings are still reported with suppressed=True but do
+# not count toward gate-blocking thresholds.
+#
+# Example:
+#   unwired_callables:
+#     - symbol: "MyClass.optional_hook"
+#       reason: "Intentionally optional; plugins wire this at runtime"
+
+unwired_callables: []
+
+orphan_modules: []
+
+unwired_registries: []

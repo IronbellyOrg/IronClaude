@@ -105,11 +105,13 @@ def render_limitations_markdown() -> str:
     for i, lim in enumerate(KNOWN_LIMITATIONS, start=1):
         lines.append(f"| {i} | {lim.source} | {lim.impact} | {lim.mitigation} |")
 
-    lines.extend([
-        "",
-        "**Overall Assessment**: Mitigations reduce but do not eliminate "
-        "non-determinism. Audit results are recommendations requiring human "
-        "review, particularly for DELETE classifications with low confidence.",
-    ])
+    lines.extend(
+        [
+            "",
+            "**Overall Assessment**: Mitigations reduce but do not eliminate "
+            "non-determinism. Audit results are recommendations requiring human "
+            "review, particularly for DELETE classifications with low confidence.",
+        ]
+    )
 
     return "\n".join(lines)

@@ -77,16 +77,15 @@ class TestQueueThreadSafety:
 
         def producer(prefix: str):
             for i in range(items_per_thread):
-                q.put(TrailingGateResult(
-                    step_id=f"{prefix}-{i}",
-                    passed=True,
-                    evaluation_ms=float(i),
-                ))
+                q.put(
+                    TrailingGateResult(
+                        step_id=f"{prefix}-{i}",
+                        passed=True,
+                        evaluation_ms=float(i),
+                    )
+                )
 
-        threads = [
-            threading.Thread(target=producer, args=(f"t{n}",))
-            for n in range(3)
-        ]
+        threads = [threading.Thread(target=producer, args=(f"t{n}",)) for n in range(3)]
         for t in threads:
             t.start()
         for t in threads:
@@ -109,11 +108,13 @@ class TestQueueThreadSafety:
 
         def producer(prefix: str):
             for i in range(items_per_thread):
-                q.put(TrailingGateResult(
-                    step_id=f"{prefix}-{i}",
-                    passed=True,
-                    evaluation_ms=float(i),
-                ))
+                q.put(
+                    TrailingGateResult(
+                        step_id=f"{prefix}-{i}",
+                        passed=True,
+                        evaluation_ms=float(i),
+                    )
+                )
                 time.sleep(0.001)  # simulate work
 
         def consumer():
@@ -125,10 +126,7 @@ class TestQueueThreadSafety:
                 else:
                     time.sleep(0.005)
 
-        threads = [
-            threading.Thread(target=producer, args=(f"p{n}",))
-            for n in range(3)
-        ]
+        threads = [threading.Thread(target=producer, args=(f"p{n}",)) for n in range(3)]
         consumer_thread = threading.Thread(target=consumer)
         consumer_thread.start()
         for t in threads:
@@ -175,7 +173,9 @@ class TestQueueThreadSafety:
             passed = i % 2 == 0
             sid = f"step-{i}"
             expected[sid] = passed
-            q.put(TrailingGateResult(step_id=sid, passed=passed, evaluation_ms=float(i)))
+            q.put(
+                TrailingGateResult(step_id=sid, passed=passed, evaluation_ms=float(i))
+            )
 
         results = q.drain()
         by_id = {r.step_id: r for r in results}
@@ -210,10 +210,7 @@ class TestRunnerThreadSafety:
             for s in steps:
                 runner.submit(s)
 
-        threads = [
-            threading.Thread(target=submitter, args=(n,))
-            for n in range(3)
-        ]
+        threads = [threading.Thread(target=submitter, args=(n,)) for n in range(3)]
         for t in threads:
             t.start()
         for t in threads:
@@ -238,10 +235,7 @@ class TestRunnerThreadSafety:
                 _write_passing_output(s)
                 runner.submit(s)
 
-        threads = [
-            threading.Thread(target=submitter, args=(n,))
-            for n in range(3)
-        ]
+        threads = [threading.Thread(target=submitter, args=(n,)) for n in range(3)]
         for t in threads:
             t.start()
         for t in threads:
@@ -292,9 +286,7 @@ class TestRunnerThreadSafety:
         runner.cancel()
         elapsed = time.monotonic() - start
 
-        assert elapsed < 5.0, (
-            f"cancel() took {elapsed:.1f}s — must complete within 5s"
-        )
+        assert elapsed < 5.0, f"cancel() took {elapsed:.1f}s — must complete within 5s"
 
     @pytest.mark.thread_safety
     def test_thread_safety_pending_count_under_load(self, tmp_path):
