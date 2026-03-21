@@ -1,195 +1,150 @@
 ---
-total_diff_points: 14
-shared_assumptions_count: 11
+total_diff_points: 12
+shared_assumptions_count: 9
 ---
 
-## Shared Assumptions and Agreements
+# Diff Analysis: Haiku-Analyzer vs Opus-Architect Roadmap Variants
 
-Both variants agree on the following:
+## 1. Shared Assumptions and Agreements
 
-1. **Dual-bug scope**: Two independent bugs (FIX-001 tool schema discovery, FIX-ARG-TOO-LONG embed limit) require fixes in the same release.
-2. **Phase 0 is mandatory and blocking**: The `--file` empirical test must complete before code changes are finalized; result is binary (WORKING/BROKEN).
-3. **Phase 0 test protocol**: Same exact test sequence (`PINEAPPLE` echo test), same validation commands.
-4. **Phase 1.5 is conditional**: Activates only if Phase 0 returns BROKEN; covers the same 4 executor files.
-5. **`--tools default` placement**: Between `--no-session-persistence` and `--max-turns` in `build_command()`.
-6. **Constant derivation**: `_MAX_ARG_STRLEN = 128 * 1024`, `_PROMPT_TEMPLATE_OVERHEAD = 8 * 1024`, `_EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD`.
-7. **Module-level assertion**: `_PROMPT_TEMPLATE_OVERHEAD >= 4096` required with rationale.
-8. **Composed string guard**: Guard must measure `step.prompt + "\n\n" + embedded`, not embedded content alone.
-9. **No new imports**: Both explicitly prohibit adding `import resource` or other new imports.
-10. **Test artifacts**: Same renamed test class (`test_embed_size_guard_fallback`), same new `TestComposedStringGuard` class, same pipeline test additions.
-11. **Risk hierarchy**: `--file` broken (~80% probability) is the highest-priority risk; index-sensitive test breakage is low-priority.
-
----
-
-## Divergence Points
-
-### 1. Phase Numbering and Structure
-
-**Opus-Architect**: 5 phases — Phase 0, 1.1, 1.2, 1.5 (conditional), 2 (integration), 3 (commit/release).
-
-**Haiku-Analyzer**: 5 phases — Phase 0, 1, 1.5 (conditional), 2, 3 (tests), 4 (E2E validation/release).
-
-**Impact**: Haiku-Analyzer separates test suite alignment (Phase 3) from code implementation (Phase 2) and E2E validation (Phase 4) into distinct phases with explicit milestones. Opus-Architect integrates test updates inline with each fix phase (1.1, 1.2) and consolidates validation into Phase 2. Haiku's structure provides clearer milestone checkpoints; Opus's structure reduces phase count but co-locates test work with implementation.
+1. **Phase 0 as blocking gate** — Both require empirical `--file` validation before code changes, with WORKING/BROKEN branching.
+2. **PINEAPPLE sentinel test** — Identical validation approach for `--file` behavior.
+3. **`--tools default` placement** — Both specify insertion between `--no-session-persistence` and `--max-turns` in `build_command()`.
+4. **Kernel-derived constants** — Both define `_MAX_ARG_STRLEN`, `_PROMPT_TEMPLATE_OVERHEAD`, `_EMBED_SIZE_LIMIT` as module-level constants with assertion.
+5. **Composed prompt guard** — Both measure `step.prompt + "\n\n" + embedded` with `<=` operator.
+6. **Conditional Phase 1.5** — Both activate fallback remediation only if Phase 0 returns BROKEN, targeting the same four files.
+7. **Test rename** — Both rename `test_100kb_guard_fallback` → `test_embed_size_guard_fallback`.
+8. **Scope constraints** — Both explicitly defer stdin delivery, Windows 32 KB, prompt compression, and sprint orchestration redesign.
+9. **UV-only execution** — Both mandate `uv run pytest` with no new imports in changed files.
 
 ---
 
-### 2. Parallelization of Fix Tracks After Phase 0
+## 2. Divergence Points
 
-**Opus-Architect**: Explicitly states Phases 1.1 and 1.2 are independent and **should execute in parallel** after Phase 0. Notes this as "the primary parallelization opportunity."
+### D1 — Granularity of Timeline Estimates
 
-**Haiku-Analyzer**: Describes a **Wave model** (Wave 1: design verification; Wave 2: implementation; Wave 3: testing/validation) but does not explicitly call out parallel execution of the two fix tracks. Phases 1 and 2 are sequential in the presented plan.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Unit | Days (0.5–1.0 per phase) | Minutes/hours (15–60 min per phase) |
+| Total WORKING | 3.5–4.0 days | 2–3 hours |
+| Total BROKEN | 4.0–5.0 days | 3–4 hours |
 
-**Impact**: Opus-Architect's explicit parallelization could reduce wall-clock time by 30–50% on the implementation track. Haiku-Analyzer's wave model is more cautious but may serialize unnecessarily.
+**Impact**: Haiku's estimates suggest a multi-day effort with review cycles; Opus treats it as a focused half-day session. Opus is more realistic for the ~50 LOC production change described, but Haiku's padding may account for context-switching and review latency in a team setting.
 
----
+### D2 — Phase Numbering and Parallelism Model
 
-### 3. Effort Estimates
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Structure | Phase 0 → 1 → 1.5 → 2 → 3 → 4 (strictly sequential) | Phase 0 → 1.1 ∥ 1.2 → 1.5 → 2 → 3 (parallel where possible) |
+| FIX-001 and FIX-ARG parallelism | Sequential (Phase 1 then Phase 2) | Parallel (Phase 1.1 and 1.2 after Phase 0) |
 
-**Opus-Architect**: Provides concrete hour ranges — Phase 0: 15–30 min, Phase 1.1: 45–60 min, Phase 1.2: 60–90 min, Phase 1.5: 90–120 min, Phase 2: 30–45 min, Phase 3: 15–20 min. Total: 3–4 hours without Phase 1.5, 5–7 hours with.
+**Impact**: Opus explicitly identifies that the two fixes are independent and can proceed in parallel after Phase 0, reducing wall-clock time. Haiku sequences them without justification for the dependency.
 
-**Haiku-Analyzer**: Explicitly **refuses to provide calendar or hour estimates**, citing a "project rule against speculative duration commitments." Uses relative effort labels (Very low / Low / Medium).
+### D3 — Phase Organization Philosophy
 
-**Impact**: Opus-Architect's estimates give planning anchors but may create false precision. Haiku-Analyzer's relative effort labels are more defensible but less actionable for scheduling. Teams needing sprint planning will find Opus more useful; teams valuing epistemic honesty will prefer Haiku.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Test phase | Phase 3 (after all implementation) | Phase 2 (immediately after implementation) |
+| Validation phase | Phase 4 (separate from tests) | Phase 3 (combined integration validation) |
 
----
+**Impact**: Haiku separates unit tests from integration validation into distinct phases. Opus collapses them more tightly. Haiku's separation provides clearer failure isolation; Opus's approach is more efficient for the small scope.
 
-### 4. Scope Summary Quantification
+### D4 — Risk Probability Assessment for `--file` Fallback
 
-**Opus-Architect**: Does not enumerate requirement counts explicitly in the document.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| `--file` broken probability | "Highest identified" (qualitative) | **80%** (quantitative) |
 
-**Haiku-Analyzer**: Explicitly states "18 total requirements (12 functional, 6 non-functional), 4 technical domains, 8 identified risks, 7 dependencies, 14 success criteria."
+**Impact**: Opus commits to a specific probability estimate, which is more actionable for planning. Haiku hedges with qualitative language but provides stronger narrative justification for why this is the gating risk.
 
-**Impact**: Haiku provides a higher-level audit trail that allows traceability verification. Opus focuses on implementation details without this meta-accounting.
+### D5 — Explicit Parallelism Notation in Risk Table
 
----
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Format | Narrative prose per risk | Tabular with Prob/Impact/Phase columns |
 
-### 5. Success Criteria Organization
+**Impact**: Opus's table format is faster to scan and directly maps risks to phases. Haiku provides richer context per risk but requires more reading.
 
-**Opus-Architect**: Organizes success criteria by phase and maps SC codes (SC-001 through SC-014) to specific test commands and phases in a single table.
+### D6 — Success Criteria Presentation
 
-**Haiku-Analyzer**: Groups success criteria into four semantic categories (A: Command assembly, B: Embed guard, C: Test, D: Operational) and provides a separate evidence collection checklist.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Format | Numbered list with requirement mappings | Validation matrix (SC-1 through SC-10) with test names and phases |
 
-**Impact**: Opus's phase-mapped table is easier to use during sequential execution. Haiku's semantic grouping is better for holistic release readiness assessment. The checklist format in Haiku is more actionable for sign-off ceremonies.
+**Impact**: Opus's matrix is directly actionable — each criterion has a named test and phase. Haiku's list is correct but requires cross-referencing to determine how each criterion is verified.
 
----
+### D7 — File Change Inventory
 
-### 6. Risk Documentation Format
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Explicit file list | Mentioned inline per phase | Dedicated table with change types |
 
-**Opus-Architect**: Presents risks in a table with Severity, Probability, and Mitigation columns; 8 risks with numeric identifiers (RISK-001 through RISK-008).
+**Impact**: Opus provides a clear worst-case file manifest. Haiku distributes this information across phases, making blast-radius assessment harder.
 
-**Haiku-Analyzer**: Presents risks in narrative form grouped as High/Medium/Low priority with numbered items; 8 risks without numeric identifiers. Includes a "Contingency" field per risk that Opus lacks.
+### D8 — Subclass Verification Approach
 
-**Impact**: Haiku's contingency field adds actionable fallback plans per risk. Opus's probability column (e.g., "~80% for `--file` broken") is more precise but may be over-confident for estimates. Haiku's narrative format is easier to read; Opus's table is easier to scan.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Approach | "Read subclass files before finalizing" (Phase 1) | Explicit step 1.1.1: "Read all subclasses to confirm no `super()` bypasses" |
 
----
+**Impact**: Opus makes this a discrete, checkable step. Haiku mentions it as a guideline within the phase narrative.
 
-### 7. Validation Emphasis
+### D9 — Performance Validation for `--tools default`
 
-**Opus-Architect**: Lists "Manual Validation" as a category for Phase 0, CLI smoke test, and E2E. Treats these as equivalent to automated validation.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Approach | "Compare subprocess startup timing" in Phase 4 | Not explicitly called out as a validation step |
 
-**Haiku-Analyzer**: Explicitly states "Do not mark the release complete until all four validation layers have evidence. Passing only unit tests is insufficient." Uses a layered validation model (empirical → unit → boundary → workflow) with an evidence collection checklist.
+**Impact**: Minor. Haiku explicitly addresses NFR-001.1 with a timing comparison. Opus lists the risk (Risk 2) but doesn't specify a validation step for it.
 
-**Impact**: Haiku takes a stronger stance on release gate enforcement. Opus implies the same requirements but does not frame them as a blocking philosophical principle.
+### D10 — Executive Summary Framing
 
----
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Framing | Risk-first narrative; leads with Phase 0 as gating decision | Delivery-first; leads with what ships, then describes the gate |
 
-### 8. OQ (Open Question) Tracking
+**Impact**: Haiku's framing is better for stakeholder communication when uncertainty is high. Opus's framing is better for implementers who want to know what to build.
 
-**Opus-Architect**: References open questions inline by code (OQ-4, OQ-5, OQ-6) during task descriptions.
+### D11 — Open Questions Tracking
 
-**Haiku-Analyzer**: Does not use OQ codes. Open questions are embedded in risk narratives and phase objectives.
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| Format | Inline mentions throughout risk section | Dedicated "Open Questions for Post-Release" section |
 
-**Impact**: Opus's OQ codes provide a lightweight issue-tracking mechanism useful for handoffs and status tracking. Haiku's approach is cleaner prose but lacks traceability handles.
+**Impact**: Opus's dedicated section provides a clean handoff for the next release. Haiku embeds OQ references within risk narratives, requiring extraction.
 
----
+### D12 — Scope Quantification
 
-### 9. Ordering Constraint Explicitness
+| Aspect | Haiku-Analyzer | Opus-Architect |
+|--------|---------------|----------------|
+| LOC estimate | Not provided | "~50 lines of production code, ~80 lines of test code" |
 
-**Opus-Architect**: States a specific ordering constraint: "Phase 1.1 before Phase 2 [integration]" to avoid index-based assertion failures from flag position shifts. Frames this as a named constraint.
-
-**Haiku-Analyzer**: Notes the same risk (index-sensitive tests, Risk #6) but does not explicitly name or enforce a sequencing constraint. Addresses it by recommending "update tests in the same work stream as command change."
-
-**Impact**: Opus's named constraint is harder to miss; Haiku's approach relies on engineer discipline.
-
----
-
-### 10. Phase 1.5 Executor Assessment
-
-**Opus-Architect**: Task 1.5.5 is "Assess OQ-4 — determine if these executors also need `--tools default`; apply if yes."
-
-**Haiku-Analyzer**: Phase 1.5 Action #3 is "Reassess whether these independent executors also need `--tools default`" — same intent, no OQ tracking.
-
-**Impact**: Functionally equivalent. Opus provides a named tracking artifact; Haiku integrates it as a numbered action.
-
----
-
-### 11. Critical Path Identification
-
-**Opus-Architect**: Critical path: Phase 0 → (Phase 1.1 ‖ Phase 1.2) → Phase 1.5 (if needed) → Phase 2 → Phase 3.
-
-**Haiku-Analyzer**: Critical path: Phase 0 → Phase 2 (embed guard) → Phase 3 (boundary tests) → Phase 4 (large-input validation). Notes that Phase 1.5 expands the critical path if BROKEN.
-
-**Impact**: Opus places the tool fix (Phase 1.1) and embed fix (Phase 1.2) as equally parallel on the critical path. Haiku identifies the embed guard correction and large-input validation as the *primary* critical path, treating the tool fix as lower risk. Haiku's framing is arguably more accurate given the direct `OSError` failure mode.
-
----
-
-### 12. Document Title / Release Versioning
-
-**Opus-Architect**: Document title is "v2.24.5 Release Roadmap" throughout.
-
-**Haiku-Analyzer**: Document title is "v2.25.1 Release Fixes" and the `spec_source` is `v2.25.1-release-spec.md`.
-
-**Impact**: Both reference the same spec source. The version number discrepancy (v2.24.5 vs v2.25.1) is a metadata inconsistency that should be resolved before publication — both cannot be correct.
+**Impact**: Opus's quantification helps calibrate effort and review expectations. Haiku omits this, which may contribute to its inflated timeline estimates.
 
 ---
 
-### 13. E2E Large File Test Size
+## 3. Areas Where One Variant Is Clearly Stronger
 
-**Opus-Architect**: Specifies E2E test with a spec file "≥120 KB" (matching the new `_EMBED_SIZE_LIMIT`).
+### Opus-Architect is stronger in:
+- **Actionability** — tabular formats, named test cases, file manifests, and LOC estimates make it immediately executable
+- **Parallelism identification** — correctly identifies FIX-001 and FIX-ARG as independent, enabling parallel execution
+- **Timeline realism** — estimates match the actual scope (~50 LOC production change)
+- **Traceability** — SC-1 through SC-10 matrix with test names and phases
 
-**Haiku-Analyzer**: Does not specify a size threshold for the large-spec E2E test; refers to it as "large spec file" generically.
-
-**Impact**: Opus is more precise and directly verifiable. Haiku leaves test construction ambiguous.
-
----
-
-### 14. Persona and Analytical Framing
-
-**Opus-Architect** (`primary_persona: architect`): Emphasizes architectural constraints, module boundaries, dependency tables, and parallelization opportunities. More prescriptive on *how* to execute.
-
-**Haiku-Analyzer** (`primary_persona: analyzer`): Emphasizes evidence-first thinking, risk uncertainty, and validation layering. More prescriptive on *what to prove* before proceeding.
-
-**Impact**: These are complementary epistemological frames. The architect persona optimizes execution efficiency; the analyzer persona optimizes epistemic confidence. A merged document would benefit from both.
+### Haiku-Analyzer is stronger in:
+- **Risk narrative depth** — richer explanation of *why* each risk matters and what the residual concerns are
+- **Phase 0 justification** — more compelling argument for why empirical validation must come first
+- **Performance validation** — explicitly includes timing comparison for `--tools default` overhead
+- **Defensive sequencing rationale** — explains why each phase ordering was chosen, not just what the order is
 
 ---
 
-## Areas Where One Variant Is Clearly Stronger
+## 4. Areas Requiring Debate to Resolve
 
-**Opus-Architect is stronger in:**
-- Parallelization guidance (explicit parallel execution of Phases 1.1/1.2)
-- Concrete effort estimates (useful for planning)
-- Specific E2E test parameters (≥120 KB threshold)
-- OQ-code tracking for open questions
-- Named ordering constraint for index-sensitive test risk
+1. **Sequential vs parallel implementation of FIX-001 and FIX-ARG** — Opus says parallel; Haiku says sequential. The key question: does Phase 2's test suite need Phase 1's flag change to avoid false positives? If yes, Haiku is right about sequencing the implementation (but tests can still come after both). If no, Opus's parallelism is correct.
 
-**Haiku-Analyzer is stronger in:**
-- Risk contingency plans (per-risk fallback strategies)
-- Release gate philosophy ("all four validation layers required")
-- Scope meta-accounting (18 requirements, 14 success criteria enumerated)
-- Evidence collection checklist (explicit sign-off artifact)
-- Critical path framing (correctly identifies embed guard + large-input as highest-risk path)
-- Relative effort framing (avoids false precision in time estimates)
+2. **Timeline calibration** — 3.5–5.0 days vs 2–4 hours is a 10x–20x disagreement. Need to clarify whether estimates include review cycles, context-switching, and stakeholder communication (Haiku's implicit assumption) or pure implementation time (Opus's assumption).
 
----
+3. **Performance validation necessity** — Is a timing comparison for `--tools default` worth the effort, or is the risk low enough to skip? Haiku includes it; Opus doesn't.
 
-## Areas Requiring Debate to Resolve
-
-1. **Version number**: Is this v2.24.5 or v2.25.1? One document is wrong. Must be resolved before merge.
-
-2. **Parallelization vs. wave cadence**: Should Phases 1 and 2 execute in parallel (Opus) or in a design-verify-implement wave sequence (Haiku)? The answer depends on team size and whether the same engineer owns both tracks.
-
-3. **Effort estimation policy**: Should the roadmap include concrete hour estimates (Opus) or relative labels only (Haiku)? The team's sprint planning process should determine this.
-
-4. **Phase structure**: Should test updates live inline with implementation phases (Opus: 1.1, 1.2 include their tests) or in a dedicated test phase (Haiku: Phase 3)? The inline approach reduces context switching; the dedicated phase provides a cleaner separation of concerns.
-
-5. **Critical path weighting**: Does Phase 1.1 (tool fix) belong on the parallel critical path (Opus) or is the embed guard correction the sole primary critical path with tool fix as secondary (Haiku)? This affects where review attention is concentrated.
+4. **Test-implementation coupling** — Should tests land in the same phase as their corresponding fix (Opus) or in a dedicated test phase after all implementation (Haiku)? This affects failure diagnosis granularity vs development velocity.

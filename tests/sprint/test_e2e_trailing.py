@@ -86,6 +86,7 @@ def _make_config(tmp_path: Path, grace_period: int = 10) -> SprintConfig:
         start_phase=1,
         end_phase=2,
         max_turns=50,
+        wiring_gate_mode="off",
     )
 
 

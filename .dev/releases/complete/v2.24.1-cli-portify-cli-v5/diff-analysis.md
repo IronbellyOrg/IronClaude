@@ -1,140 +1,123 @@
-
-
 ---
 total_diff_points: 12
 shared_assumptions_count: 14
 ---
 
-# Diff Analysis: Opus Architect vs Haiku Architect Roadmaps
+# Comparative Diff Analysis: Haiku-Architect vs Opus-Architect Roadmaps
 
 ## 1. Shared Assumptions and Agreements
 
-1. **Spec fidelity**: Both derive from the same `portify-release-spec.md` and agree on complexity score (0.65) and persona (architect)
-2. **Core deliverable**: `resolution.py` as the central new module handling 6 input forms
-3. **Backward compatibility as primary constraint**: Both treat preserving existing skill-directory workflows as the dominant risk
-4. **No modifications to `pipeline/` or `sprint/`**: Hard boundary respected by both
-5. **No async code**: Synchronous-only constraint acknowledged identically
-6. **Model-first sequencing**: Both agree models/dataclasses must be built before resolution logic
-7. **Same dataclass set**: `ResolvedTarget`, `CommandEntry`, `SkillEntry`, `AgentEntry`, `ComponentTree` appear in both
-8. **Same error code set**: `ERR_TARGET_NOT_FOUND`, `ERR_AMBIGUOUS_TARGET`, `ERR_BROKEN_ACTIVATION`, `WARN_MISSING_AGENTS`
-9. **Command-first ambiguity policy**: Both encode bare-name command precedence over skill
-10. **6 agent regex patterns**: Identical extraction pattern list (backtick, YAML arrays, spawn/delegate/invoke, uses, model-parenthetical, agents/ paths)
-11. **Directory cap at 10**: Both use `os.path.commonpath()` consolidation with resolution log
-12. **`--include-agent` as escape hatch**: Same deduplication and override semantics
-13. **Missing agents as warnings, not errors**: Non-fatal pipeline continuation
-14. **Deferred items alignment**: Recursive agent resolution, manifest load, exclude-component all deferred to v2.25+
+1. **Spec source and complexity**: Both derive from `portify-release-spec.md` at complexity 0.65 (MEDIUM)
+2. **Core deliverable**: 6 input forms resolving to `ResolvedTarget` via a new `resolution.py` module
+3. **Backward compatibility as primary risk**: RISK-2 is release-blocking; `resolve_workflow_path()` preserved unchanged
+4. **No base-module modification**: `pipeline/` and `sprint/` untouched (NFR-WORKFLOW.2)
+5. **Synchronous-only constraint**: No `async def` or `await` (NFR-WORKFLOW.3)
+6. **Same 6 risks identified**: RISK-1 through RISK-6 with identical severity ratings
+7. **Same 12 success criteria**: SC-1 through SC-12 mapped identically
+8. **Same 7 open questions deferred**: OQ-1 through OQ-7 to v2.25
+9. **Same dependency graph**: `cli.py → resolution.py → models.py`, no circular deps
+10. **Same external dependencies**: Click, pathlib, re, os.path.commonpath, time.monotonic
+11. **Same agent extraction approach**: 6 AGENT_PATTERNS, `--include-agent` escape hatch, warnings not errors
+12. **Same directory consolidation strategy**: >10 dirs triggers warning, common-parent grouping, top-10 fallback
+13. **Same `to_dict()` enrichment**: warnings, command_path, skill_dir, target_type, agent_count
+14. **Same manifest behavior**: Write-only in v2.24.1, load deferred
 
 ## 2. Divergence Points
 
-### D-1: Phase Count and Granularity
+### D1: Phase Structure and Granularity
 
-- **Opus**: 3 phases with nested milestones (1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3)
-- **Haiku**: 8 phases (0–7), each a flat unit with its own milestone
+- **Haiku**: 7 phases (0–6), including Phase 0 (architecture confirmation) and Phase 6 (post-release observation)
+- **Opus**: 5 phases (1–5), no pre-implementation architecture phase, no post-release phase
+- **Impact**: Haiku's Phase 0 adds explicit architectural lock-in before code touches files, reducing mid-implementation rework. Opus assumes architectural alignment is implicit. Haiku's Phase 6 formalizes observation as a deliverable; Opus mentions OQ monitoring but doesn't scope it.
 
-**Impact**: Opus's coarser phases enable more parallel work within phases but give less granular progress tracking. Haiku's finer phases provide clearer checkpoints but may introduce overhead in phase transitions.
+### D2: Model Layer Sequencing
 
-### D-2: Phase 0 — Explicit Guardrails Phase
+- **Haiku**: Separates resolution (Phase 1) from data model creation (Phase 2), then discovery (Phase 3)
+- **Opus**: Combines data model + resolution into a single Phase 1, then discovery in Phase 2
+- **Impact**: Haiku enables independent review of the model layer before discovery logic builds on it. Opus reduces phase handoff overhead but couples two concerns.
 
-- **Opus**: No explicit Phase 0; jumps directly into model work
-- **Haiku**: Dedicates Phase 0 (0.25 units) to establishing guardrails, change maps, compatibility checklists, and test matrix outlines before any code
+### D3: CLI Integration Timing
 
-**Impact**: Haiku's approach reduces risk of scope drift and provides a contractual baseline. Opus assumes this is implicit or done pre-roadmap. For a compatibility-sensitive release, Haiku's explicit guardrail phase is arguably safer.
+- **Haiku**: CLI wiring is implicit across phases; no dedicated CLI integration phase
+- **Opus**: Dedicates Phase 3 explicitly to CLI argument changes, artifact enrichment, and `to_dict()` compliance
+- **Impact**: Opus's explicit CLI phase makes the Click argument migration (`WORKFLOW_PATH` → `TARGET`) a first-class deliverable with its own validation. Haiku distributes this across phases, risking late integration issues.
 
-### D-3: Parallelization Strategy
+### D4: Timeline Estimates
 
-- **Opus**: Explicitly marks milestones 2.1 and 2.2 as parallelizable; also notes Phase 1 milestones (models + resolution) as independent/parallel
-- **Haiku**: Notes discovery/process can run in parallel (Phase 3+4) after model contracts stabilize, but phases are presented more sequentially
+- **Haiku**: 6.5 days core, 7.0 days total (deterministic single-point estimates)
+- **Opus**: 7–9 days total (range estimates per phase)
+- **Impact**: Haiku is more optimistic by ~1–2 days. Opus's ranges acknowledge uncertainty more honestly, particularly for Phase 1 (2–3 days vs Haiku's 1.5 days for resolution + 1.0 for models).
 
-**Impact**: Opus provides more actionable parallel execution guidance, which could reduce wall-clock time by ~20-30%. Haiku's sequential presentation is more conservative but clearer for a single implementer.
+### D5: Test Count Specificity
 
-### D-4: Time Estimation Units
+- **Haiku**: References "targeted new test suite" across 5 files but no count
+- **Opus**: Explicit ~37 new tests, broken down per phase (~15 + ~12 + ~5 + ~5)
+- **Impact**: Opus provides a concrete testing scope that can be tracked; Haiku's test strategy is harder to verify for completeness.
 
-- **Opus**: Uses absolute hours (19-28 hours across 3 phases)
-- **Haiku**: Uses relative "phase units" (5.25 total) with session-based grouping
+### D6: Milestone Definition Style
 
-**Impact**: Opus's hour estimates are more actionable for project planning. Haiku's abstract units avoid false precision but require calibration to be useful. Neither approach is clearly superior without knowing team velocity.
+- **Haiku**: Milestones named A–D mapped to FR families; exit criteria per phase
+- **Opus**: Milestones are prose sentences per phase; no lettered milestone system
+- **Impact**: Haiku's lettered milestones enable cleaner status reporting. Opus's inline milestones are more contextual but harder to reference externally.
 
-### D-5: Resolution Module Sizing
+### D7: Architecture Confirmation as Explicit Deliverable
 
-- **Opus**: Explicitly sizes `resolution.py` at ~350-450 lines
-- **Haiku**: No line count estimate
+- **Haiku**: Phase 0 produces an "approved implementation map" covering modified files, new dataclasses, CLI changes, and artifact updates
+- **Opus**: No equivalent artifact; jumps directly to implementation
+- **Impact**: Haiku's Phase 0 catches boundary violations before they become costly. Opus relies on the roadmap itself serving this purpose.
 
-**Impact**: Opus's estimate helps with scoping reviews and detecting scope creep during implementation. Haiku's omission avoids anchoring but loses a useful planning signal.
+### D8: Risk Governance Framework
 
-### D-6: Validation/Config Placement
+- **Haiku**: Explicit 3-tier governance (release-blocking / release-gating / managed resilience)
+- **Opus**: Risk table with severity and mitigation, but no governance tier distinction
+- **Impact**: Haiku's tiered governance gives release managers clearer go/no-go criteria. Opus's flat table requires interpretation.
 
-- **Opus**: Validation extension (`validate_config.py`) is in Phase 3 alongside artifact enrichment and final tests
-- **Haiku**: Validation is its own Phase 6, after CLI/config (Phase 5), giving it dedicated focus
+### D9: Post-Release Observation Scope
 
-**Impact**: Haiku's separation gives validation logic dedicated attention and prevents it from being rushed as part of "final cleanup." Opus bundles it with other Phase 3 work, which could lead to validation being deprioritized if time runs short.
+- **Haiku**: Dedicated Phase 6 with 7 explicit observation items and 0.5-day setup estimate
+- **Opus**: "Items requiring monitoring post-launch" listed in a section but no effort estimate or formal phase
+- **Impact**: Haiku treats operational learning as a first-class deliverable; Opus treats it as an appendix.
 
-### D-7: Existing Test Suite Execution Timing
+### D10: Module Dependency Visualization
 
-- **Opus**: Architectural recommendation (#4) says "run existing tests at every milestone, not just Phase 3" but the formal validation gate is Phase 3.3
-- **Haiku**: Phase 0 establishes regression as a continuous concern; Phase 7 is the formal gate but backward-compat tests are referenced throughout
+- **Haiku**: Text-based dependency listing in Phase 0 action items
+- **Opus**: ASCII dependency graph with arrows showing direction
+- **Impact**: Opus's visual graph is more immediately scannable. Minor difference in practice.
 
-**Impact**: Both advocate continuous testing but Opus is more explicit about making it a recommendation. Haiku embeds it structurally. Opus's disconnect between recommendation and formal gate is a minor inconsistency.
+### D11: Validation Matrix Format
 
-### D-8: Dependency Graph Visualization
+- **Haiku**: Narrative validation per phase with FR/NFR traceability sections
+- **Opus**: Tabular SC × Phase × Method matrix
+- **Impact**: Opus's matrix is faster to audit for coverage gaps. Haiku's narrative provides richer context per criterion.
 
-- **Opus**: Provides an ASCII dependency graph showing module relationships and parallelization opportunities
-- **Haiku**: Lists dependencies textually in a numbered plan without visual graph
+### D12: Complexity Class Framing
 
-**Impact**: Opus's visual is immediately actionable for implementation planning. Haiku's text description requires mental model construction.
-
-### D-9: Risk Table Structure
-
-- **Opus**: 6 risks in a table with severity, probability, mitigation, and phase mapping
-- **Haiku**: 7 risks organized by priority tier (high/medium/low) with narrative mitigation
-
-**Impact**: Opus's table is more scannable. Haiku's tiered narrative provides more context for each risk. Haiku adds "CLI contract drift confuses current users" as a distinct medium-priority risk that Opus doesn't separate out.
-
-### D-10: Success Criteria Presentation
-
-- **Opus**: 12 numbered SC items with explicit test methods and phase assignments in a table
-- **Haiku**: 12 functional acceptance criteria plus 4 validation streams (unit/integration/regression/NFR) with a release gate checklist
-
-**Impact**: Opus ties criteria to specific test implementations. Haiku organizes by validation methodology. Opus is more traceable; Haiku is more systematic about coverage categories.
-
-### D-11: Consolidation Fallback Strategy
-
-- **Opus**: `commonpath()` consolidation only
-- **Haiku**: `commonpath()` first, then "if still over cap, select top 10 by component count" as explicit fallback
-
-**Impact**: Haiku's two-tier fallback is more robust for edge cases where `commonpath()` doesn't sufficiently reduce directory count. This is a concrete implementation advantage.
-
-### D-12: Architectural Recommendations Section
-
-- **Opus**: 5 explicit architectural recommendations as a dedicated section (pure resolution, boundary conversion, regex constants, continuous testing, resolution logging)
-- **Haiku**: Single "Architect recommendation" paragraph focused on compatibility-first delivery philosophy, with architectural guidance embedded in per-phase "Architect focus" callouts
-
-**Impact**: Opus's centralized recommendations are easier to reference during implementation. Haiku's distributed approach provides guidance at the point of relevance. Both have merit for different consumption patterns.
+- **Haiku**: Explicit "Complexity class: MEDIUM" with domain list and counts (risk: 6, deps: 7, validation: 12)
+- **Opus**: "bounded MEDIUM-complexity extension (0.65)" with concrete scope metrics (~37 tests, 6 files, 1 new module)
+- **Impact**: Opus's concrete metrics (file counts, test counts) are more actionable for sprint planning. Haiku's counts are more abstract.
 
 ## 3. Areas Where One Variant Is Clearly Stronger
 
-### Opus is stronger in:
-- **Parallel execution planning**: Explicit marking of parallelizable milestones with dependency rationale
-- **Concrete sizing**: Hour estimates, line count for `resolution.py`, test count (~37)
-- **Dependency visualization**: ASCII graph showing module relationships
-- **Centralized architectural guidance**: Dedicated recommendations section with actionable items
-- **External dependency table**: Explicit risk assessment per external dependency
+### Haiku Strengths
+- **Phase 0 architecture lock-in**: Prevents mid-flight boundary violations — critical for a compatibility-sensitive release
+- **Risk governance tiers**: Release-blocking vs gating vs managed — actionable for release management
+- **Post-release observation formalization**: Ensures OQ items don't become orphaned backlog
+- **Exit criteria per phase**: Every phase has explicit "done" conditions
 
-### Haiku is stronger in:
-- **Phase 0 guardrails**: Explicit pre-implementation contract establishment reduces compatibility risk
-- **Consolidation fallback**: Two-tier strategy (commonpath → top-10-by-count) handles more edge cases
-- **Validation stream organization**: Four named streams (unit/integration/regression/NFR) provide clearer coverage mapping
-- **Per-phase architectural focus**: "Architect focus" callouts explain *why* each phase matters architecturally
-- **CLI risk separation**: Explicitly identifies CLI contract drift as a distinct medium-priority risk
-- **Release gate formulation**: 5-point release gate checklist is more actionable than Opus's "all 12 SC pass"
+### Opus Strengths
+- **Test count specificity**: ~37 tests with per-phase breakdown enables concrete sprint tracking
+- **Explicit CLI integration phase**: Isolates the Click argument migration as its own reviewable unit
+- **Validation matrix table**: Faster coverage auditing than narrative form
+- **Honest timeline ranges**: 7–9 days acknowledges real uncertainty vs Haiku's point estimate of 6.5
 
 ## 4. Areas Requiring Debate to Resolve
 
-1. **Phase granularity**: 3 phases with sub-milestones (Opus) vs 8 discrete phases (Haiku). Depends on team size and whether progress tracking or parallel execution is prioritized.
+1. **Phase 0 inclusion**: Is a formal architecture confirmation phase worth 0.5 days, or does the roadmap itself suffice? Haiku's approach is safer for teams with less context; Opus's is leaner for experienced teams.
 
-2. **Phase 0 necessity**: Is an explicit guardrail phase worth 0.25 units, or is it overhead for a well-understood spec? If the team has already internalized the constraints, Opus's direct start is faster. If multiple implementers are involved, Haiku's contract is safer.
+2. **Model + resolution coupling vs separation**: Should data models land independently (Haiku Phase 1→2 split) or together with resolution (Opus Phase 1)? The answer depends on review workflow — separate PRs favor Haiku, single PR favors Opus.
 
-3. **Time estimation approach**: Hours (Opus: 19-28h) vs abstract phase units (Haiku: 5.25). Need to decide which provides better planning value for this team's workflow.
+3. **Timeline realism**: Haiku's 6.5 days vs Opus's 7–9 days. The resolution layer alone (6 input forms, ambiguity handling, root detection) likely warrants Opus's 2–3 day range over Haiku's 1.5 days.
 
-4. **Where to place validation logic**: Bundled with final phase (Opus) vs dedicated phase (Haiku). If validation is truly additive (just new checks), bundling is fine. If it reveals design issues, a dedicated phase prevents late rework.
+4. **CLI phase isolation**: Should CLI wiring be a dedicated phase (Opus) or distributed (Haiku)? The `WORKFLOW_PATH → TARGET` change is user-facing and deserves focused testing — favors Opus's approach.
 
-5. **Consolidation strategy completeness**: Is `commonpath()` alone sufficient (Opus), or should the component-count fallback (Haiku) be specified upfront? Answerable by examining real-world directory distributions in existing skills.
+5. **Post-release phase**: Is Phase 6 (Haiku) overhead or essential? For a v2.24.1 patch release, formalized observation may be disproportionate — but the OQ items genuinely need tracking.

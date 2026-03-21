@@ -1,138 +1,62 @@
 ---
-base_variant: A
-variant_scores: "A:76 B:71"
+base_variant: opus-architect
+variant_scores: 'A:74 B:82'
 ---
+
+# Base Selection: v2.24.5-SpecFidelity Roadmap Variants
 
 ## Scoring Criteria (Derived from Debate)
 
-| Criterion | Weight | Rationale |
-|-----------|--------|-----------|
-| Technical accuracy & completeness | 25% | Correctness of implementation details |
-| Actionability / sprint planning utility | 20% | Can a team execute from this document? |
-| Risk coverage & contingency quality | 20% | Per-risk contingencies, critical path weighting |
-| Validation framework | 15% | Evidence collection, layered validation |
-| Phase structure clarity | 10% | Clear milestones, exit criteria |
-| Traceability (OQ codes, SC codes) | 10% | Handoff quality, discoverability |
+The debate converged on these evaluation dimensions:
 
----
+1. **Technical Accuracy** — Correct modeling of dependencies, constraints, OS behavior
+2. **Timeline Calibration** — Estimates match actual scope (50 LOC production, 80 LOC test)
+3. **Structural Clarity** — Scannable format, clear phase gates, actionable steps
+4. **Requirement Traceability** — Every FR/NFR mapped to a validation step
+5. **Parallelism Model** — Reflects agreed-upon "parallel implementation, sequential testing"
+6. **Risk Communication** — Risks identified, prioritized, and mitigated without ceremony
+7. **Scope Discipline** — No scope creep, deferred items clearly marked
 
 ## Per-Criterion Scores
 
-### Criterion 1: Technical Accuracy & Completeness (25%)
+| Criterion | Weight | Variant A (Haiku) | Variant B (Opus) | Notes |
+|-----------|--------|-------------------|-------------------|-------|
+| Technical Accuracy | 20% | 16 | 18 | Both correct; Opus more precise on file-level independence |
+| Timeline Calibration | 15% | 8 | 13 | Debate established A conflates effort/elapsed; B's 2-3hr matches 50-LOC scope |
+| Structural Clarity | 20% | 14 | 18 | B uses tables, validation matrix, file manifest; A uses prose blocks |
+| Requirement Traceability | 15% | 13 | 14 | B's validation matrix is explicit; A covers same ground in narrative form |
+| Parallelism Model | 10% | 7 | 9 | Both converged to same model; B states it more cleanly |
+| Risk Communication | 10% | 9 | 8 | A's risk-first narrative richer; B's table faster to scan |
+| Scope Discipline | 10% | 7 | 9 | B includes LOC estimates, explicit file manifest; A slightly more open-ended |
+| **Total** | **100%** | **74** | **82** | |
 
-**Variant A (Architect)**: 20/25
-- Concrete file paths, exact flag positions, specific constant values (`_MAX_ARG_STRLEN = 128 * 1024`, `_EMBED_SIZE_LIMIT = 120 KB`)
-- Specific E2E threshold: ≥120 KB file
-- OQ codes (OQ-4, OQ-5, OQ-6) provide lightweight traceability
-- Missing: no inline derivation comment specification for `_PROMPT_TEMPLATE_OVERHEAD`
+## Overall Scores with Justification
 
-**Variant B (Analyzer)**: 18/25
-- Equivalent technical depth on constants and guard logic
-- Phase 2 actions are fully specified
-- Lacks OQ traceability codes — open questions embedded in prose, reducing discoverability
-- E2E threshold "large spec file" is vague (conceded in debate — ≥120 KB should be adopted)
+**Variant A (Haiku-Analyzer): 74/100**
+Strengths: thorough risk-first framing, Phase 0 rationale is well-articulated, residual concern annotations add depth. Weaknesses: inflated timeline (3.5-5.0 days for 50 LOC — debate Round 2 showed this conflates effort with elapsed time without labeling it), prose-heavy format harder to scan, separates tests from implementation unnecessarily for this scope.
 
-### Criterion 2: Actionability / Sprint Planning Utility (20%)
-
-**Variant A (Architect)**: 17/20
-- Concrete effort ranges: "15–30 min", "45–60 min", "60–90 min"
-- Conditional total: "3–4 hours without Phase 1.5 / 5–7 hours with"
-- Parallelization explicitly stated: "Phases 1.1 and 1.2 can execute in parallel"
-- Enables sprint capacity planning and stakeholder communication
-
-**Variant B (Analyzer)**: 13/20
-- Relative labels only ("Low", "Medium") — cannot answer "is this a half-day or full-day release?"
-- Wave cadence (Wave 1/2/3) adds structure for solo engineers but obscures throughput for multi-person teams
-- Debate concession: B accepted that conditional total effort ranges are useful for stakeholder communication
-
-### Criterion 3: Risk Coverage & Contingency Quality (20%)
-
-**Variant A (Architect)**: 14/20
-- Risk table covers 8 risks with severity/probability/mitigation
-- RISK-004 correctly flagged as ~80% probability
-- **Missing**: No "Contingency" column — this is the gap B identified and A conceded
-
-**Variant B (Analyzer)**: 17/20
-- 8 risks with explicit contingency actions per risk (e.g., "Replace broken fallback path across all affected executors in the same release cycle")
-- Correct primary critical path framing: embed guard is the hard-crash fix, tool fix is secondary
-- Both variants agreed post-debate that per-risk contingencies improve actionability
-
-### Criterion 4: Validation Framework (15%)
-
-**Variant A (Architect)**: 10/15
-- SC-code table maps criteria to phases and commands
-- Manual validation explicitly listed
-- Evidence collection implicit (phase exit criteria encode it)
-- Missing: no explicit statement that "passing only unit tests is insufficient"
-
-**Variant B (Analyzer)**: 14/15
-- Four-layer validation model explicit: empirical → unit → boundary → workflow
-- Evidence collection checklist (8 checkboxes) is a genuine improvement for sign-off ceremonies
-- Explicit statement: "Do not mark the release complete until all four validation layers have evidence"
-- A conceded this in debate
-
-### Criterion 5: Phase Structure Clarity (10%)
-
-**Variant A (Architect)**: 8/10
-- Numbered table rows per phase with clear task/detail columns
-- Milestones named per phase
-- Ordering constraint explicitly called out
-- Inline test co-location is debated; A's approach is defensible for multi-person teams
-
-**Variant B (Analyzer)**: 7/10
-- Dedicated Phase 3 for test alignment is theoretically cleaner for post-Phase-0 context awareness
-- But adds a phase boundary that creates overhead for what is 3–4 tasks
-- Milestone naming (M0–M4) is clean and mirrors A's structure
-
-### Criterion 6: Traceability (10%)
-
-**Variant A (Architect)**: 7/10
-- OQ-4, OQ-5, OQ-6 codes in task table rows
-- SC-001 through SC-014 mapped in validation table
-- B conceded OQ codes improve handoff quality
-
-**Variant B (Analyzer)**: 5/10
-- No OQ codes — open questions embedded in prose paragraphs
-- SC criteria grouped by category (A/B/C/D) but not mapped back to phases
-- Harder to scan for open questions during execution
-
----
-
-## Overall Scores
-
-| Variant | C1 (25%) | C2 (20%) | C3 (20%) | C4 (15%) | C5 (10%) | C6 (10%) | Total |
-|---------|----------|----------|----------|----------|----------|----------|-------|
-| A (Architect) | 20 | 17 | 14 | 10 | 8 | 7 | **76** |
-| B (Analyzer) | 18 | 13 | 17 | 14 | 7 | 5 | **71** |
-
-**A wins by 5 points.** The margin is driven by actionability (C2: +4) and traceability (C6: +2). B leads on risk contingencies (C3: +3) and validation framework (C4: +4) — both of which should be incorporated in the merge.
-
----
+**Variant B (Opus-Architect): 82/100**
+Strengths: tabular format throughout, validation matrix maps every SC to a test and phase, LOC quantification calibrates expectations, file manifest gives concrete scope, timeline matches actual effort. Weaknesses: initially omitted NFR-001.1 performance validation (conceded in debate Round 2, D3), risk table lacks "residual concern" depth that Haiku provides.
 
 ## Base Variant Selection Rationale
 
-**Variant A selected as base.**
+**Opus-Architect** is selected as base because:
 
-Variant A is the stronger execution document. Its concrete effort ranges, explicit parallelization guidance, and OQ/SC traceability codes make it directly usable for sprint planning and handoff. The debate transcript confirms that B's primary structural contributions (per-risk contingencies, four-layer validation checklist, primary critical path framing) are additive improvements that can be grafted onto A's skeleton — they do not require rebuilding from B's structure.
+1. **Format superiority** — Tables, validation matrix, and file manifest are strictly more actionable than prose equivalents. The debate did not contest this.
+2. **Calibrated timeline** — The debate established that 2-3 hours of implementation effort is correct for 50 LOC with fully specified edit points. Opus anchors to this; Haiku's 3.5-5.0 day figure was acknowledged as conflating effort with elapsed time.
+3. **Parallelism is first-class** — Phases 1.1 and 1.2 are explicitly parallel with a clear sequencing note for tests. Haiku converged to this position but its document still reads as sequential.
+4. **Scope precision** — LOC estimates, file manifest with change types, and explicit "worst case" file count give stakeholders concrete scope signals.
 
-B's wave model is best retained as a solo-engineer annotation rather than the primary structure, per the debate's recommended merge strategy. B's relative-effort-only approach for timeline was the largest single actionability gap.
+## Specific Improvements from Variant A to Incorporate in Merge
 
-The version number dispute (v2.24.5 vs. v2.25.1) remains externally unresolvable from the documents alone. The merged document should flag this explicitly pending version history confirmation.
+1. **Phase 0 risk-first narrative** (from A's Phase 0 "Analyzer Priority" block) — Add 2-3 sentences explaining *why* Phase 0 is blocking, not just *that* it is. Opus states the gate but Haiku articulates the consequence of skipping it.
 
----
+2. **"Residual concern" column in risk table** — Debate convergence point. A's risk entries include residual concerns (e.g., "Prior fallback behavior may have produced misleadingly 'successful' but context-incomplete runs"). Add this as a column to B's risk table.
 
-## Specific Improvements from Variant B to Incorporate in Merge
+3. **Performance timing validation step** — Debate Round 2, D3: Opus conceded the NFR-001.1 traceability gap. Add a lightweight timing comparison step to Phase 3 (Integration Validation).
 
-1. **Per-risk contingency column** — Add "Contingency" column to A's risk table for all 8 risks, populated with B's contingency actions (e.g., RISK-004: "Replace broken fallback path across all affected executors in same release cycle").
+4. **Dual timeline presentation** — Debate Round 2, D2 partial convergence. Present both: "Implementation effort: 2-3 hours" and "Delivery elapsed (with review/environment setup): 1-2 days."
 
-2. **Four-layer validation model** — Add explicit statement to Phase 2/Integration section: "Do not mark the release complete until empirical, unit, boundary, and workflow validation layers all have evidence. Passing unit tests alone is insufficient."
+5. **Phase ordering rationale** — A includes "Analyzer Priority" blocks explaining *why* each phase is sequenced where it is. Add brief rationale notes to B's phase descriptions (1-2 sentences each, not full blocks).
 
-3. **Evidence collection checklist** — Add B's 8-item evidence checklist (`[ ] Phase 0 result captured`, `[ ] subclass review completed`, etc.) to Phase 3 or as a release gate section.
-
-4. **Primary critical path framing** — Revise A's critical path note to reflect the debate concession: embed guard (FIX-ARG-TOO-LONG) is the primary critical path due to observed hard crash; tool fix (FIX-001) is the parallel secondary track. Senior review time should concentrate on embed guard constants and boundary tests.
-
-5. **Wave cadence annotation** — Add a note to the parallelization section: "For solo engineers, an alternative cadence is Wave 1 (design verification for both tracks) → Wave 2 (implementation of both tracks) → Wave 3 (test + validation). This reduces context switching cost."
-
-6. **Exact-limit boundary test** — Add to Phase 1.2 test tasks: verify that composed length exactly equal to `_EMBED_SIZE_LIMIT` still embeds inline (boundary inclusion test), not just the overflow case.
-
-7. **Scope meta-accounting from B's executive summary** — Add B's scope summary counts (18 requirements, 4 domains, 8 risks, 7 dependencies, 14 success criteria) to A's executive summary for stakeholder communication clarity.
+6. **Broader validation sequencing note** — A's Phase 4 specifies "targeted tests should fail fast before broader suite." Add this sequencing guidance to B's Phase 3.

@@ -118,6 +118,10 @@ _V224_FM_VALUES = {
     "total_deviations": "4",
     "validation_complete": "true",
     "tasklist_ready": "true",
+    # Anti-instinct audit
+    "undischarged_obligations": "0",
+    "uncovered_contracts": "0",
+    "fingerprint_coverage": "0.85",
     # Deviation analysis: SC-3 DEV-001 and DEV-002 are SLIP (routed to fix_roadmap)
     "schema_version": "1.0",
     "total_analyzed": "4",
@@ -233,7 +237,7 @@ class TestSC1PipelineComplete:
             run_step=_mock_runner_all_pass,
         )
 
-        assert len(results) == 10
+        assert len(results) == 11
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_wiring_verification_step_is_last(self, tmp_path):
@@ -670,8 +674,8 @@ class TestCompleteV224PipelineFlow:
             run_step=_mock_runner_all_pass,
         )
 
-        # SC-1: All 10 steps pass (pipeline reaches certify without manual intervention)
-        assert len(results) == 10, f"Expected 10 results, got {len(results)}"
+        # SC-1: All 11 steps pass (pipeline reaches certify without manual intervention)
+        assert len(results) == 11, f"Expected 11 results, got {len(results)}"
         assert all(r.status == StepStatus.PASS for r in results), (
             f"Failed steps: {[r.step.id for r in results if r.status != StepStatus.PASS]}"
         )

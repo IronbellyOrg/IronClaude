@@ -98,6 +98,11 @@ PASSING_FRONTMATTER: dict[str, dict[str, str]] = {
         "complexity_score": "7",
         "adversarial": "true",
     },
+    "anti-instinct": {
+        "undischarged_obligations": "0",
+        "uncovered_contracts": "0",
+        "fingerprint_coverage": "0.85",
+    },
     "test-strategy": {
         "spec_source": "test.md",
         "generated": "2026-03-19",
@@ -143,7 +148,7 @@ PASSING_FRONTMATTER: dict[str, dict[str, str]] = {
         "pre_approved_count": "1",
         "ambiguous_count": "0",
         "routing_fix_roadmap": "DEV-001",
-        "routing_no_action": "DEV-003",
+        "routing_no_action": "DEV-002 DEV-003",
         "analysis_complete": "true",
         "ambiguous_deviations": "0",
     },

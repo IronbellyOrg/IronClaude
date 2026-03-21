@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/complete/unified-audit-gating-v2/unified-audit-gating-v2.0-spec.md",
+  "spec_hash": "d2baaadcee80ff63f30357e2961279c3ca7c38a5f171a2b2e31fa03b2a7fa2ff",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-20T16:42:36.961987+00:00",
+  "steps": {
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/unified-audit-gating-v2/roadmap.md",
+      "started_at": "2026-03-20T16:36:40.787037+00:00",
+      "completed_at": "2026-03-20T16:38:53.805217+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/unified-audit-gating-v2/test-strategy.md",
+      "started_at": "2026-03-20T16:38:53.805863+00:00",
+      "completed_at": "2026-03-20T16:39:53.814747+00:00"
+    },
+    "spec-fidelity": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/unified-audit-gating-v2/spec-fidelity.md",
+      "started_at": "2026-03-20T16:41:02.828644+00:00",
+      "completed_at": "2026-03-20T16:42:36.844906+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/unified-audit-gating-v2/wiring-verification.md",
+      "started_at": "2026-03-20T16:42:36.845612+00:00",
+      "completed_at": "2026-03-20T16:42:36.961763+00:00"
+    }
+  },
+  "fidelity_status": "fail"
+}

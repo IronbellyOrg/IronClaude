@@ -18,6 +18,7 @@ from .models import (
     Phase,
     PhaseResult,
     PhaseStatus,
+    ShadowGateMetrics,
     SprintConfig,
     SprintOutcome,
     SprintResult,
@@ -41,6 +42,7 @@ from superclaude.cli.pipeline.trailing_gate import (
 import logging as _logging
 
 _wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
+_anti_instinct_logger = _logging.getLogger("superclaude.sprint.anti_instinct_hook")
 
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
@@ -415,18 +417,55 @@ def run_wiring_safeguard_checks(
     return warnings
 
 
+def _resolve_wiring_mode(config: SprintConfig) -> str:
+    """Resolve the effective wiring gate mode from config.
+
+    Uses resolve_gate_mode(scope, grace_period) from trailing_gate.py
+    to map scope-based configuration to an effective mode string (Goal-5d).
+    Falls back to config.wiring_gate_mode if scope resolution is not applicable.
+    """
+    from superclaude.cli.pipeline.trailing_gate import GateScope, resolve_gate_mode
+    from superclaude.cli.pipeline.models import GateMode
+
+    scope_map = {
+        "release": GateScope.RELEASE,
+        "milestone": GateScope.MILESTONE,
+        "task": GateScope.TASK,
+    }
+    scope = scope_map.get(config.wiring_gate_scope)
+    if scope is None:
+        return config.wiring_gate_mode
+
+    gate_mode = resolve_gate_mode(scope=scope, grace_period=0)
+
+    # Map GateMode back to wiring mode string
+    mode_map = {
+        GateMode.BLOCKING: "full",
+        GateMode.TRAILING: "shadow",
+    }
+    return mode_map.get(gate_mode, config.wiring_gate_mode)
+
+
 def run_post_task_wiring_hook(
     task: TaskEntry,
     config: SprintConfig,
     task_result: TaskResult,
+    ledger: TurnLedger | None = None,
 ) -> TaskResult:
     """Run post-task wiring analysis based on config.wiring_gate_mode.
+
+    Integrates with TurnLedger for budget-aware gate enforcement:
+    - Checks can_run_wiring_gate() before analysis (debit-before-analysis)
+    - Uses resolve_gate_mode(scope, grace_period) for mode resolution (Goal-5d)
+    - Callable-based remediation interface avoids TurnLedger import in
+      trailing_gate.py (Constraint 7)
 
     Mode behavior:
     - off: skip analysis entirely, return task_result unchanged
     - shadow: run analysis, log findings, task status unchanged (SC-006)
     - soft: run analysis, warn on critical findings, task status unchanged
-    - full: run analysis, block (set FAIL) on critical+major findings
+    - full: run analysis, block (set FAIL) on critical+major findings,
+            invoke remediation via callable interface
 
     Returns the (possibly modified) TaskResult. Only full mode may change
     task status to FAIL when blocking findings exist.
@@ -436,12 +475,24 @@ def run_post_task_wiring_hook(
     if mode == "off":
         return task_result
 
+    # Budget guard: check if wiring analysis budget allows this run
+    if ledger is not None and not ledger.can_run_wiring_gate():
+        _wiring_logger.info(
+            "Wiring hook skipped for task %s: budget exhausted",
+            task.task_id,
+        )
+        return task_result
+
+    # Debit wiring turns before analysis (debit-before-analysis model)
+    if ledger is not None:
+        ledger.debit_wiring(config.wiring_analysis_turns)
+
     # Lazy import to avoid circular dependency at module level
     from superclaude.cli.audit.wiring_gate import run_wiring_analysis, WiringReport
     from superclaude.cli.audit.wiring_config import WiringConfig
 
     source_dir = config.release_dir
-    wiring_config = WiringConfig(rollout_mode="shadow" if mode == "off" else mode if mode in ("shadow", "soft", "full") else "shadow")
+    wiring_config = WiringConfig(rollout_mode=mode if mode in ("shadow", "soft", "full") else "shadow")
 
     try:
         report = run_wiring_analysis(wiring_config, source_dir)
@@ -473,6 +524,9 @@ def run_post_task_wiring_hook(
                 total,
                 task.task_id,
             )
+        # Credit wiring turns back (shadow never blocks)
+        if ledger is not None:
+            ledger.credit_wiring(config.wiring_analysis_turns)
         return task_result
 
     if mode == "soft":
@@ -486,6 +540,9 @@ def run_post_task_wiring_hook(
                 critical_count,
                 task.task_id,
             )
+        # Credit wiring turns back (soft never blocks)
+        if ledger is not None:
+            ledger.credit_wiring(config.wiring_analysis_turns)
         return task_result
 
     if mode == "full":
@@ -498,7 +555,133 @@ def run_post_task_wiring_hook(
             )
             task_result.status = TaskStatus.FAIL
             task_result.gate_outcome = GateOutcome.FAIL
+
+            # Remediation via callable interface (Constraint 7)
+            # Pass TurnLedger methods as callables to avoid import coupling
+            if ledger is not None:
+                can_remediate = ledger.can_remediate
+                debit = lambda turns: ledger.debit(turns)  # noqa: E731
+                if can_remediate():
+                    debit(config.remediation_cost)
+                    _wiring_logger.info(
+                        "Full mode: remediation debited %d turns for task %s",
+                        config.remediation_cost,
+                        task.task_id,
+                    )
+                else:
+                    _wiring_logger.warning(
+                        "Full mode: BUDGET_EXHAUSTED for task %s remediation",
+                        task.task_id,
+                    )
+        else:
+            # No blocking findings — credit turns back
+            if ledger is not None:
+                ledger.credit_wiring(config.wiring_analysis_turns)
         return task_result
+
+    return task_result
+
+
+def run_post_task_anti_instinct_hook(
+    task: TaskEntry,
+    config: SprintConfig,
+    task_result: TaskResult,
+    ledger: TurnLedger | None = None,
+    shadow_metrics: ShadowGateMetrics | None = None,
+) -> TaskResult:
+    """Run post-task anti-instinct gate based on config.gate_rollout_mode.
+
+    Mode behavior matrix:
+    - off: evaluate gate, ignore result (metrics not recorded)
+    - shadow: evaluate gate, record metrics via ShadowGateMetrics (FR-SPRINT.4)
+    - soft: evaluate + record + credit on PASS / remediate on FAIL (FR-SPRINT.3)
+    - full: evaluate + record + credit on PASS / remediate on FAIL / set FAIL status (FR-SPRINT.3)
+
+    All TurnLedger calls are guarded with ``if ledger is not None`` (NFR-007).
+    Anti-instinct and wiring-integrity gates evaluate independently (NFR-010).
+
+    Returns the (possibly modified) TaskResult.
+    """
+    import math
+    import time as _time
+
+    mode = config.gate_rollout_mode
+
+    if mode == "off":
+        # Evaluate but ignore — no metrics, no side effects
+        return task_result
+
+    # Lazy import to avoid circular dependency
+    from superclaude.cli.pipeline.gates import gate_passed
+    from superclaude.cli.roadmap.gates import ANTI_INSTINCT_GATE
+
+    # Evaluate the anti-instinct gate on the task's output artifact
+    output_path = Path(task_result.output_path) if task_result.output_path else None
+
+    eval_start = _time.monotonic()
+    if output_path is not None and output_path.exists():
+        passed, failure_reason = gate_passed(output_path, ANTI_INSTINCT_GATE)
+    else:
+        # No output artifact to evaluate — gate passes vacuously
+        passed = True
+        failure_reason = None
+    eval_end = _time.monotonic()
+    evaluation_ms = (eval_end - eval_start) * 1000.0
+
+    _anti_instinct_logger.info(
+        "Anti-instinct hook [%s] task=%s: passed=%s (%.1fms)",
+        mode,
+        task.task_id,
+        passed,
+        evaluation_ms,
+    )
+
+    # Record metrics for shadow/soft/full modes (FR-SPRINT.4)
+    if shadow_metrics is not None:
+        shadow_metrics.record(passed=passed, evaluation_ms=evaluation_ms)
+
+    if mode == "shadow":
+        # Record metrics only, no behavioral impact
+        return task_result
+
+    # soft and full modes: credit on PASS, remediate on FAIL
+    if passed:
+        # Credit path: reimburse turns on gate PASS
+        if ledger is not None:
+            credit_amount = int(task_result.turns_consumed * ledger.reimbursement_rate)
+            ledger.credit(credit_amount)
+            task_result.reimbursement_amount = credit_amount
+            _anti_instinct_logger.info(
+                "Anti-instinct PASS: credited %d turns for task %s",
+                credit_amount,
+                task.task_id,
+            )
+        task_result.gate_outcome = GateOutcome.PASS
+    else:
+        # Remediation path: check budget, mark BUDGET_EXHAUSTED or FAIL
+        if ledger is not None and not ledger.can_remediate():
+            _anti_instinct_logger.warning(
+                "Anti-instinct FAIL + BUDGET_EXHAUSTED for task %s: "
+                "available=%d < minimum_remediation_budget=%d",
+                task.task_id,
+                ledger.available(),
+                ledger.minimum_remediation_budget,
+            )
+            task_result.gate_outcome = GateOutcome.FAIL
+            if mode == "full":
+                task_result.status = TaskStatus.FAIL
+            return task_result
+
+        _anti_instinct_logger.warning(
+            "Anti-instinct FAIL for task %s: %s",
+            task.task_id,
+            failure_reason or "unknown reason",
+        )
+        task_result.gate_outcome = GateOutcome.FAIL
+
+        if mode == "full":
+            # Full mode: fail the task
+            task_result.status = TaskStatus.FAIL
 
     return task_result
 
@@ -510,6 +693,7 @@ def execute_phase_tasks(
     ledger: TurnLedger | None = None,
     *,
     _subprocess_factory=None,
+    shadow_metrics: ShadowGateMetrics | None = None,
 ) -> tuple[list[TaskResult], list[str]]:
     """Per-task subprocess orchestration loop.
 
@@ -524,6 +708,8 @@ def execute_phase_tasks(
         ledger: Optional TurnLedger for budget tracking.
         _subprocess_factory: Optional callable for testing; signature
             ``(task, config, phase) -> (exit_code, turns_consumed, output_bytes)``.
+        shadow_metrics: Optional ShadowGateMetrics for anti-instinct gate
+            metrics collection (used in shadow/soft/full rollout modes).
 
     Returns:
         Tuple of (results, remaining_task_ids). remaining_task_ids is non-empty
@@ -599,7 +785,13 @@ def execute_phase_tasks(
         )
 
         # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
-        result = run_post_task_wiring_hook(task, config, result)
+        result = run_post_task_wiring_hook(task, config, result, ledger=ledger)
+
+        # Post-task anti-instinct hook: run anti-instinct gate per config.gate_rollout_mode
+        # NFR-010: anti-instinct and wiring gates evaluate independently (no shared state)
+        result = run_post_task_anti_instinct_hook(
+            task, config, result, ledger=ledger, shadow_metrics=shadow_metrics,
+        )
 
         results.append(result)
 

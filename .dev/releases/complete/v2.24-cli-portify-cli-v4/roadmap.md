@@ -4,533 +4,541 @@ complexity_score: 0.85
 adversarial: true
 ---
 
-# CLI-Portify v2.24 — Final Merged Roadmap
+# CLI Portify Pipeline — Merged Roadmap
 
-## Executive Summary
+## 1. Executive Summary
 
-This roadmap delivers a programmatic CLI portification pipeline (`cli_portify`) that converts inference-based SuperClaude workflows (skills/commands) into repeatable, programmatic CLI pipelines. The system extends the existing `pipeline/` and `sprint/` architecture with 18 new modules under `src/superclaude/cli/cli_portify/`, making zero modifications to base modules.
+This roadmap delivers a high-complexity CLI portification pipeline (`cli-portify`) that converts inference-driven SuperClaude workflows into deterministic, synchronous Python CLI pipelines. The implementation combines pure-programmatic steps, Claude-assisted generation, subprocess-based skill reuse, convergence logic, TUI/CLI integration, gate enforcement, and resumable failure handling under strict architectural constraints.
 
-### Architectural Characteristics
+The release is governed by four dominant architectural concerns:
 
-- **Synchronous-only execution model** (no async/await)
-- **7 consolidated steps across 4 phases**: 2 pure-programmatic, 5 Claude-assisted
-- **Convergence loop** in panel-review with budget guards and escalation
-- **Zero modifications** to existing `pipeline/` and `sprint/` base modules
-- **Skill reuse** via subprocess invocation of `/sc:brainstorm` and `/sc:spec-panel`
-- **Runner-authored truth**: Claude assists with content generation but never controls sequencing or status
-- **Design for failure containment**: all exit paths emit populated contracts; resume boundaries are explicit
+1. **Deterministic orchestration** — Python controls sequencing, convergence, retries, gating, status, and resume behavior. Claude output is constrained, observable, and subordinate to Python-controlled execution.
+2. **Strict separation of responsibilities** — Pure-programmatic steps own path resolution, discovery, validation, and flow control. Claude-assisted steps own content generation only.
+3. **Safe reuse of existing framework capabilities** — The implementation extends `pipeline` and `sprint` base types rather than forking behavior. `/sc:brainstorm` and `/sc:spec-panel` are reused via subprocess, not reimplemented.
+4. **Production-grade quality gates** — STRICT validation is required across core content-producing steps. Success depends on convergence, score thresholds, structural validity, failure-path completeness, and additive-only modification behavior.
 
-### Delivery Objective
+**Tradeoff Priority Framework** — When implementation conflicts arise, resolve in this order:
 
-Produce a working `cli_portify` command group that validates and inventories workflows quickly, generates roadmap/spec artifacts through controlled Claude subprocesses, supports user review gates and dry-run behavior, converges panel review within bounded iterations, and emits a complete machine-readable contract on every exit path.
+1. Deterministic runner control
+2. STRICT gate integrity
+3. Base-module immutability
+4. Skill reuse with safe fallbacks
+5. Operational resilience (resume/contracts/monitoring)
 
-### Complexity
+**Delivery Strategy**: 7-milestone sequential dependency chain with 3 parallel work streams overlaid. 3 governance gates at high-value decision points. Real eval-driven validation anchored by self-portification meta-test.
 
-0.85 (complex) — driven by multi-phase orchestration, subprocess management, convergence logic, and gate enforcement across 7 steps with 8 semantic check functions.
-
----
-
-## Phased Implementation Plan
-
-### Phase 0: Architecture Confirmation and Decision Record
-
-**Objective**: Resolve blocking spec ambiguities and lock module layout before code changes. This lightweight phase (0.5-1 day, S) has asymmetric payoff: a small upfront investment prevents costly rework when late-phase decisions force model changes that ripple backward.
-
-#### Work Items
-
-1. **Resolve blocking ambiguities**
-   - Timeout semantics for convergence iterations: per-iteration independent timeout vs total divided by `max_convergence`. Determines whether `PortifyConfig` needs one field or two.
-   - Resume behavior for partially written `synthesize-spec`: re-run step vs skip. Determines resume metadata shape in `PortifyStepResult`.
-   - Scoring precision vs downstream gate boundary handling (7.0 boundary with rounding).
-   - Authoritative module/file layout: Section 4.1 (18 modules) vs Section 4.6 (13 files). DEV-001 confirms 18-module structure is authoritative.
-
-2. **Freeze implementation architecture**
-   - Confirm 18-module `cli_portify/` structure.
-   - Define ownership boundaries: config/model layer, step implementations, process wrapper, monitor/logging, contract emission, CLI integration.
-
-3. **Define artifact contract**
-   - Standardize output artifact names and locations.
-   - Standardize frontmatter parsing/validation behavior.
-   - Standardize failure/default population rules for contracts.
-
-4. **Define minimal signal vocabulary**
-   - Initial constants: `step_start`, `step_complete`, `step_error`, `step_timeout`, `gate_pass`, `gate_fail`.
-   - Extend during Phase 3 when subprocess behavior is understood.
-
-#### Milestone M0: Architecture Baseline Approved
-
-- Open questions triaged into: (1) must-resolve before implementation, (2) safe defaults acceptable, (3) defer-to-follow-up.
-- Decision record produced with per-question blocking-phase annotations (`[Blocking Phase N]` or `[Advisory]`).
-
-#### Deliverables
-
-- Implementation decision record
-- Final module map
-- Step/artifact interface table
-- Minimal signal vocabulary constants
+**Estimated Duration**: 24–30 working days.
 
 ---
 
-### Phase 1: Deterministic Foundation and CLI Skeleton
+## 2. Phased Implementation Plan
 
-**Objective**: Build the non-Claude substrate so orchestration rests on stable, well-typed primitives. Estimated effort: 1-2 days (S-M).
+### Milestone 1: Architecture Baseline and Scope Lock
 
-#### Work Items
+**Goal**: Establish the final implementation contract, resolve critical open questions, and de-risk core assumptions before coding begins.
 
-1. **Configuration and domain model layer**
-   - Implement `PortifyConfig` extending `PipelineConfig`: workflow path resolution (directory containing `SKILL.md`), CLI name derivation (strip `sc-`/`-protocol`, kebab/snake conversion), output directory writability check, name collision detection.
-   - Implement `PortifyStepResult` extending `StepResult`: step metadata, artifact paths, gate tier metadata, timeout settings (per-iteration and total budget per Phase 0 decision), review flags, resume metadata (typed fields, not generic dict).
+**Primary Outcomes**
+- Lock 18-module additive architecture under `cli_portify/`.
+- Confirm extension points into `pipeline.models`, `pipeline.gates`, `pipeline.process`, `sprint.models`, and `sprint.process`.
+- Define resume state machine across all failure paths.
+- Design and document a specific, testable additive-only enforcement mechanism for NFR-008.
 
-2. **CLI registration**
-   - Add `cli_portify_group` and register with `main.py` via `app.add_command()`.
-   - Define options: workflow path, output directory, `--dry-run`, `--skip-review`, `--start`, convergence/budget controls, timeout controls.
+**Requirements Addressed**
+- NFR-003, NFR-005, NFR-006, NFR-007, NFR-010
+- FR-PORTIFY-CLI.4f (executor ownership design)
 
-3. **Contract and status model**
-   - Define success/partial/failed/dry_run contract schema.
-   - Ensure all failure paths populate defaults (NFR-009).
-   - Define resume command generation logic.
+**Key Work Items**
+1. Define the target package/module structure for `cli_portify/`.
+2. Formalize inheritance model: `PortifyConfig` → `PipelineConfig`, `PortifyStepResult` → `StepResult`, `PortifyProcess` → `ClaudeProcess`.
+3. Define executor vs subprocess responsibility boundaries.
+4. Freeze CLI surface: `run`, `--dry-run`, `--skip-review`, `--resume`, `--start`.
+5. Freeze synchronous-only rule: no `async def`, no `await`.
+6. Confirm zero changes to `pipeline/` or `sprint/`.
+7. Design resume-state decision table covering all failure paths.
+8. Design and document the additive-only enforcement mechanism (structural comparison, section hashing, or equivalent). This must be a specific, testable design — not deferred to implementation.
+9. Add static checks to prevent `async def` or `await` in `cli_portify/`.
+10. Define NDJSON signal vocabulary.
 
-4. **Shared utility layer**
-   - Frontmatter parsing helpers.
-   - File existence/writability checks.
-   - Section hashing utilities for additive-only verification (NFR-008).
-   - Line counting and artifact rendering helpers.
-   - Signal vocabulary constants (from Phase 0).
+**Milestone Deliverables**
+- Architecture decision record for `cli_portify/`
+- CLI surface definition
+- Step contract matrix
+- Resume-state decision table
+- Additive-only enforcement design document
 
-5. **Unit tests**
-   - Config validation (<1s, all error code paths).
-   - Contract emission for mocked success and failure flows.
+**Exit Criteria**
+- Open Question 9 (CLI surface) resolved.
+- Open Questions 1, 2, 3 (resume semantics, signal vocabulary) resolved at design level.
+- Architectural constraints mapped to concrete modules.
+- Additive-only enforcement mechanism designed and documented.
 
-#### Milestone M1: CLI and Model Foundation Operational
+**Timeline**: 2–3 days
 
-#### Exit Criteria
-
-- CLI command parses correctly.
-- Base config/result types compile and integrate with current architecture.
-- Contract objects can be emitted for mocked success and failure flows.
-
----
-
-### Phase 2: Fast Deterministic Pipeline Steps
-
-**Objective**: Implement the two pure-programmatic steps for reliable early-phase execution and fast failure detection. Estimated effort: 1-1.5 days (S-M).
-
-#### Work Items
-
-1. **Implement `validate-config` (Step 1)**
-   - Resolve workflow path to valid skill directory containing `SKILL.md`.
-   - Derive CLI name: strip `sc-`, strip `-protocol`, normalize naming case.
-   - Validate output directory writability.
-   - Detect collisions with existing non-portified CLI modules.
-   - Write `validate-config-result.json`.
-   - EXEMPT gate: config validation completes <1s; correct error codes for 4 failure scenarios (SC-001).
-
-2. **Implement `discover-components` (Step 2)**
-   - Inventory: `SKILL.md`, `refs/`, `rules/`, `templates/`, `scripts/`, matching command files.
-   - Accurate line counting per component.
-   - Generate `component-inventory.md` with YAML frontmatter (`source_skill`, `component_count`).
-   - EXEMPT gate: discovery completes <5s; inventory has correct frontmatter and line counts (SC-002).
-
-3. **Deterministic gate checks**
-   - Runtime limits as advisory/performance checks.
-   - Structure validation for inventory output.
-
-#### Milestone M2: Deterministic Entry Pipeline Complete
-
-#### Exit Criteria
-
-1. `validate-config` completes under target conditions with correct failure codes.
-2. `discover-components` produces accurate inventory output.
-3. Both steps run without Claude subprocesses.
-4. Unit coverage exists for success and failure matrices.
+#### Governance Gate 1 (Lightweight)
+Approve architecture contract, CLI surface, resume state machine design, and additive-only enforcement design before code scales.
 
 ---
 
-### Phase 3: Claude Subprocess Orchestration Core
+### Milestone 2: Programmatic Foundation — Config, Discovery, Models, Contracts
 
-**Objective**: Introduce the executor-managed Claude integration safely, with subprocess isolation, path scoping, monitoring, and gate enforcement. This phase is a prerequisite gate before content steps — build the platform, stabilize it, then build on it. Estimated effort: 2-3 days (M-L).
+**Goal**: Implement the deterministic base layer that all Claude-assisted work depends on.
 
-#### Work Items
+**Primary Outcomes**
+- `validate-config` and `discover-components` fully functional and fast.
+- Shared data models, result contracts, logging schema, and failure defaults established.
 
-1. **Implement `PortifyProcess`**
-   - Extend base `pipeline.ClaudeProcess`.
-   - Pass `--add-dir` for both work directory and workflow path.
-   - Support prompt construction with `@path` references.
-   - Capture exit code, stdout/stderr, timeout state, and diagnostics.
+**Requirements Addressed**
+- FR-PORTIFY-CLI.1a–1f
+- FR-PORTIFY-CLI.2a–2f
+- NFR-004, NFR-009
 
-2. **Implement prompt builder framework**
-   - One builder per Claude-assisted step.
-   - Inputs reference prior artifacts via `@path`.
-   - Include step-specific output contracts and frontmatter expectations.
-   - Include retry augmentation for targeted failures (especially placeholder residue).
+**Key Work Items**
+1. Implement workflow path resolution and `SKILL.md` presence checks.
+2. Implement deterministic CLI-name derivation: `sc-` prefix stripping, `-protocol` suffix stripping, kebab/snake conversion, hard failure on derivation ambiguity.
+3. Validate output directory parent existence and writability.
+4. Detect name collisions with non-portified modules.
+5. Emit `validate-config-result.json`.
+6. Implement component inventory discovery: `SKILL.md`, `refs/`, `rules/`, `templates/`, `scripts/`, command-file lookup across both command roots.
+7. Add accurate line counting with documented handling for the 1MB cap inconsistency (Open Question #6).
+8. Emit `component-inventory.md` with required frontmatter.
+9. Establish return-contract defaults for success, failure, partial, and dry-run outcomes.
+10. Define failure code catalog.
+11. Ensure all gate functions conform to `tuple[bool, str]`.
 
-3. **Implement monitoring and diagnostics**
-   - NDJSON/JSONL event logging using signal vocabulary from Phase 0/1.
-   - Signal extraction from subprocess output.
-   - Timing capture for phases and steps.
-   - Failure classification: timeout, missing artifact, malformed frontmatter, gate failure, user rejection, budget exhaustion, partial artifact.
-   - Markdown report generation.
+**Exit Criteria**
+- FR-PORTIFY-CLI.1 and FR-PORTIFY-CLI.2 acceptance criteria pass.
+- Performance constraints (NFR-004) measured and passing.
+- Failure-path defaults populated on all tested outcomes.
+- File discovery is deterministic and shell-independent.
 
-4. **Build Claude subprocess mock harness**
-   - Returns known-good outputs for each step type.
-   - Enables unit testing of all Claude-assisted steps without actual Claude invocations.
-   - Dramatically reduces development iteration time for Phases 4-5.
-
-5. **Implement gate engine bindings**
-   - All gate functions return `tuple[bool, str]` (NFR-004).
-   - Structural and semantic validators for STRICT/STANDARD outputs.
-   - Integration with `pipeline.gates.gate_passed()` validation engine.
-   - EXEMPT / STANDARD / STRICT tier enforcement.
-
-#### Milestone M3: Controlled Subprocess Platform Ready
-
-This milestone explicitly gates Phase 4. Content steps must not begin until the subprocess platform is stable.
-
-#### Exit Criteria
-
-- Claude-assisted steps can be executed in harness with mocked or real subprocess behavior.
-- Monitoring emits consistent machine-readable records.
-- Gate engine integration is stable and deterministic.
-- Mock harness produces realistic outputs for all step types.
+**Timeline**: 3–4 days
 
 ---
 
-### Phase 4: Core Content Generation Steps
+### Milestone 3: Analysis and Pipeline Design Layer
 
-**Objective**: Deliver the core design intelligence of the pipeline: workflow analysis, pipeline design, and spec synthesis. Estimated effort: 2-3 days (M-L).
+**Goal**: Implement the first two Claude-assisted steps with deterministic gate enforcement around nondeterministic output.
 
-#### Work Items
+**Primary Outcomes**
+- Workflow analysis output generated, bounded, and validated.
+- Pipeline design output fully maps steps, gates, prompts, and execution model.
+- Review gate and dry-run semantics proven.
 
-1. **Implement `analyze-workflow` (Step 3)**
-   - Read discovered components via `@path` references.
-   - Produce `portify-analysis.md` (<400 lines).
-   - Enforce required sections: behavioral flow, step boundaries, programmatic spectrum classification, dependency/parallel groups, gate requirements, data flow diagram with arrow notation.
-   - STRICT gate: 5 required sections, data flow diagram, 5 YAML frontmatter fields (SC-003).
+**Requirements Addressed**
+- FR-PORTIFY-CLI.3a–3f
+- FR-PORTIFY-CLI.4a–4h
+- NFR-005, NFR-006
 
-2. **Implement `design-pipeline` (Step 4)**
-   - Produce `portify-spec.md`.
-   - Define: Step graph, domain models, prompt builder specs, gate criteria with semantic checks, pure-programmatic steps as runnable Python code, executor loop, Click CLI integration.
-   - Implement `--dry-run` halt point: emits `dry_run` contract, phases 3-4 marked `skipped`.
-   - Implement user review gate: stderr prompt, `y`/`n`, `USER_REJECTED` status.
-   - STRICT gate: `step_mapping_count`, `model_count`, `gate_definition_count` frontmatter (SC-004).
+**Key Work Items**
+1. Build prompt/input assembly using `@path` references only.
+2. Implement `analyze-workflow` subprocess execution via `PortifyProcess`.
+3. Validate `portify-analysis.md` structure: Source Components, Step Graph, Gates Summary, Data Flow Diagram, Classification Summary.
+4. Enforce line-count ceiling (400 lines) and structural checks.
+5. Implement `design-pipeline` subprocess execution.
+6. Validate that all steps have mappings, gate definitions, and execution model specification.
+7. Ensure pure-programmatic steps contain actual Python implementation, not design prose (FR-PORTIFY-CLI.4d).
+8. Implement user review halt point after design.
+9. Ensure `--dry-run` exits here with a complete dry-run contract.
+10. Implement resume path for M3 failures as designed in M1.
 
-3. **Implement `synthesize-spec` (Step 5)**
-   - Verify `release-spec-template.md` exists (fail-fast if missing — gate at startup per Recommendation #5).
-   - Populate all template sections from Phase 1-2 outputs (referenced by `@path`).
-   - Include step consolidation mapping table (12 logical to 7 actual).
-   - SC-003 self-validation: scan for remaining `{{SC_PLACEHOLDER:*}}` sentinels.
-   - On gate failure: retry prompt includes specific remaining placeholder names.
-   - Resume policy: prefer re-running `synthesize-spec` over trusting partially gated output (per Phase 0 decision).
-   - STRICT gate: zero remaining sentinels; 7 FRs with consolidation mapping (SC-005).
+**Exit Criteria**
+- STRICT tier passes for both `portify-analysis.md` and `portify-spec.md`.
+- `--dry-run` halts after design review exactly as required.
+- Deterministic runner remains source of truth for state.
+- Review gate TUI interaction works correctly.
 
-#### Milestone M4: Core Spec Generation Complete
-
-#### Exit Criteria
-
-1. All three artifacts are generated and gated successfully.
-2. `--dry-run` halts after `design-pipeline` with correct contract semantics.
-3. Retry logic for unresolved placeholders is working and bounded.
-4. Template existence validated at startup.
+**Timeline**: 4–5 days
 
 ---
 
-### Phase 5: Quality Amplification Steps
+### Milestone 4: Spec Synthesis and Brainstorm Integration
 
-**Objective**: Add controlled critique loops without surrendering orchestration authority to Claude. The convergence engine is extracted as a standalone, testable component. Estimated effort: 2-3 days (M-L).
+**Goal**: Produce the release spec with zero placeholders and enrich it with structured gap analysis.
 
-#### Work Items
+**Primary Outcomes**
+- Release spec generated with zero `{{SC_PLACEHOLDER:*}}` markers.
+- Brainstorm skill reused safely with fallback and structural validation.
+- Additive-only modification behavior preserved.
 
-1. **Implement `brainstorm-gaps` (Step 6)**
-   - Pre-flight check: verify `/sc:brainstorm` availability.
-   - Fallback: inline multi-persona prompt with warning if skill unavailable.
-   - Invoke `/sc:brainstorm` with `--strategy systematic --depth deep --no-codebase`.
-   - Post-process findings into structured objects (`gap_id`, `description`, `severity`, `affected_section`, `persona`).
-   - Incorporate actionable findings into spec body sections marked `[INCORPORATED]`.
-   - Route unresolvable items to Section 11 marked `[OPEN]`.
-   - Append Section 12 with summary.
-   - STANDARD gate: Section 12 present with structural content validation per F-007: must contain either a findings table (with Gap ID column) or the literal zero-gap summary text — heading-only content MUST fail the gate; zero-gap is a valid outcome (SC-006).
+**Requirements Addressed**
+- FR-PORTIFY-CLI.5a–5g
+- FR-PORTIFY-CLI.6a–6j
+- NFR-008, NFR-010
 
-2. **Implement convergence engine (standalone component)**
-   - Extract convergence logic (predicate checking, budget guards, escalation) into a testable engine independent of Claude subprocess management.
-   - TurnLedger pre-launch budget guard before each iteration.
-   - Convergence predicate: zero unaddressed CRITICALs -> CONVERGED.
-   - Max iterations: `max_convergence` (default 3).
-   - Terminal states: CONVERGED (success) or ESCALATED (partial, user escalation).
-   - Unit-testable with mock iteration results.
+**Key Work Items**
+1. Implement `synthesize-spec` prompt builder and output parser.
+2. Add placeholder detection and retry logic with specific remaining placeholder names.
+3. Enforce exact 7 FR count and logical step consolidation mapping.
+4. Validate required conditional sections (4.3, 4.5, 5, 8.3, 9).
+5. Pre-flight check `/sc:brainstorm` availability.
+6. If available, invoke `/sc:brainstorm` via subprocess; otherwise execute inline fallback with explicit warning.
+7. Implement Section 12 (Brainstorm Gap Analysis) append semantics.
+8. Enforce structural validity: findings table with Gap ID column, or literal zero-gap summary text (FR-PORTIFY-CLI.6i).
+9. Route findings as `[INCORPORATED]` or `[OPEN]` (routed to Section 11).
+10. Implement resume path for M4 failures as designed in M1.
+11. Measure and report phase timing for NFR-001.
 
-3. **Implement `panel-review` (Step 7)**
-   - Pre-flight check: verify `/sc:spec-panel` availability; inline fallback if unavailable.
-   - Each iteration: single Claude subprocess running both focus pass (discussion mode) AND critique pass (critique mode).
-   - Per-iteration independent timeout (default 300s, per Phase 0 decision).
-   - Quality scores: clarity, completeness, testability, consistency; overall = mean of 4 dimensions.
-   - Downstream readiness gate: `overall >= 7.0` (boundary: 7.0 true, 6.9 false).
-   - Produce `panel-report.md` with machine-readable convergence block.
-   - Section hashing to enforce additive-only modifications (NFR-008).
-   - User review gate at end.
-   - STRICT gate: convergence terminal state reached, quality scores populated, downstream readiness evaluated (SC-007).
+**Exit Criteria**
+- Zero `{{SC_PLACEHOLDER:*}}` in synthesized spec.
+- STANDARD/STRICT gates pass where required.
+- Section 12 is structurally valid (not heading-only).
+- No destructive rewrite behavior introduced.
+- Fallback path produces warning in artifacts and return contract.
 
-#### Milestone M5: Review and Convergence Pipeline Operational
-
-#### Exit Criteria
-
-1. Brainstorm step passes with findings or zero-gap summary.
-2. Panel review stops correctly on convergence or escalation.
-3. Quality scoring and downstream readiness are computed deterministically.
-4. Additive-only protection is enforced.
-5. Convergence engine passes unit tests independently of subprocess management.
+**Timeline**: 4–5 days
 
 ---
 
-### Phase 6: UX, Resume, and Operational Hardening
+### Milestone 5: Panel Review, Convergence Engine, and Quality Gates
 
-**Objective**: Make the system usable in real workflows, not just correct in narrow successful paths. Estimated effort: 1.5-2 days (M).
+**Goal**: Build the most critical control loop: iterative expert review with bounded convergence, quality thresholds, and downstream readiness enforcement.
 
-#### Work Items
+**Primary Outcomes**
+- Expert panel loop with max-3 iterations, convergence predicate, timeout control, budget guard, and downstream readiness gate.
+- Machine-readable convergence outputs produced and enforced.
 
-1. **TUI / live status experience**
-   - Rich TUI live dashboard rendering with step progress, gate state, timing, current iteration, review pause prompts, warnings/advisories.
+**Requirements Addressed**
+- FR-PORTIFY-CLI.7a–7n
+- NFR-001, NFR-002, NFR-005, NFR-008, NFR-010, NFR-011
 
-2. **User review gates**
-   - Pause TUI when review required.
-   - Prompt on stderr.
-   - Continue on `y`, halt with `USER_REJECTED` on `n`.
-   - `--skip-review` bypasses user prompts.
+**Key Work Items**
+1. Pre-flight check `/sc:spec-panel` availability; implement fallback prompt path with warning.
+2. Implement dual-mode iteration execution: focus pass + critique pass in single subprocess boundary.
+3. Implement convergence state model and iteration counter (max 3).
+4. Implement independent per-iteration timeout (default 300s).
+5. Integrate TurnLedger budget guard before each launch.
+6. Parse and validate: `CONVERGENCE_STATUS`, `UNADDRESSED_CRITICALS`, `QUALITY_OVERALL`.
+7. Compute quality scores: clarity, completeness, testability, consistency; `overall = mean(...)`.
+8. Implement additive-only enforcement using the mechanism designed in M1.
+9. Implement terminal state handling: CONVERGED, ESCALATED.
+10. Enforce downstream-ready gate: `overall >= 7.0`.
+11. Add review gate at end of panel phase.
+12. Emit `panel-report.md`.
+13. Implement resume path for M5 failures.
+14. Measure and report phase timing for NFR-002.
 
-3. **Resume semantics**
-   - Define resumable steps with explicit resumability matrix.
-   - Prior-context injection for Phase 4 resume (preserve `focus-findings.md`).
-   - Generate resume commands for resumable failures (`--start` step, suggested budget).
-   - Define resume entry points precisely.
+**Exit Criteria**
+- Boundary check: `7.0` passes, `6.9` fails.
+- Zero unaddressed CRITICAL findings on converged path.
+- ESCALATED path valid and observable.
+- Additive-only enforcement active and tested.
+- Review gate behavior works interactively.
 
-4. **Comprehensive failure-path handling**
-   - Missing template: fail-fast with clear error and remediation path.
-   - Missing skills: graceful fallback with warning.
-   - Malformed artifact: diagnostic classification and targeted retry.
-   - Timeout: per-iteration and total budget handling.
-   - Partial artifact: re-run policy (prefer re-run over trust).
-   - Non-writable output: early detection in validate-config.
-   - Exhausted budget: ESCALATED terminal state with resume guidance.
+**Timeline**: 5–6 days
 
-#### Milestone M6: Operational Resilience Complete
-
-#### Exit Criteria
-
-- Resume behavior works for intended boundaries.
-- All exit paths emit complete contracts with populated defaults.
-- User review interaction is reliable and testable.
-- All 7 failure types have explicit handling paths.
+#### Governance Gate 2 (Heavyweight)
+Approve convergence engine behavior, additive-only enforcement in practice, quality thresholds, and resume semantics before release-hardening investment.
 
 ---
 
-### Phase 7: Validation, Compliance, and Release Readiness
+### Milestone 6: Monitoring, Resume Integration, UX, and Failure Recovery
 
-**Objective**: Prove the implementation meets both functional and non-functional requirements before merge. Estimated effort: 1.5-2.5 days (M-L).
+**Goal**: Consolidate operational concerns into a coherent, validated layer across all exit paths.
 
-#### Work Items
+**Primary Outcomes**
+- Monitoring, diagnostics, signal extraction, review pauses, and contract completeness behave consistently across all exit paths.
+- Resume logic (designed in M1, implemented incrementally in M3–M5) is validated as a coherent whole.
 
-1. **Unit test layer**
-   - Validation rules, naming derivation, gate functions, score calculations (including boundary: 7.0 true / 6.9 false), contract defaults, hashing/additive protections, resume command generation.
+**Requirements Addressed**
+- NFR-005, NFR-006, NFR-009, NFR-011
 
-2. **Integration test layer**
-   - Full happy path, `--dry-run`, review rejection, brainstorm fallback, panel fallback/marker parsing, convergence boundary cases, template missing case, timeout behavior.
+**Key Work Items**
+1. Implement monitor and diagnostic collector.
+2. Finalize NDJSON signal vocabulary implementation.
+3. Validate review pause interaction on stderr across all gate points.
+4. Validate resume semantics cohesively across all failure paths:
+   - Synthesize-spec failure recovery
+   - Panel review restart
+   - Partial spec existence handling
+5. Validate `resume_command()` output consistency.
+6. Ensure every exit path emits a complete return contract.
+7. Validate `--skip-review` bypass behavior end-to-end.
+8. Normalize warning vs failure classification.
 
-3. **Compliance verification**
-   - Zero `async def` / `await` in `cli_portify/` (SC-012): `grep -r "async def\|await" src/superclaude/cli/cli_portify/`
-   - Zero diffs in `pipeline/` and `sprint/` (SC-013): `git diff --name-only`
-   - Gate signatures compliant: all return `tuple[bool, str]`
-   - Runner-authored truth enforced: no Claude-directed sequencing
+**Exit Criteria**
+- Open Questions 1, 2, 3, 8 validated in implementation (designed in M1).
+- Partial and resumed runs are reproducible.
+- Review gating behaves as specified across all gate points.
+- Every exit path emits a structurally complete contract.
 
-4. **SC validation matrix cross-reference**
+**Timeline**: 3–4 days
 
-| SC | Criterion | Test Layer | Validation Method |
-|----|-----------|------------|-------------------|
-| SC-001 | Config validation <1s, 4 error paths | Unit | `pytest` with timing assertions |
-| SC-002 | Discovery <5s, accurate inventory | Unit | `pytest` with fixture skill directory |
-| SC-003 | Analysis STRICT gate passes | Integration | Gate function against known-good analysis |
-| SC-004 | Design STRICT gate + dry-run halt | Integration | `--dry-run` emits correct contract |
-| SC-005 | Zero `{{SC_PLACEHOLDER:*}}` remaining | Integration | Regex scan of synthesized spec |
-| SC-006 | Section 12 present with structure | Integration | Gate function validates content |
-| SC-007 | Convergence terminal state + quality scores | Integration | Mock convergence loop with known outputs |
-| SC-008 | Overall = mean(4 dimensions) +/-0.01 | Unit | Arithmetic test with boundary values |
-| SC-009 | Downstream: 7.0 true, 6.9 false | Unit | Boundary test |
-| SC-010 | Contract on all exit paths | Unit | Test each path (success, partial, failed, dry_run) |
-| SC-011 | `--dry-run` halts after Step 4 | Integration | Verify phases 3-4 marked `skipped` |
-| SC-012 | Zero `async def`/`await` in `cli_portify/` | Static | grep scan |
-| SC-013 | Zero changes to `pipeline/`/`sprint/` | Static | `git diff --name-only` |
-| SC-014 | Resume commands for resumable failures | Integration | Trigger failure in Step 6/7, verify resume command |
-| SC-015 | `has_section_12` structural content validation [F-007] | Unit | Gate rejects heading-only Section 12; accepts findings table with Gap ID column; accepts zero-gap summary text |
-| SC-016 | Per-iteration independent timeout [F-004] | Unit | Each convergence iteration gets independent timeout (default 300s), not total divided by `max_convergence` |
+---
 
-5. **Evidence package for release readiness**
-   - Test results for all functional criteria.
-   - Example output artifacts from happy path.
-   - Failure-path contract samples.
-   - `git diff` proof for no base-module modifications.
-   - Search proof for no async usage.
-   - Boundary test evidence (7.0 gate, convergence termination, placeholder elimination, dry-run stop).
+### Milestone 7: Validation, Real Evals, and Release Hardening
 
-6. **Developer readiness**
-   - Command help text, example invocation, artifact expectations, troubleshooting notes.
+**Goal**: Convert implementation confidence into release confidence using real pipeline execution, adversarial failure-path coverage, and architectural compliance checks.
 
-#### Milestone M7: Release-Ready Implementation
+**Requirements Addressed**
+- Success Criteria 1–12
+- NFR-003, NFR-007, NFR-009, NFR-010
 
-#### Exit Criteria
+**Key Work Items**
 
-- All SC criteria satisfied or explicitly waived with evidence.
+Validation must follow this ordering:
+
+#### Layer 1: Static and Deterministic Tests
+1. Static checks: no `async def`/`await` in `cli_portify/`.
+2. Diff checks: no modifications to `pipeline/` or `sprint/`.
+3. Gate function signature compliance: `tuple[bool, str]`.
+
+#### Layer 2: Artifact Structural Tests
+4. Unit tests for gate functions, score arithmetic, convergence predicate, resume command generation, failure contract completeness.
+5. Malformed artifact rejection tests (STRICT gate enforcement).
+
+#### Layer 3: Review and Fallback Tests
+6. Integration tests for review-gate accept/reject/non-interactive behavior.
+7. Skill fallback behavior tests (brainstorm and spec-panel unavailability).
+8. `--dry-run` halt verification.
+
+#### Layer 4: End-to-End Pipeline Runs
+9. Full pipeline execution on a real skill target.
+10. Resumed execution path test.
+11. Timing advisory validation for NFR-001 and NFR-002.
+12. Confirm all reports are runner-authored from observed data only (no Claude self-reporting).
+
+#### Layer 5: Self-Portification (Final Confidence Check)
+13. `superclaude cli-portify run src/superclaude/skills/sc-cli-portify-protocol/`
+14. Verify source workflow files remain unmodified (read-only guard).
+15. Verify generated artifacts land in isolated target directory.
+
+**Validation Rules**
+- Prefer artifact inspection over subprocess stdout interpretation.
+- Require every failure path to emit enough data for independent diagnosis.
+- Reject ambiguous "looks successful" outcomes unless supported by exit codes, artifacts, gates, or contract fields.
+
+**Exit Criteria**
+- Success Criteria 1–12 satisfied or explicitly escalated with rationale.
 - No architectural constraint violations remain.
-- Evidence package complete.
-- Merge candidate is ready.
+- Real artifact-producing runs are reproducible.
+
+**Timeline**: 4–5 days
+
+#### Governance Gate 3 (Final Release Gate)
+Require passing real eval evidence, self-portification meta-test evidence, and architecture guard evidence before release.
 
 ---
 
-## Risk Assessment
+## 3. Parallel Work Streams
+
+Although milestone execution follows a sequential dependency chain, implementation work can be partially parallelized across three named streams:
+
+| Stream | Work Items | Can Start | Dependencies |
+|---|---|---|---|
+| **A — Core Implementation** | Models, process wrapper, executor scaffolding, deterministic steps, Claude-assisted steps | M1 | Sequential per FR chain |
+| **B — Validation Harness** | Unit tests for gates, static checks, contract validators, diff-based compliance | M2 | Zero dependency on Claude-assisted steps |
+| **C — Review & Diagnostics** | Monitor/report generator, TUI behavior, signal vocabulary implementation | M2 | Failure taxonomy from M1; full validation deferred to M6 |
+
+Stream B has zero dependency on Claude-assisted step implementation and can run continuously from M2 onward. Stream C requires the failure taxonomy and signal vocabulary designed in M1 but can begin implementation during M2.
+
+---
+
+## 4. Risk Assessment and Mitigation Strategies
 
 ### High-Priority Risks
 
-| ID | Risk | Impact | Mitigation |
-|----|------|--------|------------|
-| R-1 | Claude output truncation in Steps 5-7 due to large context | Incomplete specs, gate failures | Use `@path` references exclusively; set generous `max_turns`; monitor output length in TUI; treat prompt budget and artifact size as first-class architecture constraints |
-| R-2 | Incorrect convergence prompt design in `panel-review` | False non-convergence, wasted iterations, unusable quality scoring | Lock iteration contract: each iteration includes both focus and critique; integration tests validate prompt shape; model convergence loop as deterministic state machine with explicit entry/exit criteria |
-| R-8 | Sequential execution produces long wall-clock time | User frustration, timeout pressure | 12-to-7 step consolidation already applied; keep pure-programmatic steps fast; add phase timing telemetry; do not introduce async complexity — optimize by reducing work |
+#### Risk 1: Large context windows in Steps 5–7 cause Claude output truncation
+- **Affected**: FR-PORTIFY-CLI.5a, 5b, 6b, 7f
+- **Mitigations**:
+  1. Enforce `@path` references only — never inline large artifacts.
+  2. Keep upstream artifacts concise and machine-structured.
+  3. Add strict structural post-checks after every Claude-assisted step.
+  4. Fail fast on incomplete frontmatter or missing terminal sections.
+
+#### Risk 2: Convergence loop exhausts budget before 3 iterations
+- **Affected**: FR-PORTIFY-CLI.7b, 7h, 7n
+- **Mitigations**:
+  1. TurnLedger budget check before each launch.
+  2. Per-iteration budget estimate from prior token/runtime patterns.
+  3. Explicit ESCALATED terminal state (not ambiguous failure).
+  4. Contract reflects partial completion clearly.
+
+#### Risk 3: `/sc:brainstorm` and `/sc:spec-panel` fail to produce machine-readable markers
+- **Affected**: FR-PORTIFY-CLI.6c, 6f, 7g
+- **Mitigations**:
+  1. Prepend strict output-shape instructions in subprocess prompts.
+  2. Parse structurally first, semantically second.
+  3. Fall back to structural heuristics only when markers absent.
+  4. Emit warnings and downgrade confidence on fallback parsing.
+  5. Cover marker-missing scenarios in integration tests.
+
+#### Risk 4: Sequential execution yields long wall-clock time
+- **Affected**: NFR-001, NFR-002
+- **Mitigations**:
+  1. Keep pure-programmatic steps efficient.
+  2. Avoid unnecessary artifact inflation between steps.
+  3. Report advisory timing overruns rather than misclassifying as semantic failures.
+  4. Instrument phase timing from start of implementation.
+
+#### Risk 5: Self-portification circularity
+- **Affected**: Success Criterion 12
+- **Mitigations**:
+  1. Treat source workflow files as read-only during execution.
+  2. Write generated outputs to isolated target directories.
+  3. Add meta-test guards against source mutation.
 
 ### Medium-Priority Risks
 
-| ID | Risk | Impact | Mitigation |
-|----|------|--------|------------|
-| R-3 | Budget exhaustion before convergence | Partial review, ESCALATED state | TurnLedger pre-flight checks; estimated cost per iteration; ESCALATED is valid terminal state; clear resume guidance |
-| R-4 | Skills produce non-machine-readable output | Parse failures in executor | Pre-flight skill checks; inline fallback prompts; executor-side parsing; structural fallback validation where markers are missing |
-| R-5 | Subprocess `@path` scope failures | Step failures for out-of-dir artifacts | Always pass `--add-dir` for work dir and workflow path; integration test with out-of-dir artifacts; classify scope failures distinctly in diagnostics |
-| R-6 | User review gates have no programmatic interaction | CI/CD incompatibility | `--skip-review` flag; stderr prompt for interactive use |
-| R-7 | Partial `synthesize-spec` output on resume | Gate failure on resume | Prefer re-running `synthesize-spec` over trusting partially gated output; define precise resume entry points |
-| R-10 | Missing template at runtime | Spec synthesis impossible | Validate template presence at startup (fail-fast); emit deterministic failure contract; surface remediation path immediately |
+#### Risk 6: Subprocess skill invocation fails if commands not installed
+- **Affected**: FR-PORTIFY-CLI.6j, 7l
+- **Mitigations**:
+  1. Check `claude` binary at pipeline start.
+  2. Check skill availability before relevant step.
+  3. Explicit warning-backed fallback path.
+  4. Record fallback usage in artifacts and return contract.
 
-### Low-Priority Risks
+#### Risk 7: Subprocess cannot read `@path` files outside working directory
+- **Affected**: FR-PORTIFY-CLI.3a, 4a, 5a, 6a, 7a
+- **Mitigations**:
+  1. `PortifyProcess` passes `--add-dir` for both work directory and workflow path.
+  2. Early smoke test for file accessibility before full pipeline execution.
+  3. Actionable path diagnostics on failure.
 
-| ID | Risk | Impact | Mitigation |
-|----|------|--------|------------|
-| R-9 | Self-portification circularity | Unexpected behavior | Source skill files read-only during portification; generated code in separate output directory; test against self-referential scenarios only after core stability is proven |
+#### Risk 8: User review gates lack programmatic interaction mechanism
+- **Affected**: FR-PORTIFY-CLI.4h, 7k; NFR-011
+- **Mitigations**:
+  1. Implement stderr prompt behavior once in shared review-gate handler.
+  2. `--skip-review` bypass path.
+  3. Cover `y`, `n`, and non-interactive scenarios in tests.
+
+#### Risk 9: Panel review convergence uses wrong mode mapping across iterations
+- **Affected**: FR-PORTIFY-CLI.7m
+- **Mitigations**:
+  1. Encode dual-mode (focus + critique) iteration contract explicitly in executor.
+  2. Test iteration behavior independently.
+  3. Freeze prompt contract for focus + critique sequencing.
+
+### Residual Risk Management
+- Maintain unresolved-issues register linked to Section 11/12 handling.
+- Treat unresolved medium-impact open questions as schedule threats, not documentation debt.
+- Treat low-impact inconsistencies as documentation blockers only unless they affect gates.
 
 ---
 
-## Resource Requirements
+## 5. Resource Requirements and Dependencies
 
-### Pre-Implementation Validation Checklist
+### Engineering Resources
 
-1. Verify `pipeline/` and `sprint/` base modules expose required types (import test for `PipelineConfig`, `Step`, `StepResult`, `GateCriteria`, `GateMode`, `ClaudeProcess`, `TurnLedger`, `GateDisplayState`)
-2. Verify `release-spec-template.md` exists and is >=8KB
-3. Verify `claude` binary available and functional
-4. Verify `/sc:brainstorm` and `/sc:spec-panel` skills are installed and invocable
-5. Verify Click, Rich, PyYAML in `pyproject.toml` dependencies
+| Role | Responsibility |
+|---|---|
+| Primary backend/CLI engineer | Executor, config models, process integration, step orchestration, convergence engine |
+| Quality engineer / test owner | Unit, integration, E2E, meta-test coverage; validation harness (Stream B) |
+| Architectural reviewer | Gate semantics, failure classification, artifact validation, NFR compliance, open-question closure |
 
 ### Technical Dependencies
 
-| Priority | Dependency | Used By | Risk if Missing |
-|----------|-----------|---------|-----------------|
-| Critical | `pipeline.models` (PipelineConfig, Step, StepResult, GateCriteria, GateMode) | All phases | Cannot build; blocks everything |
-| Critical | `pipeline.process` (ClaudeProcess with `extra_args`) | Phase 3-5 | Cannot launch Claude subprocesses |
-| Critical | `pipeline.gates` (`gate_passed()`) | All gates | Cannot validate steps |
-| Critical | `sprint.models` (TurnLedger, GateDisplayState) | Phase 5 | Cannot manage convergence budget |
-| Critical | `claude` binary in PATH | Phase 3-5 | All Claude-assisted steps fail |
-| Critical | `release-spec-template.md` | Phase 4 | Spec synthesis impossible |
-| High | `/sc:brainstorm` skill | Phase 5 (Step 6) | Falls back to inline prompt (degraded) |
-| High | `/sc:spec-panel` skill | Phase 5 (Step 7) | Falls back to inline prompt (degraded) |
-| Medium | Click >=8.0.0, Rich >=13.0.0, PyYAML | All phases | Install via `uv pip install` |
+#### Internal Package Dependencies (consume, never modify)
+1. `pipeline.models` — base-type extension
+2. `pipeline.gates` — gate validation engine reuse
+3. `pipeline.process` — subprocess behavior inheritance
+4. `sprint.models` — TurnLedger budget management
+5. `sprint.process` — signal handling, graceful shutdown
 
-### Team/Role Requirements
+#### External/Runtime Dependencies
+6. `/sc:brainstorm` — required by FR-PORTIFY-CLI.6a; pre-flight validated with fallback
+7. `/sc:spec-panel` — required by FR-PORTIFY-CLI.7a; pre-flight validated with fallback
+8. `claude` binary — required for all Claude-assisted steps; validated before M3
 
-1. **Architect / lead implementer**: Owns module boundaries, flow control, and invariant protection.
-2. **Backend/Python implementer**: Builds CLI, models, step runners, contracts, diagnostics.
-3. **QA engineer**: Owns boundary tests, failure-path coverage, resume behavior validation.
-4. **Optional UX/TUI contributor**: Improves live rendering and review pause experience.
+#### Python Library Dependencies
+- `click>=8.0.0`
+- `rich>=13.0.0`
+- `pyyaml`
+- Python `>=3.10`
 
-### Artifact Outputs
-
-1. `validate-config-result.json`
-2. `component-inventory.md`
-3. `portify-analysis.md`
-4. `portify-spec.md`
-5. Synthesized release spec
-6. Brainstorm findings / augmented spec sections
-7. `panel-report.md`
-8. Final return contract
-9. Step/phase timing and diagnostic logs (NDJSON)
+### Environment Requirements
+- Subprocess invocation with path references and `--add-dir` support
+- Interactive stderr review prompts
+- CI environment supporting static analysis, integration tests, E2E pipeline execution, and artifact inspection
 
 ---
 
-## Success Criteria and Validation Approach
+## 6. Success Criteria and Validation Approach
 
-### Validation Strategy
+### Release Gates
 
-Testing is organized in four layers for execution, with the SC validation matrix providing traceability across all layers.
+| Gate | Validates | Checks |
+|---|---|---|
+| **A — Deterministic Core Integrity** | FR-PORTIFY-CLI.1, 2; NFR-006 | Config resolution deterministic; discovery reproducible; Python controls sequencing |
+| **B — Artifact Structural Quality** | FR-PORTIFY-CLI.3f, 4g, 5f, 6h, 7j | All artifacts pass tiered gates; required sections/frontmatter exist; markers parseable |
+| **C — Review and Convergence Integrity** | FR-PORTIFY-CLI.4h, 7b, 7c, 7h, 7k; NFR-011 | Review pauses correct; convergence predicate enforced; ESCALATED works; USER_REJECTED halts |
+| **D — Nonfunctional Compliance** | NFR-001–010 | Timing advisories; no async; gate signatures; base packages untouched; additive-only; failure contracts complete; skill reuse real |
 
-#### Layer 1: Unit Tests
-Focus on deterministic logic: path validation, naming derivation, frontmatter parsing, score math (including 7.0/6.9 boundary), gate result helpers, hashing, resume command generation, contract defaults, convergence engine (standalone).
+### Success Criteria Matrix
 
-#### Layer 2: Integration Tests
-Focus on orchestration: subprocess execution behavior, artifact chaining, gate enforcement, fallback skill behavior, `--dry-run`, review rejection, convergence boundaries, timeout behavior, template missing case.
-
-#### Layer 3: Compliance Checks
-Static analysis: async prohibition (`grep`), base-module immutability (`git diff`), gate function signatures, runner-authored truth enforcement.
-
-#### Layer 4: Architectural Validation
-Verify: no Claude-directed sequencing, all decisions derive from observed artifacts, resume boundaries are deterministic, additive-only review guarantees hold.
-
-### Manual Validation
-
-- End-to-end run against a real skill (e.g., `sc-brainstorm-protocol`)
-- `--dry-run` produces coherent analysis + design without proceeding to synthesis
-- User review gates pause correctly in interactive mode
-- `--skip-review` bypasses user prompts
-- TUI dashboard renders step progress legibly
+| # | Criterion | Validation Type | Priority |
+|---|---|---|---|
+| 1 | Full pipeline execution completes | Real integration test | Blocker |
+| 2 | Dry-run halts correctly | Integration test with `--dry-run` | Blocker |
+| 3 | STRICT gates enforce quality | Malformed artifact test | Blocker |
+| 4 | Convergence loop terminates | Unit + integration | Blocker |
+| 5 | Downstream readiness gate exact | Boundary test (7.0 true, 6.9 false) | Blocker |
+| 6 | Quality scores arithmetic correct | Unit test with known means | Blocker |
+| 7 | Zero placeholders (SC-003) | Semantic gate | Blocker |
+| 8 | Return contract complete on every path | Unit coverage across outcome types | Blocker |
+| 9 | Resume command generation correct | Unit tests | High |
+| 10 | No base module changes | CI diff check | Blocker |
+| 11 | Synchronous-only implementation | Static analysis | Blocker |
+| 12 | Self-portification succeeds | E2E meta-test | Blocker |
 
 ---
 
-## Timeline Estimates
+## 7. Requirement Traceability
 
-| Phase | Steps | Type | Effort (days) | Size | Dependencies |
-|-------|-------|------|---------------|------|--------------|
-| Phase 0: Architecture Confirmation | — | Decision | 0.5-1 | S | None |
-| Phase 1: Foundation and CLI Skeleton | — | Pure programmatic | 1-2 | S-M | Phase 0 |
-| Phase 2: Deterministic Steps | 1-2 | Pure programmatic | 1-1.5 | S-M | Phase 1 |
-| Phase 3: Subprocess Platform | — | Infrastructure | 2-3 | M-L | Phase 2 |
-| Phase 4: Content Generation | 3-5 | Claude-assisted | 2-3 | M-L | Phase 3 (M3 gate) |
-| Phase 5: Quality Amplification | 6-7 | Claude-assisted | 2-3 | M-L | Phase 4 |
-| Phase 6: UX and Hardening | — | Operational | 1.5-2 | M | Phase 5 |
-| Phase 7: Validation and Release | — | Testing | 1.5-2.5 | M-L | Phase 6 |
-| **Total** | | | **12-18 days** | | |
+### Functional Requirements → Milestones
+| Requirement | Milestone |
+|---|---|
+| FR-PORTIFY-CLI.1a–1f | M2 |
+| FR-PORTIFY-CLI.2a–2f | M2 |
+| FR-PORTIFY-CLI.3a–3f | M3 |
+| FR-PORTIFY-CLI.4a–4h | M3 |
+| FR-PORTIFY-CLI.5a–5g | M4 |
+| FR-PORTIFY-CLI.6a–6j | M4 |
+| FR-PORTIFY-CLI.7a–7n | M5 |
+
+### Non-Functional Requirements → Milestones
+| Requirement | Milestones |
+|---|---|
+| NFR-001, NFR-002 | M5, M7 |
+| NFR-003 | M1, M2, M7 |
+| NFR-004 | M2 |
+| NFR-005, NFR-006 | M1, M3, M5, M6, M7 |
+| NFR-007 | M1, M7 |
+| NFR-008 | M1 (design), M4, M5 |
+| NFR-009 | M2, M6, M7 |
+| NFR-010 | M1, M4, M5, M7 |
+| NFR-011 | M5, M6 |
+
+---
+
+## 8. Timeline Summary
+
+| Milestone | Scope | Duration | Governance Gate |
+|---|---|---:|---|
+| M1 | Architecture baseline, scope lock, enforcement design | 2–3 days | Gate 1 (lightweight) |
+| M2 | Programmatic foundation: config, discovery, models | 3–4 days | — |
+| M3 | Analysis and pipeline design (Claude-assisted) | 4–5 days | — |
+| M4 | Spec synthesis and brainstorm integration | 4–5 days | — |
+| M5 | Panel review, convergence engine, quality gates | 5–6 days | Gate 2 (heavyweight) |
+| M6 | Monitoring, resume integration, UX, failure recovery | 3–4 days | — |
+| M7 | Validation, real evals, release hardening | 4–5 days | Gate 3 (final release) |
+| **Total** | | **24–30 days** | |
 
 ### Critical Path
+The critical path follows the sequential FR dependency chain: FR-PORTIFY-CLI.1 → 2 → 3 → 4 → 5 → 6 → 7. Parallel streams B and C reduce total duration by ~3–5 days compared to fully serial execution.
 
-```
-Phase 0 -> Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6 -> Phase 7
-```
-
-All phases are strictly sequential. Phase 3 (subprocess platform) is a prerequisite gate (M3) before any content generation steps begin. Infrastructure parallelization is a valid optimization for future releases once the extension surface is proven stable.
-
-### Recommended Milestone Cadence
-
-| Week | Phases | Checkpoint |
-|------|--------|------------|
-| Week 1 | Phase 0-3 | Deterministic foundation and subprocess platform established |
-| Week 2 | Phase 4-6 | Core generation, review loop, and hardening delivered |
-| Week 3 | Phase 7 + buffer | Validation complete, remediation of defects, merge candidate ready |
+### Schedule Risks
+1. Skill fallback underspecification can slip M4 and M5.
+2. If additive-only enforcement design is weak in M1, M5 may require redesign.
+3. If E2E tests are deferred past M7, defects cluster in the final week.
+4. Unresolved medium-impact open questions are schedule threats, not documentation debt.
 
 ---
 
-## Architectural Recommendations
+## 9. Immediate Next Actions
 
-1. **Resolve spec ambiguities in Phase 0 before coding the convergence loop.** Timeout semantics, resume semantics, and scoring boundary/rounding behavior must have concrete answers in the decision record.
-
-2. **Treat contracts, gates, and artifacts as the real system boundary** — not prompts, not prose outputs. All status determination derives from observed artifacts and gate results.
-
-3. **Bias toward explicit state machines**, especially for review gates, convergence, resume, and failure classification. The convergence engine in particular should be a standalone, testable component.
-
-4. **Build a Claude subprocess mock harness early** (Phase 3). Phases 4-5 all depend on Claude subprocesses. A mock harness that returns known-good outputs enables unit testing without actual Claude invocations and dramatically reduces development iteration time.
-
-5. **Gate the `release-spec-template.md` dependency at startup.** If the template does not exist, fail fast with a clear error message rather than proceeding through Phases 1-2 only to fail at Phase 4.
-
-6. **Validate external prerequisites early**: `claude` binary, template existence, skill availability. Prefer graceful degradation for optional skill behavior but do not degrade core invariants — if base architecture assumptions fail, stop explicitly.
-
-7. **Keep the implementation additive and isolated** — no leakage into `pipeline/` or `sprint/`. Validate continuously with `git diff`.
-
-8. **Consider infrastructure parallelization in v2.25+.** Once the `PortifyProcess` extension surface is proven stable, monitor/diagnostics/TUI work can safely run in parallel with content steps. For this first implementation, sequential ordering eliminates integration risk.
+1. Lock M1 scope: module boundaries, CLI surface, resume state machine, additive-only enforcement design.
+2. Resolve highest-impact open questions during M1: resume semantics, `--resume`/`--start` CLI flags, NDJSON signal vocabulary.
+3. Implement FR-PORTIFY-CLI.1 and FR-PORTIFY-CLI.2 with performance instrumentation.
+4. Begin Stream B (validation harness) in parallel with M2.
+5. Build gate-validation utilities before writing prompts for FR-PORTIFY-CLI.3 and FR-PORTIFY-CLI.4.
+6. Reserve final release confidence for real artifact-producing E2E runs, especially Success Criterion 12.

@@ -109,6 +109,10 @@ def _gate_passing_content(step: Step) -> str:
         "validation_complete": "true",
         "tasklist_ready": "true",
         "fidelity_check_attempted": "true",
+        # Anti-instinct audit
+        "undischarged_obligations": "0",
+        "uncovered_contracts": "0",
+        "fingerprint_coverage": "0.85",
         # Wiring verification (all counts consistent with total_findings=0)
         "gate": "wiring-verification",
         "target_dir": ".",
@@ -178,7 +182,7 @@ class TestE2EFullPipeline:
         )
 
         # 10 individual steps (2 parallel generate + 8 sequential)
-        assert len(results) == 10
+        assert len(results) == 11
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_e2e_state_saved_after_steps_1_9(self, tmp_path):
@@ -410,8 +414,8 @@ class TestE2EFullPipeline:
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
 
-        # Verify all 10 step results + remediate + certify metadata
-        assert len(state["steps"]) == 10
+        # Verify all 11 step results + remediate + certify metadata
+        assert len(state["steps"]) == 11
         assert all(state["steps"][sid]["status"] == "PASS" for sid in state["steps"])
         assert state["remediate"]["status"] == "PASS"
         assert state["certify"]["certified"] is True

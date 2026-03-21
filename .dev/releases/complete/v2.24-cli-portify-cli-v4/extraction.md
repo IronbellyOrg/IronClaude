@@ -1,181 +1,302 @@
-
-
 ---
 spec_source: "portify-release-spec.md"
-generated: "2026-03-13T00:00:00Z"
+generated: "2026-03-20T00:00:00Z"
 generator: "claude-opus-4-6-requirements-extractor"
 functional_requirements: 7
 nonfunctional_requirements: 11
 total_requirements: 18
 complexity_score: 0.85
-complexity_class: complex
-domains_detected: 5
+complexity_class: HIGH
+domains_detected: [backend, cli, devops, testing]
 risks_identified: 9
-dependencies_identified: 12
-success_criteria_count: 14
-extraction_mode: full
+dependencies_identified: 8
+success_criteria_count: 12
+extraction_mode: standard
+pipeline_diagnostics: {elapsed_seconds: 146.0, started_at: "2026-03-20T16:43:37.277670+00:00", finished_at: "2026-03-20T16:46:03.298069+00:00"}
 ---
 
 ## Functional Requirements
 
-**FR-001**: Config Validation (Step: validate-config) — Pure-programmatic step that validates all CLI inputs before any Claude subprocess is launched. Resolves workflow path to a directory containing `SKILL.md`, derives CLI name (strip `sc-` prefix and `-protocol` suffix, convert to kebab/snake case), validates output directory writability, and checks for name collisions with non-portified CLI modules. Writes `validate-config-result.json` on success. Must complete in <1s with no Claude subprocess.
+### FR-PORTIFY-CLI.1: Config Validation (Step: validate-config)
 
-**FR-002**: Component Discovery (Step: discover-components) — Pure-programmatic step that inventories all components of the target workflow using `Path.rglob()` to find SKILL.md, refs/, rules/, templates/, scripts/, and matching command files. Counts lines per component. Produces a structured markdown inventory table (`component-inventory.md`) with YAML frontmatter (`source_skill`, `component_count`). Must complete in <5s with no Claude subprocess.
+**Type**: Pure-programmatic
+**Priority**: Critical (pipeline gate — blocks all downstream steps)
+**Consolidates**: Logical Step 0
 
-**FR-003**: Workflow Analysis (Step: analyze-workflow) — Claude-assisted step that reads all discovered components and produces a complete portification analysis document (`portify-analysis.md`). Extracts behavioral flow, identifies step boundaries, classifies each step on the programmatic spectrum (pure-programmatic, claude-assisted, hybrid), maps dependencies and parallel groups, extracts gate requirements, and produces a data flow diagram. Consolidates logical steps 2–5. STRICT gate requiring YAML frontmatter (`source_skill`, `step_count`, `parallel_groups`, `gate_count`, `complexity`) and semantic checks (required analysis sections, data flow diagram). Output under 400 lines.
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.1a | Resolve `--workflow` to directory containing `SKILL.md` | Emits `INVALID_PATH` error on missing SKILL.md |
+| FR-PORTIFY-CLI.1b | Derive CLI name from workflow path | Strips `sc-` prefix and `-protocol` suffix, converts to kebab/snake case; emits `DERIVATION_FAILED` on failure |
+| FR-PORTIFY-CLI.1c | Validate output directory writability | Parent directory must exist and be writable; emits `OUTPUT_NOT_WRITABLE` |
+| FR-PORTIFY-CLI.1d | Detect name collisions with non-portified modules | Emits `NAME_COLLISION` if target directory exists with non-portified `__init__.py` |
+| FR-PORTIFY-CLI.1e | Produce config result artifact | Writes `validate-config-result.json` with resolved paths |
+| FR-PORTIFY-CLI.1f | Performance constraint | Completes in <1s (no Claude subprocess) |
 
-**FR-004**: Pipeline Design (Step: design-pipeline) — Claude-assisted step that converts workflow analysis into a concrete, code-ready pipeline specification (`portify-spec.md`). Designs the Step graph, defines domain models, writes prompt builder specifications, defines gate criteria with semantic checks, implements pure-programmatic steps as runnable Python code, designs the executor loop, and plans Click CLI integration. STRICT gate with frontmatter (`step_mapping_count`, `model_count`, `gate_definition_count`) and semantic checks. User review gate after this step; `--dry-run` halts pipeline here. Consolidates logical step 6.
+**Dependencies**: None
 
-**FR-005**: Spec Synthesis (Step: synthesize-spec) — Claude-assisted step that instantiates the release spec template (9KB inline) and populates all sections from Phase 1 and Phase 2 outputs (referenced by `@path`). Includes step consolidation mapping table. Runs SC-003 self-validation to verify zero remaining `{{SC_PLACEHOLDER:*}}` sentinels. STRICT gate. On gate failure, retry prompt includes specific remaining placeholder names for targeted fix. Consolidates logical steps 7–8.
+---
 
-**FR-006**: Brainstorm Gap Analysis (Step: brainstorm-gaps) — Claude-assisted step that invokes existing `/sc:brainstorm` skill (not reimplemented behavioral patterns) against the draft release spec with `--strategy systematic --depth deep --no-codebase`. Post-processing formats findings as structured objects (`{gap_id, description, severity, affected_section, persona}`), incorporates actionable findings into spec body sections marked `[INCORPORATED]`, routes unresolvable items to Section 11 marked `[OPEN]`, and appends Section 12 with summary. STANDARD gate with structural validation (findings table or zero-gap summary text). Pre-flight check verifies `/sc:brainstorm` availability; falls back to inline multi-persona prompt with warning if unavailable. Zero-gap outcome is valid and does not block pipeline. Consolidates logical step 9.
+### FR-PORTIFY-CLI.2: Component Discovery (Step: discover-components)
 
-**FR-007**: Panel Review with Convergence (Step: panel-review) — Claude-assisted step with executor-managed convergence loop. Each iteration launches a Claude subprocess invoking existing `/sc:spec-panel` skill with `--focus correctness,architecture`. Executor checks convergence predicate after each iteration: zero unaddressed CRITICALs → CONVERGED; otherwise iterates up to `max_convergence` (default 3). Produces quality scores (clarity, completeness, testability, consistency, overall) and `panel-report.md` with machine-readable convergence block (`CONVERGENCE_STATUS`, `UNADDRESSED_CRITICALS`, `QUALITY_OVERALL`). Overall = mean of 4 dimensions (SC-010). Downstream readiness gate: `overall >= 7.0` (SC-012, boundary: 7.0 true, 6.9 false). STRICT gate. Each iteration runs both focus pass (discussion mode) and critique pass (critique mode) within a single subprocess. Each convergence iteration has its own independent timeout (default 300s). TurnLedger guards budget before each iteration launch. Pre-flight check for `/sc:spec-panel` availability with inline fallback. Terminal states: CONVERGED (success) or ESCALATED (partial, with user escalation). User review gate at end. Consolidates logical steps 10–11.
+**Type**: Pure-programmatic
+**Priority**: Critical (feeds all Claude-assisted steps)
+**Consolidates**: Logical Step 1
+
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.2a | Find SKILL.md | Located in workflow directory root |
+| FR-PORTIFY-CLI.2b | Discover subdirectory files | Finds all files in `refs/`, `rules/`, `templates/`, `scripts/` via `Path.rglob()` |
+| FR-PORTIFY-CLI.2c | Locate matching command file | Searches `src/superclaude/commands/` and `.claude/commands/sc/` |
+| FR-PORTIFY-CLI.2d | Count lines per component | Accurate line count for each discovered file |
+| FR-PORTIFY-CLI.2e | Produce inventory artifact | `component-inventory.md` with YAML frontmatter (`source_skill`, `component_count`) |
+| FR-PORTIFY-CLI.2f | Performance constraint | Completes in <5s (no Claude subprocess) |
+
+**Dependencies**: FR-PORTIFY-CLI.1
+
+---
+
+### FR-PORTIFY-CLI.3: Workflow Analysis (Step: analyze-workflow)
+
+**Type**: Claude-assisted
+**Priority**: Critical
+**Consolidates**: Logical Steps 2 (protocol mapping), 3 (step identification/classification), 4 (gate extraction), 5 (analysis assembly)
+
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.3a | Produce analysis document | `portify-analysis.md` with YAML frontmatter: `source_skill`, `step_count`, `parallel_groups`, `gate_count`, `complexity` |
+| FR-PORTIFY-CLI.3b | Required sections | Must contain: Source Components, Step Graph, Gates Summary, Data Flow Diagram, Classification Summary |
+| FR-PORTIFY-CLI.3c | Step classification | Every identified step classified as pure-programmatic, claude-assisted, or hybrid |
+| FR-PORTIFY-CLI.3d | Data flow diagram | Present with arrow notation (`-->` or `--->`) |
+| FR-PORTIFY-CLI.3e | Output size | Under 400 lines |
+| FR-PORTIFY-CLI.3f | Gate enforcement | Passes STRICT tier validation |
+
+**Dependencies**: FR-PORTIFY-CLI.2
+
+---
+
+### FR-PORTIFY-CLI.4: Pipeline Design (Step: design-pipeline)
+
+**Type**: Claude-assisted
+**Priority**: Critical
+**Consolidates**: Logical Step 6
+
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.4a | Produce pipeline spec | `portify-spec.md` with YAML frontmatter: `step_mapping_count`, `model_count`, `gate_definition_count` |
+| FR-PORTIFY-CLI.4b | Step mapping completeness | Contains step mapping entries for every pipeline step |
+| FR-PORTIFY-CLI.4c | Gate definition completeness | All steps have corresponding gate definitions |
+| FR-PORTIFY-CLI.4d | Pure-programmatic code | Pure-programmatic steps include actual Python implementation |
+| FR-PORTIFY-CLI.4e | Prompt builder spec | Claude-assisted steps specify required output format and machine-readable markers |
+| FR-PORTIFY-CLI.4f | Execution model | Executor design uses synchronous threading (not async/await) |
+| FR-PORTIFY-CLI.4g | Gate enforcement | Passes STRICT tier validation |
+| FR-PORTIFY-CLI.4h | User review gate | Review gate after this step; `--dry-run` halts pipeline here |
+
+**Dependencies**: FR-PORTIFY-CLI.3
+
+---
+
+### FR-PORTIFY-CLI.5: Spec Synthesis (Step: synthesize-spec)
+
+**Type**: Claude-assisted
+**Priority**: Critical
+**Consolidates**: Logical Steps 7 (template instantiation), 8 (content population)
+
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.5a | Produce release spec | `portify-release-spec.md` with complete YAML frontmatter |
+| FR-PORTIFY-CLI.5b | Zero placeholders (SC-003) | Zero remaining `{{SC_PLACEHOLDER:*}}` sentinels |
+| FR-PORTIFY-CLI.5c | FR count | Contains 7 functional requirements (one per pipeline step) |
+| FR-PORTIFY-CLI.5d | Consolidation mapping | Explicit mapping of which logical steps each FR covers |
+| FR-PORTIFY-CLI.5e | Conditional sections | Includes portification-type sections: 4.3, 4.5, 5, 8.3, 9 |
+| FR-PORTIFY-CLI.5f | Gate enforcement | Passes STRICT tier validation |
+| FR-PORTIFY-CLI.5g | Retry with specifics (F-005) | On gate failure, retry prompt includes specific remaining placeholder names |
+
+**Dependencies**: FR-PORTIFY-CLI.4
+
+---
+
+### FR-PORTIFY-CLI.6: Brainstorm Gap Analysis (Step: brainstorm-gaps)
+
+**Type**: Claude-assisted (skill reuse)
+**Priority**: High
+**Consolidates**: Logical Step 9
+
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.6a | Skill invocation | Subprocess invokes `/sc:brainstorm` (not reimplemented patterns) |
+| FR-PORTIFY-CLI.6b | Section 12 appended | Brainstorm Gap Analysis section appended to spec |
+| FR-PORTIFY-CLI.6c | Structured findings | Format: `{gap_id, description, severity, affected_section, persona}` |
+| FR-PORTIFY-CLI.6d | Actionable incorporation | Actionable findings incorporated into spec sections, marked `[INCORPORATED]` |
+| FR-PORTIFY-CLI.6e | Open item routing | Unresolvable items routed to Section 11, marked `[OPEN]` |
+| FR-PORTIFY-CLI.6f | Summary stats | Includes `{total_gaps, incorporated, open, severity_distribution}` |
+| FR-PORTIFY-CLI.6g | Zero-gap validity | Zero-gap outcome does not block pipeline |
+| FR-PORTIFY-CLI.6h | Gate enforcement | Passes STANDARD tier validation |
+| FR-PORTIFY-CLI.6i | Section 12 structural validation (F-007) | Must contain findings table (with Gap ID column) or literal zero-gap summary text; heading alone insufficient |
+| FR-PORTIFY-CLI.6j | Pre-flight skill check (GAP-001) | Verify `/sc:brainstorm` available; fall back to inline multi-persona prompt with warning if unavailable |
+
+**Dependencies**: FR-PORTIFY-CLI.5
+
+---
+
+### FR-PORTIFY-CLI.7: Panel Review with Convergence (Step: panel-review)
+
+**Type**: Claude-assisted (skill reuse + convergence loop)
+**Priority**: Critical
+**Consolidates**: Logical Steps 10 (focus pass), 11 (critique/scoring/convergence)
+
+| Sub-ID | Requirement | Acceptance Criterion |
+|--------|-------------|---------------------|
+| FR-PORTIFY-CLI.7a | Skill invocation | Each iteration invokes `/sc:spec-panel` (not reimplemented expert patterns) |
+| FR-PORTIFY-CLI.7b | Convergence loop management | Executor manages loop with iteration counter and hard cap (max 3) |
+| FR-PORTIFY-CLI.7c | Convergence predicate | Zero findings with `severity: CRITICAL` and status not `[INCORPORATED]` or `[DISMISSED]` |
+| FR-PORTIFY-CLI.7d | Quality scores | Spec frontmatter contains: clarity, completeness, testability, consistency (all 0-10 float) |
+| FR-PORTIFY-CLI.7e | Overall score calculation (SC-010) | `overall = mean(clarity, completeness, testability, consistency)` |
+| FR-PORTIFY-CLI.7f | Panel report artifact | `panel-report.md` with all findings, scores, convergence status |
+| FR-PORTIFY-CLI.7g | Machine-readable convergence block | Contains `CONVERGENCE_STATUS`, `UNADDRESSED_CRITICALS`, `QUALITY_OVERALL` |
+| FR-PORTIFY-CLI.7h | Terminal states | CONVERGED (success) or ESCALATED (partial, with user escalation) |
+| FR-PORTIFY-CLI.7i | Downstream ready gate (SC-012) | `overall >= 7.0` (boundary: 7.0 true, 6.9 false) |
+| FR-PORTIFY-CLI.7j | Gate enforcement | Passes STRICT tier validation |
+| FR-PORTIFY-CLI.7k | User review gate | Review gate at end of step |
+| FR-PORTIFY-CLI.7l | Pre-flight skill check (GAP-001) | Verify `/sc:spec-panel` available; fall back to inline expert panel prompt with warning if unavailable |
+| FR-PORTIFY-CLI.7m | Dual-mode iterations (GAP-006) | Each iteration runs both focus pass (discussion) and critique pass (critique) within a single subprocess |
+| FR-PORTIFY-CLI.7n | Independent iteration timeout (F-004) | Each iteration has independent timeout (default 300s); TurnLedger guards budget before each launch |
+
+**Dependencies**: FR-PORTIFY-CLI.6
+
+---
 
 ## Non-Functional Requirements
 
-**NFR-001**: Phase 3 wall clock time < 10 minutes. Measured via `phase_timing.phase_3_seconds`; advisory warning if exceeded.
+| ID | Requirement | Target | Measurement Method |
+|----|-------------|--------|--------------------|
+| NFR-001 | Phase 3 wall clock time | < 10 minutes | `phase_timing.phase_3_seconds`; advisory warning if exceeded |
+| NFR-002 | Phase 4 wall clock time | < 15 minutes | `phase_timing.phase_4_seconds`; advisory warning if exceeded |
+| NFR-003 | Synchronous execution only | Zero `async def` or `await` in `cli_portify/` | Code review + static analysis |
+| NFR-004 | Gate function signatures | All return `tuple[bool, str]` | Type checking + unit tests |
+| NFR-005 | Runner-authored truth | Reports from observed data only (exit codes, artifacts, gates) | No Claude self-reporting in status determination |
+| NFR-006 | Deterministic flow control | Python controls all step sequencing | No step uses Claude to decide "what's next" |
+| NFR-007 | No pipeline/sprint modification | Zero changes to `pipeline/` or `sprint/` base modules | `git diff` verification |
+| NFR-008 | Additive-only spec modifications | Panel review never rewrites existing content | Append/extend only in Steps 4b, 4d |
+| NFR-009 | Failure path defaults | All contract fields populated on every failure type | Unit test coverage per failure type |
+| NFR-010 | Skill reuse | brainstorm-gaps invokes `/sc:brainstorm`; panel-review invokes `/sc:spec-panel` | Prompt content inspection + integration test |
+| NFR-011 | User review gates | When not `--skip-review`, executor pauses TUI, prompts on stderr; `y` continues, `n` halts with `USER_REJECTED` | Manual test |
 
-**NFR-002**: Phase 4 wall clock time < 15 minutes. Measured via `phase_timing.phase_4_seconds`; advisory warning if exceeded.
-
-**NFR-003**: Synchronous execution only — no `async/await`. Verified by code review: zero `async def` or `await` in `cli_portify/`.
-
-**NFR-004**: All gate function signatures return `tuple[bool, str]`. Verified by type checking and unit tests.
-
-**NFR-005**: Runner-authored truth — reports derived from observed data only (exit codes, artifacts, gates). No Claude self-reporting in status determination.
-
-**NFR-006**: Deterministic flow control — Python controls all sequencing. No step uses Claude to decide "what's next."
-
-**NFR-007**: Zero changes to `pipeline/` or `sprint/` base modules. Verified by `git diff`.
-
-**NFR-008**: Additive-only spec modifications — panel review never rewrites existing content. Append/extend only in Steps 4b, 4d. Section hashing enforces this in panel_review.py.
-
-**NFR-009**: All contract fields populated with defaults on failure paths. Verified by unit tests for each failure type.
-
-**NFR-010**: Skill reuse — brainstorm-gaps invokes `/sc:brainstorm`; panel-review invokes `/sc:spec-panel`. Verified by prompt content inspection and integration tests.
-
-**NFR-011**: User review gates — when not `--skip-review`, executor pauses TUI and prompts on stderr; user enters `y` to continue or `n` to halt with `USER_REJECTED` status.
+---
 
 ## Complexity Assessment
 
-**Complexity Score**: 0.85 (complex)
+**Score**: 0.85 / 1.0
+**Class**: HIGH
 
 **Scoring Rationale**:
-- **Multi-phase orchestration** (7 pipeline steps, 4 logical phases): +0.20 — requires careful sequencing, gate validation, and state management across steps
-- **Claude subprocess management**: +0.15 — 5 of 7 steps launch Claude subprocesses with prompt builders, output parsing, and timeout handling
-- **Convergence loop**: +0.15 — panel-review step implements an executor-managed iteration loop with predicate checking, budget guards, and escalation logic
-- **Skill reuse integration**: +0.10 — subprocess invocation of `/sc:brainstorm` and `/sc:spec-panel` with pre-flight checks and fallback paths
-- **Resume/checkpoint support**: +0.10 — per-step resumability classification, prior-context injection, partial-artifact preservation
-- **Rich TUI + monitoring**: +0.08 — unified monitoring with JSONL logging, markdown reports, signal types, diagnostic collection, and failure classification
-- **Return contract emission**: +0.07 — comprehensive contract on all exit paths (success, partial, failed, dry_run) with phase mapping and resume commands
 
-The system extends an existing pipeline/sprint architecture (PipelineConfig, Step, StepResult, GateCriteria, ClaudeProcess, TurnLedger) rather than building from scratch, which bounds complexity. However, the convergence loop, multi-subprocess orchestration, and gate enforcement across 7 steps with 8 semantic check functions place this firmly in the "complex" class.
+| Factor | Score | Weight | Justification |
+|--------|-------|--------|---------------|
+| Module count | 0.9 | 20% | 18 new modules + 1 modified file; `steps/` subdirectory with 7 step implementations |
+| Integration surface | 0.85 | 20% | Extends 4 existing base classes (`PipelineConfig`, `StepResult`, `ClaudeProcess`, `TurnLedger`); integrates with `main.py` CLI registration; invokes 2 external skills (`/sc:brainstorm`, `/sc:spec-panel`) in subprocesses |
+| Convergence logic | 0.9 | 15% | Executor-managed iteration loop with budget guards, convergence predicate parsing, dual-mode subprocess invocation, section hashing for additive-only enforcement |
+| State management | 0.8 | 15% | 6 data models with complex state transitions; `ConvergenceState` enum with valid-transition dictionary; resume decision table with per-step resumability |
+| Gate system | 0.8 | 15% | 7 gate definitions across 3 enforcement tiers; 8 semantic check functions with YAML parsing; tiered enforcement (EXEMPT/STANDARD/STRICT) |
+| CLI/TUI | 0.75 | 15% | Click CLI group with 8 options; Rich TUI live dashboard; JSONL + Markdown logging; 5 signal types; unified `monitor.py` with DiagnosticCollector, FailureClassifier, ReportGenerator |
+
+**Weighted total**: 0.85
+
+---
 
 ## Architectural Constraints
 
-1. **Synchronous threading model**: Must use `threading` + `time.sleep()` polling. No `async/await` or `multiprocessing`. Consistent with existing sprint/pipeline architecture.
+1. **Synchronous execution only** (NFR-003): No `async def` or `await` anywhere in `cli_portify/`. Threading + `time.sleep()` polling for subprocess monitoring.
 
-2. **Extend existing base types**: `PortifyConfig` extends `PipelineConfig`; `PortifyStepResult` extends `StepResult`; `PortifyProcess` extends `pipeline.ClaudeProcess`. Must reuse `GateCriteria`, `GateMode`, `TurnLedger`, `SignalHandler` from pipeline/sprint modules.
+2. **Extend existing base types**: `PortifyConfig` extends `PipelineConfig`, `PortifyStepResult` extends `StepResult`, `PortifyProcess` extends `ClaudeProcess`. No reimplementation of base functionality.
 
-3. **Zero modifications to pipeline/ or sprint/ modules**: All changes are additive under `cli_portify/`.
+3. **Zero modifications to base modules** (NFR-007): No changes to `pipeline/` or `sprint/` packages. New module is purely additive.
 
-4. **File passing via `@path` references**: Claude subprocesses read files via `@path` in prompts, matching the sprint `ClaudeProcess` pattern. `PortifyProcess` passes `--add-dir` for work directory and workflow path.
+4. **File passing via `@path` references**: Claude subprocesses read artifacts via `@path` references (matching sprint `ClaudeProcess` pattern), not `--file` CLI args or inline embedding.
 
-5. **Package structure**: 18 modules under `src/superclaude/cli/cli_portify/` with `steps/` subdirectory for step implementations. Single modified file: `main.py`.
+5. **Executor-controlled flow** (NFR-006): Python controls all step sequencing, convergence iteration, and gate evaluation. Claude subprocesses handle content generation only.
 
-6. **Click CLI integration**: Command group registered via `app.add_command(cli_portify_group)` in `main.py`.
+6. **Skill reuse over reimplementation** (NFR-010): Steps 6 and 7 invoke existing `/sc:brainstorm` and `/sc:spec-panel` skills. No reimplementation of multi-persona or expert panel logic.
 
-7. **Python ≥3.10**: Uses dataclasses, `Path`, type unions (`int | None`), and modern Python features.
+7. **Runner-authored truth** (NFR-005): All status determination from observed data (exit codes, artifact existence, gate checks). No Claude self-reporting accepted.
 
-8. **UV-only execution**: All Python operations must use `uv run`.
+8. **18-module structure with `steps/` subdirectory** (DEV-001): Accepted deviation from original 13-file flat layout. Produced through adversarial debate consensus (D-02, D-04, D-11, D-12, D-14).
 
-9. **Gate enforcement tiers**: EXEMPT (no validation), STANDARD (basic checks), STRICT (full semantic validation). Gate functions return `tuple[bool, str]`.
+9. **Contract emission on all exit paths**: Return contract YAML produced for success, partial, failed, and dry_run outcomes. All fields populated with defaults on failure.
 
-10. **Runner-authored truth**: All status determination from observed data (exit codes, file existence, gate results), never from Claude self-reporting.
+10. **Click CLI integration**: Registered via `app.add_command()` in `main.py`. Single `run` subcommand under `cli-portify` group.
+
+11. **Python >=3.10**: Uses `int | None` union syntax, `@dataclass`, `Enum`, `Path`.
+
+12. **Technology mandates**: Click for CLI, Rich for TUI, YAML for contracts, JSONL for logging.
+
+---
 
 ## Risk Inventory
 
-1. **[HIGH] Large context windows may cause Claude output truncation** (Steps 5–7) — Mitigation: Use `@path` references instead of inline embedding; set generous `max_turns`.
+| # | Risk | Severity | Probability | Mitigation |
+|---|------|----------|-------------|------------|
+| 1 | Large context windows in Steps 5-7 cause Claude output truncation | High | Medium | Use `@path` references instead of inline embedding; generous `max_turns` |
+| 2 | Convergence loop exhausts budget before 3 iterations | Medium | Medium | TurnLedger pre-launch guards; per-iteration budget estimation; ESCALATED terminal state |
+| 3 | `/sc:brainstorm` and `/sc:spec-panel` fail to produce machine-readable convergence markers | High | Medium | Post-processing parses output; fallback to structural checks if markers missing |
+| 4 | Sequential execution yields long wall-clock time | Low | High | Inherent to data dependencies; 7 steps vs 12 reduces overhead; timing advisory only |
+| 5 | Self-portification circularity | Medium | Low | Source skill files read-only during portification; generated code in separate directory |
+| 6 | Subprocess skill invocation fails if commands not installed | High | Low | Pre-flight check verifies `claude` binary; config validation checks skill availability |
+| 7 | Subprocess cannot read `@path` files outside working directory scope | High | Medium | `PortifyProcess` passes `--add-dir` for work_dir and workflow_path (GAP-002) |
+| 8 | User review gates lack programmatic interaction mechanism | Medium | Medium | `--skip-review` flag bypasses; executor pauses TUI, prompts on stderr (GAP-003) |
+| 9 | Panel review convergence prompt uses wrong mode mapping across iterations | High | High | Each iteration runs both focus (discussion) + critique within single subprocess (GAP-006) |
 
-2. **[HIGH] Panel review convergence prompt mode mapping incorrect** (GAP-006) — Each iteration must run both focus (discussion) AND critique within a single subprocess, not mode-per-iteration. Mitigation: Acceptance criterion added to FR-007; prompt design adjusted.
-
-3. **[MEDIUM] Convergence loop may exhaust budget before 3 iterations** — Mitigation: TurnLedger pre-launch guards; budget estimation per iteration; ESCALATED terminal state.
-
-4. **[MEDIUM] `/sc:brainstorm` and `/sc:spec-panel` may not produce machine-readable convergence markers** — Mitigation: Post-processing in executor parses output; fallback to structural checks if markers missing.
-
-5. **[MEDIUM] Subprocess cannot read `@path` files outside working directory scope** (GAP-002) — Mitigation: PortifyProcess passes `--add-dir` for work directory and workflow path via `extra_args`.
-
-6. **[MEDIUM] User review gates have no programmatic interaction mechanism** (GAP-003) — Mitigation: `--skip-review` flag bypasses; otherwise executor pauses TUI and prompts on stderr.
-
-7. **[MEDIUM] Resume from Phase 3: partial synthesize-spec output may not pass gate** (GAP-005) — Mitigation: Define resume entry points precisely during implementation.
-
-8. **[HIGH] Sequential execution results in long wall-clock time** — 7 steps with data dependencies prevent parallelism. Mitigation: Consolidation from 12 to 7 steps reduces overhead; timing is advisory not blocking.
-
-9. **[LOW] Self-portification circularity** — Changes to cli-portify code could affect the workflow being portified. Mitigation: Source skill files are read-only during portification; generated code in separate directory.
+---
 
 ## Dependency Inventory
 
-1. **pipeline.models** (`src/superclaude/cli/pipeline/models.py`) — Base types: PipelineConfig, Step, StepResult, GateCriteria, GateMode
-2. **pipeline.gates** (`src/superclaude/cli/pipeline/gates.py`) — `gate_passed()` validation engine
-3. **pipeline.process** (`src/superclaude/cli/pipeline/process.py`) — Base ClaudeProcess with `extra_args` support
-4. **sprint.models** (`src/superclaude/cli/sprint/models.py`) — TurnLedger, GateDisplayState
-5. **sprint.process** (`src/superclaude/cli/sprint/process.py`) — Sprint ClaudeProcess pattern, SignalHandler
-6. **`/sc:brainstorm` skill** — Multi-persona gap analysis (invoked in subprocess)
-7. **`/sc:spec-panel` skill** — Expert panel review with quality scoring (invoked in subprocess)
-8. **`claude` binary** — Required in PATH for subprocess execution
-9. **Click** (≥8.0.0) — CLI framework for command group and option parsing
-10. **Rich** (≥13.0.0) — TUI live dashboard rendering
-11. **PyYAML** — YAML parsing for frontmatter and contract emission
-12. **release-spec-template.md** (`src/superclaude/examples/release-spec-template.md`) — 9KB template for spec synthesis
+| # | Dependency | Type | Used By | Notes |
+|---|-----------|------|---------|-------|
+| 1 | `pipeline.models` (PipelineConfig, Step, StepResult, GateCriteria, GateMode) | Internal package | models.py, gates.py | Base types extended by portify models |
+| 2 | `pipeline.gates` (gate_passed) | Internal package | executor.py, step modules | Gate validation engine |
+| 3 | `pipeline.process` (ClaudeProcess) | Internal package | process.py | Base class for PortifyProcess |
+| 4 | `sprint.models` (TurnLedger) | Internal package | executor.py | Budget tracking for multi-subprocess execution |
+| 5 | `sprint.process` (SignalHandler) | Internal package | executor.py | Graceful shutdown handling |
+| 6 | `/sc:brainstorm` skill | External skill (subprocess) | brainstorm_gaps.py | Multi-persona gap analysis; fallback available if unavailable |
+| 7 | `/sc:spec-panel` skill | External skill (subprocess) | panel_review.py | Expert panel review with quality scoring; fallback available if unavailable |
+| 8 | `claude` binary | External system | executor.py pre-flight | Required for all Claude-assisted steps; validated at pipeline start |
+
+**Python library dependencies** (inherited from project):
+- `click>=8.0.0` — CLI framework
+- `rich>=13.0.0` — TUI dashboard
+- `pyyaml` — Contract emission and frontmatter parsing
+
+---
 
 ## Success Criteria
 
-1. **Config validation completes in <1s** with correct error codes for invalid path, derivation failure, non-writable output, and name collision scenarios.
+| # | Criterion | Threshold | Measurement |
+|---|-----------|-----------|-------------|
+| 1 | Full pipeline execution completes | Steps 1-7 all PASS | Integration test: end-to-end portification of a real skill |
+| 2 | Dry-run halts correctly | Phases 0-2 complete, Phases 3-4 SKIPPED, `dry_run` contract emitted | Integration test with `--dry-run` flag |
+| 3 | STRICT gates enforce quality | Gate failure halts pipeline with diagnostic report | Integration test with deliberately malformed output |
+| 4 | Convergence loop terminates | CONVERGED on 0 CRITICALs or ESCALATED after max iterations | Unit test + integration test |
+| 5 | Downstream readiness gate | `overall >= 7.0` → true; `6.9` → false (SC-012) | Unit test boundary check |
+| 6 | Quality scores arithmetic | `overall = mean(clarity, completeness, testability, consistency)` (SC-010) | Unit test with known values |
+| 7 | Zero placeholders (SC-003) | Zero `{{SC_PLACEHOLDER:*}}` in synthesized spec | Gate semantic check |
+| 8 | Return contract completeness | All fields populated on success, partial, failed, dry_run paths (NFR-009) | Unit test per outcome type |
+| 9 | Resume command generation | Correct `--resume --start <step>` command for resumable failures | Unit test |
+| 10 | No base module changes | Zero `git diff` in `pipeline/` and `sprint/` (NFR-007) | CI check |
+| 11 | Synchronous execution | Zero `async def` or `await` in `cli_portify/` (NFR-003) | Static analysis |
+| 12 | Self-portification | `superclaude cli-portify run src/superclaude/skills/sc-cli-portify-protocol/` completes | E2E meta-test |
 
-2. **Component discovery completes in <5s** producing `component-inventory.md` with accurate line counts and YAML frontmatter.
-
-3. **Workflow analysis produces `portify-analysis.md`** passing STRICT gate: all 5 required sections present, data flow diagram with arrow notation, YAML frontmatter with 5 required fields.
-
-4. **Pipeline design produces `portify-spec.md`** passing STRICT gate: step mappings present, 3 required frontmatter fields populated.
-
-5. **Spec synthesis produces zero remaining `{{SC_PLACEHOLDER:*}}` sentinels** (SC-003). Contains 7 functional requirements with explicit consolidation mapping.
-
-6. **Brainstorm gap analysis appends Section 12** with either structured findings table (with Gap ID column) or zero-gap summary text. Gate validates structural content, not just heading presence.
-
-7. **Panel review convergence terminates** with either CONVERGED (0 unaddressed CRITICALs) or ESCALATED (max iterations reached) within 3 iterations.
-
-8. **Quality scores**: overall = mean(clarity, completeness, testability, consistency) within 0.01 tolerance (SC-010).
-
-9. **Downstream readiness**: `overall >= 7.0` → `downstream_ready: true`; `6.9` → false (SC-012 boundary test).
-
-10. **Return contract emitted on all exit paths** (success, partial, failed, dry_run) with all fields populated including defaults on failure (NFR-009).
-
-11. **`--dry-run` halts after design-pipeline** (Step 4), emitting `dry_run` contract with phases 3–4 marked `skipped`.
-
-12. **Zero `async def` or `await`** in any file under `cli_portify/` (NFR-003).
-
-13. **Zero changes to `pipeline/` or `sprint/` modules** verified by `git diff` (NFR-007).
-
-14. **Resume command generated** for resumable failures (brainstorm-gaps, panel-review) with correct `--start` step and suggested budget.
+---
 
 ## Open Questions
 
-1. **GAP-004**: Overall score rounding tolerance (`< 0.01`) vs display precision — should scores be displayed to 1 or 2 decimal places? Does rounding affect the `>= 7.0` downstream gate at boundary values (e.g., mean of 7.0025 displays as 7.0)?
-
-2. **GAP-005**: Resume from Phase 3 failure — if `synthesize-spec` partially wrote the spec file, does the gate pass on resume? Should resume re-run `synthesize-spec` or only `brainstorm-gaps`? Need to define per-step resume entry points precisely.
-
-3. **GAP-007**: `to_contract()` uses inline imports (`hashlib`, `yaml`) instead of module-level — should these be moved to module-level imports in `contract.py` during implementation?
-
-4. **GAP-008**: NDJSON signal vocabulary for `monitor.py` — what domain-specific signals does the monitor extract from Claude subprocess output? Need to define the signal types (e.g., persona activation, section completion, placeholder resolution) and their machine-readable patterns.
-
-5. **GAP-009**: `run_discover_components` reads full file content to count lines — acceptable for typical skill directories (<20 files), but should there be a file size cap to prevent memory issues with unexpectedly large files? The spec mentions a 1MB cap with warning but this isn't reflected in the reference implementation.
-
-6. **F-004**: Per-iteration timeout semantics — the spec states each convergence iteration should have its own independent timeout (default 300s), but the reference pseudocode divides total timeout by `max_convergence`. Which is authoritative?
-
-7. **F-006**: Resume from Phase 4 — the spec states prior `focus-findings.md` is preserved as context injection into the first iteration's prompt, but convergence counter resets to 1. How is this context injection implemented? Is `focus-findings.md` a separate artifact or part of `panel-report.md`?
-
-8. **Implementation order discrepancy**: Section 4.6 references files (`config.py`, `inventory.py`, `tui.py`, `logging_.py`, `diagnostics.py`, `commands.py`) that don't appear in the Section 4.1 file table (which uses `steps/` subdirectory and consolidated `monitor.py`, `cli.py`). The DEV-001 deviation note explains the 18-module structure replaced the original 13-file layout, but Section 4.6 was not updated to match. Which is authoritative?
-
-9. **Template availability**: The spec references `src/superclaude/examples/release-spec-template.md` (9KB) but does not include its content or verify its existence. Does this file exist in the repository? What happens if it's missing at runtime?
-
-10. **Subprocess environment**: When `/sc:brainstorm` or `/sc:spec-panel` are invoked in Claude subprocesses, do they have access to MCP servers (Auggie, Sequential, Context7)? The `--no-codebase` flag on brainstorm suggests MCP awareness, but subprocess MCP availability is not specified.
+| # | Question | Source | Impact | Suggested Resolution |
+|---|----------|--------|--------|---------------------|
+| 1 | **Resume from Phase 3 failure** (GAP-005): If `synthesize-spec` partially wrote the spec file, does the gate pass on resume? Should resume re-run synthesize-spec or only brainstorm? | Section 11 | Medium — resume may fail silently | Define explicit resume entry points: if spec file exists but fails gate, re-run synthesize-spec; if passes gate, skip to brainstorm |
+| 2 | **NDJSON signal vocabulary** (GAP-008): What domain-specific signals does `monitor.py` extract from Claude subprocess output? | Section 11 | Medium — affects TUI accuracy | Define signal vocabulary during monitor.py development: persona switches, section completion, placeholder count, convergence markers, quality score updates |
+| 3 | **Resume from Phase 4** (F-006): Prior `focus-findings.md` preserved as context injection into first iteration's prompt, but convergence counter resets to 1 | Section 11 | Medium — affects resume correctness | Implement as specified; verify counter reset doesn't cause re-evaluation of already-addressed findings |
+| 4 | **Rounding tolerance** (GAP-004): `_overall_is_mean` uses `< 0.01` tolerance but display precision not specified | Section 12 | Low — edge case in quality score validation | Specify 2 decimal places for display; keep `< 0.01` tolerance for gate validation |
+| 5 | **Inline imports** (GAP-007): `to_contract()` in spec uses inline imports (`hashlib`, `yaml`) — should be module-level in `contract.py` | Section 12 | Low — code quality | Move to module-level imports during implementation |
+| 6 | **1MB line-counting cap**: `discover_components` has 1MB cap with warning per step implementation table, but reference code in Appendix D.1 has no cap | Section 4.1 vs Appendix D.1 | Low — inconsistency between spec sections | Implement the 1MB cap as stated in the architecture table; update reference code |
+| 7 | **Scope boundary inconsistency**: Section 1.2 states "13 new Python modules" but Section 4.1 describes 18 modules (post DEV-001 deviation) | Section 1.2 vs 4.1 | Low — documentation drift | Update Section 1.2 to reflect accepted 18-module architecture |
+| 8 | **Phase timing boundary**: Phase 3 timing starts at `synthesize-spec` but Phase 3 conceptually includes `brainstorm-gaps` — should the boundary be clearer? | Section 2.2 data flow vs executor pseudocode | Low — advisory-only metric | Document that phase_3_seconds covers synthesize-spec + brainstorm-gaps (as implemented in executor) |
+| 9 | **`--resume` and `--start` CLI flags**: Referenced in `resume_command()` output but not declared in CLI Surface (Section 5.1) | Section 4.5 vs 5.1 | Medium — missing CLI contract | Add `--resume` (flag) and `--start` (string) to CLI Surface table |
+| 10 | **`_all_gates_defined` semantic check**: Defined in Section 5.2.1 but not used in any GateCriteria object in Section 5.2.2 | Section 5.2.1 vs 5.2.2 | Low — dead code in spec | Either add to `DESIGN_PIPELINE_GATE` or remove from spec |

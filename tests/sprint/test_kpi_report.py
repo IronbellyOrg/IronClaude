@@ -2,11 +2,13 @@
 
 from pathlib import Path
 
+from superclaude.cli.audit.wiring_gate import WiringFinding, WiringReport
 from superclaude.cli.pipeline.trailing_gate import (
     DeferredRemediationLog,
     TrailingGateResult,
 )
 from superclaude.cli.sprint.kpi import GateKPIReport, build_kpi_report
+from superclaude.cli.sprint.models import TurnLedger
 
 
 def _gate(step_id: str, passed: bool, ms: float) -> TrailingGateResult:
@@ -155,3 +157,94 @@ class TestKPIReportFormat:
         text = report.format_report()
         assert "80.0%" in text  # pass rate
         assert "20.0ms" in text  # p50 latency
+
+
+def _finding(ftype: str, suppressed: bool = False) -> WiringFinding:
+    return WiringFinding(
+        finding_type=ftype,
+        file_path="src/test.py",
+        symbol_name="test_fn",
+        line_number=1,
+        detail="test finding",
+        suppressed=suppressed,
+    )
+
+
+class TestWiringKPIFields:
+    """Verify the 6 wiring KPI fields are populated from TurnLedger and WiringReport (SC-015)."""
+
+    def test_wiring_fields_default_zero(self):
+        r = GateKPIReport()
+        assert r.wiring_findings_total == 0
+        assert r.wiring_findings_by_type == {}
+        assert r.wiring_turns_used == 0
+        assert r.wiring_turns_credited == 0
+        assert r.whitelist_entries_applied == 0
+        assert r.files_skipped == 0
+
+    def test_build_with_turn_ledger(self):
+        ledger = TurnLedger(initial_budget=20, wiring_turns_used=5, wiring_turns_credited=3)
+        report = build_kpi_report(gate_results=[], turn_ledger=ledger)
+        assert report.wiring_turns_used == 5
+        assert report.wiring_turns_credited == 3
+
+    def test_build_with_wiring_report(self):
+        wr = WiringReport(
+            files_skipped=7,
+            unwired_callables=[_finding("unwired_callable"), _finding("unwired_callable")],
+            orphan_modules=[_finding("orphan_module")],
+            unwired_registries=[],
+        )
+        report = build_kpi_report(gate_results=[], wiring_report=wr)
+        assert report.wiring_findings_total == 3
+        assert report.files_skipped == 7
+        assert report.wiring_findings_by_type == {
+            "unwired_callable": 2,
+            "orphan_module": 1,
+        }
+
+    def test_whitelist_entries_applied(self):
+        wr = WiringReport(
+            unwired_callables=[
+                _finding("unwired_callable", suppressed=True),
+                _finding("unwired_callable", suppressed=False),
+            ],
+            orphan_modules=[_finding("orphan_module", suppressed=True)],
+        )
+        report = build_kpi_report(gate_results=[], wiring_report=wr)
+        assert report.whitelist_entries_applied == 2
+
+    def test_floor_to_zero_credit(self):
+        """R7: credited turns never go negative."""
+        ledger = TurnLedger(initial_budget=20, wiring_turns_credited=0)
+        report = build_kpi_report(gate_results=[], turn_ledger=ledger)
+        assert report.wiring_turns_credited >= 0
+
+    def test_build_with_both_turn_ledger_and_wiring_report(self):
+        ledger = TurnLedger(initial_budget=20, wiring_turns_used=4, wiring_turns_credited=2)
+        wr = WiringReport(
+            files_skipped=3,
+            unwired_callables=[_finding("unwired_callable")],
+        )
+        report = build_kpi_report(gate_results=[], turn_ledger=ledger, wiring_report=wr)
+        assert report.wiring_turns_used == 4
+        assert report.wiring_turns_credited == 2
+        assert report.wiring_findings_total == 1
+        assert report.files_skipped == 3
+
+    def test_no_wiring_data_preserves_defaults(self):
+        report = build_kpi_report(gate_results=[_gate("T1", True, 10.0)])
+        assert report.wiring_findings_total == 0
+        assert report.wiring_turns_used == 0
+
+    def test_format_report_includes_wiring_section(self):
+        report = GateKPIReport(
+            wiring_findings_total=5,
+            wiring_turns_used=3,
+            wiring_turns_credited=2,
+            files_skipped=10,
+        )
+        text = report.format_report()
+        assert "Wiring Gate" in text
+        assert "Findings total" in text
+        assert "Turns used" in text

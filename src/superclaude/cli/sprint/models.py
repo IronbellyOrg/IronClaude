@@ -319,11 +319,40 @@ class SprintConfig(PipelineConfig):
     # Wiring gate mode: controls post-task wiring analysis behavior
     # off=disabled, shadow=log only, soft=warn on critical, full=block on critical+major
     wiring_gate_mode: Literal["off", "shadow", "soft", "full"] = "soft"
+    # Anti-instinct gate rollout mode: controls anti-instinct gate behavior in sprint
+    # off=evaluate+ignore, shadow=evaluate+record, soft=evaluate+record+credit/remediate,
+    # full=evaluate+record+credit/remediate+fail
+    gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "off"
+    # Wiring gate budget fields (OQ-2 resolution: conservative defaults)
+    wiring_gate_scope: str = "task"  # scope for resolve_gate_mode() (Goal-5d)
+    wiring_analysis_turns: int = 1  # turns allocated per wiring analysis
+    remediation_cost: int = 2  # turns debited per remediation attempt
 
     def __post_init__(self):
+        import warnings
+
         # Sync release_dir to PipelineConfig.work_dir so both access paths
         # return the same value.
         object.__setattr__(self, "work_dir", self.release_dir)
+
+        # Migration shim (NFR-007: remove after 1 release)
+        # Migrates deprecated field names to new canonical names.
+        _OLD_TO_NEW = {
+            "wiring_budget_turns": "wiring_analysis_turns",
+            "wiring_remediation_cost": "remediation_cost",
+            "wiring_scope": "wiring_gate_scope",
+        }
+        for old_name, new_name in _OLD_TO_NEW.items():
+            old_val = getattr(self, old_name, None)
+            if old_val is not None:
+                warnings.warn(
+                    f"SprintConfig field '{old_name}' is deprecated, "
+                    f"use '{new_name}' instead. "
+                    f"This shim will be removed in the next release.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                object.__setattr__(self, new_name, old_val)
 
     @property
     def debug_log_path(self) -> Path:
@@ -491,6 +520,11 @@ class TurnLedger:
 
     Tracks budget allocation, consumption, and reimbursement for sprint
     subprocesses. Enforces monotonicity: consumed can only increase.
+
+    Wiring analysis budget fields (NFR-004: all default to 0):
+    - wiring_turns_used: cumulative turns consumed by wiring analysis
+    - wiring_turns_credited: cumulative turns credited back from wiring analysis
+    - wiring_budget_exhausted: 1 if wiring budget is exhausted, 0 otherwise
     """
 
     initial_budget: int
@@ -499,6 +533,10 @@ class TurnLedger:
     reimbursement_rate: float = 0.8
     minimum_allocation: int = 5
     minimum_remediation_budget: int = 3
+    # Wiring analysis budget tracking (NFR-004: default to zero)
+    wiring_turns_used: int = 0
+    wiring_turns_credited: int = 0
+    wiring_budget_exhausted: int = 0
 
     def available(self) -> int:
         """Return available turns: initial_budget - consumed + reimbursed."""
@@ -522,6 +560,42 @@ class TurnLedger:
 
     def can_remediate(self) -> bool:
         """Return True if enough budget remains for remediation."""
+        return self.available() >= self.minimum_remediation_budget
+
+    def debit_wiring(self, turns: int = 1) -> None:
+        """Debit turns for wiring analysis before analysis runs.
+
+        Decrements available budget and tracks wiring-specific consumption.
+        Sets wiring_budget_exhausted if budget drops below minimum.
+        """
+        if turns < 0:
+            raise ValueError("debit_wiring amount must be non-negative")
+        self.debit(turns)
+        self.wiring_turns_used += turns
+        if self.available() < self.minimum_remediation_budget:
+            self.wiring_budget_exhausted = 1
+
+    def credit_wiring(self, turns: int, rate: float | None = None) -> int:
+        """Credit turns back after wiring analysis with floor-to-zero arithmetic.
+
+        Uses ``int(turns * rate)`` which floors to zero for fractional results.
+        By design: ``credit_wiring(1, 0.8)`` returns 0 credits (R7).
+
+        Returns the number of turns actually credited.
+        """
+        if turns < 0:
+            raise ValueError("credit_wiring turns must be non-negative")
+        effective_rate = rate if rate is not None else self.reimbursement_rate
+        credit_amount = int(turns * effective_rate)
+        if credit_amount > 0:
+            self.credit(credit_amount)
+        self.wiring_turns_credited += credit_amount
+        return credit_amount
+
+    def can_run_wiring_gate(self) -> bool:
+        """Return True if budget allows running wiring analysis."""
+        if self.wiring_budget_exhausted:
+            return False
         return self.available() >= self.minimum_remediation_budget
 
 

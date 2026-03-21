@@ -131,9 +131,9 @@ USER invokes: superclaude release-eval run .dev/releases/complete/v2.25-cli-port
 
 **Acceptance Criteria**:
 - [ ] Score dataclass supports 5 named dimensions with values 1.0-10.0, hard_fail flag, and reasoning string
-- [ ] RunResult captures test_id, run_number, model, scores, exit_code, tokens_used, wall_time_seconds, artifacts, stdout_path, stderr_path
-- [ ] TestVerdict aggregates across runs with per-dimension mean/stddev/min/max
-- [ ] EvalReport includes spec_hash (SHA-256), confidence_level, model_breakdown, recommendations
+- [ ] RunResult captures test_id, run_number, model, scores, exit_code, tokens_used, wall_time_seconds, artifacts, stdout_path, stderr_path, steps_completed, steps_total
+- [ ] TestVerdict aggregates across runs with per-dimension mean/stddev/min/max and includes past_failed_gate annotation (False by default; True when layer ran after a prior layer failed in eval-mode)
+- [ ] EvalReport includes spec_hash (SHA-256), verdict (pass|conditional_pass|fail), blocked_layers, conditions, confidence_level, model_breakdown, recommendations
 - [ ] ABComparison captures per-dimension p-values, effect sizes (Cohen's d), and tier-specific verdict
 - [ ] All dataclasses support to_dict/from_dict for JSONL round-trip serialization
 
@@ -176,7 +176,9 @@ USER invokes: superclaude release-eval run .dev/releases/complete/v2.25-cli-port
 - [ ] Supports parallel execution of runs within the same test
 - [ ] Per-run output captured to isolated directories: `runs/<timestamp>/<layer>/<test-id>/run-N/`
 - [ ] Timeout enforcement per individual run (configurable, default 300s)
-- [ ] Fail-fast: structural/functional layer failures halt evaluation before quality layer
+- [ ] Fail-fast (default): structural/functional layer failures halt evaluation before quality layer
+- [ ] Eval-mode (`--eval-mode`): all layers execute regardless of earlier failures. Each layer's pass/fail verdict is recorded independently. Layers that ran past a failed gate are annotated with `past_failed_gate: true` in their TestVerdict. Overall verdict reflects all failures (eval-mode does not suppress FAIL verdicts).
+- [ ] Partial runs (N of M steps completed) produce RunResult with `steps_completed` and `steps_total` fields populated. Partial runs are included in aggregation for their completed steps; uncompleted steps produce no scores for that run.
 - [ ] State persistence to `.eval-state.json` for resumability
 
 **Dependencies**: FR-EVAL.1, FR-EVAL.6 (isolation)
@@ -189,10 +191,14 @@ USER invokes: superclaude release-eval run .dev/releases/complete/v2.25-cli-port
 - [ ] `aggregate_scores()` computes per-dimension mean, stddev, min, max, CV across runs
 - [ ] `compare_variants()` produces per-dimension p-values and Cohen's d between two variant groups
 - [ ] `check_consistency()` verifies within-variant reproducibility (target CV < 0.15)
-- [ ] `compute_verdict()` produces overall PASS/FAIL based on configurable thresholds
+- [ ] `compute_verdict()` produces ternary verdict based on configurable thresholds:
+  - PASS: all layers executed and passed thresholds
+  - CONDITIONAL_PASS: all executed layers passed, but one or more layers were blocked from executing; `blocked_layers` and `conditions` populated
+  - FAIL: one or more executed layers failed thresholds
 - [ ] Handles edge cases: zero runs (error), single run (no variance), identical results (CV=0)
 - [ ] Cross-model results reported as separate rows, never aggregated into single score
 - [ ] Confidence level annotation: "directional" for 5-run, "robust" for 20+ runs
+- [ ] `aggregate_scores()` includes partial runs for steps they completed. Per-step aggregation reports the number of contributing runs (which may be less than total runs when some runs did not reach that step).
 
 **Dependencies**: FR-EVAL.1, stdlib `statistics`, optional `scipy.stats`
 
@@ -229,7 +235,8 @@ Resolution of CONT-01 (three taxonomies): The spec distinguishes "configurations
 **Description**: Produce human-readable `report.md` (YAML frontmatter + markdown body) and machine-readable `scores.jsonl` (one JSON line per run). Follow the `AggregatedPhaseReport.to_markdown()` pattern from sprint/executor.py.
 
 **Acceptance Criteria**:
-- [ ] `generate_report()` writes report.md with YAML frontmatter (release, timestamp, verdict, confidence_level) and markdown body
+- [ ] `generate_report()` writes report.md with YAML frontmatter (release, timestamp, verdict: pass|conditional_pass|fail, confidence_level, blocked_layers, conditions) and markdown body
+- [ ] When verdict is conditional_pass, report body includes "Conditions for Full Pass" section listing each condition with actionable remediation
 - [ ] Report body includes: per-test verdict table, per-dimension score table, model breakdown, variance annotations, recommendations
 - [ ] `write_scores_jsonl()` writes one JSON line per run with all scores and metadata
 - [ ] Per-model breakdown table rendered with labeled "informational, not statistical" cross-model section
@@ -320,10 +327,15 @@ Resolution of GAP-02 (human review pause): The CLI implements a two-step workflo
 
 **Acceptance Criteria**:
 - [ ] Layers execute in strict order: structural -> functional -> quality -> regression
-- [ ] Structural failure halts before functional tests run (fail-fast)
-- [ ] Functional failure halts before quality tests run (fail-fast)
+- [ ] Structural failure halts before functional tests run (fail-fast) — unless `--eval-mode` is active
+- [ ] Functional failure halts before quality tests run (fail-fast) — unless `--eval-mode` is active
+- [ ] In eval-mode: failures are recorded in TestVerdict but execution continues to the next layer. Downstream layers annotated with `past_failed_gate: true`.
+- [ ] A run that completes N of M pipeline steps due to an internal gate failure is classified as PARTIAL (not FAILED). PARTIAL runs contribute scores for completed steps. The fail-fast behavior applies across eval layers, not within pipeline-internal steps of a single layer.
 - [ ] Quality and regression layers are scored, not hard-gated (configurable threshold)
-- [ ] Overall verdict: PASS requires all structural/functional pass AND quality above thresholds
+- [ ] Overall verdict uses ternary model:
+  - PASS: all structural/functional layers pass AND quality above thresholds AND all layers executed
+  - CONDITIONAL_PASS: all executed structural/functional layers pass AND quality above thresholds AND one or more layers were blocked from executing
+  - FAIL: any executed structural/functional layer fails OR quality below thresholds
 - [ ] Two-step workflow: generate then execute, with `--approve` for automation
 - [ ] Works on both feature releases and bug fix releases
 - [ ] Can re-run evals on already-completed releases (retroactive)
@@ -461,6 +473,13 @@ class RunResult:
     artifacts: list[str]        # file paths produced
     stdout_path: Path           # path to stdout capture (not inline, avoids memory bloat)
     stderr_path: Path           # path to stderr capture
+    steps_completed: int = 0    # number of pipeline steps that completed
+    steps_total: int = 0        # total pipeline steps defined
+
+    @property
+    def completion_ratio(self) -> float:
+        """Fraction of pipeline steps completed (0.0-1.0)."""
+        return self.steps_completed / self.steps_total if self.steps_total > 0 else 0.0
 
     def to_dict(self) -> dict:
         return {
@@ -474,6 +493,8 @@ class RunResult:
             "artifacts": self.artifacts,
             "stdout_path": str(self.stdout_path),
             "stderr_path": str(self.stderr_path),
+            "steps_completed": self.steps_completed,
+            "steps_total": self.steps_total,
         }
 
 
@@ -486,6 +507,7 @@ class TestVerdict:
     aggregate_scores: dict[str, dict[str, float]]
     # dimension -> {mean, stddev, min, max, cv}
     runs: list[RunResult]
+    past_failed_gate: bool = False  # True when this layer ran after a prior layer failed (eval-mode only)
 
 
 @dataclass
@@ -495,7 +517,11 @@ class EvalReport:
     timestamp: str
     spec_hash: str              # SHA-256 of source spec (D-02)
     tests: list[TestVerdict]
-    overall_passed: bool
+    verdict: str                # "pass" | "conditional_pass" | "fail"
+    blocked_layers: list[str] = field(default_factory=list)
+                                # layers that could not execute (empty for pass/fail)
+    conditions: list[str] = field(default_factory=list)
+                                # upgrade requirements for conditional_pass → pass
     model_breakdown: dict[str, dict[str, float]]
     # model -> {dimension -> mean_score}
     recommendations: list[str]
@@ -543,6 +569,7 @@ class EvalConfig:
     force: bool = False             # run with stale spec_hash
     approve: bool = False           # skip human review prompt
     parallel: bool = False          # worktree isolation for local runs too
+    eval_mode: bool = False         # when True, gate failures are recorded but do not halt execution
 
 
 @dataclass
@@ -659,6 +686,7 @@ superclaude ab-test compare <results-dir-a> <results-dir-b> [OPTIONS]
 | `--dry-run` | FLAG | False | Validate isolation setup without executing runs |
 | `--parallel` | FLAG | False | Use worktree isolation for local runs (enables concurrent execution) |
 | `--debug` | FLAG | False | Verbose output and debug logging |
+| `--eval-mode` | FLAG | False | Record gate failures but continue execution past failed gates. Overall verdict still reflects failures. Use for comprehensive coverage measurement. |
 
 **superclaude release-eval**
 
@@ -681,6 +709,7 @@ superclaude release-eval report <results-dir> [OPTIONS]
 | `--dry-run` | FLAG | False | Print execution plan without running |
 | `--debug` | FLAG | False | Verbose output and debug logging |
 | `--timeout` | INT | 300 | Timeout per individual run in seconds |
+| `--eval-mode` | FLAG | False | Record gate failures but continue execution past failed gates. Overall verdict still reflects failures. Use for comprehensive coverage measurement. |
 
 ### 5.2 Gate Criteria
 

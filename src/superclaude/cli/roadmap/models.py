@@ -42,6 +42,11 @@ class Finding:
     agreement_category: str = ""
     deviation_class: str = "UNCLASSIFIED"
     source_layer: str = "structural"
+    # v3.05 extensions (FR-3, FR-6) — all defaulted for backward compatibility
+    rule_id: str = ""
+    spec_quote: str = ""
+    roadmap_quote: str = ""
+    stable_id: str = ""
 
     def __post_init__(self) -> None:
         if self.status not in VALID_FINDING_STATUSES:

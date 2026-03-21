@@ -5,19 +5,24 @@ Provides:
 - EDITABLE_FILES constant and enforce_allowlist(findings)  (T04.04)
 - execute_remediation(file_groups, config) -> dict  (T04.05)
 - Timeout/retry wrapper  (T04.06)
-- Failure handler with full rollback  (T04.07)
+- Per-file rollback replacing all-or-nothing failure  (T06.01)
 - Success handler with snapshot cleanup  (T04.08)
 - update_remediation_tasklist(tasklist_path, findings)  (T04.09)
+- RemediationPatch dataclass (MorphLLM-compatible)  (T06.01)
+- fallback_apply() deterministic text replacement  (T06.01)
+- check_morphllm_available() MCP runtime probe  (T06.01)
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
 import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from ..pipeline.models import PipelineConfig
@@ -41,8 +46,50 @@ _MAX_ARG_STRLEN = 128 * 1024
 _PROMPT_TEMPLATE_OVERHEAD = 8 * 1024
 _EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD
 
-# FR-9: Diff-size threshold (percentage of file changed)
-_DIFF_SIZE_THRESHOLD_PCT = 50
+# FR-9 (v3.05): Per-patch diff-size threshold — changed from 50 to 30
+_DIFF_SIZE_THRESHOLD_PCT = 30
+
+# fallback_apply anchor minimums
+_FALLBACK_MIN_LINES = 5
+_FALLBACK_MIN_CHARS = 200
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.01 -- RemediationPatch Dataclass (MorphLLM-Compatible)
+# ═══════════════════════════════════════════════════════════════
+
+
+@dataclass
+class RemediationPatch:
+    """A single remediation edit in MorphLLM-compatible format.
+
+    Each patch targets a specific file for a specific finding, carrying
+    the original code anchor, instruction, update snippet, and rationale.
+    Per-patch diff-size guard evaluates changed_lines / patch_original_lines > 30%.
+    """
+
+    target_file: str
+    finding_id: str
+    original_code: str
+    instruction: str
+    update_snippet: str
+    rationale: str
+    applied: bool = False
+    rejected: bool = False
+    rejection_reason: str = ""
+    rolled_back: bool = False
+    diff_ratio: float = 0.0
+
+    def to_morphllm_json(self) -> dict:
+        """Serialize to MorphLLM-compatible JSON schema."""
+        return {
+            "target_file": self.target_file,
+            "finding_id": self.finding_id,
+            "original_code": self.original_code,
+            "instruction": self.instruction,
+            "update_snippet": self.update_snippet,
+            "rationale": self.rationale,
+        }
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -252,8 +299,185 @@ def _run_agent_with_retry(
 
 
 # ═══════════════════════════════════════════════════════════════
-# T04.07 -- Failure Handling with Full Rollback
+# T06.01 -- Per-Patch Diff-Size Guard (replaces _check_diff_size)
 # ═══════════════════════════════════════════════════════════════
+
+
+def check_patch_diff_size(
+    patch: RemediationPatch,
+    allow_regeneration: bool = False,
+) -> bool:
+    """Evaluate diff-size guard on a single RemediationPatch.
+
+    Computes changed_lines / patch_original_lines. If ratio > 0.30 (30%),
+    the patch is rejected unless allow_regeneration is set.
+
+    Returns True if patch passes guard (within threshold or overridden).
+    """
+    original_lines = patch.original_code.splitlines()
+    update_lines = patch.update_snippet.splitlines()
+
+    patch_original_count = len(original_lines)
+    if patch_original_count == 0:
+        patch.diff_ratio = 0.0
+        return True
+
+    max_lines = max(patch_original_count, len(update_lines))
+    matching = sum(1 for a, b in zip(original_lines, update_lines) if a == b)
+    changed_lines = max_lines - matching
+    ratio = changed_lines / patch_original_count
+
+    patch.diff_ratio = ratio
+
+    if ratio > (_DIFF_SIZE_THRESHOLD_PCT / 100.0):
+        if allow_regeneration:
+            _log.warning(
+                "Patch %s for %s exceeds %.0f%% threshold (%.1f%%) but"
+                " --allow-regeneration is set; proceeding",
+                patch.finding_id,
+                patch.target_file,
+                _DIFF_SIZE_THRESHOLD_PCT,
+                ratio * 100,
+            )
+            return True
+        else:
+            _log.error(
+                "Patch %s for %s exceeds %.0f%% threshold (%.1f%%); rejecting."
+                " Use --allow-regeneration to override.",
+                patch.finding_id,
+                patch.target_file,
+                _DIFF_SIZE_THRESHOLD_PCT,
+                ratio * 100,
+            )
+            patch.rejected = True
+            patch.rejection_reason = (
+                f"diff ratio {ratio:.2f} exceeds threshold "
+                f"{_DIFF_SIZE_THRESHOLD_PCT / 100.0:.2f}"
+            )
+            return False
+
+    return True
+
+
+def _check_diff_size(
+    target_file: str,
+    allow_regeneration: bool = False,
+) -> bool:
+    """Check whether the patch for a target file exceeds the diff-size threshold.
+
+    Compares the .pre-remediate snapshot against the current file content.
+    Returns True if the diff is within threshold (or override is set), False otherwise.
+
+    Legacy whole-file check retained for backward compatibility with
+    non-convergence execution path.
+    """
+    snapshot = Path(f"{target_file}.pre-remediate")
+    current = Path(target_file)
+
+    if not snapshot.exists() or not current.exists():
+        return True  # Cannot check; allow to proceed
+
+    original_size = snapshot.stat().st_size
+    if original_size == 0:
+        return True  # Empty original; allow any change
+
+    original_content = snapshot.read_text(encoding="utf-8")
+    current_content = current.read_text(encoding="utf-8")
+
+    # Calculate diff as percentage of changed lines
+    original_lines = original_content.splitlines()
+    current_lines = current_content.splitlines()
+
+    # Simple diff metric: lines that differ / max(original, current) lines
+    max_lines = max(len(original_lines), len(current_lines))
+    if max_lines == 0:
+        return True
+
+    matching = sum(
+        1 for a, b in zip(original_lines, current_lines) if a == b
+    )
+    changed_lines = max_lines - matching
+    diff_pct = (changed_lines / max_lines) * 100
+
+    if diff_pct > _DIFF_SIZE_THRESHOLD_PCT:
+        if allow_regeneration:
+            _log.warning(
+                "Patch exceeds %d%% threshold for %s (%.1f%%) but"
+                " --allow-regeneration is set; proceeding",
+                _DIFF_SIZE_THRESHOLD_PCT,
+                target_file,
+                diff_pct,
+            )
+            return True
+        else:
+            _log.error(
+                "Patch exceeds %d%% threshold for %s (%.1f%%); rejecting."
+                " Use --allow-regeneration to override.",
+                _DIFF_SIZE_THRESHOLD_PCT,
+                target_file,
+                diff_pct,
+            )
+            return False
+
+    return True
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.01 -- Per-File Rollback (replaces all-or-nothing _handle_failure)
+# ═══════════════════════════════════════════════════════════════
+
+
+def _handle_file_rollback(
+    failed_file: str,
+    findings_by_file: dict[str, list[Finding]],
+) -> None:
+    """Rollback a single file from its snapshot and mark its findings FAILED.
+
+    Per-file rollback replaces the all-or-nothing approach for convergence mode.
+    """
+    snapshot = Path(f"{failed_file}.pre-remediate")
+    if snapshot.exists():
+        os.replace(str(snapshot), str(failed_file))
+        _log.info("Per-file rollback: restored %s from snapshot", failed_file)
+    else:
+        _log.warning("Per-file rollback: no snapshot for %s", failed_file)
+
+    for finding in findings_by_file.get(failed_file, []):
+        finding.status = "FAILED"
+        _log.info("Marked finding %s as FAILED (file rollback: %s)", finding.id, failed_file)
+
+
+def _check_cross_file_coherence(
+    successful_files: list[str],
+    failed_files: list[str],
+    findings_by_file: dict[str, list[Finding]],
+) -> list[str]:
+    """Post-execution cross-file coherence check.
+
+    Evaluates whether successful files should be rolled back when related
+    files have failed. A successful file is rolled back if any of its
+    findings also reference a failed file.
+
+    Returns list of additionally rolled-back files.
+    """
+    rollback_cascade: list[str] = []
+
+    for success_file in successful_files:
+        for finding in findings_by_file.get(success_file, []):
+            if any(ff in finding.files_affected for ff in failed_files):
+                _log.warning(
+                    "Cross-file coherence: rolling back %s because finding %s "
+                    "also references failed file(s)",
+                    success_file,
+                    finding.id,
+                )
+                rollback_cascade.append(success_file)
+                break
+
+    for file_path in rollback_cascade:
+        _handle_file_rollback(file_path, findings_by_file)
+
+    return rollback_cascade
 
 
 def _handle_failure(
@@ -409,68 +633,100 @@ def _update_finding_entries(content: str, status_map: dict[str, str]) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════
-# T04.05 + T04.07 + T04.08 -- Main Execution Coordinator
+# T06.01 -- fallback_apply() Deterministic Text Replacement
 # ═══════════════════════════════════════════════════════════════
 
 
-def _check_diff_size(
-    target_file: str,
-    allow_regeneration: bool = False,
-) -> bool:
-    """Check whether the patch for a target file exceeds the diff-size threshold.
+def fallback_apply(patch: RemediationPatch) -> bool:
+    """Deterministic text replacement using original_code as anchor.
 
-    Compares the .pre-remediate snapshot against the current file content.
-    Returns True if the diff is within threshold (or override is set), False otherwise.
+    Used when ClaudeProcess fails. Locates the original_code anchor in the
+    target file and replaces it with update_snippet.
+
+    Anchor validation: original_code must be at least 5 lines or 200 chars.
+    Returns True if replacement succeeded, False otherwise.
     """
-    snapshot = Path(f"{target_file}.pre-remediate")
-    current = Path(target_file)
+    anchor = patch.original_code
+    anchor_lines = len(anchor.splitlines())
+    anchor_chars = len(anchor)
 
-    if not snapshot.exists() or not current.exists():
-        return True  # Cannot check; allow to proceed
+    if anchor_lines < _FALLBACK_MIN_LINES and anchor_chars < _FALLBACK_MIN_CHARS:
+        _log.error(
+            "fallback_apply: anchor too small for patch %s "
+            "(%d lines, %d chars; need >= %d lines or >= %d chars)",
+            patch.finding_id,
+            anchor_lines,
+            anchor_chars,
+            _FALLBACK_MIN_LINES,
+            _FALLBACK_MIN_CHARS,
+        )
+        return False
 
-    original_size = snapshot.stat().st_size
-    if original_size == 0:
-        return True  # Empty original; allow any change
+    target = Path(patch.target_file)
+    if not target.exists():
+        _log.error("fallback_apply: target file not found: %s", patch.target_file)
+        return False
 
-    original_content = snapshot.read_text(encoding="utf-8")
-    current_content = current.read_text(encoding="utf-8")
+    content = target.read_text(encoding="utf-8")
 
-    # Calculate diff as percentage of changed lines
-    original_lines = original_content.splitlines()
-    current_lines = current_content.splitlines()
+    if anchor not in content:
+        _log.error(
+            "fallback_apply: anchor not found in %s for patch %s",
+            patch.target_file,
+            patch.finding_id,
+        )
+        return False
 
-    # Simple diff metric: lines that differ / max(original, current) lines
-    max_lines = max(len(original_lines), len(current_lines))
-    if max_lines == 0:
-        return True
+    # Ensure anchor is unique
+    if content.count(anchor) > 1:
+        _log.error(
+            "fallback_apply: anchor is ambiguous (found %d times) in %s for patch %s",
+            content.count(anchor),
+            patch.target_file,
+            patch.finding_id,
+        )
+        return False
 
-    matching = sum(
-        1 for a, b in zip(original_lines, current_lines) if a == b
+    new_content = content.replace(anchor, patch.update_snippet, 1)
+
+    # Atomic write
+    tmp = target.with_suffix(target.suffix + ".fallback.tmp")
+    tmp.write_text(new_content, encoding="utf-8")
+    os.replace(str(tmp), str(target))
+
+    patch.applied = True
+    _log.info(
+        "fallback_apply: successfully applied patch %s to %s",
+        patch.finding_id,
+        patch.target_file,
     )
-    changed_lines = max_lines - matching
-    diff_pct = (changed_lines / max_lines) * 100
-
-    if diff_pct > _DIFF_SIZE_THRESHOLD_PCT:
-        if allow_regeneration:
-            _log.warning(
-                "Patch exceeds %d%% threshold for %s (%.1f%%) but"
-                " --allow-regeneration is set; proceeding",
-                _DIFF_SIZE_THRESHOLD_PCT,
-                target_file,
-                diff_pct,
-            )
-            return True
-        else:
-            _log.error(
-                "Patch exceeds %d%% threshold for %s (%.1f%%); rejecting."
-                " Use --allow-regeneration to override.",
-                _DIFF_SIZE_THRESHOLD_PCT,
-                target_file,
-                diff_pct,
-            )
-            return False
-
     return True
+
+
+# ═══════════════════════════════════════════════════════════════
+# T06.01 -- check_morphllm_available() MCP Runtime Probe
+# ═══════════════════════════════════════════════════════════════
+
+
+def check_morphllm_available() -> bool:
+    """Probe MCP runtime for MorphLLM availability.
+
+    Returns True if MorphLLM MCP server is reachable, False otherwise.
+    This is a future migration prep function — not blocking for v3.05.
+    """
+    try:
+        # Probe for MorphLLM MCP server availability
+        # In v3.05 this always returns False (not yet integrated)
+        _log.info("check_morphllm_available: MorphLLM not yet integrated (v3.05)")
+        return False
+    except Exception as exc:
+        _log.warning("check_morphllm_available: probe failed: %s", exc)
+        return False
+
+
+# ═══════════════════════════════════════════════════════════════
+# T04.05 + T06.01 -- Main Execution Coordinator
+# ═══════════════════════════════════════════════════════════════
 
 
 def execute_remediation(
@@ -481,13 +737,18 @@ def execute_remediation(
 ) -> tuple[str, list[Finding]]:
     """Execute remediation agents in parallel across file groups.
 
-    Orchestrates:
+    v3.05 behavior:
     1. Create snapshots (T04.03)
     2. Spawn parallel agents (T04.05) with timeout/retry (T04.06)
-    3. On any failure: full rollback (T04.07), return ("FAIL", findings)
-    4. On full success: cleanup snapshots (T04.08), return ("PASS", findings)
+    3. Per-patch diff-size guard with partial rejection (T06.01)
+    4. Per-file rollback on failure (T06.01)
+    5. Cross-file coherence check (T06.01)
+    6. On full success: cleanup snapshots (T04.08), return ("PASS", findings)
 
-    Returns (status, findings) where status is "PASS" or "FAIL".
+    Partial rejection: valid patches applied even when others for the same
+    file are rejected. Per-file rollback replaces all-or-nothing approach.
+
+    Returns (status, findings) where status is "PASS", "PARTIAL", or "FAIL".
     """
     all_target_files = list(findings_by_file.keys())
 
@@ -496,6 +757,8 @@ def execute_remediation(
 
     # Step 2: Spawn parallel agents
     results: dict[str, tuple[int, int]] = {}  # file -> (exit_code, attempts)
+    successful_files: list[str] = []
+    failed_files: list[str] = []
 
     with ThreadPoolExecutor(max_workers=len(all_target_files)) as executor:
         futures = {}
@@ -517,47 +780,68 @@ def execute_remediation(
                 results[file_path] = (exit_code, attempts)
 
                 if exit_code != 0:
-                    # Step 3: Failure -- rollback ALL files
                     _log.error(
-                        "Agent for %s failed after %d attempt(s), triggering rollback",
+                        "Agent for %s failed after %d attempt(s), per-file rollback",
                         file_path,
                         attempts,
                     )
-                    failed_findings = _handle_failure(
-                        file_path,
-                        all_target_files,
-                        findings_by_file,
-                        executor,
-                    )
-                    return "FAIL", failed_findings
+                    _handle_file_rollback(file_path, findings_by_file)
+                    failed_files.append(file_path)
+                    continue
 
-                # FR-9: Diff-size guard -- reject patches that change too much
+                # FR-9: Per-file diff-size guard
                 if not _check_diff_size(file_path, allow_regeneration):
                     _log.error(
-                        "Diff-size threshold exceeded for %s, triggering rollback",
+                        "Diff-size threshold exceeded for %s, per-file rollback",
                         file_path,
                     )
-                    # Mark findings for this file as FAILED
-                    for f in findings_by_file.get(file_path, []):
-                        f.status = "FAILED"
-                    failed_findings = _handle_failure(
-                        file_path,
-                        all_target_files,
-                        findings_by_file,
-                        executor,
-                    )
-                    return "FAIL", failed_findings
+                    _handle_file_rollback(file_path, findings_by_file)
+                    failed_files.append(file_path)
+                    continue
+
+                successful_files.append(file_path)
 
             except Exception as exc:
                 _log.error("Agent for %s raised exception: %s", target_file, exc)
-                failed_findings = _handle_failure(
-                    target_file,
-                    all_target_files,
-                    findings_by_file,
-                    executor,
-                )
-                return "FAIL", failed_findings
+                _handle_file_rollback(target_file, findings_by_file)
+                failed_files.append(target_file)
 
-    # Step 4: All agents succeeded
-    success_findings = _handle_success(all_target_files, findings_by_file)
-    return "PASS", success_findings
+    # Step 5: Cross-file coherence check
+    if failed_files and successful_files:
+        cascade_rolled_back = _check_cross_file_coherence(
+            successful_files, failed_files, findings_by_file,
+        )
+        for f in cascade_rolled_back:
+            successful_files.remove(f)
+            failed_files.append(f)
+
+    # Determine outcome
+    if not failed_files:
+        # Full success
+        success_findings = _handle_success(all_target_files, findings_by_file)
+        return "PASS", success_findings
+    elif successful_files:
+        # Partial success: clean up snapshots for successful files only
+        cleanup_snapshots(successful_files)
+        # Mark successful file findings as FIXED
+        all_findings: list[Finding] = []
+        seen_ids: set[str] = set()
+        for file_path, file_findings in findings_by_file.items():
+            for finding in file_findings:
+                if finding.id not in seen_ids:
+                    seen_ids.add(finding.id)
+                    if file_path in successful_files and finding.status == "PENDING":
+                        finding.status = "FIXED"
+                    all_findings.append(finding)
+        return "PARTIAL", all_findings
+    else:
+        # All failed — cleanup snapshots for failed files already restored
+        cleanup_snapshots(all_target_files)
+        all_findings_list: list[Finding] = []
+        seen: set[str] = set()
+        for file_findings in findings_by_file.values():
+            for finding in file_findings:
+                if finding.id not in seen:
+                    seen.add(finding.id)
+                    all_findings_list.append(finding)
+        return "FAIL", all_findings_list

@@ -4,557 +4,505 @@ complexity_score: 0.5
 primary_persona: analyzer
 ---
 
-# Project Roadmap: v2.25.1 Release Fixes
+# 1. Executive Summary
 
-## 1. Executive summary
+This roadmap delivers two tightly scoped fixes to the CLI pipeline with a risk-first execution order:
 
-This roadmap covers a moderate-complexity release with two tightly scoped implementation tracks:
+1. **Restore tool schema availability in subprocess invocations** by adding `--tools default` in `ClaudeProcess.build_command()` per **FR-001.1** and **FR-001.2**.
+2. **Eliminate Linux argument-length failures** by replacing the current hardcoded embed limit with a kernel-aligned derived limit and guarding the full composed `-p` argument per **FR-ATL.1** and **FR-ATL.2**.
 
-1. **Tool schema discovery fix**
-   - Add `--tools default` to `ClaudeProcess.build_command()`.
-   - Preserve all existing command assembly behavior.
-   - Update and extend pipeline tests.
+The critical analyzer conclusion is that **FR-ATL.5 / FR-ATL.5-IMPLICIT** is the primary gating decision. The empirical `--file` validation determines whether the current fallback path is trustworthy or whether Phase 1.5 remediation must activate. That gate should run first because it changes downstream implementation scope, validation strategy, and release risk.
 
-2. **ARG_MAX / embed-size guard fix**
-   - Replace the hardcoded 200 KB embed limit with explicit kernel-derived constants.
-   - Measure the full composed prompt payload, not embedded content alone.
-   - Add regression coverage for exact-limit and composed-string overflow behavior.
+The roadmap prioritizes:
 
-### Analyzer assessment
+- Early elimination of the highest-uncertainty path
+- Minimal edit surface
+- Strict adherence to architectural constraints
+- Regression containment through focused tests first, then targeted broader validation
 
-- **Primary delivery risk** is not coding complexity; it is **incorrect assumptions about CLI behavior**, especially the Phase 0 `--file` gate.
-- **Primary sequencing constraint** is that **Phase 0 must complete before code changes are finalized**, and `process.py` must be updated before combined suite runs.
-- **Primary validation focus** should be:
-  1. proving `--file` behavior empirically,
-  2. proving command list invariants did not regress,
-  3. proving large-input fallback behavior works at the real composed-string boundary.
+## Delivery Objectives
 
-### Scope summary
-
-- **18 total requirements**
-  - 12 functional
-  - 6 non-functional
-- **4 technical domains**
-  - CLI process construction
-  - roadmap executor behavior
-  - test coverage
-  - release validation
-- **8 identified risks**
-- **7 dependencies**
-- **14 success criteria**
-
-### Recommended delivery posture
-
-- Treat this as a **gated corrective release**, not a refactor.
-- Keep changes **surgical, local, and additive**.
-- Use **evidence checkpoints** between phases; do not batch all edits before validation.
+1. Satisfy all 15 extracted requirements without scope expansion.
+2. Preserve backward compatibility and avoid new imports per **NFR-001.2** and **NFR-ATL.1**.
+3. Convert the current failure mode from crash to deterministic fallback per **NFR-ATL.2**.
+4. Produce third-party verifiable evidence for the blocking `--file` behavior decision.
 
 ---
 
-## 2. Phased implementation plan with milestones
+# 2. Phased Implementation Plan with Milestones
 
-## Phase 0 — Blocking empirical validation
+## Phase 0 — Blocking Validation Gate: `--file` Empirical Behavior
+**Purpose:** Resolve the highest-risk uncertainty before code changes.
 
-### Objective
-Determine whether the current `claude --file` fallback path is valid before implementation proceeds.
+### Scope
+- **FR-ATL.5a**
+- **FR-ATL.5-IMPLICIT**
 
 ### Actions
-1. Execute the required validation command sequence:
-   - `echo "The secret answer is PINEAPPLE." > /tmp/file-test.md`
-   - `claude --print -p "What is the secret answer?" --file /tmp/file-test.md`
-2. Record outcome as one of:
-   - **WORKING**: response includes `PINEAPPLE`
-   - **BROKEN**: response does not include `PINEAPPLE`
-3. Inspect `claude --help` for `--file` format expectations.
-4. Capture the decision in release notes / generated artifact for traceability.
-
-### Deliverables
-- A recorded Phase 0 result.
-- A go/no-go decision for Phase 1.5 contingency scope.
+1. Verify CLI prerequisite:
+   - Run `claude --print -p "hello" --max-turns 1`
+   - Confirm exit code 0 and usable authenticated environment.
+2. Run timestamped sentinel validation:
+   - Use a unique `PINEAPPLE`-style sentinel in a test file.
+   - Execute bare-path `--file` invocation exactly in the mode relevant to the pipeline.
+3. Record result as one of:
+   - `WORKING`
+   - `BROKEN`
+   - `CLI FAILURE`
+4. Capture evidence:
+   - Command used
+   - Output observed
+   - Exit code
+   - Timestamp
+   - Minimal interpretation
 
 ### Milestone M0
-**CLI fallback behavior verified and documented.**
+- Blocking gate resolved.
+- One of two downstream paths selected:
+  - **Path A:** `WORKING` → Phase 1.5 marked N/A
+  - **Path B:** `BROKEN` → Phase 1.5 activates
 
-### Exit criteria
-- Phase 0 result is recorded before code-change completion.
-- Team knows whether Phase 1.5 is activated.
+### Analyzer Priority
+This phase is mandatory because it collapses the largest ambiguity in the release. Without it, later test passes could give false confidence while the oversized-input fallback remains non-functional.
 
-### Analyzer emphasis
-This is the highest-risk uncertainty in the release. Do not treat it as optional or informal validation.
+### Timeline Estimate
+- **0.5 day**
 
 ---
 
-## Phase 1 — Tool schema discovery fix
+## Phase 1 — Command Construction Fix: Add `--tools default`
+**Purpose:** Restore subprocess tool schema discovery with minimal blast radius.
 
-### Objective
-Ensure all `ClaudeProcess`-based subprocess invocations include `--tools default` without breaking existing flag behavior.
+### Scope
+- **FR-001.1**
+- **FR-001.2**
 
 ### Actions
-1. Inspect `ClaudeProcess.build_command()` and all subclasses for override behavior.
-2. Confirm no subclass bypasses `super()` in a way that would drop the new flags.
-3. Modify `src/superclaude/cli/pipeline/process.py` so returned command list includes:
-   - `--tools`
-   - `default`
-4. Preserve placement:
-   - after `--no-session-persistence`
-   - before `--max-turns`
-5. Preserve:
-   - `--print`
-   - `--verbose`
-   - `--no-session-persistence`
-   - `--max-turns`
-   - `--output-format`
-   - `-p`
-6. Preserve `extra_args` passthrough ordering after `--model`.
-7. Preserve conditional `--model` behavior.
-
-### Deliverables
-- Updated `ClaudeProcess.build_command()`
-- No changes to subclasses unless override verification disproves assumptions
+1. Update `ClaudeProcess.build_command()` in the single permitted edit point:
+   - Insert `--tools`, `default`
+   - Preserve placement between `--no-session-persistence` and `--max-turns`
+2. Confirm no change to:
+   - Existing required flags
+   - `extra_args` passthrough
+   - Conditional `--model` behavior
+3. Read subclass files before finalizing to confirm inheritance assumptions remain valid.
 
 ### Milestone M1
-**All inherited process-based commands include `--tools default` with no assembly regressions.**
+- `build_command()` emits `--tools default` in the required position.
+- Existing command structure remains intact.
 
-### Exit criteria
-- Command structure satisfies FR-001 through FR-004.
-- Subclass review confirms architectural constraint holds.
+### Analyzer Priority
+This is a low-surface, high-leverage fix. It should land early because it directly addresses Phase 2 sprint failures and reduces ambiguity in later integrated validation.
 
-### Analyzer emphasis
-This phase is low implementation risk but medium regression risk because list-order assertions are brittle.
+### Timeline Estimate
+- **0.5 day**
 
 ---
 
-## Phase 1.5 — Conditional fallback remediation
+## Phase 1.5 — Conditional Fallback Remediation
+**Purpose:** Activate only if Phase 0 proves bare-path `--file` delivery is broken.
 
-### Trigger
-Activate **only if Phase 0 result is BROKEN**.
+### Scope
+- **FR-ATL.5b**
 
-### Objective
-Replace broken `--file`-based fallback paths with inline embedding or equivalent safe path across affected executors.
+### Conditional Trigger
+- Only execute if Phase 0 result is `BROKEN`.
 
 ### Actions
-1. Assess affected files:
-   - `src/superclaude/cli/roadmap/remediate_executor.py`
-   - `src/superclaude/cli/roadmap/executor.py`
-   - `src/superclaude/cli/roadmap/validate_executor.py`
-   - `src/superclaude/cli/tasklist/executor.py`
-2. Replace broken `--file` fallback behavior with inline embedding logic consistent with release spec.
-3. Reassess whether these independent executors also need `--tools default`.
-4. Add or update tests for fallback replacement behavior.
-5. Validate that large-input workflows still complete without returning to the broken path.
-
-### Deliverables
-- Updated non-inheriting executors, if required
-- Conditional tests covering inline replacement
+1. Fix `remediate_executor.py:177` to use inline embedding instead of broken `--file` behavior.
+2. Fix fallback paths in:
+   - `executor.py`
+   - `validate_executor.py`
+   - `tasklist/executor.py`
+3. Preserve scope boundary:
+   - Do not generalize beyond the explicitly identified files.
+4. Re-run targeted validation on oversized-input paths after remediation.
 
 ### Milestone M1.5
-**Fallback path no longer depends on a broken CLI mechanism.**
+- All affected fallback paths no longer depend on broken `--file` behavior.
+- Conditional branch closed with deterministic behavior.
 
-### Exit criteria
-- BROKEN outcome has a forward-path remediation in all relevant executors.
-- Conditional success criteria SC-011 are met.
+### Analyzer Priority
+This phase exists to prevent silent context loss. If `--file` is broken, the current oversized-input path may appear successful while actually depriving the model of source content.
 
-### Analyzer emphasis
-If Phase 0 is BROKEN, this phase becomes risk-critical because prior assumptions about large-file handling are invalid.
+### Timeline Estimate
+- **0.5–1.0 day** if activated
+- **0 days** if Phase 0 result is `WORKING`
 
 ---
 
-## Phase 2 — Embed guard correction
+## Phase 2 — Argument-Length Guard Refactor
+**Purpose:** Align embed sizing with Linux command-line constraints and guard the actual composed prompt.
 
-### Objective
-Align executor guard logic with Linux `MAX_ARG_STRLEN` constraints and actual composed prompt size.
+### Scope
+- **FR-ATL.1**
+- **FR-ATL.2**
 
 ### Actions
-1. Update `src/superclaude/cli/roadmap/executor.py` constants:
-   - `_MAX_ARG_STRLEN = 128 * 1024`
-   - `_PROMPT_TEMPLATE_OVERHEAD = 8 * 1024`
-   - `_EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD`
-2. Add inline derivation comments for each constant.
-3. Add module-level assertion:
-   - `_PROMPT_TEMPLATE_OVERHEAD >= 4096`
-   - with required rationale in error message
-4. Remove stale comments and avoid adding imports.
-5. Update embed guard to evaluate:
-   - `len(composed.encode("utf-8")) <= _EMBED_SIZE_LIMIT`
-   - where `composed = step.prompt + "\n\n" + embedded`
-6. Update warning log text to mention:
-   - `composed prompt`
-   - actual byte count
-7. Add or revise nearby code comment clarifying:
-   - `<=` is intentional
-   - `120 KB` remains below `128 KB`
-
-### Deliverables
-- Corrected constants
-- Runtime assertion
-- Correct guard behavior
-- Updated log messaging
+1. Replace hardcoded embed limit with module-level constants:
+   - `_MAX_ARG_STRLEN`
+   - `_PROMPT_TEMPLATE_OVERHEAD`
+   - `_EMBED_SIZE_LIMIT`
+2. Set `_EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD`.
+3. Add required module-level assertion immediately after constant definitions:
+   - Enforce `_PROMPT_TEMPLATE_OVERHEAD >= 4096`
+   - Include kernel margin rationale and measured template peak
+4. Remove dead code:
+   - No `import resource`
+   - Remove stale `# 100 KB` comment
+5. Update guard logic to measure the actual composed `-p` argument:
+   - `step.prompt + "\n\n" + embedded`
+6. Ensure:
+   - Warning log references “composed prompt”
+   - Boundary behavior uses `<=`
+   - Adjacent comment explains why `<=` is intentional
 
 ### Milestone M2
-**Embed/fallback decision is based on actual composed argument size and auditable OS-limit constants.**
+- Embed guard reflects actual Linux argument constraint.
+- Crash path becomes deterministic fallback path.
+- Self-documenting constants replace magic numbers.
 
-### Exit criteria
-- FR-007 through FR-009 satisfied
-- No hardcoded 200 KB value remains
-- No new imports added
+### Analyzer Priority
+This phase addresses a correctness defect with direct operational failure impact. The main concern is not code complexity but boundary correctness and faithful modeling of OS constraints.
 
-### Analyzer emphasis
-This phase addresses the root cause of the `Argument list too long` failure mode. It is the core correctness fix in the release.
+### Timeline Estimate
+- **1.0 day**
 
 ---
 
-## Phase 3 — Test suite alignment and regression coverage
+## Phase 3 — Targeted Regression and Boundary Tests
+**Purpose:** Lock fixes in with focused tests before broader execution.
 
-### Objective
-Bring test coverage in line with new command assembly and embed-guard semantics.
+### Scope
+- **FR-001.3**
+- **FR-ATL.3**
+- **FR-ATL.4**
 
 ### Actions
-1. Update `tests/pipeline/test_process.py`:
-   - add `test_tools_default_in_command`
-   - update `test_required_flags`
-   - update `test_stream_json_matches_sprint_flags`
-2. Update roadmap file-passing tests:
-   - rename `test_100kb_guard_fallback` to `test_embed_size_guard_fallback`
-   - update docstring references
-   - import `_EMBED_SIZE_LIMIT`
-3. Add `TestComposedStringGuard`:
-   - file at 90% of `_EMBED_SIZE_LIMIT`
-   - prompt large enough to exceed composed limit
-   - assert fallback fired
-   - assert file content absent from prompt
-   - assert `--file` flags present in `extra_args` if Phase 0 says WORKING
-   - if Phase 1.5 activated, adapt expected behavior to inline remediation path
-4. Verify exact-limit behavior:
-   - composed length equal to `_EMBED_SIZE_LIMIT` should still embed inline
-5. Run targeted tests first, then broader grouped suite.
-
-### Deliverables
-- Updated unit and integration-level regression coverage
-- Tests coupled to constants, not stale size literals
+1. Add and update command tests:
+   - New `test_tools_default_in_command`
+   - Update `test_required_flags`
+   - Update `test_stream_json_matches_sprint_flags`
+2. Rename misleading test:
+   - `test_100kb_guard_fallback` → `test_embed_size_guard_fallback`
+3. Update test docstrings/comments to reference `_EMBED_SIZE_LIMIT`
+4. Add composed-string overflow test:
+   - Embedded content at ~90% of `_EMBED_SIZE_LIMIT`
+   - Prompt large enough to exceed combined limit
+   - Assert fallback behavior and `--file` extra args presence where applicable
+5. Validate exact-boundary behavior:
+   - At-limit composed input uses inline embedding, not fallback
 
 ### Milestone M3
-**Regression suite encodes the new invariants and catches future drift.**
+- New regression tests pass.
+- Boundary behavior is explicitly covered.
+- Naming and documentation align with implementation reality.
 
-### Exit criteria
-- SC-003, SC-008, SC-009 satisfied
-- Conditional tests aligned to Phase 0 outcome
+### Analyzer Priority
+Targeted tests are critical because these defects are easy to reintroduce via “small cleanup” edits. The roadmap emphasizes precise regression coverage rather than broad but shallow test expansion.
 
-### Analyzer emphasis
-Tests are not just validation; they are the durable control that prevents reintroduction of both bugs.
+### Timeline Estimate
+- **1.0 day**
 
 ---
 
-## Phase 4 — End-to-end validation and release readiness
+## Phase 4 — Integrated Validation and Release Readiness
+**Purpose:** Verify no regressions across affected pipeline surfaces.
 
-### Objective
-Confirm release-level behavior across affected flows before finalizing.
+### Scope
+- **NFR-001.1**
+- **NFR-001.2**
+- **NFR-ATL.1**
+- **NFR-ATL.2**
+- **NFR-ATL.3**
+- **NFR-ATL.4**
 
 ### Actions
-1. Run targeted suites:
+1. Run targeted suites first:
    - `uv run pytest tests/pipeline/test_process.py -v`
-   - `uv run pytest tests/sprint/ tests/roadmap/ tests/pipeline/ -v`
-2. Run smoke validation:
-   - `superclaude sprint run ... --dry-run`
-3. Validate large-spec behavior:
-   - confirm `spec-fidelity` step does not fail with `OSError: [Errno 7] Argument list too long`
-4. Confirm no added dependencies, no unexpected file changes, and no non-specified behavior drift.
-5. Record validation outcomes against the 14 success criteria.
-
-### Deliverables
-- Test evidence
-- Smoke-test evidence
-- Release validation checklist
+   - Relevant roadmap and sprint tests
+2. Run broader affected suite:
+   - `uv run pytest tests/pipeline/ tests/roadmap/ tests/sprint/ -v`
+3. Run full suite if targeted validations are clean:
+   - `uv run pytest`
+4. Verify no new imports in changed files.
+5. Review changed files for:
+   - Zero magic numbers in guard logic
+   - Required inline comments
+   - Correct flag ordering
+6. Compare subprocess startup timing with and without `--tools default` for **NFR-001.1**.
 
 ### Milestone M4
-**Release candidate validated against functional, non-functional, and operational success criteria.**
+- All acceptance criteria and non-functional checks validated.
+- Release is ready for completion signoff.
 
-### Exit criteria
-- All required tests pass
-- Dry-run succeeds
-- Large-spec scenario succeeds
-- Success criteria checklist complete
+### Analyzer Priority
+The key here is sequencing: targeted tests should fail fast on localized issues before broader suite execution consumes more time and obscures diagnosis.
 
-### Analyzer emphasis
-The release should not ship based only on unit coverage; the CLI smoke test and large-input path are required evidence.
+### Timeline Estimate
+- **0.5–1.0 day**
 
 ---
 
-## 3. Risk assessment and mitigation strategies
+# 3. Risk Assessment and Mitigation Strategies
 
-## High-priority risks
+## High-Priority Risks
 
-### 1. Broken `--file` fallback path
-- **Risk**: CLI may ignore bare-path `--file`, invalidating existing fallback logic.
-- **Severity**: High
-- **Mitigation**:
-  1. Make Phase 0 mandatory.
-  2. Inspect `claude --help` before deciding remediation.
-  3. If BROKEN, activate Phase 1.5 immediately.
-- **Contingency**:
-  - Replace broken fallback path across all affected executors in the same release cycle.
+### 1. `--file` fallback is broken
+- **Mapped requirements:** **FR-ATL.5**, **FR-ATL.5a**, **FR-ATL.5b**, **FR-ATL.5-IMPLICIT**
+- **Impact:** High
+- **Likelihood:** Highest identified in extraction
+- **Mitigation:**
+  1. Run Phase 0 first.
+  2. Treat result as release-gating evidence.
+  3. If `BROKEN`, activate Phase 1.5 immediately.
+- **Residual concern:** Prior fallback behavior may have produced misleadingly “successful” but context-incomplete runs.
 
-### 2. Large-input guard still underestimates real arg length
-- **Risk**: Measuring only embedded content can still overflow `execve()` limits.
-- **Severity**: High
-- **Mitigation**:
-  1. Measure `step.prompt + "\n\n" + embedded`
-  2. Add exact-limit and overflow tests
-  3. Keep explicit overhead margin and runtime assertion
-- **Contingency**:
-  - If residual failures appear, tighten overhead constant and re-run boundary tests.
+### 2. Flag-position tests fail after `--tools default` insertion
+- **Mapped requirements:** **FR-001.1**, **FR-001.3**
+- **Impact:** Low
+- **Likelihood:** Moderate during implementation
+- **Mitigation:**
+  1. Update targeted tests in the same change set as the command fix.
+  2. Preserve exact placement between session-control flags.
 
-## Medium-priority risks
+### 3. Embed guard still models the wrong payload size
+- **Mapped requirements:** **FR-ATL.2**
+- **Impact:** High
+- **Likelihood:** Moderate if only `embedded` is measured
+- **Mitigation:**
+  1. Guard the full composed prompt only.
+  2. Add explicit boundary and overflow tests.
+  3. Confirm warning log language matches behavior.
 
-### 3. Independent executors diverge from inherited process fix
-- **Risk**: Non-`ClaudeProcess` executors may still miss `--tools default`.
-- **Severity**: Medium
-- **Mitigation**:
-  1. Review all independent command builders during Phase 1.5 assessment
-  2. Patch in same release if they are in active path
-- **Contingency**:
-  - Add follow-up hardening task if not required for v2.25.1 scope.
+## Medium-Priority Risks
 
-### 4. Future prompt-template growth erodes safe embed margin
-- **Risk**: 8 KB overhead becomes insufficient over time.
-- **Severity**: Medium
-- **Mitigation**:
-  1. Use named constants with derivation comments
-  2. Maintain import-time assertion
-  3. Keep tests based on composed-size behavior, not assumptions
-- **Contingency**:
-  - Revise overhead constant in a future maintenance release if prompt templates expand.
+### 4. Subclass behavior bypasses base-class fix
+- **Mapped requirements:** **FR-001.2**
+- **Impact:** Low
+- **Likelihood:** Low
+- **Mitigation:**
+  1. Confirm inheritance chain before merge.
+  2. Do not duplicate fix at call sites.
 
-### 5. Cross-platform command-line limits differ
-- **Risk**: Windows constraints may behave differently than Linux assumptions.
-- **Severity**: Medium
-- **Mitigation**:
-  1. Keep release explicitly Linux-first
-  2. Avoid unnecessary command bloat
-  3. Document platform boundary if needed
-- **Contingency**:
-  - Open separate platform-compatibility task rather than expanding this release.
+### 5. Overhead constant becomes stale over time
+- **Mapped requirements:** **FR-ATL.1**, **NFR-ATL.4**
+- **Impact:** Medium
+- **Likelihood:** Low
+- **Mitigation:**
+  1. Encode rationale in inline comments.
+  2. Enforce assertion with measured-peak rationale.
+  3. Keep constant centrally defined for future adjustment.
 
-## Low-priority risks
+### 6. Non-inheriting executors also need `--tools default`
+- **Mapped concern:** OQ-4
+- **Impact:** Medium
+- **Likelihood:** Unknown
+- **Mitigation:**
+  1. Assess after Phase 0.
+  2. Do not widen scope unless empirical evidence justifies it.
 
-### 6. Index-sensitive tests fail after flag insertion
-- **Risk**: Existing assertions may assume old flag offsets.
-- **Severity**: Low
-- **Mitigation**:
-  1. Update tests in the same work stream as command change
-  2. Prefer presence/adjacency assertions over brittle index assumptions
+## Low-Priority but Tracked Risks
 
-### 7. Unexpected model behavior from enabling default tools
-- **Risk**: Subprocess behavior changes subtly.
-- **Severity**: Low
-- **Mitigation**:
-  1. Keep default toolset aligned with interactive baseline
-  2. Use smoke tests to detect behavioral regressions
+### 7. Performance regression from `--tools default`
+- **Mapped requirements:** **NFR-001.1**
+- **Mitigation:** Lightweight timing comparison during Phase 4.
 
-### 8. Unnecessary fallback for near-limit inputs
-- **Risk**: Conservative overhead may trigger fallback earlier than needed.
-- **Severity**: Low
-- **Mitigation**:
-  1. Accept conservative behavior as functionally correct
-  2. Prioritize correctness over maximizing inline size
+### 8. Linux-first fix leaves Windows limitation unresolved
+- **Mapped constraint:** Out of scope
+- **Mitigation:** Record explicitly as deferred; do not dilute current release scope.
 
 ---
 
-## 4. Resource requirements and dependencies
+# 4. Resource Requirements and Dependencies
 
-## Engineering resources
+## Engineering Resources
 
-1. **Primary implementation owner**
-   - Python CLI engineer familiar with command assembly and roadmap executor flow
-
+1. **Primary implementer**
+   - Backend/CLI familiarity
+   - Responsible for Phases 1, 2, 3
 2. **Validation owner**
-   - QA-focused engineer or same owner performing evidence-based verification
+   - Executes Phase 0 empirical check
+   - Verifies reproducible evidence
+3. **Reviewer**
+   - Focus on command construction, boundary conditions, and scope control
 
-3. **Review focus**
-   - Command construction correctness
-   - Boundary-condition testing
-   - Conditional path review if Phase 1.5 activates
+## Technical Dependencies
 
-## Required tools and runtime dependencies
+### 1. `claude` CLI
+- Required for **FR-ATL.5a** and **FR-ATL.5-IMPLICIT**
+- Must be installed, authenticated, and able to complete `--print` requests
 
-1. **`claude` CLI**
-   - Installed
-   - Authenticated
-   - Capable of simple `--print` execution
+### 2. Linux kernel `MAX_ARG_STRLEN`
+- Governs **FR-ATL.1** and **FR-ATL.2**
+- Must be treated as compile-time constant, not runtime-discoverable
 
-2. **`uv`**
-   - Required for all Python test and script operations
+### 3. `ClaudeProcess` base class
+- Shared delivery point for **FR-001.1** and **FR-001.2**
+- Single authorized edit point
 
-3. **Repository code targets**
-   - `src/superclaude/cli/pipeline/process.py`
-   - `src/superclaude/cli/roadmap/executor.py`
-   - conditional:
-     - `src/superclaude/cli/roadmap/remediate_executor.py`
-     - `src/superclaude/cli/roadmap/validate_executor.py`
-     - `src/superclaude/cli/tasklist/executor.py`
+### 4. `executor.py` embed pipeline
+- Governs core argument-size behavior for **FR-ATL.1** through **FR-ATL.4**
 
-4. **Reference artifacts**
-   - Generated specs and tasklists in `docs/generated/`
+## Tooling / Execution Constraints
 
-## Dependency handling plan
-
-1. **External dependency gating**
-   - Verify `claude --print` basic health before Phase 0.
-   - Verify `uv` environment before any test execution.
-
-2. **Architectural dependency handling**
-   - Confirm inheritance assumptions before changing `build_command()`.
-   - Confirm non-inheriting executors only enter scope if Phase 0 activates contingency.
-
-3. **Operational dependency handling**
-   - Run targeted tests before grouped suite to reduce diagnosis cost.
-   - Preserve no-new-imports and no-new-abstractions constraints.
+1. Use **UV only** for tests:
+   - `uv run pytest`
+2. No new imports in modified files per **NFR-ATL.1**
+3. No scope expansion into deferred items:
+   - stdin delivery
+   - prompt compression
+   - Windows 32 KB support
+   - sprint orchestration redesign
 
 ---
 
-## 5. Success criteria and validation approach
+# 5. Success Criteria and Validation Approach
 
-## Validation strategy
+## Primary Success Criteria Mapping
 
-Use a layered validation model:
+1. **Subprocess commands include `--tools default`**
+   - Validate **FR-001.1**
+   - Confirm flag adjacency and position
 
-1. **Empirical CLI validation**
-   - Phase 0 `--file` proof
-2. **Unit-level command validation**
-   - command list structure and invariants
-3. **Boundary-condition validation**
-   - exact limit, near limit, composed overflow
-4. **Workflow-level validation**
-   - sprint dry-run
-   - large spec execution path
+2. **Existing command behavior remains intact**
+   - Validate **FR-001.2**
+   - Confirm required flags, conditional `--model`, and `extra_args` passthrough
 
-## Success criteria grouping
+3. **Regression tests lock in tool flag behavior**
+   - Validate **FR-001.3**
 
-### A. Command assembly success
-1. `--tools` present in built command
-2. `default` adjacent to `--tools`
-3. legacy flags preserved
-4. `extra_args` ordering preserved
-5. conditional `--model` behavior preserved
+4. **Embed constants are derived and self-documenting**
+   - Validate **FR-ATL.1**
+   - Validate **NFR-ATL.4**
 
-### B. Embed guard success
-1. `_EMBED_SIZE_LIMIT` derived from named constants
-2. import-time assertion present
-3. guard evaluates composed byte length
-4. exact-limit case embeds inline
-5. overflow case falls back correctly
+5. **Guard measures full composed prompt**
+   - Validate **FR-ATL.2**
 
-### C. Test success
-1. pipeline tests pass
-2. renamed guard test passes
-3. composed-string regression test passes
-4. grouped sprint/roadmap/pipeline suite passes
+6. **Legacy “100KB” naming removed**
+   - Validate **FR-ATL.3**
 
-### D. Operational success
-1. Phase 0 result recorded
-2. sprint dry-run passes
-3. large spec file completes without `Argument list too long`
-4. if Phase 0 is BROKEN, fallback remediation tests pass
+7. **Composed-overflow fallback is covered**
+   - Validate **FR-ATL.4**
 
-## Evidence collection checklist
+8. **`--file` behavior is empirically classified**
+   - Validate **FR-ATL.5a**
+   - Validate **FR-ATL.5-IMPLICIT**
 
-- [ ] Phase 0 result captured
-- [ ] subclass review completed
-- [ ] constants updated and audited
-- [ ] no new imports added
-- [ ] targeted tests green
-- [ ] grouped tests green
-- [ ] dry-run green
-- [ ] large-input scenario green
+9. **Conditional remediation is completed if needed**
+   - Validate **FR-ATL.5b**
 
-### Analyzer recommendation
-Do not mark the release complete until all four validation layers have evidence. Passing only unit tests is insufficient for this change set.
+10. **Non-functional safety holds**
+   - Validate **NFR-001.1**, **NFR-001.2**, **NFR-ATL.1**, **NFR-ATL.2**, **NFR-ATL.3**
 
----
+## Validation Strategy
 
-## 6. Timeline estimates per phase
+### A. Evidence-first validation
+1. Phase 0 empirical proof before implementation branch finalization
+2. Store explicit result for later auditability
 
-Due to the project rule against speculative duration commitments, the roadmap uses **relative effort and sequencing estimates** rather than calendar promises.
+### B. Targeted unit/regression validation
+1. Run `tests/pipeline/test_process.py`
+2. Run updated roadmap/sprint tests covering embed behavior
+3. Confirm new and renamed tests pass
 
-## Phase effort profile
+### C. Boundary validation
+1. Exact at-limit case
+2. Embedded-under-limit but composed-over-limit case
+3. Small-input no-regression case
 
-1. **Phase 0 — Blocking empirical validation**
-   - **Relative effort**: Very low
-   - **Sequence position**: First, mandatory
-   - **Dependency profile**: Blocks all downstream certainty
+### D. Broader compatibility validation
+1. Affected test directories
+2. Full suite if localized checks are clean
 
-2. **Phase 1 — Tool schema discovery fix**
-   - **Relative effort**: Low
-   - **Sequence position**: Early
-   - **Dependency profile**: Should complete before grouped test execution
-
-3. **Phase 1.5 — Conditional fallback remediation**
-   - **Relative effort**: Medium
-   - **Sequence position**: Conditional after Phase 0
-   - **Dependency profile**: Only required if `--file` is BROKEN; expands scope materially
-
-4. **Phase 2 — Embed guard correction**
-   - **Relative effort**: Low to medium
-   - **Sequence position**: After Phase 0, in parallel planning with Phase 1 but validated separately
-   - **Dependency profile**: Core correctness phase for large-input behavior
-
-5. **Phase 3 — Test suite alignment and regression coverage**
-   - **Relative effort**: Medium
-   - **Sequence position**: After implementation changes
-   - **Dependency profile**: Depends on completed code edits and known Phase 0 outcome
-
-6. **Phase 4 — End-to-end validation and release readiness**
-   - **Relative effort**: Medium
-   - **Sequence position**: Final
-   - **Dependency profile**: Requires all prior phases complete
-
-## Recommended execution cadence
-
-1. **Wave 1**
-   - Phase 0
-   - Phase 1 design verification
-   - Phase 2 design verification
-
-2. **Wave 2**
-   - Phase 1 implementation
-   - Phase 2 implementation
-   - Phase 1.5 implementation only if triggered
-
-3. **Wave 3**
-   - Phase 3 test completion
-   - Phase 4 release validation
-
-## Critical path
-
-The likely critical path is:
-
-1. Phase 0 validation
-2. Phase 2 embed guard correctness
-3. Phase 3 boundary/regression tests
-4. Phase 4 large-input validation
-
-If Phase 0 returns **BROKEN**, then the critical path expands to include **Phase 1.5**, which becomes release-blocking.
+### E. Static review validation
+1. No new imports
+2. Required comments present
+3. No stale magic-number references
+4. Flag placement preserved
 
 ---
 
-## Recommended milestone summary
+# 6. Timeline Estimates per Phase
 
-1. **M0** — `--file` behavior verified
-2. **M1** — `ClaudeProcess` emits `--tools default`
-3. **M1.5** — conditional fallback remediation complete if needed
-4. **M2** — embed guard aligned to composed-byte reality
-5. **M3** — regression suite updated and passing
-6. **M4** — release candidate validated and ready
+## Baseline Timeline
+Assumes normal development flow and no major environmental blocker.
+
+1. **Phase 0 — Blocking Validation Gate**
+   - **Estimate:** 0.5 day
+
+2. **Phase 1 — Command Construction Fix**
+   - **Estimate:** 0.5 day
+
+3. **Phase 1.5 — Conditional Fallback Remediation**
+   - **Estimate:** 0.5–1.0 day if activated
+   - **Estimate:** 0 days if not activated
+
+4. **Phase 2 — Argument-Length Guard Refactor**
+   - **Estimate:** 1.0 day
+
+5. **Phase 3 — Targeted Regression and Boundary Tests**
+   - **Estimate:** 1.0 day
+
+6. **Phase 4 — Integrated Validation and Release Readiness**
+   - **Estimate:** 0.5–1.0 day
+
+## Total Estimated Duration
+
+### If Phase 0 result is `WORKING`
+- **Total:** 3.5–4.0 days
+
+### If Phase 0 result is `BROKEN`
+- **Total:** 4.0–5.0 days
+
+## Critical Path
+1. **FR-ATL.5-IMPLICIT**
+2. **FR-ATL.5a**
+3. Decision on **FR-ATL.5b**
+4. **FR-001.1** / **FR-001.2**
+5. **FR-ATL.1** / **FR-ATL.2**
+6. **FR-001.3** / **FR-ATL.3** / **FR-ATL.4**
+7. Non-functional validation
+
+## Recommended Sequencing Summary
+1. Resolve empirical uncertainty first.
+2. Apply minimal command fix next.
+3. Refactor size guard after fallback-path confidence is known.
+4. Lock boundaries with tests.
+5. Run integrated validation last.
 
 ---
 
-## Final analyzer recommendation
+# Roadmap Completion Checklist
 
-Proceed with a **gated, evidence-first execution plan**:
+1. **Phase 0 complete**
+   - **FR-ATL.5-IMPLICIT**
+   - **FR-ATL.5a**
 
-1. Resolve the Phase 0 uncertainty first.
-2. Keep implementation changes minimal and local.
-3. Prioritize composed-size correctness over convenience.
-4. Treat non-inheriting executors as a conditional risk cluster.
-5. Require end-to-end proof for large-input workflows before release closure.
+2. **Command fix complete**
+   - **FR-001.1**
+   - **FR-001.2**
 
-This release is manageable, but only if the team maintains strict sequencing and does not skip empirical validation.
+3. **Conditional branch resolved**
+   - **FR-ATL.5b** if required
+
+4. **Embed guard refactor complete**
+   - **FR-ATL.1**
+   - **FR-ATL.2**
+
+5. **Tests complete**
+   - **FR-001.3**
+   - **FR-ATL.3**
+   - **FR-ATL.4**
+
+6. **Non-functional checks complete**
+   - **NFR-001.1**
+   - **NFR-001.2**
+   - **NFR-ATL.1**
+   - **NFR-ATL.2**
+   - **NFR-ATL.3**
+   - **NFR-ATL.4**
+
+7. **Release readiness confirmed**
+   - All 10 success criteria validated
+   - Open questions reduced to only explicitly deferred items

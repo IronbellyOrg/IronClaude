@@ -35,6 +35,30 @@ _DEPTH_INSTRUCTIONS = {
     ),
 }
 
+_INTEGRATION_ENUMERATION_BLOCK = (
+    "\n\n## Integration Points\n\n"
+    "IMPORTANT: For each component that uses dispatch tables, registries, "
+    "dependency injection, callback wiring, middleware chains, event bindings, "
+    "or strategy patterns, you MUST explicitly enumerate:\n"
+    "- **Named Artifact**: The specific dispatch table, registry, or mechanism name\n"
+    "- **Wired Components**: Which implementations are wired into it\n"
+    "- **Owning Phase**: Which phase creates/populates the mechanism\n"
+    "- **Cross-Reference**: Which phase(s) consume the wired mechanism\n\n"
+    "Do NOT assume that standard skeleton→implement phasing covers custom "
+    "dispatch/wiring mechanisms. Each mechanism requires an explicit wiring task.\n"
+)
+
+_INTEGRATION_WIRING_DIMENSION = (
+    "6. **Integration Wiring Completeness**: For each dispatch table, registry, "
+    "DI injection point, callback binding, middleware chain, or strategy pattern "
+    "in the specification, verify the roadmap contains an explicit task to:\n"
+    "   - Create/populate the mechanism\n"
+    "   - Wire concrete implementations into it\n"
+    "   - Test the wiring end-to-end\n"
+    "   Flag as HIGH severity if a mechanism exists in the spec but has no "
+    "corresponding wiring task in the roadmap.\n"
+)
+
 _OUTPUT_FORMAT_BLOCK = (
     "\n\n<output_format>\n"
     "CRITICAL: Your response MUST begin with YAML frontmatter (--- delimited block).\n"
@@ -172,7 +196,7 @@ def build_generate_prompt(agent: AgentSpec, extraction_path: Path) -> str:
         "IMPORTANT: Preserve exact requirement IDs from the extraction document. "
         "Do NOT renumber, relabel, or create new requirement IDs. "
         "If the extraction uses FR-EVAL-001.1, your roadmap must use FR-EVAL-001.1."
-    ) + _OUTPUT_FORMAT_BLOCK
+    ) + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK
 
 
 def build_diff_prompt(variant_a_path: Path, variant_b_path: Path) -> str:
@@ -329,8 +353,9 @@ def build_spec_fidelity_prompt(
         "2. **Data Models**: Data structures, schemas, field definitions\n"
         "3. **Gates**: Quality gates, validation checkpoints, acceptance criteria\n"
         "4. **CLI Options**: Command-line flags, arguments, configuration options\n"
-        "5. **NFRs**: Performance targets, security requirements, scalability constraints\n\n"
-        "## Output Requirements\n\n"
+        "5. **NFRs**: Performance targets, security requirements, scalability constraints\n"
+        + _INTEGRATION_WIRING_DIMENSION +
+        "\n## Output Requirements\n\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
         "- high_severity_count: (integer) number of HIGH severity deviations\n"
         "- medium_severity_count: (integer) number of MEDIUM severity deviations\n"
