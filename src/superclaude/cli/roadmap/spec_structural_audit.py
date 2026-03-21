@@ -29,7 +29,7 @@ class SpecStructuralAudit:
     must_shall_count: int  # Sentences with MUST/SHALL/REQUIRED
     function_signature_count: int  # def foo() patterns in code blocks
     class_definition_count: int  # class Foo patterns in code blocks
-    test_name_count: int  # test_* patterns
+    test_name_count: int  # Unique test_* patterns (deduplicated)
     registry_pattern_count: int  # UPPERCASE_DICT = { patterns
     pseudocode_blocks: int  # Blocks showing control flow (if/else/for)
     total_structural_indicators: int
@@ -40,6 +40,10 @@ def audit_spec_structure(spec_text: str) -> SpecStructuralAudit:
 
     FR-MOD4.1: Counts exactly 7 structural indicators as defined in the spec.
     These indicators approximate the spec's "requirement density."
+
+    Note: test_name_count uses unique matches (deduplicated) because specs
+    commonly reference the same test file across multiple sections (acceptance
+    criteria, dependencies, exit criteria), which inflates the total count.
     """
     code_blocks = re.findall(r"```[\s\S]*?```", spec_text)
     code_text = "\n".join(code_blocks)
@@ -52,7 +56,7 @@ def audit_spec_structure(spec_text: str) -> SpecStructuralAudit:
         re.findall(r"\bdef\s+\w+\s*\(", code_text)
     )
     class_definition_count = len(re.findall(r"\bclass\s+\w+", code_text))
-    test_name_count = len(re.findall(r"\btest_\w+", spec_text))
+    test_name_count = len(set(re.findall(r"\btest_\w+", spec_text)))
     registry_pattern_count = len(
         re.findall(r"\b[A-Z][A-Z_]+\s*=\s*\{", code_text)
     )

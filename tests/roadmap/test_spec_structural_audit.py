@@ -102,6 +102,28 @@ CONFIG_MAP = {
 ```
 """
 
+REPEATED_TEST_NAMES_SPEC = """\
+# Feature with Repeated Test References
+
+The system MUST handle repeated test references correctly.
+
+## Acceptance Criteria
+- Run `test_foo` to verify input handling
+- Run `test_bar` to verify output handling
+
+## Dependencies
+- Requires `test_foo` passing before integration
+- Requires `test_bar` passing before deployment
+
+## Exit Criteria
+- `test_foo` passes in CI
+
+```python
+def setup_fixture():
+    pass
+```
+"""
+
 
 class TestStructuralIndicatorCounters:
     """FR-MOD4.1: All 7 structural indicator counters."""
@@ -277,3 +299,25 @@ class TestSpecStructuralAuditDataclass:
         assert audit.registry_pattern_count >= 0
         assert audit.pseudocode_blocks >= 0
         assert audit.total_structural_indicators >= 0
+
+
+class TestDeduplication:
+    """Verify test_name_count deduplicates repeated test name references."""
+
+    def test_repeated_test_names_counted_uniquely(self):
+        audit = audit_spec_structure(REPEATED_TEST_NAMES_SPEC)
+        # test_foo appears 3x, test_bar appears 2x — but only 2 unique names
+        assert audit.test_name_count == 2
+
+    def test_total_indicators_not_inflated_by_repeats(self):
+        audit = audit_spec_structure(REPEATED_TEST_NAMES_SPEC)
+        expected_total = (
+            audit.code_block_count
+            + audit.must_shall_count
+            + audit.function_signature_count
+            + audit.class_definition_count
+            + audit.test_name_count
+            + audit.registry_pattern_count
+            + audit.pseudocode_blocks
+        )
+        assert audit.total_structural_indicators == expected_total

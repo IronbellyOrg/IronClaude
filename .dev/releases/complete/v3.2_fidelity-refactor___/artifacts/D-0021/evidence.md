@@ -1,6 +1,9 @@
 # D-0021: cli-portify Fixture Integration Test Evidence
 
 ## Task: T04.01
+## Status: PASS
+## Validated: 2026-03-21 (Phase 4)
+
 ## SC-010 Behavioral Contract Validation
 
 ### Test File
@@ -31,6 +34,15 @@ The fixture models the original cli-portify defect pattern:
 ### Negative Control
 `test_wiring_fixed_produces_zero_findings` confirms that when `step_runner` IS wired
 at the call site, zero findings are produced.
+
+### Acceptance Criteria Disposition
+
+| Criterion | Status |
+|---|---|
+| test_wiring_integration.py exists with cli-portify fixture | PASS |
+| Produces exactly 1 WiringFinding(unwired_callable) (SC-010) | PASS |
+| Finding references specific unwired callable (step_runner) | PASS |
+| pytest exits 0 | PASS |
 
 ### Note on kwonly args
 The analyzer currently scans `args.args` (positional params) but not `args.kwonlyargs`.

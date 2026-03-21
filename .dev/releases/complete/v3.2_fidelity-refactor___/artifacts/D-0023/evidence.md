@@ -1,25 +1,23 @@
 # D-0023: Retrospective Validation Against cli_portify
 
 ## Task: T04.03
+## Status: PARTIAL PASS (with documented limitation)
+## Validated: 2026-03-21 (Phase 4)
+
 ## SC-010 Real-Code Detection Validation
 
 ### Analysis Run
 ```
 Source: src/superclaude/cli/cli_portify/
-Config: WiringConfig(exclude_patterns=['test_*.py', 'conftest.py', '__init__.py'], rollout_mode='shadow')
+Config: WiringConfig(exclude_patterns=['__init__.py', 'test_*.py', 'conftest.py'], rollout_mode='shadow')
 ```
 
 ### Results
 ```
-Files analyzed: 29
-Files skipped: 2
-Total findings: 7
-  Unwired callables: 0
-  Orphan modules: 7
-  Unwired registries: 0
-Scan duration: 0.1014s
-step_runner findings: 0
+Total findings: 0 unwired_callable findings against real cli_portify directory
 ```
+
+The analyzer does not detect the real `step_runner=None` defect because the real code uses keyword-only syntax.
 
 ### Analysis: Why step_runner Not Detected
 
@@ -46,6 +44,7 @@ scanned.
 Class: PortifyExecutor
   args.args: ['self', 'steps', 'workdir']
   args.kwonlyargs: ['dry_run', 'resume_from', 'turn_budget', 'step_runner']
+  step_runner is in kwonlyargs (not args.args)
 ```
 
 ### Disposition
