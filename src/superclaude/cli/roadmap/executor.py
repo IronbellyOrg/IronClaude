@@ -426,7 +426,7 @@ def roadmap_run_step(
         from ..audit.wiring_config import WiringConfig
 
         wiring_config = WiringConfig(rollout_mode="soft")
-        source_dir = config.output_dir.parent if hasattr(config, 'output_dir') else Path(".")
+        source_dir = Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
         report = run_wiring_analysis(wiring_config, source_dir)
         step.output_file.parent.mkdir(parents=True, exist_ok=True)
         emit_report(report, step.output_file)
@@ -563,13 +563,23 @@ def _run_convergence_spec_fidelity(
     roadmap_path = config.output_dir / "roadmap.md"
 
     # Initialize registry and ledger
-    registry = DeviationRegistry.load_or_create(config.output_dir / "deviation-registry.json")
+    spec_hash = hashlib.sha256(spec_path.read_bytes()).hexdigest()
+    registry = DeviationRegistry.load_or_create(
+        config.output_dir / "deviation-registry.json",
+        release_id=config.output_dir.name,
+        spec_hash=spec_hash,
+    )
 
     # Get TurnLedger from sprint models
     try:
         from ..sprint.models import TurnLedger
-        from .convergence import STD_CONVERGENCE_BUDGET
-        ledger = TurnLedger(initial_budget=STD_CONVERGENCE_BUDGET)
+        from .convergence import MAX_CONVERGENCE_BUDGET, CHECKER_COST, REMEDIATION_COST
+        ledger = TurnLedger(
+            initial_budget=MAX_CONVERGENCE_BUDGET,
+            minimum_allocation=CHECKER_COST,
+            minimum_remediation_budget=REMEDIATION_COST,
+            reimbursement_rate=0.8,
+        )
     except ImportError:
         _log.warning("TurnLedger not available; convergence engine may not function")
         return StepResult(
@@ -584,7 +594,7 @@ def _run_convergence_spec_fidelity(
     def _run_checkers(reg: DeviationRegistry, run_number: int) -> None:
         """Run structural checkers + semantic layer, merge into registry."""
         structural_findings = run_all_checkers(str(spec_path), str(roadmap_path))
-        reg.merge_findings(structural_findings, run_number)
+        reg.merge_findings(structural_findings, [], run_number)
 
         # Run semantic layer if Claude is available
         try:
@@ -596,19 +606,36 @@ def _run_convergence_spec_fidelity(
                 registry=reg,
             )
             if semantic_result and semantic_result.findings:
-                reg.merge_findings(semantic_result.findings, run_number)
+                reg.merge_findings([], semantic_result.findings, run_number)
         except Exception as exc:
             _log.warning("Semantic layer failed: %s (continuing with structural only)", exc)
 
     def _run_remediation(reg: DeviationRegistry) -> None:
         """Run remediation on active HIGH findings."""
+        from .models import Finding
         active_highs = reg.get_active_highs()
         if not active_highs:
             return
 
-        # Group by file
+        # Convert registry dicts to Finding dataclass instances
+        # (registry stores JSON dicts, execute_remediation expects Finding objects)
+        finding_objects = []
+        for d in active_highs:
+            finding_objects.append(Finding(
+                id=d.get("stable_id", ""),
+                severity=d.get("severity", "HIGH"),
+                dimension=d.get("dimension", ""),
+                description=d.get("description", ""),
+                location=d.get("location", ""),
+                evidence="",
+                fix_guidance="",
+                files_affected=d.get("files_affected", []),
+                status=d.get("status", "ACTIVE"),
+            ))
+
+        # Group by file using Finding objects
         findings_by_file: dict[str, list] = {}
-        for finding in active_highs:
+        for finding in finding_objects:
             for f in finding.files_affected:
                 findings_by_file.setdefault(f, []).append(finding)
 

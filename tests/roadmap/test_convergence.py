@@ -1006,11 +1006,20 @@ class TestBudgetIsolation:
         assert "_print_terminal_halt" not in source
 
     def test_turnledger_not_in_legacy_path(self):
-        """Legacy executor step 8 path does not reference TurnLedger."""
+        """Legacy executor step 8 path does not reference TurnLedger at module level."""
         import superclaude.cli.roadmap.executor as mod
         source = Path(mod.__file__).read_text()
-        # TurnLedger should not be imported at module level in executor
-        assert "from ..sprint.models import TurnLedger" not in source
+        # TurnLedger should not be imported at module level in executor;
+        # function-scoped imports inside _run_convergence_spec_fidelity are expected
+        lines = source.splitlines()
+        module_level_imports = [
+            line for line in lines
+            if "from ..sprint.models import TurnLedger" in line
+            and not line.startswith((" ", "\t"))
+        ]
+        assert len(module_level_imports) == 0, (
+            f"TurnLedger imported at module level: {module_level_imports}"
+        )
 
 
 # --- T05.05: Regression Detection Trigger ---

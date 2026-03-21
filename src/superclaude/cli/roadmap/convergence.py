@@ -81,6 +81,7 @@ class RunMetadata:
     total_high_count: int = 0
     medium_count: int = 0
     low_count: int = 0
+    budget_snapshot: dict | None = None
 
 
 @dataclass
@@ -164,6 +165,8 @@ class DeviationRegistry:
                 if stable_id in self.findings:
                     self.findings[stable_id]["last_seen_run"] = run_number
                     self.findings[stable_id]["status"] = "ACTIVE"
+                    if hasattr(f, 'files_affected'):
+                        self.findings[stable_id]["files_affected"] = list(f.files_affected)
                 else:
                     self.findings[stable_id] = {
                         "stable_id": stable_id,
@@ -177,6 +180,7 @@ class DeviationRegistry:
                         "last_seen_run": run_number,
                         "debate_verdict": None,
                         "debate_transcript": None,
+                        "files_affected": list(f.files_affected) if hasattr(f, 'files_affected') else [],
                     }
 
         # Mark missing findings as FIXED
@@ -461,6 +465,15 @@ def execute_fidelity_with_convergence(
             ).hexdigest()
         )
 
+        # Record budget snapshot after debit
+        if registry.runs:
+            registry.runs[-1]["budget_snapshot"] = {
+                "consumed": ledger.consumed,
+                "reimbursed": ledger.reimbursed,
+                "available": ledger.available(),
+                "initial": ledger.initial_budget,
+            }
+
         # Execute checkers
         run_checkers(registry, run_number)
 
@@ -485,7 +498,9 @@ def execute_fidelity_with_convergence(
 
         # Log progress
         progress_msg = (
-            f"Run {run_idx + 1} ({run_label}): structural {prev_structural_highs} -> {curr_structural}"
+            f"Run {run_idx + 1} ({run_label}): structural {prev_structural_highs} -> {curr_structural}, "
+            f"budget: consumed={ledger.consumed}, reimbursed={ledger.reimbursed}, "
+            f"available={ledger.available()}"
         )
         structural_progress.append(progress_msg)
 
