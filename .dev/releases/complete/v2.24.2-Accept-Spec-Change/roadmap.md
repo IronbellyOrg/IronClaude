@@ -4,358 +4,295 @@ complexity_score: 0.65
 adversarial: true
 ---
 
-# Merged Roadmap: v2.24.2 Accept-Spec-Change
+# Roadmap: v2.24.2 Accept-Spec-Change (Merged)
 
 ## Executive Summary
 
-This release adds a **spec-hash reconciliation mechanism** to the roadmap pipeline. When a spec file changes mid-execution (triggering spec-fidelity failure), the system needs a way to acknowledge accepted deviations and update the stored hash so `--resume` can proceed. The scope is well-bounded: one new CLI command (`accept-spec-change`), one new leaf module (`spec_patch.py`), and surgical additions to `executor.py` for auto-resume detection.
+This release adds a `accept-spec-change` CLI command and an auto-resume cycle to the roadmap executor. When a spec file changes mid-pipeline (e.g., patched by a subprocess), the system detects accepted deviation evidence, updates the spec hash atomically, and resumes from spec-fidelity — firing at most once per invocation.
 
-**Complexity**: Moderate (0.65). The challenge lies not in breadth but in state management correctness — atomic writes, disk-reread sequences, and a recursion guard scoped to a single invocation. The highest-risk code is in failure paths and state integrity boundaries, not in the happy path.
+**Scope**: 1 new module (`spec_patch.py`), modifications to `commands.py` and `executor.py`, 1 new dependency (PyYAML ≥6.0), 18 functional requirements across 4 domains (backend, CLI, state-management, filesystem), 5 NFRs, 15 success criteria.
 
-**Key architectural decision**: `spec_patch.py` is a strict leaf module with no reverse imports. All new `executor.py` functions are private (`_` prefixed). The public API surface changes only by a single backward-compatible default parameter on `execute_roadmap()`.
+**Key architectural properties**: leaf-module isolation (no internal imports), atomic writes via `os.replace()`, mandatory disk-reread before resume decisions, single-cycle recursion guard.
 
-**Architectural invariants** (non-negotiable):
-1. All `.roadmap-state.json` mutations must be atomic (`.tmp` + `os.replace()`).
-2. Abort paths must remain strictly read-only — no state mutation on user rejection or error.
-3. Resume after spec-patch must consume **disk state** after mutation, never stale in-memory state.
-4. `_apply_resume()` remains unchanged.
-5. At most one automatic patch/resume cycle per invocation.
-
-**Expected outcome**: Operators will be able to (a) run `accept-spec-change` to safely update only the stored spec hash after validated evidence, (b) resume roadmap execution without recomputing earlier phases, and (c) benefit from a single automatic in-process retry after spec-fidelity failure when accepted deviations and spec edits justify it.
+**Design philosophy**: This is a reliability-focused change to the roadmap control plane. The implementation must preserve four safety invariants at all times — any weakening during implementation should trigger a pause-for-redesign rather than a workaround.
 
 ---
 
-## FR/AC/NFR Mapping
+## Phase 1: Foundation — `spec_patch.py` Leaf Module
 
-| Roadmap ID | Spec ID | Description |
-|------------|---------|-------------|
-| FR-001 | FR-2.24.2.1 | Locate state file |
-| FR-002 | FR-2.24.2.2 | Recompute spec hash |
-| FR-003 | FR-2.24.2.3 | Hash mismatch check |
-| FR-004 | FR-2.24.2.4 | Scan deviation records |
-| FR-005 | FR-2.24.2.5 | Interactive prompt |
-| FR-006 | FR-2.24.2.6 | Atomic write |
-| FR-007 | FR-2.24.2.7 | Confirmation output |
-| FR-008 | FR-2.24.2.8 | auto_accept parameter |
-| FR-009 | FR-2.24.2.9 | Post-spec-fidelity-FAIL detection |
-| FR-010 | FR-2.24.2.10 | Disk-reread at resume boundary |
-| FR-011 | FR-2.24.2.11 | Recursion guard |
-| FR-012 | FR-2.24.2.12 | Cycle outcome logging |
-| FR-013 | FR-2.24.2.13 | Normal failure on cycle exhaustion |
+**Goal**: Implement the standalone `accept-spec-change` logic as an isolated leaf module with zero internal imports.
 
-**Note**: AC-12, AC-13, AC-14 in the traceability matrix below map to FR-2.24.2.12 (logging), FR-2.24.2.10 (write failure), and FR-2.24.2.4 (parse errors) respectively — they are not separate spec-defined acceptance criteria. NFR-006 maps to spec §4.4 (import isolation) and NFR-008 maps to spec §4.4 (public API surface).
+**Duration**: ~2 days
 
-## Phased Implementation Plan
+**Milestone**: `spec_patch.py` passes all unit tests independently.
 
-### Phase 1: Foundation — `spec_patch.py` Module
+### Phase 1 Preconditions
 
-**Goal**: Deliver the standalone `accept-spec-change` logic as a testable, isolated leaf module.
+Before writing code, resolve these design questions inline (not as a separate phase — these are preconditions, not deliverables):
 
-**Milestone**: `spec_patch.py` passes unit tests for all FR-001 through FR-007.
+1. **`DeviationRecord` convention**: Confirm whether the existing codebase uses frozen dataclasses, TypedDicts, or NamedTuples for similar records. Adopt the prevailing convention. Target: frozen dataclass with 7 fields and strict type invariants unless codebase convention differs.
+2. **Absent `id` handling**: Decide whether a deviation file missing the `id` field is a parse failure (skip with warning) or an error. Document the decision in a code comment.
+3. **mtime comparison semantics**: The spec mandates strict `>`. If implementation requires `>=` (e.g., filesystem granularity), document the rationale in code and tests.
 
-#### 1.1 State-file discovery and hash computation
-- Create `src/superclaude/cli/roadmap/spec_patch.py`
-- Implement `prompt_accept_spec_change(output_dir: Path, auto_accept: bool = False) -> int`
-- FR-001: Read `.roadmap-state.json` from `output_dir`, produce exact error for missing/unreadable state
-- FR-002: Load `spec_file` from state, recompute SHA-256 from file bytes
-- FR-003: Compare current hash to `state["spec_hash"]` using byte-exact hex equality; treat missing/null/empty `spec_hash` as mismatch; return clean idempotent success when already current
+### Tasks
 
-#### 1.2 Deviation file scanning
-- Data model: Use the `DeviationRecord` frozen dataclass from spec §4.5 (7 fields: id, disposition, spec_update_required, affects_spec_sections, acceptance_rationale, source_file, mtime) with invariants (uppercase disposition, bool spec_update_required, float mtime)
-- FR-004: Glob for `dev-*-accepted-deviation.md`, parse YAML frontmatter
-- Select only records matching `disposition: ACCEPTED` (case-insensitive) **and** `spec_update_required: true` (YAML boolean, not string)
-- Warn-and-skip on parse errors (RISK-004 mitigation)
-- YAML 1.1 boolean coercion (`yes`, `on`, `1`) is **intentionally accepted** — document in operator-facing docs and test explicitly (see §Architect Recommendations)
+1. **Add PyYAML dependency** — Add `pyyaml>=6.0` to `pyproject.toml` dependencies.
+2. **Create `DeviationRecord` dataclass** — Frozen dataclass with fields for id, severity, affected sections, rationale, disposition, spec_update_required, and source file. Strict type invariants: `spec_update_required` must be YAML boolean, not string (FR-2.24.2.4c).
+3. **Implement state file loading** (FR-2.24.2.1) — Read `.roadmap-state.json` from `output_dir`; exit 1 if absent/unreadable.
+4. **Implement spec hash computation** (FR-2.24.2.2) — `sha256(spec_file.read_bytes())`; exit 1 if spec file missing.
+5. **Implement hash comparison** (FR-2.24.2.3, FR-2.24.2.3a, FR-2.24.2.3b) — Byte-exact hex digest equality; absent/null/empty hash treated as mismatch.
+6. **Implement deviation file scanning** (FR-2.24.2.4, FR-2.24.2.4a–FR-2.24.2.4f) — Glob `dev-*-accepted-deviation.md`, parse YAML frontmatter, filter by `disposition: ACCEPTED` (case-insensitive) + `spec_update_required: true` (boolean). Warn-and-skip on parse errors (FR-2.24.2.4d). Exit 1 on zero matches (FR-2.24.2.4f).
+7. **Implement interactive prompt** (FR-2.24.2.5, FR-2.24.2.5a–FR-2.24.2.5c) — Display evidence summary (ID, severity, affected sections, rationale), `[y/N]` prompt. Only `y`/`Y` confirms. Non-interactive detection via `sys.stdin.isatty()`.
+8. **Implement atomic state update** (FR-2.24.2.6) — Write `.roadmap-state.json.tmp` then `os.replace()`. Modify only `spec_hash`; preserve all other keys verbatim.
+9. **Implement confirmation output** (FR-2.24.2.7) — Print old/new hashes (12-char truncation), accepted deviation IDs, guidance to run `roadmap run --resume`.
 
-#### 1.3 Interactive prompt and atomic write
-- FR-005: Evidence summary display, single-char `y/Y` confirmation
-- Non-interactive detection via `sys.stdin.isatty()`: when non-interactive and `auto_accept=False`, exit with `Aborted.` and zero state mutation
-- FR-006: Atomic write via `.tmp` + `os.replace()` (overwrite pre-existing `.tmp`)
-- Modify only `spec_hash`; preserve all other state keys verbatim
-- FR-007: Confirmation output with truncated hashes, accepted deviation IDs, resume instruction
+### Validation
 
-#### 1.4 Unit tests
-- Idempotency: run twice → second exits 0 (AC-3)
-- Read-only on abort: answer N → mtime unchanged (AC-4)
-- Missing file errors (AC-1)
-- YAML parse error resilience: malformed frontmatter → warning + skip (AC-14)
-- Non-interactive behavior (AC-11)
-- Atomic write preserves non-`spec_hash` keys (AC-2)
-- String `"true"` rejection for `spec_update_required`
-- Intentional coercion coverage: `yes`, `on`, `1`, `True`, `TRUE` all accepted as boolean true
+- Unit tests for each requirement: missing state file, missing spec, hash match/mismatch, absent hash in state, YAML boolean vs string distinction, invalid YAML warning, non-interactive detection, atomic write preservation of keys, idempotency (NFR-3).
+- Verify NFR-4: no `ClaudeProcess` or subprocess import in `spec_patch.py`.
+- Verify NFR-2: state file mtime unchanged after abort.
 
-**Verification**: `uv run pytest tests/roadmap/test_accept_spec_change.py -v` — all green, no imports from `executor.py` or `commands.py`.
+### Risks
+
+- **PyYAML boolean coercion** (Low severity): YAML 1.1 accepts `yes`/`on`/`1` as true — intentional per spec. Document in code comments.
+- **Invalid YAML in deviation files** (Low severity, Medium probability): FR-2.24.2.4d handles via warn-and-skip.
+- **False-positive deviation matching**: Quoted `"true"` or malformed YAML could cause unintended acceptance. Strict boolean check for `spec_update_required` plus explicit warning-and-skip parse behavior. Tests for absent fields and invalid types.
 
 ---
 
-### Phase 2: CLI Command Registration
+## Phase 2: CLI Wiring — `commands.py` Integration
 
-**Goal**: Wire `accept-spec-change` into the Click CLI and resolve remaining open questions.
+**Goal**: Wire `accept-spec-change` as a Click command with zero optional arguments.
 
-**Milestone**: `superclaude roadmap accept-spec-change <output_dir>` works end-to-end from terminal. Open questions resolved.
+**Duration**: ~0.5 days (parallelizable with Phase 3)
 
-#### 2.1 Click command registration
-- Add Click command in `commands.py`
-- `click.Path(exists=True)` for `output_dir`
-- Zero optional flags (per spec)
-- Import only from `spec_patch.py` — dependency direction: `commands.py → spec_patch.py`, never reverse
+**Milestone**: `superclaude roadmap accept-spec-change <output_dir>` works end-to-end.
 
-#### 2.2 Dependency management
-- Add `pyyaml>=6.0` to `pyproject.toml` dependencies
-- First verify transitive status: `uv pip list | grep -i yaml`
+### Tasks
 
-#### 2.3 Integration test
-- CLI invocation with real file fixtures
-- Exit codes for all error paths
+1. **Add Click command** in `commands.py` — `accept-spec-change` with single `output_dir` argument (`click.Path(exists=True)`). Zero optional arguments per architectural constraint.
+2. **Import and call `spec_patch.py`** — Dependency direction: `commands.py → spec_patch.py` only.
+3. **Document exclusive access constraint** — Add help text or docstring noting that `accept-spec-change` must not run concurrently with `roadmap run`.
+4. **Integration test**: Run command against fixture directories (missing state, matching hash, deviation records present/absent, interactive and non-interactive modes).
 
-#### 2.4 Resolve open questions (Phase 3 exit criteria)
-The following must be resolved before Phase 3 begins:
+### Validation
 
-1. **Severity field source**: Inspect existing deviation file frontmatter (`grep -r "severity" .dev/releases/`). If not an existing field, remove from prompt output template.
-2. **`started_at` fallback** → **fail-closed**: If `started_at` is absent, treat Condition 2 (mtime check) as **not met**. The retry cycle does not fire. The operator retains `accept-spec-change` as the explicit CLI fallback. This is the safer default for an optimization path — an optimization that doesn't fire is preferable to one that fires incorrectly.
-3. **Post-acceptance file lifecycle**: Leave deviation files in place as immutable audit trail. They become inert after hash update (idempotency handles re-runs).
-4. **Multiple deviation batches**: Show all qualifying records in a single prompt.
-
-**Verification**: Manual smoke test + integration test. All four open questions documented with decisions.
+- SC-1: exits 1 when no deviation records found.
+- SC-3: idempotent — second run exits 0.
+- SC-4: state untouched on abort.
+- SC-12: hashes truncated to 12 chars.
 
 ---
 
-### Phase 3: Auto-Resume Integration in `executor.py`
+## Phase 3: Auto-Resume Cycle — `executor.py` Integration
 
-**Goal**: Add post-spec-fidelity-FAIL detection and single in-process resume cycle.
+**Goal**: Add post-spec-fidelity-FAIL detection and single-cycle auto-resume to `execute_roadmap()`.
 
-**Milestone**: Pipeline auto-detects accepted deviations after spec-fidelity failure and resumes exactly once.
+**Duration**: ~2 days (parallelizable with Phase 2)
 
-#### 3.1 `auto_accept` parameter threading
-- FR-008: Add `auto_accept: bool = False` to `execute_roadmap()` signature — backward-compatible (AC-10)
-- Thread through call chain to `_apply_resume_after_spec_patch()`
+**Milestone**: Spec-patch → auto-resume → spec-fidelity re-run works end-to-end.
 
-#### 3.2 Three-condition detection gate
-- FR-009: After spec-fidelity FAIL, evaluate:
-  1. Recursion guard: `_spec_patch_cycle_count == 0`
-  2. Qualifying deviation files exist with mtime **strictly greater than** `started_at` (if `started_at` absent → condition not met → fall through to normal failure)
-  3. Current spec hash differs from `initial_spec_hash` (captured at `execute_roadmap()` entry as local var)
+### Tasks
 
-#### 3.3 Disk-reread sequence (FR-010)
-Six-step sequence — the most complex single requirement:
-1. Reread state from disk
-2. Recompute spec hash from current spec file
-3. Atomically write new hash (`.tmp` + `os.replace()`)
-4. Reread state from disk again (**critical**: this is the state passed to resume)
-5. Rebuild steps with `_build_steps(config)`
-6. Call `_apply_resume(post_write_state, steps)`
+1. **Add `auto_accept` parameter** (FR-2.24.2.8) — `auto_accept: bool = False` on `execute_roadmap()`. Thread through call chain. Backward-compatible (SC-10). No public CLI flag exists for this parameter.
+2. **Capture `initial_spec_hash`** (FR-2.24.2.9b) — Local variable at top of `execute_roadmap()` via `hashlib.sha256(config.spec_file.read_bytes()).hexdigest()`.
+3. **Initialize recursion guard** (FR-2.24.2.11) — `_spec_patch_cycle_count = 0` as local variable in `execute_roadmap()`. Per-invocation scope; two successive calls get independent counters.
+4. **Implement 3-condition detection** (FR-2.24.2.9) — After `execute_pipeline()` returns with spec-fidelity FAIL, check all three conditions:
+   - Condition 1: `_spec_patch_cycle_count < 1`
+   - Condition 2: deviation files with `mtime > datetime.fromisoformat(state["steps"]["spec-fidelity"]["started_at"]).timestamp()` (FR-2.24.2.9a: strict `>`). Absent `started_at` → condition not met (fail-closed).
+   - Condition 3: `sha256(spec_file) != initial_spec_hash` (compared against local var, not `state["spec_hash"]`)
+5. **Implement 6-step disk-reread sequence** (FR-2.24.2.10, FR-2.24.2.10a):
+   1. Re-read state from disk
+   2. Recompute spec hash
+   3. Atomically write `spec_hash` via `.tmp` + `os.replace()`
+   4. Re-read state again (post-write verification)
+   5. Rebuild steps from fresh state
+   6. Call `_apply_resume(post_write_state, steps)`
+   - Atomic write failure → abort cycle with stderr message (SC-14).
+6. **Implement cycle logging** (FR-2.24.2.12) — Entry, completion, and suppression messages (SC-15).
+7. **Implement cycle exhaustion fallback** (FR-2.24.2.13) — Fall through to `_format_halt_output` + `sys.exit(1)` with second-run results only.
 
-Abort entire cycle on atomic write failure → log error to stderr → fall through to normal halt path (AC-13).
+### Validation
 
-#### 3.4 Recursion guard
-- FR-011: `_spec_patch_cycle_count` as local variable within `execute_roadmap()`, initialized to 0, max 1 cycle
-- FR-013: On exhaustion, fall through to `_format_halt_output()` + `sys.exit(1)` using **second-run** results (AC-8)
+- SC-5a: updated hash matches `_apply_resume()` comparison value.
+- SC-5b: `roadmap run --resume` after accept skips upstream steps.
+- SC-6: auto-resume fires at most once per invocation.
+- SC-7: disk-reread — no in-memory state reuse.
+- SC-8: exits 1 on cycle exhaustion.
+- SC-9: `auto_accept=True` skips prompt.
+- SC-10: existing callers unaffected by new parameter.
+- SC-11: non-interactive + `auto_accept=False` → abort.
+- SC-13: all three conditions required.
+- SC-14: atomic write failure aborts gracefully.
+- SC-15: all three log message types emitted.
 
-#### 3.5 Cycle outcome logging
-- FR-012: All messages prefixed with `[roadmap]` (AC-12)
-- Entry: deviation count and `cycle 1/1`
-- Completion: success message
-- Suppression: message when guard blocks second retry
+### Risks
 
-#### 3.6 Private function naming
-- `_apply_resume_after_spec_patch()` (spec §4.4), `_find_qualifying_deviation_files()` (implementation detail, not in spec), etc.
-- No modification to existing `_apply_resume()` logic
-- No new public symbols beyond `execute_roadmap()` parameter (NFR-008)
-
-**Verification**: Integration tests covering AC-5a, AC-5b, AC-6, AC-7, AC-8, AC-9 in `tests/roadmap/test_spec_patch_cycle.py`.
-
----
-
-### Phase 4: Edge Cases and Hardening
-
-**Goal**: Address all identified risks, adversarial inputs, and operational edge cases.
-
-**Milestone**: Full AC matrix passes including adversarial and failure-path scenarios.
-
-#### 4.1 Edge case tests
-- Absent/null/empty `spec_hash` in state file (FR-003 mismatch behavior)
-- `.tmp` file pre-existence (FR-006 overwrite)
-- YAML 1.1 boolean coercion variants — intentionally tested and documented
-- Missing `started_at` field → retry condition not met → normal failure path (fail-closed)
-
-#### 4.2 Failure-path tests (elevated priority per Haiku Layer 5)
-- Atomic write failure → cycle abort → normal halt path
-- Persistent spec-fidelity failure after retry → exit through standard halt with second-run results
-- Recursion guard blocks second retry → suppression log → exit
-- State integrity after abort: all keys preserved, mtime unchanged
-
-#### 4.3 TOCTOU and filesystem documentation
-- RISK-001: Add docstring documenting single-writer assumption prominently
-- NFR-005: Add note to operator-facing docs about exclusive access
-- RISK-002: Document mtime-resolution limitation (HFS+/NFS) in code comments; use strict `>` comparison with rationale
-
-#### 4.4 State integrity validation (elevated from Haiku Layer 3)
-- Verify only `spec_hash` changes across all mutation paths
-- Verify abort path leaves file mtime unchanged
-- Verify disk-reread state (not in-memory state) is what `_apply_resume()` receives
-
-**Verification**: Full test suite including adversarial fixtures. Proportional attention to failure paths — at least as many failure-path tests as happy-path tests.
+- **TOCTOU window** (Medium severity, Low probability): NFR-5 documents exclusive access. No concurrent `roadmap run` supported. *Why the mitigation is sufficient*: The `accept-spec-change` command and `roadmap run` operate on the same state file serially. The exclusive access constraint eliminates the concurrent-write scenario entirely — the TOCTOU window only exists if an operator violates the documented constraint, which is an operator error, not a system defect.
+- **Filesystem mtime resolution** (Medium severity, Low probability): HFS+/network mounts may have 1-second granularity. Documented limitation; `>=` allowed with rationale.
+- **Accidental `auto_accept=True`** (High severity, Low probability): Parameter is internal-only with no CLI flag. *Why the mitigation is sufficient*: The only call site for `auto_accept=True` is inside `executor.py` after all three trigger conditions are met. There is no path from CLI input to this parameter. Code review of any new `execute_roadmap()` call site must verify the `auto_accept` value — this is a review checklist item, not a runtime guard.
 
 ---
 
-### Phase 5: Validation and Release
+## Phase 4: Integration Testing, Hardening, and Documentation
 
-**Goal**: All success criteria verified, documentation complete, release gate passed.
+**Goal**: End-to-end validation of the full cycle plus operator documentation as a release gate.
 
-**Milestone**: Merge-ready PR with full AC coverage and release gate checklist satisfied.
+**Duration**: ~1.5 days
 
-#### 5.1 AC matrix validation
-- Verify all acceptance criteria (AC-1 through AC-14) are mapped to automated tests
-- Verify NFR-001 through NFR-008
+**Milestone**: All 15 success criteria pass; NFR-5 documentation reviewed and approved.
 
-#### 5.2 Module isolation verification
-- NFR-006: `spec_patch.py` imports only stdlib + PyYAML
-- NFR-008: No new public symbols beyond `execute_roadmap()` parameter
-- No circular dependencies introduced
-- No subprocess pipeline execution in patch module
+### Testing Tasks
 
-#### 5.3 Documentation updates
-- CLI help text for `accept-spec-change`
-- Developer guide entry for auto-resume behavior
-- Operator documentation of intentionally accepted YAML boolean coercions
-- Document single-writer assumption and mtime limitations
-- Release notes
+1. **End-to-end test: happy path** — Spec patched by subprocess, deviation record created, `accept-spec-change` run, `roadmap run --resume` completes from spec-fidelity.
+2. **End-to-end test: cycle exhaustion** — Spec-fidelity fails after resume → pipeline exits 1 normally (SC-8).
+3. **End-to-end test: no deviation evidence** — Auto-resume cycle does not fire when conditions unmet (SC-13).
+4. **Edge case tests**:
+   - Absent `started_at` in state → Condition 2 not met (fail-closed).
+   - ISO 8601 → timestamp float type conversion correctness.
+   - YAML boolean `true` vs string `"true"` distinction.
+   - Multiple deviation files, some with parse errors.
+   - Two successive `execute_roadmap()` calls get independent counters.
+5. **NFR verification**:
+   - NFR-1: Atomic write — no partial state on simulated crash.
+   - NFR-4: No subprocess invocation in `spec_patch.py`.
+6. **Regression**: No regressions in existing roadmap pipeline tests.
 
-#### 5.4 Release gate checklist
-The following must all be true before merge:
+### Documentation Tasks (NFR-5 — Release-Blocking Gate)
 
-1. All acceptance criteria mapped to automated tests (14 AC + 8 NFR)
-2. No circular dependency introduced (verify with import analysis)
-3. No new public API beyond the defaulted `execute_roadmap()` parameter
-4. No subprocess invocation in `spec_patch.py`
-5. Resume behavior skips upstream phases after accepted spec change (AC-5b demonstrated)
-6. At least one full end-to-end happy-path **and** one exhausted-retry path demonstrated
+Documentation is part of the safety model because file locking is intentionally out of scope. NFR-5 verification is a release-blocking gate item, not optional polish.
 
-#### 5.5 Final verification
-```bash
-make sync-dev && make verify-sync && make test && make lint
-```
+1. **Command usage documentation**: When to run `accept-spec-change`, requirement for evidence-backed deviation files, expected follow-up `roadmap run --resume`.
+2. **Exclusive access constraint**: No concurrent `accept-spec-change` with `roadmap run`. Documented in command help, docstrings, and operator guide.
+3. **Internal-only `auto_accept`**: Document that this parameter has no CLI exposure and must not be added without safety review.
+4. **mtime resolution limitation**: Document the known filesystem granularity issue and rationale if `>=` is used instead of strict `>`.
 
----
+### Validation
 
-## Risk Assessment
-
-| # | Risk | Severity | Probability | Mitigation | Phase |
-|---|------|----------|-------------|------------|-------|
-| R1 | **State corruption during write** — partial/interrupted write corrupts `.roadmap-state.json` | High | Low | Enforce `.tmp` + `os.replace()` for every mutation. Never write directly to final path. Tests validate only `spec_hash` changes. POSIX primary; Windows best-effort. | P1, P4 |
-| R2 | **Stale in-memory state at resume boundary** — retry resumes with pre-mutation state, causing inconsistent behavior | High | Medium | Enforce six-step reread/write/reread sequence exactly. Second disk read is the object passed to `_apply_resume()`. Integration tests assert post-write disk state equals resumed state. | P3, P4 |
-| R3 | **Infinite or repeated retry loop** — spec-fidelity failure repeatedly triggers patch cycles | High | Low | `_spec_patch_cycle_count` local to `execute_roadmap()`, max 1. Log suppression on guard block. Second failure falls through to halt. Future retry mechanisms must use separate guards. | P3 |
-| R4 | **Malformed YAML in deviation files** — crashes or false positives from bad frontmatter | Medium | Medium | Parse defensively. Warn-and-skip malformed files. Require boolean `true` (not string). Test string `"true"` rejection. | P1 |
-| R5 | **Unsafe non-interactive behavior** — CI/piped execution modifies state without confirmation | Medium | Low | Detect `not sys.stdin.isatty()`. When `auto_accept=False`, exit with `Aborted.` and zero state mutation. `auto_accept` not CLI-exposed. | P1 |
-| R6 | **TOCTOU on concurrent state access** — another process mutates state between read and replace | Medium | Low | Document single-writer assumption prominently. No partial mitigation that implies concurrency safety. Locking is a separate future feature. | P4 |
-| R7 | **Timestamp ambiguity** — missing `started_at` or low mtime resolution causes incorrect gating | Low–Medium | Medium | Missing `started_at` → fail-closed (retry condition not met). Strict `>` comparison. Document mtime-resolution limitations (HFS+/NFS). | P3, P4 |
-| R8 | **YAML boolean coercion drift** — future PyYAML/YAML 1.2 changes break operator files | Low | Low | Intentionally document and test accepted coercions (`yes`, `on`, `1`). Surface in operator docs so coercion is a contract, not an accident. | P1, P5 |
-| R9 | **PyYAML as new dependency** — version conflict or unexpected transitive presence | Low | Medium | Verify transitive status before adding. Pin `>=6.0`. | P2 |
-| R10 | **Accidental `auto_accept=True`** — programmatic caller enables auto-accept without operator intent | High impact | Low | Parameter is private, not CLI-exposed. Only sprint runner uses it. Document intended callers. | P3 |
+- All 15 success criteria (SC-1 through SC-15) pass.
+- NFR-5 documentation reviewed as a separate gate item during release review.
+- No regressions in existing roadmap pipeline tests.
 
 ---
 
-## Resource Requirements
+## Release Gate Invariants
+
+The implementation is known safe if and only if these four invariants hold. If any is weakened during implementation, **pause for redesign** rather than patching around it.
+
+| # | Invariant | Validates | How to Verify |
+|---|-----------|-----------|---------------|
+| 1 | `spec_patch.py` stays isolated and subprocess-free | NFR-4, architectural constraint | `grep -r "import subprocess\|ClaudeProcess" spec_patch.py` returns empty |
+| 2 | Every state write uses atomic replace semantics | NFR-1, FR-2.24.2.6, FR-2.24.2.10 | All `.roadmap-state.json` writes go through `.tmp` + `os.replace()` |
+| 3 | The executor resume cycle fires at most once per invocation | FR-2.24.2.11, FR-2.24.2.13 | `_spec_patch_cycle_count` incremented before cycle entry; SC-6 test passes |
+| 4 | Resume decisions use disk-reloaded state, never stale in-memory state | FR-2.24.2.10, FR-2.24.2.10a, SC-7 | 6-step disk-reread sequence executed; no reference to pre-cycle state object after reread |
+
+These invariants complement the SC validation matrix: the matrix validates *features*; this list validates *safety properties*. Both must pass for release.
+
+---
+
+## Success Criteria Validation Matrix
+
+| SC | Criterion | Validated In |
+|---|---|---|
+| SC-1 | Exit 1 on no deviation records | Phase 1, Phase 4 |
+| SC-2 | Only `spec_hash` modified | Phase 1 |
+| SC-3 | Idempotent execution | Phase 1, Phase 2 |
+| SC-4 | State untouched on abort | Phase 1 |
+| SC-5a | Hash matches `_apply_resume()` value | Phase 3 |
+| SC-5b | Resume skips upstream steps | Phase 4 |
+| SC-6 | Single cycle per invocation | Phase 3 |
+| SC-7 | Disk-reread, no in-memory reuse | Phase 3 |
+| SC-8 | Exit 1 on cycle exhaustion | Phase 3, Phase 4 |
+| SC-9 | `auto_accept=True` skips prompt | Phase 3 |
+| SC-10 | Backward-compatible signature | Phase 3 |
+| SC-11 | Non-interactive + no auto-accept → abort | Phase 3 |
+| SC-12 | 12-char hash truncation | Phase 2 |
+| SC-13 | All three conditions required | Phase 3, Phase 4 |
+| SC-14 | Atomic write failure → graceful abort | Phase 3 |
+| SC-15 | All log messages emitted | Phase 3 |
+
+---
+
+## Resource Requirements and Dependencies
 
 ### External Dependencies
-| Dependency | Status | Action |
-|------------|--------|--------|
-| **PyYAML ≥6.0** | Verify transitive | Add to `pyproject.toml` if not already present |
-| **Click ≥8.0.0** | Already present | No changes |
-| **hashlib** | Stdlib | No concerns |
 
-### Internal Dependencies (Consumed, Not Modified)
-- `execute_roadmap()` — signature extended with default parameter
-- `_apply_resume()` — called but **not modified**
-- `_build_steps()` — called but not modified
-- `_format_halt_output()` — called on cycle exhaustion
-- `_save_state()` / `read_state()` — used for disk I/O
+| Dependency | Action Required |
+|---|---|
+| PyYAML ≥6.0 | Add to `pyproject.toml`, `uv pip install` |
+| Python ≥3.10 | Already satisfied |
+| Click ≥8.0.0 | Already satisfied |
 
-### Files Created
-| File | Purpose |
-|------|---------|
-| `src/superclaude/cli/roadmap/spec_patch.py` | New leaf module — core acceptance logic |
-| `tests/roadmap/test_accept_spec_change.py` | Unit tests (Phases 1, 4) |
-| `tests/roadmap/test_spec_patch_cycle.py` | Integration tests for executor retry (Phase 3) |
+### Internal Dependencies
 
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/superclaude/cli/roadmap/executor.py` | Add `auto_accept` param, private helper functions |
-| `src/superclaude/cli/roadmap/commands.py` | Register `accept-spec-change` CLI command |
-| `pyproject.toml` | Add `pyyaml>=6.0` dependency (if needed) |
+| Module | Relationship |
+|---|---|
+| `spec_patch.py` (new) | Leaf module — no internal imports |
+| `commands.py` | Imports `spec_patch.py` |
+| `executor.py` | Imports `spec_patch.py`; uses existing `_apply_resume`, `_build_steps`, `_format_halt_output`, `execute_pipeline`, `read_state` |
 
----
+### Phase Dependencies
 
-## Success Criteria and Validation Approach
+```
+Phase 1 ──→ Phase 2 (CLI needs spec_patch.py)
+Phase 1 ──→ Phase 3 (executor needs spec_patch.py)
+Phase 2 ──┐
+Phase 3 ──┴→ Phase 4 (integration tests need both)
+```
 
-### Validation Strategy
+Phases 2 and 3 can run in parallel after Phase 1 completes.
 
-Tests are organized into five categories (adapted from Haiku's layered approach) with direct AC traceability:
+### Engineering Roles
 
-**Layer 1 — Unit validation** (`test_spec_patch.py`): Isolated behaviors of `spec_patch.py` — hashing, parsing, prompting, atomic writes.
+1. **Primary implementer** — Owns `spec_patch.py`, `executor.py` integration, and state integrity invariants.
+2. **QA/reliability engineer** — Owns regression and integration test matrix; validates abort/no-write/idempotency behavior.
+3. **Reviewer** — Verifies architectural constraints, no subprocess usage, backward compatibility.
 
-**Layer 2 — CLI validation** (`test_spec_patch.py`): Command invocation, exit codes, error messages.
+### Environmental Assumptions
 
-**Layer 3 — State integrity validation** (`test_spec_patch.py`, `test_auto_resume.py`): Persistence guarantees — only `spec_hash` changes, abort preserves mtime, idempotent re-runs.
-
-**Layer 4 — Executor integration validation** (`test_auto_resume.py`): Auto-resume orchestration — detection gate, disk-reread sequence, recursion guard.
-
-**Layer 5 — Failure-path validation** (`test_auto_resume.py`): Architectural safety under failure — write failure abort, retry exhaustion, stale-state prevention.
-
-### AC Traceability Matrix
-
-| AC | Description | Test Layer | Automated |
-|----|------------|------------|-----------|
-| AC-1 | CLI with no deviation files → exit 1 | L2 | Yes |
-| AC-2 | Write state → run → diff non-hash keys preserved | L3 | Yes |
-| AC-3 | Run twice → second exits 0 (idempotent) | L3 | Yes |
-| AC-4 | Answer N → mtime unchanged | L3 | Yes |
-| AC-5a | Hash equality post-accept | L1 | Yes |
-| AC-5b | `--resume` skips upstream steps | L4 | Yes |
-| AC-6 | Trigger condition twice → single cycle only | L4 | Yes |
-| AC-7 | Disk-read state (not in-memory) used for resume | L4 | Yes |
-| AC-8 | Fail after cycle → `sys.exit(1)` with second-run results | L5 | Yes |
-| AC-9 | Both `auto_accept` values tested | L4 | Yes |
-| AC-10 | Call without `auto_accept` → no error | L4 | Yes |
-| AC-11 | Non-interactive + `False` → `Aborted.` | L2 | Yes |
-| AC-12 | Log output has `[roadmap]` prefixes | L4 | Yes |
-| AC-13 | Write failure → abort + stderr | L5 | Yes |
-| AC-14 | Malformed YAML → warning + skip | L1 | Yes |
+- POSIX is primary target for atomic write guarantee (`os.replace()` is atomic on POSIX).
+- Exclusive access is assumed during command execution — no file locking in this release.
 
 ---
 
-## Timeline Estimates
+## Risk Assessment Summary
 
-| Phase | Description | Estimated Effort | Dependencies |
-|-------|-------------|-----------------|--------------|
-| **P1** | `spec_patch.py` core logic + unit tests | ~4–5 hours | None |
-| **P2** | CLI registration + dependency + open question resolution | ~1–2 hours | P1 |
-| **P3** | Auto-resume integration in `executor.py` | ~4–5 hours | P1, P2 |
-| **P4** | Edge cases, failure paths, hardening | ~2–3 hours | P3 |
-| **P5** | Validation, documentation, release gate | ~1–2 hours | P4 |
-| **Total** | | **~12–17 hours focused effort** | |
+| Risk | Severity | Probability | Phase | Mitigation |
+|---|---|---|---|---|
+| TOCTOU window / state corruption | Medium | Low | 3 | NFR-5: exclusive access documented [1] |
+| Filesystem mtime resolution | Medium | Low | 3 | Documented limitation; `>=` allowed with rationale |
+| PyYAML boolean coercion | Low | Low | 1 | Intentional design; documented |
+| Invalid YAML in deviation files | Low | Medium | 1 | Warn-and-skip (FR-2.24.2.4d) |
+| Accidental `auto_accept=True` | High | Low | 3 | Internal-only parameter; code review gate [2] |
 
-**Critical path**: P1 → P2 → P3 → P4 → P5 (fully sequential — each phase depends on the prior).
+**[1] TOCTOU detail**: The exclusive access constraint eliminates concurrent writes. The TOCTOU window only exists under operator violation of the documented constraint. The atomic write path (`.tmp` + `os.replace()`) further ensures no partial state is observable even in crash scenarios. Three mitigations enforce this: atomic replace everywhere, preserve all non-`spec_hash` keys verbatim, and tests diffing pre/post state.
 
-**Parallelization opportunities**: P1.4 (unit tests) can be drafted in parallel with P1.1–P1.3 using TDD. P4 failure-path tests can be drafted during P3 implementation.
-
-**Note on timeline framing**: The estimate above reflects focused single-developer effort. If coordination overhead, code review cycles, or context-switching are factors, add 30–50% buffer. QA effort is embedded in each phase (test-first for failure paths per Architect Recommendation #4), not deferred to a separate phase.
+**[2] `auto_accept` detail**: The only call site is inside `executor.py` after all three trigger conditions are met. No CLI-to-parameter path exists. Any new `execute_roadmap()` call site adding `auto_accept=True` must be flagged during code review.
 
 ---
 
-## Architect Recommendations
+## Timeline Summary
 
-These recommendations are implementation guidance, not phase-gated deliverables:
+| Phase | Duration | Parallelizable |
+|---|---|---|
+| Phase 1: Foundation | ~2 days | — |
+| Phase 2: CLI Wiring | ~0.5 days | Yes (with Phase 3) |
+| Phase 3: Auto-Resume Cycle | ~2 days | Yes (with Phase 2) |
+| Phase 4: Testing & Documentation | ~1.5 days | — |
+| **Total (with parallelism)** | **~4.5 days** | Phases 2+3 overlap |
+| **Total (single implementer)** | **~6 days** | Sequential execution |
 
-1. **Treat disk-reread semantics as a non-negotiable invariant.** This is the architectural boundary that prevents subtle state-drift bugs. The six-step sequence in Phase 3.3 must be implemented exactly — no shortcuts that reuse in-memory state after a write.
+The 4.5-day estimate assumes two engineers can work Phases 2 and 3 concurrently after Phase 1 completes. A single implementer working sequentially should plan for ~6 days.
 
-2. **Keep retry logic narrow and explicit.** Do not generalize the spec-patch retry into a reusable failure-recovery framework in this release. Future retry mechanisms for other failure classes must use separate guards.
+---
 
-3. **Require test-first for abort and failure paths.** The highest-risk defects are not in the happy path — they are in no-touch aborts, retry exhaustion, and stale-state resume boundaries. Write failure-path tests before or alongside the implementation, not after.
+## Requirement Coverage Map
 
-4. **Document the single-writer assumption prominently.** The absence of locking is acceptable only if operationally explicit. Add to both code docstrings and operator-facing documentation.
+### Manual Acceptance Path (Phase 1 + Phase 2)
+FR-2.24.2.1, FR-2.24.2.2, FR-2.24.2.3, FR-2.24.2.3a, FR-2.24.2.3b, FR-2.24.2.4, FR-2.24.2.4a, FR-2.24.2.4b, FR-2.24.2.4c, FR-2.24.2.4d, FR-2.24.2.4e, FR-2.24.2.4f, FR-2.24.2.5, FR-2.24.2.5a, FR-2.24.2.5b, FR-2.24.2.5c, FR-2.24.2.6, FR-2.24.2.7
 
-5. **Make YAML boolean coercion intentional.** Test `yes`, `on`, `1`, `True`, `TRUE` explicitly. Document in operator-facing docs that these are accepted. Test that string `"true"` (quoted) is rejected. This converts an implicit library behavior into an explicit contract.
+### Executor Auto-Resume Path (Phase 3)
+FR-2.24.2.8, FR-2.24.2.9, FR-2.24.2.9a, FR-2.24.2.9b, FR-2.24.2.10, FR-2.24.2.10a, FR-2.24.2.10b, FR-2.24.2.11, FR-2.24.2.12, FR-2.24.2.13
 
-6. **Avoid expanding CLI scope.** Zero optional flags is the correct design choice for this release. Additional override controls would increase operator risk and test surface without clear value.
+### Non-Functional Controls (All Phases)
+NFR-1, NFR-2, NFR-3, NFR-4, NFR-5

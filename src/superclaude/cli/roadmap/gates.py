@@ -285,6 +285,60 @@ def _tasklist_ready_consistent(content: str) -> bool:
     return True
 
 
+def _no_undischarged_obligations(content: str) -> bool:
+    """Anti-instinct gate: undischarged_obligations must equal 0.
+
+    Returns True only if frontmatter contains undischarged_obligations: 0.
+    Fail-closed: missing field, missing frontmatter, or non-zero value → False.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+    value = fm.get("undischarged_obligations")
+    if value is None:
+        return False
+    try:
+        return int(value) == 0
+    except (ValueError, TypeError):
+        return False
+
+
+def _integration_contracts_covered(content: str) -> bool:
+    """Anti-instinct gate: uncovered_contracts must equal 0.
+
+    Returns True only if frontmatter contains uncovered_contracts: 0.
+    Fail-closed: missing field, missing frontmatter, or non-zero value → False.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+    value = fm.get("uncovered_contracts")
+    if value is None:
+        return False
+    try:
+        return int(value) == 0
+    except (ValueError, TypeError):
+        return False
+
+
+def _fingerprint_coverage_check(content: str) -> bool:
+    """Anti-instinct gate: fingerprint_coverage must be >= 0.7.
+
+    Returns True if fingerprint_coverage is a float >= 0.7.
+    Fail-closed: missing field, missing frontmatter, or unparseable value → False.
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+    value = fm.get("fingerprint_coverage")
+    if value is None:
+        return False
+    try:
+        return float(value) >= 0.7
+    except (ValueError, TypeError):
+        return False
+
+
 def _convergence_score_valid(content: str) -> bool:
     """convergence_score frontmatter value parses as float in [0.0, 1.0]."""
     fm = _parse_frontmatter(content)
@@ -642,6 +696,62 @@ def _major_issue_policy_correct(content: str) -> bool:
     return value.strip() == "stop-and-fix"
 
 
+# --- Cross-gate deviation count reconciliation (SC-008) ---
+
+
+def _deviation_counts_reconciled(content: str) -> bool:
+    """Cross-gate reconciliation: reported finding counts must match actual routed IDs.
+
+    Compares the sum of routed deviation IDs across all routing fields against
+    the reported total_analyzed count. A mismatch indicates an inconsistency
+    between what the deviation analysis claims to have processed and what it
+    actually routed, causing deterministic gate failure.
+
+    Reconciliation rule:
+        total unique IDs across (routing_fix_roadmap + routing_update_spec +
+        routing_no_action + routing_human_review) must equal total_analyzed.
+
+    Returns False (deterministic gate failure) if:
+    - Frontmatter is missing
+    - total_analyzed field is missing or non-integer
+    - Count of unique routed IDs != total_analyzed
+    Returns True when counts reconcile.
+    """
+    import re
+
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    total_str = fm.get("total_analyzed")
+    if total_str is None:
+        return False
+
+    try:
+        total_analyzed = int(total_str)
+    except (ValueError, TypeError):
+        return False
+
+    # Collect all unique IDs across all routing fields
+    routing_fields = [
+        "routing_fix_roadmap",
+        "routing_update_spec",
+        "routing_no_action",
+        "routing_human_review",
+    ]
+    all_ids: set[str] = set()
+    for field in routing_fields:
+        raw = fm.get(field, "")
+        if not raw:
+            continue
+        for token in re.split(r"[\s,]+", raw):
+            token = token.strip()
+            if token and re.match(r"^DEV-\d+$", token):
+                all_ids.add(token)
+
+    return len(all_ids) == total_analyzed
+
+
 # --- GateCriteria instances ---
 
 EXTRACT_GATE = GateCriteria(
@@ -882,6 +992,33 @@ CERTIFY_GATE = GateCriteria(
     ],
 )
 
+ANTI_INSTINCT_GATE = GateCriteria(
+    required_frontmatter_fields=[
+        "undischarged_obligations",
+        "uncovered_contracts",
+        "fingerprint_coverage",
+    ],
+    min_lines=10,
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="no_undischarged_obligations",
+            check_fn=_no_undischarged_obligations,
+            failure_message="undischarged_obligations must be 0; scaffolding obligations lack discharge in later phases",
+        ),
+        SemanticCheck(
+            name="integration_contracts_covered",
+            check_fn=_integration_contracts_covered,
+            failure_message="uncovered_contracts must be 0; integration contracts lack explicit wiring tasks in roadmap",
+        ),
+        SemanticCheck(
+            name="fingerprint_coverage_check",
+            check_fn=_fingerprint_coverage_check,
+            failure_message="fingerprint_coverage must be >= 0.7; spec code-level identifiers insufficiently represented in roadmap",
+        ),
+    ],
+)
+
 DEVIATION_ANALYSIS_GATE = GateCriteria(
     required_frontmatter_fields=[
         "schema_version",
@@ -927,6 +1064,11 @@ DEVIATION_ANALYSIS_GATE = GateCriteria(
             check_fn=_total_analyzed_consistent,
             failure_message="total_analyzed must equal slip_count + intentional_count + pre_approved_count + ambiguous_count",
         ),
+        SemanticCheck(
+            name="deviation_counts_reconciled",
+            check_fn=_deviation_counts_reconciled,
+            failure_message="Deviation count mismatch: total_analyzed does not equal count of unique routed IDs across all routing fields (SC-008)",
+        ),
     ],
 )
 
@@ -939,6 +1081,7 @@ ALL_GATES = [
     ("debate", DEBATE_GATE),
     ("score", SCORE_GATE),
     ("merge", MERGE_GATE),
+    ("anti-instinct", ANTI_INSTINCT_GATE),
     ("test-strategy", TEST_STRATEGY_GATE),
     ("spec-fidelity", SPEC_FIDELITY_GATE),
     ("wiring-verification", WIRING_GATE),

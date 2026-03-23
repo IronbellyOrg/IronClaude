@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/complete/cleanup-audit-v2-UNIFIED-SPEC/cleanup-audit-v2-UNIFIED-SPEC.md",
+  "spec_hash": "4797442758616f5e9ca667115c619eee85e508d099168ca67e2239ef61de5144",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-20T16:40:54.946440+00:00",
+  "steps": {
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/cleanup-audit-v2-UNIFIED-SPEC/roadmap.md",
+      "started_at": "2026-03-20T16:36:40.772600+00:00",
+      "completed_at": "2026-03-20T16:38:40.792203+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/cleanup-audit-v2-UNIFIED-SPEC/test-strategy.md",
+      "started_at": "2026-03-20T16:38:40.793202+00:00",
+      "completed_at": "2026-03-20T16:40:03.805758+00:00"
+    },
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/cleanup-audit-v2-UNIFIED-SPEC/spec-fidelity.md",
+      "started_at": "2026-03-20T16:40:03.807284+00:00",
+      "completed_at": "2026-03-20T16:40:54.816492+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/cleanup-audit-v2-UNIFIED-SPEC/wiring-verification.md",
+      "started_at": "2026-03-20T16:40:54.817476+00:00",
+      "completed_at": "2026-03-20T16:40:54.946161+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "skipped",
+    "timestamp": "2026-03-20T16:40:54.946750+00:00"
+  }
+}

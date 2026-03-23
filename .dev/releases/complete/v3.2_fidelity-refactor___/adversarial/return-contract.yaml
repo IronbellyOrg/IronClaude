@@ -1,0 +1,10 @@
+merged_output_path: ".dev/releases/current/v3.2_fidelity-refactor___/adversarial/merged-ranked-proposals.md"
+convergence_score: 0.875
+artifacts_dir: ".dev/releases/current/v3.2_fidelity-refactor___/adversarial/"
+status: "success"
+base_variant: "variant-A-amend-spec"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

@@ -1,0 +1,10 @@
+merged_output_path: ".dev/releases/backlog/v5.xx_release-eval-ab-test/eval-runs/adversarial/merged-ranked-proposals.md"
+convergence_score: 0.75
+artifacts_dir: ".dev/releases/backlog/v5.xx_release-eval-ab-test/eval-runs/adversarial/"
+status: "success"
+base_variant: "custom-merge"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

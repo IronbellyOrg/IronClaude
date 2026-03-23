@@ -248,12 +248,15 @@ Use **Wave → Checkpoint → Wave** pattern (3.5x faster). Example: `[Read file
 ## 🔧 MCP Server Integration
 
 **Recommended**: Use **airis-mcp-gateway** for unified MCP management.
+**HIGHET PRIORITY SERVER**
+Auggie MCP should be used whenever broader codebase context and knowledge would be valuable.  It is free and costs little to no tokens
 
 ```bash
 superclaude mcp  # Interactive install, gateway is default (requires Docker)
 ```
 
 **Gateway Benefits**: 60+ tools, 98% token reduction, single SSE endpoint, Web UI
+
 
 **High Priority Servers** (included in gateway):
 - **Tavily**: Web search (Deep Research)

@@ -4,305 +4,349 @@ complexity_score: 0.65
 adversarial: true
 ---
 
-# v2.24.1 CLI Portify v5 — Final Merged Roadmap
+# Roadmap: CLI Portify v2.24.1 — Multi-Form Target Resolution & Component Tree Discovery
 
 ## Executive Summary
 
-This release extends the CLI Portify pipeline with a unified target resolution system, replacing the single skill-directory input with 6 input forms (bare name, prefixed name, command path, skill directory path, skill directory name, SKILL.md path). The core addition is `resolution.py` (~350-450 lines) plus additive modifications to 6 existing modules.
+This release extends the CLI Portify pipeline to accept 6 input forms (bare command name, prefixed name, command path, skill directory, skill name, SKILL.md path) instead of just skill directory paths. It adds a deterministic resolution layer (`resolution.py`), hierarchical component tree discovery (commands + skills + agents with tiered subcomponents), enriched artifact output, and controlled subprocess directory scoping — all without modifying base `pipeline/` or `sprint/` modules.
 
-The architecture is constrained to synchronous, backward-compatible changes with zero modifications to `pipeline/` or `sprint/` base modules. The dominant risk is not feature breadth but behavioral regression in existing workflows. Accordingly, this roadmap adopts a compatibility-first incremental delivery with continuous testing gates at every milestone boundary.
+The work is a bounded MEDIUM-complexity extension (0.65): one new module (`resolution.py`), modifications to 6 existing files, ~37 new tests across 4 phases. The primary architectural risk is backward compatibility across the expanded input surface. All new logic is synchronous and deterministic, preserving existing behavior for current skill-directory inputs while broadening supported target types.
 
-**Scope**: 3 functional requirements with 18 acceptance-criteria bullets, 5 non-functional requirements, 4 domains (resolution, discovery, CLI, validation), ~37 new tests.
-
-**Estimated effort**: 19-28 hours across 3 phases (Sessions 1-3).
-
-### Architectural Priorities
-
-1. **Preserve existing workflows first** — Existing skill-directory inputs remain behaviorally identical. `resolve_workflow_path()` is unchanged; the new resolver is additive.
-2. **Isolate new logic** — Resolution rules concentrated in a dedicated module. Boundary conversions explicit between new `Path`-based dataclasses and legacy string-based inventory outputs.
-3. **Maintain deterministic behavior** — Resolution precedence, ambiguity handling, and warning/error semantics are explicit, testable, and logged.
-4. **Control subprocess scope** — 10-directory cap with two-tier deterministic consolidation and auditability via `resolution_log`.
+The roadmap prioritizes resolution correctness first, data model and discovery integrity second, CLI integration and subprocess scoping third, with validation woven throughout. The `resolution_log` serves as a first-class observability asset for debugging, operator trust, and future v2.25 design decisions.
 
 ---
 
-## Phase 1: Foundation — Pre-work, Models & Resolution Core
+## Phased Implementation Plan
 
-**Goal**: Establish delivery guardrails, data models, and the deterministic resolution algorithm.
+### Phase 1: Data Model, Resolution Core & Algorithm
 
-**Duration**: 6-10 hours (Session 1)
+**Goal**: Ship the resolution algorithm and data model additions so all 6 input forms resolve to a `ResolvedTarget`. Models and resolution are combined because they are tightly coupled — `ResolvedTarget` is meaningless without the algorithm that produces it, and the algorithm can't be tested without the models it returns.
 
-### Milestone 1.0: Pre-work & Delivery Guardrails
+**Milestone A**: `resolve_target()` passes all 6 input form tests with models reviewable in context.
 
-Before code changes begin, produce three lightweight artifacts:
+#### Prerequisites (Architecture Constraints)
 
-1. **Change map**: Enumerate impacted files — `models.py`, new `resolution.py`, `discover_components.py`, `process.py`, `cli.py`, `config.py`, `validate_config.py`, tests.
-2. **Compatibility checklist**: Explicit confirmation of constraints — no `pipeline/`/`sprint/` edits, no async code, existing skill-directory behavior unchanged, `resolve_workflow_path()` untouched.
-3. **Test matrix outline**: Catalog existing tests and identify coverage gaps for new resolution paths.
+- No edits to `pipeline/` or `sprint/` (NFR-WORKFLOW.2)
+- No `async def` or `await` (NFR-WORKFLOW.3)
+- No step renumbering
+- `Path` internally, `str` at backward-compat boundaries
+- Dependency direction: `cli.py → resolution.py → models.py`
 
-These deliverables formalize the continuous testing contract: **`uv run pytest` must pass at every subsequent milestone boundary. A milestone is not complete until existing tests pass.**
+#### Tasks
 
-### Milestone 1.1: Data Models (`models.py`)
+1. **FR-PORTIFY-WORKFLOW.2e** — Add `AgentEntry`, `CommandEntry`, `SkillEntry`, `ComponentTree` dataclasses to `models.py`. Extend `PortifyConfig` with 10 new fields. Preserve `ComponentEntry.path: str`.
+2. **FR-PORTIFY-WORKFLOW.1a** — Input validation (Step R0): reject empty/whitespace/None targets, strip whitespace, handle `"sc:"` edge case.
+3. **FR-PORTIFY-WORKFLOW.1b** — Input classification into `TargetInputType` enum (5 values: `COMMAND_NAME`, `COMMAND_PATH`, `SKILL_DIR`, `SKILL_NAME`, `SKILL_FILE`).
+4. **FR-PORTIFY-WORKFLOW.1c** — Command resolution (Step R1): locate `.md` in `commands_dir`, parse YAML frontmatter, parse `## Activation` for skill reference. Reverse-resolve for skill inputs.
+5. **FR-PORTIFY-WORKFLOW.1d** — Skill resolution (Step R2): construct `sc-<name>-protocol` directory name, locate in `skills_dir`, validate `SKILL.md` exists.
+6. **FR-PORTIFY-WORKFLOW.1e** — Ambiguity resolution: `ERR_AMBIGUOUS_TARGET` for multiple matches within same class. Command-first policy for bare names.
+7. **FR-PORTIFY-WORKFLOW.1f** — Skill-less command guard: skip R3/R4 when `skill_dir` is `None`, proceed to R5 with empty agents/refs/rules/templates/scripts. Emit `"Standalone command"` in `resolution_log`.
+8. **FR-PORTIFY-WORKFLOW.1g** — Project root auto-detection: walk up to find `src/superclaude/` or `pyproject.toml`, fall back to CWD. Support `--commands-dir`, `--skills-dir`, `--agents-dir` overrides with actionable error messages on failure.
+9. Add `time.monotonic()` instrumentation for sub-second performance verification (NFR-WORKFLOW.1).
 
-1. Define `TargetInputType` enum with the 5 spec-defined values: `COMMAND_NAME`, `COMMAND_PATH`, `SKILL_DIR`, `SKILL_NAME`, `SKILL_FILE`
-2. Define `ResolvedTarget` dataclass with all spec-required fields: `input_form: str`, `input_type: TargetInputType`, `command_path: Path | None`, `skill_dir: Path | None`, `project_root: Path`, `commands_dir: Path`, `skills_dir: Path`, `agents_dir: Path`
-3. Define `CommandEntry` (Tier 0), `SkillEntry` (Tier 1), `AgentEntry` (Tier 2) dataclasses
-4. Define `ComponentTree` with `command`, `skill`, `agents` fields plus `component_count`, `total_lines`, `all_source_dirs` computed properties
-5. Extend `PortifyConfig` with the spec-required fields: `target_input`, `target_type`, `command_path`, `commands_dir`, `skills_dir`, `agents_dir`, `project_root`, `include_agents`, `save_manifest_path`, `component_tree`
-6. Augment `derive_cli_name()` to prefer the resolved command name when available, while retaining backward-compatible fallback behavior
-7. Implement `to_flat_inventory()` → backward-compatible `ComponentInventory` conversion (`Path` → `str` at boundary)
-8. Implement `to_manifest_markdown()` → human-readable Markdown output
-9. Add error code constants: `ERR_TARGET_NOT_FOUND`, `ERR_AMBIGUOUS_TARGET`, `ERR_BROKEN_ACTIVATION`, `WARN_MISSING_AGENTS`
+#### Validation
 
-**Validation gate**: Unit tests for all dataclass construction, `to_flat_inventory()` round-trip, error code values. Existing test suite passes.
+- **NFR-WORKFLOW.1**: All 6 forms resolve in <1s (instrumented).
+- **NFR-WORKFLOW.3**: No `async def` or `await` in `resolution.py`.
+- **NFR-WORKFLOW.4**: Existing `resolve_workflow_path()` preserved unchanged; `TARGET` is a superset.
+- **SC-3**: 6 input forms resolve correctly.
+- **SC-10**: Sync-only enforcement via grep check.
 
-### Milestone 1.2: Resolution Algorithm (`resolution.py`)
+#### Tests (~15)
 
-1. Implement `resolve_target(target: str, ...) → ResolvedTarget` with `time.monotonic()` timing (`FR-PORTIFY-WORKFLOW.1`, `NFR-001`)
-2. Implement input classification: detect which of 6 forms the input matches (`FR-PORTIFY-WORKFLOW.1`)
-3. Implement `sc:` prefix stripping with empty-after-strip guard → `ERR_TARGET_NOT_FOUND` (`FR-PORTIFY-WORKFLOW.1`)
-4. Implement empty/whitespace/None guard → `ERR_TARGET_NOT_FOUND` (`FR-PORTIFY-WORKFLOW.1`)
-5. Implement ambiguity detection → `ERR_AMBIGUOUS_TARGET` with command-first policy (`FR-PORTIFY-WORKFLOW.1`)
-6. Implement command → skill link via `## Activation` parsing with `Skill sc:<name>-protocol` pattern (`FR-PORTIFY-WORKFLOW.1`)
-7. Implement skill → command backward-resolution via `sc-`/`-protocol` stripping heuristic (`FR-PORTIFY-WORKFLOW.1`)
-8. Handle edge cases: standalone command (`skill=None`), standalone skill (`command=None`), multi-skill commands (primary only, secondaries warned) (`FR-PORTIFY-WORKFLOW.1`)
+Unit tests for each input form, edge cases (empty, `sc:`, nonexistent), ambiguity, command-first policy, root detection fallback, standalone command path.
 
-> **Architect focus**: Keep `resolution.py` pure — no side effects, no I/O beyond file reads. This makes it trivially testable and keeps the resolution algorithm deterministic. Log all resolution decisions (which input form was detected, why command-first policy was applied) for debugging user-reported issues.
+#### Risks Addressed
 
-**Validation gate**: Tests for all 6 input forms, all error codes, edge cases. Resolution completes <1s. Existing test suite passes.
+| Risk | Severity | Governance | Mitigation | Contingency |
+|------|----------|------------|------------|-------------|
+| RISK-2: Backward compat break | High | Release-blocking | Preserve `resolve_workflow_path()` unchanged; TARGET is a superset; regression fixtures for current skill-directory flows | Narrow new resolution logic to explicit new input forms only; preserve legacy path-first routing for old forms |
+| RISK-5: Root detection fails | Low | Managed | Explicit `--*-dir` overrides as escape hatch with helpful error messages | Promote override flags in operator docs or CLI help |
+| RISK-6: Naming convention fragility | Low | Managed | Best-effort reverse-resolution with warning, not error; standalone skills remain valid | Add explicit metadata linkage in future release if naming drift appears |
 
----
+#### Exit Criteria
 
-## Phase 2: Integration — Discovery, Process, CLI
+- All six input forms resolve to `ResolvedTarget` with correct classification.
+- Performance instrumentation confirms <1s resolution.
+- Existing skill-directory workflow behavior unchanged.
+- `resolution_log` captures resolution path for all forms.
 
-**Goal**: Wire resolution into the existing pipeline without breaking backward compatibility.
-
-**Duration**: 8-12 hours (Session 2)
-
-### Milestone 2.1: Component Discovery (`discover_components.py`)
-
-*Can run in parallel with 2.2*
-
-1. Implement agent extraction from SKILL.md using the 6 spec-defined `AGENT_PATTERNS` from the resolution algorithm (`FR-PORTIFY-WORKFLOW.2`):
-   - Backtick-agent notation
-   - YAML arrays
-   - Spawn/delegate/invoke verbs
-   - `uses` references
-   - Model-parenthetical patterns
-   - `agents/` path patterns
-2. Build `ComponentTree` from resolved target (`FR-PORTIFY-WORKFLOW.2`)
-3. Handle missing agents: `found=False`, emit warnings, continue (`FR-PORTIFY-WORKFLOW.2`)
-4. Implement `--include-agent` deduplication with `referenced_in="cli-override"` precedence as part of Step R3 agent resolution, with test ownership in this milestone (`FR-PORTIFY-WORKFLOW.2`)
-
-> **Architect focus**: Preserve one-way discovery depth. Avoid recursive agent-to-agent expansion in this release; it would alter scope and risk profile. Keep missing references observable but non-fatal.
-
-**Validation gate**: Agent extraction tests against synthetic SKILL.md with all 6 patterns. Missing agent warning tests. Existing test suite passes.
-
-### Milestone 2.2: Process Extension (`process.py`)
-
-*Can run in parallel with 2.1*
-
-1. Add `additional_dirs` parameter to `PortifyProcess` (`FR-PORTIFY-WORKFLOW.3`)
-2. Build `--add-dir` args from `ComponentTree.all_source_dirs` with deduplication (`FR-PORTIFY-WORKFLOW.3`)
-3. Implement directory cap at 10 with two-tier consolidation (`FR-PORTIFY-WORKFLOW.3`, `NFR-005`):
-   - **Tier 1**: `os.path.commonpath()` to merge directories sharing common ancestors, but only when the common parent contains no more than 3x the total file count of its constituent directories
-   - **Tier 2**: If still over cap after Tier 1, select top 10 by component count — deterministic, auditable, and ensures the most relevant directories survive
-4. Record consolidation decisions in `resolution_log`
-5. Verify `additional_dirs=None` preserves exact v2.24 behavior (SC-11)
-
-> **Architect focus**: This is a containment boundary, not a feature expansion point. The two-tier consolidation ensures robustness for skills referencing agents scattered across unrelated directories without deferring a known gap.
-
-**Validation gate**: Process invocation tests with 0, 5, 15 directories. Consolidation logic tests including Tier 2 fallback. Existing test suite passes.
-
-### Milestone 2.3: CLI & Config (`cli.py`, `config.py`)
-
-*Depends on 2.1 and 2.2*
-
-1. Change CLI argument from `WORKFLOW_PATH` to `TARGET` (`FR-PORTIFY-WORKFLOW.1`)
-2. Add `--commands-dir`, `--skills-dir`, `--agents-dir` override options (`FR-PORTIFY-WORKFLOW.1`)
-3. Add `--include-agent` option with empty-string filtering; keep CLI ownership limited to argument capture while the dedup algorithm remains in Step R3 discovery logic (`FR-PORTIFY-WORKFLOW.2`)
-4. Add `--save-manifest` option (`FR-PORTIFY-WORKFLOW.2`)
-5. Extend `load_portify_config()` with new parameter passthrough (`FR-PORTIFY-WORKFLOW.1`, `FR-PORTIFY-WORKFLOW.2`, `FR-PORTIFY-WORKFLOW.3`)
-6. Extend `ValidateConfigResult` with `command_path`, `skill_dir`, `target_type`, `agent_count`, `warnings` fields (`FR-PORTIFY-WORKFLOW.1`, `FR-PORTIFY-WORKFLOW.2`)
-
-> **Architect focus**: CLI is the highest user-visible risk area. Minimize surprise by preserving existing success paths and keeping new behavior additive. Existing skill-directory inputs must resolve identically to v2.24.
-
-**Validation gate**: CLI integration tests for all new options. Config round-trip tests. Existing test suite passes.
+**Estimated effort**: 2–3 days
 
 ---
 
-## Phase 3: Validation, Artifacts & Compatibility Proof
+### Phase 2: Component Tree Discovery & Agent Extraction
 
-**Goal**: Full test coverage, artifact enrichment, backward-compatibility proof.
+**Goal**: Build the hierarchical `ComponentTree` with Tier 0 (command), Tier 1 (skill + subdirectories), and agent entries.
 
-**Duration**: 5-6 hours (Session 3)
+**Milestone B**: `run_discover_component_tree()` produces a complete `ComponentTree` for a standard workflow.
 
-### Milestone 3.1: Validation Extension (`validate_config.py`)
+#### Tasks
 
-1. Add check 5: command → skill link validity (`FR-PORTIFY-WORKFLOW.1` / `FR-PORTIFY-WORKFLOW.2`)
-2. Add check 6: referenced agent existence (`FR-PORTIFY-WORKFLOW.2`)
-3. Extend `to_dict()` with all new fields required by the spec, including `warnings`, `command_path`, `skill_dir`, `target_type`, and `agent_count`; treat completeness here as mandatory because downstream contract/resume telemetry would otherwise lose data silently
+1. **FR-PORTIFY-WORKFLOW.2a** — Agent extraction (Step R3): parse SKILL.md with 6 `AGENT_PATTERNS` regexes, resolve to `agents_dir/<name>.md`, record found/missing status, deduplicate by name.
+2. **FR-PORTIFY-WORKFLOW.2b** — Manual agent injection via `--include-agent`: resolve by name or path, ignore empty values, deduplicate (manual overrides auto-discovered via `referenced_in="cli-override"`).
+3. **FR-PORTIFY-WORKFLOW.2c** — Tier 2 inventory (Step R4): scan `refs/` → `.md`, `rules/` → all files, `templates/` → all files, `scripts/` → all files.
+4. **FR-PORTIFY-WORKFLOW.2d** — ComponentTree assembly (Step R5): assemble all components with `Path`-based dataclasses.
+5. **FR-PORTIFY-WORKFLOW.2h** — Discovery refactoring: new `run_discover_component_tree()` entry point; existing `run_discover_components()` becomes thin wrapper calling new function + `to_flat_inventory()`.
+6. **FR-PORTIFY-WORKFLOW.2i** — `derive_cli_name()` enhancement: prefer `command_path.stem` when available, fall back to existing skill-name derivation.
 
-> **Architect focus**: Validation should encode system invariants, not only user messaging. The enriched checks improve traceability for debugging and future v2.25 expansion.
+#### Validation
 
-### Milestone 3.2: Artifact Enrichment
+- **NFR-WORKFLOW.4**: Existing test suite passes unchanged — `to_flat_inventory()` produces identical `ComponentInventory`.
+- **SC-4**: Missing agents produce warnings, not errors.
+- **SC-5**: `--include-agent` injects agents into tree with correct deduplication.
+- **SC-7**: Existing tests pass.
 
-1. Enrich `component-inventory.md` with a Command section, Agents table, Cross-Tier Data Flow section, Resolution Log section, and explicit frontmatter fields: `source_command`, `source_skill`, `component_count`, `total_lines`, `agent_count`, `has_command`, `has_skill`, `duration_seconds` (`FR-PORTIFY-WORKFLOW.2`)
+#### Tests (~12)
 
-### Milestone 3.3: Full Test Suite & Backward Compatibility
+Agent extraction (found, missing, dedup), manual injection, tier 2 scan, `to_flat_inventory()` backward compat, standalone command (no skill) produces empty tree.
 
-Organized into four validation streams for clarity:
+#### Risks Addressed
 
-#### Stream A — Unit Validation
-- Resolver tests for all 6 input forms and all failure modes
-- Model conversion and round-trip tests
-- Regex extraction tests (all 6 agent patterns)
-- Directory consolidation tests (both tiers)
+| Risk | Severity | Governance | Mitigation | Contingency |
+|------|----------|------------|------------|-------------|
+| RISK-1: Agent regex misses | Medium | Release-gating | Implement all 6 known patterns; `--include-agent` escape hatch; mark missing agents as warnings; log gaps in `resolution_log` | Maintain pattern audit list for v2.25 updates based on observed misses |
+| RISK-4: YAML parse failures | Low | Managed | Treat frontmatter as additive metadata, not hard dependency; fall back to naming conventions; emit warnings instead of aborting | Add malformed fixture tests to prevent crash regressions |
 
-#### Stream B — Integration Validation
-- CLI invocation tests with new and legacy inputs
-- Validation result shape tests
-- Manifest and inventory artifact tests
-- Process invocation tests with and without `additional_dirs`
+#### Exit Criteria
 
-#### Stream C — Regression Validation
-- Existing suite passes unchanged (zero modifications)
-- Old skill-directory flows match prior behavior exactly
-- No changes under restricted directories: `pipeline/`, `sprint/`
+- Discovery produces complete trees for standard and standalone workflows.
+- Missing agents degrade gracefully with warnings.
+- `to_flat_inventory()` backward compatibility confirmed.
+- `resolution_log` records extraction gaps.
 
-#### Stream D — Non-Functional Verification
-- Resolution timing under 1 second (`time.monotonic()` assertions)
-- `grep -r "async def\|await" src/superclaude/cli/cli_portify/` returns empty (NFR-003)
-- `git diff --name-only` against `pipeline/` and `sprint/` shows no changes (NFR-002)
-- Directory cap respected with >10 dirs input (NFR-005)
-
-**Validation gate**: All 12 success criteria verified. All ~37 new tests pass. Full existing test suite green.
+**Estimated effort**: 2 days
 
 ---
 
-## Risk Assessment & Mitigation
+### Phase 3: CLI Integration & Artifact Enrichment
 
-| # | Risk | Severity | Probability | Mitigation | Phase |
-|---|------|----------|-------------|------------|-------|
-| 1 | Backward-compat break from TARGET arg change | High | Low | Preserve `resolve_workflow_path()` unchanged; skill-directory inputs route through backward path; existing fixtures as regression tests; continuous testing gate at every milestone | 2.3 |
-| 2 | Resolution ambiguity or unstable precedence | High | Low | Encode precedence centrally in `resolution.py`; test same-class ambiguity separately from cross-class command-first precedence; descriptive typed errors | 1.2 |
-| 3 | Agent regex misses references | Medium | Medium | `--include-agent` escape hatch; iterate patterns post-release; corpus-style tests covering each pattern | 2.1 |
-| 4 | Subprocess `--add-dir` overflow | Medium | Low | Cap at 10 with two-tier consolidation (commonpath + top-10-by-component-count); resolution_log audit trail | 2.2 |
-| 5 | Skill → command reverse-resolution fragile | Low | Medium | Missing command = warning only, pipeline continues with `command=None` | 1.2 |
-| 6 | Non-standard project layout causes root detection failure | Low | Medium | `--commands-dir`/`--skills-dir`/`--agents-dir` explicit overrides; actionable error messages | 2.3 |
-| 7 | CLI contract drift confuses current users | Medium | Medium | Keep current usage forms working; explicit help text for all accepted target types; test both new and legacy invocation patterns | 2.3 |
-| 8 | YAML frontmatter parse failure | Low | Low | Graceful degradation to convention-based discovery | 1.2 |
+**Goal**: Wire resolution and discovery into the CLI, enrich `component-inventory.md`, add `--save-manifest`. This phase isolates the high-risk `WORKFLOW_PATH → TARGET` user-facing argument change for focused review.
 
-**Highest-priority mitigation**: Risk 1 (backward compat). Addressed structurally by the continuous testing gate established in Milestone 1.0 — existing tests must pass at every milestone, not just Phase 3.
+**Milestone C**: `superclaude cli-portify run roadmap --dry-run` produces enriched inventory with command/agent sections.
+
+#### Tasks
+
+1. **CLI argument change** — Replace `WORKFLOW_PATH` with `TARGET` argument (remove `exists=True` constraint). Add `--commands-dir`, `--skills-dir`, `--agents-dir`, `--include-agent`, `--save-manifest` options via Click decorators.
+2. **FR-PORTIFY-WORKFLOW.2f** — Enriched `component-inventory.md`: add `## Command`, `## Agents`, `## Cross-Tier Data Flow`, `## Resolution Log` sections. New frontmatter fields: `source_command`, `source_skill`, `agent_count`, `has_command`, `has_skill`.
+3. **FR-PORTIFY-WORKFLOW.2g** — `--save-manifest`: serialize `ComponentTree` via `to_manifest_markdown()` after Step 2. Write-only in v2.24.1.
+4. **SC-11 compliance** — Ensure `ValidateConfigResult.to_dict()` includes `warnings`, `command_path`, `skill_dir`, `target_type`, `agent_count`.
+
+#### Validation
+
+- **NFR-WORKFLOW.2**: Zero changes to `pipeline/` or `sprint/` — verified via `git diff --name-only`.
+- **SC-1**: Dry-run produces enriched inventory.
+- **SC-2**: Existing skill-dir input produces identical behavior plus additional discovery.
+- **SC-6**: `--save-manifest` writes valid Markdown manifest.
+- **SC-9**: No base-module changes.
+- **SC-11**: `to_dict()` field completeness verified.
+
+#### Tests (~5)
+
+CLI argument parsing, enriched artifact content validation, manifest output, `to_dict()` field presence.
+
+#### Risks Addressed
+
+| Risk | Severity | Governance | Mitigation | Contingency |
+|------|----------|------------|------------|-------------|
+| RISK-2: CLI argument change | High | Release-blocking | Existing `WORKFLOW_PATH` inputs continue to work as `TARGET` is a superset; regression against v2.24 baseline | Revert to `WORKFLOW_PATH` with optional `--target` flag if breakage detected |
+
+#### Exit Criteria
+
+- `WORKFLOW_PATH → TARGET` migration passes all existing CLI tests.
+- Enriched inventory contains all required sections and frontmatter.
+- `to_dict()` serialization includes all new fields without breaking downstream consumers (`contract.py`, `resume.py`).
+
+**Estimated effort**: 1–2 days
 
 ---
 
-## Resource Requirements & Dependencies
+### Phase 4: Subprocess Scoping & Directory Consolidation
 
-### Internal Dependencies (Modification Order)
+**Goal**: Extend `PortifyProcess` to pass discovered directories to Claude subprocesses with controlled scoping.
 
-```
-models.py ──────────┐
-                     ├──→ discover_components.py ──┐
-resolution.py ──────┘         (2.1)                ├──→ cli.py + config.py ──→ validate_config.py
-                     ┌──→ process.py ──────────────┘         (2.3)                 (3.1)
-                     │         (2.2)
-models.py ───────────┘
-```
+**Milestone D (partial)**: Subprocess invocations include all component directories via `--add-dir` with consolidation.
 
-- `models.py` and `resolution.py` are independent — build in parallel (Phase 1)
-- `discover_components.py` and `process.py` depend on models — build in parallel (Phase 2, milestones 2.1 ∥ 2.2)
-- `cli.py` and `config.py` depend on all above — sequential (Phase 2, milestone 2.3)
-- `validate_config.py` depends on all above — sequential (Phase 3)
+#### Tasks
 
-### External Dependencies
+1. **FR-PORTIFY-WORKFLOW.3a** — Add `additional_dirs: list[Path] | None = None` to `PortifyProcess.__init__()`. Normalize all paths with `.resolve()`.
+2. **FR-PORTIFY-WORKFLOW.3b** — Deduplication in `_build_add_dir_args()`: `set[Path]` across work_dir, workflow_path, and all additional_dirs.
+3. **FR-PORTIFY-WORKFLOW.3c** — Directory cap and consolidation: >10 dirs triggers warning, group by nearest common parent (2-level depth via `os.path.commonpath`), replace with parent if ≤3x file count, fall back to top-10 by component count. Record all consolidation decisions in `resolution_log`.
+4. Verify `additional_dirs=None` preserves existing v2.24 behavior.
 
-| Dependency | Risk | Notes |
-|------------|------|-------|
-| Click framework | None | Stable, only additive option changes |
-| Python `re` | None | Stdlib, no version concerns |
-| Python `os.path.commonpath()` | None | Stdlib, Python 3.5+ |
-| Existing `ComponentEntry`/`ComponentInventory` | Low | Extended, not modified |
-| Existing `ClaudeProcess` | Low | Subclass extension only |
-| Existing `validate_config.py` | Low | Additive checks only |
+#### Validation
+
+- **NFR-WORKFLOW.5**: Warning emitted at >10 dirs.
+- **SC-12**: Consolidation triggers with warning and log entries.
+- Existing behavior preserved when `additional_dirs=None`.
+
+#### Tests (~5)
+
+Deduplication, consolidation trigger, fallback behavior, None passthrough, diagnostic output verification.
+
+#### Risks Addressed
+
+| Risk | Severity | Governance | Mitigation | Contingency |
+|------|----------|------------|------------|-------------|
+| RISK-3: `--add-dir` explosion | Medium | Release-gating | Cap at 10 with consolidation algorithm; dedup by resolved path; warning logs | Add diagnostic output to clarify which directories were retained or collapsed |
+
+#### Exit Criteria
+
+- Add-dir generation is deterministic and deduplicated.
+- Over-scoping controlled via cap and consolidation.
+- Existing v2.24 behavior unchanged when `additional_dirs=None`.
+- `resolution_log` records consolidation decisions.
+
+**Estimated effort**: 1 day
+
+---
+
+### Phase 5: Integration Testing & Final Validation
+
+**Goal**: Full end-to-end validation across all input forms, backward compatibility, and NFR enforcement.
+
+**Milestone D (complete)**: All ~37 new tests pass, existing suite unchanged, all 12 success criteria met.
+
+#### Tasks
+
+1. Run full test suite: `uv run pytest` — confirm zero regressions.
+2. Verify NFR-WORKFLOW.2: `git diff --name-only` shows no `pipeline/` or `sprint/` changes.
+3. Verify NFR-WORKFLOW.3: `grep -r "async def\|await"` on new/modified files returns empty.
+4. End-to-end smoke tests for SC-1 through SC-12.
+5. Document decisions on open questions OQ-1 through OQ-7 — confirm deferral to v2.25 with tracking issues.
+
+#### Exit Criteria
+
+- All 12 success criteria (SC-1 through SC-12) green.
+- All 5 NFRs verified with evidence.
+- No unresolved high-severity compatibility risk.
+- OQ-1 through OQ-7 tracked in issue tracker for v2.25.
+
+**Estimated effort**: 1 day
+
+---
+
+## Risk Assessment
+
+### Consolidated Risk Table
+
+| Risk | Severity | Governance Tier | Phase Mitigated | Mitigation Strategy | Contingency |
+|------|----------|----------------|-----------------|---------------------|-------------|
+| RISK-2: Backward compat break | High | Release-blocking | 1, 3, 5 | Preserve `resolve_workflow_path()`; TARGET superset of WORKFLOW_PATH; full existing test suite; gate on SC-2, SC-7, SC-9 | Narrow new resolution to explicit new input forms only; preserve legacy path-first routing |
+| RISK-1: Agent regex misses | Medium | Release-gating | 2 | All 6 patterns; `--include-agent` escape hatch; warnings not errors; `resolution_log` gaps | Pattern audit list for v2.25 based on observed misses |
+| RISK-3: `--add-dir` explosion | Medium | Release-gating | 4 | Cap at 10; consolidation algorithm; dedup by resolved path; warning logs | Diagnostic output for retained/collapsed directories |
+| RISK-4: YAML parse failures | Low | Managed | 2 | Additive metadata, not hard dependency; convention-based fallback; warnings not aborts | Malformed fixture tests to prevent crash regressions |
+| RISK-5: Root detection fails | Low | Managed | 1 | `--*-dir` overrides; actionable error messages; fallback chain | Promote override flags in docs/help |
+| RISK-6: Naming convention fragility | Low | Managed | 1 | Best-effort with warning; standalone skills valid; post-release audit | Explicit metadata linkage in future release |
+
+### Governance Definitions
+
+- **Release-blocking**: Must be resolved before release. Unresolved = no-go.
+- **Release-gating**: Must be mitigated to warning-only degradation. Unresolved hard failures = no-go.
+- **Managed**: Monitored with observability. Acceptable to ship with known limitations if warnings are in place.
+
+---
+
+## Resource Requirements
 
 ### Engineering Resources
 
-- **Primary implementer**: Python CLI and dataclass modeling, path resolution, compatibility-focused development
-- **Reviewer**: Regression review, CLI/UX review, artifact semantics check
-- **QA support**: Edge-case scenario validation, timing and compatibility confirmation
+1. **Primary backend/CLI engineer** — Implements resolution, discovery, models, CLI wiring, and process changes.
+2. **QA-focused engineer or reviewer** — Builds regression fixtures and validates all 12 success criteria.
+3. **Architect/reviewer** — Verifies boundary discipline, compatibility posture, and downstream contract safety.
+
+### Technical Dependencies
+
+#### Internal (must exist before Phase 1)
+
+- `models.py` — existing `ComponentEntry`, `ComponentInventory`, `PortifyConfig`
+- `discover_components.py` — existing discovery logic to wrap
+- `process.py` — existing `PortifyProcess` / `ClaudeProcess`
+- `contract.py`, `resume.py` — downstream consumers of `ValidateConfigResult`
+
+#### External
+
+- **Click** >=8.0.0 — CLI framework (already in deps)
+- **Python stdlib**: `pathlib.Path`, `re`, `os.path.commonpath`, `time.monotonic`
+- **UV toolchain** — all execution via `uv run`
+
+### Module Dependency Graph
+
+```
+cli.py → resolution.py → models.py
+discover_components.py → resolution.py → models.py
+process.py → models.py
+```
+
+No circular dependencies. `resolution.py` is the single new module.
+
+### Architectural Dependency Sequencing
+
+1. `models.py` dataclasses must land with resolution logic (Phase 1 — coupled by design).
+2. Discovery wraps resolution output (Phase 2 depends on Phase 1).
+3. CLI wires resolution + discovery together (Phase 3 depends on Phases 1–2).
+4. Subprocess scoping consumes discovery output (Phase 4 depends on Phase 2).
+5. Validation covers all phases (Phase 5 depends on Phases 1–4).
 
 ---
 
-## Success Criteria & Validation Approach
+## Success Criteria Validation Matrix
 
-| # | Criterion | Test Method | Phase |
-|---|-----------|-------------|-------|
-| SC-1 | `resolve_target("roadmap")` resolves correctly <1s | Unit test with timing assertion | 1.2 |
-| SC-2 | `resolve_target("sc:roadmap")` strips prefix | Unit test | 1.2 |
-| SC-3 | Skill-directory backward resolution | Unit test | 1.2 |
-| SC-4 | `ERR_TARGET_NOT_FOUND` for nonexistent | Unit test | 1.2 |
-| SC-5 | `ComponentTree` correctness | Integration test | 2.1 |
-| SC-6 | All 6 regex patterns match | Unit test with synthetic SKILL.md | 2.1 |
-| SC-7 | `--include-agent` dedup | Unit test for Step R3 dedup algorithm; optional CLI invocation coverage may be added separately | 2.1 |
-| SC-8 | Missing agents warn, don't fail | Unit test | 2.1 |
-| SC-9 | `to_flat_inventory()` equivalence | Comparison test against existing output | 3.3 |
-| SC-10 | All existing tests pass unchanged | Full `uv run pytest` | 3.3 |
-| SC-11 | `additional_dirs=None` preserves v2.24 | Process invocation test | 2.2 |
-| SC-12 | ~37 new tests pass | Full `uv run pytest` | 3.3 |
-
-### Release Gate
-
-Do not mark the release complete until:
-1. All new tests pass (Streams A & B)
-2. All existing tests pass unchanged (Stream C)
-3. Backward-compatibility evidence is recorded (Stream C)
-4. Directory cap behavior is deterministic and logged (Stream D)
-5. Warning/error semantics are stable and documented through tests
-6. No `async def`/`await` in new code (Stream D)
-7. No `pipeline/`/`sprint/` modifications (Stream D)
+| Criterion | Description | Phase | Validation Method |
+|-----------|-------------|-------|-------------------|
+| SC-1 | Dry-run enriched inventory | 3 | Manual + automated test |
+| SC-2 | Skill-dir backward compat | 3, 5 | Existing test suite comparison to v2.24 baseline |
+| SC-3 | 6 input forms resolve <1s | 1 | `time.monotonic()` instrumentation |
+| SC-4 | Missing agents = warnings | 2 | Unit test with intentionally missing refs |
+| SC-5 | `--include-agent` works | 2 | Unit test with dedup/override verification |
+| SC-6 | `--save-manifest` output | 3 | Unit test for file structure/readability |
+| SC-7 | Existing tests unchanged | 5 | `uv run pytest` full suite, zero regressions |
+| SC-8 | ~37 new tests pass | 5 | `uv run pytest` with per-phase breakdown (~15+~12+~5+~5) |
+| SC-9 | Zero pipeline/sprint changes | 5 | `git diff --name-only` exclusion check |
+| SC-10 | No async code | 5 | `grep -r "async def\|await"` on modified files |
+| SC-11 | `to_dict()` new fields | 3 | Unit test for `warnings`, `command_path`, `skill_dir`, `target_type`, `agent_count` |
+| SC-12 | Dir consolidation at >10 | 4 | Unit test with >10-dir scenario |
 
 ---
 
-## Timeline Estimates
+## Timeline Summary
 
-| Phase | Scope | Hours | Session |
-|-------|-------|-------|---------|
-| Phase 1 | Pre-work + Models + Resolution | 6-10h | Session 1 |
-| Phase 2 | Discovery + Process + CLI | 8-12h | Session 2 |
-| Phase 3 | Validation + Artifacts + Proof | 5-6h | Session 3 |
-| **Total** | | **19-28h** | **3 sessions** |
+| Phase | Description | Effort | Cumulative |
+|-------|-------------|--------|------------|
+| 1 | Data Model & Resolution Core | 2–3 days | 2–3 days |
+| 2 | Component Tree Discovery | 2 days | 4–5 days |
+| 3 | CLI Integration & Artifacts | 1–2 days | 5–7 days |
+| 4 | Subprocess Scoping | 1 day | 6–8 days |
+| 5 | Integration & Validation | 1 day | 7–9 days |
 
-### Milestone Checkpoints
+**Total**: 7–9 working days for a single developer.
 
-- **Checkpoint A** (end of Phase 1): Models + resolver stable, all 6 input forms resolve correctly
-- **Checkpoint B** (end of Phase 2): Component tree + process integration + CLI stable
-- **Checkpoint C** (end of Phase 3): All validation streams green, regression and NFR proof complete
+### Milestone Schedule
+
+| Milestone | Gate | Phase | Covers |
+|-----------|------|-------|--------|
+| A | Resolution complete | 1 | FR-PORTIFY-WORKFLOW.1 family |
+| B | Discovery complete | 2 | FR-PORTIFY-WORKFLOW.2 family |
+| C | CLI integration complete | 3 | CLI wiring, artifacts, serialization |
+| D | All success criteria validated | 4–5 | FR-PORTIFY-WORKFLOW.3 + SC-1 through SC-12 |
+
+### Timeline Assumptions
+
+1. Existing fixtures and current v2.24 behavior are available for comparison.
+2. No hidden downstream consumers beyond `contract.py` and `resume.py` block `to_dict()` changes.
+3. No previously unknown naming convention deviations materially affect reverse-resolution.
+4. Validation runs continuously during implementation rather than being deferred to Phase 5.
 
 ---
 
-## Architectural Recommendations
+## Open Questions Deferred to v2.25
 
-1. **Keep `resolution.py` pure**: No side effects, no I/O beyond file reads. This makes it trivially testable and keeps the resolution algorithm deterministic.
-
-2. **Boundary conversion in `to_flat_inventory()` only**: The `Path` → `str` conversion should happen at exactly one point. Don't leak `Path` objects into existing code that expects `str`.
-
-3. **Regex patterns as module constants**: Keep the 6 `AGENT_PATTERNS` aligned to the resolution algorithm in `resolution.py` per the spec. If implementation later places compiled `re.Pattern` constants in `discover_components.py` for performance or organization, document that as a deliberate implementation choice rather than the normative spec shape.
-
-4. **Continuous testing as a structural gate**: Run `uv run pytest` at every milestone boundary. A milestone is not complete until existing tests pass. This is not advisory — it is the primary safety net against backward-compatibility regressions.
-
-5. **Log resolution decisions**: The `resolution_log` in directory consolidation is good. Extend this pattern to all resolution decisions (which input form was detected, why command-first policy was applied, etc.). This is invaluable for debugging user-reported issues.
-
----
-
-## Deferred Items (v2.25+)
-
-These are explicitly out of scope per the spec's open questions:
-
-1. **Recursive agent-to-agent resolution** (OI-1) — current: O(1)-depth only
-2. **`--manifest` load support** (OI-2) — current: write-only via `--save-manifest`
-3. **`--exclude-component` filtering** (OI-3)
-4. **Quality scores for this spec** (OI-4)
-
-Roadmap-originated observations for a future release (not spec-defined open items):
-- Multi-source agent tracking — current: first source wins
-- Configurable consolidation threshold — current: hardcoded cap at 10
+| ID | Question | Monitoring Approach |
+|----|----------|-------------------|
+| OQ-1 | Recursive agent-to-agent resolution | Track requests; O(1)-depth in v2.24.1 |
+| OQ-2 | `--manifest` load support | Write-only in v2.24.1; track demand |
+| OQ-3 | `--exclude-component` support | Track user requests |
+| OQ-4 | Multi-skill command handling | Watch for commands needing multi-skill resolution |
+| OQ-5 | Agent regex completeness | Audit SKILL.md files for uncovered patterns post-launch |
+| OQ-6 | Naming convention deviations | Track silent reverse-resolution failures |
+| OQ-7 | `to_dict()` downstream consumers | Audit consumers beyond `contract.py` and `resume.py` |

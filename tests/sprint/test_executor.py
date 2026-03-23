@@ -50,6 +50,8 @@ def _make_config(tmp_path: Path, num_phases: int = 2) -> SprintConfig:
         start_phase=1,
         end_phase=num_phases,
         max_turns=5,
+        wiring_gate_mode="off",
+        wiring_gate_scope="none",  # bypass scope-based resolution so "off" is used directly
     )
 
 
@@ -628,7 +630,7 @@ class TestPerTaskOrchestration:
             spawn_count[0] += 1
             return (0, 2, 100)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=counting_factory
         )
         assert spawn_count[0] == 3
@@ -640,7 +642,7 @@ class TestPerTaskOrchestration:
         phase = config.phases[0]
         tasks = self._make_tasks(2)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=self._pass_factory
         )
         assert all(r.status == TaskStatus.PASS for r in results)
@@ -658,7 +660,7 @@ class TestPerTaskOrchestration:
         def consume_factory(task, config, phase):
             return (0, 5, 100)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -681,7 +683,7 @@ class TestPerTaskOrchestration:
         ledger = TurnLedger(initial_budget=50, minimum_allocation=5)
         initial = ledger.available()
 
-        results, _ = execute_phase_tasks(
+        results, _, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -695,7 +697,7 @@ class TestPerTaskOrchestration:
         config = _make_config(tmp_path, num_phases=1)
         phase = config.phases[0]
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             [], config, phase, _subprocess_factory=self._pass_factory
         )
         assert results == []
@@ -706,7 +708,7 @@ class TestPerTaskOrchestration:
         phase = config.phases[0]
         tasks = self._make_tasks(1)
 
-        results, _ = execute_phase_tasks(
+        results, _, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=self._fail_factory
         )
         assert results[0].status == TaskStatus.FAIL
@@ -720,7 +722,7 @@ class TestPerTaskOrchestration:
         def timeout_factory(task, config, phase):
             return (124, 10, 200)
 
-        results, _ = execute_phase_tasks(
+        results, _, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=timeout_factory
         )
         assert results[0].status == TaskStatus.INCOMPLETE
@@ -732,7 +734,7 @@ class TestPerTaskOrchestration:
         phase = config.phases[0]
         tasks = self._make_tasks(5)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -1026,7 +1028,7 @@ class TestTurnCountDebit:
         def factory(task, config, phase):
             return (0, 7, 100)  # 7 turns consumed per task
 
-        results, _ = execute_phase_tasks(
+        results, _, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -1120,7 +1122,7 @@ class TestIntegrationSubprocess:
             return outcomes[idx]
 
         ledger = TurnLedger(initial_budget=100, minimum_allocation=5)
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -1178,7 +1180,7 @@ class TestIntegrationSubprocess:
             return (0, 8, 500)
 
         ledger = TurnLedger(initial_budget=25, minimum_allocation=5)
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -1207,7 +1209,7 @@ class TestIntegrationSubprocess:
             return (0, 3, 1024)
 
         ledger = TurnLedger(initial_budget=100, minimum_allocation=5)
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -1340,7 +1342,7 @@ class TestBackwardCompat:
             return (0, 3, 1024)
 
         # No ledger = v1.2.1 behavior (no budget tracking)
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,

@@ -249,7 +249,7 @@ class TestScenarioMixedTypes:
         f = tmp_path / "deviation.md"
         _write_deviation_report(
             f, total=4, slips=1, intentional=2, pre_approved=1, ambiguous=0,
-            slip_ids="DEV-001", no_action_ids="DEV-003 DEV-004",
+            slip_ids="DEV-001", no_action_ids="DEV-002 DEV-003 DEV-004",
         )
         passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert passed, f"Mixed deviation should pass: {reason}"

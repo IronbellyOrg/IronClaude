@@ -1,108 +1,112 @@
 ---
-convergence_score: 0.72
+convergence_score: 0.78
 rounds_completed: 2
 ---
 
-# Adversarial Debate: Opus-Architect (A) vs Haiku-Architect (B)
-
-## Divergence Points Under Debate
-
-From the diff analysis, 14 divergence points were identified. This debate focuses on the 5 most consequential ones where genuine architectural tension exists:
-
-1. Phase 0 necessity (D-1)
-2. Infrastructure parallelization vs sequencing (D-3/D-4)
-3. Validation approach: matrix vs layers (D-8)
-4. Timeline format: qualitative vs quantitative (D-9)
-5. Signal vocabulary resolution timing (D-5)
-
----
+# Adversarial Debate: Analyzer vs Architect Roadmap Variants
 
 ## Round 1: Initial Positions
 
-### D-1: Phase 0 Architecture Confirmation
+### D1: Phase Count and Granularity (6 vs 7)
 
-**Variant A (Opus)**: Phase 0 is unnecessary overhead. The spec is already detailed enough to begin implementation. Open questions are documented in Section 7 with blocking annotations per phase. Developers resolve them just-in-time as they reach the relevant phase. Adding a dedicated pre-coding phase introduces calendar delay (0.5-1 day) for what amounts to a meeting and a decision document. The roadmap already identifies which questions block which phases -- that's sufficient. Starting Phase 1 (pure programmatic foundation) while ambiguities exist in Phase 4 (convergence) is perfectly safe because those concerns are 2-3 phases away.
+**Variant A (Analyzer):** Six phases are sufficient. Monitoring, resume semantics, and UX are cross-cutting concerns that naturally attach to the phases where they're needed — resume logic belongs with the convergence phase, monitoring belongs with the foundation. A dedicated phase creates artificial separation and delays integration testing of these concerns with the code they serve.
 
-**Variant B (Haiku)**: Phase 0 is essential risk management, not overhead. The spec contains at least 3 blocking ambiguities: timeout semantics for convergence iterations, resume behavior for partial `synthesize-spec`, and scoring precision vs downstream gate boundary handling. These are not isolated to late phases -- they affect domain model design in Phase 1. For example, `PortifyConfig` must include timeout settings, and `PortifyStepResult` must carry resume metadata. If timeout semantics are unresolved, the config model is speculative. Phase 0 costs 0.5-1 day but prevents 2-3 days of rework when Phase 4 forces model changes that ripple back to Phase 1. Front-loading decisions has asymmetric payoff.
+**Variant B (Architect):** A dedicated Milestone 6 is essential precisely *because* these concerns are cross-cutting. When cross-cutting work is distributed across phases, it gets deprioritized at each stop. Resume semantics in particular require coherent design across all failure paths — fragmenting that work across Phase 0, Phase 4, and Phase 5 risks inconsistent behavior. M6 provides a single integration point with its own exit criteria, ensuring these operational concerns receive the same rigor as feature work.
 
-### D-3/D-4: Infrastructure Parallelization vs Sequencing
+### D2: Timeline (20-28 vs 25-32 days)
 
-**Variant A (Opus)**: Phase 5 (Infrastructure) can and should run in parallel with Phase 2 onward. Monitor, logging, contract emission, and diagnostics have no data dependency on Claude-assisted outputs. The critical path diagram shows this clearly: the main pipeline is Phase 1 -> 2 -> 3 -> 4, while infrastructure forks off Phase 1 and merges back before final integration. This parallelism is the single largest opportunity to reduce wall-clock time. Sequential execution is already identified as risk R-8. Refusing to parallelize infrastructure when it's architecturally independent is leaving delivery speed on the table for no safety gain.
+**Variant A (Analyzer):** 20-28 days is achievable because parallel streams A, B, and C allow concurrent work on validation harness, diagnostics, and core implementation. The Analyzer variant doesn't ignore monitoring/resume — it just doesn't serialize them into a blocking phase.
 
-**Variant B (Haiku)**: Subprocess infrastructure must be stable *before* content steps depend on it. Opus's parallelization assumes infrastructure and content are truly independent, but they're not. `PortifyProcess`, monitoring, and gate engine bindings are used by *every* Claude-assisted step. If you build Steps 3-4 (analyze-workflow, design-pipeline) concurrently with the subprocess platform, you're coding against an unstable API. Phase 3 (subprocess orchestration core) should be a prerequisite gate -- build it, test it, then let content steps rely on it. The sequencing adds maybe 2-3 days to calendar time but eliminates integration risk entirely. For a first implementation, safety over speed is the correct trade-off.
+**Variant B (Architect):** The 25-32 day estimate is honest accounting. The Analyzer's parallel streams assume resource availability that may not exist. Even if parallel work is theoretically possible, the sequential dependency chain (FR-PORTIFY-CLI.1→7) constrains the critical path. The extra 5 days reflect the dedicated M6 and a more conservative estimate for convergence engine complexity (M5 at 5-6 days). Underestimating the convergence engine is a known schedule risk.
 
-### D-8: Validation Approach
+### D3: Resume Semantics Location
 
-**Variant A (Opus)**: The SC-001 through SC-014 automated validation matrix provides direct traceability from success criteria to test type to validation method. Every criterion has a clear, auditable test. This is how you prove compliance: a table where each row is a requirement, and each column tells you how it's verified. Layer-based organization (unit -> integration -> compliance) is fine for test execution order, but it doesn't answer "how do I know SC-007 is validated?" You need the matrix for that.
+**Variant A (Analyzer):** Resume is listed as a must-resolve open question before M5, and its implementation naturally spans the phases where failure can occur. Forcing all resume logic into one phase means you're implementing resume for Phase 3 failures *after* Phase 5, which is backwards — you should resolve resume behavior as you build each failure path.
 
-**Variant B (Haiku)**: Layer-based test organization reflects how tests are actually written, executed, and maintained. Unit tests run first and fast, integration tests exercise orchestration, compliance checks are static analysis, and architectural validation ensures invariants. The evidence package concept ties it together: test results, artifact samples, git diff proofs, and boundary test evidence form a releasable bundle. A validation matrix is useful as an index, but organizing tests by layer is how you structure a test suite. The matrix is a view, not an architecture.
+**Variant B (Architect):** The Analyzer's approach sounds logical but creates a practical problem: resume logic implemented incrementally across phases tends to produce inconsistent state machines. M6 consolidates resume into a coherent design *after* all failure paths are known. Yes, this means resume for Phase 3 failures is implemented later — but it's implemented *correctly* against the full failure taxonomy, not speculatively against a partial one.
 
-### D-9: Timeline Format
+### D4: Governance Gates (2 vs 4)
 
-**Variant A (Opus)**: Qualitative sizing (Small/Medium/Large) avoids false precision. Software estimation is notoriously unreliable, and specific day counts create expectations that become constraints. Saying "Phase 4 is Large" communicates relative effort without committing to "2-3 days" that could easily become 5. The team can calibrate S/M/L to their own velocity. Day counts in a roadmap become project management artifacts that get weaponized against implementers.
+**Variant A (Analyzer):** Two gates at Phase 3/4 boundaries are sufficient. Over-gating adds ceremony without proportional risk reduction. The post-M1 gate the Architect proposes is premature — architecture lock should be verified by code review, not a formal governance gate.
 
-**Variant B (Haiku)**: Quantitative estimates (0.5-3 days per phase, 10.5-18 days total) with week-by-week cadence enable real planning. A roadmap without timeline is a wish list. Ranges acknowledge uncertainty (2-3 days, not 2.5 days). The 3-week cadence (foundation, content, validation) gives stakeholders a realistic picture. "Large" means nothing to someone allocating resources or coordinating dependencies. Day ranges with explicit buffer (Week 3) are honest and actionable. If the team finds them too aggressive, they recalibrate -- but they have a starting point.
+**Variant B (Architect):** Four gates are justified by the HIGH complexity classification. The post-M1 gate is specifically valuable because architecture drift before code scales is the cheapest defect to catch and the most expensive to fix later. The post-M3 gate verifies runner behavior before synthesis cost escalates. Two gates leave a gap between M1 and M3 where significant architectural drift can accumulate undetected.
 
-### D-5: Signal Vocabulary Resolution Timing
+### D5: Parallel Streams vs Sequential Milestones
 
-**Variant A (Opus)**: GAP-008 (NDJSON signal vocabulary) is explicitly listed as a blocking open question for Phase 5. This is deliberate -- the vocabulary should be defined before implementation begins. Without knowing what signals the monitor extracts from Claude output, you can't build the monitor. Haiku assumes this will be resolved during implementation, which risks ad-hoc signal design, inconsistent event types, and monitor-subprocess coupling that's hard to refactor.
+**Variant A (Analyzer):** Three named parallel streams (core implementation, validation harness, review/diagnostics) enable better resource utilization. The sequential milestone chain is a project management artifact, not a technical constraint — validation harness work can begin during Phase 1, diagnostics work can begin during Phase 0.
 
-**Variant B (Haiku)**: Signal vocabulary emerges naturally from subprocess implementation. Phase 3 includes signal extraction as part of monitoring and diagnostics work. You can't fully define the vocabulary in isolation because you don't know what Claude's subprocess output looks like until you build the steps. A minimal starting vocabulary (start, complete, error, timeout) is sufficient to begin, and it grows as steps are implemented. Over-specifying signals upfront produces a vocabulary that doesn't match reality.
+**Variant B (Architect):** Parallel streams are a planning optimization, not an architectural feature. The roadmap should specify *what* must be built and in *what order* for correctness. If contributors are available, they can parallelize within the milestone structure. Explicitly naming parallel streams in the roadmap risks normalizing premature work on components whose requirements aren't yet stable.
+
+### D6: Additive-Only Enforcement Mechanism
+
+**Variant A (Analyzer):** The roadmap should prescribe structural comparison or section hashing for NFR-008 enforcement. This is a concrete, testable mechanism that prevents the most dangerous failure mode in panel review — destructive rewrites disguised as "improvements." Leaving this as an implementation decision (as the Architect does) means it might be implemented as a string diff, or worse, not implemented at all.
+
+**Variant B (Architect):** The roadmap should specify *what* must be enforced (additive-only modification), not *how*. Section hashing is one valid approach, but structural comparison has its own failure modes (false positives on reordering, sensitivity to whitespace). Prescribing a mechanism in the roadmap constrains implementers unnecessarily. The exit criteria for M4/M5 require additive-only behavior to be validated — the mechanism is an implementation choice.
+
+### D7: Tradeoff Priority Framework
+
+**Variant A (Analyzer):** A ranked priority framework is a useful heuristic but risks being applied mechanically in situations where the ranking doesn't hold. The Analyzer's framing around "control integrity" provides directional guidance without creating a rigid hierarchy that may not fit every tradeoff scenario.
+
+**Variant B (Architect):** The 5-point priority framework (deterministic control → STRICT gates → base immutability → skill reuse → operational resilience) is essential for a HIGH-complexity release with multiple competing constraints. Without explicit ordering, implementers will resolve tradeoffs based on proximity — whatever concern is closest to the current task wins. The framework prevents this by providing a stable decision rule. "Control integrity" is a useful framing but doesn't help when two valid control-integrity arguments conflict.
 
 ---
 
 ## Round 2: Rebuttals
 
-### D-1: Phase 0 Architecture Confirmation
+### Variant A Rebuts Variant B
 
-**Variant A rebuts B**: The claim that timeout semantics affect `PortifyConfig` in Phase 1 is overstated. Config can define a `timeout_seconds: int` field without knowing whether it applies per-iteration or total-divided-by-iterations. That's a *usage* decision, not a *type* decision. The config stores the value; the convergence loop interprets it. Similarly, resume metadata in `PortifyStepResult` can carry a generic `resume_context: dict` without knowing exact resume semantics. Phase 0 solves a coordination problem, not a technical one. If you're a single implementer (the common case for this project), you resolve ambiguities as you reach them.
+**On dedicated M6:** The Architect claims resume semantics need a consolidated phase, but this creates a waterfall anti-pattern. You can't test resume behavior for Phase 3 failures if you haven't built Phase 3's resume path yet. The Analyzer's approach of resolving resume *as failure paths are built* produces testable increments. The Architect's M6 produces a batch of resume logic that can only be tested after all prior milestones are complete — exactly the kind of late integration risk the Architect claims to be avoiding elsewhere.
 
-**Variant B rebuts A**: A generic `timeout_seconds: int` without defined semantics is exactly the kind of speculative modeling that causes rework. When Phase 4 reveals that timeout must be per-iteration with a separate total budget cap, you need `iteration_timeout` AND `total_budget_timeout` -- two fields, not one. Resume metadata as `dict` is a type-safety abdication. Phase 0 isn't a meeting -- it's a decision record that takes 4 hours and prevents 2 days of refactoring. The "single implementer" argument makes Phase 0 *more* important, not less: a single person has no one to catch their assumptions until late integration.
+**On governance gates:** The Architect's post-M1 gate adds process overhead at the point of lowest risk — before any code exists. Architecture review should be a continuous activity embedded in code review, not a formal gate that blocks progress. The two highest-risk gates (after convergence engine and before release) are where formal governance adds genuine value.
 
-### D-3/D-4: Infrastructure Parallelization vs Sequencing
+**On parallel streams:** The Architect dismisses parallel streams as "planning optimization" but this ignores that the diff analysis explicitly identifies parallel work identification as an Analyzer strength. In a real project, the validation harness (static checks, gate unit tests, contract validators) has zero dependency on Claude-assisted step implementation. Starting this work in Phase 1 rather than waiting until M7 is not premature — it's efficient.
 
-**Variant A rebuts B**: The "unstable API" concern conflates two different things. `PortifyProcess` (the subprocess wrapper) extends `pipeline.ClaudeProcess`, which already has a stable API. The monitor and diagnostics consume subprocess output -- they don't change the subprocess interface. Content steps call `PortifyProcess.run()` and get results. That API is stable from day one because it inherits from a proven base class. What's parallelizable is the *consumer* side: monitor formatting, JSONL emission, TUI rendering, resume logic. These don't affect how Steps 3-7 invoke Claude.
+**On enforcement mechanism:** The Architect says "don't prescribe how" but NFR-008 enforcement is the highest-stakes technical decision in the convergence engine. Leaving it as an implementation decision is precisely how critical controls get implemented as afterthoughts. The roadmap should at minimum require a *specific, testable enforcement mechanism* to be designed during M1, even if it doesn't prescribe section hashing specifically.
 
-**Variant B rebuts A**: `PortifyProcess` extends `ClaudeProcess`, yes, but the extension surface is the risk. `--add-dir` support, prompt construction with `@path` references, exit code capture, timeout state, and diagnostic collection -- these are *new* behaviors. Content steps depend on all of them. If you're building `analyze-workflow` while `PortifyProcess` is still having its `--add-dir` handling debugged, you're blocked or building against mocks that don't match the real behavior. Build the platform, stabilize it, then build on it. This is basic dependency management.
+### Variant B Rebuts Variant A
 
-### D-8: Validation Approach
+**On phase count:** The Analyzer claims monitoring and resume "naturally attach" to existing phases, but the diff analysis notes that the Analyzer "risks treating these as secondary concerns absorbed into other phases." This is exactly right. The Analyzer's own Phase 4 scope is already the most complex phase in either roadmap — adding resume, monitoring, and UX to it creates an overloaded phase where operational concerns compete with convergence engine development for attention and testing time.
 
-**Variant A rebuts B**: The evidence package is a good idea, but it's an output format, not a test organization principle. You can produce an evidence package from matrix-organized tests just as easily. The question is: when a gate fails in production, can you immediately identify which test validates that gate? SC-007 -> Integration -> "Mock convergence loop with known outputs" gives you that in one lookup. Layer-based organization requires you to search across the integration test suite to find convergence-related tests. Traceability is the primary concern for a gate-heavy system.
+**On timeline:** The Analyzer's 20-day lower bound assumes perfect parallel execution, no rework, and no open-question resolution delays. The Analyzer itself identifies four medium-impact open questions as "schedule threats" but doesn't add buffer for resolving them. The Architect's 25-day lower bound is more realistic for a HIGH-complexity release with 9 identified risks and 4 unresolved open questions.
 
-**Variant B rebuts A**: Traceability and organization aren't mutually exclusive. Use the SC matrix as a cross-reference index, but organize the actual test code by layers. This is standard practice -- requirements traceability matrices exist alongside test suites organized by execution characteristics. The matrix tells you *what* validates *what*; the layers tell you *how* and *when* tests run. Both are needed. This is a false dichotomy.
+**On parallel streams:** The Analyzer's Stream C (review/diagnostics, TUI, signal vocabulary, failure classifier) contains work items whose requirements depend on M3-M5 outcomes. Starting "failure classifier" work before the failure taxonomy is complete produces rework. The Architect's sequential milestones don't prevent parallel work — they prevent premature parallel work on unstable requirements.
 
-### D-9: Timeline Format
-
-**Variant A rebuts B**: "A roadmap without timeline is a wish list" -- only if the audience is project managers. For implementers, the roadmap is a dependency graph with effort sizing. S/M/L conveys the same information as "1-2 days" / "2-3 days" / "3-5 days" without the illusion of precision. The 10.5-18 day range spans 70% -- that's not actionable for resource allocation. It's a range so wide it communicates the same thing as S/M/L with more digits.
-
-**Variant B rebuts A**: The range communicates that this is a 2-3 week project, not a 1-week or 6-week project. That's valuable for planning. S/M/L doesn't tell you whether "Large" means 3 days or 3 weeks. The week-by-week cadence (Phase 0-3 in Week 1, Phase 4-6 in Week 2, Phase 7 + buffer in Week 3) creates natural checkpoints. If Week 1 deliverables slip, you know immediately. With S/M/L, there's no temporal reference frame for measuring progress. Ranges acknowledge uncertainty while still enabling planning.
-
-### D-5: Signal Vocabulary Resolution Timing
-
-**Variant A rebuts B**: "Emerges naturally" is another way of saying "ad-hoc." A minimal vocabulary (start, complete, error, timeout) is a vocabulary definition -- that's what Phase 0 or early Phase 5 should produce. The issue isn't defining every signal upfront; it's having *no* plan at all. Without an initial schema, each step's monitoring integration will invent its own signal names, and you'll spend integration time reconciling `step_begin` vs `step_start` vs `phase_started`.
-
-**Variant B rebuts A**: Fair point on naming consistency. A minimal vocabulary defined early is reasonable. But blocking Phase 5 implementation on a comprehensive vocabulary (as Opus's "blocking open question" framing implies) is overkill. Define the minimal set (start, complete, error, timeout, gate_pass, gate_fail) in Phase 1 as constants, extend in Phase 3 when subprocess behavior is understood. This is Haiku's approach with a slightly earlier definition point.
+**On tradeoff framework:** The Analyzer says a rigid hierarchy "may not fit every scenario" but offers no alternative decision mechanism. "Control integrity" is a description of what the system should have, not a tool for resolving conflicts between two control-integrity goals. When deterministic runner control conflicts with operational resilience (e.g., should a timeout kill a convergence iteration or let it finish?), the Architect's framework gives a clear answer. The Analyzer's framing does not.
 
 ---
 
 ## Convergence Assessment
 
-### Areas of Agreement Reached
+### Areas of Agreement
 
-1. **Phase 0 scope** (Partial convergence): Both sides acknowledge that *some* upfront decision-making is needed. The dispute is whether it warrants a named phase or can be handled via the existing open-questions list. **Resolution tendency**: A lightweight Phase 0 (half-day decision record) is the pragmatic middle ground. Both sides implicitly accept this.
+1. **Core architecture is settled.** Both variants agree on complexity (0.85), 18-module structure, base-type extension model, synchronous-only constraint, additive-only requirement, and the same dependency chain. This is not in dispute.
 
-2. **Validation approach** (Strong convergence): Round 2 revealed this is a false dichotomy. Use the SC matrix as a traceability index, organize test code by layers. Both approaches are complementary, not competing. **Agreed**: Merge both -- SC matrix for traceability, layers for test organization, evidence package for release readiness.
+2. **Real evals over mocks.** Both explicitly cite project memory and treat E2E validation and self-portification as release blockers.
 
-3. **Signal vocabulary** (Strong convergence): Both sides converged on "define a minimal vocabulary early, extend during implementation." The disagreement was about *how early* and *how minimal*, not whether to define one. **Agreed**: Define minimal constants in Phase 1, extend in Phase 3.
+3. **Front-load deterministic work.** Both place validate-config and discover-components before any Claude-assisted steps, and both treat them as prerequisites.
 
-4. **Timeline format** (Partial convergence): Variant B's week-by-week cadence provides planning utility that S/M/L doesn't. Variant A's concern about false precision is valid for day-level estimates. **Resolution tendency**: Use Haiku's quantitative ranges with Opus's qualitative sizing as cross-checks, per the diff analysis recommendation.
+4. **Convergence engine is highest risk.** Both identify panel review / convergence as the most complex and risk-dense phase. They differ on how much time to allocate but agree on the risk.
+
+5. **Open questions must be resolved, not deferred.** Both treat unresolved resume semantics and signal vocabulary as threats, differing only on when and where to resolve them.
 
 ### Remaining Disputes
 
-1. **Infrastructure parallelization vs sequencing** (D-3/D-4): This remains the sharpest disagreement. Opus argues that `PortifyProcess` inherits a stable API and infrastructure consumers are parallelizable. Haiku argues that the extension surface is the risk and building on an unstabilized platform creates hidden integration costs. **Unresolved**: Both positions are defensible. The diff analysis recommendation (sequence for first implementation, parallelize in future releases) slightly favors Haiku but neither side conceded.
+1. **Dedicated monitoring/resume phase vs distributed implementation.** This is the largest structural disagreement. The Architect's M6 provides clearer exit criteria but creates late integration risk. The Analyzer's distributed approach enables incremental testing but risks inconsistent resume behavior. **Recommendation: Hybrid — define the resume state machine in M1 (Architect's scope lock), implement incrementally (Analyzer's approach), validate cohesively in a dedicated validation pass before M7.**
 
-2. **Phase 0 as named phase vs inline resolution** (D-1): Variant A accepts the need for upfront decisions but resists dedicating a named phase to them. Variant B insists the named phase creates accountability and a decision record. **Unresolved**: This is partly a process/culture question, not purely technical.
+2. **Timeline realism.** The Architect's 25-32 days is more conservative and likely more accurate. The Analyzer's 20-day lower bound requires optimistic assumptions about parallelism and open-question resolution. **Recommendation: Use 24-30 days as the merged estimate — Architect's realism with credit for Analyzer's parallel streams.**
 
-### Scoring Rationale
+3. **Governance gate count.** Four gates add value if they're lightweight; two gates are insufficient for HIGH complexity. **Recommendation: Three gates — after M1 (architecture lock, lightweight), after M5 (convergence engine, heavyweight), and final release gate. Skip the post-M3 gate, as code review provides sufficient coverage at that stage.**
 
-**Convergence score: 0.72** -- Strong convergence on 3 of 5 debated points (validation, signal vocabulary, timeline format). Partial convergence on Phase 0. Genuine unresolved disagreement on infrastructure parallelization. The 12 shared assumptions from the diff analysis (not debated) further anchor overall alignment. The remaining disputes are real but bounded in scope and impact.
+4. **Additive-only enforcement specification.** The Analyzer is right that this is too important to leave unspecified. The Architect is right that prescribing section hashing is premature. **Recommendation: Require a specific enforcement mechanism to be designed and documented in M1 exit criteria, without prescribing the mechanism itself.**
+
+5. **Tradeoff priority framework.** The Architect's framework is genuinely useful and has no equivalent in the Analyzer variant. **Recommendation: Include it in the merged roadmap.**
+
+### Synthesis Guidance
+
+The strongest merged roadmap would use:
+- The Architect's milestone structure (M1-M7) with the Analyzer's parallel stream identification overlaid
+- The Architect's tradeoff priority framework and requirement traceability table
+- The Analyzer's concrete additive-only enforcement recommendation (elevated to M1 exit criteria)
+- The Analyzer's validation ordering (static → structural → review → E2E → self-portification)
+- The Architect's governance gates reduced to 3
+- A timeline estimate of 24-30 working days

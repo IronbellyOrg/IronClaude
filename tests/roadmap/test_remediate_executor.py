@@ -21,18 +21,27 @@ import pytest
 
 from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.roadmap.remediate_executor import (
+    _DIFF_SIZE_THRESHOLD_PCT,
+    _FALLBACK_MIN_CHARS,
+    _FALLBACK_MIN_LINES,
     EDITABLE_FILES,
+    RemediationPatch,
     _AGENT_TIMEOUT_SECONDS,
     _EMBED_SIZE_LIMIT,
+    _check_cross_file_coherence,
     _handle_failure,
+    _handle_file_rollback,
     _handle_success,
     _run_agent_for_file,
     _update_finding_entries,
     _update_frontmatter_counts,
+    check_morphllm_available,
+    check_patch_diff_size,
     cleanup_snapshots,
     create_snapshots,
     enforce_allowlist,
     execute_remediation,
+    fallback_apply,
     restore_from_snapshots,
     update_remediation_tasklist,
 )
@@ -616,3 +625,307 @@ class TestRemediateInlineEmbedReplacesFileFlag:
         assert "--file" not in captured.get("extra_args", [])
         # Warning logged for oversized prompt
         assert any("embedding inline anyway" in r.message for r in caplog.records)
+
+
+# ══════════════════════════════════════════════════════════════
+# T06.01 -- RemediationPatch Dataclass
+# ══════════════════════════════════════════════════════════════
+
+
+class TestRemediationPatch:
+    """Tests for RemediationPatch dataclass and MorphLLM compatibility."""
+
+    def test_dataclass_fields(self):
+        """RemediationPatch has all required fields."""
+        p = RemediationPatch(
+            target_file="roadmap.md",
+            finding_id="F-01",
+            original_code="line1\nline2\nline3\nline4\nline5",
+            instruction="Fix the issue",
+            update_snippet="line1\nline2-fixed\nline3\nline4\nline5",
+            rationale="Corrects deviation",
+        )
+        assert p.target_file == "roadmap.md"
+        assert p.finding_id == "F-01"
+        assert p.original_code == "line1\nline2\nline3\nline4\nline5"
+        assert p.instruction == "Fix the issue"
+        assert p.update_snippet == "line1\nline2-fixed\nline3\nline4\nline5"
+        assert p.rationale == "Corrects deviation"
+        assert p.applied is False
+        assert p.rejected is False
+        assert p.rejection_reason == ""
+        assert p.rolled_back is False
+        assert p.diff_ratio == 0.0
+
+    def test_morphllm_json_schema(self):
+        """to_morphllm_json() produces correct schema."""
+        p = RemediationPatch(
+            target_file="roadmap.md",
+            finding_id="F-01",
+            original_code="original",
+            instruction="fix",
+            update_snippet="fixed",
+            rationale="reason",
+        )
+        j = p.to_morphllm_json()
+        assert set(j.keys()) == {
+            "target_file", "finding_id", "original_code",
+            "instruction", "update_snippet", "rationale",
+        }
+        assert j["target_file"] == "roadmap.md"
+        assert j["finding_id"] == "F-01"
+
+
+# ══════════════════════════════════════════════════════════════
+# T06.01 -- Per-Patch Diff-Size Guard
+# ══════════════════════════════════════════════════════════════
+
+
+class TestCheckPatchDiffSize:
+    """Tests for per-patch diff-size evaluation."""
+
+    def test_threshold_is_30_percent(self):
+        """_DIFF_SIZE_THRESHOLD_PCT is 30 (changed from 50)."""
+        assert _DIFF_SIZE_THRESHOLD_PCT == 30
+
+    def test_small_change_passes(self):
+        """Patch with <30% change passes guard."""
+        original = "\n".join(f"line {i}" for i in range(10))
+        # Change 2 of 10 lines = 20%
+        updated = "\n".join(
+            f"line {i}" if i not in (2, 3) else f"changed {i}"
+            for i in range(10)
+        )
+        p = RemediationPatch(
+            target_file="f.md", finding_id="F-01",
+            original_code=original, instruction="fix",
+            update_snippet=updated, rationale="r",
+        )
+        assert check_patch_diff_size(p) is True
+        assert p.rejected is False
+
+    def test_large_change_rejected(self):
+        """Patch with >30% change is rejected without --allow-regeneration."""
+        original = "\n".join(f"line {i}" for i in range(10))
+        # Change 5 of 10 lines = 50%
+        updated = "\n".join(
+            f"line {i}" if i < 5 else f"changed {i}"
+            for i in range(10)
+        )
+        p = RemediationPatch(
+            target_file="f.md", finding_id="F-01",
+            original_code=original, instruction="fix",
+            update_snippet=updated, rationale="r",
+        )
+        assert check_patch_diff_size(p) is False
+        assert p.rejected is True
+        assert "exceeds threshold" in p.rejection_reason
+
+    def test_large_change_allowed_with_flag(self):
+        """Patch with >30% change passes when allow_regeneration=True."""
+        original = "\n".join(f"line {i}" for i in range(10))
+        updated = "\n".join(f"changed {i}" for i in range(10))
+        p = RemediationPatch(
+            target_file="f.md", finding_id="F-01",
+            original_code=original, instruction="fix",
+            update_snippet=updated, rationale="r",
+        )
+        assert check_patch_diff_size(p, allow_regeneration=True) is True
+
+    def test_empty_original_passes(self):
+        """Patch with empty original_code passes guard."""
+        p = RemediationPatch(
+            target_file="f.md", finding_id="F-01",
+            original_code="", instruction="fix",
+            update_snippet="new content", rationale="r",
+        )
+        assert check_patch_diff_size(p) is True
+
+
+# ══════════════════════════════════════════════════════════════
+# T06.01 -- Per-File Rollback
+# ══════════════════════════════════════════════════════════════
+
+
+class TestPerFileRollback:
+    """Tests for per-file rollback and cross-file coherence."""
+
+    def test_handle_file_rollback_restores_single_file(self, tmp_path):
+        """_handle_file_rollback restores one file, marks its findings FAILED."""
+        target = tmp_path / "roadmap.md"
+        target.write_text("original", encoding="utf-8")
+        snapshot = Path(f"{target}.pre-remediate")
+        snapshot.write_text("original", encoding="utf-8")
+        target.write_text("modified", encoding="utf-8")
+
+        finding = _make_finding(id="F-01", files_affected=[str(target)])
+        findings_by_file = {str(target): [finding]}
+
+        _handle_file_rollback(str(target), findings_by_file)
+
+        assert target.read_text() == "original"
+        assert finding.status == "FAILED"
+
+    def test_cross_file_coherence_cascades_rollback(self, tmp_path):
+        """Cross-file coherence rolls back successful files linked to failed ones."""
+        file_a = tmp_path / "a.md"
+        file_b = tmp_path / "b.md"
+        file_a.write_text("a-original", encoding="utf-8")
+        file_b.write_text("b-original", encoding="utf-8")
+
+        # Create snapshots for file_a (the one that might cascade)
+        snapshot_a = Path(f"{file_a}.pre-remediate")
+        snapshot_a.write_text("a-original", encoding="utf-8")
+        file_a.write_text("a-modified", encoding="utf-8")
+
+        # Finding that references both files
+        finding = _make_finding(
+            id="F-cross",
+            files_affected=[str(file_a), str(file_b)],
+        )
+        findings_by_file = {
+            str(file_a): [finding],
+            str(file_b): [finding],
+        }
+
+        cascaded = _check_cross_file_coherence(
+            successful_files=[str(file_a)],
+            failed_files=[str(file_b)],
+            findings_by_file=findings_by_file,
+        )
+
+        assert str(file_a) in cascaded
+        assert file_a.read_text() == "a-original"
+
+    def test_no_cascade_when_no_shared_findings(self, tmp_path):
+        """No cascade when successful/failed files share no findings."""
+        file_a = tmp_path / "a.md"
+        file_b = tmp_path / "b.md"
+        file_a.write_text("a-content", encoding="utf-8")
+        file_b.write_text("b-content", encoding="utf-8")
+
+        finding_a = _make_finding(id="F-a", files_affected=[str(file_a)])
+        finding_b = _make_finding(id="F-b", files_affected=[str(file_b)])
+        findings_by_file = {
+            str(file_a): [finding_a],
+            str(file_b): [finding_b],
+        }
+
+        cascaded = _check_cross_file_coherence(
+            successful_files=[str(file_a)],
+            failed_files=[str(file_b)],
+            findings_by_file=findings_by_file,
+        )
+        assert cascaded == []
+
+
+# ══════════════════════════════════════════════════════════════
+# T06.01 -- fallback_apply()
+# ══════════════════════════════════════════════════════════════
+
+
+class TestFallbackApply:
+    """Tests for deterministic text replacement via fallback_apply."""
+
+    def test_successful_replacement(self, tmp_path):
+        """fallback_apply replaces anchor with update_snippet."""
+        target = tmp_path / "roadmap.md"
+        original_block = "\n".join(f"line {i}" for i in range(10))
+        content = f"header\n\n{original_block}\n\nfooter"
+        target.write_text(content, encoding="utf-8")
+
+        updated_block = "\n".join(
+            f"line {i}" if i != 5 else "fixed line 5"
+            for i in range(10)
+        )
+
+        p = RemediationPatch(
+            target_file=str(target),
+            finding_id="F-01",
+            original_code=original_block,
+            instruction="fix line 5",
+            update_snippet=updated_block,
+            rationale="test",
+        )
+
+        assert fallback_apply(p) is True
+        assert p.applied is True
+        result = target.read_text()
+        assert "fixed line 5" in result
+        assert "header" in result
+        assert "footer" in result
+
+    def test_anchor_too_small_rejected(self, tmp_path):
+        """fallback_apply rejects anchors smaller than minimum."""
+        target = tmp_path / "f.md"
+        target.write_text("ab", encoding="utf-8")
+
+        p = RemediationPatch(
+            target_file=str(target),
+            finding_id="F-01",
+            original_code="ab",  # 1 line, 2 chars — too small
+            instruction="fix",
+            update_snippet="cd",
+            rationale="test",
+        )
+
+        assert fallback_apply(p) is False
+        assert p.applied is False
+
+    def test_anchor_not_found_returns_false(self, tmp_path):
+        """fallback_apply returns False when anchor not in file."""
+        target = tmp_path / "f.md"
+        target.write_text("actual content\n" * 10, encoding="utf-8")
+
+        p = RemediationPatch(
+            target_file=str(target),
+            finding_id="F-01",
+            original_code="nonexistent anchor\n" * 6,
+            instruction="fix",
+            update_snippet="replacement",
+            rationale="test",
+        )
+
+        assert fallback_apply(p) is False
+
+    def test_ambiguous_anchor_returns_false(self, tmp_path):
+        """fallback_apply rejects ambiguous anchors (found multiple times)."""
+        repeated = "repeated block\n" * 6
+        target = tmp_path / "f.md"
+        target.write_text(f"{repeated}separator\n{repeated}", encoding="utf-8")
+
+        p = RemediationPatch(
+            target_file=str(target),
+            finding_id="F-01",
+            original_code=repeated,
+            instruction="fix",
+            update_snippet="replacement",
+            rationale="test",
+        )
+
+        assert fallback_apply(p) is False
+
+    def test_missing_file_returns_false(self):
+        """fallback_apply returns False for nonexistent target."""
+        p = RemediationPatch(
+            target_file="/nonexistent/path/f.md",
+            finding_id="F-01",
+            original_code="x\n" * 10,
+            instruction="fix",
+            update_snippet="y",
+            rationale="test",
+        )
+        assert fallback_apply(p) is False
+
+
+# ══════════════════════════════════════════════════════════════
+# T06.01 -- check_morphllm_available()
+# ══════════════════════════════════════════════════════════════
+
+
+class TestCheckMorphllmAvailable:
+    """Tests for MorphLLM runtime probe."""
+
+    def test_returns_false_in_v305(self):
+        """check_morphllm_available returns False in v3.05 (not yet integrated)."""
+        assert check_morphllm_available() is False

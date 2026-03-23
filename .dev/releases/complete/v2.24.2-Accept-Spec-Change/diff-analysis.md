@@ -1,136 +1,129 @@
-
-
 ---
 total_diff_points: 12
 shared_assumptions_count: 14
 ---
 
-# Diff Analysis: Opus-Architect vs Haiku-Architect Roadmaps
-
 ## 1. Shared Assumptions and Agreements
 
-Both variants agree on:
+Both roadmaps agree on the following foundational elements:
 
-1. **Complexity score**: 0.65 (moderate)
-2. **`spec_patch.py` as leaf module**: No reverse imports, stdlib + PyYAML only
-3. **`_apply_resume()` remains unchanged**
-4. **`execute_roadmap(auto_accept: bool = False)` as the only public API change**
-5. **Atomic writes via `.tmp` + `os.replace()`**
-6. **All new executor functions use `_` prefix (private)**
-7. **FR-010 six-step disk-reread sequence** as mandatory
-8. **Recursion guard**: local variable, max 1 cycle per invocation
-9. **PyYAML ≥6.0 as new dependency** (both flag need to verify transitive status)
-10. **TOCTOU is a documented limitation**, not solved in this release
-11. **Non-interactive detection** via `sys.stdin.isatty()`
-12. **Zero optional flags** on the CLI command
-13. **Click `Path(exists=True)`** for `output_dir` validation
-14. **Same set of files created/modified** (spec_patch.py, commands.py, executor.py, pyproject.toml, test files)
+1. **Complexity score**: 0.65 (MEDIUM)
+2. **Primary persona**: architect
+3. **Spec source**: `release-spec-accept-spec-change.md`
+4. **New leaf module**: `spec_patch.py` with zero internal imports, no subprocess usage
+5. **Dependency direction**: `commands.py → spec_patch.py`, `executor.py → spec_patch.py`, no reverse
+6. **Atomic write mechanism**: `.tmp` file + `os.replace()`
+7. **Single-cycle recursion guard**: local `_spec_patch_cycle_count` variable, max 1 cycle
+8. **Disk-reread invariant**: no in-memory state reuse after spec-hash update
+9. **6-step disk-reread sequence**: re-read → recompute → atomic write → re-read → rebuild steps → `_apply_resume()`
+10. **PyYAML ≥6.0** as new dependency for YAML frontmatter parsing
+11. **3-condition detection** for auto-resume trigger (cycle count, deviation mtime, hash divergence)
+12. **`auto_accept` parameter**: internal-only, no CLI flag, `bool = False` default
+13. **All 15 success criteria** (SC-1 through SC-15) must pass before release
+14. **Total timeline**: ~4.5–6 days engineering effort
 
 ---
 
 ## 2. Divergence Points
 
-### D-1: Phase Count and Structure
+### D1: Phase Structure — Architecture Lock Phase
 
-- **Opus**: 5 phases (P1–P5), no Phase 0. Jumps straight into implementation.
-- **Haiku**: 6 phases (P0–P5), includes an explicit "Architecture confirmation and requirement traceability" phase before code.
-- **Impact**: Haiku's P0 adds 0.5 days but reduces ambiguity risk. Opus implicitly assumes open questions are resolved during P1–P2, which could cause rework if assumptions prove wrong.
+- **Haiku**: Includes explicit **Phase 0** ("Architecture lock and implementation readiness") as a separate phase before any code is written
+- **Opus**: No Phase 0; jumps directly to Phase 1 (Foundation) with implementation
+- **Impact**: Haiku's approach reduces risk of mid-implementation design changes but adds ~0.5 day overhead. Opus assumes design decisions can be made inline during Phase 1.
 
-### D-2: Phase Granularity for Executor Work
+### D2: Phase Count and Granularity
 
-- **Opus**: Combines auto-accept threading and retry cycle into a single Phase 3 (6 subtasks, ~3-4 hours).
-- **Haiku**: Splits this into Phase 3 (signature/threading, 1 day) and Phase 4 (retry cycle, 1.5 days) — treating them as distinct milestones.
-- **Impact**: Haiku's split provides a clearer checkpoint between "API compatibility verified" and "retry correctness verified." Opus's monolithic phase risks conflating two distinct risk profiles.
+- **Haiku**: 6 phases (0–5), with Phase 5 dedicated to release hardening and operator documentation
+- **Opus**: 4 phases (1–4), folding documentation into Phase 4 and omitting a standalone hardening phase
+- **Impact**: Haiku's separation makes documentation a first-class deliverable. Opus treats it as a subtask of integration testing, risking NFR-5 being deprioritized.
 
-### D-3: Total Timeline Estimate
+### D3: Parallelism Acknowledgment
 
-- **Opus**: 10–13 hours (~1.5–2 days of focused work).
-- **Haiku**: 4.5–5.0 days of engineering effort, 6.0 days elapsed.
-- **Impact**: Significant divergence. Opus's estimate is aggressive and assumes high developer familiarity. Haiku's estimate accounts for QA effort, open question resolution, and checkpoint reviews. Haiku is likely more realistic for a team context; Opus may be accurate for a single experienced developer working without interruption.
+- **Haiku**: Presents phases purely sequentially with no explicit parallelism callout
+- **Opus**: Explicitly identifies that Phases 2 and 3 can run in parallel after Phase 1, with a dependency diagram
+- **Impact**: Opus enables faster delivery (~4.5 days vs Haiku's 4.5–6 days) by surfacing the obvious parallelism opportunity.
 
-### D-4: Milestone Checkpoints
+### D4: Requirement Coverage Presentation
 
-- **Opus**: No explicit checkpoints beyond phase completion.
-- **Haiku**: 4 named checkpoints (A–D) with explicit go/no-go decisions.
-- **Impact**: Haiku provides better governance and risk management. Opus assumes continuous progress without formal review gates.
+- **Haiku**: Includes a dedicated **Section 7** ("Requirement coverage map") listing all FRs and NFRs grouped by path
+- **Opus**: Distributes requirement references inline within phase tasks and uses a **Success Criteria Validation Matrix** instead
+- **Impact**: Haiku's approach makes audit/traceability easier. Opus's matrix ties criteria to validation phases more directly. Different audiences benefit from each.
 
-### D-5: Risk Count and Depth
+### D5: Risk Assessment Format
 
-- **Opus**: 6 risks (RISK-001 through RISK-005 + PyYAML dep), table format with severity/probability.
-- **Haiku**: 7 risks with detailed narrative per risk, including "Residual concern" annotations.
-- **Impact**: Haiku identifies one additional risk (Risk 2: stale in-memory state) as a standalone item, which Opus covers only implicitly in the FR-010 implementation. Haiku's residual concerns are valuable for future maintainers.
+- **Haiku**: Narrative risk descriptions with detailed mitigation paragraphs, split into "high-priority architectural" and "secondary delivery" categories
+- **Opus**: Tabular risk summary (Severity × Probability × Phase × Mitigation)
+- **Impact**: Opus's table is faster to scan and prioritize. Haiku's narrative provides deeper context on failure modes.
 
-### D-6: `started_at` Fallback Strategy
+### D6: `DeviationRecord` Dataclass
 
-- **Opus**: Recommends "skip mtime check if no timestamp" (conservative: allow cycle to proceed).
-- **Haiku**: Recommends "treat as retry condition not met and proceed to normal failure path" (conservative: block cycle).
-- **Impact**: Opposite approaches. Opus favors permissiveness (retry when uncertain), Haiku favors safety (don't retry when uncertain). This is a genuine design disagreement with correctness implications.
+- **Haiku**: Mentions confirming data model expectations for `DeviationRecord`, especially absent `id` handling, as a Phase 0 decision
+- **Opus**: Explicitly calls out creating a frozen dataclass with 7 fields and strict type invariants as a Phase 1 task
+- **Impact**: Opus is more prescriptive and implementation-ready. Haiku defers the decision, which could cause Phase 1 delays.
 
-### D-7: Validation Organization
+### D7: Non-Interactive Detection Method
 
-- **Opus**: AC matrix as a flat table (14 rows) with test approach per criterion.
-- **Haiku**: 5-layer validation pyramid (unit → CLI → state integrity → executor integration → failure-path) with AC criteria grouped by theme.
-- **Impact**: Haiku's layered approach provides better test architecture guidance. Opus's flat table is more directly traceable to spec but doesn't guide test organization.
+- **Haiku**: Describes non-interactive behavior but doesn't specify detection mechanism
+- **Opus**: Explicitly specifies `sys.stdin.isatty()` as the detection method
+- **Impact**: Opus eliminates an implementation ambiguity that Haiku leaves open.
 
-### D-8: Acceptance Criteria Count
+### D8: Test File Organization
 
-- **Opus**: References 14 acceptance criteria (AC-1 through AC-14).
-- **Haiku**: References 15 success criteria (mentions "all 15" multiple times).
-- **Impact**: Haiku may be counting an additional criterion not present in Opus's enumeration (possibly AC-15 or an NFR promoted to AC status). This discrepancy needs clarification against the source spec.
+- **Haiku**: Calls for "2 focused test files minimum" (CLI/spec-patch behavior + executor resume-cycle behavior)
+- **Opus**: Does not prescribe test file organization, instead listing test scenarios by phase
+- **Impact**: Haiku provides clearer guidance for test structure. Opus leaves it to implementer judgment.
 
-### D-9: Resource/Staffing Model
+### D9: Phase 0 Parser Behavior Decisions
 
-- **Opus**: Implicitly single-developer execution. No role breakdown.
-- **Haiku**: Explicitly identifies 3 roles (architect/lead, backend engineer, QA/test engineer).
-- **Impact**: Haiku's staffing model explains its longer timeline and is more appropriate for team planning. Opus's model works for solo execution.
+- **Haiku**: Explicitly flags that absent `id` handling and `>=` vs `>` for mtime comparison must be decided before implementation begins
+- **Opus**: Addresses mtime `>=` as a documented limitation in Phase 3 risks; absent `id` not called out as a pre-decision
+- **Impact**: Haiku front-loads ambiguity resolution. Opus risks discovering these edge cases mid-implementation.
 
-### D-10: YAML Boolean Coercion Stance
+### D10: Architect Recommendations Style
 
-- **Opus**: Lists YAML 1.1 boolean coercion (`yes`/`on`/`1`) as accepted behavior in edge case tests.
-- **Haiku**: Requires `spec_update_required: true` as boolean, explicitly mentions testing for string `"true"` rejection.
-- **Impact**: Potentially contradictory. Opus accepts broader YAML coercion; Haiku wants stricter type checking. The spec should be the tiebreaker — if it says "boolean, not string," Haiku's interpretation is more faithful.
+- **Haiku**: Includes per-phase "Architect recommendation" callouts with specific warnings (e.g., "Do not begin executor changes until module isolation is agreed")
+- **Opus**: No per-phase recommendations; architectural guidance is embedded in risk mitigations
+- **Impact**: Haiku's callouts serve as implementation guardrails that are harder to miss during execution.
 
-### D-11: Architect Recommendations Format
+### D11: Final Invariant Statement
 
-- **Opus**: Scattered throughout as inline "Architect's note" annotations.
-- **Haiku**: Dedicated section (§ Architect recommendations) with 6 numbered items.
-- **Impact**: Haiku's consolidated recommendations are easier to review and act on. Opus's inline notes provide better locality but risk being missed.
+- **Haiku**: Ends with an explicit **Section 8** listing 4 invariants that must hold, with a "pause for redesign" directive if any weaken
+- **Opus**: No equivalent section; safety properties are distributed across phase validations
+- **Impact**: Haiku's invariant list serves as a release gate checklist. Opus relies on the SC matrix for the same purpose but lacks the "stop and redesign" escalation.
 
-### D-12: Operational Constraints Documentation
+### D12: Timeline Confidence
 
-- **Opus**: Mentions TOCTOU documentation as a Phase 4 task.
-- **Haiku**: Lists 5 explicit operational constraints as a standalone section, plus recommends prominent documentation of single-writer assumption.
-- **Impact**: Haiku is more thorough in surfacing constraints that affect operators, not just developers.
+- **Haiku**: Provides ranges per phase (e.g., "1.0–1.5 days"), total 4.5–6.0 days
+- **Opus**: Provides point estimates per phase (e.g., "~2 days"), total ~4.5 days with parallelism
+- **Impact**: Haiku's ranges are more honest about uncertainty. Opus's point estimates assume ideal conditions and explicit parallelism.
 
 ---
 
 ## 3. Areas Where One Variant Is Clearly Stronger
 
 ### Opus is stronger in:
-
-- **AC traceability**: The flat AC-to-test table provides immediate, auditable mapping from spec to verification. Every AC has a clear "Yes/No automated" answer.
-- **Implementation specificity**: Subtasks reference exact function names, exact parameter signatures, and exact file paths. Less room for interpretation.
-- **Parallelization notes**: Explicitly identifies TDD parallelization opportunities (P1.4 can run alongside P1.1–P1.3).
-- **Conciseness**: ~40% fewer words while covering the same functional scope. Less cognitive overhead for implementers.
+- **Parallelism planning**: Explicit dependency graph and parallelism callout between Phases 2 and 3
+- **Implementation specificity**: `DeviationRecord` dataclass definition, `sys.stdin.isatty()` detection, tabular risk/SC matrices
+- **Scannability**: Consistent use of tables and compact formatting makes it faster to consume as a working document
 
 ### Haiku is stronger in:
-
-- **Risk management depth**: Residual concern annotations prevent future developers from assuming risks are fully mitigated. Risk 2 (stale in-memory state) as a standalone item is valuable.
-- **Governance structure**: Named checkpoints with go/no-go decisions, explicit staffing model, and Phase 0 pre-work provide better project management scaffolding.
-- **Validation architecture**: The 5-layer test pyramid is a better guide for organizing test code than a flat table.
-- **Operational documentation**: Explicit operational constraints section ensures non-developer stakeholders understand limitations.
-- **Defensive design stance**: Consistently favors safety over permissiveness (e.g., `started_at` fallback, boolean coercion strictness).
+- **Risk front-loading**: Phase 0 forces design decisions before code, reducing mid-implementation surprises
+- **Architectural guardrails**: Per-phase architect recommendations act as embedded review criteria
+- **Release safety**: Explicit invariant list with "pause for redesign" escalation policy
+- **Traceability**: Dedicated requirement coverage map (Section 7) for audit purposes
+- **Documentation as deliverable**: Standalone Phase 5 ensures NFR-5 doesn't get deprioritized
 
 ---
 
 ## 4. Areas Requiring Debate to Resolve
 
-1. **`started_at` fallback behavior (D-6)**: This is a correctness-impacting disagreement. Opus says "allow retry when uncertain," Haiku says "block retry when uncertain." The spec should arbitrate — if FR-009 lists `started_at` comparison as a required condition, Haiku's safer interpretation is more faithful. If the condition is advisory, Opus's approach avoids false negatives.
+1. **Phase 0 value vs overhead**: Is a formal architecture-lock phase worth 0.5 days, or can design decisions be made inline during Phase 1? Depends on team familiarity with the codebase.
 
-2. **YAML boolean coercion scope (D-10)**: Should `spec_update_required: "true"` (string) be accepted? Opus says yes (via YAML 1.1 coercion), Haiku says no (strict boolean only). This affects operator UX when hand-editing deviation files.
+2. **Documentation phase**: Should operator documentation (NFR-5) be a standalone phase (Haiku) or folded into integration testing (Opus)? Given the spec's emphasis on NFR-5 as a safety control, a standalone phase may be warranted.
 
-3. **Timeline realism (D-3)**: The 3–4x gap between estimates needs reconciliation. If this is solo work by a developer familiar with the codebase, Opus's 10–13 hours may be accurate. If this involves code review, QA handoff, and open question resolution meetings, Haiku's 5 days is more realistic.
+3. **Test organization**: Should the roadmap prescribe test file structure (Haiku's 2-file minimum) or leave it to implementer judgment (Opus)? Prescriptive guidance reduces review friction.
 
-4. **Phase 0 necessity (D-1)**: Is a formal architecture confirmation phase worth 0.5 days? If open questions (#1, #3, #5 from the spec) are already resolved, Phase 0 is overhead. If they're genuinely unresolved, skipping it risks rework in Phase 3.
+4. **Timeline representation**: Ranges (Haiku) vs point estimates with parallelism (Opus). The answer depends on whether the audience is planning capacity or tracking progress.
 
-5. **AC count discrepancy (D-8)**: The difference between 14 and 15 acceptance criteria must be resolved against the source spec before implementation begins.
+5. **Absent `id` handling**: Must be resolved regardless — Haiku flags it as a pre-decision, Opus doesn't address it. This needs a definitive answer before implementation.

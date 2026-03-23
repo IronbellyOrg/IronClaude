@@ -51,6 +51,7 @@ def _make_config(tmp_path: Path, mode: str) -> SprintConfig:
     return SprintConfig(
         wiring_gate_mode=mode,
         release_dir=release_dir,
+        wiring_gate_scope="none",  # bypass scope-based resolution so wiring_gate_mode is used directly
     )
 
 
@@ -62,6 +63,7 @@ def _make_clean_config(tmp_path: Path, mode: str) -> SprintConfig:
     return SprintConfig(
         wiring_gate_mode=mode,
         release_dir=release_dir,
+        wiring_gate_scope="none",  # bypass scope-based resolution so wiring_gate_mode is used directly
     )
 
 

@@ -1,110 +1,105 @@
-
-
 ---
-convergence_score: 0.82
+convergence_score: 0.78
 rounds_completed: 2
 ---
 
-# Structured Adversarial Debate: Opus Architect (A) vs Haiku Architect (B)
+# Adversarial Debate: Haiku-Architect (Variant A) vs Opus-Architect (Variant B)
 
 ## Round 1: Initial Positions
 
-### Divergence Point 1: Phase Granularity (D-1)
+### D1: Phase Structure and Granularity
 
-**Variant A (Opus):** Three phases with nested milestones is the correct structure. It reflects actual dependency boundaries — models/resolution are independent (Phase 1), integration work has parallelizable units (Phase 2), and validation is a single gate (Phase 3). Finer granularity creates artificial boundaries between work that shares context. A developer switching from "Phase 4: Process integration" to "Phase 5: CLI/config" is doing a context switch that doesn't exist in practice — you're wiring the same resolved target through adjacent layers.
+**Variant A (Haiku):** Seven phases with explicit Phase 0 (architecture confirmation) and Phase 6 (post-release observation) provide essential guardrails. Phase 0 costs 0.5 days but prevents mid-implementation boundary violations — the kind that cause 2-3 day rework cycles. For a backward-compatibility-sensitive release, paying upfront for architectural lock-in is insurance, not overhead. Phase 6 ensures the 7 deferred open questions don't become orphaned backlog items that never get data.
 
-**Variant B (Haiku):** Eight phases provide clear, auditable progress markers. Each phase has a single objective, a single milestone, and a bounded scope. This matters for a compatibility-sensitive release where the dominant risk is behavioral regression. When a phase fails its milestone, you know exactly what failed. With Opus's nested milestones, a failure in "Phase 2" could mean discovery, process, or CLI — three different remediation paths. Fine granularity is overhead only if the phases are trivial; at 0.5-1.0 phase units each, these are substantive work packages.
+**Variant B (Opus):** Five phases are sufficient. The roadmap itself *is* the architecture confirmation — producing a separate "approved implementation map" artifact is ceremony that duplicates what the roadmap already delivers. Teams reading this roadmap already know the file boundaries, dependency directions, and constraints. Phase 6 is disproportionate for a v2.24.1 patch; OQ tracking belongs in issue tracking, not in a roadmap phase with effort estimates.
 
-### Divergence Point 2: Phase 0 Guardrails (D-2)
+### D2: Model Layer Sequencing
 
-**Variant A (Opus):** An explicit Phase 0 is unnecessary overhead for a well-specified release. The spec already defines constraints (no pipeline/sprint changes, no async, backward compat). The implementer should internalize these before starting — they don't need a dedicated phase to read a document they already have. The guardrails are encoded structurally: every milestone has a validation gate that enforces them. Starting directly with model work is 0.25 phase units faster.
+**Variant A (Haiku):** Separating resolution (Phase 1) from data models (Phase 2) enables independent review. The model layer is a contract boundary — `ComponentTree`, `AgentEntry`, etc. are consumed downstream. Landing models separately lets reviewers verify the contract before discovery logic builds on it. This is standard layered-architecture practice.
 
-**Variant B (Haiku):** Phase 0 is not "reading the spec." It produces three concrete deliverables: a change map (which files are touched), an explicit compatibility checklist (what must not break), and a test matrix outline (what tests exist and what gaps need coverage). These artifacts prevent the most common failure mode in compatibility-sensitive work: discovering late that you've drifted from constraints. The 0.25 unit cost is trivial compared to the cost of a Phase 3 discovery that your CLI change broke a legacy path.
+**Variant B (Opus):** Models and resolution are tightly coupled — `ResolvedTarget` is meaningless without the resolution algorithm that produces it, and the resolution algorithm can't be tested without the models it returns. Splitting them creates an artificial phase boundary that adds handoff overhead without real review benefit. A single PR with both concerns is more reviewable than two PRs with implicit dependencies.
 
-### Divergence Point 3: Time Estimation (D-4)
+### D3: CLI Integration Timing
 
-**Variant A (Opus):** Hours (19-28h) are directly actionable. A project manager can allocate calendar time, a developer can judge whether a milestone fits in a session. Abstract "phase units" require a calibration step that adds no value. If the concern is false precision, the range (19-28h) already communicates uncertainty. Line count estimates (350-450 for resolution.py) further ground the scope in concrete terms.
+**Variant A (Haiku):** CLI wiring distributed across phases is natural — each feature phase wires its own CLI surface. This avoids a bottleneck phase where all CLI changes land at once.
 
-**Variant B (Haiku):** Phase units deliberately avoid false precision. Hour estimates anchor expectations that may not match reality — a developer who takes 35 hours instead of 28 feels behind schedule even if the work is sound. Phase units communicate relative effort (resolution is 2x the effort of process integration) without promising calendar time. The session-based grouping (Sessions 1-3) provides the scheduling guidance that hours claim to offer, without the anchoring risk.
+**Variant B (Opus):** The `WORKFLOW_PATH → TARGET` change is user-facing and deserves focused attention. A dedicated CLI phase (Phase 3) isolates Click argument migration, artifact enrichment, and `to_dict()` compliance into one reviewable unit. Distributing CLI changes across phases risks late integration surprises when argument parsing, enrichment, and serialization interact.
 
-### Divergence Point 4: Validation Placement (D-6)
+### D4: Timeline Estimates
 
-**Variant A (Opus):** Validation extension is a small, additive change — two new checks and a `to_dict()` extension. It belongs in Phase 3 alongside other finalization work because it depends on all prior phases being complete. Giving it a dedicated phase overstates its complexity and creates an artificial boundary between "build the thing" and "validate the thing" that doesn't reflect how validation code is actually written (alongside the code it validates).
+**Variant A (Haiku):** 6.5 days core delivery is achievable because the complexity score is 0.65 (MEDIUM). The resolution layer handles 6 input forms with well-defined rules — this is deterministic parsing, not algorithmic innovation. 1.5 days for resolution is realistic for an experienced engineer with the spec in hand.
 
-**Variant B (Haiku):** Validation deserves dedicated focus precisely because it's the mechanism that encodes system invariants. When validation is bundled with "final cleanup," it gets compressed if time runs short. Phase 6 ensures validation logic receives the same architectural attention as resolution logic. The enriched artifact output (component-inventory.md with Command section, Agents table, Cross-Tier Data Flow) is non-trivial and benefits from being the sole focus of a phase.
+**Variant B (Opus):** 7-9 days with ranges per phase is more honest. The resolution layer alone involves input validation, 5-type classification, command resolution with YAML parsing, skill resolution with directory construction, ambiguity handling, standalone-command guards, and root detection with fallback. That's 8 distinct sub-tasks in Phase 1 alone. Range estimates acknowledge the reality that integration surprises always consume buffer.
 
-### Divergence Point 5: Consolidation Fallback (D-11)
+### D8: Risk Governance Framework
 
-**Variant A (Opus):** `commonpath()` consolidation is sufficient for the 10-directory cap. The real-world case where `commonpath()` fails to reduce below 10 is rare — it requires 10+ directories with no common ancestors, which implies a deeply unusual project layout. Over-engineering the fallback adds code that will rarely execute and is harder to test meaningfully. If the edge case arises, it's a v2.25 improvement.
+**Variant A (Haiku):** Three-tier governance (release-blocking / release-gating / managed resilience) gives release managers unambiguous go/no-go criteria. RISK-2 is blocking. RISK-1 and RISK-3 are gating. RISK-4/5/6 are managed. This is actionable without interpretation.
 
-**Variant B (Haiku):** The two-tier fallback (commonpath first, then top-10-by-component-count) is three lines of code, not over-engineering. It handles the concrete case where a skill references agents scattered across unrelated directories. The "select by component count" heuristic is deterministic, auditable, and ensures the most relevant directories survive consolidation. Deferring to v2.25 means shipping a known gap when the fix is trivial.
+**Variant B (Opus):** The risk table with severity, phase-mitigated, and mitigation strategy is sufficient. Adding governance tiers is process overhead — the severity column already communicates priority. High = must fix before release, Medium = should fix, Low = can ship with monitoring.
 
 ---
 
 ## Round 2: Rebuttals
 
-### On Phase Granularity
+### D1 Rebuttal
 
-**Variant A rebuttal:** Haiku claims 8 phases provide clearer failure diagnosis, but this conflates phase boundaries with test boundaries. A failing test in Opus's Phase 2 already tells you whether it's discovery, process, or CLI — the test name and location provide that signal. Phase boundaries are project management constructs, not diagnostic tools. Meanwhile, the cost of 8 phases is real: each phase transition requires a "milestone check" decision point that interrupts flow. For a single implementer (which both roadmaps assume as the primary case), 3 phases with clear internal milestones is the better cognitive model.
+**Variant B attacks A:** Phase 0's "approved implementation map" is literally the roadmap's phase plan repackaged. The action items in Phase 0 — "confirm target files," "freeze architectural rules," "define acceptance gates" — are things the roadmap already specifies. You're asking engineers to spend half a day producing a document that restates what they just read. If the team needs architectural alignment, that happens in roadmap review, not in a separate phase.
 
-**Variant B rebuttal:** Opus's parallel marking (milestones 2.1 and 2.2 as parallelizable) is valuable, but it's equally expressible in an 8-phase model — simply note that Phases 3 and 4 can execute concurrently after Phase 2 stabilizes. The information is the same; the container is clearer. Furthermore, Opus's Phase 2 bundles 8-12 hours of work under one banner, which is too coarse for meaningful progress reporting. If a stakeholder asks "how far along is Phase 2?", the answer requires decomposition that Haiku's phases already provide.
+**Variant A attacks B:** The roadmap is a plan; Phase 0 is execution confirmation. There's a difference between "the roadmap says don't touch pipeline/" and "the engineer has verified their local understanding matches and signed off." For teams where the implementer isn't the roadmap author, this matters. Skipping it works when one person does both — but that's an assumption Opus makes without stating.
 
-### On Phase 0
+### D2 Rebuttal
 
-**Variant A rebuttal:** Haiku's Phase 0 deliverables (change map, compatibility checklist, test matrix outline) are useful artifacts, but they're planning artifacts, not implementation artifacts. A competent implementer produces these mentally or in notes before writing code. Formalizing them as a phase with a milestone creates bureaucratic overhead for a 20-hour project. If the concern is multiple implementers, the spec itself serves as the contract. Phase 0 is a solution to a coordination problem that doesn't exist for this release's scope.
+**Variant B attacks A:** Haiku claims independent review, but Phase 2 (models) can't be meaningfully reviewed without Phase 1 (resolution) because the models exist *to serve* the resolution algorithm. Reviewing `AgentEntry` in isolation tells you nothing about whether it has the right fields. The review that matters is "does the resolution algorithm produce the right data structures" — which requires both together.
 
-**Variant B rebuttal:** Opus actually validates Phase 0's value inadvertently: Architectural Recommendation #4 says "run existing tests at every milestone, not just Phase 3." This is exactly the kind of guidance that Phase 0 would formalize and make contractual rather than advisory. The diff analysis itself noted the "minor inconsistency" between Opus's recommendation and its formal validation gate. Phase 0 eliminates that inconsistency by establishing upfront what "continuous testing" means in practice.
+**Variant A attacks B:** Coupling models and resolution in one phase creates a 2-3 day monolith that's harder to review and harder to revert. If the model design is wrong, you've also wasted resolution implementation time. Separating them lets you catch model design issues at 1.5 days instead of 3. The overhead of a phase boundary is minimal compared to the cost of rework.
 
-### On Time Estimation
+### D3 Rebuttal
 
-**Variant A rebuttal:** The anchoring concern is theoretical. Professional developers understand that estimates are ranges, and Opus provides a range (19-28h). Phase units, by contrast, require the consumer to perform a conversion step ("what's a phase unit worth in my context?") that adds friction without adding information. If the goal is communicating relative effort, Opus's hour ranges accomplish this — Phase 1 (6-10h) is clearly larger than Phase 3 (5-6h).
+**Variant A attacks B:** A dedicated CLI phase creates a bottleneck — all CLI changes blocked until Phase 3. If Phase 1 needs a `--commands-dir` flag to be testable, you either wire it early (violating the phase boundary) or mock it (adding test debt). Distributing CLI changes lets each phase own its complete vertical slice.
 
-**Variant B rebuttal:** Hour ranges create a false sense of comparability. "6-10 hours" for Phase 1 vs "8-12 hours" for Phase 2 suggests Phase 2 is ~30% larger, but this masks the fact that Phase 2 contains parallelizable work that could compress to 5 hours wall-clock. Phase units avoid this conflation of effort and duration. The session-based grouping (3 sessions) provides the only scheduling signal that matters for a CLI-supervised workflow.
+**Variant B attacks A:** The `--commands-dir` flag is a resolution concern and belongs in Phase 1 regardless. The dedicated CLI phase handles the *user-facing* argument change (`WORKFLOW_PATH → TARGET`), artifact enrichment, and serialization — these are integration concerns that cross-cut the feature phases. Distributing them means nobody owns the CLI contract holistically, and the last phase to touch `cli.py` inherits all the merge conflicts.
 
-### On Validation Placement
+### D4 Rebuttal
 
-**Variant A rebuttal:** Haiku's concern about validation being "compressed if time runs short" is a project management failure, not an architectural one. If time is short, any phase can be compressed — a dedicated Phase 6 doesn't prevent this. The real protection is the release gate (which both roadmaps define). Opus's Phase 3.3 explicitly requires all 12 success criteria to pass, which is functionally equivalent to Haiku's release gate but without the overhead of a separate phase.
+**Variant A attacks B:** Range estimates (7-9 days) sound "honest" but are operationally useless for sprint planning. You can't assign 7-9 days to a sprint — you need a number. The 0.65 complexity score and well-defined spec justify point estimates. If buffer is needed, add it explicitly rather than hiding it in ranges.
 
-**Variant B rebuttal:** The issue isn't just time compression — it's cognitive attention. When validation shares a phase with "artifact enrichment" and "full test suite," the implementer's attention is split three ways. Haiku's Phase 6 ensures the implementer thinks about validation as a design activity (encoding invariants), not as a testing activity (checking boxes). The enriched artifact output alone — Command section, Agents table, Cross-Tier Data Flow, Resolution Log — is substantial enough to warrant focused attention.
+**Variant B attacks A:** Point estimates create false precision. The spec has 7 open questions, 6 risks, and 12 success criteria — pretending you know it's exactly 6.5 days ignores integration risk. The range communicates "plan for 9, hope for 7" which is more useful than "plan for 6.5, get surprised at 8." Sprint planning should use the upper bound, not a point estimate that's actually the lower bound of a hidden range.
 
-### On Consolidation Fallback
+### D5 & D11 Rebuttal (Test Specificity & Validation Format)
 
-**Variant A rebuttal:** "Three lines of code" understates the testing burden. The component-count fallback requires tests with >10 directories where commonpath fails, which means constructing complex synthetic directory trees. The maintenance cost is the tests, not the implementation. If the edge case is rare enough that Opus doesn't encounter it, those tests are dead weight.
+**Variant A attacks B:** ~37 tests is a number without teeth — it could be 37 trivial assertions or 37 comprehensive scenarios. Haiku's approach of specifying test *files* and *coverage areas* is more meaningful than a count.
 
-**Variant B rebuttal:** The testing burden argument cuts both ways — if you can't construct a test case, you can't prove commonpath alone is sufficient. The fallback exists precisely for the cases you haven't anticipated. A component-count heuristic is also self-documenting: "we kept the 10 directories with the most components" is a clear, defensible decision. "We called commonpath and it happened to work" is not.
+**Variant B attacks A:** "Targeted new test suite across 5 files" with no count means you can't verify completeness. When SC-8 says "approximately equal to [test count]," you need an actual number to evaluate against. 37 with a per-phase breakdown (~15 + ~12 + ~5 + ~5) is trackable. 5 files with unspecified test count is not.
 
 ---
 
 ## Convergence Assessment
 
-### Areas of Strong Agreement (Score: 0.9+)
-- **Core architecture**: Both agree on `resolution.py` as isolated, pure, deterministic module
-- **Model-first sequencing**: Both build dataclasses before resolution logic
-- **Backward compatibility as primary constraint**: Identical risk framing
-- **Error/warning semantics**: Same codes, same fatal/non-fatal classification
-- **Deferred scope**: Identical items deferred to v2.25+
-- **No pipeline/sprint modifications**: Hard boundary respected equally
+### Areas of Agreement
 
-### Areas of Moderate Agreement (Score: 0.7-0.9)
-- **Parallelization**: Both support it; Opus is more explicit about which milestones, Haiku is more conservative in presentation. The information content is equivalent — a merged roadmap should adopt Opus's explicit parallel marking within Haiku's phase structure.
-- **Continuous testing**: Both advocate it. Opus as a recommendation, Haiku as a structural concern. The merged approach should make it a formal gate (Haiku's framing) with Opus's specificity about which tests to run.
-- **Risk assessment**: 6 of 7 risks overlap. Haiku's "CLI contract drift" risk (D-9) is a useful addition that Opus subsumes under backward-compat but doesn't call out distinctly.
+1. **Core architecture is settled**: Both agree on `resolution.py` as a new module, the dependency graph, the 6 input forms, and the backward-compatibility constraint. No architectural disagreement exists.
 
-### Remaining Disputes (Score: <0.7)
-1. **Phase granularity** (3 vs 8): Genuinely different project management philosophies. For a single implementer, Opus's 3-phase model is more natural. For multi-stakeholder visibility, Haiku's 8-phase model wins. Neither is objectively superior — it depends on the consumption pattern.
+2. **Risk prioritization**: Both treat RISK-2 as the primary concern and agree on mitigation (preserve `resolve_workflow_path()`, TARGET as superset). The *governance labeling* differs, but the actual response doesn't.
 
-2. **Phase 0 value**: Opus's position that it's unnecessary overhead is weakened by its own internal inconsistency (recommendation vs formal gate). Haiku's position is stronger for this specific release given compatibility sensitivity, but the 0.25 unit cost is real. A compromise: include Phase 0's deliverables as pre-work within Phase 1, not as a separate phase.
+3. **Validation scope**: Both cover SC-1 through SC-12 with equivalent rigor. The format differs (narrative vs matrix) but the coverage is identical.
 
-3. **Time estimation**: Irreconcilable philosophical difference. Opus's hours are more actionable; Haiku's units avoid false precision. A merged roadmap could provide both: phase units as primary with hour-range annotations.
+4. **Dependency sequencing**: Both agree models before discovery before subprocess wiring. The phase boundaries differ but the ordering doesn't.
 
-4. **Consolidation fallback**: Haiku's two-tier approach is the stronger position. The implementation cost is minimal, the testing cost is bounded (one synthetic test), and the robustness gain is concrete. Opus's "defer to v2.25" argument is weaker because it accepts a known gap when the fix is trivial.
+5. **Subprocess scoping approach**: Identical treatment of dedup, cap, consolidation, and fallback.
+
+### Remaining Disputes
+
+1. **Phase 0 value** (D1, D7): Genuine disagreement on whether architecture confirmation is a distinct deliverable or inherent in roadmap review. Resolution depends on team context — distributed teams benefit from Phase 0; single-implementer scenarios don't.
+
+2. **Model/resolution coupling** (D2): Legitimate design trade-off. Separation enables earlier model review but adds phase overhead. Coupling enables holistic review but creates larger review units. Neither is universally better.
+
+3. **Timeline representation** (D4): Point estimates vs ranges is a project management philosophy difference, not a technical one. Both timelines converge around 7-8 days in practice.
+
+4. **CLI phase isolation** (D3): Strongest remaining divergence. Opus's argument that the user-facing argument change deserves focused ownership is compelling. Haiku's argument about vertical slices is also valid. The tiebreaker is that `WORKFLOW_PATH → TARGET` is the single highest-risk CLI change and benefits from isolation.
 
 ### Synthesis Recommendation
+
 A merged roadmap should adopt:
-- Opus's parallel execution marking and dependency visualization
-- Opus's concrete sizing (line counts, hour ranges as secondary annotations)
-- Haiku's Phase 0 deliverables (as pre-work, not a separate phase)
-- Haiku's consolidation fallback strategy
-- Haiku's dedicated validation focus (as a distinct milestone, if not a full phase)
-- Haiku's validation stream organization (A/B/C/D naming)
-- Opus's centralized architectural recommendations section
+- **From Variant A**: Risk governance tiers (low cost, high clarity), exit criteria per phase, lettered milestones for status tracking
+- **From Variant B**: Combined model+resolution Phase 1, dedicated CLI integration phase, range-based timelines, explicit test counts, tabular validation matrix
+- **Omit**: Phase 0 (fold constraints into Phase 1 prerequisites), Phase 6 (track OQs in issue tracker instead)

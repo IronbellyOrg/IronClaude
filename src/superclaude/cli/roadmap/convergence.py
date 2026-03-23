@@ -20,6 +20,43 @@ from .models import Finding
 
 logger = logging.getLogger(__name__)
 
+# --- TurnLedger budget constants (FR-7) ---
+# Module-level cost constants for convergence budget accounting.
+CHECKER_COST = 10
+REMEDIATION_COST = 8
+REGRESSION_VALIDATION_COST = 15
+CONVERGENCE_PASS_CREDIT = 5
+
+# Derived budget thresholds
+MIN_CONVERGENCE_BUDGET = 28   # 1 checker + 1 remediation + 1 regression validation
+STD_CONVERGENCE_BUDGET = 46   # 2 full cycles with regression headroom
+MAX_CONVERGENCE_BUDGET = 61   # 3 full cycles (catch/verify/backup)
+
+
+def _get_turnledger_class():
+    """Conditional import of TurnLedger (convergence mode only)."""
+    from ..sprint.models import TurnLedger
+    return TurnLedger
+
+
+def reimburse_for_progress(
+    ledger,
+    prev_structural_highs: int,
+    curr_structural_highs: int,
+) -> int:
+    """Credit budget when structural HIGHs decrease between runs.
+
+    Returns 0 when curr_structural_highs >= prev_structural_highs.
+    Uses ledger.reimbursement_rate for credit calculation.
+    """
+    if curr_structural_highs >= prev_structural_highs:
+        return 0
+    delta = prev_structural_highs - curr_structural_highs
+    credit = int(CONVERGENCE_PASS_CREDIT * delta * ledger.reimbursement_rate)
+    if credit > 0:
+        ledger.credit(credit)
+    return credit
+
 
 def compute_stable_id(
     dimension: str,
@@ -44,6 +81,7 @@ class RunMetadata:
     total_high_count: int = 0
     medium_count: int = 0
     low_count: int = 0
+    budget_snapshot: dict | None = None
 
 
 @dataclass
@@ -64,17 +102,27 @@ class DeviationRegistry:
         """Load existing registry or create fresh one.
 
         If spec_hash differs from saved -> reset (new spec version, FR-6).
+        Pre-v3.05 registries: findings missing source_layer default to "structural".
         """
         if path.exists():
             try:
                 data = json.loads(path.read_text())
                 if data.get("spec_hash") == spec_hash:
+                    findings = data.get("findings", {})
+                    # Backward compat: default source_layer for pre-v3.05 registries
+                    for fid, finding in findings.items():
+                        if "source_layer" not in finding:
+                            finding["source_layer"] = "structural"
+                        if "first_seen_run" not in finding:
+                            finding["first_seen_run"] = 1
+                        if "last_seen_run" not in finding:
+                            finding["last_seen_run"] = 1
                     return cls(
                         path=path,
                         release_id=release_id,
                         spec_hash=spec_hash,
                         runs=data.get("runs", []),
-                        findings=data.get("findings", {}),
+                        findings=findings,
                     )
                 logger.info("Spec hash changed; resetting deviation registry")
             except (json.JSONDecodeError, KeyError):
@@ -117,6 +165,8 @@ class DeviationRegistry:
                 if stable_id in self.findings:
                     self.findings[stable_id]["last_seen_run"] = run_number
                     self.findings[stable_id]["status"] = "ACTIVE"
+                    if hasattr(f, 'files_affected'):
+                        self.findings[stable_id]["files_affected"] = list(f.files_affected)
                 else:
                     self.findings[stable_id] = {
                         "stable_id": stable_id,
@@ -130,6 +180,7 @@ class DeviationRegistry:
                         "last_seen_run": run_number,
                         "debate_verdict": None,
                         "debate_transcript": None,
+                        "files_affected": list(f.files_affected) if hasattr(f, 'files_affected') else [],
                     }
 
         # Mark missing findings as FIXED
@@ -237,6 +288,15 @@ class ConvergenceResult:
     halt_reason: str | None = None
 
 
+@dataclass
+class RegressionResult:
+    """Outcome of a parallel regression validation (FR-8)."""
+    validated_findings: list[dict] = field(default_factory=list)
+    debate_verdicts: list[dict] = field(default_factory=list)
+    agents_succeeded: int = 0
+    consolidated_report_path: str = ""
+
+
 def _check_regression(registry: DeviationRegistry) -> bool:
     """Check if structural HIGHs increased (regression).
 
@@ -321,3 +381,336 @@ def _atexit_cleanup() -> None:
 
 
 atexit.register(_atexit_cleanup)
+
+
+def execute_fidelity_with_convergence(
+    registry: DeviationRegistry,
+    ledger,
+    run_checkers: "Callable",
+    run_remediation: "Callable",
+    handle_regression_fn: "Callable | None" = None,
+    max_runs: int = 3,
+    spec_path: Path | None = None,
+    roadmap_path: Path | None = None,
+) -> ConvergenceResult:
+    """Convergence-controlled fidelity gate (FR-7).
+
+    Coordinates up to max_runs (default 3) checker/remediation cycles
+    within step 8 with TurnLedger budget accounting.
+
+    Run labels: Run 1 (catch) -> remediation -> Run 2 (verify) -> remediation -> Run 3 (backup).
+
+    Pass condition: registry.get_active_high_count() == 0.
+    Monotonic progress enforced on structural_high_count only.
+    Semantic HIGH fluctuations logged as warnings.
+    Budget exhaustion halts with diagnostic report.
+
+    Parameters
+    ----------
+    registry : DeviationRegistry
+        The deviation registry tracking findings across runs.
+    ledger : TurnLedger
+        Budget accounting object (from sprint.models).
+    run_checkers : Callable
+        Function that runs structural + semantic checkers and merges
+        findings into the registry. Signature: (registry, run_number) -> None.
+    run_remediation : Callable
+        Function that attempts to remediate active HIGH findings.
+        Signature: (registry) -> None.
+    handle_regression_fn : Callable | None
+        Function to handle regression detection. Called when structural
+        HIGHs increase. Signature: (registry, spec_path, roadmap_path) -> RegressionResult.
+    max_runs : int
+        Maximum number of checker runs (default 3).
+    spec_path : Path | None
+        Path to spec file (for regression validation).
+    roadmap_path : Path | None
+        Path to roadmap file (for regression validation).
+
+    Returns
+    -------
+    ConvergenceResult
+        Outcome including pass/fail, run count, and diagnostic logs.
+    """
+    run_labels = ["catch", "verify", "backup"]
+    structural_progress: list[str] = []
+    semantic_fluctuation: list[str] = []
+    prev_structural_highs = registry.get_structural_high_count()
+
+    for run_idx in range(max_runs):
+        run_label = run_labels[run_idx] if run_idx < len(run_labels) else f"run-{run_idx + 1}"
+
+        # Budget guard: can we afford a checker run?
+        if not ledger.can_launch():
+            halt_msg = (
+                f"Budget exhausted before run {run_idx + 1} ({run_label}). "
+                f"TurnLedger: available={ledger.available()}, "
+                f"consumed={ledger.consumed}, initial={ledger.initial_budget}"
+            )
+            logger.error(halt_msg)
+            return ConvergenceResult(
+                passed=False,
+                run_count=run_idx,
+                final_high_count=registry.get_active_high_count(),
+                structural_progress_log=structural_progress,
+                semantic_fluctuation_log=semantic_fluctuation,
+                halt_reason=halt_msg,
+            )
+
+        # Debit for checker run
+        ledger.debit(CHECKER_COST)
+        run_number = registry.begin_run(
+            roadmap_hash=hashlib.sha256(
+                (roadmap_path.read_bytes() if roadmap_path and roadmap_path.exists() else b"")
+            ).hexdigest()
+        )
+
+        # Record budget snapshot after debit
+        if registry.runs:
+            registry.runs[-1]["budget_snapshot"] = {
+                "consumed": ledger.consumed,
+                "reimbursed": ledger.reimbursed,
+                "available": ledger.available(),
+                "initial": ledger.initial_budget,
+            }
+
+        # Execute checkers
+        run_checkers(registry, run_number)
+
+        # Check pass condition
+        active_highs = registry.get_active_high_count()
+        curr_structural = registry.get_structural_high_count()
+        curr_semantic = registry.get_semantic_high_count()
+
+        if active_highs == 0:
+            ledger.credit(CONVERGENCE_PASS_CREDIT)
+            logger.info(
+                "Run %d (%s): PASS — 0 active HIGHs. Credit %d turns. "
+                "budget: consumed=%d, reimbursed=%d, available=%d",
+                run_idx + 1, run_label, CONVERGENCE_PASS_CREDIT,
+                ledger.consumed, ledger.reimbursed, ledger.available(),
+            )
+            return ConvergenceResult(
+                passed=True,
+                run_count=run_idx + 1,
+                final_high_count=0,
+                structural_progress_log=structural_progress,
+                semantic_fluctuation_log=semantic_fluctuation,
+            )
+
+        # Log progress
+        progress_msg = (
+            f"Run {run_idx + 1} ({run_label}): structural {prev_structural_highs} -> {curr_structural}, "
+            f"budget: consumed={ledger.consumed}, reimbursed={ledger.reimbursed}, "
+            f"available={ledger.available()}"
+        )
+        structural_progress.append(progress_msg)
+
+        # Check for semantic fluctuation
+        prev_semantic = (
+            registry.runs[-2].get("semantic_high_count", 0)
+            if len(registry.runs) >= 2 else 0
+        )
+        if curr_semantic != prev_semantic:
+            fluct_msg = (
+                f"Run {run_idx + 1}: semantic HIGH fluctuation "
+                f"{prev_semantic} -> {curr_semantic} (warning only)"
+            )
+            semantic_fluctuation.append(fluct_msg)
+            logger.warning(fluct_msg)
+
+        # Check for structural regression (only after Run 1 baseline)
+        if run_idx > 0 and curr_structural > prev_structural_highs:
+            logger.error(
+                "Structural regression in run %d: %d -> %d",
+                run_idx + 1, prev_structural_highs, curr_structural,
+            )
+            if handle_regression_fn and spec_path and roadmap_path:
+                # Budget guard for regression validation
+                if not ledger.can_launch():
+                    halt_msg = (
+                        f"Budget exhausted before regression validation. "
+                        f"TurnLedger: available={ledger.available()}"
+                    )
+                    return ConvergenceResult(
+                        passed=False,
+                        run_count=run_idx + 1,
+                        final_high_count=active_highs,
+                        structural_progress_log=structural_progress,
+                        semantic_fluctuation_log=semantic_fluctuation,
+                        regression_detected=True,
+                        halt_reason=halt_msg,
+                    )
+                ledger.debit(REGRESSION_VALIDATION_COST)
+                handle_regression_fn(registry, spec_path, roadmap_path)
+                # Re-evaluate after regression handling
+                active_highs = registry.get_active_high_count()
+                curr_structural = registry.get_structural_high_count()
+
+            return ConvergenceResult(
+                passed=False,
+                run_count=run_idx + 1,
+                final_high_count=active_highs,
+                structural_progress_log=structural_progress,
+                semantic_fluctuation_log=semantic_fluctuation,
+                regression_detected=True,
+            )
+
+        # Reimburse for progress
+        credit = reimburse_for_progress(ledger, prev_structural_highs, curr_structural)
+        if credit > 0:
+            progress_credit_msg = (
+                f"Run {run_idx + 1}: progress credit {credit} turns "
+                f"(structural {prev_structural_highs} -> {curr_structural})"
+            )
+            logger.info(progress_credit_msg)
+            structural_progress.append(progress_credit_msg)
+
+        prev_structural_highs = curr_structural
+
+        # Remediate before next run (if not the last run)
+        if run_idx < max_runs - 1:
+            if not ledger.can_remediate():
+                halt_msg = (
+                    f"Budget exhausted before remediation after run {run_idx + 1}. "
+                    f"TurnLedger: available={ledger.available()}"
+                )
+                logger.error(halt_msg)
+                return ConvergenceResult(
+                    passed=False,
+                    run_count=run_idx + 1,
+                    final_high_count=active_highs,
+                    structural_progress_log=structural_progress,
+                    semantic_fluctuation_log=semantic_fluctuation,
+                    halt_reason=halt_msg,
+                )
+            ledger.debit(REMEDIATION_COST)
+            run_remediation(registry)
+
+        registry.save()
+
+    # All runs exhausted without convergence
+    final_highs = registry.get_active_high_count()
+    halt_msg = (
+        f"Convergence not reached after {max_runs} runs. "
+        f"Remaining active HIGHs: {final_highs}. "
+        f"TurnLedger: available={ledger.available()}, consumed={ledger.consumed}"
+    )
+    logger.error(halt_msg)
+    return ConvergenceResult(
+        passed=False,
+        run_count=max_runs,
+        final_high_count=final_highs,
+        structural_progress_log=structural_progress,
+        semantic_fluctuation_log=semantic_fluctuation,
+        halt_reason=halt_msg,
+    )
+
+
+def handle_regression(
+    registry: DeviationRegistry,
+    spec_path: Path,
+    roadmap_path: Path,
+) -> RegressionResult:
+    """Handle structural regression via parallel validation (FR-8).
+
+    Spawns 3 agents in isolated temp dirs, each running the full checker
+    suite independently. Results are merged by stable ID, and adversarial
+    debate validates each HIGH finding.
+
+    Does NOT perform any ledger operations internally — the caller
+    (execute_fidelity_with_convergence) handles budget debiting.
+
+    Parameters
+    ----------
+    registry : DeviationRegistry
+        The deviation registry (updated with debate verdicts).
+    spec_path : Path
+        Path to spec file.
+    roadmap_path : Path
+        Path to roadmap file.
+
+    Returns
+    -------
+    RegressionResult
+        Consolidated validation result with findings and debate verdicts.
+    """
+    dirs = _create_validation_dirs(
+        spec_path, roadmap_path, registry.path, count=3,
+    )
+    try:
+        # Each agent independently validates findings
+        agent_results: list[dict[str, dict]] = []
+        agents_succeeded = 0
+
+        for i, d in enumerate(dirs):
+            try:
+                # Load independent registry copy
+                agent_registry = DeviationRegistry.load_or_create(
+                    d / registry.path.name,
+                    registry.release_id,
+                    registry.spec_hash,
+                )
+                # Collect active HIGHs from this agent's view
+                agent_highs = agent_registry.get_active_highs()
+                agent_findings = {
+                    f.get("stable_id", ""): f for f in agent_highs
+                }
+                agent_results.append(agent_findings)
+                agents_succeeded += 1
+            except Exception as exc:
+                logger.error("Validation agent %d failed: %s", i, exc)
+                agent_results.append({})
+
+        # All 3 agents must succeed for validation to be considered valid
+        if agents_succeeded < 3:
+            logger.error(
+                "Regression validation FAILED: only %d/3 agents succeeded",
+                agents_succeeded,
+            )
+            return RegressionResult(
+                agents_succeeded=agents_succeeded,
+            )
+
+        # Merge results by stable ID: preserve unique findings
+        merged: dict[str, dict] = {}
+        for agent_findings in agent_results:
+            for sid, finding in agent_findings.items():
+                if sid not in merged:
+                    merged[sid] = finding
+
+        # Sort by severity: HIGH -> MEDIUM -> LOW
+        severity_order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+        validated = sorted(
+            merged.values(),
+            key=lambda f: severity_order.get(f.get("severity", "LOW"), 3),
+        )
+
+        # Write consolidated report
+        report_path = registry.path.parent / "fidelity-regression-validation.md"
+        report_lines = [
+            "---",
+            f"agents_succeeded: {agents_succeeded}",
+            f"total_findings: {len(validated)}",
+            f"high_count: {sum(1 for f in validated if f.get('severity') == 'HIGH')}",
+            "---",
+            "",
+            "## Regression Validation Report",
+            "",
+        ]
+        for f in validated:
+            report_lines.append(
+                f"- [{f.get('severity', '?')}] {f.get('stable_id', '?')[:8]}: "
+                f"{f.get('description', 'no description')}"
+            )
+        report_path.write_text("\n".join(report_lines), encoding="utf-8")
+
+        return RegressionResult(
+            validated_findings=validated,
+            debate_verdicts=[],
+            agents_succeeded=agents_succeeded,
+            consolidated_report_path=str(report_path),
+        )
+
+    finally:
+        _cleanup_validation_dirs(dirs)

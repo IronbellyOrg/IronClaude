@@ -718,6 +718,34 @@ def emit_report(report: WiringReport, output_path: Path) -> Path:
     Frontmatter contains 16 fields per section 5.6. String fields are serialized
     with yaml.safe_dump() to prevent YAML injection (section 5.4).
 
+    Frontmatter field mapping (T11/R7):
+        The implementation emits 16 fields. The spec defines 12 fields.
+        Mapping between spec and implementation:
+
+        Spec field          | Impl field                  | Notes
+        --------------------|-----------------------------|------
+        gate                | gate                        | exact match
+        target_dir          | target_dir                  | exact match
+        files_analyzed      | files_analyzed              | exact match
+        rollout_mode        | rollout_mode                | exact match
+        analysis_complete   | analysis_complete           | exact match
+        findings_count      | total_findings              | name differs: spec uses findings_count
+        blocking_count      | blocking_findings           | name differs: spec uses blocking_count
+        unwired_count       | unwired_callable_count      | name differs: more specific in impl
+        orphan_count        | orphan_module_count         | name differs: more specific in impl
+        registry_count      | unwired_registry_count      | name differs: more specific in impl
+        critical_count      | critical_count              | exact match
+        major_count         | major_count                 | exact match
+        (not in spec)       | info_count                  | OQ resolution: severity completeness
+        (not in spec)       | files_skipped               | OQ resolution: scan coverage metric
+        (not in spec)       | audit_artifacts_used        | OQ resolution: future AST plugin
+        (not in spec)       | whitelist_entries_applied   | OQ resolution: suppression tracking
+
+        The 4 extra implementation fields (info_count, files_skipped,
+        audit_artifacts_used, whitelist_entries_applied) are OQ resolutions
+        that provide additional observability. The spec should be updated
+        to match the implementation as it is a strict superset.
+
     Args:
         report: Aggregated wiring analysis report.
         output_path: Destination file path.
@@ -1046,3 +1074,26 @@ def blocking_for_mode(report: WiringReport) -> bool:
         True if findings should block, False otherwise.
     """
     return report.blocking_count() > 0
+
+
+def check_wiring_report(content: str) -> tuple[bool, list[str]]:
+    """Convenience wrapper running all 5 semantic checks from WIRING_GATE.
+
+    Amendment A3: Operates on report file content (YAML frontmatter + Markdown body),
+    not WiringReport objects. WIRING_GATE is a GateCriteria instance; semantic checks
+    operate on content strings.
+
+    Args:
+        content: Report file content (YAML frontmatter + Markdown body).
+
+    Returns:
+        Tuple of (passed, list_of_failure_names). passed is True when all
+        checks pass; list_of_failure_names contains the names of failed checks.
+
+    Spec reference: Section 6.1 / OQ-10.
+    """
+    failures: list[str] = []
+    for check in WIRING_GATE.semantic_checks:
+        if not check.check_fn(content):
+            failures.append(check.name)
+    return (len(failures) == 0, failures)

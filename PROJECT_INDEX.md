@@ -1,324 +1,288 @@
 # Project Index: SuperClaude Framework
 
-**Generated**: 2025-10-29
-**Version**: 0.4.0
-**Description**: AI-enhanced development framework for Claude Code - pytest plugin with specialized commands
+**Generated**: 2026-03-23
+**Version**: 4.2.0
+**Package**: `superclaude`
+**Python**: >=3.10
+**Build**: hatchling (PEP 517)
+**License**: MIT
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 SuperClaude_Framework/
-├── src/superclaude/          # Python package (3,002 LOC)
-│   ├── cli/                  # CLI commands (main.py, doctor.py, install_skill.py)
-│   ├── pm_agent/             # PM Agent core (confidence.py, self_check.py, reflexion.py, token_budget.py)
-│   ├── execution/            # Execution patterns (parallel.py, reflection.py, self_correction.py)
-│   ├── pytest_plugin.py      # Auto-loaded pytest integration
-│   └── skills/               # TypeScript skills (confidence-check)
-├── tests/                    # Test suite (7 files)
-│   ├── pm_agent/             # PM Agent tests (confidence, self_check, reflexion)
-│   └── conftest.py           # Shared fixtures
-├── docs/                     # Documentation (90+ files)
-│   ├── user-guide/           # User guides (en, ja, kr, zh)
-│   ├── developer-guide/      # Developer documentation
-│   ├── reference/            # API reference & examples
-│   ├── architecture/         # Architecture decisions
-│   └── research/             # Research findings
-├── scripts/                  # Analysis tools (workflow metrics, A/B testing)
-├── setup/                    # Setup components & utilities
-├── skills/                   # Claude Code skills
-│   └── confidence-check/     # Confidence check skill (SKILL.md, confidence.ts)
-├── .claude/                  # Claude Code configuration
-│   ├── settings.json         # Plugin settings
-│   └── skills/               # Installed skills
-└── .github/                  # GitHub workflows & templates
+├── src/superclaude/              # Python package — source of truth
+│   ├── __init__.py               # Exports: ConfidenceChecker, SelfCheckProtocol, ReflexionPattern
+│   ├── __version__.py            # 4.2.0
+│   ├── pytest_plugin.py          # Auto-loaded pytest integration (entry point: pytest11)
+│   ├── cli/                      # CLI tool + pipeline runners
+│   │   ├── main.py               # Click CLI entry point → `superclaude` command
+│   │   ├── doctor.py             # Health check diagnostics
+│   │   ├── install_*.py          # Component installers (core, commands, agents, skills, mcp)
+│   │   ├── sprint/               # Sprint pipeline (16 modules)
+│   │   ├── roadmap/              # Roadmap pipeline (24 modules)
+│   │   ├── tasklist/             # Tasklist pipeline (6 modules)
+│   │   ├── pipeline/             # Shared pipeline infrastructure (24 modules)
+│   │   ├── audit/                # Cleanup audit pipeline (42 modules)
+│   │   ├── cleanup_audit/        # Cleanup audit runner (13 modules)
+│   │   └── cli_portify/          # Portify pipeline (22 modules + steps/)
+│   ├── pm_agent/                 # PM Agent core patterns
+│   │   ├── confidence.py         # Pre-execution confidence (≥90% proceed)
+│   │   ├── self_check.py         # Post-implementation validation
+│   │   ├── reflexion.py          # Error learning + cross-session matching
+│   │   └── token_budget.py       # Token budget allocation
+│   ├── execution/                # Execution patterns
+│   │   ├── parallel.py           # Wave → Checkpoint → Wave (3.5x speedup)
+│   │   ├── reflection.py         # Reflection utilities
+│   │   └── self_correction.py    # Self-correction logic
+│   ├── core/                     # Framework definition files (13 .md)
+│   │   ├── RULES.md              # Behavioral rules
+│   │   ├── PRINCIPLES.md         # Engineering principles
+│   │   ├── PERSONAS.md           # 9 personas (architect…devops)
+│   │   ├── COMMANDS.md           # Command registry
+│   │   ├── FLAGS.md              # Flag definitions
+│   │   ├── MCP.md                # MCP integration guide
+│   │   ├── MODES.md              # Operating modes
+│   │   └── ORCHESTRATOR.md       # Orchestration rules
+│   ├── commands/                 # Slash command definitions (38 .md files)
+│   ├── agents/                   # Agent definitions (29 .md files)
+│   ├── skills/                   # Skill packages (13 directories)
+│   │   ├── confidence-check/     # SKILL.md + confidence.ts
+│   │   ├── sc-adversarial-protocol/
+│   │   ├── sc-cleanup-audit-protocol/
+│   │   ├── sc-cli-portify-protocol/
+│   │   ├── sc-pm-protocol/
+│   │   ├── sc-recommend-protocol/
+│   │   ├── sc-release-split-protocol/
+│   │   ├── sc-review-translation-protocol/
+│   │   ├── sc-roadmap-protocol/
+│   │   ├── sc-task-unified-protocol/
+│   │   ├── sc-tasklist-protocol/
+│   │   └── sc-validate-tests-protocol/
+│   ├── mcp/                      # MCP server configs + docs (10 servers)
+│   │   ├── configs/              # JSON configs per server
+│   │   └── MCP_*.md              # Per-server documentation
+│   ├── modes/                    # Operating mode definitions (7 modes)
+│   ├── hooks/                    # Hook definitions (hooks.json)
+│   ├── examples/                 # Example templates
+│   └── scripts/                  # Internal scripts
+├── tests/                        # Test suite
+│   ├── conftest.py               # Shared fixtures
+│   ├── unit/                     # Unit tests
+│   ├── integration/              # Integration tests
+│   ├── sprint/                   # Sprint pipeline tests
+│   ├── pipeline/                 # Pipeline tests
+│   ├── roadmap/                  # Roadmap tests
+│   ├── tasklist/                 # Tasklist tests
+│   ├── audit/                    # Audit pipeline tests
+│   ├── cli_portify/              # Portify tests
+│   └── headless-adversarial/     # Adversarial pipeline tests
+├── .claude/                      # Dev copies (synced from src/)
+│   ├── settings.json
+│   ├── commands/sc/              # Active slash commands
+│   ├── agents/                   # Active agent definitions
+│   └── skills/                   # Active skill packages
+├── docs/                         # Documentation
+│   ├── user-guide/               # English user guide
+│   ├── user-guide-jp/            # Japanese
+│   ├── user-guide-kr/            # Korean
+│   ├── user-guide-zh/            # Chinese
+│   ├── developer-guide/          # Developer docs
+│   ├── reference/                # API reference
+│   ├── architecture/             # Architecture decisions
+│   ├── research/                 # Research notes
+│   ├── generated/                # CLI pipeline artifacts
+│   ├── mcp/                      # MCP documentation
+│   ├── testing/                  # Testing guides
+│   ├── troubleshooting/          # Troubleshooting
+│   └── agents/                   # Agent documentation
+├── scripts/                      # Dev/ops scripts
+│   ├── eval_*.py                 # Evaluation runners
+│   ├── ab_test_workflows.py      # A/B workflow testing
+│   ├── analyze_workflow_metrics.py
+│   ├── build_superclaude_plugin.py
+│   ├── sync_from_framework.py    # Framework sync
+│   └── validators/               # Validation scripts
+├── .dev/                         # Release management
+│   └── releases/                 # Current + backlog releases
+├── .github/                      # CI/CD workflows + templates
+├── plugins/                      # Plugin artifacts
+├── remediation/                  # Remediation tracking
+└── .serena/                      # Serena MCP project config
 ```
 
 ---
 
-## 🚀 Entry Points
+## Entry Points
 
-### CLI
-- **Command**: `superclaude` (installed via pip/uv)
+### CLI: `superclaude`
 - **Source**: `src/superclaude/cli/main.py:main`
-- **Purpose**: CLI interface for SuperClaude operations
+- **Framework**: Click
+- **Subcommands**: `install`, `mcp`, `doctor`, `sprint run`, `roadmap run`, `roadmap validate`, `tasklist run`
 
 ### Pytest Plugin
-- **Auto-loaded**: Yes (via `pyproject.toml` entry point)
+- **Auto-loaded**: via `[project.entry-points.pytest11]`
 - **Source**: `src/superclaude/pytest_plugin.py`
-- **Purpose**: PM Agent fixtures and test automation
-
-### Skills
-- **Confidence Check**: `.claude/skills/confidence-check/confidence.ts`
-- **Purpose**: Pre-implementation confidence assessment
+- **Fixtures**: `confidence_checker`, `self_check_protocol`, `reflexion_pattern`, `token_budget`, `pm_context`
+- **Auto-markers**: tests in `/unit/` → `unit`, tests in `/integration/` → `integration`
 
 ---
 
-## 📦 Core Modules
+## Core Subsystems
 
-### PM Agent (src/superclaude/pm_agent/)
-Core patterns for AI-enhanced development:
+### 1. PM Agent (`src/superclaude/pm_agent/`)
+Three-pattern system for AI-guided development:
 
-#### ConfidenceChecker (`confidence.py`)
-- **Purpose**: Pre-execution confidence assessment
-- **Threshold**: ≥90% required, 70-89% present alternatives, <70% ask questions
-- **ROI**: 25-250x token savings
-- **Checks**: No duplication, architecture compliance, official docs, OSS references, root cause identification
+| Pattern | File | Purpose |
+|---------|------|---------|
+| **ConfidenceChecker** | `confidence.py` | Pre-execution assessment. ≥90% proceed, 70-89% present alternatives, <70% ask |
+| **SelfCheckProtocol** | `self_check.py` | Post-implementation evidence-based validation |
+| **ReflexionPattern** | `reflexion.py` | Error learning, cross-session pattern matching |
+| **TokenBudget** | `token_budget.py` | Token allocation: simple=200, medium=1000, complex=2500 |
 
-#### SelfCheckProtocol (`self_check.py`)
-- **Purpose**: Post-implementation evidence-based validation
-- **Approach**: No speculation - verify with tests/docs
-- **Pattern**: Assert → Verify → Report
+### 2. CLI Pipelines (`src/superclaude/cli/`)
 
-#### ReflexionPattern (`reflexion.py`)
-- **Purpose**: Error learning and prevention
-- **Features**: Cross-session pattern matching, failure analysis
-- **Storage**: Session-persistent learning
+| Pipeline | Dir | Modules | Purpose |
+|----------|-----|---------|---------|
+| **Sprint** | `cli/sprint/` | 16 | Supervised task execution with KPI tracking, TUI, tmux |
+| **Roadmap** | `cli/roadmap/` | 24 | Spec → roadmap generation with convergence, remediation |
+| **Tasklist** | `cli/tasklist/` | 6 | Roadmap → sprint-compatible tasklist bundles |
+| **Pipeline** | `cli/pipeline/` | 24 | Shared infrastructure: gates, FMEA, dataflow, invariants |
+| **Audit** | `cli/audit/` | 42 | Multi-pass repo audit with evidence gates |
+| **Cleanup Audit** | `cli/cleanup_audit/` | 13 | Audit runner with diagnostics + TUI |
+| **CLI Portify** | `cli/cli_portify/` | 22+8 | Convert inference workflows → programmatic pipelines |
 
-#### TokenBudgetManager (`token_budget.py`)
-- **Purpose**: Token allocation and tracking
-- **Levels**: Simple (200), Medium (1,000), Complex (2,500)
-- **Enforcement**: Budget-aware execution
+### 3. Execution Engine (`src/superclaude/execution/`)
+- **Parallel**: Wave → Checkpoint → Wave pattern (3.5x speedup)
+- **Reflection**: Post-execution analysis
+- **Self-correction**: Automated error recovery
 
-### Execution Patterns (src/superclaude/execution/)
+### 4. Framework Core (`src/superclaude/core/`)
+13 markdown files defining behavioral rules, personas, commands, flags, MCP integration, orchestration, and operating modes.
 
-#### Parallel Execution (`parallel.py`)
-- **Pattern**: Wave → Checkpoint → Wave
-- **Performance**: 3.5x faster than sequential
-- **Features**: Automatic dependency analysis, concurrent tool calls
-- **Example**: [Read files in parallel] → Analyze → [Edit files in parallel]
+### 5. Slash Commands (`src/superclaude/commands/`)
+38 command definitions. Key commands:
+- `sc.md` — Dispatcher
+- `task-unified.md` — Unified task execution with MCP compliance
+- `pm.md` — Project manager orchestration
+- `roadmap.md`, `tasklist.md`, `sprint.md` — Pipeline commands
+- `adversarial.md` — Structured debate pipeline
+- `cleanup-audit.md` — Repository audit
+- `cli-portify.md` — Workflow portification
+- `research.md`, `analyze.md`, `implement.md`, `test.md`, `build.md`
 
-#### Reflection (`reflection.py`)
-- **Purpose**: Post-execution analysis and improvement
-- **Integration**: Works with ReflexionPattern
+### 6. Agents (`src/superclaude/agents/`)
+29 agent definitions for Claude Code subagent delegation:
 
-#### Self-Correction (`self_correction.py`)
-- **Purpose**: Automated error detection and correction
-- **Strategy**: Iterative refinement
+| Category | Agents |
+|----------|--------|
+| **Audit** | audit-scanner, audit-analyzer, audit-comparator, audit-consolidator, audit-validator |
+| **Architecture** | system-architect, backend-architect, frontend-architect, devops-architect |
+| **Quality** | quality-engineer, performance-engineer, security-engineer |
+| **Research** | deep-research, deep-research-agent |
+| **Development** | python-expert, refactoring-expert, merge-executor |
+| **Analysis** | root-cause-analyst, requirements-analyst |
+| **Communication** | technical-writer, learning-guide, socratic-mentor |
+| **Orchestration** | pm-agent, debate-orchestrator, self-review, repo-index |
+| **Domain** | business-panel-experts |
 
-### CLI Commands (src/superclaude/cli/)
+### 7. Skills (`src/superclaude/skills/`)
+13 skill packages, each containing `SKILL.md` + optional `refs/`, `rules/`, `templates/`, `scripts/`:
 
-#### main.py
-- **Exports**: `main()` - CLI entry point
-- **Framework**: Click-based CLI
-- **Commands**: install-skill, doctor (health check)
+| Skill | Purpose |
+|-------|---------|
+| `confidence-check` | Pre-implementation confidence assessment |
+| `sc-adversarial-protocol` | Debate, comparison, merge pipeline |
+| `sc-cleanup-audit-protocol` | Multi-pass repo audit |
+| `sc-cli-portify-protocol` | Workflow → CLI pipeline conversion |
+| `sc-pm-protocol` | PM agent PDCA orchestration |
+| `sc-recommend-protocol` | Command recommendation engine |
+| `sc-release-split-protocol` | Release split analysis |
+| `sc-review-translation-protocol` | Localization review |
+| `sc-roadmap-protocol` | Roadmap generation |
+| `sc-task-unified-protocol` | Unified task execution |
+| `sc-tasklist-protocol` | Roadmap → tasklist generation |
+| `sc-validate-tests-protocol` | Tier classification validation |
 
-#### doctor.py
-- **Purpose**: Health check diagnostics
-- **Checks**: Package installation, pytest plugin, skills availability
+### 8. MCP Servers (`src/superclaude/mcp/`)
+10 server integrations with JSON configs:
 
-#### install_skill.py
-- **Purpose**: Install SuperClaude skills to Claude Code
-- **Target**: `~/.claude/skills/`
-
----
-
-## 🔧 Configuration
-
-### Python Package
-- **File**: `pyproject.toml`
-- **Build**: hatchling (PEP 517)
-- **Python**: ≥3.10
-- **Dependencies**: pytest ≥7.0.0, click ≥8.0.0, rich ≥13.0.0
-
-### NPM Wrapper
-- **File**: `package.json`
-- **Package**: `@bifrost_inc/superclaude`
-- **Version**: 4.1.5
-- **Purpose**: Cross-platform installation wrapper
-
-### Claude Code
-- **File**: `.claude/settings.json`
-- **Purpose**: Plugin and marketplace settings
-
----
-
-## 📚 Documentation
-
-### Key Files
-- **CLAUDE.md**: Instructions for Claude Code integration
-- **README.md**: Project overview and quick start
-- **CONTRIBUTING.md**: Contribution guidelines
-- **CHANGELOG.md**: Version history
-- **AGENTS.md**: Agent architecture documentation
-
-### User Guides (docs/user-guide/)
-- **commands.md**: Available commands
-- **agents.md**: Agent usage patterns
-- **flags.md**: CLI flags and options
-- **modes.md**: Operation modes
-- **session-management.md**: Session persistence
-- **mcp-servers.md**: MCP server integration
-
-### Developer Guides (docs/developer-guide/)
-- **contributing-code.md**: Code contribution workflow
-- **technical-architecture.md**: Architecture overview
-- **testing-debugging.md**: Testing strategies
-
-### Reference (docs/reference/)
-- **basic-examples.md**: Usage examples
-- **advanced-patterns.md**: Advanced implementation patterns
-- **troubleshooting.md**: Common issues and solutions
-- **diagnostic-reference.md**: Health check diagnostics
-
-### Architecture (docs/architecture/)
-- **MIGRATION_TO_CLEAN_ARCHITECTURE.md**: Architecture evolution
-- **PHASE_1_COMPLETE.md**: Phase 1 migration results
-- **PM_AGENT_COMPARISON.md**: PM Agent vs alternatives
-- **CONTEXT_WINDOW_ANALYSIS.md**: Token efficiency analysis
-
-### Research (docs/research/)
-- **llm-agent-token-efficiency-2025.md**: Token optimization research
-- **reflexion-integration-2025.md**: Reflexion pattern integration
-- **parallel-execution-complete-findings.md**: Parallel execution results
-- **pm_agent_roi_analysis_2025-10-21.md**: ROI analysis
+| Server | Purpose |
+|--------|---------|
+| **Airis Gateway** | Unified MCP management (60+ tools) |
+| **Auggie** | Codebase retrieval + context |
+| **Tavily** | Web search |
+| **Context7** | Official library docs |
+| **Sequential** | Multi-step reasoning |
+| **Serena** | Symbol navigation + project memory |
+| **Playwright** | Browser automation |
+| **Magic** | UI component generation |
+| **Chrome DevTools** | Performance profiling |
+| **Mindbase** | Cross-session learning |
 
 ---
 
-## 🧪 Test Coverage
+## Dependencies
 
-### Structure
-- **Unit tests**: 7 files in `tests/pm_agent/`
-- **Test framework**: pytest ≥7.0.0
-- **Coverage tool**: pytest-cov ≥4.0.0
-- **Markers**: confidence_check, self_check, reflexion, unit, integration
+**Runtime**: pytest >=7.0, click >=8.0, rich >=13.0, pyyaml >=6.0
+**Dev**: pytest-cov, pytest-benchmark, scipy, black, ruff, mypy
 
-### Test Files
-1. `test_confidence_check.py` - ConfidenceChecker tests
-2. `test_self_check_protocol.py` - SelfCheckProtocol tests
-3. `test_reflexion_pattern.py` - ReflexionPattern tests
-4. `test_pytest_plugin.py` - Pytest plugin tests
-5. `conftest.py` - Shared fixtures
+---
 
-### Running Tests
+## Test Organization
+
+| Directory | Scope | Key Markers |
+|-----------|-------|-------------|
+| `tests/unit/` | Unit tests | `unit` |
+| `tests/integration/` | Integration | `integration` |
+| `tests/sprint/` | Sprint pipeline | `diagnostic`, `e2e_trailing`, `backward_compat` |
+| `tests/pipeline/` | Pipeline infra | `diagnostic_l0`…`l3` |
+| `tests/roadmap/` | Roadmap pipeline | — |
+| `tests/tasklist/` | Tasklist pipeline | — |
+| `tests/audit/` | Audit pipeline | — |
+| `tests/cli_portify/` | Portify pipeline | — |
+| `tests/headless-adversarial/` | Adversarial | — |
+
+Custom pytest markers: `confidence_check`, `self_check`, `reflexion`, `complexity(level)`, `diagnostic`, `e2e_trailing`, `backward_compat`, `property_based`, `nfr_benchmark`, `gate_performance`, `thread_safety`, `agent_regression`
+
+---
+
+## Development Commands
+
 ```bash
-# All tests
-uv run pytest
-
-# Specific directory
-uv run pytest tests/pm_agent/ -v
-
-# By marker
-uv run pytest -m confidence_check
-
-# With coverage
-uv run pytest --cov=superclaude
+make dev              # Install editable + dev deps
+make test             # Full test suite
+make lint             # Ruff linter
+make format           # Ruff formatter
+make doctor           # Health check
+make sync-dev         # src/ → .claude/
+make verify-sync      # Confirm sync
+make build-plugin     # Build plugin artifacts
+make clean            # Remove build artifacts
 ```
 
 ---
 
-## 🔗 Key Dependencies
+## Git Workflow
 
-### Core Dependencies (pyproject.toml)
-- **pytest** ≥7.0.0 - Testing framework
-- **click** ≥8.0.0 - CLI framework
-- **rich** ≥13.0.0 - Terminal formatting
-
-### Dev Dependencies
-- **pytest-cov** ≥4.0.0 - Coverage reporting
-- **pytest-benchmark** ≥4.0.0 - Performance testing
-- **scipy** ≥1.10.0 - A/B testing (statistical analysis)
-- **ruff** ≥0.1.0 - Linting and formatting
-- **mypy** ≥1.0 - Type checking
+- **Branches**: `master` (production) ← `integration` (testing) ← `feature/*`, `fix/*`, `docs/*`
+- **Commits**: Conventional commits (`feat:`, `fix:`, `docs:`, etc.)
+- **Current branch**: `v3.0-v3.2-Fidelity`
 
 ---
 
-## 📝 Quick Start
+## Key Configuration Files
 
-### Installation
-```bash
-# Install with UV (recommended)
-uv pip install superclaude
-
-# Or with pip
-pip install superclaude
-
-# Development mode
-make install
-```
-
-### Usage
-```bash
-# CLI commands
-superclaude --version
-superclaude install-skill confidence-check
-
-# Health check
-make doctor
-
-# Run tests
-make test
-
-# Format and lint
-make format
-make lint
-```
-
-### Pytest Integration
-```python
-# Automatically available after installation
-@pytest.mark.confidence_check
-def test_feature(confidence_checker):
-    context = {"has_official_docs": True}
-    assert confidence_checker.assess(context) >= 0.9
-```
-
----
-
-## 🌿 Git Workflow
-
-**Branch structure**: `master` (production) ← `integration` (testing) ← `feature/*`, `fix/*`, `docs/*`
-
-**Current branch**: `next`
-
----
-
-## 🎯 Token Efficiency
-
-### Index Performance
-- **Before**: 58,000 tokens (reading all files every session)
-- **After**: 3,000 tokens (reading this index)
-- **Reduction**: 94% (55,000 tokens saved per session)
-
-### PM Agent ROI
-- **Confidence check**: 100-200 tokens → saves 5,000-50,000 tokens
-- **ROI**: 25-250x token savings
-- **Break-even**: 1 failed implementation prevented
-
----
-
-## 📊 Project Stats
-
-- **Python source**: 3,002 lines of code
-- **Test files**: 7 files
-- **Documentation**: 90+ markdown files
-- **Supported Python**: 3.10, 3.11, 3.12
-- **License**: MIT
-- **Contributors**: 3 core maintainers
-
----
-
-## 🔌 MCP Server Integration
-
-Integrates with multiple MCP servers via **airis-mcp-gateway**:
-
-- **Tavily**: Web search (Deep Research)
-- **Context7**: Official documentation (prevent hallucination)
-- **Sequential**: Token-efficient reasoning (30-50% reduction)
-- **Serena**: Session persistence
-- **Mindbase**: Cross-session learning
-
----
-
-## 🎨 Project Principles
-
-1. **Evidence-Based Development** - Never guess, verify with official docs
-2. **Confidence-First Implementation** - Check confidence BEFORE starting
-3. **Parallel-First Execution** - Use Wave → Checkpoint → Wave (3.5x faster)
-4. **Token Efficiency** - Optimize for minimal token usage
-5. **Test-Driven Development** - Tests first, implementation second
-
----
-
-**For detailed documentation**: See `docs/` directory or visit [GitHub repository](https://github.com/SuperClaude-Org/SuperClaude_Framework)
+| File | Purpose |
+|------|---------|
+| `pyproject.toml` | Build config, dependencies, tool settings |
+| `Makefile` | Development commands |
+| `.pre-commit-config.yaml` | Pre-commit hooks |
+| `.gitmodules` | Git submodules |
+| `CODEOWNERS` | Code ownership |
+| `return-contract.yaml` | Return contract definitions |
+| `PLANNING.md` | Architecture decisions, absolute rules |
+| `KNOWLEDGE.md` | Accumulated insights |
+| `CLAUDE.md` | Claude Code project instructions |

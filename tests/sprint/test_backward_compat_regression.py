@@ -253,7 +253,7 @@ class TestBackwardCompatRegression:
         def subprocess_factory(task, cfg, ph):
             return (0, 10, 500)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,

@@ -25,6 +25,7 @@ from ..pipeline.executor import execute_pipeline
 from ..pipeline.models import Deliverable, GateMode, PipelineConfig, Step, StepResult, StepStatus
 from ..pipeline.process import ClaudeProcess
 from .gates import (
+    ANTI_INSTINCT_GATE,
     CERTIFY_GATE,
     DEBATE_GATE,
     DIFF_GATE,
@@ -216,6 +217,165 @@ def _inject_provenance_fields(
     output_file.write_text(new_content, encoding="utf-8")
 
 
+def _run_structural_audit(
+    spec_file: Path,
+    extraction_file: Path,
+) -> None:
+    """Run structural audit as warning-only hook after EXTRACT_GATE pass (FR-EXEC.1).
+
+    Compares spec structural indicators against extraction requirement count.
+    Logs a warning if extraction appears inadequate but never blocks the pipeline.
+    """
+    from .spec_structural_audit import check_extraction_adequacy
+    from .gates import _parse_frontmatter
+
+    try:
+        spec_text = spec_file.read_text(encoding="utf-8")
+        extraction_text = extraction_file.read_text(encoding="utf-8")
+    except (FileNotFoundError, OSError) as e:
+        _log.warning("Structural audit skipped: %s", e)
+        return
+
+    fm = _parse_frontmatter(extraction_text)
+    if fm is None:
+        _log.warning("Structural audit skipped: no frontmatter in extraction")
+        return
+
+    try:
+        total_req = int(fm.get("total_requirements", "0"))
+    except (ValueError, TypeError):
+        _log.warning("Structural audit skipped: unparseable total_requirements")
+        return
+
+    passed, audit = check_extraction_adequacy(spec_text, total_req)
+    if not passed:
+        _log.warning(
+            "Structural audit WARNING: extraction may be inadequate. "
+            "Spec structural indicators=%d, extraction total_requirements=%d",
+            audit.total_structural_indicators,
+            total_req,
+        )
+        print(
+            f"[roadmap] WARNING: Structural audit indicates possible extraction gap "
+            f"(indicators={audit.total_structural_indicators}, requirements={total_req})",
+            flush=True,
+        )
+
+
+def _run_anti_instinct_audit(
+    spec_file: Path,
+    roadmap_file: Path,
+    output_file: Path,
+) -> None:
+    """Run the three anti-instinct detection modules and write audit report (FR-EXEC.3).
+
+    Invokes obligation scanner, integration contract checker, and fingerprint
+    coverage checker deterministically (no LLM). Writes anti-instinct-audit.md
+    with YAML frontmatter and markdown report body.
+    """
+    from .obligation_scanner import scan_obligations
+    from .integration_contracts import extract_integration_contracts, check_roadmap_coverage
+    from .fingerprint import check_fingerprint_coverage
+
+    try:
+        spec_text = spec_file.read_text(encoding="utf-8")
+        roadmap_text = roadmap_file.read_text(encoding="utf-8")
+    except (FileNotFoundError, OSError) as e:
+        _log.error("Anti-instinct audit failed: %s", e)
+        raise
+
+    # Module 1: Obligation scanner
+    obligation_report = scan_obligations(roadmap_text)
+
+    # Module 2: Integration contract checker
+    contracts = extract_integration_contracts(spec_text)
+    contract_result = check_roadmap_coverage(contracts, roadmap_text)
+
+    # Module 3: Fingerprint coverage
+    fp_total, fp_found, fp_missing, fp_ratio = check_fingerprint_coverage(
+        spec_text, roadmap_text
+    )
+
+    # Build YAML frontmatter
+    generated = datetime.now(timezone.utc).isoformat()
+    frontmatter = (
+        "---\n"
+        f"undischarged_obligations: {obligation_report.undischarged_count}\n"
+        f"uncovered_contracts: {contract_result.uncovered_count}\n"
+        f"fingerprint_coverage: {fp_ratio:.2f}\n"
+        f"total_obligations: {obligation_report.total_obligations}\n"
+        f"total_contracts: {contract_result.total_count}\n"
+        f"fingerprint_total: {fp_total}\n"
+        f"fingerprint_found: {fp_found}\n"
+        f'generated: "{generated}"\n'
+        "generator: superclaude-anti-instinct-audit\n"
+        "---\n"
+    )
+
+    # Build markdown body
+    body_parts = [
+        "\n## Anti-Instinct Audit Report\n",
+        f"### Obligation Scanner\n\n"
+        f"- Total obligations detected: {obligation_report.total_obligations}\n"
+        f"- Discharged: {obligation_report.discharged}\n"
+        f"- Undischarged (gate-relevant): {obligation_report.undischarged_count}\n",
+    ]
+
+    if obligation_report.undischarged_count > 0:
+        body_parts.append("\n**Undischarged obligations:**\n")
+        for o in obligation_report.obligations:
+            if not o.discharged and not o.exempt and o.severity != "MEDIUM":
+                body_parts.append(
+                    f"- Line {o.line_number}: `{o.term}` in {o.phase} "
+                    f"({o.component})\n"
+                )
+
+    body_parts.append(
+        f"\n### Integration Contract Coverage\n\n"
+        f"- Total contracts: {contract_result.total_count}\n"
+        f"- Covered: {contract_result.total_count - contract_result.uncovered_count}\n"
+        f"- Uncovered: {contract_result.uncovered_count}\n"
+    )
+
+    if contract_result.uncovered_count > 0:
+        body_parts.append("\n**Uncovered contracts:**\n")
+        for cov in contract_result.coverage:
+            if not cov.covered:
+                body_parts.append(
+                    f"- {cov.contract.id}: {cov.contract.description} "
+                    f"({cov.contract.spec_location})\n"
+                )
+
+    body_parts.append(
+        f"\n### Fingerprint Coverage\n\n"
+        f"- Total fingerprints: {fp_total}\n"
+        f"- Found in roadmap: {fp_found}\n"
+        f"- Coverage ratio: {fp_ratio:.2f}\n"
+    )
+
+    if fp_missing:
+        body_parts.append(
+            f"\n**Missing fingerprints** ({len(fp_missing)}):\n"
+        )
+        for name in fp_missing[:20]:  # cap at 20 for readability
+            body_parts.append(f"- `{name}`\n")
+        if len(fp_missing) > 20:
+            body_parts.append(f"- ... and {len(fp_missing) - 20} more\n")
+
+    content = frontmatter + "".join(body_parts)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(content, encoding="utf-8")
+
+    _log.info(
+        "Anti-instinct audit complete: obligations=%d/%d uncovered_contracts=%d "
+        "fingerprint_coverage=%.2f",
+        obligation_report.undischarged_count,
+        obligation_report.total_obligations,
+        contract_result.uncovered_count,
+        fp_ratio,
+    )
+
+
 def roadmap_run_step(
     step: Step,
     config: PipelineConfig,
@@ -238,6 +398,26 @@ def roadmap_run_step(
             finished_at=datetime.now(timezone.utc),
         )
 
+    # Anti-instinct: run deterministic audit directly, no Claude subprocess.
+    # Gate evaluation happens via ANTI_INSTINCT_GATE in execute_pipeline.
+    if step.id == "anti-instinct":
+        spec_file = config.spec_file if hasattr(config, 'spec_file') else None
+        merge_file = config.output_dir / "roadmap.md" if hasattr(config, 'output_dir') else None
+        if spec_file and merge_file:
+            _run_anti_instinct_audit(spec_file, merge_file, step.output_file)
+        return StepResult(
+            step=step,
+            status=StepStatus.PASS,
+            attempt=1,
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+
+    # Spec-fidelity in convergence mode: run convergence engine instead of LLM.
+    # Structural checkers -> semantic layer -> convergence evaluation -> remediation.
+    if step.id == "spec-fidelity" and hasattr(config, "convergence_enabled") and config.convergence_enabled:
+        return _run_convergence_spec_fidelity(step, config, started_at)
+
     # Wiring-verification: run static analysis directly, no Claude subprocess.
     # Returns PASS unconditionally; gate evaluation is handled separately by
     # the trailing gate runner (section 5.7.1).
@@ -246,7 +426,7 @@ def roadmap_run_step(
         from ..audit.wiring_config import WiringConfig
 
         wiring_config = WiringConfig(rollout_mode="soft")
-        source_dir = config.output_dir.parent if hasattr(config, 'output_dir') else Path(".")
+        source_dir = Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
         report = run_wiring_analysis(wiring_config, source_dir)
         step.output_file.parent.mkdir(parents=True, exist_ok=True)
         emit_report(report, step.output_file)
@@ -335,6 +515,9 @@ def roadmap_run_step(
     # Inject executor-populated fields into extract step frontmatter (FR-033)
     if step.id == "extract" and step.output_file.exists():
         _inject_pipeline_diagnostics(step.output_file, started_at, finished_at)
+        # FR-EXEC.1: Structural audit hook (warning-only, never blocks)
+        if hasattr(config, 'spec_file'):
+            _run_structural_audit(config.spec_file, step.output_file)
 
     # Inject provenance fields into test-strategy output
     if step.id == "test-strategy" and step.output_file.exists():
@@ -351,6 +534,188 @@ def roadmap_run_step(
         started_at=started_at,
         finished_at=finished_at,
     )
+
+
+def _run_convergence_spec_fidelity(
+    step: Step,
+    config: RoadmapConfig,
+    started_at: datetime,
+) -> StepResult:
+    """Run spec-fidelity via convergence engine (FR-7).
+
+    Wires: structural checkers -> semantic layer -> convergence engine -> remediation.
+    Steps 1-7 and step 9 are unaffected by convergence mode.
+
+    This replaces the single-shot LLM call for spec-fidelity when
+    convergence_enabled=True.
+    """
+    from .convergence import (
+        DeviationRegistry,
+        ConvergenceResult,
+        execute_fidelity_with_convergence,
+        handle_regression,
+    )
+    from .structural_checkers import run_all_checkers
+    from .semantic_layer import run_semantic_layer
+    from .remediate_executor import execute_remediation
+
+    spec_path = config.spec_file
+    roadmap_path = config.output_dir / "roadmap.md"
+
+    # Initialize registry and ledger
+    spec_hash = hashlib.sha256(spec_path.read_bytes()).hexdigest()
+    registry = DeviationRegistry.load_or_create(
+        config.output_dir / "deviation-registry.json",
+        release_id=config.output_dir.name,
+        spec_hash=spec_hash,
+    )
+
+    # Get TurnLedger from sprint models
+    try:
+        from ..sprint.models import TurnLedger
+        from .convergence import MAX_CONVERGENCE_BUDGET, CHECKER_COST, REMEDIATION_COST
+        ledger = TurnLedger(
+            initial_budget=MAX_CONVERGENCE_BUDGET,
+            minimum_allocation=CHECKER_COST,
+            minimum_remediation_budget=REMEDIATION_COST,
+            reimbursement_rate=0.8,
+        )
+    except ImportError:
+        _log.warning("TurnLedger not available; convergence engine may not function")
+        return StepResult(
+            step=step,
+            status=StepStatus.FAIL,
+            attempt=1,
+            gate_failure_reason="TurnLedger import failed",
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+
+    def _run_checkers(reg: DeviationRegistry, run_number: int) -> None:
+        """Run structural checkers + semantic layer, merge into registry."""
+        structural_findings = run_all_checkers(str(spec_path), str(roadmap_path))
+        reg.merge_findings(structural_findings, [], run_number)
+
+        # Run semantic layer if Claude is available
+        try:
+            semantic_result = run_semantic_layer(
+                spec_path=str(spec_path),
+                roadmap_path=str(roadmap_path),
+                output_dir=config.output_dir,
+                structural_findings=structural_findings,
+                registry=reg,
+            )
+            if semantic_result and semantic_result.findings:
+                reg.merge_findings([], semantic_result.findings, run_number)
+        except Exception as exc:
+            _log.warning("Semantic layer failed: %s (continuing with structural only)", exc)
+
+    def _run_remediation(reg: DeviationRegistry) -> None:
+        """Run remediation on active HIGH findings."""
+        from .models import Finding
+        active_highs = reg.get_active_highs()
+        if not active_highs:
+            return
+
+        # Convert registry dicts to Finding dataclass instances
+        # (registry stores JSON dicts, execute_remediation expects Finding objects)
+        finding_objects = []
+        for d in active_highs:
+            finding_objects.append(Finding(
+                id=d.get("stable_id", ""),
+                severity=d.get("severity", "HIGH"),
+                dimension=d.get("dimension", ""),
+                description=d.get("description", ""),
+                location=d.get("location", ""),
+                evidence="",
+                fix_guidance="",
+                files_affected=d.get("files_affected", []),
+                status=d.get("status", "ACTIVE"),
+            ))
+
+        # Group by file using Finding objects
+        findings_by_file: dict[str, list] = {}
+        for finding in finding_objects:
+            for f in finding.files_affected:
+                findings_by_file.setdefault(f, []).append(finding)
+
+        execute_remediation(
+            findings_by_file=findings_by_file,
+            config=config,
+            output_dir=config.output_dir,
+            allow_regeneration=getattr(config, "allow_regeneration", False),
+        )
+
+    result = execute_fidelity_with_convergence(
+        registry=registry,
+        ledger=ledger,
+        run_checkers=_run_checkers,
+        run_remediation=_run_remediation,
+        handle_regression_fn=handle_regression,
+        max_runs=3,
+        spec_path=spec_path,
+        roadmap_path=roadmap_path,
+    )
+
+    finished_at = datetime.now(timezone.utc)
+
+    # Write convergence result to spec-fidelity output file
+    _write_convergence_report(step.output_file, result, registry)
+
+    status = StepStatus.PASS if result.passed else StepStatus.FAIL
+    gate_reason = None if result.passed else (result.halt_reason or "Convergence did not pass")
+
+    return StepResult(
+        step=step,
+        status=status,
+        attempt=1,
+        gate_failure_reason=gate_reason,
+        started_at=started_at,
+        finished_at=finished_at,
+    )
+
+
+def _write_convergence_report(
+    output_file: Path,
+    result,
+    registry,
+) -> None:
+    """Write a spec-fidelity report from convergence results."""
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    high_count = result.final_high_count
+    passed = result.passed
+
+    lines = [
+        "---",
+        f"high_severity_count: {high_count}",
+        "medium_severity_count: 0",
+        "low_severity_count: 0",
+        f"total_deviations: {high_count}",
+        f"validation_complete: {'true' if passed else 'false'}",
+        f"tasklist_ready: {'true' if passed else 'false'}",
+        "---",
+        "",
+        "# Spec Fidelity Report (Convergence Mode)",
+        "",
+        f"**Convergence Result**: {'PASS' if passed else 'FAIL'}",
+        f"**Runs Completed**: {result.run_count}",
+        f"**Final HIGH Count**: {high_count}",
+        "",
+    ]
+
+    if result.structural_progress_log:
+        lines.append("## Structural Progress")
+        for entry in result.structural_progress_log:
+            lines.append(f"- {entry}")
+        lines.append("")
+
+    if result.halt_reason:
+        lines.append("## Halt Reason")
+        lines.append(result.halt_reason)
+        lines.append("")
+
+    output_file.write_text("\n".join(lines), encoding="utf-8")
 
 
 def build_certify_step(
@@ -503,7 +868,17 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             inputs=[score_file, roadmap_a, roadmap_b, debate_file],
             retry_limit=1,
         ),
-        # Step 7: Test Strategy
+        # Step 7: Anti-Instinct Audit (non-LLM deterministic step)
+        Step(
+            id="anti-instinct",
+            prompt="",  # non-LLM step; prompt unused
+            output_file=out / "anti-instinct-audit.md",
+            gate=ANTI_INSTINCT_GATE,
+            timeout_seconds=30,
+            inputs=[config.spec_file, merge_file],
+            retry_limit=0,
+        ),
+        # Step 8: Test Strategy
         Step(
             id="test-strategy",
             prompt=build_test_strategy_prompt(merge_file, extraction),
@@ -612,6 +987,7 @@ def _get_all_step_ids(config: RoadmapConfig) -> list[str]:
         "debate",
         "score",
         "merge",
+        "anti-instinct",
         "test-strategy",
         "spec-fidelity",
         "wiring-verification",

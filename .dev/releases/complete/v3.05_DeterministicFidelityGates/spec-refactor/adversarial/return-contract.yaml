@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: ".dev/releases/current/v3.05_DeterministicFidelityGates/spec-refactor/merged-refactoring-plan.md"
+  convergence_score: 0.96
+  artifacts_dir: ".dev/releases/current/v3.05_DeterministicFidelityGates/spec-refactor"
+  status: "success"
+  base_variant: "critical-summary (CRITICAL tier as architectural foundation)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: |
+    Adapted protocol: These are complementary tier summaries, not competing artifacts.
+    Instead of adversarial debate, performed cross-tier deduplication, conflict
+    detection, execution ordering, and merged refactoring plan generation.
+    24 issues analyzed, 1 superseded (ISS-004 by ISS-003), 5 conflicts detected
+    and resolved, 23 issues consolidated into 13 change blocks with before/after text.

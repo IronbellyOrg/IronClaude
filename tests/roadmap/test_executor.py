@@ -53,12 +53,12 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
 
 
 class TestBuildSteps:
-    def test_produces_9_entries(self, tmp_path):
+    def test_produces_10_entries(self, tmp_path):
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         assert (
-            len(steps) == 9
-        )  # 7 sequential + 1 parallel group (2 steps) + wiring-verification
+            len(steps) == 10
+        )  # 8 sequential + 1 parallel group (2 steps) + wiring-verification
 
     def test_second_entry_is_parallel(self, tmp_path):
         config = _make_config(tmp_path)
@@ -82,9 +82,10 @@ class TestBuildSteps:
         assert ids[4] == "debate"
         assert ids[5] == "score"
         assert ids[6] == "merge"
-        assert ids[7] == "test-strategy"
-        assert ids[8] == "spec-fidelity"
-        assert ids[9] == "wiring-verification"
+        assert ids[7] == "anti-instinct"
+        assert ids[8] == "test-strategy"
+        assert ids[9] == "spec-fidelity"
+        assert ids[10] == "wiring-verification"
 
 
 class TestIntegrationMockSubprocess:
@@ -130,6 +131,9 @@ class TestIntegrationMockSubprocess:
                 "total_deviations": "0",
                 "validation_complete": "true",
                 "tasklist_ready": "true",
+                "undischarged_obligations": "0",
+                "uncovered_contracts": "0",
+                "fingerprint_coverage": "0.85",
                 "gate": "wiring-verification",
                 "target_dir": ".",
                 "files_analyzed": "10",
@@ -180,7 +184,7 @@ class TestIntegrationMockSubprocess:
             run_step=mock_runner,
         )
 
-        assert len(results) == 10  # 9 entries -> 10 individual steps
+        assert len(results) == 11  # 10 entries -> 11 individual steps
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_pipeline_halts_on_gate_failure(self, tmp_path):

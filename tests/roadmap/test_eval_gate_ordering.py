@@ -54,11 +54,11 @@ class TestStepOrdering:
     """Verify pipeline step ordering invariants."""
 
     def test_step_count(self, tmp_path):
-        """Pipeline produces exactly 10 steps (9 sequential + 1 parallel pair)."""
+        """Pipeline produces exactly 11 steps (10 sequential + 1 parallel pair)."""
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
-        assert len(flat) == 10  # extract + 2 generate + diff + debate + score + merge + test-strategy + spec-fidelity + wiring
+        assert len(flat) == 11  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + wiring
 
     def test_extract_is_first(self, tmp_path):
         config = _make_config(tmp_path)
@@ -76,12 +76,12 @@ class TestStepOrdering:
         assert "generate-haiku-architect" in gen_ids
 
     def test_sequential_order_after_generate(self, tmp_path):
-        """Steps after generate must follow: diff → debate → score → merge → test-strategy → spec-fidelity → wiring."""
+        """Steps after generate must follow: diff → debate → score → merge → anti-instinct → test-strategy → spec-fidelity → wiring."""
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         sequential = [s for s in steps[2:] if isinstance(s, Step)]
         seq_ids = [s.id for s in sequential]
-        expected_order = ["diff", "debate", "score", "merge", "test-strategy", "spec-fidelity", "wiring-verification"]
+        expected_order = ["diff", "debate", "score", "merge", "anti-instinct", "test-strategy", "spec-fidelity", "wiring-verification"]
         assert seq_ids == expected_order
 
     def test_spec_fidelity_after_test_strategy(self, tmp_path):

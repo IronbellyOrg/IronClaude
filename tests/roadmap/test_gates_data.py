@@ -38,6 +38,7 @@ from superclaude.cli.roadmap.gates import (
     _tasklist_ready_consistent,
     _total_analyzed_consistent,
     _total_annotated_consistent,
+    _deviation_counts_reconciled,
     _validation_complete_true,
     _validation_philosophy_correct,
 )
@@ -49,8 +50,8 @@ class TestGateInstances:
         for name, gate in ALL_GATES:
             assert isinstance(gate, GateCriteria), f"{name} is not GateCriteria"
 
-    def test_thirteen_gates_defined(self):
-        assert len(ALL_GATES) == 13
+    def test_fourteen_gates_defined(self):
+        assert len(ALL_GATES) == 14
 
     def test_extract_gate_fields(self):
         assert "functional_requirements" in EXTRACT_GATE.required_frontmatter_fields
@@ -969,9 +970,9 @@ class TestDeviationAnalysisGate:
             "analysis_complete" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
         )
 
-    def test_gate_has_six_semantic_checks(self):
+    def test_gate_has_seven_semantic_checks(self):
         assert DEVIATION_ANALYSIS_GATE.semantic_checks is not None
-        assert len(DEVIATION_ANALYSIS_GATE.semantic_checks) == 6
+        assert len(DEVIATION_ANALYSIS_GATE.semantic_checks) == 7
 
     def test_gate_semantic_check_names(self):
         names = {c.name for c in DEVIATION_ANALYSIS_GATE.semantic_checks}
@@ -982,6 +983,7 @@ class TestDeviationAnalysisGate:
             "slip_count_matches_routing",
             "pre_approved_not_in_fix_roadmap",
             "total_analyzed_consistent",
+            "deviation_counts_reconciled",
         }
         assert names == expected
 
@@ -1003,7 +1005,7 @@ class TestDeviationAnalysisGate:
             "ambiguous_count: 0\n"
             "ambiguous_deviations: 0\n"
             "routing_fix_roadmap: DEV-001\n"
-            "routing_update_spec: \n"
+            "routing_update_spec: DEV-003\n"
             "routing_no_action: DEV-002\n"
             "routing_human_review: \n"
             "analysis_complete: true\n"
@@ -1152,3 +1154,105 @@ class TestCertifiedIsTrueQuoteTolerance:
     def test_quoted_true_passes(self):
         content = '---\ncertified: "true"\n---\n'
         assert _certified_is_true(content) is True
+
+
+# ═══════════════════════════════════════════════════════════════
+# Deviation count reconciliation (SC-008)
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestDeviationCountsReconciled:
+    """SC-008: Cross-gate deviation count reconciliation."""
+
+    def test_reconciled_when_counts_match(self):
+        content = (
+            "---\n"
+            "total_analyzed: 3\n"
+            "routing_fix_roadmap: DEV-001\n"
+            "routing_update_spec: DEV-003\n"
+            "routing_no_action: DEV-002\n"
+            "routing_human_review: \n"
+            "---\n"
+        )
+        assert _deviation_counts_reconciled(content) is True
+
+    def test_fails_when_reported_exceeds_actual(self):
+        """Deterministic failure: total_analyzed=3 but only 2 IDs routed."""
+        content = (
+            "---\n"
+            "total_analyzed: 3\n"
+            "routing_fix_roadmap: DEV-001\n"
+            "routing_no_action: DEV-002\n"
+            "---\n"
+        )
+        assert _deviation_counts_reconciled(content) is False
+
+    def test_fails_when_actual_exceeds_reported(self):
+        """Deterministic failure: total_analyzed=2 but 3 IDs routed."""
+        content = (
+            "---\n"
+            "total_analyzed: 2\n"
+            "routing_fix_roadmap: DEV-001 DEV-002\n"
+            "routing_no_action: DEV-003\n"
+            "---\n"
+        )
+        assert _deviation_counts_reconciled(content) is False
+
+    def test_all_routing_empty_matches_zero(self):
+        content = (
+            "---\n"
+            "total_analyzed: 0\n"
+            "routing_fix_roadmap: \n"
+            "routing_no_action: \n"
+            "---\n"
+        )
+        assert _deviation_counts_reconciled(content) is True
+
+    def test_duplicate_ids_counted_once(self):
+        """Same ID in two routing fields is still one unique deviation."""
+        content = (
+            "---\n"
+            "total_analyzed: 1\n"
+            "routing_fix_roadmap: DEV-001\n"
+            "routing_human_review: DEV-001\n"
+            "---\n"
+        )
+        assert _deviation_counts_reconciled(content) is True
+
+    def test_missing_frontmatter_fails(self):
+        assert _deviation_counts_reconciled("No frontmatter here.") is False
+
+    def test_missing_total_analyzed_fails(self):
+        content = "---\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _deviation_counts_reconciled(content) is False
+
+    def test_non_integer_total_analyzed_fails(self):
+        content = "---\ntotal_analyzed: three\nrouting_fix_roadmap: DEV-001\n---\n"
+        assert _deviation_counts_reconciled(content) is False
+
+    def test_gate_failure_on_mismatch_is_deterministic(self, tmp_path):
+        """SC-008: deviation count mismatch causes deterministic gate failure."""
+        from superclaude.cli.pipeline.gates import gate_passed
+
+        content = (
+            "---\n"
+            "schema_version: 1.0\n"
+            "total_analyzed: 4\n"
+            "slip_count: 2\n"
+            "intentional_count: 1\n"
+            "pre_approved_count: 1\n"
+            "ambiguous_count: 0\n"
+            "ambiguous_deviations: 0\n"
+            "routing_fix_roadmap: DEV-001 DEV-002\n"
+            "routing_update_spec: DEV-003\n"
+            "routing_no_action: \n"
+            "routing_human_review: \n"
+            "analysis_complete: true\n"
+            "---\n"
+        ) + "\n".join([f"- deviation line {i}" for i in range(25)])
+        doc = tmp_path / "deviation-analysis.md"
+        doc.write_text(content, encoding="utf-8")
+        passed, reason = gate_passed(doc, DEVIATION_ANALYSIS_GATE)
+        # total_analyzed=4 but only 3 unique IDs → deterministic failure
+        assert passed is False
+        assert "deviation_counts_reconciled" in reason.lower() or "SC-008" in reason

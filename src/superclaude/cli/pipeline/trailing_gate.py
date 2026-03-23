@@ -33,7 +33,12 @@ _log = logging.getLogger("superclaude.pipeline.trailing_gate")
 
 @dataclass
 class TrailingGateResult:
-    """Result of a trailing gate evaluation."""
+    """Result of a trailing gate evaluation.
+
+    SPEC-DEVIATION (BUG-011): Spec says TrailingGateResult(passed, evaluation_ms, gate_name).
+    Implementation uses (step_id, passed, evaluation_ms, failure_reason) per roadmap v3.0.
+    The roadmap version is authoritative. See: roadmap-gap-analysis-merged.md, D6.
+    """
 
     step_id: str
     passed: bool

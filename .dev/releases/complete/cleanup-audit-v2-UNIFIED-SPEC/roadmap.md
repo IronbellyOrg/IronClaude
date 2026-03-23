@@ -1,397 +1,249 @@
 ---
-spec_source: /config/workspace/SuperClaude_Framework/.dev/releases/backlog/v2.1-CleanupAudit-v2/cleanup-audit-v2-UNIFIED-SPEC.md
-generated: 2026-02-25T00:00:00Z
-generator: sc:roadmap
-complexity_score: 0.799
-complexity_class: HIGH
-domain_distribution:
-  backend: 55
-  performance: 15
-  security: 12
-  documentation: 10
-  infrastructure: 8
-primary_persona: backend
-consulting_personas: [architect, security]
-milestone_count: 10
-milestone_index:
-  - id: M1
-    title: Enforce Existing Spec Promises
-    type: FEATURE
-    priority: P0
-    dependencies: []
-    deliverable_count: 5
-    risk_level: High
-  - id: M2
-    title: Correctness Fixes and Scanner Schema Hardening
-    type: FEATURE
-    priority: P0
-    dependencies: [M1]
-    deliverable_count: 5
-    risk_level: High
-  - id: M3
-    title: Profile and Batch Planning Infrastructure
-    type: FEATURE
-    priority: P1
-    dependencies: [M2]
-    deliverable_count: 6
-    risk_level: Medium
-  - id: M4
-    title: Structural Audit Depth Implementation
-    type: FEATURE
-    priority: P1
-    dependencies: [M3]
-    deliverable_count: 5
-    risk_level: High
-  - id: M5
-    title: Cross-Reference Synthesis and Hybrid Graphing
-    type: FEATURE
-    priority: P1
-    dependencies: [M4]
-    deliverable_count: 5
-    risk_level: High
-  - id: M6
-    title: Consolidation and Validation Engine
-    type: TEST
-    priority: P1
-    dependencies: [M5]
-    deliverable_count: 5
-    risk_level: Medium
-  - id: M7
-    title: Budget Controls and Degradation Logic
-    type: IMPROVEMENT
-    priority: P1
-    dependencies: [M3, M4, M5]
-    deliverable_count: 4
-    risk_level: High
-  - id: M8
-    title: Reporting, Resume, and Anti-Lazy Enforcement
-    type: IMPROVEMENT
-    priority: P2
-    dependencies: [M6]
-    deliverable_count: 4
-    risk_level: Medium
-  - id: M9
-    title: Optional Full Docs Audit and Known-Issues Registry
-    type: DOC
-    priority: P3
-    dependencies: [M8]
-    deliverable_count: 4
-    risk_level: Medium
-  - id: M10
-    title: Final Acceptance and Benchmark Validation
-    type: TEST
-    priority: P1
-    dependencies: [M1, M2, M3, M4, M5, M6, M7, M8]
-    deliverable_count: 5
-    risk_level: High
-total_deliverables: 48
-total_risks: 18
-estimated_phases: 5
-validation_score: 0.89
-validation_status: PASS
-adversarial:
-  mode: multi-roadmap
-  agents: [opus:backend, sonnet:backend, haiku:backend]
-  convergence_score: 0.86
-  base_variant: sonnet:backend
-  artifacts_dir: /config/workspace/SuperClaude_Framework/.dev/releases/current/cleanup-audit-v2-UNIFIED-SPEC/adversarial
+spec_source: .dev/releases/current/v2.1-CleanupAudit-v2/cleanup-audit-v2-UNIFIED-SPEC.md
+complexity_score: 0.814
+adversarial: true
+base_variant: opus-architect
+convergence_score: 1.0
+primary_persona: architect
 ---
 
-# Roadmap: sc:cleanup-audit v2
-
-## Overview
-This roadmap implements the unified cleanup-audit v2 specification by prioritizing closure of existing v1 promise gaps before adding optional extensions. The strategy emphasizes deterministic evidence collection, tiered analysis depth, and resilient execution under token constraints.
-
-The selected base variant came from adversarial multi-roadmap comparison and was merged with high-value non-base improvements. Specifically, we retained strict AC-to-milestone traceability and static-tools-first dependency synthesis, while also incorporating explicit budget realism and context-window pressure controls.
-
-Given HIGH complexity (0.799), the roadmap uses 10 milestones with explicit dependency sequencing and continuous validation interleaving.
-
-## Milestone Summary
-
-| ID | Title | Type | Priority | Effort | Dependencies | Deliverables | Risk |
-|---|---|---|---|---|---|---:|---|
-| M1 | Enforce Existing Spec Promises | FEATURE | P0 | M | None | 5 | High |
-| M2 | Correctness Fixes and Scanner Schema Hardening | FEATURE | P0 | M | M1 | 5 | High |
-| M3 | Profile and Batch Planning Infrastructure | FEATURE | P1 | M | M2 | 6 | Medium |
-| M4 | Structural Audit Depth Implementation | FEATURE | P1 | M | M3 | 5 | High |
-| M5 | Cross-Reference Synthesis and Hybrid Graphing | FEATURE | P1 | M | M4 | 5 | High |
-| M6 | Consolidation and Validation Engine | TEST | P1 | M | M5 | 5 | Medium |
-| M7 | Budget Controls and Degradation Logic | IMPROVEMENT | P1 | S | M3,M4,M5 | 4 | High |
-| M8 | Reporting, Resume, and Anti-Lazy Enforcement | IMPROVEMENT | P2 | S | M6 | 4 | Medium |
-| M9 | Optional Full Docs Audit and Known-Issues Registry | DOC | P3 | S | M8 | 4 | Medium |
-| M10 | Final Acceptance and Benchmark Validation | TEST | P1 | M | M1-M8 | 5 | High |
-
-## Dependency Graph
-M1 → M2 → M3 → M4 → M5 → M6 → M8 → M9
-
-M3 → M7
-M4 → M7
-M5 → M7
-
-M1,M2,M3,M4,M5,M6,M7,M8 → M10
-
-## M1: Enforce Existing Spec Promises
-
-### Objective
-Implement all v1-promised but missing behaviors as a non-negotiable baseline before introducing additional features.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D1.1 | Two-tier classification with backward mapping | AC1, AC15 |
-| D1.2 | Coverage tracking by risk tier | AC2 |
-| D1.3 | Batch-level checkpointing (`progress.json`) | AC3 |
-| D1.4 | Evidence-gated DELETE/KEEP rules | AC4, AC5 |
-| D1.5 | 10% consistency validation pass | AC6 |
-
-### Dependencies
-- None
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Spec drift persists | Medium | High | AC-gated completion with explicit traceability checks |
-
-## M2: Correctness Fixes and Scanner Schema Hardening
-
-### Objective
-Eliminate known correctness failures and lock scanner output contracts.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D2.1 | Real credential scanning with safe redaction | AC7 |
-| D2.2 | Gitignore inconsistency detection | AC8 |
-| D2.3 | Phase-1 simplified scanner schema | AC11 |
-| D2.4 | Phase-2 full profile schema alignment | AC11 (extended) |
-| D2.5 | Batch failure/retry handling policy | AC18 (partial) |
-
-### Dependencies
-- M1
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Secret leakage in output | Low | High | Never print secret values; output-scrub checks |
-
-## M3: Profile and Batch Planning Infrastructure
-
-### Objective
-Build robust Phase-0 profiling and manifest generation as the substrate for all subsequent phases.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D3.1 | Domain/risk-tier profiling | AC13 |
-| D3.2 | Monorepo-aware batch decomposition | AC20 (supporting) |
-| D3.3 | Static-tool orchestration and caching | AC12 (supporting) |
-| D3.4 | Auto-config generation for cold start | AC13 |
-| D3.5 | Dry-run profile and estimate output | AC19 |
-| D3.6 | Manifest completeness gate | AC2 (quality extension) |
-
-### Dependencies
-- M2
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Mis-tiering cascades downstream | Medium | High | Conservative defaults + visible profile outputs |
-
-## M4: Structural Audit Depth Implementation
-
-### Objective
-Implement deep per-file profiling and evidence depth controls for high-risk decisions.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D4.1 | 8-field profile generation for target sets | AC10 (detailed profile presence) |
-| D4.2 | File-type specific verification rules | AC12 (supporting) |
-| D4.3 | Signal-triggered full-file escalation | AC17 (supporting) |
-| D4.4 | Tiered KEEP evidence enforcement | AC5 |
-| D4.5 | Env key-presence matrix for drift | AC7 (supporting) |
-
-### Dependencies
-- M3
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Token overuse in deep reads | High | Medium | Trigger-based escalation + bounded defaults |
-
-## M5: Cross-Reference Synthesis and Hybrid Graphing
-
-### Objective
-Synthesize static-tools, grep, and inference evidence into dependency and duplication intelligence.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D5.1 | 3-tier dependency graph with confidence labels | AC12 |
-| D5.2 | Cross-boundary dead code candidate logic | AC12 (supporting) |
-| D5.3 | Duplication matrix with consolidation thresholds | AC12 (supporting) |
-| D5.4 | Minimal docs audit (broken refs + temporal) | AC14 |
-| D5.5 | Dynamic-import-safe classification policy | AC17 (supporting) |
-
-### Dependencies
-- M4
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| False deletes from low-confidence links | Medium | High | Tier-C never promotes to DELETE |
-
-## M6: Consolidation and Validation Engine
-
-### Objective
-Merge findings, deduplicate, and run stratified revalidation for consistency.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D6.1 | Cross-phase dedup consolidation | AC18 (supporting) |
-| D6.2 | Stratified 10% spot-check validation | AC6 |
-| D6.3 | Consistency-rate and calibration framing | AC6 (quality extension) |
-| D6.4 | Coverage + validation output artifacts | AC2, AC6 |
-| D6.5 | Directory assessment blocks for large dirs | AC16 |
-
-### Dependencies
-- M5
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Misleading validation interpretation | Medium | Medium | Explicit limitations language in report |
-
-## M7: Budget Controls and Degradation Logic
-
-### Objective
-Implement practical budget governance with predictable degradation behavior.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D7.1 | Budget accounting and enforcement | AC9 |
-| D7.2 | Degradation sequence implementation | AC9 (supporting) |
-| D7.3 | Degrade-priority override handling | AC9 (supporting) |
-| D7.4 | Budget realism caveat/reporting | AC19 (supporting) |
-
-### Dependencies
-- M3, M4, M5
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Underestimated runtime/token needs | High | High | Dry-run + benchmark calibration |
-
-## M8: Reporting, Resume, and Anti-Lazy Enforcement
-
-### Objective
-Deliver operator-facing reliability and output usability guarantees.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D8.1 | Report depth modes (summary/standard/detailed) | AC10 |
-| D8.2 | Resume semantics from checkpoints | AC3 |
-| D8.3 | Anti-lazy distribution and consistency guards | AC18 (supporting) |
-| D8.4 | Final report section completeness checks | AC1, AC16 |
-
-### Dependencies
-- M6
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Incomplete or noisy operator output | Medium | Medium | Depth control + strict report schema |
-
-## M9: Optional Full Docs Audit and Known-Issues Registry
-
-### Objective
-Add opt-in depth for documentation quality and cross-run suppression workflows.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D9.1 | Full docs pass (`--pass-docs`) with 5-section output | AC14 (extended) |
-| D9.2 | Known-issues registry load/match/output | AC20 (supporting) |
-| D9.3 | TTL/LRU lifecycle rules in registry behavior | AC20 (supporting) |
-| D9.4 | ALREADY_TRACKED report section integration | AC1 (supporting) |
-
-### Dependencies
-- M8
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Extension complexity without baseline stability | Low | Medium | Gate behind completion of M1-M8 |
-
-## M10: Final Acceptance and Benchmark Validation
-
-### Objective
-Validate the full v2 contract against AC1-AC20 and benchmark repos.
-
-### Deliverables
-| ID | Description | Acceptance Criteria |
-|---|---|---|
-| D10.1 | AC1-AC20 automated validation suite | AC1-AC20 |
-| D10.2 | Benchmark runs (small/medium/known-dead-code repo) | AC9, AC12, AC17 |
-| D10.3 | Concurrent-run isolation validation | AC20 |
-| D10.4 | Non-determinism/limitations reporting | AC6 (quality extension) |
-| D10.5 | Final release readiness decision record | AC completion evidence |
-
-### Dependencies
-- M1, M2, M3, M4, M5, M6, M7, M8
-
-### Risk Assessment
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Hidden gaps despite implementation progress | Medium | High | End-to-end AC matrix and benchmark evidence |
-
-## Risk Register
-
-| ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |
-|---|---|---|---|---|---|---|
-| R-001 | Token budget underestimation | M3, M4, M5, M7, M10 | High | High | Dry-run estimates, degradation controls, benchmark calibration | performance |
-| R-002 | Spec-implementation gap recurrence | M1, M10 | High | High | AC traceability enforcement before close | architect |
-| R-003 | Schema malformation from Haiku outputs | M2, M8 | Medium | Medium | Schema validation + retry + FAILED handling | backend |
-| R-004 | Dynamic import false positives | M5 | Medium | High | Dynamic import checks + KEEP:monitor default | backend |
-| R-005 | Large-repo scaling limits | M3, M7, M10 | High | High | Monorepo segmentation + bounded degradation | architect |
-| R-006 | Context-window pressure in synthesis/consolidation | M5, M6, M7 | High | High | Summary-first artifact reads + budget caveats | performance |
-| R-007 | Credential value exposure | M2, M8, M10 | Low | High | Non-disclosure policy + output scrub checks | security |
-| R-008 | Validation interpreted as accuracy | M6, M10 | Medium | Medium | Consistency-rate language + calibration notes | qa |
-
-## Decision Summary
-
-| Decision | Chosen | Alternatives Considered | Rationale |
-|---|---|---|---|
-| Primary Persona | backend | architect, security | Backend domain is dominant at 55% in extraction |
-| Template | inline | local/user templates | No viable roadmap template discovered in project/user paths |
-| Milestone Count | 10 | 8-12 (HIGH complexity range) | Complexity class HIGH with 5 detected domains and broad dependency spread |
-| Adversarial Mode | multi-roadmap | none | `--multi-roadmap --agents opus,sonnet,haiku` requested |
-| Adversarial Base Variant | sonnet:backend | opus:backend, haiku:backend | Highest combined score and strongest AC traceability coverage |
-
-## Success Criteria
-
-| ID | Criterion | Validates Milestone(s) | Measurable |
-|---|---|---|---|
-| SC-001 | Report includes core action sections | M1, M8 | Yes |
-| SC-002 | Coverage artifact includes per-tier metrics | M1, M6 | Yes |
-| SC-003 | Resume reliably recovers interrupted runs | M1, M8 | Yes |
-| SC-004 | DELETE entries carry zero-reference evidence | M1 | Yes |
-| SC-005 | Tier 1-2 KEEP includes reference evidence | M1, M4 | Yes |
-| SC-006 | Validation sample meets >=10% threshold | M1, M6 | Yes |
-| SC-007 | Credential scanning distinguishes real vs template | M2 | Yes |
-| SC-008 | Gitignore inconsistency flagging works | M2 | Yes |
-| SC-009 | Budget-limited run completes gracefully | M7 | Yes |
-| SC-010 | Report-depth mode outputs conform to depth | M8 | Yes |
-| SC-011 | Phase-1 outputs are schema-valid | M2 | Yes |
-| SC-012 | Dependency graph emitted with valid nodes | M5 | Yes |
-| SC-013 | Cold-start run succeeds without config | M3 | Yes |
-| SC-014 | Broken-reference checklist generated | M5, M9 | Yes |
-| SC-015 | v2-to-v1 category mapping holds | M1 | Yes |
-| SC-016 | Large-directory assessments emitted | M6 | Yes |
-| SC-017 | INVESTIGATE cap triggers re-analysis | M5 | Yes |
-| SC-018 | Cascading failures produce minimum viable report | M2, M8 | Yes |
-| SC-019 | Dry-run returns estimates only | M3 | Yes |
-| SC-020 | Concurrent runs remain isolated | M3, M10 | Yes |
+## Executive Summary
+
+This roadmap implements `sc:cleanup-audit` v2, a 5-phase read-only repository audit that replaces the structurally deficient v1 system. The v1 system produced 12 per-file profiles from 5,857 files (99.8% miss rate) and failed to implement its own spec promises (coverage tracking, checkpointing, evidence-gated classification, spot-check validation). The v2 architecture introduces domain-aware batch decomposition, a two-tier classification system (4 primaries + 14 qualifiers), hybrid static-tool/LLM dependency analysis, tiered evidence requirements, and budget-controlled graceful degradation.
+
+The specification derives from a 4-wave adversarial merge of two independent analysis sets (Set A single-agent, Set B multi-agent), resolving 22 conflicts across 45 topics. Key architectural decisions: 5-phase pipeline with Phase 0 profiling and Phase 4 consolidation bookends (Set B, modified), 3-tier dependency detection via static tools > grep > LLM (hybrid), minimal docs audit in core flow with full docs opt-in (hybrid), and 500K default token budget (Set B, increased from 300K per flaw analysis).
+
+All token budget estimates are **UNVALIDATED** and require empirical benchmarking before use.
+
+## Phased Implementation Plan
+
+### Phase 0: Enforce Existing v1 Spec (Critical Foundation)
+
+**Goal**: Close the spec-implementation gap — implement every v1 promise before adding new capabilities.
+
+**Deliverables**:
+
+1. **Two-tier classification system** with backward-compatible mapping to v1's 5 categories (DELETE, CONSOLIDATE, MOVE, FLAG, KEEP → DELETE:standard, MODIFY:consolidate-with, MODIFY:move-to, MODIFY:flag, KEEP:verified/unverified)
+2. **Coverage tracking** — per-tier manifest with PASS/WARN/FAIL status against targets (Tier 1: 100%, Tier 2: 90%, Tier 3: 70%, Tier 4: 50%)
+3. **Checkpointing** — `progress.json` updated after every scanner batch with phase, batch counts, file counts, token usage, timestamp
+4. **Evidence-gated classification** — grep proof for DELETE (result count = 0), import reference info for Tier 1-2 KEEP
+5. **10% spot-check validation** — stratified random sample, re-run evidence gathering independently, report as "consistency rate" (not accuracy)
+
+**Quality Gates**: AC1–AC6 from acceptance criteria (Section 15 of spec)
+
+**Dependencies**: None — this is the foundation
+
+**Estimated Effort**: UNVALIDATED — benchmark by implementing checkpointing first, then extrapolate
+
+### Phase 1: Correctness Fixes
+
+**Goal**: Fix known-wrong outputs and establish structured scanner output.
+
+**Deliverables**:
+
+1. **Credential file scanning** — priority-ordered `.env*` enumeration, real vs template pattern detection, configurable pattern list, never print credential values, include security-audit disclaimer
+2. **Gitignore consistency check** — compare `git ls-files` against `.gitignore` patterns, flag tracked-despite-ignored files as `MODIFY:flag:gitignore-inconsistency`
+3. **Standardized Phase 1 scanner schema** — simplified JSON schema for Haiku scanners (path, risk_tier, classification, evidence_text, credential_scan)
+
+**Quality Gates**: AC7 (credential scanning), AC8 (gitignore check), AC11 (schema compliance)
+
+**Dependencies**: Phase 0 complete
+
+### Phase 2: Infrastructure — Profiling and Batch Decomposition
+
+**Goal**: Build the Phase 0 profiler agent and domain-aware scanning infrastructure.
+
+**Deliverables**:
+
+1. **audit-profiler agent** (Haiku) — repository profiling, domain detection, tier assignment, static tool orchestration
+2. **Dynamic batch decomposition** — domain-aware file grouping, explicit file-list assignments per scanner batch
+3. **Coverage manifest** — JSON tracking total/examined/coverage per tier with PASS/WARN/FAIL status
+4. **Static analysis tool integration** — detect and run `madge`, `pydeps`, `ts-prune`, `git log --diff-filter=A`, cache outputs in `phase0/static-analysis/`
+5. **Monorepo detection** — workspace file detection, per-workspace treatment
+6. **`.env` key-presence matrix** — cross-file key comparison for configuration drift detection
+7. **Auto-config generation** — framework/port/CI detection, conservative defaults for low-confidence fields, written to audit output dir (not repo root)
+8. **`--dry-run` implementation** — Phase 0 only, display cost estimates and batch manifest preview
+
+**Quality Gates**: Manifest completeness (100% of git-tracked files assigned), AC13 (cold-start), AC19 (dry-run)
+
+**Dependencies**: Phase 1 complete
+
+### Phase 3: Depth — Evidence, Cross-Reference, and Docs
+
+**Goal**: Implement the structural audit, cross-reference synthesis, and minimal docs audit.
+
+**Deliverables**:
+
+1. **Evidence-mandatory KEEP for Tier 1-2** — full 8-field profiles via audit-analyzer (Sonnet)
+2. **File-type-specific verification rules** — test files, deploy scripts, Docker/Compose, documentation, config/env
+3. **Signal-triggered depth escalation** — configurable triggers for full-file reads (credential-adjacent imports, TODO/FIXME, complex conditionals, eval/exec, large files)
+4. **3-tier cross-reference synthesis** — dependency graph with confidence-tiered edges (A: static tools, B: grep, C: LLM inference), orphan detection, connectivity analysis
+5. **Duplication matrices** — content hash and function overlap grouping, >70% overlap → consolidation recommendation
+6. **Minimal docs audit (core flow)** — broken reference sweep with checklist output (`- [ ] filepath:line -> missing/path`), temporal artifact classification
+7. **Dynamic import detection** — configurable pattern list, dynamic-only references → `KEEP:monitor`
+8. **INVESTIGATE resolution** — cross-reference with graph data, upgrade where evidence sufficient
+9. **Post-hoc deduplication** — group by file path, cluster by issue category, keep highest-severity
+10. **Budget controls with graceful degradation** — 4-tier degradation sequence, configurable via `--degrade-priority`
+11. **Directory-level assessment blocks** — for 50+ file directories: sample list, assessment label, recommendation
+
+**Quality Gates**: AC4 (DELETE evidence), AC5 (Tier 1-2 KEEP evidence), AC12 (cross-reference graph), AC14 (broken references), AC16 (directory assessment), AC17 (INVESTIGATE cap ≤15%)
+
+**Dependencies**: Phase 2 complete
+
+### Phase 4: Quality, Polish, and Consolidation
+
+**Goal**: Complete the consolidation/validation pipeline and polish user-facing features.
+
+**Deliverables**:
+
+1. **audit-consolidator agent** — merge all phase summaries, deduplicate across phases, generate coverage report, directory assessments, executive summary, FINAL-REPORT.md
+2. **audit-validator agent** — 10% stratified spot-check, consistency rate calculation, calibration accuracy (if ground-truth files exist), warning banners for sub-threshold rates
+3. **Report depth control** — `--report-depth summary|standard|detailed`
+4. **Resume from checkpoint** — `--resume` flag recovers from interrupted state using progress.json
+5. **Anti-lazy enforcement** — required output fields validation, evidence non-emptiness, confidence distribution anomaly detection, cross-batch consistency checks
+6. **Subagent failure handling** — per-subagent timeout (120s), max 2 retries with backoff, cascading failure detection (3 consecutive → pause), minimum viable report (50%+ batches required)
+
+**Quality Gates**: AC3 (checkpointing + resume), AC9 (budget control), AC10 (report depth), AC18 (subagent failure), AC20 (run isolation)
+
+**Dependencies**: Phase 3 complete
+
+### Phase 5: Extensions (Future)
+
+**Goal**: Add opt-in advanced features building on the established v2 foundation.
+
+**Deliverables**:
+
+1. **Full documentation audit** (`--pass-docs`) — Set A's 5-section format: SCOPE, CONTENT_OVERLAP_GROUPS, BROKEN_REFERENCES, CLAIM_SPOT_CHECKS (3 claims/doc, binary pass/fail), TEMPORAL_ARTIFACTS with canonical archive destinations
+2. **Cross-run known-issues registry** (`--known-issues`) — signature-based JSON registry, 90-day TTL, max 200 entries with LRU eviction, auto-prune stale entries, loaded as read-only consolidator context
+3. **Calibration files** — use prior run results as ground-truth baseline for consistency-vs-accuracy measurement
+4. **Progressive agent specialization** — evolve from generic scanners toward 6 specialized agents (profiler, scanner, analyzer, comparator, consolidator, validator)
+5. **Content overlap group detection** — topic-based document clustering with canonical doc recommendations
+
+**Dependencies**: Phase 4 complete + at least one prior audit run for calibration data
+
+## Risk Assessment
+
+### Critical Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Spec-implementation gap recurrence (R7)** | Repeats v1 failure pattern | Every spec promise has an acceptance test; traceability matrix maintained |
+| **Credential value exposure (R8)** | Security breach | Scanner prompts explicitly prohibit printing values; structural test validates no credentials in output |
+| **Token budget overrun (R1)** | Audit fails or produces incomplete results | `--budget` flag, graceful degradation, `--dry-run` for preview, default raised to 500K |
+| **Context window filling (R17)** | Phase 3-4 cannot read prior phase output | Write-to-disk architecture, budget accounts for re-read costs |
+
+### High Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Dynamic import false positives (R3)** | Actively used files recommended for deletion | Configurable pattern list; dynamic-only → KEEP:monitor (never DELETE) |
+| **Monorepo scaling (R6)** | System impractical above ~10K files | Monorepo detection, per-workspace treatment, per-directory coverage tracking |
+| **Phase 0 auto-config correctness (R9)** | Wrong tier assignments cascade to all phases | Config written as visible artifact, --dry-run shows config, low-confidence fields use conservative defaults |
+| **LLM-on-LLM validation limitations (R10)** | False sense of accuracy | Renamed to "consistency rate," honest framing in report, calibration files recommended |
+| **Implementation effort underestimate (R15)** | Schedule overrun | All estimates marked UNVALIDATED; benchmark one feature before planning sprints |
+
+### Medium/Low Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **LLM output schema non-compliance (R4)** | Malformed scanner output | Simplified Phase 1 Haiku schema; retry once; mark FAILED |
+| **Run-to-run non-determinism (R16)** | Diff-based trend tracking unreliable | Static analysis grounding reduces variance; acknowledged in Limitations |
+| **Non-English documentation (R11)** | Broken reference detection fails | UTF-8 handling required; full multilingual out of scope |
+| **GFxAI over-fitting (R14)** | Audit tuned to one repo | Separate universal features from project-specific rules; all rules configurable |
+
+## Resource Requirements
+
+### Agent Architecture
+
+| Agent | Model | Phase | Budget Share |
+|-------|-------|-------|-------------|
+| audit-profiler | Haiku | 0 | 5% |
+| audit-scanner | Haiku (parallel) | 1 | 25% |
+| audit-analyzer | Sonnet (parallel) | 2 | 35% |
+| audit-comparator | Sonnet | 3 | 20% |
+| audit-consolidator | Sonnet | 4 | 15% (shared) |
+| audit-validator | Sonnet | 4 | 15% (shared) |
+
+### Token Budget Scenarios (UNVALIDATED)
+
+| Scenario | Budget | Expected Coverage | Estimated Runtime |
+|----------|--------|------------------|------------------|
+| Minimal | 100K | Tier 1-2 only | ~8 min |
+| Standard | 500K | Tier 1-3, partial Tier 4 | ~20-30 min |
+| Comprehensive | 800K | All tiers | ~35-45 min |
+| Deep | 1.5M | All tiers + full evidence + full docs | ~60+ min |
+
+### External Tool Dependencies (Optional)
+
+- `madge` (JS/TS orphan detection)
+- `pydeps` (Python dependency graph)
+- `ts-prune` (TypeScript unused exports)
+- `cargo-deps` (Rust dependency graph)
+- Standard: `git`, `grep`, `find`
+
+### CLI Flags
+
+12 flags total: `--pass`, `--pass-docs`, `--batch-size`, `--focus`, `--budget`, `--report-depth`, `--tier`, `--resume`, `--config`, `--dry-run`, `--known-issues`, `--degrade-priority`
+
+## Success Criteria and Validation Approach
+
+### Acceptance Criteria Summary
+
+20 acceptance criteria (AC1–AC20) organized across three test tiers:
+
+#### Tier 1: Structural Tests
+- Output files exist in expected directory structure
+- JSON outputs are valid and parse correctly
+- FINAL-REPORT.md contains all required sections
+- Schema fields are populated per phase schema definitions
+
+#### Tier 2: Property Tests
+- Coverage percentages within expected ranges per tier
+- No credential values appear in any output file
+- All Tier 1 (Critical) files examined when budget allows
+- INVESTIGATE ≤ 15% of examined files
+- DELETE entries have grep evidence with result count = 0
+- Tier 1-2 KEEP entries have import reference information
+
+#### Tier 3: Benchmark Tests
+- Run against 2-3 real repositories with known characteristics
+- Verify known dead code files are flagged (at least one small repo, one medium, one with known dead code)
+- Measure token consumption per phase against budget estimates
+- Validate graceful degradation at budget boundaries
+
+### Key Success Metrics
+
+| Metric | v1 Baseline | v2 Target |
+|--------|------------|-----------|
+| Files individually profiled | 12 / 5,857 | Budget-relative (not raw count) |
+| Coverage tracking | None | Per-tier manifest with PASS/WARN/FAIL |
+| Cross-boundary detection | None | 3-tier dependency analysis with confidence labels |
+| Credential scanning correctness | Wrong (false negatives) | Correct (read actual content, pattern-match) |
+| Classification categories | 3 | 4 primary + 14 qualifiers |
+| Checkpointing | None | Per-batch disk persistence with --resume |
+| Budget controls | None | --budget flag, 500K default, graceful degradation |
+| Documentation audit | None | Minimal in core; full opt-in via --pass-docs |
+
+### Validation Approach
+
+1. **Pre-implementation**: `--dry-run` on target repositories validates Phase 0 profiling accuracy and budget estimates
+2. **Per-phase**: Quality gates enforce inter-phase contracts (manifest completeness, schema compliance, evidence sufficiency, coverage thresholds)
+3. **Post-implementation**: 10% spot-check measures consistency rate; calibration files (when available) measure accuracy against ground truth
+4. **Cross-run**: Known-issues registry (Phase 5) enables trend tracking and suppression of resolved findings
+
+## Timeline Estimates
+
+All estimates are **UNVALIDATED**. Benchmark by implementing Phase 0 checkpointing first, then extrapolate.
+
+| Implementation Phase | Scope | Dependencies |
+|---------------------|-------|-------------|
+| Phase 0 | Enforce v1 spec promises (5 deliverables) | None |
+| Phase 1 | Correctness fixes (3 deliverables) | Phase 0 |
+| Phase 2 | Infrastructure — profiling, batching, tools (8 deliverables) | Phase 1 |
+| Phase 3 | Depth — evidence, cross-ref, docs (11 deliverables) | Phase 2 |
+| Phase 4 | Quality — consolidation, validation, polish (6 deliverables) | Phase 3 |
+| Phase 5 | Extensions — full docs, known-issues, calibration (5 deliverables) | Phase 4 + prior run data |
+
+**Critical path**: Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 (strictly sequential due to infrastructure dependencies).
+
+**Risk mitigation for effort estimates**: The devil's advocate analysis demonstrated estimates may be 3-5x too low. Guard rail: implement one feature end-to-end before committing to sprint plans (R15).

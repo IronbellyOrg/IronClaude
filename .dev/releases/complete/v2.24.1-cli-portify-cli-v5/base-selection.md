@@ -1,135 +1,58 @@
-
-
 ---
-base_variant: "Opus Architect (A)"
-variant_scores: "A:81 B:76"
+base_variant: B
+variant_scores: "A:71 B:79"
 ---
 
-# Base Selection: v2.24.1 CLI Portify v5 Roadmap
+# Scoring Criteria
 
-## 1. Scoring Criteria (Derived from Debate)
+Derived from the debate's key dispute areas and convergence assessment:
 
-The debate surfaced 5 key divergence points which map to these evaluation criteria:
+1. **Phase Structure Efficiency** (15%) — Minimal ceremony, no redundant phases
+2. **Model/Resolution Coupling** (15%) — Appropriate grouping of tightly coupled work
+3. **CLI Integration Design** (15%) — Ownership clarity for user-facing argument changes
+4. **Timeline Realism** (15%) — Honest estimates that support planning
+5. **Test Specificity** (10%) — Trackable, countable validation commitments
+6. **Risk Communication** (10%) — Actionable risk information without process overhead
+7. **Validation Traceability** (10%) — Clear mapping from criteria to verification method
+8. **Readability & Navigability** (10%) — How quickly an implementer can extract what they need
 
-| # | Criterion | Weight | Source |
-|---|-----------|--------|--------|
-| C1 | Structural clarity & actionability | 20% | D-1 (phase granularity), D-4 (time estimation) |
-| C2 | Compatibility safety | 25% | D-2 (Phase 0), D-6 (validation), core debate theme |
-| C3 | Technical completeness | 20% | D-11 (consolidation fallback), resolution coverage |
-| C4 | Implementation guidance | 20% | Dependency visualization, sizing, architectural recs |
-| C5 | Cognitive efficiency for implementer | 15% | Phase count, context switching, flow preservation |
+# Per-Criterion Scores
 
-Weights reflect the debate's consensus that compatibility is the dominant risk (both variants agreed), while the remaining criteria capture the substantive disagreements.
+| Criterion | Weight | A (Haiku) | B (Opus) | Notes |
+|-----------|--------|-----------|----------|-------|
+| Phase Structure Efficiency | 15% | 6/10 | 9/10 | A's Phase 0 and Phase 6 are overhead. Debate confirmed Phase 0 restates the roadmap; Phase 6 belongs in issue tracking. B's 5 phases have no dead weight. |
+| Model/Resolution Coupling | 15% | 6/10 | 8/10 | A separates models (Phase 2) from resolution (Phase 1), but the debate showed models can't be reviewed meaningfully without resolution context. B combines them in Phase 1, enabling holistic review of the contract+algorithm together. |
+| CLI Integration Design | 15% | 6/10 | 8/10 | A distributes CLI changes across phases. B isolates the high-risk `WORKFLOW_PATH → TARGET` change in a dedicated Phase 3. The debate's tiebreaker favored isolation for the single highest-risk CLI change. |
+| Timeline Realism | 15% | 7/10 | 8/10 | A's 6.5 days is plausible but presents false precision given 7 open questions and 6 risks. B's 7-9 day range with per-phase ranges is more honest. Both converge around 7-8 days in practice, but B communicates uncertainty better. |
+| Test Specificity | 10% | 5/10 | 8/10 | A says "targeted new test suite across 5 files" with no count. B specifies ~37 tests with per-phase breakdown (~15+~12+~5+~5). B is trackable against SC-8. |
+| Risk Communication | 10% | 8/10 | 7/10 | A's three-tier governance (blocking/gating/managed) is clearer than B's severity column alone. Low cost, high clarity. A wins here. |
+| Validation Traceability | 10% | 6/10 | 9/10 | B's tabular validation matrix (criterion → phase → method) is immediately scannable. A's narrative format requires reading through paragraphs to extract the same information. |
+| Readability & Navigability | 10% | 6/10 | 8/10 | B uses tables for risks, timeline, validation, and dependency graphs. A is prose-heavy. For an implementer scanning for "what do I do in Phase 2," B is faster. |
 
-## 2. Per-Criterion Scores
+# Overall Scores
 
-### C1: Structural Clarity & Actionability (20%)
+| Variant | Weighted Score | Justification |
+|---------|---------------|---------------|
+| **A (Haiku)** | **71** | Stronger risk governance framework and thorough per-phase exit criteria, but carries dead-weight phases (0, 6), artificially splits coupled work, lacks test counts, and buries traceability in prose. |
+| **B (Opus)** | **79** | Tighter phase structure, better coupling decisions, honest timelines, trackable test targets, and tabular formats that an implementer can action quickly. Weaker on risk governance labeling. |
 
-| Aspect | Variant A (Opus) | Variant B (Haiku) |
-|--------|-----------------|-------------------|
-| Phase structure | 3 phases with nested milestones — compact, navigable | 8 phases — granular, auditable progress markers |
-| Time estimation | Hour ranges (19-28h) + line counts (350-450 LOC) — directly actionable | Phase units (5.25) + session grouping — avoids anchoring but requires conversion |
-| Dependency visualization | ASCII dependency graph with parallel markers | Textual ordering with implicit dependencies |
-| Progress reporting | Requires decomposing Phase 2 for status updates | Each phase = one status update |
+# Base Variant Selection Rationale
 
-**Scores**: A: 84 | B: 74
+**Variant B (Opus)** is the base because:
 
-**Rationale**: Opus's hour ranges with line-count grounding are more immediately useful than abstract phase units. The ASCII dependency graph (Opus) is a concrete artifact that Haiku lacks. However, Haiku's per-phase progress reporting is genuinely easier for stakeholders. Opus wins on balance because the primary consumer is a single implementer (both roadmaps assume this), where actionable sizing matters more than reporting granularity.
+1. Its phase structure requires no subtraction — all 5 phases carry real work. A requires removing Phase 0 and Phase 6 (per debate convergence).
+2. The model+resolution coupling in Phase 1 is architecturally sound — the debate confirmed these can't be reviewed independently.
+3. The dedicated CLI phase (Phase 3) won the debate's tiebreaker on the highest-risk user-facing change.
+4. Its tabular formats (risk table, validation matrix, timeline summary) are merge-ready scaffolding that A's content can be injected into.
 
-### C2: Compatibility Safety (25%)
+# Improvements to Incorporate from Variant A
 
-| Aspect | Variant A (Opus) | Variant B (Haiku) |
-|--------|-----------------|-------------------|
-| Upfront guardrails | No Phase 0; constraints assumed internalized | Phase 0 with change map, compatibility checklist, test matrix |
-| Continuous testing | Architectural Recommendation #4 (advisory) | Structural concern raised but not formalized as gate |
-| Validation placement | Bundled in Phase 3 with artifacts and test suite | Dedicated Phase 6 for validation logic |
-| Regression proof | Phase 3.3 with 12 success criteria | Phase 7 with explicit regression validation stream |
-| Internal consistency | Rec #4 ("test at every milestone") contradicts single Phase 3 gate | Phase 0 deliverables address the gap Opus leaves |
+1. **Risk governance tiers** — Add A's three-tier classification (release-blocking / release-gating / managed resilience) as a column in B's risk table. Low cost, unambiguous go/no-go semantics.
 
-**Scores**: A: 74 | B: 83
+2. **Per-phase exit criteria** — A explicitly states exit criteria for each phase. B implies them but doesn't formalize. Add a 2-3 line exit criteria block to each of B's phases.
 
-**Rationale**: Haiku is stronger here. The debate exposed a genuine inconsistency in Opus: Recommendation #4 advocates continuous testing, but the formal structure concentrates validation in Phase 3. Haiku's Phase 0 deliverables (change map, compatibility checklist) are low-cost, high-value artifacts for a compatibility-sensitive release. Haiku's validation streams (A/B/C/D) provide clearer coverage organization.
+3. **Lettered milestones** — A's Milestone A/B/C/D scheme provides status-tracking anchors. Add these to B's phase descriptions for progress reporting.
 
-### C3: Technical Completeness (20%)
+4. **Resolution log as first-class asset** — A's architectural priorities section explicitly calls out `resolution_log` as an observability asset. Add this emphasis to B's Phase 1 and Phase 4 descriptions.
 
-| Aspect | Variant A (Opus) | Variant B (Haiku) |
-|--------|-----------------|-------------------|
-| Consolidation strategy | `commonpath()` only; edge cases deferred to v2.25 | Two-tier: `commonpath()` + top-10-by-component-count fallback |
-| Error/warning coverage | All codes defined in Phase 1, tested in Phase 1.2 | Codes defined in Phase 6 — later but with dedicated focus |
-| Edge case handling | FR-018 (standalone, multi-skill) explicit in Phase 1.2 | Standalone/multi-skill in Phase 3, less prominent |
-| Risk coverage | 6 risks | 7 risks (adds "CLI contract drift" — D-9) |
-| Deferred items | 5 items, clearly bounded | Implicitly deferred but less explicitly catalogued |
-
-**Scores**: A: 78 | B: 80
-
-**Rationale**: Close. Haiku's two-tier consolidation fallback is the stronger position — the debate showed Opus's "defer to v2.25" argument was weak given the trivial implementation cost. Haiku also identifies CLI contract drift as a distinct risk. Opus counters with earlier error-code definition and more explicit edge-case placement. Haiku edges ahead on the consolidation point alone.
-
-### C4: Implementation Guidance (20%)
-
-| Aspect | Variant A (Opus) | Variant B (Haiku) |
-|--------|-----------------|-------------------|
-| Architectural recommendations | Dedicated section with 5 numbered recommendations | Inline "Architect focus" boxes per phase |
-| Sizing guidance | Line counts (350-450 for resolution.py), test counts (~37) | No line counts, no test counts |
-| Parallel execution marking | Explicit: "Can run in parallel with 2.2" on milestones 2.1/2.2 | Implicit: "Discovery/process in parallel" in dependency section |
-| Success criteria mapping | Table with test method and phase for each SC | Functional acceptance list + validation streams |
-| NFR verification | Specific commands (`grep -r`, `git diff --name-only`) | Descriptive ("grep/static proof") |
-
-**Scores**: A: 88 | B: 72
-
-**Rationale**: Opus is substantially stronger. Line counts, test counts, specific verification commands, and explicit parallel markers give the implementer concrete targets. Haiku's "Architect focus" boxes are useful framing but don't substitute for sizing data. Opus's success criteria table (SC-1 through SC-12 with test methods and phase assignments) is a ready-made implementation checklist.
-
-### C5: Cognitive Efficiency for Implementer (15%)
-
-| Aspect | Variant A (Opus) | Variant B (Haiku) |
-|--------|-----------------|-------------------|
-| Phase transitions | 3 major transitions — minimal context switching | 7 transitions (Phase 0→7) — frequent context switching |
-| Scope per phase | Phase 2 bundles 8-12h — large but contextually coherent | Phases 3-5 at 0.5-1.0 units each — smaller but more frequent |
-| Mental model | "Foundation → Integration → Validation" — simple narrative | Linear sequence of 8 concerns — harder to hold in working memory |
-| Parallel awareness | Built into phase structure (milestones 2.1 || 2.2) | Requires reading dependency section separately |
-
-**Scores**: A: 85 | B: 70
-
-**Rationale**: For a single implementer (the assumed primary case), Opus's 3-phase model maps to natural work sessions. The "Foundation → Integration → Validation" narrative is easy to internalize. Haiku's 8 phases create transition overhead that isn't justified for this scope — the debate acknowledged this depends on consumption pattern, but for implementation (not stakeholder reporting), fewer phases wins.
-
-## 3. Overall Scores
-
-| Criterion | Weight | Variant A | Variant B | A Weighted | B Weighted |
-|-----------|--------|-----------|-----------|------------|------------|
-| C1: Structural clarity | 20% | 84 | 74 | 16.8 | 14.8 |
-| C2: Compatibility safety | 25% | 74 | 83 | 18.5 | 20.75 |
-| C3: Technical completeness | 20% | 78 | 80 | 15.6 | 16.0 |
-| C4: Implementation guidance | 20% | 88 | 72 | 17.6 | 14.4 |
-| C5: Cognitive efficiency | 15% | 85 | 70 | 12.75 | 10.5 |
-| **Total** | **100%** | — | — | **81.25** | **76.45** |
-
-**Final Scores**: **A: 81 | B: 76**
-
-## 4. Base Variant Selection Rationale
-
-**Selected base: Variant A (Opus Architect)**
-
-Opus wins on 3 of 5 criteria (C1, C4, C5) and loses on 2 (C2, C3). The wins are decisive in C4 (+16 points) and C5 (+15 points), while the losses are narrower in C2 (-9 points) and C3 (-2 points).
-
-The critical factor: Opus's weaknesses are **additive fixes** — incorporating Phase 0 deliverables and the consolidation fallback into Opus's structure is straightforward. Haiku's weaknesses are **structural** — adding line counts, dependency graphs, parallel markers, and specific verification commands to an 8-phase structure requires reworking the entire document's level of detail.
-
-It is cheaper to add Haiku's compatibility safety measures to Opus's well-structured base than to retrofit Opus's implementation precision into Haiku's framework.
-
-## 5. Specific Improvements to Incorporate from Variant B (Haiku)
-
-### Must-incorporate (address Opus's scored weaknesses):
-
-1. **Phase 0 deliverables as Phase 1 pre-work** (from D-2 debate convergence): Add a "Pre-work" section at the start of Phase 1 producing: change map, compatibility checklist, test matrix outline. Not a separate phase — embedded as Milestone 1.0. This resolves Opus's internal inconsistency between Rec #4 and the Phase 3 validation gate.
-
-2. **Two-tier consolidation fallback** (D-11): Replace Opus's `commonpath()`-only strategy in Milestone 2.2 with Haiku's two-tier approach: `commonpath()` first, then top-10-by-component-count if still over cap. The debate demonstrated this is trivial to implement and eliminates a known gap.
-
-3. **Validation streams A/B/C/D naming** (Phase 7, §5): Adopt Haiku's organized validation stream taxonomy in Phase 3.3. The four-stream structure (unit, integration, regression, non-functional) is clearer than Opus's flat list.
-
-4. **CLI contract drift as distinct risk** (D-9, Risk #5 in Haiku): Add as Risk 7 in Opus's risk table. The debate showed Opus subsumes this under backward-compat but doesn't call it out — it deserves explicit mention given CLI is the highest user-visible surface.
-
-5. **Formalize continuous testing as a gate** (from D-2 rebuttal): Convert Opus's Architectural Recommendation #4 from advisory to a structural requirement: "Run `uv run pytest` at each milestone boundary. Milestone is not complete until existing tests pass." This closes the inconsistency Haiku correctly identified.
-
-### Nice-to-incorporate (lower priority):
-
-6. **"Architect focus" callout boxes**: Haiku's per-phase architectural guidance notes are useful for maintaining design intent. Add as brief callouts within Opus's milestones where the guidance isn't already covered by the Architectural Recommendations section.
-
-7. **Session-based grouping alongside hours**: Add Haiku's 3-session grouping (Sessions 1-3) as a secondary scheduling signal alongside Opus's hour ranges, per the debate's convergence recommendation.
+5. **Contingency actions per risk** — A provides specific contingency plans (e.g., "narrow new resolution logic to explicit new input forms only"). B's mitigations are good but lack fallback actions. Merge A's contingency lines into B's risk table.

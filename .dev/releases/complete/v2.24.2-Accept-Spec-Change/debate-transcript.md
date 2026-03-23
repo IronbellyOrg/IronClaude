@@ -1,87 +1,91 @@
 ---
-convergence_score: 0.72
+convergence_score: 0.82
 rounds_completed: 2
 ---
 
-# Adversarial Debate: Opus-Architect (Variant A) vs Haiku-Architect (Variant B)
+# Adversarial Debate: Haiku (Variant A) vs Opus (Variant B)
+
+## Round 1: Initial Positions
+
+### D1: Phase 0 — Architecture Lock
+
+**Variant A (Haiku):** Phase 0 is essential. The executor resume cycle has the highest failure cost in this release. Deciding absent `id` handling, mtime comparison semantics (`>=` vs `>`), and dependency direction *before* writing code prevents mid-implementation reversals. The 0.5-day cost is trivially recovered if it prevents even one design-level rework in Phase 3. This is a reliability-focused change to a control plane — treating design as an inline activity during implementation is inappropriate for this risk profile.
+
+**Variant B (Opus):** Phase 0 is overhead disguised as rigor. The spec already locks the architecture: leaf module isolation, dependency direction, atomic writes, single-cycle guard. These aren't open questions. The "decisions" Haiku wants to freeze — absent `id` handling, mtime comparison — are implementation details that surface naturally during Phase 1 coding and unit testing. A separate phase creates a false checkpoint that delays productive work by half a day without reducing actual risk. Design decisions made in isolation from code are less reliable than decisions made while looking at real types and call signatures.
 
 ---
 
-## Round 1: Initial Positions on Divergence Points
+### D2: Phase Count — 6 Phases vs 4 Phases
 
-### D-1: Phase Count and Structure
+**Variant A (Haiku):** Six phases with a standalone documentation phase (Phase 5) ensures NFR-5 is treated as a first-class deliverable. The spec explicitly calls out exclusive-access documentation as a safety control because file locking is out of scope. Folding documentation into integration testing guarantees it gets deprioritized when test failures consume attention. A standalone hardening phase costs 0.5 days and makes the release gate unambiguous.
 
-**Variant A (Opus)**: Phase 0 is unnecessary overhead. The open questions (#1, #3, #5) are tractable and can be resolved inline during Phase 1–2 implementation. A 0.65-complexity feature with a well-bounded spec does not warrant a formal architecture confirmation gate — the spec *is* the architecture confirmation. Adding half a day of ceremony to a 1.5–2 day effort is a 25–33% schedule tax for marginal risk reduction.
-
-**Variant B (Haiku)**: Phase 0 exists precisely *because* this feature's risk is concentrated in state management correctness, not breadth. The open questions — particularly `started_at` fallback behavior and severity field sourcing — have direct control-flow implications. Resolving them during implementation risks discovering mid-Phase-3 that an assumption was wrong, forcing rework of the most complex phase. A 0.5-day investment to eliminate rework risk on a 5-day effort is a 10% insurance premium, not overhead.
+**Variant B (Opus):** Four phases are sufficient. Documentation tasks are explicitly listed in Phase 4 under NFR-5 verification. The success criteria matrix tracks it. Splitting documentation into its own phase creates artificial sequencing — you can write docstrings and operator notes *while* writing integration tests, not after. Six phases for a medium-complexity release is over-structured and signals to implementers that this is larger than it is.
 
 ---
 
-### D-3: Total Timeline Estimate
+### D3: Parallelism
 
-**Variant A (Opus)**: 10–13 hours reflects the actual implementation effort for a developer familiar with the codebase. The module is a leaf with no reverse imports. The executor changes are surgical. The CLI registration is boilerplate. Inflating to 5 days either assumes significant context-switching overhead or embeds QA coordination costs that aren't implementation effort. If you strip out Haiku's Phase 0 (0.5d), the extra staffing model overhead, and the checkpoint review ceremonies, the raw coding effort converges closer to Opus's estimate.
+**Variant A (Haiku):** Sequential presentation is intentional conservatism. The roadmap serves as a contract for execution order. If an implementer wants to parallelize Phases 2 and 3, they can — but the roadmap shouldn't *assume* two engineers are available or that context-switching between CLI wiring and executor integration is free. The sequential layout is safer as a planning artifact.
 
-**Variant B (Haiku)**: Opus's 10–13 hours is a "fingers on keyboard" estimate that ignores the reality of software delivery. It assumes zero interruptions, zero code review cycles, zero open-question resolution discussions, and zero test environment debugging. The 4.5–5.0 day estimate includes QA effort as a first-class concern — which is essential when the highest-risk code is in failure paths and state integrity, not happy paths. The gap isn't about coding speed; it's about what "done" means.
-
----
-
-### D-6: `started_at` Fallback Strategy
-
-**Variant A (Opus)**: When `started_at` is absent, the conservative choice is to *allow* the retry cycle to proceed. The purpose of Condition 2 (mtime check) is to filter out stale deviation files — but if we have no timestamp to compare against, we should err on the side of letting the operator's explicit deviation records be considered. Blocking the retry on missing metadata is a false negative that forces the operator into a manual workaround for no safety benefit.
-
-**Variant B (Haiku)**: When `started_at` is absent, the safe choice is to treat the retry condition as *not met* and proceed through the normal failure path. The three-condition gate exists to prevent spurious retries. If one condition is unknowable, the gate should fail closed, not fail open. The operator can always run `accept-spec-change` manually — the fallback isn't "no path forward," it's "use the explicit CLI command instead of the automatic cycle." Fail-open on missing metadata is exactly how subtle state bugs are born.
+**Variant B (Opus):** Failing to surface parallelism is a planning failure. Phases 2 and 3 have zero data dependencies after Phase 1 completes. The dependency diagram makes this explicit. Hiding the obvious parallelism opportunity means the roadmap gives a 4.5–6.0 day estimate when 4.5 days is achievable. A roadmap that doesn't inform resource allocation decisions is incomplete.
 
 ---
 
-### D-10: YAML Boolean Coercion Stance
+### D5: Risk Format — Narrative vs Table
 
-**Variant A (Opus)**: YAML 1.1 boolean coercion is standard PyYAML behavior. Accepting `yes`, `on`, `true`, `True`, `TRUE` as boolean true is what PyYAML does by default. Fighting against library defaults creates maintenance burden and surprises operators who write valid YAML. The spec says "boolean" — all of these are booleans in YAML 1.1. Rejecting string `"true"` is a separate concern (quoted strings are strings, not booleans) and both variants agree on that.
+**Variant A (Haiku):** Narrative risk descriptions with categorization (high-priority architectural vs secondary delivery) provide the *reasoning* behind mitigations. A table tells you "warn-and-skip" is the mitigation for invalid YAML; a narrative explains *why* that's sufficient and what failure mode it prevents. For a safety-critical change to a control plane, understanding failure modes matters more than scannability.
 
-**Variant B (Haiku)**: The spec says `spec_update_required: true` as a boolean. We should test that string `"true"` is rejected because it's a common operator mistake. Accepting broad YAML 1.1 coercion (`yes`, `on`, `1`) without explicit documentation creates a fragile implicit contract. If a future PyYAML upgrade changes coercion behavior (YAML 1.2 drops `yes`/`on`/`1` as booleans), silently breaking operator files is worse than being strict now. At minimum, accepted coercions must be documented and tested intentionally, not accepted by accident.
-
----
-
-### D-7: Validation Organization
-
-**Variant A (Opus)**: The flat AC-to-test table provides immediate auditability. Every acceptance criterion has a single row showing its test approach and automation status. When a reviewer asks "is AC-7 covered?", the answer is one table lookup. Layered test pyramids are useful for test architecture but they obscure traceability — you have to mentally map across two organizational schemes (pyramid layer + AC number) to verify coverage.
-
-**Variant B (Haiku)**: The 5-layer validation pyramid (unit → CLI → state integrity → executor integration → failure-path) provides structural guidance for *how to organize test code*, not just *what to test*. The flat table tells you what to verify but not where to put the test or what testing infrastructure it needs. Layers 3 and 5 (state integrity and failure-path) are where the real bugs will hide — elevating them to named layers ensures they get proportional attention rather than being mixed in with happy-path unit tests.
+**Variant B (Opus):** Tables are actionable; narratives are educational. The implementer needs to know: what risk, how severe, which phase, what mitigation. A Severity × Probability × Phase × Mitigation table answers all four questions in one scan. Narrative paragraphs require extraction of the same information. The audience for a roadmap is an engineer building the thing, not someone learning the domain.
 
 ---
 
-### D-4: Milestone Checkpoints
+### D6: `DeviationRecord` Specificity
 
-**Variant A (Opus)**: Named checkpoints with go/no-go decisions are project management artifacts, not engineering artifacts. For a 1.5–2 day feature, phase completion *is* the checkpoint. Adding formal review gates between phases introduces scheduling dependencies and wait states that extend the timeline without improving code quality. The code either passes tests or it doesn't — that's the checkpoint.
+**Variant A (Haiku):** Deferring `DeviationRecord` details to Phase 0 ensures the data model is agreed before code depends on it. Deciding field counts and type invariants during Phase 0 review is more reliable than prescribing them in a roadmap that may not match the actual codebase state.
 
-**Variant B (Haiku)**: Checkpoints A–D correspond to real decision points: leaf-module behavior accepted (A), API compatibility verified (B), retry correctness verified (C), release readiness (D). These aren't ceremonies — they're points where a wrong assumption discovered later causes cascading rework. Checkpoint B after Phase 3 is particularly valuable: if the `execute_roadmap()` signature change breaks any caller, discovering it before building the retry cycle on top saves significant effort.
+**Variant B (Opus):** Specifying a frozen dataclass with 7 fields and strict type invariants in the roadmap eliminates an implementation ambiguity. The implementer opens Phase 1 knowing exactly what to build. Haiku's "confirm data model expectations" is a task with no definition of done — it could take 10 minutes or become a design discussion that consumes the entire Phase 0 budget.
+
+---
+
+### D7: Non-Interactive Detection
+
+**Variant A (Haiku):** The roadmap describes the *behavior* (non-interactive mode aborts). The detection mechanism is an implementation choice that belongs in code, not a roadmap. If `sys.stdin.isatty()` proves insufficient (e.g., piped input with a TTY), the roadmap shouldn't have locked the mechanism.
+
+**Variant B (Opus):** `sys.stdin.isatty()` is the standard Python idiom for TTY detection. Specifying it eliminates a decision the implementer would otherwise need to make and review. The probability of it being wrong is near zero. Leaving it unspecified is not flexibility — it's ambiguity that costs review time.
+
+---
+
+### D11: Final Invariant Statement
+
+**Variant A (Haiku):** The four invariants with a "pause for redesign" directive are the most important section of the roadmap. They define the conditions under which the implementation is *known safe*. Without an explicit escalation policy, an implementer who discovers a weakened invariant may patch around it rather than raising an alarm. The SC matrix validates *features*; the invariant list validates *safety properties*.
+
+**Variant B (Opus):** The SC validation matrix serves the same purpose with more granularity. SC-2 (only `spec_hash` modified), SC-6 (single cycle), SC-7 (disk-reread), SC-14 (atomic write failure) collectively cover the same invariants. Adding a separate section restates what's already tracked. The "pause for redesign" directive is a process instruction, not a roadmap deliverable.
 
 ---
 
 ## Round 2: Rebuttals
 
-### Variant A rebuts Variant B
-
-**On Phase 0**: Haiku claims open questions have "direct control-flow implications," but the questions are resolvable by reading existing code. Question #1 (severity field) requires inspecting deviation file frontmatter — a 5-minute grep. Question #5 (`started_at` absence) requires a design decision, not a meeting. Formalizing these into a half-day phase with "deliverables" (design note, trace matrix, test matrix draft) is process theater for a leaf module addition. The trace matrix *is* the roadmap itself.
-
-**On Timeline**: Haiku's 3-role staffing model (architect, backend engineer, QA engineer) explains the 5-day estimate but doesn't justify it. This feature doesn't require three separate people — it's a single-developer task with self-authored tests. If Haiku's estimate assumes handoffs between roles, that's organizational overhead, not intrinsic complexity. The roadmap should estimate effort, not calendar time inflated by coordination costs.
-
-**On `started_at` Fallback**: Haiku's "fail closed" argument sounds principled but ignores the operator's intent. If an operator has explicitly created accepted deviation files and explicitly edited the spec, blocking the automatic retry because of a missing internal timestamp punishes correct operator behavior for an internal bookkeeping gap. The operator's explicit actions are stronger evidence than an absent timestamp.
-
-**On Checkpoints**: Haiku's Checkpoint B (after Phase 3, API compatibility) is actually testable with a single `uv run pytest` invocation. Making it a named "go/no-go decision" implies it requires human judgment, when it's a binary pass/fail from the test suite. Automated tests *are* the checkpoints.
-
----
-
 ### Variant B rebuts Variant A
 
-**On Phase 0**: Opus says open questions are "resolvable by reading existing code," but then lists Question #5 (`started_at` fallback) as an open question requiring a *design decision* to be made during Phase 4 — three phases after the code that depends on it (Phase 3's detection gate). This is exactly the rework risk Phase 0 prevents. Opus's own roadmap implicitly proves Phase 0's value by deferring a Phase 3 dependency to Phase 4.
+**On Phase 0:** Haiku claims Phase 0 prevents mid-implementation surprises, but the evidence doesn't support this. The spec is unusually prescriptive — it specifies atomic write mechanics, recursion guard placement, and the exact disk-reread sequence. What remains "undecided" after reading the spec? Absent `id` handling is a one-line decision (skip or error) that takes 5 minutes during Phase 1 implementation, not a half-day architecture review. The mtime `>=` vs `>` question is similarly trivial — the spec says strict `>` with `>=` allowed if documented. Phase 0 is ceremony for a decision that fits in a code comment.
 
-**On Timeline**: Opus's 10–13 hour estimate includes "~3-4 hours" for Phase 3, which contains the six-step disk-reread sequence (the most complex single requirement), the recursion guard, the three-condition detection gate, cycle outcome logging, and all private function implementations. Four hours for six subtasks touching the execution state machine is optimistic even for an expert. Haiku allocates 2.5 days (Phases 3+4) to equivalent work — and Phase 4's retry cycle alone has five key actions with three residual concerns.
+**On documentation phase:** Haiku argues NFR-5 gets deprioritized when folded into testing. But the SC matrix explicitly tracks NFR-5 in Phase 4. If an implementer skips a tracked success criterion, that's a process failure no amount of phase separation prevents. The real risk is that documentation written *after* implementation (Phase 5) is disconnected from the code. Documentation written *alongside* integration tests (Phase 4) is grounded in actual behavior.
 
-**On `started_at` Fallback**: Opus's "operator intent" argument conflates two different signals. The operator's intent is expressed through deviation files and the `accept-spec-change` command — both of which work regardless of the automatic retry. The automatic retry is an *optimization*, not the primary path. An optimization that fires incorrectly (because a gating condition was unknowable) is worse than one that doesn't fire (because the operator falls back to the explicit command). Safety margins belong on optimizations, not on primary paths.
+**On invariant list:** Haiku's four invariants are a subset of what the SC matrix already tracks. The "pause for redesign" directive sounds rigorous but has no enforcement mechanism in a roadmap. Either the team follows the SC matrix or they don't — adding a separate list doesn't change team discipline. It does add redundancy that can drift out of sync with the SC matrix.
 
-**On Boolean Coercion**: Opus says "fighting against library defaults creates maintenance burden," but the real maintenance burden is *undocumented implicit behavior*. If `yes`, `on`, and `1` are accepted, they must be tested and documented — Opus lists them as "edge case tests" in Phase 4 but doesn't flag them as documented operator-facing behavior. Haiku's position isn't to reject coercion — it's to make acceptance intentional and visible, not accidental.
+**On timeline ranges:** Haiku's 4.5–6.0 day range provides "honest uncertainty" but gives a planning team nothing actionable. Is it 4.5 or 6.0? The answer depends on parallelism, which Haiku doesn't surface. Opus provides the same lower bound (4.5 days) with an explicit explanation of *how* to achieve it. A range without explanation of its drivers is noise.
 
-**On Validation Organization**: Opus's flat AC table is traceable but doesn't prevent a common failure mode: all tests passing individually while integration boundaries are untested. Layer 3 (state integrity) and Layer 5 (failure-path) explicitly name the test categories most likely to catch the bugs this feature is vulnerable to. A flat table treats "AC-4: abort leaves mtime unchanged" and "AC-7: disk-read state used for resume" as equal-weight rows, when AC-7 is architecturally far more consequential.
+### Variant A rebuts Variant B
+
+**On Phase 0 dismissal:** Opus assumes the spec resolves all design questions, but a spec is not an architecture note. The spec says what the system *does*; Phase 0 confirms how the codebase *accommodates* it. For example: what's the actual shape of `DeviationRecord` in the existing code? Does it exist yet? What are the current executor internals' signatures? Opus prescribes "frozen dataclass with 7 fields" without verifying this against the codebase. If the existing code has a different convention (e.g., TypedDict, NamedTuple), Opus's Phase 1 starts with a design mismatch.
+
+**On parallelism:** Opus claims Phases 2 and 3 are parallelizable, which is structurally true. But the roadmap doesn't address the practical constraint: does the team *have* two engineers available? If one person is doing both phases, the "parallelism" collapses to sequential execution with context-switching overhead. Opus's 4.5-day estimate assumes ideal resource allocation that the roadmap doesn't justify. Haiku's range (4.5–6.0) honestly captures both scenarios.
+
+**On risk format:** Opus's table is faster to scan, but scannability is not the primary concern for a safety-critical control-plane change. The state corruption risk (Risk 1) has three distinct failure modes that require different mitigations. A table row saying "enforce `.tmp` + `os.replace()`" compresses this into a checkbox. Haiku's narrative ensures the reviewer understands *what* can go wrong and *why* the mitigation is sufficient. For this specific release, depth beats speed.
+
+**On non-interactive detection:** Opus specifies `sys.stdin.isatty()` as if it's settled science. But the spec says "non-interactive mode" — this could mean running inside a CI pipeline, a Docker container, or a subprocess. `sys.stdin.isatty()` returns `False` for all of these, but the *behavior* may need to differ. Haiku's approach of describing the behavior and leaving detection to implementation preserves the flexibility to handle edge cases discovered during coding.
+
+**On documentation timing:** Opus argues documentation alongside testing is better than documentation after. But Phase 5 in Haiku's roadmap isn't "after" — it's the final phase before release, when the implementation is stable enough to document accurately. Writing operator documentation during integration testing means the documentation describes work-in-progress behavior that may change as tests reveal issues.
 
 ---
 
@@ -89,36 +93,20 @@ rounds_completed: 2
 
 ### Areas of Agreement (Strong Convergence)
 
-1. **Core architecture**: Both agree on `spec_patch.py` as leaf module, private functions, `execute_roadmap(auto_accept=False)` as sole public API change, and `_apply_resume()` remaining untouched. This is the most important agreement — the *what* to build is not in dispute.
-
-2. **Atomic writes**: Both mandate `.tmp` + `os.replace()`. No disagreement on mechanism.
-
-3. **FR-010 disk-reread sequence**: Both treat the six-step sequence as mandatory and non-negotiable. No dispute on the most complex requirement.
-
-4. **Recursion guard design**: Local variable, max 1 cycle, both agree.
-
-5. **File set**: Both identify the same created/modified files.
-
-6. **TOCTOU as documented limitation**: Neither attempts to solve concurrent access.
-
-7. **Non-interactive detection**: Both use `sys.stdin.isatty()`.
+1. **Core architecture** is settled: leaf module, atomic writes, single-cycle guard, disk-reread invariant. No debate on fundamentals.
+2. **Phase 1 scope** is essentially identical: build `spec_patch.py` with all scanning, hashing, prompting, and atomic write logic.
+3. **CLI wiring** (Phase 2 in both) is trivially scoped and uncontested.
+4. **All 15 success criteria** must pass. Both variants track them; they differ only in presentation format.
+5. **Risk inventory** overlaps almost completely. Both identify TOCTOU, mtime resolution, YAML coercion, and accidental `auto_accept` as the key risks.
 
 ### Areas of Partial Convergence
 
-8. **Timeline**: The gap is largely explained by scope definition (solo dev vs team, effort vs elapsed). If Opus's estimate is interpreted as "focused coding hours" and Haiku's as "team delivery days," they're measuring different things and could coexist as complementary estimates.
-
-9. **Validation**: Both want full AC coverage. The dispute is organizational (flat table vs layered pyramid), not coverage. A merged approach — flat AC traceability table *plus* test directory structure following Haiku's layers — satisfies both.
-
-10. **Boolean coercion**: Both accept PyYAML's default behavior in practice. The real dispute is whether to *document and test* the coercion intentionally (Haiku) or treat it as implicit (Opus). Haiku's position is strictly stronger here — intentional documentation costs nothing and prevents future surprises.
+6. **Phase 0 value**: Both acknowledge the decisions exist (absent `id`, mtime comparison). They disagree on whether a formal phase is needed vs inline resolution. A compromise position: include the decisions as explicit Phase 1 preconditions (a checklist, not a phase) — this captures Haiku's front-loading without Opus's overhead concern.
+7. **Documentation**: Both agree NFR-5 must be tracked. Haiku wants a standalone phase; Opus wants it embedded. The stronger position is that documentation should be *written* during Phase 4 but *reviewed as a separate gate item* — satisfying both concerns.
+8. **Timeline**: Haiku's ranges and Opus's parallelism callout are complementary, not contradictory. The merged roadmap should show point estimates with a parallelism note *and* a range reflecting single-implementer vs two-implementer scenarios.
 
 ### Remaining Disputes (Low Convergence)
 
-11. **`started_at` fallback (D-6)**: Genuine design disagreement. Opus favors fail-open (allow retry when uncertain), Haiku favors fail-closed (block retry when uncertain). This requires a spec-level decision. Haiku's argument is stronger on safety grounds; Opus's argument is stronger on operator-experience grounds. **Recommendation**: Defer to spec language. If FR-009 lists the mtime comparison as a *required* condition, fail-closed (Haiku). If advisory, fail-open (Opus).
-
-12. **Phase 0 necessity (D-1)**: Opus correctly notes that most open questions are quickly resolvable, but Haiku correctly identifies that Opus's own roadmap defers a Phase 3 dependency to Phase 4. **Recommendation**: Compromise — no formal Phase 0, but resolve `started_at` fallback and severity field source *before* starting Phase 3 (add as Phase 2 exit criteria).
-
-13. **AC count (D-8)**: Factual discrepancy (14 vs 15) unresolved. Must be reconciled against source spec before implementation.
-
-### Summary
-
-The variants agree on architecture, mechanism, and scope. They disagree on process rigor, timeline framing, and one genuine design decision (`started_at` fallback). A merged roadmap would use Opus's implementation specificity and AC traceability with Haiku's risk depth, validation layering, and defensive design stance on the `started_at` question.
+9. **Risk format**: Narrative vs table is a genuine style disagreement with no objective resolution. Both formats serve different audiences. The strongest merge would use tables with expandable notes for high-severity risks.
+10. **Invariant list**: Haiku's "pause for redesign" directive is a process instruction that Opus considers redundant with the SC matrix. This reflects a philosophical difference about whether roadmaps should encode escalation policies. Neither side conceded.
+11. **Implementation specificity**: Opus's prescriptive details (`sys.stdin.isatty()`, frozen dataclass with 7 fields) vs Haiku's behavioral descriptions represent a tension between reducing implementer ambiguity and preserving flexibility. The right level depends on team familiarity — which neither roadmap assesses.

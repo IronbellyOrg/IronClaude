@@ -761,6 +761,55 @@ class TestTurnLedger:
 
 
 # ---------------------------------------------------------------------------
+# TurnLedger wiring extensions (Phase 2)
+# ---------------------------------------------------------------------------
+
+
+class TestTurnLedgerWiringExtensions:
+    """Tests for TurnLedger wiring analysis budget extensions."""
+
+    def test_wiring_debit_tracks_correctly(self):
+        """Verify debit_wiring decrements available turns and tracks consumption."""
+        ledger = TurnLedger(initial_budget=100)
+        assert ledger.wiring_turns_used == 0
+        ledger.debit_wiring(1)
+        assert ledger.wiring_turns_used == 1
+        assert ledger.consumed == 1
+        assert ledger.available() == 99
+        # Verify exhaustion flag not set when budget is plentiful
+        assert ledger.wiring_budget_exhausted == 0
+
+    def test_credit_wiring_floor_to_zero(self):
+        """SC-012: credit_wiring(1, 0.8) returns exactly 0 (floor-to-zero by design R7)."""
+        ledger = TurnLedger(initial_budget=100)
+        result = ledger.credit_wiring(1, 0.8)
+        assert result == 0, f"Expected 0 credits from int(1 * 0.8), got {result}"
+        assert ledger.wiring_turns_credited == 0
+        assert ledger.reimbursed == 0
+
+    def test_debit_credit_wiring_cycle(self):
+        """SC-013: sequential debit/credit cycle tracks cumulative budget correctly."""
+        ledger = TurnLedger(initial_budget=100)
+        # Cycle 1: debit 3, credit 3 at 0.8 -> int(3*0.8)=2 credits
+        ledger.debit_wiring(3)
+        c1 = ledger.credit_wiring(3, 0.8)
+        assert c1 == 2
+        assert ledger.wiring_turns_used == 3
+        assert ledger.wiring_turns_credited == 2
+        assert ledger.consumed == 3
+        assert ledger.reimbursed == 2
+        assert ledger.available() == 99  # 100 - 3 + 2
+
+        # Cycle 2: debit 5, credit 5 at 0.8 -> int(5*0.8)=4 credits
+        ledger.debit_wiring(5)
+        c2 = ledger.credit_wiring(5, 0.8)
+        assert c2 == 4
+        assert ledger.wiring_turns_used == 8  # 3 + 5
+        assert ledger.wiring_turns_credited == 6  # 2 + 4
+        assert ledger.available() == 98  # 100 - 8 + 6
+
+
+# ---------------------------------------------------------------------------
 # GateOutcome enum
 # ---------------------------------------------------------------------------
 
