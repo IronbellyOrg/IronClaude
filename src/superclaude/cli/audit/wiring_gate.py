@@ -89,6 +89,7 @@ class WiringReport:
     unwired_registries: list[WiringFinding] = field(default_factory=list)
     scan_duration_seconds: float = 0.0
     rollout_mode: str = "shadow"
+    failure_reason: str = ""
 
     @property
     def all_findings(self) -> list[WiringFinding]:
@@ -676,6 +677,10 @@ def run_wiring_analysis(
 ) -> WiringReport:
     """Run all three wiring analyzers and produce a WiringReport.
 
+    If the source directory contains Python files but none survive collection
+    (files_analyzed == 0), returns early with a FAIL report and failure_reason
+    set (FR-5.1 guard). This prevents silent PASS on misconfigured analysis.
+
     Args:
         config: Wiring analysis configuration.
         source_dir: Root directory to scan.
@@ -688,6 +693,29 @@ def run_wiring_analysis(
     _, skipped = _collect_python_files(source_dir, config.exclude_patterns)
     files, _ = _collect_python_files(source_dir, config.exclude_patterns)
     files_analyzed = len(files)
+
+    # FR-5.1: 0-files-analyzed guard — if source dir is non-empty but no files
+    # were analyzed, return FAIL immediately instead of silently passing.
+    if files_analyzed == 0:
+        has_python_files = any(source_dir.rglob("*.py"))
+        if has_python_files:
+            duration = time.monotonic() - start
+            logger.warning(
+                "0 files analyzed in non-empty source directory %s "
+                "(skipped=%d) — returning FAIL per FR-5.1",
+                source_dir,
+                skipped,
+            )
+            return WiringReport(
+                target_dir=str(source_dir),
+                files_analyzed=0,
+                files_skipped=skipped,
+                scan_duration_seconds=round(duration, 4),
+                rollout_mode=config.rollout_mode,
+                failure_reason=(
+                    "0 files analyzed in non-empty source directory"
+                ),
+            )
 
     unwired = analyze_unwired_callables(config, source_dir)
     orphans = analyze_orphan_modules(config, source_dir)

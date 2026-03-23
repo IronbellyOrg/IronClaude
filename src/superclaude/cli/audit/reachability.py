@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import ast
 import logging
+import re
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -644,3 +645,199 @@ class ReachabilityAnalyzer:
         # Same function name — check if the module paths overlap
         # (handles aliased module paths)
         return candidate.endswith(target) or target.endswith(candidate)
+
+
+# ---------------------------------------------------------------------------
+# GateCriteria-compatible interface (FR-4.3)
+# ---------------------------------------------------------------------------
+
+
+def _reachability_report_has_gate(content: str) -> bool:
+    """Semantic check: frontmatter ``gate`` field equals ``reachability``."""
+    match = re.search(r"^gate:\s*(.+)$", content, re.MULTILINE)
+    return match is not None and match.group(1).strip() == "reachability"
+
+
+def _reachability_verdict_present(content: str) -> bool:
+    """Semantic check: frontmatter ``verdict`` field is PASS or FAIL."""
+    match = re.search(r"^verdict:\s*(.+)$", content, re.MULTILINE)
+    if match is None:
+        return False
+    return match.group(1).strip() in ("PASS", "FAIL")
+
+
+def _gap_count_consistent(content: str) -> bool:
+    """Semantic check: ``gap_count`` equals 0 when verdict is PASS, >0 when FAIL."""
+    verdict_match = re.search(r"^verdict:\s*(.+)$", content, re.MULTILINE)
+    gap_match = re.search(r"^gap_count:\s*(\d+)$", content, re.MULTILINE)
+    if verdict_match is None or gap_match is None:
+        return False
+    verdict = verdict_match.group(1).strip()
+    gap_count = int(gap_match.group(1))
+    if verdict == "PASS":
+        return gap_count == 0
+    if verdict == "FAIL":
+        return gap_count > 0
+    return False
+
+
+def _modules_parsed_positive(content: str) -> bool:
+    """Semantic check: ``modules_parsed`` is > 0 (analysis actually ran)."""
+    match = re.search(r"^modules_parsed:\s*(\d+)$", content, re.MULTILINE)
+    if match is None:
+        return False
+    return int(match.group(1)) > 0
+
+
+# Lazy import to avoid circular dependency — GateCriteria and SemanticCheck
+# are imported here because REACHABILITY_GATE is a module-level constant.
+from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck  # noqa: E402
+
+REACHABILITY_GATE = GateCriteria(
+    required_frontmatter_fields=[
+        "gate",
+        "verdict",
+        "manifest_path",
+        "source_root",
+        "total_targets",
+        "reachable_count",
+        "gap_count",
+        "modules_parsed",
+    ],
+    min_lines=5,
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="reachability_gate_field",
+            check_fn=_reachability_report_has_gate,
+            failure_message="gate field must be 'reachability'",
+        ),
+        SemanticCheck(
+            name="verdict_present",
+            check_fn=_reachability_verdict_present,
+            failure_message="verdict must be PASS or FAIL",
+        ),
+        SemanticCheck(
+            name="gap_count_consistent",
+            check_fn=_gap_count_consistent,
+            failure_message="gap_count must be 0 for PASS and >0 for FAIL",
+        ),
+        SemanticCheck(
+            name="modules_parsed_positive",
+            check_fn=_modules_parsed_positive,
+            failure_message="modules_parsed must be > 0",
+        ),
+    ],
+)
+
+
+def emit_reachability_report(report: ReachabilityReport, output_path: Path,
+                              manifest_path: Path, source_root: Path) -> Path:
+    """Write a reachability gate report with YAML frontmatter and Markdown body.
+
+    Produces a file compatible with ``gate_passed(output_path, REACHABILITY_GATE)``.
+
+    Args:
+        report: ReachabilityReport from ``ReachabilityAnalyzer.analyze()``.
+        output_path: Destination file path.
+        manifest_path: Path to the wiring manifest used.
+        source_root: Source root directory analyzed.
+
+    Returns:
+        The output_path after writing.
+    """
+    verdict = "PASS" if report.passed else "FAIL"
+    reachable_count = sum(1 for r in report.results if r.reachable)
+
+    frontmatter = {
+        "gate": "reachability",
+        "verdict": verdict,
+        "manifest_path": str(manifest_path),
+        "source_root": str(source_root),
+        "total_targets": len(report.results),
+        "reachable_count": reachable_count,
+        "gap_count": len(report.gaps),
+        "modules_parsed": report.modules_parsed,
+        "modules_failed_count": len(report.modules_failed),
+    }
+
+    lines: list[str] = []
+    lines.append("---")
+    for key, value in frontmatter.items():
+        lines.append(f"{key}: {value}")
+    lines.append("---")
+    lines.append("")
+    lines.append(f"# Reachability Gate Report — {verdict}")
+    lines.append("")
+
+    # Summary
+    lines.append("## Summary")
+    lines.append("")
+    lines.append(f"- **Targets checked**: {len(report.results)}")
+    lines.append(f"- **Reachable**: {reachable_count}")
+    lines.append(f"- **Gaps (unreachable)**: {len(report.gaps)}")
+    lines.append(f"- **Modules parsed**: {report.modules_parsed}")
+    if report.modules_failed:
+        lines.append(f"- **Modules failed to parse**: {', '.join(report.modules_failed)}")
+    lines.append("")
+
+    # Gaps detail
+    if report.gaps:
+        lines.append("## Unreachable Targets (Gaps)")
+        lines.append("")
+        for gap in report.gaps:
+            lines.append(f"### {gap.target}")
+            lines.append(f"- **From entry**: {gap.from_entry}")
+            lines.append(f"- **Spec ref**: {gap.spec_ref}")
+            lines.append(f"- **Reachable**: {gap.reachable}")
+            lines.append("")
+
+    # Reachable targets
+    reachable_results = [r for r in report.results if r.reachable]
+    if reachable_results:
+        lines.append("## Reachable Targets")
+        lines.append("")
+        for r in reachable_results:
+            chain_str = " → ".join(r.chain) if r.chain else "(direct)"
+            lines.append(f"- **{r.target}** from `{r.from_entry}`: {chain_str}")
+        lines.append("")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+    return output_path
+
+
+def run_reachability_gate(
+    manifest_path: Path,
+    source_root: Path,
+    output_path: Path | None = None,
+) -> tuple[bool, ReachabilityReport, Path | None]:
+    """Run the reachability gate end-to-end: load manifest, analyze, emit report.
+
+    GateCriteria-compatible entry point (FR-4.3). Reads the wiring manifest,
+    runs AST-based reachability analysis, and produces a structured PASS/FAIL
+    report compatible with the pipeline gate infrastructure.
+
+    Args:
+        manifest_path: Path to the wiring manifest YAML file.
+        source_root: Root directory containing Python source packages.
+        output_path: Optional path to write the gate report. If None, no file
+            is written but the report object is still returned.
+
+    Returns:
+        Tuple of (passed, report, report_path).
+        - passed: True if all manifest targets are reachable.
+        - report: Full ReachabilityReport with per-target results.
+        - report_path: Path to the written report file, or None if output_path
+          was not provided.
+    """
+    analyzer = ReachabilityAnalyzer(manifest_path)
+    report = analyzer.analyze(source_root)
+
+    report_path = None
+    if output_path is not None:
+        report_path = emit_reachability_report(
+            report, output_path, manifest_path, source_root
+        )
+
+    return report.passed, report, report_path

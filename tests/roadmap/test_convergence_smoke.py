@@ -1,8 +1,9 @@
-"""Smoke test for _run_convergence_spec_fidelity() executor path.
+"""Smoke tests for convergence paths.
 
-Verifies the executor helper completes without runtime exceptions when
-invoked with a real RoadmapConfig, producing a valid StepResult and
-writing a registry JSON file.
+1. _run_convergence_spec_fidelity() executor path — verifies the executor
+   helper completes without runtime exceptions, producing a valid StepResult.
+2. execute_fidelity_with_convergence() loop — verifies the convergence loop
+   completes without crash and returns a valid ConvergenceResult (T02.26).
 """
 from __future__ import annotations
 
@@ -14,8 +15,17 @@ from unittest.mock import patch
 import pytest
 
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
+from superclaude.cli.roadmap.convergence import (
+    ConvergenceResult,
+    DeviationRegistry,
+    execute_fidelity_with_convergence,
+    CHECKER_COST,
+    MAX_CONVERGENCE_BUDGET,
+    REMEDIATION_COST,
+)
 from superclaude.cli.roadmap.executor import _run_convergence_spec_fidelity
 from superclaude.cli.roadmap.models import RoadmapConfig
+from superclaude.cli.sprint.models import TurnLedger
 
 
 def _make_config(tmp_path: Path) -> RoadmapConfig:
@@ -122,4 +132,125 @@ class TestConvergenceSmoke:
 
         assert step.output_file.exists(), (
             f"Expected spec-fidelity output at {step.output_file}"
+        )
+
+
+@pytest.mark.integration
+class TestConvergenceLoopSmoke:
+    """Smoke tests for execute_fidelity_with_convergence() loop (T02.26, R-035).
+
+    Minimal invocation of the convergence loop to verify it completes
+    without crash and produces a valid ConvergenceResult.
+    """
+
+    def test_loop_no_crash_clean_checkers(self, tmp_path: Path, audit_trail):
+        """execute_fidelity_with_convergence() returns ConvergenceResult with 0 HIGHs."""
+        reg_path = tmp_path / "registry.json"
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n## Feature X\nImplement FR-1\n")
+
+        reg = DeviationRegistry(
+            path=reg_path, release_id="smoke-1", spec_hash="smoke-hash",
+        )
+        ledger = TurnLedger(
+            initial_budget=MAX_CONVERGENCE_BUDGET,
+            minimum_allocation=CHECKER_COST,
+            minimum_remediation_budget=REMEDIATION_COST,
+        )
+
+        def noop_checkers(registry, run_number):
+            registry.merge_findings([], [], run_number=run_number)
+
+        def noop_remediation(registry):
+            pass
+
+        result = execute_fidelity_with_convergence(
+            registry=reg,
+            ledger=ledger,
+            run_checkers=noop_checkers,
+            run_remediation=noop_remediation,
+            max_runs=1,
+            roadmap_path=roadmap,
+        )
+
+        assert isinstance(result, ConvergenceResult)
+        assert result.passed is True
+        assert result.run_count == 1
+        assert result.final_high_count == 0
+        assert result.regression_detected is False
+
+        audit_trail.record(
+            test_id="test_loop_no_crash_clean_checkers",
+            spec_ref="R-035,FR-6.1-T12",
+            assertion_type="behavioral",
+            inputs={"max_runs": 1, "findings": 0},
+            observed={
+                "type": type(result).__name__,
+                "passed": result.passed,
+                "run_count": result.run_count,
+                "final_high_count": result.final_high_count,
+                "regression_detected": result.regression_detected,
+            },
+            expected={
+                "type": "ConvergenceResult",
+                "passed": True,
+                "run_count": 1,
+                "final_high_count": 0,
+                "regression_detected": False,
+            },
+            verdict="PASS",
+            evidence="Convergence loop smoke: completes without crash, returns valid ConvergenceResult (T02.26)",
+        )
+
+    def test_loop_registry_saveable(self, tmp_path: Path, audit_trail):
+        """Registry is saveable after convergence loop; runs list is populated."""
+        reg_path = tmp_path / "registry.json"
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap")
+
+        reg = DeviationRegistry(
+            path=reg_path, release_id="smoke-2", spec_hash="smoke-hash-2",
+        )
+        ledger = TurnLedger(
+            initial_budget=MAX_CONVERGENCE_BUDGET,
+            minimum_allocation=CHECKER_COST,
+            minimum_remediation_budget=REMEDIATION_COST,
+        )
+
+        def noop_checkers(registry, run_number):
+            registry.merge_findings([], [], run_number=run_number)
+
+        def noop_remediation(registry):
+            pass
+
+        execute_fidelity_with_convergence(
+            registry=reg,
+            ledger=ledger,
+            run_checkers=noop_checkers,
+            run_remediation=noop_remediation,
+            max_runs=1,
+            roadmap_path=roadmap,
+        )
+
+        # Registry should have run metadata populated
+        assert len(reg.runs) >= 1
+        # Save should succeed without error
+        reg.save()
+        assert reg_path.exists(), f"Registry not persisted at {reg_path}"
+
+        audit_trail.record(
+            test_id="test_loop_registry_saveable",
+            spec_ref="R-035,FR-6.1-T12",
+            assertion_type="structural",
+            inputs={"registry_path": str(reg_path)},
+            observed={
+                "runs_count": len(reg.runs),
+                "registry_exists_after_save": reg_path.exists(),
+            },
+            expected={
+                "runs_count_gte_1": True,
+                "registry_exists_after_save": True,
+            },
+            verdict="PASS",
+            evidence="Convergence loop smoke: registry saveable with run metadata after loop (T02.26)",
         )

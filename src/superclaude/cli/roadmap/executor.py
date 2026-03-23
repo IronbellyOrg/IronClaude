@@ -558,6 +558,7 @@ def _run_convergence_spec_fidelity(
     from .structural_checkers import run_all_checkers
     from .semantic_layer import run_semantic_layer
     from .remediate_executor import execute_remediation
+    from .fidelity_checker import run_fidelity_check
 
     spec_path = config.spec_file
     roadmap_path = config.output_dir / "roadmap.md"
@@ -592,7 +593,7 @@ def _run_convergence_spec_fidelity(
         )
 
     def _run_checkers(reg: DeviationRegistry, run_number: int) -> None:
-        """Run structural checkers + semantic layer, merge into registry."""
+        """Run structural checkers + semantic layer + fidelity checker, merge into registry."""
         structural_findings = run_all_checkers(str(spec_path), str(roadmap_path))
         reg.merge_findings(structural_findings, [], run_number)
 
@@ -609,6 +610,19 @@ def _run_convergence_spec_fidelity(
                 reg.merge_findings([], semantic_result.findings, run_number)
         except Exception as exc:
             _log.warning("Semantic layer failed: %s (continuing with structural only)", exc)
+
+        # Run fidelity checker (FR-5.2): verify spec FRs have codebase evidence
+        try:
+            source_dir = Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
+            fidelity_findings = run_fidelity_check(
+                spec_path=str(spec_path),
+                source_dir=str(source_dir),
+            )
+            if fidelity_findings:
+                reg.merge_findings(fidelity_findings, [], run_number)
+                _log.info("Fidelity checker found %d implementation gaps", len(fidelity_findings))
+        except Exception as exc:
+            _log.warning("Fidelity checker failed: %s (continuing without fidelity layer)", exc)
 
     def _run_remediation(reg: DeviationRegistry) -> None:
         """Run remediation on active HIGH findings."""

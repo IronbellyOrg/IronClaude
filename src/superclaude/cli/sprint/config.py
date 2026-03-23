@@ -10,6 +10,8 @@ import click
 
 from .models import Phase, SprintConfig, TaskEntry
 
+_logger = logging.getLogger("superclaude.sprint.config")
+
 # Canonical phase filename conventions (case-insensitive):
 # 1) phase-1-tasklist.md
 # 2) p1-tasklist.md
@@ -158,6 +160,45 @@ def validate_phases(
     return {"errors": errors, "warnings": warnings}
 
 
+def _resolve_release_dir(index_path: Path) -> Path:
+    """Resolve the release directory from a tasklist index path.
+
+    The tasklist index may live directly in the release directory, or inside
+    a ``tasklist/`` subdirectory created by ``sc:tasklist``. This function
+    detects the subdirectory case by checking:
+
+    1. Is the parent directory named ``tasklist``, ``tasklists``, or ``tasks``?
+    2. Does the grandparent contain ``.roadmap-state.json`` or a spec file?
+
+    When both conditions are met, the grandparent is the true release directory.
+    Otherwise, falls back to ``index_path.parent`` (backward-compatible default).
+
+    Note: Phase file discovery (``discover_phases``) always uses
+    ``index_path.parent`` regardless of this function's output, because
+    phase files live alongside the index.
+    """
+    parent = index_path.parent
+    _known_subdir_names = {"tasklist", "tasklists", "tasks"}
+
+    if parent.name.lower() in _known_subdir_names:
+        grandparent = parent.parent
+        # Check for release-directory indicators in the grandparent
+        has_state_file = (grandparent / ".roadmap-state.json").exists()
+        has_spec_files = bool(
+            list(grandparent.glob("*spec*.md"))
+            or list(grandparent.glob("*requirements*.md"))
+        )
+        if has_state_file or has_spec_files:
+            _logger.info(
+                "Resolved release_dir to grandparent: %s (index inside %s/)",
+                grandparent,
+                parent.name,
+            )
+            return grandparent
+
+    return parent
+
+
 def load_sprint_config(
     index_path: Path,
     start_phase: int = 1,
@@ -206,7 +247,9 @@ def load_sprint_config(
 
     config = SprintConfig(
         index_path=index_path,
-        release_dir=index_path.parent,
+        # Resolves grandparent when index is inside tasklist/ subdir;
+        # phase discovery still uses index_path.parent via discover_phases().
+        release_dir=_resolve_release_dir(index_path),
         phases=phases,
         start_phase=start_phase,
         end_phase=end_phase,
@@ -258,8 +301,6 @@ _CLASSIFIER_RE = re.compile(
     r"^\|\s*Classifier\s*\|\s*([^|]+)\|",
     re.IGNORECASE | re.MULTILINE,
 )
-
-_logger = logging.getLogger("superclaude.sprint.config")
 
 
 def parse_tasklist(content: str, execution_mode: str = "claude") -> list[TaskEntry]:
