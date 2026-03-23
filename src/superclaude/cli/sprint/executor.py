@@ -35,6 +35,7 @@ from .tui import SprintTUI
 
 from superclaude.cli.pipeline.models import Step, StepResult
 from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
     TrailingGatePolicy,
     TrailingGateResult,
 )
@@ -436,7 +437,7 @@ def _resolve_wiring_mode(config: SprintConfig) -> str:
     if scope is None:
         return config.wiring_gate_mode
 
-    gate_mode = resolve_gate_mode(scope=scope, grace_period=0)
+    gate_mode = resolve_gate_mode(scope=scope, grace_period=config.wiring_gate_grace_period)
 
     # Map GateMode back to wiring mode string
     mode_map = {
@@ -451,6 +452,7 @@ def run_post_task_wiring_hook(
     config: SprintConfig,
     task_result: TaskResult,
     ledger: TurnLedger | None = None,
+    remediation_log: DeferredRemediationLog | None = None,
 ) -> TaskResult:
     """Run post-task wiring analysis based on config.wiring_gate_mode.
 
@@ -470,7 +472,7 @@ def run_post_task_wiring_hook(
     Returns the (possibly modified) TaskResult. Only full mode may change
     task status to FAIL when blocking findings exist.
     """
-    mode = config.wiring_gate_mode
+    mode = _resolve_wiring_mode(config)
 
     if mode == "off":
         return task_result
@@ -524,6 +526,8 @@ def run_post_task_wiring_hook(
                 total,
                 task.task_id,
             )
+        # T05/R3: Log shadow findings to DeferredRemediationLog
+        _log_shadow_findings_to_remediation_log(report, task, config, remediation_log)
         # Credit wiring turns back (shadow never blocks)
         if ledger is not None:
             ledger.credit_wiring(config.wiring_analysis_turns)
@@ -556,18 +560,43 @@ def run_post_task_wiring_hook(
             task_result.status = TaskStatus.FAIL
             task_result.gate_outcome = GateOutcome.FAIL
 
-            # Remediation via callable interface (Constraint 7)
-            # Pass TurnLedger methods as callables to avoid import coupling
+            # T08/R4: Remediation lifecycle via callable interface (Constraint 7)
+            # Amendment A2 Option B: inline remediation for v3.2; full
+            # attempt_remediation() wiring deferred to v3.3.
             if ledger is not None:
                 can_remediate = ledger.can_remediate
-                debit = lambda turns: ledger.debit(turns)  # noqa: E731
                 if can_remediate():
-                    debit(config.remediation_cost)
-                    _wiring_logger.info(
-                        "Full mode: remediation debited %d turns for task %s",
-                        config.remediation_cost,
-                        task.task_id,
-                    )
+                    # Step 1: Format remediation prompt
+                    prompt = _format_wiring_failure(report, task, config)
+                    if prompt:
+                        # Step 2: Debit remediation cost
+                        ledger.debit(config.remediation_cost)
+                        _wiring_logger.info(
+                            "Full mode: remediation debited %d turns for task %s",
+                            config.remediation_cost,
+                            task.task_id,
+                        )
+                        # Step 3: Recheck wiring after remediation
+                        passed, recheck_report = _recheck_wiring(
+                            config, config.release_dir, mode,
+                        )
+                        if passed:
+                            task_result.status = TaskStatus.PASS
+                            task_result.gate_outcome = GateOutcome.PASS
+                            ledger.credit_wiring(config.wiring_analysis_turns)
+                            _wiring_logger.info(
+                                "Remediation succeeded for task %s", task.task_id,
+                            )
+                        else:
+                            _wiring_logger.warning(
+                                "Remediation failed for task %s — FAIL persists",
+                                task.task_id,
+                            )
+                    else:
+                        _wiring_logger.info(
+                            "Full mode: no blocking findings to format for task %s",
+                            task.task_id,
+                        )
                 else:
                     _wiring_logger.warning(
                         "Full mode: BUDGET_EXHAUSTED for task %s remediation",
@@ -582,13 +611,186 @@ def run_post_task_wiring_hook(
     return task_result
 
 
+# ---------------------------------------------------------------------------
+# T04/R3: Shadow findings adapter for DeferredRemediationLog
+# ---------------------------------------------------------------------------
+
+
+def _log_shadow_findings_to_remediation_log(
+    report: object,
+    task: TaskEntry,
+    config: SprintConfig,
+    remediation_log: DeferredRemediationLog | None = None,
+) -> None:
+    """Log shadow mode findings to DeferredRemediationLog.
+
+    Creates a synthetic TrailingGateResult per unsuppressed finding and
+    appends to the remediation log. No-op when remediation_log is None.
+
+    Amendment A1: Uses corrected TrailingGateResult constructor fields
+    (step_id, passed, evaluation_ms, failure_reason).
+    """
+    if remediation_log is None:
+        return
+
+    # Lazy import to access unsuppressed_findings without top-level coupling
+    unsuppressed = getattr(report, "unsuppressed_findings", [])
+    for finding in unsuppressed:
+        gate_result = TrailingGateResult(
+            step_id=task.task_id,
+            passed=False,
+            evaluation_ms=0.0,
+            failure_reason=f"[shadow] {finding.finding_type}: {finding.detail}",
+        )
+        remediation_log.append(gate_result)
+
+
+# ---------------------------------------------------------------------------
+# T06/R4: Format wiring failure for remediation prompt
+# ---------------------------------------------------------------------------
+
+
+def _format_wiring_failure(
+    report: object,
+    task: TaskEntry,
+    config: SprintConfig,
+) -> str:
+    """Format a remediation prompt string from blocking wiring findings.
+
+    Returns a non-empty string when blocking findings (critical/major severity)
+    exist, or an empty string when none are present.
+
+    The output is plain text suitable for consumption by a Claude subprocess.
+    """
+    unsuppressed = getattr(report, "unsuppressed_findings", [])
+    blocking = [
+        f for f in unsuppressed if getattr(f, "severity", "") in ("critical", "major")
+    ]
+    if not blocking:
+        return ""
+
+    lines = [
+        f"WIRING REMEDIATION for task {task.task_id}: {task.title}",
+        f"Blocking findings: {len(blocking)}",
+        "",
+    ]
+
+    by_type: dict[str, int] = {}
+    for f in blocking:
+        ft = getattr(f, "finding_type", "unknown")
+        by_type[ft] = by_type.get(ft, 0) + 1
+    for ft, count in by_type.items():
+        lines.append(f"  {ft}: {count}")
+    lines.append("")
+
+    for f in blocking:
+        file_path = getattr(f, "file_path", "unknown")
+        symbol = getattr(f, "symbol_name", "unknown")
+        detail = getattr(f, "detail", "")
+        lines.append(f"- [{getattr(f, 'severity', '?')}] {file_path} :: {symbol}")
+        if detail:
+            lines.append(f"  {detail}")
+    lines.append("")
+    lines.append("Fix these wiring issues and re-run the task.")
+
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# T07/R4: Recheck wiring after remediation
+# ---------------------------------------------------------------------------
+
+
+def _recheck_wiring(
+    config: SprintConfig,
+    source_dir: Path,
+    mode: str,
+) -> tuple[bool, object | None]:
+    """Re-run wiring analysis and return (passed, report_or_None).
+
+    Returns (True, report) if no blocking findings remain after remediation,
+    (False, report) if blocking findings persist, or (False, None) on error.
+    """
+    from superclaude.cli.audit.wiring_gate import run_wiring_analysis, WiringReport
+    from superclaude.cli.audit.wiring_config import WiringConfig
+
+    try:
+        wiring_config = WiringConfig(
+            rollout_mode=mode if mode in ("shadow", "soft", "full") else "shadow",
+        )
+        report = run_wiring_analysis(wiring_config, source_dir)
+        if report.blocking_count(mode) == 0:
+            return (True, report)
+        return (False, report)
+    except Exception as exc:
+        _wiring_logger.warning("Recheck wiring failed: %s", exc)
+        return (False, None)
+
+
+# ---------------------------------------------------------------------------
+# T01/R1: Post-phase wiring hook (phase-level adapter)
+# ---------------------------------------------------------------------------
+
+
+def run_post_phase_wiring_hook(
+    phase: Phase,
+    config: SprintConfig,
+    phase_result: PhaseResult,
+    ledger: TurnLedger | None = None,
+    remediation_log: DeferredRemediationLog | None = None,
+) -> PhaseResult:
+    """Run post-phase wiring analysis by delegating to the per-task hook.
+
+    Creates a synthetic TaskEntry/TaskResult from the PhaseResult, delegates
+    to run_post_task_wiring_hook() for the actual analysis, and maps the
+    returned status back onto the PhaseResult.
+
+    This avoids duplicating wiring analysis logic for phase-level execution.
+    """
+    # Build synthetic TaskEntry from the phase
+    synthetic_task = TaskEntry(
+        task_id=f"phase-{phase.number}",
+        title=phase.file.name,
+        description=f"Phase {phase.number} aggregate wiring check",
+    )
+
+    # Map PhaseResult status to TaskStatus for the synthetic TaskResult
+    if phase_result.status.is_success:
+        synth_status = TaskStatus.PASS
+    elif phase_result.status.is_failure:
+        synth_status = TaskStatus.FAIL
+    else:
+        synth_status = TaskStatus.SKIPPED
+
+    synthetic_result = TaskResult(
+        task=synthetic_task,
+        status=synth_status,
+        exit_code=phase_result.exit_code,
+        started_at=phase_result.started_at,
+        finished_at=phase_result.finished_at,
+        output_bytes=phase_result.output_bytes,
+    )
+
+    # Delegate to the per-task hook
+    updated_result = run_post_task_wiring_hook(
+        synthetic_task, config, synthetic_result,
+        ledger=ledger, remediation_log=remediation_log,
+    )
+
+    # Map back: if the wiring hook changed status to FAIL, propagate to PhaseResult
+    if updated_result.status == TaskStatus.FAIL and synth_status != TaskStatus.FAIL:
+        phase_result.status = PhaseStatus.HALT
+
+    return phase_result
+
+
 def run_post_task_anti_instinct_hook(
     task: TaskEntry,
     config: SprintConfig,
     task_result: TaskResult,
     ledger: TurnLedger | None = None,
     shadow_metrics: ShadowGateMetrics | None = None,
-) -> TaskResult:
+) -> tuple[TaskResult, TrailingGateResult | None]:
     """Run post-task anti-instinct gate based on config.gate_rollout_mode.
 
     Mode behavior matrix:
@@ -600,7 +802,9 @@ def run_post_task_anti_instinct_hook(
     All TurnLedger calls are guarded with ``if ledger is not None`` (NFR-007).
     Anti-instinct and wiring-integrity gates evaluate independently (NFR-010).
 
-    Returns the (possibly modified) TaskResult.
+    Returns a tuple of (possibly modified TaskResult, TrailingGateResult or None).
+    For mode "off", gate_result is None. For shadow mode, gate IS evaluated
+    and the result is returned for capture.
     """
     import math
     import time as _time
@@ -609,7 +813,7 @@ def run_post_task_anti_instinct_hook(
 
     if mode == "off":
         # Evaluate but ignore — no metrics, no side effects
-        return task_result
+        return (task_result, None)
 
     # Lazy import to avoid circular dependency
     from superclaude.cli.pipeline.gates import gate_passed
@@ -636,18 +840,30 @@ def run_post_task_anti_instinct_hook(
         evaluation_ms,
     )
 
+    # Build TrailingGateResult for all non-off modes (v3.1-T05)
+    gate_result = TrailingGateResult(
+        step_id=task.task_id,
+        passed=passed,
+        evaluation_ms=evaluation_ms,
+        failure_reason=failure_reason if not passed else None,
+    )
+
     # Record metrics for shadow/soft/full modes (FR-SPRINT.4)
     if shadow_metrics is not None:
         shadow_metrics.record(passed=passed, evaluation_ms=evaluation_ms)
 
     if mode == "shadow":
         # Record metrics only, no behavioral impact
-        return task_result
+        return (task_result, gate_result)
 
     # soft and full modes: credit on PASS, remediate on FAIL
     if passed:
         # Credit path: reimburse turns on gate PASS
         if ledger is not None:
+            # SPEC-DEVIATION (BUG-010): Spec says reimbursement should use upstream
+            # merge step turns. We use task_result.turns_consumed because it reflects
+            # the actual work done by this task, which is more practical and defensible.
+            # See: roadmap-gap-analysis-merged.md, D4.
             credit_amount = int(task_result.turns_consumed * ledger.reimbursement_rate)
             ledger.credit(credit_amount)
             task_result.reimbursement_amount = credit_amount
@@ -658,6 +874,13 @@ def run_post_task_anti_instinct_hook(
             )
         task_result.gate_outcome = GateOutcome.PASS
     else:
+        # SPEC-DEVIATION (BUG-009/P6): Spec says this path should delegate to
+        # attempt_remediation() for retry-once semantics. We use inline fail logic
+        # (set GateOutcome.FAIL / TaskStatus.FAIL) as an intentional v3.1
+        # simplification. attempt_remediation() has a 6-arg callable-based API
+        # that requires more design work to integrate here safely. Deferred to v3.2.
+        # See: gap-remediation-tasklist.md, T08 Option B.
+
         # Remediation path: check budget, mark BUDGET_EXHAUSTED or FAIL
         if ledger is not None and not ledger.can_remediate():
             _anti_instinct_logger.warning(
@@ -670,7 +893,7 @@ def run_post_task_anti_instinct_hook(
             task_result.gate_outcome = GateOutcome.FAIL
             if mode == "full":
                 task_result.status = TaskStatus.FAIL
-            return task_result
+            return (task_result, gate_result)
 
         _anti_instinct_logger.warning(
             "Anti-instinct FAIL for task %s: %s",
@@ -683,7 +906,7 @@ def run_post_task_anti_instinct_hook(
             # Full mode: fail the task
             task_result.status = TaskStatus.FAIL
 
-    return task_result
+    return (task_result, gate_result)
 
 
 def execute_phase_tasks(
@@ -694,12 +917,14 @@ def execute_phase_tasks(
     *,
     _subprocess_factory=None,
     shadow_metrics: ShadowGateMetrics | None = None,
-) -> tuple[list[TaskResult], list[str]]:
+    remediation_log: DeferredRemediationLog | None = None,
+) -> tuple[list[TaskResult], list[str], list[TrailingGateResult]]:
     """Per-task subprocess orchestration loop.
 
     Iterates over a task inventory, spawning one subprocess per task with
-    budget allocation from the TurnLedger. Returns task results and a list
-    of remaining (unattempted) task IDs if budget was exhausted.
+    budget allocation from the TurnLedger. Returns task results, a list
+    of remaining (unattempted) task IDs if budget was exhausted, and
+    accumulated TrailingGateResults from anti-instinct hook evaluations.
 
     Args:
         tasks: Ordered list of TaskEntry from the tasklist parser.
@@ -712,14 +937,17 @@ def execute_phase_tasks(
             metrics collection (used in shadow/soft/full rollout modes).
 
     Returns:
-        Tuple of (results, remaining_task_ids). remaining_task_ids is non-empty
-        only when the loop halted due to budget exhaustion.
+        Tuple of (results, remaining_task_ids, gate_results).
+        remaining_task_ids is non-empty only when the loop halted due to
+        budget exhaustion. gate_results contains TrailingGateResult from
+        each evaluated anti-instinct gate (None results filtered out).
     """
     results: list[TaskResult] = []
     remaining: list[str] = []
+    gate_results: list[TrailingGateResult] = []
 
     if not tasks:
-        return results, remaining
+        return results, remaining, gate_results
 
     for i, task in enumerate(tasks):
         started_at = datetime.now(timezone.utc)
@@ -785,17 +1013,21 @@ def execute_phase_tasks(
         )
 
         # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
-        result = run_post_task_wiring_hook(task, config, result, ledger=ledger)
+        result = run_post_task_wiring_hook(
+            task, config, result, ledger=ledger, remediation_log=remediation_log,
+        )
 
         # Post-task anti-instinct hook: run anti-instinct gate per config.gate_rollout_mode
         # NFR-010: anti-instinct and wiring gates evaluate independently (no shared state)
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             task, config, result, ledger=ledger, shadow_metrics=shadow_metrics,
         )
+        if gate_result is not None:
+            gate_results.append(gate_result)
 
         results.append(result)
 
-    return results, remaining
+    return results, remaining, gate_results
 
 
 def _run_task_subprocess(
@@ -840,6 +1072,23 @@ def _run_task_subprocess(
     return (exit_code if exit_code is not None else -1, 0, output_bytes)
 
 
+def _parse_phase_tasks(phase: Phase, config: SprintConfig) -> list[TaskEntry] | None:
+    """Parse a phase file for task entries.
+
+    Returns a list of TaskEntry if the phase file contains a task inventory
+    (i.e., ``### T<PP>.<TT>`` headings), or None for freeform-prompt phases
+    that should use the ClaudeProcess fallback.
+    """
+    from .config import parse_tasklist
+
+    if not phase.file.exists():
+        return None
+
+    content = phase.file.read_text(encoding="utf-8", errors="replace")
+    tasks = parse_tasklist(content, execution_mode=phase.execution_mode)
+    return tasks if tasks else None
+
+
 def execute_sprint(config: SprintConfig):
     """Main orchestration loop.
 
@@ -872,6 +1121,25 @@ def execute_sprint(config: SprintConfig):
     proc_manager: ClaudeProcess | None = None
 
     sprint_result = SprintResult(config=config)
+
+    # --- v3.1 gap-remediation: infrastructure instantiation (T01–T06) ---
+    # T01 (BUG-001/P0): Construct TurnLedger for budget tracking
+    ledger = TurnLedger(
+        initial_budget=config.max_turns * len(config.active_phases),
+        reimbursement_rate=0.8,
+    )
+    # T02 (BUG-002/P0): Construct ShadowGateMetrics for anti-instinct telemetry
+    shadow_metrics = ShadowGateMetrics()
+    # T03 (BUG-005/P2): Construct DeferredRemediationLog for failed gate persistence
+    from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog
+    remediation_log = DeferredRemediationLog(
+        persist_path=config.results_dir / "remediation.json",
+    )
+    # T06 (BUG-006/P5): Construct SprintGatePolicy for remediation step building
+    gate_policy = SprintGatePolicy(config)
+    # T05-C: Accumulator for all TrailingGateResults across phases
+    all_gate_results: list[TrailingGateResult] = []
+
     logger.write_header(sprint_result)
 
     tui.start()
@@ -908,6 +1176,35 @@ def execute_sprint(config: SprintConfig):
                 )
                 sprint_result.phase_results.append(skip_result)
                 logger.write_phase_result(skip_result)
+                continue
+
+            # v3.1-T04: Per-task delegation — if phase has a task inventory,
+            # delegate to execute_phase_tasks() instead of single ClaudeProcess.
+            tasks = _parse_phase_tasks(phase, config)
+            if tasks:
+                started_at = datetime.now(timezone.utc)
+                task_results, remaining, phase_gate_results = execute_phase_tasks(
+                    tasks=tasks, config=config, phase=phase,
+                    ledger=ledger, shadow_metrics=shadow_metrics,
+                    remediation_log=remediation_log,
+                )
+                all_gate_results.extend(phase_gate_results)
+                all_passed = all(r.status == TaskStatus.PASS for r in task_results)
+                status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+                phase_result = PhaseResult(
+                    phase=phase, status=status, exit_code=0 if all_passed else 1,
+                    started_at=started_at, finished_at=datetime.now(timezone.utc),
+                )
+
+                # v3.2-T02: Run post-phase wiring hook for per-task phases too
+                phase_result = run_post_phase_wiring_hook(
+                    phase, config, phase_result,
+                    ledger=ledger,
+                    remediation_log=remediation_log,
+                )
+
+                sprint_result.phase_results.append(phase_result)
+                logger.write_phase_result(phase_result)
                 continue
 
             # Per-phase isolation directory: exactly one file (the phase file)
@@ -1106,6 +1403,14 @@ def execute_sprint(config: SprintConfig):
                     last_task_id=monitor.state.last_task_id,
                     files_changed=monitor.state.files_changed,
                 )
+
+                # v3.2-T02: Run post-phase wiring hook for every claude-mode phase
+                phase_result = run_post_phase_wiring_hook(
+                    phase, config, phase_result,
+                    ledger=ledger,
+                    remediation_log=remediation_log,
+                )
+
                 sprint_result.phase_results.append(phase_result)
 
                 debug_log(
@@ -1176,6 +1481,17 @@ def execute_sprint(config: SprintConfig):
                 sprint_result.outcome = SprintOutcome.ERROR
 
         tui.update(sprint_result, MonitorState(), None)
+
+        # T07 (BUG-007/P3): Build KPI report from accumulated gate results
+        from superclaude.cli.sprint.kpi import build_kpi_report
+        kpi_report = build_kpi_report(
+            gate_results=all_gate_results,
+            remediation_log=remediation_log,
+            turn_ledger=ledger,
+        )
+        kpi_path = config.results_dir / "gate-kpi-report.md"
+        kpi_path.write_text(kpi_report.format_report())
+
         logger.write_summary(sprint_result)
         notify_sprint_complete(sprint_result)
 

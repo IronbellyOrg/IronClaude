@@ -111,6 +111,7 @@ markers = [
     "integration: Integration tests",
     "hallucination: Hallucination detection tests",
     "performance: Performance benchmark tests",
+    "slow: Slow tests (performance benchmarks, large datasets)",
     "confidence_check: Pre-execution confidence assessment",
     "self_check: Post-implementation validation",
     "reflexion: Error learning and prevention",

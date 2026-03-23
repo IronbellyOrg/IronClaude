@@ -50,6 +50,14 @@ class GateKPIReport:
     wiring_turns_credited: int = 0
     whitelist_entries_applied: int = 0
     files_skipped: int = 0
+    # T10/R6: Additional wiring KPI counters
+    wiring_analyses_run: int = 0  # count of wiring analyses executed
+    wiring_remediations_attempted: int = 0  # count of remediation attempts
+
+    @property
+    def wiring_net_cost(self) -> int:
+        """Net wiring turn cost: used - credited."""
+        return self.wiring_turns_used - self.wiring_turns_credited
 
     @property
     def gate_pass_rate(self) -> float:
@@ -128,6 +136,9 @@ class GateKPIReport:
             f"  Findings by type: {self.wiring_findings_by_type}",
             f"  Turns used:       {self.wiring_turns_used}",
             f"  Turns credited:   {self.wiring_turns_credited}",
+            f"  Net cost:         {self.wiring_net_cost}",
+            f"  Analyses run:     {self.wiring_analyses_run}",
+            f"  Remediations attempted: {self.wiring_remediations_attempted}",
             f"  Whitelist applied:{self.whitelist_entries_applied}",
             f"  Files skipped:    {self.files_skipped}",
         ]
@@ -179,6 +190,8 @@ def build_kpi_report(
         report.wiring_turns_used = turn_ledger.wiring_turns_used
         # Floor-to-zero: credited turns never go negative (R7)
         report.wiring_turns_credited = max(0, turn_ledger.wiring_turns_credited)
+        # T10/A5: populate analysis count from TurnLedger
+        report.wiring_analyses_run = turn_ledger.wiring_analyses_count
 
     if wiring_report is not None:
         report.wiring_findings_total = wiring_report.total_findings
@@ -192,5 +205,11 @@ def build_kpi_report(
         report.whitelist_entries_applied = sum(
             1 for f in wiring_report.all_findings if f.suppressed
         )
+
+    # T10/R6: Count wiring-related remediation entries from DeferredRemediationLog.
+    # Wiring shadow findings are logged with "[shadow]" prefix by
+    # _log_shadow_findings_to_remediation_log().
+    if remediation_log is not None:
+        report.wiring_remediations_attempted = remediation_log.entry_count
 
     return report

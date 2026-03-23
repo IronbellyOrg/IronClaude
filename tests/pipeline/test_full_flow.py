@@ -386,7 +386,7 @@ class TestAntiInstinctFullFlow:
         def _factory(task, cfg, ph):
             return (0, 10, 100)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks, config, phase, ledger=ledger,
             _subprocess_factory=_factory,
             shadow_metrics=metrics,
@@ -417,7 +417,7 @@ class TestAntiInstinctFullFlow:
             output_path=str(tmp_path / "output.md"),
         )
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             result.task, config, result, ledger=ledger, shadow_metrics=metrics,
         )
 
@@ -439,7 +439,7 @@ class TestAntiInstinctFullFlow:
             output_path=str(tmp_path / "output.md"),
         )
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             result.task, config, result, ledger=ledger, shadow_metrics=metrics,
         )
 

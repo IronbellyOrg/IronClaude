@@ -81,7 +81,7 @@ class TestRolloutModeMatrix:
         result = _make_task_result(output_path=str(tmp_path / "output.md"))
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, shadow_metrics=metrics,
         )
 
@@ -94,7 +94,7 @@ class TestRolloutModeMatrix:
         config = _make_config(tmp_path, gate_rollout_mode="off")
         result = _make_task_result()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result,
         )
 
@@ -108,7 +108,7 @@ class TestRolloutModeMatrix:
         (tmp_path / "output.md").write_text("test content")
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, shadow_metrics=metrics,
         )
 
@@ -124,7 +124,7 @@ class TestRolloutModeMatrix:
         (tmp_path / "output.md").write_text("test content")
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, shadow_metrics=metrics,
         )
 
@@ -141,7 +141,7 @@ class TestRolloutModeMatrix:
         ledger = TurnLedger(initial_budget=100)
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
         )
 
@@ -160,7 +160,7 @@ class TestRolloutModeMatrix:
         ledger = TurnLedger(initial_budget=100)
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
         )
 
@@ -177,7 +177,7 @@ class TestRolloutModeMatrix:
         ledger = TurnLedger(initial_budget=200)
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
         )
 
@@ -194,7 +194,7 @@ class TestRolloutModeMatrix:
         ledger = TurnLedger(initial_budget=100)
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
         )
 
@@ -217,7 +217,7 @@ class TestNoneSafeLedgerGuards:
         result = _make_task_result(output_path=str(tmp_path / "output.md"))
         (tmp_path / "output.md").write_text("test content")
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=None,
         )
 
@@ -232,7 +232,7 @@ class TestNoneSafeLedgerGuards:
         result = _make_task_result(output_path=str(tmp_path / "output.md"))
         (tmp_path / "output.md").write_text("test content")
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=None,
         )
 
@@ -246,7 +246,7 @@ class TestNoneSafeLedgerGuards:
         result = _make_task_result(output_path=str(tmp_path / "output.md"))
         (tmp_path / "output.md").write_text("test content")
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=None,
         )
 
@@ -277,7 +277,7 @@ class TestGateIndependence:
         (tmp_path / "output.md").write_text("test content")
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config_off_wiring, result, shadow_metrics=metrics,
         )
 
@@ -296,7 +296,7 @@ class TestGateIndependence:
         def _factory(task, cfg, ph):
             return (0, 5, 100)  # exit_code=0, turns=5, output_bytes=100
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks, config, phase,
             _subprocess_factory=_factory,
             shadow_metrics=metrics,
@@ -324,7 +324,7 @@ class TestBudgetExhaustion:
         ledger = TurnLedger(initial_budget=2, minimum_remediation_budget=3)
         # Budget is 2, min remediation is 3 → can't remediate
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=ledger,
         )
 
@@ -339,7 +339,7 @@ class TestBudgetExhaustion:
         (tmp_path / "output.md").write_text("test content")
         ledger = TurnLedger(initial_budget=2, minimum_remediation_budget=3)
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, ledger=ledger,
         )
 
@@ -361,7 +361,7 @@ class TestNoOutputArtifact:
         result = _make_task_result(output_path="")
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, shadow_metrics=metrics,
         )
 
@@ -375,7 +375,7 @@ class TestNoOutputArtifact:
         result = _make_task_result(output_path=str(tmp_path / "nonexistent.md"))
         metrics = ShadowGateMetrics()
 
-        result = run_post_task_anti_instinct_hook(
+        result, gate_result = run_post_task_anti_instinct_hook(
             _make_task(), config, result, shadow_metrics=metrics,
         )
 

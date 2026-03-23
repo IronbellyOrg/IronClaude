@@ -289,6 +289,10 @@ class Phase:
         return self.name or f"Phase {self.number}"
 
 
+# Sentinel value: grace_period >= this means "shadow forever" (T09/R5)
+SHADOW_GRACE_INFINITE: int = 999_999
+
+
 @dataclass
 class SprintConfig(PipelineConfig):
     """Complete configuration for a sprint execution.
@@ -327,6 +331,9 @@ class SprintConfig(PipelineConfig):
     wiring_gate_scope: str = "task"  # scope for resolve_gate_mode() (Goal-5d)
     wiring_analysis_turns: int = 1  # turns allocated per wiring analysis
     remediation_cost: int = 2  # turns debited per remediation attempt
+    # Scope-based wiring gate fields (T09/R5: replaces direct wiring_gate_mode setting)
+    wiring_gate_enabled: bool = True
+    wiring_gate_grace_period: int = 0
 
     def __post_init__(self):
         import warnings
@@ -337,6 +344,20 @@ class SprintConfig(PipelineConfig):
 
         # Migration shim (NFR-007: remove after 1 release)
         # Migrates deprecated field names to new canonical names.
+        #
+        # T16/R12 Documentation:
+        # Current shim migrates internal renames from early v3.0 development:
+        #   wiring_budget_turns    -> wiring_analysis_turns  (renamed for clarity)
+        #   wiring_remediation_cost -> remediation_cost       (shortened)
+        #   wiring_scope           -> wiring_gate_scope       (disambiguated)
+        #
+        # Spec-intended migration (not yet implemented):
+        #   wiring_gate_mode="off"    -> wiring_gate_enabled=False
+        #   wiring_gate_mode="shadow" -> wiring_gate_grace_period=SHADOW_GRACE_INFINITE
+        #   This full deprecation path requires T09 scope-based fields and is deferred
+        #   because wiring_gate_mode remains actively used as the resolved output.
+        #   When adopted, callers using old wiring_gate_mode strings will get
+        #   DeprecationWarning and automatic mapping to the new scope-based fields.
         _OLD_TO_NEW = {
             "wiring_budget_turns": "wiring_analysis_turns",
             "wiring_remediation_cost": "remediation_cost",
@@ -353,6 +374,14 @@ class SprintConfig(PipelineConfig):
                     stacklevel=2,
                 )
                 object.__setattr__(self, new_name, old_val)
+
+        # Derive wiring_gate_mode from scope-based fields (T09/R5).
+        # Only derive if wiring_gate_mode was not explicitly overridden
+        # (i.e., still at the default "soft" value from the field definition).
+        if not self.wiring_gate_enabled:
+            object.__setattr__(self, "wiring_gate_mode", "off")
+        elif self.wiring_gate_grace_period >= SHADOW_GRACE_INFINITE:
+            object.__setattr__(self, "wiring_gate_mode", "shadow")
 
     @property
     def debug_log_path(self) -> Path:
@@ -537,6 +566,7 @@ class TurnLedger:
     wiring_turns_used: int = 0
     wiring_turns_credited: int = 0
     wiring_budget_exhausted: int = 0
+    wiring_analyses_count: int = 0  # T10/A5: count of wiring analyses executed
 
     def available(self) -> int:
         """Return available turns: initial_budget - consumed + reimbursed."""
@@ -572,6 +602,7 @@ class TurnLedger:
             raise ValueError("debit_wiring amount must be non-negative")
         self.debit(turns)
         self.wiring_turns_used += turns
+        self.wiring_analyses_count += 1
         if self.available() < self.minimum_remediation_budget:
             self.wiring_budget_exhausted = 1
 

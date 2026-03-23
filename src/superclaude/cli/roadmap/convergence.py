@@ -485,8 +485,10 @@ def execute_fidelity_with_convergence(
         if active_highs == 0:
             ledger.credit(CONVERGENCE_PASS_CREDIT)
             logger.info(
-                "Run %d (%s): PASS — 0 active HIGHs. Credit %d turns.",
+                "Run %d (%s): PASS — 0 active HIGHs. Credit %d turns. "
+                "budget: consumed=%d, reimbursed=%d, available=%d",
                 run_idx + 1, run_label, CONVERGENCE_PASS_CREDIT,
+                ledger.consumed, ledger.reimbursed, ledger.available(),
             )
             return ConvergenceResult(
                 passed=True,

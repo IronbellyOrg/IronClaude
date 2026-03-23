@@ -87,6 +87,7 @@ def _make_config(tmp_path: Path, grace_period: int = 10) -> SprintConfig:
         end_phase=2,
         max_turns=50,
         wiring_gate_mode="off",
+        wiring_gate_scope="none",  # bypass scope-based resolution so "off" is used directly
     )
 
 
@@ -167,7 +168,7 @@ class TestE2ETrailingGates:
             idx = int(task.task_id.split(".")[-1]) - 1
             return (0, turn_costs[idx], 1024 * (idx + 1))
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -242,7 +243,7 @@ class TestE2ETrailingGates:
         def subprocess_factory(task, cfg, ph):
             return (0, 10, 500)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -281,7 +282,7 @@ class TestE2ETrailingGates:
             idx = int(task.task_id.split(".")[-1]) - 1
             return (exit_codes[idx], 5, 500)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -313,7 +314,7 @@ class TestE2ETrailingGates:
         def subprocess_factory(task, cfg, ph):
             return (0, 6, 500)
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,
@@ -461,7 +462,7 @@ class TestE2ETrailingGates:
             idx = int(task.task_id.split(".")[-1]) - 1
             return outcomes[idx]
 
-        results, remaining = execute_phase_tasks(
+        results, remaining, _gate_results = execute_phase_tasks(
             tasks,
             config,
             phase,

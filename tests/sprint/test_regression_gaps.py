@@ -364,6 +364,8 @@ class TestExecutorShutdownBeforePhase:
     def test_shutdown_before_first_phase_no_processes_spawned(self, tmp_path):
         """If shutdown_requested=True before the loop body, Popen must never be called."""
         config = _make_config(tmp_path, num_phases=2)
+        # Ensure results_dir exists for KPI report written on all exit paths
+        config.results_dir.mkdir(parents=True, exist_ok=True)
         popen_call_count = [0]
 
         def counting_popen(cmd, **kwargs):
