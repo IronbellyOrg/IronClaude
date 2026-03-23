@@ -1,268 +1,202 @@
 ---
-total_requirements: 89
-covered: 86
-partial: 2
-missing: 1
+total_requirements: 84
+covered: 77
+partial: 3
+missing: 4
 conflicting: 0
 implicit: 0
-full_coverage_score: "96.6%"
-weighted_coverage_score: "97.8%"
-gap_score: "1.1%"
+full_coverage_score: "91.7%"
+weighted_coverage_score: "93.5%"
+gap_score: "4.8%"
 confidence_interval: "+/- 3%"
-total_findings: 22
-valid_critical: 3
-valid_high: 8
+total_findings: 17
+valid_critical: 0
+valid_high: 6
 valid_medium: 5
-valid_low: 6
-rejected: 0
+valid_low: 5
+rejected: 4
 stale: 0
-needs_spec_decision: 2
-verdict: "CONDITIONAL_GO"
-roadmap_path: ".dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/roadmap-final.md"
+needs_spec_decision: 1
+verdict: "NO_GO"
+roadmap_path: ".dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/roadmap.md"
 spec_paths: [".dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/v3.3-requirements-spec.md"]
 timestamp: "2026-03-23T00:00:00Z"
 ---
 
-# Roadmap Validation Report
+# Roadmap Validation Report — v3.3 TurnLedger Validation
 
 ## Executive Summary
 
-- **Verdict**: CONDITIONAL_GO
-- **Weighted Coverage**: 97.8% (+/- 3%)
-- **Total Findings**: 22 (3 CRITICAL, 8 HIGH, 5 MEDIUM, 6 LOW)
+- **Verdict**: NO_GO (>3 HIGH findings)
+- **Weighted Coverage**: 93.5% (+/- 3%)
+- **Total Findings**: 17 (0 CRITICAL, 6 HIGH, 5 MEDIUM, 5 LOW, 4 REJECTED, 1 NEEDS-SPEC-DECISION)
+- **Adversarial Pass**: Found 4 MISSING requirements (FR-1.19, FR-1.20, FR-1.21, FR-2.1a) that agents incorrectly marked COVERED
 - **Domains Validated**: 7
-- **Cross-Cutting Concerns**: 4 checked, 2 with gaps
-- **Integration Points**: 9 checked (Appendix A), all documented
-- **NEEDS-SPEC-DECISION**: 2 (spec self-contradictions requiring author resolution)
+- **Cross-Cutting Concerns**: 4 checked, 2 with minor issues
+- **Integration Points**: 9 checked via Appendix A, all documented
 
 ## Verdict Criteria
 
-| Condition | This Report | Decision |
-|-----------|------------|----------|
-| 0 CRITICAL + 0 HIGH + weighted >= 95% | 3 CRITICAL, 8 HIGH | — |
-| 0 CRITICAL + <=3 HIGH + weighted >= 90% | 3 CRITICAL | — |
-| Any CRITICAL | **3 CRITICAL** | **Applies** |
-| >3 HIGH | **8 HIGH** | **Applies** |
-| Weighted < 85% | 97.8% | No |
-| Any boundary gaps (reqs covered by zero agents) | None | No |
+| Condition | This Roadmap | Decision |
+|-----------|-------------|----------|
+| 0 CRITICAL + 0 HIGH + weighted >= 95% | 0 CRITICAL, **2 HIGH**, 98.2% | — |
+| 0 CRITICAL + <=3 HIGH + weighted >= 90% | ✗ 0 CRITICAL, **6 HIGH**, 93.5% | — |
+| Any CRITICAL | ✗ None | — |
+| >3 HIGH | ✓ **6 HIGH** | **NO_GO** |
+| Weighted < 85% | ✗ 98.2% | — |
+| Boundary gaps | ✗ None | — |
 
-**Verdict rationale**: 3 CRITICAL findings exist but all relate to **spec-level omissions** (Code State Snapshot items without FRs, manifest entry without FR), not roadmap failures. The roadmap faithfully covers 100% of explicitly stated spec requirements. The CRITICALs are items the spec declares as "verified wiring points" but never assigns test requirements to. These can be resolved by adding FRs to the spec and corresponding tasks to the roadmap — a scoped remediation, not a structural rewrite.
-
-**Recommendation**: Apply targeted remediation (Phases R1-R3 in remediation plan), then proceed to tasklist generation. The roadmap's structure, phasing, and coverage of explicit requirements are sound.
+**Condition met**: 0 CRITICAL + **6 HIGH** (>3 threshold) → **NO_GO** — significant coverage gaps must be resolved. All 4 MISSING requirements are straightforward additions (add tasks to Phase 2A/2B).
 
 ---
 
 ## Coverage by Domain
 
-| Domain | Agent | Total | Covered | Partial | Missing | Conflicting | Implicit | Score |
-|--------|-------|-------|---------|---------|---------|-------------|----------|-------|
-| Wiring E2E (FR-1) | D1 | 24 | 24 | 0 | 0 | 0 | 0 | 100% |
-| TurnLedger Lifecycle (FR-2) | D2 | 6 | 6 | 0 | 0 | 0 | 0 | 100% |
-| Gate Modes & Budget (FR-3) | D3 | 16 | 14 | 1 | 1 | 0 | 0 | 90.6% |
-| Reachability Framework (FR-4) | D4 | 16 | 16 | 0 | 0 | 0 | 0 | 100% |
-| Pipeline Fixes (FR-5) | D5 | 12 | 12 | 0 | 0 | 0 | 0 | 100% |
-| Audit Trail (FR-7) | D6 | 11 | 10 | 1 | 0 | 0 | 0 | 95.5% |
-| QA Gap Closure (FR-6) | D7 | 9 | 9 | 0 | 0 | 0 | 0 | 100% |
-| **Cross-cutting (NFR, SC, etc.)** | CC1-4 | — | — | — | — | — | — | — |
+| Domain | Total | Covered | Partial | Missing | Score |
+|--------|-------|---------|---------|---------|-------|
+| D1: Wiring E2E | 25 | 25 | 0 | 0 | 100% |
+| D2: TurnLedger Lifecycle | 7 | 7 | 0 | 0 | 100% |
+| D3: Gate Modes | 13 | 12 | 1 | 0 | 96.2% |
+| D4: Reachability | 10 | 10 | 0 | 0 | 100% |
+| D5: Pipeline Fixes | 10 | 10 | 0 | 0 | 100% |
+| D6: Audit Trail | 6 | 6 | 0 | 0 | 100% |
+| D7: QA Gaps | 8 | 7 | 1 | 0 | 93.8% |
+| CC3: Sequencing | 4 | 4 | 0 | 0 | 100% |
+| CC4: Constraints | 5 | 4 | 1 | 0 | 90.0% |
 
 ---
 
 ## Gap Registry
 
-### CRITICAL Findings (from CC4 Completeness Sweep)
+### GAP-H001 (HIGH): Audit trail JSONL retrofit for existing tests
+- **Source**: D7 Agent, REQ-078
+- **Spec**: "Every test must emit a JSONL audit record" (spec:Constraints L652)
+- **Roadmap**: Phase 1A creates audit_trail fixture; Phase 2 tests use it. But roadmap tasks 2D.1-2D.3 extend EXISTING tests in `tests/roadmap/` without explicitly stating they must be retrofitted with audit trail calls.
+- **Impact**: Existing tests (7 convergence_wiring + 6 convergence_e2e + smoke) may not emit JSONL records unless explicitly retrofitted, violating constraint REQ-078.
+- **Recommended fix**: Add explicit note to tasks 2D.1-2D.3: "Retrofit audit_trail fixture usage into existing tests being extended."
 
-#### GAP-C1: `handle_regression` — No FR, No Test, No Universe Entry
-- **Source**: CC4, Check 4
-- **Spec evidence**: Wiring manifest at `v3.3-requirements-spec.md:583-585` — `"target: superclaude.cli.roadmap.convergence.handle_regression, from_entry: _run_convergence_spec_fidelity, spec_ref: 'v3.05-FR8'"`
-- **Roadmap evidence**: ABSENT (searched: "handle_regression", "v3.05-FR8", "regression handler")
-- **Gap**: This function appears in the spec's authoritative wiring manifest but has no corresponding FR, test requirement, or roadmap task. It is a verified integration point with zero coverage.
-- **Impact**: The reachability gate (FR-4.4) would not validate this function's reachability because it has no manifest entry in the FR-4.1 example (only in the body manifest). If `handle_regression` becomes unreachable, no test or gate would catch it.
-- **Severity**: CRITICAL
-- **Adjudication**: VALID-CRITICAL — core deliverable missing
-- **Recommended correction**: Add FR to spec for `handle_regression` reachability and behavior. Add roadmap task to Phase 2 or Phase 3. Add to requirement universe.
+### GAP-H002 (HIGH): Resource table missing audit_writer.py
+- **Source**: CC1 Agent
+- **Roadmap**: Task 1A.1 (L47) delivers `tests/audit-trail/audit_writer.py` but this file is absent from "New Files Created" table (L213-225).
+- **Impact**: File may be overlooked during implementation planning. Resource tracking gap.
+- **Recommended fix**: Add `tests/audit-trail/audit_writer.py` to the "New Files Created" table.
 
-#### GAP-C2: `SHADOW_GRACE_INFINITE` Constant — No Test
-- **Source**: CC4, Check 7
-- **Spec evidence**: Code State Snapshot table at `v3.3-requirements-spec.md:38` — `"SHADOW_GRACE_INFINITE | models.py:293 | WIRED"`
-- **Roadmap evidence**: ABSENT (searched: "SHADOW_GRACE_INFINITE", "grace infinite", "shadow grace")
-- **Gap**: Verified wiring point in spec snapshot with no FR or test requirement. This constant controls shadow mode grace period behavior.
-- **Impact**: If the constant's value changes or its usage is broken, no test would detect it.
-- **Severity**: CRITICAL
-- **Adjudication**: VALID-CRITICAL — spec declares it as verified wiring point but provides no test
-- **Recommended correction**: Add FR-1.19 or equivalent to spec and corresponding task to roadmap Phase 2A.
+### GAP-M001 (MEDIUM): FR-3.3 signal mechanism unspecified
+- **Source**: D3 Agent, REQ-040
+- **Spec**: FR-3.3 requires interrupted sprint test (spec:L296-302)
+- **Roadmap**: Task 2C.3 (L116) covers the functional assertions but does not specify signal simulation approach. OQ-1 (L283) recommends `os.kill(os.getpid(), signal.SIGINT)` but this is not bound to the task.
+- **Impact**: Implementer may use non-signal shortcuts, weakening test fidelity.
+- **Recommended fix**: Bind OQ-1 recommendation into task 2C.3 description.
 
-#### GAP-C3: `__post_init__()` Derivation — No Test
-- **Source**: CC4, Check 7
-- **Spec evidence**: Code State Snapshot table at `v3.3-requirements-spec.md:39` — `"__post_init__() derivation | models.py:338-384 | WIRED"`
-- **Roadmap evidence**: ABSENT (searched: "__post_init__", "post_init", "derivation")
-- **Gap**: Verified wiring point performing critical config derivation (models.py:338-384) with no FR or test.
-- **Impact**: Incorrect derivation would silently break sprint behavior. This is ~46 lines of logic with no validation.
-- **Severity**: CRITICAL
-- **Adjudication**: VALID-CRITICAL — spec declares it as verified wiring point but provides no test
-- **Recommended correction**: Add FR-1.20 or equivalent to spec and corresponding task to roadmap Phase 2A.
+### GAP-M002 (MEDIUM): Test file layout divergences
+- **Source**: CC4 Agent, REQ-089
+- **Roadmap diverges from spec file layout**:
+  1. Spec: `test_wiring_points.py` → Roadmap: `test_wiring_points_e2e.py`
+  2. Spec: separate `test_budget_exhaustion.py` → Roadmap: merged into `test_gate_rollout_modes.py`
+  3. Spec: `test_pipeline_fixes.py` → Roadmap: no single named file
+  4. Spec: `audit_trail.py` → Roadmap: `audit_writer.py`
+- **Impact**: Implementation confusion. Divergences are reasonable design decisions but should be explicitly acknowledged.
+- **Recommended fix**: Add a "Spec Layout Divergences" note in the roadmap explaining each decision.
 
----
+### GAP-M003 (MEDIUM): SC-5 KPI accuracy requires value matching, not just presence
+- **Source**: CC1 Agent
+- **Spec**: SC-5 says "field VALUES are correct (not just present)" (spec:L552)
+- **Roadmap**: Task 2A.6 covers KPI report generation and wiring KPI fields but doesn't explicitly require value-correctness assertions.
+- **Impact**: Test could assert field existence without verifying computed values match expectations.
+- **Recommended fix**: Amend task 2A.6 to explicitly state: "Assert field VALUES match computed expectations from test inputs."
 
-### HIGH Findings
+### GAP-M004 (MEDIUM): run_post_task_wiring_hook has no dedicated FR-1.x E2E test
+- **Source**: CC4 Agent
+- **Detail**: The wiring manifest includes `run_post_task_wiring_hook` (spec:L578-580), but FR-1.7 covers only `run_post_phase_wiring_hook`. The task-level hook is exercised indirectly through FR-2.2 and FR-3.1 mode tests.
+- **Impact**: No dedicated wiring point E2E test for this function. Indirect coverage exists but isn't explicit.
+- **Recommended fix**: Confirm indirect coverage is sufficient, or add an FR-1.x entry for the task wiring hook.
 
-#### GAP-H1: FR-7.1 Schema vs FR-7.3 `record()` Signature — `assertion_type` Missing
-- **Source**: CC4, Check 1; CC2, Check 5
-- **Spec evidence**: FR-7.1 (line 420-441) defines 9 fields including `assertion_type`. FR-7.3 (line 456) defines `record(test_id, spec_ref, inputs, observed, expected, verdict, evidence)` — 7 params, no `assertion_type`.
-- **Gap**: Spec self-contradiction. `timestamp` is auto-generated (acceptable), but `assertion_type` has no source.
-- **Severity**: HIGH
-- **Adjudication**: NEEDS-SPEC-DECISION — spec author must resolve whether `assertion_type` is auto-derived or an 8th param.
+### GAP-L001 (LOW): FR-1.11 KPI field names not enumerated in roadmap
+- **Source**: D1 Agent
+- **Roadmap says "wiring KPI fields"** without listing `wiring_analyses_run`, `wiring_remediations_attempted`, `wiring_net_cost`.
+- **Impact**: Implementer must consult spec. Not blocking.
 
-#### GAP-H2: FR-5.1-TEST — "Empty Directory" Contradicts FR-5.1 Guard
-- **Source**: CC4, Check 1; D5 report
-- **Spec evidence**: FR-5.1 (line 366): guard fires when `"files_analyzed == 0 AND the source directory is non-empty"`. FR-5.1-TEST (line 369): `"Point run_wiring_analysis() at an empty directory. Assert FAIL."`
-- **Gap**: An empty directory has no `*.py` files, so the non-empty guard wouldn't fire. The test as described wouldn't trigger the new assertion.
-- **Severity**: HIGH
-- **Adjudication**: NEEDS-SPEC-DECISION — test should use non-empty dir with filter mismatch. Roadmap 3B.1 correctly describes "non-empty dir → FAIL".
+### GAP-L002 (LOW): FR-2.1 budget logging detail implicit
+- **Source**: D2 Agent
+- **Spec requires "budget logging includes consumed/reimbursed/available"** but roadmap task 2B.1 doesn't separately call out this assertion.
+- **Impact**: Minor — careful implementer will include it. Not blocking.
 
-#### GAP-H3: `_parse_phase_tasks()` Return Type — No Test
-- **Source**: CC4, Check 7
-- **Spec evidence**: Snapshot line 29: `"_parse_phase_tasks() returns list[TaskEntry] | None | executor.py:1075-1089 | WIRED"`
-- **Gap**: No FR tests the parser's return type contract.
-- **Severity**: HIGH
-- **Adjudication**: VALID-HIGH — FR-1.5 tests task delegation but not the parser's return type.
-- **Recommended correction**: Add assertion to FR-1.5/FR-1.6 tests that `_parse_phase_tasks()` returns expected type.
+### GAP-L003 (LOW): Smoke test file location discrepancy
+- **Source**: D7 Agent
+- **Roadmap task 2D.3** places smoke test in `test_convergence_e2e.py`, but existing smoke test is in `test_convergence_smoke.py`.
+- **Impact**: Potential duplication or confusion during implementation.
 
-#### GAP-H4: `can_run_wiring_gate()` — No Dedicated Test
-- **Source**: CC4, Check 7
-- **Spec evidence**: Snapshot line 35: `"debit_wiring() / credit_wiring() / can_run_wiring_gate() | models.py:595-630 | WIRED"`
-- **Gap**: `can_run_wiring_gate()` exercised implicitly in FR-3.2b but has no explicit test.
-- **Severity**: HIGH
-- **Adjudication**: VALID-HIGH — should confirm FR-3.2b covers this or add explicit test.
+### GAP-L004 (LOW): JSONL write contention not addressed for parallel tests
+- **Source**: CC4 Agent
+- **Impact**: If tests run in parallel, JSONL writes could interleave. Document sequential assumption or add file locking.
 
-#### GAP-H5: `check_wiring_report()` Wrapper — No Test
-- **Source**: CC4, Check 7
-- **Spec evidence**: Snapshot line 45: `"check_wiring_report() wrapper | wiring_gate.py:1079 | WIRED"`
-- **Gap**: Verified wiring point with no planned test.
-- **Severity**: HIGH
-- **Adjudication**: VALID-HIGH — add FR-1.x or confirm covered through FR-1.7/FR-2.3.
+### [ADV] GAP-H003 (HIGH): FR-1.19 SHADOW_GRACE_INFINITE MISSING from roadmap
+- **Source**: Adversarial Pass (ADV-1)
+- **Spec**: FR-1.19 (L211-217) — test SHADOW_GRACE_INFINITE constant and grace period behavior
+- **Roadmap**: ABSENT — no task references FR-1.19
+- **Fix**: Add task 2A.13 to Phase 2A
 
-#### GAP-H6: `run_post_task_wiring_hook` — No Dedicated FR-1.x E2E Test
-- **Source**: CC4, Check 4
-- **Spec evidence**: Wiring manifest line 543-545: `"target: ...run_post_task_wiring_hook, from_entry: execute_sprint, spec_ref: 'v3.1-T04'"`
-- **Gap**: FR-1.7 covers the *phase* hook, not the *task* wiring hook. The task wiring hook is exercised indirectly through FR-2.2 and FR-3.1 mode tests but has no explicit E2E test.
-- **Severity**: HIGH
-- **Adjudication**: VALID-HIGH — manifest entry without matching FR-1.x test.
+### [ADV] GAP-H004 (HIGH): FR-1.20 __post_init__ config derivation MISSING from roadmap
+- **Source**: Adversarial Pass (ADV-2)
+- **Spec**: FR-1.20 (L219-225) — test config field derivation and defaults
+- **Roadmap**: ABSENT — no task references FR-1.20
+- **Fix**: Add task 2A.14 to Phase 2A
 
-#### GAP-H7: FR-4.1 Manifest vs Body Manifest — 4 Extra Entries
-- **Source**: CC4, Check 4; CC2, Check 8
-- **Spec evidence**: FR-4.1 (lines 280-325) has 9 entries. Body manifest (lines 530-586) has 13 entries.
-- **Gap**: The authoritative manifest is a strict superset of the FR-4.1 example. 4 entries only exist in the body manifest.
-- **Severity**: HIGH
-- **Adjudication**: VALID-HIGH — the body manifest should be the source of truth; FR-4.1 should be synced.
+### [ADV] GAP-H005 (HIGH): FR-1.21 check_wiring_report wrapper MISSING from roadmap
+- **Source**: Adversarial Pass (ADV-3)
+- **Spec**: FR-1.21 (L129-135) — test wrapper is called, delegates, returns valid report
+- **Roadmap**: ABSENT — no task references FR-1.21
+- **Fix**: Add task 2A.15 to Phase 2A
 
-#### GAP-H8: CC1 Resource Table — `audit_writer.py` Missing
-- **Source**: CC1, Check 10
-- **Roadmap evidence**: Task 1A.1 delivers `tests/audit-trail/audit_writer.py` but New Files Created table omits it.
-- **Gap**: Resource tracking gap.
-- **Severity**: HIGH
-- **Adjudication**: VALID-HIGH — file missing from resource table could cause implementation oversight.
-- **Recommended correction**: Add `tests/audit-trail/audit_writer.py | 1A | JSONL audit record writer` to New Files table.
+### [ADV] GAP-H006 (HIGH): FR-2.1a handle_regression MISSING from roadmap
+- **Source**: Adversarial Pass (ADV-4)
+- **Spec**: FR-2.1a (L241-246) — test handle_regression() reachability, regression detection, logging, budget adjustment
+- **Roadmap**: ABSENT — task 2B.1 covers FR-2.1 but not FR-2.1a
+- **Fix**: Add task 2B.5 to Phase 2B
 
----
+### [ADV] GAP-M005 (MEDIUM): _parse_phase_tasks() return type untested
+- **Source**: Adversarial Pass (ADV-5)
+- **Spec**: Code State Snapshot (L29) — verified wiring point
+- **Roadmap**: Indirectly covered by task 2A.2 (FR-1.5)
+- **Fix**: Add return type assertion to task 2A.2
 
-### MEDIUM Findings
+### [ADV] GAP-L005 (LOW): can_run_wiring_gate() no dedicated test
+- **Source**: Adversarial Pass (ADV-6)
+- **Spec**: Code State Snapshot (L35)
+- **Roadmap**: Indirectly covered by FR-3.2b budget exhaustion
+- **Fix**: Document as indirectly covered
 
-#### GAP-M1: OQ-1 Signal Mechanism Not Bound to Task
-- **Source**: D3 report
-- **Gap**: `os.kill(os.getpid(), signal.SIGINT)` recommendation exists in Open Questions but is not bound to task 2C.3.
-- **Adjudication**: VALID-MEDIUM
-- **Recommended correction**: Amend task 2C.3 to mandate signal injection mechanism.
+### REJECTED Findings (from CC4 — spec FRs exist)
 
-#### GAP-M2: FR-3.3 Signal Simulation Unspecified in Roadmap
-- **Source**: D3 report
-- **Gap**: Task 2C.3 covers functional assertions but not signal simulation approach.
-- **Adjudication**: VALID-MEDIUM (linked to GAP-M1)
+| CC4 Finding | Reason for Rejection |
+|-------------|---------------------|
+| C1: handle_regression missing | **REJECTED** — FR-2.1a (spec:L241-246) explicitly covers handle_regression() |
+| C2: SHADOW_GRACE_INFINITE missing | **REJECTED** — FR-1.19 (spec:L211-217) explicitly covers this |
+| C3: __post_init__() missing | **REJECTED** — FR-1.20 (spec:L219-225) explicitly covers this |
+| H5: check_wiring_report() missing | **REJECTED** — FR-1.21 (spec:L129-135) explicitly covers this |
 
-#### GAP-M3: NFR-4 Audit Trail Retrofit for Existing Tests
-- **Source**: D7 report
-- **Gap**: Roadmap "extend" tasks (2D.1-2D.3) don't explicitly state that existing `tests/roadmap/` tests need `audit_trail.record()` calls.
-- **Adjudication**: VALID-MEDIUM — existing ~16 tests may not emit JSONL.
-- **Recommended correction**: Add explicit note to 2D.1-2D.3 that audit trail retrofit is part of "extend" scope.
+### NEEDS-SPEC-DECISION
 
-#### GAP-M4: FR-6.2-T17-T22 Not Decomposed
-- **Source**: D7 report
-- **Gap**: Roadmap task 2D.6 provides file location but doesn't break T17-T22 into individual test descriptions.
-- **Adjudication**: VALID-MEDIUM — scope ambiguity for implementation.
-
-#### GAP-M5: RISK-4 No Implementation Task for Timestamped Filenames
-- **Source**: D6 report
-- **Gap**: JSONL rotation mitigation documented in risk table but no task implements it.
-- **Adjudication**: VALID-MEDIUM
-
----
-
-### LOW Findings
-
-#### GAP-L1: FR-1.11 KPI Field Names Not Enumerated in Roadmap
-- **Source**: D1 report
-- **Adjudication**: VALID-LOW — "wiring KPI fields" is adequate shorthand.
-
-#### GAP-L2: SC-5 "Accuracy" vs "Presence" — Semantic Gap
-- **Source**: CC1, Check 8
-- **Adjudication**: VALID-LOW — single test should assert values, not just presence.
-
-#### GAP-L3: FR-6.1-T12 File Location Discrepancy
-- **Source**: D7 report
-- **Adjudication**: VALID-LOW — smoke test in `test_convergence_smoke.py`, roadmap targets `test_convergence_e2e.py`.
-
-#### GAP-L4: 4 Filename Mismatches Between Spec and Roadmap
-- **Source**: CC4, Check 5
-- **Adjudication**: VALID-LOW — cosmetic, reconcile before implementation.
-
-#### GAP-L5: FR-7.3 Auto-Flush Granularity — Session vs Per-Test
-- **Source**: D6 report
-- **Adjudication**: VALID-LOW — spec says "after each test", roadmap says "on session end". Per-test is safer.
-
-#### GAP-L6: CC2 v3.05-SC Numbering Ambiguity in FR-6.1-T11
-- **Source**: CC2, Check 5a
-- **Adjudication**: VALID-LOW — "SC-1 through SC-6" likely references v3.05-SC numbering, not v3.3-SC.
+| ID | Issue | Spec Location |
+|----|-------|--------------|
+| NSD-001 | FR-7.1 defines 9-field JSONL schema but FR-7.3 `record()` has only 7 listed params — `duration_ms` is auto-computed but `assertion_type` inclusion in method signature is ambiguous | spec:FR-7.1 (L448-474) vs FR-7.3 (L486-493) |
 
 ---
 
 ## Cross-Cutting Concern Report
 
-| Concern | Primary Agent | Secondary Agents | Status |
-|---------|--------------|------------------|--------|
-| NFR-1 (no mocking) | CC4 | D1, D3, D5, D7 | COVERED — 3 roadmap locations + Phase 4 grep |
-| NFR-4 (audit trail all tests) | D6 | D7 | PARTIAL — new tests covered, existing tests/roadmap/ not explicitly retrofitted |
-| FR-2.4 (cross-path coherence) | D2 | D1, D3 | COVERED — invariant formula verbatim |
-| FR-4.3 (GateCriteria integration) | D4 | D5 | COVERED — task 3A.4 |
-| FR-5.2 (_run_checkers integration) | D5 | D4 | COVERED — task 3A.3 |
-| SEQ-1 through SEQ-4 | CC3 | All | COVERED — all 4 satisfied |
-
-**Gaps in cross-cutting**: NFR-4 audit trail retrofit is the only cross-cutting gap (GAP-M3).
+| Agent | Result | Findings |
+|-------|--------|----------|
+| CC1: Roadmap Consistency | PASS (1 FAIL, 1 WARNING) | Resource table gap (GAP-H002), SC-5 accuracy (GAP-M003) |
+| CC2: Spec Consistency | PASS (minor) | Test file naming mismatches (informational), FR numbering (FR-1.19-1.21 added after FR-1.18 — valid but unusual) |
+| CC3: Dependency/Ordering | PASS (2 WARNINGs) | Phase 2 sub-phase ordering could be explicit; OQ-7 timing |
+| CC4: Completeness | PASS (4 false positives corrected) | 4 findings REJECTED after adjudication; legitimate: GAP-M004, GAP-L004 |
 
 ---
 
 ## Integration Wiring Audit
 
-| ID | Integration | system_a | system_b | system_a_side | system_b_side | wiring_task | error_handling | verdict |
-|----|------------|----------|----------|---------------|---------------|-------------|----------------|---------|
-| INT-1 | `_subprocess_factory` | Test harness | External claude binary | COVERED (all tests use it) | COVERED (NFR-1) | COVERED (Appendix A.1) | COVERED (factory pattern) | FULLY_WIRED |
-| INT-2 | Phase delegation branch | `execute_phase_tasks()` | `ClaudeProcess` | COVERED (FR-1.5) | COVERED (FR-1.6) | COVERED (task 2A.2) | COVERED (FR-1.9 accumulation) | FULLY_WIRED |
-| INT-3 | `run_post_phase_wiring_hook()` | Per-task path | Per-phase path | COVERED (FR-1.7) | COVERED (FR-1.7) | COVERED (task 2A.3) | COVERED (FR-1.10) | FULLY_WIRED |
-| INT-4 | `run_post_task_anti_instinct_hook()` | Hook caller | TrailingGateResult | COVERED (FR-1.8) | COVERED (return type test) | COVERED (task 2A.4) | COVERED (FR-3.1) | FULLY_WIRED |
-| INT-5 | `_resolve_wiring_mode()` | Config reader | Mode dispatcher | COVERED (FR-1.12) | COVERED (FR-3.1a-d) | COVERED (task 2A.7) | COVERED (Appendix A.5) | FULLY_WIRED |
-| INT-6 | `_run_checkers()` registry | Structural checker | Fidelity checker | COVERED (existing) | COVERED (FR-5.2) | COVERED (task 3A.3) | COVERED (Appendix A.6) | FULLY_WIRED |
-| INT-7 | `registry.merge_findings()` | Structural findings | Semantic findings | COVERED (FR-1.16) | COVERED (FR-1.16) | COVERED (task 2A.10) | COVERED (Appendix A.7) | FULLY_WIRED |
-| INT-8 | Convergence registry constructor | Path | release_id + spec_hash | COVERED (FR-1.15) | COVERED (FR-1.15) | COVERED (task 2A.10) | COVERED (Appendix A.8) | FULLY_WIRED |
-| INT-9 | `DeferredRemediationLog` | Shadow findings writer | Blocking failure writer | COVERED (FR-1.13) | COVERED (FR-1.10) | COVERED (tasks 2A.5, 2A.8) | COVERED (Appendix A.9) | FULLY_WIRED |
-
-**All 9 integration points are FULLY_WIRED.**
-
----
-
-## Completeness Boundary Check
-
-- Total requirements in universe: 89
-- Requirements assessed by domain agents: 89 (sum across D1-D7 + cross-cutting)
-- Requirements assessed by zero agents: **0**
-- **No boundary gaps detected.**
+The roadmap's Appendix A documents 9 integration points (A.1-A.9). All are fully described with type, wired components, owning phase, cross-references, and architect notes. No UNWIRED or PARTIALLY_WIRED integrations detected.
 
 ---
 
@@ -270,25 +204,25 @@ timestamp: "2026-03-23T00:00:00Z"
 
 | Metric | Value |
 |--------|-------|
-| Full Coverage Score | 86 / 89 = **96.6%** |
-| Weighted Coverage Score | (86 + 0.5×2 + 0.25×0) / 89 = 87 / 89 = **97.8%** |
-| Gap Score | (1 + 0) / 89 = **1.1%** |
-| Confidence Interval | Base ±2%, +1% (89 reqs > 50), +0% (0 failed agents) = **±3%** |
+| Full Coverage Score | 91.7% (77/84) |
+| Weighted Coverage Score | 93.5% ((77 + 0.5×3) / 84) |
+| Gap Score | 4.8% (4 MISSING + 0 CONFLICTING) |
+| Confidence Interval | +/- 3% |
 
 ---
 
 ## Agent Reports Index
 
-| File | Agent | Domain | Status |
-|------|-------|--------|--------|
-| 01-agent-D1-wiring-e2e.md | D1 | Wiring E2E (FR-1) | Complete |
-| 01-agent-D2-turnledger-lifecycle.md | D2 | TurnLedger Lifecycle (FR-2) | Complete |
-| 01-agent-D3-gate-modes.md | D3 | Gate Modes & Budget (FR-3) | Complete |
-| 01-agent-D4-reachability.md | D4 | Reachability Framework (FR-4) | Complete |
-| 01-agent-D5-pipeline-fixes.md | D5 | Pipeline Fixes (FR-5) | Complete |
-| 01-agent-D6-audit-trail.md | D6 | Audit Trail (FR-7) | Complete |
-| 01-agent-D7-qa-gaps.md | D7 | QA Gap Closure (FR-6) | Complete |
-| 01-agent-CC1-internal-consistency-roadmap.md | CC1 | Roadmap Internal Consistency | Complete |
-| 01-agent-CC2-internal-consistency-spec.md | CC2 | Spec Internal Consistency | Complete |
-| 01-agent-CC3-dependency-ordering.md | CC3 | Dependency & Ordering | Complete |
-| 01-agent-CC4-completeness-sweep.md | CC4 | Completeness Sweep | Complete |
+| Agent | File | Status |
+|-------|------|--------|
+| D1: Wiring E2E | 01-agent-D1-wiring-e2e.md | Complete (25/25 COVERED) |
+| D2: TurnLedger | 01-agent-D2-turnledger-lifecycle.md | Complete (7/7 COVERED) |
+| D3: Gate Modes | 01-agent-D3-gate-modes.md | Complete (14/16, 1 PARTIAL) |
+| D4: Reachability | 01-agent-D4-reachability.md | Complete (10/10 COVERED) |
+| D5: Pipeline Fixes | 01-agent-D5-pipeline-fixes.md | Complete (10/10 COVERED) |
+| D6: Audit Trail | 01-agent-D6-audit-trail.md | Complete (6/6 COVERED) |
+| D7: QA Gaps | 01-agent-D7-qa-gaps.md | Complete (11/12, 1 PARTIAL) |
+| CC1: Roadmap Consistency | 01-agent-CC1-internal-consistency-roadmap.md | Complete |
+| CC2: Spec Consistency | 01-agent-CC2-internal-consistency-spec.md | Complete |
+| CC3: Dependency/Ordering | 01-agent-CC3-dependency-ordering.md | Complete |
+| CC4: Completeness | 01-agent-CC4-completeness-sweep.md | Complete |

@@ -1,0 +1,158 @@
+# Wiring Manifest — v3.3 TurnLedger Validation
+#
+# Populated manifest for the FR-4 reachability gate.
+# Declares entry points and target symbols that must be statically
+# reachable from those entry points.
+#
+# Schema: tests/v3.3/wiring_manifest_schema.yaml
+# Task: T01.07 (R-008)
+# Consumed by: ReachabilityAnalyzer (src/superclaude/cli/audit/reachability.py)
+
+wiring_manifest:
+
+  # ──────────────────────────────────────────────────────────────────
+  # ENTRY POINTS
+  # ──────────────────────────────────────────────────────────────────
+  #
+  # These are the top-level callable functions that serve as roots
+  # for the static reachability analysis.
+
+  entry_points:
+    # Sprint executor — primary orchestration entry point
+    - module: superclaude.cli.sprint.executor
+      function: execute_sprint
+
+    # Per-task phase executor — called by execute_sprint for task-inventory phases
+    - module: superclaude.cli.sprint.executor
+      function: execute_phase_tasks
+
+    # Roadmap executor — entry point for convergence pipeline (FR-1.15–FR-1.18)
+    - module: superclaude.cli.roadmap.executor
+      function: execute_roadmap
+
+  # ──────────────────────────────────────────────────────────────────
+  # REQUIRED REACHABLE SYMBOLS
+  # ──────────────────────────────────────────────────────────────────
+  #
+  # Every target below must be statically reachable from the named
+  # from_entry via the AST call-chain analyzer.
+
+  required_reachable:
+
+    # --- FR-1.1: TurnLedger Construction ---
+    - target: superclaude.cli.sprint.models.TurnLedger
+      from_entry: execute_sprint
+      spec_ref: "FR-1.1"
+
+    # --- FR-1.2: ShadowGateMetrics Construction ---
+    - target: superclaude.cli.sprint.models.ShadowGateMetrics
+      from_entry: execute_sprint
+      spec_ref: "FR-1.2"
+
+    # --- FR-1.3: DeferredRemediationLog Construction ---
+    - target: superclaude.cli.pipeline.trailing_gate.DeferredRemediationLog
+      from_entry: execute_sprint
+      spec_ref: "FR-1.3"
+
+    # --- FR-1.4: SprintGatePolicy Construction ---
+    - target: superclaude.cli.sprint.executor.SprintGatePolicy
+      from_entry: execute_sprint
+      spec_ref: "FR-1.4"
+
+    # --- FR-1.5: Phase Delegation — Task Inventory Path ---
+    - target: superclaude.cli.sprint.executor.execute_phase_tasks
+      from_entry: execute_sprint
+      spec_ref: "FR-1.5"
+
+    # --- FR-1.6: Phase Delegation — Freeform Fallback (ClaudeProcess) ---
+    - target: superclaude.cli.sprint.process.ClaudeProcess
+      from_entry: execute_sprint
+      spec_ref: "FR-1.6"
+
+    # --- FR-1.7: Post-Phase Wiring Hook — Both Paths ---
+    - target: superclaude.cli.sprint.executor.run_post_phase_wiring_hook
+      from_entry: execute_sprint
+      spec_ref: "FR-1.7"
+
+    - target: superclaude.cli.sprint.executor.run_post_phase_wiring_hook
+      from_entry: execute_phase_tasks
+      spec_ref: "FR-1.7"
+
+    # --- FR-1.8: Anti-Instinct Hook Return Type ---
+    - target: superclaude.cli.sprint.executor.run_post_task_anti_instinct_hook
+      from_entry: execute_phase_tasks
+      spec_ref: "FR-1.8"
+
+    # --- FR-1.9: Gate Result Accumulation ---
+    # all_gate_results is a local list of TrailingGateResult in execute_sprint.
+    # Reachability is proven by TrailingGateResult construction within the
+    # wiring hook chain; the extend() call site aggregates them.
+    - target: superclaude.cli.pipeline.trailing_gate.TrailingGateResult
+      from_entry: execute_sprint
+      spec_ref: "FR-1.9"
+
+    # --- FR-1.10: Failed Gate → Remediation Log ---
+    - target: superclaude.cli.sprint.executor._log_shadow_findings_to_remediation_log
+      from_entry: execute_sprint
+      spec_ref: "FR-1.10"
+
+    # --- FR-1.11: KPI Report Generation ---
+    - target: superclaude.cli.sprint.kpi.build_kpi_report
+      from_entry: execute_sprint
+      spec_ref: "FR-1.11"
+
+    # --- FR-1.12: Wiring Mode Resolution ---
+    - target: superclaude.cli.sprint.executor._resolve_wiring_mode
+      from_entry: execute_phase_tasks
+      spec_ref: "FR-1.12"
+
+    # --- FR-1.13: Shadow Findings → Remediation Log ---
+    - target: superclaude.cli.sprint.executor._log_shadow_findings_to_remediation_log
+      from_entry: execute_phase_tasks
+      spec_ref: "FR-1.13"
+
+    # --- FR-1.14: BLOCKING Remediation Lifecycle ---
+    - target: superclaude.cli.sprint.executor._format_wiring_failure
+      from_entry: execute_phase_tasks
+      spec_ref: "FR-1.14"
+
+    - target: superclaude.cli.sprint.executor._recheck_wiring
+      from_entry: execute_phase_tasks
+      spec_ref: "FR-1.14"
+
+    # --- FR-1.15: Convergence Registry Args ---
+    - target: superclaude.cli.roadmap.convergence.DeviationRegistry.load_or_create
+      from_entry: execute_roadmap
+      spec_ref: "FR-1.15"
+
+    # --- FR-1.16: Convergence Merge Args ---
+    - target: superclaude.cli.roadmap.convergence.DeviationRegistry.merge_findings
+      from_entry: execute_roadmap
+      spec_ref: "FR-1.16"
+
+    # --- FR-1.17: Convergence Remediation Dict→Finding ---
+    - target: superclaude.cli.roadmap.executor._run_remediation
+      from_entry: execute_roadmap
+      spec_ref: "FR-1.17"
+
+    # --- FR-1.18: Budget Constants ---
+    - target: superclaude.cli.roadmap.convergence.MAX_CONVERGENCE_BUDGET
+      from_entry: execute_roadmap
+      spec_ref: "FR-1.18"
+
+    # --- FR-1.19: SHADOW_GRACE_INFINITE Constant ---
+    # Reachable indirectly via SprintConfig.__post_init__ which is
+    # invoked during config construction before execute_sprint runs.
+    - target: superclaude.cli.sprint.models.SHADOW_GRACE_INFINITE
+      from_entry: execute_sprint
+      spec_ref: "FR-1.19"
+
+    # --- FR-1.20: Post-Init Config Derivation ---
+    - target: superclaude.cli.sprint.models.SprintConfig.__post_init__
+      from_entry: execute_sprint
+      spec_ref: "FR-1.20"
+
+    # --- FR-1.21: check_wiring_report() Wrapper Call ---
+    - target: superclaude.cli.audit.wiring_gate.check_wiring_report
+      from_entry: execute_sprint
+      spec_ref: "FR-1.21"

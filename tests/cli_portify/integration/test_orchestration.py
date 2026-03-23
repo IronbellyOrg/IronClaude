@@ -14,7 +14,6 @@ Per D-0041: Integration test suite for Phase 8 validation.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -213,36 +212,34 @@ class TestHappyPathIntegration:
 class TestDryRunIntegration:
     """--dry-run halts after Step 4, phases 3-4 marked skipped."""
 
-    def test_dry_run_emits_contract(self, config_with_analysis, capsys):
+    def test_dry_run_returns_skipped(self, config_with_analysis):
+        """Dry-run returns SKIPPED before subprocess execution."""
         config_with_analysis.dry_run = True
         with patch_portify_process("design-pipeline"):
             result = run_design_pipeline(config_with_analysis)
 
         assert result.portify_status == PortifyStatus.SKIPPED
-        captured = capsys.readouterr()
-        contract = json.loads(captured.out)
-        assert contract["status"] == "dry_run"
 
-    def test_dry_run_phases_3_4_skipped(self, config_with_analysis, capsys):
+    def test_dry_run_no_stdout_contract(self, config_with_analysis, capsys):
+        """Dry-run halts before synthesis — no JSON contract printed to stdout.
+
+        Contract emission is handled centrally by the executor.
+        """
         config_with_analysis.dry_run = True
         with patch_portify_process("design-pipeline"):
             run_design_pipeline(config_with_analysis)
 
         captured = capsys.readouterr()
-        contract = json.loads(captured.out)
-        # Phases 3-4 (indices 2, 3) should be skipped
-        assert contract["phases"][2]["status"] == "skipped"
-        assert contract["phases"][3]["status"] == "skipped"
+        # No contract printed; executor handles it
+        assert captured.out.strip() == ""
 
-    def test_dry_run_phases_1_2_completed(self, config_with_analysis, capsys):
+    def test_dry_run_no_artifact_path(self, config_with_analysis):
+        """Dry-run should not write any artifact."""
         config_with_analysis.dry_run = True
         with patch_portify_process("design-pipeline"):
-            run_design_pipeline(config_with_analysis)
+            result = run_design_pipeline(config_with_analysis)
 
-        captured = capsys.readouterr()
-        contract = json.loads(captured.out)
-        assert contract["phases"][0]["status"] == "completed"
-        assert contract["phases"][1]["status"] == "completed"
+        assert result.artifact_path is None or result.artifact_path == ""
 
     def test_dry_run_contract_builder(self):
         """build_dry_run_contract marks phases 3-4 as skipped per SC-011."""

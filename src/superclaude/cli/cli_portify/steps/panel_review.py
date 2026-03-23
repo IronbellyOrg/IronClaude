@@ -8,7 +8,7 @@ Implements:
 - count_unaddressed_criticals(): count unresolved CRITICAL findings (FR-032)
 - capture_section_hashes(): hash all ## sections for additive-only enforcement
 - generate_panel_report(): write panel-report.md with YAML frontmatter (FR-035)
-- prompt_user_review(): ask user to accept/reject the panel report
+- User review gate delegated to canonical review.py
 - DOWNSTREAM_READINESS_THRESHOLD: 7.0 constant
 """
 
@@ -32,6 +32,7 @@ from superclaude.cli.cli_portify.models import (
     PortifyStepResult,
 )
 from superclaude.cli.cli_portify.process import PortifyProcess
+from superclaude.cli.cli_portify.review import review_gate
 from superclaude.cli.cli_portify.utils import extract_sections, hash_section
 
 
@@ -237,25 +238,6 @@ def generate_panel_report(
 
 
 # ---------------------------------------------------------------------------
-# User review prompt
-# ---------------------------------------------------------------------------
-
-
-def prompt_user_review(artifact_path: str) -> bool:
-    """Ask the user whether to accept the panel report artifact.
-
-    Returns True if accepted, False if rejected/EOF/interrupt.
-    """
-    print(f"\n[Panel Review] Artifact produced: {artifact_path}")
-    print("Accept and continue? [y/N] ", end="", flush=True)
-    try:
-        response = input().strip().lower()
-    except (EOFError, KeyboardInterrupt):
-        return False
-    return response in ("y", "yes")
-
-
-# ---------------------------------------------------------------------------
 # run_panel_review
 # ---------------------------------------------------------------------------
 
@@ -393,21 +375,22 @@ def run_panel_review(config: PortifyConfig) -> PortifyStepResult:
         output_path=report_path,
     )
 
-    # --- User review gate (if not skipped) ---
-    if not config.skip_review:
-        accepted = prompt_user_review(str(output_artifact))
-        if not accepted:
-            return PortifyStepResult(
-                step_name=step_name,
-                step_number=step_number,
-                phase=phase,
-                portify_status=PortifyStatus.FAIL,
-                failure_classification=FailureClassification.USER_REJECTION,
-                gate_tier=gate_tier,
-                artifact_path=str(output_artifact),
-                error_message="User rejected panel review artifact",
-                review_accepted=False,
-            )
+    # --- User review gate — delegates to canonical review.py ---
+    should_continue, decision = review_gate(
+        step_name, str(output_artifact), skip_review=config.skip_review,
+    )
+    if not should_continue:
+        return PortifyStepResult(
+            step_name=step_name,
+            step_number=step_number,
+            phase=phase,
+            portify_status=PortifyStatus.FAIL,
+            failure_classification=FailureClassification.USER_REJECTION,
+            gate_tier=gate_tier,
+            artifact_path=str(output_artifact),
+            error_message="User rejected panel review artifact",
+            review_accepted=False,
+        )
 
     # Write panel-review.md as canonical artifact name (alongside panel-reviewed-spec.md)
     panel_review_path = results_dir / "panel-review.md"

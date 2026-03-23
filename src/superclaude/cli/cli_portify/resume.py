@@ -103,6 +103,13 @@ TOTAL_STEPS: int = len(RESUMABILITY_MATRIX)
 # ---------------------------------------------------------------------------
 
 
+def get_resumable_step_names() -> frozenset[str]:
+    """Return the set of step names that support resume."""
+    return frozenset(
+        name for name, entry in RESUMABILITY_MATRIX.items() if entry.resumable
+    )
+
+
 def is_resumable(step_name: str) -> bool:
     """Return True if the step can be resumed mid-pipeline."""
     entry = RESUMABILITY_MATRIX.get(step_name)

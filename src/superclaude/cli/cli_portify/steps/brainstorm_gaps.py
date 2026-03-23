@@ -188,7 +188,7 @@ def run_brainstorm_gaps(config: PortifyConfig) -> PortifyStepResult:
             step_number=STEP_NUMBER,
             phase=PHASE,
             portify_status=PortifyStatus.FAIL,
-            failure_classification=FailureClassification.MISSING_ARTIFACT,
+            failure_classification=FailureClassification.GATE_FAILURE,
             gate_tier=GATE_TIER,
             error_message=f"Subprocess exited {result.exit_code}",
             duration_seconds=duration,
@@ -205,6 +205,20 @@ def run_brainstorm_gaps(config: PortifyConfig) -> PortifyStepResult:
     # Write artifact if not already written
     if not artifact_path.exists():
         artifact_path.write_text(content, encoding="utf-8")
+
+    # Gate check (SC-006): Section 12 content must be present
+    if not has_section_12_content(content):
+        return PortifyStepResult(
+            step_name=STEP_NAME,
+            step_number=STEP_NUMBER,
+            phase=PHASE,
+            portify_status=PortifyStatus.FAIL,
+            failure_classification=FailureClassification.GATE_FAILURE,
+            gate_tier=GATE_TIER,
+            artifact_path=str(artifact_path),
+            error_message="Gate SC-006 failed: Section 12 content missing",
+            duration_seconds=duration,
+        )
 
     return PortifyStepResult(
         step_name=STEP_NAME,

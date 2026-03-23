@@ -30,7 +30,6 @@ from superclaude.cli.cli_portify.steps.validate_config import (
     ERR_NAME_COLLISION,
     ERR_OUTPUT_NOT_WRITABLE,
     ValidateConfigResult,
-    _classify_warnings,
     run_validate_config,
 )
 

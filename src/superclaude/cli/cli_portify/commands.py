@@ -1,7 +1,7 @@
 """CLI Portify Click command group and subcommands.
 
 Defines the ``superclaude cli-portify`` command group with the ``run`` subcommand
-and all 7 user-facing options (FR-049).
+and all user-facing options (FR-049). Merges options from the former cli.py module.
 """
 
 from __future__ import annotations
@@ -28,9 +28,11 @@ def cli_portify_group():
 
 
 @cli_portify_group.command()
-@click.argument("workflow", metavar="WORKFLOW")
+@click.argument("workflow", metavar="TARGET")
 @click.option(
+    "--cli-name",
     "--name",
+    "cli_name",
     default="",
     help="Override derived CLI name for the portified pipeline",
 )
@@ -39,6 +41,33 @@ def cli_portify_group():
     "output_dir",
     default="",
     help="Output directory for generated pipeline (default: alongside workflow)",
+)
+@click.option(
+    "--commands-dir",
+    default="",
+    help="Override directory to search for command .md files",
+)
+@click.option(
+    "--skills-dir",
+    default="",
+    help="Override directory to search for skill directories",
+)
+@click.option(
+    "--agents-dir",
+    default="",
+    help="Override directory to search for agent .md files",
+)
+@click.option(
+    "--include-agent",
+    "include_agents",
+    multiple=True,
+    help="Include specific agent by name (may be repeated; empty values filtered)",
+)
+@click.option(
+    "--save-manifest",
+    "save_manifest",
+    default="",
+    help="Write component manifest Markdown to this path",
 )
 @click.option(
     "--max-turns",
@@ -59,10 +88,17 @@ def cli_portify_group():
 )
 @click.option(
     "--resume",
+    "--start",
     "resume_step",
     default="",
     metavar="STEP_ID",
     help="Resume pipeline from a specific step ID",
+)
+@click.option(
+    "--max-convergence",
+    type=int,
+    default=3,
+    help="Maximum convergence iterations for panel-review (default: 3)",
 )
 @click.option(
     "--debug",
@@ -72,12 +108,18 @@ def cli_portify_group():
 )
 def run(
     workflow: str,
-    name: str,
+    cli_name: str,
     output_dir: str,
+    commands_dir: str,
+    skills_dir: str,
+    agents_dir: str,
+    include_agents: tuple,
+    save_manifest: str,
     max_turns: int,
     model: str,
     dry_run: bool,
     resume_step: str,
+    max_convergence: int,
     debug: bool,
 ) -> None:
     """Portify WORKFLOW into a programmatic CLI pipeline.
@@ -88,29 +130,83 @@ def run(
     Runs the full portification pipeline: analysis, specification synthesis,
     release spec generation, and panel review.
     """
-    from superclaude.cli.cli_portify.config import load_portify_config
+    from pathlib import Path
+
+    from superclaude.cli.cli_portify.config import (
+        load_portify_config,
+        validate_portify_config,
+    )
     from superclaude.cli.cli_portify.executor import run_portify
     from superclaude.cli.cli_portify.models import PortifyValidationError
+
+    # Filter empty include-agent values
+    filtered_agents = [a for a in include_agents if a.strip()]
 
     try:
         config = load_portify_config(
             workflow_path=workflow,
             output_dir=output_dir or None,
-            cli_name=name or None,
+            cli_name=cli_name or None,
             dry_run=dry_run,
             debug=debug,
             max_turns=max_turns,
             model=model,
+            max_convergence=max_convergence,
         )
-        # Thread resume step into config if provided
+
+        # Apply optional directory overrides
+        if commands_dir:
+            config.commands_dir = Path(commands_dir)
+        if skills_dir:
+            config.skills_dir = Path(skills_dir)
+        if agents_dir:
+            config.agents_dir = Path(agents_dir)
+        if save_manifest:
+            config.save_manifest_path = Path(save_manifest)
+        if filtered_agents:
+            config._include_agents_list = list(filtered_agents)
+            config.include_agents = True
+
+        # Set resume_from directly (now a proper field on PortifyConfig)
         if resume_step:
-            config.resume_from = resume_step  # type: ignore[attr-defined]
+            config.resume_from = resume_step
+
+        # Validate config before proceeding
+        validation_errors = validate_portify_config(config)
+        if validation_errors:
+            for err in validation_errors:
+                click.echo(f"Error: {err}", err=True)
+            sys.exit(1)
+
+        if dry_run:
+            click.echo(f"cli-portify dry-run: {workflow}")
+            try:
+                click.echo(f"Derived CLI name: {config.derive_cli_name()}")
+            except Exception:
+                pass
+            return
 
         run_portify(config)
 
     except PortifyValidationError as exc:
         click.echo(str(exc), err=True)
         sys.exit(1)
+    except FileNotFoundError as exc:
+        click.echo(f"File not found: {exc}", err=True)
+        sys.exit(1)
+    except PermissionError as exc:
+        click.echo(f"Permission denied: {exc}", err=True)
+        sys.exit(1)
+    except OSError as exc:
+        click.echo(f"OS error: {exc}", err=True)
+        sys.exit(1)
     except KeyboardInterrupt:
         click.echo("\nEXIT_RECOMMENDATION: INTERRUPTED", err=True)
         sys.exit(0)
+    except Exception as exc:
+        import traceback
+
+        if debug:
+            traceback.print_exc()
+        click.echo(f"Unexpected error: {exc}", err=True)
+        sys.exit(1)

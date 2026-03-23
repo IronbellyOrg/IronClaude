@@ -7,26 +7,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-# ---------------------------------------------------------------------------
-# Signal Vocabulary (T03.11)
-# ---------------------------------------------------------------------------
-
-STEP_START: str = "step_start"
-STEP_COMPLETE: str = "step_complete"
-STEP_ERROR: str = "step_error"
-STEP_TIMEOUT: str = "step_timeout"
-GATE_PASS: str = "gate_pass"
-GATE_FAIL: str = "gate_fail"
-
-SIGNAL_VOCABULARY: tuple[str, ...] = (
-    STEP_START,
-    STEP_COMPLETE,
-    STEP_ERROR,
-    STEP_TIMEOUT,
-    GATE_PASS,
-    GATE_FAIL,
-)
-
 
 def parse_frontmatter(content: str) -> tuple[dict[str, Any], str]:
     """Parse YAML-style frontmatter from a Markdown string.
@@ -96,28 +76,6 @@ def extract_sections(content: str) -> dict[str, str]:
         body = content[start:end].strip()
         sections[title] = body
     return sections
-
-
-def verify_additive_only(old_hashes: dict[str, str], updated: str) -> list[str]:
-    """Verify that updated content does not remove or modify existing sections.
-
-    Args:
-        old_hashes: Dict of {section_title: hash} from before the update.
-        updated: New Markdown content to check.
-
-    Returns:
-        List of violation strings (empty if no violations).
-    """
-    new_sections = extract_sections(updated)
-    violations: list[str] = []
-    for title, old_hash in old_hashes.items():
-        if title not in new_sections:
-            violations.append(f"Section '{title}' was removed")
-        else:
-            new_hash = hash_section(new_sections[title])
-            if new_hash != old_hash:
-                violations.append(f"Section '{title}' was modified")
-    return violations
 
 
 def count_lines(path: Path) -> int:

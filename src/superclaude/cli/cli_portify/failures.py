@@ -23,9 +23,10 @@ from .models import (
     PortifyStepResult,
     ResumeContext,
 )
+from .resume import get_resumable_step_names
 
 # Steps that support --start <step-name> resume
-_RESUMABLE_STEPS = frozenset({"brainstorm-gaps", "synthesize-spec", "panel-review"})
+_RESUMABLE_STEPS = get_resumable_step_names()
 
 # Step 0 and Step 1 timeout limits (NFR-001)
 STEP_0_TIMEOUT_SECONDS = 30

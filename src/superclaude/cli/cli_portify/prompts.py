@@ -340,28 +340,6 @@ class PanelReviewPrompt(BasePromptBuilder):
         )
 
 
-# ---------------------------------------------------------------------------
-# PROMPT_BUILDERS registry
-# ---------------------------------------------------------------------------
-
-PROMPT_BUILDERS: dict[str, type[BasePromptBuilder]] = {
-    "analyze-workflow": AnalyzeWorkflowPrompt,
-    "design-pipeline": DesignPipelinePrompt,
-    "synthesize-spec": SynthesizeSpecPrompt,
-    "brainstorm-gaps": BrainstormGapsPrompt,
-    "panel-review": PanelReviewPrompt,
-}
-
-
-def get_prompt_builder(step_name: str, ctx: PromptContext) -> BasePromptBuilder:
-    """Instantiate and return the prompt builder for the given step name.
-
-    Raises:
-        KeyError: If no builder is registered for step_name.
-    """
-    if step_name not in PROMPT_BUILDERS:
-        raise KeyError(f"No prompt builder registered for step: '{step_name}'")
-    return PROMPT_BUILDERS[step_name](ctx)
 
 
 # ---------------------------------------------------------------------------
@@ -934,32 +912,3 @@ def build_release_spec_prompt(template_content: str, cli_name: str = "") -> str:
     )
 
 
-# ---------------------------------------------------------------------------
-# T10.04: maybe_split_prompt() — prompt splitting (FR-050, AC-010)
-# ---------------------------------------------------------------------------
-
-
-def maybe_split_prompt(prompt: str, workdir: Path) -> str:
-    """Split prompts exceeding 300 lines to portify-prompts.md.
-
-    If the prompt has more than 300 lines, writes the full prompt to
-    ``workdir/portify-prompts.md`` and returns an abbreviated reference
-    string.  Otherwise returns the prompt unchanged.
-
-    Args:
-        prompt: Prompt string to evaluate.
-        workdir: Working directory where portify-prompts.md will be written.
-
-    Returns:
-        Original prompt if ≤300 lines; abbreviated reference string if >300.
-    """
-    if len(prompt.splitlines()) > 300:
-        workdir.mkdir(parents=True, exist_ok=True)
-        prompts_file = workdir / "portify-prompts.md"
-        prompts_file.write_text(prompt, encoding="utf-8")
-        return (
-            f"[Prompt exceeds 300 lines — full prompt written to "
-            f"{prompts_file}]\n\n"
-            f"@{prompts_file}"
-        )
-    return prompt

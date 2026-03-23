@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 
+from superclaude.cli.cli_portify.convergence import ConvergenceState
 from superclaude.cli.cli_portify.models import (
     AgentEntry,
     AmbiguousPathError,
@@ -23,7 +24,6 @@ from superclaude.cli.cli_portify.models import (
     ComponentEntry,
     ComponentInventory,
     ComponentTree,
-    ConvergenceState,
     DerivationFailedError,
     ERR_AMBIGUOUS_TARGET,
     ERR_BROKEN_ACTIVATION,
@@ -391,15 +391,12 @@ class TestDomainModels:
 
     def test_domain_models_convergence_state_enum_exists(self) -> None:
         assert issubclass(
-            ConvergenceState, type(ConvergenceState.NOT_STARTED).__mro__[0]
+            ConvergenceState, type(ConvergenceState.RUNNING).__mro__[0]
         )
 
     def test_domain_models_convergence_state_members(self) -> None:
         expected = {
-            "NOT_STARTED",
-            "REVIEWING",
-            "INCORPORATING",
-            "SCORING",
+            "RUNNING",
             "CONVERGED",
             "ESCALATED",
         }

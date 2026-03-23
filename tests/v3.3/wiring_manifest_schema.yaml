@@ -1,0 +1,72 @@
+# Wiring Manifest YAML Schema — v3.3 TurnLedger Validation
+#
+# This schema defines the contract for the FR-4 reachability gate.
+# The manifest declares entry points into the codebase and target symbols
+# that MUST be statically reachable from those entry points.
+#
+# Consumed by: ReachabilityAnalyzer (src/superclaude/cli/audit/reachability.py)
+# Populated by: T01.07 (tests/v3.3/wiring_manifest.yaml)
+# Spec reference: FR-4.1 (Spec-Driven Wiring Manifest)
+#
+# ──────────────────────────────────────────────────────────────────────
+# SCHEMA DEFINITION
+# ──────────────────────────────────────────────────────────────────────
+#
+# wiring_manifest:
+#   entry_points:         # Required. List of callable entry points.
+#     - module: <str>     #   Required. Fully-qualified Python module path.
+#                         #     Example: "superclaude.cli.sprint.executor"
+#       function: <str>   #   Required. Function or class name within module.
+#                         #     Example: "execute_sprint"
+#
+#   required_reachable:   # Required. List of symbols that must be reachable.
+#     - target: <str>     #   Required. Fully-qualified symbol path
+#                         #     (module.function or module.Class).
+#                         #     Example: "superclaude.cli.sprint.executor.run_post_task_wiring_hook"
+#       from_entry: <str> #   Required. Function name from entry_points that
+#                         #     must reach this target via static call chain.
+#                         #     Example: "execute_sprint"
+#       spec_ref: <str>   #   Required. Specification reference for traceability.
+#                         #     Format: "<version>-<task_or_FR>" e.g. "v3.1-T04"
+#
+# ──────────────────────────────────────────────────────────────────────
+# FIELD CONSTRAINTS
+# ──────────────────────────────────────────────────────────────────────
+#
+# entry_points:
+#   - Must contain at least one entry.
+#   - module: Must be a valid Python dotted module path (no file extensions).
+#   - function: Must be a valid Python identifier (function name or class name).
+#
+# required_reachable:
+#   - Must contain at least one entry.
+#   - target: Fully-qualified path = module + "." + symbol_name.
+#   - from_entry: Must match a function name declared in entry_points.
+#   - spec_ref: Non-empty string; should match pattern [a-zA-Z0-9._/-]+
+#     (e.g. "v3.1-T04", "v3.2-T09/R5", "v3.05-FR7").
+#
+# ──────────────────────────────────────────────────────────────────────
+# VALIDATION RULES
+# ──────────────────────────────────────────────────────────────────────
+#
+# 1. Every from_entry in required_reachable must reference a function
+#    declared in entry_points.
+# 2. Every target must be a fully-qualified symbol path containing at
+#    least one dot separator.
+# 3. Every required_reachable entry must have a non-empty spec_ref.
+# 4. No duplicate (target, from_entry) pairs.
+#
+# ──────────────────────────────────────────────────────────────────────
+
+# Schema example (placeholder — see tests/v3.3/wiring_manifest.yaml for
+# the populated manifest with actual entry points and targets).
+
+wiring_manifest:
+  entry_points:
+    - module: example.module.path
+      function: example_function
+
+  required_reachable:
+    - target: example.module.path.target_function
+      from_entry: example_function
+      spec_ref: "FR-X.Y"

@@ -40,8 +40,10 @@ STEP_NUMBER = 1
 PHASE = 1
 GATE_TIER = "EXEMPT"
 
-# Steps that support --start resume
-_RESUMABLE_STEPS = {"brainstorm-gaps", "synthesize-spec", "panel-review"}
+# Steps that support --start resume — canonical source is resume.py
+from ..resume import get_resumable_step_names
+
+_RESUMABLE_STEPS = get_resumable_step_names()
 
 
 @dataclass
@@ -292,17 +294,3 @@ def _write_artifact(
         artifact_path.write_text(json.dumps(result.to_dict(), indent=2))
 
     return str(artifact_path)
-
-
-def _classify_warnings(component_tree: Any) -> list[str]:
-    """Classify agent warnings from a component tree.
-
-    Returns list of warning strings in format: 'WARN_MISSING_AGENTS: <name>'
-    """
-    warnings: list[str] = []
-    if component_tree is None:
-        return warnings
-    for agent in getattr(component_tree, "agents", []):
-        if not agent.found:
-            warnings.append(f"{WARN_MISSING_AGENTS}: {agent.name}")
-    return warnings

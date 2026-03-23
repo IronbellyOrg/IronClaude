@@ -22,6 +22,7 @@ from enum import Enum
 from typing import Optional
 
 from .models import PortifyStepResult, PortifyStatus
+from .resume import get_resumable_step_names
 
 
 # ---------------------------------------------------------------------------
@@ -37,16 +38,10 @@ class ContractStatus(Enum):
 
 
 # ---------------------------------------------------------------------------
-# RESUMABLE_STEPS — steps 5-7 are resumable
+# RESUMABLE_STEPS — canonical source is resume.py:RESUMABILITY_MATRIX
 # ---------------------------------------------------------------------------
 
-RESUMABLE_STEPS: frozenset[str] = frozenset(
-    {
-        "synthesize-spec",
-        "brainstorm-gaps",
-        "panel-review",
-    }
-)
+RESUMABLE_STEPS: frozenset[str] = get_resumable_step_names()
 
 
 # ---------------------------------------------------------------------------
@@ -77,10 +72,20 @@ class PhaseStatus:
 
 @dataclass
 class StepTiming:
+    """Canonical step timing record used in return contracts and runtime capture.
+
+    For return contract serialization, only step_name and duration_seconds are emitted.
+    For runtime capture (monitor.py), start_time/end_time/phase are also populated.
+    """
+
     step_name: str = ""
     duration_seconds: float = 0.0
     # Accept 'step' as an alias for 'step_name' for backward compatibility
     step: str = ""
+    # Runtime fields used by TimingCapture in monitor.py
+    phase: int = 0
+    start_time: float = 0.0
+    end_time: float = 0.0
 
     def __post_init__(self) -> None:
         # If 'step' was provided but 'step_name' was not, use step as step_name

@@ -1,6 +1,7 @@
 # CLI Portify — Full Structural Audit Report
 
 **Date:** 2026-03-18
+**Full validation:** 2026-03-23 (all 47 items validated — 41 confirmed, 2 partially invalidated, 4 invalidated)
 **Scope:** `src/superclaude/cli/cli_portify/` (31 Python files)
 **Branch:** `v3.0-AuditGates`
 **Method:** 3-agent parallel Pass 2 structural audit with grep-backed evidence
@@ -15,11 +16,11 @@ The `cli-portify` CLI runner is **fundamentally non-functional**. The pipeline's
 
 | Severity | Count | Description |
 |----------|-------|-------------|
-| CRITICAL | 7 | Pipeline completely non-functional; entire subsystems disconnected |
-| HIGH | 14 | Missing validations, dead modules, broken contracts, gate bypasses |
-| MEDIUM | 18 | Logic bugs, duplicate code, wrong defaults, artifact path mismatches |
-| LOW | 8 | Dead variables, unused imports, style issues |
-| **Total** | **47** | |
+| CRITICAL | 7 | Pipeline completely non-functional; entire subsystems disconnected (C-02 partially invalidated — evidence corrected) |
+| HIGH | 13 | Missing validations, dead modules, broken contracts, gate bypasses (H-07 invalidated; H-03 understated — 4 copies not 3) |
+| MEDIUM | 15 | Logic bugs, duplicate code, wrong defaults, artifact path mismatches (M-04 partially invalidated, M-10 downgraded, M-16 invalidated) |
+| LOW | 7 | Dead variables, unused imports, style issues (L-04 invalidated — import doesn't exist) |
+| **Total** | **42** | (4 invalidated + 1 downgraded from original 47 — full validation 2026-03-23) |
 
 ### The Core Problem
 
@@ -288,10 +289,11 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 - **Impact:** `_execute_step()` (line 408-410) falls through to `exit_code, stdout, timed_out = 0, "", False` for every step. Zero Claude subprocesses launched, zero artifacts produced.
 - **Root cause:** `process.py:PortifyProcess` exists and is fully implemented but never imported by `executor.py`
 
-### C-02: process.py completely unwired
+### C-02: process.py unwired from executor *(evidence corrected 2026-03-23)*
 - **File:** `process.py` (entire file)
-- **Evidence:** Grep for `from .process import` and `from superclaude.cli.cli_portify.process import` — only `steps/panel_review.py:34` imports it; `executor.py` has zero references
-- **Impact:** The subprocess launcher (`PortifyProcess.run()`) that should back `step_runner` is never used
+- **Original claim:** Only `steps/panel_review.py:34` imports it; `executor.py` has zero references
+- **Corrected evidence:** 5 step files import `PortifyProcess` (`analyze_workflow.py:22`, `design_pipeline.py:25`, `panel_review.py:34`, `brainstorm_gaps.py:28`, `synthesize_spec.py:25`). However, `executor.py` still has zero imports — the executor's `_execute_step()` uses `self._step_runner` (always None) instead of dispatching through `PortifyProcess`.
+- **Impact:** The subprocess launcher is available to step modules but never invoked because the executor never calls the step modules (see C-04). Core issue stands; evidence was understated.
 
 ### C-03: No config validation before execution
 - **File:** `commands.py:109`
@@ -332,9 +334,9 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 - **Evidence:** Grep for `validate_resume_entry` — zero callers outside resume.py
 - **Impact:** `--resume <step>` proceeds without checking artifact prerequisites; missing artifacts cause runtime failures deep in the pipeline
 
-### H-03: Three disjoint copies of resumable steps
-- **Files:** `resume.py:RESUMABILITY_MATRIX`, `failures.py:28:_RESUMABLE_STEPS`, `contract.py:43:RESUMABLE_STEPS`
-- **Impact:** Will diverge when pipeline steps change
+### H-03: Four disjoint copies of resumable steps *(corrected 2026-03-23 — worse than reported)*
+- **Files:** `resume.py:RESUMABILITY_MATRIX`, `failures.py:28:_RESUMABLE_STEPS`, `contract.py:43:RESUMABLE_STEPS`, `steps/validate_config.py:44:_RESUMABLE_STEPS`
+- **Impact:** Will diverge when pipeline steps change. Originally reported as 3 copies; validation found a 4th in `steps/validate_config.py:44`.
 
 ### H-04: workdir.py never called — workdir not created
 - **File:** `workdir.py`
@@ -350,9 +352,10 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 - **File:** `commands.py:111-116`
 - **Evidence:** Only catches `PortifyValidationError` and `KeyboardInterrupt`; `RuntimeError`, `yaml.YAMLError`, `OSError`, `ImportError` all produce raw tracebacks
 
-### H-07: process.py import chain may be broken
+### ~~H-07: process.py import chain may be broken~~ → INVALIDATED
 - **File:** `process.py`
-- **Evidence:** Inherits from `ClaudeProcess` (`superclaude.cli.pipeline.process`); failure hidden because process.py is never imported by live path
+- **Original claim:** Inherits from `ClaudeProcess` (`superclaude.cli.pipeline.process`); failure hidden because process.py is never imported by live path
+- **Validation (2026-03-23):** `process.py:19` imports `from superclaude.cli.pipeline.process import ClaudeProcess`. The file `superclaude/cli/pipeline/process.py` exists and exports `class ClaudeProcess` at line 24. Furthermore, `PortifyProcess` is actively imported by 5 step files. **The import chain is intact.**
 
 ### H-08: monitor.py completely unwired — NFR-009/R-001 unimplemented
 - **File:** `monitor.py`
@@ -405,9 +408,10 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 - **Files:** `contract.py:79`, `monitor.py:134`
 - **Evidence:** Two `StepTiming` dataclasses with overlapping fields
 
-### M-04: Three overlapping event vocabulary sets
+### ~~M-04: Three overlapping event vocabulary sets~~ → PARTIALLY INVALIDATED
 - **Files:** `logging_.py`, `monitor.py`, `utils.py`
-- **Evidence:** Each defines its own event-type constants with different names for the same concepts
+- **Original claim:** Each defines its own event-type constants with different names for the same concepts
+- **Validation (2026-03-23):** Only `logging_.py:32-49` defines formal event-type constants (`EV_STEP_START`, `EV_STEP_END`, etc.). `monitor.py` uses generic `event_type: str` with no vocabulary. `utils.py` has no event-related constants. Not a 3-way duplication — it's a loose coupling concern where `logging_.py` constants are never referenced by `monitor.py`.
 
 ### M-05: executor.py execute_*_step() no-op fallbacks fabricate success
 - **File:** `executor.py:536-543`
@@ -430,9 +434,10 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 - **File:** `steps/brainstorm_gaps.py:191`
 - **Evidence:** Subprocess failure classified as `MISSING_ARTIFACT` instead of `GATE_FAILURE`
 
-### M-10: design_pipeline.py skip_review default inverted
+### ~~M-10: design_pipeline.py skip_review default inverted~~ → DOWNGRADED to code smell
 - **File:** `steps/design_pipeline.py:158`
-- **Evidence:** `getattr(config, "skip_review", True)` — default `True` means review is always skipped
+- **Original claim:** `getattr(config, "skip_review", True)` — default `True` means review is always skipped
+- **Spot-check (2026-03-23):** `PortifyConfig` defines `skip_review: bool = False` as an explicit dataclass field (`models.py:563`). Since `config` is always a `PortifyConfig` instance, `getattr` will find the field and return `False` — the fallback `True` is never reached. The `getattr` is unnecessary (should be `config.skip_review` directly) but is **not a logic bug**. Review is not skipped by default.
 
 ### M-11: design_pipeline.py dry_run checked post-gate
 - **File:** `steps/design_pipeline.py:136-155`
@@ -454,9 +459,10 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 - **File:** `steps/discover_components.py:557-558`
 - **Evidence:** `tree = _build_simple_tree(workflow_dir, config)` assigned but never passed to render function
 
-### M-16: panel_review.py config.results_dir would raise AttributeError
+### ~~M-16: panel_review.py config.results_dir would raise AttributeError~~ → INVALIDATED
 - **File:** `steps/panel_review.py:285`
-- **Evidence:** `config.results_dir` is not a field on `PortifyConfig`; no `getattr` guard
+- **Original claim:** `config.results_dir` is not a field on `PortifyConfig`; no `getattr` guard
+- **Spot-check (2026-03-23):** `PortifyConfig` defines `results_dir` as a `@property` (`models.py:567-572`) returning `Optional[Path]` (derived from `output_dir / "results"`). The access at line 285 is safe and correctly guarded with a `None` check at line 286. **This is not a bug.**
 
 ### M-17: has_criticals_addressed() regex single-line only
 - **File:** `gates.py:236`
@@ -473,7 +479,7 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 ### L-01: __init__.py unfilled `<skill_name>` template placeholder
 ### L-02: config.py import ordering in _find_cli_root()
 ### L-03: models.py lazy `import re` inside function body
-### L-04: discover_components.py unused `shutil` import
+### ~~L-04: discover_components.py unused `shutil` import~~ → INVALIDATED (2026-03-23: `shutil` is not imported in this file)
 ### L-05: synthesize_spec.py unused `MAX_RETRIES = 1` constant
 ### L-06: steps/validate_config.py dead `_classify_warnings()` function
 ### L-07: utils.py dead `SIGNAL_VOCABULARY` constants and `verify_additive_only()`
@@ -506,13 +512,13 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 | `commands.py` | KEEP+FIX | CRITICAL | Missing validation, limited exception handling |
 | `config.py` | KEEP | OK | validate_portify_config() correct but uncalled |
 | `executor.py` | KEEP+FIX | CRITICAL | No step_runner, no output_file, unreachable execute_*_step() |
-| `process.py` | KEEP+WIRE | CRITICAL | Fully implemented, completely unwired |
+| `process.py` | KEEP+WIRE | CRITICAL | Imported by 5 step files but executor bypasses it (C-02 corrected) |
 | `models.py` | KEEP+FIX | HIGH | Missing resume_from field |
 | `cli.py` | CONSOLIDATE | CRITICAL | Dead v2.24.1 entry point; merge into commands.py or replace |
 | `monitor.py` | KEEP+WIRE | HIGH | Implemented, unwired |
 | `diagnostics.py` | KEEP+WIRE | HIGH | Implemented, unwired |
 | `convergence.py` | KEEP | OK | Used by panel_review (itself dead from main loop) |
-| `resume.py` | KEEP+WIRE | HIGH | Implemented, unwired; 3 copies of resumable-steps |
+| `resume.py` | KEEP+WIRE | HIGH | Implemented, unwired; 4 copies of resumable-steps (H-03 corrected) |
 | `contract.py` | KEEP+WIRE | HIGH | Builders unused; executor uses inline version |
 | `logging_.py` | KEEP+WIRE | HIGH | Implemented, unwired |
 | `workdir.py` | KEEP+WIRE | HIGH | Implemented, unwired |
@@ -531,7 +537,7 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 | `steps/design_pipeline.py` | KEEP+FIX | CRITICAL+HIGH | Disconnected, multiple logic bugs |
 | `steps/synthesize_spec.py` | KEEP+WIRE | CRITICAL | Implemented, disconnected |
 | `steps/brainstorm_gaps.py` | KEEP+FIX | CRITICAL+HIGH | Disconnected, gate bypassed |
-| `steps/panel_review.py` | KEEP+FIX | CRITICAL+HIGH | Disconnected, AttributeError risk |
+| `steps/panel_review.py` | KEEP+WIRE | CRITICAL | Disconnected (M-16 AttributeError claim invalidated — `results_dir` is a valid `@property`) |
 | `steps/gates.py` | CONSOLIDATE | MEDIUM | Duplicates top-level gates.py |
 
 ---
@@ -547,7 +553,7 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 6. Wire `validate_resume_entry()` into resume path (fixes H-02)
 7. Implement AD-3: Merge `cli.py` options into `commands.py`, delete `cli.py` (fixes C-07)
 8. Broaden exception handling in `commands.py` (fixes H-06)
-9. Verify `process.py` import chain for `ClaudeProcess` (fixes H-07)
+~~9. Verify `process.py` import chain for `ClaudeProcess` (fixes H-07)~~ — INVALIDATED: import chain intact, ClaudeProcess exists at pipeline/process.py:24
 10. Replace inline YAML in `_emit_return_contract()` with `PortifyContract` builders (fixes H-05)
 11. Delete `execute_*_step()` free functions from executor.py (per AD-1)
 
@@ -562,21 +568,95 @@ contract.py:build_dry_run_contract() ── called by steps/design_pipeline.py
 ### Phase 3: Consolidate duplicates (fixes M-01 through M-04, H-03) [P1]
 18. Implement AD-2: Delete `steps/gates.py`, use `gates.py` exclusively (fixes M-01)
 19. Remove duplicate `ConvergenceState` from `models.py` (fixes M-02)
-20. Consolidate 3 copies of resumable-steps into single source in `resume.py` (fixes H-03)
+20. Consolidate 4 copies of resumable-steps into single source in `resume.py` (fixes H-03 — 4th copy found in steps/validate_config.py:44)
 21. Consolidate `StepTiming` into single definition in `contract.py` (fixes M-03)
-22. Consolidate event vocabulary into single module (fixes M-04)
+~~22. Consolidate event vocabulary into single module (fixes M-04)~~ — PARTIALLY INVALIDATED: only logging_.py defines constants; monitor.py/utils.py don't have vocabularies. Loose coupling concern, not duplication.
 
 ### Phase 4: Fix step-level bugs (fixes M-08 through M-16) [P2]
 23. Fix gate bypass in brainstorm_gaps.py — call `has_section_12_content()` (fixes M-08)
 24. Fix wrong failure classification in brainstorm_gaps.py (fixes M-09)
-25. Fix inverted `skip_review` default in design_pipeline.py (fixes M-10)
+~~25. Fix inverted `skip_review` default in design_pipeline.py (fixes M-10)~~ — DOWNGRADED: getattr fallback never reached; PortifyConfig has explicit field. Replace getattr with direct access.
 26. Fix dry_run ordering in design_pipeline.py — halt before synthesis (fixes M-11)
 27. Fix artifact name mismatch in design_pipeline.py (fixes M-12)
 28. Remove unrequested frontmatter check in design_pipeline.py (fixes M-13)
 29. Fix artifact path in discover_components.py — use `results_dir` (fixes M-14)
 30. Fix unused `_build_simple_tree` result in discover_components.py (fixes M-15)
-31. Fix `config.results_dir` AttributeError in panel_review.py (fixes M-16)
+~~31. Fix `config.results_dir` AttributeError in panel_review.py (fixes M-16)~~ — INVALIDATED: `results_dir` is a valid `@property` on `PortifyConfig`
 
 ---
 
 *Generated by 3-agent parallel structural audit — 2026-03-18*
+
+---
+
+## Full Validation Log — 2026-03-23
+
+**Method:** All 47 items validated via 10 parallel agents against current codebase (master branch)
+**Result:** 41 confirmed, 2 partially invalidated, 4 invalidated | Audit accuracy: **87% exact, 91% directionally correct**
+
+### CRITICAL (7 items — 6 confirmed, 1 partially invalidated)
+
+| Item | Verdict | Notes |
+|------|---------|-------|
+| C-01 | **CONFIRMED** | `PortifyExecutor()` at executor.py:1463 still has no `step_runner=` arg; pipeline remains no-op |
+| C-02 | **PARTIAL** | 5 step files import `PortifyProcess` (not 1 as claimed), but executor.py still has zero references. Core issue stands; evidence was understated |
+| C-03 | **CONFIRMED** | `validate_portify_config()` still never imported or called by commands.py |
+| C-04 | **CONFIRMED** | All 7 `run_*` functions have zero callers; `steps/__init__.py` has no re-exports |
+| C-05 | **CONFIRMED** | All 7 `execute_*_step()` free functions unreachable; no code dispatches to them |
+| C-06 | **CONFIRMED** | `output_file` defaults to `None` in PortifyStep; step construction never sets it |
+| C-07 | **CONFIRMED** | main.py:370 imports from commands.py; cli.py has zero importers |
+
+### HIGH (14 items — 12 confirmed, 1 understated, 1 invalidated)
+
+| Item | Verdict | Notes |
+|------|---------|-------|
+| H-01 | **CONFIRMED** | `config.resume_from = resume_step` with `# type: ignore[attr-defined]`; no field on PortifyConfig |
+| H-02 | **CONFIRMED** | `validate_resume_entry()` only called internally by `build_resume_context()` in resume.py; no external callers |
+| H-03 | **CONFIRMED+** | **Worse than reported**: 4 copies, not 3. 4th found at `steps/validate_config.py:44` |
+| H-04 | **CONFIRMED** | `create_workdir()` and `emit_portify_config_yaml()` defined only in workdir.py; zero imports elsewhere |
+| H-05 | **CONFIRMED** | Executor emits 5 ad-hoc fields; `PortifyContract` specifies 8. Builder functions are dead code |
+| H-06 | **CONFIRMED** | Only catches `PortifyValidationError` and `KeyboardInterrupt`; FileNotFoundError, OSError, yaml.YAMLError unhandled |
+| H-07 | **INVALIDATED** | Import chain intact: `process.py:19` imports ClaudeProcess from `pipeline/process.py:24` which exists. 5 step files successfully import PortifyProcess |
+| H-08 | **CONFIRMED** | `OutputMonitor`, `EventLogger`, `TimingCapture` — zero callers outside monitor.py |
+| H-09 | **CONFIRMED** | `DiagnosticsCollector`, `emit_diagnostics` — zero callers outside diagnostics.py |
+| H-10 | **CONFIRMED** | `ExecutionLog` — zero callers outside logging_.py |
+| H-11 | **CONFIRMED** | `PortifyTUI`, `TuiDashboard` — zero callers outside tui.py |
+| H-12 | **CONFIRMED** | `FAILURE_HANDLERS`, `handle_missing_template` — zero callers outside failures.py |
+| H-13 | **CONFIRMED** | `GATE_REGISTRY` / `get_gate_criteria` in gates.py; zero references from executor.py |
+| H-14 | **CONFIRMED** | `review_gate`, `ReviewDecision`, `REVIEW_GATE_STEPS` — zero callers outside review.py |
+
+### MEDIUM (18 items — 13 confirmed, 2 partially invalidated, 1 downgraded, 1 invalidated, 1 confirmed from initial spot-check)
+
+| Item | Verdict | Notes |
+|------|---------|-------|
+| M-01 | **CONFIRMED** | `steps/gates.py` still duplicates `VALIDATE_CONFIG_GATE`, `DISCOVER_COMPONENTS_GATE` from top-level `gates.py` |
+| M-02 | **CONFIRMED** | Two `ConvergenceState` enums; `models.py:136` version unused — no imports found |
+| M-03 | **CONFIRMED** | Two `StepTiming` dataclasses: `contract.py:79` (pre-computed duration) vs `monitor.py:135` (timestamps) |
+| M-04 | **PARTIAL** | Only `logging_.py` defines event constants. `monitor.py` uses freeform strings, `utils.py` has no vocabulary. Loose coupling, not 3-way duplication |
+| M-05 | **CONFIRMED** | No-op fallback `(0, EXIT_RECOMMENDATION_MARKER + " CONTINUE", False)` in 7+ functions |
+| M-06 | **CONFIRMED** | `get_prompt_builder()` and `PROMPT_BUILDERS` — zero callers outside prompts.py |
+| M-07 | **CONFIRMED** | `maybe_split_prompt()` — zero callers |
+| M-08 | **CONFIRMED** | `has_section_12_content()` defined but never called by `run_brainstorm_gaps()` |
+| M-09 | **CONFIRMED** | Subprocess failure (exit_code != 0) classified as `MISSING_ARTIFACT` instead of `GATE_FAILURE` |
+| M-10 | **DOWNGRADED** | `getattr` fallback never reached; `PortifyConfig.skip_review: bool = False` is explicit. Code smell, not logic bug |
+| M-11 | **CONFIRMED** | Gate check + artifact write happen before dry_run check at lines 136-155 |
+| M-12 | **CONFIRMED** | `ARTIFACT_NAME = "portify-spec.md"` but docstring and prompt say `portify-pipeline-design.md` |
+| M-13 | **CONFIRMED** | Gate checks `pipeline_steps` in frontmatter but prompt never requests it from Claude |
+| M-14 | **CONFIRMED** | discover_components.py:553 uses `config.output_dir`, not `config.results_dir` |
+| M-15 | **CONFIRMED** | `tree = _build_simple_tree(...)` assigned but never passed to `_render_simple_inventory()` |
+| M-16 | **INVALIDATED** | `results_dir` is a `@property` on `PortifyConfig` (models.py:567-572); access safe with None guard |
+| M-17 | **CONFIRMED** | Regex negative lookahead without `re.DOTALL`; cross-line CRITICAL+INCORPORATED pairs missed |
+| M-18 | **CONFIRMED** | `resolved = ...` in `_find_command_for_skill()` assigned but never used |
+
+### LOW (8 items — 7 confirmed, 1 invalidated)
+
+| Item | Verdict | Notes |
+|------|---------|-------|
+| L-01 | **CONFIRMED** | `# Portified from <skill_name>` — unfilled template placeholder at `__init__.py:2` |
+| L-02 | **CONFIRMED** | `import superclaude.cli` before `import importlib` in `_find_cli_root()`; also `superclaude.cli` is a dead import |
+| L-03 | **CONFIRMED** | `import re` inside function body at `models.py:717` instead of module level |
+| L-04 | **INVALIDATED** | `shutil` is not imported in `discover_components.py` — import doesn't exist |
+| L-05 | **CONFIRMED** | `MAX_RETRIES = 1` at `synthesize_spec.py:36` — defined but never referenced |
+| L-06 | **CONFIRMED** | `_classify_warnings()` at `validate_config.py:297` — zero callers anywhere |
+| L-07 | **CONFIRMED** | `SIGNAL_VOCABULARY` and `verify_additive_only()` in utils.py — zero external callers |
+| L-08 | **CONFIRMED** | `SimpleBudgetGuard` defined at convergence.py:80, accepted by engine, but never instantiated |

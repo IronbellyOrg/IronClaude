@@ -326,7 +326,6 @@ def _find_cli_root(config: PortifyConfig) -> Optional[Path]:
             break
         search = parent
     # Fallback: look relative to the package
-    import superclaude.cli
     import importlib
 
     try:

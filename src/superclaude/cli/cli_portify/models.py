@@ -14,6 +14,7 @@ Target resolution types (from v2.24.1):
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -126,22 +127,6 @@ class PortifyPhaseType(Enum):
     SPECIFICATION = "SPECIFICATION"
     SYNTHESIS = "SYNTHESIS"
     CONVERGENCE = "CONVERGENCE"
-
-
-# ---------------------------------------------------------------------------
-# Phase 3 T03.01: ConvergenceState enum
-# ---------------------------------------------------------------------------
-
-
-class ConvergenceState(Enum):
-    """State of the convergence loop for iterative review steps."""
-
-    NOT_STARTED = "NOT_STARTED"
-    REVIEWING = "REVIEWING"
-    INCORPORATING = "INCORPORATING"
-    SCORING = "SCORING"
-    CONVERGED = "CONVERGED"
-    ESCALATED = "ESCALATED"
 
 
 # ---------------------------------------------------------------------------
@@ -563,6 +548,7 @@ class PortifyConfig:
     skip_review: bool = False
     max_convergence: int = 3
     iteration_timeout: int = 300
+    resume_from: str = ""
 
     @property
     def results_dir(self) -> Optional[Path]:
