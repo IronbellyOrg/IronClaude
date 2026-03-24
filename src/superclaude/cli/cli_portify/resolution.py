@@ -258,9 +258,6 @@ def _find_command_for_skill(
             continue
         skill_name = _parse_activation_skill(content)
         if skill_name is not None:
-            resolved = (
-                commands_dir.parent / "skills" / skill_name if commands_dir else None
-            )
             # Direct check: does this command reference our skill?
             if skill_name == skill_dir.name:
                 return cmd_file

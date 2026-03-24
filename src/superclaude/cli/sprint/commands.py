@@ -39,7 +39,9 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     """
     import json as _json
 
-    sprint_dir = index_path.parent
+    from .config import _resolve_release_dir
+
+    sprint_dir = _resolve_release_dir(index_path)
     state_file = sprint_dir / ".roadmap-state.json"
     if not state_file.exists():
         return False, ""
@@ -162,6 +164,13 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     flag_value="no justification provided",
     help="Override fidelity block without providing a justification string.",
 )
+@click.option(
+    "--release-dir",
+    "release_dir_override",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+    help="Explicit release directory (overrides auto-detection from index path).",
+)
 def run(
     index_path: Path,
     start_phase: int,
@@ -177,6 +186,7 @@ def run(
     stall_action: str,
     shadow_gates: bool,
     force_fidelity_fail: str,
+    release_dir_override: Path | None,
 ):
     """Execute a sprint from a tasklist index.
 
@@ -210,6 +220,12 @@ def run(
     # Thread tmux session name into config when relaunched by launch_in_tmux
     if tmux_session_name:
         config.tmux_session_name = tmux_session_name
+
+    # Override release_dir if explicitly provided
+    if release_dir_override is not None:
+        resolved = Path(release_dir_override).resolve()
+        object.__setattr__(config, "release_dir", resolved)
+        object.__setattr__(config, "work_dir", resolved)
 
     # Preflight: fidelity block
     blocked, fidelity_msg = _check_fidelity(index_path)

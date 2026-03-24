@@ -549,12 +549,10 @@ def run_discover_components(
 
     elapsed = time.monotonic() - start
 
-    # Determine output directory for artifact
-    out_dir = config.output_dir or workflow_dir.parent
+    # Determine output directory for artifact — use results_dir for downstream steps
+    out_dir = config.results_dir or config.output_dir or workflow_dir.parent
 
     # Render and write artifact
-    # Build a simple ComponentTree for the enriched render
-    tree = _build_simple_tree(workflow_dir, config)
     md_content = _render_simple_inventory(inventory, source_skill, elapsed)
     artifact_path = _write_inventory_artifact(md_content, out_dir)
 

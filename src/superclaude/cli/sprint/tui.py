@@ -220,7 +220,7 @@ class SprintTUI:
             TextColumn("[bold]Progress"),
             BarColumn(bar_width=40),
             TextColumn("{task.percentage:>3.0f}%"),
-            TextColumn("[dim]{task.completed}/{task.total} tasks[/]"),
+            TextColumn("[dim]{task.completed}/{task.total} phases[/]"),
         )
         total = len(self.config.active_phases)
         done = self.sprint_result.phases_passed if self.sprint_result else 0

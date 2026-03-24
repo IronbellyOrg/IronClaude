@@ -918,6 +918,10 @@ def execute_phase_tasks(
     _subprocess_factory=None,
     shadow_metrics: ShadowGateMetrics | None = None,
     remediation_log: DeferredRemediationLog | None = None,
+    # TUI params are optional for backward compat with tests.
+    # When provided, per-task progress is shown in the dashboard.
+    tui: "SprintTUI | None" = None,
+    sprint_result: "SprintResult | None" = None,
 ) -> tuple[list[TaskResult], list[str], list[TrailingGateResult]]:
     """Per-task subprocess orchestration loop.
 
@@ -970,6 +974,14 @@ def execute_phase_tasks(
         # Debit the minimum allocation upfront
         if ledger is not None:
             ledger.debit(ledger.minimum_allocation)
+
+        # Per-task TUI update: show which task is about to launch
+        if tui is not None and sprint_result is not None:
+            _tui_state = MonitorState()
+            _tui_state.events_received = i
+            _tui_state.last_event_time = time.monotonic()
+            _tui_state.last_task_id = task.task_id
+            tui.update(sprint_result, _tui_state, phase)
 
         # Spawn subprocess for this task
         if _subprocess_factory is not None:
@@ -1026,6 +1038,14 @@ def execute_phase_tasks(
             gate_results.append(gate_result)
 
         results.append(result)
+
+        # Per-task TUI update: show task completion
+        if tui is not None and sprint_result is not None:
+            _tui_state = MonitorState()
+            _tui_state.events_received = i + 1
+            _tui_state.last_event_time = time.monotonic()
+            _tui_state.last_task_id = task.task_id
+            tui.update(sprint_result, _tui_state, phase)
 
     return results, remaining, gate_results
 
@@ -1183,10 +1203,13 @@ def execute_sprint(config: SprintConfig):
             tasks = _parse_phase_tasks(phase, config)
             if tasks:
                 started_at = datetime.now(timezone.utc)
+                # Signal TUI that this phase is now active
+                tui.update(sprint_result, MonitorState(), phase)
                 task_results, remaining, phase_gate_results = execute_phase_tasks(
                     tasks=tasks, config=config, phase=phase,
                     ledger=ledger, shadow_metrics=shadow_metrics,
                     remediation_log=remediation_log,
+                    tui=tui, sprint_result=sprint_result,
                 )
                 all_gate_results.extend(phase_gate_results)
                 all_passed = all(r.status == TaskStatus.PASS for r in task_results)
@@ -1205,6 +1228,8 @@ def execute_sprint(config: SprintConfig):
 
                 sprint_result.phase_results.append(phase_result)
                 logger.write_phase_result(phase_result)
+                # Refresh TUI with completed phase (current_phase=None resets active panel)
+                tui.update(sprint_result, MonitorState(), None)
                 continue
 
             # Per-phase isolation directory: exactly one file (the phase file)

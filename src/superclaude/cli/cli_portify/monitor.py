@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+from superclaude.cli.cli_portify.contract import StepTiming
 from superclaude.cli.cli_portify.models import FailureClassification, MonitorState
 
 
@@ -132,18 +133,6 @@ def classify_failure(
 
 
 @dataclass
-class StepTiming:
-    step: str
-    phase: int
-    start_time: float
-    end_time: float = 0.0
-
-    @property
-    def duration_seconds(self) -> float:
-        return self.end_time - self.start_time
-
-
-@dataclass
 class PhaseTiming:
     phase: int
     step_timings: list[StepTiming] = field(default_factory=list)
@@ -182,6 +171,7 @@ class TimingCapture:
         if step in self._step_timings:
             st = self._step_timings[step]
             st.end_time = time.monotonic()
+            st.duration_seconds = st.end_time - st.start_time
             phase = st.phase
             if phase in self._phase_timings:
                 self._phase_timings[phase].step_timings.append(st)

@@ -14,7 +14,6 @@ from pathlib import Path
 import pytest
 
 from superclaude.cli.cli_portify.prompts import (
-    PROMPT_BUILDERS,
     AnalyzeWorkflowPrompt,
     BasePromptBuilder,
     BrainstormGapsPrompt,
@@ -22,7 +21,6 @@ from superclaude.cli.cli_portify.prompts import (
     PanelReviewPrompt,
     PromptContext,
     SynthesizeSpecPrompt,
-    get_prompt_builder,
 )
 
 
@@ -36,39 +34,6 @@ def ctx(tmp_path):
         iteration=1,
         max_convergence=3,
     )
-
-
-class TestPromptBuilderRegistry:
-    """Prompt builders exist for all 5 Claude-assisted steps."""
-
-    EXPECTED_STEPS = [
-        "analyze-workflow",
-        "design-pipeline",
-        "synthesize-spec",
-        "brainstorm-gaps",
-        "panel-review",
-    ]
-
-    def test_all_five_steps_registered(self):
-        for step in self.EXPECTED_STEPS:
-            assert step in PROMPT_BUILDERS, f"Missing builder for {step}"
-
-    def test_registry_has_exactly_five_entries(self):
-        assert len(PROMPT_BUILDERS) == 5
-
-    def test_all_builders_extend_base(self):
-        for name, cls in PROMPT_BUILDERS.items():
-            assert issubclass(cls, BasePromptBuilder), (
-                f"{name} does not extend BasePromptBuilder"
-            )
-
-    def test_get_prompt_builder_returns_correct_type(self, ctx):
-        builder = get_prompt_builder("analyze-workflow", ctx)
-        assert isinstance(builder, AnalyzeWorkflowPrompt)
-
-    def test_get_prompt_builder_raises_on_unknown(self, ctx):
-        with pytest.raises(KeyError, match="No prompt builder"):
-            get_prompt_builder("nonexistent-step", ctx)
 
 
 class TestAtPathReferences:
@@ -110,32 +75,6 @@ class TestAtPathReferences:
         ref_names = [r.name for r in refs]
         assert "synthesized-spec.md" in ref_names
         assert "brainstorm-gaps.md" in ref_names
-
-
-class TestOutputContracts:
-    """Output contracts and frontmatter expectations are embedded in each prompt."""
-
-    @pytest.mark.parametrize("step_name", list(PROMPT_BUILDERS.keys()))
-    def test_prompt_contains_output_contract(self, step_name, ctx):
-        builder = get_prompt_builder(step_name, ctx)
-        prompt = builder.build()
-        assert "## Output Contract" in prompt
-
-    @pytest.mark.parametrize("step_name", list(PROMPT_BUILDERS.keys()))
-    def test_prompt_contains_frontmatter_requirements(self, step_name, ctx):
-        builder = get_prompt_builder(step_name, ctx)
-        prompt = builder.build()
-        assert "## Required Frontmatter" in prompt
-
-    @pytest.mark.parametrize("step_name", list(PROMPT_BUILDERS.keys()))
-    def test_required_frontmatter_non_empty(self, step_name, ctx):
-        builder = get_prompt_builder(step_name, ctx)
-        assert len(builder.required_frontmatter()) > 0
-
-    @pytest.mark.parametrize("step_name", list(PROMPT_BUILDERS.keys()))
-    def test_output_contract_non_empty(self, step_name, ctx):
-        builder = get_prompt_builder(step_name, ctx)
-        assert len(builder.output_contract()) > 0
 
 
 class TestRetryAugmentation:

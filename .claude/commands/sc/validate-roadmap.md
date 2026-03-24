@@ -3,8 +3,8 @@ name: validate-roadmap
 description: "Validate roadmap fidelity against source specifications with multi-agent coverage analysis, adversarial review, and remediation planning. Use this whenever you need to verify a roadmap covers all spec requirements, check for gaps between specs and roadmaps, or audit roadmap completeness before tasklist generation."
 category: analysis
 complexity: advanced
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
-mcp-servers: [sequential]
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
+mcp-servers: [sequential, auggie, serena]
 personas: [analyzer, architect, qa]
 ---
 
@@ -34,6 +34,9 @@ Prove — or disprove — that a roadmap covers 100% of the requirements from it
 | `--skip-adversarial` | | No | `false` | Skip Phase 4 adversarial pass |
 | `--skip-remediation` | | No | `false` | Skip Phase 5 remediation plan |
 | `--report` | `-r` | No | - | Also write summary to specified path |
+| `--prior-taxonomy` | | No | - | Path to a prior `00-domain-taxonomy.md` to seed domain clustering |
+
+**Agent model**: All spawned validation agents (domain + cross-cutting) use the **haiku** model. The orchestrator remains on the parent conversation model.
 
 ## Examples
 

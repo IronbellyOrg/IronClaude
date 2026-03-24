@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth qu
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [sequential]
+mcp-servers: [sequential, auggie, serena]
 personas: [analyzer, architect, qa]
 version: 2.0.0
 -->
@@ -58,6 +58,7 @@ The validation is a **read-only audit**. It never modifies the roadmap or specs.
 | `--skip-adversarial` | | No | `false` | Skip Phase 4 adversarial pass |
 | `--skip-remediation` | | No | `false` | Skip Phase 5 remediation plan |
 | `--report` | `-r` | No | - | Also write summary to specified path |
+| `--prior-taxonomy` | | No | - | Path to a prior `00-domain-taxonomy.md` to seed domain clustering for cross-run stability |
 
 **Depth profiles**:
 
@@ -81,10 +82,51 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Dispatch agent | `Task` | Parallel sub-agent validation work |
 | Track progress | `TodoWrite` | Phase completion tracking |
 | Run validation | `Bash` | File existence checks, line counts |
+| Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
+| Read session memory | `mcp__serena__read_memory` | Load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
+| Write session memory | `mcp__serena__write_memory` | Persist ledger, terminology, patterns (Post-Phase 6) — fail-open |
+| Activate project | `mcp__serena__activate_project` | Initialize Serena project context (Pre-Phase 0, Step 0.5) — fail-open |
+| Find symbol | `mcp__serena__find_symbol` | Symbol lookup for context supplement (Step 0.5, deep only) — fail-open |
+| Get symbols overview | `mcp__serena__get_symbols_overview` | File-level symbol map (Step 0.5, deep only) — fail-open |
 
-**Rule**: All verbs in phase instructions MUST resolve to an entry in this glossary.
+**Rule**: All verbs in phase instructions MUST resolve to an entry in this glossary. MCP tools marked "fail-open" are optional — their unavailability never blocks validation.
 
 ## 5. Phase Architecture
+
+### Pre-Phase 0: Session Context Loading (Optional, Fail-Open)
+
+**Requires**: `mcp__serena__read_memory`, `mcp__serena__activate_project` (fail-open — skip all pre-phase hooks if Serena is unavailable).
+
+Before document ingestion, load cross-session context from Serena memory. Each hook is independent — failure in one does not block others.
+
+#### Hook 0a — Load Validation Ledger Baseline
+
+Load the most recent validation ledger entry for this project to enable delta tracking in Phase 3.
+
+1. Call `mcp__serena__activate_project` for the current repository.
+2. Call `mcp__serena__read_memory` with key `validation-ledger-{project-slug}`.
+3. If found: parse the ledger JSON and store in orchestrator context as `ledger_baseline`. Extract the most recent entry's gap IDs and severities for delta comparison in Step 3.10.
+4. If not found or error: set `ledger_baseline = null`. Continue without delta tracking.
+
+#### Hook 0b — Load Terminology Map
+
+Load the project's accumulated terminology map as advisory context for requirement extraction.
+
+1. Call `mcp__serena__read_memory` with key `terminology-map-{project-slug}`.
+2. If found: parse terminology entries (max **200 entries**). Terms older than **90 days** are marked `low_confidence: true`. Store as `prior_terminology` in orchestrator context.
+3. If not found or error: set `prior_terminology = null`. Extraction uses cold-start terminology only.
+
+**Constraint**: Prior terminology is **advisory** — the current spec text always wins (R4 compliance). Prior terms serve as hints for extraction, not authoritative definitions.
+
+#### Hook 0c — Load Adversarial Pattern History
+
+Load historical adversarial pattern effectiveness data for Phase 4 pattern ordering.
+
+1. Call `mcp__serena__read_memory` with key `adversarial-patterns-{project-slug}`.
+2. If found: parse pattern entries. Filter to patterns with ≥3 historical hits and false-positive rate <40%. Rank by `(hit_count * (1 - fp_rate))`. Store top 20 as `historical_patterns`.
+3. If not found or error: set `historical_patterns = null`. Phase 4 uses default patterns only.
+
+---
 
 ### Phase 0: Document Ingestion & Requirement Extraction
 
@@ -93,6 +135,29 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 #### Step 0.1 — Read All Documents
 
 Read every file in `--specs` and the roadmap at `<roadmap-path>` in their entirety using `Read`. If any spec references other documents (tech specs, investigation artifacts, ADRs), follow ONE hop — read the referenced file. Do not recursively spider.
+
+#### Step 0.1.5 — Spec File Reference Verification
+
+After reading all documents, verify that file paths referenced in specs actually exist in the project. This catches stale references (renamed/deleted files) before they corrupt requirement extraction.
+
+1. Scan spec text for file path patterns in backtick or inline-code context: anything matching `.py`, `.ts`, `.md`, `.yaml`, `.json`, `.toml`, or paths containing `src/`, `tests/`, `config/`.
+2. For each unique path found, check existence:
+   - Use `Glob` with the exact path first.
+   - If not found, use `Glob` with `**/{basename}` to search for relocated files.
+3. Write a "File Reference Status" section at the top of `{OUTPUT_DIR}/00-requirement-universe.md` (created in Step 0.2):
+
+```markdown
+## Spec File Reference Status (Step 0.1.5)
+
+| Referenced Path | Source | Status | Notes |
+|----------------|--------|--------|-------|
+| `src/auth/token_manager.py` | spec.md:L42 | FOUND | — |
+| `src/pipeline/hooks.py` | spec.md:L88 | NOT FOUND | Basename match: `src/superclaude/cli/pipeline/trailing_gate.py` |
+
+**Note**: NOT FOUND paths may reference files to be created. This table is informational — it does not change coverage scoring.
+```
+
+4. Annotate requirements whose source sections contain NOT FOUND references with `file_ref_stale: true` (informational only — no scoring changes, no adjudication rule modifications).
 
 #### Step 0.2 — Extract the Requirement Universe
 
@@ -145,6 +210,39 @@ For each requirement, record:
 
 Write artifact: `{OUTPUT_DIR}/00-requirement-universe.md`
 
+#### Step 0.2b — Codebase-Grounded Requirement Enrichment (Optional)
+
+**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+
+After building the requirement universe, scan it for code references that would benefit from codebase context. This step enriches requirements with advisory structural information — it never creates new requirements or changes coverage calculations.
+
+**Procedure**:
+
+1. **Identify code-referencing requirements**: Scan requirement text for backtick-wrapped identifiers (class names, function names, file paths), import paths, API endpoint paths, and technology-specific keywords (e.g., database table names, config keys).
+2. **Triage references by resolution method**:
+   - **Simple references** (file paths, exact symbol names): Resolve with `Grep`/`Glob` first. Do NOT use Auggie for lookups that a pattern search can answer.
+   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Query Auggie's `codebase-retrieval` with a focused natural-language query.
+3. **Query Auggie** for each semantic reference (hard cap: **15 queries maximum**):
+   - Query format: `"What code implements {concept}? Include callers, related tests, and file paths."`
+   - For each response, extract: relevant file paths, function/class names, test file references.
+4. **Annotate requirements** with an advisory `codebase_context` field:
+
+```yaml
+- id: "REQ-042"
+  text: "JWT token rotation must occur every 24 hours"
+  codebase_context:  # ADVISORY — does not affect coverage scoring
+    files: ["src/auth/token_manager.py", "tests/test_token_rotation.py"]
+    symbols: ["TokenManager.rotate()", "test_rotation_interval"]
+    source: "auggie"  # or "grep" for pattern-resolved refs
+```
+
+5. **Bail-out rule**: If 5 consecutive Auggie queries return no relevant file paths, stop querying and proceed. Remaining requirements get no `codebase_context` annotation.
+
+**Constraints**:
+- `codebase_context` is **advisory only** — no new requirements generated, no changes to requirement universe count, no changes to coverage calculations.
+- Token cost acknowledgment: ~200-500 tokens per annotated requirement.
+- Orchestrator-only: agents spawned in Phase 2 do NOT call Auggie.
+
 #### Step 0.3 — Parse Roadmap Structure
 
 Extract from the roadmap:
@@ -162,7 +260,9 @@ Write artifact: `{OUTPUT_DIR}/00-roadmap-structure.md`
 
 From the extracted requirements AND roadmap structure, identify all distinct domains.
 
-**Detection algorithm**:
+**Taxonomy seeding** (when `--prior-taxonomy` is provided): Read the prior taxonomy file and extract domain names and boundary descriptions. Use these as initial cluster centers — new requirements are assigned to existing domains by affinity. Genuinely new domains are created. Dead domains (zero requirements) are pruned. Append a delta section to the new taxonomy artifact showing what changed vs. the prior taxonomy.
+
+**Cold-start algorithm** (when `--prior-taxonomy` is absent or first run):
 
 1. **Cluster by domain signal**: File paths, technology references, requirement type, section headers, system boundaries.
 2. **Merge small clusters**: If a domain has fewer than 3 requirements, merge into nearest related domain.
@@ -170,7 +270,47 @@ From the extracted requirements AND roadmap structure, identify all distinct dom
 4. **Ensure non-overlapping coverage**: Every requirement belongs to exactly one primary domain. Cross-cutting requirements are assigned to primary domain but flagged for secondary review.
 5. **Cap at `max-agents - 4`**: Reserve 4 slots for mandatory cross-cutting agents.
 
+Regardless of seeding mode, evidence-based requirement assignment is required (R3 compliance) — seeded domain names are suggestions, not mandates.
+
 Write artifact: `{OUTPUT_DIR}/00-domain-taxonomy.md`
+
+#### Step 0.5 — Symbol Context Supplement (`--depth deep` only)
+
+**Requires**: `mcp__serena__find_symbol`, `mcp__serena__get_symbols_overview` (fail-open — skip entirely if Serena is unavailable or depth is not `deep`).
+
+**Gate**: Skip this step unless `--depth deep` is set.
+
+At deep depth, produce a supplemental artifact documenting the structural context of code-referenced requirements. This provides human reviewers and the Phase 4 adversarial reviewer with codebase architecture context.
+
+**Procedure**:
+
+1. **Identify code-referenced requirements**: From the requirement universe, collect requirements whose text contains backtick-wrapped identifiers (class names, function names, module paths).
+2. **Activate Serena project**: Call `mcp__serena__activate_project` (if not already activated in Pre-Phase 0).
+3. **Look up symbols** (hard cap: **30 symbol lookups**):
+   - For each code identifier, call `mcp__serena__find_symbol` with `include_body=False` to locate the symbol's file, type (class/function/method), and parent hierarchy.
+   - For files with multiple related symbols, call `mcp__serena__get_symbols_overview` once per file to capture the structural context.
+4. **Write supplemental artifact**: `{OUTPUT_DIR}/00-symbol-context-supplement.md`
+
+```markdown
+# Symbol Context Supplement (Step 0.5, deep only)
+
+**INFORMATIONAL ONLY** — this artifact does not modify requirement records, generate derived sub-requirements, or affect coverage scoring. It is referenced as background reading by the Phase 4 adversarial reviewer.
+
+| Requirement | Symbol | File | Type | Parent | Notes |
+|-------------|--------|------|------|--------|-------|
+| REQ-012 | `TokenManager` | src/auth/token_manager.py | class | — | 8 methods |
+| REQ-012 | `rotate()` | src/auth/token_manager.py | method | TokenManager | — |
+| REQ-045 | `PipelineExecutor` | src/cli/pipeline.py | class | — | NOT_FOUND |
+
+Symbols found: {N} / {N} attempted
+```
+
+5. **Failure handling**: If Serena is unavailable or no symbols are found, skip entirely — write no artifact. This is non-blocking.
+
+**Constraints**:
+- Does NOT modify requirement records or generate derived sub-requirements.
+- Does NOT affect coverage scoring or agent assignments.
+- Referenced as **background reading** in Phase 4 adversarial review only.
 
 ---
 
@@ -180,7 +320,7 @@ Write artifact: `{OUTPUT_DIR}/00-domain-taxonomy.md`
 
 #### Step 1.1 — Create Domain Agent Assignments
 
-For each domain from Step 0.4, create one agent spec:
+For each domain from Step 0.4, create one agent spec. **All agents use the `haiku` model** (see Spawn Protocol).
 
 ```
 AGENT-D{N}:
@@ -311,7 +451,7 @@ Cross-cutting agents receive the same evidence standards but apply the specific 
 
 #### Spawn Protocol
 
-1. Dispatch ALL agents in a single message using parallel `Task` calls.
+1. Dispatch ALL agents in a single message using parallel `Task` calls. **All agents MUST use the `haiku` model** — set `model: "haiku"` on every `Task` invocation (domain agents and cross-cutting agents alike). The orchestrator remains on the parent model; only spawned agents use haiku.
 2. Each agent prompt includes the FULL text of its assigned requirements — paste the content, do not reference a file path.
 3. If an agent fails, retry ONCE. If retry fails, log failure — CC4 and the adversarial pass will catch gaps.
 4. Wait for ALL agents to complete before proceeding to Phase 3.
@@ -325,6 +465,37 @@ Cross-cutting agents receive the same evidence standards but apply the specific 
 #### Step 3.1 — Collect Agent Reports
 
 Read every file matching `{OUTPUT_DIR}/01-agent-*.md`. Verify each agent completed (check for summary statistics). Note any failed agents and list unvalidated requirements.
+
+#### Step 3.1b — File Path Verification Pass
+
+Extract all file path references from agent reports and `00-requirement-universe.md`. Verify existence against the project filesystem. Write an informational annotation block at the top of the coverage matrix (Step 3.2 output).
+
+**Depth gating**:
+- `quick`: Skip file path verification entirely.
+- `standard`: Verify file paths (exact match only via `Bash` `test -f`).
+- `deep`: Verify file paths with relocation search via `Glob` `**/{basename}`.
+
+**Procedure**:
+
+1. Scan all agent reports and the requirement universe for file path references: anything matching `src/`, `tests/`, or common extensions (`.py`, `.ts`, `.md`, `.yaml`, `.json`, `.toml`).
+2. Deduplicate across agents (same path referenced by multiple agents needs one check).
+3. For each unique path, check existence:
+   - **EXISTS**: File found at the referenced path.
+   - **NOT_FOUND**: No file at the referenced path. At `deep` depth, use `Glob` with `**/{filename}` to search for relocated files.
+   - **POSSIBLY_MOVED**: File not found at referenced path, but a file with the same basename exists elsewhere.
+4. Write a **File Path Verification Table** as an annotation block at the top of `02-unified-coverage-matrix.md`:
+
+```markdown
+## File Path Verification (Step 3.1b)
+
+| Referenced Path | Source | Status | Notes |
+|----------------|--------|--------|-------|
+| `src/superclaude/cli/sprint/executor.py` | REQ-042, Agent D3 | EXISTS | — |
+| `src/pipeline/hooks.py` | REQ-061 | POSSIBLY_MOVED | Candidate: `src/superclaude/cli/pipeline/trailing_gate.py` |
+| `src/gates/runner.py` | Roadmap Phase 3 | NOT_FOUND | No match in codebase |
+
+**INFORMATIONAL ONLY** — this table does not change any coverage statuses. Agents' assessments stand as-is. The adversarial reviewer (Phase 4) may use this table as evidence when challenging coverage claims.
+```
 
 #### Step 3.2 — Build Unified Coverage Matrix
 
@@ -397,6 +568,13 @@ INTEGRATION-{N}:
 ```
 
 Any PARTIALLY_WIRED or UNWIRED integration becomes a gap.
+
+**Symbol Spot-Check** (`--depth deep` only): For each integration point where the spec text contains backtick-wrapped identifiers (PascalCase, snake_case, or dotted paths longer than 6 characters), use `Grep` to search the codebase for the symbol:
+
+- If a symbol appears in zero files: flag as `symbol_not_found: true` on the integration entry. Downgrade FULLY_WIRED to PARTIALLY_WIRED with a LOW finding: "Spec references symbol `{X}` which was not found in the codebase — verify it exists or has not been renamed."
+- If a symbol appears in files: note `symbol_found: true` with file paths. No further analysis.
+
+This is a spot-check using `Grep` (already an allowed tool), not a full symbol graph analysis. It adds one `Grep` call per backtick-wrapped symbol, bounded by the number of integration points.
 
 #### Step 3.8 — Completeness Boundary Check
 
@@ -480,6 +658,35 @@ timestamp: "{ISO-8601}"
 
 ## Agent Reports Index
 {links to each 01-agent-*.md file}
+
+## Validation Ledger Delta (when baseline available)
+{from ledger delta computation — see below}
+```
+
+**Validation Ledger Delta** (when `ledger_baseline` is not null): After writing the main report sections, compute a delta between the current findings and the most recent ledger entry:
+
+1. Compare current gap IDs/descriptions against baseline gap IDs/descriptions using semantic matching (same requirement + same gap type = same gap).
+2. Classify each gap:
+   - **PERSISTENT**: Gap existed in baseline and still exists (same severity or worse).
+   - **RESOLVED**: Gap existed in baseline but is no longer present.
+   - **NEW**: Gap not present in baseline.
+   - **REGRESSION**: Gap was RESOLVED in a prior run but has reappeared.
+3. **REGRESSION** findings are auto-escalated by one severity level for **display purposes only** (e.g., MEDIUM → displayed as HIGH). This does NOT change the adjudicated severity or affect the GO/NO_GO verdict calculation.
+4. Append the delta table to the consolidated report:
+
+```markdown
+## Validation Ledger Delta
+
+Compared against baseline from: {baseline_timestamp}
+
+| Gap ID | Status | Current Severity | Baseline Severity | Notes |
+|--------|--------|-----------------|-------------------|-------|
+| GAP-C001 | PERSISTENT | CRITICAL | CRITICAL | Unchanged |
+| GAP-H003 | RESOLVED | — | HIGH | Fixed in roadmap v2 |
+| GAP-M007 | NEW | MEDIUM | — | First detected |
+| GAP-H002 | REGRESSION | HIGH (display: CRITICAL) | HIGH | Was resolved, now back |
+
+Summary: {N} persistent, {N} resolved, {N} new, {N} regressions
 ```
 
 ---
@@ -507,6 +714,23 @@ For each requirement marked COVERED by the parallel agents, ask:
 
 Requirements that exist in the spec but were not extracted in Phase 0 — buried in prose, footnotes, appendices, examples, or implicit in architecture diagrams.
 
+**Enhancement 4.3a — Systematic Pattern Scan**: Before the free-form orphan search, run `Grep` against each spec file with patterns to find requirement-like statements not captured in the requirement universe.
+
+**Pattern ordering**: If `historical_patterns` is loaded (from Pre-Phase 0, Hook 0c), insert the top-ranked historical patterns **before** the default patterns below. Historical patterns are project-specific patterns that proved effective in prior runs. Default patterns always run regardless.
+
+Default patterns:
+
+```
+1. Modal requirements:     (shall|must|required to|needs to) [^.]{10,80}
+2. Negation requirements:  (must not|shall not|never|prohibited|forbidden) [^.]{10,80}
+3. Quantitative NFRs:      (at least|at most|within|maximum|minimum) \d+
+4. Conditional:            (if|when|unless) .{5,40} (must|shall|should)
+```
+
+For each match: check against the requirement universe. If not already captured, create an ADV finding of type ORPHAN_REQUIREMENT.
+
+**Filtering rules**: Skip matches in the first 20 lines of each file (preamble/overview). Skip matches that are pure narrative with no concrete noun or measurable target. Negation requirements (pattern 2) are the highest-miss category — prioritize these.
+
 #### Step 4.4 — Search for Orphan Roadmap Tasks
 
 Tasks in the roadmap with no spec traceability. Report for awareness:
@@ -525,6 +749,15 @@ Tasks in the roadmap with no spec traceability. Report for awareness:
 
 - Does the roadmap assume capabilities, services, or infrastructure not in the spec?
 - Are there implicit dependencies between tasks that should be explicit?
+
+**Enhancement 4.6a — Systematic Assumption Detection**: Run `Grep` against the roadmap with these patterns:
+
+```
+1. Explicit assumptions:  (assumes|assuming|given that|prerequisite|depends on)
+2. Implicit state refs:   (existing|current|already|previously) .{5,40} (service|system|API|database|table|endpoint)
+```
+
+For each match: verify the assumed capability appears in the spec. If not specified in spec, create an ADV finding of type SILENT_ASSUMPTION.
 
 #### Step 4.7 — Validate Test Coverage Mapping
 
@@ -582,6 +815,39 @@ Phase R7: Implicit-to-explicit promotion (make implicit coverage tracked)
 Phase R8: Low-priority and cleanup (terminology, formatting, minor gaps)
 Phase R9: Re-validate (rerun this skill after all fixes applied)
 ```
+
+#### Step 5.1b — Codebase-Grounded Remediation Enrichment (Optional)
+
+**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+
+Before generating the patch checklist, enrich CRITICAL and HIGH remediation entries with codebase context so that implementers know which files and packages are affected.
+
+**Procedure**:
+
+1. **Filter eligible gaps**: Only process gaps with verdict VALID-CRITICAL or VALID-HIGH that contain concrete code keywords (file paths, class names, function names, API endpoints, config keys). **Hard skip**: NFR/CONSTRAINT-type gaps without file-level specificity are excluded.
+2. **Triage by resolution method** (same as Step 0.2b):
+   - **Concrete keywords** (file paths, symbol names): Resolve with `Grep`/`Glob` first.
+   - **Semantic queries** (architectural concepts, integration patterns): Query Auggie.
+3. **Query Auggie** (hard cap: **10 queries maximum**):
+   - Query format: `"What files and packages are affected by {gap description}? Include test files."`
+   - **Bail-out**: After **3 consecutive** queries returning no relevant results, abandon enrichment for remaining gaps.
+4. **Attach advisory context** to each enriched remediation entry:
+
+```markdown
+- [ ] **GAP-C001** (CRITICAL, MEDIUM): Missing JWT rotation implementation
+  - File: roadmap.md:L142-155
+  - Action: ADD
+  - **Codebase context** (advisory):
+    - Affected files: `src/auth/token_manager.py`, `src/auth/middleware.py`
+    - Related tests: `tests/test_token_rotation.py`
+    - Package: `superclaude.auth`
+    - Source: auggie | grep
+```
+
+**Constraints**:
+- Codebase context is **advisory** — existing heuristic effort levels (TRIVIAL/SMALL/MEDIUM/LARGE) remain unchanged.
+- No backward flow into Phase 3 metrics (R11 compliance).
+- Orchestrator-only: no agent-level Auggie access.
 
 #### Step 5.2 — Generate Patch Checklist
 
@@ -644,6 +910,7 @@ Write artifact: `{OUTPUT_DIR}/05-validation-summary.md`
 | 02-consolidated-report.md | 3 | Adjudicated findings with verdict |
 | 03-adversarial-review.md | 4 | Adversarial pass findings |
 | 04-remediation-plan.md | 5 | Dependency-ordered fix plan |
+| 00-symbol-context-supplement.md | 0 | Symbol structural context (deep only) |
 | 05-validation-summary.md | 6 | This file |
 
 ## Next Steps
@@ -653,6 +920,104 @@ Write artifact: `{OUTPUT_DIR}/05-validation-summary.md`
 ```
 
 If `--report` flag is set, also write summary to the specified path.
+
+---
+
+### Post-Phase 6: Session Context Persistence (Optional, Fail-Open)
+
+**Requires**: `mcp__serena__write_memory` (fail-open — skip all post-phase hooks if Serena is unavailable).
+
+After the final summary is written, persist cross-session context to Serena memory. Each hook is independent — failure in one does not block others or the return contract.
+
+#### Hook 6a — Write Validation Ledger Entry
+
+Persist the current validation results for future delta tracking.
+
+1. Build a ledger entry:
+
+```json
+{
+  "timestamp": "{ISO-8601}",
+  "roadmap_path": "{ROADMAP_PATH}",
+  "spec_paths": ["{SPEC_PATHS}"],
+  "verdict": "{GO|CONDITIONAL_GO|NO_GO}",
+  "weighted_coverage": "{%}",
+  "total_requirements": N,
+  "gaps": [
+    {"id": "GAP-C001", "severity": "CRITICAL", "description": "..."},
+    ...
+  ]
+}
+```
+
+2. Call `mcp__serena__read_memory` with key `validation-ledger-{project-slug}` to load existing ledger.
+3. Append new entry. **Pruning**: keep only the last **10 entries** or entries from the last **30 days**, whichever is fewer.
+4. Call `mcp__serena__write_memory` with the updated ledger.
+5. On error: log warning and continue. Ledger loss is acceptable.
+
+#### Hook 6b — Write Terminology Map
+
+Persist the updated terminology map for future extraction hints.
+
+1. Merge the current run's glossary terms (from Phase 0 extraction) with `prior_terminology` (if loaded).
+   - New terms are added with `first_seen: {today}`.
+   - Existing terms have `last_seen` updated to today.
+   - Terms not seen in the current run retain their prior dates.
+2. Call `mcp__serena__write_memory` with key `terminology-map-{project-slug}`.
+3. **Cross-project contamination prevention**: The project slug is part of the key — terms from project A are never loaded for project B.
+
+#### Hook 6c — Append Pattern Log Entry
+
+Write an append-only pattern log for trend tracking (human review only).
+
+1. Build a log entry summarizing this run:
+
+```json
+{
+  "timestamp": "{ISO-8601}",
+  "verdict": "{verdict}",
+  "coverage": "{%}",
+  "total_gaps": N,
+  "gap_severity_distribution": {"CRITICAL": N, "HIGH": N, "MEDIUM": N, "LOW": N},
+  "domains_validated": N,
+  "depth": "{depth}"
+}
+```
+
+2. Call `mcp__serena__read_memory` with key `pattern-log-{project-slug}`. Append entry. Keep last **20 entries**.
+3. Call `mcp__serena__write_memory` with the updated log.
+4. **Constraint**: The pattern log is **write-only** — the validator never reads it during execution. It exists for human trend review only.
+
+#### Hook 6d — Write Adversarial Pattern Effectiveness Stats
+
+After Phase 4, compute and persist pattern effectiveness data for future pattern ordering.
+
+1. For each pattern used in Step 4.3a (both default and historical):
+   - Count hits (matches that became ADV findings).
+   - Count false positives (matches that were filtered as non-requirement prose).
+   - Record severity distribution of resulting findings.
+2. Build stats:
+
+```json
+{
+  "timestamp": "{ISO-8601}",
+  "project_type": "{detected or 'generic'}",
+  "patterns": [
+    {
+      "regex": "(shall|must|required to) ...",
+      "hits": N,
+      "false_positives": N,
+      "fp_rate": 0.XX,
+      "severity_distribution": {"CRITICAL": N, "HIGH": N, ...}
+    },
+    ...
+  ]
+}
+```
+
+3. Call `mcp__serena__read_memory` with key `adversarial-patterns-{project-slug}`. Merge stats (cumulative hit/FP counts). Retain **top 20 patterns** by effectiveness score. Expire entries older than **90 days**.
+4. Call `mcp__serena__write_memory` with updated stats.
+5. **Project-type segmentation**: If the project type changes between runs, historical patterns from the prior type are retained but ranked lower (0.5x weight multiplier).
 
 ---
 

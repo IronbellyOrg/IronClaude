@@ -1,6 +1,6 @@
 """Step 4: design-pipeline — Claude-assisted pipeline design.
 
-Produces portify-pipeline-design.md with step definitions, gate assignments,
+Produces portify-spec.md with step definitions, gate assignments,
 and data-flow mapping.
 
 Gate: STRICT (SC-004).
@@ -10,11 +10,9 @@ Review gate: pauses for user approval (y/n) before synthesis phase (unless skip_
 
 from __future__ import annotations
 
-import json
 import logging
 import time
 from pathlib import Path
-from typing import Optional
 
 from ..models import (
     FailureClassification,
@@ -23,6 +21,7 @@ from ..models import (
     PortifyStepResult,
 )
 from ..process import PortifyProcess, ProcessResult
+from ..review import review_gate, ReviewDecision
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
     """Execute Step 4: design-pipeline.
 
     Requires portify-analysis.md from Step 3.
-    Produces portify-pipeline-design.md.
+    Produces portify-spec.md.
 
     Dry-run halt (SC-011): if config.dry_run=True, emits contract JSON and returns SKIPPED.
     Review gate: prompts user for approval (y/n) unless config.skip_review=True.
@@ -107,6 +106,17 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
             duration_seconds=duration,
         )
 
+    # Dry-run halt (SC-011 / SC-012): return SKIPPED before synthesis
+    if config.dry_run:
+        return PortifyStepResult(
+            step_name=STEP_NAME,
+            step_number=STEP_NUMBER,
+            phase=PHASE,
+            portify_status=PortifyStatus.SKIPPED,
+            gate_tier=GATE_TIER,
+            duration_seconds=duration,
+        )
+
     # Read output
     if result.output_file and result.output_file.exists():
         content = result.output_file.read_text(encoding="utf-8", errors="replace")
@@ -115,7 +125,7 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
     else:
         content = result.stdout_text
 
-    # Gate check (SC-004)
+    # Gate check (SC-004): must have frontmatter and substantive content
     if not _check_gate(content):
         return PortifyStepResult(
             step_name=STEP_NAME,
@@ -125,7 +135,7 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
             failure_classification=FailureClassification.GATE_FAILURE,
             gate_tier=GATE_TIER,
             artifact_path=str(artifact_path),
-            error_message="Gate SC-004 failed",
+            error_message="Gate SC-004 failed: missing frontmatter or insufficient content",
             duration_seconds=duration,
         )
 
@@ -133,55 +143,26 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
     if not artifact_path.exists():
         artifact_path.write_text(content, encoding="utf-8")
 
-    # Dry-run halt (SC-011 / SC-012): emit dry_run contract and return SKIPPED
-    if getattr(config, "dry_run", False):
-        from ..contract import build_dry_run_contract, StepTiming
-
-        contract = build_dry_run_contract(
-            step_results=[],
-            artifacts=[str(artifact_path)],
-            step_timings=[StepTiming(step_name=STEP_NAME, duration_seconds=duration)],
-            total_duration=duration,
-        )
-        print(contract.to_json())
+    # Review gate (unless skip_review) — delegates to canonical review.py
+    should_continue, decision = review_gate(
+        STEP_NAME, str(artifact_path), skip_review=config.skip_review,
+    )
+    if not should_continue:
         return PortifyStepResult(
             step_name=STEP_NAME,
             step_number=STEP_NUMBER,
             phase=PHASE,
-            portify_status=PortifyStatus.SKIPPED,
+            portify_status=PortifyStatus.FAIL,
+            failure_classification=FailureClassification.USER_REJECTION,
             gate_tier=GATE_TIER,
             artifact_path=str(artifact_path),
+            review_required=True,
+            review_accepted=False,
+            error_message="User rejected pipeline design",
             duration_seconds=duration,
         )
 
-    # Review gate (unless skip_review)
-    if not getattr(config, "skip_review", True):
-        try:
-            answer = (
-                input(
-                    f"\nReview the pipeline design at {artifact_path}\nAccept? [y/n]: "
-                )
-                .strip()
-                .lower()
-            )
-        except (EOFError, KeyboardInterrupt):
-            answer = "n"
-
-        if answer != "y":
-            return PortifyStepResult(
-                step_name=STEP_NAME,
-                step_number=STEP_NUMBER,
-                phase=PHASE,
-                portify_status=PortifyStatus.FAIL,
-                failure_classification=FailureClassification.USER_REJECTION,
-                gate_tier=GATE_TIER,
-                artifact_path=str(artifact_path),
-                review_required=True,
-                review_accepted=False,
-                error_message="User rejected pipeline design",
-                duration_seconds=duration,
-            )
-
+    if decision != ReviewDecision.SKIPPED:
         return PortifyStepResult(
             step_name=STEP_NAME,
             step_number=STEP_NUMBER,
@@ -206,16 +187,19 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
 
 
 def _check_gate(content: str) -> bool:
-    """SC-004: pipeline_steps frontmatter field must be present and > 0."""
+    """SC-004: must have YAML frontmatter and substantive design content."""
     from ..utils import parse_frontmatter
 
-    frontmatter, _ = parse_frontmatter(content)
-    return bool(frontmatter) and int(frontmatter.get("pipeline_steps", 0)) > 0
+    frontmatter, body = parse_frontmatter(content)
+    if not frontmatter:
+        return False
+    # Require at least some substantive content in the body
+    return len(body.strip()) > 50
 
 
 def _build_prompt(config: PortifyConfig, analysis_path: Path) -> str:
     return (
         f"Design a CLI pipeline for the workflow at {config.workflow_path}. "
         f"Analysis: {analysis_path}. "
-        "Produce portify-pipeline-design.md with step definitions and gate assignments."
+        "Produce portify-spec.md with step definitions and gate assignments."
     )

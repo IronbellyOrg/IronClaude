@@ -33,7 +33,6 @@ GATE_TIER = "STRICT"
 ARTIFACT_NAME = "synthesized-spec.md"
 
 SENTINEL_PATTERN = re.compile(r"\{\{SC_PLACEHOLDER:([^}]+)\}\}")
-MAX_RETRIES = 1
 
 
 def scan_sentinels(content_or_path: Union[str, Path]) -> list[str]:

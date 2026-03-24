@@ -142,6 +142,18 @@ class ExecutionLog:
             **kwargs,
         )
 
+    def failure_handler(
+        self, step_id: str, handler_name: str = "", classification: str = "", **kwargs
+    ) -> None:
+        """Record that a failure handler was dispatched for a step."""
+        self.record(
+            "failure_handler",
+            step_id=step_id,
+            handler_name=handler_name,
+            classification=classification,
+            **kwargs,
+        )
+
     def pipeline_outcome(self, outcome: str, step_id: str = "", **kwargs) -> None:
         """Record the final pipeline_outcome event."""
         self.record(EV_PIPELINE_OUTCOME, step_id=step_id, outcome=outcome, **kwargs)

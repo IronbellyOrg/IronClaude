@@ -23,15 +23,13 @@ from superclaude.cli.cli_portify.monitor import (
     classify_failure,
     generate_diagnostic_report,
 )
-from superclaude.cli.cli_portify.utils import (
-    GATE_FAIL,
-    GATE_PASS,
-    SIGNAL_VOCABULARY,
-    STEP_COMPLETE,
-    STEP_ERROR,
-    STEP_START,
-    STEP_TIMEOUT,
-)
+# Signal vocabulary constants — used as plain strings by EventLogger.emit()
+STEP_START = "step_start"
+STEP_COMPLETE = "step_complete"
+STEP_ERROR = "step_error"
+STEP_TIMEOUT = "step_timeout"
+GATE_PASS = "gate_pass"
+GATE_FAIL = "gate_fail"
 
 
 class TestEventLogger:
@@ -80,9 +78,10 @@ class TestEventLogger:
     def test_uses_signal_vocabulary_constants(self):
         """All signal vocabulary constants produce valid events."""
         logger = EventLogger()
-        for sig in SIGNAL_VOCABULARY:
+        signals = [STEP_START, STEP_COMPLETE, STEP_ERROR, STEP_TIMEOUT, GATE_PASS, GATE_FAIL]
+        for sig in signals:
             logger.emit(sig, step="test")
-        assert len(logger.events) == len(SIGNAL_VOCABULARY)
+        assert len(logger.events) == len(signals)
 
 
 class TestEventRecord:

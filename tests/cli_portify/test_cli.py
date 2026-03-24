@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from superclaude.cli.cli_portify.cli import cli_portify_group
+from superclaude.cli.cli_portify.commands import cli_portify_group
 from superclaude.cli.cli_portify.config import load_portify_config
 
 

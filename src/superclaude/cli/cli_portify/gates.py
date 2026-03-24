@@ -236,6 +236,7 @@ def has_criticals_addressed(content: str) -> tuple[bool, str]:
     unresolved = re.findall(
         r"CRITICAL(?!.*?\[(?:INCORPORATED|DISMISSED)\])",
         content,
+        re.DOTALL,
     )
     if unresolved:
         return (

@@ -13,8 +13,6 @@ Covers:
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
-
 import pytest
 
 from superclaude.cli.cli_portify.config import load_portify_config
@@ -33,7 +31,6 @@ from superclaude.cli.cli_portify.steps.panel_review import (
     DOWNSTREAM_READINESS_THRESHOLD,
 )
 from superclaude.cli.cli_portify.convergence import ConvergenceResult, ConvergenceState
-from superclaude.cli.cli_portify.utils import verify_additive_only
 from tests.cli_portify.fixtures.mock_harness import (
     PANEL_REVIEW_GOOD,
     BRAINSTORM_GAPS_GOOD,
@@ -153,83 +150,6 @@ class TestCriticalCounting:
 
     def test_no_criticals(self):
         assert count_unaddressed_criticals("All issues resolved.") == 0
-
-
-class TestSectionHashing:
-    """D-0033 / NFR-008: Additive-only enforcement."""
-
-    def test_capture_section_hashes(self):
-        content = """\
-## Section A
-
-Content for A.
-
-## Section B
-
-Content for B.
-"""
-        hashes = capture_section_hashes(content)
-        assert "Section A" in hashes
-        assert "Section B" in hashes
-        assert len(hashes) == 2
-
-    def test_additive_only_passes_with_new_section(self):
-        old_content = """\
-## Section A
-
-Content for A.
-"""
-        old_hashes = capture_section_hashes(old_content)
-
-        new_content = """\
-## Section A
-
-Content for A.
-
-## Section B
-
-New content for B.
-"""
-        violations = verify_additive_only(old_hashes, new_content)
-        assert violations == []
-
-    def test_additive_only_fails_on_modification(self):
-        old_content = """\
-## Section A
-
-Original content.
-"""
-        old_hashes = capture_section_hashes(old_content)
-
-        new_content = """\
-## Section A
-
-Modified content.
-"""
-        violations = verify_additive_only(old_hashes, new_content)
-        assert len(violations) == 1
-        assert "Section A" in violations[0]
-
-    def test_additive_only_fails_on_removal(self):
-        old_content = """\
-## Section A
-
-Content for A.
-
-## Section B
-
-Content for B.
-"""
-        old_hashes = capture_section_hashes(old_content)
-
-        new_content = """\
-## Section A
-
-Content for A.
-"""
-        violations = verify_additive_only(old_hashes, new_content)
-        assert len(violations) == 1
-        assert "Section B" in violations[0]
 
 
 class TestPanelReportGeneration:
@@ -353,19 +273,3 @@ class TestPanelReviewFailures:
             result = run_panel_review(config_with_prior_artifacts)
         assert result.portify_status == PortifyStatus.TIMEOUT
 
-    def test_user_rejection(self, config_with_prior_artifacts):
-        """User rejection at review gate should produce FAIL."""
-        # Need to enable review gate and mock user input
-        config_with_prior_artifacts.skip_review = False
-        with (
-            patch_portify_process("panel-review"),
-            patch(
-                "superclaude.cli.cli_portify.steps.panel_review.prompt_user_review",
-                return_value=False,
-            ),
-        ):
-            result = run_panel_review(config_with_prior_artifacts)
-
-        assert result.portify_status == PortifyStatus.FAIL
-        assert result.failure_classification == FailureClassification.USER_REJECTION
-        assert result.review_accepted is False

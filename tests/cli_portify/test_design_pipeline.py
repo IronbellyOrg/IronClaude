@@ -11,7 +11,6 @@ Covers:
 from __future__ import annotations
 
 import io
-import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -85,9 +84,13 @@ class TestDesignPipelineHappyPath:
 
 
 class TestDesignPipelineDryRun:
-    """Test --dry-run halt logic (SC-011)."""
+    """Test --dry-run halt logic (SC-011).
 
-    def test_dry_run_emits_contract(self, config_with_analysis, capsys):
+    Dry-run now returns SKIPPED before subprocess execution.
+    Contract emission is handled centrally by the executor.
+    """
+
+    def test_dry_run_returns_skipped(self, config_with_analysis):
         config_with_analysis.dry_run = True
         config_with_analysis.skip_review = True
         with patch_portify_process("design-pipeline"):
@@ -95,22 +98,14 @@ class TestDesignPipelineDryRun:
 
         assert result.portify_status == PortifyStatus.SKIPPED
 
-        captured = capsys.readouterr()
-        contract = json.loads(captured.out)
-        assert contract["status"] == "dry_run"
-
-    def test_dry_run_marks_phases_skipped(self, config_with_analysis, capsys):
+    def test_dry_run_no_artifact_written(self, config_with_analysis):
         config_with_analysis.dry_run = True
         config_with_analysis.skip_review = True
         with patch_portify_process("design-pipeline"):
-            run_design_pipeline(config_with_analysis)
+            result = run_design_pipeline(config_with_analysis)
 
-        captured = capsys.readouterr()
-        contract = json.loads(captured.out)
-        # Phases 3-4 should be marked skipped
-        phases = contract["phases"]
-        for p in phases[2:]:
-            assert p["status"] == "skipped"
+        # No artifact should be written since dry_run halts before synthesis
+        assert result.artifact_path is None or result.artifact_path == ""
 
 
 class TestDesignPipelineReviewGate:
