@@ -1176,20 +1176,17 @@ def _check_annotate_deviations_freshness(
 def _check_remediation_budget(
     output_dir: Path,
     max_attempts: int = 2,
-    halt_fn: "Callable[[Path, list, int], None] | None" = None,
 ) -> bool:
     """Check if remediation budget allows another attempt (SC-6).
 
     Reads remediation_attempts from .roadmap-state.json.
-    If attempts >= max_attempts, calls halt_fn (or _print_terminal_halt)
-    and returns False.
+    If attempts >= max_attempts, calls _print_terminal_halt and returns False.
 
     Non-integer remediation_attempts is coerced to 0 with a WARNING log.
 
     Args:
         output_dir: Pipeline output directory containing .roadmap-state.json
         max_attempts: Maximum allowed remediation attempts (default 2)
-        halt_fn: Optional callable for terminal halt; defaults to _print_terminal_halt
 
     Returns:
         True if budget allows another attempt, False if exhausted.
@@ -1207,14 +1204,11 @@ def _check_remediation_budget(
             attempts = 0
 
     if attempts >= max_attempts:
-        if halt_fn is not None:
-            halt_fn(output_dir, [], attempts + 1)
-        else:
-            _print_terminal_halt(
-                output_dir=output_dir,
-                remaining_findings=[],
-                attempt_count=attempts + 1,
-            )
+        _print_terminal_halt(
+            output_dir=output_dir,
+            remaining_findings=[],
+            attempt_count=attempts + 1,
+        )
         return False
 
     return True

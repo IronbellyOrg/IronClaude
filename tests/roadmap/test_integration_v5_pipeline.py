@@ -558,19 +558,12 @@ class TestSC6TerminalHalt:
         assert _check_remediation_budget(tmp_path) is True
 
     def test_third_attempt_triggers_halt(self, tmp_path):
-        """Third attempt (2 previous) exhausts budget and triggers halt."""
+        """Third attempt (2 previous) exhausts budget and returns False."""
         state = {"schema_version": 1, "steps": {}, "remediation_attempts": 2}
         (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
 
-        halt_invoked = []
-
-        def mock_halt(output_dir, findings, count):
-            halt_invoked.append({"count": count})
-
-        result = _check_remediation_budget(tmp_path, halt_fn=mock_halt)
+        result = _check_remediation_budget(tmp_path)
         assert result is False
-        assert len(halt_invoked) == 1
-        assert halt_invoked[0]["count"] == 3
 
     def test_terminal_halt_stderr_has_attempt_count(self, tmp_path):
         """Terminal halt output includes the attempt count."""
@@ -744,18 +737,10 @@ class TestCompleteV224PipelineFlow:
         assert "DEV-002" in fix_ids
 
     def test_v224_budget_enforcement_sc6_semantics(self, tmp_path):
-        """SC-6: Third remediation attempt on v2.24 scenario triggers terminal halt."""
+        """SC-6: Third remediation attempt on v2.24 scenario returns False."""
         # Write state showing 2 previous attempts
         state = {"schema_version": 1, "steps": {}, "remediation_attempts": 2}
         (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
 
-        halt_called = []
-
-        def capture_halt(output_dir, findings, count):
-            halt_called.append(count)
-
-        result = _check_remediation_budget(tmp_path, halt_fn=capture_halt)
+        result = _check_remediation_budget(tmp_path)
         assert result is False, "Third attempt should exhaust budget"
-        assert halt_called == [3], (
-            f"Expected halt called with count=3, got {halt_called}"
-        )

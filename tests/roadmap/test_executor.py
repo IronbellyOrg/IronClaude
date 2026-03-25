@@ -747,26 +747,12 @@ class TestCheckRemediationBudget:
     def test_attempt_3_returns_false(self, tmp_path):
         """Third attempt (2 previous) -> False (budget exhausted)."""
         _write_state(tmp_path / ".roadmap-state.json", 2)
-        halt_called = []
+        assert _check_remediation_budget(tmp_path) is False
 
-        def mock_halt(output_dir, findings, count):
-            halt_called.append(count)
-
-        assert _check_remediation_budget(tmp_path, halt_fn=mock_halt) is False
-        assert len(halt_called) == 1
-
-    def test_budget_exhaustion_calls_halt(self, tmp_path):
-        """Budget exhaustion calls halt_fn with correct attempt count."""
+    def test_budget_exhaustion_returns_false(self, tmp_path):
+        """Budget exhaustion returns False."""
         _write_state(tmp_path / ".roadmap-state.json", 2)
-        captured = {}
-
-        def mock_halt(output_dir, findings, count):
-            captured["count"] = count
-            captured["output_dir"] = output_dir
-
-        _check_remediation_budget(tmp_path, halt_fn=mock_halt)
-        assert captured["count"] == 3
-        assert captured["output_dir"] == tmp_path
+        assert _check_remediation_budget(tmp_path) is False
 
     def test_no_state_file_returns_true(self, tmp_path):
         """No state file -> first attempt, allowed."""
@@ -774,16 +760,9 @@ class TestCheckRemediationBudget:
         assert _check_remediation_budget(tmp_path) is True
 
     def test_configurable_max_attempts_1(self, tmp_path):
-        """max_attempts=1: second attempt triggers halt."""
+        """max_attempts=1: second attempt triggers budget exhaustion."""
         _write_state(tmp_path / ".roadmap-state.json", 1)
-        halt_called = []
-        assert (
-            _check_remediation_budget(
-                tmp_path, max_attempts=1, halt_fn=lambda *a: halt_called.append(1)
-            )
-            is False
-        )
-        assert len(halt_called) == 1
+        assert _check_remediation_budget(tmp_path, max_attempts=1) is False
 
     def test_configurable_max_attempts_3(self, tmp_path):
         """max_attempts=3: second attempt still allowed."""

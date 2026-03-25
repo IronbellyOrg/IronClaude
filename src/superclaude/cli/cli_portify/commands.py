@@ -106,6 +106,12 @@ def cli_portify_group():
     default=False,
     help="Enable debug logging",
 )
+@click.option(
+    "--gate-mode",
+    type=click.Choice(["shadow", "soft", "full"], case_sensitive=False),
+    default="shadow",
+    help="Gate enforcement mode: shadow (log only), soft (warn), full (block).",
+)
 def run(
     workflow: str,
     cli_name: str,
@@ -121,6 +127,7 @@ def run(
     resume_step: str,
     max_convergence: int,
     debug: bool,
+    gate_mode: str,
 ) -> None:
     """Portify WORKFLOW into a programmatic CLI pipeline.
 
@@ -170,6 +177,9 @@ def run(
         # Set resume_from directly (now a proper field on PortifyConfig)
         if resume_step:
             config.resume_from = resume_step
+
+        # Set gate enforcement mode
+        config.gate_mode = gate_mode
 
         # Validate config before proceeding
         validation_errors = validate_portify_config(config)

@@ -31,6 +31,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
+from superclaude.cli.cli_portify.models import PortifyGateMode
 from superclaude.cli.pipeline.models import GateCriteria, GateMode, SemanticCheck
 
 
@@ -470,6 +471,24 @@ def get_gate_criteria(step_name: str) -> GateCriteria:
     if step_name not in GATE_REGISTRY:
         raise KeyError(f"No gate criteria registered for step: '{step_name}'")
     return GATE_REGISTRY[step_name]
+
+
+# ---------------------------------------------------------------------------
+# Per-gate minimum enforcement overrides (Layer 2)
+# Gates not listed here default to SHADOW (no override).
+# ---------------------------------------------------------------------------
+
+GATE_MIN_ENFORCE: dict[str, PortifyGateMode] = {
+    # EXEMPT/LIGHT gates: safe to enforce immediately
+    "validate-config": PortifyGateMode.FULL,
+    # STANDARD gates: promote to soft (warn) by default
+    "discover-components": PortifyGateMode.SOFT,
+    "brainstorm-gaps": PortifyGateMode.SOFT,
+    "models-gates-design": PortifyGateMode.SOFT,
+    # STRICT gates: no override, follow global mode
+    # "analyze-workflow": PortifyGateMode.SHADOW,  (implicit default)
+    # "panel-review": PortifyGateMode.SHADOW,       (implicit default)
+}
 
 
 # ---------------------------------------------------------------------------
