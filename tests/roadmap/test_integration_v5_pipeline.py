@@ -174,6 +174,12 @@ def _build_step_content(step: Step) -> str:
     fm_fields: dict[str, str] = {}
     for f in step.gate.required_frontmatter_fields:
         fm_fields[f] = _V224_FM_VALUES.get(f, "test_value")
+    # Add extra fields needed by semantic checks (not in required list)
+    _SEMANTIC_EXTRAS = {
+        "deviation-analysis": ["ambiguous_deviations", "routing_update_spec", "routing_human_review"],
+    }
+    for extra in _SEMANTIC_EXTRAS.get(step.id, []):
+        fm_fields[extra] = _V224_FM_VALUES.get(extra, "")
 
     lines = ["---"]
     for k, v in fm_fields.items():
@@ -227,7 +233,7 @@ class TestSC1PipelineComplete:
     """SC-1: Full pipeline run completes without halting at any step."""
 
     def test_pipeline_reaches_certify(self, tmp_path):
-        """All 9 steps pass; pipeline completes to certify step."""
+        """All steps pass; pipeline completes including post-fidelity steps."""
         config = _make_config(tmp_path)
         steps = _build_steps(config)
 
@@ -237,16 +243,14 @@ class TestSC1PipelineComplete:
             run_step=_mock_runner_all_pass,
         )
 
-        assert len(results) == 11
+        assert len(results) == 13
         assert all(r.status == StepStatus.PASS for r in results)
 
-    def test_wiring_verification_step_is_last(self, tmp_path):
-        """wiring-verification is the final step in the roadmap generation pipeline.
+    def test_remediate_step_is_last(self, tmp_path):
+        """remediate is the final static step in the pipeline.
 
-        Note: remediate and certify are part of the validate pipeline, not
-        the roadmap generation pipeline. SC-1 'completes to certify' refers
-        to the full pipeline completing without manual intervention, with
-        certify handled by the subsequent validation phase.
+        Note: certify is constructed dynamically after remediate completes
+        and is not part of the static _build_steps() list.
         """
         config = _make_config(tmp_path)
         steps = _build_steps(config)
@@ -258,7 +262,7 @@ class TestSC1PipelineComplete:
         )
 
         last_step_id = results[-1].step.id
-        assert last_step_id == "wiring-verification"
+        assert last_step_id == "remediate"
 
     def test_no_step_fails(self, tmp_path):
         """Zero steps with FAIL status in the v2.24 clean scenario."""
@@ -667,15 +671,15 @@ class TestCompleteV224PipelineFlow:
             run_step=_mock_runner_all_pass,
         )
 
-        # SC-1: All 11 steps pass (pipeline reaches certify without manual intervention)
-        assert len(results) == 11, f"Expected 11 results, got {len(results)}"
+        # SC-1: All 13 steps pass (pipeline reaches remediate without manual intervention)
+        assert len(results) == 13, f"Expected 13 results, got {len(results)}"
         assert all(r.status == StepStatus.PASS for r in results), (
             f"Failed steps: {[r.step.id for r in results if r.status != StepStatus.PASS]}"
         )
 
-        # SC-1: wiring-verification is last step of roadmap generation pipeline
-        # (certify is part of the subsequent validate pipeline)
-        assert results[-1].step.id == "wiring-verification"
+        # SC-1: remediate is last static step of pipeline
+        # (certify is constructed dynamically after remediate)
+        assert results[-1].step.id == "remediate"
 
         # Verify step IDs follow expected pipeline order
         step_ids = [r.step.id for r in results]

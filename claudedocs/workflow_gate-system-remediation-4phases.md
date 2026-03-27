@@ -180,8 +180,8 @@ Verification: `uv run pytest tests/roadmap/test_eval_gate_ordering.py tests/road
 
 Mechanical steps:
 1. Add `"deviation-analysis"` between `"wiring-verification"` and `"remediate"` (line 1007).
-2. Result: `..., "wiring-verification", "deviation-analysis", "remediate", "certify"`.
-3. Verify: assert length of `_get_all_step_ids(config)` equals flattened `_build_steps(config)` length + 1 (certify is dynamic, counted in IDs but not in static step list).
+2. Result: `..., "wiring-verification", "deviation-analysis", "remediate", "certify"` (14 IDs total).
+3. Verify: `len(_get_all_step_ids(config))` == 14 == flattened `_build_steps(config)` count (13) + 1. The +1 is `"certify"`, which is dynamic (constructed by step runner after remediate, not in static `_build_steps()` list).
 
 #### P2-T3: Wire executable producers with JSON sidecar strategy
 **Complexity:** 5 | **Adversarial-reviewed, REFACTORED**
@@ -232,14 +232,20 @@ Mechanical steps:
 - `tests/roadmap/test_executor.py`
 - `tests/roadmap/test_eval_gate_ordering.py`
 
+> **Step count reference (dynamic certify asymmetry):**
+> - `_build_steps()` returns **12 entries** (10 original + deviation-analysis + remediate). Flattened = **13 steps** (parallel generate pair counts as 2). Certify is NOT in this list.
+> - `_get_all_step_ids()` returns **14 IDs** (includes `"certify"`). This is intentionally 1 more than the flattened step count.
+> - All test count assertions below reflect this asymmetry. The certify step is constructed dynamically by the step runner after remediate completes.
+
 Mechanical steps:
-1. `test_eval_gate_ordering.py::TestStepOrdering::test_step_count`: Change `assert len(flat) == 11` to `assert len(flat) == 13` (certify is dynamic, not in static step list).
-2. `test_sequential_order_after_generate`: Add `"deviation-analysis", "remediate"` to `expected_order` after `"wiring-verification"`.
+1. `test_eval_gate_ordering.py::TestStepOrdering::test_step_count`: Change `assert len(flat) == 11` to `assert len(flat) == 13`. Add comment: `# certify is dynamic, not in static step list; _get_all_step_ids has 14`.
+2. `test_sequential_order_after_generate`: Add `"deviation-analysis", "remediate"` to `expected_order` after `"wiring-verification"`. Do NOT add `"certify"` (dynamic).
 3. Add `test_deviation_analysis_after_wiring`, `test_remediate_after_deviation_analysis` ordering assertions.
 4. Add `TestInputDependencies` tests: deviation-analysis inputs fidelity+merge; remediate inputs deviation+fidelity+merge.
-5. Add `test_new_steps_trailing_gate_mode` asserting TRAILING for deviation-analysis and remediate.
-6. `test_executor.py::test_step_ids_in_order`: Add `assert ids[11] == "deviation-analysis"`, `assert ids[12] == "remediate"`.
-7. `test_executor.py::test_build_steps_returns_correct_count`: Update count to 12 entries (13 steps including parallel pair).
+5. Add `test_new_steps_trailing_gate_mode` asserting TRAILING for deviation-analysis and remediate only (certify is dynamic, not testable here).
+6. `test_executor.py::test_step_ids_in_order`: Add `assert ids[11] == "deviation-analysis"`, `assert ids[12] == "remediate"`. Do NOT assert `ids[13]` (certify not in static list).
+7. `test_executor.py::test_build_steps_returns_correct_count`: Change to `len(steps) == 12` (12 entries; 13 steps when parallel pair flattened).
+8. Add `test_get_all_step_ids_includes_certify`: Assert `"certify" in _get_all_step_ids(config)` and `len(_get_all_step_ids(config)) == len(flat_steps) + 1`.
 
 Verification: `uv run pytest tests/roadmap/test_eval_gate_ordering.py tests/roadmap/test_executor.py -v`
 
@@ -349,6 +355,8 @@ Verification: `uv run pytest tests/roadmap/test_resume_restore.py -v`
 #### P3-T5-pre1: Analyze TRAILING-mode failure logs (MANDATORY PREREQUISITE)
 **Complexity:** 2 | **Adversarial-reviewed, NEW TASK**
 
+> **Ordering note:** This task runs AFTER P3-T6 (which produces the eval runs whose logs are analyzed here). Execute P3-T6 first, then return to this task before proceeding to P3-T5.
+
 Mechanical steps:
 1. After P3-T6 eval runs complete, collect gate evaluation log output for deviation-analysis, remediate, certify gates.
 2. Document per-gate: failure rate, most common failure reason, whether `ambiguous_count > 0` occurred.
@@ -360,7 +368,7 @@ No code changes. Analysis only.
 **Complexity:** 5 | **Adversarial-reviewed, REFACTORED**
 **Primary ownership file:** `src/superclaude/cli/roadmap/executor.py`
 
-**Prerequisites:** P3-T4 (resume tests pass) AND P3-T5-pre1 (failure log analysis complete with <20% failure rate).
+**Prerequisites:** P3-T4 (resume tests pass) AND P3-T6 (eval runs complete) AND P3-T5-pre1 (failure log analysis complete with <20% failure rate).
 
 **Stage A: Enforce deviation-analysis gate**
 - In `_build_steps()`, remove `gate_mode=GateMode.TRAILING` from deviation-analysis Step (defaults to `GateMode.BLOCKING`).

@@ -130,12 +130,34 @@ def _gate_passing_content(step: Step) -> str:
         "total_findings": "0",
         "blocking_findings": "0",
         "whitelist_entries_applied": "0",
+        # deviation-analysis gate fields
+        "schema_version": "1",
+        "slip_count": "0",
+        "intentional_count": "0",
+        "pre_approved_count": "0",
+        "ambiguous_count": "0",
+        "ambiguous_deviations": "0",
+        "total_analyzed": "0",
+        "routing_fix_roadmap": "",
+        "routing_no_action": "",
+        # remediate gate fields
+        "type": "remediation-tasklist",
+        "source_report": "spec-fidelity.md",
+        "source_report_hash": "abc123",
+        "actionable": "0",
+        "skipped": "0",
     }
 
     fm_fields = {}
     if step.gate and step.gate.required_frontmatter_fields:
         for f in step.gate.required_frontmatter_fields:
             fm_fields[f] = fm_values.get(f, "test_value")
+    # Add extra fields needed by semantic checks (not in required list)
+    _semantic_extras = {
+        "deviation-analysis": ["ambiguous_deviations"],
+    }
+    for extra in _semantic_extras.get(step.id, []):
+        fm_fields[extra] = fm_values.get(extra, "0")
 
     content_lines = ["---"]
     for k, v in fm_fields.items():
@@ -181,8 +203,8 @@ class TestE2EFullPipeline:
             run_step=_mock_runner,
         )
 
-        # 10 individual steps (2 parallel generate + 8 sequential)
-        assert len(results) == 11
+        # 13 individual steps (2 parallel generate + 10 sequential + deviation-analysis + remediate)
+        assert len(results) == 13
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_e2e_state_saved_after_steps_1_9(self, tmp_path):
@@ -414,8 +436,8 @@ class TestE2EFullPipeline:
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
 
-        # Verify all 11 step results + remediate + certify metadata
-        assert len(state["steps"]) == 11
+        # Verify all 13 step results + remediate + certify metadata
+        assert len(state["steps"]) == 13
         assert all(state["steps"][sid]["status"] == "PASS" for sid in state["steps"])
         assert state["remediate"]["status"] == "PASS"
         assert state["certify"]["certified"] is True

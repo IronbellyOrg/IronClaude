@@ -31,8 +31,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from superclaude.cli.cli_portify.models import PortifyGateMode
-from superclaude.cli.pipeline.models import GateCriteria, GateMode, SemanticCheck
+from .models import PortifyGateMode
+from ..pipeline.models import GateCriteria, GateMode, SemanticCheck
 
 
 # ---------------------------------------------------------------------------
