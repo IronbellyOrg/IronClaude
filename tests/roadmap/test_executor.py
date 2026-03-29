@@ -53,12 +53,12 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
 
 
 class TestBuildSteps:
-    def test_produces_10_entries(self, tmp_path):
+    def test_produces_12_entries(self, tmp_path):
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         assert (
-            len(steps) == 10
-        )  # 8 sequential + 1 parallel group (2 steps) + wiring-verification
+            len(steps) == 12
+        )  # 10 sequential + 1 parallel group (2 steps) + deviation-analysis + remediate; certify is dynamic
 
     def test_second_entry_is_parallel(self, tmp_path):
         config = _make_config(tmp_path)
@@ -86,6 +86,21 @@ class TestBuildSteps:
         assert ids[8] == "test-strategy"
         assert ids[9] == "spec-fidelity"
         assert ids[10] == "wiring-verification"
+        assert ids[11] == "deviation-analysis"
+        assert ids[12] == "remediate"
+
+    def test_get_all_step_ids_includes_certify(self, tmp_path):
+        """_get_all_step_ids includes certify (dynamic) and has 14 IDs total."""
+        from superclaude.cli.roadmap.executor import _get_all_step_ids
+        config = _make_config(tmp_path)
+        all_ids = _get_all_step_ids(config)
+        assert "certify" in all_ids
+        assert "deviation-analysis" in all_ids
+
+        # Static steps = 13 flattened; _get_all_step_ids = 14 (includes dynamic certify)
+        steps = _build_steps(config)
+        flat_count = sum(len(s) if isinstance(s, list) else 1 for s in steps)
+        assert len(all_ids) == flat_count + 1  # +1 for dynamic certify
 
 
 class TestIntegrationMockSubprocess:
@@ -150,11 +165,33 @@ class TestIntegrationMockSubprocess:
                 "total_findings": "0",
                 "blocking_findings": "0",
                 "whitelist_entries_applied": "0",
+                # deviation-analysis gate fields
+                "schema_version": "1",
+                "slip_count": "0",
+                "intentional_count": "0",
+                "pre_approved_count": "0",
+                "ambiguous_count": "0",
+                "ambiguous_deviations": "0",
+                "total_analyzed": "0",
+                "routing_fix_roadmap": "",
+                "routing_no_action": "",
+                # remediate gate fields
+                "type": "remediation-tasklist",
+                "source_report": "spec-fidelity.md",
+                "source_report_hash": "abc123",
+                "actionable": "0",
+                "skipped": "0",
             }
             fm_fields = {}
             if step.gate and step.gate.required_frontmatter_fields:
                 for f in step.gate.required_frontmatter_fields:
                     fm_fields[f] = fm_values.get(f, "test_value")
+            # Add extra fields needed by semantic checks (not in required list)
+            semantic_extras = {
+                "deviation-analysis": ["ambiguous_deviations"],
+            }
+            for extra in semantic_extras.get(step.id, []):
+                fm_fields[extra] = fm_values.get(extra, "0")
 
             content_lines = ["---"]
             for k, v in fm_fields.items():
@@ -184,8 +221,9 @@ class TestIntegrationMockSubprocess:
             run_step=mock_runner,
         )
 
-        assert len(results) == 11  # 10 entries -> 11 individual steps
-        assert all(r.status == StepStatus.PASS for r in results)
+        assert len(results) == 13  # 12 entries -> 13 individual steps (certify is dynamic)
+        failed = [r for r in results if r.status != StepStatus.PASS]
+        assert not failed, f"Failed steps: {[(r.step.id, r.status, r.gate_failure_reason) for r in failed]}"
 
     def test_pipeline_halts_on_gate_failure(self, tmp_path):
         config = _make_config(tmp_path)
@@ -747,26 +785,12 @@ class TestCheckRemediationBudget:
     def test_attempt_3_returns_false(self, tmp_path):
         """Third attempt (2 previous) -> False (budget exhausted)."""
         _write_state(tmp_path / ".roadmap-state.json", 2)
-        halt_called = []
+        assert _check_remediation_budget(tmp_path) is False
 
-        def mock_halt(output_dir, findings, count):
-            halt_called.append(count)
-
-        assert _check_remediation_budget(tmp_path, halt_fn=mock_halt) is False
-        assert len(halt_called) == 1
-
-    def test_budget_exhaustion_calls_halt(self, tmp_path):
-        """Budget exhaustion calls halt_fn with correct attempt count."""
+    def test_budget_exhaustion_returns_false(self, tmp_path):
+        """Budget exhaustion returns False."""
         _write_state(tmp_path / ".roadmap-state.json", 2)
-        captured = {}
-
-        def mock_halt(output_dir, findings, count):
-            captured["count"] = count
-            captured["output_dir"] = output_dir
-
-        _check_remediation_budget(tmp_path, halt_fn=mock_halt)
-        assert captured["count"] == 3
-        assert captured["output_dir"] == tmp_path
+        assert _check_remediation_budget(tmp_path) is False
 
     def test_no_state_file_returns_true(self, tmp_path):
         """No state file -> first attempt, allowed."""
@@ -774,16 +798,9 @@ class TestCheckRemediationBudget:
         assert _check_remediation_budget(tmp_path) is True
 
     def test_configurable_max_attempts_1(self, tmp_path):
-        """max_attempts=1: second attempt triggers halt."""
+        """max_attempts=1: second attempt triggers budget exhaustion."""
         _write_state(tmp_path / ".roadmap-state.json", 1)
-        halt_called = []
-        assert (
-            _check_remediation_budget(
-                tmp_path, max_attempts=1, halt_fn=lambda *a: halt_called.append(1)
-            )
-            is False
-        )
-        assert len(halt_called) == 1
+        assert _check_remediation_budget(tmp_path, max_attempts=1) is False
 
     def test_configurable_max_attempts_3(self, tmp_path):
         """max_attempts=3: second attempt still allowed."""

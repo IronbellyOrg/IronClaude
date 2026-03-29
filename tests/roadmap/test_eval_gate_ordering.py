@@ -54,11 +54,13 @@ class TestStepOrdering:
     """Verify pipeline step ordering invariants."""
 
     def test_step_count(self, tmp_path):
-        """Pipeline produces exactly 11 steps (10 sequential + 1 parallel pair)."""
+        """Pipeline produces exactly 13 steps (12 entries; parallel pair counts as 2).
+        certify is dynamic, not in static step list; _get_all_step_ids has 14.
+        """
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
-        assert len(flat) == 11  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + wiring
+        assert len(flat) == 13  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + wiring + deviation-analysis + remediate
 
     def test_extract_is_first(self, tmp_path):
         config = _make_config(tmp_path)
@@ -76,12 +78,12 @@ class TestStepOrdering:
         assert "generate-haiku-architect" in gen_ids
 
     def test_sequential_order_after_generate(self, tmp_path):
-        """Steps after generate must follow: diff → debate → score → merge → anti-instinct → test-strategy → spec-fidelity → wiring."""
+        """Steps after generate must follow correct order including new post-fidelity steps."""
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         sequential = [s for s in steps[2:] if isinstance(s, Step)]
         seq_ids = [s.id for s in sequential]
-        expected_order = ["diff", "debate", "score", "merge", "anti-instinct", "test-strategy", "spec-fidelity", "wiring-verification"]
+        expected_order = ["diff", "debate", "score", "merge", "anti-instinct", "test-strategy", "spec-fidelity", "wiring-verification", "deviation-analysis", "remediate"]
         assert seq_ids == expected_order
 
     def test_spec_fidelity_after_test_strategy(self, tmp_path):
@@ -253,3 +255,62 @@ class TestStepMetadata:
         flat = _flatten_steps(steps)
         outputs = [str(s.output_file) for s in flat]
         assert len(outputs) == len(set(outputs)), "Duplicate output files detected"
+
+    def test_new_steps_blocking_gate_mode(self, tmp_path):
+        """deviation-analysis and remediate use BLOCKING gate mode (enforcement promoted)."""
+        from superclaude.cli.pipeline.models import GateMode
+        config = _make_config(tmp_path)
+        steps = _build_steps(config)
+        flat = _flatten_steps(steps)
+        da = next(s for s in flat if s.id == "deviation-analysis")
+        rem = next(s for s in flat if s.id == "remediate")
+        assert da.gate_mode == GateMode.BLOCKING
+        assert rem.gate_mode == GateMode.BLOCKING
+
+
+class TestNewStepOrdering:
+    """Verify ordering of newly wired post-fidelity steps."""
+
+    def test_deviation_analysis_after_wiring(self, tmp_path):
+        config = _make_config(tmp_path)
+        steps = _build_steps(config)
+        flat = _flatten_steps(steps)
+        ids = [s.id for s in flat]
+        wv_idx = ids.index("wiring-verification")
+        da_idx = ids.index("deviation-analysis")
+        assert da_idx > wv_idx
+
+    def test_remediate_after_deviation_analysis(self, tmp_path):
+        config = _make_config(tmp_path)
+        steps = _build_steps(config)
+        flat = _flatten_steps(steps)
+        ids = [s.id for s in flat]
+        da_idx = ids.index("deviation-analysis")
+        rem_idx = ids.index("remediate")
+        assert rem_idx > da_idx
+
+
+class TestNewStepInputDependencies:
+    """Verify input dependencies for newly wired steps."""
+
+    def test_deviation_analysis_inputs_fidelity_and_merge(self, tmp_path):
+        config = _make_config(tmp_path)
+        steps = _build_steps(config)
+        flat = _flatten_steps(steps)
+        da = next(s for s in flat if s.id == "deviation-analysis")
+        sf = next(s for s in flat if s.id == "spec-fidelity")
+        merge = next(s for s in flat if s.id == "merge")
+        assert sf.output_file in da.inputs
+        assert merge.output_file in da.inputs
+
+    def test_remediate_inputs_deviation_fidelity_merge(self, tmp_path):
+        config = _make_config(tmp_path)
+        steps = _build_steps(config)
+        flat = _flatten_steps(steps)
+        da = next(s for s in flat if s.id == "deviation-analysis")
+        sf = next(s for s in flat if s.id == "spec-fidelity")
+        merge = next(s for s in flat if s.id == "merge")
+        rem = next(s for s in flat if s.id == "remediate")
+        assert da.output_file in rem.inputs
+        assert sf.output_file in rem.inputs
+        assert merge.output_file in rem.inputs

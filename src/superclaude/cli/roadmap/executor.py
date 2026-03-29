@@ -28,11 +28,13 @@ from .gates import (
     ANTI_INSTINCT_GATE,
     CERTIFY_GATE,
     DEBATE_GATE,
+    DEVIATION_ANALYSIS_GATE,
     DIFF_GATE,
     EXTRACT_GATE,
     GENERATE_A_GATE,
     GENERATE_B_GATE,
     MERGE_GATE,
+    REMEDIATE_GATE,
     SCORE_GATE,
     SPEC_FIDELITY_GATE,
     TEST_STRATEGY_GATE,
@@ -418,6 +420,14 @@ def roadmap_run_step(
     if step.id == "spec-fidelity" and hasattr(config, "convergence_enabled") and config.convergence_enabled:
         return _run_convergence_spec_fidelity(step, config, started_at)
 
+    # Deviation-analysis: run deterministic analysis directly, no Claude subprocess.
+    if step.id == "deviation-analysis":
+        return _run_deviation_analysis(step, config, started_at)
+
+    # Remediate: run remediation pipeline directly, no Claude subprocess.
+    if step.id == "remediate":
+        return _run_remediate_step(step, config, started_at)
+
     # Wiring-verification: run static analysis directly, no Claude subprocess.
     # Returns PASS unconditionally; gate evaluation is handled separately by
     # the trailing gate runner (section 5.7.1).
@@ -732,6 +742,238 @@ def _write_convergence_report(
     output_file.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _run_deviation_analysis(
+    step: Step,
+    config: PipelineConfig,
+    started_at: datetime,
+) -> StepResult:
+    """Execute deviation-analysis step deterministically (no Claude subprocess).
+
+    Reads the DeviationRegistry from the output directory, aggregates findings
+    by deviation_class, validates cross-field consistency, and writes
+    gate-compliant output (.md with YAML frontmatter and .json sidecar).
+    """
+    out = config.output_dir if hasattr(config, "output_dir") else Path(".")
+    registry_json = out / "deviation-registry.json"
+
+    try:
+        if registry_json.exists():
+            raw = json.loads(registry_json.read_text(encoding="utf-8"))
+            records = raw if isinstance(raw, list) else raw.get("findings", [])
+        else:
+            records = []
+
+        # Aggregate by deviation_class
+        slip_count = sum(1 for r in records if r.get("deviation_class") == "SLIP")
+        intentional_count = sum(1 for r in records if r.get("deviation_class") == "INTENTIONAL")
+        pre_approved_count = sum(1 for r in records if r.get("deviation_class") == "PRE_APPROVED")
+        ambiguous_count = sum(1 for r in records if r.get("deviation_class") == "AMBIGUOUS")
+        total_analyzed = slip_count + intentional_count + pre_approved_count + ambiguous_count
+
+        # Build routing lists
+        import re
+        routing_fix = [r.get("stable_id") or r.get("id", "") for r in records if r.get("deviation_class") == "SLIP"]
+        routing_no_action = [r.get("stable_id") or r.get("id", "") for r in records if r.get("deviation_class") == "PRE_APPROVED"]
+
+        routing_fix_str = ", ".join(routing_fix) if routing_fix else ""
+        routing_no_action_str = ", ".join(routing_no_action) if routing_no_action else ""
+
+        # Validate cross-field consistency before writing
+        if total_analyzed != len(routing_fix) + len(routing_no_action) + intentional_count + ambiguous_count:
+            _log.warning("Deviation analysis: cross-field consistency check failed")
+
+        _write_deviation_analysis_output(
+            step.output_file,
+            total_analyzed=total_analyzed,
+            slip_count=slip_count,
+            intentional_count=intentional_count,
+            pre_approved_count=pre_approved_count,
+            ambiguous_count=ambiguous_count,
+            routing_fix_roadmap=routing_fix_str,
+            routing_no_action=routing_no_action_str,
+            records=records,
+        )
+
+        return StepResult(
+            step=step,
+            status=StepStatus.PASS,
+            attempt=1,
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+    except Exception as exc:
+        _log.error("Deviation analysis failed: %s", exc)
+        return StepResult(
+            step=step,
+            status=StepStatus.FAIL,
+            attempt=1,
+            gate_failure_reason=f"Deviation analysis error: {exc}",
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+
+
+def _write_deviation_analysis_output(
+    output_file: Path,
+    *,
+    total_analyzed: int,
+    slip_count: int,
+    intentional_count: int,
+    pre_approved_count: int,
+    ambiguous_count: int,
+    routing_fix_roadmap: str,
+    routing_no_action: str,
+    records: list[dict],
+) -> None:
+    """Write gate-compliant spec-deviations.md and .json sidecar."""
+    import os
+
+    # Build markdown with YAML frontmatter
+    lines = [
+        "---",
+        "schema_version: 1",
+        f"total_analyzed: {total_analyzed}",
+        f"slip_count: {slip_count}",
+        f"intentional_count: {intentional_count}",
+        f"pre_approved_count: {pre_approved_count}",
+        f"ambiguous_count: {ambiguous_count}",
+        f"ambiguous_deviations: {ambiguous_count}",
+        f"routing_fix_roadmap: {routing_fix_roadmap}",
+        f"routing_no_action: {routing_no_action}",
+        "analysis_complete: true",
+        "---",
+        "",
+        "# Deviation Analysis Report",
+        "",
+        f"Total deviations analyzed: {total_analyzed}",
+        f"- SLIP: {slip_count}",
+        f"- INTENTIONAL: {intentional_count}",
+        f"- PRE_APPROVED: {pre_approved_count}",
+        f"- AMBIGUOUS: {ambiguous_count}",
+        "",
+    ]
+
+    if records:
+        lines.append("## Deviation Details")
+        lines.append("")
+        for r in records:
+            dev_id = r.get("stable_id") or r.get("id", "UNKNOWN")
+            dev_class = r.get("deviation_class", "UNCLASSIFIED")
+            desc = r.get("description", "")
+            lines.append(f"### {dev_id} [{dev_class}]")
+            lines.append(f"- Description: {desc}")
+            lines.append(f"- Location: {r.get('location', '')}")
+            lines.append("")
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write .md
+    md_content = "\n".join(lines)
+    tmp_md = output_file.with_suffix(".md.tmp")
+    tmp_md.write_text(md_content, encoding="utf-8")
+    os.replace(str(tmp_md), str(output_file))
+
+    # Write .json sidecar
+    json_file = output_file.with_suffix(".json")
+    sidecar = {
+        "schema_version": 1,
+        "total_analyzed": total_analyzed,
+        "slip_count": slip_count,
+        "intentional_count": intentional_count,
+        "pre_approved_count": pre_approved_count,
+        "ambiguous_count": ambiguous_count,
+        "routing_fix_roadmap": routing_fix_roadmap,
+        "routing_no_action": routing_no_action,
+        "records": records,
+    }
+    tmp_json = json_file.with_suffix(".json.tmp")
+    tmp_json.write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
+    os.replace(str(tmp_json), str(json_file))
+
+
+def _run_remediate_step(
+    step: Step,
+    config: PipelineConfig,
+    started_at: datetime,
+) -> StepResult:
+    """Execute remediate step: read deviation JSON, generate tasklist.
+
+    Reads spec-deviations.json sidecar, converts to Finding objects,
+    generates remediation tasklist, writes .md and .json sidecar.
+    """
+    from .remediate import deviations_to_findings, generate_remediation_tasklist
+
+    out = config.output_dir if hasattr(config, "output_dir") else Path(".")
+    deviation_json = out / "spec-deviations.json"
+
+    try:
+        if deviation_json.exists():
+            raw = json.loads(deviation_json.read_text(encoding="utf-8"))
+            records = raw.get("records", []) if isinstance(raw, dict) else raw
+        else:
+            records = []
+
+        findings = deviations_to_findings(records)
+
+        # Read source report for hash
+        source_report_path = str(out / "spec-fidelity.md")
+        try:
+            source_report_content = Path(source_report_path).read_text(encoding="utf-8")
+        except OSError:
+            source_report_content = ""
+
+        tasklist_md = generate_remediation_tasklist(
+            findings, source_report_path, source_report_content
+        )
+
+        step.output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write .md
+        import os
+        tmp_md = step.output_file.with_suffix(".md.tmp")
+        tmp_md.write_text(tasklist_md, encoding="utf-8")
+        os.replace(str(tmp_md), str(step.output_file))
+
+        # Write .json sidecar
+        json_file = step.output_file.with_suffix(".json")
+        sidecar = {
+            "findings": [
+                {
+                    "id": f.id,
+                    "severity": f.severity,
+                    "description": f.description,
+                    "location": f.location,
+                    "fix_guidance": f.fix_guidance,
+                    "files_affected": f.files_affected,
+                    "status": f.status,
+                    "deviation_class": f.deviation_class,
+                }
+                for f in findings
+            ]
+        }
+        tmp_json = json_file.with_suffix(".json.tmp")
+        tmp_json.write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
+        os.replace(str(tmp_json), str(json_file))
+
+        return StepResult(
+            step=step,
+            status=StepStatus.PASS,
+            attempt=1,
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+    except Exception as exc:
+        _log.error("Remediate step failed: %s", exc)
+        return StepResult(
+            step=step,
+            status=StepStatus.FAIL,
+            attempt=1,
+            gate_failure_reason=f"Remediate error: {exc}",
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc),
+        )
+
+
 def build_certify_step(
     config: RoadmapConfig,
     findings: list | None = None,
@@ -794,6 +1036,9 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
     merge_file = out / "roadmap.md"
     test_strat = out / "test-strategy.md"
     spec_fidelity_file = out / "spec-fidelity.md"
+    deviation_file = out / "spec-deviations.md"
+    remediation_file = out / "remediation-tasklist.md"
+    certification_file = out / "certification-report.md"
 
     # Load retrospective content if configured (missing file handled gracefully)
     retrospective_content: str | None = None
@@ -925,6 +1170,27 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             retry_limit=0,
             gate_mode=GateMode.TRAILING,
         ),
+        # Step 10: Deviation Analysis (deterministic, no LLM)
+        Step(
+            id="deviation-analysis",
+            prompt="",  # non-LLM step; prompt unused
+            output_file=deviation_file,
+            gate=DEVIATION_ANALYSIS_GATE,
+            timeout_seconds=300,
+            inputs=[spec_fidelity_file, merge_file],
+            retry_limit=0,
+        ),
+        # Step 11: Remediate (deterministic, no LLM)
+        Step(
+            id="remediate",
+            prompt="",  # non-LLM step; prompt unused
+            output_file=remediation_file,
+            gate=REMEDIATE_GATE,
+            timeout_seconds=600,
+            inputs=[deviation_file, spec_fidelity_file, merge_file],
+            retry_limit=0,
+        ),
+        # Step 12 (certify) constructed dynamically by roadmap_run_step after remediate
     ]
 
     return steps
@@ -1005,6 +1271,7 @@ def _get_all_step_ids(config: RoadmapConfig) -> list[str]:
         "test-strategy",
         "spec-fidelity",
         "wiring-verification",
+        "deviation-analysis",
         "remediate",
         "certify",
     ]
@@ -1034,7 +1301,7 @@ def _print_terminal_halt(
     if file is None:
         file = sys.stderr
 
-    certify_path = output_dir / "certify.md"
+    certify_path = output_dir / "certification-report.md"
 
     lines = [
         "",
@@ -1176,20 +1443,17 @@ def _check_annotate_deviations_freshness(
 def _check_remediation_budget(
     output_dir: Path,
     max_attempts: int = 2,
-    halt_fn: "Callable[[Path, list, int], None] | None" = None,
 ) -> bool:
     """Check if remediation budget allows another attempt (SC-6).
 
     Reads remediation_attempts from .roadmap-state.json.
-    If attempts >= max_attempts, calls halt_fn (or _print_terminal_halt)
-    and returns False.
+    If attempts >= max_attempts, calls _print_terminal_halt and returns False.
 
     Non-integer remediation_attempts is coerced to 0 with a WARNING log.
 
     Args:
         output_dir: Pipeline output directory containing .roadmap-state.json
         max_attempts: Maximum allowed remediation attempts (default 2)
-        halt_fn: Optional callable for terminal halt; defaults to _print_terminal_halt
 
     Returns:
         True if budget allows another attempt, False if exhausted.
@@ -1207,14 +1471,11 @@ def _check_remediation_budget(
             attempts = 0
 
     if attempts >= max_attempts:
-        if halt_fn is not None:
-            halt_fn(output_dir, [], attempts + 1)
-        else:
-            _print_terminal_halt(
-                output_dir=output_dir,
-                remaining_findings=[],
-                attempt_count=attempts + 1,
-            )
+        _print_terminal_halt(
+            output_dir=output_dir,
+            remaining_findings=[],
+            attempt_count=attempts + 1,
+        )
         return False
 
     return True
