@@ -28,7 +28,7 @@
 | C-16 | ~~No tests for build_extract_prompt_tdd with prd_file~~ | **FIXED** — Added TestExtractPromptTddWithPrd (6 tests) and TestMergePromptTddPrd (4 tests). |
 | C-17 | ~~No tests for old-schema state file backward compat~~ | **FIXED** — Added TestOldSchemaStateBackwardCompat (2 tests): old state loads, _restore_from_state doesn't crash. |
 | C-19 | No content validation on --prd-file / --tdd-file (absorbs S-01, S-02) | **BACKLOG** — content checks |
-| C-25 | _embed_inputs labels files by path only — no semantic role markers | **BACKLOG** — embed refactor |
+| C-25 | ~~_embed_inputs labels files by path only — no semantic role markers~~ | **FIXED** — Added optional `labels` dict to `_embed_inputs`. `roadmap_run_step` builds labels from `RoadmapConfig` (spec_file → "Primary input - {type}", tdd_file → "TDD - supplementary technical context", prd_file → "PRD - supplementary business context"). |
 | C-27 | ~~--resume with --prd-file doesn't override state-restored prd_file~~ | **FIXED** — Added else branch in _restore_from_state: explicit --prd-file overrides state, logs if different. |
 | C-34 | Tests use toy data that can't catch prompt size issues | **BACKLOG** — realistic test data |
 | C-35 | PRD prompt section numbers don't match PRD fixture headings | **BACKLOG** — add heading hints |
@@ -44,7 +44,8 @@
 | C-84 | ~~Double auto-detection still exists (dead code in _build_steps after C-62 fix)~~ | **FIXED** — Removed dead auto-detection block from _build_steps. execute_roadmap now handles all resolution. |
 | C-91 | ~~_restore_from_state doesn't restore input_type on --resume~~ | **FIXED** — Added input_type restoration from state when config has "auto". Prevents re-running detection. |
 | C-111 | ~~Redundancy guard nullifies tdd_file in local config only~~ | **FIXED** — Moved redundancy guard from _build_steps to execute_roadmap (before _build_steps call). State now saves nulled value. |
-| C-117 | EXTRACT_GATE does not validate TDD-specific frontmatter fields | **BACKLOG** — conditional gate |
+| C-117 | ~~EXTRACT_GATE does not validate TDD-specific frontmatter fields~~ | **FIXED** — Created `EXTRACT_TDD_GATE` with all 19 fields (13 standard + 6 TDD-specific). Routing in `_build_steps`: `EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE`. Note: when C-122 auto-detection lands, routing uses same resolved input_type. |
+| C-122 | CLI requires single positional arg + explicit flags — no multi-file auto-detection. Users should be able to pass TDD and PRD files in any order as positional args and have the CLI auto-detect which is which (TDD vs PRD vs spec) and route accordingly. Currently: no PRD detection exists, only one positional arg accepted, `--tdd-file`/`--prd-file` flags required for supplementary files. Absorbs C-19 (content validation), C-55 (PRD misclassification). | No — needs PRD detection, multi-arg positional, routing logic |
 
 ### MINOR
 
@@ -62,7 +63,7 @@
 | C-75 | ~~build_tasklist_generate_prompt references wrong PRD sections (S7/S22)~~ | **FIXED** — Changed "S7/S22" to "S12 (Scope Definition) and S22 (Customer Journey Map)". |
 | C-87 | Section notation ambiguity (S vs §) in tasklist prompts | **BACKLOG** — § for TDD sections, S for PRD sections is already consistent by convention. |
 | C-88 | ~~Minimal CLI help text for --tdd-file and --prd-file~~ | **FIXED** — Expanded help text with usage context, auto-wire info, and interaction notes. |
-| C-89 | No user-facing documentation for three-way flag interaction | **BACKLOG** — write docs |
+| C-89 | No user-facing documentation for three-way flag interaction | **BACKLOG** — Update: `docs/generated/roadmap-cli-tools-release-guide.md`, `docs/generated/contributor-knowledge-base/cli-api-inventory.md`, `docs/guides/cli-portify-and-pipeline-runner-guide.md`. Document --input-type / --tdd-file / --prd-file interaction, auto-detection, redundancy guard, and auto-wire on resume. |
 | C-93 | ~~Test docstring claims "5 comparison dimensions" but prompt has 11+~~ | **FIXED** — Updated docstring to "6 base comparison dimensions (7-11 TDD-conditional, 12-15 PRD-conditional)". |
 | C-98 | build_extract_prompt and build_extract_prompt_tdd have identical PRD blocks | **BACKLOG** — doc/design intentional duplication |
 | C-103 | ~~Minimal TDDs below detection threshold produce no borderline warning~~ | **FIXED** — Added _log.warning for scores 3-6 with suggestion to use --input-type override. |

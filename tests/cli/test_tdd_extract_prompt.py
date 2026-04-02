@@ -258,9 +258,10 @@ class TestExtractPromptTddWithPrd:
         assert "Supplementary PRD Context" in result
         assert "S19" in result
 
-    def test_prd_advisory_guardrail(self, dummy_path):
+    def test_prd_guardrail(self, dummy_path):
         result = build_extract_prompt_tdd(dummy_path, prd_file=dummy_path)
-        assert "do NOT treat PRD content" in result
+        assert "authoritative for business context" in result
+        assert "TDD wins on implementation details" in result
 
 
 class TestMergePromptTddPrd:

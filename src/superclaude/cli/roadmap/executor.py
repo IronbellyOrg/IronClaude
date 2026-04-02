@@ -32,6 +32,7 @@ from .gates import (
     DEVIATION_ANALYSIS_GATE,
     DIFF_GATE,
     EXTRACT_GATE,
+    EXTRACT_TDD_GATE,
     GENERATE_A_GATE,
     GENERATE_B_GATE,
     MERGE_GATE,
@@ -99,7 +100,9 @@ def detect_input_type(spec_file: Path) -> str:
         if re.search(rf"^{field}:", content, re.MULTILINE):
             score += 2  # higher weight since these are truly TDD-exclusive
 
-    # Signal 3: TDD-specific section names
+    # Signal 3: TDD-specific section names (8 keywords, +1 each)
+    # These are section headings found in TDDs but not in specs or PRDs.
+    # A typical TDD matches 5-8 of these; a spec matches 0-1.
     tdd_sections = [
         "Data Models", "API Specifications", "Component Inventory",
         "Testing Strategy", "Operational Readiness",
@@ -114,8 +117,9 @@ def detect_input_type(spec_file: Path) -> str:
         score += 2
 
     # Threshold: score >= 5 means TDD
+    # Max possible: 3 (headings) + 4 (2 exclusive fields × 2) + 8 (section names) + 2 (type field) = 17
     # A real TDD easily scores 10+ (20+ headings=3, parent_doc+coordinator=4,
-    # section names=5+, type field=2). A spec scores at most 1-3
+    # 5-8 section names, type field=2). A spec scores at most 1-3
     # (10-12 headings=1, no exclusive fields=0, no TDD sections=0).
     detected = "tdd" if score >= 5 else "spec"
     _log.info("Auto-detected input type: %s (score=%d)", detected, score)
@@ -140,10 +144,17 @@ assert _PROMPT_TEMPLATE_OVERHEAD >= 4096, (
 )
 
 
-def _embed_inputs(input_paths: list[Path]) -> str:
+def _embed_inputs(
+    input_paths: list[Path],
+    labels: dict[Path, str] | None = None,
+) -> str:
     """Read input files and return their contents as fenced code blocks.
 
-    Each file is wrapped in a fenced block with a ``# <path>`` header.
+    Each file is wrapped in a fenced block with a header. When *labels*
+    is provided, the header includes the semantic role (e.g., "Primary
+    input - tdd", "PRD - supplementary business context") so the LLM
+    knows which file serves which purpose.
+
     Returns an empty string when *input_paths* is empty (no-op).
     """
     if not input_paths:
@@ -151,8 +162,9 @@ def _embed_inputs(input_paths: list[Path]) -> str:
 
     blocks: list[str] = []
     for p in input_paths:
+        label = labels.get(p, str(p)) if labels else str(p)
         content = Path(p).read_text(encoding="utf-8")
-        blocks.append(f"# {p}\n```\n{content}\n```")
+        blocks.append(f"# {label}\n```\n{content}\n```")
     return "\n\n".join(blocks)
 
 
@@ -523,7 +535,17 @@ def roadmap_run_step(
     # Inline embedding: read input files into the prompt instead of --file flags
     # --file is broken (cloud download mechanism, not local file injector) so
     # inline embedding is always used regardless of composed prompt size.
-    embedded = _embed_inputs(step.inputs)
+    # Build semantic role labels so the LLM knows which file is which (C-25).
+    labels: dict[Path, str] | None = None
+    if isinstance(config, RoadmapConfig):
+        labels = {}
+        if config.spec_file:
+            labels[config.spec_file] = f"{config.spec_file} [Primary input - {config.input_type}]"
+        if config.tdd_file:
+            labels[config.tdd_file] = f"{config.tdd_file} [TDD - supplementary technical context]"
+        if config.prd_file:
+            labels[config.prd_file] = f"{config.prd_file} [PRD - supplementary business context]"
+    embedded = _embed_inputs(step.inputs, labels=labels)
     if embedded:
         composed = step.prompt + "\n\n" + embedded
         if len(composed.encode("utf-8")) > _EMBED_SIZE_LIMIT:
@@ -1147,7 +1169,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 )
             ),
             output_file=extraction,
-            gate=EXTRACT_GATE,
+            gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
             timeout_seconds=300,
             inputs=[config.spec_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,

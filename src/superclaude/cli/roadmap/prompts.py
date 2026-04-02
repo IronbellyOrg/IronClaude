@@ -196,8 +196,10 @@ def build_extract_prompt(
             "present in the spec.\n"
             "5. Jobs To Be Done from the PRD's JTBD section (S6) -- note in Open "
             "Questions if any JTBD lack corresponding functional requirements.\n"
-            "The PRD is advisory context for enrichment -- do NOT treat PRD content "
-            "as hard requirements unless they are also stated in the specification."
+            "The PRD defines business requirements (personas, compliance, success metrics, scope). "
+            "Treat these as authoritative for business context. When PRD business requirements "
+            "conflict with the specification's technical approach, the specification wins on "
+            "implementation details but the PRD wins on business intent and constraints."
         )
 
     return base + _OUTPUT_FORMAT_BLOCK
@@ -366,8 +368,10 @@ def build_extract_prompt_tdd(
             "present in the TDD.\n"
             "5. Jobs To Be Done from the PRD's JTBD section (S6) -- note in Open "
             "Questions if any JTBD lack corresponding functional requirements.\n"
-            "The PRD is advisory context for enrichment -- do NOT treat PRD content "
-            "as hard requirements unless they are also stated in the TDD."
+            "The PRD defines business requirements (personas, compliance, success metrics, scope). "
+            "Treat these as authoritative for business context. When PRD business requirements "
+            "conflict with the TDD's technical approach, the TDD wins on implementation details "
+            "but the PRD wins on business intent and constraints."
         )
 
     return base + _OUTPUT_FORMAT_BLOCK

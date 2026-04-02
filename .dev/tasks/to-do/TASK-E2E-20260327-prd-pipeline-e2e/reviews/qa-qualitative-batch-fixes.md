@@ -2,13 +2,30 @@
 
 **Date:** 2026-04-02
 **Phase:** batch-fix-review
-**Reviewer:** rf-qa-qualitative (adversarial)
+**Primary Reviewer:** rf-qa-qualitative (adversarial)
+**Secondary Reviewer:** sc:reflect --analyze (session analysis)
 
 ---
 
 ## Overall Verdict: FAIL
 
-**Summary:** 12 fixes reviewed. 10 pass. 1 has a confirmed interaction bug (C-08 vs C-111 redundancy guard). 1 has a missing test gap. Additionally, 1 cross-cutting concern identified regarding test coverage of the C-08 scenario.
+**Summary:** 14 fixes reviewed. 10 pass. 1 has a confirmed interaction bug (C-08 vs C-111 redundancy guard). 1 has a missing test gap. 2 additional minor issues found by secondary reviewer. Cross-cutting concern identified regarding test coverage of the C-08 scenario.
+
+---
+
+## Cross-Reviewer Comparison
+
+Two independent reviews were run against the same batch of fixes. The table below compares findings.
+
+| Finding | rf-qa-qualitative | sc:reflect --analyze | Agreement |
+|---------|:-:|:-:|-----------|
+| C-08 vs C-111 interaction bug | CRITICAL #1 — correctly diagnosed as redundancy guard nullifying the fallback | IMPORTANT — found the symptom ("fix missing from code") but misdiagnosed root cause as "edit didn't persist" | **Partial** — same issue, different diagnosis. rf-qa-qualitative root cause is correct. |
+| Missing tests for C-08/C-20/C-27/C-111 | IMPORTANT #2 — identified 4 untested code paths with specific test recommendations | Not found | **rf-qa-qualitative only** |
+| C-20 error message implies CLI origin | MINOR #3 — suggested updated message text | Not found (found related but different issue instead) | **rf-qa-qualitative only** |
+| C-20 SystemExit(1) has no stderr output | Not found | MINOR — without `--debug`, user sees exit code 1 with no explanation | **sc:reflect only** |
+| C-27 path comparison uses str() vs resolve() | Not found | MINOR — `str(config.prd_file) != saved_prd` may produce spurious log when paths differ in form but resolve to the same file | **sc:reflect only** |
+
+**Summary:** 5 unique findings across both reviewers. 1 overlapping (C-08, different root cause). rf-qa-qualitative found 3 (1 CRITICAL, 1 IMPORTANT, 1 MINOR). sc:reflect found 3 (1 IMPORTANT, 2 MINOR). rf-qa-qualitative was more precise on root cause analysis and produced a test adequacy matrix. sc:reflect caught two minor issues rf-qa-qualitative missed.
 
 ---
 
@@ -40,6 +57,8 @@
 | 1 | **CRITICAL** | `executor.py:1751-1762` vs `executor.py:1861-1868` | **C-08 fix is nullified by C-111 redundancy guard.** When resuming a TDD-primary run: (a) `_restore_from_state` sets `config.input_type = "tdd"` (C-91, line 1739), (b) C-08 fallback sets `config.tdd_file = spec_path` (line 1762), (c) auto-detection is skipped because `input_type != "auto"` (line 1838), (d) redundancy guard at line 1863 sees `input_type == "tdd"` AND `tdd_file is not None`, so it nulls `tdd_file` with a warning. **Result:** The C-08 fallback is dead code on resume. The `tdd_file` is set and then immediately cleared. | Two options: **(A)** Remove the C-08 fallback entirely -- it cannot work as long as the redundancy guard exists, and its purpose (providing TDD context to downstream steps) is already served by the spec_file being the TDD. The redundancy guard's logic is correct: when the primary input IS a TDD, the supplementary `--tdd-file` slot is meaningless. **(B)** If the intent is that downstream prompts need an explicit `tdd_file` pointer even when it is the same as `spec_file`, then the redundancy guard must be modified to allow `tdd_file == spec_file` as a special case. Option A is simpler and correct. |
 | 2 | **IMPORTANT** | `tests/cli/test_tdd_extract_prompt.py` | **No test covers the C-08 resume scenario.** `TestOldSchemaStateBackwardCompat` tests old state files without TDD/PRD fields, but there is no test for: (a) state with `input_type=tdd` and `tdd_file=null` triggering the fallback, (b) verifying the interaction with the redundancy guard in `execute_roadmap`. The C-08 code path is untested. | Add a test in `TestOldSchemaStateBackwardCompat` or a new class that creates a state file with `input_type: "tdd"`, `tdd_file: null`, `spec_file: "/path/to/tdd.md"`, calls `_restore_from_state`, and verifies the resulting `config.tdd_file`. Then add an integration-level test that runs the relevant section of `execute_roadmap` to verify the redundancy guard interaction. |
 | 3 | **MINOR** | `executor.py:1849-1859` | **Same-file guard does not account for state-wired paths.** The C-20 same-file guard runs after `_restore_from_state` on resume, which is correct. However, if a state file was manually edited (or corrupted) to have `tdd_file` and `prd_file` pointing to the same path, the guard will catch it and `SystemExit(1)`. This is correct behavior but the error message says "--tdd-file and --prd-file point to the same file" which implies CLI flags, when the values may have come from state restoration. Consider a more accurate message that says "tdd_file and prd_file resolve to the same file" without implying CLI origin. | Update error message to: `"tdd_file and prd_file resolve to the same file: %s. These must be different documents (check CLI flags or .roadmap-state.json)."` |
+| 4 | **MINOR** | `executor.py:1849-1859` | **(sc:reflect)** **Same-file guard SystemExit(1) has no user-visible error.** The guard does `_log.error(...)` then `raise SystemExit(1)`. Without `--debug` enabled, the user sees exit code 1 with zero explanation on stderr. The `_log.error` message only appears in the debug log file. | Add `print("ERROR: tdd_file and prd_file resolve to the same file: ...", file=sys.stderr)` before `raise SystemExit(1)`. |
+| 5 | **MINOR** | `executor.py:1769` | **(sc:reflect)** **C-27 path comparison may produce spurious log.** The override detection uses `str(config.prd_file) != saved_prd`. `config.prd_file` is `.resolve()`'d in `commands.py` (absolute), while `saved_prd` from state may be relative or use a different form. This could log "CLI --prd-file overrides state" even when both point to the same file. | Compare via `config.prd_file.resolve() != Path(saved_prd).resolve()`. |
 
 ---
 
@@ -68,7 +87,11 @@
 
 3. **Minor: Improve C-20 error message** to not assume CLI origin of the conflicting paths.
 
-4. **All other fixes are sound.** The prompt changes (C-06), detection improvements (C-103), state restoration (C-91, C-27), and template fixes (C-61, C-75, C-93) are correctly implemented and do what they claim.
+4. **(sc:reflect) Minor: Add stderr print to C-20 same-file guard.** The `_log.error` message is invisible without `--debug`. Add a `print()` to stderr so users see why the process exited.
+
+5. **(sc:reflect) Minor: Fix C-27 path comparison.** Use `config.prd_file.resolve() != Path(saved_prd).resolve()` instead of `str()` comparison to avoid spurious override log messages.
+
+6. **All other fixes are sound.** The prompt changes (C-06), detection improvements (C-103), state restoration (C-91, C-27), and template fixes (C-61, C-75, C-93) are correctly implemented and do what they claim.
 
 ---
 

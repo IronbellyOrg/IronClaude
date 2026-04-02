@@ -9,7 +9,7 @@ A skill for creating comprehensive Product Requirements Documents (PRDs) for pro
 
 **How it works:** The skill performs initial scope discovery (mapping the product area, identifying research topics, assessing complexity), then spawns the `rf-task-builder` subagent to create an MDTM task file encoding all investigation, synthesis, and assembly phases. The skill then executes from that task file, marking items complete as it progresses. If context compresses or the session restarts, the skill re-reads the task file and resumes from the first unchecked item.
 
-The output always follows the project template at `docs/docs-product/templates/prd_template.md`. The template is the schema — every PRD must conform to it.
+The output always follows the project template at `.claude/templates/documents/prd_template.md`. The template is the schema — every PRD must conform to it.
 
 ## Why This Process Works
 
@@ -118,7 +118,7 @@ REVIEWS:     ${TASK_DIR}reviews/
 | Analyst reports | `${TASK_DIR}qa/analyst-report-[gate].md` |
 | QA reports | `${TASK_DIR}qa/qa-report-[gate].md` |
 | Final PRD | `docs/docs-product/tech/[feature-name]/PRD_[FEATURE-NAME].md` |
-| Template schema | `docs/docs-product/templates/prd_template.md` |
+| Template schema | `.claude/templates/documents/prd_template.md` |
 
 **File numbering convention:** All research, web, and synthesis files use zero-padded sequential numbers: `01-`, `02-`, `03-`, etc. This ensures correct ordering when listing files.
 
@@ -350,7 +350,7 @@ Spawn the `rf-task-builder` subagent. The builder reads the research notes file 
 ```
 BUILD_REQUEST:
 ==============
-GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at docs/docs-product/templates/prd_template.md. The PRD will be written to [OUTPUT_PATH].
+GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at .claude/templates/documents/prd_template.md. The PRD will be written to [OUTPUT_PATH].
 
 WHY: [WHY — what this PRD is for and how it will be used]
 
@@ -403,6 +403,19 @@ TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
 - Phase 6 (Assembly & Validation): L6 Aggregation — spawn rf-assembler to consolidate synthesis files into final PRD, then spawn rf-qa (report-validation) for structural quality check, then spawn rf-qa-qualitative (prd-qualitative) for content/scope/logic quality check. Both QA agents have in-place fix authorization.
 - Phase 7 (Present to User & Complete Task): ANTI-ORPHANING — task-completion items are WITHIN this phase, not in a separate Post-Completion section.
 
+QA_GATE_REQUIREMENTS: PER_PHASE
+  Gate 1: Research Completeness (Phase 3) — rf-analyst (completeness-verification) + rf-qa (research-gate) in parallel, max 3 fix cycles, partitioning >6 files.
+  Gate 2: Synthesis Quality (Phase 5) — rf-analyst (synthesis-review) + rf-qa (synthesis-gate, fix_authorization: true) in parallel, max 2 fix cycles, partitioning >4 files.
+  Gate 3: Report Validation (Phase 6) — rf-qa (report-validation, fix_authorization: true) + rf-qa-qualitative (prd-qualitative, fix_authorization: true) sequential. HALT after max fix cycles exceeded.
+
+VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION + PRD_SCOPE_COMPLIANCE
+  TEMPLATE_COMPLIANCE: All sections from PRD template must be present or marked N/A with rationale.
+  EVIDENCE_TRAIL: Every claim must cite file paths, line numbers, or verified sources.
+  CROSS_VALIDATION: Doc-sourced claims carry [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags.
+  PRD_SCOPE_COMPLIANCE: Feature PRDs must skip platform-level sections per PRD_SCOPE field.
+
+TESTING_REQUIREMENTS: N/A — documentation-only skill, no code produced, no tests applicable.
+
 RESEARCH NOTES FILE:
 ${TASK_DIR}research-notes.md
 Read this file FIRST for full detailed findings including: existing files, patterns, planned investigation assignments, synthesis mapping, and output paths.
@@ -443,7 +456,7 @@ The task file MUST encode these phases as sequential checklist items. Each phase
 Phase 1 — Preparation:
 - Update task status to "🟠 Doing"
 - Confirm scope from research notes (product boundaries, key directories, tier selection)
-- Read the PRD template at docs/docs-product/templates/prd_template.md
+- Read the PRD template at .claude/templates/documents/prd_template.md
 - Select depth tier (Lightweight / Standard / Heavyweight) based on product scope and complexity
 - Create the task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders (if not already created during scope discovery)
 
@@ -456,11 +469,11 @@ Phase 2 — Deep Investigation (PARALLEL SPAWNING MANDATORY):
 - Agent count follows tier guidance: Lightweight 2-3, Standard 4-6, Heavyweight 6-10+
 
 Phase 3 — Research Completeness Verification (ANALYST + QA GATE, PARALLEL):
-- Spawn `rf-analyst` (subagent_type: "rf-analyst", analysis_type: "completeness-verification") AND `rf-qa` (subagent_type: "rf-qa", qa_phase: "research-gate") IN PARALLEL. Both agents independently read research files and apply their own checklists. The analyst writes to `${TASK_DIR}qa/analyst-completeness-report.md`. The QA agent writes to `${TASK_DIR}qa/qa-research-gate-report.md`. Embed full prompts from respective agent definitions in each checklist item per B2.
+- Spawn `rf-analyst` (subagent_type: "rf-analyst", analysis_type: "completeness-verification") AND `rf-qa` (subagent_type: "rf-qa", qa_phase: "research-gate") IN PARALLEL. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. Both agents independently read research files and apply their own checklists. The analyst writes to `${TASK_DIR}qa/analyst-completeness-report.md`. The QA agent writes to `${TASK_DIR}qa/qa-research-gate-report.md`. Embed full prompts from respective agent definitions in each checklist item per B2.
 - **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE analyst instances and MULTIPLE QA instances in parallel, each with an `assigned_files` subset. The threshold is >6 for research files because research files tend to be longer and more detailed than synthesis files. Each partition instance writes to a numbered report (e.g., `${TASK_DIR}qa/analyst-completeness-report-1.md`). After all instances complete, merge their reports.
 - Read ALL reports. Determine verdict from QA report(s) (PASS / FAIL).
 - If PASS → proceed to Phase 4. If FAIL → fix ALL findings regardless of severity before proceeding. Spawn additional targeted research agents (one item per gap-filling agent).
-- After gap-filling, spawn `rf-qa` with qa_phase: "fix-cycle". Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user.
+- After gap-filling, spawn `rf-qa` with qa_phase: "fix-cycle". **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user.
 - Compile final gaps into ${TASK_DIR}gaps-and-questions.md
 - Do NOT proceed to Phase 4 until verdict is PASS
 
@@ -481,9 +494,9 @@ Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
 
 Phase 6 — Assembly & Validation (RF-ASSEMBLER + Structural QA + Qualitative QA):
 - Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") to assemble the final PRD. Hand it: the list of synth file paths in order, the PRD output path, the PRD template structure from SKILL.md, the Assembly Process steps from SKILL.md, and the Content Rules from SKILL.md. The assembler reads each synth file and writes the PRD incrementally section by section. The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt in the checklist item per B2.
-- After the assembler returns, spawn `rf-qa` (qa_phase: "report-validation", fix_authorization: true). The QA agent validates the assembled PRD against the Validation Checklist from SKILL.md (structural/semantic checks: section numbers, cross-references, evidence citations, template conformance). The QA agent writes to `${TASK_DIR}qa/qa-report-validation.md`. Embed the full QA prompt in the checklist item per B2.
+- After the assembler returns, spawn `rf-qa` (qa_phase: "report-validation", fix_authorization: true). **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The QA agent validates the assembled PRD against the Validation Checklist from SKILL.md (structural/semantic checks: section numbers, cross-references, evidence citations, template conformance). The QA agent writes to `${TASK_DIR}qa/qa-report-validation.md`. Embed the full QA prompt in the checklist item per B2.
 - Read the structural QA report. If issues remain unfixed, address them before proceeding to qualitative QA.
-- After structural QA passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "prd-qualitative", fix_authorization: true). The qualitative QA agent reads the entire PRD and verifies it makes sense from product and engineering perspectives: correct scoping (feature vs platform content), logical flow, realistic requirements, no contradictions, no red flags, appropriate audience. It applies the 23-item PRD Qualitative Review checklist from its agent definition. The agent writes to `${TASK_DIR}qa/qa-qualitative-review.md`. Embed the full qualitative QA prompt (including document type: Product PRD or Feature PRD, template path, and output path) in the checklist item per B2.
+- After structural QA passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "prd-qualitative", fix_authorization: true). **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The qualitative QA agent reads the entire PRD and verifies it makes sense from product and engineering perspectives: correct scoping (feature vs platform content), logical flow, realistic requirements, no contradictions, no red flags, appropriate audience. It applies the 23-item PRD Qualitative Review checklist from its agent definition. The agent writes to `${TASK_DIR}qa/qa-qualitative-review.md`. Embed the full qualitative QA prompt (including document type: Product PRD or Feature PRD, template path, and output path) in the checklist item per B2.
 - Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected sections. If issues remain unfixed, address ALL of them before proceeding to Phase 7. Zero leniency — no severity level is exempt.
 
 Phase 7 — Present to User & Complete Task:
@@ -499,8 +512,8 @@ STEPS:
 1. Read the research notes file specified above (MANDATORY)
 2. Read the SKILL.md file specified above for agent prompts, PRD template structure, validation checklist, and content rules (MANDATORY)
 3. Read the MDTM template specified in TEMPLATE field above (MANDATORY):
-   - If TEMPLATE: 02 → .gfdoc/templates/02_mdtm_template_complex_task.md
-   - If TEMPLATE: 01 → .gfdoc/templates/01_mdtm_template_generic_task.md
+   - If TEMPLATE: 02 → .claude/templates/workflow/02_mdtm_template_complex_task.md
+   - If TEMPLATE: 01 → .claude/templates/workflow/01_mdtm_template_generic_task.md
 4. Follow PART 1 instructions in the template completely (A3 granularity, B2 self-contained items, E1-E4 flat structure)
 5. If anything is missing, note it in the Task Log section — the skill will review
 6. Create the task file at .dev/tasks/to-do/TASK-PRD-[YYYYMMDD-HHMMSS]/TASK-PRD-[YYYYMMDD-HHMMSS].md using PART 2 structure
@@ -692,7 +705,7 @@ Read the research files listed below and synthesize them into template-aligned s
 Research files to read: [list of paths]
 Template sections to produce: [section numbers and names]
 Output path: [synth file path]
-Template reference: docs/docs-product/templates/prd_template.md
+Template reference: .claude/templates/documents/prd_template.md
 
 Rules:
 0. **Read the template first.** Before synthesizing anything, read the PRD template to understand each section's expected content, format, and depth.
@@ -772,9 +785,11 @@ Output path: [output-path]
 
 You are the last line of defense before synthesis begins. Assume everything is wrong until you verify it.
 
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
 IF ANALYST REPORT EXISTS:
 1. Read the analyst's completeness report
-2. Spot-check 3-5 of their coverage audit claims (verify the scope items are actually covered)
+2. Verify ALL of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
 4. Check their verdict against your own independent assessment
 5. Apply the 10-item Research Gate checklist from your agent definition
@@ -784,9 +799,9 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
 
 11-ITEM CHECKLIST:
 1. File inventory — all research files exist with Status: Complete and Summary
-2. Evidence density — sample 3-5 claims per file, verify file paths exist
+2. Evidence density — Verify EVERY claim in each file — verify file paths exist
 3. Scope coverage — every key product area from research-notes EXISTING_FILES examined
-4. Documentation cross-validation — all doc-sourced claims tagged, spot-check 2-3 CODE-VERIFIED
+4. Documentation cross-validation — all doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
 5. Contradiction resolution — no unresolved conflicting findings
 6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
 7. Depth appropriateness — matches the tier expectation
@@ -816,6 +831,8 @@ Output path: [output-path]
 You are verifying that synthesis files are ready for assembly into the final PRD.
 If fix_authorization is true, you can fix issues in-place using Edit.
 
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
 PROCESS:
 1. Use Glob to find ALL synth files (synth-*.md) in the synthesis directory
 2. Read EVERY synth file completely
@@ -827,9 +844,9 @@ PROCESS:
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
-1. Section headers match PRD template structure (docs/docs-product/templates/prd_template.md)
+1. Section headers match PRD template structure (.claude/templates/documents/prd_template.md)
 2. Table column structures correct (competitive matrix, requirements table, KPI table, etc.)
-3. No fabrication (sample 5 claims per file, trace to research files)
+3. No fabrication (Verify EVERY claim in each file, trace to research files)
 4. Evidence citations use actual file paths and feature names
 5. User stories follow As a / I want / So that format with acceptance criteria
 6. Requirements use RICE or MoSCoW prioritization framework
@@ -853,11 +870,13 @@ Perform final QA validation of the assembled PRD for [product name].
 QA phase: report-validation
 Report path: [report-path]
 Research directory: [research-dir-path]
-Template path: docs/docs-product/templates/prd_template.md
+Template path: .claude/templates/documents/prd_template.md
 Output path: [output-path]
 Fix authorization: true (always authorized for report validation)
 
 This is the final quality check before presenting to the user. You can and should fix issues in-place.
+
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
 1. Read the ENTIRE PRD
@@ -904,7 +923,7 @@ Component files (in order):
 
 Output path: [PRD-output-path]
 Research directory: [research-dir-path]
-Template reference: docs/docs-product/templates/prd_template.md
+Template reference: .claude/templates/documents/prd_template.md
 
 CRITICAL — Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.
@@ -972,7 +991,7 @@ Consolidation protocol (when consolidating existing docs into this PRD):
 
 > **Note:** This section is reference documentation. The BUILD_REQUEST phases (Stage A) are authoritative for task file construction.
 
-The final PRD follows the template at `docs/docs-product/templates/prd_template.md`. The synthesis agents produce sections that are assembled into this format.
+The final PRD follows the template at `.claude/templates/documents/prd_template.md`. The synthesis agents produce sections that are assembled into this format.
 
 ```markdown
 ---
@@ -1114,7 +1133,7 @@ This is the standard mapping of synthesis files to PRD template sections. Adjust
 
 The 9 criteria (used by rf-analyst):
 
-1. Template section headers match exactly (per `docs/docs-product/templates/prd_template.md`)
+1. Template section headers match exactly (per `.claude/templates/documents/prd_template.md`)
 2. Tables use the correct column structure from the template (competitive matrix, requirements table, KPI table, scope table, risk matrix, etc.)
 3. No content was fabricated beyond what research files contain
 4. Findings cite actual file paths and feature names (not vague descriptions)
@@ -1292,6 +1311,8 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 16. **No modifying source code.** Research agents READ code, they do not modify it. This skill produces documents, not code changes. Any code changes needed should be logged as follow-up items, not executed during PRD creation.
 
+17. **QA gates are checklist items, not prose.** Every QA gate specified in QA_GATE_REQUIREMENTS must appear in the generated task file as a `- [ ]` checklist item following B2 self-contained pattern. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped.
+
 ---
 
 ## Research Quality Signals
@@ -1341,7 +1362,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 | QA reports (report validation) | `${TASK_DIR}qa/qa-report-validation.md` |
 | QA reports (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
 | Final PRD | `docs/docs-product/tech/[feature-name]/PRD_[FEATURE-NAME].md` |
-| Template schema | `docs/docs-product/templates/prd_template.md` |
+| Template schema | `.claude/templates/documents/prd_template.md` |
 
 Research and synthesis files persist in the task folder — they serve as the evidence trail for claims in the PRD and can be re-used when the document needs updating.
 

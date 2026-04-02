@@ -794,6 +794,46 @@ EXTRACT_GATE = GateCriteria(
     ],
 )
 
+EXTRACT_TDD_GATE = GateCriteria(
+    required_frontmatter_fields=[
+        # 13 standard fields (same as EXTRACT_GATE)
+        "spec_source",
+        "generated",
+        "generator",
+        "functional_requirements",
+        "nonfunctional_requirements",
+        "total_requirements",
+        "complexity_score",
+        "complexity_class",
+        "domains_detected",
+        "risks_identified",
+        "dependencies_identified",
+        "success_criteria_count",
+        "extraction_mode",
+        # 6 TDD-specific fields
+        "data_models_identified",
+        "api_surfaces_identified",
+        "components_identified",
+        "test_artifacts_identified",
+        "migration_items_identified",
+        "operational_items_identified",
+    ],
+    min_lines=50,
+    enforcement_tier="STRICT",
+    semantic_checks=[
+        SemanticCheck(
+            name="complexity_class_valid",
+            check_fn=_complexity_class_valid,
+            failure_message="complexity_class must be one of LOW, MEDIUM, HIGH",
+        ),
+        SemanticCheck(
+            name="extraction_mode_valid",
+            check_fn=_extraction_mode_valid,
+            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+        ),
+    ],
+)
+
 GENERATE_A_GATE = GateCriteria(
     required_frontmatter_fields=["spec_source", "complexity_score", "primary_persona"],
     min_lines=100,

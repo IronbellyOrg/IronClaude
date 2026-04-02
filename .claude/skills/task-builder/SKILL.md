@@ -15,11 +15,11 @@ This skill stops after task file creation. There is no Stage B — the user revi
 
 Task files go wrong when built from memory, shallow exploration, or unverified assumptions. This skill forces every task item through evidence-based codebase research — parallel agents read actual source files, trace actual dependencies, and document actual behavior with file paths and line numbers.
 
-The multi-phase structure (scope discovery → parallel research → **analyst verification** → **QA gate** → builder → **task file validation**) prevents four common failure modes:
+The multi-phase structure (scope discovery → parallel research → **analyst verification** → **QA gate** → builder → **task file validation** → **qualitative review**) prevents four common failure modes:
 - **Context rot** — By isolating each research topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one topic slice from the scope map), the research goes deep on every aspect simultaneously rather than skimming across everything sequentially. Minimum 3 researchers per track, scaling to 8 for complex scopes.
 - **Hallucinated content** — By separating research (what exists) from task file creation (what to do about it), each phase can be verified independently. The builder only works from verified research files, not from memory or inference. Research claims are evidence-based with file paths and line numbers.
-- **Uncaught quality drift** — Dedicated `rf-analyst` and `rf-qa` agents provide independent verification at two critical gates: after research (rf-analyst completeness check + rf-qa evidence quality) and after task file creation (rf-qa task-integrity validation with fix authorization). The QA agent assumes everything is wrong until independently verified — zero-trust verification prevents rubber-stamping.
+- **Uncaught quality drift** — Dedicated `rf-analyst`, `rf-qa`, and `rf-qa-qualitative` agents provide independent verification at three critical gates: after research (rf-analyst completeness check + rf-qa evidence quality), after task file creation (rf-qa task-integrity structural validation), and after structural QA passes (rf-qa-qualitative task-qualitative operational validation — verifying the plan would actually succeed if executed). The QA agents assume everything is wrong until independently verified — zero-trust verification prevents rubber-stamping.
 
 The research artifacts persist in the task folder under `.dev/tasks/to-do/` so findings survive context compression, can be re-verified later, and provide the evidence trail for all task file items.
 
@@ -126,6 +126,7 @@ Note: This skill does NOT produce synthesis files, reviews, or final documents. 
 | Analyst reports | `${TASK_DIR}qa/analyst-completeness-report.md` |
 | QA research gate reports | `${TASK_DIR}qa/qa-research-gate-report.md` |
 | QA task validation report | `${TASK_DIR}qa/qa-task-validation-report.md` |
+| QA qualitative review | `${TASK_DIR}qa/qa-qualitative-review.md` |
 
 **Multi-track path convention:** For multi-track builds, each track gets its own folder: `TASK-RF-track-T-YYYYMMDD-HHMMSS/` (e.g., `TASK-RF-track-1-20260318-140000/`). Track ID goes BEFORE the timestamp so folders sort by track. Each track folder has its own `research/` and `qa/` subfolders.
 
@@ -150,14 +151,16 @@ This skill operates in a single stage (Stage A only). Unlike the canonical docum
 8. Research quality gate — rf-analyst + rf-qa in parallel via Agent tool, with gap-fill cycle if needed (A.8)
 9. Optional web research — only if tier allows web agents AND quality gate identified external knowledge gaps (A.8.5)
 10. Spawn the `rf-task-builder` agent via Agent tool with structured BUILD_REQUEST (A.9)
-11. Task file validation — rf-qa in task-integrity mode via Agent tool, with fix authorization (A.10)
-12. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
+11. Task file structural validation — rf-qa in task-integrity mode via Agent tool, with fix authorization (A.10)
+12. Task file qualitative validation — rf-qa-qualitative in task-qualitative mode via Agent tool, with fix authorization (A.10.5)
+13. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
 
 If a task folder already exists for this request (from a previous session), skip to the appropriate step based on artifact state:
 - Research files complete but no QA reports → skip to A.8 (quality gate)
 - QA reports pass but no task file → skip to A.9 (spawn builder)
-- Task file exists but no validation report → skip to A.10 (validation)
-- Task file + validation report exist → skip to A.11 (present results)
+- Task file exists but no validation report → skip to A.10 (structural validation)
+- Task file + structural validation report but no qualitative report → skip to A.10.5 (qualitative validation)
+- Task file + both validation reports exist → skip to A.11 (present results)
 
 ---
 
@@ -171,7 +174,8 @@ Before creating a new task folder, check if one already exists:
 2. If found, check the artifact state to determine the resume point:
    - If `research/` has complete research files but `qa/` has no analyst/QA reports → skip to A.8 (quality gate)
    - If `qa/` has passing analyst/QA reports but no task file in `${TASK_DIR}` → skip to A.9 (spawn builder)
-   - If task file exists but no `qa-task-validation-report.md` in `qa/` → skip to A.10 (task file validation)
+   - If task file exists but no `qa-task-validation-report.md` in `qa/` → skip to A.10 (structural validation)
+   - If task file + `qa-task-validation-report.md` exist but no `qa-qualitative-review.md` in `qa/` → skip to A.10.5 (qualitative validation)
    - If task file and validation report both exist → skip to A.11 (present results)
    - If `research-notes.md` exists with `Status: Complete` → skip to A.5 (review sufficiency)
    - If `research-notes.md` exists with `Status: In Progress` → resume A.3 scope discovery
@@ -536,8 +540,8 @@ supplements but never overrides verified code findings.
 **Template & Examples:**
 ```
 1. Read the MDTM template specified for this track:
-   - If template 02: .gfdoc/templates/02_mdtm_template_complex_task.md
-   - If template 01: .gfdoc/templates/01_mdtm_template_generic_task.md
+   - If template 02: .claude/templates/workflow/02_mdtm_template_complex_task.md
+   - If template 01: .claude/templates/workflow/01_mdtm_template_generic_task.md
 2. Read PART 1 completely — note all rules, especially A3 (Complete Granular Breakdown)
    and B2 (self-contained item pattern)
 3. Check .dev/tasks/to-do/ for existing task folder examples — note effective patterns
@@ -613,6 +617,8 @@ Agent 2:
   prompt: |
     QA_MODE: research-gate
     fix_authorization: false
+
+    **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
     RESEARCH DIR: ${TASK_DIR}research/
     TRACK GOAL: [goal for this track]
@@ -726,6 +732,29 @@ Agent:
       01 = simple task, known inputs/outputs, direct transformation
       02 = complex task requiring discovery, build, test, review phases]
 
+    QA_GATE_REQUIREMENTS: [Default: FINAL_ONLY for Template 01, PER_PHASE
+      for Template 02. NONE = no QA gates in generated task file. FINAL_ONLY
+      = include a final QA validation phase before task completion.
+      PER_PHASE = include QA gates after each major phase. When QA gates are
+      required, the task file must include checklist items that spawn
+      rf-analyst and/or rf-qa to verify phase outputs before proceeding.
+      The orchestrator determines the value based on GOAL complexity and
+      template selection.]
+
+    VALIDATION_REQUIREMENTS: [Specifies validation checklist items the
+      generated task file must include. Examples: "Verify all modified files
+      pass linting", "Verify type checking passes", "Verify build succeeds",
+      "Verify existing tests still pass". Pull from CLAUDE.md project
+      conventions and research findings. Default: "Standard project
+      validation: lint, type-check, and build must pass."]
+
+    TESTING_REQUIREMENTS: [Options: NONE (docs-only, config changes), UNIT,
+      INTEGRATION, E2E, ALL. Default: Infer from GOAL — implementation/
+      refactoring defaults to UNIT minimum; API changes default to UNIT +
+      INTEGRATION. When testing is required, task file items must specify:
+      test file locations, test naming conventions, coverage targets, and
+      verification commands.]
+
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
     claims and contradictions here. If none found, write:
@@ -807,8 +836,8 @@ Agent:
 
     STEPS:
     1. Read the MDTM template specified in TEMPLATE field above (MANDATORY):
-       - If TEMPLATE: 02 → .gfdoc/templates/02_mdtm_template_complex_task.md
-       - If TEMPLATE: 01 → .gfdoc/templates/01_mdtm_template_generic_task.md
+       - If TEMPLATE: 02 → .claude/templates/workflow/02_mdtm_template_complex_task.md
+       - If TEMPLATE: 01 → .claude/templates/workflow/01_mdtm_template_generic_task.md
     2. Read PART 1 (Task Building Instructions) completely
     3. Read ALL research files in the research directory
     4. Follow ALL instructions in PART 1 (Sections A-K for template 01;
@@ -846,6 +875,8 @@ After the builder returns a task file path, validate the task file before presen
 
 **Spawn rf-qa:** Use the Agent tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
 
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
 **QA prompt:**
 ```
 QA_MODE: task-integrity
@@ -860,6 +891,8 @@ ESCALATION — CRITICAL OVERRIDE:
 You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate,
 or TaskList. You are a standalone agent invoked via the Agent tool. Return
 your verdict and report file path as your final output.
+
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 Validate the task file against template requirements:
 1. YAML frontmatter complete and well-formed?
@@ -883,9 +916,88 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 ```
 
 **Handling the verdict:**
-- **PASS** → Proceed to A.11 (present results)
-- **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.11.
+- **PASS** → Proceed to A.10.5 (qualitative validation)
+- **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.10.5.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+
+### A.10.5: Task File Qualitative Validation
+
+After structural QA passes, validate that the task file would actually succeed if executed. This step catches operational issues that structural QA cannot: gates that will fail, function signatures that don't match the described modifications, downstream dependencies not updated, tests that exercise stubs instead of real artifacts, and runtime paths that break partway through.
+
+**Spawn rf-qa-qualitative:** Use the Agent tool with `subagent_type: "rf-qa-qualitative"`, `mode: "bypassPermissions"`.
+
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
+**Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
+
+**QA prompt:**
+```
+QA_PHASE: task-qualitative
+fix_authorization: true
+
+TASK FILE: [path to the task file]
+RESEARCH DIR: ${TASK_DIR}research/
+TRACK GOAL: [goal for this track]
+
+TARGET FILES (verify ALL — no spot-checking):
+[list every unique source file path from checklist items]
+
+PROJECT CONVENTIONS:
+[Include any project-specific patterns discovered during research that affect
+whether items will succeed. Examples:
+- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
+  src/ → .claude/. make verify-sync fails if .claude/ has dirs with no src/
+  counterpart."
+- Build gates: "make lint runs ESLint with --max-warnings 0"
+- Test location: "Tests go in tests/ using pytest. The project does not use
+  inline python -c scripts for testing."
+- CI requirements: "Pre-commit hooks run ESLint + Prettier on staged files"
+Pull these from CLAUDE.md and research files. If no project-specific
+conventions were discovered, state "None identified."]
+
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
+INSTRUCTIONS:
+Apply the 15-item Task File Qualitative Review checklist from your agent
+definition. For each checklist item that requires reading source code, read
+the ACTUAL target files — do not rely on research file summaries alone.
+
+For every shell command or make target referenced in checklist items, verify
+its preconditions are satisfied by earlier items or the current repo state.
+
+For task files with >15 checklist items: you may receive an assigned_phases
+list limiting your scope. If so, verify only items in those phases and note
+cross-phase limitations in your report.
+
+Verify that QA_GATE_REQUIREMENTS, VALIDATION_REQUIREMENTS, and
+TESTING_REQUIREMENTS from the BUILD_REQUEST are reflected as corresponding
+checklist items in the generated task file. If QA_GATE_REQUIREMENTS is
+PER_PHASE but no QA gate items exist, FAIL. If TESTING_REQUIREMENTS is
+UNIT but no test items exist, FAIL.
+
+ESCALATION — CRITICAL OVERRIDE:
+You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate,
+or TaskList. You are a standalone agent invoked via the Agent tool. Return
+your verdict and report file path as your final output.
+
+OUTPUT FILE: ${TASK_DIR}qa/qa-qualitative-review.md
+
+Write the file IMMEDIATELY with a header, then append findings incrementally.
+
+If fix_authorization is true and you find issues: fix them IN-PLACE in the
+task file using Edit, then document what you fixed in your report.
+
+Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
+```
+
+**Parallel partitioning for large task files:** If the task file has >15 checklist items, spawn multiple rf-qa-qualitative instances in parallel, each assigned a subset of phases via the `assigned_phases` field in the prompt. Each instance reads its assigned phases' items + the source files those items reference. After all instances complete, read all partition reports and merge findings. For cross-phase checks (downstream consumer analysis, runtime path trace), perform a brief cross-phase validation yourself after merging — the partition instances can only trace within their assigned phases.
+
+**Handling the verdict:**
+- **PASS** → Proceed to A.11 (present results)
+- **FAIL with all fixes applied** → QA fixed all issues in-place. Verify fixes by re-reading affected sections. Proceed to A.11.
+- **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+
+Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected task file sections. If issues remain unfixed, address ALL of them before proceeding to A.11. Zero leniency — no severity level is exempt.
 
 ### A.11: Present Results
 
@@ -905,7 +1017,8 @@ RECOMMENDED BATCH SIZE: [N]
 
 QUALITY GATES:
   Research gate: [PASS/FAIL] ([N] researchers, [N] gap-fill rounds)
-  Task validation: [PASS/FAIL] ([N] issues fixed in-place)
+  Task structural validation: [PASS/FAIL] ([N] issues fixed in-place)
+  Task qualitative validation: [PASS/FAIL] ([N] issues fixed in-place)
 
 TASK FOLDER: ${TASK_DIR}
   research/   [list each research file and its topic]
@@ -1055,8 +1168,8 @@ supplements but never overrides verified code findings.
 
 --- IF TOPIC IS "Template & Examples" ---
 1. Read the MDTM template specified for this track:
-   - If template 02: .gfdoc/templates/02_mdtm_template_complex_task.md
-   - If template 01: .gfdoc/templates/01_mdtm_template_generic_task.md
+   - If template 02: .claude/templates/workflow/02_mdtm_template_complex_task.md
+   - If template 01: .claude/templates/workflow/01_mdtm_template_generic_task.md
 2. Read PART 1 completely — note all rules, especially A3 (Complete Granular Breakdown)
    and B2 (self-contained item pattern)
 3. Check .dev/tasks/to-do/ for existing task folder examples — note effective patterns
@@ -1175,6 +1288,8 @@ Be adversarial — your job is to find problems, not confirm things work.
 Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
 
 ```
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
 Perform QA verification of research completeness for [track goal].
 
 QA phase: research-gate
@@ -1190,12 +1305,14 @@ ESCALATION — CRITICAL OVERRIDE:
 You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate, or TaskList.
 Return your verdict, report file path, and findings summary as your final output.
 
+**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
 You are the last line of defense before the builder creates the task file. Assume
 everything is wrong until you verify it.
 
 IF ANALYST REPORT EXISTS:
 1. Read the analyst's completeness report
-2. Spot-check 3-5 of their coverage audit claims
+2. Verify ALL of their coverage audit claims
 3. Validate gap severity classifications
 4. Check their verdict against your own independent assessment
 5. Apply the 10-item Research Gate checklist
@@ -1205,9 +1322,9 @@ Apply the full 10-item checklist independently.
 
 10-ITEM CHECKLIST:
 1. File inventory — all research files exist with Status: Complete and Summary
-2. Evidence density — sample 3-5 claims per file, verify file paths exist
+2. Evidence density — Verify EVERY claim in each file — verify file paths exist
 3. Scope coverage — every key area from scope map examined
-4. Documentation cross-validation — doc-sourced claims tagged, spot-check 2-3 CODE-VERIFIED
+4. Documentation cross-validation — doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
 5. Contradiction resolution — no unresolved conflicting findings
 6. Gap severity — CRITICAL (blocks builder), IMPORTANT (reduces quality), MINOR (must still be fixed)
 7. Depth appropriateness — matches tier expectation
@@ -1266,6 +1383,7 @@ The builder creates task files for ARBITRARY requests. These common patterns pro
 Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
 
 The complete prompt template is embedded in **A.10** above. Key elements:
+- **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 - `QA_MODE: task-integrity`, `fix_authorization: true`
 - ESCALATION block (no team context)
 - 9-item validation checklist:
@@ -1299,7 +1417,7 @@ priority: "🔼 High"
 created_date: "YYYY-MM-DD"
 updated_date: "YYYY-MM-DD"
 assigned_to: "orchestrator"
-template_schema_doc: ".gfdoc/templates/0[1|2]_mdtm_template_[generic|complex]_task.md"
+template_schema_doc: ".claude/templates/workflow/0[1|2]_mdtm_template_[generic|complex]_task.md"
 estimation: "[estimated duration]"
 task_type: static
 related_docs:
@@ -1437,6 +1555,14 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 15. **Anti-orphaning.** Task completion items (update status to Done, write task summary) MUST be inside the final phase of the generated task file, never in a separate Post-Completion section.
 
+16. **QA gates in generated task files.** When the BUILD_REQUEST specifies QA_GATE_REQUIREMENTS of FINAL_ONLY or PER_PHASE, the builder MUST encode corresponding QA gate checklist items in the generated task file. These items must specify the QA agent type (rf-analyst, rf-qa, rf-qa-qualitative), the QA mode, the files to verify, and the pass/fail handling. A generated task file that omits required QA gates is a MALFORMED output.
+
+17. **Validation in generated task files.** When the BUILD_REQUEST specifies VALIDATION_REQUIREMENTS, the builder MUST encode corresponding validation checklist items in the generated task file. Validation items must be placed AFTER the phase they validate and BEFORE the next phase begins. A task file with implementation items but no validation items (when VALIDATION_REQUIREMENTS is non-empty) is a MALFORMED output.
+
+18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
+
+**Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
+
 ---
 
 ## Research Quality Signals
@@ -1477,6 +1603,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 | Analyst report (research gate) | `${TASK_DIR}qa/analyst-completeness-report.md` |
 | QA report (research gate) | `${TASK_DIR}qa/qa-research-gate-report.md` |
 | QA report (task validation) | `${TASK_DIR}qa/qa-task-validation-report.md` |
+| QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
 
 Research and QA report files persist after the task file is built — they serve as the evidence trail for all claims and enable future re-investigation.
 

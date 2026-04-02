@@ -92,6 +92,9 @@ BUILD_REQUEST:
 GOAL: [What needs to be accomplished]
 WHY: [Why this is needed]
 TEMPLATE: [01 or 02]
+QA_GATE_REQUIREMENTS: [NONE / FINAL_ONLY / PER_PHASE]
+VALIDATION_REQUIREMENTS: [Validation checklist items to encode]
+TESTING_REQUIREMENTS: [NONE / UNIT / INTEGRATION / E2E / ALL]
 RESEARCH_CONTEXT: [Initial findings from researcher, if any]
 ```
 
@@ -107,6 +110,8 @@ Understand:
 - PART 1: Task Building Instructions (for you to follow)
   - Sections A-K apply to both templates
   - Section L (Intra-Task Handoff Patterns) applies ONLY to template 02
+  - Section M (Phase-Gate Composite Patterns) applies ONLY to template 02 — defines M1 (QA gate sequences) and M2 (gate applicability by task type)
+  - I15-I18 define QA gate enforcement, fix cycles, post-completion validation, and testing requirements
 - PART 2: Task File Template (the actual structure to use)
 
 ### Step 3: Gather Context
@@ -156,6 +161,9 @@ Based on context, determine:
 - **SOURCES**: Files that provide content for each output
 - **PHASES**: Logical groupings (3-6 phases typical)
 - **STEPS**: Atomic actions per phase
+- **QA GATES**: Where to insert QA gate checklist items (per QA_GATE_REQUIREMENTS)
+- **VALIDATION**: What validation items to include (per VALIDATION_REQUIREMENTS)
+- **TESTING**: What test items to include (per TESTING_REQUIREMENTS)
 
 ### Step 5: Build the Task File (INCREMENTAL WRITING — MANDATORY)
 
@@ -325,6 +333,52 @@ Not every task needs all patterns. Use the Pattern Selection Guide (Section L7 i
 
 ---
 
+## QA Gate, Validation, and Testing Encoding (BUILD_REQUEST Fields)
+
+When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS`, you MUST encode corresponding checklist items in the generated task file. These fields are not informational — they are mandatory instructions.
+
+### QA_GATE_REQUIREMENTS
+
+| Value | What to Encode |
+|-------|---------------|
+| `NONE` | No QA gate checklist items needed |
+| `FINAL_ONLY` | Include a single QA validation phase before the final completion phase. This phase spawns rf-qa to verify all task outputs before marking Done. |
+| `PER_PHASE` | Include QA gate checklist items after each major execution phase. Each gate spawns rf-qa (and optionally rf-qa-qualitative) to verify the preceding phase's outputs before proceeding. Use the M1 Phase-Gate QA Sequence pattern (Template 02) or the Phase Gate template section (both templates) from I15. |
+
+**QA gate items follow B2 self-contained pattern.** Each item must specify: the agent to spawn, the QA phase type, the input files to verify, the output report path, the verdict handling (proceed on PASS, fix cycle on FAIL), and the error handling clause.
+
+**Fix cycle limits per gate type (from I16):**
+
+| Gate Type | Max Cycles | After Max |
+|-----------|-----------|-----------|
+| research-gate | 3 | HALT and escalate |
+| synthesis-gate | 2 | Open Questions |
+| report-validation | 3 | HALT and escalate |
+| task-integrity | 2 | Open Questions |
+| Any qualitative gate | 3 | HALT and escalate |
+
+### VALIDATION_REQUIREMENTS
+
+Contains specific validation commands or criteria the task file must include as checklist items. Examples: "Verify lint passes", "Verify type-check passes", "Verify build succeeds." Encode these as checklist items placed AFTER the phase they validate.
+
+### TESTING_REQUIREMENTS
+
+| Value | What to Encode |
+|-------|---------------|
+| `NONE` or `N/A` | No test items needed (docs-only or config tasks) |
+| `UNIT` | Include checklist items that run unit tests covering modified code |
+| `INTEGRATION` | Include integration test items |
+| `E2E` | Include end-to-end test items |
+| `ALL` | Include all applicable test tiers |
+
+Testing items must specify: test file locations, test commands (e.g., `uv run pytest tests/path/ -v`), pass criteria, and where results are captured. For Template 02, use the L3 (Test/Execute) pattern.
+
+### Precedence Rule
+
+When the BUILD_REQUEST contains BOTH `SKILL PHASES TO ENCODE` and `QA_GATE_REQUIREMENTS`, the SKILL PHASES TO ENCODE field is authoritative — it provides exhaustive per-phase specifications including QA gates. QA_GATE_REQUIREMENTS serves as a structured summary. When only QA_GATE_REQUIREMENTS is present (standalone task-builder use), it is the sole authority.
+
+---
+
 ## Extended Tools
 
 ### WebSearch — External References for Task Building
@@ -425,6 +479,9 @@ Use current date/time for the timestamp.
 7. **ALWAYS broadcast TASK_READY** - So executor knows to pick it up
 8. **Granularity per A3/A4** — Individual checklist items for EVERY file, component, or iteration. No batch items.
 9. **Evidence-based items** — Every task item must reference specific file paths from the research. No assumed or fabricated paths.
+10. **QA gates are checklist items, not prose.** When QA_GATE_REQUIREMENTS is FINAL_ONLY or PER_PHASE, you MUST encode QA gate checklist items in the generated task file. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped. A generated task file that omits required QA gates is a MALFORMED output.
+11. **Validation items are mandatory when specified.** When VALIDATION_REQUIREMENTS is non-empty, you MUST encode corresponding validation checklist items. A task file with implementation items but no validation items (when VALIDATION_REQUIREMENTS is specified) is a MALFORMED output.
+12. **Testing items are mandatory when specified.** When TESTING_REQUIREMENTS is not NONE or N/A, you MUST encode testing checklist items with test file paths, commands, and pass criteria. A generated task file that requires testing items but omits them is a MALFORMED output.
 
 ## Agent Memory
 

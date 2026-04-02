@@ -120,6 +120,10 @@ def build_tasklist_fidelity_prompt(
             "should have corresponding contingency or rollback tasks.\n"
             "3. Components listed in the TDD's Component Inventory (§10) should have "
             "corresponding implementation tasks.\n"
+            "4. Data model entities from the TDD's Data Models section (§7) should have "
+            "corresponding schema implementation tasks in the tasklist.\n"
+            "5. API endpoints from the TDD's API Specifications section (§8) should have "
+            "corresponding endpoint implementation tasks in the tasklist.\n"
             "Flag missing coverage as MEDIUM severity deviations."
         )
 
@@ -135,6 +139,9 @@ def build_tasklist_fidelity_prompt(
             "have corresponding instrumentation or measurement tasks in the tasklist.\n"
             "3. Acceptance scenarios from the PRD's Scope Definition (S12) and Customer "
             "Journey Map (S22) should have corresponding verification tasks.\n"
+            "4. Priority ordering from the PRD's Business Context (S5) -- task priority "
+            "should reflect business value hierarchy, not just technical dependency order. "
+            "Flag tasks where priority contradicts PRD stakeholder priorities as LOW severity.\n"
             "Flag missing coverage as MEDIUM severity deviations."
         )
 
