@@ -112,6 +112,9 @@ These actions are NEVER permitted during task file execution:
 - **Inventing file paths** — Only reference files you have verified exist via Glob/Read. If an item references a file that doesn't exist, log the blocker rather than guessing.
 - **Modifying items** — Do not rewrite, rephrase, or reinterpret checklist items. Execute them as written. If an item is ambiguous or incorrect, log the issue in Task Log / Notes and ask the user.
 - **Adding items** — Do not add new checklist items unless the task file contains DYNAMIC CONTENT MARKER sections that explicitly permit it.
+- **Delegating across phase boundaries** — You MUST NOT spawn a subagent and instruct it to execute items spanning multiple phases. Each phase is a separate execution unit with a mandatory QA gate between phases. A subagent may only receive work from a SINGLE checklist item (or a parallel batch of independent items within the same phase). Delegating the F1 loop itself to a subagent is prohibited — the executor must maintain the READ-IDENTIFY-EXECUTE-UPDATE-REPEAT loop and spawn subagents only for individual item execution.
+- **Skipping phase-gate QA** — After completing all items in a phase (Phase 2+), you MUST spawn rf-qa before executing any item in the next phase. This is not optional. See Phase-Gate QA Verification for the full protocol. Proceeding to the next phase without a passing QA gate is a prohibited action equivalent to skipping items.
+- **Skipping post-completion validation** — After the final phase's phase-gate QA passes, you MUST run both rf-qa structural validation and rf-qa-qualitative operational validation BEFORE marking the task "Done." See Post-Completion Validation for the full protocol. Marking a task done without running both validations is a prohibited action.
 
 ### Parallel Agent Spawning
 
@@ -177,7 +180,7 @@ Do NOT block the entire task for individual item failures. Only mark the task as
 
 ### Phase-Gate QA Verification
 
-After completing all items in a phase (all items `- [x]`), phase-gate QA runs automatically. QA verification is mandatory for every phase except Phase 1 (which is setup-only — status updates, directory creation, and backups don't produce verifiable outputs).
+After completing all items in a phase (all items `- [x]`), phase-gate QA MUST be explicitly invoked by the executor. QA verification is mandatory for every phase except Phase 1 (which is setup-only — status updates, directory creation, and backups don't produce verifiable outputs).
 
 **After every phase (Phase 2+), before proceeding to the next phase:**
 
@@ -186,6 +189,7 @@ After completing all items in a phase (all items `- [x]`), phase-gate QA runs au
 2. **Collect verification criteria** — Extract the "ensuring..." clauses from all checked items in the completed phase. These are the acceptance criteria the QA agent will verify against.
 
 3. **Spawn rf-qa** — Use the Agent tool with `subagent_type: "rf-qa"` and `mode: "bypassPermissions"`. The prompt MUST include:
+   - **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
    - The task file path and phase number just completed
    - The list of output files to verify (full paths)
    - The extracted "ensuring..." clauses as acceptance criteria
@@ -205,6 +209,43 @@ After completing all items in a phase (all items `- [x]`), phase-gate QA runs au
 **Partitioning for QA:** If a phase produced more than 6 output files, spawn multiple rf-qa instances with `assigned_files` subsets (same partitioning pattern as parallel agent spawning). Merge the QA reports before processing the verdict.
 
 **No exceptions:** QA gates are not optional. Every task file processed by this skill gets phase-gate verification on Phase 2+. This is how Rigorflow maintains trust — every phase's outputs are independently verified before proceeding.
+
+### Post-Completion Validation (Final Phase Only)
+
+After the LAST phase's phase-gate QA passes and BEFORE marking the task "Done," run a final validation pass on the complete output. This catches cross-phase consistency issues and divergent execution — cases where each phase passed individually but the overall result doesn't work as a whole.
+
+**This runs ONCE, after the final phase, not after every phase.**
+
+**Step 1: rf-qa structural validation of complete output**
+
+Spawn `rf-qa` (subagent_type: "rf-qa", qa_phase: "report-validation", fix_authorization: true) with:
+- **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+- ALL output files produced across ALL phases (not just the final phase)
+- The task file path for cross-referencing against claimed outputs
+- Instruction: "Verify cross-phase consistency — outputs from earlier phases that are consumed by later phases match expectations. Verify all 'ensuring...' clauses across the ENTIRE task file are satisfied, not just the final phase. Check for orphaned outputs (files created but never consumed) and missing outputs (files referenced but never created)."
+- Output path: `${TASK_DIR}reviews/qa-final-validation-report.md`
+
+**Step 2: rf-qa-qualitative operational validation**
+
+After structural validation passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "task-qualitative", fix_authorization: true) with:
+- **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+- The task file path
+- ALL output files produced across ALL phases (the TARGET_FILE_LIST — extract every unique file path from checklist items)
+- ALL source files that were modified during execution
+- PROJECT CONVENTIONS from CLAUDE.md (sync models, build gates, test location, CI requirements). If none identified, state "None identified."
+- The research directory path if one exists (`${TASK_DIR}research/`)
+- `document_type: "Executed Task File"`
+- Note in the prompt: "This task has been EXECUTED. Evaluate against ACTUAL outputs on disk, not just planned outputs in checklist items. The agent applies its full 15-item task-qualitative checklist: gate/command dry-run, project convention compliance, intra-phase execution simulation, function signature verification, module context analysis, downstream consumer analysis, test validity, test coverage, error path coverage, runtime failure path trace, completion scope honesty, ambient dependency completeness, kwarg sequencing red flags, function existence claims verification, and cross-reference accuracy for templates."
+- Output path: `${TASK_DIR}reviews/qa-qualitative-review.md`
+
+**Parallel partitioning:** If the task produced >15 output files, spawn multiple rf-qa-qualitative instances with assigned subsets of phases/files.
+
+**Handling verdicts:**
+- Both PASS → proceed to mark task "Done"
+- Either FAIL with all fixes applied → verify fixes, then proceed
+- Either FAIL with unfixable issues → log issues, present to user, ask for guidance before marking done
+
+**Read both QA reports. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly. If issues remain unfixed, address ALL of them before marking the task done. Zero leniency — no severity level is exempt.**
 
 ---
 
@@ -250,7 +291,8 @@ When a checklist item instructs you to spawn a subagent, follow these convention
 Use the agent type specified in the checklist item. Common types:
 - `general-purpose` — Default for research, file analysis, code exploration
 - `rf-analyst` — For completeness verification, cross-validation, gap analysis
-- `rf-qa` — For quality gates (research-gate, synthesis-gate, report-validation)
+- `rf-qa` — For quality gates (research-gate, synthesis-gate, report-validation) and post-completion structural validation
+- `rf-qa-qualitative` — For post-completion operational validation (task-qualitative)
 - `rf-assembler` — For document assembly from component files
 - `rf-task-builder` — For creating MDTM task files
 - `rf-task-researcher` — For codebase exploration to gather context
@@ -302,9 +344,13 @@ These rules apply across ALL task file executions. Violations compromise executi
 
 10. **Respect the task file's structure.** Phases are executed in order. Items within a phase are executed in order. The only exception is parallel batches of independent items. Never jump between phases, never go backward to re-execute items.
 
-11. **Preserve output artifacts.** Files created during execution persist after the task is complete. They serve as the evidence trail for all claims and enable future re-investigation. Do NOT delete intermediate files, working files, or output files unless the task explicitly instructs you to clean up.
+11. **Phase boundaries are inviolable QA gates.** A phase boundary is not just a section divider — it is a mandatory QA checkpoint. After completing a phase's last item (Phase 2+), phase-gate QA MUST run and PASS before the first item of the next phase is executed, delegated, or even identified. This applies regardless of how work is delegated — if a subagent is spawned, it receives work from ONE phase only. No item from Phase N+1 may begin until Phase N's QA gate has passed.
 
-12. **Report progress at milestones.** At the end of each phase (when all items in that phase are `- [x]`), run the phase-gate QA check if enabled (see Phase-Gate QA Verification), then briefly inform the user: which phase completed, key outputs produced, QA verdict (if gate was active), which phase is next, and any issues logged. Keep these updates concise — 2-3 sentences maximum.
+12. **The F1 loop is non-delegable.** The executor MUST maintain the READ-IDENTIFY-EXECUTE-UPDATE-REPEAT loop itself. It may spawn subagents to perform the EXECUTE step for individual items, but it MUST NOT delegate the loop — i.e., it must not spawn a subagent and instruct it to "process items X through Y" or "execute the remaining items." The executor is always the one reading the task file, identifying the next item, spawning the subagent (if needed), and marking items complete.
+
+13. **Preserve output artifacts.** Files created during execution persist after the task is complete. They serve as the evidence trail for all claims and enable future re-investigation. Do NOT delete intermediate files, working files, or output files unless the task explicitly instructs you to clean up.
+
+14. **Report progress at milestones.** At the end of each phase (when all items in that phase are `- [x]`), run the phase-gate QA check (see Phase-Gate QA Verification), then briefly inform the user: which phase completed, key outputs produced, QA verdict, which phase is next, and any issues logged. Keep these updates concise — 2-3 sentences maximum. After the FINAL phase's phase-gate QA passes, run the Post-Completion Validation (rf-qa structural + rf-qa-qualitative operational) before marking the task done.
 
 ---
 

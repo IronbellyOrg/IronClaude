@@ -30,7 +30,7 @@ def roadmap_group():
 
 
 @roadmap_group.command()
-@click.argument("spec_file", type=click.Path(exists=True, path_type=Path))
+@click.argument("input_files", nargs=-1, required=True, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--agents",
     default=None,
@@ -104,9 +104,9 @@ def roadmap_group():
 )
 @click.option(
     "--input-type",
-    type=click.Choice(["auto", "tdd", "spec"], case_sensitive=False),
+    type=click.Choice(["auto", "tdd", "spec", "prd"], case_sensitive=False),
     default="auto",
-    help="Input file type. auto=detect from content, tdd=force TDD extraction, spec=force spec extraction. Default: auto.",
+    help="Input file type. auto=detect from content (PRD, TDD, or spec), tdd/spec/prd=force type. Default: auto.",
 )
 @click.option(
     "--tdd-file",
@@ -133,7 +133,7 @@ def roadmap_group():
 @click.pass_context
 def run(
     ctx: click.Context,
-    spec_file: Path,
+    input_files: tuple[Path, ...],
     agents: str | None,
     output_dir: Path | None,
     depth: str | None,
@@ -149,13 +149,31 @@ def run(
     tdd_file: Path | None,
     prd_file: Path | None,
 ) -> None:
-    """Run the roadmap generation pipeline on SPEC_FILE.
+    """Run the roadmap generation pipeline on INPUT_FILES.
 
-    SPEC_FILE is the path to a specification or TDD markdown file.
-    Input type is auto-detected by default. Use --input-type to override.
+    INPUT_FILES accepts 1-3 markdown files (spec, TDD, PRD) in any order.
+    Content type is auto-detected. Use --input-type to override for single files.
+
+    Examples:
+        superclaude roadmap run spec.md
+        superclaude roadmap run spec.md tdd.md
+        superclaude roadmap run spec.md tdd.md prd.md
     """
-    from .executor import execute_roadmap
+    if len(input_files) > 3:
+        raise click.UsageError(
+            f"Expected 1-3 input files, got {len(input_files)}. "
+            "Provide at most one spec, one TDD, and one PRD."
+        )
+    from .executor import _route_input_files, execute_roadmap
     from .models import AgentSpec, RoadmapConfig
+
+    # Route positional files + explicit flags into pipeline slots
+    routing = _route_input_files(
+        input_files,
+        explicit_tdd=tdd_file,
+        explicit_prd=prd_file,
+        explicit_input_type=input_type,
+    )
 
     # Detect whether --agents and --depth were explicitly provided
     agents_explicit = (
@@ -173,7 +191,7 @@ def run(
     )
 
     # Resolve output directory
-    resolved_output = output_dir if output_dir is not None else spec_file.parent
+    resolved_output = output_dir if output_dir is not None else input_files[0].parent
 
     # Resolve retrospective file (missing file is not an error)
     retro_path = None
@@ -189,10 +207,8 @@ def run(
 
     # Build config kwargs — only include agents/depth when explicitly provided,
     # so RoadmapConfig's own defaults apply when user omitted them.
-    # Click's None never reaches the model; agents_explicit/depth_explicit
-    # booleans handle resume-state restoration.
     config_kwargs: dict = {
-        "spec_file": spec_file.resolve(),
+        "spec_file": routing["spec_file"].resolve(),
         "output_dir": resolved_output.resolve(),
         "work_dir": resolved_output.resolve(),
         "dry_run": dry_run,
@@ -201,9 +217,9 @@ def run(
         "debug": debug,
         "retrospective_file": retro_path,
         "allow_regeneration": allow_regeneration,
-        "input_type": input_type,
-        "tdd_file": tdd_file.resolve() if tdd_file is not None else None,
-        "prd_file": prd_file.resolve() if prd_file is not None else None,
+        "input_type": routing["input_type"],
+        "tdd_file": routing["tdd_file"].resolve() if routing["tdd_file"] else None,
+        "prd_file": routing["prd_file"].resolve() if routing["prd_file"] else None,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs
@@ -212,17 +228,13 @@ def run(
 
     config = RoadmapConfig(**config_kwargs)
 
-    # Resolve auto-detection at CLI level for user feedback
-    # (executor also resolves independently for the actual routing)
-    from .executor import detect_input_type
-
-    resolved_type = config.input_type
-    if resolved_type == "auto":
-        resolved_type = detect_input_type(config.spec_file)
-        click.echo(
-            f"[roadmap] Auto-detected input type: {resolved_type}",
-            err=True,
-        )
+    # User feedback: show resolved routing
+    resolved_type = routing["input_type"]
+    click.echo(
+        f"[roadmap] Input type: {resolved_type} "
+        f"(spec={routing['spec_file']}, tdd={routing['tdd_file']}, prd={routing['prd_file']})",
+        err=True,
+    )
 
     if resolved_type == "tdd":
         click.echo(

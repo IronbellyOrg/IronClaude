@@ -61,28 +61,80 @@ _log = logging.getLogger("superclaude.roadmap.executor")
 
 
 def detect_input_type(spec_file: Path) -> str:
-    """Auto-detect whether an input file is a TDD or a spec.
+    """Auto-detect whether an input file is a PRD, TDD, or spec.
 
-    Uses multiple weighted signals — not dependent on any single field:
+    Uses multiple weighted signals — not dependent on any single field.
+
+    PRD signals (checked first, threshold >= 5):
+    1. Frontmatter type field containing "Product Requirements" (+3)
+    2. 12 PRD-exclusive section headings (+1 each)
+    3. User story pattern "As .+, I want" (+2)
+    4. JTBD pattern "When I .+ I want to" (+2)
+    5. prd tag in frontmatter (+2)
+
+    TDD signals (checked second, threshold >= 5):
     1. Numbered section headings (## N. ) — TDDs have ~28, specs have ~12
-    2. TDD-exclusive frontmatter fields (parent_doc, coordinator — NOT feature_id/authors/quality_scores which specs also have)
-    3. TDD-specific section names (Data Models, API Specifications, Component Inventory, etc.)
+    2. TDD-exclusive frontmatter fields (parent_doc, coordinator)
+    3. TDD-specific section names (Data Models, API Specifications, etc.)
     4. Frontmatter type field containing "Technical Design Document"
 
-    Returns "tdd" or "spec".
+    Returns "prd", "tdd", or "spec".
     """
     try:
         content = spec_file.read_text(encoding="utf-8", errors="replace")
     except (OSError, UnicodeDecodeError):
         return "spec"  # fallback to spec on read failure
 
+    import re
+
+    # ── PRD scoring (checked first) ──────────────────────────────────
+    prd_score = 0
+
+    # PRD Signal 1: Frontmatter type field (+3)
+    if "Product Requirements" in content[:1000]:
+        prd_score += 3
+
+    # PRD Signal 2: 12 PRD-exclusive section headings (+1 each)
+    prd_sections = [
+        "User Personas", "Jobs To Be Done", "Product Vision",
+        "Customer Journey", "Value Proposition", "Competitive Analysis",
+        "User Stories", "User Experience Requirements",
+        "Legal and Compliance", "Success Metrics and Measurement",
+        "Maintenance and Ownership", "Background and Strategic Fit",
+    ]
+    for section in prd_sections:
+        if section in content:
+            prd_score += 1
+
+    # PRD Signal 3: User story pattern (+2)
+    if re.search(r"As .+, I want", content):
+        prd_score += 2
+
+    # PRD Signal 4: JTBD pattern (+2)
+    if re.search(r"When I .+ I want to", content):
+        prd_score += 2
+
+    # PRD Signal 5: prd tag in frontmatter (+2)
+    if re.search(r"tags:.*\bprd\b", content[:2000]):
+        prd_score += 2
+
+    if prd_score >= 5:
+        _log.info("Auto-detected input type: prd (prd_score=%d)", prd_score)
+        if 3 <= prd_score <= 6:
+            _log.warning(
+                "Borderline PRD detection score (%d) for %s — result=prd. "
+                "Use --input-type to override if incorrect.",
+                prd_score, spec_file,
+            )
+        return "prd"
+
+    # ── TDD scoring (checked second) ─────────────────────────────────
     score = 0
 
     # Signal 1: Numbered section headings (## N. pattern)
     # TDDs have ~28 numbered sections; specs have ~12.
     # Threshold raised: >=20 is strong TDD signal, >=15 is moderate.
     # >=10 gets only +1 to avoid false positives from spec templates.
-    import re
     numbered_headings = len(re.findall(r"^## \d+\.", content, re.MULTILINE))
     if numbered_headings >= 20:
         score += 3  # strong signal — only TDDs have this many
@@ -131,6 +183,138 @@ def detect_input_type(spec_file: Path) -> str:
             score, spec_file, detected,
         )
     return detected
+
+
+def _route_input_files(
+    input_files: tuple[Path, ...],
+    explicit_tdd: Path | None,
+    explicit_prd: Path | None,
+    explicit_input_type: str,
+) -> dict:
+    """Route N positional files + explicit flags into pipeline slots.
+
+    Returns dict with keys: spec_file, tdd_file, prd_file, input_type.
+    Raises click.UsageError on validation failures.
+    """
+    import click
+
+    # 1. Validate count
+    if len(input_files) == 0:
+        raise click.UsageError("At least one input file required.")
+    if len(input_files) > 3:
+        raise click.UsageError(
+            f"Expected 1-3 input files, got {len(input_files)}. "
+            "Provide at most one spec, one TDD, and one PRD."
+        )
+
+    # 3. Classify each file
+    classifications: dict[Path, str] = {}
+    for f in input_files:
+        classifications[f] = detect_input_type(f)
+
+    # 4. Apply explicit override for single-file mode
+    if explicit_input_type != "auto" and len(input_files) == 1:
+        classifications[input_files[0]] = explicit_input_type
+    elif explicit_input_type != "auto" and len(input_files) > 1:
+        _log.warning(
+            "--input-type is ignored for multi-file mode; "
+            "each file is classified by content."
+        )
+
+    # 5. Validate no duplicates
+    type_counts: dict[str, list[Path]] = {}
+    for f, t in classifications.items():
+        type_counts.setdefault(t, []).append(f)
+    for t, files in type_counts.items():
+        if len(files) > 1:
+            names = ", ".join(str(f) for f in files)
+            raise click.UsageError(
+                f"Multiple files detected as {t}: {names}. "
+                "Use --input-type to disambiguate."
+            )
+
+    # 6. Validate primary input exists
+    has_spec = "spec" in type_counts
+    has_tdd = "tdd" in type_counts
+    has_prd = "prd" in type_counts
+    if not has_spec and not has_tdd:
+        if has_prd:
+            raise click.UsageError(
+                "PRD cannot be the sole primary input; "
+                "provide a spec or TDD file."
+            )
+        raise click.UsageError("No primary input (spec or TDD) detected.")
+
+    # 7. Assign slots
+    spec_file: Path
+    tdd_file: Path | None = None
+    prd_file: Path | None = None
+
+    if has_spec:
+        spec_file = type_counts["spec"][0]
+        if has_tdd:
+            tdd_file = type_counts["tdd"][0]
+    else:
+        # TDD becomes primary when no spec exists
+        spec_file = type_counts["tdd"][0]
+
+    if has_prd:
+        prd_file = type_counts["prd"][0]
+
+    # 8. Merge explicit flags (check conflicts first)
+    if explicit_tdd is not None:
+        if tdd_file is not None:
+            raise click.UsageError(
+                "--tdd-file conflicts with positional file detected as TDD; "
+                "remove one."
+            )
+        tdd_file = explicit_tdd
+
+    if explicit_prd is not None:
+        if prd_file is not None:
+            raise click.UsageError(
+                "--prd-file conflicts with positional file detected as PRD; "
+                "remove one."
+            )
+        prd_file = explicit_prd
+
+    # 9. Determine input_type
+    resolved_input_type: str
+    if has_spec:
+        resolved_input_type = "spec"
+    else:
+        resolved_input_type = "tdd"
+    # Single-file explicit override already applied in step 4 via classifications
+    if explicit_input_type != "auto" and len(input_files) == 1:
+        resolved_input_type = explicit_input_type
+
+    # 10. Redundancy guard
+    if resolved_input_type == "tdd" and tdd_file is not None:
+        _log.warning(
+            "Ignoring --tdd-file: primary input is already a TDD document."
+        )
+        tdd_file = None
+
+    # 11. Same-file guard
+    pairs = [
+        (spec_file, tdd_file, "spec_file", "tdd_file"),
+        (spec_file, prd_file, "spec_file", "prd_file"),
+        (tdd_file, prd_file, "tdd_file", "prd_file"),
+    ]
+    for a, b, name_a, name_b in pairs:
+        if a is not None and b is not None and a.resolve() == b.resolve():
+            raise click.UsageError(
+                f"{name_a} and {name_b} point to the same file: {a}"
+            )
+
+    # 12. Return
+    return {
+        "spec_file": spec_file,
+        "tdd_file": tdd_file,
+        "prd_file": prd_file,
+        "input_type": resolved_input_type,
+    }
+
 
 # Linux kernel compile-time constant (arch/arm64, x86_64, etc.)
 _MAX_ARG_STRLEN = 128 * 1024
@@ -2108,40 +2292,24 @@ def execute_roadmap(
     # FR-2.24.1.9 Condition 3: Capture spec hash at function entry
     initial_spec_hash = hashlib.sha256(config.spec_file.read_bytes()).hexdigest()
 
-    # Resolve "auto" input_type BEFORE _build_steps so the resolved value
-    # is on the config that _save_state receives (not just a local in _build_steps).
-    if config.input_type == "auto":
-        resolved = detect_input_type(config.spec_file)
-        _log.info("Resolved input_type=auto to '%s' for %s", resolved, config.spec_file)
-        config = dataclasses.replace(config, input_type=resolved)
-
-    # Log TDD/PRD decisions for debuggability (C-50)
-    if config.tdd_file is not None:
-        _log.info("TDD file provided: %s", config.tdd_file)
-    if config.prd_file is not None:
-        _log.info("PRD file provided: %s", config.prd_file)
-
-    # Same-file guard: --tdd-file and --prd-file must not be the same file (C-20)
-    if (
-        config.tdd_file is not None
-        and config.prd_file is not None
-        and config.tdd_file.resolve() == config.prd_file.resolve()
-    ):
-        _log.error(
-            "tdd_file and prd_file resolve to the same file: %s. "
-            "These must be different documents (check CLI flags or .roadmap-state.json).",
-            config.tdd_file,
-        )
-        raise SystemExit(1)
-
-    # Redundancy guard: when primary input IS a TDD, --tdd-file is redundant.
-    # Must be on the config object (not a local) so _save_state sees the nulled value.
-    if config.input_type == "tdd" and config.tdd_file is not None:
-        _log.warning(
-            "Ignoring --tdd-file: primary input is already a TDD document. "
-            "The --tdd-file flag is for supplementary context when the primary input is a spec."
-        )
-        config = dataclasses.replace(config, tdd_file=None)
+    # Route input files through centralized routing logic
+    routing = _route_input_files(
+        input_files=(config.spec_file,),
+        explicit_tdd=config.tdd_file,
+        explicit_prd=config.prd_file,
+        explicit_input_type=config.input_type,
+    )
+    config = dataclasses.replace(
+        config,
+        spec_file=routing["spec_file"],
+        tdd_file=routing["tdd_file"],
+        prd_file=routing["prd_file"],
+        input_type=routing["input_type"],
+    )
+    _log.info(
+        "Routing: spec=%s tdd=%s prd=%s type=%s",
+        config.spec_file, config.tdd_file, config.prd_file, config.input_type,
+    )
 
     steps = _build_steps(config)
 
@@ -2359,9 +2527,19 @@ def _apply_resume_after_spec_patch(
         return True
 
     # Step 5: Resolve input_type before rebuild (same pattern as execute_roadmap)
-    if config.input_type == "auto":
-        resolved = detect_input_type(config.spec_file)
-        config = dataclasses.replace(config, input_type=resolved)
+    routing = _route_input_files(
+        input_files=(config.spec_file,),
+        explicit_tdd=config.tdd_file,
+        explicit_prd=config.prd_file,
+        explicit_input_type=config.input_type,
+    )
+    config = dataclasses.replace(
+        config,
+        spec_file=routing["spec_file"],
+        tdd_file=routing["tdd_file"],
+        prd_file=routing["prd_file"],
+        input_type=routing["input_type"],
+    )
 
     # Step 5b: Rebuild steps
     steps = _build_steps(config)
