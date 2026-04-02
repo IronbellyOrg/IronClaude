@@ -121,6 +121,26 @@ TASKLIST_ROOT/
 
 ---
 
+### 3.x Source Document Enrichment
+
+> **Scope note:** Generation enrichment described in this section and Sections 4.4a/4.4b is a **skill-protocol behavior** invoked when `/sc:tasklist` generates tasks via inference. It is NOT triggered by the CLI `superclaude tasklist validate` command, which only performs fidelity validation with optional PRD/TDD supplementary checks. The CLI `validate` subcommand uses `build_tasklist_fidelity_prompt`; the skill protocol uses `build_tasklist_generate_prompt` (defined in `tasklist/prompts.py` for this purpose).
+
+When the tasklist generator has access to TDD and/or PRD source documents (via auto-wired paths from `.roadmap-state.json` or explicit `--tdd-file`/`--prd-file` flags), it MUST read them and use their structured content to produce more specific, actionable task decomposition.
+
+**Without source documents:** The generator works from the roadmap alone (current baseline behavior). Tasks are decomposed from roadmap item descriptions and success criteria only.
+
+**With source documents:** The generator cross-references roadmap milestones against source document sections to produce tasks with:
+- Exact function/class names from TDD (§10 Component Inventory, §8 API Specs)
+- Specific test case references from TDD (§15 Testing Strategy)
+- Persona-tagged acceptance criteria from PRD (§7 User Personas)
+- Metric instrumentation subtasks from PRD (§19 Success Metrics)
+- Migration contingency tasks from TDD (§19 Migration & Rollout)
+- Scope boundary enforcement from PRD (§12 Scope Definition)
+
+**Precedence:** TDD provides structural engineering detail (implementation specifics). PRD provides product context (descriptions, priorities, acceptance criteria). When both are present, TDD-derived enrichment takes precedence for implementation specifics; PRD-derived enrichment shapes task descriptions, acceptance criteria, and priority ordering.
+
+---
+
 ## Deterministic Generation Algorithm (Hard)
 
 Follow these steps exactly and in order.
@@ -136,6 +156,50 @@ Follow these steps exactly and in order.
 **Roadmap Item IDs (deterministic):**
 - Assign each parsed roadmap item an ID in appearance order: `R-001`, `R-002`, ...
 - `R-###` IDs must be used later in the Traceability Matrix.
+
+### 4.1a Supplementary TDD Context (conditional on --spec flag)
+
+If `--spec <spec-path>` was provided:
+1. Read the file at `<spec-path>`.
+2. Detect if the file is TDD-format (input contains `## 10. Component Inventory` heading OR YAML frontmatter `type` contains "Technical Design Document" OR 20+ section headings matching TDD numbering pattern `## N. Heading`).
+3. If TDD-format: extract the following content and store as `supplementary_context`:
+   - `component_inventory`: scan for `## 10. Component Inventory`; extract new/modified/deleted component tables
+   - `migration_phases`: scan for `## 19. Migration & Rollout Plan`; extract rollout stage table from §19.3; rollback steps from §19.4
+   - `testing_strategy`: scan for `## 15. Testing Strategy`; extract test pyramid from §15.1; unit/integration/E2E test case tables from §15.2
+   - `observability`: scan for `## 14. Observability & Monitoring`; extract metrics table from §14.2; alerts table from §14.4
+   - `release_criteria`: scan for `## 24. Release Criteria`; extract §24.1 DoD checklist items
+   - `api_surface`: scan for `## 8. API Specifications`; extract endpoint count from §8.1 API Overview table (metadata only — no task generation rule currently defined; endpoint count is available for informational use in task descriptions and validation reports)
+4. If spec-path file is not TDD-format: log warning and continue with roadmap-only generation.
+5. If spec-path file does not exist: abort with error.
+
+### 4.1b Supplementary PRD Context (conditional on --prd-file flag)
+
+If `--prd-file <prd-path>` was provided (or auto-wired from `.roadmap-state.json`):
+1. Read the file at `<prd-path>`.
+2. Extract the following content and store as `prd_context`:
+   - `user_personas`: scan for User Personas section (S7); extract persona names, needs, and primary workflows
+   - `user_stories`: scan for JTBD section (S6) / Personas (S7); extract actor-goal-acceptance_criteria triples
+   - `success_metrics`: scan for Success Metrics section (S19); extract metric names, targets, and measurement methods
+   - `release_strategy`: scan for Scope Definition section (S12); extract in-scope, out-of-scope, and deferred items
+   - `stakeholder_priorities`: scan for Business Context section (S5); extract stakeholder names, priorities, and success criteria
+   - `acceptance_scenarios`: scan for Customer Journey Map section (S22); extract journey names, critical paths, and validation approaches
+3. If prd-path file does not exist: abort with error.
+
+### 4.1c Auto-Wire from .roadmap-state.json
+
+When `.roadmap-state.json` exists in the output directory alongside the roadmap file, the tasklist pipeline auto-loads `tdd_file` and `prd_file` from it without requiring the user to re-pass `--tdd-file` and `--prd-file` flags. This enables seamless pipeline chaining:
+
+```
+superclaude roadmap run tdd.md --prd-file prd.md --output ./output
+superclaude tasklist validate ./output   # auto-wires both files from state
+```
+
+**Precedence rules:**
+- Explicit CLI flags (`--tdd-file`, `--prd-file`) always override auto-wired values
+- Auto-wired values are used only when the CLI flag was not provided
+- If the auto-wired file path no longer exists on disk, a warning is emitted and the value is left as None
+
+The state file stores `tdd_file`, `prd_file`, and `input_type` alongside the existing `spec_file` and `spec_hash` fields.
 
 ### 4.2 Determine Phase Buckets
 Create phases from the roadmap in a deterministic way:
@@ -163,6 +227,51 @@ For each roadmap item, generate one or more tasks using this rule:
   - A feature AND a test strategy
   - An API AND a UI
   - A build/release pipeline change AND an application change
+
+### 4.4a Supplementary Task Generation (conditional on --spec flag)
+
+Runs after standard Step 4.4; appends additional tasks to appropriate phase buckets. Merge rather than duplicate if a generated task duplicates an existing task for the same component.
+
+| Context Key | Task Pattern | Tier | Phase Assignment |
+|-------------|-------------|------|-----------------|
+| `component_inventory.new` entries | `Implement [component_name]` | STANDARD (STRICT if auth/security/crypto/database/migration/schema/model) | Phase 1 unless migration_phases overrides |
+| `component_inventory.modified` entries | `Update [component_name]: [change_description]` | STANDARD or STRICT per keyword rule | Phase 1 unless migration_phases overrides |
+| `component_inventory.deleted` entries | `Migrate [component_name] to [migration_target]` or `Remove [component_name]` | STRICT if migration_target non-empty | Phase 1 unless migration_phases overrides |
+| `migration_phases.stages` | Create a dedicated "Deployment & Rollout" phase at the end of the phase list containing one task per rollout stage; add `rollback_steps` as Rollback field on every migration-phase task (replacing default "TBD"). Does NOT replace existing heading-based phase buckets — deployment rollout stages (canary, limited, partial, full) are deployment concerns, not development phases. | — | Appended as final phase |
+| `testing_strategy.test_pyramid` entries | `Write [level] test suite ([tools])` — Validation bullet 1: verbatim test run command if runnable | STANDARD | Same phase as feature tasks they test |
+| `observability.metrics` entries | `Instrument metric: [name]` | STANDARD | Last phase |
+| `observability.alerts` entries | `Configure alert: [name]` | STANDARD | Last phase |
+| `release_criteria.definition_of_done` items | `Verify DoD: [item_text truncated to 60 chars]` | EXEMPT | End of final phase |
+
+**Generation-time enrichment (when TDD source document is available):** In addition to the task patterns above, the generator MUST cross-reference existing roadmap-derived tasks against the original TDD to add specificity:
+- Component inventory (§10) → implementation tasks enriched with named component classes, prop types, and dependency lists from the TDD
+- Test strategy (§15) → validation tasks enriched with named test cases, exact test descriptions, and expected behaviors from the TDD
+- Migration plan (§19) → deployment tasks enriched with named rollback steps, trigger conditions, and verification procedures from the TDD
+- API specifications (§8) → implementation tasks enriched with exact endpoint paths, request/response schemas, and status codes from the TDD
+- Data models (§7) → schema tasks enriched with exact field names, types, and constraints from the TDD
+
+### 4.4b Supplementary PRD Task Generation (conditional on --prd-file flag)
+
+Runs after standard Step 4.4 and 4.4a; appends additional tasks to appropriate phase buckets. Merge rather than duplicate if a generated task duplicates an existing task. PRD-derived tasks enrich task descriptions and acceptance criteria but do NOT generate standalone implementation tasks -- engineering tasks come from the roadmap; PRD enriches them.
+
+| Context Key | Task Pattern | Tier | Phase Assignment |
+|-------------|-------------|------|-----------------|
+| `user_stories` entries | `Implement user story: [actor] [goal]` -- merge with existing feature task if one covers the same goal | STANDARD | Same phase as corresponding roadmap feature |
+| `success_metrics` entries | `Validate metric: [name] meets [target]` -- add as subtask or validation step on existing implementation tasks | STANDARD | Last phase or same phase as metric-related feature |
+| `acceptance_scenarios` entries | `Verify acceptance: [scenario]` -- add as acceptance test task | STANDARD | Same phase as journey-related feature |
+
+PRD context also enriches existing tasks generated from the roadmap:
+- Tasks touching user-facing flows are annotated with the persona(s) they serve (from `user_personas`)
+- Tasks with measurable outcomes are annotated with the success metric(s) they contribute to (from `success_metrics`)
+- Task priority ordering reflects `stakeholder_priorities` when multiple tasks compete for the same phase
+- Tasks must not exceed `release_strategy.in_scope` boundaries; flag violations as scope warnings
+
+**Generation-time enrichment (when PRD source document is available):** In addition to the task patterns above, the generator MUST cross-reference existing roadmap-derived tasks against the original PRD to add product context:
+- User personas (§7) → user-facing implementation tasks enriched with which persona is served and their specific needs
+- Acceptance scenarios (§7/§22) → verification tasks enriched with concrete acceptance criteria from PRD user stories and customer journey maps
+- Success metrics (§19) → tasks enriched with metric instrumentation subtasks (tracking code, dashboard configuration, alert thresholds)
+- Stakeholder priorities (§5) → task priority ordering adjusted to reflect business value, not just technical dependency
+- Scope boundaries (§12) → tasks annotated with explicit 'in scope' / 'out of scope' markers where roadmap milestones approach defined scope edges
 
 ### 4.5 Task ID, Ordering, and Naming (Deterministic)
 - Task IDs are zero-padded: `T<PP>.<TT>` where:
@@ -907,6 +1016,19 @@ After all 2N agents return, the orchestrator:
 2. Deduplicates: if two agents (from the same phase split boundary or adjacent phases) report the same issue on the same task, keep only one entry
 3. Sorts by severity (High first), then by phase number, then by task ID
 4. Produces the consolidated findings list for Stage 8
+
+**Supplementary TDD Validation (conditional on --spec flag):**
+
+When `--spec` was provided and supplementary_context was loaded in Step 4.1a, each Stage 7 validation agent additionally checks the generated tasklist against `supplementary_context`:
+
+| Check | Finding Level | Flag Message |
+|-------|--------------|--------------|
+| Every entry in `component_inventory.new` has a corresponding task | HIGH | "Missing task for new component [name] from TDD §10." |
+| Migration stage names from `migration_phases.stages` reflected in phase bucket names or task titles | MEDIUM | "Migration stage [name] from TDD §19 has no corresponding task bucket or task." |
+| Each test pyramid level in `testing_strategy.test_pyramid` has at least one task | MEDIUM | "No [level] test task generated despite TDD §15 test pyramid entry." |
+| Each DoD item appears as a DoD verification task or in final phase ACs | LOW | "DoD item '[item_text]' from TDD §24 has no coverage in final phase." |
+
+Findings merged into the same consolidated findings list used by Stage 8. Standard roadmap-only validation is unchanged for invocations without `--spec`.
 
 **Stage gate**: All 2N agents completed successfully. Findings merged and deduplicated. Zero agent failures (if an agent fails, retry once before reporting error).
 

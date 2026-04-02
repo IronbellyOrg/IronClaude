@@ -189,6 +189,12 @@ def _build_steps(config: TasklistValidateConfig) -> list[Step]:
     """Build the tasklist validation pipeline steps."""
     tasklist_files = _collect_tasklist_files(config.tasklist_dir)
     all_inputs = [config.roadmap_file] + tasklist_files
+    # TDD integration: include TDD file in validation inputs when provided
+    if config.tdd_file is not None:
+        all_inputs.append(config.tdd_file)
+    # PRD integration: include PRD file in validation inputs when provided
+    if config.prd_file is not None:
+        all_inputs.append(config.prd_file)
 
     return [
         Step(
@@ -196,6 +202,8 @@ def _build_steps(config: TasklistValidateConfig) -> list[Step]:
             prompt=build_tasklist_fidelity_prompt(
                 config.roadmap_file,
                 config.tasklist_dir,
+                tdd_file=config.tdd_file,
+                prd_file=config.prd_file,
             ),
             output_file=config.output_dir / "tasklist-fidelity.md",
             gate=TASKLIST_FIDELITY_GATE,

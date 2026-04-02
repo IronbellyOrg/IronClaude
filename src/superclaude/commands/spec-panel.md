@@ -17,8 +17,10 @@ personas: [technical-writer, system-architect, quality-engineer]
 
 ## Usage
 ```
-/sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance|correctness] [--iterations N] [--format standard|structured|detailed]
+/sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus area1,area2,...] [--iterations N] [--format standard|structured|detailed]
 ```
+
+Focus areas (comma-separated, one or more): `requirements`, `architecture`, `testing`, `compliance`, `correctness`
 
 ## Behavioral Flow
 1. **Analyze**: Parse specification content and identify key components, gaps, and quality issues
@@ -27,6 +29,10 @@ personas: [technical-writer, system-architect, quality-engineer]
 4. **Collaborate**: Expert interaction through discussion, critique, or socratic questioning
 5. **Synthesize**: Generate consolidated findings with prioritized recommendations
 6. **Improve**: Create enhanced specification incorporating expert feedback and best practices
+6a. **TDD Input Detection** (conditional — TDD input detected): If the input document is a TDD (detected by 4-signal weighted scoring with threshold ≥ 5: numbered headings `## N.` ≥20 = +3/≥15 = +2/≥10 = +1, TDD-exclusive frontmatter `parent_doc`/`coordinator` +2 each, TDD section names like "Data Models"/"API Specifications"/"Component Inventory" +1 each, "Technical Design Document" in first 1000 chars +2), scope the improved output to a single release increment using `target_release` from TDD frontmatter. If `target_release` is empty or absent, ask the user to specify the target release before proceeding.
+6b. **Downstream Roadmap Frontmatter** (conditional — output intended for sc:roadmap): If the user's intent is to feed the output into sc:roadmap (indicated by user instruction or by `--downstream roadmap` flag), ensure the output document contains the following frontmatter fields populated from the TDD frontmatter or computed from TDD content analysis: `spec_type` (copy from TDD; if absent, infer from content), `complexity_score` (copy if populated; else leave as placeholder), `complexity_class` (copy if populated; else leave as placeholder), `target_release` (copy from TDD), `feature_id` (copy from TDD).
+6c. **PRD Input Detection** (conditional — PRD input detected): If the input document is a PRD (detected by presence of `## User Personas` heading OR `## Jobs To Be Done` heading OR YAML frontmatter `type` contains "Product Requirements Document" OR 3+ PRD section headings: "Market Analysis", "User Stories", "Success Metrics", "Go-to-Market", "Stakeholder Requirements", "Competitive Landscape"), validate completeness of personas, stories, acceptance criteria and assess business alignment. Unlike TDD input, PRD input does NOT require `target_release` scoping since PRDs describe full product scope.
+6d. **Downstream Roadmap Frontmatter for PRD** (conditional — PRD output intended for sc:roadmap): Ensure the output document contains: `spec_type: "product-requirements"`, `complexity_score` (computed from PRD scope breadth), `target_audience` (derived from User Personas), `success_metrics_count` (count from Success Metrics section). Expert panel adjustments: Wiegers emphasizes traceability from user stories to FRs, Cockburn validates user story structure (actor-goal-acceptance_criteria), Adzic checks metric measurability, Fowler/Newman assess architectural sufficiency for stated product scope.
 
 Key behaviors:
 - Multi-expert perspective analysis with distinct methodologies and quality frameworks
@@ -301,7 +307,7 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 | `<var_name>` | `<type>` | `<initial>` | `<constraint that must always hold>` | `<operations that read this variable>` | `<operations that modify this variable>` |
 
 ## Tool Coordination
-- **Read**: Specification content analysis and parsing
+- **Read**: Specification content analysis and parsing; `src/superclaude/examples/release-spec-template.md` — read when generating scoped release spec output from TDD input (Step 6b / `--downstream roadmap` mode)
 - **Sequential**: Expert panel coordination and iterative analysis
 - **Context7**: Specification patterns and industry best practices
 - **Grep**: Cross-reference validation and consistency checking
@@ -391,6 +397,28 @@ Token-efficient format using SuperClaude symbol system for concise communication
 
 ### Detailed Format (`--format detailed`)
 Comprehensive analysis with full expert commentary, examples, and implementation guidance. Includes Adversarial Analysis section with full state traces, attack methodology reasoning, and remediation suggestions per finding.
+
+## Output — When Input Is a TDD
+
+**(a) Review document (default):** Structured review document in the selected `--format` mode. Expert analysis covers TDD sections §5 Technical Requirements, §6 Architecture, §7 Data Models, §8 API Specifications, §13 Security Considerations, §15 Testing Strategy, and §20 Risks & Mitigations.
+
+**(b) Scoped release spec (when `--downstream roadmap` or when user requests):** Document in `release-spec-template.md` format covering sections relevant to `target_release` from TDD frontmatter. Scoped spec extracts FRs from TDD §5.1, NFRs from TDD §5.2, architecture decisions from TDD §6.4, risks from TDD §20, test plan from TDD §15, migration plan from TDD §19. YAML frontmatter populated from TDD frontmatter fields.
+
+**Note:** spec-panel does not CREATE a spec from raw instructions (Boundaries constraint unchanged). The TDD-to-spec capability requires an existing, substantially populated TDD as input.
+
+## Output — When Input Is a PRD
+
+**(a) Review document (default):** Structured review document in the selected `--format` mode. Expert analysis covers PRD sections: Product Overview, User Personas (S7), User Stories/JTBD (S6), Functional Requirements (S14), Non-Functional Requirements (S14), Success Metrics (S19), Risk Analysis (S20), Scope Definition (S12), and Legal/Compliance (S17).
+
+**(b) Scoped release spec (when `--downstream roadmap` or when user requests):** Document in `release-spec-template.md` format covering sections relevant to the PRD's scope. Scoped spec extracts FRs from PRD user stories, NFRs from PRD technical requirements, scope boundaries from S12, success criteria from S19, and compliance constraints from S17. YAML frontmatter populated with `spec_type: "product-requirements"`, `target_audience`, and `success_metrics_count`.
+
+**Expert panel adjustments for PRD input:**
+- **Wiegers**: Emphasizes traceability — every user story should map to at least one FR; every FR should trace to a user need
+- **Cockburn**: Validates user story structure — actor/goal/acceptance_criteria format, appropriate granularity, testable criteria
+- **Adzic**: Checks metric measurability — each success metric should have a concrete measurement method, target threshold, and data source
+- **Fowler/Newman**: Assess architectural sufficiency — whether the stated product scope is achievable given architectural constraints and technical requirements
+
+---
 
 ## Mandatory Output Artifacts
 

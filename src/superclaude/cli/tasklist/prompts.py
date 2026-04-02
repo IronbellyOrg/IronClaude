@@ -17,6 +17,8 @@ from superclaude.cli.roadmap.prompts import _OUTPUT_FORMAT_BLOCK
 def build_tasklist_fidelity_prompt(
     roadmap_file: Path,
     tasklist_dir: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
 ) -> str:
     """Prompt for the tasklist-fidelity validation step.
 
@@ -32,7 +34,7 @@ def build_tasklist_fidelity_prompt(
     LLM classification drift (RSK-007). Reuses the deviation report
     format from Phase 2 (docs/reference/deviation-report-format.md).
     """
-    return (
+    base = (
         "You are a tasklist fidelity analyst.\n\n"
         "Read the provided roadmap file and the generated tasklist files. "
         "Compare them systematically to identify deviations where the tasklist "
@@ -104,4 +106,125 @@ def build_tasklist_fidelity_prompt(
         "Be thorough and precise. Quote both documents for every deviation. "
         "Do not invent deviations -- only report genuine differences between "
         "the roadmap and tasklist."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    # TDD integration: append supplementary validation when TDD file is provided
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Validation (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs alongside "
+            "the roadmap and tasklist. Additionally check:\n"
+            "1. Test cases from the TDD's Testing Strategy section (§15) should have "
+            "corresponding validation or test tasks in the tasklist.\n"
+            "2. Rollback procedures from the TDD's Migration & Rollout Plan section (§19) "
+            "should have corresponding contingency or rollback tasks.\n"
+            "3. Components listed in the TDD's Component Inventory (§10) should have "
+            "corresponding implementation tasks.\n"
+            "Flag missing coverage as MEDIUM severity deviations."
+        )
+
+    # PRD integration: append supplementary validation when PRD file is provided
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Validation (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs alongside "
+            "the roadmap and tasklist. Additionally check:\n"
+            "1. User persona coverage from the PRD's User Personas section (S7) -- "
+            "tasks touching user-facing flows should reference which persona is served.\n"
+            "2. Success metrics from the PRD's Success Metrics section (S19) should "
+            "have corresponding instrumentation or measurement tasks in the tasklist.\n"
+            "3. Acceptance scenarios from the PRD's Scope Definition (S12) and Customer "
+            "Journey Map (S22) should have corresponding verification tasks.\n"
+            "Flag missing coverage as MEDIUM severity deviations."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK
+
+
+def build_tasklist_generate_prompt(
+    roadmap_file: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
+) -> str:
+    """Prompt for tasklist generation enriched with TDD/PRD source documents.
+
+    NOTE: This function is used by the ``/sc:tasklist`` skill protocol for
+    inference-based generation workflows. It is NOT currently called by the
+    CLI ``tasklist validate`` executor (which only runs fidelity validation).
+    There is no ``tasklist generate`` CLI subcommand — generation is handled
+    by the skill protocol reading this prompt builder directly.
+
+    When TDD and/or PRD files are provided, the generation prompt includes
+    supplementary enrichment blocks that instruct the LLM to use the original
+    source documents for richer, more specific task decomposition.
+
+    Without supplementary files, returns a baseline generation prompt that
+    works from the roadmap alone (current behavior).
+    """
+    base = (
+        "You are a tasklist generator.\n\n"
+        "Read the provided roadmap file and decompose it into a structured "
+        "tasklist with individual, actionable tasks. Each roadmap item should "
+        "produce one or more tasks with:\n"
+        "- A clear task title\n"
+        "- Deliverable IDs traced to the roadmap (R-NNN, D-NNNN)\n"
+        "- Acceptance criteria\n"
+        "- Effort estimate\n"
+        "- Dependencies on other tasks\n"
+        "- Verification method\n\n"
+        "Organize tasks by roadmap phase. Preserve all roadmap item IDs, "
+        "deliverable IDs, and dependency chains exactly as specified."
+    )
+
+    # TDD enrichment: use original TDD for engineering-specific task detail
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Enrichment (for task generation)\n\n"
+            "A Technical Design Document (TDD) is included alongside the roadmap. "
+            "Use it to enrich task decomposition with:\n"
+            "1. Specific test cases from S15 Testing Strategy -- each test case should "
+            "map to a validation task with exact test name and expected behavior.\n"
+            "2. API endpoint schemas from S8 -- each endpoint should have implementation "
+            "tasks with request/response field details.\n"
+            "3. Component specifications from S10 -- each component should have tasks "
+            "with prop types, dependencies, and integration points.\n"
+            "4. Migration rollback steps from S19 -- each rollback procedure should be "
+            "a contingency task with trigger conditions.\n"
+            "5. Data model field definitions from S7 -- each entity should have schema "
+            "implementation tasks with exact field types."
+        )
+
+    # PRD enrichment: use original PRD for product context in task descriptions
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Enrichment (for task generation)\n\n"
+            "A Product Requirements Document (PRD) is included alongside the roadmap. "
+            "Use it to enrich task decomposition with:\n"
+            "1. User persona context from S7 -- tasks touching user-facing flows should "
+            "reference which persona is served and their specific needs.\n"
+            "2. Acceptance scenarios from S12 (Scope Definition) and S22 (Customer Journey Map) -- each user story acceptance criterion "
+            "should map to a verification task.\n"
+            "3. Success metrics from S19 -- tasks should include metric instrumentation "
+            "subtasks (tracking, dashboards, alerts) where applicable.\n"
+            "4. Stakeholder priorities from S5 -- task priority should reflect business "
+            "value ordering, not just technical dependency.\n"
+            "5. Scope boundaries from S12 -- tasks must not exceed defined scope; "
+            "generate explicit 'out of scope' markers where roadmap milestones approach "
+            "scope edges.\n"
+            "PRD context informs task descriptions and priorities but does NOT generate "
+            "standalone implementation tasks. Engineering tasks come from the roadmap; "
+            "PRD enriches them."
+        )
+
+    # Combined interaction note when both are provided
+    if tdd_file is not None and prd_file is not None:
+        base += (
+            "\n\n## TDD + PRD Interaction\n\n"
+            "When both TDD and PRD are available, TDD provides structural engineering "
+            "detail and PRD provides product context. TDD-derived task enrichment "
+            "(test cases, schemas, components) takes precedence for implementation "
+            "specifics. PRD-derived enrichment (personas, metrics, priorities) shapes "
+            "task descriptions, acceptance criteria, and priority ordering."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK

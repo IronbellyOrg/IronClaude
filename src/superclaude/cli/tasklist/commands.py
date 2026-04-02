@@ -58,6 +58,18 @@ def tasklist_group():
     is_flag=True,
     help="Enable debug logging.",
 )
+@click.option(
+    "--tdd-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Path to the TDD file used as an additional validation input.",
+)
+@click.option(
+    "--prd-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Path to the PRD file used as an additional validation input.",
+)
 def validate(
     output_dir: Path,
     roadmap_file: Path | None,
@@ -65,6 +77,8 @@ def validate(
     model: str,
     max_turns: int,
     debug: bool,
+    tdd_file: Path | None,
+    prd_file: Path | None,
 ) -> None:
     """Validate tasklist fidelity against a roadmap.
 
@@ -96,6 +110,54 @@ def validate(
         tasklist_dir.resolve() if tasklist_dir is not None else resolved_output
     )
 
+    # Auto-wire tdd_file and prd_file from .roadmap-state.json if not explicitly passed
+    from ..roadmap.executor import read_state
+
+    state = read_state(resolved_output / ".roadmap-state.json") or {}
+    if tdd_file is None:
+        saved_tdd = state.get("tdd_file")
+        if saved_tdd:
+            saved_tdd_path = Path(saved_tdd)
+            if saved_tdd_path.is_file():
+                click.echo(
+                    f"[tasklist validate] Auto-wired --tdd-file from .roadmap-state.json: {saved_tdd_path}",
+                    err=True,
+                )
+                tdd_file = saved_tdd_path
+            else:
+                click.echo(
+                    f"[tasklist validate] WARNING: State file references --tdd-file {saved_tdd} but file not found; skipping.",
+                    err=True,
+                )
+        elif state.get("input_type") == "tdd":
+            # When the primary input was a TDD, tdd_file is null in state
+            # (because --tdd-file is the supplementary flag, not the primary).
+            # Fall back to spec_file which IS the TDD in this case.
+            saved_spec = state.get("spec_file")
+            if saved_spec:
+                saved_spec_path = Path(saved_spec)
+                if saved_spec_path.is_file():
+                    click.echo(
+                        f"[tasklist validate] Auto-wired --tdd-file from .roadmap-state.json spec_file (input_type=tdd): {saved_spec_path}",
+                        err=True,
+                    )
+                    tdd_file = saved_spec_path
+    if prd_file is None:
+        saved_prd = state.get("prd_file")
+        if saved_prd:
+            saved_prd_path = Path(saved_prd)
+            if saved_prd_path.is_file():
+                click.echo(
+                    f"[tasklist validate] Auto-wired --prd-file from .roadmap-state.json: {saved_prd_path}",
+                    err=True,
+                )
+                prd_file = saved_prd_path
+            else:
+                click.echo(
+                    f"[tasklist validate] WARNING: State file references --prd-file {saved_prd} but file not found; skipping.",
+                    err=True,
+                )
+
     config = TasklistValidateConfig(
         output_dir=resolved_output,
         roadmap_file=resolved_roadmap,
@@ -104,6 +166,8 @@ def validate(
         max_turns=max_turns,
         model=model,
         debug=debug,
+        tdd_file=tdd_file.resolve() if tdd_file is not None else None,
+        prd_file=prd_file.resolve() if prd_file is not None else None,
     )
 
     passed = execute_tasklist_validate(config)

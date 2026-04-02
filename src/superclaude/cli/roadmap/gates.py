@@ -9,6 +9,14 @@ file content and returning bool. They are registered on the STRICT-tier
 GateCriteria instances.
 """
 
+# TDD Compatibility Notes (TASK-RF-20260325-cli-tdd):
+# - spec_source gates (EXTRACT, GENERATE_A/B, MERGE, TEST_STRATEGY): compatible
+#   — TDD prompt emits spec_source with TDD filename
+# - DEVIATION_ANALYSIS_GATE: NOT TDD-compatible — deferred to separate work.
+#   Pre-existing bug: ambiguous_count/ambiguous_deviations field mismatch (B-1).
+# - ANTI_INSTINCT_GATE: format-agnostic (pure Python).
+#   TDD performance hypothesis unverified (I-5).
+
 from __future__ import annotations
 
 from ..audit.wiring_gate import WIRING_GATE

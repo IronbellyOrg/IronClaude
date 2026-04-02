@@ -12,6 +12,18 @@ assigned_to: "[engineering-team]"
 autogen: false
 coordinator: "[tech-lead]"
 parent_doc: "[link to Product PRD that this TDD implements]"
+feature_id: "[FEATURE-ID]"
+spec_type: "new_feature"  # new_feature | refactoring | portification | migration | infrastructure | security | performance | docs
+complexity_score: ""      # 0.0-1.0 -- computed by sc:roadmap; provide estimated value if known
+complexity_class: ""      # LOW | MEDIUM | HIGH -- computed by sc:roadmap; provide estimated value if known
+target_release: "[version]"
+authors: ["[author1]", "[author2]"]
+quality_scores:
+  clarity: ""
+  completeness: ""
+  testability: ""
+  consistency: ""
+  overall: ""
 depends_on:
 - "[list dependent documents/components]"
 related_docs:
@@ -44,6 +56,19 @@ approvers:
 > **WHAT:** Technical Design Document specifying the architecture, data models, API specifications, and implementation details for [component name].
 > **WHY:** Translates product requirements (from the PRD) into an engineering specification that the team builds against. Where the PRD defines *what* to build, this TDD defines *how* to build it.
 > **HOW TO USE:** Engineers, architects, and technical stakeholders use this document to align on technical approach before implementation begins.
+
+Sentinel self-check (run before submitting TDD for pipeline consumption):
+- feature_id must not be "[FEATURE-ID]"
+- spec_type must be one of the valid enum values
+- target_release must not be "[version]"
+- complexity_score and complexity_class: computed by sc:roadmap during extraction. Provide estimated values if known; the extraction step will compute authoritative values regardless.
+
+Pipeline field consumption:
+- `complexity_score`, `complexity_class`: Computed by sc:roadmap during extraction (not read from frontmatter). Pre-populated values are advisory only.
+- `feature_id`, `spec_type`, `target_release`: Consumed by sc:spec-panel `--downstream roadmap` (Step 6b) when generating scoped release specs.
+- `quality_scores`: Populated by sc:spec-panel review output. Not consumed by sc:roadmap.
+
+Quality gate: /sc:spec-panel @<this-tdd-file> --focus correctness,architecture --mode critique
 
 ### Document Lifecycle Position
 

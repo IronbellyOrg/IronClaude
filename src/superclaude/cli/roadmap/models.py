@@ -111,6 +111,9 @@ class RoadmapConfig(PipelineConfig):
     retrospective_file: Path | None = None
     convergence_enabled: bool = False  # v3.05: enable deterministic fidelity convergence engine
     allow_regeneration: bool = False  # FR-9: override diff-size guard for full regeneration
+    input_type: Literal["auto", "tdd", "spec"] = "auto"  # TDD integration: auto=detect from content, tdd/spec=force
+    tdd_file: Path | None = None  # TDD integration: optional TDD file path for downstream enrichment
+    prd_file: Path | None = None  # PRD integration: optional PRD file path for business context enrichment
 
 
 @dataclass

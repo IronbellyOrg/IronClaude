@@ -23,7 +23,7 @@ version: "1.0.0"
 status: draft
 feature_id: {{SC_PLACEHOLDER:fr_id}}
 parent_feature: {{SC_PLACEHOLDER:parent_feature_or_null}}
-spec_type: {{SC_PLACEHOLDER:new_feature_or_refactoring_or_portification_or_infrastructure}}
+spec_type: {{SC_PLACEHOLDER:new_feature_or_refactoring_or_portification_or_migration_or_infrastructure_or_security_or_performance_or_docs}}
 complexity_score: {{SC_PLACEHOLDER:0.0_to_1.0}}
 complexity_class: {{SC_PLACEHOLDER:LOW_or_MEDIUM_or_HIGH}}
 target_release: {{SC_PLACEHOLDER:version}}

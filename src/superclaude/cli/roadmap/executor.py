@@ -11,6 +11,7 @@ No --continue, --session, --resume, or --file flags are passed (FR-003, FR-023).
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import logging
@@ -43,6 +44,7 @@ from .prompts import (
     build_debate_prompt,
     build_diff_prompt,
     build_extract_prompt,
+    build_extract_prompt_tdd,
     build_generate_prompt,
     build_merge_prompt,
     build_score_prompt,
@@ -53,6 +55,76 @@ from .prompts import (
 from .certify_prompts import build_certification_prompt
 
 _log = logging.getLogger("superclaude.roadmap.executor")
+
+
+def detect_input_type(spec_file: Path) -> str:
+    """Auto-detect whether an input file is a TDD or a spec.
+
+    Uses multiple weighted signals — not dependent on any single field:
+    1. Numbered section headings (## N. ) — TDDs have ~28, specs have ~12
+    2. TDD-exclusive frontmatter fields (parent_doc, coordinator — NOT feature_id/authors/quality_scores which specs also have)
+    3. TDD-specific section names (Data Models, API Specifications, Component Inventory, etc.)
+    4. Frontmatter type field containing "Technical Design Document"
+
+    Returns "tdd" or "spec".
+    """
+    try:
+        content = spec_file.read_text(encoding="utf-8", errors="replace")
+    except (OSError, UnicodeDecodeError):
+        return "spec"  # fallback to spec on read failure
+
+    score = 0
+
+    # Signal 1: Numbered section headings (## N. pattern)
+    # TDDs have ~28 numbered sections; specs have ~12.
+    # Threshold raised: >=20 is strong TDD signal, >=15 is moderate.
+    # >=10 gets only +1 to avoid false positives from spec templates.
+    import re
+    numbered_headings = len(re.findall(r"^## \d+\.", content, re.MULTILINE))
+    if numbered_headings >= 20:
+        score += 3  # strong signal — only TDDs have this many
+    elif numbered_headings >= 15:
+        score += 2
+    elif numbered_headings >= 10:
+        score += 1  # weak — specs can have 12
+
+    # Signal 2: TDD-exclusive frontmatter fields
+    # Only count fields that specs do NOT typically have.
+    # Removed feature_id, authors, quality_scores — the release-spec-template
+    # also has these fields, causing false positives.
+    tdd_exclusive_fields = ["parent_doc", "coordinator"]
+    for field in tdd_exclusive_fields:
+        if re.search(rf"^{field}:", content, re.MULTILINE):
+            score += 2  # higher weight since these are truly TDD-exclusive
+
+    # Signal 3: TDD-specific section names
+    tdd_sections = [
+        "Data Models", "API Specifications", "Component Inventory",
+        "Testing Strategy", "Operational Readiness",
+        "State Management", "Performance Budgets", "Accessibility Requirements",
+    ]
+    for section in tdd_sections:
+        if section in content:
+            score += 1
+
+    # Signal 4: Frontmatter type field
+    if "Technical Design Document" in content[:1000]:
+        score += 2
+
+    # Threshold: score >= 5 means TDD
+    # A real TDD easily scores 10+ (20+ headings=3, parent_doc+coordinator=4,
+    # section names=5+, type field=2). A spec scores at most 1-3
+    # (10-12 headings=1, no exclusive fields=0, no TDD sections=0).
+    detected = "tdd" if score >= 5 else "spec"
+    _log.info("Auto-detected input type: %s (score=%d)", detected, score)
+    # C-103: Borderline warning for documents near the threshold
+    if 3 <= score <= 6:
+        _log.warning(
+            "Borderline TDD detection score (%d) for %s — result=%s. "
+            "Use --input-type to override if incorrect.",
+            score, spec_file, detected,
+        )
+    return detected
 
 # Linux kernel compile-time constant (arch/arm64, x86_64, etc.)
 _MAX_ARG_STRLEN = 128 * 1024
@@ -516,6 +588,10 @@ def roadmap_run_step(
     if step.id == "extract" and step.output_file.exists():
         _inject_pipeline_diagnostics(step.output_file, started_at, finished_at)
         # FR-EXEC.1: Structural audit hook (warning-only, never blocks)
+        # NOTE: _run_structural_audit() is warning-only and uses spec heading patterns.
+        # TDD heading structure differs (28 numbered sections vs spec FR/NFR headings).
+        # Do not rely on structural audit results for TDD correctness.
+        # See open question C-2 (structural_checkers.py investigation needed).
         if hasattr(config, 'spec_file'):
             _run_structural_audit(config.spec_file, step.output_file)
 
@@ -807,37 +883,49 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
 
     steps: list[Step | list[Step]] = [
         # Step 1: Extract
+        # TDD input routing: --input-type tdd uses dedicated TDD extraction sections
         Step(
             id="extract",
-            prompt=build_extract_prompt(
-                config.spec_file,
-                retrospective_content=retrospective_content,
+            prompt=(
+                build_extract_prompt_tdd(
+                    config.spec_file,
+                    retrospective_content=retrospective_content,
+                    tdd_file=config.tdd_file,
+                    prd_file=config.prd_file,
+                )
+                if config.input_type == "tdd"
+                else build_extract_prompt(
+                    config.spec_file,
+                    retrospective_content=retrospective_content,
+                    tdd_file=config.tdd_file,
+                    prd_file=config.prd_file,
+                )
             ),
             output_file=extraction,
             gate=EXTRACT_GATE,
             timeout_seconds=300,
-            inputs=[config.spec_file],
+            inputs=[config.spec_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,
         ),
         # Steps 2a+2b: Generate (parallel)
         [
             Step(
                 id=f"generate-{agent_a.id}",
-                prompt=build_generate_prompt(agent_a, extraction),
+                prompt=build_generate_prompt(agent_a, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
                 output_file=roadmap_a,
                 gate=GENERATE_A_GATE,
                 timeout_seconds=900,
-                inputs=[extraction],
+                inputs=[extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
                 retry_limit=1,
                 model=agent_a.model,
             ),
             Step(
                 id=f"generate-{agent_b.id}",
-                prompt=build_generate_prompt(agent_b, extraction),
+                prompt=build_generate_prompt(agent_b, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
                 output_file=roadmap_b,
                 gate=GENERATE_B_GATE,
                 timeout_seconds=900,
-                inputs=[extraction],
+                inputs=[extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
                 retry_limit=1,
                 model=agent_b.model,
             ),
@@ -865,21 +953,21 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 5: Score
         Step(
             id="score",
-            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b),
+            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b, tdd_file=config.tdd_file, prd_file=config.prd_file),
             output_file=score_file,
             gate=SCORE_GATE,
             timeout_seconds=300,
-            inputs=[debate_file, roadmap_a, roadmap_b],
+            inputs=[debate_file, roadmap_a, roadmap_b] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,
         ),
         # Step 6: Merge
         Step(
             id="merge",
-            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file),
+            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
             output_file=merge_file,
             gate=MERGE_GATE,
             timeout_seconds=600,
-            inputs=[score_file, roadmap_a, roadmap_b, debate_file],
+            inputs=[score_file, roadmap_a, roadmap_b, debate_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,
         ),
         # Step 7: Anti-Instinct Audit (non-LLM deterministic step)
@@ -895,21 +983,21 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 8: Test Strategy
         Step(
             id="test-strategy",
-            prompt=build_test_strategy_prompt(merge_file, extraction),
+            prompt=build_test_strategy_prompt(merge_file, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
             output_file=test_strat,
             gate=TEST_STRATEGY_GATE,
             timeout_seconds=300,
-            inputs=[merge_file, extraction],
+            inputs=[merge_file, extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,
         ),
         # Step 8: Spec Fidelity (after test-strategy, FR-008 through FR-010)
         Step(
             id="spec-fidelity",
-            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file),
+            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
             output_file=spec_fidelity_file,
             gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
             timeout_seconds=600,
-            inputs=[config.spec_file, merge_file],
+            inputs=[config.spec_file, merge_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,
         ),
         # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)
@@ -1339,6 +1427,9 @@ def _save_state(
     state = {
         "schema_version": 1,
         "spec_file": str(config.spec_file),
+        "tdd_file": str(config.tdd_file) if config.tdd_file else None,
+        "prd_file": str(config.prd_file) if config.prd_file else None,
+        "input_type": config.input_type,
         "spec_hash": spec_hash,
         "agents": [{"model": a.model, "persona": a.persona} for a in config.agents],
         "depth": config.depth,
@@ -1640,6 +1731,47 @@ def _restore_from_state(
                 )
             config.depth = saved_depth
 
+    # Restore input_type from state (C-91) — so auto-detection doesn't re-run
+    saved_input_type = state.get("input_type")
+    if saved_input_type and saved_input_type != "auto":
+        if config.input_type == "auto":
+            _log.info("Restored input_type from state: %s", saved_input_type)
+            config.input_type = saved_input_type
+
+    # Auto-wire tdd_file from state if user did not explicitly pass --tdd-file
+    if config.tdd_file is None:
+        saved_tdd = state.get("tdd_file")
+        if saved_tdd:
+            tdd_path = Path(saved_tdd)
+            if tdd_path.is_file():
+                _log.info("Auto-wired --tdd-file from state: %s", tdd_path)
+                config.tdd_file = tdd_path
+            else:
+                _log.warning("State file references tdd_file %s but file not found; skipping", saved_tdd)
+        # Note: When input_type=tdd and tdd_file is null in state, the spec_file
+        # IS the TDD. The supplementary --tdd-file slot is intentionally empty
+        # (redundancy guard nulls it). All prompt builders receive spec_file as
+        # their primary input, so no fallback wiring is needed here.
+
+    # Auto-wire prd_file from state if user did not explicitly pass --prd-file (C-27)
+    if config.prd_file is None:
+        saved_prd = state.get("prd_file")
+        if saved_prd:
+            prd_path = Path(saved_prd)
+            if prd_path.is_file():
+                _log.info("Auto-wired --prd-file from state: %s", prd_path)
+                config.prd_file = prd_path
+            else:
+                _log.warning("State file references prd_file %s but file not found; skipping", saved_prd)
+    else:
+        # C-27: Explicit --prd-file on CLI overrides state — log if different
+        saved_prd = state.get("prd_file")
+        if saved_prd and str(config.prd_file) != saved_prd:
+            _log.info(
+                "CLI --prd-file %s overrides state prd_file %s",
+                config.prd_file, saved_prd,
+            )
+
     return config
 
 
@@ -1692,6 +1824,41 @@ def execute_roadmap(
 
     # FR-2.24.1.9 Condition 3: Capture spec hash at function entry
     initial_spec_hash = hashlib.sha256(config.spec_file.read_bytes()).hexdigest()
+
+    # Resolve "auto" input_type BEFORE _build_steps so the resolved value
+    # is on the config that _save_state receives (not just a local in _build_steps).
+    if config.input_type == "auto":
+        resolved = detect_input_type(config.spec_file)
+        _log.info("Resolved input_type=auto to '%s' for %s", resolved, config.spec_file)
+        config = dataclasses.replace(config, input_type=resolved)
+
+    # Log TDD/PRD decisions for debuggability (C-50)
+    if config.tdd_file is not None:
+        _log.info("TDD file provided: %s", config.tdd_file)
+    if config.prd_file is not None:
+        _log.info("PRD file provided: %s", config.prd_file)
+
+    # Same-file guard: --tdd-file and --prd-file must not be the same file (C-20)
+    if (
+        config.tdd_file is not None
+        and config.prd_file is not None
+        and config.tdd_file.resolve() == config.prd_file.resolve()
+    ):
+        _log.error(
+            "tdd_file and prd_file resolve to the same file: %s. "
+            "These must be different documents (check CLI flags or .roadmap-state.json).",
+            config.tdd_file,
+        )
+        raise SystemExit(1)
+
+    # Redundancy guard: when primary input IS a TDD, --tdd-file is redundant.
+    # Must be on the config object (not a local) so _save_state sees the nulled value.
+    if config.input_type == "tdd" and config.tdd_file is not None:
+        _log.warning(
+            "Ignoring --tdd-file: primary input is already a TDD document. "
+            "The --tdd-file flag is for supplementary context when the primary input is a spec."
+        )
+        config = dataclasses.replace(config, tdd_file=None)
 
     steps = _build_steps(config)
 
@@ -1908,7 +2075,12 @@ def _apply_resume_after_spec_patch(
         )
         return True
 
-    # Step 5: Rebuild steps
+    # Step 5: Resolve input_type before rebuild (same pattern as execute_roadmap)
+    if config.input_type == "auto":
+        resolved = detect_input_type(config.spec_file)
+        config = dataclasses.replace(config, input_type=resolved)
+
+    # Step 5b: Rebuild steps
     steps = _build_steps(config)
 
     # Step 6: Apply resume with post-write state

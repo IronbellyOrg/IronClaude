@@ -102,6 +102,34 @@ def roadmap_group():
         "Missing file is not an error -- extraction proceeds normally."
     ),
 )
+@click.option(
+    "--input-type",
+    type=click.Choice(["auto", "tdd", "spec"], case_sensitive=False),
+    default="auto",
+    help="Input file type. auto=detect from content, tdd=force TDD extraction, spec=force spec extraction. Default: auto.",
+)
+@click.option(
+    "--tdd-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help=(
+        "Path to a TDD file for supplementary technical context enrichment. "
+        "When the primary input is a spec, the TDD provides data models, "
+        "API endpoints, component inventory, and test strategy detail. "
+        "Ignored if the primary input is itself a TDD (use --input-type spec to force)."
+    ),
+)
+@click.option(
+    "--prd-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help=(
+        "Path to a PRD file for supplementary business context enrichment. "
+        "The PRD provides personas, success metrics, compliance requirements, "
+        "and scope boundaries. Works with both spec and TDD primary inputs. "
+        "Auto-wired from .roadmap-state.json on --resume if not specified."
+    ),
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -117,10 +145,14 @@ def run(
     no_validate: bool,
     allow_regeneration: bool,
     retrospective: Path | None,
+    input_type: str,
+    tdd_file: Path | None,
+    prd_file: Path | None,
 ) -> None:
     """Run the roadmap generation pipeline on SPEC_FILE.
 
-    SPEC_FILE is the path to a specification markdown file.
+    SPEC_FILE is the path to a specification or TDD markdown file.
+    Input type is auto-detected by default. Use --input-type to override.
     """
     from .executor import execute_roadmap
     from .models import AgentSpec, RoadmapConfig
@@ -169,6 +201,9 @@ def run(
         "debug": debug,
         "retrospective_file": retro_path,
         "allow_regeneration": allow_regeneration,
+        "input_type": input_type,
+        "tdd_file": tdd_file.resolve() if tdd_file is not None else None,
+        "prd_file": prd_file.resolve() if prd_file is not None else None,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs
@@ -176,6 +211,29 @@ def run(
         config_kwargs["depth"] = depth
 
     config = RoadmapConfig(**config_kwargs)
+
+    # Resolve auto-detection at CLI level for user feedback
+    # (executor also resolves independently for the actual routing)
+    from .executor import detect_input_type
+
+    resolved_type = config.input_type
+    if resolved_type == "auto":
+        resolved_type = detect_input_type(config.spec_file)
+        click.echo(
+            f"[roadmap] Auto-detected input type: {resolved_type}",
+            err=True,
+        )
+
+    if resolved_type == "tdd":
+        click.echo(
+            click.style(
+                "NOTE: TDD input detected. The pipeline's deviation-analysis step "
+                "(DEVIATION_ANALYSIS_GATE) is not yet TDD-compatible and may fail. "
+                "All other steps (extract through spec-fidelity) will work correctly.",
+                fg="yellow",
+            ),
+            err=True,
+        )
 
     execute_roadmap(
         config,

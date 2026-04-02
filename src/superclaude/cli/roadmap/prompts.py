@@ -82,6 +82,8 @@ _OUTPUT_FORMAT_BLOCK = (
 def build_extract_prompt(
     spec_file: Path,
     retrospective_content: str | None = None,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
 ) -> str:
     """Prompt for step 'extract'.
 
@@ -155,17 +157,235 @@ def build_extract_prompt(
         )
         base += advisory
 
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs alongside "
+            "the specification. Use it to enrich the extraction with technical detail "
+            "the spec may not fully define:\n"
+            "1. Data model definitions from the TDD's Data Models section (§7) -- "
+            "surface entity names, field types, and relationships in Architectural Constraints.\n"
+            "2. API endpoint specifications from the TDD's API Specifications section (§8) -- "
+            "surface endpoint contracts as implicit Functional Requirements if not in the spec.\n"
+            "3. Component inventory from the TDD's Component Inventory section (§10) -- "
+            "note component dependencies in Dependency Inventory.\n"
+            "4. Testing strategy from the TDD's Testing Strategy section (§15) -- "
+            "surface test coverage targets as Success Criteria.\n"
+            "5. Migration and rollout details from the TDD's Migration section (§19) -- "
+            "surface rollback procedures and feature flags in Risk Inventory.\n"
+            "6. Operational readiness from the TDD's Operational Readiness section (§25) -- "
+            "surface monitoring and on-call requirements as Non-Functional Requirements.\n"
+            "The TDD provides technical depth -- use it to fill gaps in the spec, "
+            "but preserve the spec's requirement IDs and language as primary."
+        )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs alongside "
+            "the specification. Use it as supplementary business context for extraction. "
+            "Additionally extract:\n"
+            "1. Business objectives and success metrics from the PRD's Success Metrics "
+            "section (S19) -- surface as additional Success Criteria.\n"
+            "2. User personas from the PRD's User Personas section (S7) -- note in the "
+            "Architectural Constraints section as persona-driven design requirements.\n"
+            "3. Scope boundaries from the PRD's Scope Definition section (S12) -- use to "
+            "validate that extracted requirements fall within stated scope.\n"
+            "4. Legal and compliance requirements from the PRD's Legal & Compliance "
+            "section (S17) -- surface as Non-Functional Requirements if not already "
+            "present in the spec.\n"
+            "5. Jobs To Be Done from the PRD's JTBD section (S6) -- note in Open "
+            "Questions if any JTBD lack corresponding functional requirements.\n"
+            "The PRD is advisory context for enrichment -- do NOT treat PRD content "
+            "as hard requirements unless they are also stated in the specification."
+        )
+
     return base + _OUTPUT_FORMAT_BLOCK
 
 
-def build_generate_prompt(agent: AgentSpec, extraction_path: Path) -> str:
+def build_extract_prompt_tdd(
+    spec_file: Path,
+    retrospective_content: str | None = None,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
+) -> str:
+    """Prompt for step 'extract' when input is a TDD (Technical Design Document).
+
+    Extends the standard extract prompt with 6 additional body sections
+    targeting TDD-specific structured content (data models, API specs,
+    component inventory, testing strategy, migration plan, operational
+    readiness). All 8 standard sections are retained for backward
+    compatibility with downstream consumers.
+
+    Parameters
+    ----------
+    spec_file:
+        Path to the TDD file being extracted.
+    retrospective_content:
+        Optional retrospective text from a prior release cycle.
+    """
+    base = (
+        "You are a requirements and design extraction specialist.\n\n"
+        "Read the provided source specification or technical design document "
+        "and produce a requirements and design extraction document.\n\n"
+        "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
+        "- spec_source: (string) the filename of the input document\n"
+        "- generated: (string) ISO-8601 timestamp of extraction\n"
+        "- generator: (string) identifier of the extraction agent\n"
+        "- functional_requirements: (integer) count of identified functional requirements\n"
+        "- nonfunctional_requirements: (integer) count of identified non-functional requirements\n"
+        "- total_requirements: (integer) sum of functional + non-functional requirements\n"
+        "- complexity_score: (float 0.0-1.0) assessing overall complexity\n"
+        "- complexity_class: (string) one of: LOW, MEDIUM, HIGH\n"
+        "- domains_detected: (list) array of domain name strings, e.g. [backend, security, frontend, testing, devops]\n"
+        "- risks_identified: (integer) count of risks found in the document\n"
+        "- dependencies_identified: (integer) count of external dependencies\n"
+        "- success_criteria_count: (integer) count of measurable success criteria\n"
+        "- extraction_mode: (string) one of: standard, chunked\n"
+        "- data_models_identified: (integer) count of data entities/interfaces identified, or 0 if section absent\n"
+        "- api_surfaces_identified: (integer) count of API endpoints identified, or 0 if section absent\n"
+        "- components_identified: (integer) count of components/routes identified, or 0 if section absent\n"
+        "- test_artifacts_identified: (integer) count of test cases/strategies identified, or 0 if section absent\n"
+        "- migration_items_identified: (integer) count of migration phases/rollback steps identified, or 0 if section absent\n"
+        "- operational_items_identified: (integer) count of runbook scenarios/alerts identified, or 0 if section absent\n\n"
+        "Set `spec_source` to the filename of the input document.\n\n"
+        "Preserve exact identifiers from the source document including "
+        "requirement IDs (FR-xxx, NFR-xxx), interface names, endpoint identifiers, "
+        "component names, migration phase names, and test case IDs. "
+        "If a source uses FR-EVAL-001.1, use FR-EVAL-001.1. "
+        "If identifiers need sub-decomposition, use suffixes on the original ID "
+        "(e.g., FR-EVAL-001.1a, FR-EVAL-001.1b). "
+        "If the source has no requirement IDs, then use FR-NNN as a fallback. "
+        "The functional_requirements frontmatter count must equal the number of "
+        "top-level requirements in the document, not sub-decompositions.\n\n"
+        "After the frontmatter, provide the following 14 structured sections:\n\n"
+        # --- 8 standard sections (same as build_extract_prompt) ---
+        "## Functional Requirements\n"
+        "Use the document's exact requirement identifiers verbatim as primary IDs. "
+        "Do NOT create a new numbering scheme (e.g., do NOT renumber as FR-001, FR-002). "
+        "If the document uses FR-EVAL-001.1, use FR-EVAL-001.1. "
+        "If a requirement needs sub-decomposition, use suffixes on the original ID "
+        "(e.g., FR-EVAL-001.1a, FR-EVAL-001.1b). "
+        "If the document has no requirement IDs, then use FR-NNN as a fallback. "
+        "The functional_requirements frontmatter count must equal the number of "
+        "top-level requirements in the document, not sub-decompositions.\n\n"
+        "## Non-Functional Requirements\n"
+        "Use the document's exact NFR identifiers verbatim. Do NOT renumber. "
+        "If the document has no NFR IDs, use NFR-NNN as a fallback. "
+        "Include performance, security, scalability, maintainability.\n\n"
+        "## Complexity Assessment\n"
+        "Provide complexity_score and complexity_class with detailed scoring rationale.\n\n"
+        "## Architectural Constraints\n"
+        "List all architectural constraints, technology mandates, and integration boundaries.\n\n"
+        "## Risk Inventory\n"
+        "Numbered list of identified risks with severity (high/medium/low) and mitigation.\n\n"
+        "## Dependency Inventory\n"
+        "List all external dependencies, libraries, services, and integration points.\n\n"
+        "## Success Criteria\n"
+        "Measurable success criteria with acceptance thresholds.\n\n"
+        "## Open Questions\n"
+        "Ambiguities, gaps, or items requiring stakeholder clarification.\n\n"
+        # --- 6 new TDD-specific sections ---
+        "## Data Models and Interfaces\n"
+        "Extract all data entities, TypeScript/code interfaces, field definitions with "
+        "types/constraints/required status, entity relationships, data-flow steps, and "
+        "storage/retention/backup strategy from fenced code blocks and markdown tables. "
+        "For each entity: name, fields, types, constraints, relationships.\n\n"
+        "## API Specifications\n"
+        "Extract endpoint inventory: HTTP method, URL path, auth requirements, rate limits, "
+        "query parameters, request body schema, response schema, error codes and responses, "
+        "versioning strategy, deprecation policy. Extract from endpoint tables and code "
+        "examples even when no behavioral shall/must language is present.\n\n"
+        "## Component Inventory\n"
+        "Extract route/page tables, shared component tables with props/usage/locations, "
+        "ASCII component hierarchy trees, state stores with shape/transitions/triggers/side "
+        "effects. For each component: name, type, location, dependencies.\n\n"
+        "## Testing Strategy\n"
+        "Extract test pyramid breakdown with coverage levels/tooling/targets/ownership, "
+        "concrete test case tables with test-name/input/expected-output/mocks for "
+        "unit/integration/E2E levels, and test environment matrix.\n\n"
+        "## Migration and Rollout Plan\n"
+        "Extract migration phases with tasks/duration/dependencies/rollback, feature flags "
+        "with purpose/status/cleanup-date/owner, rollout stages with audience/success-criteria/"
+        "monitoring/rollback-triggers, and numbered rollback procedure steps. Preserve "
+        "sequential ordering as it implies task dependencies.\n\n"
+        "## Operational Readiness\n"
+        "Extract runbook scenarios with symptoms/diagnosis/resolution/escalation/prevention, "
+        "on-call expectations with page-volume/MTTD/MTTR/knowledge-prerequisites, capacity "
+        "planning with current/projected/scaling-triggers, and observability including log "
+        "formats, metric definitions, alert thresholds, trace sampling, and dashboard "
+        "specifications.\n\n"
+        "Be thorough and precise. Extract every requirement and design artifact, even implicit ones."
+    )
+
+    if retrospective_content:
+        advisory = (
+            "\n\n## Advisory: Areas to Watch (from prior retrospective)\n\n"
+            "The following retrospective content is provided as advisory context "
+            "only. These are areas to watch during extraction -- they are NOT "
+            "additional requirements and MUST NOT be treated as such. Use them "
+            "to inform your risk assessment and open questions sections.\n\n"
+            f"{retrospective_content}"
+        )
+        base += advisory
+
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when additional TDD file is provided)\n\n"
+            "An additional Technical Design Document (TDD) is included in the inputs "
+            "alongside the primary document. Use it to cross-reference and enrich "
+            "the extraction:\n"
+            "1. Verify data model consistency between documents -- flag discrepancies "
+            "in entity definitions, field types, or relationships in Open Questions.\n"
+            "2. Cross-check API endpoint specifications -- surface any endpoints in the "
+            "supplementary TDD not covered in the primary document.\n"
+            "3. Verify component inventory alignment -- flag components mentioned in one "
+            "document but absent from the other.\n"
+            "4. Cross-check testing strategy coverage -- surface test cases from the "
+            "supplementary TDD that extend the primary document's strategy.\n"
+            "5. Verify migration plan consistency -- flag rollback procedures or feature "
+            "flags that differ between documents.\n"
+            "The supplementary TDD provides additional technical reference -- use it "
+            "to validate completeness, not to override the primary document."
+        )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs alongside "
+            "the TDD. Use it as supplementary business context for extraction. "
+            "Additionally extract:\n"
+            "1. Business objectives and success metrics from the PRD's Success Metrics "
+            "section (S19) -- surface as additional Success Criteria.\n"
+            "2. User personas from the PRD's User Personas section (S7) -- note in the "
+            "Architectural Constraints section as persona-driven design requirements.\n"
+            "3. Scope boundaries from the PRD's Scope Definition section (S12) -- use to "
+            "validate that extracted requirements fall within stated scope.\n"
+            "4. Legal and compliance requirements from the PRD's Legal & Compliance "
+            "section (S17) -- surface as Non-Functional Requirements if not already "
+            "present in the TDD.\n"
+            "5. Jobs To Be Done from the PRD's JTBD section (S6) -- note in Open "
+            "Questions if any JTBD lack corresponding functional requirements.\n"
+            "The PRD is advisory context for enrichment -- do NOT treat PRD content "
+            "as hard requirements unless they are also stated in the TDD."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK
+
+
+def build_generate_prompt(
+    agent: AgentSpec,
+    extraction_path: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
+) -> str:
     """Prompt for step 'generate-{agent.id}'.
 
     Instructs Claude to read the extraction document and generate a
     complete project roadmap with the agent's persona as a role instruction.
     References expanded extraction fields for richer context.
     """
-    return (
+    base = (
         f"You are a {agent.persona} specialist creating a project roadmap.\n\n"
         "Read the provided requirements extraction document and generate a comprehensive "
         "project roadmap.\n\n"
@@ -178,7 +398,18 @@ def build_generate_prompt(agent: AgentSpec, extraction_path: Path) -> str:
         "- risks_identified: number of risks to mitigate in the roadmap\n"
         "- dependencies_identified: external dependencies to plan around\n"
         "- success_criteria_count: measurable criteria to validate against\n"
-        "- extraction_mode: extraction completeness indicator\n\n"
+        "- extraction_mode: extraction completeness indicator\n"
+        "\n"
+        "The extraction body contains these standard sections:\n"
+        "- Functional Requirements: requirement IDs, descriptions, acceptance criteria\n"
+        "- Non-Functional Requirements: performance, security, scalability constraints\n"
+        "- Complexity Assessment: scoring rationale and classification\n"
+        "- Architectural Constraints: technology mandates, integration boundaries\n"
+        "- Risk Inventory: identified risks with severity and mitigation\n"
+        "- Dependency Inventory: external dependencies and integration points\n"
+        "- Success Criteria: measurable validation thresholds\n"
+        "- Open Questions: ambiguities requiring stakeholder clarification\n"
+        "\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
         f"- spec_source: (the source specification filename)\n"
         "- complexity_score: (float 0.0-1.0 from the extraction)\n"
@@ -196,7 +427,56 @@ def build_generate_prompt(agent: AgentSpec, extraction_path: Path) -> str:
         "IMPORTANT: Preserve exact requirement IDs from the extraction document. "
         "Do NOT renumber, relabel, or create new requirement IDs. "
         "If the extraction uses FR-EVAL-001.1, your roadmap must use FR-EVAL-001.1."
-    ) + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK
+    )
+
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs alongside "
+            "the extraction. The extraction may contain these additional frontmatter fields:\n"
+            "- data_models_identified: count of data entities/interfaces extracted\n"
+            "- api_surfaces_identified: count of API endpoints extracted\n"
+            "- components_identified: count of UI/service components extracted\n"
+            "- test_artifacts_identified: count of test cases/strategies extracted\n"
+            "- migration_items_identified: count of migration/rollout items extracted\n"
+            "- operational_items_identified: count of operational readiness items extracted\n\n"
+            "The extraction body may also contain these additional sections. Address each "
+            "in the roadmap with specific implementation phases, tasks, and milestones:\n"
+            "- **Data Models and Interfaces**: Include schema implementation tasks with "
+            "entity relationships, field types, and data migration steps.\n"
+            "- **API Specifications**: Include per-endpoint implementation tasks with "
+            "request/response schemas, authentication, rate limiting, and versioning.\n"
+            "- **Component Inventory**: Include component implementation and integration "
+            "tasks with dependency wiring and prop/interface contracts.\n"
+            "- **Testing Strategy**: Include test implementation milestones matching the "
+            "test pyramid (unit, integration, E2E) with named test cases.\n"
+            "- **Migration and Rollout Plan**: Include phased rollout tasks with feature "
+            "flags, rollback procedures, and success criteria per stage.\n"
+            "- **Operational Readiness**: Include runbook creation, monitoring/alerting "
+            "setup, on-call preparation, and capacity planning tasks.\n"
+            "Preserve exact identifiers from the TDD: interface names, endpoint paths, "
+            "component names, test case IDs, and migration phase names."
+        )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs alongside "
+            "the extraction. Use PRD content to inform roadmap prioritization and phasing:\n"
+            "1. **Value-based phasing**: Use the PRD's Business Context (S5) and Success "
+            "Metrics (S19) to prioritize phases that deliver measurable business value earliest.\n"
+            "2. **Persona-driven sequencing**: Use the PRD's User Personas (S7) and Customer "
+            "Journey Map (S22) to ensure the roadmap addresses highest-impact user needs first.\n"
+            "3. **Compliance gates**: If the PRD's Legal & Compliance section (S17) defines "
+            "regulatory requirements, ensure the roadmap includes compliance validation "
+            "milestones at appropriate phases.\n"
+            "4. **Scope guardrails**: Use the PRD's Scope Definition (S12) to flag any "
+            "roadmap items that fall outside stated product scope.\n"
+            "The PRD provides business 'why' context -- do NOT let it override technical "
+            "sequencing constraints from the extraction."
+        )
+
+    return base + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK
 
 
 def build_diff_prompt(variant_a_path: Path, variant_b_path: Path) -> str:
@@ -255,12 +535,14 @@ def build_score_prompt(
     debate_path: Path,
     variant_a_path: Path,
     variant_b_path: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
 ) -> str:
     """Prompt for step 'score'.
 
     Instructs Claude to select a base variant and score both.
     """
-    return (
+    base = (
         "You are an objective evaluation specialist.\n\n"
         "Read the debate transcript and both roadmap variants. "
         "Score each variant and select a base for the final merge.\n\n"
@@ -274,7 +556,37 @@ def build_score_prompt(
         "4. Base variant selection rationale\n"
         "5. Specific improvements from the non-base variant to incorporate in merge\n\n"
         "Be evidence-based. Reference specific debate points and variant content."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs. When "
+            "scoring variants, include these additional scoring dimensions:\n"
+            "1. **Technical completeness**: Score whether each variant addresses all "
+            "data models (§7), API endpoints (§8), and components (§10) from the TDD.\n"
+            "2. **Testing strategy alignment**: Score whether each variant's test "
+            "milestones match the TDD's test pyramid and coverage targets (§15).\n"
+            "3. **Migration feasibility**: Score whether each variant's rollout plan "
+            "accounts for the TDD's migration phases and rollback procedures (§19).\n"
+            "Weight these alongside debate-derived scoring criteria."
+        )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs. When "
+            "scoring variants, include these additional scoring dimensions:\n"
+            "1. **Business value delivery**: Score how quickly each variant delivers "
+            "against the PRD's Success Metrics (S19).\n"
+            "2. **Persona coverage**: Score whether each variant addresses all user "
+            "personas defined in the PRD (S7).\n"
+            "3. **Compliance alignment**: Score whether each variant accounts for "
+            "legal and compliance requirements from the PRD (S17).\n"
+            "Weight these alongside technical scoring criteria."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK
 
 
 def build_merge_prompt(
@@ -282,12 +594,14 @@ def build_merge_prompt(
     variant_a_path: Path,
     variant_b_path: Path,
     debate_path: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
 ) -> str:
     """Prompt for step 'merge'.
 
     Instructs Claude to produce the final merged roadmap.
     """
-    return (
+    base = (
         "You are a synthesis specialist producing the final merged roadmap.\n\n"
         "Read the base selection document, both roadmap variants, and the debate transcript. "
         "Produce a final merged roadmap that uses the selected base variant as foundation "
@@ -306,12 +620,45 @@ def build_merge_prompt(
         "Use proper heading hierarchy (H2, H3, H4) with no gaps. "
         "Ensure all internal cross-references resolve. "
         "Do not duplicate heading text at H2 or H3 level."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs. During merge:\n"
+            "1. Preserve exact technical identifiers from both variants: interface names, "
+            "endpoint paths (e.g., /api/v1/auth/login), component names, test case IDs, "
+            "and migration phase names.\n"
+            "2. When variants disagree on API contracts, data model schemas, or component "
+            "boundaries, prefer the variant that more closely matches the TDD.\n"
+            "3. Ensure the merged roadmap retains all TDD-derived implementation tasks "
+            "(data model setup, endpoint implementation, test execution, migration rollout) "
+            "from the selected base variant."
+        )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs. During merge:\n"
+            "1. Maintain alignment with PRD personas (S7) — the merged roadmap should "
+            "address all user personas mentioned in both variants.\n"
+            "2. Preserve success metric targets from the PRD (S19) — quantitative targets "
+            "(e.g., >60% registration rate, <200ms latency) must appear in the merged "
+            "success criteria, not be averaged or dropped.\n"
+            "3. Ensure compliance requirements from the PRD (S17) are not weakened during "
+            "merge — if either variant has stronger compliance gates, prefer the stronger.\n"
+            "4. Use PRD business context to break ties when variants conflict on "
+            "prioritization or phasing order."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK
 
 
 def build_spec_fidelity_prompt(
     spec_file: Path,
     roadmap_path: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
 ) -> str:
     """Prompt for step 'spec-fidelity'.
 
@@ -322,25 +669,27 @@ def build_spec_fidelity_prompt(
     Embeds explicit severity definitions (HIGH/MEDIUM/LOW) to reduce
     LLM classification drift (RSK-007).
     """
-    return (
-        "You are a specification fidelity analyst.\n\n"
-        "Read the provided specification file and the generated roadmap. "
+    base = (
+        "You are a source-document fidelity analyst.\n\n"
+        "Read the provided source specification or TDD file and the generated roadmap. "
         "Compare them systematically to identify deviations where the roadmap "
-        "diverges from or omits requirements in the specification.\n\n"
+        "diverges from or omits requirements, design decisions, or commitments in the source document.\n\n"
         "## Severity Definitions\n\n"
         "Apply these severity classifications precisely:\n\n"
         "**HIGH**: The roadmap omits, contradicts, or fundamentally misrepresents "
-        "a specification requirement. The roadmap cannot be used as-is without "
+        "a source document requirement or commitment. The roadmap cannot be used as-is without "
         "risking incorrect implementation. Examples:\n"
-        "- A functional requirement (FR-NNN) is entirely missing from the roadmap\n"
+        "- A functional requirement (FR-NNN) or interface definition (interface-name) is entirely missing from the roadmap\n"
         "- A non-functional requirement (NFR-NNN) is contradicted by the roadmap\n"
-        "- A success criterion (SC-NNN) has no corresponding validation in the roadmap\n"
-        "- An architectural constraint is violated by the roadmap's proposed approach\n\n"
+        "- A success criterion (SC-NNN) or test case (test-case-id) has no corresponding validation in the roadmap\n"
+        "- An architectural constraint is violated by the roadmap's proposed approach\n"
+        "- An API endpoint (endpoint-path) or component (component-name) is missing from the roadmap\n"
+        "- A migration phase (migration-phase) or rollback procedure is omitted\n\n"
         "**MEDIUM**: The roadmap addresses the requirement but with insufficient "
         "detail, ambiguous language, or minor misalignment that could lead to "
         "implementation issues. Examples:\n"
         "- A requirement is mentioned but lacks specific acceptance criteria\n"
-        "- The roadmap's phasing differs from the spec's priority ordering\n"
+        "- The roadmap's phasing differs from the source document's priority ordering or stated importance hierarchy\n"
         "- A dependency is acknowledged but not properly sequenced\n\n"
         "**LOW**: Minor stylistic, formatting, or organizational differences that "
         "do not affect correctness. Examples:\n"
@@ -354,7 +703,20 @@ def build_spec_fidelity_prompt(
         "3. **Gates**: Quality gates, validation checkpoints, acceptance criteria\n"
         "4. **CLI Options**: Command-line flags, arguments, configuration options\n"
         "5. **NFRs**: Performance targets, security requirements, scalability constraints\n"
-        + _INTEGRATION_WIRING_DIMENSION +
+        + _INTEGRATION_WIRING_DIMENSION
+    )
+
+    # Dimensions 7-11: TDD-specific — only include when TDD input is provided
+    if tdd_file is not None:
+        base += (
+            "7. **API Endpoints**: Endpoint contracts, request/response schemas, error codes, versioning policy\n"
+            "8. **Component Inventory**: Module boundaries, component responsibilities, route coverage\n"
+            "9. **Testing Strategy**: Test levels, coverage targets, validation matrix, test case coverage\n"
+            "10. **Migration & Rollout**: Migration phases, rollback procedures, feature flag lifecycle\n"
+            "11. **Operational Readiness**: Runbook scenarios, on-call expectations, alert configurations, capacity plans\n"
+        )
+
+    base += (
         "\n## Output Requirements\n\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
         "- high_severity_count: (integer) number of HIGH severity deviations\n"
@@ -370,7 +732,7 @@ def build_spec_fidelity_prompt(
         "- **ID**: DEV-NNN (zero-padded 3-digit)\n"
         "- **Severity**: HIGH, MEDIUM, or LOW\n"
         "- **Deviation**: Concise description of what differs\n"
-        "- **Spec Quote**: Verbatim quote from the specification\n"
+        "- **Source Quote**: Verbatim quote from the source document\n"
         "- **Roadmap Quote**: Verbatim quote from the roadmap, or '[MISSING]' if absent\n"
         "- **Impact**: Assessment of how the deviation affects correctness\n"
         "- **Recommended Correction**: Specific action to resolve the deviation\n\n"
@@ -378,8 +740,29 @@ def build_spec_fidelity_prompt(
         "Provide a brief summary of findings with severity distribution.\n\n"
         "Be thorough and precise. Quote both documents for every deviation. "
         "Do not invent deviations -- only report genuine differences between "
-        "the spec and roadmap."
-    ) + _OUTPUT_FORMAT_BLOCK
+        "the source document and roadmap."
+    )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Validation (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs alongside "
+            "the specification and roadmap. Additionally check these PRD-derived dimensions:\n"
+            "12. **Persona Coverage**: Every user persona defined in the PRD (S7) should "
+            "have at least one roadmap phase or task addressing their primary needs. Flag "
+            "missing persona coverage as MEDIUM severity.\n"
+            "13. **Business Metric Traceability**: Success metrics from the PRD (S19) "
+            "should have corresponding validation milestones or acceptance criteria in "
+            "the roadmap. Flag untraced metrics as MEDIUM severity.\n"
+            "14. **Compliance & Legal Coverage**: Legal and compliance requirements from "
+            "the PRD (S17) should have corresponding roadmap tasks or gates. Flag missing "
+            "compliance coverage as HIGH severity.\n"
+            "15. **Scope Boundary Enforcement**: The roadmap should not contain items that "
+            "fall outside the PRD's Scope Definition (S12 In-Scope vs Out-of-Scope). Flag "
+            "out-of-scope roadmap items as MEDIUM severity."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK
 
 
 def build_wiring_verification_prompt(
@@ -443,6 +826,8 @@ def build_wiring_verification_prompt(
 def build_test_strategy_prompt(
     roadmap_path: Path,
     extraction_path: Path,
+    tdd_file: Path | None = None,
+    prd_file: Path | None = None,
 ) -> str:
     """Prompt for step 'test-strategy'.
 
@@ -450,7 +835,7 @@ def build_test_strategy_prompt(
     6 frontmatter fields, complexity-to-ratio mapping, and issue
     classification table.
     """
-    return (
+    base = (
         "You are a test strategy specialist.\n\n"
         "Read the final roadmap and the requirements extraction document. "
         "Produce a comprehensive test strategy.\n\n"
@@ -483,4 +868,48 @@ def build_test_strategy_prompt(
         "5. Acceptance criteria per milestone\n"
         "6. Quality gates between phases\n\n"
         "Be specific about what to test at each milestone."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs alongside "
+            "the roadmap and extraction. Use TDD content to enrich the test strategy:\n"
+            "1. **Test pyramid alignment**: Use the TDD's Testing Strategy section (§15) "
+            "to set coverage targets per level (unit, integration, E2E) and adopt the "
+            "TDD's specified tooling and test runner configuration.\n"
+            "2. **Named test cases**: Incorporate specific test cases from the TDD's "
+            "test case tables (§15) into the strategy with their exact names, inputs, "
+            "expected outputs, and mock requirements.\n"
+            "3. **API contract tests**: Use the TDD's API Specifications (§8) to define "
+            "per-endpoint contract tests validating request/response schemas, error codes, "
+            "auth requirements, and rate limits.\n"
+            "4. **Data model validation**: Use the TDD's Data Models (§7) to define "
+            "schema validation tests for entity field types, constraints, and relationships.\n"
+            "5. **Migration rollback tests**: Use the TDD's Migration and Rollout Plan "
+            "(§19) to define rollback verification tests for each migration phase.\n"
+            "6. **Operational readiness tests**: Use the TDD's Operational Readiness "
+            "section (§25) to define monitoring, alerting, and runbook validation tests.\n"
+            "Preserve exact test case IDs and names from the TDD."
+        )
+
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs alongside "
+            "the roadmap and extraction. Use PRD content to enrich the test strategy:\n"
+            "1. **Persona-based acceptance tests**: For each user persona in the PRD "
+            "(S7), define at least one acceptance test scenario that validates their "
+            "primary workflow.\n"
+            "2. **Customer journey E2E tests**: Map the PRD's Customer Journey Map "
+            "(S22) to end-to-end test flows covering the critical path for each journey.\n"
+            "3. **KPI validation tests**: For each success metric in the PRD (S19), "
+            "define a validation test that measures or proxies the metric.\n"
+            "4. **Compliance test category**: If the PRD's Legal & Compliance section "
+            "(S17) defines regulatory requirements, add a dedicated compliance test "
+            "category with specific test cases.\n"
+            "5. **Edge case coverage**: Reference the PRD's Error Handling & Edge Cases "
+            "section (S23) to ensure negative test scenarios are included."
+        )
+
+    return base + _OUTPUT_FORMAT_BLOCK

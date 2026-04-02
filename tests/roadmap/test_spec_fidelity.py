@@ -75,7 +75,7 @@ class TestBuildSpecFidelityPrompt:
         prompt = build_spec_fidelity_prompt(
             Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
         )
-        assert "Spec Quote" in prompt
+        assert "Source Quote" in prompt
         assert "Roadmap Quote" in prompt
         assert "[MISSING]" in prompt
 
@@ -100,7 +100,7 @@ class TestBuildSpecFidelityPrompt:
         assert "YAML frontmatter" in prompt
 
     def test_spec_fidelity_prompt_comparison_dimensions(self):
-        """Prompt includes all 5 comparison dimensions."""
+        """Prompt includes all 6 base comparison dimensions (7-11 are TDD-conditional, 12-15 are PRD-conditional)."""
         prompt = build_spec_fidelity_prompt(
             Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
         )
