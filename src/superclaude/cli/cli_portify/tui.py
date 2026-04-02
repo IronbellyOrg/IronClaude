@@ -357,3 +357,11 @@ class PortifyTUI:
     ) -> None:
         """Mark a step as complete."""
         self._dashboard.step_complete(step_name, status, duration, gate_result)
+
+    def gate_warning(self, step_id: str, reason: str | None) -> None:
+        """Emit a visible warning for a soft-mode gate failure."""
+        if _RICH_AVAILABLE:
+            console = Console(stderr=True)
+            console.print(f"[yellow]GATE WARNING[/yellow] {step_id}: {reason or 'unknown'}")
+        else:
+            print(f"GATE WARNING {step_id}: {reason or 'unknown'}", file=sys.stderr)

@@ -222,7 +222,7 @@ The orchestrator (skill session or team lead) is responsible for:
 **Input:** ALL synthesis files in `${TASK_DIR}synthesis/` (files matching `synth-*.md`)
 **Output:** Synthesis quality review report
 
-### Checklist (9 items — from SKILL.md Synthesis Quality Review Checklist)
+### Checklist (10 items — from SKILL.md Synthesis Quality Review Checklist)
 
 1. Report section headers match the expected format from the Report Structure template
 2. Tables use the correct column structure (Gap/Current/Target/Severity, Criterion/OptionA/OptionB, Step/Action/Files/Details)
@@ -233,6 +233,7 @@ The orchestrator (skill session or team lead) is responsible for:
 7. All cross-references between sections are consistent (e.g., gaps in Section 4 are addressed in Section 8)
 8. **No doc-only claims in Current State or Implementation Plan.** Verify that Sections 2 and 8 only contain architecture descriptions backed by code-traced evidence
 9. **Stale documentation discrepancies are surfaced.** Any `[CODE-CONTRADICTED]` or `[STALE DOC]` findings from research files should appear in the Gap Analysis (Section 4) or Open Questions (Section 9)
+10. **Key finding coverage.** Each research file's Summary/Key Takeaway section contains findings that should be reflected in the synthesis. Verify that the strongest findings from source research are represented in synthesis conclusions/recommendations. Flag any research Key Takeaway that has no corresponding synthesis content.
 
 ### Process
 

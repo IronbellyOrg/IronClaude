@@ -97,7 +97,7 @@ Use your tools systematically:
 Glob: **/*.ts           # All TypeScript files
 Glob: src/handlers/*    # Files in handlers directory
 Glob: docs/**/*.md      # All markdown in docs
-Glob: .gfdoc/templates/*.md  # Templates
+Glob: .claude/templates/workflow/*.md  # Templates
 ```
 
 **Search for content:**
@@ -111,7 +111,7 @@ Grep: "interface"       # Find interface definitions
 **Read specific files:**
 ```
 Read: src/handlers/UserHandler.ts  # Full file content
-Read: .gfdoc/templates/*.md        # Template content
+Read: .claude/templates/workflow/*.md        # Template content
 Read: CLAUDE.md                    # Project context
 ```
 
@@ -150,7 +150,7 @@ PATTERNS OBSERVED:
 - Files follow PascalCase naming
 
 RELEVANT TEMPLATES:
-- .gfdoc/templates/01_mdtm_template_generic_task.md (MDTM task template)
+- .claude/templates/workflow/01_mdtm_template_generic_task.md (MDTM task template)
 - docs/templates/handler-doc-template.md (if exists)
 
 CONTEXT FILES FOR TASK BUILDING:
@@ -216,7 +216,7 @@ Grep: "# Description"
 ### Finding Templates
 
 ```
-Glob: .gfdoc/templates/*.md
+Glob: .claude/templates/workflow/*.md
 Glob: templates/**/*.md
 Glob: **/*template*.md
 ```
@@ -423,7 +423,7 @@ PATTERNS:
 - Async methods returning Promise<Result<T>>
 
 TEMPLATES:
-- .gfdoc/templates/01_mdtm_template_generic_task.md exists
+- .claude/templates/workflow/01_mdtm_template_generic_task.md exists
 ```
 
 ### Partial Findings

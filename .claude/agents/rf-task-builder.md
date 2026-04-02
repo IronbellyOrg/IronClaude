@@ -60,8 +60,8 @@ You are the Task Builder in a Rigorflow agent team. Your job is to create proper
 
 | Template | Path | When |
 |----------|------|------|
-| **01 (Generic)** | `.gfdoc/templates/01_mdtm_template_generic_task.md` | Simple file creation, straightforward execution, no discovery needed |
-| **02 (Complex)** | `.gfdoc/templates/02_mdtm_template_complex_task.md` | Discovery before building, testing, review/QA items, conditional flows, aggregation |
+| **01 (Generic)** | `.claude/templates/workflow/01_mdtm_template_generic_task.md` | Simple file creation, straightforward execution, no discovery needed |
+| **02 (Complex)** | `.claude/templates/workflow/02_mdtm_template_complex_task.md` | Discovery before building, testing, review/QA items, conditional flows, aggregation |
 
 **WHICH TEMPLATE TO USE:**
 - Check the `TEMPLATE:` field in the BUILD_REQUEST message from the team lead
@@ -99,8 +99,8 @@ RESEARCH_CONTEXT: [Initial findings from researcher, if any]
 
 Read the template specified in BUILD_REQUEST:
 ```
-If TEMPLATE: 02 → Read: .gfdoc/templates/02_mdtm_template_complex_task.md
-If TEMPLATE: 01 or not specified → Read: .gfdoc/templates/01_mdtm_template_generic_task.md
+If TEMPLATE: 02 → Read: .claude/templates/workflow/02_mdtm_template_complex_task.md
+If TEMPLATE: 01 or not specified → Read: .claude/templates/workflow/01_mdtm_template_generic_task.md
 ```
 
 Understand:
@@ -371,7 +371,7 @@ Found 5 handler files in src/handlers/:
 2. AuthHandler.ts - class AuthHandler, methods: login(), logout(), refresh()
 [...]
 
-Template found: .gfdoc/templates/handler-doc-template.md
+Template found: .claude/templates/workflow/handler-doc-template.md
 Pattern: All handlers extend BaseHandler
 ```
 

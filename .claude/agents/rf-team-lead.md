@@ -367,8 +367,8 @@ When sending BUILD_REQUEST to the builder, you MUST specify which template to us
 
 | Template | Path | When to Use |
 |----------|------|-------------|
-| **01 (Generic)** | `.gfdoc/templates/01_mdtm_template_generic_task.md` | Simple file creation, straightforward execution, no discovery needed |
-| **02 (Complex)** | `.gfdoc/templates/02_mdtm_template_complex_task.md` | Task needs discovery before building, includes testing, requires review/QA items, conditional flows, iterative refinement |
+| **01 (Generic)** | `.claude/templates/workflow/01_mdtm_template_generic_task.md` | Simple file creation, straightforward execution, no discovery needed |
+| **02 (Complex)** | `.claude/templates/workflow/02_mdtm_template_complex_task.md` | Task needs discovery before building, includes testing, requires review/QA items, conditional flows, iterative refinement |
 
 ### Decision Guide
 
@@ -415,7 +415,7 @@ For complex projects requiring multiple task cycles (multiple phases, iterative 
 - **Phase 0 (Planning)**: Pipeline produces feature brief, PRD, architecture proposal using template 02
 - **Phase 1..N (Execution)**: Each phase gets its own pipeline invocation — fresh agents, full orchestration, automatic parallel track support
 - **Fix Cycles**: If a phase pipeline returns issues, invoke another pipeline with a FIX request (max 3 cycles per phase). If max cycles exhausted, HALT and ask user — do NOT proceed with unresolved findings.
-- **Project Plan**: Maintained using `.gfdoc/templates/03_project_plan_template.md`
+- **Project Plan**: Maintained using `.claude/templates/workflow/03_project_plan_template.md`
 - **File-Based Context**: Context flows between phases via files on disk — no agent reuse needed
 - **No subagent nesting**: The session runs each pipeline directly rather than spawning agents to run pipelines
 

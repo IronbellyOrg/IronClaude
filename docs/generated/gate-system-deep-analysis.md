@@ -139,15 +139,23 @@ The absolute import in `cleanup_audit/gates.py:14` is inconsistent with the rela
 
 ---
 
-## 7. Findings
+## 7. Findings (Updated)
 
-| #  | Severity   | Finding                                                                                                                                                                                   |
-|----|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1  | **Medium** | 3 gates defined but unwired: `DEVIATION_ANALYSIS_GATE`, `REMEDIATE_GATE`, `CERTIFY_GATE` exist in `roadmap/gates.py` (lines 885, 831, 856) and `ALL_GATES` but are never bound to any `Step` in `_build_steps()`. Dead code or incomplete feature. |
-| 2  | **Low**    | `_build_steps()` imports 8 of 12 gate constants (lines 27-38). The 4 omitted (`DEVIATION_ANALYSIS_GATE`, `REMEDIATE_GATE`, `CERTIFY_GATE`, plus `TASKLIST_FIDELITY_GATE` in tasklist) confirm the remediation/certification pipeline is spec'd but not wired. |
-| 3  | **Low**    | `cleanup_audit/gates.py:14` uses absolute import (`from superclaude.cli.pipeline.models`) while all other gate modules use relative imports (`from ..pipeline.models`). Inconsistency. |
-| 4  | **Info**   | No dynamic gate registration mechanism exists. Adding gates requires editing `_build_steps()` directly. Intentional simplicity but limits runtime extensibility.                          |
-| 5  | **Info**   | `ALL_GATES` in `roadmap/gates.py:934-947` is a pipeline-order reference list but is never consumed programmatically. Could be used to auto-build steps if a registry pattern were desired. |
+| #  | Severity   | Finding |
+|----|------------|---------|
+| 1  | **Medium** | 3 gates remain defined but unwired: `DEVIATION_ANALYSIS_GATE`, `REMEDIATE_GATE`, `CERTIFY_GATE` are defined in `roadmap/gates.py` and listed in `ALL_GATES`, but are not bound to `Step(...)` entries in `_build_steps()` in `roadmap/executor.py`. |
+| 2  | **Low**    | Prior wording about `_build_steps()` importing "8 of 12" gates is now stale; imports have changed. However, the core issue remains: remediation/certification flow is still not wired into `_build_steps()`. |
+| 3  | **Low**    | `cleanup_audit/gates.py` still uses an absolute import (`from superclaude.cli.pipeline.models`) while roadmap/tasklist gate modules use relative imports. |
+| 4  | **Info**   | No dynamic gate registration mechanism exists. Adding gates still requires editing `_build_steps()` directly. |
+| 5  | **Info**   | `ALL_GATES` in `roadmap/gates.py` remains a reference list and is not consumed to construct runtime steps. |
+
+### 7.1 Revalidation Snapshot (2026-03-25)
+
+| Finding | Status | Evidence |
+|---------|--------|----------|
+| #1 (unwired deviation/remediate/certify gates) | **Not remediated** | `src/superclaude/cli/roadmap/executor.py` `_build_steps()` ends at `wiring-verification` and contains no `id="deviation-analysis"`, `id="remediate"`, or `id="certify"`; see `_build_steps` block. |
+| #2 (spec'd-but-not-wired remediation/certification flow) | **Partially evolved, not remediated** | `CERTIFY_GATE` is imported in `executor.py`, but there is still no runtime step wiring in `_build_steps()`. `build_certify_step()` exists but is not integrated into the main pipeline. |
+| #3 (absolute import inconsistency) | **Not remediated** | `src/superclaude/cli/cleanup_audit/gates.py` still has `from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck`. |
 
 ---
 
