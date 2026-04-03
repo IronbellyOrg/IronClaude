@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from superclaude.cli.roadmap.gates import (
@@ -168,11 +170,94 @@ class TestSemanticCheckFunctions:
 
     def test_no_duplicate_headings_h2_dup(self):
         content = "## Alpha\n### Beta\n## Alpha\n"
-        assert _no_duplicate_headings(content) is False
+        assert _no_duplicate_headings(content) is not True
 
     def test_no_duplicate_headings_h3_dup(self):
         content = "### Beta\ntext\n### Beta\n"
-        assert _no_duplicate_headings(content) is False
+        assert _no_duplicate_headings(content) is not True
+
+
+class TestNoDuplicateHeadingsScoped:
+    """H3 duplicate detection is scoped to parent H2 section."""
+
+    def test_h3_same_name_different_h2_parents_passes(self):
+        """The core false-positive fix: ### Tasks under different ## Phase sections."""
+        content = (
+            "## Phase 1\n### Tasks\n### Exit Criteria\n"
+            "## Phase 2\n### Tasks\n### Exit Criteria\n"
+            "## Phase 3\n### Tasks\n### Exit Criteria\n"
+        )
+        assert _no_duplicate_headings(content) is True
+
+    def test_h3_same_name_same_h2_parent_fails(self):
+        """Duplicate H3 within the same H2 section is still caught."""
+        content = "## Phase 1\n### Tasks\nsome text\n### Tasks\n"
+        result = _no_duplicate_headings(content)
+        assert result is not True
+        assert "Tasks" in result  # diagnostic contains the heading text
+
+    def test_h2_global_duplicate_still_fails(self):
+        """H2 duplicates are always caught regardless of position."""
+        content = "## Phase 1\n### Tasks\n## Phase 2\n### Tasks\n## Phase 1\n"
+        result = _no_duplicate_headings(content)
+        assert result is not True
+        assert "Phase 1" in result
+
+    def test_h3_before_any_h2_duplicate_fails(self):
+        """H3s before any H2 share a preamble scope -- duplicates are caught."""
+        content = "### Intro\ntext\n### Intro\n"
+        assert _no_duplicate_headings(content) is not True
+
+    def test_h3_preamble_then_same_under_h2_passes(self):
+        """H3 in top-level scope vs under an H2 are different scopes."""
+        content = "### Tasks\n## Phase 1\n### Tasks\n"
+        assert _no_duplicate_headings(content) is True
+
+    def test_case_insensitive_h3_within_section_fails(self):
+        """Duplicate detection is case-insensitive within a section."""
+        content = "## Phase 1\n### Tasks\n### tasks\n"
+        assert _no_duplicate_headings(content) is not True
+
+    def test_empty_content_passes(self):
+        assert _no_duplicate_headings("") is True
+
+    def test_no_headings_passes(self):
+        assert _no_duplicate_headings("Just text\nwith no headings\n") is True
+
+    def test_failure_contains_line_number(self):
+        """Diagnostic string includes the line number of the offending duplicate."""
+        content = "## Phase 1\n### Tasks\n### Tasks\n"
+        result = _no_duplicate_headings(content)
+        assert result is not True
+        assert "line 3" in result.lower()
+
+    def test_real_roadmap_structure_passes(self):
+        """Mirrors the actual failing roadmap structure that triggered this bug."""
+        content = (
+            "## Phase 1: Preparation\n### Tasks\n### Exit Criteria\n"
+            "## Phase 2: Extraction\n### Tasks\n### Integration Points\n"
+            "### Risk Burn-Down\n### Exit Criteria\n"
+            "## Phase 3: Restructuring\n### Tasks\n### Integration Points\n"
+            "### Risk Burn-Down\n### Exit Criteria\n"
+            "## Phase 4: Verification\n### Tasks\n### Evidence Artifacts\n"
+            "### Risk Burn-Down\n### Exit Criteria\n"
+            "## Risk Assessment\n## Resource Requirements\n"
+            "### Prerequisites\n### Staffing\n### External Dependencies\n"
+        )
+        assert _no_duplicate_headings(content) is True
+
+
+def test_prd_refactor_roadmap_passes_duplicate_gate():
+    """Regression: the actual roadmap that exposed this bug should pass."""
+    roadmap = Path(".dev/releases/backlog/prd-skill-refactor/roadmap.md")
+    if not roadmap.exists():
+        pytest.skip("roadmap file not present")
+    content = roadmap.read_text()
+    assert _no_duplicate_headings(content) is True
+
+
+class TestSemanticCheckFunctionsContinued:
+    """Continuation of semantic check function tests (split by scoped heading tests)."""
 
     def test_frontmatter_values_non_empty_valid(self):
         content = "---\ntitle: Hello\nversion: 1.0\n---\n"
