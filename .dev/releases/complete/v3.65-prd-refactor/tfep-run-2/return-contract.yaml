@@ -1,0 +1,5 @@
+status: success
+test_is_wrong: true
+recommended_escalation: standard
+tasklist_insertion_path: /config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/tfep-run-2/tasklist-insertion.md
+summary: Remaining failures are mixed-cause: inline-code failure is a scanner regression from over-broad discharge-intent skipping, while code-block failure is a test fixture mismatch (`mock_data` is out-of-vocabulary under strict FR-MOD1.1 word-boundary terms).
