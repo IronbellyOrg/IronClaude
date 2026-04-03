@@ -2,473 +2,412 @@
 spec_source: "test-tdd-user-auth.md"
 complexity_score: 0.55
 primary_persona: architect
-generated: "2026-03-31"
-generator: "roadmap-architect"
-total_phases: 5
-total_milestones: 8
-total_requirements_mapped: 13
-risks_mitigated: 3
-open_questions: 12
 ---
 
 # User Authentication Service — Project Roadmap
 
 ## 1. Executive Summary
 
-This roadmap defines the phased delivery of a User Authentication Service covering registration, login, JWT token management, profile retrieval, and password reset. The system is a **MEDIUM complexity** (0.55) backend service with elevated security sensitivity, integrating PostgreSQL, Redis, and SendGrid across five technical domains (backend, security, frontend, testing, devops).
+This roadmap defines the phased delivery of a User Authentication Service comprising five functional requirements (FR-AUTH-001 through FR-AUTH-005), nine non-functional requirements, and four compliance mandates. The system follows a facade pattern with `AuthService` orchestrating `PasswordHasher`, `TokenManager`, `JwtService`, and `UserRepo` against PostgreSQL 15+, Redis 7+, and SendGrid.
 
-**Key architectural drivers:**
+**Complexity:** MEDIUM (0.55). The security-critical domain elevates risk, but the architectural pattern is well-understood. No novel algorithms or unproven technologies are involved.
 
-- Stateless JWT authentication (RS256, 2048-bit keys) with Redis-backed refresh tokens
-- bcrypt password hashing (cost factor 12) behind a `PasswordHasher` abstraction
-- Three-phase progressive rollout using feature flags (`AUTH_NEW_LOGIN`, `AUTH_TOKEN_REFRESH`)
-- GDPR consent recording and SOC2 audit logging requirements with an **unresolved retention conflict** (90 days TDD vs 12 months PRD — see OQ-EXT-001)
+**Critical path:** Infrastructure provisioning → data model migration → `AuthService` core (login/register) → token lifecycle → frontend integration → compliance hardening → phased rollout.
 
-**Business context:** Authentication unblocks ~$2.4M in projected annual revenue from personalization-dependent features. SOC2 Type II audit deadline is Q3 2026. The personalization roadmap is blocked today.
-
-**Critical path:** Infrastructure provisioning → Core auth components → Token management → Frontend integration → Progressive rollout
+**Business driver:** Authentication unblocks ~$2.4M in projected annual revenue from personalization features and is required for SOC2 Type II audit in Q3 2026.
 
 ---
 
 ## 2. Phased Implementation Plan
 
-### Phase 1: Foundation & Infrastructure (Week 1–2)
+### Phase 1: Foundation & Core Authentication (Weeks 1–3)
 
-**Milestone M0: Infrastructure Ready**
+**Goal:** Standing infrastructure, data model, and core login/registration flows operational in staging.
 
-**Objective:** Provision all infrastructure dependencies and establish the project skeleton with CI/CD, so that component development can proceed without blockers.
+**Milestone M1:** `AuthService` login and registration endpoints passing integration tests against real PostgreSQL and Redis.
 
-**Tasks:**
+#### 1.1 Infrastructure Provisioning
+- Provision PostgreSQL 15+ with connection pooling (100 pool size)
+- Provision Redis 7+ cluster (1 GB initial, scaling plan to 2 GB at 70% utilization)
+- Configure Docker Compose for local development (PostgreSQL + Redis)
+- Set up testcontainers configuration for CI pipeline
+- Generate RSA 2048-bit key pair for `JwtService` RS256 signing
+- Configure SendGrid API access and verify sender domain
 
-1. Provision PostgreSQL 15+ instance with connection pooling (pg-pool, 100-connection pool)
-   - Create `user_profiles` table schema matching `UserProfile` entity
-   - Create `audit_log` table with retention policy (⚠️ blocked on OQ-EXT-001 resolution — implement 12-month retention as the more conservative default)
-   - Configure read replica for failover scenarios
-2. Provision Redis 7+ cluster (1 GB initial, HPA to 2 GB at 70% memory)
-   - Configure TTL-based eviction for refresh tokens (7-day default)
-3. Generate RSA 2048-bit key pair for `JwtService` token signing (NFR-SEC-002)
-   - Store in Kubernetes secrets volume with rotation alerting
-4. Configure SendGrid API integration for password reset emails (Dependency #6)
-5. Set up Node.js 20 LTS project skeleton with:
-   - TLS 1.3 enforcement on all endpoints
-   - CORS configuration restricted to known frontend origins
-   - URL-prefix versioning (`/v1/auth/*`)
-   - Structured logging (sensitive field exclusion for passwords/tokens)
-   - OpenTelemetry tracing instrumentation
-6. Configure CI pipeline with testcontainers (PostgreSQL + Redis)
-7. Set up Prometheus metrics stubs: `auth_login_total`, `auth_login_duration_seconds`, `auth_token_refresh_total`, `auth_registration_total`
-8. Configure feature flags: `AUTH_NEW_LOGIN` (OFF), `AUTH_TOKEN_REFRESH` (OFF)
+#### 1.2 Data Model & Migration
+- Create `UserProfile` table in PostgreSQL:
+  - `id` (UUID v4, PK), `email` (UNIQUE, indexed, lowercase), `displayName` (2-100 chars), `password_hash` (NOT NULL), `createdAt`, `updatedAt`, `lastLoginAt` (nullable), `roles` (default `["user"]`)
+- Create audit log table in PostgreSQL with 12-month retention policy (per NFR-COMP-002, overriding TDD's 90-day specification)
+- Create `failed_login_attempts` tracking table for brute-force mitigation
+- Write idempotent migration scripts with rollback support
 
-**Dependencies resolved:** INFRA-DB-001, SEC-POLICY-001, Node.js 20 LTS, PostgreSQL 15+, Redis 7+
+#### 1.3 Core Backend Components
+- **`PasswordHasher`** — bcrypt hash/verify with cost factor 12 (NFR-SEC-001, NFR-COMP-003)
+  - Abstraction layer to enable future argon2id migration without API changes
+  - Validate raw passwords are never persisted or logged (NFR-COMP-003)
+- **`UserRepo`** — CRUD operations against PostgreSQL `UserProfile` table
+  - Email uniqueness enforcement at database level
+  - Lowercase normalization on write
+- **`AuthService`** (facade) — orchestrates `PasswordHasher` + `UserRepo` for:
+  - **FR-AUTH-001:** Login with email/password validation
+    - Account lockout after 5 failed attempts within 15 minutes (FR-AUTH-001 AC4)
+    - Identical error responses for invalid credentials and non-existent email (no user enumeration)
+  - **FR-AUTH-002:** Registration with email uniqueness, password strength validation (≥8 chars, uppercase, number), GDPR consent capture with timestamp (NFR-COMP-001)
+  - Data minimization: only email, hashed password, displayName collected (NFR-COMP-004)
 
-**Exit criteria:**
-- PostgreSQL and Redis accessible from staging
-- CI pipeline green with testcontainers
-- RSA key pair mounted and accessible
-- Health check endpoint (`/health`) responding 200
+#### 1.4 API Layer (Partial)
+- POST `/v1/auth/login` — 10 req/min per IP rate limit
+- POST `/v1/auth/register` — 5 req/min per IP rate limit
+- Consistent error response schema: `{ error: { code, message, status } }`
+- URL prefix versioning (`/v1/auth/*`)
 
----
+#### 1.5 Testing — Wave 1
+- Unit tests UT-001, UT-002: `AuthService` login flows
+- Integration test IT-001: Registration persists `UserProfile` to database
+- Unit tests for `PasswordHasher`: bcrypt cost factor 12 assertion (NFR-SEC-001)
+- Password strength validation test cases
 
-### Phase 2: Core Authentication (Week 2–4)
+#### 1.6 Compliance Gate (Phase 1)
+- Verify GDPR consent field captured at registration (NFR-COMP-001)
+- Verify audit log table schema includes: user ID, timestamp, IP address, outcome (NFR-COMP-002)
+- Verify raw passwords never appear in logs or database (NFR-COMP-003)
+- Verify data minimization — no PII beyond email, hash, displayName (NFR-COMP-004)
 
-**Milestone M1: Login & Registration Operational**
-
-**Objective:** Deliver FR-AUTH-001 (login) and FR-AUTH-002 (registration) with full security controls, satisfying PRD Epic AUTH-E1 (minus logout — see OQ-EXT-003).
-
-**Tasks:**
-
-1. **Implement `PasswordHasher` module**
-   - bcrypt hashing with cost factor 12 (NFR-SEC-001)
-   - `hash(password): string` and `verify(password, hash): boolean` methods
-   - Abstraction layer for future algorithm migration
-   - Unit test: UT benchmark `hash()` < 500ms (Success Criterion #5)
-
-2. **Implement `UserRepo` data access layer**
-   - CRUD operations on `UserProfile` records in PostgreSQL
-   - Email uniqueness enforcement (unique index, lowercase normalized)
-   - `displayName` validation (2–100 chars)
-   - Integration test: IT-001 (registration persists `UserProfile` to database)
-
-3. **Implement `AuthService` orchestrator — login flow (FR-AUTH-001)**
-   - Validate email/password via `PasswordHasher.verify()`
-   - Return 401 for invalid credentials AND non-existent email (no user enumeration)
-   - Account lockout after 5 failed attempts within 15 minutes
-   - Return 423 Locked when account is locked
-   - Rate limiting: 10 req/min per IP on POST `/auth/login`
-   - Unit tests: UT-001, UT-002
-
-4. **Implement `AuthService` orchestrator — registration flow (FR-AUTH-002)**
-   - Email uniqueness check → 409 Conflict on duplicate
-   - Password strength validation (≥ 8 chars, uppercase, number) → 400 on failure
-   - `PasswordHasher.hash()` with cost factor 12
-   - Create `UserProfile` with UUID v4, default role `["user"]`
-   - **GDPR consent recording** (NFR-COMP-001): Add consent timestamp field to `UserProfile` (⚠️ depends on OQ-EXT-005 resolution — implement proactively per PRD S17)
-   - Rate limiting: 5 req/min per IP on POST `/auth/register`
-
-5. **Implement API Gateway rate limiting**
-   - Per-IP limits on public endpoints (login: 10/min, register: 5/min)
-   - 429 Too Many Requests response with Retry-After header
-
-6. **SOC2 audit logging foundation** (NFR-COMP-002)
-   - Log all auth events: user ID, timestamp, IP address, outcome
-   - Structured log format for downstream querying
-   - ⚠️ Retention: implement 12-month as conservative default pending OQ-EXT-001
-
-**Integration points — Dispatch/Wiring mechanisms:**
-
-| Named Artifact | Wired Components | Owning Phase | Consumed By |
-|---|---|---|---|
-| `AuthService` dependency injection | `PasswordHasher`, `UserRepo` | Phase 2 | Phase 2 (login/register), Phase 3 (tokens), Phase 4 (profile, reset) |
-| API route registry (`/v1/auth/*`) | `POST /auth/login`, `POST /auth/register` | Phase 2 | Phase 3 adds `/auth/refresh`, Phase 4 adds `/auth/me`, `/auth/reset-*` |
-| Rate limiter middleware chain | Per-IP limits on login, register endpoints | Phase 2 | Phase 3 adds per-user limits on refresh, me |
-| Error response formatter | `AUTH_INVALID_CREDENTIALS`, `AUTH_EMAIL_CONFLICT`, `AUTH_WEAK_PASSWORD` | Phase 2 | All phases add error codes |
-
-**Exit criteria:**
-- POST `/auth/login` returns 200 with stub token on valid credentials, 401 on invalid
-- POST `/auth/register` returns 201 with `UserProfile`, 409 on duplicate, 400 on weak password
-- Account lockout triggers after 5 failed attempts
-- All unit tests (UT-001, UT-002) and integration test (IT-001) passing
-- Audit log entries written for all login/registration events
+**Deliverables:** Working login + registration endpoints, database schema, infrastructure running in staging.
 
 ---
 
-### Phase 3: Token Management (Week 4–5)
+### Phase 2: Token Lifecycle & Session Management (Weeks 4–5)
 
-**Milestone M2: JWT + Refresh Token Operational**
+**Goal:** Full JWT token issuance, refresh, and revocation operational. Session persistence across page refreshes.
 
-**Objective:** Deliver FR-AUTH-003 (token issuance/refresh) and FR-AUTH-004 (profile retrieval), completing PRD Epics AUTH-E1 (login returns tokens) and AUTH-E2 (session persistence).
+**Milestone M2:** Token refresh cycle passing end-to-end with Redis TTL enforcement.
 
-**Tasks:**
+#### 2.1 Token Components
+- **`JwtService`** — JWT sign/verify with RS256 using 2048-bit RSA keys (NFR-SEC-002)
+  - Access token: 15-minute expiry, payload contains `UserProfile.id` and `UserProfile.roles`
+  - Configuration validation test for RS256 signing
+- **`TokenManager`** — Token lifecycle management
+  - Issue `AuthToken` pair (accessToken + refreshToken) on login
+  - Store refresh tokens in Redis with 7-day TTL
+  - Revoke old refresh token on refresh (rotation)
+  - Token revocation capability for security incidents (R-001 contingency)
 
-1. **Implement `JwtService` module**
-   - Sign JWT access tokens with RS256 using 2048-bit RSA keys (NFR-SEC-002)
-   - Payload: `UserProfile.id`, `UserProfile.roles`, `iat`, `exp`
-   - 15-minute expiry on access tokens
-   - 5-second clock skew tolerance for distributed environments
-   - Configuration validation test for RS256 + 2048-bit keys
+#### 2.2 API Layer (Completion)
+- POST `/v1/auth/refresh` — 30 req/min per user rate limit
+- GET `/v1/auth/me` — 60 req/min per user, Bearer token auth (FR-AUTH-004)
+  - Returns full `UserProfile`: id, email, displayName, createdAt, updatedAt, lastLoginAt, roles
 
-2. **Implement `TokenManager` module**
-   - Issue `AuthToken` pair (accessToken via `JwtService` + opaque refreshToken)
-   - Store refreshToken in Redis keyed to `UserProfile.id` with 7-day TTL
-   - `refresh()`: validate refreshToken → revoke old → issue new pair
-   - `revoke()`: remove refreshToken from Redis
-   - Rate limiting: 30 req/min per user on POST `/auth/refresh`
-   - Unit test: UT-003
-   - Integration test: IT-002 (expired refresh token rejected)
+#### 2.3 Integration Wiring
+- Wire `TokenManager` into `AuthService.login()`: after `PasswordHasher.verify()` succeeds, call `TokenManager.issueTokens()` via `JwtService`
+- Wire `AuthService.getProfile()` to validate accessToken via `JwtService`, then fetch from `UserRepo`
 
-3. **Wire `TokenManager` into `AuthService.login()`**
-   - Login now returns full `AuthToken` (accessToken, refreshToken, expiresIn: 900, tokenType: "Bearer")
-   - Update POST `/auth/login` response to match `AuthToken` schema
+#### 2.4 Testing — Wave 2
+- Unit test UT-003: Token refresh with valid refresh token
+- Integration test IT-002: Expired refresh token rejected (Redis TTL)
+- Token signing validation tests (NFR-SEC-002)
+- Concurrent authentication load test baseline (NFR-PERF-002: 500 concurrent logins)
 
-4. **Implement POST `/auth/refresh` endpoint (FR-AUTH-003)**
-   - Accept `{ refreshToken }` body
-   - Return new `AuthToken` pair on valid refresh
-   - Return 401 on expired or revoked refreshToken
-
-5. **Implement GET `/auth/me` endpoint (FR-AUTH-004)**
-   - Bearer token authentication middleware
-   - Return `UserProfile` (id, email, displayName, createdAt, updatedAt, lastLoginAt, roles)
-   - Return 401 on expired/invalid accessToken
-   - Rate limiting: 60 req/min per user
-
-6. **Implement JWT authentication middleware**
-   - Extract Bearer token from Authorization header
-   - Verify signature and expiry via `JwtService`
-   - Attach user context to request for downstream handlers
-
-**Integration points — Dispatch/Wiring mechanisms:**
-
-| Named Artifact | Wired Components | Owning Phase | Consumed By |
-|---|---|---|---|
-| `TokenManager` dependency injection | `JwtService`, Redis client | Phase 3 | Phase 3 (refresh), Phase 2 updated (login returns tokens) |
-| `AuthService` DI update | Add `TokenManager` to existing `PasswordHasher`, `UserRepo` | Phase 3 | Phase 4 (password reset invalidates tokens) |
-| JWT auth middleware | Registered on protected routes (`/auth/me`, future protected endpoints) | Phase 3 | Phase 4 (profile), all future authenticated endpoints |
-| API route registry update | Add `POST /auth/refresh`, `GET /auth/me` | Phase 3 | Consumed immediately |
-| Rate limiter middleware update | Add per-user limits (refresh: 30/min, me: 60/min) | Phase 3 | Consumed immediately |
-| Feature flag `AUTH_TOKEN_REFRESH` | Gates refresh token flow in `TokenManager` | Phase 3 | Phase 5 rollout |
-
-**Exit criteria:**
-- Login returns valid `AuthToken` with working JWT (verifiable with public key)
-- POST `/auth/refresh` exchanges valid refresh token for new pair
-- GET `/auth/me` returns `UserProfile` for authenticated user, 401 for invalid token
-- IT-002 passing (expired refresh token rejection)
-- Token refresh latency < 100ms at p95 (Success Criterion #3)
+**Deliverables:** Complete auth API (4 endpoints), token lifecycle, profile retrieval.
 
 ---
 
-### Phase 4: Password Reset & Frontend (Week 5–7)
+### Phase 3: Password Reset & Email Integration (Weeks 6–7)
 
-**Milestone M3: Full Feature Set**
+**Goal:** Self-service password reset flow operational end-to-end via SendGrid.
 
-**Objective:** Deliver FR-AUTH-005 (password reset) and all frontend components, completing PRD Epic AUTH-E3 and enabling end-to-end user journeys.
+**Milestone M3:** Password reset email delivered, token validated, password updated, old sessions invalidated.
 
-**Tasks:**
+#### 3.1 Password Reset Implementation (FR-AUTH-005)
+- POST `/v1/auth/reset-request` — generates cryptographically random reset token, 1-hour TTL
+  - Identical response for registered and unregistered emails (no user enumeration)
+  - Sends reset email via SendGrid with time-limited link
+- POST `/v1/auth/reset-confirm` — validates token, updates password hash via `PasswordHasher`, invalidates all existing refresh tokens via `TokenManager`
+  - Used reset tokens cannot be reused (single-use enforcement)
 
-1. **Implement password reset flow (FR-AUTH-005)**
-   - POST `/auth/reset-request`: generate reset token, send via SendGrid
-     - Same success response regardless of email existence (no enumeration)
-     - Reset token: 1-hour expiry, single-use
-   - POST `/auth/reset-confirm`: validate token → update password via `PasswordHasher` → invalidate all existing sessions (revoke all refresh tokens for user)
-   - ⚠️ OQ-PRD-001: Implement asynchronous email sending as the safer default (queue-based via Redis)
+#### 3.2 Email Service Integration
+- SendGrid API integration with delivery monitoring
+- Email template for password reset link
+- Delivery failure alerting (R-007 mitigation)
 
-2. **Implement `AuthProvider` context provider (Component #9)**
-   - Token storage: accessToken in memory only (not localStorage — R-001 mitigation)
-   - refreshToken in HttpOnly cookie
-   - Silent refresh on token expiry via `POST /auth/refresh`
-   - Clear tokens on tab close
-   - Redirect to `LoginPage` on authentication failure
+#### 3.3 Testing — Wave 3
+- Unit tests for reset token generation, expiry, single-use enforcement
+- Integration test: full reset flow (request → email → confirm → login with new password)
+- SendGrid integration test (staging environment)
 
-3. **Implement `LoginPage` (Component #6)**
-   - Form: email + password fields with inline validation
-   - Call POST `/auth/login` via `AuthProvider`
-   - Generic error message on failure (no user enumeration)
-   - CAPTCHA after 3 failed attempts (R-002 contingency)
-   - Redirect to dashboard on success
+#### 3.4 Open Question Resolution Gate
+- OQ-003: Synchronous vs asynchronous reset email sending — decision needed before implementation
+- OQ-008: POST `/auth/logout` endpoint — determine if needed for v1.0 or client-side token deletion sufficient
 
-4. **Implement `RegisterPage` (Component #7)**
-   - Form: email + password + displayName with inline validation
-   - Password strength indicator showing requirements
-   - GDPR consent checkbox (NFR-COMP-001) with timestamp recording
-   - Call POST `/auth/register` via `AuthProvider`
-   - Redirect to dashboard on success
-
-5. **Implement `ProfilePage` (Component #8)**
-   - Display: displayName, email, createdAt via GET `/auth/me`
-   - Protected route requiring authentication
-
-6. **Implement frontend routing**
-   - `/login` → `LoginPage` (public)
-   - `/register` → `RegisterPage` (public)
-   - `/profile` → `ProfilePage` (protected, redirects to `/login` if unauthenticated)
-
-7. **E2E test: E2E-001** — User registers on `RegisterPage` → logs in on `LoginPage` → views `ProfilePage`
-
-**Integration points — Dispatch/Wiring mechanisms:**
-
-| Named Artifact | Wired Components | Owning Phase | Consumed By |
-|---|---|---|---|
-| `AuthProvider` token state machine | `LoginPage`, `RegisterPage`, `ProfilePage`, silent refresh | Phase 4 | All frontend components |
-| Frontend route registry | `/login` → `LoginPage`, `/register` → `RegisterPage`, `/profile` → `ProfilePage` | Phase 4 | Phase 5 (feature flag gates route access) |
-| `AuthService` DI update | Add Email Service (SendGrid) for password reset | Phase 4 | FR-AUTH-005 flow |
-| API route registry update | Add `POST /auth/reset-request`, `POST /auth/reset-confirm` | Phase 4 | Consumed immediately |
-| Error code registry update | Add `AUTH_RESET_TOKEN_EXPIRED`, `AUTH_RESET_TOKEN_USED` | Phase 4 | Consumed immediately |
-
-**Exit criteria:**
-- Password reset email delivered within 60 seconds (Success Criterion #10 — >80% completion)
-- All four frontend pages render and function correctly
-- E2E-001 passing end-to-end
-- All FR-AUTH-001 through FR-AUTH-005 functional
-- Silent token refresh works without user interaction
+**Deliverables:** Complete password reset flow, SendGrid integration, all 5 functional requirements implemented.
 
 ---
 
-### Phase 5: Hardening, Rollout & GA (Week 7–10)
+### Phase 4: Frontend Integration (Weeks 7–9)
 
-**Milestone M4: Production Ready**
-**Milestone M5: Internal Alpha Complete**
-**Milestone M6: Beta (10%) Complete**
-**Milestone M7: General Availability**
+**Goal:** All frontend components integrated with backend API, auth state management operational.
 
-**Objective:** Validate all NFRs under load, execute the three-phase progressive rollout, and achieve production stability.
+**Milestone M4:** E2E test E2E-001 passing (register → login → profile).
 
-#### Sub-Phase 5a: Hardening (Week 7–8)
+#### 4.1 Frontend Components
+- **`AuthProvider`** (Context Provider) — manages `AuthToken` state in memory (not localStorage — R-001 mitigation)
+  - Silent refresh via `TokenManager` refresh endpoint
+  - Clear tokens on tab close
+  - HttpOnly cookies for refreshToken
+  - Expose auth methods to child components
+- **`LoginPage`** — email/password form, calls POST `/v1/auth/login`
+  - Generic error messages (no user enumeration)
+  - Redirect to dashboard on success
+- **`RegisterPage`** — registration form with client-side validation
+  - Inline password strength feedback
+  - GDPR consent checkbox (NFR-COMP-001)
+  - `termsUrl` prop for legal compliance link
+- **ProfilePage** — displays `UserProfile` from GET `/v1/auth/me`
 
-1. **Load testing with k6** (NFR-PERF-002)
-   - Validate 500 concurrent login requests
-   - Verify p95 latency < 200ms (NFR-PERF-001, Success Criterion #1)
-   - Verify token refresh latency < 100ms at p95 (Success Criterion #3)
-2. **Security review**
-   - Penetration testing on all `/auth/*` endpoints
-   - Verify XSS mitigation: accessToken in memory, HttpOnly refreshToken cookie
-   - Verify brute-force mitigation: rate limiting + account lockout
-   - Verify TLS 1.3 enforcement
-   - Verify CORS configuration
-3. **Observability validation**
-   - Grafana dashboards for all Prometheus metrics
-   - Alert rules: login failure rate >20%/5min, p95 >500ms, Redis connection failures
-   - OpenTelemetry traces covering `AuthService` → `PasswordHasher` → `TokenManager` → `JwtService`
-4. **Runbook validation**
-   - Simulate Scenario 1 (AuthService down) and Scenario 2 (token refresh failures)
-   - Verify escalation paths and rollback procedures
-5. **Compliance validation gate**
-   - GDPR: consent recorded at registration with timestamp (NFR-COMP-001)
-   - GDPR: only email, hashed password, displayName collected (NFR-COMP-003)
-   - SOC2: all auth events logged with required fields (NFR-COMP-002)
-   - ⚠️ Audit log retention must be resolved (OQ-EXT-001) before GA
+#### 4.2 Route Structure & Protection
+- `/login` → `LoginPage` (public)
+- `/register` → `RegisterPage` (public)
+- `/profile` → ProfilePage (protected — redirect to `/login` if unauthenticated)
+- Component hierarchy: `App > AuthProvider > PublicRoutes | ProtectedRoutes`
 
-**M4 Exit criteria:** All NFRs validated, security review passed, runbooks tested
+#### 4.3 Persona-Driven UX Validation
+- **Alex (end user):** Registration completes in under 60 seconds; session persists across page refreshes
+- **Sam (API consumer):** Programmatic token refresh works without user interaction; clear error codes returned
 
-#### Sub-Phase 5b: Internal Alpha (Week 8–9, 1 week)
+#### 4.4 Testing — Wave 4
+- E2E test E2E-001: User registers and logs in (RegisterPage → LoginPage → ProfilePage)
+- `AuthProvider` silent refresh test
+- XSS prevention validation (R-001): verify tokens not in localStorage/DOM
 
-- Deploy to staging
-- auth-team and QA manual testing of all FR-AUTH-001 through FR-AUTH-005
-- `AUTH_NEW_LOGIN` remains OFF in production
+**Deliverables:** All frontend components, auth state management, E2E tests passing.
 
-**M5 Exit criteria:** Zero P0/P1 bugs. All FRs pass manual testing.
+---
 
-#### Sub-Phase 5c: Beta 10% (Week 9–10, 2 weeks)
+### Phase 5: Observability, Compliance & Hardening (Weeks 9–11)
 
+**Goal:** Production-ready observability, compliance validation, security hardening complete.
+
+**Milestone M5:** All NFRs validated, compliance audit checklist green, security review passed.
+
+#### 5.1 Observability Stack
+- **Prometheus metrics:**
+  - `auth_login_total` (counter) — login attempts by outcome
+  - `auth_login_duration_seconds` (histogram) — login latency
+  - `auth_token_refresh_total` (counter) — refresh operations
+  - `auth_registration_total` (counter) — registration attempts
+- **Alerts:**
+  - Login failure rate > 20% over 5 minutes
+  - p95 latency > 500ms
+  - `TokenManager` Redis connection failures
+- **OpenTelemetry tracing:** Spans across `AuthService` → `PasswordHasher` → `TokenManager` → `JwtService`
+- **Structured logging:** All auth events with user ID, timestamp, IP address, and outcome (NFR-COMP-002)
+
+#### 5.2 Audit Log Hardening
+- Validate 12-month retention policy (NFR-COMP-002 — PRD overrides TDD's 90-day)
+- Validate IP address logging in all auth events
+- Validate log queryability by date range and user (Jordan admin persona requirement)
+
+#### 5.3 Performance Validation
+- NFR-PERF-001: All auth endpoints < 200ms at p95 (APM instrumentation on `AuthService` methods)
+- NFR-PERF-002: 500 concurrent login requests (k6 load test)
+- NFR-REL-001: Health check endpoint for 99.9% uptime monitoring
+- Success Criteria #3: Token refresh latency < 100ms at p95
+- Success Criteria #5: Password hash time < 500ms with bcrypt cost 12
+
+#### 5.4 Security Review
+- Penetration testing before production (R-005 mitigation)
+- XSS token theft prevention validation (R-001)
+- Brute-force protection validation: rate limiting + account lockout (R-002)
+- No user enumeration across all endpoints (login, register, password reset)
+
+#### 5.5 Compliance Final Gate
+- NFR-COMP-001: GDPR consent with timestamp at registration — verified
+- NFR-COMP-002: SOC2 audit logging with 12-month retention — verified
+- NFR-COMP-003: NIST SP 800-63B password storage — verified
+- NFR-COMP-004: GDPR data minimization — verified
+
+**Deliverables:** Full observability, compliance validation report, security review sign-off.
+
+---
+
+### Phase 6: Phased Rollout (Weeks 11–15)
+
+**Goal:** Production deployment via feature-flagged phased rollout with rollback capability.
+
+**Milestone M6 (GA):** 100% traffic on new auth service, legacy deprecated.
+
+#### 6.1 Feature Flag Setup
+| Flag | Purpose | Default | Cleanup Target |
+|------|---------|---------|----------------|
+| `AUTH_NEW_LOGIN` | Gates new `LoginPage` and `AuthService` login endpoint | OFF | Remove after GA |
+| `AUTH_TOKEN_REFRESH` | Enables refresh token flow in `TokenManager` | OFF | Remove GA + 2 weeks |
+
+#### 6.2 Phase 1 — Internal Alpha (1 week)
+- Deploy `AuthService` to staging
+- auth-team and QA validate all FR-AUTH-001 through FR-AUTH-005
+- `LoginPage` and `RegisterPage` behind `AUTH_NEW_LOGIN` flag
+- **Gate:** Zero P0/P1 bugs. All functional requirements pass manual testing.
+- **Rollback:** Disable `AUTH_NEW_LOGIN` flag
+
+#### 6.3 Phase 2 — Beta 10% (2 weeks)
 - Enable `AUTH_NEW_LOGIN` for 10% of traffic
-- Enable `AUTH_TOKEN_REFRESH`
-- Monitor: p95 latency, error rates, Redis usage, `AuthProvider` token refresh under real load
+- Monitor: p95 latency, error rates, Redis usage, registration conversion
+- Run parallel with legacy auth (R-003 mitigation)
+- **Gate:** p95 latency < 200ms. Error rate < 0.1%. No Redis connection failures.
+- **Rollback:** Disable `AUTH_NEW_LOGIN` flag
 
-**M6 Exit criteria:**
-- p95 latency < 200ms
-- Error rate < 0.1%
-- No Redis connection failures
-- No data corruption in `UserProfile` records
+#### 6.4 Phase 3 — GA 100% (1 week)
+- Remove `AUTH_NEW_LOGIN` flag — all traffic to `AuthService`
+- Enable `AUTH_TOKEN_REFRESH` for refresh flow
+- Legacy auth deprecated
+- **Gate:** 99.9% uptime over 7 days. All dashboards green.
+- **Rollback:** Re-enable legacy auth
 
-**Rollback triggers:**
-1. p95 latency > 1000ms for > 5 minutes
-2. Error rate > 5% for > 2 minutes
-3. `TokenManager` Redis connection failures > 10/min
-4. Any `UserProfile` data loss or corruption
+#### 6.5 Rollback Criteria
+Rollback triggers if any occur:
+- p95 latency > 1000ms for > 5 minutes
+- Error rate > 5% for > 2 minutes
+- `TokenManager` Redis connection failures > 10/minute
+- Any data loss or corruption in `UserProfile` records
 
-#### Sub-Phase 5d: General Availability (Week 10+, 1 week)
+#### 6.6 Operational Readiness
+- Runbooks deployed for: `AuthService` down, token refresh failures
+- On-call: auth-team 24/7 rotation for first 2 weeks post-GA
+- Capacity: HPA scales `AuthService` pods to 10 at CPU > 70%
 
-- Remove `AUTH_NEW_LOGIN` flag — 100% traffic to new `AuthService`
-- Legacy auth system deprecated
-- auth-team 24/7 on-call rotation for first 2 weeks
-- `AUTH_TOKEN_REFRESH` flag removed after GA + 2 weeks
-
-**M7 Exit criteria:**
-- 99.9% uptime over first 7 days (NFR-REL-001)
-- All monitoring dashboards green
-- Daily active authenticated users trending toward 1000 within 30 days (Success Criterion #7)
-- Registration conversion > 60% (Success Criterion #6)
+**Deliverables:** Production deployment at 100%, legacy deprecated, operational runbooks active.
 
 ---
 
-## 3. Risk Assessment and Mitigation
+## 3. Integration Points & Dispatch Mechanisms
 
-| Risk ID | Risk | Severity | Probability | Phase Mitigated | Mitigation Strategy | Contingency |
-|---------|------|----------|-------------|-----------------|---------------------|-------------|
-| R-001 | Token theft via XSS enables session hijacking | HIGH | Medium | Phase 3 (token design), Phase 4 (frontend storage) | accessToken in memory only; HttpOnly cookie for refreshToken; `AuthProvider` clears on tab close; 15-min access token expiry | Immediate token revocation via `TokenManager`; forced password reset |
-| R-002 | Brute-force attacks on login endpoint | MEDIUM | High | Phase 2 (rate limiting, lockout) | API Gateway rate limiting 10 req/min/IP; account lockout after 5 failures/15 min; bcrypt cost 12 | WAF IP blocking; CAPTCHA on `LoginPage` after 3 failures |
-| R-003 | Data loss during legacy auth migration | HIGH | Low | Phase 5 (parallel operation) | Parallel operation with legacy during Phases 5b–5c; idempotent upsert for `UserProfile` migration; full DB backup before each phase | Rollback to legacy via `AUTH_NEW_LOGIN` flag; restore from backup |
-| R-004 (new) | Unresolved open questions delay delivery | MEDIUM | Medium | All phases | Track OQ resolution dates; implement conservative defaults where safe (12-month retention, async email, proactive consent field) | Descope affected features to post-GA if blocking |
-| R-005 (new) | Redis unavailability degrades token refresh | MEDIUM | Low | Phase 3, Phase 5a | Redis cluster with automatic failover; memory monitoring with scaling trigger | Refresh rejection (users re-login via `LoginPage`); not stale token serving |
+### 3.1 AuthService Facade (Dispatch Table)
+
+- **Named Artifact:** `AuthService` method dispatch — all external consumers call `AuthService` exclusively
+- **Wired Components:** `PasswordHasher`, `TokenManager`, `UserRepo`, `JwtService` (indirect via `TokenManager`)
+- **Owning Phase:** Phase 1 creates the facade with `PasswordHasher` + `UserRepo`; Phase 2 wires `TokenManager`
+- **Cross-Reference:** Phase 3 (password reset) and Phase 4 (frontend) consume the facade
+
+### 3.2 TokenManager → JwtService Wiring
+
+- **Named Artifact:** `TokenManager` dependency on `JwtService` for JWT sign/verify
+- **Wired Components:** `JwtService` (RS256 signing), Redis (refresh token storage)
+- **Owning Phase:** Phase 2 creates and wires this mechanism
+- **Cross-Reference:** Phase 3 (reset invalidates tokens), Phase 4 (`AuthProvider` silent refresh), Phase 6 (feature flag `AUTH_TOKEN_REFRESH`)
+
+### 3.3 AuthProvider → API Binding
+
+- **Named Artifact:** `AuthProvider` React context — binds frontend auth state to backend API
+- **Wired Components:** `LoginPage`, `RegisterPage`, ProfilePage consume context; `AuthProvider` calls `/v1/auth/login`, `/v1/auth/refresh`, `/v1/auth/me`
+- **Owning Phase:** Phase 4 creates the context provider and wires all page components
+- **Cross-Reference:** Phase 6 rollout gates frontend behind `AUTH_NEW_LOGIN` flag
+
+### 3.4 Feature Flag Registry
+
+- **Named Artifact:** Feature flag configuration (`AUTH_NEW_LOGIN`, `AUTH_TOKEN_REFRESH`)
+- **Wired Components:** API gateway routing, `AuthProvider` refresh logic, `LoginPage`/`RegisterPage` rendering
+- **Owning Phase:** Phase 6 creates and manages flags
+- **Cross-Reference:** Phase 6.2–6.4 progressively enable; cleanup targets defined per flag
+
+### 3.5 Rate Limiting Configuration
+
+- **Named Artifact:** API Gateway rate limit rules per endpoint
+- **Wired Components:** `/v1/auth/login` (10/min/IP), `/v1/auth/register` (5/min/IP), `/v1/auth/me` (60/min/user), `/v1/auth/refresh` (30/min/user)
+- **Owning Phase:** Phase 1 configures login/register limits; Phase 2 adds me/refresh limits
+- **Cross-Reference:** Phase 5 validates under load; Phase 6 monitors in production
 
 ---
 
-## 4. Resource Requirements and Dependencies
+## 4. Risk Assessment & Mitigation
 
-### Team Allocation
+| Risk | Severity | Phase Addressed | Mitigation Strategy |
+|------|----------|----------------|---------------------|
+| **R-001** Token theft via XSS | HIGH | Phase 4 | Store accessToken in memory only (not localStorage). HttpOnly cookies for refreshToken. 15-minute access token expiry. `AuthProvider` clears on tab close. |
+| **R-002** Brute-force attacks | HIGH | Phase 1, 5 | Rate limiting at API gateway. Account lockout after 5 failed attempts. bcrypt cost 12. CAPTCHA escalation after 3 failures. |
+| **R-003** Data loss during migration | HIGH | Phase 6 | Parallel operation with legacy during beta. Idempotent upserts. Full database backup before each rollout phase. |
+| **R-004** Low registration adoption | HIGH | Phase 4 | Usability testing before launch. Registration < 60 seconds target. Iterate on funnel data post-GA. |
+| **R-005** Security breach from flaws | CRITICAL | Phase 5 | Dedicated security review. Penetration testing before production. No shortcuts on crypto implementations. |
+| **R-006** Incomplete audit logging | HIGH | Phase 5 | Define log requirements in Phase 1 schema. Validate against SOC2 controls in Phase 5. 12-month retention. |
+| **R-007** Email delivery failures | MEDIUM | Phase 3 | SendGrid delivery monitoring and alerting. Fallback support channel documented. |
 
-| Team | Phase Involvement | Key Responsibilities |
-|------|-------------------|---------------------|
-| auth-team | All phases | `AuthService`, `PasswordHasher`, `TokenManager`, `JwtService`, `UserRepo` implementation |
-| platform-team | Phase 1, Phase 5 | Infrastructure provisioning, Redis/PostgreSQL operations, Kubernetes configuration |
-| frontend-team | Phase 4 | `LoginPage`, `RegisterPage`, `ProfilePage`, `AuthProvider` |
-| QA | Phase 4–5 | E2E testing (Playwright), manual testing during alpha |
-| security | Phase 5a | Penetration testing, security review |
+---
 
-### Infrastructure Dependencies
+## 5. Resource Requirements & Dependencies
 
-| Dependency | Required By | Provisioning Owner | Lead Time |
-|------------|------------|-------------------|-----------|
-| PostgreSQL 15+ (INFRA-DB-001) | Phase 1 start | platform-team | 1–2 days |
-| Redis 7+ | Phase 1 start | platform-team | 1–2 days |
-| SendGrid API access | Phase 4 start | platform-team | 1 week (account setup + DNS) |
-| RSA key pair generation | Phase 1 | auth-team + security | 1 day |
-| Staging environment | Phase 5b | platform-team | Assumed available |
+### Team Requirements
+- **Backend engineers:** 2 (core auth service, token lifecycle, API layer)
+- **Frontend engineer:** 1 (auth pages, AuthProvider, route protection)
+- **Security engineer:** 0.5 (review in Phase 5, advisory throughout)
+- **QA engineer:** 1 (test pyramid execution, load testing, E2E)
+- **DevOps:** 0.5 (infrastructure provisioning, observability, rollout)
+
+### Infrastructure Dependencies (Must Be Ready Before Phase 1)
+| Dependency | Version | Owner | Lead Time |
+|------------|---------|-------|-----------|
+| PostgreSQL | 15+ | Platform team | 1 week |
+| Redis | 7+ | Platform team | 1 week |
+| Node.js | 20 LTS | Engineering | Available |
+| SendGrid API | — | Platform team | 2-3 days |
+| RSA key pair generation | 2048-bit | Security team | 1 day |
+| Frontend routing framework | — | Frontend team | Available |
 
 ### Library Dependencies
-
-| Library | Used By | Risk |
-|---------|---------|------|
-| bcryptjs | `PasswordHasher` | Low — mature, well-audited |
-| jsonwebtoken | `JwtService` | Low — widely used, active maintenance |
-| pg / pg-pool | `UserRepo` | Low — standard PostgreSQL client |
-| ioredis | `TokenManager` | Low — production-grade Redis client |
-
----
-
-## 5. Success Criteria and Validation Approach
-
-### Quantitative Validation Matrix
-
-| # | Criterion | Target | Validation Method | Phase Validated |
-|---|-----------|--------|-------------------|-----------------|
-| 1 | Login response time (p95) | < 200ms | APM on `AuthService.login()` | Phase 5a (load test) |
-| 2 | Registration success rate | > 99% | Ratio: successful / attempted | Phase 5c (beta monitoring) |
-| 3 | Token refresh latency (p95) | < 100ms | APM on `TokenManager.refresh()` | Phase 5a (load test) |
-| 4 | Service availability | 99.9% uptime / 30 days | Health check monitoring | Phase 5d (GA + 30 days) |
-| 5 | Password hash time | < 500ms | Benchmark `PasswordHasher.hash()` | Phase 2 (unit test) |
-| 6 | Registration conversion | > 60% | Funnel: `RegisterPage` → confirmed | Phase 5d (GA + 30 days) |
-| 7 | Daily active authenticated users | > 1000 within 30 days GA | `AuthToken` issuance counts | Phase 5d (GA + 30 days) |
-| 8 | Average session duration | > 30 minutes | Token refresh event analytics | Phase 5d (GA + 30 days) |
-| 9 | Failed login rate | < 5% of attempts | Auth event log analysis | Phase 5c–5d |
-| 10 | Password reset completion | > 80% | Funnel: reset requested → new password | Phase 5c–5d |
-
-### Qualitative Validation
-
-- **Security review sign-off** before beta (Phase 5a)
-- **Compliance validation** against GDPR and SOC2 requirements before GA (Phase 5a)
-- **Runbook dry-run** for both operational scenarios before beta (Phase 5a)
-- **On-call readiness** confirmed: auth-team 24/7 rotation staffed for GA (Phase 5d)
-
-### Test Coverage Targets
-
-| Level | Target | Tool | Phase |
-|-------|--------|------|-------|
-| Unit | 80% | Jest, ts-jest | Phase 2–4 |
-| Integration | 15% | Supertest, testcontainers | Phase 2–4 |
-| E2E | 5% | Playwright | Phase 4 |
+- `bcryptjs` — password hashing in `PasswordHasher`
+- `jsonwebtoken` — JWT sign/verify in `JwtService`
+- Jest + ts-jest — unit testing
+- Supertest — API integration testing
+- testcontainers — CI database/cache testing
+- Playwright — E2E testing
+- k6 — load testing (Phase 5)
 
 ---
 
-## 6. Timeline Summary
+## 6. Success Criteria & Validation
 
-| Phase | Duration | Weeks | Key Milestone | Dependencies |
-|-------|----------|-------|---------------|-------------|
-| Phase 1: Foundation | 2 weeks | 1–2 | M0: Infrastructure Ready | INFRA-DB-001, SEC-POLICY-001 |
-| Phase 2: Core Auth | 2 weeks | 2–4 | M1: Login & Registration | Phase 1 complete |
-| Phase 3: Token Mgmt | 1.5 weeks | 4–5 | M2: JWT + Refresh | Phase 2 complete |
-| Phase 4: Reset & Frontend | 2 weeks | 5–7 | M3: Full Feature Set | Phase 3 complete, SendGrid |
-| Phase 5a: Hardening | 1 week | 7–8 | M4: Production Ready | Phase 4 complete |
-| Phase 5b: Alpha | 1 week | 8–9 | M5: Alpha Complete | M4 |
-| Phase 5c: Beta 10% | 2 weeks | 9–10 | M6: Beta Complete | M5 |
-| Phase 5d: GA | 1 week | 10+ | M7: General Availability | M6 |
-
-**Total estimated duration:** 10–11 weeks
-
-**Critical path:** PostgreSQL/Redis provisioning → `PasswordHasher` + `UserRepo` → `AuthService` login → `TokenManager` + `JwtService` → Frontend integration → Load testing → Progressive rollout
+| # | Metric | Target | Validation Phase | Method |
+|---|--------|--------|-----------------|--------|
+| 1 | Login response time (p95) | < 200ms | Phase 5 | APM on `AuthService.login()` |
+| 2 | Registration success rate | > 99% | Phase 5 | Ratio of successful registrations |
+| 3 | Token refresh latency (p95) | < 100ms | Phase 5 | APM on `TokenManager.refresh()` |
+| 4 | Service availability | 99.9% uptime | Phase 6 (post-GA) | Health check monitoring, 30-day window |
+| 5 | Password hash time | < 500ms | Phase 1 | Benchmark `PasswordHasher.hash()` |
+| 6 | Registration conversion | > 60% | Phase 6 (post-GA) | Funnel analytics |
+| 7 | Daily active authenticated users | > 1000 within 30 days | Phase 6 (post-GA) | `AuthToken` issuance counts |
+| 8 | Average session duration | > 30 minutes | Phase 6 (post-GA) | Token refresh analytics |
+| 9 | Failed login rate | < 5% | Phase 6 (post-GA) | Auth event log analysis |
+| 10 | Password reset completion | > 80% | Phase 6 (post-GA) | Funnel: requested → new password set |
 
 ---
 
-## 7. Open Questions Requiring Resolution
+## 7. Timeline Summary
 
-### Blocking (must resolve before affected phase)
+| Phase | Weeks | Duration | Key Milestone |
+|-------|-------|----------|---------------|
+| Phase 1: Foundation & Core Auth | 1–3 | 3 weeks | M1: Login/register endpoints passing integration tests |
+| Phase 2: Token Lifecycle | 4–5 | 2 weeks | M2: Token refresh cycle with Redis TTL |
+| Phase 3: Password Reset & Email | 6–7 | 2 weeks | M3: End-to-end password reset flow |
+| Phase 4: Frontend Integration | 7–9 | 2 weeks (overlaps Phase 3) | M4: E2E-001 passing |
+| Phase 5: Observability & Hardening | 9–11 | 2 weeks | M5: All NFRs validated, security review passed |
+| Phase 6: Phased Rollout | 11–15 | 4 weeks | M6: GA at 100%, legacy deprecated |
+| **Total** | | **~13 weeks** | |
 
-| ID | Question | Blocks | Recommended Default |
-|----|----------|--------|---------------------|
-| OQ-EXT-001 | Audit log retention: 90 days (TDD) vs 12 months (PRD)? | Phase 5a compliance gate | Implement 12-month (PRD/SOC2 is more conservative) |
-| OQ-EXT-005 | Add GDPR consent timestamp to `UserProfile` schema? | Phase 2 registration | Yes — add field proactively per PRD S17 |
-| OQ-002 | Maximum `UserProfile` roles array length? | Phase 2 `UserRepo` validation | 10 roles (reasonable default, easily adjustable) |
-
-### Non-blocking (track but proceed with defaults)
-
-| ID | Question | Default Applied |
-|----|----------|-----------------|
-| OQ-PRD-001 | Sync vs async password reset emails? | Async via Redis queue |
-| OQ-PRD-002 | Max refresh tokens per user across devices? | Unlimited in v1.0; revisit post-GA |
-| OQ-PRD-003 | "Remember me" extended session? | Out of scope for v1.0 |
-| OQ-001 | API key auth for service-to-service? | Deferred — tracked for v1.1 |
-| OQ-EXT-003 | Logout endpoint? | Implement as `POST /auth/logout` (revoke refresh token) — low effort, PRD requires it |
-| OQ-EXT-002 | Admin log query endpoint? | Defer to post-GA; Jordan persona needs are acknowledged but not in TDD v1.0 scope |
-| OQ-EXT-004 | Dedicated service-to-service auth FR? | Covered by OQ-001; defer to v1.1 |
-| OQ-EXT-006 | Account lockout policy formally decided? | TDD value (5 attempts / 15 min) is implemented; confirm with Security team |
+**Note:** Phases 3 and 4 overlap — frontend work on `LoginPage`/`RegisterPage` can begin while password reset backend is developed. Phase 4's `AuthProvider` silent refresh depends on Phase 2 completion.
 
 ---
 
-## 8. Scope Guardrails (from PRD S12)
+## 8. Open Questions Requiring Resolution
 
-The following are **explicitly out of scope** per the PRD and must not creep into this roadmap:
+These open questions from the extraction should be resolved per the indicated timeline to avoid blocking development:
 
-- OAuth/OIDC (planned v2.0)
-- Multi-factor authentication (planned v1.1)
-- Role-based access control (separate PRD)
-- Social login (depends on OAuth infrastructure)
+| ID | Question | Blocks Phase | Recommended Resolution Date |
+|----|----------|-------------|----------------------------|
+| OQ-001 | API key auth for service-to-service? | Post-v1.0 | 2026-04-15 (per extraction) |
+| OQ-002 | Max `UserProfile` roles array length? | Phase 1 (schema) | Before Phase 1 start |
+| OQ-003 | Sync vs async password reset emails? | Phase 3 | Before Phase 3 start |
+| OQ-004 | Max refresh tokens per user? | Phase 2 | Before Phase 2 start |
+| OQ-005 | "Remember me" extended sessions? | Phase 2 | Before Phase 2 start |
+| OQ-006 | API key auth beyond JWT for Sam persona? | Post-v1.0 (out of scope per PRD S12) | Defer |
+| OQ-007 | Admin API for log query + account unlock? | Phase 5 or post-v1.0 | Before Phase 5 start |
+| OQ-008 | POST `/auth/logout` endpoint needed? | Phase 4 | Before Phase 4 start |
 
-Any requirement that touches these areas should be flagged and deferred rather than partially implemented.
+**Scope note:** Per PRD S12, OAuth/OIDC, MFA, RBAC, and social login are explicitly out of scope for v1.0. OQ-001 and OQ-006 (service-to-service auth) should be deferred unless the product decision brings them into v1.0 scope.

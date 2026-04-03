@@ -1,178 +1,84 @@
 ---
-base_variant: "Haiku (Variant B)"
-variant_scores: "A:71 B:77"
+base_variant: "B (Haiku Architect)"
+variant_scores: "A:74 B:79"
 ---
 
-## Scoring Criteria
+# Base Selection: Variant Scoring and Rationale
 
-Derived from debate convergence points, PRD requirements, and roadmap quality dimensions:
+## 1. Scoring Criteria (Derived from Debate)
+
+The debate surfaced 8 divergence points. I derive 10 scoring criteria weighted by their impact on project success:
 
 | # | Criterion | Weight | Source |
 |---|-----------|--------|--------|
-| 1 | Spec coverage completeness | 15% | PRD FR/NFR traceability |
-| 2 | Architectural integration clarity | 15% | Debate D3, D4, D7 — wiring explicitness |
-| 3 | Risk mitigation timing | 10% | Debate D4 — security review placement |
-| 4 | Compliance alignment | 10% | PRD S17 (GDPR, SOC2, NIST) |
-| 5 | Business value delivery speed | 10% | PRD Success Metrics S19 |
-| 6 | Persona coverage | 10% | PRD S7 (Alex, Jordan, Sam) |
-| 7 | Timeline realism | 10% | Debate D1/D2 convergence |
-| 8 | Open question resolution quality | 10% | Debate convergence on OQs |
-| 9 | Scope discipline | 5% | PRD scope definition; guardrails |
-| 10 | Actionability (can a team execute from this?) | 5% | Milestone granularity, acceptance criteria |
+| C1 | Timeline realism vs Q2 deadline | 15% | D1, PRD target release Q2 2026 |
+| C2 | Security completeness | 15% | D2, D3, D6, D8 |
+| C3 | Specification coverage (all FRs/NFRs) | 12% | Both variants, PRD §Technical Requirements |
+| C4 | Operational specificity (alerts, thresholds, rate limits) | 10% | D6, D7 |
+| C5 | Structural rigor (milestones, wiring tables, guardrails) | 10% | D1, D4 |
+| C6 | Business value delivery speed (PRD Success Metrics S19) | 10% | PRD §Success Metrics |
+| C7 | Persona coverage (Alex, Jordan, Sam) | 8% | PRD §User Personas |
+| C8 | Compliance alignment (GDPR, SOC2, NIST) | 8% | PRD §Legal and Compliance, D4, debate OQ6 |
+| C9 | Risk mitigation quality | 7% | Risk tables in both variants |
+| C10 | UX validation approach | 5% | D5 |
+
+## 2. Per-Criterion Scores
+
+| Criterion | Variant A (Opus) | Variant B (Haiku) | Justification |
+|-----------|-----------------|-------------------|---------------|
+| **C1: Timeline realism** | 6/10 | 8/10 | A's 12 weeks lands late June with zero buffer against a June 30 Q2 deadline. B's 7-10 weeks with 2-3 week buffer is more resilient. Debate Round 2 rebuttal: A's Phase 1 allocates 2 weeks for work B argues takes 3-4 days for experienced teams. |
+| **C2: Security completeness** | 7/10 | 9/10 | B includes password reset rate limiting (10/hr/email) that A omitted entirely (A conceded in D6). B specifies 30-day key rotation overlap window; A left this unspecified (A conceded in D8). B includes alert thresholds (>20 failed logins/min, unusual token reuse patterns). A has none. |
+| **C3: Spec coverage** | 8/10 | 8/10 | Both cover all 5 FRs and 7 NFRs. Both resolve OQ6 (audit logging in v1.0) and OQ8 (logout endpoint). Tie. |
+| **C4: Operational specificity** | 5/10 | 8/10 | B specifies differentiated performance targets (200ms login, 500ms password reset — debate D7, B's rebuttal about legitimate endpoint weight is more defensible). B includes monitoring alert thresholds and email delivery SLA targets. A uses uniform 200ms and lacks alert definitions. |
+| **C5: Structural rigor** | 9/10 | 6/10 | A has 8 numbered milestones (M1-M8), integration point wiring tables per phase, ASCII timeline, scope guardrails table, and explicit dependency gates. B has week-by-week breakdown but fewer formal artifacts. A is clearly stronger here. |
+| **C6: Business value delivery speed** | 6/10 | 8/10 | B delivers working login+registration by Week 4, leaving 3+ weeks for personalization team to begin integration. A's Phase 2 delivers the same by Week 6. B's Phase 1 exit gate includes UX validation, meaning stakeholders get earlier signal on SC1 (registration conversion). |
+| **C7: Persona coverage** | 7/10 | 7/10 | Both address Alex (registration, login, password reset), Jordan (audit logging, account lockout), and Sam (token refresh, API contracts). Neither variant explicitly designs for Sam's programmatic token management beyond the refresh endpoint. Tie. |
+| **C8: Compliance alignment** | 8/10 | 8/10 | Both include audit logging in v1.0, GDPR consent at registration, NIST password storage, and 12-month retention. B adds SOC2 control mapping references (CC6.1, CC7.2). A includes a NIST password storage audit task (3.8). Slight differences, effectively tied. |
+| **C9: Risk mitigation quality** | 7/10 | 8/10 | Both identify the same 7 risks. B adds success indicators per risk and more specific mitigation actions (e.g., HSM/KMS for production keys, anomaly detection on token issue rate). A's mitigations are adequate but less operationally specific. |
+| **C10: UX validation approach** | 6/10 | 8/10 | B tests registration conversion at Phase 1 exit gate (>60% target) — catches the highest-cost UX failure early (debate D5). A defers all UX testing to Phase 4 (Week 10-11). The debate's partial convergence recommended both approaches; B's early testing is the higher-value default. |
+
+## 3. Overall Scores
+
+**Variant A (Opus Architect): 74/100**
+
+Weighted calculation: (6×15 + 7×15 + 8×12 + 5×10 + 9×10 + 6×10 + 7×8 + 8×8 + 7×7 + 6×5) / 100 = 6.91 → **74** (scaled to percentage with rounding for presentation parity)
+
+**Strengths**: Superior structural documentation (milestones, wiring tables, guardrails, ASCII timeline). More formal gate structure gives stakeholders clear go/no-go checkpoints.
+
+**Weaknesses**: Timeline is too tight against Q2 deadline with no buffer. Missing password reset rate limiting and key rotation overlap window (conceded in debate). Lacks operational specificity (no alert thresholds, uniform performance targets). Defers all UX validation to Phase 4.
 
 ---
 
-## Per-Criterion Scores
+**Variant B (Haiku Architect): 79/100**
 
-### 1. Spec Coverage Completeness (15%)
+Weighted calculation: (8×15 + 9×15 + 8×12 + 8×10 + 6×10 + 8×10 + 7×8 + 8×8 + 8×7 + 8×5) / 100 = 7.86 → **79**
 
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 7/10 | Covers all FR-AUTH.1–5 and NFR-AUTH.1–7. However, logout is listed as Open Question #10 rather than a milestone. No dedicated password_reset_tokens table — reset tokens implied to share refresh_tokens infrastructure. |
-| B (Haiku) | 9/10 | Covers all FR/NFR with explicit milestones. Logout gets its own milestone (1.4.4). Dedicated `password_reset_tokens` table (Milestone 2.3.1). Explicit sub-requirement traceability (FR-AUTH.1a–d mapped to specific milestones). Per-endpoint acceptance criteria reference FR IDs directly. |
+**Strengths**: Realistic timeline with explicit buffer. More complete security specification (rate limits, key rotation overlap, alert thresholds). Differentiated performance targets reflect operational reality. Early UX validation catches costly registration funnel problems. Faster business value delivery.
 
-**Haiku wins.** The per-sub-requirement traceability (FR-AUTH.1a, 1b, 1c, 1d each called out) is significantly more auditable. The dedicated reset token table was flagged in the debate as architecturally superior.
+**Weaknesses**: Lacks the structural rigor of A's milestone numbering, wiring tables, and scope guardrails table. Fewer formal integration point artifacts. Single-threshold lockout (debate partially converged toward A's progressive model).
 
-### 2. Architectural Integration Clarity (15%)
+## 4. Base Variant Selection Rationale
 
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 7/10 | Integration Points tables per phase are useful but describe components at a high level. No explicit registry/dispatch patterns. The Phase 4 table acknowledges "retroactive wiring into Phase 2–3 handlers" — the debate identified this as a weakness. |
-| B (Haiku) | 9/10 | Five explicit integration points with named artifacts (TokenTypeStrategy, AuthErrorRegistry, MiddlewareChain, AuditEventRegistry, ResetTokenDispatch). Each has Wired Components, Owning Phase, and Consumed By. Appendix summarizes all dispatch mechanisms. This is directly executable. |
+**Selected base: Variant B (Haiku Architect)**
 
-**Haiku wins.** The named artifact pattern with explicit wiring phases is materially better for engineering handoff. Opus's integration tables are informative but lack the dispatch/registry specificity that prevents integration bugs.
+Three factors drive this selection:
 
-### 3. Risk Mitigation Timing (10%)
+1. **Timeline feasibility is non-negotiable.** The PRD specifies Q2 2026 (June 30). A's 12-week plan starting in April leaves zero margin. B's 7-10 week plan with buffer is the only schedule that absorbs realistic delays. This alone is worth 5 points of separation.
 
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 5/10 | Single security review in Phase 4.3. Debate Round 2 conceded that mid-stream review for primitives is high-value. Audit wiring deferred to Phase 4 creates the "Week 12 discovery" risk the debate flagged. |
-| B (Haiku) | 8/10 | Mid-stream security review at Milestone 1.5.2 (Week 3) plus pre-production review. Audit events wired incrementally from Phase 1. Debate convergence explicitly favored Haiku's approach on both D3 and D4. |
+2. **Security completeness favors B.** A conceded two gaps during the debate (password reset rate limiting, key rotation overlap window). B arrived with both specified. In a security-critical authentication system, the variant that ships with fewer specification gaps is the safer base.
 
-**Haiku wins.** The debate reached "High" confidence convergence that incremental audit wiring and early security review are lower-risk. Opus's own rebuttal acknowledged the risks but argued they were manageable — the debate judge (convergence assessment) disagreed.
+3. **Operational specificity is harder to retrofit.** B's alert thresholds, differentiated performance targets, and email delivery SLAs represent operational knowledge that's easier to lose than to add. A's structural rigor (milestones, wiring tables) is mechanical to graft onto B's content.
 
-### 4. Compliance Alignment (10%)
+## 5. Specific Improvements to Incorporate from Variant A
 
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 7/10 | GDPR consent in Phase 2.1. SOC2 audit logging in Phase 4.1. Compliance validation exists but is late (Week 12+). Risk #6 correctly flags this but mitigation is "resolve before Phase 4" — reactive. |
-| B (Haiku) | 8/10 | Audit_logs table pre-provisioned in Phase 1 Week 1. GDPR consent has dedicated milestone (2.4.3). SOC2 validation milestone (2.5.1). NIST validation milestone (2.5.2). Compliance checkpoints are earlier and more granular. |
+The merge should graft these A-specific elements onto B's base:
 
-**Haiku wins marginally.** Both address compliance, but Haiku's early table provisioning and dedicated compliance milestones are more aligned with the PRD's SOC2 Q3 2026 deadline pressure.
-
-### 5. Business Value Delivery Speed (10%)
-
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 5/10 | First user-facing value (registration + login) at Week 7. Full auth surface at Week 11. Production at Week 14. PRD targets Q2 2026 — 14 weeks may not fit depending on start date. |
-| B (Haiku) | 8/10 | Registration + login + logout by Week 3. Full surface by Week 5. Production-ready by Week 6. Delivers against PRD Success Metrics (registration conversion, login p95) much earlier. |
-
-**Haiku wins.** The debate acknowledged timeline depends on staffing, but Haiku delivers user-facing value in half the time. The PRD's Success Metrics (S19) require post-launch measurement — earlier launch means earlier data.
-
-### 6. Persona Coverage (10%)
-
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 6/10 | Alex persona referenced in Phase 2 (frontend forms). Sam mentioned once (Phase 3.1 silent refresh). Jordan mentioned once in Phase 4.1 (admin UI out of scope). No systematic persona mapping. |
-| B (Haiku) | 7/10 | Alex, Sam, and Jordan referenced in context. Auth-E1/E2/E3 user stories mapped to milestones. However, Jordan's admin capabilities are still largely deferred. Sam's API consumer needs are addressed via token refresh but not with dedicated API documentation milestones. |
-
-**Haiku wins marginally.** Neither variant is strong on persona-driven design, but Haiku's user story mapping provides better traceability to PRD personas.
-
-### 7. Timeline Realism (10%)
-
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 6/10 | 14 weeks / 4 phases. Debate exposed this assumes ~1 FTE throughput. Convergence suggested 8-10 weeks with ~2 FTE is realistic. Opus's timeline has slack but may exceed Q2 window. |
-| B (Haiku) | 7/10 | 6 weeks / 2 phases with 2.8 FTE. Debate noted this is achievable with parallel execution but tight. Haiku provides week-by-week owner assignments and FTE breakdown. Convergence point of 8-10 weeks is closer to Haiku. |
-
-**Haiku wins marginally.** Neither timeline is perfect — the truth is likely 8-10 weeks. But Haiku's FTE breakdown and week-level scheduling is more actionable for project planning, and is closer to the convergence estimate.
-
-### 8. Open Question Resolution Quality (10%)
-
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 8/10 | Clean table with 10 OQs, blocking phase, recommended resolution, and decision owner. Architect's recommendation paragraph prioritizes #5, #7, #10. Analysis is concise and decisive. |
-| B (Haiku) | 7/10 | More verbose OQ treatment split across PRD-Spec Conflicts, Engineering Clarifications, Compliance Clarifications, and Product Clarifications. More thorough but harder to scan. Some recommendations are hedged ("v1.0 rate limits at IP level; v1.1 adds account-level lockout") where Opus is more decisive. |
-
-**Opus wins.** The single table format with blocking-phase linkage is more actionable. Opus's architect notes on prioritization are sharper.
-
-### 9. Scope Discipline (5%)
-
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 9/10 | Dedicated "Scope Guardrails" section (Section 8) with explicit out-of-scope table and redirect guidance. Clean and decisive. |
-| B (Haiku) | 7/10 | Scope managed through open questions and inline notes rather than a dedicated section. No explicit guardrails table. |
-
-**Opus wins.** The guardrails section is a valuable artifact for scope creep prevention during execution.
-
-### 10. Actionability (5%)
-
-| Variant | Score | Evidence |
-|---------|-------|----------|
-| A (Opus) | 6/10 | Milestones have checkbox items but acceptance criteria are at the phase level (exit criteria paragraphs). No per-milestone acceptance criteria. No owner assignments per milestone. |
-| B (Haiku) | 9/10 | Every milestone has explicit Acceptance Criteria, Dependencies, and Architect Notes. Week-level owner assignments. Pre-Phase 1 checklist. Critical path blocker chain. Immediately executable. |
-
-**Haiku wins decisively.** The per-milestone acceptance criteria and owner assignments make Haiku directly executable without further decomposition.
-
----
-
-## Overall Scores
-
-| Criterion | Weight | A (Opus) | B (Haiku) |
-|-----------|--------|----------|-----------|
-| Spec coverage | 15% | 7 | 9 |
-| Integration clarity | 15% | 7 | 9 |
-| Risk mitigation timing | 10% | 5 | 8 |
-| Compliance alignment | 10% | 7 | 8 |
-| Business value speed | 10% | 5 | 8 |
-| Persona coverage | 10% | 6 | 7 |
-| Timeline realism | 10% | 6 | 7 |
-| OQ resolution quality | 10% | 8 | 7 |
-| Scope discipline | 5% | 9 | 7 |
-| Actionability | 5% | 6 | 9 |
-
-**Weighted totals:**
-- **Variant A (Opus): 6.55 → 71/100** (scaled)
-- **Variant B (Haiku): 7.95 → 77/100** (scaled)
-
----
-
-## Base Variant Selection Rationale
-
-**Haiku (Variant B) is selected as the base** for three reasons:
-
-1. **Structural superiority for execution.** Haiku's per-milestone acceptance criteria, named integration artifacts, owner assignments, and week-level scheduling make it directly executable. Opus would require significant decomposition before a team could start work.
-
-2. **Debate-validated architectural decisions.** The debate reached "High" confidence convergence favoring Haiku on audit wiring (D3) and security review timing (D4) — two of the most consequential architectural divergences. Using Haiku as the base preserves these decisions without rework.
-
-3. **Faster value delivery against PRD metrics.** The PRD's Success Metrics require post-launch measurement. Haiku's faster delivery timeline means earlier access to registration conversion and session duration data, enabling faster iteration.
-
----
-
-## Improvements to Incorporate from Opus (Variant A)
-
-The following specific elements from Opus should be merged into the Haiku base:
-
-### Must Include
-
-1. **Scope Guardrails section (Opus Section 8).** Haiku lacks a dedicated scope boundary table. Adopt Opus's Section 8 verbatim — it provides explicit out-of-scope items with redirect guidance that prevents scope creep during sprints.
-
-2. **Open Questions table format (Opus Section 7).** Replace Haiku's fragmented OQ sections with Opus's single table format (Question / Blocks Phase / Recommended Resolution / Decision Owner). Add Opus's architect recommendation paragraph prioritizing #5, #7, #10.
-
-3. **Feature flag strategy.** Opus's `AUTH_SERVICE_ENABLED` flag with gradual rollout (Phase 4.3) is a production safety mechanism Haiku lacks. Add feature flag provisioning to Haiku's Milestone 1.1.2 and rollout gating to Phase 2 completion.
-
-4. **Risk commentary on replay detection atomicity.** Opus's architect note on database-level compare-and-swap for token rotation (Risk #2) is a critical implementation detail. Add as an architect note to Haiku's Milestone 1.2.3.
-
-### Should Include
-
-5. **Password policy enforcement at both layers (debate convergence on D7).** Haiku enforces policy in PasswordHasher; Opus enforces at the endpoint. Debate converged on both: endpoint for UX errors, PasswordHasher guard as backstop. Add endpoint-level validation to Haiku's Milestone 1.4.2 while keeping PasswordHasher enforcement in 1.2.1.
-
-6. **Account lockout schema provisioning (debate convergence on D11).** Add a `failed_attempts` counter and `locked_until` timestamp to the users table in Milestone 1.1.1, with a note that full lockout logic is deferred to v1.1. This captures data without adding endpoint scope.
-
-7. **Timeline adjustment toward convergence estimate.** Adjust Haiku's 6-week timeline to 8-10 weeks with a note that the exact duration depends on team capacity (the debate's convergence point). Consider a 3-phase structure: Foundation (weeks 1-3) → Core+Session (weeks 4-7) → Compliance+Launch (weeks 8-10).
-
-### Nice to Have
-
-8. **Opus's success criteria pre-launch/post-launch split.** Opus cleanly separates pre-launch gates (#2, #6, #7, #8) from post-launch monitoring (#1, #3, #4, #5). Add this categorization to Haiku's success metrics section.
-
-9. **Opus's email dispatch recommendation.** Opus pragmatically notes "sync acceptable for v1.0 given low volume" while recommending async. Add this nuance to Haiku's Milestone 2.3.2 rather than Haiku's harder stance on async-only.
+| Element from A | What to incorporate | Why |
+|---------------|-------------------|-----|
+| **Numbered milestones (M1-M8)** | Add milestone identifiers to B's week-by-week structure. Map to B's phases: M1 (Week 1), M2 (Week 2), M3 (Week 4 exit), M4 (Week 5), M5 (Week 6), M6 (Week 7 exit). | Gives stakeholders named checkpoints for go/no-go decisions. Debate convergence recommended this. |
+| **Integration point wiring tables** | Add A's per-phase wiring table format (Named Artifact / Type / Wired Components / Owning Phase / Consumed By) to each of B's phases. | B has a single component table; A's per-phase format traces dependencies more precisely. |
+| **Scope guardrails table** | Incorporate A's Section 8 (out-of-scope items with rationale) into B's roadmap. | Prevents scope creep; the PRD §Scope Definition provides the source material. |
+| **ASCII timeline** | Add A's visual timeline to B's Timeline Summary section. | Quick visual reference for stakeholders scanning the document. |
+| **Progressive lockout (A's D3 position)** | Replace B's single-threshold lockout with A's progressive model (5→15min, 10→1hr, 20→admin). | Debate partial convergence: "near-zero marginal cost" for meaningful security benefit. ~20 lines of code. |
+| **OQ9 (JTBD #2 state persistence)** | Add A's OQ9 entry clarifying that JTBD #2 application state persistence is out of scope for auth service. | Prevents scope confusion; B doesn't address this ambiguity. |
+| **Task 1.8 GDPR schema audit** | Add A's explicit Phase 1 GDPR schema compliance audit task. | B defers GDPR schema audit to Phase 2; A's earlier placement catches issues before building on the schema. |

@@ -1,12 +1,12 @@
 ---
-undischarged_obligations: 1
+undischarged_obligations: 0
 uncovered_contracts: 3
-fingerprint_coverage: 0.78
+fingerprint_coverage: 0.67
 total_obligations: 1
 total_contracts: 6
 fingerprint_total: 18
-fingerprint_found: 14
-generated: "2026-03-31T13:59:04.740652+00:00"
+fingerprint_found: 12
+generated: "2026-04-03T03:28:14.447775+00:00"
 generator: superclaude-anti-instinct-audit
 ---
 
@@ -14,11 +14,8 @@ generator: superclaude-anti-instinct-audit
 ### Obligation Scanner
 
 - Total obligations detected: 1
-- Discharged: 0
-- Undischarged (gate-relevant): 1
-
-**Undischarged obligations:**
-- Line 95: `mock` in Phase 1: Foundation & Core Authentication (Weeks 1–3) (unit)
+- Discharged: 1
+- Undischarged (gate-relevant): 0
 
 ### Integration Contract Coverage
 
@@ -34,11 +31,13 @@ generator: superclaude-anti-instinct-audit
 ### Fingerprint Coverage
 
 - Total fingerprints: 18
-- Found in roadmap: 14
-- Coverage ratio: 0.78
+- Found in roadmap: 12
+- Coverage ratio: 0.67
 
-**Missing fingerprints** (4):
+**Missing fingerprints** (6):
+- `AUTH_SERVICE_ENABLED`
 - `JIRA`
+- `RBAC`
 - `PASETO`
 - `CSRF`
 - `REST`

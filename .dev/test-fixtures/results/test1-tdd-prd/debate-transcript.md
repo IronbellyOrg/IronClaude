@@ -1,136 +1,180 @@
 ---
-convergence_score: 0.62
+convergence_score: 0.72
 rounds_completed: 2
 ---
 
-# Adversarial Debate: Opus Roadmap vs Haiku Roadmap
+# Adversarial Debate: Opus Roadmap vs. Haiku Roadmap
+
+## Divergence Points Under Debate
+
+Six areas identified in the diff analysis as requiring resolution:
+
+1. Sequential vs. parallel frontend development (D-04)
+2. Dedicated observability phase vs. early instrumentation (D-08)
+3. Phase 0 design phase necessity (D-02/D-03)
+4. 12 weeks vs. 15 weeks (D-05)
+5. OQ resolution authority (D-03)
+6. Rollout duration — 2 weeks vs. 4 weeks (D-01/Phase 6)
+
+---
 
 ## Round 1: Initial Positions
 
-### Divergence Point D-01: Timeline (10 weeks vs 20 weeks)
+### Topic 1: Sequential vs. Parallel Frontend Development
 
 **Variant A (Opus):**
-10–11 weeks is achievable with disciplined parallelism and experienced engineers. The authentication service is MEDIUM complexity (0.55) — not a greenfield distributed system. The core components (PasswordHasher, UserRepo, AuthService, JwtService, TokenManager) are well-understood patterns with mature libraries. Doubling the timeline to 20 weeks invites scope creep, stakeholder fatigue, and delays the $2.4M revenue unlock from personalization features. The SOC2 Type II audit deadline is Q3 2026 — a 20-week timeline starting now lands GA in mid-August, leaving zero buffer. A 10-week timeline lands GA in early June with months of margin.
+Frontend begins in Phase 4 (Weeks 7-9) after backend endpoints are stable. This is the correct approach for a security-critical authentication service. Building frontend against unstable or incomplete API contracts introduces integration churn. When `TokenManager.refresh()` behavior changes during Phase 2 development, parallel frontend work on `AuthProvider` silent refresh must be reworked. The cost of rework in auth code is higher than in typical CRUD — a misunderstood token lifecycle creates security vulnerabilities, not just bugs. Two extra weeks is cheap insurance against shipping an `AuthProvider` that mishandles edge cases discovered during backend stabilization.
 
 **Variant B (Haiku):**
-10 weeks is unrealistic without specifying team size. Our roadmap explicitly plans for ~11 FTE and still requires 20 weeks. The 10-week estimate doesn't account for: Phase 0 infrastructure lead time (provisioning delays are real), security policy finalization (SEC-POLICY-001 requires cross-team sign-off), penetration testing turnaround (2+ weeks from external firms), and the reality that integration bugs always surface during hardening. An aggressive timeline that slips is worse than a conservative one that delivers — missed deadlines erode stakeholder trust and create pressure to skip security review. The SOC2 deadline argument actually favors us: better to plan 20 weeks honestly than promise 10 and deliver in 16 with compliance shortcuts.
+Parallel frontend/backend development starting in Week 3 is standard practice for teams using contract-first development. Phase 0 produces a signed-off OpenAPI spec — that *is* the stable contract. The frontend engineer builds against the spec, not against the running backend. Mock servers generated from OpenAPI handle development; integration testing happens in Week 7 when both tracks converge. This saves 2-3 weeks on critical path. The argument that auth is "too security-critical" for parallel work conflates *implementation security* (backend concern) with *integration correctness* (contract concern). The frontend doesn't implement bcrypt — it calls endpoints.
 
 ---
 
-### Divergence Point D-03: Compliance Timing (Early vs Late)
+### Topic 2: Dedicated Observability Phase vs. Early Instrumentation
 
 **Variant A (Opus):**
-Building GDPR consent and audit logging into Phase 2 alongside registration is architecturally cleaner and cheaper. Adding `consent_timestamp` to the `UserProfile` schema at creation time costs nothing extra. Retrofitting it later requires a schema migration, backfill of existing test data, and regression testing of the registration flow — all avoidable rework. The same applies to audit logging: if you instrument `AuthService` from the start, every subsequent endpoint automatically benefits. Deferring compliance to Phase 3 means Phase 1-2 code ships without audit trails, creating a blind spot during development and making it harder to debug issues retroactively.
+Phase 5 (Weeks 9-11) gives observability the focused attention it deserves. Prometheus metrics, OpenTelemetry tracing, alerting rules, and structured logging are cross-cutting concerns that benefit from being implemented holistically after all functional code is stable. Instrumenting early means instrumenting code that will change — wasted effort. The Phase 5 approach also creates a natural security hardening window where the team shifts from feature development to production readiness, which is psychologically and operationally valuable.
 
 **Variant B (Haiku):**
-Deferring compliance to a dedicated Phase 3 is a deliberate architectural choice, not negligence. Grouping GDPR consent, audit logging, and admin query APIs into one focused phase enables: (1) a single compliance review gate rather than piecemeal checks, (2) dedicated engineering focus without context-switching between feature development and compliance plumbing, (3) explicit Phase 3→4 gate that proves compliance readiness to auditors. The "retrofit cost" argument is overstated — adding a nullable `consent_timestamp` column is a trivial migration. What matters is that Phase 3 has an explicit exit criterion: compliance is validated before hardening begins. Opus's approach risks half-baked compliance that passes unit tests but fails audit scrutiny.
+Deferring observability to Week 9 means flying blind for 8 weeks of development. Phase 0 sets up APM instrumentation skeletons so that every `AuthService` method emits spans from day one. When Week 4 login implementation runs, the team immediately sees p95 latency — if bcrypt cost 12 pushes login above 200ms under load, they discover it in Week 4, not Week 9. Early instrumentation is not "instrumenting code that will change" — it's instrumenting the `AuthService` facade, which is architecturally stable from Phase 0. The metrics *names* (`auth_login_total`, `auth_login_duration_seconds`) are known upfront. The dedicated hardening phase is a waterfall anti-pattern dressed up as thoroughness.
 
 ---
 
-### Divergence Point D-04: Frontend Timing (Parallel vs Sequential)
+### Topic 3: Phase 0 Design Phase Necessity
 
 **Variant A (Opus):**
-Frontend work should wait until Phase 4, after the backend API contract is stable. Starting frontend in Phase 1 against an incomplete backend means: (1) frontend builds against stub APIs that will change, (2) token management isn't implemented yet so `AuthProvider` is a placeholder, (3) any backend API change cascades into frontend rework. The frontend team can work on other projects during Phases 1-3. When they start in Phase 4, they build against a stable, tested API — no rework, no coordination overhead, no wasted effort.
+An explicit design phase is unnecessary overhead for a MEDIUM-complexity (0.55) project with well-understood architecture. The facade pattern, token lifecycle, and infrastructure stack are all specified in the TDD and PRD. Spending two weeks on architecture review and threat modeling before writing code delays value delivery. Infrastructure provisioning and schema design happen naturally in Phase 1 Week 1. The team can validate architectural decisions through implementation rather than documents.
 
 **Variant B (Haiku):**
-Building `LoginPage` and `RegisterPage` in Phase 1 enables E2E validation from the start. Real users (QA, product) can test actual flows, not Postman collections. The frontend team would otherwise be idle for 8+ weeks — that's a massive resource waste for a team of 2 FTE. The "API might change" risk is manageable: login and registration are the most stable endpoints (email + password in, token out). Token management changes in Phase 2 only affect `AuthProvider`, not the page components themselves. Early frontend work also surfaces UX issues (form validation, error handling, loading states) that pure backend testing misses.
+Phase 0 is not "overhead" — it is ambiguity elimination. The extraction identified 8 open questions. Opus leaves them unresolved, creating blocking dependencies that will surface as mid-sprint surprises. When a backend engineer reaches the logout endpoint in Week 7 and discovers OQ-008 was never decided, they stop and wait for product sign-off. Phase 0 resolves all 8 OQs with architect authority, generates the OpenAPI spec that enables parallel frontend work, and completes threat modeling that Opus defers to Phase 5. The 2-week investment front-loads decisions that would otherwise interrupt 10 weeks of development. This is not waterfall — it is risk-front-loading.
 
 ---
 
-### Divergence Point D-05: Admin Audit Log Query API
+### Topic 4: 12 Weeks vs. 15 Weeks
 
 **Variant A (Opus):**
-The admin audit log query API is not in the TDD v1.0 scope. Including it adds ~18h of implementation plus admin authorization middleware. The Jordan (admin) persona is acknowledged, but v1.0 should focus on the core authentication flows that unblock personalization revenue. Admins can query PostgreSQL directly or use existing log aggregation tools (ELK/Datadog) in the interim. Adding admin APIs increases the attack surface and testing burden. Defer to post-GA when the actual admin usage patterns are known.
+15 weeks provides appropriate buffer for a security-critical service. The 4-week rollout (Phase 6) allows graduated exposure: 1 week internal alpha, 2 weeks at 10% beta, 1 week GA. Each stage has explicit gate criteria. Auth migrations have historically been among the highest-risk production changes — rushing to save 3 weeks is false economy. If the SOC2 audit is Q3 2026, 15 weeks ending in mid-July provides margin.
 
 **Variant B (Haiku):**
-The PRD defines Jordan as a key persona. If SOC2 Type II audit requires demonstrable admin access to auth logs by Q3 2026, building it post-GA creates a compliance gap. The admin query API is straightforward (paginated SELECT with authorization middleware) and leverages the `auth_events` table we're already building. The ~18h cost is minimal compared to the risk of failing an audit because admins can't query logs through the application. Direct PostgreSQL access is not an acceptable compliance control — auditors want to see application-level access with proper authorization.
+12 weeks is achievable because parallel frontend/backend tracks compress the critical path, and Phase 0 eliminates blocking ambiguity. The 3-week difference is not "buffer" — it's slack from sequential dependencies that don't need to be sequential. If personalization features need auth by June, 15 weeks pushes delivery to mid-July and delays the $2.4M revenue pipeline by a month. The 12-week plan is not "rushing" — it is executing efficiently with the same quality gates. Beta validation happens in Week 10, GA in Week 11-12. The question is whether the team executes in parallel or in series, not whether they cut corners.
 
 ---
 
-### Divergence Point D-07/D-08: Team Sizing and Task Granularity
+### Topic 5: OQ Resolution Authority
 
 **Variant A (Opus):**
-Omitting headcount is intentional — team sizing is an organizational decision, not a roadmap artifact. The roadmap defines *what* and *when*; resourcing defines *who* and *how many*. Coupling these creates brittleness: if the team changes size, the entire roadmap timeline needs rewriting. Similarly, hour-level task estimates create a false sense of precision — they'll be wrong within the first sprint and become maintenance overhead. The roadmap should be a strategic guide, not a project plan. Sprint planning happens in Jira/Linear with the actual team, not in a roadmap document.
+Open questions should be resolved by the appropriate stakeholders, not unilaterally by the architect. OQ-005 ("remember me") and OQ-008 (logout endpoint) have product implications — they affect user experience and session behavior. OQ-007 (admin API) affects the Jordan persona's workflow. These decisions should involve product management. Deferring to stakeholders is not indecision — it is organizational discipline. Resolving OQs without mandate creates rework risk if stakeholders disagree.
 
 **Variant B (Haiku):**
-A roadmap without resourcing is a wish list, not a plan. Our explicit headcount (~11 FTE) directly justifies the 20-week timeline and makes capacity constraints visible. Without this, Opus's 10-week timeline is unverifiable — is it 10 weeks with 20 engineers or 10 weeks with 5? Hour estimates per task enable: (1) sprint planning without a separate decomposition pass, (2) identification of bottlenecks before they hit (e.g., the security engineer is only 0.5 FTE), (3) realistic capacity allocation across teams. Yes, estimates will drift, but having them and adjusting is better than not having them and discovering in Week 4 that you're 3x over capacity.
+Deferred OQ resolution is the #1 cause of mid-sprint blocking in enterprise projects. The architect *does* have mandate to make technical decisions that align with stated requirements. OQ-008 (logout) is not a product question — the Alex persona explicitly needs to "log out" per the PRD. The architect's decision to require `POST /auth/logout` is implementing the spec, not overriding product. OQ-003 (async email) is purely technical. OQ-007 (admin unlock) directly serves the Jordan persona. Only OQ-005 ("remember me") is genuinely a product call, and Haiku correctly defers it to v1.1. Conflating technical implementation decisions with product strategy decisions causes paralysis.
 
 ---
 
-### Divergence Point D-12: Approval Gates
+### Topic 6: Rollout Duration — 2 Weeks vs. 4 Weeks
 
 **Variant A (Opus):**
-Lightweight exit criteria per phase are sufficient. Formal approval gates with named approvers add governance overhead that slows delivery. For a MEDIUM-complexity project, the overhead of scheduling gate reviews, getting sign-offs, and documenting approvals is disproportionate. The team should be empowered to move between phases based on objective criteria (tests passing, coverage met, NFRs validated), not waiting for a meeting. SOC2 audit evidence can come from CI/CD logs, test reports, and commit history — not from approval meeting minutes.
+4 weeks of graduated rollout (alpha → beta 10% → GA 100%) is appropriate for authentication. Auth touches every user session. A subtle token refresh bug at 100% traffic can lock out the entire user base. The 2-week beta at 10% provides statistically significant data (if DAU > 1000, that's 100+ users on new auth for 14 days). The 1-week GA soak catches long-tail issues. Explicit rollback criteria (p95 > 1000ms for 5 min, error rate > 5% for 2 min) make the 4-week investment actionable, not ceremonial.
 
 **Variant B (Haiku):**
-For a SOC2-bound project, formal approval gates are not optional overhead — they're audit evidence. SOC2 Type II requires demonstrable change management controls. Named approvers at each phase boundary create: (1) accountability — someone specific signs off that security review passed, (2) audit trail — auditors can verify who approved what and when, (3) risk checkpoints — prevents "we'll fix it later" from propagating past phase boundaries. The Phase 3→4 gate explicitly requires compliance readiness sign-off — without this, hardening could begin with incomplete audit logging. The cost of a 30-minute gate review is trivial compared to a failed SOC2 audit.
-
----
-
-### Divergence Point D-13: Rollback Trigger Specificity
-
-**Variant A (Opus):**
-Our rollback triggers are operationally precise: p95 > 1000ms for 5 minutes, error rate > 5% for 2 minutes, Redis failures > 10/min, any data corruption. An on-call engineer at 3 AM can make an instant rollback decision without judgment calls or escalation. "Metrics within normal ranges" (Haiku's language) requires the engineer to know what "normal" means — which varies by time of day, day of week, and deployment stage. Specific thresholds are automatable: you can wire Prometheus alerts directly to rollback triggers.
-
-**Variant B (Haiku):**
-We concede this point partially — Opus's rollback thresholds are more operationally precise. However, our approach describes rollback *capability* and *procedure* more thoroughly, including step-by-step runbook testing and team drills. Precise thresholds without tested procedures are still dangerous. Our Phase 4 includes explicit runbook drills where the team executes each rollback scenario. The thresholds themselves should be tuned during beta based on observed baselines, not set a priori in the roadmap.
+2 weeks is sufficient because the alpha validation already happened in Week 8 (end of Phase 1) with security review, load testing, and smoke tests. By Week 10, the system has been in beta at 10% for a full week with all metrics tracked. Week 11 GA and Week 12 stabilization provide the same graduated exposure in compressed form. The 4-week rollout assumes the team learns nothing from alpha and beta — if metrics are green after 7 days at 10%, waiting another week at 10% provides diminishing returns. The real risk mitigation is the feature flag rollback capability, which works in minutes regardless of rollout duration.
 
 ---
 
 ## Round 2: Rebuttals
 
-### Variant A (Opus) Rebuts Variant B:
+### Topic 1: Sequential vs. Parallel Frontend
 
-**On timeline (D-01):** Haiku claims 20 weeks is "honest" but includes significant padding. Phase 0 (2 weeks for infrastructure) is over-engineered — PostgreSQL and Redis provisioning takes days, not weeks, on any modern cloud platform. Phase 4 (4 weeks for hardening) is also inflated — penetration testing can run in parallel with other hardening tasks. The 20-week timeline assumes serial execution of tasks that can be parallelized. If Haiku's ~11 FTE team worked with Opus's parallelism strategy, 14-15 weeks would be realistic — splitting the difference.
+**Variant A (Opus) rebuts Haiku:**
+"The frontend doesn't implement bcrypt — it calls endpoints" is a straw man. The security risk is not in the frontend *implementing* crypto but in the frontend *mishandling* token state. `AuthProvider` must correctly implement silent refresh, token expiry detection, tab-close cleanup, and HttpOnly cookie handling. These behaviors depend on the *exact* backend token lifecycle, which is finalized during Phase 2. An OpenAPI spec defines request/response shapes, not timing behavior. When the backend discovers during Phase 2 that refresh token rotation must invalidate the old token *before* issuing the new one (not after), the frontend mock doesn't catch that — the `AuthProvider` integration test does. Building against mocks creates false confidence.
 
-**On compliance timing (D-03):** Haiku's "dedicated compliance phase" argument falls apart under scrutiny. You can't retrofit `consent_timestamp` as a "trivial migration" AND argue it needs a dedicated phase. If it's trivial, do it in Phase 2. If it needs dedicated focus, it's not trivial. The real risk is that Phases 1-2 generate test user data *without* consent timestamps, creating a data quality problem that complicates compliance validation. Building it in from the start eliminates this entirely.
-
-**On frontend timing (D-04):** "The frontend team would be idle" is a resourcing argument, not an architectural one. If the frontend team is idle, they should work on other projects or help with backend testing. Building frontend against incomplete APIs creates coupling that slows both teams. The `AuthProvider` in Phase 1 is necessarily a stub — real token management doesn't exist yet. This is the definition of throwaway work.
-
-**On admin API (D-05):** "Auditors want application-level access" is speculative. SOC2 Type II audits evaluate controls, not specific UI/API implementations. Log aggregation tools with proper access controls (Datadog with RBAC, for example) satisfy audit requirements. Building a custom admin API before understanding actual admin workflows is premature optimization.
-
-**On approval gates (D-12):** SOC2 does NOT require approval gates at every phase boundary. It requires change management controls. A well-configured CI/CD pipeline with branch protection, code review requirements, and deployment approvals satisfies this — GitHub's audit log IS the approval trail. Adding manual approval meetings is governance theater that satisfies auditors at the cost of engineering velocity.
+**Variant B (Haiku) rebuts Opus:**
+The argument proves too much — by this logic, no frontend work should ever happen until the backend is "finalized," which means no modern software team could function. The token lifecycle timing behavior Opus describes is a backend implementation detail that the frontend observes through HTTP response codes (401 → trigger refresh, 403 → redirect to login). The `AuthProvider` doesn't need to know *when* the old token is revoked in Redis — it needs to know that `POST /auth/refresh` returns a new token pair or a 401. That contract is stable from Phase 0. The "false confidence from mocks" argument applies to *any* parallel development — it's an argument against all contract-first engineering, which is an industry-settled debate.
 
 ---
 
-### Variant B (Haiku) Rebuts Variant A:
+### Topic 2: Observability Timing
 
-**On timeline (D-01):** Opus's "parallelism" argument has a hidden assumption: experienced engineers who can context-switch between security-sensitive components without introducing bugs. In practice, parallelizing PasswordHasher, UserRepo, AuthService, and JwtService across different engineers creates integration risk at the seams. Our serial-within-phase, parallel-across-teams approach is more realistic. Furthermore, Opus provides no team sizing — "10 weeks" could mean 10 weeks with 3 engineers (impossible) or 10 weeks with 20 engineers (wasteful). Without resourcing, the timeline claim is unfalsifiable.
+**Variant A (Opus) rebuts Haiku:**
+"Flying blind for 8 weeks" is hyperbolic. Developers have local debugging, test output, and CI metrics throughout Phases 1-4. The Phase 5 observability investment is about *production* instrumentation — Prometheus, OpenTelemetry, alerting rules, dashboards. These are operationally different from development-time APM. Setting up production alerting in Phase 0 for code that doesn't exist yet means configuring alerts against zero-traffic endpoints. The overhead of maintaining observability configuration through 8 weeks of functional changes is non-trivial.
 
-**On compliance timing (D-03):** The "data quality problem" argument is a red herring. Test environments are reset between phases. No production user data exists during Phases 1-2. The consent timestamp migration is trivial *technically* but significant *organizationally* — it requires product sign-off on consent wording, legal review of the checkbox text, and UX review of the registration flow changes. Grouping these decisions into Phase 3 ensures they get dedicated attention rather than being rushed as Phase 2 afterthoughts.
+**Variant B (Haiku) rebuts Opus:**
+The distinction between "development-time APM" and "production instrumentation" is artificial. Prometheus metrics and OpenTelemetry spans are library calls embedded in application code — they work identically in staging and production. The `auth_login_duration_seconds` histogram emitted in Week 4 staging is the *same histogram* that fires in production. "Configuring alerts against zero-traffic endpoints" takes 5 minutes per metric and immediately validates when the first integration test hits the endpoint. The real cost of deferred observability is discovered in Opus's own Phase 5: when the team finds p95 login latency is 350ms under load, they must now debug and fix a performance issue in a "hardening" phase that was supposed to be about *validation*, not *development*. Early instrumentation converts Phase 5 from "discover and fix" to "confirm and ship."
 
-**On frontend timing (D-04):** "Work on other projects" is not realistic team management — context-switching between projects is expensive and most organizations don't have idle frontend work conveniently queued. The `AuthProvider` stub argument is overstated: `LoginPage` and `RegisterPage` call POST endpoints with JSON bodies and display responses. This is stable API surface. The `AuthProvider` token management (Phase 2) is a separate concern from the page components. Building pages early validates UX, accessibility, and form validation — none of which require token management.
+---
 
-**On admin API (D-05):** "Speculative" is incorrect — the PRD explicitly defines the Jordan persona with admin audit needs. "Use Datadog" is a non-answer for a roadmap: it creates an external dependency not in the infrastructure requirements, requires separate access provisioning and RBAC configuration, and means the auth service doesn't self-serve its own compliance needs. The 18h cost is a rounding error on a 20-week project. Building it ensures the auth service is compliance-complete at GA, not compliance-complete-except-for-the-admin-part.
+### Topic 3: Phase 0
 
-**On approval gates (D-12):** "Governance theater" is dismissive of real compliance needs. Yes, CI/CD provides change management evidence. But SOC2 also evaluates *risk assessment* and *management review* — which require human judgment, not automated pipelines. A security lead signing off that penetration testing passed is not theater; it's accountability. Our gates are lightweight (30-minute reviews with defined criteria), not bureaucratic. Opus's "exit criteria without gates" means criteria can be silently unmet — who checks? Gates create the forcing function.
+**Variant A (Opus) rebuts Haiku:**
+The 8 OQs are not all blocking. OQ-001, OQ-005, OQ-006 are explicitly deferred to post-v1.0 — resolving them in Phase 0 is unnecessary work. OQ-002 (max roles) is a schema default, not a blocking decision. Only OQ-003 (async email), OQ-004 (max refresh tokens), OQ-007 (admin API), and OQ-008 (logout) need resolution before their respective phases — and each has a natural resolution point. The "mid-sprint surprise" scenario assumes zero communication between architect and team, which is unrealistic. Phase 0 trades 2 weeks of delivery time for documentation that could be a 30-minute team meeting per OQ.
+
+**Variant B (Haiku) rebuts Opus:**
+"30-minute team meeting per OQ" is precisely the Phase 0 work — just spread across 10 weeks instead of concentrated in 2. The Phase 0 cost is not 2 weeks of idle time; it's 2 weeks of infrastructure provisioning, OpenAPI spec creation, threat modeling, and team alignment *running in parallel with OQ resolution*. The architect and product manager resolve OQs while DevOps provisions PostgreSQL and Redis. Opus's Phase 1 includes infrastructure provisioning *and* coding — which means the first coding week depends on infrastructure being ready, creating an implicit serial dependency. Phase 0 makes this dependency explicit and front-loads it.
+
+---
+
+### Topic 4: Timeline
+
+**Variant A (Opus) rebuts Haiku:**
+The 12-week plan's parallelism depends on three assumptions: (1) OpenAPI spec is accurate enough for frontend mocks, (2) no OQ resolution causes mid-phase blocking, (3) infrastructure provisioning completes cleanly in Phase 0. If any fails, the 12-week plan has no buffer. Opus's 15 weeks has 2-3 weeks of inherent slack from sequential phasing, which absorbs surprises without schedule pressure. Schedule pressure on a security-critical service is how vulnerabilities ship.
+
+**Variant B (Haiku) rebuts Opus:**
+"Buffer" is not a risk mitigation strategy — it's a confession that the plan has unmanaged risks. If Opus is concerned about infrastructure provisioning delays, the answer is to front-load provisioning (Phase 0), not to add 3 weeks of slack. If Opus is concerned about OQ blocking, the answer is to resolve OQs early, not to hope they resolve themselves. The 12-week plan is tighter *because* it manages risks actively rather than passively. Schedule pressure is mitigated by eliminating unknowns, not by padding the calendar.
+
+---
+
+### Topic 5: OQ Authority
+
+**Variant A (Opus) rebuts Haiku:**
+Haiku's claim that OQ-008 "is not a product question" ignores that logout behavior has UX implications — does logout clear local state only, or revoke server-side sessions? Does it redirect to login or to a landing page? Does it show a confirmation? These are product decisions. The architect can recommend `POST /auth/logout` revokes the Redis refresh token, but the *product behavior* around logout requires PM input. Resolving this unilaterally in Phase 0 may produce a technically correct but product-misaligned implementation.
+
+**Variant B (Haiku) rebuts Opus:**
+The UX questions Opus raises (redirect destination, confirmation dialog) are *frontend implementation details*, not API design decisions. The Phase 0 decision is: "Does the API have a logout endpoint that revokes the refresh token?" — a binary technical decision. Whether the frontend shows a confirmation modal is a Phase 1 frontend task. Conflating API design with UX design is how OQs remain unresolved for weeks. The architect decides the API surface; the product manager and frontend engineer decide the UX.
+
+---
+
+### Topic 6: Rollout Duration
+
+**Variant A (Opus) rebuts Haiku:**
+"If metrics are green after 7 days at 10%" — 10% of traffic for 7 days may not surface long-tail issues. Token refresh bugs manifest after 7 days (the refresh token TTL). A user who logs in on Day 1 of beta won't hit their first forced re-authentication until Day 8. With a 7-day beta, the team has *zero* data on the full refresh lifecycle before going to 100%. The 14-day beta in Opus's plan captures at least one full refresh cycle, making the GA decision data-informed rather than hope-based.
+
+**Variant B (Haiku) rebuts Opus:**
+This is a strong point. However, the mitigation is not a longer rollout — it's engineering the beta to start earlier. Phase 1 alpha deploys in Week 8; beta 10% starts Week 10. By Week 11 GA, beta users have been on the system for 7+ days. But Opus is correct that a 7-day refresh TTL means the first forced re-auth happens exactly at the beta boundary. **Concession:** A 10-day minimum beta period would be prudent, pushing GA to mid-Week 12 rather than Week 11. This does not require a 4-week rollout — it requires starting beta 3 days earlier.
 
 ---
 
 ## Convergence Assessment
 
-### Areas of Agreement (Strong Convergence)
+### Areas of Agreement Reached
 
-1. **Core architecture is settled.** Both variants agree completely on JWT/RS256, bcrypt cost 12, Redis refresh tokens, feature flags, three-phase rollout, and scope guardrails. No debate needed on technical fundamentals.
+1. **Observability should start early** — Both sides effectively agree that production-grade instrumentation should not wait until Week 9. Opus's rebuttal conceded that APM is useful throughout development; the dispute narrowed to *alerting configuration*, which is a minor effort. **Converged position:** Instrument in Phase 0/1, validate and harden alerting rules before GA.
 
-2. **Rollback precision favors Opus.** Haiku partially conceded D-13 — specific numeric rollback thresholds are operationally superior. The merged recommendation should adopt Opus's thresholds and Haiku's runbook drill process.
+2. **OQ-008 (logout) is required** — Opus's rebuttal focused on UX details, not on whether the endpoint should exist. Both agree `POST /auth/logout` with Redis revocation is needed. **Converged position:** API endpoint decided by architect; UX behavior decided collaboratively.
 
-3. **Compliance must be in v1.0.** Both agree GDPR and SOC2 requirements are non-negotiable for GA. The debate is *when* in the timeline, not *whether*.
+3. **Feature flag rollback is the primary safety mechanism** — Both agree that rollback speed (minutes via feature flag) matters more than rollout duration. The 2-week vs. 4-week debate is about *confidence*, not *safety*.
 
-4. **Decision-forward defaults are preferable.** Both acknowledge that unresolved open questions create risk. Opus's approach of implementing conservative defaults (12-month retention, async email) while tracking resolution is less risky than leaving decisions open.
+4. **Infrastructure provisioning should not compete with coding** — Opus's Phase 1 mixes provisioning with development; Haiku's Phase 0 separates them. Opus did not strongly defend mixing these concerns.
 
-### Areas of Partial Convergence
+### Remaining Disputes
 
-5. **Timeline should be 14-16 weeks**, not 10 or 20. Opus's 10 weeks lacks resourcing justification; Haiku's 20 weeks includes excessive padding. A merged roadmap should: adopt Haiku's Phase 0 (but compress to 1 week), keep Opus's compressed Phase 2-3, and use Haiku's dedicated Phase 4 hardening (but 2 weeks, not 4). Target: ~15 weeks with ~8-10 FTE.
+1. **Parallel frontend development (D-04)** — Genuinely unresolved. Opus makes a valid point about token lifecycle edge cases that mocks don't catch; Haiku makes a valid point about contract-first being industry-standard. **Resolution depends on:** team maturity with contract-first development and willingness to accept integration risk in Week 7.
 
-6. **Frontend timing is context-dependent.** If the frontend team exists and would be idle, Haiku's approach is pragmatic. If frontend engineers are shared resources, Opus's sequential approach avoids wasted effort. The merged roadmap should start `LoginPage`/`RegisterPage` in Phase 2 (not Phase 1 or Phase 4) — after the API contract is defined but before token management is complete.
+2. **Timeline (12 vs. 15 weeks)** — Partially resolved. Both sides agree 12 weeks is *possible* with parallel tracks; the dispute is whether the team should accept the tighter schedule or preserve buffer. **Resolution depends on:** external deadline (SOC2 audit timing, personalization feature dependency).
 
-7. **Approval gates should be lightweight but present.** Not at every phase boundary (Haiku's overhead), but at 3 critical junctures: (1) Pre-development (infrastructure + policy ready), (2) Pre-hardening (features complete + compliance validated), (3) Pre-GA (security review passed). This satisfies SOC2 without blocking velocity.
+3. **Rollout duration** — Partially converged. Haiku conceded that a 7-day beta may be insufficient for the 7-day refresh TTL. A 10-14 day beta is a middle ground. **Converged position:** Minimum 10-day beta period; total rollout 2.5-3 weeks (not 2, not 4).
 
-### Remaining Disputes (Low Convergence)
+4. **Phase 0 as explicit phase** — Haiku's position is stronger here. Opus did not adequately defend implicit design-during-coding against the risk of unresolved OQs. **Leaning toward Haiku:** A 1-2 week design phase with infrastructure provisioning is prudent, even if some OQs can be resolved in 30-minute meetings.
 
-8. **Admin audit API scope (D-05):** Genuinely unresolvable without product input. If SOC2 audit requires application-level admin log access, it's v1.0. If log aggregation tools suffice, it's v1.1. This is a product/compliance decision, not an engineering one. **Recommendation: escalate to product owner with a deadline of Week 0.**
+### Strength Summary
 
-9. **Task-level granularity (D-08):** Philosophical disagreement. Opus favors strategic roadmaps with separate sprint planning; Haiku favors immediately-actionable plans. Both are valid depending on team maturity and PM tooling. **Recommendation: the merged roadmap should include Haiku's team sizing and phase-level effort estimates, but defer hour-level task breakdown to sprint planning.**
-
-10. **Compliance timing (D-03):** Both sides made strong arguments. Early integration avoids retrofit; dedicated phases ensure focus. **Recommendation: add the `consent_timestamp` field to the schema in Phase 1 (zero-cost schema decision per Opus), but defer the full compliance validation (audit logging infrastructure, consent UX, admin APIs) to a focused phase per Haiku's grouping approach.** This hybrid captures the best of both.
+| Dimension | Stronger Variant | Margin |
+|-----------|-----------------|--------|
+| Phase structure & design front-loading | Haiku | Clear |
+| OQ resolution strategy | Haiku | Clear |
+| Parallel development efficiency | Haiku | Moderate (risk-dependent) |
+| Risk table depth & ownership | Haiku | Clear |
+| Implementation specificity | Haiku | Moderate |
+| Integration point documentation | Opus | Clear |
+| Rollback criteria precision | Opus | Clear |
+| Rollout safety & duration | Opus | Moderate (converging) |
+| Compliance gate clarity | Opus | Moderate |
+| Weekly cadence & ceremony | Haiku | Clear |

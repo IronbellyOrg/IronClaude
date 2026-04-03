@@ -30,17 +30,24 @@ For this report type (10 sections from 4 synth files):
 
 ## Section-to-Synth File Mapping (IronClaude Research Reports)
 
-Standard 10-section research report with 6 synthesis files:
+Standard 10-section research report with variable synth file count:
+
+**3-file layout** (observed 2026-04-03):
 - Sections 1-2 (Problem Statement, Current State): synth-01
-- Sections 3-4 (Target State, Gap Analysis): synth-02
-- Section 5 (External Research Findings): synth-03
-- Sections 6-7 (Options Analysis, Recommendation): synth-04
-- Section 8 (Implementation Plan): synth-05
-- Sections 9-10 (Open Questions, Evidence Trail): synth-06
+- Sections 3-7 (Target State, Gap Analysis, External Research, Options, Recommendation): synth-02
+- Sections 8-10 (Implementation Plan, Open Questions, Evidence Trail): synth-03
+
+**6-file layout** (earlier standard):
+- Sections 1-2: synth-01
+- Sections 3-4: synth-02
+- Section 5: synth-03
+- Sections 6-7: synth-04
+- Section 8: synth-05
+- Sections 9-10: synth-06
 
 Section 5 is frequently N/A for codebase-scoped investigations (no web research files).
 
-Earlier assemblies used 4 synth files with sections 5-8 merged into synth-03. The 6-file layout is the current standard.
+**How to apply:** Always read the spawn prompt's section assignments rather than assuming a fixed mapping.
 
 ## Multi-Domain Release Spec Pattern (v3.7-task-unified-v2)
 

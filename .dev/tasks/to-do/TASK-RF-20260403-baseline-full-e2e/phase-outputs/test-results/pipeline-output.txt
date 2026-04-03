@@ -1,0 +1,28 @@
+[roadmap] Starting step: extract
+[roadmap] Step extract  PASS (attempt 1, 80s)
+[roadmap] Starting step: generate-opus-architect
+[roadmap] Starting step: generate-haiku-architect
+[roadmap] Step generate-opus-architect  PASS (attempt 1, 115s)
+[roadmap] Step generate-haiku-architect  PASS (attempt 1, 232s)
+[roadmap] Starting step: diff
+[roadmap] Step diff  PASS (attempt 1, 88s)
+[roadmap] Starting step: debate
+[roadmap] Step debate  PASS (attempt 1, 97s)
+[roadmap] Starting step: score
+[roadmap] Step score  PASS (attempt 1, 74s)
+[roadmap] Starting step: merge
+[roadmap] Step merge  PASS (attempt 1, 156s)
+[roadmap] Starting step: anti-instinct
+[roadmap] Step anti-instinct  PASS (attempt 1, 0s)
+[roadmap] Starting step: test-strategy
+[roadmap] Step test-strategy  PASS (attempt 1, 101s)
+[roadmap] Starting step: spec-fidelity
+[roadmap] Step spec-fidelity  FAIL (attempt 2, 156s)
+           Reason: Semantic check 'high_severity_count_zero' failed: high_severity_count must be 0 for spec-fidelity gate to pass
+[roadmap] Step wiring-verification  PASS (attempt 1, 0s)
+ERROR: Roadmap pipeline halted at step 'spec-fidelity' (attempt 2/2)
+  Gate failure: high_severity_count must be 0 for spec-fidelity gate to pass
+
+Completed steps: extract, generate-opus-architect, generate-haiku-architect, diff, debate, score, merge, anti-instinct, test-strategy, wiring-verification (all PASS)
+Failed step: spec-fidelity (FAIL, attempt 2)
+Skipped steps: remediate, certify

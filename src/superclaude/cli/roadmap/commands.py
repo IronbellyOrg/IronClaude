@@ -104,9 +104,9 @@ def roadmap_group():
 )
 @click.option(
     "--input-type",
-    type=click.Choice(["auto", "tdd", "spec", "prd"], case_sensitive=False),
+    type=click.Choice(["auto", "tdd", "spec"], case_sensitive=False),
     default="auto",
-    help="Input file type. auto=detect from content (PRD, TDD, or spec), tdd/spec/prd=force type. Default: auto.",
+    help="Input file type. auto=detect from content (PRD, TDD, or spec), tdd/spec=force type. PRD files are auto-detected when passed as positional arguments. Default: auto.",
 )
 @click.option(
     "--tdd-file",

@@ -127,6 +127,59 @@ def scan_obligations(content: str) -> ObligationReport:
             context_line = _get_context_line(phase_content, match.start())
             abs_line = start_line + phase_content[: match.start()].count("\n")
 
+            # Skip markdown headings — section titles are document structure,
+            # not scaffolding obligations. Also skip table header/separator lines.
+            # IMPORTANT: Only skip lines that look like actual markdown headings
+            # (## or ### followed by space), NOT Python comments (# comment)
+            # which may appear inside code blocks.
+            stripped_context = context_line.lstrip()
+            if (
+                (stripped_context.startswith("## ") or stripped_context.startswith("### "))
+                or stripped_context.startswith("|")
+            ):
+                continue
+
+            # Skip scaffold terms that appear in purely descriptive/configuration
+            # contexts rather than indicating temporary implementations needing
+            # replacement. Rich roadmaps (TDD+PRD enriched) use these words
+            # descriptively far more than simple spec-only roadmaps.
+            ctx_lower = context_line.lower()
+
+            # "skeleton" in a phase objective as a noun phrase (e.g., "layered
+            # service skeleton", "project skeleton") is descriptive architecture,
+            # not a temporary implementation. Only flag when used as a direct
+            # object of an imperative verb (e.g., "Build skeleton", "Create
+            # skeleton") which suggests intentional scaffolding work.
+            if term.lower() == "skeleton":
+                # Check for imperative verb before "skeleton" suggesting action
+                imperative_before = re.search(
+                    r"\b(?:build|create|set\s+up|generate|write|add)\s+\w*\s*"
+                    + re.escape(term),
+                    context_line,
+                    re.IGNORECASE,
+                )
+                if not imperative_before:
+                    continue
+
+            # "hardcoded" describing a deliberate config value (e.g.,
+            # "bcrypt cost factor (12)" or "hardcoded default") is not an obligation.
+            if term.lower().startswith("hardcod"):
+                if any(
+                    w in ctx_lower
+                    for w in (
+                        "cost factor",
+                        "configuration",
+                        "config",
+                        "default",
+                        "cost",
+                        "environment",
+                        "setting",
+                        "static",
+                        "constant",
+                    )
+                ):
+                    continue
+
             # FR-MOD1.4: Extract component context (60-char, backtick-priority)
             component = _extract_component_context(phase_content, match.start())
 

@@ -9,7 +9,7 @@ Creates comprehensive Technical Design Documents (TDDs) for components, services
 
 **How it works:** The skill performs initial scope discovery (Stage A), then spawns the `rf-task-builder` subagent to create an MDTM task file encoding all investigation and documentation phases. Stage B delegates execution to the `/task` skill, which provides the canonical F1 execution loop, parallel agent spawning, phase-gate QA, and session management.
 
-The output always follows the project template at `.claude/templates/documents/tdd_template.md`. The template is the schema — every TDD must conform to it. Can be fed from a PRD to translate product requirements into engineering specifications.
+The output always follows the project template at `docs/docs-product/templates/tdd_template.md`. The template is the schema — every TDD must conform to it. Can be fed from a PRD to translate product requirements into engineering specifications.
 
 ## Why This Process Works
 
@@ -122,7 +122,7 @@ REVIEWS:     ${TASK_DIR}reviews/
 | Analyst reports | `${TASK_DIR}qa/analyst-report-[gate].md` |
 | QA reports | `${TASK_DIR}qa/qa-report-[gate].md` |
 | Final TDD | `docs/[domain]/TDD_[COMPONENT-NAME].md` |
-| Template schema | `.claude/templates/documents/tdd_template.md` |
+| Template schema | `docs/docs-product/templates/tdd_template.md` |
 
 **File numbering convention:** All research, web, and synthesis files use zero-padded sequential numbers: `01-`, `02-`, `03-`, etc. This ensures correct ordering when listing files.
 
@@ -377,18 +377,6 @@ TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
 - Phase 6 (Assembly & Validation): L6 Aggregation — spawn rf-assembler to consolidate synthesis files into final TDD, then spawn rf-qa (report-validation) for structural quality check, then spawn rf-qa-qualitative (tdd-qualitative) for content/logic quality check. Both QA agents have in-place fix authorization.
 - Phase 7 (Present to User & Complete Task): ANTI-ORPHANING — task-completion items are WITHIN this phase, not in a separate Post-Completion section.
 
-QA_GATE_REQUIREMENTS: PER_PHASE
-  Gate 1: Research Completeness (Phase 3) — rf-analyst (completeness-verification) + rf-qa (research-gate) in parallel, max 3 fix cycles, partitioning >6 files.
-  Gate 2: Synthesis Quality (Phase 5) — rf-analyst (synthesis-review) + rf-qa (synthesis-gate, fix_authorization: true) in parallel, max 2 fix cycles, partitioning >4 files.
-  Gate 3: Report Validation (Phase 6) — rf-qa (report-validation, fix_authorization: true) + rf-qa-qualitative (tdd-qualitative, fix_authorization: true) sequential. HALT after max fix cycles exceeded.
-
-VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION
-  TEMPLATE_COMPLIANCE: All sections from TDD template must be present or marked N/A with rationale.
-  EVIDENCE_TRAIL: Every claim must cite file paths, line numbers, or verified sources.
-  CROSS_VALIDATION: Doc-sourced claims carry [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags.
-
-TESTING_REQUIREMENTS: N/A — documentation-only skill, no code produced, no tests applicable.
-
 RESEARCH NOTES FILE:
 ${TASK_DIR}research-notes.md
 Read this file FIRST for full detailed findings including: existing files, patterns, PRD context, planned investigation assignments, synthesis mapping, and output paths.
@@ -429,7 +417,7 @@ The task file MUST encode these phases as sequential checklist items. Each phase
 Phase 1 — Preparation:
 - Update task status to "🟠 Doing"
 - Confirm scope from research notes (component boundaries, key directories, tier selection)
-- Read the TDD template at .claude/templates/documents/tdd_template.md
+- Read the TDD template at docs/docs-product/templates/tdd_template.md
 - Select depth tier (Lightweight / Standard / Heavyweight) based on component count and complexity
 - Create the task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders (if not already created during scope discovery)
 
@@ -463,10 +451,10 @@ Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
 - Max 2 fix cycles for synthesis gate. After 2 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance. Do NOT continue to Phase 6 without user approval.
 
 Phase 6 — Assembly & Validation (RF-ASSEMBLER + Structural QA + Qualitative QA):
-- Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") — NOT a general-purpose Agent — to assemble the final TDD. Hand it: the list of synth file paths in order (as component_files), the TDD output path `docs/[domain]/TDD_[COMPONENT-NAME].md`, the TDD template reference `.claude/templates/documents/tdd_template.md` (as output_format), the Assembly Process steps from SKILL.md (as assembly_rules), and the Content Rules from SKILL.md (as content_rules). The assembler reads each synth file and writes the TDD incrementally section by section — frontmatter first, then sections in template order, then Table of Contents, then cross-checks internal consistency (requirements in Section 5 trace to architecture in Section 6, risks in Section 20 have mitigations, Open Questions in Section 22 not answered elsewhere, Dependencies in Section 18 complete). The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt (see Assembly Agent Prompt Template below and Assembly Process section in SKILL.md) in the checklist item per B2.
-- After the assembler returns the TDD path, spawn `rf-qa` (subagent_type: "rf-qa", qa_phase: "report-validation", fix_authorization: true). **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The QA agent validates the assembled TDD against the 15-item Validation Checklist + 4 Content Quality Checks from SKILL.md (structural/semantic checks: section numbers, cross-references, evidence citations, template conformance). The QA agent is authorized to fix issues in-place and writes its report to `${TASK_DIR}qa/qa-report-validation.md`. Embed the full QA prompt in the checklist item per B2.
+- Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") — NOT a general-purpose Agent — to assemble the final TDD. Hand it: the list of synth file paths in order (as component_files), the TDD output path `docs/[domain]/TDD_[COMPONENT-NAME].md`, the TDD template reference `docs/docs-product/templates/tdd_template.md` (as output_format), the Assembly Process steps from SKILL.md (as assembly_rules), and the Content Rules from SKILL.md (as content_rules). The assembler reads each synth file and writes the TDD incrementally section by section — frontmatter first, then sections in template order, then Table of Contents, then cross-checks internal consistency (requirements in Section 5 trace to architecture in Section 6, risks in Section 20 have mitigations, Open Questions in Section 22 not answered elsewhere, Dependencies in Section 18 complete). The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt (see Assembly Agent Prompt Template below and Assembly Process section in SKILL.md) in the checklist item per B2.
+- After the assembler returns the TDD path, spawn `rf-qa` (subagent_type: "rf-qa", qa_phase: "report-validation", fix_authorization: true). The QA agent validates the assembled TDD against the 15-item Validation Checklist + 4 Content Quality Checks from SKILL.md (structural/semantic checks: section numbers, cross-references, evidence citations, template conformance). The QA agent is authorized to fix issues in-place and writes its report to `${TASK_DIR}qa/qa-report-validation.md`. Embed the full QA prompt in the checklist item per B2.
 - Read the structural QA report. If issues remain unfixed, address them before proceeding to qualitative QA.
-- After structural QA passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "tdd-qualitative", fix_authorization: true). **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The qualitative QA agent reads the entire TDD and verifies it makes sense from product and engineering perspectives: architecture decisions match PRD requirements, API contracts are internally consistent, implementation details are specific enough to code from, no PRD content repeated verbatim, data models match across diagrams/contracts/migrations, no requirements invented that aren't in the PRD. The agent writes to `${TASK_DIR}qa/qa-qualitative-review.md`. Embed the full qualitative QA prompt (including document_type: "Technical Design Document", template path, and output path) in the checklist item per B2.
+- After structural QA passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "tdd-qualitative", fix_authorization: true). The qualitative QA agent reads the entire TDD and verifies it makes sense from product and engineering perspectives: architecture decisions match PRD requirements, API contracts are internally consistent, implementation details are specific enough to code from, no PRD content repeated verbatim, data models match across diagrams/contracts/migrations, no requirements invented that aren't in the PRD. The agent writes to `${TASK_DIR}qa/qa-qualitative-review.md`. Embed the full qualitative QA prompt (including document_type: "Technical Design Document", template path, and output path) in the checklist item per B2.
 - Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected sections. If issues remain unfixed, address ALL of them before proceeding to Phase 7. Zero leniency — no severity level is exempt.
 
 Phase 7 — Present to User & Complete Task (ANTI-ORPHANING):
@@ -482,8 +470,8 @@ STEPS:
 1. Read the research notes file specified above (MANDATORY)
 2. Read the SKILL.md file specified above for agent prompts, synthesis mapping, validation checklist, and content rules (MANDATORY)
 3. Read the MDTM template specified in TEMPLATE field above (MANDATORY):
-   - If TEMPLATE: 02 → .claude/templates/workflow/02_mdtm_template_complex_task.md
-   - If TEMPLATE: 01 → .claude/templates/workflow/01_mdtm_template_generic_task.md
+   - If TEMPLATE: 02 → .gfdoc/templates/02_mdtm_template_complex_task.md
+   - If TEMPLATE: 01 → .gfdoc/templates/01_mdtm_template_generic_task.md
 4. Follow PART 1 instructions in the template completely (A3 granularity, B2 self-contained items, E1-E4 flat structure)
 5. If anything is missing, note it in the Task Log section — the skill will review
 6. Create the task file at .dev/tasks/to-do/TASK-TDD-[YYYYMMDD-HHMMSS]/TASK-TDD-[YYYYMMDD-HHMMSS].md using PART 2 structure
@@ -683,7 +671,7 @@ Read the research files listed below and synthesize them into template-aligned s
 Research files to read: [list of paths]
 Template sections to produce: [section numbers and names]
 Output path: [synth file path]
-Template reference: .claude/templates/documents/tdd_template.md
+Template reference: docs/docs-product/templates/tdd_template.md
 
 Rules:
 0. **Read the template first.** Before synthesizing anything, read the TDD template to understand each section's expected content, format, and depth.
@@ -698,6 +686,8 @@ Rules:
 9. SLOs must include SLI measurements and error budget policies where applicable
 10. Documentation-sourced claims require verification status. If a research file reports a finding from documentation, check whether it carries a [CODE-VERIFIED], [CODE-CONTRADICTED], or [UNVERIFIED] tag. Only [CODE-VERIFIED] claims may be presented as current architecture. [CODE-CONTRADICTED] claims must be corrected. [UNVERIFIED] claims must be flagged as uncertain and placed in Open Questions (Section 22) — never in Architecture, Data Models, or API Specifications sections as if they are fact.
 11. Never describe architecture from docs alone. When writing Architecture (Section 6), Data Models (Section 7), or API Specifications (Section 8), ONLY use findings that trace back to actual source code reads. If the only evidence is a documentation file, flag as [UNVERIFIED — doc-only] and exclude from architecture diagrams.
+12. Every FR in TDD Section 5.1 must trace back to a PRD epic or user story. Cite the epic ID in the FR row's "Source" column. If no PRD epic can be identified for an FR, mark it "[NO PRD TRACE]" and flag it as a gap.
+13. TDD Section 4.2 (Business Metrics, if included) must include at least one engineering proxy metric for each business KPI listed in the PRD's Section 4 and Section 19. Format as: Business KPI: [PRD KPI name] — Engineering Proxy: [measurable technical metric].
 
 CRITICAL — Incremental File Writing:
 You MUST write to your output file incrementally as you synthesize each section. Do NOT read all research files into context and attempt a single large write at the end. The process is:
@@ -763,11 +753,9 @@ Output path: [output-path]
 
 You are the last line of defense before synthesis begins. Assume everything is wrong until you verify it.
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
-
 IF ANALYST REPORT EXISTS:
 1. Read the analyst's completeness report
-2. Verify ALL of their coverage audit claims (verify the scope items are actually covered)
+2. Spot-check 3-5 of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
 4. Check their verdict against your own independent assessment
 5. Apply the 10-item Research Gate checklist
@@ -777,9 +765,9 @@ Apply the full 10-item Research Gate checklist independently.
 
 10-ITEM CHECKLIST:
 1. File inventory — all research files exist with Status: Complete and Summary
-2. Evidence density — Verify EVERY claim in each file — verify file paths exist
+2. Evidence density — sample 3-5 claims per file, verify file paths exist
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
-4. Documentation cross-validation — all doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
+4. Documentation cross-validation — all doc-sourced claims tagged, spot-check 2-3 CODE-VERIFIED
 5. Contradiction resolution — no unresolved conflicting findings
 6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
 7. Depth appropriateness — matches the tier expectation
@@ -808,8 +796,6 @@ Output path: [output-path]
 You are verifying that synthesis files are ready for assembly into the final TDD.
 If fix_authorization is true, you can fix issues in-place using Edit.
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
-
 PROCESS:
 1. Use Glob to find ALL synth files (synth-*.md) in the synthesis directory
 2. Read EVERY synth file completely
@@ -821,9 +807,9 @@ PROCESS:
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
-1. Section headers match TDD template (.claude/templates/documents/tdd_template.md)
+1. Section headers match TDD template (docs/docs-product/templates/tdd_template.md)
 2. Table column structures correct (FR/NFR numbering, assessment tables, SLO/SLI tables)
-3. No fabrication (Verify EVERY claim in each file, trace to research files)
+3. No fabrication (sample 5 claims per file, trace to research files)
 4. Evidence citations use actual file paths
 5. Architecture sections include diagrams (ASCII or Mermaid)
 6. Requirements use FR-001/NFR-001 ID numbering with priority and acceptance criteria
@@ -847,13 +833,11 @@ Perform final QA validation of the assembled TDD for [component].
 QA phase: report-validation
 Report path: [report-path]
 Research directory: [research-dir-path]
-Template path: .claude/templates/documents/tdd_template.md
+Template path: docs/docs-product/templates/tdd_template.md
 Output path: [output-path]
 Fix authorization: true (always authorized for report validation)
 
 This is the final quality check before presenting to the user. You can and should fix issues in-place.
-
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
 1. Read the ENTIRE TDD document
@@ -898,7 +882,7 @@ Component files (in order):
 
 Output path: [tdd-output-path]
 Research directory: [research-dir-path]
-Template reference: .claude/templates/documents/tdd_template.md
+Template reference: docs/docs-product/templates/tdd_template.md
 
 CRITICAL — Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.
@@ -957,13 +941,50 @@ Consolidation protocol (when consolidating existing docs into this TDD):
 6. After assembly, the source docs should be candidates for archival (the TDD replaces them)
 ```
 
+### PRD Extraction Agent Prompt
+
+```
+Extract structured content from the PRD at {{PRD_REF}} and write to ${TASK_DIR}research/00-prd-extraction.md.
+
+CRITICAL — Incremental File Writing Protocol:
+1. FIRST ACTION: Create the output file immediately with a header.
+2. Append each section using Edit as you complete it.
+3. Never accumulate and one-shot.
+
+Extract the following 5 sections:
+
+## Section 1: Epics
+| Epic ID | Title | Description |
+|---------|-------|-------------|
+(One row per epic. Use the PRD's own epic identifiers.)
+
+## Section 2: User Stories and Acceptance Criteria
+For each epic, list user stories with bulleted acceptance criteria grouped by parent epic ID.
+
+## Section 3: Success Metrics
+| Metric | Baseline | Target | Measurement Method |
+|--------|----------|--------|--------------------|
+(One row per KPI. Preserve the PRD's metric names exactly.)
+
+## Section 4: Technical Requirements
+Flat list with requirement type labels (functional, non-functional, constraint).
+
+## Section 5: Scope Boundaries
+- **In scope:** (bulleted list)
+- **Out of scope:** (bulleted list)
+
+Tag each extracted item as [PRD-VERIFIED] (directly stated in PRD text with section reference) or [PRD-INFERRED] (derived from PRD context but not explicitly stated). Do NOT use [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags here -- those are for codebase research agents that compare documentation against source code. This agent extracts from a PRD (product requirements), not from code.
+
+This agent is read-only — it produces the extraction file only. No code changes.
+```
+
 ---
 
 ## Output Structure
 
 > **Note:** This section is reference documentation. The BUILD_REQUEST phases (Stage A) are authoritative for task file construction.
 
-The final TDD follows the template at `.claude/templates/documents/tdd_template.md`. The synthesis agents produce sections that are assembled into this format.
+The final TDD follows the template at `docs/docs-product/templates/tdd_template.md`. The synthesis agents produce sections that are assembled into this format.
 
 ```markdown
 ---
@@ -1091,13 +1112,15 @@ Maps synth files to TDD template sections and their source research files. Synth
 |------------|-------------------|----------------------|
 | `synth-01-exec-problem-goals.md` | 1. Executive Summary, 2. Problem Statement & Context, 3. Goals & Non-Goals, 4. Success Metrics | PRD extraction, architecture overview, existing docs |
 | `synth-02-requirements.md` | 5. Technical Requirements | PRD extraction, architecture overview, all subsystem research |
-| `synth-03-architecture.md` | 6. Architecture | architecture overview, integration points, subsystem research |
-| `synth-04-data-api.md` | 7. Data Models, 8. API Specifications | data models research, API surface research, web research (API standards, schema patterns) |
-| `synth-05-state-components.md` | 9. State Management, 10. Component Inventory, 11. User Flows | state management research, subsystem research |
-| `synth-06-error-security.md` | 12. Error Handling & Edge Cases, 13. Security Considerations | security research, all subsystem research, web research (security patterns, threat models) |
-| `synth-07-observability-testing.md` | 14. Observability & Monitoring, 15. Testing Strategy | architecture overview, integration points, web research (SLO benchmarks, testing patterns) |
+| `synth-03-architecture.md` | 6. Architecture | architecture overview, integration points, subsystem research, 00-prd-extraction.md (Section 4: Technical Requirements — architectural constraints) |
+| `synth-04-data-api.md` | 7. Data Models, 8. API Specifications | data models research, API surface research, web research (API standards, schema patterns), 00-prd-extraction.md (Section 2: User Stories and ACs — data model traceability) |
+| `synth-05-state-components.md` | 9. State Management, 10. Component Inventory, 11. User Flows | state management research, subsystem research, 00-prd-extraction.md (Section 2: User Stories and ACs — interaction flows; Section 5: Scope Boundaries) |
+| `synth-06-error-security.md` | 12. Error Handling & Edge Cases, 13. Security Considerations | security research, all subsystem research, web research (security patterns, threat models), 00-prd-extraction.md (Section 4: Technical Requirements — security and error-handling constraints) |
+| `synth-07-observability-testing.md` | 14. Observability & Monitoring, 15. Testing Strategy | architecture overview, integration points, web research (SLO benchmarks, testing patterns), 00-prd-extraction.md (Section 3: Success Metrics — KPIs to translate into observability targets; Section 2: ACs — acceptance criteria driving test coverage) |
 | `synth-08-perf-deps-migration.md` | 16. Accessibility, 17. Performance Budgets, 18. Dependencies, 19. Migration & Rollout | PRD extraction, architecture overview, all subsystem research, web research (performance benchmarks) |
 | `synth-09-risks-alternatives-ops.md` | 20. Risks, 21. Alternatives Considered, 22. Open Questions, 23. Timeline, 24. Release Criteria, 25. Operational Readiness, 26. Cost | PRD extraction, all research files, web research (industry practices), gaps log |
+
+**PRD extraction fallback:** When `00-prd-extraction.md` is absent (no PRD provided), synthesis agents skip PRD-sourced content for that mapping row and note "PRD source unavailable -- requirements derived from feature description and codebase research" in the synthesis file. Do not fail or block on the missing file.
 
 Adjust the mapping based on component complexity. Backend components skip Section 9 (State Management) and Section 10 (Component Inventory). Small components can combine more sections per synth file.
 
@@ -1111,7 +1134,7 @@ Adjust the mapping based on component complexity. Backend components skip Sectio
 
 The 9 criteria (used by rf-analyst):
 
-1. Template section headers match the TDD template exactly (`.claude/templates/documents/tdd_template.md`)
+1. Template section headers match the TDD template exactly (`docs/docs-product/templates/tdd_template.md`)
 2. Tables use the correct column structure (FR/NFR ID numbering, entity tables with Field/Type/Required/Description/Constraints, SLO/SLI/Error Budget tables)
 3. No content was fabricated beyond what research files contain
 4. Findings cite actual file paths and evidence (not vague descriptions)
@@ -1121,7 +1144,9 @@ The 9 criteria (used by rf-analyst):
 8. **No doc-only claims in Architecture (Section 6), Data Models (Section 7), or API Specs (Section 8).** Only `[CODE-VERIFIED]` findings may appear as current architecture. If the only evidence is a documentation file, reject and flag as `[UNVERIFIED — doc-only]`
 9. **Stale documentation discrepancies are surfaced.** Any `[CODE-CONTRADICTED]` or `[STALE DOC]` findings from research files should appear in Open Questions (Section 22), not silently omitted
 
-The rf-qa agent's Synthesis Gate adds 3 additional checks (10-12): content rules compliance, section completeness, and hallucinated file path detection. If synthesis QA fails, the QA agent fixes issues in-place (when authorized) and issues remaining unfixed trigger re-synthesis of the affected files.
+The rf-qa agent's Synthesis Gate adds 4 additional checks (10-13): content rules compliance, section completeness, hallucinated file path detection, and PRD traceability. If synthesis QA fails, the QA agent fixes issues in-place (when authorized) and issues remaining unfixed trigger re-synthesis of the affected files.
+
+13. **FR traceability** — spot-check 3 FRs in the synth-04 output: each must cite a PRD epic ID in its Source column. If any FR lacks a PRD epic citation and is not marked "[NO PRD TRACE]", flag as FAIL.
 
 ---
 
@@ -1277,8 +1302,6 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 14. **Partitioning thresholds.** When >6 research files exist (Phase 3) or >4 synthesis files exist (Phase 5), spawn MULTIPLE analyst and QA instances in parallel, each with an `assigned_files` subset. This prevents context rot when any single agent would need to hold too many files in context.
 
-15. **QA gates are checklist items, not prose.** Every QA gate specified in QA_GATE_REQUIREMENTS must appear in the generated task file as a `- [ ]` checklist item following B2 self-contained pattern. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped.
-
 ---
 
 ## Research Quality Signals
@@ -1326,7 +1349,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 | QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
 | Synthesis files | `${TASK_DIR}synthesis/synth-[NN]-[topic].md` |
 | Final TDD | `docs/[domain]/TDD_[COMPONENT-NAME].md` |
-| Template schema | `.claude/templates/documents/tdd_template.md` |
+| Template schema | `docs/docs-product/templates/tdd_template.md` |
 
 Research and synthesis files persist in the task folder — they serve as the evidence trail for claims in the TDD and can be re-used when the document needs updating.
 

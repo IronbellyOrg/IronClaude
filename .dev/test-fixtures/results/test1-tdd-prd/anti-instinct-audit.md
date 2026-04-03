@@ -1,27 +1,24 @@
 ---
-undischarged_obligations: 4
+undischarged_obligations: 1
 uncovered_contracts: 4
-fingerprint_coverage: 0.69
-total_obligations: 4
+fingerprint_coverage: 0.73
+total_obligations: 3
 total_contracts: 8
 fingerprint_total: 45
-fingerprint_found: 31
-generated: "2026-03-31T13:40:12.590317+00:00"
+fingerprint_found: 33
+generated: "2026-04-03T02:58:31.720175+00:00"
 generator: superclaude-anti-instinct-audit
 ---
 
 ## Anti-Instinct Audit Report
 ### Obligation Scanner
 
-- Total obligations detected: 4
-- Discharged: 0
-- Undischarged (gate-relevant): 4
+- Total obligations detected: 3
+- Discharged: 2
+- Undischarged (gate-relevant): 1
 
 **Undischarged obligations:**
-- Line 68: `skeleton` in Phase 0: Foundation and Infrastructure (Week 0, 1 week) (**objective:** provision all infrastructure dependencies, finalize security policies, and establish the project skeleton so that component development can proceed without blockers.)
-- Line 83: `skeleton` in Phase 0: Foundation and Infrastructure (Week 0, 1 week) (set)
-- Line 85: `stubs` in Phase 0: Foundation and Infrastructure (Week 0, 1 week) (auth_new_login)
-- Line 170: `stub` in Phase 1: Core Authentication (Week 1–3) (/auth/login)
+- Line 95: `skeleton` in Phase 0: Design and Foundation (Weeks 1–2) (library)
 
 ### Integration Contract Coverage
 
@@ -38,21 +35,19 @@ generator: superclaude-anti-instinct-audit
 ### Fingerprint Coverage
 
 - Total fingerprints: 45
-- Found in roadmap: 31
-- Coverage ratio: 0.69
+- Found in roadmap: 33
+- Coverage ratio: 0.73
 
-**Missing fingerprints** (14):
+**Missing fingerprints** (12):
 - `complexity_class`
 - `feature_id`
 - `spec_type`
 - `target_release`
 - `quality_scores`
-- `auth_login_total`
-- `auth_login_duration_seconds`
-- `auth_token_refresh_total`
-- `auth_registration_total`
 - `WHAT`
+- `RBAC`
+- `CORS`
 - `SMTP`
-- `NULL`
-- `NULLABLE`
+- `PRIMARY`
+- `AUTH_INVALID_CREDENTIALS`
 - `OWASP`

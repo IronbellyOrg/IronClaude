@@ -3,150 +3,136 @@ total_diff_points: 14
 shared_assumptions_count: 18
 ---
 
-## 1. Shared Assumptions and Agreements
+# Roadmap Comparative Diff Analysis
 
-Both variants agree on the following foundational elements:
+## 1. Shared Assumptions & Agreements
 
-1. **Complexity classification**: MEDIUM (0.55) with architect persona
-2. **Core tech stack**: PostgreSQL 15+, Redis 7+, Node.js 20 LTS, bcryptjs, jsonwebtoken, SendGrid, React
-3. **JWT architecture**: RS256 with 2048-bit RSA keys, 15-minute access token expiry, 7-day refresh token TTL in Redis, 5-second clock skew tolerance
-4. **Password hashing**: bcrypt cost factor 12 behind a `PasswordHasher` abstraction
-5. **Token storage security**: accessToken in memory only (not localStorage), refreshToken in HttpOnly cookie (R-001 mitigation)
-6. **Account lockout**: 5 failed attempts within 15 minutes
-7. **Rate limiting**: 10 req/min login, 5 req/min register at API gateway
-8. **Feature flags**: `AUTH_NEW_LOGIN` and `AUTH_TOKEN_REFRESH` for progressive rollout
-9. **Three-phase rollout**: Alpha → Beta 10% → GA 100%
-10. **Risk identification**: Both identify R-001 (token theft/XSS), R-002 (brute-force), R-003 (migration data loss)
-11. **OQ-EXT-001 conflict**: Both flag the 90-day vs 12-month audit log retention discrepancy
-12. **GDPR/SOC2 requirements**: Both acknowledge NFR-COMP-001 (consent), NFR-COMP-002 (audit logging), NFR-COMP-003 (data minimization)
-13. **Success criteria alignment**: p95 < 200ms login, 99.9% uptime, >1000 DAU, >60% registration conversion
-14. **Scope guardrails**: OAuth/OIDC, MFA, RBAC, social login all out of scope
-15. **Test coverage target**: 80% unit test coverage
-16. **Rollback triggers**: Both define latency and error rate thresholds for rollback
-17. **Infrastructure dependencies**: Same provisioning requirements (PostgreSQL, Redis, SendGrid, RSA keys)
-18. **API versioning**: Both use `/v1/auth/*` URL-prefix versioning
+Both variants agree on the following 18 points:
+
+1. **Complexity rating:** MEDIUM (0.55) — security-critical but architecturally well-understood
+2. **Business driver:** $2.4M projected revenue from personalization; SOC2 Type II audit in Q3 2026
+3. **Facade pattern:** `AuthService` orchestrating `PasswordHasher`, `TokenManager`, `JwtService`, `UserRepo`
+4. **Five functional requirements:** FR-AUTH-001 through FR-AUTH-005
+5. **Token design:** 15-minute JWT accessToken (RS256, 2048-bit RSA) + 7-day Redis-backed refreshToken
+6. **Password hashing:** bcrypt cost factor 12 with `PasswordHasher` abstraction for future argon2id migration
+7. **Infrastructure stack:** PostgreSQL 15+, Redis 7+, SendGrid
+8. **Rate limiting values:** 10/min login, 5/min register per IP; 60/min profile, 30/min refresh per user
+9. **Account lockout:** 5 failed attempts within 15 minutes
+10. **Audit log retention:** 12 months (PRD overrides TDD's 90-day)
+11. **XSS mitigation:** accessToken in memory only (not localStorage); HttpOnly cookie for refreshToken
+12. **Feature flags:** `AUTH_NEW_LOGIN` and `AUTH_TOKEN_REFRESH` with progressive rollout
+13. **Rollout strategy:** Alpha (internal) → Beta (10%) → GA (100%)
+14. **No user enumeration:** Identical responses for invalid/nonexistent accounts across all endpoints
+15. **GDPR consent:** Captured at registration with timestamp
+16. **Data minimization:** Only email, hashed password, displayName collected
+17. **Team shape:** 2 backend, 1 frontend, 1 QA, 0.5–1 security, 0.5–1 DevOps
+18. **Success criteria:** Same 10 metrics with identical targets
 
 ---
 
 ## 2. Divergence Points
 
-### D-01: Timeline — 10 weeks vs 20 weeks
+### D-01: Phase Count & Structure
+- **Opus:** 6 phases — Foundation, Token Lifecycle, Password Reset, Frontend, Observability/Hardening, Phased Rollout
+- **Haiku:** 4 phases (0–3) — Design & Foundation, Core Auth & Registration, Profile/Reset/Audit, Production GA & Stabilization
+- **Impact:** Opus's finer granularity provides clearer milestone boundaries but creates more handoff points. Haiku's consolidation reduces ceremony but packs more work per phase, risking milestone ambiguity.
 
-- **Opus**: 10–11 weeks across 5 phases (Foundation through GA)
-- **Haiku**: 20 weeks across 6 phases (Phase 0 through Phase 5d)
-- **Impact**: Opus assumes roughly half the calendar time. This is the single largest divergence. Opus's timeline is aggressive and assumes high parallelism and experienced team velocity. Haiku's timeline is conservative and includes explicit buffer for security review, runbook testing, and stability monitoring. A 10-week timeline risks underestimating integration complexity; a 20-week timeline risks scope creep and stakeholder fatigue.
+### D-02: Dedicated Design Phase (Phase 0)
+- **Opus:** Jumps directly into infrastructure provisioning in Phase 1; no explicit design/planning phase
+- **Haiku:** Dedicates Weeks 1–2 to architecture review, threat modeling, OQ resolution, team training, and IaC provisioning
+- **Impact:** Haiku's Phase 0 front-loads ambiguity resolution and team alignment. Opus assumes design happens implicitly alongside Phase 1 work, which could surface surprises mid-implementation.
 
-### D-02: Phase structure — 5 phases vs 6 phases (Phase 0 separation)
+### D-03: Open Question Resolution Strategy
+- **Opus:** Lists OQs as blocking specific phases with recommended resolution dates; leaves decisions to stakeholders
+- **Haiku:** Resolves all 8 OQs decisively in Phase 0 with specific architectural decisions (e.g., OQ-003: async via background queue; OQ-008: logout endpoint required)
+- **Impact:** Haiku's approach eliminates blocking ambiguity before development starts. Opus's deferred approach is more stakeholder-friendly but risks Phase 2–4 delays if decisions slip.
 
-- **Opus**: Infrastructure provisioning is Phase 1 (weeks 1–2), combined with project skeleton setup
-- **Haiku**: Dedicates a standalone Phase 0 (weeks -2 to 0) for infrastructure and policy finalization before any code begins
-- **Impact**: Haiku's Phase 0 forces explicit resolution of security policies (SEC-POLICY-001) and infrastructure readiness before development starts. Opus folds this into Phase 1 which could create blocking dependencies mid-sprint if provisioning slips.
+### D-04: Frontend/Backend Parallelization
+- **Opus:** Frontend is a distinct Phase 4 (Weeks 7–9) that begins after token lifecycle and password reset are complete
+- **Haiku:** Frontend development runs in parallel with backend throughout Phase 1 (Weeks 3–7), with dedicated weekly breakdowns for both tracks
+- **Impact:** Haiku's parallel approach is ~2 weeks faster on critical path. Opus's sequential approach is safer (frontend builds on stable APIs) but extends the timeline.
 
-### D-03: Compliance timing — Early vs Late
+### D-05: Total Duration
+- **Opus:** ~15 weeks (13 weeks development + overlap, rollout through Week 15)
+- **Haiku:** 12 weeks total (including Phase 0 design)
+- **Impact:** 3-week difference. Haiku is more aggressive, leveraging parallel frontend/backend tracks and consolidated phases. Opus has more buffer but risks feature flag fatigue in the extended rollout.
 
-- **Opus**: GDPR consent recording built into Phase 2 (registration flow); SOC2 audit logging foundation also in Phase 2
-- **Haiku**: Defers both GDPR consent (NFR-COMP-001) and SOC2 audit logging (NFR-COMP-002) to Phase 3 (weeks 9–12)
-- **Impact**: Opus's approach reduces rework risk — consent is baked into the registration schema from the start. Haiku's deferral means the registration flow must be retrofitted with consent logic later, potentially requiring migration of existing test data and schema changes. However, Haiku explicitly calls out this deferral and gates Phase 3→4 on compliance readiness.
+### D-06: Token Lifecycle Phasing
+- **Opus:** Dedicates a full phase (Phase 2, Weeks 4–5) to token lifecycle and session management
+- **Haiku:** Embeds token lifecycle into Phase 1 alongside login/registration (Week 6 of Phase 1)
+- **Impact:** Opus's isolation allows deeper focus on token edge cases. Haiku's integration is more efficient but may compress testing time for a security-critical component.
 
-### D-04: Frontend timing — Parallel vs Sequential
+### D-07: Logout Endpoint Decision
+- **Opus:** Lists OQ-008 (logout endpoint) as unresolved; suggests deciding before Phase 4
+- **Haiku:** Decides definitively: `POST /auth/logout` required for Alex persona; revokes refreshToken in Redis
+- **Impact:** Haiku provides a complete API surface from the start. Opus leaves a gap that could affect frontend `AuthProvider` design if the decision comes late.
 
-- **Opus**: Frontend components (`LoginPage`, `RegisterPage`, `ProfilePage`) are deferred to Phase 4 (weeks 5–7), after all backend components including token management are complete
-- **Haiku**: Frontend `LoginPage` and `RegisterPage` are built in Phase 1 (weeks 1–4) alongside core backend, with `ProfilePage` in Phase 3
-- **Impact**: Opus's approach ensures the backend API contract is stable before frontend work begins, reducing frontend rework. Haiku's approach enables earlier E2E testing and faster user-facing demos, but risks frontend changes if the token API evolves in Phase 2.
+### D-08: Observability Timing
+- **Opus:** Dedicated Phase 5 (Weeks 9–11) for observability, Prometheus metrics, OpenTelemetry tracing, and alerting
+- **Haiku:** Sets up APM instrumentation in Phase 0; metrics defined in operational readiness section; no dedicated observability phase
+- **Impact:** Opus's approach gives observability deep attention but delays it until near-rollout. Haiku's early instrumentation means performance baselines are available throughout development, enabling earlier detection of regressions.
 
-### D-05: Admin audit log query API — Deferred vs In-scope
+### D-09: Audit Logging Placement
+- **Opus:** Audit log table created in Phase 1 (schema); hardened and validated in Phase 5
+- **Haiku:** Full `AuditLogger` service implementation in Phase 2 (Weeks 8–10), integrated into all AuthService methods
+- **Impact:** Similar end result, but Opus splits the concern across two phases (schema early, implementation late), while Haiku consolidates. Haiku's approach means audit logging is validated during beta, which is better for SOC2 readiness.
 
-- **Opus**: Explicitly defers admin log query endpoint to post-GA (OQ-EXT-002)
-- **Haiku**: Includes admin audit log query API (GET `/auth/admin/logs`) as a Phase 3 deliverable with authorization middleware
-- **Impact**: Haiku adds ~18h of implementation work plus admin authorization middleware. This satisfies the Jordan (admin) persona needs from the PRD. Opus's deferral reduces v1.0 scope but leaves the admin persona underserved at launch.
+### D-10: Password Reset Token Storage
+- **Opus:** Stores reset tokens implicitly (storage mechanism not specified beyond "1-hour TTL")
+- **Haiku:** Explicitly stores reset tokens in PostgreSQL `password_reset_tokens` table with `used` flag for single-use enforcement
+- **Impact:** Haiku's specificity provides clearer implementation guidance and prevents the ambiguity of whether reset tokens go to Redis or PostgreSQL.
 
-### D-06: Logout endpoint — Different deferral strategies
+### D-11: Admin Endpoint for Jordan Persona
+- **Opus:** Lists admin API (OQ-007) as potentially Phase 5 or post-v1.0
+- **Haiku:** Includes account unlock endpoint (`POST /admin/users/:id/unlock`) in scope; provides interim log query via direct DB access
+- **Impact:** Haiku addresses the Jordan admin persona more concretely. Opus risks leaving admin workflows unaddressed at GA.
 
-- **Opus**: Identifies logout as OQ-EXT-003, recommends implementing as `POST /auth/logout` (low effort, PRD requires it) — suggests inclusion
-- **Haiku**: Explicitly defers logout to Phase 5 / v1.1
-- **Impact**: The PRD's AUTH-E1 epic mentions logout. Opus's recommendation to include it is more PRD-faithful. Haiku's deferral is a scope reduction that may cause PRD coverage gaps.
+### D-12: Integration Point Documentation
+- **Opus:** Dedicated Section 3 with 5 named integration points (AuthService facade, TokenManager→JwtService, AuthProvider→API, Feature Flags, Rate Limiting) with cross-phase references
+- **Haiku:** Uses inline tables per phase showing component wiring
+- **Impact:** Opus's centralized integration map is superior for cross-team communication and architectural review. Haiku's inline approach is easier to follow phase-by-phase but harder to trace cross-cutting concerns.
 
-### D-07: Team sizing — Implicit vs Explicit
+### D-13: Rollback Criteria Specificity
+- **Opus:** Explicit rollback triggers: p95 > 1000ms for 5 min, error rate > 5% for 2 min, Redis failures > 10/min, any data loss
+- **Haiku:** Rollback criteria mentioned but less precisely defined; references "rollback criteria not triggered" without listing thresholds in one place
+- **Impact:** Opus's explicit thresholds are operationally superior — on-call engineers need unambiguous triggers.
 
-- **Opus**: Lists team roles (auth-team, platform-team, frontend-team, QA, security) without headcount
-- **Haiku**: Specifies exact headcount: 5 backend, 2 frontend, 1 QA, 1 DevOps, 1 security (0.5 FTE), 1 product lead = ~11 FTE
-- **Impact**: Haiku's explicit resourcing enables realistic capacity planning and directly explains why the timeline is 20 weeks. Opus's omission makes it unclear whether the 10-week timeline is achievable with a realistic team.
-
-### D-08: Task-level estimation granularity
-
-- **Opus**: Provides task lists without hour estimates or sprint assignments
-- **Haiku**: Provides detailed task tables with owner, sprint week, hour estimates, blocking dependencies, and test references for every task
-- **Impact**: Haiku's granularity is immediately actionable for sprint planning. Opus requires a separate task breakdown pass before work can begin.
-
-### D-09: Account lockout implementation — Database vs In-process
-
-- **Opus**: Implies database-backed lockout (references `locked_until` implicitly through account lockout behavior)
-- **Haiku**: Explicitly specifies in-process hash map for lockout registry, acknowledges the persistence gap (users unlocked on restart), and plans Redis migration as future enhancement
-- **Impact**: Haiku is more architecturally honest about the trade-off. Opus doesn't address what happens to lockout state on service restart.
-
-### D-10: Wiring mechanism documentation depth
-
-- **Opus**: Provides integration point tables per phase showing named artifacts, wired components, owning phase, and consumers
-- **Haiku**: Provides the same plus a comprehensive appendix checklist enumerating every registry and dispatch mechanism across all phases with status tracking
-- **Impact**: Haiku's appendix serves as a cross-cutting verification artifact that prevents "forgot to wire X" failures. Opus's per-phase tables are useful but require mental assembly to get the full picture.
-
-### D-11: Password reset email — Async default vs Unresolved
-
-- **Opus**: Decides async (Redis queue-based) as the safer default for OQ-PRD-001
-- **Haiku**: Leaves async vs sync as an open question to resolve at Phase 3 start
-- **Impact**: Opus's decision-forward approach reduces ambiguity. Haiku's deferral could delay Phase 3 implementation if the decision isn't made promptly.
-
-### D-12: Approval gates between phases
-
-- **Opus**: Defines exit criteria per phase but no formal approval gate process
-- **Haiku**: Defines explicit approval gates with named approvers and success criteria at every phase boundary
-- **Impact**: Haiku's gates provide governance checkpoints suitable for SOC2 audit evidence. Opus's approach is leaner but may lack the formal accountability trail needed for compliance.
-
-### D-13: Rollback trigger specificity
-
-- **Opus**: Defines 4 specific rollback triggers with numeric thresholds (p95 > 1000ms for 5 min, error rate > 5% for 2 min, Redis failures > 10/min, any data corruption)
-- **Haiku**: Describes rollback capability but rollback triggers are less precisely defined (refers to metrics being "within normal ranges")
-- **Impact**: Opus's specific thresholds are operationally superior — on-call engineers can make instant rollback decisions without judgment calls.
-
-### D-14: Audit log retention default
-
-- **Opus**: Implements 12-month as the conservative default pending resolution
-- **Haiku**: Leaves the decision explicitly unresolved, marking it as "MUST RESOLVE by Phase 3 M3.4"
-- **Impact**: Opus's approach is pragmatically safer — building for the longer retention is backwards-compatible. Haiku's approach forces an explicit decision but risks Phase 3 delays if stakeholders don't resolve promptly.
+### D-14: Risk Table Detail
+- **Opus:** 7 risks with severity, phase addressed, mitigation strategy
+- **Haiku:** 7 risks with severity, probability, impact, mitigation, contingency, owner, and monitoring columns
+- **Impact:** Haiku's risk table is significantly more actionable with ownership, monitoring methods, and contingency plans. Opus's is adequate but lacks operational depth.
 
 ---
 
 ## 3. Areas Where One Variant Is Clearly Stronger
 
-### Opus is stronger in:
+### Opus Strengths
+- **Integration point documentation** (D-12): Centralized dispatch table with cross-phase references is architecturally superior for a team coordination artifact
+- **Rollback criteria** (D-13): Explicit, measurable thresholds ready for runbook inclusion
+- **Phase granularity** (D-01): Clearer milestone boundaries make progress tracking and gate decisions simpler
+- **Compliance gate per phase**: Phase 1 includes an explicit compliance checkpoint before proceeding
 
-- **Decision-forward defaults**: Resolves open questions with conservative defaults rather than leaving them open (audit retention, async email, consent field, logout endpoint)
-- **Rollback trigger precision**: Specific numeric thresholds make rollback operationally executable
-- **Compliance timing**: Building GDPR consent and audit logging into Phase 2 avoids retrofit costs
-- **Conciseness**: ~40% shorter while covering the same functional requirements — easier to maintain and reference
-- **Business context**: Includes revenue impact ($2.4M) and SOC2 deadline (Q3 2026) that anchor priority decisions
-
-### Haiku is stronger in:
-
-- **Implementation actionability**: Hour estimates, sprint assignments, and owner fields make it immediately sprint-plannable
-- **Team resourcing**: Explicit headcount and FTE allocation enables realistic capacity planning
-- **Wiring completeness**: Appendix checklist is a powerful cross-cutting verification artifact
-- **Governance formality**: Named approval gates at every phase boundary satisfy compliance audit requirements
-- **Risk analysis depth**: More risks identified (8 vs 5) with per-phase mitigation tables and specific trigger conditions
-- **Phase 0 separation**: Forces infrastructure and policy readiness before development starts
+### Haiku Strengths
+- **Phase 0 design phase** (D-02): Front-loading ambiguity resolution is a best practice that Opus omits entirely
+- **OQ resolution** (D-03): Decisive answers to all 8 open questions prevent downstream blocking
+- **Parallel development** (D-04): Frontend/backend concurrency saves ~2–3 weeks on critical path
+- **Risk table depth** (D-14): Owner, monitoring, contingency columns make risks operationally actionable
+- **Implementation detail** (D-10, D-11): More specific on storage mechanisms, admin endpoints, and weekly task breakdowns
+- **Observability timing** (D-08): Early APM instrumentation enables data-driven decisions throughout development
+- **Weekly cadence** section: Provides concrete ceremony schedule (Mon/Wed/Fri activities) absent from Opus
 
 ---
 
 ## 4. Areas Requiring Debate to Resolve
 
-1. **Timeline realism (D-01)**: Is 10 weeks achievable? Opus doesn't specify team size. If the team is the ~11 FTE Haiku assumes, 10 weeks may be feasible with aggressive parallelism. If the team is smaller, 10 weeks is unrealistic. This needs to be resolved against actual team capacity.
+1. **Sequential vs. parallel frontend development (D-04):** Opus's sequential approach guarantees stable APIs before frontend builds on them; Haiku's parallel approach is faster but requires API contract discipline (OpenAPI spec finalized in Phase 0). **Debate question:** Is the team mature enough for contract-first parallel development?
 
-2. **Frontend sequencing (D-04)**: Should frontend start in Phase 1 (Haiku) or wait until Phase 4 (Opus)? This depends on whether the frontend team would otherwise be idle and whether early E2E validation outweighs potential rework from API changes.
+2. **Dedicated observability phase vs. early instrumentation (D-08):** Opus's Phase 5 gives observability focused attention; Haiku's Phase 0 setup gives earlier data. **Debate question:** Is it better to instrument early and iterate, or dedicate a hardening phase? (Likely answer: instrument early, validate in a gate.)
 
-3. **Admin audit API scope (D-05)**: Is the Jordan persona's needs a v1.0 requirement or v1.1? This is ultimately a product decision. If SOC2 audit requires admin log access by Q3 2026, it must be in v1.0.
+3. **Phase 0 design phase necessity (D-02):** Haiku spends 2 weeks on design before coding. Opus starts building in Week 1. **Debate question:** Does this team/org need an explicit design phase, or can architecture be validated in parallel with Phase 1 infrastructure work?
 
-4. **Compliance timing trade-off (D-03)**: Opus's early integration is technically cleaner. Haiku's deferral groups compliance work into a focused phase. The right answer depends on whether the team can handle compliance work interleaved with core feature development or whether dedicated focus is needed.
+4. **12 weeks vs. 15 weeks (D-05):** Haiku's 12-week timeline is aggressive but achievable with parallel tracks. Opus's 15 weeks includes more buffer. **Debate question:** What is the external deadline? If SOC2 audit is Q3 2026, 15 weeks (ending ~July) may be fine; if personalization features need auth by June, 12 weeks is necessary.
 
-5. **Governance overhead (D-12)**: Opus's lightweight exit criteria vs Haiku's formal approval gates. For a SOC2-bound project, formal gates may be non-negotiable. For a startup moving fast, they may slow delivery unnecessarily.
+5. **OQ resolution authority (D-03):** Haiku resolves all OQs with architect authority. Opus defers to stakeholders. **Debate question:** Does the architect have mandate to make these decisions, or do OQ-005 ("remember me") and OQ-008 (logout) require product sign-off?
 
-6. **Granularity vs maintainability**: Haiku's task-level detail is immediately useful but expensive to maintain as plans change. Opus's higher-level structure is more resilient to plan evolution but requires additional planning work before execution. The right level depends on team maturity and PM tooling.
+6. **Rollout duration (D-01):** Opus allocates 4 weeks for rollout (Weeks 11–15); Haiku allocates 2 weeks (Weeks 11–12). **Debate question:** For a security-critical auth migration, is 2 weeks of production validation sufficient, or does the 4-week graduated rollout provide necessary safety?

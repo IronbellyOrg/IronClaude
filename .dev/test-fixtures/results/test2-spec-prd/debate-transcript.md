@@ -3,168 +3,147 @@ convergence_score: 0.72
 rounds_completed: 2
 ---
 
-# Adversarial Debate: Opus (Variant A) vs Haiku (Variant B)
+# Adversarial Debate: Opus Architect (Variant A) vs Haiku Architect (Variant B)
 
 ## Divergence Points Under Debate
 
-Five key divergences from the diff analysis warrant structured debate:
-
-1. **D1/D2**: Phase structure and timeline (4 phases/14 weeks vs 2 phases/6 weeks)
-2. **D3**: Audit log provisioning timing
-3. **D4**: Security review checkpoint placement
-4. **D7**: Password policy enforcement location
-5. **D11**: Account lockout handling
+1. Phase structure and timeline (4 phases/12 weeks vs 2 phases/7-10 weeks)
+2. Max refresh tokens per user (5 bounded vs unlimited)
+3. Account lockout policy (progressive vs single threshold)
+4. Dedicated hardening phase (yes vs embedded)
+5. UX testing timing (Phase 4 vs Phase 1 exit gate)
+6. Password reset rate limiting (absent vs explicit)
+7. Performance target differentiation (uniform vs endpoint-specific)
+8. Key rotation overlap window (unspecified vs 30-day)
 
 ---
 
 ## Round 1: Initial Positions
 
-### D1/D2 — Phase Structure & Timeline
+### D1: Phase Structure and Timeline
 
-**Variant A (Opus):**
-Four phases across 14 weeks provides essential go/no-go gates between Foundation, Core Auth, Session/Recovery, and Compliance. Each gate is a stakeholder checkpoint where scope can be adjusted, risks reassessed, and quality validated before committing to the next phase. The 14-week timeline reflects realistic single-threaded delivery with sprint overlap — not padding. Security-critical systems should not be rushed. The compliance phase (Phase 4) being isolated ensures audit logging, performance validation, and security review receive dedicated focus rather than being squeezed into the tail of a feature sprint.
+**Variant A (Opus):** Four phases over 12 weeks provides the discipline this project demands. Authentication is security-critical — you don't compress security-critical work to hit a calendar date. Each phase has explicit exit criteria, numbered milestones (M1-M8), and a clean dependency chain. Phase 1 isolates foundation from endpoint work so that cryptographic modules are fully tested before any API surface touches them. Stakeholders get 8 numbered go/no-go checkpoints. The 12-week timeline is not padding — it reflects the reality that penetration testing, UX iteration, and load testing each need dedicated calendar time, not a compressed afterthought.
 
-**Variant B (Haiku):**
-Two phases across 6 weeks reflects parallel FTE allocation (~2.8 FTE) and eliminates unnecessary coordination overhead. Four go/no-go gates for a medium-complexity service is bureaucratic — the mid-stream security review at Week 3 provides sufficient validation before expanding scope. The 6-week timeline is achievable because: (1) Backend Lead and Support work in parallel after core services are ready, (2) QA begins test planning in Week 1, (3) DevOps provisions infrastructure concurrently. The 14-week estimate either assumes serial execution or inflates buffer. For a Q2 2026 compliance deadline, 14 weeks may not even be available.
+**Variant B (Haiku):** Seven to ten weeks with a 2-3 week buffer is both faster and more honest. The Q2 deadline is June 30 — a 12-week timeline starting in April lands you in late June with zero margin. Our 2-phase structure delivers working software in 4 weeks and compliance-ready software in 7, leaving a real buffer for the surprises that always appear in security work. Finer granularity in milestones is a project management comfort, not an engineering necessity. The team doesn't need 8 milestones to build auth — they need clear exit gates and the discipline to meet them. We provide both, with the added benefit that our Phase 1 exit gate includes UX validation, so we catch conversion problems before building the entire system.
 
----
+### D2: Max Refresh Tokens Per User (OQ2)
 
-### D3 — Audit Log Provisioning Timing
+**Variant A (Opus):** Five tokens maximum, oldest revoked on overflow. This is the responsible choice. Bounded storage means predictable database growth, simpler security auditing, and a clear mental model for the team. Five covers the realistic device count (phone, laptop, tablet, work machine, home machine). If a user has six devices, the oldest session gets revoked — that's a feature, not a bug. It limits the blast radius of a compromised account. Unlimited tokens with per-device rotation sounds user-friendly until you realize it requires per-device tracking infrastructure, has unbounded storage implications, and makes security forensics harder because there's no upper bound on active sessions to investigate.
 
-**Variant A (Opus):**
-Deferring audit logging to Phase 4 keeps early phases focused on functional correctness. Audit logging is an instrumentation concern that should wrap completed, stable handlers — not incomplete ones. Wiring audit events into Phase 1-2 handlers that are still being actively modified creates churn. The Phase 4 "retrofit" is straightforward: each handler emits a structured event through a dispatcher. The schema and dispatcher can be defined early; the wiring happens once handlers are stable.
+**Variant B (Haiku):** Unlimited with per-device rotation is the correct product decision. JTBD #2 explicitly calls for multi-device session persistence. Capping at 5 creates an arbitrary ceiling that will frustrate users with legitimate multi-device setups — work laptop, personal laptop, phone, tablet, smart TV, shared family device. The "oldest revoked on overflow" behavior is invisible to the user and will generate confused support tickets. Per-device rotation is not exotic infrastructure — it's a device_id column on the refresh_tokens table and a rotation check per device. Storage is bounded in practice because refresh tokens expire after 7 days. The theoretical "unbounded" concern is a phantom — real users don't have 500 devices.
 
-**Variant B (Haiku):**
-Pre-provisioning the `audit_logs` table in Phase 1 Week 1 and wiring event dispatch incrementally is architecturally superior. The "retrofit problem" Opus acknowledges in its own Phase 4 integration points table ("retroactive wiring into Phase 2–3 handlers") is a real risk: handlers written without audit awareness may not capture the right context (IP address, outcome, user_id at the correct scope). Incremental wiring means each handler is tested with audit logging from the start. If SOC2 compliance is a hard deadline, discovering audit gaps in Week 12 of a 14-week plan is unacceptable.
+### D3: Account Lockout Policy (OQ3)
 
----
+**Variant A (Opus):** Progressive lockout — 5 failures triggers 15 minutes, 10 failures triggers 1 hour, 20 failures requires admin unlock. This provides defense-in-depth against sustained brute-force attacks while being proportionate. A legitimate user who fat-fingers their password 5 times waits 15 minutes. An attacker who scripts 20 attempts gets permanently locked until an admin intervenes. The progressive model communicates escalating severity and gives the security team a signal gradient — a 15-minute lock is noise, a 1-hour lock is a warning, an admin-unlock event is an incident.
 
-### D4 — Security Review Checkpoint Placement
+**Variant B (Haiku):** Single threshold: 5 failures, 15-minute lock, admin unlock capability. This is simpler to implement, simpler to explain to users, and simpler to test. The progressive model adds complexity for marginal security benefit — the real protection comes from rate limiting (5 attempts/minute/IP), which both roadmaps include. Progressive lockout is solving a problem that rate limiting already addresses. If an attacker bypasses IP-based rate limiting, they have bigger problems than lockout thresholds. Ship simple in Phase 1, upgrade to progressive in a hardening sprint if the threat model warrants it.
 
-**Variant A (Opus):**
-A single, comprehensive security review in Phase 4.3 allows the security engineer to evaluate the complete system holistically — token lifecycle, password handling, rate limiting, and input validation all in context. Fragmenting security review across multiple checkpoints risks incomplete coverage where interactions between components are missed. The Phase 4 review also includes penetration testing, which requires a complete system. Security engineers are scarce; concentrating their time is more efficient.
+### D4: Dedicated Hardening Phase
 
-**Variant B (Haiku):**
-A mid-stream security review at Phase 1 Week 3 (Milestone 1.5.2) catches fundamental flaws in password hashing, JWT signing, and secrets management before those primitives are consumed by every subsequent feature. Discovering that bcrypt cost factor configuration is wrong, or that the JWT implementation is vulnerable to algorithm confusion, in Week 12 forces rework of everything built on those foundations. The pre-production pen test still happens — the mid-stream review is additive, not a replacement. At 0.3 FTE, the security engineer's time is already budgeted for Phase 1 involvement.
+**Variant A (Opus):** A full 3-week Phase 4 for load testing, security review, penetration testing, UX testing, and production deployment. This is non-negotiable for a security-critical system. Penetration testing alone can surface findings that require 1-2 weeks of remediation. UX testing on the registration funnel may require iteration. Load testing under realistic concurrency reveals timing-dependent bugs that unit tests never catch. Compressing all of this into a single week plus a vague "buffer" is how teams ship insecure software and then spend months patching it.
 
----
+**Variant B (Haiku):** Hardening is embedded in Phase 2 (Week 7) with a 2-3 week buffer for overruns. The buffer is not vague — it's explicit contingency for exactly the remediation scenarios Opus describes. The difference is that we don't pretend to know in advance that remediation will take exactly 3 weeks. A buffer absorbs variable outcomes. A fixed 3-week hardening phase creates calendar pressure if Phase 3 slips, which it often does when email service integration hits real-world delivery issues. Our approach is more resilient to upstream delays.
 
-### D7 — Password Policy Enforcement Location
+### D5: UX Testing Timing
 
-**Variant A (Opus):**
-Enforcing password policy at the registration endpoint keeps concerns separated. PasswordHasher's responsibility is hashing — it should not know about business rules like "1 uppercase required." Policy may differ across contexts (registration vs password reset vs admin-set password). Endpoint-level enforcement allows context-specific rules and clearer error messages (the endpoint knows the user-facing context). This follows the Single Responsibility Principle.
+**Variant A (Opus):** UX testing in Phase 4 (Tasks 4.7, 4.8) after the full system is built. This allows testing the complete user journey — registration through password reset — in a single cohesive UX evaluation. Testing fragments of the flow early produces incomplete insights because the user experience is the whole journey, not individual endpoints.
 
-**Variant B (Haiku):**
-Enforcing password policy inside PasswordHasher at hash time is defense-in-depth. If any caller bypasses the endpoint layer (direct service call, test harness, future API), the policy is still enforced. The question "will password policy ever be checked without hashing?" has the answer "no" — every password validation leads to a hash. Coupling validation to hashing means it is impossible to store a weak password. The slight coupling is worth the guarantee.
+**Variant B (Haiku):** Phase 1 exit gate requires > 60% registration conversion before proceeding to Phase 2. This catches the most expensive UX problem — a registration funnel that doesn't convert — before you invest 3 more weeks building password reset and compliance features on top of it. If registration conversion is 30%, you need to fix the funnel, not build more features. Testing the "complete journey" in Phase 4 means discovering fundamental UX issues after 10 weeks of development. That's not thoroughness — it's waste.
 
----
+### D6: Password Reset Rate Limiting
 
-### D11 — Account Lockout Handling
+**Variant A (Opus):** Not explicitly addressed. Rate limiting is applied to the login endpoint (5 attempts/minute/IP), and general security review covers edge cases.
 
-**Variant A (Opus):**
-Progressive lockout (5 failures → 15min, 10 → 1hr, 20 → admin unlock) provides account-level protection against credential stuffing that IP-level rate limiting cannot catch. Attackers using distributed IPs bypass per-IP limits trivially. Without account lockout, an attacker with a botnet can attempt unlimited passwords against a specific account. The implementation is straightforward: a failure counter on the user record with a lockout timestamp. This should be in v1.0 given the security profile of the service.
+**Variant B (Haiku):** 10 password reset requests per hour per email address. This is not an edge case — email bombing via password reset is a well-known abuse vector. Without this limit, an attacker can trigger hundreds of reset emails to a target user, flooding their inbox and potentially causing SendGrid to throttle or block the sending domain. This protection costs approximately 30 minutes of implementation time and prevents a real operational incident.
 
-**Variant B (Haiku):**
-Deferring account-level lockout to v1.1 is pragmatic scope management for v1.0. IP-level rate limiting (5/min/IP) provides baseline protection. Account lockout introduces UX complexity (legitimate users locked out, customer support burden, DoS vector where attackers intentionally lock out target accounts). For v1.0 with limited user base, IP-level limiting is sufficient. The lockout mechanism can be designed properly in v1.1 with user feedback from v1.0 informing the policy.
+### D7: Performance Target Differentiation
+
+**Variant A (Opus):** All auth endpoints must meet < 200ms p95. A uniform target is simpler to communicate, simpler to monitor, and sets a high bar for the entire service.
+
+**Variant B (Haiku):** Login at < 200ms p95, password reset at < 500ms p95. Password reset involves email dispatch (even async, there's queue submission overhead), more database operations (token generation, storage, user lookup), and potentially rate limit checks. Applying a 200ms target to an endpoint that legitimately does more work creates either (a) a false failure in performance testing or (b) engineering effort to optimize an endpoint where 500ms is perfectly acceptable UX. Differentiated targets reflect operational reality.
+
+### D8: Key Rotation Overlap Window
+
+**Variant A (Opus):** 90-day rotation schedule with documented procedure (Task 4.6). Does not specify how existing tokens are handled during the rotation window.
+
+**Variant B (Haiku):** Quarterly rotation with a 30-day overlap window for graceful deprecation. During the overlap, both the old and new keys are valid for token verification. This is an essential architectural detail — without it, a key rotation event invalidates every active access token, causing a service-wide forced logout for all users. The overlap window is not optional; it's a requirement for zero-downtime rotation.
 
 ---
 
 ## Round 2: Rebuttals
 
-### D1/D2 — Phase Structure & Timeline
+### D1: Phase Structure and Timeline
 
-**Variant A rebutting B:**
-The 2.8 FTE assumption is optimistic for a greenfield security service. Haiku's parallel execution assumes no blocking dependencies between Backend Lead and Support, but the critical path (TokenManager → AuthService → Endpoints) is inherently serial. The Support engineer cannot write endpoints until AuthService interfaces are stable. The 6-week estimate also compresses security review, compliance validation, load testing, and penetration testing into a single week (Week 6) — any slip cascades into a missed deadline. Four phases provide slack absorption points that two phases lack.
+**Variant A rebuttal to B:** The "buffer" is a euphemism for unplanned time. A named Phase 4 with specific tasks (4.1-4.12) is accountable. A buffer is a blank check. If hardening has no structured plan, it won't get the rigor it deserves — teams fill buffers with scope creep, not security testing. And on the Q2 deadline: if 12 weeks is genuinely too long, the answer is more engineers, not compressed security validation.
 
-**Variant B rebutting A:**
-Opus's 14-week timeline does account for sprint overlap (Sprints 1-2 overlap, 3-5 overlap), which already implies parallel execution — yet still arrives at 14 weeks. This suggests either inflated task estimates or insufficient parallelization. The critical path concern is valid but overstated: DI interfaces can be defined in Week 1 (Milestone 1.1.3), allowing Support to write endpoint stubs against interfaces while Lead implements services. The real question is team capacity — if only 1 FTE is available, 14 weeks may be right; if 2.8 FTE is available, 6 weeks is achievable. This is a staffing input, not an architectural disagreement.
+**Variant B rebuttal to A:** The 12-week plan allocates 2 full weeks to foundation work that experienced teams complete in 3-4 days. Schema creation, key provisioning, and three service modules (PasswordHasher, JwtService, TokenManager) are well-understood patterns with library support — they don't need a dedicated 2-week phase with separate exit criteria. Opus's timeline reflects caution, not complexity. And "more engineers" for a 12-week auth project is a red flag — auth implementations have a small critical path that doesn't parallelize well beyond 2-3 backend engineers.
 
-**Convergence:** Both sides agree the timeline depends on team capacity. The true estimate is likely 8-10 weeks with ~2 FTE, acknowledging serial critical path constraints but allowing parallel endpoint and test work.
+### D2: Max Refresh Tokens Per User
 
----
+**Variant A rebuttal to B:** "Storage is bounded in practice" is a hope, not a guarantee. A compromised account with automated token generation can create thousands of refresh tokens in 7 days if there's no cap. Per-device rotation requires a device_id, which means either a device fingerprinting mechanism (privacy implications, GDPR relevance) or a user-managed device list (UX complexity deferred to v1.1). The 5-token cap is a simple server-side control that contains both storage and security risk without requiring any additional infrastructure.
 
-### D3 — Audit Log Provisioning Timing
+**Variant B rebuttal to A:** A compromised account with automated token generation is already detectable via the replay detection mechanism that both roadmaps include — reusing a rotated token revokes all tokens. The 5-token cap doesn't prevent compromise; it limits legitimate use. Device identification doesn't require fingerprinting — it's a client-generated UUID stored alongside the refresh token. No privacy implications, no user-managed list. The real question is: do we want users calling support because their sixth device logged them out of their fifth? The answer is no.
 
-**Variant A rebutting B:**
-Pre-provisioning the table is fine — the disagreement is about when to wire event dispatch. Wiring audit events into handlers during active development creates noise: every handler change requires updating the corresponding audit test. If the audit event schema changes (which it will, given Open Question #5 is unresolved), all wired handlers must be updated. Better to define the schema, provision the table, and wire once handlers are stable.
+### D3: Account Lockout Policy
 
-**Variant B rebutting A:**
-The "noise" argument assumes audit logging is an afterthought rather than a first-class concern. If handlers are designed with audit-awareness from the start (emitting events through a dispatcher interface), the wiring is trivial and stable even as handlers evolve. Opus's own roadmap acknowledges this creates "retroactive wiring" — a term that implicitly concedes the approach is suboptimal. The Open Question #5 risk is mitigated by provisioning the table with the PRD's specified fields (user_id, event_type, timestamp, IP, outcome), which both variants agree on.
+**Variant A rebuttal to B:** "Ship simple, upgrade later" is how security debt accumulates. The progressive model is approximately 20 additional lines of code — a counter with two threshold checks instead of one. The implementation cost difference is trivial. The security benefit is real: a 15-minute lock on a persistent attacker resets every 15 minutes, giving them infinite attempts at 20 per hour. A progressive model escalates to admin-required unlock, which creates a human checkpoint against sustained attacks. The marginal implementation cost is near-zero; the marginal security benefit is meaningful.
 
-**Convergence:** Both agree the table should be provisioned early. The remaining dispute is narrow: wire incrementally (Haiku) vs wire once at the end (Opus). Given that both variants specify the same audit fields and SOC2 is a hard deadline, incremental wiring is the lower-risk approach. **Haiku wins this point.**
+**Variant B rebuttal to A:** Twenty lines of code is accurate for the logic, but the testing surface is larger — you need tests for each threshold transition, timer reset behavior, concurrent failure counting, and the admin unlock flow. That's a meaningful addition to Phase 1 scope when the team is already building the core auth flow. The progressive model is a v1.1 enhancement, not a v1.0 requirement. Rate limiting at the IP level is the primary defense; account lockout is a secondary control. Ship the secondary control in its simplest form and iterate.
 
----
+### D5: UX Testing Timing
 
-### D4 — Security Review Checkpoint Placement
+**Variant A rebuttal to B:** Early UX testing on an incomplete flow gives incomplete data. Users testing registration in Week 4 will hit a dead end — no password reset, no session persistence beyond the current tab, no real personalization behind the login wall. Their conversion rate in this artificial environment doesn't predict real-world conversion. Phase 4 testing with the complete flow gives actionable data.
 
-**Variant A rebutting B:**
-The mid-stream review adds a Phase 2 blocker — if the security engineer finds issues, Phase 2 is delayed while fixes are applied. A holistic end-stage review avoids this pipeline stall. The specific risks Haiku cites (algorithm confusion, cost factor misconfiguration) are caught by unit tests, not security reviews. The security review's value is in system-level analysis: can the complete authentication flow be exploited? That requires the complete system.
+**Variant B rebuttal to A:** Registration conversion doesn't require a complete flow to measure. Users either complete the registration form or they don't. If the form has confusing validation rules, unclear password requirements, or a broken consent checkbox, that's discoverable in Week 4 without password reset being functional. Waiting until Week 10 to discover that 80% of users abandon at the password policy tooltip is a 6-week waste. You don't need the whole house built to test whether the front door opens.
 
-**Variant B rebutting A:**
-Unit tests catch what you test for — they don't catch what you don't know to test. Algorithm confusion attacks are a known JWT vulnerability class that a security engineer would specifically probe for, but a developer might not think to test. A mid-stream review is cheaper than end-stage rework: fixing a flawed PasswordHasher in Week 3 affects 1 service; fixing it in Week 12 affects every handler built on it. The Phase 2 delay risk is real but manageable — at 0.3 FTE, the review is 1-2 days, not weeks.
+### D6: Password Reset Rate Limiting
 
-**Convergence:** Both agree a pre-production security review is essential. The dispute is whether an additional earlier checkpoint is worth the coordination cost. Given the security-critical nature of the service, an early review of foundational primitives (hashing, signing, key management) is high-value and low-cost. **Haiku's approach is stronger, but both agree on the pre-production review.**
+**Variant A rebuttal to B:** Fair point. This is an oversight. Password reset rate limiting should be included. It's a straightforward addition to Phase 3 scope.
 
----
+**Variant B rebuttal to A:** Acknowledged. This isn't a fundamental architectural disagreement — it's a gap in Variant A's specification that can be addressed with a single task addition.
 
-### D7 — Password Policy Enforcement Location
+### D7: Performance Target Differentiation
 
-**Variant A rebutting B:**
-"Every password validation leads to a hash" is not strictly true — password policy can be validated for user feedback (inline form validation) without hashing. The frontend needs to check policy before submission. If PasswordHasher owns policy, the frontend must duplicate it or call the backend for validation. Endpoint-level policy keeps the validation near the user interaction layer. Defense-in-depth is valuable, but not at the cost of responsibility confusion.
+**Variant A rebuttal to B:** A uniform target drives engineering discipline. If password reset can't meet 200ms, the async email dispatch isn't truly async — the endpoint should return immediately after queuing, which should be well under 200ms. The 500ms target implies synchronous email sending, which both roadmaps recommend against (OQ1 resolution: async).
 
-**Variant B rebutting A:**
-Frontend validation is always duplicated regardless — it's a UX optimization, not a security boundary. The backend must enforce policy independently of the frontend. Whether it enforces at the endpoint layer or the hash layer, the frontend still has its own copy. The question is: on the backend, where is the last line of defense? Inside PasswordHasher, the policy cannot be bypassed by any code path. At the endpoint, a future internal service call could bypass it. Defense-in-depth is the correct principle for a security-critical component.
+**Variant B rebuttal to A:** Even with async email, the password reset endpoint performs: user lookup, rate limit check, token generation, token hash + storage, queue submission, and response formatting. That's more database operations than login (which is: user lookup, password verify, token issue). A 200ms target is achievable but creates unnecessary optimization pressure. The 500ms target isn't an excuse for synchronous email — it's realistic headroom for a legitimately heavier endpoint. If it comes in at 180ms, great. But failing a performance gate at 210ms on an endpoint where users perceive anything under 1 second as instant is poor engineering prioritization.
 
-**Convergence:** This is a genuine design trade-off with no clear winner. Both approaches are defensible. A pragmatic resolution: validate at the endpoint for user-facing error messages, and add a guard assertion inside PasswordHasher as a backstop. This gives both contextual error handling and defense-in-depth. **Draw — merge both approaches.**
+### D8: Key Rotation Overlap Window
 
----
+**Variant A rebuttal to B:** The overlap window is a valid architectural requirement that should have been specified. We accept this as a gap in our rotation procedure documentation. The 90-day rotation schedule can be amended to include a 30-day overlap with dual-key verification.
 
-### D11 — Account Lockout Handling
-
-**Variant A rebutting B:**
-The "DoS via intentional lockout" concern is mitigated by progressive lockout with timed auto-unlock (15min, 1hr) rather than permanent lock. Only the 20-failure threshold requires admin intervention, which is appropriate for what would clearly be an attack. IP-level rate limiting alone is ineffective against distributed attacks — this is well-documented in OWASP guidelines. Deferring account protection to v1.1 leaves a known security gap in a v1.0 that has compliance requirements.
-
-**Variant B rebutting A:**
-Progressive lockout with auto-unlock is reasonable but adds implementation scope: failure counter storage, lockout state checks on every login, timer-based unlock logic, admin unlock interface (or at minimum, a database query). For v1.0 with a limited user base and a compliance deadline, the attack surface is low. The security gap is real but bounded — IP-rate limiting catches naive attacks, and monitoring (which both variants include) catches sophisticated ones. Implementing lockout properly in v1.1 with real usage data is better than rushing it into v1.0.
-
-**Convergence:** Both acknowledge the security gap. The resolution depends on timeline pressure: if 6 weeks, defer; if 14 weeks, include. A middle ground: implement the failure counter and lockout state in v1.0 schema (zero additional endpoint scope), but defer the unlock flow and admin interface to v1.1. This captures the data needed for v1.1 without adding v1.0 scope.
+**Variant B rebuttal to A:** Agreed. This is a specification gap, not a fundamental disagreement. Both roadmaps converge on quarterly rotation with the addition of the overlap window.
 
 ---
 
 ## Convergence Assessment
 
-### Areas of Agreement (Strong Convergence)
+### Areas of Agreement Reached Through Debate
 
-1. **Core architecture**: Both variants agree on the technology stack, component decomposition, token strategy, and DI pattern. No debate needed.
-2. **Risk inventory**: Identical risks with matching assessments. Complete alignment.
-3. **Success criteria**: Same 8 metrics with same targets. Complete alignment.
-4. **Audit log table should be provisioned early**: Even Opus agrees the schema is foundational — the dispute is only about wiring timing.
-5. **Logout should be in v1.0 scope**: Both recommend it; Haiku is more decisive by assigning it a milestone.
-6. **GDPR consent is a v1.0 hard requirement**: Both flag this as needing immediate resolution and recommend inclusion.
-7. **Pre-production security review + pen test**: Both include this as a launch gate.
+| Topic | Converged Position | Source |
+|-------|-------------------|--------|
+| Password reset rate limiting | Include 10 requests/hour/email limit | B's position, A conceded |
+| Key rotation overlap | 30-day overlap window for zero-downtime rotation | B's position, A conceded |
+| Audit logging in v1.0 | Both agree — SOC2 deadline forces this | Pre-existing agreement |
+| Async email delivery | Both recommend message queue for password reset | Pre-existing agreement |
+| Logout endpoint in scope | Both include it; B's Phase 1 placement is more defensible | Minor scheduling convergence |
 
 ### Areas of Partial Convergence
 
-| Divergence | Resolution Direction | Confidence |
-|---|---|---|
-| Timeline (D2) | 8-10 weeks with ~2 FTE; depends on staffing input | Medium |
-| Phase structure (D1) | 3 phases (compromise): Foundation → Core+Session → Compliance+Launch | Medium |
-| Audit wiring (D3) | Incremental wiring (Haiku's approach) with early schema lock | High |
-| Security review (D4) | Two checkpoints: mid-stream for primitives + pre-production for system | High |
-| Password policy (D7) | Both layers: endpoint for UX errors, PasswordHasher guard for safety | High |
-| Account lockout (D11) | Schema-only in v1.0; full implementation in v1.1 | Medium |
+| Topic | Status | Recommended Resolution |
+|-------|--------|----------------------|
+| **Performance targets** | B's differentiated targets are more defensible, but A's point about async endpoints is valid | Adopt 200ms for login/register/refresh, 500ms for password reset as a realistic compromise |
+| **Account lockout** | A's progressive model has near-zero marginal cost; B's simplicity argument has merit for timeline | Ship progressive lockout — 20 lines of code is not a meaningful scope addition |
+| **UX testing timing** | B's early testing catches the highest-risk UX failure; A's complete-flow testing has value | Test registration conversion at Phase 1 exit (B's approach); test complete flow at final hardening (A's approach). Both, not either/or |
 
-### Remaining Disputes (Low Convergence)
+### Remaining Disputes (No Convergence)
 
-1. **Exact timeline**: Cannot be resolved without knowing team capacity. Opus assumes ~1 FTE throughput; Haiku assumes ~2.8 FTE. The debate correctly identifies this as a staffing input, not an architectural disagreement.
-
-2. **FTE estimation granularity (D9)**: Opus argues role categories are sufficient; Haiku argues specific FTE numbers are needed for planning. Both are right for different audiences — Haiku's granularity is better for project managers, Opus's flexibility is better for variable team sizes. Not reconcilable without knowing the audience.
-
-3. **Email dispatch sync/async (D12)**: Minor. Opus's pragmatic fallback (sync acceptable for v1.0) vs Haiku's architectural purity (async only). Both are reasonable; resolve based on whether a message queue is already available in the infrastructure.
+| Topic | Variant A Position | Variant B Position | Resolution Criteria |
+|-------|-------------------|-------------------|-------------------|
+| **Phase count / timeline** | 4 phases, 12 weeks — more accountability, more gates | 2 phases, 7-10 weeks + buffer — faster, more resilient to delays | **Depends on team experience.** First auth implementation → A's structure reduces risk. Experienced team → B's pace is realistic. Q2 hard deadline favors B. |
+| **Max refresh tokens (OQ2)** | 5 per user — bounded, predictable, secure | Unlimited with per-device rotation — better UX, JTBD alignment | **Compromise available:** Cap at 10 with device-based rotation. Covers realistic multi-device scenarios without unbounded risk. Revisit cap in v1.1 based on usage data. |
+| **Dedicated hardening phase** | Named phase with structured tasks | Embedded hardening + explicit buffer | **Depends on organizational culture.** Teams that need visible structure → A. Teams that execute well with autonomy → B. Both deliver equivalent security outcomes if exit gates are enforced. |
 
 ### Synthesis Recommendation
 
-A merged roadmap should adopt:
-- **Haiku's** audit provisioning, security review cadence, DI container milestone, dedicated password reset table, logout milestone, FTE allocations, and post-launch timeline
-- **Opus's** open questions analysis table, scope guardrails section, feature flag strategy, and risk commentary on replay detection atomicity
-- **Compromise** on 3-phase structure (~8-10 weeks), password policy enforcement at both layers, and schema-only account lockout in v1.0
+The strongest roadmap takes **Haiku's timeline and operational specificity** (2-phase structure, differentiated performance targets, alert thresholds, rate limiting completeness, key rotation overlap, UX testing at Phase 1 gate) and grafts on **Opus's structural rigor** (numbered milestones within each phase, integration point wiring tables, scope guardrails table, ASCII timeline). The convergence score of 0.72 reflects that most disagreements are resolvable through compromise — the two roadmaps agree on 18 foundational points and diverge primarily on scheduling, granularity, and a handful of parameter choices where reasonable defaults exist.

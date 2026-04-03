@@ -1354,7 +1354,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             ),
             output_file=extraction,
             gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
-            timeout_seconds=300,
+            timeout_seconds=1800 if config.input_type == "tdd" else 300,
             inputs=[config.spec_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
             retry_limit=1,
         ),
