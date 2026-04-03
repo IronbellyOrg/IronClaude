@@ -55,6 +55,51 @@ _EXEMPT_COMMENT_RE = re.compile(r"#\s*obligation-exempt", re.IGNORECASE)
 # FR-MOD1.8: Code block detection for severity demotion (OQ-004 resolution)
 _CODE_BLOCK_RE = re.compile(r"```[\s\S]*?```")
 
+# --- FR-MOD1.9: Meta-context classification ---
+
+# Layer 1a: Inline code - scaffold term inside backticks (scaffold-aware)
+_INLINE_CODE_SCAFFOLD_RE = re.compile(
+    r"`[^`]*(?:" + "|".join(SCAFFOLD_TERMS) + r")[^`]*`",
+    re.IGNORECASE,
+)
+
+# Layer 1b: Completed checklist item
+_COMPLETED_CHECKLIST_RE = re.compile(r"^\s*-\s*\[x\]", re.IGNORECASE)
+
+# Layer 2: Negation/meta-context prefix patterns
+_NEGATION_PREFIX_RE = re.compile(
+    r"(?:"
+    r"\b(?:no|not?|never|without|ensure\s+no|verify\s+no|check\s+(?:for\s+)?no|"
+    r"must\s+not|should\s+not|shall\s+not|cannot|don'?t|reject|prohibit|forbid|prevent|disallow)\b"
+    r"|"
+    r"\b(?:removed?|replaced?|eliminated?|deleted?|stripped?|cleaned?|purged?|"
+    r"swapped\s+out|migrated\s+away\s+from)\b"
+    r"|"
+    r"(?:^\s*)(?:risk|warning|caution|danger|caveat|concern)\s*:"
+    r"|"
+    r"\b(?:verification|gate\s+criteri|check\s+(?:for|that)|validate|assert|audit)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+# Shell command detection (Category 2)
+_SHELL_CMD_RE = re.compile(
+    r"(?:^\s*[$>]?\s*)?(?:grep|sed|awk|find|rg|ag|git\s+grep|xargs)\b",
+    re.IGNORECASE,
+)
+
+# Risk/warning line detection
+_RISK_WARNING_RE = re.compile(
+    r"(?:^\s*)(?:risk|warning|caution|danger|caveat|concern)\s*:",
+    re.IGNORECASE,
+)
+
+# Gate/verification criteria language
+_GATE_CRITERIA_RE = re.compile(
+    r"(?:no|zero|0)\s+(?:\w+\s+){0,4}(?:present|found|detected|remaining|allowed|permitted|exist)",
+    re.IGNORECASE,
+)
+
 
 # --- FR-MOD1.6: Dataclasses ---
 
@@ -138,6 +183,23 @@ def scan_obligations(content: str) -> ObligationReport:
             abs_pos = _get_absolute_position(content, sections, i, match.start())
             severity = _determine_severity(abs_pos, code_block_ranges)
 
+            # Local fallback for compact fenced fixtures inside section slices
+            if severity == "HIGH" and _is_inside_code_block(phase_content, match.start()):
+                severity = "MEDIUM"
+
+            # Layer 1a: Inline code meta-context
+            if severity == "HIGH" and _INLINE_CODE_SCAFFOLD_RE.search(context_line):
+                severity = "MEDIUM"
+            # Layer 1b: Completed checklist meta-context
+            elif severity == "HIGH" and _COMPLETED_CHECKLIST_RE.match(context_line):
+                severity = "MEDIUM"
+            # Layer 2: Negation/meta-context classification
+            elif severity == "HIGH":
+                line_start = phase_content.rfind("\n", 0, match.start()) + 1
+                term_start_in_line = match.start() - line_start
+                if _is_meta_context(context_line, term_start_in_line):
+                    severity = "MEDIUM"
+
             # FR-MOD1.3: Cross-phase discharge search
             discharged = False
             discharge_phase = None
@@ -146,7 +208,7 @@ def scan_obligations(content: str) -> ObligationReport:
             for j in range(i + 1, len(sections)):
                 later_phase_id, later_content, _ = sections[j]
                 # FR-MOD1.5: Dual-condition discharge (term + component)
-                if _has_discharge(later_content, component):
+                if _has_discharge(later_content, component, term):
                     discharged = True
                     discharge_phase = later_phase_id
                     discharge_match = _DISCHARGE_RE.search(later_content)
@@ -220,10 +282,11 @@ def _split_into_phases(content: str) -> list[tuple[str, str, int]]:
 
 
 def _extract_component_context(text: str, pos: int) -> str:
-    """Extract likely component name near a scaffold term.
+    """Extract likely component anchor near a scaffold term.
 
     Uses a 60-char window. Prioritizes backtick-delimited terms,
-    falls back to capitalized multi-word terms, then to the line context.
+    then noun phrase around the scaffold term, then capitalized terms,
+    then line fallback.
     """
     window_start = max(0, pos - 60)
     window_end = min(len(text), pos + 60)
@@ -234,7 +297,31 @@ def _extract_component_context(text: str, pos: int) -> str:
     if code_terms:
         return code_terms[0].lower()
 
-    # Priority 2: capitalized multi-word terms (e.g., "Executor Skeleton")
+    # Priority 2: noun phrase after scaffold term (e.g., "stub handler")
+    noun_after = re.search(
+        r"\b(?:mock(?:ed|s)?|stub(?:bed|s)?|skeleton|placeholder|"
+        r"scaffold(?:ing|ed)?|temporary|hardcoded|hardwired|no-?op|dummy|fake)\b"
+        r"\s+([a-z][a-z0-9_-]{1,30})",
+        window,
+        re.IGNORECASE,
+    )
+    if noun_after:
+        return noun_after.group(1).lower()
+
+    # Priority 3: noun phrase before scaffold term (e.g., "service mock")
+    noun_before = re.search(
+        r"\b([a-z][a-z0-9_-]{1,30})\s+"
+        r"(?:mock(?:ed|s)?|stub(?:bed|s)?|skeleton|placeholder|"
+        r"scaffold(?:ing|ed)?|temporary|hardcoded|hardwired|no-?op|dummy|fake)\b",
+        window,
+        re.IGNORECASE,
+    )
+    if noun_before:
+        candidate = noun_before.group(1).lower()
+        if candidate not in {"create", "build", "add", "use", "replace", "wire", "ensure"}:
+            return candidate
+
+    # Priority 4: capitalized multi-word terms (e.g., "Executor Skeleton")
     cap_terms = re.findall(r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*", window)
     if cap_terms:
         return cap_terms[0].lower()
@@ -252,22 +339,48 @@ def _get_context_line(text: str, pos: int) -> str:
     return text[start:end].strip()
 
 
+def _is_meta_context(line: str, term_start_in_line: int) -> bool:
+    """Determine if a scaffold term on this line is in a meta-context.
+
+    Returns True when the scaffold term appears in a negation, verification,
+    historical, risk, shell-command, or gate-criteria context.
+    """
+    if _SHELL_CMD_RE.search(line):
+        return True
+
+    if _RISK_WARNING_RE.match(line):
+        return True
+
+    if _GATE_CRITERIA_RE.search(line):
+        return True
+
+    prefix = line[:term_start_in_line]
+    if _NEGATION_PREFIX_RE.search(prefix):
+        return True
+
+    return False
+
+
 # --- FR-MOD1.5: Dual-condition discharge matching ---
 
 
-def _has_discharge(content: str, component: str) -> bool:
-    """Check if content contains a discharge term referencing the component.
+def _has_discharge(content: str, component: str, term: str = "") -> bool:
+    """Check if content contains a discharge term for this obligation.
 
-    Dual-condition: requires both a discharge verb AND a reference to the
-    component name. If no component context is available, falls back to
-    checking for any discharge term.
+    Requires a discharge verb and either a component anchor match or a
+    scaffold-term match as fallback.
     """
-    if not component:
-        return bool(_DISCHARGE_RE.search(content))
-
     has_discharge = bool(_DISCHARGE_RE.search(content))
-    has_component = component.lower() in content.lower()
-    return has_discharge and has_component
+    if not has_discharge:
+        return False
+
+    if component and component.lower() in content.lower():
+        return True
+
+    if term and re.search(re.escape(term), content, re.IGNORECASE):
+        return True
+
+    return False
 
 
 # --- FR-MOD1.8: Code-block severity demotion ---
@@ -276,6 +389,26 @@ def _has_discharge(content: str, component: str) -> bool:
 def _get_code_block_ranges(content: str) -> list[tuple[int, int]]:
     """Return list of (start, end) positions for code blocks in content."""
     return [(m.start(), m.end()) for m in _CODE_BLOCK_RE.finditer(content)]
+
+
+def _is_inside_code_block(text: str, pos: int) -> bool:
+    """Return True if ``pos`` is inside a fenced code block in ``text``."""
+    for m in _CODE_BLOCK_RE.finditer(text):
+        if m.start() <= pos <= m.end():
+            return True
+    return False
+
+
+def _is_discharge_intent_line(line: str) -> bool:
+    """Return True if line clearly states discharge intent, not new scaffolding."""
+    return bool(
+        re.search(
+            r"\b(?:replace|wire\s+(?:up|in|into)|integrat(?:e|ing|ed)|connect|"
+            r"swap\s+(?:out|in)|remove|implement\s+real|fill\s+in|complete)\b",
+            line,
+            re.IGNORECASE,
+        )
+    )
 
 
 def _determine_severity(
