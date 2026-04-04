@@ -234,7 +234,18 @@ def build_semantic_prompt(request: SemanticCheckRequest) -> str:
         f"{combined}\n\n"
         "### Instructions\n"
         "Report only NEW semantic deviations. Assign severity: HIGH, MEDIUM, or LOW.\n"
-        "For each finding, provide: dimension, description, severity, evidence.\n"
+        "Respond with ONLY a YAML document in the following format (no markdown fences, no prose):\n\n"
+        "```\n"
+        "findings:\n"
+        "  - dimension: <dimension name>\n"
+        "    description: <what is wrong>\n"
+        "    severity: HIGH | MEDIUM | LOW\n"
+        "    evidence: <supporting evidence from spec/roadmap>\n"
+        "```\n\n"
+        "If there are no deviations, respond with:\n"
+        "```\n"
+        "findings: []\n"
+        "```\n"
     )
 
     # Final enforcement assert
@@ -470,9 +481,15 @@ def _execute_semantic_check(
         logger.error("Semantic check failed for %s: %s", dimension, exc)
         return []
 
+    # Strip markdown fences if present (Claude often wraps YAML in ```yaml ... ```)
+    import re
+    cleaned = response_text.strip() if response_text else ""
+    cleaned = re.sub(r"^```(?:ya?ml)?\s*\n", "", cleaned)
+    cleaned = re.sub(r"\n```\s*$", "", cleaned)
+
     # Parse YAML response
     try:
-        parsed = yaml.safe_load(response_text)
+        parsed = yaml.safe_load(cleaned)
     except (yaml.YAMLError, AttributeError):
         logger.warning("Failed to parse semantic response YAML for %s", dimension)
         return []

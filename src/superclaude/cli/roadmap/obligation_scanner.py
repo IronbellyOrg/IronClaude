@@ -15,35 +15,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
-# --- FR-MOD1.1: Obligation vocabulary (11 scaffold terms) ---
-
-SCAFFOLD_TERMS = [
-    r"\bmock(?:ed|s)?\b",
-    r"\bstub(?:bed|s)?\b",
-    r"\bskeleton\b",
-    r"\bplaceholder\b",
-    r"\bscaffold(?:ing|ed)?\b",
-    r"\btemporary\b",
-    r"\bhardcoded\b",
-    r"\bhardwired\b",
-    r"\bno-?op\b",
-    r"\bdummy\b",
-    r"\bfake\b",
-]
-
-# Terms that DISCHARGE an obligation (something fulfilled)
-DISCHARGE_TERMS = [
-    r"\breplace\b",
-    r"\bwire\s+(?:up|in|into)\b",
-    r"\bintegrat(?:e|ing|ed)\b",
-    r"\bconnect\b",
-    r"\bswap\s+(?:out|in)\b",
-    r"\bremove\s+(?:mock|stub|placeholder|scaffold)\b",
-    r"\bimplement\s+real\b",
-    r"\bfill\s+in\b",
-    r"\bcomplete\s+(?:the\s+)?(?:skeleton|scaffold)\b",
-]
+from ..vocabulary import DISCHARGE_TERMS, SCAFFOLD_TERMS
 
 # Compile patterns
 _SCAFFOLD_RE = re.compile("|".join(SCAFFOLD_TERMS), re.IGNORECASE)
@@ -97,6 +69,25 @@ _RISK_WARNING_RE = re.compile(
 # Gate/verification criteria language
 _GATE_CRITERIA_RE = re.compile(
     r"(?:no|zero|0)\s+(?:\w+\s+){0,4}(?:present|found|detected|remaining|allowed|permitted|exist)",
+    re.IGNORECASE,
+)
+
+# Layer 3a: "Scaffold" as imperative verb in table cell (narrow: scaffold only)
+# Matches: "| 2.2.1 | Scaffold command file..." where scaffold is first word after pipe.
+# Only "scaffold" has a legitimate dual meaning (verb "create" vs noun "temporary").
+# mock/stub/fake/dummy as first words in task cells are genuine obligations.
+_TABLE_CELL_IMPERATIVE_RE = re.compile(
+    r"^\s*\|[^|]*\|\s*scaffold\s+\w+",
+    re.IGNORECASE,
+)
+
+# Layer 3b: Parenthetical phase/step label (requires multi-word content)
+# Matches: "(command scaffolding)", "(Phase 2 mocking)", "(stubbed layer)" etc.
+# Bare "(scaffold)" or "(mock)" stay HIGH — those are genuine qualifiers, not labels.
+_PAREN_PHASE_LABEL_RE = re.compile(
+    r"\(\s*\w+\s+(?:scaffold(?:ing|ed)?|mock(?:ing|ed)?|stub(?:bing|bed)?)\s*\)"
+    r"|"
+    r"\(\s*(?:scaffold(?:ing|ed)?|mock(?:ing|ed)?|stub(?:bing|bed)?)\s+\w+\s*\)",
     re.IGNORECASE,
 )
 
@@ -356,6 +347,14 @@ def _is_meta_context(line: str, term_start_in_line: int) -> bool:
 
     prefix = line[:term_start_in_line]
     if _NEGATION_PREFIX_RE.search(prefix):
+        return True
+
+    # Layer 3a: Scaffold term as imperative verb in table cell
+    if _TABLE_CELL_IMPERATIVE_RE.search(line):
+        return True
+
+    # Layer 3b: Scaffold term in parenthetical label
+    if _PAREN_PHASE_LABEL_RE.search(line):
         return True
 
     return False

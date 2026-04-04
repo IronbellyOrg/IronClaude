@@ -40,20 +40,38 @@ The framework provides:
 SuperClaude components are organized into three tiers that work together:
 
 ```
-Commands (Workflow Triggers)
-    invoke
-Skills (Domain Knowledge Packages)
+Commands (Workflow Triggers — thin dispatch layer)
+    invoke via Activation section
+Skills (Domain Knowledge Packages — behavioral protocol + refs/)
     delegate to
 Agents (Specialist Executors)
 ```
 
 | Tier | What It Is | File Location | Invocation | Typical Size |
 |------|-----------|---------------|------------|--------------|
-| **Command** | Slash command definition with frontmatter metadata | `src/superclaude/commands/<name>.md` | `/sc:<name>` | ~80-150 lines |
-| **Skill** | Domain knowledge package with optional reference files | `src/superclaude/skills/<name>/SKILL.md` | Invoked by commands or Claude Code skill system | ~200-500 lines |
+| **Command** | Thin dispatch stub: flags, usage, examples, boundaries, Activation handoff | `src/superclaude/commands/<name>.md` | `/sc:<name>` | ~80-150 lines |
+| **Skill** | Domain knowledge package with behavioral protocol and optional reference files | `src/superclaude/skills/<name>/SKILL.md` | Invoked by commands via Activation section | ~200-500 lines |
 | **Agent** | Specialist executor with behavioral constraints | `src/superclaude/agents/<name>.md` | `@agent-<name>` or delegated by skills | ~40-120 lines |
 
-**How they compose**: A command like `/sc:adversarial` defines the user-facing interface. It triggers the `sc-adversarial` skill which contains the detailed protocol. The skill delegates work to agents like `debate-orchestrator` and `merge-executor`.
+**How they compose**: A command like `/sc:adversarial` defines the user-facing interface (flags, usage, examples, boundaries) and nothing else — it contains zero protocol logic. Its `## Activation` section hands off to the `sc-adversarial` skill which contains the detailed protocol. The skill delegates work to agents like `debate-orchestrator` and `merge-executor`.
+
+**Every skill MUST have a command in front of it.** The command is the user-facing entry point; the skill is the behavioral engine. A skill without a command is an architectural violation — it forces the skill to handle both interface concerns (flags, usage, examples) and protocol concerns (execution logic), creating a monolith. When refactoring an existing skill, creating its thin command layer is part of the refactoring scope.
+
+### The Activation Pattern
+
+Every command that backs a skill MUST include an `## Activation` section as the handoff mechanism:
+
+```markdown
+## Activation
+
+**MANDATORY**: Before executing any protocol steps, invoke:
+> Skill <skill-name>
+
+Do NOT proceed with protocol execution using only this command file.
+The full behavioral specification is in the protocol skill.
+```
+
+This pattern enforces separation of concerns: the command owns the interface, the skill owns the protocol. The command never contains execution logic; the skill never contains usage examples or flag definitions.
 
 ### Installation Locations
 
@@ -715,13 +733,15 @@ The skill returns these fields to the calling command:
 
 ### 5.10 Skill-Authoring Checklist
 
-Use this checklist when creating a new skill:
+Use this checklist when creating or refactoring a skill:
 
+- [ ] **Thin command layer exists** — a command file at `src/superclaude/commands/<name>.md` (~80-150 lines) with flags, usage, examples, boundaries, and an `## Activation` section that invokes `Skill <skill-name>`. The command contains zero protocol logic.
 - [ ] SKILL.md has YAML frontmatter with `name`, `description`, `allowed-tools`
+- [ ] SKILL.md contains only behavioral protocol (WHAT/WHEN) — under 500 lines
 - [ ] `allowed-tools` is scoped to minimum required (no unnecessary `Edit` or `Bash`)
 - [ ] Purpose section clearly states what the skill does and does not do
 - [ ] Will Do / Will Not Do boundaries are explicit
-- [ ] If complex: refs/ directory contains algorithm and template details
+- [ ] If complex: refs/ directory contains algorithm and template details (HOW content)
 - [ ] SKILL.md declares when each ref should be loaded (per-wave)
 - [ ] Input contract defines STOP/WARN conditions for missing inputs
 - [ ] Output contract defines return fields for composability
@@ -1087,6 +1107,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.3 Skill Design
 
 **Do**:
+- **Create a thin command layer** (`commands/<name>.md`, ~80-150 lines) for every skill — flags, usage, examples, boundaries, and an `## Activation` section that invokes the skill. No exceptions, including when refactoring existing skills.
 - Keep SKILL.md under 500 lines (behavioral intent only)
 - Move algorithms and templates to `refs/` for lazy loading
 - Use `allowed-tools` as the primary safety boundary
@@ -1095,6 +1116,8 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Declare per-wave ref loading instructions
 
 **Do not**:
+- Ship a skill without a command in front of it (the command is the user-facing interface; the skill is the behavioral engine)
+- Put flags, usage examples, or CLI interface concerns in SKILL.md (belongs in the command)
 - Pre-load all refs at skill invocation (violates lazy loading)
 - Put implementation details in SKILL.md (belongs in refs/)
 - Use unrestricted `Bash` when specific commands suffice
@@ -1152,6 +1175,7 @@ These patterns emerged from real-world Claude Code usage:
 
 | Anti-Pattern | Problem | Solution |
 |-------------|---------|----------|
+| Skill without command layer | Skill handles both interface and protocol concerns, creating a monolith; no standardized user-facing entry point | Create a thin command file (~80-150 lines) with flags, usage, examples, boundaries, and `## Activation` handoff to the skill |
 | Monolithic SKILL.md | Exceeds token budget, slow loading | Split into SKILL.md + refs/ |
 | Unrestricted `Bash` in allowed-tools | Safety risk, unbounded execution | Use `Bash(git *)`, `Bash(wc *)` patterns |
 | Agent that orchestrates AND executes | Role confusion, inconsistent behavior | Separate into orchestrator + worker |

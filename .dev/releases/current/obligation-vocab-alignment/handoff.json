@@ -1,0 +1,149 @@
+{
+  "handoff_document_version": "1.1_condensed_revised",
+  "generated_at": "2026-04-04T00:00:00Z",
+  "ai1_model": "claude-opus-4-6",
+  "project_overview": {
+    "overall_objective": "Fix the roadmap pipeline anti-instinct gate that fails 100% of the time on false positives. The obligation scanner flags legitimate planning language (e.g., 'Scaffold command file', 'command scaffolding') as undischarged scaffolding obligations. The solution is a two-layer defense: (1) share scaffold vocabulary between scanner and LLM generation prompts so the LLM avoids trigger terms, and (2) improve the scanner's meta-context classifier to handle table-cell imperatives and parenthetical phase labels.",
+    "original_prompt_or_brief": "The user ran `superclaude roadmap run` on a PRD skill refactor spec. The pipeline halted at the 'anti-instinct' step with: 'Semantic check no_undischarged_obligations failed: undischarged_obligations must be 0; scaffolding obligations lack discharge in later phases'. The anti-instinct-audit.md showed 2 undischarged obligations at lines 93 and 220 of the merged roadmap. Both were false positives — 'Scaffold' used as an imperative verb meaning 'create' and 'scaffolding' used as a parenthetical phase label.",
+    "repository": "IronClaude (SuperClaude Framework)",
+    "branch": "feat/v3.65-prd-tdd-Refactor",
+    "parent_work": "PRD Skill Refactoring — the roadmap pipeline was generating a roadmap for decomposing a monolithic PRD skill into a three-tier architecture"
+  },
+  "task_history_and_milestones": {
+    "chronological_summary_of_work": [
+      "1. DIAGNOSIS (/sc:troubleshoot): Read the anti-instinct-audit.md, identified 2 false positives at roadmap.md lines 93 and 220. Traced root cause to vocabulary collision between obligation scanner scaffold terms and legitimate roadmap planning language. Proposed 3 solutions: (a) obligation-exempt comments, (b) reword roadmap, (c) enhance scanner meta-context.",
+      "2. BRAINSTORM (/sc:brainstorm): Explored 4 approaches — (A) Prompt-side prevention, (B) Inline remediation step, (C) Scanner intelligence, (D) Hybrid of A+C. User confirmed: 100% false positive rate, no new pipeline steps, shared vocabulary module is wise. Selected Approach D (Hybrid).",
+      "3. REQUIREMENTS: Defined FR-1 (shared vocabulary module at cli/ level), FR-2 (prompt constraint injection), FR-3 (scanner meta-context enhancement). NFRs: no new steps, backward compatible, <200 token prompt constraint. User answered open questions: elevate vocabulary module to cli/, include alternative mapping in shared module.",
+      "4. DESIGN (/sc:design): Produced design document at .dev/releases/current/obligation-vocab-alignment/design.md. Specified vocabulary.py contents (SCAFFOLD_TERMS, DISCHARGE_TERMS, PREFERRED_ALTERNATIVES, build_prompt_constraint_block()), obligation_scanner.py import rewire + 2 new regex patterns (_TABLE_CELL_IMPERATIVE_RE, _PAREN_PHASE_LABEL_RE), prompts.py injection points.",
+      "5. WORKFLOW (/sc:workflow): Produced workflow at .dev/releases/current/obligation-vocab-alignment/workflow.md. 8 steps with parallel test wave.",
+      "6. REFLECTION (/sc:reflect): Validated workflow against sc:task-unified requirements. Found 6 structural gaps (no tier classification, narrative steps, ad-hoc checkpoints, no TFEP baseline, test file location, parallel wave not expressible). Restructured to 6 linear steps with STANDARD tier, structured Action/File/Changes/Acceptance per step.",
+      "7. IMPLEMENTATION (/sc:task-unified --compliance strict): Executed all 5 tasks. Created vocabulary.py, rewired obligation_scanner.py, wired prompts.py, wrote all tests, verified full suite + pipeline. Spawned quality-engineer verification agent which confirmed implementation is sound.",
+      "8. VERIFICATION RESULTS: 102 affected tests pass (97 baseline + 5 new). undischarged_count=0 on the previously-failing roadmap. Lines 93 and 220 correctly demoted to MEDIUM. Full suite: 4959 passed, 3 pre-existing failures (unrelated)."
+    ],
+    "milestones_achieved": [
+      {
+        "description": "Diagnosis complete — root cause identified as vocabulary collision between scanner and LLM generation",
+        "artifacts": [".dev/releases/backlog/prd-skill-refactor/anti-instinct-audit.md"]
+      },
+      {
+        "description": "Design and workflow documents produced and validated for sc:task-unified compatibility",
+        "artifacts": [
+          ".dev/releases/current/obligation-vocab-alignment/design.md",
+          ".dev/releases/current/obligation-vocab-alignment/workflow.md"
+        ]
+      },
+      {
+        "description": "Implementation complete — all 3 source files changed, all 3 test files created/modified",
+        "artifacts": [
+          "src/superclaude/cli/vocabulary.py",
+          "src/superclaude/cli/roadmap/obligation_scanner.py",
+          "src/superclaude/cli/roadmap/prompts.py",
+          "tests/roadmap/test_vocabulary.py",
+          "tests/roadmap/test_obligation_scanner_meta_context.py",
+          "tests/roadmap/test_prompts.py"
+        ]
+      },
+      {
+        "description": "Verification complete — 102 tests pass, undischarged_count=0, quality-engineer agent confirmed implementation sound",
+        "artifacts": []
+      }
+    ],
+    "last_known_good_state_description": "All implementation is complete and verified. The obligation vocabulary alignment feature is fully functional. The anti-instinct gate will now pass for the PRD skill refactor roadmap. Changes are uncommitted and on branch feat/v3.65-prd-tdd-Refactor."
+  },
+  "current_issue_details": {
+    "symptom_summary": "NO CURRENT BLOCKING ISSUE. The original issue (anti-instinct gate false positives) has been fully resolved. The remaining action is to resume the roadmap pipeline.",
+    "outstanding_actions": [
+      "1. COMMIT the changes (6 files: 2 new, 4 modified). The user has not yet requested a commit.",
+      "2. RESUME the roadmap pipeline: `superclaude roadmap run .dev/releases/backlog/prd-skill-refactor/prd-refactor-spec-v2.md --resume` — this should now pass the anti-instinct step and continue through test-strategy, spec-fidelity, deviation-analysis, remediate, certify.",
+      "3. SYNC components: After any changes to src/superclaude/, run `make sync-dev` to sync to .claude/ and `make verify-sync` to confirm.",
+      "4. PRE-EXISTING test failures (unrelated to this work): tests/audit/test_credential_scanner.py::TestScanContent::test_detects_real_secrets, tests/integration/test_wiring_pipeline.py (2 tests), tests/v3.3/test_zero_files_analyzed.py (1 error). These existed before this session."
+    ],
+    "perceived_severity": "LOW — implementation is complete, only pipeline resume and commit remain",
+    "reproducibility_steps": "N/A — issue is resolved"
+  },
+  "debugging_log": [
+    {
+      "attempt_number": 1,
+      "strategy_hypothesis": "The anti-instinct gate failure is caused by the obligation scanner detecting scaffold terms in the merged roadmap that lack discharge in later phases. Need to determine if these are real obligations or false positives.",
+      "actions_taken_detailed": "Read anti-instinct-audit.md frontmatter (undischarged_obligations: 2). Read roadmap.md lines 93 and 220. Read obligation_scanner.py to understand detection logic. Read gates.py to understand the _no_undischarged_obligations semantic check.",
+      "parameters_values_investigated": "Line 93: '| 2.2.1 | Scaffold command file using adversarial.md template structure | FR-PRD-R.0 |' — 'Scaffold' as imperative verb. Line 220: '| adversarial.md (167 lines) | Template | Phase 2 (command scaffolding) | LOW |' — 'scaffolding' in parenthetical label.",
+      "tools_used": ["Read", "Grep"],
+      "observed_outcome_results": "Both are false positives. The scanner's meta-context classifier (_is_meta_context) handles negation, verification, shell commands, risk, and gate criteria — but NOT imperative task descriptions in table cells or parenthetical phase labels.",
+      "ai1_analysis_of_outcome": "Root cause confirmed: vocabulary collision. The scanner treats ALL scaffold term occurrences as potential obligations, but the LLM uses these words in non-obligation contexts (task descriptions, phase labels). Two-layer fix needed: prevent generation + improve classification.",
+      "relevant_log_snippets_or_data_pointers": "anti-instinct-audit.md frontmatter: undischarged_obligations: 2, total_obligations: 2"
+    }
+  ],
+  "current_system_state_at_handoff": {
+    "active_files_and_versions": [
+      {
+        "path": "src/superclaude/cli/vocabulary.py",
+        "status": "NEW (untracked)",
+        "description": "Shared vocabulary module. 83 lines. Contains SCAFFOLD_TERMS (11), DISCHARGE_TERMS (9), PREFERRED_ALTERNATIVES (16), build_prompt_constraint_block()."
+      },
+      {
+        "path": "src/superclaude/cli/roadmap/obligation_scanner.py",
+        "status": "MODIFIED (unstaged)",
+        "description": "Replaced local SCAFFOLD_TERMS/DISCHARGE_TERMS with import from ..vocabulary. Added _TABLE_CELL_IMPERATIVE_RE and _PAREN_PHASE_LABEL_RE. Wired both into _is_meta_context(). Net: -29 lines, +20 lines."
+      },
+      {
+        "path": "src/superclaude/cli/roadmap/prompts.py",
+        "status": "MODIFIED (unstaged)",
+        "description": "Added import of build_prompt_constraint_block. Injected base += build_prompt_constraint_block() into build_generate_prompt() and build_merge_prompt(). Net: +5 lines."
+      },
+      {
+        "path": "tests/roadmap/test_vocabulary.py",
+        "status": "NEW (untracked)",
+        "description": "10 tests covering term counts, regex structure, alternative coverage, constraint block format, scanner identity checks."
+      },
+      {
+        "path": "tests/roadmap/test_obligation_scanner_meta_context.py",
+        "status": "MODIFIED (unstaged)",
+        "description": "Added TestLayer3StructuralPatterns class with 3 tests: table cell imperative, parenthetical label, plain scaffold stays HIGH. Net: +56 lines."
+      },
+      {
+        "path": "tests/roadmap/test_prompts.py",
+        "status": "MODIFIED (unstaged)",
+        "description": "Added TestVocabularyConstraintInjection class with 2 tests: generate_prompt and merge_prompt contain VOCABULARY CONSTRAINT. Net: +23 lines."
+      }
+    ],
+    "environment_configuration": {
+      "python": "3.12.3",
+      "package_manager": "UV (CRITICAL: never use pip or python -m directly)",
+      "test_runner": "uv run pytest",
+      "branch": "feat/v3.65-prd-tdd-Refactor",
+      "project_version": "4.2.0 (superclaude)"
+    },
+    "pending_changes_or_uncommitted_work_summary": "6 files changed (2 new, 4 modified). All changes are uncommitted. User has NOT requested a commit yet. Additionally, there are other pre-existing uncommitted changes on this branch (docs/guides/, docs/memory/, src/superclaude/cli/roadmap/executor.py, src/superclaude/cli/roadmap/remediate_executor.py) that are unrelated to this work.",
+    "design_artifacts": {
+      "design_doc": ".dev/releases/current/obligation-vocab-alignment/design.md",
+      "workflow_doc": ".dev/releases/current/obligation-vocab-alignment/workflow.md",
+      "failing_audit": ".dev/releases/backlog/prd-skill-refactor/anti-instinct-audit.md",
+      "failing_roadmap": ".dev/releases/backlog/prd-skill-refactor/roadmap.md"
+    }
+  },
+  "ai1_contextual_insights_and_recommendations": {
+    "unresolved_hypotheses": [
+      "The quality-engineer verification agent noted one minor test coverage gap: no test for a scaffold term appearing in a table cell but NOT as the first word (e.g., '| 2.2.1 | Build scaffold for module |'). The current regex correctly leaves this as HIGH since _TABLE_CELL_IMPERATIVE_RE requires scaffold as the first word after the pipe. This is correct behavior but not explicitly tested. Low priority."
+    ],
+    "potential_areas_for_next_investigation": [
+      "1. RESUME THE PIPELINE: The immediate next step is `superclaude roadmap run .dev/releases/backlog/prd-skill-refactor/prd-refactor-spec-v2.md --resume`. The anti-instinct step should now pass, allowing the pipeline to continue through test-strategy, spec-fidelity, deviation-analysis, remediate, certify.",
+      "2. COMMIT: The user may want to commit these changes. Use conventional commit format: 'fix(roadmap): add shared vocabulary module to prevent anti-instinct false positives'.",
+      "3. SYNC: After commit, run `make sync-dev` then `make verify-sync` to ensure src/ and .claude/ are in sync.",
+      "4. MONITOR: After the pipeline resumes, watch for any new false positives from other scaffold-like terms in different structural contexts. If they appear, the meta-context classifier may need additional patterns."
+    ],
+    "known_limitations_or_constraints": [
+      "1. The prompt constraint block adds ~130 tokens to each generation and merge prompt. This is within the 200-token NFR but is a permanent cost per pipeline run.",
+      "2. The _TABLE_CELL_IMPERATIVE_RE regex only handles scaffold terms as the FIRST word in a table cell. If a future roadmap puts scaffold terms mid-cell ('Build scaffold for...'), those will still be flagged HIGH. This is intentional — mid-cell scaffold terms are more likely to be genuine obligations.",
+      "3. The PREFERRED_ALTERNATIVES mapping uses rough stem deduplication (rstrip('edingsz')) which is imprecise but sufficient for the prompt constraint block's purpose. Not a production stemmer.",
+      "4. Pre-existing test failures (3 failed + 1 error) in tests/audit/test_credential_scanner.py, tests/integration/test_wiring_pipeline.py, tests/v3.3/test_zero_files_analyzed.py are unrelated to this work and existed before the session."
+    ],
+    "key_code_references": {
+      "vocabulary_module": "src/superclaude/cli/vocabulary.py — single source of truth for all scaffold/discharge terms",
+      "scanner_meta_context": "src/superclaude/cli/roadmap/obligation_scanner.py:348-355 — Layer 3a and 3b checks in _is_meta_context()",
+      "scanner_patterns": "src/superclaude/cli/roadmap/obligation_scanner.py:77-87 — _TABLE_CELL_IMPERATIVE_RE and _PAREN_PHASE_LABEL_RE definitions",
+      "prompt_injection_generate": "src/superclaude/cli/roadmap/prompts.py:437 — build_prompt_constraint_block() call in build_generate_prompt()",
+      "prompt_injection_merge": "src/superclaude/cli/roadmap/prompts.py:632 — build_prompt_constraint_block() call in build_merge_prompt()",
+      "gate_definition": "src/superclaude/cli/roadmap/gates.py:1063-1085 — ANTI_INSTINCT_GATE with no_undischarged_obligations semantic check"
+    }
+  }
+}

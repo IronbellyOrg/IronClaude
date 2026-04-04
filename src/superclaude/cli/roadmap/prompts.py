@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+from ..vocabulary import build_prompt_constraint_block
 from .models import AgentSpec
 
 _DEPTH_INSTRUCTIONS = {
@@ -433,6 +434,8 @@ def build_generate_prompt(
         "If the extraction uses FR-EVAL-001.1, your roadmap must use FR-EVAL-001.1."
     )
 
+    base += build_prompt_constraint_block()
+
     if tdd_file is not None:
         base += (
             "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
@@ -625,6 +628,8 @@ def build_merge_prompt(
         "Ensure all internal cross-references resolve. "
         "Do not duplicate heading text at H2 or H3 level."
     )
+
+    base += build_prompt_constraint_block()
 
     if tdd_file is not None:
         base += (

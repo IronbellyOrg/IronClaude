@@ -254,7 +254,11 @@ def _run_agent_for_file(
     )
 
     proc.start()
-    exit_code = proc.wait()
+    try:
+        exit_code = proc.wait()
+    except KeyboardInterrupt:
+        proc.terminate()
+        raise
     return target_file, exit_code
 
 
@@ -751,6 +755,13 @@ def execute_remediation(
     Returns (status, findings) where status is "PASS", "PARTIAL", or "FAIL".
     """
     all_target_files = list(findings_by_file.keys())
+
+    if not all_target_files:
+        _log.warning(
+            "No target files for remediation — findings lack files_affected; "
+            "skipping remediation and reporting as PARTIAL",
+        )
+        return "PARTIAL", []
 
     # Step 1: Create snapshots
     create_snapshots(all_target_files)

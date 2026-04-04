@@ -238,3 +238,111 @@ class TestExistingBehaviorPreserved:
         report = scan_obligations(content)
         discharged = [o for o in report.obligations if o.discharged]
         assert discharged
+
+
+class TestLayer3StructuralPatterns:
+    """Layer 3: Table-cell imperatives and parenthetical labels."""
+
+    def test_table_cell_imperative_scaffold_is_medium(self):
+        """Scaffold as first word in table task cell -> MEDIUM."""
+        content = textwrap.dedent(
+            """\
+            ## Phase 2: Create Artifacts
+            | Sub-step | Task | Requirements |
+            |----------|------|-------------|
+            | 2.2.1 | Scaffold command file using template | FR-001 |
+
+            ## Phase 3: Verify
+            - Run validation checks
+        """
+        )
+        report = scan_obligations(content)
+        scaffold_obs = [o for o in report.obligations if "scaffold" in o.term.lower()]
+        assert scaffold_obs, "Expected scaffold obligation to be detected"
+        assert all(o.severity == "MEDIUM" for o in scaffold_obs)
+
+    def test_parenthetical_phase_label_is_medium(self):
+        """Scaffold term in parenthetical phase label -> MEDIUM."""
+        content = textwrap.dedent(
+            """\
+            ## Phase 4: Dependencies
+            | Dependency | Required By | Risk |
+            |-----------|------------|------|
+            | adversarial.md | Phase 2 (command scaffolding) | LOW |
+
+            ## Phase 5: Wrap-up
+            - Final checks
+        """
+        )
+        report = scan_obligations(content)
+        scaffold_obs = [o for o in report.obligations if "scaffolding" in o.term.lower()]
+        assert scaffold_obs, "Expected scaffolding obligation to be detected"
+        assert all(o.severity == "MEDIUM" for o in scaffold_obs)
+
+    def test_table_cell_mock_stays_high(self):
+        """Mock as first word in table task cell -> stays HIGH (genuine obligation)."""
+        content = textwrap.dedent(
+            """\
+            ## Phase 2: Build Integration Layer
+            | Sub-step | Task | Requirements |
+            |----------|------|-------------|
+            | 3.1 | Mock the external API for testing | FR-002 |
+
+            ## Phase 3: Replace Mocks
+            - Swap in real API clients
+        """
+        )
+        report = scan_obligations(content)
+        mock_obs = [o for o in report.obligations if "mock" in o.term.lower()]
+        assert mock_obs, "Expected mock obligation to be detected"
+        assert any(o.severity == "HIGH" for o in mock_obs)
+
+    def test_bare_parenthetical_scaffold_stays_high(self):
+        """Bare (scaffold) in prose -> stays HIGH (genuine qualifier, not label)."""
+        content = textwrap.dedent(
+            """\
+            ## Phase 1: Build
+            - Build the (scaffold) component for the module
+
+            ## Phase 2: Finalize
+            - Run integration tests
+        """
+        )
+        report = scan_obligations(content)
+        scaffold_obs = [o for o in report.obligations if "scaffold" in o.term.lower()]
+        assert scaffold_obs, "Expected scaffold obligation to be detected"
+        assert any(o.severity == "HIGH" for o in scaffold_obs)
+
+    def test_multi_word_parenthetical_label_is_medium(self):
+        """Multi-word parenthetical like (mock integration) -> MEDIUM (label context)."""
+        content = textwrap.dedent(
+            """\
+            ## Phase 4: Dependencies
+            | Dependency | Required By | Risk |
+            |-----------|------------|------|
+            | auth.py | Phase 2 (mock integration) | LOW |
+
+            ## Phase 5: Wrap-up
+            - Final checks
+        """
+        )
+        report = scan_obligations(content)
+        mock_obs = [o for o in report.obligations if "mock" in o.term.lower()]
+        assert mock_obs, "Expected mock obligation to be detected"
+        assert all(o.severity == "MEDIUM" for o in mock_obs)
+
+    def test_plain_scaffold_not_in_table_stays_high(self):
+        """Scaffold in regular prose (not table cell, not parens) -> HIGH."""
+        content = textwrap.dedent(
+            """\
+            ## Phase 1: Build
+            - Create a scaffold for the executor module
+
+            ## Phase 2: Test
+            - Run tests
+        """
+        )
+        report = scan_obligations(content)
+        scaffold_obs = [o for o in report.obligations if "scaffold" in o.term.lower()]
+        assert scaffold_obs, "Expected scaffold obligation to be detected"
+        assert any(o.severity == "HIGH" for o in scaffold_obs)

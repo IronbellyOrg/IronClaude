@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/prd-refactor-spec-v2.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "d95534e4033dbeb674fce000d962f19d47df5603cae7b9aabdded3db380e4595",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-04-04T02:56:13.671362+00:00",
+  "steps": {
+    "anti-instinct": {
+      "status": "FAIL",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/anti-instinct-audit.md",
+      "started_at": "2026-04-04T02:56:13.010862+00:00",
+      "completed_at": "2026-04-04T02:56:13.025795+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/wiring-verification.md",
+      "started_at": "2026-04-04T02:56:13.025900+00:00",
+      "completed_at": "2026-04-04T02:56:13.671185+00:00"
+    },
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/extraction.md",
+      "started_at": "2026-04-03T19:52:08.722609+00:00",
+      "completed_at": "2026-04-03T19:54:25.742930+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/roadmap-opus-architect.md",
+      "started_at": "2026-04-03T19:54:25.746774+00:00",
+      "completed_at": "2026-04-03T19:59:30.804336+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/roadmap-haiku-architect.md",
+      "started_at": "2026-04-03T19:54:25.747254+00:00",
+      "completed_at": "2026-04-03T19:55:26.757153+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/diff-analysis.md",
+      "started_at": "2026-04-03T19:59:30.804756+00:00",
+      "completed_at": "2026-04-03T20:00:28.818892+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/debate-transcript.md",
+      "started_at": "2026-04-03T20:00:28.819142+00:00",
+      "completed_at": "2026-04-03T20:01:55.833733+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/base-selection.md",
+      "started_at": "2026-04-03T20:01:55.834275+00:00",
+      "completed_at": "2026-04-03T20:03:03.845528+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/roadmap.md",
+      "started_at": "2026-04-03T20:03:03.845782+00:00",
+      "completed_at": "2026-04-03T20:08:21.883211+00:00"
+    }
+  }
+}
