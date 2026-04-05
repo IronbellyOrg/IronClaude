@@ -45,23 +45,6 @@ The skill needs four pieces of information to produce a comprehensive TDD. The f
 
 4. **Output location** (optional, has sensible default) — Where the final TDD goes. If a stub exists, write there. If creating from scratch, follow the project convention: `docs/[domain]/TDD_[COMPONENT-NAME].md`.
 
-### Effective Prompt Examples
-
-**Strong — all four pieces present:**
-> Create a TDD for the agent orchestration system. The PRD is at `docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md`. Focus on `backend/app/agents/`, `backend/app/services/agent_service.py`, and `backend/app/workers/`. Write to `docs/agents/TDD_AGENT_ORCHESTRATION.md`.
-
-**Strong — clear scope + PRD + output type:**
-> Turn the canvas roadmap PRD into a TDD. The PRD is at `docs/docs-product/tech/canvas/PRD_ROADMAP_CANVAS.md`. I need a Standard-tier design covering the React canvas system, dependency management, and node type architecture. Focus on `frontend/app/roadmap/`.
-
-**Strong — design from scratch with clear scope:**
-> Design the technical architecture for a shared GPU pool to replace per-session VMs. Scope: `ue_manager/`, `infrastructure/`, `backend/app/services/streaming_service.py`. This is a Heavyweight TDD — new system, cross-team impact.
-
-**Weak — topic only (will work but produces broader, less focused results):**
-> Create a TDD for the wizard.
-
-**Weak — no context (agents won't know what to focus on):**
-> Write a technical design document.
-
 ### What to Do If the Prompt Is Incomplete
 
 If the user provides only a topic name or a vague request, **do NOT proceed immediately**. Ask the user to clarify using this template:
@@ -78,14 +61,6 @@ Proceed once you have at least #1 answered clearly. Items #2-4 improve quality b
 ---
 
 ## Tier Selection
-
-Match the tier to component scope. **Default to Standard** unless the component is clearly documentable with a quick scan of <5 files.
-
-| Tier | When | Codebase Agents | Web Agents | Target Lines |
-|------|------|-----------------|------------|-------------|
-| **Lightweight** | Bug fixes, config changes, small features (<1 sprint), <5 relevant files | 2–3 | 0–1 | 300–600 |
-| **Standard** | Most features and services (1-3 sprints), 5-20 files, moderate complexity | 4–6 | 1–2 | 800–1,400 |
-| **Heavyweight** | New systems, platform changes, cross-team projects, 20+ files | 6–10+ | 2–4 | 1,400–2,200 |
 
 **Tier selection rules:**
 - If in doubt, pick Standard
