@@ -166,7 +166,7 @@ This roadmap decomposes the monolithic PRD skill (1,369-line SKILL.md) into the 
 
 **Objective**: Prove zero content loss, sync to src/, and validate end-to-end behavior.
 
-**Owned requirements**: FR-PRD-R.7a–FR-PRD-R.7h, NFR-PRD-R.3, NFR-PRD-R.4, Success Criteria 1–12.
+**Owned requirements**: FR-PRD-R.7a–FR-PRD-R.7h, NFR-PRD-R.3, NFR-PRD-R.4. Validated via Criteria 1–12 (see Section 5 table for spec req mapping).
 
 **Dependency**: Phase 3 must complete.
 
@@ -180,11 +180,11 @@ This roadmap decomposes the monolithic PRD skill (1,369-line SKILL.md) into the 
 | 4.6 | Grep command file for B04 tier table; grep SKILL.md to confirm absent | FR-PRD-R.7g |
 | 4.7 | Compute combined line count across all 6 files; verify 1,380–1,520 | FR-PRD-R.7h |
 | 4.8 | Update fidelity index with B03/B04 command-layer destinations | FR-PRD-R.7a |
-| 4.9 | Verify refs/ contains exactly 4 .md files | Success Criterion 4 |
-| 4.10 | `make sync-dev` — propagate .claude/ → src/superclaude/ | Success Criterion 11 |
-| 4.11 | `make verify-sync` — confirm both sides match | Success Criterion 11 |
-| 4.12 | Invoke `/sc:prd` and confirm `Skill prd` triggers correctly | Success Criterion 12 |
-| 4.13 | E2E test: invoke skill on a test product; compare output structure to baseline | NFR-PRD-R.4, Success Criterion 10 |
+| 4.9 | Verify refs/ contains exactly 4 .md files | FR-PRD-R.2b (Criterion 4) |
+| 4.10 | `make sync-dev` — propagate .claude/ → src/superclaude/ | NFR-PRD-R.3 (Criterion 11) |
+| 4.11 | `make verify-sync` — confirm both sides match | NFR-PRD-R.3 (Criterion 11) |
+| 4.12 | Invoke `/sc:prd` and confirm `Skill prd` triggers correctly | FR-PRD-R.0h (Criterion 12) |
+| 4.13 | E2E test: invoke skill on a test product; compare output structure to baseline | NFR-PRD-R.4 (Criterion 10) |
 
 **Milestone M6**: All fidelity diffs pass. Combined line count within range.
 **Milestone M7**: `make verify-sync` passes. `/sc:prd` activation confirmed.
@@ -248,20 +248,20 @@ This roadmap decomposes the monolithic PRD skill (1,369-line SKILL.md) into the 
 
 ### Automated Validation (Phase 4)
 
-| # | Criterion | Threshold | Test Command | Pass/Fail |
-|---|-----------|-----------|-------------|-----------|
-| SC-1 | SKILL.md line count | 400–500 | `wc -l .claude/skills/prd/SKILL.md` | Lines in range |
-| SC-2 | Command file line count | 100–170 | `wc -l .claude/commands/sc/prd.md` | Lines in range |
-| SC-3 | SKILL.md token budget | ≤ 2,000 | Line count × ~4.5 | Estimated ≤ 2,025 |
-| SC-4 | refs/ file count | Exactly 4 .md | `ls .claude/skills/prd/refs/*.md \| wc -l` | Count = 4 |
-| SC-5 | Agent prompt fidelity | Zero changes across 8 templates | Diff refs/agent-prompts.md vs original ranges | No delta |
-| SC-6 | BUILD_REQUEST fidelity | Exactly 6 path changes | Diff refs/build-request-template.md vs original | 6 changes only |
-| SC-7 | Content migration | B03 in command, absent from SKILL.md | Grep both files | Present/absent confirmed |
-| SC-8 | Stale references | Zero (except "Tier Selection") | `grep -n '".*section"' SKILL.md refs/` | No stale matches |
-| SC-9 | Combined line count | 1,380–1,520 | Sum of `wc -l` across 6 files | In range |
-| SC-10 | Behavioral regression | Identical output structure | E2E invocation comparison | Match |
-| SC-11 | Sync verification | Clean | `make verify-sync` | Exit 0 |
-| SC-12 | Activation correctness | Skill loads | `/sc:prd test-product` | Skill triggers |
+| # | Spec Req | Criterion | Threshold | Test Command | Pass/Fail |
+|---|---------|-----------|-----------|-------------|-----------|
+| 1 | FR-PRD-R.1a | SKILL.md line count | 400–500 | `wc -l .claude/skills/prd/SKILL.md` | Lines in range |
+| 2 | FR-PRD-R.0k | Command file line count | 100–170 | `wc -l .claude/commands/sc/prd.md` | Lines in range |
+| 3 | NFR-PRD-R.1 | SKILL.md token budget | ≤ 2,000 | Line count × ~4.5 | Estimated ≤ 2,025 |
+| 4 | FR-PRD-R.2b | refs/ file count | Exactly 4 .md | `ls .claude/skills/prd/refs/*.md \| wc -l` | Count = 4 |
+| 5 | FR-PRD-R.7b | Agent prompt fidelity | Zero changes across 8 templates | Diff refs/agent-prompts.md vs original ranges | No delta |
+| 6 | FR-PRD-R.7e | BUILD_REQUEST fidelity | Exactly 6 path changes | Diff refs/build-request-template.md vs original | 6 changes only |
+| 7 | FR-PRD-R.7f | Content migration | B03 in command, absent from SKILL.md | Grep both files | Present/absent confirmed |
+| 8 | FR-PRD-R.1e | Stale references | Zero (except "Tier Selection") | `grep -n '".*section"' SKILL.md refs/` | No stale matches |
+| 9 | FR-PRD-R.7h | Combined line count | 1,380–1,520 | Sum of `wc -l` across 6 files | In range |
+| 10 | NFR-PRD-R.4 | Behavioral regression | Identical output structure | E2E invocation comparison | Match |
+| 11 | NFR-PRD-R.3 | Sync verification | Clean | `make verify-sync` | Exit 0 |
+| 12 | FR-PRD-R.0h | Activation correctness | Skill loads | `/sc:prd test-product` | Skill triggers |
 
 ### Validation Approach
 

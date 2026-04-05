@@ -4,7 +4,7 @@
   "tdd_file": null,
   "prd_file": null,
   "input_type": "spec",
-  "spec_hash": "d95534e4033dbeb674fce000d962f19d47df5603cae7b9aabdded3db380e4595",
+  "spec_hash": "2f740c472956c49951f3b12fd7f702802ab13dad07f23b0786f26527a5cfa37a",
   "agents": [
     {
       "model": "opus",
@@ -16,21 +16,35 @@
     }
   ],
   "depth": "standard",
-  "last_run": "2026-04-04T02:56:13.671362+00:00",
+  "last_run": "2026-04-05T14:18:39.546857+00:00",
   "steps": {
-    "anti-instinct": {
+    "spec-fidelity": {
       "status": "FAIL",
       "attempt": 1,
-      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/anti-instinct-audit.md",
-      "started_at": "2026-04-04T02:56:13.010862+00:00",
-      "completed_at": "2026-04-04T02:56:13.025795+00:00"
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/spec-fidelity.md",
+      "started_at": "2026-04-05T13:44:37.518749+00:00",
+      "completed_at": "2026-04-05T14:18:38.919630+00:00"
     },
     "wiring-verification": {
       "status": "PASS",
       "attempt": 1,
       "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/wiring-verification.md",
-      "started_at": "2026-04-04T02:56:13.025900+00:00",
-      "completed_at": "2026-04-04T02:56:13.671185+00:00"
+      "started_at": "2026-04-05T14:18:38.919749+00:00",
+      "completed_at": "2026-04-05T14:18:39.546696+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/anti-instinct-audit.md",
+      "started_at": "2026-04-04T03:03:01.552989+00:00",
+      "completed_at": "2026-04-04T03:03:01.567222+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/test-strategy.md",
+      "started_at": "2026-04-04T03:03:01.567317+00:00",
+      "completed_at": "2026-04-04T03:04:51.582124+00:00"
     },
     "extract": {
       "status": "PASS",
@@ -81,5 +95,6 @@
       "started_at": "2026-04-03T20:03:03.845782+00:00",
       "completed_at": "2026-04-03T20:08:21.883211+00:00"
     }
-  }
+  },
+  "fidelity_status": "fail"
 }

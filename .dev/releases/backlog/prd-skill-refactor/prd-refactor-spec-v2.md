@@ -443,7 +443,7 @@ phase_contracts:
 | ID | Requirement | Target | Measurement |
 |----|-------------|--------|-------------|
 | NFR-PRD-R.1 | SKILL.md token budget | <= 2,000 tokens on invocation | 420-450 lines at ~4.5 tokens/line = ~1,890-2,025 tokens |
-| NFR-PRD-R.2 | Per-phase token overhead | Max 2 files loaded by orchestrator at any point | Count files loaded per phase in the loading declarations |
+| NFR-PRD-R.2 | Per-phase token overhead | At most 2 files loaded simultaneously by orchestrator | Count files loaded per phase in the loading declarations |
 | NFR-PRD-R.3 | Session start cost | ~50 tokens (name + description only) | Unchanged from current — frontmatter stays the same |
 | NFR-PRD-R.4 | Zero behavioral regression | Identical execution behavior before and after refactoring | End-to-end test: invoke skill on a test product and compare output structure |
 | NFR-PRD-R.5 | Command file line budget | 100-170 lines | `wc -l commands/sc/prd.md` |
@@ -657,4 +657,3 @@ All other block destinations are unchanged from v1.
 | `.dev/releases/complete/v3.65-prd-refactor/prd-refactor-spec.md` | v1 spec (superseded — addressed only refs/ decomposition) |
 | `.dev/releases/complete/v3.65-prd-refactor/fidelity-index.md` | Content block inventory — needs B03/B04 destination updates for v2 |
 | `.dev/releases/backlog/prd-skill-refactor/02-brainstorm-output.md` | Brainstorm analysis with 6-dimension evaluation |
-| `src/superclaude/examples/release-spec-template.md` | Template this spec follows |
