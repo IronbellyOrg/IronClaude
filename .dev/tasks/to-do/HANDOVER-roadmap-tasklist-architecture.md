@@ -464,7 +464,124 @@ With a path to Option C (acceptance criteria gate + PM agent + checkpoint/resume
 
 ---
 
-## 8. Recommended Execution Order
+## 8. Pre-Existing Repo Issues (69 findings, deferred)
+
+An adversarial QA pass (14 agents, 7 rounds) was run during the TDD+PRD integration work. It surfaced 69 pre-existing issues in the IronClaude codebase that are **not caused by the TDD/PRD changes** — they existed before. These were separated from TDD/PRD-specific findings during interactive review and deferred while the architectural work was prioritized.
+
+**Full details with file paths, line numbers, code context, impact analysis, and fix suggestions:**
+`.dev/tasks/to-do/TASK-E2E-20260327-prd-pipeline-e2e/reviews/pre-existing-findings.md`
+
+**Raw agent reports (14 files):**
+`.dev/tasks/to-do/TASK-E2E-20260327-prd-pipeline-e2e/reviews/adversarial-qa-agent*.md`
+
+**Consolidated raw findings:**
+`.dev/tasks/to-do/TASK-E2E-20260327-prd-pipeline-e2e/reviews/consolidated-findings-raw.md`
+
+### Summary: 11 CRITICAL, 30 IMPORTANT, 27 MINOR, 1 META
+
+### CRITICAL (11)
+
+| # | Finding | Quick Fix? |
+|---|---------|-----------|
+| C-01 | DEVIATION_ANALYSIS_GATE `ambiguous_count` vs `ambiguous_deviations` field mismatch — gate can never pass | Yes — one-line rename |
+| C-02 | Anti-instinct gate blocks entire downstream pipeline — obligation scanner false positives on "skeleton" descriptions | Yes — change to TRAILING mode |
+| C-14 | Complexity scoring formula not implemented in CLI — skill defines formulas but CLI delegates to LLM freeform | No |
+| C-15 | No integration tests for full pipeline data flow for any path | No — new test suite |
+| C-22 | spec_parser requirement ID regex silently drops compound IDs (FR-AUTH-001, FR-AUTH.1) | No — regex update |
+| C-23 | certify_prompts parser regex rejects all structural checker finding IDs | No — regex update |
+| C-24 | DIMENSION_SECTION_MAP hardcoded to release-spec numbering — breaks for TDD | No — conditional map |
+| C-46 | _restore_from_state assigns unvalidated state values — malformed state crashes pipeline | No — type validation |
+| C-79 | Semantic layer call-site passes wrong argument types (dead code path) | Yes — fix args |
+| C-80 | _frontmatter_values_non_empty checks ALL fields, not just required — flags optional empty fields as failures | Yes — filter to required |
+| C-81 | _parse_frontmatter drops YAML list continuation lines — multi-line lists silently truncated | No — parser fix |
+
+### IMPORTANT (30)
+
+| # | Finding | Quick Fix? |
+|---|---------|-----------|
+| C-07 | _restore_from_state mutates config directly instead of dataclasses.replace | No |
+| C-09 | read_state doesn't validate JSON is a dict — non-dict crashes | Yes |
+| C-13 | Extraction sections mismatch — CLI has 6 steps, skill layer has 7 | No |
+| C-26 | Score step prompt exceeds _EMBED_SIZE_LIMIT with real data — warning only | No |
+| C-28 | _embed_inputs no handling for empty or binary files — crashes on read | Yes |
+| C-29 | _save_state writes only after all steps complete — mid-pipeline crash loses all progress | No |
+| C-30 | Fingerprint extraction ignores file paths, API endpoints, data model field names | No |
+| C-37 | Validation sub-pipeline structural checks only — no source document comparison | By design |
+| C-38 | Remediation sub-pipeline works from deviation report — no direct source file access | By design |
+| C-39 | Convergence fidelity checker scans hardcoded `src/superclaude` path | No |
+| C-40 | Obligation scanner position calculation matches wrong section | No |
+| C-41 | Integration contract coverage has no per-contract filtering | No |
+| C-42 | Obligation scanner discharge check uses substring matching — false positives | No |
+| C-43 | Convergence regression handler is a no-op stub | No |
+| C-44 | _write_convergence_report hardcodes medium/low counts to 0 | Yes |
+| C-45 | Registry not saved on early convergence exit | No |
+| C-51 | spec_patch.py doesn't handle TDD/PRD file references | By design |
+| C-52 | _check_cross_file_coherence removes from list during iteration — undefined behavior | Yes |
+| C-57 | Prompt injection via malicious PRD/TDD content — raw embedding is pre-existing | Design decision |
+| C-63 | Frontmatter regex rejects hyphenated field names | No |
+| C-64 | Frontmatter regex breaks on blank lines within frontmatter | No |
+| C-66 | pyproject force-include may double files in wheel | No — audit |
+| C-68 | Makefile paths with spaces break | Yes |
+| C-69 | TaskStatus enum collision/inconsistency | No — audit |
+| C-82 | sys.path pollution in main.py | Yes |
+| C-83 | _embed_inputs raises unhandled FileNotFoundError | Yes |
+| C-95 | fidelity_checker.py scans only Python files — misses non-Python deliverables | No |
+| C-96 | fidelity_checker partial-match marks found=True, swallows gaps | No |
+| C-107 | remediate_parser overlay regexes hardcode column count | No |
+| C-108 | _cross_refs_resolve gate check always returns True — never validates | Yes |
+
+### MINOR (27)
+
+| # | Finding | Quick Fix? |
+|---|---------|-----------|
+| C-10 | Step numbering comment error | Yes |
+| C-33 | _FINDING_COUNTER dead global state | Yes |
+| C-47 | Duplicate _embed_inputs and _sanitize_output implementations (roadmap + validate) | No |
+| C-48 | _extract_by_section heading level calculation wrong | No |
+| C-49 | spec_structural_audit divides by zero on empty spec | Yes |
+| C-54 | _embed_inputs crashes on UTF-16 encoded files | Yes |
+| C-56 | No lock mechanism on .roadmap-state.json for concurrent runs | Doc only |
+| C-58 | --agents with empty string crashes | Yes |
+| C-65 | Frontmatter regex false positives on `---` in content body | No |
+| C-67 | Makefile .DS_Store causes false sync drift | Yes |
+| C-70 | Parallel executor prints to stdout instead of stderr | Yes |
+| C-71 | Doctor command missing pipeline health checks | No |
+| C-72 | Dead deprecation shim | Yes |
+| C-73 | Confidence checker mutates input dict | Yes |
+| C-74 | Reflexion creates directories on init (side effect in constructor) | Yes |
+| C-76 | Bare f-string prefixes with no interpolation | Yes |
+| C-77 | Cross-module import of private _OUTPUT_FORMAT_BLOCK | No — design |
+| C-78 | Redundant Path() wrapping on values already typed as Path | Yes |
+| C-85 | Fidelity batch scripts hardcode container path | No |
+| C-86 | prd/tdd skills lack sc- prefix, bypass duplicate skill filter | Yes |
+| C-97 | fidelity_checker _STOP_WORDS contains "sets" but not "set" | Yes |
+| C-99 | _derive_fidelity_status uses string search instead of YAML parsing | No |
+| C-100 | Sprint executor doesn't read .roadmap-state.json — can't inherit pipeline state | No |
+| C-106 | _extract_field regex may capture trailing content beyond field value | No |
+| C-110 | Gate failure messages lack actual values — just say "field missing" | No |
+| C-120 | TDD SKILL.md QA checklist item 13 references wrong synthesis file | Yes |
+| C-121 | Obligation scanner lowercases component names — loses case for matching | Yes |
+
+### Overlap with architecture workstreams
+
+Several pre-existing findings directly relate to the roadmap/tasklist and sprint issues documented in Sections 6-7:
+
+| Finding | Overlap |
+|---------|---------|
+| C-01 | Same as gap M-7 (gate field mismatch) — found independently by architecture research |
+| C-02 | Relates to sprint G-02 (vacuous anti-instinct gate) |
+| C-29 | Relates to one-shot/crash-recovery architecture issues (Section 3) |
+| C-37 | Exactly what Section 6 flags — validation does structural checks only, no source comparison |
+| C-80, C-81 | Same frontmatter parser bug family found by gate architecture research |
+| C-108 | `_cross_refs_resolve` always returns True — a validation gate that never validates |
+
+### Quick-fix triage
+
+Of the 69 findings, **24 are marked "Quick Fix? Yes"** — these are one-line renames, guard clauses, try/except wrappers, and dead code removal. They could be addressed in a dedicated cleanup sprint without touching the architecture.
+
+---
+
+## 9. Recommended Execution Order
 
 Two workstreams, partially parallelizable:
 
@@ -517,7 +634,7 @@ B6: Task-level checkpoint/resume — checkpoint files + --resume-from flag (2-3 
 
 ---
 
-## 9. Research Artifacts Index
+## 10. Research Artifacts Index
 
 | Report | Location | Date | Status |
 |--------|----------|------|--------|
