@@ -79,3 +79,13 @@ grep -oP '##### T\d{2}\.\d{2}' report.md | sort -u
 # Count feature references (for TUI spec)
 grep -oP 'F\d{1,2}[:\s]' report.md | sort -u
 ```
+
+## Assembly with QA Context Notes (2026-04-04)
+
+When the assembly prompt includes a "NOTE FROM QA" about cross-section reading context (e.g., implementation plan should be read in context of a recommendation's phased approach), add a blockquote **Reading Context** note at the top of the affected section. This preserves QA's guidance without altering the synthesis content.
+
+**How to apply:** Use `> **Reading Context (per Section N):**` format. Keep it factual -- map plan phases to option labels from the recommendation.
+
+## Edit Tool for All Sections Works (2026-04-04 confirmation)
+
+For an 846-line 10-section report assembled from 6 synth files, using Edit tool for ALL section appends worked without issues. No need for Bash `cat >>` fallback when the old_string anchor is the last unique line of content added. The pattern: match on the final table row or text line of the previous section, append new section content after it.
