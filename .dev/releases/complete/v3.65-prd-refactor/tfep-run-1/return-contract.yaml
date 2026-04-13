@@ -1,0 +1,5 @@
+status: success
+test_is_wrong: true
+recommended_escalation: standard
+tasklist_insertion_path: /config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/tfep-run-1/tasklist-insertion.md
+summary: Mixed-cause cluster confirmed: 2 expectation defects and 3 scanner implementation issues (discharge-line obligation creation, brittle discharge linking, code-block demotion regression).

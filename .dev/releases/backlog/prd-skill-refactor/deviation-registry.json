@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "release_id": "prd-skill-refactor",
+  "spec_hash": "2f740c472956c49951f3b12fd7f702802ab13dad07f23b0786f26527a5cfa37a",
+  "runs": [
+    {
+      "run_number": 1,
+      "timestamp": "2026-04-05T13:44:37.530506+00:00",
+      "spec_hash": "2f740c472956c49951f3b12fd7f702802ab13dad07f23b0786f26527a5cfa37a",
+      "roadmap_hash": "daf44608e4f6c3b1e1d3a98e7e51d4c5266af51e425c425c830cb8b8bea7e752",
+      "budget_snapshot": {
+        "consumed": 10,
+        "reimbursed": 0,
+        "available": 51,
+        "initial": 61
+      },
+      "structural_high_count": 0,
+      "semantic_high_count": 1,
+      "total_high_count": 1
+    },
+    {
+      "run_number": 2,
+      "timestamp": "2026-04-05T14:00:17.088334+00:00",
+      "spec_hash": "2f740c472956c49951f3b12fd7f702802ab13dad07f23b0786f26527a5cfa37a",
+      "roadmap_hash": "daf44608e4f6c3b1e1d3a98e7e51d4c5266af51e425c425c830cb8b8bea7e752",
+      "budget_snapshot": {
+        "consumed": 28,
+        "reimbursed": 0,
+        "available": 33,
+        "initial": 61
+      },
+      "structural_high_count": 0,
+      "semantic_high_count": 2,
+      "total_high_count": 2
+    }
+  ],
+  "findings": {
+    "f31218a1e41386f8": {
+      "stable_id": "f31218a1e41386f8",
+      "dimension": "nfrs",
+      "severity": "HIGH",
+      "description": "Threshold '<= 2' contradicted by 'at most 2' in roadmap",
+      "location": "spec:nfr:threshold:<= 2",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 2,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "0627bf00f5f621b2": {
+      "stable_id": "0627bf00f5f621b2",
+      "dimension": "architectural_alignment",
+      "severity": "HIGH",
+      "description": "Roadmap Success Criterion 11 maps NFR-PRD-R.3 to 'Sync verification' (make verify-sync), but spec defines NFR-PRD-R.3 as 'Session start cost: ~50 tokens (name + description only)'. The roadmap misattributes the sync requirement to an unrelated NFR ID. Consequence: spec's session start cost NFR is never validated in the roadmap, and a phantom sync NFR appears under a wrong ID.",
+      "location": "semantic:architectural_alignment",
+      "source_layer": "semantic",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 2,
+      "debate_verdict": "CONFIRM_HIGH",
+      "debate_transcript": "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/debates/0627bf00f5f621b2/debate.yaml",
+      "files_affected": []
+    },
+    "a4ff86e841693dbe": {
+      "stable_id": "a4ff86e841693dbe",
+      "dimension": "completeness_coverage",
+      "severity": "HIGH",
+      "description": "Roadmap Criterion 11 and Phase 4 Steps 4.10-4.11 attribute sync verification to NFR-PRD-R.3, but spec defines NFR-PRD-R.3 as 'Session start cost: ~50 tokens (name + description only)'. The roadmap never validates session start cost. Sync verification has no NFR backing in the spec.",
+      "location": "semantic:completeness_coverage",
+      "source_layer": "semantic",
+      "status": "ACTIVE",
+      "first_seen_run": 2,
+      "last_seen_run": 2,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    }
+  }
+}
