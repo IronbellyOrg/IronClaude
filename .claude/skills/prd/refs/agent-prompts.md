@@ -147,7 +147,7 @@ Read the research files listed below and synthesize them into template-aligned s
 Research files to read: [list of paths]
 Template sections to produce: [section numbers and names]
 Output path: [synth file path]
-Template reference: src/superclaude/examples/prd_template.md
+Template reference: docs/docs-product/templates/prd_template.md
 
 Rules:
 0. **Read the template first.** Before synthesizing anything, read the PRD template to understand each section's expected content, format, and depth.
@@ -232,10 +232,10 @@ IF ANALYST REPORT EXISTS:
 2. Spot-check 3-5 of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
 4. Check their verdict against your own independent assessment
-5. Apply the 11-item Research Gate checklist from your agent definition
+5. Apply the 10-item Research Gate checklist from your agent definition
 
 IF NO ANALYST REPORT:
-Apply the full 11-item Research Gate checklist from your agent definition independently.
+Apply the full 10-item Research Gate checklist from your agent definition independently.
 
 11-ITEM CHECKLIST:
 1. File inventory — all research files exist with Status: Complete and Summary
@@ -282,7 +282,7 @@ PROCESS:
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
-1. Section headers match PRD template structure (src/superclaude/examples/prd_template.md)
+1. Section headers match PRD template structure (docs/docs-product/templates/prd_template.md)
 2. Table column structures correct (competitive matrix, requirements table, KPI table, etc.)
 3. No fabrication (sample 5 claims per file, trace to research files)
 4. Evidence citations use actual file paths and feature names
@@ -308,7 +308,7 @@ Perform final QA validation of the assembled PRD for [product name].
 QA phase: report-validation
 Report path: [report-path]
 Research directory: [research-dir-path]
-Template path: src/superclaude/examples/prd_template.md
+Template path: docs/docs-product/templates/prd_template.md
 Output path: [output-path]
 Fix authorization: true (always authorized for report validation)
 
@@ -359,7 +359,7 @@ Component files (in order):
 
 Output path: [PRD-output-path]
 Research directory: [research-dir-path]
-Template reference: src/superclaude/examples/prd_template.md
+Template reference: docs/docs-product/templates/prd_template.md
 
 CRITICAL — Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.

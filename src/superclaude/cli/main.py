@@ -371,6 +371,10 @@ from superclaude.cli.cli_portify.commands import cli_portify_group
 
 main.add_command(cli_portify_group)
 
+from superclaude.cli.prd.commands import prd_group
+
+main.add_command(prd_group, name="prd")
+
 
 if __name__ == "__main__":
     main()
