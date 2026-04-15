@@ -35,6 +35,8 @@ category: utility
 
 Analyzes user requests through multi-language keyword extraction, project context detection, and expertise level assessment to recommend optimal SuperClaude command sequences with appropriate personas, MCP servers, and flags. Supports streaming mode for continuous project tracking, alternative recommendations with comparison matrices, and intelligent time/budget estimation with complexity-adjusted multipliers.
 
+Before emitting any recommendation, every shortlisted `/sc:*` command and project skill is resolved through **two mandatory steps**: (1) `Read`/`Grep` of the command's authoritative source file to extract its canonical interface, AND (2) `mcp__auggie-mcp__codebase-retrieval` to enrich that interface with repo-specific usage context — how the command is actually invoked, which flag combinations are load-bearing, what caveats the eval history has surfaced, which adjacent skills are conventionally paired. Step 1 says *what the command is*; Step 2 says *how to wield it well here*. Fabricated flags, ghost commands, and inline reimplementation of another command's protocol are forbidden. See the protocol skill's Retrieval Algorithm and Output Constraints sections for the full contract.
+
 ## Activation
 
 **MANDATORY**: Before executing any protocol steps, invoke:
@@ -49,11 +51,11 @@ The full behavioral specification is in the protocol skill.
 ```bash
 /sc:recommend "I want to build a React component"
 
-# Output:
+# Output (illustrative — actual flags are verified against target command files at runtime):
 # → Project Analysis: React component development
 # → Persona: --persona-frontend
-# → Primary: /sc:build --feature --magic --react
-# → Secondary: /sc:test --coverage --e2e
+# → Primary:   /sc:implement <target> [verified flags from implement.md]
+# → Secondary: /sc:test <target> --coverage [verified flags from test.md]
 ```
 
 ### With Estimation
@@ -85,9 +87,12 @@ The full behavioral specification is in the protocol skill.
 - Provide time and budget estimations when requested
 - Present alternative approaches with comparison matrices
 - Adapt recommendations based on expertise level
+- Verify every candidate `/sc:*` command and project skill against its authoritative source file before emitting it
 
 **Will Not:**
 - Execute recommended commands automatically (user must invoke)
 - Make assumptions about project type without evidence
 - Provide fake metrics or community data
 - Override user-specified preferences
+- Recommend flags or commands not present in a verified source file
+- Duplicate a target command's protocol inline in generated prompts — recommendations invoke, they do not reimplement
