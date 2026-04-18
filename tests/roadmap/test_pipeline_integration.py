@@ -167,6 +167,19 @@ def _gate_passing_content(step: Step) -> str:
     min_needed = step.gate.min_lines if step.gate else 10
     for i in range(max(min_needed, 10)):
         content_lines.append(f"- Item {i}: content for {step.id}")
+    # Add deliverable table rows for steps with _minimum_deliverable_rows check
+    if step.id.startswith("generate") or step.id == "merge":
+        content_lines.append("")
+        content_lines.append("## M1: Implementation")
+        content_lines.append("")
+        content_lines.append(
+            "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
+        )
+        content_lines.append("|---|---|---|---|---|---|---|---|---|")
+        for i in range(1, 26):
+            content_lines.append(
+                f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+            )
     return "\n".join(content_lines)
 
 

@@ -63,15 +63,15 @@ _CODE_BLOCK_RE = re.compile(r"```[\s\S]*?```")
 class Obligation:
     """A detected scaffolding obligation."""
 
-    phase: str  # e.g., "Phase 2", "2.3"
+    phase: str  # e.g., "M2", "2.3"
     term: str  # the matched scaffold term
     component: str  # nearby component context
     context: str  # surrounding sentence/line
     line_number: int
     severity: str  # "HIGH" or "MEDIUM" (FR-MOD1.8)
-    discharged: bool  # True if a matching discharge was found in a later phase
+    discharged: bool  # True if a matching discharge was found in a later milestone
     exempt: bool  # True if line has # obligation-exempt (FR-MOD1.7)
-    discharge_phase: str | None  # phase where discharge was found
+    discharge_phase: str | None  # milestone where discharge was found
     discharge_context: str | None
 
 
@@ -137,6 +137,13 @@ def scan_obligations(content: str) -> ObligationReport:
                 (stripped_context.startswith("## ") or stripped_context.startswith("### "))
                 or stripped_context.startswith("|")
             ):
+                continue
+
+            # Skip phase objective paragraphs — these are declarative
+            # descriptions of phase goals (e.g., "**Objective:** ...scaffold
+            # orchestrator interfaces..."), not prescriptive scaffolding
+            # actions that create discharge obligations.
+            if stripped_context.startswith("**Objective:"):
                 continue
 
             # Skip scaffold terms that appear in purely descriptive/configuration
@@ -233,18 +240,18 @@ def scan_obligations(content: str) -> ObligationReport:
     )
 
 
-# --- FR-MOD1.2: Phase-section parser with H2/H3 fallback ---
+# --- FR-MOD1.2: Milestone-section parser with H2/H3 fallback ---
 
 
 def _split_into_phases(content: str) -> list[tuple[str, str, int]]:
     """Split content into (phase_id, text, start_line_number) tuples.
 
-    Splits on H2/H3 headings containing phase-like patterns:
-    "## Phase 2", "### 2.3 Executor", "## Step 4", etc.
-    Falls back to any H2/H3 heading if no phase-pattern headings found.
+    Splits on H2/H3 headings containing milestone-like patterns:
+    "## M2: Title", "## Phase 2", "### 2.3 Executor", "## Step 4", etc.
+    Falls back to any H2/H3 heading if no milestone-pattern headings found.
     """
     phase_pattern = re.compile(
-        r"^(#{2,3})\s+((?:Phase|Step|Stage|Milestone)\s+\d+[\w.]*.*?)$",
+        r"^(#{2,3})\s+((?:(?:Phase|Step|Stage|Milestone)\s+|M)\d+[\w.]*.*?)$",
         re.MULTILINE | re.IGNORECASE,
     )
     matches = list(phase_pattern.finditer(content))

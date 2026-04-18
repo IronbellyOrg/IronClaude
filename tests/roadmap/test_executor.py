@@ -202,6 +202,17 @@ class TestIntegrationMockSubprocess:
             min_needed = step.gate.min_lines if step.gate else 10
             for i in range(max(min_needed, 10)):
                 content_lines.append(f"- Item {i}: content for {step.id}")
+            # Add deliverable table rows for steps with _minimum_deliverable_rows check
+            if step.id.startswith("generate") or step.id == "merge":
+                content_lines.append("\n## M1: Implementation\n")
+                content_lines.append(
+                    "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
+                )
+                content_lines.append("|---|---|---|---|---|---|---|---|---|")
+                for i in range(1, 26):
+                    content_lines.append(
+                        f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+                    )
             content = "\n".join(content_lines)
 
             step.output_file.parent.mkdir(parents=True, exist_ok=True)

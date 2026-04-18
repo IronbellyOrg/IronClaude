@@ -77,9 +77,9 @@ class TestGateInstances:
 
     def test_generate_gates_have_semantic_checks(self):
         assert GENERATE_A_GATE.semantic_checks is not None
-        assert len(GENERATE_A_GATE.semantic_checks) == 2
+        assert len(GENERATE_A_GATE.semantic_checks) == 5
         assert GENERATE_B_GATE.semantic_checks is not None
-        assert len(GENERATE_B_GATE.semantic_checks) == 2
+        assert len(GENERATE_B_GATE.semantic_checks) == 5
 
     def test_diff_gate_standard(self):
         assert DIFF_GATE.enforcement_tier == "STANDARD"
@@ -90,14 +90,17 @@ class TestGateInstances:
         assert "convergence_score" in DEBATE_GATE.required_frontmatter_fields
         assert DEBATE_GATE.semantic_checks is not None
 
-    def test_merge_gate_has_three_semantic_checks(self):
+    def test_merge_gate_has_six_semantic_checks(self):
         assert MERGE_GATE.enforcement_tier == "STRICT"
-        assert len(MERGE_GATE.semantic_checks) == 3
+        assert len(MERGE_GATE.semantic_checks) == 6
         check_names = {c.name for c in MERGE_GATE.semantic_checks}
         assert check_names == {
             "no_heading_gaps",
             "cross_refs_resolve",
             "no_duplicate_headings",
+            "minimum_deliverable_rows",
+            "deliverable_table_schema",
+            "no_template_sentinels",
         }
 
     def test_score_gate_standard(self):

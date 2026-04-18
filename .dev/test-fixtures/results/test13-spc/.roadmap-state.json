@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/test-spec-user-auth.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "2db9d8c547a8d7e93ad9ad73ac39933d11ed8eaa83246df2b47bd65fc0551eb9",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-04-17T14:02:03.302394+00:00",
+  "steps": {
+    "merge": {
+      "status": "PASS",
+      "attempt": 2,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/roadmap.md",
+      "started_at": "2026-04-17T13:51:08.469150+00:00",
+      "completed_at": "2026-04-17T13:58:45.523878+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/anti-instinct-audit.md",
+      "started_at": "2026-04-17T13:58:45.541103+00:00",
+      "completed_at": "2026-04-17T13:58:45.558567+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/test-strategy.md",
+      "started_at": "2026-04-17T13:58:45.558654+00:00",
+      "completed_at": "2026-04-17T13:59:50.567707+00:00"
+    },
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/spec-fidelity.md",
+      "started_at": "2026-04-17T13:59:50.568143+00:00",
+      "completed_at": "2026-04-17T14:02:02.583579+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/wiring-verification.md",
+      "started_at": "2026-04-17T14:02:02.583904+00:00",
+      "completed_at": "2026-04-17T14:02:03.301171+00:00"
+    },
+    "deviation-analysis": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/spec-deviations.md",
+      "started_at": "2026-04-17T14:02:03.301286+00:00",
+      "completed_at": "2026-04-17T14:02:03.301505+00:00"
+    },
+    "remediate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/remediation-tasklist.md",
+      "started_at": "2026-04-17T14:02:03.301687+00:00",
+      "completed_at": "2026-04-17T14:02:03.302180+00:00"
+    },
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/extraction.md",
+      "started_at": "2026-04-17T01:17:28.392154+00:00",
+      "completed_at": "2026-04-17T01:18:37.401016+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/roadmap-opus-architect.md",
+      "started_at": "2026-04-17T01:18:37.407677+00:00",
+      "completed_at": "2026-04-17T01:24:03.447106+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/roadmap-haiku-architect.md",
+      "started_at": "2026-04-17T01:18:37.408032+00:00",
+      "completed_at": "2026-04-17T01:25:51.459358+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/diff-analysis.md",
+      "started_at": "2026-04-17T01:25:51.473470+00:00",
+      "completed_at": "2026-04-17T01:26:52.482398+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/debate-transcript.md",
+      "started_at": "2026-04-17T01:26:52.483012+00:00",
+      "completed_at": "2026-04-17T01:28:09.494261+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/results/test13-spc/base-selection.md",
+      "started_at": "2026-04-17T01:28:09.494584+00:00",
+      "completed_at": "2026-04-17T01:29:16.504237+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "fail",
+    "timestamp": "2026-04-17T14:06:55.347499+00:00"
+  }
+}

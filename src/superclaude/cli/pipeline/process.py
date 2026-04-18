@@ -50,6 +50,7 @@ class ClaudeProcess:
         on_signal: Callable[[int, str], None] | None = None,
         on_exit: Callable[[int, int | None], None] | None = None,
         env_vars: dict[str, str] | None = None,
+        tool_write_mode: bool = False,
     ):
         self.prompt = prompt
         self.output_file = output_file
@@ -64,6 +65,7 @@ class ClaudeProcess:
         self._on_signal = on_signal
         self._on_exit = on_exit
         self._extra_env_vars = env_vars
+        self.tool_write_mode = tool_write_mode
         self._process: Optional[subprocess.Popen] = None
         self._stdout_fh = None
         self._stderr_fh = None
@@ -111,7 +113,11 @@ class ClaudeProcess:
         """Launch the claude process."""
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        self._stdout_fh = open(self.output_file, "w")
+        if self.tool_write_mode:
+            # LLM writes output_file via Write tool; stdout goes to .log
+            self._stdout_fh = open(self.output_file.with_suffix(".log"), "w")
+        else:
+            self._stdout_fh = open(self.output_file, "w")
         self._stderr_fh = open(self.error_file, "w")
 
         popen_kwargs = {
@@ -192,6 +198,28 @@ class ClaudeProcess:
         if self._on_exit is not None:
             self._on_exit(self._process.pid, self._process.returncode)
         self._close_handles()
+
+    def validate_tool_write_output(self) -> bool:
+        """Check that the LLM wrote the output file via tools.
+
+        Only meaningful when tool_write_mode=True. Returns True if
+        output_file exists and is non-empty.
+        """
+        if not self.tool_write_mode:
+            return True
+        if not self.output_file.exists():
+            _log.warning(
+                "tool_write_mode: output file %s does not exist after subprocess exit",
+                self.output_file,
+            )
+            return False
+        if self.output_file.stat().st_size == 0:
+            _log.warning(
+                "tool_write_mode: output file %s is empty after subprocess exit",
+                self.output_file,
+            )
+            return False
+        return True
 
     def _close_handles(self) -> None:
         for fh in (self._stdout_fh, self._stderr_fh):

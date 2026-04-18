@@ -610,9 +610,9 @@ def _complexity_class_valid(content: str) -> bool:
 
 
 def _extraction_mode_valid(content: str) -> bool:
-    """Validate extraction_mode is 'standard' or starts with 'chunked' (case-insensitive).
+    """Validate extraction_mode is 'standard', starts with 'chunked', or is 'metadata-only'.
 
-    Accepts: 'standard', 'chunked', 'chunked (3 chunks)', etc.
+    Accepts: 'standard', 'chunked', 'chunked (3 chunks)', 'metadata-only'.
     Rejects: 'full', 'partial', 'incremental'.
     """
     fm = _parse_frontmatter(content)
@@ -624,7 +624,11 @@ def _extraction_mode_valid(content: str) -> bool:
         return False
 
     normalized = value.strip().lower()
-    return normalized == "standard" or normalized.startswith("chunked")
+    return (
+        normalized == "standard"
+        or normalized.startswith("chunked")
+        or normalized == "metadata-only"
+    )
 
 
 def _interleave_ratio_consistent(content: str) -> bool:
@@ -760,6 +764,71 @@ def _deviation_counts_reconciled(content: str) -> bool:
     return len(all_ids) == total_analyzed
 
 
+# --- Generate gate semantic checks ---
+
+
+def _minimum_deliverable_rows(content: str) -> bool:
+    """Verify the roadmap contains at least 20 deliverable table rows.
+
+    Counts markdown table data rows (lines starting with '|' that contain
+    a numeric first cell). Excludes header rows and separator rows.
+    The 20-row floor catches catastrophic consolidation where a rich input
+    produces only a handful of deliverables.
+    """
+    import re
+
+    count = 0
+    for line in content.splitlines():
+        stripped = line.strip()
+        # Skip non-table lines
+        if not stripped.startswith("|"):
+            continue
+        # Skip separator rows (|---|---|)
+        if re.match(r"^\|[\s:|-]+\|$", stripped):
+            continue
+        # Count rows where the first data cell is a number (task row #)
+        cells = [c.strip() for c in stripped.split("|") if c.strip()]
+        if cells and re.match(r"^\d+$", cells[0]):
+            count += 1
+    return count >= 20
+
+
+def _no_template_sentinels(content: str) -> bool:
+    """Verify no {{SC_PLACEHOLDER:*}} sentinels remain in the output.
+
+    Template sentinels indicate the LLM failed to replace a placeholder
+    section. A passing output must have zero remaining sentinels.
+    """
+    return "{{SC_PLACEHOLDER:" not in content
+
+
+def _deliverable_table_schema(content: str) -> bool:
+    """Verify the deliverable table uses the 9-column schema.
+
+    Required header (case-insensitive, short or long forms accepted):
+        | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |
+
+    At least one such header must be present. Catches LLM drift where
+    the milestone table reverts to the old 8-col schema or invents a
+    different shape.
+    """
+    import re
+
+    pattern = re.compile(
+        r"\|\s*#\s*"
+        r"\|\s*ID\s*"
+        r"\|\s*Title\s*"
+        r"\|\s*Description\s*"
+        r"\|\s*Comp(?:onent)?\s*"
+        r"\|\s*Dep(?:endencies|s)?\s*"
+        r"\|\s*(?:Acceptance Criteria|AC)\s*"
+        r"\|\s*(?:Effort|Eff)\s*"
+        r"\|\s*(?:Priority|Pri)\s*\|",
+        re.IGNORECASE,
+    )
+    return bool(pattern.search(content))
+
+
 # --- GateCriteria instances ---
 
 EXTRACT_GATE = GateCriteria(
@@ -789,7 +858,7 @@ EXTRACT_GATE = GateCriteria(
         SemanticCheck(
             name="extraction_mode_valid",
             check_fn=_extraction_mode_valid,
-            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+            failure_message="extraction_mode must be 'standard', 'chunked', or 'metadata-only'",
         ),
     ],
 )
@@ -818,7 +887,9 @@ EXTRACT_TDD_GATE = GateCriteria(
         "migration_items_identified",
         "operational_items_identified",
     ],
-    min_lines=50,
+    # Lowered from 50: metadata-only extraction produces a compact stub
+    # (~30-60 lines) with frontmatter + Section Inventory + ID Registry.
+    min_lines=30,
     enforcement_tier="STRICT",
     semantic_checks=[
         SemanticCheck(
@@ -829,7 +900,7 @@ EXTRACT_TDD_GATE = GateCriteria(
         SemanticCheck(
             name="extraction_mode_valid",
             check_fn=_extraction_mode_valid,
-            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+            failure_message="extraction_mode must be 'standard', 'chunked', or 'metadata-only'",
         ),
     ],
 )
@@ -849,6 +920,21 @@ GENERATE_A_GATE = GateCriteria(
             check_fn=_has_actionable_content,
             failure_message="No numbered or bulleted items found -- roadmap must contain actionable content",
         ),
+        SemanticCheck(
+            name="minimum_deliverable_rows",
+            check_fn=_minimum_deliverable_rows,
+            failure_message="Roadmap must contain at least 20 deliverable table rows (granularity floor)",
+        ),
+        SemanticCheck(
+            name="deliverable_table_schema",
+            check_fn=_deliverable_table_schema,
+            failure_message="Deliverable table header must use 9-column schema: | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |",
+        ),
+        SemanticCheck(
+            name="no_template_sentinels",
+            check_fn=_no_template_sentinels,
+            failure_message="Template sentinels {{SC_PLACEHOLDER:*}} remain -- all placeholders must be replaced",
+        ),
     ],
 )
 
@@ -866,6 +952,21 @@ GENERATE_B_GATE = GateCriteria(
             name="has_actionable_content",
             check_fn=_has_actionable_content,
             failure_message="No numbered or bulleted items found -- roadmap must contain actionable content",
+        ),
+        SemanticCheck(
+            name="minimum_deliverable_rows",
+            check_fn=_minimum_deliverable_rows,
+            failure_message="Roadmap must contain at least 20 deliverable table rows (granularity floor)",
+        ),
+        SemanticCheck(
+            name="deliverable_table_schema",
+            check_fn=_deliverable_table_schema,
+            failure_message="Deliverable table header must use 9-column schema: | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |",
+        ),
+        SemanticCheck(
+            name="no_template_sentinels",
+            check_fn=_no_template_sentinels,
+            failure_message="Template sentinels {{SC_PLACEHOLDER:*}} remain -- all placeholders must be replaced",
         ),
     ],
 )
@@ -914,6 +1015,21 @@ MERGE_GATE = GateCriteria(
             name="no_duplicate_headings",
             check_fn=_no_duplicate_headings,
             failure_message="Duplicate H2 or H3 heading text detected",
+        ),
+        SemanticCheck(
+            name="minimum_deliverable_rows",
+            check_fn=_minimum_deliverable_rows,
+            failure_message="Merged roadmap must contain at least 20 deliverable table rows (granularity floor)",
+        ),
+        SemanticCheck(
+            name="deliverable_table_schema",
+            check_fn=_deliverable_table_schema,
+            failure_message="Deliverable table header must use 9-column schema: | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |",
+        ),
+        SemanticCheck(
+            name="no_template_sentinels",
+            check_fn=_no_template_sentinels,
+            failure_message="Template sentinels {{SC_PLACEHOLDER:*}} remain -- all placeholders must be replaced",
         ),
     ],
 )
@@ -1052,7 +1168,7 @@ ANTI_INSTINCT_GATE = GateCriteria(
         SemanticCheck(
             name="no_undischarged_obligations",
             check_fn=_no_undischarged_obligations,
-            failure_message="undischarged_obligations must be 0; scaffolding obligations lack discharge in later phases",
+            failure_message="undischarged_obligations must be 0; scaffolding obligations lack discharge in later milestones",
         ),
         SemanticCheck(
             name="integration_contracts_covered",
