@@ -61,10 +61,10 @@ def _complete_roadmap() -> str:
         "### Milestone Dependencies — M2\n"
         "- M1\n"
         "\n"
-        "## Risk Assessment and Mitigation\n"
-        "| Risk | Mitigation |\n"
-        "|---|---|\n"
-        "| R-1 | mitigate |\n"
+        "## Risk Register\n"
+        "| ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |\n"
+        "|---|---|---|---|---|---|---|\n"
+        "| R-001 | risk | M1 | Low | Low | mitigate | lead |\n"
         "\n"
         "## Success Criteria and Validation Approach\n"
         "| Criterion | Validation |\n"
@@ -89,10 +89,10 @@ def test_complete_roadmap_passes(tmp_path: Path) -> None:
 
 def test_m5_and_tail_truncated(tmp_path: Path) -> None:
     text = _complete_roadmap().replace(
-        "## Risk Assessment and Mitigation",
-        "## Risk Assessment and Mitigation (truncated)\n\n<TRUNCATED>",
+        "## Risk Register",
+        "## Risk Register (truncated)\n\n<TRUNCATED>",
     )
-    # Drop everything from "Risk Assessment" onward to simulate the LLM
+    # Drop everything from "Risk Register" onward to simulate the LLM
     # cutting off mid-sequence. Also drop the M2 body to simulate loss
     # of the final milestone.
     truncated = text.split("## M2: Launch")[0] + "## Milestone Summary extra\n"
@@ -104,7 +104,7 @@ def test_m5_and_tail_truncated(tmp_path: Path) -> None:
     missing = _validate_merge_completeness(out)
 
     assert any("M2" in m and "missing" in m for m in missing), missing
-    assert any("Risk Assessment" in m for m in missing), missing
+    assert any("Risk Register" in m for m in missing), missing
     assert any("Success Criteria" in m for m in missing), missing
     assert any("Decision Summary" in m for m in missing), missing
     assert any("Timeline Estimates" in m for m in missing), missing

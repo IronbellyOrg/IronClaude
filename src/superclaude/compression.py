@@ -239,6 +239,49 @@ def _is_in_frontmatter(text: str, pos: int) -> bool:
     return pos < end + 4
 
 
+def _frontmatter_delimiter_indices(text: str) -> set[int]:
+    """Return line indices of YAML frontmatter delimiters (``---``).
+
+    Scans from the start, tolerating leading blank lines and HTML comments
+    (single- or multi-line) before the opening ``---``. Returns the pair
+    ``{opening_idx, closing_idx}`` when frontmatter is detected, otherwise
+    an empty set. Used to prevent HR-removal strategies from deleting
+    frontmatter delimiters that happen to abut a heading.
+    """
+    lines = text.split("\n")
+    n = len(lines)
+    idx = 0
+
+    while idx < n:
+        stripped = lines[idx].strip()
+        if not stripped:
+            idx += 1
+            continue
+        if stripped.startswith("<!--"):
+            if "-->" in stripped:
+                idx += 1
+                continue
+            while idx < n and "-->" not in lines[idx]:
+                idx += 1
+            if idx < n:
+                idx += 1
+            continue
+        break
+
+    if idx >= n:
+        return set()
+
+    if not re.match(r"^-{3,}\s*$", lines[idx]):
+        return set()
+
+    opening_idx = idx
+    for j in range(opening_idx + 1, n):
+        if re.match(r"^-{3,}\s*$", lines[j]):
+            return {opening_idx, j}
+
+    return set()
+
+
 # ============================================================================
 # Section 4: Strategy functions
 # ============================================================================
@@ -250,11 +293,19 @@ def s01_whitespace_collapse(text: str) -> str:
 
 
 def s01_whitespace_collapse_with_hr(text: str) -> str:
+    fm_indices = _frontmatter_delimiter_indices(text)
+
     def _collapse_and_remove_hr(chunk: str) -> str:
+        is_first_chunk = bool(text) and chunk == text[: len(chunk)]
         lines = chunk.split("\n")
         result: list[str] = []
         for idx, line in enumerate(lines):
             if re.match(r"^-{3,}\s*$", line) or re.match(r"^\*{3,}\s*$", line) or re.match(r"^_{3,}\s*$", line):
+                # Never strip YAML frontmatter delimiters even when they
+                # sit adjacent to a heading.
+                if is_first_chunk and idx in fm_indices:
+                    result.append(line)
+                    continue
                 prev_heading = False
                 next_heading = False
                 for p in range(idx - 1, -1, -1):
@@ -280,12 +331,20 @@ def s02_trailing_whitespace_strip(text: str) -> str:
 
 
 def s03_decorative_hr_removal(text: str) -> str:
+    fm_indices = _frontmatter_delimiter_indices(text)
+
     def _remove_hr(chunk: str) -> str:
+        is_first_chunk = bool(text) and chunk == text[: len(chunk)]
         lines = chunk.split("\n")
         result: list[str] = []
         for idx, line in enumerate(lines):
             if re.match(r"^-{3,}\s*$", line) or re.match(r"^\*{3,}\s*$", line) or re.match(r"^_{3,}\s*$", line):
                 if idx == 0 and chunk == text[:len(chunk)]:
+                    result.append(line)
+                    continue
+
+                # Preserve YAML frontmatter delimiters.
+                if is_first_chunk and idx in fm_indices:
                     result.append(line)
                     continue
 
@@ -986,7 +1045,7 @@ SPEC_PIPELINE: list[StrategyEntry] = [
     StrategyEntry("S-03", "Decorative HR removal", s03_decorative_hr_removal),
     StrategyEntry("S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse),
     StrategyEntry("S-07", "HTML comment removal", s07_html_comment_removal),
-    StrategyEntry("S-10", "Conventions-header LABELS-ONLY", s10_labels_only_abbreviation),
+    # Abbreviation strategies (S-10) intentionally disabled; no CONV header.
     StrategyEntry(
         "S-23", "Reference-style citation shortcuts", s23_reference_style_citations,
     ),
@@ -999,13 +1058,8 @@ TASKLIST_PIPELINE: list[StrategyEntry] = [
     ),
     StrategyEntry("S-02", "Trailing-whitespace strip", s02_trailing_whitespace_strip),
     StrategyEntry("S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse),
-    StrategyEntry(
-        "S-09", "Conventions-header (field labels)",
-        lambda t: s09_conventions_header(t, mode="identifiers"),
-    ),
-    StrategyEntry("S-17", "Artifact-path template macro", s17_artifact_path_macro),
-    StrategyEntry("S-18", "Step-tag abbreviation", s18_step_tag_abbreviation),
-    StrategyEntry("S-10", "Section-label abbreviation", s10_labels_only_abbreviation),
+    # Abbreviation strategies (S-09/S-17/S-18/S-10) intentionally disabled;
+    # no CONV/MACRO/TAGS header.
     StrategyEntry("S-14", "Table default-row hoisting", s14_table_default_row_hoisting),
     StrategyEntry("S-19", "Checkpoint block template dedup", s19_checkpoint_block_dedup),
     StrategyEntry("S-20", "Template-block externalization", s20_template_block_externalization),

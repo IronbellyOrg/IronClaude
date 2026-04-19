@@ -67,7 +67,7 @@ _MERGE_MIN_COMPLETE = (
     "### Milestone Dependencies — M1\n"
     "- none\n"
     "\n"
-    "## Risk Assessment and Mitigation\n"
+    "## Risk Register\n"
     "- R-1: mitigate\n"
     "\n"
     "## Success Criteria and Validation Approach\n"

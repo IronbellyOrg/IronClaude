@@ -92,9 +92,10 @@ _TEMPLATE_STRUCTURE_DIRECTIVE = (
     "| # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |\n"
     "- All `{{SC_PLACEHOLDER:*}}` sentinels must be replaced with real content\n"
     "- Include these top-level sections: Executive Summary, Milestone Summary table, "
-    "Dependency Graph, per-milestone sections, Risk Assessment and Mitigation, "
-    "Resource Requirements and Dependencies, Success Criteria and Validation Approach, "
-    "Decision Summary, Timeline Estimates\n"
+    "Dependency Graph, per-milestone sections (each contains its own "
+    "`### Risk Assessment and Mitigation \u2014 M{N}` subsection), "
+    "Resource Requirements and Dependencies, Risk Register, "
+    "Success Criteria and Validation Approach, Decision Summary, Timeline Estimates\n"
     "- Open Questions live PER-MILESTONE. Each milestone with one or more unresolved "
     "questions MUST contain a `### Open Questions \u2014 M{N}` subsection as its final "
     "subsection (after `### Milestone Dependencies \u2014 M{N}`). Columns: "
@@ -523,156 +524,43 @@ def build_extract_prompt_tdd(
     return base + _OUTPUT_FORMAT_BLOCK
 
 
-def build_extract_metadata_prompt(
-    spec_file: Path,
-    tdd_file: Path | None = None,
-    prd_file: Path | None = None,
-) -> str:
-    """Prompt for metadata-only extraction.
-
-    Produces a thin metadata stub instead of a full content transformation.
-    The generate step then works directly from the original source document
-    at full granularity, using this metadata for context (counts, complexity,
-    domains, section inventory).
-
-    The output retains the same YAML frontmatter schema as full extraction
-    so downstream gates and post-processing hooks continue to work.
-    """
-    base = (
-        "You are a document analysis specialist.\n\n"
-        "Read the provided input document and produce a METADATA-ONLY extraction. "
-        "Do NOT summarize, paraphrase, or transform the document's content. "
-        "Your job is to inventory what the document contains and assess its "
-        "complexity — not to rewrite it.\n\n"
-        "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
-        "- spec_source: (string) the source document filename\n"
-        "- generated: (string) ISO-8601 timestamp\n"
-        "- generator: (string) 'metadata-extract'\n"
-        "- extraction_mode: (string) 'metadata-only'\n"
-        "- functional_requirements: (integer) count of functional requirements found\n"
-        "- nonfunctional_requirements: (integer) count of non-functional requirements found\n"
-        "- total_requirements: (integer) sum of functional + non-functional\n"
-        "- complexity_score: (float 0.0-1.0) overall complexity assessment\n"
-        "- complexity_class: (string) LOW, MEDIUM, or HIGH\n"
-        "- domains_detected: (list) domain name strings, e.g. [backend, security, frontend]\n"
-        "- risks_identified: (integer) count of risks found\n"
-        "- dependencies_identified: (integer) count of external dependencies\n"
-        "- success_criteria_count: (integer) count of measurable success criteria\n"
-        "- data_models_identified: (integer) count of data entities/interfaces, or 0\n"
-        "- api_surfaces_identified: (integer) count of API endpoints, or 0\n"
-        "- components_identified: (integer) count of components/routes, or 0\n"
-        "- test_artifacts_identified: (integer) count of test cases/strategies, or 0\n"
-        "- migration_items_identified: (integer) count of migration phases/rollback steps, or 0\n"
-        "- operational_items_identified: (integer) count of runbook scenarios/alerts, or 0\n"
-        "- total_entities: (integer) sum of ALL identified items across all categories\n"
-        "- estimated_task_rows: (integer) recommended minimum task rows for the roadmap\n\n"
-        "After the frontmatter, provide ONLY these sections:\n\n"
-        "## Section Inventory\n\n"
-        "A table inventorying every major section in the input document:\n\n"
-        "| Section | Heading/Title | Entity Count | Entity Type | IDs Found |\n"
-        "Where:\n"
-        "- Section: section number or position in document\n"
-        "- Heading/Title: the actual heading text\n"
-        "- Entity Count: how many discrete implementable items this section contains\n"
-        "- Entity Type: FR, NFR, DM, API, COMP, TEST, MIG, OPS, or GENERAL\n"
-        "- IDs Found: comma-separated list of IDs found in this section, or 'none'\n\n"
-        "## Complexity Assessment\n\n"
-        "Provide complexity_score and complexity_class with scoring rationale. "
-        "Reference the entity counts from the frontmatter.\n\n"
-        "## ID Registry\n\n"
-        "A flat table listing every identifier found in the document:\n\n"
-        "| ID | Type | Source Section | Brief Label (<=10 words) |\n\n"
-        "IMPORTANT: Also scan for named components, services, classes, or modules "
-        "described in dependency graphs, component tables, module listings, or "
-        "architecture sections that are NOT already tagged with explicit IDs. "
-        "For each one, assign a synthetic COMP-xxx ID (e.g., COMP-001, COMP-002) "
-        "and include it in this registry. This ensures architectural entities "
-        "described only in prose (e.g., an orchestrator class in a dependency "
-        "graph, a service in a module listing) are captured and will receive "
-        "their own task rows in the roadmap.\n\n"
-        "This registry is the authoritative list of IDs that the generate step "
-        "must preserve. Every ID here MUST appear as a task row in the roadmap.\n\n"
-        "## Estimated Task Row Allocation\n\n"
-        "Based on the entity counts, recommend how many deliverable rows the roadmap "
-        "should contain per milestone. Use this formula as a baseline:\n"
-        "- Each FR/NFR = 1 deliverable row minimum\n"
-        "- Each DM/API/COMP = 1 deliverable row minimum\n"
-        "- Each TEST/MIG/OPS = 1 deliverable row minimum\n"
-        "- Integration/wiring tasks = ~15%% of entity count\n"
-        "- estimated_task_rows in frontmatter = total_entities * 1.15 (rounded up)\n\n"
-        "Do NOT include summarized content, prose sections, or paraphrased requirements. "
-        "The generate step will read the original document directly."
-    )
-
-    if prd_file is not None:
-        base += (
-            "\n\nA PRD file is also provided. Include PRD-specific entities "
-            "(user stories, success metrics, acceptance scenarios) in the Section "
-            "Inventory and ID Registry. Count them toward total_entities."
-        )
-
-    return base + _OUTPUT_FORMAT_BLOCK
-
-
 def build_generate_prompt(
     agent: AgentSpec,
     extraction_path: Path,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
-    metadata_mode: bool = False,
 ) -> str:
     """Prompt for step 'generate-{agent.id}'.
 
     Instructs Claude to read the extraction document and generate a
     complete project roadmap with the agent's persona as a role instruction.
     References expanded extraction fields for richer context.
-
-    When *metadata_mode* is True, the prompt instructs the LLM to work
-    primarily from the original source document (provided as an input file),
-    using the metadata extraction only for entity counts and ID validation.
     """
-    if metadata_mode:
-        base = (
-            f"You are a {agent.persona} specialist creating a project roadmap.\n\n"
-            "You are provided with:\n"
-            "1. The ORIGINAL source document (spec, TDD, or PRD) as primary input\n"
-            "2. A metadata extraction containing entity counts, IDs, and complexity assessment\n\n"
-            "Work DIRECTLY from the original source document for all content. "
-            "The metadata extraction provides:\n"
-            "- Entity counts and ID Registry: use these to verify you have a task row for every ID\n"
-            "- estimated_task_rows: the MINIMUM number of task rows your roadmap must produce\n"
-            "- complexity_score/complexity_class: carry forward into your output frontmatter\n"
-            "- domains_detected: ensure your roadmap covers all detected domains\n\n"
-            "Do NOT rely on the metadata extraction for requirement descriptions, "
-            "acceptance criteria, or implementation details. Read those directly "
-            "from the original source document.\n"
-        )
-    else:
-        base = (
-            f"You are a {agent.persona} specialist creating a project roadmap.\n\n"
-            "Read the provided requirements extraction document and generate a comprehensive "
-            "project roadmap.\n\n"
-            "The extraction document contains YAML frontmatter with these fields you should "
-            "reference for context:\n"
-            "- spec_source, generated, generator: provenance metadata\n"
-            "- functional_requirements, nonfunctional_requirements, total_requirements: scope counts\n"
-            "- complexity_score, complexity_class: complexity assessment\n"
-            "- domains_detected: list of technical domain names to address\n"
-            "- risks_identified: number of risks to mitigate in the roadmap\n"
-            "- dependencies_identified: external dependencies to plan around\n"
-            "- success_criteria_count: measurable criteria to validate against\n"
-            "- extraction_mode: extraction completeness indicator\n"
-            "\n"
-            "The extraction body contains these standard sections:\n"
-            "- Functional Requirements: requirement IDs, descriptions, acceptance criteria\n"
-            "- Non-Functional Requirements: performance, security, scalability constraints\n"
-            "- Complexity Assessment: scoring rationale and classification\n"
-            "- Architectural Constraints: technology mandates, integration boundaries\n"
-            "- Risk Inventory: identified risks with severity and mitigation\n"
-            "- Dependency Inventory: external dependencies and integration points\n"
-            "- Success Criteria: measurable validation thresholds\n"
-            "- Open Questions: ambiguities requiring stakeholder clarification\n"
-        )
+    base = (
+        f"You are a {agent.persona} specialist creating a project roadmap.\n\n"
+        "Read the provided requirements extraction document and generate a comprehensive "
+        "project roadmap.\n\n"
+        "The extraction document contains YAML frontmatter with these fields you should "
+        "reference for context:\n"
+        "- spec_source, generated, generator: provenance metadata\n"
+        "- functional_requirements, nonfunctional_requirements, total_requirements: scope counts\n"
+        "- complexity_score, complexity_class: complexity assessment\n"
+        "- domains_detected: list of technical domain names to address\n"
+        "- risks_identified: number of risks to mitigate in the roadmap\n"
+        "- dependencies_identified: external dependencies to plan around\n"
+        "- success_criteria_count: measurable criteria to validate against\n"
+        "- extraction_mode: extraction completeness indicator\n"
+        "\n"
+        "The extraction body contains these standard sections:\n"
+        "- Functional Requirements: requirement IDs, descriptions, acceptance criteria\n"
+        "- Non-Functional Requirements: performance, security, scalability constraints\n"
+        "- Complexity Assessment: scoring rationale and classification\n"
+        "- Architectural Constraints: technology mandates, integration boundaries\n"
+        "- Risk Inventory: identified risks with severity and mitigation\n"
+        "- Dependency Inventory: external dependencies and integration points\n"
+        "- Success Criteria: measurable validation thresholds\n"
+        "- Open Questions: ambiguities requiring stakeholder clarification\n"
+    )
 
     # -- Output structure (delegated to template) + semantic rules --
     base += _TEMPLATE_STRUCTURE_DIRECTIVE
@@ -1071,58 +959,64 @@ def build_merge_prompt(
         "- Milestone Summary table enumerating every milestone `M1..M{N}`.\n"
         "- For EACH milestone `M{N}` declared in the Milestone Summary, a `## M{N}:` body "
         "section containing: the 9-column deliverable table, `### Integration Points — M{N}`, "
-        "`### Milestone Dependencies — M{N}`, and (only when the milestone has at least one "
-        "open question) `### Open Questions — M{N}`.\n"
-        "- `## Risk Assessment and Mitigation` with populated risk table.\n"
+        "`### Milestone Dependencies — M{N}`, (only when the milestone has at least one "
+        "open question) `### Open Questions — M{N}`, and "
+        "`### Risk Assessment and Mitigation — M{N}` with the milestone's risk table.\n"
+        "- `## Risk Register` aggregating every per-milestone risk into the 7-column schema "
+        "`| ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |`. "
+        "Each R-### row consolidates the risks listed in the per-milestone subsections; "
+        "`Affected Milestones` is a comma-separated list of M{N} IDs.\n"
         "- `## Success Criteria and Validation Approach` with populated success table.\n"
         "- `## Decision Summary` section.\n"
         "- `## Timeline Estimates` section.\n"
         "- NO global `## Open Questions` section at the end of the document.\n"
+        "- NO global `## Risk Assessment and Mitigation` section — risks live per-milestone "
+        "(as `### Risk Assessment and Mitigation — M{N}`) and aggregate into `## Risk Register`.\n"
         "- NO row in any 9-column deliverable table whose `ID` column value matches `OQ-\\d+`.\n"
         "Write sections in order and call `INCREMENTAL_WRITE_COMPLETE` only after the final tail "
         "section is on disk. If turn budget is running low, prioritise writing the tail sections "
-        "(Risk Assessment → Success Criteria → Decision Summary → Timeline Estimates) before "
+        "(Risk Register → Success Criteria → Decision Summary → Timeline Estimates) before "
         "expanding any milestone body further."
     )
 
-    # if tdd_file is not None:
-    #     base += (
-    #         "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
-    #         "A Technical Design Document (TDD) is included in the inputs. During merge:\n"
-    #         "1. Preserve exact technical identifiers from both variants: interface names "
-    #         "from S7.1 Data Entities, endpoint paths from S8.2 Endpoint Details "
-    #         "(e.g., /api/v1/auth/login), component names from S10, test case IDs "
-    #         "from S15.2, and migration phase names from S19.1.\n"
-    #         "2. When variants disagree on API contracts (S8), data model schemas (S7), "
-    #         "or component boundaries (S10), prefer the variant that more closely matches the TDD.\n"
-    #         "3. Ensure the merged roadmap retains all TDD-derived implementation tasks "
-    #         "(data model setup from S7, endpoint implementation from S8, observability "
-    #         "instrumentation from S14, test execution from S15, migration rollout from S19, "
-    #         "operational readiness from S25) from the selected base variant.\n"
-    #         "4. Verify that quality thresholds from S5.2 (SLOs, coverage targets) are "
-    #         "preserved verbatim in the merged variant — do not average or weaken targets."
-    #     )
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when TDD file is provided)\n\n"
+            "A Technical Design Document (TDD) is included in the inputs. During merge:\n"
+            "1. Preserve exact technical identifiers from both variants: interface names "
+            "from S7.1 Data Entities, endpoint paths from S8.2 Endpoint Details "
+            "(e.g., /api/v1/auth/login), component names from S10, test case IDs "
+            "from S15.2, and migration phase names from S19.1.\n"
+            "2. When variants disagree on API contracts (S8), data model schemas (S7), "
+            "or component boundaries (S10), prefer the variant that more closely matches the TDD.\n"
+            "3. Ensure the merged roadmap retains all TDD-derived implementation tasks "
+            "(data model setup from S7, endpoint implementation from S8, observability "
+            "instrumentation from S14, test execution from S15, migration rollout from S19, "
+            "operational readiness from S25) from the selected base variant.\n"
+            "4. Verify that quality thresholds from S5.2 (SLOs, coverage targets) are "
+            "preserved verbatim in the merged variant — do not average or weaken targets."
+        )
 
-    # if prd_file is not None:
-    #     base += (
-    #         "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
-    #         "A Product Requirements Document (PRD) is included in the inputs. During merge:\n"
-    #         "1. Maintain alignment with PRD personas (S7: S7.1 Primary, S7.2 Secondary, "
-    #         "S7.3 Tertiary, S7.4 Anti-Personas) — the merged roadmap should "
-    #         "address all user personas mentioned in both variants.\n"
-    #         "2. Preserve success metric targets from the PRD (S19: S19.1 Product Metrics, "
-    #         "S19.2 Business Metrics, S19.3 Technical Metrics) — quantitative targets "
-    #         "(e.g., >60% registration rate, <200ms latency) must appear in the merged "
-    #         "success criteria, not be averaged or dropped.\n"
-    #         "3. Ensure compliance requirements from the PRD (S17: S17.1 Regulatory "
-    #         "Compliance, S17.2 Data Privacy) are not weakened during "
-    #         "merge — if either variant has stronger compliance gates, prefer the stronger.\n"
-    #         "4. Use PRD business context (S5 Business Context, S6 JTBD, S20 Risk Analysis) "
-    #         "to break ties when variants conflict on prioritization or phasing order.\n"
-    #         "5. Verify scope boundaries (S12: S12.1 In Scope, S12.2 Out of Scope) "
-    #         "are respected in the merged output — do not include deliverables that either "
-    #         "variant added but the PRD explicitly places out of scope."
-    #     )
+    if prd_file is not None:
+        base += (
+            "\n\n## Supplementary PRD Context (when PRD file is provided)\n\n"
+            "A Product Requirements Document (PRD) is included in the inputs. During merge:\n"
+            "1. Maintain alignment with PRD personas (S7: S7.1 Primary, S7.2 Secondary, "
+            "S7.3 Tertiary, S7.4 Anti-Personas) — the merged roadmap should "
+            "address all user personas mentioned in both variants.\n"
+            "2. Preserve success metric targets from the PRD (S19: S19.1 Product Metrics, "
+            "S19.2 Business Metrics, S19.3 Technical Metrics) — quantitative targets "
+            "(e.g., >60% registration rate, <200ms latency) must appear in the merged "
+            "success criteria, not be averaged or dropped.\n"
+            "3. Ensure compliance requirements from the PRD (S17: S17.1 Regulatory "
+            "Compliance, S17.2 Data Privacy) are not weakened during "
+            "merge — if either variant has stronger compliance gates, prefer the stronger.\n"
+            "4. Use PRD business context (S5 Business Context, S6 JTBD, S20 Risk Analysis) "
+            "to break ties when variants conflict on prioritization or phasing order.\n"
+            "5. Verify scope boundaries (S12: S12.1 In Scope, S12.2 Out of Scope) "
+            "are respected in the merged output — do not include deliverables that either "
+            "variant added but the PRD explicitly places out of scope."
+        )
 
     return base + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK
 

@@ -75,9 +75,15 @@ def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | 
 
 
 _FRONTMATTER_RE = re.compile(
-    r"^---[ \t]*\n((?:[ \t]*\w[\w\s]*:.*\n)+)---[ \t]*$",
-    re.MULTILINE,
+    r"^---[ \t]*\n(.*?)\n---[ \t]*$",
+    re.MULTILINE | re.DOTALL,
 )
+
+# Top-level key: value lines (no leading indentation, at least one non-space,
+# non-dash word char before the colon). Nested list items (``  - id: M1``)
+# and continuation lines inside a list value are intentionally ignored here
+# because only top-level keys satisfy ``required_frontmatter_fields`` checks.
+_TOPLEVEL_KEY_RE = re.compile(r"^([A-Za-z_][\w\-]*)\s*:", re.MULTILINE)
 
 
 def _check_frontmatter(
@@ -85,26 +91,29 @@ def _check_frontmatter(
 ) -> tuple[bool, str | None]:
     """Extract and validate YAML frontmatter fields.
 
-    Uses regex with re.MULTILINE to discover frontmatter anywhere in the
-    document (not just byte 0), allowing conversational preamble before the
-    ``---`` delimiters.  Horizontal rules (``---`` with no ``key: value``
-    content) are rejected because the pattern requires at least one
-    ``key: value`` line between delimiters.
+    Uses a non-greedy ``---`` delimiter pair (with ``re.DOTALL``) so nested
+    YAML structures — list items like ``  - id: M1`` and block scalars —
+    appear intact inside the captured frontmatter body. Horizontal rules
+    (``---`` with no ``key: value`` content between delimiters) are rejected
+    by a post-match check that requires at least one top-level ``key:`` line.
+    Conversational preamble, CONV comments, and any other pre-frontmatter
+    lines are tolerated because ``re.search`` scans from any line start.
     """
-    match = _FRONTMATTER_RE.search(content)
-    if match is None:
+    # Scan every ``---`` delimiter pair; accept the first one whose body
+    # contains at least one top-level ``key:`` line. This rejects pure
+    # horizontal rules while still accepting YAML frontmatter that sits
+    # after preamble / CONV comments.
+    frontmatter_text: str | None = None
+    for match in _FRONTMATTER_RE.finditer(content):
+        body = match.group(1)
+        if _TOPLEVEL_KEY_RE.search(body):
+            frontmatter_text = body
+            break
+
+    if frontmatter_text is None:
         return False, f"YAML frontmatter not found in {output_file}"
 
-    frontmatter_text = match.group(1)
-
-    # Extract keys from key: value lines
-    found_keys: set[str] = set()
-    for line in frontmatter_text.splitlines():
-        line = line.strip()
-        if ":" in line:
-            key = line.split(":", 1)[0].strip()
-            if key:
-                found_keys.add(key)
+    found_keys = set(_TOPLEVEL_KEY_RE.findall(frontmatter_text))
 
     for field in required_fields:
         if field not in found_keys:

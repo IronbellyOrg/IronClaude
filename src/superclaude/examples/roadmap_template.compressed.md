@@ -33,34 +33,6 @@ adversarial: {{SC_PLACEHOLDER:true_or_false}}
 base_variant: "{{SC_PLACEHOLDER:variant_id_or_none}}"
 variant_scores: "{{SC_PLACEHOLDER:scores_or_none}}"
 convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
-debate_rounds: {{SC_PLACEHOLDER:integer_or_none}}
-generated: "{{SC_PLACEHOLDER:yyyy_mm_dd}}"
-generator: "{{SC_PLACEHOLDER:adversarial_merge_or_single}}"
-total_milestones: {{SC_PLACEHOLDER:integer}}
-total_task_rows: {{SC_PLACEHOLDER:integer}}
-risk_count: {{SC_PLACEHOLDER:integer}}
-open_questions: {{SC_PLACEHOLDER:integer}}
-domain_distribution:
-  frontend: {{SC_PLACEHOLDER:percentage_or_0}}
-  backend: {{SC_PLACEHOLDER:percentage_or_0}}
-  security: {{SC_PLACEHOLDER:percentage_or_0}}
-  performance: {{SC_PLACEHOLDER:percentage_or_0}}
-  documentation: {{SC_PLACEHOLDER:percentage_or_0}}
-consulting_personas: [{{SC_PLACEHOLDER:persona_list}}]
-milestone_count: {{SC_PLACEHOLDER:integer}}
-milestone_index:
-  - id: M1
-    title: "{{SC_PLACEHOLDER:milestone_title}}"
-    type: {{SC_PLACEHOLDER:FEATURE_or_IMPROVEMENT_or_DOC_or_TEST_or_MIGRATION_or_SECURITY}}
-    priority: {{SC_PLACEHOLDER:P0_or_P1_or_P2_or_P3}}
-    dependencies: []
-    deliverable_count: {{SC_PLACEHOLDER:integer}}
-    risk_level: {{SC_PLACEHOLDER:Low_or_Medium_or_High}}
-total_deliverables: {{SC_PLACEHOLDER:integer}}
-total_risks: {{SC_PLACEHOLDER:integer}}
-estimated_milestones: {{SC_PLACEHOLDER:integer}}
-validation_score: {{SC_PLACEHOLDER:0.0_to_1.0}}
-validation_status: {{SC_PLACEHOLDER:PASS_or_REVISE_or_REJECT_or_PASS_WITH_WARNINGS_or_SKIPPED}}
 ---
 ```
 
@@ -119,22 +91,27 @@ validation_status: {{SC_PLACEHOLDER:PASS_or_REVISE_or_REJECT_or_PASS_WITH_WARNIN
 |---|---|---|---|---|
 |{{SC_PLACEHOLDER:artifact}}|{{SC_PLACEHOLDER:type}}|{{SC_PLACEHOLDER:wired}}|{{SC_PLACEHOLDER:owner}}|{{SC_PLACEHOLDER:consumers}}|
 
-### MLS Dependencies
+### MLS Dependencies u2014 M{{SC_PLACEHOLDER:N}}
 
 - {{SC_PLACEHOLDER:dependency_or_none}}
 
 ### Open Questions u2014 M{{SC_PLACEHOLDER:N}}
 
-<!-- Omit this subsection entirely when the milestone has zero open questions.
-     OQ-xxx IDs must NEVER be rows in the 9-column deliverable table above u2014
-     they are decisions, not deliverables. OQ-xxx MAY appear in the Deps column
-     of deliverable rows that wait on the decision. -->
+<!-- Omit this entire subsection when the milestone has zero open questions.
+     Each OQ whose resolution blocks this MI1's exit criteria appears as one row.
+     OQ-xxx IDs must NEVER appear as rows in the 9-column deliverable table above u2014
+     they are decisions, not deliverables. OQ-xxx MAY appear in the Deps column of
+     deliverable rows that wait on the decision. -->
 
-|#|ID|Question|Impact|Owner|Target|
+|#|ID|Question|Impact|Resolution Owner|Target|
 |---|---|---|---|---|---|
 |{{SC_PLACEHOLDER:oq_num}}|{{SC_PLACEHOLDER:oq_id}}|{{SC_PLACEHOLDER:question}}|{{SC_PLACEHOLDER:impact}}|{{SC_PLACEHOLDER:owner}}|{{SC_PLACEHOLDER:target}}|
 
-## Risk Assessment and Mitigation
+### Risk Assessment and Mitigation u2014 M{{SC_PLACEHOLDER:N}}
+
+<!-- Per-MI1 risks scoped to this MI1 only. Every risk row here
+     must also appear in the global `## Risk Register` at the end of the file,
+     with the MI1 ID listed in the `Affected Milestones` column. -->
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
@@ -151,6 +128,18 @@ validation_status: {{SC_PLACEHOLDER:PASS_or_REVISE_or_REJECT_or_PASS_WITH_WARNIN
 ### Infrastructure Requirements
 
 - {{SC_PLACEHOLDER:infra_requirement_1}}
+
+## Risk Register
+
+<!-- Aggregated view of every risk across the roadmap. Each row consolidates a
+     risk that appears in one or more per-MI1 `### Risk Assessment and
+     Mitigation u2014 M{N}` subsections. Use R-### IDs (stable across revisions)
+     and list every MI1 the risk affects in the `Affected Milestones`
+     column (comma-separated). Owner is a persona or role. -->
+
+|ID|Risk|Affected Milestones|Probability|Impact|Mitigation|Owner|
+|----|------|---------------------|-------------|--------|------------|-------|
+|{{SC_PLACEHOLDER:risk_id}}|{{SC_PLACEHOLDER:risk}}|{{SC_PLACEHOLDER:affected_milestones}}|{{SC_PLACEHOLDER:probability}}|{{SC_PLACEHOLDER:impact}}|{{SC_PLACEHOLDER:mitigation}}|{{SC_PLACEHOLDER:owner}}|
 
 ## Success Criteria and Validation Approach
 

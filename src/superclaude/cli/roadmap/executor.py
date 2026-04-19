@@ -48,7 +48,6 @@ from .templates import ROADMAP_TEMPLATE, get_template_path
 from .prompts import (
     build_debate_prompt,
     build_diff_prompt,
-    build_extract_metadata_prompt,
     build_extract_prompt,
     build_extract_prompt_tdd,
     build_generate_prompt,
@@ -756,7 +755,7 @@ def _run_anti_instinct_audit(
 
 
 _MERGE_TAIL_SECTIONS = (
-    "## Risk Assessment and Mitigation",
+    "## Risk Register",
     "## Success Criteria and Validation Approach",
     "## Decision Summary",
     "## Timeline Estimates",
@@ -776,7 +775,7 @@ def _validate_merge_completeness(output_file: Path) -> list[str]:
 
     - Every ``## M{N}:`` milestone declared in the Milestone Summary table
       has a corresponding body section.
-    - Required tail headings are present (Risk Assessment, Success
+    - Required tail headings are present (Risk Register, Success
       Criteria, Decision Summary, Timeline Estimates).
     - Each milestone body has the 9-column deliverable table header,
       ``### Integration Points — M{N}`` and
@@ -1666,12 +1665,10 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=extraction,
             gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
             timeout_seconds=1800 if config.input_type == "tdd" else 300,
-            inputs=_llm_inputs_for(config, config.spec_file) + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=_llm_inputs_for(config, config.spec_file, config.tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Steps 2a+2b: Generate (parallel)
-        # In metadata mode, the LLM works from original source documents
-        # with extraction as secondary metadata reference.
         [
             Step(
                 id=f"generate-{agent_a.id}",
@@ -1679,7 +1676,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 output_file=roadmap_a,
                 gate=GENERATE_A_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+                inputs=[extraction] + _llm_inputs_for(config, config.tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_a.model,
                 tool_write_mode=_roadmap_template is not None,
@@ -1691,7 +1688,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 output_file=roadmap_b,
                 gate=GENERATE_B_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+                inputs=[extraction] + _llm_inputs_for(config, config.tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_b.model,
                 tool_write_mode=_roadmap_template is not None,
@@ -1725,17 +1722,17 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=score_file,
             gate=SCORE_GATE,
             timeout_seconds=300,
-            inputs=[debate_file] + _llm_inputs_for(config, roadmap_a, roadmap_b) + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=[debate_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, config.tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Step 6: Merge
         Step(
             id="merge",
-            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file),
+            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
             output_file=merge_file,
             gate=MERGE_GATE,
             timeout_seconds=600,
-            inputs=[score_file] + _llm_inputs_for(config, roadmap_a, roadmap_b) + [debate_file],
+            inputs=[score_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, config.tdd_file, config.prd_file) + [debate_file],
             retry_limit=1,
             tool_write_mode=_roadmap_template is not None,
             template_path=_roadmap_template,
@@ -1757,7 +1754,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=test_strat,
             gate=TEST_STRATEGY_GATE,
             timeout_seconds=300,
-            inputs=_llm_inputs_for(config, merge_file) + [extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=_llm_inputs_for(config, merge_file, config.tdd_file, config.prd_file) + [extraction],
             retry_limit=1,
         ),
         # Step 8: Spec Fidelity (after test-strategy, FR-008 through FR-010)
@@ -1767,7 +1764,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=spec_fidelity_file,
             gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
             timeout_seconds=600,
-            inputs=_llm_inputs_for(config, config.spec_file, merge_file) + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=_llm_inputs_for(config, config.spec_file, merge_file, config.tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)

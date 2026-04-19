@@ -610,9 +610,9 @@ def _complexity_class_valid(content: str) -> bool:
 
 
 def _extraction_mode_valid(content: str) -> bool:
-    """Validate extraction_mode is 'standard', starts with 'chunked', or is 'metadata-only'.
+    """Validate extraction_mode is 'standard' or starts with 'chunked'.
 
-    Accepts: 'standard', 'chunked', 'chunked (3 chunks)', 'metadata-only'.
+    Accepts: 'standard', 'chunked', 'chunked (3 chunks)'.
     Rejects: 'full', 'partial', 'incremental'.
     """
     fm = _parse_frontmatter(content)
@@ -624,11 +624,7 @@ def _extraction_mode_valid(content: str) -> bool:
         return False
 
     normalized = value.strip().lower()
-    return (
-        normalized == "standard"
-        or normalized.startswith("chunked")
-        or normalized == "metadata-only"
-    )
+    return normalized == "standard" or normalized.startswith("chunked")
 
 
 def _interleave_ratio_consistent(content: str) -> bool:
@@ -858,7 +854,7 @@ EXTRACT_GATE = GateCriteria(
         SemanticCheck(
             name="extraction_mode_valid",
             check_fn=_extraction_mode_valid,
-            failure_message="extraction_mode must be 'standard', 'chunked', or 'metadata-only'",
+            failure_message="extraction_mode must be 'standard' or 'chunked'",
         ),
     ],
 )
@@ -887,9 +883,7 @@ EXTRACT_TDD_GATE = GateCriteria(
         "migration_items_identified",
         "operational_items_identified",
     ],
-    # Lowered from 50: metadata-only extraction produces a compact stub
-    # (~30-60 lines) with frontmatter + Section Inventory + ID Registry.
-    min_lines=30,
+    min_lines=50,
     enforcement_tier="STRICT",
     semantic_checks=[
         SemanticCheck(
@@ -900,7 +894,7 @@ EXTRACT_TDD_GATE = GateCriteria(
         SemanticCheck(
             name="extraction_mode_valid",
             check_fn=_extraction_mode_valid,
-            failure_message="extraction_mode must be 'standard', 'chunked', or 'metadata-only'",
+            failure_message="extraction_mode must be 'standard' or 'chunked'",
         ),
     ],
 )
