@@ -6,7 +6,7 @@ total_obligations: 0
 total_contracts: 3
 fingerprint_total: 18
 fingerprint_found: 13
-generated: "2026-04-15T19:11:19.093547+00:00"
+generated: "2026-04-20T21:04:53.235808+00:00"
 generator: superclaude-anti-instinct-audit
 ---
 

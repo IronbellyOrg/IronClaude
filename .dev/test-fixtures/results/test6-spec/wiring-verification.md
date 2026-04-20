@@ -1,7 +1,7 @@
 ---
 gate: wiring-verification
 target_dir: src/superclaude
-files_analyzed: 165
+files_analyzed: 166
 files_skipped: 31
 rollout_mode: soft
 analysis_complete: true
@@ -20,12 +20,12 @@ whitelist_entries_applied: 0
 ## Summary
 
 - **Target**: src/superclaude
-- **Files analyzed**: 165
+- **Files analyzed**: 166
 - **Files skipped**: 31
 - **Rollout mode**: soft
 - **Total findings**: 7
 - **Blocking findings**: 0
-- **Scan duration**: 0.6576s
+- **Scan duration**: 0.7365s
 
 ## Unwired Optional Callable Injections
 

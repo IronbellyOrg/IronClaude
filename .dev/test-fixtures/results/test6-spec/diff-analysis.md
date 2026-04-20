@@ -1,135 +1,130 @@
 ---
-total_diff_points: 16
-shared_assumptions_count: 15
+total_diff_points: 15
+shared_assumptions_count: 20
 ---
+
+# Roadmap Variant Diff Analysis: Opus vs Haiku (Architect)
 
 ## Shared Assumptions and Agreements
 
-Both variants agree on:
+Both variants converge on identical high-level structure and core decisions:
 
-1. RS256 asymmetric JWT signing with secrets-manager-stored private key
-2. bcrypt password hashing at cost factor 12 (~250ms target)
-3. Refresh token rotation with replay-triggered global session invalidation
-4. Stateless 15min access tokens; 7d opaque refresh tokens stored as SHA-256 hashes
-5. `AUTH_SERVICE_ENABLED` feature flag for dark-launch gating
-6. Same core component dependency chain: JwtService + PasswordHasher → TokenManager → AuthService → Middleware → Routes
-7. Same 6 functional requirements (FR-AUTH.1–5 plus profile retrieval)
-8. Same 3 non-functional requirements (p95 <200ms, 99.9% uptime, bcrypt cost 12)
-9. Same 22 success criteria (SC-1 through SC-22)
-10. Same 6 open questions (email dispatch, max tokens, lockout policy, audit format, deletion revocation, REST paths)
-11. Same 6 risks with identical severity/likelihood assessments
-12. Same external dependency set (jsonwebtoken, bcrypt, email, PostgreSQL, secrets manager, k6, PagerDuty)
-13. httpOnly cookie transport for refresh tokens
-14. Login rate limiting at 5 requests/min/IP
-15. Medium complexity classification (0.6)
+1. **Milestone decomposition**: 5 milestones (M1–M5), same titles, same P0 priority, same HIGH/HIGH/MEDIUM/MEDIUM/MEDIUM risk profile.
+2. **Timeline**: 2w/2w/3w/2w/2w, totaling 11 weeks with identical week allocations.
+3. **Critical path**: Migrations + RSA keys → primitives → AuthService + endpoints → load-test NFR-AUTH.1 → E2E SC-8.
+4. **Architectural constraints**: RS256 asymmetric JWT, bcrypt cost=12, httpOnly refresh cookie, stateless JWT with rotation, single `AUTH_SERVICE_ENABLED` feature flag, reversible migrations with down scripts.
+5. **Token TTLs**: access=15min, refresh=7d, reset=1h.
+6. **SHA-256 hashing** of refresh tokens at rest; replay detection revokes all user tokens.
+7. **Rotation cadence**: 90-day dual-key grace window bounded by refresh TTL.
+8. **Success criteria**: SC-1..SC-8 with same targets (p95<200ms, 99.9% uptime, cost=12, 5/min/IP, PSS policy, replay revoke-all).
+9. **Rate limiting**: 5 attempts/min/IP on login, central Redis-class store.
+10. **Dependency graph**: identical M1→M2→M3→M4→M5 structure with same component wiring.
+11. **Component deliverable counts per milestone**: M1=17, M2=17, M3=28, M4=10 (M5 differs — see divergence 12).
+12. **Open issues register**: identical OI-1..OI-10 with same owners and blocking semantics.
+13. **Risk register**: same R-001..R-017 with same severities and probabilities.
+14. **Password policy**: 8+ chars, upper, lower, digit.
+15. **Two-step password reset** with user-enumeration-resistant request endpoint.
+16. **External dependency list**: same npm packages, secrets manager, email vendor (blocked by OI-10), Redis, APM, PagerDuty.
+17. **Sequencing rationale**: primitives-first (leaf-out) over orchestrator-first, driven by risk 0.7 / testability 0.3.
+18. **Rollout strategy**: canary → 25% → 100% with flag-first rollback preceding DB rollback.
+19. **M5 validation gates**: SEC-002 security review + SEC-003 pentest + OPS-006 rollback rehearsal as release prerequisites.
+20. **Audit scope**: AUDIT-001 ships foundational events in M4, OI-7 persistence policy deferred to v1.1.
 
 ## Divergence Points
 
-### 1. Phase Count and Boundaries
-- **Opus**: 5 phases (0–4). Phase 0 = infrastructure/schema. Phase 1 = crypto primitives. Phase 2 = service + API. Phase 3 = testing/hardening. Phase 4 = deployment.
-- **Haiku**: 4 phases (1–4). Phase 1 = infrastructure + schema + crypto + repositories merged. Phase 2 = domain flows. Phase 3 = API exposure + initial tests. Phase 4 = hardening + release.
-- **Impact**: Opus's Phase 0/1 split creates a cleaner gate between "can we access keys/DB" and "are crypto primitives working." Haiku's merge reduces handoff overhead but creates a larger first phase with mixed concerns.
+### 1. Entity type convention (DM-001, DM-002, DM-003)
+- **Opus**: SQL/persistence types (`UUID-PK`, `varchar`, `timestamptz`, `bool`).
+- **Haiku**: application-layer types (`UUID-v4`, `string`, `Date`, `boolean`).
+- **Impact**: Opus signals schema-first intent useful for DBAs and migration reviewers; Haiku signals code-first intent useful for backend developers. Both map to identical runtime, but artifact reviewers get different frames.
 
-### 2. Component Granularity
-- **Opus**: 7 named components (COMP-001 through COMP-007). Repositories, config, and adapters are implicit within service implementations.
-- **Haiku**: 15 named components (COMP-001 through COMP-015). Explicitly defines SecretsProvider, UserRepository, RefreshTokenRepository, AuthRateLimiter, ResetEmailAdapter, AuthConfig, AuthFeatureGate, AuthCookiePolicy.
-- **Impact**: Haiku's approach creates clearer DI boundaries and independently testable units. Opus's approach reduces task count but leaves internal decomposition to implementer discretion.
+### 2. RSA key size specification (INFRA-001)
+- **Opus**: explicitly mandates "2048-bit min".
+- **Haiku**: unspecified beyond "RS256-compatible".
+- **Impact**: Opus closes a security-review gap before M1 exits; Haiku defers the decision into implementation, risking weaker keys if a developer reads the AC literally.
 
-### 3. Task Count and Row Density
-- **Opus**: 52 task rows with globally sequential numbering (1–52).
-- **Haiku**: 45 task rows with per-phase numbering (restarting at 1 each phase).
-- **Impact**: Opus's global numbering simplifies cross-phase references. Haiku's per-phase numbering is more readable within each phase but requires phase prefix for unambiguous reference.
+### 3. JWT public key distribution format (INFRA-001, COMP-003)
+- **Opus**: "public embeddable in **JWKS**".
+- **Haiku**: "public embeddable in verifier set".
+- **Impact**: Opus commits to a standard (RFC 7517) enabling interop with third-party verifiers; Haiku keeps format flexible but leaves a discovery-endpoint decision open.
 
-### 4. Testing Placement Strategy
-- **Opus**: Dedicated Phase 3 for all testing (unit, integration, E2E, load). Tests are separate from implementation phases.
-- **Haiku**: Tests distributed across Phase 3 (crypto + service unit, route integration) and Phase 4 (E2E, migration drills). No standalone testing phase.
-- **Impact**: Opus's dedicated phase risks delayed defect discovery — bugs found in Phase 3 require rework of Phase 1–2 code. Haiku's distributed approach catches issues closer to implementation but makes test coverage harder to audit as a batch.
+### 4. Secrets-manager ACL scope (INFRA-002)
+- **Opus**: "**kms-level** ACL restricts access".
+- **Haiku**: "ACL restricts access".
+- **Impact**: Opus binds the implementation to a specific access-control model (useful for compliance mapping); Haiku keeps provider-neutral phrasing.
 
-### 5. "Route Contract Freezing" vs Handler Implementation
-- **Opus**: Defines API handler tasks (API-001 through API-006) as implementation tasks, then separate FR-wiring tasks to validate end-to-end.
-- **Haiku**: Separates flow delivery (FR-AUTH.x) from contract freezing (API-00x), treating route contracts as explicit review gates.
-- **Impact**: Haiku's contract-freeze pattern forces explicit API design review before implementation proceeds. Opus assumes endpoint design is embedded in the handler task itself.
+### 5. bcrypt benchmark timing band (TEST-M2-001, SEC-001)
+- **Opus**: "p95 between **200ms and 350ms** on reference hardware"; "~250ms/hash on CI hardware".
+- **Haiku**: "expected hashing time" / "timing recorded".
+- **Impact**: Opus gives CI a falsifiable pass/fail; Haiku requires interpretation and risks drift on CI hardware changes.
 
-### 6. Password Reset Priority
-- **Opus**: Marks reset endpoints API-005/API-006 as **P1**, and FR-AUTH.5 as **P1**.
-- **Haiku**: Marks FR-AUTH.5 as **P0**, treating reset flow as a launch-blocking requirement.
-- **Impact**: If reset is truly P1, Opus can ship auth without it. Haiku blocks launch on full reset flow, which is more conservative but delays initial availability.
+### 6. httpOnly cookie path scoping (COOKIE-001)
+- **Opus**: specifies `cookie path=/auth/refresh`.
+- **Haiku**: no path attribute specified.
+- **Impact**: Opus narrows cookie exposure to the refresh endpoint only (defense-in-depth against CSRF-like exfiltration); Haiku leaves cookie visible on all `/auth/*` paths.
 
-### 7. Account Lockout Handling
-- **Opus**: Includes explicit OPS-007 task for account lockout in Phase 3 (P2 priority, 10 failed attempts, 30min unlock).
-- **Haiku**: Defers lockout entirely to open question resolution (OQ-3); no implementation task defined.
-- **Impact**: Opus ships a basic lockout even if policy details aren't finalized. Haiku avoids building the wrong policy but leaves a security gap if OQ-3 isn't resolved before launch.
+### 7. Health endpoint latency SLO (OPS-002)
+- **Opus**: "<50ms p95".
+- **Haiku**: no latency requirement.
+- **Impact**: Opus pre-empts false-green scenarios where a slow health check still returns 200; Haiku leaves this to M5 synthetic probe work.
 
-### 8. Timeline Estimates
-- **Opus**: 14–19 working days (3–4 weeks).
-- **Haiku**: 17–21 working days (~4 weeks).
-- **Impact**: 3-day difference in lower bound. Haiku's longer Phase 1 (4–5d vs 2–3d) and longer Phase 4 (4–5d vs 2–3d) account for the gap. Haiku's estimate may be more realistic given the explicit component count.
+### 8. Rate-limit health-check bypass (RATE-001)
+- **Opus**: "bypass for health checks".
+- **Haiku**: not mentioned.
+- **Impact**: Opus prevents the scenario where an uptime monitor exhausts rate-limit budget and self-triggers alerts; Haiku risks that failure mode.
 
-### 9. Cookie/CORS Policy
-- **Opus**: Cookie configuration is implicit in handler tasks (API-001, API-003). No dedicated CORS task.
-- **Haiku**: Explicit COMP-015 (AuthCookiePolicy) for httpOnly cookie attributes and CORS headers.
-- **Impact**: Cookie misconfiguration is a common security defect. Haiku's explicit component reduces risk of inconsistent cookie handling across endpoints.
+### 9. User-enumeration guard explicitness (API-005)
+- **Opus**: "always 202 regardless of existence (user enumeration guard)".
+- **Haiku**: "generic success response".
+- **Impact**: Opus gives implementers an unambiguous status code and security rationale; Haiku could be read as allowing differential responses.
 
-### 10. Secrets/Config Validation
-- **Opus**: RSA key loading is embedded in JwtService. No explicit config validation component.
-- **Haiku**: Explicit COMP-012 (SecretsProvider) and COMP-013 (AuthConfig validator) that checks TTLs, cookie flags, and key presence at boot.
-- **Impact**: Haiku catches misconfigurations at startup rather than at first request. Reduces debugging time in multi-environment deployments.
+### 10. Decision-rationale traceability
+- **Opus**: cites specific constraints ("Spec §Architectural-Constraint-1") and risk IDs (RISK-1, RISK-2) per decision.
+- **Haiku**: generic "Architectural constraint mandates" phrasing.
+- **Impact**: Opus supports bidirectional spec traceability and audit; Haiku is more readable but weaker for compliance sign-off.
 
-### 11. Migration Recovery
-- **Opus**: Down-migration tested as part of MIG-003 in Phase 0. No production recovery drill.
-- **Haiku**: Adds TEST-005 migration and recovery drills in Phase 4 (backup-restore, down+up cycle, rollback under flag-off).
-- **Impact**: Haiku validates recovery under production-like conditions. Opus validates schema rollback only in isolation.
+### 11. Fallback library specificity (External Dependencies)
+- **Opus**: names concrete fallbacks (`node-jose`, `bcryptjs`).
+- **Haiku**: generic ("Alternative JWT library only if CVE-blocked", "Pure-JS fallback").
+- **Impact**: Opus shortens the incident-response path if a CVE forces vendor swap; Haiku leaves the choice to incident-time judgment.
 
-### 12. Open Question Blocking Phases
-- **Opus**: OQ-6 (REST paths) blocks Phase 0. OQ-1 (email dispatch) blocks Phase 2.
-- **Haiku**: OQ-6 blocks Phase 2. OQ-2 (max refresh tokens) also blocks Phase 2. OQ-1 blocks Phase 2.
-- **Impact**: Opus is stricter — won't start any work until paths are finalized. Haiku allows infrastructure/crypto work to proceed while paths are debated, but must resolve more questions before Phase 2.
+### 12. M5 deliverable count inconsistency
+- **Opus**: milestone summary row says `11` deliverables, but M5 table enumerates 16 items.
+- **Haiku**: summary row says `16`, matching the 16 enumerated items.
+- **Impact**: Opus has an internal count inconsistency that will cause downstream tasklist-generation mismatch; Haiku is self-consistent. Haiku is clearly stronger here.
 
-### 13. Deployment Specificity
-- **Opus**: Explicit deployment runbook (OPS-008), canary at 10% traffic (OPS-009), production validation (OPS-010), full rollout (OPS-011), RSA rotation schedule (OPS-012) — 5 dedicated deployment tasks.
-- **Haiku**: Single OPS-005 "Execute feature-flag rollout plan" plus OPS-004 key rotation procedure — 2 tasks covering similar ground at higher abstraction.
-- **Impact**: Opus provides a more actionable deployment checklist. Haiku's rollout plan task assumes deployment details will be elaborated in the runbook (DOC-001).
+### 13. Risk register milestone tagging (R-002, R-003)
+- **Opus**: R-002 affects M2, M3; R-003 affects M2, M5.
+- **Haiku**: R-002 affects M2, M3, M5; R-003 affects M2, M4, M5.
+- **Impact**: Haiku's broader tagging surfaces these risks in milestone-specific risk reviews (M5 release gate sees replay risk explicitly); Opus's tighter tagging reduces noise but risks dropping the risk from later reviews.
 
-### 14. Documentation
-- **Opus**: No explicit documentation task.
-- **Haiku**: DOC-001 "Publish auth architecture notes" in Phase 4 (P2).
-- **Impact**: Minor. Opus assumes docs emerge from the deployment runbook. Haiku makes it an explicit (if low-priority) deliverable.
+### 14. OI-6 resolution urgency (lockout policy)
+- **Opus**: "Decision before v1.1; **must be acknowledged in release notes**".
+- **Haiku**: "Before v1.1 planning".
+- **Impact**: Opus creates a hard release-notes gate protecting customer-visible expectations; Haiku treats it as planning-cycle work with no external disclosure requirement.
 
-### 15. Critical Path Articulation
-- **Opus**: Linear critical path: RSA keys → JwtService → TokenManager → AuthService → Middleware → Routes → Integration tests → Feature flag.
-- **Haiku**: More granular: includes config/secrets providers and repositories in the chain, plus explicit SLO validation and rollout drill as path nodes.
-- **Impact**: Haiku's critical path better reflects actual blocking dependencies. Opus's is simpler to communicate but omits implicit blockers.
-
-### 16. Effort Sizing Consistency
-- **Opus**: AuthService is XL. TokenManager is L. Most tasks are M or S.
-- **Haiku**: AuthService is L. FR-AUTH.5 (password reset flow) is XL. TokenManager is L.
-- **Impact**: Disagreement on where the largest effort concentration lies — Opus sees it in the AuthService orchestrator, Haiku sees it in the reset flow (which includes email integration and multi-step token lifecycle).
+### 15. DTO field-exclusion explicitness (DM-003)
+- **Opus**: AC explicitly lists `no password_hash; no token_hash`.
+- **Haiku**: implicit via general DTO-001 whitelist.
+- **Impact**: Opus front-loads the leak-prevention contract at the DTO definition; Haiku relies on a separate DTO-001 serializer, creating a second place a regression could slip in.
 
 ## Areas Where One Variant Is Clearly Stronger
 
-**Opus is stronger in:**
-- Deployment specificity — 5 granular deployment tasks vs 2
-- Global task numbering — unambiguous cross-phase references
-- Account lockout — ships a basic policy even at P2, rather than deferring entirely
-- Success criteria validation mapping — each SC mapped to a specific test and phase
+**Opus is stronger on:**
+- Specificity of cryptographic and operational parameters (key size, benchmark timing band, cookie path, health-check SLO, rate-limit bypass).
+- Traceability of decisions to spec constraints and risk IDs.
+- Security posture explicitness (enumeration guard 202, DTO field exclusions called out at the DTO level).
+- Incident response readiness (named fallback libraries).
 
-**Haiku is stronger in:**
-- Component decomposition — 15 named, injectable components with explicit file paths create a clearer implementation blueprint
-- Config validation at boot — SecretsProvider + AuthConfig catch misconfigurations early
-- Cookie/CORS as first-class concern — dedicated component reduces security surface area
-- Migration recovery drills — validates rollback under production-like conditions
-- Critical path completeness — includes all actual blocking dependencies
+**Haiku is stronger on:**
+- Internal consistency (M5 deliverable count matches its table; Opus has a 11-vs-16 discrepancy).
+- Risk-register milestone tagging completeness (R-002 and R-003 surface in all affected milestones, including M5 release gate).
+- Readability and tighter phrasing in Executive Summary and Decision Summary.
 
 ## Areas Requiring Debate to Resolve
 
-1. **Testing phase vs distributed testing**: Should tests have their own phase (Opus) or be co-located with implementation (Haiku)? Depends on team structure — a separate QA function favors Opus; integrated devs favor Haiku.
-
-2. **Password reset as P0 vs P1**: Is reset flow launch-blocking? Product owner must decide if auth can ship without password recovery.
-
-3. **Component granularity threshold**: Haiku's 15 components are more precise but create more integration surface. Is the tradeoff worth it for a MEDIUM-complexity project?
-
-4. **Phase 0 separation**: Does splitting infrastructure setup into its own phase (Opus) provide meaningful gating value, or does it just add a handoff for work that takes 2–3 days?
-
-5. **Lockout policy**: Build a basic lockout now (Opus, P2) or wait for product/security alignment (Haiku)? Risk of shipping the wrong policy vs risk of shipping no policy.
-
-6. **Timeline realism**: Opus's 14–19d lower bound assumes infrastructure and crypto can complete in 5–7 combined days. Haiku's 17–21d may better account for secrets manager integration and key provisioning delays. Which estimate should drive planning?
+1. **Schema-type vs application-type entity conventions (divergence 1)** — which audience is primary for persistence DTOs: DBAs or backend engineers? Affects downstream task-file generation.
+2. **Cookie path scoping (divergence 6)** — broader `path=/` simplifies SPA integration; narrower `path=/auth/refresh` is safer. Security vs DX trade-off.
+3. **Health-check latency SLO (divergence 7)** — <50ms bound is opinionated; some teams prefer health checks be "as fast as possible" without a hard bound.
+4. **OI-6 release-notes disclosure (divergence 14)** — committing to release-notes disclosure creates product-communication work; deferring to v1.1 planning avoids that but risks customer surprise.
+5. **M5 deliverable count (divergence 12)** — not a true debate: Opus has an internal error that must be fixed regardless of which variant wins. The fix direction (11 → 16 or drop 5 items) is the open question.
+6. **Benchmark timing band (divergence 5)** — whether to encode a specific ms band risks CI-hardware brittleness; whether to omit it risks unfalsifiable assertions. Standard CI benchmarking trade-off.

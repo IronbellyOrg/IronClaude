@@ -1,201 +1,113 @@
 ---
 complexity_class: MEDIUM
 validation_philosophy: continuous-parallel
-validation_milestones: 2
-work_milestones: 4
-interleave_ratio: "1:2"
+validation_milestones: 3
+work_milestones: 5
+interleave_ratio: 1:2
 major_issue_policy: stop-and-fix
 spec_source: test-spec-user-auth.md
-generated: "2026-04-15T19:12:56.105717+00:00"
+generated: "2026-04-20T21:06:14.264604+00:00"
 generator: superclaude-roadmap-executor
 ---
 
 # Test Strategy — User Authentication Service
 
-## Issue Classification
+## 1. Validation Milestones Mapped to Roadmap
 
-| Severity | Action | Gate Impact |
-|---|---|---|
-| CRITICAL | stop-and-fix immediately | Blocks current phase |
-| MAJOR | stop-and-fix before next phase | Blocks next phase |
-| MINOR | Track and fix in next sprint | No gate impact |
-| COSMETIC | Backlog | No gate impact |
+**V1: Foundation & Primitives Validation** | after M2 | gates entry to M3
+**V2: Service & NFR Validation** | after M4 | gates entry to M5
+**V3: Release Acceptance Validation** | concurrent with M5 | gates GA flag-flip
 
-## 1. Validation Milestones Mapped to Roadmap Phases
-
-The 1:2 interleave ratio (MEDIUM complexity) places **two validation milestones** across four work phases. Tests are written alongside implementation but validation gates consolidate at V1 and V2.
-
-| Validation Milestone | After Phase | Gate Scope | Key Tests | Exit Criteria |
-|---|---|---|---|---|
-| **V1** | Phase 2 | Crypto primitives + domain logic | TEST-001 (crypto), TEST-002 (auth service unit) | RS256 sign/verify pass; bcrypt cost-12 verified; all auth service branches covered; replay detection unit-tested |
-| **V2** | Phase 4 | Integration + E2E + NFRs | TEST-003..008, TEST-010, TEST-004, TEST-005 | Route integration pass; E2E lifecycle pass; p95 < 200ms; migration rollback verified; SC-1..22 evidenced |
-
-**Phase-level test activity (continuous, not gated):**
-
-| Phase | Tests Written/Run | Purpose |
-|---|---|---|
-| 1 | TEST-001 (crypto primitives) | Verify RS256 and bcrypt before building on them |
-| 2 | TEST-002 drafts (auth service unit stubs) | Validate domain logic as each flow lands |
-| 3 | TEST-002 complete, TEST-003, TEST-006..008 | Full unit + integration suites; **V1 gate evaluated here** |
-| 4 | TEST-004, TEST-005, TEST-010, NFR-AUTH.1..3 | E2E, load, migration drills; **V2 gate evaluated here** |
+Interleaving: V1 covers M1+M2 (2 work), V2 covers M3+M4 (2 work), V3 covers M5 (1 work). 1:2 ratio justified by MEDIUM complexity (0.6): risk profile 0.7 is elevated but testability 0.3 plus leaf-first layering mean primitives can be independently verified, so a validation gate every two work milestones catches cryptographic/persistence regressions early without stalling feature delivery. HIGH would demand per-milestone gates; LOW would tolerate one mid-point gate only.
 
 ## 2. Test Categories
 
-### 2.1 Unit Tests
-
-| Test ID | Scope | What to Assert | Phase |
+| Category | Scope | Tooling | Gate |
 |---|---|---|---|
-| TEST-001 | JwtService, PasswordHasher | RS256 sign→verify round-trip; tampered token rejected; bcrypt hash prefix `$2b$12$`; compare correct/incorrect; timing 200-400ms | 1 |
-| TEST-002 | AuthService, TokenManager, AuthRateLimiter, ResetEmailAdapter | Login: valid→tokens, invalid→401 (no enum), locked→403; Register: valid→201, dup→409, weak-pw→rejected; Refresh: valid→rotated pair, replay→global revoke; Reset: token generated, consumed once, expired→400, all sessions revoked; Rate limiter: 6th attempt→429; >90% branch coverage; all dependencies mocked | 3 |
-
-### 2.2 Integration Tests
-
-| Test ID | Scope | What to Assert | Phase |
-|---|---|---|---|
-| TEST-003 | AuthRoutes end-to-end (DB + HTTP) | Status codes match contracts; cookie flow (httpOnly refresh); Bearer flow (access token); feature flag off → routes disabled; sensitive fields excluded; middleware attaches userId | 3 |
-| TEST-006 | Login route | valid→200+tokens; invalid→401 no enumeration; locked→403; 5th+→429; tokens are valid RS256 JWT | 3 |
-| TEST-007 | Registration route | valid→201+profile; dup-email→409; weak-pw→400; bad-email→400; user persisted in DB | 3 |
-| TEST-008 | Token refresh route | valid-refresh→new pair; expired→401; replay→all tokens revoked; old refresh invalidated | 3 |
-
-### 2.3 End-to-End Tests
-
-| Test ID | Scope | What to Assert | Phase |
-|---|---|---|---|
-| TEST-004 | Full auth lifecycle | register→login→GET /auth/me→refresh→password reset: all in single test; cookie transport; replay defense; real DB; no mocks | 4 |
-| TEST-005 | Migration and recovery | backup-restore pass; down+up migration; rollback under flag-off; reapply clean; no orphan schema | 4 |
-
-### 2.4 Performance / NFR Tests
-
-| Test ID | Scope | What to Assert | Phase |
-|---|---|---|---|
-| TEST-010 | k6 load tests | login p95 < 200ms; register p95 < 200ms; refresh p95 < 200ms; profile p95 < 200ms; 100 concurrent users baseline | 4 |
-| NFR-AUTH.1 | Latency budget | p95 < 200ms in prod-like env; no regressions | 4 |
-| NFR-AUTH.2 | Availability | Health check returns 200; PagerDuty alerting configured; SLO published | 4 |
-| NFR-AUTH.3 | Hashing benchmark | bcrypt cost factor = 12; hash time ~250ms; unit test + benchmark pass | 4 |
-
-### 2.5 Acceptance Tests (Success Criteria Verification)
-
-SC-1 through SC-22 map directly to the success criteria table in the roadmap. Each SC is verified by specific test IDs already defined. No separate acceptance test suite needed — the existing test matrix covers all 22 criteria.
+| Unit | Pure functions, primitives, validators, repositories | jest/vitest + in-memory DB | V1 |
+| Integration | Handler → service → repository → DB; middleware pipeline; email mock | supertest + testcontainers PG + Redis | V2 |
+| E2E | Full lifecycle against staging through `/auth/*` with real secrets manager and email sandbox | playwright/k6 scripts | V3 |
+| Acceptance (SC) | SC-1..SC-8 success criteria as executable checks | k6 + scripted E2E + config-snapshot diff | V3 |
+| Security | Negative tests for alg=none, replay, enumeration, rate-limit bypass, JWT tampering | custom jest + pentest (SEC-003) | V2, V3 |
+| Performance | Latency p95 < 200ms, bcrypt timing band 200–350ms | k6 (OPS-004), SEC-001 CI benchmark | V2 |
+| Chaos / Resilience | Secrets manager outage, email vendor outage, rollback drill | fault injection + OPS-006 rehearsal | V3 |
 
 ## 3. Test-Implementation Interleaving Strategy
 
-### Ratio Justification
+Tests ship in the same PR as their target code; no milestone exits with test debt. Primitives (M2) are fully covered before orchestrator (M3) composes them. Each validation milestone runs the full suite up to that point plus the new category added at that gate.
 
-**MEDIUM complexity → 1:2 ratio.** Security sensitivity (0.8) argues for tighter validation, but the bounded component set and well-constrained dependency chain mean two consolidated validation gates suffice. Crypto primitives get immediate test coverage in Phase 1 (TEST-001) as a risk-mitigation exception — a failing RS256 or bcrypt implementation invalidates everything downstream.
+| Work | Tests Added In-PR | Validation Gate |
+|---|---|---|
+| M1 | TEST-M1-001/002/003 (unit + CI migration cycle) | rolled into V1 |
+| M2 | TEST-M2-001..006 (unit + benchmark + replay) | **V1 runs here** |
+| M3 | TEST-M3-001..006 (integration) | rolled into V2 |
+| M4 | OPS-004 k6, SEC-001 benchmark, AUDIT-001 event tests | **V2 runs here** |
+| M5 | SC-1..SC-8 acceptance, SEC-003 pentest, OPS-006 drill | **V3 runs here** |
 
-### Interleaving Schedule
+## 4. Risk-Based Prioritization
 
-```
-Phase 1 [WORK]     ████████████████  Build crypto + data foundation
-  └─ TEST-001       ▓▓▓▓              Crypto primitive tests (immediate, not gated)
-Phase 2 [WORK]     ████████████████████  Build auth flows + freeze contracts
-  └─ TEST-002 stubs  ▓▓▓▓▓▓            Unit test drafts alongside implementation
-─── V1 GATE ─── (evaluated at Phase 3 entry) ───
-Phase 3 [WORK+VAL] ████████████████  Routes + middleware + complete test suites
-  └─ TEST-002..008   ▓▓▓▓▓▓▓▓▓▓▓▓    Full unit + integration execution
-Phase 4 [WORK+VAL] ████████████████  Hardening + NFR + rollout
-  └─ TEST-004..010   ▓▓▓▓▓▓▓▓▓▓      E2E + load + migration drills
-─── V2 GATE ─── (evaluated before production rollout) ───
-```
+Priority derived from Risk Register impact×probability:
 
-**Key rule:** Test code is written in the same phase as the implementation it covers. Validation gates consolidate pass/fail decisions at V1 and V2.
+**P0 (highest) — security & data loss:**
+- R-001 key compromise → TEST-M2-002 alg whitelist; key-rotation drill
+- R-002 refresh replay → TEST-M2-005 + TEST-M3-003 (SC-7)
+- R-007 irreversible migration → TEST-M1-003 up/down/up CI gate
+- R-009 alg=none → explicit negative in TEST-M2-002
+- R-017 rollback failure → OPS-006 staging drill
 
-## 4. Risk-Based Test Prioritization
+**P1 — latency & availability:**
+- R-014 p95 > 200ms → OPS-004 k6 pre-GA (SC-1)
+- R-008 secrets cold-start → chaos test in V3
+- R-015 false-green health → synthetic login probe in V3
+- R-012 email outage → mocked failure + retry assertions in TEST-M3-005
 
-Ordered by risk severity × likelihood, mapped to specific test responses:
+**P2 — enumeration / state sharing:**
+- R-011 user enumeration → TEST-M3-006
+- R-013 rate-limit state sharing → multi-instance integration test
 
-| Priority | Risk | Test Response | Tests |
-|---|---|---|---|
-| 1 | R-2: Refresh token replay (High sev, Medium likelihood) | Dedicated replay detection tests in unit AND integration; E2E verifies global revoke | TEST-002 (replay branch), TEST-008, TEST-004 |
-| 2 | R-1: Private key exposure (High sev, Low likelihood) | Verify SecretsProvider loads from secrets manager not env; key never in logs; rotation works | TEST-001 (key loading), TEST-005 (rotation drill) |
-| 3 | R-6: Feature flag rollback untested (High sev, Low likelihood) | Flag-off disables all routes; rollback drill under load; schema retained | TEST-003 (flag-off), TEST-005 (rollback) |
-| 4 | R-4: Email provider latency (Medium sev, Medium likelihood) | Timeout behavior in ResetEmailAdapter; stub provider in integration tests | TEST-002 (adapter timeout), TEST-003 (reset flow) |
-| 5 | R-5: Unbounded refresh tokens (Medium sev, Medium likelihood) | Verify eviction policy after OQ-2 resolution; monitor table growth | TEST-008 (rotation creates bounded set) |
-| 6 | R-3: bcrypt cost factor degradation (Medium sev, Low likelihood) | Benchmark hash timing; verify cost factor in output | TEST-001, NFR-AUTH.3 |
+**P3 — deferred (release-notes disclosure only):** R-004, R-005, R-006
 
 ## 5. Acceptance Criteria per Milestone
 
-### V1 Gate (after Phase 2, evaluated at Phase 3 start)
+**M1 exit:** migrations reversible in CI (up→down→up green); RSA keypair 2048-bit+ in secrets manager; `AUTH_SERVICE_ENABLED=false` blocks route registration; UserRepository + RefreshTokenRepository unit tests at 100% branch coverage on CRUD + revocation.
 
-| # | Criterion | Evidence Required |
+**M2 exit (== V1 gate):** bcrypt cost=12 asserted from hash string; SEC-001 p95 within 200–350ms CI band; RS256 sign/verify round-trip green; alg=none / HS256 / expired / tampered all rejected; dual-key verification passes during grace window; replay of rotated refresh token triggers `revokeAllForUser` with emitted event; VALID-001/002 truth tables pass.
+
+**M3 exit:** all 5 `/auth/*` endpoints live behind flag; TEST-M3-001..006 green; ERR-001 uniform 401 body verified (enumeration guard); COOKIE-001 sets httpOnly+Secure+SameSite=Strict with `path=/auth/refresh`; DTO-001 introspection proves no `password_hash`/`token_hash` leak on any response; email dispatch observable via mock.
+
+**M4 exit (== V2 gate):** k6 p95 < 200ms on staging for all 5 endpoints; `/healthz` validates DB + secrets + key-cache in <50ms p95; PagerDuty rules fire on 5xx burst, p95 regression, replay-burst; SEC-001 artifact attached to CI run; APM traces cover handler→AuthService→TokenManager→repository.
+
+**M5 exit (== V3 gate):** SC-1..SC-8 all green with evidence links; SEC-002 architect sign-off filed; SEC-003 pentest report shows zero criticals; OPS-006 rollback drill report attached with measured MTTR; FF-001 canary→25%→100% executed; BC-001 smoke matrix green on unauthenticated routes pre/post flip.
+
+## 6. Quality Gates Between Milestones
+
+| Gate | Entry Check | Tests Required Green | Issue Policy |
+|---|---|---|---|
+| M1→M2 | OI-9, OI-10 resolved; RISK-1 policy drafted | TEST-M1-001/002/003 | CRITICAL blocks; MAJOR blocks next milestone |
+| V1 (M2→M3) | M2 exit criteria met | all M1+M2 tests; alg whitelist; replay detection | **stop-and-fix** on CRITICAL/MAJOR; OI-3/4/5 must have resolution plan |
+| M3→M4 | OI-3/4/5 landed; flag still off in prod | TEST-M3-001..006 + DTO-001 introspection | MAJOR blocks M4 entry |
+| V2 (M4→M5) | NFR instrumentation live in staging | OPS-004 k6 p95<200ms; SEC-001 band; PagerDuty test-page acknowledged | **stop-and-fix**; R-014 regression blocks release |
+| V3 (release) | SC-1..SC-8 mechanically verifiable; SEC-002 draft ready | full suite + SEC-003 pentest + OPS-006 drill | CRITICAL blocks flag-flip; MAJOR blocks 100% rollout (canary allowed); MINOR/COSMETIC tracked in v1.1 backlog |
+
+## 7. Per-Milestone Test Focus (specific)
+
+**M1:** schema hash equality after up/down/up; unique-email constraint violation path; FK cascade on `refresh_tokens.user_id`; `updatePasswordHash` bumps `updated_at`; `revokeAllForUser` marks every active row revoked; pruning excludes expired rows on read; secrets-manager cold fetch <500ms; flag=false means no `/auth/*` route registered (introspect route table).
+
+**M2:** bcrypt cost extracted from `$2b$12$...` prefix; compare is constant-time on mismatch; JWT `kid` header present and matches active key id; verify rejects missing `exp`, `nbf` skew > tolerance, wrong `iss`; TokenManager issues DM-003 with exact TTLs (access=900s, refresh=604800s); SHA-256 hash comparison uses `timingSafeEqual`; replay detection emits audit event with user_id + token_id (not plaintext).
+
+**M3:** login 200/401/403/429 matrix including identical body for invalid-email vs invalid-password (R-011); register 201/400/409 including password policy boundary (7 chars fails, 8 chars with all classes passes); refresh rotates and old token→401 on second use; `/auth/me` rejects expired token and omits `password_hash` + `token_hash` fields (DTO-001 introspection on JSON); password reset request always returns 202 (enumeration guard); confirm revokes all refresh tokens for user (query `refresh_tokens where user_id=X and revoked=false` returns 0).
+
+**M4:** k6 scenario ramps to realistic RPS on all 5 endpoints; p95 per-endpoint panel published; health endpoint returns 503 when DB ping fails (fault-inject); PagerDuty test-page acknowledged end-to-end; SEC-001 asserts 200ms ≤ p95 ≤ 350ms on reference CI hardware with env-var override documented; AUDIT-001 events visible in observability sink with PII redacted.
+
+**M5:** SC-8 E2E script: register→login→`/auth/me`→refresh→reset→login-with-new-password, green in staging and re-run post-flag-flip in prod; SEC-003 targets enumeration, brute force, replay, JWT confusion, cookie scope bypass; OPS-006 drill measures MTTR for flag-off + migration rollback and compares to documented SLO; BC-001 confirms unauthenticated endpoints unchanged; DOC-001 OpenAPI drift test in CI.
+
+## 8. Issue Classification Applied
+
+| Example Finding | Severity | Action |
 |---|---|---|
-| 1 | RS256 sign/verify round-trip passes | TEST-001 green |
-| 2 | Tampered JWT rejected | TEST-001 green |
-| 3 | bcrypt cost factor 12, hash prefix `$2b$12$` | TEST-001 green |
-| 4 | bcrypt compare timing 200-400ms | TEST-001 benchmark output |
-| 5 | Migration up idempotent, rollback clean | MIG-001, MIG-002, MIG-003 execution logs |
-| 6 | All auth service unit test branches pass (>90%) | TEST-002 coverage report |
-| 7 | Replay detection triggers global revoke (unit) | TEST-002 replay test case |
-| 8 | Rate limiter blocks 6th attempt (unit) | TEST-002 rate limiter case |
-| 9 | API contracts frozen (6 endpoints) | API-001..006 contract documents committed |
-
-**V1 blocker policy:** Any CRITICAL or MAJOR failure in items 1-4 (crypto) or 7 (replay) blocks Phase 3 entry.
-
-### V2 Gate (before production rollout OPS-009)
-
-| # | Criterion | Evidence Required |
-|---|---|---|
-| 1 | All integration tests pass (TEST-003, 006-008) | CI green, report archived |
-| 2 | E2E lifecycle test passes (TEST-004) | Full register→login→me→refresh→reset in single run |
-| 3 | Migration rollback drill passes (TEST-005) | Down/up/reapply clean |
-| 4 | p95 latency < 200ms all endpoints (TEST-010) | k6 report with 100 concurrent users |
-| 5 | Health check returns 200 (OPS-002) | HTTP probe evidence |
-| 6 | Feature flag off disables routes (TEST-003) | Integration test case |
-| 7 | Sensitive fields never in response (TEST-003) | Assertion on profile/login/register responses |
-| 8 | SC-1 through SC-22 individually verified | Checklist with test ID mapping |
-| 9 | Deployment runbook reviewed (OPS-008) | Sign-off documented |
-| 10 | Canary error rate < 0.1% for 4h (OPS-009) | Monitoring dashboard screenshot |
-
-**V2 blocker policy:** Any CRITICAL or MAJOR failure blocks OPS-011 (full rollout). Canary failure triggers immediate rollback per runbook.
-
-## 6. Quality Gates Between Phases
-
-### Phase 1 → Phase 2
-
-| Gate Check | Pass Condition | Severity if Failed |
-|---|---|---|
-| RSA keys provisioned in secrets manager | SecretsProvider loads without error | CRITICAL |
-| Migration up/down verified | MIG-001 + MIG-002 + MIG-003 pass | CRITICAL |
-| TEST-001 crypto primitives | All assertions green | CRITICAL |
-| Repositories implement CRUD contracts | COMP-008, COMP-009 compile + type-check | MAJOR |
-| OQ-6 resolved (REST paths) | Endpoint paths documented | MAJOR |
-
-### Phase 2 → Phase 3 (includes V1 gate)
-
-| Gate Check | Pass Condition | Severity if Failed |
-|---|---|---|
-| OQ-1 resolved (email sync/queue) | Decision documented, ResetEmailAdapter aligned | MAJOR |
-| OQ-2 resolved (max refresh tokens) | Eviction policy in RefreshTokenRepository | MAJOR |
-| All 6 API contracts frozen | API-001..006 committed | CRITICAL |
-| AuthService + TokenManager unit tests pass | TEST-002 >90% branch coverage | CRITICAL |
-| Replay detection verified (unit) | TEST-002 replay case green | CRITICAL |
-| Rate limiter verified (unit) | TEST-002 rate limiter case green | MAJOR |
-
-### Phase 3 → Phase 4
-
-| Gate Check | Pass Condition | Severity if Failed |
-|---|---|---|
-| Integration test suite passes | TEST-003, TEST-006, TEST-007, TEST-008 green | CRITICAL |
-| AuthMiddleware extracts + verifies Bearer | TEST-003 middleware cases | CRITICAL |
-| Feature flag gate works both directions | TEST-003 flag-off case | MAJOR |
-| Cookie policy correct (httpOnly, Secure, SameSite) | TEST-003 cookie assertions | MAJOR |
-| AuthConfig fails fast on missing key/invalid TTL | Boot-time validation test | MAJOR |
-
-### Phase 4 → Production (V2 gate)
-
-| Gate Check | Pass Condition | Severity if Failed |
-|---|---|---|
-| E2E lifecycle passes | TEST-004 green | CRITICAL |
-| k6 load test within budget | TEST-010: all endpoints p95 < 200ms | CRITICAL |
-| Migration rollback drill passes | TEST-005 clean | CRITICAL |
-| Deployment runbook complete + reviewed | OPS-008 sign-off | CRITICAL |
-| Canary 10% stable 4h | Error rate < 0.1%, latency within NFR | CRITICAL |
-| SC-1..22 verified | Evidence checklist complete | CRITICAL |
-| Health check and alerting live | OPS-002 probe + PagerDuty test alert | MAJOR |
-| Key rotation procedure documented | OPS-004 runbook exists | MAJOR |
-
-### Gate Failure Protocol
-
-1. **CRITICAL failure:** Phase entry blocked. stop-and-fix immediately. No work on next-phase tasks until resolved.
-2. **MAJOR failure:** Current phase may continue. stop-and-fix before next phase transition. Track in defect backlog with phase-gate tag.
-3. **MINOR/COSMETIC:** Log in backlog. No gate impact. Address in next sprint or as capacity permits.
+| alg=none accepted by JwtService | CRITICAL | stop-and-fix immediately; block M2 exit |
+| p95 = 240ms on `/auth/login` | MAJOR | stop-and-fix before M5; tune repository caching or capacity |
+| Audit event missing user_id on replay | MAJOR | fix before V3 gate |
+| Rate-limit counter not shared across instances in staging | MAJOR | fix before V2 gate (R-013) |
+| OpenAPI example payload outdated | MINOR | next sprint |
+| Grafana panel label typo | COSMETIC | backlog |

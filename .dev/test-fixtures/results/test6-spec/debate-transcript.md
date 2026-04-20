@@ -1,111 +1,133 @@
 ---
-convergence_score: 0.62
+convergence_score: 0.82
 rounds_completed: 2
 ---
 
-# Adversarial Debate: Opus (5-Phase) vs Haiku (4-Phase) Authentication Roadmap
+# Adversarial Debate Transcript — Opus vs Haiku Architect Roadmap Variants
 
-## Round 1: Initial Positions
+## Preamble
 
-### Divergence 1: Phase Count and Boundaries
+Shared structural agreement is high (20 shared assumptions, identical M1–M5 decomposition, timeline, dependency graph, critical path, risk register IDs, and success criteria). Debate focuses on the 15 divergence points, which cluster into **specificity vs flexibility**, **internal consistency**, and **security posture** trade-offs.
 
-**Variant A (Opus):** Five phases with a dedicated Phase 0 for infrastructure creates an explicit gate: "can we reach secrets manager and run migrations?" is answered before any crypto code is written. This prevents wasted effort — if key provisioning fails or the DB migration runner has issues, we find out in day 1-2 rather than after writing JwtService. The Phase 0/1 split costs one lightweight handoff but buys a clean "infrastructure proven" checkpoint that de-risks everything downstream.
+## Round 1 — Initial Positions
 
-**Variant B (Haiku):** Four phases with infrastructure, schema, crypto, and repositories merged into Phase 1 reflects how a single developer or small team actually works. You don't provision RSA keys, then stop and celebrate, then start JwtService the next morning. Key provisioning and JwtService are the same work session. The 4-phase structure eliminates a ceremonial handoff that adds calendar overhead without adding safety — if key provisioning fails, you'll discover it the moment JwtService tries to load the key, which happens in the same phase regardless.
+### Variant A (Opus) — Opening Statement
 
-### Divergence 2: Component Granularity (7 vs 15)
+> "A roadmap is a contract against which implementation is audited. Vagueness in a P0 security artifact is debt. We chose explicit bounds, concrete parameters, and traceable rationale because:"
 
-**Variant A (Opus):** Seven named components keep the roadmap legible and avoid over-specification for a MEDIUM-complexity project. Internal decomposition (whether AuthService uses a separate UserRepository class or inline queries) is an implementation detail that the roadmap shouldn't prescribe. Over-specifying components creates rigidity — if the implementer decides SecretsProvider and AuthConfig should be one module, they now have to reconcile with a roadmap that said otherwise.
+| # | Position | Evidence |
+|---|---|---|
+| 1 | Persistence types (`UUID-PK`, `timestamptz`) belong in DM-001/002 | DBA and migration reviewers are the primary audience for entity records; app-layer types hide schema decisions |
+| 2 | 2048-bit RSA minimum is non-negotiable | Without a floor, AC-literal reading permits weaker keys; RISK-1 is HIGH-impact |
+| 3 | JWKS naming commits to RFC 7517 | Third-party verifiers expect JWKS discovery; "verifier set" defers a decision that must be made |
+| 4 | bcrypt 200–350ms band on reference hardware | SC-3 must be falsifiable in CI; "expected timing" drifts with hardware refresh |
+| 5 | Cookie `path=/auth/refresh` is defense-in-depth | Refresh cookies should be invisible to every other route — XSS blast radius reduction |
+| 6 | Health endpoint <50ms p95 prevents false-green | A slow 200 still trips SLO monitoring falsely healthy |
+| 7 | Rate-limit health-check bypass | Uptime monitors exhaust the budget and self-trigger alerts otherwise |
+| 8 | 202 + enumeration guard explicit in API-005 | "Generic success" is ambiguous; 202 + rationale closes the interpretation gap |
+| 9 | Named fallbacks (`node-jose`, `bcryptjs`) | Incident response is faster when the runbook names the swap; judgment-at-incident-time is risk |
+| 10 | Spec §-constraint citations per decision | Bidirectional traceability for SEC-002 sign-off |
+| 11 | DTO field exclusion (`no password_hash; no token_hash`) stated at DM-003 | Two enforcement layers beat one |
+| 12 | OI-6 release-notes disclosure gate | Customer expectations around lockout must be set; silence is a support incident |
 
-**Variant B (Haiku):** Fifteen named components with explicit file paths (`src/auth/secrets-provider.ts`, `src/auth/auth-config.ts`) create a blueprint that any developer can pick up without guessing. SecretsProvider, UserRepository, RefreshTokenRepository, AuthRateLimiter, AuthCookiePolicy — each is independently testable and injectable. This isn't over-specification; it's the actual dependency injection graph. Opus leaves "repositories are implicit within service implementations" — that's a recipe for a monolithic AuthService that's hard to test and hard to maintain.
+### Variant B (Haiku) — Opening Statement
 
-### Divergence 3: Testing Placement
+> "A roadmap is a coordination artifact, not a specification document. Over-specification creates brittle contracts and internal inconsistencies. We chose clarity and consistency because:"
 
-**Variant A (Opus):** A dedicated Phase 3 for testing creates a clear quality gate. All test types (unit, integration, E2E, load) are co-located in one phase, making coverage auditable as a batch. This matches how security-sensitive systems get reviewed: the testing phase is where you bring in a security reviewer, run k6, and validate all 22 success criteria systematically. Distributing tests across phases makes it harder to answer "are we done testing?"
+| # | Position | Evidence |
+|---|---|---|
+| 1 | Application-layer types (`string`, `Date`, `boolean`) match the audience | Backend engineers write the DM-001 code; persistence types belong in migration ACs (MIG-001), not in entity records |
+| 2 | "RS256-compatible" is sufficient | Implementation teams follow OWASP defaults; 2048-bit is the industry floor already |
+| 3 | "Verifier set" is provider-neutral | JWKS is one valid format; committing early locks out alternatives |
+| 4 | "Timing recorded" is correct | A hardcoded ms band on unknown CI hardware is itself the drift risk; record and review |
+| 5 | No cookie path = broader deployment flexibility | SPA/BFF architectures vary; `path=/auth/refresh` hardcodes an API shape |
+| 6 | Health <50ms is premature optimization | M5 synthetic probes cover false-green; endpoint SLO is not the right layer |
+| 7 | Rate-limit bypass not needed in M3 | Uptime monitors use dedicated paths (`/healthz`) — not `/auth/login` |
+| 8 | "Generic success" with enumeration intent is enough | Implementers reading FR-AUTH.5 know the security story; 202 is fine but status code is a wiring detail |
+| 9 | Generic fallbacks preserve judgment | Named fallbacks in 2026 may have CVEs by incident time; incident response should consult current vendor landscape |
+| 10 | Spec-citations create maintenance burden | When the spec renumbers, every rationale breaks |
+| 11 | DTO-001 is the single source of truth for field whitelisting | Duplicating in DM-003 creates two places to regress |
+| 12 | OI-6 is a v1.1 planning item | Forcing release-notes disclosure on unresolved work is process overhead |
+| 13 | **R-002/R-003 must tag M5** | Release-gate risk reviews miss replay risk otherwise — this is a genuine Opus gap |
+| 14 | **M5 deliverable count: 16 matches the table** | Opus has an 11-vs-16 internal error; our variant is self-consistent |
 
-**Variant B (Haiku):** Tests distributed across phases catch bugs closer to implementation. Writing JwtService unit tests in Phase 3 (Opus) means a signing bug discovered during testing requires context-switching back to Phase 1 code. In Haiku, crypto primitive tests (TEST-001) live in Phase 3 alongside route integration tests, while E2E and migration drills land in Phase 4. This isn't "no testing phase" — it's testing at the right altitude at the right time. Delayed defect discovery is the single largest schedule risk in security code.
+## Round 2 — Rebuttals
 
-### Divergence 4: Password Reset Priority (P1 vs P0)
+### Variant A (Opus) — Rebuttal of Haiku
 
-**Variant A (Opus):** Password reset as P1 means auth can ship without it. Users can register, log in, refresh tokens, and retrieve profiles. Reset is important but not launch-blocking — the product can go live with a manual reset process (admin tooling, support tickets) while the automated flow is completed. This gets auth into production faster, unblocking downstream teams sooner.
+> "Haiku's consistency arguments are strong on two points — and we concede them. On the others, 'audience-appropriate' is a false economy in a P0 security roadmap."
 
-**Variant B (Haiku):** Password reset as P0 is the correct call for a production authentication system. Shipping auth without password recovery means every user who forgets their password is locked out with no self-service path. That's a support burden and a user trust issue from day one. The 3-5 extra days to include reset before launch are far cheaper than the support cost and reputation damage of launching without it. FR-AUTH.5 is XL precisely because it's complex — deferring it makes it harder, not easier.
+**Conceded:**
 
-### Divergence 5: Account Lockout
+- **M5 deliverable count (12)**: Opus has an internal inconsistency (summary row 11 vs table 16). This is a defect, not a design choice. Fix direction: update summary to 16.
+- **Risk tagging R-002/R-003 (13)**: Haiku's broader milestone tagging is correct. R-002 replay risk must surface in M5 release-gate review; dropping it is a real process gap.
 
-**Variant A (Opus):** OPS-007 ships a basic lockout policy (10 attempts, 30min unlock) at P2 priority. Even if the exact thresholds change later, having *some* lockout is strictly better than none. The alternative — no lockout until a product/security meeting resolves OQ-3 — leaves a brute-force vulnerability open. We can tune the policy post-launch; we can't retroactively prevent attacks that exploited the gap.
+**Rebutted:**
 
-**Variant B (Haiku):** Deferring lockout to open question resolution is the responsible choice. Building "10 attempts, 30min" without product and security alignment means you might ship a policy that locks out legitimate users (shared IPs, password managers with stale credentials) or one that security deems insufficient. Rate limiting at 5/min/IP (which both variants include) provides brute-force mitigation in the interim. Building the wrong lockout policy creates user friction that's politically hard to undo.
+- **Audience (1)**: DMs contain persistence types in every serious schema-first codebase. App types belong in DTOs (DM-003), which we already scope to app types. Mixing is not confusion — it's layering.
+- **RSA floor (2)**: "OWASP defaults" is exactly the kind of implicit contract that fails SEC-002 review. The floor costs one word; omitting it has no compensating benefit.
+- **Timing band (4)**: "Timing recorded" without a pass/fail threshold is not a test — it's telemetry. SC-3 must fail red when cost factor drifts; our 200–350ms band is tunable by CI environment variable, not hardcoded.
+- **Cookie path (5)**: Haiku's "SPA flexibility" argument cuts the wrong way. Refresh tokens should be invisible to SPA code paths by design; broadening the path is the foot-gun.
+- **Health SLO (6)**: "Premature optimization" is wrong framing. <50ms prevents health-check-induced incidents; synthetic probes in M5 are a *different* control, not a replacement.
+- **Named fallbacks (9)**: The roadmap is a 2026 artifact; `node-jose` and `bcryptjs` are current. If CVEs emerge, update the roadmap — that's cheaper than incident-time research.
+- **DTO duplication (11)**: Defense-in-depth is not duplication. DTO-001 is one checkpoint; DM-003 AC is a second. Both being wrong simultaneously is the failure mode we're guarding against.
+- **OI-6 disclosure (12)**: Shipping an auth service without documenting the lockout gap is a user-surprise bug waiting for a support escalation. Release-notes disclosure is 2 sentences of work.
 
-### Divergence 6: Deployment Specificity
+### Variant B (Haiku) — Rebuttal of Opus
 
-**Variant A (Opus):** Five dedicated deployment tasks (runbook, 10% canary, SC validation, full rollout, key rotation schedule) provide an actionable checklist. "Execute feature-flag rollout plan" (Haiku's OPS-005) is a task that contains multitudes — what's the canary percentage? What's the success criterion? How long do you monitor before proceeding? Opus answers these questions in the roadmap; Haiku defers them to a document that doesn't exist yet.
+> "Opus's specificity arguments have merit on cryptographic and security parameters. We concede those. On traceability and internal layering, Opus overfits for audit ceremony at the cost of maintainability."
 
-**Variant B (Haiku):** Two deployment tasks at higher abstraction reflect reality — the deployment runbook (DOC-001) captures the specifics, not the roadmap. Roadmap tasks should define *what* and *when*, not *how*. Prescribing "10% canary" in the roadmap locks in a decision that depends on infrastructure capabilities the team may not have finalized. OPS-005 says "execute the rollout plan" because the plan itself is a deliverable (DOC-001) that gets reviewed before execution.
+**Conceded:**
 
-## Round 2: Rebuttals
+- **RSA 2048-bit floor (2)**: Fair. Adding "2048-bit min" to INFRA-001 AC is cheap and closes SEC-002 ambiguity. Adopt.
+- **Enumeration guard explicitness (8)**: "Always 202" is clearer than "generic success." The rationale parenthetical is worth the 5 words. Adopt.
+- **Rate-limit health bypass (7)**: Opus is right that *someone* will point an uptime monitor at `/auth/login`. Adding bypass-for-known-paths to RATE-001 AC is defensive. Adopt.
+- **bcrypt timing band (4)**: Partial concession — a configurable band with a *documented* default (not hardcoded) gives CI a pass/fail without hardware brittleness. Merge both positions.
 
-### Variant A (Opus) Rebuts Variant B (Haiku)
+**Rebutted:**
 
-**On component granularity:** Haiku claims 15 components create "independently testable units," but this is a MEDIUM-complexity project. AuthCookiePolicy as a standalone component with its own file path is over-engineering — cookie configuration is 10-15 lines that belong in the route setup, not a dedicated injectable. The same applies to AuthConfig and AuthFeatureGate. Haiku's component count inflates the integration surface: 15 components means 15× constructor signatures, 15× mock configurations in tests, and 15× potential misconfiguration points. The DI graph complexity doesn't justify itself for a bounded auth subsystem.
-
-**On testing placement:** Haiku argues delayed defect discovery is the biggest risk, but Opus includes unit tests for core components *in Phase 1* (TEST-001 through TEST-003). The "dedicated testing phase" in Phase 3 covers integration, E2E, and load testing — these can't run until the API layer exists regardless. Haiku's TEST-001 (crypto primitives) lands in Phase 3, which is *later* than Opus's Phase 1 TEST-001/TEST-002. Haiku's distributed testing actually delays crypto validation compared to Opus.
-
-**On password reset priority:** Haiku's P0 classification of FR-AUTH.5 adds 3-5 days to the critical path before auth ships. Every downstream team waiting for identity verification — feature teams, API consumers, mobile — is blocked for an additional week. A P1 reset flow delivered one sprint after launch is standard practice. The manual reset path (admin endpoint or support process) covers the gap. Haiku optimizes for completeness at the cost of velocity.
-
-**On deployment:** Haiku's DOC-001 "Publish auth architecture notes" is P2. So the deployment details live in a P2 document, but the rollout itself (OPS-005) is P0? That's a dependency inversion — you can't execute a rollout plan that hasn't been written yet. Opus avoids this by making deployment steps explicit roadmap tasks rather than delegating them to a low-priority doc.
-
-### Variant B (Haiku) Rebuts Variant A (Opus)
-
-**On phase structure:** Opus claims Phase 0 "de-risks infrastructure," but the exit criteria ("Migration applied; RSA key pair accessible; feature flag toggles auth routes off") takes 2-3 days for work that a competent developer completes in a single focused day. The Phase 0 → Phase 1 gate adds a handoff that serves ceremony, not safety. If key provisioning fails, you don't need a phase boundary to discover it — the JwtService constructor throws on startup. Opus's Phase 0 is a 2-day phase with 11 tasks, several of which are trivial (DEP-1: "Install jsonwebtoken npm package" — effort S, priority P0). This isn't a meaningful gate; it's padding.
-
-**On testing:** Opus's rebuttal is misleading. Opus Phase 1 includes TEST-001/002/003 for core *component* unit tests — that's correct. But Opus Phase 3 (the "dedicated testing phase") includes TEST-004 (AuthService unit tests) through TEST-010 (k6 load tests). AuthService unit tests in Phase 3 mean the AuthService is implemented in Phase 2 without its own unit tests. That's a 4-5 day gap between writing the orchestrator and validating it with unit tests. Haiku's TEST-002 (auth service unit tests) lives in Phase 3, immediately after AuthService implementation in Phase 2, with route integration tests in the same phase.
-
-**On cookie/CORS and config validation:** Opus has *zero* dedicated tasks for cookie security configuration or startup config validation. Cookie attributes (httpOnly, Secure, SameSite, Path, Domain) are "implicit in handler tasks." CORS headers are nowhere. Config validation at boot doesn't exist. These aren't cosmetic concerns — cookie misconfiguration is OWASP top 10 material, and a missing RSA key discovered at first request rather than at boot means a 500 error in production. Haiku's COMP-013 (AuthConfig) and COMP-015 (AuthCookiePolicy) exist because these are common failure modes that warrant explicit attention.
-
-**On timeline realism:** Opus estimates 14-19 days. Phase 0 + Phase 1 = 5-7 days for infrastructure, schema, crypto primitives, AND their unit tests. That's key provisioning, secrets manager integration, two table migrations, three security modules (PasswordHasher, JwtService, TokenManager), a migration runner, and nine associated test suites — in one week. Haiku's 17-21 day estimate allocates 4-5 days for Phase 1 alone (the merged infrastructure+crypto phase), which better reflects secrets manager integration delays, native bcrypt addon compilation issues, and RSA key provisioning in non-trivial environments.
-
-**On lockout:** Opus builds a lockout policy (10 attempts, 30min) with no product input and calls it P2. If it ships, product didn't approve it. If it doesn't ship (P2 gets cut), the code is dead weight. Either way, the rate limiter at 5/min/IP — present in both variants — is the actual brute-force mitigation for v1. Building unapproved security policy is worse than deferring to an explicit decision.
+- **DM entity types (1)**: Opus's DM-001 AC lists `UUID-PK`, `timestamptz`, `bool`. These are DDL types, not runtime types. DM entities are read by backend engineers writing repository code; MIG-001 already declares the schema. Duplicating schema declarations in two artifacts creates divergence risk.
+- **JWKS commitment (3)**: JWKS is a valid format, but M1 is too early to commit. The verifier set is internal in v1.0 (no third-party consumers). Defer to M4 or v1.1 when external verifiers appear.
+- **Cookie path scoping (5)**: We cede that `path=/auth/refresh` is more secure in isolation, but it hardcodes URL topology into a data-model-layer decision. Defer to a security review in M5 that can consider the full route map.
+- **Health SLO (6)**: Opus cites false-green prevention, but <50ms is not the right test. A health endpoint returning 200 in 45ms while the DB is down is still false-green. The control is *what* health checks, not *how fast*.
+- **Named fallbacks (9)**: `node-jose` is maintained by an organization; library landscapes shift. Our fallback policy ("only if CVE-blocked, choose at incident time") is a process, not a missing value.
+- **Spec citations (10)**: Traceability is valuable, but the spec is versioned independently. Every spec renumber breaks every roadmap citation. Haiku-style "Architectural constraint mandates" is version-stable and still traceable because the constraint itself is named.
+- **DTO field exclusion (11)**: Opus argues defense-in-depth; we argue single-source-of-truth. A whitelist in DTO-001 that everything flows through is more robust than a blacklist in DM-003 that a new developer can bypass.
+- **OI-6 release-notes (12)**: The release notes for v1.0 will say "this is an MVP." Enumerating every deferred policy creates expectation overhead. Ship and iterate.
 
 ## Convergence Assessment
 
-### Areas of Agreement Reached
+### Full Agreement (9/15 divergence points)
 
-| Topic | Consensus |
-|---|---|
-| Core architecture | Full agreement: RS256, bcrypt-12, refresh rotation, replay detection, stateless access tokens |
-| Dependency chain | Agreed: JwtService → TokenManager → AuthService → Middleware → Routes |
-| Feature flag gating | Agreed: AUTH_SERVICE_ENABLED for dark launch |
-| Rate limiting | Agreed: 5/min/IP on login as v1 brute-force mitigation |
-| Risk severity | Identical risk assessments across all 6 risks |
-| Success criteria | All 22 SC items identical in both variants |
-| Cookie transport | Agreed: httpOnly cookies for refresh tokens |
-| Open questions | Same 6 OQs with compatible blocking-phase assignments |
-
-### Areas of Partial Convergence
-
-| Topic | Status | Resolution Path |
+| # | Resolution | Winner |
 |---|---|---|
-| Testing timing | Partial: both test core components early, disagree on AuthService unit test timing | Compromise: write AuthService unit tests in the same phase as implementation, keep E2E/load in a later phase |
-| Component count | Partial: agree DI boundaries matter, disagree on where to draw them | Compromise: explicit components for security-sensitive items (SecretsProvider, CookiePolicy); leave non-security internals to implementer |
-| Timeline | Partial: 3-day gap in lower bound (14 vs 17) | Use Haiku's lower bound (17d) for planning; Opus's lower bound (14d) as optimistic stretch |
+| 2 | RSA 2048-bit minimum | Opus |
+| 4 | Configurable timing band with documented default | Merge |
+| 7 | Health-check bypass in RATE-001 | Opus |
+| 8 | "Always 202 regardless of existence" | Opus |
+| 12 | M5 deliverable count reconciled to 16 | Haiku (Opus defect) |
+| 13 | R-002/R-003 milestone tagging includes M5 | Haiku |
 
-### Unresolved Disputes
+Additional consensus: both variants agree the **fundamental architecture, sequencing, dependency graph, risk register, and success criteria are correct**. Debate is entirely at the AC-specificity layer.
 
-| Topic | Variant A Position | Variant B Position | Decision Needed From |
-|---|---|---|---|
-| Password reset P0 vs P1 | P1 — ship auth faster, add reset next sprint | P0 — don't launch auth without self-service recovery | Product owner |
-| Account lockout | Build basic policy now (P2) | Defer until product/security alignment | Product + Security leads |
-| Phase 0 separation | Valuable infrastructure gate | Ceremonial overhead | Tech lead (team size dependent) |
-| Deployment granularity | 5 explicit tasks in roadmap | 2 tasks + runbook deliverable | Ops lead (infrastructure maturity dependent) |
-| Config validation at boot | Not needed as explicit component | Required — catches misconfig before first request | Architect (failure mode analysis) |
+### Partial Agreement (3/15)
 
-### Synthesis Recommendation
+| # | Resolution |
+|---|---|
+| 4 | Merged: configurable timing band; default 200–350ms on reference hardware; CI env var override |
+| 6 | Health endpoint latency floor omitted, but OPS-002 AC adds "DB ping, secrets, and key cache validated in response" — addresses false-green without hardcoded ms |
+| 11 | DTO-001 remains single enforcement; DM-003 AC mentions "DTO-001 whitelist applies" for traceability without duplication |
 
-The strongest roadmap borrows from both:
-- **Haiku's** component granularity for security-sensitive boundaries (SecretsProvider, AuthCookiePolicy, AuthConfig) — these catch real production failure modes
-- **Haiku's** config validation at boot and migration recovery drills — defensive measures that pay for themselves
-- **Opus's** deployment specificity — 5 granular deployment tasks prevent "execute the plan" hand-waving
-- **Opus's** global task numbering — unambiguous cross-phase references
-- **Haiku's** timeline estimate (17-21d) as the planning baseline
-- **Password reset priority** and **lockout policy** require product owner input — neither variant can resolve these architecturally
+### Remaining Disputes (3/15)
+
+| # | Dispute | Disposition |
+|---|---|---|
+| 1 | DM entity-type convention (SQL vs app) | **Unresolved.** Genuine trade-off; depends on primary audience of DM artifacts. Recommendation: resolve during task-builder phase with explicit convention note. |
+| 5 | Cookie path scoping | **Unresolved but Opus-leaning.** Security argument is strong; Haiku's SPA-flexibility counter-argument is weaker. Recommendation: adopt `path=/auth/refresh` with security review allowed to broaden in M5 if needed. |
+| 9 | Named fallbacks vs generic | **Unresolved.** Reasonable disagreement between incident-response speed and long-term maintenance. Recommendation: include named fallbacks with an explicit "verify currency at incident time" note. |
+| 10 | Spec citations | **Unresolved.** Opus-leaning for SEC-002; Haiku-leaning for long-term maintenance. Recommendation: cite constraint *names* not *section numbers*. |
+| 14 | OI-6 release-notes gate | **Unresolved, Opus-leaning.** Product-communication cost is low; customer-surprise cost is high. |
+
+### Convergence Score: 0.82
+
+The variants agree on 80% of substance and all of architecture. Remaining disputes are stylistic/process trade-offs rather than architectural. A merged roadmap is straightforward: adopt Haiku's M5 count, risk tagging, DTO-001 single-source-of-truth, and audience-appropriate DM types; adopt Opus's cryptographic specificity, cookie scoping, enumeration guard wording, health-check bypass, and release-notes disclosure gate. The merged artifact would be stronger than either variant alone.

@@ -1,76 +1,70 @@
 ---
 high_severity_count: 0
-medium_severity_count: 6
-low_severity_count: 2
-total_deviations: 8
+medium_severity_count: 3
+low_severity_count: 4
+total_deviations: 7
 validation_complete: true
 tasklist_ready: true
 ---
 
 ## Deviation Report
 
-**DEV-001** | **MEDIUM**
-- **Deviation**: Implementation order diverges — spec puts database migrations at step 5 (last); roadmap moves them to Phase 1 (first)
-- **Source Quote**: `"5. routes + migrations -- depends on 3, 4"` (Section 4.6)
-- **Roadmap Quote**: `"COMP-007 | Build auth table migration | DB | OPS-001"` (Phase 1, row 5)
-- **Impact**: Timeline and dependency sequencing differs from spec guidance. Roadmap's order is arguably more pragmatic (repos need schema), but deviates from the stated plan. Could cause confusion if spec is used as implementation reference alongside roadmap.
-- **Recommended Correction**: Add a note in the roadmap acknowledging the reordering with rationale: "Migrations moved to Phase 1 to unblock repository implementation; departs from Section 4.6 ordering."
+### DEV-001
+- **Severity**: MEDIUM
+- **Deviation**: Roadmap milestone structure diverges from spec's downstream guidance of two milestones.
+- **Source Quote**: "The authentication service introduces a single theme ('Secure User Authentication') spanning two milestones: (1) Core Auth Infrastructure (password hashing, JWT signing, token management) and (2) Auth API Endpoints (login, register, refresh, profile, reset). Each milestone maps directly to the implementation order in Section 4.6."
+- **Roadmap Quote**: "M1 Foundation, Data Layer, Key Management | M2 Core Auth Primitives | M3 Auth Service and Endpoints | M4 Non-Functional Requirements and Observability | M5 Hardening, Validation, and Release"
+- **Impact**: Spec guidance for sc:roadmap was a two-milestone structure mapping to Section 4.6; roadmap expands to five, separating infrastructure, NFRs, and release gates into their own milestones. Does not alter functional correctness but reorganizes milestone boundaries.
+- **Recommended Correction**: Either consolidate M1/M2 and M4/M5 into the two-milestone structure per spec guidance, or document in roadmap rationale why a five-milestone expansion was preferred (risk front-loading, NFR/release gating).
 
-**DEV-002** | **MEDIUM**
-- **Deviation**: Spec allows TokenManager to be built in parallel with JwtService; roadmap makes TokenManager sequentially dependent on JwtService
-- **Source Quote**: `"token-manager.ts -- [parallel with jwt-service once interface defined]"` (Section 4.6, step 2)
-- **Roadmap Quote**: `"COMP-002 | Implement token manager | Auth | COMP-003,COMP-009,DM-003"` (Phase 2, depending on Phase 1 COMP-003)
-- **Impact**: Extends critical path by removing a parallelization opportunity. Phase 2 cannot start TokenManager until Phase 1 JwtService completes. Could add 1-2 days to schedule if JwtService encounters issues.
-- **Recommended Correction**: Split COMP-002 dependency — allow TokenManager implementation to begin once JwtService interface is defined (not fully implemented). Alternatively, document why full implementation dependency was chosen.
+### DEV-002
+- **Severity**: MEDIUM
+- **Deviation**: Spec's two-phase rollout (opt-in then mandatory) is not mapped to roadmap tasks.
+- **Source Quote**: "Authentication will be opt-in during phase 1, required for protected endpoints in phase 2."
+- **Roadmap Quote**: "Staged rollout (canary→25%→100%) with kill-switch verified"
+- **Impact**: Roadmap replaces the spec's semantic phase model (opt-in vs. required) with a percentage canary model. The transition from phase 1 (opt-in) to phase 2 (required for protected endpoints) is not tracked as a discrete milestone deliverable.
+- **Recommended Correction**: Add explicit tasks (or split FF-001) for Phase 1 opt-in enablement and Phase 2 enforcement of authentication on protected endpoints, with acceptance criteria keyed to those two states.
 
-**DEV-003** | **MEDIUM**
-- **Deviation**: E2E test (TEST-004) omits step 6 "Login with new password" and the verification that "old credentials rejected after reset"
-- **Source Quote**: `"1. Register new user 2. Login with credentials 3. Access profile with token 4. Refresh token 5. Reset password 6. Login with new password"` and `"old credentials rejected after reset"` (Section 8.3)
-- **Roadmap Quote**: `"register→login→me→refresh→reset:pass; cookie flow:pass; replay defense:pass; full lifecycle in single test; real DB"` (TEST-004)
-- **Impact**: Missing post-reset login verification means the E2E test could pass even if password reset doesn't actually update credentials. A critical user journey step goes untested.
-- **Recommended Correction**: Extend TEST-004 AC to: `"register→login→me→refresh→reset→login-new-pw:pass; old-creds-rejected; cookie flow:pass; replay defense:pass"`
+### DEV-003
+- **Severity**: MEDIUM
+- **Deviation**: bcrypt cost factor verification timing band widened beyond spec's stated target.
+- **Source Quote**: "bcrypt cost factor 12 (approx. 250ms per hash) | Unit test verifying cost factor; benchmark test for hash timing"
+- **Roadmap Quote**: "p95 between 200ms and 350ms on reference hardware (CI env-var override); failure prints actual ms"
+- **Impact**: Spec benchmark target is "approx. 250ms"; roadmap admits a ±100ms band (200-350ms). Accepting hash times as low as 200ms may silently admit regressions below spec's approximate target.
+- **Recommended Correction**: Tighten SEC-001 acceptance criterion to center on ~250ms (e.g., 225-275ms) or document the rationale for the wider band and explicitly gate on NFR-AUTH.3 compliance.
 
-**DEV-004** | **MEDIUM**
-- **Deviation**: Spec integration test #3 "Registration followed by login succeeds with same credentials" is not a dedicated integration test in the roadmap
-- **Source Quote**: `"Registration followed by login succeeds with same credentials | FR-AUTH.1, FR-AUTH.2: Data persistence between registration and authentication"` (Section 8.2)
-- **Roadmap Quote**: TEST-007 covers `"valid→201+profile; dup-email→409; weak-pw→400; bad-email→400; user persisted in DB"` — registration only, no subsequent login
-- **Impact**: Cross-flow data persistence (password hash stored during registration is usable for login) has no Phase 3 integration test. TEST-004 (E2E, Phase 4) covers it, but the gap delays detection of persistence bugs.
-- **Recommended Correction**: Add AC to TEST-007 or create TEST-009: `"register→login-same-creds→200+tokens; validates FR-AUTH.1+FR-AUTH.2 data persistence"`
+### DEV-004
+- **Severity**: LOW
+- **Deviation**: Module dependency graph in spec places `auth-middleware` above `auth-service`, implying middleware consumes service directly; roadmap places middleware consuming only TokenManager.
+- **Source Quote**: "auth-middleware.ts | v | auth-service.ts | / \\ | token-manager.ts   password-hasher.ts"
+- **Roadmap Quote**: "COMP-002 → COMP-005 AuthMiddleware → FR-AUTH.4 (API-004)"
+- **Impact**: Spec diagram shows middleware → auth-service → token-manager; roadmap wires middleware directly to TokenManager (COMP-002), bypassing AuthService. Functionally equivalent for verification, but architecturally different from spec diagram.
+- **Recommended Correction**: Either update COMP-005 to depend on COMP-001 (AuthService) per spec diagram, or amend roadmap rationale documenting that middleware consumes TokenManager directly for token verification (a reasonable optimization).
 
-**DEV-005** | **MEDIUM**
-- **Deviation**: Spec's two-phase rollout plan (opt-in → required) has no explicit transition task in the roadmap
-- **Source Quote**: `"Authentication will be opt-in during phase 1, required for protected endpoints in phase 2."` (Section 9)
-- **Roadmap Quote**: `"AUTH_SERVICE_ENABLED:true globally; monitoring stable 24h; no rollback triggered"` (OPS-011) — enables the service but doesn't make it required
-- **Impact**: The feature flag controls whether auth routes exist, not whether other endpoints require authentication. No task addresses transitioning existing endpoints from unauthenticated to auth-required. Could result in auth being deployed but never enforced.
-- **Recommended Correction**: Add OPS-013: "Enable auth-required mode on protected endpoints" with AC specifying which endpoints transition and the enforcement mechanism.
+### DEV-005
+- **Severity**: LOW
+- **Deviation**: Spec explicitly states no CLI surface; roadmap does not restate this constraint.
+- **Source Quote**: "The authentication service does not expose a CLI interface. All interactions occur through the REST API endpoints defined in the functional requirements."
+- **Roadmap Quote**: [MISSING]
+- **Impact**: Roadmap does not contradict the spec but omits the explicit no-CLI commitment. Low risk of downstream task generators inferring CLI scaffolding.
+- **Recommended Correction**: Add a one-line note in Decision Summary or M3 scope clarifying that no CLI surface is produced; all interfaces are REST.
 
-**DEV-006** | **MEDIUM**
-- **Deviation**: Spec directs roadmap to use a two-milestone structure; roadmap uses four phases
-- **Source Quote**: `"The authentication service introduces a single theme ('Secure User Authentication') spanning two milestones: (1) Core Auth Infrastructure (password hashing, JWT signing, token management) and (2) Auth API Endpoints (login, register, refresh, profile, reset)."` (Section 10)
-- **Roadmap Quote**: `"total_phases: 4"` with phases: Security Foundation, Core Flows, API Exposure, Hardening
-- **Impact**: Downstream consumers expecting two milestones (per spec directive) will encounter four phases. Milestone tracking and sprint planning must adapt. The four-phase structure is arguably better decomposed but misaligns with the spec's stated structure.
-- **Recommended Correction**: Either restructure to two phases matching the spec, or add a mapping note: "Spec milestones → roadmap phases: Milestone 1 = Phase 1+2; Milestone 2 = Phase 3+4."
+### DEV-006
+- **Severity**: LOW
+- **Deviation**: Spec data flow diagram shows TokenManager invoking JwtService for both access and refresh token signing; roadmap's CRYPTO-002 stores refresh tokens as SHA-256 hashes (opaque), not JWT-signed.
+- **Source Quote**: "TokenManager | -- sign JWT --> | <--- access_token --- | -- sign refresh ----> | <--- refresh_token ---"
+- **Roadmap Quote**: "Refresh tokens stored only as SHA-256 hashes, never in plaintext | DB insert uses sha256(token)"
+- **Impact**: Spec's sequence diagram implies both tokens are JWT-signed; spec Section 4.5 describes refresh_token as "Opaque token, 7-day TTL" which aligns with roadmap. Internal spec inconsistency; roadmap follows the data-model definition. No correctness impact but spec diagram is inconsistent with DM.
+- **Recommended Correction**: No roadmap change required; flag the spec diagram inconsistency for spec-level correction in a future revision (refresh is opaque, not JWT).
 
-**DEV-007** | **LOW**
-- **Deviation**: Spec names specific test file paths; roadmap uses task IDs without file paths
-- **Source Quote**: `"tests/auth/password-hasher.test.ts"`, `"tests/auth/jwt-service.test.ts"`, `"tests/auth/token-manager.test.ts"`, `"tests/auth/auth-service.test.ts"` (Section 8.1)
-- **Roadmap Quote**: `"TEST-001 | Add crypto primitive tests"`, `"TEST-002 | Add auth service unit tests"` — no file paths specified
-- **Impact**: Minor — implementers may place test files inconsistently without path guidance, but task descriptions provide sufficient information for correct placement.
-- **Recommended Correction**: Add file path to test task AC (e.g., TEST-001 AC: `"path:tests/auth/password-hasher.test.ts+jwt-service.test.ts"`).
-
-**DEV-008** | **LOW**
-- **Deviation**: Roadmap introduces 8 additional source files beyond the spec's 4 new files
-- **Source Quote**: Section 4.1 lists 4 new files: `auth-service.ts`, `token-manager.ts`, `jwt-service.ts`, `password-hasher.ts`
-- **Roadmap Quote**: Additional files: `secrets-provider.ts` (COMP-012), `user-repository.ts` (COMP-008), `refresh-token-repository.ts` (COMP-009), `auth-rate-limiter.ts` (COMP-010), `reset-email-adapter.ts` (COMP-011), `auth-config.ts` (COMP-013), `auth-feature-gate.ts` (COMP-014), `auth-cookie-policy.ts` (COMP-015)
-- **Impact**: Scope expansion is additive, not contradictory. Additional components improve separation of concerns and testability. However, effort estimates based on the spec's 4-file scope will undercount actual work.
-- **Recommended Correction**: Acceptable as architectural elaboration. No correction needed, but effort estimates should account for the expanded file count.
+### DEV-007
+- **Severity**: LOW
+- **Deviation**: Spec RISK-3 mitigation lists three specific items; roadmap risk register condenses them.
+- **Source Quote**: "Make cost factor configurable; review annually against OWASP recommendations; migration path to Argon2id if needed"
+- **Roadmap Quote**: "Cost read from config (CRYPTO-003); SEC-001 benchmark; annual OWASP review; Argon2id migration path documented"
+- **Impact**: Roadmap preserves all three mitigations plus SEC-001 evidence; ordering and phrasing differ but content is equivalent. No functional deviation.
+- **Recommended Correction**: None required; content matches.
 
 ## Summary
 
-**Distribution**: 0 HIGH | 6 MEDIUM | 2 LOW | 8 total
-
-The roadmap demonstrates strong fidelity to the source specification. All 5 functional requirements (FR-AUTH.1–5), all 3 non-functional requirements (NFR-AUTH.1–3), all 3 data models, all API endpoints, all 3 risks, and both open items are faithfully represented. Integration wiring is complete — every dependency injection point, strategy pattern, and middleware chain in the spec has a corresponding creation task, wiring task, and test in the roadmap.
-
-The 6 MEDIUM deviations fall into two categories: **structural** (implementation ordering and milestone structure differ from spec directives) and **test coverage gaps** (E2E post-reset login verification and cross-flow integration test missing as dedicated items). None represent missing requirements or contradicted constraints.
-
-**Tasklist readiness**: With zero HIGH deviations, the roadmap is suitable for tasklist generation. The MEDIUM deviations should be addressed as refinements but do not block decomposition into actionable tasks.
+Analysis complete. Found 7 deviations: 0 HIGH, 3 MEDIUM, 4 LOW. All functional requirements (FR-AUTH.1 through FR-AUTH.5), non-functional requirements (NFR-AUTH.1 through NFR-AUTH.3), data models (UserRecord, RefreshTokenRecord, AuthTokenPair), architecture files, test plan items, gap-analysis items (GAP-1/2/3 → OI-6/7/8), and the open items (OI-1, OI-2) are traceable in the roadmap with explicit wiring tasks. MEDIUM findings concern milestone granularity divergence from downstream guidance, phased rollout semantics, and benchmark tolerance band — all correctable without structural rework. Tasklist readiness: true (no HIGH severity blockers).

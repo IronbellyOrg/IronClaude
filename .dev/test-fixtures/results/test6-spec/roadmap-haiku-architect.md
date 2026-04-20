@@ -1,228 +1,421 @@
 ---
-spec_source: "test-spec-user-auth.md"
+spec_source: "test-spec-user-auth.compressed.md"
 complexity_score: 0.6
 complexity_class: MEDIUM
 primary_persona: architect
 adversarial: false
 base_variant: "none"
 variant_scores: "none"
-convergence_score: 1.0
-debate_rounds: 0
-generated: "2026-04-15"
-generator: "roadmap-single-haiku-architect"
-total_phases: 4
-total_task_rows: 45
-risk_count: 6
-open_questions: 6
+convergence_score: none
 ---
 
 # User Authentication Service — Project Roadmap
 
 ## Executive Summary
 
-1. Deliver a rollback-safe auth subsystem in four phases: security/data foundation, domain services, API exposure, then hardening and release validation.
-2. Keep the critical path narrow: config/keys and migration first, then crypto primitives, then token manager and auth orchestration, then middleware/routes, then SLO validation and rollout drill.
-3. Treat token rotation, replay detection, and secrets handling as the main architecture drivers; they define schema, dependency injection boundaries, and launch gates.
+Delivery of a stateless JWT-based authentication service spanning registration, login, token refresh, profile retrieval, and password reset, organized as a five-milestone plan that front-loads cryptographic and persistence foundations before building consumer-facing endpoints. The architecture is a strict layered stack (AuthService → TokenManager → JwtService; PasswordHasher as a leaf utility) gated behind a single feature flag for rollback. Sequencing is driven by risk: key management, password hashing primitives, and refresh-token replay detection must be validated before any endpoint traffic is accepted.
 
-**Business Impact:** Unlocks protected-user capabilities with production-grade auth while preserving rollback control via `AUTH_SERVICE_ENABLED` and migration down-scripts.
+**Business Impact:** Establishes the authentication substrate on which all authenticated product surfaces depend; every downstream feature waiting on identity is unblocked at M3 exit. A 99.9% availability target makes this a platform-tier component — outages cascade to every authenticated API.
 
-**Complexity:** MEDIUM (0.6) — Security sensitivity is high, but the component set is bounded and the implementation order is well constrained.
+**Complexity:** MEDIUM (0.6) — 8 requirements across 10 components with high security sensitivity (0.8) and elevated risk profile (0.7); overall scope moderated by clear layering and leaf-level testability (0.3).
 
-**Critical path:** COMP-012/OPS-001/COMP-007 → COMP-003/COMP-004 → COMP-009/COMP-002 → COMP-001 → COMP-005/COMP-006/API-001..006 → NFR validation + MIG-002.
+**Critical path:** Database migrations and RSA key provisioning (M1) → JwtService + TokenManager + PasswordHasher primitives (M2) → AuthService orchestrator + endpoints (M3) → load testing validates NFR-AUTH.1 (M4) → E2E lifecycle test (SC-8) passes in staging (M5).
 
 **Key architectural decisions:**
-- Use RS256 with private-key material in secrets manager and public verification keys distributed per environment.
-- Keep access tokens stateless and short-lived; enforce revocation through hashed refresh tokens, rotation, and replay-triggered global user invalidation.
-- Roll out routes behind `AUTH_SERVICE_ENABLED` so schema and code can ship dark before exposure.
 
-**Open risks requiring resolution before Phase 1:**
-- Exact paths for register, refresh, and reset endpoints must be fixed before route contracts are frozen.
-- Reset email dispatch mode (sync vs queue) must be chosen before FR-AUTH.5 latency expectations are locked.
-- Maximum active refresh tokens per user must be defined before repository eviction and replay-handling policy are finalized.
+- RS256 asymmetric JWT signing with private key in secrets manager and 90-day rotation cadence.
+- Stateless access tokens + rotated refresh tokens with SHA-256 hash persistence for revocation and replay detection.
+- Layered DI-friendly decomposition so primitives ship and are validated before endpoint orchestration.
 
-## Phase 1: Security and Data Foundation
+**Open risks requiring resolution before M1:**
 
-**Phase 1** | milestone: schema+crypto ready | duration: 4-5d | exit criteria: keys provisioned; migration rollback verified; repositories and crypto primitives ready
+- OI-9 RSA key rotation strategy must be decided before key provisioning and secrets-manager wiring are finalized.
+- OI-10 Email service vendor selection must be decided before FR-AUTH.5 dispatcher contracts are fixed.
+- RISK-1 private-key compromise blast radius requires a rotation runbook before any key material is generated.
 
-| # | ID | Task | Comp | Deps | AC | Eff | Pri |
+## Milestone Summary
+
+|ID|Title|Type|Priority|Effort|Dependencies|Deliverables|Risk|
 |---|---|---|---|---|---|---|---|
-| 1 | OPS-001 | Provision auth secrets and env | Ops | — | RS256-keypair:stored; AUTH_SERVICE_ENABLED:set; cookie+TTL env:set; env-parity:dev+prod | M | P0 |
-| 2 | COMP-012 | Define secrets provider | Sec | OPS-001 | name:SecretsProvider; path:src/auth/secrets-provider.ts; role:load RS256 keys+auth env; deps:SecretsMgr+env; source:2.1+9 | M | P0 |
-| 3 | COMP-007 | Build auth table migration | DB | OPS-001 | name:AuthMigration; path:src/database/migrations/003-auth-tables.ts; role:add users+refresh_tokens tables; deps:Database; source:4.2 | M | P0 |
-| 4 | MIG-001 | Apply auth schema migration | DB | COMP-007 | users+refresh_tokens:created; idx+FK:valid; up:idempotent; deploy-doc:ready | M | P0 |
-| 5 | MIG-002 | Verify migration rollback path | DB | MIG-001 | down-script:present; rollback:clean; reapply:pass; orphan-schema:none | M | P0 |
-| 6 | DM-001 | Model user record schema | DB | MIG-001 | id:uuid-v4; email:string+unique+idx; display_name:string; password_hash:bcrypt; is_locked:boolean; created_at:Date; updated_at:Date | M | P0 |
-| 7 | DM-002 | Model refresh token schema | DB | MIG-001 | id:uuid-v4; user_id:FK->UserRecord.id; token_hash:SHA-256; expires_at:Date; revoked:boolean; created_at:Date | M | P0 |
-| 8 | DM-003 | Define auth token pair DTO | Auth | — | access_token:JWT-15m; refresh_token:opaque-7d | S | P1 |
-| 9 | COMP-008 | Implement user repository | DB | DM-001 | name:UserRepository; path:src/auth/user-repository.ts; role:user CRUD+lookup by email/id; deps:DM-001+Database; source:FR-AUTH.1+2+4 | M | P0 |
-| 10 | COMP-009 | Implement refresh token repo | DB | DM-002 | name:RefreshTokenRepository; path:src/auth/refresh-token-repository.ts; role:store+rotate+revoke token hashes; deps:DM-002+Database; source:FR-AUTH.3 | M | P0 |
-| 11 | COMP-003 | Implement RS256 JWT service | Sec | COMP-012 | name:JwtService; path:src/auth/jwt-service.ts; role:RS256 sign+verify JWT; deps:jsonwebtoken+RSA key pair; source:4.1 | M | P0 |
-| 12 | COMP-004 | Implement bcrypt hasher | Sec | OPS-001 | name:PasswordHasher; path:src/auth/password-hasher.ts; role:hash+compare with cost config; deps:bcrypt; source:4.1 | M | P0 |
+|M1|Foundation, Data Layer, Key Management|Infrastructure|P0|2w|—|17|HIGH|
+|M2|Core Authentication Primitives|Core|P0|2w|M1|17|HIGH|
+|M3|Authentication Service and Endpoints|Feature|P0|3w|M2|28|MEDIUM|
+|M4|Non-Functional Requirements and Observability|Platform|P0|2w|M3|10|MEDIUM|
+|M5|Hardening, Validation, and Release|Release|P0|2w|M4|16|MEDIUM|
 
-### Integration Points — Phase 1
+## Dependency Graph
 
-| Artifact | Type | Wired | Phase | Consumed By |
+```
+M1 (Foundation + Keys)
+  ├── MIG-001 users → MIG-002 refresh_tokens → MIG-003 down-migrations
+  ├── DM-001, DM-002, DM-003 → COMP-008 UserRepo, COMP-009 RefreshTokenRepo
+  └── INFRA-001 RSA keygen → INFRA-002 Secrets Mgr → INFRA-003 Rotation policy → CFG-002 AUTH_SERVICE_ENABLED
+           ↓
+M2 (Primitives)
+  ├── DEP-001 bcrypt → COMP-004 PasswordHasher → CRYPTO-003 cost=12
+  ├── DEP-002 jsonwebtoken → COMP-003 JwtService (RS256) → CRYPTO-001
+  └── COMP-003 + COMP-009 → COMP-002 TokenManager → CRYPTO-002 SHA-256 → REPLAY-001
+           ↓
+M3 (Service + Endpoints)
+  ├── COMP-002 + COMP-004 + COMP-008 → COMP-001 AuthService
+  ├── COMP-001 → FR-AUTH.1 (API-001), FR-AUTH.2 (API-002), FR-AUTH.3 (API-003)
+  ├── COMP-002 → COMP-005 AuthMiddleware → FR-AUTH.4 (API-004)
+  ├── COMP-010 EmailService → FR-AUTH.5 (API-005, API-006)
+  └── COMP-001 + COMP-005 → COMP-006 RoutesIndex
+           ↓
+M4 (NFRs)
+  ├── COMP-006 → OPS-001 APM → NFR-AUTH.1 (p95<200ms)
+  ├── OPS-002 Health → OPS-003 PagerDuty → NFR-AUTH.2 (99.9%)
+  └── COMP-004 → SEC-001 bcrypt benchmark → NFR-AUTH.3
+           ↓
+M5 (Release)
+  └── SC-1..SC-8 validation → SEC-002 review → FF-001 rollout → GA
+```
+
+## M1: Foundation, Data Layer, Key Management
+
+**Objective:** Provision the persistence layer, entity models, repositories, cryptographic key material, and feature-flag plumbing that every later milestone depends on. | **Duration:** 2 weeks (Weeks 1–2) | **Entry:** OI-9 and OI-10 resolved; RISK-1 key-storage policy drafted. | **Exit:** Migrations apply and roll back cleanly in CI; RSA keypair stored in secrets manager; feature flag wired; repositories pass unit tests with 100% coverage on CRUD paths.
+
+|#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
+|---|---|---|---|---|---|---|---|---|
+|1|COMP-007|AuthTablesMigration|Migration module orchestrating creation of users and refresh_tokens tables with reversible down-migration|database/migrations/003-auth-tables.ts|MIG-001,MIG-002,MIG-003|up creates both tables; down drops in reverse order; idempotent on rerun; CI test proves reversibility|M|P0|
+|2|MIG-001|users table migration|Forward/backward migration creating users table with unique email index|database|—|id:UUID-PK; email:unique-idx; display_name:varchar; password_hash:varchar; is_locked:bool; created_at:timestamptz; updated_at:timestamptz; email unique constraint|S|P0|
+|3|MIG-002|refresh_tokens table migration|Forward/backward migration creating refresh_tokens with FK and index on user_id|database|MIG-001|id:UUID-PK; user_id:FK→users.id; token_hash:varchar-idx; expires_at:timestamptz; revoked:bool; created_at:timestamptz; idx(user_id)|S|P0|
+|4|MIG-003|Down-migration scripts|Explicit down scripts for MIG-001 and MIG-002 covering drop order and constraint removal|database|MIG-001,MIG-002|down executes without error after up; CI job runs up→down→up cycle green|S|P0|
+|5|DM-001|UserRecord entity|Persistence model for users table with field-level types|src/auth/models|MIG-001|id:UUID-v4; email:string-unique-indexed; display_name:string; password_hash:bcrypt-string; is_locked:boolean; created_at:Date; updated_at:Date|S|P0|
+|6|DM-002|RefreshTokenRecord entity|Persistence model for refresh_tokens with FK to UserRecord|src/auth/models|DM-001,MIG-002|id:UUID-v4; user_id:FK→UserRecord.id; token_hash:SHA-256-string; expires_at:Date; revoked:boolean; created_at:Date|S|P0|
+|7|DM-003|AuthTokenPair DTO|Response DTO returned from login and refresh endpoints|src/auth/dto|—|access_token:JWT-string-15min-TTL; refresh_token:opaque-string-7d-TTL|S|P0|
+|8|COMP-008|UserRepository|Persistence-layer abstraction for UserRecord CRUD|src/auth/repositories/user-repository.ts|DM-001|findByEmail; findById; create; updatePasswordHash; setLocked; updatedAt auto-bumps on write|M|P0|
+|9|COMP-009|RefreshTokenRepository|Persistence-layer abstraction for RefreshTokenRecord CRUD|src/auth/repositories/refresh-token-repository.ts|DM-002|create; findByHash; revokeById; revokeAllForUser; listActiveByUser; prunes expired rows on read|M|P0|
+|10|INFRA-001|RSA key pair generation|Tooling to generate RS256-compatible RSA key pair for JWT signing|infra/scripts/gen-keys|—|private and public PEM produced; private matches secrets-manager format; public embeddable in verifier set|S|P0|
+|11|INFRA-002|Secrets manager integration|Wire private RSA key retrieval through secrets manager provider at boot|src/infra/secrets|INFRA-001|key fetched at boot; never logged; ACL restricts access; cold-start fetch<500ms|M|P0|
+|12|INFRA-003|Key rotation 90-day cadence|Rotation policy and scheduled job with dual-key grace window for token validity overlap|infra/ops|INFRA-002,OI-9|two active keys supported; rotation schedulable without restart; old key honored for refresh TTL window|L|P0|
+|13|CFG-001|Environment configuration schema|Typed config loader for auth env vars including TTLs, bcrypt cost, flag, and email vendor|src/config|—|fails fast on missing required vars; every required key enumerated in test; defaults documented|S|P0|
+|14|CFG-002|Feature flag AUTH_SERVICE_ENABLED|Gating flag controlling `/auth/*` route registration for safe rollout and rollback|src/config|CFG-001|false→routes not registered; true→routes live; flip requires no deploy|S|P0|
+|15|TEST-M1-001|UserRepository unit tests|Verify every repository method against test DB|tests/auth|COMP-008|100% branch coverage; negative paths not-found and dup-email tested|S|P0|
+|16|TEST-M1-002|RefreshTokenRepository unit tests|Verify revocation, listing, and pruning semantics|tests/auth|COMP-009|revokeAllForUser marks active rows revoked; pruning excludes expired|S|P0|
+|17|TEST-M1-003|Migration up/down/up cycle test|CI job proves MIG-001, MIG-002, and MIG-003 reversibility|tests/ci|MIG-003|up→down→up green; schema hash matches baseline|S|P0|
+
+### Integration Points — M1
+
+|Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-| SecretsProvider | DI/config | secrets manager + env → JwtService | 1 | COMP-003 |
-| 003-auth-tables | migration runner | DB migrator → users/refresh_tokens schema | 1 | MIG-001,MIG-002 |
-| UserRepository | DI | DB pool → user lookup/write methods | 1 | COMP-001,FR-AUTH.1,FR-AUTH.2,FR-AUTH.4 |
-| RefreshTokenRepository | DI | DB pool → token hash persistence | 1 | COMP-002,FR-AUTH.3 |
-| JwtService | strategy | RS256 signer/verifier → TokenManager | 1 | COMP-002,COMP-005 |
-| PasswordHasher | strategy | bcrypt cost policy → AuthService | 1 | COMP-001,FR-AUTH.1,FR-AUTH.2,FR-AUTH.5 |
+|CFG-002 AUTH_SERVICE_ENABLED|Feature flag|M1 declared off|M1|COMP-006 RoutesIndex|
+|INFRA-002 Secrets manager provider|DI binding|M1|M1|COMP-003 JwtService|
+|INFRA-003 Key rotation scheduler|Cron/registry entry|M1|M1|COMP-003 JwtService, M5 runbook|
+|COMP-008 UserRepository|DI binding|M1|M1|COMP-001 AuthService|
+|COMP-009 RefreshTokenRepository|DI binding|M1|M1|COMP-002 TokenManager|
 
-## Phase 2: Core Authentication Flows
+### Milestone Dependencies — M1
 
-**Phase 2** | milestone: domain flows implemented | duration: 5-6d | exit criteria: login/register/refresh/reset services pass unit tests and endpoint contracts are frozen
+- External: secrets manager must be provisioned and reachable from CI; OI-9 sets rotation mechanism; OI-10 fixes downstream email contract planning.
 
-| # | ID | Task | Comp | Deps | AC | Eff | Pri |
-|---|---|---|---|---|---|---|---|
-| 1 | COMP-002 | Implement token manager | Auth | COMP-003,COMP-009,DM-003 | name:TokenManager; path:src/auth/token-manager.ts; role:issue+refresh+revoke token pairs; deps:COMP-003+RefreshToken repository; source:4.1 | L | P0 |
-| 2 | COMP-001 | Implement auth service | Auth | COMP-002,COMP-004,COMP-008 | name:AuthService; path:src/auth/auth-service.ts; role:login+register+refresh+reset orchestration; deps:COMP-002+COMP-004+User repository; source:4.1 | L | P0 |
-| 3 | COMP-010 | Implement auth rate limiter | Sec | COMP-001 | name:AuthRateLimiter; path:src/auth/auth-rate-limiter.ts; role:cap login attempts per IP; deps:req IP+rate store; source:FR-AUTH.1d | M | P0 |
-| 4 | COMP-011 | Implement reset email adapter | Auth | OPS-001 | name:ResetEmailAdapter; path:src/auth/reset-email-adapter.ts; role:compose+dispatch reset email; deps:Email service+reset URL config; source:FR-AUTH.5a+OQ-1 | M | P1 |
-| 5 | FR-AUTH.2 | Deliver user registration flow | Auth | COMP-001,COMP-004,COMP-008 | valid→201+profile; dup-email→409; pwd:min8+upper+lower+digit; email:format-valid | L | P0 |
-| 6 | API-002 | Freeze register route contract | API | FR-AUTH.2 | POST:/auth/register; body:email+password+display_name; 201:user-profile; 409:dup-email | S | P0 |
-| 7 | FR-AUTH.1 | Deliver user login flow | Auth | COMP-001,COMP-002,COMP-010 | valid→200+access15m+refresh7d; invalid→401+no-enum; locked→403; limit:5/min/IP | L | P0 |
-| 8 | API-001 | Freeze login route contract | API | FR-AUTH.1 | POST:/auth/login; body:email+password; 200:access+refresh; 401/403:spec | S | P0 |
-| 9 | FR-AUTH.3 | Deliver token refresh flow | Auth | COMP-002,COMP-009 | valid-refresh→200+rotated pair; expired→401; replay→global revoke; token-hash:persisted | L | P0 |
-| 10 | API-003 | Freeze refresh route contract | API | FR-AUTH.3 | POST:/auth/refresh; input:refresh cookie; 200:new pair; 401:expired+revoked | S | P0 |
-| 11 | FR-AUTH.5 | Deliver password reset flow | Auth | COMP-001,COMP-004,COMP-011,COMP-009 | registered-email→reset1h+email; valid token→pwd changed+token invalidated; bad token→400; reset→revoke all sessions | XL | P0 |
-| 12 | API-005 | Freeze reset request contract | API | FR-AUTH.5 | POST:/auth/reset-password; body:email; token:1h; dispatch:email-service | S | P1 |
-| 13 | API-006 | Freeze reset confirm contract | API | FR-AUTH.5 | POST:/auth/reset-password/confirm; body:token+password; success:pwd-reset; invalid/expired→400 | S | P1 |
+### Risk Assessment and Mitigation — M1
 
-### Integration Points — Phase 2
-
-| Artifact | Type | Wired | Phase | Consumed By |
-|---|---|---|---|---|
-| TokenManager | strategy chain | JwtService + RefreshTokenRepository + TTL policy | 2 | COMP-001,FR-AUTH.1,FR-AUTH.3,FR-AUTH.5 |
-| AuthService | orchestration | UserRepository + PasswordHasher + TokenManager | 2 | API-001,API-002,API-003,API-005,API-006 |
-| AuthRateLimiter | middleware/callback | request IP key → login guard | 2 | FR-AUTH.1,API-001 |
-| ResetEmailAdapter | external adapter | reset token payload → Email service | 2 | FR-AUTH.5,API-005 |
-| API contracts | route registry | method/path → AuthService handlers | 2 | COMP-006 |
-
-## Phase 3: API Exposure and Verification
-
-**Phase 3** | milestone: protected API exposed | duration: 4-5d | exit criteria: middleware/routes live behind flag; profile flow works; unit and integration suites pass
-
-| # | ID | Task | Comp | Deps | AC | Eff | Pri |
-|---|---|---|---|---|---|---|---|
-| 1 | COMP-013 | Implement auth config validator | Auth | OPS-001,COMP-012 | name:AuthConfig; path:src/auth/auth-config.ts; role:validate TTLs+cookie flags+key presence; deps:env+SecretsProvider; source:2.1+9 | M | P0 |
-| 2 | COMP-014 | Implement route feature gate | Gate | OPS-001 | name:AuthFeatureGate; path:src/auth/auth-feature-gate.ts; role:toggle auth routes by AUTH_SERVICE_ENABLED; deps:env+router; source:9 | S | P0 |
-| 3 | COMP-015 | Implement cookie and CORS policy | Sec | COMP-013 | name:AuthCookiePolicy; path:src/auth/auth-cookie-policy.ts; role:httpOnly refresh cookie+CORS config; deps:auth env+routes; source:2.1 | M | P0 |
-| 4 | COMP-005 | Implement auth middleware | API | COMP-002,COMP-013 | name:AuthMiddleware; path:src/middleware/auth-middleware.ts; role:extract+verify Bearer token; deps:COMP-002; source:4.2 | M | P0 |
-| 5 | FR-AUTH.4 | Deliver profile retrieval | API | COMP-001,COMP-005,COMP-008 | valid bearer→200+id+email+display_name+created_at; invalid/expired→401; sensitive:excluded | M | P0 |
-| 6 | API-004 | Freeze profile route contract | API | FR-AUTH.4 | GET:/auth/me; Bearer:required; 200:profile; 401:invalid+expired | S | P0 |
-| 7 | COMP-006 | Register auth route group | API | COMP-001,COMP-005,COMP-014,COMP-015,API-001,API-002,API-003,API-004,API-005,API-006 | name:AuthRoutes; path:src/routes/index.ts; role:register /auth/* route group; deps:COMP-001; source:4.2 | L | P0 |
-| 8 | TEST-001 | Add crypto primitive tests | Test | COMP-003,COMP-004 | rs256 sign/verify:pass; tamper→reject; bcrypt cost12:pass; compare:pass | M | P1 |
-| 9 | TEST-002 | Add auth service unit tests | Test | COMP-001,COMP-002,COMP-010,COMP-011 | login/register/refresh/reset:pass; dup-email→409; locked→403; replay→global revoke | L | P0 |
-| 10 | TEST-003 | Add route integration tests | Test | COMP-006,API-001,API-002,API-003,API-004,API-005,API-006 | status codes:match; cookie+Bearer flows:pass; flag-off→disabled; sensitive fields:excluded | L | P0 |
-
-### Integration Points — Phase 3
-
-| Artifact | Type | Wired | Phase | Consumed By |
-|---|---|---|---|---|
-| AuthConfig | config/DI | env validation → service boot | 3 | COMP-001,COMP-002,COMP-003,COMP-015 |
-| AuthFeatureGate | feature flag | AUTH_SERVICE_ENABLED → route registry | 3 | COMP-006,OPS-005 |
-| AuthCookiePolicy | middleware/config | cookie attrs + CORS headers → auth responses | 3 | API-001,API-003,API-005,API-006 |
-| AuthMiddleware | middleware chain | Bearer extraction + TokenManager verify → request context | 3 | FR-AUTH.4,API-004 |
-| AuthRoutes | route registry | handlers + middleware + gate → `/auth/*` exposure | 3 | clients,TEST-003 |
-| Integration suite | test harness | app boot + DB fixtures + HTTP assertions | 3 | TEST-003,NFR-AUTH.1 |
-
-## Phase 4: Hardening, Operations, and Release
-
-**Phase 4** | milestone: production readiness proven | duration: 4-5d | exit criteria: NFRs validated; alerts and rollout controls active; open questions reduced to post-v1 items
-
-| # | ID | Task | Comp | Deps | AC | Eff | Pri |
-|---|---|---|---|---|---|---|---|
-| 1 | NFR-AUTH.1 | Validate auth latency budget | Gate | TEST-003,COMP-015 | p95:<200ms; tool:k6; env:prod-like; regressions:none | L | P0 |
-| 2 | NFR-AUTH.2 | Validate auth availability | Ops | COMP-006 | uptime:>=99.9%; healthcheck:monitored; PagerDuty:alerting; SLO:published | M | P0 |
-| 3 | NFR-AUTH.3 | Validate hashing security target | Sec | COMP-004,TEST-001 | bcrypt-cost:12; hash-time:~250ms; unit-test:pass; benchmark:pass | M | P0 |
-| 4 | OPS-002 | Add health and uptime checks | Ops | COMP-006 | health-endpoint:covered; uptime-monitor:on; alert route:PagerDuty; runbook:linked | M | P0 |
-| 5 | OPS-003 | Add auth security observability | Ops | COMP-006,COMP-010 | auth events:logged; replay alerts:on; failed-login metrics:on; PII:redacted | M | P1 |
-| 6 | OPS-004 | Define key rotation procedure | Sec | COMP-012,COMP-003 | rotation:90d; dual-key overlap:documented; rollback:defined; ownership:assigned | M | P1 |
-| 7 | OPS-005 | Execute feature-flag rollout plan | Gate | COMP-014,TEST-003,NFR-AUTH.1,NFR-AUTH.2 | dark-launch:pass; canary:pass; rollback<5m; flag-state:audited | M | P0 |
-| 8 | TEST-004 | Run end-to-end auth scenario | Test | COMP-006,OPS-005 | register→login→me→refresh→reset:pass; cookie flow:pass; replay defense:pass | L | P0 |
-| 9 | TEST-005 | Run migration and recovery drills | Test | MIG-001,MIG-002,OPS-005 | backup-restore:pass; down+up:pass; rollback under flag-off:pass | M | P1 |
-| 10 | DOC-001 | Publish auth architecture notes | Docs | COMP-006,NFR-AUTH.2,OPS-004 | diagrams:updated; endpoint contracts:frozen; rollback+ops:documented; owners:named | M | P2 |
-
-## Risk Assessment and Mitigation
-
-| # | Risk | Severity | Likelihood | Impact | Mitigation | Owner |
+|#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-| 1 | Private key exposure for RS256 signer | High | Low | Forged access tokens | Secrets manager, least-privilege access, 90d rotation, rollout drill | Security |
-| 2 | Refresh-token replay after theft | High | Medium | Account takeover across sessions | Rotation on every refresh, hashed persistence, replay-triggered global revoke | Backend |
-| 3 | bcrypt cost causes latency breach | Medium | Medium | Login/register p95 > 200ms | Benchmark cost 12 early, isolate hashing path, tune infrastructure headroom | Backend |
-| 4 | Email provider latency stalls reset flow | Medium | Medium | Reset endpoint timeout or user-facing delays | Decide sync vs queue before build, timeout budget, retry/dead-letter policy | Backend |
-| 5 | Undefined max active refresh tokens | Medium | Medium | Repo growth and unclear multi-device behavior | Resolve token cap in architecture review, add eviction policy before GA | Architect |
-| 6 | Feature flag rollback path untested | High | Low | Slow incident containment | Dark launch, canary rollout, rollback drill with schema retained | Ops |
+|1|RISK-1 JWT private-key compromise allows token forgery|HIGH|LOW|HIGH|RS256 only; key in secrets manager; INFRA-003 rotation; access audited|security|
+|2|Migration not reversible in prod|HIGH|LOW|HIGH|MIG-003 mandatory; TEST-M1-003 gates CI; staging dry run required|backend|
+|3|Secrets manager unreachable at cold start|MEDIUM|LOW|HIGH|Fail-fast boot; recovery runbook; readiness check validates key retrieval|devops|
+
+### Open Questions — M1
+
+|#|ID|Question|Impact|Resolution Owner|Target|
+|---|---|---|---|---|---|
+|1|OI-9|How is the RSA key pair rotated in production without invalidating active tokens?|Determines INFRA-003 design and JwtService verification model|architect|Before M1 Week 1 exit|
+|2|OI-10|Which email service vendor or protocol is used for password reset dispatch?|Fixes COMP-010 contract and configuration surface|architect + devops|Before M1 Week 2 exit|
+
+## M2: Core Authentication Primitives
+
+**Objective:** Implement PasswordHasher, JwtService, and TokenManager as independently testable primitives that the AuthService orchestrator will compose in M3. | **Duration:** 2 weeks (Weeks 3–4) | **Entry:** M1 exit met. | **Exit:** bcrypt cost factor 12 benchmarked; RS256 sign/verify passes with dual-key support; refresh rotation and replay detection proven by tests; TokenManager emits AuthTokenPair matching DM-003 exactly.
+
+|#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
+|---|---|---|---|---|---|---|---|---|
+|1|DEP-001|bcrypt dependency|Pin bcrypt to a vetted version with native-binding support|package.json|—|version pinned; supply-chain scan green; supports configured cost 12|S|P0|
+|2|DEP-002|jsonwebtoken dependency|Pin jsonwebtoken with RS256 support|package.json|—|version pinned; CVE scan green; algorithm whitelist possible|S|P0|
+|3|COMP-004|PasswordHasher|bcrypt wrapper exposing hash and compare with configurable cost factor|src/auth/password-hasher.ts|DEP-001,CFG-001|hash returns bcrypt hash; compare returns bool; cost from config; failure path constant-time|M|P0|
+|4|CRYPTO-003|bcrypt cost factor enforcement|Enforce cost=12 at config load and reject lower values in production|src/auth/password-hasher.ts|COMP-004|startup rejects cost<12 in prod; test asserts cost=12 in hash string|S|P0|
+|5|COMP-003|JwtService|RS256 sign and verify wrapper supporting multi-key verification during rotation|src/auth/jwt-service.ts|DEP-002,INFRA-002,INFRA-003|sign emits kid header; verify returns payload or throws; supports current and next key ids|M|P0|
+|6|CRYPTO-001|RS256 signing enforcement|Hard-coded algorithm whitelist rejecting non-RS256 JWTs|src/auth/jwt-service.ts|COMP-003|alg=none rejected; HS256 rejected; only RS256 accepted|S|P0|
+|7|COMP-002|TokenManager|Issues, rotates, and revokes AuthTokenPair with replay detection|src/auth/token-manager.ts|COMP-003,COMP-009|issue→DM-003; refresh→rotated DM-003; replay→revokeAllForUser; access=15min; refresh=7d|L|P0|
+|8|CRYPTO-002|SHA-256 refresh-token hashing|Refresh tokens stored only as SHA-256 hashes, never plaintext|src/auth/token-manager.ts|COMP-002|DB insert uses sha256(token); comparison timing-safe; plaintext never logged|S|P0|
+|9|REPLAY-001|Refresh-token replay detection|Detect reuse of rotated refresh tokens and revoke all tokens for user|src/auth/token-manager.ts|COMP-002,COMP-009|rotated token reuse triggers revokeAllForUser; returns 401; event emitted|M|P0|
+|10|VALID-001|Password policy validator|Pure utility enforcing minimum password policy|src/auth/validators/password-policy.ts|—|min8chars; uppercase required; lowercase required; digit required|S|P0|
+|11|VALID-002|Email format validator|Pure utility validating email format before registration|src/auth/validators/email.ts|—|malformed rejected; valid formats accepted; edge cases covered|S|P0|
+|12|TEST-M2-001|PasswordHasher benchmark test|Cost-factor assertion plus timing benchmark proving expected hashing time|tests/auth|COMP-004,CRYPTO-003|cost=12 asserted; benchmark recorded; SC-3 evidenced|S|P0|
+|13|TEST-M2-002|JwtService unit tests|Round-trip and negative-path tests for token verification|tests/auth|COMP-003,CRYPTO-001|sign→verify green; tampered signature rejected; expired rejected; alg confusion rejected|S|P0|
+|14|TEST-M2-003|JwtService dual-key test|Verify tokens signed with old and new keys during grace window|tests/auth|INFRA-003,COMP-003|old and new keys verify during window; old fails after cutoff|S|P0|
+|15|TEST-M2-004|Token rotation test|Issue→refresh returns new pair and revokes prior token|tests/auth|COMP-002,CRYPTO-002|old token revoked; new pair valid; TTLs correct|S|P0|
+|16|TEST-M2-005|Replay-detection test|Verify revoked refresh token reuse revokes all sessions|tests/auth|REPLAY-001|all active refresh tokens revoked; SC-7 satisfied|M|P0|
+|17|TEST-M2-006|Validator test suite|Truth-table tests for password and email validators|tests/auth|VALID-001,VALID-002|every rule has passing and failing sample; SC-6 unblocked|S|P1|
+
+### Integration Points — M2
+
+|Artifact|Type|Wired|Milestone|Consumed By|
+|---|---|---|---|---|
+|COMP-004 PasswordHasher|DI binding|M2|M2|COMP-001 AuthService|
+|COMP-003 JwtService|DI binding|M2|M2|COMP-002 TokenManager, COMP-005 AuthMiddleware|
+|COMP-002 TokenManager|DI binding|M2|M2|COMP-001 AuthService, COMP-005 AuthMiddleware|
+|REPLAY-001|Event emitter|M2 declared|M2|AUDIT-001 observability path|
+|VALID-001, VALID-002|Strategy functions|M2|M2|COMP-001 registration flow|
+
+### Milestone Dependencies — M2
+
+- M1 repositories, secrets manager, configuration schema, and rotation policy must be complete before primitive wiring starts.
+
+### Risk Assessment and Mitigation — M2
+
+|#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
+|---|---|---|---|---|---|---|
+|1|RISK-3 bcrypt cost factor insufficient for future hardware|MEDIUM|LOW|MEDIUM|Cost remains configurable; annual OWASP review; migration path documented|security|
+|2|JWT algorithm confusion or alg=none acceptance|HIGH|LOW|HIGH|CRYPTO-001 whitelist; TEST-M2-002 negative coverage|security|
+|3|Rotation grace window extends stolen-key validity|MEDIUM|LOW|HIGH|INFRA-003 bounds grace window to refresh TTL and monitors key distribution|security|
+
+## M3: Authentication Service and Endpoints
+
+**Objective:** Compose primitives into AuthService orchestrator and ship all five functional endpoints behind the feature flag with middleware, routing, rate-limiting, and email integration wired. | **Duration:** 3 weeks (Weeks 5–7) | **Entry:** M2 exit met. | **Exit:** All `/auth/*` endpoints live behind CFG-002; integration tests cover happy and negative paths; reset email flow works in staging.
+
+|#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
+|---|---|---|---|---|---|---|---|---|
+|1|COMP-001|AuthService|Core orchestrator coordinating login, register, refresh, profile, and reset flows|src/auth/auth-service.ts|COMP-002,COMP-004,COMP-008,COMP-009|login; register; refresh; getProfile; requestPasswordReset; confirmPasswordReset; DI-constructed|L|P0|
+|2|COMP-005|AuthMiddleware|Bearer token extraction and verification in request pipeline|src/middleware/auth-middleware.ts|COMP-002,COMP-003|extracts Bearer token; verifies JWT; attaches userId; 401 on missing or invalid token|M|P0|
+|3|COMP-006|RoutesIndex|Registers `/auth/*` route group gated by AUTH_SERVICE_ENABLED|src/routes/index.ts|COMP-001,COMP-005,CFG-002|routes only when flag=true; all handlers correctly wired; no leakage when flag=false|M|P0|
+|4|COMP-010|EmailService integration|Adapter dispatching password-reset emails via selected vendor|src/integrations/email-service.ts|OI-10|send(to,template,vars) returns messageId or error; vendor pluggable; failures observable|L|P0|
+|5|FR-AUTH.1|User login|Authenticate via email and password and return AuthTokenPair|src/auth/flows|COMP-001,COMP-004|valid→200 with access_token:15m and refresh_token:7d; invalid→401 generic; locked→403; rate-limit 5/min/IP|M|P0|
+|6|API-001|POST /auth/login|HTTP binding for FR-AUTH.1 under `/auth/*` namespace|src/routes/auth/login.ts|FR-AUTH.1,COMP-006|request fields email,password; responses 200,401,403,429; no password logged|S|P0|
+|7|FR-AUTH.2|User registration|Register new user with validation and hashed password|src/auth/flows|COMP-001,VALID-001,VALID-002|valid email,password,display_name→201 with profile; duplicate email→409; password policy enforced; email validated|M|P0|
+|8|API-002|POST /auth/register|HTTP binding for FR-AUTH.2; exact path resolves OI-3|src/routes/auth/register.ts|FR-AUTH.2,COMP-006,OI-3|request fields email,password,display_name; responses 201,400,409; password_hash absent from response|S|P0|
+|9|FR-AUTH.3|Token refresh|Rotate refresh token and issue new access token|src/auth/flows|COMP-001,COMP-002,REPLAY-001|valid refresh→new access_token and rotated refresh_token; expired→401; replayed→revoke all user tokens; token hashes stored|M|P0|
+|10|API-003|POST /auth/refresh|HTTP binding for FR-AUTH.3; exact path resolves OI-4|src/routes/auth/refresh.ts|FR-AUTH.3,COMP-006,OI-4|refresh token accepted from httpOnly cookie; 200 or 401 only; rotated cookie reset secure|S|P0|
+|11|FR-AUTH.4|Profile retrieval|Return authenticated user's public profile|src/auth/flows|COMP-001,COMP-005|valid bearer→id,email,display_name,created_at; expired or invalid→401; no sensitive fields returned|S|P0|
+|12|API-004|GET /auth/me|HTTP binding for FR-AUTH.4|src/routes/auth/me.ts|FR-AUTH.4,COMP-005|AuthMiddleware required; response whitelist enforced; status 200 or 401|S|P0|
+|13|FR-AUTH.5|Password reset|Two-step secure password reset flow with time-limited tokens|src/auth/flows|COMP-001,COMP-002,COMP-010|registered email→reset token 1h TTL and email dispatch; valid token→new password set; invalid or expired→400; sessions revoked|L|P0|
+|14|API-005|POST /auth/password-reset/request|HTTP binding for password-reset request step; exact path resolves OI-5|src/routes/auth/password-reset.ts|FR-AUTH.5,COMP-010,OI-5|accepts email; generic success response; dispatch flow observable; abuse-throttled|S|P0|
+|15|API-006|POST /auth/password-reset/confirm|HTTP binding for password-reset confirm step; exact path resolves OI-5|src/routes/auth/password-reset.ts|FR-AUTH.5,OI-5|accepts token and new_password; valid→204; invalid or expired→400; all sessions revoked|S|P0|
+|16|RATE-001|Login rate-limit middleware|Enforce five attempts per minute per IP on login endpoint|src/middleware/rate-limit.ts|API-001|6th attempt→429; keyed by IP; SC-4 satisfied|M|P0|
+|17|RATE-002|Password-reset rate-limit|Throttle password-reset request abuse|src/middleware/rate-limit.ts|API-005|per-email or IP throttle enforced; 429 on abuse; storage configurable|S|P1|
+|18|ERR-001|Uniform auth error contract|Standardized error envelope to prevent enumeration|src/auth/errors|COMP-001|invalid email and invalid password share same 401 body; locked remains 403|S|P0|
+|19|COOKIE-001|httpOnly refresh-token cookie|Refresh token transported only via Secure httpOnly cookie|src/routes/auth|API-001,API-003|HttpOnly; Secure; SameSite=Strict; no localStorage path; 7d expiry|M|P0|
+|20|RESET-001|Reset-token issuance and storage|One-hour reset tokens stored as hashes and invalidated after use|src/auth/token-manager.ts|COMP-002|TTL=1h; hashed at rest; single use; replay rejected|S|P0|
+|21|SESS-001|Session invalidation on reset|Successful password reset revokes all refresh tokens for user|src/auth/flows|FR-AUTH.5,COMP-009|revokeAllForUser invoked on confirm; prior refresh tokens fail afterward|S|P0|
+|22|DTO-001|Response DTO field whitelist|Serializer preventing leakage of sensitive auth fields|src/auth/dto|DM-001,DM-002|password_hash absent; token_hash absent; reset token internals absent|S|P0|
+|23|TEST-M3-001|Login integration test|Exercise login endpoint happy and negative paths|tests/integration|API-001|200 valid; 401 invalid; 403 locked; 429 rate-limited|M|P0|
+|24|TEST-M3-002|Register integration test|Exercise registration happy and validation-conflict paths|tests/integration|API-002|201 valid; 409 duplicate; 400 weak password; 400 bad email|M|P0|
+|25|TEST-M3-003|Refresh rotation and replay test|Prove rotation and replay detection across refresh calls|tests/integration|API-003,REPLAY-001|rotated token valid; old token 401; replay revokes all|M|P0|
+|26|TEST-M3-004|Profile retrieval test|Verify protected-profile response and auth failures|tests/integration|API-004|200 valid; 401 expired; response fields whitelisted|S|P0|
+|27|TEST-M3-005|Password reset flow test|Cover request, email dispatch, confirm, and session invalidation|tests/integration|API-005,API-006,SESS-001|dispatch visible; confirm succeeds; prior sessions revoked|M|P0|
+|28|TEST-M3-006|Error contract test|Prove no user enumeration across login and reset flows|tests/integration|ERR-001|401 bodies identical for invalid creds; reset request generic for unknown users|S|P0|
+
+### Integration Points — M3
+
+|Artifact|Type|Wired|Milestone|Consumed By|
+|---|---|---|---|---|
+|COMP-001 AuthService|DI binding|M3|M3|COMP-006 RoutesIndex|
+|COMP-005 AuthMiddleware|Middleware chain entry|M3|M3|API-004 and future protected routes|
+|COMP-006 RoutesIndex|Route registry|M3|M3|Application router|
+|COMP-010 EmailService|DI binding|M3|M3|FR-AUTH.5 flows|
+|RATE-001, RATE-002|Middleware registry|M3|M3|API-001 and API-005|
+|ERR-001|Error-handler registry|M3|M3|All `/auth/*` handlers|
+|COOKIE-001|Response middleware|M3|M3|API-001 and API-003|
+
+### Milestone Dependencies — M3
+
+- M2 primitives and validators must be complete; M1 configuration and repositories remain hard dependencies for endpoint wiring.
+
+### Risk Assessment and Mitigation — M3
+
+|#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
+|---|---|---|---|---|---|---|
+|1|RISK-2 Refresh-token replay after theft|HIGH|MEDIUM|HIGH|REPLAY-001 detection; TEST-M3-003 proof; COOKIE-001 reduces exposure|security|
+|2|User enumeration via login or reset responses|MEDIUM|MEDIUM|MEDIUM|ERR-001 uniform messaging; generic reset response; negative-path tests|security|
+|3|Email vendor outage blocks password reset|MEDIUM|MEDIUM|MEDIUM|OI-1 decision; retry and backoff in COMP-010; operational messaging|backend|
+|4|Rate-limit state not shared across instances|MEDIUM|MEDIUM|MEDIUM|Centralized backing store required for RATE-001 and RATE-002|devops|
+
+### Open Questions — M3
+
+|#|ID|Question|Impact|Resolution Owner|Target|
+|---|---|---|---|---|---|
+|1|OI-3|What is the exact endpoint path for registration?|Blocks API-002 route finalization and docs generation|architect|M3 Week 5|
+|2|OI-4|What is the exact endpoint path for token refresh?|Blocks API-003 route finalization and client integration|architect|M3 Week 5|
+|3|OI-5|What are the exact password reset request and confirm paths?|Blocks API-005 and API-006 route finalization and email links|architect|M3 Week 5|
+|4|OI-1|Should password reset emails be sent synchronously or through a queue?|Changes API-005 latency and resiliency design|backend + devops|M3 Week 6|
+|5|OI-2|What is the maximum number of active refresh tokens per user?|Impacts storage policy and multi-device behavior|architect|M3 Week 6|
+
+## M4: Non-Functional Requirements and Observability
+
+**Objective:** Instrument the service for latency, availability, and hashing-security NFRs; add monitoring, alerting, and load testing that gates general availability. | **Duration:** 2 weeks (Weeks 8–9) | **Entry:** M3 endpoints live in staging behind flag. | **Exit:** k6 shows p95 < 200ms; health checks integrate with PagerDuty; bcrypt benchmark recorded; dashboards published.
+
+|#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
+|---|---|---|---|---|---|---|---|---|
+|1|NFR-AUTH.1|Authentication endpoint response time|Meet p95 < 200ms under normal load|src/auth|OPS-001,OPS-004|load profile reproducible; APM panel live; SC-1 measurable|M|P0|
+|2|NFR-AUTH.2|Service availability|Meet 99.9% uptime objective with alerting|infra/ops|OPS-002,OPS-003|SLO documented; alerts mapped; SC-2 measurable|M|P0|
+|3|NFR-AUTH.3|Password hashing security|Enforce and benchmark bcrypt cost factor 12|src/auth/password-hasher.ts|CRYPTO-003,SEC-001|cost asserted in CI; SC-3 evidenced|S|P0|
+|4|OPS-001|APM instrumentation|Tracing and metrics for all `/auth/*` route flows|src/infra/observability|COMP-006|spans cover handler to repository path; latency histograms exported|M|P0|
+|5|OPS-002|Health check endpoint|Expose health endpoint for uptime monitoring|src/routes/healthz.ts|—|DB ping checked; secrets reachability checked; key cache checked; 200 when healthy|S|P0|
+|6|OPS-003|PagerDuty alerting|Alert on availability, latency, and replay-detection bursts|infra/alerting|OPS-002,REPLAY-001|pages fire on defined thresholds; escalation policy bound|M|P0|
+|7|OPS-004|k6 load test|Repeatable load profile against staging auth endpoints|tests/load/k6|NFR-AUTH.1|scripts versioned; nightly run possible; report generated|M|P0|
+|8|OPS-005|p95 latency dashboard|Dashboard showing per-endpoint latency and error signals|infra/dashboards|OPS-001|threshold line at 200ms; per-route view available|S|P1|
+|9|SEC-001|bcrypt benchmark test|CI benchmark proving cost 12 within expected timing band|tests/security|CRYPTO-003|hash timing recorded; failure prints actual ms; SC-3 evidenced|S|P0|
+|10|AUDIT-001|Auth event logging hooks|Emit structured events for login, refresh, replay, and reset flows|src/auth/audit|REPLAY-001,COMP-001|events emitted; PII redacted; foundational coverage for audit gap|M|P1|
+
+### Integration Points — M4
+
+|Artifact|Type|Wired|Milestone|Consumed By|
+|---|---|---|---|---|
+|OPS-001 APM tracer|Middleware chain + DI|M4|M4|All `/auth/*` routes, OPS-005|
+|OPS-002 health route|Route registration|M4|M4|OPS-003 monitoring|
+|OPS-003 PagerDuty rules|Alerting registry|M4|M4|On-call rotation|
+|AUDIT-001 event sink|Event binding|M4|M4|Observability and future SIEM path|
+|OPS-004 k6 scripts|CI job binding|M4|M4|Nightly CI and pre-release tests|
+
+### Milestone Dependencies — M4
+
+- M3 endpoints must be available in staging; M2 cryptographic enforcement remains prerequisite for benchmark and audit coverage.
+
+### Risk Assessment and Mitigation — M4
+
+|#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
+|---|---|---|---|---|---|---|
+|1|p95 latency exceeds 200ms under realistic load|HIGH|MEDIUM|HIGH|OPS-004 pre-GA load tests; capacity review; dashboards with threshold tracking|backend|
+|2|Health checks report green while downstream is broken|MEDIUM|LOW|HIGH|OPS-002 verifies DB, secrets, and key cache; M5 adds synthetic lifecycle probe|devops|
+|3|Alert thresholds create pager fatigue|MEDIUM|MEDIUM|MEDIUM|Tune against staging baseline; never suppress security-critical alerts|devops|
+
+## M5: Hardening, Validation, and Release
+
+**Objective:** Validate every success criterion against staging and production-mirror conditions, complete security review, finalize rollout and rollback runbooks, then enable AUTH_SERVICE_ENABLED in production. | **Duration:** 2 weeks (Weeks 10–11) | **Entry:** M4 instrumentation live and SC-1 through SC-7 are mechanically testable. | **Exit:** SC-1 through SC-8 validated; security review signed off; flag flipped in production; rollback rehearsal succeeds.
+
+|#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
+|---|---|---|---|---|---|---|---|---|
+|1|SC-1|Login latency validation|Validate p95 login latency under target load|tests/release|OPS-004|k6 report attached; p95 < 200ms; sign-off recorded|S|P0|
+|2|SC-2|Service uptime validation|Validate uptime measurement and alert path|tests/release|OPS-002,OPS-003|SLO doc reviewed; PagerDuty test acknowledged; runbook linked|S|P0|
+|3|SC-3|bcrypt cost validation|Validate cost factor 12 in production config and benchmark output|tests/release|SEC-001|config snapshot shows cost 12; benchmark artifact attached|S|P0|
+|4|SC-4|Rate-limiting validation|Validate ≤5 login attempts per minute per IP|tests/release|RATE-001|6th attempt receives 429; window resets correctly|S|P0|
+|5|SC-5|Token TTL validation|Validate access, refresh, and reset TTL values|tests/release|COMP-002,RESET-001|access=15min; refresh=7d; reset=1h; TTL+1s rejected|S|P0|
+|6|SC-6|Password policy validation|Validate end-to-end enforcement of password rules|tests/release|VALID-001|8+ chars; uppercase; lowercase; digit enforced at register and reset|S|P0|
+|7|SC-7|Replay-detection validation|Validate replay revokes all user refresh tokens|tests/release|REPLAY-001|reused rotated token revokes all user tokens; audit event observed|S|P0|
+|8|SC-8|End-to-end lifecycle test|Validate register→login→me→refresh→reset→login-new-password flow|tests/e2e|API-001,API-002,API-003,API-004,API-005,API-006|full lifecycle green in staging and post-flag production canary|M|P0|
+|9|SEC-002|Security review sign-off|Threat-model and control review across auth surface|docs/security|M1,M2,M3,M4|review completed; critical findings zero; deferred items tracked|M|P0|
+|10|SEC-003|Penetration smoke test|Targeted auth pentest for replay, brute force, and JWT misuse|tests/security|API-001,API-002,API-003,API-004,API-005,API-006|critical issues zero; report attached to release gate|M|P0|
+|11|FF-001|Feature flag rollout plan|Stage auth rollout through canary and full enablement|docs/release|CFG-002|canary→25%→100% plan documented; kill switch verified|S|P0|
+|12|BC-001|Backwards-compatibility verification|Verify unauthenticated existing endpoints remain unaffected|tests/release|COMP-006|smoke matrix green before and after flag enablement|S|P0|
+|13|DOC-001|API documentation|Publish OpenAPI documentation for `/auth/*`|docs/api|API-001,API-002,API-003,API-004,API-005,API-006|all endpoints, schemas, and errors documented; drift test green|S|P1|
+|14|DOC-002|Operations runbook|Document key rotation, incidents, alert response, and reset-vendor failure handling|docs/runbooks|INFRA-003,OPS-003|sections for key compromise, replay burst, vendor outage, rollback|S|P1|
+|15|DOC-003|Migration and rollback guide|Document applying and rolling back auth migrations safely|docs/runbooks|MIG-003|staging rehearsal recorded; exact steps approved|S|P1|
+|16|OPS-006|Rollback procedure rehearsal|Live drill of flag disablement and rollback path in staging|tests/release|FF-001,DOC-003|rehearsal report attached; rollback time documented|M|P0|
+
+### Integration Points — M5
+
+|Artifact|Type|Wired|Milestone|Consumed By|
+|---|---|---|---|---|
+|FF-001 rollout checklist|Operational checklist|M5|M5|Release management|
+|OPS-006 rollback drill|Operational drill record|M5|M5|Incident response|
+|SEC-002 sign-off|Release gate artifact|M5|M5|Production approval|
+|DOC-001 OpenAPI spec|Docs registry binding|M5|M5|Downstream clients|
+
+### Milestone Dependencies — M5
+
+- M4 observability and performance evidence must exist; M3 endpoints and M1 feature flag plus migration reversibility remain hard prerequisites.
+
+### Risk Assessment and Mitigation — M5
+
+|#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
+|---|---|---|---|---|---|---|
+|1|RISK-4 No account lockout policy beyond rate limiting|MEDIUM|MEDIUM|MEDIUM|RATE-001 partial mitigation; OI-6 deferred with explicit release-note disclosure|security|
+|2|RISK-5 Authentication audit logging not fully specified|LOW|MEDIUM|LOW|AUDIT-001 foundations ship; OI-7 deferred to v1.1 planning|security|
+|3|RISK-6 Token revocation on user deletion not addressed|MEDIUM|LOW|MEDIUM|revokeAllForUser exists; OI-8 tracks integration into deletion lifecycle|architect|
+|4|Rollback fails or causes data loss|HIGH|LOW|HIGH|OPS-006 rehearses rollback; MIG-003 proven; flag-first rollback available|devops|
+
+### Open Questions — M5
+
+|#|ID|Question|Impact|Resolution Owner|Target|
+|---|---|---|---|---|---|
+|1|OI-6|What progressive lockout policy should apply after repeated failed login attempts beyond rate limiting?|Impacts abuse controls, UX, and release disclosure|security + product|Before v1.1 planning|
+|2|OI-7|Which authentication events require audit logging and where do logs persist?|Impacts compliance posture and persistence design beyond AUDIT-001|security + devops|Before v1.1 planning|
+|3|OI-8|How are refresh tokens revoked when a user account is deleted?|Impacts lifecycle completeness and user-deletion integration|architect|Before v1.1 planning|
 
 ## Resource Requirements and Dependencies
 
 ### External Dependencies
 
-| Dependency | Required By Phase | Status | Fallback |
+|Dependency|Required By Milestone|Status|Fallback|
 |---|---|---|---|
-| jsonwebtoken | 1-4 | Required | Delay COMP-003 until approved library present |
-| bcrypt | 1-4 | Required | Block launch; no weaker hash substitute |
-| Email service | 2-4 | Required | Queue-backed adapter or temporary noop in non-prod only |
-| Database | 1-4 | Required | No fallback; migration gate blocks rollout |
-| Secrets manager | 1-4 | Required | Env-file only for local dev; never prod |
-| k6 | 4 | Required | Equivalent load harness if org-standard tool differs |
-| PagerDuty | 4 | Required | Temporary alert sink only before production cut |
+|`jsonwebtoken` (npm)|M2|Pinned dependency|Alternative JWT library only if CVE-blocked|
+|`bcrypt` (npm)|M2|Pinned dependency|Pure-JS fallback for non-prod only|
+|RSA key pair|M1, M2|To be generated via INFRA-001|Dev-only key for non-prod; no prod fallback|
+|Secrets manager|M1|Must be provisioned pre-M1|Env-injected secret only for local development|
+|Email service vendor|M3|Blocked by OI-10|Queue-backed adapter boundary until vendor fixed|
+|Users database table|M1|Created by MIG-001|No fallback|
+|Refresh tokens database table|M1|Created by MIG-002|No fallback|
+|Rate-limiting backing store|M3|Must exist before multi-instance rollout|In-memory store for single-instance staging only|
+|APM and uptime monitoring|M4|Existing platform tooling expected|Self-hosted metrics stack if unavailable|
+|PagerDuty|M4, M5|Existing alert backbone expected|Equivalent paging platform if org-standard differs|
 
 ### Infrastructure Requirements
 
-- RSA key-pair generation and secure private-key storage per environment.
-- Database capacity for `users` and `refresh_tokens`, including unique email index and token-hash lookups.
-- Rate-limit backing store sized for 5/min/IP enforcement on login.
-- HTTPS, cookie security flags, and CORS policy aligned to refresh-cookie transport.
-- Production-like staging environment for latency, replay, rollback, and failover validation.
+- Secrets manager with per-environment ACLs and rotation API support.
+- Database with transactional DDL and FK enforcement for reversible migrations.
+- Shared rate-limit store reachable from every API instance.
+- APM backend capable of per-route p95 and error histogram tracking.
+- Pagering integration bound to auth SLOs.
+- Staging environment mirroring database, secrets, and routing behavior for SC-8 and OPS-006.
+- CI runners stable enough to make bcrypt benchmark evidence meaningful.
+
+## Risk Register
+
+|ID|Risk|Affected Milestones|Probability|Impact|Mitigation|Owner|
+|---|---|---|---|---|---|---|
+|R-001|RISK-1 JWT private-key compromise allows token forgery|M1, M2, M5|LOW|HIGH|RS256 only; secrets manager storage; 90-day rotation; audited access|security|
+|R-002|RISK-2 Refresh token replay after theft|M2, M3, M5|MEDIUM|HIGH|Refresh rotation, replay detection, httpOnly cookie transport, validation tests|security|
+|R-003|RISK-3 bcrypt cost factor insufficient for future hardware|M2, M4, M5|LOW|MEDIUM|Configurable cost; benchmark evidence; annual review and migration path|security|
+|R-004|RISK-4 No account lockout policy beyond rate limiting|M3, M5|MEDIUM|MEDIUM|RATE-001 partial mitigation; OI-6 deferred and tracked|security|
+|R-005|RISK-5 Authentication audit logging not specified|M4, M5|MEDIUM|LOW|AUDIT-001 foundational events; OI-7 deferred for persistence policy|security|
+|R-006|RISK-6 Token revocation on user deletion not addressed|M5|LOW|MEDIUM|Repository revoke-all exists; OI-8 tracks lifecycle integration|architect|
+|R-007|Migration not reversible in production|M1, M5|LOW|HIGH|MIG-003 mandatory; CI reversibility tests; rollback rehearsal|backend|
+|R-008|Secrets manager unavailable at cold start|M1, M2|LOW|HIGH|Fail-fast boot; readiness checks; recovery runbook|devops|
+|R-009|JWT algorithm confusion attack|M2|LOW|HIGH|RS256 whitelist; negative verification tests|security|
+|R-010|Rotation grace window extends compromised-key validity|M1, M2|LOW|HIGH|Grace window bounded to refresh TTL; key-distribution monitoring|security|
+|R-011|User enumeration via auth responses|M3|MEDIUM|MEDIUM|Uniform error messaging and generic reset responses|security|
+|R-012|Email vendor outage blocks password reset|M3|MEDIUM|MEDIUM|Queue-or-sync decision, retry/backoff, and operator messaging|backend|
+|R-013|Rate-limit state not shared across instances|M3|MEDIUM|MEDIUM|Shared backing store required before scaled rollout|devops|
+|R-014|Login latency misses p95 target|M4, M5|MEDIUM|HIGH|Load testing, dashboarding, and capacity review gate release|backend|
+|R-015|Health checks produce false green|M4, M5|LOW|HIGH|Health verifies DB, secrets, and key cache; M5 synthetic probe|devops|
+|R-016|Alert tuning causes pager fatigue|M4|MEDIUM|MEDIUM|Baseline-driven thresholds; security events remain noisy by design|devops|
+|R-017|Rollback fails or causes data loss|M5|LOW|HIGH|Rollback rehearsal, reversible migrations, and flag-first rollback path|devops|
 
 ## Success Criteria and Validation Approach
 
-| Criterion | Metric | Target | Validation Method | Phase |
+|Criterion|Metric|Target|Validation Method|Milestone|
 |---|---|---|---|---|
-| SC-1 login success | HTTP status + payload | 200 + access15m + refresh7d | TEST-003 + TEST-004 | 3-4 |
-| SC-2 login failure privacy | Error contract | 401 + no credential enumeration | TEST-002 + TEST-003 | 2-3 |
-| SC-3 locked account handling | HTTP status | 403 | TEST-002 + TEST-003 | 2-3 |
-| SC-4 login throttling | Per-IP attempt cap | 5/min/IP | TEST-002 + observability check | 2-4 |
-| SC-5 registration success | HTTP status + profile | 201 + user profile | TEST-002 + TEST-003 | 2-3 |
-| SC-6 duplicate email rejection | Conflict response | 409 | TEST-002 + TEST-003 | 2-3 |
-| SC-7 password policy | Validation rules | min8 + upper + lower + digit | TEST-002 | 2 |
-| SC-8 email validation | Input validation | RFC-style format gate | TEST-002 | 2 |
-| SC-9 refresh rotation | Token lifecycle | new pair every refresh | TEST-002 + TEST-004 | 2-4 |
-| SC-10 expired refresh denial | HTTP status | 401 | TEST-002 + TEST-003 | 2-3 |
-| SC-11 replay defense | Security control | revoked replay → global revoke | TEST-002 + TEST-004 | 2-4 |
-| SC-12 token-hash persistence | Storage check | refresh hashes stored | DB assertion in TEST-003 | 3 |
-| SC-13 profile success | Response contract | 200 + id,email,display_name,created_at | TEST-003 + TEST-004 | 3-4 |
-| SC-14 invalid bearer denial | HTTP status | 401 | TEST-003 | 3 |
-| SC-15 sensitive field exclusion | Response hygiene | no password_hash/token_hash | TEST-003 | 3 |
-| SC-16 reset request dispatch | Token/email workflow | reset token 1h + email sent | TEST-002 + provider stub/integration | 2-3 |
-| SC-17 reset confirm success | Password update | new password accepted; token spent | TEST-002 + TEST-004 | 2-4 |
-| SC-18 invalid reset denial | HTTP status | 400 | TEST-002 + TEST-003 | 2-3 |
-| SC-19 session invalidation on reset | Revocation coverage | all refresh tokens invalidated | TEST-002 + TEST-004 | 2-4 |
-| SC-20 auth latency | p95 latency | <200ms | k6 + APM review | 4 |
-| SC-21 availability | Uptime SLO | >=99.9% | health monitoring + PagerDuty evidence | 4 |
-| SC-22 hashing posture | bcrypt config | cost factor 12 | unit + benchmark tests | 4 |
+|SC-1 Login latency|p95 response time on `/auth/login`|< 200ms|OPS-004 k6 run plus OPS-005 dashboard review|M4, M5|
+|SC-2 Service uptime|Monthly uptime against health endpoint|≥ 99.9%|OPS-002 monitoring plus OPS-003 alert-path drill|M4, M5|
+|SC-3 bcrypt cost factor|Cost factor embedded in produced hash|Exactly 12|SEC-001 benchmark and config snapshot review|M2, M4, M5|
+|SC-4 Login rate limiting|Requests beyond threshold per IP|≤ 5/min/IP|RATE-001 burst testing and release validation|M3, M5|
+|SC-5 Token TTLs|Access, refresh, and reset expirations|access=15min; refresh=7d; reset=1h|Boundary tests in TokenManager and release suite|M2, M3, M5|
+|SC-6 Password policy|Rejected invalid passwords at register and reset|8+ chars; upper; lower; digit required|VALID-001 tests and endpoint integration tests|M2, M3, M5|
+|SC-7 Replay detection|Reused rotated refresh token outcome|Revokes all user tokens|Replay integration tests and AUDIT-001 event observation|M2, M3, M5|
+|SC-8 End-to-end lifecycle|Register→login→me→refresh→reset→login-new-password|All steps succeed|Staging E2E before release and production canary rerun|M5|
+
+## Decision Summary
+
+|Decision|Chosen|Alternatives Considered|Rationale|
+|---|---|---|---|
+|JWT signing algorithm|RS256 asymmetric|HS256 symmetric; opaque tokens|Architectural constraint explicitly mandates RS256 and reduces signing-key exposure relative to shared-secret alternatives|
+|Password hashing algorithm|bcrypt cost 12|Argon2id; scrypt|Architectural constraint mandates bcrypt and NFR-AUTH.3 sets exact target at cost factor 12|
+|Client token storage|Access token in memory; refresh token in httpOnly cookie|localStorage; sessionStorage|Architectural constraint mandates httpOnly cookie storage and avoids browser storage exposure|
+|Session model|Stateless JWT with refresh rotation|Server-side session store|Architectural constraint mandates stateless JWT and avoids introducing an additional availability dependency|
+|Implementation sequencing|Foundation → primitives → endpoints → NFRs → release|Endpoint-first delivery|Risk profile favors validating crypto and persistence layers before public route exposure|
+|Rollout control|Single `AUTH_SERVICE_ENABLED` flag on route registration|Per-endpoint flags; no flag|Architectural constraint mandates flag gating and supports atomic rollback|
+|Migration strategy|Reversible migrations with down scripts|Forward-only migrations|Architectural constraint mandates reversibility and rollout safety depends on tested rollback|
+|Key rotation mechanism|Dual-key grace window pending OI-9 confirmation|Hard cutover|Preserves active token verification during rotation while bounding impact to TTL window|
 
 ## Timeline Estimates
 
-| Phase | Duration | Start | End | Key Milestones |
+|Milestone|Duration|Start|End|Key Milestones|
 |---|---|---|---|---|
-| 1 | 4-5d | Day 1 | Day 5 | keys ready; migration up/down verified; crypto services complete |
-| 2 | 5-6d | Day 6 | Day 11 | AuthService + TokenManager complete; login/register/refresh/reset contracts frozen |
-| 3 | 4-5d | Day 12 | Day 16 | middleware/routes live behind flag; profile endpoint and integration suite pass |
-| 4 | 4-5d | Day 17 | Day 21 | SLO evidence complete; rollout drill pass; ops docs published |
+|M1|2 weeks|Week 1|Week 2|Migrations reversible; repositories tested; RSA key and secrets integration live; feature flag declared off|
+|M2|2 weeks|Week 3|Week 4|PasswordHasher, JwtService, and TokenManager validated; replay detection proven|
+|M3|3 weeks|Week 5|Week 7|All auth endpoints wired behind flag; middleware, cookies, rate limiting, and reset flow integrated|
+|M4|2 weeks|Week 8|Week 9|Latency, uptime, and security instrumentation live; load tests and dashboards published|
+|M5|2 weeks|Week 10|Week 11|Success criteria validated; security sign-off complete; rollout and rollback rehearsed|
 
-**Total estimated duration:** 17-21 working days
-
-## Open Questions
-
-| # | Question | Impact | Blocking Phase | Resolution Owner |
-|---|---|---|---|---|
-| 1 | Should reset email send inline or via queue? | Determines reset latency path and retry design | 2 | Architect + Backend |
-| 2 | Maximum active refresh tokens per user? | Shapes repo eviction, multi-device support, and replay blast radius | 2 | Architect |
-| 3 | Progressive lockout policy after repeated failures? | Needed to close GAP-1 beyond simple per-IP rate limit | 4 | Product + Security |
-| 4 | Audit logging schema and sink for auth events? | Required for incident response and compliance maturity | 4 | Ops + Security |
-| 5 | Revoke all tokens on user deletion? | Affects deletion semantics and residual access risk | 4 | Architect + Backend |
-| 6 | Confirm final REST paths for register/refresh/reset? | Needed before route contracts and client integration are final | 2 | Backend + API owner |
+**Total estimated duration:** 11 weeks (Weeks 1–11).
