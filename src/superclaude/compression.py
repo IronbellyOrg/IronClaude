@@ -127,16 +127,32 @@ class ParsedTable:
 # ============================================================================
 
 def _find_header_end(text: str) -> int:
-    end = 0
-    for hdr_match in re.finditer(r"<!--.*?-->", text, re.DOTALL):
-        gap = text[end:hdr_match.start()]
+    end = _frontmatter_end(text)
+    for hdr_match in re.finditer(r"<!--.*?-->", text[end:], re.DOTALL):
+        gap = text[end : end + hdr_match.start()]
         if gap.strip() == "":
-            end = hdr_match.end()
+            end += hdr_match.end()
             if end < len(text) and text[end] == "\n":
                 end += 1
         else:
             break
     return end
+
+
+def _frontmatter_end(text: str) -> int:
+    """Return byte offset just past a leading ``---\\n...\\n---\\n`` block.
+
+    Returns 0 when the text does not start with YAML frontmatter. Used to keep
+    compression comment headers from landing before the opening ``---`` where
+    they would break downstream frontmatter parsers.
+    """
+    if not text.startswith("---\n") and not text.startswith("---\r\n"):
+        return 0
+    # Find closing --- on its own line after the opener
+    match = re.search(r"\n---[ \t]*(?:\r?\n|$)", text[3:])
+    if match is None:
+        return 0
+    return 3 + match.end()
 
 
 def _upsert_conventions_header(
@@ -156,7 +172,8 @@ def _upsert_conventions_header(
         )
     else:
         header = f"<!-- {section}: {formatted} -->\n"
-        return header + text
+        insert_at = _frontmatter_end(text)
+        return text[:insert_at] + header + text[insert_at:]
 
 
 def _generate_alias(token: str, existing_aliases: set[str]) -> str:

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/test-tdd-user-auth.md",
+  "tdd_file": null,
+  "prd_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/test-prd-user-auth.md",
+  "input_type": "tdd",
+  "spec_hash": "43c9e660788020b6fd44044c413e818b66481006e1e84e4bc1955b4aad478c5b",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-04-19T18:43:30.963144+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test22-tdd-prd/extraction.md",
+      "started_at": "2026-04-19T18:16:14.666988+00:00",
+      "completed_at": "2026-04-19T18:18:37.686670+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test22-tdd-prd/roadmap-opus-architect.md",
+      "started_at": "2026-04-19T18:31:34.818097+00:00",
+      "completed_at": "2026-04-19T18:43:28.906351+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "CANCELLED",
+      "attempt": 2,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test22-tdd-prd/roadmap-haiku-architect.md",
+      "started_at": "2026-04-19T18:38:51.864629+00:00",
+      "completed_at": "2026-04-19T18:43:30.262775+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test22-tdd-prd/wiring-verification.md",
+      "started_at": "2026-04-19T18:43:30.263005+00:00",
+      "completed_at": "2026-04-19T18:43:30.963024+00:00"
+    }
+  }
+}

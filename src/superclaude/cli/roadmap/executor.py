@@ -1642,6 +1642,16 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         except OSError:
             retrospective_content = None
 
+    # When the primary input is itself a TDD, config.tdd_file is None (see
+    # _route_input_files redundancy guard). Treat config.spec_file as the
+    # effective TDD for LLM prompt builders that gate TDD-specific sections on
+    # `tdd_file is not None`, so the TDD-aware blocks still fire when the TDD
+    # is the sole input. Also used to ensure the raw TDD reaches step inputs
+    # where needed (e.g., generate step, which otherwise only sees extraction).
+    effective_tdd_file = config.tdd_file if config.tdd_file is not None else (
+        config.spec_file if config.input_type == "tdd" else None
+    )
+
     steps: list[Step | list[Step]] = [
         # Step 1: Extract
         # TDD input routing: --input-type tdd uses dedicated TDD extraction sections
@@ -1672,11 +1682,11 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         [
             Step(
                 id=f"generate-{agent_a.id}",
-                prompt=build_generate_prompt(agent_a, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
+                prompt=build_generate_prompt(agent_a, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
                 output_file=roadmap_a,
                 gate=GENERATE_A_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + _llm_inputs_for(config, config.tdd_file, config.prd_file),
+                inputs=[extraction] + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_a.model,
                 tool_write_mode=_roadmap_template is not None,
@@ -1684,11 +1694,11 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             ),
             Step(
                 id=f"generate-{agent_b.id}",
-                prompt=build_generate_prompt(agent_b, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
+                prompt=build_generate_prompt(agent_b, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
                 output_file=roadmap_b,
                 gate=GENERATE_B_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + _llm_inputs_for(config, config.tdd_file, config.prd_file),
+                inputs=[extraction] + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_b.model,
                 tool_write_mode=_roadmap_template is not None,
@@ -1718,21 +1728,21 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 5: Score
         Step(
             id="score",
-            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=score_file,
             gate=SCORE_GATE,
             timeout_seconds=300,
-            inputs=[debate_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, config.tdd_file, config.prd_file),
+            inputs=[debate_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Step 6: Merge
         Step(
             id="merge",
-            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=merge_file,
             gate=MERGE_GATE,
             timeout_seconds=600,
-            inputs=[score_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, config.tdd_file, config.prd_file) + [debate_file],
+            inputs=[score_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file) + [debate_file],
             retry_limit=1,
             tool_write_mode=_roadmap_template is not None,
             template_path=_roadmap_template,
@@ -1750,17 +1760,17 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 8: Test Strategy
         Step(
             id="test-strategy",
-            prompt=build_test_strategy_prompt(merge_file, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_test_strategy_prompt(merge_file, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=test_strat,
             gate=TEST_STRATEGY_GATE,
             timeout_seconds=300,
-            inputs=_llm_inputs_for(config, merge_file, config.tdd_file, config.prd_file) + [extraction],
+            inputs=_llm_inputs_for(config, merge_file, effective_tdd_file, config.prd_file) + [extraction],
             retry_limit=1,
         ),
         # Step 8: Spec Fidelity (after test-strategy, FR-008 through FR-010)
         Step(
             id="spec-fidelity",
-            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=spec_fidelity_file,
             gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
             timeout_seconds=600,
