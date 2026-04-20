@@ -1,13 +1,13 @@
 ---
 spec_source: "test-tdd-user-auth.compressed.md"
-complexity_score: 0.78
+complexity_score: 0.72
 complexity_class: HIGH
 primary_persona: architect
 base_variant: "none"
 variant_scores: "none"
 convergence_score: 0.94
 ---
-<!-- CONV: registration=RGS, Implement=MPL, AuthService=THS, PostgreSQL=PST, password=PSS, retention=RTN, compliance=CMP, PasswordHasher=PA1, validation=VLD, evidence=VDN, available=VLB, TokenManager=TKN, Integration=NTG, architect=RCH, Milestone=MLS, endpoint=NDP, contract=CNT, SEC-POLICY-001=SP0, security=SCR, Mitigation=MTG -->
+<!-- CONV: registration=RGS, Implement=MPL, PostgreSQL=PST, AuthService=THS, password=PSS, retention=RTN, compliance=CMP, PasswordHasher=PA1, validation=VLD, evidence=VDN, available=VLB, TokenManager=TKN, Integration=NTG, architect=RCH, Milestone=MLS, contract=CNT, endpoint=NDP, SEC-POLICY-001=SP0, security=SCR, Mitigation=MTG -->
 
 # User Authentication Service — Project Roadmap
 
@@ -19,7 +19,7 @@ The roadmap preserves all extracted work items and adds missing implementation a
 
 **Business Impact:** Unblocks Q2/Q3 personalization, supports Q3 SOC2 readiness, reduces support burden via self-service PSS reset, and establishes a reusable identity layer for future authenticated features.
 
-**Complexity:** HIGH (0.78) — SCR-critical auth domain, multi-store persistence, cross-component orchestration, frontend integration, phased rollout, and CMP constraints increase coordination and verification cost.
+**Complexity:** HIGH (0.72) — SCR-critical auth domain, multi-store persistence, cross-component orchestration, frontend integration, phased rollout, and CMP constraints increase coordination and verification cost.
 
 **Critical path:** SCR/data contracts → crypto and persistence baseline → `THS`/`TKN` orchestration → public auth APIs → frontend flows and reset journey → observability/CMP controls → staged rollout and rollback readiness.
 
@@ -41,7 +41,7 @@ The roadmap preserves all extracted work items and adds missing implementation a
 |M1|Foundation & Contracts|Foundation|P0|2 weeks|PST, Redis, SP0, COMPLIANCE-001|17|High|
 |M2|Core Logic & Auth APIs|Core Logic|P0|2 weeks|M1, Node.js 20, bcryptjs, jsonwebtoken|16|High|
 |M3|User Journeys & Frontend NTG|NTG|P0|2 weeks|M2, SendGrid, frontend routing framework|15|Medium-High|
-|M4|Hardening, Compliance & Admin Operations|Hardening|P0|2 weeks|M1, M2, M3, staging env, Grafana/APM|25|High|
+|M4|Hardening, Compliance & Admin Operations|Hardening|P0|2 weeks|M1, M2, M3, staging env, Grafana/APM|26|High|
 |M5|Production Readiness & Rollout|Production Readiness|P0|2 weeks|M4, feature flags, on-call staffing, rollout approvals|10|High|
 
 ## Dependency Graph
@@ -118,20 +118,20 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 
 **M2: Core Logic & Auth APIs** | Weeks 3-4 (2026-04-15 to 2026-04-28) | exit criteria: login, RGS, refresh, and profile retrieval operate against real stores with stable `/v1/auth/*` contracts and core tests passing
 
-**Objective:** MPL the backend auth orchestration and public API surfaces on top of the foundation contracts. | **Duration:** Weeks 3-4 (2026-04-15 to 2026-04-28) | **Entry:** M1 complete; Node.js 20 LTS runtime VLB; bcryptjs and jsonwebtoken dependencies approved | **Exit:** FR-AUTH-001..004, API-001..004, COMP-005..006, COMP-020, and TEST-001..005 pass against real PST/Redis where applicable
+**Objective:** MPL the backend auth orchestration and public API surfaces on top of the foundation contracts. | **Duration:** Weeks 3-4 (2026-04-15 to 2026-04-28) | **Entry:** M1 complete; Node.js 20 LTS runtime VLB; bcryptjs and jsonwebtoken dependencies approved | **Exit:** FR-AUTH-001..004, API-001..004, COMP-020..022, and TEST-001..005 pass against real PST/Redis where applicable
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|FR-AUTH-001|Login flow|MPL email/PSS authentication with uniform failure handling and lockout support.|THS|COMP-005, COMP-007, COMP-008|200-on-valid-credentials-with-DM-002; 401-on-invalid-PSS; 401-on-unknown-email-no-enumeration; 423-on-locked-account-after-5-failures/15min|L|P0|
-|2|FR-AUTH-002|Registration flow|MPL validated RGS with unique email enforcement and profile creation.|THS|COMP-005, COMP-008, COMP-013, COMP-020|201-on-valid-RGS-with-DM-001; 409-on-duplicate-email; 400-on-PSS<8-or-missing-uppercase-or-missing-number; bcrypt-cost12-stored|L|P0|
-|3|FR-AUTH-003|Token issuance and refresh|MPL access/refresh issuance and silent refresh semantics with old-token revocation.|TKN|COMP-006, COMP-007, Redis 7+|login-returns-access15m+refresh7d; POST-/auth/refresh-valid→new-DM-002; expired-refresh→401; revoked-refresh→401|L|P0|
-|4|FR-AUTH-004|Authenticated profile retrieval|MPL current-user retrieval from validated access token context.|THS/AuthMiddleware|COMP-005, COMP-012, DM-001|GET-/auth/me-valid-token→DM-001; expired-or-invalid-token→401; response-includes-id,email,displayName,createdAt,updatedAt,lastLoginAt,roles|M|P0|
+|1|FR-AUTH-001|Login flow|MPL email/PSS authentication with uniform failure handling and lockout support.|THS|COMP-021, COMP-007, COMP-008|200-on-valid-credentials-with-DM-002; 401-on-invalid-PSS; 401-on-unknown-email-no-enumeration; 423-on-locked-account-after-5-failures/15min|L|P0|
+|2|FR-AUTH-002|Registration flow|MPL validated RGS with unique email enforcement and profile creation.|THS|COMP-021, COMP-008, COMP-013, COMP-020|201-on-valid-RGS-with-DM-001; 409-on-duplicate-email; 400-on-PSS<8-or-missing-uppercase-or-missing-number; bcrypt-cost12-stored|L|P0|
+|3|FR-AUTH-003|Token issuance and refresh|MPL access/refresh issuance and silent refresh semantics with old-token revocation.|TKN|COMP-022, COMP-007, Redis 7+|login-returns-access15m+refresh7d; POST-/auth/refresh-valid→new-DM-002; expired-refresh→401; revoked-refresh→401|L|P0|
+|4|FR-AUTH-004|Authenticated profile retrieval|MPL current-user retrieval from validated access token context.|THS/AuthMiddleware|COMP-021, COMP-012, DM-001|GET-/auth/me-valid-token→DM-001; expired-or-invalid-token→401; response-includes-id,email,displayName,createdAt,updatedAt,lastLoginAt,roles|M|P0|
 |5|API-001|POST `/auth/login`|Expose the login NDP with lockout and rate-limit aware behavior.|AuthHttpController|FR-AUTH-001|method:POST; path:/v1/auth/login; auth:no; rateLimit:10/min/IP; request:email,PSS; response200:DM-002; errors:401,423,429|M|P0|
 |6|API-002|POST `/auth/register`|Expose the RGS NDP with profile response semantics.|AuthHttpController|FR-AUTH-002|method:POST; path:/v1/auth/register; auth:no; rateLimit:5/min/IP; request:email,PSS,displayName; response201:DM-001; errors:400,409|M|P0|
 |7|API-003|GET `/auth/me`|Expose the authenticated profile NDP.|AuthHttpController/AuthMiddleware|FR-AUTH-004|method:GET; path:/v1/auth/me; auth:Bearer-required; rateLimit:60/min/user; request:Authorization-Bearer<accessToken>; response200:DM-001; errors:401|M|P0|
 |8|API-004|POST `/auth/refresh`|Expose the refresh NDP that rotates refresh tokens.|AuthHttpController/TKN|FR-AUTH-003|method:POST; path:/v1/auth/refresh; auth:no-body-token; rateLimit:30/min/user; request:refreshToken; response200:DM-002; errors:401|M|P0|
-|9|COMP-005|THS orchestrator|MPL the backend façade for auth flows and persistence/crypto delegation.|THS|COMP-007, COMP-008, COMP-010|methods:login,register,getProfile,resetRequest,resetConfirm; delegates:PA1,TKN,UserRepo; location:src/auth/auth-service|L|P0|
-|10|COMP-006|TKN lifecycle service|MPL issue/refresh/revoke lifecycle management with Redis-backed refresh tokens.|TKN|COMP-007, Redis 7+|methods:issueTokens,refresh,revoke; access:JWT-via-JwtService; refresh:hashed-in-Redis-7d; oldRefresh:revoked-on-rotate|L|P0|
+|9|COMP-021|THS orchestrator|MPL the backend façade for auth flows and persistence/crypto delegation.|THS|COMP-007, COMP-008, COMP-010|methods:login,register,getProfile,resetRequest,resetConfirm; delegates:PA1,TKN,UserRepo; location:src/auth/auth-service|L|P0|
+|10|COMP-022|TKN lifecycle service|MPL issue/refresh/revoke lifecycle management with Redis-backed refresh tokens.|TKN|COMP-007, Redis 7+|methods:issueTokens,refresh,revoke; access:JWT-via-JwtService; refresh:hashed-in-Redis-7d; oldRefresh:revoked-on-rotate|L|P0|
 |11|COMP-020|Registration consent wiring|Wire consent recording into the RGS path so legal VDN is created with the account.|THS/ConsentRecorder|FR-AUTH-002, NFR-COMP-001|RGS-calls-consent-recorder; consentTimestamp-captured; user-linkage-preserved; failure-handling-auditable|S|P1|
 |12|TEST-001|Unit login success test|Verify successful login issues token pairs through the correct collaborators.|Jest/THS|FR-AUTH-001|component:THS; input:valid-email-PSS; expects:PA1.verify-called; expects:TKN.issueTokens-called; result:DM-002|S|P0|
 |13|TEST-002|Unit login failure test|Verify invalid credentials return 401 and do not issue tokens.|Jest/THS|FR-AUTH-001|component:THS; input:invalid-PSS; PA1.verify:false; result:401; token-issuance:none|S|P0|
@@ -180,10 +180,10 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|FR-AUTH-005|Password reset flow|MPL request/confirm reset flow with token issuance, expiry, single use, and session invalidation.|THS/ResetTokenStore|COMP-005, COMP-010, COMP-006|POST-/auth/reset-request-sends-reset-token; POST-/auth/reset-confirm-valid-token-updates-PSS-hash; reset-token-expires-1h; used-token-cannot-reuse; new-PSS-invalidates-all-sessions|L|P0|
+|1|FR-AUTH-005|Password reset flow|MPL request/confirm reset flow with token issuance, expiry, single use, and session invalidation.|THS/ResetTokenStore|COMP-021, COMP-010, COMP-022|POST-/auth/reset-request-sends-reset-token; POST-/auth/reset-confirm-valid-token-updates-PSS-hash; reset-token-expires-1h; used-token-cannot-reuse; new-PSS-invalidates-all-sessions|L|P0|
 |2|API-005|POST `/auth/reset-request`|Expose the PSS reset request NDP with no-enumeration behavior.|AuthHttpController|FR-AUTH-005|method:POST; path:/v1/auth/reset-request; auth:no; rateLimit:5/min/IP; request:email; response:generic-confirmation-regardless-of-RGS; errors:standard-error-envelope|M|P0|
 |3|API-006|POST `/auth/reset-confirm`|Expose the PSS reset confirm NDP with PSS policy enforcement.|AuthHttpController|FR-AUTH-005|method:POST; path:/v1/auth/reset-confirm; auth:no; rateLimit:10/min/IP; request:token,newPassword; errors:400-invalid-or-expired-token,400-weak-PSS; sessions:invalidated-on-success|M|P0|
-|4|API-007|POST `/auth/logout`|Add the missing logout NDP required by the PRD user story and scope definition.|AuthHttpController/TKN|COMP-006, OQ-GAP-001|method:POST; path:/v1/auth/logout; auth:Bearer-or-refresh-context; request:current-refreshToken-or-session-context; response:204-or-200; effect:session-ends-immediately-and-refresh-token-revoked|M|P0|
+|4|API-007|POST `/auth/logout`|Add the missing logout NDP required by the PRD user story and scope definition.|AuthHttpController/TKN|COMP-022, OQ-GAP-001|method:POST; path:/v1/auth/logout; auth:Bearer-or-refresh-context; request:current-refreshToken-or-session-context; response:204-or-200; effect:session-ends-immediately-and-refresh-token-revoked|M|P0|
 |5|COMP-001|LoginPage|MPL the `/login` route and login form with generic failure handling and optional redirect support.|Frontend/LoginPage|API-001|route:/login; authRequired:false; props:onSuccess:()=>void,redirectUrl?:string; fields:email,PSS; calls:POST-/auth/login; storesTokens:via-AuthProvider; captcha-after-3-failed-attempts|M|P0|
 |6|COMP-002|RegisterPage|MPL the `/register` route and RGS form with inline VLD and terms linkage.|Frontend/RegisterPage|API-002, NFR-COMP-001|route:/register; authRequired:false; props:onSuccess:()=>void,termsUrl:string; fields:email,PSS,displayName,consent; VLD:PSS-strength-client-side; calls:POST-/auth/register|M|P0|
 |7|COMP-003|ProfilePage|MPL the protected `/profile` route that renders current account details.|Frontend/ProfilePage|API-003, COMP-017|route:/profile; authRequired:true; props:none; data:id,email,displayName,createdAt,lastLoginAt,roles; calls:GET-/auth/me|M|P0|
@@ -235,35 +235,36 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 
 **M4: Hardening, Compliance & Admin Operations** | Weeks 7-8 (2026-05-13 to 2026-05-26) | exit criteria: performance, reliability, observability, auditability, and admin operational controls validated in staging with measurable gates
 
-**Objective:** Add the operational, CMP, and admin control surfaces required for secure production use and SOC2 readiness. | **Duration:** Weeks 7-8 (2026-05-13 to 2026-05-26) | **Entry:** M1-M3 complete in staging; Grafana/APM and load-test tooling VLB | **Exit:** NFR-PERF-001/002, NFR-REL-001, OPS-001..008, OBS-001..006, API-008..011, COMP-018..019, and TEST-009..010 pass review; Jordan admin use cases have backend support
+**Objective:** Add the operational, CMP, and admin control surfaces required for secure production use and SOC2 readiness. | **Duration:** Weeks 7-8 (2026-05-13 to 2026-05-26) | **Entry:** M1-M3 complete in staging; Grafana/APM and load-test tooling VLB | **Exit:** NFR-PERF-001/002, NFR-REL-001, OPS-001..005, OPS-007..010, OBS-001..006, API-008..011, COMP-018..019, and TEST-009..010 pass review; Jordan admin use cases have backend support
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
 |1|NFR-PERF-001|Auth NDP latency budget|Validate and tune all auth endpoints to meet the p95 latency budget.|THS/APM|M2, OBS-002, OBS-005|all-auth-endpoints-p95<200ms; measurement:APM-tracing-on-THS-methods; regression-budget:tracked|M|P0|
-|2|NFR-PERF-002|Concurrent login capacity|Validate 500 concurrent login requests with load testing and scaling guidance.|THS/k6|NFR-PERF-001, OPS-004..006|500-concurrent-login-requests-supported; tool:k6; p95<200ms-under-load; bottlenecks-documented|M|P0|
+|2|NFR-PERF-002|Concurrent login capacity|Validate 500 concurrent login requests with load testing and scaling guidance.|THS/k6|NFR-PERF-001, OPS-005, OPS-010|500-concurrent-login-requests-supported; tool:k6; p95<200ms-under-load; bottlenecks-documented|M|P0|
 |3|NFR-REL-001|Availability and health checks|MPL health monitoring and release gating for 99.9% availability targets.|HealthCheck/Monitoring|API-011, OPS-008|availability:99.9%-30-day-windows; monitor:health-check-NDP; release-gate:configured|M|P0|
-|4|OPS-001|Runbook: `THS` down|Publish and validate the primary service outage runbook.|Runbook/OnCall|OBS-006|scenario:THS-down; symptoms:5xx-on-/auth/*+LoginPage/RegisterPage-errors; diagnosis:pod-health,PST,init-logs; resolution:restart+failover+relogin-on-Redis-down; escalation:auth-team→platform-team|S|P1|
-|5|OPS-002|Runbook: token refresh failures|Publish and validate the refresh-failure runbook.|Runbook/OnCall|OBS-003, OBS-006|scenario:token-refresh-failures; symptoms:unexpected-logouts,AuthProvider-loop,auth_token_refresh_total-error-spike; diagnosis:Redis,JwtService-keys,AUTH_TOKEN_REFRESH; resolution:scale-Redis+remount-secrets+enable-flag; escalation:auth-team→platform-team|S|P1|
+|4|OPS-001|Runbook: `THS` down|Publish and validate the primary service outage runbook.|Runbook/OnCall|OBS-006|scenario:THS-down; symptoms:5xx-on-/auth/*+LoginPage/RegisterPage-errors; diagnosis:pod-health,PST,init-logs; resolution:restart-pods+failover-Postgres-to-read-replica+reject-refresh-if-Redis-down; escalation:auth-team→platform-team-after-15min|S|P1|
+|5|OPS-002|Runbook: token refresh failures|Publish and validate the refresh-failure runbook.|Runbook/OnCall|OBS-003, OBS-006|scenario:token-refresh-failures; symptoms:unexpected-logouts,AuthProvider-loop,auth_token_refresh_total-error-spike; diagnosis:Redis,JwtService-keys,AUTH_TOKEN_REFRESH; resolution:scale-Redis+remount-secrets+enable-flag-if-off; escalation:auth-team→platform-team-if-Redis-cluster-issue|S|P1|
 |6|OPS-003|On-call readiness|Define post-GA response expectations, escalation chain, and tooling.|OnCallProgram|OPS-001, OPS-002|P1-ack≤15min; coverage:24/7-first-2-weeks-post-GA; tooling:K8s,Grafana,RedisCLI,PST-admin; path:auth-team→test-lead→eng-manager→platform-team|S|P1|
-|7|OPS-004|THS capacity plan|Codify pod scaling targets for expected concurrency.|Kubernetes/HPA|NFR-PERF-002|current:3-replicas; expected:500-concurrent-users; HPA:max10-pods-on-CPU>70%|S|P1|
-|8|OPS-005|PST capacity plan|Codify database pool scaling targets.|PST|NFR-PERF-002|currentPool:100; expectedQueries:50-avg-concurrent; scaleTo:200-if-wait>50ms|S|P1|
-|9|OPS-006|Redis capacity plan|Codify Redis memory scaling thresholds for refresh tokens.|Redis|NFR-PERF-002|currentMemory:1GB; expectedTokens:~100K/~50MB; scaleTo:2GB-at->70%-utilization|S|P1|
-|10|OPS-007|Observability baseline item|MPL the TDD-defined logging, metrics, and tracing baseline for auth flows.|Observability/THS|OBS-001..005|logs:login-success/failure,RGS,refresh,PSS-reset; metrics:auth_login_total,auth_login_duration_seconds,auth_token_refresh_total,auth_registration_total; tracing:THS→PA1→TKN→JwtService; sensitive-fields-excluded|M|P0|
-|11|OPS-008|Alerting and dashboards|MPL alert thresholds and Grafana dashboards for degraded auth behavior.|Grafana/Alertmanager|OBS-006|alerts:login-failure-rate>20%/5m,p95>500ms,Redis-connection-failures; dashboards:login/refresh/RGS-counters+duration-histograms|M|P0|
-|12|OBS-001|Structured auth logging implementation|Wire structured application logs into all auth service methods and controller outcomes.|Logging/THS|M2, NFR-SEC-003|events:login-success,login-failure,RGS,refresh,PSS-reset,logout,admin-actions; fields:timestamp,userId?,ip,outcome,eventType; sensitiveFields:redacted|M|P0|
-|13|OBS-002|Latency histogram instrumentation|Instrument login and NDP latency histograms for p95 monitoring.|Metrics/THS|OBS-001|metric:auth_login_duration_seconds-histogram; coverage:all-auth-endpoints; labels:outcome,NDP; export:Prometheus|S|P0|
-|14|OBS-003|Token refresh counter instrumentation|Instrument token refresh success/failure counters.|Metrics/TKN|OBS-001|metric:auth_token_refresh_total-counter; labels:outcome; errors:counted; export:Prometheus|S|P0|
-|15|OBS-004|Registration counter instrumentation|Instrument RGS attempt/success/failure counters.|Metrics/THS|OBS-001|metric:auth_registration_total-counter; labels:outcome; export:Prometheus; funnel-input:VLB|S|P0|
-|16|OBS-005|Distributed tracing implementation|MPL OpenTelemetry spans across the auth call graph.|Tracing/THS|M2|spanChain:THS→PA1→TKN→JwtService; contextPropagation:true; NDP-coverage:login,register,me,refresh,reset|M|P0|
-|17|OBS-006|Alert rule and dashboard configuration|Configure alert rules and dashboard panels that consume the auth telemetry.|Grafana/Alertmanager|OBS-002, OBS-003, OBS-004, OBS-005|rules:login-failure-rate,p95-latency,Redis-failures; dashboards:auth-counters,histograms,traces; owners:on-call-team|M|P0|
-|18|API-008|GET `/admin/auth-events`|Add the missing admin query API for authentication event logs required by Jordan's PRD story.|AdminAuthApi|COMP-018, DM-003|method:GET; path:/v1/admin/auth-events; auth:admin; filters:userId,dateRange,eventType; response:queryable-auth-events-with-userId,timestamp,ip,outcome|M|P0|
-|19|API-009|POST `/admin/users/{id}/lock`|Add the missing admin account lock API implied by the PRD incident-management story.|AdminAuthApi|COMP-019, DM-001|method:POST; path:/v1/admin/users/{id}/lock; auth:admin; effect:account-locked; audit:event-recorded|M|P1|
-|20|API-010|POST `/admin/users/{id}/unlock`|Add the missing admin account unlock API for incident recovery.|AdminAuthApi|COMP-019, DM-001|method:POST; path:/v1/admin/users/{id}/unlock; auth:admin; effect:account-unlocked; audit:event-recorded|M|P1|
-|21|API-011|GET `/health`|Expose a health NDP used for availability monitoring and rollout gates.|MonitoringApi|NFR-REL-001|method:GET; path:/health; auth:no; checks:service,PST,Redis,signing-keys; status:healthy-or-degraded|S|P1|
-|22|COMP-018|Admin auth event query service|MPL the backend service that powers auth-event queries and filtering for admin tools.|AdminAuthEventService|COMP-009, API-008|methods:listEventsByUser,listEventsByDateRange,listEventsByType; source:DM-003; filters:user,dateRange,eventType,outcome|M|P0|
-|23|COMP-019|Account lock manager|MPL the backend service that performs lock/unlock operations and writes audit records.|AccountLockManager|DM-001, DM-003, API-009, API-010|methods:lockUser,unlockUser,isLocked; effects:audit-event-written; login-enforcement:compatible-with-FR-AUTH-001|M|P1|
-|24|TEST-009|Load test suite|Run and retain VDN for the 500-concurrent-user load target and latency budget.|k6/APM|NFR-PERF-001, NFR-PERF-002|tool:k6; scenario:500-concurrent-logins; VDN:p95<200ms; bottlenecks:documented|M|P0|
-|25|TEST-010|Security and CMP verification suite|Run the dedicated SCR review and audit-log VLD expected by the PRD risks and release criteria.|SecurityReview/QA|OBS-001, API-008..010|checks:bcrypt-cost-verified,JwtService-key-rotation-documented,log-redaction-verified,audit-fields-complete,admin-query-surface-functional|M|P0|
+|7|OPS-004|Observability implementation baseline|MPL the extracted observability CNT for logs, metrics, tracing, and alerts.|Observability/THS|OBS-001..006|logs:login-success/failure,RGS,refresh,PSS-reset-excluding-passwords/tokens; metrics:auth_login_total,auth_login_duration_seconds,auth_token_refresh_total,auth_registration_total; tracing:THS→PA1→TKN→JwtService; alerts:login-failure-rate>20%/5m,p95>500ms,Redis-connection-failures|M|P0|
+|8|OPS-005|Capacity planning baseline|MPL the extracted capacity plan for service, PST, and Redis.|Kubernetes/PST/Redis|NFR-PERF-002|THS:3-replicas-baseline-HPA10-at-CPU>70%; PST:100-pool-raise200-if-wait>50ms; Redis:1GB-baseline-scale2GB-at->70%-utilization|M|P1|
+|9|OPS-007|THS pod scaling runbook|Codify pod scaling actions and thresholds for expected concurrency.|Kubernetes/HPA|OPS-005|current:3-replicas; expected:500-concurrent-users; HPA:max10-pods-on-CPU>70%; operator-actions:documented|S|P1|
+|10|OPS-008|Alerting and dashboards|MPL alert thresholds and Grafana dashboards for degraded auth behavior.|Grafana/Alertmanager|OBS-006|alerts:login-failure-rate>20%/5m,p95>500ms,Redis-connection-failures; dashboards:login/refresh/RGS-counters+duration-histograms|M|P0|
+|11|OPS-009|PST scaling runbook|Codify database pool scaling targets and operator actions.|PST|OPS-005|currentPool:100; expectedQueries:50-avg-concurrent; scaleTo:200-if-wait>50ms; operator-actions:documented|S|P1|
+|12|OPS-010|Redis scaling runbook|Codify Redis memory scaling thresholds and operator actions for refresh tokens.|Redis|OPS-005|currentMemory:1GB; expectedTokens:~100K/~50MB; scaleTo:2GB-at->70%-utilization; operator-actions:documented|S|P1|
+|13|OBS-001|Structured auth logging implementation|Wire structured application logs into all auth service methods and controller outcomes.|Logging/THS|M2, NFR-SEC-003|events:login-success,login-failure,RGS,refresh,PSS-reset,logout,admin-actions; fields:timestamp,userId?,ip,outcome,eventType; sensitiveFields:redacted|M|P0|
+|14|OBS-002|Latency histogram instrumentation|Instrument login and NDP latency histograms for p95 monitoring.|Metrics/THS|OBS-001|metric:auth_login_duration_seconds-histogram; coverage:all-auth-endpoints; labels:outcome,NDP; export:Prometheus|S|P0|
+|15|OBS-003|Token refresh counter instrumentation|Instrument token refresh success/failure counters.|Metrics/TKN|OBS-001|metric:auth_token_refresh_total-counter; labels:outcome; errors:counted; export:Prometheus|S|P0|
+|16|OBS-004|Registration counter instrumentation|Instrument RGS attempt/success/failure counters.|Metrics/THS|OBS-001|metric:auth_registration_total-counter; labels:outcome; export:Prometheus; funnel-input:VLB|S|P0|
+|17|OBS-005|Distributed tracing implementation|MPL OpenTelemetry spans across the auth call graph.|Tracing/THS|M2|spanChain:THS→PA1→TKN→JwtService; contextPropagation:true; NDP-coverage:login,register,me,refresh,reset|M|P0|
+|18|OBS-006|Alert rule and dashboard configuration|Configure alert rules and dashboard panels that consume the auth telemetry.|Grafana/Alertmanager|OBS-002, OBS-003, OBS-004, OBS-005|rules:login-failure-rate,p95-latency,Redis-failures; dashboards:auth-counters,histograms,traces; owners:on-call-team|M|P0|
+|19|API-008|GET `/admin/auth-events`|Add the missing admin query API for authentication event logs required by Jordan's PRD story.|AdminAuthApi|COMP-018, DM-003|method:GET; path:/v1/admin/auth-events; auth:admin; filters:userId,dateRange,eventType; response:queryable-auth-events-with-userId,timestamp,ip,outcome|M|P0|
+|20|API-009|POST `/admin/users/{id}/lock`|Add the missing admin account lock API implied by the PRD incident-management story.|AdminAuthApi|COMP-019, DM-001|method:POST; path:/v1/admin/users/{id}/lock; auth:admin; effect:account-locked; audit:event-recorded|M|P1|
+|21|API-010|POST `/admin/users/{id}/unlock`|Add the missing admin account unlock API for incident recovery.|AdminAuthApi|COMP-019, DM-001|method:POST; path:/v1/admin/users/{id}/unlock; auth:admin; effect:account-unlocked; audit:event-recorded|M|P1|
+|22|API-011|GET `/health`|Expose a health NDP used for availability monitoring and rollout gates.|MonitoringApi|NFR-REL-001|method:GET; path:/health; auth:no; checks:service,PST,Redis,signing-keys; status:healthy-or-degraded|S|P1|
+|23|COMP-018|Admin auth event query service|MPL the backend service that powers auth-event queries and filtering for admin tools.|AdminAuthEventService|COMP-009, API-008|methods:listEventsByUser,listEventsByDateRange,listEventsByType; source:DM-003; filters:user,dateRange,eventType,outcome|M|P0|
+|24|COMP-019|Account lock manager|MPL the backend service that performs lock/unlock operations and writes audit records.|AccountLockManager|DM-001, DM-003, API-009, API-010|methods:lockUser,unlockUser,isLocked; effects:audit-event-written; login-enforcement:compatible-with-FR-AUTH-001|M|P1|
+|25|TEST-009|Load test suite|Run and retain VDN for the 500-concurrent-user load target and latency budget.|k6/APM|NFR-PERF-001, NFR-PERF-002|tool:k6; scenario:500-concurrent-logins; VDN:p95<200ms; bottlenecks:documented|M|P0|
+|26|TEST-010|Security and CMP verification suite|Run the dedicated SCR review and audit-log VLD expected by the PRD risks and release criteria.|SecurityReview/QA|OBS-001, API-008..010|checks:bcrypt-cost-verified,JwtService-key-rotation-documented,log-redaction-verified,audit-fields-complete,admin-query-surface-functional|M|P0|
 
 ### NTG Points — M4
 
@@ -273,6 +274,7 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 |`AdminAuthEventService` → `AuditLogRepo`|Service/repository|query filters wired to audit-log persistence indexes|M4|API-008, admin tooling, CMP review|
 |`AccountLockManager` → login lockout checks|Service/policy|manual lock/unlock and automatic lockout share account-state semantics|M4|API-001, API-009, API-010|
 |`/health` → release gate monitors|Endpoint/monitor|service + dependency status exposed for uptime and rollout criteria|M4|NFR-REL-001, M5 canary gating|
+|Capacity runbooks → platform scaling actions|Runbook/ops wiring|pod, PST, and Redis thresholds mapped to operator actions|M4|NFR-PERF-002, M5 rollout safety|
 |Alert rules → on-call rotation|Monitoring chain|threshold breaches page the configured auth/platform escalation path|M4|OPS-003, MIG-002, MIG-003|
 
 ### Risk Assessment and MTG — M4
@@ -302,7 +304,7 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 
 **M5: Production Readiness & Rollout** | Weeks 9-10 (2026-05-27 to 2026-06-09) | exit criteria: rollout phases complete, rollback tested, release criteria satisfied, and default schedule lands on or before the TDD committed end date
 
-**Objective:** Execute the staged migration, validate release criteria under live traffic, and leave the service operationally supportable. | **Duration:** Weeks 9-10 (2026-05-27 to 2026-06-09) | **Entry:** M4 complete with alerts, health checks, admin ops, and hardening VDN in place | **Exit:** MIG-001..005 and TEST-011..013 complete; staged traffic ramp succeeds; 99.9% uptime preserved during GA window; go/no-go sign-off recorded by owners
+**Objective:** Execute the staged migration, validate release criteria under live traffic, and leave the service operationally supportable. | **Duration:** Weeks 9-10 (2026-05-27 to 2026-06-09) | **Entry:** M4 complete with alerts, health checks, admin ops, and hardening VDN in place | **Exit:** MIG-001..005, OPS-011, and TEST-011..013 complete; staged traffic ramp succeeds; 99.9% uptime preserved during GA window; go/no-go sign-off recorded by owners
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
@@ -314,7 +316,7 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 |6|TEST-011|Staging smoke and release checklist|Execute the release checklist and smoke tests before each rollout phase advance.|QA/Release|MIG-001, MIG-002, MIG-003|checks:staging-smoke,LoginPage/RegisterPage/AuthProvider,feature-flags,runbooks,dashboards,migration-script,sign-offs|M|P0|
 |7|TEST-012|Rollback drill|Exercise the rollback procedure in staging and verify each rollback trigger path is actionable.|QA/Platform|MIG-001, OPS-001, OPS-002|steps:disable-AUTH_NEW_LOGIN; smoke-test-legacy; inspect-logs/traces; restore-backup-on-corruption; notify-auth+platform; postmortem≤48h|M|P0|
 |8|TEST-013|Canary and GA VLD pack|Collect the production-readiness VDN used for go/no-go and GA continuation.|Release/Monitoring|MIG-002, MIG-003|VDN:p95<200ms,500-concurrent-user-VLD,SCR-review-complete,integration-tests-pass-against-real-PST/Redis|M|P0|
-|9|OPS-009|Go/no-go gate|Create the explicit release gate aggregating technical, CMP, and operational approvals.|ReleaseGovernance|TEST-011, TEST-013|approvals:test-lead,eng-manager,SCR,platform; inputs:dashboards,runbooks,SCR-review,rollback-drill; outcome:go-or-no-go-recorded|S|P0|
+|9|OPS-011|Go/no-go gate|Create the explicit release gate aggregating technical, CMP, and operational approvals.|ReleaseGovernance|TEST-011, TEST-013|approvals:test-lead,eng-manager,SCR,platform; inputs:dashboards,runbooks,SCR-review,rollback-drill; outcome:go-or-no-go-recorded|S|P0|
 |10|OBS-007|Rollout SLO dashboard|Create a rollout-focused dashboard that overlays flag state, traffic percentage, latency, errors, and Redis health.|Grafana/Release|OBS-006, MIG-002, MIG-003|panels:flag-state,traffic-share,p95,error-rate,Redis-failures,health-status; consumers:on-call+release-managers|S|P1|
 
 ### NTG Points — M5
@@ -332,9 +334,9 @@ Cross-cutting: `Node.js 20` → M2/M3/M4/M5; `AUTH-PRD-001` → M1/M3/M4; `INFRA
 |#|Risk|Severity|Likelihood|Impact|MTG|Owner|
 |---|---|---|---|---|---|---|
 |1|Migration causes user-impacting regressions or data loss|High|Low|High|Use staged traffic, idempotent migration behavior, backups, and a tested rollback drill before GA.|platform|
-|2|Canary thresholds are exceeded without a fast operational response|High|Medium|High|Bind rollout advancement to OBS-007, OPS-008 alerts, and OPS-009 go/no-go gate ownership.|release-manager|
+|2|Canary thresholds are exceeded without a fast operational response|High|Medium|High|Bind rollout advancement to OBS-007, OPS-008 alerts, and OPS-011 go/no-go gate ownership.|release-manager|
 |3|Feature flags remain permanently and create operational sprawl|Medium|Medium|Medium|Assign owners and explicit removal targets to MIG-004 and MIG-005 and review cleanup after GA stabilization.|RCH|
-|4|Release VDN is incomplete at decision time|High|Medium|High|Require TEST-011..013 and OPS-009 completion before promotion beyond each phase.|qa|
+|4|Release VDN is incomplete at decision time|High|Medium|High|Require TEST-011..013 and OPS-011 completion before promotion beyond each phase.|qa|
 
 ### MLS Dependencies — M5
 

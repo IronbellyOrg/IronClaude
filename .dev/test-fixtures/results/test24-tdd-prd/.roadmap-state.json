@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/test-tdd-user-auth.md",
+  "tdd_file": null,
+  "prd_file": "/config/workspace/SuperClaude_Framework/.dev/test-fixtures/test-prd-user-auth.md",
+  "input_type": "tdd",
+  "spec_hash": "43c9e660788020b6fd44044c413e818b66481006e1e84e4bc1955b4aad478c5b",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-04-20T19:21:04.039596+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/extraction.md",
+      "started_at": "2026-04-20T18:39:52.493493+00:00",
+      "completed_at": "2026-04-20T18:41:45.687147+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/roadmap-opus-architect.md",
+      "started_at": "2026-04-20T18:41:45.704230+00:00",
+      "completed_at": "2026-04-20T18:53:55.979628+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/roadmap-haiku-architect.md",
+      "started_at": "2026-04-20T18:41:45.704611+00:00",
+      "completed_at": "2026-04-20T18:56:05.993183+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/diff-analysis.md",
+      "started_at": "2026-04-20T18:56:06.013748+00:00",
+      "completed_at": "2026-04-20T18:58:11.212412+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/debate-transcript.md",
+      "started_at": "2026-04-20T18:58:11.212843+00:00",
+      "completed_at": "2026-04-20T18:59:34.393393+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/base-selection.md",
+      "started_at": "2026-04-20T18:59:34.393837+00:00",
+      "completed_at": "2026-04-20T19:01:06.586211+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/roadmap.md",
+      "started_at": "2026-04-20T19:01:06.587161+00:00",
+      "completed_at": "2026-04-20T19:17:43.887378+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/anti-instinct-audit.md",
+      "started_at": "2026-04-20T19:17:43.890579+00:00",
+      "completed_at": "2026-04-20T19:17:43.918935+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/test-strategy.md",
+      "started_at": "2026-04-20T19:17:43.919044+00:00",
+      "completed_at": "2026-04-20T19:20:15.126335+00:00"
+    },
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/spec-fidelity.md",
+      "started_at": "2026-04-20T19:20:15.127727+00:00",
+      "completed_at": "2026-04-20T19:21:03.309039+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/wiring-verification.md",
+      "started_at": "2026-04-20T19:21:03.310082+00:00",
+      "completed_at": "2026-04-20T19:21:04.038379+00:00"
+    },
+    "deviation-analysis": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/spec-deviations.md",
+      "started_at": "2026-04-20T19:21:04.038538+00:00",
+      "completed_at": "2026-04-20T19:21:04.038711+00:00"
+    },
+    "remediate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/SuperClaude_Framework/dev/test-fixtures/test24-tdd-prd/remediation-tasklist.md",
+      "started_at": "2026-04-20T19:21:04.038863+00:00",
+      "completed_at": "2026-04-20T19:21:04.039351+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "fail",
+    "timestamp": "2026-04-20T19:27:23.293871+00:00"
+  }
+}

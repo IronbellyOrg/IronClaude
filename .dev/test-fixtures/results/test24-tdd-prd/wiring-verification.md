@@ -25,7 +25,7 @@ whitelist_entries_applied: 0
 - **Rollout mode**: soft
 - **Total findings**: 7
 - **Blocking findings**: 0
-- **Scan duration**: 0.6797s
+- **Scan duration**: 0.7275s
 
 ## Unwired Optional Callable Injections
 
