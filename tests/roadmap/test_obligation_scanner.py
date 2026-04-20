@@ -394,3 +394,149 @@ Replace mock with real.
         report = scan_obligations(content)
         assert report.total_obligations >= 1
         assert report.obligations[0].phase == "entire-document"
+
+
+class TestScaffoldingDescriptiveUseNotDetected:
+    """`scaffold(ing|ed)?` as a descriptive noun is not an obligation.
+
+    Mirrors the existing skeleton-imperative-verb filter. Only flag when the
+    term is the direct object of an imperative verb.
+    """
+
+    def test_ownership_context_not_detected(self):
+        """'team owns scaffolding' is organizational, not a scaffold artifact."""
+        content = """\
+## M1: Foundation
+- Personnel: PT provisions infra; auth-team owns scaffolding; sec-reviewer signs off.
+
+## M2: Done
+Ship it.
+"""
+        report = scan_obligations(content)
+        scaffold_obs = [
+            o for o in report.obligations if o.term.lower().startswith("scaffold")
+        ]
+        assert scaffold_obs == [], (
+            f"Expected no scaffold obligations, got: "
+            f"{[o.context for o in scaffold_obs]}"
+        )
+
+    def test_descriptive_noun_context_not_detected(self):
+        """'scaffolding work' / 'for scaffolding' is descriptive, not an obligation."""
+        content = """\
+## M1: Setup
+Fallback to dev-managed instances for scaffolding work if provisioning slips.
+
+## M2: Done
+Ship it.
+"""
+        report = scan_obligations(content)
+        scaffold_obs = [
+            o for o in report.obligations if o.term.lower().startswith("scaffold")
+        ]
+        assert scaffold_obs == []
+
+    def test_imperative_build_still_detected(self):
+        """'Build scaffolding' is a real obligation and must still be flagged."""
+        content = """\
+## M1: Setup
+Build scaffolding for the CLI module.
+
+## M2: Done
+Ship it.
+"""
+        report = scan_obligations(content)
+        terms = [o.term.lower() for o in report.obligations]
+        assert any("scaffold" in t for t in terms)
+
+    def test_imperative_set_up_still_detected(self):
+        """Existing 'Set up scaffolding' behavior preserved."""
+        content = "## M1\nSet up scaffolding for CLI.\n## M2\nDone."
+        report = scan_obligations(content)
+        assert any(
+            o.term.lower().startswith("scaffold") for o in report.obligations
+        )
+
+    def test_imperative_stand_up_detected(self):
+        """'Stand up scaffolding' is an obligation (newly supported verb)."""
+        content = "## M1\nStand up scaffolding for the CLI.\n## M2\nDone."
+        report = scan_obligations(content)
+        assert any(
+            o.term.lower().startswith("scaffold") for o in report.obligations
+        )
+
+
+class TestFieldLabelComponentExtraction:
+    """Fix 3: field-label words should not be used as component identity.
+
+    When a scaffold term appears in a Markdown list item whose label is
+    'Personnel:', 'Decisions:', etc., the label is document metadata, not a
+    component — the discharge search cannot succeed if we use it.
+    """
+
+    def test_personnel_label_not_used_as_component(self):
+        """Personnel label must not become the component name."""
+        # Note: this uses an imperative verb so the scaffold filter doesn't
+        # skip it — we specifically want to test component extraction.
+        content = """\
+## M1: Foundation
+- Personnel: auth-team will build scaffolding for `AuthExecutor` this sprint.
+
+## M2: Integration
+Wire up `AuthExecutor` to the real token service.
+"""
+        report = scan_obligations(content)
+        scaffold_obs = [
+            o for o in report.obligations if o.term.lower().startswith("scaffold")
+        ]
+        assert len(scaffold_obs) == 1
+        o = scaffold_obs[0]
+        # Component should be the backtick term (priority 1), not 'personnel'
+        assert o.component == "authexecutor"
+        # And since the later phase references AuthExecutor with a discharge
+        # verb, it should be discharged.
+        assert o.discharged
+
+    def test_decisions_label_not_used_as_component(self):
+        """Decisions label must not become the component name."""
+        content = """\
+## M1: Foundation
+- Decisions: team will build scaffolding module before freeze.
+
+## M2: Integration
+Wire up the scaffolding module into the pipeline.
+"""
+        report = scan_obligations(content)
+        scaffold_obs = [
+            o for o in report.obligations if o.term.lower().startswith("scaffold")
+        ]
+        # At least one real obligation exists; its component must not be
+        # 'decisions'.
+        for o in scaffold_obs:
+            assert o.component != "decisions"
+
+    def test_regression_anti_instinct_false_positive(self):
+        """Real-world regression: M1 'Personnel: ... owns scaffolding' was
+        falsely flagged as undischarged because the component extracted was
+        'personnel', which never appears in later technical content.
+        """
+        content = """\
+## M1: Foundation & Infrastructure
+- External: PST license approval; Redis cluster; SendGrid account.
+- Decisions: CONFLICT-1 closed before M1 exit.
+- Personnel: PT provisions infra; auth-team owns scaffolding; sec-reviewer signs off.
+
+## M2: Auth Core
+Wire up `TokenService` to Redis. Integrate JWT signer.
+
+## M3: Features
+Implement real password reset flow.
+
+## M4: Hardening
+Run load tests and finalize RBAC.
+"""
+        report = scan_obligations(content)
+        assert report.undischarged_count == 0, (
+            f"Expected no undischarged obligations, got: "
+            f"{[(o.phase, o.term, o.component, o.context) for o in report.obligations if not o.discharged]}"
+        )

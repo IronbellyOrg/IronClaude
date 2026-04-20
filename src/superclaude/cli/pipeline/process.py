@@ -71,7 +71,11 @@ class ClaudeProcess:
         self._stderr_fh = None
 
     def build_command(self) -> list[str]:
-        """Build the claude CLI command."""
+        """Build the claude CLI command.
+
+        Prompt is delivered via stdin in start(), not as a -p argv value,
+        to bypass the Linux MAX_ARG_STRLEN = 128 KB per-argument ceiling.
+        """
         cmd = [
             "claude",
             "--print",
@@ -84,8 +88,6 @@ class ClaudeProcess:
             str(self.max_turns),
             "--output-format",
             self.output_format,
-            "-p",
-            self.prompt,
         ]
         if self.model:
             cmd.extend(["--model", self.model])
@@ -121,7 +123,7 @@ class ClaudeProcess:
         self._stderr_fh = open(self.error_file, "w")
 
         popen_kwargs = {
-            "stdin": subprocess.DEVNULL,
+            "stdin": subprocess.PIPE,
             "stdout": self._stdout_fh,
             "stderr": self._stderr_fh,
             "env": self.build_env(env_vars=self._extra_env_vars),
@@ -130,6 +132,18 @@ class ClaudeProcess:
             popen_kwargs["preexec_fn"] = os.setpgrp
 
         self._process = subprocess.Popen(self.build_command(), **popen_kwargs)
+
+        # Deliver the prompt via stdin to bypass the Linux MAX_ARG_STRLEN
+        # (128 KB per-argv-entry) kernel ceiling. Deadlock-safe: stdout/stderr
+        # are real file handles, not pipes, so the parent never reads from the
+        # child and a blocked stdin write cannot deadlock.
+        try:
+            if self._process.stdin is not None:
+                self._process.stdin.write(self.prompt.encode("utf-8"))
+                self._process.stdin.close()
+        except BrokenPipeError:
+            # Child exited before reading stdin; wait() will surface the exit code.
+            pass
 
         if self._on_spawn is not None:
             self._on_spawn(self._process.pid)

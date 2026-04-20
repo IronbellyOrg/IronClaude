@@ -25,6 +25,7 @@ from superclaude.cli.roadmap.executor import (
     _build_steps,
     _compress_for_llm,
     _compressed_sidecar,
+    _ensure_sidecars_present,
     _llm_inputs_for,
     roadmap_run_step,
 )
@@ -277,3 +278,102 @@ class TestCompressForLlmHelper:
         assert sidecar == out / "spec.compressed.md"
         assert sidecar.exists()
         assert sidecar.read_text().strip().startswith("# Spec")
+
+
+class TestSelfHealingSidecars:
+    """Covers ``_ensure_sidecars_present``: when a downstream step's input
+    is a compressed sidecar that never landed on disk (interrupted prior
+    session, silent hook failure), the helper regenerates it just-in-time
+    from the original so the step can run instead of crashing with
+    ``FileNotFoundError``.
+    """
+
+    def test_regenerates_missing_merge_sidecar_from_original(
+        self, config_on: RoadmapConfig
+    ) -> None:
+        out = config_on.output_dir
+        out.mkdir(parents=True, exist_ok=True)
+        original = out / "roadmap.md"
+        original.write_text("# Roadmap\n\nM1\n")
+        sidecar = out / "roadmap.compressed.md"
+        assert not sidecar.exists()
+
+        _ensure_sidecars_present([sidecar], config_on)
+
+        assert sidecar.exists()
+        assert "Roadmap" in sidecar.read_text()
+
+    def test_regenerates_missing_spec_sidecar_from_original(
+        self, config_on: RoadmapConfig
+    ) -> None:
+        # Spec sidecar path depends on the spec's own stem.
+        sidecar = _compressed_sidecar(config_on.spec_file, config_on.output_dir)
+        config_on.output_dir.mkdir(parents=True, exist_ok=True)
+        assert not sidecar.exists()
+
+        _ensure_sidecars_present([sidecar], config_on)
+
+        assert sidecar.exists()
+        assert "Spec" in sidecar.read_text()
+
+    def test_falls_back_to_byte_mirror_when_compression_raises(
+        self, config_on: RoadmapConfig
+    ) -> None:
+        out = config_on.output_dir
+        out.mkdir(parents=True, exist_ok=True)
+        original = out / "roadmap.md"
+        original.write_text("# Roadmap\n\nM1\n")
+        sidecar = out / "roadmap.compressed.md"
+
+        with patch(
+            "superclaude.cli.roadmap.executor._compress_for_llm",
+            side_effect=RuntimeError("boom"),
+        ):
+            _ensure_sidecars_present([sidecar], config_on)
+
+        assert sidecar.exists()
+        assert sidecar.read_text() == original.read_text()
+
+    def test_existing_sidecar_is_not_touched(self, config_on: RoadmapConfig) -> None:
+        out = config_on.output_dir
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "roadmap.md").write_text("# Roadmap\n")
+        sidecar = out / "roadmap.compressed.md"
+        sidecar.write_text("already-compressed-content")
+
+        _ensure_sidecars_present([sidecar], config_on)
+
+        assert sidecar.read_text() == "already-compressed-content"
+
+    def test_noop_when_original_also_missing(
+        self, config_on: RoadmapConfig
+    ) -> None:
+        out = config_on.output_dir
+        out.mkdir(parents=True, exist_ok=True)
+        sidecar = out / "roadmap.compressed.md"
+        # Neither original nor sidecar exist.
+
+        _ensure_sidecars_present([sidecar], config_on)
+
+        assert not sidecar.exists()
+
+    def test_noop_when_compression_disabled(self, config_off: RoadmapConfig) -> None:
+        out = config_off.output_dir
+        out.mkdir(parents=True, exist_ok=True)
+        original = out / "roadmap.md"
+        original.write_text("# Roadmap\n")
+        sidecar = out / "roadmap.compressed.md"
+
+        _ensure_sidecars_present([sidecar], config_off)
+
+        assert not sidecar.exists()
+
+    def test_ignores_non_sidecar_paths(self, config_on: RoadmapConfig) -> None:
+        out = config_on.output_dir
+        out.mkdir(parents=True, exist_ok=True)
+        plain = out / "extraction.md"
+
+        _ensure_sidecars_present([plain], config_on)
+
+        # No file materializes for non-sidecar inputs.
+        assert not plain.exists()

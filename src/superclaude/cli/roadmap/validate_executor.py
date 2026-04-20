@@ -30,8 +30,11 @@ from .validate_prompts import build_merge_prompt, build_reflect_prompt
 
 _log = logging.getLogger("superclaude.roadmap.validate_executor")
 
-# Threshold above which inline embedding logs a warning (--file fallback removed)
-_EMBED_SIZE_LIMIT = 100 * 1024  # 100 KB
+# Token-context advisory threshold (soft warning, non-fatal).
+# Prompts are delivered via stdin in ClaudeProcess.start, bypassing the Linux
+# MAX_ARG_STRLEN ceiling. This threshold only surfaces prompts that may strain
+# the model's context window.
+_LARGE_PROMPT_WARN_BYTES = 500 * 1024  # 500 KB
 
 # Required input files for validation
 _REQUIRED_INPUTS = ("roadmap.md", "test-strategy.md", "extraction.md")
@@ -99,16 +102,16 @@ def validate_run_step(
             finished_at=datetime.now(timezone.utc),
         )
 
-    # Inline embedding: --file is broken (cloud download mechanism, not local
-    # file injector) so inline embedding is always used regardless of size.
+    # Prompt + inputs are composed inline and delivered via stdin downstream.
     embedded = _embed_inputs(step.inputs)
     if embedded:
         composed = step.prompt + "\n\n" + embedded
-        if len(composed.encode("utf-8")) > _EMBED_SIZE_LIMIT:
+        if len(composed.encode("utf-8")) > _LARGE_PROMPT_WARN_BYTES:
             _log.warning(
-                "validate_executor: composed prompt exceeds %d bytes;"
-                " embedding inline anyway (--file fallback is unavailable)",
-                _EMBED_SIZE_LIMIT,
+                "validate_executor: composed prompt is %d bytes (> %d);"
+                " may strain model context window",
+                len(composed.encode("utf-8")),
+                _LARGE_PROMPT_WARN_BYTES,
             )
         effective_prompt = composed
         extra_args: list[str] = []

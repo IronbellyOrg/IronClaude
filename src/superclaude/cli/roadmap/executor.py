@@ -319,16 +319,11 @@ def _route_input_files(
     }
 
 
-# Linux kernel compile-time constant (arch/arm64, x86_64, etc.)
-_MAX_ARG_STRLEN = 128 * 1024
-# 2.3x safety factor; measured template peak ~3.4 KB
-_PROMPT_TEMPLATE_OVERHEAD = 8 * 1024
-# Derivation: MAX_ARG_STRLEN - PROMPT_TEMPLATE_OVERHEAD = 120 KB = 122,880 bytes
-_EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD
-assert _PROMPT_TEMPLATE_OVERHEAD >= 4096, (
-    "Kernel margin violated: _PROMPT_TEMPLATE_OVERHEAD must be >=4096 bytes "
-    "to stay safely below MAX_ARG_STRLEN=128 KB; measured template peak ~3.4 KB"
-)
+# Token-context advisory threshold (soft warning, non-fatal).
+# Prompts are delivered to `claude` via stdin (see ClaudeProcess.start), so the
+# Linux MAX_ARG_STRLEN = 128 KB kernel ceiling no longer applies. This threshold
+# only surfaces prompts large enough to strain the model's context window.
+_LARGE_PROMPT_WARN_BYTES = 500 * 1024  # 500 KB
 
 
 def _compressed_sidecar(original: Path, output_dir: Path) -> Path:
@@ -434,6 +429,82 @@ def _llm_inputs_for(
         else:
             out.append(p)
     return out
+
+
+def _ensure_sidecars_present(
+    inputs: list[Path],
+    config: RoadmapConfig,
+) -> None:
+    """Regenerate any missing ``.compressed.md`` sidecars in *inputs* in place.
+
+    ``_llm_inputs_for`` reroutes rerouteable paths to their compressed
+    sidecars at plan-build time. The sidecars are normally produced by the
+    up-front pipeline-input compression pass (for spec/TDD/PRD) or by the
+    post-step hook (for generate-*/merge outputs). When a prior session is
+    interrupted between writing the original and its sidecar -- or the hook
+    silently failed to land the sidecar -- the next step that consumes that
+    input would fail with ``FileNotFoundError``. This helper repairs that
+    state just-in-time: if the sidecar's original exists but the sidecar
+    does not, it rebuilds the sidecar (falling back to mirroring the
+    original bytes on compression failure, same guarantee as
+    ``_compress_pipeline_input``).
+
+    No-op when ``compress_enabled`` is false or when no inputs are
+    rerouteable sidecars.
+    """
+    if not config.compress_enabled:
+        return
+
+    # Mirror the routing table used by ``_llm_inputs_for`` so we can recover
+    # the original path and doc_type from a sidecar alone. Spec/TDD/PRD
+    # originals typically live outside ``output_dir``, so their real path
+    # cannot be derived from the sidecar's stem.
+    recovery: dict[Path, tuple[Path, str]] = {
+        _compressed_sidecar(config.spec_file, config.output_dir): (config.spec_file, "spec"),
+    }
+    if config.tdd_file is not None:
+        recovery[_compressed_sidecar(config.tdd_file, config.output_dir)] = (
+            config.tdd_file,
+            "spec",
+        )
+    if config.prd_file is not None:
+        recovery[_compressed_sidecar(config.prd_file, config.output_dir)] = (
+            config.prd_file,
+            "spec",
+        )
+    for agent in config.agents:
+        variant = config.output_dir / f"roadmap-{agent.id}.md"
+        recovery[_compressed_sidecar(variant, config.output_dir)] = (variant, "roadmap")
+    merge = config.output_dir / "roadmap.md"
+    recovery[_compressed_sidecar(merge, config.output_dir)] = (merge, "roadmap")
+
+    for sidecar in inputs:
+        if sidecar is None:
+            continue
+        if sidecar.exists():
+            continue
+        entry = recovery.get(sidecar)
+        if entry is None:
+            continue
+        original, doc_type = entry
+        if not original.exists():
+            # Nothing to recover from; let the downstream read fail loudly
+            # with the original path so the user sees which artifact is gone.
+            continue
+        try:
+            _compress_for_llm(original, doc_type, config.output_dir)
+            _log.info(
+                "Self-healed missing sidecar %s from %s", sidecar, original,
+            )
+        except Exception as exc:  # noqa: BLE001 — degrade gracefully
+            _log.warning(
+                "Self-heal compression of %s failed (%s); "
+                "mirroring original bytes to sidecar.",
+                original,
+                exc,
+            )
+            sidecar.parent.mkdir(parents=True, exist_ok=True)
+            sidecar.write_bytes(original.read_bytes())
 
 
 def _embed_inputs(
@@ -962,16 +1033,17 @@ def roadmap_run_step(
                 labels[prd_cmp] = (
                     f"{prd_cmp} [PRD - supplementary business context, compressed]"
                 )
+    if isinstance(config, RoadmapConfig):
+        _ensure_sidecars_present(step.inputs, config)
     embedded = _embed_inputs(step.inputs, labels=labels)
     if embedded:
         composed = step.prompt + "\n\n" + embedded
-        if len(composed.encode("utf-8")) > _EMBED_SIZE_LIMIT:
-            # <= is intentional; _EMBED_SIZE_LIMIT = 120 KB is safely below MAX_ARG_STRLEN = 128 KB
+        if len(composed.encode("utf-8")) > _LARGE_PROMPT_WARN_BYTES:
             _log.warning(
-                "Step '%s': composed prompt exceeds %d bytes; embedding inline anyway"
-                " (--file fallback is unavailable)",
+                "Step '%s': composed prompt is %d bytes (> %d); may strain model context window",
                 step.id,
-                _EMBED_SIZE_LIMIT,
+                len(composed.encode("utf-8")),
+                _LARGE_PROMPT_WARN_BYTES,
             )
         effective_prompt = composed
         extra_args: list[str] = []
