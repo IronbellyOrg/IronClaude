@@ -148,7 +148,11 @@ class TrailingGateRunner:
                 sidecar = step.output_file.with_name(
                     f"{step.output_file.stem}.compressed.md"
                 )
-                target = sidecar if sidecar != step.output_file and sidecar.exists() else step.output_file
+                target = (
+                    sidecar
+                    if sidecar != step.output_file and sidecar.exists()
+                    else step.output_file
+                )
                 passed, reason = gate_check(target, step.gate)
                 elapsed_ms = (time.monotonic() - start) * 1000
                 result = TrailingGateResult(
@@ -311,8 +315,12 @@ def build_remediation_prompt(
     # Original acceptance criteria
     if original_step.gate is not None:
         gate = original_step.gate
+        field_labels = [
+            "|".join(f) if isinstance(f, tuple) else f
+            for f in gate.required_frontmatter_fields
+        ]
         criteria_lines = [
-            f"- Required frontmatter fields: {', '.join(gate.required_frontmatter_fields)}",
+            f"- Required frontmatter fields: {', '.join(field_labels)}",
             f"- Minimum lines: {gate.min_lines}",
             f"- Enforcement tier: {gate.enforcement_tier}",
         ]

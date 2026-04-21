@@ -166,6 +166,85 @@ _V224_FM_VALUES = {
 }
 
 
+def _template_compliant_body_lines(rows: int = 25) -> list[str]:
+    """Lines satisfying `_template_sections_present` for generate/merge steps.
+
+    Includes every required top-level H2 section, a single `## M1:` milestone
+    with its three required H3 subsections, and the two required H3s under
+    `## Resource Requirements and Dependencies`.
+    """
+    lines: list[str] = [
+        "",
+        "## Executive Summary",
+        "",
+        "Overview of the initiative.",
+        "",
+        "## Milestone Summary",
+        "",
+        "| Milestone | Title | Duration |",
+        "|---|---|---|",
+        "| M1 | Implementation | 2 weeks |",
+        "",
+        "## Dependency Graph",
+        "",
+        "M1 has no predecessors.",
+        "",
+        "## M1: Implementation",
+        "",
+        "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for i in range(1, rows + 1):
+        lines.append(
+            f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Integration Points — M1",
+            "",
+            "No external integration points.",
+            "",
+            "### Milestone Dependencies — M1",
+            "",
+            "None.",
+            "",
+            "### Risk Assessment and Mitigation — M1",
+            "",
+            "No significant risks identified.",
+            "",
+            "## Resource Requirements and Dependencies",
+            "",
+            "### External Dependencies",
+            "",
+            "None.",
+            "",
+            "### Infrastructure Requirements",
+            "",
+            "Standard CI runners.",
+            "",
+            "## Risk Register",
+            "",
+            "| ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |",
+            "|---|---|---|---|---|---|---|",
+            "| R-001 | None | M1 | Low | Low | N/A | team |",
+            "",
+            "## Success Criteria and Validation Approach",
+            "",
+            "All tests pass.",
+            "",
+            "## Decision Summary",
+            "",
+            "No pending decisions.",
+            "",
+            "## Timeline Estimates",
+            "",
+            "2 weeks total.",
+        ]
+    )
+    return lines
+
+
 def _build_step_content(step: Step) -> str:
     """Build gate-passing content for a step using v2.24 fixture values."""
     if step.gate is None:
@@ -173,10 +252,16 @@ def _build_step_content(step: Step) -> str:
 
     fm_fields: dict[str, str] = {}
     for f in step.gate.required_frontmatter_fields:
-        fm_fields[f] = _V224_FM_VALUES.get(f, "test_value")
+        # Tuple entries are alias groups -- satisfy by emitting the first alias.
+        key = f[0] if isinstance(f, tuple) else f
+        fm_fields[key] = _V224_FM_VALUES.get(key, "test_value")
     # Add extra fields needed by semantic checks (not in required list)
     _SEMANTIC_EXTRAS = {
-        "deviation-analysis": ["ambiguous_deviations", "routing_update_spec", "routing_human_review"],
+        "deviation-analysis": [
+            "ambiguous_deviations",
+            "routing_update_spec",
+            "routing_human_review",
+        ],
     }
     for extra in _SEMANTIC_EXTRAS.get(step.id, []):
         fm_fields[extra] = _V224_FM_VALUES.get(extra, "")
@@ -194,17 +279,7 @@ def _build_step_content(step: Step) -> str:
 
     # Add deliverable table rows for steps with _minimum_deliverable_rows check
     if step.id.startswith("generate") or step.id == "merge":
-        lines.append("")
-        lines.append("## M1: Implementation")
-        lines.append("")
-        lines.append(
-            "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
-        )
-        lines.append("|---|---|---|---|---|---|---|---|---|")
-        for i in range(1, 26):
-            lines.append(
-                f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
-            )
+        lines.extend(_template_compliant_body_lines(rows=25))
 
     # Add certification table for certify step
     if step.id == "certify":
