@@ -610,9 +610,9 @@ def _complexity_class_valid(content: str) -> bool:
 
 
 def _extraction_mode_valid(content: str) -> bool:
-    """Validate extraction_mode is 'standard' or starts with 'chunked' (case-insensitive).
+    """Validate extraction_mode is 'standard' or starts with 'chunked'.
 
-    Accepts: 'standard', 'chunked', 'chunked (3 chunks)', etc.
+    Accepts: 'standard', 'chunked', 'chunked (3 chunks)'.
     Rejects: 'full', 'partial', 'incremental'.
     """
     fm = _parse_frontmatter(content)
@@ -760,6 +760,201 @@ def _deviation_counts_reconciled(content: str) -> bool:
     return len(all_ids) == total_analyzed
 
 
+# --- Generate gate semantic checks ---
+
+
+def _minimum_deliverable_rows(content: str) -> bool:
+    """Verify the roadmap contains at least 20 deliverable table rows.
+
+    Counts markdown table data rows (lines starting with '|' that contain
+    a numeric first cell). Excludes header rows and separator rows.
+    The 20-row floor catches catastrophic consolidation where a rich input
+    produces only a handful of deliverables.
+    """
+    import re
+
+    count = 0
+    for line in content.splitlines():
+        stripped = line.strip()
+        # Skip non-table lines
+        if not stripped.startswith("|"):
+            continue
+        # Skip separator rows (|---|---|)
+        if re.match(r"^\|[\s:|-]+\|$", stripped):
+            continue
+        # Count rows where the first data cell is a number (task row #)
+        cells = [c.strip() for c in stripped.split("|") if c.strip()]
+        if cells and re.match(r"^\d+$", cells[0]):
+            count += 1
+    return count >= 20
+
+
+def _no_template_sentinels(content: str) -> bool:
+    """Verify no {{SC_PLACEHOLDER:*}} sentinels remain in the output.
+
+    Template sentinels indicate the LLM failed to replace a placeholder
+    section. A passing output must have zero remaining sentinels.
+    """
+    return "{{SC_PLACEHOLDER:" not in content
+
+
+def _deliverable_table_schema(content: str) -> bool:
+    """Verify the deliverable table uses the 9-column schema.
+
+    Required header (case-insensitive, short or long forms accepted):
+        | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |
+
+    At least one such header must be present. Catches LLM drift where
+    the milestone table reverts to the old 8-col schema or invents a
+    different shape.
+    """
+    import re
+
+    pattern = re.compile(
+        r"\|\s*#\s*"
+        r"\|\s*ID\s*"
+        r"\|\s*Title\s*"
+        r"\|\s*Description\s*"
+        r"\|\s*Comp(?:onent)?\s*"
+        r"\|\s*Dep(?:endencies|s)?\s*"
+        r"\|\s*(?:Acceptance Criteria|AC)\s*"
+        r"\|\s*(?:Effort|Eff)\s*"
+        r"\|\s*(?:Priority|Pri)\s*\|",
+        re.IGNORECASE,
+    )
+    return bool(pattern.search(content))
+
+
+# Required top-level H2 sections prescribed by roadmap_template.md.
+# Compared against heading text after it has been lowercased and stripped of
+# a leading "N." / "N.M." numbering prefix.
+_REQUIRED_H2_SECTIONS: frozenset[str] = frozenset(
+    {
+        "executive summary",
+        "milestone summary",
+        "dependency graph",
+        "resource requirements and dependencies",
+        "risk register",
+        "success criteria and validation approach",
+        "decision summary",
+        "timeline estimates",
+    }
+)
+
+# H3 subsection name-stems that must appear under every `## M{N}:` section.
+# The full heading is expected to be "<stem> <dash> M{N}" where <dash> is either
+# an em-dash ("\u2014") or a regular hyphen ("-").
+_REQUIRED_MILESTONE_SUBSECTIONS: tuple[str, ...] = (
+    "integration points",
+    "milestone dependencies",
+    "risk assessment and mitigation",
+)
+
+# H3 subsections required under `## Resource Requirements and Dependencies`.
+_REQUIRED_RESOURCE_SUBSECTIONS: frozenset[str] = frozenset(
+    {"external dependencies", "infrastructure requirements"}
+)
+
+
+def _normalize_heading(text: str) -> str:
+    """Lowercase and strip leading section numbering ("1.", "1.2.", "1.2.3.")."""
+    import re
+
+    stripped = re.sub(r"^\s*\d+(?:\.\d+)*\.?\s+", "", text.strip())
+    return stripped.lower().strip()
+
+
+def _template_sections_present(content: str) -> bool:
+    """Verify the generated roadmap contains every section prescribed by the template.
+
+    The roadmap template (src/superclaude/examples/roadmap_template.md) defines a
+    fixed skeleton: a set of top-level H2 sections plus, for each per-milestone
+    section, a set of required H3 subsections. This check catches LLM drift where
+    required sections are renamed, merged, split, or silently dropped -- a class
+    of failure the other structural checks (sentinels, deliverable schema, heading
+    gaps) do not detect on their own.
+
+    Rules:
+      - Every entry in `_REQUIRED_H2_SECTIONS` must appear as an H2 heading.
+      - At least one `## M{N}: <title>` milestone section must be present.
+      - Under every milestone H2, every entry in `_REQUIRED_MILESTONE_SUBSECTIONS`
+        must appear as an H3 heading of the form "<stem> <dash> M{N}" where
+        <dash> is em-dash ("\u2014") or a regular hyphen.
+      - Under `## Resource Requirements and Dependencies`, every entry in
+        `_REQUIRED_RESOURCE_SUBSECTIONS` must appear as an H3 heading.
+      - `Open Questions -- M{N}` is explicitly NOT required: the template omits
+        the subsection when a milestone has zero open questions.
+
+    Leading section numbering ("1.", "2.3.") is tolerated. Matching is
+    case-insensitive. Extra sections beyond the template are allowed; only the
+    absence of a required section fails the check.
+    """
+    import re
+
+    lines = content.splitlines()
+
+    # Walk the document once, recording H2 headings and their child H3s.
+    h2_headings: list[tuple[int, str]] = []  # (index-in-h2_headings, raw-text)
+    h3_by_h2: list[list[str]] = []  # parallel list: h3 raw-texts under each H2
+    current_bucket: list[str] | None = None
+
+    for line in lines:
+        stripped = line.lstrip()
+        if stripped.startswith("### "):
+            if current_bucket is not None:
+                current_bucket.append(stripped[4:].strip())
+        elif stripped.startswith("## ") and not stripped.startswith("### "):
+            text = stripped[3:].strip()
+            h2_headings.append((len(h2_headings), text))
+            current_bucket = []
+            h3_by_h2.append(current_bucket)
+        elif stripped.startswith("# ") and not stripped.startswith("## "):
+            # H1 resets H2 tracking but does not open a bucket itself.
+            current_bucket = None
+
+    h2_normalized = [_normalize_heading(text) for _, text in h2_headings]
+    h2_set = set(h2_normalized)
+
+    # Rule 1: all required H2 sections present.
+    if not _REQUIRED_H2_SECTIONS.issubset(h2_set):
+        return False
+
+    # Rule 2: at least one milestone section, and each has required H3s.
+    milestone_pattern = re.compile(r"^m(\d+)\s*:", re.IGNORECASE)
+    found_any_milestone = False
+    for (idx, _raw), normalized in zip(h2_headings, h2_normalized):
+        m = milestone_pattern.match(normalized)
+        if m is None:
+            continue
+        found_any_milestone = True
+        n = m.group(1)
+        h3_normalized = {_normalize_heading(h) for h in h3_by_h2[idx]}
+        for stem in _REQUIRED_MILESTONE_SUBSECTIONS:
+            # Accept em-dash or regular hyphen between stem and M{N}.
+            candidates = {
+                f"{stem} \u2014 m{n}",
+                f"{stem} - m{n}",
+                f"{stem} -- m{n}",
+            }
+            if not (candidates & h3_normalized):
+                return False
+
+    if not found_any_milestone:
+        return False
+
+    # Rule 3: Resource Requirements and Dependencies has the two required H3s.
+    try:
+        rr_index = h2_normalized.index("resource requirements and dependencies")
+    except ValueError:
+        # Already caught by Rule 1, but be explicit.
+        return False
+    rr_subs = {_normalize_heading(h) for h in h3_by_h2[rr_index]}
+    if not _REQUIRED_RESOURCE_SUBSECTIONS.issubset(rr_subs):
+        return False
+
+    return True
+
+
 # --- GateCriteria instances ---
 
 EXTRACT_GATE = GateCriteria(
@@ -789,7 +984,7 @@ EXTRACT_GATE = GateCriteria(
         SemanticCheck(
             name="extraction_mode_valid",
             check_fn=_extraction_mode_valid,
-            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+            failure_message="extraction_mode must be 'standard' or 'chunked'",
         ),
     ],
 )
@@ -829,7 +1024,7 @@ EXTRACT_TDD_GATE = GateCriteria(
         SemanticCheck(
             name="extraction_mode_valid",
             check_fn=_extraction_mode_valid,
-            failure_message="extraction_mode must be 'standard' or start with 'chunked'",
+            failure_message="extraction_mode must be 'standard' or 'chunked'",
         ),
     ],
 )
@@ -849,26 +1044,43 @@ GENERATE_A_GATE = GateCriteria(
             check_fn=_has_actionable_content,
             failure_message="No numbered or bulleted items found -- roadmap must contain actionable content",
         ),
+        SemanticCheck(
+            name="minimum_deliverable_rows",
+            check_fn=_minimum_deliverable_rows,
+            failure_message="Roadmap must contain at least 20 deliverable table rows (granularity floor)",
+        ),
+        SemanticCheck(
+            name="deliverable_table_schema",
+            check_fn=_deliverable_table_schema,
+            failure_message="Deliverable table header must use 9-column schema: | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |",
+        ),
+        SemanticCheck(
+            name="no_template_sentinels",
+            check_fn=_no_template_sentinels,
+            failure_message="Template sentinels {{SC_PLACEHOLDER:*}} remain -- all placeholders must be replaced",
+        ),
+        SemanticCheck(
+            name="template_sections_present",
+            check_fn=_template_sections_present,
+            failure_message=(
+                "Roadmap is missing one or more sections required by the template: "
+                "top-level H2s (Executive Summary, Milestone Summary, Dependency Graph, "
+                "Resource Requirements and Dependencies, Risk Register, "
+                "Success Criteria and Validation Approach, Decision Summary, "
+                "Timeline Estimates), at least one `## M{N}: ...` milestone with "
+                "Integration Points / Milestone Dependencies / Risk Assessment and "
+                "Mitigation subsections, and External Dependencies / Infrastructure "
+                "Requirements under Resource Requirements and Dependencies"
+            ),
+        ),
     ],
 )
 
-GENERATE_B_GATE = GateCriteria(
-    required_frontmatter_fields=["spec_source", "complexity_score", "primary_persona"],
-    min_lines=100,
-    enforcement_tier="STRICT",
-    semantic_checks=[
-        SemanticCheck(
-            name="frontmatter_values_non_empty",
-            check_fn=_frontmatter_values_non_empty,
-            failure_message="One or more required frontmatter fields have empty values",
-        ),
-        SemanticCheck(
-            name="has_actionable_content",
-            check_fn=_has_actionable_content,
-            failure_message="No numbered or bulleted items found -- roadmap must contain actionable content",
-        ),
-    ],
-)
+# GENERATE_A_GATE and GENERATE_B_GATE evaluate identical output shapes (two
+# parallel variants of the same roadmap). Keep two names for backwards
+# compatibility with callers and ALL_GATES wiring, but share one criteria
+# instance so adding or tuning a check happens in exactly one place.
+GENERATE_B_GATE = GENERATE_A_GATE
 
 DIFF_GATE = GateCriteria(
     required_frontmatter_fields=["total_diff_points", "shared_assumptions_count"],
@@ -914,6 +1126,36 @@ MERGE_GATE = GateCriteria(
             name="no_duplicate_headings",
             check_fn=_no_duplicate_headings,
             failure_message="Duplicate H2 or H3 heading text detected",
+        ),
+        SemanticCheck(
+            name="minimum_deliverable_rows",
+            check_fn=_minimum_deliverable_rows,
+            failure_message="Merged roadmap must contain at least 20 deliverable table rows (granularity floor)",
+        ),
+        SemanticCheck(
+            name="deliverable_table_schema",
+            check_fn=_deliverable_table_schema,
+            failure_message="Deliverable table header must use 9-column schema: | # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |",
+        ),
+        SemanticCheck(
+            name="no_template_sentinels",
+            check_fn=_no_template_sentinels,
+            failure_message="Template sentinels {{SC_PLACEHOLDER:*}} remain -- all placeholders must be replaced",
+        ),
+        SemanticCheck(
+            name="template_sections_present",
+            check_fn=_template_sections_present,
+            failure_message=(
+                "Merged roadmap is missing one or more sections required by the "
+                "template: top-level H2s (Executive Summary, Milestone Summary, "
+                "Dependency Graph, Resource Requirements and Dependencies, Risk "
+                "Register, Success Criteria and Validation Approach, Decision "
+                "Summary, Timeline Estimates), at least one `## M{N}: ...` "
+                "milestone with Integration Points / Milestone Dependencies / "
+                "Risk Assessment and Mitigation subsections, and External "
+                "Dependencies / Infrastructure Requirements under Resource "
+                "Requirements and Dependencies"
+            ),
         ),
     ],
 )
@@ -1052,7 +1294,7 @@ ANTI_INSTINCT_GATE = GateCriteria(
         SemanticCheck(
             name="no_undischarged_obligations",
             check_fn=_no_undischarged_obligations,
-            failure_message="undischarged_obligations must be 0; scaffolding obligations lack discharge in later phases",
+            failure_message="undischarged_obligations must be 0; scaffolding obligations lack discharge in later milestones",
         ),
         SemanticCheck(
             name="integration_contracts_covered",

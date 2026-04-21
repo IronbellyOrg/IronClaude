@@ -25,6 +25,7 @@ from ..pipeline.deliverables import decompose_deliverables
 from ..pipeline.executor import execute_pipeline
 from ..pipeline.models import Deliverable, GateMode, PipelineConfig, Step, StepResult, StepStatus
 from ..pipeline.process import ClaudeProcess
+from ...compression import compress_file
 from .gates import (
     ANTI_INSTINCT_GATE,
     CERTIFY_GATE,
@@ -43,6 +44,7 @@ from .gates import (
 )
 from ..audit.wiring_gate import WIRING_GATE
 from .models import AgentSpec, RoadmapConfig
+from .templates import ROADMAP_TEMPLATE, get_template_path
 from .prompts import (
     build_debate_prompt,
     build_diff_prompt,
@@ -54,6 +56,7 @@ from .prompts import (
     build_spec_fidelity_prompt,
     build_test_strategy_prompt,
     build_wiring_verification_prompt,
+    wrap_for_incremental_write,
 )
 from .certify_prompts import build_certification_prompt
 
@@ -316,16 +319,192 @@ def _route_input_files(
     }
 
 
-# Linux kernel compile-time constant (arch/arm64, x86_64, etc.)
-_MAX_ARG_STRLEN = 128 * 1024
-# 2.3x safety factor; measured template peak ~3.4 KB
-_PROMPT_TEMPLATE_OVERHEAD = 8 * 1024
-# Derivation: MAX_ARG_STRLEN - PROMPT_TEMPLATE_OVERHEAD = 120 KB = 122,880 bytes
-_EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD
-assert _PROMPT_TEMPLATE_OVERHEAD >= 4096, (
-    "Kernel margin violated: _PROMPT_TEMPLATE_OVERHEAD must be >=4096 bytes "
-    "to stay safely below MAX_ARG_STRLEN=128 KB; measured template peak ~3.4 KB"
-)
+# Token-context advisory threshold (soft warning, non-fatal).
+# Prompts are delivered to `claude` via stdin (see ClaudeProcess.start), so the
+# Linux MAX_ARG_STRLEN = 128 KB kernel ceiling no longer applies. This threshold
+# only surfaces prompts large enough to strain the model's context window.
+_LARGE_PROMPT_WARN_BYTES = 500 * 1024  # 500 KB
+
+
+def _compressed_sidecar(original: Path, output_dir: Path) -> Path:
+    """Return the compressed-sidecar path for *original* inside *output_dir*.
+
+    The sidecar uses the original stem plus a ``.compressed.md`` suffix so
+    reviewers can visually pair the original and compressed artifacts.
+    """
+    return output_dir / f"{original.stem}.compressed.md"
+
+
+def _gate_target(output_file: Path) -> Path:
+    """Resolve the file path that gate checks should run against.
+
+    Prefers the adjacent ``*.compressed.md`` sidecar so gate enforcement
+    matches what downstream LLM steps actually consume. Falls back to the
+    original path when no sidecar exists (compression disabled, step
+    produces no sidecar, or deterministic tests that write only originals).
+    """
+    sidecar = output_file.with_name(f"{output_file.stem}.compressed.md")
+    if sidecar != output_file and sidecar.exists():
+        return sidecar
+    return output_file
+
+
+def _compress_for_llm(
+    original: Path,
+    doc_type: str,
+    output_dir: Path,
+) -> Path:
+    """Compress *original* for LLM consumption and return the sidecar path.
+
+    Uses lossless strategies only (``aggressive=False``). Idempotent: safe to
+    call repeatedly; the sidecar is overwritten each time.
+    """
+    sidecar = _compressed_sidecar(original, output_dir)
+    compress_file(original, doc_type, sidecar, aggressive=False)
+    return sidecar
+
+
+def _compress_pipeline_input(
+    path: Path,
+    doc_type: str,
+    output_dir: Path,
+) -> Path:
+    """Compress a user-supplied pipeline input (spec/TDD/PRD) up-front.
+
+    Writes the ``.compressed.md`` sidecar next to the roadmap output dir so
+    downstream LLM steps consume the smaller variant via ``Step.inputs``. On
+    compression failure, mirrors the original bytes into the sidecar so
+    ``step.inputs`` still resolves to a readable file.
+    """
+    try:
+        sidecar = _compress_for_llm(path, doc_type, output_dir)
+        _log.info("Compressed %s input for LLM steps: %s", doc_type, sidecar)
+        return sidecar
+    except Exception as exc:  # noqa: BLE001 — degrade gracefully, never abort
+        _log.warning(
+            "%s compression failed (%s); mirroring original bytes to sidecar.",
+            doc_type,
+            exc,
+        )
+        sidecar = _compressed_sidecar(path, output_dir)
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_bytes(path.read_bytes())
+        return sidecar
+
+
+def _llm_inputs_for(
+    config: RoadmapConfig,
+    *candidates: Path,
+) -> list[Path]:
+    """Map LLM step inputs to compressed sidecars when compression is enabled.
+
+    Roadmap-pipeline artifacts (spec, generated variants, merge) and
+    user-supplied TDD/PRD inputs are rerouted to their ``.compressed.md``
+    sidecars so every LLM step consumes the smaller variant. Extraction
+    metadata and other intermediate files pass through unchanged.
+    Deterministic steps never call this helper — they always read originals
+    to preserve exact string/ID matching.
+    """
+    if not config.compress_enabled:
+        return [p for p in candidates if p is not None]
+
+    # The set of pipeline artifacts that have compressed sidecars. Variant
+    # roadmap paths are derived from the agent IDs so we compute them here
+    # rather than hard-coding filenames.
+    rerouteable: set[Path] = {config.spec_file}
+    if config.tdd_file is not None:
+        rerouteable.add(config.tdd_file)
+    if config.prd_file is not None:
+        rerouteable.add(config.prd_file)
+    for agent in config.agents:
+        rerouteable.add(config.output_dir / f"roadmap-{agent.id}.md")
+    rerouteable.add(config.output_dir / "roadmap.md")
+
+    out: list[Path] = []
+    for p in candidates:
+        if p is None:
+            continue
+        if p in rerouteable:
+            out.append(_compressed_sidecar(p, config.output_dir))
+        else:
+            out.append(p)
+    return out
+
+
+def _ensure_sidecars_present(
+    inputs: list[Path],
+    config: RoadmapConfig,
+) -> None:
+    """Regenerate any missing ``.compressed.md`` sidecars in *inputs* in place.
+
+    ``_llm_inputs_for`` reroutes rerouteable paths to their compressed
+    sidecars at plan-build time. The sidecars are normally produced by the
+    up-front pipeline-input compression pass (for spec/TDD/PRD) or by the
+    post-step hook (for generate-*/merge outputs). When a prior session is
+    interrupted between writing the original and its sidecar -- or the hook
+    silently failed to land the sidecar -- the next step that consumes that
+    input would fail with ``FileNotFoundError``. This helper repairs that
+    state just-in-time: if the sidecar's original exists but the sidecar
+    does not, it rebuilds the sidecar (falling back to mirroring the
+    original bytes on compression failure, same guarantee as
+    ``_compress_pipeline_input``).
+
+    No-op when ``compress_enabled`` is false or when no inputs are
+    rerouteable sidecars.
+    """
+    if not config.compress_enabled:
+        return
+
+    # Mirror the routing table used by ``_llm_inputs_for`` so we can recover
+    # the original path and doc_type from a sidecar alone. Spec/TDD/PRD
+    # originals typically live outside ``output_dir``, so their real path
+    # cannot be derived from the sidecar's stem.
+    recovery: dict[Path, tuple[Path, str]] = {
+        _compressed_sidecar(config.spec_file, config.output_dir): (config.spec_file, "spec"),
+    }
+    if config.tdd_file is not None:
+        recovery[_compressed_sidecar(config.tdd_file, config.output_dir)] = (
+            config.tdd_file,
+            "spec",
+        )
+    if config.prd_file is not None:
+        recovery[_compressed_sidecar(config.prd_file, config.output_dir)] = (
+            config.prd_file,
+            "spec",
+        )
+    for agent in config.agents:
+        variant = config.output_dir / f"roadmap-{agent.id}.md"
+        recovery[_compressed_sidecar(variant, config.output_dir)] = (variant, "roadmap")
+    merge = config.output_dir / "roadmap.md"
+    recovery[_compressed_sidecar(merge, config.output_dir)] = (merge, "roadmap")
+
+    for sidecar in inputs:
+        if sidecar is None:
+            continue
+        if sidecar.exists():
+            continue
+        entry = recovery.get(sidecar)
+        if entry is None:
+            continue
+        original, doc_type = entry
+        if not original.exists():
+            # Nothing to recover from; let the downstream read fail loudly
+            # with the original path so the user sees which artifact is gone.
+            continue
+        try:
+            _compress_for_llm(original, doc_type, config.output_dir)
+            _log.info(
+                "Self-healed missing sidecar %s from %s", sidecar, original,
+            )
+        except Exception as exc:  # noqa: BLE001 — degrade gracefully
+            _log.warning(
+                "Self-heal compression of %s failed (%s); "
+                "mirroring original bytes to sidecar.",
+                original,
+                exc,
+            )
+            sidecar.parent.mkdir(parents=True, exist_ok=True)
+            sidecar.write_bytes(original.read_bytes())
 
 
 def _embed_inputs(
@@ -646,6 +825,113 @@ def _run_anti_instinct_audit(
     )
 
 
+_MERGE_TAIL_SECTIONS = (
+    "## Risk Register",
+    "## Success Criteria and Validation Approach",
+    "## Decision Summary",
+    "## Timeline Estimates",
+)
+
+
+def _validate_merge_completeness(output_file: Path) -> list[str]:
+    """Inspect a merge-step output file and return a list of missing or
+    schema-violating items.
+
+    An empty list means the file is structurally complete. The merge step
+    writes section-by-section via tool calls and can be silently truncated
+    if the LLM's turn budget runs out mid-sequence; callers use this list
+    to fail the step and trigger retry.
+
+    Checks performed:
+
+    - Every ``## M{N}:`` milestone declared in the Milestone Summary table
+      has a corresponding body section.
+    - Required tail headings are present (Risk Register, Success
+      Criteria, Decision Summary, Timeline Estimates).
+    - Each milestone body has the 9-column deliverable table header,
+      ``### Integration Points — M{N}`` and
+      ``### Milestone Dependencies — M{N}``.
+    - No row in any 9-column deliverable table has an ``OQ-xxx`` value
+      in the ``ID`` column (OQs are decisions, not deliverables).
+    - If the frontmatter ``open_questions:`` count is > 0 but no
+      ``### Open Questions — M{N}`` subsection appears anywhere, flag it.
+    - No global ``## Open Questions`` heading at the document tail.
+    """
+    import re
+
+    try:
+        text = output_file.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return [f"output file '{output_file}' does not exist"]
+
+    missing: list[str] = []
+
+    # Extract milestone IDs from the Milestone Summary table. Each row
+    # begins with "| M{N} |" — we gather every such ID to cross-check
+    # against body sections.
+    summary_ids = set(re.findall(r"^\|\s*(M\d+)\s*\|", text, re.MULTILINE))
+    body_ids = set(re.findall(r"^##\s+(M\d+):", text, re.MULTILINE))
+    for mid in sorted(summary_ids, key=lambda s: int(s[1:])):
+        if mid not in body_ids:
+            missing.append(f"milestone body section '## {mid}:' missing")
+
+    # Required tail headings
+    for heading in _MERGE_TAIL_SECTIONS:
+        if heading not in text:
+            missing.append(f"tail section '{heading}' missing")
+
+    # Per-milestone required subsections and deliverable-table presence
+    for mid in sorted(body_ids, key=lambda s: int(s[1:])):
+        if f"### Integration Points — {mid}" not in text:
+            missing.append(f"'### Integration Points — {mid}' missing")
+        if f"### Milestone Dependencies — {mid}" not in text:
+            missing.append(f"'### Milestone Dependencies — {mid}' missing")
+
+    # OQ-xxx anti-rule: no OQ-xxx rows in the 9-column deliverable table.
+    # The schema is `| # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |`
+    # (10 pipes per row). The per-milestone `### Open Questions — M{N}`
+    # subsection table has only 6 columns (7 pipes), so we match only
+    # rows with at least 7 more pipes after the ID column.
+    oq_row_re = re.compile(
+        r"^\|\s*\d+\s*\|\s*(OQ-\d+)\s*\|(?:[^\n|]*\|){7,}",
+        re.MULTILINE,
+    )
+    oq_rows = oq_row_re.findall(text)
+    if oq_rows:
+        missing.append(
+            "deliverable table contains OQ-xxx rows (OQs must live in "
+            f"per-milestone subsections only): {sorted(set(oq_rows))}"
+        )
+
+    # Global Open Questions section is forbidden
+    if re.search(r"^##\s+Open Questions\s*$", text, re.MULTILINE):
+        missing.append(
+            "global '## Open Questions' section present — OQs must be "
+            "per-milestone subsections only"
+        )
+
+    # Frontmatter OQ count vs presence of any per-milestone subsection
+    fm_match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
+    if fm_match is not None:
+        oq_count_match = re.search(
+            r"^open_questions:\s*(\d+)\s*$",
+            fm_match.group(1),
+            re.MULTILINE,
+        )
+        if oq_count_match and int(oq_count_match.group(1)) > 0:
+            if not re.search(
+                r"^###\s+Open Questions\s+—\s+M\d+\s*$",
+                text,
+                re.MULTILINE,
+            ):
+                missing.append(
+                    "frontmatter declares open_questions > 0 but no "
+                    "'### Open Questions — M{N}' subsection is present"
+                )
+
+    return missing
+
+
 def roadmap_run_step(
     step: Step,
     config: PipelineConfig,
@@ -725,26 +1011,64 @@ def roadmap_run_step(
         labels = {}
         if config.spec_file:
             labels[config.spec_file] = f"{config.spec_file} [Primary input - {config.input_type}]"
+            # When compression is enabled, step.inputs references the compressed
+            # sidecar instead of the original spec. Label it with the same
+            # semantic role so the LLM still knows this is the primary input.
+            if config.compress_enabled:
+                spec_cmp = _compressed_sidecar(config.spec_file, config.output_dir)
+                labels[spec_cmp] = (
+                    f"{spec_cmp} [Primary input - {config.input_type}, compressed]"
+                )
         if config.tdd_file:
             labels[config.tdd_file] = f"{config.tdd_file} [TDD - supplementary technical context]"
+            if config.compress_enabled:
+                tdd_cmp = _compressed_sidecar(config.tdd_file, config.output_dir)
+                labels[tdd_cmp] = (
+                    f"{tdd_cmp} [TDD - supplementary technical context, compressed]"
+                )
         if config.prd_file:
             labels[config.prd_file] = f"{config.prd_file} [PRD - supplementary business context]"
+            if config.compress_enabled:
+                prd_cmp = _compressed_sidecar(config.prd_file, config.output_dir)
+                labels[prd_cmp] = (
+                    f"{prd_cmp} [PRD - supplementary business context, compressed]"
+                )
+    if isinstance(config, RoadmapConfig):
+        _ensure_sidecars_present(step.inputs, config)
     embedded = _embed_inputs(step.inputs, labels=labels)
     if embedded:
         composed = step.prompt + "\n\n" + embedded
-        if len(composed.encode("utf-8")) > _EMBED_SIZE_LIMIT:
-            # <= is intentional; _EMBED_SIZE_LIMIT = 120 KB is safely below MAX_ARG_STRLEN = 128 KB
+        if len(composed.encode("utf-8")) > _LARGE_PROMPT_WARN_BYTES:
             _log.warning(
-                "Step '%s': composed prompt exceeds %d bytes; embedding inline anyway"
-                " (--file fallback is unavailable)",
+                "Step '%s': composed prompt is %d bytes (> %d); may strain model context window",
                 step.id,
-                _EMBED_SIZE_LIMIT,
+                len(composed.encode("utf-8")),
+                _LARGE_PROMPT_WARN_BYTES,
             )
         effective_prompt = composed
         extra_args: list[str] = []
     else:
         effective_prompt = step.prompt
         extra_args = []
+
+    # Wrap prompt for incremental writing when tool_write_mode is enabled
+    if step.tool_write_mode:
+        template_content: str | None = None
+        if step.template_path is not None:
+            try:
+                template_content = step.template_path.read_text(encoding="utf-8")
+            except OSError as exc:
+                _log.warning(
+                    "Step '%s': failed to read template at %s: %s",
+                    step.id,
+                    step.template_path,
+                    exc,
+                )
+        effective_prompt = wrap_for_incremental_write(
+            effective_prompt,
+            output_path=step.output_file,
+            template_content=template_content,
+        )
 
     proc = ClaudeProcess(
         prompt=effective_prompt,
@@ -756,6 +1080,7 @@ def roadmap_run_step(
         timeout_seconds=step.timeout_seconds,
         output_format="text",
         extra_args=extra_args,
+        tool_write_mode=step.tool_write_mode,
     )
 
     proc.start()
@@ -797,8 +1122,45 @@ def roadmap_run_step(
             finished_at=finished_at,
         )
 
-    # Sanitize output: strip conversational preamble before gate validation
-    _sanitize_output(step.output_file)
+    # tool_write_mode: validate the LLM wrote the output file via tools
+    if step.tool_write_mode:
+        if not proc.validate_tool_write_output():
+            return StepResult(
+                step=step,
+                status=StepStatus.FAIL,
+                attempt=1,
+                gate_failure_reason=(
+                    f"Step '{step.id}' tool_write_mode: output file "
+                    f"'{step.output_file}' missing or empty after subprocess exit"
+                ),
+                started_at=started_at,
+                finished_at=finished_at,
+            )
+
+        # Merge step: the LLM writes the final roadmap section-by-section
+        # via incremental Edit calls. If its turn budget runs out before
+        # the tail sections land, validate_tool_write_output() accepts the
+        # partial file (non-empty). _validate_merge_completeness() catches
+        # the truncation and structural violations so the retry machinery
+        # can re-run the step instead of silently passing.
+        if step.id == "merge":
+            missing = _validate_merge_completeness(step.output_file)
+            if missing:
+                return StepResult(
+                    step=step,
+                    status=StepStatus.FAIL,
+                    attempt=1,
+                    gate_failure_reason=(
+                        f"Step '{step.id}' output is structurally "
+                        f"incomplete; retry will regenerate. Missing: "
+                        + "; ".join(missing)
+                    ),
+                    started_at=started_at,
+                    finished_at=finished_at,
+                )
+    else:
+        # Sanitize output: strip conversational preamble before gate validation
+        _sanitize_output(step.output_file)
 
     # Inject executor-populated fields into extract step frontmatter (FR-033)
     if step.id == "extract" and step.output_file.exists():
@@ -817,6 +1179,31 @@ def roadmap_run_step(
             config.spec_file.name if hasattr(config, "spec_file") else "unknown"
         )
         _inject_provenance_fields(step.output_file, spec_source)
+
+    # Post-step compression: build a sidecar for artifacts that downstream LLM
+    # steps consume via Step.inputs. Gate checks run on the ORIGINAL output
+    # file (which is preserved unchanged); only the sidecar is derived here.
+    # Downstream Step.inputs reference the sidecar path, so on compression
+    # failure we mirror the original bytes into the sidecar to keep the
+    # pipeline runnable.
+    if (
+        isinstance(config, RoadmapConfig)
+        and config.compress_enabled
+        and step.output_file.exists()
+        and (step.id.startswith("generate-") or step.id == "merge")
+    ):
+        try:
+            sidecar = _compress_for_llm(step.output_file, "roadmap", config.output_dir)
+            _log.info("Compressed %s output: %s", step.id, sidecar)
+        except Exception as exc:
+            _log.warning(
+                "Compression of %s output failed (%s); mirroring original to "
+                "sidecar path so downstream steps can still read it.",
+                step.id, exc,
+            )
+            sidecar = _compressed_sidecar(step.output_file, config.output_dir)
+            sidecar.parent.mkdir(parents=True, exist_ok=True)
+            sidecar.write_bytes(step.output_file.read_bytes())
 
     # Process completed successfully; gate check happens in execute_pipeline
     return StepResult(
@@ -1322,6 +1709,12 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
     remediation_file = out / "remediation-tasklist.md"
     certification_file = out / "certification-report.md"
 
+    # Resolve roadmap template for incremental-write steps
+    try:
+        _roadmap_template = get_template_path(ROADMAP_TEMPLATE)
+    except FileNotFoundError:
+        _roadmap_template = None
+
     # Load retrospective content if configured (missing file handled gracefully)
     retrospective_content: str | None = None
     if config.retrospective_file is not None and config.retrospective_file.is_file():
@@ -1331,6 +1724,16 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             )
         except OSError:
             retrospective_content = None
+
+    # When the primary input is itself a TDD, config.tdd_file is None (see
+    # _route_input_files redundancy guard). Treat config.spec_file as the
+    # effective TDD for LLM prompt builders that gate TDD-specific sections on
+    # `tdd_file is not None`, so the TDD-aware blocks still fire when the TDD
+    # is the sole input. Also used to ensure the raw TDD reaches step inputs
+    # where needed (e.g., generate step, which otherwise only sees extraction).
+    effective_tdd_file = config.tdd_file if config.tdd_file is not None else (
+        config.spec_file if config.input_type == "tdd" else None
+    )
 
     steps: list[Step | list[Step]] = [
         # Step 1: Extract
@@ -1355,30 +1758,34 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=extraction,
             gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
             timeout_seconds=1800 if config.input_type == "tdd" else 300,
-            inputs=[config.spec_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=_llm_inputs_for(config, config.spec_file, config.tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Steps 2a+2b: Generate (parallel)
         [
             Step(
                 id=f"generate-{agent_a.id}",
-                prompt=build_generate_prompt(agent_a, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
+                prompt=build_generate_prompt(agent_a, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
                 output_file=roadmap_a,
                 gate=GENERATE_A_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+                inputs=[extraction] + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_a.model,
+                tool_write_mode=_roadmap_template is not None,
+                template_path=_roadmap_template,
             ),
             Step(
                 id=f"generate-{agent_b.id}",
-                prompt=build_generate_prompt(agent_b, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
+                prompt=build_generate_prompt(agent_b, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
                 output_file=roadmap_b,
                 gate=GENERATE_B_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+                inputs=[extraction] + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_b.model,
+                tool_write_mode=_roadmap_template is not None,
+                template_path=_roadmap_template,
             ),
         ],
         # Step 3: Diff
@@ -1388,7 +1795,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=diff_file,
             gate=DIFF_GATE,
             timeout_seconds=300,
-            inputs=[roadmap_a, roadmap_b],
+            inputs=_llm_inputs_for(config, roadmap_a, roadmap_b),
             retry_limit=1,
         ),
         # Step 4: Debate
@@ -1398,28 +1805,30 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=debate_file,
             gate=DEBATE_GATE,
             timeout_seconds=600,
-            inputs=[diff_file, roadmap_a, roadmap_b],
+            inputs=[diff_file] + _llm_inputs_for(config, roadmap_a, roadmap_b),
             retry_limit=1,
         ),
         # Step 5: Score
         Step(
             id="score",
-            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=score_file,
             gate=SCORE_GATE,
             timeout_seconds=300,
-            inputs=[debate_file, roadmap_a, roadmap_b] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=[debate_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Step 6: Merge
         Step(
             id="merge",
-            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=merge_file,
             gate=MERGE_GATE,
             timeout_seconds=600,
-            inputs=[score_file, roadmap_a, roadmap_b, debate_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=[score_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file) + [debate_file],
             retry_limit=1,
+            tool_write_mode=_roadmap_template is not None,
+            template_path=_roadmap_template,
         ),
         # Step 7: Anti-Instinct Audit (non-LLM deterministic step)
         Step(
@@ -1434,21 +1843,21 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 8: Test Strategy
         Step(
             id="test-strategy",
-            prompt=build_test_strategy_prompt(merge_file, extraction, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_test_strategy_prompt(merge_file, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=test_strat,
             gate=TEST_STRATEGY_GATE,
             timeout_seconds=300,
-            inputs=[merge_file, extraction] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=_llm_inputs_for(config, merge_file, effective_tdd_file, config.prd_file) + [extraction],
             retry_limit=1,
         ),
         # Step 8: Spec Fidelity (after test-strategy, FR-008 through FR-010)
         Step(
             id="spec-fidelity",
-            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file, tdd_file=config.tdd_file, prd_file=config.prd_file),
+            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file, tdd_file=effective_tdd_file, prd_file=config.prd_file),
             output_file=spec_fidelity_file,
             gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
             timeout_seconds=600,
-            inputs=[config.spec_file, merge_file] + ([config.tdd_file] if config.tdd_file else []) + ([config.prd_file] if config.prd_file else []),
+            inputs=_llm_inputs_for(config, config.spec_file, merge_file, config.tdd_file, config.prd_file),
             retry_limit=1,
         ),
         # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)
@@ -1460,7 +1869,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=out / "wiring-verification.md",
             gate=WIRING_GATE,
             timeout_seconds=60,
-            inputs=[merge_file, spec_fidelity_file],
+            inputs=_llm_inputs_for(config, merge_file) + [spec_fidelity_file],
             retry_limit=0,
             gate_mode=GateMode.TRAILING,
         ),
@@ -2311,6 +2720,21 @@ def execute_roadmap(
         config.spec_file, config.tdd_file, config.prd_file, config.input_type,
     )
 
+    # Compress the spec once up-front so every LLM step that reads it gets the
+    # smaller sidecar via Step.inputs. Skipped on --dry-run (no subprocesses
+    # run) and when --no-compress was passed. Deterministic auditors continue
+    # to read config.spec_file (the original). On compression failure we
+    # mirror the original bytes into the sidecar so step.inputs still resolve.
+    if config.compress_enabled and not config.dry_run:
+        _compress_pipeline_input(config.spec_file, "spec", config.output_dir)
+        # Supplementary TDD/PRD inputs are compressed with the ``spec`` pipeline
+        # (same document class: structured requirements) so downstream LLM steps
+        # consume the smaller sidecar alongside the compressed spec.
+        if config.tdd_file is not None:
+            _compress_pipeline_input(config.tdd_file, "spec", config.output_dir)
+        if config.prd_file is not None:
+            _compress_pipeline_input(config.prd_file, "spec", config.output_dir)
+
     steps = _build_steps(config)
 
     # --dry-run: print plan and exit
@@ -2668,7 +3092,7 @@ def check_remediate_resume(
     if not tasklist_file.exists():
         return False
 
-    passed, _reason = gate_fn(tasklist_file, REMEDIATE_GATE)
+    passed, _reason = gate_fn(_gate_target(tasklist_file), REMEDIATE_GATE)
     if not passed:
         return False
 
@@ -2701,7 +3125,7 @@ def check_certify_resume(
     if not report_file.exists():
         return False
 
-    passed, _reason = gate_fn(report_file, CERTIFY_GATE)
+    passed, _reason = gate_fn(_gate_target(report_file), CERTIFY_GATE)
     return passed
 
 
@@ -2781,9 +3205,9 @@ def _step_needs_rerun(
             step.output_file,
         )
 
-    # Check own gate
+    # Check own gate against the compressed sidecar when present.
     if step.gate:
-        passed, reason = gate_fn(check_path, step.gate)
+        passed, reason = gate_fn(_gate_target(check_path), step.gate)
         if passed:
             return False, "gate passes"
         # Log the failure reason with diagnostic hint

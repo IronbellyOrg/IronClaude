@@ -21,10 +21,14 @@ from superclaude.cli.pipeline.models import Step
 def _make_config(tmp_path: Path) -> RoadmapConfig:
     spec = tmp_path / "spec.md"
     spec.write_text("# Test Spec\n\nRequirements here.\n")
+    # These tests verify structural step dependencies (each step references
+    # prior-step outputs). Compression routing is a separate concern covered
+    # by dedicated tests, so disable it here.
     return RoadmapConfig(
         spec_file=spec,
         output_dir=tmp_path / "output",
         agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
+        compress_enabled=False,
     )
 
 

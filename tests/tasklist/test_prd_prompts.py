@@ -82,7 +82,8 @@ class TestTasklistGeneratePrd:
         output = build_tasklist_generate_prompt(ROADMAP, prd_file=PRD)
         assert PRD_MARKER in output
         assert TDD_MARKER not in output
-        assert "does NOT generate standalone implementation tasks" in output
+        # PRD suppression guard was removed to allow PRD-driven task generation
+        assert "does NOT generate standalone implementation tasks" not in output
 
     def test_scenario_d_both(self):
         output = build_tasklist_generate_prompt(ROADMAP, tdd_file=TDD, prd_file=PRD)

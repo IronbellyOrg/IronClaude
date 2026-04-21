@@ -63,15 +63,15 @@ _CODE_BLOCK_RE = re.compile(r"```[\s\S]*?```")
 class Obligation:
     """A detected scaffolding obligation."""
 
-    phase: str  # e.g., "Phase 2", "2.3"
+    phase: str  # e.g., "M2", "2.3"
     term: str  # the matched scaffold term
     component: str  # nearby component context
     context: str  # surrounding sentence/line
     line_number: int
     severity: str  # "HIGH" or "MEDIUM" (FR-MOD1.8)
-    discharged: bool  # True if a matching discharge was found in a later phase
+    discharged: bool  # True if a matching discharge was found in a later milestone
     exempt: bool  # True if line has # obligation-exempt (FR-MOD1.7)
-    discharge_phase: str | None  # phase where discharge was found
+    discharge_phase: str | None  # milestone where discharge was found
     discharge_context: str | None
 
 
@@ -139,6 +139,13 @@ def scan_obligations(content: str) -> ObligationReport:
             ):
                 continue
 
+            # Skip phase objective paragraphs — these are declarative
+            # descriptions of phase goals (e.g., "**Objective:** ...scaffold
+            # orchestrator interfaces..."), not prescriptive scaffolding
+            # actions that create discharge obligations.
+            if stripped_context.startswith("**Objective:"):
+                continue
+
             # Skip scaffold terms that appear in purely descriptive/configuration
             # contexts rather than indicating temporary implementations needing
             # replacement. Rich roadmaps (TDD+PRD enriched) use these words
@@ -154,6 +161,22 @@ def scan_obligations(content: str) -> ObligationReport:
                 # Check for imperative verb before "skeleton" suggesting action
                 imperative_before = re.search(
                     r"\b(?:build|create|set\s+up|generate|write|add)\s+\w*\s*"
+                    + re.escape(term),
+                    context_line,
+                    re.IGNORECASE,
+                )
+                if not imperative_before:
+                    continue
+
+            # "scaffold(ing|ed)?" is often used descriptively to mean "the work
+            # being done during a phase" or to describe ownership ("team owns
+            # scaffolding"), not as a literal scaffold that must be wired up
+            # later. Only flag when used as the direct object of an imperative
+            # verb (e.g., "Build scaffolding", "Set up scaffolding", "Stand up
+            # scaffolding") which indicates a deliberate temporary artifact.
+            if term.lower().startswith("scaffold"):
+                imperative_before = re.search(
+                    r"\b(?:build|create|set\s+up|generate|write|add|implement|stand\s+up)\s+\w*\s*"
                     + re.escape(term),
                     context_line,
                     re.IGNORECASE,
@@ -233,18 +256,18 @@ def scan_obligations(content: str) -> ObligationReport:
     )
 
 
-# --- FR-MOD1.2: Phase-section parser with H2/H3 fallback ---
+# --- FR-MOD1.2: Milestone-section parser with H2/H3 fallback ---
 
 
 def _split_into_phases(content: str) -> list[tuple[str, str, int]]:
     """Split content into (phase_id, text, start_line_number) tuples.
 
-    Splits on H2/H3 headings containing phase-like patterns:
-    "## Phase 2", "### 2.3 Executor", "## Step 4", etc.
-    Falls back to any H2/H3 heading if no phase-pattern headings found.
+    Splits on H2/H3 headings containing milestone-like patterns:
+    "## M2: Title", "## Phase 2", "### 2.3 Executor", "## Step 4", etc.
+    Falls back to any H2/H3 heading if no milestone-pattern headings found.
     """
     phase_pattern = re.compile(
-        r"^(#{2,3})\s+((?:Phase|Step|Stage|Milestone)\s+\d+[\w.]*.*?)$",
+        r"^(#{2,3})\s+((?:(?:Phase|Step|Stage|Milestone)\s+|M)\d+[\w.]*.*?)$",
         re.MULTILINE | re.IGNORECASE,
     )
     matches = list(phase_pattern.finditer(content))
@@ -271,12 +294,56 @@ def _split_into_phases(content: str) -> list[tuple[str, str, int]]:
 
 # --- FR-MOD1.4: Component context extraction (60-char, backtick-priority) ---
 
+# Field-label words that commonly begin Markdown list items or table cells
+# in roadmaps. These are document metadata, not component names — a scaffold
+# obligation whose component is resolved to one of these is nearly always
+# impossible to discharge because the word won't reappear in later milestones'
+# technical content.
+_FIELD_LABELS = frozenset(
+    {
+        "personnel",
+        "decisions",
+        "external",
+        "owner",
+        "owners",
+        "objective",
+        "objectives",
+        "deliverables",
+        "deliverable",
+        "dependencies",
+        "dependency",
+        "risks",
+        "risk",
+        "mitigation",
+        "mitigations",
+        "scope",
+        "assumptions",
+        "assumption",
+        "notes",
+        "note",
+        "blockers",
+        "blocker",
+        "approvers",
+        "approver",
+        "stakeholders",
+        "stakeholder",
+    }
+)
+
+# Matches a Markdown list-item field label at the start of a line,
+# after optional list markers and emphasis:  "- **Personnel:** ...",
+# "* Decisions:", "Owner: ...". Captures the label word (without colon).
+_FIELD_LABEL_LINE_RE = re.compile(
+    r"^\s*(?:[-*>|]\s+)?\**\s*([A-Z][A-Za-z][A-Za-z ]*?)\**\s*:\s",
+)
+
 
 def _extract_component_context(text: str, pos: int) -> str:
     """Extract likely component name near a scaffold term.
 
     Uses a 60-char window. Prioritizes backtick-delimited terms,
-    falls back to capitalized multi-word terms, then to the line context.
+    falls back to capitalized multi-word terms (rejecting field-label words),
+    then to the line context.
     """
     window_start = max(0, pos - 60)
     window_end = min(len(text), pos + 60)
@@ -287,13 +354,26 @@ def _extract_component_context(text: str, pos: int) -> str:
     if code_terms:
         return code_terms[0].lower()
 
-    # Priority 2: capitalized multi-word terms (e.g., "Executor Skeleton")
+    # Priority 2: capitalized multi-word terms (e.g., "Executor Skeleton"),
+    # rejecting common field-label words and the line's own label prefix
+    # (e.g., the "Personnel" in "Personnel: auth-team owns scaffolding").
+    line = _get_context_line(text, pos)
+    label_match = _FIELD_LABEL_LINE_RE.match(line)
+    line_label = label_match.group(1).strip().lower() if label_match else None
+
     cap_terms = re.findall(r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*", window)
-    if cap_terms:
-        return cap_terms[0].lower()
+    for term in cap_terms:
+        t = term.strip().lower()
+        if not t:
+            continue
+        if line_label and t == line_label:
+            continue
+        if t in _FIELD_LABELS:
+            continue
+        return t
 
     # Fallback: the whole line context
-    return _get_context_line(text, pos).lower()
+    return line.lower()
 
 
 def _get_context_line(text: str, pos: int) -> str:

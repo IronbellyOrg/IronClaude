@@ -1,12 +1,12 @@
-"""Conditional tests for inline embedding fallback across non-inheriting executors.
+"""Conditional tests for inline embedding across non-inheriting executors.
 
-FR-ATL.5 (Phase 1.5): When --file is BROKEN, all three non-inheriting executors
-must route oversized inputs via inline embedding, never via --file flags.
+All three executors compose prompt+inputs inline and deliver to the child via
+stdin (ClaudeProcess.start). --file flags must never appear in extra_args.
 
 Parameterized over:
-- validate_executor (validate_run_step, _EMBED_SIZE_LIMIT = 100 KB)
-- tasklist/executor (tasklist_run_step, _EMBED_SIZE_LIMIT = 100 KB)
-- remediate_executor (_run_agent_for_file, _EMBED_SIZE_LIMIT = 120 KB)
+- validate_executor (validate_run_step)
+- tasklist/executor (tasklist_run_step)
+- remediate_executor (_run_agent_for_file)
 """
 
 from __future__ import annotations
@@ -83,9 +83,8 @@ EXECUTOR_PARAMS = [
 
 
 class TestInlineEmbedFallbackWhenFileBroken:
-    """FR-ATL.5: all three conditional executors route oversized inputs via inline embedding.
+    """All three conditional executors embed oversized inputs inline and deliver via stdin.
 
-    Parameterized over each executor's _EMBED_SIZE_LIMIT value.
     --file must never appear in extra_args; content must always be in the prompt.
     """
 
@@ -101,7 +100,7 @@ class TestInlineEmbedFallbackWhenFileBroken:
         import importlib
 
         module = importlib.import_module(module_path)
-        embed_limit = module._EMBED_SIZE_LIMIT
+        embed_limit = module._LARGE_PROMPT_WARN_BYTES
         config = PipelineConfig(max_turns=5, dry_run=False)
         captured: dict = {}
 

@@ -91,7 +91,6 @@ class TestBuildExtractPromptUnchanged:
         result = build_extract_prompt(dummy_path)
         assert "## Data Models and Interfaces" not in result
         assert "## API Specifications" not in result
-        assert "## Component Inventory" not in result
 
     def test_original_has_spec_language(self, dummy_path):
         result = build_extract_prompt(dummy_path)

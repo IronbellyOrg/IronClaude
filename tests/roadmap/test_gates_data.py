@@ -36,6 +36,7 @@ from superclaude.cli.roadmap.gates import (
     _routing_ids_valid,
     _slip_count_matches_routing,
     _tasklist_ready_consistent,
+    _template_sections_present,
     _total_analyzed_consistent,
     _total_annotated_consistent,
     _deviation_counts_reconciled,
@@ -77,9 +78,18 @@ class TestGateInstances:
 
     def test_generate_gates_have_semantic_checks(self):
         assert GENERATE_A_GATE.semantic_checks is not None
-        assert len(GENERATE_A_GATE.semantic_checks) == 2
+        assert len(GENERATE_A_GATE.semantic_checks) == 6
         assert GENERATE_B_GATE.semantic_checks is not None
-        assert len(GENERATE_B_GATE.semantic_checks) == 2
+        assert len(GENERATE_B_GATE.semantic_checks) == 6
+
+    def test_generate_b_gate_is_alias_of_a(self):
+        """GENERATE_A_GATE and GENERATE_B_GATE share one GateCriteria instance.
+
+        The two pipeline steps produce byte-compatible variants of the same
+        roadmap; both are gated by identical rules. Aliasing guarantees that a
+        check added on one side is enforced on the other.
+        """
+        assert GENERATE_B_GATE is GENERATE_A_GATE
 
     def test_diff_gate_standard(self):
         assert DIFF_GATE.enforcement_tier == "STANDARD"
@@ -90,14 +100,18 @@ class TestGateInstances:
         assert "convergence_score" in DEBATE_GATE.required_frontmatter_fields
         assert DEBATE_GATE.semantic_checks is not None
 
-    def test_merge_gate_has_three_semantic_checks(self):
+    def test_merge_gate_has_seven_semantic_checks(self):
         assert MERGE_GATE.enforcement_tier == "STRICT"
-        assert len(MERGE_GATE.semantic_checks) == 3
+        assert len(MERGE_GATE.semantic_checks) == 7
         check_names = {c.name for c in MERGE_GATE.semantic_checks}
         assert check_names == {
             "no_heading_gaps",
             "cross_refs_resolve",
             "no_duplicate_headings",
+            "minimum_deliverable_rows",
+            "deliverable_table_schema",
+            "no_template_sentinels",
+            "template_sections_present",
         }
 
     def test_score_gate_standard(self):
@@ -217,6 +231,163 @@ class TestSemanticCheckFunctions:
     def test_convergence_score_missing(self):
         content = "---\nother_field: value\n---\n"
         assert _convergence_score_valid(content) is False
+
+
+class TestTemplateSectionsPresent:
+    """_template_sections_present: verifies roadmap contains all template-required sections."""
+
+    @staticmethod
+    def _minimal_valid_roadmap(
+        *,
+        n_milestones: int = 1,
+        drop_h2: str | None = None,
+        drop_milestone_sub: str | None = None,
+        drop_resource_sub: str | None = None,
+        numbered: bool = False,
+        use_hyphen_dash: bool = False,
+    ) -> str:
+        """Build a minimal roadmap that satisfies the template by default.
+
+        Optional drops exercise failure paths by omitting a specific required
+        section. Keeps each test declarative (one change, one expected result).
+        """
+        dash = "-" if use_hyphen_dash else "\u2014"
+
+        def h2(name: str, idx: int) -> str:
+            prefix = f"{idx}. " if numbered else ""
+            return f"## {prefix}{name}\n\nbody\n"
+
+        required_h2 = [
+            "Executive Summary",
+            "Milestone Summary",
+            "Dependency Graph",
+        ]
+        # Per-milestone sections follow; then the trailing required H2s.
+        trailing_h2 = [
+            "Resource Requirements and Dependencies",
+            "Risk Register",
+            "Success Criteria and Validation Approach",
+            "Decision Summary",
+            "Timeline Estimates",
+        ]
+
+        parts: list[str] = ["# Project Roadmap\n\n"]
+        for i, name in enumerate(required_h2, start=1):
+            if name == drop_h2:
+                continue
+            parts.append(h2(name, i))
+
+        # Milestone sections with the three required H3 subsections.
+        for n in range(1, n_milestones + 1):
+            parts.append(f"## M{n}: Title {n}\n\nobjective\n")
+            for stem in (
+                "Integration Points",
+                "Milestone Dependencies",
+                "Risk Assessment and Mitigation",
+            ):
+                if stem == drop_milestone_sub:
+                    continue
+                parts.append(f"### {stem} {dash} M{n}\n\nbody\n")
+
+        for i, name in enumerate(trailing_h2, start=len(required_h2) + n_milestones + 1):
+            if name == drop_h2:
+                continue
+            parts.append(h2(name, i))
+            if name == "Resource Requirements and Dependencies":
+                for sub in ("External Dependencies", "Infrastructure Requirements"):
+                    if sub == drop_resource_sub:
+                        continue
+                    parts.append(f"### {sub}\n\nbody\n")
+
+        return "\n".join(parts)
+
+    def test_minimal_valid_roadmap_passes(self):
+        assert _template_sections_present(self._minimal_valid_roadmap()) is True
+
+    def test_multiple_milestones_pass(self):
+        assert (
+            _template_sections_present(self._minimal_valid_roadmap(n_milestones=3))
+            is True
+        )
+
+    def test_numbered_headings_tolerated(self):
+        """`## 1. Executive Summary` should count as `## Executive Summary`."""
+        assert (
+            _template_sections_present(self._minimal_valid_roadmap(numbered=True))
+            is True
+        )
+
+    def test_hyphen_dash_tolerated_in_milestone_subs(self):
+        """`### Integration Points - M1` (hyphen) passes alongside em-dash."""
+        assert (
+            _template_sections_present(
+                self._minimal_valid_roadmap(use_hyphen_dash=True)
+            )
+            is True
+        )
+
+    def test_missing_executive_summary_fails(self):
+        content = self._minimal_valid_roadmap(drop_h2="Executive Summary")
+        assert _template_sections_present(content) is False
+
+    def test_missing_risk_register_fails(self):
+        content = self._minimal_valid_roadmap(drop_h2="Risk Register")
+        assert _template_sections_present(content) is False
+
+    def test_missing_timeline_estimates_fails(self):
+        content = self._minimal_valid_roadmap(drop_h2="Timeline Estimates")
+        assert _template_sections_present(content) is False
+
+    def test_no_milestone_section_fails(self):
+        content = self._minimal_valid_roadmap(n_milestones=0)
+        assert _template_sections_present(content) is False
+
+    def test_missing_integration_points_in_milestone_fails(self):
+        content = self._minimal_valid_roadmap(drop_milestone_sub="Integration Points")
+        assert _template_sections_present(content) is False
+
+    def test_missing_milestone_dependencies_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_milestone_sub="Milestone Dependencies"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_missing_risk_assessment_in_milestone_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_milestone_sub="Risk Assessment and Mitigation"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_missing_external_dependencies_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_resource_sub="External Dependencies"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_missing_infrastructure_requirements_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_resource_sub="Infrastructure Requirements"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_open_questions_subsection_remains_optional(self):
+        """Template omits `### Open Questions -- M{N}` when the milestone has none."""
+        content = self._minimal_valid_roadmap()
+        assert "Open Questions" not in content
+        assert _template_sections_present(content) is True
+
+    def test_case_insensitive_heading_match(self):
+        content = self._minimal_valid_roadmap().replace(
+            "## Executive Summary", "## executive summary"
+        )
+        assert _template_sections_present(content) is True
+
+    def test_second_milestone_missing_required_sub_fails(self):
+        """A later milestone dropping a required H3 must fail, not just M1."""
+        content = self._minimal_valid_roadmap(n_milestones=2)
+        # Drop `### Integration Points -- M2` only.
+        content = content.replace("### Integration Points \u2014 M2\n\nbody\n", "")
+        assert _template_sections_present(content) is False
 
 
 class TestComplexityClassValid:

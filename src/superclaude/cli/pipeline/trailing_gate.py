@@ -143,7 +143,13 @@ class TrailingGateRunner:
                 if self._cancelled.is_set():
                     return
                 start = time.monotonic()
-                passed, reason = gate_check(step.output_file, step.gate)
+                # Prefer the .compressed.md sidecar for gate validation; fall
+                # back to the original output when no sidecar exists.
+                sidecar = step.output_file.with_name(
+                    f"{step.output_file.stem}.compressed.md"
+                )
+                target = sidecar if sidecar != step.output_file and sidecar.exists() else step.output_file
+                passed, reason = gate_check(target, step.gate)
                 elapsed_ms = (time.monotonic() - start) * 1000
                 result = TrailingGateResult(
                     step_id=step.id,
