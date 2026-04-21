@@ -249,17 +249,6 @@ def run(
         err=True,
     )
 
-    if resolved_type == "tdd":
-        click.echo(
-            click.style(
-                "NOTE: TDD input detected. The pipeline's deviation-analysis step "
-                "(DEVIATION_ANALYSIS_GATE) is not yet TDD-compatible and may fail. "
-                "All other steps (extract through spec-fidelity) will work correctly.",
-                fg="yellow",
-            ),
-            err=True,
-        )
-
     execute_roadmap(
         config,
         resume=resume,
