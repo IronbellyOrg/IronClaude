@@ -1053,10 +1053,21 @@ def roadmap_run_step(
 
     # Wrap prompt for incremental writing when tool_write_mode is enabled
     if step.tool_write_mode:
+        template_content: str | None = None
+        if step.template_path is not None:
+            try:
+                template_content = step.template_path.read_text(encoding="utf-8")
+            except OSError as exc:
+                _log.warning(
+                    "Step '%s': failed to read template at %s: %s",
+                    step.id,
+                    step.template_path,
+                    exc,
+                )
         effective_prompt = wrap_for_incremental_write(
             effective_prompt,
             output_path=step.output_file,
-            template_path=step.template_path,
+            template_content=template_content,
         )
 
     proc = ClaudeProcess(

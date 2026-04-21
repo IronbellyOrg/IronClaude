@@ -113,15 +113,16 @@ _TEMPLATE_STRUCTURE_DIRECTIVE = (
 def wrap_for_incremental_write(
     base_prompt: str,
     output_path: Path,
-    template_path: Path | None = None,
+    template_content: str | None = None,
 ) -> str:
     """Augment a prompt with incremental-write instructions.
 
     Instructs the LLM to write output to *output_path* using the Write tool,
     section by section, instead of producing output on stdout.
 
-    When *template_path* is provided, the LLM is told to read the template
-    first and use it as the structural skeleton for the output.
+    When *template_content* is provided, the template is embedded inline in
+    the prompt and the LLM is told to use it as the structural skeleton for
+    the output.
 
     This is composable: call it on any prompt builder's return value to
     switch that step from one-shot stdout to tool-use file writing.
@@ -134,10 +135,10 @@ def wrap_for_incremental_write(
         "**Writing procedure:**\n"
     ]
 
-    if template_path is not None:
+    if template_content is not None:
         parts.append(
-            f"1. Read the template at `{template_path}` to understand the "
-            "required output structure.\n"
+            "1. Use the OUTPUT TEMPLATE embedded below as the required "
+            "structural skeleton for the output.\n"
             f"2. Create the output file at `{output_path}` using the Write tool. "
             "Start with the frontmatter and first major section.\n"
             "3. Use the Edit tool to append each subsequent section one at a time. "
@@ -146,6 +147,9 @@ def wrap_for_incremental_write(
             "4. After writing all sections, read the completed file and verify "
             "that every `{{SC_PLACEHOLDER:` sentinel has been replaced. "
             "Fix any remaining sentinels with targeted edits.\n\n"
+            "---BEGIN OUTPUT TEMPLATE---\n"
+            f"{template_content}\n"
+            "---END OUTPUT TEMPLATE---\n\n"
         )
     else:
         parts.append(
@@ -471,25 +475,25 @@ def build_extract_prompt_tdd(
         )
         base += advisory
 
-    # if tdd_file is not None:
-    #     base += (
-    #         "\n\n## Supplementary TDD Context (when additional TDD file is provided)\n\n"
-    #         "An additional Technical Design Document (TDD) is included in the inputs "
-    #         "alongside the primary document. Use it to cross-reference and enrich "
-    #         "the extraction:\n"
-    #         "1. Verify data model consistency between documents -- flag discrepancies "
-    #         "in entity definitions, field types, or relationships in Open Questions.\n"
-    #         "2. Cross-check API endpoint specifications -- surface any endpoints in the "
-    #         "supplementary TDD not covered in the primary document.\n"
-    #         "3. Verify component inventory alignment -- flag components mentioned in one "
-    #         "document but absent from the other.\n"
-    #         "4. Cross-check testing strategy coverage -- surface test cases from the "
-    #         "supplementary TDD that extend the primary document's strategy.\n"
-    #         "5. Verify migration plan consistency -- flag rollback procedures or feature "
-    #         "flags that differ between documents.\n"
-    #         "The supplementary TDD provides additional technical reference -- use it "
-    #         "to validate completeness, not to override the primary document."
-    #     )
+    if tdd_file is not None:
+        base += (
+            "\n\n## Supplementary TDD Context (when additional TDD file is provided)\n\n"
+            "An additional Technical Design Document (TDD) is included in the inputs "
+            "alongside the primary document. Use it to cross-reference and enrich "
+            "the extraction:\n"
+            "1. Verify data model consistency between documents -- flag discrepancies "
+            "in entity definitions, field types, or relationships in Open Questions.\n"
+            "2. Cross-check API endpoint specifications -- surface any endpoints in the "
+            "supplementary TDD not covered in the primary document.\n"
+            "3. Verify component inventory alignment -- flag components mentioned in one "
+            "document but absent from the other.\n"
+            "4. Cross-check testing strategy coverage -- surface test cases from the "
+            "supplementary TDD that extend the primary document's strategy.\n"
+            "5. Verify migration plan consistency -- flag rollback procedures or feature "
+            "flags that differ between documents.\n"
+            "The supplementary TDD provides additional technical reference -- use it "
+            "to validate completeness, not to override the primary document."
+        )
 
     if prd_file is not None:
         base += (
@@ -966,8 +970,9 @@ def build_merge_prompt(
     Instructs Claude to produce the final merged roadmap.
     """
     base = (
-        "You are producing the final merged roadmap. The TEMPLATE (provided via "
-        "template_path) is the canonical structural authority: section names, "
+        "You are producing the final merged roadmap. The TEMPLATE (embedded "
+        "inline above under `---BEGIN OUTPUT TEMPLATE---`) is the canonical "
+        "structural authority: section names, "
         "heading hierarchy, and table schemas come from the template, not the variants. "
         "Variant A and Variant B are reference material — pull deliverable rows, "
         "content, and phrasing from them, but do NOT copy their structure, heading "
