@@ -41,10 +41,11 @@ _AGENT_TIMEOUT_SECONDS = 300
 # T04.06: Retry limit per NFR-002
 _AGENT_RETRY_LIMIT = 1
 
-# Inline embedding size limit (mirrors executor.py; --file is broken per Phase 1)
-_MAX_ARG_STRLEN = 128 * 1024
-_PROMPT_TEMPLATE_OVERHEAD = 8 * 1024
-_EMBED_SIZE_LIMIT = _MAX_ARG_STRLEN - _PROMPT_TEMPLATE_OVERHEAD
+# Token-context advisory threshold (soft warning, non-fatal).
+# Prompts are delivered via stdin in ClaudeProcess.start, bypassing the Linux
+# MAX_ARG_STRLEN ceiling. This threshold only surfaces prompts that may strain
+# the model's context window.
+_LARGE_PROMPT_WARN_BYTES = 500 * 1024  # 500 KB
 
 # FR-9 (v3.05): Per-patch diff-size threshold — changed from 50 to 30
 _DIFF_SIZE_THRESHOLD_PCT = 30
@@ -217,18 +218,18 @@ def _run_agent_for_file(
     """
     base_prompt = build_remediation_prompt(target_file, findings)
 
-    # Inline embedding: read target file content into the prompt.
-    # --file is broken (cloud download mechanism, not local file injector).
+    # Compose target file content into the prompt; delivered via stdin downstream.
     try:
         file_content = Path(target_file).read_text(encoding="utf-8")
         file_block = f"## Current File Content\n\n```\n{file_content}\n```"
         composed = base_prompt + "\n\n" + file_block
-        if len(composed.encode("utf-8")) > _EMBED_SIZE_LIMIT:
+        if len(composed.encode("utf-8")) > _LARGE_PROMPT_WARN_BYTES:
             _log.warning(
-                "remediate_executor: composed prompt for '%s' exceeds %d bytes;"
-                " embedding inline anyway (--file fallback is unavailable)",
+                "remediate_executor: composed prompt for '%s' is %d bytes (> %d);"
+                " may strain model context window",
                 target_file,
-                _EMBED_SIZE_LIMIT,
+                len(composed.encode("utf-8")),
+                _LARGE_PROMPT_WARN_BYTES,
             )
         prompt = composed
     except OSError as exc:

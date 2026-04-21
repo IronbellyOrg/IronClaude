@@ -30,17 +30,24 @@ For this report type (10 sections from 4 synth files):
 
 ## Section-to-Synth File Mapping (IronClaude Research Reports)
 
-Standard 10-section research report with 6 synthesis files:
+Standard 10-section research report with variable synth file count:
+
+**3-file layout** (observed 2026-04-03):
 - Sections 1-2 (Problem Statement, Current State): synth-01
-- Sections 3-4 (Target State, Gap Analysis): synth-02
-- Section 5 (External Research Findings): synth-03
-- Sections 6-7 (Options Analysis, Recommendation): synth-04
-- Section 8 (Implementation Plan): synth-05
-- Sections 9-10 (Open Questions, Evidence Trail): synth-06
+- Sections 3-7 (Target State, Gap Analysis, External Research, Options, Recommendation): synth-02
+- Sections 8-10 (Implementation Plan, Open Questions, Evidence Trail): synth-03
+
+**6-file layout** (earlier standard):
+- Sections 1-2: synth-01
+- Sections 3-4: synth-02
+- Section 5: synth-03
+- Sections 6-7: synth-04
+- Section 8: synth-05
+- Sections 9-10: synth-06
 
 Section 5 is frequently N/A for codebase-scoped investigations (no web research files).
 
-Earlier assemblies used 4 synth files with sections 5-8 merged into synth-03. The 6-file layout is the current standard.
+**How to apply:** Always read the spawn prompt's section assignments rather than assuming a fixed mapping.
 
 ## Multi-Domain Release Spec Pattern (v3.7-task-unified-v2)
 
@@ -72,3 +79,13 @@ grep -oP '##### T\d{2}\.\d{2}' report.md | sort -u
 # Count feature references (for TUI spec)
 grep -oP 'F\d{1,2}[:\s]' report.md | sort -u
 ```
+
+## Assembly with QA Context Notes (2026-04-04)
+
+When the assembly prompt includes a "NOTE FROM QA" about cross-section reading context (e.g., implementation plan should be read in context of a recommendation's phased approach), add a blockquote **Reading Context** note at the top of the affected section. This preserves QA's guidance without altering the synthesis content.
+
+**How to apply:** Use `> **Reading Context (per Section N):**` format. Keep it factual -- map plan phases to option labels from the recommendation.
+
+## Edit Tool for All Sections Works (2026-04-04 confirmation)
+
+For an 846-line 10-section report assembled from 6 synth files, using Edit tool for ALL section appends worked without issues. No need for Bash `cat >>` fallback when the old_string anchor is the last unique line of content added. The pattern: match on the final table row or text line of the previous section, append new section content after it.

@@ -114,6 +114,7 @@ Tests/
 temp/
 tmp/
 .cache/
+.claude/
 
 # Build artifacts
 *.tar.gz

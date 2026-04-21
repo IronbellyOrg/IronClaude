@@ -110,9 +110,9 @@ def roadmap_group():
 )
 @click.option(
     "--input-type",
-    type=click.Choice(["auto", "tdd", "spec", "prd"], case_sensitive=False),
+    type=click.Choice(["auto", "tdd", "spec"], case_sensitive=False),
     default="auto",
-    help="Input file type. auto=detect from content (PRD, TDD, or spec), tdd/spec/prd=force type. Default: auto.",
+    help="Input file type. auto=detect from content (PRD, TDD, or spec), tdd/spec=force type. PRD files are auto-detected when passed as positional arguments. Default: auto.",
 )
 @click.option(
     "--tdd-file",
@@ -136,6 +136,17 @@ def roadmap_group():
         "Auto-wired from .roadmap-state.json on --resume if not specified."
     ),
 )
+@click.option(
+    "--no-compress",
+    "no_compress",
+    is_flag=True,
+    default=False,
+    help=(
+        "Disable markdown compression of LLM inputs (spec, variants, merge). "
+        "Compression is lossless (strategies S-01..S-22) and applied only to "
+        "LLM-consumed content; deterministic steps always read originals."
+    ),
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -155,6 +166,7 @@ def run(
     input_type: str,
     tdd_file: Path | None,
     prd_file: Path | None,
+    no_compress: bool,
 ) -> None:
     """Run the roadmap generation pipeline on INPUT_FILES.
 
@@ -228,6 +240,7 @@ def run(
         "input_type": routing["input_type"],
         "tdd_file": routing["tdd_file"].resolve() if routing["tdd_file"] else None,
         "prd_file": routing["prd_file"].resolve() if routing["prd_file"] else None,
+        "compress_enabled": not no_compress,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs
@@ -243,17 +256,6 @@ def run(
         f"(spec={routing['spec_file']}, tdd={routing['tdd_file']}, prd={routing['prd_file']})",
         err=True,
     )
-
-    if resolved_type == "tdd":
-        click.echo(
-            click.style(
-                "NOTE: TDD input detected. The pipeline's deviation-analysis step "
-                "(DEVIATION_ANALYSIS_GATE) is not yet TDD-compatible and may fail. "
-                "All other steps (extract through spec-fidelity) will work correctly.",
-                fg="yellow",
-            ),
-            err=True,
-        )
 
     execute_roadmap(
         config,

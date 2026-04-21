@@ -114,6 +114,7 @@ class RoadmapConfig(PipelineConfig):
     input_type: Literal["auto", "tdd", "spec", "prd"] = "auto"  # auto=detect from content, tdd/spec/prd=force
     tdd_file: Path | None = None  # TDD integration: optional TDD file path for downstream enrichment
     prd_file: Path | None = None  # PRD integration: optional PRD file path for business context enrichment
+    compress_enabled: bool = True  # Compress spec, generated roadmaps, and merge output before LLM consumption
 
 
 @dataclass

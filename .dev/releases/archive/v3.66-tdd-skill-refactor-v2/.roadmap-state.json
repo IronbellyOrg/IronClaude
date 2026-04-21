@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/v3.66-tdd-skill-refactor-v2/tdd-command-layer-spec.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "2ac701d43dc1cab3e7ab9e13c897e04dcefb74ead5e45c32b249015bb4ab5a49",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-04-04T03:10:58.507278+00:00",
+  "steps": {
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.66-tdd-skill-refactor-v2/spec-fidelity.md",
+      "started_at": "2026-04-04T02:58:33.850719+00:00",
+      "completed_at": "2026-04-04T03:10:57.876797+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.66-tdd-skill-refactor-v2/wiring-verification.md",
+      "started_at": "2026-04-04T03:10:57.876980+00:00",
+      "completed_at": "2026-04-04T03:10:58.505934+00:00"
+    },
+    "deviation-analysis": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.66-tdd-skill-refactor-v2/spec-deviations.md",
+      "started_at": "2026-04-04T03:10:58.506048+00:00",
+      "completed_at": "2026-04-04T03:10:58.506333+00:00"
+    },
+    "remediate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.66-tdd-skill-refactor-v2/remediation-tasklist.md",
+      "started_at": "2026-04-04T03:10:58.506495+00:00",
+      "completed_at": "2026-04-04T03:10:58.507080+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "pass",
+    "timestamp": "2026-04-04T03:15:22.555168+00:00"
+  }
+}

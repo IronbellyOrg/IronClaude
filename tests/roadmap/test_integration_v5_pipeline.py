@@ -192,6 +192,20 @@ def _build_step_content(step: Step) -> str:
     for i in range(max(min_needed, 20)):
         lines.append(f"- Item {i}: content for step {step.id}")
 
+    # Add deliverable table rows for steps with _minimum_deliverable_rows check
+    if step.id.startswith("generate") or step.id == "merge":
+        lines.append("")
+        lines.append("## M1: Implementation")
+        lines.append("")
+        lines.append(
+            "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
+        )
+        lines.append("|---|---|---|---|---|---|---|---|---|")
+        for i in range(1, 26):
+            lines.append(
+                f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+            )
+
     # Add certification table for certify step
     if step.id == "certify":
         lines.extend(

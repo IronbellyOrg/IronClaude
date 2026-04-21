@@ -87,6 +87,8 @@ class Step:
     retry_limit: int = 1
     model: str = ""
     gate_mode: GateMode = GateMode.BLOCKING
+    tool_write_mode: bool = False
+    template_path: Optional[Path] = None
 
 
 @dataclass

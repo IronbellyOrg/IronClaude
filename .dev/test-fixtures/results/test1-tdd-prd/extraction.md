@@ -1,24 +1,24 @@
 ---
 spec_source: "test-tdd-user-auth.md"
-generated: "2026-03-31T12:00:00Z"
-generator: "requirements-extraction-agent"
+generated: "2026-04-02T12:00:00Z"
+generator: "requirements-design-extraction-agent"
 functional_requirements: 5
-nonfunctional_requirements: 8
-total_requirements: 13
+nonfunctional_requirements: 9
+total_requirements: 14
 complexity_score: 0.55
-complexity_class: MEDIUM
+complexity_class: "MEDIUM"
 domains_detected: [backend, security, frontend, testing, devops]
-risks_identified: 3
-dependencies_identified: 9
+risks_identified: 7
+dependencies_identified: 8
 success_criteria_count: 10
 extraction_mode: standard
 data_models_identified: 2
-api_surfaces_identified: 6
+api_surfaces_identified: 4
 components_identified: 9
 test_artifacts_identified: 6
 migration_items_identified: 15
-operational_items_identified: 12
-pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.140018+00:00", finished_at: "2026-03-31T13:28:19.850812+00:00"}
+operational_items_identified: 9
+pipeline_diagnostics: {elapsed_seconds: 327.2, started_at: "2026-04-03T02:33:31.077677+00:00", finished_at: "2026-04-03T02:38:58.282043+00:00"}
 ---
 
 ## Functional Requirements
@@ -32,8 +32,7 @@ pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.
   2. Invalid credentials return 401 with error message.
   3. Non-existent email returns 401 (no user enumeration).
   4. Account locked after 5 failed attempts within 15 minutes.
-- **API Surface:** POST `/auth/login`
-- **Priority:** Highest (Milestone M1)
+- **PRD Trace:** FR-AUTH.1, Epic AUTH-E1
 
 ### FR-AUTH-002: User registration with validation
 
@@ -44,8 +43,7 @@ pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.
   2. Duplicate email returns 409 Conflict.
   3. Weak passwords (< 8 chars, no uppercase, no number) return 400.
   4. `PasswordHasher` stores bcrypt hash with cost factor 12.
-- **API Surface:** POST `/auth/register`
-- **Priority:** Highest (Milestone M1)
+- **PRD Trace:** FR-AUTH.2, Epic AUTH-E1
 
 ### FR-AUTH-003: JWT token issuance and refresh
 
@@ -56,8 +54,7 @@ pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.
   2. POST `/auth/refresh` with valid refreshToken returns new `AuthToken` pair.
   3. Expired refreshToken returns 401.
   4. Revoked refreshToken returns 401.
-- **API Surface:** POST `/auth/refresh`
-- **Priority:** Highest (Milestone M2)
+- **PRD Trace:** FR-AUTH.3, Epic AUTH-E2
 
 ### FR-AUTH-004: User profile retrieval
 
@@ -67,8 +64,7 @@ pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.
   1. GET `/auth/me` with valid accessToken returns `UserProfile`.
   2. Expired or invalid token returns 401.
   3. Response includes id, email, displayName, createdAt, updatedAt, lastLoginAt, roles.
-- **API Surface:** GET `/auth/me`
-- **Priority:** High (Milestone M2)
+- **PRD Trace:** FR-AUTH.4, Epic AUTH-E3
 
 ### FR-AUTH-005: Password reset flow
 
@@ -79,8 +75,7 @@ pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.
   2. POST `/auth/reset-confirm` with valid token updates the password hash.
   3. Reset tokens expire after 1 hour.
   4. Used reset tokens cannot be reused.
-- **API Surface:** POST `/auth/reset-request`, POST `/auth/reset-confirm`
-- **Priority:** High (Milestone M3)
+- **PRD Trace:** FR-AUTH.5, Epic AUTH-E3
 
 ---
 
@@ -116,141 +111,156 @@ pipeline_diagnostics: {elapsed_seconds: 196.7, started_at: "2026-03-31T13:25:03.
 - **Requirement:** `JwtService` must sign tokens with RS256 using 2048-bit RSA keys.
 - **Measurement:** Configuration validation test.
 
-### NFR-COMP-001: GDPR consent at registration (PRD S17)
+### NFR-COMP-001: GDPR consent at registration (from PRD S17)
 
 - **Category:** Compliance
 - **Requirement:** Users must consent to data collection at registration. Consent recorded with timestamp.
-- **Source:** PRD AUTH-PRD-001, Legal & Compliance section. Not explicitly stated in TDD.
 - **Standard:** GDPR
+- **PRD Source:** Legal & Compliance Requirements
 
-### NFR-COMP-002: SOC2 audit logging (PRD S17)
+### NFR-COMP-002: SOC2 audit logging (from PRD S17)
 
 - **Category:** Compliance
-- **Requirement:** All auth events must be logged with user ID, timestamp, IP, and outcome. 12-month retention.
-- **Source:** PRD AUTH-PRD-001, Legal & Compliance section. TDD Section 7.2 specifies 90-day audit log retention, which conflicts with the PRD's 12-month requirement. See Open Questions.
+- **Requirement:** All auth events logged with user ID, timestamp, IP, and outcome. 12-month retention.
 - **Standard:** SOC2 Type II
+- **PRD Source:** Legal & Compliance Requirements
+- **Note:** TDD Section 14 defines Prometheus metrics and structured logs, but does not explicitly specify 12-month retention or IP logging. This PRD requirement adds specificity.
 
-### NFR-COMP-003: GDPR data minimization (PRD S17)
+### NFR-COMP-003: NIST password storage (from PRD S17)
+
+- **Category:** Compliance
+- **Requirement:** One-way adaptive hashing. Raw passwords never persisted or logged.
+- **Standard:** NIST SP 800-63B
+- **PRD Source:** Legal & Compliance Requirements
+- **Note:** Aligns with NFR-SEC-001 (bcrypt cost 12) but adds the explicit NIST compliance framing.
+
+### NFR-COMP-004: GDPR data minimization (from PRD S17)
 
 - **Category:** Compliance
 - **Requirement:** Only email, hashed password, and display name collected. No additional PII required.
-- **Source:** PRD AUTH-PRD-001, Legal & Compliance section.
 - **Standard:** GDPR
+- **PRD Source:** Legal & Compliance Requirements
 
 ---
 
 ## Complexity Assessment
 
-**Complexity Score:** 0.55
-**Complexity Class:** MEDIUM
+- **Complexity Score:** 0.55
+- **Complexity Class:** MEDIUM
 
 **Scoring Rationale:**
 
 | Factor | Score | Rationale |
 |--------|-------|-----------|
-| Domain complexity | 0.5 | Authentication is a well-understood domain with established patterns (JWT, bcrypt, refresh tokens). No novel algorithmic challenges. |
-| Integration surface | 0.6 | Three external systems (PostgreSQL, Redis, SendGrid) plus API Gateway and frontend components. All use standard protocols. |
-| Data model complexity | 0.3 | Two primary entities (`UserProfile`, `AuthToken`) with straightforward schemas. No complex relationships or hierarchies. |
-| Security sensitivity | 0.8 | Credential handling, token management, and brute-force mitigation require careful implementation. High impact of errors. |
-| Migration risk | 0.5 | Three-phase rollout with feature flags. Parallel operation with legacy system reduces risk but adds operational complexity. |
-| Team coordination | 0.6 | Cross-team impact (auth-team, platform-team, frontend-team). Frontend integration adds coordination overhead. |
+| Architectural scope | 0.5 | Single backend service with clear component boundaries (`AuthService`, `TokenManager`, `JwtService`, `PasswordHasher`). Well-defined facade pattern. |
+| Data model complexity | 0.3 | Two primary entities (`UserProfile`, `AuthToken`) with straightforward schemas. No complex relationships. |
+| Integration surface | 0.6 | Three external systems (PostgreSQL, Redis, SendGrid). Connection pooling and failover required. |
+| Security surface | 0.8 | Cryptographic operations (bcrypt, RS256 JWT), token lifecycle management, brute-force mitigation, XSS prevention. Security-critical domain. |
+| Frontend scope | 0.4 | Three page components (`LoginPage`, `RegisterPage`, ProfilePage) plus `AuthProvider` context. Standard form/auth patterns. |
+| Rollout complexity | 0.6 | Three-phase rollout with feature flags, rollback criteria, and parallel legacy operation. |
+| Testing breadth | 0.5 | Standard test pyramid with unit, integration, and E2E. Requires testcontainers for database/cache integration tests. |
 
-**Overall:** Standard backend service with elevated security requirements. Well-scoped with clear boundaries and proven technology choices. The phased rollout and feature flag strategy are appropriate for the risk level.
+**Overall:** MEDIUM complexity. The security-critical nature elevates risk, but the architectural pattern (single service, well-known auth flows) is well-understood. No novel algorithms or unproven technologies.
 
 ---
 
 ## Architectural Constraints
 
-1. **Stateless authentication via JWT.** `JwtService` signs access tokens with RS256 using 2048-bit RSA keys. No server-side session storage for access tokens. (Section 6.4)
-2. **bcrypt password hashing with cost factor 12.** `PasswordHasher` abstracts the algorithm for future migration but must use bcrypt in v1.0. (Section 6.4, NFR-SEC-001)
-3. **Refresh tokens stored in Redis.** `TokenManager` stores refresh tokens with 7-day TTL in Redis. Redis unavailability causes refresh rejection, not stale token serving. (Section 6.2, Section 12)
-4. **PostgreSQL 15+ for persistence.** `UserProfile` records and audit logs stored in PostgreSQL with connection pooling via pg-pool. (Section 7.2)
-5. **Node.js 20 LTS runtime.** Mandated runtime for the `AuthService`. (Section 18)
-6. **API versioned via URL prefix.** Production endpoints use `/v1/auth/*`. Breaking changes require new major version. (Section 8.4)
-7. **TLS 1.3 enforced on all endpoints.** No plaintext HTTP. (Section 13)
-8. **5-second clock skew tolerance in JWT validation.** `JwtService` allows ±5 seconds for distributed clock drift. (Section 12)
-9. **CORS restricted to known frontend origins.** (Section 13)
-10. **Persona-driven design (PRD S7):** Three user personas (Alex the End User, Jordan the Platform Admin, Sam the API Consumer) drive API design decisions. Alex requires frictionless UX; Sam requires programmatic token management; Jordan requires audit log access. Admin-facing features (audit log querying) are present in PRD user stories but not explicitly covered by TDD functional requirements.
+1. **Stateless authentication:** JWT-based via `JwtService`. No server-side session state. Refresh tokens in Redis are the only server-side state.
+2. **Facade pattern:** `AuthService` is the sole orchestrator. All auth logic is accessed through this component — no direct calls to `PasswordHasher`, `TokenManager`, or `JwtService` from external consumers.
+3. **Technology mandates:** PostgreSQL 15+, Redis 7+, Node.js 20 LTS. No alternatives without architecture review.
+4. **Token lifecycle:** Access tokens are 15-minute JWTs signed with RS256. Refresh tokens are 7-day opaque tokens stored in Redis. Dual-token pattern is mandatory.
+5. **Password hashing algorithm:** bcrypt via `PasswordHasher` with cost factor 12. The `PasswordHasher` abstraction exists to enable future migration to argon2id without API changes.
+6. **API versioning:** URL prefix versioning (`/v1/auth/*`). Breaking changes require new major version.
+7. **Error response format:** Consistent JSON structure with `error.code`, `error.message`, `error.status`.
+8. **No user enumeration:** Login failures and password reset requests for unknown emails must return identical responses.
+9. **Persona-driven design requirements (from PRD S7):**
+   - **Alex (end user):** Registration must complete in under 60 seconds. Session persistence across page refreshes without re-login.
+   - **Jordan (admin):** Auth event logs must be queryable by date range and user. Account lock/unlock capability required.
+   - **Sam (API consumer):** Programmatic token refresh without user interaction. Clear error codes for automation.
+10. **Scope boundaries (from PRD S12):** OAuth/OIDC, MFA, RBAC, and social login are explicitly out of scope for v1.0. Designs must not introduce dependencies on these capabilities.
 
 ---
 
 ## Risk Inventory
 
-1. **R-001: Token theft via XSS allows session hijacking** — Severity: HIGH. Probability: Medium. Mitigation: Store accessToken in memory only (not localStorage); `AuthProvider` clears tokens on tab close; HttpOnly cookies for refreshToken; `JwtService` uses short 15-minute expiry. Contingency: Immediate token revocation via `TokenManager`; force password reset for affected accounts.
+1. **R-001 — Token theft via XSS (Severity: HIGH)**
+   - Probability: Medium | Impact: High
+   - Mitigation: Store accessToken in memory only (not localStorage). `AuthProvider` clears tokens on tab close. HttpOnly cookies for refreshToken. `JwtService` uses short 15-minute expiry.
+   - Contingency: Immediate token revocation via `TokenManager`. Force password reset for affected accounts.
 
-2. **R-002: Brute-force attacks on login endpoint** — Severity: MEDIUM. Probability: High. Mitigation: Rate limiting at API Gateway (10 req/min per IP); account lockout after 5 failed attempts; bcrypt cost factor 12 makes offline cracking expensive. Contingency: Block offending IPs at WAF level; enable CAPTCHA on `LoginPage` after 3 failed attempts.
+2. **R-002 — Brute-force attacks on login endpoint (Severity: HIGH)**
+   - Probability: High | Impact: Medium
+   - Mitigation: Rate limiting at API Gateway (10 req/min per IP). Account lockout after 5 failed attempts. bcrypt cost factor 12.
+   - Contingency: Block offending IPs at WAF. Enable CAPTCHA on `LoginPage` after 3 failed attempts.
 
-3. **R-003: Data loss during migration from legacy auth** — Severity: HIGH. Probability: Low. Mitigation: Run `AuthService` in parallel with legacy system during Phase 1 and Phase 2; `UserProfile` migration uses idempotent upsert operations; full database backup before each phase. Contingency: Rollback to legacy auth system; restore `UserProfile` data from pre-migration backup.
+3. **R-003 — Data loss during migration from legacy auth (Severity: HIGH)**
+   - Probability: Low | Impact: High
+   - Mitigation: Run `AuthService` in parallel with legacy during Phase 1 and 2. Idempotent upsert operations. Full database backup before each phase.
+   - Contingency: Rollback to legacy. Restore from pre-migration backup.
+
+4. **R-004 — Low registration adoption due to poor UX (Severity: HIGH, from PRD)**
+   - Probability: Medium | Impact: High
+   - Mitigation: Usability testing before launch; iterate based on funnel data.
+
+5. **R-005 — Security breach from implementation flaws (Severity: CRITICAL, from PRD)**
+   - Probability: Low | Impact: Critical
+   - Mitigation: Dedicated security review; penetration testing before production.
+
+6. **R-006 — Compliance failure from incomplete audit logging (Severity: HIGH, from PRD)**
+   - Probability: Medium | Impact: High
+   - Mitigation: Define log requirements early; validate against SOC2 controls in QA.
+
+7. **R-007 — Email delivery failures blocking password reset (Severity: MEDIUM, from PRD)**
+   - Probability: Low | Impact: Medium
+   - Mitigation: Delivery monitoring and alerting; fallback support channel.
 
 ---
 
 ## Dependency Inventory
 
-| # | Dependency | Type | Version/Detail | Used By | Impact if Unavailable |
-|---|-----------|------|----------------|---------|----------------------|
-| 1 | PostgreSQL | Infrastructure | 15+ | `UserRepo`, Audit log | No persistent user storage; total service failure |
-| 2 | Redis | Infrastructure | 7+ | `TokenManager` | Refresh token flow broken; users must re-login |
-| 3 | Node.js | Runtime | 20 LTS | `AuthService` (all components) | Service cannot run |
-| 4 | bcryptjs | Library | — | `PasswordHasher` | Password hashing/verification impossible |
-| 5 | jsonwebtoken | Library | — | `JwtService` | Token signing/verification impossible |
-| 6 | SendGrid API | External Service | — | Password reset emails | FR-AUTH-005 password reset flow blocked |
-| 7 | AUTH-PRD-001 | Upstream Document | — | Requirements source | No product requirements to implement against |
-| 8 | INFRA-DB-001 | Infrastructure Dependency | — | Database provisioning | No database available |
-| 9 | SEC-POLICY-001 | Policy Document | — | `PasswordHasher`, `JwtService` config | Password and token policies undefined |
+| # | Dependency | Type | Version | Purpose | Impact if Unavailable |
+|---|-----------|------|---------|---------|----------------------|
+| 1 | PostgreSQL | Infrastructure | 15+ | `UserProfile` persistence, password hashes, audit log | No user storage; service non-functional |
+| 2 | Redis | Infrastructure | 7+ | Refresh token storage and revocation by `TokenManager` | Token refresh unavailable; users must re-login |
+| 3 | Node.js | Runtime | 20 LTS | Service runtime | Service cannot run |
+| 4 | bcryptjs | Library | — | Password hashing in `PasswordHasher` | Cannot hash or verify passwords |
+| 5 | jsonwebtoken | Library | — | JWT sign/verify in `JwtService` | Cannot issue or validate tokens |
+| 6 | SendGrid | External Service | API | Password reset emails | Password reset flow blocked (FR-AUTH-005) |
+| 7 | SEC-POLICY-001 | Policy Document | — | Password and token security requirements | Policy non-compliance risk |
+| 8 | Frontend routing framework | Internal | — | Rendering `LoginPage`, `RegisterPage`, ProfilePage | Auth pages cannot render |
 
 ---
 
 ## Success Criteria
 
-### From TDD (Section 4)
-
-| # | Metric | Target | Measurement Method |
-|---|--------|--------|--------------------|
-| 1 | Login response time (p95) | < 200ms | APM instrumentation on `AuthService.login()` |
-| 2 | Registration success rate | > 99% | Ratio of successful registrations to attempts |
-| 3 | Token refresh latency (p95) | < 100ms | APM instrumentation on `TokenManager.refresh()` |
-| 4 | Service availability | 99.9% uptime | Health check monitoring over 30-day windows |
-| 5 | Password hash time | < 500ms | Benchmark of `PasswordHasher.hash()` with bcrypt cost 12 |
-| 6 | User registration conversion | > 60% | Funnel analytics from `RegisterPage` to confirmed account |
-| 7 | Daily active authenticated users | > 1000 within 30 days of GA | `AuthToken` issuance counts |
-
-### From PRD Success Metrics (S19 — supplementary)
-
-| # | Metric | Target | Measurement Method | Business Rationale |
-|---|--------|--------|--------------------|--------------------|
-| 8 | Average session duration | > 30 minutes | Token refresh event analytics | Longer sessions = engaged users |
-| 9 | Failed login rate | < 5% of attempts | Auth event log analysis | High failure = UX or security issue |
-| 10 | Password reset completion | > 80% | Funnel: reset requested -> new password set | Validates self-service recovery |
+| # | Metric | Target | Source | Measurement Method |
+|---|--------|--------|--------|-------------------|
+| 1 | Login response time (p95) | < 200ms | TDD S4.1 | APM instrumentation on `AuthService.login()` |
+| 2 | Registration success rate | > 99% | TDD S4.1 | Ratio of successful registrations to attempts |
+| 3 | Token refresh latency (p95) | < 100ms | TDD S4.1 | APM instrumentation on `TokenManager.refresh()` |
+| 4 | Service availability | 99.9% uptime | TDD S4.1 | Health check monitoring over 30-day windows |
+| 5 | Password hash time | < 500ms | TDD S4.1 | Benchmark of `PasswordHasher.hash()` with bcrypt cost 12 |
+| 6 | User registration conversion | > 60% | TDD S4.2 / PRD S19 | Funnel analytics from `RegisterPage` to confirmed account |
+| 7 | Daily active authenticated users | > 1000 within 30 days of GA | TDD S4.2 | `AuthToken` issuance counts |
+| 8 | Average session duration | > 30 minutes | PRD S19 | Token refresh event analytics |
+| 9 | Failed login rate | < 5% of attempts | PRD S19 | Auth event log analysis |
+| 10 | Password reset completion | > 80% | PRD S19 | Funnel: reset requested -> new password set |
 
 ---
 
 ## Open Questions
 
-### From TDD (Section 22)
-
-| ID | Question | Owner | Target Date | Status |
-|----|----------|-------|-------------|--------|
-| OQ-001 | Should `AuthService` support API key authentication for service-to-service calls? | test-lead | 2026-04-15 | Open |
-| OQ-002 | What is the maximum allowed `UserProfile` roles array length? | auth-team | 2026-04-01 | Open |
-
-### From PRD (Section — Open Questions)
-
-| ID | Question | Owner | Status |
-|----|----------|-------|--------|
-| OQ-PRD-001 | Should password reset emails be sent synchronously or asynchronously? | Engineering | Open |
-| OQ-PRD-002 | Maximum number of refresh tokens allowed per user across devices? | Product | Open |
-| OQ-PRD-003 | Should we support "remember me" to extend session duration? | Product | Open |
-
-### Extraction-Identified Gaps
-
-| ID | Question | Source |
-|----|----------|--------|
-| OQ-EXT-001 | TDD audit log retention is 90 days (Section 7.2) but PRD requires 12-month retention for SOC2 (S17). Which value is authoritative? | TDD Section 7.2 vs PRD S17 |
-| OQ-EXT-002 | PRD user story for Jordan (admin) requires queryable auth event logs (by date range and user). No corresponding TDD API endpoint or functional requirement exists. Is admin log access in scope for v1.0? | PRD AUTH-E3 user stories |
-| OQ-EXT-003 | PRD user story requires logout functionality. No TDD functional requirement or API endpoint for logout exists. Is logout in scope? | PRD AUTH-E1 user stories |
-| OQ-EXT-004 | PRD JTBD #4 (Sam the API consumer: programmatic authentication and token refresh) lacks a dedicated TDD functional requirement beyond FR-AUTH-003. Is service-to-service auth covered by OQ-001, or does it need a separate FR? | PRD S6 JTBD #4 |
-| OQ-EXT-005 | PRD requires GDPR consent recording at registration (S17). TDD `UserProfile` schema has no consent field. Should a consent timestamp be added to the data model? | PRD S17 vs TDD Section 7.1 |
-| OQ-EXT-006 | PRD specifies account lockout policy as an open question (OQ-PRD, Owner: Security), but TDD hardcodes 5 attempts / 15 minutes in FR-AUTH-001. Has this been formally decided? | PRD Open Questions vs TDD FR-AUTH-001 |
+| # | ID | Question | Owner | Target Date | Status | Source |
+|---|-----|---------|-------|-------------|--------|--------|
+| 1 | OQ-001 | Should `AuthService` support API key authentication for service-to-service calls? | test-lead | 2026-04-15 | Open | TDD S22 |
+| 2 | OQ-002 | What is the maximum allowed `UserProfile` roles array length? | auth-team | 2026-04-01 | Open | TDD S22 |
+| 3 | OQ-003 | Should password reset emails be sent synchronously or asynchronously? | Engineering | — | Open | PRD S13 |
+| 4 | OQ-004 | Maximum number of refresh tokens allowed per user across devices? | Product | — | Open | PRD S13 |
+| 5 | OQ-005 | Should the platform support "remember me" to extend session duration? | Product | — | Open | PRD S13 |
+| 6 | OQ-006 | PRD JTBD #4 (programmatic token refresh for integrations) is covered by FR-AUTH-003, but no explicit service-to-service auth mechanism exists. Does Sam (API consumer) persona require API key auth beyond JWT? | Product / Engineering | — | Open | PRD S6/S7 gap |
+| 7 | OQ-007 | PRD user story for Jordan (admin) requires auth event log querying and account lock/unlock. The TDD defines account lockout (FR-AUTH-001 AC4) but no admin unlock endpoint or log query API. Is an admin API in scope for v1.0? | Product / Engineering | — | Open | PRD S20 gap |
+| 8 | OQ-008 | PRD specifies logout functionality (AUTH-E1 user story) but the TDD does not define a logout endpoint. Is POST `/auth/logout` needed for v1.0, or is client-side token deletion sufficient? | Engineering | — | Open | PRD/TDD gap |
 
 ---
 
@@ -273,12 +283,12 @@ interface UserProfile {
 | Field | Type | Constraints | Required | Description |
 |-------|------|-------------|----------|-------------|
 | id | string (UUID v4) | PRIMARY KEY, NOT NULL | Yes | Unique user identifier generated by `AuthService` |
-| email | string | UNIQUE, NOT NULL, indexed, lowercase normalized | Yes | User email address |
+| email | string | UNIQUE, NOT NULL, indexed | Yes | User email, normalized to lowercase |
 | displayName | string | NOT NULL, 2-100 chars | Yes | Display name shown in UI |
 | createdAt | string (ISO 8601) | NOT NULL, DEFAULT now() | Yes | Account creation timestamp |
 | updatedAt | string (ISO 8601) | NOT NULL, auto-updated | Yes | Last profile modification timestamp |
-| lastLoginAt | string (ISO 8601) | NULLABLE | No | Updated by `AuthService` on successful login |
-| roles | string[] | NOT NULL, DEFAULT ["user"] | Yes | Authorization roles; enforcement is downstream |
+| lastLoginAt | string (ISO 8601) | NULLABLE | No | Updated on each successful login |
+| roles | string[] | NOT NULL, DEFAULT ["user"] | Yes | Authorization roles; enforced downstream |
 
 ### Entity: AuthToken
 
@@ -293,24 +303,26 @@ interface AuthToken {
 
 | Field | Type | Constraints | Required | Description |
 |-------|------|-------------|----------|-------------|
-| accessToken | string (JWT) | NOT NULL | Yes | Signed by `JwtService` using RS256; payload contains user id and roles |
-| refreshToken | string | NOT NULL, unique | Yes | Opaque token managed by `TokenManager`; stored in Redis with 7-day TTL |
-| expiresIn | number | NOT NULL | Yes | Seconds until accessToken expiration; always 900 (15 minutes) |
-| tokenType | string | NOT NULL | Yes | Always "Bearer"; included for OAuth2 compatibility |
+| accessToken | string (JWT) | NOT NULL | Yes | Signed by `JwtService` using RS256; contains user id and roles |
+| refreshToken | string | NOT NULL, unique | Yes | Opaque token; stored in Redis with 7-day TTL |
+| expiresIn | number | NOT NULL | Yes | Seconds until accessToken expiration; always 900 |
+| tokenType | string | NOT NULL | Yes | Always "Bearer"; OAuth2 compatibility |
 
 ### Entity Relationships
 
-- `AuthService.login()` validates credentials → produces `AuthToken` for a given `UserProfile`
-- `TokenManager` stores `refreshToken` in Redis keyed to `UserProfile.id`
-- `JwtService` encodes `UserProfile.id` and `UserProfile.roles` into `accessToken` payload
+- `AuthService.login()` validates credentials via `PasswordHasher`, then creates an `AuthToken` via `TokenManager`/`JwtService`.
+- `UserProfile` is persisted in PostgreSQL; `AuthToken.refreshToken` is stored in Redis.
+- `AuthToken.accessToken` JWT payload contains `UserProfile.id` and `UserProfile.roles`.
 
 ### Data Storage Strategy
 
 | Store | Technology | Purpose | Retention |
 |-------|-----------|---------|-----------|
 | User records | PostgreSQL 15 | `UserProfile` persistence, password hashes | Indefinite |
-| Refresh tokens | Redis 7 | `TokenManager` token storage and revocation | 7-day TTL |
-| Audit log | PostgreSQL 15 | Login attempts, password resets | 90 days (TDD) / 12 months (PRD — see OQ-EXT-001) |
+| Refresh tokens | Redis 7 | Token storage and revocation | 7-day TTL |
+| Audit log | PostgreSQL 15 | Login attempts, password resets | 90 days (TDD) / 12 months (PRD NFR-COMP-002) |
+
+**Note:** TDD specifies 90-day audit log retention, but PRD compliance requirement (NFR-COMP-002) requires 12-month retention for SOC2. The PRD wins on this business constraint — audit log retention should be 12 months.
 
 ---
 
@@ -318,18 +330,14 @@ interface AuthToken {
 
 ### Endpoint Inventory
 
-| # | Method | Path | Auth Required | Rate Limit | Description |
-|---|--------|------|---------------|------------|-------------|
+| # | Method | Path | Auth | Rate Limit | Description |
+|---|--------|------|------|------------|-------------|
 | 1 | POST | `/auth/login` | No | 10 req/min per IP | Authenticate user, return `AuthToken` |
-| 2 | POST | `/auth/register` | No | 5 req/min per IP | Create new `UserProfile`, return profile data |
-| 3 | GET | `/auth/me` | Yes (Bearer) | 60 req/min per user | Return authenticated user's `UserProfile` |
+| 2 | POST | `/auth/register` | No | 5 req/min per IP | Create `UserProfile`, return profile data |
+| 3 | GET | `/auth/me` | Bearer token | 60 req/min per user | Return authenticated user's `UserProfile` |
 | 4 | POST | `/auth/refresh` | No (refresh token in body) | 30 req/min per user | Exchange refresh token for new `AuthToken` |
-| 5 | POST | `/auth/reset-request` | No | — | Request password reset email |
-| 6 | POST | `/auth/reset-confirm` | No | — | Confirm password reset with token |
 
-### Endpoint Details
-
-#### 1. POST `/auth/login`
+### POST `/auth/login`
 
 - **Auth:** None
 - **Rate Limit:** 10 req/min per IP
@@ -337,13 +345,13 @@ interface AuthToken {
   ```json
   { "email": "string", "password": "string" }
   ```
-- **Response (200):** `AuthToken` object (accessToken, refreshToken, expiresIn, tokenType)
+- **Response 200:** `AuthToken` object (`accessToken`, `refreshToken`, `expiresIn`, `tokenType`)
 - **Error Responses:**
-  - 401 Unauthorized: Invalid email or password (code: `AUTH_INVALID_CREDENTIALS`)
-  - 423 Locked: Account locked after 5 failed attempts
-  - 429 Too Many Requests: Rate limit exceeded
+  - 401 `AUTH_INVALID_CREDENTIALS` — Invalid email or password
+  - 423 Locked — Account locked after 5 failed attempts
+  - 429 Too Many Requests — Rate limit exceeded
 
-#### 2. POST `/auth/register`
+### POST `/auth/register`
 
 - **Auth:** None
 - **Rate Limit:** 5 req/min per IP
@@ -351,21 +359,21 @@ interface AuthToken {
   ```json
   { "email": "string", "password": "string", "displayName": "string" }
   ```
-- **Response (201):** `UserProfile` object
+- **Response 201:** `UserProfile` object
 - **Error Responses:**
-  - 400 Bad Request: Validation errors (weak password, invalid email)
-  - 409 Conflict: Email already registered
+  - 400 Bad Request — Validation errors (weak password, invalid email)
+  - 409 Conflict — Email already registered
 
-#### 3. GET `/auth/me`
+### GET `/auth/me`
 
-- **Auth:** Bearer token (JWT accessToken)
+- **Auth:** Bearer token (Authorization header)
 - **Rate Limit:** 60 req/min per user
 - **Request Headers:** `Authorization: Bearer <accessToken>`
-- **Response (200):** `UserProfile` object
+- **Response 200:** `UserProfile` object
 - **Error Responses:**
-  - 401 Unauthorized: Missing, expired, or invalid accessToken
+  - 401 Unauthorized — Missing, expired, or invalid accessToken
 
-#### 4. POST `/auth/refresh`
+### POST `/auth/refresh`
 
 - **Auth:** None (refresh token in body)
 - **Rate Limit:** 30 req/min per user
@@ -373,41 +381,25 @@ interface AuthToken {
   ```json
   { "refreshToken": "string" }
   ```
-- **Response (200):** New `AuthToken` object (old refresh token revoked)
+- **Response 200:** New `AuthToken` object (old refresh token revoked)
 - **Error Responses:**
-  - 401 Unauthorized: Expired or revoked refresh token
+  - 401 Unauthorized — Expired or revoked refresh token
 
-#### 5. POST `/auth/reset-request`
+### Error Response Schema
 
-- **Auth:** None
-- **Request Body:** `{ "email": "string" }`
-- **Response:** Success response regardless of email existence (prevents enumeration)
-
-#### 6. POST `/auth/reset-confirm`
-
-- **Auth:** None
-- **Request Body:** `{ "token": "string", "newPassword": "string" }`
-- **Response:** Success on valid token; password updated
-- **Error Responses:** 400/401 for invalid/expired/used tokens
-
-### Error Response Format
-
-All errors follow a consistent structure:
 ```json
 {
   "error": {
-    "code": "AUTH_INVALID_CREDENTIALS",
-    "message": "The provided email or password is incorrect.",
-    "status": 401
+    "code": "string",
+    "message": "string",
+    "status": "number"
   }
 }
 ```
 
 ### Versioning Strategy
 
-- URL prefix versioning: `/v1/auth/*` in production
-- Breaking changes require a new major version
-- Non-breaking additions (new optional fields) permitted within current version
+URL prefix versioning: `/v1/auth/*` in production. Breaking changes require a new major version. Non-breaking additions (new optional fields) permitted within current version.
 
 ---
 
@@ -415,22 +407,30 @@ All errors follow a consistent structure:
 
 ### Backend Components
 
-| # | Component | Type | Dependencies | Responsibility |
-|---|-----------|------|-------------|----------------|
-| 1 | `AuthService` | Backend Service (Orchestrator) | `PasswordHasher`, `TokenManager`, `UserRepo` | Facade that orchestrates all auth flows: login, registration, profile, password reset |
-| 2 | `TokenManager` | Backend Module | `JwtService`, Redis | Issues, refreshes, and revokes token pairs; stores refresh tokens in Redis |
-| 3 | `JwtService` | Backend Module | RSA key pair | Signs and verifies JWT access tokens using RS256 with 2048-bit keys |
-| 4 | `PasswordHasher` | Backend Module | bcryptjs | Hashes and verifies passwords using bcrypt with cost factor 12 |
-| 5 | `UserRepo` | Data Access Layer | PostgreSQL | CRUD operations on `UserProfile` records |
+| Component | Type | Purpose | Dependencies |
+|-----------|------|---------|-------------|
+| `AuthService` | Service (Facade) | Orchestrates all auth flows | `PasswordHasher`, `TokenManager`, `UserRepo` |
+| `TokenManager` | Service | JWT token lifecycle, refresh token storage | `JwtService`, Redis |
+| `JwtService` | Service | JWT sign/verify with RS256 | RSA key pair (2048-bit) |
+| `PasswordHasher` | Service | bcrypt hash/verify abstraction | bcryptjs library |
+| `UserRepo` | Repository | `UserProfile` CRUD operations | PostgreSQL |
 
 ### Frontend Components
 
-| # | Component | Type | Props | Dependencies |
-|---|-----------|------|-------|-------------|
-| 6 | `LoginPage` | Page Component | `onSuccess: () => void`, `redirectUrl?: string` | `AuthProvider`, POST `/auth/login` |
-| 7 | `RegisterPage` | Page Component | `onSuccess: () => void`, `termsUrl: string` | `AuthProvider`, POST `/auth/register` |
-| 8 | ProfilePage | Page Component | — | `AuthProvider`, GET `/auth/me` |
-| 9 | `AuthProvider` | Context Provider | `children: ReactNode` | `TokenManager` (via API), token storage |
+| Component | Type | Props | Description |
+|-----------|------|-------|-------------|
+| `LoginPage` | Page | `onSuccess: () => void`, `redirectUrl?: string` | Email/password login form; calls POST `/auth/login` |
+| `RegisterPage` | Page | `onSuccess: () => void`, `termsUrl: string` | Registration form with client-side validation |
+| ProfilePage | Page | — | Displays `UserProfile`; calls GET `/auth/me` |
+| `AuthProvider` | Context Provider | `children: ReactNode` | Manages `AuthToken` state, silent refresh, exposes auth methods |
+
+### Route Structure
+
+| Route | Component | Auth Required |
+|-------|-----------|---------------|
+| `/login` | `LoginPage` | No |
+| `/register` | `RegisterPage` | No |
+| `/profile` | ProfilePage | Yes |
 
 ### Component Hierarchy
 
@@ -438,19 +438,11 @@ All errors follow a consistent structure:
 App
 ├── AuthProvider
 │   ├── PublicRoutes
-│   │   ├── LoginPage        (/login, no auth)
-│   │   └── RegisterPage     (/register, no auth)
+│   │   ├── LoginPage
+│   │   └── RegisterPage
 │   └── ProtectedRoutes
-│       └── ProfilePage      (/profile, auth required)
+│       └── ProfilePage
 ```
-
-### Route Structure
-
-| Route | Page Component | Auth Required |
-|-------|---------------|---------------|
-| `/login` | `LoginPage` | No |
-| `/register` | `RegisterPage` | No |
-| `/profile` | ProfilePage | Yes |
 
 ---
 
@@ -458,38 +450,38 @@ App
 
 ### Test Pyramid
 
-| Level | Coverage Target | Tools | Focus Areas | Ownership |
-|-------|----------------|-------|-------------|-----------|
-| Unit | 80% | Jest, ts-jest | `AuthService` methods, `PasswordHasher` hashing/verification, `JwtService` sign/verify, `TokenManager` token lifecycle, `UserProfile` validation | auth-team |
-| Integration | 15% | Supertest, testcontainers | API endpoint request/response cycles, database operations, Redis token storage, `AuthService`→`PasswordHasher`→database flow | auth-team |
-| E2E | 5% | Playwright | `LoginPage` login flow, `RegisterPage` registration flow, `AuthProvider` token refresh, full user journey | QA |
+| Level | Coverage Target | Tools | Focus Areas |
+|-------|----------------|-------|-------------|
+| Unit | 80% | Jest, ts-jest | `AuthService` methods, `PasswordHasher` hashing/verification, `JwtService` sign/verify, `TokenManager` token lifecycle, `UserProfile` validation |
+| Integration | 15% | Supertest, testcontainers | API endpoint cycles, database operations, Redis token storage, `AuthService`-to-`PasswordHasher`-to-database flow |
+| E2E | 5% | Playwright | `LoginPage` login flow, `RegisterPage` registration flow, `AuthProvider` token refresh, full user journey |
 
 ### Unit Test Cases
 
 | ID | Test Case | Component | Validates |
 |----|-----------|-----------|-----------|
-| UT-001 | Login with valid credentials returns `AuthToken` | `AuthService` | FR-AUTH-001: calls `PasswordHasher.verify()` then `TokenManager.issueTokens()` |
+| UT-001 | Login with valid credentials returns `AuthToken` | `AuthService` | FR-AUTH-001: login -> `PasswordHasher.verify()` -> `TokenManager.issueTokens()` |
 | UT-002 | Login with invalid credentials returns error | `AuthService` | FR-AUTH-001: returns 401 when `PasswordHasher.verify()` returns false |
-| UT-003 | Token refresh with valid refresh token | `TokenManager` | FR-AUTH-003: validates, revokes old token, issues new pair via `JwtService` |
+| UT-003 | Token refresh with valid refresh token | `TokenManager` | FR-AUTH-003: validates, revokes old, issues new `AuthToken` pair |
 
 ### Integration Test Cases
 
 | ID | Test Case | Scope | Validates |
 |----|-----------|-------|-----------|
-| IT-001 | Registration persists `UserProfile` to database | `AuthService` + PostgreSQL | FR-AUTH-002: full flow from API request through `PasswordHasher` to database insert |
-| IT-002 | Expired refresh token rejected by `TokenManager` | `TokenManager` + Redis | FR-AUTH-003: Redis TTL expiration correctly invalidates refresh tokens |
+| IT-001 | Registration persists `UserProfile` to database | `AuthService` + PostgreSQL | FR-AUTH-002: full flow through `PasswordHasher` to database |
+| IT-002 | Expired refresh token rejected | `TokenManager` + Redis | FR-AUTH-003: Redis TTL correctly invalidates tokens |
 
 ### E2E Test Cases
 
 | ID | Test Case | Flow | Validates |
 |----|-----------|------|-----------|
-| E2E-001 | User registers and logs in | `RegisterPage` → `LoginPage` → ProfilePage | FR-AUTH-001, FR-AUTH-002: complete journey through `AuthProvider` |
+| E2E-001 | User registers and logs in | `RegisterPage` -> `LoginPage` -> ProfilePage | FR-AUTH-001, FR-AUTH-002: complete journey through `AuthProvider` |
 
 ### Test Environments
 
-| Environment | Purpose | Data Strategy |
-|-------------|---------|---------------|
-| Local | Developer testing | Docker Compose with PostgreSQL and Redis containers |
+| Environment | Purpose | Data |
+|-------------|---------|------|
+| Local | Developer testing | Docker Compose with PostgreSQL and Redis |
 | CI | Automated pipeline | testcontainers for ephemeral databases |
 | Staging | Pre-production validation | Seeded test accounts, isolated from production |
 
@@ -501,16 +493,16 @@ App
 
 | Phase | Description | Duration | Dependencies | Success Criteria | Rollback |
 |-------|-------------|----------|-------------|-----------------|----------|
-| Phase 1: Internal Alpha | Deploy `AuthService` to staging. auth-team and QA test all endpoints. `LoginPage` and `RegisterPage` behind feature flag `AUTH_NEW_LOGIN`. | 1 week | Staging environment provisioned | All FR-AUTH-001 through FR-AUTH-005 pass manual testing. Zero P0/P1 bugs. | Disable `AUTH_NEW_LOGIN` flag |
-| Phase 2: Beta (10%) | Enable `AUTH_NEW_LOGIN` for 10% of traffic. Monitor latency, error rates, Redis usage. `AuthProvider` handles token refresh under real load. | 2 weeks | Phase 1 complete | p95 latency < 200ms. Error rate < 0.1%. No Redis connection failures. | Reduce traffic to 0% via flag |
-| Phase 3: General Availability (100%) | Remove `AUTH_NEW_LOGIN`. All users route through new `AuthService`. Legacy auth deprecated. `AUTH_TOKEN_REFRESH` enables refresh flow. | 1 week | Phase 2 complete | 99.9% uptime over first 7 days. All monitoring dashboards green. | Re-enable `AUTH_NEW_LOGIN` as gate |
+| Phase 1: Internal Alpha | Deploy `AuthService` to staging. auth-team and QA test all endpoints. `LoginPage` and `RegisterPage` behind `AUTH_NEW_LOGIN` flag. | 1 week | Staging environment, PostgreSQL, Redis | All FR-AUTH-001 through FR-AUTH-005 pass manual testing. Zero P0/P1 bugs. | Disable `AUTH_NEW_LOGIN` flag |
+| Phase 2: Beta (10%) | Enable `AUTH_NEW_LOGIN` for 10% of traffic. Monitor latency, error rates, Redis usage. | 2 weeks | Phase 1 complete | p95 latency < 200ms. Error rate < 0.1%. No Redis connection failures. | Disable `AUTH_NEW_LOGIN` flag |
+| Phase 3: GA (100%) | Remove `AUTH_NEW_LOGIN` flag. All users route through `AuthService`. Legacy deprecated. `AUTH_TOKEN_REFRESH` enables refresh flow. | 1 week | Phase 2 complete | 99.9% uptime over 7 days. All dashboards green. | Re-enable legacy auth |
 
 ### Feature Flags
 
-| Flag | Purpose | Default State | Cleanup Target |
-|------|---------|---------------|----------------|
+| Flag | Purpose | Default | Cleanup Target |
+|------|---------|---------|---------------|
 | `AUTH_NEW_LOGIN` | Gates access to new `LoginPage` and `AuthService` login endpoint | OFF | Remove after Phase 3 GA |
-| `AUTH_TOKEN_REFRESH` | Enables refresh token flow in `TokenManager`; when OFF, only access tokens issued | OFF | Remove after Phase 3 + 2 weeks |
+| `AUTH_TOKEN_REFRESH` | Enables refresh token flow in `TokenManager` | OFF | Remove after Phase 3 + 2 weeks |
 
 ### Rollback Procedure
 
@@ -521,14 +513,13 @@ App
 5. Notify auth-team and platform-team via incident channel.
 6. Post-mortem within 48 hours of rollback.
 
-### Rollback Trigger Criteria
+### Rollback Criteria
 
-| # | Condition |
-|---|-----------|
-| 1 | p95 latency exceeds 1000ms for > 5 minutes |
-| 2 | Error rate exceeds 5% for > 2 minutes |
-| 3 | `TokenManager` Redis connection failures exceed 10 per minute |
-| 4 | Any data loss or corruption detected in `UserProfile` records |
+Rollback is triggered if any of the following occur:
+- p95 latency exceeds 1000ms for more than 5 minutes
+- Error rate exceeds 5% for more than 2 minutes
+- `TokenManager` Redis connection failures exceed 10 per minute
+- Any data loss or corruption detected in `UserProfile` records
 
 ---
 
@@ -536,49 +527,34 @@ App
 
 ### Runbook Scenarios
 
-#### Scenario 1: AuthService Down
-
-| Aspect | Detail |
-|--------|--------|
-| **Symptoms** | 5xx errors on all `/auth/*` endpoints; `LoginPage` and `RegisterPage` show error state |
-| **Diagnosis** | Check `AuthService` pod health in Kubernetes. Verify PostgreSQL connectivity. Check `PasswordHasher` and `TokenManager` initialization logs. |
-| **Resolution** | Restart `AuthService` pods. If PostgreSQL unreachable, failover to read replica. If Redis down, `TokenManager` rejects refresh requests — users must re-login via `LoginPage`. |
-| **Escalation** | Page auth-team on-call. If unresolved in 15 minutes, escalate to platform-team. |
-| **Prevention** | Health check monitoring, pod auto-restart via Kubernetes liveness probes. |
-
-#### Scenario 2: Token Refresh Failures
-
-| Aspect | Detail |
-|--------|--------|
-| **Symptoms** | Users report unexpected logouts; `AuthProvider` enters redirect loop to `LoginPage`; `auth_token_refresh_total` error counter spikes |
-| **Diagnosis** | Check Redis connectivity from `TokenManager`. Verify `JwtService` signing key accessible. Check `AUTH_TOKEN_REFRESH` feature flag state. |
-| **Resolution** | If Redis degraded, scale Redis cluster. If `JwtService` key unavailable, re-mount secrets volume. If flag OFF, enable `AUTH_TOKEN_REFRESH`. |
-| **Escalation** | Page auth-team on-call. If Redis cluster issue, escalate to platform-team. |
-| **Prevention** | Redis cluster monitoring with automatic failover; secrets rotation alerting. |
+| # | Scenario | Symptoms | Diagnosis | Resolution | Escalation | Prevention |
+|---|----------|----------|-----------|------------|------------|------------|
+| 1 | `AuthService` down | 5xx errors on all `/auth/*` endpoints; `LoginPage`/`RegisterPage` show error state | Check pod health in Kubernetes. Verify PostgreSQL connectivity. Check `PasswordHasher`/`TokenManager` init logs. | Restart pods. If PostgreSQL unreachable, failover to read replica. If Redis down, `TokenManager` rejects refreshes — users re-login via `LoginPage`. | Page auth-team on-call. 15-min escalation to platform-team. | Health check monitoring, auto-restart policies |
+| 2 | Token refresh failures | Users logged out unexpectedly; `AuthProvider` redirect loop to `LoginPage`; `auth_token_refresh_total` error counter spikes | Check Redis connectivity from `TokenManager`. Verify `JwtService` signing key. Check `AUTH_TOKEN_REFRESH` flag state. | Scale Redis cluster if degraded. Re-mount secrets volume if key unavailable. Enable `AUTH_TOKEN_REFRESH` if OFF. | Page auth-team on-call. Redis issues escalate to platform-team. | Redis cluster monitoring, key rotation alerts |
 
 ### On-Call Expectations
 
 | Aspect | Expectation |
 |--------|-------------|
 | Response time | Acknowledge P1 alerts within 15 minutes |
-| Coverage | auth-team provides 24/7 on-call rotation during first 2 weeks post-GA |
-| Tooling | Kubernetes dashboards, Grafana monitoring, Redis CLI, PostgreSQL admin |
-| Escalation path | auth-team on-call → test-lead → eng-manager → platform-team |
+| Coverage | auth-team 24/7 rotation during first 2 weeks post-GA |
+| Tooling | Kubernetes dashboards, Grafana, Redis CLI, PostgreSQL admin |
+| Escalation path | auth-team on-call -> test-lead -> eng-manager -> platform-team |
 
 ### Capacity Planning
 
-| Resource | Current Capacity | Expected Load | Scaling Trigger | Scaling Plan |
-|----------|-----------------|---------------|----------------|-------------|
-| `AuthService` pods | 3 replicas | 500 concurrent users | CPU > 70% | HPA scales to 10 replicas |
-| PostgreSQL connections | 100 pool size | 50 avg concurrent queries | Connection wait > 50ms | Increase pool to 200 |
-| Redis memory | 1 GB | ~100K refresh tokens (~50 MB) | Memory > 70% | Scale to 2 GB |
+| Resource | Current Capacity | Expected Load | Scaling Trigger |
+|----------|-----------------|---------------|----------------|
+| `AuthService` pods | 3 replicas | 500 concurrent users | HPA scales to 10 replicas at CPU > 70% |
+| PostgreSQL connections | 100 pool size | 50 avg concurrent queries | Increase to 200 if wait time > 50ms |
+| Redis memory | 1 GB | ~100K refresh tokens (~50 MB) | Scale to 2 GB if > 70% utilized |
 
 ### Observability
 
 **Metrics (Prometheus):**
-- `auth_login_total` (counter) — login attempts by outcome
+- `auth_login_total` (counter) — login attempts
 - `auth_login_duration_seconds` (histogram) — login latency
-- `auth_token_refresh_total` (counter) — token refresh attempts
+- `auth_token_refresh_total` (counter) — token refresh operations
 - `auth_registration_total` (counter) — registration attempts
 
 **Alerts:**
@@ -586,6 +562,6 @@ App
 - p95 latency > 500ms
 - `TokenManager` Redis connection failures
 
-**Tracing:** OpenTelemetry spans covering full request lifecycle through `AuthService`, `PasswordHasher`, `TokenManager`, and `JwtService`.
+**Tracing:** OpenTelemetry spans across `AuthService` -> `PasswordHasher` -> `TokenManager` -> `JwtService`.
 
-**Logging:** Structured logs for all auth events (login success/failure, registration, token refresh, password reset). Sensitive fields (password, tokens) excluded from logs.
+**Logging:** Structured logs for all authentication events (login success/failure, registration, token refresh, password reset).

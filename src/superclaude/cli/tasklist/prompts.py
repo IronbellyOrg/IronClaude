@@ -217,10 +217,7 @@ def build_tasklist_generate_prompt(
             "value ordering, not just technical dependency.\n"
             "5. Scope boundaries from S12 -- tasks must not exceed defined scope; "
             "generate explicit 'out of scope' markers where roadmap milestones approach "
-            "scope edges.\n"
-            "PRD context informs task descriptions and priorities but does NOT generate "
-            "standalone implementation tasks. Engineering tasks come from the roadmap; "
-            "PRD enriches them."
+            "scope edges."
         )
 
     # Combined interaction note when both are provided

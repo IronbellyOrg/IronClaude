@@ -1,4 +1,4 @@
-"""Tests for Phase 3 -- spec-fidelity prompt, pipeline integration, state persistence, degraded reporting.
+"""Tests for spec-fidelity prompt, pipeline integration, state persistence, degraded reporting.
 
 Covers:
 - T03.01: build_spec_fidelity_prompt() structure validation
@@ -44,11 +44,14 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
     spec.write_text("# Test Spec\nContent for testing.\n")
     output = tmp_path / "output"
     output.mkdir(exist_ok=True)
+    # Structural tests here assert spec-fidelity.inputs contains the original
+    # spec/merge paths. Compression routing is exercised by a dedicated test.
     return RoadmapConfig(
         spec_file=spec,
         output_dir=output,
         agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
         depth="standard",
+        compress_enabled=False,
     )
 
 

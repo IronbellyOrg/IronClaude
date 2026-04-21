@@ -41,6 +41,18 @@ def _lines(n: int) -> str:
     return "\n".join(f"- Item {i}" for i in range(n))
 
 
+def _deliverable_table(rows: int = 25) -> str:
+    """Generate a markdown deliverable table with the specified number of data rows."""
+    header = "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
+    sep = "|---|---|---|---|---|---|---|---|---|"
+    lines = [header, sep]
+    for i in range(1, rows + 1):
+        lines.append(
+            f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+        )
+    return "\n".join(lines)
+
+
 def _make_content(frontmatter: dict[str, str], body_lines: int = 200) -> str:
     """Build a markdown document with frontmatter and body."""
     fm_lines = ["---"]
@@ -175,6 +187,9 @@ GATE_MAP: dict[str, GateCriteria] = dict(ALL_GATES)
 
 # Extra body content for gates with specific semantic checks
 EXTRA_BODY: dict[str, str] = {
+    "generate-A": f"## M1: Implementation\n\n{_deliverable_table(25)}\n",
+    "generate-B": f"## M1: Implementation\n\n{_deliverable_table(25)}\n",
+    "merge": f"## M1: Implementation\n\n{_deliverable_table(25)}\n",
     "certify": textwrap.dedent("""\
         ## Certification Results
 

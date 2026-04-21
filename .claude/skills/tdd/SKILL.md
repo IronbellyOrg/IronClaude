@@ -410,4 +410,41 @@ This table declares which refs files are loaded at each phase and by which actor
 
 If a refs file is loaded outside its declared phase, the phase contract is violated and execution must halt.
 
+### PRD Extraction Agent Prompt
+
+```
+Extract structured content from the PRD at {{PRD_REF}} and write to ${TASK_DIR}research/00-prd-extraction.md.
+
+CRITICAL — Incremental File Writing Protocol:
+1. FIRST ACTION: Create the output file immediately with a header.
+2. Append each section using Edit as you complete it.
+3. Never accumulate and one-shot.
+
+Extract the following 5 sections:
+
+## Section 1: Epics
+| Epic ID | Title | Description |
+|---------|-------|-------------|
+(One row per epic. Use the PRD's own epic identifiers.)
+
+## Section 2: User Stories and Acceptance Criteria
+For each epic, list user stories with bulleted acceptance criteria grouped by parent epic ID.
+
+## Section 3: Success Metrics
+| Metric | Baseline | Target | Measurement Method |
+|--------|----------|--------|--------------------|
+(One row per KPI. Preserve the PRD's metric names exactly.)
+
+## Section 4: Technical Requirements
+Flat list with requirement type labels (functional, non-functional, constraint).
+
+## Section 5: Scope Boundaries
+- **In scope:** (bulleted list)
+- **Out of scope:** (bulleted list)
+
+Tag each extracted item as [PRD-VERIFIED] (directly stated in PRD text with section reference) or [PRD-INFERRED] (derived from PRD context but not explicitly stated). Do NOT use [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags here -- those are for codebase research agents that compare documentation against source code. This agent extracts from a PRD (product requirements), not from code.
+
+This agent is read-only — it produces the extraction file only. No code changes.
+```
+
 ---

@@ -9,7 +9,7 @@ A skill for creating comprehensive Product Requirements Documents (PRDs) for pro
 
 **How it works:** The skill performs initial scope discovery (mapping the product area, identifying research topics, assessing complexity), then spawns the `rf-task-builder` subagent to create an MDTM task file encoding all investigation, synthesis, and assembly phases. The skill then executes from that task file, marking items complete as it progresses. If context compresses or the session restarts, the skill re-reads the task file and resumes from the first unchecked item.
 
-The output always follows the project template at `docs/docs-product/templates/prd_template.md`. The template is the schema — every PRD must conform to it.
+The output always follows the project template at `src/superclaude/examples/prd_template.md`. The template is the schema — every PRD must conform to it.
 
 ## Why This Process Works
 
@@ -124,7 +124,7 @@ REVIEWS:     ${TASK_DIR}reviews/
 | QA report (report validation) | `${TASK_DIR}qa/qa-report-validation.md` |
 | QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
 | Final PRD | `docs/docs-product/tech/[feature-name]/PRD_[FEATURE-NAME].md` |
-| Template schema | `docs/docs-product/templates/prd_template.md` |
+| Template schema | `src/superclaude/examples/prd_template.md` |
 
 **File numbering convention:** All research, web, and synthesis files use zero-padded sequential numbers: `01-`, `02-`, `03-`, etc. This ensures correct ordering when listing files.
 
