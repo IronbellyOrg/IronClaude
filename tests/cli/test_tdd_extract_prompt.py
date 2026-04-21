@@ -268,7 +268,7 @@ class TestMergePromptTddPrd:
 
     def test_merge_baseline_no_tdd_prd(self, dummy_path):
         result = build_merge_prompt(dummy_path, dummy_path, dummy_path, dummy_path)
-        assert "synthesis specialist" in result
+        assert "producing the final merged roadmap" in result
         assert "Supplementary TDD" not in result
         assert "Supplementary PRD" not in result
 

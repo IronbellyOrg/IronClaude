@@ -43,6 +43,7 @@ class TestOnSpawnHook:
 
         fake_popen = MagicMock(spec=subprocess.Popen)
         fake_popen.pid = 12345
+        fake_popen.stdin = MagicMock()
 
         with patch(
             "superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_popen
@@ -56,6 +57,7 @@ class TestOnSpawnHook:
 
         fake_popen = MagicMock(spec=subprocess.Popen)
         fake_popen.pid = 99
+        fake_popen.stdin = MagicMock()
 
         with patch(
             "superclaude.cli.pipeline.process.subprocess.Popen", return_value=fake_popen

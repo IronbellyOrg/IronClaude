@@ -87,7 +87,9 @@ _TOPLEVEL_KEY_RE = re.compile(r"^([A-Za-z_][\w\-]*)\s*:", re.MULTILINE)
 
 
 def _check_frontmatter(
-    content: str, required_fields: list[str], output_file: Path
+    content: str,
+    required_fields: list[str | tuple[str, ...]],
+    output_file: Path,
 ) -> tuple[bool, str | None]:
     """Extract and validate YAML frontmatter fields.
 
@@ -98,6 +100,11 @@ def _check_frontmatter(
     by a post-match check that requires at least one top-level ``key:`` line.
     Conversational preamble, CONV comments, and any other pre-frontmatter
     lines are tolerated because ``re.search`` scans from any line start.
+
+    ``required_fields`` entries are either a string (exact key required) or a
+    tuple of strings (OR-group — at least one of the aliases must appear).
+    The tuple form expresses mutually exclusive aliases from the template
+    contract, e.g. ``("spec_source", "spec_sources")``.
     """
     # Scan every ``---`` delimiter pair; accept the first one whose body
     # contains at least one top-level ``key:`` line. This rejects pure
@@ -116,7 +123,15 @@ def _check_frontmatter(
     found_keys = set(_TOPLEVEL_KEY_RE.findall(frontmatter_text))
 
     for field in required_fields:
-        if field not in found_keys:
+        if isinstance(field, tuple):
+            if not any(alias in found_keys for alias in field):
+                alias_desc = " or ".join(f"'{alias}'" for alias in field)
+                return (
+                    False,
+                    f"Missing required frontmatter field "
+                    f"(one of {alias_desc}) in {output_file}",
+                )
+        elif field not in found_keys:
             return (
                 False,
                 f"Missing required frontmatter field '{field}' in {output_file}",

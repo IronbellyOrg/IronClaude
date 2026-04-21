@@ -58,7 +58,11 @@ class TestGateInstances:
         assert "functional_requirements" in EXTRACT_GATE.required_frontmatter_fields
         assert "complexity_score" in EXTRACT_GATE.required_frontmatter_fields
         assert "complexity_class" in EXTRACT_GATE.required_frontmatter_fields
-        assert "spec_source" in EXTRACT_GATE.required_frontmatter_fields
+        # spec_source and spec_sources form an OR-group (template contract).
+        assert (
+            "spec_source",
+            "spec_sources",
+        ) in EXTRACT_GATE.required_frontmatter_fields
         assert "generated" in EXTRACT_GATE.required_frontmatter_fields
         assert "generator" in EXTRACT_GATE.required_frontmatter_fields
         assert "nonfunctional_requirements" in EXTRACT_GATE.required_frontmatter_fields
@@ -122,7 +126,10 @@ class TestGateInstances:
         assert TEST_STRATEGY_GATE.enforcement_tier == "STRICT"
         assert "validation_milestones" in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "interleave_ratio" in TEST_STRATEGY_GATE.required_frontmatter_fields
-        assert "spec_source" in TEST_STRATEGY_GATE.required_frontmatter_fields
+        assert (
+            "spec_source",
+            "spec_sources",
+        ) in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "generated" in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "generator" in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "complexity_class" in TEST_STRATEGY_GATE.required_frontmatter_fields
@@ -162,6 +169,32 @@ class TestGateInstances:
         assert len(EXTRACT_GATE.semantic_checks) == 2
         check_names = {c.name for c in EXTRACT_GATE.semantic_checks}
         assert check_names == {"complexity_class_valid", "extraction_mode_valid"}
+
+
+class TestSpecSourceAliasGroup:
+    """Provenance gates must accept either `spec_source` (single-spec) or
+    `spec_sources` (multi-spec) — the template contract (refs/templates.md)
+    forbids both but requires one. The gate expresses this as an OR-group
+    tuple `("spec_source", "spec_sources")` in required_frontmatter_fields.
+    """
+
+    @pytest.mark.parametrize(
+        "gate",
+        [
+            EXTRACT_GATE,
+            GENERATE_A_GATE,
+            GENERATE_B_GATE,
+            MERGE_GATE,
+            TEST_STRATEGY_GATE,
+        ],
+    )
+    def test_gate_has_spec_source_alias_group(self, gate):
+        alias = ("spec_source", "spec_sources")
+        assert alias in gate.required_frontmatter_fields, (
+            f"Gate is missing the spec_source OR-group: {alias}"
+        )
+        # The singular literal must not linger alongside the alias group.
+        assert "spec_source" not in gate.required_frontmatter_fields
 
 
 class TestSemanticCheckFunctions:
@@ -289,7 +322,9 @@ class TestTemplateSectionsPresent:
                     continue
                 parts.append(f"### {stem} {dash} M{n}\n\nbody\n")
 
-        for i, name in enumerate(trailing_h2, start=len(required_h2) + n_milestones + 1):
+        for i, name in enumerate(
+            trailing_h2, start=len(required_h2) + n_milestones + 1
+        ):
             if name == drop_h2:
                 continue
             parts.append(h2(name, i))
@@ -359,9 +394,7 @@ class TestTemplateSectionsPresent:
         assert _template_sections_present(content) is False
 
     def test_missing_external_dependencies_fails(self):
-        content = self._minimal_valid_roadmap(
-            drop_resource_sub="External Dependencies"
-        )
+        content = self._minimal_valid_roadmap(drop_resource_sub="External Dependencies")
         assert _template_sections_present(content) is False
 
     def test_missing_infrastructure_requirements_fails(self):
@@ -1371,11 +1404,7 @@ class TestDeviationCountsReconciled:
 
     def test_all_routing_empty_matches_zero(self):
         content = (
-            "---\n"
-            "total_analyzed: 0\n"
-            "routing_fix_roadmap: \n"
-            "routing_no_action: \n"
-            "---\n"
+            "---\ntotal_analyzed: 0\nrouting_fix_roadmap: \nrouting_no_action: \n---\n"
         )
         assert _deviation_counts_reconciled(content) is True
 
