@@ -1,4 +1,3 @@
-<!-- CONV: Milestone=MLS, milestone=MI1 -->
 # Roadmap Output Template
 
 > **Usage**: This template defines the output structure for the roadmap pipeline's
@@ -8,11 +7,11 @@
 > **Sentinel self-check**: After generation, verify zero remaining sentinels:
 > `grep -c '{{SC_PLACEHOLDER:' <output-file>` should return 0.
 >
-> **Column contract**: Every MI1 deliverable table MUST use the 9-column schema below.
+> **Column contract**: Every milestone deliverable table MUST use the 9-column schema below.
 > Do not add, remove, or reorder columns.
 >
 > **Formatting contract**: Minimize whitespace. Single blank lines between sections.
-> No horizontal rules between milestones. No trailing MI1 summary lines.
+> No horizontal rules between milestones. No trailing milestone summary lines.
 > AC as terse semicolon-separated conditions.
 >
 > **Mutual exclusion**: Exactly one of `spec_source` (scalar) or `spec_sources`
@@ -58,7 +57,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 - {{SC_PLACEHOLDER:pre_m1_risk_1}}
 
-## MLS Summary
+## Milestone Summary
 
 |ID|Title|Type|Priority|Effort|Dependencies|Deliverables|Risk|
 |----|-------|------|----------|--------|--------------|--------------|------|
@@ -87,18 +86,18 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ### Integration Points u2014 M{{SC_PLACEHOLDER:N}}
 
-|Artifact|Type|Wired|MLS|Consumed By|
+|Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
 |{{SC_PLACEHOLDER:artifact}}|{{SC_PLACEHOLDER:type}}|{{SC_PLACEHOLDER:wired}}|{{SC_PLACEHOLDER:owner}}|{{SC_PLACEHOLDER:consumers}}|
 
-### MLS Dependencies u2014 M{{SC_PLACEHOLDER:N}}
+### Milestone Dependencies u2014 M{{SC_PLACEHOLDER:N}}
 
 - {{SC_PLACEHOLDER:dependency_or_none}}
 
 ### Open Questions u2014 M{{SC_PLACEHOLDER:N}}
 
 <!-- Omit this entire subsection when the milestone has zero open questions.
-     Each OQ whose resolution blocks this MI1's exit criteria appears as one row.
+     Each OQ whose resolution blocks this milestone's exit criteria appears as one row.
      OQ-xxx IDs must NEVER appear as rows in the 9-column deliverable table above u2014
      they are decisions, not deliverables. OQ-xxx MAY appear in the Deps column of
      deliverable rows that wait on the decision. -->
@@ -109,9 +108,9 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ### Risk Assessment and Mitigation u2014 M{{SC_PLACEHOLDER:N}}
 
-<!-- Per-MI1 risks scoped to this MI1 only. Every risk row here
+<!-- Per-milestone risks scoped to this milestone only. Every risk row here
      must also appear in the global `## Risk Register` at the end of the file,
-     with the MI1 ID listed in the `Affected Milestones` column. -->
+     with the milestone ID listed in the `Affected Milestones` column. -->
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
@@ -121,9 +120,9 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ### External Dependencies
 
-|Dependency|Required By MLS|Status|Fallback|
+|Dependency|Required By Milestone|Status|Fallback|
 |---|---|---|---|
-|{{SC_PLACEHOLDER:dependency}}|{{SC_PLACEHOLDER:MI1}}|{{SC_PLACEHOLDER:status}}|{{SC_PLACEHOLDER:fallback}}|
+|{{SC_PLACEHOLDER:dependency}}|{{SC_PLACEHOLDER:milestone}}|{{SC_PLACEHOLDER:status}}|{{SC_PLACEHOLDER:fallback}}|
 
 ### Infrastructure Requirements
 
@@ -131,11 +130,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ## Risk Register
 
-<!-- Aggregated view of every risk across the roadmap. Each row consolidates a
-     risk that appears in one or more per-MI1 `### Risk Assessment and
-     Mitigation u2014 M{N}` subsections. Use R-### IDs (stable across revisions)
-     and list every MI1 the risk affects in the `Affected Milestones`
-     column (comma-separated). Owner is a persona or role. -->
+
 
 |ID|Risk|Affected Milestones|Probability|Impact|Mitigation|Owner|
 |----|------|---------------------|-------------|--------|------------|-------|
@@ -143,13 +138,13 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ## Success Criteria and Validation Approach
 
-|Criterion|Metric|Target|Validation Method|MLS|
+|Criterion|Metric|Target|Validation Method|Milestone|
 |---|---|---|---|---|
-|{{SC_PLACEHOLDER:criterion}}|{{SC_PLACEHOLDER:metric}}|{{SC_PLACEHOLDER:target}}|{{SC_PLACEHOLDER:method}}|{{SC_PLACEHOLDER:MI1}}|
+|{{SC_PLACEHOLDER:criterion}}|{{SC_PLACEHOLDER:metric}}|{{SC_PLACEHOLDER:target}}|{{SC_PLACEHOLDER:method}}|{{SC_PLACEHOLDER:milestone}}|
 
 ## Decision Summary
 
-<!-- Every row must cite the specific data point that drove the decision u2014 no subjective justifications. -->
+
 
 |Decision|Chosen|Alternatives Considered|Rationale|
 |----------|--------|------------------------|----------|
@@ -157,7 +152,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ## Timeline Estimates
 
-|MLS|Duration|Start|End|Key Milestones|
+|Milestone|Duration|Start|End|Key Milestones|
 |---|---|---|---|---|
 |{{SC_PLACEHOLDER:milestone_num}}|{{SC_PLACEHOLDER:duration}}|{{SC_PLACEHOLDER:start}}|{{SC_PLACEHOLDER:end}}|{{SC_PLACEHOLDER:milestones}}|
 

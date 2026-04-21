@@ -1035,11 +1035,7 @@ ROADMAP_PIPELINE: list[StrategyEntry] = [
     StrategyEntry("S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse),
     StrategyEntry("S-07", "HTML comment removal", s07_html_comment_removal),
     StrategyEntry("S-22", "Per-change preamble elision", s22_preamble_elision),
-    StrategyEntry(
-        "S-09",
-        "Conventions-header abbreviation",
-        lambda t: s09_conventions_header(t, mode="identifiers"),
-    ),
+    # Abbreviation strategies (S-09) intentionally disabled; no CONV header.
     StrategyEntry("S-16", "FR-ID range condensation", s16_fr_id_range_condensation),
     StrategyEntry("S-14", "Table default-row hoisting", s14_table_default_row_hoisting),
     StrategyEntry(
