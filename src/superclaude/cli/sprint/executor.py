@@ -44,6 +44,7 @@ import logging as _logging
 
 _wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
 _anti_instinct_logger = _logging.getLogger("superclaude.sprint.anti_instinct_hook")
+_checkpoint_logger = _logging.getLogger("superclaude.sprint.checkpoint")
 
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
@@ -1400,6 +1401,23 @@ def execute_sprint(config: SprintConfig):
                     error_file=config.error_file(phase),
                 )
 
+                # Wave 1: warning-only checkpoint observability (v3.7).
+                # Does NOT change status. Flags any `Checkpoint Report Path:`
+                # entries in the phase file whose files are missing on disk.
+                if status == PhaseStatus.PASS:
+                    try:
+                        _warn_missing_checkpoints(
+                            phase_file=phase.file,
+                            checkpoints_dir=config.release_dir / "checkpoints",
+                            phase_number=phase.number,
+                        )
+                    except Exception as _cp_exc:  # noqa: BLE001
+                        _checkpoint_logger.warning(
+                            "Phase %d: checkpoint scan raised %s",
+                            phase.number,
+                            _cp_exc,
+                        )
+
                 # Write executor result file for downstream consumers.
                 # Written AFTER status determination to avoid circularity.
                 # Overwrites any agent-written file — executor is authoritative.
@@ -1587,6 +1605,64 @@ def _classify_from_result_file(
     if re.search(r"status:\s*PARTIAL\b", content, re.IGNORECASE):
         return PhaseStatus.INCOMPLETE
     return None
+
+
+_CHECKPOINT_PATH_PATTERN = re.compile(
+    r"Checkpoint\s+Report\s+Path:\s*`?([^\s`\n]+)`?",
+    re.IGNORECASE,
+)
+
+
+def _warn_missing_checkpoints(
+    phase_file: Path,
+    checkpoints_dir: Path,
+    phase_number: int,
+) -> list[str]:
+    """Warn for any checkpoint files declared in phase_file that do not exist.
+
+    Warning-only: does NOT alter phase status. Parses each
+    `Checkpoint Report Path:` line from the phase tasklist, resolves the
+    referenced path, and logs a warning for every expected checkpoint file
+    that is missing on disk. Missing paths are also returned so callers can
+    surface them through other channels (diagnostics, TUI, tests).
+    """
+    missing: list[str] = []
+    try:
+        content = phase_file.read_text(errors="replace")
+    except OSError as exc:
+        _checkpoint_logger.warning(
+            "Phase %d: unable to read phase file %s for checkpoint scan: %s",
+            phase_number,
+            phase_file,
+            exc,
+        )
+        return missing
+
+    for match in _CHECKPOINT_PATH_PATTERN.finditer(content):
+        raw_path = match.group(1).strip()
+        if not raw_path:
+            continue
+        candidate = Path(raw_path)
+        if not candidate.is_absolute():
+            # Try the declared path first (relative to repo/cwd). If that
+            # misses, fall back to the sprint's checkpoints directory using
+            # just the filename.
+            resolved = candidate if candidate.exists() else (
+                checkpoints_dir / candidate.name
+            )
+        else:
+            resolved = candidate
+
+        if not resolved.exists():
+            missing.append(raw_path)
+            _checkpoint_logger.warning(
+                "Phase %d: checkpoint report missing — declared %s (checked %s)",
+                phase_number,
+                raw_path,
+                resolved,
+            )
+
+    return missing
 
 
 def _check_checkpoint_pass(config: SprintConfig, phase: Phase) -> bool:
