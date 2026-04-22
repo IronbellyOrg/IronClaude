@@ -1,8 +1,14 @@
+# Validation Checklists Reference
+
+> Synthesis Quality Review, Assembly Process, Validation Checklist, and Content Rules, loaded during Stage A.7 by the builder subagent.
+
+---
+
 ## Synthesis Quality Review Checklist
 
 > **Note:** This section is reference documentation. The BUILD_REQUEST phases (Stage A) are authoritative for task file construction.
 
-**This checklist is enforced by the rf-analyst and rf-qa agents** (see Phase 5 in the task phases). The rf-analyst applies these 9 criteria as its Synthesis Quality Review analysis type, and the rf-qa agent independently verifies the analyst's findings with its expanded 12-item Synthesis Gate checklist. The QA agent can fix issues in-place when authorized.
+**This checklist is enforced by the rf-analyst and rf-qa agents** (see Phase 5 in the task phases). The rf-analyst applies these 9 criteria as its Synthesis Quality Review analysis type, and the rf-qa agent independently verifies the analyst's findings with its expanded 13-item Synthesis Gate checklist. The QA agent can fix issues in-place when authorized.
 
 The 9 criteria (used by rf-analyst):
 
@@ -16,9 +22,14 @@ The 9 criteria (used by rf-analyst):
 8. **No doc-only claims in Architecture (Section 6), Data Models (Section 7), or API Specs (Section 8).** Only `[CODE-VERIFIED]` findings may appear as current architecture. If the only evidence is a documentation file, reject and flag as `[UNVERIFIED — doc-only]`
 9. **Stale documentation discrepancies are surfaced.** Any `[CODE-CONTRADICTED]` or `[STALE DOC]` findings from research files should appear in Open Questions (Section 22), not silently omitted
 
-The rf-qa agent's Synthesis Gate adds 4 additional checks (10-13): content rules compliance, section completeness, hallucinated file path detection, and PRD traceability. If synthesis QA fails, the QA agent fixes issues in-place (when authorized) and issues remaining unfixed trigger re-synthesis of the affected files.
+The rf-qa agent's Synthesis Gate adds 4 additional checks:
 
+10. Content rules compliance (tables over prose, no code reproductions)
+11. Section completeness (no placeholders)
+12. Hallucinated file path detection (verify parent directories exist)
 13. **FR traceability** — spot-check 3 FRs in the synth-04 output: each must cite a PRD epic ID in its Source column. If any FR lacks a PRD epic citation and is not marked "[NO PRD TRACE]", flag as FAIL.
+
+If synthesis QA fails, the QA agent fixes issues in-place (when authorized) and issues remaining unfixed trigger re-synthesis of the affected files.
 
 ---
 

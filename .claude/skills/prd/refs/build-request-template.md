@@ -6,7 +6,7 @@
 
 BUILD_REQUEST:
 ==============
-GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at docs/docs-product/templates/prd_template.md. The PRD will be written to [OUTPUT_PATH].
+GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at src/superclaude/examples/prd_template.md. The PRD will be written to [OUTPUT_PATH].
 
 WHY: [WHY — what this PRD is for and how it will be used]
 
@@ -101,7 +101,7 @@ The task file MUST encode these phases as sequential checklist items. Each phase
 Phase 1 — Preparation:
 - Update task status to "🟠 Doing"
 - Confirm scope from research notes (product boundaries, key directories, tier selection)
-- Read the PRD template at docs/docs-product/templates/prd_template.md
+- Read the PRD template at src/superclaude/examples/prd_template.md
 - Select depth tier (Lightweight / Standard / Heavyweight) based on product scope and complexity
 - Create the task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders (if not already created during scope discovery)
 
@@ -157,8 +157,8 @@ STEPS:
 1. Read the research notes file specified above (MANDATORY)
 2. Read the SKILL CONTEXT FILES specified above for agent prompts, PRD template structure, validation checklist, and content rules (MANDATORY)
 3. Read the MDTM template specified in TEMPLATE field above (MANDATORY):
-   - If TEMPLATE: 02 → .gfdoc/templates/02_mdtm_template_complex_task.md
-   - If TEMPLATE: 01 → .gfdoc/templates/01_mdtm_template_generic_task.md
+   - If TEMPLATE: 02 → .claude/templates/workflow/02_mdtm_template_complex_task.md
+   - If TEMPLATE: 01 → .claude/templates/workflow/01_mdtm_template_generic_task.md
 4. Follow PART 1 instructions in the template completely (A3 granularity, B2 self-contained items, E1-E4 flat structure)
 5. If anything is missing, note it in the Task Log section — the skill will review
 6. Create the task file at .dev/tasks/to-do/TASK-PRD-[YYYYMMDD-HHMMSS]/TASK-PRD-[YYYYMMDD-HHMMSS].md using PART 2 structure

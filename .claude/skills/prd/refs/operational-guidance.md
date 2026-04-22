@@ -86,7 +86,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 | QA report (report validation) | `${TASK_DIR}qa/qa-report-validation.md` |
 | QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
 | Final PRD | `docs/docs-product/tech/[feature-name]/PRD_[FEATURE-NAME].md` |
-| Template schema | `docs/docs-product/templates/prd_template.md` |
+| Template schema | `src/superclaude/examples/prd_template.md` |
 
 Research and synthesis files persist in the task folder — they serve as the evidence trail for claims in the PRD and can be re-used when the document needs updating.
 

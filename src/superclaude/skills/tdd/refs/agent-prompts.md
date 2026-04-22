@@ -1,3 +1,9 @@
+# Agent Prompt Templates
+
+> **Purpose:** Agent prompt templates for the TDD pipeline, loaded during Stage A.7 by the builder subagent.
+
+---
+
 ## Agent Prompt Templates
 
 These templates are provided to the task builder (in the BUILD_REQUEST) so it can embed them in the task file's self-contained checklist items. The builder should customize each instance with the specific investigation topic, files, and output path.

@@ -439,7 +439,7 @@ This table declares which refs files are loaded at each phase and by which actor
 | Stage A.8 | Orchestrator | `SKILL.md` | `refs/agent-prompts.md`, `refs/synthesis-mapping.md`, `refs/validation-checklists.md`, `refs/operational-guidance.md` |
 | Stage B | `/task` execution | Generated task file + task skill | `refs/build-request-template.md`, `refs/agent-prompts.md`, `refs/synthesis-mapping.md`, `refs/validation-checklists.md`, `refs/operational-guidance.md` |
 
-**Contract validation rules :**
+**Contract validation rules (FR-PRD-R.6d):**
 
 1. **Set intersection:** `declared_loads ∩ forbidden_loads = ∅` for every phase
 2. **Runtime containment:** `runtime_loaded_refs ⊆ declared_loads` for every phase

@@ -9,7 +9,7 @@
 
 > **Note:** This section is reference documentation. The BUILD_REQUEST phases (Stage A) are authoritative for task file construction.
 
-The final PRD follows the template at `docs/docs-product/templates/prd_template.md`. The synthesis agents produce sections that are assembled into this format.
+The final PRD follows the template at `src/superclaude/examples/prd_template.md`. The synthesis agents produce sections that are assembled into this format.
 
 ```markdown
 ---

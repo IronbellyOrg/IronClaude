@@ -1,3 +1,9 @@
+# Operational Guidance Reference
+
+> Critical Rules, Research Quality Signals, Artifact Locations, PRD-to-TDD Pipeline, Update Protocol, and Session Management, loaded during Stage A.7 by the builder subagent.
+
+---
+
 ## Critical Rules (Non-Negotiable)
 
 These are SKILL-SPECIFIC content rules that apply across ALL phases. Violations compromise document quality.

@@ -1,3 +1,9 @@
+# Synthesis Mapping Reference
+
+> Output Structure reference and Synthesis Mapping Table, loaded during Stage A.7 by the builder subagent.
+
+---
+
 ## Output Structure
 
 > **Note:** This section is reference documentation. The BUILD_REQUEST phases (Stage A) are authoritative for task file construction.

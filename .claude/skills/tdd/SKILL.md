@@ -62,6 +62,14 @@ Proceed once you have at least #1 answered clearly. Items #2-4 improve quality b
 
 ## Tier Selection
 
+Match the tier to design scope. **Default to Standard** unless the component is clearly documentable with a quick scan of <5 files.
+
+| Tier | When | Codebase Agents | Web Agents | Target Lines |
+|------|------|-----------------|------------|-------------|
+| **Lightweight** | Single service or component, narrow scope, <5 relevant files | 2–3 | 0–1 | 300–600 |
+| **Standard** | Full component or subsystem, 5-20 files, moderate complexity | 4–6 | 1–2 | 800–1,400 |
+| **Heavyweight** | Platform-scale design, multiple services/layers, 20+ files | 6–10+ | 2–4 | 1,400–2,200 |
+
 **Tier selection rules:**
 - If in doubt, pick Standard
 - If the user says "detailed", "comprehensive", "thorough" — always Heavyweight
@@ -409,42 +417,5 @@ This table declares which refs files are loaded at each phase and by which actor
 2. **Runtime containment:** `runtime_loaded_refs ⊆ declared_loads` for every phase
 
 If a refs file is loaded outside its declared phase, the phase contract is violated and execution must halt.
-
-### PRD Extraction Agent Prompt
-
-```
-Extract structured content from the PRD at {{PRD_REF}} and write to ${TASK_DIR}research/00-prd-extraction.md.
-
-CRITICAL — Incremental File Writing Protocol:
-1. FIRST ACTION: Create the output file immediately with a header.
-2. Append each section using Edit as you complete it.
-3. Never accumulate and one-shot.
-
-Extract the following 5 sections:
-
-## Section 1: Epics
-| Epic ID | Title | Description |
-|---------|-------|-------------|
-(One row per epic. Use the PRD's own epic identifiers.)
-
-## Section 2: User Stories and Acceptance Criteria
-For each epic, list user stories with bulleted acceptance criteria grouped by parent epic ID.
-
-## Section 3: Success Metrics
-| Metric | Baseline | Target | Measurement Method |
-|--------|----------|--------|--------------------|
-(One row per KPI. Preserve the PRD's metric names exactly.)
-
-## Section 4: Technical Requirements
-Flat list with requirement type labels (functional, non-functional, constraint).
-
-## Section 5: Scope Boundaries
-- **In scope:** (bulleted list)
-- **Out of scope:** (bulleted list)
-
-Tag each extracted item as [PRD-VERIFIED] (directly stated in PRD text with section reference) or [PRD-INFERRED] (derived from PRD context but not explicitly stated). Do NOT use [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags here -- those are for codebase research agents that compare documentation against source code. This agent extracts from a PRD (product requirements), not from code.
-
-This agent is read-only — it produces the extraction file only. No code changes.
-```
 
 ---

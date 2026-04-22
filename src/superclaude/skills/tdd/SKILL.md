@@ -62,6 +62,14 @@ Proceed once you have at least #1 answered clearly. Items #2-4 improve quality b
 
 ## Tier Selection
 
+Match the tier to design scope. **Default to Standard** unless the component is clearly documentable with a quick scan of <5 files.
+
+| Tier | When | Codebase Agents | Web Agents | Target Lines |
+|------|------|-----------------|------------|-------------|
+| **Lightweight** | Single service or component, narrow scope, <5 relevant files | 2–3 | 0–1 | 300–600 |
+| **Standard** | Full component or subsystem, 5-20 files, moderate complexity | 4–6 | 1–2 | 800–1,400 |
+| **Heavyweight** | Platform-scale design, multiple services/layers, 20+ files | 6–10+ | 2–4 | 1,400–2,200 |
+
 **Tier selection rules:**
 - If in doubt, pick Standard
 - If the user says "detailed", "comprehensive", "thorough" — always Heavyweight

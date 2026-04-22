@@ -12,7 +12,7 @@
 
 The 9 criteria (used by rf-analyst):
 
-1. Template section headers match exactly (per `docs/docs-product/templates/prd_template.md`)
+1. Template section headers match exactly (per `src/superclaude/examples/prd_template.md`)
 2. Tables use the correct column structure from the template (competitive matrix, requirements table, KPI table, scope table, risk matrix, etc.)
 3. No content was fabricated beyond what research files contain
 4. Findings cite actual file paths and feature names (not vague descriptions)
