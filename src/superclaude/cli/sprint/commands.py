@@ -317,6 +317,106 @@ def kill(force: bool):
     kill_sprint(force=force)
 
 
+@sprint_group.command("verify-checkpoints")
+@click.argument(
+    "output_dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+)
+@click.option(
+    "--recover",
+    is_flag=True,
+    help="Auto-generate missing checkpoint reports from evidence artifacts.",
+)
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    help="Emit the manifest as machine-readable JSON instead of a table.",
+)
+def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
+    """Verify (and optionally recover) checkpoint reports for a sprint.
+
+    OUTPUT_DIR is a sprint release directory — the one that contains
+    `tasklist-index.md`, per-phase tasklists, and the `checkpoints/`
+    subtree. The command parses every phase tasklist, checks whether each
+    declared `Checkpoint Report Path:` file exists on disk, and prints a
+    status table (or JSON with --json). Pass --recover to regenerate
+    missing reports from evidence artifacts under `artifacts/`.
+    """
+    from .checkpoints import (
+        build_manifest,
+        recover_missing_checkpoints,
+        write_manifest,
+    )
+    from .config import discover_phases
+
+    index_path = output_dir / "tasklist-index.md"
+    if not index_path.is_file():
+        raise click.ClickException(
+            f"No tasklist-index.md found in {output_dir}"
+        )
+
+    manifest = build_manifest(index_path, output_dir)
+
+    if recover:
+        artifacts_dir = output_dir / "artifacts"
+        try:
+            phases = discover_phases(index_path)
+        except Exception as exc:  # noqa: BLE001
+            raise click.ClickException(f"Phase discovery failed: {exc}") from exc
+        phase_tasklists = {p.number: p.file for p in phases}
+        manifest = recover_missing_checkpoints(
+            manifest, artifacts_dir, phase_tasklists
+        )
+
+    manifest_path = output_dir / "manifest.json"
+    write_manifest(manifest, manifest_path)
+
+    if as_json:
+        click.echo(manifest_path.read_text().rstrip())
+        return
+
+    _print_checkpoint_table(manifest, manifest_path)
+
+
+def _print_checkpoint_table(
+    manifest: list, manifest_path: Path
+) -> None:
+    """Render a concise table of the manifest to stdout."""
+    total = len(manifest)
+    found = sum(1 for e in manifest if e.exists and not e.recovered)
+    recovered = sum(1 for e in manifest if e.recovered)
+    missing = total - found - recovered
+
+    if total == 0:
+        click.echo("No `### Checkpoint:` sections declared in any phase tasklist.")
+        click.echo(f"Manifest: {manifest_path}")
+        return
+
+    click.echo(
+        f"Checkpoints: {total} declared  |  "
+        f"{found} found  |  "
+        f"{recovered} recovered  |  "
+        f"{missing} missing"
+    )
+    click.echo()
+    click.echo(f"{'Phase':>5}  {'Status':<11}  {'Name':<30}  Path")
+    click.echo("-" * 80)
+    for entry in manifest:
+        if entry.recovered:
+            status = "recovered"
+        elif entry.exists:
+            status = "found"
+        else:
+            status = "MISSING"
+        name = entry.name[:30]
+        click.echo(
+            f"{entry.phase:>5}  {status:<11}  {name:<30}  {entry.expected_path}"
+        )
+    click.echo()
+    click.echo(f"Manifest: {manifest_path}")
+
+
 def _print_dry_run(config) -> None:
     """Display discovered phases without executing."""
     click.echo(f"Dry run: {len(config.phases)} phases discovered")

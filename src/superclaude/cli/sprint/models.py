@@ -297,6 +297,38 @@ class Phase:
         return self.name or f"Phase {self.number}"
 
 
+@dataclass
+class CheckpointEntry:
+    """One row in a sprint's checkpoint manifest (v3.7, Wave 3).
+
+    Built by :func:`superclaude.cli.sprint.checkpoints.build_manifest` and
+    serialised by :func:`write_manifest`. Recovery metadata is populated by
+    :func:`recover_missing_checkpoints` when a missing report is regenerated
+    from evidence artifacts.
+
+    Attributes:
+        phase: Phase number that declared this checkpoint.
+        name: Human-readable label from the ``### Checkpoint:`` heading,
+            or the basename of ``expected_path`` when no heading precedes
+            the path declaration.
+        expected_path: Absolute path where the checkpoint report should
+            exist (resolved against the sprint's release dir).
+        exists: True when ``expected_path`` is a file on disk.
+        recovered: True when this entry was synthesised post-hoc by
+            ``recover_missing_checkpoints``.
+        recovery_source: Description of the artifact(s) used to recover the
+            checkpoint (e.g. ``"artifacts/D-0013, artifacts/D-0014"``).
+            ``None`` when ``recovered`` is False.
+    """
+
+    phase: int
+    name: str
+    expected_path: Path
+    exists: bool
+    recovered: bool = False
+    recovery_source: Optional[str] = None
+
+
 # Sentinel value: grace_period >= this means "shadow forever" (T09/R5)
 SHADOW_GRACE_INFINITE: int = 999_999
 

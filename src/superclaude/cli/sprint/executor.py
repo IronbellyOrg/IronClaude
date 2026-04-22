@@ -1538,6 +1538,31 @@ def execute_sprint(config: SprintConfig):
         kpi_path = config.results_dir / "gate-kpi-report.md"
         kpi_path.write_text(kpi_report.format_report())
 
+        # Wave 3 (v3.7): write the checkpoint manifest and emit a
+        # `checkpoint_manifest` JSONL event so post-sprint tooling has a
+        # single source of truth for checkpoint completeness.
+        try:
+            from .checkpoints import build_manifest, write_manifest
+
+            _manifest = build_manifest(config.index_path, config.release_dir)
+            _manifest_path = config.release_dir / "manifest.json"
+            write_manifest(_manifest, _manifest_path)
+            _manifest_total = len(_manifest)
+            _manifest_found = sum(1 for _e in _manifest if _e.exists)
+            logger._jsonl(  # noqa: SLF001
+                {
+                    "event": "checkpoint_manifest",
+                    "path": str(_manifest_path),
+                    "total": _manifest_total,
+                    "found": _manifest_found,
+                    "missing": _manifest_total - _manifest_found,
+                }
+            )
+        except Exception as _mf_exc:  # noqa: BLE001
+            _checkpoint_logger.warning(
+                "Sprint end: checkpoint manifest write failed: %s", _mf_exc
+            )
+
         logger.write_summary(sprint_result)
         notify_sprint_complete(sprint_result)
 
