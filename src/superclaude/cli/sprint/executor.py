@@ -1401,19 +1401,22 @@ def execute_sprint(config: SprintConfig):
                     error_file=config.error_file(phase),
                 )
 
-                # Wave 1: warning-only checkpoint observability (v3.7).
-                # Does NOT change status. Flags any `Checkpoint Report Path:`
-                # entries in the phase file whose files are missing on disk.
+                # Wave 2: checkpoint enforcement gate (v3.7). Respects
+                # config.checkpoint_gate_mode (off/shadow/soft/full). Shadow is
+                # the default — emits a `checkpoint_verification` JSONL event
+                # and never alters status. In `full` mode, missing checkpoints
+                # downgrade PASS to PASS_MISSING_CHECKPOINT.
                 if status == PhaseStatus.PASS:
                     try:
-                        _warn_missing_checkpoints(
-                            phase_file=phase.file,
-                            checkpoints_dir=config.release_dir / "checkpoints",
-                            phase_number=phase.number,
+                        status = _verify_checkpoints(
+                            config=config,
+                            phase=phase,
+                            status=status,
+                            logger=logger,
                         )
                     except Exception as _cp_exc:  # noqa: BLE001
                         _checkpoint_logger.warning(
-                            "Phase %d: checkpoint scan raised %s",
+                            "Phase %d: checkpoint gate raised %s",
                             phase.number,
                             _cp_exc,
                         )
@@ -1607,62 +1610,87 @@ def _classify_from_result_file(
     return None
 
 
-_CHECKPOINT_PATH_PATTERN = re.compile(
-    r"Checkpoint\s+Report\s+Path:\s*`?([^\s`\n]+)`?",
-    re.IGNORECASE,
-)
+def _verify_checkpoints(
+    config: SprintConfig,
+    phase: Phase,
+    status: PhaseStatus,
+    logger: SprintLogger,
+) -> PhaseStatus:
+    """Wave 2 checkpoint enforcement gate.
 
+    After ``_determine_phase_status()`` returns a PASS-like status, parses the
+    phase tasklist for ``Checkpoint Report Path:`` declarations, verifies the
+    referenced files exist, emits a ``checkpoint_verification`` JSONL event,
+    and reacts based on ``config.checkpoint_gate_mode``:
 
-def _warn_missing_checkpoints(
-    phase_file: Path,
-    checkpoints_dir: Path,
-    phase_number: int,
-) -> list[str]:
-    """Warn for any checkpoint files declared in phase_file that do not exist.
+    - ``off``    — no action
+    - ``shadow`` — JSONL event only (default)
+    - ``soft``   — JSONL event + stdout warning
+    - ``full``   — JSONL event + downgrade status to ``PASS_MISSING_CHECKPOINT``
+                   when any declared checkpoint file is missing
 
-    Warning-only: does NOT alter phase status. Parses each
-    `Checkpoint Report Path:` line from the phase tasklist, resolves the
-    referenced path, and logs a warning for every expected checkpoint file
-    that is missing on disk. Missing paths are also returned so callers can
-    surface them through other channels (diagnostics, TUI, tests).
+    Returns the (possibly downgraded) status. Exceptions are swallowed so a
+    scanner fault never breaks the phase completion flow.
     """
-    missing: list[str] = []
+    mode = getattr(config, "checkpoint_gate_mode", "shadow")
+    if mode == "off":
+        return status
+
+    # Late import: shared parsing module (Wave 2 T02.01).
+    from .checkpoints import extract_checkpoint_paths, verify_checkpoint_files
+
     try:
-        content = phase_file.read_text(errors="replace")
-    except OSError as exc:
+        declared = extract_checkpoint_paths(phase.file, config.release_dir)
+    except Exception as exc:  # noqa: BLE001
         _checkpoint_logger.warning(
-            "Phase %d: unable to read phase file %s for checkpoint scan: %s",
-            phase_number,
-            phase_file,
+            "Phase %d: checkpoint scan raised %s", phase.number, exc
+        )
+        return status
+
+    if not declared:
+        return status  # No checkpoint sections → nothing to verify.
+
+    verified = verify_checkpoint_files(declared)
+    expected = [str(p) for _name, p in declared]
+    found = [str(p) for _name, p, ok in verified if ok]
+    missing = [str(p) for _name, p, ok in verified if not ok]
+
+    try:
+        logger.write_checkpoint_verification(
+            phase=phase.number,
+            expected=expected,
+            found=found,
+            missing=missing,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _checkpoint_logger.warning(
+            "Phase %d: failed to emit checkpoint_verification event: %s",
+            phase.number,
             exc,
         )
-        return missing
 
-    for match in _CHECKPOINT_PATH_PATTERN.finditer(content):
-        raw_path = match.group(1).strip()
-        if not raw_path:
+    if not missing:
+        return status
+
+    for name, path, _ok in verified:
+        if _ok:
             continue
-        candidate = Path(raw_path)
-        if not candidate.is_absolute():
-            # Try the declared path first (relative to repo/cwd). If that
-            # misses, fall back to the sprint's checkpoints directory using
-            # just the filename.
-            resolved = candidate if candidate.exists() else (
-                checkpoints_dir / candidate.name
-            )
-        else:
-            resolved = candidate
+        _checkpoint_logger.warning(
+            "Phase %d: checkpoint report missing — %s (expected at %s)",
+            phase.number,
+            name,
+            path,
+        )
 
-        if not resolved.exists():
-            missing.append(raw_path)
-            _checkpoint_logger.warning(
-                "Phase %d: checkpoint report missing — declared %s (checked %s)",
-                phase_number,
-                raw_path,
-                resolved,
-            )
+    if mode == "soft":
+        print(
+            f"⚠ Phase {phase.number}: {len(missing)} checkpoint report(s) "
+            f"missing — see execution-log.jsonl for details"
+        )
+    elif mode == "full":
+        return PhaseStatus.PASS_MISSING_CHECKPOINT
 
-    return missing
+    return status
 
 
 def _check_checkpoint_pass(config: SprintConfig, phase: Phase) -> bool:

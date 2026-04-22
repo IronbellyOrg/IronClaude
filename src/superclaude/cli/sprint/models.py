@@ -221,6 +221,12 @@ class PhaseStatus(Enum):
     PREFLIGHT_PASS = (
         "preflight_pass"  # completed by preflight execution (python/skip mode)
     )
+    # Wave 2 (v3.7): phase passed but one or more `### Checkpoint:` reports
+    # declared in the tasklist were not written. Surfaced only when
+    # `checkpoint_gate_mode == "full"`. Treated as success for control flow so
+    # the sprint continues; the distinct value lets downstream consumers
+    # (logs, retros, dashboards) flag the anomaly.
+    PASS_MISSING_CHECKPOINT = "pass_missing_checkpoint"
     INCOMPLETE = "incomplete"
     HALT = "halt"
     TIMEOUT = "timeout"
@@ -235,6 +241,7 @@ class PhaseStatus(Enum):
             PhaseStatus.PASS_NO_REPORT,
             PhaseStatus.PASS_RECOVERED,
             PhaseStatus.PREFLIGHT_PASS,
+            PhaseStatus.PASS_MISSING_CHECKPOINT,
             PhaseStatus.INCOMPLETE,
             PhaseStatus.HALT,
             PhaseStatus.TIMEOUT,
@@ -250,6 +257,7 @@ class PhaseStatus(Enum):
             PhaseStatus.PASS_NO_REPORT,
             PhaseStatus.PASS_RECOVERED,
             PhaseStatus.PREFLIGHT_PASS,
+            PhaseStatus.PASS_MISSING_CHECKPOINT,
         )
 
     @property
@@ -334,6 +342,10 @@ class SprintConfig(PipelineConfig):
     # Scope-based wiring gate fields (T09/R5: replaces direct wiring_gate_mode setting)
     wiring_gate_enabled: bool = True
     wiring_gate_grace_period: int = 0
+    # Checkpoint enforcement gate mode (v3.7, Wave 2)
+    # off=disabled, shadow=log JSONL only, soft=log + stdout warning,
+    # full=log + downgrade PASS to PASS_MISSING_CHECKPOINT on missing files
+    checkpoint_gate_mode: Literal["off", "shadow", "soft", "full"] = "shadow"
 
     def __post_init__(self):
         import warnings
