@@ -287,6 +287,13 @@ class Phase:
     file: Path
     name: str = ""  # extracted from phase file heading, or auto-generated
     execution_mode: str = "claude"  # claude, python, or skip
+    # TUI v2 Wave 2 (v3.7): short ~60-char description of the phase scope.
+    # Drives the "Prompt:" line in the active panel (F5). Populated by
+    # ``load_sprint_config`` from the first intent/scope line of the phase
+    # tasklist; falls back to ``display_name`` when no body is present.
+    # TUI-Q1 resolution: stored on ``Phase`` (not ``SprintConfig``) because
+    # the preview is phase-specific and materially different per phase.
+    prompt_preview: str = ""
 
     @property
     def basename(self) -> str:
@@ -295,6 +302,11 @@ class Phase:
     @property
     def display_name(self) -> str:
         return self.name or f"Phase {self.number}"
+
+    @property
+    def prompt_display(self) -> str:
+        """Return prompt_preview, falling back to display_name when empty."""
+        return self.prompt_preview or self.display_name
 
 
 @dataclass

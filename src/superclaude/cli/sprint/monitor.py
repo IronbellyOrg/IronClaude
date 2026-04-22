@@ -512,8 +512,14 @@ class OutputMonitor:
             self._append_error(err_message)
 
     def _append_activity(self, tool_name: str, description: str) -> None:
-        """Push an entry onto the activity log, capping to ACTIVITY_LOG_MAX."""
-        entry = (time.monotonic(), tool_name, description)
+        """Push an entry onto the activity log, capping to ACTIVITY_LOG_MAX.
+
+        The timestamp is wall-clock ``time.time()`` so the TUI (F1) can
+        render it directly as ``HH:MM:SS``. Idle-gap detection uses
+        wall-clock diffs (``time.time() - last_ts``) which are close
+        enough to monotonic for UI purposes.
+        """
+        entry = (time.time(), tool_name, description)
         self.state.activity_log.append(entry)
         if len(self.state.activity_log) > ACTIVITY_LOG_MAX:
             # Drop oldest; preserves FIFO semantics for the TUI renderer.
@@ -533,9 +539,16 @@ class OutputMonitor:
         # Last task ID (take the last match)
         task_matches = TASK_ID_PATTERN.findall(text)
         if task_matches:
-            self.state.last_task_id = task_matches[-1]
+            last = task_matches[-1]
+            self.state.last_task_id = last
+            # TUI v2 Wave 1 (v3.7, F3): parse the ordinal suffix so the
+            # dual progress bar can estimate completed tasks in the
+            # current phase (e.g. "T03.05" → 5 tasks done).
+            suffix_m = re.match(r"T\d{2}\.(\d{2})", last)
+            if suffix_m:
+                self.state.completed_task_estimate = int(suffix_m.group(1))
             debug_log(
-                _dbg, "signal_extracted", signal_type="task_id", value=task_matches[-1]
+                _dbg, "signal_extracted", signal_type="task_id", value=last
             )
 
         # Last tool used (only if not already set by structured extraction)

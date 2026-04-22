@@ -112,22 +112,31 @@ class TestTUIGateColumnRendering:
 
 
 class TestTUIGateColumnBackwardCompat:
-    """Backward compatibility: no UI change for blocking-only mode."""
+    """Backward compatibility: no UI change for blocking-only mode.
+
+    v3.7 Wave 2 (F2) changed the phase table columns: ``Tasks`` moved
+    to the dual progress bar in the active panel; ``Turns`` and
+    ``Output`` were added in its place. The gate column still appears
+    iff ``grace_period > 0``. The new expected column counts are
+    6 (no gate) and 7 (with gate).
+    """
 
     def test_table_columns_without_gate(self):
-        """Without grace_period, table has original 5 columns."""
+        """Without grace_period, table has 6 columns (#, Phase, Status, Duration, Turns, Output)."""
         config = _make_config(grace_period=0)
         tui = SprintTUI(config, console=Console(file=StringIO(), width=100))
         sr = SprintResult(config=config)
         tui.update(sr, MonitorState(), None)
         table = tui._build_phase_table()
-        assert len(table.columns) == 5
+        headers = [c.header for c in table.columns]
+        assert headers == ["#", "Phase", "Status", "Duration", "Turns", "Output"]
 
     def test_table_columns_with_gate(self):
-        """With grace_period, table has 6 columns (includes Gate)."""
+        """With grace_period, table has 7 columns (includes Gate between Status and Duration)."""
         config = _make_config(grace_period=30)
         tui = SprintTUI(config, console=Console(file=StringIO(), width=100))
         sr = SprintResult(config=config)
         tui.update(sr, MonitorState(), None)
         table = tui._build_phase_table()
-        assert len(table.columns) == 6
+        headers = [c.header for c in table.columns]
+        assert headers == ["#", "Phase", "Status", "Gate", "Duration", "Turns", "Output"]

@@ -154,6 +154,56 @@ def _extract_phase_name(phase_file: Path) -> str:
     return ""
 
 
+# TUI v2 Wave 2 (v3.7): pattern for a phase-intent line in the tasklist
+# body. Matches the first "**Goal:**" or "**Scope:**" line, or any
+# leading non-heading text immediately after the H1. Used only for
+# display; failures fall back to the phase name.
+_PHASE_INTENT_RE = re.compile(
+    r"^\*\*(?:Goal|Scope|Purpose|Intent|Objective)\*\*\s*:?\s*(.+)$",
+    re.IGNORECASE,
+)
+
+
+def _extract_phase_prompt_preview(phase_file: Path, phase_name: str) -> str:
+    """Return a ~60-char one-liner describing the phase scope (TUI F5).
+
+    Scans the phase file for the first ``**Goal:**`` / ``**Scope:**`` /
+    ``**Purpose:**`` line and returns its value. If none is found, falls
+    back to the first non-empty paragraph line after the H1 heading.
+    Final fallback is the bare ``phase_name``. The result is truncated
+    to 60 characters so the TUI active-panel line stays within width.
+    """
+    try:
+        raw = phase_file.read_text(errors="replace")
+    except (FileNotFoundError, OSError):
+        return phase_name[:60]
+
+    saw_h1 = False
+    first_body_line = ""
+    for line in raw.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("# "):
+            saw_h1 = True
+            continue
+        # Explicit scope/goal tag wins immediately.
+        m = _PHASE_INTENT_RE.match(stripped)
+        if m:
+            return m.group(1).strip()[:60]
+        # Capture the first body paragraph (not a heading) after the H1
+        # so we have a fallback.
+        if (
+            saw_h1
+            and not first_body_line
+            and not stripped.startswith(("#", "|", "---", "```", ">"))
+        ):
+            first_body_line = stripped
+    if first_body_line:
+        return first_body_line[:60]
+    return phase_name[:60]
+
+
 def validate_phases(
     phases: list[Phase],
     start: int,
@@ -248,9 +298,10 @@ def load_sprint_config(
             "phase-1-tasklist.md, p1-tasklist.md, phase_1_tasklist.md, tasklist-p1.md"
         )
 
-    # Enrich phases with names
+    # Enrich phases with names and TUI v2 prompt previews (F5, TUI-Q1).
     for phase in phases:
         phase.name = _extract_phase_name(phase.file)
+        phase.prompt_preview = _extract_phase_prompt_preview(phase.file, phase.name)
 
     # Auto-detect end phase
     if end_phase == 0:
