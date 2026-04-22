@@ -1239,9 +1239,11 @@ def execute_sprint(config: SprintConfig):
             shutil.copy2(phase.file, isolation_dir / phase.file.name)
 
             try:
-                # Reset monitor for this phase
+                # Reset monitor for this phase. Pass phase.file so the
+                # TUI v2 dual progress bar (F3) knows how many tasks live
+                # in the phase without re-scanning every poll tick.
                 output_path = config.output_file(phase)
-                monitor.reset(output_path)
+                monitor.reset(output_path, phase_file=phase.file)
                 monitor.start()
 
                 # Update tmux tail pane if running in tmux
@@ -1448,6 +1450,12 @@ def execute_sprint(config: SprintConfig):
                     error_bytes=error_bytes,
                     last_task_id=monitor.state.last_task_id,
                     files_changed=monitor.state.files_changed,
+                    # TUI v2 Wave 1 (v3.7): capture per-phase totals so
+                    # the terminal panels (F6) and release retrospective
+                    # (F10) can render aggregates across phases.
+                    turns=monitor.state.turns,
+                    tokens_in=monitor.state.tokens_in,
+                    tokens_out=monitor.state.tokens_out,
                 )
 
                 # v3.2-T02: Run post-phase wiring hook for every claude-mode phase

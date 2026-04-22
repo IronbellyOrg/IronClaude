@@ -25,6 +25,29 @@ PHASE_FILE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# TUI v2 Wave 1 (v3.7): matches canonical task headings ``### T<PP>.<TT>``.
+# Used by count_tasks_in_file for the pre-scan that populates
+# SprintConfig.total_tasks (drives the Tasks progress bar, F3).
+_TASK_ID_HEADING_RE = re.compile(
+    r"^###\s+T\d{2}\.\d{2}\b",
+    re.MULTILINE,
+)
+
+
+def count_tasks_in_file(phase_file: Path) -> int:
+    """Return the number of ``### T<PP>.<TT>`` task headings in a phase file.
+
+    Used to pre-scan total task count at sprint start (F3, dual progress
+    bar) and to populate ``MonitorState.total_tasks_in_phase`` when the
+    monitor is reset for a new phase. Missing/unreadable files return 0
+    rather than raising — the TUI treats 0 as "progress bar disabled".
+    """
+    try:
+        content = phase_file.read_text(errors="replace")
+    except (FileNotFoundError, OSError):
+        return 0
+    return len(_TASK_ID_HEADING_RE.findall(content))
+
 
 def discover_phases(index_path: Path) -> list[Phase]:
     """Discover phase files from the index and/or directory.
@@ -245,6 +268,16 @@ def load_sprint_config(
     for w in warnings:
         click.echo(w, err=True)
 
+    # TUI v2 Wave 1 (v3.7): pre-scan task count across every active phase
+    # file. The dual progress bar (F3) uses this as the denominator. Count
+    # only phases inside the [start_phase, end_phase] window so --start/--end
+    # runs report an accurate total for the current sprint slice.
+    total_tasks = sum(
+        count_tasks_in_file(p.file)
+        for p in phases
+        if start_phase <= p.number <= end_phase
+    )
+
     config = SprintConfig(
         index_path=index_path,
         # Resolves grandparent when index is inside tasklist/ subdir;
@@ -261,6 +294,7 @@ def load_sprint_config(
         stall_timeout=stall_timeout,
         stall_action=stall_action,
         shadow_gates=shadow_gates,
+        total_tasks=total_tasks,
     )
 
     # Validate that the requested range yields at least one active phase

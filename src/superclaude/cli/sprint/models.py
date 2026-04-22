@@ -378,6 +378,11 @@ class SprintConfig(PipelineConfig):
     # off=disabled, shadow=log JSONL only, soft=log + stdout warning,
     # full=log + downgrade PASS to PASS_MISSING_CHECKPOINT on missing files
     checkpoint_gate_mode: Literal["off", "shadow", "soft", "full"] = "shadow"
+    # TUI v2 Wave 1 (v3.7): pre-scanned total task count across all active
+    # phase files, populated by load_sprint_config. Drives the Tasks portion
+    # of the dual progress bar (F3). 0 is a valid fallback when the scan
+    # fails or the config is constructed directly (e.g. in unit tests).
+    total_tasks: int = 0
 
     def __post_init__(self):
         import warnings
@@ -487,6 +492,12 @@ class PhaseResult(StepResult):
     error_bytes: int = 0
     last_task_id: str = ""
     files_changed: int = 0
+    # TUI v2 Wave 1 (v3.7): phase-level totals captured when the phase ends.
+    # Populated from the final MonitorState; default to 0 for python/skip-mode
+    # phases that never ran a claude subprocess.
+    turns: int = 0
+    tokens_in: int = 0
+    tokens_out: int = 0
 
     @property
     def duration_seconds(self) -> float:
@@ -531,6 +542,29 @@ class SprintResult:
     def phases_failed(self) -> int:
         return sum(1 for r in self.phase_results if r.status.is_failure)
 
+    # TUI v2 Wave 1 (v3.7): cross-phase aggregates used by the enhanced
+    # terminal panels (F6) and the release retrospective (F10). Each
+    # property sums the matching per-phase field across ``phase_results``.
+    @property
+    def total_turns(self) -> int:
+        return sum(r.turns for r in self.phase_results)
+
+    @property
+    def total_tokens_in(self) -> int:
+        return sum(r.tokens_in for r in self.phase_results)
+
+    @property
+    def total_tokens_out(self) -> int:
+        return sum(r.tokens_out for r in self.phase_results)
+
+    @property
+    def total_output_bytes(self) -> int:
+        return sum(r.output_bytes for r in self.phase_results)
+
+    @property
+    def total_files_changed(self) -> int:
+        return sum(r.files_changed for r in self.phase_results)
+
     def resume_command(self) -> str:
         if self.halt_phase is not None:
             end = self.config.end_phase or max(p.number for p in self.config.phases)
@@ -547,6 +581,14 @@ class MonitorState:
 
     With stream-json output, liveness is tracked via ``last_event_time``
     (updated on each parsed NDJSON line) rather than raw byte growth.
+
+    TUI v2 (v3.7, Wave 1) fields feed the redesigned live display:
+    ``turns``/``tokens_*`` for the phase table, ``activity_log`` for the
+    3-line tool stream, ``errors`` for the conditional error panel,
+    ``last_assistant_text`` for the Agent context line, and
+    ``total_tasks_in_phase``/``completed_task_estimate`` for the dual
+    progress bar. All defaults preserve existing v3.6 behaviour when the
+    TUI v2 renderer is absent.
     """
 
     output_bytes: int = 0
@@ -561,6 +603,22 @@ class MonitorState:
     lines_total: int = 0
     growth_rate_bps: float = 0.0  # bytes per second
     stall_seconds: float = 0.0
+    # TUI v2 Wave 1 (v3.7): richer telemetry extracted from stream-json.
+    # F1: ring buffer of the last 3 tool calls — (timestamp, tool_name, description)
+    activity_log: list[tuple[float, str, str]] = field(default_factory=list)
+    # F2: count of assistant message events for the current phase
+    turns: int = 0
+    # F4: ring buffer of the last 10 errors — (task_id, tool_name, message)
+    errors: list[tuple[str, str, str]] = field(default_factory=list)
+    # F5: last ~80 chars of assistant text output (live "Agent:" line)
+    last_assistant_text: str = ""
+    # F3: task count in the current phase file (set by Monitor.reset)
+    total_tasks_in_phase: int = 0
+    # F3: estimated completed tasks within the current phase
+    completed_task_estimate: int = 0
+    # F6: accumulated input/output tokens for the current phase
+    tokens_in: int = 0
+    tokens_out: int = 0
 
     @property
     def stall_status(self) -> str:
