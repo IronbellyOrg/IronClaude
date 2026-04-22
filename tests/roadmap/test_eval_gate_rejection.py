@@ -36,6 +36,7 @@ from superclaude.cli.audit.wiring_gate import WIRING_GATE
 
 # --- Minimal passing content generators per gate ---
 
+
 def _lines(n: int) -> str:
     """Generate n lines of markdown content."""
     return "\n".join(f"- Item {i}" for i in range(n))
@@ -51,6 +52,77 @@ def _deliverable_table(rows: int = 25) -> str:
             f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
         )
     return "\n".join(lines)
+
+
+def _template_compliant_body(rows: int = 25) -> str:
+    """Produce a roadmap body satisfying `_template_sections_present`.
+
+    Includes every required top-level H2 section, a single `## M1:` milestone
+    section with its three required H3 subsections, and the two required H3s
+    under `## Resource Requirements and Dependencies`.
+    """
+    table = _deliverable_table(rows)
+    return textwrap.dedent(
+        f"""\
+        ## Executive Summary
+
+        Overview of the initiative.
+
+        ## Milestone Summary
+
+        | Milestone | Title | Duration |
+        |---|---|---|
+        | M1 | Implementation | 2 weeks |
+
+        ## Dependency Graph
+
+        M1 has no predecessors.
+
+        ## M1: Implementation
+
+        {table}
+
+        ### Integration Points — M1
+
+        No external integration points.
+
+        ### Milestone Dependencies — M1
+
+        None.
+
+        ### Risk Assessment and Mitigation — M1
+
+        No significant risks identified.
+
+        ## Resource Requirements and Dependencies
+
+        ### External Dependencies
+
+        None.
+
+        ### Infrastructure Requirements
+
+        Standard CI runners.
+
+        ## Risk Register
+
+        | ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |
+        |---|---|---|---|---|---|---|
+        | R-001 | None | M1 | Low | Low | N/A | team |
+
+        ## Success Criteria and Validation Approach
+
+        All tests pass.
+
+        ## Decision Summary
+
+        No pending decisions.
+
+        ## Timeline Estimates
+
+        2 weeks total.
+        """
+    )
 
 
 def _make_content(frontmatter: dict[str, str], body_lines: int = 200) -> str:
@@ -187,9 +259,9 @@ GATE_MAP: dict[str, GateCriteria] = dict(ALL_GATES)
 
 # Extra body content for gates with specific semantic checks
 EXTRA_BODY: dict[str, str] = {
-    "generate-A": f"## M1: Implementation\n\n{_deliverable_table(25)}\n",
-    "generate-B": f"## M1: Implementation\n\n{_deliverable_table(25)}\n",
-    "merge": f"## M1: Implementation\n\n{_deliverable_table(25)}\n",
+    "generate-A": _template_compliant_body(25),
+    "generate-B": _template_compliant_body(25),
+    "merge": _template_compliant_body(25),
     "certify": textwrap.dedent("""\
         ## Certification Results
 
@@ -262,33 +334,48 @@ class TestMissingFrontmatter:
 
         for field in gate.required_frontmatter_fields:
             fm = dict(PASSING_FRONTMATTER[gate_name])
-            del fm[field]
+            # Tuple entries are alias groups: the gate only fails when ALL
+            # aliases are absent, so drop every alias present in the fixture.
+            aliases = field if isinstance(field, tuple) else (field,)
+            removed_any = False
+            for alias in aliases:
+                if alias in fm:
+                    del fm[alias]
+                    removed_any = True
+            if not removed_any:
+                continue
+            label = "-or-".join(aliases)
             doc = _make_content(fm, max(gate.min_lines + 10, 50))
             doc += "\n" + EXTRA_BODY.get(gate_name, "")
-            f = tmp_path / f"{gate_name}-missing-{field}.md"
+            f = tmp_path / f"{gate_name}-missing-{label}.md"
             f.write_text(doc)
             passed, reason = gate_passed(f, gate)
             assert not passed, (
-                f"Gate '{gate_name}' should reject missing field '{field}'"
+                f"Gate '{gate_name}' should reject missing field(s) {aliases}"
             )
-            assert field in reason, (
-                f"Rejection reason should mention missing field '{field}', got: {reason}"
+            assert any(alias in reason for alias in aliases), (
+                f"Rejection reason should mention at least one of {aliases}, "
+                f"got: {reason}"
             )
 
 
 class TestBelowMinLines:
     """Each gate rejects content below its minimum line count."""
 
-    @pytest.mark.parametrize("gate_name,gate", [
-        (n, g) for n, g in ALL_GATES
-        if g.enforcement_tier in ("STANDARD", "STRICT") and g.min_lines > 0
-    ])
+    @pytest.mark.parametrize(
+        "gate_name,gate",
+        [
+            (n, g)
+            for n, g in ALL_GATES
+            if g.enforcement_tier in ("STANDARD", "STRICT") and g.min_lines > 0
+        ],
+    )
     def test_below_min_lines(self, gate_name, gate, tmp_path):
         fm = PASSING_FRONTMATTER[gate_name]
         # Build doc with fewer lines than required
         doc = _make_content(fm, max(gate.min_lines - 5, 1))
         # Truncate to ensure we're below min_lines
-        lines = doc.splitlines()[:gate.min_lines - 1]
+        lines = doc.splitlines()[: gate.min_lines - 1]
         doc = "\n".join(lines)
         f = tmp_path / f"{gate_name}-short.md"
         f.write_text(doc)
@@ -302,9 +389,10 @@ class TestBelowMinLines:
 class TestEmptyFile:
     """Every non-EXEMPT gate rejects empty files."""
 
-    @pytest.mark.parametrize("gate_name,gate", [
-        (n, g) for n, g in ALL_GATES if g.enforcement_tier != "EXEMPT"
-    ])
+    @pytest.mark.parametrize(
+        "gate_name,gate",
+        [(n, g) for n, g in ALL_GATES if g.enforcement_tier != "EXEMPT"],
+    )
     def test_empty_file(self, gate_name, gate, tmp_path):
         f = tmp_path / f"{gate_name}-empty.md"
         f.write_text("")
@@ -315,9 +403,10 @@ class TestEmptyFile:
 class TestMissingFile:
     """Every non-EXEMPT gate rejects missing files."""
 
-    @pytest.mark.parametrize("gate_name,gate", [
-        (n, g) for n, g in ALL_GATES if g.enforcement_tier != "EXEMPT"
-    ])
+    @pytest.mark.parametrize(
+        "gate_name,gate",
+        [(n, g) for n, g in ALL_GATES if g.enforcement_tier != "EXEMPT"],
+    )
     def test_missing_file(self, gate_name, gate, tmp_path):
         f = tmp_path / f"{gate_name}-missing.md"
         passed, reason = gate_passed(f, gate)
@@ -348,20 +437,36 @@ class TestSemanticCheckRejections:
         ],
         "test-strategy": [
             ("complexity_class_valid", {"complexity_class": "EXTREME"}),
-            ("interleave_ratio_consistent", {"interleave_ratio": "1:3"}),  # HIGH should be 1:1
+            (
+                "interleave_ratio_consistent",
+                {"interleave_ratio": "1:3"},
+            ),  # HIGH should be 1:1
             ("milestone_counts_positive", {"validation_milestones": "0"}),
-            ("validation_philosophy_correct", {"validation_philosophy": "continuous_parallel"}),
+            (
+                "validation_philosophy_correct",
+                {"validation_philosophy": "continuous_parallel"},
+            ),
             ("major_issue_policy_correct", {"major_issue_policy": "warn-and-continue"}),
         ],
         "spec-fidelity": [
             ("high_severity_count_zero", {"high_severity_count": "3"}),
-            ("tasklist_ready_consistent", {
-                "tasklist_ready": "true",
-                "high_severity_count": "2",
-            }),
+            (
+                "tasklist_ready_consistent",
+                {
+                    "tasklist_ready": "true",
+                    "high_severity_count": "2",
+                },
+            ),
         ],
         "deviation-analysis": [
-            ("no_ambiguous_deviations", {"ambiguous_count": "1", "ambiguous_deviations": "1", "total_analyzed": "4"}),
+            (
+                "no_ambiguous_deviations",
+                {
+                    "ambiguous_count": "1",
+                    "ambiguous_deviations": "1",
+                    "total_analyzed": "4",
+                },
+            ),
             ("validation_complete_true", {"analysis_complete": "false"}),
             ("slip_count_matches_routing", {"slip_count": "5"}),
             ("total_analyzed_consistent", {"total_analyzed": "99"}),
@@ -375,10 +480,14 @@ class TestSemanticCheckRejections:
         ],
     }
 
-    @pytest.mark.parametrize("gate_name,gate", [
-        (n, g) for n, g in ALL_GATES
-        if g.enforcement_tier == "STRICT" and g.semantic_checks
-    ])
+    @pytest.mark.parametrize(
+        "gate_name,gate",
+        [
+            (n, g)
+            for n, g in ALL_GATES
+            if g.enforcement_tier == "STRICT" and g.semantic_checks
+        ],
+    )
     def test_each_semantic_check_rejects(self, gate_name, gate, tmp_path):
         mutations = self.SEMANTIC_MUTATIONS.get(gate_name, [])
         for check_name, overrides in mutations:

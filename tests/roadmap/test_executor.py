@@ -92,6 +92,7 @@ class TestBuildSteps:
     def test_get_all_step_ids_includes_certify(self, tmp_path):
         """_get_all_step_ids includes certify (dynamic) and has 14 IDs total."""
         from superclaude.cli.roadmap.executor import _get_all_step_ids
+
         config = _make_config(tmp_path)
         all_ids = _get_all_step_ids(config)
         assert "certify" in all_ids
@@ -185,7 +186,11 @@ class TestIntegrationMockSubprocess:
             fm_fields = {}
             if step.gate and step.gate.required_frontmatter_fields:
                 for f in step.gate.required_frontmatter_fields:
-                    fm_fields[f] = fm_values.get(f, "test_value")
+                    # Tuple entries are alias groups -- satisfy by emitting the
+                    # first alias (e.g. ``spec_source`` from the
+                    # ``(spec_source, spec_sources)`` group).
+                    key = f[0] if isinstance(f, tuple) else f
+                    fm_fields[key] = fm_values.get(key, "test_value")
             # Add extra fields needed by semantic checks (not in required list)
             semantic_extras = {
                 "deviation-analysis": ["ambiguous_deviations"],
@@ -204,7 +209,23 @@ class TestIntegrationMockSubprocess:
                 content_lines.append(f"- Item {i}: content for {step.id}")
             # Add deliverable table rows for steps with _minimum_deliverable_rows check
             if step.id.startswith("generate") or step.id == "merge":
-                content_lines.append("\n## M1: Implementation\n")
+                content_lines.append("")
+                content_lines.append("## Executive Summary")
+                content_lines.append("")
+                content_lines.append("Overview of the initiative.")
+                content_lines.append("")
+                content_lines.append("## Milestone Summary")
+                content_lines.append("")
+                content_lines.append("| Milestone | Title | Duration |")
+                content_lines.append("|---|---|---|")
+                content_lines.append("| M1 | Implementation | 2 weeks |")
+                content_lines.append("")
+                content_lines.append("## Dependency Graph")
+                content_lines.append("")
+                content_lines.append("M1 has no predecessors.")
+                content_lines.append("")
+                content_lines.append("## M1: Implementation")
+                content_lines.append("")
                 content_lines.append(
                     "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
                 )
@@ -213,6 +234,48 @@ class TestIntegrationMockSubprocess:
                     content_lines.append(
                         f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
                     )
+                content_lines.append("")
+                content_lines.append("### Integration Points — M1")
+                content_lines.append("")
+                content_lines.append("No external integration points.")
+                content_lines.append("")
+                content_lines.append("### Milestone Dependencies — M1")
+                content_lines.append("")
+                content_lines.append("None.")
+                content_lines.append("")
+                content_lines.append("### Risk Assessment and Mitigation — M1")
+                content_lines.append("")
+                content_lines.append("No significant risks identified.")
+                content_lines.append("")
+                content_lines.append("## Resource Requirements and Dependencies")
+                content_lines.append("")
+                content_lines.append("### External Dependencies")
+                content_lines.append("")
+                content_lines.append("None.")
+                content_lines.append("")
+                content_lines.append("### Infrastructure Requirements")
+                content_lines.append("")
+                content_lines.append("Standard CI runners.")
+                content_lines.append("")
+                content_lines.append("## Risk Register")
+                content_lines.append("")
+                content_lines.append(
+                    "| ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |"
+                )
+                content_lines.append("|---|---|---|---|---|---|---|")
+                content_lines.append("| R-001 | None | M1 | Low | Low | N/A | team |")
+                content_lines.append("")
+                content_lines.append("## Success Criteria and Validation Approach")
+                content_lines.append("")
+                content_lines.append("All tests pass.")
+                content_lines.append("")
+                content_lines.append("## Decision Summary")
+                content_lines.append("")
+                content_lines.append("No pending decisions.")
+                content_lines.append("")
+                content_lines.append("## Timeline Estimates")
+                content_lines.append("")
+                content_lines.append("2 weeks total.")
             content = "\n".join(content_lines)
 
             step.output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -232,9 +295,13 @@ class TestIntegrationMockSubprocess:
             run_step=mock_runner,
         )
 
-        assert len(results) == 13  # 12 entries -> 13 individual steps (certify is dynamic)
+        assert (
+            len(results) == 13
+        )  # 12 entries -> 13 individual steps (certify is dynamic)
         failed = [r for r in results if r.status != StepStatus.PASS]
-        assert not failed, f"Failed steps: {[(r.step.id, r.status, r.gate_failure_reason) for r in failed]}"
+        assert not failed, (
+            f"Failed steps: {[(r.step.id, r.status, r.gate_failure_reason) for r in failed]}"
+        )
 
     def test_pipeline_halts_on_gate_failure(self, tmp_path):
         config = _make_config(tmp_path)

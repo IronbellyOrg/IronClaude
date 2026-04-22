@@ -10,8 +10,10 @@ GateCriteria instances.
 """
 
 # TDD Compatibility Notes (TASK-RF-20260325-cli-tdd):
-# - spec_source gates (EXTRACT, GENERATE_A/B, MERGE, TEST_STRATEGY): compatible
-#   — TDD prompt emits spec_source with TDD filename
+# - Provenance gates (EXTRACT, EXTRACT_TDD, GENERATE_A/B, MERGE, TEST_STRATEGY):
+#   accept either ``spec_source`` (single-spec scalar) or ``spec_sources``
+#   (multi-spec list) via an OR-group alias tuple, matching the template
+#   contract in refs/templates.md (exactly one of the two keys must appear).
 # - DEVIATION_ANALYSIS_GATE: NOT TDD-compatible — deferred to separate work.
 #   Pre-existing bug: ambiguous_count/ambiguous_deviations field mismatch (B-1).
 # - ANTI_INSTINCT_GATE: format-agnostic (pure Python).
@@ -979,7 +981,7 @@ def _template_sections_present(content: str) -> bool:
 
 EXTRACT_GATE = GateCriteria(
     required_frontmatter_fields=[
-        "spec_source",
+        ("spec_source", "spec_sources"),
         "generated",
         "generator",
         "functional_requirements",
@@ -1012,7 +1014,7 @@ EXTRACT_GATE = GateCriteria(
 EXTRACT_TDD_GATE = GateCriteria(
     required_frontmatter_fields=[
         # 13 standard fields (same as EXTRACT_GATE)
-        "spec_source",
+        ("spec_source", "spec_sources"),
         "generated",
         "generator",
         "functional_requirements",
@@ -1050,7 +1052,11 @@ EXTRACT_TDD_GATE = GateCriteria(
 )
 
 GENERATE_A_GATE = GateCriteria(
-    required_frontmatter_fields=["spec_source", "complexity_score", "primary_persona"],
+    required_frontmatter_fields=[
+        ("spec_source", "spec_sources"),
+        "complexity_score",
+        "primary_persona",
+    ],
     min_lines=100,
     enforcement_tier="STRICT",
     semantic_checks=[
@@ -1128,7 +1134,11 @@ SCORE_GATE = GateCriteria(
 )
 
 MERGE_GATE = GateCriteria(
-    required_frontmatter_fields=["spec_source", "complexity_score", "adversarial"],
+    required_frontmatter_fields=[
+        ("spec_source", "spec_sources"),
+        "complexity_score",
+        "adversarial",
+    ],
     min_lines=150,
     enforcement_tier="STRICT",
     semantic_checks=[
@@ -1182,7 +1192,7 @@ MERGE_GATE = GateCriteria(
 
 TEST_STRATEGY_GATE = GateCriteria(
     required_frontmatter_fields=[
-        "spec_source",
+        ("spec_source", "spec_sources"),
         "generated",
         "generator",
         "complexity_class",

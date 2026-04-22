@@ -23,7 +23,14 @@ from typing import Callable
 
 from ..pipeline.deliverables import decompose_deliverables
 from ..pipeline.executor import execute_pipeline
-from ..pipeline.models import Deliverable, GateMode, PipelineConfig, Step, StepResult, StepStatus
+from ..pipeline.models import (
+    Deliverable,
+    GateMode,
+    PipelineConfig,
+    Step,
+    StepResult,
+    StepStatus,
+)
 from ..pipeline.process import ClaudeProcess
 from ...compression import compress_file
 from .gates import (
@@ -99,11 +106,18 @@ def detect_input_type(spec_file: Path) -> str:
 
     # PRD Signal 2: 12 PRD-exclusive section headings (+1 each)
     prd_sections = [
-        "User Personas", "Jobs To Be Done", "Product Vision",
-        "Customer Journey", "Value Proposition", "Competitive Analysis",
-        "User Stories", "User Experience Requirements",
-        "Legal and Compliance", "Success Metrics and Measurement",
-        "Maintenance and Ownership", "Background and Strategic Fit",
+        "User Personas",
+        "Jobs To Be Done",
+        "Product Vision",
+        "Customer Journey",
+        "Value Proposition",
+        "Competitive Analysis",
+        "User Stories",
+        "User Experience Requirements",
+        "Legal and Compliance",
+        "Success Metrics and Measurement",
+        "Maintenance and Ownership",
+        "Background and Strategic Fit",
     ]
     for section in prd_sections:
         if section in content:
@@ -127,7 +141,8 @@ def detect_input_type(spec_file: Path) -> str:
             _log.warning(
                 "Borderline PRD detection score (%d) for %s — result=prd. "
                 "Use --input-type to override if incorrect.",
-                prd_score, spec_file,
+                prd_score,
+                spec_file,
             )
         return "prd"
 
@@ -159,9 +174,14 @@ def detect_input_type(spec_file: Path) -> str:
     # These are section headings found in TDDs but not in specs or PRDs.
     # A typical TDD matches 5-8 of these; a spec matches 0-1.
     tdd_sections = [
-        "Data Models", "API Specifications", "Component Inventory",
-        "Testing Strategy", "Operational Readiness",
-        "State Management", "Performance Budgets", "Accessibility Requirements",
+        "Data Models",
+        "API Specifications",
+        "Component Inventory",
+        "Testing Strategy",
+        "Operational Readiness",
+        "State Management",
+        "Performance Budgets",
+        "Accessibility Requirements",
     ]
     for section in tdd_sections:
         if section in content:
@@ -183,7 +203,9 @@ def detect_input_type(spec_file: Path) -> str:
         _log.warning(
             "Borderline TDD detection score (%d) for %s — result=%s. "
             "Use --input-type to override if incorrect.",
-            score, spec_file, detected,
+            score,
+            spec_file,
+            detected,
         )
     return detected
 
@@ -243,8 +265,7 @@ def _route_input_files(
     if not has_spec and not has_tdd:
         if has_prd:
             raise click.UsageError(
-                "PRD cannot be the sole primary input; "
-                "provide a spec or TDD file."
+                "PRD cannot be the sole primary input; provide a spec or TDD file."
             )
         raise click.UsageError("No primary input (spec or TDD) detected.")
 
@@ -268,16 +289,14 @@ def _route_input_files(
     if explicit_tdd is not None:
         if tdd_file is not None:
             raise click.UsageError(
-                "--tdd-file conflicts with positional file detected as TDD; "
-                "remove one."
+                "--tdd-file conflicts with positional file detected as TDD; remove one."
             )
         tdd_file = explicit_tdd
 
     if explicit_prd is not None:
         if prd_file is not None:
             raise click.UsageError(
-                "--prd-file conflicts with positional file detected as PRD; "
-                "remove one."
+                "--prd-file conflicts with positional file detected as PRD; remove one."
             )
         prd_file = explicit_prd
 
@@ -293,9 +312,7 @@ def _route_input_files(
 
     # 10. Redundancy guard
     if resolved_input_type == "tdd" and tdd_file is not None:
-        _log.warning(
-            "Ignoring --tdd-file: primary input is already a TDD document."
-        )
+        _log.warning("Ignoring --tdd-file: primary input is already a TDD document.")
         tdd_file = None
 
     # 11. Same-file guard
@@ -306,9 +323,7 @@ def _route_input_files(
     ]
     for a, b, name_a, name_b in pairs:
         if a is not None and b is not None and a.resolve() == b.resolve():
-            raise click.UsageError(
-                f"{name_a} and {name_b} point to the same file: {a}"
-            )
+            raise click.UsageError(f"{name_a} and {name_b} point to the same file: {a}")
 
     # 12. Return
     return {
@@ -460,7 +475,10 @@ def _ensure_sidecars_present(
     # originals typically live outside ``output_dir``, so their real path
     # cannot be derived from the sidecar's stem.
     recovery: dict[Path, tuple[Path, str]] = {
-        _compressed_sidecar(config.spec_file, config.output_dir): (config.spec_file, "spec"),
+        _compressed_sidecar(config.spec_file, config.output_dir): (
+            config.spec_file,
+            "spec",
+        ),
     }
     if config.tdd_file is not None:
         recovery[_compressed_sidecar(config.tdd_file, config.output_dir)] = (
@@ -494,7 +512,9 @@ def _ensure_sidecars_present(
         try:
             _compress_for_llm(original, doc_type, config.output_dir)
             _log.info(
-                "Self-healed missing sidecar %s from %s", sidecar, original,
+                "Self-healed missing sidecar %s from %s",
+                sidecar,
+                original,
             )
         except Exception as exc:  # noqa: BLE001 — degrade gracefully
             _log.warning(
@@ -576,7 +596,7 @@ def _sanitize_output(output_file: Path) -> int:
         return 0
 
     preamble = content[: match.start()]
-    cleaned = content[match.start():]
+    cleaned = content[match.start() :]
     # Total bytes stripped = leading whitespace + conversational preamble
     preamble_bytes = len(raw.encode("utf-8")) - len(cleaned.encode("utf-8"))
 
@@ -650,7 +670,7 @@ def _inject_provenance_fields(
     frontmatter = content[3:end_idx]
 
     fields_to_inject = []
-    if "spec_source:" not in frontmatter:
+    if "spec_source:" not in frontmatter and "spec_sources:" not in frontmatter:
         fields_to_inject.append(f"spec_source: {spec_source}")
     if "generated:" not in frontmatter:
         generated = datetime.now(timezone.utc).isoformat()
@@ -723,7 +743,10 @@ def _run_anti_instinct_audit(
     with YAML frontmatter and markdown report body.
     """
     from .obligation_scanner import scan_obligations
-    from .integration_contracts import extract_integration_contracts, check_roadmap_coverage
+    from .integration_contracts import (
+        extract_integration_contracts,
+        check_roadmap_coverage,
+    )
     from .fingerprint import check_fingerprint_coverage
 
     try:
@@ -775,8 +798,7 @@ def _run_anti_instinct_audit(
         for o in obligation_report.obligations:
             if not o.discharged and not o.exempt and o.severity != "MEDIUM":
                 body_parts.append(
-                    f"- Line {o.line_number}: `{o.term}` in {o.phase} "
-                    f"({o.component})\n"
+                    f"- Line {o.line_number}: `{o.term}` in {o.phase} ({o.component})\n"
                 )
 
     body_parts.append(
@@ -803,9 +825,7 @@ def _run_anti_instinct_audit(
     )
 
     if fp_missing:
-        body_parts.append(
-            f"\n**Missing fingerprints** ({len(fp_missing)}):\n"
-        )
+        body_parts.append(f"\n**Missing fingerprints** ({len(fp_missing)}):\n")
         for name in fp_missing[:20]:  # cap at 20 for readability
             body_parts.append(f"- `{name}`\n")
         if len(fp_missing) > 20:
@@ -957,8 +977,10 @@ def roadmap_run_step(
     # Anti-instinct: run deterministic audit directly, no Claude subprocess.
     # Gate evaluation happens via ANTI_INSTINCT_GATE in execute_pipeline.
     if step.id == "anti-instinct":
-        spec_file = config.spec_file if hasattr(config, 'spec_file') else None
-        merge_file = config.output_dir / "roadmap.md" if hasattr(config, 'output_dir') else None
+        spec_file = config.spec_file if hasattr(config, "spec_file") else None
+        merge_file = (
+            config.output_dir / "roadmap.md" if hasattr(config, "output_dir") else None
+        )
         if spec_file and merge_file:
             _run_anti_instinct_audit(spec_file, merge_file, step.output_file)
         return StepResult(
@@ -971,7 +993,11 @@ def roadmap_run_step(
 
     # Spec-fidelity in convergence mode: run convergence engine instead of LLM.
     # Structural checkers -> semantic layer -> convergence evaluation -> remediation.
-    if step.id == "spec-fidelity" and hasattr(config, "convergence_enabled") and config.convergence_enabled:
+    if (
+        step.id == "spec-fidelity"
+        and hasattr(config, "convergence_enabled")
+        and config.convergence_enabled
+    ):
         return _run_convergence_spec_fidelity(step, config, started_at)
 
     # Deviation-analysis: run deterministic analysis directly, no Claude subprocess.
@@ -990,7 +1016,9 @@ def roadmap_run_step(
         from ..audit.wiring_config import WiringConfig
 
         wiring_config = WiringConfig(rollout_mode="soft")
-        source_dir = Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
+        source_dir = (
+            Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
+        )
         report = run_wiring_analysis(wiring_config, source_dir)
         step.output_file.parent.mkdir(parents=True, exist_ok=True)
         emit_report(report, step.output_file)
@@ -1010,7 +1038,9 @@ def roadmap_run_step(
     if isinstance(config, RoadmapConfig):
         labels = {}
         if config.spec_file:
-            labels[config.spec_file] = f"{config.spec_file} [Primary input - {config.input_type}]"
+            labels[config.spec_file] = (
+                f"{config.spec_file} [Primary input - {config.input_type}]"
+            )
             # When compression is enabled, step.inputs references the compressed
             # sidecar instead of the original spec. Label it with the same
             # semantic role so the LLM still knows this is the primary input.
@@ -1020,14 +1050,18 @@ def roadmap_run_step(
                     f"{spec_cmp} [Primary input - {config.input_type}, compressed]"
                 )
         if config.tdd_file:
-            labels[config.tdd_file] = f"{config.tdd_file} [TDD - supplementary technical context]"
+            labels[config.tdd_file] = (
+                f"{config.tdd_file} [TDD - supplementary technical context]"
+            )
             if config.compress_enabled:
                 tdd_cmp = _compressed_sidecar(config.tdd_file, config.output_dir)
                 labels[tdd_cmp] = (
                     f"{tdd_cmp} [TDD - supplementary technical context, compressed]"
                 )
         if config.prd_file:
-            labels[config.prd_file] = f"{config.prd_file} [PRD - supplementary business context]"
+            labels[config.prd_file] = (
+                f"{config.prd_file} [PRD - supplementary business context]"
+            )
             if config.compress_enabled:
                 prd_cmp = _compressed_sidecar(config.prd_file, config.output_dir)
                 labels[prd_cmp] = (
@@ -1170,7 +1204,7 @@ def roadmap_run_step(
         # TDD heading structure differs (28 numbered sections vs spec FR/NFR headings).
         # Do not rely on structural audit results for TDD correctness.
         # See open question C-2 (structural_checkers.py investigation needed).
-        if hasattr(config, 'spec_file'):
+        if hasattr(config, "spec_file"):
             _run_structural_audit(config.spec_file, step.output_file)
 
     # Inject provenance fields into test-strategy output
@@ -1199,7 +1233,8 @@ def roadmap_run_step(
             _log.warning(
                 "Compression of %s output failed (%s); mirroring original to "
                 "sidecar path so downstream steps can still read it.",
-                step.id, exc,
+                step.id,
+                exc,
             )
             sidecar = _compressed_sidecar(step.output_file, config.output_dir)
             sidecar.parent.mkdir(parents=True, exist_ok=True)
@@ -1291,6 +1326,7 @@ def _run_convergence_spec_fidelity(
     try:
         from ..sprint.models import TurnLedger
         from .convergence import MAX_CONVERGENCE_BUDGET, CHECKER_COST, REMEDIATION_COST
+
         ledger = TurnLedger(
             initial_budget=MAX_CONVERGENCE_BUDGET,
             minimum_allocation=CHECKER_COST,
@@ -1330,24 +1366,36 @@ def _run_convergence_spec_fidelity(
             if semantic_result and semantic_result.findings:
                 reg.merge_findings([], semantic_result.findings, run_number)
         except Exception as exc:
-            _log.warning("Semantic layer failed: %s (continuing with structural only)", exc)
+            _log.warning(
+                "Semantic layer failed: %s (continuing with structural only)", exc
+            )
 
         # Run fidelity checker (FR-5.2): verify spec FRs have codebase evidence
         try:
-            source_dir = Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
+            source_dir = (
+                Path("src/superclaude")
+                if Path("src/superclaude").exists()
+                else Path(".")
+            )
             fidelity_findings = run_fidelity_check(
                 spec_path=str(spec_path),
                 source_dir=str(source_dir),
             )
             if fidelity_findings:
                 reg.merge_findings(fidelity_findings, [], run_number)
-                _log.info("Fidelity checker found %d implementation gaps", len(fidelity_findings))
+                _log.info(
+                    "Fidelity checker found %d implementation gaps",
+                    len(fidelity_findings),
+                )
         except Exception as exc:
-            _log.warning("Fidelity checker failed: %s (continuing without fidelity layer)", exc)
+            _log.warning(
+                "Fidelity checker failed: %s (continuing without fidelity layer)", exc
+            )
 
     def _run_remediation(reg: DeviationRegistry) -> None:
         """Run remediation on active HIGH findings."""
         from .models import Finding
+
         active_highs = reg.get_active_highs()
         if not active_highs:
             return
@@ -1414,7 +1462,9 @@ def _run_convergence_spec_fidelity(
     _write_convergence_report(step.output_file, result, registry)
 
     status = StepStatus.PASS if result.passed else StepStatus.FAIL
-    gate_reason = None if result.passed else (result.halt_reason or "Convergence did not pass")
+    gate_reason = (
+        None if result.passed else (result.halt_reason or "Convergence did not pass")
+    )
 
     return StepResult(
         step=step,
@@ -1500,21 +1550,46 @@ def _run_deviation_analysis(
 
         # Aggregate by deviation_class
         slip_count = sum(1 for r in records if r.get("deviation_class") == "SLIP")
-        intentional_count = sum(1 for r in records if r.get("deviation_class") == "INTENTIONAL")
-        pre_approved_count = sum(1 for r in records if r.get("deviation_class") == "PRE_APPROVED")
-        ambiguous_count = sum(1 for r in records if r.get("deviation_class") == "AMBIGUOUS")
-        total_analyzed = slip_count + intentional_count + pre_approved_count + ambiguous_count
+        intentional_count = sum(
+            1 for r in records if r.get("deviation_class") == "INTENTIONAL"
+        )
+        pre_approved_count = sum(
+            1 for r in records if r.get("deviation_class") == "PRE_APPROVED"
+        )
+        ambiguous_count = sum(
+            1 for r in records if r.get("deviation_class") == "AMBIGUOUS"
+        )
+        total_analyzed = (
+            slip_count + intentional_count + pre_approved_count + ambiguous_count
+        )
 
         # Build routing lists
         import re
-        routing_fix = [r.get("stable_id") or r.get("id", "") for r in records if r.get("deviation_class") == "SLIP"]
-        routing_no_action = [r.get("stable_id") or r.get("id", "") for r in records if r.get("deviation_class") == "PRE_APPROVED"]
+
+        routing_fix = [
+            r.get("stable_id") or r.get("id", "")
+            for r in records
+            if r.get("deviation_class") == "SLIP"
+        ]
+        routing_no_action = [
+            r.get("stable_id") or r.get("id", "")
+            for r in records
+            if r.get("deviation_class") == "PRE_APPROVED"
+        ]
 
         routing_fix_str = ", ".join(routing_fix) if routing_fix else ""
-        routing_no_action_str = ", ".join(routing_no_action) if routing_no_action else ""
+        routing_no_action_str = (
+            ", ".join(routing_no_action) if routing_no_action else ""
+        )
 
         # Validate cross-field consistency before writing
-        if total_analyzed != len(routing_fix) + len(routing_no_action) + intentional_count + ambiguous_count:
+        if (
+            total_analyzed
+            != len(routing_fix)
+            + len(routing_no_action)
+            + intentional_count
+            + ambiguous_count
+        ):
             _log.warning("Deviation analysis: cross-field consistency check failed")
 
         _write_deviation_analysis_output(
@@ -1665,6 +1740,7 @@ def _run_remediate_step(
 
         # Write .md
         import os
+
         tmp_md = step.output_file.with_suffix(".md.tmp")
         tmp_md.write_text(tasklist_md, encoding="utf-8")
         os.replace(str(tmp_md), str(step.output_file))
@@ -1797,8 +1873,10 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
     # `tdd_file is not None`, so the TDD-aware blocks still fire when the TDD
     # is the sole input. Also used to ensure the raw TDD reaches step inputs
     # where needed (e.g., generate step, which otherwise only sees extraction).
-    effective_tdd_file = config.tdd_file if config.tdd_file is not None else (
-        config.spec_file if config.input_type == "tdd" else None
+    effective_tdd_file = (
+        config.tdd_file
+        if config.tdd_file is not None
+        else (config.spec_file if config.input_type == "tdd" else None)
     )
 
     steps: list[Step | list[Step]] = [
@@ -1824,18 +1902,26 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             output_file=extraction,
             gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
             timeout_seconds=1800 if config.input_type == "tdd" else 300,
-            inputs=_llm_inputs_for(config, config.spec_file, config.tdd_file, config.prd_file),
+            inputs=_llm_inputs_for(
+                config, config.spec_file, config.tdd_file, config.prd_file
+            ),
             retry_limit=1,
         ),
         # Steps 2a+2b: Generate (parallel)
         [
             Step(
                 id=f"generate-{agent_a.id}",
-                prompt=build_generate_prompt(agent_a, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
+                prompt=build_generate_prompt(
+                    agent_a,
+                    extraction,
+                    tdd_file=effective_tdd_file,
+                    prd_file=config.prd_file,
+                ),
                 output_file=roadmap_a,
                 gate=GENERATE_A_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
+                inputs=[extraction]
+                + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_a.model,
                 tool_write_mode=_roadmap_template is not None,
@@ -1843,11 +1929,17 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             ),
             Step(
                 id=f"generate-{agent_b.id}",
-                prompt=build_generate_prompt(agent_b, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
+                prompt=build_generate_prompt(
+                    agent_b,
+                    extraction,
+                    tdd_file=effective_tdd_file,
+                    prd_file=config.prd_file,
+                ),
                 output_file=roadmap_b,
                 gate=GENERATE_B_GATE,
                 timeout_seconds=900,
-                inputs=[extraction] + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
+                inputs=[extraction]
+                + _llm_inputs_for(config, effective_tdd_file, config.prd_file),
                 retry_limit=1,
                 model=agent_b.model,
                 tool_write_mode=_roadmap_template is not None,
@@ -1877,21 +1969,41 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 5: Score
         Step(
             id="score",
-            prompt=build_score_prompt(debate_file, roadmap_a, roadmap_b, tdd_file=effective_tdd_file, prd_file=config.prd_file),
+            prompt=build_score_prompt(
+                debate_file,
+                roadmap_a,
+                roadmap_b,
+                tdd_file=effective_tdd_file,
+                prd_file=config.prd_file,
+            ),
             output_file=score_file,
             gate=SCORE_GATE,
             timeout_seconds=300,
-            inputs=[debate_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file),
+            inputs=[debate_file]
+            + _llm_inputs_for(
+                config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file
+            ),
             retry_limit=1,
         ),
         # Step 6: Merge
         Step(
             id="merge",
-            prompt=build_merge_prompt(score_file, roadmap_a, roadmap_b, debate_file, tdd_file=effective_tdd_file, prd_file=config.prd_file),
+            prompt=build_merge_prompt(
+                score_file,
+                roadmap_a,
+                roadmap_b,
+                debate_file,
+                tdd_file=effective_tdd_file,
+                prd_file=config.prd_file,
+            ),
             output_file=merge_file,
             gate=MERGE_GATE,
             timeout_seconds=600,
-            inputs=[score_file] + _llm_inputs_for(config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file) + [debate_file],
+            inputs=[score_file]
+            + _llm_inputs_for(
+                config, roadmap_a, roadmap_b, effective_tdd_file, config.prd_file
+            )
+            + [debate_file],
             retry_limit=1,
             tool_write_mode=_roadmap_template is not None,
             template_path=_roadmap_template,
@@ -1909,29 +2021,42 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 8: Test Strategy
         Step(
             id="test-strategy",
-            prompt=build_test_strategy_prompt(merge_file, extraction, tdd_file=effective_tdd_file, prd_file=config.prd_file),
+            prompt=build_test_strategy_prompt(
+                merge_file,
+                extraction,
+                tdd_file=effective_tdd_file,
+                prd_file=config.prd_file,
+            ),
             output_file=test_strat,
             gate=TEST_STRATEGY_GATE,
             timeout_seconds=300,
-            inputs=_llm_inputs_for(config, merge_file, effective_tdd_file, config.prd_file) + [extraction],
+            inputs=_llm_inputs_for(
+                config, merge_file, effective_tdd_file, config.prd_file
+            )
+            + [extraction],
             retry_limit=1,
         ),
         # Step 8: Spec Fidelity (after test-strategy, FR-008 through FR-010)
         Step(
             id="spec-fidelity",
-            prompt=build_spec_fidelity_prompt(config.spec_file, merge_file, tdd_file=effective_tdd_file, prd_file=config.prd_file),
+            prompt=build_spec_fidelity_prompt(
+                config.spec_file,
+                merge_file,
+                tdd_file=effective_tdd_file,
+                prd_file=config.prd_file,
+            ),
             output_file=spec_fidelity_file,
             gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
             timeout_seconds=600,
-            inputs=_llm_inputs_for(config, config.spec_file, merge_file, config.tdd_file, config.prd_file),
+            inputs=_llm_inputs_for(
+                config, config.spec_file, merge_file, config.tdd_file, config.prd_file
+            ),
             retry_limit=1,
         ),
         # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)
         Step(
             id="wiring-verification",
-            prompt=build_wiring_verification_prompt(
-                merge_file, config.spec_file.name
-            ),
+            prompt=build_wiring_verification_prompt(merge_file, config.spec_file.name),
             output_file=out / "wiring-verification.md",
             gate=WIRING_GATE,
             timeout_seconds=60,
@@ -2297,9 +2422,11 @@ def _print_step_plan(num: int, step: Step, parallel: bool = False) -> None:
         print(f"  Gate tier: {step.gate.enforcement_tier}")
         print(f"  Gate min_lines: {step.gate.min_lines}")
         if step.gate.required_frontmatter_fields:
-            print(
-                f"  Gate frontmatter: {', '.join(step.gate.required_frontmatter_fields)}"
-            )
+            field_labels = [
+                "|".join(f) if isinstance(f, tuple) else f
+                for f in step.gate.required_frontmatter_fields
+            ]
+            print(f"  Gate frontmatter: {', '.join(field_labels)}")
         if step.gate.semantic_checks:
             checks = [c.name for c in step.gate.semantic_checks]
             print(f"  Semantic checks: {', '.join(checks)}")
@@ -2689,7 +2816,10 @@ def _restore_from_state(
                 _log.info("Auto-wired --tdd-file from state: %s", tdd_path)
                 config.tdd_file = tdd_path
             else:
-                _log.warning("State file references tdd_file %s but file not found; skipping", saved_tdd)
+                _log.warning(
+                    "State file references tdd_file %s but file not found; skipping",
+                    saved_tdd,
+                )
         # Note: When input_type=tdd and tdd_file is null in state, the spec_file
         # IS the TDD. The supplementary --tdd-file slot is intentionally empty
         # (redundancy guard nulls it). All prompt builders receive spec_file as
@@ -2704,14 +2834,18 @@ def _restore_from_state(
                 _log.info("Auto-wired --prd-file from state: %s", prd_path)
                 config.prd_file = prd_path
             else:
-                _log.warning("State file references prd_file %s but file not found; skipping", saved_prd)
+                _log.warning(
+                    "State file references prd_file %s but file not found; skipping",
+                    saved_prd,
+                )
     else:
         # C-27: Explicit --prd-file on CLI overrides state — log if different
         saved_prd = state.get("prd_file")
         if saved_prd and str(config.prd_file) != saved_prd:
             _log.info(
                 "CLI --prd-file %s overrides state prd_file %s",
-                config.prd_file, saved_prd,
+                config.prd_file,
+                saved_prd,
             )
 
     return config
@@ -2757,7 +2891,10 @@ def execute_roadmap(
 
     # Apply hardcoded defaults for any still-None fields (non-resume or no state)
     if not config.agents:
-        config.agents = [AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")]
+        config.agents = [
+            AgentSpec("opus", "architect"),
+            AgentSpec("haiku", "architect"),
+        ]
     if not config.depth:
         config.depth = "standard"
 
@@ -2783,7 +2920,10 @@ def execute_roadmap(
     )
     _log.info(
         "Routing: spec=%s tdd=%s prd=%s type=%s",
-        config.spec_file, config.tdd_file, config.prd_file, config.input_type,
+        config.spec_file,
+        config.tdd_file,
+        config.prd_file,
+        config.input_type,
     )
 
     # Compress the spec once up-front so every LLM step that reads it gets the
@@ -3264,8 +3404,7 @@ def _step_needs_rerun(
     check_path = state_paths.get(step.id, step.output_file)
     if check_path != step.output_file:
         _log.info(
-            "Resume: step '%s' using state-recorded path %s "
-            "(config-derived: %s)",
+            "Resume: step '%s' using state-recorded path %s (config-derived: %s)",
             step.id,
             check_path,
             step.output_file,
@@ -3342,7 +3481,11 @@ def _apply_resume(
 
             for s in entry:
                 needs, reason = _step_needs_rerun(
-                    s, gate_fn, dirty_outputs, force_extract, state_paths,
+                    s,
+                    gate_fn,
+                    dirty_outputs,
+                    force_extract,
+                    state_paths,
                 )
                 if needs:
                     group_needs_rerun = True
@@ -3367,7 +3510,11 @@ def _apply_resume(
         else:
             # Single step
             needs, reason = _step_needs_rerun(
-                entry, gate_fn, dirty_outputs, force_extract, state_paths,
+                entry,
+                gate_fn,
+                dirty_outputs,
+                force_extract,
+                state_paths,
             )
 
             if needs:
