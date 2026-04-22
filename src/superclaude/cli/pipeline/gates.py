@@ -65,10 +65,12 @@ def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | 
     # STRICT: semantic checks
     if criteria.semantic_checks:
         for check in criteria.semantic_checks:
-            if not check.check_fn(content):
+            result = check.check_fn(content)
+            if result is not True:
+                detail = result if isinstance(result, str) else check.failure_message
                 return (
                     False,
-                    f"Semantic check '{check.name}' failed: {check.failure_message}",
+                    f"Semantic check '{check.name}' failed: {detail}",
                 )
 
     return True, None

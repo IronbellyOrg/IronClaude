@@ -93,6 +93,12 @@ def roadmap_group():
     help="Allow patches that exceed the diff-size threshold (FR-9). Use with caution.",
 )
 @click.option(
+    "--no-convergence",
+    is_flag=True,
+    default=False,
+    help="Disable the spec-fidelity convergence engine (use single-shot LLM check instead).",
+)
+@click.option(
     "--retrospective",
     type=click.Path(exists=False, path_type=Path),
     default=None,
@@ -155,6 +161,7 @@ def run(
     debug: bool,
     no_validate: bool,
     allow_regeneration: bool,
+    no_convergence: bool,
     retrospective: Path | None,
     input_type: str,
     tdd_file: Path | None,
@@ -229,6 +236,7 @@ def run(
         "debug": debug,
         "retrospective_file": retro_path,
         "allow_regeneration": allow_regeneration,
+        "convergence_enabled": not no_convergence,
         "input_type": routing["input_type"],
         "tdd_file": routing["tdd_file"].resolve() if routing["tdd_file"] else None,
         "prd_file": routing["prd_file"].resolve() if routing["prd_file"] else None,

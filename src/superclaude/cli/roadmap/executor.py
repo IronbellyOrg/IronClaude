@@ -1250,6 +1250,43 @@ def roadmap_run_step(
     )
 
 
+class _ClaudeRunner:
+    """Adapter giving ClaudeProcess a ``run(prompt) -> str`` interface.
+
+    The semantic layer expects a factory that returns objects with
+    ``run(prompt)``.  ClaudeProcess uses ``start()`` / ``wait()`` and
+    writes stdout to a file, so this thin wrapper bridges the two APIs.
+    """
+
+    def __init__(self, config: RoadmapConfig) -> None:
+        self._config = config
+
+    def run(self, prompt: str) -> str:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            td_path = Path(td)
+            out_file = td_path / "semantic_out.txt"
+            err_file = td_path / "semantic_err.txt"
+            proc = ClaudeProcess(
+                prompt=prompt,
+                output_file=out_file,
+                error_file=err_file,
+                max_turns=self._config.max_turns,
+                model=self._config.model,
+                permission_flag=self._config.permission_flag,
+                timeout_seconds=300,
+                output_format="text",
+            )
+            proc.start()
+            try:
+                proc.wait()
+            except KeyboardInterrupt:
+                proc.terminate()
+                raise
+            return out_file.read_text() if out_file.exists() else ""
+
+
 def _run_convergence_spec_fidelity(
     step: Step,
     config: RoadmapConfig,
@@ -1309,17 +1346,22 @@ def _run_convergence_spec_fidelity(
 
     def _run_checkers(reg: DeviationRegistry, run_number: int) -> None:
         """Run structural checkers + semantic layer + fidelity checker, merge into registry."""
+        from .spec_parser import split_into_sections
+
         structural_findings = run_all_checkers(str(spec_path), str(roadmap_path))
         reg.merge_findings(structural_findings, [], run_number)
 
         # Run semantic layer if Claude is available
         try:
+            spec_sections = split_into_sections(spec_path.read_text())
+            roadmap_sections = split_into_sections(roadmap_path.read_text())
             semantic_result = run_semantic_layer(
-                spec_path=str(spec_path),
-                roadmap_path=str(roadmap_path),
+                spec_sections=spec_sections,
+                roadmap_sections=roadmap_sections,
                 output_dir=config.output_dir,
                 structural_findings=structural_findings,
                 registry=reg,
+                claude_process_factory=lambda: _ClaudeRunner(config),
             )
             if semantic_result and semantic_result.findings:
                 reg.merge_findings([], semantic_result.findings, run_number)
@@ -1360,21 +1402,35 @@ def _run_convergence_spec_fidelity(
 
         # Convert registry dicts to Finding dataclass instances
         # (registry stores JSON dicts, execute_remediation expects Finding objects)
+        #
+        # Structural checkers produce findings about spec-roadmap alignment;
+        # these findings describe *what* is wrong but don't set files_affected
+        # because the checker API only receives path strings, not Finding
+        # file-association logic.  Default to the roadmap file (the artifact
+        # that must be patched to resolve the deviation).
+        roadmap_str = str(roadmap_path)
         finding_objects = []
         for d in active_highs:
-            finding_objects.append(
-                Finding(
-                    id=d.get("stable_id", ""),
-                    severity=d.get("severity", "HIGH"),
-                    dimension=d.get("dimension", ""),
-                    description=d.get("description", ""),
-                    location=d.get("location", ""),
-                    evidence="",
-                    fix_guidance="",
-                    files_affected=d.get("files_affected", []),
-                    status=d.get("status", "ACTIVE"),
-                )
-            )
+            affected = d.get("files_affected", [])
+            if not affected:
+                # Derive from location hint: "roadmap:…" targets the roadmap,
+                # "spec:…" targets the spec, otherwise default to roadmap.
+                loc = d.get("location", "")
+                if loc.startswith("spec:"):
+                    affected = [str(spec_path)]
+                else:
+                    affected = [roadmap_str]
+            finding_objects.append(Finding(
+                id=d.get("stable_id", ""),
+                severity=d.get("severity", "HIGH"),
+                dimension=d.get("dimension", ""),
+                description=d.get("description", ""),
+                location=d.get("location", ""),
+                evidence="",
+                fix_guidance="",
+                files_affected=affected,
+                status=d.get("status", "ACTIVE"),
+            ))
 
         # Group by file using Finding objects
         findings_by_file: dict[str, list] = {}
@@ -1480,7 +1536,15 @@ def _run_deviation_analysis(
     try:
         if registry_json.exists():
             raw = json.loads(registry_json.read_text(encoding="utf-8"))
-            records = raw if isinstance(raw, list) else raw.get("findings", [])
+            if isinstance(raw, list):
+                records = raw
+            else:
+                findings = raw.get("findings", [])
+                # findings may be a dict keyed by stable_id or a list
+                if isinstance(findings, dict):
+                    records = list(findings.values())
+                else:
+                    records = findings
         else:
             records = []
 

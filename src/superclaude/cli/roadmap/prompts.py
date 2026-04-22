@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+from ..vocabulary import build_prompt_constraint_block
 from .models import AgentSpec
 
 _DEPTH_INSTRUCTIONS = {
@@ -618,6 +619,8 @@ def build_generate_prompt(
         "Do not emit two different schedules in the same document."
     )
 
+    base += build_prompt_constraint_block()
+
     if tdd_file is not None:
         base += (
             "\n\n## TDD as Primary Work Item Source\n\n"
@@ -1033,6 +1036,8 @@ def build_merge_prompt(
         "(Risk Register → Success Criteria → Decision Summary → Timeline Estimates) before "
         "expanding any milestone body further."
     )
+
+    base += build_prompt_constraint_block()
 
     if tdd_file is not None:
         base += (

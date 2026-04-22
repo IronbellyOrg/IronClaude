@@ -1315,7 +1315,7 @@ TEMPLATE USAGE INSTRUCTIONS (Remove this block when creating a PRD from this tem
    - `id`: Use `"[PROJECT-ID]-PRD-CORE"` format
    - `title`: Human-readable product name + "Product Requirements Document (PRD)"
    - `status`: Start with `"🟡 Draft"`, update to `"🟢 Approved"` after sign-off
-   - `template_schema_doc`: Set to `"docs/docs-product/templates/prd_template.md"`
+   - `template_schema_doc`: Set to `"src/superclaude/examples/prd_template.md"`
 
 3. **Adapt the section structure** per Tiered Usage:
    - Lightweight: Skip Value Proposition Canvas, Customer Journey Map, API Contract Examples

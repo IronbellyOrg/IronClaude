@@ -91,21 +91,41 @@ def _cross_refs_resolve(content: str) -> bool:
     return True
 
 
-def _no_duplicate_headings(content: str) -> bool:
-    """No duplicate H2 or H3 heading text."""
-    seen: dict[int, set[str]] = {2: set(), 3: set()}
-    for line in content.splitlines():
+def _no_duplicate_headings(content: str) -> bool | str:
+    """No duplicate H2 globally; no duplicate H3 within the same H2 section.
+
+    Returns True on pass. Returns a descriptive string on failure (which is
+    truthy but not ``True``; the consumer tests ``result is not True``).
+    """
+    seen_h2: set[str] = set()
+    current_h2: str | None = None
+    h3_by_section: dict[str | None, set[str]] = {None: set()}
+
+    for lineno, line in enumerate(content.splitlines(), start=1):
         stripped = line.lstrip()
+
         if stripped.startswith("## ") and not stripped.startswith("### "):
             text = stripped[3:].strip().lower()
-            if text in seen[2]:
-                return False
-            seen[2].add(text)
+            if text in seen_h2:
+                return (
+                    f"Duplicate H2 heading '## {stripped[3:].strip()}' "
+                    f"at line {lineno}"
+                )
+            seen_h2.add(text)
+            current_h2 = text
+            h3_by_section.setdefault(current_h2, set())
+
         elif stripped.startswith("### "):
             text = stripped[4:].strip().lower()
-            if text in seen[3]:
-                return False
-            seen[3].add(text)
+            section_set = h3_by_section.setdefault(current_h2, set())
+            if text in section_set:
+                parent_label = current_h2 or "(top-level)"
+                return (
+                    f"Duplicate H3 heading '### {stripped[4:].strip()}' "
+                    f"at line {lineno} within section '## {parent_label}'"
+                )
+            section_set.add(text)
+
     return True
 
 
@@ -1135,7 +1155,7 @@ MERGE_GATE = GateCriteria(
         SemanticCheck(
             name="no_duplicate_headings",
             check_fn=_no_duplicate_headings,
-            failure_message="Duplicate H2 or H3 heading text detected",
+            failure_message="Duplicate H2 (global) or H3 (within same H2 section) heading detected",
         ),
         SemanticCheck(
             name="minimum_deliverable_rows",

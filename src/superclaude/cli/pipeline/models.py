@@ -60,7 +60,7 @@ class SemanticCheck:
     """Pure Python check applied to file content. No LLM invocation."""
 
     name: str
-    check_fn: Callable[[str], bool]
+    check_fn: Callable[[str], bool | str]
     failure_message: str
 
 

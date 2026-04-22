@@ -201,8 +201,9 @@ class TestSpecFidelityPipelineIntegration:
         assert "spec-fidelity" in step_ids
 
     def test_spec_fidelity_gate_is_strict(self, tmp_path):
-        """Spec-fidelity step gate is STRICT enforcement."""
+        """Spec-fidelity step gate is STRICT enforcement (legacy non-convergence mode)."""
         config = _make_config(tmp_path)
+        config.convergence_enabled = False
         steps = _build_steps(config)
         spec_fidelity = next(
             e for e in steps if not isinstance(e, list) and e.id == "spec-fidelity"

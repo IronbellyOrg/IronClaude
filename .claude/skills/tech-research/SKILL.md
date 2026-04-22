@@ -435,8 +435,8 @@ STEPS:
 1. Read the research notes file specified above (MANDATORY)
 2. Read the SKILL.md file specified above for agent prompts, report structure, validation checklist, and content rules (MANDATORY)
 3. Read the MDTM template specified in TEMPLATE field above (MANDATORY):
-   - If TEMPLATE: 02 → .gfdoc/templates/02_mdtm_template_complex_task.md
-   - If TEMPLATE: 01 → .gfdoc/templates/01_mdtm_template_generic_task.md
+   - If TEMPLATE: 02 → .claude/templates/workflow/02_mdtm_template_complex_task.md
+   - If TEMPLATE: 01 → .claude/templates/workflow/01_mdtm_template_generic_task.md
 4. Follow PART 1 instructions in the template completely (A3 granularity, B2 self-contained items, E1-E4 flat structure)
 5. If anything is missing, note it in the Task Log section — the skill will review
 6. Create the task file at .dev/tasks/to-do/TASK-RESEARCH-YYYYMMDD-HHMMSS/TASK-RESEARCH-YYYYMMDD-HHMMSS.md using PART 2 structure
