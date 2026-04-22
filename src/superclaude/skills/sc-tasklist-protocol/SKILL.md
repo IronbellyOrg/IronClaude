@@ -322,17 +322,54 @@ Every task must include:
     - `Evidence: linkable artifact produced (spec/test log/screenshot/doc)`
 
 ### 4.8 Checkpoints (Exact Cadence)
+
+**Structural rule (v3.7, Wave 4):** Checkpoints are emitted as **numbered task
+entries**, not as sibling `### Checkpoint:` headings. This eliminates the Cause
+2 failure mode where the task scanner treated checkpoint sections as
+invisible — every checkpoint is now a first-class task in the phase numbering.
+
 Insert checkpoints deterministically:
 
-- After **every 5 tasks** within a phase, insert a checkpoint block titled:
-  - `Checkpoint: Phase <P> / Tasks <start>-<end>`
-- Also insert a final checkpoint at the end of each phase:
-  - `Checkpoint: End of Phase <P>`
+- After **every 5 tasks** within a phase, emit a mid-phase checkpoint task:
+  - `### T<PP>.<NN> -- Checkpoint: Phase <PP> / Tasks T<start>-T<end>`
+  - ``<NN>`` is the next sequential task number in the phase (mid-phase
+    checkpoints consume a slot in the numbering).
+- Emit exactly one end-of-phase checkpoint as the **last** task of each phase:
+  - `### T<PP>.<last_num> -- Checkpoint: End of Phase <PP>`
+  - `<last_num>` MUST be strictly greater than every regular task number in
+    the phase. No regular task may appear after the end-of-phase checkpoint.
 
-Checkpoint blocks must contain:
+**Checkpoint task content (mandatory):**
+
+Each checkpoint task uses the standard task shape (same metadata table, steps,
+acceptance criteria) with these fixed values:
+
+- **Metadata table:** `Effort = XS`, `Risk = Low`, `Tier = LIGHT`, `Confidence = [██████████] 100%`, `Critical Path Override = No`, `Verification Method = Quick sanity check`, `MCP Requirements = None`, `Sub-Agent Delegation = None`, `Fallback Allowed = Yes`, `Deliverable IDs = D-CP<PP>[-MID]` (see Section 5.1).
+- **Checkpoint Report Path** (mandatory, verbatim line immediately below
+  the metadata table):
+  `**Checkpoint Report Path:** TASKLIST_ROOT/checkpoints/<deterministic-name>.md`
 - **Purpose** (1 sentence)
-- **Verification** (exactly 3 bullets)
+- **Verification** (exactly 3 bullets naming artifacts produced earlier in the phase)
 - **Exit Criteria** (exactly 3 bullets)
+- **Steps** (exactly 3 bullets, `[VERIFICATION]` for all three)
+- **Acceptance Criteria** (exactly 4 bullets, first bullet names the checkpoint report path)
+
+**Deterministic checkpoint report filenames:**
+
+- Range checkpoints: `CP-P<PP>-T<start>-T<end>.md`
+- End-of-phase: `CP-P<PP>-END.md`
+
+**Worked example — Phase 3 with 7 regular tasks:**
+
+```
+T03.01, T03.02, T03.03, T03.04, T03.05        (regular tasks)
+T03.06 -- Checkpoint: Phase 3 / Tasks T03.01-T03.05   (mid-phase checkpoint)
+T03.07                                           (regular task)
+T03.08 -- Checkpoint: End of Phase 3             (end-of-phase checkpoint, LAST)
+```
+
+Checkpoint task IDs never collide with regular task IDs — they share the
+phase-scoped numbering and the generator assigns them in emission order.
 
 ### 4.9 No Policy Forks + Tier Conflict Resolution
 If the roadmap implies alternative approaches ("either X or Y"), you must choose deterministically:
@@ -396,6 +433,29 @@ For each deliverable `D-####`, list 1+ intended artifact paths using:
   - `TASKLIST_ROOT/artifacts/D-####/evidence.md`
 
 Do not invent code file paths; these are **execution artifacts**, not repository paths.
+
+**Checkpoint deliverables (v3.7 Wave 4, deterministic):**
+
+Checkpoint tasks (Section 4.8) produce a distinct class of deliverable. Use
+the `D-CP<PP>` ID family so checkpoint outputs never collide with the
+`D-####` numeric sequence used by regular tasks:
+
+| Deliverable ID | Produced by | Default artifact path |
+|---|---|---|
+| `D-CP<PP>` | The end-of-phase checkpoint task in phase `<PP>` | `TASKLIST_ROOT/checkpoints/CP-P<PP>-END.md` |
+| `D-CP<PP>-MID` | A mid-phase (range) checkpoint task in phase `<PP>`. When a phase has more than one mid-phase checkpoint, suffix with `-T<start>-T<end>` to disambiguate (e.g. `D-CP03-MID-T01-T05`). | `TASKLIST_ROOT/checkpoints/CP-P<PP>-T<start>-T<end>.md` |
+
+Rules:
+
+- **No collision** with the `D-####` numeric space. The `D-CP` prefix is
+  reserved exclusively for checkpoint deliverables. Checkpoint IDs are
+  omitted from the `D-0001, D-0002, ...` sequential counter.
+- **Registry listing**: checkpoint deliverables appear in the Deliverable
+  Registry table like any other deliverable, with the default path from the
+  table above and no additional `spec.md`/`notes.md`/`evidence.md` siblings.
+- **Traceability**: each checkpoint deliverable traces to the roadmap item(s)
+  of the last regular task it gates (inherited), so checkpoint outputs
+  remain linked into the Traceability Matrix.
 
 ### 5.2 Effort + Risk Labels (mandatory, deterministic mapping)
 Each task must include **Effort** and **Risk** labels computed deterministically from the roadmap item text (and from whether the item was split per Section 4.4). These labels are **planning metadata**, not claims about reality.
@@ -801,33 +861,87 @@ If the roadmap provides no verifiable output signal, use:
   - STANDARD tasks: >=1 criterion must be artifact-referencing
   - LIGHT and EXEMPT tasks: no minimum
 
-#### Inline Checkpoints
+#### Inline Checkpoints (Numbered Task Form, v3.7+)
 
-Checkpoint blocks within phase files use:
+Checkpoint blocks within phase files use the same `### T<PP>.<NN>` heading
+pattern as regular tasks so they are visible to the sprint task scanner
+(Section 4.8).
 
-`### Checkpoint: ...`
-**Purpose:** ...
+```
+### T<PP>.<NN> -- Checkpoint: <Name>
+
+| Field | Value |
+|---|---|
+| Roadmap Item IDs | <inherited from last regular task in range> |
+| Why | Gate: verify outputs of tasks T<start>-T<end> before continuing. |
+| Effort | XS |
+| Risk | Low |
+| Risk Drivers | None |
+| Tier | LIGHT |
+| Confidence | [██████████] 100% |
+| Requires Confirmation | No |
+| Critical Path Override | No |
+| Verification Method | Quick sanity check |
+| MCP Requirements | None |
+| Fallback Allowed | Yes |
+| Sub-Agent Delegation | None |
+| Deliverable IDs | D-CP<PP>[-MID] |
+
 **Checkpoint Report Path:** `TASKLIST_ROOT/checkpoints/<deterministic-name>.md`
+
+**Purpose:** <1 sentence>
+
 **Verification:** (exactly 3 bullets)
 - ...
 - ...
 - ...
+
 **Exit Criteria:** (exactly 3 bullets)
 - ...
 - ...
 - ...
 
-Deterministic name format:
-- For range checkpoints: `CP-P<PP>-T<start>-T<end>.md`
-- For end-of-phase: `CP-P<PP>-END.md`
+**Steps:**
+1. **[VERIFICATION]** Confirm each artifact listed in Verification is present.
+2. **[VERIFICATION]** Re-run the tier-proportional checks for the covered tasks.
+3. **[VERIFICATION]** Write the checkpoint report to the Checkpoint Report Path above.
 
-#### End-of-Phase Checkpoint (Mandatory)
+**Acceptance Criteria:** (exactly 4 bullets)
+- File `TASKLIST_ROOT/checkpoints/<deterministic-name>.md` exists and contains `status: PASS`.
+- All 3 Verification bullets are confirmed.
+- All 3 Exit Criteria bullets are met.
+- Checkpoint report includes the task IDs it covers.
 
-Every phase file MUST end with an end-of-phase checkpoint:
+**Validation:**
+- Manual check: reviewer confirms the report at the Checkpoint Report Path.
+- Evidence: the generated checkpoint markdown file.
 
-`### Checkpoint: End of Phase <N>`
+**Dependencies:** T<PP>.<start>..T<PP>.<end>
+**Rollback:** N/A (checkpoints are read-only verifications)
+```
 
-This checkpoint serves as the gate for the next phase. It must include all the standard checkpoint fields (Purpose, Verification, Exit Criteria, Checkpoint Report Path).
+**Deterministic name format:**
+
+- Range checkpoints: `CP-P<PP>-T<start>-T<end>.md`
+- End-of-phase: `CP-P<PP>-END.md`
+
+#### End-of-Phase Checkpoint (Mandatory, Last Task)
+
+Every phase file MUST end with an end-of-phase checkpoint, emitted as the
+**last** numbered task in the phase:
+
+```
+### T<PP>.<last_num> -- Checkpoint: End of Phase <PP>
+```
+
+`<last_num>` must be strictly greater than every regular task number in the
+phase. No task may appear below it. All other checkpoint-task fields
+(metadata table, Checkpoint Report Path, Purpose, Verification, Exit
+Criteria, Steps, Acceptance Criteria, Validation, Dependencies, Rollback)
+are required exactly as in the inline-checkpoint template above; the
+checkpoint report path is fixed at
+`TASKLIST_ROOT/checkpoints/CP-P<PP>-END.md` and the Deliverable ID is
+`D-CP<PP>`.
 
 ---
 
@@ -873,7 +987,7 @@ Before finalizing output, verify all of the following:
 3. Phase numbers are contiguous (1, 2, 3, ..., N) with no gaps
 4. All task IDs match `T<PP>.<TT>` format (zero-padded, 2-digit)
 5. Every phase file starts with `# Phase N -- <Name>` (level 1 heading, em-dash separator)
-6. Every phase file ends with an end-of-phase checkpoint section
+6. Every phase file ends with an end-of-phase checkpoint task (per checks 18-20)
 7. No phase file contains Deliverable Registry, Traceability Matrix, or template sections
 8. The index contains literal phase filenames (e.g., `phase-1-tasklist.md`) in at least one table cell
 
@@ -913,8 +1027,11 @@ not a structural parse check.
 | 15 | Circular dependency detection: no A->B->C->A chains | Prevents unexecutable dependency graphs |
 | 16 | XL splitting enforcement: EFFORT=XL tasks must have subtasks | Enforces decomposition time-boxing |
 | 17 | Confidence bar format consistency: all use the standard pattern | Prevents format drift across phases |
+| 18 | Checkpoint task emission: every checkpoint block in each phase is emitted as a `### T<PP>.<NN> -- Checkpoint:` task heading (never as a sibling `### Checkpoint:` heading) | Cause-2 fix (v3.7 Wave 4): keeps checkpoints visible to the sprint task scanner |
+| 19 | End-of-phase position: the `### T<PP>.<NN> -- Checkpoint: End of Phase <PP>` task has the highest `<NN>` in its phase, with no regular task following it | Ensures the end-of-phase gate is the last instruction the agent sees |
+| 20 | Checkpoint Report Path presence: every checkpoint task includes a `**Checkpoint Report Path:** TASKLIST_ROOT/checkpoints/<name>.md` line immediately below its metadata table | Lets Wave 2/3 tooling (`_verify_checkpoints`, `build_manifest`) parse the expected file path |
 
-If any check 1-17 fails, fix it before writing any output file.
+If any check 1-20 fails, fix it before writing any output file.
 
 ---
 
