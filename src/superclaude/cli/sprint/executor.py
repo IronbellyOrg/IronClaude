@@ -1143,6 +1143,15 @@ def execute_sprint(config: SprintConfig):
 
     sprint_result = SprintResult(config=config)
 
+    # TUI v2 Wave 3 (v3.7): background phase-summary thread pool. Each
+    # completed phase triggers a daemon thread that re-parses the
+    # stream-json output file, asks Haiku for a narrative, and writes
+    # ``results/phase-<N>-summary.md``. Failures never propagate to the
+    # sprint loop (see SummaryWorker.__doc__).
+    from .summarizer import PhaseSummarizer, SummaryWorker
+
+    _summary_worker = SummaryWorker(PhaseSummarizer(config))
+
     # --- v3.1 gap-remediation: infrastructure instantiation (T01–T06) ---
     # T01 (BUG-001/P0): Construct TurnLedger for budget tracking
     ledger = TurnLedger(
@@ -1467,6 +1476,22 @@ def execute_sprint(config: SprintConfig):
 
                 sprint_result.phase_results.append(phase_result)
 
+                # TUI v2 Wave 3 (v3.7, §6.4): hook ordering after phase
+                # completion is 1) _verify_checkpoints (already run
+                # above), 2) summary_worker.submit, 3) end-of-sprint
+                # manifest update. Submit is non-blocking; the daemon
+                # thread will write results/phase-N-summary.md and is
+                # exception-isolated from this loop.
+                try:
+                    _summary_worker.submit(phase, phase_result)
+                except Exception as _sw_exc:  # noqa: BLE001 - must not abort
+                    debug_log(
+                        _dbg,
+                        "summary_worker_submit_error",
+                        phase=phase.number,
+                        error=str(_sw_exc),
+                    )
+
                 debug_log(
                     _dbg,
                     "phase_complete",
@@ -1533,6 +1558,34 @@ def execute_sprint(config: SprintConfig):
             # Verify all phases actually passed
             if not all(r.status.is_success for r in sprint_result.phase_results):
                 sprint_result.outcome = SprintOutcome.ERROR
+
+        # TUI v2 Wave 3 (v3.7, F10): wait for any in-flight per-phase
+        # summary threads to finish, then generate the release
+        # retrospective. Blocking — runs before the terminal panel so
+        # operators see a "retrospective ready" state, not a partial one.
+        # Capped at a generous timeout because Haiku is 30s per phase;
+        # if summaries are still running after the cap we take what we
+        # have and move on (never abort sprint wrap-up).
+        try:
+            _summary_worker.wait(timeout=90.0)
+        except Exception as _sw_wait_exc:  # noqa: BLE001 - defensive
+            debug_log(
+                _dbg,
+                "summary_worker_wait_error",
+                error=str(_sw_wait_exc),
+            )
+        try:
+            from .retrospective import RetrospectiveGenerator
+
+            RetrospectiveGenerator(config).generate(
+                sprint_result, _summary_worker.get_summaries()
+            )
+        except Exception as _retro_exc:  # noqa: BLE001 - defensive
+            debug_log(
+                _dbg,
+                "retrospective_error",
+                error=str(_retro_exc),
+            )
 
         tui.update(sprint_result, MonitorState(), None)
 
