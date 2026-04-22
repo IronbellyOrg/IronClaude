@@ -41,7 +41,6 @@ from superclaude.cli.sprint.tui import (
     _truncate,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -443,3 +442,29 @@ class TestPassMissingCheckpointRender:
         tui.update(sr, MonitorState(), None)
         output = _render_to_string(tui)
         assert "PASS" in output
+
+
+# ---------------------------------------------------------------------------
+# TUI v2 Wave 4 (v3.7, F9): --no-tmux summary notification
+# ---------------------------------------------------------------------------
+
+
+class TestLatestSummaryNotification:
+    def test_default_is_none_and_no_line_rendered(self):
+        config = _make_config()
+        tui = SprintTUI(config, console=Console(file=StringIO(), width=160))
+        assert tui.latest_summary_notification is None
+        tui.update(SprintResult(config=config), MonitorState(), None)
+        output = _render_to_string(tui)
+        assert "Summary:" not in output
+
+    def test_notification_line_rendered_when_set(self):
+        config = _make_config()
+        tui = SprintTUI(config, console=Console(file=StringIO(), width=160))
+        tui.latest_summary_notification = (
+            "Phase 2 summary ready: results/phase-2-summary.md"
+        )
+        tui.update(SprintResult(config=config), MonitorState(), None)
+        output = _render_to_string(tui)
+        assert "Summary:" in output
+        assert "phase-2-summary.md" in output

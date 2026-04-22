@@ -36,7 +36,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from .models import Phase, PhaseResult, SprintConfig
 
@@ -82,7 +82,11 @@ class PhaseSummary:
     """Structured summary of a single completed phase (spec §7.6).
 
     ``narrative`` is the Haiku-generated prose; empty string when the
-    subprocess was unavailable or timed out.
+    subprocess was unavailable or timed out. ``path`` is set by
+    :meth:`PhaseSummarizer.write` to the actual markdown destination
+    (``results/phase-<N>-summary.md``) so downstream fanout (tmux
+    summary pane, `--no-tmux` notification) does not have to rebuild
+    it.
     """
 
     phase: Phase
@@ -93,21 +97,8 @@ class PhaseSummary:
     reasoning_excerpts: list[str] = field(default_factory=list)
     errors: list[dict] = field(default_factory=list)
     narrative: str = ""
-
-    @property
-    def summary_path(self) -> Path:
-        """Target path for ``results/phase-<N>-summary.md``.
-
-        Resolved relative to the phase result file so tests and
-        runtime both agree on destination without needing an extra
-        config reference.
-        """
-        results_dir = self.phase_result.output_path_hint or self._default_results_dir()
-        return Path(results_dir) / f"phase-{self.phase.number}-summary.md"
-
-    def _default_results_dir(self) -> Path:
-        # Sibling of the phase tasklist's parent — ``release/results``.
-        return self.phase.file.parent / "results"
+    # TUI v2 Wave 4 (v3.7, F9): populated once the markdown file lands.
+    path: Optional[Path] = None
 
 
 # ``PhaseResult`` does not carry a ``output_path_hint`` field; we attach
@@ -501,10 +492,16 @@ class PhaseSummarizer:
         return invoke_haiku(prompt)
 
     def write(self, summary: PhaseSummary) -> Path:
-        """Serialise ``summary`` to ``results/phase-<N>-summary.md``."""
+        """Serialise ``summary`` to ``results/phase-<N>-summary.md``.
+
+        Stamps ``summary.path`` with the destination so downstream
+        consumers (Wave 4 tmux fanout, `--no-tmux` notification) can
+        read it without re-deriving the path.
+        """
         target = self.config.results_dir / f"phase-{summary.phase.number}-summary.md"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(_render_phase_summary_markdown(summary))
+        summary.path = target
         return target
 
     def summarize(self, phase: Phase, phase_result: PhaseResult) -> PhaseSummary:
@@ -556,13 +553,26 @@ class SummaryWorker:
     race. The entire thread body is wrapped in a catch-all
     ``try/except`` — summary failures never propagate and never affect
     the calling sprint.
+
+    TUI v2 Wave 4 (v3.7, F9): ``on_summary_ready`` is an optional
+    callback fired from within the worker thread (after the summary has
+    been committed to the internal dict) so consumers can refresh the
+    tmux summary pane or update the ``latest_summary_notification``
+    field. The callback is exception-isolated: a raising callback logs
+    a warning but never aborts the worker thread.
     """
 
-    def __init__(self, summarizer: PhaseSummarizer):
+    def __init__(
+        self,
+        summarizer: PhaseSummarizer,
+        *,
+        on_summary_ready: Optional[Callable[[PhaseSummary], None]] = None,
+    ):
         self.summarizer = summarizer
         self._summaries: dict[int, PhaseSummary] = {}
         self._lock = threading.Lock()
         self._threads: list[threading.Thread] = []
+        self._on_summary_ready = on_summary_ready
 
     def submit(self, phase: Phase, phase_result: PhaseResult) -> threading.Thread:
         """Spawn a daemon thread that computes a summary for *phase*.
@@ -590,6 +600,19 @@ class SummaryWorker:
                 phase.number,
                 exc,
             )
+            return
+        # Fire the fanout callback after the commit so observers always
+        # see a fully-populated summary. Exception-isolated.
+        if self._on_summary_ready is not None:
+            try:
+                self._on_summary_ready(summary)
+            except Exception as exc:  # noqa: BLE001 - sprint-safety boundary
+                _logger.warning(
+                    "SummaryWorker: on_summary_ready callback raised %s for "
+                    "phase %d",
+                    exc,
+                    phase.number,
+                )
 
     def wait(self, timeout: Optional[float] = None) -> None:
         """Block until every submitted thread finishes or *timeout* elapses.

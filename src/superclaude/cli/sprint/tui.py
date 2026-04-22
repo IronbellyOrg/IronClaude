@@ -89,6 +89,11 @@ class SprintTUI:
         self._show_gate_column: bool = (
             getattr(config, "grace_period", 0) > 0
         )  # silences future updates after first render error
+        # TUI v2 Wave 4 (v3.7, F9 `--no-tmux` fallback): populated by the
+        # executor each time a phase summary lands. The value is a
+        # single-line notification rendered beneath the phase table so
+        # operators without tmux still see that summaries exist.
+        self.latest_summary_notification: Optional[str] = None
 
     def start(self) -> Live:
         """Start the Live display and return it for the executor to use."""
@@ -160,6 +165,18 @@ class SprintTUI:
         detail = self._build_active_panel()
 
         parts: list = [header, "", table, "", progress, ""]
+        # TUI v2 Wave 4 (F9 fallback): surface the most recent phase
+        # summary path when the operator is running --no-tmux and
+        # therefore cannot see the dedicated summary pane.
+        if self.latest_summary_notification:
+            parts.extend(
+                [
+                    Text.from_markup(
+                        f"[dim]Summary:[/] {self.latest_summary_notification}"
+                    ),
+                    "",
+                ]
+            )
         if error_panel is not None:
             parts.extend([error_panel, ""])
         parts.append(detail)

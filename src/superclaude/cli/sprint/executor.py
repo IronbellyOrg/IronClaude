@@ -30,7 +30,7 @@ from .models import (
 from .monitor import OutputMonitor, detect_error_max_turns, detect_prompt_too_long
 from .notify import notify_phase_complete, notify_sprint_complete
 from .process import ClaudeProcess, SignalHandler
-from .tmux import update_tail_pane
+from .tmux import update_summary_pane, update_tail_pane
 from .tui import SprintTUI
 
 from superclaude.cli.pipeline.models import Step, StepResult
@@ -1148,9 +1148,30 @@ def execute_sprint(config: SprintConfig):
     # stream-json output file, asks Haiku for a narrative, and writes
     # ``results/phase-<N>-summary.md``. Failures never propagate to the
     # sprint loop (see SummaryWorker.__doc__).
+    #
+    # TUI v2 Wave 4 (v3.7, F9): the worker's on_summary_ready callback
+    # fans out to either the dedicated tmux summary pane (``:0.1``) or
+    # the TUI's ``latest_summary_notification`` line when running with
+    # ``--no-tmux``. The callback is exception-isolated inside
+    # SummaryWorker so a broken pane or stale session cannot abort the
+    # sprint.
     from .summarizer import PhaseSummarizer, SummaryWorker
 
-    _summary_worker = SummaryWorker(PhaseSummarizer(config))
+    def _summary_fanout(summary) -> None:
+        path = summary.path
+        if path is None:
+            return
+        session = config.tmux_session_name
+        if session:
+            update_summary_pane(session, path)
+        else:
+            tui.latest_summary_notification = (
+                f"Phase {summary.phase.number} summary ready: {path}"
+            )
+
+    _summary_worker = SummaryWorker(
+        PhaseSummarizer(config), on_summary_ready=_summary_fanout
+    )
 
     # --- v3.1 gap-remediation: infrastructure instantiation (T01–T06) ---
     # T01 (BUG-001/P0): Construct TurnLedger for budget tracking

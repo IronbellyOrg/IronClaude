@@ -513,3 +513,81 @@ class TestSummaryWorker:
         # Mutating the snapshot must not affect the worker.
         snapshot.clear()
         assert worker.get_summaries()
+
+    # ------------------------------------------------------------------
+    # TUI v2 Wave 4 (v3.7, F9): on_summary_ready callback fanout
+    # ------------------------------------------------------------------
+
+    def test_on_summary_ready_fires_once_with_committed_summary(self):
+        phase = Phase(number=1, file=Path("/tmp/p1.md"))
+        committed = PhaseSummary(phase=phase, phase_result=_make_phase_result())
+
+        summarizer = MagicMock()
+        summarizer.summarize.return_value = committed
+
+        received: list[PhaseSummary] = []
+
+        def on_ready(s: PhaseSummary) -> None:
+            received.append(s)
+
+        worker = SummaryWorker(summarizer, on_summary_ready=on_ready)
+        thread = worker.submit(phase, _make_phase_result())
+        thread.join(timeout=5)
+
+        assert received == [committed]
+        assert worker.get_summaries()[1] is committed
+
+    def test_on_summary_ready_exception_does_not_crash_worker(self):
+        phase = Phase(number=1, file=Path("/tmp/p1.md"))
+        summarizer = MagicMock()
+        summarizer.summarize.return_value = PhaseSummary(
+            phase=phase, phase_result=_make_phase_result()
+        )
+
+        def on_ready(_: PhaseSummary) -> None:
+            raise RuntimeError("tmux gone")
+
+        worker = SummaryWorker(summarizer, on_summary_ready=on_ready)
+        thread = worker.submit(phase, _make_phase_result())
+        thread.join(timeout=5)
+
+        # Summary still committed — callback failure is isolated.
+        assert 1 in worker.get_summaries()
+
+    def test_on_summary_ready_not_called_when_summarize_raises(self):
+        summarizer = MagicMock()
+        summarizer.summarize.side_effect = RuntimeError("boom")
+        received: list[PhaseSummary] = []
+
+        def on_ready(s: PhaseSummary) -> None:
+            received.append(s)
+
+        worker = SummaryWorker(summarizer, on_summary_ready=on_ready)
+        thread = worker.submit(
+            Phase(number=1, file=Path("/tmp/p1.md")), _make_phase_result()
+        )
+        thread.join(timeout=5)
+
+        assert received == []
+        assert worker.get_summaries() == {}
+
+    def test_summarizer_write_sets_summary_path(self, tmp_path):
+        config = _make_config(tmp_path)
+        phase = config.phases[0]
+        pr = _make_phase_result()
+        pr.phase = phase
+
+        # Empty NDJSON — extractors return empty lists; we only care
+        # about the path stamping contract.
+        config.output_file(phase).parent.mkdir(parents=True, exist_ok=True)
+        config.output_file(phase).write_text("")
+
+        summarizer = PhaseSummarizer(config)
+        with patch(
+            "superclaude.cli.sprint.summarizer.invoke_haiku", return_value=""
+        ):
+            summary = summarizer.summarize(phase, pr)
+
+        assert summary.path is not None
+        assert summary.path.name == f"phase-{phase.number}-summary.md"
+        assert summary.path.exists()
