@@ -89,104 +89,84 @@ Run these once to confirm your environment is clean.
 
 ---
 
-## 2. Build the fixture via the skill pipeline (spec → roadmap → tasklist)
+## 2. Build the fixture via the skill pipeline (roadmap → tasklist)
 
 The fixture for Sections 3–6 is **generated**, not hand-crafted. This
 is the realistic end-to-end shape and it exercises:
 
-- `/sc:roadmap` — spec-to-roadmap pipeline.
 - `/sc:tasklist` — roadmap-to-tasklist bundle (including the Wave 4
   checkpoint normalisation rules in `sc-tasklist-protocol/SKILL.md`).
 - `superclaude tasklist validate` — post-generation validator.
 - The generated `tasklist-index.md` + `phase-*-tasklist.md` become the
   input for `superclaude sprint run` in Section 4.
 
-> **Environment:** `/sc:tasklist` and `/sc:roadmap` are Claude Code
-> skill commands — you run them inside a Claude Code session, not in a
-> plain shell. The pre/post-generation commands (`superclaude roadmap
-> run`, `superclaude tasklist validate`) are plain-shell CLIs.
+> **Environment:** `/sc:tasklist` is a Claude Code skill command — you
+> run it inside a Claude Code session, not in a plain shell. The
+> post-generation command (`superclaude tasklist validate`) is a
+> plain-shell CLI.
 
-### 2.1 Author a minimal spec
+### 2.1 Point at the canonical reference roadmap
 
-Pick a workspace for the run:
+The correctness run uses the in-repo reference roadmap
+`.dev/test-fixtures/results/test6-spec/roadmap.md`. It is a
+MEDIUM-complexity (0.6) 5-milestone spec-derived roadmap (~425 lines)
+generated from `test-spec-user-auth.compressed.md` with adversarial
+convergence (score 0.82). M3 alone carries 28 tasks across 3 weeks,
+which is rich enough to force the generator into emitting **mid-phase
+checkpoints** as well as end-of-phase ones — the interesting
+regression surface for Checkpoint Wave 4.
 
-    export TEST_RELEASE=/tmp/v37-correctness-run
-    rm -rf "$TEST_RELEASE"
-    mkdir -p "$TEST_RELEASE"
+    export TEST_ROOT=".dev/releases/current/v3.7-task-unified-v2/test-run"
+    export TEST_RELEASE="$PWD/$TEST_ROOT"
+    rm -rf "$TEST_RELEASE" && mkdir -p "$TEST_RELEASE"
+    export REFERENCE_ROADMAP="$PWD/.dev/test-fixtures/results/test6-spec/roadmap.md"
+    ls -l "$REFERENCE_ROADMAP"
+    grep -c '^## Milestone\|^## M[0-9]' "$REFERENCE_ROADMAP"
 
-Write the minimal spec (a 3-feature product brief is enough for the
-generator to produce multiple phases):
+> **Release-dir note:** `_resolve_release_dir` only walks from the
+> `tasklists/` subdir to its parent when the parent contains a
+> `.roadmap-state.json` file or a `*spec*.md` / `*requirements*.md`
+> file. A fresh empty `$TEST_RELEASE/` does **not** trigger that walk,
+> so in the remainder of this spec **`release_dir` resolves to
+> `$TEST_TASKLIST` (i.e. `$TEST_RELEASE/tasklists`)**. Every
+> sprint-written artifact (checkpoints/, execution-log.jsonl,
+> results/, manifest.json) therefore lives under `$TEST_TASKLIST`, not
+> `$TEST_RELEASE`. Paths below already account for this.
 
-    cat > "$TEST_RELEASE/spec.md" <<'EOF'
-    # Minimal Widget Service — Specification
+- **Expected:** file exists; exactly 5 milestone headings
+  (`## M1:` … `## M5:`).
+- **Code under test:** this is input only. We deliberately skip
+  `superclaude roadmap run` because the tasklist generator only
+  requires a roadmap on disk and the roadmap CLI is not part of the
+  v3.7 surface.
 
-    ## Overview
-    Small internal service that stores, retrieves, and summarises
-    "widgets". Used only as a test fixture for the v3.7 release
-    correctness run.
-
-    ## Goals
-    - G1: Provide a persistent model for a Widget record.
-    - G2: Provide HTTP endpoints for create / read / list.
-    - G3: Provide a short narrative summary of the current widget
-      inventory.
-
-    ## Functional Requirements
-    - FR-1: `Widget` has `id: str`, `name: str`, `created_at: datetime`.
-    - FR-2: `POST /widgets` creates a widget.
-    - FR-3: `GET /widgets/{id}` returns a widget by id.
-    - FR-4: `GET /widgets` lists all widgets.
-    - FR-5: `GET /widgets/summary` returns a one-paragraph narrative
-      of the inventory.
-
-    ## Non-Functional Requirements
-    - NFR-1: All endpoints have contract tests.
-    - NFR-2: Persistence layer is a single JSON file at `data/widgets.json`.
-
-    ## Out of scope
-    - Authentication, multi-tenancy, UI.
-    EOF
-
-- **Code under test:** this is input only — the goal is to feed the
-  skill pipeline with something stable and minimal.
-
-### 2.2 Generate the roadmap from the spec
-
-    superclaude roadmap run "$TEST_RELEASE/spec.md" \
-        --output "$TEST_RELEASE/roadmap-out"
-
-- **Expected:** `roadmap-out/` contains a roadmap markdown plus
-  validation artifacts (fingerprint, convergence, coverage matrix).
-- **Code under test:**
-  `src/superclaude/cli/roadmap/commands.py::run` +
-  `src/superclaude/cli/roadmap/executor.py`.
-- **Skip path:** if you want a faster run, skip to §2.3 and hand-author
-  a 3-phase roadmap directly — the tasklist generator only needs a
-  roadmap on disk; it does not care how the roadmap was produced.
-
-### 2.3 Generate the tasklist using the `/sc:tasklist` skill
+### 2.2 Generate the tasklist using the `/sc:tasklist` skill
 
 Inside your Claude Code session (not in a plain shell), invoke:
 
-    /sc:tasklist @$TEST_RELEASE/roadmap-out/roadmap.md \
-        --spec @$TEST_RELEASE/spec.md \
-        --output $TEST_RELEASE/tasklists
+    /sc:tasklist @$REFERENCE_ROADMAP --output $TEST_RELEASE/tasklists
 
 - **Expected:**
   - `$TEST_RELEASE/tasklists/tasklist-index.md` exists.
-  - One `phase-N-tasklist.md` per phase the roadmap defines.
+  - Exactly 5 `phase-N-tasklist.md` files (one per M1..M5 in the
+    test6-spec roadmap).
   - Each `phase-N-tasklist.md` ends with a checkpoint task heading of
     the form `### T<NN>.<MM> -- Checkpoint: End of Phase <NN>` and
     includes a `**Checkpoint Report Path:** checkpoints/CP-P<NN>-END.md`
     line inside the checkpoint body.
+  - At least one phase also emits a **mid-phase** checkpoint
+    (`### T<NN>.<MM> -- Checkpoint: <Name>` with a
+    `CP-P<NN>-<NAME>.md` path). This is the Wave-4 contract
+    specifically for complex phases — the test6-spec roadmap is picked
+    because M3 (28 tasks / 3 weeks) is long enough to trigger this.
 - **Code under test:**
   - `src/superclaude/commands/tasklist.md` (the command shell).
   - `src/superclaude/skills/sc-tasklist-protocol/SKILL.md` — full
     generation algorithm + Wave 4 checkpoint normalisation rules
     (§4.1 Phase 4 T04.01–T04.03 of the merged spec).
-  - Post-generation validator auto-runs: see §2.5.
+  - Post-generation validator auto-runs: see §2.4.
 
-### 2.4 Inspect the generated checkpoint structure (Wave 4 proof)
+### 2.3 Inspect the generated checkpoint structure (Wave 4 proof)
 
 The interesting Wave-4 property is that every checkpoint appears as a
 **numbered task**, not as a free-standing `### Checkpoint:` heading
@@ -197,25 +177,30 @@ outside the task scanner. Confirm that:
       grep -nE '^### T[0-9]{2}\.[0-9]{2}.*Checkpoint' "$f"
     done
 
-- **Expected:** each phase file prints at least one checkpoint task
-  heading (usually the last task of the phase). The end-of-phase
-  checkpoint's task id follows the phase's regular numbering — no gap,
-  no collision.
+- **Expected:**
+  - Each phase file prints at least one checkpoint task heading
+    (usually the last task of the phase).
+  - The end-of-phase checkpoint's task id follows the phase's regular
+    numbering — no gap, no collision.
+  - **At least one phase** additionally prints a non-final
+    `Checkpoint` task (mid-phase) because the test6-spec roadmap has
+    a 28-task M3 that is rich enough to warrant one.
 - **Also check** the deliverable registry entries:
 
       grep -nE 'D-CP[0-9]{2}' "$TEST_RELEASE/tasklists"/phase-*-tasklist.md | head -10
 
 - **Expected:** checkpoint deliverables use the `D-CP<PP>[-MID]`
-  format documented in Wave 4.
+  format documented in Wave 4; at least one `D-CP<PP>-MID` entry is
+  present.
 - **Code under test:** `sc-tasklist-protocol/SKILL.md`:
   - Checkpoint generation rules (T04.01).
   - Sprint Compatibility Self-Check — the new rules added in T04.02.
-  - Deliverable registry guidance for `D-CP<PP>` ids (T04.03).
+  - Deliverable registry guidance for `D-CP<PP>[-MID]` ids (T04.03).
 
-### 2.5 Validate the tasklist against the roadmap
+### 2.4 Validate the tasklist against the roadmap
 
     superclaude tasklist validate "$TEST_RELEASE/tasklists" \
-        --roadmap-file "$TEST_RELEASE/roadmap-out/roadmap.md"
+        --roadmap-file "$REFERENCE_ROADMAP"
 
 - **Expected:** exit code 0; report shows zero fabricated traceability
   ids and zero missing deliverables.
@@ -223,7 +208,7 @@ outside the task scanner. Confirm that:
   `src/superclaude/cli/tasklist/commands.py::validate` +
   `src/superclaude/cli/tasklist/executor.py`.
 
-### 2.6 Sanity-check `count_tasks_in_file` and `load_sprint_config` on the generated bundle
+### 2.5 Sanity-check `count_tasks_in_file` and `load_sprint_config` on the generated bundle
 
     export TEST_TASKLIST="$TEST_RELEASE/tasklists"
     uv run python -c "
@@ -259,7 +244,7 @@ outside the task scanner. Confirm that:
   - `src/superclaude/cli/sprint/models.py`: `SprintConfig.total_tasks`,
     `Phase.prompt_preview`.
 
-### 2.7 Export the sprint entry-point path
+### 2.6 Export the sprint entry-point path
 
 Subsequent sections use `$TEST_INDEX` as the sprint entry-point:
 
@@ -307,11 +292,25 @@ snippet below picks the first one automatically:
 
 ### 4.1 Run with `--no-tmux` so you can see the TUI directly
 
-    superclaude sprint run "$TEST_INDEX" --no-tmux --dry-run
+    superclaude sprint run "$TEST_INDEX" --no-tmux
 
-> The `--dry-run` flag short-circuits the actual subprocess; if your
-> build does not support it, skip to Section 4.2 and point the
-> `claude` binary at a stub.
+> **About `--dry-run`:** the `sprint run --dry-run` flag in this build
+> only prints the discovered phases and exits **before** the TUI, the
+> monitor, the summary worker, or the retrospective run. It therefore
+> cannot exercise any of the surfaces this section lists. To actually
+> observe §4.1-§5.x behavior you need one of:
+>
+> 1. A real `claude` CLI on `$PATH` (will burn real tokens).
+> 2. A shell stub that masquerades as `claude` and emits canned
+>    stream-json (see `tests/sprint/fixtures/claude_stub.sh` if
+>    present, or author a small script that prints one
+>    `assistant`/`user`/`result` line per poll).
+> 3. Skip §4 entirely and rely on the Python-level unit suite in §9.2
+>    (`test_tui_v2_wave1/2`, `test_summarizer`, `test_retrospective`,
+>    `test_tmux`), which exercises the same code paths via direct
+>    constructors. §9.2 already passes in this release.
+>
+> The remainder of §4 assumes option 1 or 2; adapt or skip under option 3.
 
 - **Expected during run:**
   1. Outer panel title reads
@@ -349,7 +348,7 @@ Execution-log lives in the **release dir**, which
 `load_sprint_config._resolve_release_dir` derives as the parent of the
 `tasklists/` subdir — i.e. `$TEST_RELEASE`:
 
-    grep '"event":"checkpoint_verification"' "$TEST_RELEASE/execution-log.jsonl" | head -5
+    grep '"event":"checkpoint_verification"' "$TEST_TASKLIST/execution-log.jsonl" | head -5
 
 - **Expected:** exactly one line per completed phase with fields
   `event`, `phase`, `mode`, `expected`, `found`, `missing`. In default
@@ -366,29 +365,45 @@ Execution-log lives in the **release dir**, which
     (resolves to the grandparent when the index is inside a
     `tasklists/` subdir — as produced by `/sc:tasklist`).
 
-### 4.3 Force `full` gate mode and observe status downgrade
+### 4.3 Force `full` gate mode and observe status downgrade (Python-only)
 
-Pick any end-of-phase checkpoint file that the sprint just wrote and
-delete it, then re-run that phase with `--checkpoint-gate-mode full`:
+> **Note:** `sprint run` does **not** expose a `--checkpoint-gate-mode`
+> CLI flag in this release. The field exists on `SprintConfig`
+> (`checkpoint_gate_mode: Literal["off", "shadow", "soft", "full"]`,
+> default `"shadow"`) but is not wired to Click options. Until that
+> flag is added, exercise the "full" path via the Python API below.
+> Tracked as a follow-up in the handover document.
 
-    # Pick one end-of-phase checkpoint that exists and delete it.
-    ls "$TEST_RELEASE/checkpoints/"CP-P*-END.md 2>/dev/null | head -1 | xargs rm -f
+    # Delete one end-of-phase checkpoint so `full` mode has something to downgrade.
+    ls "$TEST_TASKLIST/checkpoints/"CP-P*-END.md 2>/dev/null | head -1 | xargs rm -f
 
-    # Re-run the affected phase with gate mode "full".
-    superclaude sprint run "$TEST_INDEX" \
-        --no-tmux --start 1 --end 1 --checkpoint-gate-mode full 2>&1 | tail -20
+    # Exercise the downgrade path directly.
+    uv run python -c "
+    import os, dataclasses
+    from superclaude.cli.sprint.config import load_sprint_config
+    from superclaude.cli.sprint.executor import _verify_checkpoints
+    from superclaude.cli.sprint.models import PhaseStatus
+    from superclaude.cli.sprint.logging_ import SprintLogger
 
-- **Expected:** the phase-2 row shows status `PASS⚠` (yellow) instead
-  of `PASS`. The `is_success` property still returns True, so the
-  sprint continues.
+    cfg = load_sprint_config(os.environ['TEST_INDEX'])
+    cfg = dataclasses.replace(cfg, checkpoint_gate_mode='full')
+    phase = cfg.phases[0]
+    logger = SprintLogger(cfg)
+    downgraded = _verify_checkpoints(cfg, phase, PhaseStatus.PASS, logger)
+    assert downgraded in (PhaseStatus.PASS, PhaseStatus.PASS_MISSING_CHECKPOINT)
+    print('status =', downgraded.value, '| is_success =', downgraded.is_success)
+    "
+
+- **Expected:** printed status is `pass_missing_checkpoint` and
+  `is_success = True`. The TUI would render this as yellow `PASS⚠`.
 - **Code under test:**
   - `src/superclaude/cli/sprint/models.py`: `PhaseStatus.PASS_MISSING_CHECKPOINT`,
     `PhaseStatus.is_failure`, `PhaseStatus.is_success`.
   - `src/superclaude/cli/sprint/tui.py`: `STATUS_STYLES` and
     `STATUS_ICONS` entries for `PASS_MISSING_CHECKPOINT` (yellow,
     `PASS⚠`).
-  - `src/superclaude/cli/sprint/executor.py`: gate-mode branching in
-    `_verify_checkpoints`.
+  - `src/superclaude/cli/sprint/executor.py`: `_verify_checkpoints`
+    gate-mode branching (lines ~1730-1800).
 
 ---
 
@@ -396,8 +411,8 @@ delete it, then re-run that phase with `--checkpoint-gate-mode full`:
 
 ### 5.1 Per-phase summary files
 
-    ls "$TEST_RELEASE/results/"phase-*-summary.md
-    head -20 "$TEST_RELEASE/results/"$(ls "$TEST_RELEASE/results/" | grep '^phase-.*-summary.md$' | head -1)
+    ls "$TEST_TASKLIST/results/"phase-*-summary.md
+    head -20 "$TEST_TASKLIST/results/"$(ls "$TEST_TASKLIST/results/" | grep '^phase-.*-summary.md$' | head -1)
 
 - **Expected:** one file per executed phase; each file has `#
   Phase N Summary — <name>` header, `**Status:**`, `**Turns:**`,
@@ -414,8 +429,8 @@ delete it, then re-run that phase with `--checkpoint-gate-mode full`:
 
 ### 5.2 Release retrospective
 
-    ls "$TEST_RELEASE/results/release-retrospective.md"
-    head -25 "$TEST_RELEASE/results/release-retrospective.md"
+    ls "$TEST_TASKLIST/results/release-retrospective.md"
+    head -25 "$TEST_TASKLIST/results/release-retrospective.md"
 
 - **Expected:** a single `release-retrospective.md` with aggregate
   header (Outcome, Duration, Phases, Turns, Tokens, Files Changed),
@@ -431,26 +446,30 @@ delete it, then re-run that phase with `--checkpoint-gate-mode full`:
 
 ### 5.3 Checkpoint manifest
 
-    test -f "$TEST_RELEASE/manifest.json" && \
+    # `verify-checkpoints` writes `manifest.json` next to the index, not
+    # into release_dir — so it lives under $TEST_TASKLIST, not $TEST_RELEASE.
+    test -f "$TEST_TASKLIST/manifest.json" && \
         uv run python -c "
-    import json
-    m = json.load(open('$TEST_RELEASE/manifest.json'))
-    print('total=%d found=%d missing=%d' % (m['total'], m['found'], m['total']-m['found']))
+    import json, os
+    m = json.load(open(os.environ['TEST_TASKLIST'] + '/manifest.json'))
+    s = m['summary']
+    print('total=%d found=%d missing=%d' % (s['total'], s['found'], s['total']-s['found']))
     "
 
 - **Expected:** `total` equals the number of `Checkpoint Report Path:`
   entries the generator wrote across all phases (one per phase if the
-  generator only emits end-of-phase checkpoints). After §4.3 the
+  generator only emits end-of-phase checkpoints; plus any mid-phase
+  checkpoints — for the test6-spec fixture total is 6). After §4.3 the
   deleted file shows up as `missing ≥ 1`.
 - **Code under test:**
   - `src/superclaude/cli/sprint/checkpoints.py`: `build_manifest`,
-    `write_manifest`.
-  - `src/superclaude/cli/sprint/executor.py`: manifest write block at
-    sprint end.
+    `write_manifest` (writes to `output_dir / "manifest.json"`).
+  - `src/superclaude/cli/sprint/commands.py::verify_checkpoints`:
+    manifest write block.
 
 ### 5.4 SprintResult aggregates
 
-    grep -E '"event":"sprint_summary"' "$TEST_RELEASE/execution-log.jsonl" | head -1
+    grep -E '"event":"sprint_summary"' "$TEST_TASKLIST/execution-log.jsonl" | head -1
 
 - **Expected:** the event includes `total_turns`, `total_tokens_in`,
   `total_tokens_out`, `total_output_bytes`, `total_files_changed` (all
@@ -463,31 +482,39 @@ delete it, then re-run that phase with `--checkpoint-gate-mode full`:
 
 ## 6. Retroactive validation — Checkpoint W3 CLI  (commit `965213b`)
 
+> **OUTPUT_DIR contract:** `sprint verify-checkpoints` requires
+> `tasklist-index.md` to live **directly** in the dir you pass. Because
+> `/sc:tasklist` nests the index in a `tasklists/` subdir, pass
+> `$TEST_TASKLIST` (not `$TEST_RELEASE`) to this subcommand.
+
 ### 6.1 `verify-checkpoints` table output
 
-    superclaude sprint verify-checkpoints "$TEST_RELEASE"
+    superclaude sprint verify-checkpoints "$TEST_TASKLIST"
 
-- **Expected:** A table row per checkpoint with `PHASE`, `NAME`,
-  `EXISTS`, and `PATH`. After §4.3 the `CP-P02-MID.md` row reads
-  `no` under `EXISTS`.
+- **Expected:** A table row per checkpoint with `Phase`, `Status`,
+  `Name`, and `Path`. After §4.3 the deleted end-of-phase row reads
+  `MISSING`. The summary line reads e.g.
+  `Checkpoints: 6 declared | 5 found | 0 recovered | 1 missing`.
 - **Code under test:** `src/superclaude/cli/sprint/commands.py`
   `verify_checkpoints` Click subcommand.
 
 ### 6.2 Machine-readable output
 
-    superclaude sprint verify-checkpoints "$TEST_RELEASE" --json | \
+    superclaude sprint verify-checkpoints "$TEST_TASKLIST" --json 2>/dev/null | \
         uv run python -c "import json,sys; d=json.load(sys.stdin); print(sum(1 for e in d['entries'] if not e['exists']))"
 
 - **Expected:** integer count of missing checkpoints (≥ 1 after §4.3).
+  Note the `2>/dev/null` — UV emits a stderr warning about the active
+  virtualenv that will otherwise break `json.load(sys.stdin)`.
 - **Code under test:** `commands.py` → `verify-checkpoints --json`.
 
 ### 6.3 Auto-recovery
 
     # Recover the deleted checkpoint from §4.3.
-    superclaude sprint verify-checkpoints "$TEST_RELEASE" --recover
+    superclaude sprint verify-checkpoints "$TEST_TASKLIST" --recover
 
     # Pick the checkpoint that was regenerated and read the first few lines.
-    RECOVERED=$(superclaude sprint verify-checkpoints "$TEST_RELEASE" --json | \
+    RECOVERED=$(superclaude sprint verify-checkpoints "$TEST_TASKLIST" --json 2>/dev/null | \
         uv run python -c "import json,sys; d=json.load(sys.stdin); \
         print(next(e['expected_path'] for e in d['entries'] if e.get('recovered')))")
     echo "recovered: $RECOVERED"
@@ -495,7 +522,7 @@ delete it, then re-run that phase with `--checkpoint-gate-mode full`:
 
     # Idempotency: re-run must not overwrite
     cksum1=$(md5sum "$RECOVERED" | awk '{print $1}')
-    superclaude sprint verify-checkpoints "$TEST_RELEASE" --recover
+    superclaude sprint verify-checkpoints "$TEST_TASKLIST" --recover
     cksum2=$(md5sum "$RECOVERED" | awk '{print $1}')
     test "$cksum1" = "$cksum2" && echo "IDEMPOTENT"
 
@@ -665,9 +692,13 @@ heading that the task scanner would miss.
 
     uv run ruff check src/superclaude/cli/sprint/ 2>&1 | tail -5
 
-- **Expected:** `All checks passed!` OR the same set of pre-existing
-  findings that were present before the release (`F401 StepStatus`,
-  `N806 _OLD_TO_NEW`, `F541` on redundant f-strings in `models.py`).
+- **Expected:** `Found 17 errors.` — the same pre-existing finding set
+  this release inherits. Ruff is asked to lint `sprint/` but the
+  package re-exports symbols from `cli/pipeline/` and `cli/audit/`, so
+  finds 12 `F401` unused-imports there, plus `F841` (unused `gate_policy`),
+  `N806` (`_OLD_TO_NEW`), two `F541` placeholder-less f-strings, and
+  one `F401 typing.Optional`. Net-new findings vs. this baseline must
+  be zero.
 
 ---
 
@@ -684,16 +715,15 @@ Removes the fixture so it does not clutter `/tmp`.
 | Change area | Scenario section(s) | Entry-point symbol(s) |
 |---|---|---|
 | Naming rename                         | 1.1, 1.2, 1.3, 9.3     | `task.md` / `sc-task-protocol` / `build_prompt` |
-| Spec-to-roadmap pipeline              | 2.2                    | `superclaude roadmap run` |
-| Roadmap-to-tasklist generator (skill) | 2.3, 2.4, 8.2          | `sc-tasklist-protocol/SKILL.md`, `tasklist.md` command shell |
-| Tasklist validator                    | 2.5                    | `superclaude tasklist validate` |
-| Release-dir resolution (tasklists/ subdir) | 2.6, 4.2             | `config._resolve_release_dir` |
+| Roadmap-to-tasklist generator (skill) | 2.2, 2.3, 8.2          | `sc-tasklist-protocol/SKILL.md`, `tasklist.md` command shell |
+| Tasklist validator                    | 2.4                    | `superclaude tasklist validate` |
+| Release-dir resolution (tasklists/ subdir) | 2.5, 4.2             | `config._resolve_release_dir` |
 | Prompt checkpoint block (W1)          | 3.1                    | `ClaudeProcess.build_prompt` |
 | Post-phase checkpoint gate (W2)       | 4.2, 4.3               | `_verify_checkpoints`, `SprintLogger.write_checkpoint_verification` |
 | Checkpoint manifest + CLI (W3)        | 5.3, 6.1, 6.2, 6.3     | `build_manifest`, `recover_missing_checkpoints`, `commands.verify_checkpoints` |
 | Tasklist-level checkpoints (W4)       | 2.4, 8.2, 8.3          | `sc-tasklist-protocol/SKILL.md`, `extract_checkpoint_paths` |
-| MonitorState / PhaseResult / SprintResult fields (Wave 1) | 2.6, 4.1, 5.4          | `monitor._extract_signals_from_event`, model field defaults |
-| SprintConfig.total_tasks + count_tasks_in_file | 2.6                    | `config.count_tasks_in_file`, `config.load_sprint_config` |
+| MonitorState / PhaseResult / SprintResult fields (Wave 1) | 2.5, 4.1, 5.4          | `monitor._extract_signals_from_event`, model field defaults |
+| SprintConfig.total_tasks + count_tasks_in_file | 2.5                    | `config.count_tasks_in_file`, `config.load_sprint_config` |
 | Phase table / dual progress / terminal panels (Wave 2) | 4.1                    | `tui._build_phase_table`, `tui._build_progress`, `tui._build_success_panel` |
 | Prompt / Agent / activity stream (Wave 2) | 4.1                    | `tui._build_active_panel`, `tui._render_activity_stream` |
 | Conditional error panel (Wave 2)      | 4.1 (with induced errors) | `tui._build_error_panel` |

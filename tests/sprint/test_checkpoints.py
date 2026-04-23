@@ -94,6 +94,36 @@ class TestExtractCheckpointPaths:
             tmp_path / "does-not-exist.md", tmp_path
         ) == []
 
+    def test_wave4_numbered_checkpoint_task_form(self, tmp_path: Path):
+        """Wave-4 emits checkpoints as numbered tasks; name must resolve to
+        the heading label, not the basename fallback."""
+        phase_file = tmp_path / "phase-1-tasklist.md"
+        phase_file.write_text(
+            "### T01.06 -- Checkpoint: M1 Foundation Verified\n"
+            "**Checkpoint Report Path:** `checkpoints/CP-P01-END.md`\n"
+        )
+        result = extract_checkpoint_paths(phase_file, tmp_path)
+        assert len(result) == 1
+        name, path = result[0]
+        assert name == "M1 Foundation Verified"
+        assert path == (tmp_path / "checkpoints" / "CP-P01-END.md").resolve()
+
+    def test_wave4_mid_and_end_mixed_with_legacy(self, tmp_path: Path):
+        """Phase file may have both Wave-4 and legacy headings; both must
+        yield human-readable names, not basenames."""
+        phase_file = tmp_path / "phase-3-tasklist.md"
+        phase_file.write_text(
+            "### T03.06 -- Checkpoint: M3 Authenticated Flow Verified (Mid-phase)\n"
+            "**Checkpoint Report Path:** `checkpoints/CP-P03-MID-AUTHFLOW.md`\n\n"
+            "### Checkpoint: End of Phase 3\n"
+            "Checkpoint Report Path: checkpoints/CP-P03-END.md\n"
+        )
+        result = extract_checkpoint_paths(phase_file, tmp_path)
+        assert [name for name, _ in result] == [
+            "M3 Authenticated Flow Verified (Mid-phase)",
+            "End of Phase 3",
+        ]
+
 
 # ---------------------------------------------------------------------------
 # verify_checkpoint_files()
@@ -447,6 +477,50 @@ class TestRecoverMissingCheckpoints:
         assert existing.read_text() == "original body"
         # The returned entry should now reflect exists=True.
         assert result[0].exists is True
+
+    def test_wave4_verification_block_copied_into_recovered_report(
+        self, tmp_path: Path
+    ):
+        """Wave-4 `### T<PP>.<NN> -- Checkpoint: <name>` tasks must round-trip
+        through extract_checkpoint_paths → recover_missing_checkpoints such
+        that the rendered report contains the Verification / Exit Criteria
+        block from the task body, not the 'no verification block' fallback.
+        """
+        p1 = tmp_path / "phase-1-tasklist.md"
+        index = tmp_path / "tasklist-index.md"
+        index.write_text(
+            "# Sprint\n\n| # | File |\n|---|------|\n"
+            f"| 1 | {p1.name} |\n"
+        )
+        p1.write_text(
+            "### T01.06 -- Checkpoint: M1 Foundation Verified\n"
+            "**Purpose:** Verify M1 foundation deliverables.\n"
+            "**Checkpoint Report Path:** `checkpoints/CP-P01-END.md`\n\n"
+            "**Verification:**\n"
+            "- TEST-M1-001 green\n"
+            "- TEST-M1-003 green in CI\n\n"
+            "**Exit Criteria:**\n"
+            "- All migrations reversible\n"
+            "- Keys stored in secrets manager\n"
+        )
+
+        manifest = build_manifest(index, tmp_path)
+        assert len(manifest) == 1
+        # Pre-fix regression: name fell back to basename. After fix it must
+        # resolve to the heading label from the Wave-4 task.
+        assert manifest[0].name == "M1 Foundation Verified"
+
+        recovered = recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {1: p1}
+        )
+        body = recovered[0].expected_path.read_text()
+        # Positive: verification + exit criteria copied verbatim.
+        assert "**Verification:**" in body
+        assert "TEST-M1-001 green" in body
+        assert "**Exit Criteria:**" in body
+        assert "All migrations reversible" in body
+        # Negative: no fallback sentinel.
+        assert "no verification block found" not in body
 
     def test_phase_without_tasklist_is_skipped(self, tmp_path: Path):
         missing_path = tmp_path / "ck.md"

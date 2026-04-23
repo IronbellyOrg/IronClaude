@@ -24,10 +24,11 @@ CHECKPOINT_PATH_PATTERN: re.Pattern[str] = re.compile(
     re.IGNORECASE,
 )
 
-# Matches `### Checkpoint: <name>` headings. The trailing name becomes the
-# human-readable label for the checkpoint (e.g. "End of Phase 3").
+# Matches `### Checkpoint: <name>` (legacy) and
+# `### T<PP>.<NN> -- Checkpoint: <name>` (Wave-4, emitted by `/sc:tasklist`).
+# The trailing name becomes the human-readable label (e.g. "End of Phase 3").
 CHECKPOINT_HEADING_PATTERN: re.Pattern[str] = re.compile(
-    r"^#{2,5}\s*Checkpoint:\s*(.+?)\s*$",
+    r"^#{2,5}\s*(?:T\d{2}\.\d{2}\s*--\s*)?Checkpoint:\s*(.+?)\s*$",
     re.MULTILINE | re.IGNORECASE,
 )
 
@@ -286,9 +287,10 @@ def recover_missing_checkpoints(
 def _extract_verification_block(tasklist_path: Path, checkpoint_name: str) -> str:
     """Return the verification body for a named checkpoint in a tasklist.
 
-    Locates the ``### Checkpoint: <name>`` heading and returns everything up
-    to the next top-level or peer heading. Empty string when the heading is
-    not found (e.g. name came from a basename fallback).
+    Locates the ``### Checkpoint: <name>`` heading (or the Wave-4
+    ``### T<PP>.<NN> -- Checkpoint: <name>`` task form) and returns everything
+    up to the next top-level or peer heading. Empty string when the heading
+    is not found (e.g. name came from a basename fallback).
     """
     try:
         content = tasklist_path.read_text(errors="replace")
@@ -299,7 +301,11 @@ def _extract_verification_block(tasklist_path: Path, checkpoint_name: str) -> st
     start: int | None = None
     heading_level = 0
     for i, line in enumerate(lines):
-        match = re.match(r"^(#{2,5})\s*Checkpoint:\s*(.+?)\s*$", line, re.IGNORECASE)
+        match = re.match(
+            r"^(#{2,5})\s*(?:T\d{2}\.\d{2}\s*--\s*)?Checkpoint:\s*(.+?)\s*$",
+            line,
+            re.IGNORECASE,
+        )
         if match and match.group(2).strip() == checkpoint_name:
             heading_level = len(match.group(1))
             start = i + 1
