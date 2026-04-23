@@ -1,5 +1,5 @@
 ---
-name: sc:task-unified-protocol
+name: sc:task-protocol
 description: Unified task execution with intelligent workflow management, MCP compliance enforcement, and multi-agent delegation. Merges orchestration capabilities with MCP compliance into a single coherent interface.
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 ---
@@ -8,7 +8,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 >
 > If for any reason no classification header was emitted before this skill was invoked, emit one now using ONLY the tier values STRICT, STANDARD, LIGHT, or EXEMPT (no other values are valid).
 
-# /sc:task-unified - Unified Task Execution with Compliance
+# /sc:task - Unified Task Execution with Compliance
 
 ## Purpose
 

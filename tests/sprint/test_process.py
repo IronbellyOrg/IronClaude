@@ -76,11 +76,17 @@ class TestClaudeProcess:
         env = proc.build_env()
         assert "CLAUDECODE" not in env
 
-    def test_build_prompt_contains_task_unified(self):
+    def test_build_prompt_contains_task_command(self):
+        """v3.7 Naming Consolidation: prompt invokes the canonical /sc:task.
+
+        The prior /sc:task-unified spelling is gone — see spec §3.3 and
+        §4.3 task N5 of the merged release spec.
+        """
         config = _make_config()
         proc = ClaudeProcess(config, config.phases[0])
         prompt = proc.build_prompt()
-        assert "/sc:task-unified" in prompt
+        assert prompt.startswith("/sc:task ")
+        assert "/sc:task-unified" not in prompt
 
     def test_build_prompt_contains_compliance_strict(self):
         config = _make_config()

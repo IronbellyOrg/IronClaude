@@ -20,7 +20,7 @@ Validate tier classification behavior against YAML test specifications.
 
 ## Arguments
 
-- `target`: Test file or directory (default: `tests/sc-task-unified/`)
+- `target`: Test file or directory (default: `tests/sc-task/`)
 
 ## Flags
 
@@ -43,7 +43,7 @@ Validate tier classification behavior against YAML test specifications.
 /sc:validate-tests --category classification
 
 # Verbose output for debugging
-/sc:validate-tests tests/sc-task-unified/test_compound_phrases.yaml --verbose
+/sc:validate-tests tests/sc-task/test_compound_phrases.yaml --verbose
 
 # Save report
 /sc:validate-tests --all --report claudedocs/validation-report.md
@@ -128,5 +128,5 @@ The full behavioral specification is in the protocol skill.
 ## See Also
 
 - `/sc:task` - Unified task command
-- `skills/sc-task-unified-protocol/SKILL.md` - Task skill definition
+- `skills/sc-task-protocol/SKILL.md` - Task skill definition
 - `skills/sc-validate-tests-protocol/SKILL.md` - Full validation skill spec

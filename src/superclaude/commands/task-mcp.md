@@ -372,4 +372,4 @@ This command has been merged into the unified `/sc:task` command which provides:
 
 ### Full Documentation
 
-See `/sc:task-unified` for complete documentation of the unified command.
+See `/sc:task` for complete documentation of the unified command.

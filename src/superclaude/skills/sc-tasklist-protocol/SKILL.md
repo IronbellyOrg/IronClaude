@@ -1,6 +1,6 @@
 ---
 name: sc:tasklist-protocol
-description: "Deterministic roadmap-to-tasklist generator with integrated roadmap validation, producing Sprint CLI-compatible multi-file bundles with /sc:task-unified compliance tier integration"
+description: "Deterministic roadmap-to-tasklist generator with integrated roadmap validation, producing Sprint CLI-compatible multi-file bundles with /sc:task compliance tier integration"
 category: utility
 complexity: high
 allowed-tools: Read, Glob, Grep, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, Task, Skill
@@ -13,7 +13,7 @@ argument-hint: "<roadmap-path> [--spec <spec-path>] [--output <output-dir>]"
 
 You are the **Roadmap-to-Tasklist Generator**. Your job is to transform a roadmap into a **deterministic, execution-ready task list** with **no discretionary choices**, while preserving as much roadmap value as possible. You output a **multi-file bundle**: one `tasklist-index.md` plus one `phase-N-tasklist.md` per phase, then **validate the generated tasklist against the source roadmap** and **patch any drift before returning control**.
 
-Multi-file output aligned with `superclaude sprint run` phase discovery and `/sc:task-unified` compliance tier execution. Post-generation validation is mandatory and always runs.
+Multi-file output aligned with `superclaude sprint run` phase discovery and `/sc:task` compliance tier execution. Post-generation validation is mandatory and always runs.
 
 ---
 
@@ -503,7 +503,7 @@ Map score -> label:
 - Under each task, list the matched keyword categories as `Risk Drivers: ...` (do not add unlisted drivers).
 
 ### 5.3 Compliance Tier Classification (mandatory, deterministic)
-Each task must include a **Compliance Tier** computed deterministically using the `/sc:task-unified` classification algorithm.
+Each task must include a **Compliance Tier** computed deterministically using the `/sc:task` classification algorithm.
 
 **Priority order:** `STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)`
 
@@ -1241,23 +1241,23 @@ Rules:
 
 **Stage gate**: Both artifacts written to `TASKLIST_ROOT/validation/`. Directory created via `Bash` (`mkdir -p`).
 
-### Stage 9: Patch Execution (Delegate to `sc:task-unified`)
+### Stage 9: Patch Execution (Delegate to `sc:task`)
 
 **Purpose**: Apply all corrections from the PatchChecklist to the generated phase files.
 
-**Mechanism**: Invoke `sc:task-unified` via the `Skill` tool with:
+**Mechanism**: Invoke `sc:task` via the `Skill` tool with:
 - Input: `"Execute TASKLIST_ROOT/validation/PatchChecklist.md"` (full resolved path)
 - Compliance: `--compliance strict`
 
-The `sc:task-unified` skill handles:
+The `sc:task` skill handles:
 - Reading the checklist
 - Applying edits to each phase file
 - Tracing changes for compliance
 - Running tier-appropriate verification
 
-The orchestrator does NOT apply patches itself. Separation of concerns: the tasklist-protocol generates and validates; `sc:task-unified` executes edits.
+The orchestrator does NOT apply patches itself. Separation of concerns: the tasklist-protocol generates and validates; `sc:task` executes edits.
 
-**Stage gate**: `sc:task-unified` reports completion. All checklist items addressed.
+**Stage gate**: `sc:task` reports completion. All checklist items addressed.
 
 ### Stage 10: Spot-Check Verification
 
@@ -1303,7 +1303,7 @@ The skill executes in 10 stages with per-stage validation. Stage reporting uses 
 | 6 | Self-Check | All Sprint Compatibility Self-Check assertions pass; no blocking failures |
 | 7 | Roadmap Validation | 2N agents completed; findings merged and deduplicated; zero agent failures |
 | 8 | Patch Plan Generation | ValidationReport.md and PatchChecklist.md written to TASKLIST_ROOT/validation/; OR clean report if zero issues |
-| 9 | Patch Execution | sc:task-unified --compliance strict completed against PatchChecklist.md; all checklist items addressed |
+| 9 | Patch Execution | sc:task --compliance strict completed against PatchChecklist.md; all checklist items addressed |
 | 10 | Spot-Check Verification | All findings from ValidationReport.md re-verified; results appended to report |
 
 ### Gate Behavior
@@ -1333,7 +1333,7 @@ TaskCreate: "Stage 5: File Emission" (activeForm: "Writing tasklist files")
 TaskCreate: "Stage 6: Self-Check" (activeForm: "Running self-check assertions")
 TaskCreate: "Stage 7: Roadmap Validation" (activeForm: "Validating against roadmap (2N agents)")
 TaskCreate: "Stage 8: Patch Plan Generation" (activeForm: "Generating patch plan")
-TaskCreate: "Stage 9: Patch Execution" (activeForm: "Executing patches via sc:task-unified")
+TaskCreate: "Stage 9: Patch Execution" (activeForm: "Executing patches via sc:task")
 TaskCreate: "Stage 10: Spot-Check Verification" (activeForm: "Verifying patch application")
 ```
 
@@ -1357,7 +1357,7 @@ Per-stage completion messages (in TaskUpdate description):
 - Stage 6: "Self-Check: all 17 checks passed"
 - Stage 7: "Roadmap Validation: 2N agents completed, M findings across N phases"
 - Stage 8: "Patch Plan: ValidationReport.md + PatchChecklist.md written, X high / Y medium / Z low issues" (or "Patch Plan: clean — no drift detected, stages 9-10 skipped")
-- Stage 9: "Patch Execution: PatchChecklist.md executed via sc:task-unified --compliance strict"
+- Stage 9: "Patch Execution: PatchChecklist.md executed via sc:task --compliance strict"
 - Stage 10: "Spot-Check: X/Y findings verified resolved"
 
 ---
@@ -1376,7 +1376,7 @@ Per-stage completion messages (in TaskUpdate description):
 | `Bash` | Create output directories (`mkdir -p`) | Output (Stage 5), Validation (Stage 8) |
 | `Glob` | Verify output files exist for self-check | Validation (Stage 6) |
 | `Task` (Agent) | Spawn 2N parallel validation agents | Roadmap Validation (Stage 7) |
-| `Skill` | Invoke sc:task-unified for patch execution | Patch Execution (Stage 9) |
+| `Skill` | Invoke sc:task for patch execution | Patch Execution (Stage 9) |
 
 ---
 

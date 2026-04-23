@@ -121,7 +121,7 @@ class ClaudeProcess(_PipelineClaudeProcess):
         )
 
     def build_prompt(self) -> str:
-        """Build the /sc:task-unified prompt for this phase."""
+        """Build the /sc:task prompt for this phase."""
         pn = self.phase.number
         phase_file = self.phase.file
         config = self.config
@@ -167,7 +167,7 @@ class ClaudeProcess(_PipelineClaudeProcess):
         sprint_context = "\n".join(sprint_context_lines)
 
         return (
-            f"/sc:task-unified Execute all tasks in @{phase_file} "
+            f"/sc:task Execute all tasks in @{phase_file} "
             f"--compliance strict --strategy systematic\n"
             f"\n"
             f"{sprint_context}\n"

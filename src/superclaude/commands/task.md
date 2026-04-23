@@ -1,126 +1,170 @@
 ---
-name: task-legacy
-description: "Execute complex tasks with intelligent workflow management and delegation"
+name: task
+description: "Unified task execution with intelligent workflow management, MCP compliance enforcement, and multi-agent delegation"
 category: special
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
-personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
-deprecated: true
-deprecated_by: "task-unified"
-migration_guide: "Use /sc:task (task-unified.md) with --compliance and --strategy flags instead"
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
+mcp-servers: [sequential, context7, serena, playwright, magic, morphllm]
+personas: [architect, analyzer, qa, refactorer, frontend, backend, security, devops, python-expert, quality-engineer]
+version: "2.0.0"
 ---
 
-# /sc:task - Enhanced Task Management (DEPRECATED)
+# /sc:task - Unified Task Command
 
-> **DEPRECATION NOTICE**: This command is deprecated as of v2.0.0.
-> Its capabilities have been merged into the unified `/sc:task` command (`task-unified.md`).
-> The unified command provides the same orchestration features plus compliance tier enforcement.
->
-> **Migration**: Use `/sc:task [description] --strategy [systematic|agile|enterprise]` instead.
-> See `task-unified.md` for full documentation.
+## Purpose
+
+A unified command with **orthogonal dimensions** that merges orchestration capabilities with MCP compliance enforcement:
+
+```
+/sc:task [operation] --strategy [systematic|agile|enterprise] --compliance [strict|standard|light|exempt]
+```
+
+| Dimension | Purpose | Options |
+|-----------|---------|---------|
+| **Strategy** | HOW to coordinate work | systematic, agile, enterprise, auto |
+| **Compliance** | HOW strictly to enforce quality | strict, standard, light, exempt, auto |
+
+**Philosophy**: "Better false positives than false negatives" - when uncertain, escalate to higher compliance tier.
 
 ## Triggers
-- Complex tasks requiring multi-agent coordination and delegation
-- Projects needing structured workflow management and cross-session persistence
-- Operations requiring intelligent MCP server routing and domain expertise
-- Tasks benefiting from systematic execution and progressive enhancement
+
+| Trigger Type | Condition | Confidence |
+|--------------|-----------|------------|
+| **Complexity Score** | Task complexity >0.6 with code modifications | 90% |
+| **Multi-file Scope** | Estimated affected files >2 | 85% |
+| **Security Domain** | Paths contain `auth/`, `security/`, `crypto/` | 95% |
+| **Refactoring Scope** | Keywords: refactor, remediate, multi-file | 90% |
 
 ## Usage
-```
-/sc:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
-```
 
-## Behavioral Flow
-1. **Analyze**: Parse task requirements and determine optimal execution strategy
-2. **Delegate**: Route to appropriate MCP servers and activate relevant personas
-3. **Coordinate**: Execute tasks with intelligent workflow management and parallel processing
-4. **Validate**: Apply quality gates and comprehensive task completion verification
-5. **Optimize**: Analyze performance and provide enhancement recommendations
-
-Key behaviors:
-- Multi-persona coordination across architect, frontend, backend, security, devops domains
-- Intelligent MCP server routing (Sequential, Context7, Magic, Playwright, Morphllm, Serena)
-- Systematic execution with progressive task enhancement and cross-session persistence
-- Advanced task delegation with hierarchical breakdown and dependency management
-
-## MCP Integration
-- **Sequential MCP**: Complex multi-step task analysis and systematic execution planning
-- **Context7 MCP**: Framework-specific patterns and implementation best practices
-- **Magic MCP**: UI/UX task coordination and design system integration
-- **Playwright MCP**: Testing workflow integration and validation automation
-- **Morphllm MCP**: Large-scale task transformation and pattern-based optimization
-- **Serena MCP**: Cross-session task persistence and project memory management
-
-## Tool Coordination
-- **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
-- **Task**: Advanced delegation for complex multi-agent coordination and sub-task management
-- **Read/Write/Edit**: Task documentation and implementation coordination
-- **sequentialthinking**: Structured reasoning for complex task dependency analysis
-
-## Key Patterns
-- **Task Hierarchy**: Epic-level objectives → Story coordination → Task execution → Subtask granularity
-- **Strategy Selection**: Systematic (comprehensive) → Agile (iterative) → Enterprise (governance)
-- **Multi-Agent Coordination**: Persona activation → MCP routing → parallel execution → result integration
-- **Cross-Session Management**: Task persistence → context continuity → progressive enhancement
-
-## Examples
-
-### Complex Feature Development
-```
-/sc:task create "enterprise authentication system" --strategy systematic --parallel
-# Comprehensive task breakdown with multi-domain coordination
-# Activates architect, security, backend, frontend personas
+```bash
+/sc:task [operation] [target] [flags]
 ```
 
-### Agile Sprint Coordination
+Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--force-strict`, `--parallel`, `--delegate`, `--no-escalation`. See protocol skill for full flag reference.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--no-escalation` | `false` | Bypass TFEP (Test Failure Escalation Protocol) triggers. When set, agents may fix test failures directly without structured forensic analysis. **WARNING**: Using `--no-escalation` voids TFEP protection against ad-hoc fixes. |
+
+## Classification (MANDATORY FIRST OUTPUT)
+
+**CRITICAL RULES:**
+1. **TEXT-ONLY**: Do NOT invoke ANY tools (Skill, Read, Grep, etc.) for classification. Tool invocation begins AFTER classification.
+2. **EXACT FORMAT**: Use the HTML comment block below EXACTLY. Do NOT use `**CLASSIFICATION: ...**` or any other format.
+3. **VALID TIERS ONLY**: The ONLY valid TIER values are: `STRICT`, `STANDARD`, `LIGHT`, `EXEMPT`. Values like "ITERATIVE", "SIMPLE", "IMPLEMENT", "COMPLEX" are INVALID and MUST NOT be used.
+4. **FIRST OUTPUT**: This header MUST be your very first output, before any other text.
+
+Emit this EXACT header format (replace bracketed values only):
 ```
-/sc:task execute "feature backlog" --strategy agile --delegate
-# Iterative task execution with intelligent delegation
-# Cross-session persistence for sprint continuity
+<!-- SC:TASK-UNIFIED:CLASSIFICATION -->
+TIER: [STRICT|STANDARD|LIGHT|EXEMPT]
+CONFIDENCE: [0.00-1.00]
+KEYWORDS: [matched keywords or "none"]
+OVERRIDE: [true|false]
+RATIONALE: [one-line reason]
+<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
 ```
 
-### Multi-Domain Integration
+**Tier rules** (check in priority order; first matching tier wins; check --compliance override first):
+
+1. **STRICT** (Priority 1 — safety-critical):
+   - Keywords: security, authentication, authorization, database, migration, refactor, breaking change, encrypt, token, session, oauth
+   - Context boosters: >2 estimated files (+0.3), security paths like auth/, security/, crypto/ (+0.4)
+   - Compound phrases: "fix security", "add authentication", "update database", "change api"
+   - Note: "quick security" → still STRICT (security always wins); "minor auth change" → still STRICT
+
+2. **EXEMPT** (Priority 2 — non-code operations):
+   - Keywords: explain, search, commit, push, plan, discuss, brainstorm, what, how, why
+   - Context boosters: is_read_only (+0.4), is_git_operation (+0.5), all doc files (+0.5)
+   - Patterns: starts with "what/how/why/explain", docs-only paths (*.md, docs/)
+
+3. **LIGHT** (Priority 3 — trivial changes):
+   - Keywords: typo, comment, whitespace, lint, docstring, formatting, spacing, minor
+   - Context boosters: single file (+0.1), <=50 lines estimated
+   - Compound phrases: "quick fix", "minor change", "fix typo", "refactor comment"
+
+4. **STANDARD** (Priority 4 — default development):
+   - Keywords: implement, add, create, update, fix, build, modify, change
+   - Default tier when no higher-priority tier matches
+
+If confidence <0.70, prompt user: "Override with `--compliance [tier]`"
+
+## Execution
+
+After emitting the classification header as text, proceed based on tier:
+
+- **EXEMPT**: Execute immediately — answer the question or perform the read-only operation. No Skill invocation needed.
+- **LIGHT**: Execute the change directly. No Skill invocation needed for trivial changes.
+- **STANDARD / STRICT**: Invoke the full protocol for tier-appropriate workflow:
+  > Skill sc:task-protocol
+
+## Classification Output Examples
+
+**The ONLY valid tier values are: STRICT, STANDARD, LIGHT, EXEMPT. Do NOT invent other labels (e.g., "ITERATIVE", "IMPLEMENT", "SIMPLE" are INVALID).**
+
+For `/sc:task "fix security vulnerability in auth module"`:
 ```
-/sc:task execute "microservices platform" --strategy enterprise --parallel
-# Enterprise-scale coordination with compliance validation
-# Parallel execution across multiple technical domains
+<!-- SC:TASK-UNIFIED:CLASSIFICATION -->
+TIER: STRICT
+CONFIDENCE: 0.95
+KEYWORDS: security, vulnerability, auth
+OVERRIDE: false
+RATIONALE: Security-critical change in authentication module
+<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
+```
+
+For `/sc:task "explain how the routing middleware works"`:
+```
+<!-- SC:TASK-UNIFIED:CLASSIFICATION -->
+TIER: EXEMPT
+CONFIDENCE: 0.92
+KEYWORDS: explain, how
+OVERRIDE: false
+RATIONALE: Read-only explanation request, no code changes
+<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
+```
+
+For `/sc:task "fix typo in error message"`:
+```
+<!-- SC:TASK-UNIFIED:CLASSIFICATION -->
+TIER: LIGHT
+CONFIDENCE: 0.95
+KEYWORDS: typo, fix
+OVERRIDE: false
+RATIONALE: Trivial single-string correction
+<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
+```
+
+For `/sc:task "add pagination to user list endpoint"`:
+```
+<!-- SC:TASK-UNIFIED:CLASSIFICATION -->
+TIER: STANDARD
+CONFIDENCE: 0.85
+KEYWORDS: add, endpoint
+OVERRIDE: false
+RATIONALE: Typical feature addition, moderate scope
+<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
 ```
 
 ## Boundaries
 
 **Will:**
-- Execute complex tasks with multi-agent coordination and intelligent delegation
-- Provide hierarchical task breakdown with cross-session persistence
-- Coordinate multiple MCP servers and personas for optimal task outcomes
+- Classify tasks into appropriate compliance tiers with confidence scoring
+- Enforce tier-appropriate verification requirements
+- Spawn verification agents for STRICT tier tasks
+- Support user overrides with documented justification
+- Coordinate MCP servers based on tier requirements
+
+**Will:**
+- Enforce TFEP (Test Failure Escalation Protocol) when test failures meet escalation thresholds
+- Block ad-hoc fixes when pre-existing tests fail during task execution
 
 **Will Not:**
-- Execute simple tasks that don't require advanced orchestration
-- Compromise quality standards for speed or convenience
-- Operate without proper validation and quality gates
-
-## CRITICAL BOUNDARIES
-
-**USER-INVOKED DISCRETE TASK EXECUTION**
-
-This command executes specific tasks when explicitly invoked by user.
-
-**Difference from /sc:pm**:
-- `/sc:pm` = session-level orchestration (background monitoring, continuous)
-- `/sc:task` = user-invoked discrete execution (explicit start/end)
-
-**Behavior**:
-- User invokes `/sc:task [description]`
-- Execute the specific task using multi-agent coordination
-- **STOP when task is complete** - do not continue to next tasks without user input
-
-**Completion Criteria**:
-- Task objective achieved
-- All sub-tasks marked completed in TodoWrite
-- Validation passed
-
-**Output**: Task completion report with:
-- What was accomplished
-- Files modified
-- Tests status (if applicable)
-
-**Next Step**: User decides next action. May invoke another `/sc:task` or use specific commands.
+- Skip safety-critical verification for STRICT tasks
+- Apply STRICT overhead to genuinely trivial changes
+- Override user's explicit compliance choice
+- Proceed with <70% confidence without user confirmation
+- Execute unbounded batches (max 15 changes per batch)
+- Use deprecated `/sc:task-mcp` (use `--compliance [tier]` instead)
+- Allow ad-hoc code fixes in response to test failures without TFEP workflow (unless `--no-escalation` is set)
