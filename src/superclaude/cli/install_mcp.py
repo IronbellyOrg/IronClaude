@@ -549,7 +549,7 @@ def install_mcp_server(
         )
 
         if api_key:
-            env_args = ["--env", f"{api_key_env}={api_key}"]
+            env_args = ["-e", f"{api_key_env}={api_key}"]
 
     # Handle global binary requirement (e.g., auggie needs `npm install -g`)
     if "requires_global_binary" in server_info:
@@ -591,7 +591,10 @@ def install_mcp_server(
                 return False
 
     # Build installation command using modern Claude Code API
-    # Format: claude mcp add --transport <transport> [--scope <scope>] [--env KEY=VALUE] <name> -- <command>
+    # Format: claude mcp add [--transport <transport>] [--scope <scope>] <name> [-e KEY=VALUE]... -- <command>
+    # NOTE: <name> must precede `-e` flags. The Claude CLI's `-e` is repeatable per env var
+    # and positional binding requires the server name first; placing `-e` before <name>
+    # causes the next positional to be parsed as a malformed env spec.
 
     cmd = ["claude", "mcp", "add", "--transport", transport]
 
@@ -599,12 +602,12 @@ def install_mcp_server(
     if scope != "local":
         cmd.extend(["--scope", scope])
 
-    # Add environment variables if any
+    # Add server name BEFORE env flags (CLI grammar requirement)
+    cmd.append(server_name)
+
+    # Add environment variables if any (each as `-e KEY=VALUE`, repeatable)
     if env_args:
         cmd.extend(env_args)
-
-    # Add server name
-    cmd.append(server_name)
 
     # Add separator
     cmd.append("--")
