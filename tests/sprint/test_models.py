@@ -42,6 +42,7 @@ class TestPhaseStatus:
             "PASS_NO_SIGNAL",
             "PASS_NO_REPORT",
             "PASS_RECOVERED",
+            "PASS_MISSING_CHECKPOINT",
             "PREFLIGHT_PASS",
             "INCOMPLETE",
             "HALT",
@@ -59,6 +60,7 @@ class TestPhaseStatus:
             (PhaseStatus.PASS, True),
             (PhaseStatus.PASS_NO_SIGNAL, True),
             (PhaseStatus.PASS_NO_REPORT, True),
+            (PhaseStatus.PASS_MISSING_CHECKPOINT, True),
             (PhaseStatus.INCOMPLETE, True),
             (PhaseStatus.HALT, True),
             (PhaseStatus.TIMEOUT, True),
@@ -77,6 +79,7 @@ class TestPhaseStatus:
             (PhaseStatus.PASS, True),
             (PhaseStatus.PASS_NO_SIGNAL, True),
             (PhaseStatus.PASS_NO_REPORT, True),
+            (PhaseStatus.PASS_MISSING_CHECKPOINT, True),
             (PhaseStatus.INCOMPLETE, False),
             (PhaseStatus.HALT, False),
             (PhaseStatus.TIMEOUT, False),
@@ -95,6 +98,7 @@ class TestPhaseStatus:
             (PhaseStatus.PASS, False),
             (PhaseStatus.PASS_NO_SIGNAL, False),
             (PhaseStatus.PASS_NO_REPORT, False),
+            (PhaseStatus.PASS_MISSING_CHECKPOINT, False),
             (PhaseStatus.INCOMPLETE, True),
             (PhaseStatus.HALT, True),
             (PhaseStatus.TIMEOUT, True),
@@ -291,6 +295,20 @@ class TestPhaseResult:
         assert result.last_task_id == ""
         assert result.files_changed == 0
 
+    def test_tui_v2_wave1_defaults(self):
+        """TUI v2 Wave 1 fields default to 0 so python/skip phases work."""
+        result = _make_phase_result()
+        assert result.turns == 0
+        assert result.tokens_in == 0
+        assert result.tokens_out == 0
+
+    def test_tui_v2_wave1_populated(self):
+        """TUI v2 Wave 1 fields round-trip through the dataclass."""
+        result = _make_phase_result(turns=42, tokens_in=1500, tokens_out=7200)
+        assert result.turns == 42
+        assert result.tokens_in == 1500
+        assert result.tokens_out == 7200
+
 
 # ---------------------------------------------------------------------------
 # SprintResult dataclass
@@ -363,6 +381,48 @@ class TestSprintResult:
         cmd = sr.resume_command()
         assert "--start 3" in cmd
         assert "--end 5" in cmd
+
+    # ------------------------------------------------------------------
+    # TUI v2 Wave 1 aggregate properties (v3.7)
+    # ------------------------------------------------------------------
+
+    def test_total_turns_sums_across_phases(self):
+        sr = _make_sprint_result(
+            phase_results=[
+                _make_phase_result(turns=5),
+                _make_phase_result(turns=12),
+                _make_phase_result(turns=3),
+            ]
+        )
+        assert sr.total_turns == 20
+
+    def test_total_tokens_sum(self):
+        sr = _make_sprint_result(
+            phase_results=[
+                _make_phase_result(tokens_in=100, tokens_out=50),
+                _make_phase_result(tokens_in=200, tokens_out=75),
+            ]
+        )
+        assert sr.total_tokens_in == 300
+        assert sr.total_tokens_out == 125
+
+    def test_total_output_bytes_and_files(self):
+        sr = _make_sprint_result(
+            phase_results=[
+                _make_phase_result(output_bytes=1024, files_changed=2),
+                _make_phase_result(output_bytes=2048, files_changed=5),
+            ]
+        )
+        assert sr.total_output_bytes == 3072
+        assert sr.total_files_changed == 7
+
+    def test_aggregates_zero_when_no_phases(self):
+        sr = _make_sprint_result()
+        assert sr.total_turns == 0
+        assert sr.total_tokens_in == 0
+        assert sr.total_tokens_out == 0
+        assert sr.total_output_bytes == 0
+        assert sr.total_files_changed == 0
 
 
 # ---------------------------------------------------------------------------
@@ -438,6 +498,29 @@ class TestMonitorState:
     def test_output_size_display_zero(self):
         ms = MonitorState(output_bytes=0)
         assert ms.output_size_display == "0 B"
+
+    # ------------------------------------------------------------------
+    # TUI v2 Wave 1 field defaults (v3.7)
+    # ------------------------------------------------------------------
+
+    def test_tui_v2_wave1_defaults(self):
+        ms = MonitorState()
+        assert ms.activity_log == []
+        assert ms.turns == 0
+        assert ms.errors == []
+        assert ms.last_assistant_text == ""
+        assert ms.total_tasks_in_phase == 0
+        assert ms.completed_task_estimate == 0
+        assert ms.tokens_in == 0
+        assert ms.tokens_out == 0
+
+    def test_tui_v2_wave1_activity_log_isolated_between_instances(self):
+        """Default factory must not share list across instances."""
+        a = MonitorState()
+        b = MonitorState()
+        a.activity_log.append((0.0, "Read", "foo.py"))
+        assert b.activity_log == []
+        assert len(a.activity_log) == 1
 
 
 # ---------------------------------------------------------------------------

@@ -30,7 +30,7 @@ from .models import (
 from .monitor import OutputMonitor, detect_error_max_turns, detect_prompt_too_long
 from .notify import notify_phase_complete, notify_sprint_complete
 from .process import ClaudeProcess, SignalHandler
-from .tmux import update_tail_pane
+from .tmux import update_summary_pane, update_tail_pane
 from .tui import SprintTUI
 
 from superclaude.cli.pipeline.models import Step, StepResult
@@ -44,6 +44,7 @@ import logging as _logging
 
 _wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
 _anti_instinct_logger = _logging.getLogger("superclaude.sprint.anti_instinct_hook")
+_checkpoint_logger = _logging.getLogger("superclaude.sprint.checkpoint")
 
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
@@ -1142,6 +1143,36 @@ def execute_sprint(config: SprintConfig):
 
     sprint_result = SprintResult(config=config)
 
+    # TUI v2 Wave 3 (v3.7): background phase-summary thread pool. Each
+    # completed phase triggers a daemon thread that re-parses the
+    # stream-json output file, asks Haiku for a narrative, and writes
+    # ``results/phase-<N>-summary.md``. Failures never propagate to the
+    # sprint loop (see SummaryWorker.__doc__).
+    #
+    # TUI v2 Wave 4 (v3.7, F9): the worker's on_summary_ready callback
+    # fans out to either the dedicated tmux summary pane (``:0.1``) or
+    # the TUI's ``latest_summary_notification`` line when running with
+    # ``--no-tmux``. The callback is exception-isolated inside
+    # SummaryWorker so a broken pane or stale session cannot abort the
+    # sprint.
+    from .summarizer import PhaseSummarizer, SummaryWorker
+
+    def _summary_fanout(summary) -> None:
+        path = summary.path
+        if path is None:
+            return
+        session = config.tmux_session_name
+        if session:
+            update_summary_pane(session, path)
+        else:
+            tui.latest_summary_notification = (
+                f"Phase {summary.phase.number} summary ready: {path}"
+            )
+
+    _summary_worker = SummaryWorker(
+        PhaseSummarizer(config), on_summary_ready=_summary_fanout
+    )
+
     # --- v3.1 gap-remediation: infrastructure instantiation (T01–T06) ---
     # T01 (BUG-001/P0): Construct TurnLedger for budget tracking
     ledger = TurnLedger(
@@ -1238,9 +1269,11 @@ def execute_sprint(config: SprintConfig):
             shutil.copy2(phase.file, isolation_dir / phase.file.name)
 
             try:
-                # Reset monitor for this phase
+                # Reset monitor for this phase. Pass phase.file so the
+                # TUI v2 dual progress bar (F3) knows how many tasks live
+                # in the phase without re-scanning every poll tick.
                 output_path = config.output_file(phase)
-                monitor.reset(output_path)
+                monitor.reset(output_path, phase_file=phase.file)
                 monitor.start()
 
                 # Update tmux tail pane if running in tmux
@@ -1400,6 +1433,26 @@ def execute_sprint(config: SprintConfig):
                     error_file=config.error_file(phase),
                 )
 
+                # Wave 2: checkpoint enforcement gate (v3.7). Respects
+                # config.checkpoint_gate_mode (off/shadow/soft/full). Shadow is
+                # the default — emits a `checkpoint_verification` JSONL event
+                # and never alters status. In `full` mode, missing checkpoints
+                # downgrade PASS to PASS_MISSING_CHECKPOINT.
+                if status == PhaseStatus.PASS:
+                    try:
+                        status = _verify_checkpoints(
+                            config=config,
+                            phase=phase,
+                            status=status,
+                            logger=logger,
+                        )
+                    except Exception as _cp_exc:  # noqa: BLE001
+                        _checkpoint_logger.warning(
+                            "Phase %d: checkpoint gate raised %s",
+                            phase.number,
+                            _cp_exc,
+                        )
+
                 # Write executor result file for downstream consumers.
                 # Written AFTER status determination to avoid circularity.
                 # Overwrites any agent-written file — executor is authoritative.
@@ -1427,6 +1480,12 @@ def execute_sprint(config: SprintConfig):
                     error_bytes=error_bytes,
                     last_task_id=monitor.state.last_task_id,
                     files_changed=monitor.state.files_changed,
+                    # TUI v2 Wave 1 (v3.7): capture per-phase totals so
+                    # the terminal panels (F6) and release retrospective
+                    # (F10) can render aggregates across phases.
+                    turns=monitor.state.turns,
+                    tokens_in=monitor.state.tokens_in,
+                    tokens_out=monitor.state.tokens_out,
                 )
 
                 # v3.2-T02: Run post-phase wiring hook for every claude-mode phase
@@ -1437,6 +1496,22 @@ def execute_sprint(config: SprintConfig):
                 )
 
                 sprint_result.phase_results.append(phase_result)
+
+                # TUI v2 Wave 3 (v3.7, §6.4): hook ordering after phase
+                # completion is 1) _verify_checkpoints (already run
+                # above), 2) summary_worker.submit, 3) end-of-sprint
+                # manifest update. Submit is non-blocking; the daemon
+                # thread will write results/phase-N-summary.md and is
+                # exception-isolated from this loop.
+                try:
+                    _summary_worker.submit(phase, phase_result)
+                except Exception as _sw_exc:  # noqa: BLE001 - must not abort
+                    debug_log(
+                        _dbg,
+                        "summary_worker_submit_error",
+                        phase=phase.number,
+                        error=str(_sw_exc),
+                    )
 
                 debug_log(
                     _dbg,
@@ -1505,6 +1580,34 @@ def execute_sprint(config: SprintConfig):
             if not all(r.status.is_success for r in sprint_result.phase_results):
                 sprint_result.outcome = SprintOutcome.ERROR
 
+        # TUI v2 Wave 3 (v3.7, F10): wait for any in-flight per-phase
+        # summary threads to finish, then generate the release
+        # retrospective. Blocking — runs before the terminal panel so
+        # operators see a "retrospective ready" state, not a partial one.
+        # Capped at a generous timeout because Haiku is 30s per phase;
+        # if summaries are still running after the cap we take what we
+        # have and move on (never abort sprint wrap-up).
+        try:
+            _summary_worker.wait(timeout=90.0)
+        except Exception as _sw_wait_exc:  # noqa: BLE001 - defensive
+            debug_log(
+                _dbg,
+                "summary_worker_wait_error",
+                error=str(_sw_wait_exc),
+            )
+        try:
+            from .retrospective import RetrospectiveGenerator
+
+            RetrospectiveGenerator(config).generate(
+                sprint_result, _summary_worker.get_summaries()
+            )
+        except Exception as _retro_exc:  # noqa: BLE001 - defensive
+            debug_log(
+                _dbg,
+                "retrospective_error",
+                error=str(_retro_exc),
+            )
+
         tui.update(sprint_result, MonitorState(), None)
 
         # T07 (BUG-007/P3): Build KPI report from accumulated gate results
@@ -1516,6 +1619,31 @@ def execute_sprint(config: SprintConfig):
         )
         kpi_path = config.results_dir / "gate-kpi-report.md"
         kpi_path.write_text(kpi_report.format_report())
+
+        # Wave 3 (v3.7): write the checkpoint manifest and emit a
+        # `checkpoint_manifest` JSONL event so post-sprint tooling has a
+        # single source of truth for checkpoint completeness.
+        try:
+            from .checkpoints import build_manifest, write_manifest
+
+            _manifest = build_manifest(config.index_path, config.release_dir)
+            _manifest_path = config.release_dir / "manifest.json"
+            write_manifest(_manifest, _manifest_path)
+            _manifest_total = len(_manifest)
+            _manifest_found = sum(1 for _e in _manifest if _e.exists)
+            logger._jsonl(  # noqa: SLF001
+                {
+                    "event": "checkpoint_manifest",
+                    "path": str(_manifest_path),
+                    "total": _manifest_total,
+                    "found": _manifest_found,
+                    "missing": _manifest_total - _manifest_found,
+                }
+            )
+        except Exception as _mf_exc:  # noqa: BLE001
+            _checkpoint_logger.warning(
+                "Sprint end: checkpoint manifest write failed: %s", _mf_exc
+            )
 
         logger.write_summary(sprint_result)
         notify_sprint_complete(sprint_result)
@@ -1587,6 +1715,89 @@ def _classify_from_result_file(
     if re.search(r"status:\s*PARTIAL\b", content, re.IGNORECASE):
         return PhaseStatus.INCOMPLETE
     return None
+
+
+def _verify_checkpoints(
+    config: SprintConfig,
+    phase: Phase,
+    status: PhaseStatus,
+    logger: SprintLogger,
+) -> PhaseStatus:
+    """Wave 2 checkpoint enforcement gate.
+
+    After ``_determine_phase_status()`` returns a PASS-like status, parses the
+    phase tasklist for ``Checkpoint Report Path:`` declarations, verifies the
+    referenced files exist, emits a ``checkpoint_verification`` JSONL event,
+    and reacts based on ``config.checkpoint_gate_mode``:
+
+    - ``off``    — no action
+    - ``shadow`` — JSONL event only (default)
+    - ``soft``   — JSONL event + stdout warning
+    - ``full``   — JSONL event + downgrade status to ``PASS_MISSING_CHECKPOINT``
+                   when any declared checkpoint file is missing
+
+    Returns the (possibly downgraded) status. Exceptions are swallowed so a
+    scanner fault never breaks the phase completion flow.
+    """
+    mode = getattr(config, "checkpoint_gate_mode", "shadow")
+    if mode == "off":
+        return status
+
+    # Late import: shared parsing module (Wave 2 T02.01).
+    from .checkpoints import extract_checkpoint_paths, verify_checkpoint_files
+
+    try:
+        declared = extract_checkpoint_paths(phase.file, config.release_dir)
+    except Exception as exc:  # noqa: BLE001
+        _checkpoint_logger.warning(
+            "Phase %d: checkpoint scan raised %s", phase.number, exc
+        )
+        return status
+
+    if not declared:
+        return status  # No checkpoint sections → nothing to verify.
+
+    verified = verify_checkpoint_files(declared)
+    expected = [str(p) for _name, p in declared]
+    found = [str(p) for _name, p, ok in verified if ok]
+    missing = [str(p) for _name, p, ok in verified if not ok]
+
+    try:
+        logger.write_checkpoint_verification(
+            phase=phase.number,
+            expected=expected,
+            found=found,
+            missing=missing,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _checkpoint_logger.warning(
+            "Phase %d: failed to emit checkpoint_verification event: %s",
+            phase.number,
+            exc,
+        )
+
+    if not missing:
+        return status
+
+    for name, path, _ok in verified:
+        if _ok:
+            continue
+        _checkpoint_logger.warning(
+            "Phase %d: checkpoint report missing — %s (expected at %s)",
+            phase.number,
+            name,
+            path,
+        )
+
+    if mode == "soft":
+        print(
+            f"⚠ Phase {phase.number}: {len(missing)} checkpoint report(s) "
+            f"missing — see execution-log.jsonl for details"
+        )
+    elif mode == "full":
+        return PhaseStatus.PASS_MISSING_CHECKPOINT
+
+    return status
 
 
 def _check_checkpoint_pass(config: SprintConfig, phase: Phase) -> bool:

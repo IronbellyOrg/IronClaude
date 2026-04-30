@@ -518,7 +518,7 @@ Follow the sprint monitor pattern exactly — incremental NDJSON tail with signa
 
 ## Template: `process.py`
 
-Follow the sprint process pattern — subclass pipeline `ClaudeProcess`, specialize the constructor for domain config, and implement `build_prompt()` that constructs the step's prompt with proper `/sc:task-unified` framing. See `src/superclaude/cli/sprint/process.py`.
+Follow the sprint process pattern — subclass pipeline `ClaudeProcess`, specialize the constructor for domain config, and implement `build_prompt()` that constructs the step's prompt with proper `/sc:task` framing. See `src/superclaude/cli/sprint/process.py`.
 
 ## Template: `tui.py`
 

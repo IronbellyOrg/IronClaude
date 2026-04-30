@@ -23,7 +23,7 @@ def build_surface_scan_prompt(
     """Build prompt for Pass 1: Surface scanning (file classification)."""
     file_list = "\n".join(f"- {f}" for f in batch_files)
     return (
-        f"/sc:task-unified Perform a surface-level scan of the following files "
+        f"/sc:task Perform a surface-level scan of the following files "
         f"and classify each as DELETE, REVIEW, or KEEP with grep evidence.\n\n"
         f"## Files to Scan\n{file_list}\n\n"
         f"## Output Requirements\n"
@@ -44,7 +44,7 @@ def build_structural_analysis_prompt(
     """Build prompt for Pass 2: Deep structural analysis (per-file profiles)."""
     file_list = "\n".join(f"- {f}" for f in batch_files)
     return (
-        f"/sc:task-unified Perform deep structural analysis producing "
+        f"/sc:task Perform deep structural analysis producing "
         f"mandatory 8-field per-file profiles with evidence.\n\n"
         f"## Prior Context\n"
         f"Surface scan results are available at: {surface_results}\n\n"
@@ -66,7 +66,7 @@ def build_cross_cutting_prompt(
 ) -> str:
     """Build prompt for Pass 3: Cross-cutting analysis (duplication, sprawl)."""
     return (
-        f"/sc:task-unified Detect duplication, sprawl, and consolidation "
+        f"/sc:task Detect duplication, sprawl, and consolidation "
         f"opportunities across the codebase.\n\n"
         f"## Prior Context\n"
         f"Structural analysis results are available at: {structural_results}\n\n"
@@ -89,7 +89,7 @@ def build_consolidation_prompt(
 ) -> str:
     """Build prompt for Pass 4: Consolidation and summary with deduplication."""
     return (
-        f"/sc:task-unified Consolidate audit findings into a final summary "
+        f"/sc:task Consolidate audit findings into a final summary "
         f"report with deduplication evidence.\n\n"
         f"## Prior Context\n"
         f"Cross-cutting analysis results: {cross_cutting_results}\n\n"
@@ -113,7 +113,7 @@ def build_validation_prompt(
 ) -> str:
     """Build prompt for Pass 5: Validation of audit findings."""
     return (
-        f"/sc:task-unified Validate audit findings by spot-checking claims "
+        f"/sc:task Validate audit findings by spot-checking claims "
         f"against actual codebase state.\n\n"
         f"## Prior Context\n"
         f"Consolidation report: {consolidation_results}\n\n"
