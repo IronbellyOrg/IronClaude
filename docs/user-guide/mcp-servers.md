@@ -140,6 +140,20 @@ export MORPH_API_KEY="your_key_here"
 export TAVILY_API_KEY="tvly-your_api_key_here"
 ```
 
+### auggie 🧠
+**Purpose**: Augment Code semantic codebase search and retrieval
+**Triggers**: Natural-language questions about an unfamiliar codebase, architectural concepts, cross-file recall before significant edits
+**Requirements**: Node.js 18+, global `@augmentcode/auggie` install, one-time `auggie login` (or `AUGMENT_SESSION_AUTH` env var)
+**Tools**: `codebase-retrieval`, `ask_question`, `implement`
+
+```bash
+# Install via SuperClaude (handles npm install -g + claude mcp add)
+superclaude mcp --servers auggie
+
+# One-time auth after install
+auggie login
+```
+
 ### chrome-devtools 📊
 **Purpose**: Performance analysis, debugging, and real-time browser inspection
 **Triggers**: Performance auditing, debugging layout issues (e.g., CLS), slow loading times (LCP), console errors, network requests

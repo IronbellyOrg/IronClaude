@@ -1,0 +1,9 @@
+{
+  "auggie": {
+    "command": "auggie",
+    "args": [
+      "--mcp",
+      "--mcp-auto-workspace"
+    ]
+  }
+}
