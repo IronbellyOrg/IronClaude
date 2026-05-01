@@ -1,14 +1,31 @@
 # Design — `ClaudeProcess` stdin-delivery patch for prompts exceeding `MAX_ARG_STRLEN`
 
+> **HISTORICAL — superseded by [`RECONCILED_DESIGN.md`](RECONCILED_DESIGN.md) on 2026-05-01.**
+> This document is preserved as the adversarial-debate record. It was authored
+> against the pipx-installed (older) `superclaude` package, before commit
+> `4799719` (Apr 20 2026) was discovered already in `feat/tdd-spec-merge`.
+> `4799719` had landed an always-stdin form predating this design exercise,
+> and commit `39d5100` added an unrelated `tool_write_mode` feature that this
+> document does not contemplate. Applying this design verbatim would
+> partially clobber working code.
+>
+> `RECONCILED_DESIGN.md` (in this directory) is the actionable plan. It is a
+> strict subset of this document's intent, scoped to the delta still needed
+> on top of `4799719` + `39d5100`. The `reconciliation/` subdirectory has the
+> full evidence trail (commit history, code state, design-claim catalog, test
+> coverage map, reconciliation matrix).
+
 | Field             | Value                                                                                          |
 |-------------------|------------------------------------------------------------------------------------------------|
-| Status            | Approved by /sc:adversarial (87% convergence); Risk #1 verified 2026-04-30 on `claude 2.1.123` |
+| Status            | HISTORICAL — superseded by RECONCILED_DESIGN.md (2026-05-01)                                   |
+| Original status   | Approved by /sc:adversarial (87% convergence); Risk #1 verified 2026-04-30 on `claude 2.1.123` |
 | Type              | Component design (subprocess lifecycle)                                                        |
 | Owner             | SuperClaude framework — pipeline subsystem                                                     |
 | Source-of-truth   | `src/superclaude/cli/pipeline/process.py`                                                      |
 | Active path       | `.claude/.../pipeline/process.py` (synced via `make sync-dev`)                                 |
 | Date              | 2026-04-30                                                                                     |
 | Adversarial input | `.dev/architectural/claude-process-stdin-patch/adversarial/merged-output.md`                   |
+| Reconciled spec   | `.dev/architectural/claude-process-stdin-patch/RECONCILED_DESIGN.md`                           |
 
 ---
 
