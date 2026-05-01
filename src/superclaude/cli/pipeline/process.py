@@ -21,6 +21,25 @@ from typing import Callable, Optional
 _log = logging.getLogger("superclaude.pipeline.process")
 
 
+# Default 16 MiB; env-overridable for operators with exotic workflows.
+# This is a sanity guard, not a kernel limit -- Linux MAX_ARG_STRLEN no
+# longer applies because the prompt is delivered via stdin (since 4799719).
+PROMPT_MAX_BYTES: int = int(
+    os.environ.get("SUPERCLAUDE_PROMPT_MAX_BYTES", 16 * 1024 * 1024)
+)
+
+
+class PromptTooLargeForArgv(ValueError):
+    """Raised pre-spawn when the encoded prompt exceeds PROMPT_MAX_BYTES.
+
+    Subclass of ValueError so callers catching ValueError keep working.
+    Name preserved from DESIGN.md for traceability; under always-stdin the
+    underlying failure mode is "child memory exhaustion" rather than the
+    original "argv overflow", but the typed exception still distinguishes
+    user-supplied-too-large from arbitrary OSError/MemoryError.
+    """
+
+
 class ClaudeProcess:
     """Manages a single claude -p subprocess with signal handling.
 
