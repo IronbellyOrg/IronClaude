@@ -134,6 +134,16 @@ class ClaudeProcess:
         """Launch the claude process."""
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
 
+        # Sanity guard before any handle/process is created. Encode once
+        # here so the result is reused for the stdin write below (P-004).
+        prompt_bytes = self.prompt.encode("utf-8") if self.prompt else b""
+        if len(prompt_bytes) > PROMPT_MAX_BYTES:
+            raise PromptTooLargeForArgv(
+                f"prompt is {len(prompt_bytes)} bytes; "
+                f"PROMPT_MAX_BYTES={PROMPT_MAX_BYTES}"
+            )
+        self._prompt_bytes = prompt_bytes  # consumed by stdin write below
+
         if self.tool_write_mode:
             # LLM writes output_file via Write tool; stdout goes to .log
             self._stdout_fh = open(self.output_file.with_suffix(".log"), "w")

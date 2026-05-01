@@ -14,7 +14,10 @@ from unittest.mock import patch
 import pytest
 
 from superclaude.cli.cli_portify.process import PortifyProcess
-from superclaude.cli.pipeline.process import ClaudeProcess
+from superclaude.cli.pipeline.process import (
+    ClaudeProcess,
+    PromptTooLargeForArgv,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -107,3 +110,55 @@ class TestPortifyAnchor:
             "Repeated build_command() must produce equal argv; mutation between calls "
             "would indicate the dual-add-dir logic accretes onto the base cmd."
         )
+
+
+# ---------------------------------------------------------------------------
+# T-004 -- PROMPT_MAX_BYTES pre-spawn guard (P-003)
+# ---------------------------------------------------------------------------
+
+
+class TestPromptMaxBytesGuard:
+    """P-003: oversized prompts raise pre-spawn; no file or process side effects."""
+
+    def test_prompt_max_bytes_guard(self, tmp_path, monkeypatch):
+        """T-004: prompt > PROMPT_MAX_BYTES raises before any handle/process is created."""
+        # Shrink the cap so we can test cheaply without allocating 16 MiB.
+        monkeypatch.setattr(
+            "superclaude.cli.pipeline.process.PROMPT_MAX_BYTES", 1024
+        )
+
+        out_file = tmp_path / "out.txt"
+        err_file = tmp_path / "err.txt"
+        oversize = "z" * 2048  # 2 KiB > 1 KiB cap
+        proc = ClaudeProcess(
+            prompt=oversize,
+            output_file=out_file,
+            error_file=err_file,
+        )
+
+        with pytest.raises(PromptTooLargeForArgv) as excinfo:
+            proc.start()
+
+        # The exception is a ValueError subclass for backward-compat.
+        assert isinstance(excinfo.value, ValueError)
+        # Pre-spawn: no Popen ran, no file artifacts on disk.
+        assert proc._process is None
+        assert not out_file.exists()
+        assert not err_file.exists()
+
+    def test_prompt_under_cap_passes_guard(self, tmp_path, monkeypatch):
+        """A prompt at or below PROMPT_MAX_BYTES does not raise from the guard."""
+        monkeypatch.setattr(
+            "superclaude.cli.pipeline.process.PROMPT_MAX_BYTES", 1024
+        )
+        proc = ClaudeProcess(
+            prompt="x" * 1024,  # exactly at cap -- not over
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        # Patch build_command so we don't actually shell out to a missing claude.
+        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+            proc.start()
+            rc = proc.wait()
+        assert rc == 0
+        assert proc._prompt_bytes == b"x" * 1024
