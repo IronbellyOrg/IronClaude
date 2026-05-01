@@ -356,3 +356,38 @@ class TestToolWriteMode:
         assert out_file.read_text() == "STDOUT_CONTENT"
         assert not out_file.with_suffix(".log").exists()
         assert proc.validate_tool_write_output() is True  # noop when mode is off
+
+
+# ---------------------------------------------------------------------------
+# T-001 -- argv byte-size invariant for huge prompts
+# ---------------------------------------------------------------------------
+
+
+class TestArgvByteSizeInvariant:
+    """No argv element approaches Linux MAX_ARG_STRLEN (128 KiB) regardless of prompt size.
+
+    Under always-stdin (since 4799719) the prompt is never argv-passed, so
+    argv consists only of fixed flags + model + extra_args. This invariant
+    is what makes the original E2BIG failure mode mechanically impossible.
+    """
+
+    def test_argv_total_byte_size_bounded_for_huge_prompt(self, tmp_path):
+        """T-001: every argv element is well under MAX_ARG_STRLEN even for a 400 KB prompt."""
+        huge = "q" * (400 * 1024)
+        proc = ClaudeProcess(
+            prompt=huge,
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        cmd = proc.build_command()
+        max_element = max(len(arg.encode("utf-8")) for arg in cmd)
+        # Cap at 4 KiB -- every real argv element (flag, value, model name,
+        # path) is at most a few hundred bytes. 4 KiB gives generous headroom
+        # while flagging any future regression that smuggles the prompt in.
+        assert max_element < 4 * 1024, (
+            f"largest argv element is {max_element} bytes; if this approaches "
+            f"128 KiB the prompt has leaked back into argv."
+        )
+        # Defensive: prompt content is not anywhere in argv.
+        assert huge not in cmd
+        assert not any(huge in arg for arg in cmd)
