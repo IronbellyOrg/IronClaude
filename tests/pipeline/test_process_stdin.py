@@ -283,3 +283,76 @@ class TestChunkedStdinWrite:
             assert isinstance(proc._stdin_error, (BrokenPipeError, OSError))
             warnings = [r for r in caplog.records if "stdin_error" in r.message]
             assert warnings, "BrokenPipe must surface as a WARNING log"
+
+
+# ---------------------------------------------------------------------------
+# T-007 -- tool_write_mode regression test (P-005)
+# ---------------------------------------------------------------------------
+
+
+class TestToolWriteMode:
+    """P-005: pin tool_write_mode dual-stdout-handle contract.
+
+    tool_write_mode was added in commit 39d5100; DESIGN.md predates it.
+    Any reshape of start() (as P-004 does) must preserve the path that
+    redirects stdout to output_file.with_suffix('.log') when the LLM is
+    expected to write output_file via the Write tool. This test is the
+    regression guard.
+    """
+
+    def test_tool_write_mode_redirects_stdout_to_log_sidecar(self, tmp_path):
+        """T-007: tool_write_mode=True routes stdout to .log sibling, not output_file."""
+        # Stand-in writes to stdout but NOT to output_file. Under
+        # tool_write_mode, stdout lands in the .log sidecar; output_file
+        # is left for the LLM (who isn't here) to write.
+        emit_to_stdout = [
+            sys.executable,
+            "-c",
+            "import sys; sys.stdout.write('ROUTED_TO_STDOUT')",
+        ]
+        out_file = tmp_path / "out.md"
+        proc = ClaudeProcess(
+            prompt="x",
+            output_file=out_file,
+            error_file=tmp_path / "err.txt",
+            tool_write_mode=True,
+        )
+        with patch.object(ClaudeProcess, "build_command", return_value=emit_to_stdout):
+            proc.start()
+            rc = proc.wait()
+        assert rc == 0
+
+        # stdout landed in the .log sidecar, NOT in output_file.
+        log_sidecar = out_file.with_suffix(".log")
+        assert log_sidecar.exists(), "tool_write_mode must open the .log sibling for stdout"
+        assert log_sidecar.read_text() == "ROUTED_TO_STDOUT"
+        assert not out_file.exists(), "output_file is reserved for the LLM in tool_write_mode"
+
+        # validate_tool_write_output() returns False when output_file is missing/empty.
+        assert proc.validate_tool_write_output() is False
+
+        # And True once output_file is created with content.
+        out_file.write_text("LLM-PRODUCED CONTENT")
+        assert proc.validate_tool_write_output() is True
+
+    def test_tool_write_mode_false_keeps_stdout_in_output_file(self, tmp_path):
+        """Default (tool_write_mode=False) keeps stdout in output_file."""
+        emit_to_stdout = [
+            sys.executable,
+            "-c",
+            "import sys; sys.stdout.write('STDOUT_CONTENT')",
+        ]
+        out_file = tmp_path / "out.md"
+        proc = ClaudeProcess(
+            prompt="x",
+            output_file=out_file,
+            error_file=tmp_path / "err.txt",
+            tool_write_mode=False,
+        )
+        with patch.object(ClaudeProcess, "build_command", return_value=emit_to_stdout):
+            proc.start()
+            rc = proc.wait()
+        assert rc == 0
+        assert out_file.read_text() == "STDOUT_CONTENT"
+        assert not out_file.with_suffix(".log").exists()
+        assert proc.validate_tool_write_output() is True  # noop when mode is off
