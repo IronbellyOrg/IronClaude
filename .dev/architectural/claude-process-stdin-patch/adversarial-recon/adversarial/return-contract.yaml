@@ -1,0 +1,105 @@
+# Return Contract — /sc:adversarial pipeline output
+# Pipeline: asymmetric A/B compare mode (variant A=implementation diff, variant B=spec)
+# Branch: fix/claude-process-stdin-large-prompts
+# Date: 2026-04-30
+
+merged_output_path: ".dev/architectural/claude-process-stdin-patch/adversarial-recon/merged-output.md"
+
+convergence_score: 0.825    # average of impl 0.85 + spec 0.80; threshold 0.80; passed
+
+artifacts_dir: ".dev/architectural/claude-process-stdin-patch/adversarial-recon/adversarial/"
+
+status: success
+
+base_variant: "B-as-base"   # spec-frame; see base-selection.md §3-§4
+                            # margin 5.0% over A-as-base; tiebreaker = user-stated-goal alignment
+
+unresolved_conflicts: 0
+# Per merge-log.md §5.4: all 5 R3 disagreements have a named owner and resolution path:
+#   - W-H1 enforcement mechanism: routed to repo-admin (not blocking)
+#   - W-M10 telemetry coverage: routed to D-FOLLOW (Beat-2)
+#   - Subclass-test scope: P-007 narrow + P-008 parametric (both land R3)
+#   - §4 P-004 amendment scope: P-010 same-PR commit (spec-keeper)
+#   - U-033/U-034 verification: PR-description amendment (D-FOLLOW-003 pre-merge)
+
+fallback_mode: false
+
+failure_stage: null
+
+invocation_method: "skill-direct"
+# Invoked from sc-adversarial-protocol skill in main session;
+# advocate rounds, invariant probe, and synthesizer all executed end-to-end.
+
+unaddressed_invariants: []
+# Per debate-transcript.md "Convergence assessment":
+#   - HIGH UNADDRESSED: 0 (INV-004 + INV-025 ADDRESSED via P-006 + P-007 in R3)
+#   - MEDIUM UNADDRESSED: 1 (INV-005 — file-handle leak on non-OSError mid-flight;
+#                            DEFERRED to D-FOLLOW-004 with maintainer owner; not protocol-blocking)
+#   - All HIGH-severity items have R3 remediation with file:line, owner, and acceptance.
+
+# --- Auxiliary metadata (informational) ---
+
+pipeline_depth: 3   # R1 + R2 + R2.5 (invariant probe) + R3
+rounds_executed:
+  - round: 1
+    type: parallel-advocates
+    score_impl: 0.65
+    score_spec: 0.55
+  - round: 2
+    type: rebuttals
+    score_impl: 0.78
+    score_spec: 0.70
+  - round: 2.5
+    type: invariant-probe
+    findings_high: 2
+    findings_medium: 6
+    findings_low: 8
+    findings_addressed: 14
+    new_vs_f: 8
+  - round: 3
+    type: final-positions
+    score_impl: 0.85
+    score_spec: 0.80
+    convergence_achieved: true
+
+high_unaddressed_remediation:
+  INV-004:
+    refactor_id: P-006
+    file: "src/superclaude/cli/prd/process.py:277"
+    owner: "branch author"
+    landed_in: "R3 (in-PR)"
+  INV-025:
+    refactor_id: P-007
+    file: "tests/pipeline/test_prd_process_stdin.py (new file)"
+    owner: "branch author"
+    landed_in: "R3 (in-PR)"
+    follow_up_for_contract_closure: P-008
+    follow_up_owner: "spec-keeper (same-PR separate commit)"
+
+new_vs_f_count: 8
+medium_drift_count: 5
+substantive_contradiction_count: 3
+spec_coverage_code_surface: 1.00
+spec_coverage_test_surface: 1.00
+spec_coverage_process_surface: 0.10
+spec_coverage_weighted: 0.865
+
+artifact_files:
+  - path: "adversarial-recon/merged-output.md"
+    role: "headline deliverable"
+    size_kb_approx: 22
+  - path: "adversarial-recon/adversarial/base-selection.md"
+    role: "Step 3 frame selection"
+    size_kb_approx: 12
+  - path: "adversarial-recon/adversarial/refactor-plan.md"
+    role: "Step 4 remediation plan (18 changes)"
+    size_kb_approx: 17
+  - path: "adversarial-recon/adversarial/merge-log.md"
+    role: "Step 5 execution log"
+    size_kb_approx: 15
+  - path: "adversarial-recon/adversarial/debate-transcript.md"
+    role: "full 3-round transcript"
+    size_kb_approx: 18
+  - path: "adversarial-recon/adversarial/return-contract.yaml"
+    role: "this file"
+    size_kb_approx: 1
