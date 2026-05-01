@@ -166,24 +166,67 @@ class ClaudeProcess:
         # (128 KB per-argv-entry) kernel ceiling. Deadlock-safe: stdout/stderr
         # are real file handles, not pipes, so the parent never reads from the
         # child and a blocked stdin write cannot deadlock.
-        try:
-            if self._process.stdin is not None:
-                self._process.stdin.write(self.prompt.encode("utf-8"))
-                self._process.stdin.close()
-        except BrokenPipeError:
-            # Child exited before reading stdin; wait() will surface the exit code.
-            pass
+        #
+        # Chunked write protects against (a) parent-thread stall on a full
+        # kernel pipe buffer (typically 64 KiB on Linux) by yielding control
+        # between syscalls, (b) EINTR from signal delivery, (c) silent
+        # BrokenPipe masking. Errors are captured in self._stdin_error and
+        # surfaced via _log.warning from wait()/terminate().
+        self._stdin_error: Optional[BaseException] = None
+        self._write_prompt_to_stdin(self._prompt_bytes)
 
         if self._on_spawn is not None:
             self._on_spawn(self._process.pid)
 
         _log.debug(
-            "spawn pid=%d cmd=%s",
+            "spawn pid=%d cmd=%s prompt_bytes=%d",
             self._process.pid,
             str(self.build_command()[:3]),
+            len(self._prompt_bytes),
         )
 
         return self._process
+
+    _STDIN_CHUNK_SIZE = 64 * 1024  # match typical Linux pipe-buffer size
+
+    def _write_prompt_to_stdin(self, payload: bytes) -> None:
+        """Write payload to child stdin in chunks; close stdin in finally.
+
+        Uses os.write on the underlying FD so EINTR can be retried explicitly
+        (Python's BufferedWriter does not surface InterruptedError reliably
+        on partial writes). Closes stdin in finally so claude --print receives
+        EOF even on unexpected exception (BrokenPipe, OSError, etc.). Errors
+        land in self._stdin_error rather than propagating out of start().
+        """
+        if self._process is None or self._process.stdin is None:
+            return
+        fd = self._process.stdin.fileno()
+        try:
+            view = memoryview(payload)
+            offset = 0
+            while offset < len(view):
+                chunk = view[offset:offset + self._STDIN_CHUNK_SIZE]
+                while True:
+                    try:
+                        n = os.write(fd, chunk)
+                        break
+                    except InterruptedError:
+                        # EINTR from signal delivery -- retry the same chunk.
+                        continue
+                if n <= 0:
+                    # Defensive -- os.write should not return 0 on a pipe.
+                    break
+                offset += n
+        except BrokenPipeError as exc:
+            # Child exited before reading stdin; surface in wait()/terminate().
+            self._stdin_error = exc
+        except OSError as exc:
+            self._stdin_error = exc
+        finally:
+            try:
+                self._process.stdin.close()
+            except Exception:  # pragma: no cover -- defensive
+                pass
 
     def wait(self) -> int:
         """Wait for the process with timeout. Returns exit code."""
@@ -194,6 +237,10 @@ class ClaudeProcess:
             return 124  # match bash timeout exit code
 
         rc = self._process.returncode if self._process.returncode is not None else -1
+        if getattr(self, "_stdin_error", None) is not None:
+            _log.warning(
+                "stdin_error pid=%s err=%r", self._process.pid, self._stdin_error
+            )
         if self._on_exit is not None:
             self._on_exit(self._process.pid, rc)
         self._close_handles()
@@ -238,6 +285,10 @@ class ClaudeProcess:
             self._process.pid,
             self._process.returncode,
         )
+        if getattr(self, "_stdin_error", None) is not None:
+            _log.warning(
+                "stdin_error pid=%s err=%r", self._process.pid, self._stdin_error
+            )
         if self._on_exit is not None:
             self._on_exit(self._process.pid, self._process.returncode)
         self._close_handles()

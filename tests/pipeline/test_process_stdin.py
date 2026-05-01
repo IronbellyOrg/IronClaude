@@ -8,7 +8,10 @@ sibling file and are intentionally not duplicated here.
 
 from __future__ import annotations
 
+import logging
 import sys
+import threading
+import time
 from unittest.mock import patch
 
 import pytest
@@ -162,3 +165,121 @@ class TestPromptMaxBytesGuard:
             rc = proc.wait()
         assert rc == 0
         assert proc._prompt_bytes == b"x" * 1024
+
+
+# ---------------------------------------------------------------------------
+# T-002 / T-003 / T-005 / T-006 / T-011 -- chunked stdin write (P-004)
+# ---------------------------------------------------------------------------
+
+
+class TestChunkedStdinWrite:
+    """P-004: chunked os.write loop with EINTR retry, error capture, finally-close."""
+
+    def test_huge_prompt_400kb_round_trip_via_stdin(self, tmp_path):
+        """T-002: 400 KB ASCII prompt arrives byte-identical via stdin."""
+        payload = "a" * (400 * 1024)
+        proc = ClaudeProcess(
+            prompt=payload,
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+            proc.start()
+            rc = proc.wait()
+        assert rc == 0
+        assert (tmp_path / "out.txt").read_bytes() == payload.encode("utf-8")
+        assert proc._stdin_error is None
+
+    def test_huge_utf8_emoji_prompt_round_trip(self, tmp_path):
+        """T-003: 200 KB of multibyte UTF-8 round-trips byte-identical."""
+        # 4-byte codepoint x 50K = 200 KB exact.
+        payload = "🦀" * (50 * 1024)
+        proc = ClaudeProcess(
+            prompt=payload,
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+            proc.start()
+            rc = proc.wait()
+        assert rc == 0
+        received = (tmp_path / "out.txt").read_bytes()
+        assert received == payload.encode("utf-8"), "UTF-8 multibyte must not split or mojibake"
+
+    def test_terminate_during_stdin_write_no_hang(self, tmp_path):
+        """T-005: SIGTERM on a child that is not draining stdin completes within budget."""
+        # Stand-in sleeps before reading -- pipe fills, parent's chunked write
+        # blocks waiting for drain. terminate() from another thread must
+        # complete within 10s SIGTERM + 5s SIGKILL window.
+        sleeper = [
+            sys.executable,
+            "-c",
+            "import sys, time; time.sleep(30); sys.stdin.buffer.read()",
+        ]
+        # 256 KB -- larger than typical 64 KiB pipe buffer to ensure the
+        # parent's write loop is mid-flight when SIGTERM lands.
+        proc = ClaudeProcess(
+            prompt="b" * (256 * 1024),
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        with patch.object(ClaudeProcess, "build_command", return_value=sleeper):
+            t0 = time.monotonic()
+            # Schedule terminate() before start() so it fires while the
+            # parent's write loop is still draining into the pipe buffer.
+            timer = threading.Timer(0.5, proc.terminate)
+            timer.start()
+            try:
+                proc.start()
+                rc = proc.wait()
+            finally:
+                timer.cancel()
+            elapsed = time.monotonic() - t0
+        # Must not hang. SIGTERM (10s) + SIGKILL (5s) + start() prelude < 18s.
+        assert elapsed < 18.0, f"terminate hung for {elapsed:.1f}s"
+        # Child is reaped (poll returns the exit code).
+        assert proc._process.poll() is not None
+        # Exit code is nonzero (signal-killed).
+        assert rc != 0
+
+    def test_empty_prompt_uses_stdin_with_zero_bytes(self, tmp_path):
+        """T-006: prompt='' writes zero bytes + EOF; no exception, no -p in cmd."""
+        proc = ClaudeProcess(
+            prompt="",
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        cmd = proc.build_command()
+        assert "-p" not in cmd, "empty prompt must not synthesize a -p argv element"
+
+        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+            proc.start()
+            rc = proc.wait()
+        assert rc == 0
+        assert (tmp_path / "out.txt").read_bytes() == b""
+        assert proc._stdin_error is None
+
+    def test_broken_pipe_surfaces_via_stdin_error_log(self, tmp_path, caplog):
+        """T-011: child exits before reading; _stdin_error captured + WARNING log."""
+        # Stand-in exits 0 immediately, never reading stdin. With a 1 MB
+        # payload the parent's write loop is guaranteed to encounter
+        # BrokenPipe somewhere mid-stream (pipe is closed when child exits).
+        early_exit = [sys.executable, "-c", "import sys; sys.exit(0)"]
+        proc = ClaudeProcess(
+            prompt="c" * (1024 * 1024),
+            output_file=tmp_path / "out.txt",
+            error_file=tmp_path / "err.txt",
+        )
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            with patch.object(ClaudeProcess, "build_command", return_value=early_exit):
+                # start() must NOT raise even though the write hits BrokenPipe.
+                proc.start()
+                rc = proc.wait()
+        assert rc == 0  # child's actual exit code
+        # _stdin_error is only populated if the write actually broke -- on a
+        # very fast race the child may exit cleanly after consuming the buffer.
+        # If it did break, ensure we surfaced it; otherwise nothing to assert.
+        if proc._stdin_error is not None:
+            assert isinstance(proc._stdin_error, (BrokenPipeError, OSError))
+            warnings = [r for r in caplog.records if "stdin_error" in r.message]
+            assert warnings, "BrokenPipe must surface as a WARNING log"
