@@ -1,6 +1,6 @@
 ---
 name: sc:validate-tests-protocol
-description: Validate tier classification behavior against YAML test specifications. Self-validation skill for /sc-task-unified command testing.
+description: Validate tier classification behavior against YAML test specifications. Self-validation skill for /sc-task command testing.
 allowed-tools: Read, Glob, Grep, TodoWrite
 ---
 
@@ -20,8 +20,8 @@ Self-validation skill that enables Claude to test its own tier classification an
 
 ### Explicit Invocation
 ```bash
-/sc:validate-tests tests/sc-task-unified/
-/sc:validate-tests tests/sc-task-unified/test_tier_classification.yaml
+/sc:validate-tests tests/sc-task/
+/sc:validate-tests tests/sc-task/test_tier_classification.yaml
 /sc:validate-tests --all
 ```
 
@@ -42,7 +42,7 @@ Self-validation skill that enables Claude to test its own tier classification an
 
 | Flag | Description |
 |------|-------------|
-| `--all` | Run all test files in `tests/sc-task-unified/` |
+| `--all` | Run all test files in `tests/sc-task/` |
 | `--verbose` | Show detailed results for each test case |
 | `--summary` | Show only pass/fail counts (default) |
 | `--category [name]` | Run specific test category only |
@@ -292,7 +292,7 @@ rules:
   /sc:validate-tests Report
 ═══════════════════════════════════════════════════════════
 
-Test Suite: tests/sc-task-unified/
+Test Suite: tests/sc-task/
 Timestamp:  2025-01-23 14:30:00
 
 RESULTS
@@ -379,7 +379,7 @@ Recommendation:
 
 ### Verbose Single File
 ```bash
-/sc:validate-tests tests/sc-task-unified/test_compound_phrases.yaml --verbose
+/sc:validate-tests tests/sc-task/test_compound_phrases.yaml --verbose
 
 # Output: Detailed trace for each of 30 compound phrase tests
 ```
@@ -435,4 +435,4 @@ if failures_exist:
 
 ## Version History
 
-- **v1.0.0** - Initial release for /sc:task-unified validation
+- **v1.0.0** - Initial release for /sc:task validation

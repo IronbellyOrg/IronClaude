@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-04-23T20:29:34.684145+00:00",
+  "summary": {
+    "total": 6,
+    "found": 6,
+    "missing": 0,
+    "recovered": 6
+  },
+  "entries": [
+    {
+      "phase": 1,
+      "name": "M1 Foundation Verified",
+      "expected_path": "/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/tasklists/checkpoints/CP-P01-END.md",
+      "exists": true,
+      "recovered": true,
+      "recovery_source": "(no artifacts discovered)"
+    },
+    {
+      "phase": 2,
+      "name": "M2 Primitives Verified",
+      "expected_path": "/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/tasklists/checkpoints/CP-P02-END.md",
+      "exists": true,
+      "recovered": true,
+      "recovery_source": "(no artifacts discovered)"
+    },
+    {
+      "phase": 3,
+      "name": "M3 Authenticated Flow Verified (Mid-phase)",
+      "expected_path": "/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/tasklists/checkpoints/CP-P03-MID-AUTHFLOW.md",
+      "exists": true,
+      "recovered": true,
+      "recovery_source": "(no artifacts discovered)"
+    },
+    {
+      "phase": 3,
+      "name": "M3 Endpoints Verified (End of Phase)",
+      "expected_path": "/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/tasklists/checkpoints/CP-P03-END.md",
+      "exists": true,
+      "recovered": true,
+      "recovery_source": "(no artifacts discovered)"
+    },
+    {
+      "phase": 4,
+      "name": "M4 NFR Instrumentation Verified",
+      "expected_path": "/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/tasklists/checkpoints/CP-P04-END.md",
+      "exists": true,
+      "recovered": true,
+      "recovery_source": "(no artifacts discovered)"
+    },
+    {
+      "phase": 5,
+      "name": "M5 Release Gate Verified",
+      "expected_path": "/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/tasklists/checkpoints/CP-P05-END.md",
+      "exists": true,
+      "recovered": true,
+      "recovery_source": "(no artifacts discovered)"
+    }
+  ]
+}
