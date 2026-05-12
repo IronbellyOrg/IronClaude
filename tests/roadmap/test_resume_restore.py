@@ -583,3 +583,126 @@ class TestSaveStateGuards:
         assert "extract" in saved["steps"]
         assert "generate-opus-architect" in saved["steps"]
         assert "diff" in saved["steps"]
+
+
+# ===========================================================================
+# P3-T4: Resume Scenarios for New Post-Fidelity Steps
+# ===========================================================================
+
+
+class TestResumeNewSteps:
+    """Resume scenarios for deviation-analysis, remediate, and certify steps."""
+
+    def test_fail_at_deviation_analysis_resume(self, tmp_path):
+        """Scenario 2: Steps 1-9 PASS, deviation-analysis FAIL → only deviation-analysis reruns."""
+        gate = _make_gate()
+        fidelity_out = tmp_path / "spec-fidelity.md"
+        fidelity_out.write_text("valid\n")
+        wiring_out = tmp_path / "wiring-verification.md"
+        wiring_out.write_text("valid\n")
+        deviation_out = tmp_path / "spec-deviations.md"
+        # deviation_out doesn't exist → gate fails
+
+        steps = [
+            _make_step("spec-fidelity", fidelity_out, gate, inputs=[]),
+            _make_step("wiring-verification", wiring_out, gate, inputs=[fidelity_out]),
+            _make_step("deviation-analysis", deviation_out, gate, inputs=[fidelity_out]),
+        ]
+
+        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+
+        def gate_fn(path, criteria):
+            if path.exists() and path.stat().st_size > 0:
+                return (True, "")
+            return (False, f"File not found: {path}")
+
+        result = _apply_resume(steps, config, gate_fn)
+        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        # spec-fidelity and wiring pass, deviation-analysis reruns
+        assert "spec-fidelity" not in str(result_ids) or "deviation-analysis" in str(result_ids)
+        assert "deviation-analysis" in str(result_ids)
+
+    def test_fail_at_remediate_resume(self, tmp_path):
+        """Scenario 3: deviation-analysis PASS, remediate FAIL → remediate reruns."""
+        gate = _make_gate()
+        deviation_out = tmp_path / "spec-deviations.md"
+        deviation_out.write_text("valid\n")
+        remediation_out = tmp_path / "remediation-tasklist.md"
+        # remediation_out doesn't exist → gate fails
+
+        steps = [
+            _make_step("deviation-analysis", deviation_out, gate, inputs=[]),
+            _make_step("remediate", remediation_out, gate, inputs=[deviation_out]),
+        ]
+
+        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+
+        def gate_fn(path, criteria):
+            if path.exists() and path.stat().st_size > 0:
+                return (True, "")
+            return (False, f"File not found: {path}")
+
+        result = _apply_resume(steps, config, gate_fn)
+        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        assert "deviation-analysis" not in str(result_ids)
+        assert "remediate" in str(result_ids)
+
+    def test_fail_at_certify_resume(self, tmp_path):
+        """Scenario 4: remediate PASS, certify FAIL → certify reruns."""
+        gate = _make_gate()
+        remediation_out = tmp_path / "remediation-tasklist.md"
+        remediation_out.write_text("valid\n")
+        certify_out = tmp_path / "certification-report.md"
+        # certify_out doesn't exist → gate fails
+
+        steps = [
+            _make_step("remediate", remediation_out, gate, inputs=[]),
+            _make_step("certify", certify_out, gate, inputs=[remediation_out]),
+        ]
+
+        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+
+        def gate_fn(path, criteria):
+            if path.exists() and path.stat().st_size > 0:
+                return (True, "")
+            return (False, f"File not found: {path}")
+
+        result = _apply_resume(steps, config, gate_fn)
+        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        assert "remediate" not in str(result_ids)
+        assert "certify" in str(result_ids)
+
+    def test_stale_spec_fidelity_cascades_to_new_steps(self, tmp_path):
+        """Scenario 5: Stale spec-fidelity cascades rerun to all 3 new steps."""
+        gate = _make_gate()
+        fidelity_out = tmp_path / "spec-fidelity.md"
+        # fidelity doesn't exist → reruns, its output enters dirty_outputs
+        deviation_out = tmp_path / "spec-deviations.md"
+        deviation_out.write_text("valid\n")
+        remediation_out = tmp_path / "remediation-tasklist.md"
+        remediation_out.write_text("valid\n")
+
+        steps = [
+            _make_step("spec-fidelity", fidelity_out, gate, inputs=[]),
+            _make_step("deviation-analysis", deviation_out, gate, inputs=[fidelity_out]),
+            _make_step("remediate", remediation_out, gate, inputs=[deviation_out, fidelity_out]),
+        ]
+
+        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+
+        def gate_fn(path, criteria):
+            if path.exists() and path.stat().st_size > 0:
+                return (True, "")
+            return (False, f"File not found: {path}")
+
+        result = _apply_resume(steps, config, gate_fn)
+        result_ids = []
+        for s in result:
+            if isinstance(s, list):
+                result_ids.extend(x.id for x in s)
+            else:
+                result_ids.append(s.id)
+        # All three must rerun due to cascade
+        assert "spec-fidelity" in result_ids
+        assert "deviation-analysis" in result_ids
+        assert "remediate" in result_ids

@@ -14,6 +14,7 @@ All tests use real content fixtures, no mocks.
 from superclaude.cli.roadmap.fingerprint import (
     Fingerprint,
     _EXCLUDED_CONSTANTS,
+    _is_code_like,
     check_fingerprint_coverage,
     extract_code_fingerprints,
     fingerprint_gate_passed,
@@ -327,3 +328,75 @@ class TestCliPortifyRegression:
             CLI_PORTIFY_SPEC, CLI_PORTIFY_BAD_ROADMAP
         )
         assert ratio < 0.5  # Very low coverage expected
+
+
+class TestCodeLikeFilter:
+    """Backtick identifiers must look like code, not plain English."""
+
+    def test_snake_case_is_code_like(self):
+        assert _is_code_like("validate_config")
+        assert _is_code_like("_run_step")
+        assert _is_code_like("test_programmatic_step")
+
+    def test_camel_case_is_code_like(self):
+        assert _is_code_like("StepExecutor")
+        assert _is_code_like("MyFunction")
+        assert _is_code_like("camelCase")
+
+    def test_plain_lowercase_not_code_like(self):
+        assert not _is_code_like("false")
+        assert not _is_code_like("personas")
+        assert not _is_code_like("lightweight")
+        assert not _is_code_like("heavyweight")
+        assert not _is_code_like("feature")
+
+    def test_plain_lowercase_words_excluded_from_fingerprints(self):
+        """PRD-style backtick words should not be extracted as fingerprints."""
+        spec = """\
+The `--tier` flag accepts `lightweight`, `standard`, or `heavyweight`.
+Default `--resume` is `false`. Scope can be `product` or `feature`.
+The `personas` field controls persona activation.
+"""
+        fps = extract_code_fingerprints(spec)
+        texts = {fp.text for fp in fps}
+        for word in ["lightweight", "heavyweight", "false", "feature", "personas"]:
+            assert word not in texts, f"'{word}' should not be a fingerprint"
+
+    def test_code_identifiers_still_extracted(self):
+        """Real code identifiers in backticks are still captured."""
+        spec = """\
+Use `_run_programmatic_step()` and `StepExecutor` for dispatch.
+The `validate_config` function handles setup.
+"""
+        fps = extract_code_fingerprints(spec)
+        texts = {fp.text for fp in fps}
+        assert "_run_programmatic_step" in texts
+        assert "StepExecutor" in texts
+        assert "validate_config" in texts
+
+
+class TestExpandedExcludedConstants:
+    """Emphasis/prose ALL_CAPS words should be excluded."""
+
+    def test_emphasis_words_excluded(self):
+        for word in ["MUST", "SHALL", "SHOULD", "MANDATORY", "REQUIRED", "OPTIONAL"]:
+            assert word in _EXCLUDED_CONSTANTS, f"'{word}' should be excluded"
+
+    def test_prose_words_excluded(self):
+        for word in ["WHAT", "WHEN", "BOTH", "ALWAYS", "NEVER", "BEFORE", "AFTER"]:
+            assert word in _EXCLUDED_CONSTANTS, f"'{word}' should be excluded"
+
+    def test_domain_acronyms_excluded(self):
+        assert "MDTM" in _EXCLUDED_CONSTANTS
+
+    def test_emphasis_caps_not_extracted(self):
+        """ALL_CAPS emphasis words in spec prose should not be fingerprints."""
+        spec = """\
+**MANDATORY**: Before executing any protocol steps, invoke the skill.
+SKILL.md retains all behavioral protocol (WHAT/WHEN).
+Builder creates MDTM task file. MUST follow these rules.
+"""
+        fps = extract_code_fingerprints(spec)
+        texts = {fp.text for fp in fps}
+        for word in ["MANDATORY", "WHAT", "MDTM", "MUST", "SKILL"]:
+            assert word not in texts, f"'{word}' should not be a fingerprint"

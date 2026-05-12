@@ -201,7 +201,12 @@ class TestAutoInvocation:
         ):
             execute_roadmap(config)
 
-        mock_validate.assert_called_once_with(config)
+        # Config's input_type is resolved from "auto" to "spec" before
+        # _auto_invoke_validate is called (detect_input_type resolves it).
+        mock_validate.assert_called_once()
+        actual_config = mock_validate.call_args[0][0]
+        assert actual_config.spec_file == config.spec_file
+        assert actual_config.input_type == "spec"  # resolved from "auto"
 
     def test_no_validate_skips_auto_invoke(self, tmp_path, capsys):
         """--no-validate skips validation and records 'skipped' in state."""

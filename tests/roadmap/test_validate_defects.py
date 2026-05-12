@@ -47,7 +47,7 @@ class TestDuplicateDIDDetection:
             "## Phase 1: Setup\n"  # Duplicate!
             "Duplicate content\n"
         )
-        assert _no_duplicate_headings(content) is False
+        assert _no_duplicate_headings(content) is not True
 
     def test_duplicate_h3_headings_detected(self):
         """_no_duplicate_headings rejects content with duplicate H3 headings."""
@@ -60,7 +60,7 @@ class TestDuplicateDIDDetection:
             "### D-001: Auth Module\n"  # Duplicate D-ID!
             "Duplicate\n"
         )
-        assert _no_duplicate_headings(content) is False
+        assert _no_duplicate_headings(content) is not True
 
     def test_unique_headings_pass(self):
         """Unique headings pass the check."""

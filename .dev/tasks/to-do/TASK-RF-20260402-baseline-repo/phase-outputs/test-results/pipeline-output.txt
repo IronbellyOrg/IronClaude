@@ -1,0 +1,46 @@
+# Pipeline Execution Log — Test 3 Baseline
+
+## Run 1 (initial)
+[roadmap] Starting step: extract
+[roadmap] Step extract  PASS (attempt 1, 73s)
+[roadmap] Starting step: generate-opus-architect
+[roadmap] Starting step: generate-haiku-architect
+[roadmap] Step generate-opus-architect  PASS (attempt 1, 103s)
+[roadmap] Step generate-haiku-architect  PASS (attempt 1, 250s)
+[roadmap] Starting step: diff
+[roadmap] Step diff  PASS (attempt 1, 75s)
+[roadmap] Starting step: debate
+[roadmap] Step debate  PASS (attempt 1, 111s)
+[roadmap] Starting step: score
+[roadmap] Step score  PASS (attempt 1, 92s)
+[roadmap] Starting step: merge
+[roadmap] Step merge  FAIL (attempt 2, 314s)
+           Reason: Semantic check 'no_duplicate_headings' failed: Duplicate H2 or H3 heading text detected
+[roadmap] Step wiring-verification  PASS (attempt 1, 1s)
+ERROR: Roadmap pipeline halted at step 'merge' (attempt 2/2)
+
+## Run 2 (--resume from merge)
+[roadmap] Skipping extract, generate-*, diff, debate, score (gates pass)
+[roadmap] Starting step: merge
+[roadmap] Step merge  PASS (attempt 2, 165s)
+[roadmap] Starting step: anti-instinct
+[roadmap] Step anti-instinct  FAIL (attempt 1, 0s)
+           Reason: fingerprint_coverage must be >= 0.7; spec code-level identifiers insufficiently represented in roadmap
+[roadmap] Step wiring-verification  PASS (attempt 1, 0s)
+ERROR: Roadmap pipeline halted at step 'anti-instinct' (expected — GateMode.BLOCKING)
+
+## Final Status
+- extract: PASS
+- generate-opus-architect: PASS
+- generate-haiku-architect: PASS
+- diff: PASS
+- debate: PASS
+- score: PASS
+- merge: PASS (after resume)
+- anti-instinct: FAIL (expected — fingerprint_coverage < 0.7)
+- wiring-verification: PASS (trailing)
+- test-strategy: SKIPPED (blocked by anti-instinct)
+- spec-fidelity: SKIPPED (blocked by anti-instinct)
+
+Pipeline exit code 1 is expected — anti-instinct FAIL halts the pipeline.
+9 content artifacts produced, matching Test 1 and Test 2 output counts.

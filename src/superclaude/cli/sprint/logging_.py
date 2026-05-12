@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 
 from rich.console import Console
 
@@ -142,6 +143,11 @@ class SprintLogger:
                 f"Phase {result.phase.number}: {result.status.value} "
                 f"({result.duration_display})"
             )
+        elif result.status == PhaseStatus.PASS_MISSING_CHECKPOINT:
+            self._screen_warn(
+                f"Phase {result.phase.number}: {result.status.value} "
+                f"({result.duration_display})"
+            )
         elif result.status == PhaseStatus.PREFLIGHT_PASS:
             self._screen_info(
                 f"Phase {result.phase.number}: {result.status.value} "
@@ -149,6 +155,37 @@ class SprintLogger:
             )
         elif result.status == PhaseStatus.SKIPPED:
             self._screen_info(f"Phase {result.phase.number}: {result.status.value}")
+
+    def write_checkpoint_verification(
+        self,
+        phase: int,
+        expected: list[str],
+        found: list[str],
+        missing: list[str],
+    ) -> None:
+        """Emit a `checkpoint_verification` JSONL event.
+
+        Written by the Wave 2 checkpoint gate (``_verify_checkpoints()``)
+        after every phase that declares ``Checkpoint Report Path:`` entries.
+        Enables post-hoc analysis of checkpoint completeness across sprints,
+        independent of the gate mode.
+
+        Args:
+            phase: Phase number.
+            expected: Declared checkpoint paths from the tasklist.
+            found: Declared paths whose files exist on disk.
+            missing: Declared paths whose files are absent.
+        """
+        self._jsonl(
+            {
+                "event": "checkpoint_verification",
+                "phase": phase,
+                "expected": list(expected),
+                "found": list(found),
+                "missing": list(missing),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
     def write_summary(self, sprint: SprintResult):
         """Write sprint summary to both logs."""

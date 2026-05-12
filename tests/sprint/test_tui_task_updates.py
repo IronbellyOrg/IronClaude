@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import time
-from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import MagicMock, call
-
-import pytest
+from unittest.mock import MagicMock
 
 from superclaude.cli.sprint.executor import execute_phase_tasks
 from superclaude.cli.sprint.models import (
@@ -17,7 +13,6 @@ from superclaude.cli.sprint.models import (
     SprintResult,
     TaskEntry,
     TaskStatus,
-    TurnLedger,
 )
 
 

@@ -1,0 +1,90 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/claudedocs/adversarial-roadmap-formats-20260415/research_roadmap-format-alternatives_VALIDATED.md"
+  convergence_score: 0.80
+  convergence_breakdown:
+    priority_point_convergence: 0.90
+    invariant_probe_convergence: 0.70
+    note: "Priority-point convergence exceeds 0.85 threshold on all 5 debated points (D-1, D-2, D-4, D-7, D-10). Invariant probe caps honest convergence at 0.70 due to 3 HIGH-severity UNADDRESSED blind spots requiring empirical tests outside the debate. Overall effective convergence is the midpoint: 0.80."
+  artifacts_dir: "/config/workspace/IronClaude/claudedocs/adversarial-roadmap-formats-20260415/adversarial/"
+  status: "partial"
+  status_rationale: "Debate converged on priority points and merge executed successfully, but 3 HIGH-severity invariants remain UNADDRESSED. Partial status reflects the gap between debate-resolvable content and empirically-resolvable content."
+  base_variant: "opus:architect"
+  base_variant_score: 0.870
+  runner_up_variant: "sonnet:scribe"
+  runner_up_variant_score: 0.771
+  floor_ineligible_variant: "opus:analyzer"
+  floor_ineligible_variant_score: 0.832
+  floor_ineligible_reason: "Dimension 6 (Invariant & Edge Case Coverage) = 0.5/5, below 1/5 edge-case floor. V-A had highest quant score (0.897) but failed the floor because it did not distinguish generation vs consumption, did not flag N=1 file generalization, and did not enumerate consumer DAG."
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-1"
+      category: "GUARD / CORRECTNESS"
+      assumption: "Token counts measured with tiktoken cl100k_base approximate Claude 4.6's native tokenization"
+      severity: "HIGH"
+      status: "UNADDRESSED"
+      recommended_resolution: "Re-run the 350-token Phase 2 slice measurement using Anthropic's messages.count_tokens endpoint against claude-opus-4-6 and claude-haiku-4-5. Accept V-B's ranking only if relative deltas stay within ±3pp of cl100k_base numbers."
+    - id: "INV-3"
+      category: "STATE / LIFECYCLE"
+      assumption: "Roadmap files are consumed primarily by one pipeline stage with a dominant read pattern"
+      severity: "HIGH"
+      status: "UNADDRESSED"
+      recommended_resolution: "Enumerate the consumer DAG (sc:tasklist, sc:pm, sc:validate-roadmap, sc:adversarial, CI, human reviewers) with read patterns (whole-file / phase-scoped / field-scoped). Score formats against the consumer matrix, not a single consumer."
+    - id: "INV-5"
+      category: "ENVIRONMENT / DEPLOYMENT"
+      assumption: "Webmaster-ramos's single Haiku data point (69.6% MD, 75.3% JSON, 74.8% TOON) is sufficient to assess Haiku risk for the candidate formats"
+      severity: "HIGH"
+      status: "UNADDRESSED"
+      recommended_resolution: "Run a Haiku-specific A/B on the three candidate formats (Compact MD DSL, Hybrid XML+TOON+MD, XML+MD) using ≥20 retrieval prompts against the same Phase 2 slice. Block adoption of any format whose Haiku accuracy drops >3pp below plain Markdown. Until A/B completes, the merged recommendation is explicitly scoped to Opus 4.6 / Sonnet 4.6 with Haiku paths gated to plain Markdown."
+
+pipeline_summary:
+  mode: "B (generate + compare from source)"
+  source: "claudedocs/research_roadmap-format-alternatives_20260415.md"
+  agents:
+    - "opus:analyzer (V-A) — quantitative claim audit"
+    - "opus:architect (V-B) — steelman defense"
+    - "sonnet:scribe (V-C) — neutral methodological audit"
+  depth: "deep (Round 1 + Round 2 + Round 2.5 invariant probe)"
+  round_3_skipped: true
+  round_3_skip_reason: "Priority-point convergence (0.90) exceeds 0.85 threshold. Remaining gap is invariant-measurement gap, not argument gap — Round 3 would not move the three HIGH UNADDRESSED invariants."
+  convergence_target: 0.85
+  blind_mode: true
+  interactive_checkpoints_hit: 4
+  checkpoint_decisions:
+    checkpoint_1_scope: "Prioritize 5 highest-severity diff points"
+    checkpoint_1_haiku: "Auto-resolve via invariant probe"
+    checkpoint_2_convergence: "Accept with caveats"
+    checkpoint_2_haiku_framing: "Opus/Sonnet primary, Haiku gated"
+    checkpoint_3_base_selection: "Accept V-B (opus:architect) as base"
+    checkpoint_4_plan_approval: "Approve and execute merge with appendix provenance"
+
+headline_findings:
+  source_report_verdict: "Steelman REQUIRES amendments. Three unanimous corrections:"
+  correction_1: "Headline '-35% to -50% token savings' is arithmetically unsupported under measured file composition. Defensible range: -12% to -22% hybrid, -25% to -33% Compact MD DSL. Verified via V-B tiktoken measurement + V-A composition arithmetic + V-C reconstruction."
+  correction_2: "Anthropic '30% quality gain' is MISATTRIBUTED. Verbatim Anthropic text: '30% improvement from query-at-end placement.' It does not refer to XML tags. Anthropic explicitly disclaims 'no canonical best XML tags Claude is specifically trained on.'"
+  correction_3: "arXiv 2601.12014 (the strongest TOON counter-benchmark, confirmed verbatim) was omitted from the source. GCS penalty -38.9%/-30.9%/-42.2% vs JSON/XML/YAML on open-weight models up to 70B. Penalty narrows with scale; unverified for closed-weight frontier Claude; measures generation-only, not consumption. Hybrid-with-TOON is not production-ready without Claude-specific validation."
+  revised_recommendation: "Compact Markdown DSL #1 on present evidence for Opus 4.6 / Sonnet 4.6 consumers. Optional <phase id='N'> XML overlay for selective extraction. Hybrid XML+Markdown (no TOON) as reliability-first #2. Hybrid XML+TOON+MD demoted to #3 pending Claude-specific GCS validation. Haiku 4.5 path gated to plain Markdown until empirical A/B completes."
+
+artifacts:
+  variant_1: "adversarial/variant-1-opus-analyzer.md"
+  variant_2: "adversarial/variant-2-opus-architect.md"
+  variant_3: "adversarial/variant-3-sonnet-scribe.md"
+  diff_analysis: "adversarial/diff-analysis.md"
+  debate_transcript: "adversarial/debate-transcript.md"
+  base_selection: "adversarial/base-selection.md"
+  refactor_plan: "adversarial/refactor-plan.md"
+  merge_log: "adversarial/merge-log.md"
+  merged_output: "research_roadmap-format-alternatives_VALIDATED.md"
+  return_contract: "adversarial/return-contract.yaml"
+
+validation_results:
+  structural_integrity: "PASS"
+  internal_references: "PASS"
+  contradiction_rescan: "PASS"
+  factual_consistency: "PASS"
+  factual_consistency_details:
+    arxiv_2601_12014_numbers: "4 occurrences, all consistent (38.9/30.9/42.2)"
+    composition_measurements: "6 occurrences, all consistent (25.4/47.7/6.2/4.9)"
+    tiktoken_measurements: "5 occurrences, all consistent (350/308/316/233)"

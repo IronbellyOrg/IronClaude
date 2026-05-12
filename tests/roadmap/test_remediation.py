@@ -12,7 +12,7 @@ class TestAllowRegeneration:
         field = RoadmapConfig.__dataclass_fields__["allow_regeneration"]
         assert field.default is False
 
-    def test_convergence_enabled_default_false(self):
-        """convergence_enabled defaults to False."""
+    def test_convergence_enabled_default_true(self):
+        """convergence_enabled defaults to True (v3.05 convergence engine is default ON)."""
         field = RoadmapConfig.__dataclass_fields__["convergence_enabled"]
-        assert field.default is False
+        assert field.default is True

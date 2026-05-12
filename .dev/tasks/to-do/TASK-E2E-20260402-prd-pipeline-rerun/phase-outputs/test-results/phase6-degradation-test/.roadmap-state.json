@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "spec_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/test-tdd-user-auth.md",
+  "tdd_file": null,
+  "prd_file": "/tmp/nonexistent-prd.md",
+  "input_type": "tdd",
+  "spec_hash": "43c9e660788020b6fd44044c413e818b66481006e1e84e4bc1955b4aad478c5b",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-04-03T02:58:32.231380+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/extraction.md",
+      "started_at": "2026-04-03T02:33:31.077677+00:00",
+      "completed_at": "2026-04-03T02:38:58.282043+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/roadmap-opus-architect.md",
+      "started_at": "2026-04-03T02:38:58.307098+00:00",
+      "completed_at": "2026-04-03T02:41:15.767535+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 2,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/roadmap-haiku-architect.md",
+      "started_at": "2026-04-03T02:43:22.270642+00:00",
+      "completed_at": "2026-04-03T02:47:02.070659+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/diff-analysis.md",
+      "started_at": "2026-04-03T02:47:02.072747+00:00",
+      "completed_at": "2026-04-03T02:48:18.373671+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/debate-transcript.md",
+      "started_at": "2026-04-03T02:48:18.374181+00:00",
+      "completed_at": "2026-04-03T02:50:27.861528+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/base-selection.md",
+      "started_at": "2026-04-03T02:50:27.863797+00:00",
+      "completed_at": "2026-04-03T02:51:59.209619+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/roadmap.md",
+      "started_at": "2026-04-03T02:51:59.210310+00:00",
+      "completed_at": "2026-04-03T02:58:31.681945+00:00"
+    },
+    "anti-instinct": {
+      "status": "FAIL",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/anti-instinct-audit.md",
+      "started_at": "2026-04-03T02:58:31.683781+00:00",
+      "completed_at": "2026-04-03T02:58:31.720852+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/Users/cmerritt/GFxAI/IronClaude/.dev/test-fixtures/results/test1-tdd-prd/wiring-verification.md",
+      "started_at": "2026-04-03T02:58:31.721013+00:00",
+      "completed_at": "2026-04-03T02:58:32.230535+00:00"
+    }
+  }
+}

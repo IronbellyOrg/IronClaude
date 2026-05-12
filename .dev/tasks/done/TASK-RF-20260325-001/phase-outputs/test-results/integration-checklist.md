@@ -1,0 +1,18 @@
+# Integration Checklist Results
+- [x] 6.2: feature_id count=2 (expected 1): PASS
+- [x] 6.3: spec_type count=2 (expected 1): PASS
+- [x] 6.4: quality_scores count=1 (expected 1): PASS
+- [x] 6.6: TDD scoring weights sum=1.00: PASS (verified in Phase 2)
+- [x] 6.7: domain dictionaries count=7 (8 matched including Step 4 heading; actual domains=7): PASS
+- [x] 6.8: backward compat — standard 5-factor unchanged (verified); Steps 9-14 gated on TDD detection: PASS
+- [x] 6.9: release-spec-template.md in spec-panel count=2 (expected >=1): PASS
+- [x] 6.10: Boundaries mentions=2, constraint note=1: PASS
+- [x] 6.11: Step 4.1a in body count=1 (expected >=1): PASS
+- [x] 6.12: all --spec additions conditional on flag: PASS (verified in Phase 4 review)
+- [x] 6.13-synth-03: 00-prd-extraction present=1: PASS
+- [x] 6.13-synth-04: 00-prd-extraction present=1: PASS
+- [x] 6.13-synth-05: 00-prd-extraction present=1: PASS
+- [x] 6.13-synth-06: 00-prd-extraction present=1: PASS
+- [x] 6.13-synth-07: 00-prd-extraction present=1: PASS
+- [x] 6.14: QA Gate Item 13 (FR traceability) count=1: PASS
+- [x] 6.15: PRD Extraction Agent Prompt count=1: PASS

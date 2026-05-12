@@ -12,11 +12,27 @@ from __future__ import annotations
 import logging
 import threading
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Callable, Protocol
 
 from .gates import gate_passed
 from .models import GateMode, PipelineConfig, Step, StepResult, StepStatus
 from .trailing_gate import TrailingGateRunner
+
+
+def _gate_target(output_file: Path) -> Path:
+    """Prefer the ``.compressed.md`` sidecar for gate validation when present.
+
+    The pipeline writes per-step compressed sidecars next to the original
+    output. Gates should validate the compressed artifact so enforcement
+    matches what downstream LLM steps actually consume. When no sidecar
+    exists (compression disabled, or step without a sidecar), fall back to
+    the original output file.
+    """
+    sidecar = output_file.with_name(f"{output_file.stem}.compressed.md")
+    if sidecar != output_file and sidecar.exists():
+        return sidecar
+    return output_file
 
 _log = logging.getLogger("superclaude.pipeline.executor")
 
@@ -244,8 +260,9 @@ def _execute_single_step(
             on_step_complete(step, result)
             return result
 
-        # BLOCKING mode: run gate check synchronously
-        passed, reason = gate_passed(step.output_file, step.gate)
+        # BLOCKING mode: run gate check synchronously against the compressed
+        # sidecar when present; fall back to the original output otherwise.
+        passed, reason = gate_passed(_gate_target(step.output_file), step.gate)
         if passed:
             result = StepResult(
                 step=step,

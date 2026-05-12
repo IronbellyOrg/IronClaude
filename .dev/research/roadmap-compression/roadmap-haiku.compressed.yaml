@@ -1,0 +1,261 @@
+# Compressed Roadmap
+# Source: roadmap-haiku-architect.md
+# Method: Normalized YAML with AC keyword tags
+
+meta:
+  source_file: roadmap-haiku-architect.md
+  spec_source: test-tdd-user-auth.md
+  complexity_score: 0.72
+  primary_persona: architect
+
+summaries:
+
+integration_points:
+  - {name: auth_component_registry, wired: [], phase: 1, xref: [2, 3, 4, ]}
+  - {name: auth_api_contract_map, wired: [A], phase: 1, xref: [2]}
+  - {name: frontend_auth_integration_contract, wired: [], phase: 1, xref: [3]}
+  - {name: auth_service_dependency_graph, wired: [], phase: 2, xref: [4]}
+  - {name: login_abuse_control_chain, wired: [A], phase: 2, xref: [5]}
+  - {name: registration_contract_binding, wired: [], phase: 2, xref: [3]}
+  - {name: token_lifecycle_registry, wired: [], phase: 3, xref: [4]}
+  - {name: frontend_session_binding, wired: [], phase: 3, xref: [4]}
+  - {name: password_reset_workflow_map, wired: [], phase: 3, xref: [5]}
+  - {name: auth_observability_pipeline, wired: [m], phase: 4, xref: [5]}
+  - {name: security_control_matrix, wired: [b], phase: 4, xref: [5]}
+  - {name: auth_test_coverage_matrix, wired: [T], phase: 4, xref: [5]}
+  - {name: auth_rollout_control_plane, wired: [], phase: 5, xref: [6]}
+  - {name: incident_response_runbook_set, wired: [o], phase: 5, xref: [5]}
+  - {name: auth_traceability_matrix, wired: [T], phase: 6, xref: [6]}
+  - {name: business_metric_readiness_pack, wired: [r], phase: 6, xref: [4]}
+
+# TASKS (TSV: P=phase, R=row, ID, TASK, COMP, DEPS, AC, EFF, PRI)
+# P1: Architecture Foundation, Scope Guardrails, and Persistence Baseline (29 rows)
+1|1|AUTH-001-TDD|Baseline TDD as implementation cont|Arch|None|engineering-plan-explicitly|S|P0
+1|2|AUTH-PRD-001|Baseline PRD as business validation|Product traceability|AUTH-001-TDD|roadmap-explicitly-traces|S|P0
+1|3|G-001|secure registration login as first-|Auth domain planning|AUTH-001-TDD,AUTH-PRD-001|bcrypt|S|P0
+1|4|G-002|stateless token session architectur|Session architecture|AUTH-001-TDD|jwt,refresh,access|S|P0
+1|5|G-003|Reserve platform capability self-se|Recovery architecture|AUTH-001-TDD|single-use|S|P1
+1|6|G-004|Prioritize authenticated profile re|Profile architecture|AUTH-001-TDD|roadmap-includes-authenticated|S|P1
+1|7|G-005|Reserve frontend integration contra|FE|AUTH-001-TDD,AUTH-PRD-001|frontend-consumers-named|S|P1
+1|8|NG-001|Exclude social OAuth login v1.0 imp|Scope governance|AUTH-001-TDD,AUTH-PRD-001|roadmap-task-introduces|S|P0
+1|9|NG-002|Exclude MFA v1.0 implementation|Scope governance|AUTH-001-TDD,AUTH-PRD-001|task-includes-totp|S|P0
+1|10|NG-003|Exclude RBAC enforcement while pres|Authorization boundary|AUTH-001-TDD|roles-stored-returned|S|P0
+1|11|INFRA-DB-001|Provision PostgreSQL 15+ baseline u|Infra|AUTH-001-TDD|postgres|M|P0
+1|12|PLATFORM-PRD-001|Align auth roadmap platform-level p|Portfolio alignment|AUTH-PRD-001|roadmap-sequencing-explicitly|S|P1
+1|13|COMP-001|`AuthService` as primary orchestrat|Backend service layer|G-001,G-002|authservice-responsibilities-documented|M|P0
+1|14|COMP-002|`TokenManager` as refresh-token lif|Backend session layer|G-002,INFRA-DB-001|rotation,redis|M|P0
+1|15|COMP-003|`JwtService` as access-token signin|Sec|G-002|rs256,jwt|M|P0
+1|16|COMP-004|`PasswordHasher` as password hashin|Sec|G-001|bcrypt,bcrypt:12|M|P0
+1|17|COMP-005|`UserRepo` persistence abstraction|Data access layer|INFRA-DB-001,COMP-001|email:unique|M|P0
+1|18|COMP-006|`LoginPage` contract backend login|FE|G-005,COMP-001|no-enum,redirect|M|P1
+1|19|COMP-007|`RegisterPage` contract registratio|FE|G-005,COMP-001|redirect|M|P1
+1|20|COMP-008|`AuthProvider` as session state sil|FE|G-005,COMP-002,COMP-003|401|M|P0
+1|21|COMP-009|`ProfilePage` integration contract|FE|G-004,G-005|redirect|S|P1
+1|22|DM-001|the `UserProfile` data model persis|Data model / PostgreSQL|INFRA-DB-001,COMP-005|email:unique,email:indexed|M|P0
+1|23|DM-002|the `AuthToken` response model API|API contract / token model|COMP-002,COMP-003|refresh,access|S|P0
+1|24|API-001|`POST /auth/login` contract, status|API layer|COMP-001,COMP-004,DM-002|200,401,423,429|M|P0
+1|25|API-002|`POST /auth/register` contract uniq|API layer|COMP-001,COMP-004,COMP-005,DM-001|201,400,409|M|P0
+1|26|API-003|`GET /auth/me` authenticated profil|API layer|COMP-001,COMP-003,DM-001|200,401|S|P1
+1|27|API-004|`POST /auth/refresh` rotation revoc|API layer|COMP-002,COMP-003,DM-002|401,refresh,rotation,revocation|M|P0
+1|28|API-005|`POST /auth/reset-request` request|API layer|G-003,COMP-001|contract-specifies-generic|M|P1
+1|29|API-006|`POST /auth/reset-confirm` contract|API layer|API-005,COMP-001,COMP-004|400,401|M|P1
+# P2: Core Backend Authentication, Credential Handling, and Registration/Login Delivery (28 rows)
+2|30|FR-AUTH-001|email/password login orchestration|Backend / AuthService|COMP-001,COMP-004,COMP-005,API-001|200,401,valid-creds,lockout|L|P0
+2|31|FR-AUTH-002|registration flow validation `UserP|Backend / AuthService|COMP-001,COMP-004,COMP-005,DM-001,API-002|201,400,409,bcrypt|L|P0
+2|32|FR-AUTH.1|PRD login requirement persistent-se|Product-to-tech traceability|FR-AUTH-001,API-001|login-flow-satisfies|S|P1
+2|33|FR-AUTH.2|PRD registration requirement accoun|Product-to-tech traceability|FR-AUTH-002,API-002|email:unique|S|P1
+2|34|NFR-SEC-001|bcrypt hashing cost factor 12 insid|Sec|COMP-004|bcrypt,no-plaintext|M|P0
+2|35|NFR-AUTH.3|one-way password storage no-plainte|Sec|NFR-SEC-001,FR-AUTH-001,FR-AUTH-002|no-plaintext|M|P0
+2|36|API-001|login handler response mapping `POS|Backend / HTTP handlers|FR-AUTH-001|handler-accepts-email|M|P0
+2|37|API-002|registration handler response mappi|Backend / HTTP handlers|FR-AUTH-002|handler-accepts-registration|M|P0
+2|38|DM-001|`UserProfile` table, indexes, repos|Persistence / PostgreSQL|INFRA-DB-001,COMP-005|postgres,uuid-pk,email:unique|M|P0
+2|39|TEST-001|unit tests successful login token i|Unit tests / AuthService|FR-AUTH-001,API-001|valid-creds|S|P0
+2|40|TEST-002|unit tests invalid credential handl|Unit tests / AuthService|FR-AUTH-001,API-001|401,invalid-creds|S|P0
+2|41|TEST-004|integration test registration persi|Integration tests|FR-AUTH-002,API-002,DM-001|email:unique,e2e-test|M|P0
+2|42|AUTH-E1|Deliver login registration epic as|Epic delivery|FR-AUTH-001,FR-AUTH-002,API-001,API-002,TEST-001,TEST-002,TEST-004|login-registration-flows|M|P0
+2|43|R-002|brute-force mitigation controls at|Sec|FR-AUTH-001,API-001|rate-limit|M|P0
+2|44|COMPLIANCE-001|audit-log field requirements auth e|Compliance / audit logging design|AUTH-PRD-001,NFR-AUTH.2|required-fields-include|M|P1
+2|45|SEC-POLICY-001|Reconcile implementation-level pass|Sec|NFR-SEC-001,COMP-003,COMP-004|bcrypt|S|P0
+2|46|OQ-002|Bound `roles` array contract withou|Data contract governance|DM-001,NG-003|documented-maximum-deferred|S|P2
+2|47|M1|Achieve M1 deliverable core `AuthSe|Gate|FR-AUTH-001,FR-AUTH-002,NFR-SEC-001,DM-001,API-001,API-002,AUTH-E1|integration-test|M|P0
+2|48|RISK-PRD-001|Mitigate low registration adoption|UX-informed architecture|FR-AUTH-002,AUTH-E1|inline-validation|S|P1
+2|49|JTBD-001|Support first-time user account cre|User job validation|FR-AUTH-002,AUTH-E1|registration-architecture-contract|S|P1
+2|50|PERSONA-001|registration/login flows around Ale|Persona-driven sequencing|FR-AUTH-001,FR-AUTH-002|core-flows-optimize|S|P1
+2|51|STORY-001|the PRD story self-service account|User story validation|FR-AUTH-002,API-002|registration-behavior-matches|S|P1
+2|52|STORY-002|the PRD story generic-error login w|User story validation|FR-AUTH-001,API-001|incorrect-credentials-surface|S|P1
+2|53|ERROR-001|Handle duplicate-email registration|Backend validation / persistence|FR-AUTH-002,DM-001|concurrent|S|P1
+2|54|ERROR-002|Handle wrong-password attempts belo|Backend error handling|FR-AUTH-001,API-001|fewer-than-failed|S|P1
+2|55|ERROR-003|Handle wrong-password lockout thres|Backend security handling|FR-AUTH-001,R-002|lockout|M|P0
+2|56|LEG-001|Incorporate GDPR consent capture re|Compliance / registration flow|FR-AUTH-002,API-002|registration-architecture-includes|M|P1
+2|57|JOURNEY-001|first-time signup journey architect|Journey validation|FR-AUTH-002,API-002,STORY-001|redirect|S|P1
+# P3: Token Lifecycle, Profile Retrieval, Password Reset, and Frontend Session Integration (50 rows)
+3|58|FR-AUTH-003|JWT issuance, refresh rotation, rev|Backend / token lifecycle|COMP-002,COMP-003,API-004,DM-002|401,refresh,rotation,revocation|L|P0
+3|59|FR-AUTH-004|authenticated profile retrieval `/a|Backend / profile access|COMP-001,COMP-003,API-003,DM-001|401,access|M|P0
+3|60|FR-AUTH-005|two-step password reset token expir|Backend / recovery flow|API-005,API-006,COMP-001,COMP-004|reset-request-triggers|L|P0
+3|61|FR-AUTH.3|PRD session persistence requirement|Product-to-tech traceability|FR-AUTH-003,API-004|active-sessions-continue|S|P1
+3|62|FR-AUTH.4|PRD profile-view requirement authen|Product-to-tech traceability|FR-AUTH-004,API-003,COMP-009|logged-in-users-access|S|P1
+3|63|FR-AUTH.5|PRD self-service password reset req|Product-to-tech traceability|FR-AUTH-005,API-005,API-006|password-reset-flow|M|P1
+3|64|NFR-SEC-002|RS256 token signing 2048-bit RSA ke|Sec|COMP-003,FR-AUTH-003|rs256,rotation,bits:2048|M|P0
+3|65|NFR-PERF-001|token profile flows meet sub-200ms|Perf|FR-AUTH-003,FR-AUTH-004,COMP-002,COMP-003|path-analysis-implementation|M|P0
+3|66|NFR-PERF-002|login token infrastructure sustain|Scalability engineering|FR-AUTH-001,FR-AUTH-003,INFRA-DB-001|redis|M|P1
+3|67|NFR-REL-001|Architect auth service availability|Reliability engineering|FR-AUTH-003,FR-AUTH-004,INFRA-DB-001|rollout|M|P1
+3|68|NFR-AUTH.1|combined p95 concurrency PRD target|Product NFR validation|NFR-PERF-001,NFR-PERF-002|auth-request-path|S|P1
+3|69|NFR-AUTH.2|service availability target operati|Product NFR validation|NFR-REL-001|health-check,rollback,rollout|S|P1
+3|70|API-003|authenticated `GET /auth/me` handle|Backend / HTTP handlers|FR-AUTH-004,NFR-SEC-002|jwt|M|P0
+3|71|API-004|`POST /auth/refresh` handler rotati|Backend / HTTP handlers|FR-AUTH-003,NFR-SEC-002|refresh,revocation|M|P0
+3|72|API-005|`POST /auth/reset-request` handler|Backend / HTTP handlers|FR-AUTH-005,COMP-001|handler-accepts-email|M|P1
+3|73|API-006|`POST /auth/reset-confirm` handler|Backend / HTTP handlers|FR-AUTH-005,API-005,NFR-SEC-001|handler-validates-reset|M|P1
+3|74|DM-002|`AuthToken` response assembly seria|Token model / API|FR-AUTH-003,API-001,API-004|refresh,access|S|P0
+3|75|COMP-002|`TokenManager` runtime logic issuan|Backend / TokenManager|FR-AUTH-003,API-004,DM-002|refresh,rotation,redis|L|P0
+3|76|COMP-003|`JwtService` runtime logic signing,|Backend / JwtService|NFR-SEC-002,API-003,API-004|access|M|P0
+3|77|COMP-006|`LoginPage` UI flow login API succe|FE|API-001,FR-AUTH-001,COMP-008|redirect|M|P1
+3|78|COMP-007|`RegisterPage` UI flow inline valid|FE|API-002,FR-AUTH-002,LEG-001|page-validates-required|M|P1
+3|79|COMP-008|`AuthProvider` token storage, silen|FE|API-004,FR-AUTH-003,FR-AUTH-004|access|L|P0
+3|80|COMP-009|`ProfilePage` authenticated profile|FE|API-003,FR-AUTH-004,COMP-008|redirect|M|P1
+3|81|AUTH-E2|Deliver token management epic inclu|Epic delivery|FR-AUTH-003,API-004,COMP-002,COMP-003,COMP-008|rotation|M|P0
+3|82|AUTH-E3|Deliver profile password reset epic|Epic delivery|FR-AUTH-004,FR-AUTH-005,API-003,API-005,API-006,COMP-009|profile-retrieval-self-service|M|P0
+3|83|TEST-003|unit tests `TokenManager.refresh()`|Unit tests / TokenManager|FR-AUTH-003,COMP-002|revocation,unit-test|S|P0
+3|84|TEST-005|integration tests expired refresh-t|Integration tests|FR-AUTH-003,API-004,COMP-002|redis,integration-test|M|P0
+3|85|TEST-006|E2E test register -> login -> profi|E2E tests|COMP-006,COMP-007,COMP-008,COMP-009|e2e-test|L|P1
+3|86|AUTH_TOKEN_REFRESH|and wire `AUTH_TOKEN_REFRESH` featu|Rollout controls|FR-AUTH-003,COMP-002,COMP-008|refresh-flow-enabled|M|P1
+3|87|FE-AUTH-001-TDD|backend contracts the frontend auth|Cross-team interface|COMP-006,COMP-007,COMP-008,COMP-009|backend-error-semantics|S|P2
+3|88|OQ-001|Resolve or explicitly defer API key|Scope governance|AUTH-001-TDD,NG-001,NG-002,NG-003|documented-decision-exists|S|P2
+3|89|M2|Achieve token management milestone|Gate|FR-AUTH-003,FR-AUTH-004,API-003,API-004,COMP-002,COMP-003|exit-criteria-token|M|P0
+3|90|M3|Achieve password reset milestone re|Gate|FR-AUTH-005,API-005,API-006,AUTH-E3|exit-criteria-password|M|P0
+3|91|M4|Achieve frontend integration milest|Gate|COMP-006,COMP-007,COMP-008,COMP-009,TEST-006|e2e-test,coverage|M|P1
+3|92|PERSONA-003|Support Sam API Consumer clear auth|Persona-driven validation|FR-AUTH-003,API-004|auth-contract-stable|S|P1
+3|93|STORY-004|the PRD story session persistence a|User story validation|FR-AUTH-003,COMP-008|active-sessions-remain|S|P1
+3|94|STORY-005|the PRD story programmatic token re|User story validation|API-004,FR-AUTH-003|refresh|S|P1
+3|95|STORY-006|the PRD story profile viewing|User story validation|FR-AUTH-004,COMP-009|profile-view-shows|S|P1
+3|96|STORY-007|the PRD story self-service password|User story validation|FR-AUTH-005,API-005,API-006|reset-email-initiated|M|P1
+3|97|JOURNEY-002|returning-user login journey silent|Journey validation|FR-AUTH-001,FR-AUTH-003,COMP-008|journey-supports-login|M|P1
+3|98|JOURNEY-003|password reset journey request thro|Journey validation|FR-AUTH-005,API-005,API-006|redirect|M|P1
+3|99|JOURNEY-004|authenticated profile-management jo|Journey validation|FR-AUTH-004,COMP-009|authenticated-user-navigate|S|P2
+3|100|ERROR-004|Handle reset request unregistered e|Backend error handling|API-005,FR-AUTH-005|unregistered-email-returns|S|P1
+3|101|ERROR-005|Handle expired reset-link submissio|Backend error handling|API-006,FR-AUTH-005|expired-token-produces|S|P1
+3|102|ERROR-006|Preserve multi-device session suppo|Session management|FR-AUTH-003,COMP-002|concurrent|M|P1
+3|103|ERROR-007|Handle token expiry during active u|FE|COMP-008,FR-AUTH-003|silent-refresh-occurs|M|P1
+3|104|ERROR-008|Enforce password policy feedback be|FE|COMP-007,FR-AUTH-002|inline-validation|S|P2
+3|105|JTBD-002|Support returning-user login resume|User job validation|FR-AUTH-001,FR-AUTH-003|auth-architecture-allows|S|P1
+3|106|JTBD-003|Support self-service password recov|User job validation|FR-AUTH-005,API-005,API-006|users-regain-access|S|P1
+3|107|JTBD-004|Support programmatic integration au|User job validation|FR-AUTH-003,API-004|refresh|S|P1
+# P4: Observability, Security Hardening, Performance, Reliability, and Test Expansion (36 rows)
+4|108|OPS-001|`auth_login_total` metric emission|Observability / metrics|FR-AUTH-001,COMPLIANCE-001|alerting|S|P1
+4|109|OPS-002|`auth_login_duration_seconds` histo|Observability / metrics|FR-AUTH-001,NFR-PERF-001|p95,alerting|S|P1
+4|110|OPS-003|`auth_token_refresh_total` metric e|Observability / metrics|FR-AUTH-003,API-004|counter-captures-refresh|S|P1
+4|111|OPS-004|`auth_registration_total` metric em|Observability / metrics|FR-AUTH-002,API-002|counter-captures-registration|S|P1
+4|112|OPS-005|structured logging login success, l|Observability / logging|FR-AUTH-001,FR-AUTH-002,FR-AUTH-003,FR-AUTH-005,COMPLIANCE-001|structured-logs-include|M|P0
+4|113|OPS-006|distributed tracing across `AuthSer|Observability / tracing|COMP-001,COMP-002,COMP-003,COMP-004|request-traces-span|M|P1
+4|114|OPS-007|alert login failure rate above 20%|Ops|OPS-001,OPS-005,R-002|alerting|S|P1
+4|115|OPS-008|alert p95 latency above 500ms|Ops|OPS-002,NFR-PERF-001|alerting|S|P1
+4|116|OPS-009|alert `TokenManager` Redis connecti|Ops|COMP-002,OPS-003|redis,alerting|S|P0
+4|117|OPS-010|auth service capacity target pod sc|Capacity planning / compute|NFR-REL-001,NFR-PERF-002|scaling-target-trigger|M|P1
+4|118|OPS-011|PostgreSQL connection-pool scaling|Capacity planning / database|INFRA-DB-001,NFR-PERF-002|concurrent|M|P1
+4|119|OPS-012|Redis memory token-retention capaci|Capacity planning / cache|COMP-002,FR-AUTH-003|redis|M|P1
+4|120|R-001|token-theft mitigation posture acro|Sec|COMP-008,AUTH_TOKEN_REFRESH,FR-AUTH-003|access|M|P0
+4|121|R-003|migration/data-protection safeguard|Migration safety|DM-001,AUTH_NEW_LOGIN|rollback,rollout|M|P0
+4|122|RISK-PRD-002|Schedule dedicated security review|Sec|FR-AUTH-001,FR-AUTH-003,FR-AUTH-005,SEC-POLICY-001|security-review-scope|M|P0
+4|123|RISK-PRD-003|audit logging completeness complian|Compliance assurance|COMPLIANCE-001,OPS-005|audit-log,soc2|M|P0
+4|124|RISK-PRD-004|email-delivery monitoring fallback|Ops|API-005,FR-AUTH-005|password-reset-email|M|P1
+4|125|TEST-001|Expand login unit tests cover locko|Unit tests / AuthService|TEST-001,R-002|lockout,coverage|M|P1
+4|126|TEST-002|Expand invalid-credential tests cov|Unit tests / AuthService|TEST-002|tests-verify-consistent|S|P1
+4|127|TEST-003|Expand token unit tests cover rotat|Unit tests / TokenManager|TEST-003,COMP-002|revocation,redis,coverage|M|P1
+4|128|TEST-004|Expand registration integration cov|Integration tests|TEST-004,LEG-001,DM-001|integration-test|M|P1
+4|129|TEST-005|Expand refresh integration coverage|Integration tests|TEST-005,NFR-SEC-002|revocation,integration-test|M|P1
+4|130|TEST-006|Expand E2E coverage password reset|E2E tests|TEST-006,FR-AUTH-005,ERROR-007|e2e-test|L|P1
+4|131|PERSONA-002|Support Jordan Platform Admin auth|Persona-driven operations|OPS-001,OPS-005,OPS-007,OPS-009|lockout|S|P1
+4|132|STORY-008|the PRD story queryable authenticat|User story validation / admin operations|COMPLIANCE-001,OPS-005|auth-logs-contain|M|P1
+4|133|LEG-002|SOC2 Type II audit log retention ev|Compliance / audit logging|COMPLIANCE-001,OPS-005|auth-events-include|M|P0
+4|134|LEG-003|Verify password-storage design NIST|Compliance / password policy|NFR-SEC-001,NFR-AUTH.3,SEC-POLICY-001|password-storage-handling|S|P0
+4|135|LEG-004|Enforce data minimization auth data|Compliance / privacy|FR-AUTH-002,DM-001|collected-fields-remain|S|P1
+4|136|ALT-001|Reconfirm rejection the do-nothing|Arch|AUTH-PRD-001|roadmap-remains-anchored|S|P2
+4|137|ALT-002|Reconfirm rejection third-party aut|Arch|AUTH-001-TDD,AUTH-PRD-001|roadmap-item-substitutes|S|P2
+4|138|ALT-003|Reconfirm rejection session-cookie|Arch|G-002,COMP-002,COMP-003|jwt|S|P2
+4|139|SUCCESS-001|login p95 target instrumentation pr|Success metric validation|NFR-PERF-001,OPS-002|p95,rollout|M|P0
+4|140|SUCCESS-002|registration conversion instrumenta|Success metric validation|OPS-004,JOURNEY-001|funnel-instrumentation-exists|S|P1
+4|141|SUCCESS-003|average session duration measuremen|Success metric validation|OPS-003,FR-AUTH-003|refresh-session-analytics|S|P1
+4|142|SUCCESS-004|failed-login rate measurement path|Success metric validation|OPS-001,OPS-005,R-002|telemetry-supports-measuring|S|P1
+4|143|SUCCESS-005|password-reset completion funnel in|Success metric validation|API-005,API-006,OPS-005|funnel-captures-reset|M|P1
+# P5: Migration, Rollout, Operational Readiness, and Release Governance (28 rows)
+5|144|MIG-001|Execute Phase 1 internal alpha roll|Release / rollout|M4,OPS-005,TEST-006|staging-deployment-exposes|M|P0
+5|145|MIG-002|Execute Phase 2 beta rollout plan 1|Release / rollout|MIG-001,AUTH_NEW_LOGIN,AUTH_TOKEN_REFRESH,OPS-001,OPS-008,OPS-009|redis,rollout|M|P0
+5|146|MIG-003|Execute Phase 3 general-availabilit|Release / rollout|MIG-002,NFR-REL-001,SUCCESS-001|full-traffic-cutover|M|P0
+5|147|MIG-004|and validate `AUTH_NEW_LOGIN` featu|Release controls|API-001,COMP-006,MIG-001|rollback|M|P0
+5|148|MIG-005|staged removal criteria `AUTH_NEW_L|Release controls|MIG-003,MIG-004|rollback|S|P1
+5|149|MIG-006|staged removal criteria `AUTH_TOKEN|Release controls|MIG-003,AUTH_TOKEN_REFRESH|removal-criteria-documented|S|P1
+5|150|MIG-007|rollback procedure disable new auth|Rollback readiness|MIG-004,MIG-001|rollback|M|P0
+5|151|MIG-008|and validate latency-triggered roll|Rollback criteria|OPS-008,MIG-007|p95,rollback|S|P1
+5|152|MIG-009|and validate error-rate-triggered r|Rollback criteria|OPS-005,MIG-007|rollback|S|P1
+5|153|MIG-010|and validate Redis-failure data-cor|Rollback criteria|OPS-009,R-003,MIG-007|redis,rollback|S|P0
+5|154|AUTH_NEW_LOGIN|Activate controlled rollout path ne|Release controls|MIG-004,COMP-006,COMP-007|feature-flag,rollout|S|P0
+5|155|OPS-013|Publish runbook `AuthService` full|Ops|OPS-005,OPS-006,MIG-001|postgres|M|P0
+5|156|OPS-014|Publish runbook token-refresh failu|Ops|OPS-009,COMP-002,AUTH_TOKEN_REFRESH|redis|M|P0
+5|157|OPS-015|Formalize first-two-weeks post-GA 2|Ops|MIG-003,OPS-013,OPS-014|coverage|S|P1
+5|158|OPS-016|HPA deployment topology `AuthServic|Ops|OPS-010,MIG-002|production-deployment-configuration|M|P1
+5|159|OPS-017|PostgreSQL operational tooling admi|Ops|OPS-011,OPS-013|required-admin-access|S|P1
+5|160|OPS-018|Redis operational tooling admin acc|Ops|OPS-012,OPS-014|rollout|S|P1
+5|161|M5|Achieve GA release milestone produc|Gate|MIG-001,MIG-002,MIG-003,OPS-013,OPS-014|rollback,rollout|M|P0
+5|162|RELEASE-001|definition-of-done coverage all FR-|Release governance|FR-AUTH-001,FR-AUTH-002,FR-AUTH-003,FR-AUTH-004,FR-AUTH-005,TEST-001,TEST-002,TEST-003,TEST-004,TEST-005,TEST-006|functional-requirements-implemented|M|P0
+5|163|RELEASE-002|unit coverage target above 80% auth|Release governance|TEST-001,TEST-002,TEST-003|lockout,coverage|M|P1
+5|164|RELEASE-003|integration coverage real PostgreSQ|Release governance|TEST-004,TEST-005|integration-evidence-demonstrates|M|P0
+5|165|RELEASE-004|security review completion hashing,|Release governance|RISK-PRD-002,LEG-003,NFR-SEC-002|security-review-completed|M|P0
+5|166|RELEASE-005|performance testing <200ms p95 500|Release governance|SUCCESS-001,NFR-PERF-002,NFR-AUTH.1|rollout|M|P0
+5|167|RELEASE-006|staging smoke tests backend fronten|Release governance|MIG-001,COMP-006,COMP-007,COMP-008,COMP-009|staging-smoke-suite|M|P0
+5|168|RELEASE-007|production feature-flag configurati|Release governance|AUTH_NEW_LOGIN,AUTH_TOKEN_REFRESH|rollback|S|P0
+5|169|RELEASE-008|monitoring dashboards alert routing|Release governance|OPS-001,OPS-002,OPS-003,OPS-004,OPS-007,OPS-008,OPS-009|alerting,rollout|M|P0
+5|170|RELEASE-009|rollback drill execution staging|Release governance|MIG-007,MIG-008,MIG-009,MIG-010|rollback|M|P0
+5|171|RELEASE-010|data migration script production-li|Release governance|R-003,MIG-001|migration-reconciliation-logic|M|P1
+# P6: PRD Traceability, Compliance Closure, Business Validation, and Open-Item Resolution (44 rows)
+6|172|PRD-FR-TRACE-001|Cross-verify TDD PRD login requirem|Requirements traceability|FR-AUTH-001,FR-AUTH.1|traceability-record-shows|S|P1
+6|173|PRD-FR-TRACE-002|Cross-verify TDD PRD registration r|Requirements traceability|FR-AUTH-002,FR-AUTH.2|traceability-record-shows|S|P1
+6|174|PRD-FR-TRACE-003|Cross-verify TDD PRD session persis|Requirements traceability|FR-AUTH-003,FR-AUTH.3|traceability-record-shows|S|P1
+6|175|PRD-FR-TRACE-004|Cross-verify TDD PRD profile requir|Requirements traceability|FR-AUTH-004,FR-AUTH.4|traceability-record-shows|S|P1
+6|176|PRD-FR-TRACE-005|Cross-verify TDD PRD password reset|Requirements traceability|FR-AUTH-005,FR-AUTH.5|traceability-record-shows|S|P1
+6|177|PRD-NFR-TRACE-001|Cross-verify TDD PRD latency/concur|Requirements traceability|NFR-PERF-001,NFR-PERF-002,NFR-AUTH.1|traceability-record-shows|S|P1
+6|178|PRD-NFR-TRACE-002|Cross-verify TDD PRD availability r|Requirements traceability|NFR-REL-001,NFR-AUTH.2|traceability-record-shows|S|P1
+6|179|PRD-NFR-TRACE-003|Cross-verify TDD PRD password secur|Requirements traceability|NFR-SEC-001,NFR-AUTH.3|bcrypt|S|P1
+6|180|PERSONA-001|released auth flows Alex End User o|Persona validation|JOURNEY-001,JOURNEY-002,JOURNEY-003|registration-login-persistence|S|P1
+6|181|PERSONA-002|released observability/admin flows|Persona validation|STORY-008,OPS-013,OPS-014|admin-facing-operations-support|S|P1
+6|182|PERSONA-003|released token/API flows Sam API Co|Persona validation|STORY-005,JTBD-004|programmatic-auth-contract|S|P1
+6|183|JTBD-001|first-time signup job-to-be-done co|Business validation|SUCCESS-002,JOURNEY-001|evidence-shows-first-time|S|P1
+6|184|JTBD-002|returning-user resume job-to-be-don|Business validation|SUCCESS-003,JOURNEY-002|evidence-shows-users|S|P1
+6|185|JTBD-003|self-service recovery job-to-be-don|Business validation|SUCCESS-005,JOURNEY-003|evidence-shows-reset|S|P1
+6|186|JTBD-004|programmatic integration job-to-be-|Business validation|STORY-005,PRD-FR-TRACE-003|evidence-shows-integrations|S|P1
+6|187|STORY-001|released registration experience PR|Story closure|FR-AUTH-002,COMP-007|registration-supports-required|S|P1
+6|188|STORY-002|released login experience PRD accep|Story closure|FR-AUTH-001,COMP-006|no-enum|S|P1
+6|189|STORY-003|logout/session-end design expectati|Story closure / scope note|FR-AUTH-003,AUTH_TOKEN_REFRESH,NG-003|session-behavior-documented|S|P2
+6|190|STORY-004|session persistence story closure|Story closure|FR-AUTH-003,COMP-008|session-remains-active|S|P1
+6|191|STORY-005|token refresh story closure|Story closure|API-004,COMP-002,COMP-008|refresh|S|P1
+6|192|STORY-006|profile-view story closure|Story closure|FR-AUTH-004,COMP-009|profile-page-displays|S|P1
+6|193|STORY-007|password-reset story closure|Story closure|FR-AUTH-005,API-005,API-006|reset-email-delivery|M|P1
+6|194|STORY-008|auth-event-log story closure|Story closure|OPS-005,LEG-002|auth-event-logs|S|P1
+6|195|LEG-001|registration consent capture timest|Compliance closure|FR-AUTH-002,TEST-004|consent-captured-registration|S|P1
+6|196|LEG-002|audit logging SOC2 Type II control|Compliance closure|OPS-005,STORY-008|auth-events-complete|M|P0
+6|197|LEG-003|one-way password storage raw-secret|Compliance closure|NFR-SEC-001,NFR-AUTH.3|passwords-stored-logged|S|P0
+6|198|LEG-004|data minimization across collected|Compliance closure|DM-001,FR-AUTH-002|stored-auth-data|S|P1
+6|199|SUCCESS-001|Close login performance success met|Success closure|SUCCESS-001,RELEASE-005|p95|S|P0
+6|200|SUCCESS-002|Close registration conversion instr|Success closure|SUCCESS-002|final-evidence-package|S|P1
+6|201|SUCCESS-003|Close average-session-duration meas|Success closure|SUCCESS-003|final-evidence-package|S|P1
+6|202|SUCCESS-004|Close failed-login-rate measurement|Success closure|SUCCESS-004|final-evidence-package|S|P1
+6|203|SUCCESS-005|Close password-reset completion mea|Success closure|SUCCESS-005|e2e-test|S|P1
+6|204|DEP-001|SendGrid/email-service dependency r|External dependency validation|API-005,RISK-PRD-004|email-delivery-dependency|M|P1
+6|205|DEP-002|PostgreSQL dependency readiness pro|Infra|INFRA-DB-001,OPS-017|database-dependency-production-ready|M|P0
+6|206|DEP-003|frontend-routing dependency readine|Internal dependency validation|COMP-006,COMP-007,COMP-009|redirect|S|P1
+6|207|DEP-004|security-policy dependency closure|Policy dependency validation|SEC-POLICY-001,RELEASE-004|security-policy-dependencies|S|P0
+6|208|DEP-005|Node.js 20 LTS runtime readiness de|Runtime dependency validation|COMP-001,COMP-002,COMP-003|production-runtime-baseline|S|P1
+6|209|DEP-006|Redis 7+ dependency readiness refre|Infra|COMP-002,OPS-018|redis|M|P0
+6|210|DEP-007|frontend token-based auth support a|Internal dependency validation|COMP-008,FE-AUTH-001-TDD|access|S|P1
+6|211|DEP-008|compliance-reference dependencies e|Governance dependency validation|COMPLIANCE-001,SEC-POLICY-001,AUTH-PRD-001|required-reference-documents|S|P1
+6|212|REF-001|Link final implementation roadmap e|Docs|AUTH-PRD-001,RELEASE-001|final-traceability-package|S|P2
+6|213|REF-002|Link final security evidence back S|Docs|SEC-POLICY-001,LEG-003,DEP-004|final-security-evidence|S|P2
+6|214|REF-003|Link final compliance evidence back|Docs|COMPLIANCE-001,LEG-002|audit-log|S|P2
+6|215|COST-001|production cost/resource estimate a|Cost governance|OPS-016,OPS-017,OPS-018|final-infrastructure-design|S|P2
+
+chunk_hashes:
+  meta: 03581462333b62ff
+  phase_1: 8eeabca2ff480e8f
+  phase_2: 6c2822ac0130fd32
+  phase_3: 34e92033a5a6de3a
+  phase_4: e737f0d9f2e0fd29
+  phase_5: d8869278dbcbdeed
+  phase_6: 5e8cf181c9e3a47a

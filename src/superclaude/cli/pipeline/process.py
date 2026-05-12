@@ -50,6 +50,7 @@ class ClaudeProcess:
         on_signal: Callable[[int, str], None] | None = None,
         on_exit: Callable[[int, int | None], None] | None = None,
         env_vars: dict[str, str] | None = None,
+        tool_write_mode: bool = False,
     ):
         self.prompt = prompt
         self.output_file = output_file
@@ -64,12 +65,17 @@ class ClaudeProcess:
         self._on_signal = on_signal
         self._on_exit = on_exit
         self._extra_env_vars = env_vars
+        self.tool_write_mode = tool_write_mode
         self._process: Optional[subprocess.Popen] = None
         self._stdout_fh = None
         self._stderr_fh = None
 
     def build_command(self) -> list[str]:
-        """Build the claude CLI command."""
+        """Build the claude CLI command.
+
+        Prompt is delivered via stdin in start(), not as a -p argv value,
+        to bypass the Linux MAX_ARG_STRLEN = 128 KB per-argument ceiling.
+        """
         cmd = [
             "claude",
             "--print",
@@ -82,8 +88,6 @@ class ClaudeProcess:
             str(self.max_turns),
             "--output-format",
             self.output_format,
-            "-p",
-            self.prompt,
         ]
         if self.model:
             cmd.extend(["--model", self.model])
@@ -111,11 +115,15 @@ class ClaudeProcess:
         """Launch the claude process."""
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        self._stdout_fh = open(self.output_file, "w")
+        if self.tool_write_mode:
+            # LLM writes output_file via Write tool; stdout goes to .log
+            self._stdout_fh = open(self.output_file.with_suffix(".log"), "w")
+        else:
+            self._stdout_fh = open(self.output_file, "w")
         self._stderr_fh = open(self.error_file, "w")
 
         popen_kwargs = {
-            "stdin": subprocess.DEVNULL,
+            "stdin": subprocess.PIPE,
             "stdout": self._stdout_fh,
             "stderr": self._stderr_fh,
             "env": self.build_env(env_vars=self._extra_env_vars),
@@ -124,6 +132,18 @@ class ClaudeProcess:
             popen_kwargs["preexec_fn"] = os.setpgrp
 
         self._process = subprocess.Popen(self.build_command(), **popen_kwargs)
+
+        # Deliver the prompt via stdin to bypass the Linux MAX_ARG_STRLEN
+        # (128 KB per-argv-entry) kernel ceiling. Deadlock-safe: stdout/stderr
+        # are real file handles, not pipes, so the parent never reads from the
+        # child and a blocked stdin write cannot deadlock.
+        try:
+            if self._process.stdin is not None:
+                self._process.stdin.write(self.prompt.encode("utf-8"))
+                self._process.stdin.close()
+        except BrokenPipeError:
+            # Child exited before reading stdin; wait() will surface the exit code.
+            pass
 
         if self._on_spawn is not None:
             self._on_spawn(self._process.pid)
@@ -192,6 +212,28 @@ class ClaudeProcess:
         if self._on_exit is not None:
             self._on_exit(self._process.pid, self._process.returncode)
         self._close_handles()
+
+    def validate_tool_write_output(self) -> bool:
+        """Check that the LLM wrote the output file via tools.
+
+        Only meaningful when tool_write_mode=True. Returns True if
+        output_file exists and is non-empty.
+        """
+        if not self.tool_write_mode:
+            return True
+        if not self.output_file.exists():
+            _log.warning(
+                "tool_write_mode: output file %s does not exist after subprocess exit",
+                self.output_file,
+            )
+            return False
+        if self.output_file.stat().st_size == 0:
+            _log.warning(
+                "tool_write_mode: output file %s is empty after subprocess exit",
+                self.output_file,
+            )
+            return False
+        return True
 
     def _close_handles(self) -> None:
         for fh in (self._stdout_fh, self._stderr_fh):

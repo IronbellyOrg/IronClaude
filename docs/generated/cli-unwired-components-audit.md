@@ -9,25 +9,25 @@
 
 ## Category 1: `Optional[Callable]=None` Params Never Populated
 
-11 callable parameters exist that are **never passed a non-None value** at any call site in the entire `src/superclaude/` tree.
+11 callable parameters were originally identified as never passed a non-None value at any call site in `src/superclaude/`. All have been resolved.
 
-| # | File:Line | Parameter | Function/Method |
-|---|---|---|---|
-| 1 | `audit/spot_check.py:81` | `reclassify_fn` | `spot_check_validate()` |
-| 2 | `roadmap/executor.py:723` | `halt_fn` | `_check_remediation_budget()` |
-| 3 | `cli_portify/monitor.py:216` | `kill_fn` | `StallDetector.__init__()` |
-| 4 | `cli_portify/executor.py:333` | `step_runner` | `PortifyExecutor.__init__()` |
-| 5 | `cli_portify/executor.py:513` | `process_runner` | `execute_protocol_mapping_step()` |
-| 6 | `cli_portify/executor.py:568` | `process_runner` | `execute_analysis_synthesis_step()` |
-| 7 | `cli_portify/executor.py:729` | `process_runner` | `execute_step_graph_design_step()` |
-| 8 | `cli_portify/executor.py:789` | `process_runner` | `execute_models_gates_design_step()` |
-| 9 | `cli_portify/executor.py:844` | `process_runner` | `execute_prompts_executor_design_step()` |
-| 10 | `cli_portify/executor.py:958` | `process_runner` | `execute_pipeline_spec_assembly_step()` |
-| 11 | `cli_portify/executor.py:1207` | `process_runner` | `execute_release_spec_synthesis_step()` |
+| # | File:Line | Parameter | Function/Method | Status |
+|---|---|---|---|---|
+| 1 | `audit/spot_check.py:81` | `reclassify_fn` | `spot_check_validate()` | RECLASSIFIED: intentional test seam |
+| 2 | `roadmap/executor.py:723` | `halt_fn` | `_check_remediation_budget()` | RESOLVED: removed |
+| 3 | `cli_portify/monitor.py:216` | `kill_fn` | `StallDetector.__init__()` | RESOLVED: removed |
+| 4 | `cli_portify/executor.py:333` | `step_runner` | `PortifyExecutor.__init__()` | RECLASSIFIED: intentional test seam |
+| 5 | `cli_portify/executor.py:513` | `process_runner` | `execute_protocol_mapping_step()` | RESOLVED: removed |
+| 6 | `cli_portify/executor.py:568` | `process_runner` | `execute_analysis_synthesis_step()` | RESOLVED: removed |
+| 7 | `cli_portify/executor.py:729` | `process_runner` | `execute_step_graph_design_step()` | RESOLVED: removed |
+| 8 | `cli_portify/executor.py:789` | `process_runner` | `execute_models_gates_design_step()` | RESOLVED: removed |
+| 9 | `cli_portify/executor.py:844` | `process_runner` | `execute_prompts_executor_design_step()` | RESOLVED: removed |
+| 10 | `cli_portify/executor.py:958` | `process_runner` | `execute_pipeline_spec_assembly_step()` | RESOLVED: removed |
+| 11 | `cli_portify/executor.py:1207` | `process_runner` | `execute_release_spec_synthesis_step()` | RESOLVED: removed |
 
 **Wired (for reference):** `pipeline/process.py:49-51` (`on_spawn`, `on_signal`, `on_exit`) — populated from `sprint/process.py:117-119`.
 
-**Assessment:** Items 5–11 share the same `process_runner` pattern — a testing seam that was never connected. Item 4 (`step_runner`) is a broader executor injection that's similarly phantom. Items 1–3 are one-off hooks with no callers.
+**Assessment:** Items 5–11 (`process_runner`) and items 2–3 (`halt_fn`, `kill_fn`) have been removed. Items 1 and 4 are intentional test seams: `step_runner` is actively used by 7+ tests in `tests/cli_portify/test_executor.py` as the primary executor test seam; `reclassify_fn` is actively used by 2 tests in `tests/audit/test_spot_check.py` (lines 132, 150). Both are dependency injection points for testing, not phantom params.
 
 ---
 
@@ -101,15 +101,15 @@ The executor (`cli_portify/executor.py`) implements bespoke inline checks rather
 
 ---
 
-## Severity Summary
+## Severity Summary (Updated 2026-03-25)
 
-| Severity | Count | Symbols |
+| Severity | Original Count | Current Status |
 |---|---|---|
-| **High** | 4 subsystems | `SprintGatePolicy` chain (4 symbols), `evidence_gate` module (2 symbols), `manifest_gate` module (2 symbols), `cli_portify` gate registry (12 symbols) |
-| **Medium** | 11 | Never-populated `Optional[Callable]=None` params — testing seams with no tests using them |
-| **Low** | 5 | Exported-but-unused: `resolve_gate_mode`, `GateScope`, `PROMPT_BUILDERS` accessor, `FAILURE_HANDLERS` accessors, `DEVIATION_ANALYSIS_GATE` |
+| **High** | 4 subsystems | All RESOLVED: `SprintGatePolicy` chain wired (v3.7), `evidence_gate` module deleted (P4), `manifest_gate` module deleted (P4), `cli_portify` gate registry wired via `PortifyGatePolicy` two-layer enforcement (P3) |
+| **Medium** | 11 | All RESOLVED: 7 `process_runner` params removed (prior), `halt_fn`/`kill_fn` removed (P1), `step_runner`/`reclassify_fn` reclassified as intentional test seams (P2) |
+| **Low** | 5 | 2 RESOLVED: `resolve_gate_mode`/`GateScope` wired (v3.7). 3 REMAINING: `PROMPT_BUILDERS` accessor, `FAILURE_HANDLERS` accessors, `DEVIATION_ANALYSIS_GATE` |
 
-**Total unwired components: 32 symbols across 14 files.**
+**Remaining unwired components: 3 symbols (down from 32).**
 
 ---
 

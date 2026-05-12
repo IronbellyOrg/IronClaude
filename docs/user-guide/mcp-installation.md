@@ -15,7 +15,7 @@ superclaude mcp
 superclaude mcp --servers tavily --servers context7
 
 # Install all servers
-superclaude mcp --servers sequential-thinking context7 magic playwright serena morphllm-fast-apply tavily chrome-devtools
+superclaude mcp --servers sequential-thinking context7 magic playwright serena morphllm-fast-apply tavily chrome-devtools auggie
 ```
 
 ## Available MCP Servers
@@ -30,6 +30,7 @@ superclaude mcp --servers sequential-thinking context7 magic playwright serena m
 | **morphllm-fast-apply** | Fast Apply for context-aware code modifications | Yes (`MORPH_API_KEY`) |
 | **tavily** | Web search and real-time information retrieval | Yes (`TAVILY_API_KEY`) |
 | **chrome-devtools** | Chrome DevTools debugging and performance analysis | No |
+| **auggie** | Semantic codebase search via Augment Code | No (requires `auggie login`) |
 
 ## Installation Scopes
 
@@ -59,6 +60,7 @@ Some MCP servers require API keys for full functionality. SuperClaude will promp
 - **Tavily**: Get your API key from [https://app.tavily.com](https://app.tavily.com)
 - **Magic (21st.dev)**: Get your API key from [https://21st.dev](https://21st.dev)
 - **Morphllm**: Get your API key from the Morphllm service
+- **Auggie**: Uses session auth (run `auggie login` after install). Headless alternative: set `AUGMENT_SESSION_AUTH`. Docs: [Auggie quickstart](https://docs.augmentcode.com/context-services/mcp/quickstart-claude-code)
 
 ### Setting API Keys
 

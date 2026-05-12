@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from superclaude.cli.roadmap.gates import (
@@ -36,6 +38,7 @@ from superclaude.cli.roadmap.gates import (
     _routing_ids_valid,
     _slip_count_matches_routing,
     _tasklist_ready_consistent,
+    _template_sections_present,
     _total_analyzed_consistent,
     _total_annotated_consistent,
     _deviation_counts_reconciled,
@@ -57,7 +60,11 @@ class TestGateInstances:
         assert "functional_requirements" in EXTRACT_GATE.required_frontmatter_fields
         assert "complexity_score" in EXTRACT_GATE.required_frontmatter_fields
         assert "complexity_class" in EXTRACT_GATE.required_frontmatter_fields
-        assert "spec_source" in EXTRACT_GATE.required_frontmatter_fields
+        # spec_source and spec_sources form an OR-group (template contract).
+        assert (
+            "spec_source",
+            "spec_sources",
+        ) in EXTRACT_GATE.required_frontmatter_fields
         assert "generated" in EXTRACT_GATE.required_frontmatter_fields
         assert "generator" in EXTRACT_GATE.required_frontmatter_fields
         assert "nonfunctional_requirements" in EXTRACT_GATE.required_frontmatter_fields
@@ -77,9 +84,18 @@ class TestGateInstances:
 
     def test_generate_gates_have_semantic_checks(self):
         assert GENERATE_A_GATE.semantic_checks is not None
-        assert len(GENERATE_A_GATE.semantic_checks) == 2
+        assert len(GENERATE_A_GATE.semantic_checks) == 6
         assert GENERATE_B_GATE.semantic_checks is not None
-        assert len(GENERATE_B_GATE.semantic_checks) == 2
+        assert len(GENERATE_B_GATE.semantic_checks) == 6
+
+    def test_generate_b_gate_is_alias_of_a(self):
+        """GENERATE_A_GATE and GENERATE_B_GATE share one GateCriteria instance.
+
+        The two pipeline steps produce byte-compatible variants of the same
+        roadmap; both are gated by identical rules. Aliasing guarantees that a
+        check added on one side is enforced on the other.
+        """
+        assert GENERATE_B_GATE is GENERATE_A_GATE
 
     def test_diff_gate_standard(self):
         assert DIFF_GATE.enforcement_tier == "STANDARD"
@@ -90,14 +106,18 @@ class TestGateInstances:
         assert "convergence_score" in DEBATE_GATE.required_frontmatter_fields
         assert DEBATE_GATE.semantic_checks is not None
 
-    def test_merge_gate_has_three_semantic_checks(self):
+    def test_merge_gate_has_seven_semantic_checks(self):
         assert MERGE_GATE.enforcement_tier == "STRICT"
-        assert len(MERGE_GATE.semantic_checks) == 3
+        assert len(MERGE_GATE.semantic_checks) == 7
         check_names = {c.name for c in MERGE_GATE.semantic_checks}
         assert check_names == {
             "no_heading_gaps",
             "cross_refs_resolve",
             "no_duplicate_headings",
+            "minimum_deliverable_rows",
+            "deliverable_table_schema",
+            "no_template_sentinels",
+            "template_sections_present",
         }
 
     def test_score_gate_standard(self):
@@ -108,7 +128,10 @@ class TestGateInstances:
         assert TEST_STRATEGY_GATE.enforcement_tier == "STRICT"
         assert "validation_milestones" in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "interleave_ratio" in TEST_STRATEGY_GATE.required_frontmatter_fields
-        assert "spec_source" in TEST_STRATEGY_GATE.required_frontmatter_fields
+        assert (
+            "spec_source",
+            "spec_sources",
+        ) in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "generated" in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "generator" in TEST_STRATEGY_GATE.required_frontmatter_fields
         assert "complexity_class" in TEST_STRATEGY_GATE.required_frontmatter_fields
@@ -150,6 +173,32 @@ class TestGateInstances:
         assert check_names == {"complexity_class_valid", "extraction_mode_valid"}
 
 
+class TestSpecSourceAliasGroup:
+    """Provenance gates must accept either `spec_source` (single-spec) or
+    `spec_sources` (multi-spec) — the template contract (refs/templates.md)
+    forbids both but requires one. The gate expresses this as an OR-group
+    tuple `("spec_source", "spec_sources")` in required_frontmatter_fields.
+    """
+
+    @pytest.mark.parametrize(
+        "gate",
+        [
+            EXTRACT_GATE,
+            GENERATE_A_GATE,
+            GENERATE_B_GATE,
+            MERGE_GATE,
+            TEST_STRATEGY_GATE,
+        ],
+    )
+    def test_gate_has_spec_source_alias_group(self, gate):
+        alias = ("spec_source", "spec_sources")
+        assert alias in gate.required_frontmatter_fields, (
+            f"Gate is missing the spec_source OR-group: {alias}"
+        )
+        # The singular literal must not linger alongside the alias group.
+        assert "spec_source" not in gate.required_frontmatter_fields
+
+
 class TestSemanticCheckFunctions:
     def test_no_heading_gaps_valid(self):
         content = "# H1\n## H2\n### H3\n#### H4\n"
@@ -168,11 +217,94 @@ class TestSemanticCheckFunctions:
 
     def test_no_duplicate_headings_h2_dup(self):
         content = "## Alpha\n### Beta\n## Alpha\n"
-        assert _no_duplicate_headings(content) is False
+        assert _no_duplicate_headings(content) is not True
 
     def test_no_duplicate_headings_h3_dup(self):
         content = "### Beta\ntext\n### Beta\n"
-        assert _no_duplicate_headings(content) is False
+        assert _no_duplicate_headings(content) is not True
+
+
+class TestNoDuplicateHeadingsScoped:
+    """H3 duplicate detection is scoped to parent H2 section."""
+
+    def test_h3_same_name_different_h2_parents_passes(self):
+        """The core false-positive fix: ### Tasks under different ## Phase sections."""
+        content = (
+            "## Phase 1\n### Tasks\n### Exit Criteria\n"
+            "## Phase 2\n### Tasks\n### Exit Criteria\n"
+            "## Phase 3\n### Tasks\n### Exit Criteria\n"
+        )
+        assert _no_duplicate_headings(content) is True
+
+    def test_h3_same_name_same_h2_parent_fails(self):
+        """Duplicate H3 within the same H2 section is still caught."""
+        content = "## Phase 1\n### Tasks\nsome text\n### Tasks\n"
+        result = _no_duplicate_headings(content)
+        assert result is not True
+        assert "Tasks" in result  # diagnostic contains the heading text
+
+    def test_h2_global_duplicate_still_fails(self):
+        """H2 duplicates are always caught regardless of position."""
+        content = "## Phase 1\n### Tasks\n## Phase 2\n### Tasks\n## Phase 1\n"
+        result = _no_duplicate_headings(content)
+        assert result is not True
+        assert "Phase 1" in result
+
+    def test_h3_before_any_h2_duplicate_fails(self):
+        """H3s before any H2 share a preamble scope -- duplicates are caught."""
+        content = "### Intro\ntext\n### Intro\n"
+        assert _no_duplicate_headings(content) is not True
+
+    def test_h3_preamble_then_same_under_h2_passes(self):
+        """H3 in top-level scope vs under an H2 are different scopes."""
+        content = "### Tasks\n## Phase 1\n### Tasks\n"
+        assert _no_duplicate_headings(content) is True
+
+    def test_case_insensitive_h3_within_section_fails(self):
+        """Duplicate detection is case-insensitive within a section."""
+        content = "## Phase 1\n### Tasks\n### tasks\n"
+        assert _no_duplicate_headings(content) is not True
+
+    def test_empty_content_passes(self):
+        assert _no_duplicate_headings("") is True
+
+    def test_no_headings_passes(self):
+        assert _no_duplicate_headings("Just text\nwith no headings\n") is True
+
+    def test_failure_contains_line_number(self):
+        """Diagnostic string includes the line number of the offending duplicate."""
+        content = "## Phase 1\n### Tasks\n### Tasks\n"
+        result = _no_duplicate_headings(content)
+        assert result is not True
+        assert "line 3" in result.lower()
+
+    def test_real_roadmap_structure_passes(self):
+        """Mirrors the actual failing roadmap structure that triggered this bug."""
+        content = (
+            "## Phase 1: Preparation\n### Tasks\n### Exit Criteria\n"
+            "## Phase 2: Extraction\n### Tasks\n### Integration Points\n"
+            "### Risk Burn-Down\n### Exit Criteria\n"
+            "## Phase 3: Restructuring\n### Tasks\n### Integration Points\n"
+            "### Risk Burn-Down\n### Exit Criteria\n"
+            "## Phase 4: Verification\n### Tasks\n### Evidence Artifacts\n"
+            "### Risk Burn-Down\n### Exit Criteria\n"
+            "## Risk Assessment\n## Resource Requirements\n"
+            "### Prerequisites\n### Staffing\n### External Dependencies\n"
+        )
+        assert _no_duplicate_headings(content) is True
+
+
+def test_prd_refactor_roadmap_passes_duplicate_gate():
+    """Regression: the actual roadmap that exposed this bug should pass."""
+    roadmap = Path(".dev/releases/backlog/prd-skill-refactor/roadmap.md")
+    if not roadmap.exists():
+        pytest.skip("roadmap file not present")
+    content = roadmap.read_text()
+    assert _no_duplicate_headings(content) is True
+
+
+class TestSemanticCheckFunctionsContinued:
+    """Continuation of semantic check function tests (split by scoped heading tests)."""
 
     def test_frontmatter_values_non_empty_valid(self):
         content = "---\ntitle: Hello\nversion: 1.0\n---\n"
@@ -217,6 +349,163 @@ class TestSemanticCheckFunctions:
     def test_convergence_score_missing(self):
         content = "---\nother_field: value\n---\n"
         assert _convergence_score_valid(content) is False
+
+
+class TestTemplateSectionsPresent:
+    """_template_sections_present: verifies roadmap contains all template-required sections."""
+
+    @staticmethod
+    def _minimal_valid_roadmap(
+        *,
+        n_milestones: int = 1,
+        drop_h2: str | None = None,
+        drop_milestone_sub: str | None = None,
+        drop_resource_sub: str | None = None,
+        numbered: bool = False,
+        use_hyphen_dash: bool = False,
+    ) -> str:
+        """Build a minimal roadmap that satisfies the template by default.
+
+        Optional drops exercise failure paths by omitting a specific required
+        section. Keeps each test declarative (one change, one expected result).
+        """
+        dash = "-" if use_hyphen_dash else "\u2014"
+
+        def h2(name: str, idx: int) -> str:
+            prefix = f"{idx}. " if numbered else ""
+            return f"## {prefix}{name}\n\nbody\n"
+
+        required_h2 = [
+            "Executive Summary",
+            "Milestone Summary",
+            "Dependency Graph",
+        ]
+        # Per-milestone sections follow; then the trailing required H2s.
+        trailing_h2 = [
+            "Resource Requirements and Dependencies",
+            "Risk Register",
+            "Success Criteria and Validation Approach",
+            "Decision Summary",
+            "Timeline Estimates",
+        ]
+
+        parts: list[str] = ["# Project Roadmap\n\n"]
+        for i, name in enumerate(required_h2, start=1):
+            if name == drop_h2:
+                continue
+            parts.append(h2(name, i))
+
+        # Milestone sections with the three required H3 subsections.
+        for n in range(1, n_milestones + 1):
+            parts.append(f"## M{n}: Title {n}\n\nobjective\n")
+            for stem in (
+                "Integration Points",
+                "Milestone Dependencies",
+                "Risk Assessment and Mitigation",
+            ):
+                if stem == drop_milestone_sub:
+                    continue
+                parts.append(f"### {stem} {dash} M{n}\n\nbody\n")
+
+        for i, name in enumerate(
+            trailing_h2, start=len(required_h2) + n_milestones + 1
+        ):
+            if name == drop_h2:
+                continue
+            parts.append(h2(name, i))
+            if name == "Resource Requirements and Dependencies":
+                for sub in ("External Dependencies", "Infrastructure Requirements"):
+                    if sub == drop_resource_sub:
+                        continue
+                    parts.append(f"### {sub}\n\nbody\n")
+
+        return "\n".join(parts)
+
+    def test_minimal_valid_roadmap_passes(self):
+        assert _template_sections_present(self._minimal_valid_roadmap()) is True
+
+    def test_multiple_milestones_pass(self):
+        assert (
+            _template_sections_present(self._minimal_valid_roadmap(n_milestones=3))
+            is True
+        )
+
+    def test_numbered_headings_tolerated(self):
+        """`## 1. Executive Summary` should count as `## Executive Summary`."""
+        assert (
+            _template_sections_present(self._minimal_valid_roadmap(numbered=True))
+            is True
+        )
+
+    def test_hyphen_dash_tolerated_in_milestone_subs(self):
+        """`### Integration Points - M1` (hyphen) passes alongside em-dash."""
+        assert (
+            _template_sections_present(
+                self._minimal_valid_roadmap(use_hyphen_dash=True)
+            )
+            is True
+        )
+
+    def test_missing_executive_summary_fails(self):
+        content = self._minimal_valid_roadmap(drop_h2="Executive Summary")
+        assert _template_sections_present(content) is False
+
+    def test_missing_risk_register_fails(self):
+        content = self._minimal_valid_roadmap(drop_h2="Risk Register")
+        assert _template_sections_present(content) is False
+
+    def test_missing_timeline_estimates_fails(self):
+        content = self._minimal_valid_roadmap(drop_h2="Timeline Estimates")
+        assert _template_sections_present(content) is False
+
+    def test_no_milestone_section_fails(self):
+        content = self._minimal_valid_roadmap(n_milestones=0)
+        assert _template_sections_present(content) is False
+
+    def test_missing_integration_points_in_milestone_fails(self):
+        content = self._minimal_valid_roadmap(drop_milestone_sub="Integration Points")
+        assert _template_sections_present(content) is False
+
+    def test_missing_milestone_dependencies_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_milestone_sub="Milestone Dependencies"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_missing_risk_assessment_in_milestone_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_milestone_sub="Risk Assessment and Mitigation"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_missing_external_dependencies_fails(self):
+        content = self._minimal_valid_roadmap(drop_resource_sub="External Dependencies")
+        assert _template_sections_present(content) is False
+
+    def test_missing_infrastructure_requirements_fails(self):
+        content = self._minimal_valid_roadmap(
+            drop_resource_sub="Infrastructure Requirements"
+        )
+        assert _template_sections_present(content) is False
+
+    def test_open_questions_subsection_remains_optional(self):
+        """Template omits `### Open Questions -- M{N}` when the milestone has none."""
+        content = self._minimal_valid_roadmap()
+        assert "Open Questions" not in content
+        assert _template_sections_present(content) is True
+
+    def test_case_insensitive_heading_match(self):
+        content = self._minimal_valid_roadmap().replace(
+            "## Executive Summary", "## executive summary"
+        )
+        assert _template_sections_present(content) is True
+
+    def test_second_milestone_missing_required_sub_fails(self):
+        """A later milestone dropping a required H3 must fail, not just M1."""
+        content = self._minimal_valid_roadmap(n_milestones=2)
+        # Drop `### Integration Points -- M2` only.
+        content = content.replace("### Integration Points \u2014 M2\n\nbody\n", "")
+        assert _template_sections_present(content) is False
 
 
 class TestComplexityClassValid:
@@ -1200,11 +1489,7 @@ class TestDeviationCountsReconciled:
 
     def test_all_routing_empty_matches_zero(self):
         content = (
-            "---\n"
-            "total_analyzed: 0\n"
-            "routing_fix_roadmap: \n"
-            "routing_no_action: \n"
-            "---\n"
+            "---\ntotal_analyzed: 0\nrouting_fix_roadmap: \nrouting_no_action: \n---\n"
         )
         assert _deviation_counts_reconciled(content) is True
 

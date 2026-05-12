@@ -9,6 +9,8 @@ import pytest
 from superclaude.cli.roadmap.prompts import (
     _DEPTH_INSTRUCTIONS,
     build_debate_prompt,
+    build_generate_prompt,
+    build_merge_prompt,
 )
 
 
@@ -84,3 +86,24 @@ class TestBuildDebatePrompt:
         assert prompts["quick"] != prompts["standard"]
         assert prompts["standard"] != prompts["deep"]
         assert prompts["quick"] != prompts["deep"]
+
+
+class TestVocabularyConstraintInjection:
+    """Verify vocabulary constraint block is injected into generation prompts."""
+
+    def test_generate_prompt_contains_constraint(self):
+        from unittest.mock import MagicMock
+
+        agent = MagicMock()
+        agent.persona = "software architect"
+        prompt = build_generate_prompt(agent, Path("/tmp/extraction.md"))
+        assert "VOCABULARY CONSTRAINT" in prompt
+
+    def test_merge_prompt_contains_constraint(self):
+        prompt = build_merge_prompt(
+            Path("/tmp/base.md"),
+            Path("/tmp/a.md"),
+            Path("/tmp/b.md"),
+            Path("/tmp/debate.md"),
+        )
+        assert "VOCABULARY CONSTRAINT" in prompt

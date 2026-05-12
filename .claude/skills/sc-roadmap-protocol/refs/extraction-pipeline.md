@@ -140,9 +140,99 @@ Assign deterministic IDs to all extracted items:
 
 ---
 
+## TDD-Specific Extraction Steps (Steps 9-15)
+
+**Conditional gate**: Steps 9-15 execute ONLY when TDD-format input is detected. Detection uses a 4-signal weighted scoring system (threshold ≥ 5): numbered headings (≥20 = +3, ≥15 = +2, ≥10 = +1), TDD-exclusive frontmatter fields `parent_doc`/`coordinator` (+2 each), TDD-specific section names like "Data Models", "API Specifications", "Component Inventory" (+1 each), and "Technical Design Document" in first 1000 chars (+2). See `scoring.md` TDD-Format Detection Rule for full details.
+
+When TDD-format is NOT detected, Steps 9-15 are skipped entirely. The standard 8-step extraction pipeline runs unchanged.
+
+Each step stores `null` for its storage key if the corresponding TDD section is absent or empty.
+
+### Step 9: Component Inventory Extraction
+
+Extract new/modified/deleted component tables from `## 10. Component Inventory`.
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `component_inventory` | `{ new: [{name, purpose}], modified: [{name, change}], deleted: [{name, migration_target}] }` |
+
+### Step 10: Migration Phase Extraction
+
+Extract rollout stage table from §19.3 and rollback steps from §19.4.
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `migration_phases` | `{ stages: [{stage, environment, criteria, rollback_trigger}], rollback_steps: [string] }` |
+
+### Step 11: Release Criteria Extraction
+
+Extract Definition of Done checklist from §24.1 and release checklist from §24.2. Runs independently from Step 6 (Success Criteria) — Step 6 captures behavioral success criteria from spec language; Step 11 captures structured checklists from TDD sections.
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `release_criteria` | `{ definition_of_done: [string], release_checklist: [string] }` |
+
+### Step 12: Observability Extraction
+
+Extract metrics table from §14.2, alerts table from §14.4, and dashboard names/links from §14.5.
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `observability` | `{ metrics: [{name, description, type, target}], alerts: [{name, condition, severity}], dashboards: [{name, link}] }` |
+
+### Step 13: Testing Strategy Extraction
+
+Extract test pyramid from §15.1, unit/integration/E2E test case tables from §15.2, and environments from §15.3.
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `testing_strategy` | `{ test_pyramid: [{level, coverage_target, tools}], unit_tests: [...], integration_tests: [...], e2e_tests: [...], environments: [...] }` |
+
+### Step 14: API Surface Extraction
+
+Extract endpoint count from the endpoint summary table in `## 8. API Specifications` §8.1 (API Overview).
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `api_surface` | `{ endpoint_count: N }` |
+
+### Step 15: Data Model Complexity Extraction
+
+Extract entity count and relationship count from `## 7. Data Models` §7.1 Data Entities.
+
+| Storage Key | Structure |
+|-------------|-----------|
+| `data_model_complexity` | `{ entity_count: N, relationship_count: N }` |
+
+Entity count = number of distinct entity/interface definitions in §7.1. Relationship count = number of foreign key, reference, or association declarations across all entities.
+
+---
+
+## PRD-Supplementary Extraction Context
+
+When `--prd-file` is provided alongside the primary input (spec or TDD), the extraction step receives supplementary business context from the PRD. This is NOT a new input mode -- PRD content is injected as conditional prompt enrichment blocks that activate only when the PRD file is present. The primary extraction mode (`spec` or `tdd`) is unchanged.
+
+The following storage keys enrich the extraction output when PRD context is available:
+
+| Storage Key | Source PRD Section | Structure |
+|-------------|-------------------|-----------|
+| `user_personas` | S7 User Personas | `[{ name: str, needs: str, primary_workflow: str }]` |
+| `user_stories` | S6 JTBD / S7 Personas | `[{ actor: str, goal: str, acceptance_criteria: str }]` |
+| `success_metrics` | S19 Success Metrics | `[{ metric: str, target: str, measurement: str }]` |
+| `market_constraints` | S17 Legal/Compliance | `[{ constraint: str, regulatory_body: str, compliance_deadline: str }]` |
+| `release_strategy` | S12 Scope Definition | `{ in_scope: [str], out_of_scope: [str], deferred: [str] }` |
+| `stakeholder_priorities` | S5 Business Context | `[{ stakeholder: str, priority: str, success_criterion: str }]` |
+| `acceptance_scenarios` | S22 Customer Journey Map | `[{ journey: str, critical_path: str, validation_approach: str }]` |
+
+These keys are advisory -- they inform prioritization, scope validation, and test strategy without overriding technical extraction from the primary document. Downstream consumers (generate, score, spec-fidelity, test-strategy) use them to produce roadmaps with product-level grounding alongside engineering structure.
+
+**State file persistence:** `.roadmap-state.json` now stores supplementary file paths (`tdd_file`, `prd_file`, `input_type`) alongside the existing `spec_file` and `spec_hash` fields. This enables downstream pipeline consumers (e.g., `superclaude tasklist validate`) to auto-wire supplementary files without requiring the user to re-pass `--tdd-file` and `--prd-file` flags. Explicit CLI flags always override auto-wired values from state.
+
+---
+
 ## Domain Keyword Dictionaries
 
-Five domain dictionaries for requirement classification. Each keyword has a weight: **primary** (2.0) keywords are strong domain indicators, **secondary** (1.0) keywords are weaker signals.
+Seven domain dictionaries for requirement classification. Each keyword has a weight: **primary** (2.0) keywords are strong domain indicators, **secondary** (1.0) keywords are weaker signals.
 
 ### Frontend Domain
 
@@ -173,6 +263,18 @@ Five domain dictionaries for requirement classification. Each keyword has a weig
 **Primary** (weight 2.0): documentation, README, guide, tutorial, reference, API docs, changelog, release notes, specification, wiki, onboarding, glossary
 
 **Secondary** (weight 1.0): comment, docstring, type annotation, schema description, example, sample, walkthrough, FAQ, troubleshooting, architecture decision record, ADR, diagram, flowchart, sequence diagram
+
+### Testing Domain
+
+**Primary** (weight 2.0): unit test, integration test, e2e test, coverage, test suite, test plan, assertion, mock, fixture, test case, test strategy, test pyramid, qa gate, acceptance test
+
+**Secondary** (weight 1.0): smoke test, regression test, spec file, test runner, test environment, test data, test coverage, test report, snapshot test, contract test, load test, stress test, fuzz test, property-based test
+
+### DevOps/Ops Domain
+
+**Primary** (weight 2.0): runbook, on-call, monitoring, alerting, dashboard, metric, SLO, SLA, deployment, rollout, rollback, feature flag, observability, tracing, capacity planning, incident, escalation
+
+**Secondary** (weight 1.0): canary, blue-green, log level, health check, readiness probe, liveness probe, circuit breaker, failover, disaster recovery, backup, restore, uptime, availability, page, alert threshold, mean time to recovery, MTTR, mean time to detect, MTTD, SRE
 
 ---
 

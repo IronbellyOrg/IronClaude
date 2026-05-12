@@ -30,7 +30,7 @@ def roadmap_group():
 
 
 @roadmap_group.command()
-@click.argument("spec_file", type=click.Path(exists=True, path_type=Path))
+@click.argument("input_files", nargs=-1, required=True, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--agents",
     default=None,
@@ -93,6 +93,12 @@ def roadmap_group():
     help="Allow patches that exceed the diff-size threshold (FR-9). Use with caution.",
 )
 @click.option(
+    "--no-convergence",
+    is_flag=True,
+    default=False,
+    help="Disable the spec-fidelity convergence engine (use single-shot LLM check instead).",
+)
+@click.option(
     "--retrospective",
     type=click.Path(exists=False, path_type=Path),
     default=None,
@@ -102,10 +108,49 @@ def roadmap_group():
         "Missing file is not an error -- extraction proceeds normally."
     ),
 )
+@click.option(
+    "--input-type",
+    type=click.Choice(["auto", "tdd", "spec"], case_sensitive=False),
+    default="auto",
+    help="Input file type. auto=detect from content (PRD, TDD, or spec), tdd/spec=force type. PRD files are auto-detected when passed as positional arguments. Default: auto.",
+)
+@click.option(
+    "--tdd-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help=(
+        "Path to a TDD file for supplementary technical context enrichment. "
+        "When the primary input is a spec, the TDD provides data models, "
+        "API endpoints, component inventory, and test strategy detail. "
+        "Ignored if the primary input is itself a TDD (use --input-type spec to force)."
+    ),
+)
+@click.option(
+    "--prd-file",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help=(
+        "Path to a PRD file for supplementary business context enrichment. "
+        "The PRD provides personas, success metrics, compliance requirements, "
+        "and scope boundaries. Works with both spec and TDD primary inputs. "
+        "Auto-wired from .roadmap-state.json on --resume if not specified."
+    ),
+)
+@click.option(
+    "--no-compress",
+    "no_compress",
+    is_flag=True,
+    default=False,
+    help=(
+        "Disable markdown compression of LLM inputs (spec, variants, merge). "
+        "Compression is lossless (strategies S-01..S-22) and applied only to "
+        "LLM-consumed content; deterministic steps always read originals."
+    ),
+)
 @click.pass_context
 def run(
     ctx: click.Context,
-    spec_file: Path,
+    input_files: tuple[Path, ...],
     agents: str | None,
     output_dir: Path | None,
     depth: str | None,
@@ -116,14 +161,38 @@ def run(
     debug: bool,
     no_validate: bool,
     allow_regeneration: bool,
+    no_convergence: bool,
     retrospective: Path | None,
+    input_type: str,
+    tdd_file: Path | None,
+    prd_file: Path | None,
+    no_compress: bool,
 ) -> None:
-    """Run the roadmap generation pipeline on SPEC_FILE.
+    """Run the roadmap generation pipeline on INPUT_FILES.
 
-    SPEC_FILE is the path to a specification markdown file.
+    INPUT_FILES accepts 1-3 markdown files (spec, TDD, PRD) in any order.
+    Content type is auto-detected. Use --input-type to override for single files.
+
+    Examples:
+        superclaude roadmap run spec.md
+        superclaude roadmap run spec.md tdd.md
+        superclaude roadmap run spec.md tdd.md prd.md
     """
-    from .executor import execute_roadmap
+    if len(input_files) > 3:
+        raise click.UsageError(
+            f"Expected 1-3 input files, got {len(input_files)}. "
+            "Provide at most one spec, one TDD, and one PRD."
+        )
+    from .executor import _route_input_files, execute_roadmap
     from .models import AgentSpec, RoadmapConfig
+
+    # Route positional files + explicit flags into pipeline slots
+    routing = _route_input_files(
+        input_files,
+        explicit_tdd=tdd_file,
+        explicit_prd=prd_file,
+        explicit_input_type=input_type,
+    )
 
     # Detect whether --agents and --depth were explicitly provided
     agents_explicit = (
@@ -141,7 +210,7 @@ def run(
     )
 
     # Resolve output directory
-    resolved_output = output_dir if output_dir is not None else spec_file.parent
+    resolved_output = output_dir if output_dir is not None else input_files[0].parent
 
     # Resolve retrospective file (missing file is not an error)
     retro_path = None
@@ -157,10 +226,8 @@ def run(
 
     # Build config kwargs — only include agents/depth when explicitly provided,
     # so RoadmapConfig's own defaults apply when user omitted them.
-    # Click's None never reaches the model; agents_explicit/depth_explicit
-    # booleans handle resume-state restoration.
     config_kwargs: dict = {
-        "spec_file": spec_file.resolve(),
+        "spec_file": routing["spec_file"].resolve(),
         "output_dir": resolved_output.resolve(),
         "work_dir": resolved_output.resolve(),
         "dry_run": dry_run,
@@ -169,6 +236,11 @@ def run(
         "debug": debug,
         "retrospective_file": retro_path,
         "allow_regeneration": allow_regeneration,
+        "convergence_enabled": not no_convergence,
+        "input_type": routing["input_type"],
+        "tdd_file": routing["tdd_file"].resolve() if routing["tdd_file"] else None,
+        "prd_file": routing["prd_file"].resolve() if routing["prd_file"] else None,
+        "compress_enabled": not no_compress,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs
@@ -176,6 +248,14 @@ def run(
         config_kwargs["depth"] = depth
 
     config = RoadmapConfig(**config_kwargs)
+
+    # User feedback: show resolved routing
+    resolved_type = routing["input_type"]
+    click.echo(
+        f"[roadmap] Input type: {resolved_type} "
+        f"(spec={routing['spec_file']}, tdd={routing['tdd_file']}, prd={routing['prd_file']})",
+        err=True,
+    )
 
     execute_roadmap(
         config,

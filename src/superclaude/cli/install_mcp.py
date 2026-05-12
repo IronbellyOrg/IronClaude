@@ -89,6 +89,24 @@ MCP_SERVERS = {
         "command": "npx -y chrome-devtools-mcp@latest",
         "required": False,
     },
+    "auggie": {
+        "name": "auggie",
+        "description": "Augment Code semantic codebase search (codebase-retrieval, ask_question)",
+        "transport": "stdio",
+        "command": "auggie --mcp --mcp-auto-workspace",
+        "required": False,
+        "requires_global_binary": {
+            "binary": "auggie",
+            "install_command": "npm install -g @augmentcode/auggie@latest",
+            "package": "@augmentcode/auggie",
+        },
+        "post_install_message": (
+            "   🔑 Auggie requires one-time authentication.\n"
+            "      Run: auggie login   (opens browser for OAuth)\n"
+            "      Headless alternative: set AUGMENT_SESSION_AUTH env var\n"
+            "      Docs: https://docs.augmentcode.com/context-services/mcp/quickstart-claude-code"
+        ),
+    },
 }
 
 
@@ -129,6 +147,17 @@ def check_docker_available() -> bool:
     try:
         result = _run_command(
             ["docker", "info"], capture_output=True, text=True, timeout=10
+        )
+        return result.returncode == 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return False
+
+
+def check_binary_available(binary_name: str) -> bool:
+    """Check if a binary is available on PATH."""
+    try:
+        result = _run_command(
+            [binary_name, "--version"], capture_output=True, text=True, timeout=10
         )
         return result.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -520,10 +549,52 @@ def install_mcp_server(
         )
 
         if api_key:
-            env_args = ["--env", f"{api_key_env}={api_key}"]
+            env_args = ["-e", f"{api_key_env}={api_key}"]
+
+    # Handle global binary requirement (e.g., auggie needs `npm install -g`)
+    if "requires_global_binary" in server_info:
+        req = server_info["requires_global_binary"]
+        if not check_binary_available(req["binary"]):
+            click.echo(f"   ⚠️  '{req['binary']}' not found on PATH")
+            click.echo(f"   Required: {req['install_command']}")
+            if dry_run:
+                click.echo(
+                    f"   [DRY RUN] Would prompt to run: {req['install_command']}"
+                )
+            elif click.confirm(
+                f"   Install {req['package']} globally now?", default=True
+            ):
+                click.echo(f"   📦 Running: {req['install_command']}")
+                install_result = _run_command(
+                    shlex.split(req["install_command"]),
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                )
+                if install_result.returncode != 0:
+                    click.echo(
+                        f"   ❌ Global install failed: {install_result.stderr}",
+                        err=True,
+                    )
+                    return False
+                if not check_binary_available(req["binary"]):
+                    click.echo(
+                        f"   ❌ '{req['binary']}' still not on PATH after install",
+                        err=True,
+                    )
+                    return False
+                click.echo(f"   ✅ {req['package']} installed globally")
+            else:
+                click.echo(
+                    f"   ⏭️  Skipping {server_name} (binary not available)"
+                )
+                return False
 
     # Build installation command using modern Claude Code API
-    # Format: claude mcp add --transport <transport> [--scope <scope>] [--env KEY=VALUE] <name> -- <command>
+    # Format: claude mcp add [--transport <transport>] [--scope <scope>] <name> [-e KEY=VALUE]... -- <command>
+    # NOTE: <name> must precede `-e` flags. The Claude CLI's `-e` is repeatable per env var
+    # and positional binding requires the server name first; placing `-e` before <name>
+    # causes the next positional to be parsed as a malformed env spec.
 
     cmd = ["claude", "mcp", "add", "--transport", transport]
 
@@ -531,12 +602,12 @@ def install_mcp_server(
     if scope != "local":
         cmd.extend(["--scope", scope])
 
-    # Add environment variables if any
+    # Add server name BEFORE env flags (CLI grammar requirement)
+    cmd.append(server_name)
+
+    # Add environment variables if any (each as `-e KEY=VALUE`, repeatable)
     if env_args:
         cmd.extend(env_args)
-
-    # Add server name
-    cmd.append(server_name)
 
     # Add separator
     cmd.append("--")
@@ -556,6 +627,8 @@ def install_mcp_server(
 
         if result.returncode == 0:
             click.echo(f"   ✅ Successfully installed: {server_name}")
+            if "post_install_message" in server_info:
+                click.echo(server_info["post_install_message"])
             return True
         else:
             error_msg = result.stderr.strip() if result.stderr else "Unknown error"

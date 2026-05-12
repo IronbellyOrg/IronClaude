@@ -1,0 +1,11 @@
+{"timestamp": "2026-04-12T18:27:11.242+00:00", "event_type": "step_start", "step_id": "validate-config"}
+{"timestamp": "2026-04-12T18:27:11.242+00:00", "event_type": "gate_eval", "step_id": "validate-config", "gate_id": "validate-config", "tier": "EXEMPT"}
+{"timestamp": "2026-04-12T18:27:11.242+00:00", "event_type": "step_end", "step_id": "validate-config", "status": "pass", "duration_s": 0.0005628746002912521}
+{"timestamp": "2026-04-12T18:27:11.242+00:00", "event_type": "step_start", "step_id": "discover-components"}
+{"timestamp": "2026-04-12T18:27:11.243+00:00", "event_type": "gate_eval", "step_id": "discover-components", "gate_id": "discover-components", "tier": "STANDARD"}
+{"timestamp": "2026-04-12T18:27:11.243+00:00", "event_type": "step_end", "step_id": "discover-components", "status": "pass", "duration_s": 0.00106024369597435}
+{"timestamp": "2026-04-12T18:27:11.243+00:00", "event_type": "step_start", "step_id": "protocol-mapping"}
+{"timestamp": "2026-04-12T18:32:11.611+00:00", "event_type": "gate_eval", "step_id": "protocol-mapping", "gate_id": "protocol-mapping", "tier": "NONE"}
+{"timestamp": "2026-04-12T18:32:11.611+00:00", "event_type": "step_end", "step_id": "protocol-mapping", "status": "timeout", "duration_s": 300.36731395917013}
+{"timestamp": "2026-04-12T18:32:11.611+00:00", "event_type": "failure_handler", "step_id": "protocol-mapping", "handler_name": "handle_timeout", "classification": "timeout"}
+{"timestamp": "2026-04-12T18:32:11.616+00:00", "event_type": "pipeline_outcome", "step_id": "", "outcome": "TIMEOUT"}

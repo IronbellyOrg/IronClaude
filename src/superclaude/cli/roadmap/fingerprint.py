@@ -29,29 +29,64 @@ class Fingerprint:
 # Aligned with 4-char regex minimum.
 _EXCLUDED_CONSTANTS = frozenset(
     {
+        # Boolean/sentinel
         "TRUE",
         "FALSE",
         "NONE",
-        "TODO",
-        "NOTE",
-        "WARNING",
+        # Logging/severity
         "HIGH",
         "MEDIUM",
         "LOW",
+        "INFO",
+        "DEBUG",
+        "ERROR",
+        "CRITICAL",
+        "WARNING",
+        # Formats/standards
         "YAML",
         "JSON",
         "STRICT",
         "STANDARD",
         "EXEMPT",
         "LIGHT",
+        # Test/status
         "PASS",
         "FAIL",
-        "INFO",
-        "DEBUG",
-        "ERROR",
-        "CRITICAL",
+        "TODO",
+        "NOTE",
+        # RFC/spec emphasis words (common ALL_CAPS in PRD/spec prose)
+        "MUST",
+        "SHALL",
+        "SHOULD",
+        "MANDATORY",
+        "REQUIRED",
+        "OPTIONAL",
+        "WHAT",
+        "WHEN",
+        "BOTH",
+        "ALWAYS",
+        "NEVER",
+        "BEFORE",
+        "AFTER",
+        # Short domain acronyms (not code constants)
+        "MDTM",
+        "SKILL",
     }
 )
+
+
+def _is_code_like(text: str) -> bool:
+    """Return True if text looks like a code identifier, not a plain English word.
+
+    Code signals: underscores (snake_case), CamelCase, leading underscore.
+    Plain lowercase words like 'false', 'personas', 'lightweight' are filtered.
+    """
+    if "_" in text:
+        return True
+    # CamelCase: uppercase letter after the first character
+    if any(c.isupper() for c in text[1:]):
+        return True
+    return False
 
 
 def extract_code_fingerprints(content: str) -> list[Fingerprint]:
@@ -69,7 +104,7 @@ def extract_code_fingerprints(content: str) -> list[Fingerprint]:
     # Source 1: Backtick identifiers (most reliable)
     for match in re.finditer(r"`([a-zA-Z_]\w*(?:\(\))?)`", content):
         text = match.group(1).rstrip("()")
-        if len(text) >= 4:  # skip trivial identifiers
+        if len(text) >= 4 and _is_code_like(text):  # skip trivial + plain English
             ctx_start = max(0, match.start() - 40)
             ctx_end = min(len(content), match.end() + 40)
             fingerprints.append(

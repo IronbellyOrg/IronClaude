@@ -1,0 +1,20 @@
+finding_stable_id: a4ff86e841693dbe
+dimension: completeness_coverage
+description: 'Roadmap Criterion 11 and Phase 4 Steps 4.10-4.11 attribute sync verification
+  to NFR-PRD-R.3, but spec defines NFR-PRD-R.3 as ''Session start cost: ~50 tokens
+  (name + description only)''. The roadmap never validates session start cost. Sync
+  verification has no NFR backing in the spec.'
+prosecutor:
+  evidence_quality: 0
+  impact_specificity: 0
+  logical_coherence: 0
+  concession_handling: 0
+  weighted_score: 0.0
+defender:
+  evidence_quality: 0
+  impact_specificity: 0
+  logical_coherence: 0
+  concession_handling: 0
+  weighted_score: 0.0
+margin: 0.0
+verdict: CONFIRM_HIGH

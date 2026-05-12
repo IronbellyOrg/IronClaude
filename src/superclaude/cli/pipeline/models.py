@@ -60,15 +60,23 @@ class SemanticCheck:
     """Pure Python check applied to file content. No LLM invocation."""
 
     name: str
-    check_fn: Callable[[str], bool]
+    check_fn: Callable[[str], bool | str]
     failure_message: str
 
 
 @dataclass
 class GateCriteria:
-    """Defines what constitutes a passing output for a pipeline step."""
+    """Defines what constitutes a passing output for a pipeline step.
 
-    required_frontmatter_fields: list[str]
+    ``required_frontmatter_fields`` accepts two entry shapes:
+      * ``str`` — that exact top-level key must be present in the frontmatter.
+      * ``tuple[str, ...]`` — an OR-group: at least one of the listed aliases
+        must be present. Used when the template contract allows mutually
+        exclusive aliases for the same slot (e.g. ``("spec_source",
+        "spec_sources")`` for single-spec vs multi-spec roadmap artifacts).
+    """
+
+    required_frontmatter_fields: list[str | tuple[str, ...]]
     min_lines: int
     enforcement_tier: Literal["STRICT", "STANDARD", "LIGHT", "EXEMPT"] = "STANDARD"
     semantic_checks: list[SemanticCheck] | None = None
@@ -87,6 +95,8 @@ class Step:
     retry_limit: int = 1
     model: str = ""
     gate_mode: GateMode = GateMode.BLOCKING
+    tool_write_mode: bool = False
+    template_path: Optional[Path] = None
 
 
 @dataclass

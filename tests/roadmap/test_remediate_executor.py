@@ -27,7 +27,7 @@ from superclaude.cli.roadmap.remediate_executor import (
     EDITABLE_FILES,
     RemediationPatch,
     _AGENT_TIMEOUT_SECONDS,
-    _EMBED_SIZE_LIMIT,
+    _LARGE_PROMPT_WARN_BYTES,
     _check_cross_file_coherence,
     _handle_failure,
     _handle_file_rollback,
@@ -590,7 +590,7 @@ class TestRemediateInlineEmbedReplacesFileFlag:
         import logging
 
         target = tmp_path / "roadmap.md"
-        target.write_text("X" * (_EMBED_SIZE_LIMIT + 2048))
+        target.write_text("X" * (_LARGE_PROMPT_WARN_BYTES + 2048))
 
         finding = _make_finding("F-01", files_affected=[str(target)])
 
@@ -624,7 +624,9 @@ class TestRemediateInlineEmbedReplacesFileFlag:
         # No --file in extra_args
         assert "--file" not in captured.get("extra_args", [])
         # Warning logged for oversized prompt
-        assert any("embedding inline anyway" in r.message for r in caplog.records)
+        assert any(
+            "may strain model context window" in r.message for r in caplog.records
+        )
 
 
 # ══════════════════════════════════════════════════════════════

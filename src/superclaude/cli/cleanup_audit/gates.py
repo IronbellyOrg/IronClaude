@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
+from ..pipeline.models import GateCriteria, SemanticCheck
 
 
 # --- Semantic Check Functions ---

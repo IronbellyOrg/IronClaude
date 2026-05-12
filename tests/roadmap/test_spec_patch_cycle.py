@@ -95,7 +95,34 @@ def _make_mock_config(tmp_path: Path, spec_file: Path):
     config.spec_file = spec_file
     config.dry_run = False
     config.work_dir = tmp_path
+    config.tdd_file = None
+    config.prd_file = None
+    config.input_type = "auto"
     return config
+
+
+def _routing_patches(config):
+    """Return context managers that mock _route_input_files and dataclasses.replace.
+
+    These are needed because the spec-patch cycle now calls _route_input_files()
+    and dataclasses.replace() on config, but tests use MagicMock configs that are
+    not real dataclasses.
+    """
+    route_result = {
+        "spec_file": config.spec_file,
+        "tdd_file": config.tdd_file,
+        "prd_file": config.prd_file,
+        "input_type": config.input_type,
+    }
+    route_mock = patch(
+        "superclaude.cli.roadmap.executor._route_input_files",
+        return_value=route_result,
+    )
+    replace_mock = patch(
+        "superclaude.cli.roadmap.executor.dataclasses.replace",
+        return_value=config,
+    )
+    return route_mock, replace_mock
 
 
 def _make_mock_results(status_value="FAIL"):
@@ -147,6 +174,7 @@ class TestCycleGuard:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         # Mock the pipeline re-execution to avoid actually running
         with (
@@ -154,6 +182,8 @@ class TestCycleGuard:
             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
             patch("superclaude.cli.roadmap.executor._save_state"),
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_resume.return_value = []
@@ -184,6 +214,7 @@ class TestDiskReread:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         resume_state_seen = {}
 
@@ -201,6 +232,8 @@ class TestDiskReread:
                 side_effect=capture_resume,
             ),
             patch("superclaude.cli.roadmap.executor._save_state"),
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_exec.return_value = []
@@ -320,6 +353,7 @@ class TestAutoAccept:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         # Should not call input()
         with (
@@ -328,6 +362,8 @@ class TestAutoAccept:
             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
             patch("superclaude.cli.roadmap.executor._save_state"),
             patch("builtins.input") as mock_input,
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_resume.return_value = []
@@ -379,6 +415,7 @@ class TestCycleExhaustion:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         # Simulate resumed pipeline also failing
         mock_fail_result = MagicMock()
@@ -400,6 +437,8 @@ class TestCycleExhaustion:
                 "superclaude.cli.roadmap.executor._format_halt_output",
                 return_value="HALT",
             ),
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_resume.return_value = []
@@ -542,12 +581,15 @@ class TestStateIntegrity:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         with (
             patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
             patch("superclaude.cli.roadmap.executor._save_state"),
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_resume.return_value = []
@@ -579,6 +621,7 @@ class TestStateIntegrity:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         resume_called_with_config = {}
 
@@ -595,6 +638,8 @@ class TestStateIntegrity:
                 "superclaude.cli.roadmap.executor._apply_resume", side_effect=spy_resume
             ),
             patch("superclaude.cli.roadmap.executor._save_state"),
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_exec.return_value = []
@@ -648,12 +693,15 @@ class TestLogging:
 
         config = _make_mock_config(tmp_path, spec_file)
         results = _make_mock_results()
+        route_mock, replace_mock = _routing_patches(config)
 
         with (
             patch("superclaude.cli.roadmap.executor.execute_pipeline") as mock_exec,
             patch("superclaude.cli.roadmap.executor._build_steps") as mock_build,
             patch("superclaude.cli.roadmap.executor._apply_resume") as mock_resume,
             patch("superclaude.cli.roadmap.executor._save_state"),
+            route_mock,
+            replace_mock,
         ):
             mock_build.return_value = []
             mock_resume.return_value = []

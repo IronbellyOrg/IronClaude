@@ -33,12 +33,18 @@ from superclaude.cli.cli_portify.contract import (
     build_success_contract,
 )
 from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
-from superclaude.cli.cli_portify.gates import get_gate_criteria
+from superclaude.cli.cli_portify.gates import (
+    GATE_MIN_ENFORCE,
+    GateFailure,
+    get_gate_criteria,
+)
 from superclaude.cli.cli_portify.logging_ import ExecutionLog
 from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
 from superclaude.cli.cli_portify.models import (
     INVALID_PATH,
+    GateEvaluation,
     PortifyConfig,
+    PortifyGateMode,
     PortifyOutcome,
     PortifyPhaseType,
     PortifyStatus,
@@ -47,6 +53,7 @@ from superclaude.cli.cli_portify.models import (
     PortifyValidationError,
     TurnLedger,
 )
+from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
 from superclaude.cli.cli_portify.steps import get_step_dispatch
 from superclaude.cli.cli_portify.tui import PortifyTUI
@@ -362,6 +369,76 @@ def _emit_return_contract(
 
 
 # ---------------------------------------------------------------------------
+# PortifyGatePolicy — two-layer gate enforcement
+# ---------------------------------------------------------------------------
+
+
+class PortifyGatePolicy:
+    """Two-layer gate enforcement for the portify pipeline.
+
+    Layer 1 (global mode): shadow/soft/full baseline for all gates.
+    Layer 2 (per-gate promotion): individual gates can override upward.
+    """
+
+    def __init__(
+        self, global_mode: PortifyGateMode = PortifyGateMode.SHADOW
+    ) -> None:
+        self._global_mode = global_mode
+
+    def evaluate(
+        self,
+        step_id: str,
+        output_file: Path | None,
+        min_enforce_mode: PortifyGateMode = PortifyGateMode.SHADOW,
+    ) -> GateEvaluation:
+        effective = max(self._global_mode, min_enforce_mode)
+
+        try:
+            criteria = get_gate_criteria(step_id)
+        except KeyError:
+            return GateEvaluation(
+                step_id=step_id,
+                gate_id=step_id,
+                tier="NONE",
+                passed=True,
+                reason=None,
+                effective_mode=effective,
+                blocked=False,
+            )
+
+        tier = getattr(criteria, "enforcement_tier", "STANDARD")
+        gate_id = getattr(criteria, "gate_id", step_id)
+
+        if output_file is None or not output_file.exists():
+            passed, reason = True, None
+        else:
+            passed, reason = gate_passed(output_file, criteria)
+
+        blocked = (not passed) and (effective == PortifyGateMode.FULL)
+
+        failure = None
+        if not passed:
+            failure = GateFailure(
+                gate_id=gate_id,
+                check_name="gate_passed",
+                diagnostic=reason or "",
+                artifact_path=str(output_file) if output_file else "",
+                tier=tier,
+            )
+
+        return GateEvaluation(
+            step_id=step_id,
+            gate_id=gate_id,
+            tier=tier,
+            passed=passed,
+            reason=reason,
+            effective_mode=effective,
+            blocked=blocked,
+            failure=failure,
+        )
+
+
+# ---------------------------------------------------------------------------
 # PortifyExecutor
 # ---------------------------------------------------------------------------
 
@@ -384,6 +461,7 @@ class PortifyExecutor:
         resume_from: str = "",
         turn_budget: int = 200,
         step_runner: Optional[Callable[[PortifyStep], tuple[int, str, bool]]] = None,
+        gate_mode: PortifyGateMode = PortifyGateMode.SHADOW,
     ) -> None:
         """
         Args:
@@ -395,6 +473,7 @@ class PortifyExecutor:
             turn_budget: Total Claude-invocation budget (TurnLedger).
             step_runner: Optional callable (step) -> (exit_code, stdout, timed_out).
                          Used for testing; real runs use step dispatch.
+            gate_mode: Gate enforcement mode (shadow/soft/full).
         """
         self.steps = steps
         self.workdir = workdir
@@ -411,6 +490,7 @@ class PortifyExecutor:
         self._diagnostics = DiagnosticsCollector()
         self._monitor = OutputMonitor(stall_timeout_seconds=float(config.stall_timeout) if config else 60.0)
         self._tui = PortifyTUI()
+        self._gate_policy = PortifyGatePolicy(global_mode=gate_mode)
 
         # Signal handler integration points (T03.04 / T03.09)
         self._prev_sigint: Optional[Callable] = None
@@ -497,19 +577,26 @@ class PortifyExecutor:
         result = step_fn(self._config)
         self._timing.end_step(step.step_id)
 
-        # Lightweight gate consultation wiring: consult registry and log evaluation.
-        # Full enforcement will be expanded in subsequent Phase 2 work.
-        gate_result = "not_applicable"
-        try:
-            gate = get_gate_criteria(step.step_id)
-            self._execution_log.gate_eval(
-                step.step_id,
-                gate_id=getattr(gate, "gate_id", step.step_id),
-                tier=getattr(gate, "enforcement_tier", ""),
-            )
-            gate_result = "consulted"
-        except KeyError:
-            gate_result = "missing"
+        # Two-layer gate enforcement: global mode + per-gate promotion
+        gate_min = GATE_MIN_ENFORCE.get(step.step_id, PortifyGateMode.SHADOW)
+        gate_eval = self._gate_policy.evaluate(step.step_id, step.output_file, gate_min)
+
+        self._execution_log.gate_eval(
+            step.step_id,
+            gate_id=gate_eval.gate_id,
+            tier=gate_eval.tier,
+        )
+
+        if not gate_eval.passed:
+            if gate_eval.effective_mode == PortifyGateMode.SOFT:
+                self._tui.gate_warning(step.step_id, gate_eval.reason)
+            elif gate_eval.effective_mode == PortifyGateMode.FULL:
+                if gate_eval.failure is not None:
+                    self._diagnostics.record_gate_failure(gate_eval.failure)
+                return PortifyStatus.HALT
+        # Shadow mode: result logged above, no further action
+
+        gate_result = "pass" if gate_eval.passed else gate_eval.effective_mode.name.lower()
 
         timing = self._timing.get_step_timing(step.step_id)
         duration = timing.duration_seconds if timing is not None else 0.0
@@ -711,6 +798,7 @@ def run_portify(config: PortifyConfig) -> PortifyOutcome:
             )
         )
 
+    gate_mode_enum = PortifyGateMode[config.gate_mode.upper()]
     executor = PortifyExecutor(
         steps=steps,
         workdir=workdir,
@@ -718,5 +806,6 @@ def run_portify(config: PortifyConfig) -> PortifyOutcome:
         dry_run=config.dry_run,
         resume_from=config.resume_from,
         turn_budget=config.max_turns,
+        gate_mode=gate_mode_enum,
     )
     return executor.run()

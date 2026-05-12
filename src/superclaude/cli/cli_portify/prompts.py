@@ -872,16 +872,16 @@ def incorporate_findings(draft: str, findings: "list[BrainstormFinding]") -> str
 def build_release_spec_prompt(template_content: str, cli_name: str = "") -> str:
     """Build the release spec synthesis prompt with inline embed guard (R-051, OQ-008).
 
-    Guards against content >120 KiB which exceeds the inline -p embedding limit.
-    The ``--file`` mechanism is broken (confirmed v2.24.5); inline -p is the only
-    safe delivery path (OQ-008 resolution).
+    Guards against content >120 KiB. Transport is now stdin (see ClaudeProcess.start),
+    so the kernel MAX_ARG_STRLEN ceiling no longer applies; this threshold survives as
+    a product-level sanity check on oversized templates.
 
     Args:
         template_content: Release spec template content.
         cli_name: Optional CLI name for context in the prompt.
 
     Returns:
-        Prompt string suitable for inline -p embedding.
+        Prompt string suitable for inline embedding.
 
     Raises:
         PortifyValidationError: With failure_type=CONTENT_TOO_LARGE if

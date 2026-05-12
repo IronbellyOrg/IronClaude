@@ -130,6 +130,39 @@ _FM_VALUES = {
     "total_findings": "0",
     "blocking_findings": "0",
     "whitelist_entries_applied": "0",
+    # deviation-analysis gate fields
+    "schema_version": "1",
+    "slip_count": "0",
+    "intentional_count": "0",
+    "pre_approved_count": "0",
+    "ambiguous_count": "0",
+    "ambiguous_deviations": "0",
+    "total_analyzed": "0",
+    "routing_fix_roadmap": "",
+    "routing_no_action": "",
+    # Anti-instinct audit fields
+    "undischarged_obligations": "0",
+    "uncovered_contracts": "0",
+    "fingerprint_coverage": "0.85",
+    # remediate gate fields
+    "type": "remediation-tasklist",
+    "source_report": "spec-fidelity.md",
+    "source_report_hash": "abc123",
+    "actionable": "0",
+    "skipped": "0",
+    # generate/merge gate fields
+    "milestone_count": "3",
+    "task_count": "25",
+    "dependency_count": "5",
+    "priority_distribution": "P0: 5, P1: 10, P2: 10",
+    "effort_total": "100",
+    # test-strategy fields
+    "tests_total": "20",
+    "testing_strategy": "continuous",
+    "test_milestones": "3",
+    "coverage_targets": "80",
+    # spec-fidelity fields
+    "fidelity_check_attempted": "true",
 }
 
 
@@ -139,6 +172,12 @@ def _mock_runner(step, cfg, cancel_check):
     if step.gate and step.gate.required_frontmatter_fields:
         for f in step.gate.required_frontmatter_fields:
             fm_fields[f] = _FM_VALUES.get(f, "test_value")
+    # Add extra fields needed by semantic checks (not in required list)
+    _semantic_extras = {
+        "deviation-analysis": ["ambiguous_deviations"],
+    }
+    for extra in _semantic_extras.get(step.id, []):
+        fm_fields[extra] = _FM_VALUES.get(extra, "0")
 
     content_lines = ["---"]
     for k, v in fm_fields.items():
@@ -148,6 +187,19 @@ def _mock_runner(step, cfg, cancel_check):
     min_needed = step.gate.min_lines if step.gate else 10
     for i in range(max(min_needed, 10)):
         content_lines.append(f"- Item {i}: content for {step.id}")
+    # Add deliverable table rows for steps with _minimum_deliverable_rows check
+    if step.id.startswith("generate") or step.id == "merge":
+        content_lines.append("")
+        content_lines.append("## M1: Implementation")
+        content_lines.append("")
+        content_lines.append(
+            "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |"
+        )
+        content_lines.append("|---|---|---|---|---|---|---|---|---|")
+        for i in range(1, 26):
+            content_lines.append(
+                f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+            )
     content = "\n".join(content_lines)
 
     step.output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -176,8 +228,8 @@ class TestWiringVerificationEndToEnd:
             run_step=_mock_runner,
         )
 
-        # All 10 individual steps should pass (including wiring-verification)
-        assert len(results) == 10
+        # All 13 individual steps should pass (including wiring-verification)
+        assert len(results) == 13
         assert all(r.status == StepStatus.PASS for r in results)
 
         # Verify wiring-verification step was executed

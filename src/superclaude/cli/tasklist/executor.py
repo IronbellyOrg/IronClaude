@@ -30,8 +30,11 @@ from .prompts import build_tasklist_fidelity_prompt
 
 _log = logging.getLogger("superclaude.tasklist.executor")
 
-# Threshold above which inline embedding logs a warning (--file fallback removed)
-_EMBED_SIZE_LIMIT = 100 * 1024  # 100 KB
+# Token-context advisory threshold (soft warning, non-fatal).
+# Prompts are delivered via stdin in ClaudeProcess.start, bypassing the Linux
+# MAX_ARG_STRLEN ceiling. This threshold only surfaces prompts that may strain
+# the model's context window.
+_LARGE_PROMPT_WARN_BYTES = 500 * 1024  # 500 KB
 
 
 def _collect_tasklist_files(tasklist_dir: Path) -> list[Path]:
@@ -107,16 +110,16 @@ def tasklist_run_step(
             finished_at=datetime.now(timezone.utc),
         )
 
-    # Inline embedding: --file is broken (cloud download mechanism, not local
-    # file injector) so inline embedding is always used regardless of size.
+    # Prompt + inputs are composed inline and delivered via stdin downstream.
     embedded = _embed_inputs(step.inputs)
     if embedded:
         composed = step.prompt + "\n\n" + embedded
-        if len(composed.encode("utf-8")) > _EMBED_SIZE_LIMIT:
+        if len(composed.encode("utf-8")) > _LARGE_PROMPT_WARN_BYTES:
             _log.warning(
-                "tasklist executor: composed prompt exceeds %d bytes;"
-                " embedding inline anyway (--file fallback is unavailable)",
-                _EMBED_SIZE_LIMIT,
+                "tasklist executor: composed prompt is %d bytes (> %d);"
+                " may strain model context window",
+                len(composed.encode("utf-8")),
+                _LARGE_PROMPT_WARN_BYTES,
             )
         effective_prompt = composed
         extra_args: list[str] = []
@@ -189,6 +192,12 @@ def _build_steps(config: TasklistValidateConfig) -> list[Step]:
     """Build the tasklist validation pipeline steps."""
     tasklist_files = _collect_tasklist_files(config.tasklist_dir)
     all_inputs = [config.roadmap_file] + tasklist_files
+    # TDD integration: include TDD file in validation inputs when provided
+    if config.tdd_file is not None:
+        all_inputs.append(config.tdd_file)
+    # PRD integration: include PRD file in validation inputs when provided
+    if config.prd_file is not None:
+        all_inputs.append(config.prd_file)
 
     return [
         Step(
@@ -196,6 +205,8 @@ def _build_steps(config: TasklistValidateConfig) -> list[Step]:
             prompt=build_tasklist_fidelity_prompt(
                 config.roadmap_file,
                 config.tasklist_dir,
+                tdd_file=config.tdd_file,
+                prd_file=config.prd_file,
             ),
             output_file=config.output_dir / "tasklist-fidelity.md",
             gate=TASKLIST_FIDELITY_GATE,

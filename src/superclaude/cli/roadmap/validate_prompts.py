@@ -13,12 +13,25 @@ from __future__ import annotations
 from .prompts import _OUTPUT_FORMAT_BLOCK
 
 
-def build_reflect_prompt(roadmap: str, test_strategy: str, extraction: str) -> str:
+def build_reflect_prompt(
+    roadmap: str,
+    test_strategy: str,
+    extraction: str,
+    *,
+    spec_file: str | None = None,
+    tdd_file: str | None = None,
+    prd_file: str | None = None,
+) -> str:
     """Prompt for the 'reflect' validation step.
 
-    Instructs Claude to validate pipeline outputs across 7 dimensions
+    Instructs Claude to validate pipeline outputs across validation dimensions
     with BLOCKING/WARNING severity classifications.  Returns a structured
     report with YAML frontmatter matching REFLECT_GATE criteria.
+
+    When original input files (spec, TDD, PRD) are provided, two additional
+    BLOCKING dimensions are added: Coverage and Proportionality.  These
+    compare the roadmap output against the actual input — not just against
+    the extraction (which is itself a lossy intermediary).
 
     Parameters
     ----------
@@ -28,11 +41,31 @@ def build_reflect_prompt(roadmap: str, test_strategy: str, extraction: str) -> s
         Path (as string) to the test-strategy file.
     extraction:
         Path (as string) to the extraction file.
+    spec_file:
+        Path (as string) to the original spec file, or None.
+    tdd_file:
+        Path (as string) to the original TDD file, or None.
+    prd_file:
+        Path (as string) to the original PRD file, or None.
     """
-    return (
+    has_inputs = any(f is not None for f in (spec_file, tdd_file, prd_file))
+    dim_count = 9 if has_inputs else 7
+
+    base = (
         "You are a validation specialist. You did NOT generate these artifacts.\n\n"
         "Read the provided roadmap, test-strategy, and extraction documents. "
-        "Validate the roadmap across the 7 dimensions listed below. "
+    )
+    if has_inputs:
+        input_names = [n for n, f in (("spec", spec_file), ("TDD", tdd_file), ("PRD", prd_file)) if f]
+        base += (
+            f"You are ALSO provided with the original input document(s): "
+            f"{', '.join(input_names)}. "
+            "These are the PRIMARY source of truth — the extraction is a lossy "
+            "intermediary. Compare the roadmap against the ORIGINAL input, not "
+            "just the extraction.\n\n"
+        )
+    base += (
+        f"Validate the roadmap across the {dim_count} dimensions listed below. "
         "Be thorough but precise -- false positives waste user time. "
         "Every finding must cite a specific location (file:line or file:section).\n\n"
         "## Validation Dimensions\n\n"
@@ -46,14 +79,50 @@ def build_reflect_prompt(roadmap: str, test_strategy: str, extraction: str) -> s
         "4. **Cross-file consistency** -- test-strategy milestone refs match roadmap "
         "milestones exactly. No dangling references in either direction.\n"
         "5. **Parseability** -- Content is parseable into actionable items via "
-        "headings, bullets, and numbered lists by sc:tasklist's splitter.\n\n"
-        "### WARNING Dimensions (non-blocking but worth reporting)\n\n"
-        "6. **Interleave** -- Compute interleave_ratio using this formula:\n"
-        "   `interleave_ratio = unique_phases_with_deliverables / total_phases`\n"
+        "headings, bullets, and numbered lists by sc:tasklist's splitter.\n"
+    )
+
+    if has_inputs:
+        base += (
+            "6. **Coverage** -- Compare the roadmap task rows against the original "
+            "input document(s). Every requirement (FR-xxx, NFR-xxx) and every entity "
+            "(DM-xxx, API-xxx, COMP-xxx, TEST-xxx, MIG-xxx, OPS-xxx) in the input "
+            "MUST have a corresponding task row in the roadmap. Report any input "
+            "requirements or entities that have NO matching roadmap task. "
+            "This is a BLOCKING dimension — missing coverage means the roadmap "
+            "is incomplete.\n"
+            "7. **Proportionality** -- The number of roadmap task rows must be "
+            "proportional to the input detail level. Count entities in the input "
+            "document(s) and compare to the number of task rows in the roadmap. "
+            "A TDD with 1,200+ lines should produce significantly more task rows "
+            "than a 300-line spec. If the roadmap has fewer task rows than the "
+            "input has distinct entities, flag as BLOCKING. Report the ratio: "
+            "input_entity_count / roadmap_task_rows.\n\n"
+            "### WARNING Dimensions (non-blocking but worth reporting)\n\n"
+            "8. **Interleave** -- Compute interleave_ratio using this formula:\n"
+        )
+    else:
+        base += (
+            "\n### WARNING Dimensions (non-blocking but worth reporting)\n\n"
+            "6. **Interleave** -- Compute interleave_ratio using this formula:\n"
+        )
+
+    base += (
+        "   `interleave_ratio = unique_milestones_with_deliverables / total_milestones`\n"
         "   (initial, subject to refinement)\n"
         "   Ratio must be in [0.1, 1.0]. Test activities must not be back-loaded "
-        "(i.e., concentrated only in the final phase).\n"
-        "7. **Decomposition** -- Flag compound deliverables that would need splitting "
+        "(i.e., concentrated only in the final milestone).\n"
+    )
+
+    if has_inputs:
+        base += (
+            "9. **Decomposition** -- Flag compound deliverables that would need splitting "
+        )
+    else:
+        base += (
+            "7. **Decomposition** -- Flag compound deliverables that would need splitting "
+        )
+    base += (
         "by sc:tasklist. A deliverable is compound if it describes multiple distinct "
         "outputs or actions joined by 'and'/'or'.\n\n"
         "## Output Format\n\n"
@@ -72,7 +141,9 @@ def build_reflect_prompt(roadmap: str, test_strategy: str, extraction: str) -> s
         "Total counts by severity and overall assessment.\n\n"
         "## Interleave Ratio\n\n"
         "Show the computed interleave_ratio with the formula and values used."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    return base + _OUTPUT_FORMAT_BLOCK
 
 
 def build_merge_prompt(reflect_reports: list[str]) -> str:

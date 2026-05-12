@@ -16,9 +16,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, IntEnum
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from superclaude.cli.cli_portify.gates import GateFailure
 
 
 # ---------------------------------------------------------------------------
@@ -148,6 +151,38 @@ class PortifyStatus(Enum):
     ERROR = "error"
     FAIL = "fail"
     SKIPPED = "skipped"
+
+
+# ---------------------------------------------------------------------------
+# PortifyGateMode — gate enforcement levels (ordered by severity)
+# ---------------------------------------------------------------------------
+
+
+class PortifyGateMode(IntEnum):
+    """Gate enforcement modes, ordered by severity."""
+
+    SHADOW = 0  # Evaluate, log, never warn or block
+    SOFT = 1  # Evaluate, log + warn on failure, never block
+    FULL = 2  # Evaluate, block on failure
+
+
+# ---------------------------------------------------------------------------
+# GateEvaluation — result of evaluating a single gate
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class GateEvaluation:
+    """Result of evaluating a single gate."""
+
+    step_id: str
+    gate_id: str
+    tier: str
+    passed: bool
+    reason: str | None
+    effective_mode: PortifyGateMode
+    blocked: bool
+    failure: GateFailure | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -549,6 +584,7 @@ class PortifyConfig:
     max_convergence: int = 3
     iteration_timeout: int = 300
     resume_from: str = ""
+    gate_mode: str = "shadow"
 
     @property
     def results_dir(self) -> Optional[Path]:

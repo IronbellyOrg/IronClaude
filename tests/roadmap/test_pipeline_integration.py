@@ -73,6 +73,80 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
     )
 
 
+def _template_compliant_body_lines(rows: int = 25) -> list[str]:
+    """Lines satisfying `_template_sections_present` for generate/merge steps."""
+    lines: list[str] = [
+        "",
+        "## Executive Summary",
+        "",
+        "Overview of the initiative.",
+        "",
+        "## Milestone Summary",
+        "",
+        "| Milestone | Title | Duration |",
+        "|---|---|---|",
+        "| M1 | Implementation | 2 weeks |",
+        "",
+        "## Dependency Graph",
+        "",
+        "M1 has no predecessors.",
+        "",
+        "## M1: Implementation",
+        "",
+        "| # | ID | Title | Description | Component | Dependencies | Acceptance Criteria | Effort | Priority |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for i in range(1, rows + 1):
+        lines.append(
+            f"| {i} | FR-{i:03d} | Item {i} | Implement item {i} | core | - | Tests pass | S | P1 |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Integration Points — M1",
+            "",
+            "No external integration points.",
+            "",
+            "### Milestone Dependencies — M1",
+            "",
+            "None.",
+            "",
+            "### Risk Assessment and Mitigation — M1",
+            "",
+            "No significant risks identified.",
+            "",
+            "## Resource Requirements and Dependencies",
+            "",
+            "### External Dependencies",
+            "",
+            "None.",
+            "",
+            "### Infrastructure Requirements",
+            "",
+            "Standard CI runners.",
+            "",
+            "## Risk Register",
+            "",
+            "| ID | Risk | Affected Milestones | Probability | Impact | Mitigation | Owner |",
+            "|---|---|---|---|---|---|---|",
+            "| R-001 | None | M1 | Low | Low | N/A | team |",
+            "",
+            "## Success Criteria and Validation Approach",
+            "",
+            "All tests pass.",
+            "",
+            "## Decision Summary",
+            "",
+            "No pending decisions.",
+            "",
+            "## Timeline Estimates",
+            "",
+            "2 weeks total.",
+        ]
+    )
+    return lines
+
+
 def _gate_passing_content(step: Step) -> str:
     """Generate gate-passing output content for any step."""
     fm_values = {
@@ -130,12 +204,37 @@ def _gate_passing_content(step: Step) -> str:
         "total_findings": "0",
         "blocking_findings": "0",
         "whitelist_entries_applied": "0",
+        # deviation-analysis gate fields
+        "schema_version": "1",
+        "slip_count": "0",
+        "intentional_count": "0",
+        "pre_approved_count": "0",
+        "ambiguous_count": "0",
+        "ambiguous_deviations": "0",
+        "total_analyzed": "0",
+        "routing_fix_roadmap": "",
+        "routing_no_action": "",
+        # remediate gate fields
+        "type": "remediation-tasklist",
+        "source_report": "spec-fidelity.md",
+        "source_report_hash": "abc123",
+        "actionable": "0",
+        "skipped": "0",
     }
 
     fm_fields = {}
     if step.gate and step.gate.required_frontmatter_fields:
         for f in step.gate.required_frontmatter_fields:
-            fm_fields[f] = fm_values.get(f, "test_value")
+            # Tuple entries are alias groups -- satisfy by emitting the first
+            # alias (e.g. ``spec_source`` from ``(spec_source, spec_sources)``).
+            key = f[0] if isinstance(f, tuple) else f
+            fm_fields[key] = fm_values.get(key, "test_value")
+    # Add extra fields needed by semantic checks (not in required list)
+    _semantic_extras = {
+        "deviation-analysis": ["ambiguous_deviations"],
+    }
+    for extra in _semantic_extras.get(step.id, []):
+        fm_fields[extra] = fm_values.get(extra, "0")
 
     content_lines = ["---"]
     for k, v in fm_fields.items():
@@ -145,6 +244,9 @@ def _gate_passing_content(step: Step) -> str:
     min_needed = step.gate.min_lines if step.gate else 10
     for i in range(max(min_needed, 10)):
         content_lines.append(f"- Item {i}: content for {step.id}")
+    # Add deliverable table rows for steps with _minimum_deliverable_rows check
+    if step.id.startswith("generate") or step.id == "merge":
+        content_lines.extend(_template_compliant_body_lines(rows=25))
     return "\n".join(content_lines)
 
 
@@ -181,8 +283,8 @@ class TestE2EFullPipeline:
             run_step=_mock_runner,
         )
 
-        # 10 individual steps (2 parallel generate + 8 sequential)
-        assert len(results) == 11
+        # 13 individual steps (2 parallel generate + 10 sequential + deviation-analysis + remediate)
+        assert len(results) == 13
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_e2e_state_saved_after_steps_1_9(self, tmp_path):
@@ -414,8 +516,8 @@ class TestE2EFullPipeline:
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
 
-        # Verify all 11 step results + remediate + certify metadata
-        assert len(state["steps"]) == 11
+        # Verify all 13 step results + remediate + certify metadata
+        assert len(state["steps"]) == 13
         assert all(state["steps"][sid]["status"] == "PASS" for sid in state["steps"])
         assert state["remediate"]["status"] == "PASS"
         assert state["certify"]["certified"] is True

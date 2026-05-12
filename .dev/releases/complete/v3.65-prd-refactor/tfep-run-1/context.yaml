@@ -1,0 +1,27 @@
+test_names:
+  - test_is_meta_context[Do not remove the mock yet-18-False-double_negation]
+  - test_is_meta_context[Remove old stubs and add new placeholder-30-False-affirmative_second_term]
+  - test_mixed_real_and_meta_same_document
+  - test_code_block_still_medium
+  - test_discharge_mechanism_unchanged
+test_files:
+  - tests/roadmap/test_obligation_scanner_meta_context.py
+error_output: |
+  5 failures in tests/roadmap/test_obligation_scanner_meta_context.py:
+  1) double_negation expected False got True
+  2) affirmative_second_term expected False got True
+  3) mixed_real_and_meta_same_document expected undischarged_count == 0 got 3
+  4) code_block_still_medium expected MEDIUM obligations got none
+  5) discharge_mechanism_unchanged expected at least one discharged obligation got none
+expected_behavior: |
+  New meta-context tests should pass while preserving baseline obligation scanner behavior.
+actual_behavior: |
+  New classifier over-matches removal terms and test fixtures/assertions contain invalid assumptions about existing behavior.
+changes_made:
+  - src/superclaude/cli/roadmap/obligation_scanner.py: added FR-MOD1.9 regex constants, _is_meta_context(), and Layer1/Layer2 severity demotion in scan_obligations
+  - tests/roadmap/test_obligation_scanner_meta_context.py: new test suite file
+task_description: "Execute .dev/releases/backlog/prd-skill-refactor/workflow-meta-context-fix.md with --compliance strict"
+test_baseline:
+  collected_total: 1509
+  collection_command: "uv run pytest tests/roadmap/ --collect-only -q"
+escalation_count: 1

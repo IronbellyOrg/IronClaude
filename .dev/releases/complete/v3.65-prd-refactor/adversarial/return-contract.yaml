@@ -1,0 +1,10 @@
+merged_output_path: "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/adversarial/merged-proposal.md"
+convergence_score: 0.87
+artifacts_dir: "/config/workspace/IronClaude/.dev/releases/backlog/prd-skill-refactor/adversarial/"
+status: "success"
+base_variant: "brainstorm:composite"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

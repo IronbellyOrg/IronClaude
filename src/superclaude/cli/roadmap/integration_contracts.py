@@ -44,10 +44,13 @@ DISPATCH_PATTERNS = [
         r"\b(?:Dict|Mapping|dict)\s*\[\s*str\s*,\s*(?:Callable|Awaitable|Coroutine)\b",
         re.IGNORECASE,
     ),
-    # Category 4: Strategy pattern
+    # Category 4: Strategy pattern (code-specific patterns only, not section headings)
+    # Bare "Strategy" removed — it matches headings like "Testing Strategy" and
+    # "Migration Strategy" which are document structure, not code patterns.
     re.compile(
-        r"\b(?:Context\s*\(\s*strategy\s*=|Strategy|ConcreteStrategy|"
-        r"set_strategy|get_strategy)\b",
+        r"\b(?:Context\s*\(\s*strategy\s*=|ConcreteStrategy|"
+        r"set_strategy|get_strategy|StrategyPattern|"
+        r"strategy_registry|STRATEGY_MAP|AbstractStrategy)\b",
         re.IGNORECASE,
     ),
     # Category 5: Middleware chain
@@ -163,6 +166,14 @@ def extract_integration_contracts(spec_text: str) -> list[IntegrationContract]:
     counter = 1
 
     for i, line in enumerate(lines):
+        # Skip markdown headings — section titles like "Testing Strategy" or
+        # "Migration Strategy" are document structure, not integration patterns.
+        # Also skip table-of-contents links (lines starting with digits + dots
+        # followed by brackets) and checkbox lines (task lists).
+        stripped = line.lstrip()
+        if stripped.startswith("#") or stripped.startswith("- ["):
+            continue
+
         for pattern in DISPATCH_PATTERNS:
             match = pattern.search(line)
             if match:
@@ -238,6 +249,53 @@ def check_roadmap_coverage(
                         evidence = rline.strip()
                         location = f"line {j + 1}"
                         break
+                if covered:
+                    break
+
+        # FR-MOD2.7: Broad mechanism-term coverage check.
+        # If the contract's mechanism term (e.g., "middleware", "strategy")
+        # appears in the roadmap alongside implementation verbs (implement,
+        # configure, add, create, set up, deploy), treat it as covered.
+        # This catches natural language descriptions like "Rate limiting
+        # middleware" or "Configure CORS middleware" that the strict
+        # verb-anchored patterns miss.
+        if not covered:
+            mechanism_term = contract.mechanism.replace("_", " ")
+            # Also try the raw matched text from the evidence
+            raw_terms = [mechanism_term]
+            if "middleware" in contract.description.lower():
+                raw_terms.append("middleware")
+            if "strategy" in contract.description.lower():
+                raw_terms.append("strategy")
+
+            impl_verbs = re.compile(
+                r"\b(?:implement|configure|add|create|set\s*up|deploy|"
+                r"build|integrate|wire|enable|install|bound|attach|"
+                r"apply|use|route|log|emit|handle)\b",
+                re.IGNORECASE,
+            )
+            for mterm in raw_terms:
+                for j, rline in enumerate(roadmap_lines):
+                    if mterm.lower() in rline.lower():
+                        # Check same line for verb
+                        if impl_verbs.search(rline):
+                            covered = True
+                            evidence = rline.strip()
+                            location = f"line {j + 1}"
+                            break
+                        # Also check within a 3-line window (mechanism on one
+                        # line, verb on an adjacent line — common in tables
+                        # and multi-line task descriptions)
+                        window_start = max(0, j - 2)
+                        window_end = min(len(roadmap_lines), j + 3)
+                        window_text = " ".join(
+                            roadmap_lines[window_start:window_end]
+                        )
+                        if impl_verbs.search(window_text):
+                            covered = True
+                            evidence = rline.strip()
+                            location = f"lines {window_start + 1}-{window_end}"
+                            break
                 if covered:
                     break
 

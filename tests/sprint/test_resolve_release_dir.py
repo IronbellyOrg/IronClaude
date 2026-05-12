@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import pytest
-
 from superclaude.cli.sprint.config import _resolve_release_dir
 
 

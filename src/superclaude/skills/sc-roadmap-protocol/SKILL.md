@@ -32,7 +32,7 @@ Generate deterministic release roadmap packages from specification documents wit
 
 **Key Differentiator**: Requires a specification file as mandatory input — roadmaps are grounded in documented requirements, not ad-hoc descriptions.
 
-**Pipeline Position**: `spec(s) → sc:roadmap → roadmap artifacts → (user triggers) → future tasklist command → (user triggers) → sc:task-unified`
+**Pipeline Position**: `spec(s) → sc:roadmap → roadmap artifacts → (user triggers) → future tasklist command → (user triggers) → sc:task`
 
 The roadmap is a **planning artifact**. sc:roadmap does not trigger downstream commands. The user manually initiates subsequent stages.
 

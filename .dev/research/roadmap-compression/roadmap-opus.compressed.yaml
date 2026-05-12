@@ -1,0 +1,234 @@
+# Compressed Roadmap
+# Source: roadmap-opus-architect.md
+# Method: Normalized YAML with AC keyword tags
+
+meta:
+  source_file: roadmap-opus-architect.md
+  spec_source: test-tdd-user-auth.md
+  prd_source: test-prd-user-auth.md
+  extraction_source: results/test4-spec-prd-tdd/extraction.md
+  complexity_score: 0.72
+  complexity_class: HIGH
+  primary_persona: architect
+  total_entities: 144
+  estimated_task_rows: 166
+  actual_task_rows: 181
+  domains_covered: [backend, security, frontend, infrastructure, operations, compliance]
+  milestones: [M1, M2, M3, M4, M5]
+  phases: 6
+  target_release: v1.0
+
+summaries:
+  executive: "This roadmap translates the User Authentication Service TDD (AUTH-001-TDD) and its parent PRD (AUTH-PRD-001) into a phased implementation plan covering 181 task rows across 6 phases, targeting GA rele"
+  risk: "Assessment & Mitigation Strategies"
+  resources: "Requirements & Dependencies"
+  timeline: "Estimates INFRA-DB-001 → DM-001 → COMP-005 → COMP-001 → FR-AUTH-001 → API-001 → M1 → COMP-003 → COMP-002 → FR-AUTH-003 → API-004 → M2 → FR-AUTH-005 → API-005/006 → M3 → COMP-006/007/008 → M4 → TEST-00"
+  critical_path: "INFRA-DB-001 → DM-001 → COMP-005 → COMP-001 → FR-AUTH-001 → API-001 → M1 → COMP-003 → COMP-002 → FR-AUTH-003 → API-004 → M2 → FR-AUTH-005 → API-005/006 → M3 → COMP-006/007/008 → M4 → TEST-006 → MIG-001 → MIG-002 → MIG-003 → M5"
+
+integration_points:
+  - {name: AuthService_constructor_/_DI_container, wired: [TokenManager, PasswordHasher, UserRepo], phase: 1, xref: [2]}
+  - {name: Auth_Router_(`/auth/*`), wired: [login, register, me, refresh, reset-request, reset-confirm handlers], phase: 1, xref: [2, 3]}
+  - {name: Bearer_Token_Middleware, wired: [JwtService.verify(), protected routes (/auth/me, /profile)], phase: 2, xref: [3]}
+  - {name: AuthProvider_React_Context, wired: [LoginPage, RegisterPage, ProfilePage, token refresh interceptor, 401 redirect], phase: 3, xref: [3, 4]}
+  - {name: Feature_Flag_Registry, wired: [AUTH_NEW_LOGIN (gates LoginPag, AUTH_TOKEN_REFRESH (gates Toke], phase: 5, xref: [5]}
+  - {name: Rate_Limit_Config, wired: [/auth/login (10/min/IP), /auth/register (5/min/IP), /auth/me (60/min/user), /auth/refresh (30/min/user)], phase: 1, xref: [2, 4]}
+  - {name: Prometheus_Metrics_Registry, wired: [auth_login_total, auth_login_duration_seconds, auth_token_refresh_total, auth_registration_total], phase: 5, xref: [5]}
+  - {name: PasswordHasher_Strategy, wired: [bcrypt implementation (default], phase: 1, xref: [1, 4]}
+
+# TASKS (TSV: P=phase, R=row, ID, TASK, COMP, DEPS, AC, EFF, PRI)
+# P1: Foundation & Core Auth Infrastructure (28 rows)
+1|1|AUTH-001-TDD|TDD as authoritative design specifi|Docs|-|reviewed-baselined-auth-team|S|P0
+1|2|AUTH-PRD-001|PRD-to-TDD requirement traceability|Docs|AUTH-001-TDD|pairs-fr-auth-001-fr-auth|S|P0
+1|3|SEC-POLICY-001|Review integrate security policy re|Sec|AUTH-001-TDD|bcrypt,rs256,bcrypt:12,bits:2048|S|P0
+1|4|INFRA-DB-001|Provision PostgreSQL 15+ connection|Infra|-|postgres|M|P0
+1|5|P1-5|Provision Redis 7+ refresh token st|Infra|-|redis,latency:<10ms|M|P0
+1|6|P1-6|Initialize Node.js 20 LTS project T|Infra|-|project-scaffolded-tsconfig|S|P0
+1|7|P1-7|API Gateway CORS, TLS 1.3, route ma|Infra|INFRA-DB-001|tls:1.3,cors|M|P1
+1|8|G-001|AuthService login registration inte|Auth|SEC-POLICY-001|typescript-interfaces-login|S|P0
+1|9|DM-001|UserProfile database schema migrati|DB|INFRA-DB-001|uuid-pk,email:unique,email:indexed|M|P0
+1|10|P1-10|UserProfile field validations const|DB|DM-001|uuid-pk|S|P0
+1|11|P1-11|UserProfile TypeScript interface DT|Auth|DM-001|interface-matches-field|S|P0
+1|12|P1-12|audit_log table schema auth events|DB|INFRA-DB-001|table-stores-login|M|P1
+1|13|COMP-005|UserRepo data access layer|Auth|DM-001|postgres|M|P0
+1|14|P1-14|UserRepo findByEmail indexed lookup|Auth|COMP-005|no-enum,email:indexed,latency:<10ms|S|P0
+1|15|NFR-SEC-001|PasswordHasher bcrypt cost factor 1|Auth|SEC-POLICY-001|latency:<500ms,bcrypt:12|M|P0
+1|16|COMP-004|PasswordHasher abstraction layer st|Auth|NFR-SEC-001|bcrypt|M|P0
+1|17|COMP-001|AuthService orchestration layer dep|Auth|COMP-004,COMP-005|facade-accepts-injected|L|P0
+1|18|FR-AUTH-001|login flow: validate credentials re|Auth|COMP-001,COMP-004|200,401,423,valid-creds,no-enum,lockout|L|P0
+1|19|P1-19|account lockout after 5 failed atte|Auth|FR-AUTH-001|423,lockout|M|P0
+1|20|FR-AUTH-002|registration flow: validate, hash p|Auth|COMP-001,COMP-004,DM-001|201,400,409,bcrypt|L|P0
+1|21|P1-21|password strength validation rules|Auth|FR-AUTH-002|400|S|P0
+1|22|P1-22|email format validation uniqueness|Auth|FR-AUTH-002,COMP-005|409,email:unique|S|P0
+1|23|API-001|POST /auth/login endpoint handler|API|FR-AUTH-001|200,401,423,429|M|P0
+1|24|API-002|POST /auth/register endpoint handle|API|FR-AUTH-002|201,400,409|M|P0
+1|25|P1-25|standardized error response format|API|API-001,API-002|errors-follow-error|S|P0
+1|26|R-002|API Gateway rate limiting login reg|GW|API-001,API-002|429,rate:10/min,rate:5/min|M|P0
+1|27|P1-27|API versioning /v1/ URL prefix|API|API-001,API-002|endpoints-accessible-under|S|P1
+1|28|M1|**Milestone gate:** Core AuthServic|Gate|FR-AUTH-001,FR-AUTH-002,API-001,API-002|postgres,unit-test,integration-test|S|P0
+# P2: Token Management & Session Persistence (26 rows)
+2|29|G-002|stateless token-based session archi|Arch|M1|jwt,refresh|S|P0
+2|30|DM-002|AuthToken response interface DTO|Auth|G-002|refresh,access|S|P0
+2|31|P2-31|refresh_tokens Redis key schema TTL|DB|G-002|format-defined-token|S|P0
+2|32|NFR-SEC-002|Generate configure RS256 2048-bit R|Sec|SEC-POLICY-001|pair-generated-private|M|P0
+2|33|P2-33|RSA key rotation mechanism quarterl|Sec|NFR-SEC-002|rotation|M|P1
+2|34|COMP-003|JwtService sign verify operations R|Auth|NFR-SEC-002|rs256,jwt,latency:<5ms|M|P0
+2|35|P2-35|JWT payload structure user id roles|Auth|COMP-003,DM-001|jwt|S|P0
+2|36|P2-36|5-second clock skew tolerance JwtSe|Auth|COMP-003|token-verification-tolerates|S|P1
+2|37|COMP-002|TokenManager token lifecycle manage|Auth|COMP-003|refresh,redis|L|P0
+2|38|P2-38|refresh token hashing before Redis|TokMgr|COMP-002|refresh,redis,no-plaintext|M|P0
+2|39|P2-39|refresh token revocation TokenManag|TokMgr|COMP-002|401,revocation,redis|M|P0
+2|40|P2-40|token rotation refresh (old revoked|TokMgr|COMP-002|refresh,revocation|M|P0
+2|41|FR-AUTH-003|JWT access tokens (15-min) refresh|TokMgr|COMP-002,COMP-003|jwt,refresh,access,redis,ttl:900s,ttl:604800s|L|P0
+2|42|P2-42|Wire TokenManager into AuthService|Auth|FR-AUTH-003,FR-AUTH-001|successful-login-calls|M|P0
+2|43|FR-AUTH-004|user profile retrieval JWT access t|Auth|COMP-003,COMP-005|jwt|M|P0
+2|44|P2-44|Bearer token extraction verificatio|API|COMP-003|401,jwt|M|P0
+2|45|API-003|GET /auth/me endpoint JWT authentic|API|FR-AUTH-004|401|M|P0
+2|46|API-004|POST /auth/refresh endpoint token r|API|FR-AUTH-003|401,refresh,revocation|M|P0
+2|47|P2-47|rate limiting /auth/me /auth/refres|GW|API-003,API-004|429,rate:60/min,rate:30/min|S|P1
+2|48|P2-48|Handle Redis unavailability gracefu|TokMgr|COMP-002|401,redis|M|P1
+2|49|NFR-PERF-001|all auth endpoints respond < 200ms|Perf|API-001,API-002,API-003,API-004|p95,k6,latency:<200ms|M|P0
+2|50|NFR-PERF-002|support 500 concurrent login reques|Perf|API-001|p95,concurrent,k6,latency:<200ms,concurrent:500|M|P0
+2|51|NFR-REL-001|health check endpoint availability|Ops|COMP-001|200,postgres,redis|S|P0
+2|52|P2-52|connection pool monitoring alerting|Infra|INFRA-DB-001|postgres,prometheus,alerting|S|P1
+2|53|G-004|profile management flow end-to-end|Val|FR-AUTH-004,API-003|auth-returns-accurate|S|P0
+2|54|M2|**Milestone gate:** Token Managemen|Gate|FR-AUTH-003,FR-AUTH-004,API-003,API-004|redis,p95,integration-test|S|P0
+# P3: Password Reset & Frontend Integration (27 rows)
+3|55|G-003|password reset two-step flow archit|Arch|M2|single-use|S|P0
+3|56|FR-AUTH-005|password reset request confirmation|Auth|G-003,COMP-004|single-use|L|P0
+3|57|API-005|POST /auth/reset-request endpoint|API|FR-AUTH-005|200,no-enum|M|P0
+3|58|API-006|POST /auth/reset-confirm endpoint|API|FR-AUTH-005|validates-reset-token|M|P0
+3|59|P3-59|cryptographic reset token generatio|Auth|FR-AUTH-005|single-use|M|P0
+3|60|P3-60|reset token expiry validation reuse|Auth|FR-AUTH-005|400|S|P0
+3|61|P3-61|Integrate SendGrid API password res|Auth|FR-AUTH-005|reset-email-delivered|M|P0
+3|62|P3-62|email delivery monitoring single re|Ops|API-005|alerting|M|P1
+3|63|P3-63|Prevent user enumeration reset-requ|Sec|API-005|200|S|P0
+3|64|G-005|frontend integration contracts comp|Arch|M2|contracts-loginpage-registerpage|S|P0
+3|65|COMP-006|LoginPage component email/password|FE|API-001,G-005|redirect|L|P0
+3|66|P3-66|LoginPage error states messaging|FE|COMP-006|401,423,429,lockout,rate-limit|M|P0
+3|67|P3-67|LoginPage "Forgot Password" navigat|FE|COMP-006,API-005|links-password-reset|S|P1
+3|68|COMP-007|RegisterPage component validation|FE|API-002,G-005|renders-email-password|L|P0
+3|69|P3-69|RegisterPage inline password streng|FE|COMP-007|inline-validation|S|P0
+3|70|P3-70|RegisterPage duplicate email error|FE|COMP-007|409|S|P0
+3|71|COMP-008|AuthProvider context wrapper applic|FE|COMP-003,FR-AUTH-003|manages-authtoken-state|L|P0
+3|72|P3-72|silent token refresh AuthProvider b|FE|COMP-008|access|M|P0
+3|73|P3-73|401 response interception redirect|FE|COMP-008|401,redirect|M|P0
+3|74|P3-74|secure token storage strategy R-001|FE|COMP-008,R-001|refresh,access,httponly-cookie,memory-only|M|P0
+3|75|COMP-009|ProfilePage component displaying Us|FE|API-003,COMP-008|displays-displayname-email|M|P1
+3|76|P3-76|frontend routing all auth pages|FE|COMP-006,COMP-007,COMP-009|login-loginpage-register|M|P0
+3|77|P3-77|protected route guard using AuthPro|FE|COMP-008|redirect|S|P0
+3|78|FE-AUTH-001-TDD|Document frontend accessibility req|Docs|COMP-006,COMP-007|accessibility-spec-referenced|S|P1
+3|79|R-001|XSS token theft mitigations across|Sec|COMP-008|access,httponly-cookie,memory-only,csp-headers|M|P0
+3|80|M3|**Milestone gate:** Password Reset|Gate|FR-AUTH-005,API-005,API-006|single-use,integration-test|S|P0
+3|81|M4|**Milestone gate:** Frontend Integr|Gate|COMP-006,COMP-007,COMP-008,COMP-009|loginpage-registerpage-authprovider|S|P0
+# P4: Security, Testing & Quality Assurance (31 rows)
+4|82|TEST-001|Unit test: Login valid credentials|Test|FR-AUTH-001|refresh,access|M|P0
+4|83|TEST-002|Unit test: Login invalid credential|Test|FR-AUTH-001|401,no-enum|S|P0
+4|84|TEST-003|Unit test: Token refresh valid refr|Test|FR-AUTH-003|jwt,revocation,redis|M|P0
+4|85|P4-85|Unit test: Registration valid data|Test|FR-AUTH-002|authservice-register-validates|M|P0
+4|86|P4-86|Unit test: Registration duplicate e|Test|FR-AUTH-002|409,email:unique|S|P0
+4|87|P4-87|Unit test: Password strength valida|Test|FR-AUTH-002|400|S|P0
+4|88|P4-88|Unit test: PasswordHasher uses bcry|Test|NFR-SEC-001|latency:<500ms,bcrypt:12|S|P0
+4|89|P4-89|Unit test: JwtService signs RS256 2|Test|NFR-SEC-002|rs256,bits:2048|S|P0
+4|90|P4-90|Unit test: Account lockout triggers|Test|FR-AUTH-001|423,lockout|M|P0
+4|91|P4-91|Unit test: Password reset token sin|Test|FR-AUTH-005|400|S|P0
+4|92|P4-92|Unit test: Password reset token 1-h|Test|FR-AUTH-005|400|S|P0
+4|93|P4-93|Unit test: UserProfile field valida|Test|DM-001|displayname-chars-enforced|S|P0
+4|94|TEST-004|Integration test: Registration pers|Test|FR-AUTH-002,INFRA-DB-001|postgres|L|P0
+4|95|TEST-005|Integration test: Expired refresh t|Test|FR-AUTH-003|401,redis|M|P0
+4|96|P4-96|Integration test: POST /auth/login|Test|API-001|200,jwt,access|M|P0
+4|97|P4-97|Integration test: POST /auth/regist|Test|API-002|201|M|P0
+4|98|P4-98|Integration test: GET /auth/me retu|Test|API-003|200|M|P0
+4|99|P4-99|Integration test: POST /auth/refres|Test|API-004|refresh,redis|M|P0
+4|100|P4-100|Integration test: Rate limiting enf|Test|R-002|429|M|P1
+4|101|TEST-006|E2E test: User registers logs throu|Test|COMP-006,COMP-007|redirect|L|P0
+4|102|P4-102|E2E test: AuthProvider performs sil|Test|COMP-008|access|M|P1
+4|103|P4-103|E2E test: Password reset end-to-end|Test|COMP-006,API-005,API-006|click-forgot-password|L|P1
+4|104|P4-104|local test environment Docker Compo|Test|INFRA-DB-001|postgres,redis|M|P0
+4|105|P4-105|CI test environment testcontainers|Test|-|postgres,redis|M|P0
+4|106|P4-106|staging test environment seeded acc|Test|-|staging-environment-seeded|M|P1
+4|107|P4-107|Security review: PasswordHasher bcr|Sec|NFR-SEC-001|no-plaintext,bcrypt:12|M|P0
+4|108|P4-108|Security review: JwtService RS256 k|Sec|NFR-SEC-002|rotation|M|P0
+4|109|P4-109|Security review: Token storage, tra|Sec|R-001|httponly-cookie,tls:1.3,e2e-test|M|P0
+4|110|P4-110|Performance test: p95 latency under|Perf|NFR-PERF-001,NFR-PERF-002|p95,concurrent,k6,latency:<200ms,concurrent:500|L|P0
+4|111|P4-111|Performance test: PasswordHasher bc|Perf|NFR-SEC-001|bcrypt,latency:<500ms,bcrypt:12|S|P0
+4|112|P4-112|unit test coverage exceeds 80% all|Test|TEST-001,TEST-002,TEST-003|jwt,coverage|M|P0
+# P5: Migration, Rollout & Operations (36 rows)
+5|113|AUTH_NEW_LOGIN|AUTH_NEW_LOGIN feature flag product|Ops|M4|flag-defaults-gates|S|P0
+5|114|AUTH_TOKEN_REFRESH|AUTH_TOKEN_REFRESH feature flag pro|Ops|FR-AUTH-003|refresh,access|S|P0
+5|115|MIG-001|Deploy AuthService staging Internal|Migration|M4,AUTH_NEW_LOGIN|authservice-running-staging|L|P0
+5|116|P5-116|Execute auth-team QA manual testing|Migration|MIG-001|endpoints-specified-reset|M|P0
+5|117|MIG-002|Enable AUTH_NEW_LOGIN 10% Beta traf|Migration|MIG-001|feature-flag,rollout|M|P0
+5|118|P5-118|Monitor p95 latency during 2-week 1|Migration|MIG-002|p95,latency:<200ms|M|P0
+5|119|P5-119|Monitor error rates during 2-week 1|Migration|MIG-002|error-rate-sustained|M|P0
+5|120|P5-120|Monitor TokenManager Redis usage du|Migration|MIG-002|refresh,redis|M|P0
+5|121|MIG-003|Remove AUTH_NEW_LOGIN flag route 10|Migration|MIG-002|traffic-through-authservice|M|P0
+5|122|P5-122|Enable AUTH_TOKEN_REFRESH all users|Migration|MIG-003|refresh|S|P0
+5|123|P5-123|Deprecate redirect legacy auth endp|Migration|MIG-003|redirect|M|P1
+5|124|MIG-004|Document test complete rollback pro|Ops|MIG-001|rollback|M|P0
+5|125|MIG-005|automated rollback trigger: p95 lat|Ops|MIG-004|prometheus,alerting|S|P0
+5|126|MIG-006|automated rollback trigger: error r|Ops|MIG-004|prometheus,alerting,rollback|S|P0
+5|127|MIG-007|automated rollback trigger: Redis f|Ops|MIG-004|redis,prometheus,alerting|S|P0
+5|128|MIG-008|automated rollback trigger: data lo|Ops|MIG-004|rollback,rollout|M|P0
+5|129|MIG-009|UserProfile data migration script p|Migration|DM-001|idempotent-upsert-operations|L|P0
+5|130|MIG-010|Execute legacy auth endpoint remova|Migration|MIG-003|redirect|M|P1
+5|131|OPS-001|runbook: AuthService down scenario|Ops|COMP-001|postgres|M|P0
+5|132|OPS-002|runbook: Token refresh failure scen|Ops|COMP-002|jwt,redis|M|P0
+5|133|OPS-003|Prometheus alert: login failure rat|Monitoring|OPS-001|alerting|S|P0
+5|134|OPS-004|Prometheus alert: p95 latency excee|Monitoring|OPS-001|alerting|S|P0
+5|135|OPS-005|Prometheus alert: TokenManager Redi|Monitoring|OPS-002|alerting|S|P0
+5|136|OPS-006|auth_login_total Prometheus counter|Monitoring|COMP-001|lockout|S|P0
+5|137|OPS-007|auth_login_duration_seconds Prometh|Monitoring|COMP-001|histogram-buckets-login|S|P0
+5|138|OPS-008|auth_token_refresh_total Prometheus|Monitoring|COMP-002|revocation|S|P0
+5|139|OPS-009|auth_registration_total Prometheus|Monitoring|COMP-001|counter-registration-attempts|S|P0
+5|140|P5-140|OpenTelemetry distributed tracing a|Monitoring|COMP-001,COMP-002,COMP-003,COMP-004|jwt|M|P1
+5|141|P5-141|Grafana monitoring dashboard auth s|Monitoring|OPS-006,OPS-007,OPS-008,OPS-009|alerting|M|P1
+5|142|OPS-010|Kubernetes HPA AuthService pod auto|Infra|COMP-001|concurrent|M|P0
+5|143|OPS-011|PostgreSQL connection pool scaling|Infra|INFRA-DB-001|200,alerting|S|P1
+5|144|OPS-012|Redis memory auto-scaling monitorin|Infra|-|alerting|S|P1
+5|145|P5-145|auth-team 24/7 on-call rotation pos|Ops|OPS-001,OPS-002|rotation|M|P0
+5|146|P5-146|Execute verify full database backup|Ops|MIG-001|backup-taken-before|M|P0
+5|147|R-003|data loss mitigation strategy durin|Migration|MIG-009|authservice-runs-parallel|M|P0
+5|148|M5|**Milestone gate:** GA Release vali|Gate|MIG-003|grafana|S|P0
+# P6: PRD Traceability & Acceptance Validation (33 rows)
+6|149|FR-AUTH.1|Verify login delivers persistent se|Val|FR-AUTH-001|valid-creds|S|P0
+6|150|FR-AUTH.2|Verify registration creates account|Val|FR-AUTH-002|email:unique|S|P0
+6|151|FR-AUTH.3|Verify session persists across page|Val|FR-AUTH-003|active-sessions-extend|S|P0
+6|152|FR-AUTH.4|Verify profile shows name, email, c|Val|FR-AUTH-004|authenticated-users-displayname|S|P0
+6|153|FR-AUTH.5|Verify self-service password reset|Val|FR-AUTH-005|reset-email-time-limited|S|P0
+6|154|NFR-AUTH.1|200ms p95 response time 500 concurr|Val|NFR-PERF-001,NFR-PERF-002|load-test-results|S|P0
+6|155|NFR-AUTH.2|99.9% availability over 30-day roll|Val|NFR-REL-001|uptime-monitoring-confirms|S|P0
+6|156|NFR-AUTH.3|industry-standard one-way password|Val|NFR-SEC-001|bcrypt,no-plaintext,bcrypt:12|S|P0
+6|157|AUTH-E1|Epic: Login Registration complete a|Val|FR-AUTH-001,FR-AUTH-002|register-login-logout|S|P0
+6|158|AUTH-E2|Epic: Token Management complete all|Val|FR-AUTH-003|session-persistence-programmatic|S|P0
+6|159|AUTH-E3|Epic: Profile Password Reset comple|Val|FR-AUTH-004,FR-AUTH-005|audit-log|S|P0
+6|160|P6-160|user story: Alex registers email pa|Val|AUTH-E1,COMP-007|form-accepts-email|S|P0
+6|161|P6-161|user story: Alex logs with email pa|Val|AUTH-E1,COMP-006|no-enum|S|P0
+6|162|P6-162|user story: Alex logs out secure sh|Val|AUTH-E1,COMP-008|redirect|S|P0
+6|163|P6-163|user story: Alex session persists a|Val|AUTH-E2,COMP-008|sessions-active-days|S|P0
+6|164|P6-164|user story: Sam refreshes tokens pr|Val|AUTH-E2,API-004|refresh,access|S|P0
+6|165|P6-165|user story: Alex views profile deta|Val|AUTH-E3,COMP-009|profile-page-shows|S|P0
+6|166|P6-166|user story: Alex resets forgotten p|Val|AUTH-E3,API-005,API-006|reset-email-sent|S|P0
+6|167|P6-167|user story: Jordan views authentica|Val|AUTH-E3|logs-include-user|M|P1
+6|168|P6-168|customer journey: First-time signup|Val|COMP-007,COMP-008|sign-visible-above|S|P0
+6|169|P6-169|customer journey: Returning user lo|Val|COMP-006,COMP-008|p95,latency:<200ms|S|P0
+6|170|P6-170|customer journey: Password reset fl|Val|API-005,API-006|redirect|S|P0
+6|171|P6-171|customer journey: Profile managemen|Val|COMP-009|profile-page-renders|S|P0
+6|172|P6-172|GDPR consent collection at registra|Compliance|COMP-007|consent-mechanism-present|M|P0
+6|173|P6-173|SOC2 Type II audit logging complete|Compliance|OPS-006,OPS-007,OPS-008,OPS-009|auth-events-logged|M|P0
+6|174|P6-174|NIST SP 800-63B password storage co|Compliance|NFR-SEC-001|no-plaintext|S|P0
+6|175|PLATFORM-PRD-001|Verify alignment platform-level pro|Val|AUTH-PRD-001|auth-service-scope|S|P1
+6|176|COMPLIANCE-001|Verify SOC2 audit logging requireme|Compliance|OPS-006,OPS-007,OPS-008,OPS-009|audit-log|S|P0
+6|177|OQ-001|Resolve open question: API key auth|Decision|M2|decision-documented-communicated|S|P1
+6|178|OQ-002|Resolve open question: Maximum User|Decision|DM-001|maximum-length-defined|S|P1
+6|179|NG-001|Document social/OAuth login deferra|Docs|-|non-goal-documented-authservice|S|P2
+6|180|NG-002|Document MFA deferral extension poi|Docs|-|non-goal-documented-tokenmanager|S|P2
+6|181|NG-003|Document RBAC enforcement out-of-sc|Docs|-|roles-field-present|S|P2
+
+chunk_hashes:
+  meta: cf049da24fbeccbe
+  phase_1: 6dc7c37b5b6fffcc
+  phase_2: 555ef12e5e9f80e7
+  phase_3: aec596d312f6f7af
+  phase_4: 9f9ecda3f5e3097a
+  phase_5: fea7a28628fa4218
+  phase_6: 3c94d6383189d4c0

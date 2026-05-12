@@ -196,19 +196,18 @@ class OutputMonitor:
     """Tracks 8 output metrics and detects stalls via growth_rate_bps.
 
     Stall detection: if growth_rate_bps drops below stall_threshold_bps for
-    stall_timeout_seconds, the kill_fn is called.
+    stall_timeout_seconds, the stall_seconds counter accumulates. Callers
+    should check state.stall_seconds to decide on action.
     """
 
     def __init__(
         self,
         stall_threshold_bps: float = 1.0,
         stall_timeout_seconds: float = 60.0,
-        kill_fn: Optional[callable] = None,
     ) -> None:
         self.state = MonitorState()
         self._stall_threshold_bps = stall_threshold_bps
         self._stall_timeout_seconds = stall_timeout_seconds
-        self._kill_fn = kill_fn
         self._last_update_time: float = time.monotonic()
         self._last_bytes: int = 0
 
@@ -229,9 +228,6 @@ class OutputMonitor:
 
         if self.state.growth_rate_bps < self._stall_threshold_bps:
             self.state.stall_seconds += elapsed
-            if self.state.stall_seconds >= self._stall_timeout_seconds:
-                if self._kill_fn is not None:
-                    self._kill_fn()
         else:
             self.state.stall_seconds = 0.0
 

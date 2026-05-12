@@ -1,4 +1,4 @@
-"""Tests for Phase 3 -- spec-fidelity prompt, pipeline integration, state persistence, degraded reporting.
+"""Tests for spec-fidelity prompt, pipeline integration, state persistence, degraded reporting.
 
 Covers:
 - T03.01: build_spec_fidelity_prompt() structure validation
@@ -44,11 +44,14 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
     spec.write_text("# Test Spec\nContent for testing.\n")
     output = tmp_path / "output"
     output.mkdir(exist_ok=True)
+    # Structural tests here assert spec-fidelity.inputs contains the original
+    # spec/merge paths. Compression routing is exercised by a dedicated test.
     return RoadmapConfig(
         spec_file=spec,
         output_dir=output,
         agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
         depth="standard",
+        compress_enabled=False,
     )
 
 
@@ -75,7 +78,7 @@ class TestBuildSpecFidelityPrompt:
         prompt = build_spec_fidelity_prompt(
             Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
         )
-        assert "Spec Quote" in prompt
+        assert "Source Quote" in prompt
         assert "Roadmap Quote" in prompt
         assert "[MISSING]" in prompt
 
@@ -100,7 +103,7 @@ class TestBuildSpecFidelityPrompt:
         assert "YAML frontmatter" in prompt
 
     def test_spec_fidelity_prompt_comparison_dimensions(self):
-        """Prompt includes all 5 comparison dimensions."""
+        """Prompt includes all 6 base comparison dimensions (7-11 are TDD-conditional, 12-15 are PRD-conditional)."""
         prompt = build_spec_fidelity_prompt(
             Path("/tmp/spec.md"), Path("/tmp/roadmap.md")
         )
@@ -198,8 +201,9 @@ class TestSpecFidelityPipelineIntegration:
         assert "spec-fidelity" in step_ids
 
     def test_spec_fidelity_gate_is_strict(self, tmp_path):
-        """Spec-fidelity step gate is STRICT enforcement."""
+        """Spec-fidelity step gate is STRICT enforcement (legacy non-convergence mode)."""
         config = _make_config(tmp_path)
+        config.convergence_enabled = False
         steps = _build_steps(config)
         spec_fidelity = next(
             e for e in steps if not isinstance(e, list) and e.id == "spec-fidelity"

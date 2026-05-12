@@ -1,0 +1,21 @@
+test_names:
+  - test_inline_code_scaffold_term_is_medium
+  - test_code_block_still_medium
+test_files:
+  - tests/roadmap/test_obligation_scanner_meta_context.py
+error_output: |
+  2 failures remain after first remediation pass:
+  1) TestLayer1InlineCode.test_inline_code_scaffold_term_is_medium -> expected phase2 placeholder obligation list non-empty, got []
+  2) TestExistingBehaviorPreserved.test_code_block_still_medium -> expected at least one MEDIUM obligation, got []
+expected_behavior: |
+  Inline-code and fenced-code fixtures should still yield obligations classified as MEDIUM (not dropped).
+actual_behavior: |
+  Obligations on discharge-intent lines are currently being skipped entirely, which suppresses inline-code and code-block obligations in these fixtures.
+changes_made:
+  - src/superclaude/cli/roadmap/obligation_scanner.py: added FR-MOD1.9 constants, _is_meta_context, discharge-intent skip, component extraction changes, and code-block local fallback
+  - tests/roadmap/test_obligation_scanner_meta_context.py: adjusted expectation tests per first forensic verdict
+task_description: "Second TFEP trigger under STRICT flow for workflow-meta-context-fix remediation"
+test_baseline:
+  collected_total: 1509
+  collection_command: "uv run pytest tests/roadmap/ --collect-only -q"
+escalation_count: 2

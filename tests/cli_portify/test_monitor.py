@@ -360,27 +360,21 @@ class TestOutputMonitor:
         mon.update(200, new_lines=3)
         assert mon.state.line_count == 8
 
-    def test_output_monitor_stall_detection_triggers_kill(self):
+    def test_output_monitor_stall_detection_accumulates(self):
         from superclaude.cli.cli_portify.monitor import OutputMonitor
-
-        killed = [False]
-
-        def kill():
-            killed[0] = True
 
         import time
 
         mon = OutputMonitor(
             stall_threshold_bps=1000.0,  # High threshold → immediate stall
-            stall_timeout_seconds=0.0,  # Zero timeout → trigger immediately
-            kill_fn=kill,
+            stall_timeout_seconds=0.0,  # Zero timeout → stall accumulates immediately
         )
         # First call establishes baseline
         mon.update(0)
-        # Second call with no byte growth triggers stall → kill
+        # Second call with no byte growth triggers stall accumulation
         time.sleep(0.01)
         mon.update(0)
-        assert killed[0] is True
+        assert mon.state.stall_seconds > 0
 
     def test_output_monitor_has_all_eight_fields(self):
         from superclaude.cli.cli_portify.models import MonitorState

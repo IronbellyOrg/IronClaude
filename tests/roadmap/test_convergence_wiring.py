@@ -477,3 +477,81 @@ class TestEndToEndConvergenceFail:
             verdict="PASS",
             evidence="Convergence engine fails after 3 runs with persistent HIGHs",
         )
+
+
+# --- CLI flag wiring tests ---
+
+
+class TestConvergenceDefaultOn:
+    """Verify convergence_enabled defaults to True and --no-convergence disables it."""
+
+    def test_default_config_convergence_enabled(self):
+        """RoadmapConfig() without explicit flag has convergence_enabled=True."""
+        config = RoadmapConfig()
+        assert config.convergence_enabled is True
+
+    def test_explicit_disable(self):
+        """convergence_enabled=False is respected when set explicitly."""
+        config = RoadmapConfig(convergence_enabled=False)
+        assert config.convergence_enabled is False
+
+    def test_no_convergence_flag_wiring(self):
+        """--no-convergence translates to convergence_enabled=False in config_kwargs."""
+        # Simulate the CLI wiring logic: `not no_convergence`
+        no_convergence = True
+        convergence_enabled = not no_convergence
+        assert convergence_enabled is False
+
+        no_convergence = False
+        convergence_enabled = not no_convergence
+        assert convergence_enabled is True
+
+    def test_default_builds_convergence_steps(self):
+        """Default config (convergence ON) builds spec-fidelity with gate=None."""
+        from superclaude.cli.roadmap.executor import _build_steps
+        from superclaude.cli.roadmap.models import AgentSpec
+
+        config = RoadmapConfig(
+            spec_file=Path("/tmp/spec.md"),
+            output_dir=Path("/tmp/out"),
+            agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
+        )
+        assert config.convergence_enabled is True
+
+        steps = _build_steps(config)
+        fidelity_step = None
+        for entry in steps:
+            if isinstance(entry, list):
+                for s in entry:
+                    if s.id == "spec-fidelity":
+                        fidelity_step = s
+            elif entry.id == "spec-fidelity":
+                fidelity_step = entry
+
+        assert fidelity_step is not None
+        assert fidelity_step.gate is None, "Convergence ON should disable legacy gate"
+
+    def test_disabled_builds_legacy_gate(self):
+        """convergence_enabled=False builds spec-fidelity with SPEC_FIDELITY_GATE."""
+        from superclaude.cli.roadmap.executor import _build_steps
+        from superclaude.cli.roadmap.gates import SPEC_FIDELITY_GATE
+        from superclaude.cli.roadmap.models import AgentSpec
+
+        config = RoadmapConfig(
+            spec_file=Path("/tmp/spec.md"),
+            output_dir=Path("/tmp/out"),
+            convergence_enabled=False,
+            agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
+        )
+        steps = _build_steps(config)
+        fidelity_step = None
+        for entry in steps:
+            if isinstance(entry, list):
+                for s in entry:
+                    if s.id == "spec-fidelity":
+                        fidelity_step = s
+            elif entry.id == "spec-fidelity":
+                fidelity_step = entry
+
+        assert fidelity_step is not None
+        assert fidelity_step.gate is SPEC_FIDELITY_GATE, "Convergence OFF should use legacy gate"

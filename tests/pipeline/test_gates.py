@@ -289,3 +289,80 @@ class TestCheckFrontmatterRegex:
         ok, reason = _check_frontmatter(content, [], self.DUMMY)
         assert ok is False
         assert "not found" in reason.lower()
+
+
+class TestFrontmatterAliasGroups:
+    """A tuple entry in required_frontmatter_fields is an OR-group: any one
+    of the listed aliases satisfies the slot. Mirrors the template's
+    mutually-exclusive-alias rule (e.g. `spec_source` vs `spec_sources`).
+    """
+
+    DUMMY = Path("test.md")
+
+    def test_tuple_accepted_with_first_alias(self):
+        content = "---\nspec_source: a.md\n---\nBody"
+        ok, reason = _check_frontmatter(
+            content, [("spec_source", "spec_sources")], self.DUMMY
+        )
+        assert ok is True
+        assert reason is None
+
+    def test_tuple_accepted_with_second_alias(self):
+        content = "---\nspec_sources:\n  - a.md\n  - b.md\n---\nBody"
+        ok, reason = _check_frontmatter(
+            content, [("spec_source", "spec_sources")], self.DUMMY
+        )
+        assert ok is True
+        assert reason is None
+
+    def test_tuple_rejected_when_neither_alias_present(self):
+        content = "---\ntitle: just a title\n---\nBody"
+        ok, reason = _check_frontmatter(
+            content, [("spec_source", "spec_sources")], self.DUMMY
+        )
+        assert ok is False
+        assert reason is not None
+        assert "spec_source" in reason
+        assert "spec_sources" in reason
+        assert "one of" in reason
+
+    def test_string_and_tuple_entries_both_enforced(self):
+        """Mixed list must enforce the string entry and the tuple entry."""
+        # Tuple satisfied but string 'generated' missing -> fail on string.
+        content = "---\nspec_source: a.md\n---\nBody"
+        ok, reason = _check_frontmatter(
+            content,
+            ["generated", ("spec_source", "spec_sources")],
+            self.DUMMY,
+        )
+        assert ok is False
+        assert "generated" in reason
+        assert "Missing required" in reason
+
+    def test_mixed_entries_all_present_passes(self):
+        content = (
+            "---\n"
+            "spec_sources:\n  - a.md\n  - b.md\n"
+            "generated: 2026-04-21T00:00:00Z\n"
+            "---\nBody"
+        )
+        ok, reason = _check_frontmatter(
+            content,
+            ["generated", ("spec_source", "spec_sources")],
+            self.DUMMY,
+        )
+        assert ok is True
+        assert reason is None
+
+    def test_both_aliases_present_still_passes(self):
+        """The gate only enforces presence, not mutual exclusion. The
+        single-vs-multi contract is a template concern; gates stay lenient
+        so that legacy artifacts with accidental both-forms don't stall the
+        pipeline. (Template-level linting enforces exclusivity upstream.)
+        """
+        content = "---\nspec_source: a.md\nspec_sources:\n  - a.md\n  - b.md\n---\nBody"
+        ok, reason = _check_frontmatter(
+            content, [("spec_source", "spec_sources")], self.DUMMY
+        )
+        assert ok is True
+        assert reason is None
