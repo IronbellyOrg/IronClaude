@@ -58,6 +58,14 @@ Phase activates if the reflection's draft output contains any of:
 
 If none match, phase is a no-op and reflection proceeds straight to Document. **Most reflections will skip this phase entirely.**
 
+**False-positive exclusion.** Illustrative content does not activate the phase. A candidate is treated as illustrative — and the activation rule does NOT fire — when any of the following hold:
+- The verb is in past tense (`started`, `pushed`, `deleted`).
+- The verb is surrounded by hedging or framing words: `would`, `caught`, `rejected`, `blocked`, `example`, `imagine`, `suppose`.
+- The verb appears inside a quote block introduced by `> **Re-scrutiny caught:**` (this is the design's own re-scrutiny output format; recursing on it would be silly).
+- The verb appears inside a section explicitly marked as a worked example, table cell, or audit-annotation example (e.g., the rows of §3.2 or the prose of §5 in this design).
+
+Activation is reserved for content the user is plausibly meant to act on, not content that explains what the phase will do.
+
 ### 3.2 CLI verb allowlist — by category
 
 Verbs whose precondition checks are mandatory when targeting a named object. Organized by category to cover the surface across Unreal, Unity, frontend, and backend projects. Verbs not in this table bypass external-fact lookup but still go through session-fact pass.
@@ -89,7 +97,10 @@ The allowlist is expandable. New entries should be added when a re-scrutiny miss
 
 For each candidate recommendation:
 - Parse `(verb, object, flags)` tuples. Multi-line scripts produce a tuple per command.
-- Resolve variable references where possible (`$CTID` from a heredoc array → concrete CTID).
+- Resolve variable references along a tiered policy:
+  - **Resolve eagerly** when the value is a literal in scope: heredoc array entries, immediate `VAR=value` assignments above the use site, and let-binding-style fixed values.
+  - **Mark `<unresolved>` and route to HEDGE** when the value depends on `$(...)` command substitution, env-var interpolation (`$HOME`, `$CI_*`), or multi-step construction across files. Never PASS a tuple whose object is `<unresolved>` — the gate cannot verify what it cannot read.
+  - When in doubt, prefer `<unresolved>` over a guessed resolution; a hedge annotation is cheaper than a wrong PASS.
 - Output: an ordered list of tuples to scrutinize.
 
 ### 3.4 Session-fact pass (B-lite)
@@ -123,6 +134,15 @@ Each tuple is first classified into a stakes tier based on the verb:
 | **LOW** | Read-only or trivially reversible. No filesystem, registry, or remote-state mutation. | `--version`, `list`, `status`, `log`, `get`, `describe`, `inspect`, `show`, `cat`, `ls`, `ps`, `df`, `free`, `nproc`, `pct config`, `kubectl get`, `git status`, `git log`, `docker ps` |
 | **MEDIUM** | State-changing but reversible without lasting harm. Restartable, re-deployable, idempotent. | `start`, `stop`, `restart`, `set`, `update`, `apply` (when target is non-prod), `npm install`, `git checkout`, `pct set`, `systemctl reload`, `docker pull` |
 | **HIGH** | Destructive, hard-to-reverse, or irreversible. Includes anything that loses data, mutates shared/published state, or burns credentials/identity. | `destroy`, `delete`, `rm -rf`, `dd of=`, `mkfs`, `force-push` (`git push --force`), `git reset --hard`, `git branch -D`, `p4 obliterate`, `kubectl delete`, `terraform destroy`, `npm publish`, `docker push` (to prod tag), `DROP TABLE`, `TRUNCATE`, `FLUSHALL`, `pct destroy`, `qm destroy`, cloud `terminate`/`delete-*` against prod |
+
+**Environment classification (B4).** Stakes tier for verbs whose tier depends on environment (`kubectl apply`, `docker push`, `terraform apply`, cloud `update-*` against named resources) is derived in this priority order:
+1. **Explicit environment markers in the recommendation text** — comments like `# prod`, flags like `--env prod`, manifest paths like `k8s/prod/*.yaml`, or prose framing ("deploy to production").
+2. **Inferred markers from context** — `kubectl` context name, `terraform` workspace name, branch name (`main`, `master`, `prod`, `release/*`), or registry path patterns (`*.prod.example.com`).
+3. **Default to HIGH** when neither is present. The cost of being wrong against prod is asymmetric — false-HIGH causes a hedge annotation, false-MEDIUM lets a destructive command ship.
+
+**Flag-set as part of the matching key (H2).** Stakes tier and gate decisions key on `(verb, critical-flag-set)`, not verb alone. The §3.2 allowlist explicitly distinguishes `git push` from `git push --force`, `rsync` from `rsync --delete`, `docker build` from `docker build --push`, `kubectl apply` from `kubectl apply --prune`. Critical flags promote tier (e.g., `git push` MEDIUM → `git push --force` HIGH). Flags that don't change the verb's effect on target state (e.g., `--quiet`, `--verbose`) are ignored for keying.
+
+**Empty / ambiguous object (H3).** A state-changing verb whose object is missing, blank, or `<unresolved>` (per §3.3) is **always BLOCK**. The gate cannot verify a target it cannot identify; running such a command would let shell expansion or interactive selection make the choice for the user — exactly the failure mode this phase exists to prevent.
 
 Then apply the gate, with HIGH-stakes verbs blocking on hedge instead of annotating:
 
@@ -255,9 +275,14 @@ mcp-servers: [serena, context7]
 
 ### 7.1 `## Behavioral Flow` — add phase between Reflect and Document
 
-Insert after current step 3:
+Replace the existing 5-phase numbered list with the 6-phase list below. Renumber Document (5) and Optimize (6) accordingly. The new phase 4 reads:
 
-> 3.5. **Re-scrutinize**: For any executable artifacts produced (shell commands, code blocks, action recommendations), extract `(verb, object)` tuples; pass each through session-fact lookup; for allowlisted CLI verbs unresolved by session, fetch external preconditions via context7; block or rewrite contradictions before delivery. Skipped entirely when no executable artifacts are present.
+> 1. **Analyze**: Examine current task state and session progress using Serena reflection tools
+> 2. **Validate**: Assess task adherence, completion quality, and requirement fulfillment
+> 3. **Reflect**: Apply deep analysis of collected information and session insights
+> 4. **Re-scrutinize**: For any executable artifacts produced (shell commands, code blocks, action recommendations), extract `(verb, object)` tuples; pass each through session-fact lookup; for allowlisted CLI verbs unresolved by session, fetch external preconditions via context7; block or rewrite contradictions before delivery. Skipped entirely when no executable artifacts are present.
+> 5. **Document**: Update session metadata and capture learning insights
+> 6. **Optimize**: Provide recommendations for process improvement and quality enhancement
 
 ### 7.2 `## MCP Integration` — add Context7
 
@@ -269,7 +294,7 @@ Append:
 
 Append:
 
-> - **Grep**: Conversation-transcript scan for asserted facts about objects named in reflection-emitted recommendations.
+> - **Grep**: File-anchored augmentation during the session-fact pass — pattern lookup within config files, mirror files, or pasted log paths the conversation references. Grep operates on files, not the transcript; transcript scanning is handled by in-context reasoning per §3.4.
 > - **WebSearch**: Fallback CLI precondition lookup when Context7 doesn't cover the tool.
 
 ### 7.4 `## Key Patterns` — add re-scrutiny pattern
@@ -291,7 +316,7 @@ Append:
 Append:
 
 > - Maintain a persistent cross-session entity registry or knowledge graph; the session-fact set is ephemeral and lives only within one reflect call.
-> - Block on hedge cases — when neither session nor external docs resolve a precondition question, surface the unverified status and recommend a check, but do not refuse to deliver.
+> - Block on hedge cases for LOW/MEDIUM stakes — when neither session nor external docs resolve a precondition question for a non-HIGH-stakes verb, surface the unverified status and recommend a check, but do not refuse to deliver. (HIGH-stakes verbs DO block on hedge per §3.6.)
 > - Validate non-executable commentary, prose analysis, or reasoning narratives — only artifacts the user is expected to act on are in scope.
 
 ---
@@ -326,6 +351,13 @@ The <200ms target in the existing skill spec applies to "core reflection operati
 
 ## 10. Implementation handoff
 
-Next step: `/sc:implement` against this design document, applied to `/config/.claude/commands/sc/reflect.md`. Per the global CLAUDE.md component-sync rule, the same edit must propagate to the canonical source at `/config/.local/share/pipx/venvs/superclaude/lib/python3.12/site-packages/superclaude/_src/superclaude/commands/reflect.md` (or wherever the active SuperClaude install treats as source-of-truth — verify before editing). After both edits, run `make verify-sync` if the project's source tree is in scope, or perform a manual diff if the SuperClaude install is the only source.
+Next step: `/sc:implement` against this design document, applied to the canonical source `/config/workspace/IronClaude/src/superclaude/commands/reflect.md`. Per the project's component-sync rule (`CLAUDE.md` §"Component Sync"), `src/superclaude/` is the source of truth and `.claude/commands/sc/reflect.md` is a synced dev copy. After editing the source, run:
+
+```bash
+make sync-dev      # copies src/superclaude/{skills,agents,commands} → .claude/
+make verify-sync   # confirms src/ and .claude/ match
+```
+
+Do **not** edit the pipx-installed copy at `/config/.local/share/pipx/venvs/superclaude/lib/...` — that path is downstream of the source tree and will be overwritten on the next package install.
 
 Verification of the change: re-run the §5 worked-example scenario by hand-feeding the same draft output to a refactored `/sc:reflect` and confirm the bug is caught. No other functional regression test is needed; the phase is purely additive and skipped on reflections with no executable output.
