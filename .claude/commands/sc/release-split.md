@@ -50,7 +50,7 @@ personas: [architect, analyzer, scribe]
 | Flag | Short | Required | Default | Description |
 |------|-------|----------|---------|-------------|
 | `<spec-file-path>` | | Yes | - | Path to release artifact to analyze |
-| `--output` | `-o` | No | `<spec-dir>/release-split/` | Output directory for all artifacts |
+| `--output` | `-o` | No | `<spec-dir>/release-split/` | Output directory for all artifacts. **Policy:** `--output` paths under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` are refused before any write — those prefixes are reserved for distributable components. Redirect to `.dev/` (e.g., `.dev/releases/current/<release-name>/` or `.dev/eval-workspaces/<skill-name>/`). See `.dev/README.md`. |
 | `--depth` | `-d` | No | `standard` | Analysis depth: quick, standard, deep |
 | `--interactive` | `-i` | No | `false` | Pause for user confirmation between phases |
 | `--resume-from` | | No | - | Path to pre-validated split proposal; skips Parts 1-2 |

@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-05-13T05:22:44.938771+00:00",
+  "summary": {
+    "total": 5,
+    "found": 0,
+    "missing": 5,
+    "recovered": 0
+  },
+  "entries": [
+    {
+      "phase": 1,
+      "name": "End of Phase 1",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/release-split-workspace-rca/TASKLIST_ROOT/checkpoints/CP-P01-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "End of Phase 2",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/release-split-workspace-rca/TASKLIST_ROOT/checkpoints/CP-P02-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "End of Phase 3",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/release-split-workspace-rca/TASKLIST_ROOT/checkpoints/CP-P03-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "End of Phase 4",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/release-split-workspace-rca/TASKLIST_ROOT/checkpoints/CP-P04-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "End of Phase 5",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/release-split-workspace-rca/TASKLIST_ROOT/checkpoints/CP-P05-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    }
+  ]
+}

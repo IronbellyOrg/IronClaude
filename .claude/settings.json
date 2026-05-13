@@ -1,1 +1,17 @@
-{}
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "description": "Reject-with-redirect: writes to `.claude/skills/*-workspace/**` are denied with a message naming the correct destination `.dev/eval-workspaces/<skill>/<remainder>`. Semantics are deny + explanatory message (Claude Code hooks do not transparently rewrite paths) — Claude is expected to retry against the redirected path. Source: phase-3-tasklist.md T03.01, FR-L1.1, R-007. Pattern precision (R-01): only `<...>/.claude/skills/<X>-workspace/<remainder>` matches; `.claude/skills/<X>/workspace.md` and `.claude/skills/<X>/file.md` are NOT affected.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/reject-workspace-writes.sh",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

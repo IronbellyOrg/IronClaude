@@ -200,3 +200,6 @@ TODO.txt
 # Development artifacts (should not be in repo)
 package-lock.json
 uv.lock
+
+# Skill eval workspaces must live in .dev/eval-workspaces/ -- see .dev/README.md
+.claude/skills/*-workspace/
