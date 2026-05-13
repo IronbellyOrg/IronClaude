@@ -141,6 +141,36 @@ SuperClaude provides persistent session management through the Serena MCP server
 /sc:workflow "Phase 2: payment and order processing"
 ```
 
+## Per-Turn Session Context Envelope (v4.3+)
+
+In addition to the long-term Serena memory layer described above, every user
+prompt is prefixed with a **short, factual `<session-context>` block** injected
+by the `freshness-user-prompt.sh` hook. This is per-turn ephemeral state, not
+persistent memory.
+
+```
+<session-context>
+  ts=2026-05-13T01:07:33+00:00 turn=2 Δ=07:43 mode=plan git=feat/x dirty=3M/4U bg=2
+  changed_since_last_turn=/foo/a.go,/foo/b.go
+</session-context>
+```
+
+Fields appear conditionally:
+- `turn=N` — per-session turn counter (always present)
+- `Δ=MM:SS` — elapsed since previous prompt, when ≥300s
+- `mode=<m>` — when `permission_mode ≠ "default"`
+- `git=<branch> dirty=NM/NU` — when the cwd has uncommitted changes
+- `bg=<n>` — when subagents are running
+- `RESUMED_AFTER_LONG_PAUSE` — when Δ ≥ 3600s
+
+**Treat the envelope as ground truth for the turn.** Decisions based on
+older context (cached memory of file contents, prior tool-call results) may be
+stale; the envelope reflects what was true the instant the user pressed Enter.
+
+The companion `freshness-pre-edit.sh` hook blocks `Edit`/`Write` against
+files not Read in this session within the last 30 minutes — see
+[Context Freshness Hooks](freshness-hooks.md) for the full story.
+
 ## Cross-Conversation Continuity
 
 ### Starting New Conversations with Persistence

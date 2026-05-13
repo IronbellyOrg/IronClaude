@@ -63,6 +63,24 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
 │   ├── technical-writer.md         # Documentation expertise
 │   ├── test-runner.md              # Test execution expertise
 │   └── wave-orchestrator.md        # Wave orchestration patterns
+├── hooks/                          # Shell hooks deposited by install_hooks (v4.3+)
+│   ├── session-init.sh             # Pre-existing init script (legacy)
+│   ├── freshness-session-start.sh  # SessionStart envelope (startup + resume branches)
+│   ├── freshness-user-prompt.sh    # Per-turn <session-context> envelope injection
+│   ├── freshness-pre-edit.sh       # PreToolUse gate: blocks Edit/Write against unread/stale files
+│   ├── freshness-post-read.sh      # PostToolUse(Read) tracker
+│   ├── freshness-subagent-start.sh # Background-agent counter increment
+│   ├── freshness-subagent-stop.sh  # Background-agent counter decrement
+│   └── freshness-file-changed.sh   # NOT REGISTERED in v1 — see freshness-hooks.md
+├── state/                          # Per-session state populated by hooks
+│   ├── reads.jsonl                 # Successful Read events (cross-session jsonl)
+│   ├── turns/<sid>.txt             # Per-session turn counter
+│   ├── last-prompt-ts/<sid>.txt    # Per-session last prompt timestamp
+│   ├── bg-agents/<sid>.txt         # Per-session background-agent count
+│   └── tool-call-counter/<sid>.txt # Per-session tool-call sequence
+├── logs/                           # Hook telemetry
+│   └── freshness-hook.jsonl        # PreToolUse decisions (one row per Edit attempt)
+├── settings.json                   # Hook registrations merged by install_hooks
 └── commands/                       # Workflow pattern contexts
     └── sc/                         # SuperClaude command namespace (25 total)
         ├── analyze.md              # Analysis patterns

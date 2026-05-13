@@ -92,6 +92,38 @@ export MORPH_API_KEY="your_key"
 # Or use: /sc:command --no-mcp
 ```
 
+### Freshness Hook Issues (v4.3+)
+
+The freshness hooks block `Edit`/`Write` against files Claude hasn't Read in
+the last 30 minutes. See [Context Freshness Hooks](../user-guide/freshness-hooks.md)
+for the full guide.
+
+**Unexpected block: "You have not Read \`X\` in this session":**
+- Expected on the first edit against a file in a fresh session — Claude will Read then retry.
+- If creating a brand-new file: use a Bash heredoc (`cat > newfile <<EOF…EOF`); the gate doesn't apply to Bash.
+
+**Hook silently not firing:**
+```bash
+jq -r '.hooks | keys[]' ~/.claude/settings.json    # Should list SessionStart, PreToolUse, etc.
+ls ~/.claude/hooks/freshness-*.sh                  # 7 files, mode 0755
+which jq                                           # jq is required; install with apt/brew
+tail -F ~/.claude/logs/freshness-hook.jsonl        # Watch telemetry as you work
+```
+
+**See block decisions / why a request was halted:**
+```bash
+jq -c '.' ~/.claude/logs/freshness-hook.jsonl | tail -10
+# decision=block + reason=no_prior_read / read_too_old explain the gate's choice
+```
+
+**Restore settings.json after a bad merge:**
+```bash
+ls -t ~/.claude/settings.json.bak.* | head -1 | xargs -I{} cp {} ~/.claude/settings.json
+```
+
+**Opt out (selective):** remove an event key from `~/.claude/settings.json` under `hooks`.
+**Opt out (global):** remove all `freshness-*` entries from `~/.claude/settings.json` and `rm ~/.claude/hooks/freshness-*.sh`. Re-enable with `superclaude install --force`.
+
 ## Advanced Diagnostics
 
 **System Analysis:**

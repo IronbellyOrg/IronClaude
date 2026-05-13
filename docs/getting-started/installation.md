@@ -486,6 +486,7 @@ brew install python3
 
 **Advanced:**
 - [MCP Servers](../user-guide/mcp-servers.md)
+- [Context Freshness Hooks](../user-guide/freshness-hooks.md) (v4.3+)
 - [Technical Architecture](../developer-guide/technical-architecture.md)
 - [Contributing Code](../developer-guide/contributing-code.md)
 
