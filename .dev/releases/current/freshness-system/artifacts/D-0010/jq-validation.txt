@@ -57,6 +57,19 @@
         ]
       }
     ],
+    "FileChanged": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/freshness-file-changed.sh",
+            "timeout": 1,
+            "async": true
+          }
+        ]
+      }
+    ],
     "SubagentStart": [
       {
         "hooks": [

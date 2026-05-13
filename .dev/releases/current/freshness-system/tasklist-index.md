@@ -7,7 +7,7 @@
 | Sprint Name | Context Freshness System (CFS) — IronClaude global feature |
 | Generator Version | Roadmap->Tasklist Generator v4.0 |
 | Generated | 2026-05-12 |
-| TASKLIST_ROOT | `/config/workspace/IronClaude/.dev/releases/current/freshness-system/` |
+| TASKLIST_ROOT | `/config/workspace/IronClaude/claudedocs/workflows/freshness-system/` |
 | Total Phases | 5 |
 | Total Tasks | 20 |
 | Total Deliverables | 26 |
