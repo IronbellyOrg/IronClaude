@@ -133,10 +133,22 @@ sync-dev:
 		case "$$name" in README.md|__init__.py) continue;; esac; \
 		cp "$$cmd" ".claude/commands/sc/$$name"; \
 	done
+	@mkdir -p .claude/hooks
+	@for hook in src/superclaude/hooks/scripts/*.sh; do \
+		[ -f "$$hook" ] || continue; \
+		name=$$(basename "$$hook"); \
+		cp "$$hook" ".claude/hooks/$$name"; \
+		chmod +x ".claude/hooks/$$name"; \
+	done
+	@if [ -f src/superclaude/scripts/session-init.sh ]; then \
+		cp src/superclaude/scripts/session-init.sh .claude/hooks/session-init.sh; \
+		chmod +x .claude/hooks/session-init.sh; \
+	fi
 	@echo "✅ Sync complete."
 	@echo "   Skills:   $$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ') directories"
 	@echo "   Agents:   $$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ') files"
 	@echo "   Commands: $$(ls .claude/commands/sc/*.md 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Hooks:    $$(ls .claude/hooks/*.sh 2>/dev/null | wc -l | tr -d ' ') files"
 
 # Verify src/superclaude/ and .claude/ are in sync (CI-friendly, exits 1 on drift)
 verify-sync:

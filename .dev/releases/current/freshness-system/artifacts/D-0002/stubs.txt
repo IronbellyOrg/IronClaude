@@ -1,0 +1,29 @@
+# D-0002 — Stub scripts in src/superclaude/hooks/scripts/
+
+Created 2026-05-12. 7 executable stubs, mode 0755. Each body: shebang + STUB comment + `exit 0` (3 lines).
+
+```
+-rwxr-xr-x 1 abc abc   92 May 12 19:38 freshness-file-changed.sh
+-rwxr-xr-x 1 abc abc   89 May 12 19:38 freshness-post-read.sh
+-rwxr-xr-x 1 abc abc   88 May 12 19:38 freshness-pre-edit.sh
+-rwxr-xr-x 1 abc abc   93 May 12 19:38 freshness-session-start.sh
+-rwxr-xr-x 1 abc abc   94 May 12 19:38 freshness-subagent-start.sh
+-rwxr-xr-x 1 abc abc   93 May 12 19:38 freshness-subagent-stop.sh
+-rwxr-xr-x 1 abc abc   91 May 12 19:38 freshness-user-prompt.sh
+```
+
+## Verification
+
+- `find src/superclaude/hooks/scripts -type f -name "freshness-*.sh" | wc -l` → 7
+- `bash -n <each>` → exit 0 for all 7
+- All files mode 0755 (`-rwxr-xr-x`)
+- No file other than 7 freshness-*.sh stubs present
+- Each stub body ≤4 lines
+
+## Stub body (reference)
+
+```bash
+#!/usr/bin/env bash
+# STUB - implemented in Phase 2 T02.0X (freshness-X).
+exit 0
+```

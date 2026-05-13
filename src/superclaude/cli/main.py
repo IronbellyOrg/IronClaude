@@ -71,6 +71,7 @@ def install(target: str, force: bool, list_only: bool):
         list_core_files,
         list_installed_core_files,
     )
+    from .install_hooks import install_hooks
     from .install_skill import list_available_skills
     from .install_skills import install_all_skills, list_installed_skills
 
@@ -161,8 +162,22 @@ def install(target: str, force: bool, list_only: bool):
 
     skill_success, skill_message = install_all_skills(force=force)
     click.echo(skill_message)
+    click.echo()
 
-    if not core_success or not cmd_success or not agent_success or not skill_success:
+    # Step 5: Install hooks (scripts + additive settings.json merge)
+    click.echo("📦 Installing hooks to ~/.claude/hooks/...")
+    click.echo()
+
+    hooks_success, hooks_message = install_hooks(force=force)
+    click.echo(hooks_message)
+
+    if (
+        not core_success
+        or not cmd_success
+        or not agent_success
+        or not skill_success
+        or not hooks_success
+    ):
         sys.exit(1)
 
 

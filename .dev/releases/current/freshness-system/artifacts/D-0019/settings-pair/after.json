@@ -1,4 +1,7 @@
 {
+  "model": "opus[1m]",
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "SessionStart": [
       {
@@ -51,6 +54,19 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/freshness-post-read.sh",
+            "timeout": 1,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "FileChanged": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/freshness-file-changed.sh",
             "timeout": 1,
             "async": true
           }

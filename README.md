@@ -37,6 +37,7 @@ The README reflects the product/function of the repo first, while preserving the
 - **PM-agent patterns** for confidence, self-check, and reflexion
 - **MCP-aware development** with integrations such as Auggie, Serena, Tavily, Context7, and Sequential
 - **Contributor workflow support** with source/dev-mirror sync between `src/superclaude/` and `.claude/`
+- **Context freshness hooks** (v4.3) — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md).
 
 ## Repository purpose
 

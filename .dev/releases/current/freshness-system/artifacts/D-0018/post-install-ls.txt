@@ -1,0 +1,11 @@
+total 48
+drwxr-xr-x  2 abc abc 4096 May 12 22:57 .
+drwxr-xr-x 20 abc abc 4096 May 12 22:57 ..
+-rwxr-xr-x  1 abc abc 1796 May 12 19:44 freshness-file-changed.sh
+-rwxr-xr-x  1 abc abc 2015 May 12 19:52 freshness-post-read.sh
+-rwxr-xr-x  1 abc abc 4735 May 12 19:53 freshness-pre-edit.sh
+-rwxr-xr-x  1 abc abc 3962 May 12 19:43 freshness-session-start.sh
+-rwxr-xr-x  1 abc abc  870 May 12 19:46 freshness-subagent-start.sh
+-rwxr-xr-x  1 abc abc  983 May 12 19:46 freshness-subagent-stop.sh
+-rwxr-xr-x  1 abc abc 6551 May 12 19:51 freshness-user-prompt.sh
+-rwxr-xr-x  1 abc abc  817 Apr  7 14:04 session-init.sh
