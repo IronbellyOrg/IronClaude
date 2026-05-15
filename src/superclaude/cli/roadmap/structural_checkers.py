@@ -76,6 +76,155 @@ def get_severity(dimension: str, mismatch_type: str) -> str:
     return SEVERITY_RULES[(dimension, mismatch_type)]
 
 
+# ---------- S2: Finding Routing & Fix-Guidance Templates ----------
+
+# (dimension, mismatch_type) -> "roadmap" | "ambiguous"
+# "roadmap"   -> finding is a roadmap defect; files_affected = [roadmap_path]
+# "ambiguous" -> could be spec over-claim OR roadmap gap; files_affected =
+#                [roadmap_path] AND deviation_class set to "AMBIGUOUS"
+MISMATCH_FILE_ROUTING: dict[tuple[str, str], str] = {
+    ("signatures", "phantom_id"): "roadmap",
+    ("signatures", "function_missing"): "roadmap",
+    ("signatures", "param_arity_mismatch"): "roadmap",
+    ("signatures", "param_type_mismatch"): "roadmap",
+    ("data_models", "file_missing"): "roadmap",
+    ("data_models", "path_prefix_mismatch"): "roadmap",
+    ("data_models", "enum_uncovered"): "roadmap",
+    ("data_models", "field_missing"): "roadmap",
+    ("gates", "frontmatter_field_missing"): "roadmap",
+    ("gates", "step_param_missing"): "roadmap",
+    ("gates", "ordering_violated"): "roadmap",
+    ("gates", "semantic_check_missing"): "roadmap",
+    ("cli", "mode_uncovered"): "roadmap",
+    ("cli", "default_mismatch"): "roadmap",
+    ("nfrs", "threshold_contradicted"): "roadmap",
+    ("nfrs", "security_missing"): "ambiguous",
+    ("nfrs", "dep_direction_violated"): "roadmap",
+    ("nfrs", "coverage_mismatch"): "roadmap",
+    ("nfrs", "dep_rule_missing"): "roadmap",
+}
+
+# Per-mismatch fix_guidance templates. {spec_quote} and {roadmap_quote} are
+# interpolated from the corresponding Finding fields.
+FIX_GUIDANCE_TEMPLATES: dict[str, str] = {
+    "file_missing": (
+        "Add a row referencing `{spec_quote}` to the File Manifest section "
+        "of the roadmap. Do not modify other rows."
+    ),
+    "path_prefix_mismatch": (
+        "Update the roadmap path to `{spec_quote}` (currently `{roadmap_quote}`). "
+        "Edit only the affected manifest row."
+    ),
+    "enum_uncovered": (
+        "Add a reference to enum literal `{spec_quote}` in the relevant "
+        "section of the roadmap. Additive edit only."
+    ),
+    "field_missing": (
+        "Reference dataclass field `{spec_quote}` in the roadmap (e.g. in "
+        "the Data Models or Implementation section). Additive edit only."
+    ),
+    "phantom_id": (
+        "Remove the reference to `{roadmap_quote}` from the roadmap — "
+        "this ID is not defined in the spec."
+    ),
+    "function_missing": (
+        "Add a reference to function `{spec_quote}` in the roadmap's "
+        "Implementation or Function Signatures section. Additive edit only."
+    ),
+    "param_arity_mismatch": (
+        "Update the roadmap signature to match the spec arity for `{spec_quote}`. "
+        "Edit only the affected signature line."
+    ),
+    "param_type_mismatch": (
+        "Update the roadmap parameter type to match the spec for `{spec_quote}`. "
+        "Edit only the affected signature line."
+    ),
+    "frontmatter_field_missing": (
+        "Add the frontmatter field `{spec_quote}` to the roadmap's YAML "
+        "frontmatter. Do not modify other fields."
+    ),
+    "step_param_missing": (
+        "Add parameter `{spec_quote}` to the corresponding Step(...) call "
+        "in the roadmap's gates section."
+    ),
+    "ordering_violated": (
+        "Re-order the roadmap step sequence to match the spec ordering "
+        "near `{spec_quote}`. Edit only the affected ordering."
+    ),
+    "semantic_check_missing": (
+        "Add a semantic check covering `{spec_quote}` to the roadmap's "
+        "validation section. Additive edit only."
+    ),
+    "mode_uncovered": (
+        "Add CLI mode `{spec_quote}` to the roadmap's CLI surface section. "
+        "Additive edit only."
+    ),
+    "default_mismatch": (
+        "Update the CLI default to match the spec value `{spec_quote}` "
+        "(currently `{roadmap_quote}`)."
+    ),
+    "threshold_contradicted": (
+        "Update the roadmap threshold to match the spec value `{spec_quote}` "
+        "(currently `{roadmap_quote}`)."
+    ),
+    "security_missing": (
+        "Add an NFR line covering `{spec_quote}` to the Non-Functional "
+        "Requirements section of the roadmap, OR if the primitive is "
+        "out-of-scope, document the deviation in extraction.md (do NOT "
+        "modify the spec file)."
+    ),
+    "dep_direction_violated": (
+        "Reverse the dependency arrow involving `{spec_quote}` in the "
+        "roadmap to match the spec direction."
+    ),
+    "coverage_mismatch": (
+        "Strengthen the roadmap's coverage statement near `{spec_quote}` "
+        "to meet the spec requirement."
+    ),
+    "dep_rule_missing": (
+        "Add the dependency rule `{spec_quote}` to the roadmap's "
+        "dependencies section. Additive edit only."
+    ),
+}
+
+
+def _route_findings(findings: list[Finding], roadmap_path: str) -> list[Finding]:
+    """Post-process findings: set files_affected via routing table and
+    populate fix_guidance from templates.
+
+    Mutates and returns the findings list.
+
+    - Lookups for `(dimension, rule_id)` resolve to "roadmap" or "ambiguous".
+    - "roadmap" sets files_affected=[roadmap_path].
+    - "ambiguous" sets files_affected=[roadmap_path] AND
+      deviation_class="AMBIGUOUS".
+    - Findings already carrying a non-empty files_affected are left alone.
+    - Generic "Address {mismatch_type} in {dimension} dimension" boilerplate
+      is replaced with a per-mismatch action template when one exists.
+    """
+    if not roadmap_path:
+        return findings
+    for f in findings:
+        if not f.files_affected:
+            target = MISMATCH_FILE_ROUTING.get((f.dimension, f.rule_id))
+            if target == "roadmap":
+                f.files_affected = [roadmap_path]
+            elif target == "ambiguous":
+                f.files_affected = [roadmap_path]
+                if f.deviation_class == "UNCLASSIFIED":
+                    f.deviation_class = "AMBIGUOUS"
+        template = FIX_GUIDANCE_TEMPLATES.get(f.rule_id)
+        if template and f.fix_guidance.startswith("Address "):
+            try:
+                f.fix_guidance = template.format(
+                    spec_quote=f.spec_quote or "",
+                    roadmap_quote=f.roadmap_quote or "",
+                )
+            except (KeyError, IndexError):
+                pass  # leave generic guidance if template interpolation fails
+    return findings
+
+
 # ---------- Supporting Dataclasses ----------
 
 
@@ -121,9 +270,15 @@ def _make_finding(
     location: str,
     spec_quote: str,
     roadmap_quote: str,
+    severity_override: str | None = None,
 ) -> Finding:
-    """Create a Finding with rule-based severity and stable ID."""
-    severity = get_severity(dimension, mismatch_type)
+    """Create a Finding with rule-based severity and stable ID.
+
+    If ``severity_override`` is provided, it takes precedence over the
+    SEVERITY_RULES table entry. This enables S5's context-aware NFR severity
+    demotion without disturbing the canonical rule table.
+    """
+    severity = severity_override or get_severity(dimension, mismatch_type)
     stable_id = compute_stable_id(dimension, mismatch_type, location, mismatch_type)
     return Finding(
         id=f"{dimension}-{mismatch_type}-{stable_id[:8]}",
@@ -140,6 +295,47 @@ def _make_finding(
         roadmap_quote=roadmap_quote,
         stable_id=stable_id,
     )
+
+
+# ---------- S5: Context-Aware NFR Severity ----------
+
+# Heading-path tokens that signal a hard-requirement section. NFR soft findings
+# (security_missing, threshold no-match) keep HIGH severity when emitted from
+# a section whose heading_path contains any of these. Otherwise they demote to
+# MEDIUM so they no longer block the convergence gate (which is HIGH-only).
+_STRONG_NFR_TOKENS: tuple[str, ...] = (
+    "security",
+    "critical",
+    "must",
+    "shall",
+    "required",
+    "p0",
+    "nfr-",
+    "compliance",
+    "encryption",
+    "audit",
+)
+
+
+def _classify_nfr_severity(
+    dimension: str,
+    mismatch_type: str,
+    heading_path: str,
+    heading: str,
+) -> str:
+    """Return HIGH if the originating section signals a hard requirement,
+    MEDIUM if the keyword appeared in incidental prose.
+
+    Only applies to the two soft NFR types (``security_missing`` and the
+    no-match arm of ``threshold_contradicted``). All other findings continue
+    to use SEVERITY_RULES via get_severity.
+    """
+    if mismatch_type not in ("security_missing", "threshold_contradicted"):
+        return get_severity(dimension, mismatch_type)
+    haystack = f"{heading_path}/{heading}".lower()
+    if any(tok in haystack for tok in _STRONG_NFR_TOKENS):
+        return "HIGH"
+    return "MEDIUM"
 
 
 def _get_sections_for_dimension(
@@ -251,7 +447,7 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
                             roadmap_quote=rp,
                         ))
 
-    return findings
+    return _route_findings(findings, roadmap_path)
 
 
 def check_data_models(spec_path: str, roadmap_path: str) -> list[Finding]:
@@ -341,7 +537,7 @@ def check_data_models(spec_path: str, roadmap_path: str) -> list[Finding]:
                     roadmap_quote="[MISSING]",
                 ))
 
-    return findings
+    return _route_findings(findings, roadmap_path)
 
 
 def check_gates(spec_path: str, roadmap_path: str) -> list[Finding]:
@@ -431,7 +627,7 @@ def check_gates(spec_path: str, roadmap_path: str) -> list[Finding]:
                 roadmap_quote="[MISSING]",
             ))
 
-    return findings
+    return _route_findings(findings, roadmap_path)
 
 
 def check_cli(spec_path: str, roadmap_path: str) -> list[Finding]:
@@ -512,7 +708,7 @@ def check_cli(spec_path: str, roadmap_path: str) -> list[Finding]:
                     roadmap_quote=rm_match.group(0),
                 ))
 
-    return findings
+    return _route_findings(findings, roadmap_path)
 
 
 def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
@@ -536,7 +732,10 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
 
     spec_nfr_text = _section_text(spec_sections)
 
-    # --- Threshold contradicted: numeric thresholds in spec vs roadmap ---
+    # --- Threshold contradicted (TRUE contradictions): scanned globally over
+    # the joined NFR text because contradictions are not section-localized.
+    # The no-match arm is moved into the per-section loop below so severity
+    # can be classified by heading context (S5).
     spec_thresholds = extract_thresholds(spec_nfr_text)
     roadmap_thresholds = extract_thresholds(roadmap_text)
 
@@ -546,7 +745,6 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
         roadmap_threshold_values[t.value] = t
 
     for spec_t in spec_thresholds:
-        # Check if roadmap has a contradicting threshold for the same metric
         if spec_t.value in roadmap_threshold_values:
             rm_t = roadmap_threshold_values[spec_t.value]
             if spec_t.operator != rm_t.operator:
@@ -558,18 +756,10 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
                     spec_quote=spec_t.raw,
                     roadmap_quote=rm_t.raw,
                 ))
-        elif spec_t.raw.lower() not in roadmap_full_text and spec_t.value not in roadmap_full_text:
-            # Threshold not addressed at all
-            findings.append(_make_finding(
-                dimension="nfrs",
-                mismatch_type="threshold_contradicted",
-                description=f"NFR threshold '{spec_t.raw}' not addressed in roadmap",
-                location=f"spec:nfr:threshold:{spec_t.raw}",
-                spec_quote=spec_t.raw,
-                roadmap_quote="[MISSING]",
-            ))
 
-    # --- Security missing: security primitives in spec not in roadmap ---
+    # --- Per-section iteration: emit security_missing and threshold no-match
+    # findings with severity classified by the originating section heading.
+    # Deterministic order: sort sections by heading_path, then sort terms.
     security_keywords = [
         "encryption", "encrypted", "tls", "ssl", "hash", "hmac",
         "auth", "authentication", "authorization", "oauth", "jwt",
@@ -579,18 +769,56 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
     security_re = re.compile(
         r'\b(' + '|'.join(security_keywords) + r')\b', re.IGNORECASE
     )
-    spec_security_terms = set(
-        m.group(1).lower() for m in security_re.finditer(spec_nfr_text)
-    )
-    for term in sorted(spec_security_terms):
-        if term not in roadmap_full_text:
+
+    seen_security_terms: set[str] = set()
+    seen_threshold_raws: set[str] = set()
+    for section in sorted(spec_sections, key=lambda s: s.heading_path):
+        # Security primitives
+        for m in security_re.finditer(section.content):
+            term = m.group(1).lower()
+            if term in seen_security_terms:
+                continue
+            seen_security_terms.add(term)
+            if term not in roadmap_full_text:
+                severity = _classify_nfr_severity(
+                    dimension="nfrs",
+                    mismatch_type="security_missing",
+                    heading_path=section.heading_path,
+                    heading=section.heading,
+                )
+                findings.append(_make_finding(
+                    dimension="nfrs",
+                    mismatch_type="security_missing",
+                    description=f"Security primitive '{term}' from spec NFRs not addressed in roadmap",
+                    location=f"spec:nfr:security:{term}",
+                    spec_quote=term,
+                    roadmap_quote="[MISSING]",
+                    severity_override=severity,
+                ))
+        # Threshold no-match arm (per-section so heading context is preserved)
+        section_thresholds = extract_thresholds(section.content)
+        for spec_t in section_thresholds:
+            if spec_t.value in roadmap_threshold_values:
+                continue  # handled by the contradiction loop above
+            if spec_t.raw in seen_threshold_raws:
+                continue
+            seen_threshold_raws.add(spec_t.raw)
+            if spec_t.raw.lower() in roadmap_full_text or spec_t.value in roadmap_full_text:
+                continue
+            severity = _classify_nfr_severity(
+                dimension="nfrs",
+                mismatch_type="threshold_contradicted",
+                heading_path=section.heading_path,
+                heading=section.heading,
+            )
             findings.append(_make_finding(
                 dimension="nfrs",
-                mismatch_type="security_missing",
-                description=f"Security primitive '{term}' from spec NFRs not addressed in roadmap",
-                location=f"spec:nfr:security:{term}",
-                spec_quote=term,
+                mismatch_type="threshold_contradicted",
+                description=f"NFR threshold '{spec_t.raw}' not addressed in roadmap",
+                location=f"spec:nfr:threshold:{spec_t.raw}",
+                spec_quote=spec_t.raw,
                 roadmap_quote="[MISSING]",
+                severity_override=severity,
             ))
 
     # --- Dependency direction violated: dependency rules in spec ---
@@ -652,7 +880,7 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
                 roadmap_quote="[MISSING]",
             ))
 
-    return findings
+    return _route_findings(findings, roadmap_path)
 
 
 # ---------- Checker Registry ----------

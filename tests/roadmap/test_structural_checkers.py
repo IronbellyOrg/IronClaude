@@ -628,3 +628,204 @@ class TestSC4Ratio:
         # All findings from run_all_checkers should be structural
         assert semantic_count == 0, "run_all_checkers produced semantic findings"
         assert structural_count == len(findings)
+
+
+# ============================================================
+# S2: Routing + Fix-Guidance Tests
+# ============================================================
+
+
+class TestS2RoutingAndFixGuidance:
+    """Findings produced by structural checkers must carry a roadmap target
+    in files_affected and an actionable per-mismatch fix_guidance template,
+    not the generic boilerplate that the remediation agent cannot act on.
+    """
+
+    def test_data_models_file_missing_routes_to_roadmap(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
+        findings = check_data_models(spec_file, roadmap_file)
+        file_missing = [f for f in findings if f.rule_id == "file_missing"]
+        if not file_missing:
+            pytest.skip("fixture produces no file_missing findings; skip routing assertion")
+        for f in file_missing:
+            assert f.files_affected == [roadmap_file], (
+                f"file_missing finding must route to roadmap; got {f.files_affected}"
+            )
+
+    def test_fix_guidance_is_actionable_not_boilerplate(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
+        findings = run_all_checkers(spec_file, roadmap_file)
+        boilerplate_count = sum(
+            1 for f in findings if f.fix_guidance.startswith("Address ")
+            and f.fix_guidance.endswith(" dimension")
+        )
+        # Every finding whose rule_id appears in FIX_GUIDANCE_TEMPLATES should
+        # have been promoted away from the generic boilerplate.
+        from superclaude.cli.roadmap.structural_checkers import (
+            FIX_GUIDANCE_TEMPLATES,
+        )
+        templated = [
+            f for f in findings if f.rule_id in FIX_GUIDANCE_TEMPLATES
+        ]
+        if templated:
+            still_boilerplate = [
+                f for f in templated
+                if f.fix_guidance.startswith("Address ")
+                and f.fix_guidance.endswith(" dimension")
+            ]
+            assert not still_boilerplate, (
+                f"{len(still_boilerplate)} templated rule_ids retained boilerplate "
+                f"fix_guidance: {[f.rule_id for f in still_boilerplate]}"
+            )
+
+    def test_security_missing_is_ambiguous(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
+        findings = check_nfrs(spec_file, roadmap_file)
+        sec = [f for f in findings if f.rule_id == "security_missing"]
+        if not sec:
+            pytest.skip("fixture produces no security_missing findings")
+        for f in sec:
+            assert f.files_affected == [roadmap_file]
+            assert f.deviation_class == "AMBIGUOUS"
+
+    def test_route_findings_helper_no_op_when_already_routed(self) -> None:
+        """Findings that already carry files_affected must not be overwritten."""
+        from superclaude.cli.roadmap.models import Finding
+        from superclaude.cli.roadmap.structural_checkers import _route_findings
+
+        pre_routed = Finding(
+            id="x",
+            severity="HIGH",
+            dimension="data_models",
+            description="d",
+            location="loc",
+            evidence="e",
+            fix_guidance="custom guidance",
+            files_affected=["/explicit/path.md"],
+            status="ACTIVE",
+            rule_id="file_missing",
+            spec_quote="some/path.md",
+            roadmap_quote="[MISSING]",
+            stable_id="abc",
+        )
+        _route_findings([pre_routed], "/should/not/overwrite.md")
+        assert pre_routed.files_affected == ["/explicit/path.md"]
+        # fix_guidance was not "Address ..." boilerplate, so it must be preserved
+        assert pre_routed.fix_guidance == "custom guidance"
+
+
+# ============================================================
+# S5: Context-Aware NFR Severity Tests
+# ============================================================
+
+
+class TestS5ContextAwareNfrSeverity:
+    """The two NFR soft mismatches (security_missing and threshold no-match)
+    must demote to MEDIUM when the originating heading does not signal a hard
+    requirement, and stay HIGH when it does.
+    """
+
+    def test_classify_demotes_under_generic_heading(self) -> None:
+        from superclaude.cli.roadmap.structural_checkers import (
+            _classify_nfr_severity,
+        )
+        sev = _classify_nfr_severity(
+            dimension="nfrs",
+            mismatch_type="security_missing",
+            heading_path="6. Non-Functional Requirements",
+            heading="Non-Functional Requirements",
+        )
+        assert sev == "MEDIUM"
+
+    def test_classify_keeps_high_under_strong_heading(self) -> None:
+        from superclaude.cli.roadmap.structural_checkers import (
+            _classify_nfr_severity,
+        )
+        sev = _classify_nfr_severity(
+            dimension="nfrs",
+            mismatch_type="security_missing",
+            heading_path="6. Security NFRs",
+            heading="Security NFRs",
+        )
+        assert sev == "HIGH"
+
+    def test_classify_threshold_demotes_under_generic_heading(self) -> None:
+        from superclaude.cli.roadmap.structural_checkers import (
+            _classify_nfr_severity,
+        )
+        sev = _classify_nfr_severity(
+            dimension="nfrs",
+            mismatch_type="threshold_contradicted",
+            heading_path="6. Performance",
+            heading="Performance",
+        )
+        assert sev == "MEDIUM"
+
+    def test_classify_other_mismatches_unaffected(self) -> None:
+        from superclaude.cli.roadmap.structural_checkers import (
+            _classify_nfr_severity,
+        )
+        # Non-soft mismatch types should fall through to SEVERITY_RULES
+        sev = _classify_nfr_severity(
+            dimension="nfrs",
+            mismatch_type="dep_direction_violated",
+            heading_path="anything",
+            heading="anything",
+        )
+        assert sev == "HIGH"  # SEVERITY_RULES says HIGH
+
+    def test_check_nfrs_demotes_under_generic_heading(self, tmp_path) -> None:
+        """End-to-end: a generic '## NFRs' section emits MEDIUM, not HIGH."""
+        spec = tmp_path / "spec.md"
+        spec.write_text(
+            "# Spec\n\n## 6. Non-Functional Requirements\n\n"
+            "We use encryption-at-rest and require error rate <1%.\n"
+        )
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n\n## NFRs\n\nNo content.\n")
+        findings = check_nfrs(str(spec), str(roadmap))
+        soft = [
+            f for f in findings
+            if f.rule_id in ("security_missing", "threshold_contradicted")
+        ]
+        if not soft:
+            pytest.skip("fixture produced no soft NFR findings")
+        # Under a generic heading, every soft finding must be MEDIUM
+        for f in soft:
+            assert f.severity == "MEDIUM", (
+                f"finding under generic heading should demote to MEDIUM: "
+                f"{f.rule_id}={f.severity} (heading={f.location})"
+            )
+
+    def test_check_nfrs_keeps_high_under_strong_heading(self, tmp_path) -> None:
+        spec = tmp_path / "spec.md"
+        spec.write_text(
+            "# Spec\n\n## 6. Security Critical NFRs\n\n"
+            "Use encryption-at-rest. Hash all passwords.\n"
+        )
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n\n## NFRs\n\nNo content.\n")
+        findings = check_nfrs(str(spec), str(roadmap))
+        sec = [f for f in findings if f.rule_id == "security_missing"]
+        if not sec:
+            pytest.skip("fixture produced no security_missing findings")
+        for f in sec:
+            assert f.severity == "HIGH"
+
+    def test_check_nfrs_deterministic_ordering(self, tmp_path) -> None:
+        """Run twice; finding stable_ids must match (no ordering nondeterminism)."""
+        spec = tmp_path / "spec.md"
+        spec.write_text(
+            "# Spec\n\n## 6. Performance NFRs\n\n"
+            "Latency <200ms, error rate <1%, error rate <2%.\n"
+            "## 7. Security NFRs\n\n"
+            "Use encryption, hash credentials.\n"
+        )
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n\nNothing.\n")
+        run1 = [f.stable_id for f in check_nfrs(str(spec), str(roadmap))]
+        run2 = [f.stable_id for f in check_nfrs(str(spec), str(roadmap))]
+        assert run1 == run2, f"non-deterministic ordering: {run1} != {run2}"

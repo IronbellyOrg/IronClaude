@@ -71,6 +71,11 @@ def build_remediation_prompt(
         "4. Preserve heading hierarchy -- do not add, remove, or reorder headings (unless a fix explicitly targets them)"
     )
     lines.append("5. Preserve existing content that is not targeted by a fix")
+    lines.append(
+        "6. Prefer additive edits. If a fix requires more than ~5 changed lines "
+        "to a section, split into multiple smaller edits rather than rewriting "
+        "the whole section."
+    )
     lines.append("")
 
     return "\n".join(lines)
