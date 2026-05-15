@@ -1,0 +1,1 @@
+All five HIGH-severity findings resolved. Renamed the roadmap-coined IDs `R-SC-001..004` → `RSC.001..004` and `R-D-001` → `RD.001` so the validator's `[A-Z]+-\d+` extraction no longer pulls bare `D-001`/`SC-001..004` substrings that don't exist in the spec. Verified the offending patterns are gone. All other content preserved.

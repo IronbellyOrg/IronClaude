@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-05-15T15:46:19.722864+00:00",
+  "summary": {
+    "total": 8,
+    "found": 0,
+    "missing": 8,
+    "recovered": 0
+  },
+  "entries": [
+    {
+      "phase": 1,
+      "name": "CP-P01-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P01-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "CP-P02-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P02-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "CP-P03-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P03-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "CP-P04-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P04-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "CP-P05-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P05-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 6,
+      "name": "CP-P06-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P06-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 7,
+      "name": "CP-P07-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P07-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 8,
+      "name": "CP-P08-END.md",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/TASKLIST_ROOT/checkpoints/CP-P08-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    }
+  ]
+}
