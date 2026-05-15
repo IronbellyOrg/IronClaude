@@ -827,9 +827,44 @@ Agent:
        - ## Task Overview (1-2 paragraphs)
        - ## Key Objectives (bullet list)
        - ## Prerequisites & Dependencies
+       - ## Execution Context (OPTIONAL — see EXECUTION CONTEXT BLOCK below)
     2. THEN: Append each phase ONE AT A TIME using Edit tool.
        One phase per Edit call. Verify each Edit succeeded.
     3. LAST: Append the Task Log section after all phases are written.
+
+    EXECUTION CONTEXT BLOCK (OPTIONAL, TASK-LEVEL ROLL-UP):
+    Emit an `## Execution Context` section immediately after frontmatter
+    (before # Title body content) when BUILD_REQUEST exposes enough rollup
+    signal — typically when ≥3 distinct source areas can be inferred from
+    research files. This is a READING aid for the executor, NOT a substitute
+    for per-item Context fields.
+
+    The block has exactly three sub-bullets, in this order:
+    - **References:** BUILD_REQUEST GOAL line verbatim, the WHY summary,
+      and any related-doc IDs the BUILD_REQUEST supplied. ALWAYS known —
+      never stale because it is copied from BUILD_REQUEST itself.
+    - **Source areas:** Named modules or packages inferred from the
+      research files (e.g., "rf-qa agent prompts", "task-builder skill
+      body"). NEVER write specific `path.py:NN` references at this level
+      — those belong in per-item Context fields and `research/*.md`.
+      If fewer than ~3 distinct source areas can be named, OMIT this line.
+    - **Key constraints:** The top 1-3 invariants the executor must not
+      break, lifted from BUILD_REQUEST QA_GATE_REQUIREMENTS /
+      VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS if present, or from
+      the highest-severity rules in the research files. Omit when BUILD_REQUEST
+      and research findings produce no clear constraint shortlist.
+
+    Scope-confinement rule (PROTECTS evidence-bound-item invariant): the
+    "no specific file paths" rule applies ONLY to this header. Per-item
+    Context fields and `research/*.md` files MUST retain file:line
+    citations — they are the evidence venue. rf-qa enforces this via
+    TB-Add-7 (header source areas reappear in items) and TB-Add-8
+    (per-item Context fields cite file:line or carry a justified absence
+    comment).
+
+    If BUILD_REQUEST is minimal (GOAL-only), the block degenerates to
+    References-only with Source areas and Key constraints omitted. If no
+    rollup signal exists at all, OMIT the entire block — it is optional.
 
     TASK FILE LOCATION:
     ${TASK_DIR}${TASK_ID}.md
@@ -913,6 +948,7 @@ Structural Gate Additions (TB-Add-1 through TB-Add-7, imported from sc:tasklist 
 14. TB-Add-5: Granularity / XL splitting — items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
 15. TB-Add-6: Confidence/Verification format consistency — uniform `Verify: ...` prefix and `- ✅`/`- [x]` Acceptance Criteria form.
 16. TB-Add-7: Execution Context source areas reappear in items — every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
+17. TB-Add-8: Per-item Context evidence binding — every item Context field that references a code surface includes a file:line citation OR an `<!-- evidence-absence: ... -->` justified-absence comment. Structurally proves PR-01's "no specific paths" rule is confined to the header (INV-015 scope-confinement).
 
 OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-report.md
 
@@ -1454,6 +1490,14 @@ tags:
 - [Prerequisite 1]
 - [Prerequisite 2]
 
+## Execution Context
+
+<!-- OPTIONAL: emit when BUILD_REQUEST yields enough rollup signal (typically ≥3 inferable source areas). This block is a task-level READING aid; per-item Context fields and research/*.md remain the evidence venue with file:line citations. The block contains NO specific path.py:NN references. Omit any sub-bullet that lacks data; omit the whole block when BUILD_REQUEST is GOAL-only. -->
+
+- **References:** [BUILD_REQUEST GOAL verbatim; WHY summary; related-doc IDs]
+- **Source areas:** [named modules/packages — e.g., "rf-qa agent prompts", "task-builder skill body" — NEVER specific file:line paths]
+- **Key constraints:** [top 1-3 invariants from QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS or research findings]
+
 ---
 
 ## Phase 1: [Phase Name]
@@ -1521,6 +1565,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - [ ] TB-Add-5: XL/multi-file items either split into subtasks or carry justifying comment
 - [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
 - [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
+- [ ] TB-Add-8: Every per-item Context referencing a code surface carries a file:line citation OR an `<!-- evidence-absence: ... -->` comment (PR-01 INV-015 scope-confinement)
 
 ---
 

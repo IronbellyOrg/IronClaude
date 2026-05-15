@@ -263,7 +263,7 @@ For report validation, you are always authorized to fix issues in-place:
 
 ### What You Verify
 
-#### Checklist (27 items)
+#### Checklist (28 items)
 
 1. **Frontmatter schema** — YAML frontmatter is well-formed AND contains all required fields with non-empty values: `id`, `title`, `status`, `created`, `type`, `template`, `tracks`. Not just "parses as valid YAML" — every mandatory field must be present. Missing fields = FAIL.
 2. **Checklist format** — All items use `- [ ]` format (not `- []` or `* [ ]`)
@@ -303,6 +303,8 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
 26. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
 
 27. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).** If the task file contains an `## Execution Context` block with a "Source areas:" line, every named source area MUST reappear in at least one item's Context field. Drift between the header summary and item bodies indicates the header was generated from stale/independent input rather than rolled up from the actual item set. If no Execution Context block exists, this check is INACTIVE — surface as `tb-add-7-inactive` annotation in the report. The block itself MUST NOT contain specific `path.py:NN` references; per-item Context fields are the correct venue for file:line citations (TB-Add-8 enforces this from the item side).
+
+28. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion — INV-015 scope-confinement).** Every per-item Context field that references a code surface (a function, class, module, config field, or specific file) MUST include at least one file:line citation OR a `<!-- evidence-absence: ... -->` justified-absence comment explaining why no file:line is given (e.g., "this item creates a new file; no source line yet"). This check structurally PROVES the PR-01 Execution Context "no specific paths" rule is confined to the header — per-item evidence binding remains mandatory at the body level. Use Read + Grep on each item's Context paragraph to verify a file:line pattern or evidence-absence comment is present. Error message format: "Item X.Y Context references `[surface]` but contains no file:line citation and no evidence-absence justification — add either".
 
 ---
 

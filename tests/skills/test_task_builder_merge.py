@@ -61,8 +61,10 @@ class TestPR06StructuralGateAdditions:
     validation checklist."""
 
     def test_rf_qa_checklist_count_extended(self, rf_qa_text: str) -> None:
-        # Was 20 items; PR-06 grows it to 27.
-        assert "#### Checklist (27 items)" in rf_qa_text
+        # Was 20 items; PR-06 grows it by 7 (TB-Add-1..7) -> 27. PR-01 then
+        # adds TB-Add-8 -> 28. After both landings the count must be >= 27.
+        # We assert the post-PR-01 final state to keep the test current.
+        assert "#### Checklist (28 items)" in rf_qa_text
 
     @pytest.mark.parametrize("tag", [
         "TB-Add-1",
@@ -116,3 +118,58 @@ class TestPR06StructuralGateAdditions:
                 f"SKILL.md does not reference {tag} in both A.10 prompt and "
                 "Task File Validation Checklist"
             )
+
+
+# ---------------------------------------------------------------------------
+# PR-01: Execution Context Header (with REVISE acceptance criterion -> TB-Add-8)
+# ---------------------------------------------------------------------------
+
+
+class TestPR01ExecutionContextHeader:
+    """PR-01 lands second. Adds an optional task-level `## Execution Context`
+    block instruction to rf-task-builder spawn prompt and output schema, plus
+    TB-Add-8 (per-item Context evidence binding) to enforce INV-015 scope-
+    confinement."""
+
+    def test_skill_documents_execution_context_block(self, skill_text: str) -> None:
+        assert "EXECUTION CONTEXT BLOCK" in skill_text
+        assert "## Execution Context" in skill_text
+
+    def test_execution_context_uses_source_areas_not_paths(self, skill_text: str) -> None:
+        # The block instructions must explicitly forbid file:line refs at the
+        # task-level header.
+        assert "NEVER write specific" in skill_text
+        assert "path.py:NN" in skill_text  # cited as the forbidden form
+
+    def test_execution_context_optional_and_degrades_gracefully(self, skill_text: str) -> None:
+        assert "OPTIONAL" in skill_text
+        # Minimal-BUILD_REQUEST degeneration case is documented.
+        assert "GOAL-only" in skill_text or "References-only" in skill_text
+
+    def test_execution_context_scope_confinement_rule(self, skill_text: str) -> None:
+        # Per-item Context fields and research/*.md keep file:line citations.
+        lowered = skill_text.lower()
+        assert "per-item context fields" in lowered
+        assert "file:line" in skill_text
+
+    def test_output_schema_shows_execution_context_block(self, skill_text: str) -> None:
+        # The output schema example (around the markdown ``` block near line
+        # 1409) must include the Execution Context section as a template.
+        # Count distinct mentions: instructions + schema example + checklist.
+        assert skill_text.count("## Execution Context") >= 2
+
+    def test_rf_qa_adds_tb_add_8(self, rf_qa_text: str) -> None:
+        # PR-01 REVISE acceptance criterion: rf-qa task-integrity grows by one
+        # more item to enforce per-item evidence binding (INV-015).
+        assert "#### Checklist (28 items)" in rf_qa_text
+        assert "TB-Add-8" in rf_qa_text
+        assert "INV-015" in rf_qa_text  # rationale cited
+
+    def test_tb_add_8_specifies_evidence_or_absence(self, rf_qa_text: str) -> None:
+        # Either a file:line citation OR a justified-absence comment.
+        assert "evidence-absence" in rf_qa_text
+        assert "file:line citation" in rf_qa_text
+
+    def test_skill_mirrors_tb_add_8(self, skill_text: str) -> None:
+        # TB-Add-8 appears in BOTH the A.10 prompt and the validation checklist.
+        assert skill_text.count("TB-Add-8") >= 2
