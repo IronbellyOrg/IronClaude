@@ -7,8 +7,15 @@ set -u
 
 STATE_DIR="$HOME/.claude/state"
 LOG_DIR="$HOME/.claude/logs"
+AUGGIE_LOG="$LOG_DIR/auggie-first.jsonl"
+AUGGIE_THRESHOLD_S=10800
+AUGGIE_WARN_MAX_LEN=300
 mkdir -p "$STATE_DIR/turns" "$STATE_DIR/last-prompt-ts" "$STATE_DIR/bg-agents" \
-         "$STATE_DIR/tool-call-counter" "$LOG_DIR" 2>/dev/null || true
+         "$STATE_DIR/tool-call-counter" "$STATE_DIR/auggie-first-pending" \
+         "$STATE_DIR/auggie-no-warn" "$LOG_DIR" 2>/dev/null || true
+if [ -n "${AUGGIE_FIRST_THRESHOLD:-}" ]; then
+    case "$AUGGIE_FIRST_THRESHOLD" in (*[!0-9]*|"") ;; (*) AUGGIE_THRESHOLD_S="$AUGGIE_FIRST_THRESHOLD" ;; esac
+fi
 
 INPUT="$(cat 2>/dev/null || true)"
 SESSION_ID=$(printf '%s' "$INPUT" | jq -r '.session_id // "unknown"' 2>/dev/null || echo "unknown")
@@ -117,6 +124,73 @@ if [ "$BG_COUNT" -gt 0 ] 2>/dev/null; then
     ITEMS+="bg=$BG_COUNT "
 fi
 
+# 6.5. Auggie-first flag (auggie-first-hook-proposal-v2.1.md)
+# Q1: fire on sticky OR Δ≥AUGGIE_THRESHOLD_S. Q2: jq -e on .mcpServers.
+# Q3: indexed → full nag; unindexed → one-time warn. Q5: matcher mcp__auggie__.* clears sticky.
+# Q6: highest priority, never truncated. Q7: AUGGIE_FIRST_DISABLE=1 short-circuits.
+AUGGIE_FLAG=""
+AUGGIE_WARN=""
+
+if [ "${AUGGIE_FIRST_DISABLE:-0}" != "1" ] \
+   && [ "$SESSION_ID" != "unknown" ] && [ -n "$SESSION_ID" ]; then
+
+    CWD_NORM="${CWD%/}"
+    [ -z "$CWD_NORM" ] && CWD_NORM="/"
+    PROJECT_KEY=$(printf '%s' "$CWD_NORM" | sed 's|/|-|g' 2>/dev/null || true)
+    PROJECT_KEY="${PROJECT_KEY#-}"
+    [ -z "$PROJECT_KEY" ] && PROJECT_KEY="root"
+
+    STICKY_FILE="$STATE_DIR/auggie-first-pending/$SESSION_ID.txt"
+
+    CROSSED=false
+    CROSS_CAUSE=""
+    if [ -f "$STICKY_FILE" ]; then
+        CROSSED=true; CROSS_CAUSE="sticky"
+    elif [ -n "$DELTA_SEC" ] && [ "$DELTA_SEC" -ge "$AUGGIE_THRESHOLD_S" ] 2>/dev/null; then
+        CROSSED=true; CROSS_CAUSE="threshold"
+    fi
+
+    if [ "$CROSSED" = true ]; then
+        AUGGIE_REG=false
+        if [ -r "$HOME/.claude.json" ] && command -v jq >/dev/null 2>&1; then
+            if jq -e '.mcpServers // {} | has("auggie")' "$HOME/.claude.json" >/dev/null 2>&1; then
+                AUGGIE_REG=true
+            fi
+        fi
+
+        if [ "$AUGGIE_REG" = true ]; then
+            INDEXED_LIST="$HOME/.claude/auggie-projects.txt"
+            IS_INDEXED=false
+            if [ -r "$INDEXED_LIST" ] && [ -n "$CWD_NORM" ]; then
+                if awk -v target="$CWD_NORM" '{ sub(/\/+$/,""); if ($0==target) { found=1; exit } } END { exit !found }' \
+                       "$INDEXED_LIST" 2>/dev/null; then
+                    IS_INDEXED=true
+                fi
+            fi
+
+            DISMISS_FILE="$STATE_DIR/auggie-no-warn/$PROJECT_KEY"
+
+            if [ "$IS_INDEXED" = true ]; then
+                [ ! -f "$STICKY_FILE" ] && echo "$NOW_ISO" > "$STICKY_FILE" 2>/dev/null || true
+                AUGGIE_FLAG="auggie_first_required=1"
+                printf '{"ts":"%s","session_id":"%s","event":"nag_emitted","cause":"%s","cwd":"%s","delta_sec":%s}\n' \
+                    "$NOW_ISO" "$SESSION_ID" "$CROSS_CAUSE" "$CWD_NORM" "${DELTA_SEC:-0}" \
+                    >> "$AUGGIE_LOG" 2>/dev/null || true
+            elif [ ! -e "$DISMISS_FILE" ]; then
+                : > "$DISMISS_FILE" 2>/dev/null || true
+                rm -f "$STICKY_FILE" 2>/dev/null || true
+                AUGGIE_WARN="auggie_project_not_indexed=1 (call mcp__auggie__codebase-retrieval to index $CWD_NORM, or add to $INDEXED_LIST; rm $DISMISS_FILE to re-arm warning)"
+                if [ ${#AUGGIE_WARN} -gt "$AUGGIE_WARN_MAX_LEN" ]; then
+                    AUGGIE_WARN="auggie_project_not_indexed=1 (see $DISMISS_FILE for dismiss state)"
+                fi
+                printf '{"ts":"%s","session_id":"%s","event":"warn_emitted","cause":"%s","cwd":"%s","delta_sec":%s}\n' \
+                    "$NOW_ISO" "$SESSION_ID" "$CROSS_CAUSE" "$CWD_NORM" "${DELTA_SEC:-0}" \
+                    >> "$AUGGIE_LOG" 2>/dev/null || true
+            fi
+        fi
+    fi
+fi
+
 # 7. RESUMED flag
 RESUMED_FLAG=""
 if [ -n "$DELTA_SEC" ] && [ "$DELTA_SEC" -ge 3600 ] 2>/dev/null; then
@@ -124,9 +198,8 @@ if [ -n "$DELTA_SEC" ] && [ "$DELTA_SEC" -ge 3600 ] 2>/dev/null; then
 fi
 
 # 8. Build envelope with truncation cascade
+# Reads globals: CHANGED_FIELD, RESUMED_LINE, AUGGIE_FLAG, AUGGIE_WARN, NOW_ISO, TURN, ITEMS.
 build_envelope() {
-    local changed_field="$1"
-    local resumed_line="$2"
     {
         echo "<session-context>"
         printf '  ts=%s turn=%d' "$NOW_ISO" "$TURN"
@@ -134,21 +207,28 @@ build_envelope() {
             printf ' %s' "${ITEMS% }"
         fi
         echo
-        if [ -n "$changed_field" ]; then
-            echo "  changed_since_last_turn=$changed_field"
+        # Q6: auggie line printed first — highest priority, never truncated.
+        if [ -n "$AUGGIE_FLAG" ]; then
+            echo "  $AUGGIE_FLAG"
+        elif [ -n "$AUGGIE_WARN" ]; then
+            echo "  $AUGGIE_WARN"
         fi
-        if [ -n "$resumed_line" ]; then
-            echo "  $resumed_line"
+        if [ -n "$CHANGED_FIELD" ]; then
+            echo "  changed_since_last_turn=$CHANGED_FIELD"
+        fi
+        if [ -n "$RESUMED_LINE" ]; then
+            echo "  $RESUMED_LINE"
         fi
         echo "</session-context>"
     }
 }
 
-CHANGED_FULL=""
+CHANGED_FIELD=""
 if [ "$CHANGED_COUNT" -gt 0 ]; then
-    CHANGED_FULL=$(printf '%s\n' "$CHANGED_PATHS" | grep -v '^$' | paste -sd ',' -)
+    CHANGED_FIELD=$(printf '%s\n' "$CHANGED_PATHS" | grep -v '^$' | paste -sd ',' -)
 fi
-ENVELOPE=$(build_envelope "$CHANGED_FULL" "$RESUMED_FLAG")
+RESUMED_LINE="$RESUMED_FLAG"
+ENVELOPE=$(build_envelope)
 TRUNCATED=false
 FIRST_THREE=""
 DROPPED=0
@@ -157,17 +237,14 @@ DROPPED=0
 if [ ${#ENVELOPE} -gt 9000 ] && [ "$CHANGED_COUNT" -gt 3 ]; then
     FIRST_THREE=$(printf '%s\n' "$CHANGED_PATHS" | grep -v '^$' | head -3 | paste -sd ',' -)
     DROPPED=$((CHANGED_COUNT - 3))
-    CHANGED_TRUNC="${FIRST_THREE},...(${DROPPED} more)"
-    ENVELOPE=$(build_envelope "$CHANGED_TRUNC" "$RESUMED_FLAG")
+    CHANGED_FIELD="${FIRST_THREE},...(${DROPPED} more)"
+    ENVELOPE=$(build_envelope)
     TRUNCATED=true
 fi
 # Drop RESUMED if still over
-if [ ${#ENVELOPE} -gt 9000 ] && [ -n "$RESUMED_FLAG" ]; then
-    if [ -n "$FIRST_THREE" ]; then
-        ENVELOPE=$(build_envelope "${FIRST_THREE},...(${DROPPED} more)" "")
-    else
-        ENVELOPE=$(build_envelope "$CHANGED_FULL" "")
-    fi
+if [ ${#ENVELOPE} -gt 9000 ] && [ -n "$RESUMED_LINE" ]; then
+    RESUMED_LINE=""
+    ENVELOPE=$(build_envelope)
     TRUNCATED=true
 fi
 

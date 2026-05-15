@@ -48,8 +48,20 @@ _FRESHNESS_SCRIPTS = [
     "freshness-file-changed.sh",  # v1: NOT registered. Kept on disk for v1.5.
     "freshness-subagent-start.sh",
     "freshness-subagent-stop.sh",
+    # auggie-first PostToolUse hook (auggie-first-hook-proposal-v2.1.md).
+    # Not strictly a "freshness" hook by lineage, but lives in the same hooks/scripts/
+    # directory and shares the install pipeline; kept here to avoid a second list.
+    "auggie-flag-clear.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
+
+# Seed data files: shipped as <src_name> in src/superclaude/hooks/, deployed to
+# ~/.claude/<dest_name> on install ONLY when no such file exists at the destination.
+# This preserves user customizations across re-installs even with --force; user data
+# is never overwritten (asymmetric vs scripts, which DO honor --force).
+_SEED_FILES = [
+    ("auggie-projects.txt.example", "auggie-projects.txt"),
+]
 
 
 def install_hooks(
@@ -123,6 +135,22 @@ def install_hooks(
     messages.append(settings_message)
     if backup_path is not None:
         messages.append(f"💾 Backup: {backup_path}")
+
+    # ===== STEP 3: deploy seed data files (skip-if-exists, never overwrite) =====
+    seed_copied, seed_skipped = _deploy_seed_files(
+        hooks_source_root=_get_hooks_source_root(),
+        dest_root=target_path.parent,
+    )
+    if seed_copied:
+        messages.append("")
+        messages.append(f"📦 Seeded {len(seed_copied)} data file(s):")
+        for name in seed_copied:
+            messages.append(f"   - {name}")
+    if seed_skipped:
+        messages.append("")
+        messages.append(f"⏭️  Preserved {len(seed_skipped)} existing data file(s):")
+        for name in seed_skipped:
+            messages.append(f"   - {name} (user-edited; not overwritten)")
 
     # Overall success only if scripts AND settings merge both succeeded.
     overall = success_settings and not failed
@@ -424,6 +452,46 @@ def _get_hooks_scripts_source() -> Path:
     """Locate src/superclaude/hooks/scripts/ in the package or checkout."""
     package_root = Path(__file__).resolve().parent.parent
     return package_root / "hooks" / "scripts"
+
+
+def _get_hooks_source_root() -> Path:
+    """Locate src/superclaude/hooks/ (parent of scripts/ and home of seed data files)."""
+    package_root = Path(__file__).resolve().parent.parent
+    return package_root / "hooks"
+
+
+def _deploy_seed_files(
+    *, hooks_source_root: Path, dest_root: Path
+) -> Tuple[list[str], list[str]]:
+    """
+    Deploy seed data files from src/superclaude/hooks/<src_name> to dest_root/<dest_name>.
+
+    Skip-if-exists semantics: never overwrites an existing destination, even when
+    install_hooks(force=True). This preserves user customizations to data files
+    like auggie-projects.txt across re-installs.
+
+    Best-effort on OSError: a missed seed deploy must not fail the broader install.
+    Hooks degrade gracefully when seed data is absent.
+
+    Returns (copied, skipped) lists of destination names.
+    """
+    copied: list[str] = []
+    skipped: list[str] = []
+    for src_name, dest_name in _SEED_FILES:
+        src = hooks_source_root / src_name
+        dest = dest_root / dest_name
+        if not src.exists():
+            continue
+        if dest.exists():
+            skipped.append(dest_name)
+            continue
+        try:
+            shutil.copy2(src, dest)
+            copied.append(dest_name)
+        except OSError:
+            # Intentionally silent — telemetry path is per-hook, not per-install.
+            pass
+    return copied, skipped
 
 
 def _get_legacy_scripts_source() -> Path | None:

@@ -93,9 +93,17 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "freshness-file-changed.sh",
         "freshness-subagent-start.sh",
         "freshness-subagent-stop.sh",
+        "auggie-flag-clear.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
+
+    # Seed data file (auggie-first-hook-proposal-v2.1.md §8): example file lives in
+    # hooks/ root, not hooks/scripts/. _deploy_seed_files() copies it to the user's
+    # ~/.claude/<dest_name> on install if absent.
+    (hooks_pkg / "auggie-projects.txt.example").write_text(
+        "/config/workspace/InfraDocs\n/config/workspace/IronClaude\n"
+    )
 
     monkeypatch.setattr(
         "superclaude.cli.install_hooks._get_hooks_source",
@@ -108,6 +116,10 @@ def fake_source_hooks(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "superclaude.cli.install_hooks._get_legacy_scripts_source",
         lambda: legacy_scripts_pkg,
+    )
+    monkeypatch.setattr(
+        "superclaude.cli.install_hooks._get_hooks_source_root",
+        lambda: hooks_pkg,
     )
 
     return pkg_root
@@ -416,3 +428,41 @@ def test_smoke_install_then_reinstall_force(fake_source_hooks, target_settings):
 
     data = json.loads(target_settings.read_text())
     assert set(data["hooks"].keys()) == {"SessionStart", "PreToolUse"}
+
+
+# ---------------------------------------------------------------------------
+# Regression guard: the real hooks.json must continue to gate Write
+# (i.e., Proposal A is the chosen approach, not Proposal B which would have
+# removed Write from the matcher).
+# ---------------------------------------------------------------------------
+
+
+def test_real_hooks_json_gates_write_in_pre_tool_use():
+    """Pin the matcher tools list so the gated set doesn't drift silently."""
+    real_hooks = (
+        Path(__file__).resolve().parents[2]
+        / "src"
+        / "superclaude"
+        / "hooks"
+        / "hooks.json"
+    )
+    assert real_hooks.exists(), real_hooks
+    data = json.loads(real_hooks.read_text())
+    pre_tool = data["hooks"]["PreToolUse"]
+    fresh_registrations = [
+        r
+        for r in pre_tool
+        if any(
+            "freshness-pre-edit.sh" in h.get("command", "")
+            for h in r.get("hooks", [])
+        )
+    ]
+    assert len(fresh_registrations) == 1
+    matcher_tools = set(fresh_registrations[0]["matcher"].split("|"))
+    # Proposal A keeps Write in the matcher — script handles create-case.
+    assert "Edit" in matcher_tools
+    assert "Write" in matcher_tools
+    assert "mcp__serena__replace_content" in matcher_tools
+    assert "mcp__serena__replace_symbol_body" in matcher_tools
+    assert "mcp__serena__insert_after_symbol" in matcher_tools
+    assert "mcp__serena__insert_before_symbol" in matcher_tools
