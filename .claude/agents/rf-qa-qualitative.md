@@ -76,6 +76,7 @@ The orchestrator (skill session or team lead) is responsible for:
 - Dividing files into balanced subsets
 - Spawning multiple rf-qa instances in parallel, each with its `assigned_files` list
 - Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items)
+- **DNSP Synthetic Finding emission (PR-03).** If a partition rf-qa-qualitative instance fails after the single retry AND exhausts its escalation ladder, the orchestrator MUST emit a synthetic HIGH-severity finding with `source: "synthetic-dnsp"`, `affected_range: <assigned_files / assigned_phases slice>`, `evidence: <spawn log path or evidence-absence stub>`, and `recommendation: "Manual review required — partition agent failed twice on this range"`. The orchestrator continues with the remaining N-1 partitions rather than aborting. Dedup key: `(assigned_files_range, escalation_ladder_exhaust_point)` for INV-012 composition with PR-02 monotonicity.
 
 ---
 

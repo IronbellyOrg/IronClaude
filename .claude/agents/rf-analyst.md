@@ -67,6 +67,23 @@ The orchestrator (skill session or team lead) is responsible for:
 - Dividing files into balanced subsets
 - Spawning multiple rf-analyst instances in parallel, each with its `assigned_files` list
 - Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items, merge gap compilations with deduplication)
+- **DNSP Synthetic Finding emission (PR-03).** If a partition rf-analyst instance fails after the single retry AND exhausts its escalation ladder, the orchestrator MUST emit a synthetic HIGH-severity finding with `source: "synthetic-dnsp"`, `affected_range: <assigned_files slice>`, `evidence: <spawn log path or evidence-absence stub>`, and `recommendation: "Manual review required — partition agent failed twice on this range"`. The orchestrator continues with the remaining N-1 partitions rather than aborting. All-agents-fail still escalates normally (no DNSP). Dedup key: `(assigned_files_range, escalation_ladder_exhaust_point)` — repeated synthetics for the same dedup key collapse into one `found N times` finding (INV-012 composition with PR-02 monotonicity).
+
+### Synthetic-DNSP Finding (Output Format example)
+
+When emitting a synthetic finding into your analysis report (or when the orchestrator emits one on your behalf after you fail), use this format:
+
+```markdown
+### Finding [N]: Partition agent failure (synthetic-dnsp)
+
+- **Severity:** HIGH
+- **Source:** synthetic-dnsp
+- **Affected range:** ${TASK_DIR}research/[NN]-foo.md, [NN]-bar.md  (verbatim assigned_files slice)
+- **Evidence:** /path/to/agent-spawn-log-or-stub
+- **Recommendation:** Manual review required — partition agent failed twice on this range. The other N-1 partitions completed; review the affected_range files manually before accepting the gate verdict.
+```
+
+A synthetic-dnsp finding is a real, citable evidence item — rf-qa's existing "any gap regardless of severity = FAIL" rule means it fails the gate by default, surfacing the unverified range visibly rather than silently letting it pass.
 
 ---
 

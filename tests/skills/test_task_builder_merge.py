@@ -363,3 +363,86 @@ class TestPR02RetryMonotonicityGuards:
         rule_block = skill_text.split("7. **Quality gates are mandatory.**", 1)[-1]
         rule_block = rule_block.split("8. **No one-shotting", 1)[0]
         assert "Retry Monotonicity Protocol" in rule_block
+
+
+# ---------------------------------------------------------------------------
+# PR-03: DNSP Synthetic Finding (BASE proposal)
+# ---------------------------------------------------------------------------
+
+
+class TestPR03DnspSyntheticFinding:
+    """PR-03 is the BASE proposal (combined score 0.959, the only ADOPT
+    across the original 5 RF->SC ports). Adds a paradigm-neutral
+    synthetic-finding emission contract for partition-agent failures.
+    Lands sixth in sequencing (independent of gate-pipeline edits)."""
+
+    def test_skill_documents_dnsp_protocol(self, skill_text: str) -> None:
+        assert "DNSP Synthetic Finding Protocol" in skill_text
+        assert "PR-03" in skill_text
+        assert "paradigm-neutral" in skill_text
+
+    @pytest.mark.parametrize("field", [
+        "severity: HIGH",
+        'source: "synthetic-dnsp"',
+        "affected_range",
+        "evidence",
+        "recommendation",
+    ])
+    def test_skill_dnsp_emission_contract_fields(self, skill_text: str, field: str) -> None:
+        assert field in skill_text, (
+            f"SKILL.md DNSP emission contract missing field: {field}"
+        )
+
+    def test_skill_all_agents_fail_guard(self, skill_text: str) -> None:
+        # If zero partition agents succeeded, DNSP does NOT fire -- existing
+        # escalation flow runs.
+        assert "All-agents-fail guard" in skill_text or "all-agents-fail" in skill_text.lower()
+
+    def test_skill_dedup_key_specified(self, skill_text: str) -> None:
+        # Dedup key per refactor plan: (assigned_files_range,
+        # escalation_ladder_exhaust_point) -- composes with PR-02 INV-012.
+        assert "(assigned_files_range, escalation_ladder_exhaust_point)" in skill_text
+        assert "found N times" in skill_text
+
+    def test_skill_applies_to_a8_a10_a105(self, skill_text: str) -> None:
+        # The protocol applies symmetrically to all three partition spawn sites.
+        # Verify the protocol's "applies symmetrically" listing references
+        # all three (A.8, A.10, A.10.5).
+        for ref in ("A.8 research-gate", "A.10 task-integrity", "A.10.5 qualitative"):
+            assert ref in skill_text, f"DNSP protocol missing applicability ref: {ref}"
+
+    def test_rf_analyst_partition_protocol_has_dnsp(self, rf_analyst_text: str) -> None:
+        assert "DNSP Synthetic Finding emission" in rf_analyst_text
+        assert "synthetic-dnsp" in rf_analyst_text
+        assert "PR-03" in rf_analyst_text
+
+    def test_rf_analyst_has_output_format_example(self, rf_analyst_text: str) -> None:
+        # The agent definition includes an Output Format example so an
+        # implementer knows the shape of a synthetic finding.
+        assert "Synthetic-DNSP Finding" in rf_analyst_text or "synthetic-dnsp" in rf_analyst_text
+        # The example contains the contract fields.
+        assert "Affected range" in rf_analyst_text or "affected_range" in rf_analyst_text
+
+    def test_rf_qa_partition_protocol_has_dnsp(self, rf_qa_text: str) -> None:
+        assert "DNSP Synthetic Finding emission" in rf_qa_text
+        assert "synthetic-dnsp" in rf_qa_text
+        # rf-qa's Items Reviewed table must accept synthetic-dnsp as a source.
+        assert "source: synthetic-dnsp" in rf_qa_text
+
+    def test_rf_qa_qualitative_partition_protocol_has_dnsp(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
+        assert "DNSP Synthetic Finding emission" in rf_qa_qualitative_text
+        assert "synthetic-dnsp" in rf_qa_qualitative_text
+
+    def test_inv_012_composition_documented_across_agents(
+        self,
+        skill_text: str,
+        rf_qa_text: str,
+        rf_analyst_text: str,
+    ) -> None:
+        # The PR-02 + PR-03 composition (INV-012) must be cited consistently:
+        # synthetic findings COUNT as failures but dedup-key collapses
+        # repeat-same-partition cases so they are not regressions.
+        for body in (skill_text, rf_qa_text, rf_analyst_text):
+            assert "INV-012" in body

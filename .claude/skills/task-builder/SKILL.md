@@ -653,6 +653,27 @@ Agent 2:
 
 **Cross-track validation (multi-track only):** After gate evaluation, cross-validate that no two tracks have overlapping scope that would produce conflicting task files.
 
+**DNSP Synthetic Finding Protocol (PR-03 — paradigm-neutral, the BASE proposal of this release):**
+
+When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partition `assigned_files` slices, a single partition agent that exhausts its escalation ladder (WebSearch → /rf:opinion → team-lead, per rf-task-researcher.md and the agent definitions) AND fails the existing single retry (Bucket A SKILL.md "retry once before reporting error" baseline) MUST NOT silently weaken the gate or abort the entire pipeline. Instead, the orchestrator synthesises a **HIGH-severity finding** with this emission contract:
+
+- `severity: HIGH`
+- `source: "synthetic-dnsp"`
+- `affected_range`: the failed agent's `assigned_files` slice (verbatim)
+- `evidence`: path to the failed agent's spawn log (or a `<!-- evidence-absence: spawn-log-unavailable -->` stub citing the absence)
+- `recommendation`: "Manual review required — partition agent failed twice on this range"
+
+Then the orchestrator **merges with the remaining N-1 partition agents' findings** rather than aborting. This preserves the parallel-research invariant (N-1 partitions still complete) and the zero-trust QA invariant (the gap is surfaced HIGH-severity, never silently passed).
+
+**All-agents-fail guard.** If zero partition agents succeeded, the orchestrator escalates normally per the existing retry-then-Open-Questions flow — DNSP does NOT fire (a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise).
+
+**Dedup key (composition with PR-02 Retry Monotonicity, INV-012).** Two synthetic findings emitted across consecutive retry cycles for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` collapse into ONE finding annotated `found N times`. This prevents the dedup case from reading as a regression to the PR-02 monotonicity guard (the same partition failed the same way twice is dedup, not regression). Two synthetics with DIFFERENT escalation_ladder_exhaust_points (e.g., partition A failed via WebSearch exhaustion at cycle N, then via /rf:opinion timeout at cycle N+1) are DISTINCT findings.
+
+This protocol applies symmetrically to:
+- A.8 research-gate partition spawns of rf-analyst + rf-qa
+- A.10 task-integrity partition spawns of rf-qa (when partitioning is invoked)
+- A.10.5 qualitative partition spawns of rf-qa-qualitative
+
 ### A.8.5: Optional Web Research
 
 **Skip this step unless BOTH conditions are true:**
