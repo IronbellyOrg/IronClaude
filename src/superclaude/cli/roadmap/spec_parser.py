@@ -409,12 +409,23 @@ def _looks_like_file_path(candidate: str, cell: str = "", start: int = 0) -> boo
     Rejects candidates with brace-expansion / glob syntax, embedded backticks,
     line-number suffixes (e.g. ``src/x.py:88``), whitespace, or candidates
     embedded inside URLs (the enclosing token contains ``://``).
+
+    Also rejects:
+    - Backslashes (Unix file paths never contain ``\\``; appearances come from
+      markdown escaped pipes ``\\|`` inside table-cell grep snippets that the
+      table parser strips, leaving artifacts like ``src/\\``).
+    - Embedded double quotes (artifact of regex/shell snippets in cells).
+    - Basenameless paths (candidates ending with ``/`` or whose final segment
+      is empty, e.g. ``src/`` or ``src/superclaude/`` — these are directories,
+      not file-manifest entries).
     """
     if not candidate:
         return False
-    if any(c in candidate for c in '{}*?`') or any(c.isspace() for c in candidate):
+    if any(c in candidate for c in '{}*?`\\"') or any(c.isspace() for c in candidate):
         return False
     if re.search(r':\d+', candidate):
+        return False
+    if candidate.endswith('/') or not candidate.rsplit('/', 1)[-1]:
         return False
     if cell:
         i = start - 1
