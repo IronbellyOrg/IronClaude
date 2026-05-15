@@ -1,0 +1,10 @@
+merged_output_path: /config/workspace/IronClaude/.dev/releases/backlog/roadmap-spec-fidelity-fix/adversarial/merged-solution.md
+convergence_score: 0.92
+artifacts_dir: /config/workspace/IronClaude/.dev/releases/backlog/roadmap-spec-fidelity-fix/adversarial/
+status: success
+base_variant: S2-route-findings-to-roadmap-target
+unresolved_conflicts: 2  # X-001 deferred S3, U-003 deferred S3 deletion guard
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
