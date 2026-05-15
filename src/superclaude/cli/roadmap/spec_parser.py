@@ -398,23 +398,65 @@ _FILE_PATH_RE = re.compile(
     r'`((?:src/|tests/|docs/|scripts/|\./)[^\s`]+)`'
 )
 
+_TABLE_PATH_RE = re.compile(r'(?:src/|tests/|docs/|scripts/|\./)\S+')
+
+_TOKEN_BOUNDARY_CHARS = ' \t\n|()[]<>"\''
+
+
+def _looks_like_file_path(candidate: str, cell: str = "", start: int = 0) -> bool:
+    """Reject extraction artifacts that are not real file paths.
+
+    Rejects candidates with brace-expansion / glob syntax, embedded backticks,
+    line-number suffixes (e.g. ``src/x.py:88``), whitespace, or candidates
+    embedded inside URLs (the enclosing token contains ``://``).
+
+    Also rejects:
+    - Backslashes (Unix file paths never contain ``\\``; appearances come from
+      markdown escaped pipes ``\\|`` inside table-cell grep snippets that the
+      table parser strips, leaving artifacts like ``src/\\``).
+    - Embedded double quotes (artifact of regex/shell snippets in cells).
+    - Basenameless paths (candidates ending with ``/`` or whose final segment
+      is empty, e.g. ``src/`` or ``src/superclaude/`` — these are directories,
+      not file-manifest entries).
+    """
+    if not candidate:
+        return False
+    if any(c in candidate for c in '{}*?`\\"') or any(c.isspace() for c in candidate):
+        return False
+    if re.search(r':\d+', candidate):
+        return False
+    if candidate.endswith('/') or not candidate.rsplit('/', 1)[-1]:
+        return False
+    if cell:
+        i = start - 1
+        while i >= 0 and cell[i] not in _TOKEN_BOUNDARY_CHARS:
+            i -= 1
+        token_prefix = cell[i + 1:start]
+        if '://' in token_prefix:
+            return False
+    return True
+
 
 def extract_file_paths(text: str) -> list[str]:
     """Extract file paths from text (backtick-quoted, starting with known prefixes)."""
-    return sorted(set(_FILE_PATH_RE.findall(text)))
+    paths: set[str] = set()
+    for match in _FILE_PATH_RE.finditer(text):
+        candidate = match.group(1)
+        if _looks_like_file_path(candidate, text, match.start(1)):
+            paths.add(candidate)
+    return sorted(paths)
 
 
 def extract_file_paths_from_tables(tables: list[MarkdownTable]) -> list[str]:
     """Extract file paths from manifest tables (columns containing paths)."""
     paths: set[str] = set()
-    path_like = re.compile(r'(?:src/|tests/|docs/|scripts/|\./)\S+')
     for table in tables:
         for row in table.rows:
             for cell in row.cells:
-                for match in path_like.finditer(cell):
-                    # Strip backticks and trailing punctuation
-                    p = match.group(0).strip('`').rstrip('.,;:)')
-                    paths.add(p)
+                for match in _TABLE_PATH_RE.finditer(cell):
+                    raw = match.group(0).strip('`').rstrip('.,;:)')
+                    if _looks_like_file_path(raw, cell, match.start()):
+                        paths.add(raw)
     return sorted(paths)
 
 
