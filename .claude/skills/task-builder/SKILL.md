@@ -975,6 +975,8 @@ After structural QA passes, validate that the task file would actually succeed i
 
 **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
 
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the entire "Items Reviewed" PASS/FAIL table verbatim and embed it in the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section. The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or malformed, omit the section and let rf-qa-qualitative fall back to its standalone behavior (passthrough is an optimization, never a dependency).
+
 **QA prompt:**
 ```
 QA_PHASE: task-qualitative
@@ -983,6 +985,29 @@ fix_authorization: true
 TASK FILE: [path to the task file]
 RESEARCH DIR: ${TASK_DIR}research/
 TRACK GOAL: [goal for this track]
+
+## Inherited Structural Verdict (rf-qa A.10 output — DO NOT re-verify)
+[Verbatim embed of rf-qa's "Items Reviewed" table from
+qa/qa-task-validation-report.md. On each fix-cycle re-spawn the
+orchestrator re-injects the freshly-written verdict (INV-002).]
+
+Items marked PASS by rf-qa are machine-verified. Do NOT re-verify
+section numbering, frontmatter shape, item structure, or any TB-Add-*
+structural check that rf-qa already PASSED. Focus on semantic quality
+(scope, audience, logical flow, contradictions, evidence sufficiency,
+the 5 Adversarial Axes per your task-qualitative checklist).
+
+Items marked FAIL by rf-qa are machine-verified defects. Flag them as
+HIGH severity in your own report — they remain blockers regardless of
+how qualitative review proceeds.
+
+ANTI-INFLATION RULE: rf-qa PASS items skip structural re-checking but
+each SEMANTIC check requires your own tool engagement. Reliance is not
+verification. Your Self-Audit MUST list (a) which rf-qa PASS items you
+relied on and (b) at least one semantic check where rf-qa PASS was
+INSUFFICIENT and your own tool work was required (e.g., section content
+quality vs. section numbering — rf-qa verifies the number, you verify
+the prose) (INV-019).
 
 TARGET FILES (verify ALL — no spot-checking):
 [list every unique source file path from checklist items]

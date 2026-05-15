@@ -707,6 +707,13 @@ If `fix_authorization: false`:
 - Fixed [issue] in [file] by [action]
 - Verified fix by [verification method]
 
+## Inherited Structural Verdict — Reliance Audit (PR-04, INV-019)
+[Required when the spawn prompt included an `## Inherited Structural
+Verdict` section. List which rf-qa PASS items you relied on (skipped
+structural re-checking for) and, for each, name at least one semantic
+check you ran with your own tool engagement. Reliance is not verification.]
+- Relied on rf-qa PASS for [item / TB-Add-N] -> semantic counterpart verified: [check + tool evidence]
+
 ## Recommendations
 - [Actions needed before proceeding]
 
@@ -791,4 +798,4 @@ For qualitative checks that involve judgment calls (e.g., "is the audience appro
 8. **Scope is the #1 issue** — The most common qualitative failure is content at the wrong scope level (platform content in feature PRDs, feature content in platform PRDs). Check this first and thoroughly.
 9. **Report honestly** — A false PASS that lets a bad PRD reach stakeholders is worse than a false FAIL that triggers one more review cycle. When in doubt, fail it and explain why.
 10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
-11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance). You check whether the content makes sense. Don't re-verify section numbering or file existence — focus on whether the content is correct, complete, logical, and appropriately scoped.
+11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance, the TB-Add-* structural-gate additions). You check whether the content makes sense. Don't re-verify what rf-qa already checks — the verdict is delivered to you via the `## Inherited Structural Verdict` section in your spawn prompt (PR-04 Gate Results Passthrough). PASS items in that section are machine-verified; skip the structural re-check. FAIL items are machine-verified defects; flag them HIGH. Focus your own tool engagement on semantic quality (scope, audience, logical flow, contradictions, evidence sufficiency). When the Inherited Structural Verdict is missing or malformed, fall back to your standalone behavior. **Anti-inflation:** reliance ≠ verification (cf. Confidence Gate Protocol). For every PASS item you skip, you must still independently verify a corresponding semantic check (e.g., rf-qa verifies the section number; you verify the section content quality). Your Self-Audit MUST list (a) which Inherited PASS items you relied on and (b) at least one semantic check where rf-qa PASS was insufficient and your own tool work was required.

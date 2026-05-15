@@ -173,3 +173,65 @@ class TestPR01ExecutionContextHeader:
     def test_skill_mirrors_tb_add_8(self, skill_text: str) -> None:
         # TB-Add-8 appears in BOTH the A.10 prompt and the validation checklist.
         assert skill_text.count("TB-Add-8") >= 2
+
+
+# ---------------------------------------------------------------------------
+# PR-04: Gate Results Passthrough (Inherited Structural Verdict)
+# ---------------------------------------------------------------------------
+
+
+class TestPR04GateResultsPassthrough:
+    """PR-04 lands third. Pipes rf-qa's A.10 structural verdict into
+    rf-qa-qualitative's spawn prompt as `## Inherited Structural Verdict`
+    with anti-inflation guardrails for INV-002, INV-010, INV-019."""
+
+    def test_skill_documents_inherited_structural_verdict(self, skill_text: str) -> None:
+        assert "Inherited Structural Verdict" in skill_text
+        # PR-04 callout cites the operationalised rule explicitly.
+        assert "PR-04 Gate Results Passthrough" in skill_text
+
+    def test_skill_inv_002_reinjection_on_fix_cycles(self, skill_text: str) -> None:
+        # On every fix cycle re-spawn, the orchestrator MUST re-inject the
+        # fresh verdict; never reuse a stale verdict.
+        assert "INV-002" in skill_text
+        assert "re-inject" in skill_text
+
+    def test_skill_inv_010_dynamic_tb_add_enumeration(self, skill_text: str) -> None:
+        # PR-04 prompt MUST dynamically enumerate TB-Add catalogue
+        # from the rf-qa source so future TB-Adds are auto-picked-up.
+        assert "INV-010" in skill_text
+        assert "dynamically enumerate" in skill_text or "live TB-Add catalogue" in skill_text
+
+    def test_skill_anti_inflation_inv_019(self, skill_text: str) -> None:
+        assert "INV-019" in skill_text
+        assert "ANTI-INFLATION" in skill_text or "Reliance is not verification" in skill_text
+
+    def test_skill_passthrough_fallback_documented(self, skill_text: str) -> None:
+        # Failure-mode #1 from proposal: missing/malformed verdict file -> fall
+        # back to standalone rf-qa-qualitative behavior.
+        assert "fall back" in skill_text or "fallback" in skill_text.lower()
+        # Specifically near the passthrough section.
+        assert "missing or malformed" in skill_text
+
+    def test_rf_qa_qualitative_rule_11_references_passthrough(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
+        # Rule #11 must mention the passthrough mechanism so the agent's
+        # behavior aligns with the orchestrator's delivery.
+        assert "Inherited Structural Verdict" in rf_qa_qualitative_text
+        assert "PR-04 Gate Results Passthrough" in rf_qa_qualitative_text
+
+    def test_rf_qa_qualitative_anti_inflation_in_rule_11(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
+        # Anti-inflation prompt language: reliance != verification.
+        assert "reliance" in rf_qa_qualitative_text.lower()
+        assert "Self-Audit" in rf_qa_qualitative_text
+
+    def test_rf_qa_qualitative_output_has_reliance_audit_section(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
+        # Output template requires a Reliance Audit subsection when an
+        # Inherited Structural Verdict was provided.
+        assert "Reliance Audit" in rf_qa_qualitative_text
+        assert "INV-019" in rf_qa_qualitative_text
