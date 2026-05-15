@@ -1032,6 +1032,13 @@ Apply the 15-item Task File Qualitative Review checklist from your agent
 definition. For each checklist item that requires reading source code, read
 the ACTUAL target files — do not rely on research file summaries alone.
 
+Apply the 5 Adversarial Axes (PR-07) as a sharpening overlay across all
+15 checks: drift, contradictions, omissions, weakened-criteria,
+invented-content. Annotate every FAIL finding with the most-specific
+axis in the Items Reviewed table's Axis column. The drift axis requires
+a BUILD_REQUEST.GOAL baseline; if no GOAL verbatim is reachable, mark
+drift-axis-inactive and proceed with the other four axes.
+
 For every shell command or make target referenced in checklist items, verify
 its preconditions are satisfied by earlier items or the current repo state.
 

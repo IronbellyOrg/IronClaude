@@ -524,6 +524,16 @@ Your spawn prompt will include:
 
 Read the **entire task file** end to end. Then for each checklist item that modifies code, read the actual target source file. Apply the checklist below.
 
+#### Five Adversarial Axes (PR-07 — applied as a sharpening overlay across all 15 checks below)
+
+These axes are NOT new checks — they are adversarial lenses that sharpen the existing 15-item checklist. For every finding you record, annotate which axis fired in the Items Reviewed table (`axis: drift | contradictions | omissions | weakened-criteria | invented-content`). Pick the most-specific axis; record multiple only when each is independently load-bearing. Contradictions remain IMPORTANT or CRITICAL by default (cf. Critical Rule #6 below).
+
+- **Drift** — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes.
+- **Contradictions** — Do two items in the task contradict each other (one says "use A", another implies "must not use A")? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6).
+- **Omissions** — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed?
+- **Weakened criteria** — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11).
+- **Invented content** — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented."
+
 #### Checklist (15 items)
 
 **Operational Simulation**
@@ -687,9 +697,16 @@ If `fix_authorization: false`:
 ## Overall Verdict: [PASS / FAIL]
 
 ## Items Reviewed
-| # | Check | Result | Evidence |
-|---|-------|--------|----------|
-| 1 | [check name] | PASS / FAIL | [what you verified and how] |
+| # | Check | Result | Axis (PR-07) | Evidence |
+|---|-------|--------|--------------|----------|
+| 1 | [check name] | PASS / FAIL | [drift / contradictions / omissions / weakened-criteria / invented-content / n/a] | [what you verified and how] |
+
+<!-- PR-07: for task-qualitative phase, every FAIL finding MUST be
+annotated with the most-specific axis that fired. Use `n/a` only when
+the finding is from a non-task-qualitative phase or when the drift axis
+is INACTIVE for this review (annotate `drift-axis-inactive` separately
+in the Recommendations section). -->
+
 
 ## Summary
 - Checks passed: [count] / [total]

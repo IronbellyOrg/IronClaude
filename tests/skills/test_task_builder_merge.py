@@ -235,3 +235,69 @@ class TestPR04GateResultsPassthrough:
         # Inherited Structural Verdict was provided.
         assert "Reliance Audit" in rf_qa_qualitative_text
         assert "INV-019" in rf_qa_qualitative_text
+
+
+# ---------------------------------------------------------------------------
+# PR-07: Adversarial Category Naming (5-axis overlay)
+# ---------------------------------------------------------------------------
+
+
+class TestPR07AdversarialCategoryNaming:
+    """PR-07 lands fourth. Adds a 5-axis adversarial taxonomy overlay
+    (drift, contradictions, omissions, weakened-criteria, invented-content)
+    to rf-qa-qualitative's task-qualitative phase as a naming overlay --
+    no new code path, no new stage, no new agent file."""
+
+    @pytest.mark.parametrize("axis", [
+        "Drift",
+        "Contradictions",
+        "Omissions",
+        "Weakened criteria",
+        "Invented content",
+    ])
+    def test_rf_qa_qualitative_contains_axis(
+        self, rf_qa_qualitative_text: str, axis: str
+    ) -> None:
+        assert axis in rf_qa_qualitative_text, (
+            f"rf-qa-qualitative.md missing 5-axis entry: {axis}"
+        )
+
+    def test_axes_are_overlay_not_replacement(self, rf_qa_qualitative_text: str) -> None:
+        # The axes overlay the 15-item checklist, not replace it.
+        assert "Five Adversarial Axes" in rf_qa_qualitative_text
+        assert "sharpening overlay" in rf_qa_qualitative_text or "overlay" in rf_qa_qualitative_text
+
+    def test_drift_baseline_requirement(self, rf_qa_qualitative_text: str) -> None:
+        # The drift axis MUST require a GOAL verbatim baseline; otherwise mark
+        # drift-axis-inactive.
+        assert "drift-axis-inactive" in rf_qa_qualitative_text
+        assert "GOAL verbatim" in rf_qa_qualitative_text or "BUILD_REQUEST.GOAL" in rf_qa_qualitative_text
+
+    def test_axis_annotation_required_in_items_reviewed(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
+        # The Items Reviewed table grows a new `Axis (PR-07)` column.
+        assert "Axis (PR-07)" in rf_qa_qualitative_text
+
+    def test_skill_references_5_axis_lens(self, skill_text: str) -> None:
+        # SKILL.md A.10.5 must cite the 5 Adversarial Axes overlay.
+        assert "5 Adversarial Axes" in skill_text or "Five Adversarial Axes" in skill_text
+        assert "PR-07" in skill_text
+
+    def test_invented_content_axis_is_evidence_bound(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
+        # "Invented content" axis requires cross-checking against research/*.md
+        # -- it is itself evidence-bound.
+        # Find the Invented-content paragraph and check it references the
+        # research evidence files.
+        assert "research/*.md" in rf_qa_qualitative_text or "research files" in rf_qa_qualitative_text
+
+    def test_weakened_axis_anti_inflation(self, rf_qa_qualitative_text: str) -> None:
+        # "Weakened" only fires when BUILD_REQUEST or research demands
+        # stronger phrasing -- speculation does NOT count.
+        # Be tolerant of phrasing variation.
+        lowered = rf_qa_qualitative_text.lower()
+        assert "speculation" in lowered or "speculative" in lowered
+        # Anti-inflation cross-reference.
+        assert "anti-inflation" in lowered
