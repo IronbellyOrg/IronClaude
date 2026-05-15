@@ -301,3 +301,65 @@ class TestPR07AdversarialCategoryNaming:
         assert "speculation" in lowered or "speculative" in lowered
         # Anti-inflation cross-reference.
         assert "anti-inflation" in lowered
+
+
+# ---------------------------------------------------------------------------
+# PR-02: Retry Monotonicity Guards
+# ---------------------------------------------------------------------------
+
+
+class TestPR02RetryMonotonicityGuards:
+    """PR-02 lands fifth. Adds two stop conditions (monotonicity guard +
+    regression detection) to every retry loop in task-builder. Strengthens
+    zero-trust QA against oscillation (FINAL-REPORT 6.2 F2 documented 21
+    retry files / 18 batches empirical oscillation pattern)."""
+
+    def test_skill_documents_retry_monotonicity_protocol(self, skill_text: str) -> None:
+        assert "Retry Monotonicity Protocol" in skill_text
+        assert "PR-02" in skill_text
+
+    def test_skill_monotonicity_guard_strict_shrink(self, skill_text: str) -> None:
+        # The monotonicity guard fires on strict non-shrink, NOT slow shrink.
+        assert "strictly shrink" in skill_text or "strict non-shrink" in skill_text
+        # The failure-count math is referenced.
+        assert "F_n" in skill_text or "|F_n|" in skill_text
+
+    def test_skill_regression_detection_precedence(self, skill_text: str) -> None:
+        assert "regression detected" in skill_text.lower() or "Regression detection" in skill_text
+        # Regression > monotonicity precedence rule (PR-02 Round-2 spec).
+        assert "Regression takes precedence" in skill_text or "regression takes precedence" in skill_text
+
+    def test_skill_independent_counters_preserved(self, skill_text: str) -> None:
+        # Each retry counter keeps its own monotonicity history.
+        assert "Independent counters" in skill_text or "tracked independently" in skill_text
+
+    def test_skill_inv_012_dnsp_composition(self, skill_text: str) -> None:
+        # PR-03 synthetic findings COUNT as failures BUT dedup-key collapses
+        # repeat-same-partition synthetics so they are not regressions.
+        assert "INV-012" in skill_text
+        assert "dedup" in skill_text.lower()
+        assert "assigned_files_range" in skill_text  # dedup key field
+        assert "escalation_ladder_exhaust_point" in skill_text
+
+    def test_rf_task_builder_has_protocol(self, rf_task_builder_text: str) -> None:
+        # The per-gate fix-cycle table in rf-task-builder must reference the
+        # protocol.
+        assert "Retry Monotonicity Protocol" in rf_task_builder_text
+        assert "non-convergent" in rf_task_builder_text
+        assert "regression detected" in rf_task_builder_text.lower()
+
+    def test_rf_qa_has_protocol_in_fix_cycle(self, rf_qa_text: str) -> None:
+        # rf-qa.md's 3-fix-cycle rules must adopt the same guards.
+        assert "Retry Monotonicity Protocol" in rf_qa_text
+        assert "PR-02" in rf_qa_text
+        # Composition with PR-03 DNSP cited.
+        assert "INV-012" in rf_qa_text
+
+    def test_skill_rule_7_references_protocol(self, skill_text: str) -> None:
+        # Critical Rule #7 (mandatory QA gates) must cite the protocol so the
+        # guards are part of zero-trust QA.
+        # The text is in the Critical Rules section near the bottom.
+        # Locate the Rule 7 block and assert the cross-reference.
+        rule_block = skill_text.split("7. **Quality gates are mandatory.**", 1)[-1]
+        rule_block = rule_block.split("8. **No one-shotting", 1)[0]
+        assert "Retry Monotonicity Protocol" in rule_block

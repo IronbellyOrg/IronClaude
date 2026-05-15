@@ -904,6 +904,21 @@ Agent:
 
 These are SEPARATE retry counters — a builder that returns RESEARCH_NEEDED twice and then produces a malformed file gets 2+2=4 total invocations maximum.
 
+**Retry Monotonicity Protocol (PR-02 — strengthens zero-trust QA against oscillation):**
+
+Every retry loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md) MUST apply two stop conditions BEFORE the existing iteration cap fires:
+
+1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and escalate with `non-convergent: |F_n| -> |F_{n+1}|` in the gate report. The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`) continues to the existing cap.
+2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately with `regression detected: Item X.Y passed at cycle N, failed at cycle N+1`. Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+
+**Precedence rule.** When both conditions trigger in the same cycle, regression takes precedence — the escalation message names the regressing item; the monotonicity halt is implicit.
+
+**Independent counters.** Each retry counter keeps its own monotonicity history. RESEARCH_NEEDED, MALFORMED, research-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in rf-task-builder/rf-qa each track `F_n` and PASS-set state separately. Counters are NEVER collapsed (preserves the "tracked independently" property documented in Critical Rule #12).
+
+**Composition with PR-03 DNSP synthetic findings (INV-012 acceptance criterion).** Synthetic findings emitted by the DNSP protocol (PR-03) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. BUT a synthetic finding with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key appearing across consecutive cycles is a DEDUP case, NOT a regression — the same partition failed the same way twice; the regression-detection logic must compare by dedup key, not by raw finding count, when synthetic-dnsp items are involved. Two synthetic findings with identical dedup keys collapse into one with a "found N times" note (cf. PR-03 dedup behavior).
+
+**Single-cycle case.** If the first cycle PASSes, no second cycle runs; both guards are no-ops by construction.
+
 ### A.10: Task File Validation
 
 After the builder returns a task file path, validate the task file before presenting to the user.
@@ -1630,7 +1645,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 6. **Report all uncertainty.** If something is unclear, ambiguous, or requires judgment, document it in Open Questions. Do not silently pick one interpretation and present it as fact.
 
-7. **Quality gates are mandatory.** rf-analyst + rf-qa MUST be spawned at the research gate. Do not skip verification to save time. Uncaught errors compound — bad research becomes a bad task file.
+7. **Quality gates are mandatory.** rf-analyst + rf-qa MUST be spawned at the research gate. Do not skip verification to save time. Uncaught errors compound — bad research becomes a bad task file. Every retry loop (research gate, A.10, A.10.5, RESEARCH_NEEDED, MALFORMED, per-gate cycles inside rf-task-builder and rf-qa) is governed by the **Retry Monotonicity Protocol** (PR-02) — monotonicity guard + regression detection halt oscillation BEFORE the existing iteration cap fires. The protocol is part of zero-trust QA; the guards strengthen the gate, never loosen it.
 
 8. **No one-shotting files.** Every file creation follows incremental writing: Write header first, Edit to append sections. NEVER accumulate content in context and attempt a single large Write.
 

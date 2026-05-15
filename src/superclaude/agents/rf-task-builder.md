@@ -357,6 +357,12 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 | task-integrity | 2 | Open Questions |
 | Any qualitative gate | 3 | HALT and escalate |
 
+**Retry Monotonicity Protocol (PR-02 — applies to every gate row above):**
+
+Before re-spawning a fix cycle, compare `|gate_failures|` to the previous cycle's count. HALT and escalate as `non-convergent` if it did NOT strictly shrink. Before accepting a fix cycle output, compare the PASS set to the previous cycle's PASS set. HALT and escalate as `regression detected` if any previously-PASS item is now FAIL. Regression takes precedence over monotonicity when both trigger in the same cycle.
+
+Each gate row above keeps its OWN monotonicity history — research-gate's `F_n` is independent from task-integrity's `F_n`. PR-03 synthetic-DNSP findings COUNT as failures for monotonicity but are deduplicated by `(assigned_files_range, escalation_ladder_exhaust_point)` so a re-fired synthetic for the same partition is NOT a regression (INV-012). See SKILL.md "Retry Monotonicity Protocol" for full specification.
+
 ### VALIDATION_REQUIREMENTS
 
 Contains specific validation commands or criteria the task file must include as checklist items. Examples: "Verify lint passes", "Verify type-check passes", "Verify build succeeds." Encode these as checklist items placed AFTER the phase they validate.

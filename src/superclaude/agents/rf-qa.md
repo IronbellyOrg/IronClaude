@@ -331,6 +331,14 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
 - Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions.
 - Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
 
+**Retry Monotonicity Protocol (PR-02 — strengthens this 3-fix-cycle):**
+
+- **Monotonicity guard.** At the end of each cycle `n`, record the count of remaining failures `F_n`. If `F_{n+1} >= F_n` — i.e., the count did NOT strictly shrink — HALT and escalate as `non-convergent: |F_n| -> |F_{n+1}|`. The guard fires only on strict non-shrink; slow convergence continues to the 3-cycle cap.
+- **Regression detection.** At the end of each cycle, record the PASS set. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately as `regression detected: Item X.Y passed at cycle N, failed at cycle N+1`. Regression takes precedence over monotonicity when both trigger.
+- **PR-03 DNSP composition (INV-012).** Synthetic-dnsp findings count as failures for `|F_n|`. A synthetic with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key re-appearing across cycles is a DEDUP case, not a regression — the regression check compares by dedup key when synthetic findings are involved.
+
+This protocol is part of zero-trust QA. The guards strengthen the gate strictly — they never loosen it.
+
 ---
 
 ## Output Format (All Phases)
