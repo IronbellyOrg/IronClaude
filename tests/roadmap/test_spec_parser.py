@@ -311,6 +311,52 @@ class TestExtractFilePaths:
         assert "docs/CHANGELOG" in paths
         assert "src/superclaude/cli/main.py" in paths
 
+    def test_rejects_backslash_artifacts_from_escaped_table_pipes(self):
+        """Markdown table cells containing escaped pipes inside backtick
+        grep snippets (e.g. ``grep -E "src/\\|/.*"``) must not yield
+        ``src/\\`` after the cell parser unescapes the pipe."""
+        table_doc = """\
+| Test | Command | Expected |
+|------|---------|----------|
+| 6 | `grep -E "src/\\|/.*:[0-9]+"` against header | zero hits |
+"""
+        warnings: list[ParseWarning] = []
+        tables = extract_tables(table_doc, warnings)
+        paths = extract_file_paths_from_tables(tables)
+        assert not any('\\' in p for p in paths), (
+            f"Backslash artifact leaked into paths: {paths!r}"
+        )
+        assert 'src/\\' not in paths
+
+    def test_rejects_directory_paths_without_basename(self):
+        """Bare directory references (``src/``, ``src/superclaude/``) are
+        not file-manifest entries and must not be extracted as file paths."""
+        table_doc = """\
+| Path | Note |
+|------|------|
+| `src/superclaude/` | source-of-truth dir |
+| `src/` | repo root |
+| `src/superclaude/cli/main.py` | actual file |
+"""
+        warnings: list[ParseWarning] = []
+        tables = extract_tables(table_doc, warnings)
+        paths = extract_file_paths_from_tables(tables)
+        assert "src/" not in paths
+        assert "src/superclaude/" not in paths
+        assert "src/superclaude/cli/main.py" in paths
+
+    def test_rejects_paths_containing_double_quotes(self):
+        """Embedded double quotes are a shell/regex artifact, not a real path."""
+        table_doc = """\
+| Cmd | Note |
+|-----|------|
+| `grep src/foo"bar.py` | shell artifact |
+"""
+        warnings: list[ParseWarning] = []
+        tables = extract_tables(table_doc, warnings)
+        paths = extract_file_paths_from_tables(tables)
+        assert not any('"' in p for p in paths)
+
 
 # ---------- Section Splitting Tests ----------
 
