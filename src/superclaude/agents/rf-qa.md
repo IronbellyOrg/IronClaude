@@ -263,7 +263,7 @@ For report validation, you are always authorized to fix issues in-place:
 
 ### What You Verify
 
-#### Checklist (20 items)
+#### Checklist (27 items)
 
 1. **Frontmatter schema** — YAML frontmatter is well-formed AND contains all required fields with non-empty values: `id`, `title`, `status`, `created`, `type`, `template`, `tracks`. Not just "parses as valid YAML" — every mandatory field must be present. Missing fields = FAIL.
 2. **Checklist format** — All items use `- [ ]` format (not `- []` or `* [ ]`)
@@ -285,6 +285,24 @@ For report validation, you are always authorized to fix issues in-place:
 18. **Phase header accuracy** — Count `- [ ]` items per phase, verify against header's claimed count. If a header says "Phase 2 (5 items)" but there are 6 items, that's a FAIL.
 19. **Prose count accuracy** — Verify quantitative claims in Overview/descriptions match actual implementation. If the overview says "refactors 7 functions" but the checklist only touches 4, that's a FAIL.
 20. **Template section cross-reference** — Read actual templates referenced by the task file, verify §N references match real content. If an item says "per template §A3" confirm that section actually exists and says what the item claims.
+
+#### Structural Gate Additions (TB-Add-1 through TB-Add-7, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
+
+These additions close specific structural gaps that sc:tasklist's pre-write gate catches but task-builder's task-integrity historically did not. Each cites its source check ID for traceability. Additive only — no existing check is weakened.
+
+21. **TB-Add-1: Placeholder scan (sc:tasklist check 11).** No checklist item contains the literal tokens `TBD`, `TODO`, or `FIXME` in its description or body, and no item is title-only (it MUST have a Context, Action, Output, Verification, and Completion-gate body). Title-only or placeholder-only items reinforce the self-contained-item invariant by failing the 5-field schema. Error message format: "Item X.Y contains 'TBD'/'TODO' on line N — replace with concrete description". Use Grep on the task file to detect.
+
+22. **TB-Add-2: Item count bounds (sc:tasklist check 13). ADVISORY-fail until calibrated.** Track has ≥3 and ≤40 checklist items; single-track tasks have ≥3 and ≤50. Bounds are speculative without empirical `.dev/tasks/done/` calibration; until calibration completes this check emits an ADVISORY warning (surface in report, do NOT block PASS). Calibration trigger: when `.dev/tasks/done/` accumulates ≥10 completed tasks across ≥3 task_types, re-evaluate the bounds and promote to blocking.
+
+23. **TB-Add-3: Clarification adjacency (sc:tasklist check 14).** If the task has Open Questions, each blocked checklist item that depends on a question MUST reference the open question by index in its Context field (e.g., "Blocked by Open Question OQ-2"). Unreferenced blocked items leave the executor guessing whether a question must be resolved first.
+
+24. **TB-Add-4: Circular dependency detection (sc:tasklist check 15).** Item-to-item dependencies form a DAG. No item depends (via Context/Action references) on a later item that depends back on it. Build a directed graph of item-references-item edges; assert acyclic. Cycles cause execution deadlock.
+
+25. **TB-Add-5: Granularity check / XL splitting (sc:tasklist check 16).** If an item is flagged as `complex`, `multi-file`, or otherwise XL (per item 10 atomicity), it must either be split into subtasks (Template 02 nesting) OR include a critical-rule-aware comment justifying single-item handling. Adapted to task-builder's lack of XL effort labels — uses the same intent as sc:tasklist's check 16.
+
+26. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
+
+27. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).** If the task file contains an `## Execution Context` block with a "Source areas:" line, every named source area MUST reappear in at least one item's Context field. Drift between the header summary and item bodies indicates the header was generated from stale/independent input rather than rolled up from the actual item set. If no Execution Context block exists, this check is INACTIVE — surface as `tb-add-7-inactive` annotation in the report. The block itself MUST NOT contain specific `path.py:NN` references; per-item Context fields are the correct venue for file:line citations (TB-Add-8 enforces this from the item side).
 
 ---
 

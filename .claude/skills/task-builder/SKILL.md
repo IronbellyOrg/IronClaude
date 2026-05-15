@@ -905,6 +905,15 @@ Validate the task file against template requirements:
 8. Phase dependencies are logical (no circular or missing dependencies)?
 9. Estimated item count is reasonable for the scope?
 
+Structural Gate Additions (TB-Add-1 through TB-Add-7, imported from sc:tasklist 17-point pre-write gate per CB-3 per-check classification — see rf-qa agent definition for full rationale):
+10. TB-Add-1: Placeholder scan — no item contains `TBD`/`TODO`/`FIXME` and no item is title-only (5-field schema enforced).
+11. TB-Add-2: Item count bounds — track ≥3 and ≤40 items; single-track ≥3 and ≤50. ADVISORY-fail until empirical calibration completes (≥10 completed tasks in `.dev/tasks/done/` across ≥3 task_types).
+12. TB-Add-3: Clarification adjacency — each blocked item references its blocking Open Question by index in Context.
+13. TB-Add-4: Circular dependency detection — item-to-item dependencies form a DAG; no cycles.
+14. TB-Add-5: Granularity / XL splitting — items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
+15. TB-Add-6: Confidence/Verification format consistency — uniform `Verify: ...` prefix and `- ✅`/`- [x]` Acceptance Criteria form.
+16. TB-Add-7: Execution Context source areas reappear in items — every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
+
 OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-report.md
 
 Write the file IMMEDIATELY with a header, then append findings incrementally.
@@ -1505,6 +1514,13 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - [ ] Task completion items inside final phase (anti-orphaning)
 - [ ] Task Log section present at bottom
 - [ ] Reasonable item count for scope
+- [ ] TB-Add-1: No `TBD`/`TODO`/`FIXME` tokens and no title-only items (5-field schema enforced)
+- [ ] TB-Add-2: Item count within bounds (track ≥3/≤40; single-track ≥3/≤50) — ADVISORY-fail until calibrated
+- [ ] TB-Add-3: Each blocked item references its blocking Open Question by index in Context
+- [ ] TB-Add-4: Item-to-item dependencies form a DAG (no circular item-level references)
+- [ ] TB-Add-5: XL/multi-file items either split into subtasks or carry justifying comment
+- [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
+- [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
 
 ---
 
