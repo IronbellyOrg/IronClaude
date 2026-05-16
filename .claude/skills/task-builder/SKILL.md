@@ -653,6 +653,27 @@ Agent 2:
 
 **Cross-track validation (multi-track only):** After gate evaluation, cross-validate that no two tracks have overlapping scope that would produce conflicting task files.
 
+**DNSP Synthetic Finding Protocol (PR-03 — paradigm-neutral, the BASE proposal of this release):**
+
+When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partition `assigned_files` slices, a single partition agent that exhausts its escalation ladder (WebSearch → /rf:opinion → team-lead, per rf-task-researcher.md and the agent definitions) AND fails the existing single retry (Bucket A SKILL.md "retry once before reporting error" baseline) MUST NOT silently weaken the gate or abort the entire pipeline. Instead, the orchestrator synthesises a **HIGH-severity finding** with this emission contract:
+
+- `severity: HIGH`
+- `source: "synthetic-dnsp"`
+- `affected_range`: the failed agent's `assigned_files` slice (verbatim)
+- `evidence`: path to the failed agent's spawn log (or a `<!-- evidence-absence: spawn-log-unavailable -->` stub citing the absence)
+- `recommendation`: "Manual review required — partition agent failed twice on this range"
+
+Then the orchestrator **merges with the remaining N-1 partition agents' findings** rather than aborting. This preserves the parallel-research invariant (N-1 partitions still complete) and the zero-trust QA invariant (the gap is surfaced HIGH-severity, never silently passed).
+
+**All-agents-fail guard.** If zero partition agents succeeded, the orchestrator escalates normally per the existing retry-then-Open-Questions flow — DNSP does NOT fire (a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise).
+
+**Dedup key (composition with PR-02 Retry Monotonicity, INV-012).** Two synthetic findings emitted across consecutive retry cycles for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` collapse into ONE finding annotated `found N times`. This prevents the dedup case from reading as a regression to the PR-02 monotonicity guard (the same partition failed the same way twice is dedup, not regression). Two synthetics with DIFFERENT escalation_ladder_exhaust_points (e.g., partition A failed via WebSearch exhaustion at cycle N, then via /rf:opinion timeout at cycle N+1) are DISTINCT findings.
+
+This protocol applies symmetrically to:
+- A.8 research-gate partition spawns of rf-analyst + rf-qa
+- A.10 task-integrity partition spawns of rf-qa (when partitioning is invoked)
+- A.10.5 qualitative partition spawns of rf-qa-qualitative
+
 ### A.8.5: Optional Web Research
 
 **Skip this step unless BOTH conditions are true:**
@@ -827,9 +848,44 @@ Agent:
        - ## Task Overview (1-2 paragraphs)
        - ## Key Objectives (bullet list)
        - ## Prerequisites & Dependencies
+       - ## Execution Context (OPTIONAL — see EXECUTION CONTEXT BLOCK below)
     2. THEN: Append each phase ONE AT A TIME using Edit tool.
        One phase per Edit call. Verify each Edit succeeded.
     3. LAST: Append the Task Log section after all phases are written.
+
+    EXECUTION CONTEXT BLOCK (OPTIONAL, TASK-LEVEL ROLL-UP):
+    Emit an `## Execution Context` section immediately after frontmatter
+    (before # Title body content) when BUILD_REQUEST exposes enough rollup
+    signal — typically when ≥3 distinct source areas can be inferred from
+    research files. This is a READING aid for the executor, NOT a substitute
+    for per-item Context fields.
+
+    The block has exactly three sub-bullets, in this order:
+    - **References:** BUILD_REQUEST GOAL line verbatim, the WHY summary,
+      and any related-doc IDs the BUILD_REQUEST supplied. ALWAYS known —
+      never stale because it is copied from BUILD_REQUEST itself.
+    - **Source areas:** Named modules or packages inferred from the
+      research files (e.g., "rf-qa agent prompts", "task-builder skill
+      body"). NEVER write specific `path.py:NN` references at this level
+      — those belong in per-item Context fields and `research/*.md`.
+      If fewer than ~3 distinct source areas can be named, OMIT this line.
+    - **Key constraints:** The top 1-3 invariants the executor must not
+      break, lifted from BUILD_REQUEST QA_GATE_REQUIREMENTS /
+      VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS if present, or from
+      the highest-severity rules in the research files. Omit when BUILD_REQUEST
+      and research findings produce no clear constraint shortlist.
+
+    Scope-confinement rule (PROTECTS evidence-bound-item invariant): the
+    "no specific file paths" rule applies ONLY to this header. Per-item
+    Context fields and `research/*.md` files MUST retain file:line
+    citations — they are the evidence venue. rf-qa enforces this via
+    TB-Add-7 (header source areas reappear in items) and TB-Add-8
+    (per-item Context fields cite file:line or carry a justified absence
+    comment).
+
+    If BUILD_REQUEST is minimal (GOAL-only), the block degenerates to
+    References-only with Source areas and Key constraints omitted. If no
+    rollup signal exists at all, OMIT the entire block — it is optional.
 
     TASK FILE LOCATION:
     ${TASK_DIR}${TASK_ID}.md
@@ -869,6 +925,21 @@ Agent:
 
 These are SEPARATE retry counters — a builder that returns RESEARCH_NEEDED twice and then produces a malformed file gets 2+2=4 total invocations maximum.
 
+**Retry Monotonicity Protocol (PR-02 — strengthens zero-trust QA against oscillation):**
+
+Every retry loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md) MUST apply two stop conditions BEFORE the existing iteration cap fires:
+
+1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and escalate with `non-convergent: |F_n| -> |F_{n+1}|` in the gate report. The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`) continues to the existing cap.
+2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately with `regression detected: Item X.Y passed at cycle N, failed at cycle N+1`. Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+
+**Precedence rule.** When both conditions trigger in the same cycle, regression takes precedence — the escalation message names the regressing item; the monotonicity halt is implicit.
+
+**Independent counters.** Each retry counter keeps its own monotonicity history. RESEARCH_NEEDED, MALFORMED, research-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in rf-task-builder/rf-qa each track `F_n` and PASS-set state separately. Counters are NEVER collapsed (preserves the "tracked independently" property documented in Critical Rule #12).
+
+**Composition with PR-03 DNSP synthetic findings (INV-012 acceptance criterion).** Synthetic findings emitted by the DNSP protocol (PR-03) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. BUT a synthetic finding with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key appearing across consecutive cycles is a DEDUP case, NOT a regression — the same partition failed the same way twice; the regression-detection logic must compare by dedup key, not by raw finding count, when synthetic-dnsp items are involved. Two synthetic findings with identical dedup keys collapse into one with a "found N times" note (cf. PR-03 dedup behavior).
+
+**Single-cycle case.** If the first cycle PASSes, no second cycle runs; both guards are no-ops by construction.
+
 ### A.10: Task File Validation
 
 After the builder returns a task file path, validate the task file before presenting to the user.
@@ -905,6 +976,16 @@ Validate the task file against template requirements:
 8. Phase dependencies are logical (no circular or missing dependencies)?
 9. Estimated item count is reasonable for the scope?
 
+Structural Gate Additions (TB-Add-1 through TB-Add-7, imported from sc:tasklist 17-point pre-write gate per CB-3 per-check classification — see rf-qa agent definition for full rationale):
+10. TB-Add-1: Placeholder scan — no item contains `TBD`/`TODO`/`FIXME` and no item is title-only (5-field schema enforced).
+11. TB-Add-2: Item count bounds — track ≥3 and ≤40 items; single-track ≥3 and ≤50. ADVISORY-fail until empirical calibration completes (≥10 completed tasks in `.dev/tasks/done/` across ≥3 task_types).
+12. TB-Add-3: Clarification adjacency — each blocked item references its blocking Open Question by index in Context.
+13. TB-Add-4: Circular dependency detection — item-to-item dependencies form a DAG; no cycles.
+14. TB-Add-5: Granularity / XL splitting — items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
+15. TB-Add-6: Confidence/Verification format consistency — uniform `Verify: ...` prefix and `- ✅`/`- [x]` Acceptance Criteria form.
+16. TB-Add-7: Execution Context source areas reappear in items — every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
+17. TB-Add-8: Per-item Context evidence binding — every item Context field that references a code surface includes a file:line citation OR an `<!-- evidence-absence: ... -->` justified-absence comment. Structurally proves PR-01's "no specific paths" rule is confined to the header (INV-015 scope-confinement).
+
 OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-report.md
 
 Write the file IMMEDIATELY with a header, then append findings incrementally.
@@ -930,6 +1011,8 @@ After structural QA passes, validate that the task file would actually succeed i
 
 **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
 
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the entire "Items Reviewed" PASS/FAIL table verbatim and embed it in the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section. The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or malformed, omit the section and let rf-qa-qualitative fall back to its standalone behavior (passthrough is an optimization, never a dependency).
+
 **QA prompt:**
 ```
 QA_PHASE: task-qualitative
@@ -938,6 +1021,29 @@ fix_authorization: true
 TASK FILE: [path to the task file]
 RESEARCH DIR: ${TASK_DIR}research/
 TRACK GOAL: [goal for this track]
+
+## Inherited Structural Verdict (rf-qa A.10 output — DO NOT re-verify)
+[Verbatim embed of rf-qa's "Items Reviewed" table from
+qa/qa-task-validation-report.md. On each fix-cycle re-spawn the
+orchestrator re-injects the freshly-written verdict (INV-002).]
+
+Items marked PASS by rf-qa are machine-verified. Do NOT re-verify
+section numbering, frontmatter shape, item structure, or any TB-Add-*
+structural check that rf-qa already PASSED. Focus on semantic quality
+(scope, audience, logical flow, contradictions, evidence sufficiency,
+the 5 Adversarial Axes per your task-qualitative checklist).
+
+Items marked FAIL by rf-qa are machine-verified defects. Flag them as
+HIGH severity in your own report — they remain blockers regardless of
+how qualitative review proceeds.
+
+ANTI-INFLATION RULE: rf-qa PASS items skip structural re-checking but
+each SEMANTIC check requires your own tool engagement. Reliance is not
+verification. Your Self-Audit MUST list (a) which rf-qa PASS items you
+relied on and (b) at least one semantic check where rf-qa PASS was
+INSUFFICIENT and your own tool work was required (e.g., section content
+quality vs. section numbering — rf-qa verifies the number, you verify
+the prose) (INV-019).
 
 TARGET FILES (verify ALL — no spot-checking):
 [list every unique source file path from checklist items]
@@ -961,6 +1067,13 @@ INSTRUCTIONS:
 Apply the 15-item Task File Qualitative Review checklist from your agent
 definition. For each checklist item that requires reading source code, read
 the ACTUAL target files — do not rely on research file summaries alone.
+
+Apply the 5 Adversarial Axes (PR-07) as a sharpening overlay across all
+15 checks: drift, contradictions, omissions, weakened-criteria,
+invented-content. Annotate every FAIL finding with the most-specific
+axis in the Items Reviewed table's Axis column. The drift axis requires
+a BUILD_REQUEST.GOAL baseline; if no GOAL verbatim is reachable, mark
+drift-axis-inactive and proceed with the other four axes.
 
 For every shell command or make target referenced in checklist items, verify
 its preconditions are satisfied by earlier items or the current repo state.
@@ -1445,6 +1558,14 @@ tags:
 - [Prerequisite 1]
 - [Prerequisite 2]
 
+## Execution Context
+
+<!-- OPTIONAL: emit when BUILD_REQUEST yields enough rollup signal (typically ≥3 inferable source areas). This block is a task-level READING aid; per-item Context fields and research/*.md remain the evidence venue with file:line citations. The block contains NO specific path.py:NN references. Omit any sub-bullet that lacks data; omit the whole block when BUILD_REQUEST is GOAL-only. -->
+
+- **References:** [BUILD_REQUEST GOAL verbatim; WHY summary; related-doc IDs]
+- **Source areas:** [named modules/packages — e.g., "rf-qa agent prompts", "task-builder skill body" — NEVER specific file:line paths]
+- **Key constraints:** [top 1-3 invariants from QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS or research findings]
+
 ---
 
 ## Phase 1: [Phase Name]
@@ -1505,6 +1626,14 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - [ ] Task completion items inside final phase (anti-orphaning)
 - [ ] Task Log section present at bottom
 - [ ] Reasonable item count for scope
+- [ ] TB-Add-1: No `TBD`/`TODO`/`FIXME` tokens and no title-only items (5-field schema enforced)
+- [ ] TB-Add-2: Item count within bounds (track ≥3/≤40; single-track ≥3/≤50) — ADVISORY-fail until calibrated
+- [ ] TB-Add-3: Each blocked item references its blocking Open Question by index in Context
+- [ ] TB-Add-4: Item-to-item dependencies form a DAG (no circular item-level references)
+- [ ] TB-Add-5: XL/multi-file items either split into subtasks or carry justifying comment
+- [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
+- [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
+- [ ] TB-Add-8: Every per-item Context referencing a code surface carries a file:line citation OR an `<!-- evidence-absence: ... -->` comment (PR-01 INV-015 scope-confinement)
 
 ---
 
@@ -1537,7 +1666,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 6. **Report all uncertainty.** If something is unclear, ambiguous, or requires judgment, document it in Open Questions. Do not silently pick one interpretation and present it as fact.
 
-7. **Quality gates are mandatory.** rf-analyst + rf-qa MUST be spawned at the research gate. Do not skip verification to save time. Uncaught errors compound — bad research becomes a bad task file.
+7. **Quality gates are mandatory.** rf-analyst + rf-qa MUST be spawned at the research gate. Do not skip verification to save time. Uncaught errors compound — bad research becomes a bad task file. Every retry loop (research gate, A.10, A.10.5, RESEARCH_NEEDED, MALFORMED, per-gate cycles inside rf-task-builder and rf-qa) is governed by the **Retry Monotonicity Protocol** (PR-02) — monotonicity guard + regression detection halt oscillation BEFORE the existing iteration cap fires. The protocol is part of zero-trust QA; the guards strengthen the gate, never loosen it.
 
 8. **No one-shotting files.** Every file creation follows incremental writing: Write header first, Edit to append sections. NEVER accumulate content in context and attempt a single large Write.
 

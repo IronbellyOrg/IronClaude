@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/TDD_TASK_BUILDER_CONVERGENCE.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "tdd",
+  "spec_hash": "88474b761b6c0f9d03e056c820512cc0cd5b76f93f504d9bb2f4a9ce9e9a1c65",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-05-15T15:51:50.159449+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/extraction.md",
+      "started_at": "2026-05-15T15:10:30.040586+00:00",
+      "completed_at": "2026-05-15T15:18:44.269768+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap-opus-architect.md",
+      "started_at": "2026-05-15T15:18:44.294360+00:00",
+      "completed_at": "2026-05-15T15:31:55.564486+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap-haiku-architect.md",
+      "started_at": "2026-05-15T15:18:44.294549+00:00",
+      "completed_at": "2026-05-15T15:26:23.529545+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/diff-analysis.md",
+      "started_at": "2026-05-15T15:31:55.571063+00:00",
+      "completed_at": "2026-05-15T15:33:00.757462+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/debate-transcript.md",
+      "started_at": "2026-05-15T15:33:00.758133+00:00",
+      "completed_at": "2026-05-15T15:34:20.956024+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/base-selection.md",
+      "started_at": "2026-05-15T15:34:20.956388+00:00",
+      "completed_at": "2026-05-15T15:35:31.149843+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md",
+      "started_at": "2026-05-15T15:35:31.150670+00:00",
+      "completed_at": "2026-05-15T15:46:07.398795+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/anti-instinct-audit.md",
+      "started_at": "2026-05-15T15:46:07.412781+00:00",
+      "completed_at": "2026-05-15T15:46:07.464726+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/test-strategy.md",
+      "started_at": "2026-05-15T15:46:07.464874+00:00",
+      "completed_at": "2026-05-15T15:47:58.660149+00:00"
+    },
+    "spec-fidelity": {
+      "status": "FAIL",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/spec-fidelity.md",
+      "started_at": "2026-05-15T15:47:58.661666+00:00",
+      "completed_at": "2026-05-15T15:51:49.342209+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/wiring-verification.md",
+      "started_at": "2026-05-15T15:51:49.342325+00:00",
+      "completed_at": "2026-05-15T15:51:50.159199+00:00"
+    }
+  },
+  "fidelity_status": "fail"
+}

@@ -1,0 +1,22 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 1a5a57a..e69db7d 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -48,8 +48,6 @@ src/superclaude/         # Pytest plugin + CLI tools
+ tests/                   # Python test suite
+ docs/                    # Documentation
+ scripts/                 # Analysis tools (workflow metrics, A/B testing)
+-PLANNING.md              # Architecture, absolute rules
+-TASK.md                  # Current tasks
+ KNOWLEDGE.md             # Accumulated insights
+ ```
+ 
+@@ -222,8 +220,6 @@ git worktree remove ../SuperClaude_Framework-integration
+ 
+ ## 📝 Key Documentation Files
+ 
+-**PLANNING.md** - Architecture, design principles, absolute rules
+-**TASK.md** - Current tasks and priorities
+ **KNOWLEDGE.md** - Accumulated insights and troubleshooting
+ 
+ Additional docs in `docs/user-guide/`, `docs/developer-guide/`, `docs/reference/`

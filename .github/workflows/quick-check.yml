@@ -44,6 +44,14 @@ jobs:
         run: |
           pytest --trace-config 2>&1 | grep -q "superclaude"
 
+      - name: Verify component sync (src/ ↔ .claude/)
+        run: |
+          make verify-sync
+
+      - name: Lint architecture policy
+        run: |
+          make lint-architecture
+
       - name: Summary
         if: success()
         run: |
@@ -52,3 +60,5 @@ jobs:
           echo "  - Linting: PASSED"
           echo "  - Formatting: PASSED"
           echo "  - Plugin: LOADED"
+          echo "  - Component sync: PASSED"
+          echo "  - Architecture policy: PASSED"

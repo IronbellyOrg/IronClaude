@@ -1,0 +1,1 @@
+Applied a minimal additive fix for finding 3e4c9f76934ade12: added a "Modified Path Roots" subsection under Resource Requirements that explicitly enumerates `src/` as the spec-manifest path root, with every FR-CONV.X edit resolving under it. No existing content modified.

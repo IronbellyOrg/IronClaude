@@ -32,6 +32,18 @@ Generic, reusable command implementing a structured adversarial debate, comparis
 /sc:adversarial --pipeline @pipeline.yaml [options]
 ```
 
+## Prerequisites (before Step 1)
+
+**Purpose**: Validate environment and inputs before expensive work begins. Fail fast before any delegation occurs.
+
+**Behavioral Instructions**:
+
+1. **Output-path policy guard (refuse before any write)**: Inspect the resolved `--output` path. If it matches any of the forbidden prefixes — `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` (including absolute, relative, or repo-rooted forms of those paths) — STOP **before any artifact is written**: "Refusing --output under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/`. These prefixes are reserved for distributable components. Redirect eval/iteration workspaces and adversarial artifacts to `.dev/` (e.g., `.dev/eval-workspaces/<skill-name>/` or `.dev/releases/current/<release-name>/`). See `.dev/README.md` for the canonical destination rule." This check must run BEFORE Step 1 begins and before any file is created in the output directory.
+2. Validate input files (Mode A: `--compare` files exist and are readable; Mode B: `--source` exists and `--agents` parses). Fail fast on missing inputs.
+3. Validate output directory is writable; create if needed (only AFTER the policy guard above has passed).
+
+**Exit Criteria**: All prerequisites validated. Emit: "Prerequisites validated."
+
 ## Triggers
 
 - Explicit: `/sc:adversarial --compare ...` or `/sc:adversarial --source ...`
@@ -380,6 +392,11 @@ Default (non-interactive): All decisions auto-resolved with rationale documented
 
 ```yaml
 error_handling:
+  output_path_forbidden:
+    condition: "--output resolves under .claude/skills/, .claude/agents/, or .claude/commands/ (absolute, relative, or repo-rooted)"
+    behavior: "STOP in Prerequisites BEFORE any write: emit refusal naming the three forbidden prefixes and redirect to .dev/"
+    redirect: ".dev/eval-workspaces/<skill-name>/ or .dev/releases/current/<release-name>/ (see .dev/README.md)"
+
   agent_failure:
     behavior: "Retry once, then proceed with N-1 variants"
     constraint: "Minimum 2 variants required"

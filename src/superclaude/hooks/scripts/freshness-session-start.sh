@@ -85,6 +85,31 @@ build_context() {
     }
 }
 
+# Auggie-first state-side-effects (no envelope output).
+# auggie-first-hook-proposal-v2.1.md: GC on startup, sticky on resume.
+if [ "${AUGGIE_FIRST_DISABLE:-0}" != "1" ]; then
+    mkdir -p "$STATE_DIR/auggie-first-pending" "$STATE_DIR/auggie-no-warn" 2>/dev/null || true
+
+    if [ "$SOURCE" = "startup" ]; then
+        (
+            find "$STATE_DIR/auggie-first-pending" -maxdepth 1 -type f -mtime +30 -delete 2>/dev/null
+            find "$STATE_DIR/auggie-no-warn"      -maxdepth 1 -type f -mtime +180 -delete 2>/dev/null
+        ) &
+    fi
+
+    if [ "$SOURCE" = "resume" ] && [ "$SESSION_ID" != "unknown" ] && [ -n "$SESSION_ID" ]; then
+        AUGGIE_REG=false
+        if [ -r "$HOME/.claude.json" ] && command -v jq >/dev/null 2>&1; then
+            if jq -e '.mcpServers // {} | has("auggie")' "$HOME/.claude.json" >/dev/null 2>&1; then
+                AUGGIE_REG=true
+            fi
+        fi
+        if [ "$AUGGIE_REG" = true ]; then
+            : > "$STATE_DIR/auggie-first-pending/$SESSION_ID.txt" 2>/dev/null || true
+        fi
+    fi
+fi
+
 CONTEXT=$(build_context "$SOURCE" 2>/dev/null || echo "<session-context source=\"$SOURCE\">ts=$NOW_ISO</session-context>")
 
 jq -nc --arg ctx "$CONTEXT" '{

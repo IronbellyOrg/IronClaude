@@ -1,4 +1,4 @@
-.PHONY: install test test-plugin doctor verify clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture uninstall-legacy help
+.PHONY: install test test-plugin doctor verify clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill uninstall-legacy help
 
 # Installation (local source, editable) - RECOMMENDED
 install:
@@ -174,10 +174,15 @@ verify-sync:
 		fi; \
 	done; \
 	for skill_dir in .claude/skills/*/; do \
+		[ -d "$$skill_dir" ] || continue; \
 		name=$$(basename "$$skill_dir"); \
 		case "$$name" in __*) continue;; esac; \
 		if [ ! -d "src/superclaude/skills/$$name" ]; then \
-			echo "  ❌ MISSING in src/superclaude/skills/: $$name (not distributable!)"; \
+			if [ ! -f "$$skill_dir/SKILL.md" ] && [ ! -f "$$skill_dir/skill.md" ]; then \
+				echo "  ❌ $$name has no SKILL.md — not a skill, must not live in .claude/skills/. Move to .dev/eval-workspaces/$$name/."; \
+			else \
+				echo "  ❌ MISSING in src/superclaude/skills/: $$name (not distributable!)"; \
+			fi; \
 			drift=1; \
 		fi; \
 	done; \
@@ -330,6 +335,20 @@ lint-architecture:
 	done; \
 	\
 	echo ""; \
+	echo "=== Check 10: Workspace Suffix Blocklist ==="; \
+	workspace_hits=0; \
+	for d in .claude/skills/*-workspace/; do \
+		[ -d "$$d" ] || continue; \
+		name=$$(basename "$$d"); \
+		echo "  ❌ ERROR [Check 10]: $$name — Workspace directories belong under \`.dev/eval-workspaces/\`, not \`.claude/skills/\`."; \
+		errors=$$((errors+1)); \
+		workspace_hits=$$((workspace_hits+1)); \
+	done; \
+	if [ "$$workspace_hits" -eq 0 ]; then \
+		echo "  ✅ [Check 10]: no *-workspace directories under .claude/skills/"; \
+	fi; \
+	\
+	echo ""; \
 	echo "=== Checks 5/7: NEEDS DESIGN (skipped) ==="; \
 	echo "  ℹ️  Check 5 (inline protocol detection) — pending design"; \
 	echo "  ℹ️  Check 7 (activation references correct skill) — pending design"; \
@@ -345,6 +364,16 @@ lint-architecture:
 		echo "  ✅ PASS — architecture policy compliant ($$warnings warning(s))"; \
 		exit 0; \
 	fi
+
+# Create a skill eval workspace under .dev/eval-workspaces/<SKILL>/ and print its absolute path.
+# Usage: make eval-skill SKILL=<name>
+eval-skill:
+	@if [ -z "$(SKILL)" ]; then \
+		echo "❌ Error: SKILL is unset. Usage: make eval-skill SKILL=<name>" >&2; \
+		exit 1; \
+	fi
+	@mkdir -p .dev/eval-workspaces/$(SKILL)
+	@realpath .dev/eval-workspaces/$(SKILL)
 
 # Show help
 help:
@@ -366,6 +395,7 @@ help:
 	@echo "  make sync-dev        - Sync src/ → .claude/ for local development"
 	@echo "  make verify-sync     - Check src/ and .claude/ are in sync (CI-friendly)"
 	@echo "  make lint-architecture - Enforce architecture policy (6 of 10 checks)"
+	@echo "  make eval-skill SKILL=<name> - Create .dev/eval-workspaces/<name>/ and print absolute path"
 	@echo ""
 	@echo "🔌 Plugin Packaging:"
 	@echo "  make build-plugin    - Build SuperClaude plugin artefacts into dist/"

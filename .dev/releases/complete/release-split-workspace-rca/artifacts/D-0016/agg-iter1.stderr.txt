@@ -1,0 +1,17 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Traceback (most recent call last):
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts/aggregate_benchmark.py", line 401, in <module>
+    main()
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts/aggregate_benchmark.py", line 370, in main
+    benchmark = generate_benchmark(args.benchmark_dir, args.skill_name, args.skill_path)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts/aggregate_benchmark.py", line 231, in generate_benchmark
+    results = load_run_results(benchmark_dir)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts/aggregate_benchmark.py", line 101, in load_run_results
+    for config_dir in sorted(eval_dir.iterdir()):
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/config/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1056, in iterdir
+    for name in os.listdir(self):
+                ^^^^^^^^^^^^^^^^
+NotADirectoryError: [Errno 20] Not a directory: '.dev/eval-workspaces/sc-release-split-protocol/iteration-1/eval-review.html'

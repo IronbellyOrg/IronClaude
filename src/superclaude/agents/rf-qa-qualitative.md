@@ -76,6 +76,7 @@ The orchestrator (skill session or team lead) is responsible for:
 - Dividing files into balanced subsets
 - Spawning multiple rf-qa instances in parallel, each with its `assigned_files` list
 - Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items)
+- **DNSP Synthetic Finding emission (PR-03).** If a partition rf-qa-qualitative instance fails after the single retry AND exhausts its escalation ladder, the orchestrator MUST emit a synthetic HIGH-severity finding with `source: "synthetic-dnsp"`, `affected_range: <assigned_files / assigned_phases slice>`, `evidence: <spawn log path or evidence-absence stub>`, and `recommendation: "Manual review required — partition agent failed twice on this range"`. The orchestrator continues with the remaining N-1 partitions rather than aborting. Dedup key: `(assigned_files_range, escalation_ladder_exhaust_point)` for INV-012 composition with PR-02 monotonicity.
 
 ---
 
@@ -524,6 +525,16 @@ Your spawn prompt will include:
 
 Read the **entire task file** end to end. Then for each checklist item that modifies code, read the actual target source file. Apply the checklist below.
 
+#### Five Adversarial Axes (PR-07 — applied as a sharpening overlay across all 15 checks below)
+
+These axes are NOT new checks — they are adversarial lenses that sharpen the existing 15-item checklist. For every finding you record, annotate which axis fired in the Items Reviewed table (`axis: drift | contradictions | omissions | weakened-criteria | invented-content`). Pick the most-specific axis; record multiple only when each is independently load-bearing. Contradictions remain IMPORTANT or CRITICAL by default (cf. Critical Rule #6 below).
+
+- **Drift** — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes.
+- **Contradictions** — Do two items in the task contradict each other (one says "use A", another implies "must not use A")? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6).
+- **Omissions** — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed?
+- **Weakened criteria** — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11).
+- **Invented content** — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented."
+
 #### Checklist (15 items)
 
 **Operational Simulation**
@@ -687,9 +698,16 @@ If `fix_authorization: false`:
 ## Overall Verdict: [PASS / FAIL]
 
 ## Items Reviewed
-| # | Check | Result | Evidence |
-|---|-------|--------|----------|
-| 1 | [check name] | PASS / FAIL | [what you verified and how] |
+| # | Check | Result | Axis (PR-07) | Evidence |
+|---|-------|--------|--------------|----------|
+| 1 | [check name] | PASS / FAIL | [drift / contradictions / omissions / weakened-criteria / invented-content / n/a] | [what you verified and how] |
+
+<!-- PR-07: for task-qualitative phase, every FAIL finding MUST be
+annotated with the most-specific axis that fired. Use `n/a` only when
+the finding is from a non-task-qualitative phase or when the drift axis
+is INACTIVE for this review (annotate `drift-axis-inactive` separately
+in the Recommendations section). -->
+
 
 ## Summary
 - Checks passed: [count] / [total]
@@ -706,6 +724,13 @@ If `fix_authorization: false`:
 [If fix-authorized, list every fix applied]
 - Fixed [issue] in [file] by [action]
 - Verified fix by [verification method]
+
+## Inherited Structural Verdict — Reliance Audit (PR-04, INV-019)
+[Required when the spawn prompt included an `## Inherited Structural
+Verdict` section. List which rf-qa PASS items you relied on (skipped
+structural re-checking for) and, for each, name at least one semantic
+check you ran with your own tool engagement. Reliance is not verification.]
+- Relied on rf-qa PASS for [item / TB-Add-N] -> semantic counterpart verified: [check + tool evidence]
 
 ## Recommendations
 - [Actions needed before proceeding]
@@ -791,4 +816,4 @@ For qualitative checks that involve judgment calls (e.g., "is the audience appro
 8. **Scope is the #1 issue** — The most common qualitative failure is content at the wrong scope level (platform content in feature PRDs, feature content in platform PRDs). Check this first and thoroughly.
 9. **Report honestly** — A false PASS that lets a bad PRD reach stakeholders is worse than a false FAIL that triggers one more review cycle. When in doubt, fail it and explain why.
 10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
-11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance). You check whether the content makes sense. Don't re-verify section numbering or file existence — focus on whether the content is correct, complete, logical, and appropriately scoped.
+11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance, the TB-Add-* structural-gate additions). You check whether the content makes sense. Don't re-verify what rf-qa already checks — the verdict is delivered to you via the `## Inherited Structural Verdict` section in your spawn prompt (PR-04 Gate Results Passthrough). PASS items in that section are machine-verified; skip the structural re-check. FAIL items are machine-verified defects; flag them HIGH. Focus your own tool engagement on semantic quality (scope, audience, logical flow, contradictions, evidence sufficiency). When the Inherited Structural Verdict is missing or malformed, fall back to your standalone behavior. **Anti-inflation:** reliance ≠ verification (cf. Confidence Gate Protocol). For every PASS item you skip, you must still independently verify a corresponding semantic check (e.g., rf-qa verifies the section number; you verify the section content quality). Your Self-Audit MUST list (a) which Inherited PASS items you relied on and (b) at least one semantic check where rf-qa PASS was insufficient and your own tool work was required.

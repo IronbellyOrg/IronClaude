@@ -123,6 +123,7 @@ Part 4: Fidelity Verification            → /sc:analyze
 
 1. Validate spec file exists and is readable (Read tool). If empty (0 bytes), STOP: "Specification file is empty." If < 5 lines, WARN but proceed.
 2. Validate output directory is writable; create if needed.
+2a. **Output-path policy guard (refuse before any write)**: Inspect the resolved `--output` path. If it matches any of the forbidden prefixes — `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` (including absolute, relative, or repo-rooted forms of those paths) — STOP **before any artifact is written**: "Refusing --output under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/`. These prefixes are reserved for distributable components. Redirect eval/iteration workspaces and split artifacts to `.dev/` (e.g., `.dev/releases/current/<release-name>/` or `.dev/eval-workspaces/<skill-name>/`). See `.dev/README.md` for the canonical destination rule." This check must run BEFORE Part 1 begins and before any file is created in the output directory.
 3. If `--agents` provided:
    - Parse agent specs using the canonical algorithm from sc:adversarial-protocol SKILL.md
    - Validate agent count: 2-10. If out of range, STOP: "Agent count must be 2-10. Provided: N"
@@ -412,6 +413,7 @@ The skill returns these fields to the calling context:
 |-----------|--------|
 | Spec file not found | STOP with error message |
 | Spec file empty | STOP with error message |
+| `--output` under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` | STOP in Prerequisites step 2a BEFORE any write: emit refusal naming the three forbidden prefixes and redirect to `.dev/` |
 | < 3 extractable requirements | STOP: "Insufficient scope items for split analysis" |
 | Brainstorm skill unavailable | Fallback: perform discovery inline without delegation |
 | Adversarial skill unavailable | STOP: "sc:adversarial required for Part 2. Install via: superclaude install" |

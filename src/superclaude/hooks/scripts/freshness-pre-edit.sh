@@ -74,8 +74,17 @@ REASON="recent_read"
 READ_AGE="null"
 
 if [ "$LAST_READ_TS_UNIX" -le 0 ] 2>/dev/null; then
-    DECISION="block"
-    REASON="no_prior_read"
+    # NFR-3 fail-open: a Write/Edit to a path that does not yet exist is a
+    # create, not an edit. The freshness gate is meaningless when there is
+    # no prior state to be stale relative to. Resolves F10 from
+    # .dev/releases/complete/freshness-system/checkpoints/CP-P05-T05.01.md.
+    if [ ! -e "$TARGET" ]; then
+        DECISION="allow"
+        REASON="create_allowed"
+    else
+        DECISION="block"
+        REASON="no_prior_read"
+    fi
 else
     # 5. Δ
     DELTA=$((NOW_UNIX - LAST_READ_TS_UNIX))

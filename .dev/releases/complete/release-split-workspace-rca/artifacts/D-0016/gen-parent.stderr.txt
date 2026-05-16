@@ -1,0 +1,10 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Traceback (most recent call last):
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/eval-viewer/generate_review.py", line 471, in <module>
+    main()
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/eval-viewer/generate_review.py", line 411, in main
+    runs = find_runs(workspace)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/config/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/eval-viewer/generate_review.py", line 64, in find_runs
+    runs.sort(key=lambda r: (r.get("eval_id", float("inf")), r["id"]))
+TypeError: '<' not supported between instances of 'int' and 'NoneType'
