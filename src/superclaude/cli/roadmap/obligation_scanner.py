@@ -81,6 +81,15 @@ _TABLE_CELL_IMPERATIVE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Layer 3 (Stage 2) — table-row classification:
+# Matches markdown table SEPARATOR rows only (e.g., `|---|---|`,
+# `| :--- | ---: |`, `| :---: |`). Data rows like
+# `| 2.2.1 | Scaffold cmd | FR-001 |` must NOT match — they should reach
+# Layer 3a/3b detectors. The old `stripped_context.startswith("|")` guard
+# at scan_obligations() collapsed BOTH separator and data rows into the
+# `continue` branch, killing Layer 3 reachability for table-cell fixtures.
+_TABLE_SEPARATOR_RE = re.compile(r"^\s*\|(\s*:?-+:?\s*\|)+\s*$")
+
 # Layer 3b: Parenthetical phase/step label (requires multi-word content)
 # Matches: "(command scaffolding)", "(Phase 2 mocking)", "(stubbed layer)" etc.
 # Bare "(scaffold)" or "(mock)" stay HIGH — those are genuine qualifiers, not labels.
@@ -172,7 +181,7 @@ def scan_obligations(content: str) -> ObligationReport:
             if (
                 stripped_context.startswith("## ")
                 or stripped_context.startswith("### ")
-            ) or stripped_context.startswith("|"):
+            ) or _TABLE_SEPARATOR_RE.match(stripped_context):
                 continue
 
             # Skip phase objective paragraphs — these are declarative
@@ -210,15 +219,33 @@ def scan_obligations(content: str) -> ObligationReport:
             # later. Only flag when used as the direct object of an imperative
             # verb (e.g., "Build scaffolding", "Set up scaffolding", "Stand up
             # scaffolding") which indicates a deliberate temporary artifact.
+            #
+            # T3.3 gate-reorder: consult ``_is_meta_context`` FIRST. When the
+            # term sits inside a Layer 3a table cell (`|...| Scaffold X |`),
+            # a Layer 3b parenthetical phase label (`(command scaffolding)`),
+            # or a shell/negation/risk meta-context, let it through to be
+            # demoted to MEDIUM downstream. Only fire the imperative-verb
+            # `continue` when we're outside any meta-context, which preserves
+            # the original descriptive-prose suppression contract (commit
+            # 4799719).
+            #
+            # T3.1 regex widening: the imperative regex now tolerates an
+            # optional single bracket character between the verb and the
+            # scaffold term so fixtures like `Build the (scaffold) component`
+            # surface a HIGH obligation as Layer 3b's docstring contract at
+            # `_PAREN_PHASE_LABEL_RE` (bare parenthetical) requires.
             if term.lower().startswith("scaffold"):
-                imperative_before = re.search(
-                    r"\b(?:build|create|set\s+up|generate|write|add|implement|stand\s+up)\s+\w*\s*"
-                    + re.escape(term),
-                    context_line,
-                    re.IGNORECASE,
-                )
-                if not imperative_before:
-                    continue
+                line_start = phase_content.rfind("\n", 0, match.start()) + 1
+                term_start_in_line = match.start() - line_start
+                if not _is_meta_context(context_line, term_start_in_line):
+                    imperative_before = re.search(
+                        r"\b(?:build|create|set\s+up|generate|write|add|implement|stand\s+up)\s+(?:\w+\s+)?[\(\[\"'`]?"
+                        + re.escape(term),
+                        context_line,
+                        re.IGNORECASE,
+                    )
+                    if not imperative_before:
+                        continue
 
             # "hardcoded" describing a deliberate config value (e.g.,
             # "bcrypt cost factor (12)" or "hardcoded default") is not an obligation.
@@ -441,7 +468,16 @@ def _extract_component_context(text: str, pos: int) -> str:
         }:
             return candidate
 
-    # Priority 4: capitalized multi-word terms (e.g., "Executor Skeleton")
+    # Priority 4: capitalized multi-word terms (e.g., "Executor Skeleton"),
+    # rejecting common field-label words and the line's own label prefix
+    # (e.g., the "Personnel" in "Personnel: auth-team owns scaffolding").
+    # Restoring three local-variable assignments dropped by merge commit
+    # 3ac7bb6 — see f336da1:src/superclaude/cli/roadmap/obligation_scanner.py
+    # lines 358-360 for the original source.
+    line = _get_context_line(text, pos)
+    label_match = _FIELD_LABEL_LINE_RE.match(line)
+    line_label = label_match.group(1).strip().lower() if label_match else None
+
     cap_terms = re.findall(r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*", window)
     for term in cap_terms:
         t = term.strip().lower()
