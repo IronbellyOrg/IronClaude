@@ -1086,6 +1086,7 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 - **PASS** → Proceed to A.10.5 (qualitative validation)
 - **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.10.5.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+- **No verdict emitted (report file absent OR present but no `VERDICT:` line OR `VERDICT:` value not `PASS`/`FAIL`)** → **HALT. Do NOT spawn rf-qa-qualitative.** This operationalises the DM-005 `failure_mode: halt-A.10-before-A.10.5` lever (A.10.6, row 7). The PR-04 passthrough cannot inject a verdict that does not exist; the consumer's anti-inflation enforcement at `rf-qa-qualitative.md:766-775` requires an enumerated PASS/FAIL checklist that only the producer can publish, so proceeding without a verdict would force the consumer to fabricate verification state (an INV-019 / Self-Audit violation by construction). The orchestrator MUST: (a) check `${TASK_DIR}qa/qa-task-validation-report.md` exists on disk; (b) if absent, log `INV-002-no-producer-artifact halt-A.10-before-A.10.5 task=${TASK_DIR}` and surface the missing-report path to the user; (c) if present, grep for `^VERDICT: (PASS|FAIL)` (case-sensitive, line-anchored); if zero matches, log `INV-002-no-verdict-line halt-A.10-before-A.10.5 task=${TASK_DIR} report=${REPORT_PATH}` and surface the malformed-report path to the user with instruction to re-run rf-qa. In both cases, the pipeline stops at end-of-A.10; control does NOT pass to A.10.5; rf-qa-qualitative is NEVER invoked for that task on that cycle. The user resumes the pipeline only after rf-qa is re-run and emits a well-formed `VERDICT:` line (at which point the orchestrator restarts from "Handling the verdict" above and routes via the PASS / FAIL-with-fixes / FAIL-unfixable branch).
 
 ### A.10.5: Task File Qualitative Validation
 
@@ -1097,7 +1098,7 @@ After structural QA passes, validate that the task file would actually succeed i
 
 **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
 
-**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the entire "Items Reviewed" PASS/FAIL table verbatim and embed it in the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section. The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or malformed, omit the section and let rf-qa-qualitative fall back to its standalone behavior (passthrough is an optimization, never a dependency).
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`## `) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
 
 **QA prompt:**
 ```
@@ -1107,6 +1108,22 @@ fix_authorization: true
 TASK FILE: [path to the task file]
 RESEARCH DIR: ${TASK_DIR}research/
 TRACK GOAL: [goal for this track]
+
+TARGET FILES (verify ALL — no spot-checking):
+[list every unique source file path from checklist items]
+
+PROJECT CONVENTIONS:
+[Include any project-specific patterns discovered during research that affect
+whether items will succeed. Examples:
+- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
+  src/ → .claude/. make verify-sync fails if .claude/ has dirs with no src/
+  counterpart."
+- Build gates: "make lint runs ESLint with --max-warnings 0"
+- Test location: "Tests go in tests/ using pytest. The project does not use
+  inline python -c scripts for testing."
+- CI requirements: "Pre-commit hooks run ESLint + Prettier on staged files"
+Pull these from CLAUDE.md and research files. If no project-specific
+conventions were discovered, state "None identified."]
 
 ## Inherited Structural Verdict (rf-qa A.10 output — DO NOT re-verify)
 [Verbatim embed of rf-qa's "Items Reviewed" table from
@@ -1130,22 +1147,6 @@ relied on and (b) at least one semantic check where rf-qa PASS was
 INSUFFICIENT and your own tool work was required (e.g., section content
 quality vs. section numbering — rf-qa verifies the number, you verify
 the prose) (INV-019).
-
-TARGET FILES (verify ALL — no spot-checking):
-[list every unique source file path from checklist items]
-
-PROJECT CONVENTIONS:
-[Include any project-specific patterns discovered during research that affect
-whether items will succeed. Examples:
-- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
-  src/ → .claude/. make verify-sync fails if .claude/ has dirs with no src/
-  counterpart."
-- Build gates: "make lint runs ESLint with --max-warnings 0"
-- Test location: "Tests go in tests/ using pytest. The project does not use
-  inline python -c scripts for testing."
-- CI requirements: "Pre-commit hooks run ESLint + Prettier on staged files"
-Pull these from CLAUDE.md and research files. If no project-specific
-conventions were discovered, state "None identified."]
 
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
@@ -1197,6 +1198,31 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
 
 Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected task file sections. If issues remain unfixed, address ALL of them before proceeding to A.11. Zero leniency — no severity level is exempt.
+
+**Fix-cycle re-entry (INV-002 freshness — stale-verdict rejection):** Any re-entry into A.10.5 — whether triggered by an A.10 producer fix-cycle (rf-qa re-ran and rewrote `${TASK_DIR}qa/qa-task-validation-report.md`), an A.10.5 consumer fix-cycle (rf-qa-qualitative re-spawn after task-file edits), or any external orchestrator-driven re-run — MUST execute the following procedure BEFORE re-issuing the Agent spawn call. Skipping the procedure and re-using a verdict block from the prior cycle is forbidden (INV-002).
+
+1. **Discard cached state.** If the orchestrator memoised any of `(a)` the prior cycle's extracted "Items Reviewed" span, `(b)` the prior cycle's TB-Add-* enumeration snapshot, `(c)` the prior cycle's assembled `## Inherited Structural Verdict` block, or `(d)` the prior cycle's fully-rendered QA prompt string, it MUST drop them. No cached artifact from cycle N may participate in cycle N+1's spawn.
+2. **Re-read the producer artifact from disk.** Re-stat `${TASK_DIR}qa/qa-task-validation-report.md` (capture `mtime` and `sha256` as the freshness witness) and re-open it. If the witness equals the prior cycle's witness, the producer did not re-run between cycles — log a `stale-producer` warning but proceed; freshness is enforced by re-extraction, not by mtime comparison alone. If the witness differs, the file is confirmed fresh.
+3. **Re-extract the "Items Reviewed" span contiguously.** Apply the same single-span extraction rule from the directive above (between the `## Items Reviewed` heading and the next top-level `## ` heading). Do NOT reuse the prior cycle's extraction even if the surrounding file appears unchanged — re-extract every time.
+4. **Re-enumerate the TB-Add-* catalogue (INV-010).** Re-read `rf-qa.md`'s live checklist and re-pull the TB-Add-* IDs. Do NOT reuse the prior cycle's enumeration snapshot.
+5. **Re-assemble and re-splice.** Build the new `## Inherited Structural Verdict` block from the freshly-extracted span + freshly-enumerated TB-Add-* IDs. Splice it into the spawn prompt at the API-002 wire-contract position (after TARGET FILES + PROJECT CONVENTIONS; before ADVERSARIAL STANCE / INSTRUCTIONS). The cycle N+1 spawn prompt MUST contain the cycle N+1 verdict; a byte-diff of cycle N vs. cycle N+1 at the verdict-table region MUST surface the cycle N+1 content (`grep -A` on `## Inherited Structural Verdict` returns the new span).
+6. **Stale-verdict-rejection (defense-in-depth).** Before issuing the spawn call, compute `sha256` of the new `## Inherited Structural Verdict` block and compare it to a `last_injected_verdict_sha256` ledger entry keyed by `${TASK_DIR}`. If the prior cycle wrote a verdict with a non-zero ledger entry AND the new sha256 equals the prior entry AND the producer-artifact witness in step 2 reports a NEW mtime/sha256, that combination is impossible under a correct re-extract — REJECT the spawn, log an `INV-002-stale-verdict-rejected` error with both witnesses, and re-run steps 2–5. (Equal witnesses + equal block sha256 is the legitimate no-op case when the producer truly did not change; only the contradiction case is rejected.)
+7. **Log the re-extract.** Emit a structured log line `INV-002: re-extracted verdict for ${TASK_DIR} cycle=N+1 producer_mtime=<iso> producer_sha256=<hex8> block_sha256=<hex8>` at every fix-cycle boundary. The log is the operator-visible audit-trail proving the re-extract ran.
+
+This procedure operationalises the `freshness_rule: INV-002-reinject-NEW` field of the DM-005 Phase Contract (A.10.6). The 2-cycle byte-diff fixture (TEST-008, T03.13) consumes log lines from step 7 and the assembled blocks from step 5 as its assertion surface.
+
+**TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup):** The TB-Add-* catalogue is sourced from `rf-qa.md`'s live "Structural Gate Additions" section at runtime — never from a hand-maintained list inside this skill. Every spawn (initial entry **and** every fix-cycle re-entry per step 4 of the freshness procedure above) MUST execute the following procedure to build the enumeration handed to the consumer:
+
+1. **Locate `rf-qa.md`.** Resolve the path via the project's agent registry (canonical surface: `src/superclaude/agents/rf-qa.md`; mirror surface: `.claude/agents/rf-qa.md`). The canonical surface is authoritative; the mirror is consulted only when the canonical surface is unreachable.
+2. **Bound the catalogue region.** Identify the `#### Structural Gate Additions` heading and treat the catalogue region as the span from that heading to the next `####`, `###`, or `##` heading (whichever comes first). Enumeration MUST be confined to this span — TB-Add tokens outside the span (e.g., illustrative references in narrative prose) do NOT contribute to the catalogue.
+3. **Extract IDs.** Within the bounded span, match the regex `^[0-9]+\. \*\*TB-Add-([0-9]+):` (Python `re` flavour, MULTILINE) against the span. Each match yields one TB-Add-N ID via the captured integer N.
+4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
+5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and halt at end-of-A.10 (re-uses the `failure_mode: halt-A.10-before-A.10.5` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
+6. **Forbid hard-coded enumeration in the orchestrator logic.** This A.10.5 procedure block MUST NOT itself enumerate a fixed `[TB-Add-1, …, TB-Add-K]` list as the spawn target. The directive narratives in this section reference the catalogue abstractly (via the dynamic `LIVE_TB_ADD`); only `rf-qa.md` is the source of the live IDs. (Operator self-check: grep for `TB-Add-[0-9]+` inside the A.10.5 span and confirm every match is either a regex pattern, a worked example tagged `illustrative`, or an integrated-checklist reference — never an orchestrator enumeration target.)
+7. **Emit a structured log line.** Write `INV-010: enumerated TB-Add-* catalogue size=K ids=[TB-Add-1,...,TB-Add-K] source=rf-qa.md source_sha256=<hex8>` at every spawn boundary (initial entry and each fix-cycle re-entry). The log is the operator-visible audit-trail and the TEST-010 fixture's (T03.15) assertion surface.
+8. **Auto-richening invariant.** Appending a new `**TB-Add-N+1: <name>` line inside the bounded catalogue region of `rf-qa.md` MUST cause `LIVE_TB_ADD` to grow by exactly one entry on the next spawn — with **zero edits** to this SKILL.md, to orchestrator code, or to any consumer-side configuration. This is the K-007 sequencing-inversion mitigation cited in `roadmap.md` R-069: FR-CONV.1 catalogue additions auto-propagate to the PR-04 passthrough.
+
+This procedure operationalises the `enumeration_rule: INV-010-auto-pick-TB-Add` field of the DM-005 Phase Contract (A.10.6). The structural-diff fixture (TEST-010, T03.15) consumes log lines from step 7 and the LIVE_TB_ADD set assembled in step 4 as its assertion surface — adding a synthetic TB-Add-N+1 stub to `rf-qa.md`'s bounded region and asserting the cycle-2 spawn prompt auto-richens by exactly one TB-Add-N+1 row.
 
 ### A.10.6: DM-005 Phase Contract — rf-qa → rf-qa-qualitative (published row)
 

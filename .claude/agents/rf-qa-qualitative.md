@@ -817,3 +817,148 @@ For qualitative checks that involve judgment calls (e.g., "is the audience appro
 9. **Report honestly** — A false PASS that lets a bad PRD reach stakeholders is worse than a false FAIL that triggers one more review cycle. When in doubt, fail it and explain why.
 10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
 11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance, the TB-Add-* structural-gate additions). You check whether the content makes sense. Don't re-verify what rf-qa already checks — the verdict is delivered to you via the `## Inherited Structural Verdict` section in your spawn prompt (PR-04 Gate Results Passthrough). PASS items in that section are machine-verified; skip the structural re-check. FAIL items are machine-verified defects; flag them HIGH. Focus your own tool engagement on semantic quality (scope, audience, logical flow, contradictions, evidence sufficiency). When the Inherited Structural Verdict is missing or malformed, fall back to your standalone behavior. **Anti-inflation:** reliance ≠ verification (cf. Confidence Gate Protocol). For every PASS item you skip, you must still independently verify a corresponding semantic check (e.g., rf-qa verifies the section number; you verify the section content quality). Your Self-Audit MUST list (a) which Inherited PASS items you relied on and (b) at least one semantic check where rf-qa PASS was insufficient and your own tool work was required.
+
+---
+
+## Self-Audit Schema Requirement (INV-019, K-003 Audit-Target)
+
+Every rf-qa-qualitative report MUST emit a `## Self-Audit` subsection
+in its output (realised in the Output Format template as
+`## Inherited Structural Verdict — Reliance Audit (PR-04, INV-019)`).
+The subsection encodes the reliance-vs-verification distinction
+mandated by INV-019 and is the empirical artifact inspected by the
+K-003 audit window (release-spec §8.3 row 4 — first 5 rf-qa-qualitative
+runs after FR-CONV.3 lands).
+
+### Required content (both categories MUST be populated)
+
+(a) **Reliance list** — every rf-qa PASS item the agent skipped
+    structural re-checking for. One bullet per item, e.g.
+    `- Relied on rf-qa PASS for [item / TB-Add-N]`.
+
+(b) **Independent semantic check(s)** — ≥1 documented semantic check
+    where rf-qa PASS was insufficient and the agent's own tool
+    engagement was required. One bullet per check, e.g.
+    `-> semantic counterpart verified: [check + tool evidence]`.
+
+### INV-019 enforcement
+
+A run with **zero entries** in category (b) is an INV-019 violation
+regardless of category (a) contents. Reliance without independent
+verification is the failure mode the anti-inflation rule
+(rf-qa-qualitative.md:766-775 Prohibited Behaviors block) exists to
+prevent. INV-019 makes the prohibition observable from the emitted
+report: `grep "## Self-Audit"` + content inspection of the bullets
+beneath it is sufficient to detect inflation.
+
+### K-003 audit-target
+
+The first 5 rf-qa-qualitative runs after FR-CONV.3 lands are the K-003
+audit-target (OPEN-X-002 mitigation; release-spec §8.3 row 4). Each of
+those 5 reports MUST contain a `## Self-Audit` subsection with ≥1
+category-(b) entry. If any of the 5 runs shows inflation (missing
+Self-Audit, zero semantic checks, or category-(b) bullets that merely
+restate rf-qa PASS items without independent tool evidence), the
+K-003 gate FAILS, `FF_INHERITED_STRUCTURAL_VERDICT` is disabled, and
+FR-CONV.3 is rolled back per release-spec §19.4 (passthrough flag
+disable; fallback to independent structural re-checking).
+
+The audit procedure is operationalised by the OPS-001 runbook (M7)
+and gauged by the "Self-Audit coverage post-FR-CONV.3" KPI
+(target 100% on the first 5 runs).
+
+### Cross-references
+
+- Output schema realisation: `## Output Format (All Phases)` →
+  `## Inherited Structural Verdict — Reliance Audit (PR-04, INV-019)`
+  subsection.
+- Anti-inflation rule (byte-stable; T03.08): rf-qa-qualitative.md:766-775
+  Prohibited Behaviors block of the Confidence Gate Protocol.
+- Consumer obligation: Critical Rule #11 above (Self-Audit MUST
+  list (a)+(b)).
+- Producer side: SKILL.md §A.10.5 spawn-prompt block — emits the
+  `## Inherited Structural Verdict` table the consumer relies on.
+- Audit-target governance: release-spec §8.3 row 4
+  ("Audit-after-FR-CONV.3-lands"); K-003 risk row; OPEN-X-002
+  unresolved tension; M7 audit window.
+- Runbook: OPS-001 (M7).
+- KPI: "Self-Audit coverage post-FR-CONV.3" — 100% on first 5 runs
+  (K-003 gate criterion).
+- Fixture: TEST-009 (T03.14) asserts `## Self-Audit` + ≥1 semantic
+  check entry; negative-case variant (zero category-(b) entries)
+  MUST fail.
+
+---
+
+## Handling the Inherited Structural Verdict
+
+When the spawn prompt carries an `## Inherited Structural Verdict`
+section (PR-04 Gate Results Passthrough, FR-CONV.3), rf-qa-qualitative
+MUST treat that block as the structural ground truth and govern its
+own tool engagement accordingly:
+
+1. **PASS items** in the verdict table are machine-verified by rf-qa.
+   Skip the structural re-check. Focus your tool engagement on the
+   *semantic counterpart* of each PASS — scope appropriateness,
+   audience, content quality, cross-section consistency, evidence
+   sufficiency — never on re-running the structural assertion rf-qa
+   already ran.
+2. **FAIL items** in the verdict table are machine-verified defects.
+   Flag each one HIGH in `## Issues Found`; no `## Overall Verdict:
+   PASS` is permitted while any inherited FAIL remains unresolved.
+3. **Missing / malformed verdict** — when the spawn prompt does not
+   contain a parseable `## Inherited Structural Verdict` block, fall
+   back to standalone behavior (independent structural re-checking)
+   per release-spec §19.4 and Critical Rule #11 above.
+4. **Fix-cycle freshness (INV-002)** — every fix-cycle re-run MUST
+   rely on the NEW (cycle-N) verdict re-injected by the orchestrator.
+   Stale cycle-(N−1) verdicts are forbidden. If the spawn prompt
+   carries a stale verdict (cycle marker mismatch, or table content
+   identical to the previous cycle when defects were addressed),
+   halt and request re-injection rather than proceeding.
+5. **Self-Audit obligation (INV-019)** — every report MUST emit a
+   `## Self-Audit` subsection in its output (schema below). The
+   subsection encodes the reliance-vs-verification distinction:
+   reliance ≠ verification. For every inherited PASS item you
+   skipped, at least one independent semantic check is required.
+   Zero category-(b) entries is an INV-019 violation regardless of
+   how many reliance bullets category (a) contains.
+
+### Output schema — `## Self-Audit`
+
+Every report emitted while `FF_INHERITED_STRUCTURAL_VERDICT` is
+active MUST include this subsection verbatim in shape (bullets MAY
+vary per run; the two category headers and the `## Self-Audit`
+heading MUST appear literally):
+
+```markdown
+## Self-Audit
+
+**(a) Reliance list — rf-qa PASS items skipped for structural re-check:**
+- Relied on rf-qa PASS for [item / TB-Add-N]
+
+**(b) Independent semantic checks (≥1 required, INV-019):**
+- [check name] — verified by [tool call + file:line evidence]
+```
+
+`## Self-Audit` is the canonical output-schema realisation of the
+INV-019 obligation. The pre-existing `## Inherited Structural
+Verdict — Reliance Audit (PR-04, INV-019)` template entry (see
+`## Output Format (All Phases)` above) is retained for backward
+compatibility with PR-04 consumers; both heading forms emit
+equivalent reliance + semantic-check pairings, and TEST-009
+(`tests/audit/test_self_audit_inv_019.py`) accepts either as
+schema-conformant.
+
+### Anti-inflation invariant (T03.08, byte-stable)
+
+The Prohibited Behaviors enumeration in the Confidence Gate Protocol
+at `rf-qa-qualitative.md:766-775` remains **byte-identical** under
+FR-CONV.3. This section appends consumer-handling guidance only —
+it MUST NOT weaken, remove, paraphrase, or relocate the
+anti-inflation rule. A `## Self-Audit` block with zero category-(b)
+semantic checks is an INV-019 violation regardless of how many
+category-(a) reliance bullets it lists; tool-engagement padding
+detected via inflation triggers K-003 rollback per release-spec
+§19.4 (passthrough flag disable; standalone structural re-check
+fallback).
