@@ -65,11 +65,8 @@ jobs:
         run: |
           # 修正: plugin.json はスクリプトによってMCPマージとして更新されるため、リストから削除しました
           PROTECTED=(
-            "README.md" "README-ja.md" "README-zh.md"
-            "BACKUP_GUIDE.md" "MIGRATION_GUIDE.md" "SECURITY.md"
+            "README.md" "SECURITY.md"
             "CLAUDE.md" "LICENSE" ".gitignore"
-            ".claude-plugin/marketplace.json"
-            "core/" "modes/"
           )
           VIOLATIONS=()
           for path in "${PROTECTED[@]}"; do
@@ -100,7 +97,14 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           # 修正: ルートの plugin.json を追加（MCPの更新をコミットするため）
-          git add commands/ agents/ .claude-plugin/plugin.json plugin.json
+          # PR5: defensively add only paths that exist — this fork's structure
+          # differs from upstream SuperClaude_Plugin; missing paths must not
+          # halt the workflow (was: hard `git add commands/ agents/ ...`).
+          for p in commands/ agents/ .claude-plugin/plugin.json plugin.json; do
+            if [ -e "$p" ]; then
+              git add "$p"
+            fi
+          done
           
           # 修正: .gitignoreによる除外を確実に回避するため -f オプションを付与
           if [ -f "docs/.framework-sync-commit" ]; then
@@ -109,7 +113,7 @@ jobs:
 
           if ! git diff --cached --quiet; then
             git commit -m "chore: automated sync and namespace isolation from framework [$(date +'%Y-%m-%d %H:%M')]"
-            git push origin main
+            git push origin HEAD:master
           else
             echo "No changes detected."
           fi
