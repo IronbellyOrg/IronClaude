@@ -617,7 +617,7 @@ def _update_finding_entries(content: str, status_map: dict[str, str]) -> str:
             # Change - [ ] F-XX | file | STATUS to - [x] F-XX | file | FIXED
             content = re.sub(
                 rf"^(- )\[ \]( {re.escape(finding_id)} \|[^|]*\|)\s*\w+(\s*--)",
-                rf"\1[x]\2 FIXED\3",
+                r"\1[x]\2 FIXED\3",
                 content,
                 flags=re.MULTILINE,
             )
@@ -625,7 +625,7 @@ def _update_finding_entries(content: str, status_map: dict[str, str]) -> str:
             # Keep - [ ] but update status to FAILED
             content = re.sub(
                 rf"^(- \[ \] {re.escape(finding_id)} \|[^|]*\|)\s*\w+(\s*--)",
-                rf"\1 FAILED\2",
+                r"\1 FAILED\2",
                 content,
                 flags=re.MULTILINE,
             )

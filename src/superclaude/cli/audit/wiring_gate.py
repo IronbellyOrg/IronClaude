@@ -876,7 +876,7 @@ def emit_report(report: WiringReport, output_path: Path) -> Path:
             sections.append(f"- **{f.symbol_name}** ({f.finding_type}): suppressed\n")
     else:
         sections.append("No suppressions applied.\n")
-    sections.append(f"- Audit artifacts used: 0\n")
+    sections.append("- Audit artifacts used: 0\n")
 
     # 6. Recommended Remediation
     sections.append("## Recommended Remediation\n")

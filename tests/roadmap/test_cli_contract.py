@@ -140,7 +140,9 @@ class TestAcceptanceCriteriaAC01:
         captured = capsys.readouterr()
 
         # Count "Step N" lines -> 13 individual steps (12 entries, parallel pair = 13)
-        step_lines = [line for line in captured.out.splitlines() if line.startswith("Step ")]
+        step_lines = [
+            line for line in captured.out.splitlines() if line.startswith("Step ")
+        ]
         assert len(step_lines) == 13
 
     def test_dry_run_no_files_created(self, tmp_path, capsys):

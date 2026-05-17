@@ -156,7 +156,7 @@ def _render_diagnostics_md(bundle: DiagnosticsBundle) -> str:
     # Resume guidance
     lines += ["## Resume Guidance", ""]
     if bundle.resume_guidance:
-        lines += [f"```", bundle.resume_guidance, "```", ""]
+        lines += ["```", bundle.resume_guidance, "```", ""]
     else:
         lines += ["_No resume command available for this step._", ""]
 

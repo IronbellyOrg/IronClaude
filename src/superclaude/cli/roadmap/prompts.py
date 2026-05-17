@@ -1247,7 +1247,7 @@ def build_wiring_verification_prompt(
         "containing callable references that cannot be resolved in scope.\n\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
         "- gate: wiring-verification\n"
-        f"- target_dir: (the directory analyzed)\n"
+        "- target_dir: (the directory analyzed)\n"
         "- files_analyzed: (integer count)\n"
         "- files_skipped: (integer count)\n"
         "- rollout_mode: shadow\n"

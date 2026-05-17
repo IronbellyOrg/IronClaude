@@ -193,14 +193,11 @@ def _gate_passing_content(step: Step) -> str:
         "total_findings": "0",
         "blocking_findings": "0",
         "whitelist_entries_applied": "0",
-        # deviation-analysis gate fields
+        # deviation-analysis gate fields (T4b: classifier counters suppressed,
+        # gate now requires unclassified_count == total_analyzed).
         "schema_version": "1",
-        "slip_count": "0",
-        "intentional_count": "0",
-        "pre_approved_count": "0",
-        "ambiguous_count": "0",
-        "ambiguous_deviations": "0",
         "total_analyzed": "0",
+        "unclassified_count": "0",
         "routing_fix_roadmap": "",
         "routing_no_action": "",
         # remediate gate fields
@@ -218,12 +215,6 @@ def _gate_passing_content(step: Step) -> str:
             # alias (e.g. ``spec_source`` from ``(spec_source, spec_sources)``).
             key = f[0] if isinstance(f, tuple) else f
             fm_fields[key] = fm_values.get(key, "test_value")
-    # Add extra fields needed by semantic checks (not in required list)
-    _semantic_extras = {
-        "deviation-analysis": ["ambiguous_deviations"],
-    }
-    for extra in _semantic_extras.get(step.id, []):
-        fm_fields[extra] = fm_values.get(extra, "0")
 
     content_lines = ["---"]
     for k, v in fm_fields.items():
@@ -321,7 +312,13 @@ class TestE2EFullPipeline:
         assert findings[2].severity == "INFO"
 
     def test_e2e_remediation_tasklist_generated(self, tmp_path):
-        """Step 11: Remediation tasklist generated from findings."""
+        """Step 11: Remediation tasklist generated from findings.
+
+        Post-T2: generate_remediation_tasklist's actionable filter is
+        ``status == "ACTIVE"`` (registry vocabulary). Findings explicitly
+        construct with status="ACTIVE" so they render under their
+        severity section instead of falling through to ## SKIPPED.
+        """
         findings = [
             Finding(
                 id="F-01",
@@ -332,6 +329,7 @@ class TestE2EFullPipeline:
                 evidence="Only 4 milestones",
                 fix_guidance="Add milestone 5",
                 files_affected=["roadmap.md"],
+                status="ACTIVE",
             ),
             Finding(
                 id="F-02",
@@ -342,6 +340,7 @@ class TestE2EFullPipeline:
                 evidence="SC-003 lacks target",
                 fix_guidance="Add metric",
                 files_affected=["roadmap.md"],
+                status="ACTIVE",
             ),
         ]
         source_content = "# Validation Report\nContent.\n"

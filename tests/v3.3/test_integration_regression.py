@@ -598,8 +598,8 @@ class TestAuditCompleteness:
             },
             verdict="PASS",
             evidence=(
-                f"Audit completeness: 3/3 task records emitted with all "
-                f"required fields present."
+                "Audit completeness: 3/3 task records emitted with all "
+                "required fields present."
             ),
         )
 

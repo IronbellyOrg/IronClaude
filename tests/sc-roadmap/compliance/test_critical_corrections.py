@@ -33,7 +33,7 @@ class TestCriticalCorrection1:
                 violations.append(f"Line {i}: {stripped}")
 
         assert len(violations) == 0, (
-            f"subagent_type found as parameter in call patterns:\n"
+            "subagent_type found as parameter in call patterns:\n"
             + "\n".join(violations)
         )
 

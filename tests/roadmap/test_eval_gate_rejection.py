@@ -217,16 +217,16 @@ PASSING_FRONTMATTER: dict[str, dict[str, str]] = {
         "whitelist_entries_applied": "0",
     },
     "deviation-analysis": {
+        # T4b + T5: classifier counters (slip/intentional/pre_approved/
+        # ambiguous_count + ambiguous_deviations) are suppressed from the
+        # frontmatter until a real classifier ships; gate now requires
+        # `unclassified_count` and validates `unclassified_count == total_analyzed`.
         "schema_version": "1.0",
         "total_analyzed": "3",
-        "slip_count": "1",
-        "intentional_count": "1",
-        "pre_approved_count": "1",
-        "ambiguous_count": "0",
-        "routing_fix_roadmap": "DEV-001",
-        "routing_no_action": "DEV-002 DEV-003",
+        "unclassified_count": "3",
+        "routing_fix_roadmap": "",
+        "routing_no_action": "",
         "analysis_complete": "true",
-        "ambiguous_deviations": "0",
     },
     "remediate": {
         "type": "remediation-tasklist",
@@ -451,17 +451,20 @@ class TestSemanticCheckRejections:
             ),
         ],
         "deviation-analysis": [
-            (
-                "no_ambiguous_deviations",
-                {
-                    "ambiguous_count": "1",
-                    "ambiguous_deviations": "1",
-                    "total_analyzed": "4",
-                },
-            ),
+            # T4b + T5: classifier counters and ambiguous_deviations are
+            # suppressed from the frontmatter. The old
+            # ``no_ambiguous_deviations`` / ``slip_count_matches_routing`` /
+            # ``total_analyzed_consistent`` rejections are exercised at
+            # the function level in
+            # ``tests/roadmap/test_eval_finding_lifecycle.py`` and
+            # ``tests/roadmap/test_gates_data.py``. At the gate level we
+            # now verify the two checks that survive: incomplete analysis
+            # and unclassified_count != total_analyzed.
             ("validation_complete_true", {"analysis_complete": "false"}),
-            ("slip_count_matches_routing", {"slip_count": "5"}),
-            ("total_analyzed_consistent", {"total_analyzed": "99"}),
+            (
+                "unclassified_count_consistent",
+                {"total_analyzed": "4", "unclassified_count": "1"},
+            ),
         ],
         "remediate": [
             ("frontmatter_values_non_empty", {"source_report": ""}),
@@ -600,11 +603,18 @@ class TestDeviationRoutingRejections:
     """Deviation analysis gate catches routing invariant violations."""
 
     def test_pre_approved_in_fix_roadmap(self, tmp_path):
-        """Pre-approved IDs must not appear in fix roadmap."""
+        """Pre-approved IDs must not appear in fix roadmap.
+
+        Post-T4b: ``slip_count`` is suppressed from the frontmatter, so
+        the prior ``slip_count: "2"`` adjustment is no longer needed.
+        The ``_pre_approved_not_in_fix_roadmap`` semantic check is still
+        wired into the gate and still catches the overlap.
+        """
         fm = dict(PASSING_FRONTMATTER["deviation-analysis"])
-        # DEV-003 is in routing_no_action AND routing_fix_roadmap -- violation
+        # Construct the overlap regardless of the passing-fixture default
+        # for routing_no_action (which may now be empty).
         fm["routing_fix_roadmap"] = "DEV-001 DEV-003"
-        fm["slip_count"] = "2"
+        fm["routing_no_action"] = "DEV-003"
         doc = _make_content(fm, 50)
         f = tmp_path / "deviation-overlap.md"
         f.write_text(doc)

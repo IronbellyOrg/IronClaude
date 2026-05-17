@@ -162,12 +162,11 @@ class TestIntegrationMockSubprocess:
                 "whitelist_entries_applied": "0",
                 # deviation-analysis gate fields
                 "schema_version": "1",
-                "slip_count": "0",
-                "intentional_count": "0",
-                "pre_approved_count": "0",
-                "ambiguous_count": "0",
-                "ambiguous_deviations": "0",
+                # T4b: classifier counters suppressed from the frontmatter;
+                # gate now requires `unclassified_count` and validates
+                # unclassified_count == total_analyzed.
                 "total_analyzed": "0",
+                "unclassified_count": "0",
                 "routing_fix_roadmap": "",
                 "routing_no_action": "",
                 # remediate gate fields
@@ -185,12 +184,6 @@ class TestIntegrationMockSubprocess:
                     # ``(spec_source, spec_sources)`` group).
                     key = f[0] if isinstance(f, tuple) else f
                     fm_fields[key] = fm_values.get(key, "test_value")
-            # Add extra fields needed by semantic checks (not in required list)
-            semantic_extras = {
-                "deviation-analysis": ["ambiguous_deviations"],
-            }
-            for extra in semantic_extras.get(step.id, []):
-                fm_fields[extra] = fm_values.get(extra, "0")
 
             content_lines = ["---"]
             for k, v in fm_fields.items():

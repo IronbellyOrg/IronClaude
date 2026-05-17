@@ -33,7 +33,10 @@ from superclaude.cli.roadmap.remediate import (
 def _make_finding(
     id: str = "F-01",
     severity: str = "BLOCKING",
-    status: str = "PENDING",
+    # Registry path (the one consumed by generate_remediation_tasklist) uses
+    # ACTIVE/FIXED, never PENDING. Default updated post-T2 so the existing
+    # MIXED_FINDINGS fixture exercises the new actionable filter.
+    status: str = "ACTIVE",
     agreement_category: str = "",
     fix_guidance: str = "Fix it",
     files_affected: list[str] | None = None,
@@ -316,8 +319,9 @@ class TestGenerateRemediationTasklist:
         result = generate_remediation_tasklist(
             [_make_finding("F-01", "BLOCKING")], "r.md", "c"
         )
-        # Expected: - [ ] F-01 | file.py | PENDING -- Finding F-01
-        assert "- [ ] F-01 | file.py | PENDING -- Finding F-01" in result
+        # Expected: - [ ] F-01 | file.py | ACTIVE -- Finding F-01
+        # (T2 / T2c: registry status vocabulary; ACTIVE is actionable.)
+        assert "- [ ] F-01 | file.py | ACTIVE -- Finding F-01" in result
 
     def test_skipped_entries_checked(self):
         findings = [_make_finding("F-01", "BLOCKING", status="SKIPPED")]
@@ -345,7 +349,7 @@ class TestGenerateRemediationTasklist:
             evidence="ev",
             fix_guidance="fix",
             files_affected=[],
-            status="PENDING",
+            status="ACTIVE",
         )
         result = generate_remediation_tasklist([f], "r.md", "c")
         assert "unknown" in result
@@ -484,9 +488,17 @@ class TestRemediateGateIntegration:
             assert check.check_fn(stub), f"Semantic check '{check.name}' failed on stub"
 
     def test_pre_execution_tasklist_fails_status_check(self):
-        """Pre-execution tasklist (PENDING status) should fail status check."""
+        """Pre-execution tasklist (ACTIVE status, registry actionable) should fail
+        the all_actionable_have_status check until findings reach a terminal
+        FIXED/FAILED status.
+
+        Post-T2: actionable findings carry ``status == "ACTIVE"`` (registry
+        vocabulary). ``ACTIVE`` is not a terminal status, so the gate's
+        ``_all_actionable_have_status`` check must reject the tasklist until
+        each actionable item has been resolved to FIXED or FAILED.
+        """
         tasklist = generate_remediation_tasklist(
-            [_make_finding("F-01", "BLOCKING", status="PENDING")],
+            [_make_finding("F-01", "BLOCKING", status="ACTIVE")],
             "report.md",
             "content",
         )

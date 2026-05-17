@@ -115,17 +115,18 @@ _V224_FM_VALUES = {
     "undischarged_obligations": "0",
     "uncovered_contracts": "0",
     "fingerprint_coverage": "0.85",
-    # Deviation analysis: SC-3 DEV-001 and DEV-002 are SLIP (routed to fix_roadmap)
+    # Deviation analysis: T4b + T5 suppressed the four classifier counters
+    # and `ambiguous_deviations` until a real classifier ships. Fixture now
+    # uses unclassified_count == total_analyzed so the new gate's
+    # `unclassified_count_consistent` semantic check passes. SC-2/SC-3
+    # routing-ID semantics are exercised by other tests with bespoke
+    # inline fixtures (see TestSC3SlipRouting).
     "schema_version": "1.0",
     "total_analyzed": "4",
-    "slip_count": "2",
-    "intentional_count": "1",
-    "pre_approved_count": "1",
-    "ambiguous_count": "0",
-    "ambiguous_deviations": "0",
-    "routing_fix_roadmap": "DEV-001 DEV-002",
+    "unclassified_count": "4",
+    "routing_fix_roadmap": "",
     "routing_update_spec": "",
-    "routing_no_action": "DEV-003 DEV-004",
+    "routing_no_action": "",
     "routing_human_review": "",
     "analysis_complete": "true",
     # Wiring verification (must be consistent with total_findings=2)
@@ -449,19 +450,24 @@ class TestSC3SlipRouting:
         assert _slip_count_matches_routing(content) is True
 
     def test_deviation_analysis_gate_passes_v224_scenario(self):
-        """v2.24 deviation analysis document passes DEVIATION_ANALYSIS_GATE."""
+        """v2.24 deviation analysis document passes DEVIATION_ANALYSIS_GATE.
+
+        Updated for T4b/T5: the four classifier counters and
+        ambiguous_deviations are suppressed until a real classifier
+        ships, so the v2.24 scenario is exercised here with
+        unclassified_count == total_analyzed and empty routing fields.
+        The classified routing-ID semantics covered by the original
+        fixture are now tested at the function level (see
+        ``test_slip_count_matches_routing`` above).
+        """
         content = (
             "---\n"
             "schema_version: 1.0\n"
             "total_analyzed: 4\n"
-            "slip_count: 2\n"
-            "intentional_count: 1\n"
-            "pre_approved_count: 1\n"
-            "ambiguous_count: 0\n"
-            "ambiguous_deviations: 0\n"
-            "routing_fix_roadmap: DEV-001 DEV-002\n"
+            "unclassified_count: 4\n"
+            "routing_fix_roadmap: \n"
             "routing_update_spec: \n"
-            "routing_no_action: DEV-003 DEV-004\n"
+            "routing_no_action: \n"
             "routing_human_review: \n"
             "analysis_complete: true\n"
             "---\n"
@@ -794,19 +800,23 @@ class TestCompleteV224PipelineFlow:
             )
 
     def test_v224_deviation_analysis_sc3_semantics(self):
-        """SC-3: deviation analysis routes DEV-001 and DEV-002 as SLIP to fix_roadmap."""
+        """SC-3: deviation analysis frontmatter passes the post-T5 gate.
+
+        Updated for T4b/T5: classifier counters suppressed, gate now
+        requires `unclassified_count == total_analyzed`. The classified
+        SLIP-routing semantics this test originally asserted are
+        deferred until the classifier ships; the parse/routing
+        function-level assertions below still exercise the parsing
+        logic with DEV-001/DEV-002 IDs.
+        """
         analysis_content = (
             "---\n"
             "schema_version: 1.0\n"
             "total_analyzed: 4\n"
-            "slip_count: 2\n"
-            "intentional_count: 1\n"
-            "pre_approved_count: 1\n"
-            "ambiguous_count: 0\n"
-            "ambiguous_deviations: 0\n"
-            "routing_fix_roadmap: DEV-001 DEV-002\n"
+            "unclassified_count: 4\n"
+            "routing_fix_roadmap: \n"
             "routing_update_spec: \n"
-            "routing_no_action: DEV-003 DEV-004\n"
+            "routing_no_action: \n"
             "routing_human_review: \n"
             "analysis_complete: true\n"
             "---\n"

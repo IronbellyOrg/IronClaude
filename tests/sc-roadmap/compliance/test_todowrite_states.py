@@ -63,7 +63,7 @@ class TestTodoWriteStateReferences:
                 violations.append(f"Line {i}: {stripped}")
 
         assert len(violations) == 0, (
-            f"Found 'status: blocked' outside anti-pattern blocks:\n"
+            "Found 'status: blocked' outside anti-pattern blocks:\n"
             + "\n".join(violations)
         )
 
