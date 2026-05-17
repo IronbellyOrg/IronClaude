@@ -164,7 +164,7 @@ class TestCallbackInvocation:
         runner, _ = _make_runner(write_output=False)
 
         events = []
-        results = execute_pipeline(
+        execute_pipeline(
             steps=steps,
             config=cfg,
             run_step=runner,

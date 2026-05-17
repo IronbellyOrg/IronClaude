@@ -1842,8 +1842,6 @@ class TestBlockingRemediationLifecycle:
         # Assertion 1: ledger.debit(remediation_cost) was called — consumed increased
         # beyond the initial wiring_analysis_turns debit
         wiring_debit = config.wiring_analysis_turns  # debit_wiring at analysis start
-        remediation_debit = config.remediation_cost  # debit at remediation
-        total_expected_debit = wiring_debit + remediation_debit + 1  # +1 for task turn
         assert ledger.consumed > initial_consumed + wiring_debit, (
             f"Expected consumed > {initial_consumed + wiring_debit} "
             f"(initial + wiring debit), got {ledger.consumed}; "
@@ -2450,7 +2448,7 @@ class TestShadowGraceInfinite:
             title="Shadow grace test task",
             description="Validates shadow mode credit-back",
         )
-        task_result = TaskResult(
+        TaskResult(
             task=task,
             status=TaskStatus.PASS,
             exit_code=0,

@@ -476,8 +476,8 @@ class TestConcurrentGateEvaluation:
                 "threads_completed": len(results_by_thread),
                 "errors": errors,
                 "ledger_invariants_held": all(
-                    l.available() == l.initial_budget - l.consumed + l.reimbursed
-                    for l in ledgers
+                    lg.available() == lg.initial_budget - lg.consumed + lg.reimbursed
+                    for lg in ledgers
                 ),
             },
             expected={

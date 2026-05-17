@@ -214,7 +214,7 @@ class TestMockHarnessIntegration:
         )
 
         with patch_portify_process("design-pipeline"):
-            result = proc.run()
+            proc.run()
 
         assert out.exists()
         content = out.read_text()

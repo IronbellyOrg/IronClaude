@@ -744,7 +744,7 @@ class TestS2RoutingAndFixGuidance:
         self, spec_file: str, roadmap_file: str
     ) -> None:
         findings = run_all_checkers(spec_file, roadmap_file)
-        boilerplate_count = sum(
+        sum(
             1
             for f in findings
             if f.fix_guidance.startswith("Address ")

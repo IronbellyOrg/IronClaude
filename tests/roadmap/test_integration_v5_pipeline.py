@@ -249,14 +249,14 @@ def _build_step_content(step: Step) -> str:
         key = f[0] if isinstance(f, tuple) else f
         fm_fields[key] = _V224_FM_VALUES.get(key, "test_value")
     # Add extra fields needed by semantic checks (not in required list)
-    _SEMANTIC_EXTRAS = {
+    _semantic_extras = {
         "deviation-analysis": [
             "ambiguous_deviations",
             "routing_update_spec",
             "routing_human_review",
         ],
     }
-    for extra in _SEMANTIC_EXTRAS.get(step.id, []):
+    for extra in _semantic_extras.get(step.id, []):
         fm_fields[extra] = _V224_FM_VALUES.get(extra, "")
 
     lines = ["---"]

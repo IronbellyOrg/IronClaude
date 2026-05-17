@@ -55,11 +55,11 @@ class TestPromptContainsEmbeddedContent:
             captured_prompt["extra_args"] = kwargs.get("extra_args", [])
             self_._process = None
 
-        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
+        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as mock_proc:
             instance = MagicMock()
             instance._process = None
-            MockProc.return_value = instance
-            MockProc.side_effect = lambda **kw: _capture_and_return(
+            mock_proc.return_value = instance
+            mock_proc.side_effect = lambda **kw: _capture_and_return(
                 kw, captured_prompt, instance
             )
             instance.wait.return_value = 0
@@ -88,11 +88,11 @@ class TestPathsWithSpaces:
 
         captured_prompt = {}
 
-        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
+        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as mock_proc:
             instance = MagicMock()
             instance._process = None
-            MockProc.return_value = instance
-            MockProc.side_effect = lambda **kw: _capture_and_return(
+            mock_proc.return_value = instance
+            mock_proc.side_effect = lambda **kw: _capture_and_return(
                 kw, captured_prompt, instance
             )
             instance.wait.return_value = 0
@@ -124,11 +124,11 @@ class TestLargePromptSoftWarning:
 
         captured_prompt = {}
 
-        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
+        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as mock_proc:
             instance = MagicMock()
             instance._process = None
-            MockProc.return_value = instance
-            MockProc.side_effect = lambda **kw: _capture_and_return(
+            mock_proc.return_value = instance
+            mock_proc.side_effect = lambda **kw: _capture_and_return(
                 kw, captured_prompt, instance
             )
             instance.wait.return_value = 0
@@ -159,10 +159,10 @@ class TestLargePromptSoftWarning:
 
         captured_prompt: dict = {}
 
-        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as MockProc:
+        with patch("superclaude.cli.roadmap.executor.ClaudeProcess") as mock_proc:
             instance = MagicMock()
             instance._process = None
-            MockProc.side_effect = lambda **kw: _capture_and_return(
+            mock_proc.side_effect = lambda **kw: _capture_and_return(
                 kw, captured_prompt, instance
             )
             instance.wait.return_value = 0

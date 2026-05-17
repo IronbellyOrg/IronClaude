@@ -131,13 +131,13 @@ class DataFlowGraph:
 
         Returns list of cycles found (each cycle is a list of nodes).
         """
-        WHITE, GRAY, BLACK = 0, 1, 2
-        color: dict[DataFlowNode, int] = {n: WHITE for n in self.nodes}
+        white, gray, black = 0, 1, 2
+        color: dict[DataFlowNode, int] = {n: white for n in self.nodes}
         parent: dict[DataFlowNode, DataFlowNode | None] = {}
         cycles: list[list[DataFlowNode]] = []
 
         for start in self.nodes:
-            if color[start] != WHITE:
+            if color[start] != white:
                 continue
 
             stack: list[tuple[DataFlowNode, int]] = [(start, 0)]
@@ -146,15 +146,15 @@ class DataFlowGraph:
             while stack:
                 node, edge_idx = stack[-1]
 
-                if color[node] == WHITE:
-                    color[node] = GRAY
+                if color[node] == white:
+                    color[node] = gray
 
                 outgoing = self._adjacency.get(node, [])
                 if edge_idx < len(outgoing):
                     stack[-1] = (node, edge_idx + 1)
                     neighbor = outgoing[edge_idx].target
 
-                    if color[neighbor] == GRAY:
+                    if color[neighbor] == gray:
                         # Found a cycle -- reconstruct
                         cycle = [neighbor]
                         for s_node, _ in reversed(stack):
@@ -162,11 +162,11 @@ class DataFlowGraph:
                             if s_node == neighbor:
                                 break
                         cycles.append(list(reversed(cycle)))
-                    elif color[neighbor] == WHITE:
+                    elif color[neighbor] == white:
                         parent[neighbor] = node
                         stack.append((neighbor, 0))
                 else:
-                    color[node] = BLACK
+                    color[node] = black
                     stack.pop()
 
         return cycles

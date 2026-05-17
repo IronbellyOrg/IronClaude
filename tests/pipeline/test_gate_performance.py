@@ -91,7 +91,6 @@ class TestGatePerformanceNFR:
             assert passed is True, f"Gate should pass: {reason}"
 
         median = sorted(timings)[len(timings) // 2]
-        p95 = sorted(timings)[int(len(timings) * 0.95)]
 
         assert median < 50.0, (
             f"Median gate_passed() time {median:.1f}ms exceeds 50ms NFR. "

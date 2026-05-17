@@ -219,8 +219,6 @@ def build_dependency_graph(
         graph.nodes.add(path)
 
     for source_path, analysis in analyses.items():
-        source_stem = os.path.splitext(os.path.basename(source_path))[0]
-
         # Tier-A: AST-resolved imports
         for imp in analysis.imports:
             target = _resolve_import_target(imp, source_path, known_files)

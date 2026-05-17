@@ -151,7 +151,6 @@ def validate_portify_config(config: PortifyConfig) -> list[str]:
 
     # --- 3. Output directory writability ---
     if config.output_dir is not None:
-        out_parent = config.output_dir.parent
         out_path = config.output_dir
 
         # Allow path that doesn't exist yet if parent exists and is writable

@@ -314,11 +314,8 @@ class TestCollisionDetection:
         # Patch config output_dir to point at our fake cli root parent
         config.output_dir = cli_root.parent
 
-        errors = (
+        if hasattr(_check_collision, "__wrapped__"):
             _check_collision.__wrapped__("my-test-module", config)
-            if hasattr(_check_collision, "__wrapped__")
-            else []
-        )
         # The collision check is tested via validate_portify_config with a known name
         # Verify the pattern: known module names produce collision errors
         cfg2 = load_portify_config(

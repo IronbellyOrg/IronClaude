@@ -115,11 +115,11 @@ class TestDecisionActions:
 
     def test_revise_max_iterations(self):
         """REVISE should support max 2 iterations."""
-        MAX_ITERATIONS = 2
+        max_iterations = 2
         result = aggregate_scores(75, 75)
         assert result["decision"] == "REVISE"
         # Verify max iterations constant matches SKILL.md
-        assert MAX_ITERATIONS == 2
+        assert max_iterations == 2
 
     def test_reject_preserves_drafts(self):
         """REJECT should rename artifacts to .draft."""

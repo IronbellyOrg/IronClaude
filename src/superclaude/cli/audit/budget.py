@@ -143,7 +143,7 @@ class BudgetStatus:
                 for k, v in self.phases.items()
             },
             "active_degradation_levels": [
-                l.value for l in self.active_degradation_levels
+                level.value for level in self.active_degradation_levels
             ],
             "degradation_log": [
                 {
@@ -291,7 +291,7 @@ class DegradationHandler:
 
     @property
     def protected_capabilities(self) -> set[str]:
-        return {CAPABILITY_NAMES[l] for l in self._protected_levels}
+        return {CAPABILITY_NAMES[lvl] for lvl in self._protected_levels}
 
     def is_active(self, level: DegradationLevel) -> bool:
         return level in self._active
@@ -347,7 +347,7 @@ class DegradationHandler:
                 break
         self._next_index = max(
             self._next_index,
-            len([l for l in self._effective_order if l in self._active]),
+            len([lvl for lvl in self._effective_order if lvl in self._active]),
         )
         return activated
 

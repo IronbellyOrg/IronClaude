@@ -414,7 +414,7 @@ class TestOutputMonitorComplete:
         from superclaude.cli.cli_portify.models import MonitorState
         from superclaude.cli.cli_portify.monitor import OutputMonitor
 
-        mon = OutputMonitor()
+        OutputMonitor()  # was: mon = OutputMonitor(); mon was unused
         expected = {
             "output_bytes",
             "growth_rate_bps",

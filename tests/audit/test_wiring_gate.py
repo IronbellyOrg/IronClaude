@@ -667,9 +667,9 @@ class TestWiringGateDefinition:
         assert WIRING_GATE.enforcement_tier == "STRICT"
 
     def test_wiring_gate_importable(self):
-        from superclaude.cli.audit.wiring_gate import WIRING_GATE as gate
+        from superclaude.cli.audit.wiring_gate import WIRING_GATE as IMPORTED_GATE
 
-        assert gate is WIRING_GATE
+        assert IMPORTED_GATE is WIRING_GATE
 
     def test_wiring_gate_field_names_match_spec(self):
         expected = {

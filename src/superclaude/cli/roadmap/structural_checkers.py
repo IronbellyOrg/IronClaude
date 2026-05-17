@@ -364,10 +364,6 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
     roadmap_parsed = parse_document(roadmap_text)
 
     # Get dimension-relevant sections
-    spec_sections = _get_sections_for_dimension("signatures", spec_parsed.sections)
-    roadmap_sections = _get_sections_for_dimension(
-        "signatures", roadmap_parsed.sections
-    )
     roadmap_full_text = roadmap_text.lower()
 
     findings: list[Finding] = []
@@ -774,7 +770,7 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
     roadmap_text = Path(roadmap_path).read_text(encoding="utf-8")
 
     spec_parsed = parse_document(spec_text)
-    roadmap_parsed = parse_document(roadmap_text)
+    parse_document(roadmap_text)
 
     spec_sections = _get_sections_for_dimension("nfrs", spec_parsed.sections)
     roadmap_full_text = roadmap_text.lower()
