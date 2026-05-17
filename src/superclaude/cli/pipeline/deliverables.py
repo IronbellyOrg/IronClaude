@@ -119,13 +119,11 @@ def is_behavioral(description: str) -> bool:
     doc_signals = sum(1 for v in _DOC_VERBS if v in lower)
     if doc_signals > 0:
         # Check if any strong behavioral signal overrides
-        has_strong_behavioral = False
         words = set(re.findall(r"\b\w+\b", lower))
         behavioral_verb_hits = words & _COMPUTATIONAL_VERBS
         # Doc verbs win unless there are more behavioral signals
         if len(behavioral_verb_hits) <= doc_signals:
             return False
-        has_strong_behavioral = True
 
     # Check computational verbs
     words = set(re.findall(r"\b\w+\b", lower))

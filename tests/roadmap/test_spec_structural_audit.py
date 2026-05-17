@@ -199,7 +199,7 @@ class TestRatioComparison:
         assert passed
 
     def test_inadequate_extraction_fails(self):
-        audit = audit_spec_structure(RICH_SPEC)
+        audit_spec_structure(RICH_SPEC)
         # Extraction reports very few requirements relative to indicators
         passed, result = check_extraction_adequacy(RICH_SPEC, 2)
         assert not passed

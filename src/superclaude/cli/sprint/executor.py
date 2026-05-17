@@ -1209,8 +1209,12 @@ def execute_sprint(config: SprintConfig):
     remediation_log = DeferredRemediationLog(
         persist_path=config.results_dir / "remediation.json",
     )
-    # T06 (BUG-006/P5): Construct SprintGatePolicy for remediation step building
-    gate_policy = SprintGatePolicy(config)
+    # T06 (BUG-006/P5): Construct SprintGatePolicy for remediation step building.
+    # The instance is intentionally not bound to a local — its construction is
+    # captured by tests via SprintGatePolicy.__init__ patching (see
+    # tests/v3.3/test_wiring_points_e2e.py::test_sprint_gate_policy_construction).
+    SprintGatePolicy(config)
+
     # T05-C: Accumulator for all TrailingGateResults across phases
     all_gate_results: list[TrailingGateResult] = []
 

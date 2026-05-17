@@ -288,7 +288,7 @@ class TestPartialFailure:
             mock_execute_pipeline,
         )
 
-        result = execute_validate(config)
+        execute_validate(config)
 
         report_path = output_dir / "validate" / "validation-report.md"
         assert report_path.exists()

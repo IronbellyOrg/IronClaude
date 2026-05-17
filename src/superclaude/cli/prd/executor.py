@@ -634,7 +634,6 @@ class PrdExecutor:
             return
 
         # Step 10: Investigation (parallel)
-        research_files = discover_research_files(self._config.task_dir)
         investigation_steps = self._build_investigation_steps()
 
         if investigation_steps:

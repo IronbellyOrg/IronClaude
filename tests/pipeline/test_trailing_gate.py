@@ -92,8 +92,6 @@ class TestGateResultQueue:
     def test_concurrent_put_drain(self):
         """Thread-safe under concurrent access from >=3 threads."""
         q = GateResultQueue()
-        results_collected: list[TrailingGateResult] = []
-        errors: list[str] = []
 
         def producer(start_id: int, count: int):
             for i in range(count):
@@ -209,7 +207,7 @@ class TestTrailingGateRunner:
         runner.submit(step, gate_check=slow_gate)
 
         start = time.monotonic()
-        results = runner.wait_for_pending(timeout=0.5)
+        runner.wait_for_pending(timeout=0.5)
         elapsed = time.monotonic() - start
         # Should return within ~0.5s, not hang for 10s
         assert elapsed < 2.0
@@ -218,7 +216,7 @@ class TestTrailingGateRunner:
     def test_cancel_propagates(self, tmp_path):
         """cancel() propagates to all active daemon threads."""
         runner = TrailingGateRunner()
-        cancelled = threading.Event()
+        threading.Event()  # was: cancelled = threading.Event(); unused
 
         def slow_gate(path, criteria):
             time.sleep(5)

@@ -545,12 +545,12 @@ class TestRunToRunMemory:
         lines = summary.strip().split("\n")
         # Header (2 lines) + 50 data lines + 1 truncation line
         data_lines = [
-            l
-            for l in lines
-            if l.startswith("|")
-            and "---" not in l
-            and "Stable ID" not in l
-            and "more entries" not in l
+            line
+            for line in lines
+            if line.startswith("|")
+            and "---" not in line
+            and "Stable ID" not in line
+            and "more entries" not in line
         ]
         assert len(data_lines) == 50
 
@@ -793,8 +793,8 @@ class TestTurnLedgerIntegration:
         """TurnLedger importable from sprint.models via helper."""
         from superclaude.cli.roadmap.convergence import _get_turnledger_class
 
-        TurnLedger = _get_turnledger_class()
-        ledger = TurnLedger(initial_budget=61)
+        turn_ledger_cls = _get_turnledger_class()
+        ledger = turn_ledger_cls(initial_budget=61)
         assert ledger.can_launch()
         assert ledger.can_remediate()
 
@@ -1486,7 +1486,7 @@ class TestMutualExclusion:
         # (conditional import only in convergence.py)
         lines = source.split("\n")
         import_lines = [
-            l for l in lines if l.startswith("from") or l.startswith("import")
+            line for line in lines if line.startswith("from") or line.startswith("import")
         ]
         for line in import_lines:
             assert "TurnLedger" not in line

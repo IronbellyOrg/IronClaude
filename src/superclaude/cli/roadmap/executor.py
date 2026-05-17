@@ -595,7 +595,6 @@ def _sanitize_output(output_file: Path) -> int:
         # No frontmatter found at all -- leave file unchanged
         return 0
 
-    preamble = content[: match.start()]
     cleaned = content[match.start() :]
     # Total bytes stripped = leading whitespace + conversational preamble
     preamble_bytes = len(raw.encode("utf-8")) - len(cleaned.encode("utf-8"))
@@ -1848,7 +1847,6 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
     spec_fidelity_file = out / "spec-fidelity.md"
     deviation_file = out / "spec-deviations.md"
     remediation_file = out / "remediation-tasklist.md"
-    certification_file = out / "certification-report.md"
 
     # Resolve roadmap template for incremental-write steps
     try:

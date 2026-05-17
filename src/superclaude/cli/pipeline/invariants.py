@@ -69,7 +69,6 @@ def validate_predicate(predicate: str) -> tuple[bool, str | None]:
     # After splitting on AND/OR, we get alternating: clause, operator, clause, ...
     # Filter out the logic operators to get just clauses
     clause_texts = [clauses[i] for i in range(0, len(clauses), 2)]
-    logic_ops = [clauses[i] for i in range(1, len(clauses), 2)]
 
     if not clause_texts:
         return False, "No clauses found in predicate"
@@ -86,7 +85,7 @@ def validate_predicate(predicate: str) -> tuple[bool, str | None]:
                 f"'variable_name comparison_op expression': {clause!r}"
             )
 
-        lhs, op, rhs = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
+        lhs, _op, rhs = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
         if not lhs:
             return False, f"Empty variable_name in clause: {clause!r}"
         if not rhs:

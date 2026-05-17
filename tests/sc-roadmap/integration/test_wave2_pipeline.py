@@ -35,7 +35,7 @@ def discover_template(complexity_score, domain_dist, template_dirs_exist=None):
 
 def select_template_type(domain_dist):
     """Select template type based on dominant domain."""
-    TEMPLATE_MAP = {
+    template_map = {
         "security": "security-release",
         "performance": "performance-release",
         "documentation": "documentation-release",
@@ -43,7 +43,7 @@ def select_template_type(domain_dist):
         "backend": "feature-release",
     }
     top_domain = max(domain_dist, key=domain_dist.get)
-    return TEMPLATE_MAP.get(top_domain, "feature-release")
+    return template_map.get(top_domain, "feature-release")
 
 
 def plan_milestones(complexity_score, domain_dist):

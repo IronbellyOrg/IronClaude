@@ -234,7 +234,6 @@ def test_prd_pipeline_fix_cycle_flow(standard_config):
 
     # Track QA invocations
     call_count = [0]
-    original_execute = executor._execute_step
 
     def mock_execute_step(step_id, step_name, builder_name):
         call_count[0] += 1
@@ -283,8 +282,6 @@ def test_prd_pipeline_parallel_execution(standard_config):
     active_count = [0]
     max_concurrent = [0]
     lock = threading.Lock()
-
-    original_execute = executor._execute_step
 
     def mock_execute_step(step_id, step_name, builder_name):
         with lock:

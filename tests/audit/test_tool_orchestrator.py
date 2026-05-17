@@ -83,8 +83,8 @@ class TestToolOrchestrator:
     def test_analyze_file_caches_result(self):
         orch = ToolOrchestrator()
         content = "import os\nprint('hello')"
-        r1 = orch.analyze_file("main.py", content)
-        r2 = orch.analyze_file("main.py", content)
+        orch.analyze_file("main.py", content)
+        orch.analyze_file("main.py", content)
 
         # Second call should hit cache
         assert orch.cache.stats.hits == 1

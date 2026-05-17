@@ -66,14 +66,14 @@ class TestVocabularyIdentity:
 
     def test_scanner_scaffold_terms_is_same_object(self):
         from superclaude.cli.roadmap.obligation_scanner import (
-            SCAFFOLD_TERMS as scanner_terms,
+            SCAFFOLD_TERMS as SCANNER_SCAFFOLD,
         )
 
-        assert scanner_terms is SCAFFOLD_TERMS
+        assert SCANNER_SCAFFOLD is SCAFFOLD_TERMS
 
     def test_scanner_discharge_terms_is_same_object(self):
         from superclaude.cli.roadmap.obligation_scanner import (
-            DISCHARGE_TERMS as scanner_terms,
+            DISCHARGE_TERMS as SCANNER_DISCHARGE,
         )
 
-        assert scanner_terms is DISCHARGE_TERMS
+        assert SCANNER_DISCHARGE is DISCHARGE_TERMS

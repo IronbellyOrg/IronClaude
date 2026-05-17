@@ -53,12 +53,8 @@ class TestResumeSemantics:
         assert "T07.03" in output
         assert "T07.04" in output
         assert "T07.05" in output
-        # Order preserved
-        idx_03 = output.index("T07.03")
-        idx_04 = output.index("T07.04")
-        idx_05 = output.index("T07.05")
-        # Resume command mentions T07.03 first, then tasks listed
-        # Just verify all are present (order is maintained by list)
+        # Order preserved — indices computed for the assertion-by-presence above.
+        # (Previously bound idx_03/idx_04/idx_05 but never compared; just verify all are present.)
 
     def test_remaining_task_count(self):
         """Output shows remaining task count."""

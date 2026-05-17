@@ -418,12 +418,12 @@ class SprintConfig(PipelineConfig):
         #   because wiring_gate_mode remains actively used as the resolved output.
         #   When adopted, callers using old wiring_gate_mode strings will get
         #   DeprecationWarning and automatic mapping to the new scope-based fields.
-        _OLD_TO_NEW = {
+        _old_to_new = {
             "wiring_budget_turns": "wiring_analysis_turns",
             "wiring_remediation_cost": "remediation_cost",
             "wiring_scope": "wiring_gate_scope",
         }
-        for old_name, new_name in _OLD_TO_NEW.items():
+        for old_name, new_name in _old_to_new.items():
             old_val = getattr(self, old_name, None)
             if old_val is not None:
                 warnings.warn(

@@ -98,7 +98,7 @@ def calculate_complexity(
 
 def select_personas(domain_dist):
     """Select primary and consulting personas."""
-    PERSONA_MAP = {
+    persona_map = {
         "frontend": "frontend",
         "backend": "backend",
         "security": "security",
@@ -111,9 +111,9 @@ def select_personas(domain_dist):
 
     for domain, pct in sorted_domains:
         if pct >= 40 and primary is None:
-            primary = PERSONA_MAP.get(domain, "architect")
+            primary = persona_map.get(domain, "architect")
         elif pct >= 15:
-            persona = PERSONA_MAP.get(domain, "architect")
+            persona = persona_map.get(domain, "architect")
             if persona != primary:
                 consulting.append(persona)
 

@@ -555,7 +555,7 @@ class TestRemediateInlineEmbedReplacesFileFlag:
 
         with patch(
             "superclaude.cli.roadmap.remediate_executor.ClaudeProcess"
-        ) as MockProc:
+        ) as mock_proc:
             instance = MagicMock()
             instance._process = None
             instance.wait.return_value = 0
@@ -565,7 +565,7 @@ class TestRemediateInlineEmbedReplacesFileFlag:
                 captured["extra_args"] = kw.get("extra_args", ["SENTINEL"])
                 return instance
 
-            MockProc.side_effect = capture_and_return
+            mock_proc.side_effect = capture_and_return
 
             _run_agent_for_file(str(target), [finding], config, tmp_path)
 
@@ -595,7 +595,7 @@ class TestRemediateInlineEmbedReplacesFileFlag:
 
         with patch(
             "superclaude.cli.roadmap.remediate_executor.ClaudeProcess"
-        ) as MockProc:
+        ) as mock_proc:
             instance = MagicMock()
             instance._process = None
             instance.wait.return_value = 0
@@ -605,7 +605,7 @@ class TestRemediateInlineEmbedReplacesFileFlag:
                 captured["extra_args"] = kw.get("extra_args", ["SENTINEL"])
                 return instance
 
-            MockProc.side_effect = capture_and_return
+            mock_proc.side_effect = capture_and_return
 
             with caplog.at_level(
                 logging.WARNING, logger="superclaude.roadmap.remediate_executor"

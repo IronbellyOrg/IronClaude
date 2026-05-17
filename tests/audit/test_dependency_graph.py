@@ -101,7 +101,7 @@ class TestBuildDependencyGraph:
             "src/utils.py": _analysis("src/utils.py", exports=["__all__ = ['helper']"]),
         }
         graph = build_dependency_graph(analyses)
-        tier_a = graph.edges_by_tier()["A"]
+        graph.edges_by_tier()  # exercise without binding (was tier_a, unused)
         # May or may not resolve depending on path matching
         assert graph.stats["node_count"] >= 2
 

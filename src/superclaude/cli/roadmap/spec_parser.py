@@ -196,7 +196,7 @@ def extract_tables(text: str, warnings: list[ParseWarning]) -> list[MarkdownTabl
             level = len(heading_match.group(1))
             title = heading_match.group(2).strip()
             # Pop stack to current level
-            heading_stack = [(l, h) for l, h in heading_stack if l < level]
+            heading_stack = [(lvl, h) for lvl, h in heading_stack if lvl < level]
             heading_stack.append((level, title))
             i += 1
             continue
@@ -566,7 +566,7 @@ def split_into_sections(text: str) -> list[SpecSection]:
     # Process each heading section
     for idx, (line_idx, level, title) in enumerate(heading_positions):
         # Update heading stack
-        heading_stack = [(l, h) for l, h in heading_stack if l < level]
+        heading_stack = [(lvl, h) for lvl, h in heading_stack if lvl < level]
         heading_stack.append((level, title))
         heading_path = "/".join(h for _, h in heading_stack)
 

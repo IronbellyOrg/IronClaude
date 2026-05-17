@@ -214,8 +214,6 @@ class TestBackwardCompatRegression:
             ),
         ]
 
-        runner_calls = []
-
         def mock_run(step, cfg, cancel):
             (tmp_path / "out.md").write_text("content\n")
             return StepResult(step=step, status=StepStatus.PASS)

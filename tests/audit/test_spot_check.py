@@ -143,9 +143,6 @@ class TestSpotCheckValidation:
         result = spot_check_validate(report, reclassify_fn=always_delete, seed=42)
 
         # All KEEP findings should be inconsistent with DELETE re-classification
-        keep_in_sample = sum(
-            1 for f in findings[: result.sample_size] if f.action == V2Action.KEEP
-        )
         assert result.inconsistent_count > 0
         assert len(result.inconsistencies) > 0
 

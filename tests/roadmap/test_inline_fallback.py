@@ -109,11 +109,11 @@ class TestInlineEmbedFallbackWhenFileBroken:
             target.write_text("R" * (embed_limit + 2048))
             finding = _make_finding(str(target))
 
-            with patch(f"{module_path}.ClaudeProcess") as MockProc:
+            with patch(f"{module_path}.ClaudeProcess") as mock_proc:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(
+                mock_proc.side_effect = lambda **kw: _capture_and_return(
                     kw, captured, instance
                 )
 
@@ -143,11 +143,11 @@ class TestInlineEmbedFallbackWhenFileBroken:
                 run_fn = module.tasklist_run_step
                 cancel_check = lambda: False
 
-            with patch(f"{module_path}.ClaudeProcess") as MockProc:
+            with patch(f"{module_path}.ClaudeProcess") as mock_proc:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(
+                mock_proc.side_effect = lambda **kw: _capture_and_return(
                     kw, captured, instance
                 )
 
@@ -184,11 +184,11 @@ class TestInlineEmbedFallbackWhenFileBroken:
             target.write_text("Small content for remediation.\n")
             finding = _make_finding(str(target))
 
-            with patch(f"{module_path}.ClaudeProcess") as MockProc:
+            with patch(f"{module_path}.ClaudeProcess") as mock_proc:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(
+                mock_proc.side_effect = lambda **kw: _capture_and_return(
                     kw, captured, instance
                 )
 
@@ -207,11 +207,11 @@ class TestInlineEmbedFallbackWhenFileBroken:
             else:
                 run_fn = module.tasklist_run_step
 
-            with patch(f"{module_path}.ClaudeProcess") as MockProc:
+            with patch(f"{module_path}.ClaudeProcess") as mock_proc:
                 instance = MagicMock()
                 instance._process = None
                 instance.wait.return_value = 0
-                MockProc.side_effect = lambda **kw: _capture_and_return(
+                mock_proc.side_effect = lambda **kw: _capture_and_return(
                     kw, captured, instance
                 )
 

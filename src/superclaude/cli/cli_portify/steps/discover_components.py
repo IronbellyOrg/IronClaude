@@ -267,9 +267,6 @@ def deduplicate_agents(
     if not override_names:
         return list(auto_agents)
 
-    # Build lookup from auto
-    auto_by_name: dict[str, AgentEntry] = {a.name: a for a in auto_agents}
-
     result: list[AgentEntry] = []
 
     # Start with auto agents not overridden

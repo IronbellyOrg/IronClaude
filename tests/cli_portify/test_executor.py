@@ -370,8 +370,6 @@ class TestSignalHandler:
         ex = PortifyExecutor(steps, tmp_path, step_runner=_runner_success)
 
         # Simulate interrupt mid-run by setting the flag directly
-        original_runner = ex._step_runner
-
         call_count = [0]
 
         def runner_with_interrupt(step: PortifyStep):

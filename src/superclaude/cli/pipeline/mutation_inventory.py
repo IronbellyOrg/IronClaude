@@ -97,7 +97,6 @@ def generate_mutation_inventory(
                 for match in pattern.finditer(d.description):
                     target = match.group(1).lower()
                     if _is_variable_match(target, var_name):
-                        key = (d.id, indicator_name)
                         if d.id not in seen_deliverables:
                             mutation_sites.append(
                                 MutationSite(

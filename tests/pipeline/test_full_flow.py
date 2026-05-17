@@ -89,7 +89,7 @@ class TestFullFlowIntegration:
 
         # Simulate task execution
         ledger.debit(10)
-        result = _make_step_result(step, StepStatus.PASS)
+        _make_step_result(step, StepStatus.PASS)
 
         # Gate passes
         gate_result = _make_gate_result("task-1", passed=True)
@@ -125,7 +125,7 @@ class TestFullFlowIntegration:
 
         # Task execution
         ledger.debit(10)
-        task_result = _make_step_result(step, StepStatus.PASS)
+        _make_step_result(step, StepStatus.PASS)
 
         # Gate fails
         gate_result = _make_gate_result(
@@ -183,13 +183,13 @@ class TestFullFlowIntegration:
             min_lines=10,
             enforcement_tier="STRICT",
         )
-        step = _make_step("task-3", tmp_path, gate=gate)
+        _make_step("task-3", tmp_path, gate=gate)
 
         # Task execution
         ledger.debit(10)
 
         # Gate fails
-        gate_result = _make_gate_result(
+        _make_gate_result(
             "task-3",
             passed=False,
             reason="Output too short and missing frontmatter",
@@ -254,14 +254,14 @@ class TestFullFlowIntegration:
             minimum_allocation=5,
         )
 
-        step = _make_step("task-4", tmp_path)
+        _make_step("task-4", tmp_path)
 
         # Task consumes most of the budget
         ledger.debit(12)
         assert ledger.available() == 3
 
         # Gate fails
-        gate_result = _make_gate_result(
+        _make_gate_result(
             "task-4",
             passed=False,
             reason="Gate failure",
