@@ -19,7 +19,6 @@ from superclaude.cli.prd.config import resolve_config
 from superclaude.cli.prd.executor import PrdExecutor, _detect_sentinel
 from superclaude.cli.prd.models import PrdStepStatus
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

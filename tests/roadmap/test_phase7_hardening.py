@@ -12,13 +12,10 @@ from __future__ import annotations
 
 import hashlib
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.gates import gate_passed
-from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
 from superclaude.cli.roadmap.certify_prompts import (
     generate_certification_report,
     parse_certification_output,
@@ -34,18 +31,12 @@ from superclaude.cli.roadmap.remediate import (
 )
 from superclaude.cli.roadmap.remediate_executor import (
     EDITABLE_FILES,
-    cleanup_snapshots,
     create_snapshots,
     enforce_allowlist,
     restore_from_snapshots,
 )
 from superclaude.cli.roadmap.remediate_parser import (
     parse_individual_reports,
-    parse_validation_report,
-)
-from superclaude.cli.roadmap.remediate_prompts import (
-    build_remediation_prompt,
-    group_findings_by_file,
 )
 
 
@@ -235,7 +226,7 @@ class TestPerformanceOverhead:
 
     def test_state_timing_extraction(self, tmp_path):
         """Timing data can be extracted from .roadmap-state.json timestamps."""
-        from superclaude.cli.roadmap.executor import write_state, read_state
+        from superclaude.cli.roadmap.executor import read_state, write_state
 
         state = {
             "steps": {

@@ -11,10 +11,6 @@ registry persistence.
 
 from __future__ import annotations
 
-import json
-
-import pytest
-
 from superclaude.cli.roadmap.convergence import (
     DeviationRegistry,
     _check_regression,

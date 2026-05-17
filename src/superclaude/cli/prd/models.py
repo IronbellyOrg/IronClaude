@@ -18,7 +18,6 @@ from typing import Optional
 
 from superclaude.cli.pipeline.models import PipelineConfig, StepResult
 
-
 # ---------------------------------------------------------------------------
 # Enums
 # ---------------------------------------------------------------------------

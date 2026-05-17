@@ -1,11 +1,8 @@
 """Tests for consistency-rate language and calibration framing (T04.03 / D-0029)."""
 
-import pytest
 
 from superclaude.cli.audit.spot_check import SpotCheckResult
 from superclaude.cli.audit.validation_output import (
-    CALIBRATION_NOTES,
-    METHODOLOGY_LIMITATIONS,
     format_validation_report,
     render_validation_text,
 )

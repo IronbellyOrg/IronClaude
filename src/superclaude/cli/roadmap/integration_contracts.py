@@ -15,7 +15,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-
 # --- FR-MOD2.1: 7-category dispatch pattern scanner with compiled regexes ---
 
 DISPATCH_PATTERNS = [

@@ -14,7 +14,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from .classification import ClassificationResult, V2Action, V2Tier, classify_finding
+from .classification import ClassificationResult, V2Action, classify_finding
 from .consolidation import ConsolidatedFinding, ConsolidationReport
 
 

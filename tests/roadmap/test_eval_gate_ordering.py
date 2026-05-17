@@ -11,11 +11,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
+from superclaude.cli.pipeline.models import Step
 from superclaude.cli.roadmap.executor import _build_steps
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
-from superclaude.cli.pipeline.models import Step
 
 
 def _make_config(tmp_path: Path) -> RoadmapConfig:

@@ -12,14 +12,12 @@ All tests use real content fixtures, no mocks.
 """
 
 from superclaude.cli.roadmap.fingerprint import (
-    Fingerprint,
     _EXCLUDED_CONSTANTS,
     _is_code_like,
     check_fingerprint_coverage,
     extract_code_fingerprints,
     fingerprint_gate_passed,
 )
-
 
 # --- Real content fixtures ---
 

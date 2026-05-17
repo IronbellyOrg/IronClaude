@@ -13,41 +13,31 @@ Dependencies: T01.02 (audit_trail fixture), T01.07 (manifest for T21)
 from __future__ import annotations
 
 import threading
-from dataclasses import dataclass, field as dc_field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
 import yaml
 
+from superclaude.cli.audit.reachability import load_manifest
+from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
+)
 from superclaude.cli.sprint.executor import (
+    SprintGatePolicy,
     execute_phase_tasks,
     execute_sprint,
-    run_post_phase_wiring_hook,
-    run_post_task_anti_instinct_hook,
-    run_post_task_wiring_hook,
-    SprintGatePolicy,
 )
 from superclaude.cli.sprint.models import (
-    GateOutcome,
     Phase,
-    PhaseResult,
-    PhaseStatus,
+    ShadowGateMetrics,
     SprintConfig,
     TaskEntry,
     TaskResult,
     TaskStatus,
     TurnLedger,
-    ShadowGateMetrics,
 )
-from superclaude.cli.audit.wiring_gate import WiringFinding, WiringReport
-from superclaude.cli.pipeline.trailing_gate import (
-    DeferredRemediationLog,
-    TrailingGateResult,
-)
-from superclaude.cli.audit.reachability import ReachabilityAnalyzer, load_manifest
-
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -11,9 +11,6 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
-
-import pytest
 
 from superclaude.cli.cli_portify.models import FailureClassification
 from superclaude.cli.cli_portify.monitor import (
@@ -23,6 +20,7 @@ from superclaude.cli.cli_portify.monitor import (
     classify_failure,
     generate_diagnostic_report,
 )
+
 # Signal vocabulary constants — used as plain strings by EventLogger.emit()
 STEP_START = "step_start"
 STEP_COMPLETE = "step_complete"
@@ -361,9 +359,9 @@ class TestOutputMonitor:
         assert mon.state.line_count == 8
 
     def test_output_monitor_stall_detection_accumulates(self):
-        from superclaude.cli.cli_portify.monitor import OutputMonitor
-
         import time
+
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
 
         mon = OutputMonitor(
             stall_threshold_bps=1000.0,  # High threshold → immediate stall
@@ -406,8 +404,8 @@ class TestOutputMonitorComplete:
 
     def test_monitor_complete_all_eight_fields_present(self):
         """All 8 NFR-009 fields present in OutputMonitor.state."""
-        from superclaude.cli.cli_portify.monitor import OutputMonitor
         from superclaude.cli.cli_portify.models import MonitorState
+        from superclaude.cli.cli_portify.monitor import OutputMonitor
 
         mon = OutputMonitor()
         expected = {

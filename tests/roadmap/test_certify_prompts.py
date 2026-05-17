@@ -8,9 +8,7 @@ Covers:
 - T05.04: route_certification_outcome (all-pass and some-fail paths, no-loop)
 """
 
-import pytest
 
-from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.roadmap.certify_prompts import (
     build_certification_prompt,
     extract_finding_context,
@@ -18,7 +16,7 @@ from superclaude.cli.roadmap.certify_prompts import (
     parse_certification_output,
     route_certification_outcome,
 )
-
+from superclaude.cli.roadmap.models import Finding
 
 # ── Shared fixtures ──────────────────────────────────────────────────────
 

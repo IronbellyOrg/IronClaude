@@ -10,7 +10,6 @@ Generated after sprint completion to provide observability into:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
 from typing import TYPE_CHECKING
 
 from ..pipeline.trailing_gate import DeferredRemediationLog, TrailingGateResult

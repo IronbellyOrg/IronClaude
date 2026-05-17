@@ -17,10 +17,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .guard_analyzer import GuardDetection, detect_guards
-from .guard_resolution import GuardResolutionOutput, ReleaseGateWarning, resolve_guards
+from .guard_resolution import GuardResolutionOutput, resolve_guards
 from .invariant_pass import InvariantRegistryOutput
 from .invariants import InvariantEntry
-from .models import Deliverable, DeliverableKind
+from .models import Deliverable
 
 
 @dataclass

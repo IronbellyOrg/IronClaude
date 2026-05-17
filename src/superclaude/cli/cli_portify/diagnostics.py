@@ -15,7 +15,6 @@ from typing import Optional
 
 from superclaude.cli.cli_portify.gates import GateFailure
 
-
 # ---------------------------------------------------------------------------
 # DiagnosticsBundle
 # ---------------------------------------------------------------------------

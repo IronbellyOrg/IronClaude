@@ -12,12 +12,11 @@ The other acceptance criteria are already covered:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from superclaude.cli.pipeline.models import StepResult, StepStatus, Step
+from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
 from superclaude.cli.roadmap.executor import execute_roadmap, write_state
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 

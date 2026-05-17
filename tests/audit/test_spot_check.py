@@ -1,23 +1,17 @@
 """Tests for post-consolidation spot-check validator (T04.02 / D-0028)."""
 
-import pytest
 
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V1Category,
     V2Action,
     V2Tier,
-    classify_finding,
-    map_to_v1,
 )
 from superclaude.cli.audit.consolidation import (
     ConsolidatedFinding,
     ConsolidationReport,
-    PhaseFinding,
-    consolidate,
 )
 from superclaude.cli.audit.spot_check import (
-    SpotCheckResult,
     _stratified_sample,
     spot_check_validate,
 )

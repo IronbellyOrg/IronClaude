@@ -13,20 +13,17 @@ from pathlib import Path
 
 import pytest
 
+from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import (
     GateMode,
-    PipelineConfig,
-    Step,
     StepResult,
     StepStatus,
 )
-from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.roadmap.executor import (
+    _apply_resume,
     _build_steps,
     _get_all_step_ids,
-    roadmap_run_step,
-    _apply_resume,
 )
 from superclaude.cli.roadmap.gates import ALL_GATES, WIRING_GATE
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig

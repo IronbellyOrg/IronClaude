@@ -6,8 +6,6 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
     GateCriteria,

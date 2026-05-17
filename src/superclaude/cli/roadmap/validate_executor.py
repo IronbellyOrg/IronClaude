@@ -13,7 +13,6 @@ Context isolation: each subprocess receives only its prompt via inline embedding
 
 from __future__ import annotations
 
-import json
 import logging
 import time
 from datetime import datetime, timezone

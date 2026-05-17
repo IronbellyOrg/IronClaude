@@ -12,17 +12,12 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any
 
 from superclaude.cli.pipeline.models import (
-    GateCriteria,
-    GateMode,
     PipelineConfig,
     Step,
     StepResult,
-    StepStatus,
 )
-
 
 # --- Enums ---
 

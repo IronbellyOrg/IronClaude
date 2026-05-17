@@ -9,7 +9,6 @@ from superclaude.cli.sprint.models import (
     GateDisplayState,
     MonitorState,
     Phase,
-    PhaseStatus,
     SprintConfig,
     SprintResult,
 )

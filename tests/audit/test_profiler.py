@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.profiler import (
     FileProfile,
-    ProfileReport,
     classify_domain,
     classify_risk_tier,
     profile_file,

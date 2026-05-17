@@ -10,11 +10,8 @@ Covers T02.02 acceptance criteria:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
 from superclaude.cli.pipeline.state_detector import (
-    DetectionResult,
     IntroductionType,
     detect_state_variables,
 )

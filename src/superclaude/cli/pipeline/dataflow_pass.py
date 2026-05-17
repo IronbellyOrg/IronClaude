@@ -19,19 +19,16 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .conflict_detector import ConflictDetection, ConflictKind, detect_conflicts
+from .conflict_detector import ConflictDetection, detect_conflicts
 from .contract_extractor import (
-    UNSPECIFIED,
     ImplicitContract,
     extract_implicit_contracts,
 )
 from .dataflow_graph import DataFlowGraph, build_dataflow_graph
 from .invariant_pass import InvariantRegistryOutput
-from .invariants import InvariantEntry
 from .models import Deliverable, DeliverableKind
 from .mutation_inventory import MutationInventoryResult
 from .state_detector import DetectionResult
-
 
 DEFAULT_DATAFLOW_THRESHOLD = 6
 

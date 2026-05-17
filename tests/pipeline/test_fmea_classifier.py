@@ -9,18 +9,14 @@ Scenarios from tasklist:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.fmea_classifier import (
     DetectionDifficulty,
-    FMEAFailureMode,
     Severity,
     classify_failure_modes,
 )
 from superclaude.cli.pipeline.fmea_domains import (
     DomainCategory,
     InputDomain,
-    enumerate_input_domains,
 )
 from superclaude.cli.pipeline.invariants import InvariantEntry, MutationSite
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind

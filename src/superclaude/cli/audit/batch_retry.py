@@ -15,7 +15,6 @@ from typing import Any, Callable
 
 from .checkpoint import BatchStatus, CheckpointState, CheckpointWriter
 
-
 DEFAULT_MAX_RETRIES = 2
 
 

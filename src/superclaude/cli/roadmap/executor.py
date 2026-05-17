@@ -21,6 +21,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+from ...compression import compress_file
+from ..audit.wiring_gate import WIRING_GATE
 from ..pipeline.deliverables import decompose_deliverables
 from ..pipeline.executor import execute_pipeline
 from ..pipeline.models import (
@@ -32,7 +34,7 @@ from ..pipeline.models import (
     StepStatus,
 )
 from ..pipeline.process import ClaudeProcess
-from ...compression import compress_file
+from .certify_prompts import build_certification_prompt
 from .gates import (
     ANTI_INSTINCT_GATE,
     CERTIFY_GATE,
@@ -49,9 +51,7 @@ from .gates import (
     SPEC_FIDELITY_GATE,
     TEST_STRATEGY_GATE,
 )
-from ..audit.wiring_gate import WIRING_GATE
 from .models import AgentSpec, RoadmapConfig
-from .templates import ROADMAP_TEMPLATE, get_template_path
 from .prompts import (
     build_debate_prompt,
     build_diff_prompt,
@@ -65,7 +65,7 @@ from .prompts import (
     build_wiring_verification_prompt,
     wrap_for_incremental_write,
 )
-from .certify_prompts import build_certification_prompt
+from .templates import ROADMAP_TEMPLATE, get_template_path
 
 _log = logging.getLogger("superclaude.roadmap.executor")
 
@@ -695,8 +695,8 @@ def _run_structural_audit(
     Compares spec structural indicators against extraction requirement count.
     Logs a warning if extraction appears inadequate but never blocks the pipeline.
     """
-    from .spec_structural_audit import check_extraction_adequacy
     from .gates import _parse_frontmatter
+    from .spec_structural_audit import check_extraction_adequacy
 
     try:
         spec_text = spec_file.read_text(encoding="utf-8")
@@ -742,12 +742,12 @@ def _run_anti_instinct_audit(
     coverage checker deterministically (no LLM). Writes anti-instinct-audit.md
     with YAML frontmatter and markdown report body.
     """
-    from .obligation_scanner import scan_obligations
-    from .integration_contracts import (
-        extract_integration_contracts,
-        check_roadmap_coverage,
-    )
     from .fingerprint import check_fingerprint_coverage
+    from .integration_contracts import (
+        check_roadmap_coverage,
+        extract_integration_contracts,
+    )
+    from .obligation_scanner import scan_obligations
 
     try:
         spec_text = spec_file.read_text(encoding="utf-8")
@@ -1012,8 +1012,8 @@ def roadmap_run_step(
     # Returns PASS unconditionally; gate evaluation is handled separately by
     # the trailing gate runner (section 5.7.1).
     if step.id == "wiring-verification":
-        from ..audit.wiring_gate import run_wiring_analysis, emit_report
         from ..audit.wiring_config import WiringConfig
+        from ..audit.wiring_gate import emit_report, run_wiring_analysis
 
         wiring_config = WiringConfig(rollout_mode="soft")
         source_dir = (
@@ -1302,14 +1302,13 @@ def _run_convergence_spec_fidelity(
     """
     from .convergence import (
         DeviationRegistry,
-        ConvergenceResult,
         execute_fidelity_with_convergence,
         handle_regression,
     )
-    from .structural_checkers import run_all_checkers
-    from .semantic_layer import run_semantic_layer
-    from .remediate_executor import execute_remediation
     from .fidelity_checker import run_fidelity_check
+    from .remediate_executor import execute_remediation
+    from .semantic_layer import run_semantic_layer
+    from .structural_checkers import run_all_checkers
 
     spec_path = config.spec_file
     roadmap_path = config.output_dir / "roadmap.md"
@@ -1325,7 +1324,7 @@ def _run_convergence_spec_fidelity(
     # Get TurnLedger from sprint models
     try:
         from ..sprint.models import TurnLedger
-        from .convergence import MAX_CONVERGENCE_BUDGET, CHECKER_COST, REMEDIATION_COST
+        from .convergence import CHECKER_COST, MAX_CONVERGENCE_BUDGET, REMEDIATION_COST
 
         ledger = TurnLedger(
             initial_budget=MAX_CONVERGENCE_BUDGET,
@@ -1564,7 +1563,6 @@ def _run_deviation_analysis(
         )
 
         # Build routing lists
-        import re
 
         routing_fix = [
             r.get("stable_id") or r.get("id", "")
@@ -1804,7 +1802,6 @@ def build_certify_step(
     context_sections:
         Pre-extracted context sections per finding location (NFR-011).
     """
-    from .models import Finding
 
     out = config.output_dir
     certification_report = out / "certification-report.md"
@@ -3245,7 +3242,7 @@ def _auto_invoke_validate(config: RoadmapConfig) -> None:
     Inherits --model, --max-turns, --debug from the parent roadmap config.
     Default agent count for roadmap-run invocation is 2 (dual-agent for rigor).
     """
-    from .models import AgentSpec, ValidateConfig
+    from .models import ValidateConfig
     from .validate_executor import execute_validate
 
     # Default to 2 agents for roadmap-run auto-invocation (dual-agent for rigor per OQ-1)

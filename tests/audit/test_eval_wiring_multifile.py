@@ -17,8 +17,6 @@ import pytest
 
 from superclaude.cli.audit.wiring_config import WiringConfig
 from superclaude.cli.audit.wiring_gate import (
-    WiringFinding,
-    WiringReport,
     analyze_orphan_modules,
     analyze_registries,
     analyze_unwired_callables,

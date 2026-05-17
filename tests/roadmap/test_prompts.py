@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.roadmap.prompts import (
     _DEPTH_INSTRUCTIONS,
     build_debate_prompt,

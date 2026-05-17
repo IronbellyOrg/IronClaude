@@ -5,16 +5,12 @@ Section 8.1 test plan: 8 tests.
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.prd.gates import (
-    GATE_CRITERIA,
     _check_b2_self_contained,
     _check_no_placeholders,
     _check_parallel_instructions,
     _check_parsed_request_fields,
     _check_prd_template_sections,
-    _check_qa_verdict,
     _check_research_notes_sections,
     _check_verdict_field,
     _safe_check,

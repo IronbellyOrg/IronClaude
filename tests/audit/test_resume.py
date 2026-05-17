@@ -1,7 +1,5 @@
 """Tests for resume semantics (T04.11 / D-0037)."""
 
-import json
-import pytest
 from pathlib import Path
 
 from superclaude.cli.audit.checkpoint import (
@@ -12,7 +10,7 @@ from superclaude.cli.audit.checkpoint import (
 )
 from superclaude.cli.audit.classification import V2Action, V2Tier
 from superclaude.cli.audit.consolidation import ConsolidatedFinding
-from superclaude.cli.audit.resume import MergedResults, ResumeController, ResumePoint
+from superclaude.cli.audit.resume import ResumeController
 
 
 def _make_finding(path: str) -> ConsolidatedFinding:

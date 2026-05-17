@@ -14,7 +14,6 @@ from pathlib import Path
 
 import pytest
 
-
 BASE_DIR = Path("src/superclaude/cli/cleanup_audit")
 
 EXPECTED_FILES = [
@@ -51,8 +50,8 @@ class TestStepGraph:
 
     def test_step_count(self):
         """6 steps should be defined matching D-0026 spec."""
-        from superclaude.cli.cleanup_audit.executor import _build_steps
         from superclaude.cli.cleanup_audit.config import load_cleanup_audit_config
+        from superclaude.cli.cleanup_audit.executor import _build_steps
 
         config = load_cleanup_audit_config(target=".", dry_run=True)
         steps = _build_steps(config)
@@ -60,8 +59,8 @@ class TestStepGraph:
 
     def test_step_ids(self):
         """Step IDs should be G-001 through G-006."""
-        from superclaude.cli.cleanup_audit.executor import _build_steps
         from superclaude.cli.cleanup_audit.config import load_cleanup_audit_config
+        from superclaude.cli.cleanup_audit.executor import _build_steps
 
         config = load_cleanup_audit_config(target=".", dry_run=True)
         steps = _build_steps(config)
@@ -70,8 +69,8 @@ class TestStepGraph:
 
     def test_all_steps_have_gates(self):
         """Every step should have a gate assigned."""
-        from superclaude.cli.cleanup_audit.executor import _build_steps
         from superclaude.cli.cleanup_audit.config import load_cleanup_audit_config
+        from superclaude.cli.cleanup_audit.executor import _build_steps
 
         config = load_cleanup_audit_config(target=".", dry_run=True)
         steps = _build_steps(config)
@@ -150,6 +149,7 @@ class TestCommandRegistration:
 
     def test_command_group_is_click_group(self):
         import click
+
         from superclaude.cli.cleanup_audit import cleanup_audit_group
 
         assert isinstance(cleanup_audit_group, click.Group)

@@ -4,10 +4,7 @@ Integration tests for the full 5-wave pipeline.
 Tests end-to-end flow from specification input through final output.
 """
 
-import os
-import re
 
-import pytest
 
 
 class TestFullPipelineE2E:

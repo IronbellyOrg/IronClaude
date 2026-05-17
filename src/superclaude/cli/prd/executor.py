@@ -24,36 +24,30 @@ import re
 import signal
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 
-from .config import resolve_config
 from .diagnostics import (
     DiagnosticCollector,
     FailureClassifier,
     ReportGenerator,
 )
 from .filtering import (
-    compile_gaps,
     load_synthesis_mapping,
-    merge_qa_partition_reports,
-    partition_files,
 )
 from .gates import GATE_CRITERIA
 from .inventory import (
     check_existing_work,
     create_task_dirs,
     discover_research_files,
-    discover_synth_files,
     select_template,
 )
 from .logging_ import PrdLogger
 from .models import (
     ExistingWorkState,
     PrdConfig,
-    PrdMonitorState,
     PrdPipelineResult,
     PrdStepResult,
     PrdStepStatus,
@@ -514,7 +508,7 @@ class PrdExecutor:
         try:
             proc.start_with_retry()
             exit_code = proc.wait()
-        except RuntimeError as exc:
+        except RuntimeError:
             return PrdStepResult(
                 status=PrdStepStatus.ERROR,
                 exit_code=-1,
@@ -605,7 +599,6 @@ class PrdExecutor:
         content: str,
     ) -> bool:
         """Evaluate gate criteria for a step's output."""
-        from superclaude.cli.pipeline.models import GateCriteria
 
         # Check min lines
         if gate.min_lines > 0:

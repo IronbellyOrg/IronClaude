@@ -1,16 +1,12 @@
 """Tests for cross-phase deduplication and consolidation engine (T04.01 / D-0027)."""
 
-import pytest
 
 from superclaude.cli.audit.classification import (
     ClassificationResult,
-    V1Category,
     V2Action,
     V2Tier,
 )
 from superclaude.cli.audit.consolidation import (
-    ConsolidatedFinding,
-    ConsolidationReport,
     PhaseFinding,
     consolidate,
 )

@@ -9,8 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from .batch_decomposer import DecompositionManifest, decompose
-from .profiler import ProfileReport, profile_repository
+from .batch_decomposer import decompose
+from .profiler import profile_repository
 
 
 @dataclass

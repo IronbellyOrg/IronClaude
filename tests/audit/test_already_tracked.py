@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.already_tracked import (
-    AlreadyTrackedSection,
     build_already_tracked_section,
 )
 from superclaude.cli.audit.known_issues import MatchResult

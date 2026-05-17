@@ -20,7 +20,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from ..config import validate_portify_config
 from ..models import (
     ERR_BROKEN_ACTIVATION,
     WARN_MISSING_AGENTS,

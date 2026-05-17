@@ -9,11 +9,8 @@ Covers T02.03 acceptance criteria:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
 from superclaude.cli.pipeline.mutation_inventory import (
-    MutationInventoryResult,
     generate_mutation_inventory,
 )
 from superclaude.cli.pipeline.state_detector import DetectionResult, IntroductionType

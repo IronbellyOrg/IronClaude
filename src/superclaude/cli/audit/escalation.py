@@ -18,7 +18,6 @@ from typing import Any
 
 from .classification import ClassificationResult, V2Action, V2Tier, classify_finding
 
-
 # Default escalation configuration
 DEFAULT_CONFIDENCE_THRESHOLD = 0.6
 DEFAULT_MAX_LINES = 500

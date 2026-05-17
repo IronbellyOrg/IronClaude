@@ -1,6 +1,5 @@
 """Tests for final report section completeness checks (T04.13 / D-0039)."""
 
-import pytest
 
 from superclaude.cli.audit.report_completeness import (
     MANDATED_SECTIONS,

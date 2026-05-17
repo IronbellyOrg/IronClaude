@@ -21,7 +21,6 @@ from .fmea_classifier import (
 )
 from .models import Deliverable, DeliverableKind
 
-
 # Default promotion threshold
 DEFAULT_PROMOTION_THRESHOLD = Severity.WRONG_STATE
 

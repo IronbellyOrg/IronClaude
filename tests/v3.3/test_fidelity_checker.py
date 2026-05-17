@@ -20,7 +20,6 @@ import pytest
 
 from superclaude.cli.roadmap.fidelity_checker import FidelityChecker
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

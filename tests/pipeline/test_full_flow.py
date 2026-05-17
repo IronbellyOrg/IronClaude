@@ -17,14 +17,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.conflict_review import (
     ConflictAction,
     review_conflicts,
 )
 from superclaude.cli.pipeline.diagnostic_chain import (
-    DiagnosticStage,
     run_diagnostic_chain,
 )
 from superclaude.cli.pipeline.models import (
@@ -353,8 +350,14 @@ from superclaude.cli.sprint.models import (
     GateOutcome,
     Phase,
     ShadowGateMetrics,
+)
+from superclaude.cli.sprint.models import (
     TaskEntry as SprintTaskEntry,
+)
+from superclaude.cli.sprint.models import (
     TaskResult as SprintTaskResult,
+)
+from superclaude.cli.sprint.models import (
     TaskStatus as SprintTaskStatus,
 )
 

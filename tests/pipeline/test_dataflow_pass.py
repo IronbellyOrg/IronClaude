@@ -8,11 +8,7 @@ Integration tests:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.dataflow_pass import (
-    DEFAULT_DATAFLOW_THRESHOLD,
-    DataFlowTracingOutput,
     run_dataflow_tracing_pass,
 )
 from superclaude.cli.pipeline.invariant_pass import InvariantRegistryOutput

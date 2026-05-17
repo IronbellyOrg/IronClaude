@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pytest
 
+from superclaude.cli.roadmap.models import RoadmapConfig
 from superclaude.cli.roadmap.prompts import (
     _OUTPUT_FORMAT_BLOCK,
     build_extract_prompt,
     build_extract_prompt_tdd,
     build_merge_prompt,
 )
-from superclaude.cli.roadmap.models import RoadmapConfig
 from superclaude.cli.tasklist.models import TasklistValidateConfig
 
 
@@ -300,8 +300,9 @@ class TestOldSchemaStateBackwardCompat:
 
     def test_state_without_tdd_prd_fields(self, tmp_path):
         """Old state files without tdd_file/prd_file/input_type load gracefully."""
-        from superclaude.cli.roadmap.executor import read_state
         import json
+
+        from superclaude.cli.roadmap.executor import read_state
 
         state_file = tmp_path / ".roadmap-state.json"
         old_state = {
@@ -322,8 +323,9 @@ class TestOldSchemaStateBackwardCompat:
 
     def test_restore_from_old_state_no_crash(self, tmp_path):
         """_restore_from_state handles old state without tdd/prd/input_type."""
-        from superclaude.cli.roadmap.executor import _restore_from_state
         import json
+
+        from superclaude.cli.roadmap.executor import _restore_from_state
 
         spec = tmp_path / "spec.md"
         spec.write_text("# Test Spec")
@@ -388,6 +390,7 @@ class TestSameFileGuard:
     def test_same_file_raises_system_exit(self, tmp_path):
         """Identical tdd_file and prd_file should raise UsageError via routing guard."""
         import click
+
         from superclaude.cli.roadmap.executor import execute_roadmap
 
         shared = tmp_path / "shared.md"
@@ -431,6 +434,7 @@ class TestPrdFileOverrideOnResume:
     def test_explicit_prd_not_overwritten_by_state(self, tmp_path):
         """When --prd-file is set on CLI, state prd_file should NOT override it."""
         import json
+
         from superclaude.cli.roadmap.executor import _restore_from_state
 
         spec = tmp_path / "spec.md"
@@ -486,7 +490,6 @@ class TestRedundancyGuardStatePersistence:
 
     def test_tdd_primary_no_tdd_file_no_warning(self, tmp_path):
         """When input_type=tdd and tdd_file is None, no redundancy warning."""
-        import logging
         tdd = tmp_path / "tdd.md"
         tdd.write_text("# TDD")
         config = RoadmapConfig(
@@ -655,6 +658,7 @@ class TestMultiFileRouting:
 
     def test_route_single_prd_raises(self, tmp_path):
         import click
+
         from superclaude.cli.roadmap.executor import _route_input_files
         prd = self._make_prd(tmp_path)
         with pytest.raises(click.UsageError, match="PRD cannot be the sole primary input"):
@@ -705,6 +709,7 @@ class TestMultiFileRouting:
     def test_route_duplicate_type_raises(self, tmp_path):
         """Two spec-like files → error."""  # Edge case 8.2
         import click
+
         from superclaude.cli.roadmap.executor import _route_input_files
         spec1 = self._make_spec(tmp_path, "spec1.md")
         spec2 = self._make_spec(tmp_path, "spec2.md")
@@ -714,6 +719,7 @@ class TestMultiFileRouting:
     def test_route_too_many_files_raises(self, tmp_path):
         """4 files → error."""  # Edge case 8.3
         import click
+
         from superclaude.cli.roadmap.executor import _route_input_files
         files = tuple(self._make_spec(tmp_path, f"f{i}.md") for i in range(4))
         with pytest.raises(click.UsageError, match="1-3"):
@@ -722,6 +728,7 @@ class TestMultiFileRouting:
     def test_route_conflict_positional_tdd_and_explicit_tdd_raises(self, tmp_path):
         """Positional TDD + --tdd-file → conflict error."""  # Edge case 8.4
         import click
+
         from superclaude.cli.roadmap.executor import _route_input_files
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)

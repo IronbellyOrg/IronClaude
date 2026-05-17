@@ -9,16 +9,15 @@ T01.04 adds verifiability property tests confirming the 4 FR-7.2 properties:
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
-
-import importlib.util
-import sys
 
 # audit-trail is not a valid Python package name (hyphen), so import directly
 _spec = importlib.util.spec_from_file_location(

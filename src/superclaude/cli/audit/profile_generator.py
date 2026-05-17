@@ -22,12 +22,11 @@ from __future__ import annotations
 import os
 import re
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
-from .scanner_schema import PHASE2_PROFILE_FIELDS, validate_phase2
-from .tool_orchestrator import FileAnalysis, ResultCache, ToolOrchestrator
-
+from .scanner_schema import validate_phase2
+from .tool_orchestrator import FileAnalysis, ToolOrchestrator
 
 # Complexity-counting patterns (branch keywords)
 _BRANCH_PATTERNS: list[re.Pattern[str]] = [

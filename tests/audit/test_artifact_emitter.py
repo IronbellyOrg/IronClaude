@@ -1,18 +1,15 @@
 """Tests for coverage and validation artifact emitters (T04.04 / D-0030)."""
 
 import json
-import pytest
 from pathlib import Path
 
-from superclaude.cli.audit.coverage import CoverageArtifact
-from superclaude.cli.audit.spot_check import SpotCheckResult
 from superclaude.cli.audit.artifact_emitter import (
-    COVERAGE_SCHEMA_FIELDS,
-    VALIDATION_SCHEMA_FIELDS,
     emit_coverage_artifact,
     emit_validation_artifact,
     validate_against_schema,
 )
+from superclaude.cli.audit.coverage import CoverageArtifact
+from superclaude.cli.audit.spot_check import SpotCheckResult
 
 
 def _make_coverage() -> CoverageArtifact:

@@ -16,22 +16,16 @@ management, gate evaluation, parallel execution) not prompt content.
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from superclaude.cli.prd.config import resolve_config
-from superclaude.cli.prd.executor import PrdExecutor, TurnLedger
+from superclaude.cli.prd.executor import PrdExecutor
 from superclaude.cli.prd.models import (
     ExistingWorkState,
-    PrdConfig,
-    PrdPipelineResult,
-    PrdStepResult,
     PrdStepStatus,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

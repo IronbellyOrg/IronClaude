@@ -18,11 +18,11 @@ import pytest
 
 from superclaude.cli.cli_portify.config import load_portify_config
 from superclaude.cli.cli_portify.models import (
+    ERR_BROKEN_ACTIVATION,
+    WARN_MISSING_AGENTS,
     AgentEntry,
     ComponentTree,
-    ERR_BROKEN_ACTIVATION,
     PortifyStatus,
-    WARN_MISSING_AGENTS,
 )
 from superclaude.cli.cli_portify.steps.validate_config import (
     ERR_INVALID_PATH,

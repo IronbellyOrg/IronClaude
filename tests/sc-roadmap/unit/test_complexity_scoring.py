@@ -8,7 +8,6 @@ Tests the complexity scoring formula defined in SKILL.md:
 - Classification thresholds (LOW/MEDIUM/HIGH)
 """
 
-import pytest
 
 
 def score_factor(value: int, scoring: dict) -> float:

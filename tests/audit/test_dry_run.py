@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.dry_run import DryRunEstimate, dry_run
-
 
 FIXTURE_FILES = [
     "src/api/users.py",

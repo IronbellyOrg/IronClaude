@@ -5,14 +5,10 @@ Tests component interactions: logging + collection + classification pipeline.
 
 from __future__ import annotations
 
-import logging
-from datetime import datetime, timezone
-
 import pytest
 
 pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l2]
 
-from superclaude.cli.sprint.debug_logger import LOGGER_NAME, debug_log
 from superclaude.cli.sprint.diagnostics import (
     DiagnosticCollector,
     FailureCategory,

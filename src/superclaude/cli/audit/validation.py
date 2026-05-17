@@ -12,7 +12,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from .classification import ClassificationResult, V2Action, V2Tier
+from .classification import ClassificationResult, V2Action
 
 
 @dataclass

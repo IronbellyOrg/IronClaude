@@ -31,9 +31,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
+from ..pipeline.models import GateCriteria, SemanticCheck
 from .models import PortifyGateMode
-from ..pipeline.models import GateCriteria, GateMode, SemanticCheck
-
 
 # ---------------------------------------------------------------------------
 # GateFailure dataclass (T04.03, AC-004)

@@ -7,11 +7,9 @@ from __future__ import annotations
 
 from superclaude.cli.audit.credential_scanner import (
     REDACTION_MARKER,
-    ScanResult,
     redact_output,
     scan_content,
 )
-
 
 # Test fixture: 3 real secrets + 3 template placeholders
 FIXTURE_CONTENT = """# Config file

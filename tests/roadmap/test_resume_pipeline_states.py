@@ -10,20 +10,14 @@ Covers 4 resume scenarios:
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
-
-from superclaude.cli.pipeline.models import GateCriteria, Step
 from superclaude.cli.roadmap.executor import (
     _check_tasklist_hash_current,
     check_certify_resume,
     check_remediate_resume,
     derive_pipeline_status,
-    read_state,
-    write_state,
 )
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 

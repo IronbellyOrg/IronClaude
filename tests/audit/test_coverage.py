@@ -5,8 +5,6 @@ Validates AC2: coverage artifacts with per-tier file counts and percentages.
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.classification import classify_finding
 from superclaude.cli.audit.coverage import CoverageTracker
 

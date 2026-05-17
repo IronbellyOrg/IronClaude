@@ -9,8 +9,6 @@ Four-scenario test suite:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.contract_extractor import (
     CONFIDENCE_THRESHOLD,
     UNSPECIFIED,

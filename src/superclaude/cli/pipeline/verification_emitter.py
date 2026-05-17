@@ -14,12 +14,10 @@ NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
 
-from .invariants import InvariantEntry, MutationSite
+from .invariants import InvariantEntry
 from .models import Deliverable, DeliverableKind
 from .mutation_inventory import MutationInventoryResult
-
 
 # Default edge cases for invariant checks
 DEFAULT_EDGE_CASES = [

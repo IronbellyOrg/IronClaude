@@ -20,7 +20,6 @@ from typing import Any
 
 from .classification import ClassificationResult, V1Category, V2Action, V2Tier
 
-
 # Dynamic import detection patterns
 _DYNAMIC_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     # JavaScript dynamic import()

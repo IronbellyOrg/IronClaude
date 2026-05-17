@@ -7,14 +7,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.prd.models import (
-    ExistingWorkState,
     PrdConfig,
-    PrdMonitorState,
     PrdPipelineResult,
-    PrdStepResult,
     PrdStepStatus,
 )
 

@@ -6,22 +6,17 @@ T03.08 (TurnLedger / HALTED), T03.09 (signal handlers), T03.10 (return contract)
 
 from __future__ import annotations
 
-import os
 import signal
-import time
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 import yaml
 
 from superclaude.cli.cli_portify.executor import (
-    DRY_RUN_PHASE_TYPES,
     PortifyExecutor,
     _build_resume_command,
     _calculate_suggested_resume_budget,
     _determine_status,
-    _emit_return_contract,
     run_with_timeout,
 )
 from superclaude.cli.cli_portify.models import (
@@ -31,7 +26,6 @@ from superclaude.cli.cli_portify.models import (
     PortifyStep,
     TurnLedger,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

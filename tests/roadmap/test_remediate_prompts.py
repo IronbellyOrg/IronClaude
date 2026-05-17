@@ -5,7 +5,6 @@ Covers:
 - T04.02: group_findings_by_file, build_cross_file_fragment
 """
 
-import pytest
 
 from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.roadmap.remediate_prompts import (
@@ -13,7 +12,6 @@ from superclaude.cli.roadmap.remediate_prompts import (
     build_remediation_prompt,
     group_findings_by_file,
 )
-
 
 # ── Shared fixtures ──────────────────────────────────────────────────────
 

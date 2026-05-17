@@ -12,16 +12,10 @@ Validation commands:
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import pytest
-
 from superclaude.cli.cli_portify.diagnostics import (
-    DiagnosticsBundle,
     DiagnosticsCollector,
 )
 from superclaude.cli.cli_portify.gates import GateFailure
-
 
 # ---------------------------------------------------------------------------
 # T09.03 acceptance criteria: diagnostics_collector

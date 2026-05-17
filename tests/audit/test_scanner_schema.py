@@ -5,8 +5,6 @@ Validates AC11: locked scanner output contracts.
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.scanner_schema import (
     PHASE1_REQUIRED_FIELDS,
     PHASE2_PROFILE_FIELDS,
@@ -14,7 +12,6 @@ from superclaude.cli.audit.scanner_schema import (
     validate_phase1,
     validate_phase2,
 )
-
 
 # Fixtures
 VALID_PHASE1_OUTPUT = {

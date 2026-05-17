@@ -6,16 +6,12 @@ debug logger → events → debug log file → reader → parse → assertions.
 
 from __future__ import annotations
 
-import logging
-
 import pytest
 
 pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l0]
 
 from superclaude.cli.sprint.debug_logger import (
     DEBUG_LOG_VERSION,
-    LOGGER_NAME,
-    debug_log,
 )
 
 

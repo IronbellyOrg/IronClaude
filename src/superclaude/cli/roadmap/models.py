@@ -12,7 +12,6 @@ from typing import Literal
 
 from ..pipeline.models import PipelineConfig
 
-
 VALID_FINDING_STATUSES = frozenset({"PENDING", "ACTIVE", "FIXED", "FAILED", "SKIPPED"})
 VALID_DEVIATION_CLASSES = frozenset(
     {"SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"}

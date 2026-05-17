@@ -6,10 +6,10 @@ import pytest
 
 from superclaude.cli.pipeline.models import PipelineConfig
 from superclaude.cli.roadmap.models import (
+    VALID_DEVIATION_CLASSES,
     AgentSpec,
     Finding,
     RoadmapConfig,
-    VALID_DEVIATION_CLASSES,
 )
 
 

@@ -8,12 +8,11 @@ Format variants tested:
 
 import pytest
 
-from superclaude.cli.roadmap.models import Finding, VALID_FINDING_STATUSES
+from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES, Finding
 from superclaude.cli.roadmap.remediate_parser import (
-    parse_validation_report,
     parse_individual_reports,
+    parse_validation_report,
 )
-
 
 # ── Fixtures: Format Variant 1 -- reflect-merged.md ─────────────────────
 

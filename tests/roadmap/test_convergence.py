@@ -1,18 +1,16 @@
 """Tests for BF-2, BF-3, BF-4: Convergence engine."""
 import json
-import pytest
 from pathlib import Path
 
 from superclaude.cli.roadmap.convergence import (
-    DeviationRegistry,
     ConvergenceResult,
-    compute_stable_id,
+    DeviationRegistry,
     _check_regression,
-    _create_validation_dirs,
     _cleanup_validation_dirs,
+    _create_validation_dirs,
+    compute_stable_id,
 )
 from superclaude.cli.roadmap.models import Finding
-
 
 # --- BF-2: Dual authority elimination ---
 
@@ -684,9 +682,9 @@ class TestTurnLedgerIntegration:
         """Cost constants defined as module-level integers."""
         from superclaude.cli.roadmap.convergence import (
             CHECKER_COST,
-            REMEDIATION_COST,
-            REGRESSION_VALIDATION_COST,
             CONVERGENCE_PASS_CREDIT,
+            REGRESSION_VALIDATION_COST,
+            REMEDIATION_COST,
         )
         assert CHECKER_COST == 10
         assert REMEDIATION_COST == 8
@@ -696,9 +694,9 @@ class TestTurnLedgerIntegration:
     def test_derived_budgets_defined(self):
         """Derived budget thresholds defined."""
         from superclaude.cli.roadmap.convergence import (
+            MAX_CONVERGENCE_BUDGET,
             MIN_CONVERGENCE_BUDGET,
             STD_CONVERGENCE_BUDGET,
-            MAX_CONVERGENCE_BUDGET,
         )
         assert MIN_CONVERGENCE_BUDGET == 28
         assert STD_CONVERGENCE_BUDGET == 46
@@ -745,7 +743,6 @@ class TestTurnLedgerIntegration:
         """Budget guard prevents checker run when budget exhausted."""
         from superclaude.cli.roadmap.convergence import (
             execute_fidelity_with_convergence,
-            MAX_CONVERGENCE_BUDGET,
         )
         from superclaude.cli.sprint.models import TurnLedger
 
@@ -786,7 +783,9 @@ class TestConvergenceLoop:
 
     def test_convergence_loop_early_pass(self, tmp_path):
         """Convergence passes on first run when 0 active HIGHs."""
-        from superclaude.cli.roadmap.convergence import execute_fidelity_with_convergence
+        from superclaude.cli.roadmap.convergence import (
+            execute_fidelity_with_convergence,
+        )
         from superclaude.cli.sprint.models import TurnLedger
 
         reg = DeviationRegistry(
@@ -811,7 +810,9 @@ class TestConvergenceLoop:
 
     def test_convergence_loop_three_runs(self, tmp_path):
         """Convergence across 3 runs: findings decrease each run."""
-        from superclaude.cli.roadmap.convergence import execute_fidelity_with_convergence
+        from superclaude.cli.roadmap.convergence import (
+            execute_fidelity_with_convergence,
+        )
         from superclaude.cli.sprint.models import TurnLedger
 
         reg = DeviationRegistry(
@@ -851,8 +852,8 @@ class TestConvergenceLoop:
     def test_convergence_loop_budget_exhaustion(self, tmp_path):
         """Convergence halts with diagnostic on budget exhaustion."""
         from superclaude.cli.roadmap.convergence import (
-            execute_fidelity_with_convergence,
             CHECKER_COST,
+            execute_fidelity_with_convergence,
         )
         from superclaude.cli.sprint.models import TurnLedger
 
@@ -884,7 +885,9 @@ class TestConvergenceLoop:
 
     def test_convergence_loop_regression_trigger(self, tmp_path):
         """Structural increase triggers regression detection."""
-        from superclaude.cli.roadmap.convergence import execute_fidelity_with_convergence
+        from superclaude.cli.roadmap.convergence import (
+            execute_fidelity_with_convergence,
+        )
         from superclaude.cli.sprint.models import TurnLedger
 
         reg = DeviationRegistry(
@@ -937,7 +940,7 @@ class TestDispatch:
 
     def test_convergence_gate_none_when_enabled(self):
         """When convergence_enabled=True, spec-fidelity step has no gate."""
-        from superclaude.cli.roadmap.models import RoadmapConfig, AgentSpec
+        from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
         config = RoadmapConfig(
             spec_file=Path("/tmp/spec.md"),
@@ -966,8 +969,8 @@ class TestDispatch:
 
     def test_legacy_gate_when_disabled(self):
         """When convergence_enabled=False, spec-fidelity step uses SPEC_FIDELITY_GATE."""
-        from superclaude.cli.roadmap.models import RoadmapConfig, AgentSpec
         from superclaude.cli.roadmap.gates import SPEC_FIDELITY_GATE
+        from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
         config = RoadmapConfig(
             spec_file=Path("/tmp/spec.md"),
@@ -1079,10 +1082,10 @@ class TestRegressionTrigger:
     def test_regression_trigger_budget_debit(self, tmp_path):
         """REGRESSION_VALIDATION_COST debited before handle_regression."""
         from superclaude.cli.roadmap.convergence import (
-            execute_fidelity_with_convergence,
-            REGRESSION_VALIDATION_COST,
             CHECKER_COST,
+            REGRESSION_VALIDATION_COST,
             REMEDIATION_COST,
+            execute_fidelity_with_convergence,
         )
         from superclaude.cli.sprint.models import TurnLedger
 
@@ -1183,8 +1186,9 @@ class TestParallelValidation:
 
     def test_handle_regression_no_ledger_ops(self):
         """handle_regression does not perform ledger operations internally."""
-        from superclaude.cli.roadmap.convergence import handle_regression
         import inspect
+
+        from superclaude.cli.roadmap.convergence import handle_regression
         source = inspect.getsource(handle_regression)
         assert "ledger.debit" not in source
         assert "ledger.credit" not in source
@@ -1198,7 +1202,10 @@ class TestTempDirCleanupEnhanced:
 
     def test_cleanup_after_handle_regression(self, tmp_path):
         """Temp dirs cleaned up after handle_regression completes."""
-        from superclaude.cli.roadmap.convergence import handle_regression, _active_validation_dirs
+        from superclaude.cli.roadmap.convergence import (
+            _active_validation_dirs,
+            handle_regression,
+        )
 
         spec = tmp_path / "spec.md"
         roadmap = tmp_path / "roadmap.md"
@@ -1238,7 +1245,6 @@ class TestTempDirCleanupEnhanced:
 
     def test_atexit_handler_registered(self):
         """atexit handler is registered for cleanup."""
-        import atexit
         from superclaude.cli.roadmap.convergence import _atexit_cleanup
         # _atexit_cleanup is registered at module import time
         # We can verify it exists as a callable
@@ -1254,6 +1260,7 @@ class TestInterfaceContract:
     def test_handle_regression_signature(self):
         """handle_regression has expected signature."""
         import inspect
+
         from superclaude.cli.roadmap.convergence import handle_regression
 
         sig = inspect.signature(handle_regression)
@@ -1301,7 +1308,9 @@ class TestMutualExclusion:
 
     def test_convergence_mode_no_legacy_budget_call(self, tmp_path):
         """Convergence mode never invokes legacy budget functions."""
-        from superclaude.cli.roadmap.convergence import execute_fidelity_with_convergence
+        from superclaude.cli.roadmap.convergence import (
+            execute_fidelity_with_convergence,
+        )
         from superclaude.cli.sprint.models import TurnLedger
 
         reg = DeviationRegistry(

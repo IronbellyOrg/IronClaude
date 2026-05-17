@@ -8,7 +8,6 @@ Tests the persona activation rules defined in SKILL.md:
 - Persona-domain mapping
 """
 
-import pytest
 
 
 def select_personas(domain_distribution: dict) -> dict:

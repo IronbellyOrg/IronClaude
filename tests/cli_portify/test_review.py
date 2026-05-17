@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-import pytest
-
 from superclaude.cli.cli_portify.review import (
-    REVIEW_GATE_STEPS,
     ReviewDecision,
     is_review_step,
     prompt_review,

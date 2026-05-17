@@ -11,12 +11,9 @@ All tests use real content fixtures, no mocks.
 
 from superclaude.cli.roadmap.integration_contracts import (
     IntegrationAuditResult,
-    IntegrationContract,
-    WiringCoverage,
     check_roadmap_coverage,
     extract_integration_contracts,
 )
-
 
 # --- Real content fixtures ---
 

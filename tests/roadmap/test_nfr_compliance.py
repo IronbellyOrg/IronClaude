@@ -13,7 +13,6 @@ from pathlib import Path
 
 import pytest
 
-
 _SRC_ROOT = (
     Path(__file__).resolve().parent.parent.parent / "src" / "superclaude" / "cli"
 )
@@ -89,17 +88,17 @@ class TestNFR005GateDataSeparation:
 
     def test_defines_gate_criteria_instances(self):
         """Verify module-level GateCriteria constants exist."""
+        from superclaude.cli.pipeline.models import GateCriteria
         from superclaude.cli.roadmap.gates import (
+            DEBATE_GATE,
+            DIFF_GATE,
             EXTRACT_GATE,
             GENERATE_A_GATE,
             GENERATE_B_GATE,
-            DIFF_GATE,
-            DEBATE_GATE,
-            SCORE_GATE,
             MERGE_GATE,
+            SCORE_GATE,
             TEST_STRATEGY_GATE,
         )
-        from superclaude.cli.pipeline.models import GateCriteria
 
         for gate in [
             EXTRACT_GATE,

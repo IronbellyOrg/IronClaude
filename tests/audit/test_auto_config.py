@@ -7,14 +7,14 @@ import json
 import pytest
 
 from superclaude.cli.audit.auto_config import (
-    AuditConfig,
     CONFIG_FILENAME,
+    AuditConfig,
     detect_cold_start,
     ensure_config,
     generate_config,
     write_config,
 )
-from superclaude.cli.audit.profiler import ProfileReport, profile_repository
+from superclaude.cli.audit.profiler import profile_repository
 
 
 @pytest.fixture

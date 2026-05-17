@@ -9,9 +9,6 @@ Verifies Critical Correction #4: TodoWrite uses only 3 states.
 
 import re
 
-import pytest
-
-
 VALID_TODOWRITE_STATES = {"pending", "in_progress", "completed"}
 
 

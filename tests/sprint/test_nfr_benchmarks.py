@@ -21,10 +21,8 @@ from pathlib import Path
 import pytest
 
 from superclaude.cli.pipeline.gates import gate_passed
-from superclaude.cli.pipeline.models import GateCriteria, Step
-from superclaude.cli.pipeline.trailing_gate import TrailingGateRunner
+from superclaude.cli.pipeline.models import GateCriteria
 from superclaude.cli.sprint.models import TurnLedger
-
 
 # ---------------------------------------------------------------------------
 # Helpers

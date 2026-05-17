@@ -17,15 +17,22 @@ import signal
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
+from superclaude.cli.audit.wiring_gate import WiringFinding, WiringReport
+from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
+)
+from superclaude.cli.roadmap.convergence import (
+    CHECKER_COST,
+    DeviationRegistry,
+    execute_fidelity_with_convergence,
+)
+from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.sprint.executor import (
     execute_phase_tasks,
     run_post_task_anti_instinct_hook,
     run_post_task_wiring_hook,
 )
 from superclaude.cli.sprint.kpi import build_kpi_report
-from superclaude.cli.sprint.process import SignalHandler
 from superclaude.cli.sprint.models import (
     GateOutcome,
     Phase,
@@ -36,19 +43,7 @@ from superclaude.cli.sprint.models import (
     TaskStatus,
     TurnLedger,
 )
-from superclaude.cli.audit.wiring_gate import WiringFinding, WiringReport
-from superclaude.cli.pipeline.trailing_gate import (
-    DeferredRemediationLog,
-    TrailingGateResult,
-)
-from superclaude.cli.roadmap.convergence import (
-    ConvergenceResult,
-    DeviationRegistry,
-    execute_fidelity_with_convergence,
-    CHECKER_COST,
-)
-from superclaude.cli.roadmap.models import Finding
-
+from superclaude.cli.sprint.process import SignalHandler
 
 # ---------------------------------------------------------------------------
 # Helpers

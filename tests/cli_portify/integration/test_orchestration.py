@@ -14,19 +14,17 @@ Per D-0041: Integration test suite for Phase 8 validation.
 
 from __future__ import annotations
 
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 from superclaude.cli.cli_portify.config import load_portify_config
 from superclaude.cli.cli_portify.contract import (
-    ContractStatus,
+    StepTiming,
     build_dry_run_contract,
     build_failed_contract,
     build_partial_contract,
     build_success_contract,
-    StepTiming,
 )
 from superclaude.cli.cli_portify.convergence import (
     ConvergenceEngine,
@@ -37,9 +35,7 @@ from superclaude.cli.cli_portify.convergence import (
 )
 from superclaude.cli.cli_portify.models import (
     FailureClassification,
-    PortifyConfig,
     PortifyStatus,
-    PortifyStepResult,
 )
 from superclaude.cli.cli_portify.review import ReviewDecision, review_gate
 from superclaude.cli.cli_portify.steps.analyze_workflow import run_analyze_workflow
@@ -47,7 +43,6 @@ from superclaude.cli.cli_portify.steps.brainstorm_gaps import run_brainstorm_gap
 from superclaude.cli.cli_portify.steps.design_pipeline import run_design_pipeline
 from superclaude.cli.cli_portify.steps.panel_review import (
     check_downstream_readiness,
-    compute_overall_score,
     run_panel_review,
 )
 from superclaude.cli.cli_portify.steps.synthesize_spec import run_synthesize_spec
@@ -55,11 +50,9 @@ from tests.cli_portify.fixtures.mock_harness import (
     ANALYZE_WORKFLOW_GOOD,
     BRAINSTORM_GAPS_GOOD,
     DESIGN_PIPELINE_GOOD,
-    PANEL_REVIEW_GOOD,
     SYNTHESIZE_SPEC_GOOD,
     patch_portify_process,
 )
-
 
 # --- Fixtures ---
 

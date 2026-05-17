@@ -215,13 +215,12 @@ class TestValidationResultShape:
 
     def test_result_has_all_new_fields(self, tmp_path):
         """ValidateConfigResult from run_validate_config has all new fields."""
-        from superclaude.cli.cli_portify.steps.validate_config import (
-            ValidateConfigResult,
-            run_validate_config,
-        )
         from superclaude.cli.cli_portify.models import (
             AgentEntry,
             ComponentTree,
+        )
+        from superclaude.cli.cli_portify.steps.validate_config import (
+            run_validate_config,
         )
 
         sd = tmp_path / "sc-test-protocol"
@@ -246,6 +245,7 @@ class TestValidationResultShape:
     def test_result_serializes_to_json(self, tmp_path):
         """ValidateConfigResult.to_dict() is JSON-serializable."""
         import json
+
         from superclaude.cli.cli_portify.steps.validate_config import (
             run_validate_config,
         )
@@ -271,10 +271,10 @@ class TestManifestOutput:
     def test_manifest_markdown_generation(self, tmp_path):
         """ComponentTree.to_manifest_markdown() produces valid Markdown."""
         from superclaude.cli.cli_portify.models import (
+            AgentEntry,
             CommandEntry,
             ComponentTree,
             SkillEntry,
-            AgentEntry,
         )
 
         tree = ComponentTree(
@@ -365,10 +365,10 @@ class TestToFlatInventoryEquivalence:
     def test_flat_inventory_preserves_data(self):
         """ComponentTree.to_flat_inventory() preserves all component data."""
         from superclaude.cli.cli_portify.models import (
+            AgentEntry,
             CommandEntry,
             ComponentTree,
             SkillEntry,
-            AgentEntry,
         )
 
         tree = ComponentTree(
@@ -389,12 +389,12 @@ class TestMissingAgentsIntegration:
     """SC-8: Missing agents warn, don't fail (integration test)."""
 
     def test_missing_agent_warns_not_fails_in_pipeline(self, tmp_path):
-        from superclaude.cli.cli_portify.steps.validate_config import (
-            run_validate_config,
-        )
         from superclaude.cli.cli_portify.models import (
             AgentEntry,
             ComponentTree,
+        )
+        from superclaude.cli.cli_portify.steps.validate_config import (
+            run_validate_config,
         )
 
         sd = tmp_path / "sc-test-protocol"

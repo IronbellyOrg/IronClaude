@@ -8,12 +8,11 @@ import shutil
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 from superclaude.cli.sprint.executor import (
     _determine_phase_status,
     _write_executor_result_file,
-    _write_preliminary_result,
 )
 from superclaude.cli.sprint.models import (
     MonitorState,
@@ -890,7 +889,6 @@ class TestPreliminaryResultIntegration:
         returns PASS because CONTINUE is found in the result file.
         """
         from superclaude.cli.sprint.executor import execute_sprint
-        from superclaude.cli.sprint.models import SprintOutcome
 
         config = _make_config(tmp_path)
         phase = config.active_phases[0]

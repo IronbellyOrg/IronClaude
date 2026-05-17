@@ -11,7 +11,10 @@ import textwrap
 
 import pytest
 
-from superclaude.cli.roadmap.obligation_scanner import _is_meta_context, scan_obligations
+from superclaude.cli.roadmap.obligation_scanner import (
+    _is_meta_context,
+    scan_obligations,
+)
 
 
 class TestLayer1InlineCode:

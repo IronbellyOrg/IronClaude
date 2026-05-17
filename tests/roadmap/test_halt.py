@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
-import pytest
 
 from superclaude.cli.pipeline.models import GateCriteria, Step, StepResult, StepStatus
 from superclaude.cli.roadmap.executor import _format_halt_output

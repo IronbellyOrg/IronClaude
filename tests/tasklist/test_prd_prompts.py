@@ -11,13 +11,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.tasklist.prompts import (
     build_tasklist_fidelity_prompt,
     build_tasklist_generate_prompt,
 )
-
 
 ROADMAP = Path("roadmap.md")
 TASKLIST_DIR = Path("tasklists/")

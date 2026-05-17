@@ -9,14 +9,11 @@ Covers T04.03 acceptance criteria:
 
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import patch
-
 import pytest
 from click.testing import CliRunner
 
 from superclaude.cli.main import main
-from superclaude.cli.tasklist.commands import tasklist_group, validate
+from superclaude.cli.tasklist.commands import tasklist_group
 from superclaude.cli.tasklist.executor import (
     _build_steps,
     _collect_tasklist_files,

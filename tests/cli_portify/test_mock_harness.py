@@ -9,18 +9,15 @@ Covers:
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-from superclaude.cli.cli_portify.process import PortifyProcess, ProcessResult
+from superclaude.cli.cli_portify.process import PortifyProcess
 from superclaude.cli.cli_portify.utils import parse_frontmatter
 from tests.cli_portify.fixtures.mock_harness import (
     EDGE_CASE_FIXTURES,
     STEP_FIXTURES,
     get_edge_case,
     get_fixture,
-    mock_process_run,
     patch_portify_process,
 )
 

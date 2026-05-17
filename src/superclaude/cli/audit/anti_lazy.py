@@ -10,7 +10,6 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
-from .classification import V2Action
 from .consolidation import ConsolidatedFinding
 
 DEFAULT_UNIFORMITY_THRESHOLD = 0.90

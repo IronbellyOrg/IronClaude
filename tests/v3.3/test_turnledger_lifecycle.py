@@ -27,36 +27,30 @@ Dependencies: T01.02 (audit_trail fixture)
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-import pytest
-
-from superclaude.cli.sprint.executor import execute_phase_tasks
+from superclaude.cli.roadmap.convergence import (
+    CHECKER_COST,
+    CONVERGENCE_PASS_CREDIT,
+    REGRESSION_VALIDATION_COST,
+    REMEDIATION_COST,
+    DeviationRegistry,
+    execute_fidelity_with_convergence,
+)
+from superclaude.cli.roadmap.models import Finding
+from superclaude.cli.sprint.executor import (
+    execute_phase_tasks,
+    run_post_phase_wiring_hook,
+)
 from superclaude.cli.sprint.models import (
     Phase,
     PhaseResult,
     PhaseStatus,
     SprintConfig,
     TaskEntry,
-    TaskResult,
     TaskStatus,
     TurnLedger,
 )
-from superclaude.cli.sprint.executor import run_post_phase_wiring_hook
-from superclaude.cli.roadmap.convergence import (
-    CHECKER_COST,
-    CONVERGENCE_PASS_CREDIT,
-    REGRESSION_VALIDATION_COST,
-    REMEDIATION_COST,
-    ConvergenceResult,
-    DeviationRegistry,
-    execute_fidelity_with_convergence,
-    handle_regression,
-    reimburse_for_progress,
-)
-from superclaude.cli.roadmap.models import Finding
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -548,7 +542,8 @@ class TestSprintPerPhasePathE2E:
         -> credit_wiring(2) which credits int(2*0.8)=1 turn back.
         wiring_analyses_count should equal 2 after both tasks complete.
         """
-        from dataclasses import dataclass, field as dc_field
+        from dataclasses import dataclass
+        from dataclasses import field as dc_field
 
         config = _make_sprint_config_with_wiring(tmp_path)
         tasks = _make_tasks()
@@ -809,7 +804,8 @@ class TestCrossPathCoherence:
         Freeform phases debit max_turns once (simulating ClaudeProcess),
         then reconcile based on actual turn consumption.
         """
-        from dataclasses import dataclass, field as dc_field
+        from dataclasses import dataclass
+        from dataclasses import field as dc_field
         from datetime import datetime, timezone
 
         config = _make_cross_path_config(tmp_path)

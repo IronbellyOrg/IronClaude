@@ -6,35 +6,27 @@ self-contained in-memory fixtures.
 
 from __future__ import annotations
 
-import time
-from datetime import datetime, timezone
-
-import pytest
-
 from superclaude.cli.audit.batch_decomposer import decompose
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V1Category,
     V2Action,
     V2Tier,
-    classify_finding,
 )
 from superclaude.cli.audit.consolidation import (
     ConsolidatedFinding,
     ConsolidationReport,
-    consolidate,
 )
 from superclaude.cli.audit.coverage import CoverageTracker
 from superclaude.cli.audit.dead_code import detect_dead_code
 from superclaude.cli.audit.dependency_graph import (
-    DependencyGraph,
     DependencyEdge,
+    DependencyGraph,
     EdgeTier,
 )
 from superclaude.cli.audit.dry_run import dry_run
-from superclaude.cli.audit.profiler import profile_file, FileProfile
-from superclaude.cli.audit.report_completeness import validate_report_completeness
-from superclaude.cli.audit.report_depth import render_report, ReportDepth
+from superclaude.cli.audit.profiler import FileProfile, profile_file
+from superclaude.cli.audit.report_depth import ReportDepth, render_report
 from superclaude.cli.audit.tool_orchestrator import FileAnalysis
 
 

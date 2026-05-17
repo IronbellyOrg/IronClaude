@@ -12,7 +12,6 @@ Covers:
 - T04.10: step registration (REMEDIATE_GATE integration)
 """
 
-import os
 import textwrap
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -21,31 +20,25 @@ import pytest
 
 from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.roadmap.remediate_executor import (
+    _AGENT_TIMEOUT_SECONDS,
     _DIFF_SIZE_THRESHOLD_PCT,
-    _FALLBACK_MIN_CHARS,
-    _FALLBACK_MIN_LINES,
+    _LARGE_PROMPT_WARN_BYTES,
     EDITABLE_FILES,
     RemediationPatch,
-    _AGENT_TIMEOUT_SECONDS,
-    _LARGE_PROMPT_WARN_BYTES,
     _check_cross_file_coherence,
     _handle_failure,
     _handle_file_rollback,
     _handle_success,
     _run_agent_for_file,
-    _update_finding_entries,
-    _update_frontmatter_counts,
     check_morphllm_available,
     check_patch_diff_size,
     cleanup_snapshots,
     create_snapshots,
     enforce_allowlist,
-    execute_remediation,
     fallback_apply,
     restore_from_snapshots,
     update_remediation_tasklist,
 )
-
 
 # ── Shared fixtures ──────────────────────────────────────────────────────
 
@@ -509,7 +502,7 @@ class TestRemediateStepRegistration:
     """T04.10: Remediate step is registered and discoverable."""
 
     def test_remediate_gate_in_all_gates(self):
-        from superclaude.cli.roadmap.gates import ALL_GATES, REMEDIATE_GATE
+        from superclaude.cli.roadmap.gates import ALL_GATES
 
         gate_names = [name for name, _ in ALL_GATES]
         assert "remediate" in gate_names

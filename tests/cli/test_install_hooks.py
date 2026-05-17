@@ -21,19 +21,17 @@ from __future__ import annotations
 
 import json
 import os
-import stat
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 from superclaude.cli.install_hooks import (
-    _backup_path,
     _atomic_write_json,
+    _backup_path,
     install_hooks,
     validate_session_id,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

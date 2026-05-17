@@ -21,7 +21,6 @@ import pytest
 from superclaude.cli.pipeline.models import PipelineConfig, Step, StepStatus
 from superclaude.cli.roadmap.models import Finding
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 

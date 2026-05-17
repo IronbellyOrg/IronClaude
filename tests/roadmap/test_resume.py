@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 
-from superclaude.cli.pipeline.models import GateCriteria, Step, StepStatus
-from superclaude.cli.roadmap.executor import _apply_resume, read_state, write_state
+from superclaude.cli.pipeline.models import GateCriteria, Step
+from superclaude.cli.roadmap.executor import _apply_resume, write_state
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
 

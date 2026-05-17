@@ -17,36 +17,23 @@ All tests use mocked ClaudeProcess (no real subprocess launches).
 
 from __future__ import annotations
 
-import os
-import signal
-import time
 import threading
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+import time
 
 import pytest
 
 from superclaude.cli.prd.config import resolve_config
-from superclaude.cli.prd.diagnostics import (
-    DiagnosticCollector,
-    FailureClassifier,
-    PrdFailureCategory,
-    ReportGenerator,
-)
 from superclaude.cli.prd.executor import (
     PrdExecutor,
     TurnLedger,
-    _detect_sentinel,
 )
 from superclaude.cli.prd.inventory import check_existing_work
 from superclaude.cli.prd.models import (
     ExistingWorkState,
-    PrdConfig,
     PrdPipelineResult,
     PrdStepResult,
     PrdStepStatus,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

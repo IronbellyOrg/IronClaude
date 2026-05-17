@@ -19,7 +19,6 @@ from superclaude.cli.sprint.models import (
     ShadowGateMetrics,
     SprintConfig,
     TaskEntry,
-    TaskResult,
     TaskStatus,
     TurnLedger,
 )

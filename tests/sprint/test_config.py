@@ -12,7 +12,7 @@ from superclaude.cli.sprint.config import (
     parse_tasklist_file,
     validate_phases,
 )
-from superclaude.cli.sprint.models import Phase, TaskEntry
+from superclaude.cli.sprint.models import Phase
 
 # ---------------------------------------------------------------------------
 # Pattern matching tests

@@ -16,10 +16,10 @@ NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
-from .fmea_domains import InputDomain, enumerate_input_domains
+from .fmea_domains import InputDomain
 from .invariants import InvariantEntry
 from .models import Deliverable
 

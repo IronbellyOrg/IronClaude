@@ -18,14 +18,10 @@ v2.24 scenario uses a roadmap with 4 deviations:
 
 from __future__ import annotations
 
-import hashlib
 import io
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import patch
-
-import pytest
 
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
@@ -33,16 +29,14 @@ from superclaude.cli.roadmap.executor import (
     _build_steps,
     _check_remediation_budget,
     _print_terminal_halt,
-    _save_state,
 )
 from superclaude.cli.roadmap.gates import (
     DEVIATION_ANALYSIS_GATE,
     SPEC_FIDELITY_GATE,
     _high_severity_count_zero,
-    _no_ambiguous_deviations,
+    _pre_approved_not_in_fix_roadmap,
     _routing_ids_valid,
     _slip_count_matches_routing,
-    _pre_approved_not_in_fix_roadmap,
     _total_analyzed_consistent,
 )
 from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
@@ -50,7 +44,6 @@ from superclaude.cli.roadmap.remediate import (
     _parse_routing_list,
     deviations_to_findings,
 )
-
 
 # ──────────────────────────────────────────────────────────────────
 # Shared fixtures and helpers

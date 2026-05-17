@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.batch_decomposer import (
-    Batch,
-    DecompositionManifest,
+    DEFAULT_BATCH_SIZE,
     decompose,
     detect_segments,
-    DEFAULT_BATCH_SIZE,
 )
 
 

@@ -11,8 +11,6 @@ Covers T02.04 acceptance criteria:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.invariants import InvariantEntry, MutationSite
 from superclaude.cli.pipeline.models import DeliverableKind
 from superclaude.cli.pipeline.mutation_inventory import MutationInventoryResult

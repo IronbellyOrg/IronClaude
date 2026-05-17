@@ -12,7 +12,6 @@ Covers:
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -23,7 +22,6 @@ from superclaude.cli.cli_portify.models import (
 )
 from superclaude.cli.cli_portify.steps.analyze_workflow import run_analyze_workflow
 from tests.cli_portify.fixtures.mock_harness import (
-    ANALYZE_WORKFLOW_GOOD,
     MALFORMED_FRONTMATTER,
     patch_portify_process,
 )

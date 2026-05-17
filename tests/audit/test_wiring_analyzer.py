@@ -11,7 +11,10 @@ from __future__ import annotations
 import textwrap
 
 from superclaude.cli.audit.tool_orchestrator import FileAnalysis, ToolOrchestrator
-from superclaude.cli.audit.wiring_analyzer import ast_analyze_file, ast_references_plugin
+from superclaude.cli.audit.wiring_analyzer import (
+    ast_analyze_file,
+    ast_references_plugin,
+)
 
 
 class TestAstAnalyzeFileValid:
@@ -201,6 +204,7 @@ class TestDualEvidenceRule:
     def test_dual_evidence_prevents_false_positive(self):
         """Module with references but no imports is NOT flagged as orphan."""
         from pathlib import Path
+
         from superclaude.cli.audit.wiring_config import WiringConfig
         from superclaude.cli.audit.wiring_gate import analyze_orphan_modules
 
@@ -230,6 +234,7 @@ class TestDualEvidenceRule:
     def test_dual_evidence_still_flags_true_orphans(self):
         """Module with neither imports nor references IS still flagged."""
         from pathlib import Path
+
         from superclaude.cli.audit.wiring_config import WiringConfig
         from superclaude.cli.audit.wiring_gate import analyze_orphan_modules
 
@@ -253,6 +258,7 @@ class TestDualEvidenceRule:
     def test_fallback_to_import_only_without_plugin(self):
         """When file_references is None, falls back to import-graph-only."""
         from pathlib import Path
+
         from superclaude.cli.audit.wiring_config import WiringConfig
         from superclaude.cli.audit.wiring_gate import analyze_orphan_modules
 
@@ -270,6 +276,7 @@ class TestDualEvidenceRule:
     def test_dual_evidence_note_in_detail(self):
         """When dual evidence is active, finding detail includes evidence note."""
         from pathlib import Path
+
         from superclaude.cli.audit.wiring_config import WiringConfig
         from superclaude.cli.audit.wiring_gate import analyze_orphan_modules
 

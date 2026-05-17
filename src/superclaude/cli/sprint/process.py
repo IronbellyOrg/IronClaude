@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import signal
 import subprocess as _subprocess
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from superclaude.cli.pipeline.process import ClaudeProcess as _PipelineClaudeProcess
 

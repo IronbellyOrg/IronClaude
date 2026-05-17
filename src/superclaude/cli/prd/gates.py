@@ -23,12 +23,10 @@ NFR-PRD.2: All _check_* functions match Callable[[str], bool | str].
 
 from __future__ import annotations
 
-import json
 import re
 from typing import Callable
 
 from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
-
 
 # ---------------------------------------------------------------------------
 # Layer 1: Reusable semantic checks

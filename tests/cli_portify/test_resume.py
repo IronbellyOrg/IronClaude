@@ -8,7 +8,6 @@ Per D-0037, D-0038 (SC-014), D-0052.
 
 from __future__ import annotations
 
-import pytest
 from pathlib import Path
 
 from superclaude.cli.cli_portify.models import (

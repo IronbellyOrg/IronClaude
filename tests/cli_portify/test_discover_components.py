@@ -20,14 +20,12 @@ import pytest
 from superclaude.cli.cli_portify.config import load_portify_config
 from superclaude.cli.cli_portify.models import (
     AgentEntry,
-    PortifyStatus,
-    ResolvedTarget,
-    TargetInputType,
-)
-from superclaude.cli.cli_portify.models import (
     CommandEntry,
     ComponentTree,
+    PortifyStatus,
+    ResolvedTarget,
     SkillEntry,
+    TargetInputType,
 )
 from superclaude.cli.cli_portify.steps.discover_components import (
     AGENT_PATTERN_BACKTICK,
@@ -48,7 +46,6 @@ from superclaude.cli.cli_portify.steps.discover_components import (
     extract_agents,
     render_enriched_inventory,
     run_discover_components,
-    _write_inventory_artifact,
 )
 from superclaude.cli.cli_portify.utils import parse_frontmatter
 

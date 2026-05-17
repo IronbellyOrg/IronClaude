@@ -18,9 +18,7 @@ import yaml
 
 from superclaude.cli.audit.reachability import (
     ReachabilityAnalyzer,
-    run_reachability_gate,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

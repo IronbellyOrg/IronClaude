@@ -13,7 +13,6 @@ Protocol stages:
 - F4/5: Base selection + merge + contract output (merged stage)
 """
 
-import pytest
 
 
 # -- Canonical return contract schema --

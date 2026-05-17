@@ -4,7 +4,6 @@ Integration tests for Wave 2 pipeline: Template discovery → Selection → Task
 Tests Wave 2 flow from template discovery through milestone planning.
 """
 
-import pytest
 
 
 def discover_template(complexity_score, domain_dist, template_dirs_exist=None):

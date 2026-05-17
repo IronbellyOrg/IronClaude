@@ -19,7 +19,6 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterator
 
 from .models import Deliverable
 from .mutation_inventory import MutationInventoryResult

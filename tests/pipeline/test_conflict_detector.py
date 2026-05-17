@@ -9,10 +9,7 @@ Four-scenario test suite:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.conflict_detector import (
-    ConflictDetection,
     ConflictKind,
     are_synonyms,
     detect_conflicts,

@@ -14,7 +14,6 @@ Target resolution types (from v2.24.1):
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from enum import Enum, IntEnum
 from pathlib import Path

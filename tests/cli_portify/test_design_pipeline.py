@@ -10,7 +10,6 @@ Covers:
 
 from __future__ import annotations
 
-import io
 from pathlib import Path
 from unittest.mock import patch
 
@@ -23,7 +22,6 @@ from superclaude.cli.cli_portify.models import (
 )
 from superclaude.cli.cli_portify.steps.design_pipeline import run_design_pipeline
 from tests.cli_portify.fixtures.mock_harness import (
-    DESIGN_PIPELINE_GOOD,
     MALFORMED_FRONTMATTER,
     patch_portify_process,
 )

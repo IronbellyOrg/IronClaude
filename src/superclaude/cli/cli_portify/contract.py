@@ -21,9 +21,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
-from .models import PortifyStepResult, PortifyStatus
+from .models import PortifyStepResult
 from .resume import get_resumable_step_names
-
 
 # ---------------------------------------------------------------------------
 # ContractStatus

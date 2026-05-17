@@ -10,8 +10,6 @@ Tests the inline template generation algorithm from SKILL.md:
 
 import re
 
-import pytest
-
 
 def milestone_count_range(complexity_score: float) -> tuple:
     """

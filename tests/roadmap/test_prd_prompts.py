@@ -11,8 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
+from superclaude.cli.roadmap.models import AgentSpec
 from superclaude.cli.roadmap.prompts import (
     build_extract_prompt,
     build_extract_prompt_tdd,
@@ -21,8 +20,6 @@ from superclaude.cli.roadmap.prompts import (
     build_spec_fidelity_prompt,
     build_test_strategy_prompt,
 )
-from superclaude.cli.roadmap.models import AgentSpec
-
 
 SPEC = Path("spec.md")
 TDD = Path("tdd.md")
@@ -221,6 +218,7 @@ class TestRedundancyGuard:
         """Verify the guard pattern: when input_type is tdd and tdd_file is set,
         tdd_file should be replaced with None via dataclasses.replace."""
         import dataclasses
+
         from superclaude.cli.roadmap.models import RoadmapConfig
 
         config = RoadmapConfig(
@@ -239,6 +237,7 @@ class TestRedundancyGuard:
     def test_no_guard_when_spec_input(self):
         """When input_type is spec, tdd_file should NOT be nullified."""
         import dataclasses
+
         from superclaude.cli.roadmap.models import RoadmapConfig
 
         config = RoadmapConfig(

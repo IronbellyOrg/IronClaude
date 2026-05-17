@@ -30,7 +30,7 @@ from superclaude.cli.cli_portify.gates import (
     get_gate_criteria,
 )
 from superclaude.cli.pipeline.gates import gate_passed
-from tests.cli_portify.fixtures.mock_harness import STEP_FIXTURES, get_fixture
+from tests.cli_portify.fixtures.mock_harness import get_fixture
 
 
 def _write_artifact(path: Path, content: str) -> Path:

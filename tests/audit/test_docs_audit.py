@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-import pytest
-
 from superclaude.cli.audit.docs_audit import (
     audit_docs,
     check_broken_links,

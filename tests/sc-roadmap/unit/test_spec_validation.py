@@ -11,8 +11,6 @@ Tests the 4-step validation process defined in SKILL.md:
 import os
 import re
 
-import pytest
-
 
 class TestFileExistenceValidation:
     """Step 1: File existence check."""

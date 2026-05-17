@@ -8,12 +8,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.sprint.executor import _resolve_wiring_mode
 from superclaude.cli.sprint.models import (
-    Phase,
     SHADOW_GRACE_INFINITE,
+    Phase,
     SprintConfig,
 )
 

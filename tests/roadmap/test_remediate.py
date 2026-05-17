@@ -10,6 +10,11 @@ Covers:
 
 import pytest
 
+from superclaude.cli.roadmap.gates import (
+    REMEDIATE_GATE,
+    _all_actionable_have_status,
+    _frontmatter_values_non_empty,
+)
 from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.roadmap.remediate import (
     RemediationScope,
@@ -21,12 +26,6 @@ from superclaude.cli.roadmap.remediate import (
     generate_stub_tasklist,
     should_skip_prompt,
 )
-from superclaude.cli.roadmap.gates import (
-    REMEDIATE_GATE,
-    _all_actionable_have_status,
-    _frontmatter_values_non_empty,
-)
-
 
 # ── Shared fixtures ──────────────────────────────────────────────────────
 

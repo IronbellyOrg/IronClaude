@@ -21,9 +21,9 @@ from superclaude.cli.pipeline.dataflow_graph import (
     NodeOperation,
     build_dataflow_graph,
 )
-from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
-from superclaude.cli.pipeline.mutation_inventory import MutationInventoryResult
 from superclaude.cli.pipeline.invariants import MutationSite
+from superclaude.cli.pipeline.models import Deliverable
+from superclaude.cli.pipeline.mutation_inventory import MutationInventoryResult
 from superclaude.cli.pipeline.state_detector import DetectionResult, IntroductionType
 
 

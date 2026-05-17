@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import pytest
-
+from superclaude.cli.pipeline.models import GateCriteria
 from superclaude.cli.roadmap.validate_gates import (
     ADVERSARIAL_MERGE_GATE,
     REFLECT_GATE,
     _has_agreement_table,
 )
-from superclaude.cli.pipeline.models import GateCriteria
 
 
 class TestReflectGate:

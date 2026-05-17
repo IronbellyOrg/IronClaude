@@ -16,13 +16,10 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Optional
 
 from superclaude.cli.cli_portify.convergence import (
     ConvergenceEngine,
     ConvergenceResult,
-    ConvergenceState,
-    EscalationReason,
     IterationResult,
 )
 from superclaude.cli.cli_portify.models import (
@@ -34,7 +31,6 @@ from superclaude.cli.cli_portify.models import (
 from superclaude.cli.cli_portify.process import PortifyProcess
 from superclaude.cli.cli_portify.review import review_gate
 from superclaude.cli.cli_portify.utils import extract_sections, hash_section
-
 
 # ---------------------------------------------------------------------------
 # Constants

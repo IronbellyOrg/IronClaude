@@ -12,8 +12,6 @@ Tests each correction documented in the SC-ROADMAP-FEATURE-SPEC:
 
 import re
 
-import pytest
-
 
 class TestCriticalCorrection1:
     """CC1: No subagent_type parameter in Task tool."""

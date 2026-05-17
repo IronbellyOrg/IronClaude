@@ -18,11 +18,9 @@ NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
 
 from __future__ import annotations
 
-import json
 import re
 import warnings
 from dataclasses import dataclass, field
-
 
 # ---------------------------------------------------------------------------
 # Constrained grammar for invariant predicates

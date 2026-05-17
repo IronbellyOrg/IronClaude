@@ -7,11 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.conflict_review import (
     ConflictAction,
-    ConflictReviewResult,
     detect_file_overlap,
     review_conflicts,
 )

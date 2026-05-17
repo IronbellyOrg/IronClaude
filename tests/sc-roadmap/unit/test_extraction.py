@@ -14,8 +14,6 @@ Tests the extraction pipeline defined in SKILL.md:
 
 import re
 
-import pytest
-
 
 class TestTitleExtraction:
     """Step 1: Extract title from H1 heading."""

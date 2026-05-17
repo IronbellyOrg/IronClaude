@@ -6,7 +6,6 @@ SC-007 (whitelist suppression), and R2 (SyntaxError handling).
 
 from __future__ import annotations
 
-import tempfile
 import textwrap
 import time
 from dataclasses import asdict
@@ -19,7 +18,6 @@ from superclaude.cli.audit.wiring_config import (
     DEFAULT_REGISTRY_PATTERNS,
     WiringConfig,
     WiringConfigError,
-    WhitelistEntry,
     load_whitelist,
 )
 from superclaude.cli.audit.wiring_gate import (
@@ -827,6 +825,7 @@ class TestNFR007Compliance:
     def test_no_pipeline_logic_imports_in_wiring_gate(self):
         """NFR-007: wiring_gate.py must not import pipeline logic modules."""
         import inspect
+
         import superclaude.cli.audit.wiring_gate as wg
         source = inspect.getsource(wg)
         # The only pipeline import should be models (data classes)

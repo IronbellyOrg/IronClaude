@@ -18,7 +18,6 @@ from superclaude.cli.pipeline.models import (
     PipelineConfig,
     Step,
     StepResult,
-    StepStatus,
 )
 
 
