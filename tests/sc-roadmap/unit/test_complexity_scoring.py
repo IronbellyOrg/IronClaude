@@ -9,7 +9,6 @@ Tests the complexity scoring formula defined in SKILL.md:
 """
 
 
-
 def score_factor(value: int, scoring: dict) -> float:
     """Look up score for a value in a range-based scoring table."""
     for (low, high), score in scoring.items():

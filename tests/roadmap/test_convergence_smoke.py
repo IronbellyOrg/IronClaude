@@ -5,6 +5,7 @@
 2. execute_fidelity_with_convergence() loop — verifies the convergence loop
    completes without crash and returns a valid ConvergenceResult (T02.26).
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -149,7 +150,9 @@ class TestConvergenceLoopSmoke:
         roadmap.write_text("# Roadmap\n## Feature X\nImplement FR-1\n")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="smoke-1", spec_hash="smoke-hash",
+            path=reg_path,
+            release_id="smoke-1",
+            spec_hash="smoke-hash",
         )
         ledger = TurnLedger(
             initial_budget=MAX_CONVERGENCE_BUDGET,
@@ -208,7 +211,9 @@ class TestConvergenceLoopSmoke:
         roadmap.write_text("# Roadmap")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="smoke-2", spec_hash="smoke-hash-2",
+            path=reg_path,
+            release_id="smoke-2",
+            spec_hash="smoke-hash-2",
         )
         ledger = TurnLedger(
             initial_budget=MAX_CONVERGENCE_BUDGET,

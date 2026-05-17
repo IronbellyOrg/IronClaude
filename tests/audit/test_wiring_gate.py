@@ -79,15 +79,19 @@ class TestWhitelistLoading:
 
     def test_load_whitelist_valid_yaml(self, tmp_path):
         whitelist = tmp_path / "whitelist.yaml"
-        whitelist.write_text(yaml.dump({
-            "unwired_callables": [
-                {"symbol": "Foo.hook", "reason": "intentional"},
-            ],
-            "orphan_modules": [
-                {"symbol": "old_handler", "reason": "deprecated"},
-            ],
-            "unwired_registries": [],
-        }))
+        whitelist.write_text(
+            yaml.dump(
+                {
+                    "unwired_callables": [
+                        {"symbol": "Foo.hook", "reason": "intentional"},
+                    ],
+                    "orphan_modules": [
+                        {"symbol": "old_handler", "reason": "deprecated"},
+                    ],
+                    "unwired_registries": [],
+                }
+            )
+        )
         result = load_whitelist(whitelist)
         assert len(result) == 2
         assert result[0].symbol == "Foo.hook"
@@ -178,7 +182,9 @@ class TestWiringReport:
     def test_blocking_count_soft(self):
         r = WiringReport(rollout_mode="soft")
         r.unwired_callables = [
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", severity="critical"),
+            WiringFinding(
+                "unwired_callable", "a.py", "A.x", 1, "d", severity="critical"
+            ),
         ]
         r.orphan_modules = [
             WiringFinding("orphan_module", "b.py", "b", 1, "d", severity="major"),
@@ -188,7 +194,9 @@ class TestWiringReport:
     def test_blocking_count_full(self):
         r = WiringReport(rollout_mode="full")
         r.unwired_callables = [
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", severity="critical"),
+            WiringFinding(
+                "unwired_callable", "a.py", "A.x", 1, "d", severity="critical"
+            ),
         ]
         r.orphan_modules = [
             WiringFinding("orphan_module", "b.py", "b", 1, "d", severity="major"),
@@ -198,7 +206,15 @@ class TestWiringReport:
     def test_suppressed_excluded_from_blocking(self):
         r = WiringReport(rollout_mode="full")
         r.unwired_callables = [
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", severity="critical", suppressed=True),
+            WiringFinding(
+                "unwired_callable",
+                "a.py",
+                "A.x",
+                1,
+                "d",
+                severity="critical",
+                suppressed=True,
+            ),
         ]
         assert r.blocking_count() == 0
 
@@ -216,13 +232,16 @@ class TestUnwiredCallableAnalyzer:
 
     def test_detects_unwired_optional_callable(self, tmp_path):
         """SC-001: detect Optional[Callable] with no call site wiring."""
-        self._make_fixture(tmp_path, """
+        self._make_fixture(
+            tmp_path,
+            """
             from typing import Callable, Optional
 
             class Processor:
                 def __init__(self, hook: Optional[Callable] = None):
                     self.hook = hook
-        """)
+        """,
+        )
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_unwired_callables(config, tmp_path)
         assert len(findings) >= 1
@@ -231,20 +250,28 @@ class TestUnwiredCallableAnalyzer:
 
     def test_wired_callable_not_flagged(self, tmp_path):
         """Callable that IS wired should not produce a finding."""
-        self._make_fixture(tmp_path, """
+        self._make_fixture(
+            tmp_path,
+            """
             from typing import Callable, Optional
 
             class Runner:
                 def __init__(self, callback: Optional[Callable] = None):
                     self.callback = callback
-        """, "runner.py")
+        """,
+            "runner.py",
+        )
 
-        self._make_fixture(tmp_path, """
+        self._make_fixture(
+            tmp_path,
+            """
             from runner import Runner
 
             def main():
                 r = Runner(callback=lambda: None)
-        """, "consumer.py")
+        """,
+            "consumer.py",
+        )
 
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_unwired_callables(config, tmp_path)
@@ -253,13 +280,17 @@ class TestUnwiredCallableAnalyzer:
     def test_syntax_error_does_not_crash(self, tmp_path):
         """R2: SyntaxError in one file does not crash the analyzer."""
         self._make_fixture(tmp_path, "def broken(", "bad.py")
-        self._make_fixture(tmp_path, """
+        self._make_fixture(
+            tmp_path,
+            """
             from typing import Callable, Optional
 
             class Good:
                 def __init__(self, hook: Optional[Callable] = None):
                     pass
-        """, "good.py")
+        """,
+            "good.py",
+        )
 
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_unwired_callables(config, tmp_path)
@@ -268,22 +299,29 @@ class TestUnwiredCallableAnalyzer:
 
     def test_whitelist_suppression(self, tmp_path):
         """SC-007: whitelisted unwired callables are marked suppressed."""
-        self._make_fixture(tmp_path, """
+        self._make_fixture(
+            tmp_path,
+            """
             from typing import Callable, Optional
 
             class Hook:
                 def __init__(self, on_event: Optional[Callable] = None):
                     pass
-        """)
+        """,
+        )
 
         whitelist = tmp_path / "whitelist.yaml"
-        whitelist.write_text(yaml.dump({
-            "unwired_callables": [
-                {"symbol": "Hook.on_event", "reason": "intentional"},
-            ],
-            "orphan_modules": [],
-            "unwired_registries": [],
-        }))
+        whitelist.write_text(
+            yaml.dump(
+                {
+                    "unwired_callables": [
+                        {"symbol": "Hook.on_event", "reason": "intentional"},
+                    ],
+                    "orphan_modules": [],
+                    "unwired_registries": [],
+                }
+            )
+        )
 
         config = WiringConfig(exclude_patterns=[], whitelist_path=whitelist)
         findings = analyze_unwired_callables(config, tmp_path)
@@ -336,7 +374,8 @@ class TestOrphanModuleAnalyzer:
 class TestRegistryAnalyzer:
     def test_detects_broken_registry_entry(self, tmp_path):
         """SC-003: detect registry entry referencing nonexistent callable."""
-        (tmp_path / "registry.py").write_text(textwrap.dedent("""
+        (tmp_path / "registry.py").write_text(
+            textwrap.dedent("""
             def valid():
                 pass
 
@@ -344,7 +383,8 @@ class TestRegistryAnalyzer:
                 "ok": valid,
                 "broken": missing_func,
             }
-        """))
+        """)
+        )
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_registries(config, tmp_path)
         assert len(findings) >= 1
@@ -353,7 +393,8 @@ class TestRegistryAnalyzer:
 
     def test_valid_registry_not_flagged(self, tmp_path):
         """Registry with all resolvable entries -> no findings."""
-        (tmp_path / "reg.py").write_text(textwrap.dedent("""
+        (tmp_path / "reg.py").write_text(
+            textwrap.dedent("""
             def handler_a():
                 pass
 
@@ -365,29 +406,34 @@ class TestRegistryAnalyzer:
                 "b": handler_b,
                 "null": None,
             }
-        """))
+        """)
+        )
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_registries(config, tmp_path)
         assert len(findings) == 0
 
     def test_non_registry_dict_ignored(self, tmp_path):
         """Dict assignments not matching registry patterns are ignored."""
-        (tmp_path / "config.py").write_text(textwrap.dedent("""
+        (tmp_path / "config.py").write_text(
+            textwrap.dedent("""
             SETTINGS = {
                 "key": "value",
             }
-        """))
+        """)
+        )
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_registries(config, tmp_path)
         assert len(findings) == 0
 
     def test_registry_string_reference_unresolved(self, tmp_path):
         """String values referencing nonexistent dotted paths are flagged."""
-        (tmp_path / "dispatch.py").write_text(textwrap.dedent("""
+        (tmp_path / "dispatch.py").write_text(
+            textwrap.dedent("""
             STEP_HANDLERS = {
                 "task": "nonexistent.module.func",
             }
-        """))
+        """)
+        )
         config = WiringConfig(exclude_patterns=[])
         findings = analyze_registries(config, tmp_path)
         assert len(findings) >= 1
@@ -430,19 +476,21 @@ class TestRunWiringAnalysis:
 
     def test_report_invariant_category_sum(self, tmp_path):
         """Single-source-of-truth invariant: category sums == total."""
-        (tmp_path / "mod.py").write_text(textwrap.dedent("""
+        (tmp_path / "mod.py").write_text(
+            textwrap.dedent("""
             from typing import Callable, Optional
 
             class X:
                 def __init__(self, hook: Optional[Callable] = None):
                     pass
-        """))
+        """)
+        )
         config = WiringConfig(exclude_patterns=[])
         report = run_wiring_analysis(config, tmp_path)
         total = (
-            len(report.unwired_callables) +
-            len(report.orphan_modules) +
-            len(report.unwired_registries)
+            len(report.unwired_callables)
+            + len(report.orphan_modules)
+            + len(report.unwired_registries)
         )
         assert report.total_findings == total
 
@@ -456,7 +504,8 @@ class TestPerformanceBenchmark:
     def test_50_file_under_5_seconds(self, tmp_path):
         """SC-008: 50-file fixture completes in under 5 seconds."""
         for i in range(50):
-            (tmp_path / f"module_{i}.py").write_text(textwrap.dedent(f"""
+            (tmp_path / f"module_{i}.py").write_text(
+                textwrap.dedent(f"""
                 from typing import Callable, Optional
 
                 class Service{i}:
@@ -465,7 +514,8 @@ class TestPerformanceBenchmark:
 
                     def run(self):
                         return {i}
-            """))
+            """)
+            )
 
         config = WiringConfig(exclude_patterns=[])
         start = time.monotonic()
@@ -508,7 +558,9 @@ class TestEmitReport:
         emit_report(report, out)
         content = out.read_text()
         fm = _extract_frontmatter_values(content)
-        assert len(fm) == 16, f"Expected 16 frontmatter fields, got {len(fm)}: {list(fm.keys())}"
+        assert len(fm) == 16, (
+            f"Expected 16 frontmatter fields, got {len(fm)}: {list(fm.keys())}"
+        )
 
     def test_emit_report_has_7_sections(self, tmp_path):
         report = _make_report()
@@ -516,7 +568,9 @@ class TestEmitReport:
         emit_report(report, out)
         content = out.read_text()
         headings = [line for line in content.splitlines() if line.startswith("## ")]
-        assert len(headings) == 7, f"Expected 7 sections, got {len(headings)}: {headings}"
+        assert len(headings) == 7, (
+            f"Expected 7 sections, got {len(headings)}: {headings}"
+        )
 
     def test_emit_report_roundtrip_frontmatter(self, tmp_path):
         """Emit a report, extract frontmatter, verify all 16 fields are present."""
@@ -614,15 +668,27 @@ class TestWiringGateDefinition:
 
     def test_wiring_gate_importable(self):
         from superclaude.cli.audit.wiring_gate import WIRING_GATE as gate
+
         assert gate is WIRING_GATE
 
     def test_wiring_gate_field_names_match_spec(self):
         expected = {
-            "gate", "target_dir", "files_analyzed", "rollout_mode",
-            "analysis_complete", "unwired_callable_count", "orphan_module_count",
-            "unwired_registry_count", "critical_count", "major_count",
-            "info_count", "total_findings", "blocking_findings",
-            "whitelist_entries_applied", "files_skipped", "audit_artifacts_used",
+            "gate",
+            "target_dir",
+            "files_analyzed",
+            "rollout_mode",
+            "analysis_complete",
+            "unwired_callable_count",
+            "orphan_module_count",
+            "unwired_registry_count",
+            "critical_count",
+            "major_count",
+            "info_count",
+            "total_findings",
+            "blocking_findings",
+            "whitelist_entries_applied",
+            "files_skipped",
+            "audit_artifacts_used",
         }
         actual = set(WIRING_GATE.required_frontmatter_fields)
         assert actual == expected
@@ -664,9 +730,12 @@ class TestSemanticChecks:
         assert _finding_counts_consistent(content) is True
 
     def test_finding_counts_consistent_with_findings(self, tmp_path):
-        content = self._emit_content(tmp_path, unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        content = self._emit_content(
+            tmp_path,
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         assert _finding_counts_consistent(content) is True
 
     def test_severity_summary_consistent_clean(self, tmp_path):
@@ -674,31 +743,47 @@ class TestSemanticChecks:
         assert _severity_summary_consistent(content) is True
 
     def test_severity_summary_consistent_with_findings(self, tmp_path):
-        content = self._emit_content(tmp_path, unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ], orphan_modules=[
-            WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
-        ])
+        content = self._emit_content(
+            tmp_path,
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+            orphan_modules=[
+                WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
+            ],
+        )
         assert _severity_summary_consistent(content) is True
 
     def test_zero_blocking_shadow_always_passes(self, tmp_path):
         """SC-014: shadow mode always passes regardless of findings."""
-        content = self._emit_content(tmp_path, rollout_mode="shadow", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-            WiringFinding("unwired_callable", "b.py", "B.x", 2, "d", "critical"),
-        ])
+        content = self._emit_content(
+            tmp_path,
+            rollout_mode="shadow",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+                WiringFinding("unwired_callable", "b.py", "B.x", 2, "d", "critical"),
+            ],
+        )
         assert _zero_blocking_findings_for_mode(content) is True
 
     def test_zero_blocking_soft_fails_on_critical(self, tmp_path):
-        content = self._emit_content(tmp_path, rollout_mode="soft", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        content = self._emit_content(
+            tmp_path,
+            rollout_mode="soft",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         assert _zero_blocking_findings_for_mode(content) is False
 
     def test_zero_blocking_full_fails_on_major(self, tmp_path):
-        content = self._emit_content(tmp_path, rollout_mode="full", orphan_modules=[
-            WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
-        ])
+        content = self._emit_content(
+            tmp_path,
+            rollout_mode="full",
+            orphan_modules=[
+                WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
+            ],
+        )
         assert _zero_blocking_findings_for_mode(content) is False
 
     def test_zero_blocking_soft_passes_when_clean(self, tmp_path):
@@ -723,9 +808,12 @@ class TestGatePassedIntegration:
 
     def test_shadow_mode_with_findings_passes(self, tmp_path):
         """SC-004: shadow mode passes even with critical findings."""
-        report = _make_report(rollout_mode="shadow", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        report = _make_report(
+            rollout_mode="shadow",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         out = tmp_path / "report.md"
         emit_report(report, out)
         passed, reason = gate_passed(out, WIRING_GATE)
@@ -740,9 +828,12 @@ class TestGatePassedIntegration:
 
     def test_soft_mode_critical_findings_fails(self, tmp_path):
         """SC-014: soft mode blocks on critical findings."""
-        report = _make_report(rollout_mode="soft", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        report = _make_report(
+            rollout_mode="soft",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         out = tmp_path / "report.md"
         emit_report(report, out)
         passed, reason = gate_passed(out, WIRING_GATE)
@@ -751,9 +842,12 @@ class TestGatePassedIntegration:
 
     def test_full_mode_major_findings_fails(self, tmp_path):
         """SC-014: full mode blocks on critical+major findings."""
-        report = _make_report(rollout_mode="full", orphan_modules=[
-            WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
-        ])
+        report = _make_report(
+            rollout_mode="full",
+            orphan_modules=[
+                WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
+            ],
+        )
         out = tmp_path / "report.md"
         emit_report(report, out)
         passed, reason = gate_passed(out, WIRING_GATE)
@@ -775,44 +869,72 @@ class TestGatePassedIntegration:
 
 class TestBlockingForMode:
     def test_shadow_never_blocks(self):
-        report = _make_report(rollout_mode="shadow", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        report = _make_report(
+            rollout_mode="shadow",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         assert blocking_for_mode(report) is False
 
     def test_soft_blocks_on_critical(self):
-        report = _make_report(rollout_mode="soft", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        report = _make_report(
+            rollout_mode="soft",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         assert blocking_for_mode(report) is True
 
     def test_soft_does_not_block_on_major(self):
-        report = _make_report(rollout_mode="soft", orphan_modules=[
-            WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
-        ])
+        report = _make_report(
+            rollout_mode="soft",
+            orphan_modules=[
+                WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
+            ],
+        )
         assert blocking_for_mode(report) is False
 
     def test_full_blocks_on_major(self):
-        report = _make_report(rollout_mode="full", orphan_modules=[
-            WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
-        ])
+        report = _make_report(
+            rollout_mode="full",
+            orphan_modules=[
+                WiringFinding("orphan_module", "b.py", "b", 1, "d", "major"),
+            ],
+        )
         assert blocking_for_mode(report) is True
 
     def test_full_blocks_on_critical(self):
-        report = _make_report(rollout_mode="full", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
-        ])
+        report = _make_report(
+            rollout_mode="full",
+            unwired_callables=[
+                WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical"),
+            ],
+        )
         assert blocking_for_mode(report) is True
 
     def test_no_findings_never_blocks(self):
         for mode in ("shadow", "soft", "full"):
             report = _make_report(rollout_mode=mode)
-            assert blocking_for_mode(report) is False, f"mode={mode} should not block with no findings"
+            assert blocking_for_mode(report) is False, (
+                f"mode={mode} should not block with no findings"
+            )
 
     def test_suppressed_excluded_from_blocking(self):
-        report = _make_report(rollout_mode="full", unwired_callables=[
-            WiringFinding("unwired_callable", "a.py", "A.x", 1, "d", "critical", suppressed=True),
-        ])
+        report = _make_report(
+            rollout_mode="full",
+            unwired_callables=[
+                WiringFinding(
+                    "unwired_callable",
+                    "a.py",
+                    "A.x",
+                    1,
+                    "d",
+                    "critical",
+                    suppressed=True,
+                ),
+            ],
+        )
         assert blocking_for_mode(report) is False
 
 
@@ -827,12 +949,13 @@ class TestNFR007Compliance:
         import inspect
 
         import superclaude.cli.audit.wiring_gate as wg
+
         source = inspect.getsource(wg)
         # The only pipeline import should be models (data classes)
         pipeline_imports = [
-            line for line in source.splitlines()
-            if "from superclaude.cli.pipeline" in line
-            and "models" not in line
+            line
+            for line in source.splitlines()
+            if "from superclaude.cli.pipeline" in line and "models" not in line
         ]
         assert pipeline_imports == [], (
             f"NFR-007 violation: pipeline logic imports found: {pipeline_imports}"

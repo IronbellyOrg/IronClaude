@@ -108,8 +108,7 @@ def _no_duplicate_headings(content: str) -> bool | str:
             text = stripped[3:].strip().lower()
             if text in seen_h2:
                 return (
-                    f"Duplicate H2 heading '## {stripped[3:].strip()}' "
-                    f"at line {lineno}"
+                    f"Duplicate H2 heading '## {stripped[3:].strip()}' at line {lineno}"
                 )
             seen_h2.add(text)
             current_h2 = text

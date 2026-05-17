@@ -270,4 +270,3 @@ class TestPanelReviewFailures:
         with patch_portify_process("panel-review", exit_code=124, timed_out=True):
             result = run_panel_review(config_with_prior_artifacts)
         assert result.portify_status == PortifyStatus.TIMEOUT
-

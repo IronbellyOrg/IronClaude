@@ -30,9 +30,7 @@ class TestCheckExistingWork:
         result = check_existing_work(config)
         assert result == ExistingWorkState.NO_EXISTING
 
-    def test_check_existing_work_resume_stage_b(
-        self, tmp_path: Path
-    ) -> None:
+    def test_check_existing_work_resume_stage_b(self, tmp_path: Path) -> None:
         """Detects existing task file with research but no results."""
         # Create task dir structure with slug in name
         tasks_root = tmp_path / ".dev" / "tasks" / "to-do"

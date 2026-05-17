@@ -58,7 +58,9 @@ def ast_analyze_file(file_path: str, content: str) -> FileAnalysis:
     try:
         tree = ast.parse(content, filename=file_path)
     except SyntaxError as exc:
-        logger.warning("SyntaxError in %s: %s — returning empty analysis", file_path, exc)
+        logger.warning(
+            "SyntaxError in %s: %s — returning empty analysis", file_path, exc
+        )
         return FileAnalysis(
             file_path=file_path,
             content_hash=content_hash,
@@ -120,7 +122,8 @@ def _extract_exports(tree: ast.Module) -> list[str]:
                         return [
                             elt.value
                             for elt in node.value.elts
-                            if isinstance(elt, ast.Constant) and isinstance(elt.value, str)
+                            if isinstance(elt, ast.Constant)
+                            and isinstance(elt.value, str)
                         ]
 
     # Fallback: top-level public definitions

@@ -105,6 +105,7 @@ some code without language tag
 
 # ---------- YAML Frontmatter Tests ----------
 
+
 class TestParseFrontmatter:
     def test_valid_yaml(self):
         warnings: list[ParseWarning] = []
@@ -131,6 +132,7 @@ class TestParseFrontmatter:
 
 # ---------- Table Extraction Tests ----------
 
+
 class TestExtractTables:
     def test_simple_table(self):
         warnings: list[ParseWarning] = []
@@ -153,6 +155,7 @@ class TestExtractTables:
 
 # ---------- Code Block Extraction Tests ----------
 
+
 class TestExtractCodeBlocks:
     def test_python_blocks(self):
         warnings: list[ParseWarning] = []
@@ -171,6 +174,7 @@ class TestExtractCodeBlocks:
 
 
 # ---------- Requirement ID Tests ----------
+
 
 class TestExtractRequirementIds:
     def test_all_families(self):
@@ -194,6 +198,7 @@ class TestExtractRequirementIds:
 
 # ---------- Function Signature Tests ----------
 
+
 class TestExtractFunctionSignatures:
     def test_signatures_from_blocks(self):
         warnings: list[ParseWarning] = []
@@ -209,6 +214,7 @@ class TestExtractFunctionSignatures:
 
 # ---------- Literal Values Tests ----------
 
+
 class TestExtractLiteralValues:
     def test_literal_extraction(self):
         warnings: list[ParseWarning] = []
@@ -221,6 +227,7 @@ class TestExtractLiteralValues:
 
 
 # ---------- Threshold Tests ----------
+
 
 class TestExtractThresholds:
     def test_threshold_patterns(self):
@@ -236,6 +243,7 @@ class TestExtractThresholds:
 
 
 # ---------- File Path Tests ----------
+
 
 class TestExtractFilePaths:
     def test_backtick_paths(self):
@@ -317,10 +325,10 @@ class TestExtractFilePaths:
         warnings: list[ParseWarning] = []
         tables = extract_tables(table_doc, warnings)
         paths = extract_file_paths_from_tables(tables)
-        assert not any('\\' in p for p in paths), (
+        assert not any("\\" in p for p in paths), (
             f"Backslash artifact leaked into paths: {paths!r}"
         )
-        assert 'src/\\' not in paths
+        assert "src/\\" not in paths
 
     def test_rejects_directory_paths_without_basename(self):
         """Bare directory references (``src/``, ``src/superclaude/``) are
@@ -353,6 +361,7 @@ class TestExtractFilePaths:
 
 
 # ---------- Section Splitting Tests ----------
+
 
 class TestSplitIntoSections:
     def test_heading_levels(self):
@@ -393,6 +402,7 @@ class TestSplitIntoSections:
 
 # ---------- Dimension Map Tests ----------
 
+
 class TestDimensionMap:
     def test_covers_five_dimensions(self):
         assert len(DIMENSION_SECTION_MAP) == 5
@@ -401,6 +411,7 @@ class TestDimensionMap:
 
 
 # ---------- Full Parse Tests ----------
+
 
 class TestParseDocument:
     def test_returns_parse_result(self):
@@ -420,10 +431,8 @@ class TestParseDocument:
 
 # ---------- Real Spec Validation ----------
 
-@pytest.mark.skipif(
-    not REAL_SPEC_PATH.exists(),
-    reason="Real spec not available"
-)
+
+@pytest.mark.skipif(not REAL_SPEC_PATH.exists(), reason="Real spec not available")
 class TestRealSpecValidation:
     @pytest.fixture
     def real_result(self) -> ParseResult:

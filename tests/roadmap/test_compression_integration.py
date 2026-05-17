@@ -113,12 +113,18 @@ def config_off(tmp_path: Path, spec_file: Path) -> RoadmapConfig:
 class TestSidecarPaths:
     def test_sidecar_is_in_output_dir_with_stem_suffix(self, tmp_path: Path) -> None:
         original = tmp_path / "any-input.md"
-        assert _compressed_sidecar(original, tmp_path / "out") == tmp_path / "out" / "any-input.compressed.md"
+        assert (
+            _compressed_sidecar(original, tmp_path / "out")
+            == tmp_path / "out" / "any-input.compressed.md"
+        )
 
     def test_sidecar_for_variant_is_adjacent(self, tmp_path: Path) -> None:
         out = tmp_path / "out"
         variant = out / "roadmap-opus-architect.md"
-        assert _compressed_sidecar(variant, out) == out / "roadmap-opus-architect.compressed.md"
+        assert (
+            _compressed_sidecar(variant, out)
+            == out / "roadmap-opus-architect.compressed.md"
+        )
 
 
 class TestLlmInputRouting:
@@ -131,7 +137,9 @@ class TestLlmInputRouting:
         roadmap_a = config_on.output_dir / "roadmap-opus-architect.md"
         roadmap_b = config_on.output_dir / "roadmap-haiku-architect.md"
         merge = config_on.output_dir / "roadmap.md"
-        routed = _llm_inputs_for(config_on, config_on.spec_file, roadmap_a, roadmap_b, merge)
+        routed = _llm_inputs_for(
+            config_on, config_on.spec_file, roadmap_a, roadmap_b, merge
+        )
         assert routed == [
             config_on.output_dir / "spec.compressed.md",
             config_on.output_dir / "roadmap-opus-architect.compressed.md",
@@ -139,7 +147,9 @@ class TestLlmInputRouting:
             config_on.output_dir / "roadmap.compressed.md",
         ]
 
-    def test_routing_leaves_non_rerouteable_paths_alone(self, config_on: RoadmapConfig) -> None:
+    def test_routing_leaves_non_rerouteable_paths_alone(
+        self, config_on: RoadmapConfig
+    ) -> None:
         extraction = config_on.output_dir / "extraction.md"
         debate = config_on.output_dir / "debate-transcript.md"
         routed = _llm_inputs_for(config_on, extraction, debate)
@@ -243,11 +253,15 @@ class TestPostStepCompression:
         self._run_step(merge, config_on, _MERGE_MIN_COMPLETE)
         assert (config_on.output_dir / "roadmap.compressed.md").exists()
 
-    def test_no_sidecar_when_compression_disabled(self, config_off: RoadmapConfig) -> None:
+    def test_no_sidecar_when_compression_disabled(
+        self, config_off: RoadmapConfig
+    ) -> None:
         steps = _flatten(_build_steps(config_off))
         gen_a = next(s for s in steps if s.id == "generate-opus-architect")
         self._run_step(gen_a, config_off, "# Roadmap A\n\n")
-        assert not (config_off.output_dir / "roadmap-opus-architect.compressed.md").exists()
+        assert not (
+            config_off.output_dir / "roadmap-opus-architect.compressed.md"
+        ).exists()
 
     def test_compression_failure_mirrors_original_to_sidecar(
         self, config_on: RoadmapConfig
@@ -257,9 +271,12 @@ class TestPostStepCompression:
         self._ensure_inputs(merge)
 
         fake = self._fake_passing_process(_MERGE_MIN_COMPLETE)
-        with patch("superclaude.cli.roadmap.executor.ClaudeProcess", fake), patch(
-            "superclaude.cli.roadmap.executor._compress_for_llm",
-            side_effect=RuntimeError("boom"),
+        with (
+            patch("superclaude.cli.roadmap.executor.ClaudeProcess", fake),
+            patch(
+                "superclaude.cli.roadmap.executor._compress_for_llm",
+                side_effect=RuntimeError("boom"),
+            ),
         ):
             result = roadmap_run_step(merge, config_on, cancel_check=lambda: False)
 
@@ -270,7 +287,9 @@ class TestPostStepCompression:
 
 
 class TestCompressForLlmHelper:
-    def test_compress_for_llm_writes_sidecar(self, tmp_path: Path, spec_file: Path) -> None:
+    def test_compress_for_llm_writes_sidecar(
+        self, tmp_path: Path, spec_file: Path
+    ) -> None:
         out = tmp_path / "out"
         out.mkdir()
         sidecar = _compress_for_llm(spec_file, "spec", out)
@@ -344,9 +363,7 @@ class TestSelfHealingSidecars:
 
         assert sidecar.read_text() == "already-compressed-content"
 
-    def test_noop_when_original_also_missing(
-        self, config_on: RoadmapConfig
-    ) -> None:
+    def test_noop_when_original_also_missing(self, config_on: RoadmapConfig) -> None:
         out = config_on.output_dir
         out.mkdir(parents=True, exist_ok=True)
         sidecar = out / "roadmap.compressed.md"

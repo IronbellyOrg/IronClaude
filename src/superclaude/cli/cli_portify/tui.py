@@ -362,6 +362,8 @@ class PortifyTUI:
         """Emit a visible warning for a soft-mode gate failure."""
         if _RICH_AVAILABLE:
             console = Console(stderr=True)
-            console.print(f"[yellow]GATE WARNING[/yellow] {step_id}: {reason or 'unknown'}")
+            console.print(
+                f"[yellow]GATE WARNING[/yellow] {step_id}: {reason or 'unknown'}"
+            )
         else:
             print(f"GATE WARNING {step_id}: {reason or 'unknown'}", file=sys.stderr)

@@ -1,6 +1,5 @@
 """Tests for final report section completeness checks (T04.13 / D-0039)."""
 
-
 from superclaude.cli.audit.report_completeness import (
     MANDATED_SECTIONS,
     check_directory_assessments,

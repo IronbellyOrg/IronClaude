@@ -155,8 +155,11 @@ class TestAntiInstinctPath:
         shadow_metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            task, config, task_result,
-            ledger=ledger, shadow_metrics=shadow_metrics,
+            task,
+            config,
+            task_result,
+            ledger=ledger,
+            shadow_metrics=shadow_metrics,
         )
 
         # 1. TaskStatus/GateOutcome: unchanged (off ignores gate)
@@ -203,8 +206,11 @@ class TestAntiInstinctPath:
 
         # Patch gate_passed to return pass (no output artifact → vacuous pass)
         result, gate_result = run_post_task_anti_instinct_hook(
-            task, config, task_result,
-            ledger=ledger, shadow_metrics=shadow_metrics,
+            task,
+            config,
+            task_result,
+            ledger=ledger,
+            shadow_metrics=shadow_metrics,
         )
 
         # 1. TaskStatus/GateOutcome: status unchanged in shadow mode
@@ -253,8 +259,11 @@ class TestAntiInstinctPath:
 
         # Vacuous pass (no output_path → gate_passed returns True)
         result, gate_result = run_post_task_anti_instinct_hook(
-            task, config, task_result,
-            ledger=ledger, shadow_metrics=shadow_metrics,
+            task,
+            config,
+            task_result,
+            ledger=ledger,
+            shadow_metrics=shadow_metrics,
         )
 
         # 1. TaskStatus/GateOutcome: PASS outcome, credit applied
@@ -275,7 +284,11 @@ class TestAntiInstinctPath:
             test_id="test_soft_mode_anti_instinct",
             spec_ref="FR-3.1c",
             assertion_type="behavioral",
-            inputs={"gate_rollout_mode": "soft", "path": "anti-instinct", "turns_consumed": 10},
+            inputs={
+                "gate_rollout_mode": "soft",
+                "path": "anti-instinct",
+                "turns_consumed": 10,
+            },
             observed={
                 "status": result.status.value,
                 "gate_outcome": result.gate_outcome.value,
@@ -302,14 +315,19 @@ class TestAntiInstinctPath:
         output_file = tmp_path / "task_output.md"
         output_file.write_text("")  # empty → fails STRICT gate
         task_result = _make_task_result(
-            task, turns_consumed=10, output_path=str(output_file),
+            task,
+            turns_consumed=10,
+            output_path=str(output_file),
         )
         ledger = _make_ledger()
         shadow_metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            task, config, task_result,
-            ledger=ledger, shadow_metrics=shadow_metrics,
+            task,
+            config,
+            task_result,
+            ledger=ledger,
+            shadow_metrics=shadow_metrics,
         )
 
         # 1. TaskStatus/GateOutcome: FAIL in full mode when gate fails
@@ -328,7 +346,11 @@ class TestAntiInstinctPath:
             test_id="test_full_mode_anti_instinct",
             spec_ref="FR-3.1d",
             assertion_type="behavioral",
-            inputs={"gate_rollout_mode": "full", "path": "anti-instinct", "output_empty": True},
+            inputs={
+                "gate_rollout_mode": "full",
+                "path": "anti-instinct",
+                "output_empty": True,
+            },
             observed={
                 "status": result.status.value,
                 "gate_outcome": result.gate_outcome.value,
@@ -363,8 +385,11 @@ class TestWiringPath:
         remediation_log = DeferredRemediationLog()
 
         result = run_post_task_wiring_hook(
-            task, config, task_result,
-            ledger=ledger, remediation_log=remediation_log,
+            task,
+            config,
+            task_result,
+            ledger=ledger,
+            remediation_log=remediation_log,
         )
 
         # 1. TaskStatus/GateOutcome: unchanged
@@ -428,15 +453,21 @@ class TestWiringPath:
             ],
         )
 
-        with patch(
-            "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
-            return_value=report_with_findings,
-        ), patch(
-            "superclaude.cli.audit.wiring_config.WiringConfig",
+        with (
+            patch(
+                "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
+                return_value=report_with_findings,
+            ),
+            patch(
+                "superclaude.cli.audit.wiring_config.WiringConfig",
+            ),
         ):
             result = run_post_task_wiring_hook(
-                task, config, task_result,
-                ledger=ledger, remediation_log=remediation_log,
+                task,
+                config,
+                task_result,
+                ledger=ledger,
+                remediation_log=remediation_log,
             )
 
         # 1. TaskStatus/GateOutcome: unchanged in shadow (never blocks)
@@ -498,15 +529,21 @@ class TestWiringPath:
             ],
         )
 
-        with patch(
-            "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
-            return_value=report_with_critical,
-        ), patch(
-            "superclaude.cli.audit.wiring_config.WiringConfig",
+        with (
+            patch(
+                "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
+                return_value=report_with_critical,
+            ),
+            patch(
+                "superclaude.cli.audit.wiring_config.WiringConfig",
+            ),
         ):
             result = run_post_task_wiring_hook(
-                task, config, task_result,
-                ledger=ledger, remediation_log=remediation_log,
+                task,
+                config,
+                task_result,
+                ledger=ledger,
+                remediation_log=remediation_log,
             )
 
         # 1. TaskStatus/GateOutcome: unchanged in soft (warns but doesn't block)
@@ -524,7 +561,11 @@ class TestWiringPath:
             test_id="test_soft_mode_wiring",
             spec_ref="FR-3.1c",
             assertion_type="behavioral",
-            inputs={"wiring_gate_mode": "soft", "path": "wiring", "critical_findings": 1},
+            inputs={
+                "wiring_gate_mode": "soft",
+                "path": "wiring",
+                "critical_findings": 1,
+            },
             observed={
                 "status": result.status.value,
                 "gate_outcome": result.gate_outcome.value,
@@ -550,18 +591,25 @@ class TestWiringPath:
         blocking_report = _make_blocking_wiring_report()
 
         # Patch _recheck_wiring to fail (remediation doesn't fix it)
-        with patch(
-            "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
-            return_value=blocking_report,
-        ), patch(
-            "superclaude.cli.audit.wiring_config.WiringConfig",
-        ), patch(
-            "superclaude.cli.sprint.executor._recheck_wiring",
-            return_value=(False, blocking_report),
+        with (
+            patch(
+                "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
+                return_value=blocking_report,
+            ),
+            patch(
+                "superclaude.cli.audit.wiring_config.WiringConfig",
+            ),
+            patch(
+                "superclaude.cli.sprint.executor._recheck_wiring",
+                return_value=(False, blocking_report),
+            ),
         ):
             result = run_post_task_wiring_hook(
-                task, config, task_result,
-                ledger=ledger, remediation_log=remediation_log,
+                task,
+                config,
+                task_result,
+                ledger=ledger,
+                remediation_log=remediation_log,
             )
 
         # 1. TaskStatus/GateOutcome: FAIL (blocking findings, remediation failed)
@@ -581,7 +629,11 @@ class TestWiringPath:
             test_id="test_full_mode_wiring",
             spec_ref="FR-3.1d",
             assertion_type="behavioral",
-            inputs={"wiring_gate_mode": "full", "path": "wiring", "blocking_findings": 1},
+            inputs={
+                "wiring_gate_mode": "full",
+                "path": "wiring",
+                "blocking_findings": 1,
+            },
             observed={
                 "status": result.status.value,
                 "gate_outcome": result.gate_outcome.value,
@@ -608,7 +660,9 @@ class TestBudgetExhaustion:
     """FR-3.2a-d: Budget exhaustion at 4 lifecycle points."""
 
     def test_budget_exhaustion_before_task_launch(
-        self, tmp_path: Path, audit_trail,
+        self,
+        tmp_path: Path,
+        audit_trail,
     ) -> None:
         """FR-3.2a: Budget exhausted before task launch → SKIPPED + remaining listed."""
         config = _make_config(tmp_path, gate_rollout_mode="full")
@@ -664,7 +718,9 @@ class TestBudgetExhaustion:
         )
 
     def test_budget_exhaustion_before_wiring(
-        self, tmp_path: Path, audit_trail,
+        self,
+        tmp_path: Path,
+        audit_trail,
     ) -> None:
         """FR-3.2b: Budget exhausted before wiring → hook skipped, task status unchanged."""
         config = _make_config(tmp_path, wiring_gate_mode="full")
@@ -680,8 +736,11 @@ class TestBudgetExhaustion:
         remediation_log = DeferredRemediationLog()
 
         result = run_post_task_wiring_hook(
-            task, config, task_result,
-            ledger=ledger, remediation_log=remediation_log,
+            task,
+            config,
+            task_result,
+            ledger=ledger,
+            remediation_log=remediation_log,
         )
 
         # 1. Task status unchanged (hook skipped entirely)
@@ -720,7 +779,9 @@ class TestBudgetExhaustion:
         )
 
     def test_budget_exhaustion_before_remediation(
-        self, tmp_path: Path, audit_trail,
+        self,
+        tmp_path: Path,
+        audit_trail,
     ) -> None:
         """FR-3.2c: Budget exhausted before remediation → FAIL persists, BUDGET_EXHAUSTED logged."""
         config = _make_config(tmp_path, wiring_gate_mode="full")
@@ -736,15 +797,21 @@ class TestBudgetExhaustion:
         remediation_log = DeferredRemediationLog()
         blocking_report = _make_blocking_wiring_report()
 
-        with patch(
-            "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
-            return_value=blocking_report,
-        ), patch(
-            "superclaude.cli.audit.wiring_config.WiringConfig",
+        with (
+            patch(
+                "superclaude.cli.audit.wiring_gate.run_wiring_analysis",
+                return_value=blocking_report,
+            ),
+            patch(
+                "superclaude.cli.audit.wiring_config.WiringConfig",
+            ),
         ):
             result = run_post_task_wiring_hook(
-                task, config, task_result,
-                ledger=ledger, remediation_log=remediation_log,
+                task,
+                config,
+                task_result,
+                ledger=ledger,
+                remediation_log=remediation_log,
             )
 
         # 1. FAIL persists (remediation skipped due to budget)
@@ -784,7 +851,9 @@ class TestBudgetExhaustion:
         )
 
     def test_budget_exhaustion_mid_convergence(
-        self, tmp_path: Path, audit_trail,
+        self,
+        tmp_path: Path,
+        audit_trail,
     ) -> None:
         """FR-3.2d: Mid-convergence budget exhaustion → halt with diagnostic, run_count < max_runs."""
         # Set up registry
@@ -795,7 +864,9 @@ class TestBudgetExhaustion:
         roadmap_path.write_text("# Test Roadmap\n")
 
         registry = DeviationRegistry.load_or_create(
-            registry_path, release_id="test-v1", spec_hash="abc123",
+            registry_path,
+            release_id="test-v1",
+            spec_hash="abc123",
         )
 
         # Budget enough for exactly 1 checker run but not remediation after
@@ -848,7 +919,10 @@ class TestBudgetExhaustion:
 
         # 3. Halt reason contains diagnostic info
         assert result.halt_reason is not None
-        assert "Budget exhausted" in result.halt_reason or "exhausted" in result.halt_reason.lower()
+        assert (
+            "Budget exhausted" in result.halt_reason
+            or "exhausted" in result.halt_reason.lower()
+        )
 
         # 4. Only 1 checker run executed (budget exhausted before run 2)
         assert checker_call_count == 1
@@ -889,7 +963,9 @@ class TestInterruptedSprint:
     """FR-3.3: Interrupted sprint via SIGINT preserves KPI and remediation state."""
 
     def test_sigint_interrupts_sprint_with_kpi_and_remediation(
-        self, tmp_path: Path, audit_trail,
+        self,
+        tmp_path: Path,
+        audit_trail,
     ) -> None:
         """FR-3.3: SIGINT mid-sprint → outcome INTERRUPTED, KPI written, remediation preserved."""
         config = _make_config(tmp_path, gate_rollout_mode="soft")
@@ -945,6 +1021,7 @@ class TestInterruptedSprint:
 
         # Simulate execute_sprint's post-loop behavior: outcome classification
         from superclaude.cli.sprint.models import SprintOutcome, SprintResult
+
         sprint_result = SprintResult(config=config)
         if handler.shutdown_requested:
             sprint_result.outcome = SprintOutcome.INTERRUPTED
@@ -971,10 +1048,15 @@ class TestInterruptedSprint:
 
         # 3. Remediation log is intact and serializable
         pending = remediation_log.pending_remediations()
-        assert isinstance(pending, list), "Remediation log must remain queryable after interrupt"
+        assert isinstance(pending, list), (
+            "Remediation log must remain queryable after interrupt"
+        )
 
         # 4. TurnLedger state is consistent: available = initial - consumed + reimbursed
-        assert ledger.available() == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        assert (
+            ledger.available()
+            == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+        )
 
         audit_trail.record(
             test_id="test_sigint_interrupts_sprint_with_kpi_and_remediation",

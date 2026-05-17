@@ -352,9 +352,7 @@ def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
 
     index_path = output_dir / "tasklist-index.md"
     if not index_path.is_file():
-        raise click.ClickException(
-            f"No tasklist-index.md found in {output_dir}"
-        )
+        raise click.ClickException(f"No tasklist-index.md found in {output_dir}")
 
     manifest = build_manifest(index_path, output_dir)
 
@@ -365,9 +363,7 @@ def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
         except Exception as exc:  # noqa: BLE001
             raise click.ClickException(f"Phase discovery failed: {exc}") from exc
         phase_tasklists = {p.number: p.file for p in phases}
-        manifest = recover_missing_checkpoints(
-            manifest, artifacts_dir, phase_tasklists
-        )
+        manifest = recover_missing_checkpoints(manifest, artifacts_dir, phase_tasklists)
 
     manifest_path = output_dir / "manifest.json"
     write_manifest(manifest, manifest_path)
@@ -379,9 +375,7 @@ def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
     _print_checkpoint_table(manifest, manifest_path)
 
 
-def _print_checkpoint_table(
-    manifest: list, manifest_path: Path
-) -> None:
+def _print_checkpoint_table(manifest: list, manifest_path: Path) -> None:
     """Render a concise table of the manifest to stdout."""
     total = len(manifest)
     found = sum(1 for e in manifest if e.exists and not e.recovered)
@@ -410,9 +404,7 @@ def _print_checkpoint_table(
         else:
             status = "MISSING"
         name = entry.name[:30]
-        click.echo(
-            f"{entry.phase:>5}  {status:<11}  {name:<30}  {entry.expected_path}"
-        )
+        click.echo(f"{entry.phase:>5}  {status:<11}  {name:<30}  {entry.expected_path}")
     click.echo()
     click.echo(f"Manifest: {manifest_path}")
 

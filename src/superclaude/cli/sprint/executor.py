@@ -385,10 +385,18 @@ def run_wiring_safeguard_checks(
     # Check 2: Whitelist validation
     # Try to parse with "soft" mode so malformed YAML raises instead of silently
     # returning empty. This is a safeguard check, not runtime behavior.
-    whitelist_path = config.release_dir / "src" / "superclaude" / "cli" / "audit" / "wiring_whitelist.yaml"
+    whitelist_path = (
+        config.release_dir
+        / "src"
+        / "superclaude"
+        / "cli"
+        / "audit"
+        / "wiring_whitelist.yaml"
+    )
     if whitelist_path.exists():
         try:
             import yaml as _yaml
+
             raw = _yaml.safe_load(whitelist_path.read_text(encoding="utf-8"))
             if not isinstance(raw, dict):
                 msg = f"Whitelist validation failed: file at {whitelist_path} is not a YAML mapping"
@@ -435,7 +443,9 @@ def _resolve_wiring_mode(config: SprintConfig) -> str:
     if scope is None:
         return config.wiring_gate_mode
 
-    gate_mode = resolve_gate_mode(scope=scope, grace_period=config.wiring_gate_grace_period)
+    gate_mode = resolve_gate_mode(
+        scope=scope, grace_period=config.wiring_gate_grace_period
+    )
 
     # Map GateMode back to wiring mode string
     mode_map = {
@@ -492,7 +502,9 @@ def run_post_task_wiring_hook(
     from superclaude.cli.audit.wiring_gate import run_wiring_analysis
 
     source_dir = config.release_dir
-    wiring_config = WiringConfig(rollout_mode=mode if mode in ("shadow", "soft", "full") else "shadow")
+    wiring_config = WiringConfig(
+        rollout_mode=mode if mode in ("shadow", "soft", "full") else "shadow"
+    )
 
     try:
         report = run_wiring_analysis(wiring_config, source_dir)
@@ -576,14 +588,17 @@ def run_post_task_wiring_hook(
                         )
                         # Step 3: Recheck wiring after remediation
                         passed, recheck_report = _recheck_wiring(
-                            config, config.release_dir, mode,
+                            config,
+                            config.release_dir,
+                            mode,
                         )
                         if passed:
                             task_result.status = TaskStatus.PASS
                             task_result.gate_outcome = GateOutcome.PASS
                             ledger.credit_wiring(config.wiring_analysis_turns)
                             _wiring_logger.info(
-                                "Remediation succeeded for task %s", task.task_id,
+                                "Remediation succeeded for task %s",
+                                task.task_id,
                             )
                         else:
                             _wiring_logger.warning(
@@ -771,8 +786,11 @@ def run_post_phase_wiring_hook(
 
     # Delegate to the per-task hook
     updated_result = run_post_task_wiring_hook(
-        synthetic_task, config, synthetic_result,
-        ledger=ledger, remediation_log=remediation_log,
+        synthetic_task,
+        config,
+        synthetic_result,
+        ledger=ledger,
+        remediation_log=remediation_log,
     )
 
     # Map back: if the wiring hook changed status to FAIL, propagate to PhaseResult
@@ -1023,13 +1041,21 @@ def execute_phase_tasks(
 
         # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
         result = run_post_task_wiring_hook(
-            task, config, result, ledger=ledger, remediation_log=remediation_log,
+            task,
+            config,
+            result,
+            ledger=ledger,
+            remediation_log=remediation_log,
         )
 
         # Post-task anti-instinct hook: run anti-instinct gate per config.gate_rollout_mode
         # NFR-010: anti-instinct and wiring gates evaluate independently (no shared state)
         result, gate_result = run_post_task_anti_instinct_hook(
-            task, config, result, ledger=ledger, shadow_metrics=shadow_metrics,
+            task,
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=shadow_metrics,
         )
         if gate_result is not None:
             gate_results.append(gate_result)
@@ -1179,6 +1205,7 @@ def execute_sprint(config: SprintConfig):
     shadow_metrics = ShadowGateMetrics()
     # T03 (BUG-005/P2): Construct DeferredRemediationLog for failed gate persistence
     from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog
+
     remediation_log = DeferredRemediationLog(
         persist_path=config.results_dir / "remediation.json",
     )
@@ -1233,22 +1260,31 @@ def execute_sprint(config: SprintConfig):
                 # Signal TUI that this phase is now active
                 tui.update(sprint_result, MonitorState(), phase)
                 task_results, remaining, phase_gate_results = execute_phase_tasks(
-                    tasks=tasks, config=config, phase=phase,
-                    ledger=ledger, shadow_metrics=shadow_metrics,
+                    tasks=tasks,
+                    config=config,
+                    phase=phase,
+                    ledger=ledger,
+                    shadow_metrics=shadow_metrics,
                     remediation_log=remediation_log,
-                    tui=tui, sprint_result=sprint_result,
+                    tui=tui,
+                    sprint_result=sprint_result,
                 )
                 all_gate_results.extend(phase_gate_results)
                 all_passed = all(r.status == TaskStatus.PASS for r in task_results)
                 status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
                 phase_result = PhaseResult(
-                    phase=phase, status=status, exit_code=0 if all_passed else 1,
-                    started_at=started_at, finished_at=datetime.now(timezone.utc),
+                    phase=phase,
+                    status=status,
+                    exit_code=0 if all_passed else 1,
+                    started_at=started_at,
+                    finished_at=datetime.now(timezone.utc),
                 )
 
                 # v3.2-T02: Run post-phase wiring hook for per-task phases too
                 phase_result = run_post_phase_wiring_hook(
-                    phase, config, phase_result,
+                    phase,
+                    config,
+                    phase_result,
                     ledger=ledger,
                     remediation_log=remediation_log,
                 )
@@ -1486,7 +1522,9 @@ def execute_sprint(config: SprintConfig):
 
                 # v3.2-T02: Run post-phase wiring hook for every claude-mode phase
                 phase_result = run_post_phase_wiring_hook(
-                    phase, config, phase_result,
+                    phase,
+                    config,
+                    phase_result,
                     ledger=ledger,
                     remediation_log=remediation_log,
                 )
@@ -1608,6 +1646,7 @@ def execute_sprint(config: SprintConfig):
 
         # T07 (BUG-007/P3): Build KPI report from accumulated gate results
         from superclaude.cli.sprint.kpi import build_kpi_report
+
         kpi_report = build_kpi_report(
             gate_results=all_gate_results,
             remediation_log=remediation_log,

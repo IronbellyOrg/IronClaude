@@ -243,9 +243,7 @@ class TestCodeBlockSeverityDemotion:
         report = scan_obligations(CODE_BLOCK_ROADMAP)
         # MEDIUM obligations should not count toward undischarged_count
         medium_undischarged = [
-            o
-            for o in report.obligations
-            if not o.discharged and o.severity == "MEDIUM"
+            o for o in report.obligations if not o.discharged and o.severity == "MEDIUM"
         ]
         # undischarged_count should not include these
         for o in medium_undischarged:
@@ -326,8 +324,7 @@ Implement real services.
 """
         report = scan_obligations(content)
         objective_obs = [
-            o for o in report.obligations
-            if "objective" in o.context.lower()
+            o for o in report.obligations if "objective" in o.context.lower()
         ]
         assert len(objective_obs) == 0
 
@@ -450,17 +447,13 @@ Ship it.
         """Existing 'Set up scaffolding' behavior preserved."""
         content = "## M1\nSet up scaffolding for CLI.\n## M2\nDone."
         report = scan_obligations(content)
-        assert any(
-            o.term.lower().startswith("scaffold") for o in report.obligations
-        )
+        assert any(o.term.lower().startswith("scaffold") for o in report.obligations)
 
     def test_imperative_stand_up_detected(self):
         """'Stand up scaffolding' is an obligation (newly supported verb)."""
         content = "## M1\nStand up scaffolding for the CLI.\n## M2\nDone."
         report = scan_obligations(content)
-        assert any(
-            o.term.lower().startswith("scaffold") for o in report.obligations
-        )
+        assert any(o.term.lower().startswith("scaffold") for o in report.obligations)
 
 
 class TestFieldLabelComponentExtraction:

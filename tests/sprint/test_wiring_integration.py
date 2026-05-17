@@ -72,9 +72,7 @@ class TestExecuteSprintCreatesTurnledger:
 
         # Write task inventory so the per-task path is taken
         phase_file = config.phases[0].file
-        phase_file.write_text(
-            "# Phase 1\n\n### T01.01 -- Task One\nDo something\n"
-        )
+        phase_file.write_text("# Phase 1\n\n### T01.01 -- Task One\nDo something\n")
 
         captured_ledger = []
 
@@ -179,9 +177,7 @@ class TestPostPhaseHookCalledPerPhase:
             f"Expected 2 calls to run_post_phase_wiring_hook, got {mock_hook.call_count}"
         )
         # Verify each call received the correct phase number
-        phase_numbers = [
-            c.args[0].number for c in mock_hook.call_args_list
-        ]
+        phase_numbers = [c.args[0].number for c in mock_hook.call_args_list]
         assert phase_numbers == [1, 2], (
             f"Expected hook called for phases [1, 2], got {phase_numbers}"
         )

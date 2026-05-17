@@ -3,6 +3,7 @@
 Implements FR-4 (semantic checking), FR-5 (chunked comparison),
 and the lightweight debate protocol (BF-6 resolution).
 """
+
 from __future__ import annotations
 
 import logging
@@ -23,10 +24,10 @@ logger = logging.getLogger(__name__)
 MAX_PROMPT_BYTES = 30_720  # 30KB hard limit
 
 # Proportional allocation (BF-7 resolution)
-BUDGET_SPEC_ROADMAP_PCT = 0.60     # 60% = 18,432 bytes
-BUDGET_STRUCTURAL_CTX_PCT = 0.20   # 20% = 6,144 bytes
-BUDGET_PRIOR_SUMMARY_PCT = 0.15    # 15% = 4,608 bytes
-BUDGET_TEMPLATE_PCT = 0.05         # 5%  = 1,536 bytes
+BUDGET_SPEC_ROADMAP_PCT = 0.60  # 60% = 18,432 bytes
+BUDGET_STRUCTURAL_CTX_PCT = 0.20  # 20% = 6,144 bytes
+BUDGET_PRIOR_SUMMARY_PCT = 0.15  # 15% = 4,608 bytes
+BUDGET_TEMPLATE_PCT = 0.05  # 5%  = 1,536 bytes
 
 TRUNCATION_MARKER = "[TRUNCATED: {} bytes omitted from '{}']"
 
@@ -49,10 +50,11 @@ VERDICT_MARGIN_THRESHOLD = 0.15  # margin > 0.15 = clear winner
 @dataclass(frozen=True)
 class RubricScores:
     """Scores for one side of the debate (prosecutor or defender)."""
-    evidence_quality: int = 0      # 0-3
-    impact_specificity: int = 0    # 0-3
-    logical_coherence: int = 0     # 0-3
-    concession_handling: int = 0   # 0-3
+
+    evidence_quality: int = 0  # 0-3
+    impact_specificity: int = 0  # 0-3
+    logical_coherence: int = 0  # 0-3
+    concession_handling: int = 0  # 0-3
 
     @property
     def weighted_score(self) -> float:
@@ -133,19 +135,24 @@ confidence: <0.0-1.0>
 
 # --- Semantic Check Request ---
 
+
 @dataclass
 class SemanticCheckRequest:
     """Input to the semantic LLM layer for one dimension."""
+
     dimension: str
-    spec_sections: list[Any]       # SpecSection objects
-    roadmap_sections: list[Any]    # SpecSection objects
+    spec_sections: list[Any]  # SpecSection objects
+    roadmap_sections: list[Any]  # SpecSection objects
     structural_findings: list[Finding]
     prior_findings_summary: str
 
 
 # --- Core Functions ---
 
-def _truncate_to_budget(content: str, budget_bytes: int, heading: str = "content") -> str:
+
+def _truncate_to_budget(
+    content: str, budget_bytes: int, heading: str = "content"
+) -> str:
     """Tail-truncate content to fit within byte budget on line boundaries.
 
     BF-7 resolution: proportional budget allocation with tail-truncation.
@@ -200,7 +207,9 @@ def build_semantic_prompt(request: SemanticCheckRequest) -> str:
     # Truncation priority (FR-4.2): prior summary first, then structural, then spec/roadmap
     # Truncate prior findings summary (least critical — cut first)
     prior_text = _truncate_to_budget(
-        request.prior_findings_summary, prior_budget, heading="Prior Findings Summary",
+        request.prior_findings_summary,
+        prior_budget,
+        heading="Prior Findings Summary",
     )
 
     # Truncate structural findings context (secondary)
@@ -209,21 +218,25 @@ def build_semantic_prompt(request: SemanticCheckRequest) -> str:
         for f in request.structural_findings
     )
     structural_text = _truncate_to_budget(
-        structural_text, structural_budget, heading="Structural Findings Context",
+        structural_text,
+        structural_budget,
+        heading="Structural Findings Context",
     )
 
     # Truncate spec+roadmap sections (last resort)
     spec_text = "\n\n".join(
-        f"#### {s.heading}\n{s.content}" if hasattr(s, 'heading') else str(s)
+        f"#### {s.heading}\n{s.content}" if hasattr(s, "heading") else str(s)
         for s in request.spec_sections
     )
     roadmap_text = "\n\n".join(
-        f"#### {s.heading}\n{s.content}" if hasattr(s, 'heading') else str(s)
+        f"#### {s.heading}\n{s.content}" if hasattr(s, "heading") else str(s)
         for s in request.roadmap_sections
     )
     combined = f"### Spec Sections\n{spec_text}\n\n### Roadmap Sections\n{roadmap_text}"
     combined = _truncate_to_budget(
-        combined, spec_roadmap_budget, heading="Spec/Roadmap Sections",
+        combined,
+        spec_roadmap_budget,
+        heading="Spec/Roadmap Sections",
     )
 
     prompt = (
@@ -291,7 +304,14 @@ def score_argument(response_yaml: dict) -> RubricScores:
         lc = 0
 
     # Concession handling: presence of caveats/qualifications
-    concession_markers = ["however", "although", "while", "despite", "caveat", "limitation"]
+    concession_markers = [
+        "however",
+        "although",
+        "while",
+        "despite",
+        "caveat",
+        "limitation",
+    ]
     concessions = sum(1 for m in concession_markers if m in argument.lower())
     ch = min(concessions, 3)
 
@@ -332,6 +352,7 @@ def judge_verdict(
 
 # --- Debate-Registry Wiring (Task 4.3) ---
 
+
 def wire_debate_verdict(
     registry: Any,  # DeviationRegistry from convergence module
     finding: Finding,
@@ -343,7 +364,7 @@ def wire_debate_verdict(
     After validate_semantic_high() returns, this updates the registry
     with the debate outcome and adjusts severity if downgraded.
     """
-    stable_id = getattr(finding, 'stable_id', '')
+    stable_id = getattr(finding, "stable_id", "")
     if not stable_id:
         logger.warning("Finding has no stable_id; cannot record verdict")
         return
@@ -354,7 +375,8 @@ def wire_debate_verdict(
         new_severity = verdict.replace("DOWNGRADE_TO_", "")
         logger.info(
             "Finding %s downgraded from HIGH to %s by debate verdict",
-            stable_id[:8], new_severity,
+            stable_id[:8],
+            new_severity,
         )
 
 
@@ -365,19 +387,23 @@ def wire_debate_verdict(
 STRUCTURAL_DIMENSIONS = frozenset({"signatures", "data_models", "gates", "cli", "nfrs"})
 
 # Semantic-only dimensions: judgment-dependent checks not covered by structural rules
-SEMANTIC_DIMENSIONS = frozenset({
-    "prose_sufficiency",       # Are descriptions adequate and unambiguous?
-    "contradiction_detection", # Do spec sections contradict each other?
-    "completeness_coverage",   # Are all spec aspects addressed in roadmap?
-    "architectural_alignment", # Does the roadmap's design match spec intent?
-})
+SEMANTIC_DIMENSIONS = frozenset(
+    {
+        "prose_sufficiency",  # Are descriptions adequate and unambiguous?
+        "contradiction_detection",  # Do spec sections contradict each other?
+        "completeness_coverage",  # Are all spec aspects addressed in roadmap?
+        "architectural_alignment",  # Does the roadmap's design match spec intent?
+    }
+)
 
 
 # --- T04.01: run_semantic_layer() Entry Point ---
 
+
 @dataclass
 class SemanticLayerResult:
     """Result of running the semantic layer."""
+
     findings: list[Finding]
     prompts_sent: int = 0
     debates_triggered: int = 0
@@ -429,7 +455,9 @@ def run_semantic_layer(
         # Execute semantic check via LLM
         if claude_process_factory is not None:
             findings = _execute_semantic_check(
-                prompt, dimension, claude_process_factory,
+                prompt,
+                dimension,
+                claude_process_factory,
             )
         else:
             # Without a factory, return empty (no live LLM available)
@@ -441,8 +469,10 @@ def run_semantic_layer(
 
         # Tag all findings with source_layer="semantic"
         for f in findings:
-            if hasattr(f, 'source_layer'):
-                object.__setattr__(f, 'source_layer', 'semantic') if hasattr(type(f), '__dataclass_fields__') else setattr(f, 'source_layer', 'semantic')
+            if hasattr(f, "source_layer"):
+                object.__setattr__(f, "source_layer", "semantic") if hasattr(
+                    type(f), "__dataclass_fields__"
+                ) else setattr(f, "source_layer", "semantic")
 
         # Trigger debate for HIGH findings (FR-4.1)
         for f in findings:
@@ -482,6 +512,7 @@ def _execute_semantic_check(
 
     # Strip markdown fences if present (Claude often wraps YAML in ```yaml ... ```)
     import re
+
     cleaned = response_text.strip() if response_text else ""
     cleaned = re.sub(r"^```(?:ya?ml)?\s*\n", "", cleaned)
     cleaned = re.sub(r"\n```\s*$", "", cleaned)
@@ -510,26 +541,31 @@ def _execute_semantic_check(
         rule_id = f"semantic_{dimension}"
         stable_id = compute_stable_id(dimension, rule_id, location, rule_id)
 
-        findings.append(Finding(
-            id=f"{dimension}-semantic-{stable_id[:8]}",
-            severity=severity,
-            dimension=dimension,
-            description=description,
-            location=location,
-            evidence=entry.get("evidence", ""),
-            fix_guidance=entry.get("fix_guidance", f"Review {dimension} for semantic issues"),
-            status="ACTIVE",
-            source_layer="semantic",
-            rule_id=rule_id,
-            spec_quote=entry.get("spec_quote", ""),
-            roadmap_quote=entry.get("roadmap_quote", ""),
-            stable_id=stable_id,
-        ))
+        findings.append(
+            Finding(
+                id=f"{dimension}-semantic-{stable_id[:8]}",
+                severity=severity,
+                dimension=dimension,
+                description=description,
+                location=location,
+                evidence=entry.get("evidence", ""),
+                fix_guidance=entry.get(
+                    "fix_guidance", f"Review {dimension} for semantic issues"
+                ),
+                status="ACTIVE",
+                source_layer="semantic",
+                rule_id=rule_id,
+                spec_quote=entry.get("spec_quote", ""),
+                roadmap_quote=entry.get("roadmap_quote", ""),
+                stable_id=stable_id,
+            )
+        )
 
     return findings
 
 
 # --- T04.03: validate_semantic_high() Debate Protocol ---
+
 
 def validate_semantic_high(
     finding: Finding,
@@ -558,24 +594,24 @@ def validate_semantic_high(
     Returns:
         Verdict string: "CONFIRM_HIGH", "DOWNGRADE_TO_MEDIUM", or "DOWNGRADE_TO_LOW".
     """
-    stable_id = getattr(finding, 'stable_id', '') or ''
+    stable_id = getattr(finding, "stable_id", "") or ""
 
     # Step 1: Build prompts
     prosecutor_prompt = PROSECUTOR_TEMPLATE.format(
         dimension=finding.dimension,
-        rule_id=getattr(finding, 'rule_id', ''),
+        rule_id=getattr(finding, "rule_id", ""),
         description=finding.description,
-        spec_quote=getattr(finding, 'spec_quote', ''),
-        roadmap_quote=getattr(finding, 'roadmap_quote', ''),
+        spec_quote=getattr(finding, "spec_quote", ""),
+        roadmap_quote=getattr(finding, "roadmap_quote", ""),
         spec_context="[Semantic finding — see description]",
         roadmap_context="[Semantic finding — see description]",
     )
     defender_prompt = DEFENDER_TEMPLATE.format(
         dimension=finding.dimension,
-        rule_id=getattr(finding, 'rule_id', ''),
+        rule_id=getattr(finding, "rule_id", ""),
         description=finding.description,
-        spec_quote=getattr(finding, 'spec_quote', ''),
-        roadmap_quote=getattr(finding, 'roadmap_quote', ''),
+        spec_quote=getattr(finding, "spec_quote", ""),
+        roadmap_quote=getattr(finding, "roadmap_quote", ""),
         spec_context="[Semantic finding — see description]",
         roadmap_context="[Semantic finding — see description]",
     )
@@ -585,6 +621,7 @@ def validate_semantic_high(
     defender_yaml: dict = {}
 
     if claude_process_factory is not None:
+
         def _run_side(prompt: str) -> dict:
             try:
                 process = claude_process_factory()
@@ -647,7 +684,9 @@ def validate_semantic_high(
 
     logger.info(
         "Debate for %s: verdict=%s margin=%.3f",
-        stable_id[:8], verdict, margin,
+        stable_id[:8],
+        verdict,
+        margin,
     )
 
     return verdict

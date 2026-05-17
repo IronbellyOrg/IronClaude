@@ -170,7 +170,9 @@ class TestAC4EvidenceDelete:
         has_zero_ref = any(
             "zero" in e.lower() and "ref" in e.lower() for e in result.evidence
         )
-        assert has_zero_ref, f"AC4: DELETE for {result.file_path} lacks zero-reference evidence"
+        assert has_zero_ref, (
+            f"AC4: DELETE for {result.file_path} lacks zero-reference evidence"
+        )
 
     def test_delete_without_evidence_fails(self):
         result = ClassificationResult(
@@ -184,7 +186,9 @@ class TestAC4EvidenceDelete:
         has_zero_ref = any(
             "zero" in e.lower() and "ref" in e.lower() for e in result.evidence
         )
-        assert not has_zero_ref  # AC4: DELETE without zero-reference evidence should fail
+        assert (
+            not has_zero_ref
+        )  # AC4: DELETE without zero-reference evidence should fail
 
 
 # ---------------------------------------------------------------------------

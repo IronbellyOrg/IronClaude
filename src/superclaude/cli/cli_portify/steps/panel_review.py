@@ -373,7 +373,9 @@ def run_panel_review(config: PortifyConfig) -> PortifyStepResult:
 
     # --- User review gate — delegates to canonical review.py ---
     should_continue, decision = review_gate(
-        step_name, str(output_artifact), skip_review=config.skip_review,
+        step_name,
+        str(output_artifact),
+        skip_review=config.skip_review,
     )
     if not should_continue:
         return PortifyStepResult(

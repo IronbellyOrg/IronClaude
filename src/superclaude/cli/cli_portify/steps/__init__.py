@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from superclaude.cli.cli_portify.models import PortifyConfig, PortifyStepResult
 
 
-def _get_dispatch_registry() -> dict[str, Callable[["PortifyConfig"], "PortifyStepResult"]]:
+def _get_dispatch_registry() -> dict[
+    str, Callable[["PortifyConfig"], "PortifyStepResult"]
+]:
     """Build the step dispatch registry lazily to avoid circular imports.
 
     Maps step IDs from STEP_REGISTRY to their run_*() entry points in step modules.

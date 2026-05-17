@@ -62,7 +62,9 @@ class TestStepOrdering:
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
-        assert len(flat) == 13  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + wiring + deviation-analysis + remediate
+        assert (
+            len(flat) == 13
+        )  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + wiring + deviation-analysis + remediate
 
     def test_extract_is_first(self, tmp_path):
         config = _make_config(tmp_path)
@@ -85,7 +87,18 @@ class TestStepOrdering:
         steps = _build_steps(config)
         sequential = [s for s in steps[2:] if isinstance(s, Step)]
         seq_ids = [s.id for s in sequential]
-        expected_order = ["diff", "debate", "score", "merge", "anti-instinct", "test-strategy", "spec-fidelity", "wiring-verification", "deviation-analysis", "remediate"]
+        expected_order = [
+            "diff",
+            "debate",
+            "score",
+            "merge",
+            "anti-instinct",
+            "test-strategy",
+            "spec-fidelity",
+            "wiring-verification",
+            "deviation-analysis",
+            "remediate",
+        ]
         assert seq_ids == expected_order
 
     def test_spec_fidelity_after_test_strategy(self, tmp_path):
@@ -234,7 +247,9 @@ class TestStepMetadata:
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
         for step in flat:
-            assert step.timeout_seconds > 0, f"Step '{step.id}' has non-positive timeout"
+            assert step.timeout_seconds > 0, (
+                f"Step '{step.id}' has non-positive timeout"
+            )
 
     def test_wiring_has_trailing_gate_mode(self, tmp_path):
         config = _make_config(tmp_path)
@@ -242,6 +257,7 @@ class TestStepMetadata:
         flat = _flatten_steps(steps)
         wv = next(s for s in flat if s.id == "wiring-verification")
         from superclaude.cli.pipeline.models import GateMode
+
         assert wv.gate_mode == GateMode.TRAILING
 
     def test_wiring_zero_retries(self, tmp_path):
@@ -261,6 +277,7 @@ class TestStepMetadata:
     def test_new_steps_blocking_gate_mode(self, tmp_path):
         """deviation-analysis and remediate use BLOCKING gate mode (enforcement promoted)."""
         from superclaude.cli.pipeline.models import GateMode
+
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)

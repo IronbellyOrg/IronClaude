@@ -365,7 +365,9 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
 
     # Get dimension-relevant sections
     spec_sections = _get_sections_for_dimension("signatures", spec_parsed.sections)
-    roadmap_sections = _get_sections_for_dimension("signatures", roadmap_parsed.sections)
+    roadmap_sections = _get_sections_for_dimension(
+        "signatures", roadmap_parsed.sections
+    )
     roadmap_full_text = roadmap_text.lower()
 
     findings: list[Finding] = []
@@ -381,27 +383,32 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
 
     phantom_ids = roadmap_ids - spec_ids
     for pid in sorted(phantom_ids):
-        findings.append(_make_finding(
-            dimension="signatures",
-            mismatch_type="phantom_id",
-            description=f"Roadmap references ID '{pid}' not found in spec",
-            location=f"roadmap:{pid}",
-            spec_quote="[MISSING]",
-            roadmap_quote=pid,
-        ))
+        findings.append(
+            _make_finding(
+                dimension="signatures",
+                mismatch_type="phantom_id",
+                description=f"Roadmap references ID '{pid}' not found in spec",
+                location=f"roadmap:{pid}",
+                spec_quote="[MISSING]",
+                roadmap_quote=pid,
+            )
+        )
 
     # --- Function missing check: spec functions not referenced in roadmap ---
     spec_sigs = spec_parsed.function_signatures
     for sig in spec_sigs:
         if sig.name.lower() not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="signatures",
-                mismatch_type="function_missing",
-                description=f"Function '{sig.name}' defined in spec not found in roadmap",
-                location=f"spec:function:{sig.name}",
-                spec_quote=f"def {sig.name}({sig.params})" + (f" -> {sig.return_type}" if sig.return_type else ""),
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="signatures",
+                    mismatch_type="function_missing",
+                    description=f"Function '{sig.name}' defined in spec not found in roadmap",
+                    location=f"spec:function:{sig.name}",
+                    spec_quote=f"def {sig.name}({sig.params})"
+                    + (f" -> {sig.return_type}" if sig.return_type else ""),
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     # --- Param arity mismatch: functions found in both but with different param counts ---
     roadmap_sigs = roadmap_parsed.function_signatures
@@ -409,17 +416,27 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
     for sig in spec_sigs:
         if sig.name in roadmap_sig_map:
             rm_sig = roadmap_sig_map[sig.name]
-            spec_params = [p.strip() for p in sig.params.split(",") if p.strip()] if sig.params.strip() else []
-            rm_params = [p.strip() for p in rm_sig.params.split(",") if p.strip()] if rm_sig.params.strip() else []
+            spec_params = (
+                [p.strip() for p in sig.params.split(",") if p.strip()]
+                if sig.params.strip()
+                else []
+            )
+            rm_params = (
+                [p.strip() for p in rm_sig.params.split(",") if p.strip()]
+                if rm_sig.params.strip()
+                else []
+            )
             if len(spec_params) != len(rm_params):
-                findings.append(_make_finding(
-                    dimension="signatures",
-                    mismatch_type="param_arity_mismatch",
-                    description=f"Function '{sig.name}' has {len(spec_params)} params in spec but {len(rm_params)} in roadmap",
-                    location=f"spec:function:{sig.name}",
-                    spec_quote=f"def {sig.name}({sig.params})",
-                    roadmap_quote=f"def {rm_sig.name}({rm_sig.params})",
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="signatures",
+                        mismatch_type="param_arity_mismatch",
+                        description=f"Function '{sig.name}' has {len(spec_params)} params in spec but {len(rm_params)} in roadmap",
+                        location=f"spec:function:{sig.name}",
+                        spec_quote=f"def {sig.name}({sig.params})",
+                        roadmap_quote=f"def {rm_sig.name}({rm_sig.params})",
+                    )
+                )
             else:
                 # Check param types where available
                 for i, (sp, rp) in enumerate(zip(spec_params, rm_params)):
@@ -427,14 +444,16 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
                     sp_type = sp.split(":")[-1].strip() if ":" in sp else ""
                     rp_type = rp.split(":")[-1].strip() if ":" in rp else ""
                     if sp_type and rp_type and sp_type != rp_type:
-                        findings.append(_make_finding(
-                            dimension="signatures",
-                            mismatch_type="param_type_mismatch",
-                            description=f"Function '{sig.name}' param {i} type differs: spec='{sp_type}' vs roadmap='{rp_type}'",
-                            location=f"spec:function:{sig.name}:param:{i}",
-                            spec_quote=sp,
-                            roadmap_quote=rp,
-                        ))
+                        findings.append(
+                            _make_finding(
+                                dimension="signatures",
+                                mismatch_type="param_type_mismatch",
+                                description=f"Function '{sig.name}' param {i} type differs: spec='{sp_type}' vs roadmap='{rp_type}'",
+                                location=f"spec:function:{sig.name}:param:{i}",
+                                spec_quote=sp,
+                                roadmap_quote=rp,
+                            )
+                        )
 
     return _route_findings(findings, roadmap_path)
 
@@ -461,14 +480,16 @@ def check_data_models(spec_path: str, roadmap_path: str) -> list[Finding]:
         fname = Path(fpath).name.lower()
         # Check exact match or filename match in roadmap
         if fpath not in roadmap_file_paths and fname not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="data_models",
-                mismatch_type="file_missing",
-                description=f"File '{fpath}' in spec manifest not found in roadmap",
-                location=f"spec:file:{fpath}",
-                spec_quote=fpath,
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="data_models",
+                    mismatch_type="file_missing",
+                    description=f"File '{fpath}' in spec manifest not found in roadmap",
+                    location=f"spec:file:{fpath}",
+                    spec_quote=fpath,
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     # --- Path prefix mismatch: same filename but different prefix ---
     spec_path_names = {Path(p).name: p for p in spec_file_paths}
@@ -478,33 +499,38 @@ def check_data_models(spec_path: str, roadmap_path: str) -> list[Finding]:
             rm_fpath = roadmap_path_names[fname]
             if spec_fpath != rm_fpath:
                 # Different prefix
-                findings.append(_make_finding(
-                    dimension="data_models",
-                    mismatch_type="path_prefix_mismatch",
-                    description=f"File '{fname}' has different path: spec='{spec_fpath}' vs roadmap='{rm_fpath}'",
-                    location=f"spec:file:{spec_fpath}",
-                    spec_quote=spec_fpath,
-                    roadmap_quote=rm_fpath,
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="data_models",
+                        mismatch_type="path_prefix_mismatch",
+                        description=f"File '{fname}' has different path: spec='{spec_fpath}' vs roadmap='{rm_fpath}'",
+                        location=f"spec:file:{spec_fpath}",
+                        spec_quote=spec_fpath,
+                        roadmap_quote=rm_fpath,
+                    )
+                )
 
     # --- Enum uncovered: Literal enum values in spec not in roadmap ---
     spec_literals = spec_parsed.literal_values
     for literal_group in spec_literals:
         for val in literal_group:
             if val.lower() not in roadmap_full_text:
-                findings.append(_make_finding(
-                    dimension="data_models",
-                    mismatch_type="enum_uncovered",
-                    description=f"Enum literal '{val}' from spec not covered in roadmap",
-                    location=f"spec:literal:{val}",
-                    spec_quote=val,
-                    roadmap_quote="[MISSING]",
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="data_models",
+                        mismatch_type="enum_uncovered",
+                        description=f"Enum literal '{val}' from spec not covered in roadmap",
+                        location=f"spec:literal:{val}",
+                        spec_quote=val,
+                        roadmap_quote="[MISSING]",
+                    )
+                )
 
     # --- Field missing: dataclass fields in spec code blocks not in roadmap ---
     # Extract field names from spec code blocks (look for field definitions)
     import re
-    field_re = re.compile(r'^\s+(\w+)\s*:', re.MULTILINE)
+
+    field_re = re.compile(r"^\s+(\w+)\s*:", re.MULTILINE)
     for block in spec_parsed.code_blocks:
         if block.language and block.language.lower() not in ("python", "py", ""):
             continue
@@ -514,17 +540,33 @@ def check_data_models(spec_path: str, roadmap_path: str) -> list[Finding]:
         for match in field_re.finditer(block.content):
             field_name = match.group(1)
             # Skip dunder and private
-            if field_name.startswith("_") or field_name in ("self", "cls", "return", "class", "def", "if", "else", "for", "while", "import", "from", "try", "except"):
+            if field_name.startswith("_") or field_name in (
+                "self",
+                "cls",
+                "return",
+                "class",
+                "def",
+                "if",
+                "else",
+                "for",
+                "while",
+                "import",
+                "from",
+                "try",
+                "except",
+            ):
                 continue
             if field_name.lower() not in roadmap_full_text:
-                findings.append(_make_finding(
-                    dimension="data_models",
-                    mismatch_type="field_missing",
-                    description=f"Dataclass field '{field_name}' from spec not referenced in roadmap",
-                    location=f"spec:field:{field_name}",
-                    spec_quote=field_name,
-                    roadmap_quote="[MISSING]",
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="data_models",
+                        mismatch_type="field_missing",
+                        description=f"Dataclass field '{field_name}' from spec not referenced in roadmap",
+                        location=f"spec:field:{field_name}",
+                        spec_quote=field_name,
+                        roadmap_quote="[MISSING]",
+                    )
+                )
 
     return _route_findings(findings, roadmap_path)
 
@@ -550,38 +592,46 @@ def check_gates(spec_path: str, roadmap_path: str) -> list[Finding]:
     # --- Frontmatter field missing: required frontmatter fields in spec not in roadmap ---
     # Look for frontmatter field references in gate-related spec sections
     spec_gate_text = _section_text(spec_sections)
-    frontmatter_field_re = re.compile(r'`(\w+)`\s*(?:field|frontmatter|required)', re.IGNORECASE)
+    frontmatter_field_re = re.compile(
+        r"`(\w+)`\s*(?:field|frontmatter|required)", re.IGNORECASE
+    )
     for match in frontmatter_field_re.finditer(spec_gate_text):
         field_name = match.group(1)
         if field_name.lower() not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="gates",
-                mismatch_type="frontmatter_field_missing",
-                description=f"Required frontmatter field '{field_name}' not found in roadmap",
-                location=f"spec:gate:frontmatter:{field_name}",
-                spec_quote=match.group(0),
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="gates",
+                    mismatch_type="frontmatter_field_missing",
+                    description=f"Required frontmatter field '{field_name}' not found in roadmap",
+                    location=f"spec:gate:frontmatter:{field_name}",
+                    spec_quote=match.group(0),
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     # --- Step param missing: Step(...) parameters in spec not in roadmap ---
-    step_param_re = re.compile(r'Step\s*\([^)]*\b(\w+)\s*=', re.IGNORECASE)
+    step_param_re = re.compile(r"Step\s*\([^)]*\b(\w+)\s*=", re.IGNORECASE)
     for match in step_param_re.finditer(spec_gate_text):
         param_name = match.group(1)
         if param_name.lower() not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="gates",
-                mismatch_type="step_param_missing",
-                description=f"Step parameter '{param_name}' from spec not found in roadmap",
-                location=f"spec:gate:step_param:{param_name}",
-                spec_quote=match.group(0),
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="gates",
+                    mismatch_type="step_param_missing",
+                    description=f"Step parameter '{param_name}' from spec not found in roadmap",
+                    location=f"spec:gate:step_param:{param_name}",
+                    spec_quote=match.group(0),
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     # --- Ordering violated: check gate ordering constraints ---
     # Extract ordered gate/step names from spec
-    order_re = re.compile(r'(?:step|gate|phase)\s*(\d+)', re.IGNORECASE)
+    order_re = re.compile(r"(?:step|gate|phase)\s*(\d+)", re.IGNORECASE)
     spec_order = [int(m.group(1)) for m in order_re.finditer(spec_gate_text)]
-    roadmap_gate_sections = _get_sections_for_dimension("gates", roadmap_parsed.sections)
+    roadmap_gate_sections = _get_sections_for_dimension(
+        "gates", roadmap_parsed.sections
+    )
     roadmap_gate_text = _section_text(roadmap_gate_sections)
     roadmap_order = [int(m.group(1)) for m in order_re.finditer(roadmap_gate_text)]
 
@@ -593,28 +643,34 @@ def check_gates(spec_path: str, roadmap_path: str) -> list[Finding]:
             if num in spec_sorted and num not in roadmap_seen:
                 roadmap_seen.append(num)
         if roadmap_seen != sorted(roadmap_seen):
-            findings.append(_make_finding(
-                dimension="gates",
-                mismatch_type="ordering_violated",
-                description="Gate/step ordering in roadmap does not match spec ordering",
-                location="spec:gate:ordering",
-                spec_quote=str(spec_sorted),
-                roadmap_quote=str(roadmap_seen),
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="gates",
+                    mismatch_type="ordering_violated",
+                    description="Gate/step ordering in roadmap does not match spec ordering",
+                    location="spec:gate:ordering",
+                    spec_quote=str(spec_sorted),
+                    roadmap_quote=str(roadmap_seen),
+                )
+            )
 
     # --- Semantic check missing: named semantic checks in spec not mapped in roadmap ---
-    semantic_check_re = re.compile(r'semantic[_ ]check[s]?\s*[:\-]?\s*[`"]?(\w+)', re.IGNORECASE)
+    semantic_check_re = re.compile(
+        r'semantic[_ ]check[s]?\s*[:\-]?\s*[`"]?(\w+)', re.IGNORECASE
+    )
     for match in semantic_check_re.finditer(spec_gate_text):
         check_name = match.group(1)
         if check_name.lower() not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="gates",
-                mismatch_type="semantic_check_missing",
-                description=f"Semantic check '{check_name}' from spec not mapped in roadmap",
-                location=f"spec:gate:semantic_check:{check_name}",
-                spec_quote=match.group(0),
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="gates",
+                    mismatch_type="semantic_check_missing",
+                    description=f"Semantic check '{check_name}' from spec not mapped in roadmap",
+                    location=f"spec:gate:semantic_check:{check_name}",
+                    spec_quote=match.group(0),
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     return _route_findings(findings, roadmap_path)
 
@@ -644,36 +700,40 @@ def check_cli(spec_path: str, roadmap_path: str) -> list[Finding]:
     for literal_group in spec_parsed.literal_values:
         for val in literal_group:
             if val.lower() not in roadmap_full_text:
-                findings.append(_make_finding(
-                    dimension="cli",
-                    mismatch_type="mode_uncovered",
-                    description=f"Config mode '{val}' from spec not covered in roadmap",
-                    location=f"spec:cli:mode:{val}",
-                    spec_quote=val,
-                    roadmap_quote="[MISSING]",
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="cli",
+                        mismatch_type="mode_uncovered",
+                        description=f"Config mode '{val}' from spec not covered in roadmap",
+                        location=f"spec:cli:mode:{val}",
+                        spec_quote=val,
+                        roadmap_quote="[MISSING]",
+                    )
+                )
 
     # --- Also check CLI flags/options from tables ---
     # Look for option/flag definitions in CLI section tables
-    option_re = re.compile(r'`--?([\w-]+)`', re.IGNORECASE)
+    option_re = re.compile(r"`--?([\w-]+)`", re.IGNORECASE)
     for match in option_re.finditer(spec_cli_text):
         option_name = match.group(1)
         if option_name.lower() not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="cli",
-                mismatch_type="mode_uncovered",
-                description=f"CLI option '--{option_name}' from spec not covered in roadmap",
-                location=f"spec:cli:option:{option_name}",
-                spec_quote=match.group(0),
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="cli",
+                    mismatch_type="mode_uncovered",
+                    description=f"CLI option '--{option_name}' from spec not covered in roadmap",
+                    location=f"spec:cli:option:{option_name}",
+                    spec_quote=match.group(0),
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     # --- Default mismatch: check defaults in spec vs roadmap ---
     # Extract default values from spec (pattern: `default: value` or `default=value`)
     default_re = re.compile(r'default\s*[=:]\s*[`"\']?(\S+?)[`"\']?\s', re.IGNORECASE)
     spec_defaults: dict[str, str] = {}
     for match in default_re.finditer(spec_cli_text):
-        val = match.group(1).strip('`"\'')
+        val = match.group(1).strip("`\"'")
         # Use position as key since we don't always know the option name
         spec_defaults[val] = match.group(0)
 
@@ -685,17 +745,19 @@ def check_cli(spec_path: str, roadmap_path: str) -> list[Finding]:
             r'default\s*[=:]\s*[`"\']?(\S+?)[`"\']?\s', re.IGNORECASE
         )
         for rm_match in roadmap_default_re.finditer(roadmap_cli_text):
-            rm_val = rm_match.group(1).strip('`"\'')
+            rm_val = rm_match.group(1).strip("`\"'")
             # Only flag if both reference the same option context but different values
             if rm_val != val and val.lower() in roadmap_cli_text.lower():
-                findings.append(_make_finding(
-                    dimension="cli",
-                    mismatch_type="default_mismatch",
-                    description=f"Default value mismatch: spec='{val}' vs roadmap='{rm_val}'",
-                    location=f"spec:cli:default:{val}",
-                    spec_quote=context,
-                    roadmap_quote=rm_match.group(0),
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="cli",
+                        mismatch_type="default_mismatch",
+                        description=f"Default value mismatch: spec='{val}' vs roadmap='{rm_val}'",
+                        location=f"spec:cli:default:{val}",
+                        spec_quote=context,
+                        roadmap_quote=rm_match.group(0),
+                    )
+                )
 
     return _route_findings(findings, roadmap_path)
 
@@ -737,26 +799,45 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
         if spec_t.value in roadmap_threshold_values:
             rm_t = roadmap_threshold_values[spec_t.value]
             if spec_t.operator != rm_t.operator:
-                findings.append(_make_finding(
-                    dimension="nfrs",
-                    mismatch_type="threshold_contradicted",
-                    description=f"Threshold '{spec_t.raw}' contradicted by '{rm_t.raw}' in roadmap",
-                    location=f"spec:nfr:threshold:{spec_t.raw}",
-                    spec_quote=spec_t.raw,
-                    roadmap_quote=rm_t.raw,
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="nfrs",
+                        mismatch_type="threshold_contradicted",
+                        description=f"Threshold '{spec_t.raw}' contradicted by '{rm_t.raw}' in roadmap",
+                        location=f"spec:nfr:threshold:{spec_t.raw}",
+                        spec_quote=spec_t.raw,
+                        roadmap_quote=rm_t.raw,
+                    )
+                )
 
     # --- Per-section iteration: emit security_missing and threshold no-match
     # findings with severity classified by the originating section heading.
     # Deterministic order: sort sections by heading_path, then sort terms.
     security_keywords = [
-        "encryption", "encrypted", "tls", "ssl", "hash", "hmac",
-        "auth", "authentication", "authorization", "oauth", "jwt",
-        "rbac", "acl", "sanitize", "sanitization", "escape",
-        "csrf", "xss", "injection", "secrets", "credential",
+        "encryption",
+        "encrypted",
+        "tls",
+        "ssl",
+        "hash",
+        "hmac",
+        "auth",
+        "authentication",
+        "authorization",
+        "oauth",
+        "jwt",
+        "rbac",
+        "acl",
+        "sanitize",
+        "sanitization",
+        "escape",
+        "csrf",
+        "xss",
+        "injection",
+        "secrets",
+        "credential",
     ]
     security_re = re.compile(
-        r'\b(' + '|'.join(security_keywords) + r')\b', re.IGNORECASE
+        r"\b(" + "|".join(security_keywords) + r")\b", re.IGNORECASE
     )
 
     seen_security_terms: set[str] = set()
@@ -775,15 +856,17 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
                     heading_path=section.heading_path,
                     heading=section.heading,
                 )
-                findings.append(_make_finding(
-                    dimension="nfrs",
-                    mismatch_type="security_missing",
-                    description=f"Security primitive '{term}' from spec NFRs not addressed in roadmap",
-                    location=f"spec:nfr:security:{term}",
-                    spec_quote=term,
-                    roadmap_quote="[MISSING]",
-                    severity_override=severity,
-                ))
+                findings.append(
+                    _make_finding(
+                        dimension="nfrs",
+                        mismatch_type="security_missing",
+                        description=f"Security primitive '{term}' from spec NFRs not addressed in roadmap",
+                        location=f"spec:nfr:security:{term}",
+                        spec_quote=term,
+                        roadmap_quote="[MISSING]",
+                        severity_override=severity,
+                    )
+                )
         # Threshold no-match arm (per-section so heading context is preserved)
         section_thresholds = extract_thresholds(section.content)
         for spec_t in section_thresholds:
@@ -792,7 +875,10 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
             if spec_t.raw in seen_threshold_raws:
                 continue
             seen_threshold_raws.add(spec_t.raw)
-            if spec_t.raw.lower() in roadmap_full_text or spec_t.value in roadmap_full_text:
+            if (
+                spec_t.raw.lower() in roadmap_full_text
+                or spec_t.value in roadmap_full_text
+            ):
                 continue
             severity = _classify_nfr_severity(
                 dimension="nfrs",
@@ -800,19 +886,21 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
                 heading_path=section.heading_path,
                 heading=section.heading,
             )
-            findings.append(_make_finding(
-                dimension="nfrs",
-                mismatch_type="threshold_contradicted",
-                description=f"NFR threshold '{spec_t.raw}' not addressed in roadmap",
-                location=f"spec:nfr:threshold:{spec_t.raw}",
-                spec_quote=spec_t.raw,
-                roadmap_quote="[MISSING]",
-                severity_override=severity,
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="nfrs",
+                    mismatch_type="threshold_contradicted",
+                    description=f"NFR threshold '{spec_t.raw}' not addressed in roadmap",
+                    location=f"spec:nfr:threshold:{spec_t.raw}",
+                    spec_quote=spec_t.raw,
+                    roadmap_quote="[MISSING]",
+                    severity_override=severity,
+                )
+            )
 
     # --- Dependency direction violated: dependency rules in spec ---
     dep_re = re.compile(
-        r'(\w[\w./]+)\s*(?:→|->|depends\s+on|imports?)\s*(\w[\w./]+)',
+        r"(\w[\w./]+)\s*(?:→|->|depends\s+on|imports?)\s*(\w[\w./]+)",
         re.IGNORECASE,
     )
     spec_deps = [(m.group(1), m.group(2)) for m in dep_re.finditer(spec_nfr_text)]
@@ -822,35 +910,39 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
     for src, tgt in spec_deps:
         # Check if roadmap has the reverse direction
         if (tgt.lower(), src.lower()) in roadmap_dep_set:
-            findings.append(_make_finding(
-                dimension="nfrs",
-                mismatch_type="dep_direction_violated",
-                description=f"Dependency direction '{src} → {tgt}' reversed in roadmap",
-                location=f"spec:nfr:dep:{src}->{tgt}",
-                spec_quote=f"{src} → {tgt}",
-                roadmap_quote=f"{tgt} → {src}",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="nfrs",
+                    mismatch_type="dep_direction_violated",
+                    description=f"Dependency direction '{src} → {tgt}' reversed in roadmap",
+                    location=f"spec:nfr:dep:{src}->{tgt}",
+                    spec_quote=f"{src} → {tgt}",
+                    roadmap_quote=f"{tgt} → {src}",
+                )
+            )
 
     # --- Coverage mismatch: coverage thresholds ---
-    coverage_re = re.compile(r'coverage\s*[><=]+\s*(\d+)%', re.IGNORECASE)
+    coverage_re = re.compile(r"coverage\s*[><=]+\s*(\d+)%", re.IGNORECASE)
     spec_coverage = coverage_re.findall(spec_nfr_text)
     roadmap_coverage = coverage_re.findall(roadmap_text)
     if spec_coverage and roadmap_coverage:
         for sc in spec_coverage:
             for rc in roadmap_coverage:
                 if int(rc) < int(sc):
-                    findings.append(_make_finding(
-                        dimension="nfrs",
-                        mismatch_type="coverage_mismatch",
-                        description=f"Coverage threshold {sc}% in spec but {rc}% in roadmap",
-                        location=f"spec:nfr:coverage:{sc}%",
-                        spec_quote=f"coverage >= {sc}%",
-                        roadmap_quote=f"coverage >= {rc}%",
-                    ))
+                    findings.append(
+                        _make_finding(
+                            dimension="nfrs",
+                            mismatch_type="coverage_mismatch",
+                            description=f"Coverage threshold {sc}% in spec but {rc}% in roadmap",
+                            location=f"spec:nfr:coverage:{sc}%",
+                            spec_quote=f"coverage >= {sc}%",
+                            roadmap_quote=f"coverage >= {rc}%",
+                        )
+                    )
 
     # --- Dep rule missing: dependency rules from spec not addressed ---
     dep_rule_re = re.compile(
-        r'(?:must\s+not|shall\s+not|cannot|must\s+not)\s+(?:import|depend|reference)\b',
+        r"(?:must\s+not|shall\s+not|cannot|must\s+not)\s+(?:import|depend|reference)\b",
         re.IGNORECASE,
     )
     for match in dep_rule_re.finditer(spec_nfr_text):
@@ -860,14 +952,16 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
         end = min(len(spec_nfr_text), match.end() + 50)
         context = spec_nfr_text[start:end].strip()
         if rule_text.lower() not in roadmap_full_text:
-            findings.append(_make_finding(
-                dimension="nfrs",
-                mismatch_type="dep_rule_missing",
-                description=f"Dependency rule '{rule_text}' from spec not addressed in roadmap",
-                location=f"spec:nfr:dep_rule",
-                spec_quote=context,
-                roadmap_quote="[MISSING]",
-            ))
+            findings.append(
+                _make_finding(
+                    dimension="nfrs",
+                    mismatch_type="dep_rule_missing",
+                    description=f"Dependency rule '{rule_text}' from spec not addressed in roadmap",
+                    location=f"spec:nfr:dep_rule",
+                    spec_quote=context,
+                    roadmap_quote="[MISSING]",
+                )
+            )
 
     return _route_findings(findings, roadmap_path)
 

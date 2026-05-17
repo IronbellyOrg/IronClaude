@@ -1419,17 +1419,19 @@ def _run_convergence_spec_fidelity(
                     affected = [str(spec_path)]
                 else:
                     affected = [roadmap_str]
-            finding_objects.append(Finding(
-                id=d.get("stable_id", ""),
-                severity=d.get("severity", "HIGH"),
-                dimension=d.get("dimension", ""),
-                description=d.get("description", ""),
-                location=d.get("location", ""),
-                evidence="",
-                fix_guidance="",
-                files_affected=affected,
-                status=d.get("status", "ACTIVE"),
-            ))
+            finding_objects.append(
+                Finding(
+                    id=d.get("stable_id", ""),
+                    severity=d.get("severity", "HIGH"),
+                    dimension=d.get("dimension", ""),
+                    description=d.get("description", ""),
+                    location=d.get("location", ""),
+                    evidence="",
+                    fix_guidance="",
+                    files_affected=affected,
+                    status=d.get("status", "ACTIVE"),
+                )
+            )
 
         # Group by file using Finding objects
         findings_by_file: dict[str, list] = {}

@@ -118,9 +118,7 @@ def _check_research_notes_sections(content: str) -> bool | str:
         heading_pat = re.compile(
             rf"^\s*#{{1,4}}\s+.*{re.escape(section)}", re.MULTILINE | re.IGNORECASE
         )
-        bold_pat = re.compile(
-            rf"\*\*{re.escape(section)}\*\*", re.IGNORECASE
-        )
+        bold_pat = re.compile(rf"\*\*{re.escape(section)}\*\*", re.IGNORECASE)
         if not heading_pat.search(content) and not bold_pat.search(content):
             missing.append(section)
     if missing:
@@ -168,9 +166,7 @@ def _check_b2_self_contained(content: str) -> bool | str:
     checklist items (lines starting with '- [ ]' or '- [x]').
     """
     violations = []
-    for match in re.finditer(
-        r"^\s*-\s+\[[ x]\]\s+(.+)$", content, re.MULTILINE
-    ):
+    for match in re.finditer(r"^\s*-\s+\[[ x]\]\s+(.+)$", content, re.MULTILINE):
         item_text = match.group(1)
         for phrase in ["see above", "as mentioned", "refer to", "as described"]:
             if phrase.lower() in item_text.lower():
@@ -205,11 +201,7 @@ def _check_parallel_instructions(content: str) -> bool | str:
     # Check content between each later phase heading and next heading
     for i, phase_match in enumerate(later_phases):
         start = phase_match.end()
-        end = (
-            later_phases[i + 1].start()
-            if i + 1 < len(later_phases)
-            else len(content)
-        )
+        end = later_phases[i + 1].start() if i + 1 < len(later_phases) else len(content)
         section_text = content[start:end].lower()
         if not any(kw in section_text for kw in parallel_keywords):
             phase_num = phase_match.group(1)
@@ -254,7 +246,9 @@ def _check_qa_verdict(content: str) -> bool | str:
 # ---------------------------------------------------------------------------
 
 
-def _safe_check(name: str, fn: Callable[[str], bool | str]) -> Callable[[str], bool | str]:
+def _safe_check(
+    name: str, fn: Callable[[str], bool | str]
+) -> Callable[[str], bool | str]:
     """Wrap a check function so exceptions become error strings."""
 
     def wrapper(content: str) -> bool | str:

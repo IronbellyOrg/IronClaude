@@ -170,9 +170,9 @@ def scan_obligations(content: str) -> ObligationReport:
             # which may appear inside code blocks.
             stripped_context = context_line.lstrip()
             if (
-                (stripped_context.startswith("## ") or stripped_context.startswith("### "))
-                or stripped_context.startswith("|")
-            ):
+                stripped_context.startswith("## ")
+                or stripped_context.startswith("### ")
+            ) or stripped_context.startswith("|"):
                 continue
 
             # Skip phase objective paragraphs — these are declarative
@@ -251,7 +251,9 @@ def scan_obligations(content: str) -> ObligationReport:
             severity = _determine_severity(abs_pos, code_block_ranges)
 
             # Local fallback for compact fenced fixtures inside section slices
-            if severity == "HIGH" and _is_inside_code_block(phase_content, match.start()):
+            if severity == "HIGH" and _is_inside_code_block(
+                phase_content, match.start()
+            ):
                 severity = "MEDIUM"
 
             # Layer 1a: Inline code meta-context
@@ -428,7 +430,15 @@ def _extract_component_context(text: str, pos: int) -> str:
     )
     if noun_before:
         candidate = noun_before.group(1).lower()
-        if candidate not in {"create", "build", "add", "use", "replace", "wire", "ensure"}:
+        if candidate not in {
+            "create",
+            "build",
+            "add",
+            "use",
+            "replace",
+            "wire",
+            "ensure",
+        }:
             return candidate
 
     # Priority 4: capitalized multi-word terms (e.g., "Executor Skeleton")
@@ -536,9 +546,7 @@ def _is_discharge_intent_line(line: str) -> bool:
     )
 
 
-def _determine_severity(
-    abs_pos: int, code_block_ranges: list[tuple[int, int]]
-) -> str:
+def _determine_severity(abs_pos: int, code_block_ranges: list[tuple[int, int]]) -> str:
     """Determine severity based on whether position is inside a code block.
 
     Per OQ-004: scaffold terms inside code blocks are MEDIUM severity.

@@ -28,7 +28,7 @@ from .models import (
 # Dual progress bar widths (F3). Block characters picked so the bar reads
 # at a glance on light and dark terminals.
 _BAR_WIDTH = 20
-_BAR_FULL = "█"   # █ full block
+_BAR_FULL = "█"  # █ full block
 _BAR_EMPTY = "░"  # ░ light shade
 # F5: LLM context lines truncate to this width.
 _LLM_LINE_MAX = 60
@@ -277,7 +277,9 @@ class SprintTUI:
                 turns_display = str(result.turns) if result.turns else "-"
                 output_display = _format_bytes(result.output_bytes)
             elif status == PhaseStatus.RUNNING:
-                turns_display = str(self.monitor_state.turns) if self.monitor_state.turns else "-"
+                turns_display = (
+                    str(self.monitor_state.turns) if self.monitor_state.turns else "-"
+                )
                 output_display = self.monitor_state.output_size_display
             else:
                 turns_display = "-"
@@ -515,7 +517,9 @@ class SprintTUI:
         lines = [f"Result:    [bold red]{sr.outcome.value.upper()}[/]"]
         if sr.halt_phase is not None:
             lines.append(f"Halted at: Phase {sr.halt_phase}")
-        lines.append(f"Completed: {phases_done}/{phases_total} phases  ·  {tasks_done}/{tasks_total} tasks")
+        lines.append(
+            f"Completed: {phases_done}/{phases_total} phases  ·  {tasks_done}/{tasks_total} tasks"
+        )
         lines.append(f"Duration:  {sr.duration_display}")
         lines.append(f"Turns:     {turns_total} total")
         lines.append(
@@ -527,7 +531,9 @@ class SprintTUI:
         if sr.phase_results:
             last_result = sr.phase_results[-1]
             last_task = last_result.last_task_id or "-"
-            lines.append(f"Last task: {last_task}  ([dim]{last_result.status.value}[/])")
+            lines.append(
+                f"Last task: {last_task}  ([dim]{last_result.status.value}[/])"
+            )
 
         errors = self.monitor_state.errors
         if errors:

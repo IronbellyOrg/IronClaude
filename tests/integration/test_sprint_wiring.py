@@ -142,7 +142,8 @@ class TestSoftMode:
 
         # Should have warning about critical findings
         warning_msgs = [
-            r for r in caplog.records
+            r
+            for r in caplog.records
             if r.levelno >= logging.WARNING and "critical" in r.message.lower()
         ]
         assert len(warning_msgs) >= 1
@@ -157,7 +158,8 @@ class TestSoftMode:
 
         assert returned.status == TaskStatus.PASS
         critical_warnings = [
-            r for r in caplog.records
+            r
+            for r in caplog.records
             if r.levelno >= logging.WARNING and "critical" in r.message.lower()
         ]
         assert len(critical_warnings) == 0
@@ -195,7 +197,8 @@ class TestFullMode:
             run_post_task_wiring_hook(task, config, result)
 
         error_msgs = [
-            r for r in caplog.records
+            r
+            for r in caplog.records
             if r.levelno >= logging.ERROR and "blocking" in r.message.lower()
         ]
         assert len(error_msgs) >= 1

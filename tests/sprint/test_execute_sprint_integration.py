@@ -78,8 +78,7 @@ def _popen_factory(config: SprintConfig):
         # Write output file with content
         output_path = config.output_file(phase)
         output_path.write_text(
-            f"Working on T0{call_count[0]}.01\n"
-            f"Phase {call_count[0]} complete\n"
+            f"Working on T0{call_count[0]}.01\nPhase {call_count[0]} complete\n"
         )
 
         return _FakeProcess()
@@ -112,9 +111,7 @@ class TestExecuteSprintFullPath:
 
         # Assert: gate-kpi-report.md is written in results_dir
         kpi_path = config.results_dir / "gate-kpi-report.md"
-        assert kpi_path.exists(), (
-            f"Expected gate-kpi-report.md at {kpi_path}"
-        )
+        assert kpi_path.exists(), f"Expected gate-kpi-report.md at {kpi_path}"
 
         # Verify the KPI report contains expected sections
         kpi_content = kpi_path.read_text()
@@ -153,7 +150,11 @@ class TestExecuteSprintFullPath:
 
         mock_ledger_cls.assert_called_once()
         call_kwargs = mock_ledger_cls.call_args
-        assert call_kwargs.kwargs.get("initial_budget") or call_kwargs[1].get("initial_budget") or (len(call_kwargs[0]) > 0)
+        assert (
+            call_kwargs.kwargs.get("initial_budget")
+            or call_kwargs[1].get("initial_budget")
+            or (len(call_kwargs[0]) > 0)
+        )
 
     def test_shadow_gate_metrics_constructed(self, tmp_path):
         """ShadowGateMetrics is instantiated during execute_sprint."""
@@ -205,7 +206,9 @@ class TestExecuteSprintFullPath:
 
         mock_drl.assert_called_once()
         call_kwargs = mock_drl.call_args
-        persist_path = call_kwargs.kwargs.get("persist_path") or call_kwargs[1].get("persist_path")
+        persist_path = call_kwargs.kwargs.get("persist_path") or call_kwargs[1].get(
+            "persist_path"
+        )
         assert persist_path is not None
         assert "remediation.json" in str(persist_path)
 

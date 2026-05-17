@@ -139,7 +139,8 @@ class TestSC001RegressionBlocks:
     def _make_bad_spec(self, tmp_path: Path) -> Path:
         """Create a spec with dispatch tables and specific identifiers."""
         spec = tmp_path / "bad-spec.md"
-        spec.write_text(textwrap.dedent("""\
+        spec.write_text(
+            textwrap.dedent("""\
             # CLI Pipeline Spec
 
             ## Architecture
@@ -164,13 +165,15 @@ class TestSC001RegressionBlocks:
             FR-001: The `execute_pipeline` function MUST wire all runners.
             FR-002: The `_build_steps` function MUST populate PROGRAMMATIC_RUNNERS.
             FR-003: The `ClaudeProcess` MUST be configured via constructor injection.
-        """))
+        """)
+        )
         return spec
 
     def _make_bad_roadmap(self, tmp_path: Path) -> Path:
         """Create a roadmap with undischarged obligations and missing wiring."""
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text(textwrap.dedent("""\
+        roadmap.write_text(
+            textwrap.dedent("""\
             ---
             spec_source: bad-spec.md
             complexity_score: 0.8
@@ -193,7 +196,8 @@ class TestSC001RegressionBlocks:
 
             - Run integration tests
             - Performance benchmarks
-        """))
+        """)
+        )
         return roadmap
 
     def test_obligation_scanner_finds_undischarged(self, tmp_path):
@@ -234,7 +238,9 @@ class TestSC001RegressionBlocks:
         _run_anti_instinct_audit(spec, roadmap, audit_file)
 
         passed, reason = gate_passed(audit_file, ANTI_INSTINCT_GATE)
-        assert not passed, f"Gate should fail but passed. File content: {audit_file.read_text()[:500]}"
+        assert not passed, (
+            f"Gate should fail but passed. File content: {audit_file.read_text()[:500]}"
+        )
 
     def test_all_three_semantic_checks_triggered(self, tmp_path):
         """All three semantic checks should detect issues on bad input."""
@@ -267,7 +273,8 @@ class TestGatePassesGoodRoadmap:
 
     def _make_good_spec(self, tmp_path: Path) -> Path:
         spec = tmp_path / "good-spec.md"
-        spec.write_text(textwrap.dedent("""\
+        spec.write_text(
+            textwrap.dedent("""\
             # Simple Feature Spec
 
             ## Requirements
@@ -278,12 +285,14 @@ class TestGatePassesGoodRoadmap:
             ## Success Criteria
 
             SC-001: Endpoint responds with 200 status.
-        """))
+        """)
+        )
         return spec
 
     def _make_good_roadmap(self, tmp_path: Path) -> Path:
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text(textwrap.dedent("""\
+        roadmap.write_text(
+            textwrap.dedent("""\
             ---
             spec_source: good-spec.md
             complexity_score: 0.3
@@ -301,7 +310,8 @@ class TestGatePassesGoodRoadmap:
             - Verify endpoint responds with 200 status (SC-001)
             - Integration testing
             - Performance check
-        """))
+        """)
+        )
         return roadmap
 
     def test_gate_passes_clean_roadmap(self, tmp_path):
@@ -337,7 +347,9 @@ class TestStructuralAuditWarningOnly:
     def test_structural_audit_does_not_raise(self, tmp_path):
         """_run_structural_audit never raises exceptions."""
         spec = tmp_path / "spec.md"
-        spec.write_text("# Spec\nSome MUST do this. SHALL do that.\n```python\ndef foo():\n    pass\n```\n")
+        spec.write_text(
+            "# Spec\nSome MUST do this. SHALL do that.\n```python\ndef foo():\n    pass\n```\n"
+        )
         extraction = tmp_path / "extraction.md"
         extraction.write_text("---\ntotal_requirements: 1\n---\n## Extraction\n")
 
@@ -374,7 +386,9 @@ class TestAuditOutputFormat:
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec\nFR-001: Do something.\n")
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text("---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n")
+        roadmap.write_text(
+            "---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n"
+        )
         audit_file = tmp_path / "audit.md"
 
         _run_anti_instinct_audit(spec, roadmap, audit_file)
@@ -388,7 +402,9 @@ class TestAuditOutputFormat:
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec\nFR-001: Do something.\n")
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text("---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n")
+        roadmap.write_text(
+            "---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n"
+        )
         audit_file = tmp_path / "audit.md"
 
         _run_anti_instinct_audit(spec, roadmap, audit_file)
@@ -403,7 +419,9 @@ class TestAuditOutputFormat:
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec\nFR-001: Do something.\n")
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text("---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n")
+        roadmap.write_text(
+            "---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n"
+        )
         audit_file = tmp_path / "audit.md"
 
         _run_anti_instinct_audit(spec, roadmap, audit_file)
@@ -419,7 +437,9 @@ class TestAuditOutputFormat:
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec\nFR-001: Do something.\n")
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text("---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n")
+        roadmap.write_text(
+            "---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n"
+        )
         audit_file = tmp_path / "audit.md"
 
         _run_anti_instinct_audit(spec, roadmap, audit_file)
@@ -433,7 +453,9 @@ class TestAuditOutputFormat:
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec\nFR-001: Do something.\n")
         roadmap = tmp_path / "roadmap.md"
-        roadmap.write_text("---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n")
+        roadmap.write_text(
+            "---\nspec_source: spec.md\n---\n## Phase 1\n- Do something\n"
+        )
         audit_file = tmp_path / "audit.md"
 
         _run_anti_instinct_audit(spec, roadmap, audit_file)

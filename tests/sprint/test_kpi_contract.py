@@ -59,9 +59,7 @@ class TestGateKPIReportContract:
             "Turns credited",
         ]
         for label in required_labels:
-            assert label in output, (
-                f"format_report() missing label '{label}'"
-            )
+            assert label in output, f"format_report() missing label '{label}'"
 
     def test_frontmatter_fields_documented(self):
         """format_report() output must reference the key wiring field names

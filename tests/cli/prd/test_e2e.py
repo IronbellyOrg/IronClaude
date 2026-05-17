@@ -109,67 +109,73 @@ def _make_passing_output(step_id: str, line_count: int = 100) -> str:
 
     if step_id == "parse-request":
         # Gate: _check_parsed_request_fields (GOAL, PRODUCT_SLUG, PRD_SCOPE, SCENARIO)
-        lines.extend([
-            '{"GOAL": "Build a comprehensive product",',
-            '"PRODUCT_SLUG": "test-product",',
-            '"PRD_SCOPE": "feature",',
-            '"SCENARIO": "B"}',
-        ])
+        lines.extend(
+            [
+                '{"GOAL": "Build a comprehensive product",',
+                '"PRODUCT_SLUG": "test-product",',
+                '"PRD_SCOPE": "feature",',
+                '"SCENARIO": "B"}',
+            ]
+        )
     elif step_id == "research-notes":
         # Gate: _check_research_notes_sections (7 required sections)
         # + _check_suggested_phases_detail (needs list items under Phases)
         # + min_lines=100
-        lines.extend([
-            "---",
-            "Date: 2026-04-12",
-            "Scenario: B",
-            "Tier: standard",
-            "---",
-            "## Product Capabilities",
-            "The product supports comprehensive CLI-driven PRD generation.",
-            "## Technical Architecture",
-            "Subprocess-based pipeline with 15 orchestrated steps.",
-            "## User Flows",
-            "User invokes CLI, pipeline generates PRD via staged agents.",
-            "## Integration Points",
-            "Integrates with Claude subprocess API and MCP servers.",
-            "## Existing Documentation",
-            "Existing docs cover CLI usage and skill definitions.",
-            "## Gap Analysis",
-            "Gaps identified in assembly QA and resume handling.",
-            "## Suggested Phases",
-            "1. Research and context gathering",
-            "2. Synthesis and template population",
-            "3. Assembly and quality assurance",
-        ])
+        lines.extend(
+            [
+                "---",
+                "Date: 2026-04-12",
+                "Scenario: B",
+                "Tier: standard",
+                "---",
+                "## Product Capabilities",
+                "The product supports comprehensive CLI-driven PRD generation.",
+                "## Technical Architecture",
+                "Subprocess-based pipeline with 15 orchestrated steps.",
+                "## User Flows",
+                "User invokes CLI, pipeline generates PRD via staged agents.",
+                "## Integration Points",
+                "Integrates with Claude subprocess API and MCP servers.",
+                "## Existing Documentation",
+                "Existing docs cover CLI usage and skill definitions.",
+                "## Gap Analysis",
+                "Gaps identified in assembly QA and resume handling.",
+                "## Suggested Phases",
+                "1. Research and context gathering",
+                "2. Synthesis and template population",
+                "3. Assembly and quality assurance",
+            ]
+        )
     elif step_id == "build-task-file":
         # Gate: _check_task_phases_present (>= 2 phase headings)
         # + _check_b2_self_contained (no 'see above' in checklists)
         # + _check_parallel_instructions (phases 2+ need 'parallel' keyword)
         # + min_lines=400
-        lines.extend([
-            "---",
-            "id: TASK-PRD-001",
-            "title: PRD Generation",
-            "status: to-do",
-            "complexity: high",
-            "created_date: 2026-04-12",
-            "---",
-            "## Phase 1: Research",
-            "Gather product context and requirements.",
-            "- [ ] Conduct stakeholder interviews",
-            "- [ ] Review existing documentation",
-            "## Phase 2: Synthesis",
-            "Synthesize research into structured sections in parallel.",
-            "Execute parallel agent synthesis for each PRD section.",
-            "- [ ] Generate overview section",
-            "- [ ] Generate requirements section",
-            "## Phase 3: Assembly",
-            "Assemble final PRD with parallel QA checks.",
-            "Run concurrent quality assurance agents.",
-            "- [ ] Assemble document",
-            "- [ ] Run structural QA",
-        ])
+        lines.extend(
+            [
+                "---",
+                "id: TASK-PRD-001",
+                "title: PRD Generation",
+                "status: to-do",
+                "complexity: high",
+                "created_date: 2026-04-12",
+                "---",
+                "## Phase 1: Research",
+                "Gather product context and requirements.",
+                "- [ ] Conduct stakeholder interviews",
+                "- [ ] Review existing documentation",
+                "## Phase 2: Synthesis",
+                "Synthesize research into structured sections in parallel.",
+                "Execute parallel agent synthesis for each PRD section.",
+                "- [ ] Generate overview section",
+                "- [ ] Generate requirements section",
+                "## Phase 3: Assembly",
+                "Assemble final PRD with parallel QA checks.",
+                "Run concurrent quality assurance agents.",
+                "- [ ] Assemble document",
+                "- [ ] Run structural QA",
+            ]
+        )
     elif step_id == "verify-task-file":
         # Gate: _check_verdict_field (STRICT)
         lines.append('{"verdict": "PASS", "issues": []}')
@@ -179,25 +185,27 @@ def _make_passing_output(step_id: str, line_count: int = 100) -> str:
     elif step_id == "assembly":
         # Gate: _check_prd_template_sections + _check_no_placeholders
         # + min_lines=800
-        lines.extend([
-            "---",
-            "id: PRD-001",
-            "title: SuperClaude CLI PRD",
-            "status: draft",
-            "created_date: 2026-04-12",
-            "tags: [prd, cli, superclaude]",
-            "---",
-            "## Executive Summary",
-            "This PRD defines the SuperClaude CLI pipeline.",
-            "## Problem Statement",
-            "Current manual processes are slow and error-prone.",
-            "## Technical Requirements",
-            "Support 3 tiers of PRD generation.",
-            "## Implementation Plan",
-            "Phased rollout across 5 development phases.",
-            "## Success Metrics",
-            "95% gate pass rate, <45min heavyweight runs.",
-        ])
+        lines.extend(
+            [
+                "---",
+                "id: PRD-001",
+                "title: SuperClaude CLI PRD",
+                "status: draft",
+                "created_date: 2026-04-12",
+                "tags: [prd, cli, superclaude]",
+                "---",
+                "## Executive Summary",
+                "This PRD defines the SuperClaude CLI pipeline.",
+                "## Problem Statement",
+                "Current manual processes are slow and error-prone.",
+                "## Technical Requirements",
+                "Support 3 tiers of PRD generation.",
+                "## Implementation Plan",
+                "Phased rollout across 5 development phases.",
+                "## Success Metrics",
+                "95% gate pass rate, <45min heavyweight runs.",
+            ]
+        )
         effective_min = max(effective_min, 810)
     elif "qa" in step_id or "review" in step_id:
         # Gate: _check_verdict_field or _check_qa_verdict
@@ -293,9 +301,7 @@ def test_e2e_full_prd_creation_standard(
 
     # All steps should have terminal status
     for sr in result.step_results:
-        assert sr.status.is_terminal, (
-            f"Step has non-terminal status: {sr.status}"
-        )
+        assert sr.status.is_terminal, f"Step has non-terminal status: {sr.status}"
 
     # Standard tier generates 5 investigation agents
     assert result.research_agent_count == 5
@@ -413,6 +419,7 @@ def test_e2e_resume_from_halted_step(
 
     # The resume step ID is a valid pattern
     from superclaude.cli.prd.config import _STEP_ID_PATTERN
+
     assert _STEP_ID_PATTERN.match(config.resume_from)
 
 
@@ -503,9 +510,7 @@ def test_e2e_existing_work_detection(
 
 @patch("superclaude.cli.prd.executor.PrdClaudeProcess")
 @patch("superclaude.cli.prd.executor.load_synthesis_mapping")
-def test_e2e_budget_exhaustion(
-    mock_synth_mapping, mock_process_cls, e2e_task_dir
-):
+def test_e2e_budget_exhaustion(mock_synth_mapping, mock_process_cls, e2e_task_dir):
     """--max-turns 50 causes halt with resume command and suggested budget.
 
     Validates:
@@ -556,6 +561,4 @@ def test_e2e_budget_exhaustion(
 
     # Suggested budget should be positive
     suggested = result.suggested_resume_budget
-    assert suggested > 0, (
-        f"Expected positive suggested budget, got {suggested}"
-    )
+    assert suggested > 0, f"Expected positive suggested budget, got {suggested}"

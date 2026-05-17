@@ -146,9 +146,7 @@ def build_manifest(
 
     entries: list[CheckpointEntry] = []
     for phase in phases:
-        for name, expected_path in extract_checkpoint_paths(
-            phase.file, release_dir
-        ):
+        for name, expected_path in extract_checkpoint_paths(phase.file, release_dir):
             entries.append(
                 CheckpointEntry(
                     phase=phase.number,

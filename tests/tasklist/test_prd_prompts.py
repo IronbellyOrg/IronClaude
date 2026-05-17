@@ -26,6 +26,7 @@ TDD_MARKER = "Supplementary TDD"
 
 # ── build_tasklist_fidelity_prompt ────────────────────────────────────
 
+
 class TestTasklistFidelityPrd:
     """PRD supplementary block in build_tasklist_fidelity_prompt."""
 
@@ -35,16 +36,12 @@ class TestTasklistFidelityPrd:
         assert TDD_MARKER not in output
 
     def test_scenario_b_tdd_only(self):
-        output = build_tasklist_fidelity_prompt(
-            ROADMAP, TASKLIST_DIR, tdd_file=TDD
-        )
+        output = build_tasklist_fidelity_prompt(ROADMAP, TASKLIST_DIR, tdd_file=TDD)
         assert TDD_MARKER in output
         assert PRD_MARKER not in output
 
     def test_scenario_c_prd_only(self):
-        output = build_tasklist_fidelity_prompt(
-            ROADMAP, TASKLIST_DIR, prd_file=PRD
-        )
+        output = build_tasklist_fidelity_prompt(ROADMAP, TASKLIST_DIR, prd_file=PRD)
         assert PRD_MARKER in output
         assert TDD_MARKER not in output
 
@@ -61,6 +58,7 @@ class TestTasklistFidelityPrd:
 
 
 # ── build_tasklist_generate_prompt ────────────────────────────────────
+
 
 class TestTasklistGeneratePrd:
     """PRD/TDD enrichment blocks in build_tasklist_generate_prompt."""

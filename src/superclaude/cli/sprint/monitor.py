@@ -140,7 +140,9 @@ def _shorten_tool_name(name: str) -> str:
 # Bash tool results that failed typically include the literal token
 # ``exit_code`` followed by a non-zero integer. Detect that case so Bash
 # errors are surfaced even when the SDK omits ``is_error: true``.
-_NONZERO_EXIT_CODE_RE = re.compile(r'exit[_ ]code["\']?\s*[:=]\s*([1-9]\d*)', re.IGNORECASE)
+_NONZERO_EXIT_CODE_RE = re.compile(
+    r'exit[_ ]code["\']?\s*[:=]\s*([1-9]\d*)', re.IGNORECASE
+)
 
 
 def _flatten_tool_result_content(raw: object) -> str:
@@ -523,7 +525,9 @@ class OutputMonitor:
         self.state.activity_log.append(entry)
         if len(self.state.activity_log) > ACTIVITY_LOG_MAX:
             # Drop oldest; preserves FIFO semantics for the TUI renderer.
-            del self.state.activity_log[: len(self.state.activity_log) - ACTIVITY_LOG_MAX]
+            del self.state.activity_log[
+                : len(self.state.activity_log) - ACTIVITY_LOG_MAX
+            ]
 
     def _append_error(self, err_message: str) -> None:
         """Push an error entry onto the ring buffer, capped at ERRORS_MAX."""
@@ -547,9 +551,7 @@ class OutputMonitor:
             suffix_m = re.match(r"T\d{2}\.(\d{2})", last)
             if suffix_m:
                 self.state.completed_task_estimate = int(suffix_m.group(1))
-            debug_log(
-                _dbg, "signal_extracted", signal_type="task_id", value=last
-            )
+            debug_log(_dbg, "signal_extracted", signal_type="task_id", value=last)
 
         # Last tool used (only if not already set by structured extraction)
         tool_matches = TOOL_PATTERN.findall(text)

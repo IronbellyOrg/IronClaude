@@ -180,7 +180,11 @@ def test_case_3_unrelated_events_preserved(fake_source_hooks, target_settings):
                     "Stop": [
                         {
                             "hooks": [
-                                {"type": "command", "command": "~/my-stop.sh", "timeout": 1}
+                                {
+                                    "type": "command",
+                                    "command": "~/my-stop.sh",
+                                    "timeout": 1,
+                                }
                             ]
                         }
                     ]
@@ -250,9 +254,7 @@ def test_case_4a_same_event_different_matcher(fake_source_hooks, target_settings
 def test_case_4b_collision_skipped_without_force(fake_source_hooks, target_settings):
     user_reg = {
         "matcher": "Edit|Write",
-        "hooks": [
-            {"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}
-        ],
+        "hooks": [{"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}],
     }
     target_settings.write_text(
         json.dumps({"hooks": {"PreToolUse": [user_reg]}}, indent=2)
@@ -271,9 +273,7 @@ def test_case_4b_collision_skipped_without_force(fake_source_hooks, target_setti
 def test_case_4c_collision_replaced_with_force(fake_source_hooks, target_settings):
     user_reg = {
         "matcher": "Edit|Write",
-        "hooks": [
-            {"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}
-        ],
+        "hooks": [{"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}],
     }
     target_settings.write_text(
         json.dumps({"hooks": {"PreToolUse": [user_reg]}}, indent=2)
@@ -451,8 +451,7 @@ def test_real_hooks_json_gates_write_in_pre_tool_use():
         r
         for r in pre_tool
         if any(
-            "freshness-pre-edit.sh" in h.get("command", "")
-            for h in r.get("hooks", [])
+            "freshness-pre-edit.sh" in h.get("command", "") for h in r.get("hooks", [])
         )
     ]
     assert len(fresh_registrations) == 1

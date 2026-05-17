@@ -130,8 +130,12 @@ def _write_remediation_report(
         statuses = ["FIXED", "FIXED"]
     items = []
     for i, status in enumerate(statuses):
-        items.append(f"- [ ] F-{i+1:03d} | src/file{i}.py | {status} -- Applied fix {i+1}")
-    items.append(f"- [x] F-{len(statuses)+1:03d} | src/skip.py | SKIPPED -- Out of scope")
+        items.append(
+            f"- [ ] F-{i + 1:03d} | src/file{i}.py | {status} -- Applied fix {i + 1}"
+        )
+    items.append(
+        f"- [x] F-{len(statuses) + 1:03d} | src/skip.py | SKIPPED -- Out of scope"
+    )
 
     content = textwrap.dedent(f"""\
         ---
@@ -200,9 +204,15 @@ class TestScenarioZeroDeviations:
 
     def test_clean_certification(self, tmp_path):
         f = tmp_path / "certify.md"
-        _write_certification_report(f, verified=0, passed=0, failed=0, finding_rows=[
-            ("F-000", "LOW", "PASS", "No deviations found"),
-        ])
+        _write_certification_report(
+            f,
+            verified=0,
+            passed=0,
+            failed=0,
+            finding_rows=[
+                ("F-000", "LOW", "PASS", "No deviations found"),
+            ],
+        )
         passed, reason = gate_passed(f, CERTIFY_GATE)
         assert passed, f"Clean certification should pass: {reason}"
 
@@ -219,24 +229,37 @@ class TestScenarioSlipsOnly:
     def test_deviation_routes_slips_to_fix(self, tmp_path):
         f = tmp_path / "deviation.md"
         _write_deviation_report(
-            f, total=2, slips=2, intentional=0, pre_approved=0,
-            slip_ids="DEV-001 DEV-002", no_action_ids="",
+            f,
+            total=2,
+            slips=2,
+            intentional=0,
+            pre_approved=0,
+            slip_ids="DEV-001 DEV-002",
+            no_action_ids="",
         )
         passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert passed, f"SLIP-only deviation should pass: {reason}"
 
     def test_remediation_with_all_fixed(self, tmp_path):
         f = tmp_path / "remediate.md"
-        _write_remediation_report(f, total=2, actionable=2, skipped=0, statuses=["FIXED", "FIXED"])
+        _write_remediation_report(
+            f, total=2, actionable=2, skipped=0, statuses=["FIXED", "FIXED"]
+        )
         passed, reason = gate_passed(f, REMEDIATE_GATE)
         assert passed, f"All-fixed remediation should pass: {reason}"
 
     def test_certification_after_remediation(self, tmp_path):
         f = tmp_path / "certify.md"
-        _write_certification_report(f, verified=2, passed=2, failed=0, finding_rows=[
-            ("F-001", "HIGH", "PASS", "SLIP remediated"),
-            ("F-002", "HIGH", "PASS", "SLIP remediated"),
-        ])
+        _write_certification_report(
+            f,
+            verified=2,
+            passed=2,
+            failed=0,
+            finding_rows=[
+                ("F-001", "HIGH", "PASS", "SLIP remediated"),
+                ("F-002", "HIGH", "PASS", "SLIP remediated"),
+            ],
+        )
         passed, reason = gate_passed(f, CERTIFY_GATE)
         assert passed, f"Post-remediation certification should pass: {reason}"
 
@@ -248,8 +271,14 @@ class TestScenarioMixedTypes:
         """INTENTIONAL and PRE_APPROVED should route to no_action."""
         f = tmp_path / "deviation.md"
         _write_deviation_report(
-            f, total=4, slips=1, intentional=2, pre_approved=1, ambiguous=0,
-            slip_ids="DEV-001", no_action_ids="DEV-002 DEV-003 DEV-004",
+            f,
+            total=4,
+            slips=1,
+            intentional=2,
+            pre_approved=1,
+            ambiguous=0,
+            slip_ids="DEV-001",
+            no_action_ids="DEV-002 DEV-003 DEV-004",
         )
         passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert passed, f"Mixed deviation should pass: {reason}"
@@ -271,20 +300,30 @@ class TestScenarioMixedTypes:
 
         # Simulate lifecycle: PENDING → ACTIVE → FIXED
         f2 = Finding(
-            id=f.id, severity=f.severity, dimension=f.dimension,
-            description=f.description, location=f.location,
-            evidence=f.evidence, fix_guidance=f.fix_guidance,
-            status="ACTIVE", source_layer=f.source_layer,
+            id=f.id,
+            severity=f.severity,
+            dimension=f.dimension,
+            description=f.description,
+            location=f.location,
+            evidence=f.evidence,
+            fix_guidance=f.fix_guidance,
+            status="ACTIVE",
+            source_layer=f.source_layer,
             deviation_class=f.deviation_class,
         )
         assert f2.source_layer == "structural"
         assert f2.status == "ACTIVE"
 
         f3 = Finding(
-            id=f.id, severity=f.severity, dimension=f.dimension,
-            description=f.description, location=f.location,
-            evidence=f.evidence, fix_guidance=f.fix_guidance,
-            status="FIXED", source_layer=f.source_layer,
+            id=f.id,
+            severity=f.severity,
+            dimension=f.dimension,
+            description=f.description,
+            location=f.location,
+            evidence=f.evidence,
+            fix_guidance=f.fix_guidance,
+            status="FIXED",
+            source_layer=f.source_layer,
             deviation_class=f.deviation_class,
         )
         assert f3.source_layer == "structural"
@@ -297,8 +336,14 @@ class TestScenarioAmbiguousBlocks:
     def test_ambiguous_blocks_deviation_gate(self, tmp_path):
         f = tmp_path / "deviation.md"
         _write_deviation_report(
-            f, total=3, slips=1, intentional=1, pre_approved=0, ambiguous=1,
-            slip_ids="DEV-001", no_action_ids="",
+            f,
+            total=3,
+            slips=1,
+            intentional=1,
+            pre_approved=0,
+            ambiguous=1,
+            slip_ids="DEV-001",
+            no_action_ids="",
         )
         passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert not passed, "AMBIGUOUS deviation should block gate"
@@ -308,8 +353,14 @@ class TestScenarioAmbiguousBlocks:
         """Even one ambiguous finding blocks the entire pipeline."""
         f = tmp_path / "deviation.md"
         _write_deviation_report(
-            f, total=1, slips=0, intentional=0, pre_approved=0, ambiguous=1,
-            slip_ids="", no_action_ids="",
+            f,
+            total=1,
+            slips=0,
+            intentional=0,
+            pre_approved=0,
+            ambiguous=1,
+            slip_ids="",
+            no_action_ids="",
         )
         passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert not passed
@@ -322,7 +373,10 @@ class TestScenarioRemediationExhaustion:
         """A remediation with FAILED items is still structurally valid."""
         f = tmp_path / "remediate.md"
         _write_remediation_report(
-            f, total=3, actionable=2, skipped=1,
+            f,
+            total=3,
+            actionable=2,
+            skipped=1,
             statuses=["FAILED", "FAILED"],
         )
         passed, reason = gate_passed(f, REMEDIATE_GATE)
@@ -332,7 +386,10 @@ class TestScenarioRemediationExhaustion:
         """PENDING items block the remediation gate."""
         f = tmp_path / "remediate.md"
         _write_remediation_report(
-            f, total=3, actionable=2, skipped=1,
+            f,
+            total=3,
+            actionable=2,
+            skipped=1,
             statuses=["PENDING", "FIXED"],
         )
         passed, reason = gate_passed(f, REMEDIATE_GATE)
@@ -342,7 +399,11 @@ class TestScenarioRemediationExhaustion:
         """Certification gate rejects if certified=false."""
         f = tmp_path / "certify.md"
         _write_certification_report(
-            f, verified=3, passed=1, failed=2, certified=False,
+            f,
+            verified=3,
+            passed=1,
+            failed=2,
+            certified=False,
             finding_rows=[
                 ("F-001", "HIGH", "FAIL", "Not resolved"),
                 ("F-002", "HIGH", "FAIL", "Not resolved"),
@@ -356,17 +417,23 @@ class TestScenarioRemediationExhaustion:
 class TestFindingStatusTransitions:
     """Verify Finding model enforces valid status values."""
 
-    @pytest.mark.parametrize("status", ["PENDING", "ACTIVE", "FIXED", "FAILED", "SKIPPED"])
+    @pytest.mark.parametrize(
+        "status", ["PENDING", "ACTIVE", "FIXED", "FAILED", "SKIPPED"]
+    )
     def test_valid_statuses(self, status):
         f = _finding(status=status)
         assert f.status == status
 
-    @pytest.mark.parametrize("status", ["OPEN", "CLOSED", "RESOLVED", "IN_PROGRESS", ""])
+    @pytest.mark.parametrize(
+        "status", ["OPEN", "CLOSED", "RESOLVED", "IN_PROGRESS", ""]
+    )
     def test_invalid_statuses_rejected(self, status):
         with pytest.raises(ValueError, match="Invalid Finding status"):
             _finding(status=status)
 
-    @pytest.mark.parametrize("cls", ["SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"])
+    @pytest.mark.parametrize(
+        "cls", ["SLIP", "INTENTIONAL", "AMBIGUOUS", "PRE_APPROVED", "UNCLASSIFIED"]
+    )
     def test_valid_deviation_classes(self, cls):
         f = _finding(deviation_class=cls)
         assert f.deviation_class == cls
@@ -383,7 +450,9 @@ class TestSpecFidelityConsistency:
     def test_tasklist_ready_true_requires_zero_high(self, tmp_path):
         """tasklist_ready=true with high>0 is inconsistent."""
         f = tmp_path / "sf.md"
-        _write_spec_fidelity_report(f, high=1, tasklist_ready=True, validation_complete=True)
+        _write_spec_fidelity_report(
+            f, high=1, tasklist_ready=True, validation_complete=True
+        )
         passed, _ = gate_passed(f, SPEC_FIDELITY_GATE)
         assert not passed
 
@@ -399,7 +468,9 @@ class TestSpecFidelityConsistency:
     def test_tasklist_ready_true_requires_validation_complete(self, tmp_path):
         """tasklist_ready=true with validation_complete=false is inconsistent."""
         f = tmp_path / "sf.md"
-        _write_spec_fidelity_report(f, high=0, tasklist_ready=True, validation_complete=False)
+        _write_spec_fidelity_report(
+            f, high=0, tasklist_ready=True, validation_complete=False
+        )
         passed, _ = gate_passed(f, SPEC_FIDELITY_GATE)
         assert not passed
 
@@ -410,23 +481,38 @@ class TestDeviationRoutingInvariants:
     def test_slip_count_must_match_routing_ids(self, tmp_path):
         """slip_count != len(routing_fix_roadmap IDs) fails."""
         f = tmp_path / "da.md"
-        _write_deviation_report(f, total=3, slips=2, intentional=1, pre_approved=0,
-                                slip_ids="DEV-001", no_action_ids="")  # Only 1 ID but slip_count=2
+        _write_deviation_report(
+            f,
+            total=3,
+            slips=2,
+            intentional=1,
+            pre_approved=0,
+            slip_ids="DEV-001",
+            no_action_ids="",
+        )  # Only 1 ID but slip_count=2
         passed, _ = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert not passed
 
     def test_total_must_equal_sum_of_categories(self, tmp_path):
         """total_analyzed != sum of categories fails."""
         f = tmp_path / "da.md"
-        _write_deviation_report(f, total=99, slips=1, intentional=1, pre_approved=1,
-                                slip_ids="DEV-001", no_action_ids="DEV-003")
+        _write_deviation_report(
+            f,
+            total=99,
+            slips=1,
+            intentional=1,
+            pre_approved=1,
+            slip_ids="DEV-001",
+            no_action_ids="DEV-003",
+        )
         passed, _ = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert not passed
 
     def test_analysis_incomplete_blocks(self, tmp_path):
         """analysis_complete=false blocks the gate."""
         f = tmp_path / "da.md"
-        _write_deviation_report(f, analysis_complete=False,
-                                slip_ids="DEV-001", no_action_ids="DEV-003")
+        _write_deviation_report(
+            f, analysis_complete=False, slip_ids="DEV-001", no_action_ids="DEV-003"
+        )
         passed, _ = gate_passed(f, DEVIATION_ANALYSIS_GATE)
         assert not passed

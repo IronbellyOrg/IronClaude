@@ -70,6 +70,8 @@ def audit_trail(tmp_path_factory: pytest.TempPathFactory) -> AuditTrailHelper:
         "passed": sum(1 for r in helper.records if r["verdict"] == "PASS"),
         "failed": sum(1 for r in helper.records if r["verdict"] == "FAIL"),
     }
-    summary_line = json.dumps({"assertion_type": "session_summary", **summary}, separators=(",", ":"))
+    summary_line = json.dumps(
+        {"assertion_type": "session_summary", **summary}, separators=(",", ":")
+    )
     with open(output_path, "a", encoding="utf-8") as f:
         f.write(summary_line + "\n")

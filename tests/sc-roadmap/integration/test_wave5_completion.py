@@ -9,8 +9,6 @@ Tests the completion flow:
 """
 
 
-
-
 class TestCompletionCheck:
     """Test completion check process from SKILL.md T5.4."""
 

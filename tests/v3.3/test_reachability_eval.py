@@ -46,7 +46,9 @@ def _write_module(source_root: Path, module_dotted: str, source: str) -> Path:
     return file_path
 
 
-def _write_manifest(manifest_path: Path, entry_points: list[dict], targets: list[dict]) -> None:
+def _write_manifest(
+    manifest_path: Path, entry_points: list[dict], targets: list[dict]
+) -> None:
     """Write a minimal wiring manifest YAML."""
     data = {
         "wiring_manifest": {
@@ -79,28 +81,41 @@ def workspace(tmp_path: Path) -> tuple[Path, Path]:
 class TestKnownGoodReachability:
     """Analyzer returns REACHABLE for directly and transitively called functions."""
 
-    def test_direct_call_reachable(self, workspace: tuple[Path, Path], audit_trail) -> None:
+    def test_direct_call_reachable(
+        self, workspace: tuple[Path, Path], audit_trail
+    ) -> None:
         """A function directly called from the entry point is reachable."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "app.main", """\
+        _write_module(
+            source_root,
+            "app.main",
+            """\
             from app.helpers import do_work
 
             def entry():
                 do_work()
-        """)
-        _write_module(source_root, "app.helpers", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "app.helpers",
+            """\
             def do_work():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "app.main", "function": "entry"}],
-            targets=[{
-                "target": "app.helpers.do_work",
-                "from_entry": "entry",
-                "spec_ref": "FR-TEST-1",
-            }],
+            targets=[
+                {
+                    "target": "app.helpers.do_work",
+                    "from_entry": "entry",
+                    "spec_ref": "FR-TEST-1",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -123,34 +138,51 @@ class TestKnownGoodReachability:
             evidence="Direct call from entry() to do_work() detected by AST analyzer",
         )
 
-    def test_transitive_call_reachable(self, workspace: tuple[Path, Path], audit_trail) -> None:
+    def test_transitive_call_reachable(
+        self, workspace: tuple[Path, Path], audit_trail
+    ) -> None:
         """A function called transitively (A -> B -> C) is reachable from A."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "pkg.entry", """\
+        _write_module(
+            source_root,
+            "pkg.entry",
+            """\
             from pkg.middle import step_one
 
             def run():
                 step_one()
-        """)
-        _write_module(source_root, "pkg.middle", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "pkg.middle",
+            """\
             from pkg.leaf import final_action
 
             def step_one():
                 final_action()
-        """)
-        _write_module(source_root, "pkg.leaf", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "pkg.leaf",
+            """\
             def final_action():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "pkg.entry", "function": "run"}],
-            targets=[{
-                "target": "pkg.leaf.final_action",
-                "from_entry": "run",
-                "spec_ref": "FR-TEST-2",
-            }],
+            targets=[
+                {
+                    "target": "pkg.leaf.final_action",
+                    "from_entry": "run",
+                    "spec_ref": "FR-TEST-2",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -188,28 +220,43 @@ class TestKnownBadUnreachability:
         """A function that exists but is never called from the entry point is unreachable."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "svc.main", """\
+        _write_module(
+            source_root,
+            "svc.main",
+            """\
             from svc.used import active_path
 
             def start():
                 active_path()
-        """)
-        _write_module(source_root, "svc.used", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "svc.used",
+            """\
             def active_path():
                 pass
-        """)
-        _write_module(source_root, "svc.dead", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "svc.dead",
+            """\
             def orphan_function():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "svc.main", "function": "start"}],
-            targets=[{
-                "target": "svc.dead.orphan_function",
-                "from_entry": "start",
-                "spec_ref": "FR-TEST-3",
-            }],
+            targets=[
+                {
+                    "target": "svc.dead.orphan_function",
+                    "from_entry": "start",
+                    "spec_ref": "FR-TEST-3",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -243,28 +290,39 @@ class TestKnownBadUnreachability:
         """
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "lib.main", """\
+        _write_module(
+            source_root,
+            "lib.main",
+            """\
             from lib.utils import helper_a, helper_b
 
             def go():
                 helper_a()
                 # helper_b is imported but never called
-        """)
-        _write_module(source_root, "lib.utils", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "lib.utils",
+            """\
             def helper_a():
                 pass
 
             def helper_b():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "lib.main", "function": "go"}],
-            targets=[{
-                "target": "lib.utils.helper_b",
-                "from_entry": "go",
-                "spec_ref": "FR-TEST-4",
-            }],
+            targets=[
+                {
+                    "target": "lib.utils.helper_b",
+                    "from_entry": "go",
+                    "spec_ref": "FR-TEST-4",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -294,34 +352,51 @@ class TestKnownBadUnreachability:
 class TestCrossModuleResolution:
     """Analyzer follows ``from X import Y`` across module boundaries."""
 
-    def test_from_import_resolved(self, workspace: tuple[Path, Path], audit_trail) -> None:
+    def test_from_import_resolved(
+        self, workspace: tuple[Path, Path], audit_trail
+    ) -> None:
         """``from X import Y`` is resolved to the target module's function."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "cross.alpha", """\
+        _write_module(
+            source_root,
+            "cross.alpha",
+            """\
             from cross.beta import transform
 
             def process():
                 transform()
-        """)
-        _write_module(source_root, "cross.beta", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "cross.beta",
+            """\
             from cross.gamma import finalize
 
             def transform():
                 finalize()
-        """)
-        _write_module(source_root, "cross.gamma", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "cross.gamma",
+            """\
             def finalize():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "cross.alpha", "function": "process"}],
-            targets=[{
-                "target": "cross.gamma.finalize",
-                "from_entry": "process",
-                "spec_ref": "FR-TEST-5",
-            }],
+            targets=[
+                {
+                    "target": "cross.gamma.finalize",
+                    "from_entry": "process",
+                    "spec_ref": "FR-TEST-5",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -347,28 +422,41 @@ class TestCrossModuleResolution:
             evidence="Cross-module chain alpha->beta->gamma correctly resolved via from-imports",
         )
 
-    def test_relative_import_resolved(self, workspace: tuple[Path, Path], audit_trail) -> None:
+    def test_relative_import_resolved(
+        self, workspace: tuple[Path, Path], audit_trail
+    ) -> None:
         """Relative imports (``from . import X``) are resolved correctly."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "rel.sub.entry", """\
+        _write_module(
+            source_root,
+            "rel.sub.entry",
+            """\
             from .worker import do_task
 
             def main():
                 do_task()
-        """)
-        _write_module(source_root, "rel.sub.worker", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "rel.sub.worker",
+            """\
             def do_task():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "rel.sub.entry", "function": "main"}],
-            targets=[{
-                "target": "rel.sub.worker.do_task",
-                "from_entry": "main",
-                "spec_ref": "FR-TEST-6",
-            }],
+            targets=[
+                {
+                    "target": "rel.sub.worker.do_task",
+                    "from_entry": "main",
+                    "spec_ref": "FR-TEST-6",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -381,7 +469,10 @@ class TestCrossModuleResolution:
             test_id="test_relative_import_resolved",
             spec_ref="FR-4.4",
             assertion_type="structural",
-            inputs={"import_style": "relative", "pattern": "from .worker import do_task"},
+            inputs={
+                "import_style": "relative",
+                "pattern": "from .worker import do_task",
+            },
             observed={"reachable": True, "chain": report.results[0].chain},
             expected={"reachable": True},
             verdict="PASS",
@@ -394,26 +485,37 @@ class TestCrossModuleResolution:
         """Importing a non-existent module is recorded but does not crash the analyzer."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "safe.entry", """\
+        _write_module(
+            source_root,
+            "safe.entry",
+            """\
             from safe.missing import ghost
             from safe.real import concrete
 
             def run():
                 concrete()
-        """)
-        _write_module(source_root, "safe.real", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "safe.real",
+            """\
             def concrete():
                 pass
-        """)
+        """,
+        )
         # Note: safe.missing is NOT created
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "safe.entry", "function": "run"}],
-            targets=[{
-                "target": "safe.real.concrete",
-                "from_entry": "run",
-                "spec_ref": "FR-TEST-7",
-            }],
+            targets=[
+                {
+                    "target": "safe.real.concrete",
+                    "from_entry": "run",
+                    "spec_ref": "FR-TEST-7",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -449,23 +551,34 @@ class TestLazyImportDetection:
         """An import inside a function body creates a reachability edge."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "lazy.entry", """\
+        _write_module(
+            source_root,
+            "lazy.entry",
+            """\
             def invoke():
                 from lazy.deferred import heavy_work
                 heavy_work()
-        """)
-        _write_module(source_root, "lazy.deferred", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "lazy.deferred",
+            """\
             def heavy_work():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "lazy.entry", "function": "invoke"}],
-            targets=[{
-                "target": "lazy.deferred.heavy_work",
-                "from_entry": "invoke",
-                "spec_ref": "FR-TEST-8",
-            }],
+            targets=[
+                {
+                    "target": "lazy.deferred.heavy_work",
+                    "from_entry": "invoke",
+                    "spec_ref": "FR-TEST-8",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -491,28 +604,43 @@ class TestLazyImportDetection:
         """Lazy imports participate in transitive reachability chains."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "chain.start", """\
+        _write_module(
+            source_root,
+            "chain.start",
+            """\
             def begin():
                 from chain.mid import bridge
                 bridge()
-        """)
-        _write_module(source_root, "chain.mid", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "chain.mid",
+            """\
             def bridge():
                 from chain.end import finish
                 finish()
-        """)
-        _write_module(source_root, "chain.end", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "chain.end",
+            """\
             def finish():
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "chain.start", "function": "begin"}],
-            targets=[{
-                "target": "chain.end.finish",
-                "from_entry": "begin",
-                "spec_ref": "FR-TEST-9",
-            }],
+            targets=[
+                {
+                    "target": "chain.end.finish",
+                    "from_entry": "begin",
+                    "spec_ref": "FR-TEST-9",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -543,7 +671,10 @@ class TestLazyImportDetection:
         """Imports guarded by ``if TYPE_CHECKING:`` are excluded from the call graph."""
         source_root, manifest_path = workspace
 
-        _write_module(source_root, "tc.main", """\
+        _write_module(
+            source_root,
+            "tc.main",
+            """\
             from __future__ import annotations
             from typing import TYPE_CHECKING
 
@@ -552,19 +683,27 @@ class TestLazyImportDetection:
 
             def run():
                 pass
-        """)
-        _write_module(source_root, "tc.types_only", """\
+        """,
+        )
+        _write_module(
+            source_root,
+            "tc.types_only",
+            """\
             class TypeOnlyClass:
                 pass
-        """)
+        """,
+        )
 
-        _write_manifest(manifest_path,
+        _write_manifest(
+            manifest_path,
             entry_points=[{"module": "tc.main", "function": "run"}],
-            targets=[{
-                "target": "tc.types_only.TypeOnlyClass",
-                "from_entry": "run",
-                "spec_ref": "FR-TEST-10",
-            }],
+            targets=[
+                {
+                    "target": "tc.types_only.TypeOnlyClass",
+                    "from_entry": "run",
+                    "spec_ref": "FR-TEST-10",
+                }
+            ],
         )
 
         analyzer = ReachabilityAnalyzer(manifest_path)
@@ -578,7 +717,10 @@ class TestLazyImportDetection:
             test_id="test_type_checking_import_excluded",
             spec_ref="FR-4.4",
             assertion_type="structural",
-            inputs={"guard": "if TYPE_CHECKING:", "target": "tc.types_only.TypeOnlyClass"},
+            inputs={
+                "guard": "if TYPE_CHECKING:",
+                "target": "tc.types_only.TypeOnlyClass",
+            },
             observed={"reachable": False, "gaps": 1},
             expected={"reachable": False},
             verdict="PASS",

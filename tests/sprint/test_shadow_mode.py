@@ -157,7 +157,9 @@ class TestAntiInstinctShadowRecording:
         metrics = ShadowGateMetrics()
 
         run_post_task_anti_instinct_hook(
-            TaskEntry(task_id="T01.01", title="t"), config, result,
+            TaskEntry(task_id="T01.01", title="t"),
+            config,
+            result,
             shadow_metrics=metrics,
         )
 
@@ -172,7 +174,9 @@ class TestAntiInstinctShadowRecording:
         metrics = ShadowGateMetrics()
 
         run_post_task_anti_instinct_hook(
-            TaskEntry(task_id="T01.01", title="t"), config, result,
+            TaskEntry(task_id="T01.01", title="t"),
+            config,
+            result,
             shadow_metrics=metrics,
         )
 
@@ -190,7 +194,9 @@ class TestAntiInstinctShadowRecording:
         metrics = ShadowGateMetrics()
 
         run_post_task_anti_instinct_hook(
-            TaskEntry(task_id="T01.01", title="t"), config, result,
+            TaskEntry(task_id="T01.01", title="t"),
+            config,
+            result,
             shadow_metrics=metrics,
         )
 
@@ -206,7 +212,9 @@ class TestAntiInstinctShadowRecording:
         metrics = ShadowGateMetrics()
 
         run_post_task_anti_instinct_hook(
-            TaskEntry(task_id="T01.01", title="t"), config, result,
+            TaskEntry(task_id="T01.01", title="t"),
+            config,
+            result,
             shadow_metrics=metrics,
         )
 
@@ -222,7 +230,9 @@ class TestAntiInstinctShadowRecording:
         metrics = ShadowGateMetrics()
 
         run_post_task_anti_instinct_hook(
-            TaskEntry(task_id="T01.01", title="t"), config, result,
+            TaskEntry(task_id="T01.01", title="t"),
+            config,
+            result,
             shadow_metrics=metrics,
         )
 

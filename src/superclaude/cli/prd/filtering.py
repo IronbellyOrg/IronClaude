@@ -18,9 +18,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 
-def partition_files(
-    files: list, threshold: int
-) -> list[list]:
+def partition_files(files: list, threshold: int) -> list[list]:
     """Split a file list into partitions for parallel processing.
 
     If the file count is at or below the threshold, returns a single
@@ -99,10 +97,12 @@ def _extract_gaps_from_content(content: str, source_file: str) -> list[dict]:
         content,
         re.MULTILINE,
     ):
-        gaps.append({
-            "description": match.group(1).strip(),
-            "source_file": source_file,
-        })
+        gaps.append(
+            {
+                "description": match.group(1).strip(),
+                "source_file": source_file,
+            }
+        )
 
     # Pattern 2: Items under Gap Analysis heading
     gap_section = re.search(
@@ -112,15 +112,15 @@ def _extract_gaps_from_content(content: str, source_file: str) -> list[dict]:
     )
     if gap_section:
         section_text = gap_section.group(1)
-        for line_match in re.finditer(
-            r"^\s*[-*]\s+(.+)$", section_text, re.MULTILINE
-        ):
+        for line_match in re.finditer(r"^\s*[-*]\s+(.+)$", section_text, re.MULTILINE):
             desc = line_match.group(1).strip()
             if desc and not desc.startswith("#"):
-                gaps.append({
-                    "description": desc,
-                    "source_file": source_file,
-                })
+                gaps.append(
+                    {
+                        "description": desc,
+                        "source_file": source_file,
+                    }
+                )
 
     return gaps
 

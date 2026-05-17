@@ -121,12 +121,14 @@ class TestConvergencePathE2E:
         budget_trace: list[dict] = []
 
         def _record_budget(label: str) -> None:
-            budget_trace.append({
-                "label": label,
-                "consumed": ledger.consumed,
-                "reimbursed": ledger.reimbursed,
-                "available": ledger.available(),
-            })
+            budget_trace.append(
+                {
+                    "label": label,
+                    "consumed": ledger.consumed,
+                    "reimbursed": ledger.reimbursed,
+                    "available": ledger.available(),
+                }
+            )
 
         _record_budget("initial")
 
@@ -140,13 +142,19 @@ class TestConvergencePathE2E:
                 # Run 1 (catch): 2 structural HIGHs
                 findings = [
                     _make_finding(
-                        finding_id="F-001", description="missing section A", location="spec:1",
+                        finding_id="F-001",
+                        description="missing section A",
+                        location="spec:1",
                     ),
                     _make_finding(
-                        finding_id="F-002", description="missing section B", location="spec:2",
+                        finding_id="F-002",
+                        description="missing section B",
+                        location="spec:2",
                     ),
                 ]
-                reg.merge_findings(structural=findings, semantic=[], run_number=run_number)
+                reg.merge_findings(
+                    structural=findings, semantic=[], run_number=run_number
+                )
             else:
                 # Run 2 (verify): all fixed -> 0 HIGHs
                 # Mark all active findings as FIXED
@@ -189,13 +197,17 @@ class TestConvergencePathE2E:
         assert initial_snap["available"] == initial_budget
 
         # After Run 1 checkers: consumed += CHECKER_COST
-        after_run1 = next(s for s in budget_trace if s["label"] == "after_checkers_run_1")
+        after_run1 = next(
+            s for s in budget_trace if s["label"] == "after_checkers_run_1"
+        )
         assert after_run1["consumed"] == CHECKER_COST, (
             f"After run 1 checkers: expected consumed={CHECKER_COST}, got {after_run1['consumed']}"
         )
 
         # After remediation: consumed += REMEDIATION_COST
-        after_remed = next(s for s in budget_trace if s["label"] == "after_remediation_1")
+        after_remed = next(
+            s for s in budget_trace if s["label"] == "after_remediation_1"
+        )
         expected_consumed_after_remed = CHECKER_COST + REMEDIATION_COST
         # reimburse_for_progress may have credited before remediation
         assert after_remed["consumed"] >= expected_consumed_after_remed, (
@@ -204,7 +216,9 @@ class TestConvergencePathE2E:
         )
 
         # After Run 2 checkers (pass): consumed += another CHECKER_COST
-        after_run2 = next(s for s in budget_trace if s["label"] == "after_checkers_run_2")
+        after_run2 = next(
+            s for s in budget_trace if s["label"] == "after_checkers_run_2"
+        )
         expected_consumed_after_run2 = CHECKER_COST + REMEDIATION_COST + CHECKER_COST
         assert after_run2["consumed"] == expected_consumed_after_run2, (
             f"After run 2 checkers: expected consumed={expected_consumed_after_run2}, "
@@ -227,11 +241,11 @@ class TestConvergencePathE2E:
         )
         for i, run in enumerate(registry.runs):
             snapshot = run.get("budget_snapshot")
-            assert snapshot is not None, (
-                f"Run {i + 1} missing budget_snapshot"
-            )
+            assert snapshot is not None, f"Run {i + 1} missing budget_snapshot"
             assert "consumed" in snapshot, f"Run {i + 1} snapshot missing 'consumed'"
-            assert "reimbursed" in snapshot, f"Run {i + 1} snapshot missing 'reimbursed'"
+            assert "reimbursed" in snapshot, (
+                f"Run {i + 1} snapshot missing 'reimbursed'"
+            )
             assert "available" in snapshot, f"Run {i + 1} snapshot missing 'available'"
             assert "initial" in snapshot, f"Run {i + 1} snapshot missing 'initial'"
             assert snapshot["initial"] == initial_budget
@@ -365,10 +379,12 @@ class TestSprintPerTaskPathE2E:
         def _factory(task, cfg, ph):
             """Inject per-task turn consumption: Alpha=3, Beta=8."""
             turns = 3 if task.task_id == "T01.01" else 8
-            subprocess_calls.append({
-                "task_id": task.task_id,
-                "turns": turns,
-            })
+            subprocess_calls.append(
+                {
+                    "task_id": task.task_id,
+                    "turns": turns,
+                }
+            )
             return (0, turns, 100)  # exit_code=0, turns, output_bytes=100
 
         # --- Execute per-task path ---
@@ -493,7 +509,9 @@ class TestSprintPerTaskPathE2E:
 # ---------------------------------------------------------------------------
 
 
-def _make_sprint_config_with_wiring(tmp_path: Path, *, wiring_analysis_turns: int = 2) -> SprintConfig:
+def _make_sprint_config_with_wiring(
+    tmp_path: Path, *, wiring_analysis_turns: int = 2
+) -> SprintConfig:
     """Build a SprintConfig with soft wiring gate enabled.
 
     Uses wiring_gate_scope="none" so _resolve_wiring_mode falls back to
@@ -532,7 +550,10 @@ class TestSprintPerPhasePathE2E:
     credit_wiring, and wiring_analyses_count."""
 
     def test_sprint_per_phase_path_v32(
-        self, tmp_path: Path, audit_trail, monkeypatch,
+        self,
+        tmp_path: Path,
+        audit_trail,
+        monkeypatch,
     ) -> None:
         """E2E: debit_wiring() -> analysis -> credit_wiring() on non-blocking;
         wiring_analyses_count incremented per task.
@@ -559,6 +580,7 @@ class TestSprintPerPhasePathE2E:
         @dataclass
         class _FakeWiringReport:
             """Minimal WiringReport stub — zero findings (non-blocking)."""
+
             target_dir: str = ""
             files_analyzed: int = 5
             files_skipped: int = 0
@@ -584,10 +606,12 @@ class TestSprintPerPhasePathE2E:
                 return 0
 
         def _fake_run_wiring_analysis(wiring_config, source_dir):
-            analysis_calls.append({
-                "rollout_mode": wiring_config.rollout_mode,
-                "source_dir": str(source_dir),
-            })
+            analysis_calls.append(
+                {
+                    "rollout_mode": wiring_config.rollout_mode,
+                    "source_dir": str(source_dir),
+                }
+            )
             return _FakeWiringReport(
                 target_dir=str(source_dir),
                 rollout_mode=wiring_config.rollout_mode,
@@ -663,14 +687,19 @@ class TestSprintPerPhasePathE2E:
         # After Alpha: consumed=7, reimbursed=3
         # Same for Beta: consumed=14, reimbursed=6
         expected_consumed = (5 + wiring_turns) * 2  # 14
-        expected_reimbursed = (2 + int(wiring_turns * ledger.reimbursement_rate)) * 2  # 6
+        expected_reimbursed = (
+            2 + int(wiring_turns * ledger.reimbursement_rate)
+        ) * 2  # 6
         assert ledger.consumed == expected_consumed, (
             f"Expected consumed={expected_consumed}, got {ledger.consumed}"
         )
         assert ledger.reimbursed == expected_reimbursed, (
             f"Expected reimbursed={expected_reimbursed}, got {ledger.reimbursed}"
         )
-        assert ledger.available() == initial_budget - expected_consumed + expected_reimbursed, (
+        assert (
+            ledger.available()
+            == initial_budget - expected_consumed + expected_reimbursed
+        ), (
             f"Expected available={initial_budget - expected_consumed + expected_reimbursed}, "
             f"got {ledger.available()}"
         )
@@ -710,7 +739,9 @@ class TestSprintPerPhasePathE2E:
                 "wiring_turns_credited": expected_wiring_credited,
                 "ledger_consumed": expected_consumed,
                 "ledger_reimbursed": expected_reimbursed,
-                "ledger_available": initial_budget - expected_consumed + expected_reimbursed,
+                "ledger_available": initial_budget
+                - expected_consumed
+                + expected_reimbursed,
             },
             verdict="PASS",
             evidence=(
@@ -755,9 +786,7 @@ def _make_cross_path_config(tmp_path: Path) -> SprintConfig:
 
     # Phase 3: task-inventory (single task)
     phase3_file = tmp_path / "phase-3-tasklist.md"
-    phase3_file.write_text(
-        "# Phase 3\n\n### T03.01 -- Task Gamma\nDo gamma\n"
-    )
+    phase3_file.write_text("# Phase 3\n\n### T03.01 -- Task Gamma\nDo gamma\n")
 
     index = tmp_path / "tasklist-index.md"
     index.write_text("index\n")
@@ -789,7 +818,10 @@ class TestCrossPathCoherence:
     task-inventory + freeform phases sharing a single TurnLedger."""
 
     def test_cross_path_coherence(
-        self, tmp_path: Path, audit_trail, monkeypatch,
+        self,
+        tmp_path: Path,
+        audit_trail,
+        monkeypatch,
     ) -> None:
         """E2E: 3 phases (task-inventory, freeform, task-inventory) share one
         TurnLedger. After each phase checkpoint, assert:
@@ -882,8 +914,11 @@ class TestCrossPathCoherence:
             return (0, 3, 100)  # exit_code=0, turns=3, output_bytes=100
 
         results_p1, remaining_p1, gates_p1 = execute_phase_tasks(
-            phase1_tasks, config, config.phases[0],
-            ledger=ledger, _subprocess_factory=_factory_phase1,
+            phase1_tasks,
+            config,
+            config.phases[0],
+            ledger=ledger,
+            _subprocess_factory=_factory_phase1,
         )
 
         snap_p1 = _snapshot("after_phase_1")
@@ -898,8 +933,12 @@ class TestCrossPathCoherence:
         # Phase 1 budget trace:
         #   Per task: pre-debit 5, actual 3 -> credit 2. Wiring: debit 2, credit 1.
         #   2 tasks: consumed = (5+2)*2 = 14, reimbursed = (2+1)*2 = 6
-        assert ledger.consumed == 14, f"Phase 1 consumed: expected 14, got {ledger.consumed}"
-        assert ledger.reimbursed == 6, f"Phase 1 reimbursed: expected 6, got {ledger.reimbursed}"
+        assert ledger.consumed == 14, (
+            f"Phase 1 consumed: expected 14, got {ledger.consumed}"
+        )
+        assert ledger.reimbursed == 6, (
+            f"Phase 1 reimbursed: expected 6, got {ledger.reimbursed}"
+        )
 
         # ---------------------------------------------------------------
         # Phase 2: freeform — simulate the ClaudeProcess path
@@ -928,7 +967,9 @@ class TestCrossPathCoherence:
 
         # Run the post-phase wiring hook (this exercises debit_wiring/credit_wiring)
         freeform_result = run_post_phase_wiring_hook(
-            freeform_phase, config, freeform_result,
+            freeform_phase,
+            config,
+            freeform_result,
             ledger=ledger,
         )
 
@@ -942,8 +983,12 @@ class TestCrossPathCoherence:
         # Phase 2 budget: wiring debit 2, credit 1 (soft mode, one analysis)
         #   consumed: 14 + 2 = 16
         #   reimbursed: 6 + 1 = 7
-        assert ledger.consumed == 16, f"Phase 2 consumed: expected 16, got {ledger.consumed}"
-        assert ledger.reimbursed == 7, f"Phase 2 reimbursed: expected 7, got {ledger.reimbursed}"
+        assert ledger.consumed == 16, (
+            f"Phase 2 consumed: expected 16, got {ledger.consumed}"
+        )
+        assert ledger.reimbursed == 7, (
+            f"Phase 2 reimbursed: expected 7, got {ledger.reimbursed}"
+        )
 
         # ---------------------------------------------------------------
         # Phase 3: task-inventory (1 task, 4 turns, soft wiring)
@@ -956,8 +1001,11 @@ class TestCrossPathCoherence:
             return (0, 4, 200)  # exit_code=0, turns=4, output_bytes=200
 
         results_p3, remaining_p3, gates_p3 = execute_phase_tasks(
-            phase3_tasks, config, config.phases[2],
-            ledger=ledger, _subprocess_factory=_factory_phase3,
+            phase3_tasks,
+            config,
+            config.phases[2],
+            ledger=ledger,
+            _subprocess_factory=_factory_phase3,
         )
 
         snap_p3 = _snapshot("after_phase_3")
@@ -973,8 +1021,12 @@ class TestCrossPathCoherence:
         #   pre-debit 5, actual 4 -> credit 1. Wiring: debit 2, credit 1.
         #   consumed: 16 + 5 + 2 = 23
         #   reimbursed: 7 + 1 + 1 = 9
-        assert ledger.consumed == 23, f"Phase 3 consumed: expected 23, got {ledger.consumed}"
-        assert ledger.reimbursed == 9, f"Phase 3 reimbursed: expected 9, got {ledger.reimbursed}"
+        assert ledger.consumed == 23, (
+            f"Phase 3 consumed: expected 23, got {ledger.consumed}"
+        )
+        assert ledger.reimbursed == 9, (
+            f"Phase 3 reimbursed: expected 9, got {ledger.reimbursed}"
+        )
 
         # ---------------------------------------------------------------
         # Final assertions
@@ -1011,9 +1063,19 @@ class TestCrossPathCoherence:
                 "wiring_gate_mode": "soft",
                 "reimbursement_rate": ledger.reimbursement_rate,
                 "phases": [
-                    {"number": 1, "type": "task-inventory", "tasks": 2, "turns_per_task": 3},
+                    {
+                        "number": 1,
+                        "type": "task-inventory",
+                        "tasks": 2,
+                        "turns_per_task": 3,
+                    },
                     {"number": 2, "type": "freeform", "tasks": 0, "turns_consumed": 0},
-                    {"number": 3, "type": "task-inventory", "tasks": 1, "turns_per_task": 4},
+                    {
+                        "number": 3,
+                        "type": "task-inventory",
+                        "tasks": 1,
+                        "turns_per_task": 4,
+                    },
                 ],
             },
             observed={
@@ -1093,7 +1155,9 @@ class TestHandleRegressionE2E:
                     ),
                 ]
                 reg.merge_findings(
-                    structural=findings, semantic=[], run_number=run_number,
+                    structural=findings,
+                    semantic=[],
+                    run_number=run_number,
                 )
             else:
                 # Run 2: 2 structural HIGHs (regression — new finding added)
@@ -1110,7 +1174,9 @@ class TestHandleRegressionE2E:
                     ),
                 ]
                 reg.merge_findings(
-                    structural=findings, semantic=[], run_number=run_number,
+                    structural=findings,
+                    semantic=[],
+                    run_number=run_number,
                 )
 
         def _run_remediation(reg: DeviationRegistry) -> None:
@@ -1118,14 +1184,18 @@ class TestHandleRegressionE2E:
             # Remediation runs but does not fix the issue (regression scenario)
 
         def _handle_regression_fn(
-            reg: DeviationRegistry, sp: Path, rp: Path,
+            reg: DeviationRegistry,
+            sp: Path,
+            rp: Path,
         ):
             """Track that handle_regression was called with correct args."""
-            regression_calls.append({
-                "active_highs": reg.get_active_high_count(),
-                "spec_path": str(sp),
-                "roadmap_path": str(rp),
-            })
+            regression_calls.append(
+                {
+                    "active_highs": reg.get_active_high_count(),
+                    "spec_path": str(sp),
+                    "roadmap_path": str(rp),
+                }
+            )
 
         # Run convergence with regression callback
         result = execute_fidelity_with_convergence(
@@ -1159,8 +1229,7 @@ class TestHandleRegressionE2E:
         # Expected debits: CHECKER_COST (run1) + REMEDIATION_COST + CHECKER_COST (run2)
         #                 + REGRESSION_VALIDATION_COST
         expected_min_consumed = (
-            CHECKER_COST + REMEDIATION_COST + CHECKER_COST
-            + REGRESSION_VALIDATION_COST
+            CHECKER_COST + REMEDIATION_COST + CHECKER_COST + REGRESSION_VALIDATION_COST
         )
         assert ledger.consumed >= expected_min_consumed, (
             f"Expected consumed>={expected_min_consumed} "

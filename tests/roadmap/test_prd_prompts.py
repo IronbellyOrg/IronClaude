@@ -36,6 +36,7 @@ EXTRACTION = Path("extraction.md")
 
 # ── build_extract_prompt ──────────────────────────────────────────────
 
+
 class TestBuildExtractPromptPrd:
     """PRD supplementary block in build_extract_prompt."""
 
@@ -64,6 +65,7 @@ class TestBuildExtractPromptPrd:
 
 # ── build_extract_prompt_tdd ──────────────────────────────────────────
 
+
 class TestBuildExtractPromptTddPrd:
     """PRD supplementary block in build_extract_prompt_tdd."""
 
@@ -81,6 +83,7 @@ class TestBuildExtractPromptTddPrd:
 
 
 # ── build_generate_prompt ─────────────────────────────────────────────
+
 
 class TestBuildGeneratePromptPrd:
     """PRD supplementary block in build_generate_prompt."""
@@ -101,6 +104,7 @@ class TestBuildGeneratePromptPrd:
 
 # ── build_score_prompt ────────────────────────────────────────────────
 
+
 class TestBuildScorePromptPrd:
     """PRD supplementary block in build_score_prompt."""
 
@@ -114,6 +118,7 @@ class TestBuildScorePromptPrd:
 
 
 # ── build_spec_fidelity_prompt ────────────────────────────────────────
+
 
 class TestBuildSpecFidelityPromptPrd:
     """PRD dimensions 12-15 in build_spec_fidelity_prompt."""
@@ -130,6 +135,7 @@ class TestBuildSpecFidelityPromptPrd:
 
 # ── build_test_strategy_prompt ────────────────────────────────────────
 
+
 class TestBuildTestStrategyPromptPrd:
     """PRD checks in build_test_strategy_prompt."""
 
@@ -143,6 +149,7 @@ class TestBuildTestStrategyPromptPrd:
 
 
 # ── Scenario B & E (10.3b) ────────────────────────────────────────────
+
 
 class TestScenarioBAndE:
     """Explicit coverage for Scenarios B (TDD primary, no supplements) and
@@ -167,6 +174,7 @@ class TestScenarioBAndE:
 
 # ── Spec Fidelity Dimensions (10.4) ──────────────────────────────────
 
+
 class TestSpecFidelityDimensions:
     """Verify dimensions 1-11 are unchanged without PRD, and dimensions
     12-15 appear only when prd_file is provided."""
@@ -188,6 +196,7 @@ class TestSpecFidelityDimensions:
 
 # ── Test Strategy PRD Checks (10.4) ──────────────────────────────────
 
+
 class TestTestStrategyPrdChecks:
     """Verify PRD check items appear only when prd_file is provided."""
 
@@ -201,13 +210,12 @@ class TestTestStrategyPrdChecks:
 
     def test_baseline_identical_without_prd(self):
         baseline = build_test_strategy_prompt(ROADMAP, EXTRACTION)
-        explicit_none = build_test_strategy_prompt(
-            ROADMAP, EXTRACTION, prd_file=None
-        )
+        explicit_none = build_test_strategy_prompt(ROADMAP, EXTRACTION, prd_file=None)
         assert baseline == explicit_none
 
 
 # ── Scenario F: Redundancy Guard (10.8) ──────────────────────────────
+
 
 class TestRedundancyGuard:
     """When input_type=='tdd' and tdd_file is provided, the executor should

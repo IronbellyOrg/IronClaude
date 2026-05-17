@@ -236,7 +236,11 @@ def _merge_settings(
     try:
         target_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        return False, f"❌ Could not create target dir {target_path.parent}: {exc}", None
+        return (
+            False,
+            f"❌ Could not create target dir {target_path.parent}: {exc}",
+            None,
+        )
 
     backup_path: Path | None = None
 
@@ -308,17 +312,13 @@ def _merge_settings(
         # session-init.sh + freshness-session-start.sh, both implicit/explicit
         # `*` matcher) must BOTH land.
         original_target_matchers = {
-            r.get("matcher", "*")
-            for r in event_list
-            if isinstance(r, dict)
+            r.get("matcher", "*") for r in event_list if isinstance(r, dict)
         }
         # Also track exact (matcher, command-list) tuples that already exist
         # so a true duplicate (same matcher + same exact inner commands) is
         # always treated as a collision regardless of source-vs-source distinction.
         original_target_signatures = {
-            _registration_signature(r)
-            for r in event_list
-            if isinstance(r, dict)
+            _registration_signature(r) for r in event_list if isinstance(r, dict)
         }
 
         for new_reg in registrations:
@@ -353,7 +353,8 @@ def _merge_settings(
                     if (
                         isinstance(existing_reg, dict)
                         and existing_reg.get("matcher", "*") == new_matcher
-                        and _registration_signature(existing_reg) in original_target_signatures
+                        and _registration_signature(existing_reg)
+                        in original_target_signatures
                     ):
                         collision_idx = idx
                         break
@@ -403,11 +404,7 @@ def _registration_signature(reg: dict) -> tuple:
     inner = reg.get("hooks", [])
     if not isinstance(inner, list):
         return (matcher, ())
-    commands = tuple(
-        h.get("command", "")
-        for h in inner
-        if isinstance(h, dict)
-    )
+    commands = tuple(h.get("command", "") for h in inner if isinstance(h, dict))
     return (matcher, commands)
 
 

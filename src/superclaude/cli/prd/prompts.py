@@ -126,11 +126,11 @@ def build_scope_discovery_prompt(
             f"- {s}" for s in context_summaries
         )
 
-    return f"""Perform scope discovery for a PRD about: {parsed['GOAL']}
+    return f"""Perform scope discovery for a PRD about: {parsed["GOAL"]}
 
-Product: {parsed.get('PRODUCT_NAME', 'Unknown')}
-Scope: {parsed.get('PRD_SCOPE', 'feature')}
-Scenario: {parsed.get('SCENARIO', 'B')}
+Product: {parsed.get("PRODUCT_NAME", "Unknown")}
+Scope: {parsed.get("PRD_SCOPE", "feature")}
+Scenario: {parsed.get("SCENARIO", "B")}
 {where_clause}
 {ctx}
 
@@ -202,9 +202,9 @@ def build_research_notes_prompt(
 
     return f"""Create structured research notes for the PRD pipeline.
 
-Product: {parsed.get('PRODUCT_NAME', 'Unknown')}
-Scope: {parsed.get('PRD_SCOPE', 'feature')}
-Scenario: {parsed.get('SCENARIO', 'B')}
+Product: {parsed.get("PRODUCT_NAME", "Unknown")}
+Scope: {parsed.get("PRD_SCOPE", "feature")}
+Scenario: {parsed.get("SCENARIO", "B")}
 Tier: {config.tier}
 {ctx}
 
@@ -217,11 +217,11 @@ Produce a research-notes.md file with EXACTLY these 7 sections (all required):
 
 ---
 Date: {_today()}
-Scenario: {parsed.get('SCENARIO', 'B')}
+Scenario: {parsed.get("SCENARIO", "B")}
 Tier: {config.tier}
 ---
 
-# Research Notes: {parsed.get('PRODUCT_NAME', 'Unknown')}
+# Research Notes: {parsed.get("PRODUCT_NAME", "Unknown")}
 
 ## EXISTING_FILES
 List every relevant source file discovered, grouped by product area.
@@ -378,7 +378,7 @@ INSTRUCTIONS:
 7. Include the synthesis mapping for Phase 4 (which synth file covers which sections)
 8. Include validation checklists for Phase 5 and Phase 6
 
-Write the task file to: {config.task_dir / ('TASK-PRD-' + config.product_slug + '.md')}
+Write the task file to: {config.task_dir / ("TASK-PRD-" + config.product_slug + ".md")}
 
 The task file frontmatter must include:
 - id: TASK-PRD-{config.product_slug}
@@ -642,9 +642,9 @@ def build_analyst_completeness_prompt(
 
 Analysis type: completeness-verification
 Research directory: {config.research_dir}
-Research notes file: {config.task_dir / 'research-notes.md'}
+Research notes file: {config.task_dir / "research-notes.md"}
 Tier: {config.tier}
-Output path: {config.qa_dir / 'analyst-completeness-report.md'}
+Output path: {config.qa_dir / "analyst-completeness-report.md"}
 {ctx}
 
 Your job is to independently verify that research agents produced thorough,
@@ -710,10 +710,10 @@ def build_qa_research_gate_prompt(
 
 QA phase: research-gate
 Research directory: {config.research_dir}
-Analyst report: {analyst_report} ({'exists' if has_analyst else 'not found'})
-Research notes file: {config.task_dir / 'research-notes.md'}
+Analyst report: {analyst_report} ({"exists" if has_analyst else "not found"})
+Research notes file: {config.task_dir / "research-notes.md"}
 Tier: {config.tier}
-Output path: {config.qa_dir / 'qa-research-gate-report.md'}
+Output path: {config.qa_dir / "qa-research-gate-report.md"}
 {ctx}
 
 You are the last line of defense before synthesis begins.
@@ -809,7 +809,7 @@ def build_analyst_synthesis_prompt(
 Analysis type: synthesis-review
 Synthesis directory: {config.synthesis_dir}
 Research directory: {config.research_dir}
-Output path: {config.qa_dir / 'analyst-synthesis-review.md'}
+Output path: {config.qa_dir / "analyst-synthesis-review.md"}
 {ctx}
 
 PROCESS:
@@ -854,7 +854,7 @@ QA phase: synthesis-gate
 Synthesis directory: {config.synthesis_dir}
 Research directory: {config.research_dir}
 Fix authorization: true
-Output path: {config.qa_dir / 'qa-synthesis-gate-report.md'}
+Output path: {config.qa_dir / "qa-synthesis-gate-report.md"}
 {ctx}
 
 You are verifying that synthesis files are ready for assembly.
@@ -986,7 +986,7 @@ QA phase: report-validation
 Report path: {config.output_path}
 Research directory: {config.research_dir}
 Template path: {config.template_path}
-Output path: {config.qa_dir / 'qa-report-validation.md'}
+Output path: {config.qa_dir / "qa-report-validation.md"}
 Fix authorization: true
 {ctx}
 
@@ -1040,7 +1040,7 @@ def build_qualitative_qa_prompt(
 
 QA phase: qualitative-review
 Report path: {config.output_path}
-Output path: {config.qa_dir / 'qa-qualitative-review.md'}
+Output path: {config.qa_dir / "qa-qualitative-review.md"}
 Fix authorization: true
 {ctx}
 
@@ -1142,14 +1142,15 @@ def build_gap_filling_prompt(
         cycle: Current fix cycle number (1-indexed).
         phase: Either "research" or "synthesis".
     """
+    failure_area_slug = failure["area"][:20]
     return f"""Address this specific QA failure from fix cycle {cycle}.
 
 Phase: {phase}
 Failure:
-  Area: {failure['area']}
-  Issue: {failure['issue']}
-  Severity: {failure['severity']}
-  Remediation: {failure.get('remediation', 'Not specified')}
+  Area: {failure["area"]}
+  Issue: {failure["issue"]}
+  Severity: {failure["severity"]}
+  Remediation: {failure.get("remediation", "Not specified")}
 
 Task directory: {config.task_dir}
 Research directory: {config.research_dir}
@@ -1169,7 +1170,7 @@ If phase is 'synthesis':
 - Verify the fix addresses the QA finding
 
 Write a brief report of what you fixed to:
-{config.qa_dir / f'gap-fix-{cycle:02d}-{failure["area"][:20]}.md'}
+{config.qa_dir / f"gap-fix-{cycle:02d}-{failure_area_slug}.md"}
 
 EXIT_RECOMMENDATION: CONTINUE
 """

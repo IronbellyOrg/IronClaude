@@ -3,6 +3,7 @@
 Covers the create-vs-edit distinction added to resolve F10 from
 .dev/releases/complete/freshness-system/checkpoints/CP-P05-T05.01.md.
 """
+
 from __future__ import annotations
 
 import json

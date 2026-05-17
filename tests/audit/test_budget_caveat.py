@@ -1,6 +1,5 @@
 """Tests for budget realism caveats (T04.09 / D-0035)."""
 
-
 from superclaude.cli.audit.budget_caveat import (
     add_caveat_to_dry_run,
     add_caveat_to_report,

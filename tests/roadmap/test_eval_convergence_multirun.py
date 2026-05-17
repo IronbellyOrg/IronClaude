@@ -91,7 +91,9 @@ class TestMultiRunRegressionSequence:
 
         assert reg.get_structural_high_count() == 1  # Decreased
         assert reg.get_semantic_high_count() == 1  # New but not a regression
-        assert not _check_regression(reg)  # Structural decreased, semantic doesn't count
+        assert not _check_regression(
+            reg
+        )  # Structural decreased, semantic doesn't count
 
     def test_run3_structural_regression(self, tmp_path):
         """Run 3: Structural HIGH increases → regression detected."""

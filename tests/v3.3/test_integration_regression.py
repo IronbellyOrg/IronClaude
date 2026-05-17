@@ -149,11 +149,16 @@ class TestCrossPhaseledgerCoherence:
     """
 
     def test_cross_phase_ledger(
-        self, tmp_path: Path, audit_trail, monkeypatch,
+        self,
+        tmp_path: Path,
+        audit_trail,
+        monkeypatch,
     ) -> None:
         """T17: Execute 3 phases sequentially with a shared ledger,
         asserting budget invariant at each phase boundary."""
-        config = _make_multi_phase_config(tmp_path, num_phases=3, wiring_gate_mode="soft")
+        config = _make_multi_phase_config(
+            tmp_path, num_phases=3, wiring_gate_mode="soft"
+        )
         _patch_wiring_analysis(monkeypatch)
 
         initial_budget = 200
@@ -194,7 +199,9 @@ class TestCrossPhaseledgerCoherence:
             factory, _ = _make_factory(turns=3)
 
             results, remaining, gate_results = execute_phase_tasks(
-                tasks, config, phase,
+                tasks,
+                config,
+                phase,
                 ledger=ledger,
                 _subprocess_factory=factory,
             )
@@ -224,8 +231,10 @@ class TestCrossPhaseledgerCoherence:
 
         # Monotonicity: consumed can only increase across phases
         for i in range(1, len(phase_snapshots)):
-            assert phase_snapshots[i]["consumed"] >= phase_snapshots[i - 1]["consumed"], (
-                f"Consumed decreased between {phase_snapshots[i-1]['label']} and {phase_snapshots[i]['label']}"
+            assert (
+                phase_snapshots[i]["consumed"] >= phase_snapshots[i - 1]["consumed"]
+            ), (
+                f"Consumed decreased between {phase_snapshots[i - 1]['label']} and {phase_snapshots[i]['label']}"
             )
 
         audit_trail.record(
@@ -272,12 +281,17 @@ class TestModeSwitchMidSprint:
     """
 
     def test_mode_switch(
-        self, tmp_path: Path, audit_trail, monkeypatch,
+        self,
+        tmp_path: Path,
+        audit_trail,
+        monkeypatch,
     ) -> None:
         """T18: Run phase 1 with wiring off, then phase 2 with wiring soft.
         Verify wiring counters only advance in phase 2."""
         config = _make_multi_phase_config(
-            tmp_path, num_phases=2, wiring_gate_mode="off",
+            tmp_path,
+            num_phases=2,
+            wiring_gate_mode="off",
         )
         _patch_wiring_analysis(monkeypatch)
 
@@ -288,8 +302,11 @@ class TestModeSwitchMidSprint:
         factory_p1, calls_p1 = _make_factory(turns=3)
 
         results_p1, _, _ = execute_phase_tasks(
-            tasks_p1, config, config.phases[0],
-            ledger=ledger, _subprocess_factory=factory_p1,
+            tasks_p1,
+            config,
+            config.phases[0],
+            ledger=ledger,
+            _subprocess_factory=factory_p1,
         )
 
         wiring_after_p1 = ledger.wiring_turns_used
@@ -301,8 +318,11 @@ class TestModeSwitchMidSprint:
         factory_p2, calls_p2 = _make_factory(turns=4)
 
         results_p2, _, _ = execute_phase_tasks(
-            tasks_p2, config, config.phases[1],
-            ledger=ledger, _subprocess_factory=factory_p2,
+            tasks_p2,
+            config,
+            config.phases[1],
+            ledger=ledger,
+            _subprocess_factory=factory_p2,
         )
 
         wiring_after_p2 = ledger.wiring_turns_used
@@ -366,7 +386,10 @@ class TestConcurrentGateEvaluation:
     """
 
     def test_concurrent_gate(
-        self, tmp_path: Path, audit_trail, monkeypatch,
+        self,
+        tmp_path: Path,
+        audit_trail,
+        monkeypatch,
     ) -> None:
         """T19: Run gate evaluation from 4 threads concurrently,
         each with its own ledger. Assert no cross-contamination."""
@@ -402,16 +425,18 @@ class TestConcurrentGateEvaluation:
                 factory, _ = _make_factory(turns=2)
 
                 results, remaining, _ = execute_phase_tasks(
-                    tasks, config, config.phases[0],
-                    ledger=ledger, _subprocess_factory=factory,
+                    tasks,
+                    config,
+                    config.phases[0],
+                    ledger=ledger,
+                    _subprocess_factory=factory,
                 )
                 results_by_thread[thread_id] = results
             except Exception as exc:
                 errors.append(f"Thread {thread_id}: {exc}")
 
         threads = [
-            threading.Thread(target=_run_phase, args=(i,))
-            for i in range(num_threads)
+            threading.Thread(target=_run_phase, args=(i,)) for i in range(num_threads)
         ]
         for t in threads:
             t.start()
@@ -483,12 +508,17 @@ class TestAuditCompleteness:
     """
 
     def test_audit_completeness(
-        self, tmp_path: Path, audit_trail, monkeypatch,
+        self,
+        tmp_path: Path,
+        audit_trail,
+        monkeypatch,
     ) -> None:
         """T20: Execute a 3-task phase, emit one audit record per task,
         then verify all records exist with required fields."""
         config = _make_multi_phase_config(
-            tmp_path, num_phases=1, wiring_gate_mode="off",
+            tmp_path,
+            num_phases=1,
+            wiring_gate_mode="off",
         )
 
         ledger = TurnLedger(initial_budget=100, minimum_allocation=5)
@@ -499,8 +529,11 @@ class TestAuditCompleteness:
         factory, _ = _make_factory(turns=2)
 
         results, remaining, _ = execute_phase_tasks(
-            tasks, config, config.phases[0],
-            ledger=ledger, _subprocess_factory=factory,
+            tasks,
+            config,
+            config.phases[0],
+            ledger=ledger,
+            _subprocess_factory=factory,
         )
 
         # Emit one audit record per task result
@@ -528,11 +561,18 @@ class TestAuditCompleteness:
 
         # Verify: required fields present in every record we just emitted
         required_fields = {
-            "test_id", "spec_ref", "assertion_type", "inputs",
-            "observed", "expected", "verdict", "evidence",
+            "test_id",
+            "spec_ref",
+            "assertion_type",
+            "inputs",
+            "observed",
+            "expected",
+            "verdict",
+            "evidence",
         }
         recent_records = [
-            r for r in audit_trail.records
+            r
+            for r in audit_trail.records
             if r["test_id"].startswith("audit_completeness_")
         ]
         assert len(recent_records) == 3, (
@@ -540,9 +580,7 @@ class TestAuditCompleteness:
         )
         for rec in recent_records:
             missing = required_fields - set(rec.keys())
-            assert not missing, (
-                f"Record {rec['test_id']} missing fields: {missing}"
-            )
+            assert not missing, f"Record {rec['test_id']} missing fields: {missing}"
 
         # Final summary record
         audit_trail.record(
@@ -582,9 +620,7 @@ class TestManifestCoverage:
     def test_manifest_coverage(self, audit_trail) -> None:
         """T21: Load the wiring manifest and verify structural completeness."""
         manifest_path = Path(__file__).parent / "wiring_manifest.yaml"
-        assert manifest_path.exists(), (
-            f"Wiring manifest not found at {manifest_path}"
-        )
+        assert manifest_path.exists(), f"Wiring manifest not found at {manifest_path}"
 
         with open(manifest_path) as f:
             data = yaml.safe_load(f)
@@ -601,9 +637,7 @@ class TestManifestCoverage:
         # Required: at least the 3 core entry points
         expected_eps = {"execute_sprint", "execute_phase_tasks", "execute_roadmap"}
         missing_eps = expected_eps - ep_functions
-        assert not missing_eps, (
-            f"Missing expected entry points: {missing_eps}"
-        )
+        assert not missing_eps, f"Missing expected entry points: {missing_eps}"
 
         # Required reachable targets exist and reference valid entry points
         targets = manifest.get("required_reachable", [])
@@ -611,7 +645,9 @@ class TestManifestCoverage:
 
         for target in targets:
             assert "target" in target, f"Target missing 'target' field: {target}"
-            assert "from_entry" in target, f"Target missing 'from_entry' field: {target}"
+            assert "from_entry" in target, (
+                f"Target missing 'from_entry' field: {target}"
+            )
             assert "spec_ref" in target, f"Target missing 'spec_ref' field: {target}"
             assert target["from_entry"] in ep_functions, (
                 f"Target '{target['target']}' references unknown entry "
@@ -677,7 +713,10 @@ class TestFullPipelineE2E:
         """T22: Run execute_sprint end-to-end with captured infrastructure,
         verifying all 4 core classes are constructed and tasks execute."""
         config = _make_multi_phase_config(
-            tmp_path, num_phases=2, wiring_gate_mode="off", max_turns=50,
+            tmp_path,
+            num_phases=2,
+            wiring_gate_mode="off",
+            max_turns=50,
         )
         config.results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -731,7 +770,9 @@ class TestFullPipelineE2E:
                 return_value=[],
             ),
             patch.object(
-                SprintGatePolicy, "__init__", _capture_gate_init,
+                SprintGatePolicy,
+                "__init__",
+                _capture_gate_init,
             ),
         ):
             execute_sprint(config)

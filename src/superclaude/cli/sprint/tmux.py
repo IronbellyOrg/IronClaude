@@ -153,9 +153,7 @@ def launch_in_tmux(config: SprintConfig):
             )
 
         # Select the top pane (the TUI)
-        subprocess.run(
-            ["tmux", "select-pane", "-t", f"{name}:{TUI_PANE}"], check=True
-        )
+        subprocess.run(["tmux", "select-pane", "-t", f"{name}:{TUI_PANE}"], check=True)
     except Exception:
         # Kill the partial session before re-raising
         subprocess.run(["tmux", "kill-session", "-t", name], check=False)

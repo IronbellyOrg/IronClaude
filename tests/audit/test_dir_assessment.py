@@ -1,6 +1,5 @@
 """Tests for directory assessment blocks (T04.05 / D-0031)."""
 
-
 from superclaude.cli.audit.classification import V2Action, V2Tier
 from superclaude.cli.audit.consolidation import ConsolidatedFinding
 from superclaude.cli.audit.dir_assessment import (

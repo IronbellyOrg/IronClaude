@@ -212,20 +212,36 @@ class TestRegistry:
         for dim, checker in CHECKER_REGISTRY.items():
             assert callable(checker), f"Registry entry '{dim}' is not callable"
 
-    def test_checker_signature_matches_interface(self, spec_file: str, roadmap_file: str) -> None:
+    def test_checker_signature_matches_interface(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         """Each checker takes (spec_path: str, roadmap_path: str) -> list[Finding]."""
         for dim, checker in CHECKER_REGISTRY.items():
             result = checker(spec_file, roadmap_file)
             assert isinstance(result, list), f"Checker '{dim}' did not return a list"
             for finding in result:
-                assert hasattr(finding, "dimension"), f"Finding from '{dim}' missing dimension"
-                assert hasattr(finding, "rule_id"), f"Finding from '{dim}' missing rule_id"
-                assert hasattr(finding, "severity"), f"Finding from '{dim}' missing severity"
-                assert hasattr(finding, "spec_quote"), f"Finding from '{dim}' missing spec_quote"
-                assert hasattr(finding, "roadmap_quote"), f"Finding from '{dim}' missing roadmap_quote"
-                assert hasattr(finding, "location"), f"Finding from '{dim}' missing location"
+                assert hasattr(finding, "dimension"), (
+                    f"Finding from '{dim}' missing dimension"
+                )
+                assert hasattr(finding, "rule_id"), (
+                    f"Finding from '{dim}' missing rule_id"
+                )
+                assert hasattr(finding, "severity"), (
+                    f"Finding from '{dim}' missing severity"
+                )
+                assert hasattr(finding, "spec_quote"), (
+                    f"Finding from '{dim}' missing spec_quote"
+                )
+                assert hasattr(finding, "roadmap_quote"), (
+                    f"Finding from '{dim}' missing roadmap_quote"
+                )
+                assert hasattr(finding, "location"), (
+                    f"Finding from '{dim}' missing location"
+                )
 
-    def test_run_all_checkers_returns_findings(self, spec_file: str, roadmap_file: str) -> None:
+    def test_run_all_checkers_returns_findings(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = run_all_checkers(spec_file, roadmap_file)
         assert isinstance(findings, list)
         assert len(findings) > 0, "Expected at least some findings from test fixtures"
@@ -245,28 +261,45 @@ class TestSignaturesChecker:
         assert len(phantom_findings) > 0, "Should detect phantom ID FR-99"
         assert any("FR-99" in f.description for f in phantom_findings)
 
-    def test_detects_param_arity_mismatch(self, spec_file: str, roadmap_file: str) -> None:
+    def test_detects_param_arity_mismatch(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_signatures(spec_file, roadmap_file)
         arity_findings = [f for f in findings if f.rule_id == "param_arity_mismatch"]
         # process_data has 3 params in spec but 2 in roadmap
-        assert len(arity_findings) > 0, "Should detect param arity mismatch for process_data"
+        assert len(arity_findings) > 0, (
+            "Should detect param arity mismatch for process_data"
+        )
 
-    def test_all_findings_have_correct_dimension(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_findings_have_correct_dimension(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_signatures(spec_file, roadmap_file)
         for f in findings:
             assert f.dimension == "signatures"
 
-    def test_all_findings_have_severity_from_rules(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_findings_have_severity_from_rules(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_signatures(spec_file, roadmap_file)
         for f in findings:
             expected_severity = get_severity("signatures", f.rule_id)
-            assert f.severity == expected_severity, f"Finding {f.id} severity {f.severity} != expected {expected_severity}"
+            assert f.severity == expected_severity, (
+                f"Finding {f.id} severity {f.severity} != expected {expected_severity}"
+            )
 
-    def test_findings_include_required_fields(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_include_required_fields(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_signatures(spec_file, roadmap_file)
         for f in findings:
             assert f.dimension == "signatures"
-            assert f.rule_id in ("phantom_id", "function_missing", "param_arity_mismatch", "param_type_mismatch")
+            assert f.rule_id in (
+                "phantom_id",
+                "function_missing",
+                "param_arity_mismatch",
+                "param_type_mismatch",
+            )
             assert f.severity in ("HIGH", "MEDIUM")
             assert f.spec_quote
             assert f.roadmap_quote
@@ -283,18 +316,29 @@ class TestDataModelsChecker:
         # wiring_gate.py is in spec but not in roadmap
         assert len(missing_findings) > 0, "Should detect missing file wiring_gate.py"
 
-    def test_all_findings_have_correct_dimension(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_findings_have_correct_dimension(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_data_models(spec_file, roadmap_file)
         for f in findings:
             assert f.dimension == "data_models"
 
-    def test_findings_use_correct_machine_keys(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_use_correct_machine_keys(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_data_models(spec_file, roadmap_file)
-        valid_keys = {"file_missing", "path_prefix_mismatch", "enum_uncovered", "field_missing"}
+        valid_keys = {
+            "file_missing",
+            "path_prefix_mismatch",
+            "enum_uncovered",
+            "field_missing",
+        }
         for f in findings:
             assert f.rule_id in valid_keys, f"Unexpected machine key: {f.rule_id}"
 
-    def test_findings_have_severity_from_rules(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_have_severity_from_rules(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_data_models(spec_file, roadmap_file)
         for f in findings:
             expected = get_severity("data_models", f.rule_id)
@@ -313,18 +357,29 @@ class TestGatesChecker:
         findings = check_gates(spec_file, roadmap_file)
         assert isinstance(findings, list)
 
-    def test_all_findings_have_correct_dimension(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_findings_have_correct_dimension(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_gates(spec_file, roadmap_file)
         for f in findings:
             assert f.dimension == "gates"
 
-    def test_findings_use_correct_machine_keys(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_use_correct_machine_keys(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_gates(spec_file, roadmap_file)
-        valid_keys = {"frontmatter_field_missing", "step_param_missing", "ordering_violated", "semantic_check_missing"}
+        valid_keys = {
+            "frontmatter_field_missing",
+            "step_param_missing",
+            "ordering_violated",
+            "semantic_check_missing",
+        }
         for f in findings:
             assert f.rule_id in valid_keys, f"Unexpected machine key: {f.rule_id}"
 
-    def test_findings_have_severity_from_rules(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_have_severity_from_rules(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_gates(spec_file, roadmap_file)
         for f in findings:
             expected = get_severity("gates", f.rule_id)
@@ -338,12 +393,16 @@ class TestCLIChecker:
         findings = check_cli(spec_file, roadmap_file)
         assert isinstance(findings, list)
 
-    def test_all_findings_have_correct_dimension(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_findings_have_correct_dimension(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_cli(spec_file, roadmap_file)
         for f in findings:
             assert f.dimension == "cli"
 
-    def test_findings_use_correct_machine_keys(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_use_correct_machine_keys(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_cli(spec_file, roadmap_file)
         valid_keys = {"mode_uncovered", "default_mismatch"}
         for f in findings:
@@ -357,18 +416,30 @@ class TestNFRsChecker:
         findings = check_nfrs(spec_file, roadmap_file)
         assert isinstance(findings, list)
 
-    def test_all_findings_have_correct_dimension(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_findings_have_correct_dimension(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_nfrs(spec_file, roadmap_file)
         for f in findings:
             assert f.dimension == "nfrs"
 
-    def test_findings_use_correct_machine_keys(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_use_correct_machine_keys(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_nfrs(spec_file, roadmap_file)
-        valid_keys = {"threshold_contradicted", "security_missing", "dep_direction_violated", "coverage_mismatch", "dep_rule_missing"}
+        valid_keys = {
+            "threshold_contradicted",
+            "security_missing",
+            "dep_direction_violated",
+            "coverage_mismatch",
+            "dep_rule_missing",
+        }
         for f in findings:
             assert f.rule_id in valid_keys, f"Unexpected machine key: {f.rule_id}"
 
-    def test_findings_have_severity_from_rules(self, spec_file: str, roadmap_file: str) -> None:
+    def test_findings_have_severity_from_rules(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         findings = check_nfrs(spec_file, roadmap_file)
         for f in findings:
             expected = get_severity("nfrs", f.rule_id)
@@ -469,7 +540,9 @@ class TestDeterminism:
             assert f1.roadmap_quote == f2.roadmap_quote
             assert f1.stable_id == f2.stable_id
 
-    def test_serialized_output_identical(self, spec_file: str, roadmap_file: str) -> None:
+    def test_serialized_output_identical(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         """Serialized output is byte-identical across runs."""
         import json
 
@@ -496,16 +569,24 @@ class TestDeterminism:
         run2 = serialize(run_all_checkers(spec_file, roadmap_file))
         assert run1 == run2, "Serialized output differs between runs"
 
-    def test_individual_checker_determinism(self, spec_file: str, roadmap_file: str) -> None:
+    def test_individual_checker_determinism(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         """Each individual checker is deterministic."""
         for dim, checker in CHECKER_REGISTRY.items():
             findings_1 = checker(spec_file, roadmap_file)
             findings_2 = checker(spec_file, roadmap_file)
-            assert len(findings_1) == len(findings_2), f"Checker '{dim}' non-deterministic count"
+            assert len(findings_1) == len(findings_2), (
+                f"Checker '{dim}' non-deterministic count"
+            )
             for f1, f2 in zip(findings_1, findings_2):
-                assert f1.stable_id == f2.stable_id, f"Checker '{dim}' non-deterministic stable_id"
+                assert f1.stable_id == f2.stable_id, (
+                    f"Checker '{dim}' non-deterministic stable_id"
+                )
 
-    def test_parallel_execution_determinism(self, spec_file: str, roadmap_file: str) -> None:
+    def test_parallel_execution_determinism(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         """Parallel execution produces same results as sequential (NFR-4)."""
         from concurrent.futures import ThreadPoolExecutor
 
@@ -549,7 +630,9 @@ class TestDeterminism:
 
 class TestSupportingDataclasses:
     def test_regression_result(self) -> None:
-        r = RegressionResult(regressed=True, previous_high_count=2, current_high_count=3)
+        r = RegressionResult(
+            regressed=True, previous_high_count=2, current_high_count=3
+        )
         assert r.regressed is True
         assert r.new_findings == []
 
@@ -595,7 +678,9 @@ class TestSC4Ratio:
                 f"semantic={max_semantic_for_70pct}, ratio={ratio:.2%}"
             )
 
-    def test_all_structural_findings_tagged(self, spec_file: str, roadmap_file: str) -> None:
+    def test_all_structural_findings_tagged(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         """All structural findings carry source_layer='structural'."""
         findings = run_all_checkers(spec_file, roadmap_file)
         for f in findings:
@@ -609,6 +694,7 @@ class TestSC4Ratio:
             SEMANTIC_DIMENSIONS,
             STRUCTURAL_DIMENSIONS,
         )
+
         assert STRUCTURAL_DIMENSIONS == frozenset(CHECKER_REGISTRY.keys()), (
             "STRUCTURAL_DIMENSIONS must match CHECKER_REGISTRY keys"
         )
@@ -616,7 +702,9 @@ class TestSC4Ratio:
             f"Overlap: {STRUCTURAL_DIMENSIONS & SEMANTIC_DIMENSIONS}"
         )
 
-    def test_finding_counts_by_source_layer(self, spec_file: str, roadmap_file: str) -> None:
+    def test_finding_counts_by_source_layer(
+        self, spec_file: str, roadmap_file: str
+    ) -> None:
         """Document finding counts by source_layer for SC-4 evidence."""
         findings = run_all_checkers(spec_file, roadmap_file)
         structural_count = sum(1 for f in findings if f.source_layer == "structural")
@@ -644,7 +732,9 @@ class TestS2RoutingAndFixGuidance:
         findings = check_data_models(spec_file, roadmap_file)
         file_missing = [f for f in findings if f.rule_id == "file_missing"]
         if not file_missing:
-            pytest.skip("fixture produces no file_missing findings; skip routing assertion")
+            pytest.skip(
+                "fixture produces no file_missing findings; skip routing assertion"
+            )
         for f in file_missing:
             assert f.files_affected == [roadmap_file], (
                 f"file_missing finding must route to roadmap; got {f.files_affected}"
@@ -655,7 +745,9 @@ class TestS2RoutingAndFixGuidance:
     ) -> None:
         findings = run_all_checkers(spec_file, roadmap_file)
         boilerplate_count = sum(
-            1 for f in findings if f.fix_guidance.startswith("Address ")
+            1
+            for f in findings
+            if f.fix_guidance.startswith("Address ")
             and f.fix_guidance.endswith(" dimension")
         )
         # Every finding whose rule_id appears in FIX_GUIDANCE_TEMPLATES should
@@ -663,12 +755,12 @@ class TestS2RoutingAndFixGuidance:
         from superclaude.cli.roadmap.structural_checkers import (
             FIX_GUIDANCE_TEMPLATES,
         )
-        templated = [
-            f for f in findings if f.rule_id in FIX_GUIDANCE_TEMPLATES
-        ]
+
+        templated = [f for f in findings if f.rule_id in FIX_GUIDANCE_TEMPLATES]
         if templated:
             still_boilerplate = [
-                f for f in templated
+                f
+                for f in templated
                 if f.fix_guidance.startswith("Address ")
                 and f.fix_guidance.endswith(" dimension")
             ]
@@ -729,6 +821,7 @@ class TestS5ContextAwareNfrSeverity:
         from superclaude.cli.roadmap.structural_checkers import (
             _classify_nfr_severity,
         )
+
         sev = _classify_nfr_severity(
             dimension="nfrs",
             mismatch_type="security_missing",
@@ -741,6 +834,7 @@ class TestS5ContextAwareNfrSeverity:
         from superclaude.cli.roadmap.structural_checkers import (
             _classify_nfr_severity,
         )
+
         sev = _classify_nfr_severity(
             dimension="nfrs",
             mismatch_type="security_missing",
@@ -753,6 +847,7 @@ class TestS5ContextAwareNfrSeverity:
         from superclaude.cli.roadmap.structural_checkers import (
             _classify_nfr_severity,
         )
+
         sev = _classify_nfr_severity(
             dimension="nfrs",
             mismatch_type="threshold_contradicted",
@@ -765,6 +860,7 @@ class TestS5ContextAwareNfrSeverity:
         from superclaude.cli.roadmap.structural_checkers import (
             _classify_nfr_severity,
         )
+
         # Non-soft mismatch types should fall through to SEVERITY_RULES
         sev = _classify_nfr_severity(
             dimension="nfrs",
@@ -785,7 +881,8 @@ class TestS5ContextAwareNfrSeverity:
         roadmap.write_text("# Roadmap\n\n## NFRs\n\nNo content.\n")
         findings = check_nfrs(str(spec), str(roadmap))
         soft = [
-            f for f in findings
+            f
+            for f in findings
             if f.rule_id in ("security_missing", "threshold_contradicted")
         ]
         if not soft:

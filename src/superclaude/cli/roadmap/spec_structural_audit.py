@@ -48,17 +48,11 @@ def audit_spec_structure(spec_text: str) -> SpecStructuralAudit:
     code_text = "\n".join(code_blocks)
 
     code_block_count = len(code_blocks)
-    must_shall_count = len(
-        re.findall(r"\b(?:MUST|SHALL|REQUIRED)\b", spec_text)
-    )
-    function_signature_count = len(
-        re.findall(r"\bdef\s+\w+\s*\(", code_text)
-    )
+    must_shall_count = len(re.findall(r"\b(?:MUST|SHALL|REQUIRED)\b", spec_text))
+    function_signature_count = len(re.findall(r"\bdef\s+\w+\s*\(", code_text))
     class_definition_count = len(re.findall(r"\bclass\s+\w+", code_text))
     test_name_count = len(set(re.findall(r"\btest_\w+", spec_text)))
-    registry_pattern_count = len(
-        re.findall(r"\b[A-Z][A-Z_]+\s*=\s*\{", code_text)
-    )
+    registry_pattern_count = len(re.findall(r"\b[A-Z][A-Z_]+\s*=\s*\{", code_text))
     pseudocode_blocks = len(
         re.findall(
             r"```[\s\S]*?(?:if\s|elif\s|else:|for\s|while\s)[\s\S]*?```",

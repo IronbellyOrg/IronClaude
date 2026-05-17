@@ -137,8 +137,7 @@ class PrdTUI:
             steps: List of (step_id, step_name) tuples.
         """
         self._steps = [
-            StepDisplay(step_id=sid, step_name=sname)
-            for sid, sname in steps
+            StepDisplay(step_id=sid, step_name=sname) for sid, sname in steps
         ]
 
     def start(self) -> None:
@@ -241,9 +240,7 @@ class PrdTUI:
         table.add_column("QA", width=10, justify="center")
 
         for step in self._steps:
-            status_icon = _STATUS_ICONS.get(
-                step.status, str(step.status.value)
-            )
+            status_icon = _STATUS_ICONS.get(step.status, str(step.status.value))
             gate_icon = _GATE_ICONS.get(step.gate_state, "[dim]--[/]")
             qa_display = step.qa_verdict or "-"
             agent_display = str(step.agent_count) if step.agent_count else "-"
@@ -273,9 +270,7 @@ class PrdTUI:
             TextColumn("[dim]{task.completed}/{task.total} steps[/]"),
         )
         total = len(self._steps)
-        done = sum(
-            1 for s in self._steps if s.status.is_terminal
-        )
+        done = sum(1 for s in self._steps if s.status.is_terminal)
         progress.add_task("pipeline", total=max(total, 1), completed=done)
         return progress
 

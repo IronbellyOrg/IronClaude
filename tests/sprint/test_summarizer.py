@@ -228,7 +228,7 @@ class TestExtractPhaseSignals:
                         {
                             "type": "tool_result",
                             "tool_use_id": "id1",
-                            "content": 'exit_code: 2\nstderr: boom',
+                            "content": "exit_code: 2\nstderr: boom",
                             "is_error": False,
                         }
                     ]
@@ -260,7 +260,9 @@ class TestExtractPhaseSignals:
 
     def test_malformed_lines_skipped(self, tmp_path):
         path = tmp_path / "out.txt"
-        path.write_text('not json\n{"type":"assistant","message":{"content":[{"type":"text","text":"ok"}]}}\n')
+        path.write_text(
+            'not json\n{"type":"assistant","message":{"content":[{"type":"text","text":"ok"}]}}\n'
+        )
         out = extract_phase_signals(path)
         assert out["reasoning_excerpts"] == ["ok"]
 
@@ -583,9 +585,7 @@ class TestSummaryWorker:
         config.output_file(phase).write_text("")
 
         summarizer = PhaseSummarizer(config)
-        with patch(
-            "superclaude.cli.sprint.summarizer.invoke_haiku", return_value=""
-        ):
+        with patch("superclaude.cli.sprint.summarizer.invoke_haiku", return_value=""):
             summary = summarizer.summarize(phase, pr)
 
         assert summary.path is not None

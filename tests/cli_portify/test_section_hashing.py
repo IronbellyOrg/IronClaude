@@ -65,5 +65,3 @@ Gamma content.
         content = "Just plain text without headings."
         sections = extract_sections(content)
         assert len(sections) == 0
-
-

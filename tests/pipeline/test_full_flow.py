@@ -390,7 +390,10 @@ class TestAntiInstinctFullFlow:
             return (0, 10, 100)
 
         results, remaining, _gate_results = execute_phase_tasks(
-            tasks, config, phase, ledger=ledger,
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
             _subprocess_factory=_factory,
             shadow_metrics=metrics,
         )
@@ -421,13 +424,20 @@ class TestAntiInstinctFullFlow:
         )
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            result.task, config, result, ledger=ledger, shadow_metrics=metrics,
+            result.task,
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=metrics,
         )
 
         assert result.gate_outcome == GateOutcome.FAIL
         assert result.status == SprintTaskStatus.FAIL  # full mode fails task
 
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "undischarged"))
+    @patch(
+        "superclaude.cli.pipeline.gates.gate_passed",
+        return_value=(False, "undischarged"),
+    )
     def test_full_mode_fail_sets_task_result_fail(self, mock_gate, tmp_path):
         """Full mode: gate FAIL → TaskResult.status = FAIL."""
         config = _make_sprint_config(tmp_path, "full")
@@ -443,7 +453,11 @@ class TestAntiInstinctFullFlow:
         )
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            result.task, config, result, ledger=ledger, shadow_metrics=metrics,
+            result.task,
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=metrics,
         )
 
         assert result.status == SprintTaskStatus.FAIL
@@ -506,9 +520,7 @@ class TestWiringBudgetScenarios:
 
         # Credit with floor-to-zero: int(1 * 0.8) == 0
         credited = ledger.credit_wiring(1, 0.8)
-        assert credited == 0, (
-            f"Expected 0 credits (floor-to-zero), got {credited}"
-        )
+        assert credited == 0, f"Expected 0 credits (floor-to-zero), got {credited}"
         assert ledger.wiring_turns_credited == 0
         assert ledger.reimbursed == 0
 

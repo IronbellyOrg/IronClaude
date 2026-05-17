@@ -34,6 +34,7 @@ def _gate_target(output_file: Path) -> Path:
         return sidecar
     return output_file
 
+
 _log = logging.getLogger("superclaude.pipeline.executor")
 
 

@@ -76,7 +76,14 @@ class TestEventLogger:
     def test_uses_signal_vocabulary_constants(self):
         """All signal vocabulary constants produce valid events."""
         logger = EventLogger()
-        signals = [STEP_START, STEP_COMPLETE, STEP_ERROR, STEP_TIMEOUT, GATE_PASS, GATE_FAIL]
+        signals = [
+            STEP_START,
+            STEP_COMPLETE,
+            STEP_ERROR,
+            STEP_TIMEOUT,
+            GATE_PASS,
+            GATE_FAIL,
+        ]
         for sig in signals:
             logger.emit(sig, step="test")
         assert len(logger.events) == len(signals)

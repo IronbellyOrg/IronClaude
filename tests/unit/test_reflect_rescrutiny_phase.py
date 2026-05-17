@@ -116,9 +116,7 @@ def test_rescrutiny_spec_confidence(confidence_checker, reflect_text):
       - root_cause_identified: B1's transcript-scan bug is removed
     """
     duplicate_ok = reflect_text.count("4. **Re-scrutinize**") == 1
-    six_phase_ok = all(
-        f"{n}. **" in reflect_text for n in (1, 2, 3, 4, 5, 6)
-    )
+    six_phase_ok = all(f"{n}. **" in reflect_text for n in (1, 2, 3, 4, 5, 6))
     context7_ok = "context7" in _frontmatter(reflect_text)
     design_ref_ok = (
         REPO_ROOT / ".dev" / "releases" / "current" / "sc-reflect-rescrutiny-design.md"

@@ -94,9 +94,7 @@ def _aggregate_files(summaries: dict[int, PhaseSummary]) -> list[dict]:
     for phase_num in sorted(summaries):
         for entry in summaries[phase_num].files_changed:
             path = entry["path"]
-            rec = by_path.setdefault(
-                path, {"path": path, "phases": [], "tools": set()}
-            )
+            rec = by_path.setdefault(path, {"path": path, "phases": [], "tools": set()})
             rec["phases"].append(phase_num)
             rec["tools"].add(entry["tool"])
     # Normalise sets → lists for deterministic serialisation.
@@ -286,8 +284,7 @@ def _render_retrospective_markdown(retro: ReleaseRetrospective) -> str:
     if retro.all_errors:
         by_tool = Counter(e.get("tool") or "-" for e in retro.all_errors)
         out.append(
-            "Top tools: "
-            + ", ".join(f"`{t}`×{c}" for t, c in by_tool.most_common(5))
+            "Top tools: " + ", ".join(f"`{t}`×{c}" for t, c in by_tool.most_common(5))
         )
         out.append("")
         for err in retro.all_errors[:30]:

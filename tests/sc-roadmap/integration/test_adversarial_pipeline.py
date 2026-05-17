@@ -14,7 +14,6 @@ Protocol stages:
 """
 
 
-
 # -- Canonical return contract schema --
 
 CANONICAL_RETURN_CONTRACT_FIELDS = {

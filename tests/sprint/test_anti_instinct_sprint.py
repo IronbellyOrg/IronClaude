@@ -80,7 +80,10 @@ class TestRolloutModeMatrix:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS
@@ -93,7 +96,9 @@ class TestRolloutModeMatrix:
         result = _make_task_result()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result,
+            _make_task(),
+            config,
+            result,
         )
 
         assert result.status == TaskStatus.PASS  # unchanged
@@ -107,14 +112,20 @@ class TestRolloutModeMatrix:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS
         assert metrics.total_evaluated == 1
         assert metrics.passed == 1
 
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "undischarged obligations"))
+    @patch(
+        "superclaude.cli.pipeline.gates.gate_passed",
+        return_value=(False, "undischarged obligations"),
+    )
     def test_shadow_mode_fail(self, mock_gate, tmp_path):
         """shadow mode: gate fails, metrics recorded, but status unchanged."""
         config = _make_config(tmp_path, gate_rollout_mode="shadow")
@@ -123,7 +134,10 @@ class TestRolloutModeMatrix:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS  # unchanged in shadow mode
@@ -134,13 +148,19 @@ class TestRolloutModeMatrix:
     def test_soft_mode_pass_credits(self, mock_gate, tmp_path):
         """soft mode: PASS credits turns via TurnLedger."""
         config = _make_config(tmp_path, gate_rollout_mode="soft")
-        result = _make_task_result(output_path=str(tmp_path / "output.md"), turns_consumed=10)
+        result = _make_task_result(
+            output_path=str(tmp_path / "output.md"), turns_consumed=10
+        )
         (tmp_path / "output.md").write_text("test content")
         ledger = TurnLedger(initial_budget=100)
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS
@@ -149,7 +169,10 @@ class TestRolloutModeMatrix:
         assert ledger.reimbursed == 8
         assert metrics.passed == 1
 
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "undischarged"))
+    @patch(
+        "superclaude.cli.pipeline.gates.gate_passed",
+        return_value=(False, "undischarged"),
+    )
     def test_soft_mode_fail_no_task_fail(self, mock_gate, tmp_path):
         """soft mode: FAIL marks gate_outcome=FAIL but does NOT fail the task."""
         config = _make_config(tmp_path, gate_rollout_mode="soft")
@@ -159,7 +182,11 @@ class TestRolloutModeMatrix:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS  # soft mode does NOT fail task
@@ -170,20 +197,29 @@ class TestRolloutModeMatrix:
     def test_full_mode_pass_credits(self, mock_gate, tmp_path):
         """full mode: PASS credits turns."""
         config = _make_config(tmp_path, gate_rollout_mode="full")
-        result = _make_task_result(output_path=str(tmp_path / "output.md"), turns_consumed=20)
+        result = _make_task_result(
+            output_path=str(tmp_path / "output.md"), turns_consumed=20
+        )
         (tmp_path / "output.md").write_text("test content")
         ledger = TurnLedger(initial_budget=200)
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS
         assert result.gate_outcome == GateOutcome.PASS
         assert result.reimbursement_amount == 16  # int(20 * 0.8) = 16
 
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "undischarged"))
+    @patch(
+        "superclaude.cli.pipeline.gates.gate_passed",
+        return_value=(False, "undischarged"),
+    )
     def test_full_mode_fail_sets_task_fail(self, mock_gate, tmp_path):
         """full mode: FAIL sets TaskResult.status = FAIL."""
         config = _make_config(tmp_path, gate_rollout_mode="full")
@@ -193,7 +229,11 @@ class TestRolloutModeMatrix:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=ledger, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            ledger=ledger,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.FAIL  # full mode FAILS the task
@@ -216,7 +256,10 @@ class TestNoneSafeLedgerGuards:
         (tmp_path / "output.md").write_text("test content")
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=None,
+            _make_task(),
+            config,
+            result,
+            ledger=None,
         )
 
         assert result.status == TaskStatus.PASS
@@ -231,7 +274,10 @@ class TestNoneSafeLedgerGuards:
         (tmp_path / "output.md").write_text("test content")
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=None,
+            _make_task(),
+            config,
+            result,
+            ledger=None,
         )
 
         assert result.status == TaskStatus.FAIL
@@ -245,7 +291,10 @@ class TestNoneSafeLedgerGuards:
         (tmp_path / "output.md").write_text("test content")
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=None,
+            _make_task(),
+            config,
+            result,
+            ledger=None,
         )
 
         assert result.status == TaskStatus.PASS  # soft doesn't fail
@@ -276,7 +325,10 @@ class TestGateIndependence:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config_off_wiring, result, shadow_metrics=metrics,
+            _make_task(),
+            config_off_wiring,
+            result,
+            shadow_metrics=metrics,
         )
 
         # Anti-instinct evaluates independently regardless of wiring config
@@ -295,7 +347,9 @@ class TestGateIndependence:
             return (0, 5, 100)  # exit_code=0, turns=5, output_bytes=100
 
         results, remaining, _gate_results = execute_phase_tasks(
-            tasks, config, phase,
+            tasks,
+            config,
+            phase,
             _subprocess_factory=_factory,
             shadow_metrics=metrics,
         )
@@ -313,7 +367,10 @@ class TestGateIndependence:
 class TestBudgetExhaustion:
     """Budget-exhausted path: FAIL + insufficient remediation budget."""
 
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "undischarged"))
+    @patch(
+        "superclaude.cli.pipeline.gates.gate_passed",
+        return_value=(False, "undischarged"),
+    )
     def test_full_mode_budget_exhausted(self, mock_gate, tmp_path):
         """full mode FAIL with exhausted remediation budget → BUDGET_EXHAUSTED."""
         config = _make_config(tmp_path, gate_rollout_mode="full")
@@ -323,13 +380,19 @@ class TestBudgetExhaustion:
         # Budget is 2, min remediation is 3 → can't remediate
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=ledger,
+            _make_task(),
+            config,
+            result,
+            ledger=ledger,
         )
 
         assert result.status == TaskStatus.FAIL
         assert result.gate_outcome == GateOutcome.FAIL
 
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "undischarged"))
+    @patch(
+        "superclaude.cli.pipeline.gates.gate_passed",
+        return_value=(False, "undischarged"),
+    )
     def test_soft_mode_budget_exhausted(self, mock_gate, tmp_path):
         """soft mode FAIL with exhausted remediation budget → gate FAIL, task PASS."""
         config = _make_config(tmp_path, gate_rollout_mode="soft")
@@ -338,7 +401,10 @@ class TestBudgetExhaustion:
         ledger = TurnLedger(initial_budget=2, minimum_remediation_budget=3)
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, ledger=ledger,
+            _make_task(),
+            config,
+            result,
+            ledger=ledger,
         )
 
         assert result.status == TaskStatus.PASS  # soft doesn't fail task
@@ -360,7 +426,10 @@ class TestNoOutputArtifact:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS
@@ -374,7 +443,10 @@ class TestNoOutputArtifact:
         metrics = ShadowGateMetrics()
 
         result, gate_result = run_post_task_anti_instinct_hook(
-            _make_task(), config, result, shadow_metrics=metrics,
+            _make_task(),
+            config,
+            result,
+            shadow_metrics=metrics,
         )
 
         assert result.status == TaskStatus.PASS

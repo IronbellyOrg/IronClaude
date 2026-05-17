@@ -585,9 +585,7 @@ def install_mcp_server(
                     return False
                 click.echo(f"   ✅ {req['package']} installed globally")
             else:
-                click.echo(
-                    f"   ⏭️  Skipping {server_name} (binary not available)"
-                )
+                click.echo(f"   ⏭️  Skipping {server_name} (binary not available)")
                 return False
 
     # Build installation command using modern Claude Code API
