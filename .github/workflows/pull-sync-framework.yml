@@ -97,7 +97,14 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           # 修正: ルートの plugin.json を追加（MCPの更新をコミットするため）
-          git add commands/ agents/ .claude-plugin/plugin.json plugin.json
+          # PR5: defensively add only paths that exist — this fork's structure
+          # differs from upstream SuperClaude_Plugin; missing paths must not
+          # halt the workflow (was: hard `git add commands/ agents/ ...`).
+          for p in commands/ agents/ .claude-plugin/plugin.json plugin.json; do
+            if [ -e "$p" ]; then
+              git add "$p"
+            fi
+          done
           
           # 修正: .gitignoreによる除外を確実に回避するため -f オプションを付与
           if [ -f "docs/.framework-sync-commit" ]; then
