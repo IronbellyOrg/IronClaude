@@ -63,7 +63,9 @@ def _make_phase_result(
     return PhaseResult(**defaults)
 
 
-def _make_sprint_result(config: SprintConfig, phase_results: list[PhaseResult]) -> SprintResult:
+def _make_sprint_result(
+    config: SprintConfig, phase_results: list[PhaseResult]
+) -> SprintResult:
     sr = SprintResult(config=config, phase_results=phase_results)
     sr.finished_at = datetime.now(timezone.utc)
     return sr

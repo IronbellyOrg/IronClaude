@@ -47,11 +47,17 @@ class TestPrdStepStatusProperties:
         assert not PrdStepStatus.RUNNING.needs_fix_cycle
 
         # Success states (all terminal)
-        for status in (PrdStepStatus.PASS, PrdStepStatus.PASS_NO_SIGNAL, PrdStepStatus.PASS_NO_REPORT):
+        for status in (
+            PrdStepStatus.PASS,
+            PrdStepStatus.PASS_NO_SIGNAL,
+            PrdStepStatus.PASS_NO_REPORT,
+        ):
             assert status.is_terminal, f"{status.name} should be terminal"
             assert status.is_success, f"{status.name} should be success"
             assert not status.is_failure, f"{status.name} should not be failure"
-            assert not status.needs_fix_cycle, f"{status.name} should not need fix cycle"
+            assert not status.needs_fix_cycle, (
+                f"{status.name} should not need fix cycle"
+            )
 
         # Failure states (all terminal)
         for status in (
@@ -64,7 +70,9 @@ class TestPrdStepStatusProperties:
             assert status.is_terminal, f"{status.name} should be terminal"
             assert not status.is_success, f"{status.name} should not be success"
             assert status.is_failure, f"{status.name} should be failure"
-            assert not status.needs_fix_cycle, f"{status.name} should not need fix cycle"
+            assert not status.needs_fix_cycle, (
+                f"{status.name} should not need fix cycle"
+            )
 
         # SKIPPED: terminal but neither success nor failure
         assert PrdStepStatus.SKIPPED.is_terminal
@@ -96,7 +104,10 @@ class TestPrdPipelineResultResumeCommand:
         )
 
         cmd = result.resume_command()
-        assert cmd == "superclaude prd resume research-notes --product MyApp --model opus --tier heavyweight"
+        assert (
+            cmd
+            == "superclaude prd resume research-notes --product MyApp --model opus --tier heavyweight"
+        )
 
     def test_resume_command_no_halt(self) -> None:
         result = PrdPipelineResult(config=PrdConfig())

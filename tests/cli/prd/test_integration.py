@@ -181,9 +181,7 @@ def test_prd_pipeline_signal_shutdown(standard_config):
     result = PrdPipelineResult(config=standard_config)
 
     # Add a completed step result
-    executor._step_results = [
-        PrdStepResult(status=PrdStepStatus.PASS)
-    ]
+    executor._step_results = [PrdStepResult(status=PrdStepStatus.PASS)]
 
     executor._handle_shutdown(result)
 
@@ -215,12 +213,12 @@ def test_prd_pipeline_gate_enforcement(standard_config):
     assert passed is False
 
     # Test gate evaluation with valid content
-    valid_content = '''
+    valid_content = """
     "GOAL": "Build a product"
     "PRODUCT_SLUG": "test-product"
     "PRD_SCOPE": "feature"
     "SCENARIO": "B"
-    '''
+    """
     passed = executor._evaluate_gate("parse-request", gate, valid_content)
     assert passed is True
 

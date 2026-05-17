@@ -103,9 +103,7 @@ class _FakeWiringReport:
         if effective == "soft":
             return sum(1 for f in unsuppressed if f.severity == "critical")
         if effective == "full":
-            return sum(
-                1 for f in unsuppressed if f.severity in ("critical", "major")
-            )
+            return sum(1 for f in unsuppressed if f.severity in ("critical", "major"))
         return 0
 
 
@@ -162,7 +160,11 @@ class TestScenario6BlockingRemediationLifecycle:
     @patch("superclaude.cli.audit.wiring_config.WiringConfig")
     @patch("superclaude.cli.sprint.executor._recheck_wiring")
     def test_scenario_6_blocking_remediation_lifecycle(
-        self, mock_recheck, mock_wc_cls, mock_analysis, tmp_path,
+        self,
+        mock_recheck,
+        mock_wc_cls,
+        mock_analysis,
+        tmp_path,
     ):
         """Full mode wiring hook: finding -> debit -> remediation -> budget decreased."""
         config = _make_config(tmp_path, wiring_mode="full")
@@ -184,7 +186,10 @@ class TestScenario6BlockingRemediationLifecycle:
         mock_recheck.return_value = (False, report)
 
         returned = run_post_task_wiring_hook(
-            task, config, result, ledger=ledger,
+            task,
+            config,
+            result,
+            ledger=ledger,
         )
 
         # Budget should have decreased: wiring_analysis_turns debit + remediation_cost debit
@@ -212,7 +217,10 @@ class TestScenario7NullLedgerPassthrough:
     @patch("superclaude.cli.audit.wiring_gate.run_wiring_analysis")
     @patch("superclaude.cli.audit.wiring_config.WiringConfig")
     def test_scenario_7_null_ledger_passthrough(
-        self, mock_wc_cls, mock_analysis, tmp_path,
+        self,
+        mock_wc_cls,
+        mock_analysis,
+        tmp_path,
     ):
         """run_post_task_wiring_hook with ledger=None returns result unchanged, no crash."""
         config = _make_config(tmp_path, wiring_mode="shadow")
@@ -224,7 +232,10 @@ class TestScenario7NullLedgerPassthrough:
         mock_analysis.return_value = _FakeWiringReport(rollout_mode="shadow")
 
         returned = run_post_task_wiring_hook(
-            task, config, result, ledger=None,
+            task,
+            config,
+            result,
+            ledger=None,
         )
 
         assert returned is result
@@ -237,7 +248,10 @@ class TestScenario7NullLedgerPassthrough:
         result = _make_result(task)
 
         returned = run_post_task_wiring_hook(
-            task, config, result, ledger=None,
+            task,
+            config,
+            result,
+            ledger=None,
         )
 
         assert returned is result
@@ -255,7 +269,10 @@ class TestScenario8ShadowDeferredLog:
     @patch("superclaude.cli.audit.wiring_gate.run_wiring_analysis")
     @patch("superclaude.cli.audit.wiring_config.WiringConfig")
     def test_scenario_8_shadow_deferred_log(
-        self, mock_wc_cls, mock_analysis, tmp_path,
+        self,
+        mock_wc_cls,
+        mock_analysis,
+        tmp_path,
     ):
         """Shadow mode appends findings to remediation log; log is not corrupted."""
         config = _make_config(tmp_path, wiring_mode="shadow")
@@ -283,7 +300,10 @@ class TestScenario8ShadowDeferredLog:
         )
 
         returned = run_post_task_wiring_hook(
-            task, config, result, ledger=TurnLedger(initial_budget=50),
+            task,
+            config,
+            result,
+            ledger=TurnLedger(initial_budget=50),
             remediation_log=remediation_log,
         )
 
@@ -292,9 +312,7 @@ class TestScenario8ShadowDeferredLog:
 
         # Remediation log should have entries for each finding
         pending = remediation_log.pending_remediations()
-        assert len(pending) == 2, (
-            f"Expected 2 pending remediations, got {len(pending)}"
-        )
+        assert len(pending) == 2, f"Expected 2 pending remediations, got {len(pending)}"
 
         # Verify log entries reference the correct task
         for entry in pending:
@@ -314,7 +332,10 @@ class TestScenario8ShadowDeferredLog:
     @patch("superclaude.cli.audit.wiring_gate.run_wiring_analysis")
     @patch("superclaude.cli.audit.wiring_config.WiringConfig")
     def test_shadow_no_findings_log_empty(
-        self, mock_wc_cls, mock_analysis, tmp_path,
+        self,
+        mock_wc_cls,
+        mock_analysis,
+        tmp_path,
     ):
         """Shadow mode with no findings leaves remediation log empty."""
         config = _make_config(tmp_path, wiring_mode="shadow")
@@ -325,7 +346,9 @@ class TestScenario8ShadowDeferredLog:
         mock_analysis.return_value = _FakeWiringReport(rollout_mode="shadow")
 
         run_post_task_wiring_hook(
-            task, config, result,
+            task,
+            config,
+            result,
             ledger=TurnLedger(initial_budget=50),
             remediation_log=remediation_log,
         )

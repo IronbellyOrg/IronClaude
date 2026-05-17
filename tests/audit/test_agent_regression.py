@@ -136,7 +136,13 @@ class TestAnalyzerWiringExtension:
     @pytest.mark.agent_regression
     def test_existing_finding_types_preserved(self):
         """R7: original finding types still present."""
-        for ftype in ("MISPLACED", "STALE", "STRUCTURAL ISSUE", "BROKEN REFS", "VERIFIED OK"):
+        for ftype in (
+            "MISPLACED",
+            "STALE",
+            "STRUCTURAL ISSUE",
+            "BROKEN REFS",
+            "VERIFIED OK",
+        ):
             assert ftype in self.content, f"Missing original finding type: {ftype}"
 
     @pytest.mark.agent_regression

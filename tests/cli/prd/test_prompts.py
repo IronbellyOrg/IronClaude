@@ -233,7 +233,11 @@ class TestPromptSizeUnder100KB:
         assert len(completion) < max_size
 
         gap_filling = build_gap_filling_prompt(
-            failure={"area": "auth-coverage", "issue": "Missing OAuth flow", "severity": "critical"},
+            failure={
+                "area": "auth-coverage",
+                "issue": "Missing OAuth flow",
+                "severity": "critical",
+            },
             config=config,
             cycle=1,
             phase="research",

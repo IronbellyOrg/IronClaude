@@ -12,6 +12,7 @@ High-level API:
     run_pipeline(text, doc_type, aggressive=False) -> (compressed, stats)
     compress_file(input_path, doc_type, output_path, aggressive=False) -> stats
 """
+
 from __future__ import annotations
 
 import re
@@ -23,6 +24,7 @@ from typing import Callable
 # ============================================================================
 # Section 1: Fence-aware infrastructure
 # ============================================================================
+
 
 def split_fenced_regions(text: str) -> list[tuple[str, bool]]:
     """Split text into alternating (content, is_fenced) regions.
@@ -82,9 +84,11 @@ def apply_outside_fences(text: str, transform: Callable[[str], str]) -> str:
 # Section 2: Data structures
 # ============================================================================
 
+
 @dataclass
 class StrategyEntry:
     """A compression strategy with metadata."""
+
     id: str
     name: str
     fn: Callable[[str], str]
@@ -94,6 +98,7 @@ class StrategyEntry:
 @dataclass
 class StrategyStat:
     """Per-strategy savings measurement."""
+
     id: str
     name: str
     bytes_before: int
@@ -113,6 +118,7 @@ class StrategyStat:
 @dataclass
 class ParsedTable:
     """A parsed pipe table from the document."""
+
     start_line: int
     end_line: int
     headers: list[str]
@@ -124,6 +130,7 @@ class ParsedTable:
 # ============================================================================
 # Section 3: Shared helpers
 # ============================================================================
+
 
 def _find_header_end(text: str) -> int:
     end = _frontmatter_end(text)
@@ -206,25 +213,17 @@ def parse_pipe_tables(text: str) -> list[ParsedTable]:
     while i < len(lines):
         line = lines[i]
         if "|" in line and line.strip().startswith("|"):
-            if i + 1 < len(lines) and re.match(
-                r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]
-            ):
+            if i + 1 < len(lines) and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
                 header_line = line
                 sep_line = lines[i + 1]
 
-                headers = [
-                    c.strip()
-                    for c in header_line.strip().strip("|").split("|")
-                ]
+                headers = [c.strip() for c in header_line.strip().strip("|").split("|")]
 
                 rows: list[list[str]] = []
                 start = i
                 j = i + 2
                 while j < len(lines) and lines[j].strip().startswith("|"):
-                    cells = [
-                        c.strip()
-                        for c in lines[j].strip().strip("|").split("|")
-                    ]
+                    cells = [c.strip() for c in lines[j].strip().strip("|").split("|")]
                     rows.append(cells)
                     j += 1
 
@@ -302,9 +301,11 @@ def _frontmatter_delimiter_indices(text: str) -> set[int]:
 # Section 4: Strategy functions
 # ============================================================================
 
+
 def s01_whitespace_collapse(text: str) -> str:
     def _collapse(chunk: str) -> str:
         return re.sub(r"\n{3,}", "\n\n", chunk)
+
     return apply_outside_fences(text, _collapse)
 
 
@@ -316,7 +317,11 @@ def s01_whitespace_collapse_with_hr(text: str) -> str:
         lines = chunk.split("\n")
         result: list[str] = []
         for idx, line in enumerate(lines):
-            if re.match(r"^-{3,}\s*$", line) or re.match(r"^\*{3,}\s*$", line) or re.match(r"^_{3,}\s*$", line):
+            if (
+                re.match(r"^-{3,}\s*$", line)
+                or re.match(r"^\*{3,}\s*$", line)
+                or re.match(r"^_{3,}\s*$", line)
+            ):
                 # Never strip YAML frontmatter delimiters even when they
                 # sit adjacent to a heading.
                 if is_first_chunk and idx in fm_indices:
@@ -337,12 +342,14 @@ def s01_whitespace_collapse_with_hr(text: str) -> str:
             result.append(line)
         chunk = "\n".join(result)
         return re.sub(r"\n{3,}", "\n\n", chunk)
+
     return apply_outside_fences(text, _collapse_and_remove_hr)
 
 
 def s02_trailing_whitespace_strip(text: str) -> str:
     def _strip(chunk: str) -> str:
         return re.sub(r"[ \t]+$", "", chunk, flags=re.MULTILINE)
+
     return apply_outside_fences(text, _strip)
 
 
@@ -354,8 +361,12 @@ def s03_decorative_hr_removal(text: str) -> str:
         lines = chunk.split("\n")
         result: list[str] = []
         for idx, line in enumerate(lines):
-            if re.match(r"^-{3,}\s*$", line) or re.match(r"^\*{3,}\s*$", line) or re.match(r"^_{3,}\s*$", line):
-                if idx == 0 and chunk == text[:len(chunk)]:
+            if (
+                re.match(r"^-{3,}\s*$", line)
+                or re.match(r"^\*{3,}\s*$", line)
+                or re.match(r"^_{3,}\s*$", line)
+            ):
+                if idx == 0 and chunk == text[: len(chunk)]:
                     result.append(line)
                     continue
 
@@ -378,6 +389,7 @@ def s03_decorative_hr_removal(text: str) -> str:
                     continue
             result.append(line)
         return "\n".join(result)
+
     return apply_outside_fences(text, _remove_hr)
 
 
@@ -404,6 +416,7 @@ def s04_pipe_table_padding_collapse(text: str) -> str:
             else:
                 result.append(line)
         return "\n".join(result)
+
     return apply_outside_fences(text, _collapse_padding)
 
 
@@ -428,6 +441,7 @@ def s07_html_comment_removal(text: str, preserve_count: int = 3) -> str:
             else:
                 result = before + after
         return result
+
     return apply_outside_fences(text, _remove_comments)
 
 
@@ -535,19 +549,29 @@ def s13_multi_paragraph_bullet_compaction(text: str) -> str:
                         k = j + 1
                         while k < len(lines) and lines[k].strip() == "":
                             k += 1
-                        if k < len(lines) and len(lines[k]) > indent and lines[k][:indent].strip() == "":
+                        if (
+                            k < len(lines)
+                            and len(lines[k]) > indent
+                            and lines[k][:indent].strip() == ""
+                        ):
                             j = k
                             bullet_lines.append(lines[j].strip())
                             j += 1
                         else:
                             break
-                    elif len(line) > indent and lines[j][:indent].strip() == "" and lines[j].strip():
+                    elif (
+                        len(line) > indent
+                        and lines[j][:indent].strip() == ""
+                        and lines[j].strip()
+                    ):
                         bullet_lines.append(lines[j].strip())
                         j += 1
                     else:
                         break
                 if len(bullet_lines) > 1:
-                    result.append(bullet_lines[0].rstrip() + " " + " ".join(bullet_lines[1:]))
+                    result.append(
+                        bullet_lines[0].rstrip() + " " + " ".join(bullet_lines[1:])
+                    )
                 else:
                     result.append(line)
                 i = j
@@ -555,6 +579,7 @@ def s13_multi_paragraph_bullet_compaction(text: str) -> str:
                 result.append(line)
                 i += 1
         return "\n".join(result)
+
     return apply_outside_fences(text, _compact)
 
 
@@ -564,10 +589,7 @@ def s14_table_default_row_hoisting(text: str) -> str:
     all_text = "".join(content for content, _ in regions)
     tables = parse_pipe_tables(all_text)
 
-    field_value_tables = [
-        t for t in tables
-        if len(t.headers) == 2 and len(t.rows) >= 2
-    ]
+    field_value_tables = [t for t in tables if len(t.headers) == 2 and len(t.rows) >= 2]
 
     if len(field_value_tables) < 3:
         return text
@@ -618,10 +640,7 @@ def s14_table_default_row_hoisting(text: str) -> str:
                 j = i + 2
 
                 while j < len(lines) and lines[j].strip().startswith("|"):
-                    cells = [
-                        c.strip()
-                        for c in lines[j].strip().strip("|").split("|")
-                    ]
+                    cells = [c.strip() for c in lines[j].strip().strip("|").split("|")]
                     if len(cells) >= 2:
                         fname = cells[0].strip()
                         fval = cells[1].strip()
@@ -651,10 +670,8 @@ def s15_executive_summary_dedup(text: str) -> str:
 
         summary_start = match.start()
         heading_level = match.group(1).count("#")
-        rest = chunk[match.end():]
-        next_heading = re.search(
-            rf"^#{{1,{heading_level}}}\s", rest, re.MULTILINE
-        )
+        rest = chunk[match.end() :]
+        next_heading = re.search(rf"^#{{1,{heading_level}}}\s", rest, re.MULTILINE)
         if next_heading:
             summary_end = match.end() + next_heading.start()
         else:
@@ -663,7 +680,7 @@ def s15_executive_summary_dedup(text: str) -> str:
         summary_text = chunk[summary_start:summary_end]
         body_text = chunk[summary_end:]
 
-        summary_body = summary_text[match.end() - summary_start:]
+        summary_body = summary_text[match.end() - summary_start :]
         sentences = re.split(r"(?<=[.!?])\s+", summary_body.strip())
 
         body_normalized = re.sub(r"\s+", " ", body_text.lower())
@@ -679,7 +696,7 @@ def s15_executive_summary_dedup(text: str) -> str:
         if len(kept) == len(sentences):
             return chunk
 
-        new_summary = chunk[summary_start:match.end()] + "\n" + " ".join(kept) + "\n"
+        new_summary = chunk[summary_start : match.end()] + "\n" + " ".join(kept) + "\n"
         return chunk[:summary_start] + new_summary + chunk[summary_end:]
 
     return apply_outside_fences(text, _dedup)
@@ -739,9 +756,7 @@ def s17_artifact_path_macro(text: str) -> str:
             prefix_counter[prefix] += 1
 
     eligible = [
-        (prefix, count)
-        for prefix, count in prefix_counter.items()
-        if count >= 5
+        (prefix, count) for prefix, count in prefix_counter.items() if count >= 5
     ]
     if not eligible:
         return text
@@ -807,9 +822,7 @@ def s18_step_tag_abbreviation(text: str) -> str:
 
 def s19_checkpoint_block_dedup(text: str) -> str:
     def _dedup(chunk: str) -> str:
-        checkpoint_pattern = re.compile(
-            r"^(#{2,4}\s+.*[Cc]heckpoint.*$)", re.MULTILINE
-        )
+        checkpoint_pattern = re.compile(r"^(#{2,4}\s+.*[Cc]heckpoint.*$)", re.MULTILINE)
         matches = list(checkpoint_pattern.finditer(chunk))
         if len(matches) < 2:
             return chunk
@@ -825,12 +838,12 @@ def s19_checkpoint_block_dedup(text: str) -> str:
             else:
                 next_h = re.search(
                     rf"^#{{1,{level}}}\s",
-                    chunk[m.end():],
+                    chunk[m.end() :],
                     re.MULTILINE,
                 )
                 end = m.end() + next_h.start() if next_h else len(chunk)
 
-            body = chunk[m.end():end].strip()
+            body = chunk[m.end() : end].strip()
             blocks.append((start, end, heading, body))
 
         seen: dict[str, int] = {}
@@ -858,9 +871,7 @@ def s19_checkpoint_block_dedup(text: str) -> str:
 
 def s20_template_block_externalization(text: str) -> str:
     def _externalize(chunk: str) -> str:
-        template_pattern = re.compile(
-            r"^(#{2,4}\s+.*[Tt]emplate.*$)", re.MULTILINE
-        )
+        template_pattern = re.compile(r"^(#{2,4}\s+.*[Tt]emplate.*$)", re.MULTILINE)
         matches = list(template_pattern.finditer(chunk))
         if len(matches) < 2:
             return chunk
@@ -876,12 +887,12 @@ def s20_template_block_externalization(text: str) -> str:
             else:
                 next_h = re.search(
                     rf"^#{{1,{level}}}\s",
-                    chunk[m.end():],
+                    chunk[m.end() :],
                     re.MULTILINE,
                 )
                 end = m.end() + next_h.start() if next_h else len(chunk)
 
-            body = chunk[m.end():end]
+            body = chunk[m.end() : end]
             templates.append((start, end, heading, body))
 
         body_map: dict[str, list[int]] = defaultdict(list)
@@ -984,9 +995,7 @@ def s24_heading_decorative_suffix_drop(text: str) -> str:
 
 def s25_validation_narrative_compaction(text: str) -> str:
     def _compact(chunk: str) -> str:
-        val_pattern = re.compile(
-            r"^(#{2,4}\s+.*[Vv]alidat(?:ion|e).*$)", re.MULTILINE
-        )
+        val_pattern = re.compile(r"^(#{2,4}\s+.*[Vv]alidat(?:ion|e).*$)", re.MULTILINE)
         matches = list(val_pattern.finditer(chunk))
         if not matches:
             return chunk
@@ -1031,23 +1040,31 @@ ROADMAP_PIPELINE: list[StrategyEntry] = [
     StrategyEntry("S-01", "Whitespace/blank-line collapse", s01_whitespace_collapse),
     StrategyEntry("S-02", "Trailing-whitespace strip", s02_trailing_whitespace_strip),
     StrategyEntry("S-03", "Decorative HR removal", s03_decorative_hr_removal),
-    StrategyEntry("S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse),
+    StrategyEntry(
+        "S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse
+    ),
     StrategyEntry("S-07", "HTML comment removal", s07_html_comment_removal),
     StrategyEntry("S-22", "Per-change preamble elision", s22_preamble_elision),
     # Abbreviation strategies (S-09) intentionally disabled; no CONV header.
     StrategyEntry("S-16", "FR-ID range condensation", s16_fr_id_range_condensation),
     StrategyEntry("S-14", "Table default-row hoisting", s14_table_default_row_hoisting),
     StrategyEntry(
-        "S-13", "Multi-paragraph bullet compaction",
-        s13_multi_paragraph_bullet_compaction, lossy=True,
+        "S-13",
+        "Multi-paragraph bullet compaction",
+        s13_multi_paragraph_bullet_compaction,
+        lossy=True,
     ),
     StrategyEntry(
-        "S-15", "Executive-summary prose dedup",
-        s15_executive_summary_dedup, lossy=True,
+        "S-15",
+        "Executive-summary prose dedup",
+        s15_executive_summary_dedup,
+        lossy=True,
     ),
     StrategyEntry(
-        "S-25", "Validation-narrative compaction",
-        s25_validation_narrative_compaction, lossy=True,
+        "S-25",
+        "Validation-narrative compaction",
+        s25_validation_narrative_compaction,
+        lossy=True,
     ),
 ]
 
@@ -1055,33 +1072,48 @@ SPEC_PIPELINE: list[StrategyEntry] = [
     StrategyEntry("S-01", "Whitespace/blank-line collapse", s01_whitespace_collapse),
     StrategyEntry("S-02", "Trailing-whitespace strip", s02_trailing_whitespace_strip),
     StrategyEntry("S-03", "Decorative HR removal", s03_decorative_hr_removal),
-    StrategyEntry("S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse),
+    StrategyEntry(
+        "S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse
+    ),
     StrategyEntry("S-07", "HTML comment removal", s07_html_comment_removal),
     # Abbreviation strategies (S-10) intentionally disabled; no CONV header.
     StrategyEntry(
-        "S-23", "Reference-style citation shortcuts", s23_reference_style_citations,
+        "S-23",
+        "Reference-style citation shortcuts",
+        s23_reference_style_citations,
     ),
 ]
 
 TASKLIST_PIPELINE: list[StrategyEntry] = [
     StrategyEntry(
-        "S-01", "Whitespace collapse + HR removal",
+        "S-01",
+        "Whitespace collapse + HR removal",
         s01_whitespace_collapse_with_hr,
     ),
     StrategyEntry("S-02", "Trailing-whitespace strip", s02_trailing_whitespace_strip),
-    StrategyEntry("S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse),
+    StrategyEntry(
+        "S-04", "Pipe-table padding collapse", s04_pipe_table_padding_collapse
+    ),
     # Abbreviation strategies (S-09/S-17/S-18/S-10) intentionally disabled;
     # no CONV/MACRO/TAGS header.
     StrategyEntry("S-14", "Table default-row hoisting", s14_table_default_row_hoisting),
-    StrategyEntry("S-19", "Checkpoint block template dedup", s19_checkpoint_block_dedup),
-    StrategyEntry("S-20", "Template-block externalization", s20_template_block_externalization),
     StrategyEntry(
-        "S-13", "Multi-paragraph bullet compaction",
-        s13_multi_paragraph_bullet_compaction, lossy=True,
+        "S-19", "Checkpoint block template dedup", s19_checkpoint_block_dedup
     ),
     StrategyEntry(
-        "S-24", "Heading decorative suffix drop",
-        s24_heading_decorative_suffix_drop, lossy=True,
+        "S-20", "Template-block externalization", s20_template_block_externalization
+    ),
+    StrategyEntry(
+        "S-13",
+        "Multi-paragraph bullet compaction",
+        s13_multi_paragraph_bullet_compaction,
+        lossy=True,
+    ),
+    StrategyEntry(
+        "S-24",
+        "Heading decorative suffix drop",
+        s24_heading_decorative_suffix_drop,
+        lossy=True,
     ),
 ]
 
@@ -1095,6 +1127,7 @@ PIPELINES: dict[str, list[StrategyEntry]] = {
 # ============================================================================
 # Section 6: Pipeline runner + high-level helpers
 # ============================================================================
+
 
 def run_pipeline(
     text: str,

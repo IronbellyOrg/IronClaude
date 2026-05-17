@@ -5,8 +5,6 @@ Tests end-to-end flow from specification input through final output.
 """
 
 
-
-
 class TestFullPipelineE2E:
     """Test complete 5-wave pipeline execution."""
 

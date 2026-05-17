@@ -38,7 +38,9 @@ def _write_module(source_root: Path, module_dotted: str, source: str) -> Path:
     return file_path
 
 
-def _write_manifest(manifest_path: Path, entry_points: list[dict], targets: list[dict]) -> None:
+def _write_manifest(
+    manifest_path: Path, entry_points: list[dict], targets: list[dict]
+) -> None:
     """Write a minimal wiring manifest YAML."""
     data = {
         "wiring_manifest": {
@@ -68,9 +70,7 @@ def workspace(tmp_path: Path) -> tuple[Path, Path]:
 # ---------------------------------------------------------------------------
 
 
-def test_broken_wiring_detected(
-    workspace: tuple[Path, Path], audit_trail
-) -> None:
+def test_broken_wiring_detected(workspace: tuple[Path, Path], audit_trail) -> None:
     """Removing run_post_phase_wiring_hook() call causes reachability gate FAIL.
 
     This regression test creates two synthetic module variants:
@@ -84,7 +84,10 @@ def test_broken_wiring_detected(
     source_root, manifest_path = workspace
 
     # -- Broken executor: execute_sprint does NOT call run_post_phase_wiring_hook --
-    _write_module(source_root, "sprint.executor", """\
+    _write_module(
+        source_root,
+        "sprint.executor",
+        """\
         from sprint.models import PhaseResult
         from sprint.hooks import run_post_task_wiring_hook
 
@@ -104,28 +107,40 @@ def test_broken_wiring_detected(
                 # BUG: run_post_phase_wiring_hook() should be called here but is missing
                 phase_result = PhaseResult(phase=phase, results=results)
             return phase_result
-    """)
+    """,
+    )
 
-    _write_module(source_root, "sprint.models", """\
+    _write_module(
+        source_root,
+        "sprint.models",
+        """\
         class PhaseResult:
             def __init__(self, phase=None, results=None):
                 self.phase = phase
                 self.results = results
-    """)
+    """,
+    )
 
-    _write_module(source_root, "sprint.hooks", """\
+    _write_module(
+        source_root,
+        "sprint.hooks",
+        """\
         def run_post_task_wiring_hook(phase, config):
             pass
-    """)
+    """,
+    )
 
     # Manifest declares run_post_phase_wiring_hook must be reachable from execute_sprint
-    _write_manifest(manifest_path,
+    _write_manifest(
+        manifest_path,
         entry_points=[{"module": "sprint.executor", "function": "execute_sprint"}],
-        targets=[{
-            "target": "sprint.executor.run_post_phase_wiring_hook",
-            "from_entry": "execute_sprint",
-            "spec_ref": "FR-4.4/SC-7",
-        }],
+        targets=[
+            {
+                "target": "sprint.executor.run_post_phase_wiring_hook",
+                "from_entry": "execute_sprint",
+                "spec_ref": "FR-4.4/SC-7",
+            }
+        ],
     )
 
     analyzer = ReachabilityAnalyzer(manifest_path)
@@ -177,9 +192,7 @@ def test_broken_wiring_detected(
     )
 
 
-def test_healthy_wiring_passes(
-    workspace: tuple[Path, Path], audit_trail
-) -> None:
+def test_healthy_wiring_passes(workspace: tuple[Path, Path], audit_trail) -> None:
     """Contrast test: when run_post_phase_wiring_hook() IS called, gate PASSES.
 
     Confirms the regression test above is meaningful — a healthy executor
@@ -188,7 +201,10 @@ def test_healthy_wiring_passes(
     source_root, manifest_path = workspace
 
     # -- Healthy executor: execute_sprint DOES call run_post_phase_wiring_hook --
-    _write_module(source_root, "sprint.executor", """\
+    _write_module(
+        source_root,
+        "sprint.executor",
+        """\
         from sprint.models import PhaseResult
         from sprint.hooks import run_post_task_wiring_hook
 
@@ -208,27 +224,39 @@ def test_healthy_wiring_passes(
                 phase_result = PhaseResult(phase=phase, results=results)
                 phase_result = run_post_phase_wiring_hook(phase, config, phase_result)
             return phase_result
-    """)
+    """,
+    )
 
-    _write_module(source_root, "sprint.models", """\
+    _write_module(
+        source_root,
+        "sprint.models",
+        """\
         class PhaseResult:
             def __init__(self, phase=None, results=None):
                 self.phase = phase
                 self.results = results
-    """)
+    """,
+    )
 
-    _write_module(source_root, "sprint.hooks", """\
+    _write_module(
+        source_root,
+        "sprint.hooks",
+        """\
         def run_post_task_wiring_hook(phase, config):
             pass
-    """)
+    """,
+    )
 
-    _write_manifest(manifest_path,
+    _write_manifest(
+        manifest_path,
         entry_points=[{"module": "sprint.executor", "function": "execute_sprint"}],
-        targets=[{
-            "target": "sprint.executor.run_post_phase_wiring_hook",
-            "from_entry": "execute_sprint",
-            "spec_ref": "FR-4.4/SC-7",
-        }],
+        targets=[
+            {
+                "target": "sprint.executor.run_post_phase_wiring_hook",
+                "from_entry": "execute_sprint",
+                "spec_ref": "FR-4.4/SC-7",
+            }
+        ],
     )
 
     analyzer = ReachabilityAnalyzer(manifest_path)

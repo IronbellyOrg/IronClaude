@@ -29,8 +29,16 @@ class TestPrdCliSmoke:
         """``superclaude prd run --help`` lists all expected options."""
         result = _runner().invoke(prd_group, ["run", "--help"])
         assert result.exit_code == 0
-        for flag in ["--product", "--where", "--output", "--tier", "--max-turns",
-                     "--model", "--dry-run", "--debug"]:
+        for flag in [
+            "--product",
+            "--where",
+            "--output",
+            "--tier",
+            "--max-turns",
+            "--model",
+            "--dry-run",
+            "--debug",
+        ]:
             assert flag in result.output, f"Missing option: {flag}"
 
     def test_prd_resume_help_shows_options(self) -> None:
@@ -56,8 +64,15 @@ class TestPrdCliSmoke:
         """Dry-run mode validates config fields without subprocess launch."""
         result = _runner().invoke(
             prd_group,
-            ["run", "Build a user auth system", "--product", "my-app",
-             "--tier", "heavyweight", "--dry-run"],
+            [
+                "run",
+                "Build a user auth system",
+                "--product",
+                "my-app",
+                "--tier",
+                "heavyweight",
+                "--dry-run",
+            ],
         )
         assert result.exit_code == 0
         assert "heavyweight" in result.output

@@ -4,6 +4,7 @@ Implements FR-7 (convergence gate), FR-8 (regression detection),
 and the deviation registry (FR-6) with split structural/semantic
 HIGH tracking (BF-3 resolution).
 """
+
 from __future__ import annotations
 
 import atexit
@@ -27,14 +28,15 @@ REGRESSION_VALIDATION_COST = 15
 CONVERGENCE_PASS_CREDIT = 5
 
 # Derived budget thresholds
-MIN_CONVERGENCE_BUDGET = 28   # 1 checker + 1 remediation + 1 regression validation
-STD_CONVERGENCE_BUDGET = 46   # 2 full cycles with regression headroom
-MAX_CONVERGENCE_BUDGET = 61   # 3 full cycles (catch/verify/backup)
+MIN_CONVERGENCE_BUDGET = 28  # 1 checker + 1 remediation + 1 regression validation
+STD_CONVERGENCE_BUDGET = 46  # 2 full cycles with regression headroom
+MAX_CONVERGENCE_BUDGET = 61  # 3 full cycles (catch/verify/backup)
 
 
 def _get_turnledger_class():
     """Conditional import of TurnLedger (convergence mode only)."""
     from ..sprint.models import TurnLedger
+
     return TurnLedger
 
 
@@ -71,6 +73,7 @@ def compute_stable_id(
 @dataclass
 class RunMetadata:
     """Metadata for a single fidelity run."""
+
     run_number: int
     timestamp: str
     spec_hash: str
@@ -90,6 +93,7 @@ class DeviationRegistry:
     Implements FR-6 (persistent registry), FR-10 (run-to-run memory).
     Status values: ACTIVE, FIXED, FAILED, SKIPPED.
     """
+
     path: Path
     release_id: str
     spec_hash: str
@@ -97,7 +101,9 @@ class DeviationRegistry:
     findings: dict[str, dict] = field(default_factory=dict)
 
     @classmethod
-    def load_or_create(cls, path: Path, release_id: str, spec_hash: str) -> DeviationRegistry:
+    def load_or_create(
+        cls, path: Path, release_id: str, spec_hash: str
+    ) -> DeviationRegistry:
         """Load existing registry or create fresh one.
 
         If spec_hash differs from saved -> reset (new spec version, FR-6).
@@ -131,13 +137,16 @@ class DeviationRegistry:
     def begin_run(self, roadmap_hash: str) -> int:
         """Start a new run. Returns run_number."""
         from datetime import datetime, timezone
+
         run_number = len(self.runs) + 1
-        self.runs.append({
-            "run_number": run_number,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "spec_hash": self.spec_hash,
-            "roadmap_hash": roadmap_hash,
-        })
+        self.runs.append(
+            {
+                "run_number": run_number,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "spec_hash": self.spec_hash,
+                "roadmap_hash": roadmap_hash,
+            }
+        )
         return run_number
 
     def merge_findings(
@@ -154,18 +163,30 @@ class DeviationRegistry:
         """
         current_ids: set[str] = set()
 
-        for source, findings_list in [("structural", structural), ("semantic", semantic)]:
+        for source, findings_list in [
+            ("structural", structural),
+            ("semantic", semantic),
+        ]:
             for f in findings_list:
-                stable_id = f.stable_id if hasattr(f, 'stable_id') and f.stable_id else compute_stable_id(
-                    f.dimension, getattr(f, 'rule_id', ''), f.location, getattr(f, 'rule_id', '')
+                stable_id = (
+                    f.stable_id
+                    if hasattr(f, "stable_id") and f.stable_id
+                    else compute_stable_id(
+                        f.dimension,
+                        getattr(f, "rule_id", ""),
+                        f.location,
+                        getattr(f, "rule_id", ""),
+                    )
                 )
                 current_ids.add(stable_id)
 
                 if stable_id in self.findings:
                     self.findings[stable_id]["last_seen_run"] = run_number
                     self.findings[stable_id]["status"] = "ACTIVE"
-                    if hasattr(f, 'files_affected'):
-                        self.findings[stable_id]["files_affected"] = list(f.files_affected)
+                    if hasattr(f, "files_affected"):
+                        self.findings[stable_id]["files_affected"] = list(
+                            f.files_affected
+                        )
                 else:
                     self.findings[stable_id] = {
                         "stable_id": stable_id,
@@ -179,7 +200,9 @@ class DeviationRegistry:
                         "last_seen_run": run_number,
                         "debate_verdict": None,
                         "debate_transcript": None,
-                        "files_affected": list(f.files_affected) if hasattr(f, 'files_affected') else [],
+                        "files_affected": list(f.files_affected)
+                        if hasattr(f, "files_affected")
+                        else [],
                     }
 
         # Mark missing findings as FIXED
@@ -189,12 +212,18 @@ class DeviationRegistry:
 
         # Update run metadata with counts
         structural_highs = sum(
-            1 for f in self.findings.values()
-            if f["status"] == "ACTIVE" and f["severity"] == "HIGH" and f["source_layer"] == "structural"
+            1
+            for f in self.findings.values()
+            if f["status"] == "ACTIVE"
+            and f["severity"] == "HIGH"
+            and f["source_layer"] == "structural"
         )
         semantic_highs = sum(
-            1 for f in self.findings.values()
-            if f["status"] == "ACTIVE" and f["severity"] == "HIGH" and f["source_layer"] == "semantic"
+            1
+            for f in self.findings.values()
+            if f["status"] == "ACTIVE"
+            and f["severity"] == "HIGH"
+            and f["source_layer"] == "semantic"
         )
         if self.runs:
             self.runs[-1]["structural_high_count"] = structural_highs
@@ -204,7 +233,8 @@ class DeviationRegistry:
     def get_active_highs(self) -> list[dict]:
         """Return findings with status=ACTIVE and severity=HIGH."""
         return [
-            f for f in self.findings.values()
+            f
+            for f in self.findings.values()
             if f["status"] == "ACTIVE" and f["severity"] == "HIGH"
         ]
 
@@ -215,20 +245,28 @@ class DeviationRegistry:
     def get_structural_high_count(self) -> int:
         """Count of active structural HIGH findings (monotonic enforcement)."""
         return sum(
-            1 for f in self.findings.values()
-            if f["status"] == "ACTIVE" and f["severity"] == "HIGH" and f["source_layer"] == "structural"
+            1
+            for f in self.findings.values()
+            if f["status"] == "ACTIVE"
+            and f["severity"] == "HIGH"
+            and f["source_layer"] == "structural"
         )
 
     def get_semantic_high_count(self) -> int:
         """Count of active semantic HIGH findings (informational only)."""
         return sum(
-            1 for f in self.findings.values()
-            if f["status"] == "ACTIVE" and f["severity"] == "HIGH" and f["source_layer"] == "semantic"
+            1
+            for f in self.findings.values()
+            if f["status"] == "ACTIVE"
+            and f["severity"] == "HIGH"
+            and f["source_layer"] == "semantic"
         )
 
     def get_prior_findings_summary(self, max_entries: int = 50) -> str:
         """Format prior findings for semantic layer prompt (FR-10)."""
-        entries = sorted(self.findings.values(), key=lambda f: f.get("first_seen_run", 0))
+        entries = sorted(
+            self.findings.values(), key=lambda f: f.get("first_seen_run", 0)
+        )
         lines = ["| Stable ID | Severity | Status | Source | First Seen |"]
         lines.append("|-----------|----------|--------|--------|------------|")
         for entry in entries[:max_entries]:
@@ -238,7 +276,9 @@ class DeviationRegistry:
                 f"Run {entry.get('first_seen_run', '?')} |"
             )
         if len(entries) > max_entries:
-            lines.append(f"| ... | {len(entries) - max_entries} more entries truncated | ... | ... | ... |")
+            lines.append(
+                f"| ... | {len(entries) - max_entries} more entries truncated | ... | ... | ... |"
+            )
         return "\n".join(lines)
 
     def update_finding_status(self, stable_id: str, status: str) -> None:
@@ -263,6 +303,7 @@ class DeviationRegistry:
     def save(self) -> None:
         """Atomic write: tmp + os.replace()."""
         import os
+
         data = {
             "schema_version": 1,
             "release_id": self.release_id,
@@ -278,6 +319,7 @@ class DeviationRegistry:
 @dataclass
 class ConvergenceResult:
     """Outcome of a convergence-controlled fidelity run."""
+
     passed: bool
     run_count: int
     final_high_count: int
@@ -290,6 +332,7 @@ class ConvergenceResult:
 @dataclass
 class RegressionResult:
     """Outcome of a parallel regression validation (FR-8)."""
+
     validated_findings: list[dict] = field(default_factory=list)
     debate_verdicts: list[dict] = field(default_factory=list)
     agents_succeeded: int = 0
@@ -317,14 +360,17 @@ def _check_regression(registry: DeviationRegistry) -> bool:
     if curr_semantic != prev_semantic:
         logger.warning(
             "Semantic HIGH fluctuation: %d -> %d (delta: %+d). Not a regression.",
-            prev_semantic, curr_semantic, curr_semantic - prev_semantic,
+            prev_semantic,
+            curr_semantic,
+            curr_semantic - prev_semantic,
         )
 
     # Only structural increase triggers regression
     if curr_structural > prev_structural:
         logger.error(
             "Structural regression detected: %d -> %d HIGHs",
-            prev_structural, curr_structural,
+            prev_structural,
+            curr_structural,
         )
         return True
 
@@ -375,7 +421,9 @@ def _cleanup_validation_dirs(dirs: list[Path]) -> None:
 def _atexit_cleanup() -> None:
     """Fallback cleanup registered with atexit."""
     if _active_validation_dirs:
-        logger.info("atexit: cleaning up %d validation dirs", len(_active_validation_dirs))
+        logger.info(
+            "atexit: cleaning up %d validation dirs", len(_active_validation_dirs)
+        )
         _cleanup_validation_dirs(list(_active_validation_dirs))
 
 
@@ -437,7 +485,9 @@ def execute_fidelity_with_convergence(
     prev_structural_highs = registry.get_structural_high_count()
 
     for run_idx in range(max_runs):
-        run_label = run_labels[run_idx] if run_idx < len(run_labels) else f"run-{run_idx + 1}"
+        run_label = (
+            run_labels[run_idx] if run_idx < len(run_labels) else f"run-{run_idx + 1}"
+        )
 
         # Budget guard: can we afford a checker run?
         if not ledger.can_launch():
@@ -460,7 +510,11 @@ def execute_fidelity_with_convergence(
         ledger.debit(CHECKER_COST)
         run_number = registry.begin_run(
             roadmap_hash=hashlib.sha256(
-                (roadmap_path.read_bytes() if roadmap_path and roadmap_path.exists() else b"")
+                (
+                    roadmap_path.read_bytes()
+                    if roadmap_path and roadmap_path.exists()
+                    else b""
+                )
             ).hexdigest()
         )
 
@@ -486,8 +540,12 @@ def execute_fidelity_with_convergence(
             logger.info(
                 "Run %d (%s): PASS — 0 active HIGHs. Credit %d turns. "
                 "budget: consumed=%d, reimbursed=%d, available=%d",
-                run_idx + 1, run_label, CONVERGENCE_PASS_CREDIT,
-                ledger.consumed, ledger.reimbursed, ledger.available(),
+                run_idx + 1,
+                run_label,
+                CONVERGENCE_PASS_CREDIT,
+                ledger.consumed,
+                ledger.reimbursed,
+                ledger.available(),
             )
             return ConvergenceResult(
                 passed=True,
@@ -508,7 +566,8 @@ def execute_fidelity_with_convergence(
         # Check for semantic fluctuation
         prev_semantic = (
             registry.runs[-2].get("semantic_high_count", 0)
-            if len(registry.runs) >= 2 else 0
+            if len(registry.runs) >= 2
+            else 0
         )
         if curr_semantic != prev_semantic:
             fluct_msg = (
@@ -522,7 +581,9 @@ def execute_fidelity_with_convergence(
         if run_idx > 0 and curr_structural > prev_structural_highs:
             logger.error(
                 "Structural regression in run %d: %d -> %d",
-                run_idx + 1, prev_structural_highs, curr_structural,
+                run_idx + 1,
+                prev_structural_highs,
+                curr_structural,
             )
             if handle_regression_fn and spec_path and roadmap_path:
                 # Budget guard for regression validation
@@ -635,7 +696,10 @@ def handle_regression(
         Consolidated validation result with findings and debate verdicts.
     """
     dirs = _create_validation_dirs(
-        spec_path, roadmap_path, registry.path, count=3,
+        spec_path,
+        roadmap_path,
+        registry.path,
+        count=3,
     )
     try:
         # Each agent independently validates findings
@@ -652,9 +716,7 @@ def handle_regression(
                 )
                 # Collect active HIGHs from this agent's view
                 agent_highs = agent_registry.get_active_highs()
-                agent_findings = {
-                    f.get("stable_id", ""): f for f in agent_highs
-                }
+                agent_findings = {f.get("stable_id", ""): f for f in agent_highs}
                 agent_results.append(agent_findings)
                 agents_succeeded += 1
             except Exception as exc:

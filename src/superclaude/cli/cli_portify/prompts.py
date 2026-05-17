@@ -340,8 +340,6 @@ class PanelReviewPrompt(BasePromptBuilder):
         )
 
 
-
-
 # ---------------------------------------------------------------------------
 # Phase 5: Protocol-mapping and Analysis-synthesis prompt builders (FR-013 to FR-017)
 # ---------------------------------------------------------------------------
@@ -910,5 +908,3 @@ def build_release_spec_prompt(template_content: str, cli_name: str = "") -> str:
         "At the end of the file, include:\n"
         "EXIT_RECOMMENDATION: CONTINUE\n"
     )
-
-

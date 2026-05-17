@@ -66,9 +66,7 @@ def _make_config(tmp_path: Path, *, num_phases: int = 1) -> SprintConfig:
     phases = []
     for i in range(1, num_phases + 1):
         pf = tmp_path / f"phase-{i}-tasklist.md"
-        pf.write_text(
-            f"# Phase {i}\n\n### T{i:02d}.01 -- Task One\nDo something\n"
-        )
+        pf.write_text(f"# Phase {i}\n\n### T{i:02d}.01 -- Task One\nDo something\n")
         phases.append(Phase(number=i, file=pf, name=f"Phase {i}"))
 
     index = tmp_path / "tasklist-index.md"
@@ -140,7 +138,9 @@ def _run_execute_sprint_capturing(config: SprintConfig):
             return_value=[],
         ),
         patch.object(
-            SprintGatePolicy, "__init__", _capture_gate_init,
+            SprintGatePolicy,
+            "__init__",
+            _capture_gate_init,
         ),
     ):
         execute_sprint(config)
@@ -199,7 +199,9 @@ class TestConstructionValidation:
             ),
         )
 
-    def test_shadow_gate_metrics_construction(self, tmp_path: Path, audit_trail) -> None:
+    def test_shadow_gate_metrics_construction(
+        self, tmp_path: Path, audit_trail
+    ) -> None:
         """FR-1.2: ShadowGateMetrics constructed with zeroed counters."""
         config = _make_config(tmp_path)
         config.results_dir.mkdir(parents=True, exist_ok=True)
@@ -238,7 +240,9 @@ class TestConstructionValidation:
             evidence="ShadowGateMetrics constructed via execute_sprint with all counters at zero",
         )
 
-    def test_deferred_remediation_log_construction(self, tmp_path: Path, audit_trail) -> None:
+    def test_deferred_remediation_log_construction(
+        self, tmp_path: Path, audit_trail
+    ) -> None:
         """FR-1.3: DeferredRemediationLog constructed with persist_path under results_dir."""
         config = _make_config(tmp_path)
         config.results_dir.mkdir(parents=True, exist_ok=True)
@@ -347,9 +351,7 @@ class TestPhaseDelegation:
 
         # Verify _parse_phase_tasks returns list[TaskEntry]
         result = _parse_phase_tasks(phase, config)
-        assert isinstance(result, list), (
-            f"Expected list, got {type(result).__name__}"
-        )
+        assert isinstance(result, list), f"Expected list, got {type(result).__name__}"
         assert len(result) >= 2, f"Expected >=2 tasks, got {len(result)}"
         for entry in result:
             assert isinstance(entry, TaskEntry), (
@@ -363,7 +365,10 @@ class TestPhaseDelegation:
             delegate_called["called"] = True
             results = [
                 TaskResult(
-                    task=t, status=TaskStatus.PASS, exit_code=0, turns_consumed=1,
+                    task=t,
+                    status=TaskStatus.PASS,
+                    exit_code=0,
+                    turns_consumed=1,
                 )
                 for t in tasks
             ]
@@ -465,6 +470,7 @@ class TestPhaseDelegation:
 
         class _FakeProcess:
             """Mimics subprocess.Popen with immediate exit."""
+
             pid = 12345
             returncode = 0
             _poll_count = 0
@@ -643,19 +649,24 @@ class TestPostPhaseWiringHook:
         hook_calls: list[dict] = []
 
         def _capture_hook(phase, config, pr, **kw):
-            hook_calls.append({
-                "phase_number": phase.number,
-                "phase_result_type": type(pr).__name__,
-                "phase_result_status": pr.status.name,
-                "ledger": kw.get("ledger"),
-                "remediation_log": kw.get("remediation_log"),
-            })
+            hook_calls.append(
+                {
+                    "phase_number": phase.number,
+                    "phase_result_type": type(pr).__name__,
+                    "phase_result_status": pr.status.name,
+                    "ledger": kw.get("ledger"),
+                    "remediation_log": kw.get("remediation_log"),
+                }
+            )
             return pr
 
         def _fake_phase_tasks(tasks, config, phase, ledger=None, **kwargs):
             results = [
                 TaskResult(
-                    task=t, status=TaskStatus.PASS, exit_code=0, turns_consumed=1,
+                    task=t,
+                    status=TaskStatus.PASS,
+                    exit_code=0,
+                    turns_consumed=1,
                 )
                 for t in tasks
             ]
@@ -719,13 +730,14 @@ class TestPostPhaseWiringHook:
             ),
         )
 
-    def test_post_phase_hook_claude_process_path(self, tmp_path: Path, audit_trail) -> None:
+    def test_post_phase_hook_claude_process_path(
+        self, tmp_path: Path, audit_trail
+    ) -> None:
         """FR-1.7b: Post-phase wiring hook fires after ClaudeProcess (freeform) path."""
         # Build a freeform phase file (no task headings)
         pf = tmp_path / "phase-1-tasklist.md"
         pf.write_text(
-            "# Phase 1 -- Freeform\n\n"
-            "Run the analysis pipeline end to end.\n"
+            "# Phase 1 -- Freeform\n\nRun the analysis pipeline end to end.\n"
         )
         phase = Phase(number=1, file=pf, name="Phase 1")
 
@@ -746,13 +758,15 @@ class TestPostPhaseWiringHook:
         hook_calls: list[dict] = []
 
         def _capture_hook(phase, config, pr, **kw):
-            hook_calls.append({
-                "phase_number": phase.number,
-                "phase_result_type": type(pr).__name__,
-                "phase_result_status": pr.status.name,
-                "ledger": kw.get("ledger"),
-                "remediation_log": kw.get("remediation_log"),
-            })
+            hook_calls.append(
+                {
+                    "phase_number": phase.number,
+                    "phase_result_type": type(pr).__name__,
+                    "phase_result_status": pr.status.name,
+                    "ledger": kw.get("ledger"),
+                    "remediation_log": kw.get("remediation_log"),
+                }
+            )
             return pr
 
         class _FakeProcess:
@@ -861,7 +875,9 @@ class TestRunPostPhaseWiringHookConfirming:
     """
 
     def test_run_post_phase_wiring_hook_delegates_and_maps_status(
-        self, tmp_path: Path, audit_trail,
+        self,
+        tmp_path: Path,
+        audit_trail,
     ) -> None:
         """FR-6.2 T02: Direct call confirms delegation and FAIL→HALT mapping."""
         config = _make_config(tmp_path)
@@ -879,13 +895,15 @@ class TestRunPostPhaseWiringHookConfirming:
         delegated_calls: list[dict] = []
 
         def _capture_task_hook(task, cfg, task_result, **kw):
-            delegated_calls.append({
-                "task_id": task.task_id,
-                "task_description": task.description,
-                "task_result_status": task_result.status.name,
-                "ledger": kw.get("ledger"),
-                "remediation_log": kw.get("remediation_log"),
-            })
+            delegated_calls.append(
+                {
+                    "task_id": task.task_id,
+                    "task_description": task.description,
+                    "task_result_status": task_result.status.name,
+                    "ledger": kw.get("ledger"),
+                    "remediation_log": kw.get("remediation_log"),
+                }
+            )
             return task_result  # Return unchanged (PASS)
 
         with patch(
@@ -893,7 +911,9 @@ class TestRunPostPhaseWiringHookConfirming:
             side_effect=_capture_task_hook,
         ):
             result_a = run_post_phase_wiring_hook(
-                phase, config, phase_result_pass,
+                phase,
+                config,
+                phase_result_pass,
                 ledger=TurnLedger(initial_budget=100, reimbursement_rate=0.5),
                 remediation_log=DeferredRemediationLog(
                     persist_path=config.results_dir / "remediation.jsonl",
@@ -940,7 +960,9 @@ class TestRunPostPhaseWiringHookConfirming:
             side_effect=_fail_task_hook,
         ):
             result_b = run_post_phase_wiring_hook(
-                phase, config, phase_result_will_halt,
+                phase,
+                config,
+                phase_result_will_halt,
                 ledger=TurnLedger(initial_budget=100, reimbursement_rate=0.5),
             )
 
@@ -995,9 +1017,7 @@ class TestAntiInstinctHookReturnType:
         No mocks on hook internals — the hook runs its full code path.
         """
         pf = tmp_path / "phase-1-tasklist.md"
-        pf.write_text(
-            "# Phase 1\n\n### T01.01 -- Task One\nDo something\n"
-        )
+        pf.write_text("# Phase 1\n\n### T01.01 -- Task One\nDo something\n")
         phase = Phase(number=1, file=pf, name="Phase 1")
 
         index = tmp_path / "tasklist-index.md"
@@ -1110,9 +1130,7 @@ class TestGateResultAccumulation:
         phases = []
         for i in range(1, num_phases + 1):
             pf = tmp_path / f"phase-{i}-tasklist.md"
-            pf.write_text(
-                f"# Phase {i}\n\n### T{i:02d}.01 -- Task One\nDo something\n"
-            )
+            pf.write_text(f"# Phase {i}\n\n### T{i:02d}.01 -- Task One\nDo something\n")
             phases.append(Phase(number=i, file=pf, name=f"Phase {i}"))
 
         index = tmp_path / "tasklist-index.md"
@@ -1137,7 +1155,10 @@ class TestGateResultAccumulation:
             """Return one PASS result per task plus one gate result tagged with phase number."""
             results = [
                 TaskResult(
-                    task=t, status=TaskStatus.PASS, exit_code=0, turns_consumed=1,
+                    task=t,
+                    status=TaskStatus.PASS,
+                    exit_code=0,
+                    turns_consumed=1,
                 )
                 for t in tasks
             ]
@@ -1155,6 +1176,7 @@ class TestGateResultAccumulation:
             captured_gate_results.extend(gate_results)
             # Return a minimal KPI report object
             from superclaude.cli.sprint.kpi import GateKPIReport
+
             report = GateKPIReport()
             report.format_report = lambda: "# KPI\nno-op"
             return report
@@ -1208,7 +1230,9 @@ class TestGateResultAccumulation:
             observed={
                 "accumulated_count": len(captured_gate_results),
                 "step_ids": [gr.step_id for gr in captured_gate_results],
-                "evaluation_ms_values": [gr.evaluation_ms for gr in captured_gate_results],
+                "evaluation_ms_values": [
+                    gr.evaluation_ms for gr in captured_gate_results
+                ],
             },
             expected={
                 "accumulated_count": num_phases,
@@ -1270,9 +1294,7 @@ class TestGateResultAccumulation:
         )
 
         pending = remediation_log.pending_remediations()
-        assert len(pending) == 1, (
-            f"Expected 1 pending remediation, got {len(pending)}"
-        )
+        assert len(pending) == 1, f"Expected 1 pending remediation, got {len(pending)}"
 
         entry = pending[0]
         assert entry.step_id == "T01.01"
@@ -1344,7 +1366,9 @@ class TestShadowFindingsRemediationLog:
 
         class _FakeReport:
             unsuppressed_findings = [
-                _FakeFinding("anti-instinct-violation", "Output contains disallowed pattern"),
+                _FakeFinding(
+                    "anti-instinct-violation", "Output contains disallowed pattern"
+                ),
                 _FakeFinding("format-violation", "Missing required header"),
             ]
 
@@ -1363,9 +1387,7 @@ class TestShadowFindingsRemediationLog:
         )
 
         pending = remediation_log.pending_remediations()
-        assert len(pending) == 2, (
-            f"Expected 2 pending remediations, got {len(pending)}"
-        )
+        assert len(pending) == 2, f"Expected 2 pending remediations, got {len(pending)}"
 
         # Core assertion: every entry's failure_reason starts with [shadow]
         for i, entry in enumerate(pending):
@@ -1454,18 +1476,22 @@ class TestKPIReportFieldValues:
         remediation_log = DeferredRemediationLog(
             persist_path=tmp_path / "remediation.json",
         )
-        remediation_log.append(TrailingGateResult(
-            step_id="T01.01",
-            passed=False,
-            evaluation_ms=12.0,
-            failure_reason="[shadow] anti-instinct violation 1",
-        ))
-        remediation_log.append(TrailingGateResult(
-            step_id="T01.02",
-            passed=False,
-            evaluation_ms=18.0,
-            failure_reason="[shadow] anti-instinct violation 2",
-        ))
+        remediation_log.append(
+            TrailingGateResult(
+                step_id="T01.01",
+                passed=False,
+                evaluation_ms=12.0,
+                failure_reason="[shadow] anti-instinct violation 1",
+            )
+        )
+        remediation_log.append(
+            TrailingGateResult(
+                step_id="T01.02",
+                passed=False,
+                evaluation_ms=18.0,
+                failure_reason="[shadow] anti-instinct violation 2",
+            )
+        )
         expected_remediations_attempted = 2
 
         # Gate results: 3 passed, 1 failed
@@ -1488,7 +1514,9 @@ class TestKPIReportFieldValues:
             f"wiring_analyses_run: expected {expected_analyses_run}, "
             f"got {report.wiring_analyses_run}"
         )
-        assert report.wiring_remediations_attempted == expected_remediations_attempted, (
+        assert (
+            report.wiring_remediations_attempted == expected_remediations_attempted
+        ), (
             f"wiring_remediations_attempted: expected {expected_remediations_attempted}, "
             f"got {report.wiring_remediations_attempted}"
         )
@@ -1509,9 +1537,7 @@ class TestKPIReportFieldValues:
         phases = []
         for i in range(1, num_phases + 1):
             pf = tmp_path / f"phase-{i}-tasklist.md"
-            pf.write_text(
-                f"# Phase {i}\n\n### T{i:02d}.01 -- Task One\nDo something\n"
-            )
+            pf.write_text(f"# Phase {i}\n\n### T{i:02d}.01 -- Task One\nDo something\n")
             phases.append(Phase(number=i, file=pf, name=f"Phase {i}"))
 
         index = tmp_path / "tasklist-index.md"
@@ -1536,13 +1562,18 @@ class TestKPIReportFieldValues:
                 ledger.credit_wiring(1, 1)
             results = [
                 TaskResult(
-                    task=t, status=TaskStatus.PASS, exit_code=0, turns_consumed=1,
+                    task=t,
+                    status=TaskStatus.PASS,
+                    exit_code=0,
+                    turns_consumed=1,
                 )
                 for t in tasks
             ]
             gate_results = [
                 TrailingGateResult(
-                    step_id=t.task_id, passed=True, evaluation_ms=5.0,
+                    step_id=t.task_id,
+                    passed=True,
+                    evaluation_ms=5.0,
                 )
                 for t in tasks
             ]
@@ -1572,9 +1603,7 @@ class TestKPIReportFieldValues:
             execute_sprint(config)
 
         kpi_path = config.results_dir / "gate-kpi-report.md"
-        assert kpi_path.exists(), (
-            f"gate-kpi-report.md not found at {kpi_path}"
-        )
+        assert kpi_path.exists(), f"gate-kpi-report.md not found at {kpi_path}"
 
         kpi_text = kpi_path.read_text()
         # Verify field values appear in the formatted report
@@ -1743,7 +1772,9 @@ class TestBlockingRemediationLifecycle:
             ),
         )
 
-    def test_blocking_remediation_debit_recheck(self, tmp_path: Path, audit_trail) -> None:
+    def test_blocking_remediation_debit_recheck(
+        self, tmp_path: Path, audit_trail
+    ) -> None:
         """FR-1.14b: Full-mode blocking triggers ledger.debit() then _recheck_wiring().
 
         Exercises the full remediation lifecycle through execute_phase_tasks with
@@ -1811,7 +1842,7 @@ class TestBlockingRemediationLifecycle:
         # Assertion 1: ledger.debit(remediation_cost) was called — consumed increased
         # beyond the initial wiring_analysis_turns debit
         wiring_debit = config.wiring_analysis_turns  # debit_wiring at analysis start
-        remediation_debit = config.remediation_cost   # debit at remediation
+        remediation_debit = config.remediation_cost  # debit at remediation
         total_expected_debit = wiring_debit + remediation_debit + 1  # +1 for task turn
         assert ledger.consumed > initial_consumed + wiring_debit, (
             f"Expected consumed > {initial_consumed + wiring_debit} "
@@ -1858,7 +1889,9 @@ class TestBlockingRemediationLifecycle:
             ),
         )
 
-    def test_blocking_remediation_restore_or_fail(self, tmp_path: Path, audit_trail) -> None:
+    def test_blocking_remediation_restore_or_fail(
+        self, tmp_path: Path, audit_trail
+    ) -> None:
         """FR-1.14c: Successful recheck restores PASS; failed recheck persists FAIL.
 
         Runs two separate execute_phase_tasks invocations:
@@ -1911,7 +1944,11 @@ class TestBlockingRemediationLifecycle:
             side_effect=_analysis_pass_on_recheck,
         ):
             results_a, _, _ = execute_phase_tasks(
-                tasks_a, config_a, phase, ledger=ledger_a, _subprocess_factory=_factory,
+                tasks_a,
+                config_a,
+                phase,
+                ledger=ledger_a,
+                _subprocess_factory=_factory,
             )
 
         assert len(results_a) >= 1
@@ -1955,7 +1992,11 @@ class TestBlockingRemediationLifecycle:
             side_effect=_analysis_fail_on_recheck,
         ):
             results_b, _, _ = execute_phase_tasks(
-                tasks_b, config_b, phase, ledger=ledger_b, _subprocess_factory=_factory,
+                tasks_b,
+                config_b,
+                phase,
+                ledger=ledger_b,
+                _subprocess_factory=_factory,
             )
 
         assert len(results_b) >= 1
@@ -2050,8 +2091,7 @@ class TestConvergenceRegistry:
                 "runs_empty": reg.runs == [],
                 "findings_empty": reg.findings == {},
                 "load_or_create_consistent": (
-                    reg2.release_id == release_id
-                    and reg2.spec_hash == spec_hash
+                    reg2.release_id == release_id and reg2.spec_hash == spec_hash
                 ),
             },
             expected={
@@ -2262,7 +2302,9 @@ class TestDictToFindingConversion:
                 findings_by_file.setdefault(fp, []).append(finding)
 
         assert "src/module.py" in findings_by_file
-        assert len(findings_by_file["src/module.py"]) == 2  # both findings touch this file
+        assert (
+            len(findings_by_file["src/module.py"]) == 2
+        )  # both findings touch this file
         assert "src/other.py" in findings_by_file
         assert len(findings_by_file["src/other.py"]) == 1
 
@@ -2277,7 +2319,9 @@ class TestDictToFindingConversion:
             observed={
                 "dict_count": len(active_highs),
                 "finding_count": len(finding_objects),
-                "all_finding_instances": all(isinstance(f, Finding) for f in finding_objects),
+                "all_finding_instances": all(
+                    isinstance(f, Finding) for f in finding_objects
+                ),
                 "files_grouped": sorted(findings_by_file.keys()),
             },
             expected={
@@ -2449,7 +2493,9 @@ class TestShadowGraceInfinite:
                 ),
             ):
                 result = run_post_task_wiring_hook(
-                    tr.task, config, tr,
+                    tr.task,
+                    config,
+                    tr,
                     ledger=ledger,
                 )
             results.append(result)

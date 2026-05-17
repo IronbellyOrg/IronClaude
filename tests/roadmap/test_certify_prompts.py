@@ -8,7 +8,6 @@ Covers:
 - T05.04: route_certification_outcome (all-pass and some-fail paths, no-loop)
 """
 
-
 from superclaude.cli.roadmap.certify_prompts import (
     build_certification_prompt,
     extract_finding_context,

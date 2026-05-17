@@ -23,7 +23,9 @@ def state_dir(tmp_path):
     return tmp_path
 
 
-def write_state(state_dir: Path, tdd_path: str | None = None, prd_path: str | None = None):
+def write_state(
+    state_dir: Path, tdd_path: str | None = None, prd_path: str | None = None
+):
     """Write a .roadmap-state.json with given paths."""
     state = {"schema_version": 1, "spec_file": str(state_dir / "spec.md")}
     if tdd_path is not None:

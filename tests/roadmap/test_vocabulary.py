@@ -30,8 +30,17 @@ class TestPreferredAlternatives:
 
     def test_covers_all_scaffold_stems(self):
         base_words = [
-            "mock", "stub", "skeleton", "placeholder", "scaffold",
-            "temporary", "hardcoded", "hardwired", "no-op", "dummy", "fake",
+            "mock",
+            "stub",
+            "skeleton",
+            "placeholder",
+            "scaffold",
+            "temporary",
+            "hardcoded",
+            "hardwired",
+            "no-op",
+            "dummy",
+            "fake",
         ]
         for word in base_words:
             matches = [k for k in PREFERRED_ALTERNATIVES if word in k or k in word]
@@ -59,10 +68,12 @@ class TestVocabularyIdentity:
         from superclaude.cli.roadmap.obligation_scanner import (
             SCAFFOLD_TERMS as scanner_terms,
         )
+
         assert scanner_terms is SCAFFOLD_TERMS
 
     def test_scanner_discharge_terms_is_same_object(self):
         from superclaude.cli.roadmap.obligation_scanner import (
             DISCHARGE_TERMS as scanner_terms,
         )
+
         assert scanner_terms is DISCHARGE_TERMS

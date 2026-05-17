@@ -9,7 +9,6 @@ Tests the multi-agent validation system:
 """
 
 
-
 def aggregate_scores(quality_score: int, review_score: int) -> dict:
     """
     Reimplements score aggregation from SKILL.md T5.3:

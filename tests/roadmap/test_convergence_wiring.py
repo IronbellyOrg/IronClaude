@@ -6,6 +6,7 @@ convergence pass/fail paths.
 
 All tests emit JSONL audit records via the ``audit_trail`` fixture per REQ-078.
 """
+
 import hashlib
 from pathlib import Path
 
@@ -252,7 +253,15 @@ class TestRemediationDictAccess:
 
         d = active_highs[0]
         # Verify all keys needed by _run_remediation in executor.py
-        required_keys = ["stable_id", "severity", "dimension", "description", "location", "files_affected", "status"]
+        required_keys = [
+            "stable_id",
+            "severity",
+            "dimension",
+            "description",
+            "location",
+            "files_affected",
+            "status",
+        ]
         for key in required_keys:
             assert key in d
 
@@ -327,7 +336,8 @@ class TestTurnledgerBudgetParams:
                 "CHECKER_COST": CHECKER_COST,
                 "REMEDIATION_COST": REMEDIATION_COST,
                 "CONVERGENCE_PASS_CREDIT": CONVERGENCE_PASS_CREDIT,
-                "budget_covers_one_cycle": MAX_CONVERGENCE_BUDGET >= CHECKER_COST + REMEDIATION_COST,
+                "budget_covers_one_cycle": MAX_CONVERGENCE_BUDGET
+                >= CHECKER_COST + REMEDIATION_COST,
             },
             expected={
                 "all_positive_ints": True,
@@ -552,4 +562,6 @@ class TestConvergenceDefaultOn:
                 fidelity_step = entry
 
         assert fidelity_step is not None
-        assert fidelity_step.gate is SPEC_FIDELITY_GATE, "Convergence OFF should use legacy gate"
+        assert fidelity_step.gate is SPEC_FIDELITY_GATE, (
+            "Convergence OFF should use legacy gate"
+        )

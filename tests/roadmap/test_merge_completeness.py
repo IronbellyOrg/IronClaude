@@ -183,9 +183,7 @@ def test_frontmatter_oqs_positive_but_no_subsection(tmp_path: Path) -> None:
 
     missing = _validate_merge_completeness(out)
 
-    assert any(
-        "open_questions > 0" in m for m in missing
-    ), missing
+    assert any("open_questions > 0" in m for m in missing), missing
 
 
 def test_missing_integration_points_flagged(tmp_path: Path) -> None:
@@ -198,9 +196,7 @@ def test_missing_integration_points_flagged(tmp_path: Path) -> None:
 
     missing = _validate_merge_completeness(out)
 
-    assert any(
-        "Integration Points — M2" in m for m in missing
-    ), missing
+    assert any("Integration Points — M2" in m for m in missing), missing
 
 
 def test_missing_output_file_returns_nonempty(tmp_path: Path) -> None:

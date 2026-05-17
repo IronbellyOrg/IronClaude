@@ -21,9 +21,9 @@ class TestCheckParsedRequestFields:
     """Validate parsed request field detection."""
 
     def test_check_parsed_request_fields_valid(self) -> None:
-        content = '''
+        content = """
 {"GOAL": "Build a user dashboard", "PRODUCT_SLUG": "dashboard", "PRD_SCOPE": "feature", "SCENARIO": "B"}
-'''
+"""
         assert _check_parsed_request_fields(content) is True
 
     def test_check_parsed_request_fields_valid_markdown(self) -> None:

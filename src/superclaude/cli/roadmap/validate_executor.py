@@ -179,7 +179,9 @@ def validate_run_step(
     )
 
 
-def _validate_input_files(output_dir: Path) -> tuple[list[Path], Path | None, Path | None, Path | None]:
+def _validate_input_files(
+    output_dir: Path,
+) -> tuple[list[Path], Path | None, Path | None, Path | None]:
     """Validate required input files and resolve original source inputs from state.
 
     Returns
@@ -207,7 +209,11 @@ def _validate_input_files(output_dir: Path) -> tuple[list[Path], Path | None, Pa
 
     state = read_state(output_dir / ".roadmap-state.json")
     if state is not None:
-        for key, attr in (("spec_file", "spec_file"), ("tdd_file", "tdd_file"), ("prd_file", "prd_file")):
+        for key, attr in (
+            ("spec_file", "spec_file"),
+            ("tdd_file", "tdd_file"),
+            ("prd_file", "prd_file"),
+        ):
             raw = state.get(key)
             if raw is not None:
                 p = Path(raw)
@@ -222,7 +228,8 @@ def _validate_input_files(output_dir: Path) -> tuple[list[Path], Path | None, Pa
                     _log.warning(
                         "Source input %s=%s from .roadmap-state.json not found; "
                         "validation will skip input-aware dimensions",
-                        key, raw,
+                        key,
+                        raw,
                     )
 
     return pipeline_paths, spec_file, tdd_file, prd_file

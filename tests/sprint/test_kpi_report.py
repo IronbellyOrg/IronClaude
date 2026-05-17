@@ -1,6 +1,5 @@
 """Tests for KPI report generation from gate and remediation metrics."""
 
-
 from superclaude.cli.audit.wiring_gate import WiringFinding, WiringReport
 from superclaude.cli.pipeline.trailing_gate import (
     DeferredRemediationLog,
@@ -182,7 +181,9 @@ class TestWiringKPIFields:
         assert r.files_skipped == 0
 
     def test_build_with_turn_ledger(self):
-        ledger = TurnLedger(initial_budget=20, wiring_turns_used=5, wiring_turns_credited=3)
+        ledger = TurnLedger(
+            initial_budget=20, wiring_turns_used=5, wiring_turns_credited=3
+        )
         report = build_kpi_report(gate_results=[], turn_ledger=ledger)
         assert report.wiring_turns_used == 5
         assert report.wiring_turns_credited == 3
@@ -190,7 +191,10 @@ class TestWiringKPIFields:
     def test_build_with_wiring_report(self):
         wr = WiringReport(
             files_skipped=7,
-            unwired_callables=[_finding("unwired_callable"), _finding("unwired_callable")],
+            unwired_callables=[
+                _finding("unwired_callable"),
+                _finding("unwired_callable"),
+            ],
             orphan_modules=[_finding("orphan_module")],
             unwired_registries=[],
         )
@@ -220,7 +224,9 @@ class TestWiringKPIFields:
         assert report.wiring_turns_credited >= 0
 
     def test_build_with_both_turn_ledger_and_wiring_report(self):
-        ledger = TurnLedger(initial_budget=20, wiring_turns_used=4, wiring_turns_credited=2)
+        ledger = TurnLedger(
+            initial_budget=20, wiring_turns_used=4, wiring_turns_credited=2
+        )
         wr = WiringReport(
             files_skipped=3,
             unwired_callables=[_finding("unwired_callable")],

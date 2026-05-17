@@ -102,15 +102,16 @@ def _frontmatter_matches(task_dir: Path, product_name: str) -> bool:
     for md_file in task_dir.glob("*.md"):
         try:
             content = md_file.read_text(encoding="utf-8")[:2000]
-            fm_match = re.search(
-                r"^---\s*\n(.*?)\n---", content, re.DOTALL
-            )
+            fm_match = re.search(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
             if fm_match:
                 fm_text = fm_match.group(1)
                 name_match = re.search(
                     r"product_name\s*:\s*(.+)", fm_text, re.IGNORECASE
                 )
-                if name_match and name_match.group(1).strip().lower() == product_name.lower():
+                if (
+                    name_match
+                    and name_match.group(1).strip().lower() == product_name.lower()
+                ):
                     return True
         except (OSError, UnicodeDecodeError):
             continue

@@ -388,9 +388,7 @@ class TestDomainModels:
         assert actual == expected
 
     def test_domain_models_convergence_state_enum_exists(self) -> None:
-        assert issubclass(
-            ConvergenceState, type(ConvergenceState.RUNNING).__mro__[0]
-        )
+        assert issubclass(ConvergenceState, type(ConvergenceState.RUNNING).__mro__[0])
 
     def test_domain_models_convergence_state_members(self) -> None:
         expected = {

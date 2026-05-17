@@ -68,7 +68,9 @@ class TestSessionHelpers:
 
     def test_is_tmux_available_false_when_inside_tmux(self, monkeypatch):
         monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")
-        with patch("superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"):
+        with patch(
+            "superclaude.cli.sprint.tmux.shutil.which", return_value="/usr/bin/tmux"
+        ):
             assert tmux.is_tmux_available() is False
 
     def test_is_tmux_available_false_when_not_installed(self, monkeypatch):

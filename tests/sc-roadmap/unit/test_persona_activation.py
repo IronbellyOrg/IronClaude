@@ -9,7 +9,6 @@ Tests the persona activation rules defined in SKILL.md:
 """
 
 
-
 def select_personas(domain_distribution: dict) -> dict:
     """
     Reimplements persona activation from SKILL.md T2.5:

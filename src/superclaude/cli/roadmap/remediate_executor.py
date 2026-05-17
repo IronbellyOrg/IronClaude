@@ -395,9 +395,7 @@ def _check_diff_size(
     if max_lines == 0:
         return True
 
-    matching = sum(
-        1 for a, b in zip(original_lines, current_lines) if a == b
-    )
+    matching = sum(1 for a, b in zip(original_lines, current_lines) if a == b)
     changed_lines = max_lines - matching
     diff_pct = (changed_lines / max_lines) * 100
 
@@ -446,7 +444,9 @@ def _handle_file_rollback(
 
     for finding in findings_by_file.get(failed_file, []):
         finding.status = "FAILED"
-        _log.info("Marked finding %s as FAILED (file rollback: %s)", finding.id, failed_file)
+        _log.info(
+            "Marked finding %s as FAILED (file rollback: %s)", finding.id, failed_file
+        )
 
 
 def _check_cross_file_coherence(
@@ -818,7 +818,9 @@ def execute_remediation(
     # Step 5: Cross-file coherence check
     if failed_files and successful_files:
         cascade_rolled_back = _check_cross_file_coherence(
-            successful_files, failed_files, findings_by_file,
+            successful_files,
+            failed_files,
+            findings_by_file,
         )
         for f in cascade_rolled_back:
             successful_files.remove(f)

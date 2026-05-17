@@ -148,9 +148,7 @@ class PrdMonitor:
         # Fix cycle from structured event
         fix_cycle = event.get("fix_cycle")
         if isinstance(fix_cycle, int):
-            self._state.fix_cycle_count = max(
-                self._state.fix_cycle_count, fix_cycle
-            )
+            self._state.fix_cycle_count = max(self._state.fix_cycle_count, fix_cycle)
 
     def _extract_from_text(self, text: str) -> None:
         """Extract signals from text using regex patterns."""
@@ -181,9 +179,7 @@ class PrdMonitor:
         cycle_match = _FIX_CYCLE_PATTERN.search(text)
         if cycle_match:
             cycle_num = int(cycle_match.group(1))
-            self._state.fix_cycle_count = max(
-                self._state.fix_cycle_count, cycle_num
-            )
+            self._state.fix_cycle_count = max(self._state.fix_cycle_count, cycle_num)
 
         # Fix cycle counter (text)
         if not cycle_match:

@@ -65,7 +65,9 @@ class FunctionSignature:
 class ThresholdExpression:
     """A numeric threshold extracted from text (e.g. '< 5s', '>= 90%')."""
 
-    operator: str  # '<', '<=', '>', '>=', '==', 'minimum', 'maximum', 'at least', 'at most'
+    operator: (
+        str  # '<', '<=', '>', '>=', '==', 'minimum', 'maximum', 'at least', 'at most'
+    )
     value: str  # raw numeric string including unit
     raw: str  # original matched text
 
@@ -103,13 +105,14 @@ class ParseResult:
 
 # ---------- YAML Frontmatter ----------
 
+
 def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]:
     """Extract YAML frontmatter from document text.
 
     Returns parsed dict. On malformed YAML, returns partial parse via
     line-by-line key: value extraction and appends ParseWarning.
     """
-    match = re.match(r'^---\s*\n(.*?)\n---\s*\n', text, re.DOTALL)
+    match = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
     if not match:
         return {}
 
@@ -118,6 +121,7 @@ def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]
     # Try proper YAML parsing first
     try:
         import yaml
+
         result = yaml.safe_load(yaml_text)
         if isinstance(result, dict):
             return result
@@ -125,11 +129,13 @@ def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]
         pass
 
     # Fallback: line-by-line extraction
-    warnings.append(ParseWarning(
-        category="yaml",
-        message="Malformed YAML frontmatter; falling back to line-by-line extraction",
-        location="lines 1-*",
-    ))
+    warnings.append(
+        ParseWarning(
+            category="yaml",
+            message="Malformed YAML frontmatter; falling back to line-by-line extraction",
+            location="lines 1-*",
+        )
+    )
     result: dict[str, Any] = {}
     current_key = ""
     current_list: list[str] = []
@@ -155,7 +161,7 @@ def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]
         colon_idx = stripped.find(":")
         if colon_idx > 0:
             key = stripped[:colon_idx].strip()
-            value = stripped[colon_idx + 1:].strip()
+            value = stripped[colon_idx + 1 :].strip()
             current_key = key
 
             if not value:
@@ -173,6 +179,7 @@ def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]
 
 # ---------- Markdown Tables ----------
 
+
 def extract_tables(text: str, warnings: list[ParseWarning]) -> list[MarkdownTable]:
     """Extract markdown tables keyed by preceding heading path."""
     lines = text.splitlines()
@@ -184,7 +191,7 @@ def extract_tables(text: str, warnings: list[ParseWarning]) -> list[MarkdownTabl
         line = lines[i]
 
         # Track headings for heading_path
-        heading_match = re.match(r'^(#{1,6})\s+(.+)', line)
+        heading_match = re.match(r"^(#{1,6})\s+(.+)", line)
         if heading_match:
             level = len(heading_match.group(1))
             title = heading_match.group(2).strip()
@@ -195,44 +202,54 @@ def extract_tables(text: str, warnings: list[ParseWarning]) -> list[MarkdownTabl
             continue
 
         # Detect table: line with pipes
-        if '|' in line and line.strip().startswith('|'):
+        if "|" in line and line.strip().startswith("|"):
             table_start = i
             header_line = line
             headers = _parse_table_row(header_line)
 
             # Check for separator line
-            if i + 1 < len(lines) and re.match(r'^\s*\|[\s\-:|]+\|', lines[i + 1]):
+            if i + 1 < len(lines) and re.match(r"^\s*\|[\s\-:|]+\|", lines[i + 1]):
                 i += 2  # skip header + separator
             else:
                 # Irregular table - no separator
-                warnings.append(ParseWarning(
-                    category="table",
-                    message="Table missing separator line",
-                    location=f"line {i + 1}",
-                ))
+                warnings.append(
+                    ParseWarning(
+                        category="table",
+                        message="Table missing separator line",
+                        location=f"line {i + 1}",
+                    )
+                )
                 i += 1
 
             # Collect data rows
             rows: list[TableRow] = []
-            while i < len(lines) and '|' in lines[i] and lines[i].strip().startswith('|'):
+            while (
+                i < len(lines) and "|" in lines[i] and lines[i].strip().startswith("|")
+            ):
                 cells = _parse_table_row(lines[i])
                 if len(cells) != len(headers):
-                    warnings.append(ParseWarning(
-                        category="table",
-                        message=f"Row has {len(cells)} columns, header has {len(headers)}",
-                        location=f"line {i + 1}",
-                    ))
+                    warnings.append(
+                        ParseWarning(
+                            category="table",
+                            message=f"Row has {len(cells)} columns, header has {len(headers)}",
+                            location=f"line {i + 1}",
+                        )
+                    )
                 rows.append(TableRow(cells=cells))
                 i += 1
 
-            heading_path = "/".join(h for _, h in heading_stack) if heading_stack else ""
-            tables.append(MarkdownTable(
-                heading_path=heading_path,
-                headers=headers,
-                rows=rows,
-                start_line=table_start + 1,
-                end_line=i,
-            ))
+            heading_path = (
+                "/".join(h for _, h in heading_stack) if heading_stack else ""
+            )
+            tables.append(
+                MarkdownTable(
+                    heading_path=heading_path,
+                    headers=headers,
+                    rows=rows,
+                    start_line=table_start + 1,
+                    end_line=i,
+                )
+            )
             continue
 
         i += 1
@@ -243,14 +260,15 @@ def extract_tables(text: str, warnings: list[ParseWarning]) -> list[MarkdownTabl
 def _parse_table_row(line: str) -> list[str]:
     """Parse a markdown table row into cells."""
     stripped = line.strip()
-    if stripped.startswith('|'):
+    if stripped.startswith("|"):
         stripped = stripped[1:]
-    if stripped.endswith('|'):
+    if stripped.endswith("|"):
         stripped = stripped[:-1]
-    return [cell.strip() for cell in stripped.split('|')]
+    return [cell.strip() for cell in stripped.split("|")]
 
 
 # ---------- Fenced Code Blocks ----------
+
 
 def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlock]:
     """Extract fenced code blocks with language annotation."""
@@ -259,7 +277,7 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
     i = 0
 
     while i < len(lines):
-        match = re.match(r'^(`{3,}|~{3,})\s*(.*)', lines[i])
+        match = re.match(r"^(`{3,}|~{3,})\s*(.*)", lines[i])
         if match:
             fence_char = match.group(1)[0]
             fence_len = len(match.group(1))
@@ -267,28 +285,35 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
             start = i
 
             if not language:
-                warnings.append(ParseWarning(
-                    category="code_block",
-                    message="Fenced code block missing language tag",
-                    location=f"line {i + 1}",
-                ))
+                warnings.append(
+                    ParseWarning(
+                        category="code_block",
+                        message="Fenced code block missing language tag",
+                        location=f"line {i + 1}",
+                    )
+                )
 
             # Find closing fence
             i += 1
             content_lines: list[str] = []
             while i < len(lines):
-                close_match = re.match(r'^' + re.escape(fence_char) + r'{' + str(fence_len) + r',}\s*$', lines[i])
+                close_match = re.match(
+                    r"^" + re.escape(fence_char) + r"{" + str(fence_len) + r",}\s*$",
+                    lines[i],
+                )
                 if close_match:
                     break
                 content_lines.append(lines[i])
                 i += 1
 
-            blocks.append(CodeBlock(
-                language=language,
-                content="\n".join(content_lines),
-                start_line=start + 1,
-                end_line=i + 1,
-            ))
+            blocks.append(
+                CodeBlock(
+                    language=language,
+                    content="\n".join(content_lines),
+                    start_line=start + 1,
+                    end_line=i + 1,
+                )
+            )
         i += 1
 
     return blocks
@@ -297,11 +322,11 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
 # ---------- Requirement IDs ----------
 
 _REQUIREMENT_PATTERNS: dict[str, re.Pattern[str]] = {
-    "FR": re.compile(r'\bFR-\d+(?:\.\d+)?\b'),
-    "NFR": re.compile(r'\bNFR-\d+(?:\.\d+)?\b'),
-    "SC": re.compile(r'\bSC-\d+\b'),
-    "G": re.compile(r'\bG-\d+\b'),
-    "D": re.compile(r'\bD-?\d+\b'),
+    "FR": re.compile(r"\bFR-\d+(?:\.\d+)?\b"),
+    "NFR": re.compile(r"\bNFR-\d+(?:\.\d+)?\b"),
+    "SC": re.compile(r"\bSC-\d+\b"),
+    "G": re.compile(r"\bG-\d+\b"),
+    "D": re.compile(r"\bD-?\d+\b"),
 }
 
 
@@ -321,29 +346,31 @@ def extract_requirement_ids(text: str) -> dict[str, list[str]]:
 
 # ---------- Function Signatures ----------
 
-_FUNC_SIG_RE = re.compile(
-    r'def\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*(.+?))?:'
-)
+_FUNC_SIG_RE = re.compile(r"def\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*(.+?))?:")
 
 
-def extract_function_signatures(code_blocks: list[CodeBlock]) -> list[FunctionSignature]:
+def extract_function_signatures(
+    code_blocks: list[CodeBlock],
+) -> list[FunctionSignature]:
     """Extract Python function signatures from fenced code blocks."""
     signatures: list[FunctionSignature] = []
     for block in code_blocks:
         if block.language and block.language.lower() not in ("python", "py", ""):
             continue
         for match in _FUNC_SIG_RE.finditer(block.content):
-            signatures.append(FunctionSignature(
-                name=match.group(1),
-                params=match.group(2).strip(),
-                return_type=(match.group(3) or "").strip(),
-            ))
+            signatures.append(
+                FunctionSignature(
+                    name=match.group(1),
+                    params=match.group(2).strip(),
+                    return_type=(match.group(3) or "").strip(),
+                )
+            )
     return signatures
 
 
 # ---------- Literal Values ----------
 
-_LITERAL_RE = re.compile(r'Literal\[([^\]]+)\]')
+_LITERAL_RE = re.compile(r"Literal\[([^\]]+)\]")
 
 
 def extract_literal_values(code_blocks: list[CodeBlock]) -> list[list[str]]:
@@ -351,7 +378,9 @@ def extract_literal_values(code_blocks: list[CodeBlock]) -> list[list[str]]:
     results: list[list[str]] = []
     for block in code_blocks:
         for match in _LITERAL_RE.finditer(block.content):
-            values = [v.strip().strip('"').strip("'") for v in match.group(1).split(",")]
+            values = [
+                v.strip().strip('"').strip("'") for v in match.group(1).split(",")
+            ]
             results.append(values)
     return results
 
@@ -359,11 +388,11 @@ def extract_literal_values(code_blocks: list[CodeBlock]) -> list[list[str]]:
 # ---------- Numeric Thresholds ----------
 
 _THRESHOLD_RE = re.compile(
-    r'(?:'
-    r'([<>]=?|==)\s*(\d+(?:\.\d+)?[%smhKMGT]*\w*)'
-    r'|'
-    r'(minimum|maximum|at\s+least|at\s+most)\s+(\d+(?:\.\d+)?[%smhKMGT]*\w*)'
-    r')',
+    r"(?:"
+    r"([<>]=?|==)\s*(\d+(?:\.\d+)?[%smhKMGT]*\w*)"
+    r"|"
+    r"(minimum|maximum|at\s+least|at\s+most)\s+(\d+(?:\.\d+)?[%smhKMGT]*\w*)"
+    r")",
     re.IGNORECASE,
 )
 
@@ -378,29 +407,31 @@ def extract_thresholds(text: str) -> list[ThresholdExpression]:
             continue
         seen.add(raw)
         if match.group(1):
-            thresholds.append(ThresholdExpression(
-                operator=match.group(1),
-                value=match.group(2),
-                raw=raw,
-            ))
+            thresholds.append(
+                ThresholdExpression(
+                    operator=match.group(1),
+                    value=match.group(2),
+                    raw=raw,
+                )
+            )
         else:
-            thresholds.append(ThresholdExpression(
-                operator=match.group(3).lower(),
-                value=match.group(4),
-                raw=raw,
-            ))
+            thresholds.append(
+                ThresholdExpression(
+                    operator=match.group(3).lower(),
+                    value=match.group(4),
+                    raw=raw,
+                )
+            )
     return thresholds
 
 
 # ---------- File Paths ----------
 
-_FILE_PATH_RE = re.compile(
-    r'`((?:src/|tests/|docs/|scripts/|\./)[^\s`]+)`'
-)
+_FILE_PATH_RE = re.compile(r"`((?:src/|tests/|docs/|scripts/|\./)[^\s`]+)`")
 
-_TABLE_PATH_RE = re.compile(r'(?:src/|tests/|docs/|scripts/|\./)\S+')
+_TABLE_PATH_RE = re.compile(r"(?:src/|tests/|docs/|scripts/|\./)\S+")
 
-_TOKEN_BOUNDARY_CHARS = ' \t\n|()[]<>"\''
+_TOKEN_BOUNDARY_CHARS = " \t\n|()[]<>\"'"
 
 
 def _looks_like_file_path(candidate: str, cell: str = "", start: int = 0) -> bool:
@@ -423,16 +454,16 @@ def _looks_like_file_path(candidate: str, cell: str = "", start: int = 0) -> boo
         return False
     if any(c in candidate for c in '{}*?`\\"') or any(c.isspace() for c in candidate):
         return False
-    if re.search(r':\d+', candidate):
+    if re.search(r":\d+", candidate):
         return False
-    if candidate.endswith('/') or not candidate.rsplit('/', 1)[-1]:
+    if candidate.endswith("/") or not candidate.rsplit("/", 1)[-1]:
         return False
     if cell:
         i = start - 1
         while i >= 0 and cell[i] not in _TOKEN_BOUNDARY_CHARS:
             i -= 1
-        token_prefix = cell[i + 1:start]
-        if '://' in token_prefix:
+        token_prefix = cell[i + 1 : start]
+        if "://" in token_prefix:
             return False
     return True
 
@@ -454,7 +485,7 @@ def extract_file_paths_from_tables(tables: list[MarkdownTable]) -> list[str]:
         for row in table.rows:
             for cell in row.cells:
                 for match in _TABLE_PATH_RE.finditer(cell):
-                    raw = match.group(0).strip('`').rstrip('.,;:)')
+                    raw = match.group(0).strip("`").rstrip(".,;:)")
                     if _looks_like_file_path(raw, cell, match.start()):
                         paths.add(raw)
     return sorted(paths)
@@ -462,7 +493,7 @@ def extract_file_paths_from_tables(tables: list[MarkdownTable]) -> list[str]:
 
 # ---------- Section Splitting (FR-5) ----------
 
-_HEADING_RE = re.compile(r'^(#{1,6})\s+(.+)', re.MULTILINE)
+_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+)", re.MULTILINE)
 
 
 def split_into_sections(text: str) -> list[SpecSection]:
@@ -476,18 +507,20 @@ def split_into_sections(text: str) -> list[SpecSection]:
     heading_stack: list[tuple[int, str]] = []
 
     # Handle YAML frontmatter
-    fm_match = re.match(r'^---\s*\n(.*?\n)---\s*\n', text, re.DOTALL)
+    fm_match = re.match(r"^---\s*\n(.*?\n)---\s*\n", text, re.DOTALL)
     content_start = 0
     if fm_match:
-        fm_end = text[:fm_match.end()].count('\n')
-        sections.append(SpecSection(
-            heading="frontmatter",
-            heading_path="frontmatter",
-            level=0,
-            content=fm_match.group(0),
-            start_line=1,
-            end_line=fm_end,
-        ))
+        fm_end = text[: fm_match.end()].count("\n")
+        sections.append(
+            SpecSection(
+                heading="frontmatter",
+                heading_path="frontmatter",
+                level=0,
+                content=fm_match.group(0),
+                start_line=1,
+                end_line=fm_end,
+            )
+        )
         content_start = fm_end
 
     # Find all headings with their line positions
@@ -495,7 +528,7 @@ def split_into_sections(text: str) -> list[SpecSection]:
     for i, line in enumerate(lines):
         if i < content_start:
             continue
-        m = re.match(r'^(#{1,6})\s+(.+)', line)
+        m = re.match(r"^(#{1,6})\s+(.+)", line)
         if m:
             heading_positions.append((i, len(m.group(1)), m.group(2).strip()))
 
@@ -505,26 +538,30 @@ def split_into_sections(text: str) -> list[SpecSection]:
         if first_heading_line > content_start:
             preamble = "".join(lines[content_start:first_heading_line])
             if preamble.strip():
-                sections.append(SpecSection(
+                sections.append(
+                    SpecSection(
+                        heading="preamble",
+                        heading_path="preamble",
+                        level=0,
+                        content=preamble,
+                        start_line=content_start + 1,
+                        end_line=first_heading_line,
+                    )
+                )
+    elif content_start < len(lines):
+        # No headings at all - entire content is preamble
+        preamble = "".join(lines[content_start:])
+        if preamble.strip():
+            sections.append(
+                SpecSection(
                     heading="preamble",
                     heading_path="preamble",
                     level=0,
                     content=preamble,
                     start_line=content_start + 1,
-                    end_line=first_heading_line,
-                ))
-    elif content_start < len(lines):
-        # No headings at all - entire content is preamble
-        preamble = "".join(lines[content_start:])
-        if preamble.strip():
-            sections.append(SpecSection(
-                heading="preamble",
-                heading_path="preamble",
-                level=0,
-                content=preamble,
-                start_line=content_start + 1,
-                end_line=len(lines),
-            ))
+                    end_line=len(lines),
+                )
+            )
 
     # Process each heading section
     for idx, (line_idx, level, title) in enumerate(heading_positions):
@@ -540,14 +577,16 @@ def split_into_sections(text: str) -> list[SpecSection]:
             end_idx = len(lines)
 
         content = "".join(lines[line_idx:end_idx])
-        sections.append(SpecSection(
-            heading=title,
-            heading_path=heading_path,
-            level=level,
-            content=content,
-            start_line=line_idx + 1,
-            end_line=end_idx,
-        ))
+        sections.append(
+            SpecSection(
+                heading=title,
+                heading_path=heading_path,
+                level=level,
+                content=content,
+                start_line=line_idx + 1,
+                end_line=end_idx,
+            )
+        )
 
     return sections
 
@@ -564,6 +603,7 @@ DIMENSION_SECTION_MAP: dict[str, list[str]] = {
 
 
 # ---------- Full Parse ----------
+
 
 def parse_document(text: str) -> ParseResult:
     """Parse a spec or roadmap document, extracting all structured data.

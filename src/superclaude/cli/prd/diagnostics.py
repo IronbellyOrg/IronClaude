@@ -72,15 +72,15 @@ class DiagnosticCollector:
         """Record a step result for diagnostic analysis."""
         self._step_results.append(result)
 
-    def record_gate_failure(
-        self, step_id: str, reason: str, enforcement: str
-    ) -> None:
+    def record_gate_failure(self, step_id: str, reason: str, enforcement: str) -> None:
         """Record a gate failure."""
-        self._gate_failures.append({
-            "step_id": step_id,
-            "reason": reason,
-            "enforcement": enforcement,
-        })
+        self._gate_failures.append(
+            {
+                "step_id": step_id,
+                "reason": reason,
+                "enforcement": enforcement,
+            }
+        )
 
     def record_fix_cycle(
         self,
@@ -90,29 +90,23 @@ class DiagnosticCollector:
         agent_id: str = "",
     ) -> None:
         """Record a fix cycle attempt."""
-        self._fix_cycle_history.append({
-            "step_id": step_id,
-            "cycle_number": cycle_number,
-            "verdict": verdict,
-            "agent_id": agent_id,
-        })
+        self._fix_cycle_history.append(
+            {
+                "step_id": step_id,
+                "cycle_number": cycle_number,
+                "verdict": verdict,
+                "agent_id": agent_id,
+            }
+        )
 
-    def build_report(
-        self, pipeline_result: PrdPipelineResult
-    ) -> PrdDiagnosticReport:
+    def build_report(self, pipeline_result: PrdPipelineResult) -> PrdDiagnosticReport:
         """Build the complete diagnostic report."""
         report = PrdDiagnosticReport(config=self._config)
         report.total_steps = len(self._step_results)
-        report.steps_passed = sum(
-            1 for r in self._step_results if r.status.is_success
-        )
-        report.steps_failed = sum(
-            1 for r in self._step_results if r.status.is_failure
-        )
+        report.steps_passed = sum(1 for r in self._step_results if r.status.is_success)
+        report.steps_failed = sum(1 for r in self._step_results if r.status.is_failure)
         report.steps_skipped = sum(
-            1
-            for r in self._step_results
-            if r.status == PrdStepStatus.SKIPPED
+            1 for r in self._step_results if r.status == PrdStepStatus.SKIPPED
         )
 
         # Collect failure details
@@ -222,8 +216,7 @@ class ReportGenerator:
             lines.append("## Gate Failures")
             for gf in report.gate_failures:
                 lines.append(
-                    f"- **{gf['step_id']}** [{gf['enforcement']}]: "
-                    f"{gf['reason']}"
+                    f"- **{gf['step_id']}** [{gf['enforcement']}]: {gf['reason']}"
                 )
 
         if report.fix_cycle_history:

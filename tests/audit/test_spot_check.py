@@ -1,6 +1,5 @@
 """Tests for post-consolidation spot-check validator (T04.02 / D-0028)."""
 
-
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V1Category,

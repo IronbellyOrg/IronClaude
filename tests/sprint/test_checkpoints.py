@@ -74,8 +74,7 @@ class TestExtractCheckpointPaths:
     def test_absolute_path_preserved(self, tmp_path: Path):
         phase_file = tmp_path / "phase.md"
         phase_file.write_text(
-            "### Checkpoint: Abs\n"
-            "Checkpoint Report Path: /abs/checkpoints/CP.md\n"
+            "### Checkpoint: Abs\nCheckpoint Report Path: /abs/checkpoints/CP.md\n"
         )
         result = extract_checkpoint_paths(phase_file, tmp_path)
         assert result == [("Abs", Path("/abs/checkpoints/CP.md"))]
@@ -83,16 +82,12 @@ class TestExtractCheckpointPaths:
     def test_name_falls_back_to_basename(self, tmp_path: Path):
         phase_file = tmp_path / "phase.md"
         # Path declaration with no preceding `### Checkpoint:` heading.
-        phase_file.write_text(
-            "Checkpoint Report Path: checkpoints/CP-P01-END.md\n"
-        )
+        phase_file.write_text("Checkpoint Report Path: checkpoints/CP-P01-END.md\n")
         result = extract_checkpoint_paths(phase_file, tmp_path)
         assert result[0][0] == "CP-P01-END.md"
 
     def test_missing_phase_file_returns_empty(self, tmp_path: Path):
-        assert extract_checkpoint_paths(
-            tmp_path / "does-not-exist.md", tmp_path
-        ) == []
+        assert extract_checkpoint_paths(tmp_path / "does-not-exist.md", tmp_path) == []
 
     def test_wave4_numbered_checkpoint_task_form(self, tmp_path: Path):
         """Wave-4 emits checkpoints as numbered tasks; name must resolve to
@@ -157,7 +152,9 @@ class TestVerifyCheckpointFiles:
 # ---------------------------------------------------------------------------
 
 
-def _build_phase(tmp_path: Path, *, with_missing: bool = True) -> tuple[SprintConfig, Phase]:
+def _build_phase(
+    tmp_path: Path, *, with_missing: bool = True
+) -> tuple[SprintConfig, Phase]:
     """Create a sprint workspace with a phase that declares two checkpoints."""
     phases_dir = tmp_path / "phases"
     phases_dir.mkdir()
@@ -201,9 +198,7 @@ class TestVerifyCheckpointsGate:
         logger = SprintLogger(config)
         buf = io.StringIO()
         with redirect_stdout(buf):
-            new_status = _verify_checkpoints(
-                config, phase, PhaseStatus.PASS, logger
-            )
+            new_status = _verify_checkpoints(config, phase, PhaseStatus.PASS, logger)
         assert new_status == PhaseStatus.PASS
         assert buf.getvalue() == ""
         events = [
@@ -222,9 +217,7 @@ class TestVerifyCheckpointsGate:
         logger = SprintLogger(config)
         buf = io.StringIO()
         with redirect_stdout(buf):
-            new_status = _verify_checkpoints(
-                config, phase, PhaseStatus.PASS, logger
-            )
+            new_status = _verify_checkpoints(config, phase, PhaseStatus.PASS, logger)
         assert new_status == PhaseStatus.PASS
         assert "Phase 3" in buf.getvalue()
         assert "checkpoint" in buf.getvalue().lower()
@@ -331,10 +324,7 @@ class TestBuildManifest:
     def test_single_phase_with_one_checkpoint(self, tmp_path: Path):
         p1 = tmp_path / "phase-1-tasklist.md"
         index = tmp_path / "tasklist-index.md"
-        index.write_text(
-            "# Sprint\n\n| # | File |\n|---|------|\n"
-            f"| 1 | {p1.name} |\n"
-        )
+        index.write_text(f"# Sprint\n\n| # | File |\n|---|------|\n| 1 | {p1.name} |\n")
         p1.write_text(
             "### Checkpoint: End of Phase 1\n"
             "Checkpoint Report Path: checkpoints/CP-P01-END.md\n"
@@ -440,25 +430,17 @@ class TestRecoverMissingCheckpoints:
     def test_idempotent_second_run_does_not_overwrite(self, tmp_path: Path):
         index, _, _, p3 = _seed_sprint(tmp_path)
         (tmp_path / "artifacts" / "D-0013").mkdir(parents=True)
-        (tmp_path / "artifacts" / "D-0013" / "work.md").write_text(
-            "Task T03.01 worked"
-        )
+        (tmp_path / "artifacts" / "D-0013" / "work.md").write_text("Task T03.01 worked")
 
         manifest = build_manifest(index, tmp_path)
-        first = recover_missing_checkpoints(
-            manifest, tmp_path / "artifacts", {3: p3}
-        )
+        first = recover_missing_checkpoints(manifest, tmp_path / "artifacts", {3: p3})
         # Snapshot bodies after first run.
         snapshot = {
-            e.expected_path: e.expected_path.read_text()
-            for e in first
-            if e.recovered
+            e.expected_path: e.expected_path.read_text() for e in first if e.recovered
         }
         # Fresh manifest — these files now exist on disk.
         manifest2 = build_manifest(index, tmp_path)
-        second = recover_missing_checkpoints(
-            manifest2, tmp_path / "artifacts", {3: p3}
-        )
+        second = recover_missing_checkpoints(manifest2, tmp_path / "artifacts", {3: p3})
         for path, content in snapshot.items():
             assert path.read_text() == content, f"overwrote {path}"
         # Second-run entries should reflect the files already exist.
@@ -488,10 +470,7 @@ class TestRecoverMissingCheckpoints:
         """
         p1 = tmp_path / "phase-1-tasklist.md"
         index = tmp_path / "tasklist-index.md"
-        index.write_text(
-            "# Sprint\n\n| # | File |\n|---|------|\n"
-            f"| 1 | {p1.name} |\n"
-        )
+        index.write_text(f"# Sprint\n\n| # | File |\n|---|------|\n| 1 | {p1.name} |\n")
         p1.write_text(
             "### T01.06 -- Checkpoint: M1 Foundation Verified\n"
             "**Purpose:** Verify M1 foundation deliverables.\n"
@@ -573,9 +552,7 @@ class TestVerifyCheckpointsCLI:
             "Task T03.01 delivered configuration module."
         )
         runner = CliRunner()
-        result = runner.invoke(
-            verify_checkpoints, [str(tmp_path), "--recover"]
-        )
+        result = runner.invoke(verify_checkpoints, [str(tmp_path), "--recover"])
         assert result.exit_code == 0, result.output
         assert "recovered" in result.output.lower()
         # After recovery, files must exist on disk.

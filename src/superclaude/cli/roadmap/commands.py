@@ -30,7 +30,9 @@ def roadmap_group():
 
 
 @roadmap_group.command()
-@click.argument("input_files", nargs=-1, required=True, type=click.Path(exists=True, path_type=Path))
+@click.argument(
+    "input_files", nargs=-1, required=True, type=click.Path(exists=True, path_type=Path)
+)
 @click.option(
     "--agents",
     default=None,

@@ -22,7 +22,9 @@ SKILL_PATH = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SK
 RF_QA_PATH = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
 RF_QA_QUAL_PATH = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 RF_ANALYST_PATH = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
-RF_TASK_BUILDER_PATH = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-task-builder.md"
+RF_TASK_BUILDER_PATH = (
+    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-task-builder.md"
+)
 
 
 @pytest.fixture(scope="module")
@@ -66,27 +68,33 @@ class TestPR06StructuralGateAdditions:
         # We assert the post-PR-01 final state to keep the test current.
         assert "#### Checklist (28 items)" in rf_qa_text
 
-    @pytest.mark.parametrize("tag", [
-        "TB-Add-1",
-        "TB-Add-2",
-        "TB-Add-3",
-        "TB-Add-4",
-        "TB-Add-5",
-        "TB-Add-6",
-        "TB-Add-7",
-    ])
+    @pytest.mark.parametrize(
+        "tag",
+        [
+            "TB-Add-1",
+            "TB-Add-2",
+            "TB-Add-3",
+            "TB-Add-4",
+            "TB-Add-5",
+            "TB-Add-6",
+            "TB-Add-7",
+        ],
+    )
     def test_rf_qa_contains_tb_add_tag(self, rf_qa_text: str, tag: str) -> None:
         assert tag in rf_qa_text, f"rf-qa.md missing structural-gate addition {tag}"
 
-    @pytest.mark.parametrize("tag", [
-        "TB-Add-1",
-        "TB-Add-2",
-        "TB-Add-3",
-        "TB-Add-4",
-        "TB-Add-5",
-        "TB-Add-6",
-        "TB-Add-7",
-    ])
+    @pytest.mark.parametrize(
+        "tag",
+        [
+            "TB-Add-1",
+            "TB-Add-2",
+            "TB-Add-3",
+            "TB-Add-4",
+            "TB-Add-5",
+            "TB-Add-6",
+            "TB-Add-7",
+        ],
+    )
     def test_skill_mirrors_tb_add_tag(self, skill_text: str, tag: str) -> None:
         # Both the A.10 spawn prompt and the 15-item validation checklist
         # mention each TB-Add tag at least once.
@@ -103,15 +111,29 @@ class TestPR06StructuralGateAdditions:
 
     def test_source_check_traceability(self, rf_qa_text: str) -> None:
         # Every TB-Add cites the originating sc:tasklist check ID for traceability.
-        for source_check in ("check 11", "check 13", "check 14", "check 15", "check 16", "check 17"):
+        for source_check in (
+            "check 11",
+            "check 13",
+            "check 14",
+            "check 15",
+            "check 16",
+            "check 17",
+        ):
             assert source_check in rf_qa_text, (
                 f"rf-qa.md missing source-check traceability for sc:tasklist {source_check}"
             )
 
     def test_skill_15item_validation_checklist_extended(self, skill_text: str) -> None:
         # The 15-item Task File Validation Checklist grows with 7 TB-Add entries.
-        for tag in ("TB-Add-1", "TB-Add-2", "TB-Add-3", "TB-Add-4",
-                    "TB-Add-5", "TB-Add-6", "TB-Add-7"):
+        for tag in (
+            "TB-Add-1",
+            "TB-Add-2",
+            "TB-Add-3",
+            "TB-Add-4",
+            "TB-Add-5",
+            "TB-Add-6",
+            "TB-Add-7",
+        ):
             # Find the tag occurrence count >= 2: once in A.10 spawn prompt,
             # once in the Task File Validation Checklist near line 1491.
             assert skill_text.count(tag) >= 2, (
@@ -135,13 +157,17 @@ class TestPR01ExecutionContextHeader:
         assert "EXECUTION CONTEXT BLOCK" in skill_text
         assert "## Execution Context" in skill_text
 
-    def test_execution_context_uses_source_areas_not_paths(self, skill_text: str) -> None:
+    def test_execution_context_uses_source_areas_not_paths(
+        self, skill_text: str
+    ) -> None:
         # The block instructions must explicitly forbid file:line refs at the
         # task-level header.
         assert "NEVER write specific" in skill_text
         assert "path.py:NN" in skill_text  # cited as the forbidden form
 
-    def test_execution_context_optional_and_degrades_gracefully(self, skill_text: str) -> None:
+    def test_execution_context_optional_and_degrades_gracefully(
+        self, skill_text: str
+    ) -> None:
         assert "OPTIONAL" in skill_text
         # Minimal-BUILD_REQUEST degeneration case is documented.
         assert "GOAL-only" in skill_text or "References-only" in skill_text
@@ -185,7 +211,9 @@ class TestPR04GateResultsPassthrough:
     rf-qa-qualitative's spawn prompt as `## Inherited Structural Verdict`
     with anti-inflation guardrails for INV-002, INV-010, INV-019."""
 
-    def test_skill_documents_inherited_structural_verdict(self, skill_text: str) -> None:
+    def test_skill_documents_inherited_structural_verdict(
+        self, skill_text: str
+    ) -> None:
         assert "Inherited Structural Verdict" in skill_text
         # PR-04 callout cites the operationalised rule explicitly.
         assert "PR-04 Gate Results Passthrough" in skill_text
@@ -200,11 +228,17 @@ class TestPR04GateResultsPassthrough:
         # PR-04 prompt MUST dynamically enumerate TB-Add catalogue
         # from the rf-qa source so future TB-Adds are auto-picked-up.
         assert "INV-010" in skill_text
-        assert "dynamically enumerate" in skill_text or "live TB-Add catalogue" in skill_text
+        assert (
+            "dynamically enumerate" in skill_text
+            or "live TB-Add catalogue" in skill_text
+        )
 
     def test_skill_anti_inflation_inv_019(self, skill_text: str) -> None:
         assert "INV-019" in skill_text
-        assert "ANTI-INFLATION" in skill_text or "Reliance is not verification" in skill_text
+        assert (
+            "ANTI-INFLATION" in skill_text
+            or "Reliance is not verification" in skill_text
+        )
 
     def test_skill_passthrough_fallback_documented(self, skill_text: str) -> None:
         # Failure-mode #1 from proposal: missing/malformed verdict file -> fall
@@ -248,13 +282,16 @@ class TestPR07AdversarialCategoryNaming:
     to rf-qa-qualitative's task-qualitative phase as a naming overlay --
     no new code path, no new stage, no new agent file."""
 
-    @pytest.mark.parametrize("axis", [
-        "Drift",
-        "Contradictions",
-        "Omissions",
-        "Weakened criteria",
-        "Invented content",
-    ])
+    @pytest.mark.parametrize(
+        "axis",
+        [
+            "Drift",
+            "Contradictions",
+            "Omissions",
+            "Weakened criteria",
+            "Invented content",
+        ],
+    )
     def test_rf_qa_qualitative_contains_axis(
         self, rf_qa_qualitative_text: str, axis: str
     ) -> None:
@@ -262,16 +299,24 @@ class TestPR07AdversarialCategoryNaming:
             f"rf-qa-qualitative.md missing 5-axis entry: {axis}"
         )
 
-    def test_axes_are_overlay_not_replacement(self, rf_qa_qualitative_text: str) -> None:
+    def test_axes_are_overlay_not_replacement(
+        self, rf_qa_qualitative_text: str
+    ) -> None:
         # The axes overlay the 15-item checklist, not replace it.
         assert "Five Adversarial Axes" in rf_qa_qualitative_text
-        assert "sharpening overlay" in rf_qa_qualitative_text or "overlay" in rf_qa_qualitative_text
+        assert (
+            "sharpening overlay" in rf_qa_qualitative_text
+            or "overlay" in rf_qa_qualitative_text
+        )
 
     def test_drift_baseline_requirement(self, rf_qa_qualitative_text: str) -> None:
         # The drift axis MUST require a GOAL verbatim baseline; otherwise mark
         # drift-axis-inactive.
         assert "drift-axis-inactive" in rf_qa_qualitative_text
-        assert "GOAL verbatim" in rf_qa_qualitative_text or "BUILD_REQUEST.GOAL" in rf_qa_qualitative_text
+        assert (
+            "GOAL verbatim" in rf_qa_qualitative_text
+            or "BUILD_REQUEST.GOAL" in rf_qa_qualitative_text
+        )
 
     def test_axis_annotation_required_in_items_reviewed(
         self, rf_qa_qualitative_text: str
@@ -281,7 +326,9 @@ class TestPR07AdversarialCategoryNaming:
 
     def test_skill_references_5_axis_lens(self, skill_text: str) -> None:
         # SKILL.md A.10.5 must cite the 5 Adversarial Axes overlay.
-        assert "5 Adversarial Axes" in skill_text or "Five Adversarial Axes" in skill_text
+        assert (
+            "5 Adversarial Axes" in skill_text or "Five Adversarial Axes" in skill_text
+        )
         assert "PR-07" in skill_text
 
     def test_invented_content_axis_is_evidence_bound(
@@ -291,7 +338,10 @@ class TestPR07AdversarialCategoryNaming:
         # -- it is itself evidence-bound.
         # Find the Invented-content paragraph and check it references the
         # research evidence files.
-        assert "research/*.md" in rf_qa_qualitative_text or "research files" in rf_qa_qualitative_text
+        assert (
+            "research/*.md" in rf_qa_qualitative_text
+            or "research files" in rf_qa_qualitative_text
+        )
 
     def test_weakened_axis_anti_inflation(self, rf_qa_qualitative_text: str) -> None:
         # "Weakened" only fires when BUILD_REQUEST or research demands
@@ -325,13 +375,22 @@ class TestPR02RetryMonotonicityGuards:
         assert "F_n" in skill_text or "|F_n|" in skill_text
 
     def test_skill_regression_detection_precedence(self, skill_text: str) -> None:
-        assert "regression detected" in skill_text.lower() or "Regression detection" in skill_text
+        assert (
+            "regression detected" in skill_text.lower()
+            or "Regression detection" in skill_text
+        )
         # Regression > monotonicity precedence rule (PR-02 Round-2 spec).
-        assert "Regression takes precedence" in skill_text or "regression takes precedence" in skill_text
+        assert (
+            "Regression takes precedence" in skill_text
+            or "regression takes precedence" in skill_text
+        )
 
     def test_skill_independent_counters_preserved(self, skill_text: str) -> None:
         # Each retry counter keeps its own monotonicity history.
-        assert "Independent counters" in skill_text or "tracked independently" in skill_text
+        assert (
+            "Independent counters" in skill_text
+            or "tracked independently" in skill_text
+        )
 
     def test_skill_inv_012_dnsp_composition(self, skill_text: str) -> None:
         # PR-03 synthetic findings COUNT as failures BUT dedup-key collapses
@@ -381,14 +440,19 @@ class TestPR03DnspSyntheticFinding:
         assert "PR-03" in skill_text
         assert "paradigm-neutral" in skill_text
 
-    @pytest.mark.parametrize("field", [
-        "severity: HIGH",
-        'source: "synthetic-dnsp"',
-        "affected_range",
-        "evidence",
-        "recommendation",
-    ])
-    def test_skill_dnsp_emission_contract_fields(self, skill_text: str, field: str) -> None:
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "severity: HIGH",
+            'source: "synthetic-dnsp"',
+            "affected_range",
+            "evidence",
+            "recommendation",
+        ],
+    )
+    def test_skill_dnsp_emission_contract_fields(
+        self, skill_text: str, field: str
+    ) -> None:
         assert field in skill_text, (
             f"SKILL.md DNSP emission contract missing field: {field}"
         )
@@ -396,7 +460,10 @@ class TestPR03DnspSyntheticFinding:
     def test_skill_all_agents_fail_guard(self, skill_text: str) -> None:
         # If zero partition agents succeeded, DNSP does NOT fire -- existing
         # escalation flow runs.
-        assert "All-agents-fail guard" in skill_text or "all-agents-fail" in skill_text.lower()
+        assert (
+            "All-agents-fail guard" in skill_text
+            or "all-agents-fail" in skill_text.lower()
+        )
 
     def test_skill_dedup_key_specified(self, skill_text: str) -> None:
         # Dedup key per refactor plan: (assigned_files_range,
@@ -419,9 +486,14 @@ class TestPR03DnspSyntheticFinding:
     def test_rf_analyst_has_output_format_example(self, rf_analyst_text: str) -> None:
         # The agent definition includes an Output Format example so an
         # implementer knows the shape of a synthetic finding.
-        assert "Synthetic-DNSP Finding" in rf_analyst_text or "synthetic-dnsp" in rf_analyst_text
+        assert (
+            "Synthetic-DNSP Finding" in rf_analyst_text
+            or "synthetic-dnsp" in rf_analyst_text
+        )
         # The example contains the contract fields.
-        assert "Affected range" in rf_analyst_text or "affected_range" in rf_analyst_text
+        assert (
+            "Affected range" in rf_analyst_text or "affected_range" in rf_analyst_text
+        )
 
     def test_rf_qa_partition_protocol_has_dnsp(self, rf_qa_text: str) -> None:
         assert "DNSP Synthetic Finding emission" in rf_qa_text

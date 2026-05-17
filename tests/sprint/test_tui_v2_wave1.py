@@ -203,7 +203,10 @@ class TestTurnAndTokenExtraction:
 
     def test_missing_usage_does_not_crash(self, tmp_path):
         monitor = _build_monitor(tmp_path)
-        bad = {"type": "assistant", "message": {"content": [{"type": "text", "text": "hi"}]}}
+        bad = {
+            "type": "assistant",
+            "message": {"content": [{"type": "text", "text": "hi"}]},
+        }
         monitor._extract_signals_from_event(bad)
         assert monitor.state.turns == 1
         assert monitor.state.tokens_in == 0
@@ -281,9 +284,7 @@ class TestActivityLog:
             )
         assert len(monitor.state.activity_log) == ACTIVITY_LOG_MAX
         # Last entry wins — oldest dropped.
-        assert monitor.state.activity_log[-1][2].endswith(
-            f"f{ACTIVITY_LOG_MAX + 2}.py"
-        )
+        assert monitor.state.activity_log[-1][2].endswith(f"f{ACTIVITY_LOG_MAX + 2}.py")
 
     def test_last_tool_used_set_from_structured(self, tmp_path):
         monitor = _build_monitor(tmp_path)
@@ -346,9 +347,7 @@ class TestErrorExtraction:
             {"type": "text", "text": "line 1"},
             {"type": "text", "text": "line 2"},
         ]
-        monitor._extract_signals_from_event(
-            _tool_result_event(payload, is_error=True)
-        )
+        monitor._extract_signals_from_event(_tool_result_event(payload, is_error=True))
         _, _, msg = monitor.state.errors[0]
         assert "line 1" in msg and "line 2" in msg
 

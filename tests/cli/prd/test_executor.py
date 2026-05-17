@@ -66,10 +66,7 @@ def test_determine_status_pass(executor):
 
 def test_determine_status_halt(executor):
     """EXIT_RECOMMENDATION: HALT should produce HALT status."""
-    output = (
-        "Critical error detected.\n"
-        "EXIT_RECOMMENDATION: HALT\n"
-    )
+    output = "Critical error detected.\nEXIT_RECOMMENDATION: HALT\n"
     status = executor._determine_status(
         exit_code=0, output=output, step_id="parse-request"
     )
@@ -83,11 +80,7 @@ def test_determine_status_halt(executor):
 
 def test_determine_status_qa_fail(executor):
     """QA step with verdict: FAIL should produce QA_FAIL status."""
-    output = (
-        "QA Review Results:\n"
-        '"verdict": "FAIL"\n'
-        "Issues found: missing sections\n"
-    )
+    output = 'QA Review Results:\n"verdict": "FAIL"\nIssues found: missing sections\n'
     status = executor._determine_status(
         exit_code=0, output=output, step_id="research-qa"
     )
@@ -138,11 +131,7 @@ def test_sentinel_not_matched_in_code_block():
 
     # Also test: sentinel ONLY inside code block -> None
     output_only_in_block = (
-        "Some output\n"
-        "```\n"
-        "EXIT_RECOMMENDATION: HALT\n"
-        "```\n"
-        "No sentinel outside.\n"
+        "Some output\n```\nEXIT_RECOMMENDATION: HALT\n```\nNo sentinel outside.\n"
     )
     result_none = _detect_sentinel(output_only_in_block)
     assert result_none is None, (

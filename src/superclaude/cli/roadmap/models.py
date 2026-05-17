@@ -108,11 +108,21 @@ class RoadmapConfig(PipelineConfig):
     depth: Literal["quick", "standard", "deep"] = "standard"
     output_dir: Path = field(default_factory=lambda: Path("."))
     retrospective_file: Path | None = None
-    convergence_enabled: bool = True  # v3.05: deterministic fidelity convergence engine (default ON)
-    allow_regeneration: bool = False  # FR-9: override diff-size guard for full regeneration
-    input_type: Literal["auto", "tdd", "spec", "prd"] = "auto"  # auto=detect from content, tdd/spec/prd=force
-    tdd_file: Path | None = None  # TDD integration: optional TDD file path for downstream enrichment
-    prd_file: Path | None = None  # PRD integration: optional PRD file path for business context enrichment
+    convergence_enabled: bool = (
+        True  # v3.05: deterministic fidelity convergence engine (default ON)
+    )
+    allow_regeneration: bool = (
+        False  # FR-9: override diff-size guard for full regeneration
+    )
+    input_type: Literal["auto", "tdd", "spec", "prd"] = (
+        "auto"  # auto=detect from content, tdd/spec/prd=force
+    )
+    tdd_file: Path | None = (
+        None  # TDD integration: optional TDD file path for downstream enrichment
+    )
+    prd_file: Path | None = (
+        None  # PRD integration: optional PRD file path for business context enrichment
+    )
     compress_enabled: bool = True  # Compress spec, generated roadmaps, and merge output before LLM consumption
 
 

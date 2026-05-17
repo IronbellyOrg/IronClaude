@@ -1,4 +1,5 @@
 """Tests for BF-5: --allow-regeneration flag."""
+
 from superclaude.cli.roadmap.models import RoadmapConfig
 
 

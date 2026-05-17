@@ -67,16 +67,16 @@ def audit_trail(results_dir: Path) -> AuditTrailHelper:
 
     # 3. Print summary to stdout
     print(
-        f"\n{'='*60}\n"
+        f"\n{'=' * 60}\n"
         f"  Roadmap Audit Trail Session Summary\n"
-        f"{'='*60}\n"
+        f"{'=' * 60}\n"
         f"  Total:              {summary['total']}\n"
         f"  Passed:             {summary['passed']}\n"
         f"  Failed:             {summary['failed']}\n"
         f"  Skipped:            {summary['skipped']}\n"
         f"  Wiring Coverage:    {summary['wiring_coverage_pct']}%\n"
-        f"{'='*60}\n"
+        f"{'=' * 60}\n"
         f"  JSONL:    {output_path}\n"
         f"  Summary:  {summary_path}\n"
-        f"{'='*60}"
+        f"{'=' * 60}"
     )

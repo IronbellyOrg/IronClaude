@@ -131,9 +131,7 @@ class WiringReport:
         elif effective_mode == "soft":
             return sum(1 for f in unsuppressed if f.severity == "critical")
         else:  # full
-            return sum(
-                1 for f in unsuppressed if f.severity in ("critical", "major")
-            )
+            return sum(1 for f in unsuppressed if f.severity in ("critical", "major"))
 
 
 # ---------------------------------------------------------------------------
@@ -181,9 +179,7 @@ def _apply_whitelist(
     whitelist: list[WhitelistEntry],
 ) -> list[WiringFinding]:
     """Mark findings as suppressed if they match a whitelist entry."""
-    suppressed_symbols = {
-        (e.symbol, e.finding_type) for e in whitelist
-    }
+    suppressed_symbols = {(e.symbol, e.finding_type) for e in whitelist}
     for finding in findings:
         if (finding.symbol_name, finding.finding_type) in suppressed_symbols:
             finding.suppressed = True
@@ -223,9 +219,7 @@ def _extract_injectable_params(
                     # Verify default is None
                     if _has_none_default(item, arg):
                         symbol = f"{node.name}.{arg.arg}"
-                        injectables.append(
-                            (symbol, arg.arg, arg.lineno)
-                        )
+                        injectables.append((symbol, arg.arg, arg.lineno))
 
     return injectables
 
@@ -240,7 +234,10 @@ def _is_optional_callable(annotation: ast.expr) -> bool:
                 return True
             # Optional[Callable[...]]
             if isinstance(slice_val, ast.Subscript):
-                if isinstance(slice_val.value, ast.Name) and slice_val.value.id == "Callable":
+                if (
+                    isinstance(slice_val.value, ast.Name)
+                    and slice_val.value.id == "Callable"
+                ):
                     return True
         # Also check Attribute form: typing.Optional
         if isinstance(annotation.value, ast.Attribute):
@@ -252,11 +249,19 @@ def _is_optional_callable(annotation: ast.expr) -> bool:
     # Callable | None -> BinOp(Name('Callable'), BitOr, Constant(None))
     if isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BitOr):
         left, right = annotation.left, annotation.right
-        if (isinstance(left, ast.Name) and left.id == "Callable" and
-                isinstance(right, ast.Constant) and right.value is None):
+        if (
+            isinstance(left, ast.Name)
+            and left.id == "Callable"
+            and isinstance(right, ast.Constant)
+            and right.value is None
+        ):
             return True
-        if (isinstance(right, ast.Name) and right.id == "Callable" and
-                isinstance(left, ast.Constant) and left.value is None):
+        if (
+            isinstance(right, ast.Name)
+            and right.id == "Callable"
+            and isinstance(left, ast.Constant)
+            and left.value is None
+        ):
             return True
 
     return False
@@ -465,7 +470,9 @@ def analyze_orphan_modules(
 
             # Build possible import names
             module_stem = py_file.stem
-            module_dotpath = str(rel.with_suffix("")).replace("/", ".").replace("\\", ".")
+            module_dotpath = (
+                str(rel.with_suffix("")).replace("/", ".").replace("\\", ".")
+            )
 
             # Evidence 1: Check if any external file imports this module
             is_imported = False
@@ -520,16 +527,12 @@ def analyze_orphan_modules(
 # --- G-003: Registry Analysis (section 5.2.3) ---
 
 
-def _matches_registry_pattern(
-    name: str, patterns: tuple[re.Pattern[str], ...]
-) -> bool:
+def _matches_registry_pattern(name: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
     """Check if a variable name matches any registry detection pattern."""
     return any(p.match(name) for p in patterns)
 
 
-def _resolve_name_in_scope(
-    name: str, tree: ast.Module, all_imports: set[str]
-) -> bool:
+def _resolve_name_in_scope(name: str, tree: ast.Module, all_imports: set[str]) -> bool:
     """Check if a name is resolvable: defined in module or importable."""
     # Check module-level definitions
     for node in ast.iter_child_nodes(tree):
@@ -608,9 +611,7 @@ def analyze_registries(
 
                     # Name reference — must be resolvable
                     if isinstance(val_node, ast.Name):
-                        if not _resolve_name_in_scope(
-                            val_node.id, tree, file_imports
-                        ):
+                        if not _resolve_name_in_scope(val_node.id, tree, file_imports):
                             key_repr = (
                                 ast.literal_eval(key_node)
                                 if isinstance(key_node, ast.Constant)
@@ -638,9 +639,7 @@ def analyze_registries(
                         ref = val_node.value
                         parts = ref.rsplit(".", 1)
                         func_name = parts[-1] if len(parts) > 1 else ref
-                        if not _resolve_name_in_scope(
-                            func_name, tree, file_imports
-                        ):
+                        if not _resolve_name_in_scope(func_name, tree, file_imports):
                             key_repr = (
                                 ast.literal_eval(key_node)
                                 if isinstance(key_node, ast.Constant)
@@ -712,9 +711,7 @@ def run_wiring_analysis(
                 files_skipped=skipped,
                 scan_duration_seconds=round(duration, 4),
                 rollout_mode=config.rollout_mode,
-                failure_reason=(
-                    "0 files analyzed in non-empty source directory"
-                ),
+                failure_reason=("0 files analyzed in non-empty source directory"),
             )
 
     unwired = analyze_unwired_callables(config, source_dir)
@@ -800,15 +797,15 @@ def emit_report(report: WiringReport, output_path: Path) -> Path:
         "rollout_mode": report.rollout_mode,
         "analysis_complete": True,
         "audit_artifacts_used": 0,
-        "unwired_callable_count": len([
-            f for f in report.unwired_callables if not f.suppressed
-        ]),
-        "orphan_module_count": len([
-            f for f in report.orphan_modules if not f.suppressed
-        ]),
-        "unwired_registry_count": len([
-            f for f in report.unwired_registries if not f.suppressed
-        ]),
+        "unwired_callable_count": len(
+            [f for f in report.unwired_callables if not f.suppressed]
+        ),
+        "orphan_module_count": len(
+            [f for f in report.orphan_modules if not f.suppressed]
+        ),
+        "unwired_registry_count": len(
+            [f for f in report.unwired_registries if not f.suppressed]
+        ),
         "critical_count": critical_count,
         "major_count": major_count,
         "info_count": info_count,
@@ -876,9 +873,7 @@ def emit_report(report: WiringReport, output_path: Path) -> Path:
     suppressed_findings = [f for f in report.all_findings if f.suppressed]
     if suppressed_findings:
         for f in suppressed_findings:
-            sections.append(
-                f"- **{f.symbol_name}** ({f.finding_type}): suppressed\n"
-            )
+            sections.append(f"- **{f.symbol_name}** ({f.finding_type}): suppressed\n")
     else:
         sections.append("No suppressions applied.\n")
     sections.append(f"- Audit artifacts used: 0\n")

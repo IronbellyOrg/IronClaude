@@ -129,9 +129,7 @@ def test_e2e_shadow_mode_pipeline(tmp_path):
             "Shadow findings should remain pending (shadow mode does not remediate)"
         )
         # Verify persistence to disk
-        assert persist_path.exists(), (
-            "Remediation log should be persisted to disk"
-        )
+        assert persist_path.exists(), "Remediation log should be persisted to disk"
         # Verify entries have [shadow] prefix in failure_reason
         for entry in pending:
             assert "[shadow]" in entry.failure_reason, (
@@ -146,9 +144,7 @@ def test_e2e_shadow_mode_pipeline(tmp_path):
     )
 
     # KPI report should reflect wiring analysis was run
-    assert kpi_report.wiring_turns_used > 0, (
-        "Shadow mode should debit wiring turns"
-    )
+    assert kpi_report.wiring_turns_used > 0, "Shadow mode should debit wiring turns"
     # Shadow credits turns back after analysis
     assert kpi_report.wiring_turns_credited >= 0
     assert kpi_report.wiring_analyses_run >= 1, (

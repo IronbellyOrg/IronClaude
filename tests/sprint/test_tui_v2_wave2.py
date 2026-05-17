@@ -379,8 +379,20 @@ class TestSuccessTerminalPanel:
             config=config,
             outcome=SprintOutcome.SUCCESS,
             phase_results=[
-                _make_phase_result(turns=5, tokens_in=500, tokens_out=200, output_bytes=1024, files_changed=2),
-                _make_phase_result(turns=3, tokens_in=300, tokens_out=100, output_bytes=2048, files_changed=3),
+                _make_phase_result(
+                    turns=5,
+                    tokens_in=500,
+                    tokens_out=200,
+                    output_bytes=1024,
+                    files_changed=2,
+                ),
+                _make_phase_result(
+                    turns=3,
+                    tokens_in=300,
+                    tokens_out=100,
+                    output_bytes=2048,
+                    files_changed=3,
+                ),
             ],
         )
         sr.finished_at = datetime.now(timezone.utc)

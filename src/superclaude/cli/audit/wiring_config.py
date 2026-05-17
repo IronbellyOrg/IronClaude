@@ -95,9 +95,7 @@ def load_whitelist(
         if rollout_mode == "shadow":
             logger.warning("Malformed whitelist YAML at %s: %s", path, exc)
             return []
-        raise WiringConfigError(
-            f"Malformed whitelist YAML at {path}: {exc}"
-        ) from exc
+        raise WiringConfigError(f"Malformed whitelist YAML at {path}: {exc}") from exc
 
     if not isinstance(raw, dict):
         if rollout_mode == "shadow":
@@ -115,9 +113,7 @@ def load_whitelist(
                     "Whitelist section '%s' is not a list, skipping", section_key
                 )
                 continue
-            raise WiringConfigError(
-                f"Whitelist section '{section_key}' is not a list"
-            )
+            raise WiringConfigError(f"Whitelist section '{section_key}' is not a list")
 
         # Map section keys to finding_type values
         finding_type_map = {

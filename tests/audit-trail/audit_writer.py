@@ -51,18 +51,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-_REQUIRED_FIELDS = frozenset({
-    "test_id",
-    "spec_ref",
-    "timestamp",
-    "assertion_type",
-    "inputs",
-    "observed",
-    "expected",
-    "verdict",
-    "evidence",
-    "duration_ms",
-})
+_REQUIRED_FIELDS = frozenset(
+    {
+        "test_id",
+        "spec_ref",
+        "timestamp",
+        "assertion_type",
+        "inputs",
+        "observed",
+        "expected",
+        "verdict",
+        "evidence",
+        "duration_ms",
+    }
+)
 
 _VALID_VERDICTS = frozenset({"PASS", "FAIL", "SKIP"})
 

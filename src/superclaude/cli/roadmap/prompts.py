@@ -984,8 +984,8 @@ def build_merge_prompt(
         "Incorporate the best content from the selected base variant and augment it with "
         "the best elements from the other variant as identified in the debate, while "
         "emitting everything under the template's exact section names.\n"
-        + _TEMPLATE_STRUCTURE_DIRECTIVE +
-        "\nVERBATIM HEADING RULE: Every H2 and H3 heading MUST match the template "
+        + _TEMPLATE_STRUCTURE_DIRECTIVE
+        + "\nVERBATIM HEADING RULE: Every H2 and H3 heading MUST match the template "
         "verbatim — no prefixes (e.g., do NOT write `## Milestone M2:` — write `## M2:`), "
         "no suffixes or parenthetical qualifiers (e.g., do NOT append ` (Week 3-4, ...)` "
         "to a milestone heading), no qualifying adjectives (e.g., do NOT write "

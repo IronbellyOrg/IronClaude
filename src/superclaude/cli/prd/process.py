@@ -215,8 +215,7 @@ class PrdClaudeProcess(ClaudeProcess):
 
                 if not _is_transient_failure(1, stderr_text):
                     raise RuntimeError(
-                        f"Non-transient launch failure for step "
-                        f"{self.step_id!r}: {exc}"
+                        f"Non-transient launch failure for step {self.step_id!r}: {exc}"
                     ) from exc
 
                 if attempt < self._max_retries:

@@ -127,7 +127,9 @@ class ReachabilityReport:
 # ---------------------------------------------------------------------------
 
 
-def load_manifest(manifest_path: Path) -> tuple[list[EntryPoint], list[ReachableTarget]]:
+def load_manifest(
+    manifest_path: Path,
+) -> tuple[list[EntryPoint], list[ReachableTarget]]:
     """Load and validate a wiring manifest YAML file.
 
     Args:
@@ -156,7 +158,9 @@ def load_manifest(manifest_path: Path) -> tuple[list[EntryPoint], list[Reachable
     ep_functions: set[str] = set()
     for ep in raw_eps:
         if not isinstance(ep, dict) or "module" not in ep or "function" not in ep:
-            raise ValueError(f"Each entry_point must have 'module' and 'function': {ep}")
+            raise ValueError(
+                f"Each entry_point must have 'module' and 'function': {ep}"
+            )
         entry_points.append(EntryPoint(module=ep["module"], function=ep["function"]))
         ep_functions.add(ep["function"])
 
@@ -252,7 +256,9 @@ class _CallGraphVisitor(ast.NodeVisitor):
             self.import_map[local_name] = alias.name
             # If inside a function, record as a callable edge
             if self._current_function is not None:
-                self.call_graph.setdefault(self._current_function, set()).add(local_name)
+                self.call_graph.setdefault(self._current_function, set()).add(
+                    local_name
+                )
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handle ``from X import Y`` and relative imports."""
@@ -731,8 +737,12 @@ REACHABILITY_GATE = GateCriteria(
 )
 
 
-def emit_reachability_report(report: ReachabilityReport, output_path: Path,
-                              manifest_path: Path, source_root: Path) -> Path:
+def emit_reachability_report(
+    report: ReachabilityReport,
+    output_path: Path,
+    manifest_path: Path,
+    source_root: Path,
+) -> Path:
     """Write a reachability gate report with YAML frontmatter and Markdown body.
 
     Produces a file compatible with ``gate_passed(output_path, REACHABILITY_GATE)``.
@@ -778,7 +788,9 @@ def emit_reachability_report(report: ReachabilityReport, output_path: Path,
     lines.append(f"- **Gaps (unreachable)**: {len(report.gaps)}")
     lines.append(f"- **Modules parsed**: {report.modules_parsed}")
     if report.modules_failed:
-        lines.append(f"- **Modules failed to parse**: {', '.join(report.modules_failed)}")
+        lines.append(
+            f"- **Modules failed to parse**: {', '.join(report.modules_failed)}"
+        )
     lines.append("")
 
     # Gaps detail

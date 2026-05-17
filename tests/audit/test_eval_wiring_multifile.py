@@ -212,9 +212,9 @@ class TestKnownIssuesProject:
         findings = analyze_unwired_callables(config, root / "src")
         unwired_names = {f.symbol_name for f in findings if not f.suppressed}
         # Analyzer uses Class.param format for symbol names
-        assert any("transformer" in n for n in unwired_names) or any("notifier" in n for n in unwired_names), (
-            f"Should detect unwired Optional[Callable] params, got: {unwired_names}"
-        )
+        assert any("transformer" in n for n in unwired_names) or any(
+            "notifier" in n for n in unwired_names
+        ), f"Should detect unwired Optional[Callable] params, got: {unwired_names}"
 
     def test_detects_orphan_module(self, tmp_path):
         root = _create_project(tmp_path / "issues", ISSUES_PROJECT)
@@ -232,13 +232,19 @@ class TestKnownIssuesProject:
         else:
             # Document: orphan detection requires imports to be traceable
             # within the scanned directory tree
-            pytest.skip("Orphan detection did not find transform_step from this scan root")
+            pytest.skip(
+                "Orphan detection did not find transform_step from this scan root"
+            )
 
     def test_detects_broken_registry(self, tmp_path):
         root = _create_project(tmp_path / "issues", ISSUES_PROJECT)
         config = WiringConfig()
         findings = analyze_registries(config, root / "src")
-        broken = [f for f in findings if not f.suppressed and f.finding_type == "unwired_registry"]
+        broken = [
+            f
+            for f in findings
+            if not f.suppressed and f.finding_type == "unwired_registry"
+        ]
         # "src.steps.nonexistent_module.transform" is unresolvable
         assert len(broken) >= 1, f"Should detect broken registry entry, got: {broken}"
 
@@ -251,7 +257,11 @@ class TestEdgeCasesProject:
         config = WiringConfig()
         findings = analyze_registries(config, root / "src")
         # Auth = AuthPlugin is a local alias; registry value "Auth" should resolve
-        broken = [f for f in findings if not f.suppressed and f.finding_type == "unwired_registry"]
+        broken = [
+            f
+            for f in findings
+            if not f.suppressed and f.finding_type == "unwired_registry"
+        ]
         # The aliased import should NOT be flagged as broken
         auth_broken = [f for f in broken if "auth" in f.detail.lower()]
         assert len(auth_broken) == 0, (

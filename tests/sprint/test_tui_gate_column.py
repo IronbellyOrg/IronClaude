@@ -138,4 +138,12 @@ class TestTUIGateColumnBackwardCompat:
         tui.update(sr, MonitorState(), None)
         table = tui._build_phase_table()
         headers = [c.header for c in table.columns]
-        assert headers == ["#", "Phase", "Status", "Gate", "Duration", "Turns", "Output"]
+        assert headers == [
+            "#",
+            "Phase",
+            "Status",
+            "Gate",
+            "Duration",
+            "Turns",
+            "Output",
+        ]

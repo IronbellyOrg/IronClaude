@@ -94,7 +94,9 @@ class TestBuildExtractPromptUnchanged:
 
     def test_original_has_spec_language(self, dummy_path):
         result = build_extract_prompt(dummy_path)
-        assert "specification file" in result.lower() or "specification" in result.lower()
+        assert (
+            "specification file" in result.lower() or "specification" in result.lower()
+        )
 
 
 class TestRoadmapConfigDefaults:
@@ -123,6 +125,7 @@ class TestAutoDetection:
     def test_detects_tdd_from_numbered_headings(self, tmp_path):
         """A file with 20+ numbered headings is detected as TDD."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         tdd = tmp_path / "doc.md"
         sections = "\n".join(f"## {i}. Section {i}\nContent." for i in range(1, 25))
         tdd.write_text(f"---\ntitle: Test\ncoordinator: lead\n---\n{sections}")
@@ -131,27 +134,37 @@ class TestAutoDetection:
     def test_detects_spec_from_no_numbered_headings(self, tmp_path):
         """A file with no numbered headings and no TDD signals is detected as spec."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         spec = tmp_path / "spec.md"
-        spec.write_text("---\nspec_type: new_feature\n---\n## Requirements\nFR-001: Do thing\n## Architecture\nMonolith.")
+        spec.write_text(
+            "---\nspec_type: new_feature\n---\n## Requirements\nFR-001: Do thing\n## Architecture\nMonolith."
+        )
         assert detect_input_type(spec) == "spec"
 
     def test_detects_tdd_from_frontmatter_fields(self, tmp_path):
         """A file with TDD-exclusive frontmatter fields + section names is detected as TDD."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         tdd = tmp_path / "doc.md"
-        tdd.write_text("---\nfeature_id: AUTH-001\nparent_doc: some-prd\nauthors: [me]\nquality_scores:\n  clarity: 8\ncoordinator: lead\n---\n## 1. Summary\n## 2. Problem\n## 3. Goals\n## 4. Metrics\n## 5. Requirements\n## Data Models\nEntities.\n")
+        tdd.write_text(
+            "---\nfeature_id: AUTH-001\nparent_doc: some-prd\nauthors: [me]\nquality_scores:\n  clarity: 8\ncoordinator: lead\n---\n## 1. Summary\n## 2. Problem\n## 3. Goals\n## 4. Metrics\n## 5. Requirements\n## Data Models\nEntities.\n"
+        )
         assert detect_input_type(tdd) == "tdd"
 
     def test_detects_tdd_from_section_names(self, tmp_path):
         """A file with TDD-specific section names is detected as TDD."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         tdd = tmp_path / "doc.md"
-        tdd.write_text("# TDD\n## Data Models\nEntities here.\n## API Specifications\nEndpoints here.\n## Component Inventory\nComponents.\n## Testing Strategy\nTests.\n## Operational Readiness\nRunbooks.")
+        tdd.write_text(
+            "# TDD\n## Data Models\nEntities here.\n## API Specifications\nEndpoints here.\n## Component Inventory\nComponents.\n## Testing Strategy\nTests.\n## Operational Readiness\nRunbooks."
+        )
         assert detect_input_type(tdd) == "tdd"
 
     def test_detects_tdd_from_real_template(self):
         """The actual TDD template is detected as TDD."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         tdd = Path("src/superclaude/examples/tdd_template.md")
         if tdd.exists():
             assert detect_input_type(tdd) == "tdd"
@@ -163,14 +176,18 @@ class TestAutoDetection:
         This must NOT trigger TDD detection — only TDDs with 20+ sections should.
         """
         from superclaude.cli.roadmap.executor import detect_input_type
+
         spec = tmp_path / "spec.md"
         sections = "\n".join(f"## {i}. Section {i}\nContent." for i in range(1, 13))
-        spec.write_text(f"---\ntitle: Test Spec\nfeature_id: AUTH-001\nauthors: [user]\nquality_scores:\n  clarity: 8\n---\n{sections}")
+        spec.write_text(
+            f"---\ntitle: Test Spec\nfeature_id: AUTH-001\nauthors: [user]\nquality_scores:\n  clarity: 8\n---\n{sections}"
+        )
         assert detect_input_type(spec) == "spec"
 
     def test_detects_spec_from_empty_file(self, tmp_path):
         """An empty file defaults to spec."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         empty = tmp_path / "empty.md"
         empty.write_text("")
         assert detect_input_type(empty) == "spec"
@@ -178,6 +195,7 @@ class TestAutoDetection:
     def test_missing_file_defaults_to_spec(self, tmp_path):
         """A nonexistent file defaults to spec."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         assert detect_input_type(tmp_path / "nonexistent.md") == "spec"
 
 
@@ -288,8 +306,12 @@ class TestMergePromptTddPrd:
 
     def test_merge_with_both(self, dummy_path):
         result = build_merge_prompt(
-            dummy_path, dummy_path, dummy_path, dummy_path,
-            tdd_file=dummy_path, prd_file=dummy_path,
+            dummy_path,
+            dummy_path,
+            dummy_path,
+            dummy_path,
+            tdd_file=dummy_path,
+            prd_file=dummy_path,
         )
         assert "Supplementary TDD Context" in result
         assert "Supplementary PRD Context" in result
@@ -344,7 +366,9 @@ class TestOldSchemaStateBackwardCompat:
         state_file.write_text(json.dumps(old_state))
 
         config = RoadmapConfig(spec_file=spec, output_dir=output)
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=False)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=False
+        )
         assert restored.tdd_file is None
         assert restored.prd_file is None
 
@@ -355,32 +379,44 @@ class TestDetectionThresholdBoundary:
     def test_score_4_is_spec(self, tmp_path):
         """Score exactly 4 should detect as spec (below threshold 5)."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         # coordinator=+2, parent_doc=+2 = total 4
         doc = tmp_path / "doc.md"
-        doc.write_text("---\ncoordinator: lead\nparent_doc: prd\n---\n# Simple doc\nContent.")
+        doc.write_text(
+            "---\ncoordinator: lead\nparent_doc: prd\n---\n# Simple doc\nContent."
+        )
         assert detect_input_type(doc) == "spec"
 
     def test_score_5_is_tdd(self, tmp_path):
         """Score exactly 5 should detect as tdd (at threshold)."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         # coordinator=+2, parent_doc=+2, Data Models section=+1 = total 5
         doc = tmp_path / "doc.md"
-        doc.write_text("---\ncoordinator: lead\nparent_doc: prd\n---\n# Doc\n## Data Models\nEntities.")
+        doc.write_text(
+            "---\ncoordinator: lead\nparent_doc: prd\n---\n# Doc\n## Data Models\nEntities."
+        )
         assert detect_input_type(doc) == "tdd"
 
     def test_score_6_is_tdd(self, tmp_path):
         """Score 6 is clearly TDD."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         # coordinator=+2, parent_doc=+2, Data Models=+1, API Specifications=+1 = 6
         doc = tmp_path / "doc.md"
-        doc.write_text("---\ncoordinator: lead\nparent_doc: prd\n---\n# Doc\n## Data Models\nEntities.\n## API Specifications\nEndpoints.")
+        doc.write_text(
+            "---\ncoordinator: lead\nparent_doc: prd\n---\n# Doc\n## Data Models\nEntities.\n## API Specifications\nEndpoints."
+        )
         assert detect_input_type(doc) == "tdd"
 
     def test_zero_score_is_spec(self, tmp_path):
         """A file with no TDD signals at all is spec."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         doc = tmp_path / "doc.md"
-        doc.write_text("# Requirements\nFR-001: Do something\n## Architecture\nMonolith.")
+        doc.write_text(
+            "# Requirements\nFR-001: Do something\n## Architecture\nMonolith."
+        )
         assert detect_input_type(doc) == "spec"
 
 
@@ -425,6 +461,7 @@ class TestSameFileGuard:
         )
         # Should not raise — dry_run will print and return
         from superclaude.cli.roadmap.executor import execute_roadmap
+
         execute_roadmap(config)
 
 
@@ -446,21 +483,25 @@ class TestPrdFileOverrideOnResume:
         output = tmp_path / "output"
         output.mkdir()
         state_file = output / ".roadmap-state.json"
-        state_file.write_text(json.dumps({
-            "schema_version": 1,
-            "spec_file": str(spec),
-            "spec_hash": "abc",
-            "agents": [{"model": "opus", "persona": "architect"}],
-            "depth": "standard",
-            "last_run": "2026-01-01T00:00:00+00:00",
-            "prd_file": str(state_prd),
-            "steps": {},
-        }))
-
-        config = RoadmapConfig(
-            spec_file=spec, output_dir=output, prd_file=cli_prd
+        state_file.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "spec_file": str(spec),
+                    "spec_hash": "abc",
+                    "agents": [{"model": "opus", "persona": "architect"}],
+                    "depth": "standard",
+                    "last_run": "2026-01-01T00:00:00+00:00",
+                    "prd_file": str(state_prd),
+                    "steps": {},
+                }
+            )
         )
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=False)
+
+        config = RoadmapConfig(spec_file=spec, output_dir=output, prd_file=cli_prd)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=False
+        )
         # CLI value should win
         assert restored.prd_file == cli_prd
 
@@ -480,6 +521,7 @@ class TestRedundancyGuardStatePersistence:
             dry_run=True,
         )
         from superclaude.cli.roadmap.executor import execute_roadmap
+
         execute_roadmap(config)
         # After execute_roadmap, config should have tdd_file=None due to guard
         # (dry_run exits before _save_state, but we can verify the guard ran
@@ -499,6 +541,7 @@ class TestRedundancyGuardStatePersistence:
             dry_run=True,
         )
         from superclaude.cli.roadmap.executor import execute_roadmap
+
         # Should not warn — tdd_file is already None
         execute_roadmap(config)
 
@@ -512,6 +555,7 @@ class TestPrdDetection:
     def test_detects_prd_from_real_fixture(self):
         """The real PRD fixture is detected as PRD."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         path = Path(".dev/test-fixtures/test-prd-user-auth.md")
         if path.exists():
             assert detect_input_type(path) == "prd"
@@ -520,6 +564,7 @@ class TestPrdDetection:
         """Synthetic PRD with type field + 5 sections scores 8 (threshold 5)."""
         # Score: type field (+3) + 5 PRD sections (+5) = 8
         from superclaude.cli.roadmap.executor import detect_input_type
+
         prd = tmp_path / "doc.md"
         prd.write_text(
             "---\ntype: Product Requirements\ntags: [prd]\n---\n"
@@ -535,6 +580,7 @@ class TestPrdDetection:
         """PRD signals yield 'prd', not 'tdd', even with no TDD signals."""
         # Score: type (+3) + 5 PRD sections (+5) + user story (+2) = 10
         from superclaude.cli.roadmap.executor import detect_input_type
+
         prd = tmp_path / "doc.md"
         prd.write_text(
             "---\ntype: Product Requirements\n---\n"
@@ -550,6 +596,7 @@ class TestPrdDetection:
         """PRD with type field + 3 section headings (score 6) is 'prd' not 'spec'."""
         # Score: type (+3) + 3 PRD sections (+3) = 6
         from superclaude.cli.roadmap.executor import detect_input_type
+
         prd = tmp_path / "doc.md"
         prd.write_text(
             "---\ntype: Product Requirements\n---\n"
@@ -566,6 +613,7 @@ class TestThreeWayBoundary:
     def test_prd_score_below_threshold_is_spec(self, tmp_path):
         """3 PRD section headings only (score 3, below threshold 5) → spec."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         doc = tmp_path / "doc.md"
         doc.write_text(
             "# Document\n"
@@ -578,6 +626,7 @@ class TestThreeWayBoundary:
     def test_prd_score_at_threshold_is_prd(self, tmp_path):
         """type field (+3) + 2 PRD sections (+2) = score 5 → prd."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         doc = tmp_path / "doc.md"
         doc.write_text(
             "---\ntype: Product Requirements\n---\n"
@@ -589,6 +638,7 @@ class TestThreeWayBoundary:
     def test_tdd_signals_only_is_tdd(self, tmp_path):
         """parent_doc (+2) + coordinator (+2) + Data Models (+1) = score 5 → tdd."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         doc = tmp_path / "doc.md"
         doc.write_text(
             "---\nparent_doc: PRD-001\ncoordinator: lead\n---\n"
@@ -599,6 +649,7 @@ class TestThreeWayBoundary:
     def test_both_prd_and_tdd_signals_prd_wins(self, tmp_path):
         """PRD scored first: type (+3) + 3 sections (+3) = prd 6; coordinator = tdd 2. PRD wins."""
         from superclaude.cli.roadmap.executor import detect_input_type
+
         doc = tmp_path / "doc.md"
         doc.write_text(
             "---\ntype: Product Requirements\ncoordinator: lead\n---\n"
@@ -614,7 +665,9 @@ class TestMultiFileRouting:
 
     def _make_spec(self, tmp_path, name="spec.md"):
         p = tmp_path / name
-        p.write_text("---\nspec_type: new_feature\n---\n## Requirements\nFR-001: Do thing.\n")
+        p.write_text(
+            "---\nspec_type: new_feature\n---\n## Requirements\nFR-001: Do thing.\n"
+        )
         return p
 
     def _make_tdd(self, tmp_path, name="tdd.md"):
@@ -641,8 +694,11 @@ class TestMultiFileRouting:
 
     def test_route_single_spec_file(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
-        result = _route_input_files((spec,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto"
+        )
         assert result["spec_file"] == spec
         assert result["tdd_file"] is None
         assert result["prd_file"] is None
@@ -650,8 +706,11 @@ class TestMultiFileRouting:
 
     def test_route_single_tdd_file(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         tdd = self._make_tdd(tmp_path)
-        result = _route_input_files((tdd,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (tdd,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto"
+        )
         assert result["spec_file"] == tdd  # TDD becomes primary
         assert result["input_type"] == "tdd"
         assert result["tdd_file"] is None  # redundancy guard nulls it
@@ -660,45 +719,71 @@ class TestMultiFileRouting:
         import click
 
         from superclaude.cli.roadmap.executor import _route_input_files
+
         prd = self._make_prd(tmp_path)
-        with pytest.raises(click.UsageError, match="PRD cannot be the sole primary input"):
-            _route_input_files((prd,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        with pytest.raises(
+            click.UsageError, match="PRD cannot be the sole primary input"
+        ):
+            _route_input_files(
+                (prd,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto"
+            )
 
     # ── Multi-file routing ──
 
     def test_route_spec_plus_tdd(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)
-        result = _route_input_files((spec, tdd), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec, tdd),
+            explicit_tdd=None,
+            explicit_prd=None,
+            explicit_input_type="auto",
+        )
         assert result["spec_file"] == spec
         assert result["tdd_file"] == tdd
         assert result["input_type"] == "spec"
 
     def test_route_spec_plus_prd(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         prd = self._make_prd(tmp_path)
-        result = _route_input_files((spec, prd), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec, prd),
+            explicit_tdd=None,
+            explicit_prd=None,
+            explicit_input_type="auto",
+        )
         assert result["spec_file"] == spec
         assert result["prd_file"] == prd
         assert result["tdd_file"] is None
 
     def test_route_tdd_plus_prd(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         tdd = self._make_tdd(tmp_path)
         prd = self._make_prd(tmp_path)
-        result = _route_input_files((tdd, prd), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (tdd, prd), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto"
+        )
         assert result["spec_file"] == tdd  # TDD becomes primary
         assert result["prd_file"] == prd
         assert result["input_type"] == "tdd"
 
     def test_route_all_three_files(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)
         prd = self._make_prd(tmp_path)
-        result = _route_input_files((spec, tdd, prd), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec, tdd, prd),
+            explicit_tdd=None,
+            explicit_prd=None,
+            explicit_input_type="auto",
+        )
         assert result["spec_file"] == spec
         assert result["tdd_file"] == tdd
         assert result["prd_file"] == prd
@@ -711,31 +796,46 @@ class TestMultiFileRouting:
         import click
 
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec1 = self._make_spec(tmp_path, "spec1.md")
         spec2 = self._make_spec(tmp_path, "spec2.md")
         with pytest.raises(click.UsageError, match="Multiple files detected as spec"):
-            _route_input_files((spec1, spec2), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+            _route_input_files(
+                (spec1, spec2),
+                explicit_tdd=None,
+                explicit_prd=None,
+                explicit_input_type="auto",
+            )
 
     def test_route_too_many_files_raises(self, tmp_path):
         """4 files → error."""  # Edge case 8.3
         import click
 
         from superclaude.cli.roadmap.executor import _route_input_files
+
         files = tuple(self._make_spec(tmp_path, f"f{i}.md") for i in range(4))
         with pytest.raises(click.UsageError, match="1-3"):
-            _route_input_files(files, explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+            _route_input_files(
+                files, explicit_tdd=None, explicit_prd=None, explicit_input_type="auto"
+            )
 
     def test_route_conflict_positional_tdd_and_explicit_tdd_raises(self, tmp_path):
         """Positional TDD + --tdd-file → conflict error."""  # Edge case 8.4
         import click
 
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)
         other_tdd = tmp_path / "other-tdd.md"
         other_tdd.write_text("# Other TDD")
         with pytest.raises(click.UsageError, match="(?i)conflict"):
-            _route_input_files((spec, tdd), explicit_tdd=other_tdd, explicit_prd=None, explicit_input_type="auto")
+            _route_input_files(
+                (spec, tdd),
+                explicit_tdd=other_tdd,
+                explicit_prd=None,
+                explicit_input_type="auto",
+            )
 
 
 class TestBackwardCompat:
@@ -743,7 +843,9 @@ class TestBackwardCompat:
 
     def _make_spec(self, tmp_path):
         p = tmp_path / "spec.md"
-        p.write_text("---\nspec_type: new_feature\n---\n## Requirements\nFR-001: Thing.\n")
+        p.write_text(
+            "---\nspec_type: new_feature\n---\n## Requirements\nFR-001: Thing.\n"
+        )
         return p
 
     def _make_tdd(self, tmp_path, name="tdd.md"):
@@ -758,22 +860,31 @@ class TestBackwardCompat:
 
     def test_single_positional_routes_like_before(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
-        result = _route_input_files((spec,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec,), explicit_tdd=None, explicit_prd=None, explicit_input_type="auto"
+        )
         assert result["spec_file"] == spec
         assert result["input_type"] == "spec"
 
     def test_explicit_input_type_overrides_detection(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)  # auto-detects as spec
-        result = _route_input_files((spec,), explicit_tdd=None, explicit_prd=None, explicit_input_type="tdd")
+        result = _route_input_files(
+            (spec,), explicit_tdd=None, explicit_prd=None, explicit_input_type="tdd"
+        )
         assert result["input_type"] == "tdd"
 
     def test_explicit_tdd_file_flag_works_with_positional(self, tmp_path):
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)
-        result = _route_input_files((spec,), explicit_tdd=tdd, explicit_prd=None, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec,), explicit_tdd=tdd, explicit_prd=None, explicit_input_type="auto"
+        )
         assert result["spec_file"] == spec
         assert result["tdd_file"] == tdd
 
@@ -809,9 +920,12 @@ class TestOverridePriority:
     def test_input_type_ignored_for_multifile(self, tmp_path):
         """--input-type is ignored in multi-file mode; content detection wins."""
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)
-        result = _route_input_files((spec, tdd), explicit_tdd=None, explicit_prd=None, explicit_input_type="prd")
+        result = _route_input_files(
+            (spec, tdd), explicit_tdd=None, explicit_prd=None, explicit_input_type="prd"
+        )
         # --input-type=prd is ignored; files classified by content
         assert result["spec_file"] == spec
         assert result["tdd_file"] == tdd
@@ -819,10 +933,13 @@ class TestOverridePriority:
     def test_explicit_prd_flag_works_with_multifile(self, tmp_path):
         """Explicit --prd-file supplements positional spec+tdd."""
         from superclaude.cli.roadmap.executor import _route_input_files
+
         spec = self._make_spec(tmp_path)
         tdd = self._make_tdd(tmp_path)
         prd = self._make_prd(tmp_path)
-        result = _route_input_files((spec, tdd), explicit_tdd=None, explicit_prd=prd, explicit_input_type="auto")
+        result = _route_input_files(
+            (spec, tdd), explicit_tdd=None, explicit_prd=prd, explicit_input_type="auto"
+        )
         assert result["spec_file"] == spec
         assert result["tdd_file"] == tdd
         assert result["prd_file"] == prd

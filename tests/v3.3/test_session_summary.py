@@ -83,7 +83,9 @@ class TestSummaryComputation:
         # 2 out of 3 spec_refs have PASS → 66.67%
         assert s["wiring_coverage_pct"] == pytest.approx(66.67, abs=0.01)
 
-    def test_wiring_coverage_duplicate_spec_refs(self, helper: AuditTrailHelper) -> None:
+    def test_wiring_coverage_duplicate_spec_refs(
+        self, helper: AuditTrailHelper
+    ) -> None:
         """Multiple records for same spec_ref count as one wiring point."""
         self._emit(helper, "t1", spec_ref="FR-1.1", verdict="FAIL")
         self._emit(helper, "t2", spec_ref="FR-1.1", verdict="PASS")  # retry passes

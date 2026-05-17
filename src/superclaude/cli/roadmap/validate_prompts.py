@@ -56,7 +56,11 @@ def build_reflect_prompt(
         "Read the provided roadmap, test-strategy, and extraction documents. "
     )
     if has_inputs:
-        input_names = [n for n, f in (("spec", spec_file), ("TDD", tdd_file), ("PRD", prd_file)) if f]
+        input_names = [
+            n
+            for n, f in (("spec", spec_file), ("TDD", tdd_file), ("PRD", prd_file))
+            if f
+        ]
         base += (
             f"You are ALSO provided with the original input document(s): "
             f"{', '.join(input_names)}. "
@@ -115,13 +119,9 @@ def build_reflect_prompt(
     )
 
     if has_inputs:
-        base += (
-            "9. **Decomposition** -- Flag compound deliverables that would need splitting "
-        )
+        base += "9. **Decomposition** -- Flag compound deliverables that would need splitting "
     else:
-        base += (
-            "7. **Decomposition** -- Flag compound deliverables that would need splitting "
-        )
+        base += "7. **Decomposition** -- Flag compound deliverables that would need splitting "
     base += (
         "by sc:tasklist. A deliverable is compound if it describes multiple distinct "
         "outputs or actions joined by 'and'/'or'.\n\n"

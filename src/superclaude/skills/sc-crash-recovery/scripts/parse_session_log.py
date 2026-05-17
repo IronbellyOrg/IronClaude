@@ -8,6 +8,7 @@ Output: compact JSON with the last N turns (default 6), each containing role,
 text snippet (truncated), and last tool calls. Designed to feed a subagent or
 the orchestrator without dumping the full log.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -64,10 +65,12 @@ def main() -> int:
                 if btype == "text":
                     text_parts.append(block.get("text", ""))
                 elif btype == "tool_use":
-                    tool_calls.append({
-                        "name": block.get("name", ""),
-                        "input_summary": _summarize_input(block.get("input", {})),
-                    })
+                    tool_calls.append(
+                        {
+                            "name": block.get("name", ""),
+                            "input_summary": _summarize_input(block.get("input", {})),
+                        }
+                    )
                 elif btype == "tool_result":
                     # Skip — too noisy. The triggering tool_use already captured it.
                     pass
@@ -75,14 +78,19 @@ def main() -> int:
         if not text and not tool_calls:
             continue
         # Filter out the system-reminder-only and caveat-only user turns.
-        if role == "user" and text.startswith(("<local-command-caveat>", "<system-reminder>")):
+        if role == "user" and text.startswith(
+            ("<local-command-caveat>", "<system-reminder>")
+        ):
             continue
-        turns.append({
-            "role": role,
-            "ts": ev.get("timestamp", ""),
-            "text": text[: args.max_chars] + (" […truncated]" if len(text) > args.max_chars else ""),
-            "tool_calls": tool_calls[:5],
-        })
+        turns.append(
+            {
+                "role": role,
+                "ts": ev.get("timestamp", ""),
+                "text": text[: args.max_chars]
+                + (" […truncated]" if len(text) > args.max_chars else ""),
+                "tool_calls": tool_calls[:5],
+            }
+        )
 
     last = turns[-args.turns :]
     out = {
@@ -100,7 +108,15 @@ def _summarize_input(inp: dict) -> str:
     if not isinstance(inp, dict):
         return ""
     # Prefer common signal fields, in priority order.
-    for key in ("file_path", "command", "description", "prompt", "query", "path", "url"):
+    for key in (
+        "file_path",
+        "command",
+        "description",
+        "prompt",
+        "query",
+        "path",
+        "url",
+    ):
         v = inp.get(key)
         if isinstance(v, str) and v:
             return f"{key}={v[:120]}"

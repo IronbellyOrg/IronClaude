@@ -206,7 +206,9 @@ def extract_phase_signals(output_path: Path) -> dict:
                             existing = tasks_by_id.get(task_id)
                             # Keep the most informative status we see
                             # (PASS/FAIL/BLOCKED beats TOUCHED).
-                            if not existing or (existing["status"] == "TOUCHED" and status != "TOUCHED"):
+                            if not existing or (
+                                existing["status"] == "TOUCHED" and status != "TOUCHED"
+                            ):
                                 tasks_by_id[task_id] = {
                                     "task_id": task_id,
                                     "status": status,
@@ -221,7 +223,9 @@ def extract_phase_signals(output_path: Path) -> dict:
                             {
                                 "check": m.group("label"),
                                 "verdict": m.group("verdict"),
-                                "snippet": txt[max(0, m.start() - 20) : m.end() + 20].strip(),
+                                "snippet": txt[
+                                    max(0, m.start() - 20) : m.end() + 20
+                                ].strip(),
                             }
                         )
                 elif btype == "tool_use":
@@ -230,12 +234,12 @@ def extract_phase_signals(output_path: Path) -> dict:
                         last_tool_name = name
                     input_ = block.get("input") or {}
                     # File-changing tools: record their target path.
-                    if name in ("Edit", "MultiEdit", "Write") and isinstance(input_, dict):
+                    if name in ("Edit", "MultiEdit", "Write") and isinstance(
+                        input_, dict
+                    ):
                         fp = input_.get("file_path")
                         if isinstance(fp, str) and fp:
-                            files_by_path.setdefault(
-                                fp, {"path": fp, "tool": name}
-                            )
+                            files_by_path.setdefault(fp, {"path": fp, "tool": name})
 
         elif etype == "user" and isinstance(content, list):
             for block in content:
@@ -426,7 +430,12 @@ def _render_phase_summary_markdown(summary: PhaseSummary) -> str:
         out.extend(["## Narrative", "", summary.narrative.strip(), ""])
     else:
         out.extend(
-            ["## Narrative", "", "_Narrative unavailable (Haiku subprocess failed or skipped)._", ""]
+            [
+                "## Narrative",
+                "",
+                "_Narrative unavailable (Haiku subprocess failed or skipped)._",
+                "",
+            ]
         )
 
     out.append("## Tasks")
@@ -608,8 +617,7 @@ class SummaryWorker:
                 self._on_summary_ready(summary)
             except Exception as exc:  # noqa: BLE001 - sprint-safety boundary
                 _logger.warning(
-                    "SummaryWorker: on_summary_ready callback raised %s for "
-                    "phase %d",
+                    "SummaryWorker: on_summary_ready callback raised %s for phase %d",
                     exc,
                     phase.number,
                 )

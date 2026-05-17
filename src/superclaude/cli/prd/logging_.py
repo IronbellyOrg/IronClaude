@@ -76,17 +76,17 @@ class PrdLogger:
         now = datetime.now(timezone.utc)
 
         # JSONL entry
-        self._write_jsonl({
-            "timestamp": now.isoformat(),
-            "event_type": "step_start",
-            "step_id": step_id,
-            "step_name": step_name,
-        })
+        self._write_jsonl(
+            {
+                "timestamp": now.isoformat(),
+                "event_type": "step_start",
+                "step_id": step_id,
+                "step_name": step_name,
+            }
+        )
 
         # Markdown entry (inline note)
-        self._write_md(
-            f"| {step_id} | RUNNING | - | Started: {step_name} |\n"
-        )
+        self._write_md(f"| {step_id} | RUNNING | - | Started: {step_name} |\n")
 
     def log_step_complete(
         self,
@@ -109,23 +109,24 @@ class PrdLogger:
         now = datetime.now(timezone.utc)
 
         # JSONL entry
-        self._write_jsonl({
-            "timestamp": now.isoformat(),
-            "event_type": "step_complete",
-            "step_id": step_id,
-            "duration_seconds": round(duration_seconds, 2),
-            "exit_code": exit_code,
-            "result": result,
-            "details": details,
-        })
+        self._write_jsonl(
+            {
+                "timestamp": now.isoformat(),
+                "event_type": "step_complete",
+                "step_id": step_id,
+                "duration_seconds": round(duration_seconds, 2),
+                "exit_code": exit_code,
+                "result": result,
+                "details": details,
+            }
+        )
 
         # Markdown entry
         status_display = _STATUS_EMOJI.get(result, result.upper())
         duration_display = self._format_duration(duration_seconds)
         detail_text = details or f"exit={exit_code}"
         self._write_md(
-            f"| {step_id} | {status_display} | {duration_display} "
-            f"| {detail_text} |\n"
+            f"| {step_id} | {status_display} | {duration_display} | {detail_text} |\n"
         )
 
     def log_gate_result(
@@ -144,19 +145,19 @@ class PrdLogger:
         now = datetime.now(timezone.utc)
 
         # JSONL entry
-        self._write_jsonl({
-            "timestamp": now.isoformat(),
-            "event_type": "gate_result",
-            "step_id": step_id,
-            "passed": passed,
-            "message": message,
-        })
+        self._write_jsonl(
+            {
+                "timestamp": now.isoformat(),
+                "event_type": "gate_result",
+                "step_id": step_id,
+                "passed": passed,
+                "message": message,
+            }
+        )
 
         # Markdown entry
         gate_status = "GATE PASS" if passed else "GATE FAIL"
-        self._write_md(
-            f"| {step_id} | {gate_status} | - | {message} |\n"
-        )
+        self._write_md(f"| {step_id} | {gate_status} | - | {message} |\n")
 
     # -------------------------------------------------------------------
     # Internal helpers

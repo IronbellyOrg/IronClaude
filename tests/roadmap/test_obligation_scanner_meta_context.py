@@ -278,7 +278,9 @@ class TestLayer3StructuralPatterns:
         """
         )
         report = scan_obligations(content)
-        scaffold_obs = [o for o in report.obligations if "scaffolding" in o.term.lower()]
+        scaffold_obs = [
+            o for o in report.obligations if "scaffolding" in o.term.lower()
+        ]
         assert scaffold_obs, "Expected scaffolding obligation to be detected"
         assert all(o.severity == "MEDIUM" for o in scaffold_obs)
 

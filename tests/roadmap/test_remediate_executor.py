@@ -664,8 +664,12 @@ class TestRemediationPatch:
         )
         j = p.to_morphllm_json()
         assert set(j.keys()) == {
-            "target_file", "finding_id", "original_code",
-            "instruction", "update_snippet", "rationale",
+            "target_file",
+            "finding_id",
+            "original_code",
+            "instruction",
+            "update_snippet",
+            "rationale",
         }
         assert j["target_file"] == "roadmap.md"
         assert j["finding_id"] == "F-01"
@@ -688,13 +692,15 @@ class TestCheckPatchDiffSize:
         original = "\n".join(f"line {i}" for i in range(10))
         # Change 2 of 10 lines = 20%
         updated = "\n".join(
-            f"line {i}" if i not in (2, 3) else f"changed {i}"
-            for i in range(10)
+            f"line {i}" if i not in (2, 3) else f"changed {i}" for i in range(10)
         )
         p = RemediationPatch(
-            target_file="f.md", finding_id="F-01",
-            original_code=original, instruction="fix",
-            update_snippet=updated, rationale="r",
+            target_file="f.md",
+            finding_id="F-01",
+            original_code=original,
+            instruction="fix",
+            update_snippet=updated,
+            rationale="r",
         )
         assert check_patch_diff_size(p) is True
         assert p.rejected is False
@@ -703,14 +709,14 @@ class TestCheckPatchDiffSize:
         """Patch with >30% change is rejected without --allow-regeneration."""
         original = "\n".join(f"line {i}" for i in range(10))
         # Change 5 of 10 lines = 50%
-        updated = "\n".join(
-            f"line {i}" if i < 5 else f"changed {i}"
-            for i in range(10)
-        )
+        updated = "\n".join(f"line {i}" if i < 5 else f"changed {i}" for i in range(10))
         p = RemediationPatch(
-            target_file="f.md", finding_id="F-01",
-            original_code=original, instruction="fix",
-            update_snippet=updated, rationale="r",
+            target_file="f.md",
+            finding_id="F-01",
+            original_code=original,
+            instruction="fix",
+            update_snippet=updated,
+            rationale="r",
         )
         assert check_patch_diff_size(p) is False
         assert p.rejected is True
@@ -721,18 +727,24 @@ class TestCheckPatchDiffSize:
         original = "\n".join(f"line {i}" for i in range(10))
         updated = "\n".join(f"changed {i}" for i in range(10))
         p = RemediationPatch(
-            target_file="f.md", finding_id="F-01",
-            original_code=original, instruction="fix",
-            update_snippet=updated, rationale="r",
+            target_file="f.md",
+            finding_id="F-01",
+            original_code=original,
+            instruction="fix",
+            update_snippet=updated,
+            rationale="r",
         )
         assert check_patch_diff_size(p, allow_regeneration=True) is True
 
     def test_empty_original_passes(self):
         """Patch with empty original_code passes guard."""
         p = RemediationPatch(
-            target_file="f.md", finding_id="F-01",
-            original_code="", instruction="fix",
-            update_snippet="new content", rationale="r",
+            target_file="f.md",
+            finding_id="F-01",
+            original_code="",
+            instruction="fix",
+            update_snippet="new content",
+            rationale="r",
         )
         assert check_patch_diff_size(p) is True
 
@@ -830,8 +842,7 @@ class TestFallbackApply:
         target.write_text(content, encoding="utf-8")
 
         updated_block = "\n".join(
-            f"line {i}" if i != 5 else "fixed line 5"
-            for i in range(10)
+            f"line {i}" if i != 5 else "fixed line 5" for i in range(10)
         )
 
         p = RemediationPatch(

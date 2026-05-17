@@ -1,4 +1,5 @@
 """Tests for BF-2, BF-3, BF-4: Convergence engine."""
+
 import json
 from pathlib import Path
 
@@ -63,8 +64,14 @@ class TestDualAuthorityElimination:
 class TestSplitTracking:
     """BF-3: Structural vs semantic HIGH tracking."""
 
-    def _make_finding(self, id_str, severity="HIGH", source_layer="structural",
-                       dimension="signatures", location=None):
+    def _make_finding(
+        self,
+        id_str,
+        severity="HIGH",
+        source_layer="structural",
+        dimension="signatures",
+        location=None,
+    ):
         # Use id_str in location to ensure unique stable IDs
         if location is None:
             location = f"FR-{id_str}"
@@ -246,8 +253,15 @@ class TestRegistryPersistence:
 class TestRegistryStableIDs:
     """T03.01: Stable IDs, source_layer, cross-run comparison."""
 
-    def _make_finding(self, id_str, severity="HIGH", source_layer="structural",
-                       dimension="signatures", location=None, rule_id=""):
+    def _make_finding(
+        self,
+        id_str,
+        severity="HIGH",
+        source_layer="structural",
+        dimension="signatures",
+        location=None,
+        rule_id="",
+    ):
         if location is None:
             location = f"FR-{id_str}"
         return Finding(
@@ -265,7 +279,9 @@ class TestRegistryStableIDs:
 
     def test_source_layer_field_present(self, tmp_path):
         """Each finding has source_layer: 'structural' or 'semantic'."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         reg.begin_run("road1")
         reg.merge_findings(
             [self._make_finding("F-001")],
@@ -303,7 +319,9 @@ class TestRegistryStableIDs:
 
     def test_cross_run_match_by_stable_id(self, tmp_path):
         """Cross-run comparison correctly matches findings by stable ID."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         f1 = self._make_finding("F-001")
 
         # Run 1: introduce finding
@@ -322,7 +340,9 @@ class TestRegistryStableIDs:
 
     def test_fixed_status_when_not_reproduced(self, tmp_path):
         """Missing findings in subsequent run marked FIXED."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         f1 = self._make_finding("F-001")
         f2 = self._make_finding("F-002")
 
@@ -341,7 +361,9 @@ class TestRegistryStableIDs:
 
     def test_run_metadata_split_high_counts(self, tmp_path):
         """Run metadata includes structural_high_count, semantic_high_count, total_high_count."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         reg.begin_run("road1")
         reg.merge_findings(
             [self._make_finding("F-001"), self._make_finding("F-002")],
@@ -366,10 +388,17 @@ class TestBackwardCompatibility:
         reg = DeviationRegistry(path=path, release_id="test", spec_hash="hash_v1")
         reg.begin_run("road1")
         reg.findings["test_id"] = {
-            "stable_id": "test_id", "dimension": "sig", "severity": "HIGH",
-            "description": "d", "location": "L", "source_layer": "structural",
-            "status": "ACTIVE", "first_seen_run": 1, "last_seen_run": 1,
-            "debate_verdict": None, "debate_transcript": None,
+            "stable_id": "test_id",
+            "dimension": "sig",
+            "severity": "HIGH",
+            "description": "d",
+            "location": "L",
+            "source_layer": "structural",
+            "status": "ACTIVE",
+            "first_seen_run": 1,
+            "last_seen_run": 1,
+            "debate_verdict": None,
+            "debate_transcript": None,
         }
         reg.save()
 
@@ -385,8 +414,14 @@ class TestBackwardCompatibility:
             "schema_version": 1,
             "release_id": "test",
             "spec_hash": "abc",
-            "runs": [{"run_number": 1, "timestamp": "2026-01-01T00:00:00Z",
-                       "spec_hash": "abc", "roadmap_hash": "road1"}],
+            "runs": [
+                {
+                    "run_number": 1,
+                    "timestamp": "2026-01-01T00:00:00Z",
+                    "spec_hash": "abc",
+                    "roadmap_hash": "road1",
+                }
+            ],
             "findings": {
                 "old_finding_1": {
                     "stable_id": "old_finding_1",
@@ -412,9 +447,14 @@ class TestBackwardCompatibility:
     def test_active_status_accepted(self, tmp_path):
         """Findings with status='ACTIVE' accepted without error."""
         f = Finding(
-            id="F-001", severity="HIGH", dimension="sig",
-            description="test", location="FR-1", evidence="ev",
-            fix_guidance="fix", status="ACTIVE",
+            id="F-001",
+            severity="HIGH",
+            dimension="sig",
+            description="test",
+            location="FR-1",
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
         )
         assert f.status == "ACTIVE"
 
@@ -424,9 +464,15 @@ class TestBackwardCompatibility:
         reg = DeviationRegistry(path=path, release_id="test", spec_hash="abc")
         reg.begin_run("road1")
         finding = Finding(
-            id="F-001", severity="HIGH", dimension="sig",
-            description="test", location="FR-1", evidence="ev",
-            fix_guidance="fix", status="ACTIVE", source_layer="semantic",
+            id="F-001",
+            severity="HIGH",
+            dimension="sig",
+            description="test",
+            location="FR-1",
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
+            source_layer="semantic",
         )
         reg.merge_findings([], [finding], run_number=1)
         reg.save()
@@ -447,20 +493,28 @@ class TestBackwardCompatibility:
 class TestRunToRunMemory:
     """T03.03: first_seen_run, last_seen_run, prior findings summary."""
 
-    def _make_finding(self, id_str, severity="HIGH", source_layer="structural",
-                       location=None):
+    def _make_finding(
+        self, id_str, severity="HIGH", source_layer="structural", location=None
+    ):
         if location is None:
             location = f"FR-{id_str}"
         return Finding(
-            id=id_str, severity=severity, dimension="signatures",
-            description=f"finding {id_str}", location=location,
-            evidence="ev", fix_guidance="fix", status="ACTIVE",
+            id=id_str,
+            severity=severity,
+            dimension="signatures",
+            description=f"finding {id_str}",
+            location=location,
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
             source_layer=source_layer,
         )
 
     def test_first_seen_and_last_seen_tracking(self, tmp_path):
         """Each finding tracks first_seen_run and last_seen_run integers."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         f1 = self._make_finding("F-001")
 
         reg.begin_run("road1")
@@ -478,7 +532,9 @@ class TestRunToRunMemory:
 
     def test_prior_findings_summary_max_50(self, tmp_path):
         """get_prior_findings_summary() returns at most 50 findings, oldest first."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         reg.begin_run("road1")
 
         # Create 60 findings
@@ -488,8 +544,14 @@ class TestRunToRunMemory:
         summary = reg.get_prior_findings_summary(max_entries=50)
         lines = summary.strip().split("\n")
         # Header (2 lines) + 50 data lines + 1 truncation line
-        data_lines = [l for l in lines if l.startswith("|") and "---" not in l
-                       and "Stable ID" not in l and "more entries" not in l]
+        data_lines = [
+            l
+            for l in lines
+            if l.startswith("|")
+            and "---" not in l
+            and "Stable ID" not in l
+            and "more entries" not in l
+        ]
         assert len(data_lines) == 50
 
         # Verify truncation message present
@@ -497,7 +559,9 @@ class TestRunToRunMemory:
 
     def test_prior_findings_summary_fields(self, tmp_path):
         """Summary includes ID, severity, status, source, run_number."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         reg.begin_run("road1")
         reg.merge_findings([self._make_finding("F-001")], [], run_number=1)
 
@@ -512,7 +576,9 @@ class TestRunToRunMemory:
 
     def test_fixed_findings_not_reported_as_new(self, tmp_path):
         """Fixed findings from prior runs do not appear as new findings."""
-        reg = DeviationRegistry(path=tmp_path / "reg.json", release_id="test", spec_hash="abc")
+        reg = DeviationRegistry(
+            path=tmp_path / "reg.json", release_id="test", spec_hash="abc"
+        )
         f1 = self._make_finding("F-001")
         f2 = self._make_finding("F-002")
 
@@ -524,7 +590,9 @@ class TestRunToRunMemory:
         reg.begin_run("road2")
         reg.merge_findings([f1], [], run_number=2)
 
-        f2_entry = [f for f in reg.findings.values() if f["description"] == "finding F-002"][0]
+        f2_entry = [
+            f for f in reg.findings.values() if f["description"] == "finding F-002"
+        ][0]
         assert f2_entry["status"] == "FIXED"
 
         # Run 3: f2 reappears -> should NOT get a new entry, should update existing
@@ -533,7 +601,9 @@ class TestRunToRunMemory:
 
         # Still only 2 findings total (no duplicate)
         assert len(reg.findings) == 2
-        f2_entry = [f for f in reg.findings.values() if f["description"] == "finding F-002"][0]
+        f2_entry = [
+            f for f in reg.findings.values() if f["description"] == "finding F-002"
+        ][0]
         assert f2_entry["status"] == "ACTIVE"
         assert f2_entry["first_seen_run"] == 1  # Original first_seen preserved
         assert f2_entry["last_seen_run"] == 3
@@ -545,14 +615,25 @@ class TestRunToRunMemory:
 class TestThreeRunSimulation:
     """T03.04: End-to-end 3-run registry lifecycle."""
 
-    def _make_finding(self, id_str, severity="HIGH", source_layer="structural",
-                       dimension="signatures", location=None):
+    def _make_finding(
+        self,
+        id_str,
+        severity="HIGH",
+        source_layer="structural",
+        dimension="signatures",
+        location=None,
+    ):
         if location is None:
             location = f"FR-{id_str}"
         return Finding(
-            id=id_str, severity=severity, dimension=dimension,
-            description=f"finding {id_str}", location=location,
-            evidence="ev", fix_guidance="fix", status="ACTIVE",
+            id=id_str,
+            severity=severity,
+            dimension=dimension,
+            description=f"finding {id_str}",
+            location=location,
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
             source_layer=source_layer,
         )
 
@@ -597,11 +678,15 @@ class TestThreeRunSimulation:
         reg.merge_findings(structural_r2, semantic_r2, run_number=run2)
 
         # STR-002 should be FIXED
-        str002 = [f for f in reg.findings.values() if f["description"] == "finding STR-002"][0]
+        str002 = [
+            f for f in reg.findings.values() if f["description"] == "finding STR-002"
+        ][0]
         assert str002["status"] == "FIXED"
 
         # New stable IDs for SEM-002
-        sem002 = [f for f in reg.findings.values() if f["description"] == "finding SEM-002"][0]
+        sem002 = [
+            f for f in reg.findings.values() if f["description"] == "finding SEM-002"
+        ][0]
         assert sem002["first_seen_run"] == 2
         assert sem002["status"] == "ACTIVE"
 
@@ -686,6 +771,7 @@ class TestTurnLedgerIntegration:
             REGRESSION_VALIDATION_COST,
             REMEDIATION_COST,
         )
+
         assert CHECKER_COST == 10
         assert REMEDIATION_COST == 8
         assert REGRESSION_VALIDATION_COST == 15
@@ -698,6 +784,7 @@ class TestTurnLedgerIntegration:
             MIN_CONVERGENCE_BUDGET,
             STD_CONVERGENCE_BUDGET,
         )
+
         assert MIN_CONVERGENCE_BUDGET == 28
         assert STD_CONVERGENCE_BUDGET == 46
         assert MAX_CONVERGENCE_BUDGET == 61
@@ -705,6 +792,7 @@ class TestTurnLedgerIntegration:
     def test_turnledger_conditional_import(self):
         """TurnLedger importable from sprint.models via helper."""
         from superclaude.cli.roadmap.convergence import _get_turnledger_class
+
         TurnLedger = _get_turnledger_class()
         ledger = TurnLedger(initial_budget=61)
         assert ledger.can_launch()
@@ -716,7 +804,9 @@ class TestTurnLedgerIntegration:
         from superclaude.cli.sprint.models import TurnLedger
 
         ledger = TurnLedger(initial_budget=100)
-        credit = reimburse_for_progress(ledger, prev_structural_highs=5, curr_structural_highs=3)
+        credit = reimburse_for_progress(
+            ledger, prev_structural_highs=5, curr_structural_highs=3
+        )
         assert credit > 0
         assert ledger.reimbursed > 0
 
@@ -726,7 +816,9 @@ class TestTurnLedgerIntegration:
         from superclaude.cli.sprint.models import TurnLedger
 
         ledger = TurnLedger(initial_budget=100)
-        credit = reimburse_for_progress(ledger, prev_structural_highs=3, curr_structural_highs=3)
+        credit = reimburse_for_progress(
+            ledger, prev_structural_highs=3, curr_structural_highs=3
+        )
         assert credit == 0
         assert ledger.reimbursed == 0
 
@@ -736,7 +828,9 @@ class TestTurnLedgerIntegration:
         from superclaude.cli.sprint.models import TurnLedger
 
         ledger = TurnLedger(initial_budget=100)
-        credit = reimburse_for_progress(ledger, prev_structural_highs=3, curr_structural_highs=5)
+        credit = reimburse_for_progress(
+            ledger, prev_structural_highs=3, curr_structural_highs=5
+        )
         assert credit == 0
 
     def test_budget_guard_halts_on_exhaustion(self):
@@ -770,14 +864,20 @@ class TestTurnLedgerIntegration:
 class TestConvergenceLoop:
     """T05.02: execute_fidelity_with_convergence() behavior."""
 
-    def _make_finding(self, id_str, severity="HIGH", source_layer="structural",
-                       location=None):
+    def _make_finding(
+        self, id_str, severity="HIGH", source_layer="structural", location=None
+    ):
         if location is None:
             location = f"FR-{id_str}"
         return Finding(
-            id=id_str, severity=severity, dimension="signatures",
-            description=f"finding {id_str}", location=location,
-            evidence="ev", fix_guidance="fix", status="ACTIVE",
+            id=id_str,
+            severity=severity,
+            dimension="signatures",
+            description=f"finding {id_str}",
+            location=location,
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
             source_layer=source_layer,
         )
 
@@ -863,14 +963,20 @@ class TestConvergenceLoop:
             spec_hash="abc",
         )
         # Budget for exactly 1 checker run, not enough for remediation + run 2
-        ledger = TurnLedger(initial_budget=CHECKER_COST + 2, minimum_allocation=5, minimum_remediation_budget=5)
+        ledger = TurnLedger(
+            initial_budget=CHECKER_COST + 2,
+            minimum_allocation=5,
+            minimum_remediation_budget=5,
+        )
 
         roadmap = tmp_path / "roadmap.md"
         roadmap.write_text("# Roadmap")
 
         def persistent_checkers(registry, run_number):
             registry.merge_findings(
-                [self._make_finding("F-001")], [], run_number=run_number,
+                [self._make_finding("F-001")],
+                [],
+                run_number=run_number,
             )
 
         result = execute_fidelity_with_convergence(
@@ -911,11 +1017,16 @@ class TestConvergenceLoop:
                 findings = [self._make_finding("F-001")]
             else:
                 # Regression: more findings than before
-                findings = [self._make_finding("F-001"), self._make_finding("F-002"), self._make_finding("F-003")]
+                findings = [
+                    self._make_finding("F-001"),
+                    self._make_finding("F-002"),
+                    self._make_finding("F-003"),
+                ]
             registry.merge_findings(findings, [], run_number=run_number)
 
         def mock_regression(registry, spec_path, roadmap_path):
             from superclaude.cli.roadmap.convergence import RegressionResult
+
             regression_called["called"] = True
             return RegressionResult(agents_succeeded=3)
 
@@ -950,6 +1061,7 @@ class TestDispatch:
         )
         # Import the step builder
         from superclaude.cli.roadmap.executor import _build_steps
+
         steps = _build_steps(config)
 
         # Find spec-fidelity step (flat list, may be nested)
@@ -979,6 +1091,7 @@ class TestDispatch:
             agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
         )
         from superclaude.cli.roadmap.executor import _build_steps
+
         steps = _build_steps(config)
 
         fidelity_step = None
@@ -1004,6 +1117,7 @@ class TestBudgetIsolation:
     def test_convergence_module_no_legacy_budget_refs(self):
         """convergence.py does not call _check_remediation_budget or _print_terminal_halt."""
         import superclaude.cli.roadmap.convergence as mod
+
         source = Path(mod.__file__).read_text()
         assert "_check_remediation_budget" not in source
         assert "_print_terminal_halt" not in source
@@ -1011,12 +1125,14 @@ class TestBudgetIsolation:
     def test_turnledger_not_in_legacy_path(self):
         """Legacy executor step 8 path does not reference TurnLedger at module level."""
         import superclaude.cli.roadmap.executor as mod
+
         source = Path(mod.__file__).read_text()
         # TurnLedger should not be imported at module level in executor;
         # function-scoped imports inside _run_convergence_spec_fidelity are expected
         lines = source.splitlines()
         module_level_imports = [
-            line for line in lines
+            line
+            for line in lines
             if "from ..sprint.models import TurnLedger" in line
             and not line.startswith((" ", "\t"))
         ]
@@ -1031,14 +1147,20 @@ class TestBudgetIsolation:
 class TestRegressionTrigger:
     """T05.05: Regression trigger on structural increase only."""
 
-    def _make_finding(self, id_str, severity="HIGH", source_layer="structural",
-                       location=None):
+    def _make_finding(
+        self, id_str, severity="HIGH", source_layer="structural", location=None
+    ):
         if location is None:
             location = f"FR-{id_str}"
         return Finding(
-            id=id_str, severity=severity, dimension="signatures",
-            description=f"finding {id_str}", location=location,
-            evidence="ev", fix_guidance="fix", status="ACTIVE",
+            id=id_str,
+            severity=severity,
+            dimension="signatures",
+            description=f"finding {id_str}",
+            location=location,
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
             source_layer=source_layer,
         )
 
@@ -1073,8 +1195,10 @@ class TestRegressionTrigger:
         reg.begin_run("road2")
         reg.merge_findings(
             [],
-            [self._make_finding("S-001", source_layer="semantic"),
-             self._make_finding("S-002", source_layer="semantic")],
+            [
+                self._make_finding("S-001", source_layer="semantic"),
+                self._make_finding("S-002", source_layer="semantic"),
+            ],
             run_number=2,
         )
         assert _check_regression(reg) is False
@@ -1108,15 +1232,23 @@ class TestRegressionTrigger:
             """Run 1: 1 finding. Run 2: 3 findings (regression)."""
             run_counter["n"] += 1
             if run_counter["n"] == 1:
-                registry.merge_findings([self._make_finding("F-001")], [], run_number=run_number)
+                registry.merge_findings(
+                    [self._make_finding("F-001")], [], run_number=run_number
+                )
             else:
                 registry.merge_findings(
-                    [self._make_finding("F-001"), self._make_finding("F-002"), self._make_finding("F-003")],
-                    [], run_number=run_number,
+                    [
+                        self._make_finding("F-001"),
+                        self._make_finding("F-002"),
+                        self._make_finding("F-003"),
+                    ],
+                    [],
+                    run_number=run_number,
                 )
 
         def mock_regression(registry, sp, rp):
             from superclaude.cli.roadmap.convergence import RegressionResult
+
             budget_before_regression["val"] = ledger.consumed
             return RegressionResult(agents_succeeded=3)
 
@@ -1171,9 +1303,14 @@ class TestParallelValidation:
         reg = DeviationRegistry(path=reg_path, release_id="test", spec_hash="abc")
         reg.begin_run("road1")
         f = Finding(
-            id="F-001", severity="HIGH", dimension="sig",
-            description="test finding", location="FR-1",
-            evidence="ev", fix_guidance="fix", status="ACTIVE",
+            id="F-001",
+            severity="HIGH",
+            dimension="sig",
+            description="test finding",
+            location="FR-1",
+            evidence="ev",
+            fix_guidance="fix",
+            status="ACTIVE",
         )
         reg.merge_findings([f], [], run_number=1)
         reg.save()
@@ -1189,6 +1326,7 @@ class TestParallelValidation:
         import inspect
 
         from superclaude.cli.roadmap.convergence import handle_regression
+
         source = inspect.getsource(handle_regression)
         assert "ledger.debit" not in source
         assert "ledger.credit" not in source
@@ -1246,6 +1384,7 @@ class TestTempDirCleanupEnhanced:
     def test_atexit_handler_registered(self):
         """atexit handler is registered for cleanup."""
         from superclaude.cli.roadmap.convergence import _atexit_cleanup
+
         # _atexit_cleanup is registered at module import time
         # We can verify it exists as a callable
         assert callable(_atexit_cleanup)
@@ -1334,17 +1473,21 @@ class TestMutualExclusion:
         # Verify _check_remediation_budget was NOT called
         # (it doesn't exist in convergence.py at all — verified by source check)
         import superclaude.cli.roadmap.convergence as conv_mod
+
         source = Path(conv_mod.__file__).read_text()
         assert "_check_remediation_budget" not in source
 
     def test_legacy_mode_no_turnledger_import(self):
         """Legacy executor path does not import TurnLedger at module level."""
         import superclaude.cli.roadmap.executor as exec_mod
+
         source = Path(exec_mod.__file__).read_text()
         # Module-level imports should not include TurnLedger
         # (conditional import only in convergence.py)
         lines = source.split("\n")
-        import_lines = [l for l in lines if l.startswith("from") or l.startswith("import")]
+        import_lines = [
+            l for l in lines if l.startswith("from") or l.startswith("import")
+        ]
         for line in import_lines:
             assert "TurnLedger" not in line
 

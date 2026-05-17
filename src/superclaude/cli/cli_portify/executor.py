@@ -301,7 +301,11 @@ def _emit_return_contract(
     )
     suggested_budget = _calculate_suggested_resume_budget(steps)
 
-    artifacts = [str(s.output_file) for s in steps if s.output_file and Path(s.output_file).exists()]
+    artifacts = [
+        str(s.output_file)
+        for s in steps
+        if s.output_file and Path(s.output_file).exists()
+    ]
     step_timings = [
         StepTiming(step_name=s.step_id, duration_seconds=0.0)
         for s in steps
@@ -380,9 +384,7 @@ class PortifyGatePolicy:
     Layer 2 (per-gate promotion): individual gates can override upward.
     """
 
-    def __init__(
-        self, global_mode: PortifyGateMode = PortifyGateMode.SHADOW
-    ) -> None:
+    def __init__(self, global_mode: PortifyGateMode = PortifyGateMode.SHADOW) -> None:
         self._global_mode = global_mode
 
     def evaluate(
@@ -488,7 +490,9 @@ class PortifyExecutor:
         self._execution_log = ExecutionLog(workdir)
         self._timing = TimingCapture()
         self._diagnostics = DiagnosticsCollector()
-        self._monitor = OutputMonitor(stall_timeout_seconds=float(config.stall_timeout) if config else 60.0)
+        self._monitor = OutputMonitor(
+            stall_timeout_seconds=float(config.stall_timeout) if config else 60.0
+        )
         self._tui = PortifyTUI()
         self._gate_policy = PortifyGatePolicy(global_mode=gate_mode)
 
@@ -505,7 +509,11 @@ class PortifyExecutor:
 
         def _handle(signum: int, frame) -> None:
             self._interrupted = True
-            signal_name = signal.Signals(signum).name if signum in signal.Signals.__members__.values() else str(signum)
+            signal_name = (
+                signal.Signals(signum).name
+                if signum in signal.Signals.__members__.values()
+                else str(signum)
+            )
             self._execution_log.signal_received(signal_name)
 
         try:
@@ -561,7 +569,9 @@ class PortifyExecutor:
                 if self._ledger.can_launch():
                     exit_code, stdout, timed_out = self._step_runner(step)
                     self._ledger.consume(1)
-                    status = _determine_status(exit_code, timed_out, stdout, artifact_path)
+                    status = _determine_status(
+                        exit_code, timed_out, stdout, artifact_path
+                    )
             return status
 
         # Production path: dispatch to step module
@@ -596,23 +606,37 @@ class PortifyExecutor:
                 return PortifyStatus.HALT
         # Shadow mode: result logged above, no further action
 
-        gate_result = "pass" if gate_eval.passed else gate_eval.effective_mode.name.lower()
+        gate_result = (
+            "pass" if gate_eval.passed else gate_eval.effective_mode.name.lower()
+        )
 
         timing = self._timing.get_step_timing(step.step_id)
         duration = timing.duration_seconds if timing is not None else 0.0
-        self._execution_log.step_end(step.step_id, status=result.portify_status.value, duration_s=duration)
-        self._tui.step_complete(step.step_id, result.portify_status.value, duration, gate_result)
+        self._execution_log.step_end(
+            step.step_id, status=result.portify_status.value, duration_s=duration
+        )
+        self._tui.step_complete(
+            step.step_id, result.portify_status.value, duration, gate_result
+        )
 
-        if result.portify_status in (PortifyStatus.ERROR, PortifyStatus.FAIL, PortifyStatus.TIMEOUT):
+        if result.portify_status in (
+            PortifyStatus.ERROR,
+            PortifyStatus.FAIL,
+            PortifyStatus.TIMEOUT,
+        ):
             if result.error_message:
                 self._diagnostics.record_exit_code(1)
             if result.artifact_path and not Path(result.artifact_path).exists():
                 self._diagnostics.record_missing_artifact(result.artifact_path)
             if result.resume_context.resume_command:
-                self._diagnostics.set_resume_guidance(result.resume_context.resume_command)
+                self._diagnostics.set_resume_guidance(
+                    result.resume_context.resume_command
+                )
 
             # Dispatch to registered failure handler if classification is available
-            if result.failure_classification and has_handler(result.failure_classification):
+            if result.failure_classification and has_handler(
+                result.failure_classification
+            ):
                 handler = FAILURE_HANDLERS[result.failure_classification]
                 if handler is not None:
                     self._execution_log.failure_handler(
@@ -697,9 +721,15 @@ class PortifyExecutor:
 
             final_outcome = outcome if not self.dry_run else PortifyOutcome.DRY_RUN
             self._execution_log.pipeline_outcome(final_outcome.value)
-            self._execution_log.flush(status=final_outcome.value, elapsed=self._timing.total_duration)
+            self._execution_log.flush(
+                status=final_outcome.value, elapsed=self._timing.total_duration
+            )
 
-            if final_outcome in (PortifyOutcome.FAILURE, PortifyOutcome.TIMEOUT, PortifyOutcome.HALTED):
+            if final_outcome in (
+                PortifyOutcome.FAILURE,
+                PortifyOutcome.TIMEOUT,
+                PortifyOutcome.HALTED,
+            ):
                 self._diagnostics.emit_diagnostics(self.workdir, step_id=resume_step)
 
             _emit_return_contract(
@@ -711,7 +741,6 @@ class PortifyExecutor:
             )
 
         return outcome
-
 
 
 # ---------------------------------------------------------------------------

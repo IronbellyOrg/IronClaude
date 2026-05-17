@@ -118,7 +118,9 @@ class AuditTrailHelper:
         # Wiring coverage: fraction of unique spec_refs with at least one PASS
         all_refs = {r["spec_ref"] for r in self.records}
         passed_refs = {r["spec_ref"] for r in self.records if r["verdict"] == "PASS"}
-        wiring_coverage = (len(passed_refs) / len(all_refs) * 100.0) if all_refs else 0.0
+        wiring_coverage = (
+            (len(passed_refs) / len(all_refs) * 100.0) if all_refs else 0.0
+        )
 
         return {
             "total": total,
@@ -185,16 +187,16 @@ def audit_trail(results_dir: Path) -> AuditTrailHelper:
 
     # 3. Print summary to stdout for visibility in test output
     print(
-        f"\n{'='*60}\n"
+        f"\n{'=' * 60}\n"
         f"  v3.3 Audit Trail Session Summary\n"
-        f"{'='*60}\n"
+        f"{'=' * 60}\n"
         f"  Total:              {summary['total']}\n"
         f"  Passed:             {summary['passed']}\n"
         f"  Failed:             {summary['failed']}\n"
         f"  Skipped:            {summary['skipped']}\n"
         f"  Wiring Coverage:    {summary['wiring_coverage_pct']}%\n"
-        f"{'='*60}\n"
+        f"{'=' * 60}\n"
         f"  JSONL:    {output_path}\n"
         f"  Summary:  {summary_path}\n"
-        f"{'='*60}"
+        f"{'=' * 60}"
     )

@@ -252,9 +252,7 @@ _STEP_ARTIFACT_FILES: dict[str, str] = {
 }
 
 
-def _resolve_step_content(
-    step_id: str, task_dir: Path, ndjson_text: str
-) -> str:
+def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str:
     """Resolve the best content for gate evaluation and artifact persistence.
 
     Subprocesses may write their real output to disk via Write/Edit tools
@@ -306,7 +304,12 @@ _STAGE_A_STEPS: list[tuple[str, str, str, bool]] = [
     ("parse-request", "Parse Request", "build_parse_request_prompt", False),
     ("scope-discovery", "Scope Discovery", "build_scope_discovery_prompt", False),
     ("research-notes", "Research Notes", "build_research_notes_prompt", False),
-    ("sufficiency-review", "Sufficiency Review", "build_sufficiency_review_prompt", False),
+    (
+        "sufficiency-review",
+        "Sufficiency Review",
+        "build_sufficiency_review_prompt",
+        False,
+    ),
     ("template-triage", "Template Triage", "_template_triage", False),
     ("build-task-file", "Build Task File", "build_task_file_prompt", False),
     ("verify-task-file", "Verify Task File", "build_verify_task_file_prompt", False),
@@ -361,9 +364,7 @@ class PrdExecutor:
             create_task_dirs(self._config.task_dir)
 
             # Register steps in TUI
-            all_step_ids = [
-                (s[0], s[1]) for s in _STAGE_A_STEPS
-            ]
+            all_step_ids = [(s[0], s[1]) for s in _STAGE_A_STEPS]
             self._tui.register_steps(all_step_ids)
             self._tui.start()
 
@@ -373,9 +374,7 @@ class PrdExecutor:
                     self._handle_shutdown(result)
                     return result
 
-                step_result = self._execute_step(
-                    step_id, step_name, builder_name
-                )
+                step_result = self._execute_step(step_id, step_name, builder_name)
                 self._step_results.append(step_result)
                 result.step_results.append(step_result)
 
@@ -441,9 +440,7 @@ class PrdExecutor:
         elif builder_name == "_template_triage":
             step_result = self._run_template_triage()
         else:
-            step_result = self._run_subprocess_step(
-                step_id, step_name, builder_name
-            )
+            step_result = self._run_subprocess_step(step_id, step_name, builder_name)
 
         duration = time.monotonic() - start_time
 
@@ -466,9 +463,7 @@ class PrdExecutor:
         self._diagnostics.record_step(step_result)
 
         # Store context summary for dependent steps (NFR-PRD.11/GAP-004)
-        self._context_summaries[step_id] = (
-            f"{step_id}: {step_result.status.value}"
-        )
+        self._context_summaries[step_id] = f"{step_id}: {step_result.status.value}"
 
         return step_result
 
@@ -517,9 +512,7 @@ class PrdExecutor:
         # Read output and extract assistant text from NDJSON
         raw_output = ""
         try:
-            raw_output = output_file.read_text(
-                encoding="utf-8", errors="replace"
-            )
+            raw_output = output_file.read_text(encoding="utf-8", errors="replace")
         except OSError:
             pass
 
@@ -610,7 +603,8 @@ class PrdExecutor:
                     gate.enforcement_tier,
                 )
                 self._logger.log_gate_result(
-                    step_id, False,
+                    step_id,
+                    False,
                     f"Min lines: {line_count}/{gate.min_lines}",
                 )
                 return False
@@ -644,9 +638,7 @@ class PrdExecutor:
         investigation_steps = self._build_investigation_steps()
 
         if investigation_steps:
-            self._execute_parallel_steps(
-                investigation_steps, result, "investigation"
-            )
+            self._execute_parallel_steps(investigation_steps, result, "investigation")
             result.research_agent_count = len(investigation_steps)
 
         # Step 11: Research QA + fix cycle
@@ -663,18 +655,14 @@ class PrdExecutor:
         if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
             web_steps = self._build_web_research_steps()
             if web_steps:
-                self._execute_parallel_steps(
-                    web_steps, result, "web-research"
-                )
+                self._execute_parallel_steps(web_steps, result, "web-research")
                 result.web_agent_count = len(web_steps)
 
         # Step 13a: Synthesis (parallel)
         if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
             synth_steps = self._build_synthesis_steps()
             if synth_steps:
-                self._execute_parallel_steps(
-                    synth_steps, result, "synthesis"
-                )
+                self._execute_parallel_steps(synth_steps, result, "synthesis")
                 result.synthesis_agent_count = len(synth_steps)
 
         # Step 13b: Synthesis QA + fix cycle
@@ -800,9 +788,7 @@ class PrdExecutor:
             for step_id, step_name, builder in steps:
                 if self._signal_handler.shutdown_requested:
                     break
-                future = pool.submit(
-                    self._execute_step, step_id, step_name, builder
-                )
+                future = pool.submit(self._execute_step, step_id, step_name, builder)
                 futures[future] = step_id
 
             for future in as_completed(futures):
@@ -881,9 +867,7 @@ class PrdExecutor:
                     if gate and gate.enforcement_tier == "STRICT":
                         result.outcome = "halt"
                         result.halt_step = qa_step_id
-                        result.halt_reason = (
-                            f"QA failure: {qa_result.status.value}"
-                        )
+                        result.halt_reason = f"QA failure: {qa_result.status.value}"
                 return
 
             # Last cycle exhausted -> halt with QA_FAIL_EXHAUSTED
@@ -978,13 +962,12 @@ class PrdExecutor:
         result.finished_at = datetime.now(timezone.utc)
 
         # Find last completed step
-        completed = [
-            r for r in self._step_results
-            if r.status.is_terminal
-        ]
+        completed = [r for r in self._step_results if r.status.is_terminal]
         if completed:
             last = completed[-1]
-            last_step = getattr(last.step, "name", "unknown") if last.step else "unknown"
+            last_step = (
+                getattr(last.step, "name", "unknown") if last.step else "unknown"
+            )
             result.halt_step = last_step
             result.halt_reason = "Signal-interrupted shutdown"
 
@@ -992,9 +975,7 @@ class PrdExecutor:
     # Helpers
     # -------------------------------------------------------------------
 
-    def _persist_step_artifact(
-        self, step_id: str, output_text: str
-    ) -> None:
+    def _persist_step_artifact(self, step_id: str, output_text: str) -> None:
         """Write step output to the expected artifact file.
 
         Downstream prompt builders load artifacts by filename from

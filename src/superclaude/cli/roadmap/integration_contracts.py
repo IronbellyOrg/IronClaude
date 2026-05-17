@@ -287,9 +287,7 @@ def check_roadmap_coverage(
                         # and multi-line task descriptions)
                         window_start = max(0, j - 2)
                         window_end = min(len(roadmap_lines), j + 3)
-                        window_text = " ".join(
-                            roadmap_lines[window_start:window_end]
-                        )
+                        window_text = " ".join(roadmap_lines[window_start:window_end])
                         if impl_verbs.search(window_text):
                             covered = True
                             evidence = rline.strip()
@@ -320,15 +318,13 @@ def _classify_mechanism(matched_text: str) -> str:
     """Classify matched text into a mechanism category."""
     lower = matched_text.lower()
     if any(
-        k in lower
-        for k in ("dispatch", "runner", "handler", "command_map", "step_map")
+        k in lower for k in ("dispatch", "runner", "handler", "command_map", "step_map")
     ):
         return "dispatch_table"
     if "registry" in lower or "register" in lower:
         return "registry"
     if any(
-        k in lower
-        for k in ("inject", "callable", "protocol", "factory", "provider")
+        k in lower for k in ("inject", "callable", "protocol", "factory", "provider")
     ):
         return "dependency_injection"
     if any(k in lower for k in ("wire", "bind", "populate")):

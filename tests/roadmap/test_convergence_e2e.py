@@ -5,6 +5,7 @@ budget exhaustion, regression handling, convergence pass, and
 semantic fluctuation through the full execute_fidelity_with_convergence
 loop with controlled mock checkers and real registries.
 """
+
 from pathlib import Path
 
 import pytest
@@ -130,7 +131,9 @@ class TestConvergenceE2E:
         roadmap.write_text("# Roadmap")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="rel-1", spec_hash="hash-1",
+            path=reg_path,
+            release_id="rel-1",
+            spec_hash="hash-1",
         )
         ledger = TurnLedger(
             initial_budget=200,
@@ -167,9 +170,7 @@ class TestConvergenceE2E:
         assert result.regression_detected is False
 
         # Verify monotonic decrease in run metadata
-        structural_counts = [
-            run.get("structural_high_count", 0) for run in reg.runs
-        ]
+        structural_counts = [run.get("structural_high_count", 0) for run in reg.runs]
         for i in range(1, len(structural_counts)):
             assert structural_counts[i] <= structural_counts[i - 1], (
                 f"Structural HIGHs increased from run {i} to {i + 1}: "
@@ -210,7 +211,9 @@ class TestConvergenceE2E:
         roadmap.write_text("# Roadmap")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="rel-1", spec_hash="hash-1",
+            path=reg_path,
+            release_id="rel-1",
+            spec_hash="hash-1",
         )
         # Budget: enough for 1 checker run but not remediation + run 2
         ledger = TurnLedger(
@@ -221,7 +224,9 @@ class TestConvergenceE2E:
 
         def mock_checkers(registry: DeviationRegistry, run_number: int):
             registry.merge_findings(
-                [_make_finding("F-001")], [], run_number=run_number,
+                [_make_finding("F-001")],
+                [],
+                run_number=run_number,
             )
 
         def mock_remediation(registry: DeviationRegistry):
@@ -276,7 +281,9 @@ class TestConvergenceE2E:
         spec.write_text("# Spec")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="rel-1", spec_hash="hash-1",
+            path=reg_path,
+            release_id="rel-1",
+            spec_hash="hash-1",
         )
         ledger = TurnLedger(
             initial_budget=200,
@@ -356,7 +363,9 @@ class TestConvergenceE2E:
         roadmap.write_text("# Roadmap")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="rel-1", spec_hash="hash-1",
+            path=reg_path,
+            release_id="rel-1",
+            spec_hash="hash-1",
         )
         ledger = TurnLedger(
             initial_budget=200,
@@ -433,7 +442,9 @@ class TestConvergenceE2E:
         roadmap.write_text("# Roadmap")
 
         reg = DeviationRegistry(
-            path=reg_path, release_id="rel-1", spec_hash="hash-1",
+            path=reg_path,
+            release_id="rel-1",
+            spec_hash="hash-1",
         )
         ledger = TurnLedger(
             initial_budget=200,
@@ -462,7 +473,9 @@ class TestConvergenceE2E:
             idx = call_count["n"]
             call_count["n"] += 1
             registry.merge_findings(
-                structural_per_run[idx], semantic_per_run[idx], run_number=run_number,
+                structural_per_run[idx],
+                semantic_per_run[idx],
+                run_number=run_number,
             )
 
         def mock_remediation(registry: DeviationRegistry):

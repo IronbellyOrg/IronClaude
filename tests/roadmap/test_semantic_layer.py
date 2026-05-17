@@ -1,4 +1,5 @@
 """Tests for BF-6 and BF-7: Semantic layer, debate protocol, prompt budget."""
+
 from pathlib import Path
 
 import pytest
@@ -155,6 +156,7 @@ class TestPromptBudget:
 
 class FakeSection:
     """Minimal SpecSection stand-in."""
+
     def __init__(self, heading: str, content: str):
         self.heading = heading
         self.heading_path = heading
@@ -163,6 +165,7 @@ class FakeSection:
 
 class FakeClaudeProcess:
     """Injected LLM stub returning canned YAML responses."""
+
     def __init__(self, response: str):
         self._response = response
 
@@ -197,7 +200,9 @@ def _make_test_finding(
     return Finding(**defaults)
 
 
-def _make_test_registry(tmp_path: Path, findings: dict | None = None) -> DeviationRegistry:
+def _make_test_registry(
+    tmp_path: Path, findings: dict | None = None
+) -> DeviationRegistry:
     """Create a test DeviationRegistry with optional seeded findings."""
     registry_path = tmp_path / "test-registry.json"
     reg = DeviationRegistry(
@@ -218,9 +223,15 @@ class TestDimensionFiltering:
 
     def test_structural_dimensions_defined(self):
         """Structural dimensions match checker registry keys."""
-        assert STRUCTURAL_DIMENSIONS == frozenset({
-            "signatures", "data_models", "gates", "cli", "nfrs",
-        })
+        assert STRUCTURAL_DIMENSIONS == frozenset(
+            {
+                "signatures",
+                "data_models",
+                "gates",
+                "cli",
+                "nfrs",
+            }
+        )
 
     def test_semantic_dimensions_disjoint_from_structural(self):
         """Semantic dimensions do not overlap with structural dimensions."""
@@ -239,6 +250,7 @@ class TestDimensionFiltering:
                 def run(self, prompt):
                     called_prompts.append(prompt)
                     return "findings: []"
+
             return Proc()
 
         registry = _make_test_registry(tmp_path)
@@ -310,16 +322,18 @@ class TestSemanticFindingTagging:
 
     def test_findings_tagged_semantic(self, tmp_path):
         """All findings from semantic layer have source_layer='semantic'."""
-        yaml_response = yaml.dump({
-            "findings": [
-                {
-                    "description": "Missing rationale",
-                    "severity": "MEDIUM",
-                    "location": "spec:prose",
-                    "evidence": "Section lacks justification",
-                },
-            ],
-        })
+        yaml_response = yaml.dump(
+            {
+                "findings": [
+                    {
+                        "description": "Missing rationale",
+                        "severity": "MEDIUM",
+                        "location": "spec:prose",
+                        "evidence": "Section lacks justification",
+                    },
+                ],
+            }
+        )
 
         def factory():
             return FakeClaudeProcess(yaml_response)
@@ -408,20 +422,25 @@ class TestDebateProtocol:
     def test_validate_semantic_high_returns_verdict(self, tmp_path):
         """validate_semantic_high() returns a verdict string."""
         # Strong prosecutor, weak defender -> CONFIRM_HIGH
-        prosecutor_resp = yaml.dump({
-            "argument": " ".join(["evidence"] * 120) + " however despite",
-            "evidence_points": ["p1", "p2", "p3"],
-            "confidence": 0.95,
-            "recommended_severity": "HIGH",
-        })
-        defender_resp = yaml.dump({
-            "argument": "weak",
-            "evidence_points": [],
-            "confidence": 0.1,
-            "recommended_severity": "MEDIUM",
-        })
+        prosecutor_resp = yaml.dump(
+            {
+                "argument": " ".join(["evidence"] * 120) + " however despite",
+                "evidence_points": ["p1", "p2", "p3"],
+                "confidence": 0.95,
+                "recommended_severity": "HIGH",
+            }
+        )
+        defender_resp = yaml.dump(
+            {
+                "argument": "weak",
+                "evidence_points": [],
+                "confidence": 0.1,
+                "recommended_severity": "MEDIUM",
+            }
+        )
 
         call_count = [0]
+
         def factory():
             call_count[0] += 1
             if call_count[0] % 2 == 1:
@@ -444,12 +463,14 @@ class TestDebateProtocol:
     def test_deterministic_judge_same_inputs_same_verdict(self, tmp_path):
         """Same rubric scores always produce the same verdict (determinism)."""
         # Both sides get same canned response
-        response = yaml.dump({
-            "argument": " ".join(["word"] * 60) + " however although",
-            "evidence_points": ["p1", "p2"],
-            "confidence": 0.7,
-            "recommended_severity": "MEDIUM",
-        })
+        response = yaml.dump(
+            {
+                "argument": " ".join(["word"] * 60) + " however although",
+                "evidence_points": ["p1", "p2"],
+                "confidence": 0.7,
+                "recommended_severity": "MEDIUM",
+            }
+        )
 
         def factory():
             return FakeClaudeProcess(response)
@@ -477,12 +498,14 @@ class TestDebateProtocol:
 
     def test_conservative_tiebreak_confirms_high(self, tmp_path):
         """Equal-strength arguments -> CONFIRM_HIGH (conservative tiebreak)."""
-        equal_resp = yaml.dump({
-            "argument": " ".join(["word"] * 60) + " however",
-            "evidence_points": ["p1", "p2"],
-            "confidence": 0.7,
-            "recommended_severity": "MEDIUM",
-        })
+        equal_resp = yaml.dump(
+            {
+                "argument": " ".join(["word"] * 60) + " however",
+                "evidence_points": ["p1", "p2"],
+                "confidence": 0.7,
+                "recommended_severity": "MEDIUM",
+            }
+        )
 
         def factory():
             return FakeClaudeProcess(equal_resp)
@@ -504,12 +527,14 @@ class TestDebateProtocol:
         """YAML parse failure defaults all rubric scores to 0 for that side."""
         # Prosecutor returns garbage, defender returns valid
         call_count = [0]
-        defender_resp = yaml.dump({
-            "argument": " ".join(["strong"] * 120) + " however despite although",
-            "evidence_points": ["p1", "p2", "p3"],
-            "confidence": 0.95,
-            "recommended_severity": "MEDIUM",
-        })
+        defender_resp = yaml.dump(
+            {
+                "argument": " ".join(["strong"] * 120) + " however despite although",
+                "evidence_points": ["p1", "p2", "p3"],
+                "confidence": 0.95,
+                "recommended_severity": "MEDIUM",
+            }
+        )
 
         def factory():
             call_count[0] += 1
@@ -537,12 +562,16 @@ class TestDebateProtocol:
 
         def factory():
             call_count[0] += 1
-            return FakeClaudeProcess(yaml.dump({
-                "argument": "test argument",
-                "evidence_points": [],
-                "confidence": 0.5,
-                "recommended_severity": "MEDIUM",
-            }))
+            return FakeClaudeProcess(
+                yaml.dump(
+                    {
+                        "argument": "test argument",
+                        "evidence_points": [],
+                        "confidence": 0.5,
+                        "recommended_severity": "MEDIUM",
+                    }
+                )
+            )
 
         finding = _make_test_finding(severity="HIGH")
         registry = _make_test_registry(tmp_path)
@@ -566,12 +595,14 @@ class TestDebateOutput:
 
     def test_debate_yaml_written_per_finding(self, tmp_path):
         """Debate output YAML written to output_dir/debates/{stable_id}/debate.yaml."""
-        resp = yaml.dump({
-            "argument": " ".join(["word"] * 60),
-            "evidence_points": ["p1"],
-            "confidence": 0.6,
-            "recommended_severity": "MEDIUM",
-        })
+        resp = yaml.dump(
+            {
+                "argument": " ".join(["word"] * 60),
+                "evidence_points": ["p1"],
+                "confidence": 0.6,
+                "recommended_severity": "MEDIUM",
+            }
+        )
 
         def factory():
             return FakeClaudeProcess(resp)
@@ -601,12 +632,14 @@ class TestDebateOutput:
 
     def test_debate_yaml_contains_rubric_scores(self, tmp_path):
         """YAML contains rubric scores for both sides, margin, and verdict."""
-        resp = yaml.dump({
-            "argument": " ".join(["word"] * 60),
-            "evidence_points": ["p1", "p2"],
-            "confidence": 0.7,
-            "recommended_severity": "MEDIUM",
-        })
+        resp = yaml.dump(
+            {
+                "argument": " ".join(["word"] * 60),
+                "evidence_points": ["p1", "p2"],
+                "confidence": 0.7,
+                "recommended_severity": "MEDIUM",
+            }
+        )
 
         def factory():
             return FakeClaudeProcess(resp)
@@ -638,47 +671,58 @@ class TestDebateOutput:
     def test_wire_verdict_updates_registry(self, tmp_path):
         """Registry updated with debate_verdict and debate_transcript after debate."""
         finding = _make_test_finding(severity="HIGH", stable_id="wire123456789012")
-        registry = _make_test_registry(tmp_path, findings={
-            "wire123456789012": {
-                "stable_id": "wire123456789012",
-                "dimension": "prose_sufficiency",
-                "severity": "HIGH",
-                "description": "Test",
-                "location": "spec:prose",
-                "source_layer": "semantic",
-                "status": "ACTIVE",
-                "first_seen_run": 1,
-                "last_seen_run": 1,
-                "debate_verdict": None,
-                "debate_transcript": None,
+        registry = _make_test_registry(
+            tmp_path,
+            findings={
+                "wire123456789012": {
+                    "stable_id": "wire123456789012",
+                    "dimension": "prose_sufficiency",
+                    "severity": "HIGH",
+                    "description": "Test",
+                    "location": "spec:prose",
+                    "source_layer": "semantic",
+                    "status": "ACTIVE",
+                    "first_seen_run": 1,
+                    "last_seen_run": 1,
+                    "debate_verdict": None,
+                    "debate_transcript": None,
+                },
             },
-        })
+        )
 
         wire_debate_verdict(registry, finding, "CONFIRM_HIGH", "/path/to/debate.yaml")
 
         assert registry.findings["wire123456789012"]["debate_verdict"] == "CONFIRM_HIGH"
-        assert registry.findings["wire123456789012"]["debate_transcript"] == "/path/to/debate.yaml"
+        assert (
+            registry.findings["wire123456789012"]["debate_transcript"]
+            == "/path/to/debate.yaml"
+        )
 
     def test_wire_verdict_downgrade_updates_severity(self, tmp_path):
         """DOWNGRADE verdict updates severity in registry."""
         finding = _make_test_finding(severity="HIGH", stable_id="down123456789012")
-        registry = _make_test_registry(tmp_path, findings={
-            "down123456789012": {
-                "stable_id": "down123456789012",
-                "dimension": "prose_sufficiency",
-                "severity": "HIGH",
-                "description": "Test",
-                "location": "spec:prose",
-                "source_layer": "semantic",
-                "status": "ACTIVE",
-                "first_seen_run": 1,
-                "last_seen_run": 1,
-                "debate_verdict": None,
-                "debate_transcript": None,
+        registry = _make_test_registry(
+            tmp_path,
+            findings={
+                "down123456789012": {
+                    "stable_id": "down123456789012",
+                    "dimension": "prose_sufficiency",
+                    "severity": "HIGH",
+                    "description": "Test",
+                    "location": "spec:prose",
+                    "source_layer": "semantic",
+                    "status": "ACTIVE",
+                    "first_seen_run": 1,
+                    "last_seen_run": 1,
+                    "debate_verdict": None,
+                    "debate_transcript": None,
+                },
             },
-        })
+        )
 
-        wire_debate_verdict(registry, finding, "DOWNGRADE_TO_MEDIUM", "/path/debate.yaml")
+        wire_debate_verdict(
+            registry, finding, "DOWNGRADE_TO_MEDIUM", "/path/debate.yaml"
+        )
 
         assert registry.findings["down123456789012"]["severity"] == "MEDIUM"
 
@@ -691,21 +735,24 @@ class TestMemoryIntegration:
 
     def test_prior_findings_in_prompt(self, tmp_path):
         """Prior findings from registry appear in semantic layer prompt."""
-        registry = _make_test_registry(tmp_path, findings={
-            "prior1234567890ab": {
-                "stable_id": "prior1234567890ab",
-                "dimension": "signatures",
-                "severity": "HIGH",
-                "description": "Function X missing",
-                "location": "spec:sig:X",
-                "source_layer": "structural",
-                "status": "ACTIVE",
-                "first_seen_run": 1,
-                "last_seen_run": 1,
-                "debate_verdict": None,
-                "debate_transcript": None,
+        registry = _make_test_registry(
+            tmp_path,
+            findings={
+                "prior1234567890ab": {
+                    "stable_id": "prior1234567890ab",
+                    "dimension": "signatures",
+                    "severity": "HIGH",
+                    "description": "Function X missing",
+                    "location": "spec:sig:X",
+                    "source_layer": "structural",
+                    "status": "ACTIVE",
+                    "first_seen_run": 1,
+                    "last_seen_run": 1,
+                    "debate_verdict": None,
+                    "debate_transcript": None,
+                },
             },
-        })
+        )
 
         prior_summary = registry.get_prior_findings_summary()
         request = SemanticCheckRequest(
@@ -723,21 +770,24 @@ class TestMemoryIntegration:
     def test_fixed_findings_not_re_reported(self, tmp_path):
         """Fixed findings from prior runs do not appear as new findings."""
         # Seed registry with a FIXED finding
-        registry = _make_test_registry(tmp_path, findings={
-            "fixed123456789012": {
-                "stable_id": "fixed123456789012",
-                "dimension": "prose_sufficiency",
-                "severity": "HIGH",
-                "description": "Was fixed",
-                "location": "spec:prose",
-                "source_layer": "semantic",
-                "status": "FIXED",
-                "first_seen_run": 1,
-                "last_seen_run": 1,
-                "debate_verdict": None,
-                "debate_transcript": None,
+        registry = _make_test_registry(
+            tmp_path,
+            findings={
+                "fixed123456789012": {
+                    "stable_id": "fixed123456789012",
+                    "dimension": "prose_sufficiency",
+                    "severity": "HIGH",
+                    "description": "Was fixed",
+                    "location": "spec:prose",
+                    "source_layer": "semantic",
+                    "status": "FIXED",
+                    "first_seen_run": 1,
+                    "last_seen_run": 1,
+                    "debate_verdict": None,
+                    "debate_transcript": None,
+                },
             },
-        })
+        )
         registry.begin_run("roadmaphash")
 
         # Semantic check returns empty — should NOT re-create the FIXED finding

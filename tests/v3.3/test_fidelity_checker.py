@@ -79,7 +79,10 @@ class TestFidelityCheckerPositive:
         source_dir, spec_path, _ = synth_workspace
 
         # Create synthetic codebase with known implementations
-        _write_python(source_dir, "audit/wiring_gate.py", """\
+        _write_python(
+            source_dir,
+            "audit/wiring_gate.py",
+            """\
             class WiringReport:
                 \"\"\"Report from wiring analysis.\"\"\"
                 def __init__(self):
@@ -89,10 +92,13 @@ class TestFidelityCheckerPositive:
             def run_wiring_analysis(config, source_dir):
                 \"\"\"Run wiring analysis on source directory.\"\"\"
                 return WiringReport()
-        """)
+        """,
+        )
 
         # Create spec referencing FR-1.1 with those function/class names
-        _write_spec(spec_path, """\
+        _write_spec(
+            spec_path,
+            """\
             # Specification
 
             ## FR-1.1 Wiring Analysis Gate
@@ -100,7 +106,8 @@ class TestFidelityCheckerPositive:
             The `run_wiring_analysis()` function shall analyze Python source files
             in the target directory and produce a `WiringReport` instance containing
             analysis results.
-        """)
+        """,
+        )
 
         # Run checker with no allowlist — rely on auto-extraction
         checker = FidelityChecker(source_dir=source_dir)
@@ -123,7 +130,9 @@ class TestFidelityCheckerPositive:
 
         # Verify the specific names were found
         evidence_set = set(fr_1_1.evidence_names)
-        assert "run_wiring_analysis" in evidence_set or "WiringReport" in evidence_set, (
+        assert (
+            "run_wiring_analysis" in evidence_set or "WiringReport" in evidence_set
+        ), (
             f"Expected 'run_wiring_analysis' or 'WiringReport' in evidence, "
             f"got {fr_1_1.evidence_names}"
         )
@@ -178,7 +187,10 @@ class TestFidelityCheckerNegative:
         source_dir, spec_path, _ = synth_workspace
 
         # Create synthetic codebase with UNRELATED implementations only
-        _write_python(source_dir, "utils/helpers.py", """\
+        _write_python(
+            source_dir,
+            "utils/helpers.py",
+            """\
             def format_output(data):
                 \"\"\"Format data for display — unrelated to FR-9.9.\"\"\"
                 return str(data)
@@ -186,17 +198,21 @@ class TestFidelityCheckerNegative:
             class OutputFormatter:
                 \"\"\"Formatter class — unrelated to FR-9.9.\"\"\"
                 pass
-        """)
+        """,
+        )
 
         # Create spec referencing FR-9.9 with names that do NOT exist in codebase
-        _write_spec(spec_path, """\
+        _write_spec(
+            spec_path,
+            """\
             # Specification
 
             ## FR-9.9 Flux Capacitor Integration
 
             The `compute_flux_capacitor()` function shall initialize the
             `FluxCapacitorEngine` class and execute temporal synchronization.
-        """)
+        """,
+        )
 
         # Run checker — should flag FR-9.9 as missing
         checker = FidelityChecker(source_dir=source_dir)

@@ -27,7 +27,9 @@ def _write_failing_artifact(tmp_path: Path, step_id: str = "analyze-workflow") -
     """Write an artifact that fails STRICT-tier semantic checks (< 5 sections)."""
     p = tmp_path / f"{step_id}.md"
     # STRICT analyze-workflow gate requires >=5 section headers and specific frontmatter
-    p.write_text("---\nstep: 1\nsource_skill: test\ncli_name: test\ncomponent_count: 1\nanalysis_sections: 1\n---\n## One section\nContent\n")
+    p.write_text(
+        "---\nstep: 1\nsource_skill: test\ncli_name: test\ncomponent_count: 1\nanalysis_sections: 1\n---\n## One section\nContent\n"
+    )
     return p
 
 

@@ -121,9 +121,7 @@ class PrdConfig(PipelineConfig):
     tier: str = "standard"
     task_dir: Path = field(default_factory=lambda: Path("."))
     template_path: Path = field(
-        default_factory=lambda: Path(
-            "docs/docs-product/templates/prd_template.md"
-        )
+        default_factory=lambda: Path("docs/docs-product/templates/prd_template.md")
     )
     skill_refs_dir: Path = field(
         default_factory=lambda: Path("src/superclaude/skills/prd/refs")
@@ -187,9 +185,7 @@ class PrdPipelineResult:
     config: PrdConfig
     step_results: list[PrdStepResult] = field(default_factory=list)
     outcome: str = "success"
-    started_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     finished_at: Optional[datetime] = None
     halt_step: Optional[str] = None
     halt_reason: Optional[str] = None
@@ -217,9 +213,11 @@ class PrdPipelineResult:
     @property
     def suggested_resume_budget(self) -> int:
         """Estimate remaining turn budget for a resumed run."""
-        used_turns = sum(
-            1 for r in self.step_results if r.status.is_terminal
-        ) if self.step_results else 0
+        used_turns = (
+            sum(1 for r in self.step_results if r.status.is_terminal)
+            if self.step_results
+            else 0
+        )
         remaining = max(self.config.max_turns - (used_turns * 10), 50)
         return remaining
 

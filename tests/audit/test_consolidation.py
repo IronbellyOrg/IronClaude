@@ -1,6 +1,5 @@
 """Tests for cross-phase deduplication and consolidation engine (T04.01 / D-0027)."""
 
-
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V2Action,

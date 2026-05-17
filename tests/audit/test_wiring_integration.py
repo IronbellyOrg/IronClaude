@@ -122,9 +122,7 @@ class TestCliPortifyWiringIntegration:
         # Total findings includes only the unwired callable
         assert report.total_findings >= 1
 
-    def test_finding_references_original_noop_pattern(
-        self, cli_portify_fixture: Path
-    ):
+    def test_finding_references_original_noop_pattern(self, cli_portify_fixture: Path):
         """Finding detail references the specific unwired callable (step_runner)."""
         config = WiringConfig(
             exclude_patterns=["__init__.py"],

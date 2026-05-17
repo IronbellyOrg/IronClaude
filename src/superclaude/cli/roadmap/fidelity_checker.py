@@ -46,21 +46,77 @@ _FR_HEADING_RE = re.compile(
 )
 
 # Patterns to extract function/class names associated with an FR section
-_FUNC_NAME_RE = re.compile(r"`(\w{3,})\(\)`|`(\w{3,})`\s*function|function\s+`(\w{3,})`")
-_CLASS_NAME_RE = re.compile(r"`(\w{3,})`\s*class|class\s+`(\w{3,})`|`(\w{3,})`\s*(?:object|instance)")
+_FUNC_NAME_RE = re.compile(
+    r"`(\w{3,})\(\)`|`(\w{3,})`\s*function|function\s+`(\w{3,})`"
+)
+_CLASS_NAME_RE = re.compile(
+    r"`(\w{3,})`\s*class|class\s+`(\w{3,})`|`(\w{3,})`\s*(?:object|instance)"
+)
 _CODE_DEF_RE = re.compile(r"(?:def|class)\s+(\w{4,})")
 
 # Common English words to exclude from name extraction
-_STOP_WORDS = frozenset({
-    "self", "cls", "none", "true", "false", "return", "class", "from",
-    "import", "with", "that", "this", "will", "must", "shall", "should",
-    "have", "been", "each", "when", "then", "else", "elif", "except",
-    "raise", "yield", "async", "await", "lambda", "global", "assert",
-    "while", "break", "continue", "pass", "finally", "nonlocal",
-    "file", "path", "data", "name", "names", "type", "types", "list",
-    "dict", "sets", "args", "kwargs", "value", "values", "function",
-    "method", "module", "package", "defined", "required", "implement",
-})
+_STOP_WORDS = frozenset(
+    {
+        "self",
+        "cls",
+        "none",
+        "true",
+        "false",
+        "return",
+        "class",
+        "from",
+        "import",
+        "with",
+        "that",
+        "this",
+        "will",
+        "must",
+        "shall",
+        "should",
+        "have",
+        "been",
+        "each",
+        "when",
+        "then",
+        "else",
+        "elif",
+        "except",
+        "raise",
+        "yield",
+        "async",
+        "await",
+        "lambda",
+        "global",
+        "assert",
+        "while",
+        "break",
+        "continue",
+        "pass",
+        "finally",
+        "nonlocal",
+        "file",
+        "path",
+        "data",
+        "name",
+        "names",
+        "type",
+        "types",
+        "list",
+        "dict",
+        "sets",
+        "args",
+        "kwargs",
+        "value",
+        "values",
+        "function",
+        "method",
+        "module",
+        "package",
+        "defined",
+        "required",
+        "implement",
+    }
+)
 
 
 @dataclass
@@ -127,7 +183,9 @@ class FidelityChecker:
                     elif isinstance(node, ast.ClassDef):
                         names.add(node.name)
             except (SyntaxError, UnicodeDecodeError, OSError) as exc:
-                logger.debug("AST parse failed for %s: %s; using regex fallback", py_file, exc)
+                logger.debug(
+                    "AST parse failed for %s: %s; using regex fallback", py_file, exc
+                )
                 try:
                     source = py_file.read_text(encoding="utf-8", errors="replace")
                     for match in _CODE_DEF_RE.finditer(source):
@@ -136,7 +194,9 @@ class FidelityChecker:
                     pass
 
         self._codebase_names = names
-        logger.debug("Scanned %d Python files, found %d unique names", len(py_files), len(names))
+        logger.debug(
+            "Scanned %d Python files, found %d unique names", len(py_files), len(names)
+        )
         return names
 
     # ------------------------------------------------------------------
@@ -200,11 +260,13 @@ class FidelityChecker:
                     seen.add(n)
                     unique_names.append(n)
 
-            mappings.append(FRMapping(
-                fr_id=fr_id,
-                expected_names=unique_names,
-                source_context=section_text[:200] if section_text else "",
-            ))
+            mappings.append(
+                FRMapping(
+                    fr_id=fr_id,
+                    expected_names=unique_names,
+                    source_context=section_text[:200] if section_text else "",
+                )
+            )
 
         return mappings
 
@@ -230,12 +292,14 @@ class FidelityChecker:
                     "marking as ambiguous (fail-open per R-3)",
                     mapping.fr_id,
                 )
-                results.append(FidelityResult(
-                    fr_id=mapping.fr_id,
-                    found=True,  # fail-open
-                    ambiguous=True,
-                    message=f"No extractable names for {mapping.fr_id}; fail-open",
-                ))
+                results.append(
+                    FidelityResult(
+                        fr_id=mapping.fr_id,
+                        found=True,  # fail-open
+                        ambiguous=True,
+                        message=f"No extractable names for {mapping.fr_id}; fail-open",
+                    )
+                )
                 continue
 
             # Exact name matching against codebase
@@ -258,25 +322,29 @@ class FidelityChecker:
                         evidence,
                         missing,
                     )
-                results.append(FidelityResult(
-                    fr_id=mapping.fr_id,
-                    found=found,
-                    evidence_names=evidence,
-                    searched_names=mapping.expected_names,
-                    ambiguous=bool(missing),
-                    message=(
-                        f"Found: {evidence}"
-                        + (f"; missing: {missing}" if missing else "")
-                    ),
-                ))
+                results.append(
+                    FidelityResult(
+                        fr_id=mapping.fr_id,
+                        found=found,
+                        evidence_names=evidence,
+                        searched_names=mapping.expected_names,
+                        ambiguous=bool(missing),
+                        message=(
+                            f"Found: {evidence}"
+                            + (f"; missing: {missing}" if missing else "")
+                        ),
+                    )
+                )
             else:
                 # No evidence at all — report gap
-                results.append(FidelityResult(
-                    fr_id=mapping.fr_id,
-                    found=False,
-                    searched_names=mapping.expected_names,
-                    message=f"No codebase evidence for {mapping.fr_id}: searched {mapping.expected_names}",
-                ))
+                results.append(
+                    FidelityResult(
+                        fr_id=mapping.fr_id,
+                        found=False,
+                        searched_names=mapping.expected_names,
+                        message=f"No codebase evidence for {mapping.fr_id}: searched {mapping.expected_names}",
+                    )
+                )
 
         return results
 
@@ -298,27 +366,32 @@ class FidelityChecker:
                 continue  # Only report gaps
 
             stable_id = compute_stable_id(
-                "fidelity", "impl_gap", f"spec:fr:{r.fr_id}", "impl_gap",
+                "fidelity",
+                "impl_gap",
+                f"spec:fr:{r.fr_id}",
+                "impl_gap",
             )
 
-            findings.append(Finding(
-                id=f"fidelity-impl_gap-{stable_id[:8]}",
-                severity="HIGH",
-                dimension="fidelity",
-                description=(
-                    f"FR {r.fr_id} has no codebase implementation evidence. "
-                    f"Searched for: {', '.join(r.searched_names)}"
-                ),
-                location=f"spec:fr:{r.fr_id}",
-                evidence=f"Searched names: {r.searched_names}",
-                fix_guidance=f"Implement {r.fr_id} or update allowlist if already implemented under a different name",
-                status="ACTIVE",
-                source_layer="fidelity",
-                rule_id="impl_gap",
-                spec_quote=f"{r.fr_id}: {', '.join(r.searched_names)}",
-                roadmap_quote="[MISSING]",
-                stable_id=stable_id,
-            ))
+            findings.append(
+                Finding(
+                    id=f"fidelity-impl_gap-{stable_id[:8]}",
+                    severity="HIGH",
+                    dimension="fidelity",
+                    description=(
+                        f"FR {r.fr_id} has no codebase implementation evidence. "
+                        f"Searched for: {', '.join(r.searched_names)}"
+                    ),
+                    location=f"spec:fr:{r.fr_id}",
+                    evidence=f"Searched names: {r.searched_names}",
+                    fix_guidance=f"Implement {r.fr_id} or update allowlist if already implemented under a different name",
+                    status="ACTIVE",
+                    source_layer="fidelity",
+                    rule_id="impl_gap",
+                    spec_quote=f"{r.fr_id}: {', '.join(r.searched_names)}",
+                    roadmap_quote="[MISSING]",
+                    stable_id=stable_id,
+                )
+            )
 
         # Deterministic ordering
         findings.sort(key=lambda f: (f.dimension, f.rule_id, f.location))

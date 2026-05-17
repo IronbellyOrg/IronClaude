@@ -99,7 +99,9 @@ class TestRestoreFromState:
             agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
         )
 
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=True)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=True
+        )
         assert restored.agents[1].persona == "analyzer"
         assert restored.agents[1].model == "haiku"
 
@@ -118,7 +120,9 @@ class TestRestoreFromState:
             agents=[AgentSpec("sonnet", "security"), AgentSpec("haiku", "qa")],
         )
 
-        restored = _restore_from_state(config, agents_explicit=True, depth_explicit=True)
+        restored = _restore_from_state(
+            config, agents_explicit=True, depth_explicit=True
+        )
         assert restored.agents[0].persona == "security"
         assert restored.agents[0].model == "sonnet"
 
@@ -129,7 +133,9 @@ class TestRestoreFromState:
             agents=[AgentSpec("opus", "architect"), AgentSpec("haiku", "architect")],
         )
 
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=False)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=False
+        )
         assert restored.agents == config.agents
 
     def test_restores_depth_from_state(self, tmp_path):
@@ -141,7 +147,9 @@ class TestRestoreFromState:
         (tmp_path / ".roadmap-state.json").write_text(json.dumps(state))
 
         config = _make_config(tmp_path)
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=False)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=False
+        )
         assert restored.depth == "deep"
 
     def test_explicit_depth_overrides_state(self, tmp_path):
@@ -157,7 +165,9 @@ class TestRestoreFromState:
             agents=[AgentSpec("opus", "architect")],
             depth="standard",
         )
-        restored = _restore_from_state(config, agents_explicit=True, depth_explicit=True)
+        restored = _restore_from_state(
+            config, agents_explicit=True, depth_explicit=True
+        )
         assert restored.depth == "standard"
 
     def test_malformed_agents_in_state(self, tmp_path, caplog):
@@ -170,7 +180,9 @@ class TestRestoreFromState:
         original_agents = [AgentSpec("opus", "architect")]
         config = _make_config(tmp_path, agents=original_agents)
 
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=True)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=True
+        )
         assert restored.agents == original_agents
 
     def test_corrupted_state_file_graceful(self, tmp_path):
@@ -180,7 +192,9 @@ class TestRestoreFromState:
         original_agents = [AgentSpec("opus", "architect")]
         config = _make_config(tmp_path, agents=original_agents)
 
-        restored = _restore_from_state(config, agents_explicit=False, depth_explicit=False)
+        restored = _restore_from_state(
+            config, agents_explicit=False, depth_explicit=False
+        )
         assert restored.agents == original_agents
 
     def test_double_resume_stability(self, tmp_path):
@@ -201,15 +215,21 @@ class TestRestoreFromState:
             spec_file=spec,
         )
         extract_step = _make_step("extract", tmp_path / "extraction.md")
-        gen_step = _make_step("generate-opus-architect", tmp_path / "roadmap-opus-architect.md")
+        gen_step = _make_step(
+            "generate-opus-architect", tmp_path / "roadmap-opus-architect.md"
+        )
         results1 = [_make_result(extract_step), _make_result(gen_step)]
         _save_state(config1, results1)
 
         # First resume (omit agents/depth to simulate Click defaulting)
         config2 = RoadmapConfig(
-            output_dir=tmp_path, work_dir=tmp_path, spec_file=spec,
+            output_dir=tmp_path,
+            work_dir=tmp_path,
+            spec_file=spec,
         )
-        restored2 = _restore_from_state(config2, agents_explicit=False, depth_explicit=False)
+        restored2 = _restore_from_state(
+            config2, agents_explicit=False, depth_explicit=False
+        )
         assert restored2.agents == original_agents
         assert restored2.depth == "deep"
 
@@ -218,9 +238,13 @@ class TestRestoreFromState:
 
         # Second resume
         config3 = RoadmapConfig(
-            output_dir=tmp_path, work_dir=tmp_path, spec_file=spec,
+            output_dir=tmp_path,
+            work_dir=tmp_path,
+            spec_file=spec,
         )
-        restored3 = _restore_from_state(config3, agents_explicit=False, depth_explicit=False)
+        restored3 = _restore_from_state(
+            config3, agents_explicit=False, depth_explicit=False
+        )
         assert restored3.agents == original_agents
         assert restored3.depth == "deep"
 
@@ -264,7 +288,9 @@ class TestStepNeedsRerun:
     def test_force_extract(self, tmp_path):
         """Force extract returns True with reason."""
         step = _make_step("extract", tmp_path / "extraction.md", _make_gate())
-        needs, reason = _step_needs_rerun(step, lambda p, c: (True, ""), set(), True, {})
+        needs, reason = _step_needs_rerun(
+            step, lambda p, c: (True, ""), set(), True, {}
+        )
         assert needs is True
         assert "spec file changed" in reason
 
@@ -279,7 +305,11 @@ class TestStepNeedsRerun:
         )
 
         needs, reason = _step_needs_rerun(
-            step, lambda p, c: (True, ""), {input_file}, False, {},
+            step,
+            lambda p, c: (True, ""),
+            {input_file},
+            False,
+            {},
         )
         assert needs is True
         assert "dependency" in reason.lower() or "regenerated" in reason.lower()
@@ -289,7 +319,11 @@ class TestStepNeedsRerun:
         step = _make_step("extract", tmp_path / "extraction.md", _make_gate())
 
         needs, reason = _step_needs_rerun(
-            step, lambda p, c: (True, ""), set(), False, {},
+            step,
+            lambda p, c: (True, ""),
+            set(),
+            False,
+            {},
         )
         assert needs is False
         assert "gate passes" in reason
@@ -308,7 +342,10 @@ class TestStepNeedsRerun:
             return (False, f"File not found: {path}")
 
         needs, reason = _step_needs_rerun(
-            step, gate_fn, set(), False,
+            step,
+            gate_fn,
+            set(),
+            False,
             {"generate-haiku": state_path},
         )
         assert needs is False
@@ -316,7 +353,9 @@ class TestStepNeedsRerun:
     def test_no_gate_needs_rerun(self, tmp_path):
         """Step without a gate always needs rerun."""
         step = _make_step("step-no-gate", tmp_path / "out.md", gate=None)
-        needs, reason = _step_needs_rerun(step, lambda p, c: (True, ""), set(), False, {})
+        needs, reason = _step_needs_rerun(
+            step, lambda p, c: (True, ""), set(), False, {}
+        )
         assert needs is True
         assert "no gate" in reason
 
@@ -341,7 +380,9 @@ class TestApplyResumeDependencyAware:
             _make_step("extract", extraction, gate),
             [_make_step("generate-a", roadmap_a, gate, inputs=[extraction])],
             _make_step(
-                "test-strategy", test_strat, gate,
+                "test-strategy",
+                test_strat,
+                gate,
                 inputs=[tmp_path / "roadmap.md"],  # depends on merge, NOT generate
             ),
         ]
@@ -399,7 +440,9 @@ class TestApplyResumeDependencyAware:
             return (False, f"File not found: {path}")
 
         result = _apply_resume(steps, config, gate_fn)
-        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        result_ids = [
+            s.id if isinstance(s, Step) else [x.id for x in s] for s in result
+        ]
         assert "step1" in str(result_ids)
         assert "step2" in str(result_ids)
         assert "step3" in str(result_ids)
@@ -491,7 +534,9 @@ class TestSaveStateGuards:
         mtime_before = state_file.stat().st_mtime
 
         config = _make_config(
-            tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard",
+            tmp_path,
+            agents=[AgentSpec("opus", "architect")],
+            depth="standard",
         )
         results: list = []  # Empty results — no steps were attempted
 
@@ -558,15 +603,23 @@ class TestSaveStateGuards:
             "schema_version": 1,
             "agents": [{"model": "opus", "persona": "architect"}],
             "steps": {
-                "extract": {"status": "PASS", "output_file": str(tmp_path / "extraction.md")},
-                "generate-opus-architect": {"status": "PASS", "output_file": str(tmp_path / "gen.md")},
+                "extract": {
+                    "status": "PASS",
+                    "output_file": str(tmp_path / "extraction.md"),
+                },
+                "generate-opus-architect": {
+                    "status": "PASS",
+                    "output_file": str(tmp_path / "gen.md"),
+                },
             },
         }
         state_file = tmp_path / ".roadmap-state.json"
         state_file.write_text(json.dumps(existing))
 
         config = _make_config(
-            tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard",
+            tmp_path,
+            agents=[AgentSpec("opus", "architect")],
+            depth="standard",
         )
 
         # Only diff ran in this resume
@@ -603,10 +656,14 @@ class TestResumeNewSteps:
         steps = [
             _make_step("spec-fidelity", fidelity_out, gate, inputs=[]),
             _make_step("wiring-verification", wiring_out, gate, inputs=[fidelity_out]),
-            _make_step("deviation-analysis", deviation_out, gate, inputs=[fidelity_out]),
+            _make_step(
+                "deviation-analysis", deviation_out, gate, inputs=[fidelity_out]
+            ),
         ]
 
-        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+        config = _make_config(
+            tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard"
+        )
 
         def gate_fn(path, criteria):
             if path.exists() and path.stat().st_size > 0:
@@ -614,9 +671,13 @@ class TestResumeNewSteps:
             return (False, f"File not found: {path}")
 
         result = _apply_resume(steps, config, gate_fn)
-        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        result_ids = [
+            s.id if isinstance(s, Step) else [x.id for x in s] for s in result
+        ]
         # spec-fidelity and wiring pass, deviation-analysis reruns
-        assert "spec-fidelity" not in str(result_ids) or "deviation-analysis" in str(result_ids)
+        assert "spec-fidelity" not in str(result_ids) or "deviation-analysis" in str(
+            result_ids
+        )
         assert "deviation-analysis" in str(result_ids)
 
     def test_fail_at_remediate_resume(self, tmp_path):
@@ -632,7 +693,9 @@ class TestResumeNewSteps:
             _make_step("remediate", remediation_out, gate, inputs=[deviation_out]),
         ]
 
-        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+        config = _make_config(
+            tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard"
+        )
 
         def gate_fn(path, criteria):
             if path.exists() and path.stat().st_size > 0:
@@ -640,7 +703,9 @@ class TestResumeNewSteps:
             return (False, f"File not found: {path}")
 
         result = _apply_resume(steps, config, gate_fn)
-        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        result_ids = [
+            s.id if isinstance(s, Step) else [x.id for x in s] for s in result
+        ]
         assert "deviation-analysis" not in str(result_ids)
         assert "remediate" in str(result_ids)
 
@@ -657,7 +722,9 @@ class TestResumeNewSteps:
             _make_step("certify", certify_out, gate, inputs=[remediation_out]),
         ]
 
-        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+        config = _make_config(
+            tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard"
+        )
 
         def gate_fn(path, criteria):
             if path.exists() and path.stat().st_size > 0:
@@ -665,7 +732,9 @@ class TestResumeNewSteps:
             return (False, f"File not found: {path}")
 
         result = _apply_resume(steps, config, gate_fn)
-        result_ids = [s.id if isinstance(s, Step) else [x.id for x in s] for s in result]
+        result_ids = [
+            s.id if isinstance(s, Step) else [x.id for x in s] for s in result
+        ]
         assert "remediate" not in str(result_ids)
         assert "certify" in str(result_ids)
 
@@ -681,11 +750,17 @@ class TestResumeNewSteps:
 
         steps = [
             _make_step("spec-fidelity", fidelity_out, gate, inputs=[]),
-            _make_step("deviation-analysis", deviation_out, gate, inputs=[fidelity_out]),
-            _make_step("remediate", remediation_out, gate, inputs=[deviation_out, fidelity_out]),
+            _make_step(
+                "deviation-analysis", deviation_out, gate, inputs=[fidelity_out]
+            ),
+            _make_step(
+                "remediate", remediation_out, gate, inputs=[deviation_out, fidelity_out]
+            ),
         ]
 
-        config = _make_config(tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard")
+        config = _make_config(
+            tmp_path, agents=[AgentSpec("opus", "architect")], depth="standard"
+        )
 
         def gate_fn(path, criteria):
             if path.exists() and path.stat().st_size > 0:

@@ -48,7 +48,9 @@ class TestResolveWiringMode:
 
         Task scope with grace_period=0 yields GateMode.BLOCKING -> 'full'.
         """
-        config = _make_config(tmp_path, wiring_gate_scope="task", wiring_gate_grace_period=0)
+        config = _make_config(
+            tmp_path, wiring_gate_scope="task", wiring_gate_grace_period=0
+        )
         result = _resolve_wiring_mode(config)
         # task scope + grace_period=0 -> GateMode.BLOCKING -> "full"
         assert result == "full"
@@ -57,7 +59,9 @@ class TestResolveWiringMode:
         """When wiring_gate_scope is not in the scope_map (e.g. 'none'),
         _resolve_wiring_mode returns config.wiring_gate_mode directly.
         """
-        config = _make_config(tmp_path, wiring_gate_scope="none", wiring_gate_mode="soft")
+        config = _make_config(
+            tmp_path, wiring_gate_scope="none", wiring_gate_mode="soft"
+        )
         result = _resolve_wiring_mode(config)
         assert result == "soft"
 

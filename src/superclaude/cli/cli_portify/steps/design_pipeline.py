@@ -145,7 +145,9 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
 
     # Review gate (unless skip_review) — delegates to canonical review.py
     should_continue, decision = review_gate(
-        STEP_NAME, str(artifact_path), skip_review=config.skip_review,
+        STEP_NAME,
+        str(artifact_path),
+        skip_review=config.skip_review,
     )
     if not should_continue:
         return PortifyStepResult(
