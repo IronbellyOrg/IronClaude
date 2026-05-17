@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# PostToolUse: clear auggie-first sticky after any mcp__auggie__* tool call.
+# PostToolUse: clear auggie-first sticky after any auggie-prefixed tool call
+# (mcp__auggie__*, mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*).
 # auggie-first-hook-proposal-v2.1.md §6 — synchronous (no async:true) per spec-panel Wh-8.
 # Fail-open per NFR-3.
 set -u
@@ -19,7 +20,7 @@ TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || tr
 [ -z "$SESSION_ID" ] && exit 0
 
 case "$TOOL_NAME" in
-    mcp__auggie__*|mcp__airis-mcp-gateway__auggie_*)
+    mcp__auggie__*|mcp__auggie-mcp__*|mcp__airis-mcp-gateway__auggie_*)
         STICKY="$STATE_DIR/auggie-first-pending/$SESSION_ID.txt"
         if [ -f "$STICKY" ]; then
             rm -f "$STICKY" 2>/dev/null || true
