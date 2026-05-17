@@ -351,3 +351,33 @@ class TestLayer3StructuralPatterns:
         scaffold_obs = [o for o in report.obligations if "scaffold" in o.term.lower()]
         assert scaffold_obs, "Expected scaffold obligation to be detected"
         assert any(o.severity == "HIGH" for o in scaffold_obs)
+
+    def test_descriptive_prose_scaffolding_still_suppressed(self):
+        """T3.6: descriptive prose like "scaffolding work" without an
+        imperative verb and outside any meta-context must remain SUPPRESSED.
+
+        This pins commit ``4799719``'s original contract — the
+        imperative-prefix gate at obligation_scanner.py:222 was added so
+        that mentions of scaffolding in descriptive sentences (ownership
+        statements, fallback notes, etc.) don't fire obligations. The
+        T3.3 gate-reorder moved ``_is_meta_context()`` ahead of that
+        check; this regression test confirms the descriptive-prose path
+        still hits the imperative `continue` once meta-context is
+        ruled out.
+        """
+        content = textwrap.dedent(
+            """\
+            ## Phase 1: Backlog Planning
+            - Fallback to dev-managed instances for scaffolding work if provisioning slips
+
+            ## Phase 2: Test
+            - Run validation checks
+        """
+        )
+        report = scan_obligations(content)
+        scaffold_obs = [
+            o for o in report.obligations if "scaffolding" in o.term.lower()
+        ]
+        assert scaffold_obs == [], (
+            f"Descriptive prose must NOT fire scaffolding obligation, got: {scaffold_obs}"
+        )
