@@ -529,11 +529,19 @@ Read the **entire task file** end to end. Then for each checklist item that modi
 
 These axes are NOT new checks — they are adversarial lenses that sharpen the existing 15-item checklist. For every finding you record, annotate which axis fired in the Items Reviewed table (`axis: drift | contradictions | omissions | weakened-criteria | invented-content`). Pick the most-specific axis; record multiple only when each is independently load-bearing. Contradictions remain IMPORTANT or CRITICAL by default (cf. Critical Rule #6 below).
 
-- **Drift** — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes.
-- **Contradictions** — Do two items in the task contradict each other (one says "use A", another implies "must not use A")? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6).
-- **Omissions** — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed?
-- **Weakened criteria** — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11).
-- **Invented content** — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented."
+- **AX-1 Drift** (kebab alias: `drift`) — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing, OR has a cited fact (file path, line number, signature, count, config value) drifted out of sync with current source? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes. **Finding example (stale citation pattern):** task item cites `rf-qa-qualitative.md:528 — "Five Adversarial Axes" header`, but an upstream insertion shifted the header to line 530; the cited line number no longer matches current source. Annotate `axis: AX-1`.
+- **AX-2 Contradictions** (kebab alias: `contradictions`) — Do two items in the task (or two artifacts, or two sections of one artifact) assert mutually incompatible facts about the same subject? One says "use A", another implies "must not use A"? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6). **Finding example (return-type mismatch pattern):** Section A states `build_axis_overlay()` returns `dict[str, Axis]`, while Section B's call site unpacks the same function's return value as `list[Axis]` (`for ax in build_axis_overlay(): ...`). Two artifacts assert incompatible return types for the same callable. Annotate `axis: AX-2` with severity ≥ IMPORTANT.
+- **AX-3 Omissions** (kebab alias: `omissions`) — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed? More broadly: is a required touchpoint, consumer, dependency, or step absent from the plan? **Finding example (missing-signature-update pattern):** an item passes a new `axis` kwarg to `build_axis_overlay()`, but no earlier item updates the function's signature to accept it; the kwarg is supplied to a callable that never declared it, so the new argument is silently dropped or raises `TypeError` at runtime. Annotate `axis: AX-3`.
+- **AX-4 Weakened criteria** (kebab alias: `weakened-criteria`) — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. Has an acceptance/verification condition been softened to something unobservable or trivially satisfiable? An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11). **Finding example (trivially-passing-test pattern):** a verification step writes the 6-character placeholder `# Test` into a fixture file and then asserts that the file is non-empty (or contains the substring `Test`); the assertion passes for the placeholder itself and exercises none of the feature under review. Annotate `axis: AX-4`.
+- **AX-5 Invented content** (kebab alias: `invented-content`) — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. More broadly: does the artifact introduce a requirement, feature, or capability not present in its upstream source (BUILD_REQUEST, PRD, TDD, research evidence)? This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented." **Finding example (scope-inflation pattern):** the task introduces a Redis caching layer in front of `build_axis_overlay()` to memoise per-task results, but no upstream source — BUILD_REQUEST, PRD §2 FR-CONV.4, TDD §8.5, or `research/*.md` — mentions caching, memoisation, or Redis; the caching layer is an invention that inflates scope beyond what was authorised (mirrors TDD §8.5 row 941's canonical "TDD adds a caching layer the PRD never specified" example). Annotate `axis: AX-5`.
+
+##### Canonical annotation rules (PR-07 — `none` sentinel + `drift-axis-inactive`)
+
+The canonical Axis-column vocabulary for the task-qualitative phase is the closed set `{AX-1, AX-2, AX-3, AX-4, AX-5, none}` (kebab aliases `{drift, contradictions, omissions, weakened-criteria, invented-content, none}`). These are the only values that may appear in the `axis` column for a task-qualitative review row.
+
+- **`none` sentinel — passing check that surfaced nothing.** Use `none` when the check at this row PASSED and the five-axis lens surfaced no finding. `none` is a positive statement that all five axes were applied and none fired; it is NOT an `N/A` escape, and it is NOT a permission to skip the axis lens for that row. A row with Result = `PASS` and Axis = `none` means: "I ran every axis against this check and recorded no axis-attributable finding." A row with Result = `FAIL` MUST carry one of `AX-1..AX-5` (the most-specific axis that fired) — `none` on a FAIL row is invalid.
+- **`N/A` is forbidden in the Axis column for task-qualitative phase.** Do not write `N/A`, `n/a`, `—`, blank, or any other escape value in the Axis column when running task-qualitative. The Axis column is only present for task-qualitative reviews (see comment under Items Reviewed); other phases omit the column entirely rather than filling it with `N/A`.
+- **`drift-axis-inactive` Summary-block annotation — drift baseline absent.** If no BUILD_REQUEST.GOAL verbatim is available for this review (the spawn prompt elided it AND the task file does not reproduce it), the AX-1 Drift axis is INACTIVE for the entire review. In that case you MUST emit the literal annotation `drift-axis-inactive` on its own line inside the **Summary** block of the QA report (not in Recommendations, not as an Axis-column cell value), then proceed to apply the remaining four axes (AX-2..AX-5) normally. Individual Axis-column cells continue to carry `none` on passing checks and `AX-2..AX-5` on failing checks; AX-1 is simply unavailable. The `drift-axis-inactive` Summary-block annotation is the canonical signal that drift was lens-disabled — it MUST NOT be encoded as `Axis = N/A`, `Axis = drift-axis-inactive`, or any cell-level placeholder.
 
 #### Checklist (15 items)
 
@@ -698,15 +706,30 @@ If `fix_authorization: false`:
 ## Overall Verdict: [PASS / FAIL]
 
 ## Items Reviewed
-| # | Check | Result | Axis (PR-07) | Evidence |
-|---|-------|--------|--------------|----------|
-| 1 | [check name] | PASS / FAIL | [drift / contradictions / omissions / weakened-criteria / invented-content / n/a] | [what you verified and how] |
+| # | Check | axis | Result | Evidence |
+|---|-------|------|--------|----------|
+| 1 | [check name] | [AX-1 / AX-2 / AX-3 / AX-4 / AX-5 / none] | PASS / FAIL | [what you verified and how] |
 
-<!-- PR-07: for task-qualitative phase, every FAIL finding MUST be
-annotated with the most-specific axis that fired. Use `n/a` only when
-the finding is from a non-task-qualitative phase or when the drift axis
-is INACTIVE for this review (annotate `drift-axis-inactive` separately
-in the Recommendations section). -->
+<!-- PR-07 canonical annotation rules (see "Canonical annotation rules"
+subsection under "Five Adversarial Axes" for the binding spec):
+- task-qualitative phase: the Axis column is REQUIRED on every row and
+  the only legal cell values are the closed set
+  `{AX-1, AX-2, AX-3, AX-4, AX-5, none}` (or their kebab aliases).
+- Passing checks (Result = PASS) MUST use the `none` sentinel — meaning
+  "the five-axis lens was applied and surfaced nothing." `none` is NOT
+  an N/A escape and NOT a permission to skip the lens.
+- Failing checks (Result = FAIL) MUST carry one of `AX-1..AX-5` (the
+  most-specific axis that fired). `none` on a FAIL row is invalid.
+- `N/A`, `n/a`, `—`, and blank are FORBIDDEN values in the Axis column
+  for task-qualitative phase.
+- If the AX-1 Drift axis is INACTIVE for this review (no BUILD_REQUEST.GOAL
+  verbatim baseline available), the lens-level disablement is recorded as
+  the literal `drift-axis-inactive` annotation inside the Summary block
+  below — NOT as an Axis-column cell value, NOT in the Recommendations
+  section. Individual rows continue to use `none` / `AX-2..AX-5` per the
+  rules above.
+- Non-task-qualitative phases (PRD / TDD / tech-ref / ops-guide / readme /
+  report / doc / fix-cycle) omit the Axis column entirely. -->
 
 
 ## Summary
@@ -714,6 +737,10 @@ in the Recommendations section). -->
 - Checks failed: [count]
 - Critical issues: [count]
 - Issues fixed in-place: [count] (if fix-authorized)
+- Axis lens status: [task-qualitative only — emit the literal line
+  `drift-axis-inactive` here on its own when no BUILD_REQUEST.GOAL
+  verbatim baseline is available, so AX-1 was disabled for this review;
+  otherwise omit this bullet entirely]
 
 ## Issues Found
 | # | Severity | Location | Issue | Required Fix |

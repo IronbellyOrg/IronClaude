@@ -1157,10 +1157,17 @@ the ACTUAL target files — do not rely on research file summaries alone.
 
 Apply the 5 Adversarial Axes (PR-07) as a sharpening overlay across all
 15 checks: drift, contradictions, omissions, weakened-criteria,
-invented-content. Annotate every FAIL finding with the most-specific
-axis in the Items Reviewed table's Axis column. The drift axis requires
-a BUILD_REQUEST.GOAL baseline; if no GOAL verbatim is reachable, mark
-drift-axis-inactive and proceed with the other four axes.
+invented-content. Every task-qualitative row's Axis column carries
+exactly one value from the canonical vocabulary `{AX-1, AX-2, AX-3,
+AX-4, AX-5, none}` — FAIL rows MUST carry the most-specific firing
+axis (AX-1..AX-5); PASS rows that surfaced no axis finding carry
+`none` (positive statement that all five axes were applied and none
+fired, NOT an N/A escape). `N/A`/`n/a`/`—`/blank in the Axis column
+is forbidden for task-qualitative phase. The drift axis (AX-1)
+requires a BUILD_REQUEST.GOAL verbatim baseline; if no GOAL verbatim
+is reachable, emit the literal `drift-axis-inactive` annotation in
+the Summary block (not as an Axis-column cell value) and proceed with
+the other four axes (AX-2..AX-5).
 
 For every shell command or make target referenced in checklist items, verify
 its preconditions are satisfied by earlier items or the current repo state.
