@@ -43,7 +43,7 @@ Per-FR fixture-driven verification — 25 named fixtures from TDD §15.2. Covera
 | TEST-012 | test_axis_column_populated | FR-CONV.4 | Every Items Reviewed row carries non-empty Axis ∈ {AX-1..5, none} |
 | TEST-013 | test_drift_axis_inactive_when_no_goal_baseline | FR-CONV.4 | `drift-axis-inactive` annotation emitted in Summary; NOT N/A |
 | TEST-014 | test_severity_floor_unweakened | FR-CONV.4 | byte-diff Critical Rules block at rf-qa-qualitative.md:786-795 = 0 |
-| TEST-015 | test_monotonicity_halt_F_5_5_5 | FR-CONV.5 | `\|F\|=5,5,5` halts cycle 2 with `[HALT-MONOTONICITY]\|F\|=5`; no cycle 3 log |
+| TEST-015 | test_monotonicity_halt_F_5_5_5 | FR-CONV.5 | `\|F\|=5,5,5` halts cycle 2 with `[HALT-MONOTONICITY] \|F\|=5`; no cycle 3 log |
 | TEST-016 | test_regression_halt_pass1_fail2 | FR-CONV.5 | Item flip emits verbatim regression message BEFORE monotonicity check |
 | TEST-017 | test_slow_shrink_continues | FR-CONV.5 | `\|F\|=5,4` continues; X-003 not triggered |
 | TEST-018 | test_dnsp_twice_exhaust | FR-CONV.6 | All 5 fixed fields + dedup_key + found_n_times populated; severity HIGH |
@@ -203,7 +203,7 @@ Each work milestone → validation milestone → next work milestone gate enforc
 | G4 — Contract preservation | API-### contract test green; DM-### schema validation green | stop-and-fix; MAJOR before next milestone |
 | G5 — Cross-FR composition | INV-002 / INV-010 / INV-012 / INV-013 / INV-019 / INV-021 tests green where applicable | stop-and-fix; MAJOR before next milestone |
 | G6 — Existing-item preservation (A-002) | grep + diff confirms no rename/renumber/removal of existing rf-qa check, checklist item, or pipeline stage | stop-and-fix; revert offending change |
-| G7 — K-003 audit (V3 → M4 gate) | First 5 real rf-qa-qualitative runs show Self-Audit + ≥1 independent check | CRITICAL; disable passthrough flag; block M4 until resolved |
+| G7 — K-003 audit (V7 GA gate) | First 5 real rf-qa-qualitative runs show Self-Audit + ≥1 independent check | CRITICAL; disable passthrough flag; block GA tag until resolved |
 | G8 — NFR-CONV.4 ceiling (V7 GA gate) | Token ratio ≤1.10 across 5 BUILD_REQUESTs | MAJOR; apply K-010 contingency (summarise verdict table); re-measure |
 | G9 — Consolidated governance (V7 GA gate) | All 6 FF_* flags + 6 MET-* metrics + 7 OPS-* runbooks enumerated and validated | MAJOR; block GA tag |
 

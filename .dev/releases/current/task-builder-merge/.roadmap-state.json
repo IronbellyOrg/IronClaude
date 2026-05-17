@@ -16,8 +16,36 @@
     }
   ],
   "depth": "standard",
-  "last_run": "2026-05-15T15:51:50.159449+00:00",
+  "last_run": "2026-05-17T01:23:09.910378+00:00",
   "steps": {
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/spec-fidelity.md",
+      "started_at": "2026-05-17T01:22:44.543677+00:00",
+      "completed_at": "2026-05-17T01:23:09.007498+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/wiring-verification.md",
+      "started_at": "2026-05-17T01:23:09.007710+00:00",
+      "completed_at": "2026-05-17T01:23:09.906851+00:00"
+    },
+    "deviation-analysis": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/spec-deviations.md",
+      "started_at": "2026-05-17T01:23:09.907062+00:00",
+      "completed_at": "2026-05-17T01:23:09.907376+00:00"
+    },
+    "remediate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/remediation-tasklist.md",
+      "started_at": "2026-05-17T01:23:09.907556+00:00",
+      "completed_at": "2026-05-17T01:23:09.909714+00:00"
+    },
     "extract": {
       "status": "PASS",
       "attempt": 1,
@@ -80,21 +108,11 @@
       "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/test-strategy.md",
       "started_at": "2026-05-15T15:46:07.464874+00:00",
       "completed_at": "2026-05-15T15:47:58.660149+00:00"
-    },
-    "spec-fidelity": {
-      "status": "FAIL",
-      "attempt": 1,
-      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/spec-fidelity.md",
-      "started_at": "2026-05-15T15:47:58.661666+00:00",
-      "completed_at": "2026-05-15T15:51:49.342209+00:00"
-    },
-    "wiring-verification": {
-      "status": "PASS",
-      "attempt": 1,
-      "output_file": "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/wiring-verification.md",
-      "started_at": "2026-05-15T15:51:49.342325+00:00",
-      "completed_at": "2026-05-15T15:51:50.159199+00:00"
     }
   },
-  "fidelity_status": "fail"
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "fail",
+    "timestamp": "2026-05-17T01:29:22.202060+00:00"
+  }
 }
