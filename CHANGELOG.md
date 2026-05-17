@@ -18,6 +18,7 @@ All notable changes to IronClaude are documented in this file.
 ### Fixed
 
 - `src/superclaude/hooks/hooks.json` `session-init.sh` command path changed from the fragile relative `./scripts/session-init.sh` to `~/.claude/hooks/session-init.sh` (Option B from `docs/analysis/hooks-json-relative-path-issue.md`).
+- `src/superclaude/hooks/scripts/freshness-pre-edit.sh` now allows `Write` to nonexistent paths via a new `create_allowed` decision (Proposal A from `freshness-hook-fix-debate.md`). Resolves the catch-22 where the gate blocked new-file creation because there was no prior `Read`, and the `Read` itself failed because the file did not exist. `Edit` and `Write` against existing-but-unread files continue to block (`no_prior_read`). New telemetry reason `create_allowed` appears in `~/.claude/logs/freshness-hook.jsonl`. Defense-in-depth regression guard added: `tests/cli/test_install_hooks.py::test_real_hooks_json_gates_write_in_pre_tool_use` pins the matcher.
 
 ### Known v1 limitation
 

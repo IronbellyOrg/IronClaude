@@ -33,7 +33,7 @@ State files appear under `~/.claude/state/`:
 
 Telemetry appears at `~/.claude/logs/freshness-hook.jsonl` (one row per gate
 decision; `decision` ∈ `allow`/`block`; `reason` ∈ `recent_read` / `no_prior_read` /
-`read_too_old` / `external_change`).
+`read_too_old` / `external_change` / `create_allowed`).
 
 ## Behavioral changes you'll see
 
@@ -83,14 +83,15 @@ specific watched filenames per project, or test whether `watchPaths` output
 is accepted from `PostToolUse(Read)` (which would let us watch every file
 Claude has Read). Both approaches need a fresh probe to verify.
 
-### `Write` to nonexistent files is blocked
+### ~~`Write` to nonexistent files is blocked~~ — resolved
 
-The gate fires on `Write` against any path with no prior Read tracker. This is
-correct per the design (the gate doesn't check file existence), but means
-creating new files in a fresh session requires a workaround. Use Bash heredocs
-(`cat > newfile << EOF`) for new-file creation; the gate doesn't apply to Bash.
-
-A v1.5 refinement may add a "Write to nonexistent path → allow" branch.
+**Resolved.** `freshness-pre-edit.sh` now allows `Write` against paths that do
+not exist on disk via a new `create_allowed` branch (Proposal A from
+`freshness-hook-fix-debate.md`). Telemetry emits `reason=create_allowed`. The
+existing-file gate is unchanged — `Edit` or `Write` against an existing-but-unread
+file still blocks with `no_prior_read`. Regression guard:
+`tests/cli/test_install_hooks.py::test_real_hooks_json_gates_write_in_pre_tool_use`
+pins the matcher so a future config change cannot silently drop `Write`.
 
 ## How to opt out
 
