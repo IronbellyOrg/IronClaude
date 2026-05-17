@@ -23,8 +23,11 @@ from superclaude.cli.roadmap.executor import (
     _inject_pipeline_diagnostics,
     _inject_provenance_fields,
     _print_terminal_halt,
+    _run_deviation_analysis,
     _sanitize_output,
     _save_state,
+    _stale_spec_fidelity_warning,
+    _write_deviation_analysis_output,
 )
 from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
 
@@ -965,3 +968,183 @@ class TestPrintTerminalHalt:
         output = buf.getvalue()
         assert "budget" in output.lower()
         assert "v2.26" in output
+
+
+# ═══════════════════════════════════════════════════════════════
+# T1 / T1b / T4b — deviation-analysis writer regressions
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestT4bDeviationAnalysisOutput:
+    """Pins T1, T1b, and T4b output-shape invariants for ``_write_deviation_analysis_output``."""
+
+    @staticmethod
+    def _read_outputs(tmp_path):
+        out = tmp_path / "spec-deviations.md"
+        records = [
+            {"stable_id": "DEV-001", "deviation_class": "UNCLASSIFIED", "description": "a", "location": "l1"},
+            {"stable_id": "DEV-002", "description": "b", "location": "l2"},
+            {"stable_id": "DEV-003", "deviation_class": "UNCLASSIFIED", "description": "c", "location": "l3"},
+        ]
+        _write_deviation_analysis_output(
+            out,
+            total_analyzed=len(records),
+            unclassified_count=len(records),
+            routing_fix_roadmap="",
+            routing_no_action="",
+            records=records,
+            stale_warning="",
+        )
+        md = out.read_text(encoding="utf-8")
+        sidecar = json.loads(out.with_suffix(".json").read_text(encoding="utf-8"))
+        return md, sidecar
+
+    def test_frontmatter_omits_suppressed_classifier_fields(self, tmp_path):
+        """T4b: slip/intentional/pre_approved/ambiguous_count + ambiguous_deviations gone."""
+        md, sidecar = self._read_outputs(tmp_path)
+        # Extract just the frontmatter block.
+        fm_block = md.split("---", 2)[1]
+        for suppressed in (
+            "slip_count",
+            "intentional_count",
+            "pre_approved_count",
+            "ambiguous_count",
+            "ambiguous_deviations",
+        ):
+            assert f"{suppressed}:" not in fm_block, f"{suppressed} should be suppressed"
+            assert suppressed not in sidecar, f"sidecar should not carry {suppressed}"
+
+    def test_frontmatter_carries_unclassified_count(self, tmp_path):
+        """T1 + T4b: total_analyzed and unclassified_count are required."""
+        md, sidecar = self._read_outputs(tmp_path)
+        assert "total_analyzed: 3" in md
+        assert "unclassified_count: 3" in md
+        assert sidecar["unclassified_count"] == 3
+        assert sidecar["total_analyzed"] == 3
+
+    def test_classifier_note_banner_present(self, tmp_path):
+        """T4b: banner declares classifier-unwired state to operators."""
+        md, _ = self._read_outputs(tmp_path)
+        assert "> NOTE: deviation classification is not yet implemented." in md
+
+    def test_total_analyzed_matches_rendered_record_count(self, tmp_path):
+        """T1: frontmatter total_analyzed equals rendered ``### DEV-xxx`` count."""
+        md, _ = self._read_outputs(tmp_path)
+        rendered = sum(1 for line in md.splitlines() if line.startswith("### "))
+        assert rendered == 3
+        assert "total_analyzed: 3" in md
+
+    def test_stale_warning_banner_prepended_when_provided(self, tmp_path):
+        """T3: ``stale_warning`` argument renders above the report header."""
+        out = tmp_path / "spec-deviations.md"
+        _write_deviation_analysis_output(
+            out,
+            total_analyzed=0,
+            unclassified_count=0,
+            routing_fix_roadmap="",
+            routing_no_action="",
+            records=[],
+            stale_warning="> ⚠ spec-fidelity.md may be stale (registry updated after spec-fidelity ran).",
+        )
+        md = out.read_text(encoding="utf-8")
+        # Banner must appear before the report header.
+        warn_pos = md.find("> ⚠ spec-fidelity.md may be stale")
+        header_pos = md.find("# Deviation Analysis Report")
+        assert 0 < warn_pos < header_pos
+
+
+class TestT3StaleSpecFidelityWarning:
+    """Pins ``_stale_spec_fidelity_warning`` timestamp-comparison semantics."""
+
+    @staticmethod
+    def _write(out, run_ts, completed_ts):
+        (out / "deviation-registry.json").write_text(
+            json.dumps({"runs": [{"timestamp": run_ts}]}), encoding="utf-8"
+        )
+        (out / ".roadmap-state.json").write_text(
+            json.dumps({"steps": {"spec-fidelity": {"completed_at": completed_ts}}}),
+            encoding="utf-8",
+        )
+
+    def test_warning_when_registry_newer(self, tmp_path):
+        """T3: registry timestamp > spec-fidelity.completed_at -> warning."""
+        self._write(
+            tmp_path,
+            run_ts="2026-05-17T12:00:00+00:00",
+            completed_ts="2026-05-17T11:00:00+00:00",
+        )
+        result = _stale_spec_fidelity_warning(tmp_path)
+        assert result.startswith("> ⚠ ")
+        assert "spec-fidelity.md may be stale" in result
+
+    def test_no_warning_when_spec_fidelity_newer(self, tmp_path):
+        """T3: registry older than spec-fidelity -> empty string."""
+        self._write(
+            tmp_path,
+            run_ts="2026-05-15T15:51:27+00:00",
+            completed_ts="2026-05-17T01:22:44+00:00",
+        )
+        assert _stale_spec_fidelity_warning(tmp_path) == ""
+
+    def test_no_warning_when_files_missing(self, tmp_path):
+        """T3: missing files -> empty string (no spurious warning)."""
+        assert _stale_spec_fidelity_warning(tmp_path) == ""
+
+    def test_no_warning_when_naive_timestamps(self, tmp_path):
+        """T3: timezone-naive timestamps refuse the comparison silently."""
+        self._write(
+            tmp_path,
+            run_ts="2026-05-17T12:00:00",  # no offset
+            completed_ts="2026-05-17T11:00:00",
+        )
+        assert _stale_spec_fidelity_warning(tmp_path) == ""
+
+
+class TestT1bConsistencyCheck:
+    """Indirect coverage for T1b's cross-field consistency check.
+
+    The check runs inside ``_run_deviation_analysis``; we exercise it by
+    running the function against a synthetic registry of pure-UNCLASSIFIED
+    records and asserting the step completes without raising or logging a
+    consistency warning. The warning text used to be emitted whenever
+    UNCLASSIFIED records caused total != classified-sum; T1b folded
+    unclassified_count into the sum to silence that spurious warning.
+    """
+
+    def test_pure_unclassified_registry_passes_check(self, tmp_path, caplog):
+        from superclaude.cli.pipeline.models import Step
+
+        registry = {
+            "runs": [{"timestamp": "2026-05-15T00:00:00+00:00"}],
+            "findings": {
+                f"DEV-{i:03d}": {
+                    "stable_id": f"DEV-{i:03d}",
+                    "description": f"desc {i}",
+                    "location": f"loc {i}",
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                    # deviation_class intentionally omitted -> UNCLASSIFIED default
+                }
+                for i in range(1, 4)
+            },
+        }
+        (tmp_path / "deviation-registry.json").write_text(
+            json.dumps(registry), encoding="utf-8"
+        )
+        config = type("C", (), {"output_dir": tmp_path})()
+        step = Step(
+            id="deviation-analysis",
+            prompt="",
+            output_file=tmp_path / "spec-deviations.md",
+            gate=None,
+            timeout_seconds=60,
+        )
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="superclaude.roadmap.executor"):
+            res = _run_deviation_analysis(step, config, _now())
+        assert res.status.value == "PASS"
+        assert not any(
+            "cross-field consistency check failed" in record.getMessage()
+            for record in caplog.records
+        ), "T1b: pure-UNCLASSIFIED registry must not trip the consistency check"

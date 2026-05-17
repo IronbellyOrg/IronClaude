@@ -187,9 +187,30 @@ class TestAmbiguousContinuation:
         """DEVIATION_ANALYSIS_GATE must be STRICT tier to enforce ambiguity halt."""
         assert DEVIATION_ANALYSIS_GATE.enforcement_tier == "STRICT"
 
-    def test_deviation_analysis_gate_requires_ambiguous_count_field(self):
-        """DEVIATION_ANALYSIS_GATE requires ambiguous_count frontmatter field."""
-        assert "ambiguous_count" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+    def test_deviation_analysis_gate_requires_unclassified_count_field(self):
+        """DEVIATION_ANALYSIS_GATE requires ``unclassified_count`` frontmatter field.
+
+        T4b suppressed ``ambiguous_count`` (and the three sibling classifier
+        counters) from the frontmatter until a real classifier ships. The
+        gate now requires ``unclassified_count`` in its place; the
+        ``_no_ambiguous_deviations`` semantic check is retained as a
+        standalone callable for re-promotion once classification is wired.
+        """
+        assert (
+            "unclassified_count"
+            in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+        )
+        for suppressed in (
+            "ambiguous_count",
+            "slip_count",
+            "intentional_count",
+            "pre_approved_count",
+            "ambiguous_deviations",
+        ):
+            assert (
+                suppressed
+                not in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+            ), f"{suppressed} should be suppressed until classifier ships"
 
     def test_ambiguous_deviation_cannot_silently_pass(self, tmp_path):
         """Deviation analysis report with ambiguous_count>0 fails DEVIATION_ANALYSIS_GATE."""

@@ -361,6 +361,84 @@ class TestGenerateRemediationTasklist:
 
 
 # ═══════════════════════════════════════════════════════════════
+# T2 / T2b / T2c regression coverage
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestT2ContractRegressions:
+    """Regressions pinning the T2/T2b/T2c contract changes.
+
+    These tests fail on the pre-T2 source code and pass on the post-T2
+    source code. They guard the actionable filter, the stub-fallback gate,
+    the ALREADY FIXED section, and the deviations_to_findings status
+    fallback.
+    """
+
+    def test_actionable_filter_excludes_fixed_findings(self):
+        """T2c: ACTIVE/FIXED split — only ACTIVE counts as actionable."""
+        findings = [
+            _make_finding("F-01", "BLOCKING", status="ACTIVE"),
+            _make_finding("F-02", "BLOCKING", status="FIXED"),
+            _make_finding("F-03", "WARNING", status="FIXED"),
+        ]
+        result = generate_remediation_tasklist(findings, "r.md", "c")
+        assert "actionable: 1" in result, "Only the ACTIVE record should be actionable"
+        assert "skipped: 2" in result
+
+    def test_already_fixed_section_distinct_from_blocking(self):
+        """T2c: FIXED records render under ## ALREADY FIXED, never BLOCKING."""
+        findings = [
+            _make_finding("F-01", "BLOCKING", status="FIXED"),
+            _make_finding("F-02", "BLOCKING", status="ACTIVE"),
+        ]
+        result = generate_remediation_tasklist(findings, "r.md", "c")
+        already = result.find("## ALREADY FIXED")
+        blocking = result.find("## BLOCKING")
+        assert already > 0, "## ALREADY FIXED section must be present"
+        assert blocking > 0, "## BLOCKING section must be present"
+        # F-01 (FIXED) must appear AFTER ## ALREADY FIXED, not under BLOCKING.
+        blocking_section = result[blocking:already]
+        assert "F-01" not in blocking_section, (
+            "FIXED record F-01 leaked into BLOCKING section"
+        )
+
+    def test_already_fixed_renders_with_checked_box(self):
+        """T2c: FIXED records render as ``- [x]``, not ``- [ ]``."""
+        findings = [_make_finding("F-01", "BLOCKING", status="FIXED")]
+        result = generate_remediation_tasklist(findings, "r.md", "c")
+        assert "- [x] F-01" in result
+        assert "- [ ] F-01" not in result
+
+    def test_stub_only_when_findings_empty(self):
+        """T2b: stub fallback fires on empty `findings`, not empty `actionable`."""
+        # Empty list -> stub.
+        empty_result = generate_remediation_tasklist([], "r.md", "c")
+        assert "No actionable findings" in empty_result
+
+        # Non-empty (all FIXED) -> full tasklist with ## ALREADY FIXED.
+        non_empty = generate_remediation_tasklist(
+            [_make_finding("F-01", "BLOCKING", status="FIXED")], "r.md", "c"
+        )
+        assert "No actionable findings" not in non_empty
+        assert "## ALREADY FIXED" in non_empty
+
+    def test_deviations_to_findings_defaults_missing_status_to_active(self):
+        """T2c: registry-path fallback is ACTIVE (was PENDING pre-T2)."""
+        record = {
+            "id": "DEV-001",
+            "severity": "HIGH",
+            "description": "x",
+            "location": "f:1",
+            "evidence": "",
+            "fix_guidance": "",
+            "files_affected": [],
+        }
+        findings = deviations_to_findings([record])
+        assert len(findings) == 1
+        assert findings[0].status == "ACTIVE"
+
+
+# ═══════════════════════════════════════════════════════════════
 # T03.05 -- REMEDIATE_GATE
 # ═══════════════════════════════════════════════════════════════
 
