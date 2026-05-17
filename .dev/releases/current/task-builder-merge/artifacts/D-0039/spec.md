@@ -3,7 +3,7 @@
 **Task:** T03.16 (Phase 3)
 **Roadmap items:** R-067, R-068
 **Date:** 2026-05-17
-**Status:** PASS (landed at commit `<MIG-003-SHA>`)
+**Status:** PASS (landed at commit `ad083b6`)
 
 ---
 
@@ -28,7 +28,7 @@ are all maintained.
 | Flag name | `FF_INHERITED_STRUCTURAL_VERDICT` |
 | Scope | A.10 → A.10.5 verdict passthrough: spawn-prompt injection of `## Inherited Structural Verdict` block at SKILL.md §A.10.5 (producer side), Critical Rule #11 reliance/verification distinction + `## Self-Audit` output schema at rf-qa-qualitative.md (consumer side), INV-002 fix-cycle freshness re-injection, INV-010 dynamic TB-Add-* enumeration, INV-019 Self-Audit obligation |
 | Default value at M3 | `ON` (DEFAULT-ON at landing) |
-| Activation commit | `<MIG-003-SHA>` on `feat/mig-002-execution-context-header` (Phase 3 piggybacks the M2 landing branch; final merge to `master` follows release-spec §19.x sequencing) |
+| Activation commit | `ad083b6` on `feat/mig-002-execution-context-header` (Phase 3 piggybacks the M2 landing branch; final merge to `master` follows release-spec §19.x sequencing) |
 | Governance file | This spec (`D-0039/spec.md`) |
 | Cleanup window | **M7 consolidation** (post-M3..M6 stabilization) — when the K-003 audit-target window (first 5 rf-qa-qualitative runs post-FR-CONV.3; release-spec §8.3 row 4) reports 100% Self-Audit coverage and no INV-019 regressions are observed across M3..M6, the passthrough behavior is folded into the rf-qa/rf-qa-qualitative contract proper and the flag is retired. Operationalised by the OPS-001 runbook (M7). |
 | Cross-references | Phase 3 task T03.16 (this artifact); M7 consolidation window (OPS-001 runbook + K-003 gate); roadmap items R-067 (single-commit landing) and R-068 (governance); release-spec §8.3 row 4 (audit-after-FR-CONV.3-lands); release-spec §19.4 (rollback path — passthrough flag disable); D-0025 (MIG-002 governance, for cross-flag M7 coordination) |
