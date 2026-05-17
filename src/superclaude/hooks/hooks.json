@@ -57,7 +57,7 @@
         ]
       },
       {
-        "matcher": "mcp__auggie__.*",
+        "matcher": "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*",
         "hooks": [
           {
             "type": "command",

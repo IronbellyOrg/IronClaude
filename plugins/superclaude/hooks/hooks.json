@@ -55,6 +55,16 @@
             "async": true
           }
         ]
+      },
+      {
+        "matcher": "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/auggie-flag-clear.sh",
+            "timeout": 1
+          }
+        ]
       }
     ],
     "SubagentStart": [
