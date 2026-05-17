@@ -1,0 +1,6 @@
+645	F401	[-] unused-import
+243	I001	[*] unsorted-imports
+ 46	F841	[-] unused-variable
+  1	    	[ ] invalid-syntax
+Found 935 errors.
+[*] 879 fixable with the `--fix` option (45 hidden fixes can be enabled with the `--unsafe-fixes` option).

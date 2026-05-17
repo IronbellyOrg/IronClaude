@@ -1,0 +1,168 @@
+144 files reformatted, 400 files left unchanged
+=== git status after format ===
+ M src/superclaude/cli/audit/reachability.py
+ M src/superclaude/cli/audit/wiring_analyzer.py
+ M src/superclaude/cli/audit/wiring_config.py
+ M src/superclaude/cli/audit/wiring_gate.py
+ M src/superclaude/cli/cli_portify/executor.py
+ M src/superclaude/cli/cli_portify/prompts.py
+ M src/superclaude/cli/cli_portify/steps/__init__.py
+ M src/superclaude/cli/cli_portify/steps/design_pipeline.py
+ M src/superclaude/cli/cli_portify/steps/panel_review.py
+ M src/superclaude/cli/cli_portify/tui.py
+ M src/superclaude/cli/install_hooks.py
+ M src/superclaude/cli/install_mcp.py
+ M src/superclaude/cli/pipeline/executor.py
+ M src/superclaude/cli/prd/diagnostics.py
+ M src/superclaude/cli/prd/executor.py
+ M src/superclaude/cli/prd/filtering.py
+ M src/superclaude/cli/prd/gates.py
+ M src/superclaude/cli/prd/inventory.py
+ M src/superclaude/cli/prd/logging_.py
+ M src/superclaude/cli/prd/models.py
+ M src/superclaude/cli/prd/monitor.py
+ M src/superclaude/cli/prd/process.py
+ M src/superclaude/cli/prd/prompts.py
+ M src/superclaude/cli/prd/tui.py
+ M src/superclaude/cli/roadmap/commands.py
+ M src/superclaude/cli/roadmap/convergence.py
+ M src/superclaude/cli/roadmap/executor.py
+ M src/superclaude/cli/roadmap/fidelity_checker.py
+ M src/superclaude/cli/roadmap/gates.py
+ M src/superclaude/cli/roadmap/integration_contracts.py
+ M src/superclaude/cli/roadmap/models.py
+ M src/superclaude/cli/roadmap/obligation_scanner.py
+ M src/superclaude/cli/roadmap/prompts.py
+ M src/superclaude/cli/roadmap/remediate_executor.py
+ M src/superclaude/cli/roadmap/semantic_layer.py
+ M src/superclaude/cli/roadmap/spec_parser.py
+ M src/superclaude/cli/roadmap/spec_structural_audit.py
+ M src/superclaude/cli/roadmap/structural_checkers.py
+ M src/superclaude/cli/roadmap/validate_executor.py
+ M src/superclaude/cli/roadmap/validate_prompts.py
+ M src/superclaude/cli/sprint/checkpoints.py
+ M src/superclaude/cli/sprint/commands.py
+ M src/superclaude/cli/sprint/executor.py
+ M src/superclaude/cli/sprint/monitor.py
+ M src/superclaude/cli/sprint/retrospective.py
+ M src/superclaude/cli/sprint/summarizer.py
+ M src/superclaude/cli/sprint/tmux.py
+ M src/superclaude/cli/sprint/tui.py
+ M src/superclaude/cli/tasklist/models.py
+ M src/superclaude/compression.py
+ M src/superclaude/skills/sc-crash-recovery/scripts/parse_session_log.py
+ M tests/audit-trail/audit_writer.py
+ M tests/audit-trail/conftest.py
+ M tests/audit/test_ac_validation.py
+ M tests/audit/test_agent_regression.py
+ M tests/audit/test_budget_caveat.py
+ M tests/audit/test_consolidation.py
+ M tests/audit/test_dir_assessment.py
+ M tests/audit/test_eval_wiring_multifile.py
+ M tests/audit/test_report_completeness.py
+ M tests/audit/test_spot_check.py
+ M tests/audit/test_validation_output.py
+ M tests/audit/test_wiring_gate.py
+ M tests/audit/test_wiring_integration.py
+ M tests/cli/prd/test_cli_smoke.py
+ M tests/cli/prd/test_e2e.py
+ M tests/cli/prd/test_executor.py
+ M tests/cli/prd/test_gates.py
+ M tests/cli/prd/test_integration.py
+ M tests/cli/prd/test_inventory.py
+ M tests/cli/prd/test_models.py
+ M tests/cli/prd/test_prompts.py
+ M tests/cli/test_install_hooks.py
+ M tests/cli/test_tdd_extract_prompt.py
+ M tests/cli_portify/test_gate_policy.py
+ M tests/cli_portify/test_models.py
+ M tests/cli_portify/test_monitor.py
+ M tests/cli_portify/test_panel_review.py
+ M tests/cli_portify/test_section_hashing.py
+ M tests/hooks/test_auggie_first.py
+ M tests/hooks/test_freshness_pre_edit_create_case.py
+ M tests/integration/test_sprint_wiring.py
+ M tests/integration/test_wiring_e2e_shadow.py
+ M tests/pipeline/test_full_flow.py
+ M tests/roadmap/conftest.py
+ M tests/roadmap/test_anti_instinct_integration.py
+ M tests/roadmap/test_certify_gates.py
+ M tests/roadmap/test_certify_prompts.py
+ M tests/roadmap/test_compression_integration.py
+ M tests/roadmap/test_convergence.py
+ M tests/roadmap/test_convergence_e2e.py
+ M tests/roadmap/test_convergence_smoke.py
+ M tests/roadmap/test_convergence_wiring.py
+ M tests/roadmap/test_eval_convergence_multirun.py
+ M tests/roadmap/test_eval_finding_lifecycle.py
+ M tests/roadmap/test_eval_gate_ordering.py
+ M tests/roadmap/test_merge_completeness.py
+ M tests/roadmap/test_obligation_scanner.py
+ M tests/roadmap/test_obligation_scanner_meta_context.py
+ M tests/roadmap/test_prd_prompts.py
+ M tests/roadmap/test_remediate_executor.py
+ M tests/roadmap/test_remediate_prompts.py
+ M tests/roadmap/test_remediation.py
+ M tests/roadmap/test_resume_restore.py
+ M tests/roadmap/test_semantic_layer.py
+ M tests/roadmap/test_spec_parser.py
+ M tests/roadmap/test_structural_checkers.py
+ M tests/roadmap/test_vocabulary.py
+ M tests/sc-roadmap/integration/test_adversarial_pipeline.py
+ M tests/sc-roadmap/integration/test_full_pipeline.py
+ M tests/sc-roadmap/integration/test_wave2_pipeline.py
+ M tests/sc-roadmap/integration/test_wave4_validation.py
+ M tests/sc-roadmap/integration/test_wave5_completion.py
+ M tests/sc-roadmap/unit/test_complexity_scoring.py
+ M tests/sc-roadmap/unit/test_persona_activation.py
+ M tests/skills/test_task_builder_merge.py
+ M tests/sprint/test_anti_instinct_sprint.py
+ M tests/sprint/test_checkpoints.py
+ M tests/sprint/test_execute_sprint_integration.py
+ M tests/sprint/test_gate_display_state.py
+ M tests/sprint/test_kpi_contract.py
+ M tests/sprint/test_kpi_report.py
+ M tests/sprint/test_retrospective.py
+ M tests/sprint/test_shadow_mode.py
+ M tests/sprint/test_summarizer.py
+ M tests/sprint/test_tmux.py
+ M tests/sprint/test_tui_gate_column.py
+ M tests/sprint/test_tui_v2_wave1.py
+ M tests/sprint/test_tui_v2_wave2.py
+ M tests/sprint/test_wiring_budget_scenarios.py
+ M tests/sprint/test_wiring_integration.py
+ M tests/sprint/test_wiring_mode_resolution.py
+ M tests/tasklist/test_autowire.py
+ M tests/tasklist/test_prd_prompts.py
+ M tests/unit/test_reflect_rescrutiny_phase.py
+ M tests/v3.3/conftest.py
+ M tests/v3.3/test_broken_wiring_detection.py
+ M tests/v3.3/test_fidelity_checker.py
+ M tests/v3.3/test_gate_rollout_modes.py
+ M tests/v3.3/test_integration_regression.py
+ M tests/v3.3/test_reachability_eval.py
+ M tests/v3.3/test_session_summary.py
+ M tests/v3.3/test_turnledger_lifecycle.py
+ M tests/v3.3/test_wiring_points_e2e.py
+?? .dev/releases/current/pipeline-deviation-remediate-bug-fix.md
+?? .dev/releases/current/task-builder-merge/remediation-tasklist.json
+?? .dev/releases/current/task-builder-merge/remediation-tasklist.md
+?? .dev/releases/current/task-builder-merge/spec-deviations.json
+?? .dev/releases/current/task-builder-merge/spec-deviations.md
+?? .dev/releases/current/task-builder-merge/validate/
+?? .dev/releases/current/task-sc-task-directional-merge/adversarial-tooling-debate/
+?? .dev/releases/current/task-sc-task-directional-merge/validation-spec/
+?? .dev/tasks/done/TASK-TDD-20260516-043749/
+?? .dev/tasks/to-do/TASK-PRD-20260515-210800/
+?? .dev/tasks/to-do/TASK-PRD-20260516-004625/
+?? .dev/tasks/to-do/TASK-RF-track-1-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-2-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-3-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-4-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-5-20260517-032112/
+?? docs/docs-product/
+?? docs/mistakes/test_database_connection-2026-05-17.md
+?? docs/mistakes/test_reflexion_with_real_exception-2026-05-17.md
+?? docs/mistakes/unknown-2026-05-17.md
+?? prd-dry-run-test/
+?? prd-test-product/

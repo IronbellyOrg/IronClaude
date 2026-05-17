@@ -1,0 +1,10 @@
+remote: 
+remote: Create a pull request for 'fix/ci-rot-pr2-ruff-format' on GitHub by visiting:        
+remote:      https://github.com/IronbellyOrg/IronClaude/pull/new/fix/ci-rot-pr2-ruff-format        
+remote: 
+To https://github.com/IronbellyOrg/IronClaude.git
+ * [new branch]      fix/ci-rot-pr2-ruff-format -> fix/ci-rot-pr2-ruff-format
+branch 'fix/ci-rot-pr2-ruff-format' set up to track 'origin/fix/ci-rot-pr2-ruff-format'.
+Warning: 23 uncommitted changes
+https://github.com/IronbellyOrg/IronClaude/pull/38
+PR_URL=https://github.com/IronbellyOrg/IronClaude/pull/38

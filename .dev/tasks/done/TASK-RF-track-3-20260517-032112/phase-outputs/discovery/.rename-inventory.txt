@@ -1,0 +1,83 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+src/superclaude/cli/audit/budget.py:146:29: E741 Ambiguous variable name: `l`
+src/superclaude/cli/audit/budget.py:294:41: E741 Ambiguous variable name: `l`
+src/superclaude/cli/audit/budget.py:350:24: E741 Ambiguous variable name: `l`
+src/superclaude/cli/audit/dependency_graph.py:222:9: F841 Local variable `source_stem` is assigned to but never used
+src/superclaude/cli/cli_portify/config.py:154:9: F841 Local variable `out_parent` is assigned to but never used
+src/superclaude/cli/cli_portify/steps/discover_components.py:271:5: F841 Local variable `auto_by_name` is assigned to but never used
+src/superclaude/cli/pipeline/dataflow_graph.py:134:9: N806 Variable `WHITE` in function should be lowercase
+src/superclaude/cli/pipeline/dataflow_graph.py:134:16: N806 Variable `GRAY` in function should be lowercase
+src/superclaude/cli/pipeline/dataflow_graph.py:134:22: N806 Variable `BLACK` in function should be lowercase
+src/superclaude/cli/pipeline/deliverables.py:128:9: F841 Local variable `has_strong_behavioral` is assigned to but never used
+src/superclaude/cli/pipeline/invariants.py:72:5: F841 Local variable `logic_ops` is assigned to but never used
+src/superclaude/cli/pipeline/invariants.py:89:14: F841 Local variable `op` is assigned to but never used
+src/superclaude/cli/pipeline/mutation_inventory.py:100:25: F841 Local variable `key` is assigned to but never used
+src/superclaude/cli/prd/executor.py:637:9: F841 Local variable `research_files` is assigned to but never used
+src/superclaude/cli/roadmap/executor.py:598:5: F841 Local variable `preamble` is assigned to but never used
+src/superclaude/cli/roadmap/executor.py:1851:5: F841 Local variable `certification_file` is assigned to but never used
+src/superclaude/cli/roadmap/spec_parser.py:199:41: E741 Ambiguous variable name: `l`
+src/superclaude/cli/roadmap/spec_parser.py:569:37: E741 Ambiguous variable name: `l`
+src/superclaude/cli/roadmap/structural_checkers.py:367:5: F841 Local variable `spec_sections` is assigned to but never used
+src/superclaude/cli/roadmap/structural_checkers.py:368:5: F841 Local variable `roadmap_sections` is assigned to but never used
+src/superclaude/cli/roadmap/structural_checkers.py:777:5: F841 Local variable `roadmap_parsed` is assigned to but never used
+src/superclaude/cli/sprint/executor.py:1213:5: F841 Local variable `gate_policy` is assigned to but never used
+src/superclaude/cli/sprint/models.py:421:9: N806 Variable `_OLD_TO_NEW` in function should be lowercase
+tests/audit/test_dependency_graph.py:104:9: F841 Local variable `tier_a` is assigned to but never used
+tests/audit/test_spot_check.py:146:9: F841 Local variable `keep_in_sample` is assigned to but never used
+tests/audit/test_tool_orchestrator.py:86:9: F841 Local variable `r1` is assigned to but never used
+tests/audit/test_tool_orchestrator.py:87:9: F841 Local variable `r2` is assigned to but never used
+tests/audit/test_wiring_gate.py:670:55: N811 Constant `WIRING_GATE` imported as non-constant `gate`
+tests/cli/prd/test_integration.py:237:5: F841 Local variable `original_execute` is assigned to but never used
+tests/cli/prd/test_integration.py:287:5: F841 Local variable `original_execute` is assigned to but never used
+tests/cli_portify/test_config.py:317:9: F841 Local variable `errors` is assigned to but never used
+tests/cli_portify/test_executor.py:373:9: F841 Local variable `original_runner` is assigned to but never used
+tests/cli_portify/test_mock_harness.py:217:13: F841 Local variable `result` is assigned to but never used
+tests/cli_portify/test_monitor.py:417:9: F841 Local variable `mon` is assigned to but never used
+tests/pipeline/test_executor.py:167:9: F841 Local variable `results` is assigned to but never used
+tests/pipeline/test_full_flow.py:92:9: F841 Local variable `result` is assigned to but never used
+tests/pipeline/test_full_flow.py:128:9: F841 Local variable `task_result` is assigned to but never used
+tests/pipeline/test_full_flow.py:186:9: F841 Local variable `step` is assigned to but never used
+tests/pipeline/test_full_flow.py:192:9: F841 Local variable `gate_result` is assigned to but never used
+tests/pipeline/test_full_flow.py:257:9: F841 Local variable `step` is assigned to but never used
+tests/pipeline/test_full_flow.py:264:9: F841 Local variable `gate_result` is assigned to but never used
+tests/pipeline/test_gate_performance.py:94:9: F841 Local variable `p95` is assigned to but never used
+tests/pipeline/test_trailing_gate.py:95:9: F841 Local variable `results_collected` is assigned to but never used
+tests/pipeline/test_trailing_gate.py:96:9: F841 Local variable `errors` is assigned to but never used
+tests/pipeline/test_trailing_gate.py:212:9: F841 Local variable `results` is assigned to but never used
+tests/pipeline/test_trailing_gate.py:221:9: F841 Local variable `cancelled` is assigned to but never used
+tests/roadmap/test_cli_contract.py:143:29: E741 Ambiguous variable name: `l`
+tests/roadmap/test_convergence.py:549:17: E741 Ambiguous variable name: `l`
+tests/roadmap/test_convergence.py:796:9: N806 Variable `TurnLedger` in function should be lowercase
+tests/roadmap/test_convergence.py:1489:19: E741 Ambiguous variable name: `l`
+tests/roadmap/test_dry_run.py:104:29: E741 Ambiguous variable name: `l`
+tests/roadmap/test_file_passing.py:58:73: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_file_passing.py:91:73: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_file_passing.py:127:73: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_file_passing.py:162:73: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_inline_fallback.py:112:59: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_inline_fallback.py:146:59: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_inline_fallback.py:187:59: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_inline_fallback.py:210:59: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_integration_v5_pipeline.py:252:5: N806 Variable `_SEMANTIC_EXTRAS` in function should be lowercase
+tests/roadmap/test_remediate_executor.py:558:14: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_remediate_executor.py:598:14: N806 Variable `MockProc` in function should be lowercase
+tests/roadmap/test_spec_structural_audit.py:202:9: F841 Local variable `audit` is assigned to but never used
+tests/roadmap/test_structural_checkers.py:747:9: F841 Local variable `boilerplate_count` is assigned to but never used
+tests/roadmap/test_validate_executor.py:291:9: F841 Local variable `result` is assigned to but never used
+tests/roadmap/test_vocabulary.py:69:13: N811 Constant `SCAFFOLD_TERMS` imported as non-constant `scanner_terms`
+tests/roadmap/test_vocabulary.py:76:13: N811 Constant `DISCHARGE_TERMS` imported as non-constant `scanner_terms`
+tests/sc-roadmap/integration/test_wave1_pipeline.py:101:5: N806 Variable `PERSONA_MAP` in function should be lowercase
+tests/sc-roadmap/integration/test_wave2_pipeline.py:38:5: N806 Variable `TEMPLATE_MAP` in function should be lowercase
+tests/sc-roadmap/integration/test_wave4_validation.py:118:9: N806 Variable `MAX_ITERATIONS` in function should be lowercase
+tests/sc-roadmap/unit/test_persona_activation.py:19:5: N806 Variable `PERSONA_MAP` in function should be lowercase
+tests/sprint/diagnostic/test_instrumentation.py:155:23: E741 Ambiguous variable name: `l`
+tests/sprint/test_backward_compat_regression.py:217:9: F841 Local variable `runner_calls` is assigned to but never used
+tests/sprint/test_resume_semantics.py:57:9: F841 Local variable `idx_03` is assigned to but never used
+tests/sprint/test_resume_semantics.py:58:9: F841 Local variable `idx_04` is assigned to but never used
+tests/sprint/test_resume_semantics.py:59:9: F841 Local variable `idx_05` is assigned to but never used
+tests/v3.3/test_integration_regression.py:480:25: E741 Ambiguous variable name: `l`
+tests/v3.3/test_wiring_points_e2e.py:1846:9: F841 Local variable `total_expected_debit` is assigned to but never used
+tests/v3.3/test_wiring_points_e2e.py:2453:9: F841 Local variable `task_result` is assigned to but never used
+Found 79 errors.
+No fixes available (45 hidden fixes can be enabled with the `--unsafe-fixes` option).
+EXIT=1

@@ -1,0 +1,25 @@
+Branch: fix/ci-rot-pr3-manual-renames
+SHA: d3060a8f8b745ddfac578940b878a90ffa2ed0df
+=== git status ===
+?? .dev/releases/current/pipeline-deviation-remediate-bug-fix.md
+?? .dev/releases/current/task-builder-merge/remediation-tasklist.json
+?? .dev/releases/current/task-builder-merge/remediation-tasklist.md
+?? .dev/releases/current/task-builder-merge/spec-deviations.json
+?? .dev/releases/current/task-builder-merge/spec-deviations.md
+?? .dev/releases/current/task-builder-merge/validate/
+?? .dev/releases/current/task-sc-task-directional-merge/adversarial-tooling-debate/
+?? .dev/releases/current/task-sc-task-directional-merge/validation-spec/
+?? .dev/tasks/done/TASK-TDD-20260516-043749/
+?? .dev/tasks/to-do/TASK-PRD-20260515-210800/
+?? .dev/tasks/to-do/TASK-PRD-20260516-004625/
+?? .dev/tasks/to-do/TASK-RF-track-1-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-2-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-3-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-4-20260517-032112/
+?? .dev/tasks/to-do/TASK-RF-track-5-20260517-032112/
+?? docs/docs-product/
+?? docs/mistakes/test_database_connection-2026-05-17.md
+?? docs/mistakes/test_reflexion_with_real_exception-2026-05-17.md
+?? docs/mistakes/unknown-2026-05-17.md
+?? prd-dry-run-test/
+?? prd-test-product/

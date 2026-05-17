@@ -1,0 +1,653 @@
+F841 Local variable `source_stem` is assigned to but never used
+   --> src/superclaude/cli/audit/dependency_graph.py:222:9
+    |
+221 |     for source_path, analysis in analyses.items():
+222 |         source_stem = os.path.splitext(os.path.basename(source_path))[0]
+    |         ^^^^^^^^^^^
+223 |
+224 |         # Tier-A: AST-resolved imports
+    |
+help: Remove assignment to unused variable `source_stem`
+
+F841 Local variable `out_parent` is assigned to but never used
+   --> src/superclaude/cli/cli_portify/config.py:154:9
+    |
+152 |     # --- 3. Output directory writability ---
+153 |     if config.output_dir is not None:
+154 |         out_parent = config.output_dir.parent
+    |         ^^^^^^^^^^
+155 |         out_path = config.output_dir
+    |
+help: Remove assignment to unused variable `out_parent`
+
+F841 Local variable `auto_by_name` is assigned to but never used
+   --> src/superclaude/cli/cli_portify/steps/discover_components.py:271:5
+    |
+270 |     # Build lookup from auto
+271 |     auto_by_name: dict[str, AgentEntry] = {a.name: a for a in auto_agents}
+    |     ^^^^^^^^^^^^
+272 |
+273 |     result: list[AgentEntry] = []
+    |
+help: Remove assignment to unused variable `auto_by_name`
+
+F401 `.conflict_review.detect_file_overlap` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:28:5
+   |
+26 |     ConflictAction,
+27 |     ConflictReviewResult,
+28 |     detect_file_overlap,
+   |     ^^^^^^^^^^^^^^^^^^^
+29 |     review_conflicts,
+30 | )
+   |
+help: Add unused import `detect_file_overlap` to __all__
+
+F401 `.conflict_review.review_conflicts` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:29:5
+   |
+27 |     ConflictReviewResult,
+28 |     detect_file_overlap,
+29 |     review_conflicts,
+   |     ^^^^^^^^^^^^^^^^
+30 | )
+31 | from .contract_extractor import ImplicitContract, extract_implicit_contracts
+   |
+help: Add unused import `review_conflicts` to __all__
+
+F401 `.diagnostic_chain.DiagnosticReport` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:42:5
+   |
+40 | from .deliverables import decompose_deliverables, is_behavioral
+41 | from .diagnostic_chain import (
+42 |     DiagnosticReport,
+   |     ^^^^^^^^^^^^^^^^
+43 |     DiagnosticStage,
+44 |     StageResult,
+   |
+help: Add unused import `DiagnosticReport` to __all__
+
+F401 `.diagnostic_chain.DiagnosticStage` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:43:5
+   |
+41 | from .diagnostic_chain import (
+42 |     DiagnosticReport,
+43 |     DiagnosticStage,
+   |     ^^^^^^^^^^^^^^^
+44 |     StageResult,
+45 |     run_diagnostic_chain,
+   |
+help: Add unused import `DiagnosticStage` to __all__
+
+F401 `.diagnostic_chain.StageResult` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:44:5
+   |
+42 |     DiagnosticReport,
+43 |     DiagnosticStage,
+44 |     StageResult,
+   |     ^^^^^^^^^^^
+45 |     run_diagnostic_chain,
+46 | )
+   |
+help: Add unused import `StageResult` to __all__
+
+F401 `.diagnostic_chain.run_diagnostic_chain` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:45:5
+   |
+43 |     DiagnosticStage,
+44 |     StageResult,
+45 |     run_diagnostic_chain,
+   |     ^^^^^^^^^^^^^^^^^^^^
+46 | )
+47 | from .executor import execute_pipeline
+   |
+help: Add unused import `run_diagnostic_chain` to __all__
+
+F401 `.trailing_gate.RemediationRetryResult` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:80:5
+   |
+78 |     GateScope,
+79 |     RemediationEntry,
+80 |     RemediationRetryResult,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+81 |     RemediationRetryStatus,
+82 |     RemediationStatus,
+   |
+help: Add unused import `RemediationRetryResult` to __all__
+
+F401 `.trailing_gate.RemediationRetryStatus` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:81:5
+   |
+79 |     RemediationEntry,
+80 |     RemediationRetryResult,
+81 |     RemediationRetryStatus,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+82 |     RemediationStatus,
+83 |     TrailingGatePolicy,
+   |
+help: Add unused import `RemediationRetryStatus` to __all__
+
+F401 `.trailing_gate.attempt_remediation` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  --> src/superclaude/cli/pipeline/__init__.py:86:5
+   |
+84 |     TrailingGateResult,
+85 |     TrailingGateRunner,
+86 |     attempt_remediation,
+   |     ^^^^^^^^^^^^^^^^^^^
+87 |     build_remediation_prompt,
+88 |     resolve_gate_mode,
+   |
+help: Add unused import `attempt_remediation` to __all__
+
+F841 Local variable `has_strong_behavioral` is assigned to but never used
+   --> src/superclaude/cli/pipeline/deliverables.py:128:9
+    |
+126 |         if len(behavioral_verb_hits) <= doc_signals:
+127 |             return False
+128 |         has_strong_behavioral = True
+    |         ^^^^^^^^^^^^^^^^^^^^^
+129 |
+130 |     # Check computational verbs
+    |
+help: Remove assignment to unused variable `has_strong_behavioral`
+
+F841 Local variable `logic_ops` is assigned to but never used
+  --> src/superclaude/cli/pipeline/invariants.py:72:5
+   |
+70 |     # Filter out the logic operators to get just clauses
+71 |     clause_texts = [clauses[i] for i in range(0, len(clauses), 2)]
+72 |     logic_ops = [clauses[i] for i in range(1, len(clauses), 2)]
+   |     ^^^^^^^^^
+73 |
+74 |     if not clause_texts:
+   |
+help: Remove assignment to unused variable `logic_ops`
+
+F841 Local variable `op` is assigned to but never used
+  --> src/superclaude/cli/pipeline/invariants.py:89:14
+   |
+87 |             )
+88 |
+89 |         lhs, op, rhs = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
+   |              ^^
+90 |         if not lhs:
+91 |             return False, f"Empty variable_name in clause: {clause!r}"
+   |
+help: Remove assignment to unused variable `op`
+
+F841 Local variable `key` is assigned to but never used
+   --> src/superclaude/cli/pipeline/mutation_inventory.py:100:25
+    |
+ 98 |                     target = match.group(1).lower()
+ 99 |                     if _is_variable_match(target, var_name):
+100 |                         key = (d.id, indicator_name)
+    |                         ^^^
+101 |                         if d.id not in seen_deliverables:
+102 |                             mutation_sites.append(
+    |
+help: Remove assignment to unused variable `key`
+
+F841 Local variable `research_files` is assigned to but never used
+   --> src/superclaude/cli/prd/executor.py:643:9
+    |
+642 |         # Step 10: Investigation (parallel)
+643 |         research_files = discover_research_files(self._config.task_dir)
+    |         ^^^^^^^^^^^^^^
+644 |         investigation_steps = self._build_investigation_steps()
+    |
+help: Remove assignment to unused variable `research_files`
+
+F401 `rich.text.Text` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> src/superclaude/cli/prd/tui.py:23:27
+   |
+21 |     from rich.progress import BarColumn, Progress, TextColumn
+22 |     from rich.table import Table
+23 |     from rich.text import Text
+   |                           ^^^^
+24 |
+25 |     _HAS_RICH = True
+   |
+help: Remove unused import: `rich.text.Text`
+
+F841 Local variable `preamble` is assigned to but never used
+   --> src/superclaude/cli/roadmap/executor.py:598:5
+    |
+596 |         return 0
+597 |
+598 |     preamble = content[: match.start()]
+    |     ^^^^^^^^
+599 |     cleaned = content[match.start() :]
+600 |     # Total bytes stripped = leading whitespace + conversational preamble
+    |
+help: Remove assignment to unused variable `preamble`
+
+F841 Local variable `certification_file` is assigned to but never used
+    --> src/superclaude/cli/roadmap/executor.py:1849:5
+     |
+1847 |     deviation_file = out / "spec-deviations.md"
+1848 |     remediation_file = out / "remediation-tasklist.md"
+1849 |     certification_file = out / "certification-report.md"
+     |     ^^^^^^^^^^^^^^^^^^
+1850 |
+1851 |     # Resolve roadmap template for incremental-write steps
+     |
+help: Remove assignment to unused variable `certification_file`
+
+F841 Local variable `spec_sections` is assigned to but never used
+   --> src/superclaude/cli/roadmap/structural_checkers.py:367:5
+    |
+366 |     # Get dimension-relevant sections
+367 |     spec_sections = _get_sections_for_dimension("signatures", spec_parsed.sections)
+    |     ^^^^^^^^^^^^^
+368 |     roadmap_sections = _get_sections_for_dimension("signatures", roadmap_parsed.sections)
+369 |     roadmap_full_text = roadmap_text.lower()
+    |
+help: Remove assignment to unused variable `spec_sections`
+
+F841 Local variable `roadmap_sections` is assigned to but never used
+   --> src/superclaude/cli/roadmap/structural_checkers.py:368:5
+    |
+366 |     # Get dimension-relevant sections
+367 |     spec_sections = _get_sections_for_dimension("signatures", spec_parsed.sections)
+368 |     roadmap_sections = _get_sections_for_dimension("signatures", roadmap_parsed.sections)
+    |     ^^^^^^^^^^^^^^^^
+369 |     roadmap_full_text = roadmap_text.lower()
+    |
+help: Remove assignment to unused variable `roadmap_sections`
+
+F841 Local variable `roadmap_parsed` is assigned to but never used
+   --> src/superclaude/cli/roadmap/structural_checkers.py:715:5
+    |
+714 |     spec_parsed = parse_document(spec_text)
+715 |     roadmap_parsed = parse_document(roadmap_text)
+    |     ^^^^^^^^^^^^^^
+716 |
+717 |     spec_sections = _get_sections_for_dimension("nfrs", spec_parsed.sections)
+    |
+help: Remove assignment to unused variable `roadmap_parsed`
+
+F841 Local variable `gate_policy` is assigned to but never used
+    --> src/superclaude/cli/sprint/executor.py:1186:5
+     |
+1184 |     )
+1185 |     # T06 (BUG-006/P5): Construct SprintGatePolicy for remediation step building
+1186 |     gate_policy = SprintGatePolicy(config)
+     |     ^^^^^^^^^^^
+1187 |     # T05-C: Accumulator for all TrailingGateResults across phases
+1188 |     all_gate_results: list[TrailingGateResult] = []
+     |
+help: Remove assignment to unused variable `gate_policy`
+
+invalid-syntax: unexpected EOF while parsing
+ --> tests/audit/fixtures/syntax_error.py:5:1
+  |
+3 | def broken_function(
+4 |     # Missing closing paren
+  |                            ^
+  |
+
+F841 Local variable `tier_a` is assigned to but never used
+   --> tests/audit/test_dependency_graph.py:104:9
+    |
+102 |         }
+103 |         graph = build_dependency_graph(analyses)
+104 |         tier_a = graph.edges_by_tier()["A"]
+    |         ^^^^^^
+105 |         # May or may not resolve depending on path matching
+106 |         assert graph.stats["node_count"] >= 2
+    |
+help: Remove assignment to unused variable `tier_a`
+
+F841 Local variable `keep_in_sample` is assigned to but never used
+   --> tests/audit/test_spot_check.py:147:9
+    |
+146 |         # All KEEP findings should be inconsistent with DELETE re-classification
+147 |         keep_in_sample = sum(
+    |         ^^^^^^^^^^^^^^
+148 |             1 for f in findings[: result.sample_size] if f.action == V2Action.KEEP
+149 |         )
+    |
+help: Remove assignment to unused variable `keep_in_sample`
+
+F841 Local variable `r1` is assigned to but never used
+  --> tests/audit/test_tool_orchestrator.py:86:9
+   |
+84 |         orch = ToolOrchestrator()
+85 |         content = "import os\nprint('hello')"
+86 |         r1 = orch.analyze_file("main.py", content)
+   |         ^^
+87 |         r2 = orch.analyze_file("main.py", content)
+   |
+help: Remove assignment to unused variable `r1`
+
+F841 Local variable `r2` is assigned to but never used
+  --> tests/audit/test_tool_orchestrator.py:87:9
+   |
+85 |         content = "import os\nprint('hello')"
+86 |         r1 = orch.analyze_file("main.py", content)
+87 |         r2 = orch.analyze_file("main.py", content)
+   |         ^^
+88 |
+89 |         # Second call should hit cache
+   |
+help: Remove assignment to unused variable `r2`
+
+F841 Local variable `original_execute` is assigned to but never used
+   --> tests/cli/prd/test_integration.py:239:5
+    |
+237 |     # Track QA invocations
+238 |     call_count = [0]
+239 |     original_execute = executor._execute_step
+    |     ^^^^^^^^^^^^^^^^
+240 |
+241 |     def mock_execute_step(step_id, step_name, builder_name):
+    |
+help: Remove assignment to unused variable `original_execute`
+
+F841 Local variable `original_execute` is assigned to but never used
+   --> tests/cli/prd/test_integration.py:289:5
+    |
+287 |     lock = threading.Lock()
+288 |
+289 |     original_execute = executor._execute_step
+    |     ^^^^^^^^^^^^^^^^
+290 |
+291 |     def mock_execute_step(step_id, step_name, builder_name):
+    |
+help: Remove assignment to unused variable `original_execute`
+
+F841 Local variable `errors` is assigned to but never used
+   --> tests/cli_portify/test_config.py:317:9
+    |
+315 |         config.output_dir = cli_root.parent
+316 |
+317 |         errors = (
+    |         ^^^^^^
+318 |             _check_collision.__wrapped__("my-test-module", config)
+319 |             if hasattr(_check_collision, "__wrapped__")
+    |
+help: Remove assignment to unused variable `errors`
+
+F841 Local variable `original_runner` is assigned to but never used
+   --> tests/cli_portify/test_executor.py:373:9
+    |
+372 |         # Simulate interrupt mid-run by setting the flag directly
+373 |         original_runner = ex._step_runner
+    |         ^^^^^^^^^^^^^^^
+374 |
+375 |         call_count = [0]
+    |
+help: Remove assignment to unused variable `original_runner`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/cli_portify/test_mock_harness.py:217:13
+    |
+216 |         with patch_portify_process("design-pipeline"):
+217 |             result = proc.run()
+    |             ^^^^^^
+218 |
+219 |         assert out.exists()
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `mon` is assigned to but never used
+   --> tests/cli_portify/test_monitor.py:410:9
+    |
+408 |         from superclaude.cli.cli_portify.monitor import OutputMonitor
+409 |
+410 |         mon = OutputMonitor()
+    |         ^^^
+411 |         expected = {
+412 |             "output_bytes",
+    |
+help: Remove assignment to unused variable `mon`
+
+F841 Local variable `results` is assigned to but never used
+   --> tests/pipeline/test_executor.py:167:9
+    |
+166 |         events = []
+167 |         results = execute_pipeline(
+    |         ^^^^^^^
+168 |             steps=steps,
+169 |             config=cfg,
+    |
+help: Remove assignment to unused variable `results`
+
+F841 Local variable `result` is assigned to but never used
+  --> tests/pipeline/test_full_flow.py:92:9
+   |
+90 |         # Simulate task execution
+91 |         ledger.debit(10)
+92 |         result = _make_step_result(step, StepStatus.PASS)
+   |         ^^^^^^
+93 |
+94 |         # Gate passes
+   |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `task_result` is assigned to but never used
+   --> tests/pipeline/test_full_flow.py:128:9
+    |
+126 |         # Task execution
+127 |         ledger.debit(10)
+128 |         task_result = _make_step_result(step, StepStatus.PASS)
+    |         ^^^^^^^^^^^
+129 |
+130 |         # Gate fails
+    |
+help: Remove assignment to unused variable `task_result`
+
+F841 Local variable `step` is assigned to but never used
+   --> tests/pipeline/test_full_flow.py:186:9
+    |
+184 |             enforcement_tier="STRICT",
+185 |         )
+186 |         step = _make_step("task-3", tmp_path, gate=gate)
+    |         ^^^^
+187 |
+188 |         # Task execution
+    |
+help: Remove assignment to unused variable `step`
+
+F841 Local variable `gate_result` is assigned to but never used
+   --> tests/pipeline/test_full_flow.py:192:9
+    |
+191 |         # Gate fails
+192 |         gate_result = _make_gate_result(
+    |         ^^^^^^^^^^^
+193 |             "task-3",
+194 |             passed=False,
+    |
+help: Remove assignment to unused variable `gate_result`
+
+F841 Local variable `step` is assigned to but never used
+   --> tests/pipeline/test_full_flow.py:257:9
+    |
+255 |         )
+256 |
+257 |         step = _make_step("task-4", tmp_path)
+    |         ^^^^
+258 |
+259 |         # Task consumes most of the budget
+    |
+help: Remove assignment to unused variable `step`
+
+F841 Local variable `gate_result` is assigned to but never used
+   --> tests/pipeline/test_full_flow.py:264:9
+    |
+263 |         # Gate fails
+264 |         gate_result = _make_gate_result(
+    |         ^^^^^^^^^^^
+265 |             "task-4",
+266 |             passed=False,
+    |
+help: Remove assignment to unused variable `gate_result`
+
+F841 Local variable `p95` is assigned to but never used
+  --> tests/pipeline/test_gate_performance.py:94:9
+   |
+93 |         median = sorted(timings)[len(timings) // 2]
+94 |         p95 = sorted(timings)[int(len(timings) * 0.95)]
+   |         ^^^
+95 |
+96 |         assert median < 50.0, (
+   |
+help: Remove assignment to unused variable `p95`
+
+F841 Local variable `results_collected` is assigned to but never used
+  --> tests/pipeline/test_trailing_gate.py:95:9
+   |
+93 |         """Thread-safe under concurrent access from >=3 threads."""
+94 |         q = GateResultQueue()
+95 |         results_collected: list[TrailingGateResult] = []
+   |         ^^^^^^^^^^^^^^^^^
+96 |         errors: list[str] = []
+   |
+help: Remove assignment to unused variable `results_collected`
+
+F841 Local variable `errors` is assigned to but never used
+  --> tests/pipeline/test_trailing_gate.py:96:9
+   |
+94 |         q = GateResultQueue()
+95 |         results_collected: list[TrailingGateResult] = []
+96 |         errors: list[str] = []
+   |         ^^^^^^
+97 |
+98 |         def producer(start_id: int, count: int):
+   |
+help: Remove assignment to unused variable `errors`
+
+F841 Local variable `results` is assigned to but never used
+   --> tests/pipeline/test_trailing_gate.py:212:9
+    |
+211 |         start = time.monotonic()
+212 |         results = runner.wait_for_pending(timeout=0.5)
+    |         ^^^^^^^
+213 |         elapsed = time.monotonic() - start
+214 |         # Should return within ~0.5s, not hang for 10s
+    |
+help: Remove assignment to unused variable `results`
+
+F841 Local variable `cancelled` is assigned to but never used
+   --> tests/pipeline/test_trailing_gate.py:221:9
+    |
+219 |         """cancel() propagates to all active daemon threads."""
+220 |         runner = TrailingGateRunner()
+221 |         cancelled = threading.Event()
+    |         ^^^^^^^^^
+222 |
+223 |         def slow_gate(path, criteria):
+    |
+help: Remove assignment to unused variable `cancelled`
+
+F841 Local variable `audit` is assigned to but never used
+   --> tests/roadmap/test_spec_structural_audit.py:202:9
+    |
+201 |     def test_inadequate_extraction_fails(self):
+202 |         audit = audit_spec_structure(RICH_SPEC)
+    |         ^^^^^
+203 |         # Extraction reports very few requirements relative to indicators
+204 |         passed, result = check_extraction_adequacy(RICH_SPEC, 2)
+    |
+help: Remove assignment to unused variable `audit`
+
+F841 Local variable `boilerplate_count` is assigned to but never used
+   --> tests/roadmap/test_structural_checkers.py:657:9
+    |
+655 |     ) -> None:
+656 |         findings = run_all_checkers(spec_file, roadmap_file)
+657 |         boilerplate_count = sum(
+    |         ^^^^^^^^^^^^^^^^^
+658 |             1 for f in findings if f.fix_guidance.startswith("Address ")
+659 |             and f.fix_guidance.endswith(" dimension")
+    |
+help: Remove assignment to unused variable `boilerplate_count`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/roadmap/test_validate_executor.py:291:9
+    |
+289 |         )
+290 |
+291 |         result = execute_validate(config)
+    |         ^^^^^^
+292 |
+293 |         report_path = output_dir / "validate" / "validation-report.md"
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `runner_calls` is assigned to but never used
+   --> tests/sprint/test_backward_compat_regression.py:217:9
+    |
+215 |         ]
+216 |
+217 |         runner_calls = []
+    |         ^^^^^^^^^^^^
+218 |
+219 |         def mock_run(step, cfg, cancel):
+    |
+help: Remove assignment to unused variable `runner_calls`
+
+F841 Local variable `idx_03` is assigned to but never used
+  --> tests/sprint/test_resume_semantics.py:57:9
+   |
+55 |         assert "T07.05" in output
+56 |         # Order preserved
+57 |         idx_03 = output.index("T07.03")
+   |         ^^^^^^
+58 |         idx_04 = output.index("T07.04")
+59 |         idx_05 = output.index("T07.05")
+   |
+help: Remove assignment to unused variable `idx_03`
+
+F841 Local variable `idx_04` is assigned to but never used
+  --> tests/sprint/test_resume_semantics.py:58:9
+   |
+56 |         # Order preserved
+57 |         idx_03 = output.index("T07.03")
+58 |         idx_04 = output.index("T07.04")
+   |         ^^^^^^
+59 |         idx_05 = output.index("T07.05")
+60 |         # Resume command mentions T07.03 first, then tasks listed
+   |
+help: Remove assignment to unused variable `idx_04`
+
+F841 Local variable `idx_05` is assigned to but never used
+  --> tests/sprint/test_resume_semantics.py:59:9
+   |
+57 |         idx_03 = output.index("T07.03")
+58 |         idx_04 = output.index("T07.04")
+59 |         idx_05 = output.index("T07.05")
+   |         ^^^^^^
+60 |         # Resume command mentions T07.03 first, then tasks listed
+61 |         # Just verify all are present (order is maintained by list)
+   |
+help: Remove assignment to unused variable `idx_05`
+
+F841 Local variable `total_expected_debit` is assigned to but never used
+    --> tests/v3.3/test_wiring_points_e2e.py:1815:9
+     |
+1813 |         wiring_debit = config.wiring_analysis_turns  # debit_wiring at analysis start
+1814 |         remediation_debit = config.remediation_cost   # debit at remediation
+1815 |         total_expected_debit = wiring_debit + remediation_debit + 1  # +1 for task turn
+     |         ^^^^^^^^^^^^^^^^^^^^
+1816 |         assert ledger.consumed > initial_consumed + wiring_debit, (
+1817 |             f"Expected consumed > {initial_consumed + wiring_debit} "
+     |
+help: Remove assignment to unused variable `total_expected_debit`
+
+F841 Local variable `task_result` is assigned to but never used
+    --> tests/v3.3/test_wiring_points_e2e.py:2409:9
+     |
+2407 |             description="Validates shadow mode credit-back",
+2408 |         )
+2409 |         task_result = TaskResult(
+     |         ^^^^^^^^^^^
+2410 |             task=task,
+2411 |             status=TaskStatus.PASS,
+     |
+help: Remove assignment to unused variable `task_result`
+
+Found 1060 errors (1004 fixed, 56 remaining).
+No fixes available (45 hidden fixes can be enabled with the `--unsafe-fixes` option).
+EXIT_CODE: 1
+MODIFIED_FILES: 330

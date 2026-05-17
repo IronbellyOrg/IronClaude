@@ -1,0 +1,7 @@
+src/superclaude/skills/sc-crash-recovery/scripts/parse_session_log.py
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:   20 directories
+   Agents:   35 files
+   Commands: 40 files
+   Hooks:    10 files

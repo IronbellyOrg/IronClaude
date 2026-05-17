@@ -1,0 +1,10 @@
+{"message":"Invalid request.\n\nNo subschema in \"oneOf\" matched.\n\"positioning\" wasn't supplied.\n\"position\" wasn't supplied.\n\"in_reply_to\" wasn't supplied.\nFor 'properties/line', \"17\" is not an integer.\n\"line\" is not a permitted key.\n\"subject_type\" wasn't supplied.","documentation_url":"https://docs.github.com/rest/pulls/comments#create-a-review-comment-for-a-pull-request","status":"422"}gh: Invalid request.
+
+No subschema in "oneOf" matched.
+"positioning" wasn't supplied.
+"position" wasn't supplied.
+"in_reply_to" wasn't supplied.
+For 'properties/line', "17" is not an integer.
+"line" is not a permitted key.
+"subject_type" wasn't supplied. (HTTP 422)
+https://github.com/IronbellyOrg/IronClaude/pull/40#issuecomment-4469437492

@@ -1,0 +1,15 @@
+645	F401	[-] unused-import
+243	I001	[*] unsorted-imports
+ 46	F841	[-] unused-variable
+ 36	E402	[ ] module-import-not-at-top-of-file
+ 20	N806	[ ] non-lowercase-variable-in-function
+ 18	F541	[*] f-string-missing-placeholders
+ 11	E741	[ ] ambiguous-variable-name
+  8	F821	[ ] undefined-name
+  3	E731	[ ] lambda-assignment
+  3	N811	[ ] constant-imported-as-non-constant
+  2	F811	[-] redefined-while-unused
+  1	    	[ ] invalid-syntax
+  1	E401	[*] multiple-imports-on-one-line
+Found 1037 errors.
+[*] 899 fixable with the `--fix` option (48 hidden fixes can be enabled with the `--unsafe-fixes` option).
