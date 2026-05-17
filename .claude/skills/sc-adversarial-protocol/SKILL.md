@@ -1100,7 +1100,7 @@ round_2_sequential:
 
 ```yaml
 round_2_5_invariant_probe:
-  purpose: "Systematic fault-finding against emerging consensus using 5-category boundary-condition checklist"
+  purpose: "Systematic fault-finding against emerging consensus using 6-category boundary-condition + sufficiency-challenge checklist (5 original boundary-condition categories + sufficiency_challenge added 2026-05-17)"
   condition: "--depth standard OR --depth deep"
   skip_condition: "--depth quick → skip (log: 'Round 2.5 (invariant probe) skipped: --depth quick')"
   execution: "SINGLE AGENT — fault-finder agent probes consensus independently"
@@ -1114,6 +1114,14 @@ round_2_5_invariant_probe:
       - "diff-analysis.md (structural + content diffs, contradictions, shared assumptions)"
     output: "Structured findings per category with ID, assumption, status, severity"
 
+  # Note: historically named "five_category_checklist"; the
+  # `sufficiency_challenge` category was added 2026-05-17 per
+  # `.dev/releases/current/test_obligation_scanner_meta_context-fixes/PHASE0-IMPLEMENTATION-BRAINSTORM.md`
+  # to mitigate the sufficiency-vs-necessity reasoning failure mode
+  # surfaced by the obligation_scanner pipeline. Key name retained for
+  # backward-compatible consumers; semantically this is now a 6-category
+  # checklist. Always-on for any debate that produces a
+  # "fix X greens test Y" or "approach X resolves problem Y" claim.
   five_category_checklist:
     state_variables:
       description: "Variables that must maintain specific values or relationships across operations"
@@ -1170,6 +1178,19 @@ round_2_5_invariant_probe:
         - "Ordering-dependent side effects"
         - "Sentinel value collisions across components"
 
+    sufficiency_challenge:
+      description: "Sufficiency vs necessity — does the proposed fix ALONE achieve the stated outcome?"
+      probing_questions:
+        - "Name at least one downstream condition that, if true, would falsify the claim that this fix ALONE greens the target test."
+        - "If no such condition exists, explain why by reference to a branch-trace, source enumeration, or invariant — do not assert 'no such condition' without evidence."
+        - "For each filter/gate between the fix site and the assertion site, has the fix's target input been shown to pass that gate?"
+      detection_targets:
+        - "Necessity-only arguments masquerading as sufficiency claims"
+        - "Unenumerated downstream gates"
+        - "Claims of 'this fix is enough' with no traversal of the post-fix code path"
+      applies_when: "Any debate producing a 'fix X greens test Y' or 'approach X resolves problem Y' claim. Always-on regardless of pipeline shape (~250 tokens/debate)."
+      evidence_preference: "If a Stage 1 `branch-trace.md` artifact exists (per `src/superclaude/commands/spawn.md` Rule 2.5), the fault-finder MUST consult it and cite the specific branch(es) the fix does or does not handle. If no branch-trace exists, the fault-finder must produce an inline source-file enumeration in the EVIDENCE field."
+
   prompt_template: |
     ROUND 2.5: INVARIANT PROBE — FAULT-FINDER AGENT
 
@@ -1187,8 +1208,11 @@ round_2_5_invariant_probe:
     {diff_analysis}
 
     INSTRUCTIONS:
-    Systematically probe each of the 5 categories below. For each category,
+    Systematically probe each of the 6 categories below. For each category,
     identify specific assumptions in the consensus that could be violated.
+    Category 6 (sufficiency_challenge) is always-on for debates producing a
+    "fix X greens test Y" claim and MUST cite Stage 1 branch-trace.md
+    artifacts when they exist.
 
     CATEGORY 1: STATE VARIABLES
     - What state is implicitly assumed to persist between operations?
@@ -1215,22 +1239,41 @@ round_2_5_invariant_probe:
     - Are there ordering dependencies between changes?
     - Could combined changes from different variants conflict?
 
+    CATEGORY 6: SUFFICIENCY CHALLENGE
+    - Name at least one downstream condition that, if true, would falsify
+      the claim that the consensus fix ALONE greens the target test.
+    - If no such condition exists, prove it by citing a branch-trace,
+      source-file enumeration, or invariant — do NOT assert "no such
+      condition" without evidence.
+    - For each filter/gate between the proposed fix site and the
+      assertion site, has the fix's target input been shown to pass it?
+    - If a `branch-trace.md` artifact exists (Stage 1, per
+      spawn.md Rule 2.5), cite specific branch line numbers in EVIDENCE.
+
     OUTPUT FORMAT (one entry per finding):
     ID: INV-NNN
-    CATEGORY: [state_variables|guard_conditions|count_divergence|collection_boundaries|interaction_effects]
+    CATEGORY: [state_variables|guard_conditions|count_divergence|collection_boundaries|interaction_effects|sufficiency_challenge]
     ASSUMPTION: [The specific assumption being probed]
     STATUS: [ADDRESSED|UNADDRESSED]
     SEVERITY: [HIGH|MEDIUM|LOW]
-    EVIDENCE: [Specific reference to debate transcript or diff analysis supporting this finding]
+    EVIDENCE: [Specific reference to debate transcript, diff analysis,
+              or — for sufficiency_challenge — branch-trace line numbers
+              or source-file enumeration]
+
+    For CATEGORY 6 specifically: a finding with STATUS=UNADDRESSED and
+    no enumerated downstream-gate evidence is itself a debate fault —
+    the consensus has claimed sufficiency without demonstrating it. The
+    adjudicator MUST penalize missing CATEGORY 6 answers when the
+    debate produced a "fix X greens test Y" claim.
 
   output_format:
     per_finding:
       id: "INV-NNN (sequential, starting from INV-001)"
-      category: "One of: state_variables, guard_conditions, count_divergence, collection_boundaries, interaction_effects"
+      category: "One of: state_variables, guard_conditions, count_divergence, collection_boundaries, interaction_effects, sufficiency_challenge"
       assumption: "The specific invariant or assumption being probed"
       status: "ADDRESSED (consensus handles it) or UNADDRESSED (consensus does not handle it)"
       severity: "HIGH (correctness risk), MEDIUM (robustness risk), LOW (style/preference risk)"
-      evidence: "Specific transcript/diff reference supporting the finding"
+      evidence: "Specific transcript/diff reference supporting the finding. For sufficiency_challenge, MUST include branch-trace line citations (if a branch-trace.md artifact exists) or an inline source-file branch enumeration."
 
   acceptance_tests:
     AC_AD1_1:

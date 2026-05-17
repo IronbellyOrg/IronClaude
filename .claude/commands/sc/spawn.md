@@ -63,6 +63,56 @@ constrain exploratory analysis.
 
 This tiered approach preserves evidence rigor for confirmatory work without constraining the open-ended discovery that catches gaps a rigid template would miss.
 
+### Rule 2.5: Branch-Trace Requirement (filter-pipeline pipelines only)
+When the spawn pipeline targets a single function whose body contains `for ... in ...:` with multiple early-exit branches between the loop entry and the output mutation site, troubleshoot agents must produce a `branch-trace.md` artifact and the orchestrator must mechanically verify completeness before launching the adversarial-debate stage. This rule mitigates the same-pool blindspot failure mode in which multiple parallel agents independently miss a downstream gate (see `.dev/releases/current/test_obligation_scanner_meta_context-fixes/PHASE0-MITIGATION-DEBATE.md`).
+
+**Trigger conditions (ALL must hold)**:
+- Spawn pipeline targets a single function (or tightly coupled function pair) reachable from the failing-test stack traces.
+- `grep -cE "^\s*(continue|return|raise|break)\b" <function-source>` returns `>= 2` within the function's line range.
+- `>= 2` failing-test tracebacks in the cohort include that function.
+- `>= 4` failing tests in the cohort (smaller cohorts don't pay back the cost).
+
+**Per-agent prompt addendum (each troubleshoot agent)**:
+
+```
+BRANCH-TRACE REQUIREMENT:
+Before proposing any fix, produce a `branch-trace.md` artifact (co-located
+with this agent's root-cause investigation file) listing every `continue`,
+`return`, `raise`, or `break` statement between the function's primary
+entry point (regex match site, iterator start, or first guard) and the
+obligation-append / output-mutation site. For each branch, cite:
+  - Line number
+  - Condition that triggers it
+  - Whether your proposed fix's target input satisfies that condition
+Mark any branch where the answer is "yes — your input is filtered out
+here" as a SUFFICIENCY-BLOCKER that must be addressed by the fix.
+```
+
+**Mechanical verification (orchestrator runs between Stage 1 and Stage 2)**:
+
+```bash
+# Inputs: $FN_SOURCE = absolute path containing target function,
+#         $FN_START_LINE / $FN_END_LINE = function's line range,
+#         $TRACE_FILES = array of per-agent branch-trace.md paths.
+sed -n "${FN_START_LINE},${FN_END_LINE}p" "$FN_SOURCE" \
+  | grep -nE "^\s*(continue|return|raise|break)\b" \
+  | awk -F: -v base=$((FN_START_LINE - 1)) '{print (base + $1)}' \
+  | sort -n > /tmp/expected-branches.txt
+
+for trace in "${TRACE_FILES[@]}"; do
+  grep -oE "line[[:space:]]+[0-9]+|:[0-9]+:" "$trace" \
+    | grep -oE "[0-9]+" | sort -n -u > /tmp/agent-branches.txt
+  missing=$(comm -23 /tmp/expected-branches.txt /tmp/agent-branches.txt)
+  if [ -n "$missing" ]; then
+    echo "INCOMPLETE-TRACE (soft-warn): $trace omits lines: $missing"
+  fi
+done
+```
+
+**Failure mode is SOFT-WARN, not hard-fail**: incomplete traces do NOT block the Stage 2 launch. Instead, the orchestrator injects an explicit "Agent N's branch-trace omits lines X, Y, Z — Stage 2 debaters must explicitly evaluate whether the proposed fix handles those branches" line into the Stage 2 adversarial-debate prompts. Rationale: hard-failing creates a sequential bottleneck and risks recursive same-pool re-prompts when the target function has shape edge cases (recursive helpers, multi-entry dispatch, list-comp `continue`); soft-warn surfaces the omission without coupling the executor's clock to a re-prompt loop.
+
+**Explicitly NOT triggered**: Single-test failures; non-Python targets (until grep heuristic is generalized); pipelines targeting docs/config-only changes; any `/sc:task` invocation without an adversarial-debate stage.
+
 ### Rule 3: Inject Cross-Reference Counts (When Available)
 When Rule 1 has already read a source document and the delegated task involves coverage verification, extract and inject the known count (e.g., "The merged plan contains 20 edits — verify all 20 are covered"). Do NOT pre-read documents solely for counting — this rule applies opportunistically when path resolution has already loaded the file.
 ## MCP Integration
