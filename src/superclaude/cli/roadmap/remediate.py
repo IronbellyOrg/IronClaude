@@ -8,6 +8,29 @@ Provides:
 - RemediationScope enum  (T03.01/T03.02)
 - filter_findings(findings, scope) -> tuple  (T03.02)
 - generate_remediation_tasklist(findings, source_report_path, source_report_content) -> str  (T03.04)
+
+Status vocabulary note
+----------------------
+This module is consumed by two callers with different status vocabularies:
+
+- The registry path (``_run_remediate_step`` -> ``deviations_to_findings``)
+  produces findings with ``status in {"ACTIVE", "FIXED"}`` -- never
+  ``"PENDING"``.  ``generate_remediation_tasklist`` therefore treats
+  ``status == "ACTIVE"`` as the actionable condition.  Records whose status
+  is missing from the upstream JSON default to ``"ACTIVE"`` in
+  ``deviations_to_findings`` so they survive the actionable filter.
+- The parser path (``remediate_parser.py``) constructs findings with
+  ``status == "PENDING"`` directly.  Callers feeding that vocabulary into
+  this module must translate to ``"ACTIVE"`` before calling
+  ``generate_remediation_tasklist``.
+
+``deviation_class`` is currently always ``UNCLASSIFIED``; the
+``SLIP``/``INTENTIONAL``/``PRE_APPROVED``/``AMBIGUOUS`` branches in this
+module remain wired for forward compatibility but are dead until a real
+classifier ships (see backlog item ``pipeline-classifier-implementation``).
+
+See ``.dev/releases/backlog/finding-status-vocabulary-audit.md`` (filed
+separately) for the broader follow-up audit.
 """
 
 from __future__ import annotations
@@ -161,17 +184,35 @@ def generate_remediation_tasklist(
     Produces markdown with:
     - YAML frontmatter: type, source_report, source_report_hash, generated,
       total_findings, actionable, skipped
-    - Severity-grouped entries: - [ ] F-XX | file | STATUS -- description
+    - Severity-grouped entries (BLOCKING/WARNING/INFO) for **actionable**
+      findings only (``status == "ACTIVE"``).
+    - A distinct ``## ALREADY FIXED`` section for ``status == "FIXED"``
+      records, rendered as ``- [x]`` checkboxes so the actionable counter
+      stays internally consistent with the body.
+    - A ``## SKIPPED`` section for ``status == "SKIPPED"`` records.
+
+    T2b: When ``len(findings) == 0`` the function defers to
+    ``generate_stub_tasklist``; an empty ``actionable`` list with
+    non-actionable records present still renders the full body so FIXED
+    records are not silently dropped.
 
     The source_report_hash is SHA-256 of the source report content.
 
     Pure function: no I/O or side effects (datetime injected via UTC now).
     """
+    # T2b: empty registry -> stub format; non-empty with zero actionable
+    # still renders so non-actionable records survive.
+    if not findings:
+        return generate_stub_tasklist(source_report_path, source_report_content)
+
     source_hash = hashlib.sha256(source_report_content.encode("utf-8")).hexdigest()
     generated = datetime.now(timezone.utc).isoformat()
 
-    actionable_findings = [f for f in findings if f.status == "PENDING"]
-    skipped_findings = [f for f in findings if f.status != "PENDING"]
+    # T2: registry-aligned actionable filter. Registry findings carry
+    # status ACTIVE; FIXED/SKIPPED are non-actionable and rendered under
+    # their own sections.
+    actionable_findings = [f for f in findings if f.status == "ACTIVE"]
+    skipped_findings = [f for f in findings if f.status != "ACTIVE"]
     total = len(findings)
 
     # YAML frontmatter
@@ -190,10 +231,12 @@ def generate_remediation_tasklist(
         "",
     ]
 
-    # Group by severity
-    blocking = [f for f in findings if f.severity == "BLOCKING"]
-    warning = [f for f in findings if f.severity == "WARNING"]
-    info = [f for f in findings if f.severity == "INFO"]
+    # T2c: restrict BLOCKING/WARNING/INFO to actionable findings so the
+    # body item count matches the frontmatter ``actionable`` value.
+    blocking = [f for f in actionable_findings if f.severity == "BLOCKING"]
+    warning = [f for f in actionable_findings if f.severity == "WARNING"]
+    info = [f for f in actionable_findings if f.severity == "INFO"]
+    fixed = [f for f in findings if f.status == "FIXED"]
     skipped_sev = [f for f in findings if f.status == "SKIPPED"]
 
     if blocking:
@@ -221,6 +264,16 @@ def generate_remediation_tasklist(
             status = f.status
             files = ", ".join(f.files_affected) if f.files_affected else "unknown"
             lines.append(f"- [ ] {f.id} | {files} | {status} -- {f.description}")
+        lines.append("")
+
+    # T2c: distinct ALREADY FIXED section. Operators still see FIXED
+    # records but they do not contribute to ``actionable``.
+    if fixed:
+        lines.append("## ALREADY FIXED")
+        lines.append("")
+        for f in fixed:
+            files = ", ".join(f.files_affected) if f.files_affected else "unknown"
+            lines.append(f"- [x] {f.id} | {files} | FIXED -- {f.description}")
         lines.append("")
 
     # Skipped section (findings that were already SKIPPED before tasklist generation)
@@ -366,7 +419,12 @@ def deviations_to_findings(
             evidence=record.get("evidence", ""),
             fix_guidance=record.get("fix_guidance", ""),
             files_affected=record.get("files_affected", []),
-            status=record.get("status", "PENDING"),
+            # T2c: registry-path findings default to ACTIVE when status is
+            # missing, matching the registry's serialization vocabulary
+            # (ACTIVE / FIXED). The Finding dataclass default in models.py
+            # remains "PENDING" -- the parser path legitimately uses it
+            # (see remediate_parser.py:168,389 and remediate_executor.py:552).
+            status=record.get("status", "ACTIVE"),
             agreement_category=record.get("agreement_category", ""),
             deviation_class=record.get("deviation_class", "UNCLASSIFIED"),
         )

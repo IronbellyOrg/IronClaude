@@ -23,6 +23,13 @@ from superclaude.cli.roadmap.gates import (
     DEVIATION_ANALYSIS_GATE,
     REMEDIATE_GATE,
     SPEC_FIDELITY_GATE,
+    # Legacy standalone checks: retained as callables after T5 removed them
+    # from DEVIATION_ANALYSIS_GATE. They will be re-promoted to the gate
+    # when a real classifier ships (see backlog item
+    # pipeline-classifier-implementation).
+    _no_ambiguous_deviations,
+    _slip_count_matches_routing,
+    _total_analyzed_consistent,
 )
 from superclaude.cli.roadmap.models import Finding
 
@@ -88,29 +95,44 @@ def _write_deviation_report(
     intentional: int = 1,
     pre_approved: int = 1,
     ambiguous: int = 0,
-    slip_ids: str = "DEV-001",
-    no_action_ids: str = "DEV-003",
+    slip_ids: str = "",
+    no_action_ids: str = "",
     analysis_complete: bool = True,
 ) -> None:
+    """Emit a spec-deviations.md fixture matching the post-T4b contract.
+
+    The classifier is unwired today, so all records are UNCLASSIFIED and
+    the gate requires ``unclassified_count == total_analyzed``. The
+    helper keeps the legacy class-count kwargs in its signature for
+    backward-compatibility with callers but folds them into
+    ``unclassified_count`` (= total) and emits zero classified routing
+    by default. Callers wanting to exercise the classifier-wired future
+    path will need to bypass this helper.
+    """
+    del (
+        slips,
+        intentional,
+        pre_approved,
+        ambiguous,
+    )  # legacy kwargs accepted, not emitted
+    unclassified = total
     content = textwrap.dedent(f"""\
         ---
         schema_version: 1.0
         total_analyzed: {total}
-        slip_count: {slips}
-        intentional_count: {intentional}
-        pre_approved_count: {pre_approved}
-        ambiguous_count: {ambiguous}
-        ambiguous_deviations: {ambiguous}
+        unclassified_count: {unclassified}
         routing_fix_roadmap: {slip_ids}
         routing_no_action: {no_action_ids}
         analysis_complete: {"true" if analysis_complete else "false"}
         ---
 
+        > NOTE: deviation classification is not yet implemented. All records currently render as UNCLASSIFIED.
+
         ## Deviation Analysis Report
 
-        - DEV-001: SLIP -- structural completeness
-        - DEV-002: INTENTIONAL -- design decision
-        - DEV-003: PRE_APPROVED -- accepted variance
+        - DEV-001: UNCLASSIFIED -- structural completeness
+        - DEV-002: UNCLASSIFIED -- design decision
+        - DEV-003: UNCLASSIFIED -- accepted variance
 
         ## Routing Summary
 
@@ -333,37 +355,25 @@ class TestScenarioMixedTypes:
 class TestScenarioAmbiguousBlocks:
     """Scenario D: AMBIGUOUS deviation blocks the pipeline."""
 
-    def test_ambiguous_blocks_deviation_gate(self, tmp_path):
-        f = tmp_path / "deviation.md"
-        _write_deviation_report(
-            f,
-            total=3,
-            slips=1,
-            intentional=1,
-            pre_approved=0,
-            ambiguous=1,
-            slip_ids="DEV-001",
-            no_action_ids="",
-        )
-        passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
-        assert not passed, "AMBIGUOUS deviation should block gate"
-        assert "ambiguous" in reason.lower()
+    def test_ambiguous_blocks_deviation_gate(self):
+        """Legacy standalone-function invariant.
 
-    def test_ambiguous_zero_required(self, tmp_path):
-        """Even one ambiguous finding blocks the entire pipeline."""
-        f = tmp_path / "deviation.md"
-        _write_deviation_report(
-            f,
-            total=1,
-            slips=0,
-            intentional=0,
-            pre_approved=0,
-            ambiguous=1,
-            slip_ids="",
-            no_action_ids="",
-        )
-        passed, reason = gate_passed(f, DEVIATION_ANALYSIS_GATE)
-        assert not passed
+        Post-T5 the gate no longer enforces ``no_ambiguous_deviations``
+        (the field was suppressed by T4b), so this scenario is now
+        validated at the function level until the classifier is wired.
+        Re-promote the check to the gate when ``ambiguous_count`` returns
+        to the frontmatter.
+        """
+        content = "---\nambiguous_deviations: 1\n---\n"
+        assert _no_ambiguous_deviations(content) is False
+
+    def test_ambiguous_zero_required(self):
+        """Legacy standalone-function invariant: any ambiguous_deviations > 0
+        must be rejected by the legacy check. See note on
+        test_ambiguous_blocks_deviation_gate for re-promotion guidance.
+        """
+        content = "---\nambiguous_deviations: 1\n---\n"
+        assert _no_ambiguous_deviations(content) is False
 
 
 class TestScenarioRemediationExhaustion:
@@ -478,35 +488,34 @@ class TestSpecFidelityConsistency:
 class TestDeviationRoutingInvariants:
     """Deviation analysis routing invariants."""
 
-    def test_slip_count_must_match_routing_ids(self, tmp_path):
-        """slip_count != len(routing_fix_roadmap IDs) fails."""
-        f = tmp_path / "da.md"
-        _write_deviation_report(
-            f,
-            total=3,
-            slips=2,
-            intentional=1,
-            pre_approved=0,
-            slip_ids="DEV-001",
-            no_action_ids="",
-        )  # Only 1 ID but slip_count=2
-        passed, _ = gate_passed(f, DEVIATION_ANALYSIS_GATE)
-        assert not passed
+    def test_slip_count_must_match_routing_ids(self):
+        """Legacy standalone-function invariant.
 
-    def test_total_must_equal_sum_of_categories(self, tmp_path):
-        """total_analyzed != sum of categories fails."""
-        f = tmp_path / "da.md"
-        _write_deviation_report(
-            f,
-            total=99,
-            slips=1,
-            intentional=1,
-            pre_approved=1,
-            slip_ids="DEV-001",
-            no_action_ids="DEV-003",
+        T5 removed ``slip_count_matches_routing`` from the gate alongside
+        the four classifier counters (T4b). The standalone function is
+        retained and still enforces the invariant; this test pins that
+        behavior so the function is ready to be re-wired into the gate
+        when a real classifier ships.
+        """
+        content = "---\nslip_count: 2\nrouting_fix_roadmap: DEV-001\n---\n"
+        # 2 declared slips but only 1 routing ID -> mismatch.
+        assert _slip_count_matches_routing(content) is False
+
+    def test_total_must_equal_sum_of_categories(self):
+        """Legacy standalone-function invariant.
+
+        T5 removed ``total_analyzed_consistent`` from the gate. The
+        standalone function is retained for the same re-promotion reason
+        as ``_slip_count_matches_routing`` above.
+        """
+        content = (
+            "---\n"
+            "total_analyzed: 99\n"
+            "slip_count: 1\nintentional_count: 1\n"
+            "pre_approved_count: 1\nambiguous_count: 0\n"
+            "---\n"
         )
-        passed, _ = gate_passed(f, DEVIATION_ANALYSIS_GATE)
-        assert not passed
+        assert _total_analyzed_consistent(content) is False
 
     def test_analysis_incomplete_blocks(self, tmp_path):
         """analysis_complete=false blocks the gate."""

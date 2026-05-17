@@ -117,7 +117,7 @@ def run(
         sys.exit(1)
 
     if dry_run:
-        click.echo(f"Dry run: config validated successfully.")
+        click.echo("Dry run: config validated successfully.")
         click.echo(f"  Request: {config.user_message}")
         click.echo(f"  Tier:    {config.tier}")
         click.echo(f"  Output:  {config.output_path}")

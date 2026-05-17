@@ -545,13 +545,21 @@ def _pre_approved_not_in_fix_roadmap(content: str) -> bool:
 
 
 def _total_analyzed_consistent(content: str) -> bool:
-    """total_analyzed must equal sum of slip_count + intentional_count + pre_approved_count + ambiguous_count.
+    """Legacy: total_analyzed must equal slip + intentional + pre_approved + ambiguous.
 
-    Returns False if:
-    - Frontmatter missing
-    - total_analyzed or any count field missing
-    - Any count is non-integer (fail-closed)
-    - Sum does not match total_analyzed
+    Retained for backward-compatible unit tests
+    (``tests/roadmap/test_gates_data.py``,
+    ``tests/roadmap/test_integration_v5_pipeline.py``) that pin the
+    pre-classifier-suppression behavior of the four-class sum invariant.
+    No longer wired into ``DEVIATION_ANALYSIS_GATE``; today's writer
+    suppresses those four fields entirely (T4b). When/if a classifier is
+    wired in a future release and the four counters return to the
+    frontmatter, this check can be promoted back to the gate.
+
+    Returns False if frontmatter is missing or any of total_analyzed,
+    slip_count, intentional_count, pre_approved_count, or ambiguous_count
+    is missing or non-integer. Returns True iff the four-class sum
+    equals total_analyzed.
     """
     fm = _parse_frontmatter(content)
     if fm is None:
@@ -581,6 +589,37 @@ def _total_analyzed_consistent(content: str) -> bool:
         + values["ambiguous_count"]
     )
     return values["total_analyzed"] == expected_total
+
+
+def _unclassified_count_consistent(content: str) -> bool:
+    """unclassified_count must equal total_analyzed while the classifier is unwired.
+
+    Per T5 / T4b: until a real classifier ships, every persisted record
+    defaults to ``deviation_class == "UNCLASSIFIED"``. The deviation-analysis
+    writer therefore emits ``unclassified_count == total_analyzed``. This
+    check pins that invariant so any future drift (e.g., a partial
+    classifier landing without gate updates) is caught.
+
+    Returns False if:
+    - Frontmatter missing
+    - total_analyzed or unclassified_count missing
+    - Either value is non-integer (fail-closed)
+    - The two values do not match
+    """
+    fm = _parse_frontmatter(content)
+    if fm is None:
+        return False
+
+    raw_total = fm.get("total_analyzed")
+    raw_uncls = fm.get("unclassified_count")
+    if raw_total is None or raw_uncls is None:
+        return False
+    try:
+        total = int(raw_total)
+        uncls = int(raw_uncls)
+    except (ValueError, TypeError):
+        return False
+    return total == uncls
 
 
 def _total_annotated_consistent(content: str) -> bool:
@@ -1338,14 +1377,21 @@ ANTI_INSTINCT_GATE = GateCriteria(
     ],
 )
 
+# T5 / T4b: the four classifier counters (slip_count, intentional_count,
+# pre_approved_count, ambiguous_count) and the duplicate
+# ambiguous_deviations field are suppressed from spec-deviations.md until
+# a real classifier ships. The gate therefore no longer requires those
+# fields or runs checks that depend on them. ``unclassified_count`` is
+# required in their place, and the consistency check is reduced to
+# ``unclassified_count == total_analyzed``. ``_deviation_counts_reconciled``
+# is similarly inapplicable while all records are UNCLASSIFIED (none are
+# routed), so it is dropped from this gate; reintroduce it together with
+# the classifier wiring.
 DEVIATION_ANALYSIS_GATE = GateCriteria(
     required_frontmatter_fields=[
         "schema_version",
         "total_analyzed",
-        "slip_count",
-        "intentional_count",
-        "pre_approved_count",
-        "ambiguous_count",
+        "unclassified_count",
         "routing_fix_roadmap",
         "routing_no_action",
         "analysis_complete",
@@ -1353,11 +1399,6 @@ DEVIATION_ANALYSIS_GATE = GateCriteria(
     min_lines=20,
     enforcement_tier="STRICT",
     semantic_checks=[
-        SemanticCheck(
-            name="no_ambiguous_deviations",
-            check_fn=_no_ambiguous_deviations,
-            failure_message="ambiguous_deviations must be 0; ambiguous items require human review before pipeline can continue",
-        ),
         SemanticCheck(
             name="validation_complete_true",
             check_fn=_validation_complete_true,
@@ -1369,24 +1410,14 @@ DEVIATION_ANALYSIS_GATE = GateCriteria(
             failure_message="All routing IDs must match DEV-\\d+ pattern",
         ),
         SemanticCheck(
-            name="slip_count_matches_routing",
-            check_fn=_slip_count_matches_routing,
-            failure_message="slip_count must equal the number of IDs in routing_fix_roadmap",
-        ),
-        SemanticCheck(
             name="pre_approved_not_in_fix_roadmap",
             check_fn=_pre_approved_not_in_fix_roadmap,
             failure_message="Pre-approved IDs (routing_no_action) must not appear in routing_fix_roadmap",
         ),
         SemanticCheck(
-            name="total_analyzed_consistent",
-            check_fn=_total_analyzed_consistent,
-            failure_message="total_analyzed must equal slip_count + intentional_count + pre_approved_count + ambiguous_count",
-        ),
-        SemanticCheck(
-            name="deviation_counts_reconciled",
-            check_fn=_deviation_counts_reconciled,
-            failure_message="Deviation count mismatch: total_analyzed does not equal count of unique routed IDs across all routing fields (SC-008)",
+            name="unclassified_count_consistent",
+            check_fn=_unclassified_count_consistent,
+            failure_message="unclassified_count must equal total_analyzed while the classifier is unwired",
         ),
     ],
 )

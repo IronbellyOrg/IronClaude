@@ -44,7 +44,11 @@ def _make_finding(
     fid: str = "F-01",
     severity: str = "BLOCKING",
     files: list[str] | None = None,
-    status: str = "PENDING",
+    # Post-T2: generate_remediation_tasklist treats ACTIVE as the
+    # actionable status; PENDING findings now render under ## SKIPPED
+    # instead of BLOCKING/WARNING/INFO. Default flipped to ACTIVE so
+    # round-trip tests still surface findings in severity sections.
+    status: str = "ACTIVE",
     fix_guidance: str = "Fix it",
 ) -> Finding:
     return Finding(
@@ -345,15 +349,22 @@ class TestTasklistRoundTrip:
         assert fm["source_report_hash"] == expected_hash
 
     def test_round_trip_status_preserved(self):
-        """Finding statuses are preserved in tasklist entries."""
+        """Finding statuses are preserved in tasklist entries.
+
+        Post-T2: ACTIVE findings render under BLOCKING/WARNING/INFO with
+        their status in the entry line; SKIPPED findings render under
+        ## SKIPPED. PENDING is exercised by the parser-path tests
+        (remediate_parser); the registry-path generator no longer emits
+        PENDING-status entries.
+        """
         findings = [
-            _make_finding("F-01", status="PENDING"),
+            _make_finding("F-01", status="ACTIVE"),
             _make_finding("F-02", status="SKIPPED"),
         ]
         source = "# Report\n"
         tasklist = generate_remediation_tasklist(findings, "report.md", source)
 
-        assert "PENDING" in tasklist
+        assert "ACTIVE" in tasklist
         assert "SKIPPED" in tasklist
 
 

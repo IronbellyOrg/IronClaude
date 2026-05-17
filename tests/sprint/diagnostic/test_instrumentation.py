@@ -152,7 +152,9 @@ class TestExecutorInstrumentation:
 
             content = read()
             lines = [
-                line for line in content.split("\n") if line.strip() and not line.startswith("#")
+                line
+                for line in content.split("\n")
+                if line.strip() and not line.startswith("#")
             ]
             events = []
             for line in lines:

@@ -2102,8 +2102,8 @@ class TestConvergenceRegistry:
             },
             verdict="PASS",
             evidence=(
-                f"DeviationRegistry(path, release_id, spec_hash) stores all 3 args; "
-                f"load_or_create produces equivalent fresh registry"
+                "DeviationRegistry(path, release_id, spec_hash) stores all 3 args; "
+                "load_or_create produces equivalent fresh registry"
             ),
         )
 

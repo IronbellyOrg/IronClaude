@@ -101,7 +101,9 @@ class TestDryRunOutput:
         captured = capsys.readouterr()
 
         # Count "Step N" lines
-        step_lines = [line for line in captured.out.splitlines() if line.startswith("Step ")]
+        step_lines = [
+            line for line in captured.out.splitlines() if line.startswith("Step ")
+        ]
         assert len(step_lines) == 10
 
     def test_each_entry_includes_output_file(self, capsys):

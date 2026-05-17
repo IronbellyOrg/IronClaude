@@ -1251,28 +1251,47 @@ class TestDeviationAnalysisGate:
     def test_gate_is_strict(self):
         assert DEVIATION_ANALYSIS_GATE.enforcement_tier == "STRICT"
 
-    def test_gate_requires_ambiguous_count(self):
-        assert "ambiguous_count" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+    def test_gate_requires_unclassified_count(self):
+        """T5: gate requires unclassified_count after T4b suppressed the four
+        classifier counters from the frontmatter."""
+        assert (
+            "unclassified_count" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+        )
+
+    def test_gate_does_not_require_classifier_counters(self):
+        """T4b: the four classifier counters (slip_count / intentional_count /
+        pre_approved_count / ambiguous_count) and ambiguous_deviations must
+        not appear in required_frontmatter_fields until a classifier ships."""
+        suppressed = {
+            "slip_count",
+            "intentional_count",
+            "pre_approved_count",
+            "ambiguous_count",
+            "ambiguous_deviations",
+        }
+        required = set(DEVIATION_ANALYSIS_GATE.required_frontmatter_fields)
+        assert suppressed.isdisjoint(required), (
+            f"Suppressed fields leaked into gate: {suppressed & required}"
+        )
 
     def test_gate_requires_analysis_complete(self):
         assert (
             "analysis_complete" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
         )
 
-    def test_gate_has_seven_semantic_checks(self):
+    def test_gate_has_four_semantic_checks(self):
+        """T5: gate count shrunk from 7 to 4 after dropping checks that
+        depended on suppressed classifier fields."""
         assert DEVIATION_ANALYSIS_GATE.semantic_checks is not None
-        assert len(DEVIATION_ANALYSIS_GATE.semantic_checks) == 7
+        assert len(DEVIATION_ANALYSIS_GATE.semantic_checks) == 4
 
     def test_gate_semantic_check_names(self):
         names = {c.name for c in DEVIATION_ANALYSIS_GATE.semantic_checks}
         expected = {
-            "no_ambiguous_deviations",
             "validation_complete_true",
             "routing_ids_valid",
-            "slip_count_matches_routing",
             "pre_approved_not_in_fix_roadmap",
-            "total_analyzed_consistent",
-            "deviation_counts_reconciled",
+            "unclassified_count_consistent",
         }
         assert names == expected
 
@@ -1281,21 +1300,21 @@ class TestDeviationAnalysisGate:
         assert "deviation-analysis" in gate_names
 
     def test_gate_passes_clean_document(self, tmp_path):
-        """A well-formed deviation-analysis document passes all checks."""
+        """A well-formed deviation-analysis document passes all checks.
+
+        Updated for T4b: frontmatter omits suppressed classifier counters
+        and carries ``unclassified_count`` instead.
+        """
         from superclaude.cli.pipeline.gates import gate_passed
 
         content = (
             "---\n"
             "schema_version: 1.0\n"
             "total_analyzed: 3\n"
-            "slip_count: 1\n"
-            "intentional_count: 1\n"
-            "pre_approved_count: 1\n"
-            "ambiguous_count: 0\n"
-            "ambiguous_deviations: 0\n"
-            "routing_fix_roadmap: DEV-001\n"
-            "routing_update_spec: DEV-003\n"
-            "routing_no_action: DEV-002\n"
+            "unclassified_count: 3\n"
+            "routing_fix_roadmap: \n"
+            "routing_update_spec: \n"
+            "routing_no_action: \n"
             "routing_human_review: \n"
             "analysis_complete: true\n"
             "---\n"
@@ -1305,23 +1324,20 @@ class TestDeviationAnalysisGate:
         passed, reason = gate_passed(doc, DEVIATION_ANALYSIS_GATE)
         assert passed is True, f"Expected pass, got reason: {reason}"
 
-    def test_gate_fails_ambiguous_deviation(self, tmp_path):
-        """Ambiguous deviation (ambiguous_deviations=1) fails gate (SC-T05.03)."""
+    def test_gate_fails_unclassified_count_mismatch(self, tmp_path):
+        """T5: unclassified_count != total_analyzed fails the gate while the
+        classifier is unwired."""
         from superclaude.cli.pipeline.gates import gate_passed
 
         content = (
             "---\n"
             "schema_version: 1.0\n"
             "total_analyzed: 2\n"
-            "slip_count: 1\n"
-            "intentional_count: 0\n"
-            "pre_approved_count: 0\n"
-            "ambiguous_count: 1\n"
-            "ambiguous_deviations: 1\n"
-            "routing_fix_roadmap: DEV-001\n"
+            "unclassified_count: 1\n"
+            "routing_fix_roadmap: \n"
             "routing_update_spec: \n"
             "routing_no_action: \n"
-            "routing_human_review: DEV-002\n"
+            "routing_human_review: \n"
             "analysis_complete: true\n"
             "---\n"
         ) + "\n".join([f"- deviation line {i}" for i in range(25)])
@@ -1515,29 +1531,23 @@ class TestDeviationCountsReconciled:
         content = "---\ntotal_analyzed: three\nrouting_fix_roadmap: DEV-001\n---\n"
         assert _deviation_counts_reconciled(content) is False
 
-    def test_gate_failure_on_mismatch_is_deterministic(self, tmp_path):
-        """SC-008: deviation count mismatch causes deterministic gate failure."""
-        from superclaude.cli.pipeline.gates import gate_passed
+    def test_function_still_detects_mismatch_standalone(self):
+        """SC-008 reconciliation logic is preserved as a standalone callable
+        even though it is no longer wired into DEVIATION_ANALYSIS_GATE.
 
+        T5 / T4b suspend the in-gate SC-008 enforcement while every record
+        is UNCLASSIFIED (no records are routed). The check function itself
+        is retained so it can be promoted back to the gate once a classifier
+        ships and routing IDs reappear.
+        """
         content = (
             "---\n"
-            "schema_version: 1.0\n"
             "total_analyzed: 4\n"
-            "slip_count: 2\n"
-            "intentional_count: 1\n"
-            "pre_approved_count: 1\n"
-            "ambiguous_count: 0\n"
-            "ambiguous_deviations: 0\n"
             "routing_fix_roadmap: DEV-001 DEV-002\n"
             "routing_update_spec: DEV-003\n"
             "routing_no_action: \n"
             "routing_human_review: \n"
-            "analysis_complete: true\n"
             "---\n"
-        ) + "\n".join([f"- deviation line {i}" for i in range(25)])
-        doc = tmp_path / "deviation-analysis.md"
-        doc.write_text(content, encoding="utf-8")
-        passed, reason = gate_passed(doc, DEVIATION_ANALYSIS_GATE)
-        # total_analyzed=4 but only 3 unique IDs → deterministic failure
-        assert passed is False
-        assert "deviation_counts_reconciled" in reason.lower() or "SC-008" in reason
+        )
+        # 3 unique routed IDs vs total_analyzed=4 -> mismatch.
+        assert _deviation_counts_reconciled(content) is False

@@ -41,7 +41,6 @@ from .gates import GATE_CRITERIA
 from .inventory import (
     check_existing_work,
     create_task_dirs,
-    discover_research_files,
     select_template,
 )
 from .logging_ import PrdLogger

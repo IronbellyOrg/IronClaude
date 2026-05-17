@@ -775,9 +775,9 @@ def build_resume_output(
         "## HALT — Sprint Paused",
         "",
         "### Resume Command",
-        f"```",
+        "```",
         f"superclaude sprint run {config.index_path} --resume {halt_task_id} --budget {budget_suggestion}",
-        f"```",
+        "```",
         "",
         f"### Remaining Tasks ({remaining_count})",
     ]

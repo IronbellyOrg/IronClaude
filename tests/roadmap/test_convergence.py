@@ -1486,7 +1486,9 @@ class TestMutualExclusion:
         # (conditional import only in convergence.py)
         lines = source.split("\n")
         import_lines = [
-            line for line in lines if line.startswith("from") or line.startswith("import")
+            line
+            for line in lines
+            if line.startswith("from") or line.startswith("import")
         ]
         for line in import_lines:
             assert "TurnLedger" not in line

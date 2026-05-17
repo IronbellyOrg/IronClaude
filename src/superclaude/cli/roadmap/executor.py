@@ -1519,6 +1519,74 @@ def _write_convergence_report(
     output_file.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _stale_spec_fidelity_warning(out_dir: Path) -> str:
+    """Return a ``> ⚠ …`` warning line if spec-fidelity is older than the registry.
+
+    Parses ``deviation-registry.json`` and ``.roadmap-state.json`` from
+    ``out_dir`` and compares
+    ``runs[-1].timestamp`` against ``steps["spec-fidelity"].completed_at``.
+    Both files emit timezone-aware ISO-8601 (``+00:00``) today, so direct
+    ``fromisoformat`` parsing is safe.
+
+    Returns an empty string when:
+    - Either file is missing or unparseable
+    - Either timestamp field is missing
+    - The registry's latest run is not newer than spec-fidelity
+
+    On a true positive, also emits a stderr log so CI/operators see it
+    even if the markdown line is ignored.
+    """
+    import sys
+
+    registry_path = out_dir / "deviation-registry.json"
+    state_path = out_dir / ".roadmap-state.json"
+    if not registry_path.exists() or not state_path.exists():
+        return ""
+
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return ""
+
+    runs = registry.get("runs") if isinstance(registry, dict) else None
+    if not runs:
+        return ""
+    latest_run = runs[-1] if isinstance(runs, list) else None
+    if not isinstance(latest_run, dict):
+        return ""
+    run_ts_raw = latest_run.get("timestamp")
+
+    steps = state.get("steps", {}) if isinstance(state, dict) else {}
+    spec_fid_step = steps.get("spec-fidelity") if isinstance(steps, dict) else None
+    if not isinstance(spec_fid_step, dict):
+        return ""
+    completed_raw = spec_fid_step.get("completed_at")
+
+    if not run_ts_raw or not completed_raw:
+        return ""
+
+    try:
+        run_ts = datetime.fromisoformat(run_ts_raw)
+        completed_ts = datetime.fromisoformat(completed_raw)
+    except (TypeError, ValueError):
+        return ""
+
+    # Ensure both are timezone-aware before comparing.
+    if run_ts.tzinfo is None or completed_ts.tzinfo is None:
+        return ""
+
+    if run_ts <= completed_ts:
+        return ""
+
+    msg = "spec-fidelity.md may be stale (registry updated after spec-fidelity ran)."
+    _log.warning(msg)
+    # Mirror to stderr explicitly so CLI consumers without log routing
+    # still see it.
+    print(f"WARNING: {msg}", file=sys.stderr)
+    return f"> ⚠ {msg}"
+
+
 def _run_deviation_analysis(
     step: Step,
     config: PipelineConfig,
@@ -1526,9 +1594,17 @@ def _run_deviation_analysis(
 ) -> StepResult:
     """Execute deviation-analysis step deterministically (no Claude subprocess).
 
-    Reads the DeviationRegistry from the output directory, aggregates findings
-    by deviation_class, validates cross-field consistency, and writes
-    gate-compliant output (.md with YAML frontmatter and .json sidecar).
+    Reads the DeviationRegistry from the output directory, aggregates findings,
+    validates cross-field consistency, and writes gate-compliant output
+    (.md with YAML frontmatter and .json sidecar).
+
+    Note: ``deviation_class`` is currently always ``UNCLASSIFIED``. The
+    ``SLIP``/``INTENTIONAL``/``PRE_APPROVED``/``AMBIGUOUS`` code paths in this
+    module remain wired for forward compatibility but are dead until a
+    classifier is implemented; see backlog item
+    ``pipeline-classifier-implementation``. ``total_analyzed`` counts all
+    registry records (classified + unclassified) and ``unclassified_count``
+    records how many fell through the (currently absent) classifier.
     """
     out = config.output_dir if hasattr(config, "output_dir") else Path(".")
     registry_json = out / "deviation-registry.json"
@@ -1548,7 +1624,8 @@ def _run_deviation_analysis(
         else:
             records = []
 
-        # Aggregate by deviation_class
+        # Aggregate by deviation_class (classifier currently unwired -- all
+        # records default to UNCLASSIFIED; see module docstring).
         slip_count = sum(1 for r in records if r.get("deviation_class") == "SLIP")
         intentional_count = sum(
             1 for r in records if r.get("deviation_class") == "INTENTIONAL"
@@ -1559,12 +1636,17 @@ def _run_deviation_analysis(
         ambiguous_count = sum(
             1 for r in records if r.get("deviation_class") == "AMBIGUOUS"
         )
-        total_analyzed = (
-            slip_count + intentional_count + pre_approved_count + ambiguous_count
+        unclassified_count = sum(
+            1
+            for r in records
+            if r.get("deviation_class", "UNCLASSIFIED") == "UNCLASSIFIED"
         )
+        # Total now reflects every persisted record, including UNCLASSIFIED
+        # ones, so frontmatter total_analyzed matches the rendered body count.
+        total_analyzed = len(records)
 
-        # Build routing lists
-
+        # Build routing lists (still meaningful for any future SLIP /
+        # PRE_APPROVED classified records).
         routing_fix = [
             r.get("stable_id") or r.get("id", "")
             for r in records
@@ -1581,26 +1663,33 @@ def _run_deviation_analysis(
             ", ".join(routing_no_action) if routing_no_action else ""
         )
 
-        # Validate cross-field consistency before writing
-        if (
-            total_analyzed
-            != len(routing_fix)
-            + len(routing_no_action)
+        # Validate cross-field consistency before writing. The RHS now
+        # includes unclassified_count so a registry of pure-UNCLASSIFIED
+        # records (the only kind today) does not log a spurious warning.
+        # slip_count and pre_approved_count are equal to len(routing_fix) /
+        # len(routing_no_action) by construction; the renames are for clarity.
+        if total_analyzed != (
+            slip_count
+            + pre_approved_count
             + intentional_count
             + ambiguous_count
+            + unclassified_count
         ):
             _log.warning("Deviation analysis: cross-field consistency check failed")
+
+        # T3: emit stale-spec-fidelity warning if registry was updated after
+        # spec-fidelity.md was written. ``warning_banner`` is prepended to
+        # spec-deviations.md when truthy; otherwise an empty string is passed.
+        warning_banner = _stale_spec_fidelity_warning(out)
 
         _write_deviation_analysis_output(
             step.output_file,
             total_analyzed=total_analyzed,
-            slip_count=slip_count,
-            intentional_count=intentional_count,
-            pre_approved_count=pre_approved_count,
-            ambiguous_count=ambiguous_count,
+            unclassified_count=unclassified_count,
             routing_fix_roadmap=routing_fix_str,
             routing_no_action=routing_no_action_str,
             records=records,
+            stale_warning=warning_banner,
         )
 
         return StepResult(
@@ -1626,41 +1715,54 @@ def _write_deviation_analysis_output(
     output_file: Path,
     *,
     total_analyzed: int,
-    slip_count: int,
-    intentional_count: int,
-    pre_approved_count: int,
-    ambiguous_count: int,
+    unclassified_count: int,
     routing_fix_roadmap: str,
     routing_no_action: str,
     records: list[dict],
+    stale_warning: str = "",
 ) -> None:
-    """Write gate-compliant spec-deviations.md and .json sidecar."""
+    """Write gate-compliant spec-deviations.md and .json sidecar.
+
+    Per T4b the four classifier counters (slip_count, intentional_count,
+    pre_approved_count, ambiguous_count) and the duplicate
+    ambiguous_deviations field are suppressed from both the markdown
+    frontmatter and the JSON sidecar until a real classifier is wired.
+    A ``> NOTE:`` banner immediately below the frontmatter advertises
+    this state to operators.
+
+    ``stale_warning``, when non-empty, is prepended as a blockquote line
+    above the report title; this is the T3 stale-spec-fidelity surface.
+    """
     import os
 
-    # Build markdown with YAML frontmatter
+    # Build markdown with YAML frontmatter (classifier counters suppressed).
     lines = [
         "---",
         "schema_version: 1",
         f"total_analyzed: {total_analyzed}",
-        f"slip_count: {slip_count}",
-        f"intentional_count: {intentional_count}",
-        f"pre_approved_count: {pre_approved_count}",
-        f"ambiguous_count: {ambiguous_count}",
-        f"ambiguous_deviations: {ambiguous_count}",
+        f"unclassified_count: {unclassified_count}",
         f"routing_fix_roadmap: {routing_fix_roadmap}",
         f"routing_no_action: {routing_no_action}",
         "analysis_complete: true",
         "---",
         "",
-        "# Deviation Analysis Report",
-        "",
-        f"Total deviations analyzed: {total_analyzed}",
-        f"- SLIP: {slip_count}",
-        f"- INTENTIONAL: {intentional_count}",
-        f"- PRE_APPROVED: {pre_approved_count}",
-        f"- AMBIGUOUS: {ambiguous_count}",
+        "> NOTE: deviation classification is not yet implemented. All records currently render as UNCLASSIFIED.",
         "",
     ]
+
+    if stale_warning:
+        lines.append(stale_warning)
+        lines.append("")
+
+    lines.extend(
+        [
+            "# Deviation Analysis Report",
+            "",
+            f"Total deviations analyzed: {total_analyzed}",
+            f"- Unclassified: {unclassified_count} (classifier not yet implemented; see backlog item pipeline-classifier-implementation)",
+            "",
+        ]
+    )
 
     if records:
         lines.append("## Deviation Details")
@@ -1682,15 +1784,12 @@ def _write_deviation_analysis_output(
     tmp_md.write_text(md_content, encoding="utf-8")
     os.replace(str(tmp_md), str(output_file))
 
-    # Write .json sidecar
+    # Write .json sidecar (mirror frontmatter suppression).
     json_file = output_file.with_suffix(".json")
     sidecar = {
         "schema_version": 1,
         "total_analyzed": total_analyzed,
-        "slip_count": slip_count,
-        "intentional_count": intentional_count,
-        "pre_approved_count": pre_approved_count,
-        "ambiguous_count": ambiguous_count,
+        "unclassified_count": unclassified_count,
         "routing_fix_roadmap": routing_fix_roadmap,
         "routing_no_action": routing_no_action,
         "records": records,
@@ -1709,11 +1808,22 @@ def _run_remediate_step(
 
     Reads spec-deviations.json sidecar, converts to Finding objects,
     generates remediation tasklist, writes .md and .json sidecar.
+
+    Also surfaces the T3 stale-spec-fidelity warning to stderr when the
+    DeviationRegistry has runs newer than spec-fidelity's
+    ``completed_at``. The warning is logged here in addition to
+    deviation-analysis so an operator who reruns remediate independently
+    is still alerted that spec-fidelity may be out of date.
     """
     from .remediate import deviations_to_findings, generate_remediation_tasklist
 
     out = config.output_dir if hasattr(config, "output_dir") else Path(".")
     deviation_json = out / "spec-deviations.json"
+
+    # T3: log stale-spec-fidelity warning if appropriate. The banner is
+    # surfaced into spec-deviations.md by deviation-analysis; here we just
+    # want the stderr/log signal for direct remediate reruns.
+    _stale_spec_fidelity_warning(out)
 
     try:
         if deviation_json.exists():
@@ -2219,7 +2329,7 @@ def _print_terminal_halt(
             f"  1. Review certification report: {certify_path}",
             "  2. Fix remaining findings manually",
             "  3. Resume pipeline with:",
-            f"     superclaude roadmap run --resume",
+            "     superclaude roadmap run --resume",
             "",
         ]
     )

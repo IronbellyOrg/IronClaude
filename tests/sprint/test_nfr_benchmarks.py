@@ -33,7 +33,7 @@ def _generate_100kb_output(path: Path) -> None:
     """Generate a synthetic ~100KB file with valid YAML frontmatter."""
     lines = ["---", "title: benchmark output", "status: pass", "---"]
     while sum(len(line) + 1 for line in lines) < 100 * 1024:
-        lines.append(f'{{"task": "T01.01", "event": "tool_use", "data": "x" * 60}}')
+        lines.append('{"task": "T01.01", "event": "tool_use", "data": "x" * 60}')
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines))
 

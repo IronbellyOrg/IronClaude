@@ -953,7 +953,7 @@ def check_nfrs(spec_path: str, roadmap_path: str) -> list[Finding]:
                     dimension="nfrs",
                     mismatch_type="dep_rule_missing",
                     description=f"Dependency rule '{rule_text}' from spec not addressed in roadmap",
-                    location=f"spec:nfr:dep_rule",
+                    location="spec:nfr:dep_rule",
                     spec_quote=context,
                     roadmap_quote="[MISSING]",
                 )
