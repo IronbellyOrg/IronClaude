@@ -3,11 +3,11 @@
     {
       "id": "UNKNOWN",
       "severity": "BLOCKING",
-      "description": "File 'docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
-      "location": "spec:file:docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md",
+      "description": "File '.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
+      "location": "spec:file:.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -15,11 +15,11 @@
     {
       "id": "UNKNOWN",
       "severity": "BLOCKING",
-      "description": "File 'docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
-      "location": "spec:file:docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md",
+      "description": "File '.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
+      "location": "spec:file:.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -31,7 +31,7 @@
       "location": "spec:file:scripts/audit/cr_fm_04_ordering.sh",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -43,7 +43,7 @@
       "location": "spec:file:src/superclaude/cli/sprint.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -55,7 +55,7 @@
       "location": "spec:file:src/superclaude/examples/tdd_template.md",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -67,7 +67,7 @@
       "location": "spec:file:src/superclaude/execution/parallel.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -79,7 +79,7 @@
       "location": "spec:file:src/superclaude/pytest_plugin.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -91,7 +91,7 @@
       "location": "spec:file:tests/audit/test_step_gates.py::test_step_1_gate_zero",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -103,7 +103,7 @@
       "location": "spec:file:tests/cli/test_prd_precondition.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -115,7 +115,7 @@
       "location": "spec:file:tests/cli/test_sprint_emit_legacy_grep.py::test_block_emit_on_match",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -127,7 +127,7 @@
       "location": "spec:file:tests/fixtures/baseline-four-state-matrix.json",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -139,7 +139,7 @@
       "location": "spec:file:tests/fixtures/digest-baselines/task-md-mirror.sha256",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -151,7 +151,7 @@
       "location": "spec:file:tests/fixtures/digest-baselines/task-md-stubified.sha256",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -163,7 +163,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/CR7_sentinel.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -175,7 +175,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/CR8_sentinel.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -187,7 +187,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/TU2_path_override.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -199,7 +199,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/TU2_redirect.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -211,7 +211,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/TU6_carve_outs.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -223,7 +223,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/TU6_prohibitions.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -235,7 +235,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/TU7_triggers.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -247,7 +247,7 @@
       "location": "spec:file:tests/fixtures/donor-blocks/TU8_schema.txt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -259,7 +259,7 @@
       "location": "spec:file:tests/fixtures/inflight-mdtm-floor.json",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -271,7 +271,7 @@
       "location": "spec:file:tests/fixtures/legacy-residuals-144.json",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -283,7 +283,7 @@
       "location": "spec:file:tests/fixtures/preflight-five-row-matrix.json",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -295,7 +295,7 @@
       "location": "spec:file:tests/fixtures/vck-verdicts-expected.json",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -307,7 +307,7 @@
       "location": "spec:file:tests/foo/test_a.py::test_one",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -319,7 +319,7 @@
       "location": "spec:file:tests/skills/task/test_baseline_trinary.py::test_null_content_5_bytes",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -331,7 +331,7 @@
       "location": "spec:file:tests/skills/task/test_cr_fm_01_canonical.py::test_enum_membership",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -343,7 +343,7 @@
       "location": "spec:file:tests/skills/task/test_cr_fm_03_resume_grep.py::test_emission_token_format",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -355,7 +355,7 @@
       "location": "spec:file:tests/skills/task/test_cr_fm_03_resume_grep.py::test_multi_surface_emission",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -367,7 +367,7 @@
       "location": "spec:file:tests/skills/task/test_cr_task_01_path_override.py::test_log_emission",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -379,7 +379,7 @@
       "location": "spec:file:tests/skills/task/test_cr_task_01_path_override.py::test_trivial_then_critical_precedence",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -391,7 +391,7 @@
       "location": "spec:file:tests/skills/task/test_cr_task_05_routing.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -403,7 +403,7 @@
       "location": "spec:file:tests/skills/task/test_cr_task_08_prohibitions.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -415,7 +415,7 @@
       "location": "spec:file:tests/skills/task/test_cr_task_12_donor_diffs.py::test_6_donor_strings_and_1_sentinel_block",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -427,7 +427,7 @@
       "location": "spec:file:tests/skills/task/test_git_dirty_dispatch.py::test_R5_unknown_categorization",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -439,7 +439,7 @@
       "location": "spec:file:tests/skills/task/test_git_dirty_dispatch.py::test_non_strict_skip",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -451,7 +451,7 @@
       "location": "spec:file:tests/skills/task/test_in_flight_mdtm_resume.py::test_live_in_flight_resume_clean",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -463,7 +463,7 @@
       "location": "spec:file:tests/skills/task/test_preflight_multi_unavailable.py::test_double_skip",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -475,7 +475,7 @@
       "location": "spec:file:tests/skills/task/test_preflight_resume_reemit.py::test_append_only",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -487,7 +487,7 @@
       "location": "spec:file:tests/skills/task/test_resume_content_audit.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -499,7 +499,7 @@
       "location": "spec:file:tests/skills/task/test_rf_qa_three_invocations.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -511,7 +511,7 @@
       "location": "spec:file:tests/sprint/test_process.py::test_build_prompt_contains_task_command",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -523,7 +523,7 @@
       "location": "spec:file:tests/sprint/test_tui_v2_wave2.py",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -535,7 +535,7 @@
       "location": "spec:file:src/superclaude/skills/task/SKILL.md",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -547,7 +547,7 @@
       "location": "spec:nfr:security:escape",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -559,7 +559,7 @@
       "location": "spec:function:_live_inflight_union",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -571,7 +571,7 @@
       "location": "spec:function:cr_fm_04_row_1_ordering_check",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -583,7 +583,7 @@
       "location": "spec:function:test_ac_atk_02_git_preflight_no_halt",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -595,7 +595,7 @@
       "location": "spec:function:test_ac_atk_02_no_halt_exception_class_exists",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"
@@ -607,7 +607,7 @@
       "location": "spec:function:test_ac_sm_12_in_flight_mdtm_resume_clean",
       "fix_guidance": "",
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ],
       "status": "ACTIVE",
       "deviation_class": "UNCLASSIFIED"

@@ -516,8 +516,8 @@ This appendix enumerates every spec-manifest file and function referenced by the
 
 |File|Role|Bound To|
 |---|---|---|
-|`docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md`|Product Requirements Document — authoritative source for FRs, NFRs, KPIs|All milestones (M1..M5)|
-|`docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md`|Technical Design Document — 10-step canonical commit sequence, schemas, anchors|All milestones (M1..M5)|
+|`.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md`|Product Requirements Document — authoritative source for FRs, NFRs, KPIs|All milestones (M1..M5)|
+|`.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md`|Technical Design Document — 10-step canonical commit sequence, schemas, anchors|All milestones (M1..M5)|
 
 ### Recipient Skill Surface
 

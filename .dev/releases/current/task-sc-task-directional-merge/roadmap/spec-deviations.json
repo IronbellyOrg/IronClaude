@@ -12,8 +12,8 @@
       "stable_id": "018c28b2ac6fecd7",
       "dimension": "data_models",
       "severity": "HIGH",
-      "description": "File 'docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
-      "location": "spec:file:docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md",
+      "description": "File '.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
+      "location": "spec:file:.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md",
       "source_layer": "structural",
       "status": "ACTIVE",
       "first_seen_run": 1,
@@ -21,15 +21,15 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
       "stable_id": "4793a753f64e1593",
       "dimension": "data_models",
       "severity": "HIGH",
-      "description": "File 'docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
-      "location": "spec:file:docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md",
+      "description": "File '.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap",
+      "location": "spec:file:.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md",
       "source_layer": "structural",
       "status": "ACTIVE",
       "first_seen_run": 1,
@@ -37,7 +37,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -53,7 +53,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -69,7 +69,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -85,7 +85,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -101,7 +101,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -117,7 +117,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -133,7 +133,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -149,7 +149,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -165,7 +165,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -181,7 +181,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -197,7 +197,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -213,7 +213,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -229,7 +229,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -245,7 +245,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -261,7 +261,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -277,7 +277,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -293,7 +293,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -309,7 +309,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -325,7 +325,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -341,7 +341,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -357,7 +357,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -373,7 +373,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -389,7 +389,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -405,7 +405,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -421,7 +421,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -437,7 +437,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -453,7 +453,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -469,7 +469,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -485,7 +485,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -501,7 +501,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -517,7 +517,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -533,7 +533,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -549,7 +549,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -565,7 +565,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -581,7 +581,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -597,7 +597,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -613,7 +613,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -629,7 +629,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -645,7 +645,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -661,7 +661,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -677,7 +677,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -693,7 +693,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -709,7 +709,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -725,7 +725,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -741,7 +741,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -757,7 +757,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -773,7 +773,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -789,7 +789,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -805,7 +805,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     },
     {
@@ -821,7 +821,7 @@
       "debate_verdict": null,
       "debate_transcript": null,
       "files_affected": [
-        "/config/workspace/IronClaude/docs/docs-product/tech/task-merge/roadmap.md"
+        "/config/workspace/IronClaude/.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md"
       ]
     }
   ]

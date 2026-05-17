@@ -5,7 +5,7 @@ tier: Heavyweight
 status: 🟡 Draft
 version: 1.0
 date: 2026-05-16
-parent_doc: docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md
+parent_doc: .dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md
 parent_doc_version: 1.1
 pinned_sha: 71b1b1fe7909fab59b5e30d39ce68fcb7f825444
 convergence_score: 0.86
@@ -32,7 +32,7 @@ authoritative_values:
 |**Author**|rf-assembler (consolidating synth-01..synth-10)|
 |**Reviewers**|rf-qa, rf-analyst, Engineering Lead|
 |**Approvers (deferred)**|Engineering Lead, Documentation/Release Owner|
-|**Parent doc**|`docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md` v1.1 (2026-05-16)|
+|**Parent doc**|`.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md` v1.1 (2026-05-16)|
 
 ## Approvers
 
@@ -122,7 +122,7 @@ Expanded specifics:
 
 This component is an **internal SuperClaude framework feature**. It does not directly produce business revenue, customer conversion, or end-user-facing metrics. Its business value is **maintenance-surface reduction**, **audit-pass discipline**, and **runtime correctness for the framework's task-execution contract** — all of which are framework-internal levers.
 
-- **Product PRD Reference:** `docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md` v1.1 (2026-05-16); Epics: full PRD scope §1-§28; specifically §6 JTBD Jobs 1-3, §7 Personas P-01..P-04, §12 Scope, §14 FRs, §19 KPIs.
+- **Product PRD Reference:** `.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md` v1.1 (2026-05-16); Epics: full PRD scope §1-§28; specifically §6 JTBD Jobs 1-3, §7 Personas P-01..P-04, §12 Scope, §14 FRs, §19 KPIs.
 - **Business Impact:** Internal — collapses the maintenance-surface pair count from 2 → 1 (K-08), eliminates the 144 residual `/sc:task` occurrences from non-authorized buckets (K-03), and reduces the visible `/sc:help` command roster from 2 paired entries → 1 (K-07). No revenue/conversion metric applies; this TDD marks §4.2 Business Metrics as N/A by design.
 - **User Impact:** Affects **framework users** (engineers and agent operators) invoking `/task` or `/sc:task`. Post-merge, all invocations route through the single recipient surface; one-shot deprecation banner fires at the donor stub for any caller still using `/sc:task`. End users of products built on top of the framework are not directly affected.
 
@@ -3610,7 +3610,7 @@ The following table maps **every** AC to its release gate per file 12 § 9 and �
 
 |Document|Type|Link / Source Path|
 |----------|------|--------------------|
-|Product PRD — Directional Merge of `/sc:task` into `/task`|Product Requirements (v1.1, 2026-05-16, 1,964 lines, 308 KB, Heavyweight Feature-PRD abbreviated)|`docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md`|
+|Product PRD — Directional Merge of `/sc:task` into `/task`|Product Requirements (v1.1, 2026-05-16, 1,964 lines, 308 KB, Heavyweight Feature-PRD abbreviated)|`.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md`|
 
 #### 27.1.2 Validation Spec
 
@@ -3944,8 +3944,8 @@ External URLs are cited from the underlying PRD-task web research sources `.dev/
 
 |Term|Definition|Source-of-definition|
 |------|------------|----------------------|
-|**PRD**|Product Requirements Document — defines *what* to build (product ownership). Parent doc: `docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md`.|TDD template lines 1322-1334; project convention.|
-|**TDD**|Technical Design Document — defines *how* to build it (engineering ownership). This document: `docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md`.|TDD template lines 1322-1334.|
+|**PRD**|Product Requirements Document — defines *what* to build (product ownership). Parent doc: `.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md`.|TDD template lines 1322-1334; project convention.|
+|**TDD**|Technical Design Document — defines *how* to build it (engineering ownership). This document: `.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md`.|TDD template lines 1322-1334.|
 |**FR**|Functional Requirement — prefixed in PRD §14.1 as FR-TU-1..8, FR-CS-1..10, FR-CR-DEP-06.|research-notes.md §155-156; PRD §14.1.|
 |**NFR**|Non-Functional Requirement — prefixed in PRD §14.2 as NFR-INV-1..5, NFR-ME-1..9, NFR-S-1..3.|research-notes.md §156-157; PRD §14.2.|
 |**CR-CS**|Commit-sequencing audit row (CS-1..CS-10 = the 10-step atomic commit chain under ME-6).|`merge-master.md`; research/10.|
