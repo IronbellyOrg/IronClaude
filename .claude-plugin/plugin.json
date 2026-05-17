@@ -1,0 +1,12 @@
+{
+  "name": "sc",
+  "version": "4.3.0",
+  "description": "SuperClaude Plugin",
+  "author": {
+    "name": "SuperClaude Team"
+  },
+  "homepage": "",
+  "repository": "",
+  "license": "MIT",
+  "keywords": []
+}
