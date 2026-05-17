@@ -65,11 +65,8 @@ jobs:
         run: |
           # 修正: plugin.json はスクリプトによってMCPマージとして更新されるため、リストから削除しました
           PROTECTED=(
-            "README.md" "README-ja.md" "README-zh.md"
-            "BACKUP_GUIDE.md" "MIGRATION_GUIDE.md" "SECURITY.md"
+            "README.md" "SECURITY.md"
             "CLAUDE.md" "LICENSE" ".gitignore"
-            ".claude-plugin/marketplace.json"
-            "core/" "modes/"
           )
           VIOLATIONS=()
           for path in "${PROTECTED[@]}"; do
@@ -109,7 +106,7 @@ jobs:
 
           if ! git diff --cached --quiet; then
             git commit -m "chore: automated sync and namespace isolation from framework [$(date +'%Y-%m-%d %H:%M')]"
-            git push origin main
+            git push origin master
           else
             echo "No changes detected."
           fi
