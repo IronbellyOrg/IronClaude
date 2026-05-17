@@ -179,8 +179,14 @@ Write the file at the target path containing ONLY:
 - ## Task Overview (1-2 paragraphs)
 - ## Key Objectives (bullet list)
 - ## Prerequisites & Dependencies
+- ## Execution Context (OPTIONAL — emit per the rules in
+  "Execution Context Header Emission" below; the block sits
+  IMMEDIATELY after frontmatter material and BEFORE the first
+  `### T<PP>.<TT>` (or `## Phase 1`) task entry)
 ```
 The file now exists on disk. All subsequent writes use Edit to append.
+
+**Ordering invariant:** the `## Execution Context` block, when emitted, MUST be the LAST section written in this initial Write call. No phase content, no `### T<PP>.<TT>` task, and no `## Phase N` heading may precede it. Subsequent Edit-append phases land AFTER the header (and after the closing `---` separator that terminates the block).
 
 **5b. Append each phase one at a time:**
 For each phase in your plan:
@@ -385,6 +391,33 @@ When the BUILD_REQUEST contains BOTH `SKILL PHASES TO ENCODE` and `QA_GATE_REQUI
 
 ---
 
+## Execution Context Header Emission (COMP-002-M2 — R-042)
+
+The generated MDTM task file MUST carry a task-level `## Execution Context` block IMMEDIATELY after the frontmatter material (Title / Task Overview / Key Objectives / Prerequisites & Dependencies) and BEFORE the first `### T<PP>.<TT>` task entry (or `## Phase 1` heading for legacy template 02 layouts). The block is a READING aid for the executor; it does NOT replace per-item `Context:` fields, which remain the evidence venue with `file:line` citations.
+
+**Authoritative specification:** `src/superclaude/skills/task-builder/SKILL.md` — see the "EXECUTION CONTEXT BLOCK" subsection inside the BUILD_REQUEST template (DM-001 emitters: References / Source areas / Key constraints) and the "Output Structure" template body showing the rendered block. This agent file binds the emission *step* into the builder workflow; SKILL.md owns the emitter contracts.
+
+**Emission signal (API-001-M2 — `EXECUTION_CONTEXT_REQUIREMENTS`):**
+
+| Signal     | Builder behavior |
+|------------|---|
+| `AUTO` (default, or field absent) | Emit the block when BUILD_REQUEST exposes rollup signal — typically ≥3 distinct named source areas inferable from research findings. Otherwise omit. |
+| `REQUIRED` | MUST emit the block. The degraded References-only form is permitted when only GOAL is populated; suppressing the block entirely under REQUIRED is a MALFORMED output. |
+| `SUPPRESS` | MUST NOT emit the block. Per-item Context fields are untouched regardless. Used for thin / throwaway task files. |
+
+**Rendered forms (DM-001 contract — T01.13 / D-0011 § 1):** exactly two valid shapes exist; no third intermediate form.
+
+1. **Fully-populated 3-labeled-line form** — three labeled bullets verbatim, in this order: `**References:**` (R-### entries from GOAL/WHY/related_docs — R-033), `**Source areas:**` (named modules/packages, comma-separated — R-034), `**Key constraints:**` (1-3 entries pulled verbatim from QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS — R-035).
+2. **Degraded References-only form** (R-038 — minimal BUILD_REQUEST, GOAL is the only populated rollup-signal field with <3 inferable source areas) — only the `**References:**` bullet emits; the Source areas and Key constraints bullets are **absent** from the rendered block (not present-and-blank, not stub-bulleted). The `## Execution Context` heading and the reader-aid HTML comment remain.
+
+**Hidden-input determinism (R-039 — NFR-CONV.3, MANDATORY for both forms):** the rendered block, byte range from the `## Execution Context` heading through the closing `---` separator, MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0. Specific `path.py:NN` references belong in per-item Context fields and `research/*.md`, NEVER in this header. On any hit, rewrite the offending bullet (rename a candidate like `src/foo/bar.py:42` to "the foo module" or "the bar handler"), re-run assembly, re-scan. At most one rewrite cycle before the block is suppressed with a `header-leak-suppressed` annotation.
+
+**Failure mode — MALFORMED retry max-2:** violating the emission signal (emitting under SUPPRESS, omitting under REQUIRED, or emitting a non-conforming block under AUTO/REQUIRED) is a MALFORMED output. The orchestrator applies the MALFORMED retry flow at SKILL.md A.9 with a **MALFORMED retry max-2** ceiling (independent counter, tracked separately from RESEARCH_NEEDED rounds per SKILL.md Critical Rule #12). Per-emitter and header-wide hidden-input scans (R-039) trigger the same MALFORMED retry max-2 ceiling when the post-assembly grep returns a non-zero count.
+
+**Evidence-bound invariant preservation (NFR-CONV.7):** the no-file-paths rule applies ONLY to this header. Per-item Context fields and `research/*.md` files MUST retain `file:line` citations. rf-qa enforces this via TB-Add-7 (header source areas reappear in items) and TB-Add-8 (per-item Context fields cite `file:line` or carry an `<!-- evidence-absence: ... -->` comment).
+
+---
+
 ## Extended Tools
 
 ### WebSearch — External References for Task Building
@@ -488,6 +521,7 @@ Use current date/time for the timestamp.
 10. **QA gates are checklist items, not prose.** When QA_GATE_REQUIREMENTS is FINAL_ONLY or PER_PHASE, you MUST encode QA gate checklist items in the generated task file. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped. A generated task file that omits required QA gates is a MALFORMED output.
 11. **Validation items are mandatory when specified.** When VALIDATION_REQUIREMENTS is non-empty, you MUST encode corresponding validation checklist items. A task file with implementation items but no validation items (when VALIDATION_REQUIREMENTS is specified) is a MALFORMED output.
 12. **Testing items are mandatory when specified.** When TESTING_REQUIREMENTS is not NONE or N/A, you MUST encode testing checklist items with test file paths, commands, and pass criteria. A generated task file that requires testing items but omits them is a MALFORMED output.
+13. **Execution Context header emission (COMP-002-M2 — R-042).** When the BUILD_REQUEST signal `EXECUTION_CONTEXT_REQUIREMENTS` evaluates to emit (AUTO with rollup signal, or REQUIRED), you MUST emit the `## Execution Context` block IMMEDIATELY after the frontmatter material (Title / Task Overview / Key Objectives / Prerequisites & Dependencies) and BEFORE the first `### T<PP>.<TT>` task entry. The block follows the DM-001 contract (References / Source areas / Key constraints emitters per SKILL.md "EXECUTION CONTEXT BLOCK"); the rendered block, byte range from the `## Execution Context` heading through the closing `---` separator, MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0 (NFR-CONV.3 hidden-input determinism — R-039). Violating the signal — emitting under SUPPRESS, omitting under REQUIRED, or emitting a non-conforming block — is a MALFORMED output and triggers the **MALFORMED retry max-2** flow at SKILL.md A.9 (independent counter, tracked separately from RESEARCH_NEEDED per SKILL.md Critical Rule #12). Per-item `Context:` fields MUST retain `file:line` citations regardless — the no-file-paths rule scopes ONLY to this header (NFR-CONV.7 evidence-bound invariant; enforced by rf-qa TB-Add-7 / TB-Add-8).
 
 ## Agent Memory
 

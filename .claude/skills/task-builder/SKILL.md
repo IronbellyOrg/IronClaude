@@ -776,6 +776,28 @@ Agent:
       test file locations, test naming conventions, coverage targets, and
       verification commands.]
 
+    EXECUTION_CONTEXT_REQUIREMENTS: [OPTIONAL signal (API-001-M2) controlling
+      the `## Execution Context` block emission in the generated MDTM. Governs
+      DM-001-frozen (T01.13 / D-0011 § 1) emitters defined in the EXECUTION
+      CONTEXT BLOCK section below. Values:
+      - AUTO (default) — builder emits the block when BUILD_REQUEST exposes
+        rollup signal (≥3 distinct named source areas inferable from research
+        findings). Fully-populated form renders all 3 labeled bullets
+        (References, Source areas, Key constraints). Minimal form (GOAL-only
+        BUILD_REQUEST) degenerates to References-only with Source areas and
+        Key constraints bullets ABSENT (not blank-but-present).
+      - REQUIRED — builder MUST emit the block. The degraded References-only
+        form is permitted when only GOAL is populated; suppressing the block
+        entirely is a MALFORMED output.
+      - SUPPRESS — builder MUST NOT emit the block. Per-item Context fields
+        remain unchanged regardless. Used for thin / throwaway task files.
+      Omission of this field implies AUTO. Strictly additive — when absent
+      or AUTO, the M1-frozen 15-field BUILD_REQUEST behavior is preserved
+      byte-identical. Failure mode: MALFORMED retry max-2 (Critical Rule #12
+      and the MALFORMED flow at SKILL.md A.9 mediation) applies when the
+      builder violates this signal — e.g., emitting the block under SUPPRESS,
+      or omitting the block under REQUIRED.]
+
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
     claims and contradictions here. If none found, write:
@@ -860,20 +882,54 @@ Agent:
     research files. This is a READING aid for the executor, NOT a substitute
     for per-item Context fields.
 
-    The block has exactly three sub-bullets, in this order:
-    - **References:** BUILD_REQUEST GOAL line verbatim, the WHY summary,
-      and any related-doc IDs the BUILD_REQUEST supplied. ALWAYS known —
-      never stale because it is copied from BUILD_REQUEST itself.
-    - **Source areas:** Named modules or packages inferred from the
-      research files (e.g., "rf-qa agent prompts", "task-builder skill
-      body"). NEVER write specific `path.py:NN` references at this level
-      — those belong in per-item Context fields and `research/*.md`.
-      If fewer than ~3 distinct source areas can be named, OMIT this line.
-    - **Key constraints:** The top 1-3 invariants the executor must not
-      break, lifted from BUILD_REQUEST QA_GATE_REQUIREMENTS /
-      VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS if present, or from
-      the highest-severity rules in the research files. Omit when BUILD_REQUEST
-      and research findings produce no clear constraint shortlist.
+    Signal control (API-001-M2): the `EXECUTION_CONTEXT_REQUIREMENTS`
+    BUILD_REQUEST field overrides the AUTO heuristic when set. REQUIRED
+    forces emission (degraded References-only form permitted on GOAL-only
+    input); SUPPRESS forbids emission (per-item Context fields untouched);
+    AUTO / omission applies the rollup-signal heuristic below. Violation of
+    the signal (emit-under-SUPPRESS or omit-under-REQUIRED) is MALFORMED
+    output and triggers the max-2 retry flow at SKILL.md A.9.
+
+    The block has exactly three sub-bullets, in this order. Each is
+    produced by a distinct emitter governed by the DM-001 contract-freeze
+    (T01.13 / D-0011 § 1). Apply the rules below verbatim — they ARE the
+    implementation (R-033 / R-034 / R-035).
+
+    - **References emitter (DM-001.References — R-033):** A single
+      labeled bullet `**References:**` followed by `R-###: <ref-line>`
+      entries separated by `; `. `###` is a zero-padded ordinal starting
+      at `001`, assigned in stable input order: BUILD_REQUEST GOAL
+      first, then WHY, then each related-doc ID in BUILD_REQUEST source
+      order. `<ref-line>` is the verbatim text of the source field — do
+      not rewrite or summarize; strip only trailing whitespace. ALWAYS
+      present whenever the block is emitted; never blank, never omitted
+      (under minimal-BUILD_REQUEST degradation, GOAL alone produces at
+      least `R-001`).
+    - **Source areas emitter (DM-001.SourceAreas — R-034):** A single
+      labeled bullet `**Source areas:**` followed by named modules or
+      packages, comma-separated (e.g., "rf-qa agent prompts",
+      "task-builder skill body"). Emit only when ≥3 distinct named areas
+      can be inferred from the research files; otherwise OMIT the bullet
+      entirely (do not emit a blank-but-present line). **No-file-paths
+      guard (NFR-CONV.3 hidden-input determinism — MANDATORY
+      pre-emission scan):** the rendered bullet MUST satisfy
+      `grep -cE "src/|/.*:[0-9]+"` returning 0. If any hit is found,
+      reject the candidate, rewrite area names to remove paths and `:NN`
+      line numbers (rename a candidate like `src/superclaude/agents/rf-qa.md`
+      to `rf-qa agent prompt`), and re-scan. Specific `path.py:NN`
+      references belong in per-item Context fields and `research/*.md`,
+      never here.
+    - **Key constraints emitter (DM-001.KeyConstraints — R-035):** A
+      single labeled bullet `**Key constraints:**` followed by 1–3
+      entries separated by `; `. Entries are pulled **verbatim** from
+      BUILD_REQUEST `QA_GATE_REQUIREMENTS` /
+      `VALIDATION_REQUIREMENTS` / `TESTING_REQUIREMENTS` (priority
+      order) or from the highest-severity invariants in research
+      findings — do NOT paraphrase. Bounded strictly to 1–3 entries:
+      when >3 candidates exist, keep the top 3 by priority order and
+      drop the rest (do not concatenate beyond 3). OMIT the bullet
+      entirely when BUILD_REQUEST and research findings produce no
+      clear constraint shortlist.
 
     Scope-confinement rule (PROTECTS evidence-bound-item invariant): the
     "no specific file paths" rule applies ONLY to this header. Per-item
@@ -883,9 +939,39 @@ Agent:
     (per-item Context fields cite file:line or carry a justified absence
     comment).
 
-    If BUILD_REQUEST is minimal (GOAL-only), the block degenerates to
-    References-only with Source areas and Key constraints omitted. If no
-    rollup signal exists at all, OMIT the entire block — it is optional.
+    Degradation rule (R-038 — minimal BUILD_REQUEST → References-only):
+    When BUILD_REQUEST is "minimal" — defined as GOAL is the only populated
+    rollup-signal field (WHY may be empty or duplicate GOAL; no
+    related_docs; no QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS /
+    TESTING_REQUIREMENTS entries; <3 inferable source areas across all
+    research files) — the block degenerates to a single `**References:**`
+    bullet. The Source areas and Key constraints bullets are **absent**
+    from the rendered block (not present-and-blank, not stub-bulleted).
+    The block heading `## Execution Context` remains; the
+    `<!-- OPTIONAL header ... -->` reader-aid comment remains; only the
+    two omitted bullets are physically gone from the output. If even
+    GOAL-derived References cannot be produced (truly empty BUILD_REQUEST),
+    OMIT the entire block — heading included.
+
+    Header-wide hidden-input guard (R-039 — NFR-CONV.3 enforcement at the
+    block boundary, MANDATORY post-assembly scan): after the three
+    emitters have run and the bullets have been concatenated into the
+    candidate block, run `grep -cE "src/|/.*:[0-9]+"` against the byte
+    range from the `## Execution Context` heading line through the
+    closing `---` separator. The count MUST be 0. The per-emitter
+    Source-areas guard at the rule above is a first line of defense; this
+    header-wide guard is the final boundary check, catching any
+    BUILD_REQUEST-derived path leak in References (verbatim GOAL/WHY text)
+    or Key constraints (verbatim invariant text) that the per-emitter
+    rules cannot reach. On any hit (count ≥ 1), DO NOT emit the block —
+    rewrite the offending bullet to remove the path / `:NN` reference
+    (e.g., a GOAL line mentioning `src/foo/bar.py:42` becomes "the foo
+    module" or "the bar handler"), re-run the assembly, and re-scan.
+    Allow at most one rewrite cycle; if the scan still hits, OMIT the
+    entire block and surface a `header-leak-suppressed` annotation in
+    the builder's return value. The check applies uniformly to the
+    fully-populated 3-bullet form and to the degraded References-only
+    form.
 
     TASK FILE LOCATION:
     ${TASK_DIR}${TASK_ID}.md
@@ -1111,6 +1197,64 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
 
 Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected task file sections. If issues remain unfixed, address ALL of them before proceeding to A.11. Zero leniency — no severity level is exempt.
+
+### A.10.6: DM-005 Phase Contract — rf-qa → rf-qa-qualitative (published row)
+
+Standalone publication of the 10-field producer/consumer agreement that
+governs the A.10 → A.10.5 inter-agent handoff. The contract was frozen
+at M1 (T01.13 / D-0011 § DM-005) and is published here at M2 (T02.04 /
+D-0019) as the wire reference for M3 (FR-CONV.3 / PR-04), which lands
+the orchestrator-mediated spawn-prompt injection. `schema_version: 1.0.0`
+is the baseline for all future inter-agent contracts emitted by this
+skill — any field add, rename, semantic change, or value-type change
+requires a major version bump.
+
+This is the source-of-truth contract documentation. A.10.5 above is the
+runtime implementation (verbatim Items Reviewed table embed, INV-002
+freshness reinjection, INV-010 dynamic TB-Add enumeration, anti-inflation
+bullet preservation, halt-on-missing-producer-artifact failure mode).
+
+**DM-005 Phase Contract (10 fields, frozen at M1, published at M2):**
+
+```yaml
+# DM-005 — Phase Contract: rf-qa → rf-qa-qualitative
+# Frozen: M1 (T01.13 / D-0011 § DM-005)
+# Published: M2 (T02.04 / D-0019)
+# Consumed: M3 (FR-CONV.3 / PR-04, A.10.5 spawn-prompt injection)
+producer: rf-qa
+consumer: rf-qa-qualitative
+artifact: Inherited Structural Verdict block
+schema_version: 1.0.0
+delivery_semantics: at-most-once-per-cycle
+freshness_rule: INV-002-reinject-NEW
+enumeration_rule: INV-010-auto-pick-TB-Add
+consumer_obligation: INV-019-Self-Audit
+anti_inflation: preserve-766-775-byte-stable
+failure_mode: halt-A.10-before-A.10.5
+```
+
+**Field-by-field semantics (1.0.0 wire ABI):**
+
+| Field                | Wire Value                          | Meaning |
+|----------------------|-------------------------------------|---------|
+| producer             | `rf-qa`                             | The rf-qa agent invoked under `QA_MODE: task-integrity` (see A.10). Writes the producer artifact to `${TASK_DIR}qa/qa-task-validation-report.md`. |
+| consumer             | `rf-qa-qualitative`                 | The rf-qa-qualitative agent invoked under `QA_PHASE: task-qualitative` (see A.10.5). Consumes the producer artifact via spawn-prompt injection. |
+| artifact             | `Inherited Structural Verdict block`| Named block embedded under heading `## Inherited Structural Verdict` in the consumer's spawn prompt. Contents = the entire "Items Reviewed" PASS/FAIL table from the producer's report, byte-identical (verbatim copy, no editing/summarising/renaming). |
+| schema_version       | `1.0.0`                             | Wire ABI version. Major-version bump REQUIRED for any field add/rename, semantic change, or value-type change. M3 implementers MUST refuse to consume artifacts with a different schema_version until a migration is recorded. |
+| delivery_semantics   | `at-most-once-per-cycle`            | Exactly one verdict block is injected per consumer spawn. On fix-cycle re-spawn, the prior block is REPLACED (not appended) — see freshness_rule. |
+| freshness_rule       | `INV-002-reinject-NEW`              | Orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` on EVERY fix-cycle re-spawn and re-inject the NEW cycle-N verdict. Stale verdicts from prior cycles are forbidden. |
+| enumeration_rule     | `INV-010-auto-pick-TB-Add`          | Orchestrator MUST dynamically enumerate every TB-Add-* item from rf-qa.md's live checklist at injection time (do NOT hand-maintain the list). Future structural additions to rf-qa.md auto-extend the verdict passthrough. |
+| consumer_obligation  | `INV-019-Self-Audit`                | rf-qa-qualitative MUST emit a `## Self-Audit` section listing (a) which rf-qa PASS items it relied on AND (b) ≥1 semantic check where rf-qa PASS was insufficient and the consumer's own tool engagement was required. Reliance is not verification. |
+| anti_inflation       | `preserve-766-775-byte-stable`      | The anti-inflation bullet at the canonical `rf-qa-qualitative.md:766-775` anchor MUST remain byte-identical across releases. No downstream consumer is permitted to edit, paraphrase, or wrap this bullet. |
+| failure_mode         | `halt-A.10-before-A.10.5`           | If `${TASK_DIR}qa/qa-task-validation-report.md` is missing or malformed, orchestrator HALTs the pipeline at end-of-A.10 before invoking A.10.5. Passthrough is an optimisation; the consumer cannot proceed without a valid producer artifact. (When the producer artifact is present but unparseable, A.10.5 falls back to standalone rf-qa-qualitative behavior — see A.10.5 narrative.) |
+
+**Versioning and migration:** `schema_version: 1.0.0` is frozen for the entire M2-through-M6 release window. Any change to the 10 fields above — including renaming, splitting, merging, or altering the wire value format — requires a major version bump to `2.0.0`, a corresponding entry in the release roadmap, and a migration note documenting the cycle in which old (`1.0.0`) producer artifacts stop being accepted by the consumer.
+
+**Cross-references:**
+- Runtime implementation: A.10.5 (this skill).
+- Producer prompt: A.10 (this skill) + `rf-qa.md` (task-integrity mode).
+- Consumer prompt: A.10.5 (this skill) + `rf-qa-qualitative.md`.
+- Future consumers of `schema_version: 1.0.0` versioning baseline: every inter-agent contract emitted by this skill after M3.
 
 ### A.11: Present Results
 
@@ -1472,6 +1616,52 @@ The complete BUILD_REQUEST template is embedded in **A.9** above. This section d
 - `ESCALATION` — No team context override block
 - `INCREMENTAL TASK FILE WRITING` — Mandatory incremental writing protocol
 - `TASK FILE LOCATION` — `${TASK_DIR}${TASK_ID}.md`
+
+**Optional BUILD_REQUEST signals (strictly-additive, M1-frozen schema preserved):**
+- `EXECUTION_CONTEXT_REQUIREMENTS` (API-001-M2) — Controls the `## Execution
+  Context` block emission in the generated MDTM. Values: `AUTO` (default,
+  applies rollup-signal heuristic), `REQUIRED` (force emission; degraded
+  References-only form permitted), `SUPPRESS` (forbid emission). Omission
+  implies `AUTO`. Violation triggers MALFORMED retry max-2.
+
+  **Rendered forms (DM-001 contract — T01.13 / D-0011 § 1):** the block has
+  exactly two valid shapes; no third intermediate form exists.
+
+  1. **Fully-populated 3-labeled-line form** (rollup signal present —
+     `AUTO` with ≥3 inferable source areas, OR `REQUIRED` with sufficient
+     signal). The block emits all three labeled bullets verbatim, in this
+     order:
+     - `**References:**` — `R-###: <ref-line>` entries separated by `; `,
+       sourced from BUILD_REQUEST GOAL / WHY / related_docs in stable
+       input order (R-033).
+     - `**Source areas:**` — named modules or packages, comma-separated;
+       NEVER specific file paths or `file:line` citations (R-034).
+     - `**Key constraints:**` — 1–3 entries pulled verbatim from
+       BUILD_REQUEST `QA_GATE_REQUIREMENTS` / `VALIDATION_REQUIREMENTS` /
+       `TESTING_REQUIREMENTS` (priority order) or highest-severity
+       research invariants (R-035).
+  2. **Degraded References-only form** (R-038 — minimal BUILD_REQUEST,
+     defined as GOAL is the only populated rollup-signal field with <3
+     inferable source areas). The `**References:**` bullet emits;
+     `**Source areas:**` and `**Key constraints:**` bullets are
+     **absent from the rendered block** (not present-and-blank, not
+     stub-bulleted). The `## Execution Context` heading and the
+     reader-aid HTML comment remain. If even GOAL-derived References
+     cannot be produced (truly empty BUILD_REQUEST), the entire block
+     including heading is omitted.
+
+  **NFR-CONV.3 hidden-input determinism (R-039 — MANDATORY for both
+  rendered forms):** the rendered block, byte range from the
+  `## Execution Context` heading through the closing `---` separator,
+  MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0. The rule
+  applies uniformly to the fully-populated and the degraded form; it
+  is a hard precondition for emission, not a stylistic preference. On
+  any hit (count ≥ 1), the builder rewrites the offending bullet to
+  remove the path / `:NN` reference, re-runs assembly, and re-scans;
+  at most one rewrite cycle is permitted before the block is
+  suppressed with a `header-leak-suppressed` annotation. Specific
+  `path.py:NN` references belong in per-item Context fields and
+  `research/*.md` (the evidence venue), never in this header.
 
 **COMMON PHASE PATTERNS** (included in BUILD_REQUEST to guide the builder):
 
