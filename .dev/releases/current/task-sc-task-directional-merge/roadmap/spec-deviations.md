@@ -22,12 +22,12 @@ Total deviations analyzed: 0
 ## Deviation Details
 
 ### 018c28b2ac6fecd7 [UNCLASSIFIED]
-- Description: File 'docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap
-- Location: spec:file:docs/docs-product/tech/task-merge/PRD_TASK_DIRECTIONAL_MERGE.md
+- Description: File '.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap
+- Location: spec:file:.dev/releases/current/task-sc-task-directional-merge/roadmap/PRD_TASK_DIRECTIONAL_MERGE.md
 
 ### 4793a753f64e1593 [UNCLASSIFIED]
-- Description: File 'docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap
-- Location: spec:file:docs/docs-product/tech/task-merge/TDD_TASK_DIRECTIONAL_MERGE.md
+- Description: File '.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md' in spec manifest not found in roadmap
+- Location: spec:file:.dev/releases/current/task-sc-task-directional-merge/roadmap/TDD_TASK_DIRECTIONAL_MERGE.md
 
 ### 5586887d1fcb7beb [UNCLASSIFIED]
 - Description: File 'scripts/audit/cr_fm_04_ordering.sh' in spec manifest not found in roadmap

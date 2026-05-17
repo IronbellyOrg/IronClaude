@@ -3,7 +3,7 @@
 <!-- Merge date: 2026-05-17T02:56:00+00:00 -->
 <!-- Source: Adapted merge — strategic recommendation, not artifact merge -->
 
-# Recommendation — Tasklist Generation Tool for `docs/docs-product/tech/task-merge/roadmap.md`
+# Recommendation — Tasklist Generation Tool for `.dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md`
 
 ## Verdict
 
@@ -40,7 +40,7 @@ None of those conditions describe the current roadmap. The upstream pipeline alr
 
 <!-- Source: Variant A spec, line 11 of /sc:tasklist command file -->
 ```
-/sc:tasklist docs/docs-product/tech/task-merge/roadmap.md
+/sc:tasklist .dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md
 ```
 
 - `TASKLIST_ROOT` will auto-derive to `.dev/releases/current/task-sc-task-directional-merge/` (verified by grep of the roadmap content — first match of `.dev/releases/current/<segment>/`).

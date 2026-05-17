@@ -12,7 +12,7 @@
 
 | # | Change | Status | Before | After | Provenance Tag | Validation |
 |---|--------|--------|--------|-------|----------------|------------|
-| 1 | Adopt Variant A for current roadmap | Applied | (no tool selected) | `/sc:tasklist docs/docs-product/tech/task-merge/roadmap.md` | `<!-- Source: Variant A (sc:tasklist) -->` | base-selection.md shows A=0.902 vs B=0.871; INV-007 confirms A is structurally correct for atomicity-bound roadmap |
+| 1 | Adopt Variant A for current roadmap | Applied | (no tool selected) | `/sc:tasklist .dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md` | `<!-- Source: Variant A (sc:tasklist) -->` | base-selection.md shows A=0.902 vs B=0.871; INV-007 confirms A is structurally correct for atomicity-bound roadmap |
 
 ## Changes Skipped (Documented in refactor-plan.md)
 
@@ -43,4 +43,4 @@
 - Failed: 0
 - Skipped: 3 (intentional, documented)
 
-Pipeline status: **success**. Recommendation document is the operational deliverable. User can act on it by invoking `/sc:tasklist docs/docs-product/tech/task-merge/roadmap.md`.
+Pipeline status: **success**. Recommendation document is the operational deliverable. User can act on it by invoking `/sc:tasklist .dev/releases/current/task-sc-task-directional-merge/roadmap/roadmap.md`.
