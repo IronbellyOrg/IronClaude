@@ -10,8 +10,6 @@ Covers T02.06 acceptance criteria:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.fmea_domains import (
     DomainCategory,
     enumerate_all_domains,

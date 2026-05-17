@@ -9,25 +9,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
-
+from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
+)
 from superclaude.cli.sprint.executor import run_post_task_wiring_hook
 from superclaude.cli.sprint.models import (
+    GateOutcome,
     Phase,
     SprintConfig,
     TaskEntry,
     TaskResult,
     TaskStatus,
     TurnLedger,
-    GateOutcome,
 )
-from superclaude.cli.pipeline.trailing_gate import (
-    DeferredRemediationLog,
-    TrailingGateResult,
-)
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

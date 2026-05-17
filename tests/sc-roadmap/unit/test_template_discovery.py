@@ -9,10 +9,8 @@ Tests the template discovery process defined in SKILL.md:
 """
 
 import os
-import re
 
 import pytest
-
 
 # Template search paths from SKILL.md
 TEMPLATE_SEARCH_ORDER = [

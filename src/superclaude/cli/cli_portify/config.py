@@ -14,11 +14,6 @@ from pathlib import Path
 from typing import Optional, Union
 
 from .models import (
-    AMBIGUOUS_PATH,
-    DERIVATION_FAILED,
-    INVALID_PATH,
-    NAME_COLLISION,
-    OUTPUT_NOT_WRITABLE,
     PortifyConfig,
     _derive_name_from_path,
 )
@@ -260,7 +255,6 @@ def derive_cli_name(workflow_path: Path, explicit_name: Optional[str] = None) ->
         DerivationFailedError: If derivation yields an empty string and no
                                explicit_name was provided.
     """
-    from .models import DerivationFailedError
 
     if explicit_name:
         return explicit_name

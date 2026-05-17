@@ -10,13 +10,10 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.cli_portify.utils import (
     extract_sections,
     hash_section,
 )
-from superclaude.cli.cli_portify.steps.panel_review import capture_section_hashes
 
 
 class TestHashSection:

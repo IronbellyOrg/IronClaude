@@ -17,12 +17,10 @@ Per D-0021: Enables unit testing without actual Claude invocations.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Callable
 from unittest.mock import patch
 
 from superclaude.cli.cli_portify.process import PortifyProcess, ProcessResult
-
 
 # --- Known-Good Fixture Content ---
 

@@ -11,11 +11,8 @@ NFR-PRD.10: Dual JSONL + Markdown logging.
 from __future__ import annotations
 
 import json
-import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
-
 
 # ---------------------------------------------------------------------------
 # Status emoji mapping for Markdown logs

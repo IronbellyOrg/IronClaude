@@ -14,10 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
-    PipelineConfig,
-    Step,
     StepResult,
     StepStatus,
 )

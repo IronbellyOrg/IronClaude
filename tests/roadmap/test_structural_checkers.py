@@ -10,8 +10,6 @@ Covers:
 
 from __future__ import annotations
 
-import os
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -19,7 +17,6 @@ import pytest
 from superclaude.cli.roadmap.structural_checkers import (
     CHECKER_REGISTRY,
     SEVERITY_RULES,
-    CheckerCallable,
     RegressionResult,
     RemediationPatch,
     check_cli,

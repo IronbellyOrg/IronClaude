@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from superclaude.cli.pipeline.models import GateCriteria
 from superclaude.cli.roadmap.gates import (
     ALL_GATES,
     DEBATE_GATE,
@@ -22,17 +23,18 @@ from superclaude.cli.roadmap.gates import (
     _complexity_class_valid,
     _convergence_score_valid,
     _cross_refs_resolve,
+    _deviation_counts_reconciled,
     _extraction_mode_valid,
     _frontmatter_values_non_empty,
-    _interleave_ratio_consistent,
-    _major_issue_policy_correct,
-    _parse_frontmatter,
-    _milestone_counts_positive,
     _has_actionable_content,
     _high_severity_count_zero,
+    _interleave_ratio_consistent,
+    _major_issue_policy_correct,
+    _milestone_counts_positive,
     _no_ambiguous_deviations,
     _no_duplicate_headings,
     _no_heading_gaps,
+    _parse_frontmatter,
     _pre_approved_not_in_fix_roadmap,
     _routing_consistent_with_slip_count,
     _routing_ids_valid,
@@ -41,11 +43,9 @@ from superclaude.cli.roadmap.gates import (
     _template_sections_present,
     _total_analyzed_consistent,
     _total_annotated_consistent,
-    _deviation_counts_reconciled,
     _validation_complete_true,
     _validation_philosophy_correct,
 )
-from superclaude.cli.pipeline.models import GateCriteria
 
 
 class TestGateInstances:

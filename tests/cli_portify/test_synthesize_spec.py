@@ -12,7 +12,6 @@ Covers:
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch, call
 
 import pytest
 
@@ -26,9 +25,8 @@ from superclaude.cli.cli_portify.steps.synthesize_spec import (
     scan_sentinels,
 )
 from tests.cli_portify.fixtures.mock_harness import (
-    SYNTHESIZE_SPEC_GOOD,
     PARTIAL_OUTPUT,
-    MALFORMED_FRONTMATTER,
+    SYNTHESIZE_SPEC_GOOD,
     patch_portify_process,
 )
 

@@ -7,31 +7,22 @@ execute_phase_tasks.
 
 from __future__ import annotations
 
-import os
-import time
-from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
-import pytest
-
+from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog
 from superclaude.cli.sprint.executor import (
     execute_phase_tasks,
     execute_sprint,
-    run_post_phase_wiring_hook,
 )
 from superclaude.cli.sprint.models import (
     Phase,
-    PhaseResult,
-    PhaseStatus,
     SprintConfig,
-    SprintOutcome,
     TaskEntry,
     TaskResult,
     TaskStatus,
     TurnLedger,
 )
-from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog
 
 
 def _make_config(tmp_path: Path, num_phases: int = 2) -> SprintConfig:

@@ -25,9 +25,7 @@ from superclaude.cli.sprint.models import (
 )
 from superclaude.cli.sprint.process import (
     build_task_context,
-    compress_context_summary,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

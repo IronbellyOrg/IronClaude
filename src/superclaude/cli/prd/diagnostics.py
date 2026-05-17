@@ -14,10 +14,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from .models import PrdConfig, PrdPipelineResult, PrdStepResult, PrdStepStatus
-
 
 # ---------------------------------------------------------------------------
 # Failure categories

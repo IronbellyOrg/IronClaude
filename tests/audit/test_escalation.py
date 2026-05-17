@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V1Category,
@@ -11,7 +9,6 @@ from superclaude.cli.audit.classification import (
     V2Tier,
 )
 from superclaude.cli.audit.escalation import (
-    DEFAULT_TOKEN_BUDGET,
     EscalationConfig,
     detect_signals,
     escalate,

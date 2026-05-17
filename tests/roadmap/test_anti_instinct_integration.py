@@ -16,29 +16,26 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.gates import gate_passed
-from superclaude.cli.pipeline.models import GateCriteria, Step, StepStatus
 from superclaude.cli.roadmap.executor import (
     _build_steps,
     _run_anti_instinct_audit,
     _run_structural_audit,
 )
+from superclaude.cli.roadmap.fingerprint import check_fingerprint_coverage
 from superclaude.cli.roadmap.gates import (
     ALL_GATES,
     ANTI_INSTINCT_GATE,
-    _no_undischarged_obligations,
-    _integration_contracts_covered,
     _fingerprint_coverage_check,
+    _integration_contracts_covered,
+    _no_undischarged_obligations,
+)
+from superclaude.cli.roadmap.integration_contracts import (
+    check_roadmap_coverage,
+    extract_integration_contracts,
 )
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 from superclaude.cli.roadmap.obligation_scanner import scan_obligations
-from superclaude.cli.roadmap.integration_contracts import (
-    extract_integration_contracts,
-    check_roadmap_coverage,
-)
-from superclaude.cli.roadmap.fingerprint import check_fingerprint_coverage
 
 
 def _make_config(tmp_path: Path) -> RoadmapConfig:

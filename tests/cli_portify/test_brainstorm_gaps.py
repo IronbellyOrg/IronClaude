@@ -29,7 +29,6 @@ from superclaude.cli.cli_portify.steps.brainstorm_gaps import (
     run_brainstorm_gaps,
 )
 from tests.cli_portify.fixtures.mock_harness import (
-    BRAINSTORM_GAPS_GOOD,
     patch_portify_process,
 )
 

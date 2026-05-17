@@ -18,7 +18,6 @@ from .invariants import MutationSite
 from .models import Deliverable
 from .state_detector import DetectionResult
 
-
 # Mutation indicator patterns: verb + variable_name reference
 _MUTATION_INDICATORS = [
     (re.compile(r"\bupdate\s+(\w+)", re.IGNORECASE), "update"),

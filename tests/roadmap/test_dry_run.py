@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck, Step
 from superclaude.cli.roadmap.executor import _dry_run_output
 

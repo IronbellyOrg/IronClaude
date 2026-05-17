@@ -9,8 +9,6 @@ Verifies:
 
 import re
 
-import pytest
-
 
 class TestCircuitBreakerConfiguration:
     """Verify circuit breaker settings in SKILL.md."""

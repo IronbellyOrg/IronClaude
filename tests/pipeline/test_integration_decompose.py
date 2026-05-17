@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.deliverables import decompose_deliverables
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
 from superclaude.cli.roadmap.executor import apply_decomposition_pass

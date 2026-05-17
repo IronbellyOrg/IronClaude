@@ -11,9 +11,6 @@ Tests the 5 required artifacts defined in SKILL.md:
 
 import re
 
-import pytest
-
-
 # Required artifacts from SKILL.md Outputs section
 REQUIRED_ARTIFACTS = [
     {"name": "roadmap.md", "location": "<output>/roadmap.md"},

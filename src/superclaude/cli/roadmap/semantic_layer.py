@@ -5,7 +5,6 @@ and the lightweight debate protocol (BF-6 resolution).
 """
 from __future__ import annotations
 
-import json
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field

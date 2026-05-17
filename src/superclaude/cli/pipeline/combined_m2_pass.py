@@ -16,7 +16,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .fmea_classifier import (
-    DetectionDifficulty,
     FMEAFailureMode,
     Severity,
     classify_failure_modes,

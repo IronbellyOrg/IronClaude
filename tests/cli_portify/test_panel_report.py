@@ -9,10 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import pytest
-
 from superclaude.cli.cli_portify.convergence import (
     ConvergenceResult,
     ConvergenceState,

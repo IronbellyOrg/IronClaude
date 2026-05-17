@@ -6,9 +6,6 @@ Tests that Wave 3 generates all 5 required artifacts with correct structure.
 
 import re
 
-import pytest
-
-
 # Required artifacts from SKILL.md
 REQUIRED_ARTIFACTS = [
     "roadmap.md",

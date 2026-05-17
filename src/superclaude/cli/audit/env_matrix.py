@@ -9,11 +9,9 @@ Non-disclosure policy: never output secret values.
 
 from __future__ import annotations
 
-import os
 import re
 from dataclasses import dataclass, field
 from typing import Any
-
 
 # Code reference patterns for env key extraction
 _CODE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [

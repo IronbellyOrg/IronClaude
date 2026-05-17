@@ -17,7 +17,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
 # --- FR-MOD4.1: 7 structural indicator counters ---
 
 

@@ -8,11 +8,9 @@ from __future__ import annotations
 
 import json
 
-import pytest
-
 from superclaude.cli.cli_portify.contract import (
+    RESUMABLE_STEPS,
     ContractStatus,
-    PhaseStatus,
     PortifyContract,
     StepTiming,
     build_dry_run_contract,
@@ -20,9 +18,7 @@ from superclaude.cli.cli_portify.contract import (
     build_partial_contract,
     build_success_contract,
     generate_resume_command,
-    RESUMABLE_STEPS,
 )
-from superclaude.cli.cli_portify.models import PortifyStepResult, PortifyStatus
 
 
 class TestSuccessContract:

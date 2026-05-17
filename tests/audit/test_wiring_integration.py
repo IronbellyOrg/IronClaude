@@ -20,7 +20,6 @@ import pytest
 
 from superclaude.cli.audit.wiring_config import WiringConfig
 from superclaude.cli.audit.wiring_gate import (
-    WiringFinding,
     analyze_unwired_callables,
     run_wiring_analysis,
 )

@@ -10,8 +10,6 @@ Tests the domain keyword classification algorithm defined in SKILL.md:
 
 import re
 
-import pytest
-
 
 class TestDomainKeywords:
     """Verify domain keyword definitions match SKILL.md."""

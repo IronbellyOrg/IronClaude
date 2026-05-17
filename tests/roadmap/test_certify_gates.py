@@ -4,14 +4,12 @@ Covers:
 - T05.05: CERTIFY_GATE with required frontmatter, min_lines, semantic checks
 """
 
-import pytest
 
 from superclaude.cli.roadmap.gates import (
     CERTIFY_GATE,
     _frontmatter_values_non_empty,
     _has_per_finding_table,
 )
-
 
 # ═══════════════════════════════════════════════════════════════
 # T05.05 -- CERTIFY_GATE Definition

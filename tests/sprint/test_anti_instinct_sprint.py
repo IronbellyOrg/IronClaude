@@ -14,8 +14,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 from superclaude.cli.sprint.executor import (
     execute_phase_tasks,
     run_post_task_anti_instinct_hook,

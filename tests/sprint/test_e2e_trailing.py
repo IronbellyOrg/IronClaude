@@ -20,7 +20,6 @@ Acceptance criteria (D-0038):
 
 from __future__ import annotations
 
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -28,7 +27,6 @@ import pytest
 
 from superclaude.cli.pipeline.conflict_review import ConflictAction, review_conflicts
 from superclaude.cli.pipeline.diagnostic_chain import run_diagnostic_chain
-from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import (
     GateCriteria,
     GateMode,
@@ -38,17 +36,15 @@ from superclaude.cli.pipeline.models import (
 )
 from superclaude.cli.pipeline.trailing_gate import (
     DeferredRemediationLog,
-    GateResultQueue,
+    GateScope,
     RemediationRetryStatus,
     TrailingGateResult,
     TrailingGateRunner,
     attempt_remediation,
     build_remediation_prompt,
     resolve_gate_mode,
-    GateScope,
 )
 from superclaude.cli.sprint.executor import (
-    AggregatedPhaseReport,
     aggregate_task_results,
     check_budget_guard,
     execute_phase_tasks,
@@ -63,7 +59,6 @@ from superclaude.cli.sprint.models import (
     TurnLedger,
     build_resume_output,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

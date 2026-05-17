@@ -12,9 +12,9 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 try:
-    from rich.table import Table
-    from rich.live import Live
     from rich.console import Console
+    from rich.live import Live
+    from rich.table import Table
 
     _RICH_AVAILABLE = True
 except ImportError:

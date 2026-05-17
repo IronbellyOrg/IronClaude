@@ -18,7 +18,6 @@ from superclaude.cli.pipeline.fmea_classifier import (
     Severity,
 )
 from superclaude.cli.pipeline.fmea_promotion import (
-    FMEAPromotionOutput,
     ReleaseGateViolation,
     accept_violation,
     promote_failure_modes,

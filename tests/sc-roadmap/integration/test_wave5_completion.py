@@ -8,9 +8,7 @@ Tests the completion flow:
 - Output summary
 """
 
-import re
 
-import pytest
 
 
 class TestCompletionCheck:

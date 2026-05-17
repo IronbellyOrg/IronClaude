@@ -14,7 +14,7 @@ import json
 import logging
 import threading
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue

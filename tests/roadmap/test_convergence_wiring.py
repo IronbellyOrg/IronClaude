@@ -7,22 +7,20 @@ convergence pass/fail paths.
 All tests emit JSONL audit records via the ``audit_trail`` fixture per REQ-078.
 """
 import hashlib
-import pytest
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
+import pytest
+
+from superclaude.cli.pipeline.models import Step
 from superclaude.cli.roadmap.convergence import (
     CHECKER_COST,
     CONVERGENCE_PASS_CREDIT,
-    DeviationRegistry,
     MAX_CONVERGENCE_BUDGET,
     REMEDIATION_COST,
+    DeviationRegistry,
     execute_fidelity_with_convergence,
 )
 from superclaude.cli.roadmap.models import Finding, RoadmapConfig
-from superclaude.cli.pipeline.models import Step, StepResult, StepStatus, GateMode
 from superclaude.cli.sprint.models import TurnLedger
 
 

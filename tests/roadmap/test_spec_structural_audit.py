@@ -15,7 +15,6 @@ from superclaude.cli.roadmap.spec_structural_audit import (
     check_extraction_adequacy,
 )
 
-
 # --- Real content fixtures ---
 
 RICH_SPEC = """\

@@ -14,9 +14,6 @@ Validation commands:
 from __future__ import annotations
 
 import json
-from pathlib import Path
-
-import pytest
 
 from superclaude.cli.cli_portify.logging_ import (
     ALL_EVENT_TYPES,
@@ -30,7 +27,6 @@ from superclaude.cli.cli_portify.logging_ import (
     EV_STEP_START,
     ExecutionLog,
 )
-
 
 # ---------------------------------------------------------------------------
 # T09.04 acceptance criteria: log_events

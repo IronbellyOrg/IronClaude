@@ -11,11 +11,8 @@ Profiling is deterministic: same file set produces identical output.
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
-from pathlib import PurePosixPath
 from typing import Any
-
 
 # --- Domain classification rules (path-pattern matching) ---
 

@@ -12,16 +12,10 @@ from __future__ import annotations
 import pytest
 
 from superclaude.cli.pipeline.guard_analyzer import (
-    GuardDetection,
-    GuardKind,
-    GuardState,
-    SemanticMeaning,
-    TypeTransitionKind,
     detect_guards,
 )
 from superclaude.cli.pipeline.guard_resolution import (
     AcceptedRisk,
-    GuardResolutionOutput,
     ReleaseGateWarning,
     resolve_guards,
 )

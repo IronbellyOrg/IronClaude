@@ -8,19 +8,14 @@ CLI options, and watchdog stall detection with warn/kill actions + single-fire g
 from __future__ import annotations
 
 import logging
-import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 from superclaude.cli.sprint.debug_logger import (
     LOGGER_NAME,
     debug_log,
     setup_debug_logger,
 )
-from superclaude.cli.sprint.models import MonitorState, Phase, SprintConfig
-
+from superclaude.cli.sprint.models import Phase, SprintConfig
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -401,6 +396,7 @@ class TestCLIOptions:
 
     def test_cli_help_shows_debug_option(self):
         from click.testing import CliRunner
+
         from superclaude.cli.sprint.commands import sprint_group
 
         runner = CliRunner()
@@ -409,6 +405,7 @@ class TestCLIOptions:
 
     def test_cli_help_shows_stall_timeout_option(self):
         from click.testing import CliRunner
+
         from superclaude.cli.sprint.commands import sprint_group
 
         runner = CliRunner()
@@ -417,6 +414,7 @@ class TestCLIOptions:
 
     def test_cli_help_shows_stall_action_option(self):
         from click.testing import CliRunner
+
         from superclaude.cli.sprint.commands import sprint_group
 
         runner = CliRunner()

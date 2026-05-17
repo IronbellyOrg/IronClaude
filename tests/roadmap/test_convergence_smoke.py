@@ -7,7 +7,6 @@
 """
 from __future__ import annotations
 
-import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -16,12 +15,12 @@ import pytest
 
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
 from superclaude.cli.roadmap.convergence import (
-    ConvergenceResult,
-    DeviationRegistry,
-    execute_fidelity_with_convergence,
     CHECKER_COST,
     MAX_CONVERGENCE_BUDGET,
     REMEDIATION_COST,
+    ConvergenceResult,
+    DeviationRegistry,
+    execute_fidelity_with_convergence,
 )
 from superclaude.cli.roadmap.executor import _run_convergence_spec_fidelity
 from superclaude.cli.roadmap.models import RoadmapConfig

@@ -18,37 +18,35 @@ import pytest
 
 from superclaude.cli.cli_portify.convergence import ConvergenceState
 from superclaude.cli.cli_portify.models import (
-    AgentEntry,
-    AmbiguousPathError,
-    CommandEntry,
-    ComponentEntry,
-    ComponentInventory,
-    ComponentTree,
-    DerivationFailedError,
+    AMBIGUOUS_PATH,
+    DERIVATION_FAILED,
     ERR_AMBIGUOUS_TARGET,
     ERR_BROKEN_ACTIVATION,
     ERR_TARGET_NOT_FOUND,
+    INVALID_PATH,
+    NAME_COLLISION,
+    OUTPUT_NOT_WRITABLE,
+    WARN_MISSING_AGENTS,
+    AgentEntry,
+    AmbiguousPathError,
+    CommandEntry,
+    ComponentInventory,
+    ComponentTree,
+    DerivationFailedError,
     InvalidPathError,
     MonitorState,
     NameCollisionError,
     OutputNotWritableError,
     PortifyOutcome,
     PortifyPhaseType,
-    PortifyStep,
     PortifyStatus,
+    PortifyStep,
     PortifyValidationError,
-    AMBIGUOUS_PATH,
-    DERIVATION_FAILED,
-    INVALID_PATH,
-    NAME_COLLISION,
-    OUTPUT_NOT_WRITABLE,
     ResolvedTarget,
     SkillEntry,
     TargetInputType,
     TurnLedger,
-    WARN_MISSING_AGENTS,
 )
-
 
 # --- TargetInputType Enum ---
 
@@ -530,8 +528,8 @@ class TestStepOrder:
 
     def test_step_order_assert_step_order_passes_on_correct_order(self) -> None:
         from superclaude.cli.cli_portify.registry import (
-            assert_step_order,
             MANDATED_STEP_ORDER,
+            assert_step_order,
         )
 
         assert_step_order(list(MANDATED_STEP_ORDER))  # should not raise

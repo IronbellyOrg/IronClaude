@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Optional
 
 from ..models import (
+    WARN_MISSING_AGENTS,
     AgentEntry,
     CommandEntry,
     ComponentEntry,
@@ -33,9 +34,8 @@ from ..models import (
     PortifyStepResult,
     ResolvedTarget,
     SkillEntry,
-    WARN_MISSING_AGENTS,
 )
-from ..utils import count_lines, parse_frontmatter
+from ..utils import count_lines
 
 log = logging.getLogger(__name__)
 

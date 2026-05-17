@@ -20,7 +20,6 @@ from typing import Any, Optional
 from superclaude.cli.cli_portify.contract import StepTiming
 from superclaude.cli.cli_portify.models import FailureClassification, MonitorState
 
-
 # ---------------------------------------------------------------------------
 # EventRecord
 # ---------------------------------------------------------------------------

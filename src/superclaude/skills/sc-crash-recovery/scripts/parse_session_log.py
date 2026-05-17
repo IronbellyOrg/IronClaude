@@ -9,8 +9,12 @@ text snippet (truncated), and last tool calls. Designed to feed a subagent or
 the orchestrator without dumping the full log.
 """
 from __future__ import annotations
-import argparse, json, sys
+
+import argparse
+import json
+import sys
 from pathlib import Path
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()

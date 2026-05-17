@@ -33,13 +33,13 @@ from superclaude.cli.cli_portify.contract import (
     build_success_contract,
 )
 from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
 from superclaude.cli.cli_portify.gates import (
     GATE_MIN_ENFORCE,
     GateFailure,
     get_gate_criteria,
 )
 from superclaude.cli.cli_portify.logging_ import ExecutionLog
-from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
 from superclaude.cli.cli_portify.models import (
     INVALID_PATH,
     GateEvaluation,
@@ -53,10 +53,10 @@ from superclaude.cli.cli_portify.models import (
     PortifyValidationError,
     TurnLedger,
 )
-from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
 from superclaude.cli.cli_portify.steps import get_step_dispatch
 from superclaude.cli.cli_portify.tui import PortifyTUI
+from superclaude.cli.pipeline.gates import gate_passed
 
 # ---------------------------------------------------------------------------
 # Constants

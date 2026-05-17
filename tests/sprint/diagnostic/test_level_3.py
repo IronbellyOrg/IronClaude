@@ -6,14 +6,10 @@ that all components work together correctly in realistic scenarios.
 
 from __future__ import annotations
 
-import json
-import logging
-
 import pytest
 
 pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l3]
 
-from superclaude.cli.sprint.debug_logger import LOGGER_NAME, debug_log
 from superclaude.cli.sprint.diagnostics import (
     DiagnosticCollector,
     FailureCategory,

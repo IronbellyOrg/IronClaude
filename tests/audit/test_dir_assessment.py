@@ -1,11 +1,9 @@
 """Tests for directory assessment blocks (T04.05 / D-0031)."""
 
-import pytest
 
 from superclaude.cli.audit.classification import V2Action, V2Tier
 from superclaude.cli.audit.consolidation import ConsolidatedFinding
 from superclaude.cli.audit.dir_assessment import (
-    DirectoryAssessment,
     build_assessment_block,
     generate_assessment_blocks,
     identify_large_directories,

@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+import logging as _logging
 import re
 import shutil
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+
+from superclaude.cli.pipeline.models import Step, StepResult
+from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
+    TrailingGateResult,
+)
 
 from .debug_logger import debug_log, setup_debug_logger
 from .diagnostics import DiagnosticCollector, FailureClassifier, ReportGenerator
@@ -32,15 +39,6 @@ from .notify import notify_phase_complete, notify_sprint_complete
 from .process import ClaudeProcess, SignalHandler
 from .tmux import update_summary_pane, update_tail_pane
 from .tui import SprintTUI
-
-from superclaude.cli.pipeline.models import Step, StepResult
-from superclaude.cli.pipeline.trailing_gate import (
-    DeferredRemediationLog,
-    TrailingGatePolicy,
-    TrailingGateResult,
-)
-
-import logging as _logging
 
 _wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
 _anti_instinct_logger = _logging.getLogger("superclaude.sprint.anti_instinct_hook")
@@ -71,7 +69,6 @@ class SprintGatePolicy:
         Constructs a Step whose prompt targets the specific failure reason
         and acceptance criteria, rather than re-executing the entire task.
         """
-        from superclaude.cli.pipeline.models import GateCriteria
 
         prompt = (
             f"REMEDIATION: Fix the following gate failure for step '{gate_result.step_id}'.\n"
@@ -369,7 +366,7 @@ def run_wiring_safeguard_checks(
 
     Returns a list of warning messages (empty if all checks pass).
     """
-    from superclaude.cli.audit.wiring_config import WiringConfig, load_whitelist
+    from superclaude.cli.audit.wiring_config import WiringConfig
 
     warnings: list[str] = []
 
@@ -426,8 +423,8 @@ def _resolve_wiring_mode(config: SprintConfig) -> str:
     to map scope-based configuration to an effective mode string (Goal-5d).
     Falls back to config.wiring_gate_mode if scope resolution is not applicable.
     """
-    from superclaude.cli.pipeline.trailing_gate import GateScope, resolve_gate_mode
     from superclaude.cli.pipeline.models import GateMode
+    from superclaude.cli.pipeline.trailing_gate import GateScope, resolve_gate_mode
 
     scope_map = {
         "release": GateScope.RELEASE,
@@ -491,8 +488,8 @@ def run_post_task_wiring_hook(
         ledger.debit_wiring(config.wiring_analysis_turns)
 
     # Lazy import to avoid circular dependency at module level
-    from superclaude.cli.audit.wiring_gate import run_wiring_analysis, WiringReport
     from superclaude.cli.audit.wiring_config import WiringConfig
+    from superclaude.cli.audit.wiring_gate import run_wiring_analysis
 
     source_dir = config.release_dir
     wiring_config = WiringConfig(rollout_mode=mode if mode in ("shadow", "soft", "full") else "shadow")
@@ -712,8 +709,8 @@ def _recheck_wiring(
     Returns (True, report) if no blocking findings remain after remediation,
     (False, report) if blocking findings persist, or (False, None) on error.
     """
-    from superclaude.cli.audit.wiring_gate import run_wiring_analysis, WiringReport
     from superclaude.cli.audit.wiring_config import WiringConfig
+    from superclaude.cli.audit.wiring_gate import run_wiring_analysis
 
     try:
         wiring_config = WiringConfig(
@@ -807,7 +804,6 @@ def run_post_task_anti_instinct_hook(
     For mode "off", gate_result is None. For shadow mode, gate IS evaluated
     and the result is returned for capture.
     """
-    import math
     import time as _time
 
     mode = config.gate_rollout_mode

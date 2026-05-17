@@ -5,17 +5,13 @@ from __future__ import annotations
 import pytest
 
 from superclaude.cli.audit.profile_generator import (
-    FullFileProfile,
     ProfileGenerator,
     compute_complexity,
 )
 from superclaude.cli.audit.scanner_schema import (
-    PHASE2_PROFILE_FIELDS,
     has_full_profile,
     validate_phase2,
 )
-from superclaude.cli.audit.tool_orchestrator import ToolOrchestrator
-
 
 # --- Fixtures ---
 

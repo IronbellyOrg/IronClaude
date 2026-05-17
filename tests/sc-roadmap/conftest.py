@@ -7,7 +7,6 @@ definition are correct and consistent.
 """
 
 import os
-import re
 
 import pytest
 

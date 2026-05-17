@@ -19,7 +19,7 @@ import ast
 import logging
 import re
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import Literal
@@ -27,8 +27,8 @@ from typing import Literal
 import yaml
 
 from superclaude.cli.audit.wiring_config import (
-    WiringConfig,
     WhitelistEntry,
+    WiringConfig,
     load_whitelist,
 )
 

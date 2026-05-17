@@ -13,9 +13,11 @@ Covers:
 from __future__ import annotations
 
 from pathlib import Path
+
 import pytest
 
 from superclaude.cli.cli_portify.config import load_portify_config
+from superclaude.cli.cli_portify.convergence import ConvergenceResult, ConvergenceState
 from superclaude.cli.cli_portify.models import (
     FailureClassification,
     PortifyStatus,
@@ -24,15 +26,11 @@ from superclaude.cli.cli_portify.steps.panel_review import (
     check_downstream_readiness,
     compute_overall_score,
     count_unaddressed_criticals,
+    generate_panel_report,
     parse_quality_scores,
     run_panel_review,
-    capture_section_hashes,
-    generate_panel_report,
-    DOWNSTREAM_READINESS_THRESHOLD,
 )
-from superclaude.cli.cli_portify.convergence import ConvergenceResult, ConvergenceState
 from tests.cli_portify.fixtures.mock_harness import (
-    PANEL_REVIEW_GOOD,
     BRAINSTORM_GAPS_GOOD,
     SYNTHESIZE_SPEC_GOOD,
     patch_portify_process,

@@ -11,7 +11,6 @@ from pathlib import Path
 from superclaude.cli.cli_portify.executor import PortifyGatePolicy
 from superclaude.cli.cli_portify.models import PortifyGateMode
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

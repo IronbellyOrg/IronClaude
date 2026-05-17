@@ -176,6 +176,9 @@ extend-exclude = '''
 line-length = 88
 target-version = "py310"
 exclude = ["docs/"]
+extend-exclude = [
+    "tests/audit/fixtures/syntax_error.py",  # deliberate bad-syntax fixture for graceful-degradation tests
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]

@@ -6,7 +6,6 @@ Covers T04.06 (D-0032), T04.07 (D-0033), T04.08 (D-0034).
 import pytest
 
 from superclaude.cli.audit.budget import (
-    CAPABILITY_NAMES,
     DEFAULT_DEGRADATION_ORDER,
     BudgetAccountant,
     BudgetConfig,
@@ -14,7 +13,6 @@ from superclaude.cli.audit.budget import (
     DegradationLevel,
     EnforcementAction,
 )
-
 
 # ── T04.06: Budget Accounting ────────────────────────────────────────
 

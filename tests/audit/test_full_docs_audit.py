@@ -4,13 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-import pytest
-
 from superclaude.cli.audit.docs_audit import (
-    CoverageGap,
-    FullDocsAuditResult,
-    OrphanedDoc,
-    StyleIssue,
     check_style_issues,
     detect_coverage_gaps,
     detect_orphaned_docs,

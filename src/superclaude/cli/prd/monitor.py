@@ -19,7 +19,6 @@ from typing import Optional
 
 from .models import PrdMonitorState
 
-
 # ---------------------------------------------------------------------------
 # Signal detection patterns (PRD-specific)
 # ---------------------------------------------------------------------------

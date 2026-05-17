@@ -17,7 +17,6 @@ import math
 
 import pytest
 
-
 # -- Consumer defaults from SKILL.md §Return Contract --
 
 CONSUMER_DEFAULTS = {

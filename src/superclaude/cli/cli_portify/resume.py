@@ -20,8 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from .models import FailureClassification, PortifyStepResult, PortifyStatus
-
+from .models import FailureClassification, PortifyStepResult
 
 # ---------------------------------------------------------------------------
 # ResumabilityEntry

@@ -2,13 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.cli_portify.tui import (
     DashboardState,
-    PIPELINE_STEPS,
     PortifyTUI,
-    StepDisplayState,
     TuiDashboard,
     _build_dashboard_table,
 )
@@ -319,7 +315,6 @@ class TestPortifyTUIComplete:
 
     def test_tui_complete_full_pipeline_simulation(self):
         """Simulate a full 5-step pipeline run with real-time updates."""
-        import time
 
         tui = PortifyTUI()
         tui.start()

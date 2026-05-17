@@ -11,9 +11,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
-from superclaude.cli.pipeline.models import GateCriteria, Step, StepResult, StepStatus
+from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
 from superclaude.cli.roadmap.executor import (
     _save_state,
     build_certify_metadata,

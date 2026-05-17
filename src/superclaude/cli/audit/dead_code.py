@@ -13,9 +13,8 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
-from .dependency_graph import DependencyGraph, EdgeTier
+from .dependency_graph import DependencyGraph
 from .tool_orchestrator import FileAnalysis
-
 
 # Default entry point patterns
 _ENTRY_POINT_PATTERNS: list[str] = [

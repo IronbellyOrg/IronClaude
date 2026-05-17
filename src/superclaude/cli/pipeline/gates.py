@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .models import GateCriteria, SemanticCheck
+from .models import GateCriteria
 
 
 def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | None]:

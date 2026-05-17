@@ -15,7 +15,6 @@ from typing import Optional, Sequence
 
 from superclaude.cli.prd.models import PrdConfig
 
-
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------

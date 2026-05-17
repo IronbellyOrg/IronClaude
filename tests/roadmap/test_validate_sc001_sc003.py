@@ -13,8 +13,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.models import StepResult, StepStatus
 from superclaude.cli.roadmap.models import AgentSpec, ValidateConfig
 from superclaude.cli.roadmap.validate_executor import execute_validate

@@ -16,11 +16,10 @@ NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from .dataflow_graph import DataFlowEdge, DataFlowGraph
+from .dataflow_graph import DataFlowGraph
 from .models import Deliverable
-
 
 # ---------------------------------------------------------------------------
 # Data structures

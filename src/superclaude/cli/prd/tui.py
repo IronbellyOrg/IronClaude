@@ -20,14 +20,12 @@ try:
     from rich.panel import Panel
     from rich.progress import BarColumn, Progress, TextColumn
     from rich.table import Table
-    from rich.text import Text
 
     _HAS_RICH = True
 except ImportError:
     _HAS_RICH = False
 
 from .models import PrdMonitorState, PrdStepStatus
-
 
 # ---------------------------------------------------------------------------
 # Status display mapping

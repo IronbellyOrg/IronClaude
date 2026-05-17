@@ -15,12 +15,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from superclaude.cli.pipeline.models import PipelineConfig, Step, StepResult, StepStatus
+from superclaude.cli.pipeline.models import PipelineConfig, Step, StepStatus
 from superclaude.cli.roadmap.executor import (
     _LARGE_PROMPT_WARN_BYTES,
-    _embed_inputs,
     roadmap_run_step,
 )
 

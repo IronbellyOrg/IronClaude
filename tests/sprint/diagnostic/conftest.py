@@ -8,36 +8,23 @@ from __future__ import annotations
 import json
 import logging
 import re
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
 from superclaude.cli.sprint.debug_logger import (
-    DEBUG_LOG_VERSION,
     LOGGER_NAME,
     debug_log,
     setup_debug_logger,
 )
-from superclaude.cli.sprint.diagnostics import (
-    DiagnosticBundle,
-    DiagnosticCollector,
-    FailureCategory,
-    FailureClassifier,
-    ReportGenerator,
-)
 from superclaude.cli.sprint.models import (
-    MonitorState,
     Phase,
     PhaseResult,
     PhaseStatus,
     SprintConfig,
-    SprintResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # DebugLogReader

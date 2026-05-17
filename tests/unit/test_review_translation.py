@@ -9,10 +9,9 @@ Tests the localization quality review system's core algorithms:
 - Placeholder validation
 """
 
-import pytest
 import re
-import json
 
+import pytest
 
 # =============================================================================
 # SCORING SYSTEM TESTS

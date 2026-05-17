@@ -9,10 +9,7 @@ Two integration test scenarios:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.guard_pass import (
-    GuardAnalysisOutput,
     run_guard_analysis_pass,
 )
 from superclaude.cli.pipeline.invariant_pass import (

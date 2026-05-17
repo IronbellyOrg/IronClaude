@@ -11,7 +11,7 @@ NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 from .deliverables import is_behavioral

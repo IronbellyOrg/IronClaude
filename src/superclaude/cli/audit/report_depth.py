@@ -12,11 +12,10 @@ Depth levels:
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from .consolidation import ConsolidatedFinding, ConsolidationReport
+from .consolidation import ConsolidationReport
 from .dir_assessment import DirectoryAssessment
 
 

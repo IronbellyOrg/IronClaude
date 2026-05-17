@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import ast
 import logging
-from pathlib import Path
 
 from superclaude.cli.audit.tool_orchestrator import (
     FileAnalysis,

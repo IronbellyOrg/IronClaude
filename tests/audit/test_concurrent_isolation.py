@@ -6,25 +6,21 @@ independent outputs with no cross-contamination.
 
 from __future__ import annotations
 
-import json
 import threading
-from datetime import datetime, timezone
 from pathlib import Path
-
-import pytest
 
 from superclaude.cli.audit.batch_decomposer import decompose
 from superclaude.cli.audit.checkpoint import (
     BatchStatus,
+    CheckpointReader,
     CheckpointState,
     CheckpointWriter,
-    CheckpointReader,
 )
 from superclaude.cli.audit.known_issues import (
     KnownIssuesRegistry,
     RegistryEntry,
-    save_registry,
     load_registry,
+    save_registry,
 )
 from superclaude.cli.audit.tool_orchestrator import ResultCache
 

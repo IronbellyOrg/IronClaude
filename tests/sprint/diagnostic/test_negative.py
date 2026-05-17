@@ -25,7 +25,6 @@ from superclaude.cli.sprint.models import (
     Phase,
     PhaseResult,
     PhaseStatus,
-    SprintConfig,
 )
 
 

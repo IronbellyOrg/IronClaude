@@ -15,20 +15,17 @@ Acceptance criteria (D-0040):
 from __future__ import annotations
 
 import threading
-from pathlib import Path
 
 import pytest
-from hypothesis import given, settings, assume
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from superclaude.cli.pipeline.trailing_gate import (
     DeferredRemediationLog,
     GateResultQueue,
-    RemediationStatus,
     TrailingGateResult,
 )
 from superclaude.cli.sprint.models import TurnLedger
-
 
 # ---------------------------------------------------------------------------
 # Strategies

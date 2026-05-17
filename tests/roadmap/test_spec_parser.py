@@ -11,14 +11,9 @@ from pathlib import Path
 import pytest
 
 from superclaude.cli.roadmap.spec_parser import (
-    CodeBlock,
     DIMENSION_SECTION_MAP,
-    FunctionSignature,
-    MarkdownTable,
     ParseResult,
     ParseWarning,
-    SpecSection,
-    ThresholdExpression,
     extract_code_blocks,
     extract_file_paths,
     extract_file_paths_from_tables,
@@ -31,7 +26,6 @@ from superclaude.cli.roadmap.spec_parser import (
     parse_frontmatter,
     split_into_sections,
 )
-
 
 # ---------- Fixtures ----------
 

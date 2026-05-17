@@ -18,7 +18,6 @@ from typing import Any
 
 from .classification import ClassificationResult, V2Action
 
-
 # Tier thresholds
 TIER_REQUIREMENTS: dict[str, int] = {
     "low": 1,

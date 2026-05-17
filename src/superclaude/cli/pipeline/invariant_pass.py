@@ -13,9 +13,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .invariants import InvariantEntry, MutationSite, check_duplicate_variables
+from .invariants import InvariantEntry, check_duplicate_variables
 from .models import Deliverable, DeliverableKind
-from .mutation_inventory import MutationInventoryResult, generate_mutation_inventory
+from .mutation_inventory import generate_mutation_inventory
 from .state_detector import DetectionResult, detect_state_variables
 from .verification_emitter import emit_invariant_check_deliverables
 

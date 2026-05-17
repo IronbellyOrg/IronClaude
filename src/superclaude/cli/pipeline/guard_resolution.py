@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .guard_analyzer import GuardDetection, TypeTransitionKind
+from .guard_analyzer import GuardDetection
 from .models import Deliverable, DeliverableKind
 
 

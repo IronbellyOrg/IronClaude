@@ -15,18 +15,14 @@ but extends coverage to the full 12-step pipeline including:
 
 from __future__ import annotations
 
-import hashlib
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.executor import execute_pipeline
+from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
 from superclaude.cli.roadmap.certify_prompts import (
     generate_certification_report,
-    parse_certification_output,
     route_certification_outcome,
 )
 from superclaude.cli.roadmap.executor import (
@@ -37,21 +33,14 @@ from superclaude.cli.roadmap.executor import (
     build_remediate_metadata,
     derive_pipeline_status,
     read_state,
-    write_state,
 )
 from superclaude.cli.roadmap.gates import CERTIFY_GATE, REMEDIATE_GATE
-from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
 from superclaude.cli.roadmap.remediate import (
     RemediationScope,
     filter_findings,
     format_validation_summary,
     generate_remediation_tasklist,
-    generate_stub_tasklist,
-)
-from superclaude.cli.roadmap.remediate_executor import (
-    EDITABLE_FILES,
-    enforce_allowlist,
 )
 from superclaude.cli.roadmap.remediate_parser import parse_validation_report
 

@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
-from superclaude.cli.roadmap.executor import _print_step_start, _print_step_complete
+from superclaude.cli.roadmap.executor import _print_step_complete, _print_step_start
 
 
 def _make_step(id: str) -> Step:
@@ -121,8 +119,9 @@ class TestProgressCallbackProtocol:
     """Verify callbacks are compatible with execute_pipeline signature."""
 
     def test_callbacks_compatible_with_pipeline(self):
-        from superclaude.cli.pipeline.executor import execute_pipeline
         import inspect
+
+        from superclaude.cli.pipeline.executor import execute_pipeline
 
         sig = inspect.signature(execute_pipeline)
         params = sig.parameters

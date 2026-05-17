@@ -16,10 +16,8 @@ import pytest
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import GateCriteria, GateMode, Step
 from superclaude.cli.pipeline.trailing_gate import (
-    TrailingGateResult,
     TrailingGateRunner,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

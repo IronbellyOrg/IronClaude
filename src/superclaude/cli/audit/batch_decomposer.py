@@ -14,8 +14,6 @@ from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Any
 
-from .profiler import FileProfile
-
 # Workspace config files that indicate a monorepo segment root
 _SEGMENT_MARKERS: frozenset[str] = frozenset(
     {

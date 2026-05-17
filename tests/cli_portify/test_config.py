@@ -18,7 +18,6 @@ from superclaude.cli.cli_portify.config import (
     load_portify_config,
     validate_portify_config,
 )
-from superclaude.cli.cli_portify.models import PortifyConfig
 
 
 @pytest.fixture
@@ -302,7 +301,7 @@ class TestCollisionDetection:
 
     def test_collision_with_unmarked_module_blocked(self, tmp_workflow, tmp_path):
         """Collision blocked when existing module lacks portification marker."""
-        from superclaude.cli.cli_portify.config import _check_collision, _find_cli_root
+        from superclaude.cli.cli_portify.config import _check_collision
 
         # Create a fake CLI module directory without portification marker
         cli_root = tmp_path / "cli"
@@ -446,6 +445,7 @@ class TestWorkdirCreation:
     def test_portify_config_yaml_parseable(self, tmp_workflow, tmp_path):
         """portify-config.yaml is valid YAML."""
         import yaml
+
         from superclaude.cli.cli_portify.workdir import (
             create_workdir,
             emit_portify_config_yaml,

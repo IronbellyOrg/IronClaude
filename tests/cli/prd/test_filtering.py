@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.prd.filtering import (
     compile_gaps,
     load_synthesis_mapping,

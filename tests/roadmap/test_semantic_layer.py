@@ -1,30 +1,26 @@
 """Tests for BF-6 and BF-7: Semantic layer, debate protocol, prompt budget."""
-import json
-import tempfile
 from pathlib import Path
 
 import pytest
 import yaml
 
-from superclaude.cli.roadmap.semantic_layer import (
-    RubricScores,
-    score_argument,
-    judge_verdict,
-    _truncate_to_budget,
-    build_semantic_prompt,
-    SemanticCheckRequest,
-    SemanticLayerResult,
-    MAX_PROMPT_BYTES,
-    VERDICT_MARGIN_THRESHOLD,
-    STRUCTURAL_DIMENSIONS,
-    SEMANTIC_DIMENSIONS,
-    wire_debate_verdict,
-    run_semantic_layer,
-    validate_semantic_high,
-)
 from superclaude.cli.roadmap.convergence import DeviationRegistry
 from superclaude.cli.roadmap.models import Finding
-
+from superclaude.cli.roadmap.semantic_layer import (
+    MAX_PROMPT_BYTES,
+    SEMANTIC_DIMENSIONS,
+    STRUCTURAL_DIMENSIONS,
+    VERDICT_MARGIN_THRESHOLD,
+    RubricScores,
+    SemanticCheckRequest,
+    _truncate_to_budget,
+    build_semantic_prompt,
+    judge_verdict,
+    run_semantic_layer,
+    score_argument,
+    validate_semantic_high,
+    wire_debate_verdict,
+)
 
 # --- BF-6: Debate protocol ---
 

@@ -1,11 +1,7 @@
 """Tests for budget realism caveats (T04.09 / D-0035)."""
 
-import pytest
 
 from superclaude.cli.audit.budget_caveat import (
-    BUDGET_CAVEAT,
-    ESTIMATION_METHODOLOGY,
-    VARIANCE_RANGE,
     add_caveat_to_dry_run,
     add_caveat_to_report,
 )

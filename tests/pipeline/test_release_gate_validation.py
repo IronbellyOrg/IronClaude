@@ -12,7 +12,7 @@ from __future__ import annotations
 import pytest
 
 from superclaude.cli.pipeline.combined_m2_pass import run_combined_m2_pass
-from superclaude.cli.pipeline.fmea_classifier import DetectionDifficulty, Severity
+from superclaude.cli.pipeline.fmea_classifier import DetectionDifficulty
 from superclaude.cli.pipeline.fmea_promotion import accept_violation
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
 

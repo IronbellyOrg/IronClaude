@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.report_limitations import (
     KNOWN_LIMITATIONS,
     build_limitations_section,

@@ -1,6 +1,5 @@
 """Tests for KPI report generation from gate and remediation metrics."""
 
-from pathlib import Path
 
 from superclaude.cli.audit.wiring_gate import WiringFinding, WiringReport
 from superclaude.cli.pipeline.trailing_gate import (

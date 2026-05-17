@@ -5,17 +5,16 @@ budget exhaustion, regression handling, convergence pass, and
 semantic fluctuation through the full execute_fidelity_with_convergence
 loop with controlled mock checkers and real registries.
 """
-import pytest
 from pathlib import Path
 
+import pytest
+
 from superclaude.cli.roadmap.convergence import (
+    CHECKER_COST,
+    CONVERGENCE_PASS_CREDIT,
     DeviationRegistry,
-    ConvergenceResult,
     RegressionResult,
     execute_fidelity_with_convergence,
-    CHECKER_COST,
-    REMEDIATION_COST,
-    CONVERGENCE_PASS_CREDIT,
 )
 from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.sprint.models import TurnLedger

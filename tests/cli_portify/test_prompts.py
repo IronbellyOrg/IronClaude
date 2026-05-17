@@ -9,13 +9,10 @@ Covers:
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from superclaude.cli.cli_portify.prompts import (
     AnalyzeWorkflowPrompt,
-    BasePromptBuilder,
     BrainstormGapsPrompt,
     DesignPipelinePrompt,
     PanelReviewPrompt,

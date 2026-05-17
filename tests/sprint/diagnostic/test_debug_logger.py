@@ -11,8 +11,6 @@ import re
 import time
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.sprint.debug_logger import (
     DEBUG_LOG_VERSION,
     LOGGER_NAME,
@@ -22,7 +20,6 @@ from superclaude.cli.sprint.debug_logger import (
     setup_debug_logger,
 )
 from superclaude.cli.sprint.models import Phase, SprintConfig
-
 
 # ---------------------------------------------------------------------------
 # Helpers

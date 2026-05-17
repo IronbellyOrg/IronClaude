@@ -8,7 +8,6 @@ Tests the multi-agent validation system:
 - Decision thresholds (PASS/REVISE/REJECT)
 """
 
-import pytest
 
 
 def aggregate_scores(quality_score: int, review_score: int) -> dict:

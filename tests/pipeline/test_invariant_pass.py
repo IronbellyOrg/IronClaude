@@ -9,10 +9,7 @@ Covers T02.05 acceptance criteria:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.invariant_pass import (
-    InvariantRegistryOutput,
     run_invariant_registry_pass,
 )
 from superclaude.cli.pipeline.models import Deliverable, DeliverableKind

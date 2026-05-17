@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.env_matrix import (
-    EnvKeyMatrix,
     build_matrix,
     parse_env_file,
     scan_code_references,
 )
-
 
 # --- Fixtures ---
 

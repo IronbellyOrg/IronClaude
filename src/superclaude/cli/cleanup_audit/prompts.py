@@ -12,8 +12,6 @@ Source workflow: sc-cleanup-audit-protocol
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from .models import CleanupAuditConfig
 
 

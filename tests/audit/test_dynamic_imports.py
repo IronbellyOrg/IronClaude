@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V1Category,
@@ -15,7 +13,6 @@ from superclaude.cli.audit.dynamic_imports import (
     detect_dynamic_imports,
     scan_for_dynamic_imports,
 )
-
 
 JS_DYNAMIC = """\
 const mod = 'myModule';

@@ -18,21 +18,36 @@ from unittest.mock import patch
 
 import pytest
 
+from superclaude.cli.audit.wiring_gate import (
+    WIRING_GATE,
+    WiringFinding,
+    WiringReport,
+    check_wiring_report,
+)
+from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
+    TrailingGateResult,
+)
+from superclaude.cli.roadmap.convergence import (
+    MAX_CONVERGENCE_BUDGET,
+    DeviationRegistry,
+)
+from superclaude.cli.roadmap.models import Finding
 from superclaude.cli.sprint.executor import (
     SprintGatePolicy,
     _format_wiring_failure,
     _parse_phase_tasks,
-    _recheck_wiring,
     _resolve_wiring_mode,
+    execute_phase_tasks,
     execute_sprint,
     run_post_phase_wiring_hook,
 )
 from superclaude.cli.sprint.models import (
+    SHADOW_GRACE_INFINITE,
     GateOutcome,
     Phase,
     PhaseResult,
     PhaseStatus,
-    SHADOW_GRACE_INFINITE,
     ShadowGateMetrics,
     SprintConfig,
     TaskEntry,
@@ -40,20 +55,6 @@ from superclaude.cli.sprint.models import (
     TaskStatus,
     TurnLedger,
 )
-from superclaude.cli.audit.wiring_gate import (
-    WIRING_GATE,
-    WiringFinding,
-    WiringReport,
-    check_wiring_report,
-)
-from superclaude.cli.roadmap.convergence import DeviationRegistry, MAX_CONVERGENCE_BUDGET
-from superclaude.cli.roadmap.models import Finding
-from superclaude.cli.pipeline.trailing_gate import (
-    DeferredRemediationLog,
-    TrailingGateResult,
-)
-from superclaude.cli.sprint.executor import execute_phase_tasks
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1229,7 +1230,9 @@ class TestGateResultAccumulation:
         via _log_shadow_findings_to_remediation_log and verifies the log receives
         a pending RemediationEntry with the correct failure reason.
         """
-        from superclaude.cli.sprint.executor import _log_shadow_findings_to_remediation_log
+        from superclaude.cli.sprint.executor import (
+            _log_shadow_findings_to_remediation_log,
+        )
 
         remediation_log = DeferredRemediationLog(
             persist_path=tmp_path / "remediation.json",
@@ -1320,7 +1323,9 @@ class TestShadowFindingsRemediationLog:
         and verifies every remediation entry's failure_reason starts with '[shadow]'.
         Uses real DeferredRemediationLog — no mocks on logging internals.
         """
-        from superclaude.cli.sprint.executor import _log_shadow_findings_to_remediation_log
+        from superclaude.cli.sprint.executor import (
+            _log_shadow_findings_to_remediation_log,
+        )
 
         remediation_log = DeferredRemediationLog(
             persist_path=tmp_path / "remediation.json",
@@ -1424,7 +1429,7 @@ class TestKPIReportFieldValues:
         the KPI report fields match computed expectations. Also verifies
         gate-kpi-report.md is written via execute_sprint.
         """
-        from superclaude.cli.sprint.kpi import build_kpi_report, GateKPIReport
+        from superclaude.cli.sprint.kpi import build_kpi_report
 
         # --- Known inputs ---
         # TurnLedger: 3 wiring analyses, 7 turns used, 2 turns credited

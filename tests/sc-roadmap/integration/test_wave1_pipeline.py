@@ -7,8 +7,6 @@ Tests the complete Wave 1 flow from specification parsing through persona assign
 import os
 import re
 
-import pytest
-
 
 def extract_title(content: str) -> str:
     """Extract title from H1 heading."""

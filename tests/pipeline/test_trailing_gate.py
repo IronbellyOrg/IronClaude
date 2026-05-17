@@ -11,8 +11,6 @@ import threading
 import time
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.models import (
     GateCriteria,
     GateMode,
@@ -25,13 +23,10 @@ from superclaude.cli.pipeline.trailing_gate import (
     DeferredRemediationLog,
     GateResultQueue,
     GateScope,
-    RemediationEntry,
-    RemediationStatus,
     TrailingGateResult,
     TrailingGateRunner,
     resolve_gate_mode,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -900,7 +895,6 @@ class TestRemediationRetry:
     def test_can_remediate_checked_before_each_attempt(self, tmp_path):
         """can_remediate() is called before each attempt (Gap 1 compliance)."""
         from superclaude.cli.pipeline.trailing_gate import (
-            RemediationRetryStatus,
             attempt_remediation,
         )
 

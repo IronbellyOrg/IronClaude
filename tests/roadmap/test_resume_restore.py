@@ -11,15 +11,12 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.models import GateCriteria, Step, StepResult, StepStatus
 from superclaude.cli.roadmap.executor import (
     _apply_resume,
     _restore_from_state,
     _save_state,
     _step_needs_rerun,
-    read_state,
 )
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 

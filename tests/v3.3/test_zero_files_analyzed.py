@@ -11,10 +11,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
-from superclaude.cli.audit.wiring_gate import WiringReport, run_wiring_analysis
 from superclaude.cli.audit.wiring_config import WiringConfig
+from superclaude.cli.audit.wiring_gate import WiringReport, run_wiring_analysis
 
 
 class TestZeroFilesAnalyzedFail:

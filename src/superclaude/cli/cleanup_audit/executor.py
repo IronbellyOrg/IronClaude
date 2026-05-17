@@ -25,14 +25,12 @@ from pathlib import Path
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import GateMode
 
-from .config import load_cleanup_audit_config
 from .diagnostics import DiagnosticCollector, FailureClassifier, ReportGenerator
 from .gates import ALL_GATES
 from .logging_ import CleanupAuditLogger
 from .models import (
     AuditPassType,
     CleanupAuditConfig,
-    CleanupAuditMonitorState,
     CleanupAuditOutcome,
     CleanupAuditResult,
     CleanupAuditStatus,

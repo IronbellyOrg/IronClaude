@@ -14,8 +14,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.pipeline.models import PipelineConfig
 from superclaude.cli.roadmap.models import AgentSpec, ValidateConfig
 from superclaude.cli.roadmap.validate_executor import _parse_report_counts

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.deliverables import is_behavioral
 
 

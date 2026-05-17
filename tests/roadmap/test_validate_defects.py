@@ -16,10 +16,6 @@ failure (BLOCKING finding equivalent).
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import pytest
-
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
 from superclaude.cli.roadmap.gates import (
@@ -30,7 +26,6 @@ from superclaude.cli.roadmap.gates import (
 from superclaude.cli.roadmap.validate_gates import (
     ADVERSARIAL_MERGE_GATE,
     REFLECT_GATE,
-    _has_agreement_table,
 )
 
 

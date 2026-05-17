@@ -13,8 +13,6 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.sprint.executor import (
     run_post_task_wiring_hook,
     run_wiring_safeguard_checks,

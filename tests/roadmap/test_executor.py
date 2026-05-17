@@ -9,28 +9,22 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
+from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
-    GateCriteria,
     GateMode,
-    PipelineConfig,
     Step,
     StepResult,
     StepStatus,
 )
-from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.roadmap.executor import (
     _build_steps,
     _check_annotate_deviations_freshness,
     _check_remediation_budget,
-    _format_halt_output,
     _inject_pipeline_diagnostics,
     _inject_provenance_fields,
     _print_terminal_halt,
     _sanitize_output,
     _save_state,
-    execute_roadmap,
 )
 from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
 

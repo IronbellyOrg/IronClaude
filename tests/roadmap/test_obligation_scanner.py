@@ -11,11 +11,8 @@ All tests use real content fixtures, no mocks.
 """
 
 from superclaude.cli.roadmap.obligation_scanner import (
-    Obligation,
-    ObligationReport,
     scan_obligations,
 )
-
 
 # --- Real content fixtures ---
 

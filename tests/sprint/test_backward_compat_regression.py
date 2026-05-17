@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import threading
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -38,11 +37,9 @@ from superclaude.cli.pipeline.models import (
 )
 from superclaude.cli.pipeline.trailing_gate import (
     GateScope,
-    TrailingGateRunner,
     resolve_gate_mode,
 )
 from superclaude.cli.sprint.executor import (
-    AggregatedPhaseReport,
     aggregate_task_results,
     check_budget_guard,
     execute_phase_tasks,
@@ -52,16 +49,12 @@ from superclaude.cli.sprint.models import (
     GateOutcome,
     Phase,
     PhaseStatus,
-    PhaseResult,
     SprintConfig,
     SprintOutcome,
-    SprintResult,
     TaskEntry,
     TaskResult,
     TaskStatus,
-    TurnLedger,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

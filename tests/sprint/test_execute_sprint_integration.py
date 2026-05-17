@@ -7,13 +7,18 @@ DeferredRemediationLog, SprintGatePolicy construction, and KPI report generation
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
-from superclaude.cli.sprint.executor import execute_sprint, SprintGatePolicy
-from superclaude.cli.sprint.models import Phase, SprintConfig, ShadowGateMetrics, TurnLedger
 from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog
+from superclaude.cli.sprint.executor import SprintGatePolicy, execute_sprint
+from superclaude.cli.sprint.models import (
+    Phase,
+    ShadowGateMetrics,
+    SprintConfig,
+    TurnLedger,
+)
 
 
 def _make_config(tmp_path: Path) -> SprintConfig:

@@ -20,7 +20,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .models import Deliverable, DeliverableKind
+from .models import Deliverable
 
 
 class GuardKind(Enum):

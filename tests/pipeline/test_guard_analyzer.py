@@ -10,10 +10,7 @@ Five-scenario test suite:
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.guard_analyzer import (
-    GuardDetection,
     GuardKind,
     TypeTransitionKind,
     detect_guards,

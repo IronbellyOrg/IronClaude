@@ -6,19 +6,14 @@ Run: uv run pytest tests/audit/test_ac_validation.py -v
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from pathlib import Path
-
-import pytest
-
 from superclaude.cli.audit.classification import (
     ClassificationResult,
     V1Category,
     V2Action,
     V2Tier,
+    all_v1_categories_covered,
     classify_finding,
     map_to_v1,
-    all_v1_categories_covered,
 )
 from superclaude.cli.audit.consolidation import (
     ConsolidatedFinding,
@@ -102,10 +97,10 @@ class TestAC3Checkpointing:
 
     def test_checkpoint_write_and_read(self, tmp_path):
         from superclaude.cli.audit.checkpoint import (
-            CheckpointWriter,
+            BatchStatus,
             CheckpointReader,
             CheckpointState,
-            BatchStatus,
+            CheckpointWriter,
         )
 
         state = CheckpointState(
@@ -126,10 +121,10 @@ class TestAC3Checkpointing:
 
     def test_resume_controller(self, tmp_path):
         from superclaude.cli.audit.checkpoint import (
-            CheckpointWriter,
+            BatchStatus,
             CheckpointReader,
             CheckpointState,
-            BatchStatus,
+            CheckpointWriter,
         )
         from superclaude.cli.audit.resume import ResumeController
 
@@ -368,13 +363,13 @@ class TestAC10ReportDepth:
         )
 
     def test_summary_mode(self):
-        from superclaude.cli.audit.report_depth import render_report, ReportDepth
+        from superclaude.cli.audit.report_depth import ReportDepth, render_report
 
         output = render_report(self._make_report(), depth=ReportDepth.SUMMARY)
         assert isinstance(output, dict)
 
     def test_detailed_mode(self):
-        from superclaude.cli.audit.report_depth import render_report, ReportDepth
+        from superclaude.cli.audit.report_depth import ReportDepth, render_report
 
         output = render_report(self._make_report(), depth=ReportDepth.DETAILED)
         assert isinstance(output, dict)
@@ -418,8 +413,8 @@ class TestAC12DependencyGraph:
 
     def test_graph_with_edges_has_nodes(self):
         from superclaude.cli.audit.dependency_graph import (
-            DependencyGraph,
             DependencyEdge,
+            DependencyGraph,
             EdgeTier,
         )
 
@@ -637,8 +632,8 @@ class TestAC20RunIsolation:
         from superclaude.cli.audit.known_issues import (
             KnownIssuesRegistry,
             RegistryEntry,
-            save_registry,
             load_registry,
+            save_registry,
         )
 
         reg1 = KnownIssuesRegistry(

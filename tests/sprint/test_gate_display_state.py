@@ -1,6 +1,5 @@
 """Tests for GateDisplayState enum and transition validation."""
 
-import pytest
 
 from superclaude.cli.sprint.models import (
     GATE_DISPLAY_TRANSITIONS,

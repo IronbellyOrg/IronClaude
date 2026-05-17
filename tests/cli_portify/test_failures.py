@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.cli_portify.failures import (
     FAILURE_HANDLERS,
     FailureHandlerResult,

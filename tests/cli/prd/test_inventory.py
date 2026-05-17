@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.prd.inventory import (
     check_existing_work,
     create_task_dirs,

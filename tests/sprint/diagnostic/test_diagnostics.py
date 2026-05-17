@@ -5,8 +5,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.sprint.diagnostics import (
     DiagnosticBundle,
     DiagnosticCollector,
@@ -21,7 +19,6 @@ from superclaude.cli.sprint.models import (
     PhaseStatus,
     SprintConfig,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

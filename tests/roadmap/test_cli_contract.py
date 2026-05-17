@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
-from superclaude.cli.pipeline.models import PipelineConfig, Step
+from superclaude.cli.pipeline.models import Step
 from superclaude.cli.roadmap.executor import _build_steps
 from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
@@ -92,8 +90,9 @@ class TestModelRouting:
         # Context isolation is enforced by roadmap_run_step using inline
         # embedding (extra_args=[]) instead of the deleted _build_subprocess_argv.
         # This test verifies the contract is documented.
-        from superclaude.cli.roadmap.executor import roadmap_run_step
         import inspect
+
+        from superclaude.cli.roadmap.executor import roadmap_run_step
 
         source = inspect.getsource(roadmap_run_step)
         assert "--continue" not in source
@@ -165,8 +164,9 @@ class TestAcceptanceCriteriaAC03:
     """AC-03: gate failure triggers halt with diagnostic output."""
 
     def test_gate_failure_halt_diagnostic(self, tmp_path):
-        from datetime import datetime, timezone, timedelta
-        from superclaude.cli.pipeline.models import StepResult, StepStatus, GateCriteria
+        from datetime import datetime, timedelta, timezone
+
+        from superclaude.cli.pipeline.models import GateCriteria, StepResult, StepStatus
         from superclaude.cli.roadmap.executor import _format_halt_output
 
         spec = tmp_path / "spec.md"
@@ -212,8 +212,8 @@ class TestAcceptanceCriteriaAC04:
     """AC-04: --resume skips completed steps."""
 
     def test_resume_skips_completed(self, tmp_path, capsys):
-        from superclaude.cli.roadmap.executor import _apply_resume
         from superclaude.cli.pipeline.models import GateCriteria
+        from superclaude.cli.roadmap.executor import _apply_resume
 
         spec = tmp_path / "spec.md"
         spec.write_text("# Spec\nContent.\n")

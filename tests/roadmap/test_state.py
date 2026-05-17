@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
-from pathlib import Path
-
-import pytest
 
 from superclaude.cli.roadmap.executor import read_state, write_state
 
@@ -91,11 +87,11 @@ class TestStateSchema:
     def test_schema_includes_required_fields(self, tmp_path):
         """Verify state written by _save_state includes all required fields."""
         from datetime import datetime, timezone
+
         from superclaude.cli.pipeline.models import (
             Step,
             StepResult,
             StepStatus,
-            GateCriteria,
         )
         from superclaude.cli.roadmap.executor import _save_state
         from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig

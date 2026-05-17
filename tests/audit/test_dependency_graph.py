@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.dependency_graph import (
     DependencyEdge,
     DependencyGraph,

@@ -2,12 +2,12 @@
 
 import pytest
 
-from superclaude.cli.audit.classification import V2Action, V2Tier
-from superclaude.cli.audit.consolidation import ConsolidatedFinding
 from superclaude.cli.audit.anti_lazy import (
     check_batch_uniformity,
     run_anti_lazy_guard,
 )
+from superclaude.cli.audit.classification import V2Action, V2Tier
+from superclaude.cli.audit.consolidation import ConsolidatedFinding
 
 
 def _make_finding(

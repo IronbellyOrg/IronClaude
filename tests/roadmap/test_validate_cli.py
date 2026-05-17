@@ -13,22 +13,19 @@ Covers:
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import click.testing
 import pytest
 
 from superclaude.cli.roadmap.commands import roadmap_group
 from superclaude.cli.roadmap.executor import (
-    _auto_invoke_validate,
     _save_validation_status,
     execute_roadmap,
     read_state,
     write_state,
 )
-from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig, ValidateConfig
+from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
 
 @pytest.fixture

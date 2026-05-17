@@ -18,7 +18,6 @@ from superclaude.cli.cli_portify.registry import (
     get_step_order,
 )
 
-
 # ---------------------------------------------------------------------------
 # NFR-006 reference order (single source of truth for these tests)
 # ---------------------------------------------------------------------------

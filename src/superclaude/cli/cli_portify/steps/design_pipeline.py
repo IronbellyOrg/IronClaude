@@ -21,7 +21,7 @@ from ..models import (
     PortifyStepResult,
 )
 from ..process import PortifyProcess, ProcessResult
-from ..review import review_gate, ReviewDecision
+from ..review import ReviewDecision, review_gate
 
 log = logging.getLogger(__name__)
 

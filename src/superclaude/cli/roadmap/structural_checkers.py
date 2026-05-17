@@ -20,22 +20,11 @@ from .convergence import compute_stable_id
 from .models import Finding
 from .spec_parser import (
     DIMENSION_SECTION_MAP,
-    CodeBlock,
-    FunctionSignature,
-    MarkdownTable,
-    ParseResult,
     SpecSection,
     ThresholdExpression,
-    extract_code_blocks,
-    extract_file_paths,
-    extract_file_paths_from_tables,
-    extract_function_signatures,
-    extract_literal_values,
     extract_thresholds,
     parse_document,
-    split_into_sections,
 )
-
 
 # ---------- FR-3: Anchored Severity Rules ----------
 

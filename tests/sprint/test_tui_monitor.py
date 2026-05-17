@@ -8,9 +8,7 @@ refactoring.
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock, call, patch
-
-import pytest
+from unittest.mock import MagicMock, patch
 
 from superclaude.cli.sprint.executor import execute_sprint
 from superclaude.cli.sprint.models import (

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.audit.duplication import (
     build_duplication_matrix,
     compute_similarity,

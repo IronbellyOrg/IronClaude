@@ -11,8 +11,6 @@ already covered in tests/sprint/test_executor.py.
 
 from __future__ import annotations
 
-import pytest
-
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.roadmap.gates import (
     CERTIFY_GATE,
@@ -22,7 +20,6 @@ from superclaude.cli.roadmap.gates import (
     _high_severity_count_zero,
     _no_ambiguous_deviations,
 )
-
 
 # ───────────────────────────────────────────────────────────────────────────────
 # T05.01 -- Anti-Laundering: Bogus INTENTIONAL_IMPROVEMENT rejected as HIGH (R-069)

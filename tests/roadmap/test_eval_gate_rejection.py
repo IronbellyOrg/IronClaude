@@ -14,25 +14,17 @@ import textwrap
 
 import pytest
 
+from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import GateCriteria
 from superclaude.cli.roadmap.gates import (
     ALL_GATES,
     CERTIFY_GATE,
-    DEBATE_GATE,
     DEVIATION_ANALYSIS_GATE,
     DIFF_GATE,
     EXTRACT_GATE,
-    GENERATE_A_GATE,
-    GENERATE_B_GATE,
-    MERGE_GATE,
     REMEDIATE_GATE,
-    SCORE_GATE,
-    SPEC_FIDELITY_GATE,
-    TEST_STRATEGY_GATE,
 )
-from superclaude.cli.audit.wiring_gate import WIRING_GATE
-
 
 # --- Minimal passing content generators per gate ---
 
