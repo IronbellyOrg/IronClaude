@@ -321,8 +321,9 @@ class TestPR07AdversarialCategoryNaming:
     def test_axis_annotation_required_in_items_reviewed(
         self, rf_qa_qualitative_text: str
     ) -> None:
-        # The Items Reviewed table grows a new `Axis (PR-07)` column.
-        assert "Axis (PR-07)" in rf_qa_qualitative_text
+        # R-078 / T04.07: Items Reviewed table carries the `axis` column
+        # positioned between `Check` and `Result`. Header literal pinned.
+        assert "| # | Check | axis | Result | Evidence |" in rf_qa_qualitative_text
 
     def test_skill_references_5_axis_lens(self, skill_text: str) -> None:
         # SKILL.md A.10.5 must cite the 5 Adversarial Axes overlay.

@@ -529,11 +529,19 @@ Read the **entire task file** end to end. Then for each checklist item that modi
 
 These axes are NOT new checks — they are adversarial lenses that sharpen the existing 15-item checklist. For every finding you record, annotate which axis fired in the Items Reviewed table (`axis: drift | contradictions | omissions | weakened-criteria | invented-content`). Pick the most-specific axis; record multiple only when each is independently load-bearing. Contradictions remain IMPORTANT or CRITICAL by default (cf. Critical Rule #6 below).
 
-- **Drift** — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes.
-- **Contradictions** — Do two items in the task contradict each other (one says "use A", another implies "must not use A")? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6).
-- **Omissions** — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed?
-- **Weakened criteria** — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11).
-- **Invented content** — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented."
+- **AX-1 Drift** (kebab alias: `drift`) — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing, OR has a cited fact (file path, line number, signature, count, config value) drifted out of sync with current source? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes. **Finding example (stale citation pattern):** task item cites `rf-qa-qualitative.md:528 — "Five Adversarial Axes" header`, but an upstream insertion shifted the header to line 530; the cited line number no longer matches current source. Annotate `axis: AX-1`.
+- **AX-2 Contradictions** (kebab alias: `contradictions`) — Do two items in the task (or two artifacts, or two sections of one artifact) assert mutually incompatible facts about the same subject? One says "use A", another implies "must not use A"? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6). **Finding example (return-type mismatch pattern):** Section A states `build_axis_overlay()` returns `dict[str, Axis]`, while Section B's call site unpacks the same function's return value as `list[Axis]` (`for ax in build_axis_overlay(): ...`). Two artifacts assert incompatible return types for the same callable. Annotate `axis: AX-2` with severity ≥ IMPORTANT.
+- **AX-3 Omissions** (kebab alias: `omissions`) — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed? More broadly: is a required touchpoint, consumer, dependency, or step absent from the plan? **Finding example (missing-signature-update pattern):** an item passes a new `axis` kwarg to `build_axis_overlay()`, but no earlier item updates the function's signature to accept it; the kwarg is supplied to a callable that never declared it, so the new argument is silently dropped or raises `TypeError` at runtime. Annotate `axis: AX-3`.
+- **AX-4 Weakened criteria** (kebab alias: `weakened-criteria`) — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. Has an acceptance/verification condition been softened to something unobservable or trivially satisfiable? An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11). **Finding example (trivially-passing-test pattern):** a verification step writes the 6-character placeholder `# Test` into a fixture file and then asserts that the file is non-empty (or contains the substring `Test`); the assertion passes for the placeholder itself and exercises none of the feature under review. Annotate `axis: AX-4`.
+- **AX-5 Invented content** (kebab alias: `invented-content`) — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. More broadly: does the artifact introduce a requirement, feature, or capability not present in its upstream source (BUILD_REQUEST, PRD, TDD, research evidence)? This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented." **Finding example (scope-inflation pattern):** the task introduces a Redis caching layer in front of `build_axis_overlay()` to memoise per-task results, but no upstream source — BUILD_REQUEST, PRD §2 FR-CONV.4, TDD §8.5, or `research/*.md` — mentions caching, memoisation, or Redis; the caching layer is an invention that inflates scope beyond what was authorised (mirrors TDD §8.5 row 941's canonical "TDD adds a caching layer the PRD never specified" example). Annotate `axis: AX-5`.
+
+##### Canonical annotation rules (PR-07 — `none` sentinel + `drift-axis-inactive`)
+
+The canonical Axis-column vocabulary for the task-qualitative phase is the closed set `{AX-1, AX-2, AX-3, AX-4, AX-5, none}` (kebab aliases `{drift, contradictions, omissions, weakened-criteria, invented-content, none}`). These are the only values that may appear in the `axis` column for a task-qualitative review row.
+
+- **`none` sentinel — passing check that surfaced nothing.** Use `none` when the check at this row PASSED and the five-axis lens surfaced no finding. `none` is a positive statement that all five axes were applied and none fired; it is NOT an `N/A` escape, and it is NOT a permission to skip the axis lens for that row. A row with Result = `PASS` and Axis = `none` means: "I ran every axis against this check and recorded no axis-attributable finding." A row with Result = `FAIL` MUST carry one of `AX-1..AX-5` (the most-specific axis that fired) — `none` on a FAIL row is invalid.
+- **`N/A` is forbidden in the Axis column for task-qualitative phase.** Do not write `N/A`, `n/a`, `—`, blank, or any other escape value in the Axis column when running task-qualitative. The Axis column is only present for task-qualitative reviews (see comment under Items Reviewed); other phases omit the column entirely rather than filling it with `N/A`.
+- **`drift-axis-inactive` Summary-block annotation — drift baseline absent.** If no BUILD_REQUEST.GOAL verbatim is available for this review (the spawn prompt elided it AND the task file does not reproduce it), the AX-1 Drift axis is INACTIVE for the entire review. In that case you MUST emit the literal annotation `drift-axis-inactive` on its own line inside the **Summary** block of the QA report (not in Recommendations, not as an Axis-column cell value), then proceed to apply the remaining four axes (AX-2..AX-5) normally. Individual Axis-column cells continue to carry `none` on passing checks and `AX-2..AX-5` on failing checks; AX-1 is simply unavailable. The `drift-axis-inactive` Summary-block annotation is the canonical signal that drift was lens-disabled — it MUST NOT be encoded as `Axis = N/A`, `Axis = drift-axis-inactive`, or any cell-level placeholder.
 
 #### Checklist (15 items)
 
@@ -698,15 +706,30 @@ If `fix_authorization: false`:
 ## Overall Verdict: [PASS / FAIL]
 
 ## Items Reviewed
-| # | Check | Result | Axis (PR-07) | Evidence |
-|---|-------|--------|--------------|----------|
-| 1 | [check name] | PASS / FAIL | [drift / contradictions / omissions / weakened-criteria / invented-content / n/a] | [what you verified and how] |
+| # | Check | axis | Result | Evidence |
+|---|-------|------|--------|----------|
+| 1 | [check name] | [AX-1 / AX-2 / AX-3 / AX-4 / AX-5 / none] | PASS / FAIL | [what you verified and how] |
 
-<!-- PR-07: for task-qualitative phase, every FAIL finding MUST be
-annotated with the most-specific axis that fired. Use `n/a` only when
-the finding is from a non-task-qualitative phase or when the drift axis
-is INACTIVE for this review (annotate `drift-axis-inactive` separately
-in the Recommendations section). -->
+<!-- PR-07 canonical annotation rules (see "Canonical annotation rules"
+subsection under "Five Adversarial Axes" for the binding spec):
+- task-qualitative phase: the Axis column is REQUIRED on every row and
+  the only legal cell values are the closed set
+  `{AX-1, AX-2, AX-3, AX-4, AX-5, none}` (or their kebab aliases).
+- Passing checks (Result = PASS) MUST use the `none` sentinel — meaning
+  "the five-axis lens was applied and surfaced nothing." `none` is NOT
+  an N/A escape and NOT a permission to skip the lens.
+- Failing checks (Result = FAIL) MUST carry one of `AX-1..AX-5` (the
+  most-specific axis that fired). `none` on a FAIL row is invalid.
+- `N/A`, `n/a`, `—`, and blank are FORBIDDEN values in the Axis column
+  for task-qualitative phase.
+- If the AX-1 Drift axis is INACTIVE for this review (no BUILD_REQUEST.GOAL
+  verbatim baseline available), the lens-level disablement is recorded as
+  the literal `drift-axis-inactive` annotation inside the Summary block
+  below — NOT as an Axis-column cell value, NOT in the Recommendations
+  section. Individual rows continue to use `none` / `AX-2..AX-5` per the
+  rules above.
+- Non-task-qualitative phases (PRD / TDD / tech-ref / ops-guide / readme /
+  report / doc / fix-cycle) omit the Axis column entirely. -->
 
 
 ## Summary
@@ -714,6 +737,10 @@ in the Recommendations section). -->
 - Checks failed: [count]
 - Critical issues: [count]
 - Issues fixed in-place: [count] (if fix-authorized)
+- Axis lens status: [task-qualitative only — emit the literal line
+  `drift-axis-inactive` here on its own when no BUILD_REQUEST.GOAL
+  verbatim baseline is available, so AX-1 was disabled for this review;
+  otherwise omit this bullet entirely]
 
 ## Issues Found
 | # | Severity | Location | Issue | Required Fix |
@@ -817,3 +844,148 @@ For qualitative checks that involve judgment calls (e.g., "is the audience appro
 9. **Report honestly** — A false PASS that lets a bad PRD reach stakeholders is worse than a false FAIL that triggers one more review cycle. When in doubt, fail it and explain why.
 10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
 11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance, the TB-Add-* structural-gate additions). You check whether the content makes sense. Don't re-verify what rf-qa already checks — the verdict is delivered to you via the `## Inherited Structural Verdict` section in your spawn prompt (PR-04 Gate Results Passthrough). PASS items in that section are machine-verified; skip the structural re-check. FAIL items are machine-verified defects; flag them HIGH. Focus your own tool engagement on semantic quality (scope, audience, logical flow, contradictions, evidence sufficiency). When the Inherited Structural Verdict is missing or malformed, fall back to your standalone behavior. **Anti-inflation:** reliance ≠ verification (cf. Confidence Gate Protocol). For every PASS item you skip, you must still independently verify a corresponding semantic check (e.g., rf-qa verifies the section number; you verify the section content quality). Your Self-Audit MUST list (a) which Inherited PASS items you relied on and (b) at least one semantic check where rf-qa PASS was insufficient and your own tool work was required.
+
+---
+
+## Self-Audit Schema Requirement (INV-019, K-003 Audit-Target)
+
+Every rf-qa-qualitative report MUST emit a `## Self-Audit` subsection
+in its output (realised in the Output Format template as
+`## Inherited Structural Verdict — Reliance Audit (PR-04, INV-019)`).
+The subsection encodes the reliance-vs-verification distinction
+mandated by INV-019 and is the empirical artifact inspected by the
+K-003 audit window (release-spec §8.3 row 4 — first 5 rf-qa-qualitative
+runs after FR-CONV.3 lands).
+
+### Required content (both categories MUST be populated)
+
+(a) **Reliance list** — every rf-qa PASS item the agent skipped
+    structural re-checking for. One bullet per item, e.g.
+    `- Relied on rf-qa PASS for [item / TB-Add-N]`.
+
+(b) **Independent semantic check(s)** — ≥1 documented semantic check
+    where rf-qa PASS was insufficient and the agent's own tool
+    engagement was required. One bullet per check, e.g.
+    `-> semantic counterpart verified: [check + tool evidence]`.
+
+### INV-019 enforcement
+
+A run with **zero entries** in category (b) is an INV-019 violation
+regardless of category (a) contents. Reliance without independent
+verification is the failure mode the anti-inflation rule
+(rf-qa-qualitative.md:766-775 Prohibited Behaviors block) exists to
+prevent. INV-019 makes the prohibition observable from the emitted
+report: `grep "## Self-Audit"` + content inspection of the bullets
+beneath it is sufficient to detect inflation.
+
+### K-003 audit-target
+
+The first 5 rf-qa-qualitative runs after FR-CONV.3 lands are the K-003
+audit-target (OPEN-X-002 mitigation; release-spec §8.3 row 4). Each of
+those 5 reports MUST contain a `## Self-Audit` subsection with ≥1
+category-(b) entry. If any of the 5 runs shows inflation (missing
+Self-Audit, zero semantic checks, or category-(b) bullets that merely
+restate rf-qa PASS items without independent tool evidence), the
+K-003 gate FAILS, `FF_INHERITED_STRUCTURAL_VERDICT` is disabled, and
+FR-CONV.3 is rolled back per release-spec §19.4 (passthrough flag
+disable; fallback to independent structural re-checking).
+
+The audit procedure is operationalised by the OPS-001 runbook (M7)
+and gauged by the "Self-Audit coverage post-FR-CONV.3" KPI
+(target 100% on the first 5 runs).
+
+### Cross-references
+
+- Output schema realisation: `## Output Format (All Phases)` →
+  `## Inherited Structural Verdict — Reliance Audit (PR-04, INV-019)`
+  subsection.
+- Anti-inflation rule (byte-stable; T03.08): rf-qa-qualitative.md:766-775
+  Prohibited Behaviors block of the Confidence Gate Protocol.
+- Consumer obligation: Critical Rule #11 above (Self-Audit MUST
+  list (a)+(b)).
+- Producer side: SKILL.md §A.10.5 spawn-prompt block — emits the
+  `## Inherited Structural Verdict` table the consumer relies on.
+- Audit-target governance: release-spec §8.3 row 4
+  ("Audit-after-FR-CONV.3-lands"); K-003 risk row; OPEN-X-002
+  unresolved tension; M7 audit window.
+- Runbook: OPS-001 (M7).
+- KPI: "Self-Audit coverage post-FR-CONV.3" — 100% on first 5 runs
+  (K-003 gate criterion).
+- Fixture: TEST-009 (T03.14) asserts `## Self-Audit` + ≥1 semantic
+  check entry; negative-case variant (zero category-(b) entries)
+  MUST fail.
+
+---
+
+## Handling the Inherited Structural Verdict
+
+When the spawn prompt carries an `## Inherited Structural Verdict`
+section (PR-04 Gate Results Passthrough, FR-CONV.3), rf-qa-qualitative
+MUST treat that block as the structural ground truth and govern its
+own tool engagement accordingly:
+
+1. **PASS items** in the verdict table are machine-verified by rf-qa.
+   Skip the structural re-check. Focus your tool engagement on the
+   *semantic counterpart* of each PASS — scope appropriateness,
+   audience, content quality, cross-section consistency, evidence
+   sufficiency — never on re-running the structural assertion rf-qa
+   already ran.
+2. **FAIL items** in the verdict table are machine-verified defects.
+   Flag each one HIGH in `## Issues Found`; no `## Overall Verdict:
+   PASS` is permitted while any inherited FAIL remains unresolved.
+3. **Missing / malformed verdict** — when the spawn prompt does not
+   contain a parseable `## Inherited Structural Verdict` block, fall
+   back to standalone behavior (independent structural re-checking)
+   per release-spec §19.4 and Critical Rule #11 above.
+4. **Fix-cycle freshness (INV-002)** — every fix-cycle re-run MUST
+   rely on the NEW (cycle-N) verdict re-injected by the orchestrator.
+   Stale cycle-(N−1) verdicts are forbidden. If the spawn prompt
+   carries a stale verdict (cycle marker mismatch, or table content
+   identical to the previous cycle when defects were addressed),
+   halt and request re-injection rather than proceeding.
+5. **Self-Audit obligation (INV-019)** — every report MUST emit a
+   `## Self-Audit` subsection in its output (schema below). The
+   subsection encodes the reliance-vs-verification distinction:
+   reliance ≠ verification. For every inherited PASS item you
+   skipped, at least one independent semantic check is required.
+   Zero category-(b) entries is an INV-019 violation regardless of
+   how many reliance bullets category (a) contains.
+
+### Output schema — `## Self-Audit`
+
+Every report emitted while `FF_INHERITED_STRUCTURAL_VERDICT` is
+active MUST include this subsection verbatim in shape (bullets MAY
+vary per run; the two category headers and the `## Self-Audit`
+heading MUST appear literally):
+
+```markdown
+## Self-Audit
+
+**(a) Reliance list — rf-qa PASS items skipped for structural re-check:**
+- Relied on rf-qa PASS for [item / TB-Add-N]
+
+**(b) Independent semantic checks (≥1 required, INV-019):**
+- [check name] — verified by [tool call + file:line evidence]
+```
+
+`## Self-Audit` is the canonical output-schema realisation of the
+INV-019 obligation. The pre-existing `## Inherited Structural
+Verdict — Reliance Audit (PR-04, INV-019)` template entry (see
+`## Output Format (All Phases)` above) is retained for backward
+compatibility with PR-04 consumers; both heading forms emit
+equivalent reliance + semantic-check pairings, and TEST-009
+(`tests/audit/test_self_audit_inv_019.py`) accepts either as
+schema-conformant.
+
+### Anti-inflation invariant (T03.08, byte-stable)
+
+The Prohibited Behaviors enumeration in the Confidence Gate Protocol
+at `rf-qa-qualitative.md:766-775` remains **byte-identical** under
+FR-CONV.3. This section appends consumer-handling guidance only —
+it MUST NOT weaken, remove, paraphrase, or relocate the
+anti-inflation rule. A `## Self-Audit` block with zero category-(b)
+semantic checks is an INV-019 violation regardless of how many
+category-(a) reliance bullets it lists; tool-engagement padding
+detected via inflation triggers K-003 rollback per release-spec
+§19.4 (passthrough flag disable; standalone structural re-check
+fallback).

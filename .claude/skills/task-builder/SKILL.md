@@ -776,6 +776,28 @@ Agent:
       test file locations, test naming conventions, coverage targets, and
       verification commands.]
 
+    EXECUTION_CONTEXT_REQUIREMENTS: [OPTIONAL signal (API-001-M2) controlling
+      the `## Execution Context` block emission in the generated MDTM. Governs
+      DM-001-frozen (T01.13 / D-0011 § 1) emitters defined in the EXECUTION
+      CONTEXT BLOCK section below. Values:
+      - AUTO (default) — builder emits the block when BUILD_REQUEST exposes
+        rollup signal (≥3 distinct named source areas inferable from research
+        findings). Fully-populated form renders all 3 labeled bullets
+        (References, Source areas, Key constraints). Minimal form (GOAL-only
+        BUILD_REQUEST) degenerates to References-only with Source areas and
+        Key constraints bullets ABSENT (not blank-but-present).
+      - REQUIRED — builder MUST emit the block. The degraded References-only
+        form is permitted when only GOAL is populated; suppressing the block
+        entirely is a MALFORMED output.
+      - SUPPRESS — builder MUST NOT emit the block. Per-item Context fields
+        remain unchanged regardless. Used for thin / throwaway task files.
+      Omission of this field implies AUTO. Strictly additive — when absent
+      or AUTO, the M1-frozen 15-field BUILD_REQUEST behavior is preserved
+      byte-identical. Failure mode: MALFORMED retry max-2 (Critical Rule #12
+      and the MALFORMED flow at SKILL.md A.9 mediation) applies when the
+      builder violates this signal — e.g., emitting the block under SUPPRESS,
+      or omitting the block under REQUIRED.]
+
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
     claims and contradictions here. If none found, write:
@@ -860,20 +882,54 @@ Agent:
     research files. This is a READING aid for the executor, NOT a substitute
     for per-item Context fields.
 
-    The block has exactly three sub-bullets, in this order:
-    - **References:** BUILD_REQUEST GOAL line verbatim, the WHY summary,
-      and any related-doc IDs the BUILD_REQUEST supplied. ALWAYS known —
-      never stale because it is copied from BUILD_REQUEST itself.
-    - **Source areas:** Named modules or packages inferred from the
-      research files (e.g., "rf-qa agent prompts", "task-builder skill
-      body"). NEVER write specific `path.py:NN` references at this level
-      — those belong in per-item Context fields and `research/*.md`.
-      If fewer than ~3 distinct source areas can be named, OMIT this line.
-    - **Key constraints:** The top 1-3 invariants the executor must not
-      break, lifted from BUILD_REQUEST QA_GATE_REQUIREMENTS /
-      VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS if present, or from
-      the highest-severity rules in the research files. Omit when BUILD_REQUEST
-      and research findings produce no clear constraint shortlist.
+    Signal control (API-001-M2): the `EXECUTION_CONTEXT_REQUIREMENTS`
+    BUILD_REQUEST field overrides the AUTO heuristic when set. REQUIRED
+    forces emission (degraded References-only form permitted on GOAL-only
+    input); SUPPRESS forbids emission (per-item Context fields untouched);
+    AUTO / omission applies the rollup-signal heuristic below. Violation of
+    the signal (emit-under-SUPPRESS or omit-under-REQUIRED) is MALFORMED
+    output and triggers the max-2 retry flow at SKILL.md A.9.
+
+    The block has exactly three sub-bullets, in this order. Each is
+    produced by a distinct emitter governed by the DM-001 contract-freeze
+    (T01.13 / D-0011 § 1). Apply the rules below verbatim — they ARE the
+    implementation (R-033 / R-034 / R-035).
+
+    - **References emitter (DM-001.References — R-033):** A single
+      labeled bullet `**References:**` followed by `R-###: <ref-line>`
+      entries separated by `; `. `###` is a zero-padded ordinal starting
+      at `001`, assigned in stable input order: BUILD_REQUEST GOAL
+      first, then WHY, then each related-doc ID in BUILD_REQUEST source
+      order. `<ref-line>` is the verbatim text of the source field — do
+      not rewrite or summarize; strip only trailing whitespace. ALWAYS
+      present whenever the block is emitted; never blank, never omitted
+      (under minimal-BUILD_REQUEST degradation, GOAL alone produces at
+      least `R-001`).
+    - **Source areas emitter (DM-001.SourceAreas — R-034):** A single
+      labeled bullet `**Source areas:**` followed by named modules or
+      packages, comma-separated (e.g., "rf-qa agent prompts",
+      "task-builder skill body"). Emit only when ≥3 distinct named areas
+      can be inferred from the research files; otherwise OMIT the bullet
+      entirely (do not emit a blank-but-present line). **No-file-paths
+      guard (NFR-CONV.3 hidden-input determinism — MANDATORY
+      pre-emission scan):** the rendered bullet MUST satisfy
+      `grep -cE "src/|/.*:[0-9]+"` returning 0. If any hit is found,
+      reject the candidate, rewrite area names to remove paths and `:NN`
+      line numbers (rename a candidate like `src/superclaude/agents/rf-qa.md`
+      to `rf-qa agent prompt`), and re-scan. Specific `path.py:NN`
+      references belong in per-item Context fields and `research/*.md`,
+      never here.
+    - **Key constraints emitter (DM-001.KeyConstraints — R-035):** A
+      single labeled bullet `**Key constraints:**` followed by 1–3
+      entries separated by `; `. Entries are pulled **verbatim** from
+      BUILD_REQUEST `QA_GATE_REQUIREMENTS` /
+      `VALIDATION_REQUIREMENTS` / `TESTING_REQUIREMENTS` (priority
+      order) or from the highest-severity invariants in research
+      findings — do NOT paraphrase. Bounded strictly to 1–3 entries:
+      when >3 candidates exist, keep the top 3 by priority order and
+      drop the rest (do not concatenate beyond 3). OMIT the bullet
+      entirely when BUILD_REQUEST and research findings produce no
+      clear constraint shortlist.
 
     Scope-confinement rule (PROTECTS evidence-bound-item invariant): the
     "no specific file paths" rule applies ONLY to this header. Per-item
@@ -883,9 +939,39 @@ Agent:
     (per-item Context fields cite file:line or carry a justified absence
     comment).
 
-    If BUILD_REQUEST is minimal (GOAL-only), the block degenerates to
-    References-only with Source areas and Key constraints omitted. If no
-    rollup signal exists at all, OMIT the entire block — it is optional.
+    Degradation rule (R-038 — minimal BUILD_REQUEST → References-only):
+    When BUILD_REQUEST is "minimal" — defined as GOAL is the only populated
+    rollup-signal field (WHY may be empty or duplicate GOAL; no
+    related_docs; no QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS /
+    TESTING_REQUIREMENTS entries; <3 inferable source areas across all
+    research files) — the block degenerates to a single `**References:**`
+    bullet. The Source areas and Key constraints bullets are **absent**
+    from the rendered block (not present-and-blank, not stub-bulleted).
+    The block heading `## Execution Context` remains; the
+    `<!-- OPTIONAL header ... -->` reader-aid comment remains; only the
+    two omitted bullets are physically gone from the output. If even
+    GOAL-derived References cannot be produced (truly empty BUILD_REQUEST),
+    OMIT the entire block — heading included.
+
+    Header-wide hidden-input guard (R-039 — NFR-CONV.3 enforcement at the
+    block boundary, MANDATORY post-assembly scan): after the three
+    emitters have run and the bullets have been concatenated into the
+    candidate block, run `grep -cE "src/|/.*:[0-9]+"` against the byte
+    range from the `## Execution Context` heading line through the
+    closing `---` separator. The count MUST be 0. The per-emitter
+    Source-areas guard at the rule above is a first line of defense; this
+    header-wide guard is the final boundary check, catching any
+    BUILD_REQUEST-derived path leak in References (verbatim GOAL/WHY text)
+    or Key constraints (verbatim invariant text) that the per-emitter
+    rules cannot reach. On any hit (count ≥ 1), DO NOT emit the block —
+    rewrite the offending bullet to remove the path / `:NN` reference
+    (e.g., a GOAL line mentioning `src/foo/bar.py:42` becomes "the foo
+    module" or "the bar handler"), re-run the assembly, and re-scan.
+    Allow at most one rewrite cycle; if the scan still hits, OMIT the
+    entire block and surface a `header-leak-suppressed` annotation in
+    the builder's return value. The check applies uniformly to the
+    fully-populated 3-bullet form and to the degraded References-only
+    form.
 
     TASK FILE LOCATION:
     ${TASK_DIR}${TASK_ID}.md
@@ -925,20 +1011,70 @@ Agent:
 
 These are SEPARATE retry counters — a builder that returns RESEARCH_NEEDED twice and then produces a malformed file gets 2+2=4 total invocations maximum.
 
-**Retry Monotonicity Protocol (PR-02 — strengthens zero-trust QA against oscillation):**
+**Halt-precedence note (FR-CONV.5 / API-004 — COMP-001-M5 A.9 invariant tail).** Every retry counter in this section (RESEARCH_NEEDED, MALFORMED) — and every per-gate counter inherited from rf-task-builder/rf-qa — is governed by the strict 4-step ordering rule `regression → monotonicity → hard-cap → proceed`. On every cycle transition `n → n+1`, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string per API-004) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string per API-004); when both conditions would trigger in the same cycle transition, the regression halt is emitted and the monotonicity check is NOT consulted on the regressed item. Each counter keeps its own halt-precedence state — counters are NEVER collapsed across gates. The full ordering chain and worked examples are in the Retry Monotonicity Protocol below and the F-set + ordering precedence subsection.
 
-Every retry loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md) MUST apply two stop conditions BEFORE the existing iteration cap fires:
+**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 — strengthens zero-trust QA against oscillation):**
 
-1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and escalate with `non-convergent: |F_n| -> |F_{n+1}|` in the gate report. The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`) continues to the existing cap.
-2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately with `regression detected: Item X.Y passed at cycle N, failed at cycle N+1`. Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+This protocol is the FR-CONV.5 halt-guards wrapper layered ON TOP of every existing fix-cycle loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md). The wrapper introduces NO new retry loop and NO new stage — it adds two stop conditions evaluated BEFORE the existing iteration cap fires; the existing 3-cycle hard cap at `rf-team-lead.md:417` is preserved as the fourth-precedence backstop:
 
-**Precedence rule.** When both conditions trigger in the same cycle, regression takes precedence — the escalation message names the regressing item; the monotonicity halt is implicit.
+1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and emit `[HALT-MONOTONICITY] |F|=<n>` (the byte-exact halt-message wire string per API-004). The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`, e.g., `|F|=5,4`) continues to the existing cap. The monotonicity check is only consulted when `|F_n| > 0` AND only after the regression check has passed for this cycle transition.
+2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (the byte-exact halt-message wire string per API-004). Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+
+**Precedence rule (regression > monotonicity).** Regression detection ALWAYS runs BEFORE the monotonicity check on every cycle transition `n → n+1`. When both conditions would trigger in the same cycle, the regression halt-message is emitted and the monotonicity check is NOT consulted on the regressed item. The full ordering chain (regression → monotonicity → hard-cap → proceed) is documented in the F-set + ordering precedence section.
 
 **Independent counters.** Each retry counter keeps its own monotonicity history. RESEARCH_NEEDED, MALFORMED, research-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in rf-task-builder/rf-qa each track `F_n` and PASS-set state separately. Counters are NEVER collapsed (preserves the "tracked independently" property documented in Critical Rule #12).
 
 **Composition with PR-03 DNSP synthetic findings (INV-012 acceptance criterion).** Synthetic findings emitted by the DNSP protocol (PR-03) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. BUT a synthetic finding with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key appearing across consecutive cycles is a DEDUP case, NOT a regression — the same partition failed the same way twice; the regression-detection logic must compare by dedup key, not by raw finding count, when synthetic-dnsp items are involved. Two synthetic findings with identical dedup keys collapse into one with a "found N times" note (cf. PR-03 dedup behavior).
 
 **Single-cycle case.** If the first cycle PASSes, no second cycle runs; both guards are no-ops by construction.
+
+**API-004 Fix-Loop Halt Signals — wire ABI (M5 contract freeze):**
+
+This subsection is the byte-exact wire ABI for inter-loop halt signals. Producers (every fix-cycle loop above) MUST emit these strings verbatim; consumers (fixture asserts, execution-log scanners, downstream wrappers) MUST match them byte-for-byte. No paraphrasing, capitalisation drift, or whitespace deviation is permitted.
+
+**Halt-message strings (byte-exact wire form):**
+
+| Signal | Wire string (byte-exact) | Substitution |
+|---|---|---|
+| Monotonicity halt | `[HALT-MONOTONICITY] |F|=<n>` | `<n>` ← the integer cardinality `|F_{n+1}|` at the cycle the guard fires (the non-shrinking count) |
+| Regression halt | `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` | `X.Y` ← the regressed item identifier; `N` ← the prior-PASS cycle number |
+
+The em-dash `—` (U+2014) in the regression message and the literal pipe characters around `|F|` are part of the wire string. Substitutions are positional only — no surrounding whitespace, formatting, or punctuation may be altered.
+
+**F-set definition (item identity = dedup-key, cardinality post-dedup):**
+
+`F_n` is the SET (not multiset) of FAIL-verdict items at the end of fix cycle `n`. Set membership is determined by the dedup-key:
+- For ordinary checklist items: dedup-key = item ID (e.g., `3.2`).
+- For synthetic-dnsp findings (PR-03): dedup-key = `(assigned_files_range, escalation_ladder_exhaust_point)`.
+
+`|F_n|` is the cardinality of `F_n` AFTER dedup-key deduplication — two failures sharing a dedup-key collapse to one element BEFORE the monotonicity comparison is computed. The regression check uses the same dedup-key identity, so a synthetic-dnsp finding with an identical dedup-key re-emitted on cycle `n+1` is NOT a regression (the prior verdict was FAIL, not PASS); it is the INV-012 cross-cycle dedup case.
+
+**4-step ordering rule (strict per cycle transition `n → n+1`):**
+
+On every cycle transition `n → n+1`, run the following steps in this exact order and EXIT on the first match — `regression → monotonicity → hard-cap → proceed`:
+
+1. **Regression check.** If any item with verdict PASS at end-of-cycle-`n` has verdict FAIL at end-of-cycle-`n+1` (by dedup-key identity), HALT and emit the byte-exact regression halt-message. Do NOT consult subsequent steps.
+2. **Monotonicity check.** If `|F_n| > 0` AND `|F_{n+1}| >= |F_n|` (cardinality after dedup), HALT and emit the byte-exact monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (with `<n>` = `|F_{n+1}|`). Do NOT consult subsequent steps.
+3. **Hard-cap check.** If the per-gate cycle counter has reached the gate-specific cap (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3 — see the rf-task-builder.md per-gate cap table, with the global 3-cycle backstop at `rf-team-lead.md:417`), HALT per the gate's existing escalation path (HALT-and-escalate or Open Questions).
+4. **Proceed.** Re-spawn the fix cycle for cycle `n+1`.
+
+Strict ordering invariant: regression ALWAYS exits BEFORE monotonicity; monotonicity ALWAYS exits BEFORE hard-cap; hard-cap ALWAYS exits BEFORE proceed. Producers MUST NOT reorder or skip steps; consumers (fixture asserts) MUST verify ordering by emission ordering in the execution log.
+
+**INV-012 cross-cycle dedup composition (operational rule):**
+
+Synthetic-dnsp findings (PR-03 / FR-CONV.6) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. **BUT** a synthetic finding with an identical `dedup_key` `(assigned_files_range, escalation_ladder_exhaust_point)` across consecutive cycles is a **DEDUP case, NOT a regression** — its prior-cycle verdict was already FAIL, not PASS. It contributes `1` (not `2`) to `|F_{n+1}|`, and if it persists with nothing else changing it WILL trip the monotonicity guard — the intended behavior. This is the cross-cycle wiring of the F-set identity rule above (L1042-1048).
+
+**Cross-cycle dedup-key tracking (bookkeeping rule).** Each fix-cycle gate records, at end-of-cycle `n`, the FAIL-verdict set `F_n` keyed by dedup-key (ordinary item ID for checklist items; `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple for synthetic-dnsp findings — DM-003 contract row). The next cycle's `F_{n+1}` is computed by the same dedup-key identity, so a synthetic-dnsp finding with the same 2-tuple re-emitted on cycle `n+1` collapses with its cycle-`n` counterpart into a single element of `F_{n+1}` BEFORE the monotonicity comparison runs. No additional per-cycle state is required beyond the F-set itself.
+
+**Regression vs. persistence (cross-cycle decision rule).** The regression check at Step 1 of the 4-step ordering rule (L1054) requires `dedup_key ∈ PASS_n ∩ FAIL_{n+1}`. A synthetic-dnsp finding whose dedup-key was in `F_n` (FAIL_n) and is again in `F_{n+1}` (FAIL_{n+1}) has dedup_key ∉ PASS_n, so it is NEVER a regression — it is **persistence**. Persistence trips Step 2 (monotonicity) if and only if it makes `|F_{n+1}| >= |F_n|` (intended halt — the partition agent is stuck). Persistence with strict shrink elsewhere (e.g., `F_n = {item-3.1, synthetic-K}`, `F_{n+1} = {synthetic-K}` → `|F_{n+1}| = 1 < 2 = |F_n|`) continues to cycle `n+2` per Step 4 (proceed).
+
+**Worked examples (operational illustration):**
+
+1. **Cross-cycle dedup, strict shrink, no halt.** Cycle 1 `F_1 = {item-3.1, item-3.2, synthetic-K}` (`|F_1|=3`); cycle 2 `F_2 = {item-3.2, synthetic-K}` (`|F_2|=2`). Step 1 regression check: `PASS_1 ∩ FAIL_2 = ∅` (item-3.1 was FAIL_1, not PASS_1; synthetic-K was FAIL_1). Step 2 monotonicity check: `|F_2|=2 < |F_1|=3` → strict shrink → PROCEED. Step 4 re-spawns cycle 3. Synthetic-K's cross-cycle persistence contributes 1 to `|F_2|` (not 2), per the dedup-key identity rule.
+2. **Cross-cycle dedup, non-shrink, monotonicity halt (intended).** Cycle 1 `F_1 = {item-3.1, synthetic-K}` (`|F_1|=2`); cycle 2 `F_2 = {item-3.2, synthetic-K}` (`|F_2|=2`). Step 1 regression check: `PASS_1 ∩ FAIL_2 = ∅` (item-3.1 → PASS_2; item-3.2 was not in PASS_1; synthetic-K was FAIL_1). Step 2 monotonicity check: `|F_2|=2 >= |F_1|=2` → HALT `[HALT-MONOTONICITY] |F|=2`. The partition agent is stuck; the existing per-gate counter and the `rf-team-lead.md:417` 3-cycle backstop still govern the eventual hard-cap escalation if the operator overrides the monotonicity halt.
+3. **Same-cycle dedup collapse (no cross-cycle interaction).** Two synthetic findings emitted on the SAME cycle with the same `dedup_key` collapse into one record with a `found N times` note (PR-03 emitter behavior). They contribute 1 to `|F_n|`, not 2. Cross-cycle composition then operates on the post-collapse set.
+
+**Regression non-emission invariant (cross-cycle synthetic-dnsp).** A regression halt MUST NOT be emitted for any item whose dedup-key was in `F_n` (i.e., FAIL_n) — regardless of whether the item is a synthetic-dnsp finding or an ordinary checklist item. The Step 1 set predicate `dedup_key ∈ PASS_n ∩ FAIL_{n+1}` is the only condition that fires the regression halt; cross-cycle dedup is excluded from regression by construction of the predicate. Consumers (fixture asserts) MUST verify `grep -c "Regression detected on Item" <execution-log>` returns `0` for any cross-cycle same-dedup_key transition; the cross-cycle synthetic-dnsp fixture (TEST-022 at T05.14 / D-0065) codifies this invariant.
 
 ### A.10: Task File Validation
 
@@ -1000,6 +1136,7 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 - **PASS** → Proceed to A.10.5 (qualitative validation)
 - **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.10.5.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+- **No verdict emitted (report file absent OR present but no `VERDICT:` line OR `VERDICT:` value not `PASS`/`FAIL`)** → **HALT. Do NOT spawn rf-qa-qualitative.** This operationalises the DM-005 `failure_mode: halt-A.10-before-A.10.5` lever (A.10.6, row 7). The PR-04 passthrough cannot inject a verdict that does not exist; the consumer's anti-inflation enforcement at `rf-qa-qualitative.md:766-775` requires an enumerated PASS/FAIL checklist that only the producer can publish, so proceeding without a verdict would force the consumer to fabricate verification state (an INV-019 / Self-Audit violation by construction). The orchestrator MUST: (a) check `${TASK_DIR}qa/qa-task-validation-report.md` exists on disk; (b) if absent, log `INV-002-no-producer-artifact halt-A.10-before-A.10.5 task=${TASK_DIR}` and surface the missing-report path to the user; (c) if present, grep for `^VERDICT: (PASS|FAIL)` (case-sensitive, line-anchored); if zero matches, log `INV-002-no-verdict-line halt-A.10-before-A.10.5 task=${TASK_DIR} report=${REPORT_PATH}` and surface the malformed-report path to the user with instruction to re-run rf-qa. In both cases, the pipeline stops at end-of-A.10; control does NOT pass to A.10.5; rf-qa-qualitative is NEVER invoked for that task on that cycle. The user resumes the pipeline only after rf-qa is re-run and emits a well-formed `VERDICT:` line (at which point the orchestrator restarts from "Handling the verdict" above and routes via the PASS / FAIL-with-fixes / FAIL-unfixable branch).
 
 ### A.10.5: Task File Qualitative Validation
 
@@ -1011,7 +1148,7 @@ After structural QA passes, validate that the task file would actually succeed i
 
 **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
 
-**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the entire "Items Reviewed" PASS/FAIL table verbatim and embed it in the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section. The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or malformed, omit the section and let rf-qa-qualitative fall back to its standalone behavior (passthrough is an optimization, never a dependency).
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`## `) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
 
 **QA prompt:**
 ```
@@ -1021,6 +1158,22 @@ fix_authorization: true
 TASK FILE: [path to the task file]
 RESEARCH DIR: ${TASK_DIR}research/
 TRACK GOAL: [goal for this track]
+
+TARGET FILES (verify ALL — no spot-checking):
+[list every unique source file path from checklist items]
+
+PROJECT CONVENTIONS:
+[Include any project-specific patterns discovered during research that affect
+whether items will succeed. Examples:
+- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
+  src/ → .claude/. make verify-sync fails if .claude/ has dirs with no src/
+  counterpart."
+- Build gates: "make lint runs ESLint with --max-warnings 0"
+- Test location: "Tests go in tests/ using pytest. The project does not use
+  inline python -c scripts for testing."
+- CI requirements: "Pre-commit hooks run ESLint + Prettier on staged files"
+Pull these from CLAUDE.md and research files. If no project-specific
+conventions were discovered, state "None identified."]
 
 ## Inherited Structural Verdict (rf-qa A.10 output — DO NOT re-verify)
 [Verbatim embed of rf-qa's "Items Reviewed" table from
@@ -1045,22 +1198,6 @@ INSUFFICIENT and your own tool work was required (e.g., section content
 quality vs. section numbering — rf-qa verifies the number, you verify
 the prose) (INV-019).
 
-TARGET FILES (verify ALL — no spot-checking):
-[list every unique source file path from checklist items]
-
-PROJECT CONVENTIONS:
-[Include any project-specific patterns discovered during research that affect
-whether items will succeed. Examples:
-- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
-  src/ → .claude/. make verify-sync fails if .claude/ has dirs with no src/
-  counterpart."
-- Build gates: "make lint runs ESLint with --max-warnings 0"
-- Test location: "Tests go in tests/ using pytest. The project does not use
-  inline python -c scripts for testing."
-- CI requirements: "Pre-commit hooks run ESLint + Prettier on staged files"
-Pull these from CLAUDE.md and research files. If no project-specific
-conventions were discovered, state "None identified."]
-
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 INSTRUCTIONS:
@@ -1070,10 +1207,17 @@ the ACTUAL target files — do not rely on research file summaries alone.
 
 Apply the 5 Adversarial Axes (PR-07) as a sharpening overlay across all
 15 checks: drift, contradictions, omissions, weakened-criteria,
-invented-content. Annotate every FAIL finding with the most-specific
-axis in the Items Reviewed table's Axis column. The drift axis requires
-a BUILD_REQUEST.GOAL baseline; if no GOAL verbatim is reachable, mark
-drift-axis-inactive and proceed with the other four axes.
+invented-content. Every task-qualitative row's Axis column carries
+exactly one value from the canonical vocabulary `{AX-1, AX-2, AX-3,
+AX-4, AX-5, none}` — FAIL rows MUST carry the most-specific firing
+axis (AX-1..AX-5); PASS rows that surfaced no axis finding carry
+`none` (positive statement that all five axes were applied and none
+fired, NOT an N/A escape). `N/A`/`n/a`/`—`/blank in the Axis column
+is forbidden for task-qualitative phase. The drift axis (AX-1)
+requires a BUILD_REQUEST.GOAL verbatim baseline; if no GOAL verbatim
+is reachable, emit the literal `drift-axis-inactive` annotation in
+the Summary block (not as an Axis-column cell value) and proceed with
+the other four axes (AX-2..AX-5).
 
 For every shell command or make target referenced in checklist items, verify
 its preconditions are satisfied by earlier items or the current repo state.
@@ -1111,6 +1255,89 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
 
 Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected task file sections. If issues remain unfixed, address ALL of them before proceeding to A.11. Zero leniency — no severity level is exempt.
+
+**Fix-cycle re-entry (INV-002 freshness — stale-verdict rejection):** Any re-entry into A.10.5 — whether triggered by an A.10 producer fix-cycle (rf-qa re-ran and rewrote `${TASK_DIR}qa/qa-task-validation-report.md`), an A.10.5 consumer fix-cycle (rf-qa-qualitative re-spawn after task-file edits), or any external orchestrator-driven re-run — MUST execute the following procedure BEFORE re-issuing the Agent spawn call. Skipping the procedure and re-using a verdict block from the prior cycle is forbidden (INV-002).
+
+1. **Discard cached state.** If the orchestrator memoised any of `(a)` the prior cycle's extracted "Items Reviewed" span, `(b)` the prior cycle's TB-Add-* enumeration snapshot, `(c)` the prior cycle's assembled `## Inherited Structural Verdict` block, or `(d)` the prior cycle's fully-rendered QA prompt string, it MUST drop them. No cached artifact from cycle N may participate in cycle N+1's spawn.
+2. **Re-read the producer artifact from disk.** Re-stat `${TASK_DIR}qa/qa-task-validation-report.md` (capture `mtime` and `sha256` as the freshness witness) and re-open it. If the witness equals the prior cycle's witness, the producer did not re-run between cycles — log a `stale-producer` warning but proceed; freshness is enforced by re-extraction, not by mtime comparison alone. If the witness differs, the file is confirmed fresh.
+3. **Re-extract the "Items Reviewed" span contiguously.** Apply the same single-span extraction rule from the directive above (between the `## Items Reviewed` heading and the next top-level `## ` heading). Do NOT reuse the prior cycle's extraction even if the surrounding file appears unchanged — re-extract every time.
+4. **Re-enumerate the TB-Add-* catalogue (INV-010).** Re-read `rf-qa.md`'s live checklist and re-pull the TB-Add-* IDs. Do NOT reuse the prior cycle's enumeration snapshot.
+5. **Re-assemble and re-splice.** Build the new `## Inherited Structural Verdict` block from the freshly-extracted span + freshly-enumerated TB-Add-* IDs. Splice it into the spawn prompt at the API-002 wire-contract position (after TARGET FILES + PROJECT CONVENTIONS; before ADVERSARIAL STANCE / INSTRUCTIONS). The cycle N+1 spawn prompt MUST contain the cycle N+1 verdict; a byte-diff of cycle N vs. cycle N+1 at the verdict-table region MUST surface the cycle N+1 content (`grep -A` on `## Inherited Structural Verdict` returns the new span).
+6. **Stale-verdict-rejection (defense-in-depth).** Before issuing the spawn call, compute `sha256` of the new `## Inherited Structural Verdict` block and compare it to a `last_injected_verdict_sha256` ledger entry keyed by `${TASK_DIR}`. If the prior cycle wrote a verdict with a non-zero ledger entry AND the new sha256 equals the prior entry AND the producer-artifact witness in step 2 reports a NEW mtime/sha256, that combination is impossible under a correct re-extract — REJECT the spawn, log an `INV-002-stale-verdict-rejected` error with both witnesses, and re-run steps 2–5. (Equal witnesses + equal block sha256 is the legitimate no-op case when the producer truly did not change; only the contradiction case is rejected.)
+7. **Log the re-extract.** Emit a structured log line `INV-002: re-extracted verdict for ${TASK_DIR} cycle=N+1 producer_mtime=<iso> producer_sha256=<hex8> block_sha256=<hex8>` at every fix-cycle boundary. The log is the operator-visible audit-trail proving the re-extract ran.
+
+This procedure operationalises the `freshness_rule: INV-002-reinject-NEW` field of the DM-005 Phase Contract (A.10.6). The 2-cycle byte-diff fixture (TEST-008, T03.13) consumes log lines from step 7 and the assembled blocks from step 5 as its assertion surface.
+
+**TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup):** The TB-Add-* catalogue is sourced from `rf-qa.md`'s live "Structural Gate Additions" section at runtime — never from a hand-maintained list inside this skill. Every spawn (initial entry **and** every fix-cycle re-entry per step 4 of the freshness procedure above) MUST execute the following procedure to build the enumeration handed to the consumer:
+
+1. **Locate `rf-qa.md`.** Resolve the path via the project's agent registry (canonical surface: `src/superclaude/agents/rf-qa.md`; mirror surface: `.claude/agents/rf-qa.md`). The canonical surface is authoritative; the mirror is consulted only when the canonical surface is unreachable.
+2. **Bound the catalogue region.** Identify the `#### Structural Gate Additions` heading and treat the catalogue region as the span from that heading to the next `####`, `###`, or `##` heading (whichever comes first). Enumeration MUST be confined to this span — TB-Add tokens outside the span (e.g., illustrative references in narrative prose) do NOT contribute to the catalogue.
+3. **Extract IDs.** Within the bounded span, match the regex `^[0-9]+\. \*\*TB-Add-([0-9]+):` (Python `re` flavour, MULTILINE) against the span. Each match yields one TB-Add-N ID via the captured integer N.
+4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
+5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and halt at end-of-A.10 (re-uses the `failure_mode: halt-A.10-before-A.10.5` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
+6. **Forbid hard-coded enumeration in the orchestrator logic.** This A.10.5 procedure block MUST NOT itself enumerate a fixed `[TB-Add-1, …, TB-Add-K]` list as the spawn target. The directive narratives in this section reference the catalogue abstractly (via the dynamic `LIVE_TB_ADD`); only `rf-qa.md` is the source of the live IDs. (Operator self-check: grep for `TB-Add-[0-9]+` inside the A.10.5 span and confirm every match is either a regex pattern, a worked example tagged `illustrative`, or an integrated-checklist reference — never an orchestrator enumeration target.)
+7. **Emit a structured log line.** Write `INV-010: enumerated TB-Add-* catalogue size=K ids=[TB-Add-1,...,TB-Add-K] source=rf-qa.md source_sha256=<hex8>` at every spawn boundary (initial entry and each fix-cycle re-entry). The log is the operator-visible audit-trail and the TEST-010 fixture's (T03.15) assertion surface.
+8. **Auto-richening invariant.** Appending a new `**TB-Add-N+1: <name>` line inside the bounded catalogue region of `rf-qa.md` MUST cause `LIVE_TB_ADD` to grow by exactly one entry on the next spawn — with **zero edits** to this SKILL.md, to orchestrator code, or to any consumer-side configuration. This is the K-007 sequencing-inversion mitigation cited in `roadmap.md` R-069: FR-CONV.1 catalogue additions auto-propagate to the PR-04 passthrough.
+
+This procedure operationalises the `enumeration_rule: INV-010-auto-pick-TB-Add` field of the DM-005 Phase Contract (A.10.6). The structural-diff fixture (TEST-010, T03.15) consumes log lines from step 7 and the LIVE_TB_ADD set assembled in step 4 as its assertion surface — adding a synthetic TB-Add-N+1 stub to `rf-qa.md`'s bounded region and asserting the cycle-2 spawn prompt auto-richens by exactly one TB-Add-N+1 row.
+
+### A.10.6: DM-005 Phase Contract — rf-qa → rf-qa-qualitative (published row)
+
+Standalone publication of the 10-field producer/consumer agreement that
+governs the A.10 → A.10.5 inter-agent handoff. The contract was frozen
+at M1 (T01.13 / D-0011 § DM-005) and is published here at M2 (T02.04 /
+D-0019) as the wire reference for M3 (FR-CONV.3 / PR-04), which lands
+the orchestrator-mediated spawn-prompt injection. `schema_version: 1.0.0`
+is the baseline for all future inter-agent contracts emitted by this
+skill — any field add, rename, semantic change, or value-type change
+requires a major version bump.
+
+This is the source-of-truth contract documentation. A.10.5 above is the
+runtime implementation (verbatim Items Reviewed table embed, INV-002
+freshness reinjection, INV-010 dynamic TB-Add enumeration, anti-inflation
+bullet preservation, halt-on-missing-producer-artifact failure mode).
+
+**DM-005 Phase Contract (10 fields, frozen at M1, published at M2):**
+
+```yaml
+# DM-005 — Phase Contract: rf-qa → rf-qa-qualitative
+# Frozen: M1 (T01.13 / D-0011 § DM-005)
+# Published: M2 (T02.04 / D-0019)
+# Consumed: M3 (FR-CONV.3 / PR-04, A.10.5 spawn-prompt injection)
+producer: rf-qa
+consumer: rf-qa-qualitative
+artifact: Inherited Structural Verdict block
+schema_version: 1.0.0
+delivery_semantics: at-most-once-per-cycle
+freshness_rule: INV-002-reinject-NEW
+enumeration_rule: INV-010-auto-pick-TB-Add
+consumer_obligation: INV-019-Self-Audit
+anti_inflation: preserve-766-775-byte-stable
+failure_mode: halt-A.10-before-A.10.5
+```
+
+**Field-by-field semantics (1.0.0 wire ABI):**
+
+| Field                | Wire Value                          | Meaning |
+|----------------------|-------------------------------------|---------|
+| producer             | `rf-qa`                             | The rf-qa agent invoked under `QA_MODE: task-integrity` (see A.10). Writes the producer artifact to `${TASK_DIR}qa/qa-task-validation-report.md`. |
+| consumer             | `rf-qa-qualitative`                 | The rf-qa-qualitative agent invoked under `QA_PHASE: task-qualitative` (see A.10.5). Consumes the producer artifact via spawn-prompt injection. |
+| artifact             | `Inherited Structural Verdict block`| Named block embedded under heading `## Inherited Structural Verdict` in the consumer's spawn prompt. Contents = the entire "Items Reviewed" PASS/FAIL table from the producer's report, byte-identical (verbatim copy, no editing/summarising/renaming). |
+| schema_version       | `1.0.0`                             | Wire ABI version. Major-version bump REQUIRED for any field add/rename, semantic change, or value-type change. M3 implementers MUST refuse to consume artifacts with a different schema_version until a migration is recorded. |
+| delivery_semantics   | `at-most-once-per-cycle`            | Exactly one verdict block is injected per consumer spawn. On fix-cycle re-spawn, the prior block is REPLACED (not appended) — see freshness_rule. |
+| freshness_rule       | `INV-002-reinject-NEW`              | Orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` on EVERY fix-cycle re-spawn and re-inject the NEW cycle-N verdict. Stale verdicts from prior cycles are forbidden. |
+| enumeration_rule     | `INV-010-auto-pick-TB-Add`          | Orchestrator MUST dynamically enumerate every TB-Add-* item from rf-qa.md's live checklist at injection time (do NOT hand-maintain the list). Future structural additions to rf-qa.md auto-extend the verdict passthrough. |
+| consumer_obligation  | `INV-019-Self-Audit`                | rf-qa-qualitative MUST emit a `## Self-Audit` section listing (a) which rf-qa PASS items it relied on AND (b) ≥1 semantic check where rf-qa PASS was insufficient and the consumer's own tool engagement was required. Reliance is not verification. |
+| anti_inflation       | `preserve-766-775-byte-stable`      | The anti-inflation bullet at the canonical `rf-qa-qualitative.md:766-775` anchor MUST remain byte-identical across releases. No downstream consumer is permitted to edit, paraphrase, or wrap this bullet. |
+| failure_mode         | `halt-A.10-before-A.10.5`           | If `${TASK_DIR}qa/qa-task-validation-report.md` is missing or malformed, orchestrator HALTs the pipeline at end-of-A.10 before invoking A.10.5. Passthrough is an optimisation; the consumer cannot proceed without a valid producer artifact. (When the producer artifact is present but unparseable, A.10.5 falls back to standalone rf-qa-qualitative behavior — see A.10.5 narrative.) |
+
+**Versioning and migration:** `schema_version: 1.0.0` is frozen for the entire M2-through-M6 release window. Any change to the 10 fields above — including renaming, splitting, merging, or altering the wire value format — requires a major version bump to `2.0.0`, a corresponding entry in the release roadmap, and a migration note documenting the cycle in which old (`1.0.0`) producer artifacts stop being accepted by the consumer.
+
+**Cross-references:**
+- Runtime implementation: A.10.5 (this skill).
+- Producer prompt: A.10 (this skill) + `rf-qa.md` (task-integrity mode).
+- Consumer prompt: A.10.5 (this skill) + `rf-qa-qualitative.md`.
+- Future consumers of `schema_version: 1.0.0` versioning baseline: every inter-agent contract emitted by this skill after M3.
 
 ### A.11: Present Results
 
@@ -1473,6 +1700,52 @@ The complete BUILD_REQUEST template is embedded in **A.9** above. This section d
 - `INCREMENTAL TASK FILE WRITING` — Mandatory incremental writing protocol
 - `TASK FILE LOCATION` — `${TASK_DIR}${TASK_ID}.md`
 
+**Optional BUILD_REQUEST signals (strictly-additive, M1-frozen schema preserved):**
+- `EXECUTION_CONTEXT_REQUIREMENTS` (API-001-M2) — Controls the `## Execution
+  Context` block emission in the generated MDTM. Values: `AUTO` (default,
+  applies rollup-signal heuristic), `REQUIRED` (force emission; degraded
+  References-only form permitted), `SUPPRESS` (forbid emission). Omission
+  implies `AUTO`. Violation triggers MALFORMED retry max-2.
+
+  **Rendered forms (DM-001 contract — T01.13 / D-0011 § 1):** the block has
+  exactly two valid shapes; no third intermediate form exists.
+
+  1. **Fully-populated 3-labeled-line form** (rollup signal present —
+     `AUTO` with ≥3 inferable source areas, OR `REQUIRED` with sufficient
+     signal). The block emits all three labeled bullets verbatim, in this
+     order:
+     - `**References:**` — `R-###: <ref-line>` entries separated by `; `,
+       sourced from BUILD_REQUEST GOAL / WHY / related_docs in stable
+       input order (R-033).
+     - `**Source areas:**` — named modules or packages, comma-separated;
+       NEVER specific file paths or `file:line` citations (R-034).
+     - `**Key constraints:**` — 1–3 entries pulled verbatim from
+       BUILD_REQUEST `QA_GATE_REQUIREMENTS` / `VALIDATION_REQUIREMENTS` /
+       `TESTING_REQUIREMENTS` (priority order) or highest-severity
+       research invariants (R-035).
+  2. **Degraded References-only form** (R-038 — minimal BUILD_REQUEST,
+     defined as GOAL is the only populated rollup-signal field with <3
+     inferable source areas). The `**References:**` bullet emits;
+     `**Source areas:**` and `**Key constraints:**` bullets are
+     **absent from the rendered block** (not present-and-blank, not
+     stub-bulleted). The `## Execution Context` heading and the
+     reader-aid HTML comment remain. If even GOAL-derived References
+     cannot be produced (truly empty BUILD_REQUEST), the entire block
+     including heading is omitted.
+
+  **NFR-CONV.3 hidden-input determinism (R-039 — MANDATORY for both
+  rendered forms):** the rendered block, byte range from the
+  `## Execution Context` heading through the closing `---` separator,
+  MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0. The rule
+  applies uniformly to the fully-populated and the degraded form; it
+  is a hard precondition for emission, not a stylistic preference. On
+  any hit (count ≥ 1), the builder rewrites the offending bullet to
+  remove the path / `:NN` reference, re-runs assembly, and re-scans;
+  at most one rewrite cycle is permitted before the block is
+  suppressed with a `header-leak-suppressed` annotation. Specific
+  `path.py:NN` references belong in per-item Context fields and
+  `research/*.md` (the evidence venue), never in this header.
+
 **COMMON PHASE PATTERNS** (included in BUILD_REQUEST to guide the builder):
 
 The builder creates task files for ARBITRARY requests. These common patterns provide a framework — the builder adapts based on research notes and request scope:
@@ -1676,7 +1949,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 11. **Multi-track isolation.** Failure in one track MUST NOT prevent other tracks from completing. Each track is independent — failed tracks are reported alongside successful ones.
 
-12. **Builder mediation has separate retry counters.** RESEARCH_NEEDED (max 2 rounds) and MALFORMED (max 2 rounds) are tracked independently. A builder that needs more research twice and then produces a bad file gets 4 total invocations, not 2.
+12. **Builder mediation has separate retry counters.** RESEARCH_NEEDED (max 2 rounds) and MALFORMED (max 2 rounds) are tracked independently. A builder that needs more research twice and then produces a bad file gets 4 total invocations, not 2. **Halt-precedence rule (FR-CONV.5 / API-004 — COMP-001-M5-r12 hard invariant).** Every retry counter — including these two and every per-gate counter in rf-task-builder/rf-qa — is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed`; the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is emitted BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string) on every cycle transition `n → n+1`. Counters are NEVER collapsed across gates; the existing per-gate caps (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3) and the global 3-cycle backstop at `rf-team-lead.md:417` remain the fourth-precedence step.
 
 13. **No team infrastructure.** This skill uses the Agent tool exclusively. NEVER use TeamCreate, TeamDelete, SendMessage, TaskCreate (with team_name), or TaskUpdate. All agents receive ESCALATION blocks overriding their team-based defaults.
 

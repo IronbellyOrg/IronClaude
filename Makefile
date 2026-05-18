@@ -1,4 +1,5 @@
 .PHONY: install test test-plugin doctor verify clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill uninstall-legacy help
+SHELL := /bin/bash
 
 # Installation (local source, editable) - RECOMMENDED
 install:
@@ -238,6 +239,73 @@ verify-sync:
 			drift=1; \
 		fi; \
 	done; \
+	echo ""; \
+	echo "=== Hooks ==="; \
+	for hook in src/superclaude/hooks/scripts/*.sh; do \
+		[ -f "$$hook" ] || continue; \
+		name=$$(basename "$$hook"); \
+		if [ ! -f ".claude/hooks/$$name" ]; then \
+			echo "  ❌ MISSING in .claude/hooks/: $$name (run 'make sync-dev')"; \
+			drift=1; \
+		else \
+			if ! diff -q "$$hook" ".claude/hooks/$$name" > /dev/null 2>&1; then \
+				echo "  ⚠️  DIFFERS: $$name"; \
+				drift=1; \
+			else \
+				echo "  ✅ $$name"; \
+			fi; \
+		fi; \
+	done; \
+	for hook in .claude/hooks/*.sh; do \
+		[ -f "$$hook" ] || continue; \
+		name=$$(basename "$$hook"); \
+		case "$$name" in session-init.sh) continue;; esac; \
+		if [ ! -f "src/superclaude/hooks/scripts/$$name" ]; then \
+			echo "  ❌ MISSING in src/superclaude/hooks/scripts/: $$name (not distributable!)"; \
+			drift=1; \
+		fi; \
+	done; \
+	echo ""; \
+	echo "=== Installer Registration ==="; \
+	src_hooks=$$(ls src/superclaude/hooks/scripts/*.sh 2>/dev/null | xargs -n1 basename | sort); \
+	registered=$$(uv run python -c "from superclaude.cli.install_hooks import _FRESHNESS_SCRIPTS; print('\n'.join(sorted(_FRESHNESS_SCRIPTS)))" 2>/dev/null); \
+	missing_from_list=$$(comm -23 <(echo "$$src_hooks") <(echo "$$registered")); \
+	extra_in_list=$$(comm -13 <(echo "$$src_hooks") <(echo "$$registered")); \
+	if [ -n "$$missing_from_list" ]; then \
+		echo "$$missing_from_list" | while read name; do \
+			echo "  ❌ MISSING from _FRESHNESS_SCRIPTS: $$name (end-user 'superclaude install' will skip it)"; \
+		done; \
+		drift=1; \
+	fi; \
+	if [ -n "$$extra_in_list" ]; then \
+		echo "$$extra_in_list" | while read name; do \
+			echo "  ❌ STALE in _FRESHNESS_SCRIPTS: $$name (listed for install but missing from src/)"; \
+		done; \
+		drift=1; \
+	fi; \
+	if [ -z "$$missing_from_list" ] && [ -z "$$extra_in_list" ]; then \
+		echo "  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh"; \
+	fi; \
+	echo ""; \
+	echo "=== Hooks Cross-Consistency ==="; \
+	matcher_prefixes=$$(jq -r '.hooks.PostToolUse[].matcher // empty' \
+	    src/superclaude/hooks/hooks.json 2>/dev/null \
+	    | grep -oE 'mcp__[a-z_-]+(\.\*|_\.\*|__\.\*)?' \
+	    | grep -i 'auggie' \
+	    | sed -E 's/\.\*$$//' | sort -u); \
+	case_prefixes=$$(grep -E '^[[:space:]]+mcp__.*\)$$' \
+	    src/superclaude/hooks/scripts/auggie-flag-clear.sh \
+	    | grep -oE 'mcp__[a-z_-]+(_\*|__\*|\*)' \
+	    | grep -i 'auggie' \
+	    | sed -E 's/\*$$//' | sort -u); \
+	if [ "$$matcher_prefixes" = "$$case_prefixes" ]; then \
+		echo "  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes"; \
+	else \
+		echo "  ❌ DRIFT between hooks.json:60 matcher and auggie-flag-clear.sh case body"; \
+		echo "      hooks.json prefixes: $$matcher_prefixes"; \
+		echo "      auggie-flag-clear.sh prefixes: $$case_prefixes"; \
+		drift=1; \
+	fi; \
 	echo ""; \
 	if [ "$$drift" -eq 0 ]; then \
 		echo "✅ All components in sync."; \
