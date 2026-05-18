@@ -1,0 +1,15 @@
+branch=feat/hook-sync-and-matcher-fix
+---
+status:
+ M .claude/agents/rf-qa.md
+ M .claude/agents/rf-task-builder.md
+ M .claude/skills/task-builder/SKILL.md
+ M .dev/releases/current/task-builder-merge/execution-log.jsonl
+ M .dev/releases/current/task-builder-merge/execution-log.md
+ M .dev/releases/current/task-builder-merge/results/phase-4-output.txt
+ M src/superclaude/agents/rf-qa.md
+ M src/superclaude/agents/rf-task-builder.md
+ M src/superclaude/skills/task-builder/SKILL.md
+?? .dev/releases/current/hook-sync-and-matcher-fix/
+...
+total entries: 55

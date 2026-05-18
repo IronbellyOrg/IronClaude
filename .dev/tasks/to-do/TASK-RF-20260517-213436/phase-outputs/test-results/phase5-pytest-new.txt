@@ -1,0 +1,278 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 7 items
+
+tests/cli/test_verify_sync_hooks.py::test_V1_clean_tree_exits_zero FAILED [ 14%]
+tests/cli/test_verify_sync_hooks.py::test_V2_missing_claude_hook_detected PASSED [ 28%]
+tests/cli/test_verify_sync_hooks.py::test_V3_missing_from_freshness_scripts PASSED [ 42%]
+tests/cli/test_verify_sync_hooks.py::test_V4_stale_in_freshness_scripts PASSED [ 57%]
+tests/cli/test_verify_sync_hooks.py::test_V5_matcher_drift_detected PASSED [ 71%]
+tests/cli/test_verify_sync_hooks.py::test_V6_case_body_drift_detected PASSED [ 85%]
+tests/cli/test_verify_sync_hooks.py::test_V7_regression_to_master PASSED [100%]
+
+=================================== FAILURES ===================================
+________________________ test_V1_clean_tree_exits_zero _________________________
+tests/cli/test_verify_sync_hooks.py:134: in test_V1_clean_tree_exits_zero
+    assert result.returncode == 0, result.stdout + result.stderr
+E   AssertionError: 🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+E     
+E     === Skills ===
+E       ✅ confidence-check
+E       ✅ prd
+E       ✅ sc-adversarial-protocol
+E       ✅ sc-cleanup-audit-protocol
+E       ✅ sc-cli-portify-protocol
+E       ✅ sc-crash-recovery
+E       ✅ sc-pm-protocol
+E       ✅ sc-recommend-protocol
+E       ✅ sc-release-split-protocol
+E       ✅ sc-review-translation-protocol
+E       ✅ sc-roadmap-protocol
+E       ✅ sc-tasklist-protocol
+E       ✅ sc-task-protocol
+E       ✅ sc-validate-roadmap-protocol
+E       ✅ sc-validate-tests-protocol
+E       ✅ task
+E       ✅ task-builder
+E       ✅ tdd
+E       ✅ tech-reference
+E       ✅ tech-research
+E     
+E     === Agents ===
+E       ✅ audit-analyzer.md
+E       ✅ audit-comparator.md
+E       ✅ audit-consolidator.md
+E       ✅ audit-scanner.md
+E       ✅ audit-validator.md
+E       ✅ backend-architect.md
+E       ✅ business-panel-experts.md
+E       ✅ debate-orchestrator.md
+E       ✅ deep-research-agent.md
+E       ✅ deep-research.md
+E       ✅ devops-architect.md
+E       ✅ frontend-architect.md
+E       ✅ learning-guide.md
+E       ✅ merge-executor.md
+E       ✅ performance-engineer.md
+E       ✅ pm-agent.md
+E       ✅ python-expert.md
+E       ✅ quality-engineer.md
+E       ✅ refactoring-expert.md
+E       ✅ repo-index.md
+E       ✅ requirements-analyst.md
+E       ✅ rf-analyst.md
+E       ✅ rf-assembler.md
+E       ✅ rf-qa.md
+E       ✅ rf-qa-qualitative.md
+E       ✅ rf-task-builder.md
+E       ✅ rf-task-executor.md
+E       ✅ rf-task-researcher.md
+E       ✅ rf-team-lead.md
+E       ✅ root-cause-analyst.md
+E       ✅ security-engineer.md
+E       ✅ self-review.md
+E       ✅ socratic-mentor.md
+E       ✅ system-architect.md
+E       ✅ technical-writer.md
+E     
+E     === Commands ===
+E       ✅ adversarial.md
+E       ✅ agent.md
+E       ✅ analyze.md
+E       ✅ brainstorm.md
+E       ✅ build.md
+E       ✅ business-panel.md
+E       ✅ cleanup-audit.md
+E       ✅ cleanup.md
+E       ✅ cli-portify.md
+E       ✅ design.md
+E       ✅ document.md
+E       ✅ estimate.md
+E       ✅ explain.md
+E       ✅ git.md
+E       ✅ help.md
+E       ✅ implement.md
+E       ✅ improve.md
+E       ✅ index.md
+E       ✅ index-repo.md
+E       ✅ load.md
+E       ✅ pm.md
+E       ✅ recommend.md
+E       ✅ reflect.md
+E       ✅ release-split.md
+E       ✅ research.md
+E       ✅ review-translation.md
+E       ✅ roadmap.md
+E       ✅ save.md
+E       ✅ sc.md
+E       ✅ select-tool.md
+E       ✅ spawn.md
+E       ✅ spec-panel.md
+E       ✅ tasklist.md
+E       ✅ task.md
+E       ✅ tdd.md
+E       ✅ test.md
+E       ✅ troubleshoot.md
+E       ✅ validate-roadmap.md
+E       ✅ validate-tests.md
+E       ✅ workflow.md
+E     
+E     === Hooks ===
+E       ✅ auggie-flag-clear.sh
+E       ✅ freshness-file-changed.sh
+E       ✅ freshness-post-read.sh
+E       ✅ freshness-pre-edit.sh
+E       ✅ freshness-session-start.sh
+E       ✅ freshness-subagent-start.sh
+E       ✅ freshness-subagent-stop.sh
+E       ✅ freshness-user-prompt.sh
+E       ✅ reject-workspace-writes.sh
+E       ❌ MISSING in src/superclaude/hooks/scripts/: auggie-bash-gate.sh (not distributable!)
+E     
+E     === Installer Registration ===
+E       ❌ MISSING from _FRESHNESS_SCRIPTS: reject-workspace-writes.sh (end-user 'superclaude install' will skip it)
+E     
+E     === Hooks Cross-Consistency ===
+E       ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+E     
+E     ❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+E     make: *** [Makefile:157: verify-sync] Error 1
+E     
+E   assert 2 == 0
+E    +  where 2 = CompletedProcess(args=['make', 'verify-sync'], returncode=2, stdout="\U0001f50d Verifying src/superclaude/ \u2194 .claude/ sync...\n\n=== Skills ===\n  \u2705 confidence-check\n  \u2705 prd\n  \u2705 sc-adversarial-protocol\n  \u2705 sc-cleanup-audit-protocol\n  \u2705 sc-cli-portify-protocol\n  \u2705 sc-crash-recovery\n  \u2705 sc-pm-protocol\n  \u2705 sc-recommend-protocol\n  \u2705 sc-release-split-protocol\n  \u2705 sc-review-translation-protocol\n  \u2705 sc-roadmap-protocol\n  \u2705 sc-tasklist-protocol\n  \u2705 sc-task-protocol\n  \u2705 sc-validate-roadmap-protocol\n  \u2705 sc-validate-tests-protocol\n  \u2705 task\n  \u2705 task-builder\n  \u2705 tdd\n  \u2705 tech-reference\n  \u2705 tech-research\n\n=== Agents ===\n  \u2705 audit-analyzer.md\n  \u2705 audit-comparator.md\n  \u2705 audit-consolidator.md\n  \u2705 audit-scanner.md\n  \u2705 audit-validator.md\n  \u2705 backend-architect.md\n  \u2705 business-panel-experts.md\n  \u2705 debate-orchestrator.md\n  \u2705 deep-research-agent.md\n  \u2705 deep-research.md\n  \u2705 devops-architect.md\n  \u2705 frontend-architect.md\n  \u2705 learning-guide.md\n  \u2705 merge-executor.md\n  \u2705 performance-engineer.md\n  \u2705 pm-agent.md\n  \u2705 python-expert.md\n  \u2705 quality-engineer.md\n  \u2705 refactoring-expert.md\n  \u2705 repo-index.md\n  \u2705 requirements-analyst.md\n  \u2705 rf-analyst.md\n  \u2705 rf-assembler.md\n  \u2705 rf-qa.md\n  \u2705 rf-qa-qualitative.md\n  \u2705 rf-task-builder.md\n  \u2705 rf-task-executor.md\n  \u2705 rf-task-researcher.md\n  \u2705 rf-team-lead.md\n  \u2705 root-cause-analyst.md\n  \u2705 security-engineer.md\n  \u2705 self-review.md\n  \u2705 socratic-mentor.md\n  \u2705 system-architect.md\n  \u2705 technical-writer.md\n\n=== Commands ===\n  \u2705 adversarial.md\n  \u2705 agent.md\n  \u2705 analyze.md\n  \u2705 brainstorm.md\n  \u2705 build.md\n  \u2705 business-panel.md\n  \u2705 cleanup-audit.md\n  \u2705 cleanup.md\n  \u2705 cli-portify.md\n  \u2705 design.md\n  \u2705 document.md\n  \u2705 estimate.md\n  \u2705 explain.md\n  \u2705 git.md\n  \u2705 help.md\n  \u2705 implement.md\n  \u2705 improve.md\n  \u2705 index.md\n  \u2705 index-repo.md\n  \u2705 load.md\n  \u2705 pm.md\n  \u2705 recommend.md\n  \u2705 reflect.md\n  \u2705 release-split.md\n  \u2705 research.md\n  \u2705 review-translation.md\n  \u2705 roadmap.md\n  \u2705 save.md\n  \u2705 sc.md\n  \u2705 select-tool.md\n  \u2705 spawn.md\n  \u2705 spec-panel.md\n  \u2705 tasklist.md\n  \u2705 task.md\n  \u2705 tdd.md\n  \u2705 test.md\n  \u2705 troubleshoot.md\n  \u2705 validate-roadmap.md\n  \u2705 validate-tests.md\n  \u2705 workflow.md\n\n=== Hooks ===\n  \u2705 auggie-flag-clear.sh\n  \u2705 freshness-file-changed.sh\n  \u2705 freshness-post-read.sh\n  \u2705 freshness-pre-edit.sh\n  \u2705 freshness-session-start.sh\n  \u2705 freshness-subagent-start.sh\n  \u2705 freshness-subagent-stop.sh\n  \u2705 freshness-user-prompt.sh\n  \u2705 reject-workspace-writes.sh\n  \u274c MISSING in src/superclaude/hooks/scripts/: auggie-bash-gate.sh (not distributable!)\n\n=== Installer Registration ===\n  \u274c MISSING from _FRESHNESS_SCRIPTS: reject-workspace-writes.sh (end-user 'superclaude install' will skip it)\n\n=== Hooks Cross-Consistency ===\n  \u2705 hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes\n\n\u274c Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.\n", stderr='make: *** [Makefile:157: verify-sync] Error 1\n').returncode
+=========================== short test summary info ============================
+FAILED tests/cli/test_verify_sync_hooks.py::test_V1_clean_tree_exits_zero - AssertionError: 🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+  
+  === Skills ===
+    ✅ confidence-check
+    ✅ prd
+    ✅ sc-adversarial-protocol
+    ✅ sc-cleanup-audit-protocol
+    ✅ sc-cli-portify-protocol
+    ✅ sc-crash-recovery
+    ✅ sc-pm-protocol
+    ✅ sc-recommend-protocol
+    ✅ sc-release-split-protocol
+    ✅ sc-review-translation-protocol
+    ✅ sc-roadmap-protocol
+    ✅ sc-tasklist-protocol
+    ✅ sc-task-protocol
+    ✅ sc-validate-roadmap-protocol
+    ✅ sc-validate-tests-protocol
+    ✅ task
+    ✅ task-builder
+    ✅ tdd
+    ✅ tech-reference
+    ✅ tech-research
+  
+  === Agents ===
+    ✅ audit-analyzer.md
+    ✅ audit-comparator.md
+    ✅ audit-consolidator.md
+    ✅ audit-scanner.md
+    ✅ audit-validator.md
+    ✅ backend-architect.md
+    ✅ business-panel-experts.md
+    ✅ debate-orchestrator.md
+    ✅ deep-research-agent.md
+    ✅ deep-research.md
+    ✅ devops-architect.md
+    ✅ frontend-architect.md
+    ✅ learning-guide.md
+    ✅ merge-executor.md
+    ✅ performance-engineer.md
+    ✅ pm-agent.md
+    ✅ python-expert.md
+    ✅ quality-engineer.md
+    ✅ refactoring-expert.md
+    ✅ repo-index.md
+    ✅ requirements-analyst.md
+    ✅ rf-analyst.md
+    ✅ rf-assembler.md
+    ✅ rf-qa.md
+    ✅ rf-qa-qualitative.md
+    ✅ rf-task-builder.md
+    ✅ rf-task-executor.md
+    ✅ rf-task-researcher.md
+    ✅ rf-team-lead.md
+    ✅ root-cause-analyst.md
+    ✅ security-engineer.md
+    ✅ self-review.md
+    ✅ socratic-mentor.md
+    ✅ system-architect.md
+    ✅ technical-writer.md
+  
+  === Commands ===
+    ✅ adversarial.md
+    ✅ agent.md
+    ✅ analyze.md
+    ✅ brainstorm.md
+    ✅ build.md
+    ✅ business-panel.md
+    ✅ cleanup-audit.md
+    ✅ cleanup.md
+    ✅ cli-portify.md
+    ✅ design.md
+    ✅ document.md
+    ✅ estimate.md
+    ✅ explain.md
+    ✅ git.md
+    ✅ help.md
+    ✅ implement.md
+    ✅ improve.md
+    ✅ index.md
+    ✅ index-repo.md
+    ✅ load.md
+    ✅ pm.md
+    ✅ recommend.md
+    ✅ reflect.md
+    ✅ release-split.md
+    ✅ research.md
+    ✅ review-translation.md
+    ✅ roadmap.md
+    ✅ save.md
+    ✅ sc.md
+    ✅ select-tool.md
+    ✅ spawn.md
+    ✅ spec-panel.md
+    ✅ tasklist.md
+    ✅ task.md
+    ✅ tdd.md
+    ✅ test.md
+    ✅ troubleshoot.md
+    ✅ validate-roadmap.md
+    ✅ validate-tests.md
+    ✅ workflow.md
+  
+  === Hooks ===
+    ✅ auggie-flag-clear.sh
+    ✅ freshness-file-changed.sh
+    ✅ freshness-post-read.sh
+    ✅ freshness-pre-edit.sh
+    ✅ freshness-session-start.sh
+    ✅ freshness-subagent-start.sh
+    ✅ freshness-subagent-stop.sh
+    ✅ freshness-user-prompt.sh
+    ✅ reject-workspace-writes.sh
+    ❌ MISSING in src/superclaude/hooks/scripts/: auggie-bash-gate.sh (not distributable!)
+  
+  === Installer Registration ===
+    ❌ MISSING from _FRESHNESS_SCRIPTS: reject-workspace-writes.sh (end-user 'superclaude install' will skip it)
+  
+  === Hooks Cross-Consistency ===
+    ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+  
+  ❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+  make: *** [Makefile:157: verify-sync] Error 1
+  
+assert 2 == 0
+ +  where 2 = CompletedProcess(args=['make', 'verify-sync'], returncode=2, stdout="\U0001f50d Verifying src/superclaude/ \u2194 .claude/ sync...\n\n=== Skills ===\n  \u2705 confidence-check\n  \u2705 prd\n  \u2705 sc-adversarial-protocol\n  \u2705 sc-cleanup-audit-protocol\n  \u2705 sc-cli-portify-protocol\n  \u2705 sc-crash-recovery\n  \u2705 sc-pm-protocol\n  \u2705 sc-recommend-protocol\n  \u2705 sc-release-split-protocol\n  \u2705 sc-review-translation-protocol\n  \u2705 sc-roadmap-protocol\n  \u2705 sc-tasklist-protocol\n  \u2705 sc-task-protocol\n  \u2705 sc-validate-roadmap-protocol\n  \u2705 sc-validate-tests-protocol\n  \u2705 task\n  \u2705 task-builder\n  \u2705 tdd\n  \u2705 tech-reference\n  \u2705 tech-research\n\n=== Agents ===\n  \u2705 audit-analyzer.md\n  \u2705 audit-comparator.md\n  \u2705 audit-consolidator.md\n  \u2705 audit-scanner.md\n  \u2705 audit-validator.md\n  \u2705 backend-architect.md\n  \u2705 business-panel-experts.md\n  \u2705 debate-orchestrator.md\n  \u2705 deep-research-agent.md\n  \u2705 deep-research.md\n  \u2705 devops-architect.md\n  \u2705 frontend-architect.md\n  \u2705 learning-guide.md\n  \u2705 merge-executor.md\n  \u2705 performance-engineer.md\n  \u2705 pm-agent.md\n  \u2705 python-expert.md\n  \u2705 quality-engineer.md\n  \u2705 refactoring-expert.md\n  \u2705 repo-index.md\n  \u2705 requirements-analyst.md\n  \u2705 rf-analyst.md\n  \u2705 rf-assembler.md\n  \u2705 rf-qa.md\n  \u2705 rf-qa-qualitative.md\n  \u2705 rf-task-builder.md\n  \u2705 rf-task-executor.md\n  \u2705 rf-task-researcher.md\n  \u2705 rf-team-lead.md\n  \u2705 root-cause-analyst.md\n  \u2705 security-engineer.md\n  \u2705 self-review.md\n  \u2705 socratic-mentor.md\n  \u2705 system-architect.md\n  \u2705 technical-writer.md\n\n=== Commands ===\n  \u2705 adversarial.md\n  \u2705 agent.md\n  \u2705 analyze.md\n  \u2705 brainstorm.md\n  \u2705 build.md\n  \u2705 business-panel.md\n  \u2705 cleanup-audit.md\n  \u2705 cleanup.md\n  \u2705 cli-portify.md\n  \u2705 design.md\n  \u2705 document.md\n  \u2705 estimate.md\n  \u2705 explain.md\n  \u2705 git.md\n  \u2705 help.md\n  \u2705 implement.md\n  \u2705 improve.md\n  \u2705 index.md\n  \u2705 index-repo.md\n  \u2705 load.md\n  \u2705 pm.md\n  \u2705 recommend.md\n  \u2705 reflect.md\n  \u2705 release-split.md\n  \u2705 research.md\n  \u2705 review-translation.md\n  \u2705 roadmap.md\n  \u2705 save.md\n  \u2705 sc.md\n  \u2705 select-tool.md\n  \u2705 spawn.md\n  \u2705 spec-panel.md\n  \u2705 tasklist.md\n  \u2705 task.md\n  \u2705 tdd.md\n  \u2705 test.md\n  \u2705 troubleshoot.md\n  \u2705 validate-roadmap.md\n  \u2705 validate-tests.md\n  \u2705 workflow.md\n\n=== Hooks ===\n  \u2705 auggie-flag-clear.sh\n  \u2705 freshness-file-changed.sh\n  \u2705 freshness-post-read.sh\n  \u2705 freshness-pre-edit.sh\n  \u2705 freshness-session-start.sh\n  \u2705 freshness-subagent-start.sh\n  \u2705 freshness-subagent-stop.sh\n  \u2705 freshness-user-prompt.sh\n  \u2705 reject-workspace-writes.sh\n  \u274c MISSING in src/superclaude/hooks/scripts/: auggie-bash-gate.sh (not distributable!)\n\n=== Installer Registration ===\n  \u274c MISSING from _FRESHNESS_SCRIPTS: reject-workspace-writes.sh (end-user 'superclaude install' will skip it)\n\n=== Hooks Cross-Consistency ===\n  \u2705 hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes\n\n\u274c Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.\n", stderr='make: *** [Makefile:157: verify-sync] Error 1\n').returncode
+========================= 1 failed, 6 passed in 2.78s ==========================
+EXIT=1

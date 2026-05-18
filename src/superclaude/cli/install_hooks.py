@@ -52,6 +52,18 @@ _FRESHNESS_SCRIPTS = [
     # Not strictly a "freshness" hook by lineage, but lives in the same hooks/scripts/
     # directory and shares the install pipeline; kept here to avoid a second list.
     "auggie-flag-clear.sh",
+    # Project-local workspace-write guard. Registered in the IronClaude
+    # project's `<project>/.claude/settings.json` PreToolUse with command
+    # `$CLAUDE_PROJECT_DIR/.claude/hooks/reject-workspace-writes.sh` — i.e.,
+    # Claude Code resolves it relative to the project directory, NOT
+    # `~/.claude/hooks/`. End-user installs that touch unrelated projects
+    # therefore have no registration pointing at this script and it sits
+    # dormant in their `~/.claude/hooks/` (harmless). It is listed here
+    # because (a) the project ships a `.claude/hooks/reject-workspace-writes.sh`
+    # mirror via `make sync-dev` and (b) the `=== Installer Registration ===`
+    # check in `make verify-sync` requires every entry of
+    # `src/superclaude/hooks/scripts/*.sh` to be a member of this list.
+    "reject-workspace-writes.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 

@@ -1,0 +1,7 @@
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:   20 directories
+   Agents:   35 files
+   Commands: 40 files
+   Hooks:    11 files
+EXIT=0

@@ -1,0 +1,2872 @@
+Running linter...
+uv run ruff check .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:19:1
+   |
+17 |   """
+18 |
+19 | / import argparse
+20 | | import json
+21 | | import re
+22 | | import subprocess
+23 | | import sys
+24 | | from pathlib import Path
+25 | | from dataclasses import dataclass, asdict
+26 | | from typing import Optional
+   | |___________________________^
+   |
+help: Organize imports
+
+F401 [*] `typing.Optional` imported but unused
+  --> .dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:26:20
+   |
+24 | from pathlib import Path
+25 | from dataclasses import dataclass, asdict
+26 | from typing import Optional
+   |                    ^^^^^^^^
+   |
+help: Remove unused import: `typing.Optional`
+
+F541 [*] f-string without any placeholders
+   --> .dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:347:11
+    |
+345 |     s = report["summary"]
+346 |     print(f"\n{'=' * 60}")
+347 |     print(f"FIDELITY CHECK RESULTS")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+348 |     print(f"{'=' * 60}")
+349 |     print(
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:369:11
+    |
+367 |             print(f"    Evidence: {cf['evidence'][:200]}")
+368 |
+369 |     print(f"\nBy category:")
+    |           ^^^^^^^^^^^^^^^^^
+370 |     for cat, stats in report["by_category"].items():
+371 |         marker = "✓" if stats["failures"] == 0 else "✗"
+    |
+help: Remove extraneous `f` prefix
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/cross-framework-deep-analysis/artifacts/D-0038/validate_backlog.py:18:1
+   |
+16 |   """
+17 |
+18 | / import re
+19 | | import sys
+20 | | from pathlib import Path
+   | |________________________^
+   |
+help: Organize imports
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/cross-framework-deep-analysis/artifacts/D-0038/validate_backlog.py:108:11
+    |
+107 |     # Summary
+108 |     print(f"\nValidation complete:")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+109 |     print(f"  Items checked: {len(items)}")
+110 |     print(f"  Schema errors: {len(errors)}")
+    |
+help: Remove extraneous `f` prefix
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:19:1
+   |
+17 |   """
+18 |
+19 | / import sys
+20 | | import time
+21 | | import json
+22 | | import tempfile
+23 | | import threading
+24 | | from pathlib import Path
+25 | | from datetime import datetime, timezone
+26 | | from unittest.mock import patch
+   | |_______________________________^
+27 |
+28 |   sys.path.insert(0, str(Path(__file__).resolve().parents[5]))
+   |
+help: Organize imports
+
+F401 [*] `json` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:21:8
+   |
+19 | import sys
+20 | import time
+21 | import json
+   |        ^^^^
+22 | import tempfile
+23 | import threading
+   |
+help: Remove unused import: `json`
+
+F401 [*] `threading` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:23:8
+   |
+21 | import json
+22 | import tempfile
+23 | import threading
+   |        ^^^^^^^^^
+24 | from pathlib import Path
+25 | from datetime import datetime, timezone
+   |
+help: Remove unused import: `threading`
+
+F401 [*] `unittest.mock.patch` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:26:27
+   |
+24 | from pathlib import Path
+25 | from datetime import datetime, timezone
+26 | from unittest.mock import patch
+   |                           ^^^^^
+27 |
+28 | sys.path.insert(0, str(Path(__file__).resolve().parents[5]))
+   |
+help: Remove unused import: `unittest.mock.patch`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:30:1
+   |
+28 |   sys.path.insert(0, str(Path(__file__).resolve().parents[5]))
+29 |
+30 | / from superclaude.cli.sprint.models import (
+31 | |     TurnLedger,
+32 | |     TaskEntry,
+33 | |     TaskResult,
+34 | |     TaskStatus,
+35 | |     GateOutcome,
+36 | |     Phase,
+37 | |     SprintConfig,
+38 | |     build_resume_output,
+39 | | )
+40 | | from superclaude.cli.sprint.executor import (
+41 | |     execute_phase_tasks,
+42 | |     aggregate_task_results,
+43 | |     check_budget_guard,
+44 | | )
+45 | | from superclaude.cli.pipeline.trailing_gate import (
+46 | |     TrailingGateRunner,
+47 | |     GateResultQueue,
+48 | |     TrailingGateResult,
+49 | |     GateScope,
+50 | |     resolve_gate_mode,
+51 | | )
+52 | | from superclaude.cli.pipeline.models import (
+53 | |     GateMode,
+54 | |     GateCriteria,
+55 | |     Step,
+56 | | )
+57 | | from superclaude.cli.pipeline.gates import gate_passed
+   | |______________________________________________________^
+58 |
+59 |   # ═══════════════════════════════════════════════════════════════════════
+   |
+help: Organize imports
+
+F401 [*] `superclaude.cli.sprint.models.TaskResult` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:33:5
+   |
+31 |     TurnLedger,
+32 |     TaskEntry,
+33 |     TaskResult,
+   |     ^^^^^^^^^^
+34 |     TaskStatus,
+35 |     GateOutcome,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.sprint.models.GateOutcome` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:35:5
+   |
+33 |     TaskResult,
+34 |     TaskStatus,
+35 |     GateOutcome,
+   |     ^^^^^^^^^^^
+36 |     Phase,
+37 |     SprintConfig,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.sprint.models.build_resume_output` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:38:5
+   |
+36 |     Phase,
+37 |     SprintConfig,
+38 |     build_resume_output,
+   |     ^^^^^^^^^^^^^^^^^^^
+39 | )
+40 | from superclaude.cli.sprint.executor import (
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.sprint.executor.check_budget_guard` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:43:5
+   |
+41 |     execute_phase_tasks,
+42 |     aggregate_task_results,
+43 |     check_budget_guard,
+   |     ^^^^^^^^^^^^^^^^^^
+44 | )
+45 | from superclaude.cli.pipeline.trailing_gate import (
+   |
+help: Remove unused import: `superclaude.cli.sprint.executor.check_budget_guard`
+
+F401 [*] `superclaude.cli.pipeline.trailing_gate.GateResultQueue` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:47:5
+   |
+45 | from superclaude.cli.pipeline.trailing_gate import (
+46 |     TrailingGateRunner,
+47 |     GateResultQueue,
+   |     ^^^^^^^^^^^^^^^
+48 |     TrailingGateResult,
+49 |     GateScope,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.trailing_gate.TrailingGateResult` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:48:5
+   |
+46 |     TrailingGateRunner,
+47 |     GateResultQueue,
+48 |     TrailingGateResult,
+   |     ^^^^^^^^^^^^^^^^^^
+49 |     GateScope,
+50 |     resolve_gate_mode,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.trailing_gate.GateScope` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:49:5
+   |
+47 |     GateResultQueue,
+48 |     TrailingGateResult,
+49 |     GateScope,
+   |     ^^^^^^^^^
+50 |     resolve_gate_mode,
+51 | )
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.trailing_gate.resolve_gate_mode` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:50:5
+   |
+48 |     TrailingGateResult,
+49 |     GateScope,
+50 |     resolve_gate_mode,
+   |     ^^^^^^^^^^^^^^^^^
+51 | )
+52 | from superclaude.cli.pipeline.models import (
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.gates.gate_passed` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:57:44
+   |
+55 |     Step,
+56 | )
+57 | from superclaude.cli.pipeline.gates import gate_passed
+   |                                            ^^^^^^^^^^^
+58 |
+59 | # ═══════════════════════════════════════════════════════════════════════
+   |
+help: Remove unused import: `superclaude.cli.pipeline.gates.gate_passed`
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:133:9
+    |
+131 |     log(f"can_launch()     = {ledger.can_launch()}")
+132 |     log(f"can_remediate()  = {ledger.can_remediate()}")
+133 |     log(f"")
+    |         ^^^
+134 |     log(f"Task plan: {len(tasks)} tasks, turn costs = {turn_costs}")
+135 |     log(f"Total turns needed (raw): {sum(turn_costs)}")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:162:13
+    |
+160 |             "---",
+161 |             f"# Output for {task.task_id}",
+162 |             f"",
+    |             ^^^
+163 |             f"Turns consumed: {turns}",
+164 |             f"Timestamp: {datetime.now(timezone.utc).isoformat()}",
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:340:9
+    |
+338 |         == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+339 |     )
+340 |     log(f"ACCOUNTING IDENTITY: available == initial - consumed + reimbursed")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+341 |     log(
+342 |         f"  {ledger.available()} == {ledger.initial_budget} - {ledger.consumed} + {ledger.reimbursed}"
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:347:9
+    |
+346 |     # Budget decay
+347 |     log(f"")
+    |         ^^^
+348 |     log(
+349 |         f"BUDGET DECAY: {ledger.initial_budget} → {ledger.available()} "
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:393:26
+    |
+391 |             )
+392 |         elif entry["op"] == "CREDIT" and i < len(ledger_trace) - len(gate_results):
+393 |             annotation = f"  ← reconcile: actual was less than pre-alloc"
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+394 |         elif entry["op"] == "CREDIT":
+395 |             annotation = f"  ← gate PASS reimbursement"
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:395:26
+    |
+393 |             annotation = f"  ← reconcile: actual was less than pre-alloc"
+394 |         elif entry["op"] == "CREDIT":
+395 |             annotation = f"  ← gate PASS reimbursement"
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+396 |
+397 |         log(
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:425:9
+    |
+423 |         log(f"  [{status}] {label}")
+424 |
+425 |     log(f"")
+    |         ^^^
+426 |     log(f"Elapsed: {elapsed:.2f}s")
+427 |     log(f"Work dir: {work_dir}")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:430:13
+    |
+429 |     if all_pass:
+430 |         log(f"\n  ALL CHECKS PASSED")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^
+431 |         return 0
+432 |     else:
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:433:13
+    |
+431 |         return 0
+432 |     else:
+433 |         log(f"\n  FAILURES DETECTED")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^
+434 |         return 1
+    |
+help: Remove extraneous `f` prefix
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:16:1
+   |
+14 |   """
+15 |
+16 | / import sys
+17 | | import json
+18 | | import time
+19 | | import tempfile
+20 | | import threading
+21 | | from pathlib import Path
+22 | | from datetime import datetime, timezone
+   | |_______________________________________^
+23 |
+24 |   # Add project root to path
+   |
+help: Organize imports
+
+F401 [*] `json` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:17:8
+   |
+16 | import sys
+17 | import json
+   |        ^^^^
+18 | import time
+19 | import tempfile
+   |
+help: Remove unused import: `json`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:27:1
+   |
+25 |   sys.path.insert(0, str(Path(__file__).resolve().parents[5]))
+26 |
+27 | / from superclaude.cli.sprint.models import (
+28 | |     TurnLedger,
+29 | |     TaskEntry,
+30 | |     TaskResult,
+31 | |     TaskStatus,
+32 | |     GateOutcome,
+33 | |     build_resume_output,
+34 | |     SprintConfig,
+35 | | )
+36 | | from superclaude.cli.pipeline.trailing_gate import (
+37 | |     TrailingGateRunner,
+38 | |     GateResultQueue,
+39 | |     DeferredRemediationLog,
+40 | |     TrailingGateResult,
+41 | |     GateScope,
+42 | |     resolve_gate_mode,
+43 | | )
+44 | | from superclaude.cli.pipeline.models import (
+45 | |     GateMode,
+46 | |     GateCriteria,
+47 | |     SemanticCheck,
+48 | |     Step,
+49 | |     PipelineConfig,
+50 | | )
+   | |_^
+51 |
+52 |   # ─── Helpers ─────────────────────────────────────────────────────────
+   |
+help: Organize imports
+
+F401 [*] `superclaude.cli.pipeline.trailing_gate.DeferredRemediationLog` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:39:5
+   |
+37 |     TrailingGateRunner,
+38 |     GateResultQueue,
+39 |     DeferredRemediationLog,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+40 |     TrailingGateResult,
+41 |     GateScope,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.trailing_gate.TrailingGateResult` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:40:5
+   |
+38 |     GateResultQueue,
+39 |     DeferredRemediationLog,
+40 |     TrailingGateResult,
+   |     ^^^^^^^^^^^^^^^^^^
+41 |     GateScope,
+42 |     resolve_gate_mode,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.models.SemanticCheck` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:47:5
+   |
+45 |     GateMode,
+46 |     GateCriteria,
+47 |     SemanticCheck,
+   |     ^^^^^^^^^^^^^
+48 |     Step,
+49 |     PipelineConfig,
+   |
+help: Remove unused import
+
+F401 [*] `superclaude.cli.pipeline.models.PipelineConfig` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:49:5
+   |
+47 |     SemanticCheck,
+48 |     Step,
+49 |     PipelineConfig,
+   |     ^^^^^^^^^^^^^^
+50 | )
+   |
+help: Remove unused import
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:100:11
+    |
+ 98 |     print(f"  Timestamp   : {datetime.now(timezone.utc).isoformat()}")
+ 99 |     print(f"  Tasks       : {len(TASKS)}")
+100 |     print(f"  Budget      : 100 turns")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+101 |     print(f"  Reimburse   : 50% rate (production default)")
+102 |     print(f"  Min alloc   : 5 turns")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:101:11
+    |
+ 99 |     print(f"  Tasks       : {len(TASKS)}")
+100 |     print(f"  Budget      : 100 turns")
+101 |     print(f"  Reimburse   : 50% rate (production default)")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     print(f"  Min alloc   : 5 turns")
+103 |     print(f"  Min remediate: 3 turns")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:102:11
+    |
+100 |     print(f"  Budget      : 100 turns")
+101 |     print(f"  Reimburse   : 50% rate (production default)")
+102 |     print(f"  Min alloc   : 5 turns")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+103 |     print(f"  Min remediate: 3 turns")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:103:11
+    |
+101 |     print(f"  Reimburse   : 50% rate (production default)")
+102 |     print(f"  Min alloc   : 5 turns")
+103 |     print(f"  Min remediate: 3 turns")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |
+105 |     # ─── PHASE 1: TurnLedger lifecycle ───────────────────────────────
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:143:19
+    |
+141 |                 )
+142 |             ledger_snapshot(ledger, "HALT — budget exhausted")
+143 |             print(f"  └─ SKIPPED (budget exhausted)")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+144 |             break
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:150:33
+    |
+148 |         ledger.debit(pre_alloc)
+149 |         print(f"  │  [DEBIT] pre-allocated {pre_alloc} turns")
+150 |         ledger_snapshot(ledger, f"after pre-alloc")
+    |                                 ^^^^^^^^^^^^^^^^^^
+151 |
+152 |         # SIMULATE SUBPROCESS EXECUTION
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:175:33
+    |
+173 |             )
+174 |
+175 |         ledger_snapshot(ledger, f"after reconciliation")
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^
+176 |
+177 |         # TRAILING GATE: submit async gate evaluation
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:189:32
+    |
+187 |                 if passes:
+188 |                     return (True, None)
+189 |                 return (False, f"Simulated gate failure for testing")
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+190 |
+191 |             return _check
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:226:27
+    |
+224 |                     gate_outcome = GateOutcome.FAIL
+225 |                     print(f"  │  [GATE RESULT] FAIL — reason: {gr.failure_reason}")
+226 |                     print(f"  │  [NO CREDIT] zero reimbursement on gate failure")
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+227 |
+228 |                     # Check if we can remediate
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:235:29
+    |
+233 |                     else:
+234 |                         print(
+235 |                             f"  │  [REMEDIATION SKIP] insufficient budget for remediation"
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+236 |                         )
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:259:11
+    |
+257 |     banner("PHASE 2: Final Accounting")
+258 |
+259 |     print(f"\n  Task Results:")
+    |           ^^^^^^^^^^^^^^^^^^^^
+260 |     print(f"  {'Task ID':<12} {'Status':<12} {'Turns':<8} {'Gate':<12}")
+261 |     print(f"  {'-' * 12} {'-' * 12} {'-' * 8} {'-' * 12}")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:277:11
+    |
+275 |         == ledger.initial_budget - ledger.consumed + ledger.reimbursed
+276 |     )
+277 |     print(f"\n  Accounting identity: available == initial - consumed + reimbursed")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+278 |     print(
+279 |         f"    {ledger.available()} == {ledger.initial_budget} - {ledger.consumed} + {ledger.reimbursed}"
+    |
+help: Remove extraneous `f` prefix
+
+N806 Variable `NUM_CONCURRENT` in function should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:340:5
+    |
+338 |     thread_ids_before = {t.ident for t in threading.enumerate() if t.daemon}
+339 |
+340 |     NUM_CONCURRENT = 5
+    |     ^^^^^^^^^^^^^^
+341 |     barrier = threading.Barrier(NUM_CONCURRENT)
+    |
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:400:15
+    |
+399 |     if exit_code == 0:
+400 |         print(f"\n  VERDICT: ALL CHECKS PASSED")
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+401 |     else:
+402 |         print(f"\n  VERDICT: FAILURES DETECTED")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:402:15
+    |
+400 |         print(f"\n  VERDICT: ALL CHECKS PASSED")
+401 |     else:
+402 |         print(f"\n  VERDICT: FAILURES DETECTED")
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+403 |
+404 |     return exit_code
+    |
+help: Remove extraneous `f` prefix
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_backward_compatibility.py:16:1
+   |
+14 |   """
+15 |
+16 | / from __future__ import annotations
+17 | |
+18 | | import threading
+19 | | from datetime import datetime, timezone
+20 | | from pathlib import Path
+21 | | from unittest.mock import MagicMock, patch
+22 | |
+23 | | import pytest
+24 | |
+25 | | from superclaude.cli.pipeline.models import (
+26 | |     GateCriteria,
+27 | |     GateMode,
+28 | |     PipelineConfig,
+29 | |     Step,
+30 | |     StepResult,
+31 | |     StepStatus,
+32 | | )
+33 | | from superclaude.cli.pipeline.executor import execute_pipeline
+34 | | from superclaude.cli.pipeline.trailing_gate import TrailingGateRunner
+35 | | from superclaude.cli.sprint.models import SprintConfig
+   | |______________________________________________________^
+   |
+help: Organize imports
+
+F401 [*] `unittest.mock.MagicMock` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_backward_compatibility.py:21:27
+   |
+19 | from datetime import datetime, timezone
+20 | from pathlib import Path
+21 | from unittest.mock import MagicMock, patch
+   |                           ^^^^^^^^^
+22 |
+23 | import pytest
+   |
+help: Remove unused import: `unittest.mock.MagicMock`
+
+F401 [*] `pytest` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_backward_compatibility.py:23:8
+   |
+21 | from unittest.mock import MagicMock, patch
+22 |
+23 | import pytest
+   |        ^^^^^^
+24 |
+25 | from superclaude.cli.pipeline.models import (
+   |
+help: Remove unused import: `pytest`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_error_max_turns_detection.py:14:1
+   |
+12 |   """
+13 |
+14 | / from __future__ import annotations
+15 | |
+16 | | import textwrap
+17 | | from pathlib import Path
+18 | |
+19 | | import pytest
+20 | |
+21 | | from superclaude.cli.sprint.monitor import (
+22 | |     ERROR_MAX_TURNS_PATTERN,
+23 | |     detect_error_max_turns,
+24 | | )
+25 | | from superclaude.cli.sprint.executor import _determine_phase_status
+26 | | from superclaude.cli.sprint.models import PhaseStatus
+   | |_____________________________________________________^
+   |
+help: Organize imports
+
+F401 [*] `pytest` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_error_max_turns_detection.py:19:8
+   |
+17 | from pathlib import Path
+18 |
+19 | import pytest
+   |        ^^^^^^
+20 |
+21 | from superclaude.cli.sprint.monitor import (
+   |
+help: Remove unused import: `pytest`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:14:1
+   |
+12 |   """
+13 |
+14 | / from __future__ import annotations
+15 | |
+16 | | import tempfile
+17 | | import threading
+18 | | import time
+19 | | from pathlib import Path
+20 | | from typing import Callable
+21 | |
+22 | | import pytest
+23 | |
+24 | | from superclaude.cli.pipeline.models import GateCriteria, GateMode, Step
+25 | | from superclaude.cli.pipeline.trailing_gate import (
+26 | |     DeferredRemediationLog,
+27 | |     GateResultQueue,
+28 | |     TrailingGateResult,
+29 | |     TrailingGateRunner,
+30 | | )
+   | |_^
+   |
+help: Organize imports
+
+F401 [*] `tempfile` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:16:8
+   |
+14 | from __future__ import annotations
+15 |
+16 | import tempfile
+   |        ^^^^^^^^
+17 | import threading
+18 | import time
+   |
+help: Remove unused import: `tempfile`
+
+F401 [*] `pytest` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:22:8
+   |
+20 | from typing import Callable
+21 |
+22 | import pytest
+   |        ^^^^^^
+23 |
+24 | from superclaude.cli.pipeline.models import GateCriteria, GateMode, Step
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `superclaude.cli.pipeline.models.GateMode` imported but unused
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:24:59
+   |
+22 | import pytest
+23 |
+24 | from superclaude.cli.pipeline.models import GateCriteria, GateMode, Step
+   |                                                           ^^^^^^^^
+25 | from superclaude.cli.pipeline.trailing_gate import (
+26 |     DeferredRemediationLog,
+   |
+help: Remove unused import: `superclaude.cli.pipeline.models.GateMode`
+
+F841 Local variable `results` is assigned to but never used
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:423:9
+    |
+421 |         start = time.monotonic()
+422 |         # Short timeout -- should not block for 60s
+423 |         results = runner.wait_for_pending(timeout=0.5)
+    |         ^^^^^^^
+424 |         elapsed = time.monotonic() - start
+    |
+help: Remove assignment to unused variable `results`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_turnledger_economics.py:11:1
+   |
+ 9 |   """
+10 |
+11 | / from __future__ import annotations
+12 | |
+13 | | import math
+14 | |
+15 | | import pytest
+16 | |
+17 | | from superclaude.cli.sprint.models import TurnLedger
+   | |____________________________________________________^
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_gate_scope_safety.py:20:1
+   |
+18 |   """
+19 |
+20 | / from __future__ import annotations
+21 | |
+22 | | import pytest
+23 | |
+24 | | from superclaude.cli.pipeline.models import GateMode
+25 | | from superclaude.cli.pipeline.trailing_gate import GateScope, resolve_gate_mode
+   | |_______________________________________________________________________________^
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:16:1
+   |
+14 |   """
+15 |
+16 | / from __future__ import annotations
+17 | |
+18 | | from pathlib import Path
+19 | |
+20 | | import pytest
+   | |_____________^
+   |
+help: Organize imports
+
+N802 Function name `test_import_StepStatus` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:34:9
+   |
+32 |         import superclaude.cli.pipeline.models  # noqa: F401
+33 |
+34 |     def test_import_StepStatus(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+35 |         from superclaude.cli.pipeline.models import StepStatus  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_GateMode` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:37:9
+   |
+35 |         from superclaude.cli.pipeline.models import StepStatus  # noqa: F401
+36 |
+37 |     def test_import_GateMode(self):
+   |         ^^^^^^^^^^^^^^^^^^^^
+38 |         from superclaude.cli.pipeline.models import GateMode  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_SemanticCheck` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:40:9
+   |
+38 |         from superclaude.cli.pipeline.models import GateMode  # noqa: F401
+39 |
+40 |     def test_import_SemanticCheck(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+41 |         from superclaude.cli.pipeline.models import SemanticCheck  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_GateCriteria` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:43:9
+   |
+41 |         from superclaude.cli.pipeline.models import SemanticCheck  # noqa: F401
+42 |
+43 |     def test_import_GateCriteria(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+44 |         from superclaude.cli.pipeline.models import GateCriteria  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_Step` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:46:9
+   |
+44 |         from superclaude.cli.pipeline.models import GateCriteria  # noqa: F401
+45 |
+46 |     def test_import_Step(self):
+   |         ^^^^^^^^^^^^^^^^
+47 |         from superclaude.cli.pipeline.models import Step  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_StepResult` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:49:9
+   |
+47 |         from superclaude.cli.pipeline.models import Step  # noqa: F401
+48 |
+49 |     def test_import_StepResult(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+50 |         from superclaude.cli.pipeline.models import StepResult  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_DeliverableKind` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:52:9
+   |
+50 |         from superclaude.cli.pipeline.models import StepResult  # noqa: F401
+51 |
+52 |     def test_import_DeliverableKind(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+53 |         from superclaude.cli.pipeline.models import DeliverableKind  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_Deliverable` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:55:9
+   |
+53 |         from superclaude.cli.pipeline.models import DeliverableKind  # noqa: F401
+54 |
+55 |     def test_import_Deliverable(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+56 |         from superclaude.cli.pipeline.models import Deliverable  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_PipelineConfig` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:58:9
+   |
+56 |         from superclaude.cli.pipeline.models import Deliverable  # noqa: F401
+57 |
+58 |     def test_import_PipelineConfig(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+59 |         from superclaude.cli.pipeline.models import PipelineConfig  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_TrailingGateResult` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:68:9
+   |
+66 |         import superclaude.cli.pipeline.trailing_gate  # noqa: F401
+67 |
+68 |     def test_import_TrailingGateResult(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+69 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateResult  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:69:9
+   |
+68 |     def test_import_TrailingGateResult(self):
+69 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateResult  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+70 |
+71 |     def test_import_GateResultQueue(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_GateResultQueue` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:71:9
+   |
+69 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateResult  # noqa: F401
+70 |
+71 |     def test_import_GateResultQueue(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+72 |         from superclaude.cli.pipeline.trailing_gate import GateResultQueue  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_TrailingGateRunner` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:74:9
+   |
+72 |         from superclaude.cli.pipeline.trailing_gate import GateResultQueue  # noqa: F401
+73 |
+74 |     def test_import_TrailingGateRunner(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+75 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateRunner  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:75:9
+   |
+74 |     def test_import_TrailingGateRunner(self):
+75 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateRunner  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+76 |
+77 |     def test_import_DeferredRemediationLog(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_DeferredRemediationLog` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:77:9
+   |
+75 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateRunner  # noqa: F401
+76 |
+77 |     def test_import_DeferredRemediationLog(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+78 |         from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:78:9
+   |
+77 |     def test_import_DeferredRemediationLog(self):
+78 |         from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+79 |
+80 |     def test_import_RemediationEntry(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_RemediationEntry` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:80:9
+   |
+78 |         from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog  # noqa: F401
+79 |
+80 |     def test_import_RemediationEntry(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+81 |         from superclaude.cli.pipeline.trailing_gate import RemediationEntry  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:81:9
+   |
+80 |     def test_import_RemediationEntry(self):
+81 |         from superclaude.cli.pipeline.trailing_gate import RemediationEntry  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+82 |
+83 |     def test_import_RemediationStatus(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_RemediationStatus` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:83:9
+   |
+81 |         from superclaude.cli.pipeline.trailing_gate import RemediationEntry  # noqa: F401
+82 |
+83 |     def test_import_RemediationStatus(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+84 |         from superclaude.cli.pipeline.trailing_gate import RemediationStatus  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:84:9
+   |
+83 |     def test_import_RemediationStatus(self):
+84 |         from superclaude.cli.pipeline.trailing_gate import RemediationStatus  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+85 |
+86 |     def test_import_RemediationRetryStatus(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_RemediationRetryStatus` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:86:9
+   |
+84 |         from superclaude.cli.pipeline.trailing_gate import RemediationStatus  # noqa: F401
+85 |
+86 |     def test_import_RemediationRetryStatus(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+87 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryStatus  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:87:9
+   |
+86 |     def test_import_RemediationRetryStatus(self):
+87 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryStatus  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+88 |
+89 |     def test_import_RemediationRetryResult(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_RemediationRetryResult` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:89:9
+   |
+87 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryStatus  # noqa: F401
+88 |
+89 |     def test_import_RemediationRetryResult(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+90 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryResult  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:90:9
+   |
+89 |     def test_import_RemediationRetryResult(self):
+90 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryResult  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+91 |
+92 |     def test_import_TrailingGatePolicy(self):
+   |
+help: Organize imports
+
+N802 Function name `test_import_TrailingGatePolicy` should be lowercase
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:92:9
+   |
+90 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryResult  # noqa: F401
+91 |
+92 |     def test_import_TrailingGatePolicy(self):
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+93 |         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy  # noqa: F401
+   |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:93:9
+   |
+92 |     def test_import_TrailingGatePolicy(self):
+93 |         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+94 |
+95 |     def test_import_build_remediation_prompt(self):
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:96:9
+   |
+95 |     def test_import_build_remediation_prompt(self):
+96 |         from superclaude.cli.pipeline.trailing_gate import build_remediation_prompt  # noqa: F401
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+97 |
+98 |     def test_import_attempt_remediation(self):
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:99:9
+    |
+ 98 |     def test_import_attempt_remediation(self):
+ 99 |         from superclaude.cli.pipeline.trailing_gate import attempt_remediation  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+100 |
+101 |     def test_import_GateScope(self):
+    |
+help: Organize imports
+
+N802 Function name `test_import_GateScope` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:101:9
+    |
+ 99 |         from superclaude.cli.pipeline.trailing_gate import attempt_remediation  # noqa: F401
+100 |
+101 |     def test_import_GateScope(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^
+102 |         from superclaude.cli.pipeline.trailing_gate import GateScope  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:105:9
+    |
+104 |     def test_import_resolve_gate_mode(self):
+105 |         from superclaude.cli.pipeline.trailing_gate import resolve_gate_mode  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: Organize imports
+
+N802 Function name `test_import_ConflictAction` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:114:9
+    |
+112 |         import superclaude.cli.pipeline.conflict_review  # noqa: F401
+113 |
+114 |     def test_import_ConflictAction(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+115 |         from superclaude.cli.pipeline.conflict_review import ConflictAction  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:115:9
+    |
+114 |     def test_import_ConflictAction(self):
+115 |         from superclaude.cli.pipeline.conflict_review import ConflictAction  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+116 |
+117 |     def test_import_ConflictReviewResult(self):
+    |
+help: Organize imports
+
+N802 Function name `test_import_ConflictReviewResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:117:9
+    |
+115 |         from superclaude.cli.pipeline.conflict_review import ConflictAction  # noqa: F401
+116 |
+117 |     def test_import_ConflictReviewResult(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+118 |         from superclaude.cli.pipeline.conflict_review import ConflictReviewResult  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:118:9
+    |
+117 |     def test_import_ConflictReviewResult(self):
+118 |         from superclaude.cli.pipeline.conflict_review import ConflictReviewResult  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+119 |
+120 |     def test_import_detect_file_overlap(self):
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:121:9
+    |
+120 |     def test_import_detect_file_overlap(self):
+121 |         from superclaude.cli.pipeline.conflict_review import detect_file_overlap  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+122 |
+123 |     def test_import_review_conflicts(self):
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:124:9
+    |
+123 |     def test_import_review_conflicts(self):
+124 |         from superclaude.cli.pipeline.conflict_review import review_conflicts  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: Organize imports
+
+N802 Function name `test_import_DiagnosticStage` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:133:9
+    |
+131 |         import superclaude.cli.pipeline.diagnostic_chain  # noqa: F401
+132 |
+133 |     def test_import_DiagnosticStage(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+134 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticStage  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:134:9
+    |
+133 |     def test_import_DiagnosticStage(self):
+134 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticStage  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+135 |
+136 |     def test_import_StageResult(self):
+    |
+help: Organize imports
+
+N802 Function name `test_import_StageResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:136:9
+    |
+134 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticStage  # noqa: F401
+135 |
+136 |     def test_import_StageResult(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+137 |         from superclaude.cli.pipeline.diagnostic_chain import StageResult  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_DiagnosticReport` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:139:9
+    |
+137 |         from superclaude.cli.pipeline.diagnostic_chain import StageResult  # noqa: F401
+138 |
+139 |     def test_import_DiagnosticReport(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+140 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticReport  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:140:9
+    |
+139 |     def test_import_DiagnosticReport(self):
+140 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticReport  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+141 |
+142 |     def test_import_run_diagnostic_chain(self):
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:143:9
+    |
+142 |     def test_import_run_diagnostic_chain(self):
+143 |         from superclaude.cli.pipeline.diagnostic_chain import run_diagnostic_chain  # noqa: F401
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: Organize imports
+
+N802 Function name `test_import_TurnLedger` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:152:9
+    |
+150 |         import superclaude.cli.sprint.models  # noqa: F401
+151 |
+152 |     def test_import_TurnLedger(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+153 |         from superclaude.cli.sprint.models import TurnLedger  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_TaskResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:155:9
+    |
+153 |         from superclaude.cli.sprint.models import TurnLedger  # noqa: F401
+154 |
+155 |     def test_import_TaskResult(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+156 |         from superclaude.cli.sprint.models import TaskResult  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_TaskEntry` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:158:9
+    |
+156 |         from superclaude.cli.sprint.models import TaskResult  # noqa: F401
+157 |
+158 |     def test_import_TaskEntry(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^
+159 |         from superclaude.cli.sprint.models import TaskEntry  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_TaskStatus` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:161:9
+    |
+159 |         from superclaude.cli.sprint.models import TaskEntry  # noqa: F401
+160 |
+161 |     def test_import_TaskStatus(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+162 |         from superclaude.cli.sprint.models import TaskStatus  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_GateDisplayState` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:164:9
+    |
+162 |         from superclaude.cli.sprint.models import TaskStatus  # noqa: F401
+163 |
+164 |     def test_import_GateDisplayState(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+165 |         from superclaude.cli.sprint.models import GateDisplayState  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_GateOutcome` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:167:9
+    |
+165 |         from superclaude.cli.sprint.models import GateDisplayState  # noqa: F401
+166 |
+167 |     def test_import_GateOutcome(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+168 |         from superclaude.cli.sprint.models import GateOutcome  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_ShadowGateMetrics` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:170:9
+    |
+168 |         from superclaude.cli.sprint.models import GateOutcome  # noqa: F401
+169 |
+170 |     def test_import_ShadowGateMetrics(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+171 |         from superclaude.cli.sprint.models import ShadowGateMetrics  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_import_GateKPIReport` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:186:9
+    |
+184 |         import superclaude.cli.sprint.kpi  # noqa: F401
+185 |
+186 |     def test_import_GateKPIReport(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+187 |         from superclaude.cli.sprint.kpi import GateKPIReport  # noqa: F401
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:202:9
+    |
+201 |       def test_all_pipeline_modules_together(self):
+202 | /         from superclaude.cli.pipeline import models as pm  # noqa: F811
+203 | |         from superclaude.cli.pipeline import trailing_gate as tg  # noqa: F811
+204 | |         from superclaude.cli.pipeline import conflict_review as cr  # noqa: F811
+205 | |         from superclaude.cli.pipeline import diagnostic_chain as dc  # noqa: F811
+    | |___________________________________________________________________^
+206 |
+207 |           # If we get here, no circular import
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:214:9
+    |
+213 |       def test_sprint_and_pipeline_together(self):
+214 | /         from superclaude.cli.pipeline import models as pm  # noqa: F811
+215 | |         from superclaude.cli.pipeline import trailing_gate as tg  # noqa: F811
+216 | |         from superclaude.cli.sprint import models as sm  # noqa: F811
+217 | |         from superclaude.cli.sprint import kpi as sk  # noqa: F811
+    | |____________________________________________________^
+218 |
+219 |           assert pm is not None
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:230:9
+    |
+228 |           or comments that mention these modules.
+229 |           """
+230 | /         import ast
+231 | |         import superclaude.cli.pipeline.models as pm
+232 | |         import superclaude.cli.pipeline.trailing_gate as tg
+233 | |         import superclaude.cli.pipeline.conflict_review as cr
+234 | |         import superclaude.cli.pipeline.diagnostic_chain as dc
+    | |______________________________________________________________^
+235 |
+236 |           for mod in [pm, tg, cr, dc]:
+    |
+help: Organize imports
+
+N802 Function name `test_StepStatus_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:262:9
+    |
+260 |     """Verify all enum members are accessible and have expected values."""
+261 |
+262 |     def test_StepStatus_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+263 |         from superclaude.cli.pipeline.models import StepStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_StepStatus_properties` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:272:9
+    |
+270 |         assert StepStatus.SKIPPED.value == "SKIPPED"
+271 |
+272 |     def test_StepStatus_properties(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+273 |         from superclaude.cli.pipeline.models import StepStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateMode_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:280:9
+    |
+278 |         assert StepStatus.FAIL.is_failure is True
+279 |
+280 |     def test_GateMode_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^
+281 |         from superclaude.cli.pipeline.models import GateMode
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_DeliverableKind_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:286:9
+    |
+284 |         assert GateMode.TRAILING.value == "TRAILING"
+285 |
+286 |     def test_DeliverableKind_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+287 |         from superclaude.cli.pipeline.models import DeliverableKind
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_DeliverableKind_from_str` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:296:9
+    |
+294 |         assert DeliverableKind.CONTRACT_TEST.value == "contract_test"
+295 |
+296 |     def test_DeliverableKind_from_str(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+297 |         from superclaude.cli.pipeline.models import DeliverableKind
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_ConflictAction_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:303:9
+    |
+301 |             DeliverableKind.from_str("nonexistent")
+302 |
+303 |     def test_ConflictAction_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+304 |         from superclaude.cli.pipeline.conflict_review import ConflictAction
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_DiagnosticStage_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:309:9
+    |
+307 |         assert ConflictAction.REGATE.value == "regate"
+308 |
+309 |     def test_DiagnosticStage_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+310 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticStage
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_RemediationStatus_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:317:9
+    |
+315 |         assert DiagnosticStage.SUMMARY.value == "summary"
+316 |
+317 |     def test_RemediationStatus_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+318 |         from superclaude.cli.pipeline.trailing_gate import RemediationStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_RemediationRetryStatus_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:324:9
+    |
+322 |         assert RemediationStatus.WAIVED.value == "waived"
+323 |
+324 |     def test_RemediationRetryStatus_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+325 |         from superclaude.cli.pipeline.trailing_gate import RemediationRetryStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateScope_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:332:9
+    |
+330 |         assert RemediationRetryStatus.BUDGET_EXHAUSTED.value == "budget_exhausted"
+331 |
+332 |     def test_GateScope_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^
+333 |         from superclaude.cli.pipeline.trailing_gate import GateScope
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TaskStatus_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:339:9
+    |
+337 |         assert GateScope.TASK.value == "task"
+338 |
+339 |     def test_TaskStatus_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+340 |         from superclaude.cli.sprint.models import TaskStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateOutcome_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:349:9
+    |
+347 |         assert TaskStatus.FAIL.is_failure is True
+348 |
+349 |     def test_GateOutcome_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+350 |         from superclaude.cli.sprint.models import GateOutcome
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateDisplayState_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:358:9
+    |
+356 |         assert GateOutcome.PASS.is_success is True
+357 |
+358 |     def test_GateDisplayState_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+359 |         from superclaude.cli.sprint.models import GateDisplayState
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateDisplayState_properties` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:369:9
+    |
+367 |         assert GateDisplayState.HALT.value == "halt"
+368 |
+369 |     def test_GateDisplayState_properties(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+370 |         from superclaude.cli.sprint.models import GateDisplayState
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateDisplayState_valid_transitions` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:378:9
+    |
+376 |             assert isinstance(state.label, str)
+377 |
+378 |     def test_GateDisplayState_valid_transitions(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+379 |         from superclaude.cli.sprint.models import (
+380 |             GateDisplayState,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_SprintOutcome_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:397:9
+    |
+395 |         )
+396 |
+397 |     def test_SprintOutcome_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+398 |         from superclaude.cli.sprint.models import SprintOutcome
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_PhaseStatus_values` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:405:9
+    |
+403 |         assert SprintOutcome.ERROR.value == "error"
+404 |
+405 |     def test_PhaseStatus_values(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+406 |         from superclaude.cli.sprint.models import PhaseStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_SemanticCheck` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:425:9
+    |
+423 |     """Verify pipeline dataclasses can be constructed with minimal arguments."""
+424 |
+425 |     def test_SemanticCheck(self):
+    |         ^^^^^^^^^^^^^^^^^^
+426 |         from superclaude.cli.pipeline.models import SemanticCheck
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateCriteria` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:432:9
+    |
+430 |         assert sc.check_fn("anything") is True
+431 |
+432 |     def test_GateCriteria(self):
+    |         ^^^^^^^^^^^^^^^^^
+433 |         from superclaude.cli.pipeline.models import GateCriteria
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_Step` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:439:9
+    |
+437 |         assert gc.semantic_checks is None
+438 |
+439 |     def test_Step(self):
+    |         ^^^^^^^^^
+440 |         from superclaude.cli.pipeline.models import Step, GateMode
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:440:9
+    |
+439 |     def test_Step(self):
+440 |         from superclaude.cli.pipeline.models import Step, GateMode
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+441 |
+442 |         s = Step(
+    |
+help: Organize imports
+
+N802 Function name `test_StepResult_defaults` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:453:9
+    |
+451 |         assert s.retry_limit == 1
+452 |
+453 |     def test_StepResult_defaults(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^
+454 |         from superclaude.cli.pipeline.models import StepResult, StepStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_Deliverable` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:462:9
+    |
+460 |         assert isinstance(sr.duration_seconds, float)
+461 |
+462 |     def test_Deliverable(self):
+    |         ^^^^^^^^^^^^^^^^
+463 |         from superclaude.cli.pipeline.models import Deliverable, DeliverableKind
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_PipelineConfig_defaults` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:474:9
+    |
+472 |         assert d2.kind == d.kind
+473 |
+474 |     def test_PipelineConfig_defaults(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+475 |         from superclaude.cli.pipeline.models import PipelineConfig
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TrailingGateResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:486:9
+    |
+484 |     """Verify trailing_gate classes can be constructed with minimal arguments."""
+485 |
+486 |     def test_TrailingGateResult(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+487 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateResult
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateResultQueue` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:494:9
+    |
+492 |         assert r.failure_reason is None
+493 |
+494 |     def test_GateResultQueue(self):
+    |         ^^^^^^^^^^^^^^^^^^^^
+495 |         from superclaude.cli.pipeline.trailing_gate import (
+496 |             GateResultQueue,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TrailingGateRunner` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:509:9
+    |
+507 |         assert results[0].step_id == "s1"
+508 |
+509 |     def test_TrailingGateRunner(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+510 |         from superclaude.cli.pipeline.trailing_gate import TrailingGateRunner
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TrailingGateRunner_with_custom_queue` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:517:9
+    |
+515 |         runner.cancel()  # Should not raise on empty runner
+516 |
+517 |     def test_TrailingGateRunner_with_custom_queue(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+518 |         from superclaude.cli.pipeline.trailing_gate import (
+519 |             GateResultQueue,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_RemediationEntry` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:528:9
+    |
+526 |         runner.cancel()
+527 |
+528 |     def test_RemediationEntry(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^
+529 |         from superclaude.cli.pipeline.trailing_gate import (
+530 |             RemediationEntry,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_DeferredRemediationLog_in_memory` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:545:9
+    |
+543 |         assert entry2.step_id == entry.step_id
+544 |
+545 |     def test_DeferredRemediationLog_in_memory(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+546 |         from superclaude.cli.pipeline.trailing_gate import (
+547 |             DeferredRemediationLog,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_DeferredRemediationLog_serialization` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:569:9
+    |
+567 |         assert len(log.pending_remediations()) == 0
+568 |
+569 |     def test_DeferredRemediationLog_serialization(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+570 |         from superclaude.cli.pipeline.trailing_gate import (
+571 |             DeferredRemediationLog,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_RemediationRetryResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:588:9
+    |
+586 |         assert log2.entry_count == 1
+587 |
+588 |     def test_RemediationRetryResult(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+589 |         from superclaude.cli.pipeline.trailing_gate import (
+590 |             RemediationRetryResult,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:602:9
+    |
+601 |       def test_resolve_gate_mode(self):
+602 | /         from superclaude.cli.pipeline.trailing_gate import (
+603 | |             GateMode,
+604 | |             GateScope,
+605 | |             resolve_gate_mode,
+606 | |         )
+607 | |         from superclaude.cli.pipeline.models import GateMode as GateModeModel
+    | |_____________________________________________________________________________^
+608 |
+609 |           # Release scope is always BLOCKING
+    |
+help: Organize imports
+
+F401 [*] `superclaude.cli.pipeline.models.GateMode` imported but unused
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:607:65
+    |
+605 |             resolve_gate_mode,
+606 |         )
+607 |         from superclaude.cli.pipeline.models import GateMode as GateModeModel
+    |                                                                 ^^^^^^^^^^^^^
+608 |
+609 |         # Release scope is always BLOCKING
+    |
+help: Remove unused import: `superclaude.cli.pipeline.models.GateMode`
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:617:9
+    |
+616 |       def test_build_remediation_prompt(self):
+617 | /         from superclaude.cli.pipeline.trailing_gate import (
+618 | |             TrailingGateResult,
+619 | |             build_remediation_prompt,
+620 | |         )
+621 | |         from superclaude.cli.pipeline.models import GateCriteria, Step
+    | |______________________________________________________________________^
+622 |
+623 |           step = Step(
+    |
+help: Organize imports
+
+N802 Function name `test_ConflictReviewResult_no_conflict` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:648:9
+    |
+646 |     """Verify conflict_review classes and functions work with minimal arguments."""
+647 |
+648 |     def test_ConflictReviewResult_no_conflict(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+649 |         from superclaude.cli.pipeline.conflict_review import (
+650 |             ConflictAction,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_ConflictReviewResult_with_conflict` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:657:9
+    |
+655 |         assert r.has_conflict is False
+656 |
+657 |     def test_ConflictReviewResult_with_conflict(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+658 |         from superclaude.cli.pipeline.conflict_review import (
+659 |             ConflictAction,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_StageResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:713:9
+    |
+711 |     """Verify diagnostic_chain classes and functions work with minimal arguments."""
+712 |
+713 |     def test_StageResult(self):
+    |         ^^^^^^^^^^^^^^^^
+714 |         from superclaude.cli.pipeline.diagnostic_chain import (
+715 |             DiagnosticStage,
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_DiagnosticReport_empty` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:723:9
+    |
+721 |         assert sr.error is None
+722 |
+723 |     def test_DiagnosticReport_empty(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+724 |         from superclaude.cli.pipeline.diagnostic_chain import DiagnosticReport
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TaskEntry` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:768:9
+    |
+766 |     """Verify sprint model dataclasses can be constructed with minimal arguments."""
+767 |
+768 |     def test_TaskEntry(self):
+    |         ^^^^^^^^^^^^^^
+769 |         from superclaude.cli.sprint.models import TaskEntry
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TaskResult` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:775:9
+    |
+773 |         assert t.dependencies == []
+774 |
+775 |     def test_TaskResult(self):
+    |         ^^^^^^^^^^^^^^^
+776 |         from superclaude.cli.sprint.models import TaskEntry, TaskResult, TaskStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TaskResult_context_summary` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:784:9
+    |
+782 |         assert isinstance(tr.duration_seconds, float)
+783 |
+784 |     def test_TaskResult_context_summary(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+785 |         from superclaude.cli.sprint.models import TaskEntry, TaskResult, TaskStatus
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TurnLedger` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:794:9
+    |
+792 |         assert "T01.01" in compact
+793 |
+794 |     def test_TurnLedger(self):
+    |         ^^^^^^^^^^^^^^^
+795 |         from superclaude.cli.sprint.models import TurnLedger
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TurnLedger_debit_validation` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:810:9
+    |
+808 |         assert ledger.available() == 45
+809 |
+810 |     def test_TurnLedger_debit_validation(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+811 |         from superclaude.cli.sprint.models import TurnLedger
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_ShadowGateMetrics` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:819:9
+    |
+817 |             ledger.credit(-1)
+818 |
+819 |     def test_ShadowGateMetrics(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+820 |         from superclaude.cli.sprint.models import ShadowGateMetrics
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateDisplayState_all_states_have_display_properties` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:835:9
+    |
+833 |         assert m.pass_rate == 0.5
+834 |
+835 |     def test_GateDisplayState_all_states_have_display_properties(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+836 |         from superclaude.cli.sprint.models import GateDisplayState
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_Phase` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:843:9
+    |
+841 |             assert state.label, f"{state} has no label"
+842 |
+843 |     def test_Phase(self):
+    |         ^^^^^^^^^^
+844 |         from superclaude.cli.sprint.models import Phase
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_Phase_auto_name` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:850:9
+    |
+848 |         assert p.basename == "phase-01.md"
+849 |
+850 |     def test_Phase_auto_name(self):
+    |         ^^^^^^^^^^^^^^^^^^^^
+851 |         from superclaude.cli.sprint.models import Phase
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_SprintConfig` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:856:9
+    |
+854 |         assert p.display_name == "Phase 3"
+855 |
+856 |     def test_SprintConfig(self):
+    |         ^^^^^^^^^^^^^^^^^
+857 |         from superclaude.cli.sprint.models import SprintConfig
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateKPIReport_empty` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:890:9
+    |
+888 |     """Verify sprint KPI classes and functions work with minimal arguments."""
+889 |
+890 |     def test_GateKPIReport_empty(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^
+891 |         from superclaude.cli.sprint.kpi import GateKPIReport
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_GateKPIReport_format_report` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:901:9
+    |
+899 |         assert report.p95_latency_ms == 0.0
+900 |
+901 |     def test_GateKPIReport_format_report(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+902 |         from superclaude.cli.sprint.kpi import GateKPIReport
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_TrailingGatePolicy_is_runtime_checkable` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:961:9
+    |
+959 |     """Verify runtime-checkable protocols are functional."""
+960 |
+961 |     def test_TrailingGatePolicy_is_runtime_checkable(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+962 |         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+N802 Function name `test_non_conforming_is_not_TrailingGatePolicy` should be lowercase
+   --> .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:974:9
+    |
+972 |         assert isinstance(FakePolicy(), TrailingGatePolicy)
+973 |
+974 |     def test_non_conforming_is_not_TrailingGatePolicy(self):
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+975 |         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy
+    |
+help: Consider adding `@typing.override` if this method overrides a method from a superclass
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:15:1
+   |
+13 |   """
+14 |
+15 | / import asyncio
+16 | | import argparse
+17 | | import json
+18 | | import os
+19 | | import sys
+20 | | import time
+21 | | from pathlib import Path
+22 | | from datetime import datetime, timezone
+   | |_______________________________________^
+23 |
+24 |   # Add parent to path for imports
+   |
+help: Organize imports
+
+F401 [*] `os` imported but unused
+  --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:18:8
+   |
+16 | import argparse
+17 | import json
+18 | import os
+   |        ^^
+19 | import sys
+20 | import time
+   |
+help: Remove unused import: `os`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:27:1
+   |
+25 |   sys.path.insert(0, str(Path(__file__).parent))
+26 |
+27 | / from runner import run_structural_test, run_behavioral_test
+28 | | from scorer import score_classification, score_wiring, score_structural
+29 | | from reporter import generate_report
+   | |____________________________________^
+30 |
+31 |   REPO_ROOT = Path(__file__).resolve().parents[2]
+   |
+help: Organize imports
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:375:11
+    |
+373 |     total_points = structural_points + behavioral_points
+374 |
+375 |     print(f"╔═══════════════════════════════════════════════════════════════╗")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+376 |     print(f"║           v2.01 Release Validation Orchestrator              ║")
+377 |     print(f"╚═══════════════════════════════════════════════════════════════╝")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:376:11
+    |
+375 |     print(f"╔═══════════════════════════════════════════════════════════════╗")
+376 |     print(f"║           v2.01 Release Validation Orchestrator              ║")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+377 |     print(f"╚═══════════════════════════════════════════════════════════════╝")
+378 |     print(f"  Runs:          {num_runs}")
+    |
+help: Remove extraneous `f` prefix
+
+F541 [*] f-string without any placeholders
+   --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:377:11
+    |
+375 |     print(f"╔═══════════════════════════════════════════════════════════════╗")
+376 |     print(f"║           v2.01 Release Validation Orchestrator              ║")
+377 |     print(f"╚═══════════════════════════════════════════════════════════════╝")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+378 |     print(f"  Runs:          {num_runs}")
+379 |     print(f"  Models:        {', '.join(models)}")
+    |
+help: Remove extraneous `f` prefix
+
+F401 [*] `subprocess` imported but unused
+ --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/runner.py:8:8
+  |
+7 | import asyncio
+8 | import subprocess
+  |        ^^^^^^^^^^
+9 | from pathlib import Path
+  |
+help: Remove unused import: `subprocess`
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> .dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/scorer.py:7:1
+  |
+5 | """
+6 |
+7 | import re
+  | ^^^^^^^^^
+  |
+help: Organize imports
+
+N999 Invalid module name: 'v2.09-adversarial-v2-tests'
+--> .dev/releases/complete/v2.09-adversarial-v2/v2.09-adversarial-v2-tests/__init__.py:1:1
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/releases/complete/v2.09-adversarial-v2/v2.09-adversarial-v2-tests/test_success_criteria.py:13:1
+   |
+11 | """
+12 |
+13 | import pytest
+   | ^^^^^^^^^^^^^
+   |
+help: Organize imports
+
+F841 Local variable `invariant_categories` is assigned to but never used
+   --> .dev/releases/complete/v2.09-adversarial-v2/v2.09-adversarial-v2-tests/test_success_criteria.py:239:5
+    |
+237 |         AC-AD1-4: Round 2.5 skipped at depth=quick (logged)
+238 |     """
+239 |     invariant_categories = [
+    |     ^^^^^^^^^^^^^^^^^^^^
+240 |         "state_variables",
+241 |         "guard_conditions",
+    |
+help: Remove assignment to unused variable `invariant_categories`
+
+F401 [*] `os` imported but unused
+  --> .dev/research/process-improvement-debate/orchestrate.py:29:8
+   |
+28 | import json
+29 | import os
+   |        ^^
+30 | import textwrap
+31 | from datetime import datetime
+   |
+help: Remove unused import: `os`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .dev/research/roadmap-compression/compress_roadmap.py:13:1
+   |
+11 |   """
+12 |
+13 | / import hashlib
+14 | | import re
+15 | | import sys
+16 | | from pathlib import Path
+   | |________________________^
+   |
+help: Organize imports
+
+E741 Ambiguous variable name: `l`
+   --> .dev/research/roadmap-compression/compress_roadmap.py:197:30
+    |
+196 |         # Extract table rows from this block
+197 |         table_lines = [l for l in block.split("\n") if "|" in l]
+    |                              ^
+198 |         task_rows = parse_table_rows(table_lines)
+    |
+
+F841 Local variable `gc_fields` is assigned to but never used
+  --> scripts/check-ref-staleness.py:96:5
+   |
+95 |     # Check GateCriteria field names
+96 |     gc_fields = live_fields["GateCriteria"]
+   |     ^^^^^^^^^
+97 |
+98 |     # Detect old field names
+   |
+help: Remove assignment to unused variable `gc_fields`
+
+F841 Local variable `sc_fields` is assigned to but never used
+   --> scripts/check-ref-staleness.py:128:5
+    |
+127 |     # Check SemanticCheck field names
+128 |     sc_fields = live_fields["SemanticCheck"]
+    |     ^^^^^^^^^
+129 |     if "fn=" in content and "check_fn=" not in content:
+130 |         errors.append(
+    |
+help: Remove assignment to unused variable `sc_fields`
+
+F401 [*] `os` imported but unused
+  --> scripts/eval_1.py:13:8
+   |
+11 | import argparse
+12 | import json
+13 | import os
+   |        ^^
+14 | import subprocess
+15 | import sys
+   |
+help: Remove unused import: `os`
+
+E741 Ambiguous variable name: `l`
+   --> scripts/eval_1.py:284:20
+    |
+283 |     # 13. Artifact content integrity checks
+284 |     lines = [l for l in content.splitlines() if l.strip()]
+    |                    ^
+285 |     result.assertions.append(
+286 |         assert_check(
+    |
+
+E741 Ambiguous variable name: `l`
+   --> scripts/eval_1.py:292:72
+    |
+290 |         )
+291 |     )
+292 |     has_headings = any(l.startswith("## ") or l.startswith("### ") for l in content.splitlines())
+    |                                                                        ^
+293 |     result.assertions.append(
+294 |         assert_check(
+    |
+
+F401 [*] `tempfile` imported but unused
+  --> scripts/eval_runner.py:16:8
+   |
+14 | import subprocess
+15 | import sys
+16 | import tempfile
+   |        ^^^^^^^^
+17 | import time
+18 | import xml.etree.ElementTree as ET
+   |
+help: Remove unused import: `tempfile`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> scripts/sync_from_framework.py:20:1
+   |
+18 |   """
+19 |
+20 | / import sys
+21 | | import argparse
+22 | | import tempfile
+23 | | import shutil
+24 | | import hashlib
+25 | | from pathlib import Path
+26 | | from typing import Dict, List, Tuple, Optional
+27 | | import json
+28 | | import re
+29 | | import subprocess
+30 | | from dataclasses import dataclass, asdict
+31 | | from datetime import datetime
+32 | | import logging
+   | |______________^
+33 |
+34 |   # Configure logging
+   |
+help: Organize imports
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/audit/dependency_graph.py:116:1
+    |
+116 | import os
+    | ^^^^^^^^^
+117 | import re
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/audit/dependency_graph.py:117:1
+    |
+116 | import os
+117 | import re
+    | ^^^^^^^^^
+    |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:26:1
+   |
+24 | _T = TypeVar("_T")
+25 |
+26 | import yaml
+   | ^^^^^^^^^^^
+27 |
+28 | from superclaude.cli.cli_portify.contract import (
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:28:1
+   |
+26 |   import yaml
+27 |
+28 | / from superclaude.cli.cli_portify.contract import (
+29 | |     StepTiming,
+30 | |     build_dry_run_contract,
+31 | |     build_failed_contract,
+32 | |     build_partial_contract,
+33 | |     build_success_contract,
+34 | | )
+   | |_^
+35 |   from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+36 |   from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:35:1
+   |
+33 |     build_success_contract,
+34 | )
+35 | from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+36 | from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+37 | from superclaude.cli.cli_portify.gates import (
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:36:1
+   |
+34 | )
+35 | from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+36 | from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+37 | from superclaude.cli.cli_portify.gates import (
+38 |     GATE_MIN_ENFORCE,
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:37:1
+   |
+35 |   from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+36 |   from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+37 | / from superclaude.cli.cli_portify.gates import (
+38 | |     GATE_MIN_ENFORCE,
+39 | |     GateFailure,
+40 | |     get_gate_criteria,
+41 | | )
+   | |_^
+42 |   from superclaude.cli.cli_portify.logging_ import ExecutionLog
+43 |   from superclaude.cli.cli_portify.models import (
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:42:1
+   |
+40 |     get_gate_criteria,
+41 | )
+42 | from superclaude.cli.cli_portify.logging_ import ExecutionLog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 | from superclaude.cli.cli_portify.models import (
+44 |     INVALID_PATH,
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:43:1
+   |
+41 |   )
+42 |   from superclaude.cli.cli_portify.logging_ import ExecutionLog
+43 | / from superclaude.cli.cli_portify.models import (
+44 | |     INVALID_PATH,
+45 | |     GateEvaluation,
+46 | |     PortifyConfig,
+47 | |     PortifyGateMode,
+48 | |     PortifyOutcome,
+49 | |     PortifyPhaseType,
+50 | |     PortifyStatus,
+51 | |     PortifyStep,
+52 | |     PortifyStepResult,
+53 | |     PortifyValidationError,
+54 | |     TurnLedger,
+55 | | )
+   | |_^
+56 |   from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+57 |   from superclaude.cli.cli_portify.steps import get_step_dispatch
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:56:1
+   |
+54 |     TurnLedger,
+55 | )
+56 | from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:57:1
+   |
+55 | )
+56 | from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+59 | from superclaude.cli.pipeline.gates import gate_passed
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:58:1
+   |
+56 | from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+59 | from superclaude.cli.pipeline.gates import gate_passed
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:59:1
+   |
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+59 | from superclaude.cli.pipeline.gates import gate_passed
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+60 |
+61 | # ---------------------------------------------------------------------------
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/steps/validate_config.py:43:1
+   |
+42 | # Steps that support --start resume — canonical source is resume.py
+43 | from ..resume import get_resumable_step_names
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+44 |
+45 | _RESUMABLE_STEPS = get_resumable_step_names()
+   |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:369:1
+    |
+369 | from superclaude.cli.sprint import sprint_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+370 |
+371 | main.add_command(sprint_group, name="sprint")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:373:1
+    |
+371 | main.add_command(sprint_group, name="sprint")
+372 |
+373 | from superclaude.cli.roadmap import roadmap_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+374 |
+375 | main.add_command(roadmap_group, name="roadmap")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:377:1
+    |
+375 | main.add_command(roadmap_group, name="roadmap")
+376 |
+377 | from superclaude.cli.cleanup_audit import cleanup_audit_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+378 |
+379 | main.add_command(cleanup_audit_group, name="cleanup-audit")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:381:1
+    |
+379 | main.add_command(cleanup_audit_group, name="cleanup-audit")
+380 |
+381 | from superclaude.cli.tasklist import tasklist_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+382 |
+383 | main.add_command(tasklist_group, name="tasklist")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:385:1
+    |
+383 | main.add_command(tasklist_group, name="tasklist")
+384 |
+385 | from superclaude.cli.cli_portify.commands import cli_portify_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+386 |
+387 | main.add_command(cli_portify_group)
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:389:1
+    |
+387 | main.add_command(cli_portify_group)
+388 |
+389 | from superclaude.cli.prd.commands import prd_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+390 |
+391 | main.add_command(prd_group, name="prd")
+    |
+
+F821 Undefined name `Callable`
+   --> src/superclaude/cli/roadmap/convergence.py:436:20
+    |
+434 |     registry: DeviationRegistry,
+435 |     ledger,
+436 |     run_checkers: "Callable",
+    |                    ^^^^^^^^
+437 |     run_remediation: "Callable",
+438 |     handle_regression_fn: "Callable | None" = None,
+    |
+
+F821 Undefined name `Callable`
+   --> src/superclaude/cli/roadmap/convergence.py:437:23
+    |
+435 |     ledger,
+436 |     run_checkers: "Callable",
+437 |     run_remediation: "Callable",
+    |                       ^^^^^^^^
+438 |     handle_regression_fn: "Callable | None" = None,
+439 |     max_runs: int = 3,
+    |
+
+F821 Undefined name `Callable`
+   --> src/superclaude/cli/roadmap/convergence.py:438:28
+    |
+436 |     run_checkers: "Callable",
+437 |     run_remediation: "Callable",
+438 |     handle_regression_fn: "Callable | None" = None,
+    |                            ^^^^^^^^
+439 |     max_runs: int = 3,
+440 |     spec_path: Path | None = None,
+    |
+
+F841 Local variable `current_item_line` is assigned to but never used
+  --> tests/audit/test_evidence_bound_tb_add_8.py:97:13
+   |
+95 |         if m_item:
+96 |             current_item_id = m_item.group(1)
+97 |             current_item_line = idx
+   |             ^^^^^^^^^^^^^^^^^
+98 |             continue
+99 |         m_ctx = context_re.match(raw)
+   |
+help: Remove assignment to unused variable `current_item_line`
+
+F401 [*] `typing.Iterable` imported but unused
+  --> tests/audit/test_inherited_verdict_freshness_inv_002.py:35:20
+   |
+33 | import time
+34 | from pathlib import Path
+35 | from typing import Iterable
+   |                    ^^^^^^^^
+36 |
+37 | import pytest
+   |
+help: Remove unused import: `typing.Iterable`
+
+N999 Invalid module name: 'test_monotonicity_halt_F_5_5_5'
+--> tests/audit/test_monotonicity_halt_F_5_5_5.py:1:1
+
+N999 Invalid module name: 'test_sequencing_PR06_before_PR04'
+--> tests/audit/test_sequencing_PR06_before_PR04.py:1:1
+
+E402 Module level import not at top of file
+   --> tests/cli_portify/test_failures.py:377:1
+    |
+377 | / from superclaude.cli.cli_portify.failures import (
+378 | |     STEP_0_TIMEOUT_SECONDS,
+379 | |     STEP_1_TIMEOUT_SECONDS,
+380 | | )
+    | |_^
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:343:1
+    |
+341 | # ---------------------------------------------------------------------------
+342 |
+343 | from unittest.mock import patch
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+344 |
+345 | from superclaude.cli.sprint.executor import (
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:345:1
+    |
+343 |   from unittest.mock import patch
+344 |
+345 | / from superclaude.cli.sprint.executor import (
+346 | |     execute_phase_tasks,
+347 | |     run_post_task_anti_instinct_hook,
+348 | | )
+    | |_^
+349 |   from superclaude.cli.sprint.models import (
+350 |       GateOutcome,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:349:1
+    |
+347 |       run_post_task_anti_instinct_hook,
+348 |   )
+349 | / from superclaude.cli.sprint.models import (
+350 | |     GateOutcome,
+351 | |     Phase,
+352 | |     ShadowGateMetrics,
+353 | | )
+    | |_^
+354 |   from superclaude.cli.sprint.models import (
+355 |       TaskEntry as SprintTaskEntry,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:354:1
+    |
+352 |       ShadowGateMetrics,
+353 |   )
+354 | / from superclaude.cli.sprint.models import (
+355 | |     TaskEntry as SprintTaskEntry,
+356 | | )
+    | |_^
+357 |   from superclaude.cli.sprint.models import (
+358 |       TaskResult as SprintTaskResult,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:357:1
+    |
+355 |       TaskEntry as SprintTaskEntry,
+356 |   )
+357 | / from superclaude.cli.sprint.models import (
+358 | |     TaskResult as SprintTaskResult,
+359 | | )
+    | |_^
+360 |   from superclaude.cli.sprint.models import (
+361 |       TaskStatus as SprintTaskStatus,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:360:1
+    |
+358 |       TaskResult as SprintTaskResult,
+359 |   )
+360 | / from superclaude.cli.sprint.models import (
+361 | |     TaskStatus as SprintTaskStatus,
+362 | | )
+    | |_^
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:472:1
+    |
+470 | # ---------------------------------------------------------------------------
+471 |
+472 | from superclaude.cli.sprint.executor import run_post_task_wiring_hook
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/roadmap/test_inline_fallback.py:141:17
+    |
+139 |             if executor_name == "validate_executor":
+140 |                 run_fn = module.validate_run_step
+141 |                 cancel_check = lambda: False
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+142 |             else:
+143 |                 run_fn = module.tasklist_run_step
+    |
+help: Rewrite `cancel_check` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/roadmap/test_inline_fallback.py:144:17
+    |
+142 |             else:
+143 |                 run_fn = module.tasklist_run_step
+144 |                 cancel_check = lambda: False
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+145 |
+146 |             with patch(f"{module_path}.ClaudeProcess") as mock_proc:
+    |
+help: Rewrite `cancel_check` as a `def`
+
+E402 Module level import not at top of file
+   --> tests/roadmap/test_models.py:206:1
+    |
+204 | # ═══════════════════════════════════════════════════════════════
+205 |
+206 | from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> tests/sprint/diagnostic/test_instrumentation.py:45:5
+   |
+43 |         config = _make_config(tmp_path)
+44 |     root_logger = setup_debug_logger(config)
+45 |     read_fn = lambda: config.debug_log_path.read_text()
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+46 |
+47 |     def cleanup():
+   |
+help: Rewrite `read_fn` as a `def`
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_0.py:13:1
+   |
+11 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l0]
+12 |
+13 | / from superclaude.cli.sprint.debug_logger import (
+14 | |     DEBUG_LOG_VERSION,
+15 | | )
+   | |_^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_1.py:12:1
+   |
+10 | pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l1]
+11 |
+12 | from superclaude.cli.sprint.debug_logger import DEBUG_LOG_VERSION
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_2.py:12:1
+   |
+10 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l2]
+11 |
+12 | / from superclaude.cli.sprint.diagnostics import (
+13 | |     DiagnosticCollector,
+14 | |     FailureCategory,
+15 | |     FailureClassifier,
+16 | |     ReportGenerator,
+17 | | )
+   | |_^
+18 |   from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_2.py:18:1
+   |
+16 |     ReportGenerator,
+17 | )
+18 | from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_3.py:13:1
+   |
+11 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l3]
+12 |
+13 | / from superclaude.cli.sprint.diagnostics import (
+14 | |     DiagnosticCollector,
+15 | |     FailureCategory,
+16 | |     FailureClassifier,
+17 | |     ReportGenerator,
+18 | | )
+   | |_^
+19 |   from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_3.py:19:1
+   |
+17 |     ReportGenerator,
+18 | )
+19 | from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_negative.py:16:1
+   |
+14 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_negative]
+15 |
+16 | / from superclaude.cli.sprint.diagnostics import (
+17 | |     DiagnosticBundle,
+18 | |     DiagnosticCollector,
+19 | |     FailureCategory,
+20 | |     FailureClassifier,
+21 | |     ReportGenerator,
+22 | | )
+   | |_^
+23 |   from superclaude.cli.sprint.models import (
+24 |       MonitorState,
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_negative.py:23:1
+   |
+21 |       ReportGenerator,
+22 |   )
+23 | / from superclaude.cli.sprint.models import (
+24 | |     MonitorState,
+25 | |     Phase,
+26 | |     PhaseResult,
+27 | |     PhaseStatus,
+28 | | )
+   | |_^
+   |
+
+F821 Undefined name `SprintConfig`
+   --> tests/sprint/test_preflight.py:483:65
+    |
+483 | def _make_python_config(tmp_path: Path, tasks_content: str) -> "SprintConfig":
+    |                                                                 ^^^^^^^^^^^^
+484 |     """Build a minimal SprintConfig for a single python-mode phase."""
+485 |     from superclaude.cli.sprint.models import Phase, SprintConfig
+    |
+
+F821 Undefined name `SprintConfig`
+   --> tests/sprint/test_preflight.py:914:7
+    |
+912 |     tmp_path: Path,
+913 |     phases: "list[tuple[int, str, str]]",
+914 | ) -> "SprintConfig":
+    |       ^^^^^^^^^^^^
+915 |     """Build a SprintConfig with multiple phases of mixed execution modes.
+    |
+
+Found 240 errors.
+[*] 102 fixable with the `--fix` option (8 hidden fixes can be enabled with the `--unsafe-fixes` option).
+make: *** [Makefile:50: lint] Error 1
+EXIT=2
