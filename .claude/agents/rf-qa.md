@@ -332,15 +332,17 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
 ### Rules
 
 - Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions.
-- Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
+- Each cycle MUST have strictly fewer issues than the previous one (`|F_{n+1}| < |F_n|` when `|F_n| > 0`). If the count does NOT strictly shrink, the QA agent MUST HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>` — see the Retry Monotonicity Protocol below for the full 4-step precedence (regression → monotonicity → hard-cap → proceed). Non-shrinking issue count is a systemic problem and triggers the FR-CONV.5 monotonicity halt-guard; it is no longer a soft flag.
 
-**Retry Monotonicity Protocol (PR-02 — strengthens this 3-fix-cycle):**
+**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 — strengthens this 3-fix-cycle):**
 
-- **Monotonicity guard.** At the end of each cycle `n`, record the count of remaining failures `F_n`. If `F_{n+1} >= F_n` — i.e., the count did NOT strictly shrink — HALT and escalate as `non-convergent: |F_n| -> |F_{n+1}|`. The guard fires only on strict non-shrink; slow convergence continues to the 3-cycle cap.
-- **Regression detection.** At the end of each cycle, record the PASS set. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately as `regression detected: Item X.Y passed at cycle N, failed at cycle N+1`. Regression takes precedence over monotonicity when both trigger.
+This is the FR-CONV.5 halt-guards wrapper layered on top of the existing 3-fix-cycle above. No new loop or stage is introduced; the wrapper adds two halt guards evaluated in strict order BEFORE the existing 3-cycle cap fires.
+
+- **Regression detection (runs FIRST per cycle transition).** At the end of each cycle, record the PASS set. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit the byte-exact halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` Regression takes precedence over monotonicity — when both would trigger in the same cycle, the regression halt is emitted and the monotonicity check is NOT consulted on the regressed cycle transition.
+- **Monotonicity guard (runs only after regression check passes).** At the end of each cycle `n`, record the count of remaining failures `F_n`. If `F_{n+1} >= F_n` — i.e., the count did NOT strictly shrink — HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`. The guard fires only on strict non-shrink and is only consulted when `|F_n| > 0`; slow convergence (e.g., `|F|=5,4`) continues to the 3-cycle cap.
 - **PR-03 DNSP composition (INV-012).** Synthetic-dnsp findings count as failures for `|F_n|`. A synthetic with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key re-appearing across cycles is a DEDUP case, not a regression — the regression check compares by dedup key when synthetic findings are involved.
 
-This protocol is part of zero-trust QA. The guards strengthen the gate strictly — they never loosen it.
+This protocol is part of zero-trust QA. The guards strengthen the gate strictly — they never loosen it. The existing 3-cycle hard cap at `rf-team-lead.md:417` remains as the fourth-precedence backstop after regression → monotonicity.
 
 ---
 

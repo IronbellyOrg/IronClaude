@@ -355,6 +355,8 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 
 **Fix cycle limits per gate type (from I16):**
 
+**Halt-precedence rule (COMP-002-M5 — applies to every row in the table below).** Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed` (per FR-CONV.5 / API-004). On every cycle transition `n → n+1` within a gate, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires. The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead.md:417`). Per-gate counters are independent and NEVER collapsed across gates — research-gate's `F_n` is independent from task-integrity's `F_n`. The full operational specification is in the Retry Monotonicity Protocol below.
+
 | Gate Type | Max Cycles | After Max |
 |-----------|-----------|-----------|
 | research-gate | 3 | HALT and escalate |
@@ -363,11 +365,11 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 | task-integrity | 2 | Open Questions |
 | Any qualitative gate | 3 | HALT and escalate |
 
-**Retry Monotonicity Protocol (PR-02 — applies to every gate row above):**
+**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 — applies to every gate row above):**
 
-Before re-spawning a fix cycle, compare `|gate_failures|` to the previous cycle's count. HALT and escalate as `non-convergent` if it did NOT strictly shrink. Before accepting a fix cycle output, compare the PASS set to the previous cycle's PASS set. HALT and escalate as `regression detected` if any previously-PASS item is now FAIL. Regression takes precedence over monotonicity when both trigger in the same cycle.
+This is the FR-CONV.5 halt-guards wrapper for the existing per-gate fix-cycle loops in the table above. No new loop or stage is introduced; the wrapper adds two halt guards BEFORE the per-gate cap fires. Before re-spawning a fix cycle, run the **regression check first**: compare the PASS set to the previous cycle's PASS set; if any previously-PASS item is now FAIL, HALT and emit the byte-exact halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` Only if the regression check passes, run the **monotonicity check**: compare `|gate_failures|` to the previous cycle's count; if `|F_{n+1}| >= |F_n|`, HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`. Regression takes precedence over monotonicity when both would trigger in the same cycle — the monotonicity check is NOT consulted on the regressed cycle transition.
 
-Each gate row above keeps its OWN monotonicity history — research-gate's `F_n` is independent from task-integrity's `F_n`. PR-03 synthetic-DNSP findings COUNT as failures for monotonicity but are deduplicated by `(assigned_files_range, escalation_ladder_exhaust_point)` so a re-fired synthetic for the same partition is NOT a regression (INV-012). See SKILL.md "Retry Monotonicity Protocol" for full specification.
+Each gate row above keeps its OWN monotonicity history — research-gate's `F_n` is independent from task-integrity's `F_n`. The per-gate retry counters in the table above (research-gate, synthesis-gate, report-validation, task-integrity, and qualitative gate) are independent and NEVER collapsed; FR-CONV.5 layers halts ON TOP without merging counter state across gates. PR-03 synthetic-DNSP findings COUNT as failures for monotonicity but are deduplicated by `(assigned_files_range, escalation_ladder_exhaust_point)` so a re-fired synthetic for the same partition is NOT a regression (INV-012). See SKILL.md "Retry Monotonicity Protocol" for full specification.
 
 ### VALIDATION_REQUIREMENTS
 

@@ -1011,20 +1011,70 @@ Agent:
 
 These are SEPARATE retry counters — a builder that returns RESEARCH_NEEDED twice and then produces a malformed file gets 2+2=4 total invocations maximum.
 
-**Retry Monotonicity Protocol (PR-02 — strengthens zero-trust QA against oscillation):**
+**Halt-precedence note (FR-CONV.5 / API-004 — COMP-001-M5 A.9 invariant tail).** Every retry counter in this section (RESEARCH_NEEDED, MALFORMED) — and every per-gate counter inherited from rf-task-builder/rf-qa — is governed by the strict 4-step ordering rule `regression → monotonicity → hard-cap → proceed`. On every cycle transition `n → n+1`, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string per API-004) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string per API-004); when both conditions would trigger in the same cycle transition, the regression halt is emitted and the monotonicity check is NOT consulted on the regressed item. Each counter keeps its own halt-precedence state — counters are NEVER collapsed across gates. The full ordering chain and worked examples are in the Retry Monotonicity Protocol below and the F-set + ordering precedence subsection.
 
-Every retry loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md) MUST apply two stop conditions BEFORE the existing iteration cap fires:
+**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 — strengthens zero-trust QA against oscillation):**
 
-1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and escalate with `non-convergent: |F_n| -> |F_{n+1}|` in the gate report. The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`) continues to the existing cap.
-2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately with `regression detected: Item X.Y passed at cycle N, failed at cycle N+1`. Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+This protocol is the FR-CONV.5 halt-guards wrapper layered ON TOP of every existing fix-cycle loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md). The wrapper introduces NO new retry loop and NO new stage — it adds two stop conditions evaluated BEFORE the existing iteration cap fires; the existing 3-cycle hard cap at `rf-team-lead.md:417` is preserved as the fourth-precedence backstop:
 
-**Precedence rule.** When both conditions trigger in the same cycle, regression takes precedence — the escalation message names the regressing item; the monotonicity halt is implicit.
+1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and emit `[HALT-MONOTONICITY] |F|=<n>` (the byte-exact halt-message wire string per API-004). The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`, e.g., `|F|=5,4`) continues to the existing cap. The monotonicity check is only consulted when `|F_n| > 0` AND only after the regression check has passed for this cycle transition.
+2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (the byte-exact halt-message wire string per API-004). Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+
+**Precedence rule (regression > monotonicity).** Regression detection ALWAYS runs BEFORE the monotonicity check on every cycle transition `n → n+1`. When both conditions would trigger in the same cycle, the regression halt-message is emitted and the monotonicity check is NOT consulted on the regressed item. The full ordering chain (regression → monotonicity → hard-cap → proceed) is documented in the F-set + ordering precedence section.
 
 **Independent counters.** Each retry counter keeps its own monotonicity history. RESEARCH_NEEDED, MALFORMED, research-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in rf-task-builder/rf-qa each track `F_n` and PASS-set state separately. Counters are NEVER collapsed (preserves the "tracked independently" property documented in Critical Rule #12).
 
 **Composition with PR-03 DNSP synthetic findings (INV-012 acceptance criterion).** Synthetic findings emitted by the DNSP protocol (PR-03) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. BUT a synthetic finding with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key appearing across consecutive cycles is a DEDUP case, NOT a regression — the same partition failed the same way twice; the regression-detection logic must compare by dedup key, not by raw finding count, when synthetic-dnsp items are involved. Two synthetic findings with identical dedup keys collapse into one with a "found N times" note (cf. PR-03 dedup behavior).
 
 **Single-cycle case.** If the first cycle PASSes, no second cycle runs; both guards are no-ops by construction.
+
+**API-004 Fix-Loop Halt Signals — wire ABI (M5 contract freeze):**
+
+This subsection is the byte-exact wire ABI for inter-loop halt signals. Producers (every fix-cycle loop above) MUST emit these strings verbatim; consumers (fixture asserts, execution-log scanners, downstream wrappers) MUST match them byte-for-byte. No paraphrasing, capitalisation drift, or whitespace deviation is permitted.
+
+**Halt-message strings (byte-exact wire form):**
+
+| Signal | Wire string (byte-exact) | Substitution |
+|---|---|---|
+| Monotonicity halt | `[HALT-MONOTONICITY] |F|=<n>` | `<n>` ← the integer cardinality `|F_{n+1}|` at the cycle the guard fires (the non-shrinking count) |
+| Regression halt | `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` | `X.Y` ← the regressed item identifier; `N` ← the prior-PASS cycle number |
+
+The em-dash `—` (U+2014) in the regression message and the literal pipe characters around `|F|` are part of the wire string. Substitutions are positional only — no surrounding whitespace, formatting, or punctuation may be altered.
+
+**F-set definition (item identity = dedup-key, cardinality post-dedup):**
+
+`F_n` is the SET (not multiset) of FAIL-verdict items at the end of fix cycle `n`. Set membership is determined by the dedup-key:
+- For ordinary checklist items: dedup-key = item ID (e.g., `3.2`).
+- For synthetic-dnsp findings (PR-03): dedup-key = `(assigned_files_range, escalation_ladder_exhaust_point)`.
+
+`|F_n|` is the cardinality of `F_n` AFTER dedup-key deduplication — two failures sharing a dedup-key collapse to one element BEFORE the monotonicity comparison is computed. The regression check uses the same dedup-key identity, so a synthetic-dnsp finding with an identical dedup-key re-emitted on cycle `n+1` is NOT a regression (the prior verdict was FAIL, not PASS); it is the INV-012 cross-cycle dedup case.
+
+**4-step ordering rule (strict per cycle transition `n → n+1`):**
+
+On every cycle transition `n → n+1`, run the following steps in this exact order and EXIT on the first match — `regression → monotonicity → hard-cap → proceed`:
+
+1. **Regression check.** If any item with verdict PASS at end-of-cycle-`n` has verdict FAIL at end-of-cycle-`n+1` (by dedup-key identity), HALT and emit the byte-exact regression halt-message. Do NOT consult subsequent steps.
+2. **Monotonicity check.** If `|F_n| > 0` AND `|F_{n+1}| >= |F_n|` (cardinality after dedup), HALT and emit the byte-exact monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (with `<n>` = `|F_{n+1}|`). Do NOT consult subsequent steps.
+3. **Hard-cap check.** If the per-gate cycle counter has reached the gate-specific cap (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3 — see the rf-task-builder.md per-gate cap table, with the global 3-cycle backstop at `rf-team-lead.md:417`), HALT per the gate's existing escalation path (HALT-and-escalate or Open Questions).
+4. **Proceed.** Re-spawn the fix cycle for cycle `n+1`.
+
+Strict ordering invariant: regression ALWAYS exits BEFORE monotonicity; monotonicity ALWAYS exits BEFORE hard-cap; hard-cap ALWAYS exits BEFORE proceed. Producers MUST NOT reorder or skip steps; consumers (fixture asserts) MUST verify ordering by emission ordering in the execution log.
+
+**INV-012 cross-cycle dedup composition (operational rule):**
+
+Synthetic-dnsp findings (PR-03 / FR-CONV.6) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. **BUT** a synthetic finding with an identical `dedup_key` `(assigned_files_range, escalation_ladder_exhaust_point)` across consecutive cycles is a **DEDUP case, NOT a regression** — its prior-cycle verdict was already FAIL, not PASS. It contributes `1` (not `2`) to `|F_{n+1}|`, and if it persists with nothing else changing it WILL trip the monotonicity guard — the intended behavior. This is the cross-cycle wiring of the F-set identity rule above (L1042-1048).
+
+**Cross-cycle dedup-key tracking (bookkeeping rule).** Each fix-cycle gate records, at end-of-cycle `n`, the FAIL-verdict set `F_n` keyed by dedup-key (ordinary item ID for checklist items; `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple for synthetic-dnsp findings — DM-003 contract row). The next cycle's `F_{n+1}` is computed by the same dedup-key identity, so a synthetic-dnsp finding with the same 2-tuple re-emitted on cycle `n+1` collapses with its cycle-`n` counterpart into a single element of `F_{n+1}` BEFORE the monotonicity comparison runs. No additional per-cycle state is required beyond the F-set itself.
+
+**Regression vs. persistence (cross-cycle decision rule).** The regression check at Step 1 of the 4-step ordering rule (L1054) requires `dedup_key ∈ PASS_n ∩ FAIL_{n+1}`. A synthetic-dnsp finding whose dedup-key was in `F_n` (FAIL_n) and is again in `F_{n+1}` (FAIL_{n+1}) has dedup_key ∉ PASS_n, so it is NEVER a regression — it is **persistence**. Persistence trips Step 2 (monotonicity) if and only if it makes `|F_{n+1}| >= |F_n|` (intended halt — the partition agent is stuck). Persistence with strict shrink elsewhere (e.g., `F_n = {item-3.1, synthetic-K}`, `F_{n+1} = {synthetic-K}` → `|F_{n+1}| = 1 < 2 = |F_n|`) continues to cycle `n+2` per Step 4 (proceed).
+
+**Worked examples (operational illustration):**
+
+1. **Cross-cycle dedup, strict shrink, no halt.** Cycle 1 `F_1 = {item-3.1, item-3.2, synthetic-K}` (`|F_1|=3`); cycle 2 `F_2 = {item-3.2, synthetic-K}` (`|F_2|=2`). Step 1 regression check: `PASS_1 ∩ FAIL_2 = ∅` (item-3.1 was FAIL_1, not PASS_1; synthetic-K was FAIL_1). Step 2 monotonicity check: `|F_2|=2 < |F_1|=3` → strict shrink → PROCEED. Step 4 re-spawns cycle 3. Synthetic-K's cross-cycle persistence contributes 1 to `|F_2|` (not 2), per the dedup-key identity rule.
+2. **Cross-cycle dedup, non-shrink, monotonicity halt (intended).** Cycle 1 `F_1 = {item-3.1, synthetic-K}` (`|F_1|=2`); cycle 2 `F_2 = {item-3.2, synthetic-K}` (`|F_2|=2`). Step 1 regression check: `PASS_1 ∩ FAIL_2 = ∅` (item-3.1 → PASS_2; item-3.2 was not in PASS_1; synthetic-K was FAIL_1). Step 2 monotonicity check: `|F_2|=2 >= |F_1|=2` → HALT `[HALT-MONOTONICITY] |F|=2`. The partition agent is stuck; the existing per-gate counter and the `rf-team-lead.md:417` 3-cycle backstop still govern the eventual hard-cap escalation if the operator overrides the monotonicity halt.
+3. **Same-cycle dedup collapse (no cross-cycle interaction).** Two synthetic findings emitted on the SAME cycle with the same `dedup_key` collapse into one record with a `found N times` note (PR-03 emitter behavior). They contribute 1 to `|F_n|`, not 2. Cross-cycle composition then operates on the post-collapse set.
+
+**Regression non-emission invariant (cross-cycle synthetic-dnsp).** A regression halt MUST NOT be emitted for any item whose dedup-key was in `F_n` (i.e., FAIL_n) — regardless of whether the item is a synthetic-dnsp finding or an ordinary checklist item. The Step 1 set predicate `dedup_key ∈ PASS_n ∩ FAIL_{n+1}` is the only condition that fires the regression halt; cross-cycle dedup is excluded from regression by construction of the predicate. Consumers (fixture asserts) MUST verify `grep -c "Regression detected on Item" <execution-log>` returns `0` for any cross-cycle same-dedup_key transition; the cross-cycle synthetic-dnsp fixture (TEST-022 at T05.14 / D-0065) codifies this invariant.
 
 ### A.10: Task File Validation
 
@@ -1899,7 +1949,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 11. **Multi-track isolation.** Failure in one track MUST NOT prevent other tracks from completing. Each track is independent — failed tracks are reported alongside successful ones.
 
-12. **Builder mediation has separate retry counters.** RESEARCH_NEEDED (max 2 rounds) and MALFORMED (max 2 rounds) are tracked independently. A builder that needs more research twice and then produces a bad file gets 4 total invocations, not 2.
+12. **Builder mediation has separate retry counters.** RESEARCH_NEEDED (max 2 rounds) and MALFORMED (max 2 rounds) are tracked independently. A builder that needs more research twice and then produces a bad file gets 4 total invocations, not 2. **Halt-precedence rule (FR-CONV.5 / API-004 — COMP-001-M5-r12 hard invariant).** Every retry counter — including these two and every per-gate counter in rf-task-builder/rf-qa — is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed`; the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is emitted BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string) on every cycle transition `n → n+1`. Counters are NEVER collapsed across gates; the existing per-gate caps (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3) and the global 3-cycle backstop at `rf-team-lead.md:417` remain the fourth-precedence step.
 
 13. **No team infrastructure.** This skill uses the Agent tool exclusively. NEVER use TeamCreate, TeamDelete, SendMessage, TaskCreate (with team_name), or TaskUpdate. All agents receive ESCALATION blocks overriding their team-based defaults.
 
