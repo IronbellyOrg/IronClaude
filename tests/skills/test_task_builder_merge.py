@@ -162,7 +162,7 @@ class TestPR01ExecutionContextHeader:
     ) -> None:
         # The block instructions must explicitly forbid file:line refs at the
         # task-level header.
-        assert "NEVER write specific" in skill_text
+        assert "NO specific file:line references" in skill_text
         assert "path.py:NN" in skill_text  # cited as the forbidden form
 
     def test_execution_context_optional_and_degrades_gracefully(
@@ -381,10 +381,7 @@ class TestPR02RetryMonotonicityGuards:
             or "Regression detection" in skill_text
         )
         # Regression > monotonicity precedence rule (PR-02 Round-2 spec).
-        assert (
-            "Regression takes precedence" in skill_text
-            or "regression takes precedence" in skill_text
-        )
+        assert "Precedence rule (regression > monotonicity)" in skill_text
 
     def test_skill_independent_counters_preserved(self, skill_text: str) -> None:
         # Each retry counter keeps its own monotonicity history.
@@ -405,7 +402,7 @@ class TestPR02RetryMonotonicityGuards:
         # The per-gate fix-cycle table in rf-task-builder must reference the
         # protocol.
         assert "Retry Monotonicity Protocol" in rf_task_builder_text
-        assert "non-convergent" in rf_task_builder_text
+        assert "byte-exact wire string" in rf_task_builder_text
         assert "regression detected" in rf_task_builder_text.lower()
 
     def test_rf_qa_has_protocol_in_fix_cycle(self, rf_qa_text: str) -> None:
