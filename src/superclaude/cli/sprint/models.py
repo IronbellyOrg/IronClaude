@@ -367,6 +367,7 @@ class SprintConfig(PipelineConfig):
     # Diagnostic fields (all default to pre-change behavior)
     debug: bool = False
     stall_timeout: int = 0  # 0 = disabled
+    startup_stall_timeout: int = 300  # 0 = disabled; fires when no events received yet (process never began streaming)
     stall_action: str = "warn"  # "warn" or "kill"
     phase_timeout: int = 0  # 0 = disabled
     # Shadow mode: trailing gates run in parallel, results are metrics-only
@@ -471,6 +472,12 @@ class SprintConfig(PipelineConfig):
 
     def error_file(self, phase: Phase) -> Path:
         return self.results_dir / f"phase-{phase.number}-errors.txt"
+
+    def task_output_file(self, phase: Phase, task: "TaskEntry") -> Path:
+        return self.results_dir / f"phase-{phase.number}-task-{task.task_id}-output.txt"
+
+    def task_error_file(self, phase: Phase, task: "TaskEntry") -> Path:
+        return self.results_dir / f"phase-{phase.number}-task-{task.task_id}-errors.txt"
 
     def result_file(self, phase: Phase) -> Path:
         return self.results_dir / f"phase-{phase.number}-result.md"

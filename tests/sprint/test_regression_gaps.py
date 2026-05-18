@@ -57,6 +57,7 @@ from superclaude.cli.sprint.models import (
     SprintConfig,
     SprintOutcome,
     SprintResult,
+    TaskEntry,
 )
 from superclaude.cli.sprint.monitor import OutputMonitor
 from superclaude.cli.sprint.process import ClaudeProcess
@@ -521,6 +522,72 @@ class TestSprintLoggerPhaseStart:
         assert ev["phase_name"] == phase.display_name
         assert "timestamp" in ev
         assert "phase_file" in ev
+
+    def test_phase_start_emitted_for_per_task_branch(self, tmp_path):
+        """C4 regression: per-task branch in execute_sprint MUST emit phase_start.
+
+        Prior to C4, only the per-phase fallback at executor.py:1328 emitted
+        phase_start. The per-task branch at executor.py:1262-1300 skipped the
+        call, so live production sprints (which use per-task routing) emitted
+        zero phase_start events. The fix adds logger.write_phase_start in the
+        per-task branch immediately after started_at is computed.
+        """
+        import json
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        phase.file.write_text("# Phase 1\n\n### T01.01 — Synthetic task\n")
+        config.results_dir.mkdir(parents=True, exist_ok=True)
+
+        fake_task = TaskEntry(
+            task_id="T01.01",
+            title="Synthetic task",
+            description="test",
+        )
+        with (
+            patch(
+                "superclaude.cli.sprint.executor._parse_phase_tasks",
+                return_value=[fake_task],
+            ),
+            patch(
+                "superclaude.cli.sprint.executor.execute_phase_tasks",
+                return_value=([], [], []),
+            ),
+            patch(
+                "superclaude.cli.sprint.executor.run_post_phase_wiring_hook",
+                side_effect=lambda phase, config, phase_result, **kw: phase_result,
+            ),
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch("superclaude.cli.sprint.notify._notify"),
+        ):
+            execute_sprint(config)
+
+        events = [
+            json.loads(line)
+            for line in config.execution_log_jsonl.read_text().strip().split("\n")
+            if line.strip()
+        ]
+        phase_starts = [e for e in events if e.get("event") == "phase_start"]
+        phase_completes = [e for e in events if e.get("event") == "phase_complete"]
+        assert phase_starts, (
+            f"Per-task branch did not emit phase_start. Events seen: "
+            f"{[e.get('event') for e in events]}"
+        )
+        ps = phase_starts[0]
+        assert ps["phase"] == 1, f"Expected phase==1, got {ps.get('phase')}"
+        assert "phase_name" in ps
+        assert "phase_file" in ps
+        assert "timestamp" in ps
+        if phase_completes:
+            start_idx = events.index(ps)
+            complete_idx = events.index(phase_completes[0])
+            assert start_idx < complete_idx, (
+                f"phase_start must precede phase_complete, "
+                f"got start_idx={start_idx} complete_idx={complete_idx}"
+            )
 
     def test_read_status_from_log_stub_importable(self):
         """read_status_from_log is a stub that must be importable without error."""

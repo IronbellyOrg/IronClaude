@@ -268,3 +268,169 @@ class TestWatchdogStallReset:
         result = captured[0]
         # Warn action with resume should succeed
         assert result.outcome == SprintOutcome.SUCCESS
+
+
+# ---------------------------------------------------------------------------
+# C1 — Startup-stall watchdog (events_received == 0)
+# ---------------------------------------------------------------------------
+
+
+class TestStartupStallWatchdog:
+    """The new startup-stall guard fires when no events have been received
+    yet AND stall_seconds exceeds `startup_stall_timeout`. Distinct from the
+    mid-stall guard which requires `events_received > 0`."""
+
+    def test_startup_stall_fires_when_no_events_received(self, tmp_path):
+        # Only the startup branch can trigger (mid stall_timeout effectively off)
+        config = _make_config(
+            tmp_path,
+            startup_stall_timeout=10,
+            stall_timeout=999999,
+            stall_action="kill",
+        )
+
+        terminated = [False]
+
+        class _StartupStallPopen:
+            def __init__(self):
+                self.returncode = None
+                self.pid = 7777
+                self.stdin = MagicMock()  # workaround pre-existing .stdin AttributeError
+
+            def poll(self):
+                if terminated[0]:
+                    self.returncode = 1
+                    return 1
+                return None
+
+            def wait(self, timeout=None):
+                self.returncode = 1
+                return 1
+
+        def _factory(*args, **kwargs):
+            phase = config.phases[0]
+            config.results_dir.mkdir(parents=True, exist_ok=True)
+            # NO output written → events_received remains 0
+            config.output_file(phase).write_text("")
+            return _StartupStallPopen()
+
+        # MonitorState with stall_seconds large and events_received == 0
+        startup_stalled = MonitorState(stall_seconds=15.0, events_received=0)
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.pipeline.process.os.getpgid", return_value=7777),
+            patch(
+                "superclaude.cli.pipeline.process.os.killpg",
+                side_effect=lambda *a, **k: terminated.__setitem__(0, True),
+            ),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+            patch("superclaude.cli.sprint.executor.time.sleep"),
+            patch("superclaude.cli.sprint.executor.OutputMonitor") as monitor_cls,
+        ):
+            monitor_mock = MagicMock()
+            monitor_mock.state = startup_stalled
+            monitor_cls.return_value = monitor_mock
+
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+
+            with pytest.raises(SystemExit) as exc:
+                execute_sprint(config)
+            assert exc.value.code == 1
+
+        assert len(captured) == 1
+        result = captured[0]
+        assert result.outcome == SprintOutcome.HALTED, (
+            f"Startup-stall kill should produce HALTED, got {result.outcome}"
+        )
+        # Treated as timeout per existing watchdog convention
+        assert result.phase_results[0].exit_code == 124, (
+            f"Expected exit_code 124 (timeout sentinel), got "
+            f"{result.phase_results[0].exit_code}"
+        )
+
+    def test_mid_stall_unchanged_when_events_received(self, tmp_path):
+        """Mid-stall branch still fires when events_received > 0 — startup
+        guard must NOT short-circuit the mid-stall behavior."""
+        config = _make_config(
+            tmp_path,
+            startup_stall_timeout=999999,  # startup guard effectively off
+            stall_timeout=10,
+            stall_action="kill",
+        )
+
+        terminated = [False]
+
+        class _MidStallPopen:
+            def __init__(self):
+                self.returncode = None
+                self.pid = 7778
+                self.stdin = MagicMock()
+
+            def poll(self):
+                if terminated[0]:
+                    self.returncode = 1
+                    return 1
+                return None
+
+            def wait(self, timeout=None):
+                self.returncode = 1
+                return 1
+
+        def _factory(*args, **kwargs):
+            phase = config.phases[0]
+            config.results_dir.mkdir(parents=True, exist_ok=True)
+            config.output_file(phase).write_text("some events emitted\n")
+            return _MidStallPopen()
+
+        mid_stalled = MonitorState(stall_seconds=15.0, events_received=5)
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.pipeline.process.os.getpgid", return_value=7778),
+            patch(
+                "superclaude.cli.pipeline.process.os.killpg",
+                side_effect=lambda *a, **k: terminated.__setitem__(0, True),
+            ),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+            patch("superclaude.cli.sprint.executor.time.sleep"),
+            patch("superclaude.cli.sprint.executor.OutputMonitor") as monitor_cls,
+        ):
+            monitor_mock = MagicMock()
+            monitor_mock.state = mid_stalled
+            monitor_cls.return_value = monitor_mock
+
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+
+            with pytest.raises(SystemExit) as exc:
+                execute_sprint(config)
+            assert exc.value.code == 1
+
+        assert len(captured) == 1
+        result = captured[0]
+        assert result.outcome == SprintOutcome.HALTED
+        assert result.phase_results[0].exit_code == 124

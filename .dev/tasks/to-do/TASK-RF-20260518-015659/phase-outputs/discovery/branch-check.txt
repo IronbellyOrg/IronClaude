@@ -1,0 +1,4 @@
+branch: feat/hook-sync-and-matcher-fix
+sprint_pipeline_mods: (none — clean baseline confirmed)
+hooks_mods: (none currently; src/superclaude/hooks/ is clean as of 2026-05-18 01:55Z, despite session-start git status earlier indicating otherwise — likely stashed or auto-cleared by in-flight sprint Phase 6 work, which does not touch sprint/pipeline runner code)
+note: in-flight sprint Phase 6 is currently modifying src/superclaude/agents/rf-{analyst,qa,qa-qualitative}.md and src/superclaude/skills/task-builder/SKILL.md (plus their .claude/ mirrors). This task's scope (src/superclaude/cli/sprint/, src/superclaude/cli/pipeline/, tests/sprint/, tests/pipeline/) does NOT overlap with those edits — proceeding is safe.

@@ -136,6 +136,14 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     help="Stall timeout in seconds (0 = disabled, default: 0)",
 )
 @click.option(
+    "--startup-stall-timeout",
+    "startup_stall_timeout",
+    type=int,
+    default=300,
+    show_default=True,
+    help="Seconds to wait for the first event from a subprocess before treating as startup-stall (0 = disabled).",
+)
+@click.option(
     "--stall-action",
     type=click.Choice(["warn", "kill"]),
     default="warn",
@@ -183,6 +191,7 @@ def run(
     tmux_session_name: str,
     debug_mode: bool,
     stall_timeout: int,
+    startup_stall_timeout: int,
     stall_action: str,
     shadow_gates: bool,
     force_fidelity_fail: str,
@@ -213,6 +222,7 @@ def run(
         permission_flag=permission_flag,
         debug=debug_mode,
         stall_timeout=stall_timeout,
+        startup_stall_timeout=startup_stall_timeout,
         stall_action=stall_action,
         shadow_gates=shadow_gates,
     )
