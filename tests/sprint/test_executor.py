@@ -1454,3 +1454,118 @@ class TestWritePreliminaryResult:
             r.message for r in caplog.records if r.levelno == logging.WARNING
         ]
         assert any("preliminary result write failed" in m for m in warning_messages)
+
+
+class TestTimeoutFormulaConsistency:
+    """C3 — Assert SprintGatePolicy.build_remediation_step uses the canonical
+    `max_turns * 120 + 300` formula matching executor.py:1106 and
+    sprint/process.py:115. Regression guard against the divergent
+    `max_turns * 60` foot-gun.
+    """
+
+    def _make_gate_result(self, step_id: str = "step-x") -> object:
+        from superclaude.cli.pipeline.trailing_gate import TrailingGateResult
+
+        return TrailingGateResult(
+            step_id=step_id,
+            passed=False,
+            evaluation_ms=0.0,
+            failure_reason="synthetic",
+        )
+
+    def test_remediation_step_timeout_matches_canonical_formula(self, tmp_path):
+        from superclaude.cli.sprint.executor import SprintGatePolicy
+
+        config = _make_config(tmp_path, num_phases=1)
+        # _make_config sets max_turns=5; override to 50 for the canonical assertion
+        config = SprintConfig(**{**config.__dict__, "max_turns": 50})
+        policy = SprintGatePolicy(config)
+        step = policy.build_remediation_step(self._make_gate_result())
+        assert step.timeout_seconds == 50 * 120 + 300 == 6300, (
+            f"Expected canonical timeout 6300s (max_turns=50 * 120 + 300), "
+            f"got {step.timeout_seconds}"
+        )
+
+    def test_remediation_step_timeout_matches_per_phase_for_various_max_turns(
+        self, tmp_path
+    ):
+        from superclaude.cli.sprint.executor import SprintGatePolicy
+
+        base = _make_config(tmp_path, num_phases=1)
+        expected = {
+            1: 1 * 120 + 300,
+            50: 50 * 120 + 300,
+            100: 100 * 120 + 300,
+            500: 500 * 120 + 300,
+        }
+        for mt, want in expected.items():
+            config = SprintConfig(**{**base.__dict__, "max_turns": mt})
+            policy = SprintGatePolicy(config)
+            step = policy.build_remediation_step(self._make_gate_result())
+            assert step.timeout_seconds == want, (
+                f"max_turns={mt}: expected {want}s, got {step.timeout_seconds}"
+            )
+
+
+def test_run_task_subprocess_uses_task_output_file(tmp_path):
+    """C2 — `_run_task_subprocess` must wire `task_output_file(phase, task)` /
+    `task_error_file(phase, task)` into the underlying ClaudeProcess, NOT the
+    phase-scoped `output_file(phase)` / `error_file(phase)`. Also confirms the
+    C3 canonical formula is preserved (`max_turns * 120 + 300`).
+    """
+    from unittest.mock import MagicMock, patch
+
+    from superclaude.cli.sprint.executor import _run_task_subprocess
+
+    config = _make_config(tmp_path, num_phases=1)
+    phase = config.phases[0]
+    task = TaskEntry(task_id="T01.01", title="x", description="d")
+
+    captured = {}
+
+    def capture_init(self, **kwargs):
+        captured.update(kwargs)
+        # Populate attributes the post-init code path reads
+        self._process = MagicMock(returncode=0)
+        self._stdout_fh = None
+        self._stderr_fh = None
+
+    # Pre-create the output file so the post-subprocess size read at
+    # executor.py:1114 doesn't trigger FileNotFoundError (the .stat() inside
+    # `if output_path.exists():` guards but `stat()` itself is fine when path
+    # is missing — the guard handles it). Still, give it something.
+    config.results_dir.mkdir(parents=True, exist_ok=True)
+    config.task_output_file(phase, task).write_text("")
+
+    with (
+        patch(
+            "superclaude.cli.pipeline.process.ClaudeProcess.__init__",
+            new=capture_init,
+        ),
+        patch(
+            "superclaude.cli.pipeline.process.ClaudeProcess.start",
+            return_value=None,
+        ),
+        patch(
+            "superclaude.cli.pipeline.process.ClaudeProcess.wait",
+            return_value=0,
+        ),
+    ):
+        rc, _, _ = _run_task_subprocess(task, config, phase)
+
+    assert rc == 0
+    # Core C2 assertions
+    assert captured["output_file"] == config.task_output_file(phase, task), (
+        f"Expected task_output_file path, got {captured.get('output_file')}"
+    )
+    assert captured["error_file"] == config.task_error_file(phase, task), (
+        f"Expected task_error_file path, got {captured.get('error_file')}"
+    )
+    # Negative: must NOT be the phase-scoped paths
+    assert captured["output_file"] != config.output_file(phase)
+    assert captured["error_file"] != config.error_file(phase)
+    # C3 consistency preserved
+    assert captured["timeout_seconds"] == config.max_turns * 120 + 300, (
+        f"Expected canonical timeout {config.max_turns * 120 + 300}, "
+        f"got {captured.get('timeout_seconds')}"
+    )

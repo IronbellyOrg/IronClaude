@@ -83,7 +83,7 @@ class SprintGatePolicy:
             prompt=prompt,
             output_file=output_dir / f"{gate_result.step_id}_remediation.md",
             gate=None,
-            timeout_seconds=self._config.max_turns * 60,
+            timeout_seconds=self._config.max_turns * 120 + 300,
         )
 
     def files_changed(self, step_result: StepResult) -> set[Path]:
@@ -1098,8 +1098,8 @@ def _run_task_subprocess(
     _Base.__init__(
         proc,
         prompt=prompt,
-        output_file=config.output_file(phase),
-        error_file=config.error_file(phase),
+        output_file=config.task_output_file(phase, task),
+        error_file=config.task_error_file(phase, task),
         max_turns=config.max_turns,
         model=config.model,
         permission_flag=config.permission_flag,
@@ -1109,7 +1109,7 @@ def _run_task_subprocess(
     proc.start()
     proc.wait()
     exit_code = proc._process.returncode if proc._process else -1
-    output_path = config.output_file(phase)
+    output_path = config.task_output_file(phase, task)
     output_bytes = output_path.stat().st_size if output_path.exists() else 0
     # Turn counting is wired separately in T02.06
     return (exit_code if exit_code is not None else -1, 0, output_bytes)
@@ -1261,6 +1261,7 @@ def execute_sprint(config: SprintConfig):
             tasks = _parse_phase_tasks(phase, config)
             if tasks:
                 started_at = datetime.now(timezone.utc)
+                logger.write_phase_start(phase, started_at)
                 # Signal TUI that this phase is now active
                 tui.update(sprint_result, MonitorState(), phase)
                 task_results, remaining, phase_gate_results = execute_phase_tasks(
@@ -1362,11 +1363,50 @@ def execute_sprint(config: SprintConfig):
                         stall_status=ms.stall_status,
                     )
 
-                    # --- Watchdog: stall timeout check ---
+                    # --- Watchdog: startup-stall check (no events received yet) ---
+                    if (
+                        config.startup_stall_timeout > 0
+                        and ms.events_received == 0
+                        and ms.stall_seconds > config.startup_stall_timeout
+                        and not _stall_acted
+                    ):
+                        _stall_acted = True
+                        debug_log(
+                            _dbg,
+                            "startup_stall_triggered",
+                            phase=phase.number,
+                            action=config.stall_action,
+                            stall_seconds=round(ms.stall_seconds, 1),
+                            pid=proc_manager._process.pid,
+                        )
+                        if config.stall_action == "kill":
+                            import sys
+
+                            print(
+                                f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
+                                f"{config.startup_stall_timeout}s, no events received) — "
+                                f"killing phase {phase.number}",
+                                file=sys.stderr,
+                            )
+                            _timed_out = True
+                            proc_manager.terminate()
+                            break
+                        else:
+                            # warn action: log and continue
+                            import sys
+
+                            print(
+                                f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
+                                f"{config.startup_stall_timeout}s, no events received) — "
+                                f"warning for phase {phase.number}",
+                                file=sys.stderr,
+                            )
+
+                    # --- Watchdog: mid-stall check (events seen, then silence) ---
                     if (
                         config.stall_timeout > 0
                         and ms.stall_seconds > config.stall_timeout
-                        and ms.events_received > 0  # don't trigger during startup
+                        and ms.events_received > 0  # only after stream began
                         and not _stall_acted
                     ):
                         _stall_acted = True
@@ -1382,7 +1422,7 @@ def execute_sprint(config: SprintConfig):
                             import sys
 
                             print(
-                                f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
+                                f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
                                 f"{config.stall_timeout}s) — killing phase {phase.number}",
                                 file=sys.stderr,
                             )
@@ -1394,7 +1434,7 @@ def execute_sprint(config: SprintConfig):
                             import sys
 
                             print(
-                                f"[WATCHDOG] Stall detected ({ms.stall_seconds:.0f}s > "
+                                f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
                                 f"{config.stall_timeout}s) — warning for phase {phase.number}",
                                 file=sys.stderr,
                             )

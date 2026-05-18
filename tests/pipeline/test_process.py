@@ -227,3 +227,77 @@ class TestClaudeProcessStdinDelivery:
             p.start()
             rc = p.wait()
         assert rc == 0
+
+
+class TestClaudeProcessOutputFileCollision:
+    """C2 — Per-task subprocesses must NOT overwrite each other. The fix
+    introduces `SprintConfig.task_output_file(phase, task)` /
+    `task_error_file(phase, task)` helpers that produce per-task paths.
+    This test exercises that machinery end-to-end with real subprocesses.
+    """
+
+    def _patch_claude_binary(self, cmd_override):
+        return patch.object(ClaudeProcess, "build_command", return_value=cmd_override)
+
+    def test_two_starts_distinct_output_files_preserve_both_outputs(self, tmp_path):
+        from superclaude.cli.sprint.models import Phase, SprintConfig, TaskEntry
+
+        phase = Phase(number=2, file=tmp_path / "phase-2-tasklist.md")
+        phase.file.write_text("# Phase 2\n")
+        index = tmp_path / "tasklist-index.md"
+        index.write_text("- phase-2-tasklist.md\n")
+        config = SprintConfig(
+            index_path=index,
+            release_dir=tmp_path,
+            phases=[phase],
+            start_phase=2,
+            end_phase=2,
+            max_turns=5,
+        )
+
+        task_a = TaskEntry(task_id="T02.01", title="A", description="d")
+        task_b = TaskEntry(task_id="T02.02", title="B", description="d")
+
+        # C2 helpers must produce distinct paths — this is the assertion the
+        # test is load-bearing on (helpers from models.py:475-479).
+        out_a = config.task_output_file(phase, task_a)
+        out_b = config.task_output_file(phase, task_b)
+        err_a = config.task_error_file(phase, task_a)
+        err_b = config.task_error_file(phase, task_b)
+        assert out_a != out_b, "task_output_file produced identical paths for distinct tasks"
+        assert err_a != err_b, "task_error_file produced identical paths for distinct tasks"
+
+        config.results_dir.mkdir(parents=True, exist_ok=True)
+
+        stand_in = [
+            sys.executable,
+            "-c",
+            "import sys; sys.stdout.write(sys.stdin.read())",
+        ]
+
+        p_a = ClaudeProcess(
+            prompt="AAA",
+            output_file=out_a,
+            error_file=err_a,
+        )
+        p_b = ClaudeProcess(
+            prompt="BBB",
+            output_file=out_b,
+            error_file=err_b,
+        )
+
+        with self._patch_claude_binary(stand_in):
+            p_a.start()
+            rc_a = p_a.wait()
+            p_b.start()
+            rc_b = p_b.wait()
+
+        assert rc_a == 0
+        assert rc_b == 0
+        text_a = out_a.read_text(encoding="utf-8")
+        text_b = out_b.read_text(encoding="utf-8")
+        assert text_a == "AAA", f"Expected AAA in out_a, got {text_a!r}"
+        assert text_b == "BBB", f"Expected BBB in out_b, got {text_b!r}"
+        # Cross-contamination guard — proves per-task path resolution prevented collision
+        assert "BBB" not in text_a
+        assert "AAA" not in text_b

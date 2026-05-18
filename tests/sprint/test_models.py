@@ -1042,3 +1042,54 @@ class TestTaskResult:
         assert tr1.to_context_summary(verbose=False) == tr2.to_context_summary(
             verbose=False
         )
+
+
+# ---------------------------------------------------------------------------
+# C2 — task_output_file / task_error_file additive helpers
+# ---------------------------------------------------------------------------
+
+
+class TestTaskOutputFileHelpers:
+    """The new `task_output_file(phase, task)` and `task_error_file(phase, task)`
+    helpers must generate per-task paths so per-task subprocesses don't overwrite
+    each other's output files. Existing `output_file(phase)` / `error_file(phase)`
+    methods must remain unchanged (additive — Open Question Q2)."""
+
+    def _make_config(self, tmp_path):
+        from superclaude.cli.sprint.models import Phase, SprintConfig
+        phase = Phase(number=2, file=tmp_path / "phase-2-tasklist.md")
+        phase.file.write_text("# Phase 2\n")
+        index = tmp_path / "tasklist-index.md"
+        index.write_text("- phase-2-tasklist.md\n")
+        return SprintConfig(
+            index_path=index,
+            release_dir=tmp_path,
+            phases=[phase],
+            start_phase=2,
+            end_phase=2,
+            max_turns=5,
+        ), phase
+
+    def test_task_output_file_generates_per_task_path(self, tmp_path):
+        config, phase = self._make_config(tmp_path)
+        task = TaskEntry(task_id="T02.05", title="X", description="d")
+        out = config.task_output_file(phase, task)
+        err = config.task_error_file(phase, task)
+        assert out.name == "phase-2-task-T02.05-output.txt"
+        assert err.name == "phase-2-task-T02.05-errors.txt"
+        assert out.parent == config.results_dir
+        assert err.parent == config.results_dir
+
+    def test_distinct_tasks_get_distinct_paths(self, tmp_path):
+        config, phase = self._make_config(tmp_path)
+        a = TaskEntry(task_id="T02.05", title="X", description="d")
+        b = TaskEntry(task_id="T02.06", title="Y", description="d")
+        assert config.task_output_file(phase, a) != config.task_output_file(phase, b)
+        assert config.task_error_file(phase, a) != config.task_error_file(phase, b)
+
+    def test_legacy_output_file_unchanged(self, tmp_path):
+        """Q2 invariant — existing `output_file(phase)` MUST still work for
+        non-task-scoped per-phase subprocesses (the 17 existing callers)."""
+        config, phase = self._make_config(tmp_path)
+        assert config.output_file(phase).name == "phase-2-output.txt"
+        assert config.error_file(phase).name == "phase-2-errors.txt"
