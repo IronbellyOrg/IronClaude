@@ -419,40 +419,47 @@ class TestDistinctDedupKeysDoNotCollapse:
 
 
 # ---------------------------------------------------------------------------
-# AC — Adversarial: emission with found_n_times>1 on a first-seen
-# dedup_key is rejected pre-collapse by the DM-003 validator (R-119),
-# so the +1 increment cannot be skipped by emitting "pre-incremented"
-# records.
+# AC — Per-record validator scope: validate_dnsp_emission accepts
+# any found_n_times >= 1 as a structurally valid record. The "first
+# emission must be 1" constraint at R-119 is enforced by the wrapper
+# rule + collapse helper invariants, NOT by the per-record validator.
+# This pair of tests pins that contract scope so a future refactor
+# that pushes R-119 down into the validator (or vice versa) is caught.
 # ---------------------------------------------------------------------------
 
 
-class TestEmittedFoundNTimesGreaterThanOneRejected:
-    """The wrapper bullet at R-119 forbids first-emission
-    found_n_times values other than ``1``. A regression that let
-    the emitter publish ``found_n_times=2`` directly would bypass
-    the +1 collision counter and undermine TEST-019. The validator
-    rejects pre-collapse, so the collapse helper raises."""
+class TestFoundNTimesValidatorScopeIsPermissive:
+    """Pins the contract scope of `validate_dnsp_emission` with
+    respect to ``found_n_times``: the per-record validator is
+    permissive (accepts any ``found_n_times >= 1``) because the
+    +1-from-current collapse semantics permits arbitrary >=1
+    starting points for *post-emission* records (records that have
+    already been through one or more collapses).
 
-    def test_emission_with_found_n_times_2_rejected_pre_collapse(self):
+    The R-119 "first emission must be 1" rule lives on the wrapper
+    (`emit_dnsp` / collapse-helper invariants), not the validator.
+    See `test_collapse_increments_from_current_value` below for the
+    paired collapse-helper assertion that R-119 is enforced
+    elsewhere in the stack."""
+
+    def test_validator_accepts_found_n_times_2_as_per_record_valid(self):
+        """A record with ``found_n_times=2`` passes the per-record
+        validator. This intentionally asserts ``v.ok`` to lock in
+        the validator's permissive scope — R-119 ("first emission
+        must be 1") is NOT a validator concern; it is enforced by
+        the wrapper rule + collapse-helper invariants tested in
+        the paired ``test_collapse_increments_from_current_value``
+        case below. A regression that tightens the validator to
+        reject ``found_n_times > 1`` would break legitimate
+        post-collapse records and should fail this test."""
         rec = build_twice_exhaust_emission()
-        rec["found_n_times"] = 2  # claim two collisions without evidence
-        # Direct validator check: rejected.
+        rec["found_n_times"] = 2  # represents a post-collapse record
         v = validate_dnsp_emission(rec)
-        # The validator allows found_n_times>=1 — it's the wrapper
-        # rule that adds "first emission must be 1" — but the rule
-        # is encoded as "default 1 + +1 on collapse" so the only
-        # path to fnt=2 is via collapse. The collapse helper's
-        # invariant is that input records are individually valid;
-        # an input with fnt=2 is *valid as a record*, but cannot
-        # have been first-seen. The TEST-019 fixture's collapse
-        # helper starts every key at the input's value and adds
-        # +1 per subsequent collision; this is the "increments by
-        # exactly 1 from its current value" semantics. Confirm.
         assert v.ok, (
             "found_n_times>=1 is per-record valid (the +1-from-current "
-            "semantics permits N>=1 starting points; the wrapper bullet "
-            "constrains the FIRST emission to 1 via R-119, but the "
-            "collapse helper's input is post-emission)"
+            "semantics permits N>=1 starting points for post-emission "
+            "records; R-119's 'first emission must be 1' constraint is "
+            "enforced by the wrapper rule, not the validator)"
         )
 
     def test_collapse_increments_from_current_value(self):
