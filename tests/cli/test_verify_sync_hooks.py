@@ -125,10 +125,16 @@ def test_V1_clean_tree_exits_zero():  # noqa: N802 — V1-V7 are release-spec §
 
     Maps to: AC-1.1.
 
-    NOTE: This test will fail until the .claude/hooks/auggie-bash-gate.sh
-    sync-orphan and reject-workspace-writes.sh installer-orphan are resolved
-    per release-spec §6 / Open Questions OQ-2 / OQ-3. Once those are
-    addressed in a follow-up PR, this test should pass.
+    OQ-2 (auggie-bash-gate.sh sync-orphan) was resolved on 2026-05-18 via
+    ARCHIVE-then-DELETE (the script body lives at
+    `.dev/releases/complete/auggie-first/auggie-bash-gate-archived-2026-05-18.sh`
+    and the original `.claude/hooks/auggie-bash-gate.sh` was deleted).
+
+    OQ-3 (reject-workspace-writes.sh installer-orphan) was resolved on
+    2026-05-18 by adding `reject-workspace-writes.sh` to `_FRESHNESS_SCRIPTS`
+    in `src/superclaude/cli/install_hooks.py`.
+
+    With both OQs resolved, this test should now PASS on a clean tree.
     """
     result = _run_verify_sync()
     assert result.returncode == 0, result.stdout + result.stderr
