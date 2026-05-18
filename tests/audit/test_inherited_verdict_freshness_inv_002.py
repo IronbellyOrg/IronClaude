@@ -32,7 +32,6 @@ import hashlib
 import re
 import time
 from pathlib import Path
-from typing import Iterable
 
 import pytest
 

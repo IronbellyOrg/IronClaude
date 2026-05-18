@@ -53,9 +53,9 @@ Run: ``uv run pytest tests/audit/test_dnsp_twice_exhaust.py -v``
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import pytest
 

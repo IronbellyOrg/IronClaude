@@ -84,8 +84,8 @@ from tests.audit.test_evidence_bound_tb_add_8 import (
 )
 from tests.audit.test_nfr_conv_6_self_contained import (
     FULL_FIELDS_FIXTURE,
-    STRIPPED_FIXTURE,
     SCHEMA_FIELDS,
+    STRIPPED_FIXTURE,
     _aggregate,
     run_all_tb_add,
     tb_add_1,
