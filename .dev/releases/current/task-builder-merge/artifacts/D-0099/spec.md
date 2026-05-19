@@ -115,7 +115,9 @@ Full sub-agent report archived at `D-0099/evidence.md` §3.
 
 ---
 
-## 4. Rollback procedure (verbatim from release-spec §19.4)
+## 4. Rollback procedure (canonical — referenced from release-spec §13.1)
+
+> **Doc-drift note (2026-05-19):** The original heading cited `release-spec §19.4`, which was never authored. The canonical rollback now lives at release-spec §13.1, which references this section verbatim. The inscribed v3.9 tag message preserves the §19.4 wording as a historical record; treat any §19.4 citation in pre-tag artifacts as §13.1.
 
 If any post-GA-tag K-003 PENDING run (#4 or #5) FAILs the audit
 criteria, or any other M7 Exit-Condition criterion is observed to
@@ -134,8 +136,7 @@ git tag -d v3.9
 #   git push origin --delete v3.9
 ```
 
-**Authority:** release-spec §19.4 + phase-7-tasklist.md L966 "delete
-tag; revert per-FR commits in reverse order".
+**Authority:** release-spec §13.1 (formerly §19.4 in pre-tag inscription — see release-spec §13 preamble) + phase-7-tasklist.md L966 "delete tag; revert per-FR commits in reverse order".
 
 ### 4.2 Per-FR revert (reverse order — newest → oldest)
 
