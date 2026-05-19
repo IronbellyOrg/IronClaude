@@ -163,7 +163,7 @@ def launch_in_tmux(config: SprintConfig):
     subprocess.run(["tmux", "attach-session", "-t", name])
 
     # Read the exit code written by execute_sprint() inside the tmux session
-    sentinel = config.release_dir / ".sprint-exitcode"
+    sentinel = config.state_dir / ".sprint-exitcode"
     exit_code = 0
     try:
         exit_code = int(sentinel.read_text().strip())

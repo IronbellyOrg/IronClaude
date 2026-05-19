@@ -97,7 +97,8 @@ class TestThreePaneLayout:
             return _ok_result()
 
         # Make the sentinel read succeed with exit 0 so launch returns cleanly.
-        sentinel = config.release_dir / ".sprint-exitcode"
+        config.state_dir.mkdir(parents=True, exist_ok=True)
+        sentinel = config.state_dir / ".sprint-exitcode"
         sentinel.write_text("0\n")
 
         with patch("superclaude.cli.sprint.tmux.subprocess.run", side_effect=fake_run):

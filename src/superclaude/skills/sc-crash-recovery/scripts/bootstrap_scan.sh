@@ -87,7 +87,14 @@ sprints_state() {
     local name exit_code log_tail manifest_status
     name=$(basename "$d")
     exit_code=""
-    [[ -f "$d/.sprint-exitcode" ]] && exit_code=$(tr -d '[:space:]' < "$d/.sprint-exitcode" 2>/dev/null || echo "")
+    # Reads .sprint-exitcode from .dev/sprint-state/<release-name>/ (post-FU-001)
+    # with fallback to in-release path for legacy archives.
+    state_sentinel="$ABS_PROJECT/.dev/sprint-state/$name/.sprint-exitcode"
+    if [[ -f "$state_sentinel" ]]; then
+      exit_code=$(tr -d '[:space:]' < "$state_sentinel" 2>/dev/null || echo "")
+    elif [[ -f "$d/.sprint-exitcode" ]]; then
+      exit_code=$(tr -d '[:space:]' < "$d/.sprint-exitcode" 2>/dev/null || echo "")
+    fi
     log_tail=""
     if [[ -f "$d/execution-log.jsonl" ]]; then
       log_tail=$(tail -1 "$d/execution-log.jsonl" 2>/dev/null | tr '\n' ' ' | sed 's/"/\\"/g' | cut -c1-300)
@@ -123,6 +130,7 @@ SESSIONS=$(recent_sessions | awk 'BEGIN{printf "["} {printf "%s\"%s\"", sep, $0;
 ROADMAP_STATES=$(recent_files ".roadmap-state.json" | awk 'BEGIN{printf "["} {printf "%s\"%s\"", sep, $0; sep=","} END{printf "]"}')
 MANIFESTS=$(recent_files "manifest.json" | awk 'BEGIN{printf "["} {printf "%s\"%s\"", sep, $0; sep=","} END{printf "]"}')
 EXEC_LOGS=$(recent_files "execution-log.jsonl" | awk 'BEGIN{printf "["} {printf "%s\"%s\"", sep, $0; sep=","} END{printf "]"}')
+# recent_files uses find -name so new state_dir paths (.dev/sprint-state/**/.sprint-exitcode) are picked up automatically post-FU-001
 EXIT_CODES=$(recent_files ".sprint-exitcode" | awk 'BEGIN{printf "["} {printf "%s\"%s\"", sep, $0; sep=","} END{printf "]"}')
 
 cat <<JSON

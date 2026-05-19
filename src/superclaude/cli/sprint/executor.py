@@ -1748,15 +1748,27 @@ def execute_sprint(config: SprintConfig):
         except Exception:
             pass
 
-    # Write sentinel exit code file so tmux caller can read the outcome
+    # Write sentinel exit code file in state_dir (non-tracked transient path) so tmux caller can read the outcome
     _exitcode = 0 if sprint_result.outcome == SprintOutcome.SUCCESS else 1
-    try:
-        (config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
-    except OSError:
-        pass  # best-effort; do not mask the real exit
+    _write_exit_sentinel(config, _exitcode)
 
     if _exitcode != 0:
         raise SystemExit(_exitcode)
+
+
+def _write_exit_sentinel(config: SprintConfig, exitcode: int) -> None:
+    """Write the .sprint-exitcode sentinel to config.state_dir for tmux IPC.
+
+    Best-effort: OSErrors are swallowed so a failed sentinel write doesn't mask
+    the real sprint exit code. The state_dir is non-tracked transient state
+    (post-FU-001); never write into the tracked release_dir archive.
+    """
+    try:
+        state_dir = config.state_dir
+        state_dir.mkdir(parents=True, exist_ok=True)
+        (state_dir / ".sprint-exitcode").write_text(str(exitcode))
+    except OSError:
+        pass
 
 
 def _classify_from_result_file(
