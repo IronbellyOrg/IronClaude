@@ -36,4 +36,23 @@ EOF
     exit 2
 fi
 
+# FU-003 defense-in-depth: reject repo-root `prd-<slug>/` writes.
+# The source-of-truth fix lives in `src/superclaude/cli/prd/config.py`
+# (default --output now resolves to `.dev/eval-workspaces/` when `.dev/`
+# exists). This branch catches any path that bypasses that default and
+# attempts to write `<repo-root>/prd-<slug>/<remainder>` directly.
+# Anchored at `^` (after stripping the project-root prefix) so it does NOT
+# match `docs/prd-foo/`, `.dev/eval-workspaces/prd-foo/`, etc.
+REL="${TARGET#${CLAUDE_PROJECT_DIR:-$(pwd)}/}"
+if [[ "$REL" =~ ^(prd-[^/]+)/(.*)$ ]]; then
+    PRD_DIR="${BASH_REMATCH[1]}"
+    PRD_REMAINDER="${BASH_REMATCH[2]}"
+    cat >&2 <<EOF
+Repo-root PRD path rejected: write to \`${PRD_DIR}/${PRD_REMAINDER}\` blocked. Use \`.dev/eval-workspaces/${PRD_DIR}/${PRD_REMAINDER}\` instead.
+
+Reason: \`superclaude prd run\` outputs belong under \`.dev/eval-workspaces/\`, not at the repository root. The canonical default is set in \`src/superclaude/cli/prd/config.py\` (FU-003 source-fix) and the convention is documented in \`CLAUDE.md\` "Plugin Override — Skill-Creator Workspace Destination". Pass \`--output .dev/eval-workspaces\` explicitly, or omit \`--output\` to use the new default.
+EOF
+    exit 2
+fi
+
 exit 0

@@ -97,7 +97,18 @@ def resolve_config(
             )
 
     # -- Path resolution --
-    output_path = Path(output).resolve() if output else Path(".").resolve()
+    if output:
+        output_path = Path(output).resolve()
+    else:
+        # Default sandbox: .dev/eval-workspaces/ when running from a repo that
+        # has one (avoids polluting the repo root with prd-<slug>/ dirs);
+        # fall back to CWD only when no sandbox is available.
+        sandbox = Path(".dev/eval-workspaces").resolve()
+        if sandbox.parent.exists():  # i.e. .dev/ exists → we're in a repo
+            sandbox.mkdir(parents=True, exist_ok=True)
+            output_path = sandbox
+        else:
+            output_path = Path(".").resolve()
 
     # Derive product slug from product name or request
     product_name = product or ""
