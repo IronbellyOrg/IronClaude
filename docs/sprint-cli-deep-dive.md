@@ -1282,13 +1282,15 @@ finally:
     signal_handler.uninstall()
 ```
 
-### 23.5 Exit Sentinel (line 1544)
+### 23.5 Exit Sentinel (line 1751)
 
-Writes `.sprint-exitcode` to the release directory so the tmux caller can read the outcome:
+Writes `.sprint-exitcode` to the transient `state_dir` (non-tracked, default `.dev/sprint-state/<release-name>/`) so the tmux caller can read the outcome:
 
 ```python
 _exitcode = 0 if sprint_result.outcome == SprintOutcome.SUCCESS else 1
-(config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+state_dir = config.state_dir
+state_dir.mkdir(parents=True, exist_ok=True)
+(state_dir / ".sprint-exitcode").write_text(str(_exitcode))
 ```
 
 If exit code is non-zero, raises `SystemExit(_exitcode)`.
