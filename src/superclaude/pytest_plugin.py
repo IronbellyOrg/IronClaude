@@ -69,16 +69,28 @@ def self_check_protocol():
 
 
 @pytest.fixture
-def reflexion_pattern():
+def reflexion_pattern(tmp_path, monkeypatch):
     """
-    Fixture for reflexion error learning pattern
+    Fixture for reflexion error learning pattern.
+
+    Writes are redirected to ``tmp_path/docs/memory/`` to prevent repo
+    pollution. The ``REFLEXION_OUTPUT_DIR`` env-var override also catches
+    any ``ReflexionPattern()`` constructed without the fixture — including
+    the ``pytest_runtest_makereport`` hook below and tests that
+    instantiate ``ReflexionPattern()`` directly.
+
+    Layout mirrors production: ``memory_dir = tmp_path/docs/memory`` so
+    ``mistakes_dir = memory_dir.parent / "mistakes" = tmp_path/docs/mistakes``.
 
     Usage:
         def test_example(reflexion_pattern):
             reflexion_pattern.record_error(...)
             solution = reflexion_pattern.get_solution(error_signature)
     """
-    return ReflexionPattern()
+    memory_dir = tmp_path / "docs" / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("REFLEXION_OUTPUT_DIR", str(memory_dir))
+    return ReflexionPattern(memory_dir=memory_dir)
 
 
 @pytest.fixture

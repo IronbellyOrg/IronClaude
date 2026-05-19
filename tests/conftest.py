@@ -13,6 +13,44 @@ collect_ignore = [
 ]
 
 
+@pytest.fixture(autouse=True)
+def _redirect_reflexion_writes(tmp_path, monkeypatch):
+    """
+    Autouse safety net — redirect all ReflexionPattern writes into tmp_path.
+
+    Sets ``REFLEXION_OUTPUT_DIR=<tmp_path>/docs/memory`` for every test so
+    any ``ReflexionPattern()`` constructed without an explicit ``memory_dir``
+    argument resolves its storage path inside the per-test tmp_path instead
+    of the repository's ``docs/memory/``.
+
+    Three pollution vectors covered:
+      1. The ``reflexion_pattern`` fixture in
+         ``src/superclaude/pytest_plugin.py:71-93`` (belt-and-suspenders —
+         that fixture also sets the env var, but this autouse catches any
+         test that doesn't consume the fixture).
+      2. The ``pytest_runtest_makereport`` hook in
+         ``src/superclaude/pytest_plugin.py:172-196`` which constructs a
+         bare ``ReflexionPattern()`` for any failing
+         ``@pytest.mark.reflexion`` test.
+      3. The 7 bare ``ReflexionPattern()`` constructions in
+         ``tests/unit/test_reflexion.py`` at L17, L25, L39, L52, L73, L118,
+         L165.
+
+    Production-mirroring layout: ``memory_dir = tmp_path / "docs" / "memory"``,
+    so ``mistakes_dir = memory_dir.parent / "mistakes" = tmp_path / "docs" /
+    "mistakes"`` — sibling directories rooted in the per-test tmp_path,
+    matching the production ``docs/memory/`` + ``docs/mistakes/`` layout
+    used by ``ReflexionPattern.__init__``.
+    """
+    # Do not pre-create the directory; ``ReflexionPattern.__init__`` calls
+    # ``mkdir(parents=True, exist_ok=True)`` on its own. Pre-creating here
+    # would collide with sibling fixtures (e.g. ``temp_memory_dir``,
+    # ``pm_context``) that call ``mkdir(parents=True)`` without
+    # ``exist_ok=True`` on the same tmp_path-rooted directory.
+    memory_dir = tmp_path / "docs" / "memory"
+    monkeypatch.setenv("REFLEXION_OUTPUT_DIR", str(memory_dir))
+
+
 @pytest.fixture
 def sample_context():
     """
