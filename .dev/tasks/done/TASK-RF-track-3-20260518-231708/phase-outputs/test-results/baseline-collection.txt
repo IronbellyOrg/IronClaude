@@ -1,0 +1,32 @@
+BASELINE: 65 tests collected across tests/cli/prd/  [2026-05-19T02:03:26]
+---
+          <Class TestPrdConfigDerivedPaths>
+            Verify research_dir, synthesis_dir, qa_dir resolve correctly from base paths.
+            <Function test_prd_config_derived_paths>
+            <Function test_prd_config_default_task_dir>
+          <Class TestPrdStepStatusProperties>
+            Verify is_terminal, is_success, is_failure, needs_fix_cycle for each status value.
+            <Function test_prd_step_status_properties>
+          <Class TestPrdPipelineResultResumeCommand>
+            Verify correct CLI string generation on halt.
+            <Function test_prd_pipeline_result_resume_command>
+            <Function test_resume_command_no_halt>
+            <Function test_resume_command_standard_tier_omitted>
+        <Module test_prompts.py>
+          Unit tests for superclaude.cli.prd.prompts.
+          
+          Section 8.1 test plan: 4 tests.
+          <Class TestInvestigationPromptStalenessProtocol>
+            [F-011] Verify Documentation Staleness Protocol markers in output.
+            <Function test_build_investigation_prompt_includes_staleness_protocol>
+          <Class TestSynthesisPromptTemplateReference>
+            [F-011] Verify template path reference in synthesis prompt output.
+            <Function test_build_synthesis_prompt_includes_template_reference>
+          <Class TestPromptSizeUnder100KB>
+            [F-011] All 19 builders produce output < 100KB for synthetic worst-case inputs.
+            <Function test_prompt_size_under_100kb>
+          <Class TestReadFileTruncation>
+            [F-011] _read_file() truncates large content with marker text.
+            <Function test_read_file_truncation_at_50kb>
+
+========================= 65 tests collected in 0.34s ==========================
