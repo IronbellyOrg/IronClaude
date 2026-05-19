@@ -1,0 +1,5 @@
+src/superclaude/cli/sprint/tmux.py:166:    sentinel = config.release_dir / ".sprint-exitcode"
+src/superclaude/cli/sprint/executor.py:1754:        (config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+tests/sprint/test_tmux.py:100:        sentinel = config.release_dir / ".sprint-exitcode"
+src/superclaude/skills/sc-crash-recovery/scripts/bootstrap_scan.sh:90:    [[ -f "$d/.sprint-exitcode" ]] && exit_code=$(tr -d '[:space:]' < "$d/.sprint-exitcode" 2>/dev/null || echo "")
+src/superclaude/skills/sc-crash-recovery/scripts/bootstrap_scan.sh:126:EXIT_CODES=$(recent_files ".sprint-exitcode" | awk 'BEGIN{printf "["} {printf "%s\"%s\"", sep, $0; sep=","} END{printf "]"}')

@@ -1,0 +1,23 @@
+src/superclaude/skills/sc-crash-recovery/refs/pipelines.md:100:├── .sprint-exitcode              # last exit code (single number)
+src/superclaude/skills/sc-crash-recovery/refs/pipelines.md:103:**Status signal:** `execution-log.jsonl` is authoritative. Tail it for the last event. Each `phase_complete` event has `status: pass | error` and `exit_code`. `.sprint-exitcode` mirrors the overall last sprint exit.
+src/superclaude/skills/sc-crash-recovery/refs/investigators.md:18:- .dev/releases/current/*/ — sprint runs (look for manifest.json, execution-log.jsonl, .sprint-exitcode, tasklist-index.md, phase-*.md)
+src/superclaude/skills/sc-crash-recovery/SKILL.md:65:- recent `.roadmap-state.json` / `manifest.json` / `execution-log.jsonl` / `.sprint-exitcode` files
+src/superclaude/skills/sc-crash-recovery/SKILL.md:118:- **Sprint (task execution)** — `superclaude sprint run` → `.dev/releases/current/<release>/manifest.json` + `execution-log.jsonl` + `.sprint-exitcode`
+src/superclaude/skills/sc-crash-recovery/SKILL.md:127:For multi-project (`--all`) runs: one section per project, sorted by "most likely to need attention first" — i.e., projects with `status: error` in execution-log.jsonl, dirty git with no recent commit, or `.sprint-exitcode != 0` rise to the top.
+src/superclaude/skills/sc-crash-recovery/SKILL.md:134:- **Conflicting signals** (e.g. task frontmatter says Done but `.sprint-exitcode = 1`): surface the conflict explicitly. Do not pick a side; the user will decide.
+src/superclaude/skills/sc-crash-recovery/SKILL.md:137:- **Pipeline still running** (a process holding `.sprint-exitcode` open, or recent execution-log entry within the last few minutes): flag explicitly — the user may be inspecting an active run, not a crashed one. Recommend they confirm before resuming.
+src/superclaude/skills/sc-crash-recovery/refs/report-template.md:100:- Task X has `status: 🟢 Done` in frontmatter but `.sprint-exitcode = 1` for its sprint
+docs/generated/sprint-cli/00-overview.md:130:              +-> Cleanup + write .sprint-exitcode
+docs/generated/sprint-cli/06-artifacts-output.md:17:  .sprint-exitcode             # Sentinel exit code (0 or 1)
+docs/generated/sprint-cli/06-artifacts-output.md:147:**Location**: `<release_dir>/.sprint-exitcode`
+docs/sprint-cli-deep-dive.md:66:| `sprint status` | Show current sprint status without attaching | Reads `.sprint-exitcode` sentinel |
+docs/sprint-cli-deep-dive.md:276:7. **Reads exit code**: After detaching, reads `.sprint-exitcode` sentinel file
+docs/sprint-cli-deep-dive.md:1287:Writes `.sprint-exitcode` to the release directory so the tmux caller can read the outcome:
+docs/sprint-cli-deep-dive.md:1291:(config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+docs/sprint-cli-deep-dive.md:1322:  .sprint-exitcode                # Exit code sentinel for tmux
+docs/sprint-cli-deep-dive.md:1622:│  Write .sprint-exitcode        │
+docs/generated/sprint-cli/09-wiring-validation.md:85:| `tmux.py` reads | `.sprint-exitcode` | Sentinel file for exit status |
+docs/generated/sprint-cli/03-execution-engine.md:99:  +-> Write .sprint-exitcode (1544-1548)
+docs/developer-guide/sprint-tui-reference.md:148:6. **Read exit code**: From `.sprint-exitcode` sentinel file
+docs/developer-guide/sprint-tui-reference.md:194:(config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+docs/developer-guide/sprint-tui-reference.md:516:    # 30. Write .sprint-exitcode sentinel

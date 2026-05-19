@@ -163,7 +163,7 @@ def launch_in_tmux(config: SprintConfig):
     subprocess.run(["tmux", "attach-session", "-t", name])
 
     # Read the exit code written by execute_sprint() inside the tmux session
-    sentinel = config.release_dir / ".sprint-exitcode"
+    sentinel = config.state_dir / ".sprint-exitcode"
     exit_code = 0
     try:
         exit_code = int(sentinel.read_text().strip())
@@ -194,6 +194,12 @@ def _build_foreground_command(config: SprintConfig) -> list[str]:
         cmd.extend(["--model", config.model])
     if config.tmux_session_name:
         cmd.extend(["--tmux-session-name", config.tmux_session_name])
+    # Forward state_dir so the inner --no-tmux process writes its
+    # .sprint-exitcode sentinel to the SAME path the outer (this) process
+    # reads from at line 166. Without this, an outer --state-dir override
+    # (or env-derived non-default) silently desyncs from the inner default
+    # and exit-code propagation breaks.
+    cmd.extend(["--state-dir", str(config.state_dir)])
     # Diagnostic flags
     if config.debug:
         cmd.append("--debug")

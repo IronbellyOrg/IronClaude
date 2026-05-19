@@ -395,6 +395,22 @@ class SprintConfig(PipelineConfig):
     # of the dual progress bar (F3). 0 is a valid fallback when the scan
     # fails or the config is constructed directly (e.g. in unit tests).
     total_tasks: int = 0
+    # Transient runtime state directory (e.g. .sprint-exitcode sentinel). Default resolved in __post_init__; override via SPRINT_STATE_DIR env var or --state-dir CLI flag.
+    state_dir: Path = field(default_factory=lambda: Path(""))
+
+    def _derive_tasklist_id(self) -> str:
+        """Derive a stable tasklist identifier for the default state_dir path.
+
+        Preference order: release_dir.name (when meaningful) -> index_path.parent.name
+        (when meaningful) -> index_path.stem -> "default".
+        """
+        release_name = self.release_dir.name
+        if self.release_dir != Path(".") and release_name not in ("", "."):
+            return release_name
+        parent_name = self.index_path.parent.name
+        if parent_name not in ("", "."):
+            return parent_name
+        return self.index_path.stem or "default"
 
     def __post_init__(self):
         import warnings
@@ -443,6 +459,16 @@ class SprintConfig(PipelineConfig):
             object.__setattr__(self, "wiring_gate_mode", "off")
         elif self.wiring_gate_grace_period >= SHADOW_GRACE_INFINITE:
             object.__setattr__(self, "wiring_gate_mode", "shadow")
+
+        # Derive default state_dir from a tasklist-id when the field is the
+        # empty-Path sentinel. The sentinel is Path("") (NOT Path(".")) so we
+        # don't collide with release_dir's default and break test isolation.
+        if self.state_dir == Path(""):
+            object.__setattr__(
+                self,
+                "state_dir",
+                Path(".dev/sprint-state") / self._derive_tasklist_id(),
+            )
 
     @property
     def debug_log_path(self) -> Path:

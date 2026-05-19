@@ -8,13 +8,12 @@ scope: cli/sprint/logging_.py, cli/sprint/diagnostics.py, cli/sprint/kpi.py, cli
 
 ## Output Directory Structure
 
-All sprint artifacts are rooted under `<release_dir>/`:
+Sprint artifacts are rooted under `<release_dir>/`, with one runtime transient (`.sprint-exitcode`) emitted to a separate non-tracked state directory `<state_dir>/` (default `.dev/sprint-state/<release-name>/`):
 
 ```
 <release_dir>/
   execution-log.jsonl          # Structured event log
   execution-log.md             # Human-readable execution log
-  .sprint-exitcode             # Sentinel exit code (0 or 1)
   results/
     phase-{N}-output.txt       # Raw Claude subprocess stdout
     phase-{N}-errors.txt       # Raw Claude subprocess stderr
@@ -143,8 +142,8 @@ EXIT_RECOMMENDATION: CONTINUE
 ### 10. Sprint Exit Code
 
 **Generator**: End of `execute_sprint()`
-**File**: `src/superclaude/cli/sprint/executor.py:1544-1548`
-**Location**: `<release_dir>/.sprint-exitcode`
+**File**: `src/superclaude/cli/sprint/executor.py:1751-1758`
+**Location**: `<state_dir>/.sprint-exitcode` (default `.dev/sprint-state/<release-name>/.sprint-exitcode`; override via `SPRINT_STATE_DIR` env var or `--state-dir` CLI flag)
 **Format**: Single integer (`0` = success, `1` = failure)
 **Consumer**: Tmux relay path reads this for exit status
 

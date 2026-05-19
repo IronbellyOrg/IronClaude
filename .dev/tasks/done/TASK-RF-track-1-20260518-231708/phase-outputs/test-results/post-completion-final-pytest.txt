@@ -1,0 +1,27 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-T1-sprint/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-T1-sprint
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 15 items
+
+tests/sprint/test_state_dir_isolation.py::test_writer_uses_state_dir_not_release_dir PASSED [  6%]
+tests/sprint/test_state_dir_isolation.py::test_no_tracked_sprint_exitcode_files PASSED [ 13%]
+tests/sprint/test_state_dir_isolation.py::test_state_dir_default_derives_from_release_dir PASSED [ 20%]
+tests/sprint/test_state_dir_isolation.py::test_state_dir_env_var_resolution PASSED [ 26%]
+tests/sprint/test_tmux.py::TestSessionHelpers::test_session_name_is_deterministic PASSED [ 33%]
+tests/sprint/test_tmux.py::TestSessionHelpers::test_session_name_differs_per_release PASSED [ 40%]
+tests/sprint/test_tmux.py::TestSessionHelpers::test_is_tmux_available_false_when_inside_tmux PASSED [ 46%]
+tests/sprint/test_tmux.py::TestSessionHelpers::test_is_tmux_available_false_when_not_installed PASSED [ 53%]
+tests/sprint/test_tmux.py::TestThreePaneLayout::test_launch_creates_three_panes PASSED [ 60%]
+tests/sprint/test_tmux.py::TestThreePaneLayout::test_launch_kills_session_on_split_failure PASSED [ 66%]
+tests/sprint/test_tmux.py::TestUpdateTailPane::test_targets_pane_zero_two PASSED [ 73%]
+tests/sprint/test_tmux.py::TestUpdateTailPane::test_survives_tmux_subprocess_error PASSED [ 80%]
+tests/sprint/test_tmux.py::TestUpdateSummaryPane::test_no_op_when_file_missing PASSED [ 86%]
+tests/sprint/test_tmux.py::TestUpdateSummaryPane::test_sends_cat_to_summary_pane PASSED [ 93%]
+tests/sprint/test_tmux.py::TestUpdateSummaryPane::test_pane_constants_match_layout_assumption PASSED [100%]
+
+============================== 15 passed in 0.13s ==============================

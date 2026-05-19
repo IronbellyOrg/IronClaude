@@ -220,3 +220,6 @@ uv.lock
 # Sprint runner transient exitcode marker. Anchored to repo root only so that
 # in-tree archive/release artifacts under .dev/releases/ remain tracked.
 /.sprint-exitcode
+# Sprint runner transient state directory (post-FU-001 default). Holds
+# .sprint-exitcode and other ephemeral per-run state; never tracked.
+.dev/sprint-state/

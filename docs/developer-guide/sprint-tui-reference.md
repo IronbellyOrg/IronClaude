@@ -188,10 +188,12 @@ def update_tail_pane(tmux_session_name: str, output_file: Path):
 
 ### Exit Code Handoff
 
-The tmux process writes a sentinel file so the outer caller can propagate the exit code:
+The tmux process writes a sentinel file to the non-tracked `state_dir` so the outer caller can propagate the exit code:
 
 ```python
-(config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+state_dir = config.state_dir
+state_dir.mkdir(parents=True, exist_ok=True)
+(state_dir / ".sprint-exitcode").write_text(str(_exitcode))
 ```
 
 ---
