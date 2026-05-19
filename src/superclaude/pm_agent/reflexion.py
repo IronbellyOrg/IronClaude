@@ -24,6 +24,7 @@ Process:
 """
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -58,12 +59,19 @@ class ReflexionPattern:
         Initialize reflexion pattern
 
         Args:
-            memory_dir: Directory for storing error solutions
-                       (defaults to docs/memory/ in current project)
+            memory_dir: Directory for storing error solutions.
+                Resolution order:
+                  1. Explicit `memory_dir` argument (if provided)
+                  2. `REFLEXION_OUTPUT_DIR` environment variable (if set)
+                  3. Default: ``Path.cwd() / "docs" / "memory"``
         """
         if memory_dir is None:
-            # Default to docs/memory/ in current working directory
-            memory_dir = Path.cwd() / "docs" / "memory"
+            env_override = os.environ.get("REFLEXION_OUTPUT_DIR")
+            if env_override:
+                memory_dir = Path(env_override)
+            else:
+                # Default to docs/memory/ in current working directory
+                memory_dir = Path.cwd() / "docs" / "memory"
 
         self.memory_dir = memory_dir
         self.solutions_file = memory_dir / "solutions_learned.jsonl"

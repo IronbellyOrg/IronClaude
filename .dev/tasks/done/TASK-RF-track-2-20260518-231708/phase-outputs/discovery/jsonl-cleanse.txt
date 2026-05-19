@@ -1,0 +1,17 @@
+JSONL Cleanse — before/after line counts
+Step: 1.6
+Timestamp: 2026-05-19 02:05 UTC
+File: docs/memory/solutions_learned.jsonl
+
+PRE-CLEANSE: 588 lines
+POST-CLEANSE: 4 lines
+REMOVED: 584 lines
+
+Strategy: Option B — content-filter (no clean ancestor SHA available; every commit in history contains test-shaped records).
+Filter predicates (Python):
+  - test_name in {test_feature, test_database_connection, test_reflexion_marker_integration, test_reflexion_with_real_exception}
+  - error_type in {AssertionError, ConnectionError, FileNotFoundError, ImportError, IntegrationTestError, TypeError, ZeroDivisionError}
+  - 'simulated' substring in traceback field
+Surviving records: 4 legitimate v3.3 pattern entries (audit_trail_jsonl_infrastructure, ast_reachability_analysis, fidelity_checker_exact_match, budget_exhaustion_graceful_handling) tied to real `src/superclaude/cli/...` source files.
+
+Pre-cleanse copy preserved at /tmp/solutions_learned_pre_cleanse.jsonl for forensic comparison.
