@@ -40,6 +40,16 @@ def test_resolve_config_defaults_output_to_dev_eval_workspaces(
         f"task_dir should resolve under .dev/eval-workspaces/, got: {cfg.task_dir}"
     )
 
+    # Pin that resolve_config actually materialises the sandbox dir — otherwise
+    # a regression that stops calling sandbox.mkdir(...) would still pass the
+    # path-equality check above while breaking downstream callers that assume
+    # output_path exists on disk.
+    sandbox_dir = tmp_path / ".dev" / "eval-workspaces"
+    assert sandbox_dir.is_dir(), (
+        f".dev/eval-workspaces/ should be created by resolve_config, "
+        f"but {sandbox_dir} does not exist as a directory"
+    )
+
     repo_root_names = {p.name for p in tmp_path.iterdir()}
     assert "prd-test-product" not in repo_root_names, (
         f"stray prd-test-product/ leaked to simulated repo root: {repo_root_names}"

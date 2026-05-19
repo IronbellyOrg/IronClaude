@@ -62,7 +62,10 @@ def resolve_config(
         request: Natural-language product request (positional CLI arg).
         product: Product name or scope override.
         where: Source directories to focus on.
-        output: Output path for final PRD (defaults to ".").
+        output: Output path for final PRD. When omitted, defaults to
+              ``<cwd>/.dev/eval-workspaces/`` if a ``.dev/`` sandbox
+              directory exists at CWD (i.e. running from a repo that has
+              one); otherwise falls back to ``"."``.
         tier: Pipeline tier -- must be one of "lightweight", "standard",
               "heavyweight". Defaults to "standard".
         max_turns: Turn budget for subprocesses. Defaults to 300.
@@ -104,7 +107,10 @@ def resolve_config(
         # has one (avoids polluting the repo root with prd-<slug>/ dirs);
         # fall back to CWD only when no sandbox is available.
         sandbox = Path(".dev/eval-workspaces").resolve()
-        if sandbox.parent.exists():  # i.e. .dev/ exists → we're in a repo
+        # Use is_dir() rather than exists() so a stray `.dev` *file* doesn't
+        # falsely trigger the sandbox branch (sandbox.mkdir would then fail
+        # in a non-obvious way trying to create a child of a file).
+        if sandbox.parent.is_dir():  # i.e. .dev/ exists as a dir → we're in a repo
             sandbox.mkdir(parents=True, exist_ok=True)
             output_path = sandbox
         else:

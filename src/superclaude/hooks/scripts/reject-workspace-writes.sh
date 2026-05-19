@@ -44,11 +44,17 @@ fi
 # Anchored at `^` (after stripping the project-root prefix) so it does NOT
 # match `docs/prd-foo/`, `.dev/eval-workspaces/prd-foo/`, etc.
 REL="${TARGET#${CLAUDE_PROJECT_DIR:-$(pwd)}/}"
-if [[ "$REL" =~ ^(prd-[^/]+)/(.*)$ ]]; then
+# Match both `prd-<slug>` (bare directory create, no remainder) and
+# `prd-<slug>/<remainder>` (file/dir inside). Without the optional `/<remainder>`
+# branch, a write whose TARGET is exactly the repo-root `prd-<slug>` directory
+# would slip past this defense-in-depth check.
+if [[ "$REL" =~ ^(prd-[^/]+)(/(.*))?$ ]]; then
     PRD_DIR="${BASH_REMATCH[1]}"
-    PRD_REMAINDER="${BASH_REMATCH[2]}"
+    PRD_REMAINDER="${BASH_REMATCH[3]}"
+    DISPLAY_PATH="${PRD_DIR}${PRD_REMAINDER:+/${PRD_REMAINDER}}"
+    REDIRECT_PATH=".dev/eval-workspaces/${PRD_DIR}${PRD_REMAINDER:+/${PRD_REMAINDER}}"
     cat >&2 <<EOF
-Repo-root PRD path rejected: write to \`${PRD_DIR}/${PRD_REMAINDER}\` blocked. Use \`.dev/eval-workspaces/${PRD_DIR}/${PRD_REMAINDER}\` instead.
+Repo-root PRD path rejected: write to \`${DISPLAY_PATH}\` blocked. Use \`${REDIRECT_PATH}\` instead.
 
 Reason: \`superclaude prd run\` outputs belong under \`.dev/eval-workspaces/\`, not at the repository root. The canonical default is set in \`src/superclaude/cli/prd/config.py\` (FU-003 source-fix) and the convention is documented in \`CLAUDE.md\` "Plugin Override — Skill-Creator Workspace Destination". Pass \`--output .dev/eval-workspaces\` explicitly, or omit \`--output\` to use the new default.
 EOF
