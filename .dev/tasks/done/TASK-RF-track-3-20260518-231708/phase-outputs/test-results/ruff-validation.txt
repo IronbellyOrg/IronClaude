@@ -1,0 +1,359 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+F841 Local variable `current_item_line` is assigned to but never used
+  --> tests/audit/test_evidence_bound_tb_add_8.py:97:13
+   |
+95 |         if m_item:
+96 |             current_item_id = m_item.group(1)
+97 |             current_item_line = idx
+   |             ^^^^^^^^^^^^^^^^^
+98 |             continue
+99 |         m_ctx = context_re.match(raw)
+   |
+help: Remove assignment to unused variable `current_item_line`
+
+N999 Invalid module name: 'test_invariant_preservation_NFR_6_through_10'
+--> tests/audit/test_invariant_preservation_NFR_6_through_10.py:1:1
+
+N801 Class name `TestInvariant1_SelfContainedItem` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:177:7
+    |
+177 | class TestInvariant1_SelfContainedItem:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+178 |     """NFR-CONV.6 — Q-DM-1 five-field schema preservation."""
+    |
+
+N801 Class name `TestInvariant2_EvidenceBoundItem` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:222:7
+    |
+222 | class TestInvariant2_EvidenceBoundItem:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+223 |     """NFR-CONV.7 — per-item Context evidence binding."""
+    |
+
+N801 Class name `TestInvariant3_PersistentArtifact` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:265:7
+    |
+265 | class TestInvariant3_PersistentArtifact:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+266 |     """NFR-CONV.8 — `.dev/tasks/<task-id>/` directory layout preservation."""
+    |
+
+N801 Class name `TestInvariant4_ZeroTrustQA` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:350:7
+    |
+350 | class TestInvariant4_ZeroTrustQA:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+351 |     """NFR-CONV.9 — rf-qa.md PASS/FAIL definitions + 1-LOW gate."""
+    |
+
+N801 Class name `TestInvariant5_ParallelResearch` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:391:7
+    |
+391 | class TestInvariant5_ParallelResearch:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+392 |     """NFR-CONV.10 — cohort never serialises behind synthesis."""
+    |
+
+N999 Invalid module name: 'test_monotonicity_halt_F_5_5_5'
+--> tests/audit/test_monotonicity_halt_F_5_5_5.py:1:1
+
+N801 Class name `TestPartA_OneLowFindingFailsGate` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:221:7
+    |
+221 | class TestPartA_OneLowFindingFailsGate:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+222 |     """1-LOW (MINOR) finding fixture FAILS the rf-qa research-completeness
+223 |     gate per rf-qa.md:145."""
+    |
+
+N801 Class name `TestPartA_ZeroFindingsBaselinePasses` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:256:7
+    |
+256 | class TestPartA_ZeroFindingsBaselinePasses:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+257 |     """Baseline twin: the same checklist surface with zero gaps PASSES
+258 |     the gate. Anchors the positive arm so the FAIL above isn't a
+    |
+
+N801 Class name `TestPartB_InheritedVerdictWithoutSemanticIsInflation` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:315:7
+    |
+315 | class TestPartB_InheritedVerdictWithoutSemanticIsInflation:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+316 |     """The negative-half fixture: rf-qa-qualitative report claims
+317 |     VERIFIED for items but ships zero category-(b) semantic checks.
+    |
+
+N801 Class name `TestPartB_InheritedVerdictWithSemanticIsClean` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:362:7
+    |
+362 | class TestPartB_InheritedVerdictWithSemanticIsClean:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+363 |     """The positive-half fixture: rf-qa-qualitative report claims
+364 |     VERIFIED for the same items, each backed by a category-(b)
+    |
+
+N999 Invalid module name: 'test_sequencing_PR06_before_PR04'
+--> tests/audit/test_sequencing_PR06_before_PR04.py:1:1
+
+E402 Module level import not at top of file
+   --> tests/cli_portify/test_failures.py:377:1
+    |
+377 | / from superclaude.cli.cli_portify.failures import (
+378 | |     STEP_0_TIMEOUT_SECONDS,
+379 | |     STEP_1_TIMEOUT_SECONDS,
+380 | | )
+    | |_^
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:343:1
+    |
+341 | # ---------------------------------------------------------------------------
+342 |
+343 | from unittest.mock import patch
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+344 |
+345 | from superclaude.cli.sprint.executor import (
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:345:1
+    |
+343 |   from unittest.mock import patch
+344 |
+345 | / from superclaude.cli.sprint.executor import (
+346 | |     execute_phase_tasks,
+347 | |     run_post_task_anti_instinct_hook,
+348 | | )
+    | |_^
+349 |   from superclaude.cli.sprint.models import (
+350 |       GateOutcome,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:349:1
+    |
+347 |       run_post_task_anti_instinct_hook,
+348 |   )
+349 | / from superclaude.cli.sprint.models import (
+350 | |     GateOutcome,
+351 | |     Phase,
+352 | |     ShadowGateMetrics,
+353 | | )
+    | |_^
+354 |   from superclaude.cli.sprint.models import (
+355 |       TaskEntry as SprintTaskEntry,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:354:1
+    |
+352 |       ShadowGateMetrics,
+353 |   )
+354 | / from superclaude.cli.sprint.models import (
+355 | |     TaskEntry as SprintTaskEntry,
+356 | | )
+    | |_^
+357 |   from superclaude.cli.sprint.models import (
+358 |       TaskResult as SprintTaskResult,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:357:1
+    |
+355 |       TaskEntry as SprintTaskEntry,
+356 |   )
+357 | / from superclaude.cli.sprint.models import (
+358 | |     TaskResult as SprintTaskResult,
+359 | | )
+    | |_^
+360 |   from superclaude.cli.sprint.models import (
+361 |       TaskStatus as SprintTaskStatus,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:360:1
+    |
+358 |       TaskResult as SprintTaskResult,
+359 |   )
+360 | / from superclaude.cli.sprint.models import (
+361 | |     TaskStatus as SprintTaskStatus,
+362 | | )
+    | |_^
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:472:1
+    |
+470 | # ---------------------------------------------------------------------------
+471 |
+472 | from superclaude.cli.sprint.executor import run_post_task_wiring_hook
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/roadmap/test_inline_fallback.py:141:17
+    |
+139 |             if executor_name == "validate_executor":
+140 |                 run_fn = module.validate_run_step
+141 |                 cancel_check = lambda: False
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+142 |             else:
+143 |                 run_fn = module.tasklist_run_step
+    |
+help: Rewrite `cancel_check` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/roadmap/test_inline_fallback.py:144:17
+    |
+142 |             else:
+143 |                 run_fn = module.tasklist_run_step
+144 |                 cancel_check = lambda: False
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+145 |
+146 |             with patch(f"{module_path}.ClaudeProcess") as mock_proc:
+    |
+help: Rewrite `cancel_check` as a `def`
+
+E402 Module level import not at top of file
+   --> tests/roadmap/test_models.py:206:1
+    |
+204 | # ═══════════════════════════════════════════════════════════════
+205 |
+206 | from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> tests/sprint/diagnostic/test_instrumentation.py:45:5
+   |
+43 |         config = _make_config(tmp_path)
+44 |     root_logger = setup_debug_logger(config)
+45 |     read_fn = lambda: config.debug_log_path.read_text()
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+46 |
+47 |     def cleanup():
+   |
+help: Rewrite `read_fn` as a `def`
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_0.py:13:1
+   |
+11 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l0]
+12 |
+13 | / from superclaude.cli.sprint.debug_logger import (
+14 | |     DEBUG_LOG_VERSION,
+15 | | )
+   | |_^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_1.py:12:1
+   |
+10 | pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l1]
+11 |
+12 | from superclaude.cli.sprint.debug_logger import DEBUG_LOG_VERSION
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_2.py:12:1
+   |
+10 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l2]
+11 |
+12 | / from superclaude.cli.sprint.diagnostics import (
+13 | |     DiagnosticCollector,
+14 | |     FailureCategory,
+15 | |     FailureClassifier,
+16 | |     ReportGenerator,
+17 | | )
+   | |_^
+18 |   from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_2.py:18:1
+   |
+16 |     ReportGenerator,
+17 | )
+18 | from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_3.py:13:1
+   |
+11 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l3]
+12 |
+13 | / from superclaude.cli.sprint.diagnostics import (
+14 | |     DiagnosticCollector,
+15 | |     FailureCategory,
+16 | |     FailureClassifier,
+17 | |     ReportGenerator,
+18 | | )
+   | |_^
+19 |   from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_3.py:19:1
+   |
+17 |     ReportGenerator,
+18 | )
+19 | from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_negative.py:16:1
+   |
+14 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_negative]
+15 |
+16 | / from superclaude.cli.sprint.diagnostics import (
+17 | |     DiagnosticBundle,
+18 | |     DiagnosticCollector,
+19 | |     FailureCategory,
+20 | |     FailureClassifier,
+21 | |     ReportGenerator,
+22 | | )
+   | |_^
+23 |   from superclaude.cli.sprint.models import (
+24 |       MonitorState,
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_negative.py:23:1
+   |
+21 |       ReportGenerator,
+22 |   )
+23 | / from superclaude.cli.sprint.models import (
+24 | |     MonitorState,
+25 | |     Phase,
+26 | |     PhaseResult,
+27 | |     PhaseStatus,
+28 | | )
+   | |_^
+   |
+
+F821 Undefined name `SprintConfig`
+   --> tests/sprint/test_preflight.py:483:65
+    |
+483 | def _make_python_config(tmp_path: Path, tasks_content: str) -> "SprintConfig":
+    |                                                                 ^^^^^^^^^^^^
+484 |     """Build a minimal SprintConfig for a single python-mode phase."""
+485 |     from superclaude.cli.sprint.models import Phase, SprintConfig
+    |
+
+F821 Undefined name `SprintConfig`
+   --> tests/sprint/test_preflight.py:914:7
+    |
+912 |     tmp_path: Path,
+913 |     phases: "list[tuple[int, str, str]]",
+914 | ) -> "SprintConfig":
+    |       ^^^^^^^^^^^^
+915 |     """Build a SprintConfig with multiple phases of mixed execution modes.
+    |
+
+Found 35 errors.
+No fixes available (4 hidden fixes can be enabled with the `--unsafe-fixes` option).
