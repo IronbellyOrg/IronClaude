@@ -1,0 +1,64 @@
+On branch feat/sprint-state-migration
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	deleted:    .dev/releases/archive/v3.66-tdd-skill-refactor-v2/.sprint-exitcode
+	deleted:    .dev/releases/complete/cleanup-audit-v2-UNIFIED-SPEC/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/cross-framework-deep-analysis/.sprint-exitcode
+	deleted:    .dev/releases/complete/cross-framework-deep-analysis/v2.25-cli-portify-cli/.sprint-exitcode
+	deleted:    .dev/releases/complete/release-split-workspace-rca/.sprint-exitcode
+	deleted:    .dev/releases/complete/unified-audit-gating-v1.2.1/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/live-sprint/.sprint-exitcode
+	deleted:    .dev/releases/complete/unified-audit-gating-v2/.sprint-exitcode
+	deleted:    .dev/releases/complete/v.2.11-roadmap-v4/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/v.2.17-roadmap-reliability/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.07-tasklist-v1/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.08-RoadmapCLI/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.09-adversarial-v2/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.10-spec-panel-v2/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.13-CLIRunner-PipelineUnification/smoke-test-sprint/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.13-CLIRunner-PipelineUnification/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.18-cli-portify-v2/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.19-roadmap-validate/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.20-WorkflowEvolution/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.22-RoadmapRemediate/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.23-cli-portify-v3/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.24-cli-portify-cli-v4/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.24.1-cli-portify-cli-v5/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.24.2-Accept-Spec-Change/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.24.5-SpecFidelity/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.25-cli-portify-cli/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.25.5-PreFlightExecutor/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.25.7-Phase8HaltFix/.sprint-exitcode
+	deleted:    .dev/releases/complete/v2.26-roadmap-v5/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.05_DeterministicFidelityGates/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.0_unified-audit-gating/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.1_Anti-instincts__/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.2_fidelity-refactor___/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.65-prd-refactor/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.65-tdd-skill-refactor/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.66-tdd-skill-refactor-v2/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.67-prd-skill-portify/.sprint-exitcode
+	deleted:    .dev/releases/complete/v3.7-turnledger-integration/v3.7-TurnLedger-Validation/tasklist/.sprint-exitcode
+	deleted:    .dev/releases/current/task-sc-task-directional-merge/.sprint-exitcode
+	modified:   src/superclaude/cli/sprint/commands.py
+	modified:   src/superclaude/cli/sprint/config.py
+	modified:   src/superclaude/cli/sprint/executor.py
+	modified:   src/superclaude/cli/sprint/models.py
+	modified:   src/superclaude/cli/sprint/tmux.py
+	modified:   src/superclaude/skills/sc-crash-recovery/scripts/bootstrap_scan.sh
+	new file:   tests/sprint/test_state_dir_isolation.py
+	modified:   tests/sprint/test_tmux.py
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   docs/developer-guide/sprint-tui-reference.md
+	modified:   docs/generated/sprint-cli/06-artifacts-output.md
+	modified:   docs/sprint-cli-deep-dive.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.dev/sprint-state/
+	.dev/tasks/to-do/TASK-RF-track-1-20260518-231708/
+
