@@ -84,7 +84,7 @@ sprints_state() {
   printf '['
   for d in "$base"/*/; do
     [[ -d "$d" ]] || continue
-    local name exit_code log_tail manifest_status
+    local name exit_code log_tail manifest_status state_sentinel
     name=$(basename "$d")
     exit_code=""
     # Reads .sprint-exitcode from .dev/sprint-state/<release-name>/ (post-FU-001)
