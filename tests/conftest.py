@@ -5,12 +5,78 @@ This file is automatically loaded by pytest and provides
 shared fixtures available to all test modules.
 """
 
+from pathlib import Path
+
 import pytest
 
 # Exclude tests that require optional dependencies not in the project's declared deps.
 collect_ignore = [
     "sprint/test_property_based.py",  # requires 'hypothesis' (not a declared dependency)
 ]
+
+# Repo paths used by the FU-002 pollution-snapshot guard. Defined here (not in
+# tests/unit/test_reflexion_pollution_guard.py) because the session-scoped
+# autouse fixture must live in a conftest.py to fire at true session start —
+# placing it in a test module defers its SETUP until the first test from that
+# module is collected, which would miss any pollution from earlier-collected
+# modules (e.g. tests/unit/test_reflexion.py, which sorts before this guard).
+_FU002_REPO_ROOT = Path(__file__).resolve().parents[1]
+_FU002_MISTAKES_DIR = _FU002_REPO_ROOT / "docs" / "mistakes"
+_FU002_SOLUTIONS_FILE = _FU002_REPO_ROOT / "docs" / "memory" / "solutions_learned.jsonl"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _pollution_snapshot():
+    """
+    FU-002 regression guard — capture pre-session state of the reflexion
+    storage paths and assert on session teardown that they were not mutated
+    during the test run.
+
+    Snapshots are DYNAMIC (captured at session start) so the test survives
+    developers with different local pollution levels and any future
+    deliberate edit to those files. No hard-coded baselines.
+
+    Lives in ``tests/conftest.py`` (not in the guard test module) so
+    pytest fires its SETUP before the first test of the session runs.
+    A session-scoped autouse fixture in a test module is instantiated
+    only when that module's first test is collected, which would let
+    earlier-alphabetical modules pollute the repo before the snapshot
+    is taken. See PR #59 review comment 3265618099.
+
+    Both paths are guarded by ``.exists()`` so the fixture is a no-op
+    on a fresh checkout where the cleansed paths do not yet exist.
+    """
+    pre_mistakes = (
+        sorted(p.name for p in _FU002_MISTAKES_DIR.glob("*.md"))
+        if _FU002_MISTAKES_DIR.exists()
+        else []
+    )
+    pre_size = (
+        _FU002_SOLUTIONS_FILE.stat().st_size if _FU002_SOLUTIONS_FILE.exists() else 0
+    )
+
+    yield
+
+    post_mistakes = (
+        sorted(p.name for p in _FU002_MISTAKES_DIR.glob("*.md"))
+        if _FU002_MISTAKES_DIR.exists()
+        else []
+    )
+    post_size = (
+        _FU002_SOLUTIONS_FILE.stat().st_size if _FU002_SOLUTIONS_FILE.exists() else 0
+    )
+
+    added_files = sorted(set(post_mistakes) - set(pre_mistakes))
+    assert not added_files, (
+        f"Test session polluted {_FU002_MISTAKES_DIR}: "
+        f"{len(added_files)} new file(s): {added_files}"
+    )
+
+    assert post_size == pre_size, (
+        f"Test session polluted {_FU002_SOLUTIONS_FILE}: "
+        f"{post_size - pre_size} new bytes "
+        f"(pre={pre_size}, post={post_size})"
+    )
 
 
 @pytest.fixture(autouse=True)

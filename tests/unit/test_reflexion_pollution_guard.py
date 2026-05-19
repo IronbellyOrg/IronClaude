@@ -2,15 +2,16 @@
 Regression guard for FU-002 — ReflexionPattern test pollution.
 
 Asserts that running the test suite leaves the repository's reflexion
-storage paths untouched:
+storage paths untouched. The heavy lifting — the session-scoped pre/post
+snapshot of ``docs/mistakes/`` file list and
+``docs/memory/solutions_learned.jsonl`` byte size — lives in the
+``_pollution_snapshot`` session-scoped autouse fixture in
+``tests/conftest.py`` (PR #59 review #3265618099 hoist).
 
-  - ``docs/mistakes/`` — file count must not increase during the session.
-  - ``docs/memory/solutions_learned.jsonl`` — byte size must not change
-    during the session.
-
-Snapshots are DYNAMIC (captured at session start) so the test survives
-developers with different local pollution levels and any future
-deliberate edit to those files. No hard-coded baselines.
+This module retains only the per-test fingerprint check
+``test_no_dated_mistake_files_created_today`` — a cheap diagnostic that
+matches the exact pollution signature observed before the fix
+(e.g. ``test_database_connection-2026-05-18.md``, ``unknown-2026-05-18.md``).
 
 Coverage of pollution vectors (see ``src/superclaude/pm_agent/reflexion.py``
 and ``src/superclaude/pytest_plugin.py``):
@@ -20,8 +21,9 @@ and ``src/superclaude/pytest_plugin.py``):
      ``tests/unit/test_reflexion.py``.
 
 The autouse fixture in ``tests/conftest.py`` redirects all three vectors
-to ``tmp_path/docs/memory/`` via ``REFLEXION_OUTPUT_DIR``. This file
-verifies that redirect held for the whole session.
+to ``tmp_path/docs/memory/`` via ``REFLEXION_OUTPUT_DIR``; the snapshot
+fixture (also in ``tests/conftest.py``) verifies that redirect held for
+the whole session.
 """
 
 from datetime import datetime
@@ -31,46 +33,6 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MISTAKES_DIR = REPO_ROOT / "docs" / "mistakes"
-SOLUTIONS_FILE = REPO_ROOT / "docs" / "memory" / "solutions_learned.jsonl"
-
-
-@pytest.fixture(scope="session", autouse=True)
-def _pollution_snapshot():
-    """
-    Capture pre-session counts of ``docs/mistakes/`` and the size of
-    ``docs/memory/solutions_learned.jsonl``; on session teardown assert
-    that the post-session values match.
-
-    Both paths are guarded by ``.exists()`` so the test passes cleanly on
-    a fresh checkout where the cleansed paths do not exist.
-    """
-    pre_mistakes = (
-        sorted(p.name for p in MISTAKES_DIR.glob("*.md"))
-        if MISTAKES_DIR.exists()
-        else []
-    )
-    pre_size = SOLUTIONS_FILE.stat().st_size if SOLUTIONS_FILE.exists() else 0
-
-    yield
-
-    post_mistakes = (
-        sorted(p.name for p in MISTAKES_DIR.glob("*.md"))
-        if MISTAKES_DIR.exists()
-        else []
-    )
-    post_size = SOLUTIONS_FILE.stat().st_size if SOLUTIONS_FILE.exists() else 0
-
-    added_files = sorted(set(post_mistakes) - set(pre_mistakes))
-    assert not added_files, (
-        f"Test session polluted {MISTAKES_DIR}: "
-        f"{len(added_files)} new file(s): {added_files}"
-    )
-
-    assert post_size == pre_size, (
-        f"Test session polluted {SOLUTIONS_FILE}: "
-        f"{post_size - pre_size} new bytes "
-        f"(pre={pre_size}, post={post_size})"
-    )
 
 
 def test_no_dated_mistake_files_created_today():
@@ -83,7 +45,7 @@ def test_no_dated_mistake_files_created_today():
     ``unknown-2026-05-18.md``).
     """
     if not MISTAKES_DIR.exists():
-        return  # nothing to check on a fresh checkout
+        pytest.skip(f"{MISTAKES_DIR} does not exist — guard inert on fresh checkout")
 
     today = datetime.now().strftime("%Y-%m-%d")
     today_files = list(MISTAKES_DIR.glob(f"test_*-{today}.md"))
