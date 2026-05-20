@@ -115,6 +115,7 @@ temp/
 tmp/
 .cache/
 .claude/
+!.claude/settings.json
 
 # Build artifacts
 *.tar.gz
