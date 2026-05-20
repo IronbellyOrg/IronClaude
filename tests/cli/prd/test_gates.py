@@ -49,40 +49,40 @@ class TestCheckResearchNotesSections:
 
     def test_check_research_notes_sections(self) -> None:
         content = """
-## Product Capabilities
+## EXISTING_FILES
 Details here.
 
-## Technical Architecture
+## PATTERNS_AND_CONVENTIONS
 Details here.
 
-## User Flows
+## FEATURE_ANALYSIS
 Details here.
 
-## Integration Points
+## RECOMMENDED_OUTPUTS
 Details here.
 
-## Existing Documentation
-Details here.
-
-## Gap Analysis
-Details here.
-
-## Suggested Phases
+## SUGGESTED_PHASES
 1. Phase one detail
+
+## TEMPLATE_NOTES
+Details here.
+
+## AMBIGUITIES_FOR_USER
+Details here.
 """
         assert _check_research_notes_sections(content) is True
 
     def test_check_research_notes_sections_missing(self) -> None:
         content = """
-## Product Capabilities
+## EXISTING_FILES
 Some content.
 
-## Technical Architecture
+## PATTERNS_AND_CONVENTIONS
 Some content.
 """
         result = _check_research_notes_sections(content)
         assert isinstance(result, str)
-        assert "User Flows" in result
+        assert "FEATURE_ANALYSIS" in result
 
 
 class TestCheckVerdictField:
