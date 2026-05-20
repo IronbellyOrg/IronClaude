@@ -143,7 +143,7 @@ class TestSynthesisPromptTemplateReference:
     """[F-011] Verify template path reference in synthesis prompt output."""
 
     def test_build_synthesis_prompt_includes_template_reference(self) -> None:
-        template_path = Path("docs/docs-product/templates/prd_template.md")
+        template_path = Path(".claude/templates/workflow/05_prd_template.md")
         prompt = build_synthesis_prompt(
             research_files=[Path("research/01-auth.md"), Path("research/02-api.md")],
             template_sections=["S7 User Personas", "S21.1 User Stories"],
@@ -209,7 +209,7 @@ class TestPromptSizeUnder100KB:
             research_files=[Path(f"research/{i:02d}-topic.md") for i in range(10)],
             template_sections=[f"S{i} Section {i}" for i in range(1, 25)],
             output_path=Path("synthesis/synth-01.md"),
-            template_path=Path("docs/docs-product/templates/prd_template.md"),
+            template_path=Path(".claude/templates/workflow/05_prd_template.md"),
         )
         assert len(synthesis) < max_size
 

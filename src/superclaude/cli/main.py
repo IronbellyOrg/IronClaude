@@ -74,6 +74,11 @@ def install(target: str, force: bool, list_only: bool):
     from .install_hooks import install_hooks
     from .install_skill import list_available_skills
     from .install_skills import install_all_skills, list_installed_skills
+    from .install_templates import (
+        install_templates,
+        list_available_templates,
+        list_installed_templates,
+    )
 
     # List only mode
     if list_only:
@@ -128,6 +133,21 @@ def install(target: str, force: bool, list_only: bool):
         click.echo(
             f"\nSkills: {len(skills_available)} available, {len(skills_installed)} installed"
         )
+
+        # Templates
+        templates_available = list_available_templates()
+        templates_installed = list_installed_templates()
+
+        click.echo("\n📋 Templates:")
+        for name in templates_available:
+            status = (
+                "✅ installed" if name in templates_installed else "⬜ not installed"
+            )
+            click.echo(f"   {name:45} {status}")
+
+        click.echo(
+            f"\nTemplates: {len(templates_available)} available, {len(templates_installed)} installed"
+        )
         return
 
     # Step 1: Install core framework files to ~/.claude/
@@ -170,6 +190,16 @@ def install(target: str, force: bool, list_only: bool):
 
     hooks_success, hooks_message = install_hooks(force=force)
     click.echo(hooks_message)
+    click.echo()
+
+    # Step 6: Install document/workflow templates (PRD, TDD, MDTM, etc.)
+    # Never writes into ~/.claude/agent-memory/ — that directory is owned
+    # by per-agent runtime memory and is explicitly out of scope.
+    click.echo("📦 Installing templates to ~/.claude/templates/...")
+    click.echo()
+
+    templates_success, templates_message = install_templates(force=force)
+    click.echo(templates_message)
 
     if (
         not core_success
@@ -177,6 +207,7 @@ def install(target: str, force: bool, list_only: bool):
         or not agent_success
         or not skill_success
         or not hooks_success
+        or not templates_success
     ):
         sys.exit(1)
 
