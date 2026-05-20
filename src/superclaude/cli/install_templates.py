@@ -94,7 +94,7 @@ def install_templates(
         for fail in failed:
             messages.append(f"   - {fail}")
 
-    if not installed and not skipped:
+    if not installed and not skipped and not failed:
         return False, "No templates were installed (source directory empty?)"
 
     messages.append(f"\n📁 Installation directory: {target_path}")

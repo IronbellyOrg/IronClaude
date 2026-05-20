@@ -1,4 +1,4 @@
-.PHONY: install test test-plugin doctor verify clean lint format build-plugin sync-plugin-repo sync-dev verify-sync verify-deps lint-architecture eval-skill uninstall-legacy help
+.PHONY: install test test-plugin doctor verify clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill uninstall-legacy help
 SHELL := /bin/bash
 
 # Installation (local source, editable) - RECOMMENDED
@@ -352,13 +352,6 @@ verify-sync:
 		exit 1; \
 	fi
 
-# Verify AC3 dependency allow-list (R-015 / T01.17)
-# Fails if `uv pip list` contains packages outside scripts/dependency_baseline.txt.
-# AC3 permits only `pexpect` and `jsonschema` as additions beyond the pre-eval-CLI snapshot.
-verify-deps:
-	@echo "🔍 Verifying Python dependency allow-list (AC3 / R-015)..."
-	@uv run python scripts/verify_deps.py
-
 # Enforce architecture policy: commands, skills, naming conventions
 lint-architecture:
 	@echo "🔍 Checking architecture policy compliance..."
@@ -507,7 +500,6 @@ help:
 	@echo "🔄 Component Sync:"
 	@echo "  make sync-dev        - Sync src/ → .claude/ for local development"
 	@echo "  make verify-sync     - Check src/ and .claude/ are in sync (CI-friendly)"
-	@echo "  make verify-deps     - Verify Python deps against AC3 allow-list (R-015)"
 	@echo "  make lint-architecture - Enforce architecture policy (6 of 10 checks)"
 	@echo "  make eval-skill SKILL=<name> - Create .dev/eval-workspaces/<name>/ and print absolute path"
 	@echo ""

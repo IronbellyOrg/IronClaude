@@ -77,7 +77,7 @@ def install_core_files(
         for fail in failed:
             messages.append(f"   - {fail}")
 
-    if not installed and not skipped:
+    if not installed and not skipped and not failed:
         return False, "No core framework files were installed"
 
     messages.append(f"\n📁 Installation directory: {target_path}")
