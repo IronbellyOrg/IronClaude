@@ -1,0 +1,28 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 15 items
+
+tests/cli/prd/test_gates.py::TestCheckParsedRequestFields::test_check_parsed_request_fields_valid PASSED [  6%]
+tests/cli/prd/test_gates.py::TestCheckParsedRequestFields::test_check_parsed_request_fields_valid_markdown PASSED [ 13%]
+tests/cli/prd/test_gates.py::TestCheckParsedRequestFields::test_check_parsed_request_fields_missing PASSED [ 20%]
+tests/cli/prd/test_gates.py::TestCheckResearchNotesSections::test_check_research_notes_sections PASSED [ 26%]
+tests/cli/prd/test_gates.py::TestCheckResearchNotesSections::test_check_research_notes_sections_missing PASSED [ 33%]
+tests/cli/prd/test_gates.py::TestCheckVerdictField::test_check_verdict_field PASSED [ 40%]
+tests/cli/prd/test_gates.py::TestCheckB2SelfContained::test_check_b2_self_contained PASSED [ 46%]
+tests/cli/prd/test_gates.py::TestCheckParallelInstructions::test_check_parallel_instructions PASSED [ 53%]
+tests/cli/prd/test_gates.py::TestCheckParallelInstructions::test_check_parallel_instructions_missing PASSED [ 60%]
+tests/cli/prd/test_gates.py::TestCheckPrdTemplateSections::test_check_prd_template_sections PASSED [ 66%]
+tests/cli/prd/test_gates.py::TestCheckPrdTemplateSections::test_check_prd_template_sections_missing PASSED [ 73%]
+tests/cli/prd/test_gates.py::TestCheckNoPlaceholders::test_check_no_placeholders PASSED [ 80%]
+tests/cli/prd/test_gates.py::TestGateExceptionWrapping::test_safe_check_wraps_exceptions PASSED [ 86%]
+tests/cli/prd/test_research_notes_roundtrip.py::test_prompt_schema_matches_gate_schema PASSED [ 93%]
+tests/cli/prd/test_research_notes_roundtrip.py::test_prompt_conforming_output_passes_gate PASSED [100%]
+
+============================== 15 passed in 0.09s ==============================

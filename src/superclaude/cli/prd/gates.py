@@ -100,13 +100,13 @@ def _check_parsed_request_fields(content: str) -> bool | str:
 
 
 _RESEARCH_REQUIRED_SECTIONS = [
-    "Product Capabilities",
-    "Technical Architecture",
-    "User Flows",
-    "Integration Points",
-    "Existing Documentation",
-    "Gap Analysis",
-    "Suggested Phases",
+    "EXISTING_FILES",
+    "PATTERNS_AND_CONVENTIONS",
+    "FEATURE_ANALYSIS",
+    "RECOMMENDED_OUTPUTS",
+    "SUGGESTED_PHASES",
+    "TEMPLATE_NOTES",
+    "AMBIGUITIES_FOR_USER",
 ]
 
 
@@ -132,7 +132,7 @@ def _check_suggested_phases_detail(content: str) -> bool | str:
     Expects at least one numbered or bulleted list item under a Phases heading.
     """
     phases_match = re.search(
-        r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested\s+)?Phases",
+        r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested[\s_]+)?Phases",
         content,
         re.IGNORECASE,
     )
