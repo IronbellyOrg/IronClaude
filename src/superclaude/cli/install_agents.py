@@ -77,7 +77,7 @@ def install_agents(target_path: Path = None, force: bool = False) -> Tuple[bool,
         for fail in failed:
             messages.append(f"   - {fail}")
 
-    if not installed and not skipped:
+    if not installed and not skipped and not failed:
         return False, "No agents were installed"
 
     messages.append(f"\n📁 Installation directory: {target_path}")

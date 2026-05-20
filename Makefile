@@ -145,11 +145,22 @@ sync-dev:
 		cp src/superclaude/scripts/session-init.sh .claude/hooks/session-init.sh; \
 		chmod +x .claude/hooks/session-init.sh; \
 	fi
+	@if [ -d src/superclaude/templates ]; then \
+		mkdir -p .claude/templates; \
+		find src/superclaude/templates -type f ! -path '*/agent-memory/*' ! -path '*/__pycache__/*' -exec sh -c ' \
+			src="$$1"; \
+			rel=$${src#src/superclaude/templates/}; \
+			target=".claude/templates/$$rel"; \
+			mkdir -p "$$(dirname "$$target")"; \
+			cp "$$src" "$$target"; \
+		' _ {} \; ; \
+	fi
 	@echo "✅ Sync complete."
-	@echo "   Skills:   $$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ') directories"
-	@echo "   Agents:   $$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ') files"
-	@echo "   Commands: $$(ls .claude/commands/sc/*.md 2>/dev/null | wc -l | tr -d ' ') files"
-	@echo "   Hooks:    $$(ls .claude/hooks/*.sh 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Skills:    $$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ') directories"
+	@echo "   Agents:    $$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Commands:  $$(ls .claude/commands/sc/*.md 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Hooks:     $$(ls .claude/hooks/*.sh 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Templates: $$(find .claude/templates -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ') files"
 
 # Verify src/superclaude/ and .claude/ are in sync (CI-friendly, exits 1 on drift)
 verify-sync:
@@ -265,6 +276,33 @@ verify-sync:
 			drift=1; \
 		fi; \
 	done; \
+	echo ""; \
+	echo "=== Templates ==="; \
+	if [ -d src/superclaude/templates ]; then \
+		while IFS= read -r src; do \
+			rel=$${src#src/superclaude/templates/}; \
+			target=".claude/templates/$$rel"; \
+			if [ ! -f "$$target" ]; then \
+				echo "  ❌ MISSING in .claude/templates/: $$rel"; \
+				drift=1; \
+			elif ! diff -q "$$src" "$$target" > /dev/null 2>&1; then \
+				echo "  ⚠️  DIFFERS: $$rel"; \
+				drift=1; \
+			else \
+				echo "  ✅ $$rel"; \
+			fi; \
+		done < <(find src/superclaude/templates -type f ! -path '*/__pycache__/*'); \
+		while IFS= read -r tgt; do \
+			rel=$${tgt#.claude/templates/}; \
+			case "$$rel" in *.legacy-rf-project.md) continue;; esac; \
+			if [ ! -f "src/superclaude/templates/$$rel" ]; then \
+				echo "  ❌ MISSING in src/superclaude/templates/: $$rel (not distributable!)"; \
+				drift=1; \
+			fi; \
+		done < <(find .claude/templates -type f ! -path '*/__pycache__/*' 2>/dev/null); \
+	else \
+		echo "  ⚠️  src/superclaude/templates/ does not exist — skipping template sync check"; \
+	fi; \
 	echo ""; \
 	echo "=== Installer Registration ==="; \
 	src_hooks=$$(ls src/superclaude/hooks/scripts/*.sh 2>/dev/null | xargs -n1 basename | sort); \

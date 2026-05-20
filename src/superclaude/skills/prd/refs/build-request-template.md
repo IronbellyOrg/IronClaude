@@ -6,7 +6,7 @@
 
 BUILD_REQUEST:
 ==============
-GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at src/superclaude/examples/prd_template.md. The PRD will be written to [OUTPUT_PATH].
+GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at .claude/templates/workflow/05_prd_template.md. The PRD will be written to [OUTPUT_PATH].
 
 WHY: [WHY — what this PRD is for and how it will be used]
 
@@ -101,7 +101,7 @@ The task file MUST encode these phases as sequential checklist items. Each phase
 Phase 1 — Preparation:
 - Update task status to "🟠 Doing"
 - Confirm scope from research notes (product boundaries, key directories, tier selection)
-- Read the PRD template at src/superclaude/examples/prd_template.md
+- Read the PRD template at .claude/templates/workflow/05_prd_template.md
 - Select depth tier (Lightweight / Standard / Heavyweight) based on product scope and complexity
 - Create the task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders (if not already created during scope discovery)
 

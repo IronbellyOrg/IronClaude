@@ -32,10 +32,10 @@ _STEP_ID_PATTERN = re.compile(
     r"|assembly|structural-qa|qualitative-qa|completion)$"
 )
 
-_DEFAULT_SKILL_REFS_DIRS = [
-    Path("src/superclaude/skills/prd/refs"),
-    Path(".claude/skills/prd/refs"),
-]
+# Path resolution helpers live in ``models`` as the single source of
+# truth (see ``_default_skill_refs_dir``); this module delegates so the
+# CLI surface remains backward-compatible while the actual logic stays
+# in one place.
 
 
 # ---------------------------------------------------------------------------
@@ -157,12 +157,11 @@ def _slugify(name: str) -> str:
 
 
 def _discover_skill_refs_dir() -> Path:
-    """Find the skill refs directory from known locations.
+    """Delegate to :func:`models._default_skill_refs_dir`.
 
-    Returns the first existing directory, or the default if none found.
+    Kept as a thin wrapper for backward compatibility and to preserve
+    the public-ish import surface inside the ``config`` module.
     """
-    for candidate in _DEFAULT_SKILL_REFS_DIRS:
-        if candidate.is_dir():
-            return candidate
-    # Fallback to the canonical source location even if it doesn't exist yet
-    return _DEFAULT_SKILL_REFS_DIRS[0]
+    from superclaude.cli.prd.models import _default_skill_refs_dir
+
+    return _default_skill_refs_dir()
