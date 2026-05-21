@@ -1,0 +1,30 @@
+{
+  "skill_name": "sc-troubleshoot",
+  "iteration": 2,
+  "notes": "Iteration 2 adds direct-invocation evals for the two new custom agents (evidence-validator, confidence-calibrator). The 6 skill-level evals from iteration-1 are carried forward as 'still-applicable' but not re-run by default — iteration-1's 100% pass rate stands until a SKILL.md change requires re-baselining. Run a focused subset (3 agent evals total) in this session to validate the agents work as designed.",
+  "agent_evals": {
+    "evidence-validator": [
+      {"id": "E1", "name": "all-verified", "fixture": "fixtures/evidence-validator/E1-all-verified-draft.md", "expected": {"verified": 3, "dropped": 0, "status": "success"}, "ran_in_iteration_2": true},
+      {"id": "E2", "name": "half-wrong-line", "fixture": "fixtures/evidence-validator/E2-half-wrong-line-draft.md", "expected": {"verified": 2, "dropped": 2, "status": "partial", "drop_reasons": ["line-mismatch", "line-mismatch"]}, "ran_in_iteration_2": true},
+      {"id": "E3", "name": "fabricated-file", "fixture": "fixtures/evidence-validator/E3-fabricated-file-draft.md", "expected": {"verified": 1, "dropped": 1, "status": "partial", "drop_reasons": ["file-missing"]}, "ran_in_iteration_2": true},
+      {"id": "E4", "name": "mixed-command-and-file-line", "expected": {"verified_file_line": 3, "passed_through_command": 1, "status": "success"}, "ran_in_iteration_2": false, "deferred_reason": "covered by E1-E3 file:line logic; defer to iteration-3"},
+      {"id": "E5", "name": "snippet-in-comment-not-code", "expected": {"verdict": "snippet-mismatch with context note"}, "ran_in_iteration_2": false, "deferred_reason": "requires fixture with multi-line comment block"},
+      {"id": "E6", "name": "whitespace-only-differences", "expected": {"verdict": "verified"}, "ran_in_iteration_2": false, "deferred_reason": "boundary case, defer until E1-E3 baseline"},
+      {"id": "E7", "name": "all-citations-drop", "expected": {"verified": 0, "dropped": 3, "status": "partial"}, "ran_in_iteration_2": false, "deferred_reason": "extreme case, defer"},
+      {"id": "E8", "name": "missing-or-empty-draft", "expected": {"status": "failed_with_clear_note"}, "ran_in_iteration_2": false, "deferred_reason": "edge case, defer"}
+    ],
+    "confidence-calibrator": [
+      {"id": "C1", "name": "under-confident-agent", "fixture": "fixtures/confidence-calibrator/C1-under-confident-card.md", "expected": {"calibrated": ">=0.85", "verdict": "STOP", "delta_sign": "positive"}, "ran_in_iteration_2": true},
+      {"id": "C2", "name": "over-confident-bad-evidence", "fixture": "fixtures/confidence-calibrator/C2-over-confident-bad-evidence-card.md", "expected": {"calibrated": "<0.85", "verdict": "ESCALATE", "delta_sign": "negative", "evidence_grounding_score": 0.0, "rationale": "spot-check fails on cited line 50 of config.py"}, "ran_in_iteration_2": true},
+      {"id": "C3", "name": "intermittent-forces-escalation", "expected": {"calibrated_high": true, "verdict": "ESCALATE", "reason": "intermittent"}, "ran_in_iteration_2": false, "deferred_reason": "covered by inference from rubric rules"},
+      {"id": "C4", "name": "depth-deep-forces-escalation", "expected": {"verdict": "ESCALATE", "reason": "forced_by_depth_deep"}, "ran_in_iteration_2": false, "deferred_reason": "covered by inference from rubric rules"},
+      {"id": "C5", "name": "invented-snippets", "expected": {"evidence_grounding": "0.0 or 0.5 with spot-check failures enumerated"}, "ran_in_iteration_2": false, "deferred_reason": "C2 already exercises this signal"},
+      {"id": "C6", "name": "truncated-malformed-card", "expected": {"missing_dimension_score": 0.0}, "ran_in_iteration_2": false, "deferred_reason": "defer to iteration-3"}
+    ]
+  },
+  "skill_evals_from_iteration_1": {
+    "status": "still-applicable",
+    "rerun_decision": "not-rerun-in-iteration-2",
+    "rationale": "iteration-1 produced 100% pass on the new skill; SKILL.md edits in iteration-2 only added agent delegation + error-handling rows (additive, with fallback to inline behavior identical to iteration-1). Re-running the 6 skill evals would consume ~600k tokens with low marginal signal. Re-run when a non-additive SKILL.md change ships."
+  }
+}

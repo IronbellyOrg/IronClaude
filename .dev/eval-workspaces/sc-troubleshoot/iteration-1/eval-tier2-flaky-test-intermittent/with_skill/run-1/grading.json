@@ -1,0 +1,48 @@
+{
+  "eval_id": 2,
+  "eval_name": "tier2-flaky-test-intermittent",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifies race condition / thread-safety as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md: 'check-then-act race on _session_cache'."
+    },
+    {
+      "text": "Cites the specific check-then-act pattern in get_or_create_session",
+      "passed": true,
+      "evidence": "REPORT.md cites api/session.py:9-14 with the check-then-act snippet."
+    },
+    {
+      "text": "Recommends a synchronization fix (Lock, per-key lock, or atomic primitive)",
+      "passed": true,
+      "evidence": "PR-1 in Proposed Fix uses threading.Lock with double-checked locking."
+    },
+    {
+      "text": "Explains why CI (8-core) reproduces but local (1-core Docker) does not",
+      "passed": true,
+      "evidence": "REPORT.md Summary explains GIL behavior + single-core Docker scheduling masks the race."
+    },
+    {
+      "text": "Escalates to Tier 2",
+      "passed": true,
+      "evidence": "audit.log + 4 Tier 2 hypothesis cards written."
+    },
+    {
+      "text": "At least 2 hypothesis cards written",
+      "passed": true,
+      "evidence": "4 cards on disk: quality-engineer, root-cause-analyst, refactoring-expert, performance-engineer."
+    }
+  ],
+  "pass_count": 6,
+  "fail_count": 0,
+  "na_count": 0,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "na": 0
+  }
+}

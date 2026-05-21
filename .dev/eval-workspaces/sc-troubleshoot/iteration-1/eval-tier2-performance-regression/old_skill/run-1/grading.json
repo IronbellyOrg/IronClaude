@@ -1,0 +1,48 @@
+{
+  "eval_id": 3,
+  "eval_name": "tier2-performance-regression",
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Identifies N+1 query as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md: 'classic SQLAlchemy N+1'."
+    },
+    {
+      "text": "Names the specific relationships causing the problem",
+      "passed": true,
+      "evidence": "Table of per-row accesses lists owner, last_edit, last_edit.editor, tags."
+    },
+    {
+      "text": "Proposes eager-loading fix",
+      "passed": true,
+      "evidence": "Option A uses joinedload + selectinload."
+    },
+    {
+      "text": "Cites read-replica CPU pegging as evidence of query volume, not query slowness",
+      "passed": true,
+      "evidence": "REPORT.md Investigate section explicitly interprets the signal."
+    },
+    {
+      "text": "Escalates to Tier 2",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no tier concept."
+    },
+    {
+      "text": "At least 2 hypothesis cards written",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill produces single linear report."
+    }
+  ],
+  "pass_count": 4,
+  "fail_count": 0,
+  "na_count": 2,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 6,
+    "na": 2
+  }
+}

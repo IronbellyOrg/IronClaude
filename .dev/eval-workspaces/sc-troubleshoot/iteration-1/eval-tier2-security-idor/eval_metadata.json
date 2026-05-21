@@ -1,0 +1,7 @@
+{
+  "eval_id": 4,
+  "eval_name": "tier2-security-idor",
+  "prompt": "SAST flagged /api/users/<user_id>/profile as potential IDOR ... (see evals.json)",
+  "expected_tier": 2,
+  "assertions": []
+}

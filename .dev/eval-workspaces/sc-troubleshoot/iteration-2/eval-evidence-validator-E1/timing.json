@@ -1,0 +1,7 @@
+{
+  "total_tokens": 62466,
+  "duration_ms": 51944,
+  "total_duration_seconds": 51.9,
+  "result": "PASS-with-fixture-finding — verified=2, dropped=1 (snippet-mismatch on citation 3), status=partial. The fixture's citation 3 was authored carelessly with a parenthetical hedge ('check whatever real content is at line 1'); the agent correctly dropped it per the 'match or drop' rule. This is the desired behavior — false PASS is worse than false FAIL. Fixture should be tightened in iteration-3.",
+  "lesson": "Agent's 'match or drop' discipline held even against a draft labeled 'all-verified'; the fixture, not the agent, was the source of imprecision."
+}

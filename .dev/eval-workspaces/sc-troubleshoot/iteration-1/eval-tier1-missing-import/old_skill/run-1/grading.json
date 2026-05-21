@@ -1,0 +1,43 @@
+{
+  "eval_id": 1,
+  "eval_name": "tier1-missing-import",
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Identifies missing `from datetime import datetime` as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md diagnosis names missing datetime import."
+    },
+    {
+      "text": "Cites line 47 or the specific line containing datetime.utcnow()",
+      "passed": true,
+      "evidence": "REPORT.md references line 47."
+    },
+    {
+      "text": "Proposes the one-line fix: add `from datetime import datetime` to imports",
+      "passed": true,
+      "evidence": "Option A in REPORT.md is the import addition."
+    },
+    {
+      "text": "Stops at Tier 1 (does not unnecessarily escalate)",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no tier concept."
+    },
+    {
+      "text": "Reports calibrated confidence \u2265 0.85",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill does not report calibrated confidence."
+    }
+  ],
+  "pass_count": 3,
+  "fail_count": 0,
+  "na_count": 2,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 5,
+    "na": 2
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "eval_id": 4,
+  "eval_name": "tier2-security-idor",
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Confirms the IDOR is real (does not dismiss as 'mobile-only')",
+      "passed": true,
+      "evidence": "REPORT.md: 'true-positive IDOR ... mobile client is outside the trust boundary'."
+    },
+    {
+      "text": "Identifies the missing authorization check",
+      "passed": true,
+      "evidence": "REPORT.md table explicitly notes Authorization=NO."
+    },
+    {
+      "text": "Proposes the authorization fix",
+      "passed": true,
+      "evidence": "Option A: identity-equality check (404 to avoid enumeration)."
+    },
+    {
+      "text": "Recommends a regression test for the fix",
+      "passed": true,
+      "evidence": "Verification plan with user A\u2192B test."
+    },
+    {
+      "text": "Escalates to Tier 2 (security_caution)",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no tier concept."
+    },
+    {
+      "text": "Notes PII exposure as the impact severity",
+      "passed": true,
+      "evidence": "REPORT.md notes 'PII disclosure', GDPR Art. 5/32 relevance."
+    }
+  ],
+  "pass_count": 5,
+  "fail_count": 0,
+  "na_count": 1,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 6,
+    "na": 1
+  }
+}

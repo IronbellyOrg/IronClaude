@@ -1,0 +1,63 @@
+{
+  "eval_id": 5,
+  "eval_name": "tier2-real-bug-scratch-root-tautology",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifies the output_dir=output_dir self-referential kwarg as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md cites commands.py:1473-1477 with `output_dir=output_dir` as the bug."
+    },
+    {
+      "text": "Explains the allowlist tautology mechanic",
+      "passed": true,
+      "evidence": "REPORT.md: 'allowlist appends output_dir kwarg ... loop matches candidate against the now-self-extended allowlist; trivially matches'."
+    },
+    {
+      "text": "Contrasts with doctor's correct behavior (no output_dir= kwarg)",
+      "passed": true,
+      "evidence": "REPORT.md cites commands.py:815-823: 'doctor ... without the kwarg'."
+    },
+    {
+      "text": "Proposes dropping the output_dir=output_dir kwarg in eval_run",
+      "passed": true,
+      "evidence": "Fix #1 in Proposed Fix section."
+    },
+    {
+      "text": "Notes the output_dir= parameter has a legitimate caller (defense-in-depth helpers)",
+      "passed": true,
+      "evidence": "REPORT.md explicitly notes the function signature retains the param for HomeIsolation.containment_guard."
+    },
+    {
+      "text": "Recommends a regression test for the fix",
+      "passed": true,
+      "evidence": "Fix #2: tests/cli/eval/test_eval_run_scratch_root.py asserting exit code 2 + OPS-002 stderr + parity test."
+    },
+    {
+      "text": "Uses real file:line citations from the snapshot",
+      "passed": true,
+      "evidence": "REPORT.md cites commands.py:1476, 1473-1477, 815-823 and config.py:217-220, 225-231 \u2014 all match fixture content."
+    },
+    {
+      "text": "Escalates to Tier 2",
+      "passed": true,
+      "evidence": "audit.log + 3 Tier 2 cards (security-engineer, root-cause-analyst, quality-engineer)."
+    },
+    {
+      "text": "Invokes adversarial debate or notes consensus skipped it",
+      "passed": true,
+      "evidence": "adversarial/merged-output.md exists; debate produced Fix-1+Fix-3 merge with Fix-2 deferred."
+    }
+  ],
+  "pass_count": 9,
+  "fail_count": 0,
+  "na_count": 0,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "na": 0
+  }
+}

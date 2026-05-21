@@ -1,0 +1,48 @@
+{
+  "eval_id": 3,
+  "eval_name": "tier2-performance-regression",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifies N+1 query as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md: 'textbook SQLAlchemy N+1'."
+    },
+    {
+      "text": "Names the specific relationships causing the problem (owner, tags, last_edit, last_edit.editor)",
+      "passed": true,
+      "evidence": "All four relationships explicitly named in REPORT.md."
+    },
+    {
+      "text": "Proposes eager-loading fix (joinedload/selectinload/subqueryload)",
+      "passed": true,
+      "evidence": "Per-cardinality fix uses joinedload(owner), joinedload(last_edit).joinedload(editor), selectinload(tags)."
+    },
+    {
+      "text": "Cites read-replica CPU pegging as evidence of query volume, not query slowness",
+      "passed": true,
+      "evidence": "REPORT.md interprets the 80% CPU as a volume signal."
+    },
+    {
+      "text": "Escalates to Tier 2",
+      "passed": true,
+      "evidence": "audit.log shows tier_reached=2 (low_confidence trigger); 3 Tier 2 cards on disk."
+    },
+    {
+      "text": "At least 2 hypothesis cards written",
+      "passed": true,
+      "evidence": "3 cards: performance-engineer, root-cause-analyst, system-architect."
+    }
+  ],
+  "pass_count": 6,
+  "fail_count": 0,
+  "na_count": 0,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "na": 0
+  }
+}

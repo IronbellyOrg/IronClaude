@@ -1,0 +1,63 @@
+{
+  "eval_id": 5,
+  "eval_name": "tier2-real-bug-scratch-root-tautology",
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Identifies the output_dir=output_dir self-referential kwarg as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md: 'eval_run calls resolve_scratch_root(requested_output, config=base_config, output_dir=output_dir)' as the bug."
+    },
+    {
+      "text": "Explains the allowlist tautology mechanic",
+      "passed": true,
+      "evidence": "REPORT.md: 'resolver appends resolved output_dir kwarg to the allowlist ... allowlist check becomes a tautology'."
+    },
+    {
+      "text": "Contrasts with doctor's correct behavior (no output_dir= kwarg)",
+      "passed": true,
+      "evidence": "REPORT.md cites commands.py:817 'no kwarg, keeping the default allowlist intact'."
+    },
+    {
+      "text": "Proposes dropping the output_dir=output_dir kwarg in eval_run",
+      "passed": true,
+      "evidence": "Solution C(A): remove the kwarg."
+    },
+    {
+      "text": "Notes the output_dir= parameter has a legitimate caller (defense-in-depth helpers)",
+      "passed": true,
+      "evidence": "REPORT.md notes 'output_dir= extends the allowlist for sub-paths minted inside the operator's already-validated root (per-eval HOMEs, working trees)'."
+    },
+    {
+      "text": "Recommends a regression test for the fix",
+      "passed": true,
+      "evidence": "Solution C(C): regression test asserting ScratchRootViolation."
+    },
+    {
+      "text": "Uses real file:line citations from the snapshot",
+      "passed": true,
+      "evidence": "Cites commands.py:1473-1477, commands.py:817, config.py:219-220 \u2014 all match fixture content."
+    },
+    {
+      "text": "Escalates to Tier 2",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no tier concept."
+    },
+    {
+      "text": "Invokes adversarial debate or notes consensus skipped it",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no adversarial step."
+    }
+  ],
+  "pass_count": 7,
+  "fail_count": 0,
+  "na_count": 2,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 9,
+    "na": 2
+  }
+}
