@@ -12,6 +12,24 @@ When ANY message starts with /sc:<command>, you MUST invoke the corresponding sk
 
 In the event where context pressure would otherwise have the agent take shortcuts or improvise instead of initiating the command/skill/protoco - ALWAYS WARN THE USER AND INSTRUCT THEM TO RUN THE CUSTOM COMMAND IN A NEW CHAT.
 
+## ABSOLUTE RULE: Never Stage or Commit `.claude/` Contents
+
+`.claude/{skills,commands,agents,hooks,templates}/*` is **gitignored sync-dev output** of `src/superclaude/`. The ONLY tracked file under `.claude/` is `.claude/settings.json` (project hook + permission registrations, not auto-generated). Upstream regenerates `.claude/` via `superclaude install`; the local copy exists for Claude Code to read during development.
+
+**NEVER**, under any circumstance:
+- `git add .claude/skills/...`, `.claude/commands/...`, `.claude/agents/...`, `.claude/hooks/...`, `.claude/templates/...`
+- `git add -f` on any `.claude/` path
+- Suggest staging `.claude/` mirrors in paste-ready commit commands
+- Author task-file instructions, follow-ups, or risk notes telling the user to stage `.claude/` paths
+
+**The `-f` rule:** If `git add` requires `-f` on any `.claude/` path, that `-f` is the violation siren. STOP. Move the change to `src/superclaude/` first, run `make sync-dev`, and stage only the `src/` side.
+
+**Exceptions:** ONLY `.claude/settings.json`. ANY other exception requires explicit user instruction in the same session and must be called out (e.g., "user authorized staging `.claude/foo` because X"). Without that, treat every `.claude/<not-settings.json>` path as forbidden to stage.
+
+**Rationale:** SoT discipline. Committing `.claude/skills/foo/SKILL.md` alongside `src/superclaude/skills/foo/SKILL.md` doubles every diff, invites drift, and breaks `make verify-sync` for the next contributor. The gitignore (`.claude/` + `!.claude/settings.json`) and the pre-commit `verify-sync` local hook enforce this together — but neither catches `git add -f` or hand-edited paste-ready commands. That's why this rule exists at the CLAUDE.md level: it must hold even when the mechanical gates are bypassed.
+
+See also: memory `feedback_claude_dir_gitignored.md`.
+
 
 ### Required Commands
 

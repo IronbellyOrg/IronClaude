@@ -16,6 +16,10 @@ set -u
 
 INPUT="$(cat 2>/dev/null || true)"
 
+# Cheap prefilter: bail out immediately if the payload doesn't even mention `gh pr create`.
+# Saves three jq invocations on every non-matching Bash tool call.
+case "$INPUT" in *'"command"'*'gh'*'pr'*'create'*) ;; *) exit 0;; esac
+
 # Pull the tool name and the bash command out of the hook payload.
 TOOL_NAME="$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)"
 [ "$TOOL_NAME" = "Bash" ] || exit 0

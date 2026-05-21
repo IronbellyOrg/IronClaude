@@ -7,7 +7,11 @@
       "prompt": "Run /sc:auggie-review 62 --no-post-pr --output-dir /tmp/eval-pr62/. The repo is IronbellyOrg/IronClaude. Use --depth standard. Produce the full markdown report at /tmp/eval-pr62/REVIEW.md. Do not post to the PR (it's already merged). At the end of your work, print the absolute path to REVIEW.md and a one-line summary of the finding counts by severity.",
       "expected_output": "A REVIEW.md at /tmp/eval-pr62/ that follows the skill's report template — header with target/depth/stats, severity-tagged findings sections, each finding with file:line citation that exists in the actual repo, no hallucinated paths. Audit log written alongside. Status returned with finding counts.",
       "files": [],
-      "assertions": []
+      "assertions": [
+        { "text": "Output file /tmp/eval-pr62/REVIEW.md exists after the eval completes", "type": "file_exists", "path": "/tmp/eval-pr62/REVIEW.md" },
+        { "text": "REVIEW.md contains all required template section headers", "type": "report_contains", "report": "/tmp/eval-pr62/REVIEW.md", "markers": ["# Code Review:", "## Findings", "## Audit"] },
+        { "text": "All file:line citations in REVIEW.md point to files that exist in the IronClaude working tree", "type": "no_hallucinated_citations", "report": "/tmp/eval-pr62/REVIEW.md", "citation_regex": "(?:^|\\s)([^\\s:]+\\.(?:py|sh|md|json|yaml|yml|toml|js|ts)):(\\d+)", "repo_root": "/config/workspace/IronClaude" }
+      ]
     },
     {
       "id": 2,
@@ -15,7 +19,11 @@
       "prompt": "Run /sc:auggie-review --diff origin/master...HEAD --no-post-pr --depth quick --output-dir /tmp/eval-diff/. This will review the uncommitted/branch changes against master. Use --focus quality,anti-patterns,architecture. At the end, print the report path and a one-line summary.",
       "expected_output": "A REVIEW.md at /tmp/eval-diff/ scoped to the diff against master. Findings (if any) must cite files actually in the diff. Diff statistics should match `git diff --stat origin/master...HEAD`.",
       "files": [],
-      "assertions": []
+      "assertions": [
+        { "text": "Output file /tmp/eval-diff/REVIEW.md exists after the eval completes", "type": "file_exists", "path": "/tmp/eval-diff/REVIEW.md" },
+        { "text": "REVIEW.md contains all required template section headers", "type": "report_contains", "report": "/tmp/eval-diff/REVIEW.md", "markers": ["# Code Review:", "## Findings", "## Audit"] },
+        { "text": "All file:line citations in REVIEW.md point to files that exist in the IronClaude working tree", "type": "no_hallucinated_citations", "report": "/tmp/eval-diff/REVIEW.md", "citation_regex": "(?:^|\\s)([^\\s:]+\\.(?:py|sh|md|json|yaml|yml|toml|js|ts)):(\\d+)", "repo_root": "/config/workspace/IronClaude" }
+      ]
     },
     {
       "id": 3,
@@ -23,7 +31,11 @@
       "prompt": "Run /sc:auggie-review --snapshot src/superclaude/cli/ --depth quick --focus anti-patterns,architecture,quality --output-dir /tmp/eval-snapshot/. Review the CLI module as a whole, no diff. Print the report path and a one-line summary at the end.",
       "expected_output": "A REVIEW.md at /tmp/eval-snapshot/ that reviews the CLI subtree, with findings citing files inside src/superclaude/cli/. Cross-cutting observations should highlight architecture-level concerns rather than per-line nits.",
       "files": [],
-      "assertions": []
+      "assertions": [
+        { "text": "Output file /tmp/eval-snapshot/REVIEW.md exists after the eval completes", "type": "file_exists", "path": "/tmp/eval-snapshot/REVIEW.md" },
+        { "text": "REVIEW.md contains all required template section headers", "type": "report_contains", "report": "/tmp/eval-snapshot/REVIEW.md", "markers": ["# Code Review:", "## Findings", "## Audit"] },
+        { "text": "All file:line citations in REVIEW.md point to files that exist in the IronClaude working tree", "type": "no_hallucinated_citations", "report": "/tmp/eval-snapshot/REVIEW.md", "citation_regex": "(?:^|\\s)([^\\s:]+\\.(?:py|sh|md|json|yaml|yml|toml|js|ts)):(\\d+)", "repo_root": "/config/workspace/IronClaude" }
+      ]
     }
   ]
 }

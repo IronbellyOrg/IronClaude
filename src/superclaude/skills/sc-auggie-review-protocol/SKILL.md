@@ -163,8 +163,13 @@ auggie --print \
 > **Common pitfalls (read before invoking)**:
 >
 > - **Flag name**: the correct flag is `--output-format json`, NOT `--json`. The latter is not a real auggie flag and will cause `exit 1`.
-> - **JSON wrapping**: even with `--output-format json`, Auggie usually wraps its response in a ```json ...``` markdown fence and may include preamble/postamble prose. **Always strip fences and extract the JSON object** before parsing. Recommended: `sed -n '/^```json$/,/^```$/p' auggie-raw.json | sed '1d;$d' | jq '.'` or equivalent. If `jq` parse fails, save the raw response and downgrade status to `partial`.
-> - **`--max-turns` preamble**: when `--max-turns N` is passed, Auggie prints `Applying --max-turns override: N over agentMaxIterations=500` as the **first stdout line** before the JSON envelope. This breaks `jq` if not stripped. Pipe through `tail -n +2` (or `grep -v '^Applying --max-turns'`) before extracting `.result` and stripping the inner ```json fence. The outer envelope (`{"type":"result","result":"<fenced-json-string>",...}`) is then parsed normally.
+> - **JSON unwrapping (full pipeline)**: even with `--output-format json`, Auggie wraps its response in an outer envelope (`{"type":"result","result":"<fenced-json-string>",...}`), prepends a `--max-turns` preamble line when `--max-turns N` is passed (`Applying --max-turns override: N over agentMaxIterations=500`), and the inner `.result` string is itself wrapped in a ```json ...``` markdown fence. The complete unwrap pipeline is:
+>
+>   ```bash
+>   tail -n +2 auggie-raw.json | jq -r '.result' | sed -n '/^```json$/,/^```$/p' | sed '1d;$d' | jq '.'
+>   ```
+>
+>   Steps: `tail -n +2` strips the `--max-turns` preamble line; `jq -r '.result'` unwraps the outer envelope; `sed -n '/^```json$/,/^```$/p'` extracts the fenced inner block; `sed '1d;$d'` drops the opening and closing fence markers; final `jq '.'` validates and pretty-prints. If `jq` parse fails, save the raw response and downgrade status to `partial`.
 > - **`--instruction-file` requires a real path**: `mkdir -p <output-dir>` before writing the prompt file. Auggie reads the file from disk, not stdin.
 > - **`--workspace-root` matters**: must point to the repo root (`git rev-parse --show-toplevel`), not the diff path or PR subtree. Auggie's index is scoped to this directory.
 > - **Indexer cold-start**: if `auggie-stderr.log` mentions "indexing" or "not ready", retry with `--wait-for-indexing` once before treating as a failure.
