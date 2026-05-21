@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 2 items
+
+tests/cli/eval/test_single_command.py::test_single_command_local_runnability SKIPPEDmoke is deferred (see phase-4-tasklist.md §T04.11 Notes).) [ 50%]
+tests/cli/eval/test_single_command.py::test_single_command_contract_is_documented PASSED [100%]
+
+========================= 1 passed, 1 skipped in 0.13s =========================

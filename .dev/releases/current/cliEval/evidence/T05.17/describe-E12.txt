@@ -1,0 +1,37 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E12
+title: Hook deploy idempotency
+category: hook-lifecycle
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: /quit
+expects:
+- settings_json:
+    path: settings.json
+    key_path: hooks.SessionStart
+    exists: true
+- settings_json:
+    path: settings.json
+    key_path: hooks.UserPromptSubmit
+    exists: true
+- settings_json:
+    path: settings.json
+    key_path: hooks.PreToolUse
+    exists: true
+- settings_json:
+    path: settings.json
+    key_path: hooks.PostToolUse
+    exists: true
+- settings_json:
+    path: settings.json
+    key_path: hooks.SubagentStart
+    exists: true
+- settings_json:
+    path: settings.json
+    key_path: hooks.SubagentStop
+    exists: true
+- exit_code:
+    equals: 0
+no_pty: skip

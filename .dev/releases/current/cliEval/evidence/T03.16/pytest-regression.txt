@@ -1,0 +1,67 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 54 items
+
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_empty_specs_returns_empty PASSED [  1%]
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_single_spec PASSED [  3%]
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_outcome_order_matches_input_order PASSED [  5%]
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_every_spec_gets_exactly_one_outcome PASSED [  7%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_default_parallel_is_eight PASSED [  9%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_min_parallel_is_one PASSED [ 11%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_max_parallel_is_fifteen PASSED [ 12%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_zero_parallel_rejected PASSED [ 14%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_negative_parallel_rejected PASSED [ 16%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_non_integer_parallel_rejected PASSED [ 18%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_boolean_parallel_rejected PASSED [ 20%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_parallel_above_max_clamps_to_fifteen PASSED [ 22%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_parallel_one_serialises PASSED [ 24%]
+tests/cli/eval/test_orchestrator.py::test_three_eval_suite_runs_faster_than_3x_sequential PASSED [ 25%]
+tests/cli/eval/test_orchestrator.py::TestCancellation::test_pre_cancelled_token_skips_all_specs PASSED [ 27%]
+tests/cli/eval/test_orchestrator.py::TestCancellation::test_mid_run_cancel_stops_new_submissions PASSED [ 29%]
+tests/cli/eval/test_orchestrator.py::TestCancellation::test_unwired_token_does_not_synthesize_interrupts PASSED [ 31%]
+tests/cli/eval/test_orchestrator.py::TestWorkerExceptionFolding::test_runtime_error_from_worker_folds_to_errored PASSED [ 33%]
+tests/cli/eval/test_orchestrator.py::TestConstructorGuards::test_non_callable_worker_rejected PASSED [ 35%]
+tests/cli/eval/test_orchestrator.py::TestConstructorGuards::test_cancellation_token_optional PASSED [ 37%]
+tests/cli/eval/test_home_isolation.py::TestComp006MethodSurface::test_setup_signature_takes_keyword_only_config PASSED [ 38%]
+tests/cli/eval/test_home_isolation.py::TestComp006MethodSurface::test_env_signature_is_zero_arg_returning_dict PASSED [ 40%]
+tests/cli/eval/test_home_isolation.py::TestComp006MethodSurface::test_teardown_signature_takes_keep_flag PASSED [ 42%]
+tests/cli/eval/test_home_isolation.py::TestComp006MethodSurface::test_state_path_signature_takes_suffix PASSED [ 44%]
+tests/cli/eval/test_home_isolation.py::TestComp006MethodSurface::test_all_four_methods_are_callable_on_instance PASSED [ 46%]
+tests/cli/eval/test_home_isolation.py::TestStatePathIsAnchoredUnderHomeRoot::test_state_path_is_relative_to_home_root PASSED [ 48%]
+tests/cli/eval/test_home_isolation.py::TestStatePathIsAnchoredUnderHomeRoot::test_state_path_is_also_relative_to_home_path PASSED [ 50%]
+tests/cli/eval/test_home_isolation.py::TestStatePathIsAnchoredUnderHomeRoot::test_nested_suffix_components_are_preserved PASSED [ 51%]
+tests/cli/eval/test_home_isolation.py::TestStatePathIsAnchoredUnderHomeRoot::test_state_path_rejects_absolute_suffix PASSED [ 53%]
+tests/cli/eval/test_home_isolation.py::TestStatePathIsAnchoredUnderHomeRoot::test_state_path_rejects_dotdot_components PASSED [ 55%]
+tests/cli/eval/test_home_isolation.py::TestStatePathIsAnchoredUnderHomeRoot::test_state_path_before_setup_raises_runtimeerror PASSED [ 57%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_teardown_keep_true_preserves_home_on_disk PASSED [ 59%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_teardown_keep_false_removes_home_from_disk PASSED [ 61%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_teardown_clears_slot_on_keep_true PASSED [ 62%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_teardown_clears_slot_on_keep_false PASSED [ 64%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_teardown_is_noop_when_setup_never_ran PASSED [ 66%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_env_after_teardown_raises_runtimeerror PASSED [ 68%]
+tests/cli/eval/test_home_isolation.py::TestTeardownKeepFlag::test_state_path_after_teardown_raises_runtimeerror PASSED [ 70%]
+tests/cli/eval/test_home_isolation.py::TestIntegratedLifecycle::test_full_lifecycle_round_trip PASSED [ 72%]
+tests/cli/eval/test_home_isolation.py::TestIntegratedLifecycle::test_re_setup_after_teardown_returns_fresh_home PASSED [ 74%]
+tests/cli/eval/test_home_isolation.py::TestIntegratedLifecycle::test_env_with_time_offset_includes_fake_time_offset PASSED [ 75%]
+tests/cli/eval/test_home_isolation.py::TestIntegratedLifecycle::test_env_without_time_offset_omits_fake_time_offset PASSED [ 77%]
+tests/cli/eval/test_home_isolation.py::TestContainmentGuardIntegratedIntoSetup::test_setup_rejects_scratch_root_outside_allowlist PASSED [ 79%]
+tests/cli/eval/test_home_isolation.py::TestContainmentGuardIntegratedIntoSetup::test_setup_requires_explicit_config PASSED [ 81%]
+tests/cli/eval/test_home_isolation.py::TestParallelSiblings::test_parallel_lifecycle_round_trip PASSED [ 83%]
+tests/cli/eval/test_home_isolation.py::TestDm006InvariantsSurviveIntegration::test_fields_are_immutable_after_setup PASSED [ 85%]
+tests/cli/eval/test_home_isolation.py::TestDm006InvariantsSurviveIntegration::test_equality_unchanged_post_setup PASSED [ 87%]
+tests/cli/eval/test_parallel_15.py::TestParallel15::test_runs_fifteen_evals_at_parallel_eight_exits_clean PASSED [ 88%]
+tests/cli/eval/test_parallel_15.py::TestParallel15::test_each_eval_receives_unique_home_path PASSED [ 90%]
+tests/cli/eval/test_parallel_15.py::TestParallel15::test_each_eval_receives_unique_session_id PASSED [ 92%]
+tests/cli/eval/test_parallel_15.py::TestParallel15::test_each_eval_has_isolated_telemetry_namespace PASSED [ 94%]
+tests/cli/eval/test_parallel_15.py::TestParallel15::test_per_eval_jsonl_contents_are_self_consistent PASSED [ 96%]
+tests/cli/eval/test_parallel_15.py::TestParallelClampAtFifteen::test_parallel_sixteen_clamps_to_fifteen PASSED [ 98%]
+tests/cli/eval/test_parallel_15.py::TestParallelClampAtFifteen::test_parallel_at_max_admits_fifteen_concurrent_workers PASSED [100%]
+
+============================== 54 passed in 2.58s ==============================

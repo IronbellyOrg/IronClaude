@@ -1,0 +1,55 @@
+Usage: superclaude eval run [OPTIONS]
+
+  Run a cliEval suite end-to-end (FR-CLI1 / D-0072).
+
+  Wires the twelve FR-CLI1 flags to :class:`RunOrchestrator`,
+  :class:`CapabilityGates`, the :class:`Reporter`, and the
+  :class:`DiskBudgetPoller`. Each spec is executed inside its own per-eval
+  HOME (``HomeIsolation``) under the resolved ``--output-dir`` so the AC12
+  scratch-root allowlist remains the single source of truth for filesystem
+  writes.
+
+  Exit codes (design-spec §4):
+
+  * ``0`` — every expanded eval reached a terminal PASS / SKIPPED /   XFAIL
+  outcome and no breach occurred. * ``1`` — at least one eval ended in FAIL,
+  ERRORED, TIMEOUT, or XPASS. * ``2`` — harness-level rejection (invalid flag,
+  scratch-root   violation, suite not found, disk-budget exceeded, etc.). *
+  ``3`` — the operator interrupted the run (SIGINT/SIGTERM cooperative
+  cancellation).
+
+Options:
+  --suite TEXT            Suite name, filename stem, or path to a manifest.
+                          Same lookup rules as ``eval describe`` (filesystem
+                          path → stem → name field).  [required]
+  --parallel INTEGER      Worker concurrency. Values below 1 clamp to 1;
+                          values above 15 clamp to 15 (design-spec §11).
+                          [default: 8]
+  --eval TEXT             Filter to one or more post-expansion eval ids (e.g.
+                          'E1' or 'E2.1'). Repeat for multiple ids. Empty
+                          selection exits 2 with EvalNotFound.
+  --no-mcp                Mark MCP capabilities as skipped-by-flag (FR-CLI1 /
+                          FR-G4).
+  --no-pty                Run without the vendored PTY harness (degrades
+                          stdout capture).
+  --output-dir DIRECTORY  Destination directory for ``summary.{md,json,yaml}``
+                          / ``junit.xml`` / per-eval artifacts. Resolved
+                          through the AC12 scratch-root allowlist. Defaults to
+                          ``.dev/eval-runs/<run-id>/``.
+  --keep-home             Preserve per-eval HOME directories on PASS (default
+                          removes them). Forwarded to
+                          ``EvalRunner.keep_home_on_pass``.
+  --timeout-mult FLOAT    Multiplier applied to each spec's ``timeout_sec``
+                          before it reaches
+                          ``EvalRunner.default_timeout_sec``. Must be > 0.
+                          [default: 1.0]
+  --max-disk-mb INTEGER   Disk-budget ceiling for ``output_dir`` in megabytes.
+                          ``0`` disables the poller entirely (NFR-PERF4).
+                          [default: 1024]
+  --json                  Emit the run summary as JSON to stdout in addition
+                          to writing it to disk.
+  --verbose               Print a human-readable summary line to stdout when
+                          the run finishes.
+  --junit                 Also write a JUnit XML report (``junit.xml``) into
+                          ``output_dir``.
+  --help                  Show this message and exit.

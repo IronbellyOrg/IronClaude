@@ -1,0 +1,67 @@
+# SuperClaude dependency allow-list (AC3 / R-015 / T01.17)
+#
+# This file enumerates every top-level Python package that may appear in
+# `uv pip list` after installing `superclaude[dev]`. The list is the union of:
+#
+#   1. The baseline snapshot taken before the eval CLI lands its runtime deps
+#      (pre-eval-CLI tree, captured 2026-05-20).
+#   2. The AC3 allow-list of additions permitted while the eval CLI lands:
+#        - pexpect    (transitive via vendored ptytest)
+#        - jsonschema (already a transitive dep; promoted to direct in pyproject)
+#
+# Comparison is name-only — versions are not pinned here. Lines starting with
+# `#` and blank lines are ignored. Package names are case-insensitive and
+# normalised via PEP 503 (underscores → hyphens, lower-cased).
+#
+# To regenerate after a deliberate dep addition that has been approved:
+#   uv pip install -e ".[dev]"
+#   uv pip list --format=json \
+#     | python -c "import json,sys; \
+#         names=sorted({p['name'].lower().replace('_','-') for p in json.load(sys.stdin)}); \
+#         print('\n'.join(names))" \
+#     | tee /tmp/new_baseline.txt
+# Then merge changes into this file and update the spec at
+# .dev/releases/current/cliEval/artifacts/D-0015/spec.md.
+#
+# Removals do not fail the check (a dev tool can be dropped without ceremony).
+# Additions outside this list MUST fail CI.
+
+# --- Pre-eval-CLI baseline (current install snapshot) ---
+ast-serialize
+attrs
+black
+build
+click
+coverage
+iniconfig
+jsonschema
+jsonschema-specifications
+librt
+markdown-it-py
+mdurl
+mypy
+mypy-extensions
+numpy
+packaging
+pathspec
+platformdirs
+pluggy
+py-cpuinfo
+pygments
+pyproject-hooks
+pytest
+pytest-benchmark
+pytest-cov
+pytokens
+pyyaml
+referencing
+rich
+rpds-py
+ruff
+scipy
+superclaude
+typing-extensions
+
+# --- AC3 allow-list additions (permitted while eval CLI lands) ---
+pexpect
+ptyprocess

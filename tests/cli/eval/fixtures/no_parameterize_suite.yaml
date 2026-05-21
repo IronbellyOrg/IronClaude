@@ -1,0 +1,23 @@
+# Schema-valid suite with no parameterize block on any eval.
+# Used by tests/cli/eval/test_suite_loader.py to verify SuiteLoader's
+# pass-through behaviour for static-id evals (one input row → one
+# expanded EvalSpec with the static id preserved).
+name: no-parameterize
+version: "1.0"
+description: "Suite with no parameterize rows; every eval is a single static-id row."
+defaults:
+  per_eval_timeout_sec: 60
+required_binaries:
+  - { name: claude, failure_mode: hard }
+optional_capabilities: []
+evals:
+  - id: E1
+    title: "static-id eval one"
+    requires: [cap.alpha]
+    expects:
+      - { type: exit_code, value: 0 }
+  - id: D15
+    title: "static-id eval two"
+    requires: []
+    expects:
+      - { type: exit_code, value: 0 }

@@ -1,0 +1,34 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E8
+title: PreToolUse serena matcher fires
+category: hook-lifecycle
+requires:
+- mcp_server.serena
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: Use the Write tool to create a file named modified.txt under the current
+    working directory with the single line 'before'.
+- prompt: Use mcp__serena__replace_content on modified.txt to replace 'before' with
+    'after'.
+  expect_tool_call: mcp__serena__replace_content
+- prompt: /quit
+expects:
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"type":"pre_edit"'
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"matcher":"mcp__serena__replace_content"'
+- file:
+    path: modified.txt
+    exists: true
+- exit_code:
+    equals: 0
+no_pty: skip

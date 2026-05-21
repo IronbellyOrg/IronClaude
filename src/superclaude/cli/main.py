@@ -421,6 +421,10 @@ from superclaude.cli.prd.commands import prd_group
 
 main.add_command(prd_group, name="prd")
 
+from superclaude.cli.eval.commands import eval_group
+
+main.add_command(eval_group, name="eval")
+
 
 if __name__ == "__main__":
     main()

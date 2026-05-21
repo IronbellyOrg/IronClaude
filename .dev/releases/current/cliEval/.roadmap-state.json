@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/design-spec.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "dbf1ec2b76f5bb873b3396aded820f85a4a75902f83df49cf7cf5ed9c92c7d06",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-05-18T19:41:57.688281+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/extraction.md",
+      "started_at": "2026-05-18T19:15:27.461426+00:00",
+      "completed_at": "2026-05-18T19:17:22.475767+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap-opus-architect.md",
+      "started_at": "2026-05-18T19:17:22.480953+00:00",
+      "completed_at": "2026-05-18T19:24:13.528318+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap-haiku-architect.md",
+      "started_at": "2026-05-18T19:17:22.481265+00:00",
+      "completed_at": "2026-05-18T19:23:41.525303+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/diff-analysis.md",
+      "started_at": "2026-05-18T19:24:13.534023+00:00",
+      "completed_at": "2026-05-18T19:25:20.787013+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/debate-transcript.md",
+      "started_at": "2026-05-18T19:25:20.787368+00:00",
+      "completed_at": "2026-05-18T19:26:42.065068+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/base-selection.md",
+      "started_at": "2026-05-18T19:26:42.065506+00:00",
+      "completed_at": "2026-05-18T19:27:38.288380+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md",
+      "started_at": "2026-05-18T19:27:38.289079+00:00",
+      "completed_at": "2026-05-18T19:35:56.597573+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/anti-instinct-audit.md",
+      "started_at": "2026-05-18T19:35:56.605101+00:00",
+      "completed_at": "2026-05-18T19:35:56.621536+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/test-strategy.md",
+      "started_at": "2026-05-18T19:35:56.621717+00:00",
+      "completed_at": "2026-05-18T19:37:23.892841+00:00"
+    },
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/spec-fidelity.md",
+      "started_at": "2026-05-18T19:37:23.893551+00:00",
+      "completed_at": "2026-05-18T19:41:56.659989+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/wiring-verification.md",
+      "started_at": "2026-05-18T19:41:56.660371+00:00",
+      "completed_at": "2026-05-18T19:41:57.686701+00:00"
+    },
+    "deviation-analysis": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/spec-deviations.md",
+      "started_at": "2026-05-18T19:41:57.686885+00:00",
+      "completed_at": "2026-05-18T19:41:57.687236+00:00"
+    },
+    "remediate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/cliEval/remediation-tasklist.md",
+      "started_at": "2026-05-18T19:41:57.687393+00:00",
+      "completed_at": "2026-05-18T19:41:57.688045+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "fail",
+    "timestamp": "2026-05-18T19:47:24.228011+00:00"
+  }
+}

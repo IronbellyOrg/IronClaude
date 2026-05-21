@@ -36,6 +36,8 @@ dependencies = [
     "click>=8.0.0",
     "rich>=13.0.0",
     "pyyaml>=6.0",
+    "jsonschema>=4.0.0",
+    "pexpect>=4.9",
 ]
 
 [project.optional-dependencies]
@@ -181,8 +183,29 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W"]
-ignore = ["E501"]  # Line too long (handled by black)
+select = ["E", "F", "I", "N", "W", "TID"]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    # N818: many existing exception classes (PtyDriverTimeout,
+    # ReporterContractViolation, HomeContainmentViolation, InvalidEvalId,
+    # ScratchRootViolation, EvalNotFound, etc.) are part of the public
+    # cli/eval/ API and deliberately omit the Error suffix; renaming
+    # them would break downstream callers without semantic gain.
+    "N818",
+]
+
+# T02.19 / FR-G1 — ban in-process anthropic SDK imports anywhere in the
+# repo so the cliEval harness can only reach Claude via the real
+# subprocess (PtyDriver T02.16 or ClaudeProcessAdapter T02.19). The ban
+# is intentionally global: no production code path under
+# `src/superclaude/` should ever import the anthropic SDK, so the rule
+# doubles as a safety net for non-eval modules as well. Per AC, running
+# `uv run ruff check src/superclaude/cli/eval/` flags any synthetic
+# `import anthropic` line under that subtree.
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"anthropic".msg = "FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver (cli/eval/pty_driver.py) or ClaudeProcessAdapter (cli/eval/claude_process.py)."
+"anthropic.AsyncAnthropic".msg = "FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver or ClaudeProcessAdapter."
+"anthropic.Anthropic".msg = "FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver or ClaudeProcessAdapter."
 
 [tool.mypy]
 python_version = "3.10"
