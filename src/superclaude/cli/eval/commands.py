@@ -43,6 +43,11 @@ from typing import Any, Callable, Iterable, Optional, Sequence
 import click
 import yaml
 
+from .artifact_layout import (
+    allocate_per_eval_paths,
+    compose_run_dir,
+    compose_run_id,
+)
 from .capabilities import (
     CapabilityGates,
     CapabilityReport,
@@ -83,8 +88,12 @@ from .models import (
 )
 from .orchestrator import RunOrchestrator
 from .reporter import Reporter
-from .runner import EvalRunner, LifecycleExecutor
-from .signal_handler import CancellationToken, SignalHandlerInstaller
+from .runner import EvalRunner, ExecutorContext, LifecycleExecutor, ObservedRun
+from .signal_handler import (
+    EXIT_INTERRUPTED,
+    CancellationToken,
+    SignalHandlerInstaller,
+)
 from .suites import SCHEMA_PATH
 
 _VersionTuple = tuple[int, ...]
@@ -548,6 +557,28 @@ def doctor_payload(
 
 
 HARD_FAIL_EXIT_CODE = 2
+
+
+# ---------------------------------------------------------------------------
+# Design-spec §4 exit-code constants for ``eval run``
+# ---------------------------------------------------------------------------
+#
+# Pinned by tests/cli/eval/test_exit_codes.py (TEST-008 / T04.19 / D-0079).
+# The interrupted code is re-exported from ``signal_handler.EXIT_INTERRUPTED``
+# so the value has exactly one source of truth — operators and the signal
+# handler both read the same integer.
+
+RUN_CLEAN_EXIT_CODE: int = 0
+"""Clean run: every expanded eval reached PASS / SKIPPED / XFAIL and no breach."""
+
+RUN_FAILURES_EXIT_CODE: int = 1
+"""Failing run: at least one eval ended FAIL / ERRORED / TIMEOUT / XPASS but
+the harness ran to completion."""
+
+RUN_INTERRUPTED_EXIT_CODE: int = EXIT_INTERRUPTED
+"""SIGINT / SIGTERM mid-run; cooperative cancellation drained. Re-exports
+:data:`signal_handler.EXIT_INTERRUPTED` (= 3) so the two surfaces cannot
+drift."""
 
 
 # ---------------------------------------------------------------------------
@@ -1301,6 +1332,250 @@ and the deferral pointer.
 """
 
 
+# ---------------------------------------------------------------------------
+# T04.10 FR-CLI1 ``eval run`` body helpers (D-0072)
+# ---------------------------------------------------------------------------
+#
+# Eight module-private helpers consumed by :func:`eval_run`. They are
+# module-level (not nested in the command) so :mod:`tests.cli.eval` can
+# import + monkeypatch them, and so the closure inside ``eval_run`` keeps
+# a small, readable signature.
+#
+# Three of the eight are run-id / output-dir / executor wiring (anchored
+# on the FR-G4 ``artifact_layout`` module); two are stats + summary-line
+# rendering; one is a UTC ISO clock helper; one is a signal-handler
+# install guard; one is the per-spec runner driver.
+
+
+def _utc_iso_now() -> str:
+    """Return the current UTC instant as an ISO 8601 ``...Z`` string.
+
+    Used both for the ``RunSummary.started_at`` / ``finished_at`` stamps
+    AND as the seed for :func:`compose_run_id` so the run-id and the
+    summary timestamps share one clock read.
+    """
+    return (
+        datetime.now(timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
+    )
+
+
+def _new_run_id(*, started_at: str, suite_name: str) -> str:
+    """Return the FR-G4 deterministic run-id for ``(started_at, suite_name)``.
+
+    Thin wrapper over :func:`artifact_layout.compose_run_id` so callers in
+    this module can invoke it without re-importing the layout module at
+    every call site. The wrapper exists for symbol-contract reasons:
+    ``tests/cli/eval/test_single_command.py`` asserts ``_new_run_id`` is
+    importable from this module; delegating keeps the FR-G4
+    single-source-of-truth invariant.
+    """
+    return compose_run_id(started_at, suite_name)
+
+
+def _default_output_dir(*, started_at: str, suite_name: str) -> Path:
+    """Return the default per-run output directory under the AC12 prefix.
+
+    Anchored on :func:`artifact_layout.compose_run_dir` so the layout
+    matches FR-G4 / D-0074 exactly: ``<cwd>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/``.
+    The path is **constructed**, not created — :func:`eval_run` funnels
+    it through :func:`resolve_scratch_root` before any ``mkdir``.
+    """
+    return compose_run_dir(Path.cwd(), started_at, suite_name)
+
+
+def _can_install_signal_handler() -> bool:
+    """Return ``True`` when this thread can install POSIX signal handlers.
+
+    :class:`SignalHandlerInstaller` is main-thread-only. Click's
+    :class:`CliRunner` invokes commands on the main thread by default;
+    pytest's threaded runners may not. The check guards the install so a
+    non-main-thread invocation degrades gracefully (cancellation still
+    works via the orchestrator's own token wiring) instead of raising
+    ``ValueError: signal only works in main thread``.
+    """
+    import threading
+
+    return threading.current_thread() is threading.main_thread()
+
+
+class _NullLifecycleExecutor:
+    """Zero-side-effect :class:`LifecycleExecutor` for the M2/M3 surface.
+
+    Production wiring (``ClaudeProcessAdapter`` + ``PtyDriver``) lands in
+    M5 / M6 when the vendored PTY harness is on disk. Until then the
+    only operator-reachable green path is ``--no-pty``, which
+    short-circuits every spec in ``real.yaml`` (DOC-OQ3 / R-077 tags
+    every E1-E15 ``no_pty: skip``) **before** ``run_one`` calls
+    :func:`_run_one_spec`. The null executor's three methods therefore
+    only fire on synthetic tests or future suites whose specs are NOT
+    PTY-tagged; they return canned values so ``run_eval`` flows
+    end-to-end without spawning a subprocess.
+    """
+
+    def spawn(self, ctx: ExecutorContext) -> None:
+        return None
+
+    def inject(self, ctx: ExecutorContext) -> None:
+        return None
+
+    def observe(self, ctx: ExecutorContext) -> ObservedRun:
+        return ObservedRun(
+            exit_code=0,
+            stdout="",
+            stderr="",
+            duration_sec=0.0,
+        )
+
+
+def _resolve_executor_factory() -> Callable[..., LifecycleExecutor]:
+    """Return the factory that constructs a per-eval :class:`LifecycleExecutor`.
+
+    Production wiring (``ClaudeProcessAdapter`` + ``PtyDriver``) lands
+    with the vendored PTY harness (M5 / M6). Until then this factory
+    returns the :class:`_NullLifecycleExecutor` documented above. Tests
+    monkeypatch this function to inject canned executors.
+    """
+
+    def factory(**_kwargs: Any) -> LifecycleExecutor:
+        return _NullLifecycleExecutor()  # type: ignore[return-value]
+
+    return factory
+
+
+def _run_one_spec(
+    spec: EvalSpec,
+    *,
+    run_dir: Path,
+    home_root: Path,
+    config: EvalConfig,
+    timeout_mult: float,
+    keep_home: bool,
+    cancellation_token: CancellationToken,
+    executor_factory: Callable[..., LifecycleExecutor],
+) -> EvalOutcome:
+    """Build a :class:`HomeIsolation` + :class:`EvalRunner` for one spec and run it.
+
+    This is the per-spec worker the ``run_one`` closure delegates to
+    after the ``--no-pty`` short-circuit. Each call:
+
+    1. Allocates the per-eval subtree under ``run_dir`` via
+       :func:`allocate_per_eval_paths` (FR-G4 layout invariants).
+    2. Constructs a fresh :class:`HomeIsolation` rooted at ``home_root``.
+       ``session_id`` is derived from ``spec.id`` so re-runs of the
+       same eval against the same run-dir are observably the same run
+       to ``claude``'s session telemetry (FR-G2).
+    3. Wires the executor + an empty ``expect_callables`` tuple. The
+       expects resolver (manifest ``expects:`` row → callable) lands in
+       a follow-up; for now every spec that survives the ``--no-pty``
+       short-circuit returns PASS via the null executor.
+    4. Folds ``timeout_mult`` into the runner's ``default_timeout_sec``
+       so the operator's ``--timeout-mult`` scales every spec uniformly.
+
+    The function deliberately raises no business exceptions — any
+    :class:`HomeContainmentViolation` or constructor error bubbles up
+    to :meth:`RunOrchestrator._invoke_worker`, which folds it into an
+    ``ERRORED`` outcome.
+    """
+
+    paths = allocate_per_eval_paths(run_dir, spec.id, create=True)
+
+    home = HomeIsolation(
+        eval_id=spec.id,
+        home_root=home_root,
+        session_id=f"sess-{spec.id}",
+    )
+
+    executor = executor_factory()
+
+    # ``timeout_sec`` on the spec is authoritative when set; the
+    # multiplier scales the suite-wide fallback the orchestrator wires.
+    # Spec-level timeouts ignore the multiplier per FR-CLI1 — operators
+    # who want per-spec scaling edit the manifest.
+    spec_timeout = spec.timeout_sec
+    default_timeout: Optional[float] = None
+    if spec_timeout is not None and spec_timeout > 0:
+        default_timeout = float(spec_timeout) * float(timeout_mult)
+
+    runner = EvalRunner(
+        home=home,
+        config=config,
+        executor=executor,
+        run_dir=run_dir,
+        artifacts_dir=paths.artifacts_dir,
+        stdout_path=paths.artifacts_dir / "stdout.log",
+        stderr_path=paths.artifacts_dir / "stderr.log",
+        transcript_path=paths.tty_transcript,
+        expect_callables=(),
+        keep_home_on_pass=keep_home,
+        default_timeout_sec=default_timeout,
+        cancellation_token=cancellation_token,
+    )
+
+    return runner.run(spec)
+
+
+def _compute_run_stats(
+    outcomes: Sequence[EvalOutcome],
+    *,
+    manifest_n: int,
+) -> tuple[RunCounts, RunTotals]:
+    """Tally outcomes into ``(RunCounts, RunTotals)`` for :class:`RunSummary`.
+
+    ``manifest_n`` is the pre-expansion row count the loader returned;
+    ``expanded_n_prime`` is ``len(outcomes)`` because the orchestrator
+    guarantees one outcome per expanded spec (D-0057 / RunOrchestrator
+    contract). ``kept_k`` counts outcomes with a terminal lifecycle
+    status; ``skipped_s`` counts SKIPPED + INTERRUPTED per DM-012.
+
+    The XFAIL / XPASS rollup follows DM-012 verbatim:
+
+    * ``XFAIL`` → ``passed`` (expected failure is a pass at the suite level).
+    * ``XPASS`` → ``failed`` (unexpected pass signals stale ``xfail`` markers).
+    """
+    expanded = len(outcomes)
+    kept_statuses = {"PASS", "FAIL", "ERRORED", "TIMEOUT", "XFAIL", "XPASS"}
+    skipped_statuses = {"SKIPPED", "INTERRUPTED"}
+
+    kept = sum(1 for o in outcomes if o.status in kept_statuses)
+    skipped = sum(1 for o in outcomes if o.status in skipped_statuses)
+
+    counts = RunCounts(
+        manifest_n=manifest_n,
+        expanded_n_prime=expanded,
+        kept_k=kept,
+        skipped_s=skipped,
+        kept_plus_skipped_equals_n_prime=(kept + skipped == expanded),
+    )
+
+    totals = RunTotals(
+        passed=sum(1 for o in outcomes if o.status in {"PASS", "XFAIL"}),
+        failed=sum(1 for o in outcomes if o.status in {"FAIL", "XPASS"}),
+        skipped=sum(1 for o in outcomes if o.status == "SKIPPED"),
+        errored=sum(1 for o in outcomes if o.status == "ERRORED"),
+        interrupted=sum(1 for o in outcomes if o.status == "INTERRUPTED"),
+        timeout=sum(1 for o in outcomes if o.status == "TIMEOUT"),
+    )
+    return counts, totals
+
+
+def _format_run_summary_line(summary: RunSummary, output_dir: Path) -> str:
+    """Return the human one-liner ``eval run --verbose`` prints to stdout.
+
+    Shape matches existing reporter conventions: ``run <id>: <P>P/<F>F/<S>S
+    in <duration>s -> <output_dir>``. Pure formatting, no I/O.
+    """
+    return (
+        f"run {summary.run_id}: "
+        f"{summary.totals.passed}P/"
+        f"{summary.totals.failed}F/"
+        f"{summary.totals.skipped}S "
+        f"in {summary.duration_sec:.2f}s "
+        f"-> {output_dir}"
+    )
+
+
 @eval_group.command("run")
 @click.option(
     "--suite",
@@ -1464,9 +1739,15 @@ def eval_run(
     # Output dir + AC12 scratch-root allowlist
     # ------------------------------------------------------------------
     base_config = EvalConfig()
-    run_id = _new_run_id()
+    # Single clock read for the run: feeds both the FR-G4 deterministic
+    # run-id and the ``RunSummary.started_at`` stamp below.
+    started_iso = _utc_iso_now()
+    suite_name = str(suite)
+    run_id = _new_run_id(started_at=started_iso, suite_name=suite_name)
     requested_output = (
-        output_dir if output_dir is not None else _default_output_dir(run_id)
+        output_dir
+        if output_dir is not None
+        else _default_output_dir(started_at=started_iso, suite_name=suite_name)
     )
 
     try:
@@ -1618,7 +1899,9 @@ def eval_run(
     # ------------------------------------------------------------------
     # Orchestrate
     # ------------------------------------------------------------------
-    started_iso = _utc_iso_now()
+    # NOTE: ``started_iso`` was bound earlier (just before _new_run_id)
+    # so the run-id and the RunSummary.started_at stamp share one clock
+    # read. Do NOT re-read here.
     started_monotonic = time.monotonic()
 
     orchestrator = RunOrchestrator(

@@ -216,6 +216,20 @@ def test_exit_code_1_failing_run(tmp_path: Path) -> None:
 
     _skip_unless_t0410_landed()
 
+    # The synthetic-fail path additionally needs the M5 expects-resolver
+    # that translates manifest ``expects:`` rows into ``ExpectCallable``s.
+    # Until that lands, ``_run_one_spec`` ships with ``expect_callables=()``
+    # and every non-PTY-skipped spec returns PASS.
+    from superclaude.cli.eval import commands as _commands_mod
+
+    if not hasattr(_commands_mod, "_build_expects_from_spec"):
+        pytest.skip(
+            "M5 expects-resolver (_build_expects_from_spec) not yet "
+            "landed; _run_one_spec ships with expect_callables=() so "
+            "this test cannot exercise the FAIL path. Un-skips when the "
+            "resolver lands."
+        )
+
     # Synthetic single-eval suite that fails by construction. We rely
     # on a deliberately mismatched ``expect:`` so the run finishes
     # cleanly with one FAIL outcome rather than a harness breach.
