@@ -3,8 +3,8 @@
 T04.09 registers the four-subcommand surface (``run``, ``list``,
 ``describe``, ``doctor``) on :data:`eval_group` so the group's
 ``--help`` already advertises the full FR-CLI1 / FR-CLI2 / FR-CLI3 /
-FR-CLI4 surface, even though the ``run`` body is deferred to T04.10.
-Tests pin the four acceptance bullets from the phase-4 tasklist:
+FR-CLI4 surface. Tests pin the three acceptance bullets from the
+phase-4 tasklist:
 
 1. ``superclaude eval --help`` lists ``run``, ``list``, ``describe``,
    and ``doctor`` as subcommands.
@@ -12,28 +12,14 @@ Tests pin the four acceptance bullets from the phase-4 tasklist:
    existing top-level commands remain reachable.
 3. ``superclaude --help`` continues to surface the ``eval`` group from
    the T01.26 / FR-G3 wiring.
-4. The deferred ``run`` skeleton exits non-zero with the documented
-   deferral notice so a stray invocation cannot be mistaken for a
-   passing no-op.
-
-The skeleton-body acceptance is locked here rather than in
-``test_eval_run.py`` (which lands with the T04.10 body) because the
-exit-code and message contract are the only behavioural surface T04.09
-ships — keeping the test next to the registration tests means the file
-moves wholesale when T04.10 supersedes the skeleton.
 """
 
 from __future__ import annotations
 
 from click.testing import CliRunner
 
-from superclaude.cli.eval.commands import (
-    RUN_BODY_DEFERRED_EXIT_CODE,
-    RUN_BODY_DEFERRED_MESSAGE,
-    eval_group,
-)
+from superclaude.cli.eval.commands import eval_group
 from superclaude.cli.main import main
-
 
 # ---------------------------------------------------------------------------
 # Group surface — four subcommands registered in the documented order
@@ -96,29 +82,12 @@ def test_eval_invoked_through_main_lists_subcommands() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Deferred ``run`` skeleton — exit code + notice contract
+# ``run`` subcommand help surface
 # ---------------------------------------------------------------------------
 
 
-def test_run_skeleton_exits_with_deferred_code() -> None:
-    """Invoking ``eval run`` without the T04.10 body exits non-zero."""
-
-    runner = CliRunner()
-    result = runner.invoke(eval_group, ["run"])
-    assert result.exit_code == RUN_BODY_DEFERRED_EXIT_CODE
-
-
-def test_run_skeleton_emits_deferral_notice_on_stderr() -> None:
-    """The skeleton prints the operator-facing pointer to T04.10."""
-
-    runner = CliRunner(mix_stderr=False)
-    result = runner.invoke(eval_group, ["run"])
-    assert result.exit_code == RUN_BODY_DEFERRED_EXIT_CODE
-    assert RUN_BODY_DEFERRED_MESSAGE in result.stderr
-
-
-def test_run_skeleton_help_lists_subcommand_without_invoking_body() -> None:
-    """Help output works even though the body is deferred."""
+def test_run_help_lists_subcommand() -> None:
+    """``eval run --help`` resolves without invoking the body."""
 
     runner = CliRunner()
     result = runner.invoke(eval_group, ["run", "--help"])

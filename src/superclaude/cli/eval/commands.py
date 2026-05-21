@@ -28,10 +28,8 @@ prints a HARD-failure artifact identifying every offending capability to
 from __future__ import annotations
 
 import json
-import os
 import platform
 import re
-import secrets
 import subprocess
 import sys
 import time
@@ -72,7 +70,7 @@ from .disk_budget import (
     DISK_BUDGET_RETENTION_ADVICE,
     DiskBudgetPoller,
 )
-from .isolation import HomeContainmentViolation, HomeIsolation
+from .isolation import HomeIsolation
 from .loader import (
     SUITE_LOADER_ERROR_EXIT_CODE,
     ParsedSuite,
@@ -1290,47 +1288,6 @@ def eval_describe(
         # safe_dump terminates with a trailing newline; click.echo adds
         # another, so strip to keep output tidy and snapshot-stable.
         click.echo(render_describe_yaml(payload).rstrip("\n"))
-
-
-# ---------------------------------------------------------------------------
-# FR-CLI1 ``eval run`` skeleton (T04.09 / D-0071)
-# ---------------------------------------------------------------------------
-#
-# T04.09 (COMP-001) registers the four-subcommand surface of the ``eval``
-# group: ``run``, ``list``, ``describe``, ``doctor``. The body for ``run``
-# lands in T04.10 (FR-CLI1) along with its twelve flags. Until then this
-# skeleton exists so ``superclaude eval --help`` already lists ``run`` as
-# part of the group surface — operators and downstream callers can rely
-# on the subcommand name and discovery contract even though the
-# functional body is deferred. Invoking ``superclaude eval run`` without
-# the T04.10 body prints a deferral notice and exits 2 (treated as a
-# harness configuration error) so a stray invocation cannot be mistaken
-# for a passing no-op.
-
-
-RUN_BODY_DEFERRED_EXIT_CODE: int = 2
-"""Exit code emitted while the FR-CLI1 ``eval run`` body is deferred.
-
-T04.10 lands the real implementation; until then any invocation of
-``superclaude eval run`` exits with this code so CI cannot mistake the
-skeleton for a successful run. Aligned with
-:data:`SUITE_LOADER_ERROR_EXIT_CODE` / :data:`SUITE_NOT_FOUND_EXIT_CODE`
-so the "harness rejected this invocation" outcome is uniform across
-subcommands.
-"""
-
-
-RUN_BODY_DEFERRED_MESSAGE: str = (
-    "eval run: FR-CLI1 implementation deferred to T04.10; "
-    "see .dev/releases/current/cliEval/phase-4-tasklist.md."
-)
-"""Operator-facing notice printed when the T04.09 skeleton is invoked.
-
-Pinned as a module constant so tests can assert the exact line without
-re-deriving the wording on every run. Updating the wording therefore
-triggers the test suite, preventing silent drift between the skeleton
-and the deferral pointer.
-"""
 
 
 # ---------------------------------------------------------------------------
