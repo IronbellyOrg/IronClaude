@@ -46,11 +46,23 @@ The skill returns a structured dictionary on completion:
 | `audit_log_path` | string | Absolute path to `audit.log` |
 | `confidence` | float | 0.0-1.0, calibrated via `refs/escalation-rubric.md` |
 | `escalation_reason` | string | If Tier 2 ran: which rubric condition triggered it (or `forced_by_depth_deep`) |
+| `test_is_wrong` | bool | `true` when the diagnosis concludes the failing test is the bug (test asserts wrong behavior, stale invariant, or inverted policy claim) rather than the code under test. Set independent of tier. Asymmetric-cost flag — downstream automation MUST NOT auto-apply a fix to the code when this is `true`; the remediation target is the test file. |
+| `test_file_path` | string \| null | When `test_is_wrong=true`, the absolute path (or repo-relative if the file is contrived) of the test file that must be updated. `null` otherwise. |
 | `hypothesis_cards` | list[path] | Paths to per-agent hypothesis cards (Tier 2) |
 | `adversarial_artifacts_dir` | string | `sc:adversarial` artifacts dir (Tier 2 only, when 2+ fix proposals were debated) |
 | `task_file_path` | string | MDTM task file path (Tier 3 only) |
 | `remediation_offered` | bool | Whether Tier 3 was offered |
 | `remediation_accepted` | bool | If offered, user's response |
+
+**`test_is_wrong` derivation rule** (applied during Wave 5 synthesis): set `test_is_wrong=true` when the chosen diagnosis names a test file (not production code) as the file requiring change, AND one of these conditions holds:
+
+1. The test asserts an invariant that the cited spec / requirements doc explicitly contradicts (e.g., test claims policy rejects X but the policy doc allows X)
+2. The test was authored before a feature change that legitimately altered the asserted behavior, and was not updated alongside the feature
+3. The test mis-models the requirement (typo'd assertion, wrong fixture, wrong expected value)
+
+If the diagnosis says "the test is incorrect but the code is also missing a guard" — surface BOTH in `Files to change` but keep `test_is_wrong=false` since the code is the load-bearing fix.
+
+The prose REPORT.md is still the human-readable source of truth; this flag exists so downstream automation (Tier 3 task-builder, fleet auto-apply wrappers, telemetry) can short-circuit on the asymmetric-cost case without parsing prose.
 
 ## Wave Structure
 

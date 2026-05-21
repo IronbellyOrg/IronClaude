@@ -13,6 +13,8 @@ The final deliverable of every `/sc:troubleshoot` invocation, regardless of tier
 **Confidence**: <0.0–1.0>
 **Status**: <success|partial>
 **Escalation reason**: <none|low_confidence|multi_domain|forced_by_depth_deep|intermittent|not_reproducible|security_caution>
+**Test is wrong**: <true|false> <!-- See "Test-is-wrong rule" below. When true, surface `Test file to update` on its own line and DO NOT recommend code changes as the primary fix. -->
+**Test file to update**: <absolute or repo-relative path when test_is_wrong=true, otherwise omit this line>
 **Duration**: <seconds>
 **Date**: <ISO 8601>
 
@@ -113,3 +115,24 @@ Pick the line(s) that apply:
 - **Cite or drop.** Every `file:line` in the report must survive the Wave 5 validation pass.
 - **No reuse of the original error message in the Summary.** Summarise it in the user's own framing if possible — a verbatim stack trace at the top adds noise without information.
 - **Status `partial` is honest.** Marking `partial` with a clear "Grounding Gaps" section is far better than marking `success` and being wrong.
+
+## Test-is-wrong rule
+
+Set the `Test is wrong` header field to `true` when **all** of these apply:
+
+1. The chosen diagnosis names a test file (not production code) as the file requiring change.
+2. One of:
+   - The test asserts an invariant that the cited spec / requirements doc explicitly contradicts (e.g., test claims policy rejects X but the policy doc allows X)
+   - The test was authored before a feature change that legitimately altered the asserted behavior, and was not updated alongside the feature
+   - The test mis-models the requirement (typo'd assertion, wrong fixture, wrong expected value)
+
+When `test_is_wrong=true`:
+
+- The **Summary** section MUST open with a single sentence naming the test as the bug (e.g., "The test is the bug, not the code"). No hedging.
+- The **Proposed Fix** section's `Files to change` list MUST contain ONLY the test file — not the production code. If the diagnosis also recommends a hardening change to production code, that goes under "Follow-up tasks" (separate ticket), not the primary fix.
+- An explicit **`## Files that MUST NOT change`** subsection MUST appear under Proposed Fix, listing every production-code file a careless remediation might touch.
+- The **Alternative Fixes Considered** section MUST include "fix the code to make the test pass" with the rejection reason "**This is the DANGEROUS wrong answer** — would regress documented behavior. See evidence."
+
+The asymmetric cost of this flag is the entire reason it exists: a downstream automation chain that "fixes" the code to satisfy a wrong test will silently break documented behavior. The rendering rules above are the human-readable side of that safety net; the `test_is_wrong` flag in the output contract is the machine-readable side.
+
+If the test is wrong AND the code is also missing a defensive guard, keep `test_is_wrong=false` and surface both in `Files to change` — the production-code fix is the load-bearing change and the test update is incidental.

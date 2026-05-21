@@ -1,0 +1,6 @@
+{
+  "total_tokens": 123161,
+  "duration_ms": 427285,
+  "total_duration_seconds": 427.3,
+  "result": "PASS — v2 correctly identified test as the bug. Tier 2 (multi_domain), confidence 0.94. Policy-doc grounding in Wave 1 was the load-bearing step. Verdict: USEFUL (b) — flag would help downstream automation chains, not essential for human readers."
+}

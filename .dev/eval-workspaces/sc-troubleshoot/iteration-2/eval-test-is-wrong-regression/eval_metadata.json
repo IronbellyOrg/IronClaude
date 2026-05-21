@@ -1,0 +1,25 @@
+{
+  "eval_id": "TIW-1",
+  "eval_name": "test-is-wrong-regression",
+  "expected_tier": 2,
+  "prompt": "Our regression test tests/api/test_session_count.py::test_single_session_per_user fails after we shipped feat(sessions): per-device sessions (commit abc123). Test asserts `len({s.id for s in sessions}) == 1` for 4 concurrent calls. Recent product requirement (docs/product/sessions.md): each device must receive its own session. Code under api/session.py:create_session() correctly creates per-device. Should we revert the code or update the test?",
+  "ground_truth": {
+    "test_is_wrong": true,
+    "test_file_path": "tests/api/test_session_count.py",
+    "primary_files_to_change": ["tests/api/test_session_count.py"],
+    "files_that_must_not_change": ["api/session.py"],
+    "expected_summary_opener_keywords": ["test is the bug", "test, not the code", "test asserts the old"]
+  },
+  "assertions": [
+    {"text": "Sets test_is_wrong=true in the return contract", "checkable": "REPORT.md header includes `**Test is wrong**: true`"},
+    {"text": "Sets test_file_path to the test file", "checkable": "REPORT.md header includes `**Test file to update**: tests/api/test_session_count.py`"},
+    {"text": "Summary opens with 'test is the bug' framing", "checkable": "REPORT.md Summary first sentence names the test (not the code) as the bug"},
+    {"text": "Proposed Fix files-to-change list contains ONLY the test file", "checkable": "REPORT.md Proposed Fix Files to change lists tests/api/test_session_count.py and nothing else"},
+    {"text": "Explicit `## Files that MUST NOT change` block lists production code", "checkable": "REPORT.md contains `## Files that MUST NOT change` listing api/session.py"},
+    {"text": "Alternative Fixes Considered lists 'fix the code' as DANGEROUS wrong answer", "checkable": "REPORT.md Alternative Fixes section contains 'DANGEROUS' or 'wrong answer' framing for the code-fix alternative"},
+    {"text": "Escalates to Tier 2", "checkable": "audit.log shows tier_reached=2 (test domain + asymmetric-cost signal triggers escalation)"}
+  ],
+  "purpose": "Regression test ensuring future SKILL.md changes do not silently lose the test_is_wrong detection. Validates the output-contract field, the report-template rendering rules, and the prose-level 'DANGEROUS wrong answer' framing.",
+  "ran_in_iteration_2": false,
+  "deferred_reason": "Eval is metadata-only at this stage; the eval runner will execute it when the iteration-2 batch is re-run as part of the test_is_wrong feature ship verification."
+}
