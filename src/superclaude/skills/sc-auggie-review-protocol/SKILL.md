@@ -32,12 +32,14 @@ The skill receives one of three target modes from `/sc:auggie-review`:
 | **Snapshot** | `--snapshot <path>` | `find <path> -type f` (validate path exists) |
 
 **STOP** if:
+
 - Target cannot be resolved (PR not found, ref doesn't exist, path missing)
 - `auggie` is not on PATH (`command -v auggie` fails)
 - For PR mode, `gh auth status` reports unauthed
 - `--depth deep` requested but the diff exceeds 5000 lines without `--force` (too large to be useful)
 
 **WARN (proceed)** if:
+
 - Diff exceeds 1500 lines (Auggie may need chunking — emit a chunking-mode notice)
 - More than 30 files changed (recommend `--focus` to scope down)
 - The PR base branch is not the repo's default branch (mention in report header)
@@ -134,6 +136,7 @@ gh_authed: <bool>
 **Preconditions**: Wave 1 complete. **Load `refs/auggie-prompts.md`** for the structured prompt templates.
 
 **Concept**: Shell out to `auggie --print --output-format json --ask --workspace-root <repo>` with a carefully-constructed prompt that:
+
 - Describes the review target (PR title/body, diff, or file list)
 - Provides the focus areas (from `--focus`)
 - Specifies the JSON output schema Auggie must return
@@ -238,21 +241,26 @@ auggie --print \
   ```<lang>
   <real code excerpt from the cited lines>
   ```
+
 - **Why this matters**: <one paragraph>
 - **Recommendation**: <concrete change>
 
 (repeat per finding)
 
 ### 🟠 High (should fix before merge)
+
 (same structure)
 
 ### 🟡 Medium (fix in this PR if cheap, otherwise file followup)
+
 (same structure)
 
 ### 🟢 Low (nice-to-have)
+
 (same structure)
 
 ### 💬 Nits (style, naming, comments)
+
 (condensed list)
 
 ## Architectural / Cross-Cutting Observations
@@ -265,6 +273,7 @@ auggie --print \
 - Findings dropped during grounding: <N> (see `audit.log`)
 - Persona cross-check: <enabled|disabled>
 - Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
+
 ```
 
 8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons.

@@ -1,0 +1,11 @@
+=== Check 1: jq parse ===
+JSON VALID
+
+=== Check 2: jq -e assertion-count check ===
+true
+ALL THREE SCENARIOS HAVE 3 ASSERTIONS
+
+=== Diagnostic: per-scenario assertion summary ===
+scenario 1 (pr-by-number-merged): 3 assertions — types: file_exists, report_contains, no_hallucinated_citations
+scenario 2 (local-diff-vs-master): 3 assertions — types: file_exists, report_contains, no_hallucinated_citations
+scenario 3 (snapshot-cli-module): 3 assertions — types: file_exists, report_contains, no_hallucinated_citations
