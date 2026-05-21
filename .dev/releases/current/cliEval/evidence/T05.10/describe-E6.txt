@@ -1,0 +1,30 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E6
+title: PreToolUse Edit matcher fires
+category: hook-lifecycle
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: Use the Write tool to create a file named edited.txt under the current working
+    directory with the single line 'before'.
+- prompt: Use the Edit tool on edited.txt to replace 'before' with 'edited'.
+- prompt: /quit
+expects:
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"type":"pre_edit"'
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"matcher":"Edit"'
+- file:
+    path: edited.txt
+    exists: true
+- exit_code:
+    equals: 0
+no_pty: skip

@@ -1,0 +1,24 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 11 items
+
+tests/cli/eval/test_retry_policy.py::test_default_retry_count_is_zero PASSED [  9%]
+tests/cli/eval/test_retry_policy.py::test_fail_outcome_does_not_retry PASSED [ 18%]
+tests/cli/eval/test_retry_policy.py::test_errored_outcome_does_not_retry PASSED [ 27%]
+tests/cli/eval/test_retry_policy.py::test_non_zero_retry_count_rejected PASSED [ 36%]
+tests/cli/eval/test_retry_policy.py::test_other_non_zero_retry_count_rejected[-1] PASSED [ 45%]
+tests/cli/eval/test_retry_policy.py::test_other_non_zero_retry_count_rejected[2] PASSED [ 54%]
+tests/cli/eval/test_retry_policy.py::test_other_non_zero_retry_count_rejected[10] PASSED [ 63%]
+tests/cli/eval/test_retry_policy.py::test_explicit_zero_retry_count_accepted PASSED [ 72%]
+tests/cli/eval/test_retry_policy.py::test_mcp_flaky_tag_constant_defined PASSED [ 81%]
+tests/cli/eval/test_retry_policy.py::test_monkeypatched_runner_confirms_no_retry_loop PASSED [ 90%]
+tests/cli/eval/test_retry_policy.py::test_retry_docs_present_and_describe_subset_path PASSED [100%]
+
+============================== 11 passed in 0.14s ==============================

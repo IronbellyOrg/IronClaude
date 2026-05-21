@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../../../../src/superclaude/cli/eval/suites/suite.schema.json
+# Reference v1 suite manifest used by tests/cli/eval/test_schema_load.py
+# to exercise positive validation against suite.schema.json (DM-011 / D-0002).
+name: reference
+version: "1.0"
+description: "Reference v1 manifest exercising every DM-011 field including parameterize."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: make,                          failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities:
+  - { name: mcp_server.auggie,            gate_flag: "--no-mcp", failure_mode: skip }
+  - { name: mcp_server.auggie-mcp,        gate_flag: "--no-mcp", failure_mode: skip }
+  - { name: mcp_server.airis-mcp-gateway, gate_flag: "--no-mcp", failure_mode: skip }
+
+evals:
+  - id: E1
+    title: "auggie-first sticky lifecycle — set then clear"
+    category: hook-lifecycle
+    requires: [mcp_server.auggie]
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+      seed_state:
+        - path: state/last-prompt-ts/{session_id}.txt
+          content: "fake-now-minus-4h"
+    inputs:
+      - prompt: "What does the auggie-flag-clear hook do?"
+        expect_tool_call: mcp__auggie__codebase-retrieval
+    expects:
+      - { type: file_exists, path: state/auggie-first-pending/x.txt, when: pre_tool_call }
+      - { type: exit_code,   value: 0 }
+
+  - id: E2
+    title: "matcher coverage across 3 auggie prefixes"
+    category: hook-lifecycle
+    parameterize:
+      - { prefix: "mcp__auggie__",             tool: "codebase-retrieval" }
+      - { prefix: "mcp__auggie-mcp__",         tool: "ask_question" }
+      - { prefix: "mcp__airis-mcp-gateway__",  tool: "auggie_search" }
+    requires: [mcp_server.placeholder]
+    expects:
+      - { type: exit_code, value: 0 }

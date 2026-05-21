@@ -1,0 +1,30 @@
+# T03.06 verification check artifacts
+# Generated 2026-05-20
+
+## Symbol presence (DM-001/DM-003/DM-010 + COMP-004)
+
+$ grep -nE "^class (EvalOutcome|EvalResult|EvalContext|EvalRunner)\b" \
+    src/superclaude/cli/eval/models.py src/superclaude/cli/eval/runner.py
+src/superclaude/cli/eval/models.py:276:class EvalOutcome:
+src/superclaude/cli/eval/models.py:383:class EvalResult:
+src/superclaude/cli/eval/models.py:523:class EvalContext:
+src/superclaude/cli/eval/runner.py:701:class EvalRunner:
+
+## D-0049 JSONL contract documented
+
+$ grep -nE "jsonl|\.eval-logs" .dev/releases/current/cliEval/artifacts/D-0049/spec.md | head -5
+13:1. **Per-eval JSONL log** — every lifecycle transition is recorded as a
+14:   single JSON line under `<home_path>/.eval-logs/<eval_id>.jsonl`.
+27:`LifecycleExecutor`, `expect_callables`, and `deploy_hooks` so the JSONL
+35:    LOG_DIR_RELPATH: ClassVar[Path] = Path(".eval-logs")
+79:adjustments mid-run) cannot produce negative deltas in the JSONL log.
+
+## Exit-criteria pytest
+
+$ uv run pytest tests/cli/eval/test_eval_outcome.py \
+                tests/cli/eval/test_eval_result.py \
+                tests/cli/eval/test_eval_context.py \
+                tests/cli/eval/test_eval_lifecycle.py \
+                tests/cli/eval/test_runner_class.py -v
+... (full log in exit-criteria-pytest.log)
+EXIT=0  ==  102 passed in 1.30s

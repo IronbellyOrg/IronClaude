@@ -1,0 +1,1618 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# DOC-OQ3 / R-077 / D-0077 — exclusion set for ``--no-pty``.
+#
+# Every eval body in the "real" suite drives a Claude Code subprocess
+# through the vendored PTY harness (design-spec §3 / §6); none of the
+# current E1-E15 inventory has a non-PTY assertion path. The
+# ``no_pty: skip`` tag below therefore appears on every eval and
+# ``superclaude eval run --suite real --no-pty`` short-circuits the
+# whole suite with status SKIPPED + skip_reason="--no-pty" before any
+# HOME setup. The tag is per-eval (not suite-wide) so future
+# logic-only evals can drop it and continue to run under --no-pty
+# without manifest gymnastics.
+#
+# Eval bodies (inputs / expects) land in Phase 5 batches (T05.02+); the
+# entries here are the M4-frozen exclusion-set scaffolding plus the
+# minimal ``title`` / ``category`` / ``timeout_sec`` / ``isolation``
+# metadata required for ``eval describe --suite real`` to render a
+# stable inventory.
+name: real
+version: "1.0"
+description: "15 real-world evals for IronClaude hooks + installer + verify-sync (PTY-driven; --no-pty skips the whole suite)."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: make,                          failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities:
+  - { name: mcp_server.auggie,            gate_flag: "--no-mcp", failure_mode: skip }
+  - { name: mcp_server.auggie-mcp,        gate_flag: "--no-mcp", failure_mode: skip }
+  - { name: mcp_server.airis-mcp-gateway, gate_flag: "--no-mcp", failure_mode: skip }
+  - { name: mcp_server.serena,            gate_flag: "--no-mcp", failure_mode: skip }
+
+evals:
+  - id: E1
+    title: "auggie-first sticky lifecycle — set then clear"
+    category: hook-lifecycle
+    requires: [mcp_server.auggie]
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.02 / D-0083 — body shape. Hook contract (auggie-flag-clear.sh):
+    # the PostToolUse hook ONLY emits `{"event":"sticky_cleared"}` to
+    # logs/auggie-first.jsonl if state/auggie-first-pending/<sid>.txt
+    # existed before the matched tool call. Asserting the JSONL event is
+    # therefore a sufficient proxy for the "set then clear" lifecycle —
+    # the literal file_absent(state/.../<sid>.txt) assertion is deferred
+    # (needs session_id template substitution; see D-0083 §4).
+    inputs:
+      - prompt: "Use mcp__auggie__codebase-retrieval to summarise the auggie-flag-clear hook in src/superclaude/hooks/scripts/."
+        expect_tool_call: mcp__auggie__codebase-retrieval
+    expects:
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"event":"sticky_cleared"'
+      - exit_code:
+          equals: 0
+
+  # E2.1 / E2.2 / E2.3 — auggie matcher-coverage trio. T05.03 authors
+  # E2.1 with its full body; T05.04 / T05.05 land E2.2 / E2.3 bodies.
+  # OQ-2 (D-0082 §3 hook-surface coverage map) freezes E2.1-3 as the
+  # static coverage triad for the PostToolUse `mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*`
+  # matcher. Splitting the original E2 parameterize block into three
+  # static entries (vs. one ``parameterize:`` row) is mandated by two
+  # v1 constraints: (a) per-entry `requires:` capability tags differ
+  # (FR-CAP1 — D-0082 §6), and (b) no runtime template-substitution
+  # layer exists for `{{prefix}}` tokens in inputs/expects (per
+  # loader._expand_entry docstring at loader.py:600).
+  - id: E2.1
+    title: "auggie matcher coverage — mcp__auggie__*"
+    category: hook-coverage
+    requires: [mcp_server.auggie]
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.03 / D-0084 — body shape. E2.1 covers the `mcp__auggie__.*`
+    # branch of the PostToolUse matcher (hooks.json) by issuing a real
+    # `mcp__auggie__codebase-retrieval` call. The `auggie-flag-clear.sh`
+    # hook (scripts/auggie-flag-clear.sh:22-32) records the matched tool
+    # name in the `tool` field of the JSONL event when the sticky
+    # pre-existed, so asserting `"tool":"mcp__auggie__codebase-retrieval"`
+    # in `logs/auggie-first.jsonl` proves the matcher branch fired for
+    # the `mcp__auggie__*` prefix specifically (vs. the sibling auggie-mcp
+    # / airis-mcp-gateway prefixes covered by E2.2 / E2.3).
+    inputs:
+      - prompt: "Use mcp__auggie__codebase-retrieval to summarise the auggie-flag-clear hook in src/superclaude/hooks/scripts/."
+        expect_tool_call: mcp__auggie__codebase-retrieval
+    expects:
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"event":"sticky_cleared"'
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"tool":"mcp__auggie__codebase-retrieval"'
+      - exit_code:
+          equals: 0
+
+  - id: E2.2
+    title: "auggie matcher coverage — mcp__auggie-mcp__*"
+    category: hook-coverage
+    requires: [mcp_server.auggie-mcp]
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.04 / D-0085 — body shape. E2.2 covers the `mcp__auggie-mcp__.*`
+    # branch of the PostToolUse matcher (hooks.json) by issuing a real
+    # `mcp__auggie-mcp__ask_question` call. Same JSONL contract as E2.1:
+    # the `tool` field on the `sticky_cleared` event records the matched
+    # tool name, so asserting `"tool":"mcp__auggie-mcp__ask_question"` in
+    # `logs/auggie-first.jsonl` proves the matcher branch fired for the
+    # `mcp__auggie-mcp__*` prefix specifically (vs. the sibling auggie /
+    # airis-mcp-gateway prefixes covered by E2.1 / E2.3).
+    inputs:
+      - prompt: "Use mcp__auggie-mcp__ask_question to summarise the auggie-flag-clear hook in src/superclaude/hooks/scripts/."
+        expect_tool_call: mcp__auggie-mcp__ask_question
+    expects:
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"event":"sticky_cleared"'
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"tool":"mcp__auggie-mcp__ask_question"'
+      - exit_code:
+          equals: 0
+
+  - id: E2.3
+    title: "auggie matcher coverage — mcp__airis-mcp-gateway__auggie_*"
+    category: hook-coverage
+    requires: [mcp_server.airis-mcp-gateway]
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.05 / D-0086 — body shape. E2.3 covers the
+    # `mcp__airis-mcp-gateway__auggie_.*` branch of the PostToolUse
+    # matcher (hooks.json) by issuing a real
+    # `mcp__airis-mcp-gateway__auggie_search` call. Same JSONL contract
+    # as E2.1 / E2.2: the `tool` field on the `sticky_cleared` event
+    # records the matched tool name, so asserting
+    # `"tool":"mcp__airis-mcp-gateway__auggie_search"` in
+    # `logs/auggie-first.jsonl` proves the matcher branch fired for the
+    # `mcp__airis-mcp-gateway__auggie_*` prefix specifically (vs. the
+    # sibling auggie / auggie-mcp prefixes covered by E2.1 / E2.2).
+    # Note the trailing `auggie_` in the matcher: only gateway tools
+    # whose name starts with `auggie_` (e.g. `auggie_search`,
+    # `auggie_history`) fire this branch — generic gateway tools
+    # (`tavily_search`, `context7_*`) do not.
+    inputs:
+      - prompt: "Use mcp__airis-mcp-gateway__auggie_search to summarise the auggie-flag-clear hook in src/superclaude/hooks/scripts/."
+        expect_tool_call: mcp__airis-mcp-gateway__auggie_search
+    expects:
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"event":"sticky_cleared"'
+      - file:
+          path: logs/auggie-first.jsonl
+          exists: true
+          contains: '"tool":"mcp__airis-mcp-gateway__auggie_search"'
+      - exit_code:
+          equals: 0
+
+  - id: E3
+    title: "SessionStart unmatched (session-init) hook fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.07 / D-0087 — body shape per OQ-2 resolution (D-0082 §4).
+    # E3 exercises the FIRST SessionStart hook entry in hooks.json
+    # (no matcher, command=session-init.sh) — distinct from the second
+    # SessionStart entry (matcher=*, freshness-session-start.sh) which
+    # is covered by E4. Spawning a fresh claude session via the PTY
+    # harness triggers both SessionStart hooks before prompt-ready;
+    # the first-position hook is responsible for emitting the
+    # session_init telemetry into the per-eval HOME.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 / spec.md §3):
+    #   - inputs: spawn fresh claude session; /quit to exit cleanly.
+    #   - expects[0]: file.exists(state/session-init.log) — proves the
+    #     first-position SessionStart hook ran (script writes its own
+    #     log into the per-eval HOME under $HOME/.claude/state/).
+    #   - expects[1]: file(logs/session-events.jsonl, contains
+    #     '"type":"session_init"') — proves the session_init event was
+    #     emitted into the SessionStart event ledger. Expect.jsonl
+    #     with predicate filters requires a Python callable
+    #     (expect.py:269-369), not expressible in YAML — so the
+    #     event-fire assertion uses Expect.file with the JSONL
+    #     substring, same pattern E1 / E2.1-3 use for their
+    #     sticky_cleared assertions on logs/auggie-first.jsonl.
+    #   - expects[2]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # Determinism (D-0082 §2.2): every PTY spawn writes a new session
+    # log + JSONL event with a fresh `ts` field that is not asserted
+    # against, so the body passes/fails the same way every run on a
+    # clean per-eval HOME (FR-ISO2).
+    inputs:
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: state/session-init.log
+          exists: true
+      - file:
+          path: logs/session-events.jsonl
+          exists: true
+          contains: '"type":"session_init"'
+      - exit_code:
+          equals: 0
+
+  - id: E4
+    title: "SessionStart matcher=* freshness hook fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.08 / D-0088 — body shape per OQ-2 resolution (D-0082 §4).
+    # E4 exercises the SECOND SessionStart hook entry in hooks.json
+    # (matcher=*, command=freshness-session-start.sh) — distinct from
+    # the first-position SessionStart entry (no matcher,
+    # session-init.sh) which is covered by E3. Both SessionStart hooks
+    # fire before prompt-ready on a fresh PTY spawn; E3 pins the
+    # position-0 hook's side-effects and E4 pins position-1.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 / decisions.md OQ-2):
+    #   - inputs: spawn fresh claude session; /quit to exit cleanly
+    #     (identical input shape to E3 — same spawn triggers both
+    #     SessionStart hooks).
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened by the matcher=* hook.
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"session_start"') — proves the session_start event
+    #     was emitted into the freshness ledger by freshness-session-
+    #     start.sh. Expect.jsonl predicate filters require a Python
+    #     callable (expect.py:269-369), not expressible in declarative
+    #     YAML; following the E3 / E1 / E2.1-3 precedent, the
+    #     event-fire assertion uses Expect.file with the JSONL
+    #     substring. The D-0082 §4 `event_count == 1` aspect is the
+    #     same kind of count assertion that requires a callable —
+    #     deferred to a follow-up under the YAML callback escape
+    #     hatch (D-4) if duplicate-fire detection becomes load-bearing.
+    #   - expects[2]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # Determinism (D-0082 §2.2): every PTY spawn writes a new
+    # freshness.jsonl entry with a fresh `ts` field that is not
+    # asserted against, so the body passes/fails the same way on a
+    # clean per-eval HOME (FR-ISO2).
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.08):
+    # freshness-session-start.sh (current revision at
+    # src/superclaude/hooks/scripts/) emits the SessionStart envelope
+    # to stdout via `jq -nc ... hookSpecificOutput ...` but does NOT
+    # currently append a `{"type":"session_start"}` row to
+    # $HOME/.claude/logs/freshness.jsonl. The OQ-2 body shape lands
+    # verbatim per the same posture taken in T05.07 / D-0087 §8.1;
+    # a follow-up hook-script update task is responsible for wiring
+    # the freshness ledger emission. Acceptance criteria for T05.08
+    # are met by describe / list / Expect.from_mapping round-trip
+    # evidence (see TASKLIST_ROOT/evidence/T05.08/).
+    inputs:
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"session_start"'
+      - exit_code:
+          equals: 0
+
+  - id: E5
+    title: "UserPromptSubmit freshness hook fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.09 / D-0089 — body shape per OQ-2 resolution (D-0082 §4).
+    # E5 exercises the sole UserPromptSubmit hook entry in hooks.json
+    # (no matcher, command=freshness-user-prompt.sh, timeout=3) —
+    # distinct from the two SessionStart hooks (E3 covers position-0
+    # session-init.sh; E4 covers position-1 matcher=*
+    # freshness-session-start.sh). UserPromptSubmit fires once per
+    # user prompt submission; the eval injects a content prompt
+    # ("echo test" per D-0082 §4) so the hook fires at least once
+    # before the session exits on /quit.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E5):
+    #   - inputs[0]: prompt "echo test" — the injected content prompt
+    #     that fires UserPromptSubmit; matches the D-0082 §4
+    #     inject_prompt("echo test") shape verbatim.
+    #   - inputs[1]: prompt "/quit" — clean session exit so
+    #     exit_code.equals(0) can pin the PTY teardown contract
+    #     (sibling pattern to E3 / E4).
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened by the UserPromptSubmit
+    #     hook (or a prior SessionStart hook on the same spawn).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"user_prompt"') — proves the user_prompt event row
+    #     was emitted into the freshness ledger by
+    #     freshness-user-prompt.sh. Expect.jsonl predicate filters
+    #     require a Python callable (expect.py:269-369), not
+    #     expressible in declarative YAML; following the E3 / E4 /
+    #     E1 / E2.1-3 precedent, the event-fire assertion uses
+    #     Expect.file with the JSONL substring. The D-0082 §4
+    #     `event_count >= 1 per injected prompt` aspect is the same
+    #     kind of count assertion that requires a callable — deferred
+    #     to a follow-up under the YAML callback escape hatch (D-4)
+    #     if per-prompt event-count discrimination becomes
+    #     load-bearing.
+    #   - expects[2]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # Determinism (D-0082 §2.2): freshness-user-prompt.sh emits one
+    # user_prompt row per UserPromptSubmit fire on a clean per-eval
+    # HOME; the asserted substring is invariant across runs (the
+    # `ts`, `session_id`, `turn` fields on the JSONL row are not
+    # asserted against). Three consecutive runs yield identical
+    # EvalOutcome statuses.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.09):
+    # freshness-user-prompt.sh (current revision at
+    # src/superclaude/hooks/scripts/) emits the UserPromptSubmit
+    # envelope to stdout via `jq -nc ... hookSpecificOutput ...`
+    # (lines 259-264) and writes truncation telemetry to
+    # logs/freshness-hook.jsonl when triggered, but does NOT
+    # currently append a `{"type":"user_prompt"}` row to
+    # $HOME/.claude/logs/freshness.jsonl on the normal (non-truncated)
+    # path. The OQ-2 body shape lands verbatim per the same posture
+    # taken in T05.07 / D-0087 §8.1 and T05.08 / D-0088 §8.1; a
+    # follow-up hook-script update task is responsible for wiring
+    # the freshness ledger emission. Acceptance criteria for T05.09
+    # are met by describe / list / Expect.from_mapping round-trip
+    # evidence (see TASKLIST_ROOT/evidence/T05.09/).
+    inputs:
+      - prompt: "echo test"
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"user_prompt"'
+      - exit_code:
+          equals: 0
+
+  - id: E6
+    title: "PreToolUse Edit matcher fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.10 / D-0090 — body shape per OQ-2 resolution (D-0082 §4).
+    # E6 exercises the Edit branch of the PreToolUse matcher group
+    # `Edit|Write|mcp__serena__*` in hooks.json (script command
+    # =freshness-pre-edit.sh, timeout=5). Three sibling evals fan out
+    # across the three matcher branches per D-0082 §3 hook-surface
+    # coverage map: E6 covers Edit (this), E7 covers Write, E8 covers
+    # the `mcp__serena__*` prefix (E8 carries `requires: [mcp_server.serena]`
+    # for soft-skip under --no-mcp; E6 / E7 run on every host).
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E6 / decisions.md OQ-2):
+    #   - inputs: spawn fresh claude session; inject a prompt that
+    #     triggers a single Edit tool call against a scratch file
+    #     (`edited.txt` under the per-eval HOME); /quit to exit cleanly.
+    #     A preceding Write prompt seeds the scratch file so the agent
+    #     has a target to Edit (freshness-pre-edit.sh's `no_prior_read`
+    #     branch falls open on a not-yet-existing path per the script
+    #     comment "create_allowed" at lines 78-87, so the seeding Write
+    #     succeeds without a prior Read; the subsequent Edit then fires
+    #     the PreToolUse hook on the Edit matcher branch — which is the
+    #     surface this eval asserts).
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened (by a prior SessionStart
+    #     hook on the same spawn or by freshness-pre-edit.sh itself).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"pre_edit"') — proves a pre_edit-typed event row was
+    #     emitted into the freshness ledger by freshness-pre-edit.sh.
+    #   - expects[2]: file(logs/freshness.jsonl, contains
+    #     '"matcher":"Edit"') — proves the Edit branch of the
+    #     `Edit|Write|mcp__serena__*` matcher group fired specifically
+    #     (vs. the sibling Write / serena branches covered by E7 / E8).
+    #     Two-substring shape mirrors the E2.1-3 matcher-coverage triad
+    #     (D-0086 §"Two-assertion shape ({event, tool})").
+    #   - expects[3]: file.exists(edited.txt) — proves the scratch file
+    #     persisted post-Edit. Path resolves against ctx.home_path per
+    #     _resolve_path (expect.py:79-91), i.e. <per-eval-HOME>/edited.txt.
+    #   - expects[4]: exit_code.equals(0) — clean session exit on /quit.
+    #     Expect.jsonl predicate filters (event_count / contains_event
+    #     with `type=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3 / E4 / E5 / E1 / E2.1-3 precedent, the
+    #     event-fire assertion uses Expect.file with the JSONL substring
+    #     as a sufficient proxy for `contains_event`.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # Determinism (D-0082 §2.2): freshness-pre-edit.sh emits one
+    # PreToolUse row per matched tool invocation on a clean per-eval
+    # HOME; the asserted substrings are invariant across runs (the
+    # `ts`, `session_id`, `tool_call_idx`, `recent_read_age_sec` fields
+    # on the JSONL row are not asserted against). Three consecutive
+    # runs yield identical EvalOutcome statuses.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.10):
+    # freshness-pre-edit.sh (current revision at
+    # src/superclaude/hooks/scripts/freshness-pre-edit.sh:108-119)
+    # writes to `$HOME/.claude/logs/freshness-hook.jsonl` with a JSONL
+    # envelope `{ts, event:"PreToolUse", tool:<tool_name>, path:...,
+    # session_id:..., tool_call_idx:..., decision:..., reason:...}`. It
+    # does NOT write to `$HOME/.claude/logs/freshness.jsonl`, and the
+    # envelope fields are `event`/`tool` (not `type`/`matcher`). The
+    # OQ-2 body shape lands verbatim per the same posture taken in
+    # T05.07 / D-0087 §8.1, T05.08 / D-0088 §8.1, and T05.09 / D-0089
+    # §8.1; a follow-up hook-script update task is responsible for
+    # wiring the freshness-ledger emission with the OQ-2-contract field
+    # names. Acceptance criteria for T05.10 are met by describe / list /
+    # Expect.from_mapping round-trip evidence (see
+    # TASKLIST_ROOT/evidence/T05.10/).
+    inputs:
+      - prompt: "Use the Write tool to create a file named edited.txt under the current working directory with the single line 'before'."
+      - prompt: "Use the Edit tool on edited.txt to replace 'before' with 'edited'."
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"pre_edit"'
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"matcher":"Edit"'
+      - file:
+          path: edited.txt
+          exists: true
+      - exit_code:
+          equals: 0
+
+  - id: E7
+    title: "PreToolUse Write matcher fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.11 / D-0091 — body shape per OQ-2 resolution (D-0082 §4).
+    # E7 exercises the Write branch of the PreToolUse matcher group
+    # `Edit|Write|mcp__serena__*` in hooks.json (script command
+    # =freshness-pre-edit.sh, timeout=5). Three sibling evals fan out
+    # across the three matcher branches per D-0082 §3 hook-surface
+    # coverage map: E6 covers Edit, E7 covers Write (this), E8 covers
+    # the `mcp__serena__*` prefix (E8 carries `requires: [mcp_server.serena]`
+    # for soft-skip under --no-mcp; E6 / E7 run on every host).
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E7 / decisions.md OQ-2):
+    #   - inputs: spawn fresh claude session; inject a prompt that
+    #     triggers a single Write tool call against a scratch file
+    #     (`written.txt` under the per-eval HOME); /quit to exit cleanly.
+    #     Unlike E6, no seed prompt is required — Write creates a
+    #     new file directly, and freshness-pre-edit.sh's `no_prior_read`
+    #     branch falls open on a not-yet-existing path (the
+    #     `create_allowed` route at lines 78-87 of the script) which
+    #     is the natural path for a single Write that fires the
+    #     PreToolUse hook on the Write matcher branch — which is the
+    #     surface this eval asserts.
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened (by a prior SessionStart
+    #     hook on the same spawn or by freshness-pre-edit.sh itself).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"pre_edit"') — proves a pre_edit-typed event row was
+    #     emitted into the freshness ledger by freshness-pre-edit.sh.
+    #     The `pre_edit` type label is shared across Edit/Write/serena
+    #     branches because they share the hook script; the matcher
+    #     pin (next assertion) is what discriminates the Write branch
+    #     from the sibling Edit / serena branches.
+    #   - expects[2]: file(logs/freshness.jsonl, contains
+    #     '"matcher":"Write"') — proves the Write branch of the
+    #     `Edit|Write|mcp__serena__*` matcher group fired specifically
+    #     (vs. the sibling Edit / serena branches covered by E6 / E8).
+    #     Two-substring shape mirrors the E6 (D-0090) pattern and the
+    #     E2.1-3 matcher-coverage triad (D-0086 §"Two-assertion shape
+    #     ({event, tool})").
+    #   - expects[3]: file.exists(written.txt) — proves the scratch
+    #     file persisted post-Write. Path resolves against
+    #     ctx.home_path per _resolve_path (expect.py:79-91), i.e.
+    #     <per-eval-HOME>/written.txt.
+    #   - expects[4]: exit_code.equals(0) — clean session exit on /quit.
+    #     Expect.jsonl predicate filters (event_count / contains_event
+    #     with `type=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3 / E4 / E5 / E6 / E1 / E2.1-3 precedent, the
+    #     event-fire assertion uses Expect.file with the JSONL substring
+    #     as a sufficient proxy for `contains_event`.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # Determinism (D-0082 §2.2): freshness-pre-edit.sh emits one
+    # PreToolUse row per matched tool invocation on a clean per-eval
+    # HOME; the asserted substrings are invariant across runs (the
+    # `ts`, `session_id`, `tool_call_idx`, `recent_read_age_sec` fields
+    # on the JSONL row are not asserted against). Three consecutive
+    # runs yield identical EvalOutcome statuses.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.11):
+    # freshness-pre-edit.sh (current revision at
+    # src/superclaude/hooks/scripts/freshness-pre-edit.sh:108-119)
+    # writes to `$HOME/.claude/logs/freshness-hook.jsonl` with a JSONL
+    # envelope `{ts, event:"PreToolUse", tool:<tool_name>, path:...,
+    # session_id:..., tool_call_idx:..., decision:..., reason:...}`. It
+    # does NOT write to `$HOME/.claude/logs/freshness.jsonl`, and the
+    # envelope fields are `event`/`tool` (not `type`/`matcher`). The
+    # OQ-2 body shape lands verbatim per the same posture taken in
+    # T05.07 / D-0087 §8.1, T05.08 / D-0088 §8.1, T05.09 / D-0089
+    # §8.1, and T05.10 / D-0090 §8.1; a follow-up hook-script update
+    # task is responsible for wiring the freshness-ledger emission
+    # with the OQ-2-contract field names. Acceptance criteria for
+    # T05.11 are met by describe / list / Expect.from_mapping
+    # round-trip evidence (see TASKLIST_ROOT/evidence/T05.11/).
+    inputs:
+      - prompt: "Use the Write tool to create a file named written.txt under the current working directory with the single line 'hello'."
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"pre_edit"'
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"matcher":"Write"'
+      - file:
+          path: written.txt
+          exists: true
+      - exit_code:
+          equals: 0
+
+  - id: E8
+    title: "PreToolUse serena matcher fires"
+    category: hook-lifecycle
+    requires: [mcp_server.serena]
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.13 / D-0092 — body shape per OQ-2 resolution (D-0082 §4).
+    # E8 exercises the `mcp__serena__*` branch of the PreToolUse matcher
+    # group `Edit|Write|mcp__serena__*` in hooks.json (script command
+    # =freshness-pre-edit.sh, timeout=5). Three sibling evals fan out
+    # across the three matcher branches per D-0082 §3 hook-surface
+    # coverage map: E6 covers Edit (D-0090), E7 covers Write (D-0091),
+    # E8 covers the `mcp__serena__*` prefix (this). E8 is the only one
+    # of the trio that carries `requires: [mcp_server.serena]` —
+    # soft-skip under `--no-mcp` or if the serena MCP server is
+    # unreachable — because firing the matcher requires invoking a real
+    # `mcp__serena__*` tool, which only exists when the serena MCP
+    # server is connected to the claude session.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E8 / decisions.md OQ-2):
+    #   - inputs[0]: Write a scratch file `modified.txt` with content
+    #     "before" so the subsequent serena call has a target to
+    #     replace_content on (mirrors the E6 Write→Edit chain: serena's
+    #     replace_content needs a pre-existing file). The seed Write
+    #     also fires the PreToolUse hook on the Write matcher branch,
+    #     but the assertion below pins the serena-branch substring
+    #     specifically — co-firing on Write is harmless.
+    #   - inputs[1]: prompt that triggers
+    #     `mcp__serena__replace_content` on modified.txt to swap
+    #     "before"→"after"; this is the call that fires the PreToolUse
+    #     hook on the `mcp__serena__*` matcher branch — the surface
+    #     this eval asserts.
+    #   - inputs[2]: prompt "/quit" — clean session exit so
+    #     `exit_code.equals(0)` can pin the PTY teardown contract
+    #     (sibling pattern to E3 / E4 / E5 / E6 / E7).
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened (by a prior SessionStart
+    #     hook on the same spawn or by freshness-pre-edit.sh itself).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"pre_edit"') — proves a pre_edit-typed event row was
+    #     emitted into the freshness ledger by freshness-pre-edit.sh.
+    #     The `pre_edit` type label is shared across Edit/Write/serena
+    #     branches because they share the hook script; the matcher
+    #     pin (next assertion) is what discriminates the serena branch
+    #     from the sibling Edit / Write branches.
+    #   - expects[2]: file(logs/freshness.jsonl, contains
+    #     '"matcher":"mcp__serena__replace_content"') — proves the
+    #     `mcp__serena__*` branch of the `Edit|Write|mcp__serena__*`
+    #     matcher group fired specifically (vs. the sibling Edit /
+    #     Write branches covered by E6 / E7). Two-substring shape
+    #     mirrors the E6 / E7 sibling pattern and the E2.1-3
+    #     matcher-coverage triad (D-0086 §"Two-assertion shape
+    #     ({event, tool})"). The asserted tool name
+    #     `mcp__serena__replace_content` is one of multiple
+    #     `mcp__serena__*` variants in the matcher (per D-0082 §4 row
+    #     E8: "or other `mcp__serena__*` variant"); choosing
+    #     replace_content keeps the body symmetric with E6's Edit
+    #     branch (both modify an existing file's contents).
+    #   - expects[3]: file.exists(modified.txt) — proves the scratch
+    #     file persisted post-replace_content. Path resolves against
+    #     ctx.home_path per _resolve_path (expect.py:79-91), i.e.
+    #     <per-eval-HOME>/modified.txt.
+    #   - expects[4]: exit_code.equals(0) — clean session exit on /quit.
+    #     Expect.jsonl predicate filters (event_count / contains_event
+    #     with `type=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3 / E4 / E5 / E6 / E7 / E1 / E2.1-3 precedent,
+    #     the event-fire assertion uses Expect.file with the JSONL
+    #     substring as a sufficient proxy for `contains_event`.
+    #
+    # Capability tags: `[mcp_server.serena]` — distinguishes E8 from
+    # its sibling E6 / E7 (`[]`). FR-CAP1 soft-skip path applies:
+    # under `--no-mcp` E8 emits status=SKIPPED with skip_reason
+    # populated and the matcher-coverage gate continues to recognise
+    # serena as exercised (the gate counts authored evals; soft-skip
+    # is not a gap).
+    # Determinism (D-0082 §2.2): freshness-pre-edit.sh emits one
+    # PreToolUse row per matched tool invocation on a clean per-eval
+    # HOME; the asserted substrings are invariant across runs (the
+    # `ts`, `session_id`, `tool_call_idx`, `recent_read_age_sec` fields
+    # on the JSONL row are not asserted against). Three consecutive
+    # runs yield identical EvalOutcome statuses.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.13):
+    # freshness-pre-edit.sh (current revision at
+    # src/superclaude/hooks/scripts/freshness-pre-edit.sh:108-119)
+    # writes to `$HOME/.claude/logs/freshness-hook.jsonl` with a JSONL
+    # envelope `{ts, event:"PreToolUse", tool:<tool_name>, path:...,
+    # session_id:..., tool_call_idx:..., decision:..., reason:...}`. It
+    # does NOT write to `$HOME/.claude/logs/freshness.jsonl`, and the
+    # envelope fields are `event`/`tool` (not `type`/`matcher`). The
+    # OQ-2 body shape lands verbatim per the same posture taken in
+    # T05.07 / D-0087 §8.1, T05.08 / D-0088 §8.1, T05.09 / D-0089
+    # §8.1, T05.10 / D-0090 §8.1, and T05.11 / D-0091 §8.1; a
+    # follow-up hook-script update task is responsible for wiring the
+    # freshness-ledger emission with the OQ-2-contract field names.
+    # E6/E7/E8 share the underlying script so one script update
+    # unblocks all three siblings simultaneously. Acceptance criteria
+    # for T05.13 are met by describe / list / Expect.from_mapping
+    # round-trip evidence (see TASKLIST_ROOT/evidence/T05.13/).
+    inputs:
+      - prompt: "Use the Write tool to create a file named modified.txt under the current working directory with the single line 'before'."
+      - prompt: "Use mcp__serena__replace_content on modified.txt to replace 'before' with 'after'."
+        expect_tool_call: mcp__serena__replace_content
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"pre_edit"'
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"matcher":"mcp__serena__replace_content"'
+      - file:
+          path: modified.txt
+          exists: true
+      - exit_code:
+          equals: 0
+
+  - id: E9
+    title: "PostToolUse Read async hook fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.14 / D-0093 — body shape per OQ-2 resolution (D-0082 §4).
+    # E9 exercises the SOLE PostToolUse Read matcher entry in hooks.json
+    # (matcher=Read, command=freshness-post-read.sh, timeout=1, async=true).
+    # E9 is the only PostToolUse eval whose matched hook is declared
+    # `async: true` — distinct from the synchronous PostToolUse auggie-
+    # family matchers covered by E1 / E2.1-3 (which fire
+    # `auggie-flag-clear.sh` synchronously). This eval's specific value
+    # is pinning the **async branch** behaves correctly: the hook fires
+    # after the Read returns, flushes its telemetry row out-of-band, and
+    # the PTY harness sees the row materialised in the freshness ledger
+    # by the time the session exits cleanly.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E9 / decisions.md OQ-2):
+    #   - inputs[0]: Write a scratch fixture file (`fixture.txt`) with a
+    #     single line of content so the subsequent Read has a target.
+    #     The seed Write also fires the PreToolUse hook on the Write
+    #     matcher branch (covered independently by E7) — that co-fire
+    #     is harmless because E9's assertion pins the post_read substring
+    #     specifically, not pre_edit.
+    #   - inputs[1]: prompt that triggers a single `Read` of fixture.txt;
+    #     this is the call that fires the PostToolUse hook on the Read
+    #     matcher branch — the surface this eval asserts. Read does NOT
+    #     fire any PreToolUse hook (hooks.json's PreToolUse matcher group
+    #     is `Edit|Write|mcp__serena__*`, which does not include Read).
+    #   - inputs[2]: prompt "/quit" — clean session exit so the PTY
+    #     teardown waits for the async hook flush before EOF. The
+    #     freshness-post-read.sh script's flock-protected append runs
+    #     within its 1-second timeout window; the /quit teardown then
+    #     reaps the async writer.
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened (by a prior SessionStart hook
+    #     on the same spawn or by freshness-post-read.sh itself).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"post_read"') — proves a post_read-typed event row was
+    #     emitted into the freshness ledger by freshness-post-read.sh
+    #     AFTER the async hook flushed. This substring is the binary
+    #     proxy for the OQ-2 §4 row E9 "flush-within-2s" timing aspect:
+    #     if the row is present when the PTY harness reads the ledger
+    #     post-/quit, the async branch flushed before session teardown
+    #     (which is the operationally-meaningful guarantee — see §3
+    #     footnote for the explicit duration-window deferral).
+    #     Expect.jsonl predicate filters (event_count / contains_event
+    #     with `type=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3 / E4 / E5 / E6 / E7 / E8 / E1 / E2.1-3
+    #     precedent, the event-fire assertion uses Expect.file with the
+    #     JSONL substring as a sufficient proxy for `contains_event`.
+    #   - expects[2]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # Determinism (D-0082 §2.2): freshness-post-read.sh emits one
+    # PostToolUse row per matched tool invocation on a clean per-eval
+    # HOME; the asserted substring is invariant across runs (the `ts`,
+    # `ts_unix`, `session_id`, `tool_call_idx`, `path` fields on the
+    # JSONL row are not asserted against). Three consecutive runs yield
+    # identical EvalOutcome statuses.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.14):
+    # freshness-post-read.sh (current revision at
+    # src/superclaude/hooks/scripts/freshness-post-read.sh:42-46) writes
+    # to `$HOME/.claude/state/reads.jsonl` with a JSONL envelope
+    # `{ts, ts_unix, session_id, path, tool_call_idx}`. It does NOT
+    # write to `$HOME/.claude/logs/freshness.jsonl`, and the envelope
+    # has no `type` field. The OQ-2 body shape lands verbatim per the
+    # same posture taken in T05.07 / D-0087 §8.1, T05.08 / D-0088 §8.1,
+    # T05.09 / D-0089 §8.1, T05.10 / D-0090 §8.1, T05.11 / D-0091 §8.1,
+    # and T05.13 / D-0092 §8.1; a follow-up hook-script update task is
+    # responsible for wiring the freshness-ledger emission with the
+    # OQ-2-contract field names (path: logs/freshness.jsonl, field:
+    # "type":"post_read"). Acceptance criteria for T05.14 are met by
+    # describe / list / Expect.from_mapping round-trip evidence (see
+    # TASKLIST_ROOT/evidence/T05.14/).
+    inputs:
+      - prompt: "Use the Write tool to create a file named fixture.txt under the current working directory with the single line 'content'."
+      - prompt: "Use the Read tool to read fixture.txt."
+        expect_tool_call: Read
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"post_read"'
+      - exit_code:
+          equals: 0
+
+  - id: E10
+    title: "SubagentStart hook fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.15 / D-0094 — body shape per OQ-2 resolution (D-0082 §4).
+    # E10 exercises the SOLE SubagentStart hook entry in hooks.json
+    # (no matcher, command=freshness-subagent-start.sh, timeout=1,
+    # async=true). E10 is the second async hook eval (after E9 /
+    # PostToolUse Read); like E9, the body relies on PTY teardown to
+    # reap the async writer and pins the binary substring presence as
+    # the operationally-meaningful guarantee that the hook fired and
+    # flushed before session exit. E10 pairs with E11 (D-0082 row E11 /
+    # T05.16) which covers the matched SubagentStop hook.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E10 / decisions.md OQ-2):
+    #   - inputs[0]: prompt that invokes a sub-agent via the Task tool
+    #     (subagent_type=Explore per D-0082 §4 "e.g., Explore or Plan").
+    #     The Explore agent is built into Claude Code; spawning it
+    #     triggers the SubagentStart hook event before the sub-agent
+    #     receives its task prompt. The Task tool invocation is the
+    #     call that fires the SubagentStart hook — the surface this
+    #     eval asserts. The chosen sub-agent task is a lightweight
+    #     read-only glob ("find files matching '*.md' under the cwd"),
+    #     deterministic and cheap on a clean per-eval HOME.
+    #   - inputs[1]: prompt "/quit" — clean session exit so
+    #     `exit_code.equals(0)` can pin the PTY teardown contract AND
+    #     so the teardown reaps the async writer (sibling pattern to
+    #     E3 / E4 / E5 / E6 / E7 / E8 / E9). The /quit prompt also
+    #     waits implicitly for the spawned sub-agent to terminate
+    #     (SubagentStop fires before the parent session exits cleanly).
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened (by a prior SessionStart
+    #     hook on the same spawn or by freshness-subagent-start.sh
+    #     itself).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"subagent_start"') — proves the subagent_start-typed
+    #     event row was emitted into the freshness ledger by
+    #     freshness-subagent-start.sh AFTER the async hook flushed.
+    #     This substring is the binary proxy for the OQ-2 §4 row E10
+    #     event_count assertion: if the row is present when the PTY
+    #     harness reads the ledger post-/quit, the async branch
+    #     flushed before session teardown and at least one
+    #     subagent_start event was emitted (event_count >= 1).
+    #     Expect.jsonl predicate filters (event_count / contains_event
+    #     with `type=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3 / E4 / E5 / E6 / E7 / E8 / E9 / E1 / E2.1-3
+    #     precedent, the event-fire assertion uses Expect.file with
+    #     the JSONL substring as a sufficient proxy for
+    #     `contains_event` + `event_count >= 1`.
+    #   - expects[2]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # The Task / Agent tool is built into Claude Code, not an MCP tool,
+    # so E10 carries `requires: []` and runs under `--no-mcp`.
+    # Determinism (D-0082 §2.2): freshness-subagent-start.sh emits one
+    # SubagentStart counter increment per spawned sub-agent on a clean
+    # per-eval HOME; the asserted substring is invariant across runs
+    # (the `ts`, `session_id`, agent type fields on the JSONL row, once
+    # emitted by the post-update script, are not asserted against).
+    # Three consecutive runs yield identical EvalOutcome statuses.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.15):
+    # freshness-subagent-start.sh (current revision at
+    # src/superclaude/hooks/scripts/freshness-subagent-start.sh:6-26)
+    # writes to `$HOME/.claude/state/bg-agents/<session_id>.txt` with a
+    # plain integer counter (incremented atomically under flock). It
+    # does NOT write to `$HOME/.claude/logs/freshness.jsonl`, and the
+    # counter file has no JSONL structure / no `type` field. The OQ-2
+    # body shape lands verbatim per the same posture taken in T05.07
+    # (D-0087 §8.1), T05.08 (D-0088 §8.1), T05.09 (D-0089 §8.1), T05.10
+    # / T05.11 / T05.13 (D-0090/D-0091/D-0092 §8.1), and T05.14
+    # (D-0093 §8.1); a follow-up hook-script update task is responsible
+    # for wiring the freshness-ledger emission with the OQ-2-contract
+    # path (`logs/freshness.jsonl`) and field name
+    # (`"type":"subagent_start"`). E10 stands alone in script terms
+    # (no sibling shares `freshness-subagent-start.sh`; E11 shares the
+    # paired `freshness-subagent-stop.sh` only conceptually, not as a
+    # shared script). Acceptance criteria for T05.15 are met by
+    # describe / list / Expect.from_mapping round-trip evidence (see
+    # TASKLIST_ROOT/evidence/T05.15/).
+    inputs:
+      - prompt: "Use the Task tool with subagent_type='Explore' to find files matching '*.md' under the current working directory and report the count."
+        expect_tool_call: Task
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"subagent_start"'
+      - exit_code:
+          equals: 0
+
+  - id: E11
+    title: "SubagentStop hook fires"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.16 / D-0095 — body shape per OQ-2 resolution (D-0082 §4).
+    # E11 exercises the SOLE SubagentStop hook entry in hooks.json
+    # (no matcher, command=freshness-subagent-stop.sh, timeout=1,
+    # async=true). E11 is the third async hook eval in the roster
+    # (after E9 / PostToolUse Read async and E10 / SubagentStart);
+    # like its siblings, the body relies on PTY teardown to reap the
+    # async writer and pins the binary substring presence as the
+    # operationally-meaningful guarantee that the hook fired and
+    # flushed before session exit. E11 pairs with E10 (D-0082 row E10
+    # / T05.15) which covers the matched SubagentStart hook —
+    # together the pair pins both edges of the sub-agent lifecycle.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E11 / decisions.md OQ-2):
+    #   - inputs[0]: prompt that invokes a sub-agent via the Task tool
+    #     (subagent_type=Explore per E10 precedent — D-0082 §4 names
+    #     "Explore or Plan" but the E10 / D-0094 §"Why subagent_type=
+    #     'Explore'" rationale carries through: read-only by design,
+    #     lightweight, deterministic on a clean HOME). The Task tool
+    #     invocation is the call that fires BOTH SubagentStart (E10's
+    #     surface) AND SubagentStop (this eval's surface) — the
+    #     SubagentStart fires immediately on spawn; SubagentStop fires
+    #     when the sub-agent returns control to the parent. The chosen
+    #     sub-agent task is the same lightweight read-only glob ("find
+    #     files matching '*.md' under cwd") used by E10 — Explore
+    #     returns the count, then terminates, firing SubagentStop on
+    #     the way out.
+    #   - inputs[1]: prompt "/quit" — clean session exit so
+    #     `exit_code.equals(0)` can pin the PTY teardown contract AND
+    #     so the teardown reaps the async writer (sibling pattern to
+    #     E3 / E4 / E5 / E6 / E7 / E8 / E9 / E10). The /quit prompt
+    #     also gives the SubagentStop async writer time to flush
+    #     between the sub-agent's return and the parent session's
+    #     teardown — Explore returns synchronously to the parent, then
+    #     the parent session sits at the next prompt until /quit
+    #     terminates it; the gap is comfortably longer than the
+    #     flock+decrement microseconds the script needs.
+    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
+    #     freshness event ledger was opened (by a prior SessionStart
+    #     hook on the same spawn or by freshness-subagent-stop.sh
+    #     itself).
+    #   - expects[1]: file(logs/freshness.jsonl, contains
+    #     '"type":"subagent_stop"') — proves the subagent_stop-typed
+    #     event row was emitted into the freshness ledger by
+    #     freshness-subagent-stop.sh AFTER the async hook flushed.
+    #     This substring is the binary proxy for the OQ-2 §4 row E11
+    #     contains_event assertion: if the row is present when the
+    #     PTY harness reads the ledger post-/quit, the async branch
+    #     flushed before session teardown.
+    #     Expect.jsonl predicate filters (event_count / contains_event
+    #     with `type=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3 / E4 / E5 / E6 / E7 / E8 / E9 / E10 / E1 /
+    #     E2.1-3 precedent, the event-fire assertion uses Expect.file
+    #     with the JSONL substring as a sufficient proxy for
+    #     `contains_event`.
+    #   - expects[2]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — runs on every host.
+    # The Task / Agent tool is built into Claude Code, not an MCP tool,
+    # so E11 carries `requires: []` and runs under `--no-mcp` (same as
+    # E10 sibling).
+    # Determinism (D-0082 §2.2): freshness-subagent-stop.sh emits one
+    # SubagentStop counter decrement per returning sub-agent on a clean
+    # per-eval HOME; the asserted substring is invariant across runs
+    # (the `ts`, `session_id`, agent-type fields on the JSONL row, once
+    # emitted by the post-update script, are not asserted against).
+    # Three consecutive runs yield identical EvalOutcome statuses.
+    #
+    # Count-equality deferral (D-0082 §4 row E11 secondary assertion):
+    # the row E11 specification names a paired predicate
+    # `jsonl.event_count(logs/freshness.jsonl, type=subagent_start) ==
+    # jsonl.event_count(logs/freshness.jsonl, type=subagent_stop)` —
+    # the start/stop symmetry pin. This predicate requires a Python
+    # callable filter (expect.py:269-369) to count filtered rows on
+    # each side and compare; it is not expressible in the declarative
+    # YAML DSL. Following the established T05.07..T05.15 deferral
+    # posture (event_count, per-prompt count discrimination,
+    # event_count >= 1), T05.16 lands the OQ-2 body shape with the
+    # binary substring assertion as a proxy: substring presence is the
+    # necessary condition for both event_count(subagent_stop) >= 1 and
+    # for the equality predicate (the equality only holds in the
+    # `>= 1, >= 1` case relevant to this body — a single Task spawn).
+    # Strict declarative equality remains deferred until the YAML
+    # callback escape hatch (D-4) is exercised for the start/stop
+    # pair, or a future schema bump adds a declarative
+    # `jsonl: { event_count_equals_event_count: {...} }` shorthand.
+    # Neither is in scope for T05.16.
+    #
+    # Telemetry gap (pre-existing, NOT introduced by T05.16):
+    # freshness-subagent-stop.sh (current revision at
+    # src/superclaude/hooks/scripts/freshness-subagent-stop.sh:6-28)
+    # writes a decremented plain integer counter to
+    # `$HOME/.claude/state/bg-agents/<session_id>.txt` (mirror of
+    # freshness-subagent-start.sh's increment path). It does NOT write
+    # to `$HOME/.claude/logs/freshness.jsonl`, and the counter file
+    # has no JSONL structure / no `type` field. The OQ-2 body shape
+    # lands verbatim per the same posture taken in T05.07..T05.15; a
+    # follow-up hook-script update task is responsible for wiring the
+    # freshness-ledger emission with the OQ-2-contract path
+    # (`logs/freshness.jsonl`) and field name (`"type":"subagent_stop"`).
+    # E11 stands alone in script terms (no sibling shares
+    # `freshness-subagent-stop.sh`); the paired
+    # `freshness-subagent-start.sh` (E10) is structurally analogous
+    # but a distinct script, so the script-update follow-up will land
+    # two updates (one per script) for the SubagentStart/SubagentStop
+    # pair. Acceptance criteria for T05.16 are met by describe / list
+    # / Expect.from_mapping round-trip evidence (see
+    # TASKLIST_ROOT/evidence/T05.16/).
+    inputs:
+      - prompt: "Use the Task tool with subagent_type='Explore' to find files matching '*.md' under the current working directory and report the count."
+        expect_tool_call: Task
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+      - file:
+          path: logs/freshness.jsonl
+          exists: true
+          contains: '"type":"subagent_stop"'
+      - exit_code:
+          equals: 0
+
+  - id: E12
+    title: "Hook deploy idempotency"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.17 / D-0096 — body shape per OQ-2 resolution (D-0082 §4 row E12).
+    # E12 exercises the install_hooks ADAPTER, not a single hook script
+    # — it pins the deployer's idempotency contract documented at
+    # hook_adapter.py:28-33 ("Re-invoking deploy_hooks_to against the
+    # same home_path produces identical filesystem state"). The
+    # regression class is PR #49: "matcher exists but a second deploy
+    # duplicates it" — a bug in the install_hooks merge pipeline, not
+    # in any individual hook script. E12 sits in `hook-lifecycle`
+    # category alongside E3-E11 (deployer half of the hook lifecycle).
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E12 / decisions.md OQ-2):
+    #   - inputs[0]: prompt "/quit" — clean session exit so
+    #     `exit_code.equals(0)` can pin the PTY teardown contract.
+    #     No in-session work is needed: the install_hooks call that
+    #     produces the asserted settings.json shape is performed by
+    #     the per-eval setup wrapper (FR-ISO2 / NFR-ISO2 atomic-setup,
+    #     T02.13) before the PTY session opens. The /quit prompt
+    #     simply gives the harness a clean exit trigger.
+    #   - expects[0..5]: six settings_json(key_path=hooks.<event>,
+    #     exists=true) rows — one per hook event in
+    #     src/superclaude/hooks/hooks.json (SessionStart,
+    #     UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart,
+    #     SubagentStop). Collectively these prove every hook event
+    #     from the source hooks.json was merged into the per-eval
+    #     HOME's settings.json — the "after first deploy" half of the
+    #     OQ-2 contract. The Expect.settings_json primitive
+    #     (expect.py:373-480) traverses dot-separated Mapping
+    #     segments only; array indexing isn't supported, so the
+    #     deepest expressible check is top-level event presence
+    #     (hooks.<event>). Sufficient discrimination for the
+    #     registration-presence regression class (an event silently
+    #     dropped by install_hooks would fail the corresponding
+    #     exists check); insufficient for the PR #49 digest-duplication
+    #     class (see deferral note below).
+    #   - expects[6]: exit_code.equals(0) — clean session exit on /quit.
+    #
+    # No capability tags; no MCP; no network — install_hooks is pure
+    # Python stdlib (json + shutil + os + pathlib).
+    # Determinism (D-0082 §2.2): the setup wrapper deploys
+    # install_hooks once against a clean per-eval HOME (no prior
+    # settings.json → no matcher-collision short-circuits). The merged
+    # settings.json is therefore deterministic across runs; the six
+    # settings_json.exists checks are pure-read pinnings. Three
+    # consecutive runs yield identical EvalOutcome statuses.
+    #
+    # Schema-expressibility deferral (D-0082 §4 row E12 strict form):
+    # the OQ-2 input shape says "call install_hooks adapter twice in a
+    # row" and the OQ-2 expect shape pairs this with "settings.json
+    # digest unchanged between the two deploys". Neither half is
+    # expressible under the current suite.schema.json:
+    #   (a) no `callback:` field on evalEntry (the D-4 escape hatch is
+    #       a planned schema extension, not yet landed);
+    #   (b) no `inputs[].adapter:` field — runner dispatch only handles
+    #       `prompt` + `expect_tool_call`;
+    #   (c) no `digest_unchanged:` / `Expect.file.digest:` predicate in
+    #       PRIMITIVE_NAMES (expect.py:56-64).
+    # The "twice + digest unchanged" form is the dominant PR #49
+    # regression class — the registration-presence proxy landed here
+    # is necessary but NOT sufficient for that class specifically.
+    # T05.17 lands the body verbatim per the T05.07..T05.16 deferral
+    # precedent (telemetry gaps, event_count predicates, count-
+    # equality predicates — all landed with declarative proxies and
+    # deferred to follow-up gated on schema/feature landings); the
+    # strict idempotency form remains deferred until either the YAML
+    # callback escape hatch (D-4) lands, or a future schema bump adds
+    # a declarative digest-comparison primitive. Acceptance criteria
+    # for T05.17 are met by describe / list / Expect.from_mapping
+    # round-trip evidence (see TASKLIST_ROOT/evidence/T05.17/).
+    #
+    # Setup-wrapper dependency (D-0096 §8.2): E12 is the only post-
+    # OQ-2 eval whose assertions read ONLY the merged settings.json
+    # (not the freshness ledger). Its correctness depends entirely on
+    # the per-eval setup wrapper invoking deploy_hooks_to. If the
+    # wrapper is missing/broken, the per-eval HOME has no settings.json
+    # and all six settings_json.exists checks would report
+    # "settings.json not found" → eval ERROR. This is the correct
+    # failure mode — an E12 ERROR under "settings.json not found"
+    # surfaces a wrapper regression; an E12 FAIL under "key_path
+    # 'hooks.X' exists=False" surfaces an install_hooks regression
+    # (event silently dropped). The two failure modes are
+    # distinguishable by the error tag.
+    inputs:
+      - prompt: "/quit"
+    expects:
+      - settings_json:
+          path: settings.json
+          key_path: hooks.SessionStart
+          exists: true
+      - settings_json:
+          path: settings.json
+          key_path: hooks.UserPromptSubmit
+          exists: true
+      - settings_json:
+          path: settings.json
+          key_path: hooks.PreToolUse
+          exists: true
+      - settings_json:
+          path: settings.json
+          key_path: hooks.PostToolUse
+          exists: true
+      - settings_json:
+          path: settings.json
+          key_path: hooks.SubagentStart
+          exists: true
+      - settings_json:
+          path: settings.json
+          key_path: hooks.SubagentStop
+          exists: true
+      - exit_code:
+          equals: 0
+
+  - id: E13
+    title: "Hook stderr error fails open"
+    category: hook-lifecycle
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.19 / D-0097 — body shape per OQ-2 resolution (D-0082 §4 row E13).
+    # E13 exercises the harness's HOOK ERROR-PATH discipline — distinct
+    # from E3-E11 (which pin individual hook event surfaces) and from
+    # E12 (which pins the install_hooks adapter's idempotency contract).
+    # The regression class for E13 is: a hook script that returns a
+    # non-zero exit code plus content on stderr causes an APPARENT
+    # TOOL FAILURE (the matched tool call surfaces the hook's stderr
+    # as if the tool itself had failed) instead of being logged and
+    # treated as a fail-open event. The design contract (design-spec
+    # §11 / OQ-2 D-0082 §4 row E13) requires the harness to:
+    #   (a) complete the tool call successfully — the failing hook
+    #       does NOT block the tool's result from reaching the agent;
+    #   (b) capture the hook's stderr so a human reader can see what
+    #       went wrong;
+    #   (c) emit a structured `{type:"hook_error", disposition:
+    #       "fail_open"}` row to `logs/hook-errors.jsonl` so the
+    #       failure is auditable post-run.
+    # E13 sits in `hook-lifecycle` category alongside E3-E12 (it pins
+    # the error-handling half of the lifecycle — what happens when a
+    # hook misbehaves — analogous to E12 pinning the deployment half).
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E13 / decisions.md OQ-2):
+    #   - inputs[0]: Use the Write tool to seed a scratch fixture
+    #     (`fixture.txt`) so the subsequent Read has a target. The
+    #     seed Write also fires the PreToolUse hook on the Write
+    #     matcher branch (covered independently by E7) — that co-fire
+    #     is harmless because E13's assertions pin error-path events
+    #     keyed by `type:"hook_error"`, not pre_edit telemetry.
+    #   - inputs[1]: Use the Read tool to read fixture.txt. The OQ-2
+    #     contract names this as "inject prompt triggering a Read":
+    #     the Read is the matched tool call whose PostToolUse hook
+    #     script (the failing fixture per OQ-2 spec —
+    #     `tests/fixtures/hooks/failing-post-read.sh`) returns
+    #     non-zero exit + stderr. The harness MUST fail open: the
+    #     Read tool's result reaches the agent successfully, and the
+    #     hook error is logged separately.
+    #   - inputs[2]: prompt "/quit" — clean session exit so
+    #     `exit_code.equals(0)` can pin the PTY teardown contract
+    #     (sibling pattern to E3 / E4 / E5 / E6 / E7 / E8 / E9 / E10 /
+    #     E11 / E12).
+    #   - expects[0]: file.exists(logs/hook-errors.jsonl) — proves
+    #     the hook-error ledger was opened by the harness when the
+    #     PostToolUse hook returned non-zero. This file is the
+    #     auditable error log specifically named in the OQ-2 D-0082
+    #     §4 row E13 expect shape (distinct from `logs/freshness.jsonl`
+    #     used by E3-E11 for normal-path hook telemetry).
+    #   - expects[1]: file(logs/hook-errors.jsonl, contains
+    #     '"type":"hook_error"') — proves a hook_error-typed event
+    #     row was emitted into the error ledger by the harness's
+    #     error-path discipline. Expect.jsonl predicate filters
+    #     (event_count / contains_event with `type=...` /
+    #     `disposition=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3-E12 precedent, the event-fire assertion
+    #     uses Expect.file with the JSONL substring as a sufficient
+    #     proxy for `contains_event(type=hook_error)`.
+    #   - expects[2]: file(logs/hook-errors.jsonl, contains
+    #     '"disposition":"fail_open"') — proves the harness's
+    #     disposition for the hook error was fail-open (the tool
+    #     call was allowed to complete), discriminating this code
+    #     path from a hypothetical fail-closed disposition. Pairs
+    #     with expects[1] to assert the conjunctive
+    #     `{type:hook_error, disposition:fail_open}` filter from the
+    #     OQ-2 contract — the two-substring conjunction over the
+    #     same JSONL row mirrors the E6 / E7 / E8 two-substring
+    #     `{type, matcher}` pattern (one substring proves the row
+    #     class; the second pins a discriminating field).
+    #   - expects[3]: stderr.contains("failing-post-read.sh") —
+    #     proves the hook script's stderr was captured by the
+    #     harness and surfaced to the eval transcript. The OQ-2
+    #     D-0082 §4 row E13 expect shape names
+    #     `stderr.contains(failing_hook_script_name)`; the literal
+    #     basename "failing-post-read.sh" is the script name from
+    #     the OQ-2-named fixture path
+    #     `tests/fixtures/hooks/failing-post-read.sh`. Expect.stderr
+    #     (expect.py:556-569) is a first-class declarative primitive
+    #     under PRIMITIVE_NAMES — no proxy needed for this assertion.
+    #   - expects[4]: exit_code.equals(0) — clean session exit on
+    #     /quit. This is the EXIT CODE OF THE EVAL PROCESS (the PTY
+    #     teardown contract), not of the failing hook script. The
+    #     fail-open contract is what makes these decouple: the hook
+    #     exits non-zero, the harness logs the error and continues,
+    #     and the overall session exits 0 on /quit.
+    #
+    # No capability tags; no MCP; no network — the failing fixture
+    # is a pure shell script + the harness's error-logging path is
+    # pure stdlib. E13 carries `requires: []` and runs under
+    # `--no-mcp`. The only way E13 skips is via `--no-pty`
+    # (per-eval `no_pty: skip` tag). Matches siblings E3-E7 / E9-E12.
+    # Determinism (D-0082 §2.2): the failing fixture exits the same
+    # way on every invocation (deterministic exit + deterministic
+    # stderr message); the harness's error-logging path is a
+    # pure-append to logs/hook-errors.jsonl; the asserted substrings
+    # are invariant across runs (the `ts`, `session_id`, `tool_call_idx`
+    # fields on the JSONL row, once emitted, are not asserted
+    # against). Three consecutive runs yield identical EvalOutcome
+    # statuses.
+    #
+    # Scaffolding gap (pre-existing, NOT introduced by T05.19):
+    # the OQ-2 input shape names a `tests/fixtures/hooks/
+    # failing-post-read.sh` fixture script AND requires the per-eval
+    # HOME to use a hooks.json VARIANT (not the production
+    # src/superclaude/hooks/hooks.json) that registers the failing
+    # fixture as the PostToolUse Read handler. None of this is in
+    # place today:
+    #   (a) the fixture script `tests/fixtures/hooks/failing-post-
+    #       read.sh` does not exist on disk;
+    #   (b) the per-eval setup wrapper (NFR-ISO2 / T02.13) deploys
+    #       the production hooks.json verbatim via
+    #       `hook_adapter.deploy_hooks_to(home_path)` — there is no
+    #       `isolation.hooks_variant:` field on `evalEntry` or
+    #       `inputs[].setup:` callback that could swap in a
+    #       test-only hooks.json with the failing fixture
+    #       registered;
+    #   (c) the harness's error-logging path that writes
+    #       `logs/hook-errors.jsonl` with `{type:"hook_error",
+    #       disposition:"fail_open"}` rows is not yet wired — the
+    #       current PTY harness propagates hook stderr opaquely
+    #       (commands.py hook-exec path) without a structured
+    #       fail-open ledger.
+    # The OQ-2 body shape lands verbatim per the same posture taken
+    # in T05.07 (D-0087 §8.1), T05.08 (D-0088 §8.1), T05.09 (D-0089
+    # §8.1), T05.10 / T05.11 / T05.13 (D-0090 / D-0091 / D-0092 §8.1),
+    # T05.14 (D-0093 §8.1), T05.15 / T05.16 (D-0094 §3 footnote /
+    # D-0095 inline), and T05.17 (D-0096 §8.1); follow-up tasks are
+    # responsible for landing (a) the fixture script, (b) a
+    # hooks.json-variant deployment path or callback escape hatch,
+    # and (c) the harness's structured hook-error ledger emission.
+    # Acceptance criteria for T05.19 are met by describe / list /
+    # Expect.from_mapping round-trip evidence (see
+    # TASKLIST_ROOT/evidence/T05.19/).
+    inputs:
+      - prompt: "Use the Write tool to create a file named fixture.txt under the current working directory with the single line 'content'."
+      - prompt: "Use the Read tool to read fixture.txt."
+        expect_tool_call: Read
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/hook-errors.jsonl
+          exists: true
+      - file:
+          path: logs/hook-errors.jsonl
+          exists: true
+          contains: '"type":"hook_error"'
+      - file:
+          path: logs/hook-errors.jsonl
+          exists: true
+          contains: '"disposition":"fail_open"'
+      - stderr:
+          contains: "failing-post-read.sh"
+      - exit_code:
+          equals: 0
+
+  - id: E14
+    title: "Concurrent SessionStart bursts"
+    category: hook-lifecycle
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.20 / D-0098 — body shape per OQ-2 resolution (D-0082 §4 row E14).
+    # E14 exercises the CONCURRENCY CONTRACT at the SessionStart boundary
+    # — N=3 sessions spawned in rapid succession (within ~200ms of each
+    # other) MUST each write their own per-session sticky
+    # `state/auggie-first-pending/<sid>.txt` (no cross-contamination) and
+    # each MUST emit exactly one `session_init` event in its own per-eval
+    # HOME's JSONL ledger. The regression class motivating E14 is:
+    # shared-mutable-state at SessionStart — a hook script or harness
+    # path that writes to a fixed location (no <sid> in the path) would
+    # have N=3 sessions race on the same file, surfacing only the last
+    # writer's sticky and corrupting the per-session telemetry.
+    #
+    # E14 is structurally distinct from E3 / E4 (which pin SINGLE-session
+    # SessionStart hook fire) along one axis: N=3 multi-session
+    # orchestration. The OQ-2 contract (D-0082 §4 row E14 + D-4 decision
+    # notes) names the v1 implementation mechanism as the YAML
+    # `callback:` escape hatch — a programmatic spawn ordering that
+    # cannot be expressed in the declarative input/expects DSL. The
+    # callback (named `superclaude.cli.eval.suites.real_callbacks:
+    # E14_concurrent_session_start` per D-0082 §4) is responsible for:
+    #   (a) spawning N=3 sessions in threads with ~200ms inter-arrival;
+    #   (b) waiting for all 3 PTY sessions to reach prompt-ready;
+    #   (c) collecting the 3 per-session HOMEs' sticky files + JSONL
+    #       ledgers;
+    #   (d) asserting no-shared-mutable-state — 3 distinct sticky
+    #       files, 3 distinct session_init JSONL rows, one per session.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E14 / decisions.md OQ-2):
+    #   - inputs: YAML `callback:` field invokes the multi-session
+    #     spawn function (per D-4 escape hatch).
+    #   - expects: each session writes `state/auggie-first-pending/
+    #     <sid>.txt`; 3 distinct session_init events in 3 separate
+    #     JSONL files (one per session HOME); `jsonl.event_count == 1`
+    #     per session — proves no duplicate emission and no shared
+    #     mutable state across the concurrent spawns.
+    #
+    # Schema-expressibility constraint — the `callback:` field is NOT
+    # present on `evalEntry` in `suites/suite.schema.json` today
+    # (`additionalProperties: false` rejects any unrecognised field,
+    # and D-4's `callback:` escape hatch is documented in
+    # decisions.md but not yet wired into the schema). Adding the
+    # field requires a schema bump + loader extension + EvalRunner
+    # invocation path that resolves the callable and drives the
+    # multi-session orchestration. None of that exists today; per the
+    # established T05.07..T05.19 deferral posture, T05.20 lands the
+    # OQ-2 body shape with the best-effort declarative proxy:
+    #   - **N=3 → degenerate N=1.** A single PTY session (`/quit`)
+    #     fires the SessionStart hook chain, creates the sticky-pending
+    #     directory, and emits one session_init event — the same
+    #     observable shape E3 / E4 pin for SINGLE-session SessionStart.
+    #     The N=3 concurrency aspect (no-shared-mutable-state across
+    #     parallel spawns) is fully deferred to the callback escape
+    #     hatch.
+    #   - **per-`<sid>` sticky file → directory existence proxy.**
+    #     Expect.file has no glob support and no `<sid>` template
+    #     substitution; the per-session file
+    #     `state/auggie-first-pending/<sid>.txt` cannot be asserted
+    #     without knowing the session_id ahead of time. The directory
+    #     `state/auggie-first-pending/` (created by
+    #     freshness-session-start.sh:91 on every SessionStart) is a
+    #     necessary-but-not-sufficient proxy: the directory presence
+    #     proves the sticky-pending mechanism initialised; the actual
+    #     per-session file presence (and the no-cross-contamination
+    #     guarantee) is deferred.
+    #   - **3 distinct session_init events → 1 substring assertion.**
+    #     Inherits the same proxy posture as E3:
+    #     `file(logs/session-events.jsonl, contains '"type":"session_init"')`.
+    #     The 3-events-across-3-HOMEs aspect is deferred (multi-HOME
+    #     assertion semantics not supported — Expect.file resolves
+    #     against a single EvalContext.home_path per expect.py:187-268).
+    #   - **`jsonl.event_count == 1` per session → degenerate-N=1
+    #     implicit.** A single-session run produces exactly one
+    #     session_init row by construction; the per-session count=1
+    #     invariant for the multi-session case is deferred to the
+    #     callback escape hatch (declarative jsonl.event_count
+    #     requires a Python callable per expect.py:269-369).
+    #
+    # Capability tags: `requires: []` — no MCP, no network; the
+    # callback (once landed) spawns local PTY sessions only. Matches
+    # the OQ-2 capability roster (D-0082 §6 row E14).
+    #
+    # Determinism (D-0082 §2.2): the degenerate-N=1 proxy is
+    # deterministic on a clean per-eval HOME — the SessionStart hook
+    # chain fires the same way on every spawn; the asserted directory
+    # and JSONL substring are invariant across runs; the `ts` /
+    # `session_id` fields on the JSONL row are not asserted against.
+    # Three consecutive `eval run --suite real --eval E14` invocations
+    # on a clean HOME yield identical EvalOutcome statuses. (The
+    # determinism contract for the FULL N=3 multi-session shape, once
+    # the callback escape hatch lands, depends on the callback honoring
+    # the same no-time-of-day, no-network, no-shared-state discipline;
+    # the OQ-2 contract states "spawned in rapid succession (within
+    # ~200ms of each other) via threads" which is itself deterministic
+    # modulo wall-clock skew — same posture as standard thread-fan-out
+    # tests in pytest.)
+    #
+    # Scaffolding gap (pre-existing, NOT introduced by T05.20):
+    #   (a) the YAML `callback:` field is not in the schema today;
+    #       follow-up gated on schema bump + loader extension + runner
+    #       callback-invocation wiring (per D-4 decision notes);
+    #   (b) the `superclaude.cli.eval.suites.real_callbacks` module
+    #       does not exist — the named callable
+    #       `E14_concurrent_session_start` has no implementation;
+    #   (c) the multi-session orchestration path (3 concurrent PTY
+    #       sessions in threads, each with its own per-session HOME
+    #       isolation) is not wired in the EvalRunner — runner.py
+    #       drives ONE PTY session per eval today;
+    #   (d) the multi-HOME assertion semantics (Expect.file resolves
+    #       against a single EvalContext.home_path) cannot express
+    #       "3 distinct sticky files across 3 distinct HOMEs"
+    #       declaratively;
+    #   (e) inherits E3's telemetry gap: no current hook script emits
+    #       `{"type":"session_init"}` rows to
+    #       `<home>/.claude/logs/session-events.jsonl`. The OQ-2 body
+    #       names this ledger; a follow-up hook-script update task
+    #       (shared with E3 / T05.07) is responsible for the
+    #       emission.
+    # The OQ-2 body shape lands verbatim with the proxy posture per the
+    # same precedent as T05.07 (D-0087), T05.08 (D-0088), …, T05.19
+    # (D-0097). Acceptance criteria for T05.20 are met by describe /
+    # list / Expect.from_mapping round-trip evidence (see
+    # TASKLIST_ROOT/evidence/T05.20/).
+    inputs:
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: state/auggie-first-pending
+          exists: true
+      - file:
+          path: logs/session-events.jsonl
+          exists: true
+          contains: '"type":"session_init"'
+      - exit_code:
+          equals: 0
+
+  - id: E15
+    title: "hook timeout fails open with telemetry"
+    category: hook-lifecycle
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # T05.21 / D-0099 — body shape per OQ-2 resolution (D-0082 §4 row E15).
+    # E15 exercises the harness's HOOK TIMEOUT-PATH discipline — distinct
+    # from E13 (which pins the hook STDERR-error fail-open path) and from
+    # E3-E11 (which pin individual hook event surfaces on the happy path).
+    # The regression class for E15 is: a hook script that SLEEPS LONGER
+    # than its configured `timeout:` field would, in a naive harness,
+    # either (i) hang the tool call indefinitely waiting for the hook to
+    # return, or (ii) surface the eventual hook exit as a tool failure
+    # once the timeout fires. The design contract (design-spec §11 / OQ-2
+    # D-0082 §4 row E15) requires the harness to:
+    #   (a) reap the slow hook at the configured timeout boundary — the
+    #       tool call MUST complete within `hook_timeout + 2.0` seconds
+    #       (the +2.0s grace covers reap-overhead, not steady-state slop);
+    #   (b) complete the matched tool call successfully despite the
+    #       hook timeout — the tool's result reaches the agent (fail-
+    #       open disposition);
+    #   (c) emit a structured `{type:"hook_timeout", disposition:
+    #       "fail_open"}` row to `logs/hook-errors.jsonl` so the timeout
+    #       event is auditable post-run.
+    # E15 sits in `hook-lifecycle` category alongside E3-E13 — it pins
+    # the timeout-handling branch of the error-half of the lifecycle,
+    # parallel to E13's stderr-error branch. Together E13 (non-zero exit
+    # + stderr) and E15 (timeout) form the complete failure-mode
+    # coverage of the hook fail-open contract from design-spec §11.
+    #
+    # OQ-2-frozen body shape (D-0082 §4 row E15 / decisions.md OQ-2):
+    #   - inputs[0]: Use the Write tool to seed a scratch fixture
+    #     (`fixture.txt`) so the subsequent Read has a target. The
+    #     seed Write also fires the PreToolUse hook on the Write
+    #     matcher branch (covered independently by E7) — that co-fire
+    #     is harmless because E15's assertions pin timeout-path events
+    #     keyed by `type:"hook_timeout"`, not pre_edit telemetry.
+    #   - inputs[1]: Use the Read tool to read fixture.txt. The OQ-2
+    #     contract names this as "inject prompt triggering a Read":
+    #     the Read is the matched tool call whose PostToolUse hook
+    #     script (the slow fixture per OQ-2 spec —
+    #     `tests/fixtures/hooks/slow-post-read.sh`) sleeps longer than
+    #     the configured `timeout:` field. The harness MUST fail open:
+    #     the Read tool's result reaches the agent successfully within
+    #     the timeout reap window, and the hook timeout is logged
+    #     separately.
+    #   - inputs[2]: prompt "/quit" — clean session exit so
+    #     `exit_code.equals(0)` can pin the PTY teardown contract
+    #     (sibling pattern to E3 / E4 / E5 / E6 / E7 / E8 / E9 / E10 /
+    #     E11 / E12 / E13).
+    #   - expects[0]: file.exists(logs/hook-errors.jsonl) — proves
+    #     the hook-error ledger was opened by the harness when the
+    #     PostToolUse hook timed out. This file is shared with E13
+    #     (the auditable error log specifically named in the OQ-2
+    #     D-0082 §4 rows E13 and E15) — distinct from
+    #     `logs/freshness.jsonl` used by E3-E11 for normal-path hook
+    #     telemetry.
+    #   - expects[1]: file(logs/hook-errors.jsonl, contains
+    #     '"type":"hook_timeout"') — proves a hook_timeout-typed event
+    #     row was emitted into the error ledger by the harness's
+    #     timeout-reap path. Expect.jsonl predicate filters
+    #     (event_count / contains_event with `type=...` /
+    #     `disposition=...` keyword args) require a Python callable
+    #     (expect.py:269-369), not expressible in declarative YAML;
+    #     following the E3-E13 precedent, the event-fire assertion
+    #     uses Expect.file with the JSONL substring as a sufficient
+    #     proxy for `contains_event(type=hook_timeout)`. The `type:
+    #     "hook_timeout"` discriminator pins the timeout branch and
+    #     decouples this row from E13's `type:"hook_error"` rows in
+    #     the same ledger file.
+    #   - expects[2]: file(logs/hook-errors.jsonl, contains
+    #     '"disposition":"fail_open"') — proves the harness's
+    #     disposition for the hook timeout was fail-open (the tool
+    #     call was allowed to complete after the reap), discriminating
+    #     this code path from a hypothetical fail-closed disposition
+    #     where the timeout would propagate as a tool error. Pairs
+    #     with expects[1] to assert the conjunctive
+    #     `{type:hook_timeout, disposition:fail_open}` filter from the
+    #     OQ-2 contract — the two-substring conjunction over the same
+    #     JSONL row mirrors E13's `{type:hook_error, disposition:
+    #     fail_open}` two-substring pattern.
+    #   - expects[3]: exit_code.equals(0) — clean session exit on
+    #     /quit. This is the EXIT CODE OF THE EVAL PROCESS (the PTY
+    #     teardown contract), not the timeout-reap status of the slow
+    #     hook script. The fail-open contract is what makes these
+    #     decouple: the hook is reaped at the timeout boundary, the
+    #     harness logs the timeout and continues, and the overall
+    #     session exits 0 on /quit.
+    #
+    # No capability tags; no MCP; no network — the slow fixture is a
+    # pure shell script (`sleep N`) + the harness's timeout-reap path
+    # is pure stdlib (subprocess timeout / SIGTERM handling). E15
+    # carries `requires: []` and runs under `--no-mcp`. The only way
+    # E15 skips is via `--no-pty` (per-eval `no_pty: skip` tag).
+    # Matches siblings E3-E7 / E9-E13.
+    #
+    # Determinism (D-0082 §2.2): the slow fixture sleeps the same
+    # duration on every invocation (deterministic SIGTERM-reap by the
+    # harness at the timeout boundary); the harness's timeout-logging
+    # path is a pure-append to logs/hook-errors.jsonl; the asserted
+    # substrings are invariant across runs (the `ts`, `session_id`,
+    # `tool_call_idx`, `elapsed_ms` fields on the JSONL row, once
+    # emitted, are not asserted against). Three consecutive runs yield
+    # identical EvalOutcome statuses. NOTE: the OQ-2 expects shape
+    # ALSO names `duration.less_than(hook_timeout + 2.0)` — a wall-
+    # clock upper bound that the harness's reap window must respect.
+    # Expect.duration is NOT a first-class declarative primitive
+    # today (Expect.PRIMITIVE_NAMES enumerates {file, exit_code, jsonl,
+    # settings_json, stderr} per expect.py); the duration upper-bound
+    # assertion is deferred to a follow-up primitive-extension task.
+    # The determinism contract above covers reproducibility of the
+    # status; the wall-clock upper-bound is an orthogonal axis that
+    # the proxy does not pin.
+    #
+    # Scaffolding gap (pre-existing, NOT introduced by T05.21):
+    # the OQ-2 input shape names a `tests/fixtures/hooks/
+    # slow-post-read.sh` fixture script AND requires the per-eval
+    # HOME to use a hooks.json VARIANT (not the production
+    # src/superclaude/hooks/hooks.json) that registers the slow
+    # fixture as the PostToolUse Read handler with a custom
+    # `timeout:` field shorter than the script's sleep. None of this
+    # is in place today:
+    #   (a) the fixture script `tests/fixtures/hooks/slow-post-
+    #       read.sh` does not exist on disk;
+    #   (b) the per-eval setup wrapper (NFR-ISO2 / T02.13) deploys
+    #       the production hooks.json verbatim via
+    #       `hook_adapter.deploy_hooks_to(home_path)` — there is no
+    #       `isolation.hooks_variant:` field on `evalEntry` or
+    #       `inputs[].setup:` callback that could swap in a
+    #       test-only hooks.json with the slow fixture registered AND
+    #       the per-hook `timeout:` field tuned below the sleep;
+    #       SHARED WITH E13 (T05.19) — both rely on the same
+    #       hooks.json-variant deployment path;
+    #   (c) the harness's timeout-handling path that writes
+    #       `logs/hook-errors.jsonl` with `{type:"hook_timeout",
+    #       disposition:"fail_open"}` rows is not yet wired — the
+    #       current PTY harness's per-hook timeout enforcement is
+    #       structural (the harness terminates the hook subprocess
+    #       on timeout) but does NOT emit a structured timeout
+    #       ledger row distinguishing `type:"hook_timeout"` from
+    #       `type:"hook_error"`. SHARED WITH E13 (T05.19) — both
+    #       rely on the same structured hook-errors.jsonl ledger
+    #       (E13 for the exit-non-zero branch, E15 for the timeout
+    #       branch); the harness extension closes both at once;
+    #   (d) Expect.duration is not a declarative primitive — the
+    #       OQ-2-named `duration.less_than(hook_timeout + 2.0)`
+    #       wall-clock assertion is deferred to a primitive-
+    #       extension task. Unique to E15 — E13's expects shape does
+    #       not invoke duration; only E15 needs it.
+    # The OQ-2 body shape lands verbatim per the same posture taken
+    # in T05.07 (D-0087 §8.1), T05.08 (D-0088 §8.1), T05.09 (D-0089
+    # §8.1), T05.10 / T05.11 / T05.13 (D-0090 / D-0091 / D-0092 §8.1),
+    # T05.14 (D-0093 §8.1), T05.15 / T05.16 (D-0094 §3 footnote /
+    # D-0095 inline), T05.17 (D-0096 §8.1), T05.19 (D-0097 §8.1),
+    # and T05.20 (D-0098 §8.1); follow-up tasks are responsible for
+    # landing (a) the slow fixture script, (b) the shared (with E13)
+    # hooks.json-variant deployment path or callback escape hatch,
+    # (c) the shared (with E13) harness structured hook-errors.jsonl
+    # emission distinguishing timeout from error rows, and (d) the
+    # Expect.duration primitive. Acceptance criteria for T05.21 are
+    # met by describe / list / Expect.from_mapping round-trip
+    # evidence (see TASKLIST_ROOT/evidence/T05.21/).
+    inputs:
+      - prompt: "Use the Write tool to create a file named fixture.txt under the current working directory with the single line 'content'."
+      - prompt: "Use the Read tool to read fixture.txt."
+        expect_tool_call: Read
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: logs/hook-errors.jsonl
+          exists: true
+      - file:
+          path: logs/hook-errors.jsonl
+          exists: true
+          contains: '"type":"hook_timeout"'
+      - file:
+          path: logs/hook-errors.jsonl
+          exists: true
+          contains: '"disposition":"fail_open"'
+      - exit_code:
+          equals: 0

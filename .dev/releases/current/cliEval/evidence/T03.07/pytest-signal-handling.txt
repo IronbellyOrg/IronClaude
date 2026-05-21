@@ -1,0 +1,44 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 25 items
+
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_initial_state_is_not_cancelled PASSED [  4%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_cancel_flips_flag PASSED [  8%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_cancel_records_signum PASSED [ 12%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_second_cancel_returns_false PASSED [ 16%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_second_cancel_does_not_overwrite_signum PASSED [ 20%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_wait_returns_true_when_already_cancelled PASSED [ 24%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_wait_times_out_when_not_cancelled PASSED [ 28%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_wait_unblocks_on_concurrent_cancel PASSED [ 32%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_exit_interrupted_constant_value PASSED [ 36%]
+tests/cli/eval/test_signal_handling.py::TestCancellationToken::test_default_interrupt_signals_covers_sigint_sigterm PASSED [ 40%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_install_and_restore_round_trip PASSED [ 44%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_handler_sets_cancellation_token PASSED [ 48%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_on_signal_callback_invoked PASSED [ 52%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_on_signal_callback_failure_is_swallowed PASSED [ 56%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_install_twice_is_idempotent PASSED [ 60%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_restore_without_install_is_noop PASSED [ 64%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_empty_signals_rejected PASSED [ 68%]
+tests/cli/eval/test_signal_handling.py::TestSignalHandlerInstaller::test_main_thread_guard PASSED [ 72%]
+tests/cli/eval/test_signal_handling.py::test_pre_cancelled_token_returns_interrupted_without_spawn PASSED [ 76%]
+tests/cli/eval/test_signal_handling.py::test_keyboard_interrupt_with_token_returns_interrupted PASSED [ 80%]
+tests/cli/eval/test_signal_handling.py::test_keyboard_interrupt_without_token_propagates PASSED [ 84%]
+tests/cli/eval/test_signal_handling.py::test_timeout_invokes_executor_cancel PASSED [ 88%]
+tests/cli/eval/test_signal_handling.py::test_timeout_swallows_cancel_failure PASSED [ 92%]
+tests/cli/eval/test_signal_handling.py::test_executor_without_cancel_logs_skipped PASSED [ 96%]
+tests/cli/eval/test_signal_handling.py::test_pty_driver_terminate_kills_real_subprocess PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/cli/eval/test_signal_handling.py::test_pty_driver_terminate_kills_real_subprocess
+  /config/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/pty.py:95: DeprecationWarning: This process (pid=4157577) is multi-threaded, use of forkpty() may lead to deadlocks in the child.
+    pid, fd = os.forkpty()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 25 passed, 1 warning in 0.61s =========================

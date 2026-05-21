@@ -88,6 +88,19 @@ repos:
       - id: shellcheck
         args: ['--severity=warning']
 
+  # AC11 / R-017 / T01.20 — source-of-truth discipline gate
+  # Rejects commits that edit `.claude/` without a matching `src/superclaude/`
+  # change (or vice versa). Triggers only when files in the synced scope change,
+  # then runs `make verify-sync`. See `.dev/releases/current/cliEval/artifacts/D-0017/spec.md`.
+  - repo: local
+    hooks:
+      - id: verify-sync
+        name: Verify src/superclaude/ ↔ .claude/ sync (AC11)
+        entry: make verify-sync
+        language: system
+        pass_filenames: false
+        files: '^(src/superclaude/(skills|agents|commands|hooks)|\.claude/(skills|agents|commands|hooks))/'
+
 # Global settings
 default_stages: [commit]
 fail_fast: false

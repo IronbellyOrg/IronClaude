@@ -1,0 +1,24 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 6 items
+
+tests/cli/eval/test_retention_policy.py::test_retention_doc_exists PASSED [ 16%]
+tests/cli/eval/test_retention_policy.py::test_retention_doc_covers_four_pillars PASSED [ 33%]
+tests/cli/eval/test_retention_policy.py::test_retention_doc_quotes_advice_constant_verbatim PASSED [ 50%]
+tests/cli/eval/test_retention_policy.py::test_retention_advice_constant_shape PASSED [ 66%]
+tests/cli/eval/test_retention_policy.py::test_cli_emits_retention_advice_on_disk_budget_breach SKIPPEDhe end of the run-loop closure. The
+doc + constant + advice-shape assertions in this module run today.)      [ 83%]
+tests/cli/eval/test_retention_policy.py::test_keep_home_true_preserves_per_eval_homes_on_pass SKIPPEDec', '_compute_run_stats',
+'RUN_CLEAN_EXIT_CODE', 'RUN_FAILURES_EXIT_CODE',
+'RUN_INTERRUPTED_EXIT_CODE']. The --keep-home True end-to-end retention
+test traverses the run-loop closure; the policy-doc / constant / CLI-
+stderr pins this module also lands run today.)                           [100%]
+
+========================= 4 passed, 2 skipped in 0.17s =========================

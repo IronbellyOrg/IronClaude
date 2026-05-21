@@ -1,0 +1,35 @@
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 27 items
+
+tests/cli/eval/test_expect_primitives.py::test_primitive_names_matches_attribute_surface PASSED [  3%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[file] PASSED [  7%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[jsonl] PASSED [ 11%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[settings_json] PASSED [ 14%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[exit_code] PASSED [ 18%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[stderr] PASSED [ 22%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[stdout] PASSED [ 25%]
+tests/cli/eval/test_expect_primitives.py::test_primitive_construction_does_not_raise_notimplemented[duration] PASSED [ 29%]
+tests/cli/eval/test_expect_primitives.py::test_file_passes_when_content_matches PASSED [ 33%]
+tests/cli/eval/test_expect_primitives.py::test_file_fails_when_substring_missing PASSED [ 37%]
+tests/cli/eval/test_expect_primitives.py::test_jsonl_passes_with_line_count PASSED [ 40%]
+tests/cli/eval/test_expect_primitives.py::test_jsonl_assert_any_finds_matching_row PASSED [ 44%]
+tests/cli/eval/test_expect_primitives.py::test_settings_json_passes_on_key_equals PASSED [ 48%]
+tests/cli/eval/test_expect_primitives.py::test_settings_json_exists_flag PASSED [ 51%]
+tests/cli/eval/test_expect_primitives.py::test_exit_code_default_passes_on_zero PASSED [ 55%]
+tests/cli/eval/test_expect_primitives.py::test_exit_code_fails_on_mismatch PASSED [ 59%]
+tests/cli/eval/test_expect_primitives.py::test_exit_code_in_set_passes PASSED [ 62%]
+tests/cli/eval/test_expect_primitives.py::test_exit_code_rejects_equals_and_in_set_together PASSED [ 66%]
+tests/cli/eval/test_expect_primitives.py::test_stdout_predicate PASSED   [ 70%]
+tests/cli/eval/test_expect_primitives.py::test_stderr_predicate PASSED   [ 74%]
+tests/cli/eval/test_expect_primitives.py::test_duration_informational_passes PASSED [ 77%]
+tests/cli/eval/test_expect_primitives.py::test_duration_max_sec_fails_over_budget PASSED [ 81%]
+tests/cli/eval/test_expect_primitives.py::test_from_mapping_equivalent_to_programmatic_exit_code PASSED [ 85%]
+tests/cli/eval/test_expect_primitives.py::test_from_mapping_empty_value_invokes_with_defaults PASSED [ 88%]
+tests/cli/eval/test_expect_primitives.py::test_from_mapping_rejects_unknown_primitive PASSED [ 92%]
+tests/cli/eval/test_expect_primitives.py::test_from_mapping_rejects_multi_key_mapping PASSED [ 96%]
+tests/cli/eval/test_expect_primitives.py::test_from_mapping_threads_kwargs_to_file_primitive PASSED [100%]
+
+============================== 27 passed in 0.14s ==============================

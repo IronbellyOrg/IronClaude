@@ -1,0 +1,29 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E7
+title: PreToolUse Write matcher fires
+category: hook-lifecycle
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: Use the Write tool to create a file named written.txt under the current
+    working directory with the single line 'hello'.
+- prompt: /quit
+expects:
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"type":"pre_edit"'
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"matcher":"Write"'
+- file:
+    path: written.txt
+    exists: true
+- exit_code:
+    equals: 0
+no_pty: skip

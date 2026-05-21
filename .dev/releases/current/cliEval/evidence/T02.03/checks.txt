@@ -1,0 +1,33 @@
+=== T02.03 mechanical checks ===
+date: 2026-05-20T07:25:00Z
+
+--- check 1: SHA pin present in PROVENANCE.md ---
+cmd: grep -c '61a46870e38710c7cfc95f00cefbf0499111aa5f' src/superclaude/cli/eval/pty/PROVENANCE.md
+2
+
+--- check 2: 'Quarterly' cadence in PROVENANCE.md ---
+cmd: grep -c 'Quarterly' src/superclaude/cli/eval/pty/PROVENANCE.md
+1
+
+--- check 3: RyanW named in PROVENANCE.md ---
+cmd: grep -c 'RyanW' src/superclaude/cli/eval/pty/PROVENANCE.md
+2
+
+--- check 4: RyanW named in CHECKLIST.md ---
+cmd: grep -c 'RyanW' src/superclaude/cli/eval/pty/CHECKLIST.md
+1
+
+--- check 5: CHECKLIST.md non-empty ---
+cmd: wc -l src/superclaude/cli/eval/pty/CHECKLIST.md
+97 src/superclaude/cli/eval/pty/CHECKLIST.md
+
+--- check 6: PROVENANCE.md non-empty ---
+cmd: wc -l src/superclaude/cli/eval/pty/PROVENANCE.md
+85 src/superclaude/cli/eval/pty/PROVENANCE.md
+
+--- check 7: directory listing ---
+total 24
+drwxr-xr-x 2 abc abc 4096 May 20 07:23 .
+drwxr-xr-x 5 abc abc 4096 May 20 07:22 ..
+-rw-r--r-- 1 abc abc 4970 May 20 07:23 CHECKLIST.md
+-rw-r--r-- 1 abc abc 4162 May 20 07:23 PROVENANCE.md

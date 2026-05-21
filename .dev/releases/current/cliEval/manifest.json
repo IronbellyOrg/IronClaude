@@ -1,0 +1,219 @@
+{
+  "generated_at": "2026-05-21T00:31:43.831779+00:00",
+  "summary": {
+    "total": 26,
+    "found": 26,
+    "missing": 0,
+    "recovered": 0
+  },
+  "entries": [
+    {
+      "phase": 1,
+      "name": "Phase 1 / Tasks T01.01-T01.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P01-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 1,
+      "name": "Phase 1 / Tasks T01.07-T01.11",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P01-T07-T11.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 1,
+      "name": "Phase 1 / Tasks T01.13-T01.17",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P01-T13-T17.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 1,
+      "name": "Phase 1 / Tasks T01.19-T01.23",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P01-T19-T23.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 1,
+      "name": "End of Phase 1",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P01-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "Phase 2 / Tasks T02.01-T02.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P02-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "Phase 2 / Tasks T02.07-T02.11",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P02-T07-T11.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "Phase 2 / Tasks T02.13-T02.17",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P02-T13-T17.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "Phase 2 / Tasks T02.19-T02.23",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P02-T19-T23.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "End of Phase 2",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P02-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "Phase 3 / Tasks T03.01-T03.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P03-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "Phase 3 / Tasks T03.07-T03.11",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P03-T07-T11.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "Phase 3 / Tasks T03.13-T03.17",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P03-T13-T17.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "End of Phase 3",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P03-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "Phase 4 / Tasks T04.01-T04.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P04-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "Phase 4 / Tasks T04.07-T04.11",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P04-T07-T11.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "Phase 4 / Tasks T04.13-T04.17",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P04-T13-T17.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "End of Phase 4",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P04-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "Phase 5 / Tasks T05.01-T05.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P05-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "Phase 5 / Tasks T05.07-T05.11",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P05-T07-T11.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "Phase 5 / Tasks T05.13-T05.17",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P05-T13-T17.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "Phase 5 / Tasks T05.19-T05.23",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P05-T19-T23.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "End of Phase 5",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P05-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 6,
+      "name": "Phase 6 / Tasks T06.01-T06.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P06-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 6,
+      "name": "Phase 6 / Tasks T06.07-T06.11",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P06-T07-T11.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 6,
+      "name": "End of Phase 6",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/cliEval/checkpoints/CP-P06-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    }
+  ]
+}

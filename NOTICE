@@ -1,0 +1,30 @@
+IronClaude / SuperClaude Framework
+Copyright (c) 2024 SuperClaude Framework Contributors
+
+This product includes software developed by third parties as listed below.
+The source code of this project is licensed under the MIT License (see
+LICENSE at the repository root).
+
+==============================================================================
+Third-party components
+==============================================================================
+
+1. ptytest (vendored fork)
+   -----------------------
+   Upstream:  https://github.com/brandon-fryslie/ptytest
+   License:   MIT License
+   Location:  src/superclaude/cli/eval/pty/
+
+   A fork of `brandon-fryslie/ptytest` is vendored under
+   `src/superclaude/cli/eval/pty/` and used as the PTY/pexpect driver layer for
+   the CLI evaluation harness (`superclaude eval`). The upstream MIT LICENSE
+   is retained verbatim at `src/superclaude/cli/eval/pty/LICENSE`, and
+   `src/superclaude/cli/eval/pty/PROVENANCE.md` records the fork SHA,
+   vendoring date, and the changes made relative to upstream.
+
+   The MIT License terms that apply to the vendored ptytest sources are
+   reproduced at the location named above. By including those sources in
+   this distribution, the IronClaude project preserves the original
+   copyright notice and permission notice as required by the MIT License.
+
+==============================================================================

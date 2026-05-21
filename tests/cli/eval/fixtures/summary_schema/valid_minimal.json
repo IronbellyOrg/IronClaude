@@ -1,0 +1,26 @@
+{
+  "run_id": "run-min",
+  "started_at": "2026-05-20T12:00:00Z",
+  "finished_at": "2026-05-20T12:00:01Z",
+  "duration_sec": 1.0,
+  "suite": "tests/fixtures/min.yaml",
+  "manifest_version": "1.0",
+  "parallel": 1,
+  "counts": {
+    "manifest_n": 0,
+    "expanded_n_prime": 0,
+    "kept_k": 0,
+    "skipped_s": 0,
+    "kept_plus_skipped_equals_n_prime": true
+  },
+  "totals": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "errored": 0,
+    "interrupted": 0,
+    "timeout": 0
+  },
+  "evals": [],
+  "artifacts": {}
+}

@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 25 items
+
+tests/cli/eval/test_reporter.py::test_reporter_exposes_four_emitter_methods PASSED [  4%]
+tests/cli/eval/test_reporter.py::test_aggregated_run_report_is_reporter_alias PASSED [  8%]
+tests/cli/eval/test_reporter.py::test_to_markdown_raises_on_mismatch PASSED [ 12%]
+tests/cli/eval/test_reporter.py::test_to_yaml_raises_on_mismatch PASSED  [ 16%]
+tests/cli/eval/test_reporter.py::test_to_json_raises_on_mismatch PASSED  [ 20%]
+tests/cli/eval/test_reporter.py::test_to_junit_raises_on_mismatch PASSED [ 24%]
+tests/cli/eval/test_reporter.py::test_write_raises_before_any_file_is_written PASSED [ 28%]
+tests/cli/eval/test_reporter.py::test_reporter_contract_violation_exit_code_is_two PASSED [ 32%]
+tests/cli/eval/test_reporter.py::test_to_markdown_is_byte_stable PASSED  [ 36%]
+tests/cli/eval/test_reporter.py::test_to_yaml_is_byte_stable PASSED      [ 40%]
+tests/cli/eval/test_reporter.py::test_to_json_is_byte_stable PASSED      [ 44%]
+tests/cli/eval/test_reporter.py::test_to_junit_is_byte_stable PASSED     [ 48%]
+tests/cli/eval/test_reporter.py::test_to_yaml_round_trips_to_summary_dict PASSED [ 52%]
+tests/cli/eval/test_reporter.py::test_render_summary_yaml_module_function_matches_method PASSED [ 56%]
+tests/cli/eval/test_reporter.py::test_to_yaml_preserves_dm_004_field_order PASSED [ 60%]
+tests/cli/eval/test_reporter.py::test_write_default_skips_junit_xml PASSED [ 64%]
+tests/cli/eval/test_reporter.py::test_write_emits_junit_when_flag_set PASSED [ 68%]
+tests/cli/eval/test_reporter.py::test_to_junit_callable_regardless_of_flag PASSED [ 72%]
+tests/cli/eval/test_reporter.py::test_to_markdown_matches_module_renderer PASSED [ 76%]
+tests/cli/eval/test_reporter.py::test_to_json_matches_module_renderer PASSED [ 80%]
+tests/cli/eval/test_reporter.py::test_to_junit_matches_module_renderer PASSED [ 84%]
+tests/cli/eval/test_reporter.py::test_write_returns_artifact_path_mapping PASSED [ 88%]
+tests/cli/eval/test_reporter.py::test_write_creates_missing_output_dir PASSED [ 92%]
+tests/cli/eval/test_reporter.py::test_reporter_is_frozen PASSED          [ 96%]
+tests/cli/eval/test_reporter.py::test_to_yaml_handles_partial_summary PASSED [100%]
+
+============================== 25 passed in 0.17s ==============================
