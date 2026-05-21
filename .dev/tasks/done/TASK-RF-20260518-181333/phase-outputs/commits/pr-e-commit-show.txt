@@ -1,0 +1,19 @@
+commit a72b0307cfba96ebb5714623a2bac5334347ffde
+Author: RyanW <ryan@ironbelly.com>
+Date:   Mon May 18 21:40:31 2026 +0000
+
+    chore(releases): refresh task-builder-merge execution log + phase-4 output
+
+    Refreshes the execution log (jsonl + markdown render) and phase-4 sprint
+    output for the task-builder-merge release to reflect all 47 landings
+    (D-0053..D-0100) including the MIG-001..MIG-006 mitigation cycles. This
+    PR is the trailing partner to PR-C (D-0053..D-0063 evidence) and PR-D
+    (D-0068..D-0100 evidence); the log refresh consolidates the running log
+    of all evidence batches into a single coherent record.
+
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .../current/task-builder-merge/execution-log.jsonl |   6 +
+ .../current/task-builder-merge/execution-log.md    |   7 +
+ .../task-builder-merge/results/phase-4-output.txt  | 172 +++++++--------------
+ 3 files changed, 69 insertions(+), 116 deletions(-)

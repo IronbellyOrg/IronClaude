@@ -1,0 +1,81 @@
+{
+  "run_id": "snapshot-cli-module-with_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (11765 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "11765 bytes (min 2000)"
+    },
+    {
+      "text": "report-mentions-snapshot-target",
+      "passed": true,
+      "evidence": "matched /src/superclaude/cli/ \u2192 'src/superclaude/cli'"
+    },
+    {
+      "text": "uses-severity-tiers-exact",
+      "passed": true,
+      "evidence": "all 2 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '10 finding'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.py:\\d+/ \u2192 'src/superclaude/cli/install_mcp.py:140'"
+    },
+    {
+      "text": "cited-files-exist-in-cli-subtree",
+      "passed": true,
+      "evidence": "17/17 citations validated (100%)"
+    },
+    {
+      "text": "has-cross-cutting-observations",
+      "passed": true,
+      "evidence": "matched /(?i)cross.?cutting/ \u2192 'cross-cutting'"
+    },
+    {
+      "text": "focus-areas-honored",
+      "passed": true,
+      "evidence": "all 1 patterns matched"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "present (3675 bytes)"
+    },
+    {
+      "text": "skill-auggie-artifacts-present",
+      "passed": true,
+      "evidence": "found: auggie-raw-1.json"
+    },
+    {
+      "text": "audit-log-records-grounding",
+      "passed": true,
+      "evidence": "matched /(?i)ground/ \u2192 'Ground'"
+    },
+    {
+      "text": "skill-machine-summary-header",
+      "passed": true,
+      "evidence": "matched /SC:AUGGIE-REVIEW:SUMMARY/ \u2192 'SC:AUGGIE-REVIEW:SUMMARY'"
+    },
+    {
+      "text": "audit-log-no-approve-flag",
+      "passed": true,
+      "evidence": "none of 2 forbidden patterns found"
+    }
+  ],
+  "summary": {
+    "passed": 14,
+    "failed": 0,
+    "total": 14,
+    "pass_rate": 1.0
+  }
+}

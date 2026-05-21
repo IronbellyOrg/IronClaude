@@ -1,0 +1,156 @@
+Based on my investigation of the CLI subtree, here is the JSON review report:
+
+```json
+{
+  "findings": [
+    {
+      "title": "Shell injection risk via shell=True with user-controlled environment",
+      "file": "src/superclaude/cli/install_mcp.py",
+      "line": 140,
+      "line_range": "136-142",
+      "severity": "high",
+      "category": "security",
+      "evidence": "cmd_str = \" \".join(shlex.quote(str(arg)) for arg in cmd)\nreturn subprocess.run(cmd_str, shell=True, env=os.environ, executable=user_shell, **kwargs)",
+      "why": "_run_command uses shell=True on non-Windows platforms and passes os.environ directly. Although shlex.quote is used per-arg, the shell invocation loses argv-form safety, inherits entire environment (LD_PRELOAD, PYTHONPATH), and justifies this only to \"support aliases\" — a feature installers should not need.",
+      "recommendation": "Remove shell=True path entirely. Use subprocess.run(cmd, **kwargs) with argv list on all platforms. If aliases are truly needed, document that users should configure PATH instead of relying on shell expansion."
+    },
+    {
+      "title": "sys.path.insert at module import time pollutes interpreter state",
+      "file": "src/superclaude/cli/main.py",
+      "line": 13,
+      "line_range": "12-13",
+      "severity": "medium",
+      "category": "anti-pattern",
+      "evidence": "sys.path.insert(0, str(Path(__file__).parent.parent.parent))",
+      "why": "Modifying sys.path at import time is a packaging anti-pattern. This side effect happens unconditionally when main.py is imported (e.g., by tests, docs, or other tools), polluting the interpreter's module search path. Proper packaging should make this unnecessary.",
+      "recommendation": "Remove sys.path.insert. If package discovery fails, fix the packaging configuration (pyproject.toml, MANIFEST.in) rather than patching sys.path at runtime."
+    },
+    {
+      "title": "Broad exception swallowing with bare pass in cleanup paths",
+      "file": "src/superclaude/cli/sprint/executor.py",
+      "line": 1735,
+      "line_range": "1733-1745",
+      "severity": "medium",
+      "category": "anti-pattern",
+      "evidence": "try:\n    monitor.stop()\nexcept Exception:\n    pass",
+      "why": "Four consecutive bare 'except Exception: pass' blocks (monitor.stop, proc_manager.terminate, tui.stop, signal_handler.uninstall) silently swallow all errors. If cleanup fails (e.g., file descriptor leak, stuck thread), debugging is impossible because the failure is invisible.",
+      "recommendation": "Log exceptions at WARNING level before suppressing: 'except Exception as exc: logger.warning(\"Monitor cleanup failed: %s\", exc)'. This preserves cleanup safety while enabling post-mortem diagnosis."
+    },
+    {
+      "title": "God function: install_airis_gateway is 254 lines with 7+ responsibilities",
+      "file": "src/superclaude/cli/install_mcp.py",
+      "line": 167,
+      "line_range": "167-420",
+      "severity": "medium",
+      "category": "maintainability",
+      "evidence": "Function performs: directory creation, Docker checks, file downloads (2×), .env generation, container launch, health polling loop, Claude Code registration, error message composition — all in one 254-line function.",
+      "why": "Violates Single Responsibility Principle. Hard to test individual steps, hard to reuse logic (e.g., health check polling), and deeply nested conditionals make error paths hard to trace.",
+      "recommendation": "Extract 5-7 helper functions: _ensure_install_dir, _download_compose_file, _create_env_file, _start_containers, _wait_for_health, _register_gateway. Each returns (success, message) and install_airis_gateway becomes an orchestrator."
+    },
+    {
+      "title": "God function: _merge_settings is 183 lines with nested collision detection",
+      "file": "src/superclaude/cli/install_hooks.py",
+      "line": 233,
+      "line_range": "233-416",
+      "severity": "medium",
+      "category": "maintainability",
+      "evidence": "Function performs: JSON read/parse, schema validation, backup creation, target read, collision detection loop with 3 branches (skip/replace/add), atomic write, multi-part message construction — 183 lines.",
+      "why": "Collision detection logic (lines 335-395) is deeply nested inside the merge loop. Hard to unit test collision scenarios independently. Mixing I/O, validation, and business logic violates separation of concerns.",
+      "recommendation": "Extract _detect_collisions(existing_matchers, new_reg, force) -> CollisionAction enum. Extract _backup_settings(path) -> backup_path. Reduce _merge_settings to orchestration of smaller testable functions."
+    },
+    {
+      "title": "Duplicated file-copy boilerplate across 6 install_*.py modules",
+      "file": "src/superclaude/cli/install_core.py",
+      "line": 48,
+      "line_range": "48-59",
+      "severity": "medium",
+      "category": "maintainability",
+      "evidence": "for src_file in core_files:\n    dest_file = target_path / src_file.name\n    if dest_file.exists() and not force:\n        skipped.append(src_file.name)\n        continue\n    try:\n        shutil.copy2(src_file, dest_file)\n        installed.append(src_file.name)\n    except Exception as e:\n        failed.append(f\"{src_file.name}: {e}\")",
+      "why": "This exact pattern (check exists, copy, collect results) is repeated in install_core.py:48-59, install_commands.py:46-60, install_agents.py:47-59, install_hooks.py:207-223, install_templates.py:58-79. Changes to error handling or logging must be duplicated 6 times.",
+      "recommendation": "Create shared helper: def _copy_files(sources: list[tuple[Path, Path]], force: bool) -> InstallResult. Consolidate the exists/copy/except logic once and reuse across all installers."
+    },
+    {
+      "title": "Missing type hints on 5 critical public CLI entry points",
+      "file": "src/superclaude/cli/main.py",
+      "line": 46,
+      "line_range": "46-213",
+      "severity": "low",
+      "category": "quality",
+      "evidence": "def install(target: str, force: bool, list_only: bool):\n    ...\ndef mcp(servers, list_only, scope, dry_run):\n    ...",
+      "why": "Click decorators provide runtime validation, but missing return type hints (-> None) reduce IDE assistance and make it unclear that these functions use sys.exit(1) for errors instead of raising.",
+      "recommendation": "Add -> None to all @main.command() functions. Add -> NoReturn to any function that unconditionally calls sys.exit(). Improves maintainability and clarifies control flow."
+    },
+    {
+      "title": "Hardcoded path ~/.superclaude/airis-mcp-gateway without config override",
+      "file": "src/superclaude/cli/install_mcp.py",
+      "line": 194,
+      "line_range": "194-195",
+      "severity": "low",
+      "category": "architecture",
+      "evidence": "install_dir = Path.home() / \".superclaude\" / \"airis-mcp-gateway\"",
+      "why": "Gateway install location is hardcoded; users cannot relocate it (e.g., to a different disk or shared volume). Inconsistent with other installers that accept target_path parameter.",
+      "recommendation": "Add optional install_dir parameter to install_airis_gateway and install_mcp_servers. Default to ~/.superclaude/airis-mcp-gateway but allow override for flexibility."
+    },
+    {
+      "title": "Inconsistent lazy vs. eager import pattern for subcommands",
+      "file": "src/superclaude/cli/main.py",
+      "line": 400,
+      "line_range": "400-426",
+      "severity": "low",
+      "category": "architecture",
+      "evidence": "from superclaude.cli.sprint import sprint_group\nmain.add_command(sprint_group, name=\"sprint\")\nfrom superclaude.cli.roadmap import roadmap_group\n...",
+      "why": "Subcommand groups (sprint, roadmap, tasklist, prd, eval) are imported at module level, loading entire pipeline stack on every CLI invocation. This adds cold-start latency even for `superclaude --help`. Compare: install subcommand uses lazy imports (line 59-81).",
+      "recommendation": "Use click.LazyGroup or move all subcommand imports inside their @main.command() bodies. Reduces cold-start from ~500ms to <100ms for help/version commands."
+    },
+    {
+      "title": "env=os.environ instead of os.environ.copy() in subprocess calls",
+      "file": "src/superclaude/cli/install_mcp.py",
+      "line": 141,
+      "severity": "low",
+      "category": "anti-pattern",
+      "evidence": "return subprocess.run(cmd_str, shell=True, env=os.environ, executable=user_shell, **kwargs)",
+      "why": "Passing the live os.environ dict (not a copy) is a Python anti-pattern. Popen reads it once so it's technically safe, but other modules (pipeline/process.py:107) correctly do env = os.environ.copy(). Inconsistency leads to future bugs if env is modified before process start.",
+      "recommendation": "Change to env=os.environ.copy(). If specific vars must be dropped (e.g., sensitive vars in non-install contexts), the copy makes that explicit."
+    }
+  ],
+  "cross_cutting": [
+    {
+      "title": "No shared Step/Stage abstraction across 7 pipeline subpackages",
+      "files": [
+        "src/superclaude/cli/sprint",
+        "src/superclaude/cli/roadmap",
+        "src/superclaude/cli/tasklist",
+        "src/superclaude/cli/prd",
+        "src/superclaude/cli/cli_portify",
+        "src/superclaude/cli/cleanup_audit",
+        "src/superclaude/cli/pipeline"
+      ],
+      "category": "architecture",
+      "why": "Each subpackage (sprint, roadmap, prd, cli_portify, cleanup_audit, tasklist, eval) has invented its own executor/process/models pattern. Common elements (subprocess management, timeout, signal handling, turn budgets) are duplicated with slight variations. No shared base class or protocol unifies them.",
+      "recommendation": "Extract common pattern into cli/pipeline/base_executor.py with StepExecutor protocol. Shared concerns (signal handling, budget, subprocess lifecycle) go into base; domain logic stays in subpackages. Reduces duplication and makes new pipelines easier to add."
+    },
+    {
+      "title": "Layering violation: CLI depends on sibling user-facing packages it shouldn't import",
+      "files": [
+        "src/superclaude/cli/prd/executor.py",
+        "src/superclaude/cli/roadmap/executor.py"
+      ],
+      "category": "architecture",
+      "why": "NFR-PRD.7 (prd/executor.py:15) explicitly documents \"No imports from superclaude.cli.sprint or superclaude.cli.roadmap\" — evidence that cross-imports between CLI sibling packages have been a problem. This suggests the CLI layer is not cleanly separated from the orchestration layer.",
+      "recommendation": "Enforce one-way dependency: CLI (presentation) → core logic (domain). Shared logic should live in superclaude.core or superclaude.pipeline (already exists). Use import linting (e.g., import-linter with forbidden contracts) to prevent future violations."
+    },
+    {
+      "title": "Inconsistent error reporting: mix of print, click.echo, Rich, logging",
+      "files": [
+        "src/superclaude/cli/install_mcp.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/cli/prd/executor.py",
+        "src/superclaude/cli/sprint/debug_logger.py"
+      ],
+      "category": "quality",
+      "why": "install_mcp.py uses click.echo (lines 178-420), main.py uses click.echo (lines 89-390), sprint uses Rich TUI + debug_logger, prd uses DiagnosticCollector. No consistent pattern for user-facing errors vs. debug logs.",
+      "recommendation": "Standardize on Click for CLI output (already dominant) and Python logging for diagnostics. Deprecate direct print() calls. Document the convention in a CLI_STYLE.md guide."
+    }
+  ]
+}
+```

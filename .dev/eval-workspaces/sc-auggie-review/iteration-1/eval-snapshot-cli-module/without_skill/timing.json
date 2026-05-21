@@ -1,0 +1,7 @@
+{
+  "total_tokens": 128715,
+  "duration_ms": 265303,
+  "total_duration_seconds": 265.3,
+  "tool_uses": 50,
+  "agent_summary": "Findings: critical=1 high=6 medium=7 low=6 nit=4 (total=24). Files reviewed: 156"
+}

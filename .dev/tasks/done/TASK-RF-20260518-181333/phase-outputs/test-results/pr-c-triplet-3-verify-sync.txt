@@ -1,0 +1,3 @@
+
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+make: *** [Makefile:157: verify-sync] Error 1

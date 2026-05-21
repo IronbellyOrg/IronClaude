@@ -1,0 +1,25 @@
+FAILED tests/sprint/test_integration_lifecycle.py::TestFullPhaseLifecycle::test_phase_result_has_timing
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_sigint_sets_interrupted_outcome
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_genuine_failure_still_produces_halted
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_sigterm_also_produces_interrupted
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_partial_results_captured
+FAILED tests/sprint/test_multi_phase.py::TestThreePhaseHappyPath::test_three_phase_happy_path
+FAILED tests/sprint/test_multi_phase.py::TestHaltAtPhaseThree::test_halt_at_phase_three
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_isolation_dir_created_with_one_file_before_subprocess_launch
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_isolation_dir_removed_after_successful_phase
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_isolation_dir_removed_after_failed_phase
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_startup_orphan_cleanup_removes_stale_isolation_tree
+FAILED tests/sprint/test_phase8_halt_fix.py::TestPreliminaryResultIntegration::test_t003_exit_code_0_no_agent_file_yields_pass
+FAILED tests/sprint/test_phase8_halt_fix.py::TestPreliminaryResultIntegration::test_t004_non_zero_exit_write_preliminary_not_called
+FAILED tests/sprint/test_phase8_halt_fix.py::TestPreliminaryResultIntegration::test_t006_stale_halt_overwritten_yields_pass
+FAILED tests/sprint/test_regression_gaps.py::TestExecutorTimeoutPath::test_timeout_exit_code_produces_halted_sprint
+FAILED tests/sprint/test_tui_monitor.py::TestTUIUpdateCalledWithMonitorState::test_tui_update_called_with_monitor_state
+FAILED tests/sprint/test_tui_monitor.py::TestTUIExceptionNonFatal::test_tui_exception_non_fatal
+FAILED tests/sprint/test_tui_monitor.py::TestOutputMonitorLifecycle::test_output_monitor_lifecycle
+FAILED tests/sprint/test_tui_monitor.py::TestTmuxUpdateWithSessionName::test_tmux_update_with_session_name
+FAILED tests/sprint/test_tui_monitor.py::TestTmuxUpdateWithSessionName::test_tmux_not_called_without_session_name
+FAILED tests/sprint/test_watchdog.py::TestWatchdogKillAction::test_stall_kill_action
+FAILED tests/sprint/test_watchdog.py::TestWatchdogWarnAction::test_stall_warn_action
+FAILED tests/sprint/test_watchdog.py::TestWatchdogStallReset::test_stall_reset_on_resume
+ERROR tests/v3.3/test_zero_files_analyzed.py::TestZeroFilesAnalyzedFail::test_zero_files_analyzed_returns_fail
+= 63 failed, 5631 passed, 105 skipped, 22 warnings, 1 error in 181.77s (0:03:01) =

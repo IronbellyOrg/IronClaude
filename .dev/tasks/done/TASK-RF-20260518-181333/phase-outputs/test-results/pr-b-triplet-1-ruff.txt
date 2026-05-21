@@ -1,0 +1,624 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+E402 Module level import not at top of file
+   --> src/superclaude/cli/audit/dependency_graph.py:116:1
+    |
+116 | import os
+    | ^^^^^^^^^
+117 | import re
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/audit/dependency_graph.py:117:1
+    |
+116 | import os
+117 | import re
+    | ^^^^^^^^^
+    |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:26:1
+   |
+24 | _T = TypeVar("_T")
+25 |
+26 | import yaml
+   | ^^^^^^^^^^^
+27 |
+28 | from superclaude.cli.cli_portify.contract import (
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:28:1
+   |
+26 |   import yaml
+27 |
+28 | / from superclaude.cli.cli_portify.contract import (
+29 | |     StepTiming,
+30 | |     build_dry_run_contract,
+31 | |     build_failed_contract,
+32 | |     build_partial_contract,
+33 | |     build_success_contract,
+34 | | )
+   | |_^
+35 |   from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+36 |   from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:35:1
+   |
+33 |     build_success_contract,
+34 | )
+35 | from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+36 | from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+37 | from superclaude.cli.cli_portify.gates import (
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:36:1
+   |
+34 | )
+35 | from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+36 | from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+37 | from superclaude.cli.cli_portify.gates import (
+38 |     GATE_MIN_ENFORCE,
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:37:1
+   |
+35 |   from superclaude.cli.cli_portify.diagnostics import DiagnosticsCollector
+36 |   from superclaude.cli.cli_portify.failures import FAILURE_HANDLERS, has_handler
+37 | / from superclaude.cli.cli_portify.gates import (
+38 | |     GATE_MIN_ENFORCE,
+39 | |     GateFailure,
+40 | |     get_gate_criteria,
+41 | | )
+   | |_^
+42 |   from superclaude.cli.cli_portify.logging_ import ExecutionLog
+43 |   from superclaude.cli.cli_portify.models import (
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:42:1
+   |
+40 |     get_gate_criteria,
+41 | )
+42 | from superclaude.cli.cli_portify.logging_ import ExecutionLog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 | from superclaude.cli.cli_portify.models import (
+44 |     INVALID_PATH,
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:43:1
+   |
+41 |   )
+42 |   from superclaude.cli.cli_portify.logging_ import ExecutionLog
+43 | / from superclaude.cli.cli_portify.models import (
+44 | |     INVALID_PATH,
+45 | |     GateEvaluation,
+46 | |     PortifyConfig,
+47 | |     PortifyGateMode,
+48 | |     PortifyOutcome,
+49 | |     PortifyPhaseType,
+50 | |     PortifyStatus,
+51 | |     PortifyStep,
+52 | |     PortifyStepResult,
+53 | |     PortifyValidationError,
+54 | |     TurnLedger,
+55 | | )
+   | |_^
+56 |   from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+57 |   from superclaude.cli.cli_portify.steps import get_step_dispatch
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:56:1
+   |
+54 |     TurnLedger,
+55 | )
+56 | from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:57:1
+   |
+55 | )
+56 | from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+59 | from superclaude.cli.pipeline.gates import gate_passed
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:58:1
+   |
+56 | from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+59 | from superclaude.cli.pipeline.gates import gate_passed
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/executor.py:59:1
+   |
+57 | from superclaude.cli.cli_portify.steps import get_step_dispatch
+58 | from superclaude.cli.cli_portify.tui import PortifyTUI
+59 | from superclaude.cli.pipeline.gates import gate_passed
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+60 |
+61 | # ---------------------------------------------------------------------------
+   |
+
+E402 Module level import not at top of file
+  --> src/superclaude/cli/cli_portify/steps/validate_config.py:43:1
+   |
+42 | # Steps that support --start resume — canonical source is resume.py
+43 | from ..resume import get_resumable_step_names
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+44 |
+45 | _RESUMABLE_STEPS = get_resumable_step_names()
+   |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:369:1
+    |
+369 | from superclaude.cli.sprint import sprint_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+370 |
+371 | main.add_command(sprint_group, name="sprint")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:373:1
+    |
+371 | main.add_command(sprint_group, name="sprint")
+372 |
+373 | from superclaude.cli.roadmap import roadmap_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+374 |
+375 | main.add_command(roadmap_group, name="roadmap")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:377:1
+    |
+375 | main.add_command(roadmap_group, name="roadmap")
+376 |
+377 | from superclaude.cli.cleanup_audit import cleanup_audit_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+378 |
+379 | main.add_command(cleanup_audit_group, name="cleanup-audit")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:381:1
+    |
+379 | main.add_command(cleanup_audit_group, name="cleanup-audit")
+380 |
+381 | from superclaude.cli.tasklist import tasklist_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+382 |
+383 | main.add_command(tasklist_group, name="tasklist")
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:385:1
+    |
+383 | main.add_command(tasklist_group, name="tasklist")
+384 |
+385 | from superclaude.cli.cli_portify.commands import cli_portify_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+386 |
+387 | main.add_command(cli_portify_group)
+    |
+
+E402 Module level import not at top of file
+   --> src/superclaude/cli/main.py:389:1
+    |
+387 | main.add_command(cli_portify_group)
+388 |
+389 | from superclaude.cli.prd.commands import prd_group
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+390 |
+391 | main.add_command(prd_group, name="prd")
+    |
+
+F821 Undefined name `Callable`
+   --> src/superclaude/cli/roadmap/convergence.py:436:20
+    |
+434 |     registry: DeviationRegistry,
+435 |     ledger,
+436 |     run_checkers: "Callable",
+    |                    ^^^^^^^^
+437 |     run_remediation: "Callable",
+438 |     handle_regression_fn: "Callable | None" = None,
+    |
+
+F821 Undefined name `Callable`
+   --> src/superclaude/cli/roadmap/convergence.py:437:23
+    |
+435 |     ledger,
+436 |     run_checkers: "Callable",
+437 |     run_remediation: "Callable",
+    |                       ^^^^^^^^
+438 |     handle_regression_fn: "Callable | None" = None,
+439 |     max_runs: int = 3,
+    |
+
+F821 Undefined name `Callable`
+   --> src/superclaude/cli/roadmap/convergence.py:438:28
+    |
+436 |     run_checkers: "Callable",
+437 |     run_remediation: "Callable",
+438 |     handle_regression_fn: "Callable | None" = None,
+    |                            ^^^^^^^^
+439 |     max_runs: int = 3,
+440 |     spec_path: Path | None = None,
+    |
+
+F841 Local variable `current_item_line` is assigned to but never used
+  --> tests/audit/test_evidence_bound_tb_add_8.py:97:13
+   |
+95 |         if m_item:
+96 |             current_item_id = m_item.group(1)
+97 |             current_item_line = idx
+   |             ^^^^^^^^^^^^^^^^^
+98 |             continue
+99 |         m_ctx = context_re.match(raw)
+   |
+help: Remove assignment to unused variable `current_item_line`
+
+N999 Invalid module name: 'test_invariant_preservation_NFR_6_through_10'
+--> tests/audit/test_invariant_preservation_NFR_6_through_10.py:1:1
+
+N801 Class name `TestInvariant1_SelfContainedItem` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:177:7
+    |
+177 | class TestInvariant1_SelfContainedItem:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+178 |     """NFR-CONV.6 — Q-DM-1 five-field schema preservation."""
+    |
+
+N801 Class name `TestInvariant2_EvidenceBoundItem` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:222:7
+    |
+222 | class TestInvariant2_EvidenceBoundItem:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+223 |     """NFR-CONV.7 — per-item Context evidence binding."""
+    |
+
+N801 Class name `TestInvariant3_PersistentArtifact` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:265:7
+    |
+265 | class TestInvariant3_PersistentArtifact:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+266 |     """NFR-CONV.8 — `.dev/tasks/<task-id>/` directory layout preservation."""
+    |
+
+N801 Class name `TestInvariant4_ZeroTrustQA` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:350:7
+    |
+350 | class TestInvariant4_ZeroTrustQA:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+351 |     """NFR-CONV.9 — rf-qa.md PASS/FAIL definitions + 1-LOW gate."""
+    |
+
+N801 Class name `TestInvariant5_ParallelResearch` should use CapWords convention
+   --> tests/audit/test_invariant_preservation_NFR_6_through_10.py:391:7
+    |
+391 | class TestInvariant5_ParallelResearch:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+392 |     """NFR-CONV.10 — cohort never serialises behind synthesis."""
+    |
+
+N999 Invalid module name: 'test_monotonicity_halt_F_5_5_5'
+--> tests/audit/test_monotonicity_halt_F_5_5_5.py:1:1
+
+N801 Class name `TestPartA_OneLowFindingFailsGate` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:221:7
+    |
+221 | class TestPartA_OneLowFindingFailsGate:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+222 |     """1-LOW (MINOR) finding fixture FAILS the rf-qa research-completeness
+223 |     gate per rf-qa.md:145."""
+    |
+
+N801 Class name `TestPartA_ZeroFindingsBaselinePasses` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:256:7
+    |
+256 | class TestPartA_ZeroFindingsBaselinePasses:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+257 |     """Baseline twin: the same checklist surface with zero gaps PASSES
+258 |     the gate. Anchors the positive arm so the FAIL above isn't a
+    |
+
+N801 Class name `TestPartB_InheritedVerdictWithoutSemanticIsInflation` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:315:7
+    |
+315 | class TestPartB_InheritedVerdictWithoutSemanticIsInflation:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+316 |     """The negative-half fixture: rf-qa-qualitative report claims
+317 |     VERIFIED for items but ships zero category-(b) semantic checks.
+    |
+
+N801 Class name `TestPartB_InheritedVerdictWithSemanticIsClean` should use CapWords convention
+   --> tests/audit/test_nfr_conv_9_zero_trust.py:362:7
+    |
+362 | class TestPartB_InheritedVerdictWithSemanticIsClean:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+363 |     """The positive-half fixture: rf-qa-qualitative report claims
+364 |     VERIFIED for the same items, each backed by a category-(b)
+    |
+
+N999 Invalid module name: 'test_sequencing_PR06_before_PR04'
+--> tests/audit/test_sequencing_PR06_before_PR04.py:1:1
+
+E402 Module level import not at top of file
+   --> tests/cli_portify/test_failures.py:377:1
+    |
+377 | / from superclaude.cli.cli_portify.failures import (
+378 | |     STEP_0_TIMEOUT_SECONDS,
+379 | |     STEP_1_TIMEOUT_SECONDS,
+380 | | )
+    | |_^
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:343:1
+    |
+341 | # ---------------------------------------------------------------------------
+342 |
+343 | from unittest.mock import patch
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+344 |
+345 | from superclaude.cli.sprint.executor import (
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:345:1
+    |
+343 |   from unittest.mock import patch
+344 |
+345 | / from superclaude.cli.sprint.executor import (
+346 | |     execute_phase_tasks,
+347 | |     run_post_task_anti_instinct_hook,
+348 | | )
+    | |_^
+349 |   from superclaude.cli.sprint.models import (
+350 |       GateOutcome,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:349:1
+    |
+347 |       run_post_task_anti_instinct_hook,
+348 |   )
+349 | / from superclaude.cli.sprint.models import (
+350 | |     GateOutcome,
+351 | |     Phase,
+352 | |     ShadowGateMetrics,
+353 | | )
+    | |_^
+354 |   from superclaude.cli.sprint.models import (
+355 |       TaskEntry as SprintTaskEntry,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:354:1
+    |
+352 |       ShadowGateMetrics,
+353 |   )
+354 | / from superclaude.cli.sprint.models import (
+355 | |     TaskEntry as SprintTaskEntry,
+356 | | )
+    | |_^
+357 |   from superclaude.cli.sprint.models import (
+358 |       TaskResult as SprintTaskResult,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:357:1
+    |
+355 |       TaskEntry as SprintTaskEntry,
+356 |   )
+357 | / from superclaude.cli.sprint.models import (
+358 | |     TaskResult as SprintTaskResult,
+359 | | )
+    | |_^
+360 |   from superclaude.cli.sprint.models import (
+361 |       TaskStatus as SprintTaskStatus,
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:360:1
+    |
+358 |       TaskResult as SprintTaskResult,
+359 |   )
+360 | / from superclaude.cli.sprint.models import (
+361 | |     TaskStatus as SprintTaskStatus,
+362 | | )
+    | |_^
+    |
+
+E402 Module level import not at top of file
+   --> tests/pipeline/test_full_flow.py:472:1
+    |
+470 | # ---------------------------------------------------------------------------
+471 |
+472 | from superclaude.cli.sprint.executor import run_post_task_wiring_hook
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/roadmap/test_inline_fallback.py:141:17
+    |
+139 |             if executor_name == "validate_executor":
+140 |                 run_fn = module.validate_run_step
+141 |                 cancel_check = lambda: False
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+142 |             else:
+143 |                 run_fn = module.tasklist_run_step
+    |
+help: Rewrite `cancel_check` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> tests/roadmap/test_inline_fallback.py:144:17
+    |
+142 |             else:
+143 |                 run_fn = module.tasklist_run_step
+144 |                 cancel_check = lambda: False
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+145 |
+146 |             with patch(f"{module_path}.ClaudeProcess") as mock_proc:
+    |
+help: Rewrite `cancel_check` as a `def`
+
+E402 Module level import not at top of file
+   --> tests/roadmap/test_models.py:206:1
+    |
+204 | # ═══════════════════════════════════════════════════════════════
+205 |
+206 | from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> tests/sprint/diagnostic/test_instrumentation.py:45:5
+   |
+43 |         config = _make_config(tmp_path)
+44 |     root_logger = setup_debug_logger(config)
+45 |     read_fn = lambda: config.debug_log_path.read_text()
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+46 |
+47 |     def cleanup():
+   |
+help: Rewrite `read_fn` as a `def`
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_0.py:13:1
+   |
+11 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l0]
+12 |
+13 | / from superclaude.cli.sprint.debug_logger import (
+14 | |     DEBUG_LOG_VERSION,
+15 | | )
+   | |_^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_1.py:12:1
+   |
+10 | pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l1]
+11 |
+12 | from superclaude.cli.sprint.debug_logger import DEBUG_LOG_VERSION
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_2.py:12:1
+   |
+10 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l2]
+11 |
+12 | / from superclaude.cli.sprint.diagnostics import (
+13 | |     DiagnosticCollector,
+14 | |     FailureCategory,
+15 | |     FailureClassifier,
+16 | |     ReportGenerator,
+17 | | )
+   | |_^
+18 |   from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_2.py:18:1
+   |
+16 |     ReportGenerator,
+17 | )
+18 | from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_3.py:13:1
+   |
+11 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l3]
+12 |
+13 | / from superclaude.cli.sprint.diagnostics import (
+14 | |     DiagnosticCollector,
+15 | |     FailureCategory,
+16 | |     FailureClassifier,
+17 | |     ReportGenerator,
+18 | | )
+   | |_^
+19 |   from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_level_3.py:19:1
+   |
+17 |     ReportGenerator,
+18 | )
+19 | from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_negative.py:16:1
+   |
+14 |   pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_negative]
+15 |
+16 | / from superclaude.cli.sprint.diagnostics import (
+17 | |     DiagnosticBundle,
+18 | |     DiagnosticCollector,
+19 | |     FailureCategory,
+20 | |     FailureClassifier,
+21 | |     ReportGenerator,
+22 | | )
+   | |_^
+23 |   from superclaude.cli.sprint.models import (
+24 |       MonitorState,
+   |
+
+E402 Module level import not at top of file
+  --> tests/sprint/diagnostic/test_negative.py:23:1
+   |
+21 |       ReportGenerator,
+22 |   )
+23 | / from superclaude.cli.sprint.models import (
+24 | |     MonitorState,
+25 | |     Phase,
+26 | |     PhaseResult,
+27 | |     PhaseStatus,
+28 | | )
+   | |_^
+   |
+
+F821 Undefined name `SprintConfig`
+   --> tests/sprint/test_preflight.py:483:65
+    |
+483 | def _make_python_config(tmp_path: Path, tasks_content: str) -> "SprintConfig":
+    |                                                                 ^^^^^^^^^^^^
+484 |     """Build a minimal SprintConfig for a single python-mode phase."""
+485 |     from superclaude.cli.sprint.models import Phase, SprintConfig
+    |
+
+F821 Undefined name `SprintConfig`
+   --> tests/sprint/test_preflight.py:914:7
+    |
+912 |     tmp_path: Path,
+913 |     phases: "list[tuple[int, str, str]]",
+914 | ) -> "SprintConfig":
+    |       ^^^^^^^^^^^^
+915 |     """Build a SprintConfig with multiple phases of mixed execution modes.
+    |
+
+Found 58 errors.
+No fixes available (4 hidden fixes can be enabled with the `--unsafe-fixes` option).

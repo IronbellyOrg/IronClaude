@@ -1,0 +1,113 @@
+You are reviewing a code change for the repository at the workspace root. Your job is to identify problems — both narrow bugs and higher-level concerns — and report them as structured JSON.
+
+## Context
+
+Target: Local branch diff fix/prd-path-resolution-and-templates vs origin/master
+PR title (commit): fix(prd): anchor PRD CLI path resolution to .claude/; migrate templates SoT into src/
+PR body (commit message context): Anchors PRD CLI path resolution to .claude/; migrates template Source-of-Truth into src/superclaude/templates/; adds install_templates command; reorganizes templates under workflow/ and documents/.
+
+Diff range: origin/master...HEAD
+Files changed (36 — full list below). Note: most of the line count (~9000+) is from large markdown template files that are static documents. The CODE files of interest are:
+- Makefile (build targets)
+- src/superclaude/cli/install_templates.py (NEW — 156 lines)
+- src/superclaude/cli/main.py (registers new command)
+- src/superclaude/cli/prd/config.py (path resolution changes)
+- src/superclaude/cli/prd/models.py (model changes)
+- tests/cli/prd/test_path_resolution.py (NEW — 204 lines)
+- tests/cli/prd/test_prompts.py (small change)
+
+Full file list:
+.claude/skills/prd/SKILL.md
+.claude/skills/prd/refs/agent-prompts.md
+.claude/skills/prd/refs/build-request-template.md
+.claude/skills/prd/refs/operational-guidance.md
+.claude/skills/prd/refs/synthesis-mapping.md
+.claude/skills/prd/refs/validation-checklists.md
+.claude/templates/workflow/05_prd_template.legacy-rf-project.md
+.claude/templates/workflow/05_prd_template.md
+Makefile
+src/superclaude/cli/install_templates.py
+src/superclaude/cli/main.py
+src/superclaude/cli/prd/config.py
+src/superclaude/cli/prd/models.py
+src/superclaude/skills/prd/SKILL.md
+src/superclaude/skills/prd/refs/agent-prompts.md
+src/superclaude/skills/prd/refs/build-request-template.md
+src/superclaude/skills/prd/refs/operational-guidance.md
+src/superclaude/skills/prd/refs/synthesis-mapping.md
+src/superclaude/skills/prd/refs/validation-checklists.md
+src/superclaude/templates/documents/GFxAI_Master_Documentation_Template.md
+src/superclaude/templates/documents/operational_guide_template.md
+src/superclaude/templates/documents/readme_template.md
+src/superclaude/templates/documents/release-spec-template.md
+src/superclaude/templates/documents/supplemental-doc-creation-checklist.md
+src/superclaude/templates/documents/supplemental_doc_template.md
+src/superclaude/templates/documents/technical_reference_template.md
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+src/superclaude/templates/workflow/03_project_plan_template.md
+src/superclaude/templates/workflow/04_feature_brief_template.md
+src/superclaude/templates/workflow/05_prd_template.md
+src/superclaude/templates/workflow/06_architecture_proposal_template.md
+src/superclaude/templates/workflow/99_mdtm_template_generic_task_old.md
+src/superclaude/templates/workflow/changelog_template.md
+tests/cli/prd/test_path_resolution.py
+tests/cli/prd/test_prompts.py
+
+The full diff is available at: /tmp/eval-diff/inputs/diff.patch
+Read it with the `view` tool, then use your indexed codebase context to investigate.
+
+## Focus areas
+
+You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible in the diff. Use your codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
+
+- **quality**: Look for: off-by-one errors, null-deref / unwrap-on-None, untyped function boundaries, dead code, unused variables/imports, swallowed exceptions, broad except clauses, copy-pasted code, magic numbers, misleading names, comments that contradict code. Cross-reference: do similar helpers exist that the new code should reuse?
+
+- **anti-patterns**: Look for: god functions (> 100 lines), god classes (> 20 methods), feature envy, primitive obsession, shotgun surgery (one change forces many distant edits), inappropriate intimacy, lazy class, speculative generality, refused bequest, message chains, middle-man classes. Cross-reference: are these patterns recurring (i.e., does the diff make an existing smell worse)?
+
+- **architecture**: Look for: layering violations (a module reaching across boundaries that the repo conventions don't allow), business logic in transport/presentation layers, missing abstractions (the same conditional repeated 3+ times), god-objects, circular imports, leaky abstractions, modules with too many responsibilities. Cross-reference: how do other modules in this repo solve the same problem? Is the new code consistent? In particular: this repo uses `src/superclaude/` as Source-of-Truth and `.claude/` as dev copies kept in sync via `make sync-dev`. Verify that the templates-SoT migration follows that pattern. Verify the new install_templates command follows existing CLI command conventions in main.py.
+
+## Output contract (STRICT — your response must match this exactly)
+
+Respond with a single JSON object — no prose, no markdown fences, no leading or trailing text. The shape is:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<one of: security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style>",
+      "severity_hint": "<one of: critical | high | medium | low | nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line number in the file at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<the exact code excerpt at the cited line(s), verbatim>",
+      "why": "<2-4 sentences explaining the concern in concrete terms>",
+      "recommendation": "<1-3 sentences with a concrete change>",
+      "cross_references": ["<repo-relative path:line>"],
+      "confidence": "<high | medium | low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<for findings that span multiple files>",
+      "category": "<as above>",
+      "severity_hint": "<as above>",
+      "affected_files": ["<repo-relative path>", "..."],
+      "why": "<as above>",
+      "recommendation": "<as above>",
+      "confidence": "<as above>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional free-form notes>"
+}
+
+## Quality bar
+
+- Every finding must cite a real file:line. If you can't verify the file:line, set confidence to "low".
+- Do not invent file paths.
+- Aim for the highest-signal 3-5 findings per focus area, not exhaustive.
+- For higher-level findings put them in `cross_cutting_observations`.
+- Focus on the CODE files listed above; do not waste turns analyzing the static markdown template files line-by-line (they are documentation content, not code).
+
+Return only the JSON object. No additional text.

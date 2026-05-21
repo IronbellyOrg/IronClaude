@@ -1,0 +1,132 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collected 1189 items
+
+tests/audit/test_ac_validation.py ...................................... [  3%]
+..                                                                       [  3%]
+tests/audit/test_agent_regression.py ................................... [  6%]
+.......                                                                  [  6%]
+tests/audit/test_already_tracked.py .......                              [  7%]
+tests/audit/test_anti_lazy.py ........                                   [  8%]
+tests/audit/test_artifact_emitter.py ...........                         [  9%]
+tests/audit/test_auto_config.py ...........                              [ 10%]
+tests/audit/test_axis_column_populated.py ..........                     [ 10%]
+tests/audit/test_batch_decomposer.py ...............                     [ 12%]
+tests/audit/test_batch_retry.py ...........                              [ 13%]
+tests/audit/test_benchmark.py .........                                  [ 13%]
+tests/audit/test_budget.py .............................                 [ 16%]
+tests/audit/test_budget_caveat.py ......                                 [ 16%]
+tests/audit/test_checkpoint.py ......                                    [ 17%]
+tests/audit/test_classification.py ..............                        [ 18%]
+tests/audit/test_concurrent_isolation.py ........                        [ 19%]
+tests/audit/test_consolidation.py ............                           [ 20%]
+tests/audit/test_coverage.py .......                                     [ 20%]
+tests/audit/test_credential_scanner.py ..............                    [ 21%]
+tests/audit/test_dead_code.py ........                                   [ 22%]
+tests/audit/test_dependency_graph.py ..........                          [ 23%]
+tests/audit/test_dir_assessment.py ............                          [ 24%]
+tests/audit/test_dnsp_all_agents_fail_bypass.py ..FFFFFFFFF............. [ 26%]
+.........................F                                               [ 28%]
+tests/audit/test_dnsp_dedup_collapse.py .FFFF.F................          [ 30%]
+tests/audit/test_dnsp_does_not_serialize_cohort.py .FF.FFFFFFF.......... [ 32%]
+..........F                                                              [ 33%]
+tests/audit/test_dnsp_twice_exhaust.py ....FF.FF........................ [ 35%]
+.                                                                        [ 36%]
+tests/audit/test_docs_audit.py .............                             [ 37%]
+tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py .........  [ 37%]
+tests/audit/test_dry_run.py ............                                 [ 38%]
+tests/audit/test_duplication.py .........                                [ 39%]
+tests/audit/test_dynamic_enumeration_inv_010.py .......s...............  [ 41%]
+tests/audit/test_dynamic_imports.py ............                         [ 42%]
+tests/audit/test_env_matrix.py ................                          [ 43%]
+tests/audit/test_escalation.py ............                              [ 44%]
+tests/audit/test_eval_wiring_multifile.py .........                      [ 45%]
+tests/audit/test_evidence_bound_tb_add_8.py ..........                   [ 46%]
+tests/audit/test_execution_context_full.py .....                         [ 47%]
+tests/audit/test_execution_context_minimal_buildrequest.py ......        [ 47%]
+tests/audit/test_execution_context_no_file_paths.py .....                [ 47%]
+tests/audit/test_filetype_rules.py ......................                [ 49%]
+tests/audit/test_five_axes_overlay.py ..........                         [ 50%]
+tests/audit/test_full_docs_audit.py ...................                  [ 52%]
+tests/audit/test_gitignore_checker.py ........                           [ 52%]
+tests/audit/test_hidden_input_guard.py .......................           [ 54%]
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [ 56%]
+........                                                                 [ 56%]
+tests/audit/test_inherited_verdict_present.py ...........                [ 57%]
+tests/audit/test_invariant_preservation_NFR_6_through_10.py ............ [ 58%]
+.......                                                                  [ 59%]
+tests/audit/test_known_issues.py ............                            [ 60%]
+tests/audit/test_known_issues_lifecycle.py ............                  [ 61%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py ....................       [ 63%]
+tests/audit/test_nfr_conv_6_self_contained.py ..........                 [ 63%]
+tests/audit/test_nfr_conv_9_zero_trust.py ....F......................... [ 66%]
+EEEEE                                                                    [ 66%]
+tests/audit/test_profile_generator.py .................                  [ 68%]
+tests/audit/test_profiler.py .............................               [ 70%]
+tests/audit/test_regression_halt_pass1_fail2.py ........................ [ 72%]
+...                                                                      [ 73%]
+tests/audit/test_report_completeness.py ...........                      [ 73%]
+tests/audit/test_report_depth.py ..................                      [ 75%]
+tests/audit/test_report_limitations.py .......                           [ 76%]
+tests/audit/test_resume.py .......                                       [ 76%]
+tests/audit/test_scanner_schema.py .............                         [ 77%]
+tests/audit/test_self_audit_inv_019.py ........................          [ 79%]
+tests/audit/test_sequencing_PR06_before_PR04.py ........................ [ 81%]
+.....                                                                    [ 82%]
+tests/audit/test_severity_floor_unweakened.py ........                   [ 82%]
+tests/audit/test_slow_shrink_continues.py ....................           [ 84%]
+tests/audit/test_spot_check.py ..........                                [ 85%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py ................ [ 86%]
+...........                                                              [ 87%]
+tests/audit/test_tiered_keep.py .............                            [ 88%]
+tests/audit/test_tool_orchestrator.py ................                   [ 90%]
+tests/audit/test_validation.py .........                                 [ 90%]
+tests/audit/test_validation_output.py ........                           [ 91%]
+tests/audit/test_wiring_analyzer.py ...................                  [ 93%]
+tests/audit/test_wiring_gate.py ........................................ [ 96%]
+......................................                                   [ 99%]
+tests/audit/test_wiring_integration.py ....                              [100%]
+
+=========================== short test summary info ============================
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_r122_label_named_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_path_a_label_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_path_b_label_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_path_c_label_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_rf_team_lead_417_pointer_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_rf_team_lead_417_sha256_pin_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_guard_rejection_symbol_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_mutual_exclusivity_phrasing_present_at_every_site
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestR122WrapperTextGuards::test_zero_successes_and_zero_exhausts_rejected_in_text
+FAILED tests/audit/test_dnsp_all_agents_fail_bypass.py::TestPathAExecutionLogHaltBinding::test_skill_md_documents_zero_success_routes_to_rf_team_lead
+FAILED tests/audit/test_dnsp_dedup_collapse.py::TestR123WrapperTextGuards::test_r123_label_named_at_every_site
+FAILED tests/audit/test_dnsp_dedup_collapse.py::TestR123WrapperTextGuards::test_within_cycle_phrase_named_at_every_site
+FAILED tests/audit/test_dnsp_dedup_collapse.py::TestR123WrapperTextGuards::test_found_n_times_default_one_increment_one_present
+FAILED tests/audit/test_dnsp_dedup_collapse.py::TestR123WrapperTextGuards::test_collapse_rejection_symbol_present_at_every_site
+FAILED tests/audit/test_dnsp_dedup_collapse.py::TestR123WrapperTextGuards::test_skill_md_a8_merge_pins_within_cycle_collapse
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_inv_021_label_named_at_every_site
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_r125_label_named_at_every_site
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_concurrently_to_success_or_exhaust_phrasing_present
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_spawn_log_timestamps_phrasing_present
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_overlapping_in_wall_clock_time_phrasing_present
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_nfr_conv_10_label_named_at_every_site
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_serialization_rejection_symbol_present_at_every_site
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_no_block_pause_serialize_phrasing_present
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestInv021WrapperTextGuards::test_synthesis_runs_before_merge_step_at_every_site
+FAILED tests/audit/test_dnsp_does_not_serialize_cohort.py::TestNfrConv10ParallelResearchBinding::test_skill_md_a8_pins_synthesis_runs_before_merge
+FAILED tests/audit/test_dnsp_twice_exhaust.py::TestWrapperContractTextGuards::test_dm_003_schema_named_at_every_site
+FAILED tests/audit/test_dnsp_twice_exhaust.py::TestWrapperContractTextGuards::test_seven_field_phrasing_present_at_agent_sites
+FAILED tests/audit/test_dnsp_twice_exhaust.py::TestWrapperContractTextGuards::test_rejection_symbols_present_at_every_site
+FAILED tests/audit/test_dnsp_twice_exhaust.py::TestWrapperContractTextGuards::test_closed_vocabulary_named_at_every_site
+FAILED tests/audit/test_nfr_conv_9_zero_trust.py::TestFixturesExist::test_nfr_conv_2_doc_published
+ERROR tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_names_nfr_conv_2
+ERROR tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_enumerates_structural_side
+ERROR tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_enumerates_prose_side
+ERROR tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_cross_references_rf_qa_pass_fail
+ERROR tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_references_m7_audit
+============= 30 failed, 1153 passed, 1 skipped, 5 errors in 1.78s =============

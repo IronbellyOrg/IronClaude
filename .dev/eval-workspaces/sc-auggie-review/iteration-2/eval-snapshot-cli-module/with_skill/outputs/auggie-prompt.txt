@@ -1,0 +1,54 @@
+You are conducting a code review of a snapshot directory tree in a Python codebase. Workspace root: /config/workspace/IronClaude. Target path: src/superclaude/cli/
+
+The CLI subtree contains:
+- Top-level orchestration files: __init__.py, main.py, doctor.py, vocabulary.py, install_*.py (core/commands/agents/skills/skill/templates/hooks/mcp)
+- Subpackages: sprint/, roadmap/, tasklist/, audit/, prd/, cleanup_audit/, task_builder/, cli_portify/, pipeline/, eval/
+
+Total: 213 Python/text files, ~69k LOC.
+
+FOCUS AREAS (this review): anti-patterns, architecture, quality
+DEPTH: quick — emphasize cross-cutting / architectural concerns over per-line nits
+
+Please use your indexed codebase context to investigate the following and return STRICTLY a JSON object (no markdown fence, no preamble) with this schema:
+
+{
+  "findings": [
+    {
+      "title": "<short title>",
+      "file": "<repo-relative path>",
+      "line": <integer line>,
+      "line_range": "<optional N-M>",
+      "severity": "critical|high|medium|low|nit",
+      "category": "security|correctness|architecture|anti-pattern|quality|performance|maintainability",
+      "evidence": "<short code excerpt or specific reference>",
+      "why": "<why this matters, 1-2 sentences>",
+      "recommendation": "<concrete fix>"
+    }
+  ],
+  "cross_cutting": [
+    {
+      "title": "<observation>",
+      "files": ["<path>", "..."],
+      "category": "<as above>",
+      "why": "<...>",
+      "recommendation": "<...>"
+    }
+  ]
+}
+
+Investigation checklist (prioritize architectural / anti-pattern signals; ground every finding in a real file:line that exists today):
+
+1. Inspect src/superclaude/cli/main.py — Click command registration, argument validation, error handling patterns, side effects at import time, duplicated boilerplate across subcommands.
+2. Inspect the install_*.py family (install_core.py, install_commands.py, install_agents.py, install_skills.py, install_skill.py, install_templates.py, install_hooks.py, install_mcp.py) — is there duplicated logic (file copy, path resolution, overwrite policy) that should be unified? Is install_skill.py (singular) dead/redundant given install_skills.py (plural)? Are destination paths hardcoded vs. configurable? Path traversal safety on user-supplied inputs?
+3. Inspect the prd/ subpackage — there was recent work on "PRD CLI path resolution and templates" (current branch is fix/prd-path-resolution-and-templates). Look for: residual hardcoded paths, race conditions on template discovery, error messages that leak absolute paths, unsafe template rendering.
+4. install_mcp.py is 31KB — does it have god-function smell, deeply nested conditionals, repeated server-config blocks that beg for data-driven dispatch?
+5. install_hooks.py is 20KB — similar god-file scrutiny; also check for shell injection risk if it constructs shell commands.
+6. Subpackages (sprint, roadmap, tasklist, task_builder, cli_portify, pipeline, eval) — do they share a common pattern (e.g., a Step/Stage abstraction), or has each invented its own? Layering: does cli/ depend only on lower layers, or does it import from sibling user-facing packages it shouldn't?
+7. Anti-patterns to scan for: bare `except:`, broad `except Exception` that swallows, mutable default arguments, `os.system`/`shell=True` without sanitization, `eval`/`exec`, `pickle.load` on untrusted input, sys.path manipulation, print() for user output where Rich/Click should be used, missing type hints on public CLI entry points.
+8. Quality: are there functions > 50 LOC begging to be split? Are there modules with no docstrings on public API? Is logging consistent (logging vs print vs rich)?
+
+Output requirements:
+- Every finding MUST have a real file:line. If you cannot confirm a line, omit the finding.
+- Prefer 5-12 high-signal findings over 50 low-signal nits.
+- Cross-cutting observations go in the cross_cutting array, not findings.
+- Return ONLY the JSON object.

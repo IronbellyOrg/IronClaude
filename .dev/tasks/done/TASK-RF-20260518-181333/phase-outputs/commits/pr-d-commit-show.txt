@@ -1,0 +1,74 @@
+commit f577a0ead81bc3d711ddbf5a9081ca0dc16d9ca3
+Author: RyanW <ryan@ironbelly.com>
+Date:   Mon May 18 21:39:45 2026 +0000
+
+    docs(task-builder): D-0068..D-0100 task-builder-merge evidence batch 2 + phase-6/7 outputs
+
+    Lands the second batch of task-builder-merge release evidence: 50 artifact
+    files for landings D-0068..D-0100 (covering the remaining PR landings and
+    MIG-001 through MIG-006 mitigation work) plus the phase-6 and phase-7
+    sprint output files for that release run. Each artifact directory contains
+    evidence.md (post-landing verification) and, where applicable, spec.md and
+    quality-engineer-report.md.
+
+    This completes the evidence shipment alongside PR-C (D-0053..D-0063) and
+    prepares PR-E (execution log refresh) to land on top with the consolidated
+    running log of all 47 evidence directories.
+
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .../artifacts/D-0068/evidence.md                   | 101 +++++
+ .../artifacts/D-0069/evidence.md                   | 104 +++++
+ .../artifacts/D-0069/quality-engineer-report.md    | 107 +++++
+ .../task-builder-merge/artifacts/D-0069/spec.md    | 123 ++++++
+ .../artifacts/D-0070/evidence.md                   | 160 +++++++
+ .../task-builder-merge/artifacts/D-0070/spec.md    | 127 ++++++
+ .../artifacts/D-0071/evidence.md                   | 156 +++++++
+ .../artifacts/D-0072/evidence.md                   | 199 +++++++++
+ .../task-builder-merge/artifacts/D-0072/spec.md    |  95 +++++
+ .../artifacts/D-0073/evidence.md                   | 243 +++++++++++
+ .../artifacts/D-0074/evidence.md                   | 260 ++++++++++++
+ .../artifacts/D-0075/evidence.md                   | 300 +++++++++++++
+ .../task-builder-merge/artifacts/D-0075/spec.md    | 111 +++++
+ .../artifacts/D-0076/evidence.md                   | 357 ++++++++++++++++
+ .../task-builder-merge/artifacts/D-0076/spec.md    | 126 ++++++
+ .../artifacts/D-0077/evidence.md                   | 150 +++++++
+ .../artifacts/D-0078/evidence.md                   | 116 ++++++
+ .../artifacts/D-0079/evidence.md                   | 135 ++++++
+ .../artifacts/D-0080/evidence.md                   | 285 +++++++++++++
+ .../artifacts/D-0081/evidence.md                   | 374 +++++++++++++++++
+ .../artifacts/D-0082/evidence.md                   | 346 +++++++++++++++
+ .../task-builder-merge/artifacts/D-0082/spec.md    |  99 +++++
+ .../artifacts/D-0083/evidence.md                   | 215 ++++++++++
+ .../task-builder-merge/artifacts/D-0083/spec.md    | 158 +++++++
+ .../artifacts/D-0084/evidence.md                   | 249 +++++++++++
+ .../task-builder-merge/artifacts/D-0084/spec.md    | 150 +++++++
+ .../artifacts/D-0085/evidence.md                   | 226 ++++++++++
+ .../artifacts/D-0086/evidence.md                   | 159 +++++++
+ .../artifacts/D-0087/evidence.md                   | 125 ++++++
+ .../artifacts/D-0088/evidence.md                   | 269 ++++++++++++
+ .../task-builder-merge/artifacts/D-0088/spec.md    | 151 +++++++
+ .../artifacts/D-0088/sub-agent-report.md           |  74 ++++
+ .../artifacts/D-0089/evidence.md                   | 318 ++++++++++++++
+ .../task-builder-merge/artifacts/D-0089/spec.md    | 189 +++++++++
+ .../artifacts/D-0090/evidence.md                   | 137 ++++++
+ .../artifacts/D-0091/evidence.md                   | 171 ++++++++
+ .../task-builder-merge/artifacts/D-0091/spec.md    | 144 +++++++
+ .../task-builder-merge/artifacts/D-0092/spec.md    | 315 ++++++++++++++
+ .../task-builder-merge/artifacts/D-0093/spec.md    | 463 +++++++++++++++++++++
+ .../task-builder-merge/artifacts/D-0094/spec.md    | 273 ++++++++++++
+ .../task-builder-merge/artifacts/D-0095/spec.md    | 342 +++++++++++++++
+ .../task-builder-merge/artifacts/D-0096/spec.md    | 339 +++++++++++++++
+ .../task-builder-merge/artifacts/D-0097/spec.md    | 319 ++++++++++++++
+ .../artifacts/D-0098/evidence.md                   | 336 +++++++++++++++
+ .../task-builder-merge/artifacts/D-0098/spec.md    | 213 ++++++++++
+ .../artifacts/D-0099/evidence.md                   | 236 +++++++++++
+ .../task-builder-merge/artifacts/D-0099/spec.md    | 312 ++++++++++++++
+ .../artifacts/D-0099/tag-message.txt               |  79 ++++
+ .../task-builder-merge/artifacts/D-0100/notes.md   | 138 ++++++
+ .../artifacts/D-0100/sweep_runner.py               | 103 +++++
+ .../task-builder-merge/results/phase-6-errors.txt  |   0
+ .../task-builder-merge/results/phase-6-output.txt  |  63 +++
+ .../task-builder-merge/results/phase-7-errors.txt  |   0
+ .../task-builder-merge/results/phase-7-output.txt  |  54 +++
+ 54 files changed, 10394 insertions(+)

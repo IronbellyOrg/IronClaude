@@ -1,0 +1,61 @@
+{
+  "run_id": "snapshot-cli-module-with_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (16956 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "16956 bytes (min 2000)"
+    },
+    {
+      "text": "report-mentions-snapshot-target",
+      "passed": true,
+      "evidence": "matched /src/superclaude/cli/ \u2192 'src/superclaude/cli'"
+    },
+    {
+      "text": "uses-severity-tiers",
+      "passed": true,
+      "evidence": "all 2 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '8 file-anchored finding'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.py:\\d+/ \u2192 'main.py:13'"
+    },
+    {
+      "text": "cited-files-exist-in-cli-subtree",
+      "passed": true,
+      "evidence": "17/18 citations validated (94%); first invalid: roadmap/executor.py:2895 (file has only 2148 lines)"
+    },
+    {
+      "text": "has-cross-cutting-observations",
+      "passed": true,
+      "evidence": "matched /(?i)cross.?cutting/ \u2192 'cross-cutting'"
+    },
+    {
+      "text": "focus-areas-honored",
+      "passed": true,
+      "evidence": "all 1 patterns matched"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "present (4379 bytes)"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "run_id": "local-diff-vs-master-with_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (10187 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "10187 bytes (min 1500)"
+    },
+    {
+      "text": "report-mentions-diff-target",
+      "passed": true,
+      "evidence": "matched /origin/master/ \u2192 'origin/master'"
+    },
+    {
+      "text": "uses-severity-tiers",
+      "passed": true,
+      "evidence": "all 2 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '5 file-level finding'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/main.py:309'"
+    },
+    {
+      "text": "cited-files-in-diff-or-repo",
+      "passed": true,
+      "evidence": "12/12 citations validated (100%)"
+    },
+    {
+      "text": "focus-areas-honored",
+      "passed": true,
+      "evidence": "all 1 patterns matched"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "present (8249 bytes)"
+    },
+    {
+      "text": "skill-auggie-artifacts-present",
+      "passed": true,
+      "evidence": "present (10854 bytes)"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}

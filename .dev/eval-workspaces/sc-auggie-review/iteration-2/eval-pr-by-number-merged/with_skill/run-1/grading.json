@@ -1,0 +1,76 @@
+{
+  "run_id": "pr-by-number-merged-with_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (11207 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "11207 bytes (min 1500)"
+    },
+    {
+      "text": "report-has-header",
+      "passed": true,
+      "evidence": "matched: # "
+    },
+    {
+      "text": "uses-severity-tiers-exact",
+      "passed": true,
+      "evidence": "all 4 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '6 finding'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/prd/gates.py:102'"
+    },
+    {
+      "text": "cited-files-exist-in-repo",
+      "passed": true,
+      "evidence": "7/8 citations validated (88%); first invalid: skills/prd/SKILL.md:280 (file has only 124 lines)"
+    },
+    {
+      "text": "no-pr-was-posted",
+      "passed": true,
+      "evidence": "none of 3 forbidden patterns found"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "present (8822 bytes)"
+    },
+    {
+      "text": "audit-log-records-grounding",
+      "passed": true,
+      "evidence": "matched /(?i)ground/ \u2192 'Ground'"
+    },
+    {
+      "text": "skill-machine-summary-header",
+      "passed": true,
+      "evidence": "matched /SC:AUGGIE-REVIEW:SUMMARY/ \u2192 'SC:AUGGIE-REVIEW:SUMMARY'"
+    },
+    {
+      "text": "audit-log-no-approve-flag",
+      "passed": true,
+      "evidence": "none of 2 forbidden patterns found"
+    },
+    {
+      "text": "skill-auggie-raw-artifact-present",
+      "passed": true,
+      "evidence": "found: auggie-raw-1.json"
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 0,
+    "total": 13,
+    "pass_rate": 1.0
+  }
+}

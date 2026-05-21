@@ -1,0 +1,29 @@
+{
+  "skill_name": "sc-auggie-review-protocol",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pr-by-number-merged",
+      "prompt": "Run /sc:auggie-review 62 --no-post-pr --output-dir /tmp/eval-pr62/. The repo is IronbellyOrg/IronClaude. Use --depth standard. Produce the full markdown report at /tmp/eval-pr62/REVIEW.md. Do not post to the PR (it's already merged). At the end of your work, print the absolute path to REVIEW.md and a one-line summary of the finding counts by severity.",
+      "expected_output": "A REVIEW.md at /tmp/eval-pr62/ that follows the skill's report template — header with target/depth/stats, severity-tagged findings sections, each finding with file:line citation that exists in the actual repo, no hallucinated paths. Audit log written alongside. Status returned with finding counts.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "local-diff-vs-master",
+      "prompt": "Run /sc:auggie-review --diff origin/master...HEAD --no-post-pr --depth quick --output-dir /tmp/eval-diff/. This will review the uncommitted/branch changes against master. Use --focus quality,anti-patterns,architecture. At the end, print the report path and a one-line summary.",
+      "expected_output": "A REVIEW.md at /tmp/eval-diff/ scoped to the diff against master. Findings (if any) must cite files actually in the diff. Diff statistics should match `git diff --stat origin/master...HEAD`.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 3,
+      "name": "snapshot-cli-module",
+      "prompt": "Run /sc:auggie-review --snapshot src/superclaude/cli/ --depth quick --focus anti-patterns,architecture,quality --output-dir /tmp/eval-snapshot/. Review the CLI module as a whole, no diff. Print the report path and a one-line summary at the end.",
+      "expected_output": "A REVIEW.md at /tmp/eval-snapshot/ that reviews the CLI subtree, with findings citing files inside src/superclaude/cli/. Cross-cutting observations should highlight architecture-level concerns rather than per-line nits.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+stash@{0}: On feat/hook-sync-and-matcher-fix: task-RF-20260518-181333 pre-cleanup stash
+stash@{1}: On feat/mig-002-execution-context-header: WIP: pre-e2e-test-suite (2026-05-17 19:30)
