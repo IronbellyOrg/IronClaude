@@ -1470,10 +1470,19 @@ def eval_run(
     )
 
     try:
+        # OPS-002 / AC12: the operator-supplied --output-dir is itself the
+        # candidate being validated. Do NOT pass it back through the
+        # ``output_dir=`` kwarg — that kwarg exists for layered helpers
+        # (HomeIsolation.containment_guard, FR-ISO2) that re-check a path
+        # that has *already* been validated against the allowlist. Passing
+        # the operator input as both the candidate AND the extension makes
+        # the gate a tautology and lets a malicious / mistyped path (e.g.
+        # /etc/foo, /root/.claude) escape the OPS-002 allowlist.
+        # See docs/eval/scratch-roots.md and
+        # tests/cli/eval/test_scratch_root_policy.py.
         resolved_output = resolve_scratch_root(
             requested_output,
             config=base_config,
-            output_dir=output_dir,
         )
     except ScratchRootViolation as exc:
         click.echo(format_scratch_root_violation(exc), err=True)

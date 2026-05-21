@@ -189,10 +189,24 @@ def resolve_scratch_root(
             canonical pair ``(/tmp/eval-runs, .dev/eval-runs)``.
             Passing the project's live ``EvalConfig`` guarantees there is
             exactly one source of truth — no other module embeds a copy.
-        output_dir: Optional CLI-supplied ``--output-dir`` to extend the
-            allowlist for this call only. The value is resolved the same
-            way as the rest of the allowlist; passing it does NOT mutate
-            ``config``.
+        output_dir: Optional path used by *layered* defense-in-depth
+            helpers (e.g. :func:`HomeIsolation.containment_guard`,
+            FR-ISO2) to extend the allowlist with a path that has
+            *already* been gate-validated against the base allowlist.
+            The value is resolved the same way as the rest of the
+            allowlist; passing it does NOT mutate ``config``.
+
+            **Do NOT pass the raw operator-supplied ``--output-dir`` here
+            at the first gate.** Doing so makes the candidate path equal
+            to an allowlist entry by construction, turning the AC12
+            check into a tautology and letting non-allowlisted paths
+            (e.g. ``/etc/foo``, ``/root/.claude``) escape onto disk.
+            The first gate must call ``resolve_scratch_root(path)`` (or
+            ``resolve_scratch_root(path, config=cfg)``) with the
+            operator-supplied path as the *candidate* only; the kwarg
+            is reserved for subsequent layered re-checks that need to
+            preserve the previously-validated operator path.
+            See ``docs/eval/scratch-roots.md``.
 
     Returns:
         The resolved absolute :class:`~pathlib.Path` for ``path``. Callers
