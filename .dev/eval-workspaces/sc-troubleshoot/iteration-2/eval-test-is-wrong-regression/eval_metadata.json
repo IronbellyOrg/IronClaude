@@ -12,10 +12,10 @@
   },
   "assertions": [
     {"text": "Sets test_is_wrong=true in the return contract", "checkable": "REPORT.md header includes `**Test is wrong**: true`"},
-    {"text": "Sets test_file_path to the test file", "checkable": "REPORT.md header includes `**Test file to update**: tests/api/test_session_count.py`"},
+    {"text": "Sets test_file_path to the test file in repo-relative format", "checkable": "REPORT.md header includes `**Test file to update**: tests/api/test_session_count.py` (repo-relative; not absolute)"},
     {"text": "Summary opens with 'test is the bug' framing", "checkable": "REPORT.md Summary first sentence names the test (not the code) as the bug"},
     {"text": "Proposed Fix files-to-change list contains ONLY the test file", "checkable": "REPORT.md Proposed Fix Files to change lists tests/api/test_session_count.py and nothing else"},
-    {"text": "Explicit `## Files that MUST NOT change` block lists production code", "checkable": "REPORT.md contains `## Files that MUST NOT change` listing api/session.py"},
+    {"text": "Files that MUST NOT change subsection present under Proposed Fix", "checkable": "REPORT.md Proposed Fix section contains the `**Files that MUST NOT change**` subsection listing api/session.py"},
     {"text": "Alternative Fixes Considered lists 'fix the code' as DANGEROUS wrong answer", "checkable": "REPORT.md Alternative Fixes section contains 'DANGEROUS' or 'wrong answer' framing for the code-fix alternative"},
     {"text": "Escalates to Tier 2", "checkable": "audit.log shows tier_reached=2 (test domain + asymmetric-cost signal triggers escalation)"}
   ],

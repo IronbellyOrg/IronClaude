@@ -47,7 +47,7 @@ The skill returns a structured dictionary on completion:
 | `confidence` | float | 0.0-1.0, calibrated via `refs/escalation-rubric.md` |
 | `escalation_reason` | string | If Tier 2 ran: which rubric condition triggered it (or `forced_by_depth_deep`) |
 | `test_is_wrong` | bool | `true` when the diagnosis concludes the failing test is the bug (test asserts wrong behavior, stale invariant, or inverted policy claim) rather than the code under test. Set independent of tier. Asymmetric-cost flag — downstream automation MUST NOT auto-apply a fix to the code when this is `true`; the remediation target is the test file. |
-| `test_file_path` | string \| null | When `test_is_wrong=true`, the absolute path (or repo-relative if the file is contrived) of the test file that must be updated. `null` otherwise. |
+| `test_file_path` | string \| null | When `test_is_wrong=true`, the **repo-relative** path of the test file that must be updated (e.g., `tests/api/test_foo.py`), resolved against the repo root containing `.git/`. `null` otherwise. The format is intentionally fixed to repo-relative so downstream automation can compare/join paths without ambiguity; if the report is consumed outside the repo, the consumer is responsible for joining against the repo root recorded in the audit log. |
 | `hypothesis_cards` | list[path] | Paths to per-agent hypothesis cards (Tier 2) |
 | `adversarial_artifacts_dir` | string | `sc:adversarial` artifacts dir (Tier 2 only, when 2+ fix proposals were debated) |
 | `task_file_path` | string | MDTM task file path (Tier 3 only) |
