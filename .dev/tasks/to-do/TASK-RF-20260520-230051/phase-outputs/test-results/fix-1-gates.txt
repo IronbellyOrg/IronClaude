@@ -1,0 +1,11 @@
+=== Check 1: bash -n ===
+SYNTAX OK
+
+=== Check 2: shellcheck ===
+SHELLCHECK OK
+
+=== Check 3: grep -F prefilter line present ===
+case "$INPUT" in *'"command"'*'gh'*'pr'*'create'*) ;; *) exit 0;; esac
+PREFILTER PRESENT
+
+===== SUMMARY =====

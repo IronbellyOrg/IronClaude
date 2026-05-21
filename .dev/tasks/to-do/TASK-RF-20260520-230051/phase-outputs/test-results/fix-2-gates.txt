@@ -1,0 +1,22 @@
+=== Check 1: frontmatter keys present ===
+name: sc:auggie-review-protocol
+description: "Auggie-powered code review protocol for PRs, local diffs, and file snapshots — orchestrates Auggie's deep retrieval pass, validates findings against real files, posts to PR, and offers a remediation handoff chain"
+allowed-tools: Read, Grep, Glob, Bash(auggie *), Bash(gh *), Bash(git *), Bash(jq *), Bash(wc *), Bash(find *), Bash(mkdir *), Bash(cat *), Bash(mv *), Bash(cp *), Bash(date *), TodoWrite, Task, Write, Edit, Skill
+Frontmatter keys present: 3 (expected 3)
+
+=== Check 2: grep -F pipeline string ===
+>   tail -n +2 auggie-raw.json | jq -r '.result' | sed -n '/^```json$/,/^```$/p' | sed '1d;$d' | jq '.'
+PIPELINE STRING PRESENT
+
+=== Check 3: markdownlint via pre-commit ===
+/bin/bash: line 28: pre-commit: command not found
+markdownlint exit: 127
+
+=== Markdownlint deferred ===
+pre-commit not available in this environment. Markdownlint check deferred to the user's commit-time pre-commit invocation.
+Substantive gates pass: FRONTMATTER 3/3, PIPELINE STRING PRESENT.
+
+===== SUMMARY =====
+FRONTMATTER OK (3/3 keys)
+PIPELINE STRING PRESENT
+MARKDOWNLINT DEFERRED (environment lacks pre-commit binary)

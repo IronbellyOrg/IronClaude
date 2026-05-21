@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **CRITICAL**: This project uses **UV** for all Python operations. Never use `python -m`, `pip install`, or `python script.py` directly.
 
 ## ABSOLUTE RULE: Custom Command Skill Invocation
-When ANY message starts with /sc:<command>, you MUST invoke the corresponding skill via the Skill tool BEFORE generating any other output. If the command file says "invoke Skill X", that is BLOCKING. 
+
+When ANY message starts with /sc:<command>, you MUST invoke the corresponding skill via the Skill tool BEFORE generating any other output. If the command file says "invoke Skill X", that is BLOCKING.
   Generating protocol output without invoking the skill is a VIOLATION.  No exceptions. No "I already loaded it." No "I know the protocol."
 
 In the event where context pressure would otherwise have the agent take shortcuts or improvise instead of initiating the command/skill/protoco - ALWAYS WARN THE USER AND INSTRUCT THEM TO RUN THE CUSTOM COMMAND IN A NEW CHAT.
@@ -17,6 +18,7 @@ In the event where context pressure would otherwise have the agent take shortcut
 `.claude/{skills,commands,agents,hooks,templates}/*` is **gitignored sync-dev output** of `src/superclaude/`. The ONLY tracked file under `.claude/` is `.claude/settings.json` (project hook + permission registrations, not auto-generated). Upstream regenerates `.claude/` via `superclaude install`; the local copy exists for Claude Code to read during development.
 
 **NEVER**, under any circumstance:
+
 - `git add .claude/skills/...`, `.claude/commands/...`, `.claude/agents/...`, `.claude/hooks/...`, `.claude/templates/...`
 - `git add -f` on any `.claude/` path
 - Suggest staging `.claude/` mirrors in paste-ready commit commands
@@ -29,7 +31,6 @@ In the event where context pressure would otherwise have the agent take shortcut
 **Rationale:** SoT discipline. Committing `.claude/skills/foo/SKILL.md` alongside `src/superclaude/skills/foo/SKILL.md` doubles every diff, invites drift, and breaks `make verify-sync` for the next contributor. The gitignore (`.claude/` + `!.claude/settings.json`) and the pre-commit `verify-sync` local hook enforce this together — but neither catches `git add -f` or hand-edited paste-ready commands. That's why this rule exists at the CLAUDE.md level: it must hold even when the mechanical gates are bypassed.
 
 See also: memory `feedback_claude_dir_gitignored.md`.
-
 
 ### Required Commands
 
@@ -115,11 +116,13 @@ make clean            # Remove build artifacts
 **Dev copies**: `.claude/skills/` and `.claude/agents/` in the repo root are convenience copies that Claude Code reads directly during development.
 
 **Workflow when adding/editing components**:
+
 1. Edit files in `src/superclaude/skills/` or `src/superclaude/agents/`
 2. Run `make sync-dev` to copy changes to `.claude/`
 3. Run `make verify-sync` to confirm sync (also run before committing)
 
 **If you edited `.claude/` directly** (e.g., iterating on a skill with Claude Code):
+
 1. Copy your changes to `src/superclaude/` manually
 2. Run `make verify-sync` to confirm both sides match
 
@@ -142,6 +145,7 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 **Fixtures**: `confidence_checker`, `self_check_protocol`, `reflexion_pattern`, `token_budget`, `pm_context`
 
 **Auto-markers**:
+
 - Tests in `/unit/` → `@pytest.mark.unit`
 - Tests in `/integration/` → `@pytest.mark.integration`
 
@@ -150,20 +154,24 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 ### PM Agent - Three Core Patterns
 
 **1. ConfidenceChecker** (src/superclaude/pm_agent/confidence.py)
+
 - Pre-execution confidence assessment: ≥90% required, 70-89% present alternatives, <70% ask questions
 - Prevents wrong-direction work, ROI: 25-250x token savings
 
 **2. SelfCheckProtocol** (src/superclaude/pm_agent/self_check.py)
+
 - Post-implementation evidence-based validation
 - No speculation - verify with tests/docs
 
 **3. ReflexionPattern** (src/superclaude/pm_agent/reflexion.py)
+
 - Error learning and prevention
 - Cross-session pattern matching
 
 ### Parallel Execution
 
 **Wave → Checkpoint → Wave pattern** (src/superclaude/execution/parallel.py):
+
 - 3.5x faster than sequential execution
 - Automatic dependency analysis
 - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
@@ -210,6 +218,7 @@ def test_with_budget(token_budget):
 **Branch structure**: `master` (production) ← `integration` (testing) ← `feature/*`, `fix/*`, `docs/*`
 
 **Standard workflow**:
+
 1. Create branch from `integration`: `git checkout -b feature/your-feature`
 2. Develop with tests: `uv run pytest`
 3. Commit: `git commit -m "feat: description"` (conventional commits)
@@ -231,17 +240,20 @@ git worktree add ../SuperClaude_Framework-feature feature/pm-agent
 ```
 
 **Benefits**:
+
 - Run Claude Code sessions on different branches simultaneously
 - No branch switching conflicts
 - Independent working directories
 - Parallel development without state corruption
 
 **Usage**:
+
 - Session A: Open `~/github/SuperClaude_Framework/` (current branch)
 - Session B: Open `~/github/SuperClaude_Framework-integration/` (integration)
 - Session C: Open `~/github/SuperClaude_Framework-feature/` (feature branch)
 
 **Cleanup**:
+
 ```bash
 git worktree remove ../SuperClaude_Framework-integration
 ```
@@ -255,15 +267,19 @@ Additional docs in `docs/user-guide/`, `docs/developer-guide/`, `docs/reference/
 ## 💡 Core Development Principles
 
 ### 1. Evidence-Based Development
+
 **Never guess** - verify with official docs (Context7 MCP, WebFetch, WebSearch) before implementation.
 
 ### 2. Confidence-First Implementation
+
 Check confidence BEFORE starting: ≥90% proceed, 70-89% present alternatives, <70% ask questions.
 
 ### 3. Parallel-First Execution
+
 Use **Wave → Checkpoint → Wave** pattern (3.5x faster). Example: `[Read files in parallel]` → Analyze → `[Edit files in parallel]`
 
 ### 4. Token Efficiency
+
 - Simple (typo): 200 tokens
 - Medium (bug fix): 1,000 tokens
 - Complex (feature): 2,500 tokens
@@ -281,8 +297,8 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 **Gateway Benefits**: 60+ tools, 98% token reduction, single SSE endpoint, Web UI
 
-
 **High Priority Servers** (included in gateway):
+
 - **Tavily**: Web search (Deep Research)
 - **Context7**: Official documentation (prevent hallucination)
 - **Sequential**: Token-efficient reasoning (30-50% reduction)
@@ -298,6 +314,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 ### Current Installation Method (v4.2.0)
 
 **Standard Installation**:
+
 ```bash
 # Option 1: pipx (recommended)
 pipx install superclaude
@@ -310,12 +327,14 @@ cd SuperClaude_Framework
 ```
 
 **`superclaude install` installs 4 component types**:
+
 1. Core framework files (`.md`) → `~/.claude/`
 2. Slash commands (`.md`) → `~/.claude/commands/sc/`
 3. Agent definitions (`.md`) → `~/.claude/agents/`
 4. Skills (directories with `SKILL.md`) → `~/.claude/skills/`
 
 **Development Mode**:
+
 ```bash
 # Install in editable mode
 make dev
@@ -340,10 +359,12 @@ See `docs/plugin-reorg.md` for details.
 **Build system**: hatchling (PEP 517)
 
 **Entry points**:
+
 - CLI: `superclaude` command
 - Pytest plugin: Auto-loaded as `superclaude`
 
 **Dependencies**:
+
 - pytest>=7.0.0
 - click>=8.0.0
 - rich>=13.0.0
