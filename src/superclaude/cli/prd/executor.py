@@ -264,6 +264,33 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
     largest match and returns it.  Falls back to NDJSON text if no
     disk file is found.
     """
+    # Special-case: build-task-file writes to a DYNAMIC filename
+    # (TASK-PRD-{product_slug}.md per prompts.py:381), so it cannot
+    # live in _STEP_ARTIFACT_FILES (which holds static filenames).
+    #
+    # IMPORTANT: do NOT add "build-task-file" to _STEP_ARTIFACT_FILES.
+    # _persist_step_artifact keys on the same dict and writes
+    # gate_content back to task_dir/<artifact_name>. Registering a
+    # dict entry would cause it to clobber the LLM-authored task file
+    # with gate_content on partial-fail paths.
+    #
+    # Glob is scoped to task_dir only (not task_dir.parent) because
+    # prompts.py:381 writes the task file deterministically into
+    # task_dir; widening the search would re-introduce multi-match
+    # ambiguity (e.g. from prior failed runs in sibling directories).
+    if step_id == "build-task-file":
+        best_content = ""
+        for match in task_dir.glob("TASK-PRD-*.md"):
+            try:
+                content = match.read_text(encoding="utf-8", errors="replace")
+                if len(content) > len(best_content):
+                    best_content = content
+            except OSError:
+                continue
+        if best_content.strip():
+            return best_content
+        # Fall through to NDJSON fallback if no task file found.
+
     artifact_name = _STEP_ARTIFACT_FILES.get(step_id)
     if not artifact_name:
         return ndjson_text
