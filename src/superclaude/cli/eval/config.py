@@ -190,9 +190,13 @@ def resolve_scratch_root(
             Passing the project's live ``EvalConfig`` guarantees there is
             exactly one source of truth — no other module embeds a copy.
         output_dir: Optional path used by *layered* defense-in-depth
-            helpers (e.g. :func:`HomeIsolation.containment_guard`,
-            FR-ISO2) to extend the allowlist with a path that has
+            re-checks to extend the allowlist with a path that has
             *already* been gate-validated against the base allowlist.
+            No in-repo production caller passes this kwarg today; it
+            exists as a forward-compatibility extension point for
+            FR-ISO2-style re-checks, and is exercised by
+            ``tests/cli/eval/test_scratch_root_allowlist.py`` to pin
+            the call-scoped extension semantic.
             The value is resolved the same way as the rest of the
             allowlist; passing it does NOT mutate ``config``.
 

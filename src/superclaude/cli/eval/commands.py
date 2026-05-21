@@ -80,6 +80,7 @@ from .loader import (
     SuiteLoaderError,
 )
 from .models import (
+    EVAL_STATUSES,
     EvalOutcome,
     EvalSpec,
     RunCounts,
@@ -1535,8 +1536,13 @@ def _compute_run_stats(
     * ``XPASS`` → ``failed`` (unexpected pass signals stale ``xfail`` markers).
     """
     expanded = len(outcomes)
-    kept_statuses = {"PASS", "FAIL", "ERRORED", "TIMEOUT", "XFAIL", "XPASS"}
-    skipped_statuses = {"SKIPPED", "INTERRUPTED"}
+    # DM-012 categorization derived from the EVAL_STATUSES SoT
+    # (models.py:62). SKIPPED + INTERRUPTED are non-terminal; everything
+    # else in EVAL_STATUSES is a terminal "kept" outcome. Deriving rather
+    # than hardcoding ensures that adding a new EvalStatus value cannot
+    # silently drift this tally out of sync with the canonical set.
+    skipped_statuses = frozenset({"SKIPPED", "INTERRUPTED"})
+    kept_statuses = frozenset(EVAL_STATUSES) - skipped_statuses
 
     kept = sum(1 for o in outcomes if o.status in kept_statuses)
     skipped = sum(1 for o in outcomes if o.status in skipped_statuses)

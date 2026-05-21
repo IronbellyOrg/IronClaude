@@ -444,7 +444,11 @@ def _no_mcp_runtime_wired() -> bool:
         from superclaude.cli.eval import commands as _commands_mod
     except ImportError:
         return False
-    src = inspect.getsource(_commands_mod.eval_run)
+    # ``eval_run`` is a Click ``Command`` object (decorated via @click.command);
+    # ``inspect.getsource()`` does not handle Click Commands and raises
+    # TypeError. The underlying Python function is exposed via ``.callback`` —
+    # Click's documented attribute for the wrapped function.
+    src = inspect.getsource(_commands_mod.eval_run.callback)
     # Trigger words for the no-mcp branch: a CapabilityGates check on
     # ``no_mcp`` AND a skip_reason build using ``capability_gate:``.
     has_no_mcp_branch = "no_mcp and" in src or "no_mcp:" in src
@@ -473,20 +477,6 @@ def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(allowlisted_output_dir: Path
     """
 
     pytest.importorskip("click")
-
-    # T04.10-followup-K005: this test is pre-existing-broken on origin/master.
-    # It calls `_no_mcp_runtime_wired()` (around L433+) which executes
-    # `inspect.getsource(_commands_mod.eval_run)` on a Click Command object,
-    # raising TypeError. The test was previously hidden by the forward-dep
-    # skip (un-skips under Finding #1 of PR #66 follow-up); the underlying
-    # authoring bug pre-dates that work. Tracked separately for cleanup.
-    pytest.skip(
-        "T04.10-followup-K005: pre-existing test authoring bug — "
-        "`inspect.getsource(eval_run)` raises TypeError because eval_run "
-        "is a Click Command object, not a Python function. Un-skips when "
-        "`_no_mcp_runtime_wired()` is rewritten to introspect via "
-        "`eval_run.callback` or the underlying function object."
-    )
 
     from superclaude.cli.eval import commands as _commands_mod
 

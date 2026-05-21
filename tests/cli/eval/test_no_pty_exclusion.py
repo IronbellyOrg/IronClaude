@@ -304,20 +304,6 @@ def test_eval_run_no_pty_skips_real_suite_end_to_end(allowlisted_output_dir: Pat
 
     pytest.importorskip("click")
 
-    # T04.10-followup-K004: this test is pre-existing-broken on origin/master.
-    # It invokes `eval run --suites-dir <path>` but --suites-dir is a flag on
-    # `eval list` (commands.py around L920), not `eval run`. Click correctly
-    # rejects with exit 2. The test was previously hidden by the forward-dep
-    # skip (un-skips under Finding #1 of PR #66 follow-up); the underlying
-    # authoring bug pre-dates that work. Tracked separately for cleanup.
-    pytest.skip(
-        "T04.10-followup-K004: pre-existing test authoring bug — "
-        "`eval run --suites-dir` is invalid (the flag exists on `eval list`, "
-        "not `eval run`). Un-skips when the test is rewritten to either "
-        "(a) drop --suites-dir, (b) move the suite manifest to a location "
-        "discoverable by --suite directly, or (c) target a different command."
-    )
-
     from superclaude.cli.eval import commands as _commands_mod
 
     forward_deps = (
@@ -356,9 +342,7 @@ def test_eval_run_no_pty_skips_real_suite_end_to_end(allowlisted_output_dir: Pat
             [
                 "run",
                 "--suite",
-                "real",
-                "--suites-dir",
-                str(REAL_SUITE_PATH.parent),
+                str(REAL_SUITE_PATH),
                 "--output-dir",
                 str(output_dir),
                 "--no-pty",
