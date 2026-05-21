@@ -1,0 +1,8 @@
+{
+  "total_tokens": 98146,
+  "duration_ms": 426429,
+  "total_duration_seconds": 426.4,
+  "tool_uses": 34,
+  "agent_summary": "Findings: critical=0 high=0 medium=4 low=3 + 6 cross-cutting (1H/2M/3L) = 13 retained, 1 dropped. Verdict: Approve with comments. Files reviewed: 206 (~64k LOC).",
+  "notable": "Wave 3 dropped 1 finding (`roadmap_run @ executor.py:2895` — function doesn't exist at cited line). Found duplicate `TurnLedger` class across sprint/models.py:693 and prd/executor.py:139, and inconsistent `SemanticCheck.check_fn` return-type contract — these are the asymmetric-helper / api-contract pattern the protocol targets."
+}

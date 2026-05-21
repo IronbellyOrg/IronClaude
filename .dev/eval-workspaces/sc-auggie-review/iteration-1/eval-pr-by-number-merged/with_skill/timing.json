@@ -1,0 +1,8 @@
+{
+  "total_tokens": 93032,
+  "duration_ms": 408336,
+  "total_duration_seconds": 408.3,
+  "tool_uses": 24,
+  "agent_summary": "Findings: critical=0 high=0 medium=2 low=4 nit=3 (total=9). Recommendation: Approve with comments.",
+  "notable": "Subagent initially used fabricated `--json` flag; corrected to `--output-format json` after re-reading skill. Suggests skill should foreground the exact auggie invocation pattern more prominently. All findings grounded; 0 dropped."
+}

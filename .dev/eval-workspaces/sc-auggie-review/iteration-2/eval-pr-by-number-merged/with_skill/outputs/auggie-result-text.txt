@@ -1,0 +1,113 @@
+Based on my comprehensive analysis of the code and the diff, I can now generate the findings JSON:
+
+```json
+{
+  "findings": [
+    {
+      "title": "Schema duplication still exists between prompts.py and gates.py despite fix",
+      "category": "architecture",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/prd/gates.py",
+      "line": 102,
+      "line_range_end": 110,
+      "in_diff": true,
+      "evidence": "_RESEARCH_REQUIRED_SECTIONS = [\n    \"EXISTING_FILES\",\n    \"PATTERNS_AND_CONVENTIONS\",\n    \"FEATURE_ANALYSIS\",\n    \"RECOMMENDED_OUTPUTS\",\n    \"SUGGESTED_PHASES\",\n    \"TEMPLATE_NOTES\",\n    \"AMBIGUITIES_FOR_USER\",\n]",
+      "why": "The PR fixes the schema mismatch but does not eliminate the root cause: the same 7-section schema is still hard-coded in two places (gates.py:102-110 and prompts.py:226-254). The round-trip test prevents future divergence, but the duplication remains a maintenance burden and violates DRY. The codebase has established patterns for single-source-of-truth via vocabulary.py and the import-from-shared-module approach.",
+      "recommendation": "Extract _RESEARCH_REQUIRED_SECTIONS to a shared module (e.g., src/superclaude/cli/prd/schemas.py) and import it in both gates.py and prompts.py. The prompt builder can iterate over the constant to generate the section list dynamically. This eliminates the duplication while preserving the round-trip test's value.",
+      "cross_references": ["src/superclaude/cli/prd/prompts.py:226", "src/superclaude/cli/vocabulary.py:1"],
+      "confidence": "high"
+    },
+    {
+      "title": "Regex pattern allows both space and underscore but prompt only instructs underscore",
+      "category": "api-contract",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/prd/gates.py",
+      "line": 135,
+      "line_range_end": 135,
+      "in_diff": true,
+      "evidence": "r\"(?:^|\\n)\\s*#{1,4}\\s+.*(?:Suggested[\\s_]+)?Phases\"",
+      "why": "The regex pattern `[\\s_]+` now accepts both 'Suggested Phases' (space) and 'SUGGESTED_PHASES' (underscore), but the prompt at prompts.py:239 only instructs '## SUGGESTED_PHASES' (underscore form). This creates asymmetry: the gate is more permissive than the prompt's instruction. While this is not a bug (agents will follow the prompt and emit the underscore form), it introduces unnecessary optionality in the validation layer.",
+      "recommendation": "Either: (1) make the regex strict to match only underscore form `(?:SUGGESTED_PHASES)` to enforce exact prompt compliance, or (2) document in the gate's docstring that the regex intentionally accepts both forms for backward compatibility with existing research-notes.md files that may use the space form.",
+      "cross_references": ["src/superclaude/cli/prd/prompts.py:239"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Incomplete comment update in _check_suggested_phases_detail",
+      "category": "docs",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/prd/gates.py",
+      "line": 129,
+      "line_range_end": 132,
+      "in_diff": false,
+      "evidence": "def _check_suggested_phases_detail(content: str) -> bool | str:\n    \"\"\"Check that the Suggested Phases section contains per-agent detail.\n\n    Expects at least one numbered or bulleted list item under a Phases heading.\n    \"\"\"",
+      "why": "The docstring still references 'Suggested Phases' in natural English, which is accurate for its purpose. However, the function now validates both 'Suggested Phases' (space) and 'SUGGESTED_PHASES' (underscore) per the updated regex. The docstring should mention this dual-form support for clarity, especially since the prompt only instructs the underscore form.",
+      "recommendation": "Update the docstring to: 'Check that the Suggested Phases / SUGGESTED_PHASES section contains per-agent detail. Accepts both space and underscore forms for backward compatibility.' This documents the intentional permissiveness.",
+      "cross_references": [],
+      "confidence": "medium"
+    },
+    {
+      "title": "Round-trip test does not verify the regex pattern fix",
+      "category": "tests",
+      "severity_hint": "medium",
+      "file": "tests/cli/prd/test_research_notes_roundtrip.py",
+      "line": 63,
+      "line_range_end": 76,
+      "in_diff": true,
+      "evidence": "def test_prompt_conforming_output_passes_gate(minimal_config: PrdConfig) -> None:\n    \"\"\"A research-notes.md that follows the prompt's instructions MUST pass the gate.\"\"\"\n    prompt = build_research_notes_prompt(minimal_config)\n    instructed = _extract_h2_sections_from_prompt(prompt)\n    fake_research_notes = \"---\\nDate: 2026-05-20\\nScenario: B\\nTier: standard\\n---\\n\\n\"\n    for section in instructed:\n        fake_research_notes += f\"## {section}\\n- detail\\n\\n\"\n    # Ensure SUGGESTED_PHASES has a numbered list item so _check_suggested_phases_detail\n    # finds detail under the heading (the loop appends a \"- detail\" bullet which already\n    # satisfies the list-pattern regex, but be explicit for clarity).\n    fake_research_notes += \"1. Phase one detail\\n\"\n\n    assert _check_research_notes_sections(fake_research_notes) is True\n    assert _check_suggested_phases_detail(fake_research_notes) is True",
+      "why": "The new test validates that the prompt's instructed schema matches the gate's expected schema and that conforming output passes. However, it does not test the specific regex fix (changing `\\s+` to `[\\s_]+` to match 'SUGGESTED_PHASES'). The test appends a numbered list after the loop, which could match any heading above it, not necessarily SUGGESTED_PHASES. A non-conforming input (e.g., 'Suggested Phases' with space) would also pass the current test, making the regex fix un-tested.",
+      "recommendation": "Add a third test: `test_phases_regex_accepts_underscore_form()` that creates a fake research-notes.md with '## SUGGESTED_PHASES' (underscore) and a numbered list immediately under it, then asserts _check_suggested_phases_detail returns True. This explicitly covers the regex fix.",
+      "cross_references": ["src/superclaude/cli/prd/gates.py:134"],
+      "confidence": "high"
+    },
+    {
+      "title": "Test fixture appends numbered list at end of document, not under SUGGESTED_PHASES",
+      "category": "tests",
+      "severity_hint": "medium",
+      "file": "tests/cli/prd/test_research_notes_roundtrip.py",
+      "line": 73,
+      "line_range_end": 73,
+      "in_diff": true,
+      "evidence": "fake_research_notes += \"1. Phase one detail\\n\"",
+      "why": "The test comment claims 'the loop appends a \"- detail\" bullet which already satisfies the list-pattern regex', but then appends '1. Phase one detail' at the end. The _check_suggested_phases_detail function searches for the SUGGESTED_PHASES heading, then scans *after* that heading for list items. If the numbered list is appended after all sections (including AMBIGUITIES_FOR_USER), the regex will find it because it scans `content[phases_match.end():]`. This works, but the test structure is fragile — if a future section is added after SUGGESTED_PHASES, the test may pass for the wrong reason.",
+      "recommendation": "Insert the numbered list directly under the SUGGESTED_PHASES section in the loop: `if section == \"SUGGESTED_PHASES\": fake_research_notes += \"1. Phase one detail\\n\"`. This makes the test's structure match the actual document structure and reduces fragility.",
+      "cross_references": ["src/superclaude/cli/prd/gates.py:142"],
+      "confidence": "medium"
+    },
+    {
+      "title": "No validation that _RESEARCH_REQUIRED_SECTIONS matches upstream SKILL.md",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/cli/prd/test_research_notes_roundtrip.py",
+      "line": 53,
+      "line_range_end": 60,
+      "in_diff": true,
+      "evidence": "def test_prompt_schema_matches_gate_schema(minimal_config: PrdConfig) -> None:\n    \"\"\"The 7 sections the prompt instructs MUST equal the 7 sections the gate requires.\"\"\"\n    prompt = build_research_notes_prompt(minimal_config)\n    instructed = _extract_h2_sections_from_prompt(prompt)\n    assert sorted(instructed) == sorted(_RESEARCH_REQUIRED_SECTIONS), (",
+      "why": "The round-trip test validates prompt-to-gate consistency but does not validate that the gate's list matches the upstream source of truth (SKILL.md:267-305). The PR summary states the upstream skill is the authoritative schema, but there's no automated check that gates.py continues to match it. If SKILL.md evolves and prompts.py is updated but gates.py is not, the round-trip test would fail, but if both are updated incorrectly (deviating from SKILL.md), the test would pass.",
+      "recommendation": "Add a third assertion or a separate test that reads SKILL.md (or its generated equivalent) and validates that the 7 section names appear in the expected order. This is lower priority since SKILL.md is not a machine-readable schema file, but could be done via regex extraction similar to _extract_h2_sections_from_prompt.",
+      "cross_references": ["src/superclaude/skills/prd/SKILL.md:267"],
+      "confidence": "low"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "No centralized schema constants module for PRD pipeline",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "affected_files": ["src/superclaude/cli/prd/gates.py", "src/superclaude/cli/prd/prompts.py"],
+      "why": "The PRD pipeline has multiple schema constants that could drift: _RESEARCH_REQUIRED_SECTIONS (7 sections), _PRD_CRITICAL_SECTIONS (5 sections), and potentially others. The codebase demonstrates a pattern of centralizing shared vocabulary (cli/vocabulary.py for obligation terms). The PRD pipeline would benefit from a similar schemas.py module to avoid duplication and drift. The round-trip test is a mitigation but does not eliminate the duplication.",
+      "recommendation": "Create src/superclaude/cli/prd/schemas.py to hold _RESEARCH_REQUIRED_SECTIONS and _PRD_CRITICAL_SECTIONS as exportable constants. Import these in gates.py and prompts.py. This follows the established vocabulary.py pattern and makes the single-source-of-truth explicit.",
+      "confidence": "high"
+    },
+    {
+      "title": "Prompt-gate contract validation is test-only, not runtime",
+      "category": "architecture",
+      "severity_hint": "low",
+      "affected_files": ["tests/cli/prd/test_research_notes_roundtrip.py", "src/superclaude/cli/prd/executor.py"],
+      "why": "The round-trip test validates prompt-gate alignment at test time, but the pipeline executor does not perform any runtime validation. If gates.py is edited incorrectly and tests are not run (or are skipped), the pipeline will fail at runtime with opaque gate failures. Other pipelines (cli_portify, roadmap) have similar test-only validation. This is acceptable for development, but a production deployment with schema drift could fail silently.",
+      "recommendation": "Consider adding a startup self-check in the executor or CLI entry point that validates critical schema invariants (e.g., _RESEARCH_REQUIRED_SECTIONS has exactly 7 elements). This is a 'sanity check' pattern, not a replacement for tests, but catches configuration errors before pipeline execution.",
+      "confidence": "low"
+    }
+  ],
+  "notes_for_orchestrator": "All findings cite real file:line numbers verified at HEAD (post-merge). The in_diff flag indicates whether the cited line is part of the PR's diff. Findings focus on architecture (duplication), tests (coverage gaps), and docs (comment staleness). No security, data-integrity, or concurrency issues found. The PR's core fix (aligning the 7-section list and adding the round-trip test) is correct; these findings address follow-up improvements and edge cases."
+}
+```

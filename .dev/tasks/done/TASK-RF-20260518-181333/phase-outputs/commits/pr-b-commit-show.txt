@@ -1,0 +1,55 @@
+commit f3f1df5f7a9309b9f4de89033365e3cc3476b64b
+Author: RyanW <ryan@ironbelly.com>
+Date:   Mon May 18 21:33:20 2026 +0000
+
+    test(audit): land NFR-CONV invariant suite + realign 3 task-builder-merge assertions
+
+    Two coupled test changes shipped together because they share the tests/
+    review surface:
+
+    (1) Audit test suite (tests/audit/) — 14 new test files + 9 fixture files
+    covering the NFR-CONV invariant series (NFR-CONV-2 prose-determinism,
+    NFR-CONV-6 self-contained items, NFR-CONV-9 zero-trust QA, NFR-CONV-10
+    parallel research, DNSP synthetic-finding R-122 / R-123 / R-125 / INV-021
+    guards, hidden_input_guard fixtures, monotonicity halt fixtures, sequencing
+    PR06-before-PR04 guards). 7 of 20 ruff issues auto-fixed; 13 remaining are
+    intentional descriptive test naming patterns (N801/N999 conventions for
+    class names like TestPartA_OneLowFindingFails and module names like
+    test_nfr_conv_9_zero_trust) acceptable under the rot-budget convention.
+
+    (2) tests/skills/test_task_builder_merge.py — realign 3 task-builder-merge
+    test assertions to the final SKILL.md/agent text (drift remediation from
+    TASK-RF-20260518-181333 Phase 2): L165 "NEVER write specific" -> "NO
+    specific file:line references" (matches SKILL.md L1140 TB-Add-7); L384-387
+    "Regression takes precedence" OR-pair -> "Precedence rule (regression >
+    monotonicity)" (matches SKILL.md L1041 byte-exact); L408 "non-convergent"
+    -> "byte-exact wire string" (matches rf-task-builder.md L358 COMP-002-M5).
+    No edits to SKILL.md or rf-task-builder.md.
+
+    PR-coupling note: ~30 audit tests + 5 errors fail on this branch because
+    they assert against docs/reference/nfr-conv-2-prose-determinism.md and
+    SKILL.md hook-sync sections that ship in PR-F. These tests transition
+    from FAIL to PASS once PR-F merges. The task-builder-merge tests (68/68)
+    PASS on this branch independent of PR-F.
+
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .../hidden_input_guard/header_empty_done.md        |  79 +++
+ .../hidden_input_guard/header_populated_done.md    |  82 +++
+ .../hidden_input_guard/populated_done_inventory.md |  46 ++
+ tests/audit/fixtures/nfr_conv_6/full_fields.md     |  87 +++
+ tests/audit/fixtures/nfr_conv_6/stripped.md        |  87 +++
+ .../nfr_conv_9/inherited_verdict_no_semantic.md    |  43 ++
+ .../nfr_conv_9/inherited_verdict_with_semantic.md  |  42 ++
+ tests/audit/fixtures/nfr_conv_9/one_low_finding.md |  54 ++
+ .../fixtures/nfr_conv_9/zero_findings_baseline.md  |  45 ++
+ tests/audit/test_dnsp_all_agents_fail_bypass.py    | 645 ++++++++++++++++++
+ tests/audit/test_dnsp_dedup_collapse.py            | 514 +++++++++++++++
+ tests/audit/test_dnsp_does_not_serialize_cohort.py | 718 +++++++++++++++++++++
+ tests/audit/test_dnsp_twice_exhaust.py             | 609 +++++++++++++++++
+ tests/audit/test_hidden_input_guard.py             | 426 ++++++++++++
+ ...test_invariant_preservation_NFR_6_through_10.py | 495 ++++++++++++++
+ tests/audit/test_nfr_conv_6_self_contained.py      | 469 ++++++++++++++
+ tests/audit/test_nfr_conv_9_zero_trust.py          | 475 ++++++++++++++
+ tests/skills/test_task_builder_merge.py            |   9 +-
+ 18 files changed, 4919 insertions(+), 6 deletions(-)

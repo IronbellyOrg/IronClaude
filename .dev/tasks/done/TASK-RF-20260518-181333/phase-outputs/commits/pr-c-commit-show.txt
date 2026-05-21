@@ -1,0 +1,43 @@
+commit e4d8497680c136d7fe4567f877ad6171679ccc3f
+Author: RyanW <ryan@ironbelly.com>
+Date:   Mon May 18 21:37:04 2026 +0000
+
+    docs(task-builder): D-0053..D-0063 task-builder-merge evidence batch 1 + phase-5 output
+
+    Lands 11 task-builder-merge release evidence directories (D-0053..D-0063,
+    covering PR-01 through PR-04 + PR-06 + PR-07 landings) plus the phase-5
+    sprint output files for that release run. Each artifact directory contains
+    the evidence.md (post-landing verification) and, where applicable, the
+    spec.md and quality-engineer-report.md generated during the landing run.
+
+    This is the first of two evidence batches (PR-C+PR-D) splitting 47 total
+    task-builder-merge artifacts to keep each PR under the ~400-LOC review
+    guideline. PR-D will follow with D-0068..D-0100.
+
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .../artifacts/D-0053/evidence.md                   | 255 +++++++++++++++
+ .../artifacts/D-0054/evidence.md                   | 168 ++++++++++
+ .../task-builder-merge/artifacts/D-0054/spec.md    | 118 +++++++
+ .../artifacts/D-0055/evidence.md                   | 163 ++++++++++
+ .../artifacts/D-0056/evidence.md                   | 332 +++++++++++++++++++
+ .../task-builder-merge/artifacts/D-0056/spec.md    | 188 +++++++++++
+ .../artifacts/D-0057/evidence.md                   | 353 +++++++++++++++++++++
+ .../task-builder-merge/artifacts/D-0057/spec.md    | 233 ++++++++++++++
+ .../artifacts/D-0058/evidence.md                   | 350 ++++++++++++++++++++
+ .../task-builder-merge/artifacts/D-0058/spec.md    | 166 ++++++++++
+ .../artifacts/D-0059/evidence.md                   | 233 ++++++++++++++
+ .../artifacts/D-0059/quality-engineer-report.md    | 298 +++++++++++++++++
+ .../task-builder-merge/artifacts/D-0059/spec.md    | 134 ++++++++
+ .../artifacts/D-0060/evidence.md                   | 159 ++++++++++
+ .../artifacts/D-0060/quality-engineer-report.md    | 140 ++++++++
+ .../task-builder-merge/artifacts/D-0060/spec.md    | 103 ++++++
+ .../artifacts/D-0061/evidence.md                   | 248 +++++++++++++++
+ .../task-builder-merge/artifacts/D-0061/spec.md    |  98 ++++++
+ .../artifacts/D-0062/evidence.md                   | 204 ++++++++++++
+ .../task-builder-merge/artifacts/D-0062/spec.md    |  99 ++++++
+ .../artifacts/D-0063/evidence.md                   | 243 ++++++++++++++
+ .../task-builder-merge/artifacts/D-0063/spec.md    |  97 ++++++
+ .../task-builder-merge/results/phase-5-errors.txt  |   0
+ .../task-builder-merge/results/phase-5-output.txt  |  60 ++++
+ 24 files changed, 4442 insertions(+)

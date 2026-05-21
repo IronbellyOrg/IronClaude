@@ -1,0 +1,30 @@
+efaa33d chore(hooks): resolve OQ-2 (archive+delete bash-gate orphan) and OQ-3 (register reject-workspace-writes.sh)
+87c8254 feat(task-builder): MIG-006 land FR-CONV.6 Synthetic-DNSP on Partition Exhaust (M6)
+5439ea1 feat(hooks): widen auggie-flag-clear matcher to mcp__auggie-mcp__; add verify-sync hook coverage and cross-consistency checks
+edd3ddd docs(task-builder): D-0067 T05.16 MIG-005 evidence + FF governance entry
+db6166e feat(task-builder): MIG-005 land FR-CONV.5 Retry Monotonicity + Regression Halts (M5)
+0dcc947 test(task-builder): D-0066 T05.15 TEST-024 sequencing inversion fixture (K-007 mitigation)
+c9e2b12 test(task-builder): D-0065 T05.14 TEST-017 + TEST-022 slow-shrink + cross-cycle dedup fixtures
+20b58f6 test(task-builder): D-0064 T05.13 TEST-015 + TEST-016 monotonicity + regression halt fixtures
+487e76b feat(task-builder): MIG-004 land FR-CONV.4 Five Adversarial Axes overlay (M4)
+8b7fe5f docs(task-builder): D-0039 T03.16 MIG-003 evidence + FF governance entry
+ad083b6 feat(task-builder): MIG-003 land FR-CONV.3 Inherited Structural Verdict + Self-Audit (M3)
+de7829d test(task-builder): D-0038 T03.15 TEST-010 dynamic enumeration INV-010 fixture
+bb5d751 test(task-builder): D-0037 T03.14 TEST-009 Self-Audit INV-019 fixture
+79644fa docs(task-builder): D-0025 T02.11 MIG-002 evidence + FF governance entry
+2648be8 feat(task-builder): MIG-002 land FR-CONV.2 Execution Context header (M2)
+516bb46 chore(task-merge): consolidate docs/docs-product/tech/task-merge → (#46)
+db824c4 feat(spawn,adversarial): branch-trace + sufficiency-challenge mitigations (#45)
+9b7f141 fix(roadmap): obligation_scanner meta-context Layer 3 fixes (6 tests) (#44)
+6aa76aa chore(tasks): archive 5 CI-rot RF tracks to done/ (PR #37-#41 all merged)
+bc415a7 feat(task-sc-task-directional-merge): PRD/TDD/roadmap + adversarial tooling debate
+7e0b647 test(roadmap,sprint): T1b/T2c/T3/T4b regression coverage (#43)
+de7311d feat(roadmap): T4b/T5 deviation classifier suppression — emit unclassified_count and pin gate invariants at function level (#42)
+465797a chore: automated sync and namespace isolation from framework [2026-05-17 08:21]
+abdc4cd docs(ci): add CONTRIBUTING.md CI Hygiene + fix pull-sync push target (#41)
+5887df3 fix(tests): repair tests/audit/ fixtures + xfail genuinely-broken cases (#40)
+cd8a14a fix(lint): rename ambiguous identifiers (E741) and naming-convention violations (N806/N811/F811/F841) (#39)
+d3060a8 Merge pull request #38 from IronbellyOrg/fix/ci-rot-pr2-ruff-format
+723134f style(lint): ruff format --check now passes
+4593a9b Merge pull request #37 from IronbellyOrg/fix/ci-rot-pr1-ruff-autofix
+ad72b1b fix(lint): ruff --fix sweep — F401 unused imports + I001 import order

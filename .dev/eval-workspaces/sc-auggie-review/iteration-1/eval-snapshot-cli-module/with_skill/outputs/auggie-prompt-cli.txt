@@ -1,0 +1,128 @@
+You are reviewing files at the workspace root in their current state. There is no diff baseline — every line is in scope.
+
+## Context
+
+Target: snapshot of src/superclaude/cli/ — the SuperClaude Python CLI subtree (206 .py files, ~64k LOC across 10 subpackages: audit, cleanup_audit, cli_portify, eval, pipeline, prd, roadmap, sprint, tasklist, plus root install_* / main.py / doctor.py).
+
+This is a code review of the CLI module *as a system*. Each subpackage exposes a click-based command group with a similar shape (commands.py + executor.py + models.py + gates.py + prompts.py). Architectural and cross-cutting findings are the primary goal — per-line nits are not.
+
+Key entry-point files to anchor your investigation (you have full repo index — use it to traverse references):
+- src/superclaude/cli/main.py                                  (Click root group, command registration)
+- src/superclaude/cli/__init__.py
+- src/superclaude/cli/doctor.py
+- src/superclaude/cli/install_core.py
+- src/superclaude/cli/install_commands.py
+- src/superclaude/cli/install_agents.py
+- src/superclaude/cli/install_skills.py
+- src/superclaude/cli/install_skill.py
+- src/superclaude/cli/install_hooks.py
+- src/superclaude/cli/install_templates.py
+- src/superclaude/cli/install_mcp.py
+- src/superclaude/cli/vocabulary.py
+- src/superclaude/cli/sprint/commands.py
+- src/superclaude/cli/sprint/executor.py
+- src/superclaude/cli/sprint/models.py
+- src/superclaude/cli/sprint/preflight.py
+- src/superclaude/cli/sprint/tmux.py
+- src/superclaude/cli/sprint/notify.py
+- src/superclaude/cli/sprint/retrospective.py
+- src/superclaude/cli/roadmap/commands.py
+- src/superclaude/cli/roadmap/executor.py
+- src/superclaude/cli/roadmap/gates.py
+- src/superclaude/cli/roadmap/remediate.py
+- src/superclaude/cli/roadmap/validate_executor.py
+- src/superclaude/cli/roadmap/spec_parser.py
+- src/superclaude/cli/roadmap/templates.py
+- src/superclaude/cli/prd/commands.py
+- src/superclaude/cli/prd/executor.py
+- src/superclaude/cli/prd/gates.py
+- src/superclaude/cli/prd/inventory.py
+- src/superclaude/cli/pipeline/executor.py
+- src/superclaude/cli/pipeline/gates.py
+- src/superclaude/cli/pipeline/models.py
+- src/superclaude/cli/audit/__init__.py
+- src/superclaude/cli/audit/checkpoint.py
+- src/superclaude/cli/audit/budget.py
+- src/superclaude/cli/audit/credential_scanner.py
+- src/superclaude/cli/audit/dynamic_imports.py
+- src/superclaude/cli/audit/profile_generator.py
+- src/superclaude/cli/audit/tool_orchestrator.py
+- src/superclaude/cli/audit/wiring_analyzer.py
+- src/superclaude/cli/eval/commands.py
+- src/superclaude/cli/eval/orchestrator.py
+- src/superclaude/cli/eval/runner.py
+- src/superclaude/cli/eval/pty_driver.py
+- src/superclaude/cli/eval/claude_process.py
+- src/superclaude/cli/eval/isolation.py
+- src/superclaude/cli/eval/hook_adapter.py
+- src/superclaude/cli/eval/expect.py
+- src/superclaude/cli/eval/loader.py
+- src/superclaude/cli/cleanup_audit/commands.py
+- src/superclaude/cli/cleanup_audit/executor.py
+- src/superclaude/cli/cli_portify/commands.py
+- src/superclaude/cli/cli_portify/executor.py
+- src/superclaude/cli/cli_portify/gates.py
+- src/superclaude/cli/cli_portify/convergence.py
+- src/superclaude/cli/tasklist/commands.py
+- src/superclaude/cli/tasklist/executor.py
+- src/superclaude/cli/tasklist/gates.py
+
+Read these files via your file tools, then use your indexed codebase context to investigate cross-cutting patterns.
+
+## Focus areas
+
+You MUST cover every focus area listed below. Use codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
+
+### anti-patterns
+Look for: god functions (> 100 lines), god classes (> 20 methods), god modules (>800 LOC), feature envy, primitive obsession, shotgun surgery (one change forces many distant edits), inappropriate intimacy, lazy class, speculative generality, refused bequest, message chains, middle-man classes. Cross-reference: are these patterns recurring across the 10 subpackages (sprint/roadmap/prd/pipeline/etc.) given they share a near-identical commands/executor/models/gates skeleton? Is there evidence of shotgun surgery or copy-paste between subpackages?
+
+### architecture
+Look for: layering violations (executor reaching into models internals, commands.py containing business logic instead of just CLI wiring), business logic in transport/presentation layers, missing abstractions (the same try/except + log + return pattern repeated across executors), god-objects, circular imports (especially between models.py and executor.py within a subpackage), leaky abstractions, modules with too many responsibilities. Cross-reference: how do the 10 subpackages diverge in their shared skeleton — and is the divergence intentional or accidental drift? Is there a base class / mixin / common runner that should exist but doesn't?
+
+### quality
+Look for: off-by-one errors, null-deref / unwrap-on-None, untyped function boundaries (functions with no type hints despite being a public API), dead code, unused variables/imports, swallowed exceptions, broad `except Exception:` clauses that hide bugs, copy-pasted code blocks, magic numbers, misleading names, comments that contradict code, subprocess.run with shell=True or unvalidated argv, path traversal via Path concatenation, unsafe yaml.load / pickle / eval usage, mutable default arguments. Cross-reference: do similar helpers exist that the new code should reuse?
+
+## Output contract (STRICT)
+
+Respond with a single JSON object — no prose, no markdown fences. Schema:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<security|data-integrity|correctness|concurrency|resource-leak|error-handling|api-contract|performance|architecture|layering|coupling|anti-pattern|dead-code|tests|docs|logging|naming|style>",
+      "severity_hint": "<critical|high|medium|low|nit>",
+      "file": "<repo-relative path>",
+      "line": <integer at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": false,
+      "evidence": "<verbatim code excerpt>",
+      "why": "<2-4 sentences>",
+      "recommendation": "<1-3 sentences, concrete>",
+      "cross_references": ["<path:line>"],
+      "confidence": "<high|medium|low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<...>",
+      "category": "<...>",
+      "severity_hint": "<...>",
+      "affected_files": ["<path>"],
+      "why": "<...>",
+      "recommendation": "<...>",
+      "confidence": "<...>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional>"
+}
+
+## Quality bar
+
+- Cite real file:line — orchestrator will validate by Reading the file.
+- For higher-level findings (architecture/layering/anti-patterns/coupling): use cross_cutting_observations with affected_files.
+- Aim for ~8-12 file-anchored findings + 3-6 cross-cutting observations. This is a quick pass — high-signal, not exhaustive.
+- Zero findings in a focus area is OK if genuinely clean — do not pad.
+- snapshot mode: set in_diff: false on every finding.
+
+Return only the JSON object.

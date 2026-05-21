@@ -1,0 +1,76 @@
+{
+  "run_id": "local-diff-vs-master-without_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (15468 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "15468 bytes (min 1500)"
+    },
+    {
+      "text": "report-mentions-diff-target",
+      "passed": true,
+      "evidence": "matched /origin/master/ \u2192 'origin/master'"
+    },
+    {
+      "text": "uses-severity-tiers-exact",
+      "passed": true,
+      "evidence": "all 2 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /[Tt]otal[^\\n]*\\d+/ \u2192 'Total**| **14'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/install_skills.py:114'"
+    },
+    {
+      "text": "cited-files-in-diff-or-repo",
+      "passed": true,
+      "evidence": "15/15 citations validated (100%)"
+    },
+    {
+      "text": "focus-areas-honored",
+      "passed": true,
+      "evidence": "all 1 patterns matched"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "skill-auggie-artifacts-present",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "audit-log-records-grounding",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "skill-machine-summary-header",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "audit-log-no-approve-flag",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 0,
+    "total": 13,
+    "pass_rate": 1.0
+  }
+}

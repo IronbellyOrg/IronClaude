@@ -1,0 +1,1 @@
+Deleted branch fix/auggie-flag-clear-mcp-prefix (was adb7d36).

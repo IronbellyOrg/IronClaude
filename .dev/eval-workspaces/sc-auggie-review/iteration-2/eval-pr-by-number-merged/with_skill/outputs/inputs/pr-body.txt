@@ -1,0 +1,28 @@
+## Summary
+- Fix the PRD pipeline schema-divergence bug at `src/superclaude/cli/prd/gates.py:102-110` where the gate's hard-coded 7-name section list did not match what the prompt at `src/superclaude/cli/prd/prompts.py:188-260` instructs the agent to emit. The upstream skill at `src/superclaude/skills/prd/SKILL.md:267-305` is the source of truth — the gate's list was a port-time fabrication.
+- Apply 4 atomic edits + 1 new round-trip integration test. Result: every `superclaude prd run` invocation that previously halted at the step-4 gate now passes through, including the halted TUIBBS V1 run which resumes via `superclaude prd resume sufficiency-review` with $0 re-cost.
+
+## Changes
+- `src/superclaude/cli/prd/gates.py` — **Edit A**: rewrite `_RESEARCH_REQUIRED_SECTIONS` to the EXISTING_FILES schema (7 names: `EXISTING_FILES`, `PATTERNS_AND_CONVENTIONS`, `FEATURE_ANALYSIS`, `RECOMMENDED_OUTPUTS`, `SUGGESTED_PHASES`, `TEMPLATE_NOTES`, `AMBIGUITIES_FOR_USER`). **Edit B**: widen `_check_suggested_phases_detail` regex `\s+` → `[\s_]+` so the underscore form `## SUGGESTED_PHASES` matches in addition to space forms.
+- `tests/cli/prd/test_gates.py` — **Edit C**: rewrite `TestCheckResearchNotesSections` fixture in lockstep with Edit A.
+- `tests/cli/prd/test_e2e.py` — **Edit E**: rewrite the research-notes branch of `_make_passing_output` so the 5 e2e scenarios that feed mock subprocess output through the real gate continue to pass.
+- `tests/cli/prd/test_research_notes_roundtrip.py` — **Edit D** (NEW): integration test that wires `build_research_notes_prompt()` output through both check functions, closing the structural blind spot that allowed this divergence to land in production.
+- `.dev/tasks/to-do/TASK-RF-20260520-050937/` — MDTM task folder with research, QA reports, and execution artifacts (audit trail).
+
+## Out of scope (intentionally untouched)
+- `src/superclaude/cli/prd/prompts.py` — prompt is already correct.
+- `src/superclaude/skills/prd/SKILL.md` — upstream source of truth, not modified.
+
+## QA gates passed
+- Phase 2 gate (rf-qa): PASS 17/17
+- Phase 3 gate (rf-qa): PASS 33/33
+- Post-completion structural (rf-qa): PASS 19/19
+- Post-completion qualitative (rf-qa-qualitative): PASS 15/15
+
+## Test plan
+- [x] `uv run pytest tests/cli/prd/test_gates.py tests/cli/prd/test_research_notes_roundtrip.py -v` → 15/15 passed
+- [x] `uv run pytest tests/cli/prd/ -v` → 68/68 passed, zero regressions across all 5 e2e scenarios consuming `_make_passing_output(step_id="research-notes", ...)`
+- [x] `uv run ruff check src/superclaude/cli/prd/gates.py tests/cli/prd/test_gates.py tests/cli/prd/test_research_notes_roundtrip.py tests/cli/prd/test_e2e.py` → All checks passed!
+- [ ] Reviewer to confirm round-trip test fails meaningfully if either Edit A or Edit B is reverted (traced in the qualitative QA report under `reviews/qa-qualitative-review.md`)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

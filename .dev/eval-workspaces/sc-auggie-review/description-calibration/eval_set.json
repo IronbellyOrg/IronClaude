@@ -1,0 +1,52 @@
+[
+  {
+    "query": "/sc:auggie-review 62 --no-post-pr",
+    "should_trigger": true,
+    "note": "explicit slash-command invocation — must fire"
+  },
+  {
+    "query": "/sc:auggie-review --diff origin/master...HEAD --depth quick",
+    "should_trigger": true,
+    "note": "explicit slash-command invocation with diff target — must fire"
+  },
+  {
+    "query": "/sc:auggie-review --snapshot src/superclaude/cli/ --depth standard --focus anti-patterns,architecture",
+    "should_trigger": true,
+    "note": "explicit slash-command invocation with snapshot target — must fire"
+  },
+  {
+    "query": "Can you review this PR for me? https://github.com/IronbellyOrg/IronClaude/pull/62",
+    "should_trigger": false,
+    "note": "conversational PR review request — must NOT fire (no slash command)"
+  },
+  {
+    "query": "Take a look at this code and tell me what you think — any anti-patterns?",
+    "should_trigger": false,
+    "note": "conversational code review with anti-pattern keyword — must NOT fire"
+  },
+  {
+    "query": "Do a code review of src/superclaude/cli/prd/gates.py — look for bugs and quality issues",
+    "should_trigger": false,
+    "note": "explicit phrasing 'code review' with file path — must NOT fire (no slash command)"
+  },
+  {
+    "query": "Run an architectural audit of the CLI module. Find duplication and layering violations.",
+    "should_trigger": false,
+    "note": "conversational architectural review request — must NOT fire"
+  },
+  {
+    "query": "Use Auggie to scan my diff for issues and post findings to the PR",
+    "should_trigger": false,
+    "note": "names Auggie + diff + PR — must NOT fire without slash command"
+  },
+  {
+    "query": "What anti-patterns exist in the auth middleware refactor we just merged?",
+    "should_trigger": false,
+    "note": "anti-pattern discussion — must NOT fire"
+  },
+  {
+    "query": "Could you check whether my recent changes introduce any quality regressions or bugs?",
+    "should_trigger": false,
+    "note": "quality/bugs keyword soup — must NOT fire"
+  }
+]

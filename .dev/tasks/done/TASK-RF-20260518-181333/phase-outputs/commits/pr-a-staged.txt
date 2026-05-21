@@ -1,0 +1,10 @@
+M  src/superclaude/cli/sprint/commands.py
+M  src/superclaude/cli/sprint/config.py
+M  src/superclaude/cli/sprint/executor.py
+M  src/superclaude/cli/sprint/models.py
+M  tests/pipeline/test_process.py
+M  tests/sprint/test_config.py
+M  tests/sprint/test_executor.py
+M  tests/sprint/test_models.py
+M  tests/sprint/test_regression_gaps.py
+M  tests/sprint/test_watchdog.py

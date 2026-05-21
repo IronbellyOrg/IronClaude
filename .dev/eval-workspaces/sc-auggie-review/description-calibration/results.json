@@ -1,0 +1,91 @@
+{
+  "skill_name": "sc:auggie-review-protocol",
+  "description": "Auggie-powered code review protocol for PRs, local diffs, and file snapshots \u2014 orchestrates Auggie's deep retrieval pass, validates findings against real files, posts to PR, and offers a remediation handoff chain",
+  "results": [
+    {
+      "query": "/sc:auggie-review --diff origin/master...HEAD --depth quick",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "/sc:auggie-review 62 --no-post-pr",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "/sc:auggie-review --snapshot src/superclaude/cli/ --depth standard --focus anti-patterns,architecture",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "Can you review this PR for me? https://github.com/IronbellyOrg/IronClaude/pull/62",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "Take a look at this code and tell me what you think \u2014 any anti-patterns?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "Do a code review of src/superclaude/cli/prd/gates.py \u2014 look for bugs and quality issues",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "Run an architectural audit of the CLI module. Find duplication and layering violations.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "Use Auggie to scan my diff for issues and post findings to the PR",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "What anti-patterns exist in the auth middleware refactor we just merged?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "Could you check whether my recent changes introduce any quality regressions or bugs?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 7,
+    "failed": 3
+  }
+}

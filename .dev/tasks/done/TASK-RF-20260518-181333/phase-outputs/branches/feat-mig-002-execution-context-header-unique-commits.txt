@@ -1,0 +1,7 @@
+487e76b feat(task-builder): MIG-004 land FR-CONV.4 Five Adversarial Axes overlay (M4)
+8b7fe5f docs(task-builder): D-0039 T03.16 MIG-003 evidence + FF governance entry
+ad083b6 feat(task-builder): MIG-003 land FR-CONV.3 Inherited Structural Verdict + Self-Audit (M3)
+de7829d test(task-builder): D-0038 T03.15 TEST-010 dynamic enumeration INV-010 fixture
+bb5d751 test(task-builder): D-0037 T03.14 TEST-009 Self-Audit INV-019 fixture
+79644fa docs(task-builder): D-0025 T02.11 MIG-002 evidence + FF governance entry
+2648be8 feat(task-builder): MIG-002 land FR-CONV.2 Execution Context header (M2)

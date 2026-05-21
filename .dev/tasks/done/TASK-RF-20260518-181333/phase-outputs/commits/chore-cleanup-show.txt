@@ -1,0 +1,32 @@
+commit fe11bd83e2af37703e0c6324219c631d1acf145c
+Author: RyanW <ryan@ironbelly.com>
+Date:   Mon May 18 20:46:29 2026 +0000
+
+    chore(tests): add defensive .gitignore guards for repo-pollution sources
+
+    Adds anchored .gitignore patterns to prevent recurrence of three pollution
+    classes observed in working trees prior to the hook-sync-and-matcher-fix
+    PR split (TASK-RF-20260518-181333 Phase 3):
+
+      /0.[0-9]*           - shell-redirect typo guard (e.g. `> 0.20` leaving
+                            a 0-byte file at repo root)
+      /prd-*-test/        - PRD-skill CWD-default escape: PRD dry-run output
+      /prd-test-*/        - directories created at repo root rather than in
+      /prd-dry-run-*/     - .dev/eval-workspaces/. Anchored so legitimate uses
+                            inside .dev/eval-workspaces/ remain tracked.
+      .dev/eval-runs/     - eval/research scratch workspace
+      /.sprint-exitcode   - sprint runner transient exitcode marker
+
+    The accompanying filesystem cleanup (deleting 0.20, prd-test-product/,
+    prd-dry-run-test/, three docs/mistakes/test_*.md files, and reverting 16
+    simulated entries in docs/memory/solutions_learned.jsonl) is performed
+    on the working tree only — none of those paths were ever tracked, so
+    git history is not affected. Source-code fixes for the three root
+    causes (TASKLIST_ROOT manifest bug, reflexion writer cwd-isolation,
+    PRD-skill output-routing) are out of scope and tracked as follow-up
+    tasks.
+
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .gitignore | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
