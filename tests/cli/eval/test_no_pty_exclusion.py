@@ -284,7 +284,7 @@ def test_run_one_runs_tagged_spec_when_no_pty_flag_absent() -> None:
     assert take_short_circuit is False
 
 
-def test_eval_run_no_pty_skips_real_suite_end_to_end(tmp_path: Path) -> None:
+def test_eval_run_no_pty_skips_real_suite_end_to_end(allowlisted_output_dir: Path) -> None:
     """End-to-end ``eval run --no-pty`` on real.yaml reports SKIPPED only.
 
     Patches ``_run_one_spec`` to raise so any non-skipped spec would
@@ -322,7 +322,7 @@ def test_eval_run_no_pty_skips_real_suite_end_to_end(tmp_path: Path) -> None:
             "the run helpers."
         )
 
-    output_dir = tmp_path / "run"
+    output_dir = allowlisted_output_dir / "run"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     runner = CliRunner()
@@ -342,9 +342,7 @@ def test_eval_run_no_pty_skips_real_suite_end_to_end(tmp_path: Path) -> None:
             [
                 "run",
                 "--suite",
-                "real",
-                "--suites-dir",
-                str(REAL_SUITE_PATH.parent),
+                str(REAL_SUITE_PATH),
                 "--output-dir",
                 str(output_dir),
                 "--no-pty",

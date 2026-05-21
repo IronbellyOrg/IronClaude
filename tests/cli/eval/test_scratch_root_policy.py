@@ -212,6 +212,66 @@ def test_doctor_output_dir_violation_takes_precedence_over_hard_check(
 
 
 # ---------------------------------------------------------------------------
+# eval run CLI integration — parity with doctor (Finding #2 regression)
+# ---------------------------------------------------------------------------
+
+
+def test_eval_run_rejects_non_allowlisted_output_dir(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """``eval run --output-dir /etc/foo`` MUST refuse with exit 2.
+
+    Regression test for the Finding #2 inversion (PR #66): the
+    ``resolve_scratch_root`` call in ``eval_run`` historically passed the
+    operator-supplied ``--output-dir`` back as the ``output_dir=`` kwarg,
+    which extended the allowlist with the very candidate being validated
+    and made the AC12 check a tautology. ``eval run`` MUST refuse with
+    the same exit code and the same policy block as ``eval doctor`` for
+    the same non-allowlisted input.
+    """
+
+    runner = CliRunner()
+    result = runner.invoke(
+        eval_group,
+        ["run", "--suite", "real", "--output-dir", "/etc/foo"],
+    )
+    assert result.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE, (
+        f"eval run accepted a non-allowlisted --output-dir: "
+        f"exit_code={result.exit_code}, stderr={result.stderr!r}"
+    )
+    assert SCRATCH_ROOT_POLICY in result.stderr
+    assert "/etc/foo" in result.stderr
+
+
+def test_eval_run_and_doctor_agree_on_non_allowlisted_output_dir(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """OPS-002 cross-module consistency: doctor and run MUST refuse the
+    same set of operator-supplied ``--output-dir`` values.
+
+    Doctor's whole purpose is to predict ``eval run``'s runtime
+    behavior. The two MUST agree at the allowlist gate — otherwise the
+    pre-flight is a lie. This test pins the parity for two adversarial
+    inputs that the AC12 policy explicitly forbids.
+    """
+
+    runner = CliRunner()
+    for bad_path in ("/etc/foo", "/root/.claude"):
+        doctor_result = runner.invoke(
+            eval_group, ["doctor", "--output-dir", bad_path]
+        )
+        run_result = runner.invoke(
+            eval_group, ["run", "--suite", "real", "--output-dir", bad_path]
+        )
+        assert doctor_result.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE, (
+            f"doctor accepted {bad_path}: {doctor_result.output!r}"
+        )
+        assert run_result.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE, (
+            f"run accepted {bad_path}: {run_result.output!r}"
+        )
+
+
+# ---------------------------------------------------------------------------
 # Single source of truth: EvalConfig.allowed_scratch_roots
 # ---------------------------------------------------------------------------
 

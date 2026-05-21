@@ -444,7 +444,11 @@ def _no_mcp_runtime_wired() -> bool:
         from superclaude.cli.eval import commands as _commands_mod
     except ImportError:
         return False
-    src = inspect.getsource(_commands_mod.eval_run)
+    # ``eval_run`` is a Click ``Command`` object (decorated via @click.command);
+    # ``inspect.getsource()`` does not handle Click Commands and raises
+    # TypeError. The underlying Python function is exposed via ``.callback`` —
+    # Click's documented attribute for the wrapped function.
+    src = inspect.getsource(_commands_mod.eval_run.callback)
     # Trigger words for the no-mcp branch: a CapabilityGates check on
     # ``no_mcp`` AND a skip_reason build using ``capability_gate:``.
     has_no_mcp_branch = "no_mcp and" in src or "no_mcp:" in src
@@ -452,7 +456,7 @@ def _no_mcp_runtime_wired() -> bool:
     return has_no_mcp_branch and has_capability_skip_reason
 
 
-def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(tmp_path: Path) -> None:
+def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(allowlisted_output_dir: Path) -> None:
     """End-to-end ``eval run --suite real --no-mcp`` skips MCP-tagged evals.
 
     Patches ``_run_one_spec`` so any MCP-tagged spec that bypasses the
@@ -501,7 +505,7 @@ def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(tmp_path: Path) -> None:
             "lands the capability_gate skip branch."
         )
 
-    output_dir = tmp_path / "run"
+    output_dir = allowlisted_output_dir / "run"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     runner = CliRunner()
