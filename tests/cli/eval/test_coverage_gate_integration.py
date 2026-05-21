@@ -242,7 +242,7 @@ def test_doctor_check_coverage_json_payload_lists_uncovered_pattern(
 
 def test_run_exits_2_when_settings_has_uncovered_matcher(
     clean_host: dict,
-    tmp_path: Path,
+    allowlisted_output_dir: Path,
 ) -> None:
     """``eval run`` short-circuits with exit 2 at the top-of-run gate.
 
@@ -250,7 +250,7 @@ def test_run_exits_2_when_settings_has_uncovered_matcher(
     a fixture missing-matcher case never spawns a child process.
     """
     _stage_settings(clean_host["claude_home"], SETTINGS_MISSING)
-    output_dir = tmp_path / "run-out"
+    output_dir = allowlisted_output_dir / "run-out"
     runner = CliRunner()
     result = runner.invoke(
         eval_group,
@@ -273,7 +273,7 @@ def test_run_exits_2_when_settings_has_uncovered_matcher(
 
 def test_run_writes_coverage_missing_artifact_under_output_dir(
     clean_host: dict,
-    tmp_path: Path,
+    allowlisted_output_dir: Path,
 ) -> None:
     """A ``coverage_missing:<pattern>`` file appears under ``--output-dir``.
 
@@ -283,7 +283,7 @@ def test_run_writes_coverage_missing_artifact_under_output_dir(
     breach without re-reading settings.json.
     """
     _stage_settings(clean_host["claude_home"], SETTINGS_MISSING)
-    output_dir = tmp_path / "run-out"
+    output_dir = allowlisted_output_dir / "run-out"
     runner = CliRunner()
     result = runner.invoke(
         eval_group,
