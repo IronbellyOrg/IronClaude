@@ -19,6 +19,7 @@ NFR-PRD.11/GAP-004: Context injection for dependent steps.
 
 from __future__ import annotations
 
+import inspect
 import json
 import re
 import signal
@@ -29,6 +30,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from ._artifact_patterns import (
+    INVESTIGATION_FILENAME_RE,
+    SYNTHESIS_FILENAME_RE,
+    WEB_RESEARCH_FILENAME_RE,
+)
 from .diagnostics import (
     DiagnosticCollector,
     FailureClassifier,
@@ -309,16 +315,21 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
             for match in d.glob("*.md"):
                 if "-output.txt" in match.name:
                     continue
+                # Only a PRD-named file is the assembled PRD. The pipeline
+                # always writes the assembled document as PRD_*.md; a bare
+                # markdown-heading probe would false-match Stage A artifact
+                # files (research-notes.md, sufficiency-review.md, ...)
+                # that the executor persists into task_dir.
+                if "prd" not in match.name.lower():
+                    continue
                 try:
                     content = match.read_text(encoding="utf-8", errors="replace")
                 except OSError:
                     continue
-                looks_like_prd = (
-                    "prd" in match.name.lower()
-                    or "# " in content[:200]
-                )
-                if looks_like_prd and len(content) > len(best_content):
+                if len(content) > len(best_content):
                     best_content = content
+            # Skip the broader task_dir / task_dir.parent search once a
+            # candidate has been found in an earlier (more specific) dir.
             if best_content:
                 break
         if best_content.strip():
@@ -715,28 +726,31 @@ class PrdExecutor:
         # Resume support: when resuming, skip Stage B sub-stages whose
         # output artifacts already exist on disk. Honors config.resume_from.
         resume_from = getattr(self._config, "resume_from", None)
-        _STAGE_B_ORDER = [
+        stage_b_order = [
             "investigation", "research-qa", "web-research",
             "synthesis", "synthesis-qa", "assembly",
             "structural-qa", "qualitative-qa",
         ]
         resume_idx = 0
-        if resume_from in _STAGE_B_ORDER:
-            resume_idx = _STAGE_B_ORDER.index(resume_from)
+        if resume_from in stage_b_order:
+            resume_idx = stage_b_order.index(resume_from)
 
         def _should_run(substage: str) -> bool:
-            return _STAGE_B_ORDER.index(substage) >= resume_idx
+            return stage_b_order.index(substage) >= resume_idx
 
         research_dir = self._config.research_dir
         synthesis_dir = self._config.synthesis_dir
         have_investigation = research_dir.is_dir() and any(
-            p.name[:2].isdigit() for p in research_dir.glob("*.md")
+            INVESTIGATION_FILENAME_RE.match(p.name)
+            for p in research_dir.glob("*.md")
         )
         have_web = research_dir.is_dir() and any(
-            research_dir.glob("web-*.md")
+            WEB_RESEARCH_FILENAME_RE.match(p.name)
+            for p in research_dir.glob("*.md")
         )
         have_synthesis = synthesis_dir.is_dir() and any(
-            synthesis_dir.glob("synth-*.md")
+            SYNTHESIS_FILENAME_RE.match(p.name)
+            for p in synthesis_dir.glob("*.md")
         )
 
         # Step 10: Investigation (parallel)
@@ -1080,25 +1094,28 @@ class PrdExecutor:
         # Collect context summaries from prior steps
         summaries = list(self._context_summaries.values())
 
+        # Dispatch by introspecting the builder's signature, rather than
+        # probing call conventions via exceptions. A dual-mode builder
+        # (*args/**kwargs) and a static (config, *, context_summaries=...)
+        # builder are distinguished by which keyword params they accept;
+        # a VAR_KEYWORD (**kwargs) builder accepts everything. The only
+        # guarded call is inspect.signature itself — the builder body is
+        # invoked outside the try so a TypeError raised *inside* the
+        # builder surfaces as the real bug it is.
         try:
-            return builder_fn(
-                self._config,
-                context_summaries=summaries if summaries else None,
-                step_id=step_id,
-            )
-        except TypeError:
-            pass
-        try:
-            return builder_fn(
-                self._config,
-                context_summaries=summaries if summaries else None,
-            )
-        except TypeError:
-            pass
-        try:
-            return builder_fn(self._config)
-        except TypeError:
+            params = inspect.signature(builder_fn).parameters
+        except (TypeError, ValueError):
             return f"Execute step using builder {builder_name} (step={step_id})"
+
+        accepts_var_kw = any(
+            p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()
+        )
+        call_kwargs: dict = {}
+        if accepts_var_kw or "context_summaries" in params:
+            call_kwargs["context_summaries"] = summaries if summaries else None
+        if accepts_var_kw or "step_id" in params:
+            call_kwargs["step_id"] = step_id
+        return builder_fn(self._config, **call_kwargs)
 
     # -------------------------------------------------------------------
     # Shutdown handling (NFR-PRD.9)

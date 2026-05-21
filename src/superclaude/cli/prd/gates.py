@@ -44,10 +44,16 @@ def _check_verdict_field(content: str) -> bool | str:
     if json_match:
         return True
     # Markdown format (case-insensitive key, case-sensitive value).
-    # Accepts all common bold/colon orderings:
+    # Explicit alternation over exactly the three valid shapes:
     #   Verdict: PASS   |   **Verdict**: PASS   |   **Verdict:** PASS
+    # The prior permissive character-class form also accepted shapes
+    # with no colon at all (e.g. "Verdict PASS") — strictly too loose.
     md_match = re.search(
-        r"(?:^|\n)\s*\*{0,2}[Vv]erdict[*:\s]*(PASS|FAIL)",
+        r"(?:^|\n)\s*(?:"
+        r"\*\*[Vv]erdict\*\*\s*:\s*|"
+        r"\*\*[Vv]erdict:\*\*\s+|"
+        r"[Vv]erdict\s*:\s*"
+        r")(PASS|FAIL)",
         content,
     )
     if md_match:

@@ -5,6 +5,8 @@ Section 8.1 test plan: 8 tests.
 
 from __future__ import annotations
 
+import pytest
+
 from superclaude.cli.prd.gates import (
     _check_b2_self_contained,
     _check_no_placeholders,
@@ -101,6 +103,30 @@ class TestCheckVerdictField:
         result = _check_verdict_field("No verdict here")
         assert isinstance(result, str)
         assert "verdict" in result.lower()
+
+    @pytest.mark.parametrize(
+        "shape",
+        ["Verdict: PASS", "**Verdict**: PASS", "**Verdict:** PASS"],
+    )
+    def test_check_verdict_field_accepts_valid_markdown_shapes(
+        self, shape: str
+    ) -> None:
+        """The three legitimate markdown verdict shapes are accepted."""
+        content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
+        assert _check_verdict_field(content) is True
+
+    @pytest.mark.parametrize(
+        "shape",
+        ["Verdict PASS", "Verdict::: PASS", "Verdict***PASS", "verdict pass"],
+    )
+    def test_check_verdict_field_rejects_invalid_shapes(
+        self, shape: str
+    ) -> None:
+        """Malformed verdict shapes (no colon, junk separators, lowercase
+        value) are rejected — the tightened regex no longer false-accepts."""
+        content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
+        result = _check_verdict_field(content)
+        assert result is not True
 
 
 class TestCheckB2SelfContained:

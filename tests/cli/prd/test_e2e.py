@@ -281,7 +281,9 @@ def test_e2e_full_prd_creation_standard(
     executor = PrdExecutor(standard_e2e_config)
 
     # Mock _build_prompt to avoid intermediate file dependencies
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -337,7 +339,9 @@ def test_e2e_lightweight_prd(
     ]
 
     executor = PrdExecutor(lightweight_e2e_config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -399,7 +403,9 @@ def test_e2e_resume_from_halted_step(
     mock_process_cls.side_effect = tracking_factory
 
     executor = PrdExecutor(config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -491,7 +497,9 @@ def test_e2e_existing_work_detection(
     # Phase 5: Run executor -- check-existing returns SKIPPED for
     # ALREADY_COMPLETE state, rest of pipeline proceeds
     executor = PrdExecutor(config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -538,7 +546,9 @@ def test_e2e_budget_exhaustion(mock_synth_mapping, mock_process_cls, e2e_task_di
     config.work_dir = e2e_task_dir.parent
 
     executor = PrdExecutor(config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
