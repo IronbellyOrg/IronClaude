@@ -135,6 +135,24 @@ def run(
 @prd_group.command()
 @click.argument("step_id")
 @click.option(
+    "--product",
+    "-p",
+    default=None,
+    help="Product name (must match the original run).",
+)
+@click.option(
+    "--output",
+    "-o",
+    default=None,
+    help="Output path (must match the original run).",
+)
+@click.option(
+    "--tier",
+    type=click.Choice(["lightweight", "standard", "heavyweight"], case_sensitive=False),
+    default="standard",
+    help="Pipeline tier (must match original run, default: standard).",
+)
+@click.option(
     "--max-turns",
     type=int,
     default=300,
@@ -152,6 +170,9 @@ def run(
 )
 def resume(
     step_id: str,
+    product: str | None,
+    output: str | None,
+    tier: str,
     max_turns: int,
     model: str,
     debug: bool,
@@ -174,6 +195,9 @@ def resume(
     try:
         config = resolve_config(
             request="",
+            product=product,
+            output=output,
+            tier=tier,
             max_turns=max_turns,
             model=model,
             debug=debug,
