@@ -26,5 +26,15 @@
     "status": "still-applicable",
     "rerun_decision": "not-rerun-in-iteration-2",
     "rationale": "iteration-1 produced 100% pass on the new skill; SKILL.md edits in iteration-2 only added agent delegation + error-handling rows (additive, with fallback to inline behavior identical to iteration-1). Re-running the 6 skill evals would consume ~600k tokens with low marginal signal. Re-run when a non-additive SKILL.md change ships."
+  },
+  "regression_evals": {
+    "test-is-wrong-regression": {
+      "id": "TIW-1",
+      "fixture_dir": "eval-test-is-wrong-regression/",
+      "purpose": "Validate that the test_is_wrong field and report-template rendering rules from the meta-eval-confirmed test_is_wrong ship are exercised end-to-end. Run on every SKILL.md or refs/report-template.md change.",
+      "metadata_path": "eval-test-is-wrong-regression/eval_metadata.json",
+      "ran_in_iteration_2": false,
+      "rationale_for_deferral": "Eval is metadata-only at this stage. The next iteration that ships a feature touching SKILL.md output contract or refs/report-template.md MUST run this case. Tracks with INCORPORATE #1 from debate-2-incorporation."
+    }
   }
 }
