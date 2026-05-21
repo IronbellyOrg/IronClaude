@@ -1,0 +1,6 @@
+{
+  "total_tokens": 98577,
+  "duration_ms": 393695,
+  "total_duration_seconds": 393.7,
+  "note": "REPORT.md write blocked by harness; 11/12 artifacts on disk (audit.log, tier1+3 tier2 hypothesis cards, candidate-fixes, fix-proposals/, adversarial/)."
+}

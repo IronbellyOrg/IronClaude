@@ -1,0 +1,6 @@
+{
+  "total_tokens": 61157,
+  "duration_ms": 38308,
+  "total_duration_seconds": 38.3,
+  "result": "PASS — verified=1, dropped=1 (file-missing), status=partial"
+}

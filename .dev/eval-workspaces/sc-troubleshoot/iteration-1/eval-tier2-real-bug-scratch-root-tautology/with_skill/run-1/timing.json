@@ -1,0 +1,6 @@
+{
+  "total_tokens": 113129,
+  "duration_ms": 332229,
+  "total_duration_seconds": 332.2,
+  "note": "REPORT.md write blocked by harness on last step; other Tier 2 artifacts written (hypothesis cards, fix-proposals, adversarial/merged-output.md, audit.log)."
+}

@@ -47,7 +47,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 - **MCP**: Sequential (primary), Context7 (patterns), Magic (UI analysis)
 - **Tools**: [Read, Grep, Glob, Bash, TodoWrite]
 
-**`/troubleshoot [symptoms] [flags]`** - Problem investigation | Auto-Persona: Analyzer, QA | MCP: Sequential, Playwright
+**`/troubleshoot [symptoms] [flags]`** - Tiered diagnosis (Tier 1 triage → auto-escalating Tier 2 parallel hypotheses + adversarial fix debate → opt-in Tier 3 task-builder remediation) | Auto-Persona: Analyzer, Performance, Security, QA, Refactorer, DevOps | MCP: Auggie, Serena, Context7, Tavily, Sequential
 
 **`/explain [topic] [flags]`** - Educational explanations | Auto-Persona: Mentor, Scribe | MCP: Context7, Sequential
 

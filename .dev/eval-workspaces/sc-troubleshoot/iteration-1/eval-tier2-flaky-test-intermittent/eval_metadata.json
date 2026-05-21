@@ -1,0 +1,7 @@
+{
+  "eval_id": 2,
+  "eval_name": "tier2-flaky-test-intermittent",
+  "prompt": "Integration test `tests/api/test_user_session.py::test_concurrent_session_creation` is flaky in CI but passes locally ... (see evals.json)",
+  "expected_tier": 2,
+  "assertions": []
+}

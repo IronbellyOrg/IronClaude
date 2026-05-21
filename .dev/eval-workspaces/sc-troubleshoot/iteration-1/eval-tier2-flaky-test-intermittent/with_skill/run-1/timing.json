@@ -1,0 +1,6 @@
+{
+  "total_tokens": 115258,
+  "duration_ms": 678877,
+  "total_duration_seconds": 678.9,
+  "note": "REPORT.md write blocked by harness; 13 sibling artifacts written (audit.log, tier1-hypothesis.md, 4 Tier-2 cards, candidate-fixes.md, 3 fix-proposals, 6 adversarial artifacts)."
+}

@@ -1,0 +1,7 @@
+{
+  "eval_id": 1,
+  "eval_name": "tier1-missing-import",
+  "prompt": "I'm getting `NameError: name 'datetime' is not defined` at line 47 of `payments/refund_handler.py` ... (see evals.json)",
+  "expected_tier": 1,
+  "assertions": []
+}

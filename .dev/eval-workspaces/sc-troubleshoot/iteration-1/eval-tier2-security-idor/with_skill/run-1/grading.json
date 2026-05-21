@@ -1,0 +1,48 @@
+{
+  "eval_id": 4,
+  "eval_name": "tier2-security-idor",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Confirms the IDOR is real (does not dismiss as 'mobile-only')",
+      "passed": true,
+      "evidence": "REPORT.md: 'Real IDOR vulnerability ... \"mobile app only sends own ID\" defense is irrelevant \u2014 the server is the trust boundary.'"
+    },
+    {
+      "text": "Identifies the missing authorization check",
+      "passed": true,
+      "evidence": "REPORT.md: 'missing authorization between @login_required and the database lookup'."
+    },
+    {
+      "text": "Proposes the authorization fix",
+      "passed": true,
+      "evidence": "Fix adds `if user_id != current_user.id: abort(403)` before DB lookup."
+    },
+    {
+      "text": "Recommends a regression test for the fix",
+      "passed": true,
+      "evidence": "3 tests recommended: own-id 200, other-id 403, nonexistent 403."
+    },
+    {
+      "text": "Escalates to Tier 2 (security_caution)",
+      "passed": true,
+      "evidence": "audit.log shows escalation_reason=security_caution; 3 Tier 2 cards on disk."
+    },
+    {
+      "text": "Notes PII exposure as the impact severity",
+      "passed": true,
+      "evidence": "REPORT.md returns PII (email, phone, address, DOB) framing."
+    }
+  ],
+  "pass_count": 6,
+  "fail_count": 0,
+  "na_count": 0,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "na": 0
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "eval_id": 2,
+  "eval_name": "tier2-flaky-test-intermittent",
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Identifies race condition / thread-safety as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md: 'Unsynchronized check-then-act race'."
+    },
+    {
+      "text": "Cites the specific check-then-act pattern in get_or_create_session",
+      "passed": true,
+      "evidence": "REPORT.md describes the pattern explicitly."
+    },
+    {
+      "text": "Recommends a synchronization fix (Lock, per-key lock, or atomic primitive)",
+      "passed": true,
+      "evidence": "Option A uses threading.Lock."
+    },
+    {
+      "text": "Explains why CI (8-core) reproduces but local (1-core Docker) does not",
+      "passed": true,
+      "evidence": "REPORT.md Why CI-only section."
+    },
+    {
+      "text": "Escalates to Tier 2",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no tier concept."
+    },
+    {
+      "text": "At least 2 hypothesis cards written",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill produces single linear report."
+    }
+  ],
+  "pass_count": 4,
+  "fail_count": 0,
+  "na_count": 2,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 6,
+    "na": 2
+  }
+}

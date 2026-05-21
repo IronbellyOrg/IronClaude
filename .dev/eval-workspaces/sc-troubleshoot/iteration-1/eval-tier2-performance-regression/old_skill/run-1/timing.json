@@ -1,0 +1,6 @@
+{
+  "total_tokens": 54271,
+  "duration_ms": 86547,
+  "total_duration_seconds": 86.5,
+  "note": "Subagent's REPORT.md write was blocked by harness; inline summary captured in outputs/REPORT.md by parent."
+}

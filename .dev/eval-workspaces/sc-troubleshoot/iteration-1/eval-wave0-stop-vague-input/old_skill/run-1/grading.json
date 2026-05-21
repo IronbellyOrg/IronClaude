@@ -1,0 +1,38 @@
+{
+  "eval_id": 6,
+  "eval_name": "wave0-stop-vague-input",
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Refuses to fabricate a hypothesis from no input",
+      "passed": true,
+      "evidence": "REPORT.md documented failure mode rather than inventing \u2014 but the agent acknowledged the old command has NO STOP rule, so this 'pass' is forced by the agent's own integrity rather than the skill's protocol."
+    },
+    {
+      "text": "Asks user for specific missing information (error/symptom + scope)",
+      "passed": false,
+      "evidence": "REPORT.md: 'old command has no explicit STOP rule ... no clarifying-question protocol'. The closest it got was 'most useful proposed solution is user supplies a concrete symptom' \u2014 buried at the end after running a generic system survey."
+    },
+    {
+      "text": "Stops at Wave 0",
+      "passed": null,
+      "evidence": "N/A \u2014 old skill has no Wave 0 concept."
+    },
+    {
+      "text": "Does NOT use any MCP / parallel agents (no investigative work performed)",
+      "passed": false,
+      "evidence": "Old skill ran `git status`, `git log`, `ls` (Bash investigation) on input with zero signal \u2014 token waste, not the desired behavior."
+    }
+  ],
+  "pass_count": 1,
+  "fail_count": 2,
+  "na_count": 1,
+  "pass_rate": 0.33,
+  "summary": {
+    "pass_rate": 0.3333333333333333,
+    "passed": 1,
+    "failed": 2,
+    "total": 4,
+    "na": 1
+  }
+}

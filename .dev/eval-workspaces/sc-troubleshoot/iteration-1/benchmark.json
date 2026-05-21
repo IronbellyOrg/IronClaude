@@ -1,0 +1,644 @@
+{
+  "metadata": {
+    "skill_name": "sc-troubleshoot",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-05-21T05:38:11Z",
+    "evals_run": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 80.7,
+        "tokens": 58661,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies missing `from datetime import datetime` as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md diagnosis names missing datetime import."
+        },
+        {
+          "text": "Cites line 47 or the specific line containing datetime.utcnow()",
+          "passed": true,
+          "evidence": "REPORT.md references line 47."
+        },
+        {
+          "text": "Proposes the one-line fix: add `from datetime import datetime` to imports",
+          "passed": true,
+          "evidence": "Option A in REPORT.md is the import addition."
+        },
+        {
+          "text": "Stops at Tier 1 (does not unnecessarily escalate)",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no tier concept."
+        },
+        {
+          "text": "Reports calibrated confidence \u2265 0.85",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill does not report calibrated confidence."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 80.2,
+        "tokens": 55138,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies race condition / thread-safety as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md: 'Unsynchronized check-then-act race'."
+        },
+        {
+          "text": "Cites the specific check-then-act pattern in get_or_create_session",
+          "passed": true,
+          "evidence": "REPORT.md describes the pattern explicitly."
+        },
+        {
+          "text": "Recommends a synchronization fix (Lock, per-key lock, or atomic primitive)",
+          "passed": true,
+          "evidence": "Option A uses threading.Lock."
+        },
+        {
+          "text": "Explains why CI (8-core) reproduces but local (1-core Docker) does not",
+          "passed": true,
+          "evidence": "REPORT.md Why CI-only section."
+        },
+        {
+          "text": "Escalates to Tier 2",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no tier concept."
+        },
+        {
+          "text": "At least 2 hypothesis cards written",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill produces single linear report."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 86.5,
+        "tokens": 54271,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies N+1 query as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md: 'classic SQLAlchemy N+1'."
+        },
+        {
+          "text": "Names the specific relationships causing the problem",
+          "passed": true,
+          "evidence": "Table of per-row accesses lists owner, last_edit, last_edit.editor, tags."
+        },
+        {
+          "text": "Proposes eager-loading fix",
+          "passed": true,
+          "evidence": "Option A uses joinedload + selectinload."
+        },
+        {
+          "text": "Cites read-replica CPU pegging as evidence of query volume, not query slowness",
+          "passed": true,
+          "evidence": "REPORT.md Investigate section explicitly interprets the signal."
+        },
+        {
+          "text": "Escalates to Tier 2",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no tier concept."
+        },
+        {
+          "text": "At least 2 hypothesis cards written",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill produces single linear report."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 125.5,
+        "tokens": 66131,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the output_dir=output_dir self-referential kwarg as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md: 'eval_run calls resolve_scratch_root(requested_output, config=base_config, output_dir=output_dir)' as the bug."
+        },
+        {
+          "text": "Explains the allowlist tautology mechanic",
+          "passed": true,
+          "evidence": "REPORT.md: 'resolver appends resolved output_dir kwarg to the allowlist ... allowlist check becomes a tautology'."
+        },
+        {
+          "text": "Contrasts with doctor's correct behavior (no output_dir= kwarg)",
+          "passed": true,
+          "evidence": "REPORT.md cites commands.py:817 'no kwarg, keeping the default allowlist intact'."
+        },
+        {
+          "text": "Proposes dropping the output_dir=output_dir kwarg in eval_run",
+          "passed": true,
+          "evidence": "Solution C(A): remove the kwarg."
+        },
+        {
+          "text": "Notes the output_dir= parameter has a legitimate caller (defense-in-depth helpers)",
+          "passed": true,
+          "evidence": "REPORT.md notes 'output_dir= extends the allowlist for sub-paths minted inside the operator's already-validated root (per-eval HOMEs, working trees)'."
+        },
+        {
+          "text": "Recommends a regression test for the fix",
+          "passed": true,
+          "evidence": "Solution C(C): regression test asserting ScratchRootViolation."
+        },
+        {
+          "text": "Uses real file:line citations from the snapshot",
+          "passed": true,
+          "evidence": "Cites commands.py:1473-1477, commands.py:817, config.py:219-220 \u2014 all match fixture content."
+        },
+        {
+          "text": "Escalates to Tier 2",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no tier concept."
+        },
+        {
+          "text": "Invokes adversarial debate or notes consensus skipped it",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no adversarial step."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 85.1,
+        "tokens": 54128,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Confirms the IDOR is real (does not dismiss as 'mobile-only')",
+          "passed": true,
+          "evidence": "REPORT.md: 'true-positive IDOR ... mobile client is outside the trust boundary'."
+        },
+        {
+          "text": "Identifies the missing authorization check",
+          "passed": true,
+          "evidence": "REPORT.md table explicitly notes Authorization=NO."
+        },
+        {
+          "text": "Proposes the authorization fix",
+          "passed": true,
+          "evidence": "Option A: identity-equality check (404 to avoid enumeration)."
+        },
+        {
+          "text": "Recommends a regression test for the fix",
+          "passed": true,
+          "evidence": "Verification plan with user A\u2192B test."
+        },
+        {
+          "text": "Escalates to Tier 2 (security_caution)",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no tier concept."
+        },
+        {
+          "text": "Notes PII exposure as the impact severity",
+          "passed": true,
+          "evidence": "REPORT.md notes 'PII disclosure', GDPR Art. 5/32 relevance."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3333333333333333,
+        "passed": 1,
+        "failed": 2,
+        "total": 4,
+        "time_seconds": 52.1,
+        "tokens": 53502,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Refuses to fabricate a hypothesis from no input",
+          "passed": true,
+          "evidence": "REPORT.md documented failure mode rather than inventing \u2014 but the agent acknowledged the old command has NO STOP rule, so this 'pass' is forced by the agent's own integrity rather than the skill's protocol."
+        },
+        {
+          "text": "Asks user for specific missing information (error/symptom + scope)",
+          "passed": false,
+          "evidence": "REPORT.md: 'old command has no explicit STOP rule ... no clarifying-question protocol'. The closest it got was 'most useful proposed solution is user supplies a concrete symptom' \u2014 buried at the end after running a generic system survey."
+        },
+        {
+          "text": "Stops at Wave 0",
+          "passed": null,
+          "evidence": "N/A \u2014 old skill has no Wave 0 concept."
+        },
+        {
+          "text": "Does NOT use any MCP / parallel agents (no investigative work performed)",
+          "passed": false,
+          "evidence": "Old skill ran `git status`, `git log`, `ls` (Bash investigation) on input with zero signal \u2014 token waste, not the desired behavior."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 217.8,
+        "tokens": 87920,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies missing `from datetime import datetime` as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md diagnosis names missing datetime import; tier1-hypothesis.md cites the missing import block."
+        },
+        {
+          "text": "Cites line 47 or the specific line containing datetime.utcnow()",
+          "passed": true,
+          "evidence": "REPORT.md cites line 47 and the datetime.utcnow() call."
+        },
+        {
+          "text": "Proposes the one-line fix: add `from datetime import datetime` to imports",
+          "passed": true,
+          "evidence": "REPORT.md Proposed Fix: `from datetime import datetime`."
+        },
+        {
+          "text": "Stops at Tier 1 (does not unnecessarily escalate)",
+          "passed": true,
+          "evidence": "audit.log shows tier_reached=1; no Tier 2 artifacts written."
+        },
+        {
+          "text": "Reports calibrated confidence \u2265 0.85",
+          "passed": true,
+          "evidence": "Calibrated confidence 1.00 per agent summary."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 678.9,
+        "tokens": 115258,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies race condition / thread-safety as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md: 'check-then-act race on _session_cache'."
+        },
+        {
+          "text": "Cites the specific check-then-act pattern in get_or_create_session",
+          "passed": true,
+          "evidence": "REPORT.md cites api/session.py:9-14 with the check-then-act snippet."
+        },
+        {
+          "text": "Recommends a synchronization fix (Lock, per-key lock, or atomic primitive)",
+          "passed": true,
+          "evidence": "PR-1 in Proposed Fix uses threading.Lock with double-checked locking."
+        },
+        {
+          "text": "Explains why CI (8-core) reproduces but local (1-core Docker) does not",
+          "passed": true,
+          "evidence": "REPORT.md Summary explains GIL behavior + single-core Docker scheduling masks the race."
+        },
+        {
+          "text": "Escalates to Tier 2",
+          "passed": true,
+          "evidence": "audit.log + 4 Tier 2 hypothesis cards written."
+        },
+        {
+          "text": "At least 2 hypothesis cards written",
+          "passed": true,
+          "evidence": "4 cards on disk: quality-engineer, root-cause-analyst, refactoring-expert, performance-engineer."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 367.3,
+        "tokens": 97007,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies N+1 query as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md: 'textbook SQLAlchemy N+1'."
+        },
+        {
+          "text": "Names the specific relationships causing the problem (owner, tags, last_edit, last_edit.editor)",
+          "passed": true,
+          "evidence": "All four relationships explicitly named in REPORT.md."
+        },
+        {
+          "text": "Proposes eager-loading fix (joinedload/selectinload/subqueryload)",
+          "passed": true,
+          "evidence": "Per-cardinality fix uses joinedload(owner), joinedload(last_edit).joinedload(editor), selectinload(tags)."
+        },
+        {
+          "text": "Cites read-replica CPU pegging as evidence of query volume, not query slowness",
+          "passed": true,
+          "evidence": "REPORT.md interprets the 80% CPU as a volume signal."
+        },
+        {
+          "text": "Escalates to Tier 2",
+          "passed": true,
+          "evidence": "audit.log shows tier_reached=2 (low_confidence trigger); 3 Tier 2 cards on disk."
+        },
+        {
+          "text": "At least 2 hypothesis cards written",
+          "passed": true,
+          "evidence": "3 cards: performance-engineer, root-cause-analyst, system-architect."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 332.2,
+        "tokens": 113129,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the output_dir=output_dir self-referential kwarg as the root cause",
+          "passed": true,
+          "evidence": "REPORT.md cites commands.py:1473-1477 with `output_dir=output_dir` as the bug."
+        },
+        {
+          "text": "Explains the allowlist tautology mechanic",
+          "passed": true,
+          "evidence": "REPORT.md: 'allowlist appends output_dir kwarg ... loop matches candidate against the now-self-extended allowlist; trivially matches'."
+        },
+        {
+          "text": "Contrasts with doctor's correct behavior (no output_dir= kwarg)",
+          "passed": true,
+          "evidence": "REPORT.md cites commands.py:815-823: 'doctor ... without the kwarg'."
+        },
+        {
+          "text": "Proposes dropping the output_dir=output_dir kwarg in eval_run",
+          "passed": true,
+          "evidence": "Fix #1 in Proposed Fix section."
+        },
+        {
+          "text": "Notes the output_dir= parameter has a legitimate caller (defense-in-depth helpers)",
+          "passed": true,
+          "evidence": "REPORT.md explicitly notes the function signature retains the param for HomeIsolation.containment_guard."
+        },
+        {
+          "text": "Recommends a regression test for the fix",
+          "passed": true,
+          "evidence": "Fix #2: tests/cli/eval/test_eval_run_scratch_root.py asserting exit code 2 + OPS-002 stderr + parity test."
+        },
+        {
+          "text": "Uses real file:line citations from the snapshot",
+          "passed": true,
+          "evidence": "REPORT.md cites commands.py:1476, 1473-1477, 815-823 and config.py:217-220, 225-231 \u2014 all match fixture content."
+        },
+        {
+          "text": "Escalates to Tier 2",
+          "passed": true,
+          "evidence": "audit.log + 3 Tier 2 cards (security-engineer, root-cause-analyst, quality-engineer)."
+        },
+        {
+          "text": "Invokes adversarial debate or notes consensus skipped it",
+          "passed": true,
+          "evidence": "adversarial/merged-output.md exists; debate produced Fix-1+Fix-3 merge with Fix-2 deferred."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 393.7,
+        "tokens": 98577,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Confirms the IDOR is real (does not dismiss as 'mobile-only')",
+          "passed": true,
+          "evidence": "REPORT.md: 'Real IDOR vulnerability ... \"mobile app only sends own ID\" defense is irrelevant \u2014 the server is the trust boundary.'"
+        },
+        {
+          "text": "Identifies the missing authorization check",
+          "passed": true,
+          "evidence": "REPORT.md: 'missing authorization between @login_required and the database lookup'."
+        },
+        {
+          "text": "Proposes the authorization fix",
+          "passed": true,
+          "evidence": "Fix adds `if user_id != current_user.id: abort(403)` before DB lookup."
+        },
+        {
+          "text": "Recommends a regression test for the fix",
+          "passed": true,
+          "evidence": "3 tests recommended: own-id 200, other-id 403, nonexistent 403."
+        },
+        {
+          "text": "Escalates to Tier 2 (security_caution)",
+          "passed": true,
+          "evidence": "audit.log shows escalation_reason=security_caution; 3 Tier 2 cards on disk."
+        },
+        {
+          "text": "Notes PII exposure as the impact severity",
+          "passed": true,
+          "evidence": "REPORT.md returns PII (email, phone, address, DOB) framing."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 73.6,
+        "tokens": 65253,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Refuses to fabricate a hypothesis from no input",
+          "passed": true,
+          "evidence": "REPORT.md: 'Did NOT spawn root-cause-analyst, query auggie/serena, invoke sc:adversarial, or invent hypotheses'."
+        },
+        {
+          "text": "Asks user for specific missing information (error/symptom + scope)",
+          "passed": true,
+          "evidence": "REPORT.md lists 4 specific requests: concrete symptom, --scope, --type, repro command."
+        },
+        {
+          "text": "Stops at Wave 0",
+          "passed": true,
+          "evidence": "audit.log shows status=stopped, tier_reached=0, escalation_reason=wave0_stop_underspecified_deep."
+        },
+        {
+          "text": "Does NOT use any MCP / parallel agents (no investigative work performed)",
+          "passed": true,
+          "evidence": "audit.log shows zero MCP calls and no hypothesis cards written."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.8889,
+        "stddev": 0.2722,
+        "min": 0.3333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 85.0167,
+        "stddev": 23.5221,
+        "min": 52.1,
+        "max": 125.5
+      },
+      "tokens": {
+        "mean": 56971.8333,
+        "stddev": 4848.2614,
+        "min": 53502,
+        "max": 66131
+      }
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 343.9167,
+        "stddev": 202.1647,
+        "min": 73.6,
+        "max": 678.9
+      },
+      "tokens": {
+        "mean": 96190.6667,
+        "stddev": 18343.252,
+        "min": 65253,
+        "max": 115258
+      }
+    },
+    "delta": {
+      "pass_rate": "-0.11",
+      "time_seconds": "-258.9",
+      "tokens": "-39219"
+    }
+  },
+  "notes": []
+}

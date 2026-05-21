@@ -1,0 +1,7 @@
+{
+  "total_tokens": 68691,
+  "duration_ms": 54856,
+  "total_duration_seconds": 54.9,
+  "result": "PASS — calibrated=0.10, self=0.92, delta=-0.82 (large negative as expected). Verdict=ESCALATE/low_confidence (rule fires first by order; not_reproducible would also fire). Spot-check correctly caught fabricated line snippet and fabricated timing command.",
+  "lesson": "Over-confident card with bad evidence correctly demolished. Evidence grounding scored 0.0 by direct spot-check, propagating to all other dimensions. The agent's discipline held — refused to inherit the 0.92 self-report."
+}
