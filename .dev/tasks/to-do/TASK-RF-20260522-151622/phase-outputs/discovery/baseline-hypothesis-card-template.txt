@@ -1,6 +1,6 @@
 # Hypothesis Card Template
 
-Used by every agent that produces a hypothesis — `root-cause-analyst` in Wave 1.7, and every Tier 2 agent in Wave 3.
+Used by every agent that produces a hypothesis — `root-cause-analyst` in Wave 1, and every Tier 2 agent in Wave 3.
 
 A hypothesis card is **one** proposed cause-and-fix, not a list. If the agent has two equally strong candidates, it picks one and notes the other under "Alternatives considered" — Tier 2 fan-out exists precisely so that other agents can champion alternative hypotheses.
 
@@ -13,7 +13,6 @@ A hypothesis card is **one** proposed cause-and-fix, not a list. If the agent ha
 **Tier**: <1|2>
 **Timestamp**: <ISO 8601>
 **Cause class**: <from triage-checklist.md, e.g. "Missing/wrong import">
-**Consistency with docs**: <aligned | conflicts | not_applicable | no_docs_found>
 
 ## Claim
 

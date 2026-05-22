@@ -48,8 +48,8 @@ The skill returns a structured dictionary on completion:
 | `escalation_reason` | string | If Tier 2 ran: which rubric condition triggered it (or `forced_by_depth_deep`) |
 | `test_is_wrong` | bool | `true` when the diagnosis concludes the failing test is the bug (test asserts wrong behavior, stale invariant, or inverted policy claim) rather than the code under test. Set independent of tier. Asymmetric-cost flag — downstream automation MUST NOT auto-apply a fix to the code when this is `true`; the remediation target is the test file. |
 | `test_file_path` | string \| null | When `test_is_wrong=true`, the **repo-relative** path of the test file that must be updated (e.g., `tests/api/test_foo.py`), resolved against the repo root containing `.git/`. `null` otherwise. The format is intentionally fixed to repo-relative so downstream automation can compare/join paths without ambiguity; if the report is consumed outside the repo, the consumer is responsible for joining against the repo root recorded in the audit log. |
-| `behavior_is_documented` | bool | `true` when the diagnosis concludes the reported behavior is the documented behavior (i.e., a code change would regress the documented contract). Set independent of tier; mutually exclusive with `test_is_wrong=true`. Asymmetric-cost flag — downstream automation MUST NOT auto-apply a code fix when this is `true`; the remediation target is the spec/docs file(s), or a stakeholder-level discussion. Derived from the chosen hypothesis card's `consistency_with_docs=aligned` AND the Diagnosis section concluding the observed symptom IS the documented behavior. |
-| `doc_context_card_path` | string \| null | When Wave 1.5 ran, the **repo-relative** path of the Documentation Context Card (e.g., `.dev/troubleshoot/bug-foo-20260522/doc-context.md`). `null` when `--no-doc-discovery` was set OR when Wave 1.5 produced no relevant docs across all three branches. Format is repo-relative, same convention as `test_file_path`. |
+| `behavior_is_documented` | bool | `true` when the diagnosis concludes the reported behavior is the documented behavior (i.e., a code change would regress the documented contract). Set independent of tier; mutually exclusive with `test_is_wrong=true`. Asymmetric-cost flag — downstream automation MUST NOT auto-apply a code fix when this is `true`; the remediation target is the spec/docs file(s), or a stakeholder-level discussion. Derived from the chosen hypothesis card's `consistency_with_docs=aligned` AND the Diagnosis section concluding the observed symptom IS the documented behavior. When the failing artifact is a test (Case B in the derivation rule), `test_is_wrong=true` is the correct flag and this flag stays false — the docs are not the bug. |
+| `doc_context_card_path` | string \| null | When Wave 1.5 ran, the **repo-relative** path of the Documentation Context Card (e.g., `.dev/troubleshoot/bug-foo-20260522/doc-context.md`). `null` ONLY when `--no-doc-discovery` was set (the wave is skipped entirely). When the wave runs but produces no relevant docs across all three branches, the field still points to an empty card whose sections all read "None found" — distinguished downstream from the skip case via the hypothesis card's `consistency_with_docs=no_docs_found` value. Format is repo-relative, same convention as `test_file_path`. |
 | `hypothesis_cards` | list[path] | Paths to per-agent hypothesis cards (Tier 2) |
 | `adversarial_artifacts_dir` | string | `sc:adversarial` artifacts dir (Tier 2 only, when 2+ fix proposals were debated) |
 | `task_file_path` | string | MDTM task file path (Tier 3 only) |
@@ -66,7 +66,7 @@ If the diagnosis says "the test is incorrect but the code is also missing a guar
 
 The prose REPORT.md is still the human-readable source of truth; this flag exists so downstream automation (Tier 3 task-builder, fleet auto-apply wrappers, telemetry) can short-circuit on the asymmetric-cost case without parsing prose.
 
-**`behavior_is_documented` derivation rule** (applied during Wave 5 synthesis): set `behavior_is_documented=true` when the chosen hypothesis card's `consistency_with_docs=aligned` AND the Diagnosis section concludes the observed symptom IS the documented behavior (not the user's expected behavior). If the docs say the system should do X and the user reports it does X but expected Y, the bug is in the user's expectation (or the docs) — set the flag and recommend a spec change or stakeholder discussion. If `consistency_with_docs=conflicts`, the docs side with the user — keep the flag false and proceed with normal code remediation. Mutually exclusive with `test_is_wrong=true`: if both would be set, the spec/docs change takes priority over the test change since the test is downstream of the documented contract.
+**`behavior_is_documented` derivation rule** (applied during Wave 5 synthesis): set `behavior_is_documented=true` when the chosen hypothesis card's `consistency_with_docs=aligned` AND the Diagnosis section concludes the observed symptom IS the documented behavior (not the user's expected behavior). If the docs say the system should do X and the user reports it does X but expected Y, the bug is in the user's expectation (or the docs) — set the flag and recommend a spec change or stakeholder discussion. If `consistency_with_docs=conflicts`, the docs side with the user — keep the flag false and proceed with normal code remediation. Mutually exclusive with `test_is_wrong=true` by construction (not by tiebreaker), via this 3-case decomposition: **Case A** (user expectation diverges) — observed behavior matches docs AND failing artifact is NOT a test → `behavior_is_documented=true`, `test_is_wrong=false`; remediate via spec change or stakeholder discussion. **Case B** (test contradicts docs+code consensus) — `consistency_with_docs=aligned` AND failing artifact IS a test → `test_is_wrong=true`, `behavior_is_documented=false`; the docs are not the bug, remediate by updating the test to match the docs. **Case C** (code violates docs) — `consistency_with_docs=conflicts` → both flags false, normal code remediation.
 
 This flag exists so downstream automation knows to NOT auto-apply a code fix when the observed behavior is the contracted behavior — the remediation target is the spec, the docs, or a stakeholder discussion.
 
@@ -74,9 +74,10 @@ This flag exists so downstream automation knows to NOT auto-apply a code fix whe
 
 ```
 Wave 0: Parse + Validate Input
-Wave 1: Tier 1 — Triage          ← always; loads refs/triage-checklist.md on demand
-Wave 1.5: Documentation Grounding ← always; loads refs/doc-discovery.md on demand; skipped only by --no-doc-discovery
-Wave 2: Confidence Gate          ← decides escalation via refs/escalation-rubric.md
+Wave 1: Tier 1 — Real-Code Grounding  ← always; loads refs/triage-checklist.md on demand (grounding + reproduce only)
+Wave 1.5: Documentation Grounding    ← always; loads refs/doc-discovery.md on demand; skipped only by --no-doc-discovery
+Wave 1.7: Tier 1 — Hypothesis Formation ← always; consumes Wave 1.5 Documentation Context Card; produces single hypothesis card + calibration
+Wave 2: Confidence Gate              ← decides escalation via refs/escalation-rubric.md
 Wave 3: Tier 2 — Parallel Hypotheses (conditional)
 Wave 4: Tier 2 — Adversarial Fix Debate (conditional, requires ≥2 viable fixes)
 Wave 5: Synthesis + Report        ← always finalises; loads refs/report-template.md
@@ -125,9 +126,9 @@ output_dir: <abs-path>
 
 ---
 
-### Wave 1: Tier 1 — Triage
+### Wave 1: Tier 1 — Real-Code Grounding
 
-**Goal**: Produce one best-evidence hypothesis fast, with explicit confidence.
+**Goal**: Ground the symptom in real code and capture the reproducer/observation, BEFORE Wave 1.5 documentation grounding and BEFORE hypothesis formation (which moves to Wave 1.7). Splitting Wave 1 this way makes the Wave 1.5 dependency edge explicit: the Documentation Context Card produced by Wave 1.5 step 4 is guaranteed to exist when Wave 1.7's root-cause-analyst consumes it.
 
 **Preconditions**: Wave 0 complete.
 
@@ -141,13 +142,10 @@ output_dir: <abs-path>
    - For runtime errors: ask the user for a repro command if not provided, or attempt the obvious one (`pytest <test>`, `npm test`, the command that produced the stack trace). If the issue is a pasted log, treat that as the observation and skip.
    - For build failures: re-run the build command and capture the first error.
    - For performance issues: take the user's reported metric as the observation; do not run benchmarks in Tier 1.
-3. **Form one hypothesis** — spawn the `root-cause-analyst` agent via `Task` with a focused brief: the symptom, the grounding from step 1, the observation from step 2, the Documentation Context Card path (`<output-dir>/doc-context.md`, or `null` when Wave 1.5 was skipped via `--no-doc-discovery`), and `--scope` if any. The agent's job is to produce one hypothesis card (template in `refs/hypothesis-card-template.md`) — not three, not the full tree. The hypothesis card MUST set `consistency_with_docs` to one of `aligned | conflicts | not_applicable | no_docs_found` based on the Documentation Context Card (or `not_applicable` when the card path is `null`).
-4. **Calibrate confidence (independently)** — spawn the `confidence-calibrator` agent via `Task` with `card_path=<output-dir>/tier1-hypothesis.md`, `rubric_path=<skill-dir>/refs/escalation-rubric.md`, `card_tier=1`, `flags_context=<wave 0 parsed flags>`, `output_path=<output-dir>/tier1-calibration.md`. The agent re-grades the hypothesis card against the 5-dimension rubric without the formation context (anchoring is reduced, not eliminated). Its calibrated confidence and verdict feed Wave 2 directly.
-   - **Fallback**: if `confidence-calibrator` fails (subprocess crash, malformed output, agent unavailable), fall back to inline orchestrator calibration against the rubric and mark `calibration: inline-fallback` in the audit log.
 
-**Exit criteria**: One hypothesis card at `<output-dir>/tier1-hypothesis.md`, a calibration report at `<output-dir>/tier1-calibration.md` (or `calibration: inline-fallback` in audit), and the calibrated confidence in the audit log. Emit "Wave 1 complete: confidence=<x>".
+**Exit criteria**: Real-code grounding complete (auggie + serena results captured in audit log, or `Glob`/`Grep` fallback noted); observation captured at `<output-dir>/tier1-observation.md` (or "no repro available" recorded in audit). Emit "Wave 1 complete: grounding done; handing off to Wave 1.5".
 
-**Token budget for Tier 1**: target ≤ ~6k Claude tokens (excluding agent subprocess). The MCP queries offload the bulk of the work.
+**Token budget for Wave 1**: target ≤ ~3k Claude tokens (MCP retrieval offloads the bulk of the work). Hypothesis formation's separate token budget is in Wave 1.7.
 
 ---
 
@@ -155,7 +153,7 @@ output_dir: <abs-path>
 
 **Goal**: Surface release-doc context, currency-validated architectural docs, and semantic restrictions that constrain the affected surface, BEFORE any hypothesis is formed.
 
-**Preconditions**: Wave 1 step 1 (real-code grounding) is complete; `--no-doc-discovery` is NOT set. When `--no-doc-discovery` IS set, skip this entire wave, record `doc_context_card_path: null` in the output contract, and surface a Grounding Gaps line in Wave 5's REPORT.md.
+**Preconditions**: Wave 1 (real-code grounding) is complete; `--no-doc-discovery` is NOT set. When `--no-doc-discovery` IS set, skip this entire wave, record `doc_context_card_path: null` in the output contract, and surface a Grounding Gaps line in Wave 5's REPORT.md.
 
 **Steps**:
 
@@ -186,6 +184,26 @@ output_dir: <abs-path>
 | Branch synthesis times out / one branch crashes | Continue with remaining branch outputs; mark the missing branch's section as "Branch <X> failed — see audit"; do NOT block downstream waves | None |
 
 **Token budget**: Wave 1.5 should consume ≤ 2k Claude tokens (the auggie calls offload heavy retrieval). If it goes over 3k Claude tokens, audit-log the overrun — the wave is meant to be retrieval-offload, not Claude reasoning.
+
+---
+
+### Wave 1.7: Tier 1 — Hypothesis Formation
+
+**Goal**: Form one calibrated Tier 1 hypothesis card, consuming the Wave 1.5 Documentation Context Card (when produced) so the hypothesis is doc-grounded from the start.
+
+**Preconditions**: Wave 1 (real-code grounding) is complete; Wave 1.5 has produced a Documentation Context Card at `<output-dir>/doc-context.md` (or `--no-doc-discovery` was set and `doc_context_card_path` is `null`).
+
+**Steps**:
+
+1. **Form one hypothesis** — spawn the `root-cause-analyst` agent via `Task` with a focused brief: the symptom, the grounding from Wave 1 step 1, the observation from Wave 1 step 2, the Documentation Context Card path (`<output-dir>/doc-context.md`, or `null` when Wave 1.5 was skipped via `--no-doc-discovery`), and `--scope` if any. The agent's job is to produce one hypothesis card (template in `refs/hypothesis-card-template.md`) — not three, not the full tree. The hypothesis card MUST set `consistency_with_docs` to one of `aligned | conflicts | not_applicable | no_docs_found` based on the Documentation Context Card (or `not_applicable` when the card path is `null`).
+2. **Calibrate confidence (independently)** — spawn the `confidence-calibrator` agent via `Task` with `card_path=<output-dir>/tier1-hypothesis.md`, `rubric_path=<skill-dir>/refs/escalation-rubric.md`, `card_tier=1`, `flags_context=<wave 0 parsed flags>`, `output_path=<output-dir>/tier1-calibration.md`. The agent re-grades the hypothesis card against the 5-dimension rubric without the formation context (anchoring is reduced, not eliminated). Its calibrated confidence and verdict feed Wave 2 directly.
+   - **Fallback**: if `confidence-calibrator` fails (subprocess crash, malformed output, agent unavailable), fall back to inline orchestrator calibration against the rubric and mark `calibration: inline-fallback` in the audit log.
+
+**Exit criteria**: One hypothesis card at `<output-dir>/tier1-hypothesis.md`, a calibration report at `<output-dir>/tier1-calibration.md` (or `calibration: inline-fallback` in audit), and the calibrated confidence in the audit log. Emit "Wave 1.7 complete: confidence=<x>".
+
+**Failure handling**: If the `root-cause-analyst` agent fails entirely (subprocess crash, no output card produced), fall back to inline orchestrator hypothesis formation against `refs/hypothesis-card-template.md` and mark `hypothesis_source: inline-fallback` in audit. Wave 2 confidence gate proceeds normally with whatever was produced.
+
+**Token budget for Wave 1.7**: target ≤ ~3k Claude tokens (excluding the agent subprocess; the agent's own budget is governed by `--models` if overridden).
 
 ---
 
@@ -242,7 +260,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
    - An instruction to produce **at most one proposed fix** with: claim, evidence (cited file:line or command output), proposed fix, confidence, risks, `consistency_with_docs` (see `refs/hypothesis-card-template.md`), and a one-line "if I'm wrong it's probably because...".
    - Use the agent's default model. If `--models` overrides per-tier, apply (e.g. `hypothesis:opus` forces all hypothesis agents to opus).
 3. **Wait for all agents** to complete. Read each card.
-3.5. **Calibrate each card independently** — spawn N `confidence-calibrator` instances in parallel (one per Tier 2 card), each with `card_tier=2` and `output_path=<output-dir>/tier2-<agent-name>-calibration.md`. Use the calibrated scores (not the agents' self-reports) when weighting consensus/competing/outlier in step 4. Fallback rule from Wave 1 applies per-card.
+3.5. **Calibrate each card independently** — spawn N `confidence-calibrator` instances in parallel (one per Tier 2 card), each with `card_tier=2` and `output_path=<output-dir>/tier2-<agent-name>-calibration.md`. Use the calibrated scores (not the agents' self-reports) when weighting consensus/competing/outlier in step 4. Fallback rule from Wave 1.7 applies per-card.
 4. **Distill candidate fixes**: cluster the hypothesis cards by proposed fix. If 2 or more agents propose substantively different fixes, mark them as **competing**. If they all converge on one fix, mark as **consensus**.
 
 **Exit criteria**:
@@ -428,10 +446,10 @@ These are targets, not hard caps. Auggie tokens are offloaded to a free / low-co
 
 | File | When loaded |
 |------|-------------|
-| `refs/escalation-rubric.md` | Wave 2 (confidence gate) and Wave 1 (calibration) |
-| `refs/triage-checklist.md` | Wave 1 (passed to root-cause-analyst as part of the brief) |
+| `refs/escalation-rubric.md` | Wave 2 (confidence gate) and Wave 1.7 (calibration) |
+| `refs/triage-checklist.md` | Wave 1 (real-code grounding load) AND Wave 1.7 (passed to root-cause-analyst as part of the brief) |
 | `refs/doc-discovery.md` | Wave 1.5 (documentation grounding — Auggie query templates, currency-check procedure, output schemas, Documentation Context Card template) |
-| `refs/hypothesis-card-template.md` | Wave 1 and Wave 3 (passed to agents) |
+| `refs/hypothesis-card-template.md` | Wave 1.7 and Wave 3 (passed to agents) |
 | `refs/report-template.md` | Wave 5 |
 | `refs/remediation-handoff.md` | Wave 6 |
 

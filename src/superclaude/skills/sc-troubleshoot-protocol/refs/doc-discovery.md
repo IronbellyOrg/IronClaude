@@ -100,8 +100,9 @@ An array of objects (zero or more):
 [
   {
     "doc_path": "<absolute path>",
+    "summary": "<2-3 sentence summary of the documented behavior of <component_paths>, per the Section 1 Branch B query template>",
     "currency_verdict": "current",
-    "reason": "<one-line rationale tied to Section 2 procedure>"
+    "reason": "<one-line rationale for the currency_verdict, tied to Section 2 procedure>"
   }
 ]
 ```
@@ -151,7 +152,7 @@ Findings from Branch A (release-doc lookup). Format:
 
 Findings from Branch B (architectural-doc lookup), with currency verdicts. Format (one bullet per doc, or "None found"):
 
-- `<doc_path>` — verdict: `<current | stale | unknown>` — <one-line summary>
+- `<doc_path>` — verdict: `<current | stale | unknown>` — <one-line summary derived from the schema `summary` field>
 
 Docs with `stale` or `unknown` verdicts surface a CAUTION line:
 
