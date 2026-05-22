@@ -419,6 +419,7 @@
 ## Checkpoint Report Template
 
 **Template:**
+
 - `# Checkpoint Report -- <Checkpoint Title>`
 - `**Checkpoint Report Path:** TASKLIST_ROOT/checkpoints/<deterministic-name>.md`
 - `**Scope:** <tasks covered>`

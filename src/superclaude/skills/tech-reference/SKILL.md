@@ -16,11 +16,13 @@ The output always follows the project template at `.claude/templates/documents/t
 Technical references go stale when written from memory or existing docs. This skill forces every claim through codebase verification — parallel agents read actual source files, trace actual imports, and document actual behavior with file paths and line numbers.
 
 The MDTM task file provides three critical guarantees:
+
 1. **Progress survives context compression** — The task file on disk is the source of truth, not conversation context. Every completed step is a checked box that persists across sessions.
 2. **No steps get skipped** — The task file encodes every phase and step as a mandatory checklist item. The execution loop processes items sequentially, never jumping ahead.
 3. **Resumability** — On restart, the skill reads the task file, finds the first unchecked `- [ ]` item, and picks up exactly where it left off.
 
 The multi-phase structure (scope discovery → deep investigation → **analyst verification** → web research → synthesis → **synthesis QA** → assembly → **report validation**) prevents four common failure modes:
+
 - **Context rot** — By isolating each investigation topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one slice), the investigation goes deep on every aspect simultaneously rather than skimming across everything sequentially.
 - **Hallucinated content** — By separating research (what exists) from synthesis (what it means) from assembly (the final document), each phase can be verified independently. Synthesis agents only work from verified research files, not from memory or inference.
@@ -88,6 +90,7 @@ Match the tier to feature scope. **Default to Standard** unless the feature is c
 | **Heavyweight** | Cross-cutting systems, 20+ files, multiple integration points | 6–10+ | 2–4 | 1,200–1,800 |
 
 **Tier selection rules:**
+
 - If in doubt, pick Standard
 - If the user says "thorough", "comprehensive", or "detailed" — always Heavyweight
 - Only use Lightweight for genuinely small features (<5 files, single concern)
@@ -100,6 +103,7 @@ Match the tier to feature scope. **Default to Standard** unless the feature is c
 All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-TECHREF-YYYYMMDD-HHMMSS/`. The feature slug is derived from the feature name (e.g., `wizard`, `agent-llm-system`, `pixel-streaming`).
 
 **Variable reference block:**
+
 ```
 TASK_ID:     TASK-TECHREF-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
@@ -134,6 +138,7 @@ Check for existing task folders matching `TASK-TECHREF-*` in `.dev/tasks/to-do/`
 The skill operates in two stages:
 
 **Stage A — Scope Discovery & Task File Creation (before the task file exists):**
+
 1. Check for an existing task file or research directory (A.1)
 2. Parse the user's request and triage into Scenario A vs B (A.2)
 3. Perform scope discovery — map feature files, plan assignments (A.3)
@@ -148,6 +153,7 @@ The skill operates in two stages:
 10. Each checklist item is a self-contained prompt — no prior context needed
 
 Phase names within the task file:
+
 - **Phase 1: Preparation** — Scope confirmation, template read, tier selection
 - **Phase 2: Deep Investigation** — Parallel subagent investigation of feature code
 - **Phase 3: Completeness Verification** — rf-analyst completeness verification + rf-qa research gate (parallel)
@@ -203,6 +209,7 @@ Example: "Document the agent system"
 Use Glob, Grep, and codebase-retrieval to map the feature's shape. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
+
 - **Scenario A**: Focused discovery — verify the files/directories the user mentioned exist, scan for related code, identify gaps in what the user specified.
 - **Scenario B**: Broad discovery — scan the full codebase for anything touching the feature, map all relevant subsystems, identify documentation, count files.
 
@@ -305,6 +312,7 @@ Read `${TASK_DIR}research-notes.md` and evaluate:
 **If sufficient** → proceed to A.6 (template triage).
 
 **If insufficient** → either:
+
 - Do additional scope discovery yourself and update the research notes file, OR
 - Spawn an rf-task-researcher subagent with specific feedback about what's missing, then re-review
 
@@ -317,6 +325,7 @@ Do NOT proceed to the builder with incomplete research notes. The builder cannot
 Determine which MDTM template the task builder should use:
 
 **Use Template 02 (Complex Task) when the work involves:**
+
 - Discovery before building (investigating unknown areas)
 - Parallel subagent spawning
 - Multiple phases with different activities (research, synthesis, assembly)
@@ -324,6 +333,7 @@ Determine which MDTM template the task builder should use:
 - Conditional flows based on findings
 
 **Use Template 01 (Generic Task) when the work involves:**
+
 - Simple, sequential file creation
 - Straightforward execution with no discovery
 - Single-pass operations
@@ -496,6 +506,7 @@ Use the Agent tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPer
 ### A.8: Receive & Verify the Task File
 
 The builder subagent returns the path to the created task file. Read the file and verify:
+
 - Frontmatter is properly populated (id, title, status, created_date, related_docs)
 - All planned phases are present as checklist items (Phases 1-7)
 - Checklist items follow the B2 self-contained pattern (single paragraph: context references + action + output path + "ensuring..." verification clause)
@@ -572,6 +583,7 @@ You MUST follow this protocol exactly. Violation results in data loss.
 4. When finished, update the Status line from "In Progress" to "Complete" and append a summary section.
 
 Research Protocol:
+
 1. Read the actual source files — understand what each file does, what it exports, what it imports
 2. Trace data flow — how does data enter, transform, and exit this part of the system?
 3. Document the public interface — what do other parts of the codebase actually use from here? Cite file paths, function signatures, and line numbers for every export.
@@ -601,6 +613,7 @@ or workflow, you MUST cross-validate EVERY structural claim against actual code 
    Example: Doc says "POST /api/v1/sessions/start" → Grep for that route in the router files. If it's now "/api/v1/sessions/create", mark [CODE-CONTRADICTED].
 
 For EVERY doc-sourced architectural claim, mark it with one of:
+
 - **[CODE-VERIFIED]** — confirmed by reading actual source code at [file:line]
 - **[CODE-CONTRADICTED]** — code shows different implementation (describe what code actually shows)
 - **[UNVERIFIED]** — could not find corresponding code; may be stale, planned, or in a different repo
@@ -609,6 +622,7 @@ Claims marked [UNVERIFIED] or [CODE-CONTRADICTED] MUST appear in the Gaps and Qu
 Do NOT present doc-sourced claims as verified facts without the code verification tag.
 
 Output Format:
+
 - Use descriptive headers for each file or logical group investigated
 - Include actual file paths, class names, function names, line numbers
 - Include actual type signatures and export lists (not reproduced code blocks — summaries with key signatures)
@@ -616,24 +630,30 @@ Output Format:
 - Flag stale documentation explicitly with **[STALE DOC]** markers
 - End each section with a "Key Takeaways" bullet list
 - End the file with:
-  ## Gaps and Questions
+
+## Gaps and Questions
+
   - [things that need further investigation or are unclear]
   - [all UNVERIFIED and CODE-CONTRADICTED claims from docs]
 
-  ## Stale Documentation Found
+## Stale Documentation Found
+
   - [list any docs that describe architecture/components that no longer exist in code]
 
-  ## Summary
+## Summary
+
   [3-5 sentence summary of what you found]
 
 Be thorough. Be specific. Only document what you verified in the source. Do not guess or infer.
 Documentation is NOT verification — reading a doc that says "X exists" does not verify X exists.
 Only reading the actual source code of X verifies X exists.
+
 ```
 
 ### Web Research Agent Prompt
 
 ```
+
 Research this topic externally and write findings to [output-path].
 
 Topic: [specific external research topic]
@@ -641,11 +661,13 @@ What we already know from codebase: [brief summary of relevant codebase findings
 Feature context: [the overall feature being documented]
 
 CRITICAL — Incremental File Writing Protocol:
+
 1. FIRST ACTION: Create your output file with a header including topic, date, and status
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
 
 Research Protocol:
+
 1. Search for official documentation, guides, and API references
 2. Search for design patterns and best practices relevant to this feature type
 3. Search for implementation patterns, known issues, gotchas, and optimization strategies
@@ -657,17 +679,22 @@ Research Protocol:
 5. Rate source reliability (official docs > well-maintained repos > blog posts > forum answers)
 
 Output Format:
+
 - Use descriptive headers for each research area
 - Always include source URLs
 - Mark relevance: HIGH / MEDIUM / LOW for each finding
 - End with:
-  ## Key External Findings
+
+## Key External Findings
+
   [Bullet list of the most important discoveries]
 
-  ## Recommendations from External Research
+## Recommendations from External Research
+
   [How external findings relate to the feature's implementation]
 
 IMPORTANT: Our codebase is the source of truth. External research adds context but does not override verified code behavior. If you find a discrepancy, note it explicitly.
+
 ```
 
 **Common web research topics for tech references:**
@@ -680,6 +707,7 @@ IMPORTANT: Our codebase is the source of truth. External research adds context b
 ### Synthesis Agent Prompt
 
 ```
+
 Read the research files listed below and synthesize them into template-aligned sections for a Technical Reference document.
 
 Research files to read: [list of specific file paths]
@@ -689,6 +717,7 @@ Template reference: .claude/templates/documents/technical_reference_template.md
 
 Rules:
 0. **Read the template first.** Before synthesizing anything, read `.claude/templates/documents/technical_reference_template.md` to understand each section's expected content, format, and depth. Use the template as your structural guide throughout synthesis.
+
 1. Follow the template structure exactly — use the same headers, tables, and section format
 2. Every fact must come from the research files — do not invent, assume, or infer
 3. Use tables over prose for multi-item data (file lists, dependencies, config values)
@@ -704,6 +733,7 @@ Rules:
 
 CRITICAL — Incremental File Writing:
 You MUST write to your output file incrementally as you synthesize each section. Do NOT read all research files into context and attempt a single large write at the end. The process is:
+
 1. Create the output file with a header and your first synthesized section
 2. After completing each subsequent section, append it to the output file immediately using Edit
 3. Never rewrite the entire file from memory — always append or do targeted edits
@@ -711,11 +741,13 @@ You MUST write to your output file incrementally as you synthesize each section.
 This prevents data loss from context limits and ensures partial results survive if the agent is interrupted.
 
 Write the sections in the exact format they should appear in the final document, including all table structures and headers from the template.
+
 ```
 
 ### Research Analyst Agent Prompt (rf-analyst — Completeness Verification)
 
 ```
+
 Perform a completeness verification of all research files for [feature name].
 
 Analysis type: completeness-verification
@@ -728,6 +760,7 @@ Your job is to independently verify that research agents produced thorough, evid
 before downstream synthesis begins. You are the analytical quality gate — be rigorous.
 
 PROCESS:
+
 1. Read the research-notes.md file to understand the planned scope (EXISTING_FILES, SUGGESTED_PHASES)
 2. Use Glob to find ALL research files in the research directory (files matching [NN]-*.md)
 3. Read EVERY research file — do not skip any
@@ -735,6 +768,7 @@ PROCESS:
 5. Write your report to [output-path]
 
 CHECKLIST:
+
 1. Coverage audit — every key file from scope covered by at least one research file
 2. Evidence quality — claims cite specific file paths, line numbers, function names
 3. Documentation staleness — all doc-sourced claims tagged [CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED]
@@ -745,16 +779,19 @@ CHECKLIST:
 8. Depth assessment — investigation depth matches the stated tier (all public APIs documented, integration points mapped, subsystems traced)
 
 VERDICTS:
+
 - PASS: All checks pass, no critical gaps
 - FAIL: Critical gaps exist (list each with specific remediation action)
 
 Use the full output format from your agent definition (tables for coverage, evidence quality, staleness, completeness).
 Be adversarial — your job is to find problems, not confirm things work.
+
 ```
 
 ### Research QA Agent Prompt (rf-qa — Research Gate)
 
 ```
+
 Perform QA verification of research completeness for [feature name].
 
 QA phase: research-gate
@@ -769,6 +806,7 @@ You are the last line of defense before synthesis begins. Assume everything is w
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 IF ANALYST REPORT EXISTS:
+
 1. Read the analyst's completeness report
 2. Verify ALL of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
@@ -779,6 +817,7 @@ IF NO ANALYST REPORT:
 Apply the full 10-item Research Gate checklist independently.
 
 10-ITEM CHECKLIST:
+
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — Verify EVERY claim in each file — verify file paths exist
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
@@ -791,16 +830,19 @@ Apply the full 10-item Research Gate checklist independently.
 10. Incremental writing compliance — files show iterative structure, not one-shot
 
 VERDICTS:
+
 - PASS: Green light for synthesis
 - FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
 
 Use the full QA report output format from your agent definition.
 Zero tolerance — if you can't verify it, it fails.
+
 ```
 
 ### Synthesis QA Agent Prompt (rf-qa — Synthesis Gate)
 
 ```
+
 Perform QA verification of synthesis files for [feature name].
 
 QA phase: synthesis-gate
@@ -814,6 +856,7 @@ If fix_authorization is true, you can fix issues in-place using Edit.
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
+
 1. Use Glob to find ALL synth files (synth-*.md) in the research directory
 2. Read EVERY synth file completely
 3. Apply the 12-item Synthesis Gate checklist
@@ -824,6 +867,7 @@ PROCESS:
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
+
 1. Section headers match technical reference template (.claude/templates/documents/technical_reference_template.md)
 2. Table column structures correct per template
 3. No fabrication (Verify EVERY claim in each file, trace to research files)
@@ -838,13 +882,16 @@ PROCESS:
 12. No hallucinated file paths (verify parent directories exist)
 
 VERDICTS:
+
 - PASS: All synth files meet quality standards
 - FAIL: Issues found (list with specific fixes, note which were fixed in-place)
+
 ```
 
 ### Report Validation QA Agent Prompt (rf-qa — Report Validation)
 
 ```
+
 Perform final QA validation of the assembled technical reference for [feature name].
 
 QA phase: report-validation
@@ -859,12 +906,14 @@ This is the final quality check before presenting to the user. You can and shoul
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
+
 1. Read the ENTIRE technical reference document
 2. Apply the 15-item Validation Checklist + 5 Content Quality Checks
 3. For each issue: document it, fix it in-place with Edit, verify the fix
 4. Write your QA report to [output-path]
 
 15-ITEM VALIDATION CHECKLIST:
+
 1. All 16 template sections present (or explicitly marked as N/A with rationale)
 2. Frontmatter has all required fields from the template
 3. Total line count within tier budget (Lightweight: 400-600, Standard: 800-1200, Heavyweight: 1200-1800)
@@ -889,11 +938,13 @@ CONTENT QUALITY CHECKS:
 20. Actionability — Extension Guide (Section 13) entries must be specific enough that a developer could begin implementing each extension point
 
 Fix every issue you find. Report honestly.
+
 ```
 
 ### Assembly Agent Prompt (rf-assembler — Document Assembly)
 
 ```
+
 Assemble the final technical reference for [feature name] from synthesis files.
 
 Component files (in order):
@@ -906,11 +957,14 @@ Template path: .claude/templates/documents/technical_reference_template.md
 CRITICAL — Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.
 
-1. FIRST ACTION: Create the output file immediately with the document header:
+1. FIRST ACTION: Create the output file immediately with the document header
    ---
-   [frontmatter from template — fill in all fields, set content_status: "🟡 Draft"]
+
+[frontmatter from template — fill in all fields, set content_status: "🟡 Draft"]
    ---
-   # [Feature Name] Technical Reference
+
+# [Feature Name] Technical Reference
+
    **Purpose:** [one-sentence purpose]
    **Date:** [today]
    **Tier:** [Lightweight / Standard / Heavyweight]
@@ -923,6 +977,7 @@ You MUST follow this protocol exactly. Violation results in data loss.
 3. After each Edit, the file grows. This is correct behavior. Never rewrite from scratch.
 
 Output format — follow the template section ordering exactly:
+
 1. Overview (purpose, scope, key stats)
 2. Architecture (diagrams, component relationships)
 3. Directory Structure (file tree, organization)
@@ -941,6 +996,7 @@ Output format — follow the template section ordering exactly:
 16. Glossary (domain-specific terms)
 
 Assembly rules:
+
 1. Write the document header and frontmatter first
 2. Assemble sections in template order — read each synth file and write its content into the correct position
 3. Write each section to disk immediately after composing it — do NOT one-shot
@@ -955,6 +1011,7 @@ Assembly rules:
 7. Ensure no placeholder text remains (search for [, TODO, TBD, PLACEHOLDER)
 
 Content rules (non-negotiable):
+
 - Tables over prose whenever presenting multi-item data
 - No full source code reproductions — summarize with key signatures and file paths
 - Use ASCII diagrams for architecture and component hierarchies, not prose descriptions
@@ -969,6 +1026,7 @@ Do NOT attempt full content validation — that is the QA agent's job. Focus on 
 integrity: correct ordering, internal consistency, no placeholders, all components included.
 
 Consolidation protocol (when consolidating existing docs into this tech reference):
+
 1. Read each source document listed in the task's "Source Files to Consolidate" section
 2. Map each source document's content to the corresponding template section(s)
 3. Where source docs overlap, merge by keeping the most specific/recent information and noting conflicts
@@ -976,6 +1034,7 @@ Consolidation protocol (when consolidating existing docs into this tech referenc
 5. Zero content loss — every metadata piece and unique finding from source docs must appear in the final output or be explicitly noted as superseded
 6. After assembly, the source docs should be candidates for archival (the tech reference replaces them)
 documents must appear somewhere in the tech reference.
+
 ```
 
 ---
@@ -1210,6 +1269,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 ## Research Quality Signals
 
 ### Strong Investigation Signals
+
 - Findings cite specific file paths and line numbers
 - Data flow traced end-to-end, not just entry points
 - Integration points mapped with actual function signatures
@@ -1220,6 +1280,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - rf-qa research gate shows PASS
 
 ### Weak Investigation Signals (Redo)
+
 - Vague descriptions without file paths ("the system uses a plugin architecture")
 - Assumptions stated as facts ("this probably works by...")
 - Missing gap analysis (everything seems fine — unlikely for non-trivial systems)
@@ -1229,6 +1290,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - Quality gates fail repeatedly (>2 fix cycles indicates systematic research problems)
 
 ### When to Spawn Additional Agents
+
 - A research agent flags a gap that's critical to the document
 - Two agents' findings contradict each other — need a tie-breaker investigation
 - The scope turns out larger than initially estimated
@@ -1282,4 +1344,3 @@ When the user wants to update (not create) an existing tech reference:
 4. Edit the relevant sections of the tech reference in place
 5. Update the Verification section (Section 15) with the new verification date
 6. Update Document History with what changed
-

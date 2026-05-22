@@ -16,11 +16,13 @@ This skill fills the gap between `repo-cleanup` (audits what exists) and `tech-r
 Technical investigations fail when they rely on assumptions, memory, or surface-level reading. This skill forces every claim through codebase verification — parallel agents read actual source files, trace actual data flows, and document actual behavior with file paths and line numbers.
 
 The MDTM task file provides three critical guarantees:
+
 1. **Progress survives context compression** — The task file on disk is the source of truth, not conversation context. Every completed step is a checked box that persists across sessions.
 2. **No steps get skipped** — The task file encodes every phase and step as a mandatory checklist item. The execution loop processes items sequentially, never jumping ahead.
 3. **Resumability** — On restart, the skill reads the task file, finds the first unchecked `- [ ]` item, and picks up exactly where it left off.
 
 The multi-phase structure (scope discovery → deep investigation → **analyst verification** → web research → synthesis → **synthesis QA** → assembly → **report validation** → **qualitative review**) prevents four common failure modes:
+
 - **Context rot** — By isolating each investigation topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one slice), the investigation goes deep on every aspect simultaneously rather than skimming across everything sequentially.
 - **Hallucinated recommendations** — By separating research (what exists) from synthesis (what it means) from assembly (the final report), each phase can be verified independently. Synthesis agents only work from verified research files, not from memory or inference.
@@ -99,6 +101,7 @@ Select a tier based on scope complexity. **Default to Deep** unless the question
 | **Deep** | Cross-cutting, 20+ files, architectural decisions, integration work | 5–10+ | 2–4 | Full report, detailed implementation plan |
 
 **Tier selection rules:**
+
 - If in doubt, pick Deep
 - If the user says "deep dive", "thorough", "comprehensive" — always Deep
 - Only use Quick for genuinely narrow questions ("what function handles X?")
@@ -137,6 +140,7 @@ Check for existing task folders in `.dev/tasks/to-do/` before creating new ones 
 The skill operates in two stages:
 
 **Stage A — Scope Discovery & Task File Creation (before the task file exists):**
+
 1. Parse the user's research question and triage (Scenario A vs B)
 2. Perform scope discovery (depth adjusted by scenario)
 3. Write scope discovery results to a structured research notes file
@@ -196,10 +200,12 @@ Example: "Research the agent system"
 Use Glob, Grep, and codebase-retrieval to map the problem space. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
+
 - **Scenario A**: Focused discovery — verify the files/directories the user mentioned exist, scan for related code, identify gaps in what the user specified.
 - **Scenario B**: Broad discovery — scan the full codebase for anything touching the topic, map all relevant subsystems, identify documentation, count files.
 
 Discover:
+
 - All files, directories, and plugins that touch the topic
 - Existing documentation covering related areas
 - Code patterns, classes, functions, and APIs involved
@@ -207,6 +213,7 @@ Discover:
 - Count of relevant files and subsystems
 
 Based on the discovery:
+
 - Select depth tier (default: Deep)
 - Plan research assignments — divide the investigation into specific topics, each becoming a subagent assignment
 - Plan web research topics (from identified gaps)
@@ -286,6 +293,7 @@ Read `${TASK_DIR}research/research-notes.md` and evaluate:
 **If sufficient** → proceed to A.6 (template triage).
 
 **If insufficient** → either:
+
 - Do additional scope discovery yourself and update the research notes file, OR
 - Spawn an rf-task-researcher subagent with specific feedback about what's missing, then re-review
 
@@ -298,6 +306,7 @@ Do NOT proceed to the builder with incomplete research notes. The builder cannot
 Determine which MDTM template the task builder should use:
 
 **Use Template 02 (Complex Task) when the work involves:**
+
 - Discovery before building (investigating unknown areas)
 - Parallel subagent spawning
 - Multiple phases with different activities (research, synthesis, assembly)
@@ -305,6 +314,7 @@ Determine which MDTM template the task builder should use:
 - Conditional flows based on findings
 
 **Use Template 01 (Generic Task) when the work involves:**
+
 - Simple, sequential file creation
 - Straightforward execution with no discovery
 - Single-pass operations
@@ -450,6 +460,7 @@ Use the Agent tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPer
 ### A.8: Receive & Verify the Task File
 
 The builder subagent returns the path to the created task file. Read the file and verify:
+
 - Frontmatter is properly populated
 - All planned phases are present as checklist items
 - Checklist items follow the B2 self-contained pattern (single paragraph: context + action + output + verification)
@@ -498,6 +509,7 @@ These actions are NEVER permitted during task file execution:
 When multiple consecutive items each spawn independent subagents, you MUST spawn them in parallel using multiple Agent tool calls in a single response. This applies to: Phase 2 investigation agents, Phase 3 analyst + QA agents, Phase 4 web research agents, Phase 5 synthesis agents AND the subsequent analyst + QA agents. This is not optional — it is how the skill achieves depth and minimizes wall-clock time.
 
 Rules for parallel spawning:
+
 1. Read the task file and find the first unchecked `- [ ]` item
 2. Identify the **batch**: starting from that item, read forward through all consecutive unchecked items that are independent subagent spawns within the same phase. All of these form a single parallel batch.
 3. Spawn ALL agents in the batch using parallel Agent tool calls in a single message
@@ -509,12 +521,14 @@ Rules for parallel spawning:
 ### Task File Modification Restrictions (F4)
 
 During execution, you MAY ONLY modify the task file to:
+
 - Check off completed items (`- [ ]` → `- [x]`)
 - Update frontmatter fields (status, updated_date, start_date, completion_date)
 - Add entries to the Task Log / Notes section
 - Add items within DYNAMIC CONTENT MARKER sections (if the template includes them)
 
 You MUST NOT:
+
 - Rewrite or rephrase existing checklist items
 - Add new checklist items outside of DYNAMIC CONTENT MARKER sections
 - Delete or reorder existing items
@@ -534,6 +548,7 @@ Update frontmatter at these specific points:
 ### Error Handling
 
 If an item cannot be completed:
+
 1. Log the blocker in the Task Log / Notes section with: timestamp, item reference, error description, attempted resolution
 2. If the error is recoverable (e.g., agent returned partial results), complete what you can and note the gap
 3. If the error is unrecoverable, mark the item `- [x]` with a note in Task Log, continue to next item
@@ -589,6 +604,7 @@ You MUST follow this protocol exactly. Violation results in data loss.
 4. When finished, update the Status line from "In Progress" to "Complete" and append a summary section.
 
 Research Protocol:
+
 1. Read actual source files — understand what each file does, what it exports, what it imports
 2. Trace data flow — how does data enter, transform, and exit this part of the system?
 3. Document the implementation — key classes, functions, methods with file paths and line numbers
@@ -619,6 +635,7 @@ or workflow, you MUST cross-validate EVERY structural claim against actual code 
    and whether the endpoint is actually served by a different service.
 
 For EVERY doc-sourced architectural claim, mark it with one of:
+
 - **[CODE-VERIFIED]** — confirmed by reading actual source code at [file:line]
 - **[CODE-CONTRADICTED]** — code shows different implementation (describe what code actually shows)
 - **[UNVERIFIED]** — could not find corresponding code; may be stale, planned, or in a different repo
@@ -627,30 +644,37 @@ Claims marked [UNVERIFIED] or [CODE-CONTRADICTED] MUST appear in the Gaps and Qu
 Do NOT present doc-sourced claims as verified facts without the code verification tag.
 
 Output Format:
+
 - Use descriptive headers for each file or logical group investigated
 - Include actual file paths, class names, function names, line numbers
 - Note anomalies, tech debt, or surprising behavior
 - Flag stale documentation explicitly with **[STALE DOC]** markers
 - End each section with a "Key Takeaways" bullet list
 - End the file with:
-  ## Gaps and Questions
+
+## Gaps and Questions
+
   - [things that need further investigation or are unclear]
   - [all UNVERIFIED and CODE-CONTRADICTED claims from docs]
 
-  ## Stale Documentation Found
+## Stale Documentation Found
+
   - [list any docs that describe architecture/components that no longer exist in code]
 
-  ## Summary
+## Summary
+
   [3-5 sentence summary of what you found]
 
 Be thorough. Be specific. Only document what you verified in the source. Do not guess or infer.
 Documentation is NOT verification — reading a doc that says "X exists" does not verify X exists.
 Only reading the actual source code of X verifies X exists.
+
 ```
 
 ### Web Research Agent Prompt
 
 ```
+
 Research this topic externally and write findings to [output-path].
 
 Topic: [specific external research topic]
@@ -658,11 +682,13 @@ What we already know from codebase: [brief summary of relevant codebase findings
 Research question context: [the overall research question]
 
 CRITICAL — Incremental File Writing Protocol:
+
 1. FIRST ACTION: Create your output file with a header including topic, date, and status
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
 
 Research Protocol:
+
 1. Search for official documentation, guides, and API references
 2. Search for community patterns, solutions, and best practices
 3. Search for tutorials and implementation examples
@@ -674,22 +700,28 @@ Research Protocol:
 5. Rate source reliability (official docs > well-maintained repos > blog posts > forum answers)
 
 Output Format:
+
 - Use descriptive headers for each research area
 - Always include source URLs
 - Mark relevance: HIGH / MEDIUM / LOW for each finding
 - End with:
-  ## Key External Findings
+
+## Key External Findings
+
   [Bullet list of the most important discoveries]
 
-  ## Recommendations from External Research
+## Recommendations from External Research
+
   [How external findings should influence our approach]
 
 IMPORTANT: Our codebase is the source of truth. External research adds context and options but does not override verified code behavior. If you find a discrepancy, note it explicitly.
+
 ```
 
 ### Synthesis Agent Prompt
 
 ```
+
 Read the research files listed below and synthesize them into report sections for a Technical Research Report.
 
 Research files to read: [list of specific file paths]
@@ -698,6 +730,7 @@ Output path: [synth file path]
 Research question context: [the overall research question]
 
 Rules:
+
 1. Every fact must come from the research files — do not invent, assume, or infer
 2. Use tables over prose for multi-item data (file lists, comparisons, gap inventories, step lists)
 3. Do not reproduce full source code — summarize with key class names, function signatures, and file paths
@@ -711,6 +744,7 @@ Rules:
 
 CRITICAL — Incremental File Writing:
 You MUST write to your output file incrementally as you synthesize each section. Do NOT read all research files into context and attempt a single large write. The process is:
+
 1. Create the output file with a header and your first synthesized section
 2. After completing each subsequent section, append it to the output file immediately using Edit
 3. Never rewrite the entire file from memory — always append or do targeted edits
@@ -718,11 +752,13 @@ You MUST write to your output file incrementally as you synthesize each section.
 This prevents data loss from context limits and ensures partial results survive if the agent is interrupted.
 
 Write the sections in the exact format they should appear in the final report, using the section structure and table formats from the report template.
+
 ```
 
 ### Research Analyst Agent Prompt (rf-analyst — Completeness Verification)
 
 ```
+
 Perform a completeness verification of all research files for [topic].
 
 Analysis type: completeness-verification
@@ -736,6 +772,7 @@ Your job is to independently verify that research agents produced thorough, evid
 before downstream synthesis begins. You are the analytical quality gate — be rigorous.
 
 PROCESS:
+
 1. Read the research-notes.md file to understand the planned scope (EXISTING_FILES, SUGGESTED_PHASES)
 2. Use Glob to find ALL research files in the research directory (files matching [NN]-*.md)
 3. Read EVERY research file — do not skip any
@@ -743,6 +780,7 @@ PROCESS:
 5. Write your report to [output-path]
 
 CHECKLIST:
+
 1. Coverage audit — every key file from scope covered by at least one research file
 2. Evidence quality — claims cite specific file paths, line numbers, function names
 3. Documentation staleness — all doc-sourced claims tagged [CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED]
@@ -753,16 +791,19 @@ CHECKLIST:
 8. Depth assessment — investigation depth matches the stated tier
 
 VERDICTS:
+
 - PASS: All checks pass, no critical gaps
 - FAIL: Critical gaps exist (list each with specific remediation action)
 
 Use the full output format from your agent definition (tables for coverage, evidence quality, staleness, completeness).
 Be adversarial — your job is to find problems, not confirm things work.
+
 ```
 
 ### Research QA Agent Prompt (rf-qa — Research Gate)
 
 ```
+
 Perform QA verification of research completeness for [topic].
 
 QA phase: research-gate
@@ -776,6 +817,7 @@ Output path: [output-path]
 You are the last line of defense before synthesis begins. Assume everything is wrong until you verify it.
 
 IF ANALYST REPORT EXISTS:
+
 1. Read the analyst's completeness report
 2. Spot-check 3-5 of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
@@ -786,6 +828,7 @@ IF NO ANALYST REPORT:
 Apply the full 10-item Research Gate checklist from your agent definition independently.
 
 10-ITEM CHECKLIST:
+
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — sample 3-5 claims per file, verify file paths exist
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
@@ -798,16 +841,19 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
 10. Incremental writing compliance — files show iterative structure, not one-shot
 
 VERDICTS:
+
 - PASS: Green light for synthesis
 - FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
 
 Use the full QA report output format from your agent definition.
 Zero tolerance — if you can't verify it, it fails.
+
 ```
 
 ### Synthesis QA Agent Prompt (rf-qa — Synthesis Gate)
 
 ```
+
 Perform QA verification of synthesis files for [topic].
 
 QA phase: synthesis-gate
@@ -821,6 +867,7 @@ You are verifying that synthesis files are ready for assembly into the final rep
 If fix_authorization is true, you can fix issues in-place using Edit.
 
 PROCESS:
+
 1. Use Glob to find ALL synth files (synth-*.md) in the synthesis directory (`${TASK_DIR}synthesis/`)
 2. Read EVERY synth file completely
 3. Apply the 12-item Synthesis Gate checklist from your agent definition
@@ -831,6 +878,7 @@ PROCESS:
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
+
 1. Section headers match Report Structure template
 2. Table column structures correct
 3. No fabrication (sample 5 claims per file, trace to research files)
@@ -845,13 +893,16 @@ PROCESS:
 12. No hallucinated file paths (verify parent directories exist)
 
 VERDICTS:
+
 - PASS: All synth files meet quality standards
 - FAIL: Issues found (list with specific fixes, note which were fixed in-place)
+
 ```
 
 ### Report Validation QA Agent Prompt (rf-qa — Report Validation)
 
 ```
+
 Perform final QA validation of the assembled research report for [topic].
 
 QA phase: report-validation
@@ -865,12 +916,14 @@ Fix authorization: true (always authorized for report validation)
 This is the final quality check before presenting to the user. You can and should fix issues in-place.
 
 PROCESS:
+
 1. Read the ENTIRE research report
 2. Apply the 15-item Validation Checklist + 4 Content Quality Checks
 3. For each issue: document it, fix it in-place with Edit, verify the fix
 4. Write your QA report to [output-path]
 
 15-ITEM VALIDATION CHECKLIST:
+
 1. All 10 report sections present (or N/A for Quick tier)
 2. Problem Statement references original research question
 3. Current State Analysis cites actual file paths and line numbers
@@ -894,11 +947,13 @@ CONTENT QUALITY CHECKS:
 19. Actionability (developer could begin work from Implementation Plan alone)
 
 Fix every issue you find. Report honestly.
+
 ```
 
 ### Assembly Agent Prompt (rf-assembler — Report Assembly)
 
 ```
+
 Assemble the final research report for [topic] from synthesis files.
 
 Component files (in order):
@@ -913,7 +968,9 @@ CRITICAL — Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.
 
 1. FIRST ACTION: Create the output file immediately with the report header:
-   # Technical Research Report: [Topic]
+
+# Technical Research Report: [Topic]
+
    **Date:** [today]
    **Depth:** [Quick / Standard / Deep]
    **Research files:** [count] codebase + [count] web research
@@ -925,6 +982,7 @@ You MUST follow this protocol exactly. Violation results in data loss.
 3. After each Edit, the file grows. This is correct behavior. Never rewrite from scratch.
 
 Output format — the final report MUST contain these 10 sections in this order:
+
 1. Problem Statement (what we are solving, why, what prompted this)
 2. Current State Analysis (how things work now — every claim cites file paths and line numbers)
 3. Target State (what we want to achieve, success criteria, constraints)
@@ -937,6 +995,7 @@ Output format — the final report MUST contain these 10 sections in this order:
 10. Evidence Trail (tables listing all research, web research, and synthesis files)
 
 Assembly rules:
+
 1. Write the report header first (title, date, depth tier, research file count, scope summary)
 2. Assemble sections in order — read each synth file and write its content into the correct position
 3. Write each section to disk immediately after composing it — do NOT one-shot
@@ -950,6 +1009,7 @@ Assembly rules:
 7. Ensure no placeholder text remains (search for [, TODO, TBD, PLACEHOLDER)
 
 Content rules (non-negotiable):
+
 - Tables over prose whenever presenting multi-item data
 - No full source code reproductions — summarize with key signatures and file paths
 - Use ASCII diagrams for architecture and data flow, not prose descriptions
@@ -962,6 +1022,7 @@ CRITICAL: You are assembling existing content, not creating new findings. Preser
 to the synthesis files. Add only minimal transitional text where needed for coherence.
 Do NOT attempt full content validation — that is the QA agent's job. Focus on assembly
 integrity: correct ordering, internal consistency, no placeholders, all components included.
+
 ```
 
 ---
@@ -1235,6 +1296,7 @@ These rules govern how content is written within research files, synthesis files
 | **Uncertainty** | Explicit "Unverified" or "Open Question" markers | Present uncertain findings as verified facts |
 
 **General content principles:**
+
 - Tables over prose whenever presenting multi-item data
 - Conciseness over comprehensiveness — the report should be scannable, not exhaustive prose
 - Every claim needs evidence — if you can't cite a file path or URL, it belongs in Open Questions
@@ -1283,6 +1345,7 @@ These rules apply across ALL phases. Violations compromise research quality.
 This work may span multiple sessions. The task file and research directory serve as the persistent record.
 
 **At session start:**
+
 1. Check for existing task folder in `.dev/tasks/to-do/TASK-RESEARCH-*/`
 2. If found, read the task file inside it and resume from the first unchecked `- [ ]` item
 3. Read existing research files in `${TASK_DIR}research/` for context
@@ -1291,6 +1354,7 @@ This work may span multiple sessions. The task file and research directory serve
 6. Do not re-research completed topics
 
 **At session end:**
+
 - All research files should have Status: Complete
 - The task file should reflect exactly which items are checked and unchecked
 - If synthesis is in progress, note which synth files are complete and which report sections are assembled
@@ -1301,6 +1365,7 @@ This work may span multiple sessions. The task file and research directory serve
 ## Research Quality Signals
 
 ### Strong Investigation Signals
+
 - Findings cite specific file paths and line numbers
 - Data flow is traced end-to-end, not just entry points
 - Integration points are mapped with actual function signatures
@@ -1308,6 +1373,7 @@ This work may span multiple sessions. The task file and research directory serve
 - Gaps are specific and actionable ("function X doesn't handle case Y")
 
 ### Weak Investigation Signals (Redo)
+
 - Vague descriptions without file paths ("the system uses a plugin architecture")
 - Assumptions stated as facts ("this probably works by...")
 - Missing gap analysis (everything seems fine — unlikely for non-trivial systems)
@@ -1316,6 +1382,7 @@ This work may span multiple sessions. The task file and research directory serve
 - Doc-sourced architecture reported without code verification tags — if a research file describes pipelines, services, or components and the evidence trail only points to documentation files (no source code paths), the investigation is incomplete and must be redone with code cross-validation
 
 ### When to Spawn Additional Agents
+
 - A research agent flags a gap that's critical to the analysis
 - Two agents' findings contradict each other — need a tie-breaker investigation
 - The scope turns out larger than initially estimated

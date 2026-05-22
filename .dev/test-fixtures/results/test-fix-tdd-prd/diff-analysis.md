@@ -118,7 +118,7 @@ shared_assumptions_count: 18
 
 ## 3. Areas Where One Variant is Clearly Stronger
 
-### Opus is stronger in:
+### Opus is stronger in
 
 | Area | Why |
 |------|-----|
@@ -128,7 +128,7 @@ shared_assumptions_count: 18
 | **Testing isolation** | Dedicated Phase 4 prevents "testing gets squeezed" syndrome |
 | **Schema completeness** | Resolves OQ-6 and OQ-9 proactively in Phase 1, avoiding rework |
 
-### Haiku is stronger in:
+### Haiku is stronger in
 
 | Area | Why |
 |------|-----|

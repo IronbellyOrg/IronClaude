@@ -5,6 +5,7 @@ SuperClaude Framework includes a built-in memory system called **ReflexionMemory
 ## Overview
 
 ReflexionMemory is an automatic error learning system that:
+
 - **Remembers** past errors and their solutions
 - **Learns** from mistakes to prevent recurrence
 - **Searches** for similar errors when new problems occur
@@ -83,6 +84,7 @@ ReflexionMemory uses **keyword-based similarity matching**:
 5. Sort by timestamp (most recent first)
 
 **Example**:
+
 ```python
 Current error: "JWT token validation failed missing secret"
 Past error:    "JWT validation failed secret not found"
@@ -94,6 +96,7 @@ Overlap:       7/8 keywords match = 87.5% similarity ✅
 ### Fully Automatic (Default)
 
 ReflexionMemory works transparently:
+
 - ✅ Auto-loads at session start
 - ✅ Auto-searches when errors occur
 - ✅ Auto-saves new learnings
@@ -117,6 +120,7 @@ wc -l docs/memory/reflexion.jsonl
 ### Managing Entries
 
 **Clear all memory** (use with caution):
+
 ```bash
 rm docs/memory/reflexion.jsonl
 ```
@@ -185,6 +189,7 @@ Each line is a complete JSON object:
 Current: **Keyword-based search** (50% overlap threshold)
 
 Planned: **Semantic search** upgrade
+
 - Use embeddings for similarity
 - Support natural language queries
 - Achieve 90% token reduction (industry benchmark)
@@ -207,6 +212,7 @@ Planned: **Semantic search** upgrade
 ### Memory file not found
 
 If `docs/memory/reflexion.jsonl` doesn't exist:
+
 - ✅ Normal on first run
 - ✅ Created automatically on first error
 - ✅ No action needed
@@ -214,6 +220,7 @@ If `docs/memory/reflexion.jsonl` doesn't exist:
 ### Entries not being used
 
 Check:
+
 1. Is the error really similar? (View entries manually)
 2. Is `status: "adopted"`? (Deprecated entries are ignored)
 3. Is keyword overlap >50%? (May need more specific error messages)
@@ -221,12 +228,14 @@ Check:
 ### File growing too large
 
 ReflexionMemory files rarely exceed 1MB. If needed:
+
 1. Archive old entries: `mv reflexion.jsonl reflexion-archive-2025.jsonl`
 2. Keep recent entries: `tail -100 reflexion-archive-2025.jsonl > reflexion.jsonl`
 
 ### Corrupted JSON
 
 If you manually edit and break the JSON format:
+
 ```bash
 # Validate each line
 cat docs/memory/reflexion.jsonl | while read line; do echo "$line" | jq . || echo "Invalid: $line"; done

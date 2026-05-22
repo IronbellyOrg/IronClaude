@@ -168,6 +168,7 @@ Haiku correctly identifies this as a documentation quality difference, not an ar
 The two variants share architectural DNA — identical security model, identical component order, identical acceptance criteria. The disputes are concentrated in three areas: **v1.0 security completeness** (emergency rotation, anomaly alerting), **risk surfacing timing** (latency profiling — substantially resolved), and **structural philosophy** (phase granularity, OQ prescription vs. deferral).
 
 Haiku is operationally stronger on security completeness and post-launch governance. Variant A is stronger on scope discipline, early risk surfacing, and documentation structure for backlog handoff. A synthesized roadmap would adopt:
+
 - Haiku's emergency rotation as v1.0 scope (with policy questions in Phase 0)
 - Haiku's anomaly alerting threshold approach for RISK-2
 - Variant A's Phase 1.1 benchmark (retained in Haiku's hybrid)

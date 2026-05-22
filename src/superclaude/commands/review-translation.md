@@ -53,6 +53,7 @@ The full behavioral specification is in the protocol skill.
 ## Examples
 
 ### Basic Review
+
 ```bash
 # Upload English source and translation files, then:
 "Review"
@@ -62,16 +63,19 @@ The full behavioral specification is in the protocol skill.
 ```
 
 ### Deep Analysis with Tone Matrix
+
 ```bash
 /sc:review-translation source.json translations/*.json --depth deep --tone-matrix
 ```
 
 ### Platform-Specific Review
+
 ```bash
 /sc:review-translation steam_page.json translations/*.json --platform steam --strict
 ```
 
 ### Team Export
+
 ```bash
 /sc:review-translation source.json *.json --export
 ```
@@ -79,6 +83,7 @@ The full behavioral specification is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Perform comprehensive linguistic and cultural quality assessment
 - Generate prioritized, actionable reports with evidence
 - Implement confirmed fixes upon user request
@@ -87,6 +92,7 @@ The full behavioral specification is in the protocol skill.
 - Provide structured adversarial validation with confidence levels
 
 **Will Not:**
+
 - Proceed with review before user confirms context analysis
 - Mark subjective preferences as critical errors
 - Implement changes without explicit user consent
@@ -98,6 +104,7 @@ The full behavioral specification is in the protocol skill.
 **MANDATORY CONFIRMATION GATE**: Phase 1 context analysis MUST receive user confirmation before any review work begins.
 
 **Output Artifacts:**
+
 1. Individual language reports (`reports/localization/[lang]_review_*.md`)
 2. Project summary (`reports/localization/PROJECT_SUMMARY_*.md`)
 3. Implementation task list with copy-paste JSON

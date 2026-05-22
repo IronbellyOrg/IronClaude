@@ -24,7 +24,9 @@ pipeline_diagnostics: {elapsed_seconds: 152.2, started_at: "2026-04-20T22:03:47.
 ## Functional Requirements
 
 ### FR-AUTH-001 — Login with email and password
+
 `AuthService` authenticates users by validating email/password against bcrypt hashes via `PasswordHasher`.
+
 - Valid credentials: 200 with `AuthToken` (accessToken + refreshToken)
 - Invalid credentials: 401 with generic error
 - Non-existent email: 401 (no user enumeration)
@@ -32,7 +34,9 @@ pipeline_diagnostics: {elapsed_seconds: 152.2, started_at: "2026-04-20T22:03:47.
 - Maps to PRD FR-AUTH.1
 
 ### FR-AUTH-002 — User registration with validation
+
 `AuthService` creates user accounts with email uniqueness, password strength enforcement, and `UserProfile` creation.
+
 - Valid registration: 201 with `UserProfile`
 - Duplicate email: 409 Conflict
 - Weak passwords (<8 chars, no uppercase, no number): 400
@@ -40,20 +44,26 @@ pipeline_diagnostics: {elapsed_seconds: 152.2, started_at: "2026-04-20T22:03:47.
 - Maps to PRD FR-AUTH.2
 
 ### FR-AUTH-003 — JWT token issuance and refresh
+
 `TokenManager` issues JWT access tokens (15-min TTL) and refresh tokens (7-day TTL) via `JwtService`, supporting silent refresh.
+
 - Login returns both tokens with correct TTLs
 - POST `/auth/refresh` with valid refreshToken returns new pair
 - Expired/revoked refreshToken: 401
 - Maps to PRD FR-AUTH.3 (session persistence)
 
 ### FR-AUTH-004 — User profile retrieval
+
 `AuthService` returns authenticated user's `UserProfile` via GET `/auth/me`.
+
 - Valid accessToken: returns id, email, displayName, createdAt, updatedAt, lastLoginAt, roles
 - Expired/invalid token: 401
 - Maps to PRD FR-AUTH.4
 
 ### FR-AUTH-005 — Password reset flow
+
 Two-step: request (sends email with token) and confirmation (validates token, updates hash).
+
 - POST `/auth/reset-request`: sends reset email to valid email
 - POST `/auth/reset-confirm`: validates token, updates password hash
 - Reset tokens expire after 1 hour
@@ -63,30 +73,39 @@ Two-step: request (sends email with token) and confirmation (validates token, up
 ## Non-Functional Requirements
 
 ### NFR-PERF-001 — API response time
+
 All auth endpoints respond in <200ms at p95, measured via APM tracing on `AuthService` methods.
 
 ### NFR-PERF-002 — Concurrent authentication
+
 Support 500 concurrent login requests, validated via k6 load testing.
 
 ### NFR-REL-001 — Service availability
+
 99.9% uptime over 30-day rolling windows, monitored via health check endpoint.
 
 ### NFR-SEC-001 — Password hashing
+
 `PasswordHasher` uses bcrypt with cost factor 12, verified by unit test asserting cost parameter.
 
 ### NFR-SEC-002 — Token signing
+
 `JwtService` signs tokens with RS256 using 2048-bit RSA keys, validated via configuration test.
 
 ### NFR-COMPLIANCE-001 — SOC2 audit logging (from PRD)
+
 All auth events logged with user ID, timestamp, IP, outcome; 12-month retention for SOC2 Type II compliance.
 
 ### NFR-COMPLIANCE-002 — GDPR consent at registration (from PRD)
+
 Users must consent to data collection at registration; consent recorded with timestamp.
 
 ### NFR-COMPLIANCE-003 — NIST password storage (from PRD)
+
 Password storage must comply with NIST SP 800-63B: one-way adaptive hashing; raw passwords never persisted or logged.
 
 ### NFR-COMPLIANCE-004 — GDPR data minimization (from PRD)
+
 Only email, hashed password, and display name collected. No additional PII required.
 
 ## Complexity Assessment
@@ -94,6 +113,7 @@ Only email, hashed password, and display name collected. No additional PII requi
 **complexity_score: 0.65 — MEDIUM**
 
 Scoring rationale:
+
 - **Scope (0.15/0.20):** 5 functional requirements, 4 core API endpoints, 2 data models, 3 frontend components. Bounded but multi-surface.
 - **Integration (0.18/0.25):** PostgreSQL + Redis + SMTP email + 2 external libraries (bcryptjs, jsonwebtoken); managed by `TokenManager`, `PasswordHasher`, `JwtService` specialized components.
 - **Security (0.18/0.20):** Defense-in-depth required: bcrypt cost 12, RS256 2048-bit keys, TLS 1.3, CORS, rate limiting, account lockout, hashed refresh tokens, quarterly key rotation.
@@ -213,12 +233,14 @@ interface AuthToken {
 | tokenType | string | NOT NULL | Always "Bearer" (OAuth2 compat) |
 
 ### Data Flow
+
 1. `AuthService.login()` → `PasswordHasher.verify()` against PostgreSQL hash
 2. On success → `TokenManager.issueTokens()` → `JwtService.sign()` + opaque refresh token
 3. Refresh token hashed and stored in Redis with 7-day TTL keyed by user id
 4. Client re-auth → `TokenManager.refresh()` validates Redis, revokes old, issues new pair
 
 ### Storage Strategy
+
 | Store | Technology | Purpose | Retention |
 |---|---|---|---|
 | Users | PostgreSQL 15 | `UserProfile` + bcrypt hashes | Indefinite |
@@ -232,6 +254,7 @@ interface AuthToken {
 Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non-breaking additions permitted. All error responses use consistent envelope.
 
 ### API-001 — POST /auth/login
+
 | Aspect | Value |
 |---|---|
 | Auth | No |
@@ -243,6 +266,7 @@ Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non
 | 429 | Rate limit exceeded |
 
 ### API-002 — POST /auth/register
+
 | Aspect | Value |
 |---|---|
 | Auth | No |
@@ -253,6 +277,7 @@ Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non
 | 409 | Email already registered |
 
 ### API-003 — GET /auth/me
+
 | Aspect | Value |
 |---|---|
 | Auth | Yes (Bearer) |
@@ -262,6 +287,7 @@ Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non
 | 401 | Missing, expired, or invalid token |
 
 ### API-004 — POST /auth/refresh
+
 | Aspect | Value |
 |---|---|
 | Auth | No (refresh token in body) |
@@ -271,6 +297,7 @@ Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non
 | 401 | Expired or revoked refresh token |
 
 ### API-005 — POST /auth/reset-request
+
 | Aspect | Value |
 |---|---|
 | Auth | No |
@@ -280,6 +307,7 @@ Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non
 | Behavior | Sends reset email with 1-hour TTL token via SendGrid |
 
 ### API-006 — POST /auth/reset-confirm
+
 | Aspect | Value |
 |---|---|
 | Auth | No (token in body) |
@@ -289,36 +317,47 @@ Versioning: URL prefix `/v1/auth/*`. Breaking changes require major version. Non
 | 400 | New password fails policy |
 
 ### API Governance
+
 Standard error envelope:
+
 ```json
 {"error": {"code": "AUTH_INVALID_CREDENTIALS", "message": "...", "status": 401}}
 ```
+
 Deprecation: legacy auth endpoints deprecated at Phase 3 GA.
 
 ## Component Inventory
 
 ### COMP-001 — LoginPage (route `/login`)
+
 Type: React page component. Auth required: No. Props: `onSuccess: () => void, redirectUrl?: string`. Calls POST `/auth/login`. Stores `AuthToken` via `AuthProvider`.
 
 ### COMP-002 — RegisterPage (route `/register`)
+
 Type: React page component. Auth required: No. Props: `onSuccess: () => void, termsUrl: string`. Client-side password strength validation before POST `/auth/register`.
 
 ### COMP-003 — ProfilePage (route `/profile`)
+
 Type: React page component. Auth required: Yes. Calls GET `/auth/me`; displays `UserProfile`.
 
 ### COMP-004 — AuthProvider
+
 Type: React context provider. Props: `children: ReactNode`. Wraps app; manages `AuthToken` state; handles silent refresh via `TokenManager`; intercepts 401s; redirects unauthenticated users to `LoginPage`.
 
 ### COMP-005 — AuthService (backend orchestrator)
+
 Type: Backend facade. Receives gateway requests; delegates to `PasswordHasher`, `TokenManager`, `UserRepo`. Exposes login, register, me, refresh, reset-request, reset-confirm.
 
 ### COMP-006 — TokenManager (backend)
+
 Type: Token lifecycle service. Wraps `JwtService`. Issues/revokes tokens. Stores hashed refresh tokens in Redis with 7-day TTL. Distinguishes expired vs revoked.
 
 ### COMP-007 — PasswordHasher (backend)
+
 Type: bcrypt abstraction. Cost factor 12. Supports hash and verify; abstraction permits future algorithm migration.
 
 ### Component Hierarchy (frontend)
+
 ```
 App
 └── AuthProvider
@@ -327,6 +366,7 @@ App
 ```
 
 ### Backend Composition
+
 `AuthService` → { `TokenManager` → `JwtService`, `PasswordHasher`, `UserRepo` (PostgreSQL) }
 
 State stores: none server-side beyond Redis refresh token cache and PostgreSQL. Frontend state lives in `AuthProvider` context (in-memory `AuthToken`, current `UserProfile`).
@@ -342,24 +382,31 @@ Test pyramid: 80% unit / 15% integration / 5% E2E.
 | E2E | 5% | Playwright | Login/registration/refresh/full journey |
 
 ### TEST-001 — Login with valid credentials returns AuthToken (Unit)
+
 Component: `AuthService`. Validates FR-AUTH-001. `AuthService.login()` calls `PasswordHasher.verify()`, then `TokenManager.issueTokens()`, returns valid `AuthToken`.
 
 ### TEST-002 — Login with invalid credentials returns error (Unit)
+
 Component: `AuthService`. Validates FR-AUTH-001. Returns 401 when `PasswordHasher.verify()` returns false; no `AuthToken` issued.
 
 ### TEST-003 — Token refresh with valid refresh token (Unit)
+
 Component: `TokenManager`. Validates FR-AUTH-003. Validates refresh token, revokes old, issues new pair via `JwtService`.
 
 ### TEST-004 — Registration persists UserProfile to database (Integration)
+
 Scope: `AuthService` + PostgreSQL. Validates FR-AUTH-002. Full flow API → `PasswordHasher` → DB insert.
 
 ### TEST-005 — Expired refresh token rejected by TokenManager (Integration)
+
 Scope: `TokenManager` + Redis. Validates FR-AUTH-003. Redis TTL expiration invalidates refresh tokens.
 
 ### TEST-006 — User registers and logs in (E2E)
+
 Flow: `RegisterPage` → `LoginPage` → `ProfilePage`. Validates FR-AUTH-001 + FR-AUTH-002 end-to-end through `AuthProvider`.
 
 ### Test Environments
+
 | Environment | Purpose | Data |
 |---|---|---|
 | Local | Developer testing | Docker Compose (PostgreSQL + Redis) |
@@ -369,21 +416,27 @@ Flow: `RegisterPage` → `LoginPage` → `ProfilePage`. Validates FR-AUTH-001 + 
 ## Migration and Rollout Plan
 
 ### MIG-001 — Phase 1: Internal Alpha
+
 Duration: 1 week. Deploy `AuthService` to staging. auth-team + QA test all endpoints. `LoginPage`/`RegisterPage` behind flag `AUTH_NEW_LOGIN`. Exit: all FR-AUTH-001–005 pass manual testing; zero P0/P1 bugs.
 
 ### MIG-002 — Phase 2: Beta (10% traffic)
+
 Duration: 2 weeks. Enable `AUTH_NEW_LOGIN` for 10%. Monitor `AuthService` latency, error rates, `TokenManager` Redis usage. Exit: p95 <200ms, error rate <0.1%, no Redis connection failures.
 
 ### MIG-003 — Phase 3: General Availability (100%)
+
 Duration: 1 week. Remove `AUTH_NEW_LOGIN`. All users on new `AuthService`. Legacy deprecated. `AUTH_TOKEN_REFRESH` enabled. Exit: 99.9% uptime over 7 days; all dashboards green.
 
 ### MIG-004 — Feature flag AUTH_NEW_LOGIN
+
 Purpose: Gates new `LoginPage` and `AuthService` login endpoint. Default: OFF. Cleanup: after Phase 3 GA. Owner: auth-team.
 
 ### MIG-005 — Feature flag AUTH_TOKEN_REFRESH
+
 Purpose: Enables refresh token flow in `TokenManager`; when OFF, only access tokens issued. Default: OFF. Cleanup: Phase 3 + 2 weeks. Owner: auth-team.
 
 ### Rollback Procedure (sequential)
+
 1. Disable `AUTH_NEW_LOGIN` to route traffic to legacy auth
 2. Verify legacy login via smoke tests
 3. Investigate `AuthService` root cause via structured logs + traces
@@ -392,35 +445,43 @@ Purpose: Enables refresh token flow in `TokenManager`; when OFF, only access tok
 6. Post-mortem within 48 hours
 
 ### Rollback Criteria
+
 Triggered if any: p95 >1000ms for >5 min; error rate >5% for >2 min; Redis failures >10/min; any `UserProfile` data loss or corruption.
 
 ## Operational Readiness
 
 ### OPS-001 — Runbook: AuthService down
+
 Symptoms: 5xx on all `/auth/*`; `LoginPage`/`RegisterPage` error state.
 Diagnosis: Check `AuthService` pod health in Kubernetes; PostgreSQL connectivity; `PasswordHasher`/`TokenManager` init logs.
 Resolution: Restart pods; failover to PostgreSQL read replica; if Redis down, users must re-login.
 Escalation: auth-team on-call → 15 min unresolved → platform-team.
 
 ### OPS-002 — Runbook: Token refresh failures
+
 Symptoms: Unexpected logouts; `AuthProvider` redirect loop to `LoginPage`; `auth_token_refresh_total` error spike.
 Diagnosis: Redis connectivity from `TokenManager`; `JwtService` signing key access; `AUTH_TOKEN_REFRESH` flag state.
 Resolution: Scale Redis; remount secrets; enable flag if OFF.
 Escalation: auth-team on-call → Redis cluster issue → platform-team.
 
 ### OPS-003 — On-Call Expectations
+
 P1 acknowledge ≤15 min. 24/7 rotation (auth-team) first 2 weeks post-GA. Tooling: K8s dashboards, Grafana, Redis CLI, PostgreSQL admin. Escalation: on-call → test-lead → eng-manager → platform-team.
 
 ### OPS-004 — Capacity Plan: AuthService pods
+
 Current: 3 replicas. Expected: 500 concurrent users. Scaling: HPA to 10 replicas at CPU >70%.
 
 ### OPS-005 — Capacity Plan: PostgreSQL connections
+
 Current pool: 100. Avg concurrent: 50. Scaling: pool → 200 if wait time >50ms.
 
 ### OPS-006 — Capacity Plan: Redis memory
+
 Current: 1 GB. Expected: ~100K refresh tokens (~50 MB). Scaling: → 2 GB if >70% utilized.
 
 ### OPS-007 — Observability
+
 Structured logs for login success/failure, registration, refresh, password reset.
 Prometheus metrics: `auth_login_total` (counter), `auth_login_duration_seconds` (histogram), `auth_token_refresh_total` (counter), `auth_registration_total` (counter).
 OpenTelemetry distributed tracing spanning `AuthService` → `PasswordHasher` / `TokenManager` → `JwtService`.

@@ -235,6 +235,7 @@
 ```
 
 SuperClaude occupies the **high planning depth + high execution rigor** quadrant. No competitor occupies this same space. The nearest are:
+
 - **MetaGPT**: High planning depth, low execution rigor (no quality gates)
 - **GSD**: Moderate planning, moderate execution (context management, not quality gates)
 - **Forge AI**: Architecturally closest but too early (<100 stars)
@@ -246,51 +247,61 @@ SuperClaude occupies the **high planning depth + high execution rigor** quadrant
 Synthesized from all 14 completed analyses, ordered by estimated impact:
 
 ### 1. Expose SuperClaude as MCP Tools
+
 **Source**: Skylos, Task Master, TheAuditor analyses
 **Action**: Wrap audit pipeline, confidence checker, and quality gates as MCP tools
 **Impact**: Cross-platform reach without rebuilding editor integrations. Any AI agent in any editor can call SuperClaude's quality infrastructure.
 
 ### 2. Add Fresh-Context-Per-Task to Sprint Executor
+
 **Source**: GSD analysis
 **Action**: Switch sprint executor from per-phase to per-task subprocess spawning
 **Impact**: Eliminates context rot in long sprints. Combines GSD's isolation with SuperClaude's quality gates and KPI tracking.
 
 ### 3. Build Cross-Platform Skill Layer
+
 **Source**: OpenSpec, Superpowers analyses
 **Action**: Generate simplified Markdown-only versions of key skills for Cursor, Copilot, Gemini CLI
 **Impact**: 10-100x reach expansion. Two-layer architecture: portable Markdown for reach + Python CLI for depth.
 
 ### 4. Add Auto-Triggering Bootstrap
+
 **Source**: Superpowers analysis
 **Action**: Create a bootstrap mechanism that checks skill applicability before actions, rather than requiring explicit `/sc:` invocation
 **Impact**: Reduces friction, prevents process shortcuts, matches market expectation.
 
 ### 5. Simplify Entry Point with Tiered Commands
+
 **Source**: OpenSpec, claude-code-best-practice, Spec Kit analyses
 **Action**: Create 3 tiers: Core (5 commands), Standard (12), Full (38). New users see Core only.
 **Impact**: Dramatically reduces onboarding friction. Addresses community anti-pattern concern about long command lists.
 
 ### 6. Add CI/CD Integration
+
 **Source**: Skylos analysis
 **Action**: GitHub Action wrapper, SARIF output, PR annotations, diff-aware mode
 **Impact**: Enables audit pipeline in CI without interactive Claude Code session.
 
 ### 7. Adopt Constitution Concept
+
 **Source**: Spec Kit analysis
 **Action**: Unify CLAUDE.md/RULES.md/PRINCIPLES.md into a single consulted document
 **Impact**: Cleaner project governance, mirrors successful pattern from 78.7K-star project.
 
 ### 8. Add SQLite Persistence for Audit Results
+
 **Source**: TheAuditor analysis
 **Action**: Store audit results in SQLite for post-hoc queries and incremental re-auditing
 **Impact**: Enables trend tracking, regression detection, and arbitrary queries after audit completes.
 
 ### 9. Add Basic Taint Analysis
+
 **Source**: TheAuditor analysis
 **Action**: Even a simplified source/sink pattern matcher closes the largest SAST capability gap
 **Impact**: Moves audit pipeline from structural analysis into security analysis territory.
 
 ### 10. Create Guided Onboarding Command
+
 **Source**: OpenSpec, BMAD analyses
 **Action**: Build `/sc:onboard` — a 15-minute interactive walkthrough of core capabilities
 **Impact**: Converts browsing users to active users. OpenSpec and BMAD both validate this pattern.
@@ -300,6 +311,7 @@ Synthesized from all 14 completed analyses, ordered by estimated impact:
 ## Appendix: All Generated Reports
 
 ### Phase 1: Research Reports (3)
+
 | Report | Location |
 |--------|----------|
 | Planning & Roadmapping Landscape | `docs/research/competitive-landscape-planning-tools.md` |

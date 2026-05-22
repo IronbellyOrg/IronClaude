@@ -75,6 +75,7 @@ validation_agents: 'reflect-opus-architect, reflect-haiku-analyst'
 | INFO | 4 |
 
 **Agreement Statistics**:
+
 - BOTH_AGREE: 4 findings (F-01, F-04, F-09, F-10)
 - ONLY_A: 4 findings (F-05, F-06, F-07, F-08)
 - ONLY_B: 1 finding (F-03, merged into F-02+F-03)

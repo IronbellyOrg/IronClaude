@@ -154,6 +154,7 @@ Load `refs/pipeline-spec.md` before this phase. It contains Step definition patt
 ### Phase 3: Release Spec Synthesis
 
 **Phase 2→3 Entry Gate**: Before beginning Phase 3, verify ALL of the following:
+
 - Phase 2 contract `status: completed`
 - All blocking checks passed (no unresolved BLOCKING gate failures)
 - Phase 2 `step_mapping` contains ≥1 entry
@@ -203,11 +204,13 @@ Apply embedded brainstorm behavioral patterns as a non-interactive automated pas
 3. **Backend persona**: Analyze for implementation gaps — missing data models, incomplete API contracts, undefined error states, missing retry/timeout specifications, resource lifecycle gaps
 
 **Structured output format**: Each finding uses the schema:
+
 ```
 {gap_id, description, severity(high|medium|low), affected_section, persona}
 ```
 
 Example:
+
 ```
 {GAP-001, "No retry policy defined for failed gate checks", medium, "5.2 Gate Criteria", architect}
 ```
@@ -257,11 +260,13 @@ Apply spec-panel behavioral patterns with `--focus correctness,architecture` aga
 **Focus dimensions**: `correctness` and `architecture` — findings must address both dimensions (SC-006).
 
 **Output format**: Each finding uses the structured schema:
+
 ```
 {finding_id, severity(CRITICAL|MAJOR|MINOR), expert, location, issue, recommendation}
 ```
 
 Where:
+
 - `finding_id`: Unique identifier (e.g., `F-001`, `F-002`)
 - `severity`: One of `CRITICAL` (spec provably wrong), `MAJOR` (spec ambiguous/incomplete), `MINOR` (spec could be clearer)
 - `expert`: One of `Fowler`, `Nygard`, `Whittaker`, `Crispin`
@@ -270,6 +275,7 @@ Where:
 - `recommendation`: Specific actionable fix
 
 Additionally produce, if applicable:
+
 - Guard Condition Boundary Table (Nygard leads, Crispin validates, Whittaker attacks)
 - Pipeline Quantity Flow Diagram (Fowler leads, if pipeline stages detected)
 - State Variable Registry (if 3+ mutable state variables identified)
@@ -300,11 +306,13 @@ Apply spec-panel behavioral patterns with `--mode critique` against the updated 
 Each expert produces quality dimension scores and prioritized improvement recommendations.
 
 **Quality score output** (SC-007):
+
 ```
 {clarity: float, completeness: float, testability: float, consistency: float}
 ```
 
 Where each dimension is a float in the 0-10 range:
+
 - `clarity` (0.0-10.0): Language precision, unambiguous requirements, clear behavioral definitions
 - `completeness` (0.0-10.0): Coverage of essential elements, no missing requirements, all edge cases addressed
 - `testability` (0.0-10.0): Measurable acceptance criteria, verifiable requirements, concrete test scenarios
@@ -315,6 +323,7 @@ Each expert also produces prioritized improvement recommendations as new finding
 #### Step 4d: Critique Incorporation and Scoring
 
 1. **Record quality scores**: Write all 4 quality dimension scores from step 4c into the spec frontmatter:
+
    ```yaml
    quality_scores:
      clarity: <float>
@@ -338,6 +347,7 @@ Each expert also produces prioritized improvement recommendations as new finding
 Steps 4a through 4d execute within a bounded convergence loop using state machine semantics.
 
 **States**:
+
 - `REVIEWING` — Executing focus pass (4a) or critique pass (4c)
 - `INCORPORATING` — Executing incorporation (4b or 4d)
 - `SCORING` — Evaluating convergence after scoring (4d)
@@ -345,6 +355,7 @@ Steps 4a through 4d execute within a bounded convergence loop using state machin
 - `ESCALATED` — Terminal state: 3 iterations exhausted, `status: partial`
 
 **Transitions**:
+
 ```
 REVIEWING → INCORPORATING (findings produced)
 INCORPORATING → SCORING (incorporation complete, scores computed)
@@ -358,6 +369,7 @@ SCORING → ESCALATED (unaddressed CRITICALs remain, iteration >= 3)
 **Convergence predicate**: After SCORING, check if any findings with `severity: CRITICAL` have status other than `[INCORPORATED]` or `[DISMISSED]`. If zero unaddressed CRITICALs → transition to CONVERGED. Otherwise → check iteration counter.
 
 **Terminal states**:
+
 - **CONVERGED**: `status: success` — all CRITICALs addressed, spec is review-complete
 - **ESCALATED**: `status: partial` — 3 iterations exhausted with unaddressed CRITICALs remaining. Escalate to user with: remaining CRITICAL findings, iteration history, and recommendation for manual resolution.
 
@@ -399,6 +411,7 @@ The value of portification is moving orchestration out of inference. Here are co
 | Generate executive summary | Claude-assisted | Requires narrative synthesis |
 
 ### Rule of Thumb
+
 If you can write a Python function for it with clear input→output types and no ambiguity, make it programmatic. If it requires reading natural language, making judgments, or synthesizing information, use Claude with a gate to verify the output.
 
 ## Pipeline Design Principles
@@ -406,12 +419,14 @@ If you can write a Python function for it with clear input→output types and no
 These inform Phase 2 pipeline specification and align with the unified-audit-gating architecture in `pipeline/`.
 
 ### Critical Constraints
+
 1. **Synchronous execution** — Sprint uses `threading` + `time.sleep()` polling. Use `concurrent.futures.ThreadPoolExecutor` for batch parallelism. Do NOT use async/await.
 2. **Gate function signatures** — All semantic checks return `tuple[bool, str]`. The reason string feeds diagnostics and retry decisions.
 3. **Runner-authored truth** — Reports derive from runner-observed data (exit codes, artifacts, gates, monitor signals), not Claude's self-reported status.
 4. **Deterministic flow control** — Python makes all decisions about what runs next. Claude never decides "what's next".
 
 ### Shared Pipeline Patterns
+
 5. **Reuse `pipeline/` primitives** — `PipelineConfig`, `Step`, `StepResult`, `GateMode`, `GateCriteria`, `SemanticCheck`, `gate_passed()`, `ClaudeProcess`
 6. **Gate modes** — `BLOCKING` (default) stops pipeline on failure. `TRAILING` defers evaluation. Use trailing only for quality checks that don't affect downstream data flow.
 7. **Turn budget** — `TurnLedger` with debit/credit/guard for multi-subprocess pipelines. Pre-launch guards prevent launching when budget too low.
@@ -421,6 +436,7 @@ These inform Phase 2 pipeline specification and align with the unified-audit-gat
 11. **Diagnostic chain** — Runner-side failure analysis that doesn't consume turn budget.
 
 ### Output Guidance
+
 - `portify-analysis.md`: Under 400 lines. Step graph, gates, data flow.
 - `portify-spec.md`: Split prompts to separate file if spec exceeds 800 lines.
 - Pure-programmatic steps: Full implementation code, not descriptions.
@@ -428,6 +444,7 @@ These inform Phase 2 pipeline specification and align with the unified-audit-gat
 ## Boundaries
 
 ### Will Do
+
 - Analyze any SuperClaude skill/command/agent workflow
 - Decompose into structured pipeline specification
 - Generate a complete release specification via template instantiation and brainstorm pass
@@ -435,6 +452,7 @@ These inform Phase 2 pipeline specification and align with the unified-audit-gat
 - Produce a downstream-ready spec for sc:roadmap and sc:tasklist
 
 ### Will Not Do
+
 - Generate code files directly (use the release spec with sc:implement instead)
 - Execute the generated pipeline
 - Modify original skill/command/agent files
@@ -520,6 +538,7 @@ The `failure_type` field uses the following enumeration to classify failures:
 ### Failure Path Defaults (NFR-009)
 
 On any failure path, the contract is emitted with these defaults:
+
 - All `quality_scores` fields default to `0.0` (NOT null)
 - `downstream_ready` defaults to `false`
 - `convergence_iterations` defaults to `0`
@@ -532,12 +551,14 @@ On any failure path, the contract is emitted with these defaults:
 ### Resume Behavior Semantics
 
 **Phase 3 Resume** (`resume_substep=3c`):
+
 - Preserves the populated spec from Step 3b (template instantiation + content population)
 - Brainstorm pass (Step 3c) re-runs from scratch against the preserved draft
 - Gap incorporation (Step 3d) re-runs after brainstorm completes
 - All Phase 1 and Phase 2 artifacts are preserved unchanged
 
 **Phase 4 Resume** (`resume_substep=4a`):
+
 - Preserves the complete draft spec from Phase 3 (including brainstorm findings)
 - Focus pass (Step 4a) re-runs from scratch against the preserved spec
 - All subsequent steps (4b, 4c, 4d) re-run in sequence
@@ -547,6 +568,7 @@ On any failure path, the contract is emitted with these defaults:
 ### Contract Emission on Dry Run
 
 When `--dry-run` is active, the contract is emitted with:
+
 - `status: dry_run`
 - Phases 0-2 contracts populated; Phases 3-4 marked as `skipped`
 - All quality scores set to `0.0`

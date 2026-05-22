@@ -41,6 +41,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 ## Research Quality Signals
 
 ### Strong Investigation Signals
+
 - Findings cite specific file paths and capability descriptions
 - User flows are traced end-to-end, not just entry points
 - Integration points are mapped with actual technology names and versions
@@ -51,6 +52,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - rf-qa research gate verdict is PASS
 
 ### Weak Investigation Signals (Redo)
+
 - Vague descriptions without file paths ("the system has a plugin architecture")
 - Assumptions stated as facts ("this probably works by...")
 - Missing gap analysis (everything seems fine — unlikely for non-trivial products)
@@ -60,6 +62,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - User stories missing acceptance criteria or feature capabilities undocumented despite being in scope
 
 ### When to Spawn Additional Agents
+
 - A research agent flags a gap that's critical to the product analysis
 - Two agents' findings contradict each other — need a tie-breaker investigation
 - The scope turns out larger than initially estimated

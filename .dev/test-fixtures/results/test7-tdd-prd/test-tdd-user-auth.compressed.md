@@ -60,12 +60,14 @@ approvers:
 > **HOW TO USE:** Engineers, architects, and technical stakeholders use this document to align on the technical approach before implementation begins.
 
 Sentinel self-check (run before submitting TDD for pipeline consumption):
+
 - feature_id must not be a placeholder -- value is "AUTH-001" (PASS)
 - spec_type must be one of the valid enum values -- value is "new_feature" (PASS)
 - target_release must not be a placeholder -- value is "v1.0" (PASS)
 - complexity_score and complexity_class may remain empty (computed by sc:roadmap)
 
 Pipeline field consumption:
+
 - `complexity_score`, `complexity_class`: Computed by sc:roadmap during extraction (not read from frontmatter). Pre-populated values are advisory only.
 - `feature_id`, `spec_type`, `target_release`: Consumed by sc:spec-panel `--downstream roadmap` (Step 6b) when generating scoped release specs.
 - `quality_scores`: Populated by sc:spec-panel review output. Not consumed by sc:roadmap.
@@ -90,7 +92,6 @@ This TDD implements requirements from AUTH-PRD-001 Epics AUTH-E1 (Login/Registra
 |**Standard**|Most features and services (1-3 sprints)|All numbered sections; skip conditional sections marked *(if applicable)*|
 |**Heavyweight**|New systems, platform changes, cross-team projects|All sections fully completed, including all conditional sections|
 
-
 ## Document Information
 
 |Field|Value|
@@ -113,10 +114,10 @@ This TDD implements requirements from AUTH-PRD-001 Epics AUTH-E1 (Login/Registra
 |Architect|sys-architect|⬜ Pending||
 |Security|sec-reviewer|⬜ Pending||
 
-
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [x] Section 1: Executive Summary — Complete
 - [x] Section 2: Problem Statement & Context — Complete
 - [x] Section 3: Goals & Non-Goals — Complete
@@ -158,7 +159,6 @@ This TDD implements requirements from AUTH-PRD-001 Epics AUTH-E1 (Login/Registra
 |**Change Impact**|Notify: auth-team, platform-team, frontend-team|
 |**Review Cadence**|As-needed during active development|
 
-
 ## Table of Contents
 
 1. [Executive Summary](#1-executive-summary)
@@ -190,7 +190,6 @@ This TDD implements requirements from AUTH-PRD-001 Epics AUTH-E1 (Login/Registra
 27. [References & Resources](#27-references--resources)
 28. [Glossary](#28-glossary)
 
-
 ## 1. Executive Summary
 
 The User Authentication Service provides secure identity management for the platform, handling user registration, login, token issuance, and profile management. The service is built on `AuthService` as the primary orchestrator, delegating to `TokenManager`, `JwtService`, and `PasswordHasher` for specialized concerns. It exposes a RESTful API consumed by frontend clients including `LoginPage`, `RegisterPage`, and the `AuthProvider` context wrapper.
@@ -198,13 +197,13 @@ The User Authentication Service provides secure identity management for the plat
 This TDD defines the technical approach for implementing the authentication system described in AUTH-PRD-001, targeting v1.0 release with JWT-based stateless authentication, bcrypt password hashing, and a phased rollout strategy.
 
 **Key Deliverables:**
+
 - `AuthService` core orchestration layer with login, registration, and profile flows
 - `TokenManager` and `JwtService` for JWT access/refresh token lifecycle
 - `PasswordHasher` abstraction over bcrypt with configurable cost factor
 - RESTful API endpoints: `/auth/login`, `/auth/register`, `/auth/me`, `/auth/refresh`
 - `UserProfile` and `AuthToken` data models backed by PostgreSQL
 - Frontend integration points: `LoginPage`, `RegisterPage`, `AuthProvider`
-
 
 ## 2. Problem Statement & Context
 
@@ -219,7 +218,6 @@ Without a robust authentication service, the platform cannot support user-specif
 ### 2.3 Business Context
 
 User authentication is a prerequisite for all personalization features planned in Q2 2026. The marketing team projects a 40% increase in engagement once user accounts are available. Compliance requires authentication audit trails before the Q3 regulatory review.
-
 
 ## 3. Goals & Non-Goals
 
@@ -245,7 +243,6 @@ User authentication is a prerequisite for all personalization features planned i
 
 OAuth2 provider integration and MFA are planned for subsequent releases and should be considered when designing the `AuthService` interface to avoid breaking changes.
 
-
 ## 4. Success Metrics
 
 ### 4.1 Technical Metrics
@@ -264,7 +261,6 @@ OAuth2 provider integration and MFA are planned for subsequent releases and shou
 |--------|--------|--------------------|
 |User registration conversion|> 60%|Funnel analytics from `RegisterPage` to confirmed account|
 |Daily active authenticated users|> 1000 within 30 days of GA|`AuthToken` issuance counts|
-
 
 ## 5. Technical Requirements
 
@@ -299,7 +295,6 @@ OAuth2 provider integration and MFA are planned for subsequent releases and shou
 |----|-------------|--------|-------------|
 |NFR-SEC-001|Password hashing|`PasswordHasher` must use bcrypt with cost factor 12|Unit test asserting bcrypt cost parameter|
 |NFR-SEC-002|Token signing|`JwtService` must sign tokens with RS256 using 2048-bit RSA keys|Configuration validation test|
-
 
 ## 6. Architecture
 
@@ -350,7 +345,6 @@ The `AuthService` acts as the facade, receiving requests from the API Gateway an
 |----------|--------|------------------------|-----------|
 |Session mechanism|JWT with refresh tokens|Server-side sessions with cookies|JWT enables stateless verification across services. Refresh tokens mitigate short access token lifetimes. `TokenManager` handles the dual-token lifecycle.|
 |Password hashing|bcrypt via `PasswordHasher`|argon2id, scrypt|bcrypt is battle-tested with well-understood security properties. Cost factor 12 provides adequate resistance against brute force while keeping hash time under 500ms. `PasswordHasher` abstracts the algorithm for future migration.|
-
 
 ## 7. Data Models
 
@@ -410,7 +404,6 @@ interface AuthToken {
 |Refresh tokens|Redis 7|`TokenManager` token storage and revocation|7-day TTL|
 |Audit log|PostgreSQL 15|Login attempts, password resets|90 days|
 
-
 ## 8. API Specifications
 
 ### 8.1 API Overview
@@ -449,6 +442,7 @@ Authenticates a user via `AuthService` by validating email/password credentials 
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Invalid email or password
 - 429 Too Many Requests: Rate limit exceeded
 - 423 Locked: Account locked after 5 failed attempts
@@ -482,6 +476,7 @@ Creates a new user account via `AuthService`. Validates email uniqueness, enforc
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Validation errors (weak password, invalid email format)
 - 409 Conflict: Email already registered
 
@@ -510,6 +505,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIs...
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Missing, expired, or invalid accessToken
 
 #### POST `/auth/refresh`
@@ -536,6 +532,7 @@ Exchanges a valid refresh token for a new `AuthToken` pair via `TokenManager`. T
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Expired or revoked refresh token
 
 ### 8.3 Error Response Format
@@ -556,11 +553,9 @@ All error responses from `AuthService` follow a consistent JSON structure:
 
 The authentication API is versioned via URL prefix (`/v1/auth/*` in production). Breaking changes require a new major version. Non-breaking additions (new optional fields) are permitted within the current version.
 
-
 ## 9. State Management
 
 Not applicable — backend service. The User Authentication Service is a stateless REST API. Session state is managed entirely through JWT tokens issued by `JwtService` and validated on each request. No server-side session state is maintained beyond refresh token records in Redis managed by `TokenManager`.
-
 
 ## 10. Component Inventory
 
@@ -594,13 +589,11 @@ App
 
 The `AuthProvider` component wraps all routes and manages the authentication state. It intercepts 401 responses, triggers token refresh through `TokenManager`, and redirects unauthenticated users from protected routes to `LoginPage`.
 
-
 ## 11. User Flows & Interactions
 
 The primary user flow starts at `LoginPage`, where the user submits credentials. The `AuthService` validates them via `PasswordHasher`, and on success, `TokenManager` issues an `AuthToken` pair. The `AuthProvider` stores the tokens and redirects to the profile page. Token refresh happens transparently when the `AuthProvider` detects an expiring accessToken.
 
 Registration follows a similar pattern: `RegisterPage` submits user data, `AuthService` validates and creates the `UserProfile`, and the user is redirected to `LoginPage` to complete their first login.
-
 
 ## 12. Error Handling & Edge Cases
 
@@ -608,20 +601,17 @@ Error handling in the `AuthService` follows a layered approach. Input validation
 
 Edge cases include concurrent registration with the same email (handled by database unique constraint), clock skew in JWT validation (5-second tolerance in `JwtService`), and Redis unavailability (fallback to reject refresh requests rather than serve stale tokens).
 
-
 ## 13. Security Considerations
 
 The `AuthService` implements defense-in-depth security. Passwords are never stored in plaintext; `PasswordHasher` uses bcrypt with cost factor 12. The `JwtService` signs tokens with RS256 using 2048-bit RSA keys rotated quarterly. Refresh tokens are stored as hashed values in Redis by `TokenManager` to prevent token theft from compromising sessions. All endpoints enforce TLS 1.3, and sensitive fields (password, tokens) are excluded from application logs.
 
 Account lockout after 5 failed login attempts within 15 minutes mitigates brute-force attacks. Password reset tokens are single-use with 1-hour expiry. CORS is restricted to known frontend origins.
 
-
 ## 14. Observability & Monitoring
 
 The `AuthService` emits structured logs for all authentication events (login success/failure, registration, token refresh, password reset). Metrics are exposed via Prometheus: `auth_login_total` (counter), `auth_login_duration_seconds` (histogram), `auth_token_refresh_total` (counter), `auth_registration_total` (counter). Distributed tracing via OpenTelemetry spans covers the full request lifecycle through `AuthService`, `PasswordHasher`, `TokenManager`, and `JwtService`.
 
 Alerts are configured for: login failure rate exceeding 20% over 5 minutes, p95 latency exceeding 500ms, and `TokenManager` Redis connection failures.
-
 
 ## 15. Testing Strategy
 
@@ -664,21 +654,17 @@ Alerts are configured for: login failure rate exceeding 20% over 5 minutes, p95 
 |CI|Automated pipeline|testcontainers for ephemeral databases|
 |Staging|Pre-production validation|Seeded test accounts, isolated from production|
 
-
 ## 16. Accessibility Requirements
 
 Not applicable — backend service. The `AuthService` is a REST API with no direct UI rendering. Accessibility requirements for `LoginPage`, `RegisterPage`, and `AuthProvider` are defined in the frontend TDD (FE-AUTH-001-TDD).
-
 
 ## 17. Performance Budgets
 
 Backend performance targets for the `AuthService` are defined in NFR-PERF-001 and NFR-PERF-002. The `PasswordHasher` bcrypt cost factor of 12 has been benchmarked at ~300ms per hash operation, which fits within the 200ms p95 target when combined with connection pooling optimizations. The `JwtService` sign and verify operations complete in under 5ms. `TokenManager` Redis operations target < 10ms latency.
 
-
 ## 18. Dependencies
 
 The `AuthService` depends on PostgreSQL 15+ for `UserProfile` persistence, Redis 7+ for refresh token management by `TokenManager`, and Node.js 20 LTS as the runtime. External dependencies include the `bcryptjs` library for `PasswordHasher`, `jsonwebtoken` for `JwtService`, and SendGrid API for password reset emails. The service has no internal service dependencies beyond the database and cache layers.
-
 
 ## 19. Migration & Rollout Plan
 
@@ -709,11 +695,11 @@ The `AuthService` depends on PostgreSQL 15+ for `UserProfile` persistence, Redis
 ### 19.4 Rollback Criteria
 
 Rollback is triggered if any of the following occur during rollout:
+
 - p95 latency exceeds 1000ms for more than 5 minutes
 - Error rate exceeds 5% for more than 2 minutes
 - `TokenManager` Redis connection failures exceed 10 per minute
 - Any data loss or corruption detected in `UserProfile` records
-
 
 ## 20. Risks & Mitigations
 
@@ -723,7 +709,6 @@ Rollback is triggered if any of the following occur during rollout:
 |R-002|Brute-force attacks on login endpoint|High|Medium|Rate limiting at API Gateway (10 req/min per IP). Account lockout after 5 failed attempts in `AuthService`. `PasswordHasher` bcrypt cost factor 12 makes offline cracking expensive.|Block offending IPs at WAF level. Enable CAPTCHA challenge on `LoginPage` after 3 failed attempts.|
 |R-003|Data loss during migration from legacy auth|Low|High|Run `AuthService` in parallel with legacy system during Phase 1 and Phase 2. `UserProfile` migration uses idempotent upsert operations. Full database backup before each phase.|Rollback to legacy auth system. Restore `UserProfile` data from pre-migration backup.|
 
-
 ## 21. Alternatives Considered
 
 **Alternative 0: Do Nothing** — Continue without centralized authentication. Rejected because the platform cannot support user-specific features or pass security audits without a proper auth system.
@@ -732,14 +717,12 @@ Rollback is triggered if any of the following occur during rollout:
 
 **Alternative 2: Session-based authentication with cookies** — Simpler implementation but requires server-side session storage, complicating horizontal scaling of `AuthService`. JWT-based approach via `JwtService` was chosen for stateless verification across multiple service instances.
 
-
 ## 22. Open Questions
 
 |ID|Question|Owner|Target Date|Status|Resolution|
 |----|----------|-------|-------------|--------|------------|
 |OQ-001|Should `AuthService` support API key authentication for service-to-service calls?|test-lead|2026-04-15|Open|Deferred to v1.1 scope discussion|
 |OQ-002|What is the maximum allowed `UserProfile` roles array length?|auth-team|2026-04-01|Open|Pending RBAC design review|
-
 
 ## 23. Timeline & Milestones
 
@@ -760,7 +743,6 @@ Rollback is triggered if any of the following occur during rollout:
 **Phase 2 (M3-M4):** Add password reset flow and frontend components. Exit criteria: E2E tests pass through `LoginPage` and `RegisterPage`.
 
 **Phase 3 (M5):** Rollout and stabilization. Exit criteria: 99.9% uptime over 7 days in production.
-
 
 ## 24. Release Criteria
 
@@ -783,7 +765,6 @@ Rollback is triggered if any of the following occur during rollout:
 - [ ] Rollback procedure tested in staging
 - [ ] `UserProfile` data migration script validated with production-like dataset
 - [ ] Go/no-go sign-off from test-lead and eng-manager
-
 
 ## 25. Operational Readiness
 
@@ -811,11 +792,9 @@ Rollback is triggered if any of the following occur during rollout:
 |PostgreSQL connections|100 pool size|50 avg concurrent queries|Increase pool to 200 if connection wait time > 50ms|
 |Redis memory|1 GB|~100K refresh tokens (~50 MB)|Monitor memory usage; scale to 2 GB if > 70% utilized|
 
-
 ## 26. Cost & Resource Estimation
 
 Infrastructure costs for the `AuthService` are estimated at $450/month for production: 3 Kubernetes pods ($150), managed PostgreSQL ($200), managed Redis ($100). Costs scale linearly with user growth; each additional 10K users adds approximately $50/month in database and cache resources.
-
 
 ## 27. References & Resources
 
@@ -830,10 +809,9 @@ Infrastructure costs for the `AuthService` are estimated at $450/month for produ
 
 |Resource|URL|
 |----------|-----|
-|JWT RFC 7519|https://datatracker.ietf.org/doc/html/rfc7519|
-|bcrypt paper|https://www.usenix.org/legacy/events/usenix99/provos/provos.pdf|
-|OWASP Authentication Cheat Sheet|https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html|
-
+|JWT RFC 7519|<https://datatracker.ietf.org/doc/html/rfc7519>|
+|bcrypt paper|<https://www.usenix.org/legacy/events/usenix99/provos/provos.pdf>|
+|OWASP Authentication Cheat Sheet|<https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html>|
 
 ## 28. Glossary
 

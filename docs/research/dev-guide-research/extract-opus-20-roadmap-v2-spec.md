@@ -37,6 +37,7 @@ src/superclaude/skills/sc-roadmap/
 ### 1.3 What SKILL.md Must NOT Contain
 
 > "What SKILL.md does NOT contain:
+>
 > - YAML pseudocode blocks
 > - Scoring formulas or weight tables
 > - Domain keyword dictionaries
@@ -131,6 +132,7 @@ Agent prompts are stored in `refs/validation.md`, not in the SKILL.md.
 The spec defines a formal agent specification format for the `--agents` flag:
 
 > "Agent spec format: `model[:persona[:"instruction"]]`
+>
 > - **model** (required): Model identifier (e.g., `opus`, `sonnet`, `gpt52`, `gemini`)
 > - **persona** (optional): If omitted, the agent uses the primary persona auto-detected from Wave 1B
 > - **instruction** (optional): Quoted custom instruction string passed to the agent" (FR-004)
@@ -171,6 +173,7 @@ The spec uses a 5-wave architecture (Wave 0-4) as the execution model. This is a
 ### 5.2 Wave Entry/Exit Criteria Pattern
 
 Each wave has:
+
 - Purpose
 - Entry criteria
 - Behavioral instructions
@@ -180,6 +183,7 @@ Each wave has:
 ### 5.3 Progress Reporting
 
 > "sc:roadmap emits progress messages at each wave boundary. These messages include:
+>
 > - Wave number and name
 > - Completion status
 > - Key decisions made
@@ -194,11 +198,13 @@ Each wave has:
 The spec defines how one skill invokes another as a sub-pipeline:
 
 **Multi-spec invocation**:
+
 ```
 sc:adversarial --compare <spec-files> --depth <roadmap-depth> --output <roadmap-output-dir>
 ```
 
 **Multi-roadmap invocation**:
+
 ```
 sc:adversarial --source <spec-or-unified-spec> --generate roadmap --agents <agent-specs> --depth <roadmap-depth> --output <roadmap-output-dir>
 ```
@@ -208,6 +214,7 @@ sc:adversarial --source <spec-or-unified-spec> --generate roadmap --agents <agen
 Skills communicate via a return contract with defined fields:
 
 > "Return contract consumption:
+>
 > - `status: success` -> use `merged_output_path` as input for subsequent waves
 > - `status: partial` -> convergence >=60%: proceed with warning; convergence <60%: prompt user or abort
 > - `status: failed` -> abort with error
@@ -225,6 +232,7 @@ Skills communicate via a return contract with defined fields:
 The roadmap.md YAML frontmatter is designed as a contract for the future tasklist generator:
 
 > "Key fields the tasklist generator will consume:
+>
 > - `milestone_index`: Direct mapping to task phases
 > - `complexity_score` / `complexity_class`: Informs effort estimation
 > - `domain_distribution`: Informs specialist assignment
@@ -245,6 +253,7 @@ The roadmap.md YAML frontmatter is designed as a contract for the future tasklis
 > "sc:roadmap triggers `sc:save` automatically at each wave boundary" (Section 7.3)
 
 Each wave boundary saves specific state:
+
 - After Wave 0: prerequisite validation state (spec paths, output dir, flags, collision suffix)
 - After Wave 1A: adversarial results (unified spec path, convergence score)
 - After Wave 1B: extraction results, complexity score, persona selection
@@ -274,6 +283,7 @@ Memory key format: `sc-roadmap:<spec-name>:<timestamp>`
 ### 7.3 Resume Protocol
 
 > "When `sc:roadmap` is invoked and Serena memory contains a matching session (same spec path + output dir):
+>
 > 1. Prompt user: 'Found incomplete roadmap session (last completed: Wave X). Resume? [Y/n]'
 > 2. If yes: skip to the wave after `last_completed_wave`, reload artifacts from disk
 > 3. If no: start fresh (existing artifacts get `-N` suffix per collision protocol)" (Section 7.3)
@@ -328,6 +338,7 @@ A reusable pattern for skills that produce output artifacts:
 All output artifacts use YAML frontmatter with a defined schema. This serves as a machine-parseable API between pipeline stages.
 
 Key design rules:
+
 - Every output artifact includes YAML frontmatter
 - Exactly one of `spec_source` or `spec_sources` is present, never both (mode-dependent)
 - Fields may be added but not removed or renamed (backward compatibility)
@@ -384,6 +395,7 @@ The refs/ directory structure allows individual algorithm components to be swapp
 A reusable pattern for iterative quality improvement within a skill:
 
 > "If score is 70-84%:
+>
 > 1. Validation agents provide specific improvement recommendations
 > 2. Wave 3 re-runs generation with improvement recommendations as additional input
 > 3. Wave 4 re-validates (iteration 2)

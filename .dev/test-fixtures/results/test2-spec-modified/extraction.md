@@ -24,6 +24,7 @@ pipeline_diagnostics: {elapsed_seconds: 121.4, started_at: "2026-03-27T15:39:59.
 **Description**: The system shall authenticate users via email and password, returning a valid JWT access token and a refresh token upon successful credential verification.
 
 **Acceptance Criteria**:
+
 - AC-1: Given valid email and password → 200 response with `access_token` (15-minute TTL) and `refresh_token` (7-day TTL)
 - AC-2: Given invalid credentials → 401 response with generic error; must not reveal whether email or password was incorrect
 - AC-3: Given a locked account → 403 response indicating account suspension
@@ -40,6 +41,7 @@ pipeline_diagnostics: {elapsed_seconds: 121.4, started_at: "2026-03-27T15:39:59.
 **Description**: The system shall register new users with input validation, creating a user record with a securely hashed password and returning confirmation of successful registration.
 
 **Acceptance Criteria**:
+
 - AC-1: Given valid registration data (email, password, display name) → create user record, return 201 with user profile
 - AC-2: Given an already-registered email → 409 Conflict response
 - AC-3: Enforce password policy: minimum 8 characters, at least one uppercase, one lowercase, one digit
@@ -56,6 +58,7 @@ pipeline_diagnostics: {elapsed_seconds: 121.4, started_at: "2026-03-27T15:39:59.
 **Description**: The system shall issue and refresh JWT tokens, allowing clients to obtain a new access token using a valid refresh token without re-entering credentials.
 
 **Acceptance Criteria**:
+
 - AC-1: Given a valid refresh token → return new `access_token` and rotate the `refresh_token`
 - AC-2: Given an expired refresh token → 401, require re-authentication
 - AC-3: Given a previously-rotated (revoked) refresh token → invalidate all tokens for that user (replay detection)
@@ -72,6 +75,7 @@ pipeline_diagnostics: {elapsed_seconds: 121.4, started_at: "2026-03-27T15:39:59.
 **Description**: The system shall provide authenticated user profile retrieval, returning the current user's profile data when presented with a valid access token.
 
 **Acceptance Criteria**:
+
 - AC-1: Given a valid Bearer `access_token` → return user profile (`id`, `email`, `display_name`, `created_at`)
 - AC-2: Given an expired or invalid token → 401 response
 - AC-3: Must not return sensitive fields (`password_hash`, `refresh_token_hash`) in the profile response
@@ -87,6 +91,7 @@ pipeline_diagnostics: {elapsed_seconds: 121.4, started_at: "2026-03-27T15:39:59.
 **Description**: The system shall support a secure password reset flow, allowing users to request a reset link and set a new password using a time-limited token.
 
 **Acceptance Criteria**:
+
 - AC-1: Given a registered email → generate password reset token (1-hour TTL) and dispatch a reset email
 - AC-2: Given a valid reset token → allow setting a new password and invalidate the reset token
 - AC-3: Given an expired or invalid reset token → 400 with appropriate error message
@@ -146,12 +151,14 @@ The spec's self-assessed 0.6 is confirmed. The primary complexity vectors are th
 ## Architectural Constraints
 
 **Technology Mandates**
+
 - JWT format using **RS256 asymmetric signing** (not HS256 or PASETO)
 - **bcrypt** for password hashing with cost factor 12; Argon2id is a documented future migration path
 - Access tokens stored **in memory** on the client; refresh tokens delivered via **httpOnly cookie** (XSS/CSRF mitigation)
 - Stateless JWT session model — no shared session store; horizontal scaling is a first-class constraint
 
 **Implementation Order (hard dependency)**
+
 ```
 1. password-hasher.ts      (no dependencies)
 2. jwt-service.ts          (no dependencies, parallel with token-manager once interface defined)
@@ -162,17 +169,20 @@ The spec's self-assessed 0.6 is confirmed. The primary complexity vectors are th
 ```
 
 **Integration Boundaries**
+
 - `AuthService` is the sole external-facing orchestrator; internal components (`TokenManager`, `JwtService`, `PasswordHasher`) are **not exposed directly** via HTTP
 - Authentication middleware integrates into the existing `src/middleware/auth-middleware.ts`; no new middleware framework is introduced
 - Routes registered under `/auth/*` group in `src/routes/index.ts`
 - Database schema managed via migration `003-auth-tables.ts`; down-migration scripts required (rollback plan)
 
 **Deployment Constraints**
+
 - Feature flag `AUTH_SERVICE_ENABLED` required for phased rollout; existing unauthenticated endpoints remain functional during phase 1
 - RSA private key must reside in a secrets manager (not in source or environment variables)
 - Key rotation period: 90 days (operational constraint, not just recommendation)
 
 **Explicit Out-of-Scope (v1.0)**
+
 - OAuth2/OIDC federation
 - Multi-factor authentication
 - Role-based access control (RBAC)

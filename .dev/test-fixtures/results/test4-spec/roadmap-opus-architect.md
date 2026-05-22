@@ -21,6 +21,7 @@ This roadmap covers the implementation of a JWT-based authentication service for
 **Critical Path**: Open Question resolution (Phase 0) → Database schema + core services (Phase 0) → Registration + Login (Phase 1) → Token refresh + Profile (Phase 2) → Password reset (Phase 3) → NFR hardening (Phase 4) → Validation + Deploy (Phase 5).
 
 **Key Risks**:
+
 - The bcrypt latency (~250ms at cost 12) exceeds the 200ms p95 target — architectural resolution required before Phase 1
 - Email service interface is undefined, blocking FR-AUTH.5 completion
 - No account lockout policy leaves distributed brute-force attack surface open

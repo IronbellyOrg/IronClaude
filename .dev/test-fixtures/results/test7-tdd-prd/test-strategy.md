@@ -40,6 +40,7 @@ generator: superclaude-roadmap-executor
 **Ratio: 1:2 (MEDIUM complexity → TDD §1 / roadmap complexity_score=0.65).** Justification: cryptographic correctness (bcrypt cost, RS256 key length, enumeration timing) and SOC2/GDPR/NIST compliance require validation cadence tighter than LOW (1:3), but bounded functional scope (5 FR, 7 endpoints, 2 data models) does not warrant HIGH (1:1). Paired cadence V1↔(M1+M2), V2↔(M3+M4), V3↔M5 keeps a validation gate between every pair of work milestones, catching regressions before the next pair layers on dependent code (token lifecycle on top of password storage; rollout on top of observability).
 
 **Continuous-parallel mechanics:**
+
 - Each work milestone enters its TEST-### rows (TEST-001..006 from TDD §15.2) in the same sprint they implement the target FR, not retroactively.
 - V# milestones run continuously in parallel with their paired work milestone(s). The gate closes only when both the work milestone's exit criteria **and** the V# exit criteria are met.
 - CI benchmark (SUCC-METRIC-006, NFR-SEC-001, NFR-SEC-002 config probes) blocks merge on regression — not deferred to V#.

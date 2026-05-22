@@ -1,9 +1,11 @@
 # Pass 3: Cross-Cutting Sweep Rules
 
 ## Goal
+
 Find duplication, sprawl, and broken references spanning directory boundaries — problems per-directory audits inherently miss. Requires diff/overlap quantification.
 
 ## Guiding Question
+
 **"Does this file duplicate or conflict with another file elsewhere in the repo?"**
 
 ## Extended Classification Taxonomy

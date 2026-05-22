@@ -44,6 +44,7 @@ Exact quotes:
 Exact quote:
 
 “**Agent Development Process:**
+
 1. Identify domain expertise gap
 2. Create agent file in `superclaude/Agents/`
 3. Define triggers, behaviors, and boundaries
@@ -80,6 +81,7 @@ Core philosophy and approach
 ```
 
 This provides:
+
 - **Frontmatter fields**: `name`, `description`, `category`
 - **Required sections** (suggested): Triggers, Behavioral Mindset, Focus Areas, Key Actions
 - **Trigger definitions**: keywords and file types
@@ -121,6 +123,7 @@ tools: Read, Write, Edit, Bash
 ```
 
 Key extracted requirements/specifications:
+
 - **Frontmatter fields**: `name`, `description`, `category`, `tools`
 - **Trigger types**: keywords, file patterns, complexity indicators
 - **Behavioral specs**: best practices + systematic approach + quality/security considerations
@@ -154,7 +157,9 @@ personas: [architect, engineer]
 ## Usage
 Type in Claude Code conversation:
 ```
+
 /sc:command-name [target] [--options]
+
 ```
 **Note**: This is a context trigger pattern, not a terminal command.
 
@@ -168,6 +173,7 @@ Practical usage examples
 ```
 
 Extracted requirements/specifications:
+
 - **Frontmatter fields**:
   - `name`
   - `description`
@@ -199,6 +205,7 @@ Exact quotes (How It Works):
 5) “Claude generates complete, secure implementation”
 
 This is a concrete **integration pattern**:
+
 - Command → reads command context file → activates agent context → uses MCP server → produces output
 
 ---
@@ -210,6 +217,7 @@ This is a concrete **integration pattern**:
 Exact quote:
 
 “**Mode Development:**
+
 - Define activation triggers
 - Specify behavioral modifications
 - Create interaction patterns
@@ -224,6 +232,7 @@ Exact quote:
 The source file explicitly covers **Agents**, **Commands**, and **Modes** as component types, but it does **not** define a “Skills” directory, a skill template, or skill-specific frontmatter requirements.
 
 What it does say that’s relevant to skills (as context files):
+
 - “**Context Files**: .md instruction files that guide Claude Code behavior”
 - “Use frontmatter metadata for configuration”
 - “Follow existing patterns and naming conventions”
@@ -240,12 +249,14 @@ No additional skill-specific structure is provided in this source.
 Exact quotes:
 
 **Structure Requirements:**
+
 - “Clear, actionable instructions for Claude Code”
 - “Specific triggers and activation patterns”
 - “Examples demonstrating usage”
 - “Boundaries defining scope”
 
 **Quality Standards:**
+
 - “Instructions are testable in Claude Code conversations”
 - “Examples produce expected behavioral changes”
 - “Clear activation triggers and context patterns”
@@ -278,6 +289,7 @@ Exact quote:
 Exact quote:
 
 “**Manual Validation Process:**
+
 1. Install development version in Claude Code
 2. Test agent/command activation triggers in Claude Code conversations
 3. Verify behavioral modifications occur as expected
@@ -289,6 +301,7 @@ Exact quote:
 Exact quote:
 
 “**Validation Checklist:**
+
 - [ ] Context files use valid markdown syntax
 - [ ] Triggers activate correctly in Claude Code
 - [ ] Behavior matches documentation
@@ -330,6 +343,7 @@ Exact quote (PR template section):
 Exact quote:
 
 “**Manual Review:**
+
 - Context file clarity and effectiveness
 - Agent/command logic and triggers
 - Documentation accuracy and completeness

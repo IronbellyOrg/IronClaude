@@ -11,6 +11,7 @@ Each investigator is a parallel subagent spawned by the `crash-recovery` skill. 
 **Goal:** report every in-flight or recently-failed pipeline run, with status and last event.
 
 **Prompt skeleton:**
+
 ```
 You are investigating pipeline artifacts in <PROJECT_PATH>. The user just survived a server crash and needs to know what was in flight.
 
@@ -48,6 +49,7 @@ If you find more than 10 artifact bundles, return all of them anyway. The user w
 **Goal:** surface the last 1–3 Claude Code sessions for the project's cwd, with the user's last few prompts and the assistant's last few replies, so the user (and the synthesis) can see what was on-screen when the crash hit.
 
 **Prompt skeleton:**
+
 ```
 You are extracting the last working state from Claude Code session logs for project <PROJECT_PATH>.
 
@@ -76,6 +78,7 @@ Return as markdown with one subsection per session. Lead each subsection with th
 **Goal:** surface project memory entries that record current state, working hypotheses, or recently-discovered context.
 
 **Prompt skeleton:**
+
 ```
 You are reading serena memory files for project <PROJECT_PATH>.
 
@@ -100,6 +103,7 @@ Return as a markdown list. For each relevant memory: filename, mtime, 2-3 senten
 **Goal:** report uncommitted changes that represent literal in-flight work.
 
 **Prompt skeleton:**
+
 ```
 You are inspecting git state for project <PROJECT_PATH>. The user just survived a crash and unstaged changes likely represent the work they had in progress.
 
@@ -130,6 +134,7 @@ Be brief. Tables and paths, not prose. Do NOT run any write commands.
 **Goal:** catch work-in-progress signals that the structured scans miss — TODO markers, status fields in docs, half-written sections, comments that say "will continue tomorrow", etc.
 
 **Prompt skeleton:**
+
 ```
 You are doing a semantic sweep of project <PROJECT_PATH> using the auggie codebase-retrieval MCP tool. The user just survived a crash and wants to find any in-progress work that structured scans (manifest.json, frontmatter) might miss.
 

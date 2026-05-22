@@ -5,12 +5,14 @@ Complete list of all 30 slash commands available in SuperClaude Framework v4.1.9
 ## Command Categories
 
 ### 🧠 Planning & Design
+
 - **`/brainstorm`** - Structured brainstorming sessions with multiple perspectives
 - **`/design`** - System design and architecture planning
 - **`/estimate`** - Effort and time estimation for tasks
 - **`/spec-panel`** - Multi-expert specification analysis
 
 ### 💻 Development
+
 - **`/implement`** - Code implementation workflows
 - **`/build`** - Build and compilation workflows
 - **`/improve`** - Code improvement suggestions
@@ -18,28 +20,34 @@ Complete list of all 30 slash commands available in SuperClaude Framework v4.1.9
 - **`/explain`** - Code explanation and documentation
 
 ### 🧪 Testing & Quality
+
 - **`/test`** - Testing workflows and test generation
 - **`/analyze`** - Code and architecture analysis
 - **`/troubleshoot`** - Debugging and troubleshooting
 - **`/reflect`** - Reflection and retrospectives
 
 ### 📚 Documentation
+
 - **`/document`** - Documentation generation
 - **`/help`** - Command help and usage information
 
 ### 🔧 Version Control
+
 - **`/git`** - Git operations and workflows
 
 ### 📊 Project Management
+
 - **`/pm`** - Project management workflows
 - **`/task`** - Task management and tracking
 - **`/workflow`** - Custom workflow automation
 
 ### 🔍 Research & Analysis
+
 - **`/research`** - Deep web research with parallel search
 - **`/business-panel`** - Multi-expert business analysis
 
 ### 🎯 Utilities
+
 - **`/agent`** - Specialized AI agents
 - **`/index-repo`** - Repository indexing for context optimization
 - **`/index`** - Alias for /index-repo

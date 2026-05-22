@@ -1,6 +1,6 @@
 
-
 ---
+
 spec_source: "spec-roadmap-validate.md"
 generated: "2026-03-08T00:00:00Z"
 generator: "superclaude-extraction-agent"
@@ -68,6 +68,7 @@ extraction_mode: full
 **complexity_class**: moderate
 
 **Scoring Rationale**:
+
 - **Domain breadth** (+0.15): Spans CLI, subprocess orchestration, prompt engineering, and structured validation — 4 domains but well-bounded.
 - **Code scope** (+0.15): 3 new files, 3 modified files. Clear module boundaries with explicit dependency graph. No schema migrations.
 - **Integration complexity** (+0.15): Reuses existing pipeline executor and gate infrastructure. Must integrate with `roadmap run` auto-invocation and `--resume` behavior.

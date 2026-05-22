@@ -19,9 +19,11 @@ verification: "uv run pytest tests/roadmap/test_spec_structural_audit.py -v"
 ## Root Cause
 
 Line 55 of `spec_structural_audit.py`:
+
 ```python
 test_name_count = len(re.findall(r"\btest_\w+", spec_text))
 ```
+
 Should count unique matches, not total occurrences.
 
 ## Scope

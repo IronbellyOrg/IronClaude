@@ -298,6 +298,7 @@ Per debate convergence: early security checkpoint catches crypto implementation 
 - Any `UserProfile` data corruption
 
 **Rollback Procedure:**
+
 1. Disable `AUTH_NEW_LOGIN` → 100% traffic to legacy auth
 2. Verify legacy login operational via smoke tests
 3. Investigate root cause in logs/traces
@@ -507,6 +508,7 @@ Per Opus's recommendation: explicit stabilization period prevents premature hand
 ### Risk Mitigation Roadmap
 
 **Immediate (Phase 1):**
+
 - R-001: CSP headers + memory-only accessToken + HttpOnly cookies
 - R-002: Rate limiting + account lockout wired
 - R-003: DB backup automation set up and tested
@@ -514,11 +516,13 @@ Per Opus's recommendation: explicit stabilization period prevents premature hand
 - R-006: Audit log schema finalized, 12-month retention configured
 
 **Pre-Beta (End of Phase 1):**
+
 - R-002: CAPTCHA integration tested
 - R-004: Usability testing of `RegisterPage` with 10 users
 - R-005: Penetration testing engagement scoped
 
 **Pre-GA (Phases 2–3):**
+
 - R-004: A/B testing results analyzed; conversion rate decision gate
 - R-005: Pentest findings remediated; security sign-off obtained
 - R-006: SOC2 pre-audit review completed

@@ -10,6 +10,7 @@ tasklist_ready: false
 ## Deviation Report
 
 ### DEV-001
+
 - **Severity**: HIGH
 - **Deviation**: No database table or storage mechanism for password reset tokens. FR-AUTH.5 requires generating, storing, validating, and invalidating reset tokens, but the roadmap's migration tasks (Phase 1.1) only create `users` and `refresh_tokens` tables. No `password_reset_tokens` table is defined, and no alternative storage strategy (e.g., JWT-based stateless tokens) is specified.
 - **Spec Quote**: "Given a registered email, the system shall generate a password reset token (1-hour TTL) and dispatch a reset email" (FR-AUTH.5a); "Given a valid reset token, the system shall allow setting a new password and **invalidate the reset token**" (FR-AUTH.5b)
@@ -18,6 +19,7 @@ tasklist_ready: false
 - **Recommended Correction**: Add a `password_reset_tokens` table migration to Phase 1.1 with columns: `id` (UUID v4 PK), `user_id` (FK → users), `token_hash` (SHA-256, unique), `expires_at`, `used_at` (nullable), `created_at`. Alternatively, explicitly document a signed JWT approach with a `used` flag tracked in the database.
 
 ### DEV-002
+
 - **Severity**: MEDIUM
 - **Deviation**: RefreshTokenRecord schema changed from `revoked: boolean` to `revoked_at` (timestamp), altering the data model contract without acknowledging the change.
 - **Spec Quote**: `revoked: boolean;  // Account suspension flag` (Section 4.5 Data Models, RefreshTokenRecord interface)
@@ -26,6 +28,7 @@ tasklist_ready: false
 - **Recommended Correction**: Acknowledge the schema change in the Open Questions section with rationale. Update the spec's `RefreshTokenRecord` interface to use `revoked_at: Date | null` if the timestamp approach is preferred.
 
 ### DEV-003
+
 - **Severity**: MEDIUM
 - **Deviation**: Implementation order diverges from spec's Section 4.6. The spec places "routes + migrations" at step 5 (last); the roadmap places migrations at Phase 1.1 (first).
 - **Spec Quote**: "1. password-hasher.ts ... 2. jwt-service.ts ... 3. auth-service.ts ... 4. auth-middleware.ts ... 5. routes + migrations -- depends on 3, 4" (Section 4.6)
@@ -34,6 +37,7 @@ tasklist_ready: false
 - **Recommended Correction**: The roadmap's approach is sound but should explicitly note the deviation from Section 4.6 and provide justification (which it partially does). The spec should be updated to reflect the database-first order if accepted.
 
 ### DEV-004
+
 - **Severity**: MEDIUM
 - **Deviation**: TokenManager sequenced strictly after JwtService instead of in parallel as the spec recommends. The spec explicitly marks TokenManager as parallelizable with JwtService.
 - **Spec Quote**: "2. jwt-service.ts -- No dependencies; pure crypto / token-manager.ts -- [parallel with jwt-service once interface defined]" (Section 4.6)
@@ -42,6 +46,7 @@ tasklist_ready: false
 - **Recommended Correction**: Either explicitly justify the sequential ordering (crypto review gate must complete before TokenManager builds on JwtService) or restructure so TokenManager interface definition and implementation begin during Phase 1, with integration testing deferred to Phase 2.
 
 ### DEV-005
+
 - **Severity**: MEDIUM
 - **Deviation**: Logout functionality is declared in-scope by the spec but has no corresponding functional requirement, route, or roadmap task.
 - **Spec Quote**: "**In scope**: User registration, **login/logout**, JWT token issuance and refresh, password hashing, authenticated profile retrieval, password reset flow." (Section 1.2)
@@ -50,6 +55,7 @@ tasklist_ready: false
 - **Recommended Correction**: Add a `POST /auth/logout` route that calls `TokenManager.revokeAllForUser(userId)`, or explicitly note that logout is deferred despite the scope statement, with rationale (e.g., "stateless JWT access tokens cannot be revoked; logout is effective upon refresh token revocation, which is covered by `revokeAllForUser`").
 
 ### DEV-006
+
 - **Severity**: LOW
 - **Deviation**: Spec's test plan (Section 8.1) specifies exact test file paths; roadmap describes test content without referencing these paths.
 - **Spec Quote**: "`tests/auth/password-hasher.test.ts`", "`tests/auth/jwt-service.test.ts`", "`tests/auth/token-manager.test.ts`", "`tests/auth/auth-service.test.ts`" (Section 8.1)
@@ -58,6 +64,7 @@ tasklist_ready: false
 - **Recommended Correction**: Add the spec's test file paths to the roadmap's test tasks for consistency, or note that test organization follows the spec's Section 8.1 convention.
 
 ### DEV-007
+
 - **Severity**: LOW
 - **Deviation**: Spec references a specific migration file path `src/database/migrations/003-auth-tables.ts`; roadmap does not reference this file by name.
 - **Spec Quote**: "`src/database/migrations/003-auth-tables.ts` | Add users and refresh_tokens tables" (Section 4.2, Modified Files)

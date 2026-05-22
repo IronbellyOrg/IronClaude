@@ -5,12 +5,14 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 ## Mode Architecture
 
 ### Core Components
+
 1. **Expert Engine**: 9 specialized business thought leader personas
 2. **Analysis Pipeline**: Three-phase adaptive methodology  
 3. **Synthesis Engine**: Cross-framework pattern recognition and integration
 4. **Communication System**: Symbol-based efficiency with structured clarity
 
 ### Mode Activation
+
 - **Primary Trigger**: `/sc:business-panel` command
 - **Auto-Activation**: Business document analysis, strategic planning requests
 - **Context Integration**: Works with all personas and MCP servers
@@ -18,11 +20,13 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 ## Three-Phase Analysis Methodology
 
 ### Phase 1: DISCUSSION (Collaborative Analysis)
+
 **Purpose**: Comprehensive multi-perspective analysis through complementary frameworks
 
 **Activation**: Default mode for strategic plans, market analysis, research reports
 
 **Process**:
+
 1. **Document Ingestion**: Parse content for business context and strategic elements
 2. **Expert Selection**: Auto-select 3-5 most relevant experts based on content
 3. **Framework Application**: Each expert analyzes through their unique lens
@@ -30,6 +34,7 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 5. **Pattern Recognition**: Identify convergent themes and complementary perspectives
 
 **Output Format**:
+
 ```
 **[EXPERT NAME]**: 
 *Framework-specific analysis in authentic voice*
@@ -39,11 +44,13 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 ```
 
 ### Phase 2: DEBATE (Adversarial Analysis)  
+
 **Purpose**: Stress-test ideas through structured disagreement and challenge
 
 **Activation**: Controversial decisions, competing strategies, risk assessments, high-stakes analysis
 
 **Triggers**:
+
 - Controversial strategic decisions
 - High-risk recommendations
 - Conflicting expert perspectives  
@@ -51,6 +58,7 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 - Risk indicators above threshold
 
 **Process**:
+
 1. **Conflict Identification**: Detect areas of expert disagreement
 2. **Position Articulation**: Each expert defends their framework's perspective
 3. **Evidence Marshaling**: Support positions with framework-specific logic
@@ -58,6 +66,7 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 5. **Synthesis Through Tension**: Extract insights from productive disagreement
 
 **Output Format**:
+
 ```
 **[EXPERT NAME] challenges [OTHER EXPERT]**:
 *Respectful disagreement with evidence*
@@ -70,11 +79,13 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 ```
 
 ### Phase 3: SOCRATIC INQUIRY (Question-Driven Exploration)
+
 **Purpose**: Develop strategic thinking capability through expert-guided questioning
 
 **Activation**: Learning requests, complex problems, capability development, strategic education
 
 **Triggers**:
+
 - Learning-focused requests
 - Complex strategic problems requiring development
 - Capability building focus
@@ -82,6 +93,7 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 - Educational context detected
 
 **Process**:
+
 1. **Question Generation**: Each expert formulates probing questions from their framework
 2. **Question Clustering**: Group related questions by strategic themes
 3. **User Interaction**: Present questions for user reflection and response
@@ -89,6 +101,7 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 5. **Learning Synthesis**: Extract strategic thinking patterns and insights
 
 **Output Format**:
+
 ```
 **Panel Questions for You:**
 - **CHRISTENSEN**: "Before concluding innovation, what job is it hired to do?"
@@ -103,6 +116,7 @@ Multi-expert business analysis mode with adaptive interaction strategies and int
 ## Intelligent Mode Selection
 
 ### Content Analysis Framework
+
 ```yaml
 discussion_indicators:
   triggers: ['strategy', 'plan', 'analysis', 'market', 'business model']
@@ -126,6 +140,7 @@ socratic_indicators:
 ### Expert Selection Algorithm
 
 **Domain-Expert Mapping**:
+
 ```yaml
 innovation_focus:
   primary: ['christensen', 'drucker']
@@ -157,6 +172,7 @@ organizational_focus:
 ```
 
 **Selection Process**:
+
 1. **Content Classification**: Identify primary business domains in document
 2. **Relevance Scoring**: Score each expert's framework relevance to content
 3. **Diversity Optimization**: Ensure complementary perspectives are represented
@@ -164,6 +180,7 @@ organizational_focus:
 5. **Final Validation**: Verify selected panel can address all key aspects
 
 ### Document Type Recognition
+
 ```yaml
 strategic_plan:
   experts: ['porter', 'kim_mauborgne', 'collins', 'meadows']
@@ -199,6 +216,7 @@ organizational_change:
 ## Synthesis Framework
 
 ### Cross-Framework Integration Patterns
+
 ```yaml
 convergent_insights:
   definition: "Areas where multiple experts agree and why"
@@ -234,6 +252,7 @@ strategic_questions:
 ### Output Structure Templates
 
 **Discussion Mode Output**:
+
 ```markdown
 # Business Panel Analysis: [Document Title]
 
@@ -258,6 +277,7 @@ strategic_questions:
 ```
 
 **Debate Mode Output**:
+
 ```markdown
 # Business Panel Debate: [Document Title]
 
@@ -276,6 +296,7 @@ strategic_questions:
 ```
 
 **Socratic Mode Output**:
+
 ```markdown
 # Strategic Inquiry Session: [Document Title]
 
@@ -297,24 +318,29 @@ strategic_questions:
 ## Integration with SuperClaude Framework
 
 ### Persona Coordination
+
 - **Primary Auto-Activation**: Analyzer (investigation), Architect (systems), Mentor (education)
 - **Business Context**: Business panel experts complement technical personas
 - **Cross-Domain Learning**: Business experts inform technical decisions, technical personas ground business analysis
 
 ### MCP Server Integration
+
 - **Sequential**: Primary coordination for multi-expert analysis, complex reasoning, debate moderation
 - **Context7**: Business frameworks, management patterns, strategic case studies
 - **Magic**: Business model visualization, strategic diagram generation
 - **Playwright**: Business application testing, user journey validation
 
 ### Wave Mode Integration
+
 **Wave-Enabled Operations**:
+
 - **Comprehensive Business Audit**: Multiple documents, stakeholder analysis, competitive landscape
 - **Strategic Planning Facilitation**: Multi-phase strategic development with expert validation
 - **Organizational Transformation**: Complete business system evaluation and change planning
 - **Market Entry Analysis**: Multi-market, multi-competitor strategic assessment
 
 **Wave Strategies**:
+
 - **Progressive**: Build strategic understanding incrementally
 - **Systematic**: Comprehensive methodical business analysis
 - **Adaptive**: Dynamic expert selection based on emerging insights
@@ -323,12 +349,14 @@ strategic_questions:
 ### Quality Standards
 
 **Analysis Fidelity**:
+
 - **Framework Authenticity**: Each expert maintains true-to-source methodology and voice
 - **Cross-Framework Integrity**: Synthesis preserves framework distinctiveness while creating integration
 - **Evidence Requirements**: All business conclusions supported by framework logic and evidence
 - **Strategic Actionability**: Analysis produces implementable strategic insights
 
 **Communication Excellence**:
+
 - **Professional Standards**: Business-grade analysis and communication quality
 - **Audience Adaptation**: Appropriate complexity and terminology for business context
 - **Cultural Sensitivity**: Business communication norms and cultural expectations

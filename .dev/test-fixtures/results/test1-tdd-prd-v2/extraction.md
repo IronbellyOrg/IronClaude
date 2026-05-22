@@ -390,6 +390,7 @@ interface AuthToken {
 ### Endpoint Detail: POST `/auth/login`
 
 **Request Body:**
+
 ```json
 { "email": "string", "password": "string" }
 ```
@@ -406,6 +407,7 @@ interface AuthToken {
 ### Endpoint Detail: POST `/auth/register`
 
 **Request Body:**
+
 ```json
 { "email": "string", "password": "string", "displayName": "string" }
 ```
@@ -432,6 +434,7 @@ interface AuthToken {
 ### Endpoint Detail: POST `/auth/refresh`
 
 **Request Body:**
+
 ```json
 { "refreshToken": "string" }
 ```
@@ -458,6 +461,7 @@ interface AuthToken {
 ### Error Response Format
 
 All errors follow a consistent structure:
+
 ```json
 {
   "error": {
@@ -643,6 +647,7 @@ App
 ### Observability
 
 **Metrics (Prometheus):**
+
 - `auth_login_total` (counter) — login attempts by outcome
 - `auth_login_duration_seconds` (histogram) — login latency
 - `auth_token_refresh_total` (counter) — refresh attempts by outcome

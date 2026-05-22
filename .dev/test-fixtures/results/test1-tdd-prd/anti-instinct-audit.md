@@ -11,6 +11,7 @@ generator: superclaude-anti-instinct-audit
 ---
 
 ## Anti-Instinct Audit Report
+
 ### Obligation Scanner
 
 - Total obligations detected: 3
@@ -18,6 +19,7 @@ generator: superclaude-anti-instinct-audit
 - Undischarged (gate-relevant): 1
 
 **Undischarged obligations:**
+
 - Line 95: `skeleton` in Phase 0: Design and Foundation (Weeks 1–2) (library)
 
 ### Integration Contract Coverage
@@ -27,6 +29,7 @@ generator: superclaude-anti-instinct-audit
 - Uncovered: 4
 
 **Uncovered contracts:**
+
 - IC-001: strategy_pattern: - [x] Section 15: Testing Strategy — Complete (line 136)
 - IC-002: strategy_pattern: 15. [Testing Strategy](#15-testing-strategy) (line 181)
 - IC-006: strategy_pattern: ## 15. Testing Strategy (line 644)
@@ -39,6 +42,7 @@ generator: superclaude-anti-instinct-audit
 - Coverage ratio: 0.73
 
 **Missing fingerprints** (12):
+
 - `complexity_class`
 - `feature_id`
 - `spec_type`

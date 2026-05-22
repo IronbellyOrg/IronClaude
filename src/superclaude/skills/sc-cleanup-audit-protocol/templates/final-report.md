@@ -40,12 +40,14 @@
 ## Cross-Cutting Findings
 
 ### Finding 1: {Pattern Name}
+
 - **Scope**: {how many files/directories affected}
 - **Description**: {what the pattern is}
 - **Impact**: {why it matters}
 - **Recommendation**: {suggested action}
 
 ### Finding 2: {Pattern Name}
+
 - **Scope**: {affected scope}
 - **Description**: {pattern description}
 
@@ -71,16 +73,19 @@ Numbered list of all systemic issues found across all passes:
 ## Audit Methodology
 
 ### Passes Executed
+
 - **Pass 1 (Surface Scan)**: {file count} files, {batch count} batches, Haiku agents
 - **Pass 2 (Structural Audit)**: {file count} files, {batch count} batches, Sonnet agents
 - **Pass 3 (Cross-Cutting Sweep)**: {file count} files, {batch count} batches, Sonnet agents
 
 ### Quality Assurance
+
 - **Spot-check rate**: 10% (5 findings per 50 files)
 - **Validation pass rate**: {percentage}%
 - **Failed reports regenerated**: {count}
 
 ### Exclusions
+
 - Directories excluded: `.git/`, `node_modules/`, build outputs, caches, vendor
 - Files not audited: {count} ({reason})
 
@@ -89,10 +94,12 @@ Numbered list of all systemic issues found across all passes:
 ## Recommendations
 
 ### Process Improvements
+
 1. {Recommendation for future audits}
 2. {Recommendation for preventing recurrence}
 
 ### Suggested Workflow
+
 1. Execute **Immediate** action items (safe DELETEs and MOVEs)
 2. Review **Requires Decision** items with team
 3. Schedule **Requires Code Changes** items into sprint backlog

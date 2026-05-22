@@ -23,6 +23,7 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 **Description**: Authenticate users via email and password, returning a valid JWT access token and refresh token upon successful credential verification.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.1a**: Valid email/password returns 200 with access_token (15min TTL) and refresh_token (7d TTL)
 - **FR-AUTH.1b**: Invalid credentials return 401 without revealing whether email or password was incorrect
 - **FR-AUTH.1c**: Locked account returns 403 indicating account suspension
@@ -39,6 +40,7 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 **Description**: Register new users with input validation, creating a user record with securely hashed password and returning confirmation.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.2a**: Valid registration data (email, password, display name) creates user record and returns 201 with user profile
 - **FR-AUTH.2b**: Already-registered email returns 409 conflict
 - **FR-AUTH.2c**: Password policy enforced: minimum 8 characters, at least one uppercase, one lowercase, one digit
@@ -55,6 +57,7 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 **Description**: Issue and refresh JWT tokens, allowing clients to obtain new access tokens using valid refresh tokens without re-entering credentials.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.3a**: Valid refresh token returns new access_token and rotated refresh_token
 - **FR-AUTH.3b**: Expired refresh token returns 401 requiring re-authentication
 - **FR-AUTH.3c**: Previously-rotated (revoked) refresh token triggers invalidation of all tokens for that user (replay detection)
@@ -71,6 +74,7 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 **Description**: Provide authenticated user profile retrieval, returning current user's profile data when presented with a valid access token.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.4a**: Valid Bearer access_token returns user profile (id, email, display_name, created_at)
 - **FR-AUTH.4b**: Expired or invalid token returns 401
 - **FR-AUTH.4c**: Sensitive fields (password_hash, refresh_token_hash) never included in profile response
@@ -86,6 +90,7 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 **Description**: Secure password reset flow allowing users to request a reset link and set a new password using a time-limited token.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.5a**: Registered email triggers password reset token (1-hour TTL) and dispatches reset email
 - **FR-AUTH.5b**: Valid reset token allows setting new password and invalidates the reset token
 - **FR-AUTH.5c**: Expired or invalid reset token returns 400 with appropriate error
@@ -180,6 +185,7 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 ## Architectural Constraints
 
 ### Technology Mandates (from Spec)
+
 1. **JWT with RS256 signing** — asymmetric key pair required; no symmetric (HS256) fallback
 2. **bcrypt with cost factor 12** — configurable but not negotiable below 12
 3. **Refresh token in httpOnly cookie** — access token in memory; prevents XSS vector
@@ -187,17 +193,20 @@ pipeline_diagnostics: {elapsed_seconds: 94.3, started_at: "2026-04-03T03:07:23.8
 5. **TypeScript implementation** — file paths and interfaces indicate TypeScript codebase
 
 ### Integration Boundaries
+
 6. **Layered module dependency** — auth-middleware → auth-service → token-manager/password-hasher → jwt-service
 7. **Database migration required** — new `users` and `refresh_tokens` tables via migration 003
 8. **Middleware integration** — Bearer token extraction added to existing request pipeline
 9. **Route registration** — `/auth/*` route group added to existing route index
 
 ### Persona-Driven Design Requirements (from PRD)
+
 10. **Alex (End User)** — registration must complete in < 60 seconds; inline validation; no user enumeration on errors; silent token refresh during active sessions
 11. **Jordan (Platform Admin)** — auth event logs must be queryable by date range and user; account lock/unlock capability needed (partially out of scope per spec GAP-1)
 12. **Sam (API Consumer)** — programmatic token refresh without user interaction; clear error codes; stable auth contract
 
 ### Infrastructure Assumptions (from PRD)
+
 13. **PostgreSQL 15+** — required for persistent user storage
 14. **Email delivery service (SendGrid)** — required before development of FR-AUTH.5
 15. **Frontend routing framework** — required for auth page rendering

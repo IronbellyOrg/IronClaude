@@ -71,9 +71,11 @@ mismatch via `eval list` rendering an empty / unexpected count.
 2. Write `<stem>.yaml` with a top-level `name:` field set to the
    stem.
 3. Validate against the schema:
+
    ```bash
    uv run superclaude eval describe --suite <stem>
    ```
+
    A schema violation or eval-id regex rejection (FR-SCH2) raises
    before any filesystem write (NFR-SEC1 invariant).
 4. If the suite carries D-4 callbacks, drop a sibling

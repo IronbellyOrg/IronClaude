@@ -140,6 +140,7 @@ The PRD-enriched pipeline works correctly across both TDD and spec paths. All 16
 | Gate result | FAIL | FAIL | FAIL | FAIL |
 
 **Key Findings:**
+
 - PRD enrichment reduced undischarged obligations in TDD pipeline (5 to 1, 80% reduction) -- fewer skeleton/stub placeholders in roadmap.
 - Fingerprint coverage decreased slightly in both pipelines (TDD: -0.03, Spec: -0.05). PRD-introduced synonyms may replace spec-specific fingerprints.
 - Contract coverage unchanged across all runs (structural pattern refs are PRD-independent).

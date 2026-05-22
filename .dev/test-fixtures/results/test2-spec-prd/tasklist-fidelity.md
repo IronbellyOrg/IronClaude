@@ -21,5 +21,6 @@ Validation could not proceed — the downstream tasklist artifact does not exist
 ---
 
 Would you like me to:
+
 1. **Write this result** to the `tasklist-fidelity.md` file as-is?
 2. **Generate the tasklist first** from the roadmap, then run the fidelity analysis?

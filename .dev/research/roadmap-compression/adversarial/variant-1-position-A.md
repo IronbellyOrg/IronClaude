@@ -3,12 +3,14 @@
 ## Strategy
 
 Compress each roadmap into two components:
+
 1. **Task Registry** — A compact YAML/JSON array of all task rows with fields: `[id, task_name, component, deps, effort, priority, phase]`
 2. **Prose Skeleton** — Section headers + one-line summaries for non-table sections (Executive Summary, Risk, Resources, Timeline)
 
 ## Compression Mechanics
 
 ### What is PRESERVED (lossless)
+
 - All task IDs (AUTH-001-TDD, FR-AUTH-001, COMP-001, etc.)
 - All dependency chains (full DAG)
 - Phase assignments and milestone gates
@@ -19,6 +21,7 @@ Compress each roadmap into two components:
 - Integration point registries (named artifacts, wired components)
 
 ### What is STRIPPED (lossy)
+
 - Acceptance criteria prose (the longest field per row, often 50-100 words)
 - Verbose task descriptions (compressed to task_name keyword)
 - Risk assessment rationale (kept: ID, risk name, probability, impact; stripped: mitigation prose)
@@ -98,6 +101,7 @@ critical_path: "INFRA-DB-001 → DM-001 → COMP-005 → COMP-001 → FR-AUTH-00
 ## Diff Behavior
 
 With YAML task registries, diff tools will show:
+
 - Added/removed task IDs (clear)
 - Changed dependencies (clear)
 - Changed effort/priority (clear)

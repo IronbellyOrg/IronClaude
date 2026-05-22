@@ -13,6 +13,7 @@
 This release adds structural invariant reasoning to the `/sc:roadmap` command. The roadmap protocol currently optimizes for feature coverage completeness but has no mechanism to analyze logical correctness of the designs it plans. Five proposals were debated and scored; all five scored A-Tier (65.0-79.5/100) and are included, phased across three implementation waves.
 
 **What changes**:
+
 - Risk Register gains mandatory category enforcement (STATE, XCOMP) -- RM-5
 - Deliverable tables gain Negative Acceptance Criteria derived from boundary-probing transforms -- RM-2
 - Roadmap body template gains a State Invariant Analysis section -- RM-1
@@ -526,6 +527,7 @@ regardless of weighted_score.
 **Change to `refs/validation.md`** -- Score Aggregation section:
 
 Add conditional formula:
+
 ```
 If invariant-boundary agent active:
   final_score = (quality_engineer * 0.40) + (self_review * 0.30) + (invariant_boundary * 0.30)

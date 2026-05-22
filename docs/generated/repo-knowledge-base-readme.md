@@ -3,6 +3,7 @@
 ## What this repository is
 
 SuperClaude Framework is a Python-packaged framework for Claude Code that combines:
+
 - a CLI entry point (`superclaude`)
 - an auto-loaded pytest plugin
 - distributable slash commands, agents, and skills
@@ -13,6 +14,7 @@ The package metadata defines the project as `superclaude` version `4.2.0` with P
 ## Primary entry points
 
 ### CLI
+
 - Entry point: `superclaude`
 - Defined in: `pyproject.toml`
 - Implementation: `src/superclaude/cli/main.py`
@@ -20,6 +22,7 @@ The package metadata defines the project as `superclaude` version `4.2.0` with P
 The CLI handles installation, updates, doctor/health checks, skill installation, and MCP-related workflows.
 
 ### Pytest plugin
+
 - Entry point group: `pytest11`
 - Registered as: `superclaude`
 - Implementation: `src/superclaude/pytest_plugin.py`
@@ -44,9 +47,11 @@ SuperClaude_Framework/
 ## Core source areas
 
 ### `src/superclaude/`
+
 Canonical source tree for packaged and installable framework assets.
 
 Important subareas:
+
 - `src/superclaude/cli/` — Click-based CLI commands and installers
 - `src/superclaude/pm_agent/` — Confidence, self-check, reflexion, and related PM-agent patterns
 - `src/superclaude/execution/` — Execution support such as parallel/reflection workflows
@@ -56,9 +61,11 @@ Important subareas:
 - `src/superclaude/pytest_plugin.py` — pytest integration
 
 ### `.claude/`
+
 Local development copy of Claude Code-facing assets.
 
 The repository guidance states:
+
 - `src/superclaude/` is the source of truth
 - `.claude/skills/` and `.claude/agents/` are convenience copies for development
 - changes should ultimately be kept in sync between `src/superclaude/` and `.claude/`
@@ -66,10 +73,13 @@ The repository guidance states:
 ## Key architectural concepts
 
 ### 1. Context-oriented framework
+
 The project documentation describes SuperClaude as a framework that enhances Claude Code through behavioral/context files, commands, agents, skills, and MCP integrations.
 
 ### 2. PM Agent patterns
+
 The repository guidance highlights three core PM-agent patterns:
+
 - `ConfidenceChecker`
 - `SelfCheckProtocol`
 - `ReflexionPattern`
@@ -77,6 +87,7 @@ The repository guidance highlights three core PM-agent patterns:
 These live under `src/superclaude/pm_agent/` and are central to the repo’s evidence-first workflow.
 
 ### 3. Parallel-first execution
+
 The repo guidance also emphasizes a “Wave → Checkpoint → Wave” execution pattern, with related code under `src/superclaude/execution/`.
 
 ## Development workflow
@@ -114,6 +125,7 @@ make sync-plugin-repo
 ## Documentation map
 
 The `docs/` tree is broad and already contains multiple documentation layers:
+
 - `docs/getting-started/` — onboarding and installation
 - `docs/user-guide/` — commands, modes, agents, flags, MCP usage
 - `docs/developer-guide/` — architecture, testing, contribution guidance
@@ -126,6 +138,7 @@ The `docs/` tree is broad and already contains multiple documentation layers:
 ## Important root-level files
 
 High-value files for orientation:
+
 - `README.md` — public project overview and installation guidance
 - `CLAUDE.md` — repository-specific instructions for Claude Code work in this repo
 - `PLANNING.md` — architecture and design guidance
@@ -141,6 +154,7 @@ High-value files for orientation:
 The Python test suite lives under `tests/` and uses pytest configuration from `pyproject.toml`.
 
 Observed pytest markers include:
+
 - `unit`
 - `integration`
 - `confidence_check`
@@ -149,6 +163,7 @@ Observed pytest markers include:
 - several diagnostic and performance-oriented markers
 
 Code quality tooling configured in the repository includes:
+
 - Ruff
 - mypy
 - Black configuration
@@ -157,6 +172,7 @@ Code quality tooling configured in the repository includes:
 ## Installation model
 
 Current stable packaging is Python-based:
+
 - `pipx install superclaude`
 - `superclaude install`
 
@@ -180,6 +196,7 @@ Per the active repository/user instructions, generated documentation should be w
 ## Summary
 
 If you need to understand this repository quickly:
+
 - start with `README.md` for the public product story
 - use `CLAUDE.md` for repo-specific workflow rules
 - treat `src/superclaude/` as the canonical implementation and distribution source

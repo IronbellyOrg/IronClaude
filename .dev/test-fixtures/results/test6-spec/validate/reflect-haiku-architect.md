@@ -64,5 +64,6 @@ Overall assessment: the roadmap is **not ready** for tasklist generation. The ma
 `interleave_ratio = unique_milestones_with_deliverables / total_milestones = 5 / 5 = 1.0`
 
 Values used:
+
 - unique_milestones_with_deliverables = 5 (`M1`..`M5` all contain deliverable rows)
 - total_milestones = 5 (`roadmap.md:41-45`)

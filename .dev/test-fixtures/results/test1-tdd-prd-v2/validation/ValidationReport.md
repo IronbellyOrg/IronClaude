@@ -11,6 +11,7 @@ Total findings: 8 (High: 0, Medium: 2, Low: 6)
 ### Medium Severity
 
 #### M1. GAP-005 Password Reset Schema Finalization Missing from Phase 1
+
 - **Severity**: Medium
 - **Affects**: phase-1-tasklist.md (no corresponding task)
 - **Problem**: Phase 1 exit criteria includes "Password reset schemas finalized (GAP-005 resolved)" but no Phase 1 task addresses this. The schemas are implemented in Phase 2 (T02.01, T02.02) but the roadmap requires finalization in Phase 1.
@@ -18,6 +19,7 @@ Total findings: 8 (High: 0, Medium: 2, Low: 6)
 - **Exact fix**: Add a clarification or schema design task in Phase 1 (e.g., T01.XX: Finalize password reset request/response schemas for Phase 2 implementation).
 
 #### M2. Beta Conversion Target Inconsistency in T02.07
+
 - **Severity**: Medium
 - **Affects**: phase-2-tasklist.md / T02.07 monitoring step
 - **Problem**: T02.07 step 5 references registration conversion "> 60%" which is the GA target. The roadmap's phased targets table specifies beta target as "> 40%". The acceptance criteria correctly state both targets but the step text is inconsistent.
@@ -27,6 +29,7 @@ Total findings: 8 (High: 0, Medium: 2, Low: 6)
 ### Low Severity
 
 #### L1-L6. Minor omissions (audit log in reset tasks, consolidated compliance owners, abbreviated rollback procedure, missing alert threshold, load test step count, capacity planning step)
+
 - These are minor detail gaps that do not affect the structural completeness of the tasklist for E2E testing purposes.
 
 ## TDD/PRD Enrichment Verification

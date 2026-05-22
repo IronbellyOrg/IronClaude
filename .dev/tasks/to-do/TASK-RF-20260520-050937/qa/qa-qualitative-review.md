@@ -22,7 +22,7 @@ BUILD_REQUEST.GOAL captured verbatim from spawn prompt:
 > TestCheckResearchNotesSections fixture in test_gates.py:47-86 to use the
 > new schema; Edit D creates new round-trip integration test at
 > tests/cli/prd/test_research_notes_roundtrip.py wiring
-> build_research_notes_prompt output through _check_research_notes_sections."
+> build_research_notes_prompt output through_check_research_notes_sections."
 
 AX-1 drift axis is ACTIVE for this review.
 
@@ -43,7 +43,7 @@ AX-1 drift axis is ACTIVE for this review.
 - Read /config/workspace/IronClaude/Makefile (lines 45-60 — verified `make lint` invokes `uv run ruff check .`)
 - Grep `_RESEARCH_REQUIRED_SECTIONS|_check_research_notes_sections|_check_suggested_phases_detail` in gates.py (confirmed wiring at GATE_CRITERIA 322-338 references the functions, not the constant; Edit A propagates automatically)
 - Grep `Product Capabilities|Technical Architecture|User Flows|Integration Points|Gap Analysis` across tests/ and src/ (identified test_e2e.py:131 regression source)
-- Grep `^## ` in prompts.py (confirmed 7 H2 headings in build_research_notes_prompt match Edit A new_string)
+- Grep `^##` in prompts.py (confirmed 7 H2 headings in build_research_notes_prompt match Edit A new_string)
 - Grep `def test_|_fake_artifact_for_step|research-notes` in test_e2e.py (mapped 5 e2e scenarios consuming `_make_passing_output` via `_mock_process_factory`)
 - Grep `_check_|gates` in test_prompts.py (confirmed zero cross-imports, no regression coupling)
 - Grep `build_research_notes_prompt` in prompts.py (confirmed function exists at line 188)
@@ -52,7 +52,7 @@ AX-1 drift axis is ACTIVE for this review.
 - Grep `sufficiency-review|step.id|step_id` in executor.py (confirmed `sufficiency-review` is valid step ID)
 - Grep `^lint:` in Makefile (confirmed lint target invokes ruff)
 - Grep `TUIBBS|/config/workspace` in task file (confirmed all TUIBBS-scp references are informational in Overview/Out-of-Scope, no executable item touches that directory)
-- Bash `ls` on tests/cli/prd/__init__.py and test_research_notes_roundtrip.py (confirmed package init exists, target file absent — Edit D create path valid)
+- Bash `ls` on tests/cli/prd/**init**.py and test_research_notes_roundtrip.py (confirmed package init exists, target file absent — Edit D create path valid)
 - Grep `_make_passing_output|GATE_CRITERIA|gates\.` in test_e2e.py (confirmed helper is called from `_mock_process_factory` which 5 scenarios use; gate is NOT mocked, only subprocess + synthesis-mapping)
 
 Tool calls total: ~26 (Read: 11, Grep: 13, Bash: 2). Above the 14-item checklist minimum.
@@ -74,7 +74,7 @@ Tool calls total: ~26 (Read: 11, Grep: 13, Bash: 2). Above the 14-item checklist
 | 9 | Error path coverage | none | PASS | Each Edit item has explicit error-handling instructions: "If the Edit tool errors (source drift, non-unique match), log the specific failure...". Phase 4 has retry-up-to-2 cycles per command. |
 | 10 | Runtime failure path trace | none | PASS (post-fix) | Trace: Phase 1 source confirm → Edits A+B → Edits C+E+D → focused pytest → full PRD pytest (now includes Edit E so e2e passes) → make lint → post-completion verification. No silent-failure path remains. |
 | 11 | Completion scope honesty | none | PASS | Task has zero Open Questions and the Context Note from Builder asserts "no open questions remained at task-build time." Post-fix, task accurately represents the scope needed. |
-| 12 | Ambient dependency completeness | AX-3 | FAIL → FIXED | Task originally missed test_e2e.py as an ambient dependency on the constant change. FIXED via Edit E (Step 3.1b). Verified no other touchpoints missed: test_prompts.py decoupled (no `_check_` import); GATE_CRITERIA wiring auto-updates (functions, not constant, are referenced); no __init__.py / CLI / config touchpoints affected (the constant is private to gates.py). |
+| 12 | Ambient dependency completeness | AX-3 | FAIL → FIXED | Task originally missed test_e2e.py as an ambient dependency on the constant change. FIXED via Edit E (Step 3.1b). Verified no other touchpoints missed: test_prompts.py decoupled (no `_check_` import); GATE_CRITERIA wiring auto-updates (functions, not constant, are referenced); no **init**.py / CLI / config touchpoints affected (the constant is private to gates.py). |
 | 13 | Kwarg sequencing red flags | none | PASS | No "add kwarg" / "add parameter" sequencing issues. Edit B is a pure regex-character-class change inside an existing function — no signature change. Edit D's new test passes only existing kwargs to existing function. |
 | 14 | Function existence claims | none | PASS | All claims verified via grep: `build_research_notes_prompt` at prompts.py:188 ✓; `_RESEARCH_REQUIRED_SECTIONS` at gates.py:102 ✓; `_check_research_notes_sections` at gates.py:113 ✓; `_check_suggested_phases_detail` at gates.py:129 ✓; `PrdConfig` at models.py:106 ✓; `superclaude prd resume` at commands.py:153 ✓; `tests/cli/prd/__init__.py` exists; `tests/cli/prd/test_research_notes_roundtrip.py` does NOT yet exist (Edit D creates). |
 | 15 | Cross-reference accuracy | none | PASS | All line-number citations confirmed byte-exact: gates.py:102-110 (Edit A constant), gates.py:134-138 (Edit B regex), test_gates.py:47-86 (Edit C fixture), test_e2e.py:120-148 (Edit E branch — added during this review). Prompt's 7 H2 headings at prompts.py:226-254 confirmed identical to Edit A's new_string. Upstream `SKILL.md:267-305` reference is informational; no direct edit consumes it. |
@@ -111,6 +111,7 @@ Tool calls total: ~26 (Read: 11, Grep: 13, Bash: 2). Above the 14-item checklist
 7. **Updated Task Summary template** to include Edit E in the Work Completed list.
 
 Verification of fixes:
+
 - Re-read task file confirms Step 3.1b is present with byte-exact old_string matching live test_e2e.py:120-148 and new_string preserving the 16-space indent (the literals sit inside `_make_passing_output` body — confirmed via Read of test_e2e.py).
 - Edit E's new_string preserves 3 numbered list items under `## SUGGESTED_PHASES` so `_check_suggested_phases_detail` continues to find detail under the heading.
 - Edit E's new_string keeps the supporting prose lines so the `min_lines=100` gate criterion is still satisfied after the helper's standard padding loop appends additional lines (the helper appends `f"Line {i}"` filler up to `effective_min`).
@@ -122,6 +123,7 @@ Verification of fixes:
 This audit documents the reliance-vs-verification distinction mandated by INV-019.
 
 **(a) Reliance list — rf-qa PASS items skipped for structural re-check:**
+
 - Relied on rf-qa PASS for Check 1 (YAML frontmatter complete) — did NOT re-verify frontmatter field presence/shape.
 - Relied on rf-qa PASS for Check 2 (Template 02 mandatory sections present) — did NOT re-verify Task Overview / Key Objectives / Prerequisites / Execution Context / Detailed Task Instructions / Task Log headings.
 - Relied on rf-qa PASS for Check 3 (Items self-contained) — did NOT re-verify per-item Context+Action+Output+Verification structure.
@@ -130,6 +132,7 @@ This audit documents the reliance-vs-verification distinction mandated by INV-01
 - Relied on rf-qa PASS for Checks 11-17 (TB-Add-1 through TB-Add-8 structural gates).
 
 **(b) Independent semantic checks (≥1 required, INV-019):**
+
 - **Downstream consumer analysis (item 6) — independently grepped `Product Capabilities|Technical Architecture|User Flows|Integration Points|Gap Analysis` across tests/ and src/.** rf-qa's "Verbatim old_string matches live source" check confirmed the 4 documented edit sites are accurate; it did NOT scan for OTHER places in the codebase that depend on the OLD schema. Result: discovered test_e2e.py:131-146 as a CRITICAL omission. rf-qa PASS was structurally complete but semantically incomplete — only the qualitative-review-side codebase sweep surfaces the regression.
 - **Round-trip test runtime trace (item 7) — independently read prompts.py:188-260 and traced the regex `^##\s+([A-Z_][A-Z0-9_]+)\s*$` against the actual prompt output and the `_check_suggested_phases_detail` regex against the fixture content.** rf-qa's "Verbatim text" check ensures the embedded test file body is byte-exact; only this semantic trace verifies that the test will actually PASS once Edits A+B land.
 - **PrdConfig field compatibility (item 4) — independently read models.py:105-136 and confirmed every kwarg the fixture passes maps to an existing dataclass field.** rf-qa does not perform module-import semantic verification of test imports.
@@ -149,4 +152,3 @@ This audit documents the reliance-vs-verification distinction mandated by INV-01
 ## QA Complete
 
 VERDICT: PASS (after in-place fix)
-

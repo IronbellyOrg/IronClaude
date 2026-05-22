@@ -99,6 +99,7 @@ Architecture: Python package, CLI-first
 ### 3.2 Task Schema and Data Model
 
 **Claude Task Master (Zod-validated)**:
+
 ```
 Task {
   id:            number (positive integer)
@@ -123,6 +124,7 @@ Subtask {
 ```
 
 **SuperClaude (Python dataclasses)**:
+
 ```
 TaskEntry {
   task_id:       string (e.g., "T01.03")
@@ -222,6 +224,7 @@ TaskResult {
 ### 4.1 Claude Task Master
 
 **Strengths**:
+
 1. **Universal editor support** -- Works wherever MCP is supported; not locked to one IDE
 2. **Multi-provider model access** -- 10+ LLM providers including local (Ollama)
 3. **Low onboarding friction** -- `npx -y task-master-ai` and go; PRD-in, tasks-out
@@ -234,6 +237,7 @@ TaskResult {
 10. **Complexity analysis** -- Built-in task complexity scoring and reporting
 
 **Weaknesses**:
+
 1. **No quality gates** -- No pre-execution confidence check, no post-execution validation
 2. **No execution supervision** -- The AI self-reports task completion; no subprocess monitoring
 3. **No economic model** -- No turn budgets, no cost tracking, no reimbursement logic
@@ -248,6 +252,7 @@ TaskResult {
 ### 4.2 SuperClaude
 
 **Strengths**:
+
 1. **Multi-layer quality gates** -- Trailing gates with shadow/soft/full progressive rollout
 2. **Economic execution model** -- TurnLedger with debit/credit/reimbursement and budget exhaustion
 3. **Cross-session learning** -- ReflexionPattern prevents error recurrence (<10% target)
@@ -260,6 +265,7 @@ TaskResult {
 10. **Wiring analysis** -- Post-task structural integrity checks with whitelist support
 
 **Weaknesses**:
+
 1. **Claude Code only** -- Cannot be used with Cursor, Windsurf, VS Code, or any other editor
 2. **Anthropic only** -- No multi-provider model support; locked to Claude
 3. **High onboarding cost** -- Multi-step pipeline requires understanding of roadmap/tasklist/sprint
@@ -314,6 +320,7 @@ TaskResult {
 ## 6. Conclusions
 
 ### When to Use Claude Task Master
+
 - Multi-editor teams (Cursor + VS Code + Claude Code)
 - Rapid prototyping where PRD-to-tasks speed matters
 - Projects using non-Anthropic models
@@ -321,6 +328,7 @@ TaskResult {
 - Teams that want the AI agent to self-direct
 
 ### When to Use SuperClaude
+
 - High-fidelity execution where quality gates are non-negotiable
 - Long-running sprints where budget control matters
 - Projects requiring auditable traceability from spec to code
@@ -328,6 +336,7 @@ TaskResult {
 - Environments where cross-session error learning provides compounding value
 
 ### The Fundamental Tradeoff
+
 Task Master says: "Give the AI the right task and trust it to execute."
 SuperClaude says: "Supervise the AI's execution and verify its output."
 

@@ -54,6 +54,7 @@ Verified by reading the existing test files and similar Python source in the pac
 - **Tests location**: under `tests/cli/prd/` mirroring `src/superclaude/cli/prd/`.
 
 CLAUDE.md project conventions relevant to verification:
+
 - Use `uv run pytest` for all test execution (never bare `pytest` or `python -m pytest`).
 - `make lint` runs ruff; `make format` formats with ruff.
 - Editable install means edits to `src/superclaude/` take effect on next CLI invocation with no rebuild.
@@ -78,6 +79,7 @@ One residual question that does NOT block this task but should be noted for down
    - Asserts that a research-notes.md constructed from the prompt's instructed sections passes both `_check_research_notes_sections` and `_check_suggested_phases_detail`.
 
 Verification (no new file produced — informational only):
+
 - Run `uv run pytest tests/cli/prd/test_gates.py tests/cli/prd/test_research_notes_roundtrip.py -v` — must pass.
 - Run `uv run pytest tests/cli/prd/ -v` — full PRD test suite must pass (no regressions).
 - Run `make lint` — must pass (ruff clean).
@@ -106,6 +108,7 @@ Total estimated checklist items: ~9-10 (per-file granularity per template rule A
 ## AMBIGUITIES_FOR_USER
 
 None — intent is clear from the request and the immediately-preceding adversarial-debate turn:
+
 - Apply the 3 edits A/B/C exactly as specified in the prior turn.
 - Create the new round-trip integration test exactly as specified in the prior turn.
 - Verify with `uv run pytest tests/cli/prd/ -v` and `make lint`.

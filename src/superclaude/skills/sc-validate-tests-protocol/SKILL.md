@@ -19,6 +19,7 @@ Self-validation skill that enables Claude to test its own tier classification an
 ## Triggers
 
 ### Explicit Invocation
+
 ```bash
 /sc:validate-tests tests/sc-task/
 /sc:validate-tests tests/sc-task/test_tier_classification.yaml
@@ -26,6 +27,7 @@ Self-validation skill that enables Claude to test its own tier classification an
 ```
 
 ### Auto-Suggest
+
 - After modifying tier classification configs
 - After updating `/sc:task` skill definition
 - When user asks "do the tests pass?"
@@ -66,6 +68,7 @@ Self-validation skill that enables Claude to test its own tier classification an
 ## Behavioral Flow
 
 ### 1. Load Test Specifications
+
 ```yaml
 actions:
   - Read target YAML file(s)
@@ -74,7 +77,9 @@ actions:
 ```
 
 ### 2. Execute Classification Logic
+
 For each test case:
+
 ```yaml
 actions:
   - Extract input text
@@ -89,6 +94,7 @@ actions:
 ```
 
 ### 3. Compare Results
+
 ```yaml
 actions:
   - Compare actual_tier vs expected_tier
@@ -98,6 +104,7 @@ actions:
 ```
 
 ### 4. Generate Report
+
 ```yaml
 report_sections:
   - Summary: Total pass/fail/skip counts
@@ -111,6 +118,7 @@ report_sections:
 ## Tier Classification Reference
 
 ### Priority Order
+
 ```
 STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 ```
@@ -118,6 +126,7 @@ STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 ### Keyword Matching
 
 #### STRICT Keywords (Priority 1)
+
 ```yaml
 security_domain:
   - security, auth, authentication, authorization
@@ -139,6 +148,7 @@ patterns:
 ```
 
 #### EXEMPT Keywords (Priority 2)
+
 ```yaml
 questions:
   - what, how, why, explain, understand
@@ -158,6 +168,7 @@ git_operations:
 ```
 
 #### LIGHT Keywords (Priority 3)
+
 ```yaml
 trivial_changes:
   - typo, spelling, grammar
@@ -171,6 +182,7 @@ modifiers:
 ```
 
 #### STANDARD Keywords (Priority 4)
+
 ```yaml
 code_modifications:
   - add, create, implement, build
@@ -182,6 +194,7 @@ code_modifications:
 ### Compound Phrase Rules
 
 **LIGHT Overrides** (check first):
+
 ```yaml
 - "quick fix" → LIGHT
 - "minor change" → LIGHT
@@ -195,6 +208,7 @@ code_modifications:
 ```
 
 **STRICT Overrides** (security always wins):
+
 ```yaml
 - "fix security" → STRICT
 - "add authentication" → STRICT
@@ -261,6 +275,7 @@ rules:
 ## Test Case Format
 
 ### Expected YAML Structure
+
 ```yaml
 - id: TC001
   input: "fix the authentication bug"
@@ -287,6 +302,7 @@ rules:
 ## Report Format
 
 ### Summary View (default)
+
 ```
 ═══════════════════════════════════════════════════════════
   /sc:validate-tests Report
@@ -317,6 +333,7 @@ STATUS: ⚠️ 11 failures require attention
 ```
 
 ### Verbose View (--verbose)
+
 ```
 ═══════════════════════════════════════════════════════════
   Test: TC045 - "quick database update"
@@ -338,6 +355,7 @@ Result: ✅ PASS
 ```
 
 ### Failure Detail
+
 ```
 ═══════════════════════════════════════════════════════════
   ❌ FAILURE: TC078
@@ -364,6 +382,7 @@ Recommendation:
 ## Examples
 
 ### Run All Tests
+
 ```bash
 /sc:validate-tests --all
 
@@ -371,6 +390,7 @@ Recommendation:
 ```
 
 ### Run Specific Category
+
 ```bash
 /sc:validate-tests --category classification
 
@@ -378,6 +398,7 @@ Recommendation:
 ```
 
 ### Verbose Single File
+
 ```bash
 /sc:validate-tests tests/sc-task/test_compound_phrases.yaml --verbose
 
@@ -385,6 +406,7 @@ Recommendation:
 ```
 
 ### Save Report
+
 ```bash
 /sc:validate-tests --all --report claudedocs/validation-report.md
 
@@ -392,6 +414,7 @@ Recommendation:
 ```
 
 ### Stop on First Failure
+
 ```bash
 /sc:validate-tests --all --stop-on-fail
 
@@ -403,6 +426,7 @@ Recommendation:
 ## Integration with /sc:task
 
 After validation:
+
 ```yaml
 if all_tests_pass:
   - "Classification logic validated against 300 test cases"
@@ -419,6 +443,7 @@ if failures_exist:
 ## Boundaries
 
 ### Will
+
 - Parse YAML test specifications
 - Apply tier classification algorithm to test inputs
 - Compare actual vs expected results
@@ -426,6 +451,7 @@ if failures_exist:
 - Identify configuration gaps
 
 ### Will Not
+
 - Modify test files automatically
 - Update configuration without user approval
 - Execute actual code changes during validation

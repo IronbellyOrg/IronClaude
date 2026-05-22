@@ -24,19 +24,23 @@
 | Deliverable IDs | D-0051 |
 
 **Deliverables:**
+
 - k6 test script for POST /auth/login targeting p95 < 200ms at 100 concurrent users / 50 req/s
 
 **Steps:**
+
 1. [PLANNING] Define load profile per NFR-AUTH.1 and OQ-1 resolution
 2. [EXECUTION] Write k6 script with ramp-up, sustained load, and p95 threshold
 3. [VERIFICATION] Run test; capture and evaluate results
 
 **Acceptance Criteria:**
+
 - p95 latency < 200ms at defined normal load
 - No errors during sustained load phase
 - Results captured as CI artifact
 
 **Validation:**
+
 - Manual check: Review k6 summary output for p95 value
 - Evidence: k6 script and results report committed
 
@@ -60,18 +64,22 @@
 | Deliverable IDs | D-0052 |
 
 **Deliverables:**
+
 - k6 test script for POST /auth/refresh targeting p95 < 200ms
 
 **Steps:**
+
 1. [PLANNING] Define load profile matching login test
 2. [EXECUTION] Write k6 script for refresh endpoint
 3. [VERIFICATION] Run test; capture results
 
 **Acceptance Criteria:**
+
 - p95 latency < 200ms at normal load
 - Token rotation completes under load without errors
 
 **Validation:**
+
 - Manual check: Review k6 output
 - Evidence: k6 script and results committed
 
@@ -95,19 +103,23 @@
 | Deliverable IDs | D-0053 |
 
 **Deliverables:**
+
 - k6 test script for POST /auth/register with documented baseline latency
 
 **Steps:**
+
 1. [PLANNING] Define load profile; expect higher latency due to bcrypt
 2. [EXECUTION] Write k6 script for registration
 3. [VERIFICATION] Run test; document baseline
 
 **Acceptance Criteria:**
+
 - Baseline p95 latency documented (expected ~300-500ms due to bcrypt)
 - No errors under load
 - Results captured as artifact
 
 **Validation:**
+
 - Manual check: Review k6 output and baseline documentation
 - Evidence: k6 script, results, and baseline doc committed
 
@@ -131,19 +143,23 @@
 | Deliverable IDs | D-0054 |
 
 **Deliverables:**
+
 - Standalone benchmark test asserting bcrypt cost factor 12 produces ~250ms hash time (200-400ms range)
 
 **Steps:**
+
 1. [PLANNING] Define benchmark parameters per NFR-AUTH.3
 2. [EXECUTION] Write benchmark running 10+ iterations, computing mean/p95
 3. [VERIFICATION] Assert mean within 200-400ms range
 
 **Acceptance Criteria:**
+
 - Mean hash time within 200-400ms at cost factor 12
 - Benchmark runs on CI hardware
 - Results captured in CI output
 
 **Validation:**
+
 - Manual check: Review benchmark output timing values
 - Evidence: Benchmark script committed; CI artifact
 
@@ -167,20 +183,24 @@
 | Deliverable IDs | D-0055 |
 
 **Deliverables:**
+
 - Adversarial test: reuse revoked refresh token, confirm ALL user tokens invalidated
 
 **Steps:**
+
 1. [PLANNING] Design replay attack scenario
 2. [EXECUTION] Write test: login -> refresh (save old token) -> attempt old token -> verify all tokens revoked
 3. [VERIFICATION] Confirm user has zero active tokens after replay
 
 **Acceptance Criteria:**
+
 - Replayed revoked token triggers full revocation
 - All active refresh tokens for user are invalidated
 - Subsequent refresh attempts fail with 401
 - Database confirms zero active tokens
 
 **Validation:**
+
 - Manual check: Query refresh_tokens table after replay
 - Evidence: Adversarial test committed; CI green
 
@@ -208,19 +228,23 @@
 | Deliverable IDs | D-0056 |
 
 **Deliverables:**
+
 - Automated test: scan all endpoint responses, verify refresh token only appears in Set-Cookie header with httpOnly flag
 
 **Steps:**
+
 1. [PLANNING] Define scan scope: all auth endpoints
 2. [EXECUTION] Write test: exercise all endpoints, check response bodies and headers
 3. [VERIFICATION] Confirm no refresh token in body; cookie has httpOnly
 
 **Acceptance Criteria:**
+
 - No response body contains refresh token value
 - Set-Cookie header includes HttpOnly flag
 - Set-Cookie header includes Secure flag
 
 **Validation:**
+
 - Manual check: Inspect all Set-Cookie headers
 - Evidence: Security test committed; CI green
 
@@ -244,19 +268,23 @@
 | Deliverable IDs | D-0057 |
 
 **Deliverables:**
+
 - Test verifying all auth error responses use identical generic messages
 
 **Steps:**
+
 1. [PLANNING] Catalog all error response scenarios
 2. [EXECUTION] Write test: wrong email, wrong password, locked account - compare error messages
 3. [VERIFICATION] Confirm messages are generic and identical where appropriate
 
 **Acceptance Criteria:**
+
 - Wrong email and wrong password produce identical 401 response body
 - No error message reveals whether email exists
 - Locked account returns 403 with generic message
 
 **Validation:**
+
 - Manual check: Compare error response bodies byte-for-byte
 - Evidence: Information leakage test committed; CI green
 
@@ -280,20 +308,24 @@
 | Deliverable IDs | D-0058 |
 
 **Deliverables:**
+
 - Security test suite covering: tampered JWT rejected, expired JWT rejected, invalid signature rejected
 
 **Steps:**
+
 1. [PLANNING] Define JWT attack vectors
 2. [EXECUTION] Write tests: modify payload, use expired token, sign with wrong key
 3. [VERIFICATION] All attacks return 401
 
 **Acceptance Criteria:**
+
 - Tampered payload: 401
 - Expired token: 401
 - Wrong signature: 401
 - Algorithm none attack: 401
 
 **Validation:**
+
 - Manual check: Craft attack tokens, verify rejection
 - Evidence: JWT security test suite committed; CI green
 
@@ -317,19 +349,23 @@
 | Deliverable IDs | D-0059 |
 
 **Deliverables:**
+
 - Automated response schema scanner checking all endpoints for sensitive field leakage
 
 **Steps:**
+
 1. [PLANNING] Define sensitive field list and endpoint scope
 2. [EXECUTION] Write scanner: iterate all endpoints, parse responses, search for forbidden fields
 3. [VERIFICATION] Run scanner; confirm zero violations
 
 **Acceptance Criteria:**
+
 - No endpoint returns password_hash field
 - No endpoint returns token_hash or refresh_token_hash
 - Scanner covers all 6 auth endpoints plus error responses
 
 **Validation:**
+
 - Manual check: Review scanner output
 - Evidence: Scanner script and results committed
 
@@ -353,14 +389,17 @@
 | Deliverable IDs | D-0060 |
 
 **Deliverables:**
+
 - Boundary value test suite for password policy: 7-char, 8-char, missing each character class
 
 **Steps:**
+
 1. [PLANNING] Define boundary test cases per FR-AUTH.2c
 2. [EXECUTION] Write tests: 7 chars (fail), 8 chars all classes (pass), missing uppercase/lowercase/digit
 3. [VERIFICATION] All boundary cases behave correctly
 
 **Acceptance Criteria:**
+
 - 7-character password rejected
 - 8-character password with all classes accepted
 - Missing uppercase rejected
@@ -368,6 +407,7 @@
 - Missing digit rejected
 
 **Validation:**
+
 - Manual check: Attempt registration with boundary passwords
 - Evidence: Boundary test suite committed; CI green
 
@@ -395,19 +435,23 @@
 | Deliverable IDs | D-0061 |
 
 **Deliverables:**
+
 - Database audit test: register user, query password_hash column, verify bcrypt format
 
 **Steps:**
+
 1. [PLANNING] Define audit approach
 2. [EXECUTION] Write test: register user, query database, assert password_hash starts with $2b$
 3. [VERIFICATION] Run audit; confirm no plaintext
 
 **Acceptance Criteria:**
+
 - All password_hash values match bcrypt format ($2b$12$...)
 - No plaintext passwords in any database column
 - Audit covers users table
 
 **Validation:**
+
 - Manual check: Query users table, inspect password_hash values
 - Evidence: Audit test committed; CI green
 
@@ -431,18 +475,22 @@
 | Deliverable IDs | D-0062 |
 
 **Deliverables:**
+
 - Test that inspects loaded RSA key and asserts 4096-bit key size
 
 **Steps:**
+
 1. [PLANNING] Define key inspection approach
 2. [EXECUTION] Write test: load key via JwtService, inspect key size
 3. [VERIFICATION] Assert key size is 4096 bits
 
 **Acceptance Criteria:**
+
 - RSA key size is exactly 4096 bits
 - Test loads key through same path as production
 
 **Validation:**
+
 - Manual check: openssl rsa -text on key file
 - Evidence: Key inspection test committed; CI green
 
@@ -466,19 +514,23 @@
 | Deliverable IDs | D-0063 |
 
 **Deliverables:**
+
 - Test verifying Set-Cookie header contains HttpOnly, Secure, and SameSite=Strict
 
 **Steps:**
+
 1. [PLANNING] Define expected cookie attributes
 2. [EXECUTION] Write test: login, inspect Set-Cookie header for all 3 attributes
 3. [VERIFICATION] Assert all attributes present
 
 **Acceptance Criteria:**
+
 - HttpOnly attribute present
 - Secure attribute present
 - SameSite=Strict attribute present
 
 **Validation:**
+
 - Manual check: Inspect Set-Cookie header with curl -v
 - Evidence: Cookie attribute test committed; CI green
 
@@ -502,19 +554,23 @@
 | Deliverable IDs | D-0064 |
 
 **Deliverables:**
+
 - Coverage configuration enforcing >= 90% line coverage; coverage report artifact
 
 **Steps:**
+
 1. [PLANNING] Configure coverage tool with 90% threshold
 2. [EXECUTION] Run full test suite with coverage; identify and fill gaps
 3. [VERIFICATION] CI fails if coverage drops below 90%
 
 **Acceptance Criteria:**
+
 - Line coverage >= 90% across all auth modules
 - CI enforces coverage threshold
 - Coverage report generated as artifact
 
 **Validation:**
+
 - Manual check: Review coverage report for gaps
 - Evidence: Coverage config and report committed
 
@@ -538,19 +594,23 @@
 | Deliverable IDs | D-0065 |
 
 **Deliverables:**
+
 - Branch coverage measurement and enforcement at >= 85%; gap analysis
 
 **Steps:**
+
 1. [PLANNING] Identify branch coverage gaps from current test suite
 2. [EXECUTION] Write additional tests to cover missing branches
 3. [VERIFICATION] Branch coverage meets 85% threshold
 
 **Acceptance Criteria:**
+
 - Branch coverage >= 85% across all auth modules
 - CI enforces branch coverage threshold
 - Gap analysis documented
 
 **Validation:**
+
 - Manual check: Review branch coverage report
 - Evidence: Coverage report and gap analysis committed
 
@@ -578,19 +638,23 @@
 | Deliverable IDs | D-0066 |
 
 **Deliverables:**
+
 - Critical path coverage measurement at >= 95% for login, refresh, and reset flows
 
 **Steps:**
+
 1. [PLANNING] Define critical path modules and coverage scope
 2. [EXECUTION] Ensure test coverage for all critical paths reaches 95%
 3. [VERIFICATION] Generate targeted coverage report for critical modules
 
 **Acceptance Criteria:**
+
 - Login flow coverage >= 95%
 - Token refresh flow coverage >= 95%
 - Password reset flow coverage >= 95%
 
 **Validation:**
+
 - Manual check: Review per-module coverage for critical paths
 - Evidence: Critical path coverage report committed
 
@@ -614,19 +678,23 @@
 | Deliverable IDs | D-0067 |
 
 **Deliverables:**
+
 - Integration test: set flag to false, verify auth routes return 503/404, non-auth routes unaffected
 
 **Steps:**
+
 1. [PLANNING] Define disabled behavior expectations per SC-9
 2. [EXECUTION] Write test: toggle flag off, request all auth endpoints, verify responses
 3. [VERIFICATION] All auth endpoints return disabled response; non-auth endpoints work
 
 **Acceptance Criteria:**
+
 - Auth routes return expected disabled status (503 or 404)
 - Non-auth routes are completely unaffected
 - No auth middleware intercepts requests when disabled
 
 **Validation:**
+
 - Manual check: Toggle flag and exercise endpoints
 - Evidence: Integration test committed; CI green
 
@@ -650,19 +718,23 @@
 | Deliverable IDs | D-0068 |
 
 **Deliverables:**
+
 - Test running all migrations down and verifying clean database state
 
 **Steps:**
+
 1. [PLANNING] Define clean state criteria
 2. [EXECUTION] Write test: apply all migrations up, then all down, verify no auth tables
 3. [VERIFICATION] Database has no auth-related artifacts
 
 **Acceptance Criteria:**
+
 - All migrations run down without error
 - No auth-related tables remain after full rollback
 - No orphaned indexes or constraints
 
 **Validation:**
+
 - Manual check: Inspect database after full rollback
 - Evidence: Migration rollback test committed; CI green
 
@@ -686,20 +758,24 @@
 | Deliverable IDs | D-0069 |
 
 **Deliverables:**
+
 - Rollback runbook documenting: feature flag toggle, migration rollback, verification steps
 
 **Steps:**
+
 1. [PLANNING] Define runbook structure and audience (on-call engineers)
 2. [EXECUTION] Write step-by-step rollback procedure with verification at each step
 3. [VERIFICATION] Peer review of runbook for completeness
 
 **Acceptance Criteria:**
+
 - Covers feature flag toggle procedure
 - Covers database migration rollback procedure
 - Includes verification steps after each action
 - Target: rollback < 5 minutes
 
 **Validation:**
+
 - Manual check: Peer review sign-off
 - Evidence: Runbook document committed
 
@@ -723,20 +799,24 @@
 | Deliverable IDs | D-0070 |
 
 **Deliverables:**
+
 - GET /health endpoint returning 200 with service status (database connectivity, key availability)
 
 **Steps:**
+
 1. [PLANNING] Define health check components
 2. [EXECUTION] Implement endpoint checking database and key availability
 3. [VERIFICATION] Test: healthy returns 200, unhealthy returns 503
 
 **Acceptance Criteria:**
+
 - Returns 200 with status JSON when healthy
 - Returns 503 when database is unreachable
 - Includes database connectivity check
 - Does not expose sensitive information
 
 **Validation:**
+
 - Manual check: Hit /health endpoint
 - Evidence: Health check implementation and test committed
 
@@ -764,19 +844,23 @@
 | Deliverable IDs | D-0071 |
 
 **Deliverables:**
+
 - APM instrumentation on all auth endpoints; dashboard configuration for p50, p95, p99 latency
 
 **Steps:**
+
 1. [PLANNING] Select APM tool and define instrumentation points
 2. [EXECUTION] Add instrumentation to all auth route handlers and middleware
 3. [VERIFICATION] Verify metrics appear in dashboard
 
 **Acceptance Criteria:**
+
 - All 6 auth endpoints instrumented
 - Dashboard shows p50, p95, p99 latency
 - Latency broken down by endpoint
 
 **Validation:**
+
 - Manual check: Generate traffic, verify dashboard populates
 - Evidence: APM configuration and dashboard screenshot committed
 
@@ -800,19 +884,23 @@
 | Deliverable IDs | D-0072 |
 
 **Deliverables:**
+
 - Uptime monitoring configured for /health endpoint with PagerDuty/alerting integration
 
 **Steps:**
+
 1. [PLANNING] Define monitoring interval and alert thresholds
 2. [EXECUTION] Configure uptime monitor targeting /health endpoint
 3. [VERIFICATION] Simulate downtime, verify alert fires
 
 **Acceptance Criteria:**
+
 - Health check monitored at configured interval
 - Alert fires on consecutive failures
 - PagerDuty/alerting integration functional
 
 **Validation:**
+
 - Manual check: Take health endpoint down, verify alert
 - Evidence: Monitoring configuration committed
 

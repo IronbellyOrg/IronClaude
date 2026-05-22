@@ -87,6 +87,7 @@ MERGED SPEC Phase 3+: TUI v2 F1-F10, Checkpoint W2-W4
 #### Steps
 
 1. **Read** `executor.py:1089-1092` — current code:
+
    ```python
    output_bytes = output_path.stat().st_size if output_path.exists() else 0
    # Turn counting is wired separately in T02.06
@@ -94,11 +95,13 @@ MERGED SPEC Phase 3+: TUI v2 F1-F10, Checkpoint W2-W4
    ```
 
 2. **Add import** at top of executor.py (near other monitor imports):
+
    ```python
    from superclaude.cli.sprint.monitor import count_turns_from_output
    ```
 
 3. **Replace** lines 1091-1092 with:
+
    ```python
    turns = count_turns_from_output(output_path) if output_path.exists() else 0
    return (exit_code if exit_code is not None else -1, turns, output_bytes)
@@ -139,6 +142,7 @@ Revert to `return (exit_code, 0, output_bytes)`. Budget reconciliation returns t
 #### Steps
 
 1. **Read** `executor.py:1017-1025` — current TaskResult construction:
+
    ```python
    result = TaskResult(
        task=task,
@@ -152,6 +156,7 @@ Revert to `return (exit_code, 0, output_bytes)`. Budget reconciliation returns t
    ```
 
 2. **Add** `output_path` field:
+
    ```python
    result = TaskResult(
        task=task,
@@ -196,11 +201,13 @@ Remove `output_path=str(config.output_file(phase))` from TaskResult constructor.
 #### Steps
 
 1. **Read** `process.py:114` — current code:
+
    ```python
    self._stdout_fh = open(self.output_file, "w")
    ```
 
 2. **Replace** with:
+
    ```python
    self._stdout_fh = open(self.output_file, "a")
    ```
@@ -390,11 +397,13 @@ Delete the method. No runtime impact.
 #### Steps
 
 1. **Add import** at top of executor.py:
+
    ```python
    from superclaude.cli.sprint.models import PhaseAccumulator
    ```
 
 2. **Add `monitor` parameter** to `execute_phase_tasks()` signature at line 912:
+
    ```python
    def execute_phase_tasks(
        tasks: list[TaskEntry],
@@ -412,11 +421,13 @@ Delete the method. No runtime impact.
    ```
 
 3. **Initialize accumulator** after line 950 (after `gate_results: list[...] = []`):
+
    ```python
    accumulator = PhaseAccumulator(tasks_total=len(tasks))
    ```
 
 4. **Replace pre-task TUI update** at lines 978-984:
+
    ```python
    # BEFORE:
    if tui is not None and sprint_result is not None:
@@ -434,6 +445,7 @@ Delete the method. No runtime impact.
    ```
 
 5. **Add accumulator harvest** after TaskResult construction (after line 1025, before post-task hooks):
+
    ```python
    # Harvest task metrics into phase accumulator
    accumulator.harvest_synthetic(
@@ -445,6 +457,7 @@ Delete the method. No runtime impact.
    ```
 
 6. **Replace post-task TUI update** at lines 1042-1048:
+
    ```python
    # BEFORE:
    if tui is not None and sprint_result is not None:
@@ -460,6 +473,7 @@ Delete the method. No runtime impact.
    ```
 
 7. **Pass `monitor=None`** at the fork-point call site (executor.py:1208-1213):
+
    ```python
    task_results, remaining, phase_gate_results = execute_phase_tasks(
        tasks=tasks, config=config, phase=phase,
@@ -505,11 +519,13 @@ Revert to ad-hoc MonitorState writes at lines 978-984 and 1042-1048. Remove `mon
 #### Steps
 
 1. **Read** models.py:329 — current:
+
    ```python
    gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "off"
    ```
 
 2. **Replace** with:
+
    ```python
    gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "shadow"
    ```
@@ -551,6 +567,7 @@ Revert default to `"off"`. Gate reverts to no-evaluation behavior.
 #### Steps
 
 1. **Add** after `_run_task_subprocess` returns (after line 995, before `finished_at`):
+
    ```python
    # Inject NDJSON task boundary for per-task extraction from append-mode file
    _boundary_path = config.output_file(phase)
@@ -598,6 +615,7 @@ Remove boundary injection. Concatenated file still works but lacks task delimite
 #### Steps
 
 1. **Record file size** before task launch (before line 986, after budget debit):
+
    ```python
    # Record file offset for per-task gate evaluation (INV-004)
    _output_path = config.output_file(phase)
@@ -605,6 +623,7 @@ Remove boundary injection. Concatenated file still works but lacks task delimite
    ```
 
 2. **Pass offset** to TaskResult (modify construction at lines 1017-1025):
+
    ```python
    result = TaskResult(
        task=task,
@@ -623,6 +642,7 @@ Remove boundary injection. Concatenated file still works but lacks task delimite
 3. **Modify anti-instinct gate** to use offset. At executor.py:826-827, the gate reads the full file. Add offset-aware reading:
 
    **Option A** (minimal): Pass offset as context to the gate:
+
    ```python
    # In run_post_task_anti_instinct_hook, after resolving output_path:
    offset = getattr(task_result, '_output_offset', 0)

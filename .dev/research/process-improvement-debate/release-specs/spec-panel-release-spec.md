@@ -5,7 +5,7 @@
 **Date**: 2026-03-04
 **Status**: Draft
 **Author**: Release Spec Agent (Opus 4.6)
-**Source**: Adversarial debate on 5 proposals (SP-1 through SP-5), cross-cutting analysis with AD-* and RM-* proposals
+**Source**: Adversarial debate on 5 proposals (SP-1 through SP-5), cross-cutting analysis with AD-*and RM-* proposals
 
 ---
 
@@ -112,6 +112,7 @@ The following decisions were resolved through adversarial debate (Architect vs A
 **FR-1**: The spec-panel SHALL include a new expert persona named "James Whittaker" with the role of Adversarial Testing Pioneer.
 
 **FR-2**: The adversarial tester persona SHALL execute five attack methodologies against the specification:
+
 - FR-2.1: **Zero/Empty Attack** -- For every input, argument, and collection: what if it is zero, empty, null, or negative?
 - FR-2.2: **Divergence Attack** -- For every pipeline/transformation: what if the output count differs from the input count?
 - FR-2.3: **Sentinel Collision Attack** -- For every guard condition: what if the variable legitimately holds the sentinel value the guard checks against?
@@ -169,6 +170,7 @@ Add to the Expert Panel System section of `spec-panel.md`:
 **FR-6**: The spec-panel SHALL produce a Guard Condition Boundary Table as a mandatory output artifact whenever the specification contains conditional logic, threshold checks, boolean guards, or sentinel value comparisons.
 
 **FR-7**: The boundary table SHALL have the following columns for each guard condition:
+
 - Guard expression
 - Location (spec section or interface contract)
 - Input condition (one row per boundary: zero/empty, one/minimal, typical, maximum/overflow, sentinel value match, legitimate edge case)
@@ -246,6 +248,7 @@ Add to `spec-panel.md` after the "Output Formats" section:
 **FR-13**: When `--focus correctness` is activated, the expert panel SHALL consist of: Nygard (lead), Fowler, Adzic, Crispin, Whittaker (adversarial tester).
 
 **FR-14**: Under the correctness focus, each expert SHALL shift their methodology as follows:
+
 - FR-14.1: Wiegers SHALL examine each requirement for implicit state assumptions (e.g., "this collection is non-empty," "this count equals that count").
 - FR-14.2: Fowler SHALL trace data flow across every interface, annotating where input counts can diverge from output counts.
 - FR-14.3: Nygard SHALL enumerate every guard condition and analyze behavior at each boundary value, including zero and empty.
@@ -254,6 +257,7 @@ Add to `spec-panel.md` after the "Output Formats" section:
 - FR-14.6: Whittaker SHALL attack each invariant and guard using his five attack methodologies.
 
 **FR-15**: The correctness focus SHALL produce three mandatory outputs:
+
 - FR-15.1: **State Variable Registry** -- A table listing every mutable variable the spec introduces, its type, initial value, invariant, and the operations that read/write it.
 - FR-15.2: **Guard Condition Boundary Table** -- As specified in SP-3 (FR-6 through FR-11).
 - FR-15.3: **Pipeline Flow Diagram** -- Annotated with counts at each stage (when pipelines are present).
@@ -316,6 +320,7 @@ Update the Usage line to include the new focus option:
 **FR-17**: The spec-panel SHALL include a pipeline dimensional analysis heuristic that triggers whenever the specification describes data flowing through 2 or more stages where the output count can differ from the input count (filtering, transformation, aggregation, deduplication).
 
 **FR-18**: When triggered, the heuristic SHALL execute the following steps:
+
 - FR-18.1: **Pipeline Detection** -- Identify spec sections describing multi-stage data flow.
 - FR-18.2: **Quantity Annotation** -- At each stage, annotate the count: "N items in, M items out."
 - FR-18.3: **Downstream Tracing** -- For every index, offset, cursor, or counter downstream of a filtering/transformation stage, determine whether it uses the pre-stage count or the post-stage count.

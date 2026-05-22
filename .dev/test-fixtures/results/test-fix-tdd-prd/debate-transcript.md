@@ -112,6 +112,7 @@ rounds_completed: 2
 ### Synthesis Recommendation
 
 A merged roadmap should adopt:
+
 - **Opus's** 5-phase structure with dedicated testing gate (D-01, D-03)
 - **Opus's** proactive OQ-9 resolution; **Haiku's** gated OQ-6 resolution (D-05/D-06)
 - **Haiku's** logout endpoint inclusion with a scoping sub-task (D-07)

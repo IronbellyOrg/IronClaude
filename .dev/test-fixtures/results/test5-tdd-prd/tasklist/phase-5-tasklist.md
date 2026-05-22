@@ -26,9 +26,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0075/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0075 `backend/src/routes/admin/users.ts` returning paginated UserProfile summary with filters (status, email, created_at range).
 
 **Steps:**
+
 1. **[PLANNING]** Define admin RBAC scope (role=admin JWT claim) and pagination contract.
 2. **[PLANNING]** Confirm filter fields with support stakeholders.
 3. **[EXECUTION]** Implement repository query + handler with Zod request validation.
@@ -37,12 +39,14 @@
 6. **[COMPLETION]** Update OpenAPI + admin runbook.
 
 **Acceptance Criteria:**
+
 - Non-admin caller receives 403.
 - Response schema matches OpenAPI spec and supports pagination cursors.
 - Every call emits AuthEvent with actor and filters.
 - Query is index-backed; EXPLAIN plan attached to evidence.
 
 **Validation:**
+
 - Manual check: contract + auth tests pass.
 - Evidence: linkable artifact produced (pytest log + EXPLAIN output).
 
@@ -72,9 +76,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0076/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0076 `backend/src/routes/admin/revoke-sessions.ts` invoking TokenManager.revokeFamily for all families of user.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm side-effects: logout everywhere + audit event.
 2. **[EXECUTION]** Iterate family IDs for user and call revokeFamily.
 3. **[EXECUTION]** Emit `ADMIN_SESSION_REVOKE` AuthEvent with reason parameter.
@@ -82,12 +88,14 @@
 5. **[COMPLETION]** Update runbook with operator instructions.
 
 **Acceptance Criteria:**
+
 - All active refresh families for user revoked atomically.
 - AuthEvent captures admin, target user, and reason.
 - Operation is idempotent (second call returns 204).
 - Endpoint restricted to admin scope.
 
 **Validation:**
+
 - Manual check: integration test uses real Redis to confirm revocation.
 - Evidence: linkable artifact produced (test log).
 
@@ -117,9 +125,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0077/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0077 `backend/src/routes/admin/unlock.ts` resetting AccountLockManager counters + UserProfile.locked_until.
 
 **Steps:**
+
 1. **[PLANNING]** Decide unlock side effects (reset counter vs. expire lock).
 2. **[EXECUTION]** Implement handler calling AccountLockManager.adminUnlock.
 3. **[EXECUTION]** Emit `ADMIN_ACCOUNT_UNLOCK` AuthEvent with reason.
@@ -127,12 +137,14 @@
 5. **[COMPLETION]** Update runbook with SLA expectations.
 
 **Acceptance Criteria:**
+
 - Unlock clears lock state immediately.
 - AuthEvent records admin + reason.
 - Only admin scope may invoke.
 - Endpoint idempotent for already-unlocked user.
 
 **Validation:**
+
 - Manual check: integration test unlocks account and logs in.
 - Evidence: linkable artifact produced (test log).
 
@@ -162,9 +174,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0078/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0078 `backend/src/services/admin/AdminAuthEventService.ts` emitting structured AuthEvents with 12-month retention label.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm schema union with DM-AUDIT.
 2. **[EXECUTION]** Implement service methods for each admin action type.
 3. **[EXECUTION]** Tag events with `retention=12mo` and `actor_kind=admin`.
@@ -172,12 +186,14 @@
 5. **[COMPLETION]** Document SOC2 mapping in audit plan.
 
 **Acceptance Criteria:**
+
 - All admin endpoints (T05.01-T05.03) route through this service.
 - Events are queryable by actor and target.
 - 12-month retention label applied for OPS-004 archival.
 - No PII beyond user id in events.
 
 **Validation:**
+
 - Manual check: unit tests verify service emissions.
 - Evidence: linkable artifact produced (jest log).
 
@@ -207,9 +223,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0079/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0079 `backend/src/services/auth/AccountLockManager.ts` with increment/clear/adminUnlock + 15-min TTL.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm lockout threshold (5 failures / 15 min) per FEAT-LOCK.
 2. **[EXECUTION]** Implement Redis-counter increments with sliding TTL.
 3. **[EXECUTION]** Provide adminUnlock path clearing counter + locked_until.
@@ -217,12 +235,14 @@
 5. **[COMPLETION]** Wire into AuthService login flow (already scaffolded in Phase 1).
 
 **Acceptance Criteria:**
+
 - 5th failed login within 15 min locks account.
 - Successful login clears counter.
 - adminUnlock resets both Redis counter and DB field.
 - All transitions emit AuthEvent.
 
 **Validation:**
+
 - Manual check: unit tests with fakeredis.
 - Evidence: linkable artifact produced (jest log).
 
@@ -266,21 +286,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0080/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0080 `backend/src/routes/health.ts` exposing liveness + readiness with DB + Redis checks.
 
 **Steps:**
+
 1. **[PLANNING]** Define liveness = process ok; readiness = DB + Redis + email queue ok.
 2. **[EXECUTION]** Implement two endpoints returning JSON status + dependency table.
 3. **[VERIFICATION]** Integration test verifies readiness fails when DB down.
 4. **[COMPLETION]** Update deploy manifest probes.
 
 **Acceptance Criteria:**
+
 - Liveness returns 200 while process up.
 - Readiness returns 503 when dependency unavailable.
 - Response includes per-dependency status.
 - No auth required (probe endpoints).
 
 **Validation:**
+
 - Manual check: integration test simulating dependency failure.
 - Evidence: linkable artifact produced (jest log).
 
@@ -310,9 +334,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0081/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0081 `backend/src/telemetry/metrics.ts` + `/metrics` endpoint exposing auth + HTTP counters/histograms.
 
 **Steps:**
+
 1. **[PLANNING]** Inventory required metrics (login attempts, success, failures, refresh, latency histograms).
 2. **[EXECUTION]** Instrument routes with prom-client counters/histograms.
 3. **[EXECUTION]** Expose `/metrics` endpoint guarded by internal network.
@@ -320,12 +346,14 @@
 5. **[COMPLETION]** Document metric catalog in observability plan.
 
 **Acceptance Criteria:**
+
 - All required SLI metrics present.
 - Label cardinality stays below platform limits.
 - Endpoint not exposed publicly.
 - Histogram buckets align with SLO targets.
 
 **Validation:**
+
 - Manual check: curl /metrics in integration test.
 - Evidence: linkable artifact produced (test log).
 
@@ -355,9 +383,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0082/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0082 `backend/src/telemetry/logger.ts` pino instance with redaction rules + request id middleware.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm redaction list (password, tokens, cookies).
 2. **[EXECUTION]** Configure pino with JSON output, ISO-8601 timestamps, level env.
 3. **[EXECUTION]** Add request-id middleware propagating x-request-id.
@@ -365,12 +395,14 @@
 5. **[COMPLETION]** Wire into route handlers.
 
 **Acceptance Criteria:**
+
 - All logs emitted as JSON with required fields.
 - No secret appears in log output across fuzz tests.
 - Request id flows through downstream service calls.
 - Log level configurable via env.
 
 **Validation:**
+
 - Manual check: unit test asserts redacted fields.
 - Evidence: linkable artifact produced (jest log).
 
@@ -400,9 +432,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0083/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0083 `backend/src/telemetry/tracing.ts` initializing OTel SDK + OTLP HTTP exporter to Tempo dev.
 
 **Steps:**
+
 1. **[PLANNING]** Choose auto-instrumentation set (HTTP, pg, ioredis, pino).
 2. **[EXECUTION]** Initialize SDK in bootstrap before HTTP server.
 3. **[EXECUTION]** Add manual spans around password hash, token mint, rotation.
@@ -410,12 +444,14 @@
 5. **[COMPLETION]** Document span naming conventions.
 
 **Acceptance Criteria:**
+
 - Login flow produces continuous trace across HTTP -> DB -> Redis.
 - Trace ids flow into pino logs.
 - Sampling policy documented (1.0 dev, 0.1 prod).
 - SDK shutdown flushes spans on process exit.
 
 **Validation:**
+
 - Manual check: run smoke test with OTLP collector listening.
 - Evidence: linkable artifact produced (tempo query or trace json).
 
@@ -445,9 +481,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0084/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0084 `observability/grafana/dashboards/auth-events.json` provisioned dashboard.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate required panels (login rate, failure rate, lockouts, refresh mint).
 2. **[EXECUTION]** Build dashboard JSON and template variables.
 3. **[EXECUTION]** Commit dashboard to provisioning folder.
@@ -455,12 +493,14 @@
 5. **[COMPLETION]** Attach screenshot to evidence.
 
 **Acceptance Criteria:**
+
 - All required panels populated.
 - Dashboard imported via GitOps provisioning.
 - Links to runbook per alert.
 - Version stamped in dashboard JSON.
 
 **Validation:**
+
 - Manual check: dashboard renders in dev Grafana.
 - Evidence: linkable artifact produced (screenshot + JSON file path).
 
@@ -504,9 +544,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0085/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0085 `observability/prometheus/rules/auth-slo.yaml` recording + alerting rule definitions.
 
 **Steps:**
+
 1. **[PLANNING]** Define SLIs: login_success_rate, p95_login_latency, availability.
 2. **[EXECUTION]** Author recording rules for 5m + 30m windows.
 3. **[EXECUTION]** Author SLO-burn alert rules (fast + slow window).
@@ -514,12 +556,14 @@
 5. **[COMPLETION]** Commit rules + doc referencing SLO targets.
 
 **Acceptance Criteria:**
+
 - Recording rules cover required SLIs.
 - promtool test suite passes.
 - Burn-rate alerts align with 99.9% SLO.
 - Rules imported via GitOps.
 
 **Validation:**
+
 - Manual check: promtool test rules output.
 - Evidence: linkable artifact produced (promtool log).
 
@@ -549,9 +593,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0086/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0086 `monitors/checkly/auth.check.js` login + register synthetic check set.
 
 **Steps:**
+
 1. **[PLANNING]** Pick regions + cadence (every 5 min from 3 regions).
 2. **[EXECUTION]** Author Checkly API checks with canary account.
 3. **[EXECUTION]** Wire alert routing to PagerDuty low-severity.
@@ -559,12 +605,14 @@
 5. **[COMPLETION]** Document monitor ownership.
 
 **Acceptance Criteria:**
+
 - Monitors active in staging.
 - Alerting routed to on-call.
 - Canary credentials rotated quarterly via job.
 - Monitor code source-controlled.
 
 **Validation:**
+
 - Manual check: Checkly dashboard shows green history after deploy.
 - Evidence: linkable artifact produced (Checkly run link or JSON).
 
@@ -594,9 +642,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0087/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0087 `docs/runbooks/auth.md` including alert matrix, rollback triggers, contacts.
 
 **Steps:**
+
 1. **[PLANNING]** Inventory all alert names from OBS-005 + ALERT-* (Phase 6).
 2. **[EXECUTION]** Document detection, triage, mitigation, rollback for each.
 3. **[EXECUTION]** Add escalation tree and PagerDuty schedules.
@@ -604,12 +654,14 @@
 5. **[COMPLETION]** Link runbook from dashboard and alert annotations.
 
 **Acceptance Criteria:**
+
 - Every alert maps to an entry.
 - Rollback triggers from Phase 6 represented.
 - Contacts reviewed and current.
 - Document version stamped.
 
 **Validation:**
+
 - Manual check: reviewed and accepted by SRE stakeholder.
 - Evidence: linkable artifact produced (doc file + review note).
 

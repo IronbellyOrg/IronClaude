@@ -1,6 +1,7 @@
 # CLI Portify — Release Guide
 
 This guide covers the `sc:cli-portify` workflow-to-CLI pipeline compiler, including:
+
 - what each component does,
 - when to use it,
 - how to run it,
@@ -14,15 +15,20 @@ This guide covers the `sc:cli-portify` workflow-to-CLI pipeline compiler, includ
 ## 1) Release Summary (What is included)
 
 ### Core command surface
+
 The `sc:cli-portify` command provides a single entry point:
+
 - `/sc:cli-portify` — Analyze an inference-based workflow and produce a reviewed release specification for programmatic CLI conversion
 
 ### Architecture overview
+
 The cli-portify system uses a **two-layer architecture**:
+
 1. **Command shim** (`cli-portify.md`) — Thin entry point that validates inputs and delegates to the protocol skill
 2. **Protocol skill** (`sc-cli-portify-protocol/SKILL.md`) — Full 4-phase portification protocol with embedded brainstorm and spec-panel review
 
 The protocol transforms inference-based SuperClaude workflows (commands + skills + agents) into formal release specifications that describe deterministic CLI pipelines with:
+
 - Programmatic control flow (Python decides what runs when)
 - Formal artifact validation (gates check output quality)
 - Resume/retry capability (failed steps resume without re-running everything)
@@ -30,6 +36,7 @@ The protocol transforms inference-based SuperClaude workflows (commands + skills
 - Budget economics (turn ledger tracks consumption)
 
 ### Module structure
+
 ```
 src/superclaude/
 ├── commands/
@@ -46,7 +53,9 @@ src/superclaude/
 ```
 
 ### Shared infrastructure dependency
+
 The cli-portify protocol produces specifications that describe pipelines built on the shared `pipeline/` and `sprint/` modules:
+
 - `pipeline/models.py` — `PipelineConfig`, `Step`, `StepResult`, `StepStatus`, `GateCriteria`, `GateMode`, `SemanticCheck`
 - `pipeline/executor.py` — Generic step sequencer with retry, gates, parallel dispatch
 - `pipeline/process.py` — `ClaudeProcess` subprocess management
@@ -54,6 +63,7 @@ The cli-portify protocol produces specifications that describe pipelines built o
 - `sprint/models.py` — `TurnLedger` for budget tracking
 
 ### Key design decisions
+
 - **Spec-driven output**: Phases 3-4 produce a reviewed release specification, NOT generated code. Code generation was removed in v2.23 in favor of feeding the spec into `sc:roadmap` → `sc:tasklist` → `sc:implement`
 - **Embedded behavioral patterns**: Brainstorm and spec-panel patterns are embedded inline (no inter-skill command invocation) to keep the pipeline non-interactive and automatable (ADR-C01)
 - **Additive-only incorporation**: All spec modifications during Phase 4 review append/extend only — never rewrite existing content (ADR-C02)
@@ -67,15 +77,18 @@ The cli-portify protocol produces specifications that describe pipelines built o
 ## `/sc:cli-portify`
 
 ### What it does
+
 Analyzes an inference-based SuperClaude workflow (skill/command/agent), decomposes it into a structured pipeline specification, synthesizes a release spec from a template, runs multi-persona brainstorm gap analysis, and performs convergent expert panel review — producing a downstream-ready specification for `sc:roadmap`.
 
 ### Use when
+
 - You have an existing SuperClaude skill that needs deterministic, repeatable execution
 - You want formal artifact validation and resume capability for a multi-step workflow
 - You want to move orchestration out of inference and into Python control flow
 - You need a reviewed specification before committing to implementation
 
 ### Syntax
+
 ```
 /sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
 ```
@@ -103,7 +116,9 @@ Six validation checks run before protocol invocation:
 | Name derivation succeeds | `DERIVATION_FAILED` | Cannot derive valid identifier from workflow name |
 
 ### Name derivation rules
+
 When `--name` is not provided:
+
 1. Strip `sc-` prefix if present
 2. Strip `-protocol` suffix if present
 3. Convert to kebab-case for CLI, snake_case for Python modules
@@ -197,9 +212,11 @@ Phase 4: Spec Panel Review ─────────────────�
 ## 4) Phase 1: Workflow Analysis
 
 ### Purpose
+
 Decompose the target workflow into a structured pipeline specification.
 
 ### Process
+
 1. **Discover components** — Find command `.md`, skill `SKILL.md`, all `refs/`, `rules/`, `templates/`, `scripts/`, and referenced agents. Build component inventory table.
 2. **Map the protocol** — Extract step-by-step behavioral flow, noting wave/phase boundaries, agent delegation patterns, conditional paths, and inter-step data flow.
 3. **Identify steps** — Apply step boundary algorithm: new artifact produced, different agent, execution mode change, quality gate, or operation type change.
@@ -228,6 +245,7 @@ Decompose the target workflow into a structured pipeline specification.
 **Rule of thumb**: If you can write a Python function with clear input→output types and no ambiguity, make it programmatic.
 
 ### Output format
+
 `portify-analysis.md` with YAML frontmatter (`source_skill`, `step_count`, `parallel_groups`, `gate_count`, `complexity`) and sections: Source Components, Step Graph, Parallel Groups, Gates Summary, Agent Delegation Map, Data Flow Diagram, Classification Summary, Recommendations.
 
 ---
@@ -235,9 +253,11 @@ Decompose the target workflow into a structured pipeline specification.
 ## 5) Phase 2: Pipeline Specification
 
 ### Purpose
+
 Convert the Phase 1 analysis into concrete, code-ready specifications.
 
 ### Process
+
 1. **Design Step graph** — Map steps to `Step` objects. Dynamic counts use `build_steps()`.
 2. **Define models** — Config (extends `PipelineConfig`), Status enum, Result, MonitorState, TurnLedger integration.
 3. **Design prompts** — Prompt builders specifying input embedding, output format, machine-readable markers (`EXIT_RECOMMENDATION: CONTINUE|HALT`), and structural requirements.
@@ -247,19 +267,24 @@ Convert the Phase 1 analysis into concrete, code-ready specifications.
 7. **Plan integration** — Click command group, main.py import, file generation order.
 
 ### Critical constraints
+
 1. **Synchronous execution** — `threading` + `time.sleep()` polling. No `async/await`.
 2. **Gate function signatures** — `tuple[bool, str]` return type.
 3. **Runner-authored truth** — Reports from observed data, not Claude self-reporting.
 4. **Deterministic flow control** — Python makes all "what's next" decisions.
 
 ### Shared pipeline primitives
+
 Reuse from `superclaude.cli.pipeline`:
+
 - `PipelineConfig`, `Step`, `StepResult`, `GateMode`, `GateCriteria`, `SemanticCheck`, `gate_passed()`, `ClaudeProcess`
 
 From `superclaude.cli.sprint`:
+
 - `TurnLedger` (budget tracking)
 
 ### Output format
+
 `portify-spec.md` (under 800 lines; split prompts to `portify-prompts.md` if exceeded).
 
 ---
@@ -267,9 +292,11 @@ From `superclaude.cli.sprint`:
 ## 6) Phase 3: Release Spec Synthesis
 
 ### Purpose
+
 Generate a complete release specification from Phase 1 and Phase 2 outputs.
 
 ### Entry gate
+
 - Phase 2 contract `status: completed`
 - All blocking checks passed
 - Phase 2 `step_mapping` contains >= 1 entry
@@ -277,9 +304,11 @@ Generate a complete release specification from Phase 1 and Phase 2 outputs.
 ### Steps
 
 #### 3a: Template Instantiation
+
 Load the release spec template from `src/superclaude/examples/release-spec-template.md` and create a working copy at `{work_dir}/portify-release-spec.md`.
 
 #### 3b: Content Population
+
 Fill template sections by replacing `{{SC_PLACEHOLDER:*}}` sentinels with content from Phase 1 and Phase 2:
 
 | Template Section | Source |
@@ -299,6 +328,7 @@ Fill template sections by replacing `{{SC_PLACEHOLDER:*}}` sentinels with conten
 After population, run self-validation: verify zero remaining `{{SC_PLACEHOLDER:*}}` sentinels.
 
 #### 3c: Automated Brainstorm Pass
+
 Apply three persona perspectives (non-interactive, NOT a `sc:brainstorm` invocation):
 
 1. **Architect**: Structural gaps — missing dependencies, incomplete module boundaries, scaling concerns
@@ -310,13 +340,16 @@ Each finding: `{gap_id, description, severity(high|medium|low), affected_section
 Zero gaps is a valid outcome.
 
 #### 3d: Gap Incorporation
+
 - **Actionable findings** → Incorporate into relevant spec section, mark `[INCORPORATED]`
 - **Unresolvable items** → Route to Section 11 (Open Items), mark `[OPEN]`
 
 ### Timing
+
 Advisory target: 10 minutes wall clock (NFR-001). Exceeding emits warning but does not halt.
 
 ### Exit gate
+
 Draft spec populated (zero `{{SC_PLACEHOLDER:*}}` sentinels) AND brainstorm section (Section 12) present.
 
 ---
@@ -324,11 +357,13 @@ Draft spec populated (zero `{{SC_PLACEHOLDER:*}}` sentinels) AND brainstorm sect
 ## 7) Phase 4: Spec Panel Review
 
 ### Purpose
+
 Convergent expert review ensuring specification quality before downstream consumption.
 
 ### Expert Analysis Patterns
 
 #### Focus Pass (Step 4a)
+
 Four expert patterns applied in sequence:
 
 | Expert | Focus | Key Analysis |
@@ -341,18 +376,22 @@ Four expert patterns applied in sequence:
 Finding format: `{finding_id, severity(CRITICAL|MAJOR|MINOR), expert, location, issue, recommendation}`
 
 #### Focus Incorporation (Step 4b)
+
 - **CRITICAL** → Must incorporate OR document dismissal justification
 - **MAJOR** → Incorporate into spec body (additive-only)
 - **MINOR** → Append to Open Items
 
 #### Critique Pass (Step 4c)
+
 Full expert panel produces quality dimension scores:
+
 - `clarity` (0-10): Language precision, unambiguous requirements
 - `completeness` (0-10): Coverage, no missing requirements
 - `testability` (0-10): Measurable acceptance criteria
 - `consistency` (0-10): Internal coherence, no contradictions
 
 #### Scoring (Step 4d)
+
 `overall = mean(clarity, completeness, testability, consistency)` — simple arithmetic mean, no weighting.
 
 ### Convergence Loop
@@ -368,14 +407,18 @@ REVIEWING → INCORPORATING → SCORING → CONVERGED (zero unaddressed CRITICAL
 **Max iterations**: 3 (hard cap).
 
 **Terminal states**:
+
 - **CONVERGED** — `status: success`, all CRITICALs addressed
 - **ESCALATED** — `status: partial`, unaddressed CRITICALs escalated to user
 
 ### Downstream Ready Gate
+
 After convergence: `if overall >= 7.0 then downstream_ready = true else false`
+
 - Boundary: `7.0` → true; `6.9` → false
 
 ### Timing
+
 Advisory target: 15 minutes wall clock (NFR-002).
 
 ---
@@ -454,12 +497,14 @@ resume_command: "<command|null>"
 | `prerequisite_failed` | Phase entry gate condition not met | No | — |
 
 ### Failure path defaults
+
 - All `quality_scores` → `0.0` (not null)
 - `downstream_ready` → `false`
 - `convergence_state` → `NOT_STARTED`
 - `spec_file`, `panel_report` → `""` (empty string)
 
 ### Dry-run contract
+
 - `status: dry_run`
 - Phases 1-2 contracts populated; Phases 3-4 marked `skipped`
 - All quality scores `0.0`, `downstream_ready: false`
@@ -525,33 +570,43 @@ src/superclaude/cli/<name>/
 ## 11) End-to-End Workflow: Skill → Spec → Roadmap → Tasklist → Implementation
 
 ### Stage A: Identify workflow to portify
+
 Select an inference-based SuperClaude skill that needs deterministic execution.
 
 ### Stage B: Portification analysis and specification (this tool)
+
 ```bash
 /sc:cli-portify --workflow sc-cleanup-audit-protocol
 ```
+
 Produces `portify-release-spec.md` (reviewed) + `panel-report.md`.
 
 ### Stage C: Roadmap generation
+
 ```bash
 superclaude roadmap run portify-release-spec.md --depth standard
 ```
+
 Produces adversarially validated `roadmap.md` + `test-strategy.md`.
 
 ### Stage D: Tasklist generation
+
 ```bash
 # Use /sc:tasklist to generate Sprint CLI-compatible phase files
 ```
+
 Produces `tasklist-index.md` + phase files.
 
 ### Stage E: Sprint execution
+
 ```bash
 superclaude sprint run tasklist-index.md
 ```
+
 Executes phases with supervised Claude sessions.
 
 ### Stage F: Resume on halt
+
 ```bash
 # Sprint level
 superclaude sprint run tasklist-index.md --start <halt_phase>
@@ -562,29 +617,37 @@ superclaude sprint run tasklist-index.md --start <halt_phase>
 ## 12) Practical Use Cases
 
 ### Use case 1: Standard portification
+
 ```bash
 /sc:cli-portify --workflow src/superclaude/skills/sc-cleanup-audit-protocol/
 ```
+
 Full 4-phase protocol: analysis → specification → spec synthesis → panel review. Artifacts in the skill's output directory.
 
 ### Use case 2: Dry-run analysis only
+
 ```bash
 /sc:cli-portify --workflow sc-adversarial --dry-run
 ```
+
 Phases 1-2 only. Produces `portify-analysis.md` and `portify-spec.md`. No spec synthesis or panel review. Use this to evaluate portification feasibility before committing to full execution.
 
 ### Use case 3: Custom output directory
+
 ```bash
 /sc:cli-portify --workflow sc-tasklist-protocol \
   --name tasklist \
   --output src/superclaude/cli/tasklist/
 ```
+
 Explicit name and output path for the target CLI module.
 
 ### Use case 4: Already-portified workflow (collision detection)
+
 ```bash
 /sc:cli-portify --workflow sc-roadmap-protocol
 ```
+
 Triggers `NAME_COLLISION` error because `src/superclaude/cli/roadmap/` already exists. Use `--name` to specify an alternative.
 
 ---
@@ -602,12 +665,14 @@ Triggers `NAME_COLLISION` error because `src/superclaude/cli/roadmap/` already e
 ## 14) Troubleshooting Checklist
 
 ### Before running
+
 - [ ] Workflow path resolves to a directory with `SKILL.md`
 - [ ] Output directory parent is writable
 - [ ] Derived CLI name doesn't collide with existing modules
 - [ ] Release spec template exists at `src/superclaude/examples/release-spec-template.md`
 
 ### After a failure
+
 - [ ] Check the return contract `failure_type` for classification
 - [ ] For `brainstorm_failed`/`brainstorm_timeout`: Review draft spec quality, consider simplifying the source workflow
 - [ ] For `focus_failed`/`critique_failed`: Check if Phase 2 spec has sufficient detail for expert analysis

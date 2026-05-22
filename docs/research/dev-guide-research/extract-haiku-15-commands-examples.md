@@ -1,6 +1,7 @@
 # SuperClaude custom command structure — extraction (Haiku-15)
 
 ## Source files (verifiable)
+
 - /config/workspace/SuperClaude_Framework/src/superclaude/commands/adversarial.md
 - /config/workspace/SuperClaude_Framework/src/superclaude/commands/spawn.md
 - /config/workspace/SuperClaude_Framework/src/superclaude/commands/task-unified.md
@@ -10,20 +11,24 @@
 ## 1) What these files show about SuperClaude custom command structure
 
 ### 1.1 Command definition file format
+
 Each custom command definition is a **single Markdown file** with:
 
 1) **YAML frontmatter metadata block** (starts with `---` and ends with `---`)
 2) A **Markdown body** that documents the command (purpose, usage, flags, flow, boundaries, examples, etc.)
 
 This is consistent across:
+
 - `/config/workspace/SuperClaude_Framework/src/superclaude/commands/adversarial.md`
 - `/config/workspace/SuperClaude_Framework/src/superclaude/commands/spawn.md`
 - `/config/workspace/SuperClaude_Framework/src/superclaude/commands/task-unified.md`
 
 ### 1.2 YAML frontmatter fields used (observed)
+
 The frontmatter defines the command’s identity and orchestration metadata.
 
 **Common fields (seen in all 3):**
+
 - `name`: command name (e.g., `adversarial`, `spawn`, `task`)
 - `description`: short summary string
 - `category`: command category (e.g., `analysis`, `special`)
@@ -32,9 +37,11 @@ The frontmatter defines the command’s identity and orchestration metadata.
 - `personas`: list of personas involved/activated (may be empty)
 
 **Additional fields (seen in `task-unified.md`):**
+
 - `version`: explicit command spec version (e.g., `"2.0.0"`)
 
 ### 1.3 Markdown body: standard documentation sections/patterns
+
 Across the three commands, the body tends to include these sections (names vary, but structure is recognizable):
 
 - **Title header**: typically `# /sc:<name> - <Human readable title>`
@@ -51,6 +58,7 @@ Across the three commands, the body tends to include these sections (names vary,
 ### 1.4 Command-specific structural conventions (by file)
 
 #### A) `/sc:adversarial` definition structure
+
 - Frontmatter declares:
   - category: `analysis`
   - MCP servers: `[sequential, context7, serena]`
@@ -64,6 +72,7 @@ Across the three commands, the body tends to include these sections (names vary,
 - Includes “Related Commands” mapping how it integrates with other `/sc:*` commands.
 
 #### B) `/sc:spawn` definition structure
+
 - Frontmatter declares:
   - category: `special`
   - MCP servers: `[]` (none)
@@ -76,6 +85,7 @@ Across the three commands, the body tends to include these sections (names vary,
   - Output must include Epic decomposition, dependencies, delegation assignments, strategy
 
 #### C) `/sc:task` (unified task command) definition structure
+
 - Frontmatter declares:
   - category: `special`
   - version: `2.0.0`
@@ -133,9 +143,11 @@ personas: [architect, analyzer, scribe]
 ### Arguments
 
 **Mode A (Compare)**:
+
 - `--compare`: Comma-separated file paths (2-10 existing files)
 
 **Mode B (Generate + Compare)**:
+
 - `--source`: Source file for variant generation
 - `--generate`: Type of artifact to generate (roadmap, spec, design, etc.)
 - `--agents`: Agent specifications in `model[:persona[:"instruction"]]` format
@@ -161,11 +173,13 @@ personas: [architect, analyzer, scribe]
 ## Examples
 
 ### Compare Two Roadmap Drafts
+
 ```bash
 /sc:adversarial --compare draft-a.md,draft-b.md --depth standard
 ```
 
 ### Generate 3 Variants with Different Personas
+
 ```bash
 /sc:adversarial --source auth-spec.md --generate roadmap \
   --agents opus:architect,sonnet:security,opus:analyzer \
@@ -173,18 +187,21 @@ personas: [architect, analyzer, scribe]
 ```
 
 ### Compare 5 Specs with Interactive Mode
+
 ```bash
 /sc:adversarial --compare spec1.md,spec2.md,spec3.md,spec4.md,spec5.md \
   --interactive --depth deep
 ```
 
 ### Quick Comparison with Focused Debate
+
 ```bash
 /sc:adversarial --compare plan-a.md,plan-b.md \
   --depth quick --focus structure,completeness
 ```
 
 ### Full Pipeline with Custom Output
+
 ```bash
 /sc:adversarial --source migration-plan.md --generate roadmap \
   --agents opus:architect:"prioritize backward compatibility",sonnet:security:"zero-trust" \
@@ -194,6 +211,7 @@ personas: [architect, analyzer, scribe]
 ## Boundaries
 
 **Will:**
+
 - Compare 2-10 artifacts through structured adversarial debate
 - Generate variant artifacts using different model/persona configurations
 - Produce transparent, documented merge decisions with full scoring breakdown
@@ -202,6 +220,7 @@ personas: [architect, analyzer, scribe]
 - Work as a generic tool invocable by any SuperClaude command
 
 **Will Not:**
+
 - Validate domain-specific correctness of merged output (calling command's responsibility)
 - Execute the merged output (planning/merge tool, not execution tool)
 - Manage git operations or version control
@@ -217,6 +236,7 @@ personas: [architect, analyzer, scribe]
 | `/sc:design` | Compare architectural designs | `/sc:adversarial --compare design-a.md,design-b.md` |
 | `/sc:spec-panel` | Augment panel with adversarial review | Invoke adversarial post-panel |
 | `/sc:improve` | Compare improvement approaches | Generate competing plans, merge best |
+
 ```
 
 ---
@@ -245,7 +265,9 @@ personas: []
 
 ## Usage
 ```
+
 /sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
+
 ```
 
 ## Behavioral Flow
@@ -281,23 +303,35 @@ Key behaviors:
 
 ### Complex Feature Implementation
 ```
+
 /sc:spawn "implement user authentication system"
+
 # Breakdown: Database design → Backend API → Frontend UI → Testing
+
 # Coordinates across multiple domains with dependency management
+
 ```
 
 ### Large-Scale System Operation
 ```
+
 /sc:spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
+
 # Enterprise-scale operation with sophisticated orchestration
+
 # Adaptive coordination based on operation characteristics
+
 ```
 
 ### Cross-Domain Infrastructure
 ```
+
 /sc:spawn "establish CI/CD pipeline with security scanning"
+
 # System-wide infrastructure operation spanning DevOps, Security, Quality domains
+
 # Parallel execution of independent components with validation gates
+
 ```
 
 ## Boundaries
@@ -357,7 +391,9 @@ version: "2.0.0"
 A unified command with **orthogonal dimensions** that merges orchestration capabilities with MCP compliance enforcement:
 
 ```
+
 /sc:task [operation] --strategy [systematic|agile|enterprise] --compliance [strict|standard|light|exempt]
+
 ```
 
 | Dimension | Purpose | Options |
@@ -407,6 +443,7 @@ auto_suggest_keywords:
 ### Context Signals
 
 The command should be suggested when:
+
 - User describes a multi-step implementation task
 - Task involves code modifications with downstream impacts
 - Security or data integrity domains are involved
@@ -478,6 +515,7 @@ The command should be suggested when:
 ### TIER 1: STRICT (Full Workflow Enforcement)
 
 **Auto-Triggers:**
+
 - Multi-file edits (>2 files)
 - Security domain (auth/, security/, crypto/)
 - Database/schema changes
@@ -487,6 +525,7 @@ The command should be suggested when:
 - Exploratory "try this and see" coding
 
 **SMART Acceptance Criteria:**
+
 - **S**pecific: All 6 checklist categories completed
 - **M**easurable: 100% checklist completion rate
 - **A**chievable: <25% overhead relative to task time
@@ -537,6 +576,7 @@ Spawn: quality-engineer sub-agent
 ```
 
 **Post-Task "Did I?" Checklist:**
+
 ```markdown
 [ ] Did I load context before editing?
 [ ] Did I find and update downstream impacts?
@@ -551,12 +591,14 @@ Spawn: quality-engineer sub-agent
 ### TIER 2: STANDARD (Core Rules Enforcement)
 
 **Auto-Triggers:**
+
 - Single-file code changes
 - Adding new files
 - Configuration updates
 - Code-adjacent documentation
 
 **SMART Acceptance Criteria:**
+
 - **S**pecific: Context loaded, impacts checked, basic verification performed
 - **M**easurable: ≥1 codebase-retrieval call, ≥1 downstream impact search
 - **A**chievable: <15% overhead relative to task time
@@ -584,12 +626,14 @@ Spawn: quality-engineer sub-agent
 ### TIER 3: LIGHT (Awareness Only)
 
 **Auto-Triggers:**
+
 - Minor fixes (typos, formatting)
 - Comment updates
 - Single-line changes
 - Non-functional changes (lint, whitespace)
 
 **SMART Acceptance Criteria:**
+
 - **S**pecific: Change made, no unexpected side effects
 - **M**easurable: Modified files ≤2, changed lines ≤50
 - **A**chievable: <5% overhead (essentially no process overhead)
@@ -597,6 +641,7 @@ Spawn: quality-engineer sub-agent
 - **T**ime-bound: No verification delay
 
 **Guidance:**
+
 - Be AWARE of MCP principles
 - Apply judgment on verification needs
 - Skip formal process unless uncertain
@@ -607,6 +652,7 @@ Spawn: quality-engineer sub-agent
 ### TIER 4: EXEMPT (No Enforcement)
 
 **Auto-Triggers:**
+
 - Questions/explanations ("what does X do?")
 - Code exploration (read-only)
 - Brainstorming/planning discussions
@@ -614,6 +660,7 @@ Spawn: quality-engineer sub-agent
 - Documentation-only changes
 
 **SMART Acceptance Criteria:**
+
 - **S**pecific: Task is read-only OR documentation-only
 - **M**easurable: Zero code files modified
 - **A**chievable: 0% overhead
@@ -769,6 +816,7 @@ persona_matrix:
 ## Examples
 
 ### Systematic Feature Implementation
+
 ```bash
 /sc:task "implement user authentication system" --strategy systematic --compliance strict
 # Auto-detects: STRICT (authentication keyword, multi-file expected)
@@ -777,6 +825,7 @@ persona_matrix:
 ```
 
 ### Standard Code Update
+
 ```bash
 /sc:task "add input validation to user endpoint"
 # Auto-detects: STANDARD (add keyword, single component)
@@ -784,6 +833,7 @@ persona_matrix:
 ```
 
 ### Quick Fix
+
 ```bash
 /sc:task "fix typo in error message" --compliance light
 # Explicit LIGHT tier
@@ -791,6 +841,7 @@ persona_matrix:
 ```
 
 ### Exploration
+
 ```bash
 /sc:task "explain how the auth middleware works"
 # Auto-detects: EXEMPT (explain keyword, read-only)
@@ -798,6 +849,7 @@ persona_matrix:
 ```
 
 ### Override Examples
+
 ```bash
 /sc:task "update logging format" --force-strict
 # Forces STRICT even if auto-detected as STANDARD
@@ -823,6 +875,7 @@ persona_matrix:
 ### When to Use Escape Hatches
 
 Use `--skip-compliance` when:
+
 - You're absolutely certain the task doesn't need workflow
 - Rapid prototyping in non-production branch
 - Task is truly trivial and well-understood
@@ -879,6 +932,7 @@ Use `--skip-compliance` when:
 ## Migration from Legacy Commands
 
 ### From `/sc:task` (v1.x)
+
 ```bash
 # Old
 /sc:task create "feature" --strategy systematic
@@ -888,6 +942,7 @@ Use `--skip-compliance` when:
 ```
 
 ### From `/sc:task-mcp`
+
 ```bash
 # Old
 /sc:task-mcp "fix tests" --tier strict
@@ -907,4 +962,5 @@ Migration assistance: Run `/sc:task --help migrate` for guidance.
 
 - **v2.0.0** - Unified command merging sc:task and sc:task-mcp
 - **v1.0.0** - Original sc:task orchestration command
+
 ```

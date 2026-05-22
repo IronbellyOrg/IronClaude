@@ -10,6 +10,7 @@
 ## Overall Verdict: PASS
 
 Both edits are correct, complete, and surgically scoped. Independent verification confirms:
+
 - Constant has exactly 7 elements in the exact order specified.
 - Regex matches all three required heading forms (`Suggested Phases`, `SUGGESTED PHASES`, `SUGGESTED_PHASES`).
 - File parses as valid Python (AST check).
@@ -26,7 +27,7 @@ Both edits are correct, complete, and surgically scoped. Independent verificatio
 | 4 | Edit A — UPPER_SNAKE_CASE strings, no embedded quotes | PASS | All 7 strings are simple double-quoted UPPER_SNAKE_CASE identifiers. |
 | 5 | Edit A — trailing comma on last element | PASS | Line 109: `"AMBIGUITIES_FOR_USER",` ends with comma. Ruff trailing-comma rule satisfied. |
 | 6 | Edit A — `_check_research_notes_sections` (line 113-126) untouched | PASS | Read lines 113-126; function body uses `re.escape(section)` with `re.IGNORECASE` exactly as documented. Git diff confirms no changes in this region. |
-| 7 | Edit B applied — regex widened at gates.py:135 | PASS | Line 135: `r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested[\s_]+)?Phases"` — confirmed `[\s_]+` (not `\s+`) between `Suggested` and `)?Phases`. |
+| 7 | Edit B applied — regex widened at gates.py:135 | PASS | Line 135: `r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested[\s_]+)?Phases"` — confirmed `[\s_]+` (not `\s+`) between`Suggested` and `)?Phases`. |
 | 8 | Edit B — regex matches `## Suggested Phases` | PASS | Live regex test: MATCH on `'## Suggested Phases'`. |
 | 9 | Edit B — regex matches `## SUGGESTED PHASES` | PASS | Live regex test (re.IGNORECASE): MATCH on `'## SUGGESTED PHASES'`. |
 | 10 | Edit B — regex matches `## SUGGESTED_PHASES` | PASS | Live regex test: MATCH on `'## SUGGESTED_PHASES'`. The `[\s_]+` character class accepts both whitespace and underscore. |
@@ -72,6 +73,7 @@ No fixes required — work as submitted meets all acceptance criteria.
 ## Adversarial probes (negative checks)
 
 These were attempted hypotheses that all came back clean:
+
 - **Could the regex over-match and break legitimate failure detection?** Probed `## Phases` (matches — intentional, since `Suggested[\s_]+` is optional) and `\n## Suggested_Phases` (matches). The `(?:Suggested[\s_]+)?` group remains correctly optional; behavior is a strict superset of the pre-edit regex.
 - **Could trailing-comma omission silently slip past ruff in editor view?** Ruff full run → clean.
 - **Could a stray byte or encoding artifact have been introduced?** AST parse succeeded; ruff lint succeeded.

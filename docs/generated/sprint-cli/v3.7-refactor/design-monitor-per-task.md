@@ -612,6 +612,7 @@ The TUI is agnostic to the source.
 **Location**: After MonitorState (line 544).
 
 Even though v3.7 uses synthetic state, we introduce `PhaseAccumulator` now because:
+
 1. It provides the `harvest()` + `to_monitor_state()` interface that Strategy A needs.
 2. Strategy B's `_build_synthetic_state()` can be reimplemented as `PhaseAccumulator.harvest_synthetic()`.
 3. Zero wasted code — every line ships in v3.7.
@@ -1013,6 +1014,7 @@ These tasks from chunk-06 should be completed **before or alongside** this work:
 ### v3.7 TUI Active Panel Rendering (with Strategy C)
 
 Fields that remain at defaults in v3.7 (`last_tool_used`, `files_changed`, `growth_rate_bps`) render as:
+
 - `last_tool_used = ""` → displays `"-"` (tui.py:253, uses `or '-'`)
 - `files_changed = 0` → displays `"0"` (tui.py:255, acceptable — truly unknown)
 - `growth_rate_bps = 0.0` → displays `"+0.0 B/s"` (tui.py:254)

@@ -22,6 +22,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 3. **Competitive positioning** — 25% of churned users cite missing user accounts as reason for leaving
 
 **Key Technical Challenges:**
+
 - Security surface is HIGH (0.8) — cryptographic operations (bcrypt cost 12, RS256 JWT), token lifecycle management, brute-force mitigation, XSS prevention
 - Three external dependencies (PostgreSQL 15+, Redis 7+, SendGrid) with failover requirements
 - Dual-token pattern (short-lived accessToken + long-lived refreshToken) requires careful state management
@@ -76,6 +77,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
    - Create decision log for OQs resolved in Phase 0 (prevents rework in Phase 1)
 
 **Deliverables:**
+
 - Signed-off architecture design document (threat model, key management strategy, token lifecycle diagram)
 - PostgreSQL schema with `users`, `refresh_tokens`, `auth_events` tables
 - OpenAPI spec for `/v1/auth/*` endpoints (borrowed from extraction)
@@ -83,6 +85,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - Decision log (OQ-001 through OQ-008 with rationales)
 
 **Success Criteria:**
+
 - All critical OQs resolved by day 10
 - PostgreSQL + Redis connectivity verified in dev/staging
 - APM instrumentation skeleton in place
@@ -95,6 +98,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Objective:** Deliver FR-AUTH-001, FR-AUTH-002, FR-AUTH-003, FR-AUTH-004 with unit/integration tests. Enable silent token refresh. Deploy to staging and run internal alpha validation.
 
 **Requirement Focus:**
+
 - **FR-AUTH-001:** Login with email/password, bcrypt verification, account lockout after 5 failed attempts within 15 minutes
 - **FR-AUTH-002:** User registration with email uniqueness, password strength validation, `UserProfile` creation
 - **FR-AUTH-003:** JWT issuance (15-min accessToken, 7-day refreshToken), silent refresh via `TokenManager`
@@ -113,6 +117,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Backend Development (2 engineers, 5 weeks)**
 
 **Week 3 (Component Skeleton):**
+
 - Create `AuthService` facade with method signatures (login, register, getProfile, refreshToken)
 - Create `PasswordHasher` abstraction wrapping bcryptjs; write unit tests asserting bcrypt cost = 12
 - Create `TokenManager` with `issueTokens()` and `revokeRefreshToken()` signatures
@@ -122,6 +127,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Integration points:** None wired yet; just signatures
 
 **Week 4 (Login & Token Issuance):**
+
 - Implement `AuthService.login(email, password)`:
   - Fetch user from `UserRepo`
   - Call `PasswordHasher.verify(password, stored_hash)`
@@ -139,6 +145,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Login path working end-to-end
 
 **Week 5 (Registration):**
+
 - Implement `AuthService.register(email, password, displayName)`:
   - Validate email format and uniqueness (query `UserRepo`)
   - Validate password strength (>= 8 chars, >=1 uppercase, >=1 number)
@@ -153,6 +160,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Registration path working end-to-end
 
 **Week 6 (Token Refresh & Profile):**
+
 - Implement `TokenManager.refresh(refreshToken)`:
   - Validate refreshToken exists in Redis (not expired, not revoked)
   - Extract user_id from refreshToken key/metadata
@@ -170,6 +178,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Silent token refresh working; profile endpoint live
 
 **Week 7 (Testing & Stabilization):**
+
 - Achieve 80% unit test coverage across AuthService, PasswordHasher, TokenManager, JwtService
 - Run integration test suite against testcontainers (PostgreSQL + Redis)
 - Performance baseline: measure `AuthService.login()` latency (target < 200ms p95)
@@ -181,6 +190,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Frontend Development (1 engineer, 5 weeks, parallel)**
 
 **Week 3-4 (LoginPage & AuthProvider):**
+
 - Create `AuthProvider` context component:
   - State: `{ authToken, user, isLoading, error }`
   - Methods: `login(email, password)`, `register(email, password, displayName)`, `logout()`, `refreshToken()`
@@ -197,6 +207,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Users can log in via UI
 
 **Week 5-6 (RegisterPage & ProtectedRoutes):**
+
 - Create `RegisterPage` component:
   - Form fields: email, password, password confirmation, display name
   - GDPR consent checkbox (required)
@@ -215,6 +226,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Complete registration + login + logout user flow
 
 **Week 7 (E2E Testing & UX Polish):**
+
 - Write E2E test: user journey from landing → RegisterPage → login confirmation → dashboard
 - Test token refresh: navigate between pages → confirm background refresh → no re-login
 - Test error cases: invalid password, duplicate email, weak password, account lockout
@@ -225,6 +237,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **QA & Testing (1 engineer, concurrent with dev)**
 
 **Throughout Phase 1:**
+
 - Unit test coverage tracking (target 80%): daily metrics in CI pipeline
 - Integration test environment: testcontainers for PostgreSQL + Redis
 - Manual regression testing: all FR-AUTH-001 through FR-AUTH-004 acceptance criteria
@@ -234,6 +247,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Phase 1 Deployment & Alpha Validation (Week 8)**
 
 **Internal Alpha on Staging:**
+
 - Feature flag `AUTH_NEW_LOGIN` = OFF (legacy auth remains default)
 - Deploy AuthService, TokenManager, JwtService, LoginPage, RegisterPage to staging environment
 - Enable `AUTH_NEW_LOGIN` flag for auth-team and QA only
@@ -244,6 +258,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - Metrics: zero data loss, zero token validation failures, account lockout working as designed
 
 **Phase 1 Success Criteria:**
+
 - ✅ FR-AUTH-001 (login) passes acceptance criteria: valid/invalid credentials, account lockout
 - ✅ FR-AUTH-002 (registration) passes acceptance criteria: uniqueness, password strength, UserProfile creation
 - ✅ FR-AUTH-003 (token issuance & refresh) passes acceptance criteria: 15-min accessToken, 7-day refreshToken, refresh endpoint
@@ -260,6 +275,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Objective:** Deliver FR-AUTH-005 (password reset), enable audit logging for SOC2 compliance (NFR-COMP-001 through NFR-COMP-004), and launch beta (10% traffic).
 
 **Requirement Focus:**
+
 - **FR-AUTH-005:** Password reset via email — request sends link (1-hour TTL), confirmation updates password and revokes all sessions
 - **NFR-COMP-001:** GDPR consent recorded at registration
 - **NFR-COMP-002:** SOC2 audit logging (user ID, timestamp, IP, outcome; 12-month retention)
@@ -278,6 +294,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Backend Development (2 engineers, 3 weeks)**
 
 **Week 8 (Password Reset Flow):**
+
 - Implement `PasswordResetTokenManager`:
   - `generateResetToken(user_id)` → create opaque token, store in PostgreSQL `password_reset_tokens` table with 1-hour TTL + user_id + used=false
   - `validateResetToken(token)` → check exists, not expired, not used
@@ -303,6 +320,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Password reset flow working end-to-end
 
 **Week 9 (Audit Logging & SOC2 Compliance):**
+
 - Create `AuditLogger` service:
   - Method `log(event_type, user_id, ip_address, outcome, details)` → structured log to PostgreSQL
   - Log schema: `auth_events(id, timestamp, user_id, event_type, ip_address, outcome, details, created_at)`
@@ -327,6 +345,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Audit logging live; SOC2 controls in place
 
 **Week 10 (Beta Deployment & E2E Testing):**
+
 - Enable `AUTH_NEW_LOGIN` for internal auth-team + QA (Stage 1) → all test pass
 - Deploy to production with `AUTH_NEW_LOGIN` = OFF, `AUTH_TOKEN_REFRESH` = OFF (legacy still default)
 - Enable `AUTH_NEW_LOGIN` = ON for 10% of production traffic (beta users via feature flag or gradual rollout)
@@ -341,6 +360,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Beta live to 10% traffic
 
 **Phase 2 Success Criteria:**
+
 - ✅ FR-AUTH-005 (password reset) passes acceptance criteria: request sends email, confirm updates password, revokes sessions
 - ✅ NFR-COMP-001 through NFR-COMP-004 (compliance) pass validation: consent recorded, audit logs complete, bcrypt cost 12, no extra PII
 - ✅ Audit log query API available for Jordan (admin) persona
@@ -358,6 +378,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Activities:**
 
 **Week 11 (GA Preparation & Cutover):**
+
 - Monitor beta (10%) metrics for 7 days:
   - p95 login latency: target < 200ms ✅
   - Error rate: target < 0.5% → accept if < 1%, rollback if > 2%
@@ -374,6 +395,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** GA live to 100% traffic
 
 **Week 12 (Stabilization & Deprecation):**
+
 - Monitor production metrics across all users (100%):
   - Uptime: target 99.9% (< 43 min downtime/month)
   - p95 latency: target < 200ms ✅
@@ -399,6 +421,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Milestone:** Production GA stabilized; legacy auth deprecated
 
 **Phase 3 Success Criteria:**
+
 - ✅ Uptime: 99.9% measured over rolling 30-day window
 - ✅ p95 latency: < 200ms (all auth endpoints)
 - ✅ Error rate: < 0.1%
@@ -486,6 +509,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 ### Validation Gates by Phase
 
 **Phase 1 Gate (Week 7):**
+
 - ✅ Metric 1 (login latency < 200ms) measured via APM; target achieved in load test
 - ✅ Metric 2 (registration success > 99%) measured via test results (no failures in 100+ integration tests)
 - ✅ Metric 5 (password hash time < 500ms) validated via bcrypt benchmark
@@ -494,6 +518,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Decision:** Proceed to Phase 2 alpha → beta, or rollback to design
 
 **Phase 2 Gate (Week 10):**
+
 - ✅ Metric 3 (refresh latency < 100ms) measured via APM during beta
 - ✅ Metric 4 (availability 99.9%) approximated during beta (target rolling 30-day window)
 - ✅ Metric 9 (failed login < 5%) measured via audit logs; monitor for lockout false positives
@@ -502,6 +527,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - **Decision:** Proceed to Phase 3 GA, or extend beta and iterate
 
 **Phase 3 Gate (Week 12):**
+
 - ✅ Metric 4 (uptime 99.9%) achieved over first 7 days of GA
 - ✅ Metric 1 (login latency < 200ms) sustained under production load
 - ✅ Metric 6 (registration conversion > 60%) confirmed via product analytics
@@ -527,21 +553,25 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 ### Weekly Cadence (by Phase)
 
 **Phase 0 (Week 1-2):**
+
 - **Mon (Day 1):** Architecture review kickoff; OQ triage begins
 - **Wed:** Infrastructure provisioning started; team role assignments
 - **Fri:** Design doc signed off; OQs resolved; Phase 1 kickoff prep
 
 **Phase 1 (Week 3-7):**
+
 - **Mon:** Weekly architecture sync (auth-team + security + platform)
 - **Wed:** Integration test results reviewed; blockers escalated
 - **Fri:** Build status check; Phase gate prep (Week 7 only)
 
 **Phase 2 (Week 8-10):**
+
 - **Mon:** Beta metrics review (Week 9-10)
 - **Wed:** Audit logging validation; SOC2 control mapping
 - **Fri:** Beta readiness check; Phase gate prep (Week 10 only)
 
 **Phase 3 (Week 11-12):**
+
 - **Daily (Mon-Fri):** Prod metrics monitoring; on-call handoff
 - **Fri:** Weekly success metrics report; lessons learned doc
 
@@ -552,6 +582,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 ### High-Risk Mitigation Efforts
 
 **R-001 (Token theft via XSS):** Token security is CRITICAL. Architect emphasizes:
+
 - In-memory accessToken (not localStorage, not sessionStorage) prevents XSS exfiltration
 - HttpOnly + Secure + SameSite cookies for refreshToken (if possible) prevent JS access
 - Content Security Policy (CSP) headers prevent inline script injection
@@ -560,6 +591,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Contingency:** Revoke tokens in bulk if compromise detected
 
 **R-002 (Brute-force attacks):** Defense-in-depth approach:
+
 - API Gateway rate limiting (10 req/min per IP) stops volumetric attacks
 - Account lockout (5 failures in 15 min) stops credential stuffing
 - CAPTCHA on form (after 3 failures) adds friction
@@ -568,6 +600,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Contingency:** Regional CAPTCHA enablement; advanced threat detection rules
 
 **R-003 (Data loss during migration):** Architect recommends PARALLEL OPERATION:
+
 - New `AuthService` and legacy auth run simultaneously Phases 1-2
 - Users migrate naturally as refresh tokens expire (7-day window)
 - No forced cutover = no single point of failure
@@ -584,6 +617,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 **Coverage:** 24/7 rotation for first 2 weeks post-GA (auth-team)
 
 **Runbook Scenarios:**
+
 1. **AuthService down** → Check pod health → Restart pods → If PostgreSQL unreachable, failover to read replica → Notify platform-team
 2. **Token refresh failures** → Check Redis connectivity → Verify JwtService key mounted → Restart TokenManager pods → Fallback to users re-login
 3. **Email delivery failures** → Check SendGrid status → Verify queue depth → Manual reset email via support → Escalate to SendGrid support
@@ -593,6 +627,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 ### Monitoring & Alerting
 
 **Prometheus Metrics (real-time):**
+
 - `auth_login_total` (counter) — login attempts by outcome
 - `auth_login_duration_seconds` (histogram) — p50/p95/p99 latencies
 - `auth_token_refresh_total` (counter) — refresh operations by outcome
@@ -600,6 +635,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - `redis_connection_errors_total` (counter) — Redis connectivity issues
 
 **Alerts (triggered immediately):**
+
 - Login failure rate > 20% over 5 min window
 - p95 latency > 500ms
 - Redis connection failures > 10 per minute
@@ -607,6 +643,7 @@ The architecture is sound and well-understood. The facade pattern (`AuthService`
 - Uptime drop below 99.8% in rolling 24-hour window
 
 **Dashboards:**
+
 - **Latency dashboard:** p50/p95/p99 by endpoint (login, register, refresh, profile)
 - **Error rate dashboard:** Failed logins, registrations, resets by error type
 - **Capacity dashboard:** PostgreSQL conn pool utilization, Redis memory, CPU/memory by pod

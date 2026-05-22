@@ -84,4 +84,5 @@ path of the self-contained-item invariant.
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

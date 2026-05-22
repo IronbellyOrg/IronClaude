@@ -60,6 +60,7 @@ Rationale for the flag choices:
 - `--output <output_dir>/remediation-spec.md`: keeps the artifact next to the review for traceability.
 
 On `/sc:design` completion:
+
 - Capture the spec path.
 - Surface the spec path to the user with a one-line summary.
 - Proceed to Phase B unless the user says stop.
@@ -93,6 +94,7 @@ BUILD_REQUEST file: <output_dir>/BUILD-REQUEST-REMEDIATION.md
 Before invoking, the skill writes the BUILD-REQUEST file with GOAL, WHY, OUTPUTS, CONTEXT, and a TEMPLATE preference (defaults to the project's standard MDTM template).
 
 On task-builder completion:
+
 - Capture the task file path from the skill's output.
 - Surface it with a one-line summary.
 - Proceed to Phase C unless the user says stop.
@@ -117,6 +119,7 @@ For our purposes, the analyze pass is a **pre-execution sanity check**. We're no
 - Are dependencies between task items explicit?
 
 On reflect-analyze completion:
+
 - If reflect-analyze reports **no significant concerns**: surface that, then ask the user "Proceed to Phase D (execute) or refactor the tasklist first?"
 - If reflect-analyze reports **concerns**: surface them, and ask "Refactor the tasklist to address these, or override and proceed?"
 - If the user chooses to refactor: invoke `task-builder` again with the reflect-analyze concerns appended to the BUILD-REQUEST, then re-run Phase C. Cap at 2 refactor cycles to avoid infinite loops.
@@ -156,6 +159,7 @@ The validate pass checks:
 - Is the change minimal (no scope creep beyond what the original review findings required)?
 
 On validate completion:
+
 - If validate **passes**: surface that, and recommend the user commit. Do not auto-commit. The recommended commit message format is `fix(<scope>): remediate findings from <review-id>` with a reference to the review URL in the body.
 - If validate **fails**: surface the issues and ask the user how to proceed (re-run Phase D? Open a new review? Bail?). Do not recommend commit until validate passes.
 

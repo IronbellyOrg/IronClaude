@@ -69,7 +69,7 @@ Bundling observability with rollout means observability is validated *during* ro
 
 ## Round 2: Rebuttals
 
-### Variant A rebuts Variant B:
+### Variant A rebuts Variant B
 
 1. **Phase 0 rework claim is speculative.** Haiku asserts Opus's timeline will slip due to mid-sprint interface changes, but provides no evidence. The API contract (`/v1/auth/*` with six endpoints) is defined in the spec. Error format (`AC-009`) is defined in the spec. Rate limits are defined or have obvious defaults. There is nothing to "freeze" that isn't already frozen by the spec itself. Phase 0 re-freezes what's already frozen.
 
@@ -79,7 +79,7 @@ Bundling observability with rollout means observability is validated *during* ro
 
 4. **Haiku's risk traceability advantage is real but narrow.** We concede the "Roadmap controls" mapping is superior for the three spec risks. But ignoring R-004/R-005/R-006 entirely is a gap. The merged roadmap should adopt Haiku's traceability format *and* include our additional risks.
 
-### Variant B rebuts Variant A:
+### Variant B rebuts Variant A
 
 1. **"The spec defines the contract" is wishful.** The spec defines *what* — six endpoints, JWT, bcrypt. It does not define *how* — error codes, pagination of roles arrays, reset token format, audit log schema, or the exact Redis key structure. These are the decisions that cause mid-phase churn if not locked. Phase 0 isn't re-freezing the spec; it's resolving the implementation-level decisions the spec deliberately leaves open.
 

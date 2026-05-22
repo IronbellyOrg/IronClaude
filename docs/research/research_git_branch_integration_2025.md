@@ -11,6 +11,7 @@
 When master and dev branches have diverged with independent commits on both sides, **merge is the recommended strategy** to integrate all changes from both branches. This preserves complete history and creates a permanent record of integration decisions.
 
 ### Current Situation Analysis
+
 - **dev branch**: 2 commits ahead (PM Agent refactoring work)
 - **master branch**: 3 commits ahead (upstream merges + documentation organization)
 - **Status**: Divergent branches requiring reconciliation
@@ -36,12 +37,14 @@ git merge dev     # Integrates PM Agent work into master
 **Source**: Atlassian Git Tutorial, nvie.com Git branching model
 
 **Key Principles**:
+
 - `develop` (or `dev`) = active development branch
 - `master` (or `main`) = production-ready releases
 - Flow direction: feature → develop → master
 - Each merge to master = new production release
 
 **Release Process**:
+
 1. Development work happens on `dev`
 2. When `dev` is stable and feature-complete → merge to `master`
 3. Tag the merge commit on master as a release
@@ -60,6 +63,7 @@ When branches have diverged (both have unique commits), three options exist:
 | **Fast-forward** | `git merge --ff-only` | Only succeeds if no divergence | Fails in this case |
 
 **Why Merge is Recommended Here**:
+
 - ✅ Preserves complete history from both branches
 - ✅ Creates permanent record of integration decisions
 - ✅ No history rewriting (safe for shared branches)
@@ -71,18 +75,21 @@ When branches have diverged (both have unique commits), three options exist:
 **Source**: Git official documentation, git-scm.com Advanced Merging
 
 **How Git Merges**:
+
 1. Identifies common ancestor commit (where branches diverged)
 2. Compares changes from both branches against ancestor
 3. Automatically merges non-conflicting changes
 4. Flags conflicts only when same lines modified differently
 
 **Conflict Resolution**:
+
 - Git adds conflict markers: `<<<<<<<`, `=======`, `>>>>>>>`
 - Developer chooses: keep branch A, keep branch B, or combine both
 - Modern tools (VS Code, IntelliJ) provide visual merge editors
 - After resolution, `git add` + `git commit` completes the merge
 
 **Conflict Resolution Options**:
+
 ```bash
 # Accept all changes from one side (use cautiously)
 git merge -Xours master    # Prefer current branch changes
@@ -108,6 +115,7 @@ git merge -Xtheirs master  # Prefer incoming changes
 | **Team collaboration** | Works well with multiple contributors | Can cause confusion if not coordinated |
 
 **2024 Consensus**:
+
 - Use **rebase** for: local feature branches, keeping commits organized before sharing
 - Use **merge** for: integrating shared branches (like dev → master), preserving collaboration history
 
@@ -116,12 +124,14 @@ git merge -Xtheirs master  # Prefer incoming changes
 **Source**: Various development tool documentation
 
 **Tools that make merge easier**:
+
 - VS Code 3-way merge editor
 - IntelliJ IDEA conflict resolver
 - GitKraken visual merge interface
 - GitHub web-based conflict resolution
 
 **CI/CD Considerations**:
+
 - Automated testing runs on actual merge commits
 - Merge commits provide clear rollback points
 - Rebase can cause false test failures (testing non-existent commit states)
@@ -133,6 +143,7 @@ git merge -Xtheirs master  # Prefer incoming changes
 ### For Current Situation (dev + master diverged)
 
 **Option A: Standard GitFlow (Recommended)**
+
 ```bash
 # Bring master's updates into dev first
 git checkout dev
@@ -147,6 +158,7 @@ git tag -a v1.x.x -m "Release version 1.x.x"
 ```
 
 **Option B: Immediate Integration (if PM Agent work is ready)**
+
 ```bash
 # If dev's PM Agent work is production-ready now
 git checkout master
@@ -208,7 +220,7 @@ make build # Ensure build succeeds
 
 ## Sources
 
-1. **Git Official Documentation**: https://git-scm.com/docs/git-merge
+1. **Git Official Documentation**: <https://git-scm.com/docs/git-merge>
 2. **Atlassian Git Tutorials**: Merge strategies, GitFlow workflow, Merging vs Rebasing
 3. **Julia Evans Blog (2024)**: "Dealing with diverged git branches"
 4. **DataCamp (2024)**: "Git Merge vs Git Rebase: Pros, Cons, and Best Practices"

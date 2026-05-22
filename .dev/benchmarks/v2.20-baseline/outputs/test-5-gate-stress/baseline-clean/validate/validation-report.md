@@ -68,6 +68,7 @@ The 5 warnings are all decomposition issues where compound deliverables will nee
 **Formula**: `interleave_ratio = unique_phases_with_deliverables / total_phases`
 
 **Values**:
+
 - `unique_phases_with_deliverables` = 5 (Phase 1 has implementation + unit tests, Phase 2 has implementation + smoke tests, Phase 3 has implementation + integration tests, Phase 4 has implementation + integration tests, Phase 5 has verification + testing + documentation)
 - `total_phases` = 5
 

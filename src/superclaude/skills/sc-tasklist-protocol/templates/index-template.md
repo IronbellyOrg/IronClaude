@@ -9,11 +9,13 @@ The index file contains all cross-phase metadata, registries, traceability, and 
 ## Structure
 
 ### Title
+
 `# TASKLIST INDEX -- <Roadmap Name or Short Description>`
 
 If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 
 ### Metadata & Artifact Paths
+
 `## Metadata & Artifact Paths`
 
 | Field | Value |
@@ -45,6 +47,7 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | Feedback Log | `TASKLIST_ROOT/feedback-log.md` |
 
 ### Phase Files Table
+
 `## Phase Files`
 
 | Phase | File | Phase Name | Task IDs | Tier Distribution |
@@ -54,38 +57,47 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | ... | ... | ... | ... | ... |
 
 Rules:
+
 - The **File** column must contain **literal filenames** -- NOT path-prefixed.
 - "Phase Name" is derived from the roadmap bucket heading; if none, use defaults.
 - "Task IDs" is a compact range like `T01.01-T01.07` (only if continuous), otherwise comma-separated.
 - "Tier Distribution" shows count per tier.
 
 ### Source Snapshot
+
 `## Source Snapshot`
+
 - 3-6 bullets, strictly derived from roadmap text.
 
 ### Deterministic Rules Applied
+
 `## Deterministic Rules Applied`
+
 - 8-12 bullets summarizing rules applied.
 
 ### Roadmap Item Registry
+
 `## Roadmap Item Registry`
 
 | Roadmap Item ID | Phase Bucket | Original Text (<= 20 words) |
 |---|---|---|
 
 ### Deliverable Registry
+
 `## Deliverable Registry`
 
 | Deliverable ID | Task ID | Roadmap Item ID(s) | Deliverable (short) | Tier | Verification | Intended Artifact Paths | Effort | Risk |
 |---:|---:|---:|---|---|---|---|---|---|
 
 ### Traceability Matrix
+
 `## Traceability Matrix`
 
 | Roadmap Item ID | Task ID(s) | Deliverable ID(s) | Tier | Confidence | Artifact Paths (rooted) |
 |---:|---:|---:|---|---|---|
 
 ### Execution Log Template
+
 `## Execution Log Template`
 
 **Intended Path:** `TASKLIST_ROOT/execution-log.md`
@@ -94,6 +106,7 @@ Rules:
 |---|---:|---|---:|---|---|---|---|
 
 ### Checkpoint Report Template
+
 `## Checkpoint Report Template`
 
 - `# Checkpoint Report -- <Checkpoint Title>`
@@ -106,6 +119,7 @@ Rules:
 - `## Evidence`
 
 ### Feedback Collection Template
+
 `## Feedback Collection Template`
 
 **Intended Path:** `TASKLIST_ROOT/feedback-log.md`
@@ -114,9 +128,13 @@ Rules:
 |---:|---|---|---|---|---|---|
 
 ### Glossary
+
 `## Glossary`
+
 - Include only if the roadmap explicitly defines terms. Otherwise omit.
 
 ### Generation Notes (Optional)
+
 `## Generation Notes`
+
 - Lists any fallback behaviors activated during generation.

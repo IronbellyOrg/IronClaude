@@ -55,6 +55,7 @@ The checkpoint enforcement feature (17 tasks across 4 waves) is predominantly ph
 - **Recommendation**: KEEP AS-IS, but add a documentation note
 - **Rationale**: The spec correctly places this gate in the executor's phase completion flow, which is shared. However, the spec's framing positions this as "Layer 2 -- Detection" behind "Layer 1 -- Prevention (prompt)." For Path A, this note should clarify: Layer 1 (prompt prevention) does not apply to Path A -- Layer 2 (detection gate) is the primary enforcement mechanism for production sprints. This reframing is important for risk assessment: if the gate is disabled (`checkpoint_gate_mode=off`), Path A has ZERO checkpoint enforcement.
 - **Implementation sketch**: Add a comment block or spec note:
+
   ```
   # NOTE: For Path A (per-task subprocess), this gate is the PRIMARY checkpoint
   # enforcement mechanism. Path A workers are task-scoped and cannot write
@@ -124,6 +125,7 @@ The checkpoint enforcement feature (17 tasks across 4 waves) is predominantly ph
 - **Recommendation**: EXTEND TO PATH A -- add explicit documentation of the Path A benefit
 - **Rationale**: The spec frames T04.01 as addressing "Cause 2 (structural mismatch)" where `### Checkpoint:` headings are invisible to the task scanner. But the spec does not explicitly call out that this fix has a transformative effect on Path A: it converts checkpoints from "something the executor must verify after the fact" to "something a worker subprocess executes as a task." This is arguably the MOST valuable checkpoint improvement for Path A, yet the spec buries it as a future-tasklist normalization concern.
 - **Implementation sketch**: Add to the spec's T04.01 rationale:
+
   ```
   Path A Impact: When checkpoint sections are normalized to T<PP>.<NN> task entries,
   Path A's _parse_phase_tasks() will include them in the per-task loop. Each checkpoint

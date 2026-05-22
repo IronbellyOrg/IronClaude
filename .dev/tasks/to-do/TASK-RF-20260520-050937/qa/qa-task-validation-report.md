@@ -47,6 +47,7 @@ One CRITICAL anti-orphaning violation was found and FIXED in-place. All other 17
 ### Edit A old_string vs `src/superclaude/cli/prd/gates.py:102-110`
 
 **Task file (lines 135-144):**
+
 ```
 _RESEARCH_REQUIRED_SECTIONS = [
     "Product Capabilities",
@@ -64,6 +65,7 @@ _RESEARCH_REQUIRED_SECTIONS = [
 ### Edit B old_string vs `src/superclaude/cli/prd/gates.py:134-138`
 
 **Task file (lines 167-172):**
+
 ```
     phases_match = re.search(
         r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested\s+)?Phases",
@@ -83,6 +85,7 @@ _RESEARCH_REQUIRED_SECTIONS = [
 ### Edit D target file non-existence
 
 **Directory listing of `tests/cli/prd/`:**
+
 ```
 __init__.py
 test_cli_smoke.py
@@ -138,7 +141,7 @@ Cross-checked spot samples: module docstring, `from __future__ import annotation
   - Items 1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 → verified via Read of the full task file (line-cited in evidence column)
   - Item 5 → verified via 4 byte-exact comparisons (Read of gates.py, test_gates.py, research/01-file-inventory.md vs task file embeds)
   - Item 6 → verified via cross-reference to research-gate QA report (cited in frontmatter)
-  - Anti-orphaning → verified via grep for `^## ` headings and Read of section structure; FIXED via Edit
+  - Anti-orphaning → verified via grep for `^##` headings and Read of section structure; FIXED via Edit
   - Edit D non-existence → verified via Bash ls
 
 ## Recommendations

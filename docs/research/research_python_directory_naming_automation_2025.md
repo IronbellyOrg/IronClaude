@@ -41,16 +41,18 @@
 
 ### 1. PEP 8 Directory Naming Conventions
 
-**Official Standard** (PEP 8 - https://peps.python.org/pep-0008/):
+**Official Standard** (PEP 8 - <https://peps.python.org/pep-0008/>):
 > "Python packages should also have short, all-lowercase names, although the use of underscores is discouraged."
 
 **Practical Reality**:
+
 - Underscores are widely used in practice (e.g., `sqlalchemy_searchable`)
 - Community doesn't consider underscores poor practice
 - **Hyphens are NOT allowed** in package names (Python import restrictions)
 - **Camel Case / Title Case = PEP 8 violation**
 
 **Current SuperClaude Framework Violations**:
+
 ```yaml
 # ❌ PEP 8 Violations
 docs/Developer-Guide/     # Contains hyphen + uppercase
@@ -69,6 +71,7 @@ docs/development/         # lowercase only
 ```
 
 **Documentation Directories Exception**:
+
 - Documentation directories (`docs/`) are NOT Python packages
 - Hyphens are acceptable in non-package directories
 - Best practice: Use lowercase + hyphens for readability
@@ -81,6 +84,7 @@ docs/development/         # lowercase only
 #### Ruff - The Modern Standard
 
 **Overview**:
+
 - Released: 2023, rapidly adopted as industry standard by 2024-2025
 - Speed: 10-100x faster than Flake8 (written in Rust)
 - Replaces: Flake8, Black, isort, pydocstyle, pyupgrade, autoflake
@@ -88,6 +92,7 @@ docs/development/         # lowercase only
 - Configuration: `pyproject.toml` or `ruff.toml`
 
 **Key Features**:
+
 ```yaml
 Autofix:
   - Automatic import sorting
@@ -107,6 +112,7 @@ Exclusions (default):
 ```
 
 **Configuration Example** (`pyproject.toml`):
+
 ```toml
 [tool.ruff]
 line-length = 88
@@ -129,6 +135,7 @@ ignore = ["E501"]  # Line too long
 ```
 
 **Naming Convention Rules** (`N` prefix):
+
 ```yaml
 N801: Class names should use CapWords convention
 N802: Function names should be lowercase
@@ -150,12 +157,14 @@ BUT: No rules for directory naming (non-Python file checks)
 **Purpose**: Validates `pyproject.toml` compliance with PEP standards
 
 **Installation**:
+
 ```bash
 pip install validate-pyproject
 # or with pre-commit integration
 ```
 
 **Usage**:
+
 ```bash
 # CLI
 validate-pyproject pyproject.toml
@@ -166,6 +175,7 @@ validate(data)
 ```
 
 **Pre-commit Hook**:
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -176,6 +186,7 @@ repos:
 ```
 
 **What It Validates**:
+
 - PEP 517/518 build system configuration
 - PEP 621 project metadata
 - Tool-specific configurations ([tool.ruff], [tool.mypy])
@@ -188,6 +199,7 @@ repos:
 ### 3. Git Case-Sensitive Rename Best Practices
 
 **The Problem**:
+
 - macOS APFS: case-insensitive by default
 - Git: case-sensitive internally
 - Result: `git mv Foo foo` doesn't work directly
@@ -207,6 +219,7 @@ git commit -m "refactor: rename User-Guide to user-guide (PEP 8 compliance)"
 ```
 
 **Why This Works**:
+
 - First rename: Different enough for case-insensitive FS to recognize
 - Second rename: Achieves desired final name
 - Git tracks both renames correctly
@@ -226,6 +239,7 @@ git commit -m "refactor: fix directory naming case sensitivity"
 ```
 
 **Why This Works**:
+
 - Git re-scans working tree
 - Detects same content = rename (not delete + add)
 - Preserves file history
@@ -241,6 +255,7 @@ git config core.ignoreCase false
 ```
 
 **Advanced Workaround (Overkill)**:
+
 - Create case-sensitive APFS volume via Disk Utility
 - Clone repository to case-sensitive volume
 - Perform renames normally
@@ -252,7 +267,7 @@ git config core.ignoreCase false
 
 #### Built-in Hooks (check-case-conflict)
 
-**Official pre-commit-hooks** (https://github.com/pre-commit/pre-commit-hooks):
+**Official pre-commit-hooks** (<https://github.com/pre-commit/pre-commit-hooks>):
 
 ```yaml
 # .pre-commit-config.yaml
@@ -271,6 +286,7 @@ repos:
 ```
 
 **check-case-conflict Details**:
+
 - Detects files that differ only in case
 - Example: `README.md` vs `readme.md`
 - Prevents issues on case-insensitive filesystems
@@ -435,6 +451,7 @@ project-root/
 **Key Files**:
 
 **pyproject.toml** (modern standard):
+
 ```toml
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
@@ -458,17 +475,20 @@ select = ["E", "F", "W", "I", "N"]
 ```
 
 **uv.lock**:
+
 - Cross-platform lockfile
 - Contains exact resolved versions
 - **Must be committed to version control**
 - Ensures reproducible installations
 
 **.python-version**:
+
 ```
 3.12
 ```
 
 **Benefits of src-based layout**:
+
 1. **Namespace isolation**: Prevents import conflicts
 2. **Testability**: Tests import from installed package, not source
 3. **Modularity**: Clear separation of application logic
@@ -484,6 +504,7 @@ select = ["E", "F", "W", "I", "N"]
 #### 1. Complete Git Directory Renames
 
 **Remaining violations** (case-sensitive renames needed):
+
 ```bash
 # Still need two-step rename due to macOS case-insensitive FS
 git mv docs/Reference docs/reference-tmp && git mv docs/reference-tmp docs/reference
@@ -524,6 +545,7 @@ uv pip install ruff
 ```
 
 **Verify `pyproject.toml` has**:
+
 ```toml
 [project.optional-dependencies]
 dev = [
@@ -551,6 +573,7 @@ select = [
 ```
 
 **Run ruff**:
+
 ```bash
 # Check for issues
 ruff check .
@@ -567,6 +590,7 @@ ruff format .
 #### 3. Set Up Pre-commit Hooks
 
 **Create `.pre-commit-config.yaml`**:
+
 ```yaml
 repos:
   # Official pre-commit hooks
@@ -608,6 +632,7 @@ repos:
 ```
 
 **Install pre-commit**:
+
 ```bash
 # Install pre-commit
 uv pip install pre-commit
@@ -626,6 +651,7 @@ pre-commit run --all-files
 **Create `scripts/validate_directory_names.py`** (see full implementation above)
 
 **Make executable**:
+
 ```bash
 chmod +x scripts/validate_directory_names.py
 
@@ -643,11 +669,13 @@ python scripts/validate_directory_names.py
 **PEP 8 Compliant**: `superclaude-framework` or `superclaude_framework`
 
 **Rationale**:
+
 - Package name: `superclaude` (already compliant)
 - Repository name: Should match package style
 - GitHub allows repository renaming with automatic redirects
 
 **Process**:
+
 ```bash
 # 1. Rename on GitHub (Settings → Repository name)
 # 2. Update local remote
@@ -661,6 +689,7 @@ sed -i '' 's|SuperClaude_Framework|superclaude-framework|g' pyproject.toml
 ```
 
 **GitHub Benefits**:
+
 - Old URLs automatically redirect (no broken links)
 - Clone URLs updated automatically
 - Issues/PRs remain accessible
@@ -670,6 +699,7 @@ sed -i '' 's|SuperClaude_Framework|superclaude-framework|g' pyproject.toml
 #### 2. Migrate to src-based Layout
 
 **Current**:
+
 ```
 SuperClaude_Framework/
 ├── superclaude/          # Package at root
@@ -677,6 +707,7 @@ SuperClaude_Framework/
 ```
 
 **Recommended**:
+
 ```
 superclaude-framework/
 ├── src/
@@ -685,12 +716,14 @@ superclaude-framework/
 ```
 
 **Benefits**:
+
 - Prevents accidental imports from source
 - Tests import from installed package
 - Clearer separation of concerns
 - Standard for modern Python projects
 
 **Migration**:
+
 ```bash
 # Create src directory
 mkdir -p src
@@ -715,6 +748,7 @@ include = ["superclaude*", "setup*"]
 #### 3. Add GitHub Actions for CI/CD
 
 **Create `.github/workflows/lint.yml`**:
+
 ```yaml
 name: Lint
 
@@ -795,14 +829,14 @@ jobs:
 
 ## Sources
 
-1. PEP 8 Official Documentation: https://peps.python.org/pep-0008/
-2. Ruff Documentation: https://docs.astral.sh/ruff/
-3. Real Python - Ruff Guide: https://realpython.com/ruff-python/
+1. PEP 8 Official Documentation: <https://peps.python.org/pep-0008/>
+2. Ruff Documentation: <https://docs.astral.sh/ruff/>
+3. Real Python - Ruff Guide: <https://realpython.com/ruff-python/>
 4. Git Case-Sensitive Renaming: Multiple Stack Overflow threads (2022-2024)
-5. validate-pyproject: https://github.com/abravalheri/validate-pyproject
-6. Pre-commit Hooks Guide (2025): https://gatlenculp.medium.com/effortless-code-quality-the-ultimate-pre-commit-hooks-guide-for-2025-57ca501d9835
-7. uv Documentation: https://docs.astral.sh/uv/
-8. Python Packaging User Guide: https://packaging.python.org/
+5. validate-pyproject: <https://github.com/abravalheri/validate-pyproject>
+6. Pre-commit Hooks Guide (2025): <https://gatlenculp.medium.com/effortless-code-quality-the-ultimate-pre-commit-hooks-guide-for-2025-57ca501d9835>
+7. uv Documentation: <https://docs.astral.sh/uv/>
+8. Python Packaging User Guide: <https://packaging.python.org/>
 
 ---
 
@@ -818,12 +852,14 @@ jobs:
 4. **Documentation**: Update all references (semi-automated with sed)
 
 **For SuperClaude Framework**:
+
 - Complete the remaining directory renames manually (6 directories)
 - Set up pre-commit hooks with custom validator
 - Configure Ruff for Python code linting
 - Add CI/CD workflow for continuous validation
 
 **Total Effort Estimate**:
+
 - Manual renaming: 15-30 minutes
 - Pre-commit setup: 15-20 minutes
 - Documentation updates: 10-15 minutes

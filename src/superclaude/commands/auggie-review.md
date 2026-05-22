@@ -90,6 +90,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ## Examples
 
 ### Review a PR by number (most common)
+
 ```
 /sc:auggie-review 62
 # - Auggie pass: indexed codebase context + diff → JSON findings
@@ -101,6 +102,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ```
 
 ### Review uncommitted local changes
+
 ```
 /sc:auggie-review --diff origin/master...HEAD --no-post-pr
 # - Same protocol, but target is git diff, no PR posting
@@ -108,6 +110,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ```
 
 ### Snapshot review of a module (no diff)
+
 ```
 /sc:auggie-review --snapshot src/superclaude/cli/ --focus architecture,anti-patterns
 # - Full-content review of the subtree, no diff baseline
@@ -115,6 +118,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ```
 
 ### Hook-driven post-PR-creation review
+
 ```
 # After: gh pr create --title "..." --body "..."
 # The offer-pr-review.sh hook detects the gh pr create call,
@@ -123,6 +127,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ```
 
 ### Deep review with full remediation chain
+
 ```
 /sc:auggie-review 62 --depth deep
 # After report posts, user accepts the remediation offer:
@@ -136,6 +141,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ## Boundaries
 
 **Will:**
+
 - Run a deep, evidence-based code review combining Auggie's indexed codebase context with Claude's diff-level reasoning
 - Catch both narrow bugs (off-by-one, null-deref, race conditions, leaked resources) and architectural risks (layering violations, coupling smells, missing abstractions, anti-patterns)
 - Auto-post the report to the PR when the target is a PR (no confirmation; the user opted in by invoking the command)
@@ -145,6 +151,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 - Write the full markdown report, raw Auggie JSON, and an audit log to `--output-dir` for later reference
 
 **Will Not:**
+
 - Activate on conversational keywords ("review", "audit", "check") — explicit invocation or hook-driven only
 - Modify any code under review (advisory only — code changes happen later via the remediation chain)
 - Approve, request-changes, or merge the PR (the report posts as a `--comment` review, never `--approve` or `--request-changes`)

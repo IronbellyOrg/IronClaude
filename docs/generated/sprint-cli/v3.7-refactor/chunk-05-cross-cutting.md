@@ -19,7 +19,6 @@ The v3.7 spec's cross-domain dependency analysis (Section 5), implementation ord
 
 Net spec changes: 12 additions/modifications across Sections 5, 6, and 14.
 
-
 ## Revised Cross-Domain Dependencies
 
 ### New Domain: Path A Enrichment
@@ -49,12 +48,12 @@ Checkpoint W1 adds checkpoint instructions to `build_prompt()` (Path B). The equ
 ### New Dependency: Section 5.7 (Path A Enrichment <-> TurnLedger Bug Fixes)
 
 The three TurnLedger bugs (Deficiency 2 in context-01) are exclusively Path A concerns:
+
 - `turns_consumed` always returns 0 (executor.py:1091)
 - `TaskResult.output_path` never set (executor.py:1017-1025)
 - `gate_rollout_mode` defaults to "off"
 
 These are internal to the per-task loop and do not conflict with any other domain. They can be fixed in any order relative to Checkpoint, TUI, or Naming. However, the `output_path` fix enables the anti-instinct gate, which produces `GateResult` objects that feed into the TUI's error panel (F4). **Implication:** TUI error panel development should be aware that anti-instinct gate results will start appearing once `output_path` is wired.
-
 
 ## Revised Implementation Order
 
@@ -95,7 +94,6 @@ Path A Enrichment at position 2 (after Naming, before Checkpoint W1) is motivate
 - **Before Checkpoint W1:** Checkpoint W1 adds prompt instructions. If Path A enrichment does not exist yet, the implementer will add checkpoint instructions only to `build_prompt()` (Path B), perpetuating the asymmetry. Enriching Path A first ensures Checkpoint W1 can target both paths in a single wave.
 - **TurnLedger concurrent:** The three bug fixes touch lines 1017-1092 in executor.py. Path A prompt enrichment touches lines 1064-1068. There is overlap at lines 1064-1068 (the prompt builder) but the TurnLedger fixes are below that (1091, 1017-1025). These can be done in the same wave with one developer, or sequentially if split across developers.
 
-
 ## Post-Phase vs Post-Task Hook Interactions
 
 ### The Two Hook Layers
@@ -105,6 +103,7 @@ The sprint executor has two distinct hook execution points that the spec conflat
 **Layer 1: Per-Task Hooks (Path A only, executor.py:1027-1036)**
 
 After each task subprocess completes:
+
 1. `run_post_task_wiring_hook()` -- structural code integrity check
 2. `run_post_task_anti_instinct_hook()` -- semantic output quality check
 3. TUI per-task update (executor.py:1042-1048)
@@ -114,6 +113,7 @@ These hooks operate on individual `TaskResult` objects and feed `GateResult` obj
 **Layer 2: Post-Phase Hooks (Both paths, executor.py:1222-1233 for Path A, 1432-1454 for Path B)**
 
 After all tasks in a phase complete (or the single Path B subprocess exits):
+
 1. `run_post_phase_wiring_hook()` -- aggregate wiring analysis
 2. `sprint_result.phase_results.append(phase_result)`
 3. `logger.write_phase_result()`
@@ -122,6 +122,7 @@ After all tasks in a phase complete (or the single Path B subprocess exits):
 ### Where the Spec's New Hooks Insert
 
 The spec (Section 6.4) proposes three new post-phase hooks:
+
 1. `_verify_checkpoints()` -- blocking, checkpoint gate evaluation
 2. `summary_worker.submit()` -- non-blocking, background thread
 3. Manifest update (Wave 3) -- lightweight, blocking
@@ -177,7 +178,6 @@ PhaseResult constructed                            (line 1217)
 
 This preserves the Section 6.4 ordering while adapting it to Path A's available data. The `task_results` parameter is only available in Path A; Path B passes `None` for backward compatibility.
 
-
 ## Open Questions -- Resolved by Path A Analysis
 
 ### Resolved
@@ -198,6 +198,7 @@ The spec asks "F5 assumes single-prompt-per-phase. Per-task mode has multiple pr
 
 **TUI-Q1 (prompt_preview field location) -- REFRAMED.**
 Originally asked where `prompt_preview: str` should live. With dual-path awareness, the answer depends on path:
+
 - Path B: Computed once by `build_prompt()`, stored on `Phase` or `SprintConfig`
 - Path A: Changes per task, must be on `MonitorState` (updated per-task)
 Recommendation: `MonitorState.prompt_preview` is the universal location. Path B sets it once at phase start. Path A updates it per task.
@@ -211,10 +212,10 @@ The spec notes that rolling back Wave 2 without re-applying Wave 1 creates incon
 ### Unchanged
 
 The following open questions are unaffected by Path A analysis:
+
 - CE-Q5, CE-Q7, CE-Q8 (concurrent execution, manifest schema, Wave 4 migration)
 - TUI-Q3 (resolved), TUI-Q4, TUI-Q5 (resolved), TUI-Q6, TUI-Q7, TUI-Q9, TUI-Q10
 - NC-Q1 through NC-Q5 (naming questions are Path B specific)
-
 
 ## New Cross-Cutting Concerns
 
@@ -223,12 +224,14 @@ The following open questions are unaffected by Path A analysis:
 **Risk: HIGH** | **Type: Maintenance burden**
 
 Path A and Path B will each have their own prompt construction logic:
+
 - Path A: `_run_task_subprocess()` in `executor.py` (per-task prompt)
 - Path B: `build_prompt()` in `process.py` (per-phase prompt)
 
 Any future prompt enhancement (checkpoint instructions, new context fields, skill invocations) must be applied to both locations. This is a classic "update one, forget the other" maintenance trap -- exactly the class of bug that created the current Path A deficiency.
 
 **Mitigation:** Extract shared prompt components into a `prompt_builder.py` module or into functions within the existing `process.py`:
+
 - `build_sprint_context(config, phase) -> str` -- shared sprint context header
 - `build_checkpoint_instructions(config, phase) -> str` -- shared checkpoint text
 - `build_scope_boundary(task) -> str` -- Path A only (Path B uses halt instructions)
@@ -240,6 +243,7 @@ Path A's `_run_task_subprocess()` and Path B's `build_prompt()` both call these 
 **Risk: MEDIUM** | **Type: Behavioral change**
 
 Fixing the three TurnLedger bugs (turns_consumed, output_path, gate_rollout_mode) activates an economic feedback loop that has been dormant since v3.1. The 50 existing TurnLedger tests validate correct math on zero inputs. Once inputs are non-zero:
+
 - Reimbursement credits become non-zero (affecting turn budgets for subsequent tasks)
 - Anti-instinct gate starts evaluating (may flag legitimate outputs as non-compliant)
 - Budget exhaustion halts become possible (a task could be stopped for exceeding budget)
@@ -257,6 +261,7 @@ Context-01 identifies Deficiency 3 (no evidence artifact verification). This is 
 - Post-phase hooks validate phase-level invariants
 
 Evidence verification is a new cross-cutting concern because:
+
 1. It requires access to `TaskEntry` metadata (artifact paths from the phase file)
 2. It requires filesystem checks (do the declared files exist?)
 3. Its results should feed into both the TUI error panel (F4) and the post-phase summary (F8)
@@ -271,6 +276,7 @@ Evidence verification is a new cross-cutting concern because:
 `build_task_context()` in `process.py:245-307` builds inter-task context (prior results, gate outcomes, remediation history, git diffs). It is fully implemented, extensively tested, and never called. The Path A enrichment debates did not evaluate this function.
 
 **Cross-cutting implication:** If `build_task_context()` is wired into Path A's enriched prompt, it adds ~200-500 tokens per task of prior-task context. This interacts with:
+
 - TurnLedger budget calculations (more input tokens per task)
 - Sprint context header (partial overlap with prior-phase artifact directories)
 - Scope boundary (context about other tasks may counteract isolation intent)
@@ -282,12 +288,12 @@ Evidence verification is a new cross-cutting concern because:
 **Risk: MEDIUM** | **Type: Testing gap**
 
 The existing test suite validates Path A and Path B independently. v3.7 improvements that must work for both paths need test cases that verify:
+
 - Checkpoint instructions appear in BOTH `build_prompt()` output AND enriched per-task prompts
 - Post-phase hooks fire for BOTH per-task phases (Path A) AND freeform phases (Path B)
 - TUI updates work correctly for both per-task updates and single-subprocess stream parsing
 
 The spec's test strategy (Section 12) does not distinguish between paths. Each test task (T02.05, T03.06) should include both-path variants.
-
 
 ## Net Changes to Spec
 

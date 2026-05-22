@@ -102,6 +102,7 @@ Variant A's advantage on C5 (documentation quality, particularly the integration
 The following specific elements from Variant A should be grafted into the Haiku base:
 
 ### 5.1 Integration Points: Table Format (High Priority)
+
 Replace Haiku's prose-bullet integration point lists with Opus's four-column table format:
 
 ```
@@ -111,6 +112,7 @@ Replace Haiku's prose-bullet integration point lists with Opus's four-column tab
 This format is endorsed explicitly in the debate synthesis and significantly improves navigability across phases. Apply to Phases 1, 2, and 3 integration point sections.
 
 ### 5.2 Phase 1.1 Isolated bcrypt Benchmark (High Priority)
+
 Add to Haiku's Phase 1 milestone: an isolated bcrypt benchmark task producing a timing assertion against the 200ms p95 budget *before* service layer composition begins.
 
 > "Run a quick benchmark in Phase 1.1 of the full expected code path, not just the hash operation in isolation."
@@ -118,7 +120,9 @@ Add to Haiku's Phase 1 milestone: an isolated bcrypt benchmark task producing a 
 Both variants accept this as a convergence point. The hybrid (Phase 1.1 early signal + Phase 4 k6 full-path validation) should be the merged approach. Haiku's Phase 4 latency validation is retained; the Phase 1 benchmark is added as a new task in M1.
 
 ### 5.3 Consolidated Deferred Items Section (Medium Priority)
+
 Add a Section 7 equivalent from Opus — a flat enumerated list of confirmed v1.1 deferrals, including:
+
 - OAuth2/OIDC federation
 - MFA
 - RBAC
@@ -129,7 +133,9 @@ Add a Section 7 equivalent from Opus — a flat enumerated list of confirmed v1.
 Haiku scatters these across the Phase 6 post-launch review tasks; a consolidated list provides clearer backlog handoff and is the format the debate synthesis endorses.
 
 ### 5.4 Architect's Risk Prioritization Narrative (Medium Priority)
+
 Incorporate Opus's explicit risk prioritization note that the bcrypt/latency conflict is a **known constraint conflict** requiring early profiling, not Phase 4 discovery. This belongs in the executive summary or risk section header — it frames the most likely delivery failure mode upfront and is absent from Haiku's risk section.
 
 ### 5.5 OQ-8 Policy-Before-Implementation Qualifier (Low Priority)
+
 Soften Haiku's prescription of "transactional rotation logic" in Phase 2 with an explicit qualifier: this is the technically-sound default pending OQ-8 resolution; if the decision owner selects an idempotency window approach instead, this task should be revisited before Phase 2 implementation begins. This preserves Haiku's actionable default while honoring Opus's procedural discipline.

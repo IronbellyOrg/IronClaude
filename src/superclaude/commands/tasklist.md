@@ -50,6 +50,7 @@ When `--output` is not provided, `TASKLIST_ROOT` is derived from the roadmap con
 Before invoking the skill, the command validates all inputs. On any validation failure, the command emits an error and exits without invoking the skill. No partial output is written.
 
 **Error format** (2 fields):
+
 ```
 error_code: <category string>
 message: <human-readable description with corrective action>
@@ -74,6 +75,7 @@ message: <human-readable description with corrective action>
 > Skill sc:tasklist-protocol
 
 Pass the following context:
+
 - Roadmap text: full content of the roadmap file
 - Spec text (if provided): full content of the spec file
 - Output directory: resolved TASKLIST_ROOT path
@@ -100,6 +102,7 @@ The full generation algorithm is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Parse and validate input arguments
 - Derive TASKLIST_ROOT from roadmap content
 - Invoke the skill with validated context
@@ -108,6 +111,7 @@ The full generation algorithm is in the protocol skill.
 - Produce validation artifacts in TASKLIST_ROOT/validation/
 
 **Will Not:**
+
 - Execute the generation algorithm (that is the skill's job)
 - Modify source roadmap files
 - Run `superclaude sprint run` (output is compatible; invocation is separate)

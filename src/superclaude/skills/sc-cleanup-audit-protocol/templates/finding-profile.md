@@ -1,6 +1,7 @@
 # Finding Profile Templates
 
 ## Purpose
+
 Mandatory per-file profile formats for Pass 2 and Pass 3. **ALL fields are MANDATORY. Reports with missing fields are FAILED.**
 
 ---
@@ -23,6 +24,7 @@ Mandatory per-file profile formats for Pass 2 and Pass 3. **ALL fields are MANDA
 ```
 
 ### Pass 2 Validation Rules
+
 - All 8 fields must be present and non-empty
 - "N/A" is only acceptable for **Superseded by / duplicates** when explicitly checked
 - **References** must include the grep command used, even if result is "None found"
@@ -48,6 +50,7 @@ Mandatory per-file profile formats for Pass 2 and Pass 3. **ALL fields are MANDA
 ```
 
 ### Pass 3 Validation Rules
+
 - All 7 fields must be present and non-empty
 - **Similar files** must include comparison methodology (how similarity was determined)
 - **Currently used?** must cite specific evidence, not just "yes" or "no"

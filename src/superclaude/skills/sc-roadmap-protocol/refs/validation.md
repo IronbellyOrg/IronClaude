@@ -141,11 +141,13 @@ final_score = (quality_engineer_weighted_score * 0.55) + (self_review_weighted_s
 ### Per-Agent Weighted Score Calculation
 
 **Quality-engineer**:
+
 ```
 weighted_score = (completeness * 0.35) + (consistency * 0.30) + (traceability * 0.20) + (test_strategy * 0.15)
 ```
 
 **Self-review**:
+
 ```
 weighted_score = (q1_faithfulness * 0.30) + (q2_achievability * 0.25) + (q3_risk_quality * 0.25) + (q4_test_actionability * 0.20)
 ```
@@ -163,6 +165,7 @@ weighted_score = (q1_faithfulness * 0.30) + (q2_achievability * 0.25) + (q3_risk
 ### Adversarial Mode Additional Checks
 
 When adversarial mode was used (multi-spec or multi-roadmap):
+
 - Missing adversarial artifacts (no adversarial/ directory when adversarial mode was active) → automatic REJECT
 - Missing convergence score in frontmatter → automatic REVISE (regardless of score)
 
@@ -190,6 +193,7 @@ When the final score is 70-84% (REVISE), execute the following loop:
 ### Maximum Iterations
 
 **Hard limit**: 2 iterations. After 2 REVISE iterations without reaching PASS:
+
 - Set `validation_status: PASS_WITH_WARNINGS`
 - Set `validation_score: <final_score>`
 - Append a warnings section to roadmap.md listing unresolved issues
@@ -198,6 +202,7 @@ When the final score is 70-84% (REVISE), execute the following loop:
 ### No-Validate Behavior
 
 When `--no-validate` flag is set:
+
 - Skip Wave 4 entirely
 - Set `validation_status: SKIPPED`
 - Set `validation_score: 0.0`

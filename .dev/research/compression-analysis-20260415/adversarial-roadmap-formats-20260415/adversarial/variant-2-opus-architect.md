@@ -9,6 +9,7 @@
 ## Part A: Pillar 1 — XML Trained Priors in Claude
 
 ### The source's claim
+>
 > "XML is explicitly trained into Claude as a structural delimiter and Anthropic officially recommends it for prompt/document structuring... Tag boundaries are a trained signal — not merely a convention."
 
 ### Steelman evidence (strongest defensible version)
@@ -38,6 +39,7 @@ The steelman survives pillar 1, but the language must soften from "trained prior
 ## Part B: Pillar 2 — TOON Tabular Compression
 
 ### The source's claim
+>
 > "TOON achieves -53% vs Markdown on tabular data... -50% to -62% savings on tabular portions."
 
 ### Steelman evidence
@@ -70,6 +72,7 @@ Not -50%. Not -62%. **-14.5%.** The source report's compression claim is vs JSON
 ## Part C: Pillar 3 — Markdown Prose Fidelity
 
 ### The source's claim
+>
 > "Markdown prose fidelity... prose resists compression because narrative context is what agents reason over."
 
 ### Steelman evidence (this pillar is the strongest)
@@ -84,7 +87,7 @@ Not -50%. Not -62%. **-14.5%.** The source report's compression claim is vs JSON
 
 5. **Anthropic's anti-over-markdown steering** — the `<avoid_excessive_markdown_and_bullet_points>` pattern in Claude 4.6 best practices — is *itself* written as prose wrapped in an XML tag. Anthropic uses Markdown prose for any content that isn't a discrete enumerable item. Our roadmap's Goals, Milestones, and risk descriptions are exactly that kind of content.
 
-### Confidence level: **Very High (0.92).** This pillar is the least contested and most defensible part of the hybrid recommendation. If anything, the source under-argued it.
+### Confidence level: **Very High (0.92).** This pillar is the least contested and most defensible part of the hybrid recommendation. If anything, the source under-argued it
 
 ---
 
@@ -173,6 +176,7 @@ tasks[4]{id,desc,reqs,validates}:
   T3,Gate eval compat (integration: no mod to pipeline/gates.py),[FR-GATE-EVAL],[]
   T4,Pre-activation validation (provider dirs + >50.py warn),[FR-SHADOW-PRECHECK],[SC-011]
 ```
+
   </tasks>
   <task_details id="T1">
 5 checks: analysis_complete_true, zero_unwired_callables, zero_orphan_modules, zero_unwired_registries, total_findings_consistent. All conform to (content: str) -> bool.
@@ -227,7 +231,7 @@ Evidence for the bound:
 
 The Haiku concern would become fatal if: (a) the primary consumer of the roadmap were Haiku, (b) TOON parsing on Haiku dropped below ~65% on a reproducible benchmark, and (c) no fallback were available. None of these conditions hold for the SuperClaude roadmap pipeline.
 
-### Confidence: **High (0.85)** that Haiku risk is bounded and mitigable. **Low (0.25)** that it kills the recommendation.
+### Confidence: **High (0.85)** that Haiku risk is bounded and mitigable. **Low (0.25)** that it kills the recommendation
 
 ---
 

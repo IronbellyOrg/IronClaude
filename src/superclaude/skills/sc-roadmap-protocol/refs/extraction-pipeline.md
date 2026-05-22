@@ -17,6 +17,7 @@ Extract the project title, version, and high-level summary from the spec's openi
 ### Step 2: Functional Requirements (FRs)
 
 Scan the spec for functional requirements. Look for:
+
 - Explicit requirement sections (headings containing "requirement", "feature", "capability")
 - Behavioral statements ("shall", "must", "will", "should")
 - User stories ("As a...", "I want...", "So that...")
@@ -32,6 +33,7 @@ For each FR, extract:
 | `source_lines` | Line range in original spec (e.g., L12-L18) |
 
 **Priority assignment heuristic**:
+
 - "must", "required", "critical", "blocking" → P0
 - "should", "important", "expected" → P1
 - "nice to have", "optional", "could" → P2
@@ -41,6 +43,7 @@ For each FR, extract:
 ### Step 3: Non-Functional Requirements (NFRs)
 
 Scan for non-functional requirements:
+
 - Performance constraints (latency, throughput, load)
 - Security requirements (auth, encryption, compliance)
 - Scalability targets (user count, data volume)
@@ -61,6 +64,7 @@ For each NFR, extract:
 Classify every extracted requirement into one or more domains using the domain keyword dictionaries (see below). Compute domain distribution as percentages.
 
 **Classification algorithm**:
+
 1. For each requirement, tokenize the description into words
 2. Match tokens against each domain's keyword dictionary
 3. Apply keyword weights (primary keywords weight 2.0, secondary keywords weight 1.0)
@@ -71,6 +75,7 @@ Classify every extracted requirement into one or more domains using the domain k
 ### Step 5: Dependency Extraction
 
 Identify dependencies between requirements and external dependencies:
+
 - Inter-requirement dependencies ("requires", "depends on", "after", "before", "blocks")
 - External dependencies (third-party services, libraries, infrastructure)
 - Implicit ordering (sequential spec sections often imply order)
@@ -87,6 +92,7 @@ For each dependency:
 ### Step 6: Success Criteria Extraction
 
 Extract measurable success criteria from the spec:
+
 - Explicit success criteria sections
 - Acceptance criteria attached to requirements
 - KPIs, metrics, and targets mentioned anywhere in the spec
@@ -107,6 +113,7 @@ Extract risks mentioned in the spec and infer risks from requirement complexity:
 **Explicit risks**: Sections mentioning "risk", "concern", "challenge", "constraint", "limitation"
 
 **Inferred risks** (generate if not explicit):
+
 - High-complexity requirements (many dependencies) → integration risk
 - External dependencies → availability risk
 - Security requirements → compliance risk
@@ -293,6 +300,7 @@ Activated when a specification file exceeds 500 lines. Processes the spec in mul
 Scan the spec for headings (H1-H3, detected by `#`, `##`, `###` prefixes) to build a structural map.
 
 For each section, record:
+
 - `heading`: The heading text
 - `level`: 1, 2, or 3
 - `start_line`: First line of the section (the heading line)
@@ -301,6 +309,7 @@ For each section, record:
 - `relevance_tag`: One of `FR_BLOCK`, `NFR_BLOCK`, `SCOPE`, `DEPS`, `RISKS`, `SUCCESS`, `OTHER`
 
 **Relevance tagging heuristic**:
+
 - Heading contains "requirement", "feature", "capability", "functional" → `FR_BLOCK`
 - Heading contains "non-functional", "performance", "security", "scalability" → `NFR_BLOCK`
 - Heading contains "scope", "boundary", "in scope", "out of scope" → `SCOPE`
@@ -314,6 +323,7 @@ For each section, record:
 Group sections into chunks targeting ~400 lines per chunk (hard maximum 600 lines).
 
 **Rules**:
+
 - Never split a section across chunks — sections are atomic units
 - If a single section exceeds 600 lines, split at paragraph boundaries (blank lines)
 - Pack sections sequentially until adding the next section would exceed 600 lines
@@ -322,6 +332,7 @@ Group sections into chunks targeting ~400 lines per chunk (hard maximum 600 line
 - Prefer grouping sections with the same `relevance_tag` together when possible
 
 **Output**: Ordered list of chunks, each containing:
+
 - `chunk_id`: 1-based index
 - `sections`: List of sections included
 - `line_range`: Start-end lines from original spec
@@ -333,6 +344,7 @@ Group sections into chunks targeting ~400 lines per chunk (hard maximum 600 line
 Process each chunk through the 8-step extraction pipeline (Steps 1-7 only; Step 8 is deferred to global ID assignment).
 
 **Per-chunk template**:
+
 ```
 Chunk {chunk_id} of {total_chunks}
 Line range: L{start}-L{end}
@@ -347,6 +359,7 @@ Chunk content:
 ```
 
 **Important**:
+
 - Each chunk produces a partial extraction result
 - `source_lines` references must point to the ORIGINAL spec line numbers, not chunk-relative numbers
 - Global ID counters are passed between chunks: `next_fr`, `next_nfr`, `next_dep`, `next_sc`, `next_risk` — this prevents ID collisions between chunks
@@ -354,6 +367,7 @@ Chunk content:
 #### 4. Merge
 
 Concatenate partial results from all chunks by category in document order:
+
 1. Concatenate all FRs from chunk 1, then chunk 2, etc.
 2. Concatenate all NFRs from chunk 1, then chunk 2, etc.
 3. Repeat for dependencies, success criteria, risks
@@ -377,6 +391,7 @@ Three deduplication checks on the merged result:
 #### 6. Cross-Reference Resolution
 
 After merge, scan for unresolved references (e.g., a dependency referencing a requirement ID from another chunk):
+
 1. For each unresolved reference, search merged results for matching items
 2. If found: resolve to the correct ID
 3. If not found: log as `UNRESOLVED_XREF` warning — do not invent or guess
@@ -384,6 +399,7 @@ After merge, scan for unresolved references (e.g., a dependency referencing a re
 #### 7. Global ID Assignment
 
 Apply Step 8 (ID Assignment) to the merged, deduplicated, cross-referenced result:
+
 - IDs that were explicitly assigned during per-chunk extraction are preserved
 - Items without explicit IDs (implicit items) are assigned sequential IDs ordered by `source_lines`
 - This produces the final, deterministic ID scheme for the entire extraction
@@ -400,6 +416,7 @@ After merge and ID assignment, run 4 verification passes:
 | 4 | Count Reconciliation | `sum(chunk_counts) - dedup_removals = merged_totals` for each category (FRs, NFRs, deps, SCs, risks) | Exact match | N/A | Any mismatch |
 
 **On verification failure**:
+
 1. Identify which chunks failed
 2. Re-process failing chunks (max 1 retry per chunk)
 3. Re-run verification
@@ -437,6 +454,7 @@ After merge and ID assignment, run 4 verification passes:
 | 4 | Context(L1-45) + Sections 13-15 | L1281-L1500 | 220 |
 
 **Step 3: Per-Chunk Extraction** (partial results):
+
 - Chunk 1: 12 FRs (auth + RBAC), 0 NFRs, 3 deps
 - Chunk 2: 15 FRs (API + models), 8 NFRs (perf + security), 2 deps
 - Chunk 3: 5 FRs (migration), 0 NFRs, 4 deps, 6 SCs, 8 risks
@@ -451,6 +469,7 @@ After merge and ID assignment, run 4 verification passes:
 **Step 7: Global ID Assignment**: All items assigned sequential IDs by source_line position.
 
 **Verification**:
+
 - Pass 1 (Source Coverage): 98% → WARN (2 "should" statements in appendix not extracted — appendix tagged OTHER)
 - Pass 2 (Anti-Hallucination): 100% PASS
 - Pass 3 (Section Coverage): 100% PASS

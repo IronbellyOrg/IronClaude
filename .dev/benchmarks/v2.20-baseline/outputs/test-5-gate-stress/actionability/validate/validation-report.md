@@ -72,6 +72,7 @@ tasklist_ready: false
 **Formula**: `interleave_ratio = unique_phases_with_deliverables / total_phases`
 
 **Values**:
+
 - Phase 1: Has implementation deliverables + unit test validation → **has deliverables**
 - Phase 2: Has implementation deliverables + smoke test validation → **has deliverables**
 - Phase 3: Has implementation deliverables + integration test validation → **has deliverables**

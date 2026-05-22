@@ -35,10 +35,12 @@ Step(
 ### Gate Mode Selection
 
 Choose `GateMode` based on step criticality:
+
 - `BLOCKING` (default): Pipeline halts if gate fails. Use for steps whose output is consumed by downstream steps.
 - `TRAILING`: Gate evaluates asynchronously; pipeline continues. Use for quality checks that don't affect downstream data flow.
 
 Rule of thumb from `resolve_gate_mode()`:
+
 - Release scope → always BLOCKING
 - Milestone scope → configurable
 - Task scope → TRAILING when `grace_period > 0`
@@ -249,25 +251,33 @@ finding_count: <integer>
 ## Sections Required
 
 ### Summary
+
 Brief overview of findings.
 
 ### Findings
+
 Numbered list of findings with evidence.
 
 ### Recommendations
+
 Actionable next steps.
 
 ## Machine-Readable Markers
 
 At the end of your output, include:
+
 ```
 EXIT_RECOMMENDATION: CONTINUE
 ```
+
 or
+
 ```
 EXIT_RECOMMENDATION: HALT
 ```
+
 """
+
 ```
 
 ### Key Prompt Rules

@@ -107,6 +107,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 ```
 
 The three required frontmatter fields are:
+
 - **`name`**: The skill/command name (uses `sc:` prefix with colon for namespaced commands)
 - **`description`**: One-line description of what the skill does
 - **`allowed-tools`**: Comma-separated list of Claude Code tools the skill is permitted to use
@@ -295,6 +296,7 @@ The footer line citing the source specification document is a consistent pattern
 ### 3.4 Factoring Strategy
 
 The refs/ directory factors out content by concern:
+
 - **Protocol** (`debate-protocol.md`): The high-level process flow -- what happens in what order
 - **Specifications** (`agent-specs.md`): How inputs are configured and validated -- the grammar of agent specs
 - **Algorithms** (`scoring-protocol.md`): Deterministic computation logic -- scoring formulas and rubrics
@@ -350,6 +352,7 @@ category: analysis
 ```
 
 Key behavioral constraints:
+
 - "Never participate in debates or advocate for any variant"
 - "Focus on process integrity, fair scoring, and comprehensive documentation"
 - Does NOT generate variants, participate in debates, or execute merges
@@ -366,6 +369,7 @@ category: quality
 ```
 
 Key behavioral constraints:
+
 - "Follow the refactoring plan precisely and methodically"
 - Does NOT make strategic decisions or override the plan
 - Reports issues back to orchestrator rather than improvising
@@ -503,6 +507,7 @@ VERDICT:  MET (1 point) | NOT MET (0 points)
 ```
 
 Rules:
+
 - "No partial credit: Each criterion is 1 point (met) or 0 points (not met)"
 - "If the evaluator cannot cite specific evidence for a MET verdict, the criterion defaults to NOT MET"
 - "This prevents hallucinated quality assessments"
@@ -531,6 +536,7 @@ variant_score = (0.50 x quant_score) + (0.50 x qual_score)
 ```
 
 Quantitative metrics (deterministic, no LLM judgment):
+
 - Requirement Coverage (RC): 0.30 weight
 - Internal Consistency (IC): 0.25 weight
 - Specificity Ratio (SR): 0.15 weight
@@ -538,6 +544,7 @@ Quantitative metrics (deterministic, no LLM judgment):
 - Section Coverage (SC): 0.15 weight
 
 Qualitative rubric (25 binary criteria across 5 dimensions):
+
 - Completeness (5 criteria)
 - Correctness (5 criteria)
 - Structure (5 criteria)
@@ -562,6 +569,7 @@ From `refs/artifact-templates.md`, the file defines 6 output format templates or
 ### 6.2 Template Conventions
 
 Each template specifies:
+
 1. **Document title and metadata header** (ISO-8601 timestamps, counts, configuration)
 2. **Structured sections** with specific table formats
 3. **ID schemes** for cross-referencing (S-NNN, C-NNN, X-NNN, U-NNN)
@@ -607,6 +615,7 @@ From `refs/artifact-templates.md` Section 6:
 ```
 
 Rules:
+
 - "Every section or significant block includes a `<!-- Source: ... -->` tag"
 - "Annotations are HTML comments -- invisible in rendered markdown"
 
@@ -632,6 +641,7 @@ personas: [architect, analyzer, scribe]
 ```
 
 The command file provides:
+
 - Usage examples with `bash` code blocks
 - A brief behavioral summary
 - An options table (flags with descriptions)
@@ -639,6 +649,7 @@ The command file provides:
 - Related commands table
 
 The SKILL.md provides:
+
 - Full protocol specification
 - Complete implementation details per step
 - Error handling matrix
@@ -656,6 +667,7 @@ The skill delegates to two pre-defined agents stored in `src/superclaude/agents/
 And dynamically instantiates advocate agents via Task tool based on `--agents` flag.
 
 The delegation chain is:
+
 ```
 /sc:adversarial command
   -> debate-orchestrator agent (coordinates Steps 1-5)

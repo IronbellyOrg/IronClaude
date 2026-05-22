@@ -8,6 +8,7 @@
 ## Winner: Hybrid Normalized YAML with AC Keyword Tags
 
 Compress each roadmap independently into a structured YAML document with:
+
 1. **Metadata header** u2014 frontmatter + one-line summaries of narrative sections
 2. **Task registry** u2014 YAML list-of-dicts with normalized columns including AC keyword tags
 3. **Integration points** u2014 structured YAML array
@@ -128,24 +129,32 @@ alpha, beta:{pct}, ga
 ## Compression Algorithm (Step-by-Step)
 
 ### Input
+
 A single roadmap markdown file (e.g., `roadmap-opus-architect.md`)
 
 ### Step 1: Extract YAML frontmatter
+
 Copy verbatim into `meta:` section.
 
 ### Step 2: Compress narrative sections
+
 For each top-level section (## heading) that is NOT a phase task table:
+
 - Extract key facts into a one-line summary
 - Use pipe-delimited compact notation
 - Store under `summaries:` with section key
 
 ### Step 3: Extract integration points
+
 For each integration point entry:
+
 - Extract: name, wired components list, owning phase, cross-reference phases
 - Store as YAML dict in `integration_points:` array
 
 ### Step 4: Extract and normalize task rows
+
 For each row in each phase task table:
+
 1. Parse the markdown table row into fields
 2. Map to normalized schema: `{phase, row, id, task, comp, deps, ac, effort, pri}`
 3. Compress `task` to short name (first 5-6 significant words)
@@ -157,12 +166,15 @@ For each row in each phase task table:
 6. Store as YAML dict in `tasks:` array
 
 ### Step 5: Compute chunk hashes (optional)
+
 For each logical section (meta, summaries, integration_points, phase_N):
+
 - Serialize to canonical YAML string
 - Compute SHA-256
 - Store under `chunk_hashes:`
 
 ### Step 6: Write output
+
 Write the YAML document to `<source-filename>.compressed.yaml`
 
 ---

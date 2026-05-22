@@ -204,6 +204,7 @@ The deployment comparison is fair: Haiku treats deployment as out of scope for t
 ### Synthesis Recommendation
 
 A merged roadmap would take:
+
 - **From Opus**: deployment phase, FTE allocations, frontmatter traceability, parallelization analysis, co-located unit/integration tests for individual features
 - **From Haiku**: early feature flag (Phase 1), contract definitions for security-sensitive interfaces only (JWT, token manager), test strategy matrix in foundation phase, explicit release gate criteria, mid-phase checkpoint, evidence-based OQ closure
 - **From neither (new)**: a hybrid test distribution where unit and integration tests are co-located with implementation, but security, regression, E2E, and load tests are consolidated in a validation phase

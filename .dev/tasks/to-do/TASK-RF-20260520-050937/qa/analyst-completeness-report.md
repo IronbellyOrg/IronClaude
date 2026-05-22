@@ -75,6 +75,7 @@ Evidence: `research-notes.md:96-104`, `03-template-and-examples.md:14-23, 60-65`
 
 Verbatim `old_string` and `new_string` for all 4 edits are embedded in
 `01-file-inventory.md`:
+
 - Edit A: lines 20-29 (current) → 34-43 (target)
 - Edit B: lines 52-71 (current function) → 75-81 (target regex)
 - Edit C: lines 93-133 (current class) → 137-177 (target class)
@@ -88,6 +89,7 @@ Action field without further file reads — B2 self-containment is achievable.
 `research-notes.md` notes the prior adversarial-debate turn re-verified all
 citations against current source. My spot-checks (table above) independently
 re-verified 5 of the load-bearing citations against the live tree:
+
 - `gates.py:102-110` constant ✓
 - `gates.py:129-146` function + regex ✓
 - `test_gates.py:47-86` test class + OLD schema ✓
@@ -169,6 +171,7 @@ is not stale.
 ## Contradictions Found
 
 None. Cross-checked the three research files against each other:
+
 - File counts agree (4 changes: 3 edits + 1 new file).
 - Edit-target line ranges agree across all three files.
 - Phase structure (4 phases, ~9 items) agrees between research-notes
@@ -182,12 +185,15 @@ None. Cross-checked the three research files against each other:
 ## Compiled Gaps
 
 ### Critical Gaps (block synthesis/build)
+
 None.
 
 ### Important Gaps (affect quality)
+
 None.
 
 ### Minor Gaps (must still be fixed)
+
 None.
 
 The single residual note at `research-notes.md:65-67` about
@@ -216,6 +222,7 @@ rewrite one test class + create one new test file).
 ## Recommendations
 
 Proceed to the builder phase (A.9). The research package is build-ready:
+
 - All 4 edits have verbatim text the builder can paste directly into Action
   fields without further file reads.
 - Template selection (02) and rule citations (A3, A4, B2) are explicit.

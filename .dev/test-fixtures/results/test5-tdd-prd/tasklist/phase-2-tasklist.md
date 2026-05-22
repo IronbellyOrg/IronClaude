@@ -26,21 +26,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0025/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0025 Approved decision artifact capturing key-custody choice (KMS vs filesystem secret), rotation cadence, audit owner.
 
 **Steps:**
+
 1. **[PLANNING]** Draft decision options memo citing OQ-M1-003 risks.
 2. **[PLANNING]** Circulate to Security, Platform, Compliance stakeholders.
 3. **[EXECUTION]** Record signed decision in `TASKLIST_ROOT/artifacts/D-0025/spec.md`.
 4. **[COMPLETION]** Update JwtService configuration note in T02.03 to reflect decision.
 
 **Acceptance Criteria:**
+
 - Decision recorded in writing with owner signature date.
 - Impacts on T02.03 (JwtService) and T06.09 (OPS-004 retention) identified.
 - Artifact lives under TASKLIST_ROOT/artifacts/D-0025/spec.md.
 - Decision reviewed with stakeholder(s).
 
 **Validation:**
+
 - Manual check: Reviewed with stakeholder(s).
 - Evidence: linkable artifact produced (decision memo).
 
@@ -70,9 +74,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0026/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0026 Redis key schema `rt:<user_id>` -> hash of token_id -> {hash, issued_at, family_id, ua_fingerprint, revoked}; 7-day TTL per record.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm Redis 7 availability + deployment secrets.
 2. **[EXECUTION]** Implement Redis adapter with add/get/revoke/list functions.
 3. **[EXECUTION]** Enforce 5-entry cap with LRU eviction based on issued_at.
@@ -80,12 +86,14 @@
 5. **[COMPLETION]** Document key layout in notes.md.
 
 **Acceptance Criteria:**
+
 - Redis hash layout matches roadmap contract.
 - 5th insert evicts oldest record.
 - Records auto-expire after 7 days.
 - Hash adapter isolated via interface for test doubles.
 
 **Validation:**
+
 - Manual check: spin up redis-cli and verify hash layout after programmatic insert.
 - Evidence: linkable artifact produced (adapter unit test log).
 
@@ -115,9 +123,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0027/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0027 `src/services/jwt-service.ts` with `sign(claims)`, `verify(token)`, `rotateKeys()`; supports dual-key verification during rotation.
 
 **Steps:**
+
 1. **[PLANNING]** Load decision artifact D-0025 for key custody.
 2. **[EXECUTION]** Implement RS256 sign/verify using node-jose or jose.
 3. **[EXECUTION]** Add `kid` header and resolve public key by kid.
@@ -126,12 +136,14 @@
 6. **[COMPLETION]** Document rotation runbook path.
 
 **Acceptance Criteria:**
+
 - Tokens signed RS256 with 2048-bit RSA key.
 - Verification accepts current and previous key via kid.
 - Rotation API hot-swaps keys without verify outage.
 - 30-second clock skew tolerated (SEC-CLOCK-SKEW).
 
 **Validation:**
+
 - Manual check: unit test suite TEST-003 green.
 - Evidence: linkable artifact produced (jwt-service unit test log).
 
@@ -161,9 +173,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0028/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0028 `src/services/token-manager.ts` with `issuePair(userId)`, `rotate(refreshToken)`, `revokeFamily(familyId)`.
 
 **Steps:**
+
 1. **[PLANNING]** Define family_id + token_id generation (ULID).
 2. **[EXECUTION]** Implement issuePair: JwtService.sign + Redis insert with SHA-256 hash.
 3. **[EXECUTION]** Implement rotate: verify lineage, issue new, mark old revoked.
@@ -172,12 +186,14 @@
 6. **[COMPLETION]** Attach sequence diagram in notes.md.
 
 **Acceptance Criteria:**
+
 - Pair issuance stores hashed refresh token, never plaintext.
 - Rotation returns new pair and invalidates old in single atomic op.
 - Replay of revoked token triggers family-wide revocation.
 - revokeFamily removes all entries under family_id.
 
 **Validation:**
+
 - Manual check: integration test TEST-005 assertion for replay -> 401.
 - Evidence: linkable artifact produced (token-manager test log).
 
@@ -207,9 +223,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0029/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0029 Config guard `token-policy.ts` rejecting any non-RS256 alg and any plaintext refresh persistence; runtime assertion + tests.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate forbidden algorithms (HS256, none, etc.).
 2. **[EXECUTION]** Add runtime assertion in JwtService.sign/verify paths.
 3. **[EXECUTION]** Add adapter guard rejecting plaintext refresh token write.
@@ -217,12 +235,14 @@
 5. **[COMPLETION]** Document policy in notes.md.
 
 **Acceptance Criteria:**
+
 - Non-RS256 signatures rejected at sign and verify.
 - Refresh adapter refuses writes lacking sha256Hash field.
 - Guard violation produces INVARIANT_VIOLATED error and audit entry.
 - Policy file referenced from NFR-SEC-002.
 
 **Validation:**
+
 - Manual check: alg swap test returns guard error.
 - Evidence: linkable artifact produced (policy test log).
 
@@ -266,9 +286,11 @@ Checkpoint: Phase 2 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0030/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0030 AuthService.login extension wiring TokenManager.issuePair; response shape `{access_token, refresh_token, expires_in}`.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm response schema per TDD Section 8.2.
 2. **[EXECUTION]** Invoke TokenManager.issuePair after credential verification.
 3. **[EXECUTION]** Update /auth/login route to return new shape.
@@ -276,12 +298,14 @@ Checkpoint: Phase 2 / Tasks 1-5
 5. **[COMPLETION]** Remove Phase 1 stub TODO.
 
 **Acceptance Criteria:**
+
 - Valid login returns both tokens and expires_in=900 (15m).
 - Tokens satisfy NFR-SEC-002 guards.
 - Audit event login_success now includes token_id + family_id.
 - Failed login still returns 401 without tokens.
 
 **Validation:**
+
 - Manual check: login integration test asserts non-empty tokens.
 - Evidence: linkable artifact produced (integration log).
 
@@ -311,9 +335,11 @@ Checkpoint: Phase 2 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0031/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0031 `/auth/refresh` handler + TokenManager.rotate wiring; 401 on invalid/replay with family revocation.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm replay trigger fires revokeFamily exactly once.
 2. **[EXECUTION]** Implement handler: validate refresh token, call rotate.
 3. **[EXECUTION]** Map replay error to 401 + unified envelope.
@@ -321,12 +347,14 @@ Checkpoint: Phase 2 / Tasks 1-5
 5. **[COMPLETION]** Record audit events for rotation and family revocation.
 
 **Acceptance Criteria:**
+
 - Valid refresh returns new pair and invalidates old.
 - Replay returns 401 and revokes full family.
 - Audit events `token_rotated` and `token_family_revoked` emitted.
 - Route registered under AUTH_TOKEN_REFRESH flag (T02.11).
 
 **Validation:**
+
 - Manual check: replay a previously-rotated token -> 401.
 - Evidence: linkable artifact produced (integration log).
 
@@ -356,9 +384,11 @@ Checkpoint: Phase 2 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0032/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0032 Updated /auth/login route contract test ensuring 200/401/423 + tokens response shape.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate all response codes and payload shape.
 2. **[EXECUTION]** Update OpenAPI yaml for /auth/login.
 3. **[EXECUTION]** Extend contract tests to cover 423 lock path.
@@ -366,12 +396,14 @@ Checkpoint: Phase 2 / Tasks 1-5
 5. **[COMPLETION]** Update notes.md with OpenAPI hash.
 
 **Acceptance Criteria:**
+
 - 200 response shape equals `{access_token, refresh_token, expires_in}`.
 - 401 and 423 both use unified envelope with distinct codes.
 - OpenAPI committed under `docs/openapi/auth.yaml`.
 - Contract test suite green.
 
 **Validation:**
+
 - Manual check: run contract tests.
 - Evidence: linkable artifact produced (OpenAPI diff + test log).
 
@@ -401,9 +433,11 @@ Checkpoint: Phase 2 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0033/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0033 /auth/refresh OpenAPI entry + contract tests covering 200/401/429.
 
 **Steps:**
+
 1. **[PLANNING]** Draft refresh rate-limit policy (60/min per refresh token).
 2. **[EXECUTION]** Add OpenAPI entry for /auth/refresh.
 3. **[EXECUTION]** Wire rate limiter + 429 envelope response.
@@ -411,12 +445,14 @@ Checkpoint: Phase 2 / Tasks 1-5
 5. **[COMPLETION]** Update notes.md with policy.
 
 **Acceptance Criteria:**
+
 - 200 response returns new pair.
 - 401 returned for expired, replayed, or unknown token.
 - 429 returned if > 60 refresh attempts per token per minute.
 - OpenAPI committed alongside login.
 
 **Validation:**
+
 - Manual check: run contract tests.
 - Evidence: linkable artifact produced (OpenAPI + test log).
 
@@ -446,9 +482,11 @@ Checkpoint: Phase 2 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0034/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0034 `src/middleware/auth.ts` verifying Authorization: Bearer header, handling 401 for invalid tokens.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate protected route catalog (profile, password, logout, admin).
 2. **[EXECUTION]** Implement extract + verify flow with JwtService.
 3. **[EXECUTION]** Attach `req.user = {user_id, roles}` on success.
@@ -457,12 +495,14 @@ Checkpoint: Phase 2 / Tasks 1-5
 6. **[COMPLETION]** Document usage pattern in notes.md.
 
 **Acceptance Criteria:**
+
 - Missing Authorization header returns 401 envelope.
 - Expired/invalid token returns 401 envelope.
 - Valid token attaches req.user with sub + roles claims.
 - Middleware respects SEC-CLOCK-SKEW (T02.19).
 
 **Validation:**
+
 - Manual check: curl protected route with/without token.
 - Evidence: linkable artifact produced (middleware unit test log).
 
@@ -506,9 +546,11 @@ Checkpoint: Phase 2 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0035/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0035 LaunchDarkly flag AUTH_TOKEN_REFRESH + runtime gate wrapping refresh handler.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm LaunchDarkly SDK + env keys.
 2. **[EXECUTION]** Add flag in LaunchDarkly dashboard and source config.
 3. **[EXECUTION]** Wrap /auth/refresh handler with flag check; off -> 404 Not Found.
@@ -516,12 +558,14 @@ Checkpoint: Phase 2 / Tasks 6-10
 5. **[COMPLETION]** Document flag rollout plan in notes.md.
 
 **Acceptance Criteria:**
+
 - Flag `AUTH_TOKEN_REFRESH` exists in LaunchDarkly.
 - Off state causes /auth/refresh to return 404.
 - Flag change reflected within SDK polling interval.
 - Config documented in notes.md.
 
 **Validation:**
+
 - Manual check: toggle flag in staging and hit /auth/refresh.
 - Evidence: linkable artifact produced (LD dashboard screenshot + test log).
 
@@ -551,9 +595,11 @@ Checkpoint: Phase 2 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0036/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0036 `tests/load/token-issuance.js` k6 script with 100 RPS 5m stage + threshold `p(95)<100ms`.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm staging env token issuance capacity.
 2. **[EXECUTION]** Author k6 script covering /auth/login + /auth/refresh.
 3. **[EXECUTION]** Register threshold and custom tag per endpoint.
@@ -561,12 +607,14 @@ Checkpoint: Phase 2 / Tasks 6-10
 5. **[COMPLETION]** Record baseline in evidence path.
 
 **Acceptance Criteria:**
+
 - p95 under 100ms at 100 RPS 5m.
 - Error rate < 1%.
 - Report committed as baseline.
 - Threshold assertions cause exit code 1 on regression.
 
 **Validation:**
+
 - Manual check: `k6 run tests/load/token-issuance.js`.
 - Evidence: linkable artifact produced (k6 report).
 
@@ -596,20 +644,24 @@ Checkpoint: Phase 2 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0037/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0037 `auth_refresh_total{outcome}` counter + `auth_refresh_duration_ms` histogram.
 
 **Steps:**
+
 1. **[PLANNING]** Define outcome labels success|invalid|replay|rate_limited.
 2. **[EXECUTION]** Instrument /auth/refresh handler.
 3. **[VERIFICATION]** Scrape /metrics and assert counter + histogram present.
 
 **Acceptance Criteria:**
+
 - Counter increments with correct outcome.
 - Histogram bucket boundaries aligned to SLO (100ms p95).
 - Metrics exposed at /metrics.
 - Low-cardinality labels only.
 
 **Validation:**
+
 - Manual check: curl /metrics | grep auth_refresh.
 - Evidence: linkable artifact produced (metrics snapshot).
 
@@ -639,21 +691,25 @@ Checkpoint: Phase 2 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0038/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0038 `tests/unit/jwt-service.spec.ts` covering sign, verify, rotateKeys, expired token, wrong kid, clock skew edges.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate coverage targets (>=90% statements).
 2. **[EXECUTION]** Author unit cases for each branch.
 3. **[EXECUTION]** Use fake clock to exercise expiry + skew.
 4. **[VERIFICATION]** Run coverage report and assert >=90%.
 
 **Acceptance Criteria:**
+
 - Statement coverage >=90% for jwt-service.ts.
 - Rotation path produces verify against both keys.
 - 30-sec skew test passes.
 - Coverage report stored at evidence path.
 
 **Validation:**
+
 - Manual check: `pytest --cov` report for jwt-service module.
 - Evidence: linkable artifact produced (coverage report).
 
@@ -683,21 +739,25 @@ Checkpoint: Phase 2 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0039/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0039 `tests/integration/refresh.spec.ts` login -> refresh -> replay -> family revoke; assertions on 200/401/audit.
 
 **Steps:**
+
 1. **[PLANNING]** Seed user and obtain token pair.
 2. **[EXECUTION]** Rotate once; attempt rotate with original token; assert 401 + revokeFamily.
 3. **[EXECUTION]** Query audit log for token_rotated + token_family_revoked.
 4. **[VERIFICATION]** Assert Redis entries for family are cleared.
 
 **Acceptance Criteria:**
+
 - Legitimate rotation returns 200 new pair.
 - Replay attempt returns 401 envelope.
 - All tokens in family are revoked/deleted.
 - Audit trail recorded.
 
 **Validation:**
+
 - Manual check: run integration test file.
 - Evidence: linkable artifact produced (integration log).
 
@@ -741,21 +801,25 @@ Checkpoint: Phase 2 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0040/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0040 `tests/integration/me.spec.ts` hitting GET /profile with/without token; asserts 200/401.
 
 **Steps:**
+
 1. **[PLANNING]** Prepare seeded user + token.
 2. **[EXECUTION]** Call GET /profile without Authorization -> assert 401.
 3. **[EXECUTION]** Call with valid bearer -> assert 200 profile body.
 4. **[VERIFICATION]** Confirm req.user.sub equals user_id in response.
 
 **Acceptance Criteria:**
+
 - 401 path emits unified envelope.
 - 200 path returns profile fields (no password_hash).
 - Middleware verifies token via JwtService.
 - Test runs under 5 seconds.
 
 **Validation:**
+
 - Manual check: run integration test file.
 - Evidence: linkable artifact produced (integration log).
 
@@ -785,21 +849,25 @@ Checkpoint: Phase 2 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0041/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0041 Migration adding token_issued, token_rotated, token_revoked, token_family_revoked to enum; service wiring.
 
 **Steps:**
+
 1. **[PLANNING]** Audit enum current values and confirm migration strategy.
 2. **[EXECUTION]** Write additive enum migration.
 3. **[EXECUTION]** Wire TokenManager emits for the four events.
 4. **[VERIFICATION]** Integration test asserts audit entries on rotation.
 
 **Acceptance Criteria:**
+
 - Enum expanded non-destructively.
 - Each TokenManager operation emits exactly one audit event.
 - Audit payload includes family_id + token_id (hashed).
 - Migration reversible.
 
 **Validation:**
+
 - Manual check: query auth_audit_log post-rotation.
 - Evidence: linkable artifact produced (log query output).
 
@@ -829,21 +897,25 @@ Checkpoint: Phase 2 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0042/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0042 `src/security/token-hash.ts` computing SHA-256 hash of refresh token string; adapter enforces hash presence.
 
 **Steps:**
+
 1. **[PLANNING]** Select Node crypto subtle SHA-256.
 2. **[EXECUTION]** Implement hash helper with constant-time compare.
 3. **[EXECUTION]** Enforce hash write in TokenManager/Redis adapter.
 4. **[VERIFICATION]** Unit test hash output + constant-time compare.
 
 **Acceptance Criteria:**
+
 - Only SHA-256 hash written to Redis.
 - No plaintext refresh token appears in logs or metrics.
 - Adapter throws if called with plaintext.
 - Unit tests cover equal/different paths.
 
 **Validation:**
+
 - Manual check: inspect Redis value and confirm 64 hex chars.
 - Evidence: linkable artifact produced (redis-cli capture).
 
@@ -873,20 +945,24 @@ Checkpoint: Phase 2 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0043/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0043 JwtService config exposing `leewaySeconds = 30`; unit test rejecting tokens older than leeway + 15m.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm target JWT library leeway API.
 2. **[EXECUTION]** Set leeway in verify options.
 3. **[VERIFICATION]** Unit test tokens at +/-29s, +/-31s boundaries.
 
 **Acceptance Criteria:**
+
 - Tokens within +/-30s of issuer clock accepted.
 - Tokens beyond tolerance rejected with TOKEN_EXPIRED.
 - Leeway exposed as config constant.
 - Referenced by NFR-SEC-002 docs.
 
 **Validation:**
+
 - Manual check: run skew unit test matrix.
 - Evidence: linkable artifact produced (unit test log).
 

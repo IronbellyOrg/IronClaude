@@ -143,6 +143,7 @@ This fundamentally changes the cost-benefit analysis. Strategy A's primary value
 #### Critical Discovery: The Append-Mode Compromise
 
 The AGAINST advocate proposed a compelling middle ground: change `process.py:114` from `"w"` (truncate) to `"a"` (append). This:
+
 - Preserves all tasks' NDJSON in the phase file (fixes data loss)
 - Requires ZERO downstream consumer changes
 - Requires ZERO new file naming
@@ -227,6 +228,7 @@ This is not a cosmetic issue — it is **actively misleading** and could cause a
 #### Resolution: Hybrid Approach
 
 The debate converges on a **modified shared interface**:
+
 1. MonitorState remains the TUI's single data contract (M1, M2, M4 arguments decisive)
 2. But the adapter must handle `stall_status` correctly (P2 is valid — fix via adapter)
 3. Path A can extend with ADDITIONAL fields passed through a separate channel for task progress (P4), without replacing MonitorState
@@ -301,6 +303,7 @@ The three rulings are internally consistent:
 **INV-004 (Anti-instinct gate reads growing file)**: RESOLVED. The gate evaluation at `executor.py:826-831` runs AFTER each task completes. In append mode, it reads the accumulated file containing tasks 1..N. The gate checks for pathological patterns (undischarged obligations, uncovered contracts). Seeing prior tasks' content alongside the current task's content could cause false positives on pattern matching.
 
 **Mitigation**: The anti-instinct gate should be passed the task's START OFFSET in the file and evaluate only the bytes from that offset to end-of-file. This requires:
+
 - Recording file size before task starts (~1 LOC)
 - Passing offset to gate function (~1 LOC)
 - Gate reads from offset instead of from beginning (~3 LOC)
@@ -326,6 +329,7 @@ The three rulings are internally consistent:
 **Rationale**: The data loss is a real bug that degrades PA-04 (turn counting), PA-05 (anti-instinct gate), F8 (summary), and diagnostics. Append mode fixes the root cause with zero downstream consumer changes. The append-mode compromise was proposed by the AGAINST advocate and is strictly superior to either "per-task files now" or "do nothing."
 
 **Additional requirements from invariant probe**:
+
 - Inject task boundary markers between tasks (1 LOC)
 - Pass file offset to anti-instinct gate for per-task evaluation (5 LOC)
 

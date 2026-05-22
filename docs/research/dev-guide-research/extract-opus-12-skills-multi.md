@@ -150,6 +150,7 @@ RATIONALE: [one-line reason]
 ```
 
 **Multi-Phase Behavioral Flow** with numbered phases:
+
 - Phase 0: Mandatory Classification Header
 - Phase 1: Classification Phase (tier assignment)
 - Phase 2: Confidence Display (human-readable)
@@ -503,6 +504,7 @@ The `confidence-check` skill is different -- it is referenced as a pre-implement
 Complex skills define agent types that are spawned via the `Task` tool:
 
 **sc-cleanup-audit agents** (5 specialized types):
+
 - `audit-scanner` (Haiku) -- Pass 1 surface scanning
 - `audit-analyzer` (Sonnet) -- Pass 2 structural analysis
 - `audit-comparator` (Sonnet) -- Pass 3 cross-cutting comparison
@@ -510,9 +512,11 @@ Complex skills define agent types that are spawned via the `Task` tool:
 - `audit-validator` (Sonnet) -- Quality spot-checking
 
 **sc-task-unified agents** (1 type):
+
 - `quality-engineer` -- Verification agent spawned for STRICT tier only
 
 **sc-adversarial agents** (from COMMANDS.md):
+
 - `debate-orchestrator` -- coordinator
 - `merge-executor` -- specialist
 - `advocate agents` -- dynamic
