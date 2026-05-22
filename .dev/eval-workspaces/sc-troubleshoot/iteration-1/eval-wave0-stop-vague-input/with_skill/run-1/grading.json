@@ -1,0 +1,38 @@
+{
+  "eval_id": 6,
+  "eval_name": "wave0-stop-vague-input",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Refuses to fabricate a hypothesis from no input",
+      "passed": true,
+      "evidence": "REPORT.md: 'Did NOT spawn root-cause-analyst, query auggie/serena, invoke sc:adversarial, or invent hypotheses'."
+    },
+    {
+      "text": "Asks user for specific missing information (error/symptom + scope)",
+      "passed": true,
+      "evidence": "REPORT.md lists 4 specific requests: concrete symptom, --scope, --type, repro command."
+    },
+    {
+      "text": "Stops at Wave 0",
+      "passed": true,
+      "evidence": "audit.log shows status=stopped, tier_reached=0, escalation_reason=wave0_stop_underspecified_deep."
+    },
+    {
+      "text": "Does NOT use any MCP / parallel agents (no investigative work performed)",
+      "passed": true,
+      "evidence": "audit.log shows zero MCP calls and no hypothesis cards written."
+    }
+  ],
+  "pass_count": 4,
+  "fail_count": 0,
+  "na_count": 0,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "na": 0
+  }
+}

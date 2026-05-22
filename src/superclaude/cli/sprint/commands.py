@@ -136,6 +136,14 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     help="Stall timeout in seconds (0 = disabled, default: 0)",
 )
 @click.option(
+    "--startup-stall-timeout",
+    "startup_stall_timeout",
+    type=int,
+    default=300,
+    show_default=True,
+    help="Seconds to wait for the first event from a subprocess before treating as startup-stall (0 = disabled).",
+)
+@click.option(
     "--stall-action",
     type=click.Choice(["warn", "kill"]),
     default="warn",
@@ -171,6 +179,13 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     default=None,
     help="Explicit release directory (overrides auto-detection from index path).",
 )
+@click.option(
+    "--state-dir",
+    "state_dir_override",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=None,
+    help="Transient state directory for .sprint-exitcode and other runtime artifacts (default: $SPRINT_STATE_DIR or .dev/sprint-state/<tasklist-id>/).",
+)
 def run(
     index_path: Path,
     start_phase: int,
@@ -183,10 +198,12 @@ def run(
     tmux_session_name: str,
     debug_mode: bool,
     stall_timeout: int,
+    startup_stall_timeout: int,
     stall_action: str,
     shadow_gates: bool,
     force_fidelity_fail: str,
     release_dir_override: Path | None,
+    state_dir_override: Path | None,
 ):
     """Execute a sprint from a tasklist index.
 
@@ -203,6 +220,12 @@ def run(
     from .executor import execute_sprint
     from .tmux import is_tmux_available, launch_in_tmux
 
+    state_dir = state_dir_override or (
+        Path(os.environ["SPRINT_STATE_DIR"])
+        if os.environ.get("SPRINT_STATE_DIR")
+        else None
+    )
+
     config = load_sprint_config(
         index_path=index_path,
         start_phase=start_phase,
@@ -213,8 +236,10 @@ def run(
         permission_flag=permission_flag,
         debug=debug_mode,
         stall_timeout=stall_timeout,
+        startup_stall_timeout=startup_stall_timeout,
         stall_action=stall_action,
         shadow_gates=shadow_gates,
+        state_dir=state_dir,
     )
 
     # Thread tmux session name into config when relaunched by launch_in_tmux
@@ -223,9 +248,24 @@ def run(
 
     # Override release_dir if explicitly provided
     if release_dir_override is not None:
+        original_release_dir_name = config.release_dir.name
         resolved = Path(release_dir_override).resolve()
         object.__setattr__(config, "release_dir", resolved)
         object.__setattr__(config, "work_dir", resolved)
+        # Re-derive state_dir under the new release name when no explicit
+        # state_dir was provided AND the current state_dir matches the
+        # original auto-derivation. This resolves OQ-1 by keeping the
+        # default factory consistent with the post-override release_dir.
+        if (
+            state_dir is None
+            and config.state_dir
+            == Path(".dev/sprint-state") / original_release_dir_name
+        ):
+            object.__setattr__(
+                config,
+                "state_dir",
+                Path(".dev/sprint-state") / resolved.name,
+            )
 
     # Preflight: fidelity block
     blocked, fidelity_msg = _check_fidelity(index_path)

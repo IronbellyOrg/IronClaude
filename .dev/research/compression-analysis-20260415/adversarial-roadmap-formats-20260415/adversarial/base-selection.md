@@ -35,6 +35,7 @@ Pass 1 and Pass 2 verdicts AGREE on all three rankings (V-B > V-A > V-C). No re-
 ## 2. Quantitative Scoring Breakdown
 
 ### Metric 1: Requirement coverage (weight 0.30)
+
 15 canonical source claims; mark engagement.
 
 | # | Claim | V-A | V-B | V-C |
@@ -58,6 +59,7 @@ Pass 1 and Pass 2 verdicts AGREE on all three rankings (V-B > V-A > V-C). No re-
 | **RC score** | | **0.900** | **0.700** | **0.767** |
 
 ### Metric 2: Internal consistency (weight 0.25)
+
 Contradictions between own sections.
 
 | Variant | Contradictions | Substantive claims | IC |
@@ -67,6 +69,7 @@ Contradictions between own sections.
 | V-C | 1 (recommends XML+MD but cites anti-XML comprehension benchmark) | ~28 | 0.964 |
 
 ### Metric 3: Specificity ratio (weight 0.15)
+
 Concrete verifiable statements / total substantive.
 
 | Variant | Concrete w/ source-number-quote | Total | SR |
@@ -76,6 +79,7 @@ Concrete verifiable statements / total substantive.
 | V-C | 18 (benchmark inventory verdicts, paper IDs) | 28 | 0.643 |
 
 ### Metric 4: Dependency completeness (weight 0.15)
+
 Internal references resolved / total.
 
 | Variant | Resolved | Total | DC |
@@ -85,6 +89,7 @@ Internal references resolved / total.
 | V-C | 12/14 (Part F refers to Phase 2/3 migration without sample-size proof) | 14 | 0.857 |
 
 ### Metric 5: Section coverage (weight 0.15)
+
 Sections / max(sections).
 
 | Variant | Sections | Max | SC |
@@ -190,6 +195,7 @@ V-B Part F explicitly addresses bounded Haiku risk and deployment via "conservat
 **Critical per user directive**: "the probe showed V-B partially addresses INV-4 (generation vs consumption), while V-A and V-C conflate." Applied as 6c → V-B = Y, V-A = N, V-C = N. V-C uniquely flags N=1 generalization (Part D: "sample size N=1"). V-B alone identifies the Phase 2 slice as one slice among many (implicit N=1 acknowledgment). V-A has no edge case discussion — purely audit-mode.
 
 **Edge case floor check (< 1/5 ineligible)**:
+
 - V-A: 0.5 / 5 → **BELOW FLOOR** (flagged)
 - V-B: 2.5 / 5 → eligible
 - V-C: 2.5 / 5 → eligible

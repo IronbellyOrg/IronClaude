@@ -1,7 +1,9 @@
 # SuperClaude — Framework Context
 
 ## Python Environment
+
 Use UV for all Python operations. Never use `python -m`, `pip install`, or `python script.py`.
+
 ```
 uv run pytest                    # run tests
 uv run pytest tests/path/ -v     # specific tests
@@ -10,6 +12,7 @@ uv run python script.py          # execute scripts
 ```
 
 ## Project Structure
+
 ```
 src/superclaude/        # Source of truth for all distributable components
   core/                 # This file + framework .md files (RULES, PRINCIPLES, etc.)
@@ -27,6 +30,7 @@ docs/                   # Documentation (docs/generated/ = CLI pipeline artifact
 ```
 
 ## Dev Commands
+
 ```
 make dev                # Install editable + dev dependencies
 make test               # Full test suite
@@ -39,10 +43,12 @@ superclaude roadmap validate <output-dir>    # Validate roadmap artifacts
 ```
 
 ## Component Sync
+
 Source of truth is `src/superclaude/`. Always edit there first, then `make sync-dev`.
 If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then `make verify-sync`.
 
 ## MCP Servers
+
 | Server         | Primary Use                                  | Flag       |
 |----------------|----------------------------------------------|------------|
 | auggie         | Codebase search — call before significant edits | (auto)  |
@@ -54,6 +60,7 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 | playwright     | Browser automation, E2E testing              | --play     |
 
 ## Personas (auto-activated by context; override with --persona-X)
+
 | Persona      | Domain                         | Primary MCP       |
 |--------------|--------------------------------|-------------------|
 | architect    | systems design, scalability    | sequential, c7    |
@@ -67,6 +74,7 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 | scribe       | docs, localization             | c7, sequential    |
 
 ## Core Rules
+
 1. **UV only** — never `python -m` or bare `pip`
 2. **Parallel by default** — batch independent tool calls; sequential only for true dependencies
 3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask before implementing
@@ -79,6 +87,7 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 10. **Temporal** — verify current date from env context before any date/version reasoning
 
 ## Key Docs
+
 - `PLANNING.md` — architecture decisions, absolute rules
 - `TASK.md` — current tasks and priorities
 - `KNOWLEDGE.md` — accumulated insights and debugging patterns
@@ -86,6 +95,7 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 - `src/superclaude/core/PRINCIPLES.md` — engineering principles (referenced by skills)
 
 ## Skills & Commands
+
 Skills in `~/.claude/skills/` load on-demand (~50 tokens each at session start).
 Commands in `~/.claude/commands/sc/` — use `/sc:help` to list all available.
 Agents in `~/.claude/agents/` — delegated by skills and commands.

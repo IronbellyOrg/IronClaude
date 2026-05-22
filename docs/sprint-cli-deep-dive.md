@@ -211,6 +211,7 @@ _CLASSIFIER_RE   = re.compile(r"\|\s*Classifier\s*\|\s*(\w+)\s*\|", re.IGNORECAS
 ```
 
 **Extracted into `TaskEntry`** (`models.py:26`):
+
 - `task_id`: e.g., `"T01.01"` — phase number + task number
 - `title`: text after the `--` separator
 - `dependencies`: list of task IDs from `**Dependencies:**`
@@ -236,6 +237,7 @@ The tasklist was generated from a spec with unresolved HIGH severity deviations.
 ```
 
 Override with:
+
 - `--force-fidelity-fail 'justification text'`
 
 This prevents executing sprints generated from specs with unresolved HIGH-severity deviations.
@@ -371,6 +373,7 @@ Runs **before** the main orchestration loop. Filters `config.active_phases` to t
 ### 10.1 Per-Task Execution
 
 For each task in the phase:
+
 1. **Parse command**: `shlex.split(task.command)` — the `**Command:**` field from the tasklist
 2. **Run subprocess**: `subprocess.run(cmd, capture_output=True, timeout=120, cwd=config.work_dir)`
 3. **Classify result**: If `task.classifier` is set, calls `run_classifier(classifier_name, exit_code, stdout, stderr)`. If classifier is unknown, falls back to `exit_code == 0 → pass`
@@ -543,6 +546,7 @@ while proc_manager._process.poll() is None:
 ```
 
 Key details:
+
 - **Timeout enforcement** uses `time.monotonic()` (immune to NTP adjustments)
 - **Stall watchdog** is a **single-fire guard** — triggers once, then resets when output resumes
 - **TUI errors** are caught and logged, never abort the sprint
@@ -821,6 +825,7 @@ The wiring gate runs **static analysis** on the codebase after each task/phase t
 | G-003: Unwired Registries | `analyze_registries()` | Dict/list entries referencing callables that don't exist (broken dispatch tables) |
 
 Findings have two severity levels:
+
 - **critical**: Definite wiring failure (e.g., G-001 with no call sites found at all)
 - **major**: Likely wiring gap (e.g., G-002 module present but unreachable)
 - **info**: Informational (suppressed entries, edge cases)
@@ -1002,6 +1007,7 @@ Partial lines are buffered across poll cycles via `_line_buffer`. The buffer is 
 ### 18.4 Signal Extraction
 
 From NDJSON events:
+
 - **Tool use**: `event.get("tool", "")` from `type: "tool_use"` events
 - **Task IDs**: Regex `T\d{2}\.\d{2}` (takes last match)
 - **Tool names**: Regex `\b(Read|Edit|MultiEdit|Write|Grep|Glob|Bash|TodoWrite|TodoRead|Task)\b`
@@ -1194,6 +1200,7 @@ class DiagnosticBundle:
 ### 21.4 Diagnostic Report
 
 `ReportGenerator.write()` produces a structured markdown report at `results/phase-N-diagnostic.md` containing:
+
 - Summary (category, status, exit code, duration, stall duration, watchdog status)
 - Evidence list
 - Monitor state snapshot
@@ -1282,13 +1289,15 @@ finally:
     signal_handler.uninstall()
 ```
 
-### 23.5 Exit Sentinel (line 1544)
+### 23.5 Exit Sentinel (line 1751)
 
-Writes `.sprint-exitcode` to the release directory so the tmux caller can read the outcome:
+Writes `.sprint-exitcode` to the transient `state_dir` (non-tracked, default `.dev/sprint-state/<release-name>/`) so the tmux caller can read the outcome:
 
 ```python
 _exitcode = 0 if sprint_result.outcome == SprintOutcome.SUCCESS else 1
-(config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+state_dir = config.state_dir
+state_dir.mkdir(parents=True, exist_ok=True)
+(state_dir / ".sprint-exitcode").write_text(str(_exitcode))
 ```
 
 If exit code is non-zero, raises `SystemExit(_exitcode)`.
@@ -1385,6 +1394,7 @@ The sprint module inherits from a shared pipeline framework (`src/superclaude/cl
 | `ClaudeProcess` | `pipeline.process.ClaudeProcess` | start(), wait(), terminate(), NDJSON output |
 
 Shared infrastructure from `pipeline/`:
+
 - `TrailingGatePolicy` — gate enforcement interface
 - `TrailingGateResult` — gate evaluation result (step_id, passed, evaluation_ms, failure_reason)
 - `DeferredRemediationLog` — persists failed gate results to JSON
@@ -1397,6 +1407,7 @@ Shared infrastructure from `pipeline/`:
 The two execution paths handle failures **differently**:
 
 ### Per-Task Path (line 1233)
+
 ```python
 # After execute_phase_tasks() returns, even with failures:
 sprint_result.phase_results.append(phase_result)
@@ -1405,6 +1416,7 @@ continue  # ← Always continues to next phase
 ```
 
 ### Whole-Phase Path (line 1484–1486)
+
 ```python
 if status.is_failure:
     # Collect diagnostics...
@@ -1430,6 +1442,7 @@ return (exit_code, 0, output_bytes)  # turns_consumed always 0
 ```
 
 The second element (turns consumed) is hardcoded to 0. This means:
+
 - Budget reconciliation always credits back the full pre-allocation
 - Anti-instinct reimbursement always computes `int(0 * 0.8) = 0`
 - The TurnLedger tracks budget flow but never gets real consumption data

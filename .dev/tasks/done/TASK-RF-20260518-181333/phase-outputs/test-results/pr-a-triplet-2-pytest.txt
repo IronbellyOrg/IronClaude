@@ -1,0 +1,196 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collected 1408 items
+
+tests/sprint/diagnostic/test_debug_logger.py .......................     [  1%]
+tests/sprint/diagnostic/test_diagnostics.py ................             [  2%]
+tests/sprint/diagnostic/test_instrumentation.py ........................ [  4%]
+......                                                                   [  4%]
+tests/sprint/diagnostic/test_level_0.py .........                        [  5%]
+tests/sprint/diagnostic/test_level_1.py ..........                       [  6%]
+tests/sprint/diagnostic/test_level_2.py ......                           [  6%]
+tests/sprint/diagnostic/test_level_3.py .....                            [  7%]
+tests/sprint/diagnostic/test_negative.py .........                       [  7%]
+tests/sprint/test_anti_instinct_sprint.py .................              [  8%]
+tests/sprint/test_backward_compat_regression.py ...F..F....F...          [  9%]
+tests/sprint/test_checkpoints.py ....................................    [ 12%]
+tests/sprint/test_cli_contract.py ...........                            [ 13%]
+tests/sprint/test_config.py ............................................ [ 16%]
+....                                                                     [ 16%]
+tests/sprint/test_context_injection.py ..................                [ 17%]
+tests/sprint/test_diagnostics.py FF                                      [ 18%]
+tests/sprint/test_e2e_halt.py FFFFF                                      [ 18%]
+tests/sprint/test_e2e_success.py FFFFFF                                  [ 18%]
+tests/sprint/test_e2e_trailing.py ...........                            [ 19%]
+tests/sprint/test_execute_sprint_integration.py FFFFF                    [ 20%]
+tests/sprint/test_executor.py .....................FFFF................. [ 23%]
+...........................F..........                                   [ 25%]
+tests/sprint/test_gate_display_state.py ....................             [ 27%]
+tests/sprint/test_integration_halt.py FFFFF                              [ 27%]
+tests/sprint/test_integration_lifecycle.py FF.FF                         [ 27%]
+tests/sprint/test_integration_signal.py F.FFF                            [ 28%]
+tests/sprint/test_kpi_contract.py ....                                   [ 28%]
+tests/sprint/test_kpi_report.py ........................                 [ 30%]
+tests/sprint/test_models.py ............................................ [ 33%]
+........................................................................ [ 38%]
+......................                                                   [ 39%]
+tests/sprint/test_monitor.py ...........................                 [ 41%]
+tests/sprint/test_multi_phase.py FF                                      [ 42%]
+tests/sprint/test_nfr_benchmarks.py .......                              [ 42%]
+tests/sprint/test_phase5_negative_validation.py ........................ [ 44%]
+.                                                                        [ 44%]
+tests/sprint/test_phase8_halt_fix.py ............FFFF.........FFF        [ 46%]
+tests/sprint/test_preflight.py ......................................... [ 49%]
+................                                                         [ 50%]
+tests/sprint/test_process.py .........................................   [ 53%]
+tests/sprint/test_regression_gaps.py .................F................. [ 55%]
+..                                                                       [ 55%]
+tests/sprint/test_resolve_release_dir.py ........                        [ 56%]
+tests/sprint/test_resume_semantics.py .........                          [ 57%]
+tests/sprint/test_retrospective.py ................                      [ 58%]
+tests/sprint/test_shadow_mode.py ...............                         [ 59%]
+tests/sprint/test_summarizer.py .........................                [ 61%]
+tests/sprint/test_tmux.py ...........                                    [ 61%]
+tests/sprint/test_tui.py ..........                                      [ 62%]
+tests/sprint/test_tui_gate_column.py ........                            [ 63%]
+tests/sprint/test_tui_monitor.py FFFFF                                   [ 63%]
+tests/sprint/test_tui_task_updates.py ....                               [ 63%]
+tests/sprint/test_tui_v2_wave1.py ...................................... [ 66%]
+.                                                                        [ 66%]
+tests/sprint/test_tui_v2_wave2.py ..................................     [ 68%]
+tests/sprint/test_watchdog.py FFF..                                      [ 69%]
+tests/sprint/test_wiring_budget_scenarios.py ........                    [ 69%]
+tests/sprint/test_wiring_integration.py ....                             [ 70%]
+tests/sprint/test_wiring_mode_resolution.py ....                         [ 70%]
+tests/sprint/test_wiring_performance.py .                                [ 70%]
+tests/pipeline/test_behavioral.py ....................                   [ 71%]
+tests/pipeline/test_combined_m2_pass.py ...........                      [ 72%]
+tests/pipeline/test_conflict_detector.py ...............                 [ 73%]
+tests/pipeline/test_conflict_review.py ............                      [ 74%]
+tests/pipeline/test_contract_extractor.py ............                   [ 75%]
+tests/pipeline/test_dataflow_graph.py ........                           [ 76%]
+tests/pipeline/test_dataflow_pass.py ...............                     [ 77%]
+tests/pipeline/test_decompose.py .........                               [ 77%]
+tests/pipeline/test_deliverable.py .............                         [ 78%]
+tests/pipeline/test_diagnostic_chain.py ...........                      [ 79%]
+tests/pipeline/test_executor.py .........                                [ 80%]
+tests/pipeline/test_fmea_classifier.py ...........                       [ 80%]
+tests/pipeline/test_fmea_domains.py .......                              [ 81%]
+tests/pipeline/test_fmea_promotion.py ...........                        [ 82%]
+tests/pipeline/test_full_flow.py ............                            [ 83%]
+tests/pipeline/test_gate_performance.py ....                             [ 83%]
+tests/pipeline/test_gates.py ................................            [ 85%]
+tests/pipeline/test_guard_analyzer.py .........                          [ 86%]
+tests/pipeline/test_guard_pass.py ......                                 [ 86%]
+tests/pipeline/test_guard_resolution.py ..........                       [ 87%]
+tests/pipeline/test_integration_decompose.py ........                    [ 87%]
+tests/pipeline/test_invariant_pass.py ........                           [ 88%]
+tests/pipeline/test_invariants.py ......................                 [ 90%]
+tests/pipeline/test_models.py .....................                      [ 91%]
+tests/pipeline/test_mutation_inventory.py .......                        [ 92%]
+tests/pipeline/test_parallel.py ......                                   [ 92%]
+tests/pipeline/test_process.py ...............                           [ 93%]
+tests/pipeline/test_process_hooks.py ........                            [ 94%]
+tests/pipeline/test_release_gate_validation.py ....s..                   [ 94%]
+tests/pipeline/test_state_detector.py ..........                         [ 95%]
+tests/pipeline/test_thread_safety.py ..........                          [ 96%]
+tests/pipeline/test_trailing_gate.py ................................... [ 98%]
+............                                                             [ 99%]
+tests/pipeline/test_verification_emitter.py .........                    [100%]
+
+=============================== warnings summary ===============================
+tests/sprint/diagnostic/test_diagnostics.py: 11 warnings
+tests/sprint/diagnostic/test_level_0.py: 2 warnings
+tests/sprint/diagnostic/test_negative.py: 3 warnings
+  <string>:15: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_crash
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_diagnostics.py:221: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.CRASH
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_error_halt
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_diagnostics.py:228: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.ERROR
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_unknown_when_no_evidence
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_diagnostics.py:241: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.UNKNOWN
+
+tests/sprint/diagnostic/test_negative.py::TestCorruptData::test_classifier_with_empty_bundle
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_negative.py:109: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    cat = classifier.classify(bundle)
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_wrong_operand_state_mutation_detected
+  /config/workspace/IronClaude/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_loaded_start_index' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_sentinel_ambiguity_detected
+  /config/workspace/IronClaude/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_replayed_event_offset' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/sprint/test_backward_compat_regression.py::TestBackwardCompatRegression::test_zero_daemon_threads_grace_period_zero
+FAILED tests/sprint/test_backward_compat_regression.py::TestBackwardCompatRegression::test_sprint_result_format_v121_equivalence
+FAILED tests/sprint/test_backward_compat_regression.py::TestBackwardCompatRegression::test_execution_log_format_v121
+FAILED tests/sprint/test_diagnostics.py::TestFailureTriggersCollector::test_failure_triggers_collector
+FAILED tests/sprint/test_diagnostics.py::TestDiagnosticsExceptionNonFatal::test_diagnostics_exception_non_fatal
+FAILED tests/sprint/test_e2e_halt.py::TestE2EHalt::test_outcome_halted - Attr...
+FAILED tests/sprint/test_e2e_halt.py::TestE2EHalt::test_no_phase3_events - At...
+FAILED tests/sprint/test_e2e_halt.py::TestE2EHalt::test_resume_command_in_log
+FAILED tests/sprint/test_e2e_halt.py::TestE2EHalt::test_markdown_shows_halt_outcome
+FAILED tests/sprint/test_e2e_halt.py::TestE2EHalt::test_phase1_passed_in_log
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_all_phases_pass
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_jsonl_events_for_each_phase
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_jsonl_lines_are_valid_json
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_markdown_log_has_phase_rows
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_markdown_log_has_outcome
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_result_files_created
+FAILED tests/sprint/test_execute_sprint_integration.py::TestExecuteSprintFullPath::test_execute_sprint_full_path
+FAILED tests/sprint/test_execute_sprint_integration.py::TestExecuteSprintFullPath::test_turnledger_constructed
+FAILED tests/sprint/test_execute_sprint_integration.py::TestExecuteSprintFullPath::test_shadow_gate_metrics_constructed
+FAILED tests/sprint/test_execute_sprint_integration.py::TestExecuteSprintFullPath::test_deferred_remediation_log_constructed
+FAILED tests/sprint/test_execute_sprint_integration.py::TestExecuteSprintFullPath::test_sprint_gate_policy_constructed
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_pass
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_halt
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_timeout_exit_code_124
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_interrupted
+FAILED tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_sprint_pass_grace_period_zero
+FAILED tests/sprint/test_integration_halt.py::TestHaltAndResume::test_halt_at_phase2
+FAILED tests/sprint/test_integration_halt.py::TestHaltAndResume::test_halt_phase_number
+FAILED tests/sprint/test_integration_halt.py::TestHaltAndResume::test_resume_command_format
+FAILED tests/sprint/test_integration_halt.py::TestHaltAndResume::test_phase3_not_executed
+FAILED tests/sprint/test_integration_halt.py::TestHaltAndResume::test_first_phase_passed_before_halt
+FAILED tests/sprint/test_integration_lifecycle.py::TestFullPhaseLifecycle::test_single_phase_passes
+FAILED tests/sprint/test_integration_lifecycle.py::TestFullPhaseLifecycle::test_single_phase_outcome_success
+FAILED tests/sprint/test_integration_lifecycle.py::TestFullPhaseLifecycle::test_two_phases_both_pass
+FAILED tests/sprint/test_integration_lifecycle.py::TestFullPhaseLifecycle::test_phase_result_has_timing
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_sigint_sets_interrupted_outcome
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_genuine_failure_still_produces_halted
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_sigterm_also_produces_interrupted
+FAILED tests/sprint/test_integration_signal.py::TestGracefulShutdown::test_partial_results_captured
+FAILED tests/sprint/test_multi_phase.py::TestThreePhaseHappyPath::test_three_phase_happy_path
+FAILED tests/sprint/test_multi_phase.py::TestHaltAtPhaseThree::test_halt_at_phase_three
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_isolation_dir_created_with_one_file_before_subprocess_launch
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_isolation_dir_removed_after_successful_phase
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_isolation_dir_removed_after_failed_phase
+FAILED tests/sprint/test_phase8_halt_fix.py::TestIsolationWiring::test_startup_orphan_cleanup_removes_stale_isolation_tree
+FAILED tests/sprint/test_phase8_halt_fix.py::TestPreliminaryResultIntegration::test_t003_exit_code_0_no_agent_file_yields_pass
+FAILED tests/sprint/test_phase8_halt_fix.py::TestPreliminaryResultIntegration::test_t004_non_zero_exit_write_preliminary_not_called
+FAILED tests/sprint/test_phase8_halt_fix.py::TestPreliminaryResultIntegration::test_t006_stale_halt_overwritten_yields_pass
+FAILED tests/sprint/test_regression_gaps.py::TestExecutorTimeoutPath::test_timeout_exit_code_produces_halted_sprint
+FAILED tests/sprint/test_tui_monitor.py::TestTUIUpdateCalledWithMonitorState::test_tui_update_called_with_monitor_state
+FAILED tests/sprint/test_tui_monitor.py::TestTUIExceptionNonFatal::test_tui_exception_non_fatal
+FAILED tests/sprint/test_tui_monitor.py::TestOutputMonitorLifecycle::test_output_monitor_lifecycle
+FAILED tests/sprint/test_tui_monitor.py::TestTmuxUpdateWithSessionName::test_tmux_update_with_session_name
+FAILED tests/sprint/test_tui_monitor.py::TestTmuxUpdateWithSessionName::test_tmux_not_called_without_session_name
+FAILED tests/sprint/test_watchdog.py::TestWatchdogKillAction::test_stall_kill_action
+FAILED tests/sprint/test_watchdog.py::TestWatchdogWarnAction::test_stall_warn_action
+FAILED tests/sprint/test_watchdog.py::TestWatchdogStallReset::test_stall_reset_on_resume
+=========== 57 failed, 1350 passed, 1 skipped, 22 warnings in 10.09s ===========

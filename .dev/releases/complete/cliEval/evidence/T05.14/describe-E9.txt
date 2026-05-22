@@ -1,0 +1,23 @@
+id: E9
+title: PostToolUse Read async hook fires
+category: hook-lifecycle
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: Use the Write tool to create a file named fixture.txt under the current
+    working directory with the single line 'content'.
+- prompt: Use the Read tool to read fixture.txt.
+  expect_tool_call: Read
+- prompt: /quit
+expects:
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"type":"post_read"'
+- exit_code:
+    equals: 0
+no_pty: skip

@@ -1,0 +1,7 @@
+{
+  "eval_id": 5,
+  "eval_name": "tier2-real-bug-scratch-root-tautology",
+  "prompt": "superclaude eval run --output-dir /etc/foo silently succeeds but `doctor` correctly rejects it ... (see evals.json; investigate snapshot under evals/fixtures/real-bug-scratch-root/)",
+  "expected_tier": 2,
+  "assertions": []
+}

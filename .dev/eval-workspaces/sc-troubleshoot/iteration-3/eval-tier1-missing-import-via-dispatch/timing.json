@@ -1,0 +1,6 @@
+{
+  "total_tokens": 91302,
+  "duration_ms": 203730,
+  "total_duration_seconds": 203.7,
+  "result": "PASS — dispatch chain (command Activation → SKILL.md → agents) executed correctly. Tier 1 only, calibrated confidence 1.00, both new agents (confidence-calibrator, evidence-validator) honored and produced their reports."
+}

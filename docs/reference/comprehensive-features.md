@@ -9,6 +9,7 @@ All slash commands are documented in [commands-list.md](commands-list.md)
 ## 🤖 Agents (20)
 
 ### Specialized Experts
+
 1. **backend-architect** - Backend system design
 2. **business-panel-experts** - Multi-expert business analysis  
 3. **deep-research-agent** - Autonomous web research
@@ -64,6 +65,7 @@ superclaude mcp --dry-run
 ```
 
 ### Available Servers
+
 1. **sequential-thinking** - Multi-step problem solving and systematic analysis
 2. **context7** - Official library documentation and code examples
 3. **magic** - Modern UI component generation and design systems (requires API key)
@@ -74,6 +76,7 @@ superclaude mcp --dry-run
 8. **chrome-devtools** - Chrome DevTools debugging and performance analysis
 
 ### Documentation Files
+
 1. **MCP_Tavily.md** - Primary web search
 2. **MCP_Serena.md** - Session persistence & memory
 3. **MCP_Sequential.md** - Token-efficient reasoning
@@ -84,6 +87,7 @@ superclaude mcp --dry-run
 8. **MCP_Chrome-DevTools.md** - Performance analysis
 
 ### Configuration Files
+
 - context7.json
 - magic.json
 - morphllm.json
@@ -96,6 +100,7 @@ superclaude mcp --dry-run
 ## 📚 Core Documentation
 
 ### Principles & Rules
+
 - **PRINCIPLES.md** - Framework design principles
 - **RULES.md** - Operational rules
 - **FLAGS.md** - Command flags and options
@@ -104,17 +109,20 @@ superclaude mcp --dry-run
 - **BUSINESS_SYMBOLS.md** - Symbol language for business
 
 ### Examples
+
 - **deep_research_workflows.md** - Research workflow examples
 
 ## 📖 Documentation Structure (152 files)
 
 ### User Guides
+
 - **User-Guide/** - English documentation
 - **User-Guide-jp/** - Japanese (日本語)
 - **User-Guide-kr/** - Korean (한국어)
 - **User-Guide-zh/** - Chinese (中文)
 
 Each includes:
+
 - agents.md - Agent usage guide
 - commands.md - Command reference
 - flags.md - Flag documentation
@@ -123,20 +131,24 @@ Each includes:
 - session-management.md - Session handling
 
 ### Developer Guides  
+
 - **Developer-Guide/** - Contributing and architecture
 - **Development/** - Development workflows and tasks
 - **Reference/** - Advanced patterns and examples
 
 ### Getting Started
+
 - **Getting-Started/** - Installation and quick start
 
 ## 🎯 Package Distribution
 
 All resources are included in both:
+
 - `plugins/superclaude/` - Source repository structure
 - `src/superclaude/` - Installed package structure
 
 ### Directory Structure
+
 ```
 src/superclaude/
 ├── agents/          # 20 agent definitions

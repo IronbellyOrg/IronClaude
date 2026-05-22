@@ -78,6 +78,7 @@ This research file documents (a) what the spec says will land, (b) where in the 
 [CODE-VERIFIED] `src/superclaude/cli/sprint/executor.py:1234`: `tasks = _parse_phase_tasks(phase, config)` — when this returns a non-empty list (the modern code path; any phase using `### T<PP>.<TT>` headings hits this), control transfers to `execute_phase_tasks(...)` at line 1239. The freeform path beneath (lines 1266–1390) only runs when `_parse_phase_tasks` returns `None`/`[]`.
 
 [CODE-VERIFIED] `execute_phase_tasks` at lines 913–1051:
+
 - Updates the TUI exactly twice per task — at executor.py:980-985 before launch and at 1043-1049 after completion.
 - Constructs a **fresh `MonitorState()` each update** (executor.py:981, 1045) and populates only `events_received`, `last_event_time`, `last_task_id`. Every other MonitorState field stays at its dataclass default (`stall_seconds=0.0`, `growth_rate_bps=0.0`, `activity_log=[]`, `last_assistant_text=""`).
 - No `OutputMonitor` is instantiated or started in this function. The grep `grep -nE 'OutputMonitor|monitor.start' src/superclaude/cli/sprint/executor.py` confirms `monitor.start()` appears only on the freeform path at line 1277.
@@ -85,6 +86,7 @@ This research file documents (a) what the spec says will land, (b) where in the 
 ### 3.2 The freeform path has the live monitor
 
 [CODE-VERIFIED] `executor.py:1271-1390`:
+
 - Line 1276: `monitor.reset(output_path, phase_file=phase.file)` — `MonitorState` constructed with `phase_started_at = time.monotonic()` (models.py:610 default factory).
 - Line 1277: `monitor.start()` spins up the 0.5 s polling thread.
 - Lines 1303–1381: poll loop calls `tui.update(sprint_result, monitor.state, phase)` once per 500 ms tick.
@@ -94,6 +96,7 @@ So **the live `MonitorState` only flows to the renderer on the freeform path.** 
 ### 3.3 Rich.Live cadence
 
 [CODE-VERIFIED] `src/superclaude/cli/sprint/tui.py:101-106`:
+
 ```
 self._live = Live(
     self._render(),
@@ -102,6 +105,7 @@ self._live = Live(
     screen=False,
 )
 ```
+
 `Live` re-renders the *same renderable tree* every 500 ms on its background thread, regardless of executor pushes. Any dynamic field — spinner glyph, `SprintResult.duration_display` (computed against `datetime.now()`), idle counters using `time.time()` — animates without an executor call. Static fields (`MonitorState.stall_seconds`, `last_assistant_text`, etc.) are *frozen* between explicit `tui.update(...)` calls.
 
 This is the architectural lever P-05 (spinner) exploits.
@@ -180,7 +184,7 @@ The ship order is **P-05 → P-02 → P-03+P-07 → P-01** (RELEASE-SPEC.md:610�
   - `config.py:179, 193, 203, 204` — four `[:60]` slices in `_extract_phase_prompt_preview` (config.py:167-204).
 - **Concrete change (P-03):**
   1. Bump `config.py` extraction-time caps from `[:60]` to `[:240]` (or remove the slice entirely and let the renderer decide).
-  2. In `_build_active_panel`, compute `avail = max(40, self.console.width - 14)` (panel-border + `Prompt:  ` prefix budget) and pass to `_truncate`.
+  2. In `_build_active_panel`, compute `avail = max(40, self.console.width - 14)` (panel-border + `Prompt:` prefix budget) and pass to `_truncate`.
   3. Apply to Agent: line, error messages, and activity-stream descriptions.
 - **Concrete change (P-07):** Stop trimming in `monitor.py:466-467` (or raise the cap to ~400 chars as a 4 KB monitor-memory budget). Move the trim to render-time using the P-03 width budget.
 - **Why ship together:** TUI-ADVERSARIAL §3 ¶3: P-03 alone leaves the Agent: line clipped at 80 (because `ASSISTANT_TEXT_MAX_LEN = 80` pre-trims in the monitor before the renderer ever sees the full text). The two are a "classic two-stage lossy-compression bug" — P-07 fixes the layering by making the monitor store, renderer trim.
@@ -289,6 +293,7 @@ Concrete: remove or raise the `ASSISTANT_TEXT_MAX_LEN = 80` constant in `monitor
 ### 7.3 TUI hang on long output
 
 [CODE-VERIFIED executor.py:1304-1311, 1330-1364] The sprint executor already has a stall-watchdog with `config.stall_timeout`. On the freeform path:
+
 - `ms.stall_seconds > config.stall_timeout AND ms.events_received > 0` triggers a single-fire watchdog action (`kill` or `warn`).
 - On `kill`, the process is terminated; exit code is set to 124 (timeout).
 - Reset: `if _stall_acted and ms.stall_seconds == 0.0` clears the guard.
@@ -349,7 +354,7 @@ The TUI itself has independent protection [CODE-VERIFIED executor.py:1370-1380]:
 - **At terminal width 200 columns:** `avail = 186`. Full prompt visible up to the extraction cap of 240 chars (or 400 for assistant text).
 - **At terminal width 40 columns (the floor):** `avail = max(40, 40 - 14) = 40`. The `max(40, ...)` floor prevents pathological widths from rendering as a 0-char ellipsis.
 - **Resize behavior:** Rich.Console auto-detects width on each render. Resizing mid-sprint causes the *next* Live tick (≤500 ms later) to re-truncate at the new width. The user perceives a near-instant reflow.
-- **Flicker risk:** If `avail` computation is off by one relative to panel border + padding, a "borderline" prompt wraps to two lines on tick N and fits on one line on tick N+1, causing the panel height to oscillate. Mitigation: explicit pre-computation against panel border = 2, padding = 2 (lines 192-197 in tui.py: `padding=(1, 2)`). So budget = `console.width - 14` (border 2 + padding 2 × 2 = 6 + `Prompt:  ` prefix 9 = 15, rounded to 14 per the proposal).
+- **Flicker risk:** If `avail` computation is off by one relative to panel border + padding, a "borderline" prompt wraps to two lines on tick N and fits on one line on tick N+1, causing the panel height to oscillate. Mitigation: explicit pre-computation against panel border = 2, padding = 2 (lines 192-197 in tui.py: `padding=(1, 2)`). So budget = `console.width - 14` (border 2 + padding 2 × 2 = 6 + `Prompt:` prefix 9 = 15, rounded to 14 per the proposal).
 - **Boundary at 60 chars:** This is the legacy hard cap. Users on 80-column terminals (the historical default) see *no* change from P-03+P-07 because `avail = 66` is barely larger than the old cap of 60. The fix is **only visible to users with wider terminals**. Acceptance criterion ("on a 200-column terminal the Prompt: line displays text wider than 60 chars") explicitly tests the wide-terminal case.
 
 ### 8.4 Activity stream and thinking-indicator interactions

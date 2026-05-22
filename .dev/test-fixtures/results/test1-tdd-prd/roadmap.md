@@ -16,17 +16,20 @@ prd_source: "test-prd-user-auth.md"
 The User Authentication Service is a MEDIUM-complexity (0.55), security-critical feature delivering five functional requirements (FR-AUTH-001 through FR-AUTH-005), nine non-functional requirements, and four compliance mandates. The system follows a facade pattern with `AuthService` orchestrating `PasswordHasher`, `TokenManager`, `JwtService`, and `UserRepo` against PostgreSQL 15+, Redis 7+, and SendGrid.
 
 **Business Drivers:**
+
 1. **Personalization roadmap** — Enables ~$2.4M in projected annual revenue from identity-dependent personalization features planned for Q2-Q3 2026
 2. **Compliance deadline** — Required for SOC2 Type II audit in Q3 2026 (user-level event logging, 12-month audit retention)
 3. **Competitive positioning** — 25% of churned users cite missing user accounts as reason for leaving
 
 **Key Technical Challenges:**
+
 - Security surface is HIGH (0.8) — cryptographic operations (bcrypt cost 12, RS256 JWT), token lifecycle management, brute-force mitigation, XSS prevention
 - Three external dependencies (PostgreSQL 15+, Redis 7+, SendGrid) with failover requirements
 - Dual-token pattern (short-lived accessToken + long-lived refreshToken) requires careful state management across frontend and backend
 - Parallel operation with legacy auth during rollout to mitigate data loss risk (R-003)
 
 **Delivery Strategy:**
+
 - 4-phase plan with explicit Phase 0 for design, OQ resolution, and infrastructure provisioning — eliminating ambiguity before coding starts
 - Parallel frontend/backend development enabled by contract-first OpenAPI spec from Phase 0
 - Early observability instrumentation from Phase 0 onwards — no blind development
@@ -87,6 +90,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 - Create decision log for OQs resolved in Phase 0
 
 **Deliverables:**
+
 - Signed-off architecture design document (threat model, key management, token lifecycle diagram)
 - PostgreSQL schema with `users`, `refresh_tokens`, `auth_events` tables
 - OpenAPI spec for `/v1/auth/*` endpoints (enables parallel frontend development)
@@ -96,6 +100,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 - Library dependencies confirmed (see Resource Requirements)
 
 **Phase 0 Exit Criteria:**
+
 - All critical OQs resolved by day 10
 - PostgreSQL + Redis connectivity verified in dev/staging
 - OpenAPI spec reviewed and signed off by frontend and backend leads
@@ -110,6 +115,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 #### Backend Development (2 engineers, 5 weeks)
 
 **Week 3 — Component Skeleton:**
+
 - Create `AuthService` facade with method signatures (login, register, getProfile, refreshToken, logout)
 - Create `PasswordHasher` abstraction wrapping bcryptjs; unit tests asserting bcrypt cost = 12
 - Create `TokenManager` with `issueTokens()`, `revokeRefreshToken()`, and `refresh()` signatures
@@ -120,6 +126,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 - Write idempotent migration scripts with rollback support
 
 **Week 4 — Login and Token Issuance (FR-AUTH-001, FR-AUTH-003):**
+
 - Implement `AuthService.login(email, password)`:
   - Fetch user from `UserRepo`; call `PasswordHasher.verify(password, stored_hash)`
   - On success: call `TokenManager.issueTokens(user_id)` → `AuthToken` with accessToken (JWT) + refreshToken (opaque)
@@ -134,6 +141,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 - Integration test IT-001: login via HTTP → database query → Redis storage → response verification
 
 **Week 5 — Registration (FR-AUTH-002):**
+
 - Implement `AuthService.register(email, password, displayName)`:
   - Validate email format and uniqueness (query `UserRepo`)
   - Validate password strength (≥8 chars, ≥1 uppercase, ≥1 number)
@@ -147,6 +155,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 - Integration test: registration → database insert → JWT issuance → response
 
 **Week 6 — Token Refresh and Profile (FR-AUTH-003, FR-AUTH-004):**
+
 - Implement `TokenManager.refresh(refreshToken)`:
   - Validate refreshToken exists in Redis (not expired, not revoked)
   - Revoke old token from Redis before issuing new pair (rotation)
@@ -164,6 +173,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 - Concurrent authentication load test baseline (NFR-PERF-002: 500 concurrent logins)
 
 **Week 7 — Testing and Stabilization:**
+
 - Achieve 80% unit test coverage across AuthService, PasswordHasher, TokenManager, JwtService
 - Run integration test suite against testcontainers (PostgreSQL + Redis)
 - Performance baseline: measure `AuthService.login()` latency (target < 200ms p95)
@@ -174,6 +184,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 #### Frontend Development (1 engineer, parallel from Week 3)
 
 **Weeks 3–4 — LoginPage and AuthProvider:**
+
 - Create `AuthProvider` context component:
   - State: `{ authToken, user, isLoading, error }`
   - Methods: `login(email, password)`, `register(email, password, displayName)`, `logout()`, `refreshToken()`
@@ -187,6 +198,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
   - Success: call `AuthProvider.login()` → redirect to dashboard
 
 **Weeks 5–6 — RegisterPage and ProtectedRoutes:**
+
 - Create `RegisterPage` component:
   - Form fields: email, password, password confirmation, display name
   - GDPR consent checkbox (required, per NFR-COMP-001)
@@ -200,6 +212,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
   - Logout button (calls `AuthProvider.logout()`)
 
 **Week 7 — E2E Testing and UX Polish:**
+
 - E2E test E2E-001: user journey from landing → RegisterPage → login → ProfilePage
 - Test token refresh: navigate between pages → confirm background refresh → no re-login
 - Test error cases: invalid password, duplicate email, weak password, account lockout
@@ -208,6 +221,7 @@ The User Authentication Service is a MEDIUM-complexity (0.55), security-critical
 #### Phase 1 Compliance Gate
 
 Before proceeding to Phase 2, validate:
+
 - GDPR consent field captured at registration with timestamp (NFR-COMP-001)
 - Audit log table schema includes: user ID, timestamp, IP address, outcome (NFR-COMP-002)
 - Raw passwords never appear in logs or database (NFR-COMP-003)
@@ -223,6 +237,7 @@ Before proceeding to Phase 2, validate:
 - Security review sign-off from security-engineer
 
 **Phase 1 Exit Criteria:**
+
 - FR-AUTH-001 (login), FR-AUTH-002 (registration), FR-AUTH-003 (token refresh), FR-AUTH-004 (profile) pass acceptance criteria
 - Performance: p95 latency < 200ms for login, register, refresh, profile
 - Test coverage: 80% unit, 15% integration across backend components
@@ -238,6 +253,7 @@ Before proceeding to Phase 2, validate:
 #### Backend Development (2 engineers, 3 weeks)
 
 **Week 8 — Password Reset Flow (FR-AUTH-005):**
+
 - Implement `PasswordResetTokenManager`:
   - `generateResetToken(user_id)` → opaque token, stored in PostgreSQL with 1-hour TTL + single-use flag
   - `validateResetToken(token)` → check exists, not expired, not used
@@ -255,6 +271,7 @@ Before proceeding to Phase 2, validate:
 - Integration test: full reset flow (request → email → confirm → login with new password)
 
 **Week 9 — Audit Logging, Compliance, and Observability Hardening:**
+
 - Create `AuditLogger` service:
   - Method `log(event_type, user_id, ip_address, outcome, details)` → structured log to PostgreSQL `auth_events` table
   - 12-month retention enforced by scheduled cleanup job
@@ -279,6 +296,7 @@ Before proceeding to Phase 2, validate:
 - Penetration testing of all auth endpoints
 
 **Week 10 — Beta Deployment (10% traffic):**
+
 - Deploy to production with `AUTH_NEW_LOGIN` = OFF
 - Enable `AUTH_NEW_LOGIN` for 10% of production traffic
 - Monitor metrics:
@@ -298,6 +316,7 @@ Before proceeding to Phase 2, validate:
 - **Jordan (admin):** Account unlock endpoint operational; audit logs queryable by date range and user; failed login visibility confirmed
 
 **Phase 2 Exit Criteria:**
+
 - FR-AUTH-005 (password reset) passes acceptance criteria
 - NFR-COMP-001 through NFR-COMP-004 validated
 - All observability dashboards operational; alerts firing correctly
@@ -360,6 +379,7 @@ The debate identified that a 7-day refresh token TTL means the first forced re-a
 #### Rollback Criteria
 
 Immediate rollback triggered if any condition occurs during beta or GA:
+
 - p95 latency > 1000ms for > 5 minutes
 - Error rate > 5% for > 2 minutes
 - `TokenManager` Redis connection failures > 10/minute
@@ -368,6 +388,7 @@ Immediate rollback triggered if any condition occurs during beta or GA:
 Rollback mechanism: disable `AUTH_NEW_LOGIN` feature flag (< 5 minute execution).
 
 **Phase 3 Exit Criteria:**
+
 - 99.9% uptime measured over rolling 7-day window post-GA
 - p95 latency < 200ms sustained under production load
 - Error rate < 0.1%

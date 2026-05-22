@@ -1,0 +1,56 @@
+{
+  "run_id": "pr-by-number-merged-without_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (9967 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "9967 bytes (min 1500)"
+    },
+    {
+      "text": "report-has-header",
+      "passed": true,
+      "evidence": "matched: # "
+    },
+    {
+      "text": "uses-severity-tiers",
+      "passed": true,
+      "evidence": "all 4 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /[Tt]otal[^\\n]*\\d+/ \u2192 'Total | 9'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/prd/gates.py:130'"
+    },
+    {
+      "text": "cited-files-exist-in-repo",
+      "passed": true,
+      "evidence": "17/17 citations validated (100%)"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "no-pr-was-posted",
+      "passed": true,
+      "evidence": "none of 3 forbidden patterns found"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  }
+}

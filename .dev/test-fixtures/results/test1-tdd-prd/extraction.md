@@ -342,9 +342,11 @@ interface AuthToken {
 - **Auth:** None
 - **Rate Limit:** 10 req/min per IP
 - **Request Body:**
+
   ```json
   { "email": "string", "password": "string" }
   ```
+
 - **Response 200:** `AuthToken` object (`accessToken`, `refreshToken`, `expiresIn`, `tokenType`)
 - **Error Responses:**
   - 401 `AUTH_INVALID_CREDENTIALS` — Invalid email or password
@@ -356,9 +358,11 @@ interface AuthToken {
 - **Auth:** None
 - **Rate Limit:** 5 req/min per IP
 - **Request Body:**
+
   ```json
   { "email": "string", "password": "string", "displayName": "string" }
   ```
+
 - **Response 201:** `UserProfile` object
 - **Error Responses:**
   - 400 Bad Request — Validation errors (weak password, invalid email)
@@ -378,9 +382,11 @@ interface AuthToken {
 - **Auth:** None (refresh token in body)
 - **Rate Limit:** 30 req/min per user
 - **Request Body:**
+
   ```json
   { "refreshToken": "string" }
   ```
+
 - **Response 200:** New `AuthToken` object (old refresh token revoked)
 - **Error Responses:**
   - 401 Unauthorized — Expired or revoked refresh token
@@ -516,6 +522,7 @@ App
 ### Rollback Criteria
 
 Rollback is triggered if any of the following occur:
+
 - p95 latency exceeds 1000ms for more than 5 minutes
 - Error rate exceeds 5% for more than 2 minutes
 - `TokenManager` Redis connection failures exceed 10 per minute
@@ -552,12 +559,14 @@ Rollback is triggered if any of the following occur:
 ### Observability
 
 **Metrics (Prometheus):**
+
 - `auth_login_total` (counter) — login attempts
 - `auth_login_duration_seconds` (histogram) — login latency
 - `auth_token_refresh_total` (counter) — token refresh operations
 - `auth_registration_total` (counter) — registration attempts
 
 **Alerts:**
+
 - Login failure rate > 20% over 5 minutes
 - p95 latency > 500ms
 - `TokenManager` Redis connection failures

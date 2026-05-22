@@ -61,6 +61,7 @@ Delete both modules and their dedicated tests. Decouple `test_ac_validation.py` 
 The four test methods in `TestAC4EvidenceDelete` and `TestAC5EvidenceKeep` currently import `check_delete_evidence` and `check_keep_evidence` from `evidence_gate`. These tests validate acceptance criteria AC4 and AC5 -- they should assert the *semantics* (DELETE requires zero-reference evidence, KEEP requires reference evidence) without depending on the gate module.
 
 **Action:** Replace the `evidence_gate` imports in `test_ac_validation.py` with inline assertions against `ClassificationResult` fields directly. The AC tests should verify that:
+
 - AC4: A `ClassificationResult` with `action=DELETE` has evidence containing zero-reference proof
 - AC5: A `ClassificationResult` with `action=KEEP` and `tier in (TIER_1, TIER_2)` has reference evidence
 
@@ -81,6 +82,7 @@ assert any("zero" in e.lower() and "ref" in e.lower() for e in result.evidence),
 #### Step 2: Delete source and test files
 
 Remove:
+
 - `src/superclaude/cli/audit/evidence_gate.py`
 - `src/superclaude/cli/audit/manifest_gate.py`
 - `tests/audit/test_evidence_gate.py`

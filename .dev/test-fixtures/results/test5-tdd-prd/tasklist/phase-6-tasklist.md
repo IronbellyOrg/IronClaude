@@ -26,9 +26,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0088/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0088 `backend/migrations/mig-001-legacy-to-userprofile.ts` idempotent batch migration with progress + checksum reporting.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm source/target column mapping and bcrypt upgrade policy (re-hash on first login).
 2. **[PLANNING]** Define batch size (1000 rows) and resume token.
 3. **[EXECUTION]** Implement read-only dry-run mode.
@@ -39,12 +41,14 @@
 8. **[COMPLETION]** Publish migration report.
 
 **Acceptance Criteria:**
+
 - Dry-run reports exact row counts and mismatches.
 - Commit mode resumes from last token on retry.
 - All rows land with consent_flag captured (null where unknown + audit).
 - No password plaintext persisted; legacy hash carried as opaque blob for rehash.
 
 **Validation:**
+
 - Manual check: staging run with dump; row count parity verified.
 - Evidence: linkable artifact produced (migration report + checksum file).
 
@@ -74,9 +78,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0089/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0089 `backend/jobs/mig-002-reconcile.ts` scheduled reconciliation writing to `auth_migration_mismatch` table.
 
 **Steps:**
+
 1. **[PLANNING]** Define comparison columns and tolerances.
 2. **[EXECUTION]** Implement job diffing legacy vs. new tables.
 3. **[EXECUTION]** Create mismatch schema + indexes.
@@ -85,12 +91,14 @@
 6. **[COMPLETION]** Document triage procedure.
 
 **Acceptance Criteria:**
+
 - Job completes within 30 min for full dataset.
 - Mismatches persisted with reason codes.
 - Panel shows trend and breakdown by reason.
 - Alert routes to data-eng on backlog > threshold.
 
 **Validation:**
+
 - Manual check: synthetic drift test reports mismatches.
 - Evidence: linkable artifact produced (job log + panel screenshot).
 
@@ -120,9 +128,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0090/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0090 `backend/src/legacy/retire.ts` returning 410 with migration pointer body on `/v0/auth/*`.
 
 **Steps:**
+
 1. **[PLANNING]** Verify traffic to legacy endpoints is 0 for 48h.
 2. **[EXECUTION]** Replace legacy handlers with 410 Gone response.
 3. **[EXECUTION]** Emit AuthEvent `LEGACY_AUTH_CALL` with source IP for audit.
@@ -130,12 +140,14 @@
 5. **[COMPLETION]** Update API gateway docs.
 
 **Acceptance Criteria:**
+
 - All legacy paths return 410 with JSON pointer.
 - No data-path code remains behind 410 branch.
 - AuthEvent captures any continued calls.
 - Change gated behind FEAT-FLAG-NEWLOGIN at 100%.
 
 **Validation:**
+
 - Manual check: contract tests; gateway logs verified.
 - Evidence: linkable artifact produced (test log + gateway snippet).
 
@@ -165,9 +177,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0091/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0091 feature flag segment `auth.newlogin` + rollout plan document + dashboard filter.
 
 **Steps:**
+
 1. **[PLANNING]** Define segment criteria (tenant + random bucket) with LaunchDarkly/Unleash.
 2. **[EXECUTION]** Implement segment registration + percentage increments.
 3. **[EXECUTION]** Wire flag into AuthService login path.
@@ -175,12 +189,14 @@
 5. **[COMPLETION]** Capture rollout log with timestamps + approvers.
 
 **Acceptance Criteria:**
+
 - Flag controls 100% of new login traffic across 0%->1%->5%->25%->50%->100% stages.
 - Each stage advances only after SLO-green >=60min and error-rate delta <0.5% vs prior stage.
 - Rollback returns legacy path on flag off within 60s; rollout steps logged with approver.
 - Flag respects auto-rollback triggers.
 
 **Validation:**
+
 - Manual check: staged rollout verification run.
 - Evidence: linkable artifact produced (flag history export).
 
@@ -210,9 +226,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0092/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0092 feature flag segment `auth.refresh` + rollout document.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm dependency on FEAT-FLAG-NEWLOGIN ordering.
 2. **[EXECUTION]** Register segment and wire into TokenManager refresh path.
 3. **[EXECUTION]** Add guard so flag-off falls back to session cookie behavior.
@@ -220,12 +238,14 @@
 5. **[COMPLETION]** Record decision log.
 
 **Acceptance Criteria:**
+
 - Flag controls 100% of refresh traffic.
 - Flag off rejects refresh calls gracefully (401 with guidance).
 - Rollback independent of FEAT-FLAG-NEWLOGIN.
 - Auto-rollback triggers honored.
 
 **Validation:**
+
 - Manual check: canary tenant verifies flag on/off behavior.
 - Evidence: linkable artifact produced (flag history + synthetic monitor).
 
@@ -269,9 +289,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0093/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0093 `infra/prod/observability/prometheus-grafana/` Helm + values manifest for prod stack.
 
 **Steps:**
+
 1. **[PLANNING]** Size Prometheus retention (30 days metrics per OPS-001, remote_write for long-term).
 2. **[EXECUTION]** Deploy Prometheus + Grafana + alertmanager via Helm.
 3. **[EXECUTION]** Apply OBS-005 recording rules and dashboards.
@@ -279,12 +301,14 @@
 5. **[COMPLETION]** Document DNS + access URLs.
 
 **Acceptance Criteria:**
+
 - Prometheus scrapes all auth-service targets.
 - Grafana auth via SSO.
 - Alertmanager routes to PagerDuty.
 - Disaster-recovery snapshot schedule configured.
 
 **Validation:**
+
 - Manual check: prod dashboard loads live metrics.
 - Evidence: linkable artifact produced (screenshot + manifest diff).
 
@@ -314,9 +338,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0094/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0094 `infra/prod/observability/tempo/` Helm install + retention config.
 
 **Steps:**
+
 1. **[PLANNING]** Size storage (7 days retention per OPS-002) and ingest rate; configure sampling rules (10% default + 100% 5xx + 100% refresh-replay).
 2. **[EXECUTION]** Deploy Tempo with S3 backend.
 3. **[EXECUTION]** Wire OTLP HTTP ingress.
@@ -324,12 +350,14 @@
 5. **[COMPLETION]** Link Grafana datasource.
 
 **Acceptance Criteria:**
+
 - Tempo ingests OTLP at expected rate.
 - Traces queryable in Grafana Explore.
 - Retention policy aligned with SLO review window.
 - Datasource configured with auth.
 
 **Validation:**
+
 - Manual check: query staging trace in prod Tempo.
 - Evidence: linkable artifact produced (Grafana trace screenshot).
 
@@ -359,9 +387,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0095/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0095 `infra/prod/observability/loki/` Helm install + retention.
 
 **Steps:**
+
 1. **[PLANNING]** Determine retention (14 days hot + 90 days cold per OPS-003, 12 months archive via OPS-004).
 2. **[EXECUTION]** Deploy Loki with object storage backend.
 3. **[EXECUTION]** Configure promtail/agents scraping prod pods.
@@ -369,12 +399,14 @@
 5. **[COMPLETION]** Document query cheatsheet.
 
 **Acceptance Criteria:**
+
 - Logs ingested with 2m p95 latency.
 - Labels minimized to bounded cardinality.
 - Retention configured.
 - PII redaction audited via sample logs.
 
 **Validation:**
+
 - Manual check: LogQL query returns auth events.
 - Evidence: linkable artifact produced (query log).
 
@@ -404,9 +436,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0096/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0096 `backend/jobs/audit-archive.ts` + `infra/prod/observability/archival/` bucket manifest + legal hold config.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm CONFLICT-1 decision (12 months hot, legal hold override).
 2. **[EXECUTION]** Implement archival job rotating audit logs to object storage monthly.
 3. **[EXECUTION]** Apply object-lock + immutability policy for 12 months.
@@ -415,12 +449,14 @@
 6. **[COMPLETION]** Document legal hold exception workflow.
 
 **Acceptance Criteria:**
+
 - All audit log entries survive 12 months minimum.
 - Manifest signature verifiable.
 - Legal hold process documented and tested.
 - No mutation of archived objects possible.
 
 **Validation:**
+
 - Manual check: archival job dry-run + integrity verification.
 - Evidence: linkable artifact produced (manifest + verify log).
 
@@ -450,9 +486,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0097/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0097 `infra/prod/email/` DKIM/SPF/DMARC records + SMTP provider credentials (stored in secret manager).
 
 **Steps:**
+
 1. **[PLANNING]** Choose sender domain + envelope policies.
 2. **[EXECUTION]** Configure DKIM + SPF + DMARC records via DNS.
 3. **[EXECUTION]** Provision SMTP credentials in secret manager.
@@ -460,12 +498,14 @@
 5. **[COMPLETION]** Update runbook.
 
 **Acceptance Criteria:**
+
 - DMARC set to `p=reject` after monitoring period; complaint rate <0.1% verified via provider telemetry.
 - SPF/DKIM pass mail-tester inspection.
 - Secrets rotated quarterly per policy.
 - Queue logs capture provider message id.
 
 **Validation:**
+
 - Manual check: mail-tester score >= 9/10.
 - Evidence: linkable artifact produced (score screenshot + DNS audit).
 
@@ -509,21 +549,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0098/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0098 `observability/prometheus/rules/alert-login-fail.yaml` alerting rule firing on login failure rate >30% sustained 10min.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm threshold (failure rate >30% sustained 10min per ALERT-LOGIN-FAIL).
 2. **[EXECUTION]** Author rule + annotations with runbook link.
 3. **[VERIFICATION]** promtool test with synthetic data.
 4. **[COMPLETION]** Commit and deploy via GitOps.
 
 **Acceptance Criteria:**
+
 - Alert fires when login failure rate >30% sustained 10min.
 - Annotations include runbook URL + severity.
 - Labels support routing to on-call.
 - Version-controlled.
 
 **Validation:**
+
 - Manual check: promtool pass.
 - Evidence: linkable artifact produced (test output).
 
@@ -553,21 +597,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0099/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0099 `observability/prometheus/rules/alert-latency.yaml` rule for p95 breach sustained 10m.
 
 **Steps:**
+
 1. **[PLANNING]** Align threshold with NFR-PERF-001.
 2. **[EXECUTION]** Author rule referencing histogram_quantile.
 3. **[VERIFICATION]** promtool test.
 4. **[COMPLETION]** Commit via GitOps.
 
 **Acceptance Criteria:**
+
 - Alert fires at p95 > 300ms for 10m.
 - Linked to runbook entry.
 - Severity = high.
 - Version-controlled.
 
 **Validation:**
+
 - Manual check: promtool pass.
 - Evidence: linkable artifact produced (test output).
 
@@ -597,21 +645,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0100/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0100 `observability/prometheus/rules/alert-redis.yaml` covering redis_up == 0 for >1min.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm scrape target and timeout.
 2. **[EXECUTION]** Author rule + critical severity label.
 3. **[VERIFICATION]** promtool test.
 4. **[COMPLETION]** Commit.
 
 **Acceptance Criteria:**
+
 - Alert fires on Redis scrape failure >1min.
 - Annotations reference rollback runbook.
 - Paging severity set to P1.
 - Version-controlled.
 
 **Validation:**
+
 - Manual check: promtool pass.
 - Evidence: linkable artifact produced (test output).
 
@@ -641,9 +693,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0101/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0101 `ops/rollback/auto-latency.yaml` alertmanager -> rollback-actor integration + chaos-test harness.
 
 **Steps:**
+
 1. **[PLANNING]** Define trigger condition (p95 >500ms for 15min per ROLLBACK-AUTO-LATENCY).
 2. **[EXECUTION]** Implement webhook receiver that flips FEAT-FLAG-NEWLOGIN to 0%.
 3. **[EXECUTION]** Add per-action audit event + Slack/PagerDuty notice.
@@ -651,12 +705,14 @@
 5. **[COMPLETION]** Capture drill report.
 
 **Acceptance Criteria:**
+
 - Drill passes with rollback < 60s.
 - Manual override path documented.
 - Audit event captured with cause.
 - Trigger requires two consecutive alert firings to avoid flapping.
 
 **Validation:**
+
 - Manual check: drill report reviewed.
 - Evidence: linkable artifact produced (chaos test log).
 
@@ -686,21 +742,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0102/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0102 `ops/rollback/auto-err.yaml` alertmanager rule + chaos-test harness.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm 5xx + timeout error thresholds.
 2. **[EXECUTION]** Add recording rule + webhook to rollback actor.
 3. **[VERIFICATION]** Chaos drill injecting 5xx verifies flag flip.
 4. **[COMPLETION]** Drill report archived.
 
 **Acceptance Criteria:**
+
 - Error-rate threshold (>1% sustained 10min) triggers rollback.
 - Rollback completes < 60s.
 - Post-rollback dashboard highlights incident.
 - Manual override documented.
 
 **Validation:**
+
 - Manual check: drill report reviewed.
 - Evidence: linkable artifact produced (chaos log).
 
@@ -744,9 +804,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0103/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0103 `ops/rollback/auto-redis.yaml` + `backend/src/middleware/read-only.ts` read-only mode gate.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm read-only semantics (allow GET, block mint, allow admin unlock).
 2. **[EXECUTION]** Implement middleware tied to ALERT-REDIS via config reload.
 3. **[EXECUTION]** Wire webhook to flip FEAT-FLAG-REFRESH off + enable middleware.
@@ -754,12 +816,14 @@
 5. **[COMPLETION]** Update runbook with operator steps.
 
 **Acceptance Criteria:**
+
 - Read-only mode active within 60s once Redis unreachable >3min.
 - Admin endpoints remain operational.
 - State is fully reversible on Redis recovery.
 - Drill captures user impact metrics.
 
 **Validation:**
+
 - Manual check: chaos drill log.
 - Evidence: linkable artifact produced (drill log).
 
@@ -789,9 +853,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0104/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0104 `ops/rollback/auto-data.yaml` alert + rollback webhook + data integrity check script.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm write-error classification (timeouts, unique violations, connection pool exhaustion).
 2. **[EXECUTION]** Author recording rule + alertmanager route.
 3. **[EXECUTION]** Wire rollback actor to set FEAT-FLAG-NEWLOGIN + FEAT-FLAG-REFRESH to 0%.
@@ -799,12 +865,14 @@
 5. **[COMPLETION]** Update runbook with data-integrity check.
 
 **Acceptance Criteria:**
+
 - Rollback completes < 60s.
 - Data integrity report auto-generated post-incident.
 - False-positive rate tracked.
 - Runbook cross-links MIG-002 reconciliation job.
 
 **Validation:**
+
 - Manual check: chaos drill log.
 - Evidence: linkable artifact produced (drill log + integrity report).
 
@@ -834,9 +902,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0105/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0105 `docs/runbooks/rollback.md` step-by-step manual rollback procedure.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate scenarios each auto trigger covers and manual overlaps.
 2. **[EXECUTION]** Document commands for flag flip, middleware enable, DB snapshot restore.
 3. **[EXECUTION]** Add decision tree for when to escalate to legacy cut-in.
@@ -844,12 +914,14 @@
 5. **[COMPLETION]** Publish and link from OBS-007.
 
 **Acceptance Criteria:**
+
 - Every auto trigger has manual fallback.
 - Commands are copy-paste ready.
 - Approvals chain documented.
 - Version stamped.
 
 **Validation:**
+
 - Manual check: tabletop exercise sign-off.
 - Evidence: linkable artifact produced (exercise notes).
 
@@ -879,9 +951,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0106/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0106 `docs/slo/auth-availability.md` 99.9% SLO definition + error budget policy.
 
 **Steps:**
+
 1. **[PLANNING]** Define SLI (successful 200 responses to /auth/login + /auth/refresh).
 2. **[EXECUTION]** Author SLO doc + error budget policy.
 3. **[EXECUTION]** Confirm burn-rate alerts align with SLO.
@@ -889,12 +963,14 @@
 5. **[COMPLETION]** Publish in docs.
 
 **Acceptance Criteria:**
+
 - SLI + SLO + window documented.
 - Error budget policy includes freeze rules.
 - Referenced by runbook and GA gate.
 - Approved by product owner.
 
 **Validation:**
+
 - Manual check: review sign-off recorded.
 - Evidence: linkable artifact produced (doc + review note).
 
@@ -924,21 +1000,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0107/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0107 `observability/grafana/dashboards/auth-slo.json` SLO + error budget dashboard.
 
 **Steps:**
+
 1. **[PLANNING]** Define panel set (SLO status, burn rate, top errors, latency heatmap).
 2. **[EXECUTION]** Build dashboard JSON referencing OBS-005 recording rules.
 3. **[VERIFICATION]** Import into prod Grafana and verify panels.
 4. **[COMPLETION]** Attach to runbook.
 
 **Acceptance Criteria:**
+
 - Error-budget burn panel live.
 - Links from panels to runbook entries.
 - Version stamped.
 - Provisioned via GitOps.
 
 **Validation:**
+
 - Manual check: dashboard renders in prod Grafana.
 - Evidence: linkable artifact produced (screenshot + JSON path).
 
@@ -982,9 +1062,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0108/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0108 `docs/launch/ga-checklist.md` signed GA go/no-go checklist with evidence links for every prerequisite.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate prerequisites (migration success, SLO doc, rollback drills x4, audit archival, runbook review, admin approvals).
 2. **[EXECUTION]** Gather evidence artifacts from prior tasks (D-0088 -> D-0107).
 3. **[EXECUTION]** Execute final staging end-to-end validation run.
@@ -993,12 +1075,14 @@
 6. **[COMPLETION]** Publish checklist + release GA feature-flag to 100%.
 
 **Acceptance Criteria:**
+
 - Every prerequisite row has linked evidence + approver + timestamp.
 - All 3 required sign-offs collected (sec-reviewer + eng-manager + product).
 - No open rollback-drill findings.
 - GA flag set to 100% only after checklist signed.
 
 **Validation:**
+
 - Manual check: gate meeting minutes + signatures.
 - Evidence: linkable artifact produced (signed checklist file).
 

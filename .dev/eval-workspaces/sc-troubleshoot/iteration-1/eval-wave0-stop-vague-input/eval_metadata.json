@@ -1,0 +1,7 @@
+{
+  "eval_id": 6,
+  "eval_name": "wave0-stop-vague-input",
+  "prompt": "Something's broken. Please troubleshoot it deeply.",
+  "expected_tier": 0,
+  "assertions": []
+}

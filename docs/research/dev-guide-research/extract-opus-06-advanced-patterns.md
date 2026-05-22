@@ -32,6 +32,7 @@ This is reinforced in the summary:
 The document shows how to layer multiple agent contexts for richer guidance.
 
 **Security + Backend Pattern:**
+
 ```bash
 # Security-focused backend development
 @agent-security "define authentication requirements"
@@ -46,6 +47,7 @@ The document shows how to layer multiple agent contexts for richer guidance.
 ```
 
 **Frontend + UX + Accessibility Pattern:**
+
 ```bash
 # Comprehensive frontend development
 @agent-frontend-architect "design component architecture"
@@ -61,6 +63,7 @@ The document shows how to layer multiple agent contexts for richer guidance.
 ### 2.2 Manual vs Automatic Agent Selection
 
 **Explicit Control Pattern** -- directly specifying which agent context loads:
+
 ```bash
 # Manually control which contexts load
 @agent-python-expert "implement data pipeline"
@@ -72,6 +75,7 @@ The document shows how to layer multiple agent contexts for richer guidance.
 ```
 
 **Override Auto-Selection** -- suppressing unwanted agent activation:
+
 ```bash
 # Prevent unwanted agent activation
 /sc:implement "simple utility" --no-mcp
@@ -82,6 +86,7 @@ The document shows how to layer multiple agent contexts for richer guidance.
 ### 2.3 Cross-Technology Multi-Agent Coordination
 
 For projects spanning multiple technology domains:
+
 ```bash
 # Projects with multiple technologies
 # Python backend
@@ -106,6 +111,7 @@ For projects spanning multiple technology domains:
 ### 3.1 Command Sequencing -- Progressive Refinement
 
 Start broad, then narrow focus across multiple commands:
+
 ```bash
 # Start broad, then focus
 /sc:analyze project/
@@ -123,6 +129,7 @@ Start broad, then narrow focus across multiple commands:
 ### 3.2 Discovery to Implementation Pattern
 
 A full lifecycle command sequence:
+
 ```bash
 # Complete feature development flow
 /sc:brainstorm "feature idea"
@@ -144,6 +151,7 @@ A full lifecycle command sequence:
 ### 3.3 Iterative Improvement Pattern
 
 Multiple passes of analysis and improvement:
+
 ```bash
 # Multiple improvement passes
 /sc:analyze code/ --focus quality
@@ -162,6 +170,7 @@ Multiple passes of analysis and improvement:
 ### 3.4 Large Codebase Analysis Pattern
 
 Systematic exploration of large projects in stages:
+
 ```bash
 # Step 1: Structure understanding
 /sc:load project/
@@ -180,6 +189,7 @@ Systematic exploration of large projects in stages:
 ### 3.5 Multi-Module Development Pattern
 
 Developing interconnected modules with context carry-over:
+
 ```bash
 # Frontend module
 /sc:implement "user interface module"
@@ -223,6 +233,7 @@ The document defines four tiers of analysis depth:
 ### 4.2 MCP Server Selection Flags
 
 Three modes of MCP control:
+
 ```bash
 # Selective MCP usage
 /sc:implement "React component" --magic --c7
@@ -308,12 +319,14 @@ Three modes of MCP control:
 The document is explicit about the boundaries of these patterns:
 
 **What these patterns actually do:**
+
 - Guide Claude's thinking -- provide structured approaches
 - Combine contexts -- layer multiple expertise areas
 - Improve output quality -- better code generation through better context
 - Structure workflows -- organize complex tasks
 
 **What these patterns do NOT do:**
+
 - Execute in parallel -- everything is sequential context loading
 - Coordinate processes -- no actual process coordination
 - Optimize performance -- no code runs, so no performance impact
@@ -330,6 +343,7 @@ The document is explicit about the boundaries of these patterns:
 ### 8.1 Context Management
 
 Quoted directly from the source:
+
 1. **Layer Deliberately**: Add contexts in logical order
 2. **Avoid Overload**: Too many agents can dilute focus
 3. **Use Manual Control**: Override auto-activation when needed

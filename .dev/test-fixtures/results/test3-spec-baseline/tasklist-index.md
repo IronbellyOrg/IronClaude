@@ -41,6 +41,7 @@ Tasks with Critical Path Override involve auth, security, crypto, models, or mig
 ## Checkpoint Schedule
 
 Checkpoints occur after every 5 tasks and at the end of each phase. Each checkpoint validates:
+
 - All preceding tasks meet acceptance criteria
 - Deliverables are produced and linkable
 - No regressions in previously validated work

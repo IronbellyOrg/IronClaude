@@ -188,10 +188,12 @@ def update_tail_pane(tmux_session_name: str, output_file: Path):
 
 ### Exit Code Handoff
 
-The tmux process writes a sentinel file so the outer caller can propagate the exit code:
+The tmux process writes a sentinel file to the non-tracked `state_dir` so the outer caller can propagate the exit code:
 
 ```python
-(config.release_dir / ".sprint-exitcode").write_text(str(_exitcode))
+state_dir = config.state_dir
+state_dir.mkdir(parents=True, exist_ok=True)
+(state_dir / ".sprint-exitcode").write_text(str(_exitcode))
 ```
 
 ---
@@ -303,16 +305,19 @@ Columns:
 | `Tasks` | 8 | center | Last task ID |
 
 Table configuration:
+
 ```python
 Table(show_header=True, header_style="bold", border_style="dim", pad_edge=False, box=None)
 ```
 
 Status logic per row:
+
 - If phase has a terminal result → use result status
 - If phase is current and not terminal → force `RUNNING`
 - Pending phases → `PENDING`
 
 Duration logic:
+
 - Terminal phases → `result.duration_display` (e.g., `2m 10s`)
 - Running phase → `{int(monitor_state.stall_seconds)}s`
 - Pending phases → `-`
@@ -336,6 +341,7 @@ Progress(
 #### Active Panel (`_build_active_panel`)
 
 When a phase is running:
+
 ```
 ╭── ACTIVE: Phase 3 ──╮
 │ File:    phase-3-tasklist.md
@@ -349,6 +355,7 @@ When a phase is running:
 ```
 
 Stall display coloring:
+
 - `"active"` → `green`
 - `"thinking..."` → `yellow`
 - `"STALLED"` → `bold red blink`
@@ -358,12 +365,14 @@ Border: `border_style="yellow"`
 #### Terminal Panels
 
 **Success**:
+
 ```python
 Panel(content, title="[bold green]Sprint Complete[/]", border_style="green")
 # Content: "Result: ALL PHASES PASSED\nLog: <path>"
 ```
 
 **Failure**:
+
 ```python
 Panel(content, title="[bold red]Sprint Halted[/]", border_style="red")
 # Content: "Result: HALTED\nHalted at Phase N\nResume: <command>"
@@ -407,6 +416,7 @@ class OutputMonitor:
 ### Poll Cycle
 
 Each 0.5s:
+
 1. `stat()` the output file for current size
 2. If size > last read position → read incremental chunk
 3. Split chunk into complete lines (buffer partial lines)
@@ -418,9 +428,11 @@ Each 0.5s:
 ### Signal Extraction
 
 **From structured NDJSON events** (`_extract_signals_from_event`):
+
 - `tool_use` events → extract `tool` field
 
 **From text via regex** (`_extract_signals_from_text`):
+
 - Task IDs: `T\d{2}\.\d{2}` (e.g., `T03.05`)
 - Tool names: `Read|Edit|MultiEdit|Write|Grep|Glob|Bash|TodoWrite|TodoRead|Task`
 - File changes: `(?:modified|created|edited|wrote|updated)\s+[path]`
@@ -521,16 +533,19 @@ def execute_sprint(config: SprintConfig):
 The executor calls `tui.update()` in three contexts:
 
 1. **During phase execution** (in poll loop, every 0.5s):
+
    ```python
    tui.update(sprint_result, monitor.state, phase)  # phase = current
    ```
 
 2. **After phase completion** (before deciding continue/halt):
+
    ```python
    tui.update(sprint_result, monitor.state, None)  # phase = None → pending
    ```
 
 3. **At sprint end** (final render with terminal panel):
+
    ```python
    tui.update(sprint_result, MonitorState(), None)  # fresh monitor, no phase
    ```
@@ -565,6 +580,7 @@ Single-fire guard resets when output resumes (`stall_seconds == 0.0`).
 | ERROR | Yes | Yes | `[bold red][ERROR]` | Yes (`\a`) |
 
 Status-to-severity mapping:
+
 - `PASS_NO_SIGNAL` → DEBUG (JSONL only)
 - `PASS`, `PASS_NO_REPORT` → INFO
 - `HALT`, `TIMEOUT` → WARN
@@ -593,6 +609,7 @@ reporter.write(bundle, f"phase-{N}-diagnostic.md")
 ```
 
 Classification priority:
+
 1. **STALL**: Watchdog triggered OR stall_duration > 120s
 2. **TIMEOUT**: Exit code 124
 3. **CRASH**: Non-zero exit + low stall duration
@@ -633,6 +650,7 @@ Classification priority:
 | `HALT` | `bold red` | `✗` | Halted |
 
 Valid transitions:
+
 ```
 NONE → CHECKING → PASS
 NONE → CHECKING → FAIL_DEFERRED → REMEDIATING → REMEDIATED
@@ -662,6 +680,7 @@ Cross-platform, best-effort desktop notifications:
 | macOS | `osascript` | `display notification "<msg>" with title "<title>"` |
 
 Triggers:
+
 - Phase failure → urgent notification
 - Phase success → normal notification
 - Sprint complete → normal (success) or urgent (failure)
@@ -673,6 +692,7 @@ Triggers:
 ### Current Roadmap TUI Status: **None**
 
 The roadmap runner (`src/superclaude/cli/roadmap/`) has:
+
 - No TMUX integration
 - No Rich TUI dashboard
 - No output monitor thread
@@ -682,6 +702,7 @@ The roadmap runner (`src/superclaude/cli/roadmap/`) has:
 - No attach/kill/status/logs commands
 
 Its current interface is plain `print()` statements:
+
 ```
 [roadmap] Starting step: extract
 [roadmap] Step extract  PASS (attempt 1, 45s)
@@ -760,10 +781,12 @@ Sprint and roadmap would each extend this with their domain-specific table and d
 The sprint monitor parses NDJSON (`stream-json`). Roadmap uses `text` output format.
 
 Options:
+
 1. **Text mode monitor**: Simpler — just track file growth, stall detection, no signal extraction
 2. **Dual-mode monitor**: Configure format at init, parse accordingly
 
 Recommended: Option 1 — a `TextOutputMonitor` that tracks:
+
 - Output file size and growth rate
 - Stall detection (same logic)
 - Line count

@@ -1,0 +1,20 @@
+{
+  "eval_id": 2,
+  "eval_name": "local-diff-vs-master",
+  "prompt": "Run /sc:auggie-review --diff origin/master...HEAD --no-post-pr --depth quick --output-dir /tmp/eval-diff/. This will review the uncommitted/branch changes against master. Use --focus quality,anti-patterns,architecture. At the end, print the report path and a one-line summary.",
+  "assertions": [
+    {"name": "review-md-exists", "kind": "file_exists", "path": "outputs/REVIEW.md"},
+    {"name": "review-md-nonempty", "kind": "min_size", "path": "outputs/REVIEW.md", "min_bytes": 1500},
+    {"name": "report-mentions-diff-target", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["origin/master", "master\\.\\.\\.HEAD", "diff.*master"]},
+    {"name": "uses-severity-tiers-exact", "kind": "contains_all_regex", "path": "outputs/REVIEW.md", "patterns": ["\\bMedium\\b", "\\bLow\\b"]},
+    {"name": "has-finding-counts", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["[Tt]otal[^\\n]*\\d+", "\\b\\d+\\s+[\\w\\-]*\\s*finding", "(?i)summary[^\\n]*\\d+", "\\d+\\s+(?:file-level|file-anchored|cross-cutting)"]},
+    {"name": "file-line-citations-present", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+", "L\\d+"]},
+    {"name": "cited-files-in-diff-or-repo", "kind": "cited_files_validate", "path": "outputs/REVIEW.md", "repo_root": "/config/workspace/IronClaude"},
+    {"name": "focus-areas-honored", "kind": "contains_all_regex", "path": "outputs/REVIEW.md", "patterns": ["(?i)quality|anti.?pattern|architecture"]},
+    {"name": "skill-audit-log-present", "kind": "file_exists_if_with_skill", "path": "outputs/audit.log"},
+    {"name": "skill-auggie-artifacts-present", "kind": "any_file_exists_if_with_skill", "path": "outputs", "patterns": ["auggie-raw*.json", "auggie-parsed*.json", "auggie-findings*.json"]},
+    {"name": "audit-log-records-grounding", "kind": "contains_any_regex_if_with_skill", "path": "outputs/audit.log", "patterns": ["(?i)ground", "(?i)drop", "(?i)valid(at|ity)", "(?i)file:line", "(?i)wave\\s*3"]},
+    {"name": "skill-machine-summary-header", "kind": "contains_any_regex_if_with_skill", "path": "outputs/REVIEW.md", "patterns": ["SC:AUGGIE-REVIEW:SUMMARY"]},
+    {"name": "audit-log-no-approve-flag", "kind": "not_contains_regex_if_with_skill", "path": "outputs/audit.log", "patterns": ["--approve\\b", "--request-changes\\b"]}
+  ]
+}

@@ -53,6 +53,7 @@ The recommended prompt is a Mode B invocation. The claim under test is comparati
 ```
 
 **Why this shape:**
+
 - `--source` + `--generate design` + `--agents` is Mode B, which is the verified path for "make opposing artifacts, then debate them."
 - Three agents (not two) because the claim uses the universal quantifier "always"; a contingent third position is needed to surface the boundary conditions that falsify a universal claim.
 - `--depth deep` is verified and appropriate for architectural trade-offs where shallow debate would miss operational cost curves.

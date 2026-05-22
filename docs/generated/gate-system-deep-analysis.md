@@ -98,6 +98,7 @@ Steps 7-8 (`test-strategy`, `spec-fidelity`) already form a post-merge validatio
 Set `gate_mode=GateMode.TRAILING` on a `Step` to make its gate non-blocking. The `TrailingGateRunner` evaluates asynchronously via daemon threads; failures are collected at pipeline end (`executor.py:124-136`). Extension point for **expensive** validation that shouldn't block fast-path steps.
 
 Key components:
+
 - `TrailingGateRunner.submit()` -- spawns daemon thread for gate evaluation
 - `TrailingGateRunner.wait_for_pending()` -- sync point at pipeline end
 - `DeferredRemediationLog` -- persists failures for `--resume` recovery

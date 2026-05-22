@@ -1,0 +1,12 @@
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 2 items
+
+tests/skills/test_task_builder_merge.py::TestPR02RetryMonotonicityGuards::test_skill_regression_detection_precedence PASSED [ 50%]
+tests/skills/test_task_builder_merge.py::TestPR02RetryMonotonicityGuards::test_rf_task_builder_has_protocol PASSED [100%]
+
+============================== 2 passed in 0.02s ===============================

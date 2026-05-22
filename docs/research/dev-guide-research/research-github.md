@@ -48,6 +48,7 @@ The Claude Code extension ecosystem has matured significantly through 2025-2026.
 The official Anthropic skills repository defines the canonical skill format.
 
 **Key Structure**:
+
 ```
 ./skills/          # Skill examples (Creative, Dev, Enterprise, Document)
 ./spec/            # The Agent Skills specification
@@ -58,6 +59,7 @@ The official Anthropic skills repository defines the canonical skill format.
 > "Use the PDF skill to extract the form fields from path/to/some-file.pdf"
 
 **Installation**:
+
 ```
 /plugin marketplace add anthropics/skills
 /plugin install document-skills@anthropic-agent-skills
@@ -125,6 +127,7 @@ Also provides **tweakcc** tool to customize and patch Claude Code system prompts
 **URL**: [github.com/hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
 
 The definitive curated list for the ecosystem. Notable entries include:
+
 - **Context Engineering Kit** (Vlad Goncharov) -- Advanced context engineering with minimal token footprint
 - **Auto-Claude** (AndyMik90) -- Autonomous multi-agent framework with kanban UI
 - **Claude Swarm** -- Connected swarm of Claude Code agent sessions
@@ -136,6 +139,7 @@ The definitive curated list for the ecosystem. Notable entries include:
 **URL**: [github.com/wesammustafa/Claude-Code-Everything-You-Need-to-Know](https://github.com/wesammustafa/Claude-Code-Everything-You-Need-to-Know)
 
 Comprehensive guide covering setup through advanced usage. Key insights on CLAUDE.md:
+
 - Run `/init` to auto-generate CLAUDE.md
 - CLAUDE.md files become part of Claude's prompts -- refine like frequently used prompts
 - Common mistake: adding extensive content without iterating on effectiveness
@@ -179,11 +183,13 @@ description: This skill should be used when the user asks to "specific phrase 1"
 ### Description Best Practices
 
 The description field is critical for discovery. It must be:
+
 - Written in **third person** ("This skill should be used when...")
 - Include **concrete trigger phrases** (literal phrases users say)
 - Be comprehensive about when the skill should activate
 
 **Good example**:
+
 ```yaml
 description: This skill should be used when the user asks to "create a hook",
   "add a PreToolUse hook", "validate tool use", "implement prompt-based hooks",
@@ -191,6 +197,7 @@ description: This skill should be used when the user asks to "create a hook",
 ```
 
 **Bad examples**:
+
 ```yaml
 description: Use this skill when working with hooks.    # Wrong person, vague
 description: Load when user needs hook help.             # Not third person
@@ -247,6 +254,7 @@ description: A clear description of what this skill does and when to use it
 ### Creating Skills for Plugins
 
 For plugins, create skill directories directly under the plugin:
+
 ```bash
 mkdir -p plugin-name/skills/skill-name/{references,examples,scripts}
 touch plugin-name/skills/skill-name/SKILL.md
@@ -282,10 +290,12 @@ You are an expert evaluator specializing in...
 ```
 
 **Required fields**:
+
 - `name` -- The agent's identifier
 - `description` -- Defines when the orchestrator picks this subagent for delegation
 
 **Optional fields**:
+
 - `model` -- `inherit` (use parent model), `sonnet`, `opus`, `haiku`
 - `color` -- UI color for the agent
 
@@ -304,6 +314,7 @@ Claude Code's internal agent creation system outputs agents as JSON:
 ```
 
 **Fields**:
+
 - `identifier` -- Lowercase letters, numbers, hyphens; typically 2-4 hyphenated words; avoid "helper/assistant"
 - `whenToUse` -- Must start with "Use this agent when..." and include usage examples
 - `systemPrompt` -- Complete system prompt in 2nd person ("You are...", "You will...")
@@ -313,6 +324,7 @@ The JSON format gets translated into the YAML frontmatter `.md` file format by C
 ### Agent Creation Architect (Official Internal Prompt)
 
 The agent creation architect follows a 5-step workflow:
+
 1. **Extract intent** (purpose, responsibilities, success criteria)
 2. **Design persona** (expert identity appropriate to domain)
 3. **Write comprehensive instructions** (boundaries, methods, edge cases, output formats)
@@ -332,6 +344,7 @@ The agent creation architect follows a 5-step workflow:
 ### Example Agent Definitions from Community
 
 **Code Reviewer** (from feiskyer/claude-code-settings):
+
 ```yaml
 ---
 name: pr-reviewer
@@ -345,6 +358,7 @@ You are an expert code reviewer...
 ```
 
 **QA Agents** (from darcyegb/ClaudeCodeAgents):
+
 - Each agent follows a specific format Claude Code can interpret
 - Focused on single QA responsibility
 - Include checklist-style validation steps
@@ -356,6 +370,7 @@ You are an expert code reviewer...
 ### File-Based Commands
 
 Commands are markdown files in `.claude/commands/` where:
+
 - **Filename** = command name (e.g., `code-review.md` = `/code-review`)
 - **Content** = execution instructions and prompts
 - **`$ARGUMENTS`** = placeholder capturing user input
@@ -393,16 +408,19 @@ Analyze $ARGUMENTS for code quality issues...
 ### Workflow Commands (wshobson/commands)
 
 57 production-ready commands split into:
+
 - **15 Workflows** (multi-agent orchestration)
 - **42 Tools** (single-purpose utilities)
 
 **Workflow example invocation**:
+
 ```
 /workflows:feature-development OAuth2 authentication with JWT tokens
 /workflows:tdd-cycle shopping cart with discount calculation logic
 ```
 
 **Tool example invocation**:
+
 ```
 /tools:api-scaffold REST endpoints for user management with RBAC
 /tools:security-scan perform vulnerability assessment
@@ -411,6 +429,7 @@ Analyze $ARGUMENTS for code quality issues...
 ### Workflow-Oriented Commands (ronnycoding/.claude)
 
 Three methodologies:
+
 1. **Issue-driven**: `/issue` -> `/task` (issue to implementation to PR)
 2. **BDD-first**: `/user-story` -> `/issue` -> `/task` (Gherkin scenarios first)
 3. **Scaled execution**: `/work-on-opens` using git worktrees and tiered dependency grouping
@@ -579,6 +598,7 @@ GitHub template for creating Claude Code plugin marketplaces with validation, CI
 ### Community Hook Examples
 
 **Block edits on main branch** (PreToolUse):
+
 ```bash
 #!/bin/bash
 branch=$(git branch --show-current 2>/dev/null)
@@ -589,6 +609,7 @@ fi
 ```
 
 **Auto-format on write** (PostToolUse):
+
 ```bash
 #!/bin/bash
 file="$1"
@@ -630,6 +651,7 @@ Monitors 9 patterns including command injection, XSS, eval usage, dangerous HTML
 **URL**: [github.com/ruvnet/claude-flow](https://github.com/ruvnet/claude-flow)
 
 Leading agent orchestration platform. Features:
+
 - Intelligent multi-agent swarms
 - Autonomous workflow coordination
 - Enterprise-grade architecture
@@ -637,6 +659,7 @@ Leading agent orchestration platform. Features:
 - Native MCP protocol support
 
 **Integration**:
+
 ```bash
 claude mcp add ruflo -- npx -y ruflo@latest mcp start
 ```
@@ -721,6 +744,7 @@ Emerging standard for universal agent instructions:
 ### Configuration Examples
 
 **settings.json** (from ChrisWiles/claude-code-showcase):
+
 ```json
 {
   "hooks": {
@@ -776,6 +800,7 @@ Emerging standard for universal agent instructions:
 ### MCP + Command Integration (ChrisWiles pattern)
 
 The `/ticket` command orchestrates end-to-end ticket workflow:
+
 1. Read ticket criteria from Linear/Jira (MCP)
 2. Implement the feature
 3. Link PR to ticket
@@ -939,6 +964,7 @@ Steps:
 ### 2. Directory Organization Strategies
 
 **Flat** (simple projects):
+
 ```
 .claude/
 ├── commands/
@@ -952,6 +978,7 @@ Steps:
 ```
 
 **Namespaced** (large projects):
+
 ```
 .claude/
 ├── commands/
@@ -1045,26 +1072,31 @@ Steps:
 ## Source Repository Index
 
 ### Official Anthropic
+
 - [anthropics/skills](https://github.com/anthropics/skills) -- Official skills repository
 - [anthropics/claude-code/plugins](https://github.com/anthropics/claude-code/tree/main/plugins) -- Official plugins
 - [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) -- Official plugin marketplace
 - [anthropics/claude-code/examples/settings](https://github.com/anthropics/claude-code/tree/main/examples/settings) -- Official settings examples
 
 ### System Prompts and Internals
+
 - [Piebald-AI/claude-code-system-prompts](https://github.com/Piebald-AI/claude-code-system-prompts) -- All Claude Code system prompts (v2.1.50)
 
 ### Curated Lists
+
 - [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) -- Definitive curated list
 - [GiladShoham/awesome-claude-plugins](https://github.com/GiladShoham/awesome-claude-plugins) -- Plugin-focused list
 - [hekmon8/awesome-claude-code-plugins](https://github.com/hekmon8/awesome-claude-code-plugins) -- Plugin discovery
 
 ### Comprehensive Guides
+
 - [wesammustafa/Claude-Code-Everything-You-Need-to-Know](https://github.com/wesammustafa/Claude-Code-Everything-You-Need-to-Know) -- All-in-one guide
 - [shanraisshan/claude-code-best-practice](https://github.com/shanraisshan/claude-code-best-practice) -- Best practices
 - [awattar/claude-code-best-practices](https://github.com/awattar/claude-code-best-practices) -- Best practices and examples
 - [zebbern/claude-code-guide](https://github.com/zebbern/claude-code-guide) -- Setup through tips
 
 ### Complete Configuration Examples
+
 - [ronnycoding/.claude](https://github.com/ronnycoding/.claude) -- 83+ agents, 13 commands, 10 skills
 - [feiskyer/claude-code-settings](https://github.com/feiskyer/claude-code-settings) -- Settings, agents, commands
 - [Yugoge/claude-code-config](https://github.com/Yugoge/claude-code-config) -- 32 commands, 21 hooks, 14 agents
@@ -1072,24 +1104,28 @@ Steps:
 - [vincenthopf/My-Claude-Code](https://github.com/vincenthopf/My-Claude-Code) -- Daily essentials
 
 ### Command Collections
+
 - [wshobson/commands](https://github.com/wshobson/commands) -- 57 production-ready commands
 - [qdhenry/Claude-Command-Suite](https://github.com/qdhenry/Claude-Command-Suite) -- 148+ commands, 54 agents
 - [artemgetmann/claude-slash-commands](https://github.com/artemgetmann/claude-slash-commands) -- Commands with frontmatter
 - [Comfy-Org/comfy-claude-prompt-library](https://github.com/Comfy-Org/comfy-claude-prompt-library) -- Team command library
 
 ### Agent Collections
+
 - [wshobson/agents](https://github.com/wshobson/agents) -- 112 agents, 146 skills, 79 tools
 - [darcyegb/ClaudeCodeAgents](https://github.com/darcyegb/ClaudeCodeAgents) -- QA agents
 - [vizra-ai/claude-code-agents](https://github.com/vizra-ai/claude-code-agents) -- Agent collection
 - [lelandg/ClaudeAgents](https://github.com/lelandg/ClaudeAgents) -- Agent documentation
 
 ### Skill Collections
+
 - [alirezarezvani/claude-code-skill-factory](https://github.com/alirezarezvani/claude-code-skill-factory) -- Skill creation toolkit
 - [alirezarezvani/claude-skills](https://github.com/alirezarezvani/claude-skills) -- 26+ domain packages
 - [daymade/claude-code-skills](https://github.com/daymade/claude-code-skills) -- Skills marketplace
 - [Aaronontheweb/dotnet-skills](https://github.com/Aaronontheweb/dotnet-skills) -- .NET skills
 
 ### Multi-Agent Orchestration
+
 - [ruvnet/claude-flow](https://github.com/ruvnet/claude-flow) -- Agent orchestration platform
 - [steipete/claude-code-mcp](https://github.com/steipete/claude-code-mcp) -- Agent-in-agent MCP
 - [grahama1970/claude-code-mcp-enhanced](https://github.com/grahama1970/claude-code-mcp-enhanced) -- Enhanced orchestration MCP
@@ -1098,6 +1134,7 @@ Steps:
 - [alfredolopez80/multi-agent-ralph-loop](https://github.com/alfredolopez80/multi-agent-ralph-loop) -- Memory-driven orchestration
 
 ### Hook Frameworks
+
 - [disler/claude-code-hooks-mastery](https://github.com/disler/claude-code-hooks-mastery) -- Hook mastery guide
 - [disler/claude-code-hooks-multi-agent-observability](https://github.com/disler/claude-code-hooks-multi-agent-observability) -- Agent monitoring hooks
 - [carlrannaberg/claudekit](https://github.com/carlrannaberg/claudekit) -- CLI toolkit with hooks
@@ -1106,6 +1143,7 @@ Steps:
 - [johnlindquist/claude-hooks](https://github.com/johnlindquist/claude-hooks) -- TypeScript hooks
 
 ### Plugin Development
+
 - [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) -- Cross-tool plugin + marketplace
 - [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) -- Full plugin with security scanning
 - [ivan-magda/claude-code-plugin-template](https://github.com/ivan-magda/claude-code-plugin-template) -- Plugin template
@@ -1113,18 +1151,22 @@ Steps:
 - [claude-code-plugin-marketplaces](https://github.com/claude-code-plugin-marketplaces) -- Marketplace collection
 
 ### Prompt Engineering
+
 - [ThamJiaHe/claude-prompt-engineering-guide](https://github.com/ThamJiaHe/claude-prompt-engineering-guide) -- Anthropic best practices
 - [langgptai/awesome-claude-prompts](https://github.com/langgptai/awesome-claude-prompts) -- Prompt curation
 
 ### Security
+
 - [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) -- AgentShield security scanner
 
 ### Cross-Tool Compatibility
+
 - [shakacode/claude-code-commands-skills-agents](https://github.com/shakacode/claude-code-commands-skills-agents) -- Codex + Claude Code shared configs
 - [alexanderop/claude-code-builder](https://github.com/alexanderop/claude-code-builder) -- CLAUDE.md builder patterns
 - [iannuttall/claude-sessions](https://github.com/iannuttall/claude-sessions) -- Session tracking commands
 
 ### Subagent Frontmatter References
+
 - [danielrosehill/96dd15d1313a9bd426f7f12f5375a092](https://gist.github.com/danielrosehill/96dd15d1313a9bd426f7f12f5375a092) -- Subagent frontmatter guide
 - [ThomasRohde/af9d281a7a8c73e37448e1a94485eb0c](https://gist.github.com/ThomasRohde/af9d281a7a8c73e37448e1a94485eb0c) -- Agent creation expert prompt
 - [kieranklaassen/d2b35569be2c7f1412c64861a219d51f](https://gist.github.com/kieranklaassen/d2b35569be2c7f1412c64861a219d51f) -- Multi-agent orchestration system

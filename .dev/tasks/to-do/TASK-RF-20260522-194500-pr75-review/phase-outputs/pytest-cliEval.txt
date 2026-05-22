@@ -1,0 +1,25 @@
+___________ test_evidence_log_present_with_exit_code[04-eval-run-E1] ___________
+tests/cli/eval/test_validation_commands.py:157: in test_evidence_log_present_with_exit_code
+    assert log.is_file(), f"Evidence log missing: {log.relative_to(REPO_ROOT)}"
+E   AssertionError: Evidence log missing: .dev/releases/current/cliEval/evidence/T06.11/04-eval-run-E1.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.dev/releases/current/cliEval/evidence/T06.11/04-eval-run-E1.log').is_file
+=============================== warnings summary ===============================
+tests/cli/eval/test_pty_lifecycle.py::test_real_claude_help_spawn_and_transcript
+tests/cli/eval/test_pty_lifecycle.py::test_lifecycle_prompt_ready_and_input_injection
+tests/cli/eval/test_pty_lifecycle.py::test_lifecycle_timeout_reaps_child
+tests/cli/eval/test_pty_lifecycle.py::test_lifecycle_transcript_persisted_end_to_end
+tests/cli/eval/test_signal_handling.py::test_pty_driver_terminate_kills_real_subprocess
+  /config/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/pty.py:95: DeprecationWarning: This process (pid=2521774) is multi-threaded, use of forkpty() may lead to deadlocks in the child.
+    pid, fd = os.forkpty()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_eval_run.py::test_d0072_spec_documents_flag_wiring
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_root_directory_exists
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[01-targeted-pytest]
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[02-make-verify-sync]
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[03-eval-doctor]
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[04-eval-run-E1]
+============ 6 failed, 1366 passed, 4 skipped, 5 warnings in 19.43s ============

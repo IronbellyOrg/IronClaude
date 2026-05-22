@@ -26,7 +26,7 @@ These are broad multi-agent orchestration frameworks. They provide the *infrastr
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/microsoft/autogen |
+| **URL** | <https://github.com/microsoft/autogen> |
 | **Stars** | ~55,900 |
 | **Language** | Python |
 | **License** | CC-BY-4.0 / MIT |
@@ -41,7 +41,7 @@ These are broad multi-agent orchestration frameworks. They provide the *infrastr
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/crewaiinc/crewai |
+| **URL** | <https://github.com/crewaiinc/crewai> |
 | **Stars** | ~46,900 |
 | **Language** | Python |
 | **License** | MIT |
@@ -56,7 +56,7 @@ These are broad multi-agent orchestration frameworks. They provide the *infrastr
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/langchain-ai/deepagents |
+| **URL** | <https://github.com/langchain-ai/deepagents> |
 | **Stars** | ~16,200 |
 | **Language** | Python |
 | **License** | MIT |
@@ -77,7 +77,7 @@ These tools are AI coding assistants or agent platforms that include some planni
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/aider-ai/aider |
+| **URL** | <https://github.com/aider-ai/aider> |
 | **Stars** | ~42,200 |
 | **Language** | Python |
 | **License** | Apache-2.0 |
@@ -92,7 +92,7 @@ These tools are AI coding assistants or agent platforms that include some planni
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/continuedev/continue |
+| **URL** | <https://github.com/continuedev/continue> |
 | **Stars** | ~32,000 |
 | **Language** | TypeScript |
 | **License** | Apache-2.0 |
@@ -107,7 +107,7 @@ These tools are AI coding assistants or agent platforms that include some planni
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/wshobson/agents |
+| **URL** | <https://github.com/wshobson/agents> |
 | **Stars** | ~31,800 |
 | **Language** | Python |
 | **License** | MIT |
@@ -128,7 +128,7 @@ These are full project management platforms with AI features, operating at the P
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/makeplane/plane |
+| **URL** | <https://github.com/makeplane/plane> |
 | **Stars** | ~46,200 |
 | **Language** | Python / TypeScript |
 | **License** | AGPL-3.0 |
@@ -143,7 +143,7 @@ These are full project management platforms with AI features, operating at the P
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/AppFlowy-IO/AppFlowy |
+| **URL** | <https://github.com/AppFlowy-IO/AppFlowy> |
 | **Stars** | ~67,900 |
 | **Language** | Dart / Rust |
 | **License** | AGPL-3.0 |
@@ -158,7 +158,7 @@ These are full project management platforms with AI features, operating at the P
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/opf/openproject |
+| **URL** | <https://github.com/opf/openproject> |
 | **Stars** | ~13,400 |
 | **Language** | Ruby |
 | **License** | GPL-3.0 |
@@ -179,7 +179,7 @@ These tools share SuperClaude's multi-agent adversarial/debate pattern but apply
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/Skytliang/Multi-Agents-Debate |
+| **URL** | <https://github.com/Skytliang/Multi-Agents-Debate> |
 | **Stars** | ~529 |
 | **Language** | Python |
 | **License** | GPL-3.0 |
@@ -194,7 +194,7 @@ These tools share SuperClaude's multi-agent adversarial/debate pattern but apply
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/zscole/adversarial-spec |
+| **URL** | <https://github.com/zscole/adversarial-spec> |
 | **Stars** | <100 (emerging) |
 | **Language** | JavaScript |
 | **License** | Not specified |
@@ -209,7 +209,7 @@ These tools share SuperClaude's multi-agent adversarial/debate pattern but apply
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/csgoh/roadmapper |
+| **URL** | <https://github.com/csgoh/roadmapper> |
 | **Stars** | ~500+ |
 | **Language** | Python |
 | **License** | MIT |
@@ -230,7 +230,7 @@ These tools directly overlap with major parts of SuperClaude's planning pipeline
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/eyaltoledano/claude-task-master |
+| **URL** | <https://github.com/eyaltoledano/claude-task-master> |
 | **Stars** | ~25,300 |
 | **Language** | JavaScript |
 | **License** | MIT with Commons Clause |
@@ -245,7 +245,7 @@ These tools directly overlap with major parts of SuperClaude's planning pipeline
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/ruvnet/claude-flow |
+| **URL** | <https://github.com/ruvnet/claude-flow> |
 | **Stars** | ~12,600 |
 | **Language** | TypeScript / WASM |
 | **License** | MIT |
@@ -260,7 +260,7 @@ These tools directly overlap with major parts of SuperClaude's planning pipeline
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/OthmanAdi/planning-with-files |
+| **URL** | <https://github.com/OthmanAdi/planning-with-files> |
 | **Stars** | ~9,800 |
 | **Language** | Markdown (Skill) |
 | **License** | MIT |
@@ -275,7 +275,7 @@ These tools directly overlap with major parts of SuperClaude's planning pipeline
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/automazeio/ccpm |
+| **URL** | <https://github.com/automazeio/ccpm> |
 | **Stars** | ~7,600 |
 | **Language** | Shell |
 | **License** | MIT |
@@ -296,7 +296,7 @@ These tools most closely replicate SuperClaude's core value proposition.
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/OpenBMB/ChatDev |
+| **URL** | <https://github.com/OpenBMB/ChatDev> |
 | **Stars** | ~31,700 |
 | **Language** | Python / Vue |
 | **License** | Apache-2.0 |
@@ -311,7 +311,7 @@ These tools most closely replicate SuperClaude's core value proposition.
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/bmad-code-org/BMAD-METHOD (main); https://github.com/24601/BMAD-AT-CLAUDE (Claude integration) |
+| **URL** | <https://github.com/bmad-code-org/BMAD-METHOD> (main); <https://github.com/24601/BMAD-AT-CLAUDE> (Claude integration) |
 | **Stars** | Growing rapidly (multiple repos, 500+ combined for Claude variant; bmad-code-org main repo growing) |
 | **Language** | Markdown / YAML / JavaScript |
 | **License** | MIT |
@@ -326,7 +326,7 @@ These tools most closely replicate SuperClaude's core value proposition.
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/github/spec-kit |
+| **URL** | <https://github.com/github/spec-kit> |
 | **Stars** | ~78,700 |
 | **Language** | Python / Shell |
 | **License** | MIT |
@@ -341,7 +341,7 @@ These tools most closely replicate SuperClaude's core value proposition.
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/Fission-AI/OpenSpec |
+| **URL** | <https://github.com/Fission-AI/OpenSpec> |
 | **Stars** | ~32,900 |
 | **Language** | TypeScript |
 | **License** | MIT |
@@ -356,7 +356,7 @@ These tools most closely replicate SuperClaude's core value proposition.
 
 | Field | Value |
 |-------|-------|
-| **URL** | https://github.com/FoundationAgents/MetaGPT |
+| **URL** | <https://github.com/FoundationAgents/MetaGPT> |
 | **Stars** | ~65,600 |
 | **Language** | Python |
 | **License** | MIT |

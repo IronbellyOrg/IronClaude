@@ -1,0 +1,12 @@
+# Negative fixture: nested violation inside evals[0].
+# The eval entry omits the required `title` field and uses an id that
+# violates the FR-SCH2 regex (lower-case start). Both errors must be
+# surfaced by validate_manifest with stable $-prefixed JSON paths.
+name: nested-violations
+version: "1.0"
+description: "Manifest exercising violations nested inside evals[]."
+defaults: {}
+required_binaries: []
+optional_capabilities: []
+evals:
+  - id: "lowercase-bad"

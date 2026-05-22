@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/cliEval/summary.schema.json",
+  "title": "cliEval run summary",
+  "description": "Schema for `summary.json` written by the cliEval Reporter. Roadmap DM-012 / Deliverable D-0053. Producer: `superclaude.cli.eval.models.RunSummary.to_dict()` (T03.09). Writer: `write_aggregated_report` (FR-RPT1 / T03.11). Fidelity test: TEST-007 (T04.17). `len(evals[]) == counts.expanded_n_prime` is enforced by FR-RPT1 outside this schema; the schema documents the required field shape, not the invariant.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "started_at",
+    "duration_sec",
+    "suite",
+    "manifest_version",
+    "parallel",
+    "counts",
+    "totals",
+    "evals"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque identifier the orchestrator stamps on the run. Stable across artifacts so reviewers can join per-eval JSONL logs against the aggregate summary."
+    },
+    "started_at": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ISO 8601 wall-clock timestamp marking the orchestrator start."
+    },
+    "finished_at": {
+      "type": "string",
+      "description": "ISO 8601 wall-clock timestamp marking the orchestrator stop. Optional: may be empty for partial summaries written on SIGINT before the orchestrator completed."
+    },
+    "duration_sec": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Wall-clock seconds the orchestrator ran end to end."
+    },
+    "suite": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Manifest path / suite identifier the orchestrator loaded."
+    },
+    "manifest_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Semantic version stamped on the manifest at author time."
+    },
+    "parallel": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 15,
+      "description": "Concurrency level the orchestrator scheduled at (post-clamp to [1,15])."
+    },
+    "counts": {
+      "$ref": "#/$defs/runCounts"
+    },
+    "totals": {
+      "$ref": "#/$defs/runTotals"
+    },
+    "evals": {
+      "type": "array",
+      "description": "Per-expanded-eval outcomes (DM-001 / T03.01). FR-RPT1 (T03.11) enforces `len(evals[]) == counts.expanded_n_prime` outside this schema.",
+      "items": {"$ref": "#/$defs/evalOutcome"}
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "Artifact-name → path map the orchestrator emits (JSONL directory, disk-budget breach side-car, ...). Optional.",
+      "additionalProperties": {"type": "string"}
+    }
+  },
+  "$defs": {
+    "evalStatus": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "ERRORED",
+        "TIMEOUT",
+        "INTERRUPTED",
+        "SKIPPED",
+        "XFAIL",
+        "XPASS"
+      ],
+      "description": "DM-001 EvalStatus literal set. Must match `superclaude.cli.eval.models.EVAL_STATUSES` verbatim."
+    },
+    "runCounts": {
+      "type": "object",
+      "description": "DM-012 counts sub-structure (T03.09 `RunCounts`).",
+      "required": [
+        "manifest_n",
+        "expanded_n_prime",
+        "kept_k",
+        "skipped_s",
+        "kept_plus_skipped_equals_n_prime"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "manifest_n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of rows in the source manifest before parameterize expansion."
+        },
+        "expanded_n_prime": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of expanded eval rows after parameterize expansion. Ground-truth row count for FR-RPT1 (T03.11)."
+        },
+        "kept_k": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of expanded rows that ran end-to-end."
+        },
+        "skipped_s": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of expanded rows that were skipped (SKIPPED or INTERRUPTED)."
+        },
+        "kept_plus_skipped_equals_n_prime": {
+          "type": "boolean",
+          "description": "DM-012 boolean assertion that `kept_k + skipped_s == expanded_n_prime`. `RunSummary.__post_init__` enforces the flag mirrors the math."
+        }
+      }
+    },
+    "runTotals": {
+      "type": "object",
+      "description": "DM-012 totals sub-structure (T03.09 `RunTotals`). The six status tallies the Reporter renders in the summary headline.",
+      "required": [
+        "passed",
+        "failed",
+        "skipped",
+        "errored",
+        "interrupted",
+        "timeout"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "skipped": {"type": "integer", "minimum": 0},
+        "errored": {"type": "integer", "minimum": 0},
+        "interrupted": {"type": "integer", "minimum": 0},
+        "timeout": {"type": "integer", "minimum": 0}
+      }
+    },
+    "evalOutcome": {
+      "type": "object",
+      "description": "DM-001 EvalOutcome serialised by `EvalOutcome.to_dict()` (T03.01). Field shape matches `_EVAL_OUTCOME_FIELDS` verbatim.",
+      "required": [
+        "eval_id",
+        "title",
+        "status",
+        "duration_sec",
+        "expects",
+        "skip_reason",
+        "skip_flag_triggered",
+        "artifacts",
+        "error_class"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "eval_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Id of the expanded eval (FR-SCH2 regex-guarded upstream)."
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable eval title copied from EvalSpec."
+        },
+        "status": {"$ref": "#/$defs/evalStatus"},
+        "duration_sec": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Wall-clock seconds the eval ran. 0.0 for SKIPPED outcomes."
+        },
+        "expects": {
+          "type": "array",
+          "description": "ExpectResult records (DM-009 / T01.15), one per evaluated assertion. Empty for SKIPPED.",
+          "items": {"$ref": "#/$defs/expectResult"}
+        },
+        "skip_reason": {
+          "type": ["string", "null"],
+          "description": "Free-form reason string when status is SKIPPED. Null otherwise."
+        },
+        "skip_flag_triggered": {
+          "type": ["string", "null"],
+          "description": "Name of the flag/capability that triggered the skip. Null when not flag-driven."
+        },
+        "artifacts": {
+          "type": "object",
+          "description": "Artifact-name → path map produced by the eval. Empty for SKIPPED.",
+          "additionalProperties": {"type": "string"}
+        },
+        "error_class": {
+          "type": ["string", "null"],
+          "description": "Fully-qualified Python exception class name when status is ERRORED. Null otherwise."
+        }
+      }
+    },
+    "expectResult": {
+      "type": "object",
+      "description": "DM-009 ExpectResult serialised by `ExpectResult.to_dict()` (T01.15).",
+      "required": [
+        "name",
+        "passed",
+        "message",
+        "details",
+        "duration_sec",
+        "failure"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "passed": {"type": "boolean"},
+        "message": {"type": "string"},
+        "details": {"type": "object"},
+        "duration_sec": {"type": "number", "minimum": 0},
+        "failure": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/expectFailure"}
+          ]
+        }
+      }
+    },
+    "expectFailure": {
+      "type": "object",
+      "description": "DM-005 ExpectFailure serialised by `ExpectFailure.to_dict()` (T01.16).",
+      "required": [
+        "eval_id",
+        "expect_id",
+        "expect_name",
+        "expected",
+        "actual",
+        "message",
+        "artifact_ref",
+        "traceback"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "eval_id": {"type": "string", "minLength": 1},
+        "expect_id": {"type": "string", "minLength": 1},
+        "expect_name": {"type": "string", "minLength": 1},
+        "expected": {},
+        "actual": {},
+        "message": {"type": "string"},
+        "artifact_ref": {"type": ["string", "null"]},
+        "traceback": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

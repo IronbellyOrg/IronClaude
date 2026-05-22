@@ -1,0 +1,13 @@
+# Negative fixture: unknown top-level key beyond the v1 contract.
+# The schema declares additionalProperties: false at the top level so this
+# manifest MUST be rejected.
+name: unknown-key
+version: "1.0"
+description: "Manifest with an unknown top-level key that the v1 schema does not declare."
+defaults: {}
+required_binaries: []
+optional_capabilities: []
+evals:
+  - id: E1
+    title: "stub"
+mystery_field: "this key is not in the v1 schema and must be rejected"

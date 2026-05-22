@@ -97,7 +97,8 @@ class TestThreePaneLayout:
             return _ok_result()
 
         # Make the sentinel read succeed with exit 0 so launch returns cleanly.
-        sentinel = config.release_dir / ".sprint-exitcode"
+        config.state_dir.mkdir(parents=True, exist_ok=True)
+        sentinel = config.state_dir / ".sprint-exitcode"
         sentinel.write_text("0\n")
 
         with patch("superclaude.cli.sprint.tmux.subprocess.run", side_effect=fake_run):
@@ -228,3 +229,42 @@ class TestUpdateSummaryPane:
         assert tmux.TUI_PANE == "0.0"
         assert tmux.SUMMARY_PANE == "0.1"
         assert tmux.TAIL_PANE == "0.2"
+
+
+class TestBuildForegroundCommand:
+    """Regression: the inner --no-tmux subprocess must inherit the outer's
+    state_dir so the .sprint-exitcode writer (inner) and reader (outer,
+    `launch_in_tmux` at tmux.py:166) agree on a single path.
+
+    Without forwarding, an outer ``--state-dir /custom/path`` override (or
+    any env-derived non-default) silently desynced from the inner default
+    and the outer's ``int(sentinel.read_text())`` swallowed OSError so
+    sprint failures looked like successes. PR #61 review fix.
+    """
+
+    def test_forwards_state_dir_default(self, tmp_path):
+        config = _make_config(tmp_path)
+        cmd = tmux._build_foreground_command(config)
+        assert "--state-dir" in cmd, (
+            "inner subprocess must receive --state-dir or it will derive "
+            "a different default and desync from the outer reader"
+        )
+        idx = cmd.index("--state-dir")
+        assert cmd[idx + 1] == str(config.state_dir), (
+            f"forwarded --state-dir value {cmd[idx + 1]!r} must equal "
+            f"config.state_dir {str(config.state_dir)!r}"
+        )
+
+    def test_forwards_explicit_state_dir_override(self, tmp_path):
+        """Locks in the medium-severity bug: outer --state-dir override
+        must reach the inner subprocess, not silently default."""
+        custom = tmp_path / "custom-state"
+        config = SprintConfig(
+            index_path=tmp_path / "tasklist-index.md",
+            release_dir=tmp_path,
+            state_dir=custom,
+            phases=[Phase(number=1, file=tmp_path / "phase-1-tasklist.md")],
+        )
+        cmd = tmux._build_foreground_command(config)
+        idx = cmd.index("--state-dir")
+        assert cmd[idx + 1] == str(custom)

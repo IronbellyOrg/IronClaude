@@ -25,18 +25,21 @@ When building a command/skill/agent, ensure it can operate under these pre-check
 > "### Pre-Operation Validation Checks"
 >
 > "**Resource Validation**:
+>
 > - Token usage prediction based on operation complexity and scope
 > - Memory and processing requirements estimation
 > - File system permissions and available space verification
 > - MCP server availability and response time checks"
 >
 > "**Compatibility Validation**:
+>
 > - Flag combination conflict detection (e.g., `--no-mcp` with `--seq`)
 > - Persona + command compatibility verification
 > - Tool availability for requested operations
 > - Project structure requirements validation"
 >
 > "**Risk Assessment**:
+>
 > - Operation complexity scoring (0.0-1.0 scale)
 > - Failure probability based on historical patterns
 > - Resource exhaustion likelihood prediction
@@ -49,6 +52,7 @@ When building a command/skill/agent, ensure it can operate under these pre-check
 Commands/skills/agents should degrade or reduce scope as resource pressure rises.
 
 > "**Resource Management Thresholds**:
+>
 > - **Green Zone** (0-60%): Full operations, predictive monitoring active
 > - **Yellow Zone** (60-75%): Resource optimization, caching, suggest --uc mode
 > - **Orange Zone** (75-85%): Warning alerts, defer non-critical operations
@@ -79,10 +83,10 @@ This directly impacts persona selection and tool routing.
 >
 > "| Domain | Keywords | File Patterns | Typical Ops |
 > |--------|---------|--------------|-------------|
-> | Frontend | UI, component, React, Vue, CSS, responsive, accessibility | *.jsx, *.tsx, *.vue, *.css | create, implement, style, optimize, test |
+> | Frontend | UI, component, React, Vue, CSS, responsive, accessibility | *.jsx,*.tsx, *.vue,*.css | create, implement, style, optimize, test |
 > | Backend | API, database, server, endpoint, authentication, performance | *.js, *.ts, *.py, *.go, controllers/*, models/* | implement, optimize, secure, scale |
 > | Infrastructure | deploy, Docker, CI/CD, monitoring, scaling | Dockerfile, *.yml, .github/*, terraform/* | setup, configure, automate, monitor |
-> | Security | vulnerability, authentication, encryption, audit, compliance | *auth*, *security*, *.pem, *.key | scan, harden, audit, fix |
+> | Security | vulnerability, authentication, encryption, audit, compliance | *auth*, *security*,*.pem, *.key | scan, harden, audit, fix |
 > | Documentation | document, README, wiki, guide, commit, changelog | *.md, *.rst, docs/*, README*, CHANGELOG* | write, document, explain, localize |
 > | Iterative | improve, refine, enhance, correct, polish, iterate, loop | *.* | improve, refine, enhance, correct, polish |
 > | Wave-eligible | comprehensive, systematically, enterprise, large-scale | (complexity indicators) | comprehensive_improvement, systematic_optimization |"
@@ -112,6 +116,7 @@ Custom commands/skills/agents should be designed so their invocation text and fl
 > "### Intent Extraction Algorithm"
 >
 > "```
+>
 > 1. Parse user request for keywords and patterns
 > 2. Match against domain/operation matrices
 > 3. Score complexity based on scope and steps
@@ -119,11 +124,13 @@ Custom commands/skills/agents should be designed so their invocation text and fl
 > 5. Estimate resource requirements
 > 6. Generate routing recommendation (traditional vs wave mode)
 > 7. Apply auto-detection triggers for wave activation
+>
 > ```"
 
 ### 4.1 Enhanced wave detection algorithm (for wave-enabled command design)
 
 > "**Enhanced Wave Detection Algorithm**:
+>
 > - **Flag Overrides**: `--single-wave` disables, `--force-waves`/`--wave-mode` enables
 > - **Scoring Factors**: Complexity (0.2-0.4), scale (0.2-0.3), operations (0.2), domains (0.1), flag modifiers (0.05-0.1)
 > - **Thresholds**: Default 0.7, customizable via `--wave-threshold`, enterprise strategy lowers file thresholds
@@ -158,12 +165,14 @@ wave-strategies:
 Wave-enabled commands list (important for command development decisions and naming consistency):
 
 > "**Wave-Enabled Commands**:
+>
 > - **Tier 1**: `/analyze`, `/build`, `/implement`, `/improve`
 > - **Tier 2**: `/design`, `/task`"
 
 Wave opportunity scoring (signals your command could hook into):
 
 > "**Wave Opportunity Scoring**:
+>
 > - High Complexity >0.8: +0.4 | Multiple Operation Types >2: +0.3 | Critical Quality: +0.2
 > - Large File Count >50: +0.1 | Iterative Indicators: +0.2 | Enterprise Scale: +0.15"
 
@@ -174,6 +183,7 @@ Wave strategy selection rules (used to select *how* your command should orchestr
 Wave auto-triggers (conditions a custom command should respect if it operates at scale):
 
 > "**Wave Auto-Triggers**:
+>
 > - complexity >0.8 AND files >20 AND operation_types >2 → --wave-count 5
 > - domains >3 AND tokens >15K → --adaptive-waves
 > - production_deploy OR security_audit → --wave-validation
@@ -310,6 +320,7 @@ When building a skill or command, align your internal steps with this tool-selec
 > "#### Tool Selection Logic"
 >
 > "**Base Tool Selection**:
+>
 > - **Search**: Grep (specific patterns) or Agent (open-ended)
 > - **Understanding**: Sequential (complexity >0.7) or Read (simple)
 > - **Documentation**: Context7
@@ -317,10 +328,12 @@ When building a skill or command, align your internal steps with this tool-selec
 > - **Testing**: Playwright"
 >
 > "**Delegation & Wave Evaluation**:
+>
 > - **Delegation Score >0.6**: Add Task tool, auto-enable delegation flags based on scope
 > - **Wave Score >0.7**: Add Sequential for coordination, auto-enable wave strategies"
 >
 > "**Auto-Flag Assignment**:
+>
 > - Directory count >7 → `--delegate --parallel-dirs`
 > - Focus areas >2 → `--multi-agent --parallel-focus`
 > - High complexity + critical quality → `--wave-mode --wave-validation`
@@ -335,6 +348,7 @@ This section is the most directly relevant for designing *agents* (including spe
 ### 8.1 Delegation scoring factors and triggers
 
 > "**Delegation Scoring Factors**:
+>
 > - Complexity >0.6: +0.3 | Parallelizable Operations: +0.4 (scaled) | Token >15K: +0.2 | Multi-domain >2: +0.1/domain"
 
 > "**Auto-Delegation Triggers**:
@@ -363,6 +377,7 @@ This section is the most directly relevant for designing *agents* (including spe
 If you add new agents, this mapping defines intended specialization boundaries.
 
 > "**Sub-Agent Specialization Matrix**:
+>
 > - **Quality**: qa persona, complexity/maintainability, Read/Grep/Sequential
 > - **Security**: security persona, vulnerabilities/compliance, Grep/Sequential/Context7
 > - **Performance**: performance persona, bottlenecks/optimization, Read/Sequential/Playwright
@@ -372,6 +387,7 @@ If you add new agents, this mapping defines intended specialization boundaries.
 ### 8.4 Wave-specific specialization (roles across wave phases)
 
 > "**Wave-Specific Specialization**:
+>
 > - **Review**: analyzer → Read/Grep/Sequential
 > - **Planning**: architect → Sequential/Context7/Write
 > - **Implementation**: domain-specific → Edit/MultiEdit/Task
@@ -391,6 +407,7 @@ If you add new agents, this mapping defines intended specialization boundaries.
 If you add a new command, these are the rules that should remain consistent with expected behavior.
 
 > "**Context-Based Flag Auto-Activation**:
+>
 > - Performance issues → --persona-performance + --focus performance + --think
 > - Security concerns → --persona-security + --focus security + --validate
 > - UI/UX tasks → --persona-frontend + --magic + --c7
@@ -404,6 +421,7 @@ If you add a new command, these are the rules that should remain consistent with
 ### 9.3 Flag precedence rules (important when extending command flags)
 
 > "#### Flag Precedence Rules
+>
 > 1. Safety flags (--safe-mode) > optimization flags
 > 2. Explicit flags > auto-activation
 > 3. Thinking depth: --ultrathink > --think-hard > --think
@@ -452,6 +470,7 @@ If your custom command performs implementation work (not just read-only), align 
 > "**Operation Batching**: See RULES.md §Planning Efficiency for parallel-first doctrine. Tool coordination uses parallel operations when no dependencies, context sharing across routing decisions, and cache for session reuse."
 >
 > "**Resource Allocation**:
+>
 > - **Detection Engine**: 1-2K tokens for pattern analysis
 > - **Decision Trees**: 500-1K tokens for routing logic
 > - **MCP Coordination**: Variable based on servers activated"
@@ -479,6 +498,7 @@ If your custom command performs implementation work (not just read-only), align 
 > "### Graceful Degradation"
 >
 > "- **Level 1**: Reduce verbosity, skip optional enhancements, use cached results
+>
 > - **Level 2**: Disable advanced features, simplify operations, batch aggressively
 > - **Level 3**: Essential operations only, maximum compression, queue non-critical"
 
@@ -487,6 +507,7 @@ If your custom command performs implementation work (not just read-only), align 
 > "### Error Recovery Patterns"
 >
 > "- **MCP Timeout**: Use fallback server (see MCP.md §Circuit Breaker Configuration)
+>
 > - **Token Limit**: Activate compression
 > - **Tool Failure**: Try alternative tool
 > - **Parse Error**: Request clarification"

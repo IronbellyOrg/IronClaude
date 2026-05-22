@@ -1,0 +1,16 @@
+{
+  "eval_id": 1,
+  "eval_name": "pr-by-number-merged",
+  "prompt": "Run /sc:auggie-review 62 --no-post-pr --output-dir /tmp/eval-pr62/. The repo is IronbellyOrg/IronClaude. Use --depth standard. Produce the full markdown report at /tmp/eval-pr62/REVIEW.md. Do not post to the PR (it's already merged). At the end of your work, print the absolute path to REVIEW.md and a one-line summary of the finding counts by severity.",
+  "assertions": [
+    {"name": "review-md-exists", "kind": "file_exists", "path": "outputs/REVIEW.md"},
+    {"name": "review-md-nonempty", "kind": "min_size", "path": "outputs/REVIEW.md", "min_bytes": 1500},
+    {"name": "report-has-header", "kind": "contains_any", "path": "outputs/REVIEW.md", "patterns": ["# ", "PR #62", "pull/62", "Pull Request 62"]},
+    {"name": "uses-severity-tiers", "kind": "contains_all_regex", "path": "outputs/REVIEW.md", "patterns": ["(?i)\\bcritical\\b", "(?i)\\bhigh\\b", "(?i)\\bmedium\\b", "(?i)\\blow\\b"]},
+    {"name": "has-finding-counts", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["[Tt]otal[^\\n]*\\d+", "\\b\\d+\\s+[\\w\\-]*\\s*finding", "(?i)summary[^\\n]*\\d+", "\\d+\\s+(?:file-level|file-anchored|cross-cutting)"]},
+    {"name": "file-line-citations-present", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+", "`[^`]+\\.py`[^\\n]*line\\s+\\d+", "L\\d+"]},
+    {"name": "cited-files-exist-in-repo", "kind": "cited_files_validate", "path": "outputs/REVIEW.md", "repo_root": "/config/workspace/IronClaude"},
+    {"name": "skill-audit-log-present", "kind": "file_exists_if_with_skill", "path": "outputs/audit.log"},
+    {"name": "no-pr-was-posted", "kind": "not_contains_regex", "path": "outputs/REVIEW.md", "patterns": ["[Pp]osted\\s+to\\s+PR", "gh pr review --approve", "--request-changes"]}
+  ]
+}

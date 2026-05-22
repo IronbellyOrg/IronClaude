@@ -408,4 +408,3 @@ MIG-005(`AUTH_TOKEN_REFRESH`) -> `TokenManager`/`AuthProvider` -> GA session per
 |M5|2 weeks|2026-05-27 (Week 9)|2026-06-09 (Week 10)|Maps to TDD M5 GA Release; alpha, beta, GA cutover, flag cleanup commitments, launch sign-off|
 
 **Total estimated duration:** 10 weeks (2026-03-30 to 2026-06-09)
-

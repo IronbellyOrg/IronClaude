@@ -27,6 +27,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 **Milestone M1:** `AuthService` login and registration endpoints passing integration tests against real PostgreSQL and Redis.
 
 #### 1.1 Infrastructure Provisioning
+
 - Provision PostgreSQL 15+ with connection pooling (100 pool size)
 - Provision Redis 7+ cluster (1 GB initial, scaling plan to 2 GB at 70% utilization)
 - Configure Docker Compose for local development (PostgreSQL + Redis)
@@ -35,6 +36,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - Configure SendGrid API access and verify sender domain
 
 #### 1.2 Data Model & Migration
+
 - Create `UserProfile` table in PostgreSQL:
   - `id` (UUID v4, PK), `email` (UNIQUE, indexed, lowercase), `displayName` (2-100 chars), `password_hash` (NOT NULL), `createdAt`, `updatedAt`, `lastLoginAt` (nullable), `roles` (default `["user"]`)
 - Create audit log table in PostgreSQL with 12-month retention policy (per NFR-COMP-002, overriding TDD's 90-day specification)
@@ -42,6 +44,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - Write idempotent migration scripts with rollback support
 
 #### 1.3 Core Backend Components
+
 - **`PasswordHasher`** — bcrypt hash/verify with cost factor 12 (NFR-SEC-001, NFR-COMP-003)
   - Abstraction layer to enable future argon2id migration without API changes
   - Validate raw passwords are never persisted or logged (NFR-COMP-003)
@@ -56,18 +59,21 @@ This roadmap defines the phased delivery of a User Authentication Service compri
   - Data minimization: only email, hashed password, displayName collected (NFR-COMP-004)
 
 #### 1.4 API Layer (Partial)
+
 - POST `/v1/auth/login` — 10 req/min per IP rate limit
 - POST `/v1/auth/register` — 5 req/min per IP rate limit
 - Consistent error response schema: `{ error: { code, message, status } }`
 - URL prefix versioning (`/v1/auth/*`)
 
 #### 1.5 Testing — Wave 1
+
 - Unit tests UT-001, UT-002: `AuthService` login flows
 - Integration test IT-001: Registration persists `UserProfile` to database
 - Unit tests for `PasswordHasher`: bcrypt cost factor 12 assertion (NFR-SEC-001)
 - Password strength validation test cases
 
 #### 1.6 Compliance Gate (Phase 1)
+
 - Verify GDPR consent field captured at registration (NFR-COMP-001)
 - Verify audit log table schema includes: user ID, timestamp, IP address, outcome (NFR-COMP-002)
 - Verify raw passwords never appear in logs or database (NFR-COMP-003)
@@ -84,6 +90,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 **Milestone M2:** Token refresh cycle passing end-to-end with Redis TTL enforcement.
 
 #### 2.1 Token Components
+
 - **`JwtService`** — JWT sign/verify with RS256 using 2048-bit RSA keys (NFR-SEC-002)
   - Access token: 15-minute expiry, payload contains `UserProfile.id` and `UserProfile.roles`
   - Configuration validation test for RS256 signing
@@ -94,15 +101,18 @@ This roadmap defines the phased delivery of a User Authentication Service compri
   - Token revocation capability for security incidents (R-001 contingency)
 
 #### 2.2 API Layer (Completion)
+
 - POST `/v1/auth/refresh` — 30 req/min per user rate limit
 - GET `/v1/auth/me` — 60 req/min per user, Bearer token auth (FR-AUTH-004)
   - Returns full `UserProfile`: id, email, displayName, createdAt, updatedAt, lastLoginAt, roles
 
 #### 2.3 Integration Wiring
+
 - Wire `TokenManager` into `AuthService.login()`: after `PasswordHasher.verify()` succeeds, call `TokenManager.issueTokens()` via `JwtService`
 - Wire `AuthService.getProfile()` to validate accessToken via `JwtService`, then fetch from `UserRepo`
 
 #### 2.4 Testing — Wave 2
+
 - Unit test UT-003: Token refresh with valid refresh token
 - Integration test IT-002: Expired refresh token rejected (Redis TTL)
 - Token signing validation tests (NFR-SEC-002)
@@ -119,6 +129,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 **Milestone M3:** Password reset email delivered, token validated, password updated, old sessions invalidated.
 
 #### 3.1 Password Reset Implementation (FR-AUTH-005)
+
 - POST `/v1/auth/reset-request` — generates cryptographically random reset token, 1-hour TTL
   - Identical response for registered and unregistered emails (no user enumeration)
   - Sends reset email via SendGrid with time-limited link
@@ -126,16 +137,19 @@ This roadmap defines the phased delivery of a User Authentication Service compri
   - Used reset tokens cannot be reused (single-use enforcement)
 
 #### 3.2 Email Service Integration
+
 - SendGrid API integration with delivery monitoring
 - Email template for password reset link
 - Delivery failure alerting (R-007 mitigation)
 
 #### 3.3 Testing — Wave 3
+
 - Unit tests for reset token generation, expiry, single-use enforcement
 - Integration test: full reset flow (request → email → confirm → login with new password)
 - SendGrid integration test (staging environment)
 
 #### 3.4 Open Question Resolution Gate
+
 - OQ-003: Synchronous vs asynchronous reset email sending — decision needed before implementation
 - OQ-008: POST `/auth/logout` endpoint — determine if needed for v1.0 or client-side token deletion sufficient
 
@@ -150,6 +164,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 **Milestone M4:** E2E test E2E-001 passing (register → login → profile).
 
 #### 4.1 Frontend Components
+
 - **`AuthProvider`** (Context Provider) — manages `AuthToken` state in memory (not localStorage — R-001 mitigation)
   - Silent refresh via `TokenManager` refresh endpoint
   - Clear tokens on tab close
@@ -165,16 +180,19 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - **ProfilePage** — displays `UserProfile` from GET `/v1/auth/me`
 
 #### 4.2 Route Structure & Protection
+
 - `/login` → `LoginPage` (public)
 - `/register` → `RegisterPage` (public)
 - `/profile` → ProfilePage (protected — redirect to `/login` if unauthenticated)
 - Component hierarchy: `App > AuthProvider > PublicRoutes | ProtectedRoutes`
 
 #### 4.3 Persona-Driven UX Validation
+
 - **Alex (end user):** Registration completes in under 60 seconds; session persists across page refreshes
 - **Sam (API consumer):** Programmatic token refresh works without user interaction; clear error codes returned
 
 #### 4.4 Testing — Wave 4
+
 - E2E test E2E-001: User registers and logs in (RegisterPage → LoginPage → ProfilePage)
 - `AuthProvider` silent refresh test
 - XSS prevention validation (R-001): verify tokens not in localStorage/DOM
@@ -190,6 +208,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 **Milestone M5:** All NFRs validated, compliance audit checklist green, security review passed.
 
 #### 5.1 Observability Stack
+
 - **Prometheus metrics:**
   - `auth_login_total` (counter) — login attempts by outcome
   - `auth_login_duration_seconds` (histogram) — login latency
@@ -203,11 +222,13 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - **Structured logging:** All auth events with user ID, timestamp, IP address, and outcome (NFR-COMP-002)
 
 #### 5.2 Audit Log Hardening
+
 - Validate 12-month retention policy (NFR-COMP-002 — PRD overrides TDD's 90-day)
 - Validate IP address logging in all auth events
 - Validate log queryability by date range and user (Jordan admin persona requirement)
 
 #### 5.3 Performance Validation
+
 - NFR-PERF-001: All auth endpoints < 200ms at p95 (APM instrumentation on `AuthService` methods)
 - NFR-PERF-002: 500 concurrent login requests (k6 load test)
 - NFR-REL-001: Health check endpoint for 99.9% uptime monitoring
@@ -215,12 +236,14 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - Success Criteria #5: Password hash time < 500ms with bcrypt cost 12
 
 #### 5.4 Security Review
+
 - Penetration testing before production (R-005 mitigation)
 - XSS token theft prevention validation (R-001)
 - Brute-force protection validation: rate limiting + account lockout (R-002)
 - No user enumeration across all endpoints (login, register, password reset)
 
 #### 5.5 Compliance Final Gate
+
 - NFR-COMP-001: GDPR consent with timestamp at registration — verified
 - NFR-COMP-002: SOC2 audit logging with 12-month retention — verified
 - NFR-COMP-003: NIST SP 800-63B password storage — verified
@@ -237,12 +260,14 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 **Milestone M6 (GA):** 100% traffic on new auth service, legacy deprecated.
 
 #### 6.1 Feature Flag Setup
+
 | Flag | Purpose | Default | Cleanup Target |
 |------|---------|---------|----------------|
 | `AUTH_NEW_LOGIN` | Gates new `LoginPage` and `AuthService` login endpoint | OFF | Remove after GA |
 | `AUTH_TOKEN_REFRESH` | Enables refresh token flow in `TokenManager` | OFF | Remove GA + 2 weeks |
 
 #### 6.2 Phase 1 — Internal Alpha (1 week)
+
 - Deploy `AuthService` to staging
 - auth-team and QA validate all FR-AUTH-001 through FR-AUTH-005
 - `LoginPage` and `RegisterPage` behind `AUTH_NEW_LOGIN` flag
@@ -250,6 +275,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - **Rollback:** Disable `AUTH_NEW_LOGIN` flag
 
 #### 6.3 Phase 2 — Beta 10% (2 weeks)
+
 - Enable `AUTH_NEW_LOGIN` for 10% of traffic
 - Monitor: p95 latency, error rates, Redis usage, registration conversion
 - Run parallel with legacy auth (R-003 mitigation)
@@ -257,6 +283,7 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - **Rollback:** Disable `AUTH_NEW_LOGIN` flag
 
 #### 6.4 Phase 3 — GA 100% (1 week)
+
 - Remove `AUTH_NEW_LOGIN` flag — all traffic to `AuthService`
 - Enable `AUTH_TOKEN_REFRESH` for refresh flow
 - Legacy auth deprecated
@@ -264,13 +291,16 @@ This roadmap defines the phased delivery of a User Authentication Service compri
 - **Rollback:** Re-enable legacy auth
 
 #### 6.5 Rollback Criteria
+
 Rollback triggers if any occur:
+
 - p95 latency > 1000ms for > 5 minutes
 - Error rate > 5% for > 2 minutes
 - `TokenManager` Redis connection failures > 10/minute
 - Any data loss or corruption in `UserProfile` records
 
 #### 6.6 Operational Readiness
+
 - Runbooks deployed for: `AuthService` down, token refresh failures
 - On-call: auth-team 24/7 rotation for first 2 weeks post-GA
 - Capacity: HPA scales `AuthService` pods to 10 at CPU > 70%
@@ -335,6 +365,7 @@ Rollback triggers if any occur:
 ## 5. Resource Requirements & Dependencies
 
 ### Team Requirements
+
 - **Backend engineers:** 2 (core auth service, token lifecycle, API layer)
 - **Frontend engineer:** 1 (auth pages, AuthProvider, route protection)
 - **Security engineer:** 0.5 (review in Phase 5, advisory throughout)
@@ -342,6 +373,7 @@ Rollback triggers if any occur:
 - **DevOps:** 0.5 (infrastructure provisioning, observability, rollout)
 
 ### Infrastructure Dependencies (Must Be Ready Before Phase 1)
+
 | Dependency | Version | Owner | Lead Time |
 |------------|---------|-------|-----------|
 | PostgreSQL | 15+ | Platform team | 1 week |
@@ -352,6 +384,7 @@ Rollback triggers if any occur:
 | Frontend routing framework | — | Frontend team | Available |
 
 ### Library Dependencies
+
 - `bcryptjs` — password hashing in `PasswordHasher`
 - `jsonwebtoken` — JWT sign/verify in `JwtService`
 - Jest + ts-jest — unit testing

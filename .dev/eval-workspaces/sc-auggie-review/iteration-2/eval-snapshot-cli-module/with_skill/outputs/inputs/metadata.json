@@ -1,0 +1,11 @@
+{
+  "mode": "snapshot",
+  "target_path": "src/superclaude/cli/",
+  "slug": "snapshot-src-superclaude-cli",
+  "focus": ["anti-patterns", "architecture", "quality"],
+  "depth": "quick",
+  "file_count": 213,
+  "total_lines": 69630,
+  "chunking": "single-call-architectural-focus",
+  "workspace_root": "/config/workspace/IronClaude"
+}

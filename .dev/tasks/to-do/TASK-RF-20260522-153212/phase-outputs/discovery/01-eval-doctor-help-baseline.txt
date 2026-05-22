@@ -1,0 +1,36 @@
+Usage: eval doctor [OPTIONS]
+
+  Verify host preconditions for ``superclaude eval run``.
+
+  Exit codes:
+
+  * ``0`` — every HARD capability satisfied. * ``2`` — at least one HARD
+  capability failed, ``--output-dir``   was supplied and escaped the OPS-002 /
+  AC12 scratch-root policy,   OR the host is not Linux (AC1 / R-109 — v1 is
+  Linux-only;   :data:`NON_LINUX_REFUSAL_TEMPLATE` is rendered to stderr citing
+  DOC-OQ9 for the macOS follow-up). In every case the stderr   artifact
+  identifies the cause; for a scratch-root violation it   quotes
+  :data:`SCRATCH_ROOT_POLICY` verbatim so operators can   correct the invocation
+  without consulting the docs.
+
+Options:
+  --json              Emit a deterministic JSON payload extending
+                      CapabilityReport.
+  --no-mcp            Skip MCP-server capability gates (forwarded to
+                      CapabilityGates).
+  --check-coverage    Wire the FR-G5 coverage gate marker into the payload (full
+                      gate lands in M4 T04.14).
+  --output-dir PATH   Validate <path> against the OPS-002 / AC12 scratch-root
+                      policy. A non-allowlisted root exits 2 and the stderr
+                      artifact quotes the policy verbatim (see
+                      docs/eval/scratch-roots.md).
+  --parallel INTEGER  Declared concurrency for the next ``eval run``. When >= 15
+                      the doctor runs the NFR-PERF2 free-RAM precheck and warns
+                      on hosts with less than 2.25 GB free.
+  --suite TEXT        Suite name or manifest path used to resolve matcher
+                      coverage when --check-coverage is set (FR-G5 / T04.14).
+                      Without --suite the gate runs in matchers-only mode and
+                      reports every matcher as uncovered.
+  --help              Show this message and exit.
+
+EXIT_CODE=0

@@ -26,6 +26,7 @@
 **Agent B (Analyzer)**: I accept the revised complexity. The proposal is structurally sound and the integration path is clear. My remaining concern is the risk of "correctness theater" -- producing tables and registries that look thorough but miss the exact variables that cause bugs (because those are the ones hardest to identify). However, this risk applies equally to any review process, and structural forcing is better than no forcing. I agree with A-Tier placement.
 
 #### Verdict
+
 **Score**: 70.5/100 | **Tier**: A | **Confidence**: 0.80
 **Key insight**: The correctness focus creates a structural home for invariant analysis, but its effectiveness depends on prompt quality for the expert personas -- it is a framework improvement, not a guarantee.
 
@@ -46,6 +47,7 @@
 **Agent B (Analyzer)**: The curated-target approach is convincing. The adversarial tester leveraging Fowler's interface list and Nygard's guard list means it operates on pre-identified attack surfaces. This keeps the overhead low while targeting the highest-value probes. The methodology is research-supported (bug-finding mindset > quality-evaluation mindset). I score this at 78.0, solidly A-Tier, and potentially the highest-value single change among the spec-panel proposals due to its low complexity and high expected impact ratio.
 
 #### Verdict
+
 **Score**: 78.0/100 | **Tier**: A | **Confidence**: 0.88
 **Key insight**: The adversarial tester's value comes from operating on curated targets (Fowler's interfaces, Nygard's guards) rather than scanning the full spec -- this keeps overhead low while maximizing hit rate on genuine boundary bugs.
 
@@ -66,6 +68,7 @@
 **Agent B (Analyzer)**: Agreed on the composability argument. Standalone, this is a solid B+/A- proposal. The forcing function of filling in the table is genuinely valuable -- it is harder to skip reasoning when there are blank cells to fill. I maintain the 75.5 score.
 
 #### Verdict
+
 **Score**: 75.5/100 | **Tier**: A | **Confidence**: 0.85
 **Key insight**: The boundary table's power is in the construction process (forcing reasoning), not in the finished artifact. Its primary gap is implicit guards and dimensional mismatches, which are better caught by complementary proposals.
 
@@ -86,6 +89,7 @@
 **Agent B (Analyzer)**: Agreed. The cost-to-value ratio is excellent when it triggers. The key question for implementation priority is: how often do our specs involve multi-stage pipelines? If the answer is "frequently," this jumps in priority. If "rarely," it is a nice-to-have. For the IronHands CLI specifically, which deals with event processing, replay, and visualization pipelines, the answer is likely "frequently." A-Tier is appropriate.
 
 #### Verdict
+
 **Score**: 68.5/100 | **Tier**: A | **Confidence**: 0.82
 **Key insight**: High-precision, low-cost heuristic with narrow but valuable scope. Its value is proportional to how often the target codebase involves multi-stage data pipelines.
 
@@ -106,6 +110,7 @@
 **Agent B (Analyzer)**: The overhead is also underestimated. Four challenge pairs, each producing claims, attacks, and outcomes, is substantial. If each challenge interaction is 500-800 tokens, the four pairs add 2-3K tokens to the review. That is 20-30% overhead for a panel that already runs 10-15K tokens. Combined with the structural complexity of implementation, this is solidly B-Tier standalone. It graduates to A-Tier only when SP-2 is also implemented.
 
 #### Verdict
+
 **Score**: 57.5/100 | **Tier**: B | **Confidence**: 0.78
 **Key insight**: The challenge protocol is an amplifier, not a generator -- its value scales with the quality of the underlying analytical tools (especially the adversarial tester persona).
 
@@ -130,6 +135,7 @@
 **Agent B (Analyzer)**: I accept the moderate overhead estimate. The convergence gate is the proposal's strongest feature -- it creates a hard stop that prevents premature convergence. Without the gate, the probe round's findings could be acknowledged but not acted upon. With the gate, HIGH-severity findings block convergence, forcing resolution. This is a meaningful structural improvement. I hold the 72.5 score.
 
 #### Verdict
+
 **Score**: 72.5/100 | **Tier**: A | **Confidence**: 0.83
 **Key insight**: The convergence gate is the critical element -- without it, the probe round is advisory. With it, the probe round has structural teeth that prevent premature convergence over unexamined assumptions.
 
@@ -156,6 +162,7 @@
 **Agent B (Analyzer)**: The cross-domain examples are convincing. The mechanism is genuinely general-purpose. My only remaining concern is calibration: how many assumptions does the extraction surface? If it surfaces 50 assumptions per debate, the signal-to-noise ratio drops. The STATED/UNSTATED/CONTRADICTED classification helps -- only UNSTATED assumptions are promoted. But some filtering or prioritization mechanism would improve practical value. This is a refinement, not a fundamental objection. S-Tier confirmed.
 
 #### Verdict
+
 **Score**: 82.5/100 | **Tier**: S | **Confidence**: 0.90
 **Key insight**: The "agreement = no scrutiny" bias is a fundamental structural flaw in diff-based analysis. Promoting unstated assumptions to synthetic diff points fixes this at the mechanism level with minimal overhead and maximal generalizability.
 
@@ -176,6 +183,7 @@
 **Agent B (Analyzer)**: Agreed on the game-theoretic argument. The floor requirement is the proposal's strongest element. Without it, the scoring dimension is nice-to-have. With it, it creates a structural minimum. I accept 67.5 as the composite score. Solidly A-Tier but at the lower end, reflecting the indirect mechanism.
 
 #### Verdict
+
 **Score**: 67.5/100 | **Tier**: A | **Confidence**: 0.80
 **Key insight**: Scoring dimensions create incentives, not forcing functions. The floor requirement transforms the incentive into a structural minimum, making this proposal more valuable than a pure scoring change.
 
@@ -196,6 +204,7 @@
 **Agent B (Analyzer)**: Agreed. The proposal is sound but the cost-complexity-generalizability profile places it in B-Tier. It should be implemented after the higher-value proposals from other commands, and only after the merge step demonstrates a pattern of producing interaction bugs.
 
 #### Verdict
+
 **Score**: 57.5/100 | **Tier**: B | **Confidence**: 0.78
 **Key insight**: The merge step is a genuinely dangerous interaction point, but the high cost and narrow scope (adversarial merge only) make this a lower-priority investment compared to proposals that catch the same bugs earlier in the pipeline.
 
@@ -216,6 +225,7 @@
 **Agent B (Analyzer)**: The composability argument is strong. The brainstorm document's claim that "adopting only AD-5 and AD-2 would have been sufficient to catch both bugs" is credible: AD-2 surfaces the assumptions, AD-5 forces debate on them. This two-proposal minimum viable improvement gives the taxonomy significant strategic value. I agree with 77.5 and A-Tier.
 
 #### Verdict
+
 **Score**: 77.5/100 | **Tier**: A | **Confidence**: 0.85
 **Key insight**: The taxonomy provides the structural guarantee that state mechanics cannot be entirely skipped in debate. Its full value is realized when combined with assumption extraction (AD-2) to ensure both coverage and depth.
 
@@ -240,6 +250,7 @@
 **Agent B (Analyzer)**: Accepted. The structured format enabling independent verification is a real advantage over narrative analysis. 76.5 and A-Tier is appropriate.
 
 #### Verdict
+
 **Score**: 76.5/100 | **Tier**: A | **Confidence**: 0.85
 **Key insight**: Template-level forcing functions are the lowest-cost intervention with highest structural guarantee. The table format enables independent verification of each claim, mitigating the risk of plausible-but-wrong entries.
 
@@ -260,6 +271,7 @@
 **Agent B (Analyzer)**: The narrowness argument is persuasive. NAC generation is closer to a template-filling task than to open-ended analysis. The transform set provides the template; the LLM fills in the domain-specific details. This is a good match for LLM capabilities. I hold the 79.5 score. Generalizability at 9/10 is justified -- negative testing is universal.
 
 #### Verdict
+
 **Score**: 79.5/100 | **Tier**: A | **Confidence**: 0.87
 **Key insight**: The NAC Transform Set converts open-ended edge case discovery into structured template-filling, which is a much more tractable task for LLMs. The transforms are genuinely reusable across domains.
 
@@ -280,6 +292,7 @@
 **Agent B (Analyzer)**: Agreed on the "better than nothing" argument. The proposal's value is in making cross-component interactions visible, even if the analysis of each interaction is imperfect. 68.5 and A-Tier is appropriate.
 
 #### Verdict
+
 **Score**: 68.5/100 | **Tier**: A | **Confidence**: 0.80
 **Key insight**: Making cross-component state flows visible as first-class objects in the roadmap is valuable even when the divergence analysis is imperfect -- visibility is a prerequisite for analysis.
 
@@ -300,6 +313,7 @@
 **Agent B (Analyzer)**: I accept the structured-direction argument but maintain the overhead concern. At 7/10 overhead, the inverted score (4) significantly impacts the composite. The proposal is the most impactful single addition to the roadmap (impact 9/10) but also the most expensive. This tension places it at 65.0, which is A-Tier but just barely. It should be implemented last among the roadmap proposals, after RM-1 and RM-3 provide the structured data it consumes.
 
 #### Verdict
+
 **Score**: 65.0/100 | **Tier**: A | **Confidence**: 0.78
 **Key insight**: The highest-impact proposal in the roadmap set, but also the most expensive. Its value is maximized when RM-1 and RM-3 are already providing structured state invariant data and cross-component interaction tables for the agent to consume.
 
@@ -320,6 +334,7 @@
 **Agent B (Analyzer)**: The audit trail argument is valid. Even if the initial generation produces a boilerplate dismissal, the explicit "None identified" entry makes the gap visible for future review. When a bug is later found in the STATE category, the roadmap's explicit "No STATE risks" entry provides a clear learning signal. I accept 72.5 and A-Tier, with the caveat that the impact is more about visibility and auditability than about direct bug-catching.
 
 #### Verdict
+
 **Score**: 72.5/100 | **Tier**: A | **Confidence**: 0.82
 **Key insight**: The primary value is making risk category gaps visible and auditable, not directly catching bugs. The lightweight forcing function trades depth for breadth: it ensures all categories are considered, even if some are dismissed.
 

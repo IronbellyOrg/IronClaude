@@ -1,0 +1,11 @@
+.claude/settings.json
+.gitignore
+src/superclaude/agents/auggie-reviewer.md
+src/superclaude/cli/install_hooks.py
+src/superclaude/commands/auggie-review.md
+src/superclaude/hooks/scripts/offer-pr-review.sh
+src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json
+src/superclaude/skills/sc-auggie-review-protocol/refs/auggie-prompts.md
+src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md

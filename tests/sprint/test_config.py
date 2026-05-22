@@ -355,3 +355,41 @@ class TestTasklistParser:
     def test_parse_tasklist_file_missing(self, tmp_path):
         with pytest.raises(FileNotFoundError):
             parse_tasklist_file(tmp_path / "nonexistent.md")
+
+
+# ---------------------------------------------------------------------------
+# C1 — startup_stall_timeout field defaults
+# ---------------------------------------------------------------------------
+
+
+class TestStartupStallTimeoutDefaults:
+    """The new `startup_stall_timeout` field must default to 300, be
+    overridable, and accept 0 as the disabled sentinel — paired with the
+    pre-existing `stall_timeout: int = 0` and `stall_action: str = "warn"`
+    defaults (kept unchanged per Open Questions Q1 and Q4)."""
+
+    def _make_index(self, tmp_path):
+        (tmp_path / "phase-1-tasklist.md").write_text("# Phase 1\n")
+        index = tmp_path / "tasklist-index.md"
+        index.write_text("- phase-1-tasklist.md\n")
+        return index
+
+    def test_startup_stall_timeout_default_300(self, tmp_path):
+        index = self._make_index(tmp_path)
+        config = load_sprint_config(index_path=index)
+        assert config.startup_stall_timeout == 300, (
+            f"Expected default 300, got {config.startup_stall_timeout}"
+        )
+        # Q1 + Q4 invariants preserved
+        assert config.stall_timeout == 0
+        assert config.stall_action == "warn"
+
+    def test_startup_stall_timeout_override(self, tmp_path):
+        index = self._make_index(tmp_path)
+        config = load_sprint_config(index_path=index, startup_stall_timeout=600)
+        assert config.startup_stall_timeout == 600
+
+    def test_startup_stall_timeout_zero_disables(self, tmp_path):
+        index = self._make_index(tmp_path)
+        config = load_sprint_config(index_path=index, startup_stall_timeout=0)
+        assert config.startup_stall_timeout == 0

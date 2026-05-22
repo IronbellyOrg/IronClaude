@@ -8,10 +8,12 @@
 ### 課題1: リポジトリ理解度の測定
 
 **問題**:
+
 - SuperClaude有無でClaude Codeの理解度がどう変わるか？
 - `/init` だけで充分か？
 
 **測定方法**:
+
 ```yaml
 理解度テスト設計:
   質問セット: 20問（easy/medium/hard）
@@ -30,6 +32,7 @@
 ```
 
 **実装**:
+
 ```python
 # tests/understanding/test_repository_comprehension.py
 class RepositoryUnderstandingTest:
@@ -53,6 +56,7 @@ class RepositoryUnderstandingTest:
 ### 課題2: 自動インデックス作成（最重要）
 
 **問題**:
+
 - ドキュメントが古い/不足している時の初期調査が遅い
 - 159個のマークダウンファイルを手動で整理は非現実的
 - ネストが冗長、重複、見つけられない
@@ -60,6 +64,7 @@ class RepositoryUnderstandingTest:
 **解決策**: PM Agent による並列爆速インデックス作成
 
 **ワークフロー**:
+
 ```yaml
 Phase 1: ドキュメント状態診断 (30秒)
   Check:
@@ -104,6 +109,7 @@ Phase 4: メタデータ保存 (10秒)
 ```
 
 **ファイル構造例**:
+
 ```markdown
 # PROJECT_INDEX.md
 
@@ -185,6 +191,7 @@ Phase 4: メタデータ保存 (10秒)
 ```
 
 **実装**:
+
 ```python
 # superclaude/indexing/repository_indexer.py
 
@@ -251,6 +258,7 @@ class RepositoryIndexer:
 ### 課題3: 並列実行が実際に速くない
 
 **問題の本質**:
+
 ```yaml
 並列実行のはず:
   - Tool calls: 1回（複数ファイルを並列Read）
@@ -268,6 +276,7 @@ class RepositoryIndexer:
 ```
 
 **検証方法**:
+
 ```python
 # tests/performance/test_actual_parallel_execution.py
 
@@ -298,6 +307,7 @@ def test_parallel_vs_sequential_real_world():
 ```
 
 **並列実行が遅い場合の原因と対策**:
+
 ```yaml
 Cause 1: API単一リクエスト制限
   Problem: Claude APIが並列tool callsを順次処理
@@ -321,6 +331,7 @@ Cause 4: Claude Codeの実装問題
 ```
 
 **実測が必要**:
+
 ```bash
 # 実際に並列実行の速度を測定
 uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
@@ -338,16 +349,19 @@ uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
 ### Priority 1: 自動インデックス作成（最重要）
 
 **理由**:
+
 - 新規プロジェクトでの初期理解を劇的に改善
 - PM Agentの最初のタスクとして自動実行
 - ドキュメント整理の問題を根本解決
 
 **実装**:
+
 1. `superclaude/indexing/repository_indexer.py` 作成
 2. PM Agent起動時に自動診断→必要ならindex作成
 3. `PROJECT_INDEX.md` をルートに生成
 
 **期待効果**:
+
 - 初期理解時間: 30分 → 5分（6x高速化）
 - ドキュメント発見率: 40% → 95%
 - 重複/冗長の自動検出
@@ -355,11 +369,13 @@ uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
 ### Priority 2: 並列実行の実測
 
 **理由**:
+
 - 「速くない」という体感を数値で検証
 - 本当に並列実行されているか確認
 - 改善余地の特定
 
 **実装**:
+
 1. 実際のタスクでsequential vs parallel測定
 2. API呼び出しログ解析
 3. ボトルネック特定
@@ -367,10 +383,12 @@ uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
 ### Priority 3: 理解度測定
 
 **理由**:
+
 - SuperClaudeの価値を定量化
 - Before/After比較で効果証明
 
 **実装**:
+
 1. リポジトリ理解度テスト作成
 2. SuperClaude有無で測定
 3. スコア比較
@@ -380,11 +398,13 @@ uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
 ## 💡 PM Agent Workflow改善案
 
 **現状のPM Agent**:
+
 ```yaml
 起動 → タスク実行 → 完了報告
 ```
 
 **改善後のPM Agent**:
+
 ```yaml
 起動:
   Step 1: ドキュメント診断
@@ -418,6 +438,7 @@ uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
 ```
 
 **設定例**:
+
 ```yaml
 # .claude/pm-agent-config.yml
 
@@ -441,7 +462,8 @@ auto_indexing:
 
 ## 📊 期待される効果
 
-### Before（現状）:
+### Before（現状）
+
 ```
 新規リポジトリ調査:
   - 手動でファイル探索: 30-60分
@@ -450,7 +472,8 @@ auto_indexing:
   - /init だけ: 不十分
 ```
 
-### After（自動インデックス）:
+### After（自動インデックス）
+
 ```
 新規リポジトリ調査:
   - 自動並列探索: 3-5分（10-20x高速）
@@ -464,18 +487,21 @@ auto_indexing:
 ## 🎯 Next Steps
 
 1. **即座に実装**:
+
    ```bash
    # 自動インデックス作成の実装
    # superclaude/indexing/repository_indexer.py
    ```
 
 2. **並列実行の検証**:
+
    ```bash
    # 実測テストの実行
    uv run pytest tests/performance/test_actual_parallel_execution.py -v -s
    ```
 
 3. **PM Agent統合**:
+
    ```bash
    # PM Agentの起動フローに組み込み
    ```

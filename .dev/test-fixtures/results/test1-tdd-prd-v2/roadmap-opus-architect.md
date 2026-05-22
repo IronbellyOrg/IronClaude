@@ -20,6 +20,7 @@ This roadmap defines the phased delivery of a User Authentication Service provid
 **Strategic context:** Authentication is the prerequisite for the entire Q2-Q3 2026 personalization roadmap (~$2.4M projected revenue) and a SOC2 Type II compliance gate in Q3 2026. Delivery is time-sensitive.
 
 **Key architectural decisions:**
+
 - Stateless `AuthService` facade orchestrating `PasswordHasher`, `TokenManager`, `UserRepo`
 - RS256 JWT access tokens (15-min TTL) + opaque Redis-stored refresh tokens (7-day TTL)
 - bcrypt cost factor 12 via `PasswordHasher` abstraction (future-proofs for argon2id migration)
@@ -28,6 +29,7 @@ This roadmap defines the phased delivery of a User Authentication Service provid
 **Scope:** 5 functional requirements (FR-AUTH-001 through FR-AUTH-005), 8 non-functional requirements, 6 API endpoints, 9 components (5 backend, 4 frontend), 3-phase rollout.
 
 **Critical gaps requiring resolution before implementation:**
+
 - GAP-001: Audit log retention must be reconciled to 12 months (PRD/SOC2 wins over TDD's 90-day spec)
 - GAP-002: Logout endpoint missing from TDD but in-scope per PRD
 - GAP-004: GDPR consent field missing from `UserProfile` schema and `/auth/register` request body
@@ -91,24 +93,28 @@ This roadmap defines the phased delivery of a User Authentication Service provid
 #### 1.6 Integration Wiring — Phase 1
 
 **Named Artifact: `AuthService` Facade Dispatch**
+
 - **Mechanism:** Constructor dependency injection
 - **Wired Components:** `PasswordHasher`, `TokenManager`, `UserRepo` injected into `AuthService`
 - **Owning Phase:** Phase 1 (Task 1.2)
 - **Consumers:** All API endpoint handlers (Phase 1–3)
 
 **Named Artifact: `AuthProvider` React Context**
+
 - **Mechanism:** React Context Provider wrapping route tree
 - **Wired Components:** Token storage (memory for access, HttpOnly cookie for refresh), 401 interceptor, silent refresh handler
 - **Owning Phase:** Phase 1 (Task 1.5)
 - **Consumers:** `LoginPage`, `RegisterPage` (Phase 1), `ProfilePage` (Phase 2), all protected routes
 
 **Named Artifact: Feature Flag Registry**
+
 - **Mechanism:** Feature flag service (e.g., LaunchDarkly / custom)
 - **Wired Components:** `AUTH_NEW_LOGIN` (gates `LoginPage` + `/auth/login`), `AUTH_TOKEN_REFRESH` (gates refresh flow in `TokenManager`)
 - **Owning Phase:** Phase 1 (Task 1.1)
 - **Consumers:** Phase 2 (beta rollout), Phase 3 (GA + cleanup)
 
 **Named Artifact: Route Registry**
+
 - **Mechanism:** Frontend router configuration
 - **Wired Components:** `/login` → `LoginPage`, `/register` → `RegisterPage` (Phase 1); `/profile` → `ProfilePage` (Phase 2)
 - **Owning Phase:** Phase 1 (Task 1.5), extended in Phase 2
@@ -171,12 +177,14 @@ This roadmap defines the phased delivery of a User Authentication Service provid
 #### 2.5 Integration Wiring — Phase 2
 
 **Named Artifact: `TokenManager` ↔ Redis Refresh Store**
+
 - **Mechanism:** Redis key-value store with TTL (hashed refresh tokens)
 - **Wired Components:** `TokenManager.issueTokens()` writes, `TokenManager.refresh()` reads/rotates, `TokenManager.revoke()` deletes
 - **Owning Phase:** Phase 1 (creation), Phase 2 (refresh + revocation wiring)
 - **Consumers:** POST `/auth/refresh`, POST `/auth/logout`, rollback criteria monitors
 
 **Named Artifact: API Gateway Rate Limit Configuration**
+
 - **Mechanism:** API Gateway middleware (upstream of `AuthService`)
 - **Wired Components:** Per-endpoint rate limits (login: 10/min/IP, register: 5/min/IP, refresh: 30/min/user, me: 60/min/user)
 - **Owning Phase:** Phase 2 (pre-staging deployment)
@@ -240,12 +248,14 @@ This roadmap defines the phased delivery of a User Authentication Service provid
 #### 3.4 Integration Wiring — Phase 3
 
 **Named Artifact: SendGrid Email Service Integration**
+
 - **Mechanism:** External API client (async queue recommended per OQ-PRD-001)
 - **Wired Components:** `AuthService.resetRequest()` → email queue → SendGrid API
 - **Owning Phase:** Phase 3 (Task 3.1)
 - **Consumers:** POST `/auth/reset-request`
 
 **Named Artifact: Feature Flag Cleanup Schedule**
+
 - **Mechanism:** Feature flag service
 - **Wired Components:** `AUTH_NEW_LOGIN` removed at GA, `AUTH_TOKEN_REFRESH` removed GA + 2 weeks
 - **Owning Phase:** Phase 3 (Task 3.5)

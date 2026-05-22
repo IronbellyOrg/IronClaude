@@ -35,6 +35,7 @@ skills/
 ```
 
 Key points:
+
 - Each skill lives in its own directory under `skills/`.
 - Directory naming convention uses kebab-case (e.g., `pm-mode`, `orchestration-mode`, `brainstorming-mode`).
 - Every skill directory must contain a `SKILL.md` file.
@@ -120,6 +121,7 @@ The Skills API uses a lazy-loading architecture. From the configuration example:
 ```
 
 Key configuration fields:
+
 - `enabled`: Toggle skills system on/off
 - `path`: Where skills are installed (`~/.claude/skills`)
 - `auto_load`: Set to `false` -- skills are NOT loaded into context at session start
@@ -161,6 +163,7 @@ Convert a Markdown-based agent definition into a Python class.
 **After**: Python module with import header only (~100 tokens)
 
 > "Token Savings:
+>
 > - Before: 4,050 tokens (pm-agent.md read every session)
 > - After: ~100 tokens (import header only)
 > - Savings: 97%"
@@ -202,6 +205,7 @@ class PMAgent:
 ```
 
 Key patterns:
+
 - Use `@dataclass` for structured data types
 - Use class-based design for the agent itself
 - Provide a singleton accessor function
@@ -264,18 +268,22 @@ done
 From the document:
 
 > **Risk 1**: Breaking changes
+>
 > - Keep Markdown in archive/ for fallback
 > - Gradual rollout (PM -> Modes -> Skills)
 >
 > **Risk 2**: Skills API instability
+>
 > - Python-first works independently
 > - Skills as optional enhancement
 >
 > **Risk 3**: Performance regression
+>
 > - Comprehensive benchmarks before/after
 > - Rollback plan if <80% savings
 
 Key safety principles:
+
 - Never delete old Markdown files -- move them to `archive/`
 - Python implementation works standalone even if Skills API is unavailable
 - Skills layer is an optional enhancement on top of the Python implementation
@@ -316,6 +324,7 @@ result = pm_session_start()
 ```
 
 **4-Phase Execution** (enforced):
+
 ```python
 agent = get_pm_agent()
 result = agent.execute_with_validation(task)
@@ -324,6 +333,7 @@ result = agent.execute_with_validation(task)
 # DO -> validation gates
 # REFLECT -> learning capture
 ```
+
 ```
 
 The command `.md` file becomes a thin wrapper that:
@@ -341,8 +351,10 @@ The command `.md` file becomes a thin wrapper that:
 Tests for migrated skills live in a parallel test directory:
 
 ```
+
 tests/agents/test_pm_agent.py    # For PM agent skill
 tests/performance/test_skills_efficiency.py  # For benchmarking
+
 ```
 
 ### Benchmark Pattern

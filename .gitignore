@@ -115,6 +115,7 @@ temp/
 tmp/
 .cache/
 .claude/
+!.claude/settings.json
 
 # Build artifacts
 *.tar.gz
@@ -203,3 +204,23 @@ uv.lock
 
 # Skill eval workspaces must live in .dev/eval-workspaces/ -- see .dev/README.md
 .claude/skills/*-workspace/
+
+# Defensive guards added by TASK-RF-20260518-181333 (repo cleanup pre PR split)
+# Version-string typo guard: prevents shell-redirect typos like `> 0.20` from
+# committing a 0-byte file at repo root. Anchored to repo root only.
+/0.[0-9]*
+# PRD-skill CWD-default escape: PRD dry-run output dirs created at repo root
+# rather than in the expected .dev/ workspace. Anchored to repo root so that
+# legitimate uses inside .dev/eval-workspaces/ remain tracked. Source-code
+# fix is a follow-up task.
+/prd-*-test/
+/prd-test-*/
+/prd-dry-run-*/
+# Eval-runs workspace (research/eval scratch).
+.dev/eval-runs/
+# Sprint runner transient exitcode marker. Anchored to repo root only so that
+# in-tree archive/release artifacts under .dev/releases/ remain tracked.
+/.sprint-exitcode
+# Sprint runner transient state directory (post-FU-001 default). Holds
+# .sprint-exitcode and other ephemeral per-run state; never tracked.
+.dev/sprint-state/

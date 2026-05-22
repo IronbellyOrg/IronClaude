@@ -23,6 +23,7 @@
 **ファイル**: `superclaude/indexing/parallel_repository_indexer.py`
 
 **機能**:
+
 ```yaml
 並列実行:
   - ThreadPoolExecutor で5タスク同時実行
@@ -42,6 +43,7 @@
 ```
 
 **出力**:
+
 - `PROJECT_INDEX.md`: 完璧なナビゲーションマップ
 - `PROJECT_INDEX.json`: プログラマティックアクセス用
 - 重複/冗長の自動検出
@@ -50,6 +52,7 @@
 ### 2. 自己学習ナレッジベース
 
 **実装済み**:
+
 ```python
 class AgentDelegator:
     """エージェント性能を学習して最適化"""
@@ -65,6 +68,7 @@ class AgentDelegator:
 ```
 
 **学習データ例**:
+
 ```json
 {
   "system-architect:code_structure_analysis": {
@@ -87,6 +91,7 @@ class AgentDelegator:
 **ファイル**: `tests/performance/test_parallel_indexing_performance.py`
 
 **機能**:
+
 - Sequential vs Parallel の実測比較
 - Speedup ratio の自動計算
 - ボトルネック分析
@@ -116,6 +121,7 @@ Workers               1             5             -
 ### 並列実行が速くない理由
 
 **測定結果**:
+
 - Sequential: 0.30秒
 - Parallel (5 workers): 0.33秒
 - **Speedup: 0.91x** （遅くなった！）
@@ -144,6 +150,7 @@ GILとは:
 ### ボトルネック分析
 
 **測定されたタスク時間**:
+
 ```
 Task                  Sequential    Parallel (実際)
 ────────────────────────────────────────────────
@@ -157,6 +164,7 @@ Total                 300ms         ~300ms + 30ms (overhead)
 ```
 
 **問題点**:
+
 1. **Documentation と Configuration が重い** (150ms程度)
 2. **他のタスクが軽すぎる** (<5ms)
 3. **Thread オーバーヘッド** (~30ms)
@@ -169,6 +177,7 @@ Total                 300ms         ~300ms + 30ms (overhead)
 ### Option A: Multiprocessing (推奨)
 
 **実装**:
+
 ```python
 from concurrent.futures import ProcessPoolExecutor
 
@@ -178,11 +187,13 @@ with ProcessPoolExecutor(max_workers=5) as executor:
 ```
 
 **期待効果**:
+
 - GIL の制約なし
 - CPU コア数分の並列実行
 - 期待speedup: 3-5x
 
 **デメリット**:
+
 - プロセス起動オーバーヘッド（~100-200ms）
 - メモリ使用量増加
 - タスクが小さい場合は逆効果
@@ -190,6 +201,7 @@ with ProcessPoolExecutor(max_workers=5) as executor:
 ### Option B: Async I/O
 
 **実装**:
+
 ```python
 import asyncio
 
@@ -201,11 +213,13 @@ results = await asyncio.gather(*tasks)
 ```
 
 **期待効果**:
+
 - I/O待ち時間の効率的活用
 - Single threadで高速化
 - オーバーヘッド最小
 
 **デメリット**:
+
 - コード複雑化
 - Path/File操作は sync ベース
 
@@ -227,6 +241,7 @@ results = await asyncio.gather(*tasks)
 ```
 
 **実装例**:
+
 ```python
 # 疑似コード
 tasks = [
@@ -255,11 +270,13 @@ tasks = [
 **目的**: Claude Codeレベルでの真の並列実行
 
 **実装**:
+
 1. `ParallelRepositoryIndexer` を Task tool ベースに書き換え
 2. 各タスクを独立した Task として実行
 3. 結果を統合
 
 **期待効果**:
+
 - GIL の影響ゼロ
 - API呼び出しレベルの並列実行
 - 3-5x の高速化
@@ -269,6 +286,7 @@ tasks = [
 **目的**: 18個のエージェントを最大活用
 
 **活用例**:
+
 ```yaml
 Code Analysis:
   - backend-architect: API/DB設計分析
@@ -290,6 +308,7 @@ Quality:
 ### Phase 3: 自己改善ループ
 
 **実装**:
+
 ```yaml
 学習サイクル:
   1. タスク実行
@@ -316,10 +335,12 @@ Quality:
 ### 1. Python Threading の限界
 
 **GIL により**:
+
 - CPU bound タスク: 並列化効果なし
 - I/O bound タスク: 効果あり（ただし小さいタスクはオーバーヘッド大）
 
 **対策**:
+
 - Multiprocessing: CPU boundに有効
 - Async I/O: I/O boundに有効
 - Task Tool: Claude Codeレベルの並列実行（最適）
@@ -327,6 +348,7 @@ Quality:
 ### 2. 既存エージェントは宝の山
 
 **18個の専門エージェント**が既に存在:
+
 - system-architect
 - backend-architect
 - frontend-architect
@@ -344,11 +366,13 @@ Quality:
 ### 3. 自己学習は実装済み
 
 **既に動いている**:
+
 - エージェントパフォーマンス記録
 - `.superclaude/knowledge/agent_performance.json`
 - 次回実行時の最適化
 
 **次**: さらに賢くする
+
 - タスクタイプの自動分類
 - エージェント組み合わせの学習
 - ワークフロー最適化の学習
@@ -397,17 +421,21 @@ cat .superclaude/knowledge/agent_performance.json | python3 -m json.tool
 ## 📚 References
 
 **実装ファイル**:
+
 - `superclaude/indexing/parallel_repository_indexer.py`
 - `tests/performance/test_parallel_indexing_performance.py`
 
 **エージェント定義**:
+
 - `superclaude/agents/` (18個の専門エージェント)
 
 **生成物**:
+
 - `PROJECT_INDEX.md`: リポジトリナビゲーション
 - `.superclaude/knowledge/`: 自己学習データ
 
 **関連ドキュメント**:
+
 - `docs/research/pm-mode-performance-analysis.md`
 - `docs/research/pm-mode-validation-methodology.md`
 

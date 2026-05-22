@@ -23,6 +23,7 @@ The two missed bugs exemplify this: no variant explicitly stated "every event pr
 The current steelman requirement asks advocates to "construct the strongest possible version of opposing positions before critiquing them." This is valuable for avoiding strawman dismissals, but it still operates within the adversarial frame of variant-vs-variant comparison. The challenge framework has no role whose job is to ask: "Regardless of which variant is better, does the *shared approach* actually handle these edge conditions?"
 
 The bugs that escaped are precisely the kind a dedicated fault-finder would target:
+
 - "What if the count of outputs differs from the count of inputs?" (Bug 1: filter divergence)
 - "What if a guard variable legitimately equals its sentinel value?" (Bug 2: zero-is-valid)
 - "What if the last item in a sequence has properties that differ from other items?" (Bug 2: boundary event)
@@ -413,6 +414,7 @@ The five proposals are designed to be complementary and independently valuable:
 **Recommended adoption order**: P5 (taxonomy gate -- cheapest, most structural) > P2 (shared assumptions -- enriches Step 1) > P1 (invariant probe -- adds dedicated agent) > P3 (scoring dimension -- requires rubric redesign) > P4 (stress test -- adds full new step).
 
 **Minimum viable improvement**: Adopting only P5 (taxonomy) and P2 (shared assumptions) would have been sufficient to catch both bugs in the v0.04 pipeline, because:
+
 - P2 would have surfaced "events always produce widgets" and "tail is always non-empty" as unstated assumptions
 - P5 would have forced at least one debate round on state mechanics (L3), where those assumptions would have been challenged
 

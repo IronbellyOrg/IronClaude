@@ -31,6 +31,7 @@ All production sprints using `sc-tasklist-protocol`-generated tasklists execute 
 **Severity: HIGH** | **Evidence: executor.py:1064-1068**
 
 Path A sends a 3-line prompt per task:
+
 ```
 Execute task {task.task_id}: {task.title}
 From phase file: {phase.file}
@@ -38,6 +39,7 @@ Description: {task.description}
 ```
 
 Missing from prompt (compared to Path B's `build_prompt()`):
+
 - No `@{phase_file}` syntax (file not force-loaded into context)
 - No `/sc:task-unified` invocation (skill protocol not activated)
 - No scope boundary ("Execute ONLY this task, STOP when complete")
@@ -56,22 +58,26 @@ The `description` field is derived only from the `**Deliverables:**` block (`con
 The TurnLedger economic model (designed as intra-task QA) is architecturally wired but mathematically zeroed out:
 
 ### Bug 1: `turns_consumed` always returns 0
+
 - `executor.py:1091-1092`: `return (exit_code, 0, output_bytes)`
 - Comment: `# Turn counting is wired separately in T02.06`
 - T02.06 does not exist in any current or backlog release spec
 - **Effect**: `int(0 * 0.8) = 0` reimbursement for every task
 
 ### Bug 2: `TaskResult.output_path` never set
+
 - `executor.py:1017-1025`: `TaskResult(...)` constructed without `output_path`
 - `models.py:176`: defaults to `""`
 - **Effect**: Anti-instinct gate at `executor.py:826-831` checks `if output_path is not None and output_path.exists()` — always False, vacuously passes
 
 ### Bug 3: `gate_rollout_mode` defaults to "off"
+
 - Unless `--shadow-gates` is explicitly passed, mode is "off"
 - `executor.py:814-816`: returns immediately without evaluating
 - **Effect**: Even if bugs 1-2 were fixed, gate doesn't run by default
 
 ### Combined Effect
+
 - Anti-instinct semantic checks (undischarged obligations, uncovered contracts, fingerprint coverage >= 0.7) never execute
 - Reimbursement credits are always 0
 - Budget exhaustion halts never trigger from quality signals
@@ -84,6 +90,7 @@ The TurnLedger economic model (designed as intra-task QA) is architecturally wir
 Tasklist specs define `**Artifacts (Intended Paths):**` per task (e.g., `TASKLIST_ROOT/artifacts/D-0001/evidence.md`). These are written by the worker (inference layer) during task execution.
 
 The orchestrator never verifies:
+
 - Whether the evidence file was actually written
 - Whether deliverable files listed in `**Deliverables:**` exist
 - Whether validation commands in `**Validation:**` were run
@@ -95,6 +102,7 @@ Post-task hooks check structural code integrity (wiring) and output format (anti
 **Severity: MEDIUM** | **Evidence: process.py:245-307, grep across src/**
 
 `build_task_context()` would inject prior task results, gate outcomes, remediation history, and git diff context into subsequent task prompts. It is:
+
 - Fully implemented (process.py:245-307)
 - Extensively tested (test_process.py:314+, test_context_injection.py:78+)
 - Never called from any runtime code path

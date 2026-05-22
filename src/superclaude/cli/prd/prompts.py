@@ -17,6 +17,12 @@ from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ._artifact_patterns import (
+    investigation_filename,
+    synthesis_filename,
+    web_research_filename,
+)
+
 if TYPE_CHECKING:
     from superclaude.cli.prd.models import PrdConfig
 
@@ -313,6 +319,43 @@ EXIT_RECOMMENDATION: CONTINUE
 """
 
 
+def _preserve_guard_note(
+    artifact: Path,
+    min_lines: int,
+    checklist: list[str],
+    *,
+    label: str,
+    rebuild_verb: str,
+) -> str:
+    """Return a resume preserve-guard note, or "" when none is warranted.
+
+    Emits the note only when ``artifact`` exists on disk and has at least
+    ``min_lines`` lines. ``checklist`` is the set of conditions under which
+    the existing artifact should be kept as-is rather than regenerated;
+    ``label`` names the artifact kind (e.g. "TASK FILE", "ASSEMBLED PRD")
+    and ``rebuild_verb`` is the action to avoid (e.g. "modify", "rebuild").
+    """
+    if not artifact.is_file():
+        return ""
+    try:
+        lines = len(artifact.read_text(encoding="utf-8").splitlines())
+    except OSError:
+        return ""
+    if lines < min_lines:
+        return ""
+    bullets = "\n".join(f"  - {c}" for c in checklist)
+    return (
+        f"\n\nPRE-EXISTING {label} DETECTED:\n"
+        f"The artifact at {artifact} already exists "
+        f"({lines} lines, >={min_lines} line threshold).\n"
+        "IF AND ONLY IF that file:\n"
+        f"{bullets}\n"
+        f"THEN do NOT {rebuild_verb} the file. Read it to confirm, "
+        "then emit 'EXIT_RECOMMENDATION: CONTINUE' and stop.\n"
+        "Only rebuild the file if it fails one of those checks.\n"
+    )
+
+
 def build_task_file_prompt(
     config: PrdConfig,
     *,
@@ -332,11 +375,29 @@ def build_task_file_prompt(
             f"- {s}" for s in context_summaries
         )
 
+    existing_task_file = (
+        config.task_dir / ("TASK-PRD-" + config.product_slug + ".md")
+    )
+    existing_note = _preserve_guard_note(
+        existing_task_file,
+        400,
+        [
+            "has valid YAML frontmatter "
+            "(id, title, status, complexity, created_date)",
+            "contains multiple '### Phase N:' headings",
+            "has no 'see above'/'as mentioned'/'refer to' in checklist items",
+            "each phase >=2 (including '### Phase N - Findings' placeholders) "
+            "contains at least one of: parallel, concurrent, simultaneously, batch",
+        ],
+        label="TASK FILE",
+        rebuild_verb="modify",
+    )
+
     return f"""Build an MDTM task file for the PRD pipeline.
 
 You are the task builder. Your job is to create a self-contained task file that
 encodes the complete PRD creation workflow as a checklist.
-
+{existing_note}
 Research Notes:
 ---
 {notes}
@@ -505,14 +566,173 @@ EXIT_RECOMMENDATION: CONTINUE
 # ---------------------------------------------------------------------------
 
 
-def build_investigation_prompt(
+def _parse_agent_block(notes: str, agent_idx: int) -> dict:
+    """Extract Agent N block from research-notes.md."""
+    import re
+
+    header_pat = re.compile(
+        rf"###\s+Agent\s+{agent_idx}\b[^\n]*\n(.*?)(?=\n###\s+Agent\s+\d|\Z)",
+        re.DOTALL,
+    )
+    m = header_pat.search(notes)
+    if not m:
+        return {}
+    block = m.group(0)
+    title_m = re.search(rf"###\s+Agent\s+{agent_idx}\s*[—\-:]?\s*([^\n]+)", block)
+    title = title_m.group(1).strip() if title_m else f"Agent {agent_idx}"
+    topic_m = re.search(r"\*\*Topic\*\*\s*[:\-]\s*([^\n]+)", block)
+    topic = topic_m.group(1).strip() if topic_m else title
+    agent_type_m = re.search(r"\*\*Agent type\*\*\s*[:\-]\s*([^\n]+)", block)
+    agent_type = agent_type_m.group(1).strip() if agent_type_m else "Investigator"
+    files_section = re.search(r"\*\*Files\*\*\s*[:\-]?\s*\n((?:\s*[-*]\s*[^\n]+\n?)+)", block)
+    files: list[str] = []
+    if files_section:
+        for line in files_section.group(1).splitlines():
+            line = line.strip()
+            if line.startswith("-") or line.startswith("*"):
+                files.append(line.lstrip("-* ").strip().rstrip("`").lstrip("`"))
+    return {"title": title, "topic": topic, "agent_type": agent_type, "files": files}
+
+
+def _slugify_agent_title(title: str) -> str:
+    """Make a filename-safe slug for an agent title."""
+    import re
+
+    slug = title.lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
+    return slug[:60] or "agent"
+
+
+_INVESTIGATION_LEGACY_FIELDS = {
+    "topic", "agent_type", "files", "product_root", "output_path",
+}
+_WEB_RESEARCH_LEGACY_FIELDS = {"topic", "context", "product", "output_path"}
+_SYNTHESIS_LEGACY_FIELDS = {
+    "research_files", "template_sections", "output_path", "template_path",
+}
+
+
+def _dual_mode_call(
+    args: tuple,
+    kwargs: dict,
+    *,
+    step_id_pattern: str,
+    derive_render_kwargs,
+    render_fn,
+    legacy_field_whitelist: set,
+) -> str:
+    """Dispatch a dual-mode prompt builder.
+
+    config-mode: the first positional arg (or ``kwargs['config']``) is a
+    PrdConfig-like object exposing ``task_dir``. The step index is extracted
+    from ``kwargs['step_id']`` via ``step_id_pattern`` (defaulting to 1 when
+    absent), ``derive_render_kwargs(config, idx)`` builds the render kwargs,
+    and ``render_fn`` is called with them.
+    legacy-mode: ``args`` plus the ``legacy_field_whitelist`` subset of
+    ``kwargs`` are forwarded straight to ``render_fn``.
+    """
+    import re as _re
+
+    config = args[0] if args else kwargs.get("config")
+    if config is not None and hasattr(config, "task_dir"):
+        step_id = kwargs.get("step_id") or ""
+        idx_m = _re.search(step_id_pattern, step_id)
+        idx = int(idx_m.group(1)) if idx_m else 1
+        return render_fn(**derive_render_kwargs(config, idx))
+    return render_fn(*args, **{
+        k: v for k, v in kwargs.items() if k in legacy_field_whitelist
+    })
+
+
+def _derive_investigation_render_kwargs(config, idx: int) -> dict:
+    """Build _render_investigation_prompt kwargs from config + agent index."""
+    notes_path = config.task_dir / "research-notes.md"
+    notes = notes_path.read_text(encoding="utf-8") if notes_path.is_file() else ""
+    agent = _parse_agent_block(notes, idx) or {
+        "title": f"Agent {idx}",
+        "topic": f"Investigation topic {idx} (research-notes did not "
+                 f"contain an Agent {idx} block — investigate broadly "
+                 f"using the planning inputs).",
+        "agent_type": "Investigator",
+        "files": [],
+    }
+    slug = _slugify_agent_title(agent["title"])
+    config.research_dir.mkdir(parents=True, exist_ok=True)
+    return {
+        "topic": agent["topic"],
+        "agent_type": agent["agent_type"],
+        "files": agent["files"] or [str(p) for p in (config.where or [])],
+        "product_root": str(config.work_dir),
+        "output_path": config.research_dir / investigation_filename(idx, slug),
+    }
+
+
+def _derive_web_research_render_kwargs(config, web_idx: int) -> dict:
+    """Build _render_web_research_prompt kwargs from config + web index."""
+    agent_idx = 6 + web_idx
+    notes_path = config.task_dir / "research-notes.md"
+    notes = notes_path.read_text(encoding="utf-8") if notes_path.is_file() else ""
+    agent = _parse_agent_block(notes, agent_idx) or {
+        "title": f"Web research topic {web_idx}",
+        "topic": f"External market and ecosystem research for topic {web_idx} "
+                 f"related to the product.",
+        "agent_type": "Web Analyst",
+        "files": [],
+    }
+    slug = _slugify_agent_title(agent["title"])
+    config.research_dir.mkdir(parents=True, exist_ok=True)
+    scope_path = config.task_dir / "scope-discovery-raw.md"
+    codebase_context = scope_path.read_text(encoding="utf-8")[:2000] \
+        if scope_path.is_file() else ""
+    return {
+        "topic": agent["topic"],
+        "context": codebase_context,
+        "product": config.product_name or config.product_slug,
+        "output_path": config.research_dir / web_research_filename(web_idx, slug),
+    }
+
+
+def _derive_synthesis_render_kwargs(config, synth_idx: int) -> dict:
+    """Build _render_synthesis_prompt kwargs from config + synthesis index."""
+    from superclaude.cli.prd.filtering import load_synthesis_mapping
+
+    mapping = load_synthesis_mapping(config.skill_refs_dir)
+    if 1 <= synth_idx <= len(mapping):
+        entry = mapping[synth_idx - 1]
+    else:
+        entry = mapping[0]
+    synthesis_dir = config.synthesis_dir
+    synthesis_dir.mkdir(parents=True, exist_ok=True)
+    research_files: list[Path] = []
+    if config.research_dir.is_dir():
+        research_files = sorted(config.research_dir.glob("*.md"))
+    return {
+        "research_files": research_files,
+        "template_sections": entry["sections"],
+        "output_path": synthesis_dir / synthesis_filename(entry["synth_file"]),
+        "template_path": config.template_path,
+    }
+
+
+def build_investigation_prompt(*args, **kwargs) -> str:  # type: ignore[no-redef]
+    """Step 10 (dynamic): per-agent codebase research prompt (dual-mode)."""
+    return _dual_mode_call(
+        args, kwargs,
+        step_id_pattern=r"investigation-(\d+)",
+        derive_render_kwargs=_derive_investigation_render_kwargs,
+        render_fn=_render_investigation_prompt,
+        legacy_field_whitelist=_INVESTIGATION_LEGACY_FIELDS,
+    )
+
+
+def _render_investigation_prompt(
     topic: str,
     agent_type: str,
     files: list[str],
     product_root: str,
     output_path: Path,
 ) -> str:
-    """Step 10 (dynamic): Per-agent codebase research prompt."""
+    """Render the actual investigation prompt text."""
     files_list = "\n".join(f"- {f}" for f in files)
 
     return f"""Research this aspect of the product and write findings to {output_path}:
@@ -580,13 +800,24 @@ EXIT_RECOMMENDATION: CONTINUE
 """
 
 
-def build_web_research_prompt(
+def build_web_research_prompt(*args, **kwargs) -> str:  # type: ignore[no-redef]
+    """Step 12 (dynamic): per-topic web research prompt (dual-mode)."""
+    return _dual_mode_call(
+        args, kwargs,
+        step_id_pattern=r"web-research-(\d+)",
+        derive_render_kwargs=_derive_web_research_render_kwargs,
+        render_fn=_render_web_research_prompt,
+        legacy_field_whitelist=_WEB_RESEARCH_LEGACY_FIELDS,
+    )
+
+
+def _render_web_research_prompt(
     topic: str,
     context: str,
     product: str,
     output_path: Path,
 ) -> str:
-    """Step 12 (dynamic): Per-topic web research prompt."""
+    """Render the actual web research prompt text."""
     return f"""Research this topic externally and write findings to {output_path}.
 
 Topic: {topic}
@@ -744,13 +975,24 @@ EXIT_RECOMMENDATION: CONTINUE
 """
 
 
-def build_synthesis_prompt(
+def build_synthesis_prompt(*args, **kwargs) -> str:  # type: ignore[no-redef]
+    """Step 13a (dynamic): per-synth-file synthesis prompt (dual-mode)."""
+    return _dual_mode_call(
+        args, kwargs,
+        step_id_pattern=r"synthesis-(\d+)",
+        derive_render_kwargs=_derive_synthesis_render_kwargs,
+        render_fn=_render_synthesis_prompt,
+        legacy_field_whitelist=_SYNTHESIS_LEGACY_FIELDS,
+    )
+
+
+def _render_synthesis_prompt(
     research_files: list[Path],
     template_sections: list[str],
     output_path: Path,
     template_path: Path,
 ) -> str:
-    """Step 13a (dynamic): Per-synth-file synthesis prompt."""
+    """Render the actual synthesis prompt text."""
     files_list = "\n".join(f"- {f}" for f in research_files)
     sections_list = "\n".join(f"- {s}" for s in template_sections)
 
@@ -911,8 +1153,34 @@ def build_assembly_prompt(
             f"- {s}" for s in context_summaries
         )
 
-    return f"""Assemble the final Product Requirements Document from synthesis files.
+    # Resume support: detect a pre-existing assembled PRD so a resumed
+    # run can validate-in-place instead of a costly full rebuild.
+    existing_note = ""
+    results_dir = config.task_dir / "results"
+    _assembly_checklist = [
+        "has valid YAML frontmatter (id, title, status, created_date, tags)",
+        "contains the sections Executive Summary, Problem Statement, "
+        "Technical Requirements, Implementation Plan, Success Metrics",
+        "contains NO placeholder text (no standalone TODO, TBD, "
+        "PLACEHOLDER, [INSERT...], [FILL...])",
+    ]
+    if results_dir.is_dir():
+        for cand in results_dir.glob("*.md"):
+            if "prd" not in cand.name.lower():
+                continue
+            note = _preserve_guard_note(
+                cand,
+                800,
+                _assembly_checklist,
+                label="ASSEMBLED PRD",
+                rebuild_verb="rebuild",
+            )
+            if note:
+                existing_note = note
+                break
 
+    return f"""Assemble the final Product Requirements Document from synthesis files.
+{existing_note}
 Component files (in order):
 {files_list}
 

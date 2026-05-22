@@ -43,9 +43,17 @@ def _check_verdict_field(content: str) -> bool | str:
     json_match = re.search(r'"verdict"\s*:\s*"(PASS|FAIL)"', content)
     if json_match:
         return True
-    # Markdown format (case-insensitive key, case-sensitive value)
+    # Markdown format (case-insensitive key, case-sensitive value).
+    # Explicit alternation over exactly the three valid shapes:
+    #   Verdict: PASS   |   **Verdict**: PASS   |   **Verdict:** PASS
+    # The prior permissive character-class form also accepted shapes
+    # with no colon at all (e.g. "Verdict PASS") — strictly too loose.
     md_match = re.search(
-        r"(?:^|\n)\s*\*{0,2}[Vv]erdict\*{0,2}\s*:\s*(PASS|FAIL)",
+        r"(?:^|\n)\s*(?:"
+        r"\*\*[Vv]erdict\*\*\s*:\s*|"
+        r"\*\*[Vv]erdict:\*\*\s+|"
+        r"[Vv]erdict\s*:\s*"
+        r")(PASS|FAIL)",
         content,
     )
     if md_match:
@@ -100,13 +108,13 @@ def _check_parsed_request_fields(content: str) -> bool | str:
 
 
 _RESEARCH_REQUIRED_SECTIONS = [
-    "Product Capabilities",
-    "Technical Architecture",
-    "User Flows",
-    "Integration Points",
-    "Existing Documentation",
-    "Gap Analysis",
-    "Suggested Phases",
+    "EXISTING_FILES",
+    "PATTERNS_AND_CONVENTIONS",
+    "FEATURE_ANALYSIS",
+    "RECOMMENDED_OUTPUTS",
+    "SUGGESTED_PHASES",
+    "TEMPLATE_NOTES",
+    "AMBIGUITIES_FOR_USER",
 ]
 
 
@@ -132,7 +140,7 @@ def _check_suggested_phases_detail(content: str) -> bool | str:
     Expects at least one numbered or bulleted list item under a Phases heading.
     """
     phases_match = re.search(
-        r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested\s+)?Phases",
+        r"(?:^|\n)\s*#{1,4}\s+.*(?:Suggested[\s_]+)?Phases",
         content,
         re.IGNORECASE,
     )

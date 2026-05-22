@@ -118,11 +118,13 @@ SuperClaude_Framework/
 ## Entry Points
 
 ### CLI: `superclaude`
+
 - **Source**: `src/superclaude/cli/main.py:main`
 - **Framework**: Click
 - **Subcommands**: `install`, `mcp`, `doctor`, `sprint run`, `roadmap run`, `roadmap validate`, `tasklist run`
 
 ### Pytest Plugin
+
 - **Auto-loaded**: via `[project.entry-points.pytest11]`
 - **Source**: `src/superclaude/pytest_plugin.py`
 - **Fixtures**: `confidence_checker`, `self_check_protocol`, `reflexion_pattern`, `token_budget`, `pm_context`
@@ -133,6 +135,7 @@ SuperClaude_Framework/
 ## Core Subsystems
 
 ### 1. PM Agent (`src/superclaude/pm_agent/`)
+
 Three-pattern system for AI-guided development:
 
 | Pattern | File | Purpose |
@@ -155,15 +158,19 @@ Three-pattern system for AI-guided development:
 | **CLI Portify** | `cli/cli_portify/` | 22+8 | Convert inference workflows → programmatic pipelines |
 
 ### 3. Execution Engine (`src/superclaude/execution/`)
+
 - **Parallel**: Wave → Checkpoint → Wave pattern (3.5x speedup)
 - **Reflection**: Post-execution analysis
 - **Self-correction**: Automated error recovery
 
 ### 4. Framework Core (`src/superclaude/core/`)
+
 13 markdown files defining behavioral rules, personas, commands, flags, MCP integration, orchestration, and operating modes.
 
 ### 5. Slash Commands (`src/superclaude/commands/`)
+
 38 command definitions. Key commands:
+
 - `sc.md` — Dispatcher
 - `task-unified.md` — Unified task execution with MCP compliance
 - `pm.md` — Project manager orchestration
@@ -174,6 +181,7 @@ Three-pattern system for AI-guided development:
 - `research.md`, `analyze.md`, `implement.md`, `test.md`, `build.md`
 
 ### 6. Agents (`src/superclaude/agents/`)
+
 29 agent definitions for Claude Code subagent delegation:
 
 | Category | Agents |
@@ -189,6 +197,7 @@ Three-pattern system for AI-guided development:
 | **Domain** | business-panel-experts |
 
 ### 7. Skills (`src/superclaude/skills/`)
+
 13 skill packages, each containing `SKILL.md` + optional `refs/`, `rules/`, `templates/`, `scripts/`:
 
 | Skill | Purpose |
@@ -207,6 +216,7 @@ Three-pattern system for AI-guided development:
 | `sc-validate-tests-protocol` | Tier classification validation |
 
 ### 8. MCP Servers (`src/superclaude/mcp/`)
+
 10 server integrations with JSON configs:
 
 | Server | Purpose |

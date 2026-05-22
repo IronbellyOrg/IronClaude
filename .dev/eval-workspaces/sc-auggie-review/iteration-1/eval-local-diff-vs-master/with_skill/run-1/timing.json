@@ -1,0 +1,8 @@
+{
+  "total_tokens": 80822,
+  "duration_ms": 350330,
+  "total_duration_seconds": 350.3,
+  "tool_uses": 22,
+  "agent_summary": "Findings: critical=0 high=0 medium=2 low=1 nit=1 + 2 cross-cutting (total retained=6, 1 dropped via grounding). Recommendation: Approve with comments. Auggie hallucination caught in Wave 3.",
+  "notable": "Wave 3 grounding pass inverted Auggie's F2 finding (install_templates has MORE robust source resolution, not less) — preserved kernel as X1 cross-cutting observation. Demonstrates skill's hallucination-guard working."
+}

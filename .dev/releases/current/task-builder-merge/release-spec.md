@@ -552,6 +552,64 @@ Phase 3 of the orchestration produced 7 proposals (PR-01..PR-07) from 10 importa
 
 ---
 
+## 13. Release Lifecycle Procedures
+
+> **Added post-tag (2026-05-19) to resolve doc drift.** The v3.9 tag message and `CP-P07-END.md` cite `release-spec §19.4` (rollback) and `release-spec §8.3` (GA-tagging-committee approval). §19.4 was never authored; §8.3 in this spec is the "Manual / E2E Tests" table (which correctly contains the K-003 audit at row 4, but does not contain an approval clause). The canonical content now lives in §13.1 and §13.2 below. Pre-tag artifact citations to §19.4 and §8.3-as-approval-clause should be read as §13.1 and §13.2 respectively. The inscribed v3.9 tag message preserves its original section numbers as a historical record.
+
+### 13.1 Rollback Procedure
+
+**Authority**: This section is the canonical rollback procedure. The detailed step-by-step is maintained in `artifacts/D-0099/spec.md §4` (verbatim) — this subsection summarizes it.
+
+**Trigger conditions** (any one is sufficient):
+
+- K-003 FINAL-PASS reports `tier_drift_count > 0` or `compliance_breakage_observed = true` within the OPS-001 4-business-hour SLA window.
+- A post-tag invariant probe (NFR-CONV-* family) returns FAIL on a contract that passed at TRACKING-PASS.
+- Committee disposition flips from APPROVE to REVOKE (see §13.2).
+
+**Step sequence** (full detail in `D-0099/spec.md §4`):
+
+1. **Tag deletion** — delete the local and remote `v3.9` tag. Local: `git tag -d v3.9`. Remote: `git push origin :refs/tags/v3.9`. The branch SHA remains; only the tag is removed.
+2. **Per-FR revert sequence** — revert the FR-CONV.1..6 land sequence in reverse order:
+
+    ```bash
+    for sha in 87c8254 db6166e 487e76b ad083b6 2648be8 9d1e51b; do
+      git revert --no-edit "$sha"
+    done
+    ```
+
+3. **Sync + verify** — run `make sync-dev` and `make verify-sync`, then `make test`. All 53/53 checkpoint tests + the NFR-CONV invariant suite must pass on the reverted tree.
+4. **Partial rollback** — if only a subset of FRs is implicated, revert only those SHAs (newest-first within the subset). Document the partial-revert SHA list in `D-0099/spec.md §4.2` addendum.
+5. **Post-rollback obligations** — file the rollback ADR under `decisions.md` with disposition `REVOKE` and a pointer to the K-003 or invariant-probe artifact that triggered it. Notify the committee within 1 business hour.
+6. **Re-tag-on-recovery** — once the root cause is fixed and the invariant suite is green for two consecutive runs, the committee may re-issue an APPROVE disposition (§13.2). Re-tag as `v3.9.1` (do not reuse `v3.9`).
+
+### 13.2 GA-Tagging-Committee Approval Gate
+
+**Input artifacts** (all must be present and current as of the disposition timestamp):
+
+- `results/gate-kpi-report.md` — gate pass/fail KPI summary, 21/21 gates required.
+- `results/release-retrospective.md` — phase-by-phase narrative and token accounting.
+- `manifest.json` — checkpoint manifest with `total`, `found`, `missing` counts; missing checkpoints must be ADR-justified.
+- `artifacts/D-0099/spec.md` — rollback spec (§13.1 above).
+- K-003 TRACKING-PASS report (FINAL-PASS may be deferred to the SLA window post-tag per OPS-001).
+
+**Approval criteria** (all four must hold for APPROVE):
+
+1. **Gate completeness** — gate-kpi-report shows ≥21/21 gates passed OR any missing gate has an ADR with disposition `WAIVE` or `DEFER`.
+2. **Invariant coverage** — the NFR-CONV invariant suite reports green (no new FAILs vs. the pre-FR-CONV.1 baseline).
+3. **Compliance-tier integrity** — no STRICT-tier task in the release shows `tier_drift_count > 0` between TRACKING-PASS and the disposition timestamp.
+4. **Rollback readiness** — §13.1 procedure has been dry-run-validated against the candidate tag SHA (revert sequence applies cleanly on a throwaway branch).
+
+**Dispositions**:
+
+- **APPROVE** — local tag may be pushed to origin. Tag message footer must cite §13.1 / §13.2. Remote push is the committee-authorized action; no further approval is required for branch push of the same SHA.
+- **HOLD** — local tag remains; remote push gated until the named blocker is resolved. Blocker is recorded in `decisions.md` with target-resolution-date.
+- **REJECT** — the candidate SHA is not tag-eligible. Re-cut from a new SHA after the named defect is fixed. The rejected SHA may still be branch-merged if it carries non-tagged value.
+- **REVOKE** (post-tag) — triggers §13.1 rollback. Recorded in `decisions.md` with the triggering K-003 / invariant-probe artifact.
+
+**Out of scope**: This gate governs the **tag** push only. Branch pushes (master, integration, feature branches) follow the standard Git workflow in `CLAUDE.md` and do not require committee disposition.
+
+---
+
 ## Appendix A: Conflict Register Summary
 
 (Copied verbatim from `conflict-register.md` — append-only ledger of CASE-A/CASE-D decisions per G6 four-case conflict rule.)

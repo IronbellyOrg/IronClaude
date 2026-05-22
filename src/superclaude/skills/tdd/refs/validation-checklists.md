@@ -62,6 +62,7 @@ See the standalone `## Validation Checklist` section below for the full pre-pres
 ### Step 10: Present to User
 
 Notify the user:
+
 - Where the final document was written
 - Line count and tier classification
 - Number of sections populated vs skipped
@@ -71,6 +72,7 @@ Notify the user:
 ### Step 11: Clean Up Consolidation Sources
 
 If the TDD was created by consolidating existing docs:
+
 - Do NOT delete the source docs automatically
 - Present the source docs to the user and confirm they can be archived
 - Archive approved sources to `docs/archive/[appropriate-subdir]/`
@@ -86,6 +88,7 @@ If the TDD was created by consolidating existing docs:
 Before presenting the TDD to the user, validate against this checklist (this is encoded in the task file's Assembly phase):
 
 **Structural Completeness:**
+
 - [ ] Frontmatter has all required fields from the template (id, title, status, created_date, parent_doc, depends_on, tags)
 - [ ] Document purpose block with tiered usage table present
 - [ ] Document Information table has all 7 rows (Component Name, Component Type, Tech Lead, Engineering Team, Target Release, Last Updated, Status) plus Approvers table
@@ -94,6 +97,7 @@ Before presenting the TDD to the user, validate against this checklist (this is 
 - [ ] Total line count within tier budget (Lightweight: 300-600, Standard: 800-1400, Heavyweight: 1400-2200)
 
 **Architecture & Design Quality:**
+
 - [ ] Architecture section (Section 6) includes at least one diagram (ASCII or Mermaid) showing component relationships
 - [ ] Data model definitions complete with entity tables (Field / Type / Required / Description / Constraints columns)
 - [ ] API contracts specified with endpoint overview tables, request/response examples, and error response format
@@ -102,12 +106,14 @@ Before presenting the TDD to the user, validate against this checklist (this is 
 - [ ] Alternative 0: Do Nothing is present in Alternatives Considered (Section 21)
 
 **Requirements & Specifications:**
+
 - [ ] Requirements use FR-001/NFR-001 ID numbering with priority (Must Have / Should Have / Could Have) and acceptance criteria
 - [ ] SLO/SLI/Error Budget tables present for Standard and Heavyweight tiers
 - [ ] Performance budgets specified with concrete metrics and measurement methods
 - [ ] Security considerations documented — threat model, security controls, sensitive data handling
 
 **Evidence & Integrity:**
+
 - [ ] No fabricated claims — all architecture and implementation descriptions backed by `[CODE-VERIFIED]` tags
 - [ ] No doc-sourced architectural claims presented as verified without cross-validation tags
 - [ ] All `[CODE-CONTRADICTED]` or `[STALE DOC]` findings surfaced in Open Questions (Section 22)
@@ -116,6 +122,7 @@ Before presenting the TDD to the user, validate against this checklist (this is 
 - [ ] Web research findings include source URLs for every external claim
 
 **Document Quality:**
+
 - [ ] Document History table present with initial entry
 - [ ] Tables use correct column structure from template
 - [ ] Internal consistency — no contradictions between sections (requirements trace to architecture, risks to mitigations, dependencies to integration points)
@@ -144,6 +151,7 @@ These rules come from the template's structure and conventions. Every TDD must f
 | **Uncertainty** | Explicit "Unverified" or "Open Question" markers | Present uncertain findings as verified facts |
 
 **General content principles:**
+
 - Tables over prose whenever presenting multi-item data
 - Conciseness over comprehensiveness — the TDD should be scannable, not exhaustive prose
 - Every claim needs evidence — if you can't cite a file path or URL, it belongs in Open Questions

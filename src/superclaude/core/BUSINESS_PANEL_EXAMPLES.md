@@ -3,6 +3,7 @@
 ## Basic Usage Examples
 
 ### Example 1: Strategic Plan Analysis
+
 ```bash
 /sc:business-panel @strategy_doc.pdf
 
@@ -12,6 +13,7 @@
 ```
 
 ### Example 2: Innovation Assessment  
+
 ```bash
 /sc:business-panel "We're developing AI-powered customer service" --experts "christensen,drucker,godin"
 
@@ -20,6 +22,7 @@
 ```
 
 ### Example 3: Risk Analysis with Debate
+
 ```bash
 /sc:business-panel @risk_assessment.md --mode debate
 
@@ -28,6 +31,7 @@
 ```
 
 ### Example 4: Strategic Learning Session
+
 ```bash
 /sc:business-panel "Help me understand competitive strategy" --mode socratic
 
@@ -38,6 +42,7 @@
 ## Advanced Usage Patterns
 
 ### Multi-Document Analysis
+
 ```bash
 /sc:business-panel @market_research.pdf @competitor_analysis.xlsx @financial_projections.csv --synthesis-only
 
@@ -45,6 +50,7 @@
 ```
 
 ### Domain-Specific Analysis
+
 ```bash
 /sc:business-panel @product_strategy.md --focus "innovation" --experts "christensen,drucker,meadows"
 
@@ -52,6 +58,7 @@
 ```
 
 ### Structured Communication Focus
+
 ```bash
 /sc:business-panel @exec_presentation.pptx --focus "communication" --structured
 
@@ -61,6 +68,7 @@
 ## Integration with SuperClaude Commands
 
 ### Combined with /analyze
+
 ```bash
 /analyze @business_model.md --business-panel
 
@@ -68,6 +76,7 @@
 ```
 
 ### Combined with /improve  
+
 ```bash
 /improve @strategy_doc.md --business-panel --iterative
 
@@ -75,6 +84,7 @@
 ```
 
 ### Combined with /design
+
 ```bash
 /design business-model --business-panel --experts "drucker,porter,kim_mauborgne"
 
@@ -84,6 +94,7 @@
 ## Expert Selection
 
 ### By Domain
+
 | Domain | Experts | Focus |
 |--------|---------|-------|
 | Strategy | porter, kim_mauborgne, collins, meadows | Competitive, blue ocean, execution, systems |
@@ -94,6 +105,7 @@
 | Business Model | christensen, drucker, kim_mauborgne, meadows | Value creation, customer focus, innovation |
 
 ### By Analysis Type
+
 | Type | Experts | Mode |
 |------|---------|------|
 | Comprehensive audit | all | discussion → debate → synthesis |
@@ -104,6 +116,7 @@
 ## Output Format Variations
 
 ### Executive Summary Format
+
 ```bash
 /sc:business-panel @doc.pdf --structured --synthesis-only
 
@@ -117,6 +130,7 @@
 ```
 
 ### Framework-by-Framework Format  
+
 ```bash
 /sc:business-panel @doc.pdf --verbose
 
@@ -132,6 +146,7 @@
 ```
 
 ### Question-Driven Format
+
 ```bash
 /sc:business-panel @doc.pdf --questions
 
@@ -156,6 +171,7 @@
 ## Customization Options
 
 ### Expert Behavior Modification
+
 ```bash
 # Focus specific expert on particular aspect
 /sc:business-panel @doc.pdf --christensen-focus "disruption-potential"
@@ -167,6 +183,7 @@
 ```
 
 ### Output Customization
+
 ```bash
 # Symbol density control
 /sc:business-panel @doc.pdf --symbols minimal  # reduce symbol usage
@@ -178,6 +195,7 @@
 ```
 
 ### Time and Resource Management
+
 ```bash
 # Quick analysis for time constraints
 /sc:business-panel @doc.pdf --quick --experts-max 3
@@ -190,6 +208,7 @@
 ```
 
 ## Quality Standards
+
 - **Authenticity**: Expert voice consistency, framework fidelity, realistic interactions
 - **Relevance**: Strategic focus, actionable insights, evidence-based conclusions
 - **Integration**: Synthesis > individual analysis, framework distinctiveness preserved

@@ -7,6 +7,7 @@
 This is the single source of truth for *where iteration artefacts live*. `.claude/skills/<skill>/` is reserved for the **distributable skill package** (the `SKILL.md` plus its `refs/`, `rules/`, `templates/`, `scripts/`). Anything generated *by* a skill's evaluation, debugging, or release workflow belongs here under `.dev/`.
 
 The enforcement layers that depend on this rule:
+
 - **L2 (this file)** publishes the convention.
 - **L2 (`.gitignore`)** matches `.claude/skills/*-workspace/` so misplaced workspaces never get committed.
 - **L3 (skill prerequisites)** refuses `.claude/skills/...`, `.claude/agents/...`, `.claude/commands/...` as output destinations and redirects callers here.

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/cliEval/suite.schema.json",
+  "title": "cliEval suite manifest",
+  "description": "Schema for cliEval suite manifests (suites/*.yaml). Roadmap DM-011 / Deliverable D-0002. Validation is performed by superclaude.cli.eval.loader.validate_manifest (T01.04) prior to any filesystem write.",
+  "type": "object",
+  "required": [
+    "name",
+    "version",
+    "description",
+    "defaults",
+    "required_binaries",
+    "optional_capabilities",
+    "evals"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Suite name; matches the CLI --suite argument."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+      "description": "Schema/version tag for forward evolution (M1 Risk-3)."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable summary of the suite."
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Suite-wide default knobs applied to every eval unless overridden.",
+      "properties": {
+        "per_eval_timeout_sec": {"type": "integer", "minimum": 1},
+        "per_eval_memory_mb": {"type": "integer", "minimum": 1},
+        "capture_tty": {"type": "boolean"},
+        "keep_home_on_success": {"type": "boolean"}
+      }
+    },
+    "required_binaries": {
+      "type": "array",
+      "description": "HARD capability gates: missing binary aborts the run.",
+      "items": {"$ref": "#/$defs/requiredBinary"}
+    },
+    "optional_capabilities": {
+      "type": "array",
+      "description": "SOFT capability gates: missing capability skips gated evals.",
+      "items": {"$ref": "#/$defs/optionalCapability"}
+    },
+    "evals": {
+      "type": "array",
+      "description": "Eval entries (DM-002). Length is N pre-expansion; parameterize expansion happens in COMP-002.",
+      "items": {"$ref": "#/$defs/evalEntry"}
+    }
+  },
+  "$defs": {
+    "failureMode": {
+      "type": "string",
+      "enum": ["hard", "skip", "xfail"],
+      "description": "Capability gate behaviour on failure (DM-007)."
+    },
+    "evalIdString": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*([0-9]+(\\.[0-9]+)?)?$",
+      "description": "Eval identifier. Must match FR-SCH2 regex to prevent path traversal in HomeIsolation (T01.05 re-validates this post-expansion)."
+    },
+    "requiredBinary": {
+      "type": "object",
+      "required": ["name", "failure_mode"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "min_version": {"type": "string"},
+        "failure_mode": {"$ref": "#/$defs/failureMode"}
+      }
+    },
+    "optionalCapability": {
+      "type": "object",
+      "required": ["name", "failure_mode"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "gate_flag": {"type": "string"},
+        "failure_mode": {"$ref": "#/$defs/failureMode"}
+      }
+    },
+    "isolationBlock": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "home_strategy": {
+          "type": "string",
+          "enum": ["ephemeral", "seeded", "shared"]
+        },
+        "seed_state": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path"],
+            "additionalProperties": true,
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "content": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "parameterizeRow": {
+      "type": "object",
+      "description": "One row of template-variable substitutions. Keys are placeholder names referenced as {{key}} elsewhere in the eval entry; values are the concrete substitutions.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": ["string", "number", "boolean"]
+      },
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+      }
+    },
+    "evalEntry": {
+      "type": "object",
+      "description": "Parsed manifest entry (DM-002): id, title, category, requires, timeout_sec, isolation, inputs, expects, parameterize.",
+      "required": ["id", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/evalIdString"},
+        "title": {"type": "string", "minLength": 1},
+        "category": {"type": "string"},
+        "requires": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "timeout_sec": {"type": "integer", "minimum": 1},
+        "isolation": {"$ref": "#/$defs/isolationBlock"},
+        "inputs": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "expects": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "parameterize": {
+          "type": "array",
+          "description": "Array of substitution rows. Each row produces one expanded eval (E2 → E2.1, E2.2, ...). Template tokens MUST resolve to schema-valid ids per FR-SCH2.",
+          "items": {"$ref": "#/$defs/parameterizeRow"},
+          "minItems": 1
+        },
+        "no_pty": {
+          "type": "string",
+          "enum": ["skip"],
+          "description": "PTY-exclusion tag (DOC-OQ3 / R-077 / D-0077). When set to \"skip\", `superclaude eval run --no-pty` short-circuits the eval and emits an EvalOutcome with status SKIPPED, skip_reason=\"--no-pty\", and skip_flag_triggered=\"--no-pty\" before any HOME setup. The tag is advisory metadata for the runner; it does NOT affect runs that are not invoked with --no-pty."
+        }
+      }
+    }
+  }
+}

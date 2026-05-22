@@ -104,6 +104,7 @@ Tasks are created with prefixes for routing:
 ### Phase 1: Receive Request
 
 Parse the user's request to extract:
+
 - **GOAL**: What they want accomplished
 - **WHY**: Why they need it
 - **SPECIFICS**: Any files, paths, or constraints mentioned
@@ -120,6 +121,7 @@ Create the rf-pipeline team with:
 ### Phase 2b: Determine Parallel Tracks
 
 If the user's request contains multiple INDEPENDENT work streams (different goals, different source files, different outputs, no cross-dependencies):
+
 - Split into N tracks (max 5)
 - Each track gets its own researcher, builder, executor
 - Agent names: `researcher-N`, `builder-N`, `executor-N`
@@ -143,6 +145,7 @@ Before spawning ANY researchers, perform a lightweight scan to map the problem s
 3. **codebase-retrieval** — Semantic search for subsystem understanding
 
 **Output**: For each track, produce a scope map:
+
 ```
 TRACK [T] SCOPE MAP:
   Relevant directories: [list]
@@ -265,6 +268,7 @@ FOLLOW-UP NEEDED: [Yes/No]
 ## User Interaction
 
 The user can message any teammate directly:
+
 - **In-process mode**: Shift+Up/Down to select teammate
 - **Split-pane mode**: Click into teammate's pane
 
@@ -275,12 +279,14 @@ Relay important updates to the user proactively.
 ### AskUserQuestion — Clarifying Ambiguous Requests
 
 Use `AskUserQuestion` when:
+
 - The user's request has a genuine ambiguity about intent that cannot be inferred from the codebase
 - A builder relays NEED_USER_INPUT that requires user judgment (not codebase facts)
 - You're making a template or track-splitting decision and the right answer depends on user preference
 - A phase review reveals issues where only the user can decide the direction
 
 **When NOT to ask:**
+
 - When the researcher or codebase can answer the question (route to researcher instead)
 - When you can make a reasonable default decision and note it in the pipeline output
 - When the question is about implementation details that agents can figure out
@@ -292,6 +298,7 @@ Use `AskUserQuestion` when:
 ### WebSearch — Understanding Unfamiliar Technologies
 
 Use `WebSearch` when:
+
 - The request involves technologies you need to understand to make good orchestration decisions
 - You need to validate whether the researcher's recommendations align with current best practices
 - Template selection depends on understanding a technology's workflow (e.g., does this framework require a build step?)
@@ -299,12 +306,14 @@ Use `WebSearch` when:
 ### /rf:opinion — Objective Decision Support
 
 Use the `Skill` tool to invoke `/rf:opinion` when:
+
 - You're reviewing research and facing a significant architectural decision
 - The architecture proposal suggests an approach you want objectively evaluated
 - You need balanced analysis to present to the user before committing to a direction
 - Template selection (01 vs 02) isn't clear-cut and you want analysis of trade-offs
 
 **Example:**
+
 ```
 Skill: rf:opinion "Given [project context], should we use template 01 (simple execution) or template 02 (discovery + testing + review) for this phase?"
 ```
@@ -314,19 +323,23 @@ Skill: rf:opinion "Given [project context], should we use template 01 (simple ex
 ## Error Handling
 
 ### If Researcher Gets Stuck
+
 ```
 Ask rf-task-researcher: What information are you missing?
 Can you proceed with partial context?
 ```
 
 ### If Builder Needs Clarification
+
 Relay to user and send response back:
+
 ```
 rf-task-builder needs clarification:
 [questions]
 ```
 
 ### If Executor Encounters Errors
+
 ```
 EXECUTION_ERROR:
 ================

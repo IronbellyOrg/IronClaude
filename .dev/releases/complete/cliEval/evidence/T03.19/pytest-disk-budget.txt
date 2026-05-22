@@ -1,0 +1,46 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 33 items
+
+tests/cli/eval/test_disk_budget.py::TestPublicConstants::test_default_budget_is_1024_mb PASSED [  3%]
+tests/cli/eval/test_disk_budget.py::TestPublicConstants::test_default_tick_is_5_seconds PASSED [  6%]
+tests/cli/eval/test_disk_budget.py::TestPublicConstants::test_breach_exit_code_is_2 PASSED [  9%]
+tests/cli/eval/test_disk_budget.py::TestPublicConstants::test_artifact_name_is_pinned PASSED [ 12%]
+tests/cli/eval/test_disk_budget.py::TestPublicConstants::test_reason_token_is_pinned PASSED [ 15%]
+tests/cli/eval/test_disk_budget.py::TestConstructorGuards::test_negative_budget_rejected PASSED [ 18%]
+tests/cli/eval/test_disk_budget.py::TestConstructorGuards::test_non_int_budget_rejected PASSED [ 21%]
+tests/cli/eval/test_disk_budget.py::TestConstructorGuards::test_boolean_budget_rejected PASSED [ 24%]
+tests/cli/eval/test_disk_budget.py::TestConstructorGuards::test_zero_tick_rejected PASSED [ 27%]
+tests/cli/eval/test_disk_budget.py::TestConstructorGuards::test_negative_tick_rejected PASSED [ 30%]
+tests/cli/eval/test_disk_budget.py::TestConstructorGuards::test_empty_artifact_name_rejected PASSED [ 33%]
+tests/cli/eval/test_disk_budget.py::TestDefaults::test_default_budget_uses_module_constant PASSED [ 36%]
+tests/cli/eval/test_disk_budget.py::TestDefaults::test_default_tick_uses_module_constant PASSED [ 39%]
+tests/cli/eval/test_disk_budget.py::TestDefaults::test_enabled_when_budget_positive PASSED [ 42%]
+tests/cli/eval/test_disk_budget.py::TestDefaults::test_disabled_when_budget_zero PASSED [ 45%]
+tests/cli/eval/test_disk_budget.py::TestDisabledPoller::test_start_is_noop_when_disabled PASSED [ 48%]
+tests/cli/eval/test_disk_budget.py::TestDisabledPoller::test_breach_does_not_fire_when_disabled PASSED [ 51%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetection::test_breach_triggers_when_usage_exceeds_budget PASSED [ 54%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetection::test_breach_writes_side_car_with_payload PASSED [ 57%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetection::test_breach_detail_matches_side_car PASSED [ 60%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetection::test_breach_is_one_shot PASSED [ 63%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetection::test_no_breach_when_usage_under_budget PASSED [ 66%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetection::test_artifact_path_returns_none_before_breach PASSED [ 69%]
+tests/cli/eval/test_disk_budget.py::TestSymlinkHandling::test_symlinks_are_skipped PASSED [ 72%]
+tests/cli/eval/test_disk_budget.py::TestBreachDetail::test_to_dict_preserves_declared_order PASSED [ 75%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_orchestrator_accepts_optional_poller PASSED [ 78%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_disabled_poller_does_not_change_behavior PASSED [ 81%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_breach_stops_scheduling_but_preserves_outcome_per_spec PASSED [ 84%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_inflight_workers_complete_after_breach PASSED [ 87%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_breach_outcome_order_matches_input_order PASSED [ 90%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_no_breach_means_all_pass PASSED [ 93%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_breach_stops_poller_on_orchestrator_exit PASSED [ 96%]
+tests/cli/eval/test_disk_budget.py::TestOrchestratorIntegration::test_cancellation_takes_priority_over_disk_breach PASSED [100%]
+
+============================== 33 passed in 1.13s ==============================

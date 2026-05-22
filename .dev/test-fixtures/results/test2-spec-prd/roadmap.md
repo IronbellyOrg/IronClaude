@@ -20,6 +20,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 **Timeline**: 7–10 weeks across 2 phases (4 weeks Phase 1, 3 weeks Phase 2) plus 2–3 weeks contingency buffer. Development complete by late May, leaving 4+ weeks for hardening and production validation before the June 30 Q2 deadline.
 
 **Key Architectural Decisions**:
+
 - Stateless JWT with RS256 asymmetric signing — no server-side session store
 - Refresh token rotation with replay detection — stored as hashed values in PostgreSQL
 - Progressive account lockout (5→15min, 10→1hr, 20→admin unlock) — near-zero marginal cost over single-threshold
@@ -99,6 +100,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 **Dependency Gate**: Frontend routing framework (D8) must be available by Week 3 for login/registration UI. If delayed, API-only testing proceeds; UI integration shifts to Phase 2.
 
 **Phase 1 Exit Gate**:
+
 - All FR-AUTH.1, FR-AUTH.2, FR-AUTH.3, FR-AUTH.4 acceptance criteria pass in integration tests
 - NFR-AUTH.1 verified: login endpoint < 200ms p95 under 500 concurrent load (k6)
 - NFR-AUTH.3 verified: bcrypt cost factor 12 confirmed in unit tests (~250ms hash time)
@@ -166,6 +168,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 | Account lock registry | State machine | Failed login counter, lock expiration, progressive thresholds | Phase 1 (M3), hardened Phase 2 (M6) | Login endpoint |
 
 **Phase 2 Exit Gate**:
+
 - All FR-AUTH.5 acceptance criteria pass
 - NFR-AUTH.2 infrastructure in place: health check configured, 99.9% monitoring active
 - NFR-AUTH.4 verified: GDPR consent recorded at registration with timestamp

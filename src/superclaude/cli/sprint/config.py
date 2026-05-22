@@ -282,10 +282,16 @@ def load_sprint_config(
     permission_flag: str = "--dangerously-skip-permissions",
     debug: bool = False,
     stall_timeout: int = 0,
+    startup_stall_timeout: int = 300,
     stall_action: str = "warn",
     shadow_gates: bool = False,
+    state_dir: Path | None = None,
 ) -> SprintConfig:
-    """Load and validate a complete sprint configuration."""
+    """Load and validate a complete sprint configuration.
+
+    ``state_dir``: optional override for transient sprint state directory
+    (default derived from release_dir.name in SprintConfig.__post_init__).
+    """
     index_path = Path(index_path).resolve()
 
     if not index_path.exists():
@@ -343,9 +349,11 @@ def load_sprint_config(
         permission_flag=permission_flag,
         debug=debug,
         stall_timeout=stall_timeout,
+        startup_stall_timeout=startup_stall_timeout,
         stall_action=stall_action,
         shadow_gates=shadow_gates,
         total_tasks=total_tasks,
+        state_dir=state_dir if state_dir is not None else Path(""),
     )
 
     # Validate that the requested range yields at least one active phase

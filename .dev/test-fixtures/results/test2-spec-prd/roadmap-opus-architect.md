@@ -22,6 +22,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 **Strategic context**: Authentication unblocks the entire Q2–Q3 2026 personalization roadmap (~$2.4M projected annual revenue) and is prerequisite for the Q3 SOC2 audit. The phasing below front-loads critical-path items (login, registration, token management) while deferring password reset until the email delivery dependency (D5) is confirmed.
 
 **Key architectural decisions**:
+
 - Stateless JWT with RS256 asymmetric signing — no server-side session store
 - Refresh token rotation with replay detection — stored as hashed values in PostgreSQL
 - Layered module dependency: auth-middleware → auth-service → token-manager/password-hasher → jwt-service

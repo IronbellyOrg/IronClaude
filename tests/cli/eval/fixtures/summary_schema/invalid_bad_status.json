@@ -1,0 +1,37 @@
+{
+  "run_id": "run-bad-status",
+  "started_at": "2026-05-20T12:00:00Z",
+  "finished_at": "2026-05-20T12:00:01Z",
+  "duration_sec": 1.0,
+  "suite": "tests/fixtures/bad.yaml",
+  "manifest_version": "1.0",
+  "parallel": 1,
+  "counts": {
+    "manifest_n": 1,
+    "expanded_n_prime": 1,
+    "kept_k": 1,
+    "skipped_s": 0,
+    "kept_plus_skipped_equals_n_prime": true
+  },
+  "totals": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "errored": 0,
+    "interrupted": 0,
+    "timeout": 0
+  },
+  "evals": [
+    {
+      "eval_id": "E1",
+      "title": "bad status example",
+      "status": "BOGUS",
+      "duration_sec": 1.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    }
+  ]
+}

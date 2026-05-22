@@ -1,0 +1,59 @@
+{
+  "skill_name": "sc-troubleshoot",
+  "evals": [
+    {
+      "id": 1,
+      "name": "tier1-missing-import",
+      "complexity": "quick",
+      "expected_tier": 1,
+      "prompt": "I'm getting `NameError: name 'datetime' is not defined` at line 47 of `payments/refund_handler.py` when the worker processes a refund. The function uses `datetime.utcnow()` but I don't see what changed. Help me figure out what's wrong.\n\nHere's the relevant file content (treat this as the on-disk state of the file — the troubleshoot skill should investigate it):\n\n```python\n# payments/refund_handler.py\nfrom typing import Optional\nfrom decimal import Decimal\nfrom payments.gateway import StripeGateway\nfrom payments.models import Refund, RefundStatus\n\n\ndef build_refund(order_id: str, amount: Decimal, reason: Optional[str] = None) -> Refund:\n    \"\"\"Build a refund object for the given order.\"\"\"\n    return Refund(\n        order_id=order_id,\n        amount=amount,\n        reason=reason or 'customer_request',\n        status=RefundStatus.PENDING,\n    )\n\n\ndef process_refund(refund: Refund) -> RefundStatus:\n    \"\"\"Process a refund via the gateway, recording the timestamp.\"\"\"\n    gateway = StripeGateway()\n    result = gateway.refund(refund.order_id, refund.amount)\n    refund.processed_at = datetime.utcnow()  # line 47\n    refund.status = RefundStatus.COMPLETED if result.ok else RefundStatus.FAILED\n    return refund.status\n```\n\nWhat's the diagnosis and the fix?",
+      "expected_output": "Single clear hypothesis: missing `from datetime import datetime` import. Tier 1 only (confidence ≥ 0.85). One-line fix. No escalation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "tier2-flaky-test-intermittent",
+      "complexity": "medium",
+      "expected_tier": 2,
+      "prompt": "Our integration test `tests/api/test_user_session.py::test_concurrent_session_creation` passes locally every time but fails about 1 in 5 runs in CI with `AssertionError: expected 1 session, got 2`. It only started failing after we merged the session-pool refactor last week (commit-ish `7f3a9c1`, which moved session creation into a thread pool). The local dev box is single-core via Docker; CI runners are 8-core. Can you figure out what's going on?\n\nFor your investigation, here is the relevant code as it looks after the refactor:\n\n```python\n# api/session.py\nimport threading\nfrom concurrent.futures import ThreadPoolExecutor\nfrom api.models import Session, User\nfrom api.db import db_session\n\n_executor = ThreadPoolExecutor(max_workers=8)\n_session_cache: dict[str, Session] = {}\n\n\ndef get_or_create_session(user: User) -> Session:\n    if user.id in _session_cache:\n        return _session_cache[user.id]\n    session = Session(user_id=user.id, token=_generate_token())\n    db_session.add(session)\n    db_session.commit()\n    _session_cache[user.id] = session\n    return session\n\n\ndef create_sessions_async(users: list[User]) -> list[Session]:\n    futures = [_executor.submit(get_or_create_session, u) for u in users]\n    return [f.result() for f in futures]\n```\n\n```python\n# tests/api/test_user_session.py\ndef test_concurrent_session_creation(test_user):\n    api.session._session_cache.clear()\n    sessions = api.session.create_sessions_async([test_user] * 4)\n    assert len({s.id for s in sessions}) == 1, f\"expected 1 session, got {len({s.id for s in sessions})}\"\n```\n\nDiagnose the cause and recommend a fix.",
+      "expected_output": "Should escalate to Tier 2 (intermittent + recently-refactored signals). Multiple agents should converge on: race condition — `get_or_create_session` is not thread-safe; check-then-act between `_session_cache` lookup and assignment. Fix: introduce a lock around the cache check/insert, or use threading.Lock keyed by user_id. Bonus if it notes the test's `* 4` pattern fires 4 concurrent calls for the same user.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "tier2-performance-regression",
+      "complexity": "medium",
+      "expected_tier": 2,
+      "prompt": "After last week's merge of the dashboard widget refactor, our `/api/dashboard/summary` endpoint p99 latency jumped from 120ms to 1.8s. The change touched `views/dashboard.py` and `models/widget.py`. Memory profile looks normal. Database CPU on the read replica is pegged at 80%. What's likely going on and how do I fix it?\n\nHere's the new code from the refactor:\n\n```python\n# views/dashboard.py\nfrom flask import jsonify\nfrom models.widget import Widget\nfrom models.user import current_user\n\ndef dashboard_summary():\n    widgets = Widget.query.filter_by(user_id=current_user.id).all()\n    return jsonify({\n        'widgets': [\n            {\n                'id': w.id,\n                'title': w.title,\n                'data': w.compute_data(),\n                'owner_name': w.owner.full_name,\n                'last_editor': w.last_edit.editor.full_name if w.last_edit else None,\n                'tag_names': [t.name for t in w.tags],\n            }\n            for w in widgets\n        ]\n    })\n```\n\n```python\n# models/widget.py\nclass Widget(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))\n    owner = db.relationship('User', foreign_keys=[user_id])  # lazy='select' (default)\n    tags = db.relationship('Tag', secondary='widget_tags')   # lazy='select' (default)\n    last_edit = db.relationship('WidgetEdit', uselist=False) # lazy='select' (default)\n```\n\nTypical user has ~50 widgets. What's the diagnosis and the fix?",
+      "expected_output": "Escalates to Tier 2 (performance domain). Diagnosis: classic N+1 query problem — each widget triggers separate queries for `owner`, `tags`, `last_edit` (and `last_edit.editor`). With 50 widgets that's ~200+ queries per request. Fix: eager load with `joinedload`/`selectinload` on the offending relationships, or restructure to a single query with joins. Bonus: notes the cache-pegged read replica as evidence of query volume, not query slowness.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "tier2-security-idor",
+      "complexity": "medium",
+      "expected_tier": 2,
+      "prompt": "Our SAST scanner flagged `/api/users/<user_id>/profile` as a potential IDOR. The endpoint returns the requested user's profile based on the URL parameter. Can you check whether this is a real vulnerability and what to do about it?\n\nHere's the handler:\n\n```python\n# api/users.py\nfrom flask import jsonify, abort\nfrom flask_login import login_required, current_user\nfrom models.user import User\n\n@app.route('/api/users/<int:user_id>/profile', methods=['GET'])\n@login_required\ndef get_user_profile(user_id: int):\n    user = User.query.get(user_id)\n    if user is None:\n        abort(404)\n    return jsonify({\n        'id': user.id,\n        'email': user.email,\n        'full_name': user.full_name,\n        'phone': user.phone,\n        'address': user.address,\n        'date_of_birth': user.date_of_birth.isoformat() if user.date_of_birth else None,\n    })\n```\n\nThe API is consumed by our mobile app (which only ever passes the current user's own ID). Is the scanner right? What's the fix?",
+      "expected_output": "Escalates to Tier 2 (security_caution rule — security type bumps the threshold). Diagnosis: the scanner is correct — any authenticated user can request /api/users/<any_id>/profile and receive PII because the handler doesn't check that `user_id == current_user.id` (or that current_user has admin/permission to view the target). 'Mobile app only passes current user's ID' is irrelevant; an attacker can craft requests directly. Fix: add `if user_id != current_user.id and not current_user.is_admin: abort(403)` (or equivalent), plus add a regression test. Bonus: notes that returning a 404 for unauthorized would be even better (avoids user enumeration), and recommends an authorization decorator pattern for the broader API.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "tier2-real-bug-scratch-root-tautology",
+      "complexity": "deep",
+      "expected_tier": 2,
+      "prompt": "An operator reported: `superclaude eval run --output-dir /etc/foo --target src/foo` silently succeeds, creates the directory `/etc/foo`, and runs the eval there. But `superclaude doctor --output-dir /etc/foo` correctly rejects the same path with 'forbidden scratch root'. Both commands are supposed to enforce the same OPS-002 allowlist policy from `docs/eval/scratch-roots.md`, which explicitly forbids /etc, /root, /, and other system paths. Why does `eval run` accept what `doctor` rejects, and how do we fix it without weakening either layer?\n\nFor your investigation, look at the snapshot of the pre-fix code at:\n\n- `/config/workspace/IronClaude/.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py` (CLI handlers — relevant functions: `eval_run` ~line 1406, `doctor` ~line 817)\n- `/config/workspace/IronClaude/.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/config.py` (the `resolve_scratch_root` function and its `output_dir=` parameter)\n- `/config/workspace/IronClaude/.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/scratch-roots.md` (the OPS-002 policy doc with the verbatim /etc/foo rejection example)\n\nFind the root cause, explain why doctor enforces correctly but eval run does not, and propose a fix.",
+      "expected_output": "Escalates to Tier 2 (security domain + multi-component). The diagnosis should identify: `eval_run` at commands.py:~1476 passes the operator-supplied `--output-dir` as the `output_dir=` keyword argument to `resolve_scratch_root`. That kwarg extends the allowlist with the candidate path itself, making the check a tautology — the candidate validates against an allowlist that contains it. `doctor` does not pass `output_dir=` and so the check is strict. Fix: drop the `output_dir=output_dir` kwarg in `eval_run`; add a regression test that asserts `eval run --output-dir /etc/foo` exits non-zero; tighten `resolve_scratch_root`'s docstring to warn against this misuse pattern. Bonus: identifies that the `output_dir=` parameter has a legitimate caller (defense-in-depth helpers like `HomeIsolation.containment_guard`) and so should not be removed entirely.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "wave0-stop-vague-input",
+      "complexity": "quick",
+      "expected_tier": 0,
+      "prompt": "Something's broken. Please troubleshoot it deeply.",
+      "expected_output": "Should STOP at Wave 0 (under-specified input combined with implicit deep depth, or simply too vague to triage). Should ask the user for at minimum: an error message or symptom description, and ideally a file/component scope. Should NOT fabricate a hypothesis from no input.",
+      "files": []
+    }
+  ]
+}

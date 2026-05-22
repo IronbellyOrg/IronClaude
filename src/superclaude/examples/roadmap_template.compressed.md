@@ -130,8 +130,6 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ## Risk Register
 
-
-
 |ID|Risk|Affected Milestones|Probability|Impact|Mitigation|Owner|
 |----|------|---------------------|-------------|--------|------------|-------|
 |{{SC_PLACEHOLDER:risk_id}}|{{SC_PLACEHOLDER:risk}}|{{SC_PLACEHOLDER:affected_milestones}}|{{SC_PLACEHOLDER:probability}}|{{SC_PLACEHOLDER:impact}}|{{SC_PLACEHOLDER:mitigation}}|{{SC_PLACEHOLDER:owner}}|
@@ -143,8 +141,6 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 |{{SC_PLACEHOLDER:criterion}}|{{SC_PLACEHOLDER:metric}}|{{SC_PLACEHOLDER:target}}|{{SC_PLACEHOLDER:method}}|{{SC_PLACEHOLDER:milestone}}|
 
 ## Decision Summary
-
-
 
 |Decision|Chosen|Alternatives Considered|Rationale|
 |----------|--------|------------------------|----------|

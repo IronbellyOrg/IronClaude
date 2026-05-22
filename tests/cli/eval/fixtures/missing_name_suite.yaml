@@ -1,0 +1,11 @@
+# Negative fixture: missing the required top-level `name` field.
+# Loaded by tests/cli/eval/test_schema_load.py to assert jsonschema rejection.
+version: "1.0"
+description: "Manifest deliberately missing the required `name` field."
+
+defaults: {}
+required_binaries: []
+optional_capabilities: []
+evals:
+  - id: E1
+    title: "stub eval used purely to keep evals[] non-empty for the negative case"

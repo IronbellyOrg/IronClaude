@@ -1,0 +1,62 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collected 817 items
+
+tests/cli/eval/test_atomic_setup.py ...................                  [  2%]
+tests/cli/eval/test_capability_classifications.py ....................   [  4%]
+tests/cli/eval/test_capability_dataclass.py ................             [  6%]
+tests/cli/eval/test_capability_gates.py ..................               [  8%]
+tests/cli/eval/test_capability_report.py ..........                      [ 10%]
+tests/cli/eval/test_claude_process_adapter.py .............              [ 11%]
+tests/cli/eval/test_config.py ......                                     [ 12%]
+tests/cli/eval/test_containment.py ..............................        [ 16%]
+tests/cli/eval/test_defense_in_depth.py ...................              [ 18%]
+tests/cli/eval/test_describe.py .........................                [ 21%]
+tests/cli/eval/test_doctor.py ............................               [ 24%]
+tests/cli/eval/test_doctor_version.py .............                      [ 26%]
+tests/cli/eval/test_eval_context.py .............................        [ 30%]
+tests/cli/eval/test_eval_id_regex.py ................................... [ 34%]
+...............................                                          [ 38%]
+tests/cli/eval/test_eval_lifecycle.py ......................             [ 40%]
+tests/cli/eval/test_eval_outcome.py ........................             [ 43%]
+tests/cli/eval/test_eval_result.py ................                      [ 45%]
+tests/cli/eval/test_expect_failure.py .............                      [ 47%]
+tests/cli/eval/test_expect_result.py ............                        [ 48%]
+tests/cli/eval/test_hard_guard_real_home.py ......                       [ 49%]
+tests/cli/eval/test_home_isolation.py ...........................        [ 52%]
+tests/cli/eval/test_home_isolation_extend.py ........................... [ 56%]
+...........                                                              [ 57%]
+tests/cli/eval/test_hook_adapter.py ............                         [ 58%]
+tests/cli/eval/test_isolation_dataclass.py ............................. [ 62%]
+...                                                                      [ 62%]
+tests/cli/eval/test_isolation_layers_probe.py .............              [ 64%]
+tests/cli/eval/test_list.py ...................                          [ 66%]
+tests/cli/eval/test_path_containment.py ................................ [ 70%]
+...............                                                          [ 72%]
+tests/cli/eval/test_path_traversal.py ...............                    [ 74%]
+tests/cli/eval/test_perf_home_setup.py .                                 [ 74%]
+tests/cli/eval/test_pty_driver.py .....................                  [ 77%]
+tests/cli/eval/test_pty_stream.py ..............................         [ 80%]
+tests/cli/eval/test_runner_class.py ...........                          [ 82%]
+tests/cli/eval/test_schema_id_rejection.py ....................          [ 84%]
+tests/cli/eval/test_schema_load.py .............                         [ 86%]
+tests/cli/eval/test_schema_validate.py ..............                    [ 87%]
+tests/cli/eval/test_scratch_root_allowlist.py ...................        [ 90%]
+tests/cli/eval/test_scratch_root_policy.py ................              [ 92%]
+tests/cli/eval/test_signal_handling.py .........................         [ 95%]
+tests/cli/eval/test_suite_loader.py .........................            [ 98%]
+tests/cli/eval/test_symlink_attacks.py ..............                    [100%]
+
+=============================== warnings summary ===============================
+tests/cli/eval/test_signal_handling.py::test_pty_driver_terminate_kills_real_subprocess
+  /config/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/pty.py:95: DeprecationWarning: This process (pid=4158142) is multi-threaded, use of forkpty() may lead to deadlocks in the child.
+    pid, fd = os.forkpty()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 817 passed, 1 warning in 9.97s ========================

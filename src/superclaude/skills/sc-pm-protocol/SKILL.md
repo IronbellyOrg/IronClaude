@@ -11,6 +11,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
 sc:pm-protocol is invoked ONLY by the `sc:pm` command via `Skill sc:pm-protocol` in the `## Activation` section. It is never invoked directly by users.
 
 Activation conditions:
+
 - User runs `/sc:pm [request]` in Claude Code
 - PM Agent auto-activates at session start for context restoration
 - Any `--strategy` or `--verbose` flags are passed through from the command
@@ -53,6 +54,7 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 ## Sub-Agent Orchestration Patterns
 
 ### Vague Feature Request Pattern
+
 1. Activate Brainstorming Mode → Socratic questioning
 2. Delegate to requirements-analyst → Create formal PRD
 3. Delegate to system-architect → Architecture design
@@ -62,6 +64,7 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 7. Delegate to technical-writer → Documentation
 
 ### Clear Implementation Pattern
+
 1. Load context7 for patterns
 2. Analyze: Read file, identify root cause
 3. Delegate to refactoring-expert → Fix + tests
@@ -69,6 +72,7 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 5. Document learnings
 
 ### Multi-Domain Complex Project Pattern
+
 1. Delegate to requirements-analyst → User stories
 2. Delegate to system-architect → Architecture
 3. Phase 1 (Parallel): backend + security
@@ -80,12 +84,14 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 ## MCP Integration (Docker Gateway Pattern)
 
 ### Zero-Token Baseline
+
 - Start: No MCP tools loaded (gateway URL only)
 - Load: On-demand tool activation per execution phase
 - Unload: Tool removal after phase completion
 - Cache: Strategic tool retention for sequential phases
 
 ### Phase-Based Tool Loading
+
 - Discovery: [sequential, context7] → Requirements analysis
 - Design: [sequential, magic] → Architecture planning
 - Implementation: [context7, magic, morphllm] → Code generation
@@ -94,9 +100,11 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 ## Self-Correcting Execution (Root Cause First)
 
 ### Core Principle
+
 Never retry the same approach without understanding WHY it failed.
 
 ### Error Detection Protocol
+
 1. Error Occurs → STOP: Never re-execute immediately
 2. Root Cause Investigation (MANDATORY): context7, WebFetch, Grep, Read
 3. Hypothesis Formation: Create hypothesis document with evidence
@@ -105,11 +113,13 @@ Never retry the same approach without understanding WHY it failed.
 6. Learning Capture: Success → write_memory; Failure → Return to Step 2
 
 ### Anti-Patterns
+
 - Never retry the same command without investigation
 - Never increase timeout without understanding root cause
 - Never dismiss warnings without research
 
 ### Warning/Error Investigation Culture
+
 - NEVER dismiss with "probably not important"
 - ALWAYS investigate with context7, WebFetch
 - Categorize Impact: Critical / Important / Informational
@@ -129,6 +139,7 @@ Pattern: `[category]/[subcategory]/[identifier]`
 ## PDCA Document Structure
 
 Location: `docs/pdca/[feature-name]/`
+
 - plan.md: Hypothesis, expected outcomes, risks
 - do.md: Implementation log with timestamps, learnings
 - check.md: Results vs expectations, what worked/failed
@@ -137,20 +148,25 @@ Location: `docs/pdca/[feature-name]/`
 ## Self-Improvement Integration
 
 ### Implementation Documentation
+
 After each successful implementation:
+
 - Create docs/patterns/[feature-name].md
 - Document architecture decisions in ADR format
 - Update CLAUDE.md with new best practices
 - write_memory("learning/patterns/[name]", reusable_pattern)
 
 ### Mistake Recording
+
 When errors occur:
+
 - Create docs/mistakes/[feature]-YYYY-MM-DD.md
 - Document root cause analysis
 - Create prevention checklist
 - write_memory("learning/mistakes/[timestamp]", failure_analysis)
 
 ### Monthly Maintenance
+
 - Remove outdated patterns
 - Merge duplicate documentation
 - Update version numbers
@@ -160,18 +176,21 @@ When errors occur:
 ## Performance Optimization
 
 ### Resource Efficiency
+
 - Zero-Token Baseline: Start with no MCP tools
 - Dynamic Loading: Load tools only when needed
 - Strategic Unloading: Remove after phase completion
 - Parallel Execution: Concurrent sub-agent delegation
 
 ### Quality Assurance
+
 - Domain Expertise: Route to specialized agents
 - Cross-Validation: Multiple agent perspectives
 - Quality Gates: Systematic validation at transitions
 - User Feedback: Incorporate throughout execution
 
 ### Continuous Learning
+
 - Pattern Recognition: Identify recurring patterns
 - Mistake Prevention: Document with prevention checklist
 - Documentation Pruning: Monthly cleanup

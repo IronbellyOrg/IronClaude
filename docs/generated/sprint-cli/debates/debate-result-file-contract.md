@@ -1,6 +1,7 @@
 # Adversarial Debate: Should Path A Include a Result File Contract?
 
 ## Metadata
+
 - Generated: 2026-04-03
 - Depth: quick (1 round)
 - Topic: Per-task result file contract for Sprint CLI Path A
@@ -14,6 +15,7 @@
 ### Current State Summary
 
 **Path A** (per-task subprocess at `executor.py:1064-1068`):
+
 ```python
 prompt = (
     f"Execute task {task.task_id}: {task.title}\n"
@@ -21,7 +23,9 @@ prompt = (
     f"Description: {task.description}\n"
 )
 ```
+
 Status classification at `executor.py:999-1005`:
+
 ```python
 if exit_code == 0:
     status = TaskStatus.PASS
@@ -30,13 +34,16 @@ elif exit_code == 124:
 else:
     status = TaskStatus.FAIL
 ```
+
 Phase aggregation at `executor.py:1215-1216`:
+
 ```python
 all_passed = all(r.status == TaskStatus.PASS for r in task_results)
 status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
 ```
 
 **Path B** (freeform phase at `process.py:197-203`):
+
 ```
 ## Result File
 - When all tasks in this phase are complete, write the result file to:
@@ -46,6 +53,7 @@ status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
 - If a STRICT-tier task fails and you are halting, write instead:
   `EXIT_RECOMMENDATION: HALT`
 ```
+
 Status classification: `_determine_phase_status()` at `executor.py:1765-1846` uses a 7-priority chain including result file parsing.
 
 ### Structural Differences

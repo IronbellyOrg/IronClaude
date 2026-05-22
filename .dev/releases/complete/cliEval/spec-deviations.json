@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "total_analyzed": 20,
+  "unclassified_count": 20,
+  "routing_fix_roadmap": "",
+  "routing_no_action": "",
+  "records": [
+    {
+      "stable_id": "6066cc29f9e8e271",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'src/superclaude/cli/install_hooks.py:install_hooks' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/cli/install_hooks.py:install_hooks",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "4fb19958cd68ccd5",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'src/superclaude/hooks/hooks.json' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/hooks/hooks.json",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "6205bc801751e4ee",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/cli/test_eval/test_pty_vendor.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/cli/test_eval/test_pty_vendor.py",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "4a593f91fa2f71ce",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/cli/test_install_hooks.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/cli/test_install_hooks.py",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "f009208dd67590eb",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'contains_event' defined in spec not found in roadmap",
+      "location": "spec:function:contains_event",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "f877a1203015d2c0",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'does_not_contain' defined in spec not found in roadmap",
+      "location": "spec:function:does_not_contain",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "810eecb0074c0e0e",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'event_count' defined in spec not found in roadmap",
+      "location": "spec:function:event_count",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "554f05e7b982946b",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'greater_than' defined in spec not found in roadmap",
+      "location": "spec:function:greater_than",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "66492521b8818cdf",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'has_content_matching' defined in spec not found in roadmap",
+      "location": "spec:function:has_content_matching",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "036e07b465bba3be",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'has_mode' defined in spec not found in roadmap",
+      "location": "spec:function:has_mode",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "ca8f41af98446948",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'has_registration' defined in spec not found in roadmap",
+      "location": "spec:function:has_registration",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "79499bd34957b279",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'hooks_count' defined in spec not found in roadmap",
+      "location": "spec:function:hooks_count",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "7f2eecdaf000a2ac",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'is_valid_jsonl' defined in spec not found in roadmap",
+      "location": "spec:function:is_valid_jsonl",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "7af318d32b4c43e7",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'less_than' defined in spec not found in roadmap",
+      "location": "spec:function:less_than",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "e300bee8d19358c4",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Function 'matches_line' defined in spec not found in roadmap",
+      "location": "spec:function:matches_line",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "b3e986e55a453d79",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'D-1' not found in spec",
+      "location": "roadmap:D-1",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "aafa5eb94a0deb89",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'D12' not found in spec",
+      "location": "roadmap:D12",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "ebc2911b1f8da5a2",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'D3' not found in spec",
+      "location": "roadmap:D3",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "9e340eb20538b876",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'D5' not found in spec",
+      "location": "roadmap:D5",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "44e2b33673c030ef",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'D6' not found in spec",
+      "location": "roadmap:D6",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ]
+    }
+  ]
+}

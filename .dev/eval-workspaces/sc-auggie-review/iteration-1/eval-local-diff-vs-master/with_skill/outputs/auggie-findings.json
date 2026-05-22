@@ -1,0 +1,123 @@
+{
+  "findings": [
+    {
+      "title": "install_templates not integrated into update command",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/main.py",
+      "line": 309,
+      "line_range_end": 310,
+      "in_diff": false,
+      "evidence": "    if not core_success or not cmd_success or not agent_success or not skill_success:\n        sys.exit(1)",
+      "why": "The update command calls install_core_files, install_commands, install_agents, and install_all_skills with force=True, but does not call install_templates. The install command (lines 195-212) includes install_templates as Step 6 and checks templates_success in the final exit condition. This inconsistency means running `superclaude update` will not update templates to match the current package version, violating the command's documented contract.",
+      "recommendation": "Add install_templates call in the update command after install_all_skills (line 307), include templates_success in the final exit condition check on line 309, matching the install command's pattern.",
+      "cross_references": [
+        "src/superclaude/cli/main.py:195",
+        "src/superclaude/cli/main.py:201",
+        "src/superclaude/cli/main.py:204"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Inconsistent source discovery pattern: plugins fallback missing",
+      "category": "architecture",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/install_templates.py",
+      "line": 106,
+      "line_range_end": 128,
+      "in_diff": true,
+      "evidence": "def _get_templates_source() -> Path:\n    \"\"\"Locate ``src/superclaude/templates/`` for both layouts.\n\n    1. **Editable install** (this file at ``<repo>/src/superclaude/cli/install_templates.py``)\n       \u2014 templates live at ``<repo>/src/superclaude/templates``.\n    2. **pipx / wheel install** (force-include puts ``src/`` at\n       ``<site-packages>/superclaude/_src/``) \u2014 templates live at\n       ``<site-packages>/superclaude/_src/superclaude/templates``.\n    \"\"\"\n    here = Path(__file__).resolve()\n    package_root = here.parent.parent  # .../superclaude/\n\n    editable = package_root / \"templates\"\n    if editable.is_dir():\n        return editable\n\n    wheel = package_root / \"_src\" / \"superclaude\" / \"templates\"\n    if wheel.is_dir():\n        return wheel\n\n    # Return the editable candidate even if missing so the error message\n    # cites an absolute path the user can easily inspect.\n    return editable",
+      "why": "The _get_templates_source function uses a different resolution pattern than _get_commands_source. The commands installer (install_commands.py:92-122) checks package_root/commands THEN repo_root/plugins/superclaude/commands for source-checkout compatibility. The templates installer skips the plugins/ fallback and instead has a wheel-specific _src/ path. This architectural inconsistency makes the codebase harder to reason about. While both work for their specific use cases, the divergence suggests either (a) templates should also check plugins/ for consistency, or (b) there's a valid reason templates differ that should be documented.",
+      "recommendation": "Either add a plugins/superclaude/templates fallback candidate between the editable and wheel checks (matching install_commands.py), or add an inline comment explaining why templates legitimately differ from commands/agents source discovery.",
+      "cross_references": [
+        "src/superclaude/cli/install_commands.py:92",
+        "src/superclaude/cli/install_agents.py:89"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Missing unit tests for install_templates",
+      "category": "tests",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/install_templates.py",
+      "line": 1,
+      "line_range_end": 157,
+      "in_diff": true,
+      "evidence": "\"\"\"Template Installation\n...\n\"\"\"\n\nfrom __future__ import annotations\n\nimport shutil\nfrom pathlib import Path\nfrom typing import List, Tuple",
+      "why": "The new install_templates.py module has no dedicated unit test file. The codebase has comprehensive unit tests for install_commands (tests/unit/test_cli_install.py with 15+ test cases), install_hooks (tests/cli/test_install_hooks.py with 10+ test cases), and even regression tests for install_templates in tests/cli/test_install_failures.py. However, there's no tests/cli/test_install_templates.py with positive-path coverage (install to temp dir, skip existing, force reinstall, nested directory creation, list functions). This gap means install_templates has lower test coverage than peer install modules.",
+      "recommendation": "Create tests/cli/test_install_templates.py mirroring the test structure in tests/unit/test_cli_install.py. Minimum test cases: test_install_templates_to_temp_dir, test_install_templates_skip_existing, test_install_templates_force_reinstall, test_list_available_templates, test_list_installed_templates, test_preserves_subdirectory_structure (for workflow/ and documents/).",
+      "cross_references": [
+        "tests/unit/test_cli_install.py:1",
+        "tests/cli/test_install_hooks.py:1",
+        "tests/cli/test_install_failures.py:29"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Broad exception clause swallows all errors",
+      "category": "error-handling",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/install_templates.py",
+      "line": 78,
+      "line_range_end": 79,
+      "in_diff": true,
+      "evidence": "        except Exception as exc:  # noqa: BLE001 \u2014 surface any IO failure\n            failed.append(f\"{rel}: {exc}\")",
+      "why": "Line 78 uses a bare except Exception with a noqa comment claiming it surfaces IO failures, but it actually catches ALL exceptions including SystemExit, KeyboardInterrupt (via their Exception base), and programming errors like AttributeError or TypeError. While the error IS recorded in the failed list and surfaced in the summary message, catching Exception this broadly can mask programming bugs during development. The peer installers (install_commands, install_agents, install_core) use the same pattern, but that doesn't make it ideal.",
+      "recommendation": "Replace except Exception with except (OSError, shutil.Error) to catch the specific IO/filesystem errors that shutil.copy2 can raise, allowing programming errors to fail fast during development.",
+      "cross_references": [
+        "src/superclaude/cli/install_commands.py:59",
+        "src/superclaude/cli/install_agents.py:45",
+        "src/superclaude/cli/install_core.py:58"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Magic string duplication for protected directory name",
+      "category": "naming",
+      "severity_hint": "nit",
+      "file": "src/superclaude/cli/install_templates.py",
+      "line": 27,
+      "line_range_end": 27,
+      "in_diff": true,
+      "evidence": "_PROTECTED_TARGET_SUBDIRS = (\"agent-memory\",)",
+      "why": "The protected directory name 'agent-memory' appears as a magic string in both the constant definition (line 27) and the docstring comments (lines 13, 15, 196-197 in main.py). If the directory name ever needs to change (e.g., to 'runtime-memory'), developers must update it in multiple places. While this is a minor concern for a single-element tuple, the pattern invites drift.",
+      "recommendation": "No code change needed for this nit, but consider adding a docstring to _PROTECTED_TARGET_SUBDIRS explaining why agent-memory is protected (it's owned by agents, not by superclaude install) so future maintainers understand the invariant.",
+      "cross_references": [
+        "src/superclaude/cli/main.py:196"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Path resolution architectural divergence across install modules",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/cli/install_templates.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_agents.py",
+        "src/superclaude/cli/prd/models.py"
+      ],
+      "why": "There are three different path resolution strategies across the codebase: (1) install_templates uses package_root/templates \u2192 package_root/_src/superclaude/templates; (2) install_commands uses package_root/commands \u2192 repo_root/plugins/superclaude/commands; (3) PRD models use cwd/.claude \u2192 home/.claude \u2192 cwd/src/superclaude (dev fallback). While each works for its context, the divergence creates cognitive load. A developer familiar with one installer's resolution logic cannot predict another's. The PRD path resolution is particularly different because it's runtime (user invokes superclaude prd from any CWD) rather than install-time.",
+      "recommendation": "Add architectural documentation (e.g., docs/developer-guide/path-resolution-patterns.md) explaining when to use each pattern and why they differ. This centralizes the rationale so new CLI modules can pick the correct pattern.",
+      "confidence": "high"
+    },
+    {
+      "title": "All install modules follow same return-tuple and message-building pattern",
+      "category": "architecture",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/install_templates.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_agents.py",
+        "src/superclaude/cli/install_core.py",
+        "src/superclaude/cli/install_skills.py"
+      ],
+      "why": "Positive observation: all five install modules return Tuple[bool, str], build messages in the same format (\u2705 Installed X items, \u26a0\ufe0f Skipped Y items, \u274c Failed Z items, \ud83d\udcc1 Installation directory), and compute success as len(failed) == 0. This consistency makes the CLI surface predictable and the code easy to maintain. The new install_templates.py correctly follows this established pattern.",
+      "recommendation": "No action needed. Document this as an architectural pattern in CLAUDE.md or a developer guide so future contributors know to follow it.",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "Focused analysis on the CODE files as instructed (install_templates.py, config.py, models.py, main.py, test_path_resolution.py, Makefile). Did not analyze the 9000+ lines of static markdown template content. The highest-impact finding is that install_templates is missing from the update command, which violates the command's documented contract. The path resolution divergence is an architectural concern but not a bug. Test coverage gap is medium severity. The diff is clean overall and follows existing patterns well."
+}

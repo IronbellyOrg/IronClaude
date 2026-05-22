@@ -1,0 +1,47 @@
+You are running a specialized security pass. The main review covers general issues; your job is to find what the main pass might miss in security's domain. Be deeper, more skeptical, and willing to chase indirect/long-range concerns.
+
+## Context
+
+Target: snapshot of src/superclaude/cli/eval/
+
+This module orchestrates AI agent evaluation runs, spawning Claude processes, isolating filesystem access to a scratch root, capturing stdout/stderr/artifacts, and writing reports. Security-relevant surfaces:
+
+- **`isolation.py` (696L)** — FR-ISO2 path containment. Every path that escapes scratch_root MUST be rejected. Commit dce3c3cb fixed an AC12 scratch-root allowlist tautology. Verify the fix is sound.
+- **`claude_process.py` (369L)** — subprocess invocation of `claude` CLI. Verify no `shell=True`, no unescaped user input in arg lists, no secrets leaked to logs.
+- **`hook_adapter.py` (269L)** — adapter for executing hook scripts. Verify command injection surface.
+- **`pty_driver.py` / `pty_stream.py`** — PTY-based interactive capture. Verify no `eval`/`exec` of captured strings.
+- **`disk_budget.py` (492L)** — disk quota enforcement. Verify quota cannot be bypassed via symlinks/hardlinks.
+- **`commands.py` (1950L)** — Click CLI surface. Verify path arguments are validated before being passed to isolation/runner.
+- **`loader.py` (623L)** / **`config.py` (278L)** — YAML/JSON suite/config loading. Verify `yaml.safe_load` (not `yaml.load`); verify pydantic strict mode if applicable.
+
+## Specific security checklist
+
+For each item below, search the snapshot and report findings:
+
+1. **Path traversal** — every function that joins user input to a base path: does it call `Path.resolve()` then check `is_relative_to(base)`? Or does it just `joinpath`?
+2. **Symlink traversal** — when walking a scratch tree, are symlinks followed? Do walkers reject symlinks pointing outside scratch_root?
+3. **TOCTOU** — gap between "validate path is inside scratch_root" and "open path" — does an attacker who controls the filesystem in between get to substitute a symlink?
+4. **Command injection** — every `subprocess` call: is `shell=False`? Are all args literals or from typed sources?
+5. **Deserialization** — every `yaml.load` / `pickle.load` / `json.load` of untrusted input: is `safe_load` used? Is the source trusted?
+6. **AC12 allowlist tautology** — commit dce3c3cb claims to fix a tautological allowlist check in isolation.py. Read the current allowlist logic and verify:
+   - Default-deny is the posture (unknown paths rejected, not allowed).
+   - The allowlist is not `if path in allowlist or True:` or similar.
+   - The fix introduced a meaningful constraint, not just renamed a variable.
+7. **Secrets in logs** — any `logger.info(...)` / `print(...)` that might emit env vars, API keys, paths containing tokens?
+8. **Insecure tempfile** — any `tempfile.mktemp()` (deprecated, race-condition vulnerable) instead of `mkstemp` / `TemporaryDirectory`?
+9. **PTY input echo** — does `pty_driver.py` log raw user input that might contain secrets typed into the eval?
+10. **YAML/JSON DoS** — billion-laughs / deeply-nested input to `loader.py` — is there a depth limit?
+
+## Output contract
+
+Same JSON contract as the main pass:
+
+```json
+{
+  "findings": [ { "title": "...", "category": "security", "severity_hint": "...", "file": "...", "line": N, "line_range_end": null, "in_diff": false, "evidence": "...", "why": "...", "recommendation": "...", "cross_references": [], "confidence": "..." } ],
+  "cross_cutting_observations": [],
+  "notes_for_orchestrator": "..."
+}
+```
+
+Wrap the JSON in a single ```json ... ``` fence. No other prose.

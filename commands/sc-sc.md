@@ -18,26 +18,31 @@ All SuperClaude commands use the `/sc:sc:` prefix:
 ## Available Commands
 
 ### Research & Analysis
+
 ```
 /sc:sc:research [query]         - Deep web research with parallel search
 ```
 
 ### Repository Management
+
 ```
 /sc:sc:index-repo              - Index repository for context optimization
 ```
 
 ### AI Agents
+
 ```
 /sc:sc:agent [type]            - Launch specialized AI agents
 ```
 
 ### Recommendations
+
 ```
 /sc:sc:recommend [context]     - Get command recommendations
 ```
 
 ### Help
+
 ```
 /sc:sc                         - Show this help (all available commands)
 ```
@@ -45,6 +50,7 @@ All SuperClaude commands use the `/sc:sc:` prefix:
 ## Command Namespace
 
 All commands are namespaced under `sc:` to keep them organized:
+
 - ✅ `/sc:sc:research query`
 - ✅ `/sc:sc:index-repo`
 - ✅ `/sc:sc:agent type`
@@ -54,6 +60,7 @@ All commands are namespaced under `sc:` to keep them organized:
 ## Examples
 
 ### Research
+
 ```
 /sc:sc:research React 18 new features
 /sc:sc:research LLM agent architectures 2024
@@ -61,11 +68,13 @@ All commands are namespaced under `sc:` to keep them organized:
 ```
 
 ### Index Repository
+
 ```
 /sc:sc:index-repo
 ```
 
 ### Agent
+
 ```
 /sc:sc:agent deep-research
 /sc:sc:agent self-review
@@ -73,6 +82,7 @@ All commands are namespaced under `sc:` to keep them organized:
 ```
 
 ### Recommendations
+
 ```
 /sc:sc:recommend
 ```
@@ -97,17 +107,20 @@ All commands are namespaced under `sc:` to keep them organized:
 ## Help
 
 For help on specific commands:
+
 ```
 /sc:sc:research --help
 /sc:sc:agent --help
 ```
 
 Or use the main help command:
+
 ```
 /sc:sc
 ```
 
 Check the documentation:
+
 - PLANNING.md - Architecture and design
 - TASK.md - Current tasks and priorities
 - KNOWLEDGE.md - Tips and best practices
@@ -115,6 +128,7 @@ Check the documentation:
 ## Version
 
 SuperClaude v4.1.7
+
 - Python package: 0.4.0
 - Pytest plugin included
 - PM Agent patterns enabled
@@ -125,6 +139,6 @@ SuperClaude v4.1.7
 
 🔧 **Installation**: Run `superclaude install` to install/update commands
 
-📚 **Documentation**: https://github.com/SuperClaude-Org/SuperClaude_Framework
+📚 **Documentation**: <https://github.com/SuperClaude-Org/SuperClaude_Framework>
 
 ⚠️ **Important**: Restart Claude Code after installing commands to use them!

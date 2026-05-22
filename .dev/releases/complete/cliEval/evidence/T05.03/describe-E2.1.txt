@@ -1,0 +1,25 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E2.1
+title: auggie matcher coverage — mcp__auggie__*
+category: hook-coverage
+requires:
+- mcp_server.auggie
+timeout_sec: 90
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: Use mcp__auggie__codebase-retrieval to summarise the auggie-flag-clear hook
+    in src/superclaude/hooks/scripts/.
+  expect_tool_call: mcp__auggie__codebase-retrieval
+expects:
+- file:
+    path: logs/auggie-first.jsonl
+    exists: true
+    contains: '"event":"sticky_cleared"'
+- file:
+    path: logs/auggie-first.jsonl
+    exists: true
+    contains: '"tool":"mcp__auggie__codebase-retrieval"'
+- exit_code:
+    equals: 0
+no_pty: skip

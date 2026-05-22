@@ -93,6 +93,7 @@ RATIONALE: [one-line reason]
 ```
 
 Four "CRITICAL RULES" gate emission (`task.md:52-56`):
+
 1. TEXT-ONLY — no Skill/Read/Grep before classification.
 2. EXACT FORMAT — the HTML comment block, not `**CLASSIFICATION: ...**`.
 3. VALID TIERS ONLY — `STRICT, STANDARD, LIGHT, EXEMPT`. Values like "ITERATIVE", "SIMPLE", "IMPLEMENT", "COMPLEX" are explicitly INVALID.
@@ -105,12 +106,14 @@ Low-confidence rule **as currently coded** (`task.md:91`): "If confidence <0.70,
 **Source:** RELEASE-SPEC.md `§2.4 Surface diff:143-145` and `§3.5 BLOCKED state:238-265` **[UNVERIFIED in code — not yet implemented]**
 
 Surface diff:
+
 ```
 - TIER: [STRICT|STANDARD|LIGHT|EXEMPT]
 + TIER: [STRICT|STANDARD|LIGHT|EXEMPT|BLOCKED]
 ```
 
 When `max_tier_score confidence < 0.70` after deployment of TU-004:
+
 - DO NOT auto-classify.
 - Emit header with TIER: BLOCKED, computed CONFIDENCE, comma-separated split-keywords, RATIONALE = "split between <tier-A> (<score-A>) and <tier-B> (<score-B>)".
 - **Halt execution.** Do NOT invoke `Skill sc:task-protocol`.
@@ -124,6 +127,7 @@ Release-boundary note (RELEASE-SPEC §3.5:261-264): tasks initiated **before** T
 **Source:** `task.md:69-91` plus `ORCHESTRATOR.md:151-213` **[CODE-VERIFIED]**
 
 Priority order (first match wins; `--compliance` override checked first):
+
 1. **STRICT** (P1, safety-critical). Keywords: security, authentication, authorization, database, migration, refactor, breaking change, encrypt, token, session, oauth. Boosters: >2 files +0.3; security paths +0.4. Compounds: "fix security", "add authentication", "update database", "change api". Note: "quick security" → STRICT; "minor auth change" → STRICT.
 2. **EXEMPT** (P2, non-code). Keywords: explain, search, commit, push, plan, discuss, brainstorm, what, how, why. Boosters: is_read_only +0.4; is_git_operation +0.5; all doc files +0.5. Patterns: starts with what/how/why/explain; docs-only paths (*.md, docs/).
 3. **LIGHT** (P3, trivial). Keywords: typo, comment, whitespace, lint, docstring, formatting, spacing, minor. Boosters: single file +0.1; ≤50 lines estimated. Compounds: "quick fix", "minor change", "fix typo", "refactor comment".
@@ -244,6 +248,7 @@ Verdict: **ADOPT-WITH-DEPRECATION** (per §1.2 decision tree). Three uncondition
 **Current state:** Only Condition #1 exists today (`SKILL.md:255-263` blocks STRICT execution when required MCP unavailable). Conditions #2 and #3 are net-new.
 
 Implementation: `CriticalFailCondition` dataclass in NEW file `audit.py`:
+
 ```python
 @dataclass
 class CriticalFailCondition:
@@ -282,6 +287,7 @@ See §2.2 and §3.5 above. Net-new fifth header tier value + halt semantics + th
 Verdict: **ADOPT-WITH-INVESTIGATION**. Pre-merge gate: LW-source verification must produce canonical condition list. Parameterized tests handle any count (5/6/7/8).
 
 **Working placeholder** (subject to LW-source verification — RELEASE-SPEC explicitly flags this as `[inference]`):
+
 1. All affected files have been identified and updated.
 2. All tests pass (or manual verification documented for STANDARD/LIGHT).
 3. No pre-existing test failures introduced.
@@ -300,11 +306,13 @@ Test stub: `tests/skills/test_task_completion_checklist.py` — parameterized ov
 NEW: `src/superclaude/skills/sc-task-protocol/audit.py`.
 
 Three downstream goals:
+
 1. TU-001 audit trail (CRITICAL FAIL events).
 2. TU-004 BLOCKED override audit (per Q6 (c)).
 3. Q11 `--skip-compliance` metering (currently unmetered).
 
 JSONL schema per entry:
+
 ```json
 {
   "ts": "ISO-8601",
@@ -340,6 +348,7 @@ Persisted to `.dev/audit/sc-task-{YYYY-MM-DD}.jsonl`. Append-only; daily rotatio
 **Source:** `task.md:39-44`, examples `task.md:106-148`, `SKILL.md:288-331` **[CODE-VERIFIED]**
 
 Manual prompt-line use:
+
 - `/sc:task "fix security vulnerability in auth module"` → STRICT
 - `/sc:task "explain how the routing middleware works"` → EXEMPT
 - `/sc:task "fix typo in error message"` → LIGHT
@@ -353,6 +362,7 @@ User cares about: tier outcome, override mechanism, getting their work done with
 **Source:** `/config/workspace/IronClaude/src/superclaude/cli/sprint/process.py:124,170` **[CODE-VERIFIED]**
 
 The sprint CLI builds prompts of the form (verbatim from process.py:170):
+
 ```
 /sc:task Execute all tasks in @{phase_file} ...
 ```
@@ -366,6 +376,7 @@ Sprint executor cares about: deterministic STRICT compliance, checkpoint emissio
 **Source:** `/config/workspace/IronClaude/src/superclaude/cli/cleanup_audit/prompts.py:26,47,69,92,116` **[CODE-VERIFIED]**
 
 Five prompt builders, each producing a `/sc:task` invocation:
+
 - L26: `/sc:task Perform a surface-level scan ...` (initial scan)
 - L47: `/sc:task Perform deep structural analysis ...`
 - L69: `/sc:task Detect duplication, sprawl, and consolidation ...`
@@ -532,6 +543,7 @@ The release ships when:
 **Source:** `SKILL.md:125-244` **[CODE-VERIFIED — extensive coverage]**
 
 Three-trigger escalation budget:
+
 - 1st: `/sc:forensic --tier light --intent triage --caller task-unified` (~5-8K tokens)
 - 2nd: `/sc:forensic --tier standard` (~15-20K tokens)
 - 3rd: FULL STOP. Report to user; do not attempt further fixes.
@@ -562,6 +574,7 @@ Permitted direct-fix exceptions: single ImportError/NameError in newly-written t
 ### 9.1 Extension point: New tier values
 
 The classification header schema is enum-extensible: TIER values are validated against an explicit list (currently STRICT/STANDARD/LIGHT/EXEMPT; v3.75 adds BLOCKED). Adding a sixth tier requires:
+
 - Update enum in `task.md:61`.
 - Update enum in skill reference (`SKILL.md:7-9` plus tier execution sections).
 - Update orchestrator decision tree priorities (`ORCHESTRATOR.md:181-186`).
@@ -585,6 +598,7 @@ TU-003 six-principle NFR is enforced via prompt + checklist. Adding a 7th princi
 ### 9.5 Extension point: New invokers
 
 The skill currently supports four invoker patterns (end-user, sprint executor, cleanup-audit, forensic self-handshake). Adding a 5th invoker requires:
+
 - Prompt building convention (e.g. `cli/<new_invoker>/prompts.py`).
 - TEST-SPEC enforcement that the build_prompt method emits `/sc:task` (per `TEST-SPEC.md:34-80`).
 - No changes to skill code (skill is invoker-agnostic).

@@ -9,7 +9,9 @@
 ---
 
 ## Files to DELETE
+
 ### `filepath`
+
 - **What it does**: {1-2 sentence description}
 - **Nature**: {script / test / doc / config / source code / data / asset / migration / one-time artifact}
 - **References**: {grep results — pattern used, match count, zero-result confirmation}
@@ -21,7 +23,9 @@
 ---
 
 ## Files to CONSOLIDATE (Pass 3 only)
+
 ### `filepath` → merge with `other/filepath`
+
 - **What it does**: {description of both files}
 - **Overlap**: {quantified — % identical or key sections that match}
 - **Key differences**: {what's unique in each}
@@ -30,7 +34,9 @@
 ---
 
 ## Files to MOVE
+
 ### `filepath` → `new/path`
+
 - **What it does**: {description}
 - **Why move**: {current location incorrect because...}
 - **Target rationale**: {new location is correct because...}
@@ -40,7 +46,9 @@
 ---
 
 ## Files to FLAG
+
 ### `filepath`
+
 - **Finding type**: {MISPLACED / STALE / STRUCTURAL ISSUE / BROKEN REFS}
 - **What it does**: {description}
 - **Issue**: {what needs handling}
@@ -52,11 +60,13 @@
 ---
 
 ## Broken References Found
+
 - [ ] `source-filepath:line` → references `missing/path` — {context}
 
 ---
 
 ## Files to KEEP (verified legitimate)
+
 - `filepath` — Nature: {type}. References: {specific citations with file:line}. Verification: {what was checked}
 
 ---
@@ -68,10 +78,12 @@
 ---
 
 ## Summary
+
 - **Total files audited**: X / Y assigned
 - **DELETE**: N | **CONSOLIDATE**: N | **MOVE**: N | **FLAG**: N | **KEEP**: N
 - **Broken references found**: N
 - **Coverage**: X/Y = {percentage}%
 
 ## Notes
+
 {Cross-cutting observations, patterns, recommendations for other agents/passes}

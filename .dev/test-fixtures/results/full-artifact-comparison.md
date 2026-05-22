@@ -2,6 +2,7 @@
 
 **Generated**: 2026-04-02
 **Tests Compared**:
+
 - **Test 1**: TDD spec in modified repo (`test-tdd-user-auth.md`)
 - **Test 2**: Non-TDD spec in modified repo (`test-spec-user-auth.md`)
 - **Test 3**: Non-TDD spec in baseline repo (`test-spec-user-auth.md`)
@@ -145,6 +146,7 @@ Running the same non-TDD spec (`test-spec-user-auth.md`) through the roadmap pip
 ### Proof 2: TDD Expansion Works (Test 1 > Test 3)
 
 Running a TDD spec (`test-tdd-user-auth.md`) through the same pipeline produces a strict superset of the spec-only output:
+
 - Extraction: 20 frontmatter fields vs 14 (+6 TDD-specific); 43 body headers vs 20 (+23); 14 top-level sections vs 8 (+6 TDD-specific)
 - Roadmap: 129 backticked identifiers vs 6 (21.5x more specific); dedicated frontend phase; per-endpoint rate limits and error codes
 - Anti-instinct: 45 fingerprints vs 18 (2.5x more); 0.76 coverage vs 0.67 (13% higher)

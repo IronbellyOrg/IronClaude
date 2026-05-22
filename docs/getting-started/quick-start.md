@@ -134,6 +134,7 @@ npm install -g @bifrost_inc/superclaude && superclaude install
 <td align="center" width="25%">
 
 ### 📝 **Commands**
+
 <h2>21</h2>
 
 **Slash Commands**
@@ -149,6 +150,7 @@ npm install -g @bifrost_inc/superclaude && superclaude install
 <td align="center" width="25%">
 
 ### 🤖 **Agents**
+
 <h2>14</h2>
 
 **AI Specialists**
@@ -164,6 +166,7 @@ npm install -g @bifrost_inc/superclaude && superclaude install
 <td align="center" width="25%">
 
 ### 🎯 **Modes**
+
 <h2>6</h2>
 
 **Behavioral Modes**
@@ -179,6 +182,7 @@ Task Management
 <td align="center" width="25%">
 
 ### 🔌 **MCP**
+
 <h2>6</h2>
 
 **Server Integration**
@@ -282,6 +286,7 @@ Playwright (testing)
 <td valign="top">
 
 **Perfect for:**
+
 - 🏗️ Building complete software projects
 - 📊 Systematic workflows with quality gates
 - 🔄 Complex, multi-component systems
@@ -290,6 +295,7 @@ Playwright (testing)
 - 🎯 Domain-specific expertise needs
 
 **Examples:**
+
 - "Build a full-stack application"
 - "Implement secure authentication"
 - "Refactor legacy codebase"
@@ -299,6 +305,7 @@ Playwright (testing)
 <td valign="top">
 
 **Better for:**
+
 - 💡 Simple questions or explanations
 - ⚡ One-off coding tasks
 - 📚 Learning programming concepts
@@ -307,6 +314,7 @@ Playwright (testing)
 - ❓ General programming help
 
 **Examples:**
+
 - "Explain how async/await works"
 - "Write a sorting function"
 - "Debug this error message"
@@ -390,6 +398,7 @@ Playwright (testing)
 <td width="33%" align="center">
 
 ### 🧠 **Not Software**
+
 **It's a Framework**
 
 SuperClaude is behavioral configuration, not standalone software. Everything runs through Claude Code.
@@ -398,6 +407,7 @@ SuperClaude is behavioral configuration, not standalone software. Everything run
 <td width="33%" align="center">
 
 ### 🔄 **Systematic**
+
 **Not Ad-hoc**
 
 Transforms random requests into structured workflows with quality gates and validation.
@@ -406,6 +416,7 @@ Transforms random requests into structured workflows with quality gates and vali
 <td width="33%" align="center">
 
 ### 🚀 **Progressive**
+
 **Not Complex**
 
 Start simple with basic commands. Complexity emerges naturally as needed.
@@ -434,6 +445,7 @@ Start simple with basic commands. Complexity emerges naturally as needed.
 <td valign="top">
 
 **First Week:**
+
 - [Installation Guide](installation.md)
 - [Commands Reference](../user-guide/commands.md)
 - [Examples Cookbook](../reference/examples-cookbook.md)
@@ -444,6 +456,7 @@ Start with `/sc:brainstorm`
 <td valign="top">
 
 **Growing Skills:**
+
 - [Behavioral Modes](../user-guide/modes.md)
 - [Agents Guide](../user-guide/agents.md)
 - [Session Management](../user-guide/session-management.md)
@@ -454,6 +467,7 @@ Explore mode combinations
 <td valign="top">
 
 **Expert Usage:**
+
 - [MCP Servers](../user-guide/mcp-servers.md)
 - [Technical Architecture](../developer-guide/technical-architecture.md)
 - [Contributing](../developer-guide/contributing-code.md)

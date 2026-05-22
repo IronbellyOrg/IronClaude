@@ -44,11 +44,13 @@ Combined with Skills-based Zero-Footprint architecture for **97% token savings**
 ## Phase 1: Reflection × 3
 
 ### Purpose
+
 Prevent token waste by blocking execution when confidence <70%.
 
 ### 3-Stage Process
 
 #### Stage 1: Requirement Clarity Analysis
+
 ```python
 ✅ Checks:
 - Specific action verbs (create, fix, add, update)
@@ -65,6 +67,7 @@ Weight: 50% (most important)
 ```
 
 #### Stage 2: Past Mistake Check
+
 ```python
 ✅ Checks:
 - Load Reflexion memory
@@ -80,6 +83,7 @@ Weight: 30% (learn from history)
 ```
 
 #### Stage 3: Context Readiness
+
 ```python
 ✅ Checks:
 - Essential context loaded (project_index, git_status)
@@ -96,6 +100,7 @@ Weight: 20% (can load more if needed)
 ```
 
 ### Decision Logic
+
 ```python
 confidence = (
     clarity * 0.5 +
@@ -113,6 +118,7 @@ else:
 ### Example Output
 
 **High Confidence** (✅ Proceed):
+
 ```
 🧠 Reflection Engine: 3-Stage Analysis
 ============================================================
@@ -134,6 +140,7 @@ else:
 ```
 
 **Low Confidence** (🔴 Block):
+
 ```
 🧠 Reflection Engine: 3-Stage Analysis
 ============================================================
@@ -165,11 +172,13 @@ Recommendations:
 ## Phase 2: Parallel Execution
 
 ### Purpose
+
 Execute independent operations concurrently for maximum speed.
 
 ### Process
 
 #### 1. Dependency Graph Construction
+
 ```python
 tasks = [
     Task("read1", lambda: read("file1.py"), depends_on=[]),
@@ -185,6 +194,7 @@ tasks = [
 ```
 
 #### 2. Parallel Group Detection
+
 ```python
 # Topological sort with parallelization
 groups = [
@@ -194,6 +204,7 @@ groups = [
 ```
 
 #### 3. Concurrent Execution
+
 ```python
 # ThreadPoolExecutor with 10 workers
 with ThreadPoolExecutor(max_workers=10) as executor:
@@ -203,6 +214,7 @@ with ThreadPoolExecutor(max_workers=10) as executor:
 ```
 
 ### Speedup Calculation
+
 ```
 Sequential time: n_tasks × avg_time_per_task
 Parallel time: Σ(max_tasks_per_group / workers × avg_time)
@@ -210,6 +222,7 @@ Speedup: sequential_time / parallel_time
 ```
 
 ### Example Output
+
 ```
 ⚡ Parallel Executor: Planning 10 tasks
 ============================================================
@@ -244,17 +257,20 @@ Execution Plan:
 ## Phase 3: Self-Correction
 
 ### Purpose
+
 Learn from failures and prevent recurrence automatically.
 
 ### Workflow
 
 #### 1. Failure Detection
+
 ```python
 def detect_failure(result):
     return result.status in ["failed", "error", "exception"]
 ```
 
 #### 2. Root Cause Analysis
+
 ```python
 # Pattern recognition
 category = categorize_failure(error_msg)
@@ -268,6 +284,7 @@ prevention_rule = generate_rule(category, similar)
 ```
 
 #### 3. Reflexion Memory Storage
+
 ```json
 {
   "mistakes": [
@@ -298,6 +315,7 @@ prevention_rule = generate_rule(category, similar)
 ```
 
 #### 4. Automatic Prevention
+
 ```python
 # Next execution with similar task
 past_mistakes = check_against_past_mistakes(task)
@@ -308,6 +326,7 @@ if past_mistakes:
 ```
 
 ### Example Output
+
 ```
 🔍 Self-Correction: Analyzing root cause
 ============================================================
@@ -350,6 +369,7 @@ result = intelligent_execute(
 ```
 
 ### Complete Output Example
+
 ```
 ======================================================================
 🧠 INTELLIGENT EXECUTION ENGINE
@@ -392,6 +412,7 @@ Execution Plan:
 ## Token Efficiency
 
 ### Old Architecture (Markdown)
+
 ```
 Startup: 26,000 tokens loaded
 Every session: Full framework read
@@ -399,6 +420,7 @@ Result: Massive token waste
 ```
 
 ### New Architecture (Python + Skills)
+
 ```
 Startup: 0 tokens (Skills not loaded)
 On-demand: ~2,500 tokens (when /sc:pm called)
@@ -409,16 +431,19 @@ Result: 97% token savings
 ## Performance Metrics
 
 ### Reflection Engine
+
 - Analysis time: ~200 tokens thinking
 - Decision time: <0.1s
 - Accuracy: >90% (blocks vague tasks, allows clear ones)
 
 ### Parallel Executor
+
 - Planning overhead: <0.01s
 - Speedup: 3-10x typical, up to 30x for I/O-bound
 - Efficiency: 85-95% (near-linear scaling)
 
 ### Self-Correction Engine
+
 - Analysis time: ~300 tokens thinking
 - Memory overhead: ~1KB per mistake
 - Recurrence reduction: <10% (same mistake rarely repeated)
@@ -426,6 +451,7 @@ Result: 97% token savings
 ## Usage Examples
 
 ### Quick Start
+
 ```python
 from superclaude.core import intelligent_execute
 
@@ -438,6 +464,7 @@ result = intelligent_execute(
 ```
 
 ### Quick Mode (No Reflection)
+
 ```python
 from superclaude.core import quick_execute
 
@@ -446,6 +473,7 @@ results = quick_execute([op1, op2, op3])
 ```
 
 ### Safe Mode (Guaranteed Reflection)
+
 ```python
 from superclaude.core import safe_execute
 
@@ -460,6 +488,7 @@ result = safe_execute(
 ## Testing
 
 Run comprehensive tests:
+
 ```bash
 # All tests
 uv run pytest tests/core/test_intelligent_execution.py -v
@@ -472,6 +501,7 @@ uv run pytest tests/core/ --cov=superclaude.core --cov-report=html
 ```
 
 Run demo:
+
 ```bash
 python scripts/demo_intelligent_execution.py
 ```

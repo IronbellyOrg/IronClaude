@@ -1,6 +1,7 @@
 # Adversarial Debate: Scope Boundary Instructions in Path A Per-Task Prompt
 
 ---
+
 generated: 2026-04-03T00:00:00Z
 depth: quick
 variants: 2
@@ -33,6 +34,7 @@ Retain the current minimal 3-line prompt. The single-task naming and subprocess 
 ### Code Evidence
 
 **Path A** (`src/superclaude/cli/sprint/executor.py:1064-1068`):
+
 ```python
 prompt = (
     f"Execute task {task.task_id}: {task.title}\n"
@@ -42,6 +44,7 @@ prompt = (
 ```
 
 **Path B** (`src/superclaude/cli/sprint/process.py:187-195`):
+
 ```python
 f"## Scope Boundary\n"
 f"- After completing all tasks, STOP immediately.\n"
@@ -90,6 +93,7 @@ f"- Focus only on the tasks defined in the phase file\n"
 **Steelman of Variant B**: Variant B correctly identifies that (a) the prompt names only one task, which is strong implicit direction, (b) adding "don't do X" instructions can paradoxically surface the idea of doing X, and (c) the subprocess is ephemeral -- any excess work is wasted rather than destructive. These are genuine considerations.
 
 **Strengths claimed**:
+
 1. **C-006 is the critical point**: Line 1066 says `f"From phase file: {phase.file}"`. The worker literally receives the path to a file containing 10 tasks. With `--dangerously-skip-permissions`, it can read that file. Nothing in the prompt says "only do YOUR task." The model must infer single-task scope from the absence of instruction, which is fragile.
 2. **C-003 (consistency)**: Path B already has scope boundaries (process.py:187-195). Having two prompt strategies in the same codebase -- one defensive, one not -- is a maintenance hazard. Anyone reading Path A will assume it was deliberate, not an oversight.
 3. **C-001 (drift risk)**: If a worker does drift, the consequences are not just "wasted tokens." The orchestrator tracks per-task results and gate outcomes. A worker that completes tasks 2-5 creates file artifacts that may collide with later subprocesses spawned for those same tasks.
@@ -104,6 +108,7 @@ f"- Focus only on the tasks defined in the phase file\n"
 **Steelman of Variant A**: Variant A correctly identifies that (a) the phase file path is in the prompt and the worker can read it, (b) consistency across both paths is a legitimate maintenance value, and (c) the cost of adding boundaries is genuinely low. These points have real weight.
 
 **Strengths claimed**:
+
 1. **C-004 (paradoxical attention)**: This is well-documented in prompt engineering. Telling a model "do NOT execute tasks T02.02, T02.03, T02.04..." explicitly enumerates the tasks it should avoid, which can increase the probability of it attending to them. The current prompt avoids this entirely by never mentioning other tasks.
 2. **C-005 (subprocess lifecycle)**: Even in the worst case where a worker reads the phase file and attempts multiple tasks, the orchestrator controls the lifecycle. The worker writes to a single output file. Subsequent workers for other tasks will overwrite or write to their own output paths. The damage model is "wasted tokens," not "corrupted state."
 3. **The prompt is positively scoped**: "Execute task T02.01: [title]" is already a clear, positive instruction. Adding negative constraints ("don't do X") is the weaker form of prompting compared to the positive form ("do exactly this") that already exists.
@@ -172,6 +177,7 @@ prompt = (
 4. **Phase file path retained** -- the worker needs it to find its own task definition. Removing it would break functionality.
 
 **Accepted risk**: There remains a small probability that the worker reads the phase file and does extra work despite the boundary instruction. This is mitigated by:
+
 - The subprocess lifecycle (orchestrator kills it after task completion)
 - Per-task output isolation (each task writes to tracked paths)
 - The boundary instruction itself (reduces probability)

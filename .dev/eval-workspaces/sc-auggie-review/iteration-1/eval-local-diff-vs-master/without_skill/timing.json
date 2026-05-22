@@ -1,0 +1,7 @@
+{
+  "total_tokens": 77418,
+  "duration_ms": 159553,
+  "total_duration_seconds": 159.6,
+  "tool_uses": 25,
+  "agent_summary": "Findings: critical=0 high=3 medium=6 low=5 nit=3 (total=17). Diff: 36 files, +9269/-128"
+}

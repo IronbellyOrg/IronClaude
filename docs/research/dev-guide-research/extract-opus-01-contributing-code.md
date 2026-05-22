@@ -55,6 +55,7 @@ SuperClaude_Framework/
 ### Agent Development Process (Exact Quote)
 
 > **Agent Development Process:**
+>
 > 1. Identify domain expertise gap
 > 2. Create agent file in `superclaude/Agents/`
 > 3. Define triggers, behaviors, and boundaries
@@ -169,7 +170,9 @@ personas: [architect, engineer]
 ## Usage
 Type in Claude Code conversation:
 ```
+
 /sc:command-name [target] [--options]
+
 ```
 **Note**: This is a context trigger pattern, not a terminal command.
 
@@ -221,6 +224,7 @@ Commands declare MCP server dependencies in frontmatter via the `mcp-servers` fi
 ### Mode Development Guidelines (Exact Quote)
 
 > **Mode Development:**
+>
 > - Define activation triggers
 > - Specify behavioral modifications
 > - Create interaction patterns
@@ -259,6 +263,7 @@ From the templates and examples:
 ### Manual Validation Process (Exact Quote)
 
 > **Manual Validation Process:**
+>
 > 1. Install development version in Claude Code
 > 2. Test agent/command activation triggers in Claude Code conversations
 > 3. Verify behavioral modifications occur as expected
@@ -289,6 +294,7 @@ grep "@import" ~/.claude/CLAUDE.md
 ### PR Testing Checklist (Exact Quote)
 
 > ## Testing
+>
 > - [ ] Manual testing with Claude Code
 > - [ ] Context file validation passes
 > - [ ] Examples validated in Claude Code conversations
@@ -300,6 +306,7 @@ grep "@import" ~/.claude/CLAUDE.md
 ### Structure Requirements (Exact Quote)
 
 > **Structure Requirements:**
+>
 > - Clear, actionable instructions for Claude Code
 > - Specific triggers and activation patterns
 > - Examples demonstrating usage
@@ -308,6 +315,7 @@ grep "@import" ~/.claude/CLAUDE.md
 ### Quality Standards (Exact Quote)
 
 > **Quality Standards:**
+>
 > - Instructions are testable in Claude Code conversations
 > - Examples produce expected behavioral changes
 > - Clear activation triggers and context patterns
@@ -316,6 +324,7 @@ grep "@import" ~/.claude/CLAUDE.md
 ### General Context File Guidelines (Exact Quote)
 
 > **Context Files (`.md`):**
+>
 > - Write clear, actionable instructions for Claude Code
 > - Use frontmatter metadata for configuration
 > - Follow existing patterns and naming conventions

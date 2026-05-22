@@ -1,0 +1,23 @@
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    22 directories
+   Agents:    38 files
+   Commands:  41 files
+   Hooks:     11 files
+   Templates: 16 files
+
+=== Path-mention verification (compensating check for spec drift) ===
+sync-dev output emits only summary counts (skills/agents/commands/hooks/templates), not per-file paths.
+The PATH-MENTIONS check in task Step 10.1 was based on outdated assumptions.
+
+Compensating check: diff src/ vs .claude/ for the 5 edited files.
+
+Result:
+MATCH: commands/troubleshoot.md
+MATCH: skills/sc-troubleshoot-protocol/SKILL.md
+MATCH: skills/sc-troubleshoot-protocol/refs/doc-discovery.md (NEW FILE — confirmed mirrored)
+MATCH: skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md
+MATCH: skills/sc-troubleshoot-protocol/refs/report-template.md
+
+PATH-MENTIONS OK (5/5 files mirrored) — via diff-based compensating check
+EXIT=0

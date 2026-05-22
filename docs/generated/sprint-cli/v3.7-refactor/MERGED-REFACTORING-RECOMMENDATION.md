@@ -258,6 +258,7 @@ All three tasks are independent and can execute in parallel. They modify differe
 ```
 
 **Parallelizable work streams**:
+
 - Naming consolidation (N1-N12) can run concurrently with all Phase 0 tasks
 - DM-04/DM-05 (token extraction) can run concurrently with PA-01 through PA-03
 - Checkpoint Wave 2 and TUI Core can overlap once Phase 2 completes

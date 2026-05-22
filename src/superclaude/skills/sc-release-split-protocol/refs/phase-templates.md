@@ -42,6 +42,7 @@ When building agent instructions, bias each agent toward its persona's strength:
 If Mode B fails and the skill falls back to Mode A, use these conceptual roles:
 
 **Advocate** (argues FOR the proposal):
+
 - Present the strongest case for the proposed decision
 - Identify concrete benefits with evidence from the spec
 - Address risks proactively rather than waiting for the skeptic
@@ -49,6 +50,7 @@ If Mode B fails and the skill falls back to Mode A, use these conceptual roles:
 - If the proposal says "don't split": demonstrate that the release is coherent and the risks of splitting outweigh the benefits
 
 **Skeptic** (argues AGAINST the proposal):
+
 - The skeptic's job is to find the strongest counterargument, not to nitpick
 - If the proposal recommends splitting:
   - Is the split boundary artificial? Does it create a seam where none naturally exists?
@@ -63,6 +65,7 @@ If Mode B fails and the skill falls back to Mode A, use these conceptual roles:
   - Is "keep it together" actually just risk-avoidance masquerading as good engineering?
 
 **Pragmatist** (evaluates against hard criteria):
+
 - Does Release 1 enable REAL-WORLD tests that couldn't happen without shipping it?
 - Is the overhead of two releases justified by the feedback velocity gained?
 - Are there hidden coupling risks where Release 1 without Release 2 creates a misleading validation signal?

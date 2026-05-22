@@ -63,6 +63,7 @@ Totals: **9 files, 629,648 bytes, 11,726 lines.**
 Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists the analyses that cite this strategy; savings ranges cite those sources verbatim.
 
 ### S-01 — Whitespace / blank-line collapse
+
 - **Primer anchor**: §2.3 Whitespace (ceiling 3–6%), §4.1 A1 rule-based
 - **Category**: A1 whitespace
 - **Lossless/Lossy**: Lossless
@@ -72,6 +73,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Representative example** (from tasklist-3): collapse runs of 3+ blank lines to 1, strip trailing whitespace.
 
 ### S-02 — Trailing-whitespace strip
+
 - **Primer anchor**: §2.3 Whitespace
 - **Category**: A1 whitespace
 - **Lossless/Lossy**: Lossless
@@ -81,6 +83,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Trailing whitespace inside fenced code is load-bearing for some languages.
 
 ### S-03 — Decorative horizontal-rule removal
+
 - **Primer anchor**: §2.3 Decorative (ceiling 1–3%), §4.1 A1
 - **Category**: A1 decorative
 - **Lossless/Lossy**: Lossless (only HRs adjacent to headings — the semantically redundant ones)
@@ -89,6 +92,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Do not remove HRs that visually separate sibling H2s with no heading between them — removing those breaks visual navigation; keep HRs that precede a heading of a *different* level than the prior.
 
 ### S-04 — Pipe-table padding collapse
+
 - **Primer anchor**: §2.3 Table whitespace, §4.1 A1
 - **Category**: A1 whitespace (table)
 - **Lossless/Lossy**: Lossless (GFM pipe tables are whitespace-insensitive between pipes)
@@ -98,6 +102,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Representative example** (spec-1): `| Field            | Value                  |` → `|Field|Value|`.
 
 ### S-05 — Setext→ATX heading normalization
+
 - **Primer anchor**: §4.1 A1
 - **Category**: A1 syntax normalization
 - **Lossless/Lossy**: Lossless
@@ -106,6 +111,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Sources**: spec-2 S3 (explicitly 0 B)
 
 ### S-06 — Emoji strip
+
 - **Primer anchor**: §2.3 Decorative
 - **Category**: A1 decorative
 - **Lossless/Lossy**: Lossy for humans, task-equivalent for LLMs (primer §2.1)
@@ -113,6 +119,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Measured savings**: 0 B (spec-2 S5). Most analyzed files carry no emoji.
 
 ### S-07 — HTML comment removal (including provenance)
+
 - **Primer anchor**: §2.3 Decorative, §4.1 A1
 - **Category**: A1 decorative
 - **Lossless/Lossy**: Lossless IF provenance comments are not load-bearing; **lossy for change-tracking** if they are
@@ -121,6 +128,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Spec-1 provenance comments point to source-of-merge; strip only after provenance is captured elsewhere. Never strip comments inside fenced blocks.
 
 ### S-08 — Bullet marker normalization
+
 - **Primer anchor**: §4.1 A1
 - **Category**: A1 syntax normalization
 - **Lossless/Lossy**: Lossless
@@ -128,6 +136,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Measured savings**: 0 B (spec-2 S9 — already normalized across all 9 files)
 
 ### S-09 — Conventions-header abbreviation (identifiers / tokens / paths)
+
 - **Primer anchor**: §2.2 Conventions header (amortizes after ~5–10 uses)
 - **Category**: A2 AST-aware (requires token frequency count + alias map)
 - **Lossless/Lossy**: Lossless with round-trip; **REJECTED for specs** (spec-1), **accepted labels-only** for other specs (spec-2, spec-3)
@@ -138,12 +147,15 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
   - Tasklists: **~18,400 B / 16.5% (tasklist-1 S2 field labels — SINGLE LARGEST LEVER ACROSS ALL 9 FILES)** · ~4,560 B / 7.8% (tasklist-2 S3 for 8 field labels) · **~5,500 B / 9.2% (tasklist-3 Strategy 2 paths + identifiers with aliases)**
 - **Typical risks**: (a) Header must amortize: primer §5 says break-even at ~5–10 uses; short docs lose. (b) Breaks grep against expanded token — consumer DAGs that grep raw file will miss references (INV-3). (c) Spec-1 explicitly calls this a "trap" for specs. (d) Token aliases must be declared in HTML comment at file top so reader/LLM learns mapping.
 - **Representative example** (tasklist-1):
+
   ```
   <!-- CONV: TR=TASKLIST_ROOT/artifacts/D-, ES=**[EXECUTION]**, PL=**[PLANNING]** -->
   ```
+
   Every `TASKLIST_ROOT/artifacts/D-001` → `TR001`; 112 occurrences.
 
 ### S-10 — Conventions-header for structural / bold labels only
+
 - **Primer anchor**: §2.2 Conventions header (labels subset)
 - **Category**: A1+A2 (pattern-based, no semantic inference)
 - **Lossless/Lossy**: Lossless if reader map is preserved
@@ -152,6 +164,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Must not affect grep identifiers (that is what separates S-10 from S-09).
 
 ### S-11 — Heading deduplication / canonicalization
+
 - **Primer anchor**: §4.2 A2 AST-aware
 - **Category**: A2
 - **Lossless/Lossy**: Lossless (if heading text is redundant with immediate body)
@@ -160,6 +173,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Heading IDs are anchor targets; breaks intra-doc links.
 
 ### S-12 — Cross-reference deduplication
+
 - **Primer anchor**: §4.2 A2
 - **Category**: A2
 - **Lossless/Lossy**: Lossless conceptually
@@ -168,6 +182,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Same as S-11 (anchor integrity).
 
 ### S-13 — Multi-paragraph bullet / prose compaction (single-line)
+
 - **Primer anchor**: §2.3 Prose redundancy (ceiling 5–10%), §4.1 A1
 - **Category**: A1 (rule-based compaction) / A2 (AST-aware bullet walking)
 - **Lossless/Lossy**: **Borderline lossy** — requires auditor/review gate
@@ -176,6 +191,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Loses subtle emphasis in normative text. Roadmap-3 explicitly gates this behind review. Spec agents uniformly avoid.
 
 ### S-14 — Table normalization / default-row hoisting / repeated-column hoist
+
 - **Primer anchor**: §4.2 A2 AST-aware + §2.3 Table whitespace
 - **Category**: A2 structural
 - **Lossless/Lossy**: Lossless IF defaults block is emitted visibly (NOT inside HTML comment — tasklist-3 is explicit about this)
@@ -185,6 +201,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Representative example** (tasklist-3): 29 task cards each have a `|Effort|Medium|` `|Risk|Low|` `|Tier|P1|` row; hoist to a defaults block at top, then each card only emits deltas.
 
 ### S-15 — Executive Summary / intro prose deduplication
+
 - **Primer anchor**: §2.3 Prose redundancy, §4.1 A1
 - **Category**: A1 (targeted) or A3 (semantic) — agents use A1
 - **Lossless/Lossy**: **Lossy** (primer §2.1 task-equivalent, not byte-equivalent)
@@ -193,6 +210,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Exec summary often read by different audience than body.
 
 ### S-16 — Requirement-ID range condensation
+
 - **Primer anchor**: §4.1 A1
 - **Category**: A1 pattern compaction
 - **Lossless/Lossy**: Lossless if regex is reversible
@@ -201,6 +219,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Regex compatibility across tools that grep individual FR-IDs; roadmap-3 explicitly preserves every requirement ID verbatim (contractual, line 438) — so S-16 is REJECTED on roadmap-3.
 
 ### S-17 — Artifact-path template macro (`$ART`, `TR`, etc.)
+
 - **Primer anchor**: §2.2 Conventions header (special case — paths)
 - **Category**: A1+A2
 - **Lossless/Lossy**: Lossless with round-trip
@@ -209,6 +228,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: If artifact paths are load-bearing for CI (grepped by release scripts), alias must be applied after expansion in CI.
 
 ### S-18 — Step-tag / workflow-phase abbreviation ([P]/[E]/[V]/[C])
+
 - **Primer anchor**: §2.2 Conventions header (label form)
 - **Category**: A1 substitution
 - **Lossless/Lossy**: Lossless
@@ -217,6 +237,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: `[P]` already has meaning in some conventions (pending, priority, planning); alias map must be unambiguous.
 
 ### S-19 — Checkpoint block template dedup
+
 - **Primer anchor**: §4.2 A2 AST-aware
 - **Category**: A2 structural
 - **Lossless/Lossy**: Lossless with template recall
@@ -225,6 +246,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Checkpoint prose is sometimes load-bearing (gate criteria).
 
 ### S-20 — Template-block externalization
+
 - **Primer anchor**: §4.2 A2
 - **Category**: A2
 - **Lossless/Lossy**: Lossless
@@ -233,6 +255,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Consumers must follow reference (breaks single-file portability).
 
 ### S-21 — LLM-assisted (A3) rewriting / numeric & phrasing canonicalization
+
 - **Primer anchor**: §4.3 A3 LLM-assisted (35–50% ceiling)
 - **Category**: A3
 - **Lossless/Lossy**: Lossy
@@ -241,6 +264,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Primer §5 matrix explicitly reserves A3 for PRD; applying it to RM/SP/TL voids fidelity guarantees.
 
 ### S-22 — Per-change preamble elision (File / Line / Risk headers)
+
 - **Primer anchor**: §2.3 Preamble/meta (ceiling 2–4%), §4.1 A1
 - **Category**: A1
 - **Lossless/Lossy**: Lossless (if fields are predictably present)
@@ -249,6 +273,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Partial presence (missing Line in some entries) breaks the elision rule.
 
 ### S-23 — Reference-style citation shortcuts (link/citation compaction)
+
 - **Primer anchor**: §4.1 A1
 - **Category**: A1
 - **Lossless/Lossy**: Lossless
@@ -257,6 +282,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: None significant.
 
 ### S-24 — Heading decorative suffix drop
+
 - **Primer anchor**: §2.3 Decorative
 - **Category**: A1
 - **Lossless/Lossy**: Borderline lossy (navigation aid)
@@ -265,6 +291,7 @@ Every entry below is canonicalized from the 9 per-file analyses. "Sources" lists
 - **Typical risks**: Removes tokens that humans scan for.
 
 ### S-25 — Validation-narrative compaction (RM-specific lossy)
+
 - **Primer anchor**: §4.1 A1 with auditor gate
 - **Category**: A1 (prose-targeted)
 - **Lossless/Lossy**: **Lossy — auditor-gated**
@@ -298,6 +325,7 @@ Execution order:
 **Projected range**: 9.6% (roadmap-2, lossless only) → 22–23% (roadmap-1/roadmap-3, with lossy steps).
 
 Notes:
+
 - roadmap-2's low ceiling (9.6%) is explained by pre-existing author discipline, not strategy weakness — confirmed by roadmap-2 analysis.
 - Primer's 25–33% target is only reachable when lossy gates (S-13, S-15, S-25) are enabled AND the document has baseline cruft.
 
@@ -359,6 +387,7 @@ Four strategies are present in every single per-file analysis:
 ### 5.2 Strategies rejected on fidelity by spec agents
 
 Per primer §5 ("spec compression is a trap"), all 3 spec agents reject:
+
 - **S-09** full identifier aliasing (spec-1 explicit; spec-2 and spec-3 downgrade to labels-only S-10)
 - **S-11** heading dedup (spec-3 explicit)
 - **S-12** cross-reference dedup (spec-2 explicit)
@@ -476,4 +505,3 @@ All 9 input analyses live in `/config/workspace/IronClaude/claudedocs/compressio
 - `tasklist-3-v37-turnledger-phase2.md`
 
 Primer: `/config/workspace/IronClaude/claudedocs/compressed-markdown-dsl-primer.md`
-

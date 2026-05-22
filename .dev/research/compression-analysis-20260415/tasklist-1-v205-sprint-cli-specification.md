@@ -429,11 +429,13 @@ Exit: D-0001..D-0004 verified; `superclaude sprint --help` works; P2+P3 unblocke
 **Phase**: {N}
 … (44 lines) …
 ```
+
 ```
 
 **After**:
 
 ```
+
 ## Checkpoint Report Template
 
 <!-- template: see TASKLIST_ROOT/templates/checkpoint-report.md -->

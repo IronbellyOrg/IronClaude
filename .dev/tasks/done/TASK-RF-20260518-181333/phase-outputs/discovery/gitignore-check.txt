@@ -1,0 +1,11 @@
+=== check-ignore --no-index (pure pattern match) ===
+0.20                                                              -> .gitignore:210:/0.[0-9]*	0.20
+prd-test-product/x                                                -> .gitignore:216:/prd-test-*/	prd-test-product/x
+prd-dry-run-test/x                                                -> .gitignore:217:/prd-dry-run-*/	prd-dry-run-test/x
+.dev/eval-workspaces/prd-test-product/execution-log.md            -> NOT IGNORED
+.dev/eval-workspaces/prd-dry-run-test/execution-log.md            -> NOT IGNORED
+.dev/eval-runs/x                                                  -> .gitignore:219:.dev/eval-runs/	.dev/eval-runs/x
+.sprint-exitcode                                                  -> .gitignore:222:/.sprint-exitcode	.sprint-exitcode
+.dev/releases/complete/foo/.sprint-exitcode                       -> NOT IGNORED
+0.99                                                              -> .gitignore:210:/0.[0-9]*	0.99
+prd-something-test/file                                           -> .gitignore:215:/prd-*-test/	prd-something-test/file

@@ -3,6 +3,7 @@
 This page is a contributor-facing visual map of the current `SuperClaude_Framework` repository.
 
 It is grounded in the current repository state observed in:
+
 - `pyproject.toml`
 - `CLAUDE.md`
 - `Makefile`
@@ -168,6 +169,7 @@ flowchart TD
 ## Console entry points
 
 The package has two executable registration surfaces defined in `pyproject.toml`:
+
 - `superclaude` in `[project.scripts]` is the terminal-facing CLI entry point.
 - `superclaude` in `[project.entry-points.pytest11]` is a pytest discovery surface, not a terminal command.
 
@@ -298,6 +300,7 @@ flowchart TD
 The current repository has a clear split between thin command entry points in `src/superclaude/commands/` and protocol-heavy skills in `src/superclaude/skills/`.
 
 For contributors, the key distinction is:
+
 - command files define invocation UX, flags, boundaries, and when to delegate
 - skill packages define the real multi-step workflow
 - some commands remain command-defined and do not currently map to a dedicated skill package
@@ -454,6 +457,7 @@ flowchart LR
 ## Audit, recommendation, and review-translation orchestration family
 
 These flows are all protocol-backed, but they operate at different layers:
+
 - `/sc:recommend` recommends command sequences and flags; it does not execute them
 - `/sc:cleanup-audit` is a read-only multi-pass audit that writes reports only
 - `/sc:review-translation` is a staged localization review system with a confirmation gate and adversarial validation
@@ -590,12 +594,14 @@ Use this page as the hub, then jump to the generated document that matches your 
 ## Mermaid readability and style notes
 
 When reading these diagrams in GitHub markdown:
+
 - use the table of contents to navigate one diagram section at a time
 - treat the heading and nearby bullets as the legend for each graph
 - zoom the page rather than copying diagrams out immediately
 - jump to the linked detailed document when a diagram is summarizing too much at once
 
 Authoring guidance used in this generated bundle:
+
 - one diagram per architectural question
 - avoid overloading a single graph with every subsystem
 - keep node labels tied to real repo paths and current entry points

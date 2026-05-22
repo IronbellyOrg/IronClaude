@@ -42,61 +42,73 @@ The correct vehicle for Path A improvements is the Path A Enrichment chunk (not 
 ## Per-Task Analysis
 
 ### N1 -- Delete legacy deprecated command
+
 - **Path affected**: Neither (file deletion only)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Deletes `.claude/commands/sc/task.md` and `src/superclaude/commands/task.md` (the old deprecated stub). This is pure housekeeping. Neither Path A nor Path B references these files at runtime; they are command definitions loaded by Claude Code's command registry. No path-specific concerns.
 
 ### N2 -- Rename unified command file
+
 - **Path affected**: Neither (file rename only)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Renames `src/superclaude/commands/task-unified.md` to `task.md`. The command definition file is read by Claude Code's command dispatcher, not by either execution path's Python code. The frontmatter `name: task` is already correct. No runtime impact on either path.
 
 ### N3 -- Rename skill directory
+
 - **Path affected**: Neither (filesystem rename only)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Renames `src/superclaude/skills/sc-task-unified-protocol/` to `sc-task-protocol/`. Skill directories are resolved by Claude Code's skill loader at session start, not by the sprint executor. Neither path has hardcoded skill directory paths.
 
 ### N4 -- Update skill frontmatter
+
 - **Path affected**: Neither (metadata only)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Changes `name: sc:task-unified-protocol` to `name: sc:task-protocol` in the SKILL.md frontmatter. This affects Claude Code's skill registry. Neither path references the skill's internal name in Python code.
 
 ### N5 -- Update Sprint CLI prompt
+
 - **Path affected**: Path B only
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Changes `/sc:task-unified` to `/sc:task` at `process.py:170`. This is the only task that touches a runtime prompt, and it targets Path B exclusively. Path A at `executor.py:1064-1068` does not contain any `/sc:task-unified` string to rename. No extension needed.
 
 ### N6 -- Update cleanup_audit prompts
+
 - **Path affected**: Neither A nor B (separate CLI tool)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Updates 5 prompt builders in `src/superclaude/cli/cleanup_audit/prompts.py`. The cleanup audit is a separate CLI pipeline (`superclaude cleanup-audit`), not part of the sprint executor. No path applicability.
 
 ### N7 -- Update tasklist protocol
+
 - **Path affected**: Neither (skill documentation)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Updates 12 references in `sc-tasklist-protocol/SKILL.md`. This is a skill specification document read by Claude Code's inference layer. It influences how tasklists are generated, not how they are executed. Neither path references this file.
 
 ### N8 -- Update command cross-references
+
 - **Path affected**: Neither (command documentation)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Updates references in `tasklist.md` (8), `help.md` (2), and other command files. These are command definitions and help text. No runtime path impact.
 
 ### N9 -- Update other protocol cross-refs
+
 - **Path affected**: Neither (skill documentation)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Updates references in `sc-roadmap-protocol`, `sc-cli-portify-protocol`, `sc-validate-tests-protocol`, `sc-release-split-protocol`. All are skill specification documents. No runtime path impact.
 
 ### N10 -- Update core docs
+
 - **Path affected**: Neither (documentation)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Updates `COMMANDS.md` and `ORCHESTRATOR.md`. Pure documentation. No runtime impact.
 
 ### N11 -- Sync dev copies
+
 - **Path affected**: Both (indirectly, via `.claude/` sync)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Runs `make sync-dev` to propagate `src/superclaude/` changes to `.claude/`. This is a build step that applies to all prior N-tasks. It does not itself modify either path's behavior; it ensures the dev copies match source-of-truth.
 
 ### N12 -- Confirm task-mcp.md status
+
 - **Path affected**: Neither (command file audit)
 - **Recommendation**: KEEP AS-IS
 - **Rationale**: Audits `src/superclaude/commands/task-mcp.md` for deprecated status. `task-mcp` is a separate command variant for MCP-enforced execution. It has no relationship to the Path A/B branching in the sprint executor.

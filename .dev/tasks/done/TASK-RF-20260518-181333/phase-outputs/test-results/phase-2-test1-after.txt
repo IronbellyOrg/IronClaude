@@ -1,0 +1,10 @@
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 1 item
+
+tests/skills/test_task_builder_merge.py::TestPR01ExecutionContextHeader::test_execution_context_uses_source_areas_not_paths PASSED [100%]
+
+============================== 1 passed in 0.05s ===============================

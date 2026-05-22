@@ -59,12 +59,14 @@ Frozen MDTM fixture mirroring a fully-populated `## Execution Context` rollup. U
 | Tier | LIGHT |
 
 **Steps:**
+
 1. **[VERIFICATION]** Extract the byte range between the `## Execution Context` heading and the closing `---`.
 2. **[VERIFICATION]** Confirm a `**References:**` bullet line is present in that range.
 3. **[VERIFICATION]** Confirm a `**Source areas:**` bullet line is present.
 4. **[VERIFICATION]** Confirm a `**Key constraints:**` bullet line is present.
 
 **Acceptance Criteria:**
+
 - Header range contains exactly one of each of the three labeled bullets, in declared order.
 - Per-item Context fields (this T01.01 step) remain the evidence venue and may carry `file:line` citations independently of the header.
 
@@ -73,4 +75,5 @@ Frozen MDTM fixture mirroring a fully-populated `## Execution Context` rollup. U
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

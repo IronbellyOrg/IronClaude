@@ -445,9 +445,3 @@ Redis 7+ ─────────────────────┤
 |M5 Production Readiness|2 weeks (overlapping M4 final week)|Week 7 / 2026-06-01|Week 9 / 2026-06-16|MIG-001 (Alpha) → MIG-002 (10% Beta) → MIG-003 (GA 100% on 2026-06-09); OPS-001..005, ROLLBACK-AUTO-*, NFR-REL-001, SUCC-SLO-BOARD — GA date 2026-06-09 matches TDD M5|
 
 **Total estimated duration:** 9 calendar weeks from 2026-04-20 through GA on 2026-06-09 (TDD committed date preserved via M4/M5 overlap); rollout stabilization extends to 2026-06-16; feature-flag cleanup (AUTH_TOKEN_REFRESH removal) completes 2026-06-23. Any slip in M1 or M2 that cannot be absorbed in the M4/M5 overlap becomes a new Open Question (rescheduled GA vs further compression) rather than a silent schedule change.
-
-
-
-
-
-

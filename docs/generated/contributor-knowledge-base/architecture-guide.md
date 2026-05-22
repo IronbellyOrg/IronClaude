@@ -3,6 +3,7 @@
 This guide explains the current repository architecture of `SuperClaude_Framework` from a contributor perspective.
 
 It is grounded in the current repository state, especially:
+
 - `src/superclaude/`
 - `pyproject.toml`
 - `Makefile`
@@ -40,6 +41,7 @@ flowchart TD
 ## Source-of-truth model
 
 The most important structural rule documented in the repository is:
+
 - `src/superclaude/` is the canonical source for distributable components
 - `.claude/` contains repo-local development copies consumed directly by Claude Code during local iteration
 
@@ -84,7 +86,9 @@ flowchart LR
 ## Core architectural layers
 
 ### 1. Contributor and process layer
+
 This layer includes:
+
 - `README.md`
 - `CLAUDE.md`
 - curated docs under `docs/`
@@ -93,19 +97,25 @@ This layer includes:
 Its job is to explain how the repository should be used and changed.
 
 ### 2. Canonical package and asset layer
+
 This is `src/superclaude/`, which contains both:
+
 - executable Python package code
 - shipped framework assets like commands, skills, and agents
 
 ### 3. Runtime and integration layer
+
 This includes the Python implementation surfaces contributors most often touch:
+
 - CLI package
 - pytest plugin
 - PM-agent modules
 - execution helpers
 
 ### 4. Packaging, sync, and validation layer
+
 This includes:
+
 - `pyproject.toml`
 - `Makefile`
 - `tests/`
@@ -132,9 +142,11 @@ flowchart TB
 ```
 
 ### CLI layer
+
 Observed in `src/superclaude/cli/`.
 
 Current top-level command functions exported from `main.py` include:
+
 - `main`
 - `install`
 - `mcp`
@@ -144,6 +156,7 @@ Current top-level command functions exported from `main.py` include:
 - `version`
 
 The CLI tree also contains larger workflow subsystems:
+
 - `sprint/`
 - `roadmap/`
 - `cleanup_audit/`
@@ -151,9 +164,11 @@ The CLI tree also contains larger workflow subsystems:
 - `audit/`
 
 ### Pytest plugin layer
+
 Observed in `src/superclaude/pytest_plugin.py`.
 
 Observed functions include:
+
 - `pytest_configure`
 - `confidence_checker`
 - `self_check_protocol`
@@ -168,9 +183,11 @@ Observed functions include:
 This makes the pytest plugin a first-class integration surface, not just a test helper.
 
 ### PM-agent layer
+
 Observed in `src/superclaude/pm_agent/`.
 
 Key modules:
+
 - `confidence.py`
 - `self_check.py`
 - `reflexion.py`
@@ -179,9 +196,11 @@ Key modules:
 These match the repository’s documented operating model of confidence-first work, evidence-based validation, learning/reflection, and token budgeting.
 
 ### Execution support layer
+
 Observed in `src/superclaude/execution/`.
 
 Key modules:
+
 - `parallel.py`
 - `reflection.py`
 - `self_correction.py`
@@ -211,9 +230,11 @@ flowchart LR
 ```
 
 ### Commands
+
 Observed in `src/superclaude/commands/`.
 
 This tree contains a large set of markdown-defined commands, including:
+
 - `implement.md`
 - `analyze.md`
 - `build.md`
@@ -227,9 +248,11 @@ This tree contains a large set of markdown-defined commands, including:
 - and many others
 
 ### Skills
+
 Observed in `src/superclaude/skills/`.
 
 The repo includes both user-facing and protocol-style skills, for example:
+
 - `confidence-check/`
 - `sc-task-unified-protocol/`
 - `sc-cli-portify-protocol/`
@@ -239,6 +262,7 @@ The repo includes both user-facing and protocol-style skills, for example:
 - `sc-review-translation-protocol/`
 
 Many skill packages include a mix of:
+
 - `SKILL.md`
 - `__init__.py`
 - `rules/`
@@ -248,6 +272,7 @@ Many skill packages include a mix of:
 - YAML configuration artifacts
 
 ### Agents
+
 The source tree and docs indicate agent assets are also part of the distributable framework model, even though the current codebase is broader than an agents-only framing.
 
 ## CLI-centered architecture
@@ -318,6 +343,7 @@ flowchart LR
 ```
 
 A validation-oriented contributor reading is:
+
 - package behavior often flows through CLI + tests + plugin hooks
 - framework-asset changes often require sync/verification via `make sync-dev` and `make verify-sync`
 - generated-doc changes require path/link/claim validation against the live tree
@@ -325,6 +351,7 @@ A validation-oriented contributor reading is:
 ## Contributor implications
 
 When changing the system:
+
 - packaging concerns often flow through `pyproject.toml` and `src/superclaude/cli/`
 - test/plugin concerns often flow through `src/superclaude/pytest_plugin.py` and `tests/`
 - framework content changes often flow through `src/superclaude/commands/`, `src/superclaude/skills/`, and agent assets
@@ -347,12 +374,14 @@ flowchart TD
 ## Mermaid readability notes
 
 When reading these diagrams in GitHub markdown:
+
 - prefer zooming the page instead of copying diagrams into external renderers first
 - follow left-to-right or top-to-bottom flow one section at a time
 - use the section heading and nearby bullets as the legend for each diagram
 - when a diagram feels dense, jump to the linked detailed doc instead of treating the diagram as a full specification
 
 Authoring guidance used in this generated bundle:
+
 - one diagram per architectural question
 - avoid overloading a single graph with every subsystem
 - keep labels tied to real repo paths and current entry points

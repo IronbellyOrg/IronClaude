@@ -11,6 +11,7 @@ generator: superclaude-anti-instinct-audit
 ---
 
 ## Anti-Instinct Audit Report
+
 ### Obligation Scanner
 
 - Total obligations detected: 0
@@ -30,6 +31,7 @@ generator: superclaude-anti-instinct-audit
 - Coverage ratio: 0.84
 
 **Missing fingerprints** (7):
+
 - `feature_id`
 - `spec_type`
 - `target_release`

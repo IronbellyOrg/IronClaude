@@ -60,12 +60,14 @@ approvers:
 > **HOW TO USE:** Engineers, architects, and technical stakeholders use this document to align on the technical approach before implementation begins.
 
 Sentinel self-check (run before submitting TDD for pipeline consumption):
+
 - feature_id must not be a placeholder -- value is "AUTH-001" (PASS)
 - spec_type must be one of the valid enum values -- value is "new_feature" (PASS)
 - target_release must not be a placeholder -- value is "v1.0" (PASS)
 - complexity_score and complexity_class may remain empty (computed by sc:roadmap)
 
 Pipeline field consumption:
+
 - `complexity_score`, `complexity_class`: Computed by sc:roadmap during extraction (not read from frontmatter). Pre-populated values are advisory only.
 - `feature_id`, `spec_type`, `target_release`: Consumed by sc:spec-panel `--downstream roadmap` (Step 6b) when generating scoped release specs.
 - `quality_scores`: Populated by sc:spec-panel review output. Not consumed by sc:roadmap.
@@ -119,6 +121,7 @@ This TDD implements requirements from AUTH-PRD-001 Epics AUTH-E1 (Login/Registra
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [x] Section 1: Executive Summary — Complete
 - [x] Section 2: Problem Statement & Context — Complete
 - [x] Section 3: Goals & Non-Goals — Complete
@@ -202,6 +205,7 @@ The User Authentication Service provides secure identity management for the plat
 This TDD defines the technical approach for implementing the authentication system described in AUTH-PRD-001, targeting v1.0 release with JWT-based stateless authentication, bcrypt password hashing, and a phased rollout strategy.
 
 **Key Deliverables:**
+
 - `AuthService` core orchestration layer with login, registration, and profile flows
 - `TokenManager` and `JwtService` for JWT access/refresh token lifecycle
 - `PasswordHasher` abstraction over bcrypt with configurable cost factor
@@ -460,6 +464,7 @@ Authenticates a user via `AuthService` by validating email/password credentials 
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Invalid email or password
 - 429 Too Many Requests: Rate limit exceeded
 - 423 Locked: Account locked after 5 failed attempts
@@ -493,6 +498,7 @@ Creates a new user account via `AuthService`. Validates email uniqueness, enforc
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Validation errors (weak password, invalid email format)
 - 409 Conflict: Email already registered
 
@@ -521,6 +527,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIs...
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Missing, expired, or invalid accessToken
 
 #### POST `/auth/refresh`
@@ -547,6 +554,7 @@ Exchanges a valid refresh token for a new `AuthToken` pair via `TokenManager`. T
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Expired or revoked refresh token
 
 ### 8.3 Error Response Format
@@ -731,6 +739,7 @@ The `AuthService` depends on PostgreSQL 15+ for `UserProfile` persistence, Redis
 ### 19.4 Rollback Criteria
 
 Rollback is triggered if any of the following occur during rollout:
+
 - p95 latency exceeds 1000ms for more than 5 minutes
 - Error rate exceeds 5% for more than 2 minutes
 - `TokenManager` Redis connection failures exceed 10 per minute
@@ -860,9 +869,9 @@ Infrastructure costs for the `AuthService` are estimated at $450/month for produ
 
 | Resource | URL |
 |----------|-----|
-| JWT RFC 7519 | https://datatracker.ietf.org/doc/html/rfc7519 |
-| bcrypt paper | https://www.usenix.org/legacy/events/usenix99/provos/provos.pdf |
-| OWASP Authentication Cheat Sheet | https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html |
+| JWT RFC 7519 | <https://datatracker.ietf.org/doc/html/rfc7519> |
+| bcrypt paper | <https://www.usenix.org/legacy/events/usenix99/provos/provos.pdf> |
+| OWASP Authentication Cheat Sheet | <https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html> |
 
 ---
 

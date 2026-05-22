@@ -1,0 +1,12 @@
+set -u
+
+INPUT="$(cat 2>/dev/null || true)"
+
+# Pull the tool name and the bash command out of the hook payload.
+TOOL_NAME="$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)"
+[ "$TOOL_NAME" = "Bash" ] || exit 0
+
+CMD="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)"
+[ -z "$CMD" ] && exit 0
+
+# Only fire on `gh pr create` (allow flags between `gh` and `pr create`).

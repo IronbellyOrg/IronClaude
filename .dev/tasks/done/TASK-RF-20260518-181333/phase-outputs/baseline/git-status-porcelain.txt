@@ -1,0 +1,142 @@
+ M .dev/releases/current/task-builder-merge/execution-log.jsonl
+ M .dev/releases/current/task-builder-merge/execution-log.md
+ M .dev/releases/current/task-builder-merge/results/phase-4-output.txt
+ M docs/memory/solutions_learned.jsonl
+ M src/superclaude/cli/sprint/commands.py
+ M src/superclaude/cli/sprint/config.py
+ M src/superclaude/cli/sprint/executor.py
+ M src/superclaude/cli/sprint/models.py
+ M tests/pipeline/test_process.py
+ M tests/sprint/test_config.py
+ M tests/sprint/test_executor.py
+ M tests/sprint/test_models.py
+ M tests/sprint/test_regression_gaps.py
+ M tests/sprint/test_watchdog.py
+?? .dev/eval-runs/
+?? .dev/releases/current/cliEval/
+?? .dev/releases/current/hook-sync-and-matcher-fix/
+?? .dev/releases/current/task-builder-merge/.sprint-exitcode
+?? .dev/releases/current/task-builder-merge/artifacts/D-0053/evidence.md
+?? .dev/releases/current/task-builder-merge/artifacts/D-0054/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0055/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0056/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0057/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0058/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0059/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0060/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0061/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0062/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0063/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0068/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0069/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0070/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0071/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0072/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0073/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0074/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0075/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0076/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0077/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0078/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0079/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0080/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0081/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0082/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0083/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0084/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0085/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0086/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0087/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0088/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0089/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0090/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0091/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0092/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0093/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0094/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0095/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0096/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0097/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0098/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0099/
+?? .dev/releases/current/task-builder-merge/artifacts/D-0100/
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P04-END.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P05-END.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P05-T01-T05.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P05-T07-T11.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P06-END.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P06-T01-T05.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P06-T07-T11.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P07-END.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P07-T01-T05.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P07-T07-T11.md
+?? .dev/releases/current/task-builder-merge/checkpoints/CP-P07-T13-T17.md
+?? .dev/releases/current/task-builder-merge/manifest.json
+?? .dev/releases/current/task-builder-merge/results/gate-kpi-report.md
+?? .dev/releases/current/task-builder-merge/results/phase-5-errors.txt
+?? .dev/releases/current/task-builder-merge/results/phase-5-output.txt
+?? .dev/releases/current/task-builder-merge/results/phase-6-errors.txt
+?? .dev/releases/current/task-builder-merge/results/phase-6-output.txt
+?? .dev/releases/current/task-builder-merge/results/phase-7-errors.txt
+?? .dev/releases/current/task-builder-merge/results/phase-7-output.txt
+?? .dev/releases/current/task-builder-merge/results/release-retrospective.md
+?? .dev/tasks/done/BUILD-REQUEST-C122-auto-detection.md
+?? .dev/tasks/done/BUILD-REQUEST-e2e-baseline-full-pipeline.md
+?? .dev/tasks/done/RESEARCH-PROMPT-anti-instinct-gate-failure.md
+?? .dev/tasks/done/RESEARCH-PROMPT-prd-pipeline-integration.md
+?? .dev/tasks/done/RESEARCH-PROMPT-roadmap-tasklist-architecture-overhaul.md
+?? .dev/tasks/done/RESEARCH-PROMPT-tasklist-generation-quality.md
+?? .dev/tasks/done/TASK-E2E-20260326-tdd-pipeline/
+?? .dev/tasks/done/TASK-E2E-20260327-prd-pipeline-e2e/
+?? .dev/tasks/done/TASK-E2E-20260402-prd-pipeline-rerun/
+?? .dev/tasks/done/TASK-RESEARCH-20260324-001/
+?? .dev/tasks/done/TASK-RESEARCH-20260325-001/
+?? .dev/tasks/done/TASK-RESEARCH-20260327-prd-pipeline/
+?? .dev/tasks/done/TASK-RESEARCH-20260403-anti-instinct/
+?? .dev/tasks/done/TASK-RESEARCH-20260403-sprint-task-exec/
+?? .dev/tasks/done/TASK-RESEARCH-20260403-tasklist-quality/
+?? .dev/tasks/done/TASK-RESEARCH-20260404-roadmap-tasklist-overhaul/
+?? .dev/tasks/done/TASK-RF-20260325-cli-tdd/
+?? .dev/tasks/done/TASK-RF-20260326-e2e-modified/
+?? .dev/tasks/done/TASK-RF-20260327-prd-pipeline/
+?? .dev/tasks/done/TASK-RF-20260402-auto-detection/
+?? .dev/tasks/done/TASK-RF-20260402-baseline-repo/
+?? .dev/tasks/done/TASK-RF-20260402-e2e-update/
+?? .dev/tasks/done/TASK-RF-20260403-baseline-full-e2e/
+?? .dev/tasks/done/TASK-RF-20260403-baseline-full/
+?? .dev/tasks/done/TASK-RF-20260403-full-e2e/
+?? .dev/tasks/done/TASK-RF-20260403-quality-comparison/
+?? .dev/tasks/done/TASK-RF-20260403-tasklist-e2e/
+?? .dev/tasks/done/TASK-TDD-20260514-121250/
+?? .dev/tasks/done/TDD-comparison-qa-qualitative-1.md
+?? .dev/tasks/done/TDD-comparison-qa-qualitative-2.md
+?? .dev/tasks/done/TDD-comparison-qa-qualitative-3.md
+?? .dev/tasks/done/TDD-comparison-review-CORRECTIONS.md
+?? .dev/tasks/done/TDD-comparison-review.md
+?? .dev/tasks/done/roadmap-pipeline-deep-trace.md
+?? .dev/tasks/to-do/TASK-RF-20260517-183817/
+?? .dev/tasks/to-do/TASK-RF-20260517-213436/
+?? .dev/tasks/to-do/TASK-RF-20260518-015659/
+?? .dev/tasks/to-do/TASK-RF-20260518-181333/
+?? .dev/tasks/to-do/TASK-RF-20260518-cliEval-P1-pty-isolation-gates/
+?? .dev/tasks/to-do/TASK-RF-20260518-cliEval-P2-loader-models-expect/
+?? .dev/tasks/to-do/TASK-RF-20260518-cliEval-P3-orchestrator-runner-reporter/
+?? .dev/tasks/to-do/TASK-RF-20260518-cliEval-P4-wire-and-ship/
+?? 0.20
+?? docs/mistakes/test_database_connection-2026-05-18.md
+?? docs/mistakes/test_reflexion_with_real_exception-2026-05-18.md
+?? docs/mistakes/unknown-2026-05-18.md
+?? docs/reference/nfr-conv-2-prose-determinism.md
+?? prd-dry-run-test/
+?? prd-test-product/
+?? tests/audit/fixtures/hidden_input_guard/
+?? tests/audit/fixtures/nfr_conv_6/
+?? tests/audit/fixtures/nfr_conv_9/
+?? tests/audit/test_dnsp_all_agents_fail_bypass.py
+?? tests/audit/test_dnsp_dedup_collapse.py
+?? tests/audit/test_dnsp_does_not_serialize_cohort.py
+?? tests/audit/test_dnsp_twice_exhaust.py
+?? tests/audit/test_hidden_input_guard.py
+?? tests/audit/test_invariant_preservation_NFR_6_through_10.py
+?? tests/audit/test_nfr_conv_6_self_contained.py
+?? tests/audit/test_nfr_conv_9_zero_trust.py

@@ -19,9 +19,10 @@
 
 ### PEP 8 - Style Guide for Python Code
 
-**Source**: https://www.python.org/dev/peps/pep-0008/
+**Source**: <https://www.python.org/dev/peps/pep-0008/>
 
 **Key Guidelines**:
+
 - **Packages and Modules**: "should have short, all-lowercase names"
 - **Underscores**: "can be used... if it improves readability"
 - **Discouraged**: Underscores are "discouraged" but not forbidden
@@ -33,6 +34,7 @@
 **Source**: Python Packaging Authority (PyPA)
 
 **Key Guidelines**:
+
 - **PyPI Distribution Names**: Use hyphens (e.g., `my-package`)
 - **Actual Package Names**: Use underscores (e.g., `my_package`)
 - **Rationale**: Hyphens for user-facing names, underscores for Python imports
@@ -41,9 +43,10 @@
 
 ### Sphinx Documentation Generator
 
-**Source**: https://www.sphinx-doc.org/
+**Source**: <https://www.sphinx-doc.org/>
 
 **Standard Structure**:
+
 ```
 docs/
 ├── build/          # lowercase
@@ -53,6 +56,7 @@ docs/
 ```
 
 **Subdirectory Recommendations**:
+
 - Lowercase preferred
 - Hierarchical organization with subdirectories
 - Examples from Sphinx community consistently use lowercase
@@ -62,6 +66,7 @@ docs/
 **Source**: ReadTheDocs documentation hosting platform
 
 **Conventions**:
+
 - Accepts both `doc/` and `docs/` (lowercase)
 - Follows PEP 8 naming (lowercase_with_underscores)
 - Community projects predominantly use lowercase
@@ -72,10 +77,11 @@ docs/
 
 ### 1. Django (Web Framework)
 
-**Repository**: https://github.com/django/django
+**Repository**: <https://github.com/django/django>
 **Documentation Directory**: `docs/`
 
 **Subdirectory Structure** (all lowercase):
+
 ```
 docs/
 ├── faq/
@@ -92,10 +98,11 @@ docs/
 
 ### 2. Python CPython (Official Python Implementation)
 
-**Repository**: https://github.com/python/cpython
+**Repository**: <https://github.com/python/cpython>
 **Documentation Directory**: `Doc/` (uppercase root, but lowercase subdirs)
 
 **Subdirectory Structure** (lowercase with hyphens):
+
 ```
 Doc/
 ├── c-api/              # hyphen for multi-word
@@ -117,10 +124,11 @@ Doc/
 
 ### 3. Flask (Web Framework)
 
-**Repository**: https://github.com/pallets/flask
+**Repository**: <https://github.com/pallets/flask>
 **Documentation Directory**: `docs/`
 
 **Subdirectory Structure** (all lowercase):
+
 ```
 docs/
 ├── deploying/
@@ -145,7 +153,7 @@ docs/
 
 ### 4. FastAPI (Modern Web Framework)
 
-**Repository**: https://github.com/fastapi/fastapi
+**Repository**: <https://github.com/fastapi/fastapi>
 **Documentation Directory**: `docs/` + `docs_src/`
 
 **Pattern**: Lowercase root directories
@@ -153,7 +161,7 @@ docs/
 
 ### 5. Requests (HTTP Library)
 
-**Repository**: https://github.com/psf/requests
+**Repository**: <https://github.com/psf/requests>
 **Documentation Directory**: `docs/`
 
 **Pattern**: Lowercase
@@ -195,6 +203,7 @@ docs/
 ```
 
 **Issues**:
+
 1. **Inconsistent naming**: Mix of PascalCase and lowercase
 2. **Non-standard pattern**: PascalCase uncommon in Python ecosystem
 3. **Conflicts with PEP 8**: Violates "all-lowercase" principle
@@ -209,6 +218,7 @@ docs/
 **Pattern**: `lowercase-with-hyphens`
 
 **Examples**:
+
 ```
 docs/
 ├── developer-guide/
@@ -226,6 +236,7 @@ docs/
 ```
 
 **Rationale**:
+
 1. **PEP 8 Alignment**: Follows "all-lowercase" principle for Python packages/modules
 2. **Ecosystem Consistency**: Matches Python CPython's documentation structure
 3. **PyPA Convention**: Aligns with distribution naming (hyphens for user-facing names)
@@ -238,6 +249,7 @@ docs/
 **Pattern**: `lowercaseconcatenated`
 
 **Examples**:
+
 ```
 docs/
 ├── developerguide/
@@ -248,10 +260,12 @@ docs/
 ```
 
 **Pros**:
+
 - Matches Flask's convention
 - Simpler (no special characters)
 
 **Cons**:
+
 - Reduced readability for multi-word directories
 - Less common than hyphenated approach
 - Harder to parse visually
@@ -261,6 +275,7 @@ docs/
 **Pattern**: `PascalCase` or `camelCase`
 
 **Why Not**:
+
 - **Zero evidence** in major Python projects
 - Violates PEP 8 all-lowercase principle
 - Creates unnecessary friction with Python ecosystem conventions
@@ -273,6 +288,7 @@ docs/
 ### If PR is Accepted
 
 **Step 1: Batch Rename**
+
 ```bash
 git mv docs/Developer-Guide docs/developer-guide
 git mv docs/Getting-Started docs/getting-started
@@ -284,12 +300,14 @@ git mv docs/Templates docs/templates
 ```
 
 **Step 2: Update References**
+
 - Update all internal links in documentation files
 - Update mkdocs.yml or equivalent configuration
 - Update MANIFEST.in: `recursive-include docs *.md`
 - Update any CI/CD scripts referencing old paths
 
 **Step 3: Verification**
+
 ```bash
 # Check for broken links
 grep -r "Developer-Guide" docs/
@@ -305,12 +323,14 @@ make docs  # or equivalent documentation build command
 **Impact**: 🔴 **High** - External links will break
 
 **Mitigation Options**:
+
 1. **Redirect configuration**: Set up web server redirects (if docs are hosted)
 2. **Symlinks**: Create temporary symlinks for backwards compatibility
 3. **Announcement**: Clear communication in release notes
 4. **Version bump**: Major version increment (e.g., 4.x → 5.0) to signal breaking change
 
 **GitHub-Specific**:
+
 - Old GitHub Wiki links will break
 - External blog posts/tutorials referencing old paths will break
 - Need prominent notice in README and release notes
@@ -332,6 +352,7 @@ make docs  # or equivalent documentation build command
 ### Strength of Evidence
 
 **Very Strong** (⭐⭐⭐⭐⭐):
+
 - PEP 8 explicitly states "all-lowercase" for packages/modules
 - 100% of investigated projects use lowercase
 - Official Python implementation (CPython) uses lowercase with hyphens
@@ -344,15 +365,15 @@ The Python ecosystem has a clear, unambiguous convention: **lowercase** director
 
 ## References
 
-1. **PEP 8** - Style Guide for Python Code: https://www.python.org/dev/peps/pep-0008/
-2. **PEP 423** - Naming Conventions for Distribution: https://www.python.org/dev/peps/pep-0423/
-3. **Django Documentation**: https://github.com/django/django/tree/main/docs
-4. **Python CPython Documentation**: https://github.com/python/cpython/tree/main/Doc
-5. **Flask Documentation**: https://github.com/pallets/flask/tree/main/docs
-6. **FastAPI Documentation**: https://github.com/fastapi/fastapi/tree/master/docs
-7. **Requests Documentation**: https://github.com/psf/requests/tree/main/docs
-8. **Sphinx Documentation**: https://www.sphinx-doc.org/
-9. **ReadTheDocs**: https://docs.readthedocs.io/
+1. **PEP 8** - Style Guide for Python Code: <https://www.python.org/dev/peps/pep-0008/>
+2. **PEP 423** - Naming Conventions for Distribution: <https://www.python.org/dev/peps/pep-0423/>
+3. **Django Documentation**: <https://github.com/django/django/tree/main/docs>
+4. **Python CPython Documentation**: <https://github.com/python/cpython/tree/main/Doc>
+5. **Flask Documentation**: <https://github.com/pallets/flask/tree/main/docs>
+6. **FastAPI Documentation**: <https://github.com/fastapi/fastapi/tree/master/docs>
+7. **Requests Documentation**: <https://github.com/psf/requests/tree/main/docs>
+8. **Sphinx Documentation**: <https://www.sphinx-doc.org/>
+9. **ReadTheDocs**: <https://docs.readthedocs.io/>
 
 ---
 
@@ -361,6 +382,7 @@ The Python ecosystem has a clear, unambiguous convention: **lowercase** director
 **Immediate Action**: Propose PR to upstream standardizing to lowercase-with-hyphens
 
 **PR Message Template**:
+
 ```
 ## Summary
 Standardize documentation directory naming to lowercase-with-hyphens following Python ecosystem conventions

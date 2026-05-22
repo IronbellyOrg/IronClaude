@@ -1,0 +1,463 @@
+{
+  "metadata": {
+    "skill_name": "sc-auggie-review-protocol",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-05-20T17:24:53Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 350.3,
+        "tokens": 80822,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review-md-exists",
+          "passed": true,
+          "evidence": "present (10187 bytes)"
+        },
+        {
+          "text": "review-md-nonempty",
+          "passed": true,
+          "evidence": "10187 bytes (min 1500)"
+        },
+        {
+          "text": "report-mentions-diff-target",
+          "passed": true,
+          "evidence": "matched /origin/master/ \u2192 'origin/master'"
+        },
+        {
+          "text": "uses-severity-tiers",
+          "passed": true,
+          "evidence": "all 2 patterns matched"
+        },
+        {
+          "text": "has-finding-counts",
+          "passed": true,
+          "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '5 file-level finding'"
+        },
+        {
+          "text": "file-line-citations-present",
+          "passed": true,
+          "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/main.py:309'"
+        },
+        {
+          "text": "cited-files-in-diff-or-repo",
+          "passed": true,
+          "evidence": "12/12 citations validated (100%)"
+        },
+        {
+          "text": "focus-areas-honored",
+          "passed": true,
+          "evidence": "all 1 patterns matched"
+        },
+        {
+          "text": "skill-audit-log-present",
+          "passed": true,
+          "evidence": "present (8249 bytes)"
+        },
+        {
+          "text": "skill-auggie-artifacts-present",
+          "passed": true,
+          "evidence": "present (10854 bytes)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 408.3,
+        "tokens": 93032,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review-md-exists",
+          "passed": true,
+          "evidence": "present (13897 bytes)"
+        },
+        {
+          "text": "review-md-nonempty",
+          "passed": true,
+          "evidence": "13897 bytes (min 1500)"
+        },
+        {
+          "text": "report-has-header",
+          "passed": true,
+          "evidence": "matched: # "
+        },
+        {
+          "text": "uses-severity-tiers",
+          "passed": true,
+          "evidence": "all 4 patterns matched"
+        },
+        {
+          "text": "has-finding-counts",
+          "passed": true,
+          "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '9 finding'"
+        },
+        {
+          "text": "file-line-citations-present",
+          "passed": true,
+          "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'tests/cli/prd/test_gates.py:47'"
+        },
+        {
+          "text": "cited-files-exist-in-repo",
+          "passed": true,
+          "evidence": "15/17 citations validated (88%); first invalid: SKILL.md:267 (file has only 124 lines)"
+        },
+        {
+          "text": "skill-audit-log-present",
+          "passed": true,
+          "evidence": "present (3671 bytes)"
+        },
+        {
+          "text": "no-pr-was-posted",
+          "passed": true,
+          "evidence": "none of 3 forbidden patterns found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 426.4,
+        "tokens": 98146,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review-md-exists",
+          "passed": true,
+          "evidence": "present (16956 bytes)"
+        },
+        {
+          "text": "review-md-nonempty",
+          "passed": true,
+          "evidence": "16956 bytes (min 2000)"
+        },
+        {
+          "text": "report-mentions-snapshot-target",
+          "passed": true,
+          "evidence": "matched /src/superclaude/cli/ \u2192 'src/superclaude/cli'"
+        },
+        {
+          "text": "uses-severity-tiers",
+          "passed": true,
+          "evidence": "all 2 patterns matched"
+        },
+        {
+          "text": "has-finding-counts",
+          "passed": true,
+          "evidence": "matched /\\b\\d+\\s+[\\w\\-]*\\s*finding/ \u2192 '8 file-anchored finding'"
+        },
+        {
+          "text": "file-line-citations-present",
+          "passed": true,
+          "evidence": "matched /\\b[\\w/\\.\\-]+\\.py:\\d+/ \u2192 'main.py:13'"
+        },
+        {
+          "text": "cited-files-exist-in-cli-subtree",
+          "passed": true,
+          "evidence": "17/18 citations validated (94%); first invalid: roadmap/executor.py:2895 (file has only 2148 lines)"
+        },
+        {
+          "text": "has-cross-cutting-observations",
+          "passed": true,
+          "evidence": "matched /(?i)cross.?cutting/ \u2192 'cross-cutting'"
+        },
+        {
+          "text": "focus-areas-honored",
+          "passed": true,
+          "evidence": "all 1 patterns matched"
+        },
+        {
+          "text": "skill-audit-log-present",
+          "passed": true,
+          "evidence": "present (4379 bytes)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 159.6,
+        "tokens": 77418,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review-md-exists",
+          "passed": true,
+          "evidence": "present (13872 bytes)"
+        },
+        {
+          "text": "review-md-nonempty",
+          "passed": true,
+          "evidence": "13872 bytes (min 1500)"
+        },
+        {
+          "text": "report-mentions-diff-target",
+          "passed": true,
+          "evidence": "matched /origin/master/ \u2192 'origin/master'"
+        },
+        {
+          "text": "uses-severity-tiers",
+          "passed": true,
+          "evidence": "all 2 patterns matched"
+        },
+        {
+          "text": "has-finding-counts",
+          "passed": true,
+          "evidence": "matched /[Tt]otal[^\\n]*\\d+/ \u2192 'Total**| **17'"
+        },
+        {
+          "text": "file-line-citations-present",
+          "passed": true,
+          "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/install_templates.py:48'"
+        },
+        {
+          "text": "cited-files-in-diff-or-repo",
+          "passed": true,
+          "evidence": "16/16 citations validated (100%)"
+        },
+        {
+          "text": "focus-areas-honored",
+          "passed": true,
+          "evidence": "all 1 patterns matched"
+        },
+        {
+          "text": "skill-audit-log-present",
+          "passed": true,
+          "evidence": "N/A (config=without_skill)"
+        },
+        {
+          "text": "skill-auggie-artifacts-present",
+          "passed": true,
+          "evidence": "N/A (config=without_skill)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 145.8,
+        "tokens": 75221,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review-md-exists",
+          "passed": true,
+          "evidence": "present (9967 bytes)"
+        },
+        {
+          "text": "review-md-nonempty",
+          "passed": true,
+          "evidence": "9967 bytes (min 1500)"
+        },
+        {
+          "text": "report-has-header",
+          "passed": true,
+          "evidence": "matched: # "
+        },
+        {
+          "text": "uses-severity-tiers",
+          "passed": true,
+          "evidence": "all 4 patterns matched"
+        },
+        {
+          "text": "has-finding-counts",
+          "passed": true,
+          "evidence": "matched /[Tt]otal[^\\n]*\\d+/ \u2192 'Total | 9'"
+        },
+        {
+          "text": "file-line-citations-present",
+          "passed": true,
+          "evidence": "matched /\\b[\\w/\\.\\-]+\\.(py|md|sh|json|toml|yml|yaml):\\d+/ \u2192 'src/superclaude/cli/prd/gates.py:130'"
+        },
+        {
+          "text": "cited-files-exist-in-repo",
+          "passed": true,
+          "evidence": "17/17 citations validated (100%)"
+        },
+        {
+          "text": "skill-audit-log-present",
+          "passed": true,
+          "evidence": "N/A (config=without_skill)"
+        },
+        {
+          "text": "no-pr-was-posted",
+          "passed": true,
+          "evidence": "none of 3 forbidden patterns found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 265.3,
+        "tokens": 128715,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review-md-exists",
+          "passed": true,
+          "evidence": "present (20673 bytes)"
+        },
+        {
+          "text": "review-md-nonempty",
+          "passed": true,
+          "evidence": "20673 bytes (min 2000)"
+        },
+        {
+          "text": "report-mentions-snapshot-target",
+          "passed": true,
+          "evidence": "matched /src/superclaude/cli/ \u2192 'src/superclaude/cli'"
+        },
+        {
+          "text": "uses-severity-tiers",
+          "passed": true,
+          "evidence": "all 2 patterns matched"
+        },
+        {
+          "text": "has-finding-counts",
+          "passed": true,
+          "evidence": "matched /[Tt]otal[^\\n]*\\d+/ \u2192 'Total** | **24'"
+        },
+        {
+          "text": "file-line-citations-present",
+          "passed": true,
+          "evidence": "matched /\\b[\\w/\\.\\-]+\\.py:\\d+/ \u2192 'src/superclaude/cli/install_mcp.py:140'"
+        },
+        {
+          "text": "cited-files-exist-in-cli-subtree",
+          "passed": true,
+          "evidence": "51/54 citations validated (94%); first invalid: eval/commands.py:798 (file has only 463 lines)"
+        },
+        {
+          "text": "has-cross-cutting-observations",
+          "passed": true,
+          "evidence": "matched /(?i)cross.?cutting/ \u2192 'cross-cutting'"
+        },
+        {
+          "text": "focus-areas-honored",
+          "passed": true,
+          "evidence": "all 1 patterns matched"
+        },
+        {
+          "text": "skill-audit-log-present",
+          "passed": true,
+          "evidence": "N/A (config=without_skill)"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 395.0,
+        "stddev": 39.7551,
+        "min": 350.3,
+        "max": 426.4
+      },
+      "tokens": {
+        "mean": 90666.6667,
+        "stddev": 8900.9182,
+        "min": 80822,
+        "max": 98146
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 190.2333,
+        "stddev": 65.3748,
+        "min": 145.8,
+        "max": 265.3
+      },
+      "tokens": {
+        "mean": 93784.6667,
+        "stddev": 30270.4946,
+        "min": 75221,
+        "max": 128715
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.00",
+      "time_seconds": "+204.8",
+      "tokens": "-3118"
+    }
+  },
+  "notes": []
+}

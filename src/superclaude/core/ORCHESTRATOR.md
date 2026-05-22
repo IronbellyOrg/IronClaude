@@ -9,18 +9,21 @@ Analyzes requests to understand intent, complexity, and requirements.
 ### Pre-Operation Validation Checks
 
 **Resource Validation**:
+
 - Token usage prediction based on operation complexity and scope
 - Memory and processing requirements estimation
 - File system permissions and available space verification
 - MCP server availability and response time checks
 
 **Compatibility Validation**:
+
 - Flag combination conflict detection (e.g., `--no-mcp` with `--seq`)
 - Persona + command compatibility verification
 - Tool availability for requested operations
 - Project structure requirements validation
 
 **Risk Assessment**:
+
 - Operation complexity scoring (0.0-1.0 scale)
 - Failure probability based on historical patterns
 - Resource exhaustion likelihood prediction
@@ -29,6 +32,7 @@ Analyzes requests to understand intent, complexity, and requirements.
 **Validation Logic**: Resource availability, flag compatibility, risk assessment, outcome prediction, and safety recommendations. Operations with risk scores >0.8 trigger safe mode suggestions.
 
 **Resource Management Thresholds**:
+
 - **Green Zone** (0-60%): Full operations, predictive monitoring active
 - **Yellow Zone** (60-75%): Resource optimization, caching, suggest --uc mode
 - **Orange Zone** (75-85%): Warning alerts, defer non-critical operations
@@ -49,10 +53,10 @@ Analyzes requests to understand intent, complexity, and requirements.
 
 | Domain | Keywords | File Patterns | Typical Ops |
 |--------|---------|--------------|-------------|
-| Frontend | UI, component, React, Vue, CSS, responsive, accessibility | *.jsx, *.tsx, *.vue, *.css | create, implement, style, optimize, test |
-| Backend | API, database, server, endpoint, authentication, performance | *.js, *.ts, *.py, *.go, controllers/*, models/* | implement, optimize, secure, scale |
+| Frontend | UI, component, React, Vue, CSS, responsive, accessibility | *.jsx,*.tsx, *.vue,*.css | create, implement, style, optimize, test |
+| Backend | API, database, server, endpoint, authentication, performance | *.js,*.ts, *.py, *.go, controllers/*, models/* | implement, optimize, secure, scale |
 | Infrastructure | deploy, Docker, CI/CD, monitoring, scaling | Dockerfile, *.yml, .github/*, terraform/* | setup, configure, automate, monitor |
-| Security | vulnerability, authentication, encryption, audit, compliance | *auth*, *security*, *.pem, *.key | scan, harden, audit, fix |
+| Security | vulnerability, authentication, encryption, audit, compliance | *auth*, *security*, *.pem,*.key | scan, harden, audit, fix |
 | Documentation | document, README, wiki, guide, commit, changelog | *.md, *.rst, docs/*, README*, CHANGELOG* | write, document, explain, localize |
 | Iterative | improve, refine, enhance, correct, polish, iterate, loop | *.* | improve, refine, enhance, correct, polish |
 | Wave-eligible | comprehensive, systematically, enterprise, large-scale | (complexity indicators) | comprehensive_improvement, systematic_optimization |
@@ -70,6 +74,7 @@ Analyzes requests to understand intent, complexity, and requirements.
 | Wave ops | comprehensively, systematically, progressively | comprehensive improvements | Sequential, Task, Read, Edit, MultiEdit, Context7 |
 
 ### Intent Extraction Algorithm
+
 ```
 1. Parse user request for keywords and patterns
 2. Match against domain/operation matrices
@@ -81,6 +86,7 @@ Analyzes requests to understand intent, complexity, and requirements.
 ```
 
 **Enhanced Wave Detection Algorithm**:
+
 - **Flag Overrides**: `--single-wave` disables, `--force-waves`/`--wave-mode` enables
 - **Scoring Factors**: Complexity (0.2-0.4), scale (0.2-0.3), operations (0.2), domains (0.1), flag modifiers (0.05-0.1)
 - **Thresholds**: Default 0.7, customizable via `--wave-threshold`, enterprise strategy lowers file thresholds
@@ -95,6 +101,7 @@ Dynamic decision trees that map detected patterns to optimal tool combinations, 
 Multi-stage command execution with compound intelligence. Automatic complexity assessment or explicit flag control.
 
 **Wave Control Matrix**:
+
 ```yaml
 wave-activation:
   automatic: "complexity >= 0.7"
@@ -108,16 +115,19 @@ wave-strategies:
 ```
 
 **Wave-Enabled Commands**:
+
 - **Tier 1**: `/analyze`, `/build`, `/implement`, `/improve`
 - **Tier 2**: `/design`, `/task`
 
 **Wave Opportunity Scoring**:
+
 - High Complexity >0.8: +0.4 | Multiple Operation Types >2: +0.3 | Critical Quality: +0.2
 - Large File Count >50: +0.1 | Iterative Indicators: +0.2 | Enterprise Scale: +0.15
 
 **Wave Strategy Selection**: Security → `wave_validation` | Performance → `progressive_waves` | Critical → `wave_validation` | Multiple Ops → `adaptive_waves` | Enterprise → `enterprise_waves` | Default → `systematic_waves`
 
 **Wave Auto-Triggers**:
+
 - complexity >0.8 AND files >20 AND operation_types >2 → --wave-count 5
 - domains >3 AND tokens >15K → --adaptive-waves
 - production_deploy OR security_audit → --wave-validation
@@ -153,6 +163,7 @@ wave-strategies:
 **Purpose**: Route `/sc:task` commands to appropriate compliance tier based on task characteristics.
 
 #### Classification Decision Tree
+
 ```yaml
 tier_classification:
   step_1_override:
@@ -178,6 +189,7 @@ tier_classification:
 ```
 
 #### Tier Priority Rules
+
 | Priority | Tier | Triggers | Rationale |
 |----------|------|----------|-----------|
 | 1 | STRICT | security, auth, database, refactor, multi-file | Safety-critical changes |
@@ -186,6 +198,7 @@ tier_classification:
 | 4 | STANDARD | add, implement, fix, update | Default development |
 
 #### Context Boosters
+
 | Signal | Tier Boost | Amount | Rationale |
 |--------|------------|--------|-----------|
 | estimated_files > 2 | STRICT | +0.3 | Multi-file changes need scrutiny |
@@ -197,6 +210,7 @@ tier_classification:
 | is_git_operation | EXEMPT | +0.5 | Git ops are metadata |
 
 #### Compound Phrase Overrides
+
 ```yaml
 light_compound_overrides:
   - "quick fix" → LIGHT (overrides "fix" → STANDARD)
@@ -213,6 +227,7 @@ strict_compound_overrides:
 ```
 
 #### Tier-to-Verification Mapping
+
 | Compliance Tier | Verification Method | Token Cost | Timeout |
 |-----------------|---------------------|------------|---------|
 | STRICT | Sub-agent (quality-engineer) | 3-5K | 60s |
@@ -225,6 +240,7 @@ strict_compound_overrides:
 #### Tool Selection Logic
 
 **Base Tool Selection**:
+
 - **Search**: Grep (specific patterns) or Agent (open-ended)
 - **Understanding**: Sequential (complexity >0.7) or Read (simple)
 - **Documentation**: Context7
@@ -232,10 +248,12 @@ strict_compound_overrides:
 - **Testing**: Playwright
 
 **Delegation & Wave Evaluation**:
+
 - **Delegation Score >0.6**: Add Task tool, auto-enable delegation flags based on scope
 - **Wave Score >0.7**: Add Sequential for coordination, auto-enable wave strategies
 
 **Auto-Flag Assignment**:
+
 - Directory count >7 → `--delegate --parallel-dirs`
 - Focus areas >2 → `--multi-agent --parallel-focus`
 - High complexity + critical quality → `--wave-mode --wave-validation`
@@ -244,6 +262,7 @@ strict_compound_overrides:
 #### Task Delegation Intelligence
 
 **Delegation Scoring Factors**:
+
 - Complexity >0.6: +0.3 | Parallelizable Operations: +0.4 (scaled) | Token >15K: +0.2 | Multi-domain >2: +0.1/domain
 
 **Auto-Delegation Triggers**:
@@ -266,6 +285,7 @@ strict_compound_overrides:
 | Large-scale refactoring | high | --wave-mode --systematic-waves | 75% |
 
 **Sub-Agent Specialization Matrix**:
+
 - **Quality**: qa persona, complexity/maintainability, Read/Grep/Sequential
 - **Security**: security persona, vulnerabilities/compliance, Grep/Sequential/Context7
 - **Performance**: performance persona, bottlenecks/optimization, Read/Sequential/Playwright
@@ -273,6 +293,7 @@ strict_compound_overrides:
 - **API**: backend persona, endpoints/contracts, Grep/Context7/Sequential
 
 **Wave-Specific Specialization**:
+
 - **Review**: analyzer → Read/Grep/Sequential
 - **Planning**: architect → Sequential/Context7/Write
 - **Implementation**: domain-specific → Edit/MultiEdit/Task
@@ -284,6 +305,7 @@ strict_compound_overrides:
 **Persona Activation**: See PERSONAS.md for detailed persona specifications, MCP preferences, and auto-activation triggers.
 
 **Context-Based Flag Auto-Activation**:
+
 - Performance issues → --persona-performance + --focus performance + --think
 - Security concerns → --persona-security + --focus security + --validate
 - UI/UX tasks → --persona-frontend + --magic + --c7
@@ -295,6 +317,7 @@ strict_compound_overrides:
 - Iterative improvement → --loop for polish, refine, enhance keywords
 
 #### Flag Precedence Rules
+
 1. Safety flags (--safe-mode) > optimization flags
 2. Explicit flags > auto-activation
 3. Thinking depth: --ultrathink > --think-hard > --think
@@ -307,14 +330,17 @@ strict_compound_overrides:
 10. --uc auto-activation overrides verbose flags
 
 ### Confidence Scoring
+
 Based on pattern match strength (40%), historical success rate (30%), context completeness (20%), resource availability (10%).
 
 ## Quality Gates & Validation Framework
 
 ### 8-Step Validation Cycle
+
 1. Syntax (parsers, Context7) → 2. Types (Sequential) → 3. Lint (Context7) → 4. Security (Sequential, OWASP) → 5. Test (Playwright, ≥80% unit/≥70% integration) → 6. Performance (Sequential, benchmarks) → 7. Docs (Context7, completeness) → 8. Integration (Playwright, deployment)
 
 ### Task Completion Criteria
+
 All 8 gates pass, evidence provided, metrics documented. MCP coordination active, ≥90% context retention. Quality standards, security compliance, integration testing verified.
 
 ## ⚡ Performance Optimization
@@ -324,6 +350,7 @@ All 8 gates pass, evidence provided, metrics documented. MCP coordination active
 **Operation Batching**: See RULES.md §Planning Efficiency for parallel-first doctrine. Tool coordination uses parallel operations when no dependencies, context sharing across routing decisions, and cache for session reuse.
 
 **Resource Allocation**:
+
 - **Detection Engine**: 1-2K tokens for pattern analysis
 - **Decision Trees**: 500-1K tokens for routing logic
 - **MCP Coordination**: Variable based on servers activated
@@ -331,21 +358,25 @@ All 8 gates pass, evidence provided, metrics documented. MCP coordination active
 ## 🔗 Integration Intelligence
 
 ### MCP Server Selection
+
 **Reference**: See MCP.md for detailed server capabilities, workflows, and integration patterns.
 
 **Quick Selection**: Context7 (docs) | Sequential (analysis) | Magic (UI) | Playwright (testing)
 
 ### Persona Integration
+
 **Reference**: See PERSONAS.md for detailed persona specifications and MCP server preferences.
 
 ## 🚨 Emergency Protocols
 
 ### Graceful Degradation
+
 - **Level 1**: Reduce verbosity, skip optional enhancements, use cached results
 - **Level 2**: Disable advanced features, simplify operations, batch aggressively
 - **Level 3**: Essential operations only, maximum compression, queue non-critical
 
 ### Error Recovery Patterns
+
 - **MCP Timeout**: Use fallback server (see MCP.md §Circuit Breaker Configuration)
 - **Token Limit**: Activate compression
 - **Tool Failure**: Try alternative tool
@@ -354,4 +385,5 @@ All 8 gates pass, evidence provided, metrics documented. MCP coordination active
 ## 🔧 Configuration
 
 ### Orchestrator Settings
+
 Caching: TTL 3600s. Parallel: max 3. Learning: enabled. Confidence threshold: 0.7. Pattern detection: aggressive. Token reserve: 10%. Emergency: 90%. Compression: 75%. Wave: auto-detect at 0.7, max 5 waves, adaptive sizing, validation required.

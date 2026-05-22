@@ -1,0 +1,62 @@
+{
+  "run_id": "run-abc123",
+  "started_at": "2026-05-18T18:30:12Z",
+  "finished_at": "2026-05-18T18:34:24Z",
+  "duration_sec": 252.0,
+  "suite": "real",
+  "manifest_version": "1.0",
+  "parallel": 8,
+  "counts": {
+    "manifest_n": 15,
+    "expanded_n_prime": 2,
+    "kept_k": 1,
+    "skipped_s": 1,
+    "kept_plus_skipped_equals_n_prime": true
+  },
+  "totals": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 1,
+    "errored": 0,
+    "interrupted": 0,
+    "timeout": 0
+  },
+  "evals": [
+    {
+      "eval_id": "E1",
+      "title": "auggie-first sticky lifecycle",
+      "status": "PASS",
+      "duration_sec": 8.3,
+      "expects": [
+        {
+          "name": "file.exists",
+          "passed": true,
+          "message": "sid.txt size=33",
+          "details": {},
+          "duration_sec": 0.01,
+          "failure": null
+        }
+      ],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {
+        "stdout": "evals/E01-sticky-lifecycle/stdout.log"
+      },
+      "error_class": null
+    },
+    {
+      "eval_id": "E2.3",
+      "title": "matcher coverage mcp__airis-mcp-gateway__",
+      "status": "SKIPPED",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": "capability_gate:mcp_server.airis-mcp-gateway",
+      "skip_flag_triggered": "--no-mcp",
+      "artifacts": {},
+      "error_class": null
+    }
+  ],
+  "artifacts": {
+    "jsonl_dir": ".eval-logs/"
+  }
+}

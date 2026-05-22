@@ -8,13 +8,12 @@ scope: cli/sprint/logging_.py, cli/sprint/diagnostics.py, cli/sprint/kpi.py, cli
 
 ## Output Directory Structure
 
-All sprint artifacts are rooted under `<release_dir>/`:
+Sprint artifacts are rooted under `<release_dir>/`, with one runtime transient (`.sprint-exitcode`) emitted to a separate non-tracked state directory `<state_dir>/` (default `.dev/sprint-state/<release-name>/`):
 
 ```
 <release_dir>/
   execution-log.jsonl          # Structured event log
   execution-log.md             # Human-readable execution log
-  .sprint-exitcode             # Sentinel exit code (0 or 1)
   results/
     phase-{N}-output.txt       # Raw Claude subprocess stdout
     phase-{N}-errors.txt       # Raw Claude subprocess stderr
@@ -108,6 +107,7 @@ EXIT_RECOMMENDATION: CONTINUE
 **Caller**: `executor.py:1457-1468`
 **Location**: `results/phase-{N}-diagnostic.md`
 **Format**: Markdown bundle with:
+
 - Failure category classification
 - Evidence from monitor state
 - Output/error tail excerpts
@@ -120,6 +120,7 @@ EXIT_RECOMMENDATION: CONTINUE
 **Caller**: `executor.py:1510-1518`
 **Location**: `results/gate-kpi-report.md`
 **Sections**:
+
 - Gate Evaluation metrics
 - Remediation summary
 - Conflict Review results
@@ -143,8 +144,8 @@ EXIT_RECOMMENDATION: CONTINUE
 ### 10. Sprint Exit Code
 
 **Generator**: End of `execute_sprint()`
-**File**: `src/superclaude/cli/sprint/executor.py:1544-1548`
-**Location**: `<release_dir>/.sprint-exitcode`
+**File**: `src/superclaude/cli/sprint/executor.py:1751-1758`
+**Location**: `<state_dir>/.sprint-exitcode` (default `.dev/sprint-state/<release-name>/.sprint-exitcode`; override via `SPRINT_STATE_DIR` env var or `--state-dir` CLI flag)
 **Format**: Single integer (`0` = success, `1` = failure)
 **Consumer**: Tmux relay path reads this for exit status
 
@@ -205,11 +206,13 @@ Output root determined by `--output` flag (default: parent of input file).
 ## Template Files
 
 ### Examples (`src/superclaude/examples/`)
+
 - `prd_template.md` — PRD structure template
 - `tdd_template.md` — TDD structure template
 - `release-spec-template.md` — Release spec template
 
 ### Skill Templates (`src/superclaude/skills/`)
+
 - `sc-tasklist-protocol/templates/index-template.md` — Tasklist index
 - `sc-tasklist-protocol/templates/phase-template.md` — Phase file
 - `sc-cleanup-audit-protocol/templates/final-report.md` — Audit report
@@ -219,6 +222,7 @@ Output root determined by `--output` flag (default: parent of input file).
 ## Output Routing Policy
 
 From `CLAUDE.md` and source analysis:
+
 - `docs/generated/` is documented as a roadmap pipeline artifact directory, not a general sink
 - Sprint writes to `release_dir` (from `--release-dir` or auto-resolved from index path)
 - Roadmap writes to `--output` dir (default: parent of input file)

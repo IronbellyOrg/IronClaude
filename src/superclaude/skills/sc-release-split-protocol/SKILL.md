@@ -20,6 +20,7 @@ version: 1.0.0
 sc:release-split-protocol is invoked ONLY by the `sc:release-split` command via `Skill sc:release-split-protocol` in the `## Activation` section. It is never invoked directly by users.
 
 Activation conditions:
+
 - User runs `/sc:release-split <spec-file>` in Claude Code
 - Any flags are passed through from the command
 
@@ -38,6 +39,7 @@ Evaluate whether a planned release should remain intact or be split into two seq
 **Output Artifacts** (varies by outcome):
 
 If split approved:
+
 1. `split-proposal.md` — Initial discovery proposal
 2. `split-proposal-final.md` — Adversarially validated proposal
 3. `release-1-spec.md` — Release 1 specification
@@ -46,6 +48,7 @@ If split approved:
 6. `boundary-rationale.md` — Split boundary documentation
 
 If no split:
+
 1. `split-proposal.md` — Discovery analysis (recommending no split)
 2. `split-proposal-final.md` — Adversarially confirmed no-split
 3. `release-spec-validated.md` — Updated single-release spec
@@ -74,15 +77,18 @@ These constraints apply across ALL four parts of the protocol. They are non-nego
 **Supported artifacts**: Release specs, roadmaps, tasklists, refactor plans (`.md`, `.yaml`, `.yml`)
 
 **STOP conditions**:
+
 - No file path provided
 - File does not exist or is empty
 - File contains no identifiable scope items (< 3 extractable requirements)
 
 **WARN conditions**:
+
 - File is very large (> 500 lines) — chunked analysis will be used
 - File appears to be a tasklist rather than a spec — confirm with user
 
 **`--agents` handling**: Optional. Comma-separated agent specs in `model[:persona[:"instruction"]]` format.
+
 - Default: `opus:architect,haiku:analyzer`
 - Minimum 2 agents, maximum 10
 - When present, Part 2 uses sc:adversarial Mode B (generate + compare) instead of Mode A (compare)
@@ -224,6 +230,7 @@ Part 4: Fidelity Verification            → /sc:analyze
     - If merged proposal recommends **SPLIT-WITH-MODIFICATIONS**: Write with modifications as `split-proposal-final.md`
     - If merged proposal recommends **DON'T SPLIT**: Write no-split recommendation as `split-proposal-final.md`
 11. Record adversarial metadata in `split-proposal-final.md` frontmatter:
+
     ```yaml
     adversarial:
       agents: [<expanded-agent-specs>]
@@ -235,6 +242,7 @@ Part 4: Fidelity Verification            → /sc:analyze
     ```
 
 **Fallback** (Mode B invocation failure):
+
 - If sc:adversarial Mode B fails, retry once with `--depth quick`.
 - If retry also fails, fall back to Mode A:
   - `--compare split-proposal.md,<original-spec>`
@@ -296,11 +304,13 @@ Part 4: Fidelity Verification            → /sc:analyze
 4. Include rationale for preserving integrity.
 
 **Outputs (split)**:
+
 - `<output>/release-1-spec.md`
 - `<output>/release-2-spec.md`
 - `<output>/boundary-rationale.md`
 
 **Outputs (no split)**:
+
 - `<output>/release-spec-validated.md`
 
 **Exit Criteria**: All spec files written with traceability annotations.
@@ -431,6 +441,7 @@ The skill returns these fields to the calling context:
 ## 8. Boundaries
 
 **Will:**
+
 - Analyze release artifacts for natural split points with explicit neutrality
 - Produce evidence-based split/no-split recommendations
 - Delegate to appropriate commands for discovery, validation, execution, verification
@@ -439,6 +450,7 @@ The skill returns these fields to the calling context:
 - Produce auditable fidelity verification with coverage matrix
 
 **Will Not:**
+
 - Assume splitting is correct
 - Produce roadmaps or tasklists directly (delegates to appropriate commands)
 - Execute the resulting release plans

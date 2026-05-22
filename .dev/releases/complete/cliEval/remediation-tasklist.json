@@ -1,0 +1,244 @@
+{
+  "findings": [
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "File 'src/superclaude/cli/install_hooks.py:install_hooks' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/cli/install_hooks.py:install_hooks",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "File 'src/superclaude/hooks/hooks.json' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/hooks/hooks.json",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "File 'tests/cli/test_eval/test_pty_vendor.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/cli/test_eval/test_pty_vendor.py",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "File 'tests/cli/test_install_hooks.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/cli/test_install_hooks.py",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'contains_event' defined in spec not found in roadmap",
+      "location": "spec:function:contains_event",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'does_not_contain' defined in spec not found in roadmap",
+      "location": "spec:function:does_not_contain",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'event_count' defined in spec not found in roadmap",
+      "location": "spec:function:event_count",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'greater_than' defined in spec not found in roadmap",
+      "location": "spec:function:greater_than",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'has_content_matching' defined in spec not found in roadmap",
+      "location": "spec:function:has_content_matching",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'has_mode' defined in spec not found in roadmap",
+      "location": "spec:function:has_mode",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'has_registration' defined in spec not found in roadmap",
+      "location": "spec:function:has_registration",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'hooks_count' defined in spec not found in roadmap",
+      "location": "spec:function:hooks_count",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'is_valid_jsonl' defined in spec not found in roadmap",
+      "location": "spec:function:is_valid_jsonl",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'less_than' defined in spec not found in roadmap",
+      "location": "spec:function:less_than",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Function 'matches_line' defined in spec not found in roadmap",
+      "location": "spec:function:matches_line",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'D-1' not found in spec",
+      "location": "roadmap:D-1",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'D12' not found in spec",
+      "location": "roadmap:D12",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'D3' not found in spec",
+      "location": "roadmap:D3",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'D5' not found in spec",
+      "location": "roadmap:D5",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'D6' not found in spec",
+      "location": "roadmap:D6",
+      "fix_guidance": "",
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/cliEval/roadmap.md"
+      ],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    }
+  ]
+}

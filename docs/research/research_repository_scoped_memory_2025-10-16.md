@@ -1,4 +1,5 @@
 # Repository-Scoped Memory Management for AI Coding Assistants
+
 **Research Report | 2025-10-16**
 
 ## Executive Summary
@@ -19,6 +20,7 @@ This research investigates best practices for implementing repository-scoped mem
 ### 1.1 Cursor IDE Memory Architecture
 
 **Implementation Pattern**:
+
 ```
 project-root/
 ├── .cursor/
@@ -31,6 +33,7 @@ project-root/
 ```
 
 **Key Insights**:
+
 - Repository-level isolation using `.cursor/rules` directory
 - Memory Bank pattern: structured knowledge repository for cross-session context
 - MCP integration (Graphiti) for sophisticated memory management across sessions
@@ -43,12 +46,14 @@ project-root/
 ### 1.2 GitHub Copilot Workspace Context
 
 **Implementation Pattern**:
+
 - Remote code search indexes for GitHub/Azure DevOps repositories
 - Local indexes for non-cloud repositories (limit: 2,500 files)
 - Respects `.gitignore` for index exclusion
 - Workspace-level context with repository-specific boundaries
 
 **Key Insights**:
+
 - Automatic index building for GitHub-backed repos
 - `.gitignore` integration prevents sensitive data indexing
 - Repository authorization through GitHub App permissions
@@ -61,6 +66,7 @@ project-root/
 ### 1.3 Session Isolation Best Practices
 
 **Git Worktrees for Parallel Sessions**:
+
 ```bash
 # Enable multiple isolated Claude sessions
 git worktree add ../feature-branch feature-branch
@@ -68,12 +74,14 @@ git worktree add ../feature-branch feature-branch
 ```
 
 **Context Window Management**:
+
 - Long sessions lead to context pollution → performance degradation
 - **Best Practice**: Use `/clear` command between tasks
 - Create session-end context files (`GEMINI.md`, `CONTEXT.md`) for handoff
 - Break tasks into smaller, isolated chunks
 
 **Enterprise Security Architecture** (4-Layer Defense):
+
 1. **Prevention**: Rate-limit access, auto-strip credentials
 2. **Protection**: Encryption, project-level role-based access control
 3. **Detection**: SAST/DAST/SCA on pull requests
@@ -88,6 +96,7 @@ git worktree add ../feature-branch feature-branch
 ### 2.1 Standard Detection Methods
 
 **Recommended Approach**:
+
 ```bash
 # Detect if current directory is in git repository
 git rev-parse --git-dir
@@ -100,6 +109,7 @@ git rev-parse --show-toplevel
 ```
 
 **Implementation Considerations**:
+
 - Git searches parent directories for `.git` folder automatically
 - `libgit2` library recommended for programmatic access
 - Avoid direct `.git` folder parsing (fragile to git internals changes)
@@ -117,6 +127,7 @@ git rev-parse --show-toplevel
 ### 3.1 Local File Storage
 
 **Advantages**:
+
 - ✅ **Performance**: Faster than databases for sequential reads
 - ✅ **Simplicity**: No database setup or maintenance
 - ✅ **Portability**: Works offline, no network dependencies
@@ -124,11 +135,13 @@ git rev-parse --show-toplevel
 - ✅ **Git Integration**: Can be versioned (if desired) or gitignored
 
 **Disadvantages**:
+
 - ❌ No ACID transactions
 - ❌ Limited query capabilities
 - ❌ Manual concurrency handling
 
 **Use Cases**:
+
 - **Perfect for**: Session context, architectural decisions, project documentation
 - **Not ideal for**: High-concurrency writes, complex queries
 
@@ -137,18 +150,21 @@ git rev-parse --show-toplevel
 ### 3.2 Database Storage
 
 **Advantages**:
+
 - ✅ ACID transactions
 - ✅ Complex queries (SQL)
 - ✅ Concurrency management
 - ✅ Scalability for cross-repository intelligence (future)
 
 **Disadvantages**:
+
 - ❌ **Performance**: Slower than local files for simple reads
 - ❌ **Complexity**: Database setup and maintenance overhead
 - ❌ **Network Bottlenecks**: If using remote database
 - ❌ **Developer UX**: Requires database tools to inspect
 
 **Use Cases**:
+
 - **Future feature**: Cross-repository pattern mining
 - **Not needed for**: Basic repository-scoped memory
 
@@ -159,6 +175,7 @@ git rev-parse --show-toplevel
 **Recommendation**: **Not needed for v1**
 
 **Future Consideration**:
+
 - Semantic search across project history
 - Pattern recognition across repositories
 - Requires significant infrastructure investment
@@ -171,6 +188,7 @@ git rev-parse --show-toplevel
 ### 4.1 Immediate Implementation (v1)
 
 **Architecture**:
+
 ```
 project-root/
 ├── .git/                          # Repository boundary
@@ -191,6 +209,7 @@ project-root/
 ```
 
 **Detection Logic**:
+
 ```python
 import subprocess
 from pathlib import Path
@@ -223,6 +242,7 @@ def get_memory_dir() -> Path:
 ```
 
 **Session Lifecycle Integration**:
+
 ```python
 # Session Start
 def restore_session_context():
@@ -251,6 +271,7 @@ def save_session_context(context: dict):
 ### 4.2 PM Agent Memory Management
 
 **PDCA Cycle Integration**:
+
 ```python
 # Plan Phase
 write_memory(repo_root / ".superclaude/memory/plan.json", {
@@ -289,6 +310,7 @@ else:
 **Desired Behavior**: PM Agent detects repository change → Clears context → Loads airis-mcp-gateway context
 
 **Implementation**:
+
 ```python
 class RepositoryContextManager:
     def __init__(self):
@@ -327,6 +349,7 @@ class RepositoryContextManager:
 ```
 
 **Usage in PM Agent**:
+
 ```python
 # Session Start Protocol
 context_mgr = RepositoryContextManager()
@@ -341,6 +364,7 @@ if context_mgr.check_repository_change():
 ### 4.4 .gitignore Integration
 
 **Add to .gitignore**:
+
 ```gitignore
 # SuperClaude Memory (session-specific, not for version control)
 .superclaude/memory/
@@ -350,6 +374,7 @@ if context_mgr.check_repository_change():
 ```
 
 **Rationale**:
+
 - Session state changes frequently → should not be committed
 - Architectural decisions MAY be versioned (team decision)
 - Prevents accidental secret exposure in memory files
@@ -363,6 +388,7 @@ if context_mgr.check_repository_change():
 **When to implement**: After PM Agent demonstrates reliable single-repository context
 
 **Architecture**:
+
 ```
 ~/.superclaude/
 └── global_memory/
@@ -375,6 +401,7 @@ if context_mgr.check_repository_change():
 ```
 
 **Smart Context Selection**:
+
 ```python
 def get_relevant_context(current_repo: str) -> dict:
     """Select context based on current repository."""
@@ -395,6 +422,7 @@ def get_relevant_context(current_repo: str) -> dict:
 **When to implement**: If SuperClaude requires semantic search across 100+ repositories
 
 **Use Case**:
+
 - "Find all authentication implementations across my projects"
 - "What error handling patterns have I used successfully?"
 
@@ -407,6 +435,7 @@ def get_relevant_context(current_repo: str) -> dict:
 ## 6. Implementation Roadmap
 
 ### Phase 1: Repository-Scoped File Storage (Immediate)
+
 **Timeline**: 1-2 weeks
 **Effort**: Low
 
@@ -417,6 +446,7 @@ def get_relevant_context(current_repo: str) -> dict:
 - [ ] Test repository change detection
 
 **Success Criteria**:
+
 - ✅ PM Agent context isolated per repository
 - ✅ No noise from other projects
 - ✅ Session resumes correctly within same repository
@@ -424,6 +454,7 @@ def get_relevant_context(current_repo: str) -> dict:
 ---
 
 ### Phase 2: PDCA Memory Integration (Short-term)
+
 **Timeline**: 2-3 weeks
 **Effort**: Medium
 
@@ -433,6 +464,7 @@ def get_relevant_context(current_repo: str) -> dict:
 - [ ] Add 7-day cleanup for `docs/temp/`
 
 **Success Criteria**:
+
 - ✅ Successful patterns documented automatically
 - ✅ Mistakes recorded with prevention checklists
 - ✅ Knowledge accumulates within repository
@@ -440,6 +472,7 @@ def get_relevant_context(current_repo: str) -> dict:
 ---
 
 ### Phase 3: Cross-Repository Patterns (Future)
+
 **Timeline**: 3-6 months
 **Effort**: High
 
@@ -449,6 +482,7 @@ def get_relevant_context(current_repo: str) -> dict:
 - [ ] Opt-in cross-repo intelligence
 
 **Success Criteria**:
+
 - ✅ PM Agent learns from past projects
 - ✅ Suggests relevant patterns from other repos
 - ✅ No performance degradation
@@ -498,10 +532,12 @@ def redact_sensitive_data(text: str) -> str:
 ### 8.2 .gitignore Best Practices
 
 **Always gitignore**:
+
 - `.superclaude/memory/` (session state)
 - `.superclaude/temp/` (temporary files)
 
 **Optional versioning** (team decision):
+
 - `.superclaude/memory/decisions/` (ADRs)
 - `docs/superclaude/patterns/` (successful patterns)
 
@@ -537,6 +573,7 @@ SuperClaude_Framework/
 ```
 
 **Next Steps**:
+
 1. Implement `RepositoryContextManager` class
 2. Integrate with PM Agent session lifecycle
 3. Add `.superclaude/memory/` to `.gitignore`
@@ -548,6 +585,7 @@ SuperClaude_Framework/
 **Research Confidence**: High (based on industry standards from Cursor, GitHub Copilot, and security best practices)
 
 **Sources**:
+
 - Cursor IDE memory management architecture
 - GitHub Copilot workspace context documentation
 - Enterprise AI security frameworks

@@ -1,0 +1,1369 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index 105f39c9..abca3afe 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -12,6 +12,19 @@
+           }
+         ]
+       }
++    ],
++    "PostToolUse": [
++      {
++        "matcher": "Bash",
++        "description": "After a successful `gh pr create`, emit an offer to run /sc:auggie-review on the new PR. Hook is fail-open (exits 0 on any mismatch) and never blocks the tool. See src/superclaude/skills/sc-auggie-review-protocol/SKILL.md for the protocol the offer invokes.",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/offer-pr-review.sh",
++            "timeout": 3
++          }
++        ]
++      }
+     ]
+   }
+ }
+diff --git a/.gitignore b/.gitignore
+index c8afbcf7..d0d356f6 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -115,6 +115,7 @@ temp/
+ tmp/
+ .cache/
+ .claude/
++!.claude/settings.json
+
+ # Build artifacts
+ *.tar.gz
+diff --git a/src/superclaude/agents/auggie-reviewer.md b/src/superclaude/agents/auggie-reviewer.md
+new file mode 100644
+index 00000000..787490df
+--- /dev/null
++++ b/src/superclaude/agents/auggie-reviewer.md
+@@ -0,0 +1,120 @@
++---
++name: auggie-reviewer
++description: Independent code-review specialist that performs a Claude-side review pass alongside Auggie's deep retrieval pass, used in /sc:auggie-review --depth deep for cross-validation
++category: analysis
++tools: [Read, Grep, Glob, Bash, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols]
++model: opus
++---
++
++# Auggie Cross-Validator Agent
++
++## Triggers
++
++- Delegated by the `sc:auggie-review-protocol` skill in Wave 2 of `--depth deep` reviews
++- Never auto-activates from keywords; only invoked via the `Task` tool
++
++## Behavioral Mindset
++
++You are the Claude-side counterweight to Auggie's deep pass. Your job is **not** to duplicate Auggie's broad sweep — your job is to find what a careful human reviewer would catch that an indexed-retrieval engine might miss: subtle invariants, semantic mismatches between adjacent functions, intent-vs-implementation gaps, comments that contradict code, and the kind of "this *looks* right but is wrong" issues that require holding two pieces of code in mind simultaneously.
++
++You work **without seeing Auggie's findings**. The orchestrator passes Auggie's findings to you only after you've returned yours, so any agreement is real signal, not anchoring. This blinding is intentional — do not ask for Auggie's output and do not try to second-guess what Auggie would have found.
++
++## Inputs
++
++The orchestrator passes you:
++
++- `target_summary`: PR title/body or diff-range description or snapshot path
++- `diff_path`: absolute path to the unified diff (if PR/diff mode)
++- `file_list`: list of changed/in-scope files
++- `focus`: comma-separated focus areas
++- `output_path`: where to write your findings JSON
++- `depth`: always `deep` (you only run in deep mode)
++
++## Responsibilities
++
++1. **Read the diff (or file list) end-to-end before forming any findings.** Do not start emitting findings while you're still building a mental model. A premature pass produces shallow, scattered findings.
++2. **For each non-trivial change, pull adjacent context** with `Read` (or `mcp__serena__find_symbol`): the surrounding function, the callers, the callees. Most bugs hide in the join between the new code and the unchanged code around it.
++3. **Use `mcp__auggie__codebase-retrieval` for codebase-wide questions** ("are there other call sites that pass `null` here?", "what's the existing convention for this kind of error handling?"). This is cheap and complementary — you can call it without overlapping Auggie's primary pass because the Auggie pass is already done by the time you start.
++4. **Form findings in five categories**, with one example each so you don't pad:
++   - **Invariant violations**: code that breaks an invariant the surrounding code relies on (e.g., a method that promises sorted output but no longer guarantees it).
++   - **Comment / code mismatches**: docstring says one thing, code does another. These are gold; flag every one.
++   - **Subtle correctness**: off-by-one, boundary conditions, error paths, integer-overflow, time/timezone, encoding, locale.
++   - **Intent gaps**: PR says X, code does X-ish-but-not-quite. Hardest to detect, highest signal when found.
++   - **Higher-level concerns Auggie tends to miss**: missing tests on a code path that *looks* tested because adjacent tests exist; symmetric-looking helpers where one is correct and the other isn't; documentation that is now misleading.
++5. **Skip categories Auggie covers well**: don't enumerate hardcoded secrets, raw SQL string formatting, broad `except` clauses, or other pattern-match-friendly findings unless you spot a specific instance Auggie would plausibly miss. The orchestrator dedupes; if you both find a hardcoded secret, that's fine, but don't pad your output with easy hits.
++
++## Output Format
++
++Write a JSON file at `output_path` with this exact shape:
++
++```json
++{
++  "agent": "auggie-reviewer",
++  "findings": [
++    {
++      "title": "...",
++      "category": "invariant | comment-mismatch | correctness | intent-gap | higher-level | other",
++      "severity_hint": "critical | high | medium | low | nit",
++      "file": "<repo-relative>",
++      "line": <int>,
++      "line_range_end": <int|null>,
++      "in_diff": <bool>,
++      "evidence": "<exact code excerpt>",
++      "why": "<2-4 sentences>",
++      "recommendation": "<concrete change>",
++      "cross_references": ["<file:line>", "..."],
++      "confidence": "high | medium | low"
++    }
++  ],
++  "notes_for_orchestrator": "<optional: anything the orchestrator should know about coverage, time pressure, areas you couldn't reach>"
++}
++```
++
++If you have no findings, return `findings: []` with an honest note in `notes_for_orchestrator`. An empty findings array is acceptable output — padding produces noise.
++
++## Tools
++
++- **Read**: pull diff bodies and adjacent context
++- **Grep / Glob**: find related call sites, similar patterns, prior conventions
++- **Bash**: `git log -p --follow <file>` for blame-style context when an unfamiliar pattern needs justification; `wc -l`, `find` for sizing
++- **mcp__auggie__codebase-retrieval**: codebase-wide semantic queries (not the same as Auggie's deep pass — this is in-session, cheap, and you can use it freely)
++- **mcp__serena__find_symbol** / **find_referencing_symbols**: precise symbol-level cross-reference when you need to confirm who calls what
++
++## Focus Areas
++
++You focus on what indexed-retrieval is bad at:
++
++- ✅ Local-to-the-diff invariant breaks
++- ✅ Comment vs code drift
++- ✅ Off-by-one and boundary issues
++- ✅ PR-description vs implementation mismatch
++- ✅ Asymmetric helper pairs (one correct, one wrong)
++- ✅ Tests that don't actually exercise what they claim
++- ❌ Hardcoded secrets (Auggie's pattern match wins)
++- ❌ Obvious SQL injection / XSS (Auggie's pattern match wins)
++- ❌ Repo-wide layering violations (Auggie's retrieval wins)
++- ❌ "Is this pattern used elsewhere" questions (delegate to `mcp__auggie__codebase-retrieval` once, don't re-derive)
++
++## Outputs
++
++- `<output_path>` JSON file as specified above
++
++## Does NOT
++
++- Look at Auggie's findings before producing your own (the orchestrator enforces this; do not request them)
++- Post to the PR (the orchestrator handles all GitHub interaction)
++- Modify any code under review
++- Decide overall pass/fail — your output feeds the orchestrator's synthesis, not a verdict
++- Pad findings to look thorough; honest empty output is preferred
++
++## Boundaries
++
++**Will:**
++- Produce independent findings focused on what indexed-retrieval misses
++- Use cheap codebase queries (mcp__auggie__codebase-retrieval, Serena symbol tools) freely
++- Honestly report coverage gaps in `notes_for_orchestrator`
++
++**Will Not:**
++- See Auggie's output before producing your own
++- Duplicate Auggie's broad pattern-match findings to look productive
++- Make commit/approve/reject recommendations
+diff --git a/src/superclaude/cli/install_hooks.py b/src/superclaude/cli/install_hooks.py
+index e7033d87..db7546f4 100644
+--- a/src/superclaude/cli/install_hooks.py
++++ b/src/superclaude/cli/install_hooks.py
+@@ -64,6 +64,15 @@
+     # check in `make verify-sync` requires every entry of
+     # `src/superclaude/hooks/scripts/*.sh` to be a member of this list.
+     "reject-workspace-writes.sh",
++    # Project-local PostToolUse hook for /sc:auggie-review. After a successful
++    # `gh pr create` Bash invocation, emits an offer to run the Auggie-powered
++    # code review on the new PR. Registered in this project's
++    # `.claude/settings.json` PostToolUse with the project-relative
++    # `$CLAUDE_PROJECT_DIR/.claude/hooks/offer-pr-review.sh` command — same
++    # pattern as `reject-workspace-writes.sh`, so it's listed here for the
++    # `=== Installer Registration ===` verify-sync gate, but is harmless when
++    # unregistered in unrelated projects.
++    "offer-pr-review.sh",
+ ]
+ _LEGACY_SCRIPTS = ["session-init.sh"]
+
+diff --git a/src/superclaude/commands/auggie-review.md b/src/superclaude/commands/auggie-review.md
+new file mode 100644
+index 00000000..2c468c2e
+--- /dev/null
++++ b/src/superclaude/commands/auggie-review.md
+@@ -0,0 +1,162 @@
++---
++name: auggie-review
++description: "Auggie-powered code review for PRs, local diffs, or file snapshots — narrow bugs + architectural risks + anti-patterns, with auto-posted PR review and optional remediation handoff"
++category: quality
++complexity: advanced
++mcp-servers: [sequential, serena]
++personas: [analyzer, architect, security, qa, refactorer]
++argument-hint: "[<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]"
++---
++
++# /sc:auggie-review - Auggie-Powered Code Review
++
++## Triggers
++
++**Explicit only** — this command does NOT auto-activate from conversational keywords like "review", "audit", or "check". It activates only via:
++
++1. **Direct invocation**: User types `/sc:auggie-review ...`
++2. **PR-creation hook**: After `gh pr create` succeeds, the `offer-pr-review.sh` hook prompts the user; if the user accepts, the assistant invokes this command
++3. **Programmatic call**: Another `/sc:*` command invokes the `sc:auggie-review-protocol` skill directly
++
++The trigger discipline exists because deep reviews are expensive (Auggie indexing + multi-persona synthesis) and false-positive activation in mid-conversation wastes user time. See "Boundaries → Will Not" below.
++
++## Required Input
++
++**MANDATORY**: One of the following review targets:
++
++- **Remote PR**: `<PR-number>` or `<PR-URL>` (resolved via `gh pr view`)
++- **Local diff**: `--diff <base-ref>...HEAD` (or implicit `--diff origin/<default-branch>...HEAD` if no target given and a dirty working tree is detected)
++- **File snapshot**: `--snapshot <path>` (single file or directory; no diff, full-content review)
++
++**STOP** if none of the above are resolvable. Do not invent a target.
++
++## Usage
++
++```bash
++/sc:auggie-review 62                                    # Review PR #62 (auto-detect repo)
++/sc:auggie-review https://github.com/org/repo/pull/62   # Review PR by URL
++/sc:auggie-review --diff origin/master...HEAD           # Review local branch changes
++/sc:auggie-review --snapshot src/superclaude/cli/       # Review a subtree (no diff)
++/sc:auggie-review 62 --focus security,architecture      # Focus areas only
++/sc:auggie-review 62 --depth deep --no-post-pr          # Deep review, do not post to PR
++```
++
++## Options
++
++| Flag | Default | Description |
++|------|---------|-------------|
++| `--focus` | `all` | Comma-separated subset of `security,architecture,quality,performance,anti-patterns,tests,docs,all` |
++| `--depth` | `standard` | `quick` (auggie single-pass, ~2min), `standard` (auggie + Claude synthesis, ~5min), `deep` (auggie + per-persona Claude passes + cross-reference, ~10-15min) |
++| `--post-pr` | `true` when target is a PR | Auto-post the markdown report as a `gh pr review --comment`. Inline comments for `Critical` and `High` findings via `gh api`. **No confirmation prompt — the user opted in by invoking the command on a PR.** |
++| `--no-post-pr` | — | Generate the report only; do not touch GitHub |
++| `--remediation-offer` | `true` | After the review completes, offer to chain `/sc:design` → `task-builder` → `/sc:reflect --type task --analyze` → execute → `/sc:reflect --type task --validate` |
++| `--no-remediation-offer` | — | Suppress the remediation chain offer |
++| `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
++| `--auggie-model` | (auggie default) | Override the model auggie uses (e.g., `--auggie-model claude-sonnet-4-6`) |
++
++## Behavioral Flow
++
++The full multi-wave protocol lives in the skill. The command file performs only:
++
++1. **Parse arguments** → resolve target type (PR / diff / snapshot)
++2. **Validate environment** → `auggie` on PATH, `gh` authed (if PR target), repo is a git working tree
++3. **Hand off to the skill** via the Activation section below
++4. **On skill return**, surface the report path, PR URL (if posted), and remediation-chain prompt (if enabled)
++
++## Activation
++
++**MANDATORY**: Before executing any protocol steps, invoke:
++> Skill sc:auggie-review-protocol
++
++Do NOT proceed with protocol execution using only this command file. The full behavioral specification — Auggie invocation, finding validation, severity rubric, PR posting, remediation handoff — is in the protocol skill.
++
++## MCP Integration
++
++- **Sequential**: Multi-step synthesis when reconciling Auggie findings with Claude's diff-level checks
++- **Serena**: Symbol-level cross-reference when validating Auggie's file:line citations against actual code
++
++External tool (not MCP, but central): **`auggie` CLI** is the primary review engine. The skill shells out to `auggie --print --output-format json --ask` to offload deep analysis to Auggie's indexed codebase context, dramatically reducing Claude token consumption.
++
++## Tool Coordination
++
++- **Bash(auggie *)**: Invoke the Auggie CLI for the deep review pass
++- **Bash(gh *)**: Fetch PR metadata, post review comments
++- **Bash(git *)**: Resolve diff ranges, list changed files
++- **Read / Grep / Glob**: Validate Auggie's file:line citations against actual files
++- **mcp__auggie__codebase-retrieval**: In-session codebase queries when validating findings without spawning a full Auggie subprocess
++- **Write**: Emit the markdown report and audit log under `--output-dir`
++- **Task**: Delegate per-persona deep passes to `auggie-reviewer` agent in `--depth deep` mode
++
++## Examples
++
++### Review a PR by number (most common)
++```
++/sc:auggie-review 62
++# - Auggie pass: indexed codebase context + diff → JSON findings
++# - Claude validates each file:line, dedupes, severity-tags
++# - Markdown report written to .dev/reviews/pr-62-<ts>/REVIEW.md
++# - Auto-posted to PR #62 as a review comment (default)
++# - Inline comments attached for Critical / High findings
++# - Prompts user: "Run /sc:design → task-builder → /sc:reflect chain on these findings?"
++```
++
++### Review uncommitted local changes
++```
++/sc:auggie-review --diff origin/master...HEAD --no-post-pr
++# - Same protocol, but target is git diff, no PR posting
++# - Useful pre-commit / pre-push self-review
++```
++
++### Snapshot review of a module (no diff)
++```
++/sc:auggie-review --snapshot src/superclaude/cli/ --focus architecture,anti-patterns
++# - Full-content review of the subtree, no diff baseline
++# - Auggie answers architecture-level questions; Claude grounds findings in real files
++```
++
++### Hook-driven post-PR-creation review
++```
++# After: gh pr create --title "..." --body "..."
++# The offer-pr-review.sh hook detects the gh pr create call,
++# prints a one-line offer to the assistant, who relays it to the user.
++# User says yes → assistant invokes /sc:auggie-review <new-PR-num>.
++```
++
++### Deep review with full remediation chain
++```
++/sc:auggie-review 62 --depth deep
++# After report posts, user accepts the remediation offer:
++#   1. /sc:design <report-path> --type architecture --format spec  → remediation spec
++#   2. Invoke task-builder skill on the spec  → MDTM task file
++#   3. /sc:reflect --type task --analyze       → tasklist sanity check
++#   4. User sign-off OR refactor task          → execute
++#   5. /sc:reflect --type task --validate      → pre-commit validation
++```
++
++## Boundaries
++
++**Will:**
++- Run a deep, evidence-based code review combining Auggie's indexed codebase context with Claude's diff-level reasoning
++- Catch both narrow bugs (off-by-one, null-deref, race conditions, leaked resources) and architectural risks (layering violations, coupling smells, missing abstractions, anti-patterns)
++- Auto-post the report to the PR when the target is a PR (no confirmation; the user opted in by invoking the command)
++- Attach inline `gh` review comments for Critical and High findings, anchored to real file:line in the diff
++- Validate every Auggie-emitted file:line citation against the actual file before including it (no hallucinated locations in the report)
++- Offer the `/sc:design` → `task-builder` → `/sc:reflect` remediation chain after the report posts, gated on user confirmation
++- Write the full markdown report, raw Auggie JSON, and an audit log to `--output-dir` for later reference
++
++**Will Not:**
++- Activate on conversational keywords ("review", "audit", "check") — explicit invocation or hook-driven only
++- Modify any code under review (advisory only — code changes happen later via the remediation chain)
++- Approve, request-changes, or merge the PR (the report posts as a `--comment` review, never `--approve` or `--request-changes`)
++- Run without `auggie` on PATH or, for PR targets, without an authed `gh` CLI — STOP with a clear error
++- Bypass the file:line validation step (a finding that cannot be grounded in a real file is dropped, not promoted to "low confidence")
++- Auto-trigger the remediation chain — that step always requires explicit user confirmation
++- Post to a PR when `--no-post-pr` is specified, regardless of target type
++
++## Related Commands
++
++- **`/sc:design`** — Used in the remediation chain to convert review findings into an architecture/component remediation spec
++- **`/sc:reflect --type task`** — Used twice in the remediation chain (analyze + validate gates)
++- **`task-builder` skill** — Invoked between `/sc:design` and execution to produce an MDTM task file
++- **`/sc:adversarial`** — Complementary; use `/sc:adversarial` when you need multi-model debate on a single artifact, vs this command's auggie-centric whole-diff review
++- **`/sc:cleanup-audit`** — Complementary; whole-repo audit vs this command's diff/PR-scoped review
+diff --git a/src/superclaude/hooks/scripts/offer-pr-review.sh b/src/superclaude/hooks/scripts/offer-pr-review.sh
+new file mode 100755
+index 00000000..7a63e386
+--- /dev/null
++++ b/src/superclaude/hooks/scripts/offer-pr-review.sh
+@@ -0,0 +1,70 @@
++#!/usr/bin/env bash
++# PostToolUse(Bash) — after a successful `gh pr create`, surface an offer to run /sc:auggie-review.
++#
++# Hook contract:
++#   - stdin:  JSON with { tool_name, tool_input, tool_response }
++#   - exit 0: pass-through; if stdout is non-empty Claude Code surfaces it as additional context
++#   - exit 2: blocks the tool (we do NOT want that here — the PR is already created)
++#
++# Behavior:
++#   - Match only Bash invocations that look like `gh pr create ...`
++#   - Match only on success (tool_response.error is empty)
++#   - Extract the new PR number/URL from the tool's stdout if possible
++#   - Print a single-line offer message; Claude relays it to the user
++
++set -u
++
++INPUT="$(cat 2>/dev/null || true)"
++
++# Pull the tool name and the bash command out of the hook payload.
++TOOL_NAME="$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)"
++[ "$TOOL_NAME" = "Bash" ] || exit 0
++
++CMD="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)"
++[ -z "$CMD" ] && exit 0
++
++# Only fire on `gh pr create` (allow flags between `gh` and `pr create`).
++# This matches: "gh pr create ...", "gh -R foo/bar pr create ...", etc.
++# It does NOT match `gh pr view`, `gh pr list`, or arbitrary commands containing the substring "pr create".
++if ! [[ "$CMD" =~ (^|[[:space:]\;\&\|])gh([[:space:]]+-[^[:space:]]+)*[[:space:]]+pr[[:space:]]+create([[:space:]]|$) ]]; then
++    exit 0
++fi
++
++# Skip if the command failed (PR not actually created).
++TOOL_ERROR="$(printf '%s' "$INPUT" | jq -r '.tool_response.error // empty' 2>/dev/null)"
++[ -n "$TOOL_ERROR" ] && exit 0
++
++# Try to extract the PR URL or number from the tool's stdout. `gh pr create` prints the new PR URL
++# as its final line on success.
++TOOL_STDOUT="$(printf '%s' "$INPUT" | jq -r '.tool_response.stdout // .tool_response.output // empty' 2>/dev/null)"
++PR_URL="$(printf '%s' "$TOOL_STDOUT" | grep -oE 'https://github\.com/[^[:space:]]+/pull/[0-9]+' | tail -1)"
++PR_NUM="$(printf '%s' "$PR_URL" | grep -oE '[0-9]+$')"
++
++# Compose the offer. This goes to stdout; Claude Code injects it as additional context for the
++# next assistant turn, and the assistant relays it to the user as a question.
++if [ -n "$PR_URL" ]; then
++    TARGET_HINT="$PR_URL"
++    INVOKE_HINT="/sc:auggie-review $PR_NUM"
++elif [ -n "$PR_NUM" ]; then
++    TARGET_HINT="PR #$PR_NUM"
++    INVOKE_HINT="/sc:auggie-review $PR_NUM"
++else
++    TARGET_HINT="the PR you just created"
++    INVOKE_HINT="/sc:auggie-review <PR-number>"
++fi
++
++cat <<EOF
++<sc-auggie-review-offer source="post-pr-create-hook">
++A PR was just created ($TARGET_HINT). Offer the user the option to run an Auggie-powered code review on it before continuing other work.
++
++Suggested invocation: $INVOKE_HINT
++
++Ask the user with this exact framing (do not paraphrase the trigger condition):
++
++  "I noticed you just opened $TARGET_HINT. Want me to run an Auggie-powered code review on it now (/sc:auggie-review)? It will post the report to the PR and offer a remediation chain if findings warrant it."
++
++Wait for the user's response. Do not auto-invoke /sc:auggie-review without confirmation. If the user declines, do not bring it up again in this session.
++</sc-auggie-review-offer>
++EOF
++
++exit 0
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+new file mode 100644
+index 00000000..735d498f
+--- /dev/null
++++ b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+@@ -0,0 +1,362 @@
++---
++name: sc:auggie-review-protocol
++description: "Auggie-powered code review protocol for PRs, local diffs, and file snapshots — orchestrates Auggie's deep retrieval pass, validates findings against real files, posts to PR, and offers a remediation handoff chain"
++allowed-tools: Read, Grep, Glob, Bash(auggie *), Bash(gh *), Bash(git *), Bash(jq *), Bash(wc *), Bash(find *), Bash(mkdir *), Bash(cat *), Bash(mv *), Bash(cp *), Bash(date *), TodoWrite, Task, Write, Edit, Skill
++---
++
++<!-- Extended metadata (for documentation, not parsed):
++category: quality
++complexity: advanced
++mcp-servers: [sequential, serena, auggie]
++personas: [analyzer, architect, security, qa, refactorer]
++-->
++
++# Auggie Review Protocol
++
++## Purpose
++
++Run an evidence-based code review of a Pull Request, local diff, or file snapshot. The review must catch **both** narrow bugs (off-by-one, null-deref, leaked resources, race conditions, untyped boundaries) **and** higher-level concerns (architectural drift, layering violations, anti-patterns, coupling smells, missing abstractions, performance regressions, security exposure).
++
++**Token-efficiency contract**: The Auggie CLI does the heavy retrieval and pattern-matching work using its already-indexed codebase context. Claude orchestrates, validates, dedupes, and synthesizes. This split exists because Auggie is free or near-free for codebase-retrieval workloads, while Claude's tokens are the constrained resource. Lean on Auggie wherever you can; use Claude for reasoning, file:line validation, and final synthesis.
++
++**Hallucination contract**: Every finding emitted in the final report must cite a `file:line` that exists in the repo at the time of review. Findings that cannot be grounded are dropped, not downgraded. This is non-negotiable — a "review" full of imaginary line numbers is worse than no review.
++
++## Required Input (STOP if missing)
++
++The skill receives one of three target modes from `/sc:auggie-review`:
++
++| Mode | Required | Resolved Form |
++|------|----------|---------------|
++| **PR** | `<PR-num>` or `<PR-URL>` | `gh pr view <id> --json number,headRefName,baseRefName,headRepository,headRepositoryOwner,title,body,files` |
++| **Diff** | `--diff <base>...HEAD` | `git diff <base>...HEAD` (validate refs exist) |
++| **Snapshot** | `--snapshot <path>` | `find <path> -type f` (validate path exists) |
++
++**STOP** if:
++- Target cannot be resolved (PR not found, ref doesn't exist, path missing)
++- `auggie` is not on PATH (`command -v auggie` fails)
++- For PR mode, `gh auth status` reports unauthed
++- `--depth deep` requested but the diff exceeds 5000 lines without `--force` (too large to be useful)
++
++**WARN (proceed)** if:
++- Diff exceeds 1500 lines (Auggie may need chunking — emit a chunking-mode notice)
++- More than 30 files changed (recommend `--focus` to scope down)
++- The PR base branch is not the repo's default branch (mention in report header)
++
++## Output Contract
++
++The skill returns:
++
++| Field | Type | Description |
++|-------|------|-------------|
++| `status` | string | `success`, `partial` (some findings dropped for hallucination), `failed` |
++| `report_path` | string | Absolute path to the markdown report |
++| `audit_log_path` | string | Absolute path to the audit log (auggie raw JSON, validation results, decisions) |
++| `pr_review_url` | string | URL of the posted `gh pr review` comment (empty if `--no-post-pr` or non-PR target) |
++| `findings_count` | object | `{critical: N, high: N, medium: N, low: N, nit: N}` |
++| `dropped_count` | int | Findings dropped because file:line could not be validated |
++| `remediation_offered` | boolean | Whether the remediation chain was offered |
++| `remediation_accepted` | boolean | If offered, whether the user accepted |
++
++## Wave Structure
++
++The protocol runs in five waves. Each wave has explicit entry/exit criteria. Refs are loaded **per-wave**, never pre-loaded.
++
++```
++Wave 0: Resolve & Validate Target
++Wave 1: Collect Inputs (diff, metadata, file list)
++Wave 2: Auggie Deep Pass     ← loads refs/auggie-prompts.md
++Wave 3: Validate & Synthesize ← loads refs/severity-rubric.md
++Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
++```
++
++---
++
++### Wave 0: Resolve & Validate Target
++
++**Preconditions**: command flags parsed; one of `target`, `--diff`, `--snapshot` provided.
++
++**Steps**:
++
++1. Classify target mode (`pr`, `diff`, `snapshot`).
++2. Validate environment:
++   - `command -v auggie` (STOP if missing)
++   - `git rev-parse --is-inside-work-tree` (STOP if not in repo)
++   - For PR mode: `gh auth status` (STOP if unauthed)
++3. Resolve target details:
++   - PR: fetch `gh pr view <id> --json number,headRefName,baseRefName,title,body,files,url,headRepositoryOwner,headRepository` and the merge-base diff range
++   - Diff: validate `<base>` ref exists (`git rev-parse <base>`)
++   - Snapshot: validate path exists and is readable
++4. Compute `target_slug` (`pr-62`, `diff-master-HEAD`, `snapshot-src-superclaude-cli`) and create `--output-dir` (default `.dev/reviews/<target-slug>-<YYYYMMDDHHMMSS>/`).
++5. Emit machine-readable header to the audit log:
++
++```
++<!-- SC:AUGGIE-REVIEW:TARGET
++mode: <pr|diff|snapshot>
++slug: <target_slug>
++focus: <comma-list>
++depth: <quick|standard|deep>
++output_dir: <abs-path>
++auggie_version: <version>
++gh_authed: <bool>
++-->
++```
++
++**Exit criteria**: Target resolved, output dir created, audit log opened. Emit "Wave 0 complete: target=<slug> mode=<mode>".
++
++---
++
++### Wave 1: Collect Inputs
++
++**Preconditions**: Wave 0 complete.
++
++**Steps**:
++
++1. Collect the **diff body** (skip if `--snapshot`):
++   - PR: `gh pr diff <id>` → `<output-dir>/diff.patch`
++   - Diff: `git diff <base>...HEAD` → `<output-dir>/diff.patch`
++2. Collect the **changed-file list** (skip if `--snapshot`):
++   - PR: from the `files` field of `gh pr view`
++   - Diff: `git diff --name-only <base>...HEAD`
++3. For snapshot mode, build the file list via `find <path> -type f` (excluding obvious binaries: `.png`, `.jpg`, `.pdf`, `.lock`).
++4. Collect PR metadata if PR mode (`title`, `body`, `baseRefName`, `headRefName`, `url`).
++5. Compute diff size: total lines, files-changed count. Emit `WARN` to audit log if thresholds exceeded.
++6. Determine chunking strategy:
++   - ≤ 1500 diff lines OR ≤ 15 files: single Auggie invocation
++   - 1500-5000 lines OR 16-30 files: chunk by directory (one Auggie call per top-level dir)
++   - > 5000 lines: STOP unless `--force`; report "diff too large"
++
++**Exit criteria**: `diff.patch` (if applicable), `files.txt`, and `metadata.json` saved under `<output-dir>/inputs/`. Chunking strategy decided.
++
++---
++
++### Wave 2: Auggie Deep Pass
++
++**Preconditions**: Wave 1 complete. **Load `refs/auggie-prompts.md`** for the structured prompt templates.
++
++**Concept**: Shell out to `auggie --print --output-format json --ask --workspace-root <repo>` with a carefully-constructed prompt that:
++- Describes the review target (PR title/body, diff, or file list)
++- Provides the focus areas (from `--focus`)
++- Specifies the JSON output schema Auggie must return
++- Tells Auggie to ground every finding in a real `file:line` and to flag uncertainty
++
++The `--ask` flag restricts Auggie to retrieval/non-editing tools — exactly what we need for a review.
++
++**Steps**:
++
++1. Read `refs/auggie-prompts.md` (NOT before now — lazy loading).
++2. Construct the Auggie instruction from the appropriate template:
++   - PR/diff: `pr-review-prompt` template (interpolate title, body, diff path, focus areas)
++   - Snapshot: `snapshot-review-prompt` template (interpolate file list, focus areas)
++3. Invoke Auggie (one call per chunk if chunking). **Use this exact invocation pattern** — common mistakes are called out below.
++
++```bash
++auggie --print \
++       --output-format json \
++       --ask \
++       --workspace-root <repo-root> \
++       --max-turns <8 quick | 16 standard | 24 deep> \
++       ${AUGGIE_MODEL:+--model "$AUGGIE_MODEL"} \
++       --instruction-file <output-dir>/auggie-prompt-<chunk>.txt \
++       > <output-dir>/auggie-raw-<chunk>.json 2>> <output-dir>/auggie-stderr.log
++```
++
++> **Common pitfalls (read before invoking)**:
++>
++> - **Flag name**: the correct flag is `--output-format json`, NOT `--json`. The latter is not a real auggie flag and will cause `exit 1`.
++> - **JSON wrapping**: even with `--output-format json`, Auggie usually wraps its response in a ```json ...``` markdown fence and may include preamble/postamble prose. **Always strip fences and extract the JSON object** before parsing. Recommended: `sed -n '/^```json$/,/^```$/p' auggie-raw.json | sed '1d;$d' | jq '.'` or equivalent. If `jq` parse fails, save the raw response and downgrade status to `partial`.
++> - **`--max-turns` preamble**: when `--max-turns N` is passed, Auggie prints `Applying --max-turns override: N over agentMaxIterations=500` as the **first stdout line** before the JSON envelope. This breaks `jq` if not stripped. Pipe through `tail -n +2` (or `grep -v '^Applying --max-turns'`) before extracting `.result` and stripping the inner ```json fence. The outer envelope (`{"type":"result","result":"<fenced-json-string>",...}`) is then parsed normally.
++> - **`--instruction-file` requires a real path**: `mkdir -p <output-dir>` before writing the prompt file. Auggie reads the file from disk, not stdin.
++> - **`--workspace-root` matters**: must point to the repo root (`git rev-parse --show-toplevel`), not the diff path or PR subtree. Auggie's index is scoped to this directory.
++> - **Indexer cold-start**: if `auggie-stderr.log` mentions "indexing" or "not ready", retry with `--wait-for-indexing` once before treating as a failure.
++
++4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
++5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3.
++
++**Exit criteria**: One or more `auggie-raw-*.json` files under `<output-dir>/`, all containing structured findings. Audit log notes any non-zero exit codes, retries, or chunk failures.
++
++**Failure handling**:
++
++| Scenario | Behavior | Fallback |
++|----------|----------|----------|
++| Auggie exits non-zero on a chunk | Retry once with `--max-turns +50%` | If still failing, log chunk as `chunk_skipped`, continue |
++| Auggie returns non-JSON output | Parse what's parseable; log unparseable tail | Mark `partial` status |
++| Auggie indexer not ready | Pass `--wait-for-indexing` and retry | Same as above |
++| Auggie not on PATH (post-Wave-0) | STOP with clear message | None |
++
++---
++
++### Wave 3: Validate & Synthesize
++
++**Preconditions**: Wave 2 complete, ≥ 1 raw Auggie JSON file. **Load `refs/severity-rubric.md`** for the consistent severity grading scheme.
++
++**Steps**:
++
++1. Read `refs/severity-rubric.md`.
++2. Parse all `auggie-raw-*.json` files. Each finding from Auggie should carry at least: `title`, `file`, `line` (or `line_range`), `severity`, `category`, `evidence`, `recommendation`. Findings missing `file` and `line` go to a `needs-grounding` bucket (not auto-dropped — see step 4).
++3. **File:line validation pass** (non-negotiable):
++   - For each finding, `Read` the cited file at the cited line range. Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line.
++   - For PR/diff mode, additionally confirm the line is within the diff hunks (a finding citing a line nowhere near the changes is downgraded to "context" or dropped, depending on severity).
++   - For `needs-grounding` findings, attempt to ground them using `mcp__auggie__codebase-retrieval` or `Grep`. If grounding succeeds, promote; if not, drop and log.
++4. **Dedupe pass**:
++   - Findings on the same `file:line` with similar titles → merge, keep the higher severity and union the evidence.
++   - Findings that are restatements of the PR description's own caveats → drop with a note in the audit log.
++5. **Severity remap** using `refs/severity-rubric.md`. Auggie's self-reported severity is a hint, not authoritative — apply the rubric uniformly.
++6. **Persona cross-check** (`--depth deep` only):
++   - Compare the `auggie-reviewer` agent's independent findings against the deduped Auggie findings. Findings present in only one source are marked accordingly (`source: auggie-only | claude-only | both`) and given a slight confidence adjustment in the rubric.
++7. Compose the final markdown report at `<output-dir>/REVIEW.md` using this structure:
++
++```markdown
++# Code Review: <target>
++
++**Target**: <PR #N | diff range | snapshot path>
++**Reviewer**: /sc:auggie-review (depth=<depth>, focus=<focus>)
++**Generated**: <YYYY-MM-DD HH:MM TZ>
++**Source PR**: <URL if applicable>
++**Base ↔ Head**: <baseRef> ↔ <headRef>
++**Stats**: <N> files, <N> lines, <N> findings (<N> dropped during grounding)
++
++---
++
++## Summary
++
++<2-4 sentence executive summary: top 2-3 risks, overall sentiment, recommendation (block | request-changes | nits-only | approve-ish).>
++
++## Findings
++
++### 🔴 Critical (block merge)
++
++#### C1. <Short title>
++- **File**: `path/to/file.ext:LINE`
++- **Category**: security | data-integrity | correctness | …
++- **Source**: auggie | claude | both
++- **Evidence**:
++  ```<lang>
++  <real code excerpt from the cited lines>
++  ```
++- **Why this matters**: <one paragraph>
++- **Recommendation**: <concrete change>
++
++(repeat per finding)
++
++### 🟠 High (should fix before merge)
++(same structure)
++
++### 🟡 Medium (fix in this PR if cheap, otherwise file followup)
++(same structure)
++
++### 🟢 Low (nice-to-have)
++(same structure)
++
++### 💬 Nits (style, naming, comments)
++(condensed list)
++
++## Architectural / Cross-Cutting Observations
++
++<Anything that isn't anchored to a single file:line — layering concerns, missing abstractions, coupling smells, anti-pattern clusters. Each item still cites the files where the pattern manifests.>
++
++## Audit
++
++- Auggie chunks: <N> (succeeded: <N>, retried: <N>, skipped: <N>)
++- Findings dropped during grounding: <N> (see `audit.log`)
++- Persona cross-check: <enabled|disabled>
++- Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
++```
++
++8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons.
++
++**Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
++
++```
++<!-- SC:AUGGIE-REVIEW:SUMMARY
++status: <success|partial>
++critical: <N> high: <N> medium: <N> low: <N> nit: <N>
++dropped: <N>
++auggie_chunks: <N>
++duration_sec: <N>
++-->
++```
++
++---
++
++### Wave 4: Post & Handoff
++
++**Preconditions**: Wave 3 complete. **Load `refs/remediation-handoff.md`** for the exact phrasing and command sequence used in the remediation offer.
++
++**Steps**:
++
++1. **Post to PR** (only if target is PR AND `--post-pr` AND `findings_count > 0`):
++   - Summary comment: `gh pr review <PR> --comment --body-file <output-dir>/REVIEW.md`
++   - Inline comments for each Critical and High finding (in `--depth deep` mode also for Medium):
++     ```bash
++     gh api repos/<owner>/<repo>/pulls/<PR>/comments \
++        -f body="<finding-body>" \
++        -f commit_id="<head-SHA>" \
++        -f path="<file>" \
++        -F line=<LINE> \
++        -f side=RIGHT
++     ```
++   - Capture the review URL from `gh pr view <PR> --json reviews -q '.reviews[-1].url'` and record it.
++   - **Never** use `--approve` or `--request-changes`; this is a `--comment` review only. The human merges; the skill advises.
++2. **Surface results to the user** in the chat:
++   - Counts by severity
++   - Path to `REVIEW.md`
++   - Review URL (if posted)
++3. **Offer the remediation chain** (only if `--remediation-offer` AND `findings_count.critical + findings_count.high > 0`):
++   - Read `refs/remediation-handoff.md` and use the exact prompt template there.
++   - The offer must list the four phases and ask one yes/no question.
++4. If the user accepts:
++   - **Phase A**: Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
++   - **Phase B**: Invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passed as input)
++   - **Phase C**: After task-builder returns, invoke `/sc:reflect --type task --analyze` against the new task file
++   - If reflect-analyze flags issues, surface them and ask the user whether to refactor the tasklist or accept-as-is
++   - **Phase D (execution)**: Wait for explicit user sign-off, then execute the task file (the user runs `/task <path>` or equivalent — the skill does NOT auto-execute)
++   - **Phase E**: After execution completes, invoke `/sc:reflect --type task --validate` BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
++5. Return the structured output contract.
++
++**Exit criteria**: Report posted (if applicable), remediation chain offered (if applicable), output contract returned.
++
++---
++
++## Will Do
++
++- Run Auggie as the primary review engine; lean on its indexed-codebase strength
++- Validate every finding's file:line before including it in the report
++- Catch narrow bugs **and** architectural/anti-pattern risks (the rubric in `refs/severity-rubric.md` defines both categories explicitly)
++- Post the markdown report to the PR automatically (per the user's stated default — they opted in by running the command on a PR)
++- Attach inline comments for Critical/High findings, anchored to real lines in the diff
++- Offer a deterministic remediation chain (`/sc:design` → `task-builder` → `/sc:reflect`-analyze → execute → `/sc:reflect`-validate) and wait for explicit user acceptance before starting
++- Persist the full audit (raw Auggie JSON, validation results, dedupe decisions, severity remaps) for traceability
++
++## Will Not Do
++
++- Activate from conversational keywords — explicit `/sc:auggie-review` invocation or PR-creation hook only
++- Use `gh pr review --approve` or `--request-changes` — strictly `--comment`
++- Include findings whose file:line cannot be validated against a real file
++- Modify code under review (advisory only)
++- Auto-trigger the remediation chain — that step is always user-gated
++- Auto-commit after the remediation chain — `/sc:reflect --type task --validate` is the final gate before the user commits manually
++- Run on diffs > 5000 lines without `--force` (no useful signal at that scale; recommend scoping down)
++- Trust Auggie's self-reported severity — always remap via the rubric
++
++## Error Handling
++
++| Scenario | Behavior | Fallback |
++|----------|----------|----------|
++| `auggie` missing | STOP at Wave 0 with install hint | None |
++| `gh` unauthed for PR mode | STOP at Wave 0 with `gh auth login` hint | None |
++| Auggie chunk fails after retry | Continue with remaining chunks; status `partial`; note in audit and report header | Findings from successful chunks still produced |
++| Findings all fail file:line grounding | Emit `REVIEW.md` with empty findings sections and a clear "review inconclusive — Auggie findings could not be grounded" notice; status `partial` | Do not post to PR in this case |
++| `gh pr review` post fails | Save the body to `<output-dir>/REVIEW.md`, surface the path to the user, status `partial` | None |
++| Task-builder skill not available | Surface the remediation spec path and stop; do not fail the whole review | None |
++| User declines remediation offer | Return success; report still posted | None |
++| Diff > 5000 lines without `--force` | STOP at Wave 1 with "diff too large; rerun with `--focus` or `--force`" | None |
++
++## Token Cost Profile
++
++| Depth | Auggie tokens (offloaded) | Claude tokens (orchestration) | Wall clock |
++|-------|---------------------------|-------------------------------|-----------|
++| quick | ~5-15k | ~2-4k | 2-4 min |
++| standard | ~15-40k | ~5-10k | 5-8 min |
++| deep | ~40-100k | ~12-20k | 10-15 min |
++
++The Auggie tokens are billed to Auggie's free/low-cost retrieval tier; Claude tokens are the constrained resource. The skill's value proposition is the ~5x-10x ratio: most of the work happens in Auggie, while Claude does only what it must (validation, synthesis, posting, handoff).
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json b/src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json
+new file mode 100644
+index 00000000..916ce6db
+--- /dev/null
++++ b/src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json
+@@ -0,0 +1,29 @@
++{
++  "skill_name": "sc-auggie-review-protocol",
++  "evals": [
++    {
++      "id": 1,
++      "name": "pr-by-number-merged",
++      "prompt": "Run /sc:auggie-review 62 --no-post-pr --output-dir /tmp/eval-pr62/. The repo is IronbellyOrg/IronClaude. Use --depth standard. Produce the full markdown report at /tmp/eval-pr62/REVIEW.md. Do not post to the PR (it's already merged). At the end of your work, print the absolute path to REVIEW.md and a one-line summary of the finding counts by severity.",
++      "expected_output": "A REVIEW.md at /tmp/eval-pr62/ that follows the skill's report template — header with target/depth/stats, severity-tagged findings sections, each finding with file:line citation that exists in the actual repo, no hallucinated paths. Audit log written alongside. Status returned with finding counts.",
++      "files": [],
++      "assertions": []
++    },
++    {
++      "id": 2,
++      "name": "local-diff-vs-master",
++      "prompt": "Run /sc:auggie-review --diff origin/master...HEAD --no-post-pr --depth quick --output-dir /tmp/eval-diff/. This will review the uncommitted/branch changes against master. Use --focus quality,anti-patterns,architecture. At the end, print the report path and a one-line summary.",
++      "expected_output": "A REVIEW.md at /tmp/eval-diff/ scoped to the diff against master. Findings (if any) must cite files actually in the diff. Diff statistics should match `git diff --stat origin/master...HEAD`.",
++      "files": [],
++      "assertions": []
++    },
++    {
++      "id": 3,
++      "name": "snapshot-cli-module",
++      "prompt": "Run /sc:auggie-review --snapshot src/superclaude/cli/ --depth quick --focus anti-patterns,architecture,quality --output-dir /tmp/eval-snapshot/. Review the CLI module as a whole, no diff. Print the report path and a one-line summary at the end.",
++      "expected_output": "A REVIEW.md at /tmp/eval-snapshot/ that reviews the CLI subtree, with findings citing files inside src/superclaude/cli/. Cross-cutting observations should highlight architecture-level concerns rather than per-line nits.",
++      "files": [],
++      "assertions": []
++    }
++  ]
++}
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/refs/auggie-prompts.md b/src/superclaude/skills/sc-auggie-review-protocol/refs/auggie-prompts.md
+new file mode 100644
+index 00000000..04f82726
+--- /dev/null
++++ b/src/superclaude/skills/sc-auggie-review-protocol/refs/auggie-prompts.md
+@@ -0,0 +1,160 @@
++# Auggie Prompt Templates
++
++These are the structured instruction templates the skill writes to a file and passes to Auggie via `--instruction-file`. Each template ends with a strict JSON-output contract — Auggie returns findings as parseable JSON, not free-form markdown.
++
++## Why these prompts look the way they do
++
++Auggie's strength is **indexed-codebase retrieval and cross-file reasoning** — it can answer "where is this function called?" and "is this pattern used consistently?" much more cheaply than Claude reading files one at a time. The prompts below explicitly invite Auggie to use that strength: every finding category asks Auggie to cross-reference against the indexed repo, not to reason only from the diff in isolation.
++
++Auggie's weakness, relative to a careful Claude pass, is calibration — it can hallucinate file:line citations or grade severity inconsistently. The skill's Wave 3 validation step exists to compensate. Our job in these prompts is to maximize Auggie's signal and tag uncertainty explicitly, knowing Claude will second-pass it.
++
++The `--ask` flag (set in the invocation, not the prompt) restricts Auggie to retrieval/non-editing tools, which is the right safety boundary for a review.
++
++---
++
++## Template: `pr-review-prompt`
++
++Used for PR or diff targets. Interpolate the placeholders before writing the file.
++
++```text
++You are reviewing a code change for the repository at the workspace root. Your job is to identify problems — both narrow bugs and higher-level concerns — and report them as structured JSON.
++
++## Context
++
++Target: {TARGET_DESCRIPTION}
++{PR_TITLE_LINE}
++{PR_BODY_BLOCK}
++
++Diff range: {BASE_REF}...{HEAD_REF}
++Files changed ({N_FILES}):
++{FILE_LIST}
++
++The full diff is available at: {DIFF_PATH}
++Read it with the `view` tool, then use your indexed codebase context to investigate.
++
++## Focus areas
++
++You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible in the diff. Use your codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
++
++{FOCUS_AREA_BLOCK}
++
++## Output contract (STRICT — your response must match this exactly)
++
++Respond with a single JSON object. Even when the prompt asks for no markdown fences, Auggie in practice wraps the JSON in a ```json ...``` fence — that is fine and the orchestrator strips it before parsing. Do not include explanatory prose **outside** the fence. The shape is:
++
++{
++  "findings": [
++    {
++      "title": "<one-line summary, sentence case, no trailing period>",
++      "category": "<one of: security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style>",
++      "severity_hint": "<one of: critical | high | medium | low | nit — your best guess; the orchestrator may remap>",
++      "file": "<repo-relative path>",
++      "line": <integer line number in the file at HEAD>,
++      "line_range_end": <integer or null — set for multi-line findings>,
++      "in_diff": <true|false — set true only if your cited line falls inside the diff hunks>,
++      "evidence": "<the exact code excerpt at the cited line(s), verbatim. If you cannot copy the exact bytes, set this to null and confidence to 'low'>",
++      "why": "<2-4 sentences explaining the concern in concrete terms>",
++      "recommendation": "<1-3 sentences with a concrete change — what to do, not 'consider improving'>",
++      "cross_references": ["<repo-relative path:line of related code you found while investigating, if any>"],
++      "confidence": "<high | medium | low>"
++    }
++  ],
++  "cross_cutting_observations": [
++    {
++      "title": "<for findings that span multiple files and aren't anchored to a single line>",
++      "category": "<as above>",
++      "severity_hint": "<as above>",
++      "affected_files": ["<repo-relative path>", "..."],
++      "why": "<as above>",
++      "recommendation": "<as above>",
++      "confidence": "<as above>"
++    }
++  ],
++  "notes_for_orchestrator": "<optional free-form notes — chunking signals, areas where indexing seems stale, scope you couldn't cover>"
++}
++
++## Quality bar
++
++- Every finding must cite a real file:line. If you can't verify the file:line, set confidence to "low" and the orchestrator will validate.
++- Do not invent file paths. If you remember a file existing but can't read it, leave it out.
++- For each focus area, aim for the highest-signal 3-5 findings, not an exhaustive list. The orchestrator will dedupe with other passes.
++- It is OK to return zero findings in a focus area if the area is genuinely clean. Do not pad.
++- For PR mode: prefer findings whose cited line is inside the diff (`in_diff: true`). Out-of-diff findings are allowed but only when the diff makes them newly relevant (e.g., a callsite added in the diff exposes a latent bug in a function the diff didn't touch).
++- For higher-level findings (architecture, layering, anti-patterns, coupling): put them in `cross_cutting_observations`, not `findings`, since they don't have a single line.
++
++Return only the JSON object. No additional text.
++```
++
++### Focus-area blocks
++
++Substituted into `{FOCUS_AREA_BLOCK}` based on `--focus`:
++
++- **security**: `Look for: hardcoded secrets, weak crypto, SQL/XSS injection sinks, deserialization sinks, authz/authn bypasses, path traversal, SSRF, missing rate-limits, sensitive data in logs, race conditions in auth paths, missing input validation at trust boundaries. Cross-reference: are similar patterns hardened elsewhere in the repo? Is the new code re-using a known-good helper or rolling its own?`
++
++- **architecture**: `Look for: layering violations (a module reaching across boundaries that the repo conventions don't allow), business logic in transport/presentation layers, missing abstractions (the same conditional repeated 3+ times), god-objects, circular imports, leaky abstractions, modules with too many responsibilities. Cross-reference: how do other modules in this repo solve the same problem? Is the new code consistent?`
++
++- **quality**: `Look for: off-by-one errors, null-deref / unwrap-on-None, untyped function boundaries, dead code, unused variables/imports, swallowed exceptions, broad except clauses, copy-pasted code, magic numbers, misleading names, comments that contradict code. Cross-reference: do similar helpers exist that the new code should reuse?`
++
++- **performance**: `Look for: N+1 queries, missing indexes implied by query shape, synchronous calls in async paths, unbounded loops, large allocations in hot paths, repeated parsing/serialization, missing caching for expensive pure functions, accidentally quadratic algorithms. Cross-reference: does the repo have profiling notes or known-hot paths this change touches?`
++
++- **anti-patterns**: `Look for: god functions (> 100 lines), god classes (> 20 methods), feature envy, primitive obsession, shotgun surgery (one change forces many distant edits), inappropriate intimacy, lazy class, speculative generality, refused bequest, message chains, middle-man classes. Cross-reference: are these patterns recurring (i.e., does the diff make an existing smell worse)?`
++
++- **tests**: `Look for: new code with no tests, tests that don't actually exercise the new code path, tests asserting trivial things, tests with hardcoded credentials, missing edge-case tests (empty/null/max/concurrency), tests that rely on time/network/randomness without seeding. Cross-reference: are similar code paths in the repo tested? What pattern do those tests use?`
++
++- **docs**: `Look for: new public API without docstrings, README that no longer matches code, comments that contradict code, missing migration notes for breaking changes, stale references in docs/. Cross-reference: does the repo have a docs convention this should follow?`
++
++For `--focus all`, include every block above.
++
++---
++
++## Template: `snapshot-review-prompt`
++
++Used for `--snapshot` targets (no diff baseline). Same JSON contract; the Context section becomes:
++
++```text
++You are reviewing files at the workspace root in their current state. There is no diff baseline — every line is in scope.
++
++## Context
++
++Target: snapshot of {SNAPSHOT_PATH}
++Files to review ({N_FILES}):
++{FILE_LIST}
++
++Read these files via your file tools, then use your indexed codebase context to investigate.
++
++## Focus areas
++
++{FOCUS_AREA_BLOCK}
++
++(... same Output contract and Quality bar as the pr-review-prompt ...)
++```
++
++When `in_diff` is irrelevant (snapshot mode), Auggie should set every finding's `in_diff` to `false` and the orchestrator will ignore the field.
++
++---
++
++## Persona-specialized prompts (used only in `--depth deep`)
++
++For deep reviews, after the main pass the skill spawns additional Auggie calls — one per focus area not adequately covered by the main pass. Each persona prompt is the main `pr-review-prompt` with a single-area focus block and an additional preamble:
++
++```text
++You are running a specialized {PERSONA} pass. The main review has already covered general issues. Your job is to find what the main pass might have missed within {PERSONA}'s domain. Be deeper, more skeptical, and willing to chase indirect/long-range concerns.
++```
++
++Where `{PERSONA}` is one of: `security`, `architect`, `performance`, `qa`.
++
++---
++
++## Notes on tuning
++
++- **`--max-turns`**: We set 8 for quick, 16 for standard, 24 for deep. Lower bounds force Auggie to be efficient; deep mode allows more multi-step retrieval.
++- **`--workspace-root`**: Always passed explicitly so Auggie indexes the right tree. Without this flag, Auggie auto-detects from the working directory, which can drift if the skill is invoked from a subdirectory.
++- **`--add-workspace`**: Not used by default. Add if the review needs to span multiple repos (rare).
++- **`--rules`**: Not used by default. Could be a future extension to point Auggie at `RULES.md` or `PRINCIPLES.md` for repo-specific standards.
++
++## Anti-patterns in prompt writing (avoid)
++
++- Don't ask Auggie to "evaluate code quality" without specifying patterns. It will return a smoothed-over generic checklist.
++- Don't allow free-form markdown output. Parser breakage is silent and pernicious.
++- Don't put severity caps in the prompt ("only return high-severity findings") — let Auggie surface everything and let the rubric handle grading. Auggie underestimates severity more often than overestimates it.
++- Don't ask Auggie to make merge/approve recommendations. That decision belongs to the orchestrator and ultimately the human reviewer.
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md b/src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+new file mode 100644
+index 00000000..a84c62f8
+--- /dev/null
++++ b/src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+@@ -0,0 +1,190 @@
++# Remediation Handoff
++
++After the review report is posted, the skill offers the user a deterministic remediation chain. This file pins the exact phrasing, ordering, and command shapes used in that handoff so the chain is reproducible across invocations and the user always sees the same five-phase flow.
++
++## When the offer fires
++
++The remediation offer is presented only if **all** the following hold:
++
++1. The review completed successfully (`status: success` or `status: partial`).
++2. `--remediation-offer` is true (the default).
++3. `findings_count.critical + findings_count.high >= 1` — no point offering remediation for a nit-only review.
++4. The user has not already declined a remediation offer in this session (avoid badgering).
++
++If the conditions are not met, the skill returns the structured output contract and stops.
++
++## The offer prompt (exact text)
++
++The skill emits this message verbatim to the user (substituting only the bracketed values):
++
++```text
++Review complete: [N critical, N high, N medium, N low, N nits] in [report_path]
++[Posted to PR #N: <url>]
++
++Would you like to run the full remediation chain on these findings?
++
++  Phase A — /sc:design <report_path> --type architecture --format spec
++            (produces a remediation specification document)
++  Phase B — task-builder skill on the spec
++            (produces an MDTM task file with evidence-backed steps)
++  Phase C — /sc:reflect --type task --analyze
++            (sanity-checks the tasklist before execution; flags
++            scope drift, weak verification criteria, missing rollback)
++  Phase D — User-driven execution of the task file
++            (the skill does NOT auto-execute; you run /task <path>)
++  Phase E — /sc:reflect --type task --validate
++            (final gate before commit; blocks if validation fails)
++
++Reply 'yes' to proceed with Phase A, 'no' to stop here, or name a
++specific phase if you want to skip ahead (e.g., 'start at Phase B
++using existing spec at <path>').
++```
++
++The offer must be a single message, not a yes/no AskUserQuestion form — the user might want to skip phases or reroute, and a binary form forecloses that.
++
++## Phase A — `/sc:design`
++
++If the user accepts, the skill invokes:
++
++```
++/sc:design <REVIEW.md path>
++  --type architecture
++  --format spec
++  --output <output_dir>/remediation-spec.md
++```
++
++Rationale for the flag choices:
++
++- `--type architecture`: even for narrow-bug findings, `/sc:design` treats the input as a structured input and produces a spec; `architecture` is the broadest type, which is correct because reviews typically span multiple concerns. If the user prefers a tighter type, they can override.
++- `--format spec`: not `code` (we're not implementing yet) and not `diagram` (we want text that the task-builder can consume).
++- `--output <output_dir>/remediation-spec.md`: keeps the artifact next to the review for traceability.
++
++On `/sc:design` completion:
++- Capture the spec path.
++- Surface the spec path to the user with a one-line summary.
++- Proceed to Phase B unless the user says stop.
++
++## Phase B — `task-builder` skill
++
++The `task-builder` skill is invoked via natural language, not a slash command, because it's a skill (not a command). The skill triggers on phrases like "build a task file from..." per its description.
++
++The skill invokes the task-builder by emitting:
++
++```
++> Skill task-builder
++```
++
++with a BUILD_REQUEST that points at the remediation spec:
++
++```text
++GOAL: Build a task file to remediate the findings in <output_dir>/REVIEW.md,
++      following the remediation specification at <output_dir>/remediation-spec.md.
++
++WHY: Code review of <PR/diff/snapshot identifier> surfaced <N critical, N high>
++     findings that must be addressed before merge. The remediation spec defines
++     the structural changes; this task file should translate those into
++     evidence-backed, executable steps.
++
++WHERE: <list of files cited in the review's Critical and High sections>
++
++BUILD_REQUEST file: <output_dir>/BUILD-REQUEST-REMEDIATION.md
++```
++
++Before invoking, the skill writes the BUILD-REQUEST file with GOAL, WHY, OUTPUTS, CONTEXT, and a TEMPLATE preference (defaults to the project's standard MDTM template).
++
++On task-builder completion:
++- Capture the task file path from the skill's output.
++- Surface it with a one-line summary.
++- Proceed to Phase C unless the user says stop.
++
++## Phase C — `/sc:reflect --type task --analyze`
++
++The skill invokes:
++
++```
++/sc:reflect --type task --analyze
++```
++
++with the new task file as the implicit current task context (or pass the task file path explicitly if the user is in a session where multiple tasks are open).
++
++`/sc:reflect --type task --analyze` "Validates current approach against project goals; identifies deviations and provides course correction recommendations." Per its `## Behavioral Flow`, it uses Serena's `think_about_task_adherence` and `think_about_collected_information` tools.
++
++For our purposes, the analyze pass is a **pre-execution sanity check**. We're not asking "is this task done?" — we're asking "is this task plan well-formed enough to execute?". Specifically, the skill expects the reflect output to address:
++
++- Are the verification criteria for each task item strong enough to detect failure?
++- Are there obvious scope-drift risks (task items that have grown beyond what the review findings warrant)?
++- Is there a rollback / abort path documented?
++- Are dependencies between task items explicit?
++
++On reflect-analyze completion:
++- If reflect-analyze reports **no significant concerns**: surface that, then ask the user "Proceed to Phase D (execute) or refactor the tasklist first?"
++- If reflect-analyze reports **concerns**: surface them, and ask "Refactor the tasklist to address these, or override and proceed?"
++- If the user chooses to refactor: invoke `task-builder` again with the reflect-analyze concerns appended to the BUILD-REQUEST, then re-run Phase C. Cap at 2 refactor cycles to avoid infinite loops.
++
++## Phase D — Execution (user-driven)
++
++The skill **does not auto-execute** the task file. It surfaces the task file path and the recommended execution command:
++
++```text
++Tasklist validated. Ready to execute.
++
++  Run: /task <task-file-path>
++
++The skill will wait. When execution completes, reply 'done' or
++'execution complete' and I'll run the final validation gate.
++```
++
++Rationale: execution can be long and may want to be split across sessions; forcing the user to confirm gives them control. Also, the user may want to spot-check the task file before running it.
++
++After the user signals execution is complete, proceed to Phase E. If the user closes the session here, the skill returns the structured output contract with `remediation_status: in_progress`.
++
++## Phase E — `/sc:reflect --type task --validate`
++
++The skill invokes:
++
++```
++/sc:reflect --type task --validate
++```
++
++This is the **final gate before commit**. Per `/sc:reflect`'s `## Behavioral Flow`, `--validate` "Comprehensive analysis of session work and information gathering; quality assessment and gap identification."
++
++The validate pass checks:
++
++- Were all task items completed?
++- Do the completed artifacts satisfy the verification criteria each task item declared?
++- Are there any new defects introduced during execution?
++- Is the change minimal (no scope creep beyond what the original review findings required)?
++
++On validate completion:
++- If validate **passes**: surface that, and recommend the user commit. Do not auto-commit. The recommended commit message format is `fix(<scope>): remediate findings from <review-id>` with a reference to the review URL in the body.
++- If validate **fails**: surface the issues and ask the user how to proceed (re-run Phase D? Open a new review? Bail?). Do not recommend commit until validate passes.
++
++## Resumability
++
++If the user closes the session mid-chain, the skill writes the chain's state to `<output_dir>/remediation-state.json`:
++
++```json
++{
++  "phase": "<A|B|C|D|E>",
++  "last_completed": "<phase>",
++  "artifacts": {
++    "review_path": "...",
++    "spec_path": "...",
++    "task_file_path": "...",
++    "task_reflect_analyze_result": "...",
++    "task_reflect_validate_result": "..."
++  },
++  "started_at": "<iso>",
++  "last_updated_at": "<iso>"
++}
++```
++
++When the user re-invokes the skill with `--resume <output_dir>`, the chain picks up at the recorded phase.
++
++## Anti-patterns to avoid
++
++- **Don't auto-execute Phase D**. The most common failure mode of agentic remediation chains is silent execution of half-baked plans. The pause-for-user-confirmation pattern is intentional friction.
++- **Don't skip Phase C even if findings are "obviously small"**. The reflect-analyze pass is cheap and catches scope-drift early.
++- **Don't proceed to commit if Phase E fails**. The whole point of having a final validate gate is to refuse to commit broken work.
++- **Don't bundle the offer into an AskUserQuestion**. The user might want to start at Phase B with an existing spec, skip Phase C, etc. A free-form text offer preserves that flexibility.
++- **Don't badger the user**. If they say no, that's the final answer for this review.
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md b/src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md
+new file mode 100644
+index 00000000..9e3f9f97
+--- /dev/null
++++ b/src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md
+@@ -0,0 +1,172 @@
++# Severity Rubric
++
++Auggie's `severity_hint` is a starting point, not authoritative. After Wave 3 grounding completes, every finding is remapped through this rubric so the report grades consistently regardless of which Auggie pass produced the finding.
++
++## Why a rubric (and not just trust Auggie)
++
++Severity drift is the most common failure mode of AI code review: each invocation grades slightly differently, two findings in the same report contradict each other on severity, and reviewers lose trust in the report. The rubric exists to make grading reproducible — given two findings with the same factual content, they receive the same severity regardless of which pass found them.
++
++The rubric is intentionally explicit about what each tier means in **decision terms** (block merge? request changes? nit?), not just adjectives. That's what reviewers actually care about.
++
++## The five tiers
++
++### 🔴 Critical — Block merge
++
++A finding is Critical iff at least one of:
++
++- **Exploitable security defect**: anything that lets an unauthenticated or under-authorized actor read, modify, or escalate beyond their intended scope. Examples: SQL injection, missing authz check on a write endpoint, hardcoded production credentials, broken crypto, deserialization of untrusted input into executable types, path traversal in a file-serving endpoint.
++- **Data-integrity defect**: anything that can persist incorrect data, lose data, or corrupt invariants. Examples: missing transaction around a multi-step write, race condition in a counter, off-by-one that miswrites array bounds, a migration that drops a column without a backfill plan.
++- **Crash-on-startup or crash-on-default-path**: a null-deref, unhandled exception, or import-time failure that fires on the most common code path. Not "this could fail in some edge case" — "this will fail on the first run."
++- **Regulatory / compliance defect** for a project that operates under one: PII in logs that the project specifically excludes from logs, audit-trail bypass, anything explicitly called out in the repo's compliance docs.
++
++Critical findings receive both a summary comment (in the main report) AND an inline `gh` comment pinned to the file:line.
++
++### 🟠 High — Should fix before merge
++
++A finding is High iff at least one of:
++
++- **Latent security weakness**: not directly exploitable today but trivially exploitable if a precondition changes (e.g., an internal-only endpoint becomes external; a trusted-input function gets called with untrusted input). Examples: missing rate-limit on a write endpoint, broad CORS, weak password hash (when not user-facing yet), `eval()` of a constructed-but-currently-trusted string.
++- **Correctness defect on a non-default path**: edge cases that fire often enough to matter (empty list, max int, timezone DST, leap year, retry storm) but aren't the default path.
++- **Resource leak**: file handles, sockets, database connections, goroutines, timers — anything that accumulates without bound.
++- **API contract break**: changing a public method signature without bumping a version, breaking a documented invariant, silently changing the meaning of an existing flag.
++- **Concurrency hazard**: a race, deadlock potential, or missing synchronization that has a realistic trigger.
++- **Significant architectural drift**: introducing a layering violation that the codebase explicitly avoids, adding a new circular dependency, putting business logic in a presentation/transport layer when the convention is to keep it out.
++
++High findings receive inline `gh` comments in `--depth deep` mode; in `--depth standard` they get the summary listing only.
++
++### 🟡 Medium — Fix in this PR if cheap, otherwise file follow-up
++
++A finding is Medium iff at least one of:
++
++- **Code-quality issue with concrete consequences**: a god function that's already showing pain (the diff itself is making it worse), copy-pasted code that creates a maintenance burden, a swallowed exception that will hide future bugs, broad `except` that catches more than intended.
++- **Performance concern with no immediate user impact** but with a clear trajectory toward one (N+1 in a path that's currently low-volume but will scale).
++- **Anti-pattern manifesting once**: feature envy, primitive obsession, message chains, etc., visible at one site but not yet widespread.
++- **Test gap on non-trivial logic**: new branch / new function added without a test, but the function isn't on the critical path.
++- **Stale or contradictory docs** introduced by this change.
++
++### 🟢 Low — Nice-to-have
++
++A finding is Low iff:
++
++- The issue is real but the cost of fixing it exceeds the cost of living with it, OR
++- The improvement is opportunistic (a refactor adjacent to the diff, not required by it), OR
++- The pattern exists elsewhere in the codebase and fixing it only here would be inconsistent.
++
++### 💬 Nit — Style, naming, comments
++
++- Naming: snake_case vs camelCase consistency, abbreviation choices, ambiguous identifiers.
++- Comments: typos, comments that explain WHAT instead of WHY, missing trailing punctuation, etc.
++- Style: blank line conventions, import ordering — only if the repo has a documented convention and this change diverges. **Skip nits entirely if a linter/formatter (ruff, prettier, etc.) is configured and CI will catch them.**
++
++Nits are condensed into a single sub-section of the report (one-line per nit), never get inline comments, and never block merge.
++
++## Severity-remap algorithm (applied in Wave 3)
++
++For each finding F coming out of Auggie:
++
++1. **Start from Auggie's `severity_hint`**.
++2. **Apply category overrides** (the category is more reliable than the hint):
++
++| Category | Floor severity (cannot be downgraded below this without explicit reason) | Ceiling severity (cannot be upgraded above this without explicit reason) |
++|---|---|---|
++| `security` (when exploitable today) | Critical | — |
++| `security` (latent) | High | — |
++| `data-integrity` | High | Critical (only if persists corruption) |
++| `correctness` | Medium | Critical (only if default-path crash) |
++| `concurrency` | Medium | High (only if realistic trigger documented) |
++| `resource-leak` | Medium | High |
++| `api-contract` | Medium | High (if downstream consumers are in-repo) |
++| `performance` | Low | High (only if measured impact) |
++| `architecture` | Medium | High (if it adds a new violation; downgrade to Low if pre-existing) |
++| `layering` / `coupling` | Medium | High (same as architecture) |
++| `anti-pattern` | Low | Medium (Medium if the diff makes the smell worse) |
++| `dead-code` | Low | Low |
++| `tests` | Medium (if on critical path) / Low (otherwise) | High (only if breaking-change w/o test) |
++| `docs` | Low | Medium (if it's a public-API change w/ stale docs) |
++| `logging` | Low | High (PII in logs → High) |
++| `naming` / `style` | Nit | Low |
++
++3. **Apply confidence adjustment** (Auggie's `confidence` field):
++   - `low` confidence → drop severity by one tier (Critical → High, High → Medium, etc.). If Critical and low confidence, downgrade only if the orchestrator's grounding pass also flagged uncertainty.
++   - `medium` confidence → no change
++   - `high` confidence → no change
++4. **Apply diff-locality adjustment** (PR/diff mode only):
++   - `in_diff: true` → no change
++   - `in_diff: false` AND finding type is correctness/security on a callsite affected by the diff → no change
++   - `in_diff: false` AND finding is "pre-existing in code the diff doesn't touch" → drop one tier (this is the "PR scope" principle: don't make the PR author fix unrelated debt)
++5. **Apply cross-source agreement bonus** (`--depth deep` only):
++   - Finding present in both Auggie main pass AND the `auggie-reviewer` agent's independent pass → no change (already high-confidence)
++   - Finding present in only one source → drop one tier UNLESS the rubric's floor for that category prevents it
++
++The remap result is the final severity printed in the report.
++
++## Calibration examples
++
++These exist so the rubric is not just abstract — pin the algorithm to real shapes.
++
++### Example: SQL injection sink
++
++```python
++# new code in the diff
++def get_user(name):
++    return db.execute(f"SELECT * FROM users WHERE name = '{name}'")
++```
++
++- Auggie `severity_hint`: `critical`
++- Category: `security` (exploitable today)
++- Confidence: `high`
++- `in_diff`: `true`
++- **Remap result**: 🔴 Critical (matches the floor for exploitable security)
++
++### Example: god function getting worse
++
++```python
++# diff adds 40 lines to a function that is now 280 lines
++```
++
++- Auggie `severity_hint`: `medium`
++- Category: `anti-pattern`
++- Confidence: `medium`
++- `in_diff`: `true`
++- **Remap result**: 🟡 Medium (anti-pattern ceiling is Medium when the diff makes the smell worse)
++
++### Example: missing test on a new helper called only once
++
++- Auggie `severity_hint`: `high`
++- Category: `tests`
++- Function is called from one place, not on the critical path
++- Confidence: `high`
++- **Remap result**: 🟢 Low (off-critical-path test gaps cap at Low per the table; floor is Medium for critical-path)
++
++### Example: pre-existing layering violation that the diff doesn't touch
++
++- Auggie `severity_hint`: `high`
++- Category: `layering`
++- `in_diff`: `false` and the diff doesn't increase the violation
++- **Remap result**: 🟢 Low (PR-scope adjustment downgrades pre-existing-and-untouched)
++
++### Example: typo in a comment
++
++- Auggie `severity_hint`: `low`
++- Category: `style`
++- **Remap result**: 💬 Nit (style ceiling is Nit unless there's a Low-tier reason to elevate)
++
++## What NOT to include in the report
++
++- Findings that fail file:line grounding (handled in Wave 3, never reach the rubric)
++- Findings about formatting that a configured formatter would fix (`ruff format`, `prettier`, etc.)
++- Findings that are restatements of caveats already in the PR description
++- Findings that are duplicates of higher-severity findings on the same file:line (dedupe step folds them in)
++
++## Decision-mode summary (for the report header)
++
++After all findings are graded, compute a single recommendation:
++
++| Counts | Recommendation in report summary |
++|---|---|
++| `critical > 0` | **Block merge** — Critical findings must be resolved or explicitly accepted by the human reviewer |
++| `critical == 0 && high > 0` | **Request changes** — High findings should be addressed before merge |
++| `critical == 0 && high == 0 && (medium > 0 || low > 0)` | **Approve with comments** — Items worth fixing but not blocking |
++| All findings are Nit/Low or no findings | **Looks good** — Minor observations only |
++
++This recommendation is the report's first-paragraph verdict. It does NOT translate into a `gh pr review --approve` or `--request-changes` — those decisions belong to the human. The report is always posted as a `--comment` review.

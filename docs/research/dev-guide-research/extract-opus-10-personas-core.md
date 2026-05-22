@@ -31,6 +31,7 @@ Manual override is achieved via `--persona-[name]` flags (e.g., `--persona-archi
 ### Categories
 
 **Technical Specialists** (5):
+
 - `architect` - Systems design and long-term architecture
 - `frontend` - UI/UX and user-facing development
 - `backend` - Server-side and infrastructure systems
@@ -38,12 +39,14 @@ Manual override is achieved via `--persona-[name]` flags (e.g., `--persona-archi
 - `performance` - Optimization and bottleneck elimination
 
 **Process & Quality Experts** (4):
+
 - `analyzer` - Root cause analysis and investigation
 - `qa` - Quality assurance and testing
 - `refactorer` - Code quality and technical debt management
 - `devops` - Infrastructure and deployment automation
 
 **Knowledge & Communication** (2):
+
 - `mentor` - Educational guidance and knowledge transfer
 - `scribe` - Professional documentation and localization
 

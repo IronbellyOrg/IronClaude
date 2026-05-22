@@ -12,6 +12,7 @@ This directory contains utility scripts.
 These scripts are copies from `plugins/superclaude/scripts/` for package distribution.
 
 When updating scripts:
+
 1. Edit files in `plugins/superclaude/scripts/`
 2. Copy changes to `src/superclaude/scripts/`
 3. Both locations must stay in sync

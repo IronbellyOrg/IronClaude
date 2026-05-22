@@ -72,6 +72,7 @@ Two make targets govern the build and sync pipeline:
 > 3. "Renders manifest templates with version/author pulled from `pyproject.toml` / git tags."
 
 This means:
+
 - Tests must pass before any packaging occurs.
 - The build output lands in `dist/plugins/superclaude/.claude-plugin/`.
 - Manifest templates (`plugin.template.json`, `marketplace.template.json`) are parameterized and rendered with values from `pyproject.toml` and git tags.
@@ -93,6 +94,7 @@ Manifests live in `plugins/superclaude/manifest/` as templates:
 - **`marketplace.template.json`** -- Marketplace listing metadata.
 
 At build time (`make build-plugin`), these templates are rendered with:
+
 - **Version**: pulled from `pyproject.toml`
 - **Author/metadata**: pulled from `pyproject.toml` and/or git tags
 
@@ -126,28 +128,34 @@ The Plugin repository is intended to become a generated output with a "do not ed
 ## 6. Key Conventions for Custom Development
 
 ### Commands
+
 - Format: Markdown files with **YAML frontmatter** + markdown body
 - Location: `plugins/superclaude/commands/`
 - Consumed by Claude Code as `/sc:*` slash commands
 
 ### Agents
+
 - Format: Markdown files (`.md`)
 - Location: `plugins/superclaude/agents/`
 - Purpose: "Markdown instructions consumed by `/sc:*` commands"
 
 ### Skills
+
 - Format: Directory containing at minimum `SKILL.md` plus implementation files
 - Location: `plugins/superclaude/skills/<skill-name>/`
 - Example structure:
+
   ```
   skills/
     confidence-check/
       SKILL.md
       confidence.ts
   ```
+
 - Tests live separately in `plugins/superclaude/tests/`
 
 ### Hooks
+
 - Format: JSON configuration (`hooks.json`)
 - Location: `plugins/superclaude/hooks/`
 - Purpose: SessionStart automation

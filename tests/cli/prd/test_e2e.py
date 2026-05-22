@@ -128,22 +128,22 @@ def _make_passing_output(step_id: str, line_count: int = 100) -> str:
                 "Scenario: B",
                 "Tier: standard",
                 "---",
-                "## Product Capabilities",
-                "The product supports comprehensive CLI-driven PRD generation.",
-                "## Technical Architecture",
-                "Subprocess-based pipeline with 15 orchestrated steps.",
-                "## User Flows",
+                "## EXISTING_FILES",
+                "src/superclaude/cli/prd/ -- entry point for the PRD pipeline.",
+                "## PATTERNS_AND_CONVENTIONS",
+                "Subprocess-driven pipeline with explicit gates per step.",
+                "## FEATURE_ANALYSIS",
                 "User invokes CLI, pipeline generates PRD via staged agents.",
-                "## Integration Points",
-                "Integrates with Claude subprocess API and MCP servers.",
-                "## Existing Documentation",
-                "Existing docs cover CLI usage and skill definitions.",
-                "## Gap Analysis",
-                "Gaps identified in assembly QA and resume handling.",
-                "## Suggested Phases",
+                "## RECOMMENDED_OUTPUTS",
+                "Final PRD markdown plus per-step artifacts under task_dir.",
+                "## SUGGESTED_PHASES",
                 "1. Research and context gathering",
                 "2. Synthesis and template population",
                 "3. Assembly and quality assurance",
+                "## TEMPLATE_NOTES",
+                "Standard PRD template; no special handling required.",
+                "## AMBIGUITIES_FOR_USER",
+                "None identified for this stub fixture.",
             ]
         )
     elif step_id == "build-task-file":
@@ -281,7 +281,9 @@ def test_e2e_full_prd_creation_standard(
     executor = PrdExecutor(standard_e2e_config)
 
     # Mock _build_prompt to avoid intermediate file dependencies
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -337,7 +339,9 @@ def test_e2e_lightweight_prd(
     ]
 
     executor = PrdExecutor(lightweight_e2e_config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -399,7 +403,9 @@ def test_e2e_resume_from_halted_step(
     mock_process_cls.side_effect = tracking_factory
 
     executor = PrdExecutor(config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -491,7 +497,9 @@ def test_e2e_existing_work_detection(
     # Phase 5: Run executor -- check-existing returns SKIPPED for
     # ALREADY_COMPLETE state, rest of pipeline proceeds
     executor = PrdExecutor(config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 
@@ -538,7 +546,9 @@ def test_e2e_budget_exhaustion(mock_synth_mapping, mock_process_cls, e2e_task_di
     config.work_dir = e2e_task_dir.parent
 
     executor = PrdExecutor(config)
-    executor._build_prompt = lambda builder_name: f"Mock prompt for {builder_name}"
+    executor._build_prompt = (
+        lambda builder_name, step_id=None: f"Mock prompt for {builder_name}"
+    )
 
     result = executor.run()
 

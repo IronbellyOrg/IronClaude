@@ -1,6 +1,7 @@
 # Adversarial Debate: Should Stop-on-STRICT-Fail Be Added to Path A Worker Prompts?
 
 ## Metadata
+
 - Generated: 2026-04-03
 - Depth: quick (1 round)
 - Variants: 2 (Position FOR vs Position AGAINST)
@@ -52,11 +53,13 @@ The Sprint CLI has two execution paths for task phases:
 **Strengths claimed**:
 
 1. **Worker behavior on failure is currently unguided (C-003)**. The Path A prompt at `executor.py:1064-1068` is:
+
    ```
    Execute task {task_id}: {title}
    From phase file: {phase.file}
    Description: {description}
    ```
+
    There is no instruction about failure severity. A worker encountering a failing test might spend 20+ turns attempting workarounds, retries, or alternative approaches before eventually exiting non-zero. With a STRICT halt instruction, the worker would know to exit immediately and cleanly, saving significant token budget.
 
 2. **The `TaskEntry` dataclass has no tier field (`models.py:26-38`)**. Even if we wanted to add halt instructions, the infrastructure does not currently propagate tier information to Path A. This is a data model gap that should be addressed regardless of the prompt debate -- the orchestrator itself has no programmatic way to distinguish STRICT from STANDARD task failures.
@@ -149,13 +152,14 @@ The Sprint CLI has two execution paths for task phases:
 
 ## 5. Ruling
 
-### Decision: DO NOT add stop-on-STRICT-fail instructions to Path A worker prompts.
+### Decision: DO NOT add stop-on-STRICT-fail instructions to Path A worker prompts
 
 ### Rationale
 
 Path A's per-task subprocess architecture already provides structural halt guarantees that are *stronger* than prompt instructions. Each worker sees exactly one task and cannot proceed to the next -- the orchestrator loop (`executor.py:956`, `executor.py:1456`) is the decision-maker. Adding halt instructions would create a redundant control channel that conflates worker and orchestrator responsibilities.
 
 The inconsistency between Path A and Path B is **justified by their different architectures**, not a defect:
+
 - **Path B** (single subprocess, all tasks): Worker *must* know about tier severity because it is the only entity that can halt mid-execution
 - **Path A** (one subprocess per task): Worker *cannot* proceed to the next task; the orchestrator decides continuation
 

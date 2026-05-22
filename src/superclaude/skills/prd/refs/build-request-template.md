@@ -4,9 +4,10 @@
 
 ---
 
-BUILD_REQUEST:
+BUILD_REQUEST
 ==============
-GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at src/superclaude/examples/prd_template.md. The PRD will be written to [OUTPUT_PATH].
+
+GOAL: Create a comprehensive Product Requirements Document (PRD) for [GOAL] following the project template at .claude/templates/workflow/05_prd_template.md. The PRD will be written to [OUTPUT_PATH].
 
 WHY: [WHY — what this PRD is for and how it will be used]
 
@@ -18,6 +19,7 @@ TEMPLATE: [01 or 02 — skill selects:
 
 PRD_SCOPE: [Product PRD / Feature PRD]
 If Feature PRD, the following sections are affected:
+
 - S2 Problem Statement: Do NOT include a "Market Opportunity" subsection with TAM/SAM/SOM.
   Instead include "Why This Feature is Required" explaining criticality to the platform.
   Reference Platform PRD for market context.
@@ -51,6 +53,7 @@ or [UNVERIFIED]. Phase 2 agents will do full cross-validation, but avoid
 building on obviously stale foundations.
 
 TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
+
 - Phase 1 (Preparation): Update task status, confirm scope from research notes, read the template, select depth tier, create task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders
 - Phase 2 (Deep Investigation): L1 Discovery — agents explore codebase and write findings files to ${TASK_DIR}research/
 - Phase 3 (Completeness Verification): L4 Review/QA — spawn rf-analyst (completeness-verification) then rf-qa (research-gate) as parallel quality gate. Both write reports. QA verdict gates progression.
@@ -64,6 +67,7 @@ ${TASK_DIR}research-notes.md
 Read this file FIRST for full detailed findings including: existing files, patterns, planned investigation assignments, synthesis mapping, and output paths.
 
 SKILL CONTEXT FILES:
+
 - `refs/agent-prompts.md` — Read for: Codebase Research Agent Prompt, Web Research Agent Prompt, Synthesis Agent Prompt, Research Analyst Agent Prompt, Research QA Agent Prompt, Synthesis QA Agent Prompt, Report Validation QA Agent Prompt, Assembly Agent Prompt. These must be embedded in the relevant checklist items per B2 self-contained pattern.
 - `refs/synthesis-mapping.md` — Read for: the standard synth-file-to-PRD-section mapping and the PRD output structure/skeleton.
 - `refs/validation-checklists.md` — Read for: Synthesis Quality Review Checklist (post-synthesis verification), Assembly Process (PRD assembly steps), Validation Checklist (Phase 6 validation criteria), Content Rules (writing standards). These must be embedded in the relevant checklist items per B2 self-contained pattern.
@@ -78,6 +82,7 @@ its own checklist item. The research notes SUGGESTED_PHASES section contains
 per-agent detail specifically to enable this granularity.
 
 TO BUILD A GOOD TASK FILE, YOU NEED:
+
 - Goal and outputs (what to create, where, what format)
 - Source files and context (what exists, what to reference) — from the research notes
 - Phases and steps (logical breakdown of the work) — from the research notes SUGGESTED_PHASES + SKILL.md phase definitions
@@ -91,6 +96,7 @@ Do NOT broadcast TASK_READY, use TaskCreate, or use SendMessage — these tools
 will fail because there is no team. This overrides your agent definition's
 Critical Rule 6 ("ALWAYS broadcast TASK_READY") and Step 6 (TaskCreate + broadcast).
 Instead, return the task file path as your final output.
+
 - **Codebase questions** → use WebSearch or codebase-retrieval (you have access)
 - **External docs/syntax** → use WebSearch
 - **If blocked** → create the best task file you can and note gaps in the Task Log section. The skill will review and iterate.
@@ -99,13 +105,15 @@ SKILL PHASES TO ENCODE IN TASK FILE:
 The task file MUST encode these phases as sequential checklist items. Each phase maps to a section of the skill's workflow. All items MUST follow the B2 self-contained pattern from the MDTM template.
 
 Phase 1 — Preparation:
+
 - Update task status to "🟠 Doing"
 - Confirm scope from research notes (product boundaries, key directories, tier selection)
-- Read the PRD template at src/superclaude/examples/prd_template.md
+- Read the PRD template at .claude/templates/workflow/05_prd_template.md
 - Select depth tier (Lightweight / Standard / Heavyweight) based on product scope and complexity
 - Create the task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders (if not already created during scope discovery)
 
 Phase 2 — Deep Investigation (PARALLEL SPAWNING MANDATORY):
+
 - One checklist item PER research agent (from research notes SUGGESTED_PHASES)
 - Each item spawns an Agent subagent with the full codebase research agent prompt from refs/agent-prompts.md
 - Each item specifies: investigation topic, type (Feature Analyst / Doc Analyst / Integration Mapper / UX Investigator / Architecture Analyst), files to investigate, output file path
@@ -114,6 +122,7 @@ Phase 2 — Deep Investigation (PARALLEL SPAWNING MANDATORY):
 - Agent count follows tier guidance: Lightweight 2-3, Standard 4-6, Heavyweight 6-10+
 
 Phase 3 — Research Completeness Verification (ANALYST + QA GATE, PARALLEL):
+
 - Spawn `rf-analyst` (subagent_type: "rf-analyst", analysis_type: "completeness-verification") AND `rf-qa` (subagent_type: "rf-qa", qa_phase: "research-gate") IN PARALLEL. Both agents independently read research files and apply their own checklists. The analyst writes to `${TASK_DIR}qa/analyst-completeness-report.md`. The QA agent writes to `${TASK_DIR}qa/qa-research-gate-report.md`. Embed full prompts from respective agent definitions in each checklist item per B2.
 - **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE analyst instances and MULTIPLE QA instances in parallel, each with an `assigned_files` subset. The threshold is >6 for research files because research files tend to be longer and more detailed than synthesis files. Each partition instance writes to a numbered report (e.g., `${TASK_DIR}qa/analyst-completeness-report-1.md`). After all instances complete, merge their reports.
 - Read ALL reports. Determine verdict from QA report(s) (PASS / FAIL).
@@ -123,6 +132,7 @@ Phase 3 — Research Completeness Verification (ANALYST + QA GATE, PARALLEL):
 - Do NOT proceed to Phase 4 until verdict is PASS
 
 Phase 4 — Web Research (PARALLEL SPAWNING MANDATORY):
+
 - One checklist item PER web research topic (from research notes SUGGESTED_PHASES)
 - Each item spawns an Agent subagent with the web research agent prompt from refs/agent-prompts.md
 - Each item specifies: topic, context from codebase findings, output file path
@@ -130,6 +140,7 @@ Phase 4 — Web Research (PARALLEL SPAWNING MANDATORY):
 - Agent count follows tier guidance: Lightweight 0-1, Standard 1-2, Heavyweight 2-4
 
 Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
+
 - One checklist item PER synthesis file (from Synthesis Mapping Table in refs/synthesis-mapping.md)
 - Each item spawns an Agent subagent with the synthesis agent prompt from refs/agent-prompts.md
 - Each item specifies: research files to read, template sections to produce, output path
@@ -138,6 +149,7 @@ Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
 - If FAIL → re-run affected synthesis agents, then re-spawn `rf-qa` (fix-cycle). Maximum 2 fix cycles for synthesis — after 2 failed cycles, HALT and present to user.
 
 Phase 6 — Assembly & Validation (RF-ASSEMBLER + Structural QA + Qualitative QA):
+
 - Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") to assemble the final PRD. Hand it: the list of synth file paths in order, the PRD output path, the PRD template structure from refs/synthesis-mapping.md, the Assembly Process steps from refs/validation-checklists.md, and the Content Rules from refs/validation-checklists.md. The assembler reads each synth file and writes the PRD incrementally section by section. The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt in the checklist item per B2.
 - After the assembler returns, spawn `rf-qa` (qa_phase: "report-validation", fix_authorization: true). The QA agent validates the assembled PRD against the Validation Checklist from refs/validation-checklists.md (structural/semantic checks: section numbers, cross-references, evidence citations, template conformance). The QA agent writes to `${TASK_DIR}qa/qa-report-validation.md`. Embed the full QA prompt in the checklist item per B2.
 - Read the structural QA report. If issues remain unfixed, address them before proceeding to qualitative QA.
@@ -145,6 +157,7 @@ Phase 6 — Assembly & Validation (RF-ASSEMBLER + Structural QA + Qualitative QA
 - Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected sections. If issues remain unfixed, address ALL of them before proceeding to Phase 7. Zero leniency — no severity level is exempt.
 
 Phase 7 — Present to User & Complete Task:
+
 - Present summary to user (PRD location, line count, tier classification, sections populated vs skipped, research/synth artifact locations, gaps needing manual review)
 - Ask about downstream documents: "This PRD can feed directly into a Technical Design Document. Would you like me to create a TDD using the `/tdd` skill? The research files are already in place." If yes, invoke the `tdd` skill with the PRD as input.
 - If the PRD was created by consolidating existing docs, present source docs to user and ask about archiving (Step 11 from refs/validation-checklists.md)
@@ -154,6 +167,7 @@ Phase 7 — Present to User & Complete Task:
 TASK FILE LOCATION: .dev/tasks/to-do/TASK-PRD-[YYYYMMDD]-[HHMMSS]/TASK-PRD-[YYYYMMDD]-[HHMMSS].md
 
 STEPS:
+
 1. Read the research notes file specified above (MANDATORY)
 2. Read the SKILL CONTEXT FILES specified above for agent prompts, PRD template structure, validation checklist, and content rules (MANDATORY)
 3. Read the MDTM template specified in TEMPLATE field above (MANDATORY):

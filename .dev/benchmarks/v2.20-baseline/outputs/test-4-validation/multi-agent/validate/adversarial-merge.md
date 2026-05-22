@@ -27,18 +27,21 @@ validation_agents: 'opus-architect, haiku-analyst'
 ### BLOCKING
 
 **B-001 [BLOCKING] Parseability — extraction.md blank lines before YAML frontmatter** (ONLY_A)
+
 - **Location**: `extraction.md:1-2`
 - **Evidence**: The file begins with blank lines before the opening `---`. YAML frontmatter parsers require `---` on line 1. All 12 frontmatter fields become unparseable.
 - **Fix**: Remove all blank lines before the opening `---` so it appears on line 1.
 - **Note**: Only Agent A identified this. Agent B may not have checked raw file structure. High confidence — frontmatter parsing is deterministic.
 
 **B-002 [BLOCKING] Cross-file consistency — SC-008 test count mismatch** (CONFLICT → escalated to BLOCKING)
+
 - **Location**: `extraction.md:SC-008` vs `test-strategy.md:Section 2` vs `roadmap.md:Phase 5`
 - **Evidence**: SC-008 states "7 unit tests and 4 integration tests." Test-strategy defines 6 integration tests (IT-01 through IT-06). Roadmap Phase 5 also lists 6 integration items. Integration count disagrees (4 vs 6).
 - **Fix**: Normalize all three artifacts to the same integration-test count and ensure SC-008 matches the enumerated tests.
 - **Conflict resolution**: Agent A classified as WARNING, Agent B as BLOCKING. Escalated to BLOCKING because cross-file numeric inconsistency in test counts directly affects tasklist generation correctness — a tasklist built from conflicting counts would produce wrong acceptance criteria.
 
 **B-003 [BLOCKING] Traceability — FR-010 report body structure lacks explicit deliverable** (CONFLICT → escalated to BLOCKING)
+
 - **Location**: `extraction.md:FR-010` → `roadmap.md:Phase 2 deliverables`
 - **Evidence**: FR-010 requires specific report sections (Summary, Blocking Issues with B-NNN IDs, Warnings W-NNN, Info I-NNN, Validation Metadata). No roadmap deliverable explicitly implements this structure. Agent B additionally notes reverse gaps: Phase 2 item 4 and Phase 4 item 3 have no traced requirement.
 - **Fix**: Add explicit requirement IDs to deliverables. Add a deliverable implementing FR-010's report body structure. Map orphan deliverables to formal requirements or add them to extraction.md.
@@ -47,28 +50,33 @@ validation_agents: 'opus-architect, haiku-analyst'
 ### WARNING
 
 **W-001 [WARNING] Schema — interleave_ratio typed as string in test-strategy.md** (ONLY_B)
+
 - **Location**: `test-strategy.md:3`
 - **Evidence**: The field stores `'1:1'` (string) instead of `1.0` (numeric). Validation rules expect a numeric value in `[0.1, 1.0]`.
 - **Fix**: Change to numeric `1.0`, or remove from frontmatter and keep `1:1` wording in body only.
 - **Note**: Agent B classified as BLOCKING. Downgraded to WARNING because the interleave ratio is an informational metric computed during validation, not a gate-blocking field. The actual interleave distribution is correct (both agents confirm 5/5 = 1.0). The type mismatch should be fixed but does not block tasklist generation.
 
 **W-002 [WARNING] Structure — Roadmap internal section reference does not resolve** (ONLY_B)
+
 - **Location**: `roadmap.md:Executive Summary`
 - **Evidence**: Executive summary says "see Section 6" but the target heading is `## Open Questions — Resolved Recommendations`, which may not be section 6 depending on counting.
 - **Fix**: Replace numbered reference with actual heading text.
 - **Note**: Agent B classified as BLOCKING. Downgraded to WARNING because broken internal cross-references within prose do not affect tasklist generation from structured deliverables. It is a documentation quality issue, not a structural integrity issue.
 
 **W-003 [WARNING] Cross-file consistency — NFR-007 subprocess isolation has no test** (ONLY_A)
+
 - **Location**: `extraction.md:NFR-007` → `test-strategy.md` (absent)
 - **Evidence**: NFR-007 requires subprocess context independence. No test verifies this. AT-01 checks reverse imports but not subprocess isolation.
 - **Fix**: Add an architecture test verifying `execute_validate` spawns a `ClaudeProcess` rather than running in-session.
 
 **W-004 [WARNING] Decomposition — Phase 4 deliverable 2 is compound** (BOTH_AGREE)
+
 - **Location**: `roadmap.md:Phase 4, deliverable 2`
 - **Evidence**: Combines 4 distinct behaviors: (a) auto-invoke `execute_validate()`, (b) inherit parent options, (c) skip on `--no-validate`, (d) skip on `--resume` halt.
 - **Fix**: Split into separate deliverables with one behavior each.
 
 **W-005 [WARNING] Decomposition — Phase 3 deliverable 1 is compound** (ONLY_B)
+
 - **Location**: `roadmap.md:Phase 3, deliverable 1`
 - **Evidence**: Combines file loading, input validation, agent-count routing, reflection execution, gate checks, and report writing into a single deliverable.
 - **Fix**: Split into smaller deliverables with one primary output per item.
@@ -76,16 +84,19 @@ validation_agents: 'opus-architect, haiku-analyst'
 ### INFO
 
 **I-001 [INFO] Structure — Sequential numbering instead of global deliverable IDs** (ONLY_A)
+
 - **Location**: `roadmap.md:Phases 1-5`
 - **Evidence**: Deliverables numbered locally per phase. No global D-NNN scheme for unambiguous cross-referencing.
 - **Fix**: Consider adding globally unique deliverable IDs.
 
 **I-002 [INFO] Cross-file consistency — info_count not validated by any gate** (ONLY_A)
+
 - **Location**: `extraction.md:FR-009` vs `roadmap.md:Phase 1, deliverable 2`
 - **Evidence**: FR-009 requires `info_count` in frontmatter but no gate checks it.
 - **Fix**: Add to REFLECT_GATE or document intentional exclusion.
 
 **I-003 [INFO] Interleave — Testing well-distributed across phases** (BOTH_AGREE)
+
 - **Location**: `roadmap.md` and `test-strategy.md`
 - **Evidence**: All 5 phases contain deliverables and test activities. Interleave ratio = 1.0, within [0.1, 1.0].
 - **Fix**: None required.
@@ -121,6 +132,7 @@ validation_agents: 'opus-architect, haiku-analyst'
 ### Overall Assessment
 
 **Not ready for tasklist generation.** 3 blocking issues must be resolved:
+
 1. Fix extraction.md frontmatter (trivial — remove blank lines)
 2. Normalize test counts across extraction/test-strategy/roadmap
 3. Close FR-010 traceability gap and map orphan deliverables to requirements

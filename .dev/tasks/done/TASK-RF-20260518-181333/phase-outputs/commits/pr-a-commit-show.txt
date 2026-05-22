@@ -1,0 +1,82 @@
+commit 57006bf7bb1337e6d991f9aec3d567e2d77adca0
+Author: RyanW <ryan@ironbelly.com>
+Date:   Mon May 18 21:28:38 2026 +0000
+
+    feat(sprint): land C1-C4 deterministic runner fixes (TASK-RF-20260518-015659)
+
+    C1-C4 sprint runner determinism fixes per TASK-RF-20260518-015659 (5 QA gates
+    passed: C1 verdict, C2 verdict, C3 verdict, C4 verdict, qualitative verdict).
+    Lands four source changes in src/superclaude/cli/sprint/ plus six paired
+    test changes in tests/sprint/ and tests/pipeline/:
+
+      src/superclaude/cli/sprint/
+        commands.py   - C-level command wiring fixes
+        config.py     - config loader + preflight adjustments
+        executor.py   - phase isolation + halt/SIGINT handling
+        models.py     - SprintConfig/Phase model corrections
+
+      tests/sprint/    - test_config, test_executor, test_models,
+                         test_regression_gaps, test_watchdog
+      tests/pipeline/  - test_process
+
+    Task evidence (verdict files, QA reports, pytest outputs across phases 3-7,
+    qualitative review) is included under .dev/tasks/to-do/TASK-RF-20260518-015659/
+    per the project's release-artifact-tracking convention.
+
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .../TASK-RF-20260518-015659.md                     |  488 ++
+ .../phase-outputs/discovery/branch-check.txt       |    4 +
+ .../discovery/fix-targets-confirmed.md             |   34 +
+ .../phase-outputs/plans/c1-verdict.md              |    7 +
+ .../phase-outputs/plans/c2-verdict.md              |    7 +
+ .../phase-outputs/plans/c3-verdict.md              |    5 +
+ .../phase-outputs/plans/c4-verdict.md              |    5 +
+ .../plans/phase-7-make-test-verdict.md             |   10 +
+ .../phase-outputs/plans/phase-7-pytest-verdict.md  |   10 +
+ .../phase-outputs/plans/qualitative-verdict.md     |   11 +
+ .../phase-outputs/reports/all-fixes-summary.md     |   60 +
+ .../phase-outputs/reviews/c1-input-bundle.md       |   57 +
+ .../phase-outputs/reviews/c1-qa-report.md          |   39 +
+ .../phase-outputs/reviews/c2-input-bundle.md       |   71 +
+ .../phase-outputs/reviews/c2-qa-report.md          |   80 +
+ .../phase-outputs/reviews/c3-input-bundle.md       |   54 +
+ .../phase-outputs/reviews/c3-qa-report.md          |   90 +
+ .../phase-outputs/reviews/c4-input-bundle.md       |   66 +
+ .../phase-outputs/reviews/c4-qa-report.md          |   45 +
+ .../phase-outputs/reviews/qualitative-review.md    |  106 +
+ .../test-results/phase-3-c3-pytest-output.txt      |   15 +
+ .../test-results/phase-3-c3-summary.md             |   27 +
+ .../test-results/phase-4-c4-pytest-output.txt      |   16 +
+ .../test-results/phase-4-c4-summary.md             |   25 +
+ .../test-results/phase-5-c1-pytest-output.txt      |   17 +
+ .../test-results/phase-5-c1-summary.md             |   22 +
+ .../test-results/phase-6-c2-pytest-output.txt      |   17 +
+ .../test-results/phase-6-c2-summary.md             |   27 +
+ .../test-results/phase-7-make-lint-output.txt      | 2869 ++++++++
+ .../test-results/phase-7-make-lint-summary.md      |   50 +
+ .../test-results/phase-7-make-test-output.txt      | 7454 ++++++++++++++++++++
+ .../test-results/phase-7-make-test-summary.md      |   43 +
+ .../phase-7-sprint-pipeline-pytest-output.txt      | 2858 ++++++++
+ .../phase-7-sprint-pipeline-pytest-summary.md      |   43 +
+ .../qa/analyst-completeness-report.md              |  205 +
+ .../qa/qa-qualitative-review.md                    |  101 +
+ .../qa/qa-research-gate-report.md                  |  115 +
+ .../qa/qa-task-validation-report.md                |  115 +
+ .../TASK-RF-20260518-015659/research-notes.md      |  187 +
+ .../research/01-file-inventory.md                  |  436 ++
+ .../research/02-patterns-and-conventions.md        |  353 +
+ .../research/03-integration-points.md              |  304 +
+ .../research/04-template-and-examples.md           |  356 +
+ .../research/05-test-and-verification.md           |  382 +
+ src/superclaude/cli/sprint/commands.py             |   10 +
+ src/superclaude/cli/sprint/config.py               |    2 +
+ src/superclaude/cli/sprint/executor.py             |   56 +-
+ src/superclaude/cli/sprint/models.py               |    7 +
+ tests/pipeline/test_process.py                     |   74 +
+ tests/sprint/test_config.py                        |   38 +
+ tests/sprint/test_executor.py                      |  115 +
+ tests/sprint/test_models.py                        |   51 +
+ tests/sprint/test_regression_gaps.py               |   67 +
+ tests/sprint/test_watchdog.py                      |  166 +
+ 54 files changed, 17864 insertions(+), 8 deletions(-)

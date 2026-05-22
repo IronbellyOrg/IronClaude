@@ -29,43 +29,55 @@ The v3.7 spec invests its improvements exclusively into Path B (`build_prompt()`
 ## What v3.7 Does NOT Address (Path A Gaps)
 
 ### Gap 1: Per-Task Prompt Enrichment
+
 **Not mentioned in spec.** `_run_task_subprocess()` at executor.py:1064-1068 is never referenced.
+
 - No per-task block extraction
 - No scope boundary
 - No sprint context injection
 - No skill invocation (`/sc:task-unified`)
 
 ### Gap 2: TurnLedger Reimbursement Bugs
+
 **Not mentioned in spec.**
+
 - `turns_consumed` returns 0 (executor.py:1091)
 - `TaskResult.output_path` never set (executor.py:1017-1025)
 - `gate_rollout_mode` defaults to "off"
 - The economic feedback loop is mathematically zeroed out
 
 ### Gap 3: Evidence/Deliverable Verification
+
 **Not mentioned in spec.** No post-task check that `artifacts/D-XXXX/evidence.md` or deliverable files exist.
 
 ### Gap 4: `build_task_context()` Wiring
+
 **Not mentioned in spec.** Dead code remains dead.
 
 ### Gap 5: Task Dependency Enforcement
+
 **Not mentioned in spec.** Parsed but not used for ordering.
 
 ### Gap 6: Task-Level Resume
+
 **Not mentioned in spec.** Phase-level only.
 
 ## Refactoring Principles for v3.7 Revision
 
 ### Principle 1: Path A Is the Production Path
+
 Every improvement that targets `build_prompt()` should be evaluated for Path A applicability. If it brings value to per-task execution, it must be adapted for that path.
 
 ### Principle 2: Don't Force-Fit Path B Patterns onto Path A
+
 Some Path B patterns (result file contract, stop-on-STRICT-fail) are architecturally unnecessary for Path A due to subprocess isolation. These should NOT be ported.
 
 ### Principle 3: Fix the Three Reimbursement Bugs
+
 The TurnLedger system is the existing intra-task QA mechanism. Fixing three input-side bugs (`turns_consumed`, `output_path`, `gate_rollout_mode` default) activates an already-tested economic feedback loop.
 
 ### Principle 4: Low-Cost High-Impact First
+
 Per-task prompt enrichment (~280 tokens) and `output_path` wiring (1 line change) are trivially cheap relative to their impact on task execution quality.
 
 ## Spec Chunks for Parallel Refactor Analysis

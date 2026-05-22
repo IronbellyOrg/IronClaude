@@ -1,6 +1,7 @@
 # User Authentication System
 
 ## Overview
+
 Implement a comprehensive user authentication system with OAuth2, JWT tokens, and role-based access control.
 
 ## Functional Requirements
@@ -28,6 +29,7 @@ Implement a comprehensive user authentication system with OAuth2, JWT tokens, an
 - NFR-006: Encrypt all PII at rest and in transit
 
 ## In Scope
+
 - User registration and login flows
 - Token management (JWT + refresh tokens)
 - Role and permission management
@@ -35,11 +37,13 @@ Implement a comprehensive user authentication system with OAuth2, JWT tokens, an
 - Audit trail for compliance
 
 ## Out of Scope
+
 - Biometric authentication
 - Hardware security keys
 - Custom SSO protocol implementation
 
 ## Dependencies
+
 - PostgreSQL 15+ for user data storage
 - Redis for session caching
 - SendGrid for email delivery
@@ -55,6 +59,7 @@ Implement a comprehensive user authentication system with OAuth2, JWT tokens, an
 | R-004: Data breach of PII | Critical | Low | Encryption, access controls, auditing |
 
 ## Success Criteria
+
 - [ ] All FR requirements implemented and tested
 - [ ] OWASP compliance verified via security scan
 - [ ] Load testing confirms 10K concurrent sessions

@@ -9,6 +9,7 @@ author: "[name or agent]"
 # [Component Name] — Release Guide
 
 This guide covers the `[component]` [CLI tool / skill / command], including:
+
 - what [each component / the skill] does,
 - when to use it,
 - how to [run it / invoke it],
@@ -25,11 +26,13 @@ This guide covers the `[component]` [CLI tool / skill / command], including:
 ## 1) Release Summary (What is included)
 
 ### Core [command surface / capability]
+
 [1-3 sentence description of what this component provides. Include the number of subcommands or primary operations.]
 
 ### [Migration notes (include if this replaces or refactors a prior version)]
 
 [If this release changes behavior from a prior version, document:
+
 - **What changed**: Concrete list of behavioral or structural changes
 - **What broke**: Any backwards-incompatible changes
 - **What to do**: Migration steps for users of the prior version
@@ -38,17 +41,21 @@ This guide covers the `[component]` [CLI tool / skill / command], including:
 If this is a brand-new component with no prior version, omit this subsection.]
 
 ### Architecture overview
+
 [Paragraph describing the high-level architecture. Include:
+
 - The overall strategy (adversarial, multi-agent, deterministic, etc.)
 - Key stages or phases
 - What makes this approach distinctive]
 
 ### [Module structure / Skill file structure]
+
 ```
 [Directory tree showing all relevant source files with inline comments describing each]
 ```
 
 ### Key design decisions
+
 [Bullet list of 4-7 architectural decisions with brief rationale. Format: **Decision name**: Explanation.]
 
 ---
@@ -60,27 +67,33 @@ If this is a brand-new component with no prior version, omit this subsection.]
 ### `[command syntax]`
 
 #### What it does
+
 [2-3 sentences describing the operation.]
 
 #### Use when
+
 [Bullet list of 4-6 scenarios where this command is the right choice.]
 
 #### Syntax
+
 ```bash
 [full command syntax with placeholders]
 ```
 
 #### [Positional arguments / Input requirements]
+
 | [Argument / Input] | Required | Description |
 |---------------------|----------|-------------|
 | ... | ... | ... |
 
 #### [Key options (for CLI tools)]
+
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | ... | ... | ... | ... |
 
 #### Examples
+
 ```bash
 # [Description of example]
 [command example]
@@ -101,6 +114,7 @@ If this is a brand-new component with no prior version, omit this subsection.]
 [Describe the overall execution flow.]
 
 ### Pipeline overview
+
 ```
 [ASCII diagram showing the flow of steps/phases, including:
 - Sequential dependencies
@@ -126,6 +140,7 @@ If this is a brand-new component with no prior version, omit this subsection.]
 ### [Per-gate or per-step gate details]
 
 [For each gate, include:]
+
 - **Gate name/location**
 - **Enforcement tier** (STRICT/STANDARD/TRAILING or PASS/FAIL)
 - **Checklist items** (numbered)
@@ -139,6 +154,7 @@ If this is a brand-new component with no prior version, omit this subsection.]
 [Describe where outputs go and what each artifact contains.]
 
 ### [Directory structure / Output file layout]
+
 ```
 [Directory tree showing all output artifacts with inline descriptions]
 ```
@@ -154,6 +170,7 @@ If this is a brand-new component with no prior version, omit this subsection.]
 ## 6) [Configuration / Content Rules / Depth Modes]
 
 [Component-specific configuration section. Include any:]
+
 - Mode selections (depth, tier, etc.)
 - Content rules or format requirements
 - Agent configuration
@@ -166,18 +183,23 @@ If this is a brand-new component with no prior version, omit this subsection.]
 [Detailed technical explanation of the execution mechanics. Include:]
 
 ### 7.1 [Call path / Execution flow]
+
 [Step-by-step description of what happens when the command/skill is invoked.]
 
 ### 7.2 [Subprocess management / Agent spawning strategy]
+
 [How child processes or subagents are managed.]
 
 ### 7.3 [State persistence / Resumability]
+
 [How state is saved and how resume works.]
 
 ### 7.4 [Parallel execution details]
+
 [Threading model, cross-cancellation, partitioning strategy.]
 
 ### 7.5 [Error handling]
+
 [What happens on failure, halt diagnostics, retry behavior.]
 
 ---
@@ -187,21 +209,27 @@ If this is a brand-new component with no prior version, omit this subsection.]
 [Show how this component fits into the larger workflow.]
 
 ### Stage [N]: [Upstream component]
+
 ```bash
 [command or invocation]
 ```
+
 [Brief description.]
 
 ### Stage [N+1]: [This component] <- **This [tool / skill]**
+
 ```bash
 [command or invocation]
 ```
+
 [Brief description of what this component produces.]
 
 ### Stage [N+2]: [Downstream component]
+
 ```bash
 [command or invocation]
 ```
+
 [Brief description.]
 
 [Continue for all stages in the pipeline.]
@@ -219,9 +247,11 @@ If this is a brand-new component with no prior version, omit this subsection.]
 | ... | ... | ... | ... |
 
 ### Token consumption
+
 [Rough token ranges by configuration. Include notes on which options significantly increase cost.]
 
 ### Resource requirements
+
 [Any system requirements: disk space for artifacts, memory for large pipelines, network for web research, etc.]
 
 ---
@@ -231,6 +261,7 @@ If this is a brand-new component with no prior version, omit this subsection.]
 [Dedicated section for non-obvious behaviors, edge cases, and traps. Format each as:]
 
 ### [Short descriptive title]
+
 **Symptom**: [What the user observes]
 **Cause**: [Why it happens]
 **Workaround**: [What to do about it]
@@ -257,9 +288,11 @@ If this is a brand-new component with no prior version, omit this subsection.]
 [8-10 use cases covering common and edge-case scenarios.]
 
 ### Use case [N]: [Descriptive title]
+
 ```bash
 [command invocation]
 ```
+
 [2-3 sentence explanation of what this does, why you'd choose these options, and what to expect.]
 
 ---

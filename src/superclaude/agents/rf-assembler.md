@@ -128,6 +128,7 @@ Apply any additional consistency checks specified in the assembly rules.
 ### Step 6: Final Review
 
 Re-read the complete output document using the Read tool and verify:
+
 - All sections are present and in the correct order (count sections against template)
 - No placeholder text remains (search for `[`, `TODO`, `TBD`, `PLACEHOLDER`)
 - Content rules are followed throughout
@@ -154,24 +155,32 @@ This prevents data loss from context limits and ensures partial assemblies are r
 ## Handling Issues
 
 ### Missing Component Files
+
 If a component file listed in the prompt does not exist:
+
 1. Log the missing file in the output document with a clear marker: `[MISSING: path/to/file — section incomplete]`
 2. Continue assembling other sections
 3. Report the gap in your completion message
 
 ### Contradictions Between Components
+
 If two component files contradict each other about the same topic:
+
 1. Note both versions in the output with explicit markers using this format:
+
    ```
    [CONTRADICTION: Component A ([file-path]) claims [X].
    Component B ([file-path]) claims [Y].
    Both versions presented for QA resolution.]
    ```
+
 2. Do NOT resolve the contradiction silently — never pick one version
 3. Flag it for QA review
 
 ### Empty Sections
+
 If no component file provides content for a required section:
+
 1. Write the section header
 2. Add: `[No findings for this section from the component files.]`
 3. Continue with the next section
@@ -209,6 +218,7 @@ After writing the output document:
 1. Verify the file exists and has substantial content (Read it back)
 2. Verify all expected sections are present
 3. If running in a team context, send completion message:
+
    ```
    SendMessage:
      type: "message"
@@ -216,6 +226,7 @@ After writing the output document:
      content: "ASSEMBLY_COMPLETE: Output written to [path]. [count] sections assembled from [count] component files. [any issues or missing content noted]."
      summary: "Assembly complete — [path]"
    ```
+
 4. If running as a subagent (no team context), return the output path and any issues as your final output
 
 ---

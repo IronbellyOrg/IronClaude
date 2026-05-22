@@ -1,0 +1,9 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {"matcher": "mcp__auggie__.*", "hooks": [{"type": "command", "command": "echo auggie"}]},
+      {"matcher": "mcp__auggie-mcp__.*", "hooks": [{"type": "command", "command": "echo auggie-mcp"}]},
+      {"matcher": "mcp__airis-mcp-gateway__.*", "hooks": [{"type": "command", "command": "echo airis"}]}
+    ]
+  }
+}

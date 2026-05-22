@@ -179,6 +179,7 @@ If a skill name starts with `sc-` and a matching slash command exists in `comman
 ### Command-Skill Link Resolution
 
 **`src/superclaude/cli/cli_portify/resolution.py`**:
+
 - Parses command activation sections (`> Skill sc:<name>`)
 - Resolves command-to-skill links
 - Uses command-first policy when ambiguous

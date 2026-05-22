@@ -1,0 +1,3 @@
+b63cbd7 chore(hooks): resolve OQ-2 (archive+delete bash-gate orphan) and OQ-3 (register reject-workspace-writes.sh)
+6337a0e test(hooks): add regression suite for mcp__auggie-mcp__ matcher fix
+618071b docs(hook-sync): hook-sync-and-matcher-fix release artifacts + NFR-CONV-2 reference

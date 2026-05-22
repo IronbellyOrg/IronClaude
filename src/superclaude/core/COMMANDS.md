@@ -5,9 +5,11 @@ Command execution framework for Claude Code SuperClaude integration.
 ## Command System Architecture
 
 ### Core Command Structure
+
 Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|false), `performance-profile` (optimization|standard|complex).
 
 ### Command Processing Pipeline
+
 1. **Input Parsing**: `$ARGUMENTS` with `@<path>`, `!<command>`, `--<flags>`
 2. **Context Resolution**: Auto-persona activation and MCP server selection
 3. **Wave Eligibility**: Complexity assessment and wave mode determination
@@ -15,6 +17,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 5. **Quality Gates**: Validation checkpoints and error handling
 
 ### Integration Layers
+
 - **Claude Code**: Native slash command compatibility
 - **Persona System**: Auto-activation based on command context
 - **MCP Servers**: Context7, Sequential, Magic, Playwright integration
@@ -25,17 +28,20 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 **Wave Orchestration Engine**: Multi-stage command execution with compound intelligence. Auto-activates on complexity ≥0.7 + files >20 + operation_types >2.
 
 **Wave-Enabled Commands**:
+
 - **Tier 1**: `/analyze`, `/build`, `/implement`, `/improve`
 - **Tier 2**: `/design`, `/task`
 
 ### Development Commands
 
 **`/build $ARGUMENTS`** — Project builder with framework detection (wave-enabled, optimization profile)
+
 - **Auto-Persona**: Frontend, Backend, Architect, Scribe
 - **MCP**: Magic (UI), Context7 (patterns), Sequential (logic)
 - **Tools**: [Read, Grep, Glob, Bash, TodoWrite, Edit, MultiEdit]
 
 **`/implement $ARGUMENTS`** — Feature implementation with intelligent persona activation (wave-enabled, standard profile)
+
 - **Auto-Persona**: Frontend, Backend, Architect, Security (context-dependent)
 - **MCP**: Magic (UI), Context7 (patterns), Sequential (complex logic)
 - **Tools**: [Read, Write, Edit, MultiEdit, Bash, Glob, TodoWrite, Task]
@@ -43,26 +49,27 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 ### Analysis Commands
 
 **`/analyze $ARGUMENTS`** — Multi-dimensional code and system analysis (wave-enabled, complex profile)
+
 - **Auto-Persona**: Analyzer, Architect, Security
 - **MCP**: Sequential (primary), Context7 (patterns), Magic (UI analysis)
 - **Tools**: [Read, Grep, Glob, Bash, TodoWrite]
 
-**`/troubleshoot [symptoms] [flags]`** - Problem investigation | Auto-Persona: Analyzer, QA | MCP: Sequential, Playwright
+**`/troubleshoot [symptoms] [flags]`** - Tiered diagnosis (Tier 1 triage → auto-escalating Tier 2 parallel hypotheses + adversarial fix debate → opt-in Tier 3 task-builder remediation) | Auto-Persona: Analyzer, Performance, Security, QA, Refactorer, DevOps | MCP: Auggie, Serena, Context7, Tavily, Sequential
 
 **`/explain [topic] [flags]`** - Educational explanations | Auto-Persona: Mentor, Scribe | MCP: Context7, Sequential
-
 
 ### Quality Commands
 
 **`/improve [target] [flags]`** — Evidence-based code enhancement (wave-enabled, optimization profile)
+
 - **Auto-Persona**: Refactorer, Performance, Architect, QA
 - **MCP**: Sequential (logic), Context7 (patterns), Magic (UI)
 - **Tools**: [Read, Grep, Glob, Edit, MultiEdit, Bash]
 
-
 **`/cleanup [target] [flags]`** - Project cleanup and technical debt reduction | Auto-Persona: Refactorer | MCP: Sequential
 
 **`/cleanup-audit [target] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]`** — Multi-pass read-only repository audit (wave-enabled, complex profile)
+
 - **Auto-Persona**: Analyzer, Architect, DevOps, QA, Refactorer
 - **MCP**: Sequential (cross-cutting synthesis), Serena (import chains), Context7 (framework patterns)
 - **Tools**: [Read, Grep, Glob, Bash(git/wc/find/du), TodoWrite, Task, Write]
@@ -79,11 +86,13 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 ### Unified Task Command (Compliance-Enforced)
 
 **`/sc:task [description] [flags]`** — Unified task execution with tiered compliance (wave-enabled, adaptive profile)
+
 - **Auto-Persona**: Domain-specific (Security → security, Frontend → frontend, etc.)
 - **MCP**: Sequential (analysis), Serena (context), Context7 (patterns)
 - **Tools**: [TodoWrite, Read, Grep, Glob, Edit, MultiEdit, Task, Bash]
 
 #### Strategy Flags (Orchestration Dimension)
+
 | Flag | Description | Use Case |
 |------|-------------|----------|
 | `--strategy systematic` | Comprehensive, methodical execution | Large features, multi-domain work |
@@ -92,6 +101,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 | `--strategy auto` | Auto-detect based on scope (default) | Most tasks |
 
 #### Compliance Flags (Quality Dimension)
+
 | Flag | Description | Use Case |
 |------|-------------|----------|
 | `--compliance strict` | Full MCP workflow enforcement | Multi-file, security, refactoring |
@@ -101,6 +111,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 | `--compliance auto` | Auto-detect based on task (default) | Most tasks |
 
 #### Verification Flags
+
 | Flag | Description |
 |------|-------------|
 | `--verify critical` | Full sub-agent verification |
@@ -109,6 +120,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 | `--verify auto` | Auto-select based on compliance tier (default) |
 
 #### Execution Control Flags
+
 | Flag | Description |
 |------|-------------|
 | `--skip-compliance` | Escape hatch - skip all compliance enforcement |
@@ -118,6 +130,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 | `--reason "..."` | Required justification for tier override |
 
 #### Tier Classification Flow
+
 1. Check for user override (`--compliance`)
 2. Detect compound phrases (highest priority)
 3. Score keywords by tier (STRICT > EXEMPT > LIGHT > STANDARD)
@@ -126,6 +139,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 6. Display confidence and allow user override if <70%
 
 #### Auto-Activation Triggers
+
 | Trigger | Condition | Suggested Tier |
 |---------|-----------|----------------|
 | Complexity score | ≥0.7 | STRICT |
@@ -153,11 +167,13 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 ## Command Execution Matrix
 
 ### Performance Profiles
+
 - **optimization**: High-performance with caching and parallel execution
 - **standard**: Balanced performance with moderate resource usage
 - **complex**: Resource-intensive with comprehensive analysis
 
 ### Command Categories
+
 - **Development**: build, implement, design
 - **Planning**: workflow, estimate, task
 - **Analysis**: analyze, troubleshoot, explain
@@ -168,5 +184,5 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 - **Meta**: index, load, spawn
 
 ### Wave-Enabled Commands
-7 commands: `/analyze`, `/build`, `/design`, `/implement`, `/improve`, `/task`, `/workflow`
 
+7 commands: `/analyze`, `/build`, `/design`, `/implement`, `/improve`, `/task`, `/workflow`

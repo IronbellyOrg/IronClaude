@@ -5,6 +5,7 @@ adversarial: true
 ---
 
 # Project Roadmap: User Authentication Service v1.0
+
 ## Merged Final — Adversarial Synthesis (Base: Variant B + Variant A Grafts)
 
 ---
@@ -27,6 +28,7 @@ The NFR-AUTH.1 latency target (< 200ms p95) is structurally at tension with bcry
 ### Delivery Outcome
 
 By the end of this roadmap, the system will:
+
 - Authenticate users with email/password and RS256 JWTs (`FR-AUTH.1`)
 - Register users with strong validation and bcrypt hashing (`FR-AUTH.2`, `NFR-AUTH.3`)
 - Rotate refresh tokens with replay detection and full-user revocation on reuse (`FR-AUTH.3`, `SC-8`)
@@ -471,6 +473,7 @@ All 5 functional requirements verified against acceptance criteria:
 ### Schedule Risk Notes
 
 Most likely schedule slips, in order:
+
 1. Secrets manager selection and integration (OQ-7)
 2. Email service/provider uncertainty (OQ-1, OQ-6)
 3. Refresh rotation race-condition handling (OQ-8)

@@ -1,6 +1,7 @@
 # SuperClaude Behavioral Modes Guide 🧠
 
 ## ✅ Quick Verification
+
 Test modes by using `/sc:` commands - they activate automatically based on task complexity. For full command reference, see [Commands Guide](commands.md).
 
 ## Quick Reference Table
@@ -14,7 +15,6 @@ Test modes by using `/sc:` commands - they activate automatically based on task 
 | **🎯 Orchestration** | Intelligent tool selection | Multi-tool ops, high resource usage | Optimal tool routing, parallel execution | Complex analysis, performance optimization |
 | **⚡ Token Efficiency** | Compressed communication | High context usage, `--uc` flag | Symbol systems, estimated 30-50% token reduction | Resource constraints, large operations |
 
-
 ---
 
 ## Getting Started (2-Minute Overview)
@@ -22,6 +22,7 @@ Test modes by using `/sc:` commands - they activate automatically based on task 
 **Modes activate through behavioral instructions** - Claude Code reads context files to determine which mode behaviors to adopt based on your task patterns and complexity.
 
 **Quick Examples:**
+
 ```bash
 # Automatic activation examples
 /sc:brainstorm "mobile app"        # → Socratic discovery questions
@@ -30,6 +31,7 @@ Test modes by using `/sc:` commands - they activate automatically based on task 
 ```
 
 **When to use manual flags:**
+
 - Need specific behavior: `--brainstorm`, `--introspect`, `--uc`
 - Override automatic detection for learning/debugging
 - Optimize for specific constraints (memory, time, clarity)
@@ -43,12 +45,14 @@ Test modes by using `/sc:` commands - they activate automatically based on task 
 **Purpose**: Transform vague ideas into structured requirements through collaborative discovery.
 
 **Auto-Activation Triggers:**
+
 - Vague project requests: "I want to build...", "Thinking about creating..."
 - Exploration keywords: brainstorm, explore, discuss, figure out, not sure
 - Uncertainty indicators: "maybe", "possibly", "could we"
 - Manual flags: `--brainstorm`, `--bs`
 
 **Behavioral Changes:**
+
 - **Socratic Questioning**: Asks probing questions to uncover hidden requirements
 - **Non-Presumptive Approach**: Avoids assumptions, lets you guide discovery direction
 - **Collaborative Partnership**: Works with you in exploration rather than directive consultation
@@ -56,6 +60,7 @@ Test modes by using `/sc:` commands - they activate automatically based on task 
 - **Cross-Session Memory**: Maintains discovery context for follow-up discussions
 
 **Example Experience:**
+
 ```
 Standard Approach: "I'll build a user authentication system with JWT tokens..."
 Brainstorming Approach: 
@@ -68,6 +73,7 @@ Brainstorming Approach:
 ```
 
 #### Success Criteria  
+
 - [ ] Responds with questions instead of immediate solutions
 - [ ] Questions explore user needs, technical constraints, and business goals
 - [ ] Maintains collaborative tone throughout discovery process
@@ -78,6 +84,7 @@ Brainstorming Approach:
 **Check:** Mode should persist across follow-up questions in same conversation
 
 **Works Best With:**
+
 - **→ Task Management**: Requirements discovery → systematic implementation planning
 - **→ Orchestration**: Requirements clarity → optimal tool selection for implementation
 - **Manual Override**: Use `--brainstorm` to force discovery even for "clear" requirements
@@ -89,6 +96,7 @@ Brainstorming Approach:
 **Purpose**: Expose reasoning process for learning optimization and transparent decision-making.
 
 **Auto-Activation Triggers:**
+
 - Self-analysis requests: "analyze my reasoning", "reflect on decision"
 - Error recovery scenarios and unexpected results requiring investigation
 - Complex problem solving with multiple viable approaches
@@ -96,6 +104,7 @@ Brainstorming Approach:
 - Manual flag: `--introspect`
 
 **Behavioral Changes:**
+
 - **Reasoning Transparency**: Exposes thinking process with clear markers (🤔, 🎯, ⚡, 📊, 💡)
 - **Decision Analysis**: Evaluates choice logic and considers alternative approaches
 - **Pattern Recognition**: Identifies recurring behaviors and improvement opportunities
@@ -103,6 +112,7 @@ Brainstorming Approach:
 - **Framework Compliance**: Validates actions against SuperClaude principles and quality gates
 
 **Example Experience:**
+
 ```
 Standard Approach: "I'll analyze this code structure and suggest improvements..."
 Introspective Approach:
@@ -115,6 +125,7 @@ Introspective Approach:
 ```
 
 **Works Best With:**
+
 - **→ Task Management**: Provides transparent reasoning for complex phase decisions
 - **Any Mode**: Adds reasoning transparency layer to any other mode's operation
 - **Manual Override**: Use `--introspect` for learning sessions and debugging workflows
@@ -126,6 +137,7 @@ Introspective Approach:
 **Purpose**: Research mindset for systematic investigation and evidence-based reasoning.
 
 **Auto-Activation Triggers:**
+
 - `/sc:research` command invocation
 - Research-related keywords: investigate, explore, discover, analyze
 - Questions requiring current information beyond knowledge cutoff
@@ -133,12 +145,14 @@ Introspective Approach:
 - Manual flag: `--research`
 
 **Behavioral Modifications:**
+
 - **Thinking Style**: Systematic over casual, evidence over assumption, progressive depth exploration
 - **Communication**: Lead with confidence levels, provide inline citations, acknowledge uncertainties
 - **Priority Shifts**: Completeness over speed, accuracy over speculation, verification over assumption
 - **Process Adaptations**: Always create investigation plans, default to parallel operations, maintain evidence chains
 
 **6-Phase Research Workflow:**
+
 - 📋 **Understand** (5-10%): Assess query complexity and requirements
 - 📝 **Plan** (10-15%): Select strategy (planning/intent/unified) and identify parallelization
 - ✅ **TodoWrite** (5%): Create adaptive task hierarchy (3-15 tasks based on complexity)
@@ -147,6 +161,7 @@ Introspective Approach:
 - ✓ **Validate** (10-15%): Verify evidence chains and ensure completeness
 
 **Example Experience:**
+
 ```
 Standard Mode: "Here are some search results about quantum computing..."
 Deep Research Mode: 
@@ -158,6 +173,7 @@ Deep Research Mode:
 ```
 
 #### Quality Standards
+
 - [ ] Minimum 2 sources per claim with inline citations
 - [ ] Confidence scoring (0.0-1.0) for all findings
 - [ ] Parallel execution by default for independent operations
@@ -169,6 +185,7 @@ Deep Research Mode:
 **Check:** Reports should be saved to docs/research/ automatically
 
 **Works Best With:**
+
 - **→ Task Management**: Research planning with TodoWrite integration
 - **→ Orchestration**: Parallel Tavily/Playwright coordination
 - **Manual Override**: Use `--depth` and `--strategy` for fine control
@@ -180,6 +197,7 @@ Deep Research Mode:
 **Purpose**: Hierarchical task organization with session persistence for multi-step operations.
 
 **Auto-Activation Triggers:**
+
 - Operations requiring >3 coordinated steps
 - Multiple file/directory scope (>2 directories OR >3 files)
 - Complex dependencies requiring phases and checkpoints
@@ -187,6 +205,7 @@ Deep Research Mode:
 - Manual flags: `--task-manage`, `--delegate`
 
 **Behavioral Changes:**
+
 - **Hierarchical Planning**: Breaks complex work into Plan → Phase → Task → Todo structure
 - **Session Persistence**: Maintains project context and progress across interruptions
 - **Memory Integration**: Uses write_memory/read_memory for state preservation
@@ -194,6 +213,7 @@ Deep Research Mode:
 - **Quality Gates**: Implements systematic validation checkpoints between phases
 
 **Example Experience:**
+
 ```
 Standard Approach: "I'll implement user authentication..." → Direct implementation
 Task Management Approach:
@@ -207,6 +227,7 @@ Task Management Approach:
 ```
 
 **Works Best With:**
+
 - **Brainstorming →**: Requirements discovery then systematic implementation
 - **+ Orchestration**: Task coordination with optimal tool selection
 - **+ Introspection**: Transparent reasoning for complex phase decisions
@@ -218,12 +239,14 @@ Task Management Approach:
 **Purpose**: Optimize task execution through intelligent tool routing and parallel coordination.
 
 **Auto-Activation Triggers:**
+
 - Multi-tool operations requiring sophisticated coordination
 - Performance constraints (high resource usage)
 - Parallel execution opportunities (>3 independent files/operations)
 - Complex routing decisions with multiple valid tool approaches
 
 **Behavioral Changes:**
+
 - **Intelligent Tool Routing**: Selects optimal MCP servers and native tools for each task type
 - **Resource Awareness**: Adapts approach based on system constraints and availability
 - **Parallel Optimization**: Identifies independent operations for concurrent execution
@@ -231,6 +254,7 @@ Task Management Approach:
 - **Adaptive Fallback**: Switches tools gracefully when preferred options are unavailable
 
 **Example Experience:**
+
 ```
 Standard Approach: Sequential file-by-file analysis and editing
 Orchestration Approach:
@@ -243,6 +267,7 @@ Orchestration Approach:
 ```
 
 **Works Best With:**
+
 - **Task Management →**: Provides tool coordination for complex multi-phase plans
 - **+ Token Efficiency**: Optimal tool selection with compressed communication
 - **Any Complex Task**: Adds intelligent tool routing to enhance execution
@@ -254,12 +279,14 @@ Orchestration Approach:
 **Purpose**: Achieve estimated 30-50% token reduction through symbol systems while preserving information quality.
 
 **Auto-Activation Triggers:**
+
 - High context usage approaching limits
 - Large-scale operations requiring resource efficiency
 - User explicit flags: `--uc`, `--ultracompressed`
 - Complex analysis workflows with multiple outputs
 
 **Behavioral Changes:**
+
 - **Symbol Communication**: Uses visual symbols for logic flows, status, and technical domains
 - **Technical Abbreviation**: Context-aware compression for repeated technical terms
 - **Structured Density**: Bullet points, tables, and concise formatting over verbose paragraphs
@@ -267,6 +294,7 @@ Orchestration Approach:
 - **Structured Format**: Organized for clarity and task completion
 
 **Example Experience:**
+
 ```
 Standard Approach: "The authentication system implementation shows a security vulnerability in the user validation function that needs immediate attention..."
 Token Efficient Approach:
@@ -278,6 +306,7 @@ Token Efficient Approach:
 ```
 
 **Works Best With:**
+
 - **Any Mode**: Adds compression layer while preserving mode-specific behaviors
 - **Orchestration →**: Compressed tool coordination and status updates
 - **Manual Override**: Use `--uc` when context pressure or efficiency is priority
@@ -289,12 +318,14 @@ Token Efficient Approach:
 **Purpose**: Provide clear, professional communication for straightforward development tasks.
 
 **Auto-Activation Triggers:**
+
 - Simple, well-defined tasks without complexity indicators
 - Single-file operations with clear requirements
 - Basic explanations and standard development workflows
 - No other mode triggers detected (default fallback)
 
 **Behavioral Changes:**
+
 - **Professional Communication**: Clear, concise technical language without compression
 - **Moderate Detail**: Balanced information depth suitable for most development tasks
 - **Standard Tool Selection**: Uses native Claude capabilities and basic tools
@@ -302,6 +333,7 @@ Token Efficient Approach:
 - **Responsive Adaptation**: Ready to switch to specialized modes when complexity increases
 
 **Example Experience:**
+
 ```
 Standard Approach: Consistent, professional baseline for all tasks
 "I'll implement the login function with proper error handling:
@@ -315,6 +347,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ```
 
 **Works Best With:**
+
 - **→ Any Mode**: Serves as baseline that other modes enhance
 - **Mode Switching**: Automatically escalates to specialized modes when needed
 - **Clarity Priority**: When straightforward communication is more important than optimization
@@ -326,6 +359,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ### Mode Combinations
 
 **Multi-Mode Workflows:**
+
 ```bash
 # Discovery → Planning → Implementation
 /sc:brainstorm "microservices architecture" --task-manage
@@ -341,6 +375,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ### Manual Mode Control
 
 **Force Specific Behaviors:**
+
 - `--brainstorm`: Force collaborative discovery for any task
 - `--introspect`: Add reasoning transparency to any mode
 - `--task-manage`: Enable hierarchical coordination
@@ -348,6 +383,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 - `--uc`: Compress communication for efficiency
 
 **Override Examples:**
+
 ```bash
 # Force brainstorming on "clear" requirements
 /sc:implement "user login" --brainstorm
@@ -362,6 +398,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ### Mode Boundaries and Priority
 
 **When Modes Activate:**
+
 1. **Complexity Threshold**: >3 files → Task Management
 2. **Resource Pressure**: High context usage → Token Efficiency  
 3. **Multi-Tool Need**: Complex analysis → Orchestration
@@ -369,6 +406,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 5. **Error Recovery**: Problems → Introspection
 
 **Priority Rules:**
+
 - **Safety First**: Quality and validation always override efficiency
 - **User Intent**: Manual flags override automatic detection
 - **Context Adaptation**: Modes stack based on complexity
@@ -381,6 +419,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ### Complete Workflow Examples
 
 **New Project Development:**
+
 ```bash
 # Phase 1: Discovery (Brainstorming Mode auto-activates)
 "I want to build a productivity app"
@@ -399,6 +438,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ```
 
 **Debugging Complex Issues:**
+
 ```bash
 # Problem analysis (Introspection Mode auto-activates)
 "Users getting intermittent auth failures"
@@ -416,6 +456,7 @@ Standard Approach: Consistent, professional baseline for all tasks
 ### Mode Combination Patterns
 
 **High-Complexity Scenarios:**
+
 ```bash
 # Large refactoring with multiple constraints
 /sc:improve legacy-system/ --introspect --uc --orchestrate
@@ -460,10 +501,12 @@ Standard Approach: Consistent, professional baseline for all tasks
 ## Troubleshooting
 
 For troubleshooting help, see:
+
 - [Common Issues](../reference/common-issues.md) - Quick fixes for frequent problems
 - [Troubleshooting Guide](../reference/troubleshooting.md) - Comprehensive problem resolution
 
 ### Common Issues
+
 - **Mode not activating**: Use manual flags: `--brainstorm`, `--introspect`, `--uc`
 - **Wrong mode active**: Check complexity triggers and keywords in request
 - **Mode switching unexpectedly**: Normal behavior based on task evolution
@@ -471,6 +514,7 @@ For troubleshooting help, see:
 - **Mode conflicts**: Check flag priority rules in [Flags Guide](flags.md)
 
 ### Immediate Fixes
+
 - **Force specific mode**: Use explicit flags like `--brainstorm` or `--task-manage`
 - **Reset mode behavior**: Restart Claude Code session to reset mode state
 - **Check mode indicators**: Look for 🤔, 🎯, 📋 symbols in responses
@@ -479,6 +523,7 @@ For troubleshooting help, see:
 ### Mode-Specific Troubleshooting
 
 **Brainstorming Mode Issues:**
+
 ```bash
 # Problem: Mode gives solutions instead of asking questions
 # Quick Fix: Check request clarity and use explicit flag
@@ -488,6 +533,7 @@ For troubleshooting help, see:
 ```
 
 **Task Management Mode Issues:**
+
 ```bash
 # Problem: Simple tasks getting complex coordination
 # Quick Fix: Reduce scope or use simpler commands
@@ -497,6 +543,7 @@ For troubleshooting help, see:
 ```
 
 **Token Efficiency Mode Issues:**
+
 ```bash
 # Problem: Output too compressed or unclear
 # Quick Fix: Disable compression for clarity
@@ -506,6 +553,7 @@ For troubleshooting help, see:
 ```
 
 **Introspection Mode Issues:**
+
 ```bash
 # Problem: Too much meta-commentary, not enough action
 # Quick Fix: Disable introspection for direct work
@@ -514,6 +562,7 @@ For troubleshooting help, see:
 ```
 
 **Orchestration Mode Issues:**
+
 ```bash
 # Problem: Tool coordination causing confusion
 # Quick Fix: Simplify tool usage
@@ -538,29 +587,35 @@ For troubleshooting help, see:
 ### Progressive Support Levels
 
 **Level 1: Quick Fix (< 2 min)**
+
 - Use manual flags to override automatic mode selection
 - Check if task complexity matches expected mode behavior
 - Try restarting Claude Code session
 
 **Level 2: Detailed Help (5-15 min)**
+
 ```bash
 # Mode-specific diagnostics
 /sc:help modes                            # List all available modes
 /sc:reflect --type mode-status            # Check current mode state
 # Review request complexity and triggers
 ```
+
 - See [Common Issues Guide](../reference/common-issues.md) for mode installation problems
 
 **Level 3: Expert Support (30+ min)**
+
 ```bash
 # Deep mode analysis
 SuperClaude install --diagnose
 # Check mode activation patterns
 # Review behavioral triggers and thresholds
 ```
+
 - See [Diagnostic Reference Guide](../reference/diagnostic-reference.md) for behavioral mode analysis
 
 **Level 4: Community Support**
+
 - Report mode issues at [GitHub Issues](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
 - Include examples of unexpected mode behavior
 - Describe desired vs actual mode activation
@@ -568,6 +623,7 @@ SuperClaude install --diagnose
 ### Success Validation
 
 After applying mode fixes, test with:
+
 - [ ] Simple requests use Standard mode (clear, direct responses)
 - [ ] Complex requests auto-activate appropriate modes (coordination, reasoning)
 - [ ] Manual flags override automatic detection correctly
@@ -575,6 +631,7 @@ After applying mode fixes, test with:
 - [ ] Performance remains good across different modes
 
 ## Quick Troubleshooting (Legacy)
+
 - **Mode not activating** → Use manual flags: `--brainstorm`, `--introspect`, `--uc`
 - **Wrong mode active** → Check complexity triggers and keywords in request
 - **Mode switching unexpectedly** → Normal behavior based on task evolution  
@@ -585,6 +642,7 @@ After applying mode fixes, test with:
 
 **Q: How do I know which mode is active?**
 A: Look for these indicators in communication patterns:
+
 - 🤔 Discovery questions → Brainstorming
 - 🎯 Reasoning transparency → Introspection  
 - Phase breakdowns → Task Management
@@ -593,6 +651,7 @@ A: Look for these indicators in communication patterns:
 
 **Q: Can I force specific modes?**
 A: Yes, use manual flags to override automatic detection:
+
 ```bash
 /sc:command --brainstorm     # Force discovery
 /sc:command --introspect     # Add transparency
@@ -602,12 +661,14 @@ A: Yes, use manual flags to override automatic detection:
 
 **Q: Do modes affect execution?**
 A: Modes optimize tool usage through coordination:
+
 - **Token Efficiency**: 30-50% context reduction
 - **Orchestration**: Parallel processing
 - **Task Management**: Prevents rework through systematic planning
 
 **Q: Can modes work together?**
 A: Yes, modes are designed to complement each other:
+
 - **Task Management** coordinates other modes
 - **Token Efficiency** compresses any mode's output
 - **Introspection** adds transparency to any workflow
@@ -634,25 +695,30 @@ SuperClaude's 5 behavioral modes create an **intelligent adaptation system** tha
 **Learning Progression:**
 
 **🌱 Essential (Week 1)**
+
 - [Quick Start Guide](../getting-started/quick-start.md) - Mode activation examples
 - [Commands Reference](commands.md) - Commands automatically activate modes
 - [Installation Guide](../getting-started/installation.md) - Set up behavioral modes
 
 **🌿 Intermediate (Week 2-3)**  
+
 - [Agents Guide](agents.md) - How modes coordinate with specialists
 - [Flags Guide](flags.md) - Manual mode control and optimization
 - [Examples Cookbook](../reference/examples-cookbook.md) - Mode patterns in practice
 
 **🌲 Advanced (Month 2+)**
+
 - [MCP Servers](mcp-servers.md) - Mode integration with enhanced capabilities
 - [Session Management](session-management.md) - Task Management mode workflows  
 - [Getting Started](../getting-started/quick-start.md) - Mode usage patterns
 
 **🔧 Expert**
+
 - [Technical Architecture](../developer-guide/technical-architecture.md) - Mode implementation details
 - [Contributing Code](../developer-guide/contributing-code.md) - Extend mode capabilities
 
 **Mode-Specific Guides:**
+
 - **Brainstorming**: [Requirements Discovery Patterns](../reference/examples-cookbook.md#requirements)
 - **Task Management**: [Session Management Guide](session-management.md)
 - **Orchestration**: [MCP Servers Guide](mcp-servers.md)

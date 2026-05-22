@@ -1,4 +1,4 @@
-.PHONY: install test test-plugin doctor verify clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill uninstall-legacy help
+.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill uninstall-legacy help
 SHELL := /bin/bash
 
 # Installation (local source, editable) - RECOMMENDED
@@ -145,11 +145,22 @@ sync-dev:
 		cp src/superclaude/scripts/session-init.sh .claude/hooks/session-init.sh; \
 		chmod +x .claude/hooks/session-init.sh; \
 	fi
+	@if [ -d src/superclaude/templates ]; then \
+		mkdir -p .claude/templates; \
+		find src/superclaude/templates -type f ! -path '*/agent-memory/*' ! -path '*/__pycache__/*' -exec sh -c ' \
+			src="$$1"; \
+			rel=$${src#src/superclaude/templates/}; \
+			target=".claude/templates/$$rel"; \
+			mkdir -p "$$(dirname "$$target")"; \
+			cp "$$src" "$$target"; \
+		' _ {} \; ; \
+	fi
 	@echo "✅ Sync complete."
-	@echo "   Skills:   $$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ') directories"
-	@echo "   Agents:   $$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ') files"
-	@echo "   Commands: $$(ls .claude/commands/sc/*.md 2>/dev/null | wc -l | tr -d ' ') files"
-	@echo "   Hooks:    $$(ls .claude/hooks/*.sh 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Skills:    $$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ') directories"
+	@echo "   Agents:    $$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Commands:  $$(ls .claude/commands/sc/*.md 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Hooks:     $$(ls .claude/hooks/*.sh 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "   Templates: $$(find .claude/templates -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ') files"
 
 # Verify src/superclaude/ and .claude/ are in sync (CI-friendly, exits 1 on drift)
 verify-sync:
@@ -266,6 +277,33 @@ verify-sync:
 		fi; \
 	done; \
 	echo ""; \
+	echo "=== Templates ==="; \
+	if [ -d src/superclaude/templates ]; then \
+		while IFS= read -r src; do \
+			rel=$${src#src/superclaude/templates/}; \
+			target=".claude/templates/$$rel"; \
+			if [ ! -f "$$target" ]; then \
+				echo "  ❌ MISSING in .claude/templates/: $$rel"; \
+				drift=1; \
+			elif ! diff -q "$$src" "$$target" > /dev/null 2>&1; then \
+				echo "  ⚠️  DIFFERS: $$rel"; \
+				drift=1; \
+			else \
+				echo "  ✅ $$rel"; \
+			fi; \
+		done < <(find src/superclaude/templates -type f ! -path '*/__pycache__/*'); \
+		while IFS= read -r tgt; do \
+			rel=$${tgt#.claude/templates/}; \
+			case "$$rel" in *.legacy-rf-project.md) continue;; esac; \
+			if [ ! -f "src/superclaude/templates/$$rel" ]; then \
+				echo "  ❌ MISSING in src/superclaude/templates/: $$rel (not distributable!)"; \
+				drift=1; \
+			fi; \
+		done < <(find .claude/templates -type f ! -path '*/__pycache__/*' 2>/dev/null); \
+	else \
+		echo "  ⚠️  src/superclaude/templates/ does not exist — skipping template sync check"; \
+	fi; \
+	echo ""; \
 	echo "=== Installer Registration ==="; \
 	src_hooks=$$(ls src/superclaude/hooks/scripts/*.sh 2>/dev/null | xargs -n1 basename | sort); \
 	registered=$$(uv run python -c "from superclaude.cli.install_hooks import _FRESHNESS_SCRIPTS; print('\n'.join(sorted(_FRESHNESS_SCRIPTS)))" 2>/dev/null); \
@@ -313,6 +351,12 @@ verify-sync:
 		echo "❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/."; \
 		exit 1; \
 	fi
+
+# Verify Python dependency allow-list (AC3 / R-015 / T01.17)
+verify-deps:
+	@echo "🔍 Verifying Python dependency allow-list (AC3 / R-015)..."
+	@uv run python scripts/verify_deps.py
+	@echo "EXIT=$$?"
 
 # Enforce architecture policy: commands, skills, naming conventions
 lint-architecture:
@@ -462,6 +506,7 @@ help:
 	@echo "🔄 Component Sync:"
 	@echo "  make sync-dev        - Sync src/ → .claude/ for local development"
 	@echo "  make verify-sync     - Check src/ and .claude/ are in sync (CI-friendly)"
+	@echo "  make verify-deps     - Verify Python dependency allow-list (AC3 / R-015)"
 	@echo "  make lint-architecture - Enforce architecture policy (6 of 10 checks)"
 	@echo "  make eval-skill SKILL=<name> - Create .dev/eval-workspaces/<name>/ and print absolute path"
 	@echo ""

@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 22 items
+
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_empty_specs_returns_empty PASSED [  4%]
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_single_spec PASSED [  9%]
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_outcome_order_matches_input_order PASSED [ 13%]
+tests/cli/eval/test_orchestrator.py::TestOneOutcomePerSpec::test_every_spec_gets_exactly_one_outcome PASSED [ 18%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_default_parallel_is_eight PASSED [ 22%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_min_parallel_is_one PASSED [ 27%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_max_parallel_is_fifteen PASSED [ 31%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_zero_parallel_rejected PASSED [ 36%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_negative_parallel_rejected PASSED [ 40%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_non_integer_parallel_rejected PASSED [ 45%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_boolean_parallel_rejected PASSED [ 50%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_parallel_above_max_clamps_to_fifteen PASSED [ 54%]
+tests/cli/eval/test_orchestrator.py::TestParallelClamp::test_parallel_one_serialises PASSED [ 59%]
+tests/cli/eval/test_orchestrator.py::test_three_eval_suite_runs_faster_than_3x_sequential PASSED [ 63%]
+tests/cli/eval/test_orchestrator.py::TestCancellation::test_pre_cancelled_token_skips_all_specs PASSED [ 68%]
+tests/cli/eval/test_orchestrator.py::TestCancellation::test_mid_run_cancel_stops_new_submissions PASSED [ 72%]
+tests/cli/eval/test_orchestrator.py::TestCancellation::test_unwired_token_does_not_synthesize_interrupts PASSED [ 77%]
+tests/cli/eval/test_orchestrator.py::TestWorkerExceptionFolding::test_runtime_error_from_worker_folds_to_errored PASSED [ 81%]
+tests/cli/eval/test_orchestrator.py::TestConstructorGuards::test_non_callable_worker_rejected PASSED [ 86%]
+tests/cli/eval/test_orchestrator.py::TestConstructorGuards::test_cancellation_token_optional PASSED [ 90%]
+tests/cli/eval/test_orchestrator.py::test_orchestrator_allocates_unique_session_id_per_run PASSED [ 95%]
+tests/cli/eval/test_orchestrator.py::test_run_one_spec_uses_orchestrator_allocate_session_id PASSED [100%]
+
+============================== 22 passed in 0.50s ==============================
+EXIT_CODE=0

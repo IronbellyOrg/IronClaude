@@ -15,6 +15,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 **Critical Constraint:** Ten open questions must be resolved before Phase 2 begins. Highest priority: audit log retention conflict (TDD specifies 90 days; PRD requires 12 months for SOC2), logout endpoint missing from TDD, and GDPR consent field not in UserProfile schema.
 
 **Success Targets:**
+
 - Registration conversion > 60%
 - Login response time (p95) < 200ms
 - Service availability 99.9% uptime
@@ -32,6 +33,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 **Personas & Value:** Alex (end user) gets frictionless registration and login. Sam (API consumer) gains token refresh capability. Platform unblocks personalization features pending frontend integration.
 
 **Milestones:**
+
 - End Week 1: Data models and repositories complete; tests green for DM-001, DM-002
 - End Week 2: All core services implemented (COMP-001–005); unit tests pass (TEST-001–003)
 - End Week 3: All backend APIs operational (API-001–004); feature flag deployed to staging; internal alpha launch (MIG-001)
@@ -63,15 +65,18 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 | MIG-001 | Phase 1 – Internal Alpha: Staging deployment with feature flag | Migration | Rollout | platform-team | All Phase 1 tasks | AuthService deployed to staging; AUTH_NEW_LOGIN feature flag OFF by default; auth-team + QA test all endpoints; zero P0/P1 bugs before Phase 2 start |
 
 **Risk Mitigations (Phase 1):**
+
 - **R-001 (Token theft via XSS):** Enforce in-memory-only accessToken storage during Phase 1 design; document HttpOnly cookie strategy for Phase 2 frontend.
 - **R-003 (Data loss during migration):** Establish PostgreSQL backup procedures before Phase 1 migrations run; test restore process.
 
 **Open Questions Blocking Phase 2:**
+
 1. **OQ-6 — Audit log retention conflict:** TDD §7.2 specifies 90-day retention; PRD §S17 requires 12 months for SOC2. **Decision required:** Which retention policy governs implementation?
 2. **OQ-9 — GDPR consent field missing:** NFR-COMP-001 requires consent timestamp at registration. **Decision required:** Add `consentTimestamp` field to DM-001 UserProfile schema before Phase 1 ends?
 3. **OQ-10 — Password reset endpoints unspecified:** FR-AUTH-005 references `/auth/reset-request` and `/auth/reset-confirm` but TDD §8 lacks endpoint details. **Decision required:** Finalize endpoint specs (request/response schemas, token TTL, email delay) before Phase 2.
 
 **Phase 1 Success Criteria:**
+
 - All DM, COMP, API, FR, NFR, TEST-001–003, and MIG-001 tasks completed
 - Zero critical (P0/P1) bugs in staging
 - Performance baseline established: login < 200ms p95, registration < 300ms p95
@@ -86,6 +91,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 **Personas & Value:** Alex completes signup in < 60 seconds and experiences seamless session persistence. Jordan (admin) gains audit trail visibility for compliance. Platform achieves 60% registration conversion.
 
 **Milestones:**
+
 - End Week 4: All frontend components deployed (COMP-006–009); LoginPage and RegisterPage render in < 1s; AuthProvider handles token refresh.
 - End Week 5: Password reset flow integrated (API-005, API-006, FR-AUTH-005); email integration tested; integration tests pass (TEST-004–005); beta rollout initiates (MIG-002).
 - End Week 6: Beta runs at 10% load; monitoring confirms < 200ms p95 login latency; refresh token revocation working; funnel analytics show > 50% registration conversion.
@@ -114,21 +120,25 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 | MIG-005 | Feature flag AUTH_TOKEN_REFRESH | Migration | Feature Flag | platform-team | COMP-002, API-004 | Enables refresh token flow; when OFF, only access tokens issued; default OFF; removable after Phase 3 + 2 weeks |
 
 **Risk Mitigations (Phase 2):**
+
 - **R-002 (Brute-force attacks):** API Gateway rate limiting 10 req/min per IP; account lockout after 5 failed attempts; CAPTCHA added to LoginPage after 3 failures if needed.
 - **R-004 (Low registration adoption):** Usability testing on RegisterPage; iterate based on funnel metrics (target > 60% conversion).
 - **R-007 (Email delivery failures):** SendGrid delivery monitoring and alerting; fallback support channel for stuck password resets.
 
 **Dependency Wiring (Phase 2):**
+
 - **AuthProvider context** wires API interceptors: intercepts 401 responses, triggers token refresh via API-004, retries original request.
 - **LoginPage and RegisterPage** dispatch requests through AuthProvider context methods, not directly to APIs.
 - **Email service integration** wired into COMP-001 (AuthService) for FR-AUTH-005; uses SendGrid as external dependency.
 
 **Critical Resolution Before Phase 2 Start:**
+
 - **Confirm OQ-6 resolution:** If PRD wins (12-month retention), ensure DM-001 audit log schema supports 12-month lifecycle; update retention policy in OPS systems.
 - **Confirm OQ-9 resolution:** Add `consentTimestamp` field to DM-001 UserProfile; update API-002 response schema to include consent; add GDPR consent checkbox to COMP-007 RegisterPage.
 - **Finalize API-005 and API-006 specs:** Document request/response schemas, token TTL (1 hour), email send delay (immediate or async), rate limit (TBD).
 
 **Phase 2 Success Criteria:**
+
 - All COMP, API, FR, NFR (except NFR-SEC-001/002 validation), TEST-004–006, and MIG tasks completed
 - Beta (MIG-002) runs for 2 weeks with < 200ms p95 login latency, < 0.1% error rate
 - Registration conversion funnel > 50% (target > 60% by GA)
@@ -144,6 +154,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 **Personas & Value:** Jordan (admin) has runbooks and alerts for incident response. Platform achieves 99.9% uptime SLA. Compliance team passes SOC2 Type II audit Q3 2026.
 
 **Milestones:**
+
 - End Week 7: Security review complete; penetration testing performed; operational runbooks drafted (OPS-001–003); capacity plans finalized (OPS-004–006).
 - End Week 8: All operational tasks complete; runbooks tested; alerts configured; on-call training delivered; rollback procedure validated (MIG-006).
 - End Week 9: GA deployment (MIG-003); 100% of traffic routed through AuthService; monitoring dashboards green; support handoff complete.
@@ -166,15 +177,18 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 | OPS-006 | Capacity Planning – Redis Memory (memory planning) | Operational | Capacity | devops-team | COMP-002, Redis | 1 GB baseline; 100K refresh tokens (~50 MB expected); scaling trigger at > 70% utilization; eviction policy set to allkeys-lru |
 
 **Risk Mitigations (Phase 3):**
+
 - **R-005 (Security breach from implementation flaws):** Penetration testing by third party; security review checklist; all findings remediated before GA.
 - **R-006 (Compliance failure from audit logging):** Define log requirements early (Phase 1); validate against SOC2 controls in QA; audit log retention set to 12 months (resolves OQ-6).
 
 **Dependency Verification (Phase 3):**
+
 - All external dependencies confirmed operational: PostgreSQL 15+, Redis 7+, SendGrid API, Node.js 20 LTS, bcryptjs, jsonwebtoken.
 - Observability infrastructure in place: APM tracing, Prometheus metrics, structured logging, alerts.
 - Runbooks and incident response validated with simulated failures.
 
 **Phase 3 Success Criteria:**
+
 - All OPS tasks and migration tasks complete
 - Security pentest clean (no P0/P1 findings)
 - Operational readiness: runbooks tested, alerts configured, on-call rotation active
@@ -205,6 +219,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 ## Resource Requirements and Dependencies
 
 **Team Structure:**
+
 - **auth-team (5 FTE):** Backend engineers; implement COMP-001–005, API-001–006, migrations, operability
 - **frontend-team (3 FTE):** Frontend engineers; implement COMP-006–009, integration with AuthProvider
 - **qa-team (2 FTE):** QA engineers; test strategy, coverage, load testing, E2E automation
@@ -226,6 +241,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 | SEC-POLICY-001 | Policy document | Compliance team | Before Phase 1 Week 1 | Password and token policies must be finalized; undefined policies block Phase 1 start |
 
 **Budget/Capacity Impact:**
+
 - **Phase 1:** 5 FTE auth-team + 1 FTE QA = 6 FTE (weeks 1–3)
 - **Phase 2:** 5 FTE auth-team + 3 FTE frontend-team + 2 FTE QA + 1 FTE security (pentest) = 11 FTE (weeks 4–6)
 - **Phase 3:** 5 FTE auth-team + 1 FTE ops + 1 FTE security (validation) = 7 FTE (weeks 7–9)
@@ -260,6 +276,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 | Product quality | Usability testing shows > 60% registration conversion; zero P0 bugs in beta; NPS > 6.5 from beta users | product-team | Product manager |
 
 **Post-Launch Monitoring (Phase 3+):**
+
 - Daily SLO dashboard: login latency, availability, error rates, registration conversion
 - Weekly metrics review: user growth, session duration, reset completion rate, failed login trends
 - Monthly post-incident reviews: incident frequency, MTTR, customer impact
@@ -296,11 +313,13 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 **Total Timeline: 9 weeks (approximately 2 calendar months for a well-coordinated team)**
 
 **Confidence Notes:**
+
 - High confidence (85%+): Backend services, APIs, data models, basic testing — well-scoped, proven technologies.
 - Medium confidence (70–80%): Frontend integration, E2E testing, operational readiness — some unknowns around load test results and issue discovery.
 - Lower confidence (< 70%): Security pentest findings, scalability under production load, on-call team ramp-up — dependent on external factors and people.
 
 **Buffer Recommendations:**
+
 - Add 1–2 weeks contingency for P1 bug fixes discovered during Phase 1 or 2.
 - Phase 3 security pentest may uncover issues requiring rework; add 1 week if findings are significant.
 - Post-GA on-call ramp-up should extend 2 weeks past Phase 3 to stabilize and respond to production issues.
@@ -330,11 +349,13 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
    - **Consuming Phases:** Phase 3 (operational support for frontend session handling)
 
 **Dependency Injection Strategy:**
+
 - AuthService constructor receives instances of PasswordHasher, TokenManager, UserRepo.
 - TokenManager constructor receives instance of JwtService.
 - No global singletons; enables testing with mocks.
 
 **Error Propagation:**
+
 - All backend services return structured error responses: `{ error: { code, message, status } }`
 - AuthProvider catches 401 responses and triggers token refresh via TokenManager.refresh(); retries original request.
 - All error codes enumerated in Phase 1 API design.
@@ -375,6 +396,7 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 - **Post-GA on-call:** 3 FTE × 2 weeks = 6 FTE-weeks
 
 **Critical Path:**
+
 1. Database schema (DM-001, DM-002) — required before any service implementation
 2. AuthService, PasswordHasher, TokenManager (COMP-001–003) — required before API endpoints
 3. Frontend components (COMP-006–009) — required before Phase 2 completion
@@ -394,16 +416,19 @@ This roadmap delivers a secure, stateless user authentication system spanning ba
 - **Staffing risk:** Frontend-team availability is critical path. If frontend capacity is unavailable Week 4–6, phase Phase 2 into Phase 2a (backend polish) and Phase 2b (frontend push), extending timeline by 1–2 weeks.
 
 **Strategic Value Realization:**
+
 - **Week 3 (Phase 1 complete):** Platform gains ability to track users in log data. Internal team testing begins. Compliance team can validate audit logging infrastructure.
 - **Week 6 (Phase 2 complete, beta stable):** First 10% of users onboard on new authentication. Product metrics (registration conversion, login latency) measurable. Personalization feature development can begin (decoupled from auth completion).
 - **Week 9 (Phase 3 complete, GA):** Platform achieves user identity layer. SOC2 audit path clearer (Q3 deadline achievable if compliance work stays on track). Personalization roadmap unblocks.
 
 **Architectural Debt Incurred:**
+
 - v1.0 does **not** include logout endpoint (OQ-7) — frontend must manually clear AuthToken on logout intent; no backend session termination mechanism.
 - v1.0 does **not** include admin audit log query API (OQ-8) — compliance team must query PostgreSQL directly until v1.1.
 - v1.0 does **not** support social login or MFA — both deferred to v1.1+.
 
 **Recommended Monitoring Posture:**
+
 - Real-time SLO dashboard during Phase 2 beta and Phase 3 GA.
 - Weekly metrics reviews (product metrics, operational SLIs, error logs).
 - Incident response training for on-call team before Phase 3 GA.

@@ -1,0 +1,16 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-T1-sprint/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-T1-sprint
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 4 items
+
+tests/sprint/test_state_dir_isolation.py::test_writer_uses_state_dir_not_release_dir PASSED [ 25%]
+tests/sprint/test_state_dir_isolation.py::test_no_tracked_sprint_exitcode_files PASSED [ 50%]
+tests/sprint/test_state_dir_isolation.py::test_state_dir_default_derives_from_release_dir PASSED [ 75%]
+tests/sprint/test_state_dir_isolation.py::test_state_dir_env_var_resolution PASSED [100%]
+
+============================== 4 passed in 0.12s ===============================

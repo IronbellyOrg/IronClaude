@@ -67,6 +67,14 @@ def extract_checkpoint_paths(
         if not raw_path:
             continue
 
+        # Strip the `TASKLIST_ROOT/` placeholder prefix that phase tasklists
+        # emit as a portable, release-dir-agnostic anchor. The actual release
+        # root is `release_dir`; treat the remainder as release-relative.
+        if raw_path.startswith("TASKLIST_ROOT/"):
+            raw_path = raw_path[len("TASKLIST_ROOT/"):]
+        elif raw_path == "TASKLIST_ROOT":
+            raw_path = "."
+
         name = _nearest_heading(headings, match.start())
         if not name:
             name = Path(raw_path).name

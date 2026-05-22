@@ -79,7 +79,7 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
         for fail in failed_commands:
             messages.append(f"   - {fail}")
 
-    if not installed_commands and not skipped_commands:
+    if not installed_commands and not skipped_commands and not failed_commands:
         return False, "No commands were installed"
 
     messages.append(f"\n📁 Installation directory: {target_path}")

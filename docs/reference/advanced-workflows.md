@@ -11,6 +11,7 @@
 **Important**: These are conversation patterns, not executing workflows. All work happens within Claude Code based on context provided.
 
 **Key Concepts**:
+
 - Command sequences within a conversation
 - Context layering through multiple agents
 - Progressive refinement approaches

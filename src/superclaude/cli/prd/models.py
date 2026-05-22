@@ -19,6 +19,70 @@ from typing import Optional
 from superclaude.cli.pipeline.models import PipelineConfig, StepResult
 
 # ---------------------------------------------------------------------------
+# Path resolution helpers (.claude/-anchored)
+# ---------------------------------------------------------------------------
+#
+# All runtime resource lookups for the PRD pipeline must resolve to
+# ``.claude/`` (project-local first, then user-home). They must never
+# anchor on the dev-only ``src/superclaude/`` tree, because user projects
+# (e.g. anything invoked via the pipx-installed ``superclaude`` binary)
+# don't contain ``src/superclaude/``. ``superclaude install`` populates
+# ``~/.claude/`` so the home-anchored candidate is the production
+# fallback.
+
+
+_PRD_REFS_REL = Path("skills") / "prd" / "refs"
+_PRD_TEMPLATE_REL = Path("templates") / "workflow" / "05_prd_template.md"
+
+
+def _default_skill_refs_dir() -> Path:
+    """Resolve the PRD skill refs directory, anchored to ``.claude/``.
+
+    Resolution order:
+
+    1. ``<cwd>/.claude/skills/prd/refs`` (per-project override)
+    2. ``~/.claude/skills/prd/refs`` (user-home install populated by
+       ``superclaude install``)
+    3. ``<cwd>/src/superclaude/skills/prd/refs`` (dev fallback for
+       editable installs run from the IronClaude repo root)
+
+    When no candidate exists, the home-anchored absolute path is
+    returned so any resulting ``FileNotFoundError`` cites an absolute
+    path (clearer to diagnose than a relative-path error).
+    """
+    candidates = [
+        Path.cwd() / ".claude" / _PRD_REFS_REL,
+        Path.home() / ".claude" / _PRD_REFS_REL,
+    ]
+    for c in candidates:
+        if c.is_dir():
+            return c
+    dev = Path.cwd() / "src" / "superclaude" / _PRD_REFS_REL
+    if dev.is_dir():
+        return dev
+    return candidates[1]
+
+
+def _default_template_path() -> Path:
+    """Resolve the PRD template file, anchored to ``.claude/``.
+
+    Same three-step resolution as :func:`_default_skill_refs_dir` but
+    for ``.claude/templates/workflow/05_prd_template.md``.
+    """
+    candidates = [
+        Path.cwd() / ".claude" / _PRD_TEMPLATE_REL,
+        Path.home() / ".claude" / _PRD_TEMPLATE_REL,
+    ]
+    for c in candidates:
+        if c.is_file():
+            return c
+    dev = Path.cwd() / "src" / "superclaude" / _PRD_TEMPLATE_REL
+    if dev.is_file():
+        return dev
+    return candidates[1]
+
+
+# ---------------------------------------------------------------------------
 # Enums
 # ---------------------------------------------------------------------------
 
@@ -120,12 +184,8 @@ class PrdConfig(PipelineConfig):
     output_path: Path = field(default_factory=lambda: Path("."))
     tier: str = "standard"
     task_dir: Path = field(default_factory=lambda: Path("."))
-    template_path: Path = field(
-        default_factory=lambda: Path("docs/docs-product/templates/prd_template.md")
-    )
-    skill_refs_dir: Path = field(
-        default_factory=lambda: Path("src/superclaude/skills/prd/refs")
-    )
+    template_path: Path = field(default_factory=lambda: _default_template_path())
+    skill_refs_dir: Path = field(default_factory=lambda: _default_skill_refs_dir())
     max_turns: int = 300
     stall_timeout: int = 120
     stall_action: str = "warn"

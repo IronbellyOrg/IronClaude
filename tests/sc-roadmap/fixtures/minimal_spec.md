@@ -6,5 +6,6 @@
 - FR-002: Update the footer copyright year
 
 ## Success Criteria
+
 - [ ] Button color matches #3B82F6
 - [ ] Footer shows current year

@@ -17,6 +17,7 @@ Agents are specified using a hybrid format combining model selection with option
 ### Components
 
 #### Model (Required)
+
 The LLM model to use for this agent.
 
 | Model | Capability | Typical Use |
@@ -28,6 +29,7 @@ The LLM model to use for this agent.
 Model aliases configured in the environment are also supported.
 
 #### Persona (Optional)
+
 Maps to SuperClaude persona system for specialized behavior.
 
 | Persona | Specialization | Debate Focus |
@@ -44,6 +46,7 @@ Maps to SuperClaude persona system for specialized behavior.
 When no persona is specified, the agent uses the model's default behavior.
 
 #### Instruction (Optional)
+
 Custom instruction string that further shapes agent behavior within the debate.
 
 ```
@@ -95,6 +98,7 @@ Advocate agents are NOT pre-defined. They are instantiated dynamically from the 
 ### Advocate Role
 
 Each advocate:
+
 1. **Receives**: Their variant + all other variants + diff-analysis.md
 2. **Argues for**: Their variant's strengths in the specified focus areas
 3. **Critiques**: Weaknesses in other variants with evidence
@@ -182,11 +186,13 @@ advocate_prompt_template:
 ## Agent Instantiation Protocol
 
 ### Mode A (Compare)
+
 - One advocate per input file
 - Agent spec defaults to the current model if `--agents` not specified
 - Advocates named: `Advocate for Variant 1`, `Advocate for Variant 2`, etc.
 
 ### Mode B (Generate + Compare)
+
 - Each `--agents` spec generates one variant AND provides one advocate
 - The generating agent becomes the advocate for its own variant
 - Agent spec explicitly provided via `--agents` flag
@@ -213,12 +219,15 @@ agent_validation:
 ## Agent Coordination
 
 ### Parallel Execution (Round 1)
+
 All advocate agents run simultaneously via parallel Task tool calls.
 
 ### Sequential Execution (Rounds 2-3)
+
 Each advocate receives all previous round transcripts before responding. Order follows input order (Variant 1 first, then 2, etc.).
 
 ### Failure Handling
+
 - Single agent failure: Retry once, then proceed with N-1 advocates
 - Multiple failures: If fewer than 2 advocates remain, abort debate
 - Timeout: Agent-level timeout inherits from Task tool defaults

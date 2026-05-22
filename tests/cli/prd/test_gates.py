@@ -5,6 +5,8 @@ Section 8.1 test plan: 8 tests.
 
 from __future__ import annotations
 
+import pytest
+
 from superclaude.cli.prd.gates import (
     _check_b2_self_contained,
     _check_no_placeholders,
@@ -49,40 +51,40 @@ class TestCheckResearchNotesSections:
 
     def test_check_research_notes_sections(self) -> None:
         content = """
-## Product Capabilities
+## EXISTING_FILES
 Details here.
 
-## Technical Architecture
+## PATTERNS_AND_CONVENTIONS
 Details here.
 
-## User Flows
+## FEATURE_ANALYSIS
 Details here.
 
-## Integration Points
+## RECOMMENDED_OUTPUTS
 Details here.
 
-## Existing Documentation
-Details here.
-
-## Gap Analysis
-Details here.
-
-## Suggested Phases
+## SUGGESTED_PHASES
 1. Phase one detail
+
+## TEMPLATE_NOTES
+Details here.
+
+## AMBIGUITIES_FOR_USER
+Details here.
 """
         assert _check_research_notes_sections(content) is True
 
     def test_check_research_notes_sections_missing(self) -> None:
         content = """
-## Product Capabilities
+## EXISTING_FILES
 Some content.
 
-## Technical Architecture
+## PATTERNS_AND_CONVENTIONS
 Some content.
 """
         result = _check_research_notes_sections(content)
         assert isinstance(result, str)
-        assert "User Flows" in result
+        assert "FEATURE_ANALYSIS" in result
 
 
 class TestCheckVerdictField:
@@ -101,6 +103,30 @@ class TestCheckVerdictField:
         result = _check_verdict_field("No verdict here")
         assert isinstance(result, str)
         assert "verdict" in result.lower()
+
+    @pytest.mark.parametrize(
+        "shape",
+        ["Verdict: PASS", "**Verdict**: PASS", "**Verdict:** PASS"],
+    )
+    def test_check_verdict_field_accepts_valid_markdown_shapes(
+        self, shape: str
+    ) -> None:
+        """The three legitimate markdown verdict shapes are accepted."""
+        content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
+        assert _check_verdict_field(content) is True
+
+    @pytest.mark.parametrize(
+        "shape",
+        ["Verdict PASS", "Verdict::: PASS", "Verdict***PASS", "verdict pass"],
+    )
+    def test_check_verdict_field_rejects_invalid_shapes(
+        self, shape: str
+    ) -> None:
+        """Malformed verdict shapes (no colon, junk separators, lowercase
+        value) are rejected — the tightened regex no longer false-accepts."""
+        content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
+        result = _check_verdict_field(content)
+        assert result is not True
 
 
 class TestCheckB2SelfContained:

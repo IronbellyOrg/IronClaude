@@ -135,4 +135,3 @@ See `PatchChecklist.md` for the ordered patch list. Execution mode: direct Edit 
 All 12 primary fidelity drift items (D1-D12) resolved. All 5 minor notes (M1-M5) resolved. Structural self-check (Stage 6) remains PASS. Generated tasklist bundle at `.dev/releases/current/v1.1/` is now roadmap-aligned and Sprint CLI-ready.
 
 Next step (out of scope for this protocol run): the user may invoke `superclaude sprint run .dev/releases/current/v1.1/tasklist-index.md` to begin execution.
-

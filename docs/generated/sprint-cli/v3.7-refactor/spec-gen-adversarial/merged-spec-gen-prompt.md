@@ -32,10 +32,10 @@ You MUST read and incorporate ALL of the following source documents. They contai
 | `src/superclaude/cli/sprint/executor.py` | Lines 1064-1092 (_run_task_subprocess: prompt, output file, hardcoded turns=0), lines 1017-1025 (TaskResult construction missing output_path), lines 1042-1048 (per-task TUI update hook), lines 1086-1087 (blocking proc.start/wait), lines 826-831 (anti-instinct gate), lines 956-1100 (Path A loop), lines 1201-1254 (path branching) |
 | `src/superclaude/cli/sprint/process.py` | Lines 123-204 (build_prompt with sprint context, skill invocation), line 170 (/sc:task-unified reference), lines 245-307 (build_task_context) |
 | `src/superclaude/cli/pipeline/process.py` | Line 114 (output file open mode "w" -- the append-mode bug) |
-| `src/superclaude/cli/sprint/monitor.py` | Lines 114-141 (count_turns_from_output), class OutputMonitor (lifecycle, _parse_event) |
+| `src/superclaude/cli/sprint/monitor.py` | Lines 114-141 (count_turns_from_output), class OutputMonitor (lifecycle,_parse_event) |
 | `src/superclaude/cli/sprint/models.py` | TaskResult (output_path field), PhaseResult, SprintResult, MonitorState, SprintConfig (gate_rollout_mode at ~line 329), PhaseStatus enum, line 176 (output_path default) |
 | `src/superclaude/cli/sprint/tui.py` | STATUS_STYLES, STATUS_ICONS, phase table rendering, terminal panel rendering, line 107-108 (monitor_state binding) |
-| `src/superclaude/cli/sprint/config.py` | parse_tasklist(), _TASK_HEADING_RE, lines 342-380 (TaskEntry), lines 389-394 (dependencies) |
+| `src/superclaude/cli/sprint/config.py` | parse_tasklist(),_TASK_HEADING_RE, lines 342-380 (TaskEntry), lines 389-394 (dependencies) |
 
 ### 1.2 Analysis Documents
 
@@ -184,6 +184,7 @@ For EVERY task in both specs, you MUST complete ALL of the following stages. No 
 ### 6.1 Deep Code Reading (do this BEFORE writing)
 
 Read the actual source file. Identify:
+
 - The exact function or class being modified
 - The exact line numbers in the current code
 - What other functions CALL the code being changed (grep for callers)
@@ -222,6 +223,7 @@ Tasks that are mechanical (N1-N12 renames, 1-line default changes) should be fla
 ### 6.5 Unintended Consequence Analysis
 
 Think through:
+
 - Could this change cause a test to fail that is NOT testing the changed behavior? (e.g., a test asserting exact prompt strings breaks when prompt content changes)
 - Could this change cause a runtime error in a code path not covered by tests? (e.g., Path B exercising a shared function that Path A modified)
 - Could this change interact badly with concurrent execution? (e.g., append-mode and OutputMonitor both writing/reading the same file)
@@ -365,6 +367,7 @@ For EACH risk, provide the standard table columns PLUS these mandatory sub-items
 ```
 
 **R1 Mandatory Risks** (minimum):
+
 1. Append-mode phase restart double-counting (MA-03 + PA-04 interaction)
 2. Shadow gate default exposing latent bugs in gate evaluation code
 3. `_extract_task_block()` regex failing on edge-case markdown formatting
@@ -372,6 +375,7 @@ For EACH risk, provide the standard table columns PLUS these mandatory sub-items
 5. `count_turns_from_output()` returning incorrect count on malformed NDJSON
 
 **R2 Mandatory Risks** (minimum):
+
 1. stall_status false alarm in MonitorState adapter (user kills healthy process)
 2. PhaseSummarizer Haiku API failure mid-sprint
 3. TUI rendering crash with unexpected MonitorState field values (None, negative, overflow)
@@ -384,6 +388,7 @@ For EACH risk, provide the standard table columns PLUS these mandatory sub-items
 **Minimum test counts**: R1: at least 25 unit tests. R2: at least 40 unit tests.
 
 For EVERY test, specify:
+
 - Test function name (e.g., `test_extract_task_block_single_task`)
 - File location (e.g., `tests/cli/sprint/test_executor.py`)
 - What it asserts (specific condition, not "it works")
@@ -396,6 +401,7 @@ Include integration tests per phase/wave and a regression test matrix listing ev
 Include these 6 specific migration scenarios:
 
 **R1 Migration Scenarios:**
+
 1. **Phase restart with append mode**: A sprint is killed at phase 2 task 3, then restarted with `--start 2`. The output file has stale data from the failed run. Document: Is there a truncation point at phase start? If not, `count_turns_from_output()` counts turns from the failed attempt. This MUST be addressed.
 2. **In-flight sprint with gate default change**: Sprint started before R1 with `"off"` default. Mode is read from `SprintConfig` at sprint start, not per-phase. Sprint continues with `"off"` until restarted. Document this.
 3. **`_extract_task_block()` fallback**: Phase file does not contain matching `### T<PP>.<TT>` heading. Document fallback behavior (return empty string, prompt falls back to description-only).

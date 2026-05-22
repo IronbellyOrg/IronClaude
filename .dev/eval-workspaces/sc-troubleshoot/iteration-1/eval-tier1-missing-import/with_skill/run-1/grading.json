@@ -1,0 +1,43 @@
+{
+  "eval_id": 1,
+  "eval_name": "tier1-missing-import",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifies missing `from datetime import datetime` as the root cause",
+      "passed": true,
+      "evidence": "REPORT.md diagnosis names missing datetime import; tier1-hypothesis.md cites the missing import block."
+    },
+    {
+      "text": "Cites line 47 or the specific line containing datetime.utcnow()",
+      "passed": true,
+      "evidence": "REPORT.md cites line 47 and the datetime.utcnow() call."
+    },
+    {
+      "text": "Proposes the one-line fix: add `from datetime import datetime` to imports",
+      "passed": true,
+      "evidence": "REPORT.md Proposed Fix: `from datetime import datetime`."
+    },
+    {
+      "text": "Stops at Tier 1 (does not unnecessarily escalate)",
+      "passed": true,
+      "evidence": "audit.log shows tier_reached=1; no Tier 2 artifacts written."
+    },
+    {
+      "text": "Reports calibrated confidence \u2265 0.85",
+      "passed": true,
+      "evidence": "Calibrated confidence 1.00 per agent summary."
+    }
+  ],
+  "pass_count": 5,
+  "fail_count": 0,
+  "na_count": 0,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "na": 0
+  }
+}

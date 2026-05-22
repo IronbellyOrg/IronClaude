@@ -9,18 +9,20 @@ A skill for creating comprehensive Product Requirements Documents (PRDs) for pro
 
 **How it works:** The skill performs initial scope discovery (mapping the product area, identifying research topics, assessing complexity), then spawns the `rf-task-builder` subagent to create an MDTM task file encoding all investigation, synthesis, and assembly phases. The skill then executes from that task file, marking items complete as it progresses. If context compresses or the session restarts, the skill re-reads the task file and resumes from the first unchecked item.
 
-The output always follows the project template at `src/superclaude/examples/prd_template.md`. The template is the schema — every PRD must conform to it.
+The output always follows the project template at `.claude/templates/workflow/05_prd_template.md`. The template is the schema — every PRD must conform to it.
 
 ## Why This Process Works
 
 PRDs go stale when written from memory or existing docs. This skill forces every claim through codebase verification and market research — parallel agents read actual source files, trace actual capabilities, investigate competitive landscapes, and document actual product behavior.
 
 The MDTM task file provides three critical guarantees:
+
 1. **Progress survives context compression** — The task file on disk is the source of truth, not conversation context. Every completed step is a checked box that persists across sessions.
 2. **No steps get skipped** — The task file encodes every phase and step as a mandatory checklist item. The execution loop processes items sequentially, never jumping ahead.
 3. **Resumability** — On restart, the skill reads the task file, finds the first unchecked `- [ ]` item, and picks up exactly where it left off.
 
 The multi-phase structure (scope discovery → deep investigation → **analyst verification** → web research → synthesis → **synthesis QA** → assembly → **report validation**) prevents four common failure modes:
+
 - **Context rot** — By isolating each research topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one product area), the investigation goes deep on every aspect simultaneously rather than skimming across everything sequentially.
 - **Hallucinated requirements** — By separating research (what exists) from synthesis (what it means for the product) from assembly (the final PRD), each phase can be verified independently. Synthesis agents only work from verified research files, not from memory or inference.
@@ -85,6 +87,7 @@ Match the tier to product scope. **Default to Standard** unless the product is c
 | **Heavyweight** | Platform-level PRD, 20+ user stories, multiple product areas, 20+ files | 6–10+ | 2–4 | 1,500–2,500 |
 
 **Tier selection rules:**
+
 - If in doubt, pick Standard
 - If the user says "detailed", "comprehensive", "thorough" — always Heavyweight
 - Only use Lightweight for genuinely narrow products (<5 files, single concern)
@@ -97,6 +100,7 @@ Match the tier to product scope. **Default to Standard** unless the product is c
 All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-PRD-YYYYMMDD-HHMMSS/`. The product slug is derived from the product scope (e.g., `wizard-system`, `multi-agent-platform`, `pixel-streaming`).
 
 **Variable reference block:**
+
 ```
 TASK_ID:     TASK-PRD-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
@@ -124,7 +128,7 @@ REVIEWS:     ${TASK_DIR}reviews/
 | QA report (report validation) | `${TASK_DIR}qa/qa-report-validation.md` |
 | QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
 | Final PRD | `docs/docs-product/tech/[feature-name]/PRD_[FEATURE-NAME].md` |
-| Template schema | `src/superclaude/examples/prd_template.md` |
+| Template schema | `.claude/templates/workflow/05_prd_template.md` |
 
 **File numbering convention:** All research, web, and synthesis files use zero-padded sequential numbers: `01-`, `02-`, `03-`, etc. This ensures correct ordering when listing files.
 
@@ -137,6 +141,7 @@ Check for existing task folders matching `TASK-PRD-*` in `.dev/tasks/to-do/` bef
 The skill operates in two stages:
 
 **Stage A — Scope Discovery & Task File Creation (before the task file exists):**
+
 1. Check for an existing task file or research directory (A.1)
 2. Parse the user's PRD request and triage into Scenario A vs B (A.2)
 3. Perform scope discovery — map product files, plan assignments (A.3)
@@ -151,6 +156,7 @@ The skill operates in two stages:
 10. Each checklist item is a self-contained prompt — no prior context needed
 
 Phase names within the task file:
+
 - **Phase 1: Preparation** — Scope confirmation, template read, tier selection
 - **Phase 2: Deep Investigation** — Parallel subagent investigation of product code and capabilities
 - **Phase 3: Completeness Verification** — rf-analyst completeness verification + rf-qa research gate (parallel)
@@ -216,6 +222,7 @@ Example: "Write a PRD for pixel streaming"
 Use Glob, Grep, and codebase-retrieval to map the product space. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
+
 - **Scenario A**: Focused discovery — verify the files/directories the user mentioned exist, scan for related code, identify gaps in what the user specified.
 - **Scenario B**: Broad discovery — scan the full codebase for anything touching the product, map all relevant subsystems, identify documentation, count files.
 
@@ -322,6 +329,7 @@ Read `${TASK_DIR}research-notes.md` and evaluate:
 **If sufficient** → proceed to A.6 (template triage).
 
 **If insufficient** → either:
+
 - Do additional scope discovery yourself and update the research notes file, OR
 - Spawn an rf-task-researcher subagent with specific feedback about what's missing, then re-review
 
@@ -334,6 +342,7 @@ Do NOT proceed to the builder with incomplete research notes. The builder cannot
 Determine which MDTM template the task builder should use:
 
 **Use Template 02 (Complex Task) when the work involves:**
+
 - Discovery before building (investigating unknown product areas)
 - Parallel subagent spawning
 - Multiple phases with different activities (research, web research, synthesis, assembly)
@@ -341,6 +350,7 @@ Determine which MDTM template the task builder should use:
 - Conditional flows based on findings
 
 **Use Template 01 (Generic Task) when the work involves:**
+
 - Simple PRD update (adding a section to an existing PRD)
 - Straightforward execution with no discovery
 - Single-pass operations
@@ -350,7 +360,6 @@ Determine which MDTM template the task builder should use:
 ### A.7: Build the Task File
 
 Spawn the `rf-task-builder` subagent. The builder reads the research notes file and the MDTM template, then creates the task file. It also reads the SKILL.md itself for phase requirements and agent prompt templates.
-
 
 **Loading declaration :** Before spawning the builder, the orchestrator MUST load `refs/build-request-template.md`:
 
@@ -388,6 +397,7 @@ Use the Agent tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPer
 ### A.8: Receive & Verify the Task File
 
 The builder subagent returns the path to the created task file. Read the file and verify:
+
 - Frontmatter is properly populated
 - All planned phases are present as checklist items
 - Checklist items follow the B2 self-contained pattern (single paragraph: context + action + output + verification)
@@ -423,7 +433,6 @@ The task file created in Stage A must be fully self-contained because `/task` do
 
 **CRITICAL:** `/task` does NOT read this SKILL.md during execution. ALL skill-specific instructions, agent prompts, validation criteria, and content rules must be baked into the task file items during Stage A. This includes prohibited actions: research agents READ code, they do not modify it; do not fabricate product capabilities; do not invent file paths; do not delete research artifacts after assembly.
 
-
 ---
 
 ## Phase Loading Contract (FR-PRD-R.6c)
@@ -451,4 +460,3 @@ If a refs file is loaded outside its declared phase, the phase contract is viola
 ## Session Management
 
 Session management is provided by the `/task` skill. See `refs/operational-guidance.md` for detailed session resumption, PRD update protocol, and artifact location conventions.
-

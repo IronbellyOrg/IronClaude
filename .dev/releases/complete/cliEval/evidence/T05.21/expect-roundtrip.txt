@@ -1,0 +1,39 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+=== E15 Expect.from_mapping round-trip ===
+eval id: E15
+eval title: hook timeout fails open with telemetry
+category: hook-lifecycle
+requires: ()
+no_pty: skip
+timeout_sec: 60
+isolation: {'home_strategy': 'ephemeral'}
+inputs count: 3
+  inputs[0]: {'prompt': "Use the Write tool to create a file named fixture.txt under the current working directory with the single line 'content'."}
+  inputs[1]: {'prompt': 'Use the Read tool to read fixture.txt.', 'expect_tool_call': 'Read'}
+  inputs[2]: {'prompt': '/quit'}
+expects count: 4
+  expects[0]: from_mapping({'file': {'path': 'logs/hook-errors.jsonl', 'exists': True}}) -> file  (resolved: <function Expect.file.<locals>._run at 0x72e837f71940>)
+  expects[1]: from_mapping({'file': {'path': 'logs/hook-errors.jsonl', 'exists': True, 'contains': '"type":"hook_timeout"'}}) -> file  (resolved: <function Expect.file.<locals>._run at 0x72e837effa60>)
+  expects[2]: from_mapping({'file': {'path': 'logs/hook-errors.jsonl', 'exists': True, 'contains': '"disposition":"fail_open"'}}) -> file  (resolved: <function Expect.file.<locals>._run at 0x72e837f71940>)
+  expects[3]: from_mapping({'exit_code': {'equals': 0}}) -> exit_code  (resolved: <function Expect.exit_code.<locals>._run at 0x72e837effa60>)
+=== ROUND-TRIP OK ===
+
+=== suite-wide eval enumeration ===
+total evals: 17
+  E1: auggie-first sticky lifecycle — set then clear | requires=['mcp_server.auggie']
+  E2.1: auggie matcher coverage — mcp__auggie__* | requires=['mcp_server.auggie']
+  E2.2: auggie matcher coverage — mcp__auggie-mcp__* | requires=['mcp_server.auggie-mcp']
+  E2.3: auggie matcher coverage — mcp__airis-mcp-gateway__auggie_* | requires=['mcp_server.airis-mcp-gateway']
+  E3: SessionStart unmatched (session-init) hook fires | requires=[]
+  E4: SessionStart matcher=* freshness hook fires | requires=[]
+  E5: UserPromptSubmit freshness hook fires | requires=[]
+  E6: PreToolUse Edit matcher fires | requires=[]
+  E7: PreToolUse Write matcher fires | requires=[]
+  E8: PreToolUse serena matcher fires | requires=['mcp_server.serena']
+  E9: PostToolUse Read async hook fires | requires=[]
+  E10: SubagentStart hook fires | requires=[]
+  E11: SubagentStop hook fires | requires=[]
+  E12: Hook deploy idempotency | requires=[]
+  E13: Hook stderr error fails open | requires=[]
+  E14: Concurrent SessionStart bursts | requires=[]
+  E15: hook timeout fails open with telemetry | requires=[]

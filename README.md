@@ -240,6 +240,30 @@ If you work on commands, agents, or skills, make sure the package source and `.c
 - UV for development workflows
 - Claude Code for command, skill, and agent consumption
 
+## Platform support
+
+The `superclaude eval` real-eval harness (the `eval doctor`, `eval list`,
+`eval describe`, and `eval run` subcommands shipped under
+`src/superclaude/cli/eval/`) is **Linux-only for v1**.
+
+- **Supported:** Linux (any distribution that meets the Python and UV
+  requirements above and on which Claude Code's TTY behaviour matches the
+  reference platform the harness was built against).
+- **macOS / Windows:** Non-goal for v1. `eval doctor` refuses non-Linux
+  hosts with a friendly error message citing AC1 (R-109) and exits 2
+  *before* running any capability gates; the rest of the `superclaude`
+  CLI (sprint, roadmap, tasklist, audit, etc.) is unaffected.
+- **CI:** Non-goal for v1 — the harness ships no GitHub Actions workflow
+  and no `--ci` flag. v1 ships as a developer-machine tool; CI integration
+  is deferred to v2 with a documented revisit trigger.
+
+The Linux-only v1 commitment, the macOS follow-up plan (owner + target
+date), and the CI deferral are recorded together in
+[`.dev/releases/current/cliEval/decisions.md`](.dev/releases/current/cliEval/decisions.md)
+under the AC1, DOC-OQ9, and AC2 closure sections (Phase-6 tasks T06.07,
+T06.02, T06.05). The v2 platform follow-up roadmap entry under MIG-003
+consolidates both axes.
+
 ## License
 
 MIT

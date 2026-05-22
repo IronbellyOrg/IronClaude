@@ -1,0 +1,27 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 14 items
+
+tests/cli/eval/test_no_pty_exclusion.py::test_schema_accepts_no_pty_skip_on_eval_entry PASSED [  7%]
+tests/cli/eval/test_no_pty_exclusion.py::test_schema_rejects_unknown_no_pty_values PASSED [ 14%]
+tests/cli/eval/test_no_pty_exclusion.py::test_validate_manifest_round_trips_no_pty PASSED [ 21%]
+tests/cli/eval/test_no_pty_exclusion.py::test_real_suite_present_on_disk PASSED [ 28%]
+tests/cli/eval/test_no_pty_exclusion.py::test_real_suite_marks_every_eval_no_pty_skip PASSED [ 35%]
+tests/cli/eval/test_no_pty_exclusion.py::test_real_suite_loads_through_full_pipeline PASSED [ 42%]
+tests/cli/eval/test_no_pty_exclusion.py::test_evalspec_to_dict_emits_no_pty_when_set PASSED [ 50%]
+tests/cli/eval/test_no_pty_exclusion.py::test_evalspec_to_dict_omits_no_pty_when_absent PASSED [ 57%]
+tests/cli/eval/test_no_pty_exclusion.py::test_describe_suite_surfaces_no_pty_for_real_e1 PASSED [ 64%]
+tests/cli/eval/test_no_pty_exclusion.py::test_cli_describe_yaml_surfaces_no_pty PASSED [ 71%]
+tests/cli/eval/test_no_pty_exclusion.py::test_run_one_short_circuits_tagged_spec_with_no_pty_flag PASSED [ 78%]
+tests/cli/eval/test_no_pty_exclusion.py::test_run_one_does_not_short_circuit_untagged_spec PASSED [ 85%]
+tests/cli/eval/test_no_pty_exclusion.py::test_run_one_runs_tagged_spec_when_no_pty_flag_absent PASSED [ 92%]
+tests/cli/eval/test_no_pty_exclusion.py::test_eval_run_no_pty_skips_real_suite_end_to_end PASSED [100%]
+
+============================== 14 passed in 0.38s ==============================

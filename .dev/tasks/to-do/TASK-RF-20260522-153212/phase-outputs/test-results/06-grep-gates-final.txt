@@ -1,0 +1,23 @@
+=== GATE 1 (H1): grep -rn 'run_dir=resolved_output' src/superclaude/cli/eval/ ===
+0
+(0 hits — PASS)
+
+=== GATE 2 (H5): home_root.mkdir vs runtime_allowed ordering in commands.py ===
+1765:    # ``home_root.mkdir`` below so the path is in the allowlist at the
+1768:    runtime_allowed = tuple(base_config.allowed_scratch_roots) + (
+1773:    runtime_config = EvalConfig(
+1776:        allowed_scratch_roots=runtime_allowed,
+1783:    home_root.mkdir(parents=True, exist_ok=True)
+
+=== GATE 3 (CC1 per OQ-1): re.compile of eval-id patterns ===
+Total re.compile() calls in eval module: 9
+src/superclaude/cli/eval/artifact_layout.py:101:_EVAL_ID_PATH_SAFETY_PATTERN = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+src/superclaude/cli/eval/artifact_layout.py:108:EVAL_ID_PATTERN = re.compile(r"^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$")
+
+=== GATE 4 (CC2): no literal sys.exit(N) or Exit(N) ===
+0
+(0 hits — PASS)
+
+=== GATE 5 (CC2 per OQ-2): no *_EXIT_CODE = <literal-int> outside exit_codes.py ===
+0
+(0 hits outside exit_codes.py — PASS)

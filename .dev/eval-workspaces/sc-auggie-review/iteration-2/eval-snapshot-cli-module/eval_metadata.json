@@ -1,0 +1,21 @@
+{
+  "eval_id": 3,
+  "eval_name": "snapshot-cli-module",
+  "prompt": "Run /sc:auggie-review --snapshot src/superclaude/cli/ --depth quick --focus anti-patterns,architecture,quality --output-dir /tmp/eval-snapshot/. Review the CLI module as a whole, no diff. Print the report path and a one-line summary at the end.",
+  "assertions": [
+    {"name": "review-md-exists", "kind": "file_exists", "path": "outputs/REVIEW.md"},
+    {"name": "review-md-nonempty", "kind": "min_size", "path": "outputs/REVIEW.md", "min_bytes": 2000},
+    {"name": "report-mentions-snapshot-target", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["src/superclaude/cli", "snapshot", "CLI module"]},
+    {"name": "uses-severity-tiers-exact", "kind": "contains_all_regex", "path": "outputs/REVIEW.md", "patterns": ["\\bMedium\\b", "\\bLow\\b"]},
+    {"name": "has-finding-counts", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["[Tt]otal[^\\n]*\\d+", "\\b\\d+\\s+[\\w\\-]*\\s*finding", "(?i)summary[^\\n]*\\d+", "\\d+\\s+(?:file-level|file-anchored|cross-cutting)"]},
+    {"name": "file-line-citations-present", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["\\b[\\w/\\.\\-]+\\.py:\\d+", "L\\d+"]},
+    {"name": "cited-files-exist-in-cli-subtree", "kind": "cited_files_validate", "path": "outputs/REVIEW.md", "repo_root": "/config/workspace/IronClaude"},
+    {"name": "has-cross-cutting-observations", "kind": "contains_any_regex", "path": "outputs/REVIEW.md", "patterns": ["(?i)cross.?cutting", "(?i)architectural", "(?i)duplic(at|ation)", "(?i)pattern"]},
+    {"name": "focus-areas-honored", "kind": "contains_all_regex", "path": "outputs/REVIEW.md", "patterns": ["(?i)anti.?pattern|architecture|quality"]},
+    {"name": "skill-audit-log-present", "kind": "file_exists_if_with_skill", "path": "outputs/audit.log"},
+    {"name": "skill-auggie-artifacts-present", "kind": "any_file_exists_if_with_skill", "path": "outputs", "patterns": ["auggie-raw*.json", "auggie-parsed*.json", "auggie-findings*.json"]},
+    {"name": "audit-log-records-grounding", "kind": "contains_any_regex_if_with_skill", "path": "outputs/audit.log", "patterns": ["(?i)ground", "(?i)drop", "(?i)valid(at|ity)", "(?i)file:line", "(?i)wave\\s*3"]},
+    {"name": "skill-machine-summary-header", "kind": "contains_any_regex_if_with_skill", "path": "outputs/REVIEW.md", "patterns": ["SC:AUGGIE-REVIEW:SUMMARY"]},
+    {"name": "audit-log-no-approve-flag", "kind": "not_contains_regex_if_with_skill", "path": "outputs/audit.log", "patterns": ["--approve\\b", "--request-changes\\b"]}
+  ]
+}

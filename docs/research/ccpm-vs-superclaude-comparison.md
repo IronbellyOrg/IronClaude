@@ -36,6 +36,7 @@ CCPM treats GitHub Issues as the shared project state:
 - **Bidirectional sync**: Progress updates are posted as GitHub issue comments; issue state drives local file state
 
 **Strengths**:
+
 - Universally accessible -- any human or agent can see status via GitHub UI
 - Labels, milestones, and PR workflows come free
 - Multi-agent and human+agent collaboration is natural
@@ -43,6 +44,7 @@ CCPM treats GitHub Issues as the shared project state:
 - Sub-issue relationships via `gh-sub-issue` extension
 
 **Weaknesses**:
+
 - Requires network connectivity for sync operations
 - GitHub API rate limits can throttle batch operations
 - File renaming after sync creates a mutable identifier problem (local `001.md` becomes `1234.md`)
@@ -59,6 +61,7 @@ SuperClaude uses structured markdown files as the canonical format:
 - **Results** -> `SprintResult` dataclass with `PhaseResult[]` and `TaskResult[]`
 
 **Strengths**:
+
 - Fully offline -- no external service dependency
 - Version-controlled alongside code (atomic commits)
 - Deterministic parsing (regex-based task extraction)
@@ -66,6 +69,7 @@ SuperClaude uses structured markdown files as the canonical format:
 - No mutable identifier problem -- task IDs are stable
 
 **Weaknesses**:
+
 - Not visible outside the local development environment
 - No built-in collaboration mechanism for multi-human teams
 - Requires custom tooling to read/write (not a standard format)
@@ -84,11 +88,13 @@ CCPM's GitHub Issues approach is superior for **team visibility and collaboratio
 CCPM's parallelism operates at two levels:
 
 **Level 1: Epic-level isolation**
+
 - Each epic gets a dedicated worktree: `../epic-<name>/` on branch `epic/<name>`
 - Worktree created during sync phase via `git worktree add ../epic-<name> -b epic/<name>`
 - Clean separation -- different epics never share a working directory
 
 **Level 2: Intra-issue stream decomposition**
+
 - A single issue is analyzed for independent work streams (database, service, API, UI, tests)
 - Each stream gets assigned files it may modify
 - Multiple Claude Code agents are launched, each scoped to its stream
@@ -101,12 +107,14 @@ CCPM's parallelism operates at two levels:
   - No `--force` flags allowed
 
 **Analysis file** (`.claude/epics/<name>/<N>-analysis.md`) documents:
+
 - Per-stream scope, files, start conditions, estimates
 - Coordination points and shared files
 - Conflict risk assessment
 - Expected timeline with/without parallelization
 
 **Strengths**:
+
 - True process-level isolation -- agents cannot corrupt each other's state
 - Git is the coordination protocol -- well-understood, robust
 - Worktrees are a first-class git feature, not a hack
@@ -114,6 +122,7 @@ CCPM's parallelism operates at two levels:
 - Conflict detection is explicit, not implicit
 
 **Weaknesses**:
+
 - Worktree management adds operational complexity (cleanup, branch management)
 - Agent coordination is convention-based, not enforced programmatically
 - "Check if another agent modified it" is a race condition in theory
@@ -132,6 +141,7 @@ Checkpoint: Final validation
 ```
 
 **Implementation** (`src/superclaude/execution/parallel.py`):
+
 - `ParallelExecutor` with configurable `max_workers` (ThreadPoolExecutor)
 - `Task.can_execute(completed_tasks)` checks dependency satisfaction
 - Topological sort identifies parallel groups automatically
@@ -139,12 +149,14 @@ Checkpoint: Final validation
 - Speedup estimation (sequential vs parallel time)
 
 **Sprint-level execution** (`src/superclaude/cli/sprint/executor.py`):
+
 - Phases execute sequentially (Phase 1 -> Phase 2 -> ...)
 - Within a phase, tasks execute with subprocess isolation (Claude Code instances)
 - Trailing gates run on daemon threads in parallel with task execution
 - Wiring gates analyze task outputs for structural correctness
 
 **Strengths**:
+
 - Fully programmatic -- no convention-based coordination
 - Dependency resolution is deterministic (topological sort)
 - Gate evaluation is non-blocking (trailing gates on daemon threads)
@@ -152,6 +164,7 @@ Checkpoint: Final validation
 - No worktree management overhead
 
 **Weaknesses**:
+
 - ThreadPoolExecutor parallelism is within a single process -- no true isolation
 - Tasks share the same filesystem (potential for file conflicts)
 - No built-in mechanism for multi-agent coordination across processes
@@ -184,6 +197,7 @@ CCPM has moved away from explicit slash commands (`/pm:prd-new`, `/pm:execute`) 
 The SKILL.md acts as a router: detect intent, load the appropriate reference file, execute. This is a **single-skill architecture** -- one SKILL.md entry point with 5 reference docs (plan, structure, sync, execute, track) plus a conventions doc.
 
 **Design principles**:
+
 - Natural language over memorized commands
 - Script-first for deterministic operations (status, standup, validation)
 - LLM reasoning only for creative tasks (PRD writing, stream analysis)
@@ -200,6 +214,7 @@ SuperClaude maintains an explicit command taxonomy:
 Each command maps to a skill package with rules, templates, and reference docs.
 
 **Design principles**:
+
 - Explicit invocation over implicit detection
 - Commands as protocol triggers (must invoke skill before generating output)
 - Rich command taxonomy covering the full development lifecycle
@@ -234,6 +249,7 @@ CCPM treats GitHub as an integral part of the workflow, not an optional integrat
 ### SuperClaude: Minimal, Branch-Level Only
 
 SuperClaude's GitHub integration is limited to:
+
 - Feature branch creation (convention-based)
 - Standard git commit/push workflow
 - PR creation via `gh pr create` (manual, not automated)
@@ -254,11 +270,13 @@ CCPM is dramatically ahead on GitHub integration. This is perhaps the single lar
 CCPM's quality gates are procedural checks embedded in reference docs:
 
 **Before sync**:
+
 - Epic file must exist
 - Task files must exist (otherwise: "No tasks to sync. Decompose the epic first.")
 - Remote safety check (not the template repo)
 
 **Before execution**:
+
 - Local task file must exist
 - Analysis file must exist (or analysis must run first)
 - Epic worktree must exist
@@ -266,12 +284,14 @@ CCPM's quality gates are procedural checks embedded in reference docs:
 - Epic branch must exist
 
 **During execution**:
+
 - Agents stay within assigned file scope
 - Frequent commits required
 - No force flags
 - Conflicts reported, not auto-resolved
 
 **Validation script** (`validate.sh`):
+
 - Frontmatter consistency
 - Orphaned file detection
 - Missing GitHub link detection
@@ -284,6 +304,7 @@ CCPM's quality gates are procedural checks embedded in reference docs:
 SuperClaude has a sophisticated, code-enforced quality gate architecture:
 
 **Trailing Gates** (daemon-thread, non-blocking):
+
 - `TrailingGateRunner`: submits gate evaluations on background threads
 - `GateResultQueue`: thread-safe collection of results
 - `DeferredRemediationLog`: persistent log of failures needing remediation
@@ -291,26 +312,31 @@ SuperClaude has a sophisticated, code-enforced quality gate architecture:
 - Gate results include: `step_id`, `passed`, `evaluation_ms`, `failure_reason`
 
 **Wiring Gates** (structural correctness):
+
 - Post-task analysis of code structure
 - Modes: `off`, `shadow` (log only), `soft` (warn on critical), `full` (block on critical+major)
 - Budget-controlled: `wiring_analysis_turns`, `remediation_cost`
 - Grace period support for gradual rollout
 
 **Anti-Instinct Gates**:
+
 - Rollout modes: `off`, `shadow`, `soft`, `full`
 - Evaluates behavioral compliance patterns
 
 **Confidence Gating** (pre-execution):
+
 - >= 90%: proceed
 - 70-89%: present alternatives
 - < 70%: ask questions before implementing
 - ROI: 25-250x token savings
 
 **Gate Display States** (TUI):
+
 - Full lifecycle visualization: NONE -> CHECKING -> PASS/FAIL_DEFERRED -> REMEDIATING -> REMEDIATED/HALT
 - Valid state transitions enforced programmatically
 
 **KPI Reporting**:
+
 - Gate pass/fail rates
 - Latency percentiles (p50, p95)
 - Remediation frequency
@@ -351,6 +377,7 @@ SuperClaude's delivery unit is the **sprint** (a collection of phases):
 6. **Report**: KPI report with pass rates, latency, turn accounting
 
 The sprint executor manages:
+
 - Phase ordering and dependencies
 - Turn budget allocation and reimbursement
 - Output monitoring (error detection, prompt-too-long detection)
@@ -447,7 +474,7 @@ The most impactful integration opportunity is adopting CCPM's GitHub Issues sync
 
 ## Sources
 
-- CCPM Repository: https://github.com/automazeio/ccpm
+- CCPM Repository: <https://github.com/automazeio/ccpm>
 - CCPM SKILL.md, execute.md, sync.md, conventions.md, track.md (raw GitHub content)
 - SuperClaude source: `src/superclaude/cli/sprint/executor.py`, `models.py`, `kpi.py`
 - SuperClaude source: `src/superclaude/cli/pipeline/trailing_gate.py`

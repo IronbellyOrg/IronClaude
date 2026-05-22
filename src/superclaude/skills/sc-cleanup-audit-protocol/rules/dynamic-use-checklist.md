@@ -1,9 +1,11 @@
 # Dynamic-Use Checklist
 
 ## Purpose
+
 Before classifying ANY file as DELETE, agents must check all 5 dynamic loading patterns below. "No imports found" via static grep is insufficient when dynamic loading is used.
 
 ## Instruction
+
 **Check ALL 5 patterns before classifying a file as DELETE.** If any pattern could load the file, classify as REVIEW instead.
 
 ## Pattern 1: Environment Variable-Based Module Loading
@@ -11,12 +13,14 @@ Before classifying ANY file as DELETE, agents must check all 5 dynamic loading p
 Files loaded based on environment variable values at runtime.
 
 **JavaScript/Node.js**:
+
 ```javascript
 const module = require(process.env.MODULE_PATH);
 const handler = await import(`./handlers/${process.env.HANDLER_TYPE}`);
 ```
 
 **Python**:
+
 ```python
 module = importlib.import_module(os.environ.get('PLUGIN_MODULE'))
 handler = __import__(os.getenv('HANDLER_CLASS'))
@@ -29,12 +33,14 @@ handler = __import__(os.getenv('HANDLER_CLASS'))
 Files loaded by constructing import paths from string variables.
 
 **JavaScript/Node.js**:
+
 ```javascript
 const plugin = require(`./plugins/${pluginName}`);
 const component = await import(`@/components/${name}.vue`);
 ```
 
 **Python**:
+
 ```python
 module = importlib.import_module(f"app.handlers.{handler_name}")
 cls = getattr(importlib.import_module(module_path), class_name)
@@ -47,6 +53,7 @@ cls = getattr(importlib.import_module(module_path), class_name)
 Files registered in a configuration and loaded on demand.
 
 **JavaScript**:
+
 ```javascript
 // config/plugins.json
 { "plugins": ["analytics", "auth", "logging"] }
@@ -55,6 +62,7 @@ plugins.forEach(p => require(`./plugins/${p}`));
 ```
 
 **Python**:
+
 ```python
 # entry_points in pyproject.toml or setup.cfg
 [options.entry_points]
@@ -69,18 +77,21 @@ my_plugins =
 Files discovered at runtime via filesystem glob patterns.
 
 **JavaScript/Node.js**:
+
 ```javascript
 const routes = glob.sync('./routes/**/*.js');
 const migrations = fs.readdirSync('./migrations').filter(f => f.endsWith('.sql'));
 ```
 
 **Python**:
+
 ```python
 for path in Path('handlers').glob('*.py'):
     importlib.import_module(f"handlers.{path.stem}")
 ```
 
 **Go**:
+
 ```go
 files, _ := filepath.Glob("./templates/*.tmpl")
 ```
@@ -92,6 +103,7 @@ files, _ := filepath.Glob("./templates/*.tmpl")
 Files referenced in configuration that is parsed at runtime.
 
 **Examples**:
+
 ```yaml
 # webpack.config.js entry points
 entry: { app: './src/app.js', vendor: './src/vendor.js' }

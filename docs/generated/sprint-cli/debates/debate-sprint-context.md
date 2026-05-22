@@ -1,6 +1,7 @@
 # Adversarial Debate: Sprint Context Injection into Path A
 
 ---
+
 generated: 2026-04-03
 depth: quick
 variants: 2
@@ -88,6 +89,7 @@ Leave Path A's 3-line prompt unchanged. Workers can discover context from the fi
 **Weaknesses Acknowledged**: Injecting paths does create a mild coupling -- if the directory structure changes, the injected paths become stale. However, the same config object that builds the prompt also computes these paths, so they are always consistent within a single run.
 
 **Shared Assumption Response**:
+
 - A-001: ACCEPT -- phase file path is provided by both variants.
 - A-002: REJECT -- worker cwd is not guaranteed. `ClaudeProcess` spawns a subprocess; the cwd depends on how `subprocess.Popen` is invoked. This is exactly why explicit paths are safer than relative discovery.
 
@@ -110,6 +112,7 @@ Leave Path A's 3-line prompt unchanged. Workers can discover context from the fi
 **Weaknesses Acknowledged**: The parity argument is valid -- having two different prompt shapes for what are conceptually similar worker processes is a maintenance burden. If a future change adds context to Path B, someone must remember to update Path A as well.
 
 **Shared Assumption Response**:
+
 - A-001: ACCEPT.
 - A-002: QUALIFY -- cwd is typically the project root, but this is a subprocess implementation detail. Workers should not depend on cwd for path resolution regardless of whether context is injected.
 

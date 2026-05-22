@@ -1,0 +1,1 @@
+PR-C is docs-only (D-0053..D-0063 evidence files in .dev/releases/). No Python changes. Skipping per scope.

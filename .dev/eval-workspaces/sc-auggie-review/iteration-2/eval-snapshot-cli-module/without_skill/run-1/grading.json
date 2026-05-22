@@ -1,0 +1,81 @@
+{
+  "run_id": "snapshot-cli-module-without_skill",
+  "expectations": [
+    {
+      "text": "review-md-exists",
+      "passed": true,
+      "evidence": "present (19061 bytes)"
+    },
+    {
+      "text": "review-md-nonempty",
+      "passed": true,
+      "evidence": "19061 bytes (min 2000)"
+    },
+    {
+      "text": "report-mentions-snapshot-target",
+      "passed": true,
+      "evidence": "matched /src/superclaude/cli/ \u2192 'src/superclaude/cli'"
+    },
+    {
+      "text": "uses-severity-tiers-exact",
+      "passed": true,
+      "evidence": "all 2 patterns matched"
+    },
+    {
+      "text": "has-finding-counts",
+      "passed": true,
+      "evidence": "matched /[Tt]otal[^\\n]*\\d+/ \u2192 'Total LOC (Python)**: ~29.5k in sub-CLI packages + ~9.2k in `audit/` + ~17'"
+    },
+    {
+      "text": "file-line-citations-present",
+      "passed": true,
+      "evidence": "matched /\\b[\\w/\\.\\-]+\\.py:\\d+/ \u2192 'src/superclaude/cli/install_mcp.py:140'"
+    },
+    {
+      "text": "cited-files-exist-in-cli-subtree",
+      "passed": true,
+      "evidence": "37/38 citations validated (97%); first invalid: roadmap/executor.py:2342 (file has only 2148 lines)"
+    },
+    {
+      "text": "has-cross-cutting-observations",
+      "passed": true,
+      "evidence": "matched /(?i)cross.?cutting/ \u2192 'cross-cutting'"
+    },
+    {
+      "text": "focus-areas-honored",
+      "passed": true,
+      "evidence": "all 1 patterns matched"
+    },
+    {
+      "text": "skill-audit-log-present",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "skill-auggie-artifacts-present",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "audit-log-records-grounding",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "skill-machine-summary-header",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    },
+    {
+      "text": "audit-log-no-approve-flag",
+      "passed": true,
+      "evidence": "N/A (config=without_skill)"
+    }
+  ],
+  "summary": {
+    "passed": 14,
+    "failed": 0,
+    "total": 14,
+    "pass_rate": 1.0
+  }
+}

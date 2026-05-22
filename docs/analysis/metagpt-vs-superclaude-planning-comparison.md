@@ -200,6 +200,7 @@ Spec File (detailed markdown specification)
 ### 4.1 MetaGPT
 
 **Strengths**:
+
 - Extremely low barrier to entry (one-line input)
 - Full SDLC coverage from requirements to working code
 - Rich visual artifacts (Mermaid diagrams, competitive charts)
@@ -210,6 +211,7 @@ Spec File (detailed markdown specification)
 - Supports autonomous and fixed-SOP modes per role
 
 **Weaknesses**:
+
 - No formal quality gates; relies on LLM self-review
 - No adversarial validation; single agent per role creates single-point-of-failure for quality
 - No deterministic verification of output correctness
@@ -222,6 +224,7 @@ Spec File (detailed markdown specification)
 ### 4.2 SuperClaude
 
 **Strengths**:
+
 - Rigorous quality gate system with deterministic enforcement
 - Adversarial multi-agent generation prevents single-perspective bias
 - Full debate pipeline (diff -> debate -> score -> merge) produces higher-fidelity plans
@@ -233,6 +236,7 @@ Spec File (detailed markdown specification)
 - Context isolation per subprocess prevents information leakage between steps
 
 **Weaknesses**:
+
 - High barrier to entry (requires detailed specification upfront)
 - Narrower scope: planning only, not full SDLC
 - No visual artifact generation (no diagrams)
@@ -302,9 +306,9 @@ Neither system alone represents a complete solution. MetaGPT lacks verification 
 
 ## Sources
 
-- MetaGPT GitHub repository: https://github.com/geekan/MetaGPT (source code review)
-- MetaGPT documentation: https://docs.deepwisdom.ai/main/en/guide/get_started/introduction.html
-- MetaGPT paper: https://arxiv.org/html/2308.00352v6 (ICLR 2024)
-- IBM MetaGPT overview: https://www.ibm.com/think/topics/metagpt
+- MetaGPT GitHub repository: <https://github.com/geekan/MetaGPT> (source code review)
+- MetaGPT documentation: <https://docs.deepwisdom.ai/main/en/guide/get_started/introduction.html>
+- MetaGPT paper: <https://arxiv.org/html/2308.00352v6> (ICLR 2024)
+- IBM MetaGPT overview: <https://www.ibm.com/think/topics/metagpt>
 - SuperClaude source: `src/superclaude/cli/roadmap/` (22 modules, direct code review)
 - Key SuperClaude files analyzed: `executor.py`, `gates.py`, `models.py`, `convergence.py`, `semantic_layer.py`, `obligation_scanner.py`, `integration_contracts.py`, `fingerprint.py`, `spec_parser.py`, `structural_checkers.py`

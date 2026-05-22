@@ -120,15 +120,19 @@ EXT_SEEN=false
 
 # 10. Block or allow
 if [ "$DECISION" = "block" ]; then
+    AVOIDANCE_WARN="DO NOT pivot to mdformat / prettier / sed -i / awk-with-redirect / a Python helper / any other tool that bypasses the Edit pathway. Strategy pivots that escape freshness checks are an avoidance anti-pattern — they introduce uncontrolled diffs, lose the surgical-Edit property, and defeat the safety reason this hook exists (stale citations + wrong line numbers). Re-reading is bounded: one Read call, ~2K tokens, ~1 second. Just Read."
     case "$REASON" in
         no_prior_read)
-            echo "You have not Read \`$TARGET\` in this session. Read it before editing." >&2 ;;
+            echo "FRESHNESS BLOCK: You have not Read \`$TARGET\` in this session. Required action: Read the file (one tool call), then retry your Edit." >&2
+            echo "$AVOIDANCE_WARN" >&2 ;;
         read_too_old)
-            echo "You last Read \`$TARGET\` ${READ_AGE}s ago, beyond the 30-minute freshness horizon. Re-Read before editing." >&2 ;;
+            echo "FRESHNESS BLOCK: You last Read \`$TARGET\` ${READ_AGE}s ago, beyond the 30-minute freshness horizon. Required action: Re-Read the file (one tool call), then retry your Edit." >&2
+            echo "$AVOIDANCE_WARN" >&2 ;;
         external_change)
-            echo "\`$TARGET\` was modified after your last Read (mtime change detected). Re-Read before editing." >&2 ;;
+            echo "FRESHNESS BLOCK: \`$TARGET\` was modified after your last Read (mtime change detected). Required action: Re-Read the file (one tool call), then retry your Edit." >&2
+            echo "DO NOT pivot to mdformat / prettier / sed -i / a Python helper. The file changed on disk — anything other than Re-Read will edit stale content." >&2 ;;
         *)
-            echo "Re-Read \`$TARGET\` before editing (freshness gate: $REASON)." >&2 ;;
+            echo "FRESHNESS BLOCK on \`$TARGET\` (gate: $REASON). Required action: Re-Read, then retry your Edit. DO NOT pivot to bulk-reformat tools (mdformat / prettier / sed -i / scripts) to escape this hook." >&2 ;;
     esac
     exit 2
 fi

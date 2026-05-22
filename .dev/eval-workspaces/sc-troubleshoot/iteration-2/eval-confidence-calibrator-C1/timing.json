@@ -1,0 +1,7 @@
+{
+  "total_tokens": 66756,
+  "duration_ms": 59183,
+  "total_duration_seconds": 59.2,
+  "result": "PASS — calibrated=0.90, self=0.65, delta=+0.25 (positive as expected). Verdict=ESCALATE/security_caution (correct rubric walk — security + <0.95 fires).",
+  "lesson": "Under-confident card correctly re-graded upward by 0.25; security_caution rule correctly fired despite high calibrated score because the rubric prioritizes it for --type security under 0.95."
+}

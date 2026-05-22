@@ -1,0 +1,23 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E10
+title: SubagentStart hook fires
+category: hook-lifecycle
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: Use the Task tool with subagent_type='Explore' to find files matching '*.md'
+    under the current working directory and report the count.
+  expect_tool_call: Task
+- prompt: /quit
+expects:
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+- file:
+    path: logs/freshness.jsonl
+    exists: true
+    contains: '"type":"subagent_start"'
+- exit_code:
+    equals: 0
+no_pty: skip

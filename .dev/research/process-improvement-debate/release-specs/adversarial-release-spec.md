@@ -16,6 +16,7 @@ The centerpiece is **Consensus Assumption Extraction** (AD-2, S-Tier, 82.5/100),
 Two B-Tier proposals (AD-4: Post-Merge Interaction Stress Test, 57.5) are deferred.
 
 **Expected outcomes**:
+
 - Elimination of the "agreement = no scrutiny" structural bias in diff-based analysis
 - Structural guarantee that state-mechanics concerns cannot be bypassed during debate
 - Extensible checklist infrastructure that accumulates organizational learning
@@ -135,21 +136,25 @@ The following design decisions were resolved through adversarial debate scoring 
 #### Acceptance Criteria
 
 **AC-AD2-1**:
+
 - Given: 3 variants that all assume a 1:1 mapping between input events and output widgets (none states this explicitly)
 - When: Shared Assumption Extraction executes
 - Then: The output includes an UNSTATED precondition: "Input events map 1:1 to output widgets" with risk assessment "If precondition fails: output count diverges from input count, downstream bookkeeping breaks"
 
 **AC-AD2-2**:
+
 - Given: 2 variants where Variant A explicitly states "offset=0 means uninitialized" and Variant B does not mention offset semantics
 - When: Shared Assumption Extraction executes
 - Then: The output includes a STATED precondition for Variant A and an implicit agreement point for Variant B (topic not mentioned = default assumed), with an UNSTATED precondition: "offset=0 is never a legitimate runtime value"
 
 **AC-AD2-3**:
+
 - Given: diff-analysis.md with 10 diff points from existing phases and 3 `[SHARED-ASSUMPTION]` synthetic diff points from this phase
 - When: Convergence detection runs after Round 2
 - Then: The convergence formula uses 13 as the total_diff_points denominator (not 10)
 
 **AC-AD2-4**:
+
 - Given: A Round 1 advocate statement that does not address the `[SHARED-ASSUMPTION]` diff points
 - When: The debate-orchestrator validates Round 1 output
 - Then: The advocate is prompted to address the missing shared assumption points (or the omission is flagged in the transcript)
@@ -266,21 +271,25 @@ convergence_detection:
 #### Acceptance Criteria
 
 **AC-AD5-1**:
+
 - Given: A debate with 8 diff points, all tagged L1 (Architecture) or L2 (Interface Contracts), zero tagged L3 (State Mechanics)
 - When: Convergence check runs after Round 2 with 87% agreement
 - Then: Convergence is NOT declared despite exceeding the 80% threshold. A forced round focused on L3 is triggered.
 
 **AC-AD5-2**:
+
 - Given: A forced L3 round produces 3 new diff points about state variables and boundary conditions
 - When: The debate continues with these new diff points
 - Then: The convergence denominator increases by 3, and the new points are debated and scored normally.
 
 **AC-AD5-3**:
+
 - Given: AD-2 produces `[SHARED-ASSUMPTION]` diff point A-001 about "offset=0 is never a legitimate runtime value"
 - When: Taxonomy tagging runs
 - Then: A-001 is automatically tagged L3 (State Mechanics) because it concerns a state variable boundary value.
 
 **AC-AD5-4**:
+
 - Given: `--depth quick` is specified (Round 1 only)
 - When: Taxonomy check runs after Round 1
 - Then: If L3 has zero coverage, one forced round is still triggered (taxonomy gate overrides depth limitation for coverage).
@@ -382,21 +391,25 @@ convergence_detection:
 #### Acceptance Criteria
 
 **AC-AD1-1**:
+
 - Given: An emerging consensus where all variants assume a pipeline stage produces exactly one output per input (no filtering)
 - When: The fault-finder applies the count_divergence checklist
 - Then: The output includes: "UNADDRESSED (HIGH): Pipeline stage X consumes N items but may produce M != N items. No variant addresses the M < N case."
 
 **AC-AD1-2**:
+
 - Given: A consensus where offset=0 is used as a sentinel for "uninitialized"
 - When: The fault-finder applies the guard_conditions checklist
 - Then: The output includes: "UNADDRESSED (HIGH): Guard uses offset=0 as sentinel. The guarded variable can legitimately equal 0 through normal operation (empty sequence). Sentinel collision possible."
 
 **AC-AD1-3**:
+
 - Given: invariant-probe.md contains 2 HIGH-severity UNADDRESSED assumptions
 - When: Convergence check runs with 90% agreement on diff points
 - Then: Convergence is NOT declared. The 2 assumptions are injected as mandatory Round 3 discussion items.
 
 **AC-AD1-4**:
+
 - Given: `--depth quick` is specified
 - When: The protocol reaches the point where Round 2.5 would execute
 - Then: The Invariant Probe Round is SKIPPED (it requires `--depth standard` or `--depth deep`).
@@ -506,6 +519,7 @@ return_contract:
 **FR-AD3-1**: The qualitative scoring layer (Step 3) SHALL include a sixth dimension called "Invariant & Edge Case Coverage" with 5 binary criteria, evaluated using the same CEV (Claim-Evidence-Verdict) protocol as existing dimensions.
 
 **FR-AD3-2**: The 5 criteria SHALL be:
+
 1. Enumerates state variables with their valid ranges and boundary values
 2. Identifies guard conditions and documents their failure modes
 3. Analyzes filter/transform stages for count divergence
@@ -527,16 +541,19 @@ return_contract:
 #### Acceptance Criteria
 
 **AC-AD3-1**:
+
 - Given: Variant A scores 24/25 on existing criteria but 0/5 on the new dimension. Variant B scores 20/25 on existing criteria and 3/5 on the new dimension.
 - When: Base selection runs
 - Then: Variant A is ineligible as base (floor requirement: score >= 1/5). Variant B is eligible.
 
 **AC-AD3-2**:
+
 - Given: Two variants with identical scores on all existing dimensions
 - When: Variant A has 4/5 on edge case coverage and Variant B has 1/5
 - Then: Variant A scores higher overall (4/30 vs 1/30 difference in qual_score).
 
 **AC-AD3-3**:
+
 - Given: A variant that includes a section enumerating state variables with ranges and boundary values
 - When: CEV evaluation runs for criterion 1
 - Then: The evaluator cites the specific section as evidence and assigns MET.
@@ -623,6 +640,7 @@ This chain is defined but not mandated in this release. Each stage can operate i
 ### 5.3 No Breaking Changes
 
 All four proposals are additive to the existing protocol. No existing steps are removed or restructured. The changes are:
+
 - One new sub-phase in Step 1 (AD-2)
 - One new section in the debate protocol (AD-5 taxonomy)
 - One new round between existing rounds (AD-1, Round 2.5)

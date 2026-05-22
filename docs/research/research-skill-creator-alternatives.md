@@ -15,12 +15,14 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 ## 1. Skill Creation Tools (Direct Competitors)
 
 ### 1a. Anthropic skill-creator (Baseline)
+
 - **Repo**: [anthropics/skills](https://github.com/anthropics/skills) → `skills/skill-creator/`
 - **Approach**: Interview → Draft → Test with subagents (with-skill vs baseline) → Grade with assertions → Human review via HTML viewer → Iterate → Description optimization
 - **Unique features**: Quantitative benchmarking (mean ± stddev), blind A/B comparison, automated description optimizer with train/test split, timing/token capture
 - **Maturity**: Official Anthropic release, well-documented, includes eval-viewer, grader, comparator, and analyzer agents
 
 ### 1b. obra/superpowers — "writing-skills" meta-skill
+
 - **Repo**: [obra/superpowers](https://github.com/obra/superpowers) (42K+ stars)
 - **Approach**: TDD for skills — write pressure-test scenarios, watch subagents fail (RED), write skill, watch them pass (GREEN), refactor
 - **Philosophy**: "If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing"
@@ -30,6 +32,7 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 - **Also**: [superpowers-skills](https://github.com/obra/superpowers-skills) (community skills), [superpowers-lab](https://github.com/obra/superpowers-lab) (experimental)
 
 ### 1c. FrancyJGLisboa/agent-skill-creator
+
 - **Repo**: [agent-skill-creator](https://github.com/FrancyJGLisboa/agent-skill-creator)
 - **Approach**: Fully autonomous — "no spec writing, no prompt engineering, no coding required"
 - **Pipeline**: UNDERSTAND (ingest sources) → BUILD (generate structure) → VERIFY (validate + security scan)
@@ -38,6 +41,7 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 - **Comparison**: Broader input acceptance and team sharing features than Anthropic's, but no quantitative eval loop
 
 ### 1d. alirezarezvani/claude-code-skill-factory
+
 - **Repo**: [claude-code-skill-factory](https://github.com/alirezarezvani/claude-code-skill-factory) (v1.4.0)
 - **Approach**: Template-driven factory with guided Q&A via coordinator agent routing to specialist guides
 - **Pipeline**: Natural language intent → Coordinator routes to specialist → Guided Q&A → Validate → Install
@@ -45,12 +49,14 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 - **Comparison**: Broadest artifact type coverage, but less focused on skill quality iteration
 
 ### 1e. metaskills/skill-builder
+
 - **Repo**: [skill-builder](https://github.com/metaskills/skill-builder)
 - **Approach**: Templates + reference docs, includes `converting-sub-agents-to-skills.md`
 - **Maturity**: Minimal — appears to be a lightweight template collection
 - **Comparison**: Much simpler than others, primarily documentation
 
 ### 1f. Jamie-BitFlight/claude_skills — plugin-creator
+
 - **Repo**: [claude_skills](https://github.com/Jamie-BitFlight/claude_skills) (25 plugins)
 - **Skill creation**: Includes `/plugin-creator` toolkit for creating/refactoring/validating plugins
 - **Unique features**: `agentskill-kaizen` — analyzes session transcripts and generates skill patches (continuous improvement loop)
@@ -84,6 +90,7 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 ## 4. Marketplaces & Directories
 
 ### 4a. SkillsMP.com
+
 - **URL**: [skillsmp.com](https://skillsmp.com)
 - **Scale**: 350,000+ indexed agent skills (as of March 2026)
 - **Growth**: 66K (early Jan 2026) → 87K → 96K → 350K+
@@ -92,11 +99,13 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 - **Not affiliated with Anthropic** — independent community project
 
 ### 4b. obra/superpowers-marketplace
+
 - **URL**: [superpowers-marketplace](https://github.com/obra/superpowers-marketplace)
 - **Status**: Accepted into Anthropic's official plugin marketplace
 - **Install**: `/plugin marketplace add obra/superpowers-marketplace`
 
 ### 4c. Anthropic Official
+
 - **Repo**: [anthropics/skills](https://github.com/anthropics/skills)
 - **Install**: `/plugin install document-skills@anthropic-agent-skills`
 - **Status**: Official, includes partner skills (Box, Canva planned)
@@ -157,6 +166,7 @@ The Claude Code skill creation ecosystem has exploded since Anthropic released t
 ---
 
 Sources:
+
 - [anthropics/skills](https://github.com/anthropics/skills)
 - [obra/superpowers](https://github.com/obra/superpowers)
 - [FrancyJGLisboa/agent-skill-creator](https://github.com/FrancyJGLisboa/agent-skill-creator)

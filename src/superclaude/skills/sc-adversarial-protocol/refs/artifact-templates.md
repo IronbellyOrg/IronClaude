@@ -51,12 +51,14 @@ Output format specifications for all 6 artifacts produced by the adversarial pip
 ```
 
 ### ID Scheme
+
 - `S-NNN`: Structural differences
 - `C-NNN`: Content differences
 - `X-NNN`: Contradictions
 - `U-NNN`: Unique contributions
 
 ### Scaling for >2 Variants
+
 When comparing more than 2 variants, tables expand horizontally with one column per variant. Each row describes how each variant handles that particular area/topic/conflict.
 
 ---
@@ -366,6 +368,7 @@ The merged output file itself includes inline provenance annotations:
 ```
 
 ### Provenance Tag Rules
+
 - Every section or significant block includes a `<!-- Source: ... -->` tag
 - Tags identify the variant, section reference, and change number (if applicable)
 - Original base content tagged as `<!-- Source: Base (original) -->`
