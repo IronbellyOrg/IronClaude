@@ -13,6 +13,7 @@ A hypothesis card is **one** proposed cause-and-fix, not a list. If the agent ha
 **Tier**: <1|2>
 **Timestamp**: <ISO 8601>
 **Cause class**: <from triage-checklist.md, e.g. "Missing/wrong import">
+**Consistency with docs**: <aligned | conflicts | not_applicable | no_docs_found>
 
 ## Claim
 
