@@ -135,6 +135,24 @@ def run(
 @prd_group.command()
 @click.argument("step_id")
 @click.option(
+    "--product",
+    "-p",
+    default=None,
+    help="Product name (must match the original run).",
+)
+@click.option(
+    "--output",
+    "-o",
+    default=None,
+    help="Output path (must match the original run).",
+)
+@click.option(
+    "--tier",
+    type=click.Choice(["lightweight", "standard", "heavyweight"], case_sensitive=False),
+    default="standard",
+    help="Pipeline tier (must match original run, default: standard).",
+)
+@click.option(
     "--max-turns",
     type=int,
     default=300,
@@ -152,6 +170,9 @@ def run(
 )
 def resume(
     step_id: str,
+    product: str | None,
+    output: str | None,
+    tier: str,
     max_turns: int,
     model: str,
     debug: bool,
@@ -164,9 +185,15 @@ def resume(
     The command reads saved state from the task directory to reconstruct
     pipeline context, then continues execution from the specified step.
 
+    When the original run used a non-default --output, the resume MUST
+    pass the same --output (and matching --product / --tier) so the
+    resumed pipeline reads from the same task directory.
+
     Examples:
         superclaude prd resume parse-request
         superclaude prd resume investigation-3 --max-turns 500
+        superclaude prd resume assembly --product foo --tier heavyweight --output docs/scp-pipeline/PRD_FOO.md
+        superclaude prd resume structural-qa --product foo --tier heavyweight --output docs/scp-pipeline/PRD_FOO.md
     """
     from .config import resolve_config
     from .executor import PrdExecutor
@@ -174,6 +201,9 @@ def resume(
     try:
         config = resolve_config(
             request="",
+            product=product,
+            output=output,
+            tier=tier,
             max_turns=max_turns,
             model=model,
             debug=debug,
