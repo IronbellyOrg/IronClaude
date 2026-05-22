@@ -72,9 +72,7 @@ repos:
             CHANGELOG\.md|
             .*node_modules.*|
             .*\.min\.md$|
-            \.dev/eval-workspaces/.*|
-            \.dev/reviews/.*|
-            \.dev/releases/.*
+            \.dev/.*
           )$
 
   # YAML linting
