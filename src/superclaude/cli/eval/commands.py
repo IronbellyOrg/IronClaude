@@ -1398,11 +1398,18 @@ def _resolve_executor_factory() -> Callable[..., LifecycleExecutor]:
     with the vendored PTY harness (M5 / M6). Until then this factory
     returns the :class:`_NullLifecycleExecutor` documented above. Tests
     monkeypatch this function to inject canned executors.
+
+    The returned factory is tagged with ``produces_null_executor = True``
+    so the one-shot WARNING probe in ``run_eval`` can classify it
+    without instantiating an executor. Constructor side-effects in
+    future real executors (PTY descriptors, helper threads, scratch
+    dirs) would otherwise leak resources before orchestration starts.
     """
 
     def factory(**_kwargs: Any) -> LifecycleExecutor:
         return _NullLifecycleExecutor()  # type: ignore[return-value]
 
+    factory.produces_null_executor = True  # type: ignore[attr-defined]
     return factory
 
 
@@ -1870,15 +1877,22 @@ def eval_run(
     # guard keeps machine-readable stdout clean — CliRunner mixes stderr
     # into stdout by default and downstream tools parsing the JSON payload
     # cannot tolerate the WARNING prefix.
-    _executor_probe = executor_factory()
-    if isinstance(_executor_probe, _NullLifecycleExecutor) and not as_json:
+    # We classify by inspecting the ``produces_null_executor`` attribute the
+    # factory carries (set in ``_resolve_executor_factory``) rather than by
+    # calling ``executor_factory()`` and discarding the result. When M5 / M6
+    # lands ``ClaudeProcessAdapter + PtyDriver`` the real executor's
+    # constructor will allocate PTY descriptors / helper threads / scratch
+    # dirs; instantiating-and-discarding here would leak those resources
+    # before per-spec orchestration even starts. Test monkeypatches that
+    # inject real executors simply won't set the attribute, so the WARNING
+    # correctly suppresses.
+    if getattr(executor_factory, "produces_null_executor", False) and not as_json:
         click.echo(
             "eval run: WARNING: _NullLifecycleExecutor active — "
             "non-production executor selected; run results MUST NOT be "
             "treated as authoritative.",
             err=True,
         )
-    del _executor_probe
 
     def run_one(spec: EvalSpec) -> EvalOutcome:
         # DOC-OQ3 / R-077 / D-0077: honor the per-eval ``no_pty: skip``

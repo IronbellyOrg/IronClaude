@@ -306,12 +306,12 @@ def coverage_gate(
     # remain SILENT-GREEN by returning the empty result with passed=True.
     if not settings_path.is_file():
         return CoverageResult()
-    # (b) H2: corrupt settings.json (OSError / JSONDecodeError) MUST fail
+    # (b) H2: corrupt settings.json (OSError / UnicodeDecodeError / JSONDecodeError) MUST fail
     # closed so a misconfigured host does not run as if all matchers were
     # covered. Surface the parse-error message in CoverageResult.parse_error.
     try:
         data = json.loads(settings_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         return CoverageResult(parse_error=str(exc))
     # (c) H2: top-level non-Mapping JSON (e.g. a top-level list) is also a
     # corrupt-config condition — fail closed with a diagnostic message.

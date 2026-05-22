@@ -229,14 +229,17 @@ class PerEvalPaths:
 def compose_per_eval_dir(run_dir: Path | str, eval_id: str) -> Path:
     """Return ``<run_dir>/per-eval/<eval_id>/``.
 
-    Validates ``eval_id`` against the FR-SCH2 character set so a
-    crafted id cannot escape the per-eval subtree via path-traversal
-    components.
+    Validates ``eval_id`` against the path-safety character set
+    (``_EVAL_ID_PATH_SAFETY_PATTERN``) so a crafted id cannot escape
+    the per-eval subtree via path-traversal components. This is the
+    path-safety defense-in-depth layer, NOT the FR-SCH2 schema contract
+    (which is enforced earlier via ``EVAL_ID_PATTERN`` — see the
+    docstring on ``_EVAL_ID_PATH_SAFETY_PATTERN`` for the split).
     """
 
     if not isinstance(eval_id, str) or not _EVAL_ID_PATH_SAFETY_PATTERN.match(eval_id):
         raise ValueError(
-            f"eval_id {eval_id!r} fails the FR-SCH2 [A-Za-z0-9_.-]{{1,64}} guard"
+            f"eval_id {eval_id!r} fails the path-safety [A-Za-z0-9_.-]{{1,64}} guard"
         )
     return Path(run_dir) / PER_EVAL_DIRNAME / eval_id
 
