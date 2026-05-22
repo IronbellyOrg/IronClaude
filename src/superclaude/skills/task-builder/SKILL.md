@@ -16,7 +16,6 @@ This skill stops after task file creation. There is no Stage B — the user revi
 Task files go wrong when built from memory, shallow exploration, or unverified assumptions. This skill forces every task item through evidence-based codebase research — parallel agents read actual source files, trace actual dependencies, and document actual behavior with file paths and line numbers.
 
 The multi-phase structure (scope discovery → parallel research → **analyst verification** → **QA gate** → builder → **task file validation** → **qualitative review**) prevents four common failure modes:
-
 - **Context rot** — By isolating each research topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one topic slice from the scope map), the research goes deep on every aspect simultaneously rather than skimming across everything sequentially. Minimum 3 researchers per track, scaling to 8 for complex scopes.
 - **Hallucinated content** — By separating research (what exists) from task file creation (what to do about it), each phase can be verified independently. The builder only works from verified research files, not from memory or inference. Research claims are evidence-based with file paths and line numbers.
@@ -71,7 +70,6 @@ Proceed once you have at least #1 answered clearly. Items #2-4 improve quality b
 ### Request Triage
 
 The skill triages requests into two scenarios that affect scope discovery depth:
-
 - **Scenario A (Explicit)** — User provided most details: goal, output paths, source locations, format. Researchers confirm and fill minor gaps.
 - **Scenario B (Vague)** — User provided a goal but few specifics. Researchers do broad exploration to figure out what exists and determine reasonable defaults.
 
@@ -96,7 +94,6 @@ Match the tier to request complexity. **Default to Standard** unless the scope i
 | **Deep** | Complex scope, 20+ files, multiple subsystems, multi-track | 6-8 | 1-2 | Thorough research for ambitious tasks |
 
 **Tier selection rules:**
-
 - If in doubt, pick Standard
 - If the user says "thorough", "comprehensive", or "deep dive" — always Deep
 - Only use Quick for genuinely small tasks (<5 files, single concern, no discovery needed)
@@ -110,7 +107,6 @@ Match the tier to request complexity. **Default to Standard** unless the scope i
 All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-RF-YYYYMMDD-HHMMSS/`.
 
 **Variable reference block:**
-
 ```
 TASK_ID:     TASK-RF-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
@@ -145,7 +141,6 @@ Check for existing task folders matching `TASK-RF-*` in `.dev/tasks/to-do/` befo
 This skill operates in a single stage (Stage A only). Unlike the canonical document skills which have Stage A (create task file) + Stage B (delegate to `/task` for execution), this skill stops after task file creation. The user reviews the task file and executes it with `/task [path]` when ready.
 
 **Stage A — Scope Discovery, Research, Quality Gate, Task File Creation:**
-
 1. Check for an existing task folder or research directory (A.1)
 2. Parse the user's request — triage into Scenario A vs B, determine track count (1-5), select MDTM template per track (A.2)
 3. Perform scope discovery — map relevant files/directories, plan researcher assignments from 8 topic types (A.3)
@@ -161,7 +156,6 @@ This skill operates in a single stage (Stage A only). Unlike the canonical docum
 13. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
 
 If a task folder already exists for this request (from a previous session), skip to the appropriate step based on artifact state:
-
 - Research files complete but no QA reports → skip to A.8 (quality gate)
 - QA reports pass but no task file → skip to A.9 (spawn builder)
 - Task file exists but no validation report → skip to A.10 (structural validation)
@@ -213,20 +207,17 @@ Example: "Build a task to document the handlers"
 Analyze whether the request contains **independent work streams** that can be executed in parallel.
 
 Independent means ALL of these are true:
-
 - Each track has its own distinct goal (a subset of the overall request)
 - Each track operates on different source files or concerns
 - Each track produces different output files
 - No track depends on another track's outputs
 
 **SPLIT into multiple tracks when you see:**
-
 - Multiple unrelated deliverables: "Create docs for handlers AND add tests for services"
 - Distinct output areas: different output directories, different file types
 - Explicit enumeration of independent items: "do these three things: A, B, C" (where A, B, C don't depend on each other)
 
 **DO NOT SPLIT (keep as single track) when:**
-
 - Work items build on each other sequentially
 - All items contribute to a single cohesive output
 - Items share source context that must be understood holistically
@@ -250,7 +241,6 @@ Independent means ALL of these are true:
 Use Glob, Grep, and codebase-retrieval to map the problem space. This must happen BEFORE spawning researchers so each researcher gets a focused assignment from the scope map.
 
 **Adjust depth by scenario:**
-
 - **Scenario A**: Focused discovery — verify files/directories exist, scan for related code, identify gaps.
 - **Scenario B**: Broad discovery — scan the full codebase for anything related, map all relevant subsystems, count files.
 
@@ -277,14 +267,12 @@ Use Glob, Grep, and codebase-retrieval to map the problem space. This must happe
 | **Test & Verification** | Existing tests, test patterns, verification approaches | When the task involves testing or has quality gates |
 
 **Assignment planning rules:**
-
 - **Minimum 3 researchers per track**: File Inventory + Patterns & Conventions + Template & Examples
 - **Scale up based on scope map complexity**: high complexity = 6-8 researchers; medium = 4-5; low = 3
 - **Each researcher gets specific directories/files** from the scope map — no overlapping file assignments
 - **Every researcher is told what OTHER researchers cover** — prevents duplication
 
 **Example assignment for "Document all 14 API handlers":**
-
 ```
 Researcher 1 (File Inventory): Scan backend/app/api/v1/ — catalog all handler files, classes, methods, line counts
 Researcher 2 (Patterns & Conventions): Read 3-4 handlers in detail — extract naming, error handling, response patterns
@@ -294,7 +282,6 @@ Researcher 5 (Template & Examples): Read MDTM templates + check .dev/tasks/to-do
 ```
 
 **Example assignment for "Build a new feature with tests":**
-
 ```
 Researcher 1 (File Inventory): Scan directories where feature will live — catalog existing files, identify insertion points
 Researcher 2 (Patterns & Conventions): Study similar features already implemented — extract patterns to follow
@@ -306,7 +293,6 @@ Researcher 7 (Data Flow Tracer): Trace how data flows through related subsystems
 ```
 
 3. **Produce per-track scope map:**
-
 ```
 TRACK [T] SCOPE MAP:
   Relevant directories: [list]
@@ -379,7 +365,6 @@ Read `${TASK_DIR}research-notes.md` and evaluate:
 **If sufficient** → proceed to A.6 (template triage).
 
 **If insufficient** → either:
-
 - Do additional scope discovery yourself and update the research notes file, OR
 - Spawn a general-purpose research subagent with specific feedback about what's missing, then re-review
 
@@ -392,7 +377,6 @@ Do NOT proceed to the researchers with incomplete research notes. The researcher
 Determine which MDTM template the task builder should use for each track:
 
 **Use Template 02 (Complex Task) when the work involves:**
-
 - Discovery before building (investigating unknown areas)
 - Parallel subagent spawning
 - Multiple phases with different activities (research, build, test, review)
@@ -400,7 +384,6 @@ Determine which MDTM template the task builder should use for each track:
 - Quality gates or verification steps
 
 **Use Template 01 (Generic Task) when the work involves:**
-
 - Simple, sequential file creation
 - Straightforward execution with no discovery
 - Single-pass operations with known inputs and outputs
@@ -412,7 +395,6 @@ Determine which MDTM template the task builder should use for each track:
 Spawn parallel researcher agents via the Agent tool. Each researcher gets a focused topic from the scope map and writes findings to its own file in `${TASK_DIR}research/`.
 
 **Spawning pattern:**
-
 - Use Agent tool with `subagent_type: "general-purpose"`, `mode: "bypassPermissions"`
 - Each researcher returns its research file path as output
 - ALL researchers for a track spawned in the SAME message for parallel execution
@@ -490,7 +472,6 @@ Agent:
 Include the matching block in each researcher's prompt based on their assigned topic type:
 
 **File Inventory:**
-
 ```
 For every relevant file in your assigned directories:
 - Full relative path from project root
@@ -503,7 +484,6 @@ item per file from this inventory.
 ```
 
 **Patterns & Conventions:**
-
 ```
 Read 3-5 representative files in the relevant area and extract:
 - Naming conventions (files, classes, functions, variables)
@@ -516,7 +496,6 @@ Document with specific examples from actual code (file:line references).
 ```
 
 **Integration Points:**
-
 ```
 For the subsystems involved in this track's goal:
 - Map all imports/dependencies between modules
@@ -527,7 +506,6 @@ For the subsystems involved in this track's goal:
 ```
 
 **Doc Cross-Validator:**
-
 ```
 CRITICAL — Documentation Staleness Protocol:
 Documentation describes intent or historical state, NOT necessarily current state.
@@ -547,7 +525,6 @@ based on architecture that no longer exists.
 ```
 
 **Solution Research:**
-
 ```
 Use WebSearch to investigate:
 1. Problem domain patterns — established approaches, expert recommendations
@@ -561,7 +538,6 @@ supplements but never overrides verified code findings.
 ```
 
 **Template & Examples:**
-
 ```
 1. Read the MDTM template specified for this track:
    - If template 02: .claude/templates/workflow/02_mdtm_template_complex_task.md
@@ -574,7 +550,6 @@ supplements but never overrides verified code findings.
 ```
 
 **Data Flow Tracer:**
-
 ```
 Trace how data enters, transforms, and exits the relevant subsystem:
 - Entry points (API endpoints, event handlers, scheduled tasks)
@@ -585,7 +560,6 @@ Document with actual function signatures and file:line references.
 ```
 
 **Test & Verification:**
-
 ```
 Investigate testing infrastructure for the relevant area:
 - Existing test files and what they cover
@@ -668,10 +642,11 @@ Agent 2:
 
 **Partitioning:** When >6 research files per track, spawn 2 analyst + 2 QA instances (4 agents total), each with assigned_files subsets. Merge reports after all return.
 
+**Synthetic-dnsp merge step (R-127, COMP-001-M6 — A.8 Research Quality Gate merge).** Before the **Gate evaluation** paragraph below reads the analyst + QA reports, the orchestrator MUST scan each partition agent's normal output stream for `source: "synthetic-dnsp"` blocks emitted under the API-003-M6 wire-shape contract (see L674) and merge them into the partition-cohort findings set ALONGSIDE the real analyst + QA findings. Merge semantics — each invariant binds to a named rejection symbol pinned at L668-L684: (a) the merge is **strictly additive** — post-merge real-finding count MUST equal pre-merge real-finding count plus synthetic count (violation → `R-126-real-findings-replacement-violation`); no merge logic may drop, coalesce, filter, or replace real findings with synthetic ones, even when they share a severity bucket; (b) the synthetic `severity: HIGH` value is **non-overridable across the merge** — no merge-time normalization, severity-downgrade transform, severity-coalesce rule, or operator-overridable severity flag may lower it (violation → `R-126-severity-override-violation`); (c) **within-cycle dedup-key collapse (R-123)** MUST run BEFORE the merged set is handed to gate evaluation so two identical-`dedup_key` synthetic blocks emerge as one cardinality-1 record with `found_n_times` incremented by `+1` (violation → `INV-012-within-cycle-collapse-violation`); (d) **cross-cycle dedup composition (R-124, INV-012)** MUST run before the PR-02 monotonicity comparison at SKILL.md L1071 so a cycle-`n+1` re-emission with the same `dedup_key` as a cycle-`n` emission contributes `1` (not `2`) to `|F_{n+1}|` (violation → `INV-012-cross-cycle-composition-violation`); (e) the **all-agents-fail guard (R-122)** MUST have run BEFORE this merge step at the cohort boundary — when zero partitions succeeded the merge step is skipped and `rf-team-lead.md:417` activates instead (Path A; violation of the path-selection table → `R-122-guard-precedence-violation`). The Gate evaluation paragraph below then treats each merged synthetic-dnsp record as a real finding for the existing "ALL findings resolved regardless of severity" PASS criterion — a present synthetic-dnsp record causes FAIL until the operator manually reviews per its fixed `recommendation` literal `Manual review required — partition agent failed twice` (R-117); the gap-fill cycle below MUST NOT attempt to auto-resolve synthetic-dnsp records (the `recommendation` field is fixed-value invariant and the partition agent has already exhausted retries, so the gap-fill loop has nothing to add). All rejections MUST NOT be silently coerced. Rationale: pinning the merge-step wiring at the producer-side wire-shape boundary (L674) means the existing Gate evaluation logic below reads synthetic-dnsp records out of the same merged set as real findings without channel-discovery code or out-of-band format negotiation; the strictly-additive count invariant catches merge bugs that would silently absorb real findings into synthetic ones at the cohort boundary (a failure invisible to per-emission gates because each block is well-formed); five distinct named rejection symbols let operator tooling grep-distinguish each merge-time failure mode without false positives across the boundary.
+
 **Gate evaluation:** Read both analyst and QA reports. Gate PASSES when both verdicts are PASS with ALL findings resolved regardless of severity.
 
 **Gap-fill cycle:** If the gate fails:
-
 1. Compile all CRITICAL, IMPORTANT, and MINOR issues from analyst + QA reports into a structured gap list
 2. Spawn targeted gap-fill researcher(s) via Agent tool (`subagent_type: "general-purpose"`) with specific gaps to fill
 3. After gap-fill, re-run analyst + QA on the NEW research files only
@@ -688,16 +663,31 @@ When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partiti
 - `source: "synthetic-dnsp"`
 - `affected_range`: the failed agent's `assigned_files` slice (verbatim)
 - `evidence`: path to the failed agent's spawn log (or a `<!-- evidence-absence: spawn-log-unavailable -->` stub citing the absence)
-- `recommendation`: "Manual review required — partition agent failed twice on this range"
+- `recommendation`: "Manual review required — partition agent failed twice"
+- `dedup_key`: 2-tuple `(assigned_files_range, escalation_ladder_exhaust_point)`, emitted as YAML list `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; `escalation_ladder_exhaust_point` MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}` (free-form descriptions are rejected by the emitter)
+- `found_n_times`: int, default `1`; increments by `1` on each within-cycle dedup-key collapse (see the **Dedup key** paragraph below for the cross-cycle composition rule with PR-02 / INV-012)
+
+**Fixed-field emitter rejection (R-113 + R-114).** The `severity` and `source` fields are non-overridable fixed-value invariants of DM-003. The emitter MUST reject any synthetic-dnsp emission whose `severity` field is not the literal `HIGH` (case-sensitive) OR whose `source` field is not the literal `synthetic-dnsp` (case-sensitive). Such rejections surface as `DM-003-fixed-field-invariant-violation` errors and MUST NOT be silently coerced. Rationale: the `HIGH` pin prevents merge-time severity downgrade (without it the synthetic could be quietly demoted past the gate's any-gap-regardless-of-severity = FAIL rule); the literal `synthetic-dnsp` sentinel is what allows downstream operators to filter, audit, and report on synthetic emissions distinct from real findings.
+
+**Dynamic-field emitter rejection (R-115 + R-116).** The `affected_range` and `evidence` fields are dynamic-value invariants of DM-003 bound by content rules rather than fixed strings. The `affected_range` field MUST be the partition's spawn-prompt `assigned_files` (or `assigned_phases` for rf-qa-qualitative) slice copied verbatim — byte-for-byte, with no normalization, canonicalization, ordering changes, or whitespace edits. The `evidence` field MUST NEVER be blank: the canonical wire value is the spawn-log path `${TASK_DIR}qa/spawn-log-<agent_role>-<partition_id>.txt`; when that log is unavailable the emitter MUST substitute the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (e.g., `no-spawn-log: tmpfs-cleared`, `no-spawn-log: orchestrator-write-failed`). The emitter MUST reject any synthetic-dnsp emission whose `affected_range` does not byte-match the spawn-prompt assigned slice OR whose `evidence` field is empty / whitespace-only / missing the absence stub when the path is unresolvable. Such rejections surface as `DM-003-dynamic-field-invariant-violation` errors and MUST NOT be silently coerced. Rationale: a verbatim `affected_range` ensures the merged report's row indexes back into the exact spawn prompt that produced the failure (the orchestrator can re-spawn that range deterministically, and humans reviewing the gate report can grep the exact file list against the original spawn record); a never-blank `evidence` field with the canonical path template makes the missing-log case grep-detectable in downstream tooling, and the explicit absence stub closes the audit gap where "no path" could otherwise read as either "log missing" or "field omitted" (the stub distinguishes the two).
+
+**Fixed-value + tuple-shape + counter emitter rejection (R-117 + R-118 + R-119).** The `recommendation`, `dedup_key`, and `found_n_times` fields complete the DM-003 emitter rejection contract. The `recommendation` field is a fixed-value invariant pinned to the literal byte-exact string `Manual review required — partition agent failed twice` (case-sensitive; no leading/trailing whitespace; no suffix); the emitter MUST reject any synthetic-dnsp emission carrying any other value, including same-prefix-with-trailing-suffix variants (the wrapper's earlier ` on this range` extension was a pre-T06.01 drift and is removed by T06.05). The `dedup_key` field MUST be emitted as a 2-element YAML list of the shape `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; the emitter MUST reject any synthetic emission whose `dedup_key` is not a 2-element list OR whose second element falls outside the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}` (the closed vocabulary is API-003-M6's exhaust-point alphabet, ratified by T06.07 / R-121). The `found_n_times` field defaults to the integer `1` on first emission and increments by exactly `1` on each within-cycle dedup-key collapse (the cross-cycle collapse rule composing with PR-02 monotonicity / INV-012 is the "Dedup key" paragraph below); the emitter MUST reject any synthetic emission whose `found_n_times` is not a positive integer ≥1 OR whose first emission carries a value other than `1`. Such rejections surface as `DM-003-recommendation-invariant-violation`, `DM-003-dedup-key-shape-violation`, and `DM-003-found-n-times-invariant-violation` errors respectively and MUST NOT be silently coerced. Rationale: a byte-exact `recommendation` literal makes synthetic findings grep-discoverable by operators without false positives from elaborated suffixes (an unbounded suffix would let two synthetics with the same dedup_key but slightly different recommendations skip dedup collapse, breaking R-118's two-identical-dedup_keys → cardinality 1 + found_n_times=2 invariant); a 2-element list with closed-vocabulary second element makes the dedup_key cardinality-comparable across cycles without YAML-dialect ambiguity (a 3-element list or a free-form exhaust_point would let cross-cycle composition mis-collide, breaking INV-012); a strictly positive `found_n_times` integer with default `1` and exact `+1` increment-on-collapse makes the within-cycle collapse counter monotonic and the cross-cycle cohort-count semantics auditable (a counter that resets or skips would let dedup collapses double-count, breaking T05.07's INV-012 cross-cycle composition with PR-02 monotonicity).
+
+**API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted by the orchestrator as a structured Markdown block written into the partition agent's **normal output stream** — the same stdout/report channel that real findings use — with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the merge step at SKILL.md §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge); the merge step picks up the synthetic block alongside real findings and treats it as a real finding for the existing "any gap regardless of severity = FAIL" gating rule. The explicit merge-step pick-up wiring at the A.8 (`:572-656`) and A.10 (`:870-918`) line-range targets lands at T06.11 (R-127 + R-128); this T06.07 paragraph pins the producer-side wire-shape contract (normal output stream, structured-block format, no sideband) that the T06.11 consumer-side edit binds to. The `escalation_ladder_exhaust_point` value (the second element of the `dedup_key` 2-tuple at R-118) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., `"second retry"`, `"gap-fill round 2"`, `"after WebSearch exhaustion"`, `"escalation-ladder rung 3"` — all rejected). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors (cross-bound with `DM-003-dedup-key-shape-violation` from T06.05 — the same vocabulary violation can fire at either check, with the API-003-level rejection scoped to the emission-time wire-shape gate and the DM-003-level rejection scoped to the dedup_key tuple-shape gate) and MUST NOT be silently coerced. Rationale: a normal-output-stream wire format means the existing merge logic at SKILL.md §A.8 and §A.10 picks up synthetic blocks without channel-discovery code, sideband-listener wiring, or out-of-band format negotiation (the merge step's existing behaviour — read partition agent output, treat each emitted finding as a row in the merged report — naturally handles synthetic blocks because they share the wire shape of real findings); a closed exhaust_point vocabulary makes the dedup_key cardinality-comparable across cycles (a free-form exhaust_point would let two cycles' synthetic emissions for the same partition with slightly different exhaust-point wordings — `"retry-2"` vs. `"second-retry"` — mis-collide under R-118's dedup_key equality and double-count toward `|F_n+1|`, breaking T05.07's INV-012 cross-cycle composition with PR-02 monotonicity); a named `API-003-exhaust-point-vocabulary-violation` rejection symbol distinct from `DM-003-dedup-key-shape-violation` lets operator tooling distinguish wire-shape failures at the API boundary (the block format is malformed or the exhaust_point is non-vocabulary at emission time) from dedup-key shape failures inside the DM-003 field-rejection contract (the tuple shape itself is wrong) — the symbols can fire on the same input but scope different rejection responsibilities.
 
 Then the orchestrator **merges with the remaining N-1 partition agents' findings** rather than aborting. This preserves the parallel-research invariant (N-1 partitions still complete) and the zero-trust QA invariant (the gap is surfaced HIGH-severity, never silently passed).
 
 **All-agents-fail guard.** If zero partition agents succeeded, the orchestrator escalates normally per the existing retry-then-Open-Questions flow — DNSP does NOT fire (a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise).
 
+**All-agents-fail guard precedence (R-122).** The synthetic-dnsp emitter MUST gate on the partition-cohort success count BEFORE any per-partition emission attempt, routing the cohort outcome down exactly one of three mutually-exclusive paths. **Path A (zero-partitions-succeeded → existing `rf-team-lead.md:417` fix-cycle escalation; NO synthetic emits)** fires when the success count is `0` and the orchestrator MUST activate the byte-stable `rf-team-lead.md:417` fix-cycle escalation (the max-3-cycles HALT-and-ask-user contract that has shipped pre-PR-03 and remains the canonical zero-success destination) without emitting any synthetic-dnsp block — the existing escalation already surfaces the all-fail outcome to the operator, and emitting one HIGH synthetic per partition on top of that activation would be informationally equivalent to the escalation itself while adding O(N) noise to the merged report. **Path B (≥1-success AND ≥1-exhaust → synthetic-dnsp emits ALONGSIDE real findings)** fires when at least one partition succeeded AND at least one partition exhausted its escalation ladder, and the orchestrator MUST emit one synthetic-dnsp block per exhausted partition into the normal output stream alongside the real findings from the successful partitions (the synthetic-dnsp adds to, never replaces, real findings — preserving the cohort's real-finding count and the parallel-research invariant per NFR-CONV.10). **Path C (all-partitions-succeeded → no synthetic; normal merge)** fires when every partition succeeded and is the baseline no-DNSP path. The three paths are mutually exclusive (a single partition-cohort outcome MUST traverse exactly one path; the guard MUST reject any cohort outcome that satisfies more than one path's precondition or satisfies none — e.g., a cohort with zero successes AND zero exhausts is a contract violation because every partition must terminate in success-or-exhaust under the M5 escalation-ladder semantics ratified at FR-CONV.5). Such guard-precedence violations surface as `R-122-guard-precedence-violation` errors (named symbol distinct from `API-003-exhaust-point-vocabulary-violation` from T06.07 and `DM-003-dedup-key-shape-violation` from T06.05 because the path-selection gate is upstream of the per-emission wire-shape gate — the symbol scopes the cohort-level path-selection failure, not a per-emission field-shape failure; operator tooling can grep the symbol to distinguish "the cohort outcome was internally inconsistent" from "an individual synthetic emission was malformed"). The `rf-team-lead.md:417` line MUST be byte-stable across the M6 landing under COMP-006-M6 (sha256 pinned at `51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0` end-to-end across PR-02, PR-03, and M1–M6; the whole-file sha256 of `src/superclaude/agents/rf-team-lead.md` pinned at `874a516e3baedd8fed5b433592ab3d41a78bd8ec8601098d8610f47ce255e40b`); the Path A activation MUST NOT replace, short-circuit, or modify the existing fix-cycle escalation, only route control to it (T06.14 verifies the byte-stability post-MIG-006). Rationale: a pre-emission cohort-level guard means the zero-success case is decided once at the cohort boundary rather than re-evaluated at each per-partition emission attempt (a per-emission guard would either let O(N) synthetics fire before the all-fail check rolls them back — wasteful and racy — or require each emitter to read the cohort state, coupling the per-emission wire-shape gate to the cohort-level path-selection gate); three mutually-exclusive paths with a contract-violation reject for the "zero successes AND zero exhausts" case make the path-selection table exhaustive (no implicit default-path fallback that could silently absorb a malformed cohort outcome); a distinct `R-122-guard-precedence-violation` named symbol lets the all-agents-fail Path A activation be auditable separately from per-emission rejections (an operator inspecting the merged report can grep the symbol to confirm the cohort traversed exactly one path and that the byte-stable `rf-team-lead.md:417` activation is not being short-circuited by a downstream emission path).
+
+**Within-cycle + cross-cycle dedup composition (INV-012, R-123 + R-124).** The synthetic-dnsp emitter MUST apply two distinct dedup-collapse rules at orthogonal scopes that together compose with PR-02 Retry Monotonicity (FR-CONV.5 / M5) per the operational rule subsection at `src/superclaude/skills/task-builder/SKILL.md` L1079-1093 (T05.07 INV-012 cross-cycle dedup composition; subsection sha256 pinned at `5ff2a1803bbe088d2083628bf9c8cffeafba54fcc7b769efd98dd14824f09785`). **Within-cycle collapse (R-123).** Two synthetic-dnsp findings emitted within the SAME retry cycle for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple MUST collapse to a single record with `found_n_times` incremented by exactly `1` from its current value (default `1` on first emission → `2` after the first within-cycle collision → `3` after the second, etc.); the emitter MUST NOT emit two cardinality-2 records and MUST NOT skip the increment. The within-cycle collapse happens BEFORE the merge step picks up the synthetic block at SKILL.md §A.8 / §A.10 (T06.11 / R-127 + R-128), so the merge step sees a cardinality-1 emission already annotated with the correct `found_n_times`. **Cross-cycle composition (R-124, INV-012 non-regression).** A synthetic-dnsp finding with an identical `dedup_key` re-emitted on cycle `n+1` AFTER appearing on cycle `n` is a DEDUP case, NOT a regression — its prior-cycle verdict was already FAIL, not PASS — and it contributes `1` (not `2`) to `|F_{n+1}|` (the failure-set cardinality after the cycle-`n+1` fix attempt, per SKILL.md L1064 — `|F_n|` is computed AFTER dedup-key deduplication; the same identity is used at cycle `n+1`). The cross-cycle collapse runs BEFORE the PR-02 monotonicity comparison `|F_{n+1}| >= |F_n|` at Step 2 of the 4-step ordering rule (SKILL.md L1071). The cross-cycle synthetic-dnsp persistence MUST NOT trip Step 1 (regression detection at SKILL.md L1070) because `dedup_key ∈ FAIL_n` implies `dedup_key ∉ PASS_n`, so the Step 1 predicate `dedup_key ∈ PASS_n ∩ FAIL_{n+1}` is FALSE by construction; persistence trips Step 2 (monotonicity) **if and only if** `|F_{n+1}| >= |F_n|` after the dedup-collapse step — the intended halt when the partition agent is stuck. Violations of the within-cycle collapse rule (e.g., two identical-dedup_key records emitted with cardinality 2 instead of 1 with `found_n_times: 2`; `found_n_times` not incremented by exactly `1` per collapse; counter reset or skipped) surface as `INV-012-within-cycle-collapse-violation` errors. Violations of the cross-cycle composition rule (e.g., a cross-cycle same-dedup_key re-emission contributing `2` instead of `1` to `|F_{n+1}|`; the cross-cycle synthetic-dnsp persistence triggering a regression halt at Step 1; the cross-cycle dedup-collapse step omitted before the monotonicity comparison at Step 2) surface as `INV-012-cross-cycle-composition-violation` errors. Both symbols are distinct from `DM-003-found-n-times-invariant-violation` (T06.05 — per-emission counter-shape failures at the field level), `R-122-guard-precedence-violation` (T06.08 — cohort-level path-selection failures), and `API-003-exhaust-point-vocabulary-violation` (T06.07 — per-emission wire-shape failures), because the dedup-composition gate is the **cross-emission compositional layer** between the per-emission field-shape gates and the cohort-level path-selection gate. Both rejections MUST NOT be silently coerced. Rationale: a within-cycle collapse rule pinned at the per-emission boundary prevents double-counting at the cohort-level merge step (a within-cycle re-emission that bypassed collapse would inflate `|F_n|` and trigger a spurious monotonicity halt at the cycle-`n+1` comparison even when the partition agent is making progress on other items); a cross-cycle composition rule pinned at the F-set construction boundary makes the dedup-identity scope explicit across cycle boundaries (without this binding, an operator could read the inline "Repeated synthetics for the same dedup key collapse" line below as referring to within-cycle only, leaving the cross-cycle case ambiguous between dedup and regression and risking a spurious regression halt at Step 1); two distinct named rejection symbols at the compositional layer let operator tooling grep-distinguish within-cycle counter failures from cross-cycle composition failures (a single conflated symbol would force operators to read the full execution log to determine which collapse rule was violated).
+
+**INV-021 N-1 cohort concurrency + R-126 HIGH severity non-overridable across merge step (R-125 + R-126).** The synthetic-dnsp emitter MUST preserve two cohort-level invariants spanning the partition-agent execution lattice and the merge-step output stream. **INV-021 N-1 cohort concurrency (R-125).** When one partition's escalation ladder exhausts, the orchestrator MUST allow the remaining N-1 sibling partitions to continue executing concurrently to their own success-or-exhaust terminal state BEFORE the exhausted partition's synthetic-dnsp emission is composed AND BEFORE the merge step at SKILL.md §A.8 / §A.10 runs (explicit pick-up wiring lands at T06.11 / R-127 + R-128). The exhausted partition's synthesis MUST NOT block, pause, serialize, or reduce the parallelism of the sibling cohort; spawn-log timestamps MUST evidence the N-1 partitions completing concurrently with (overlapping in wall-clock time with) the exhausted partition's synthesis step. This is the per-cohort instantiation of the NFR-CONV.10 parallel-research invariant (the M6-scoped governance entry recorded at MIG-006 / T06.17). **R-126 HIGH severity non-overridable across merge step + real findings preserved alongside synthetic.** The synthetic-dnsp `severity: HIGH` value MUST be non-overridable at every downstream layer: the per-emission `DM-003-fixed-field-invariant-violation` gate from T06.03 enforces non-override at the emission boundary, and T06.10 extends the invariant transitively across the cohort-level merge step at SKILL.md §A.8 / §A.10 (no merge-time normalization, severity-downgrade transform, severity-coalesce rule, or operator-overridable severity flag is permitted to lower the synthetic-dnsp severity below HIGH). The synthetic-dnsp block MUST be merged ALONGSIDE the real findings from the successful partitions (Path B from T06.08), never IN PLACE OF them: the cohort's real-finding count post-merge MUST equal the cohort's real-finding count pre-merge plus the synthetic count (strictly additive — not replacement, coalesce, or filter); any merge logic that drops real findings to make room for synthetic findings, that coalesces real findings into synthetic ones, or that filters real findings on the basis of severity-bucket collisions with synthetic findings is a contract violation. Violations of the N-1 concurrency invariant (e.g., sibling cohort paused awaiting exhausted-partition synthesis; spawn-log timestamps show serialization of the N-1 partitions behind the exhausted partition's synthesis; the parallel-research invariant NFR-CONV.10 is degraded for the exhausted-partition case) surface as `INV-021-cohort-serialization-violation` errors. Violations of the real-findings-preservation invariant (e.g., a real finding is dropped during the merge step; a real finding is coalesced into a synthetic finding; the cohort's real-finding count post-merge is strictly less than the real-finding count pre-merge; merge logic replaces a real finding with a synthetic one when both share a severity bucket) surface as `R-126-real-findings-replacement-violation` errors. Violations of the merge-step HIGH-severity non-overridable invariant (e.g., merge-time severity-downgrade transform reduces synthetic-dnsp severity below HIGH; merge-time severity-coalesce rule overrides synthetic-dnsp severity from HIGH to another bucket; an operator override flag is honored to lower synthetic-dnsp severity) surface as `R-126-severity-override-violation` errors (distinct from `DM-003-fixed-field-invariant-violation` from T06.03 — the DM-003 symbol scopes per-emission boundary failures, the R-126 symbol scopes merge-step / cohort-layer override failures across the emission lifecycle; both layers are needed because the wire format is preserved post-emission but merge logic could still apply transforms). All three new symbols are distinct from `INV-012-within-cycle-collapse-violation` + `INV-012-cross-cycle-composition-violation` (T06.09 — cross-emission compositional layer), `R-122-guard-precedence-violation` (T06.08 — cohort-level path-selection), `API-003-exhaust-point-vocabulary-violation` (T06.07 — per-emission wire-shape), `DM-003-found-n-times-invariant-violation` (T06.05 — per-emission counter-shape), and `DM-003-fixed-field-invariant-violation` (T06.03 — per-emission boundary fixed-field), because the INV-021 + R-126 gates scope the **execution-layer + merge-step layer** spanning cohort-wide parallelism and post-emission severity / count preservation across the merge boundary. All three rejections MUST NOT be silently coerced. Rationale: a per-cohort N-1 concurrency invariant pinned at the orchestrator boundary makes the parallel-research property NFR-CONV.10 auditable across the exhausted-partition case (a sibling cohort serialized behind an exhausted partition's synthesis would multiply the wall-clock cost of the partition-research pipeline by the number of exhausted partitions, breaking the constant-factor parallelism that NFR-CONV.10 ratifies, and a regression here would be invisible to per-emission gates because the synthetic block itself would still pass DM-003 / API-003 / R-122 / INV-012 checks); a real-findings-preservation invariant pinned at the merge-step boundary distinguishes the strictly-additive synthetic emission from a replacement / coalesce / filter merge (a non-additive merge could let a partition that succeeded on K real findings have those K findings absorbed into the synthetic emission for an exhausted sibling, silently reducing the merged report's information content and breaking R-126 alongside-not-replacement; the per-emission gates cannot detect this failure because each individual synthetic block is well-formed — the failure emerges only at the cohort-level count comparison); a merge-step-layer HIGH non-overridable invariant distinct from the per-emission DM-003 fixed-field invariant scopes the override failure to its actual emergence boundary (the per-emission DM-003 gate catches `severity != HIGH` at the emitter; the R-126 merge-step gate catches downstream override attempts that bypass the emitter — both layers are needed because the wire format is preserved post-emission but the merge step can still apply transforms, and a single conflated symbol would force operators to read the full execution log to triangulate which layer failed); three distinct named rejection symbols at the execution-layer + merge-step layer let operator tooling grep-distinguish cohort serialization failures (spawn-log timing pathology) from real-findings replacement failures (merge-step count pathology) from merge-step severity override failures (merge-step severity-transform pathology) without false positives across the layers.
+
 **Dedup key (composition with PR-02 Retry Monotonicity, INV-012).** Two synthetic findings emitted across consecutive retry cycles for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` collapse into ONE finding annotated `found N times`. This prevents the dedup case from reading as a regression to the PR-02 monotonicity guard (the same partition failed the same way twice is dedup, not regression). Two synthetics with DIFFERENT escalation_ladder_exhaust_points (e.g., partition A failed via WebSearch exhaustion at cycle N, then via /rf:opinion timeout at cycle N+1) are DISTINCT findings.
 
 This protocol applies symmetrically to:
-
 - A.8 research-gate partition spawns of rf-analyst + rf-qa
 - A.10 task-integrity partition spawns of rf-qa (when partitioning is invoked)
 - A.10.5 qualitative partition spawns of rf-qa-qualitative
@@ -705,7 +695,6 @@ This protocol applies symmetrically to:
 ### A.8.5: Optional Web Research
 
 **Skip this step unless BOTH conditions are true:**
-
 1. The tier allows web agents (Standard: 0-1, Deep: 1-2, Quick: 0)
 2. The quality gate's analyst/QA reports identified **external knowledge gaps** that codebase research cannot fill (e.g., best practices for a technology, library API documentation, design pattern recommendations, MDTM template conventions from external sources)
 
@@ -714,7 +703,6 @@ If neither condition is met, proceed directly to A.9.
 **Spawning:** Use the Agent tool with `subagent_type: "general-purpose"`, `mode: "bypassPermissions"`. Spawn 1-2 web research agents in parallel, each investigating a specific gap identified by the quality gate.
 
 **Prompt format:**
-
 ```
 Research this topic externally and write findings to ${TASK_DIR}research/web-[NN]-[topic-slug].md
 
@@ -1074,7 +1062,6 @@ The em-dash `—` (U+2014) in the regression message and the literal pipe charac
 **F-set definition (item identity = dedup-key, cardinality post-dedup):**
 
 `F_n` is the SET (not multiset) of FAIL-verdict items at the end of fix cycle `n`. Set membership is determined by the dedup-key:
-
 - For ordinary checklist items: dedup-key = item ID (e.g., `3.2`).
 - For synthetic-dnsp findings (PR-03): dedup-key = `(assigned_files_range, escalation_ladder_exhaust_point)`.
 
@@ -1116,7 +1103,6 @@ After the builder returns a task file path, validate the task file before presen
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 **QA prompt:**
-
 ```
 QA_MODE: task-integrity
 fix_authorization: true
@@ -1164,8 +1150,9 @@ task file using Edit, then document what you fixed in your report.
 Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 ```
 
-**Handling the verdict:**
+**Synthetic-dnsp merge step (R-128, COMP-001-M6-r18 — A.10 Task File Validation merge).** Before the **Handling the verdict** branch table below routes on rf-qa's `VERDICT:` line, the orchestrator MUST scan the rf-qa partition agent's normal output stream for `source: "synthetic-dnsp"` blocks emitted under the API-003-M6 wire-shape contract (see L674) and merge them into the task-integrity findings set ALONGSIDE the real rf-qa structural-gate findings. Identical merge semantics to the A.8 step (L645) apply at this validation boundary — each invariant binds to a named rejection symbol pinned at L668-L684: (a) **strictly additive** — post-merge real-finding count MUST equal pre-merge real-finding count plus synthetic count (violation → `R-126-real-findings-replacement-violation`); rf-qa structural findings are never dropped, coalesced, filtered, or replaced by synthetic ones; (b) **HIGH severity non-overridable across the merge** (violation → `R-126-severity-override-violation`) — no merge-time severity transform may lower the synthetic-dnsp record below HIGH, and the rf-qa `fix_authorization: true` flag (line 1106 above) MUST NOT auto-resolve, severity-coerce, or in-place-edit synthetic-dnsp records (the partition agent has already exhausted retries; the fix loop has nothing to add); (c) **within-cycle dedup-key collapse (R-123)** runs before verdict handling so two identical-`dedup_key` synthetic blocks emerge as cardinality-1 with `found_n_times` incremented by `+1` (violation → `INV-012-within-cycle-collapse-violation`); (d) **cross-cycle dedup composition (R-124, INV-012)** runs before the PR-02 monotonicity comparison at L1071 so a cycle-`n+1` re-emission with the same `dedup_key` as a cycle-`n` emission contributes `1` (not `2`) to `|F_{n+1}|` (violation → `INV-012-cross-cycle-composition-violation`); (e) the **all-agents-fail guard (R-122)** MUST have run at the rf-qa partition-cohort boundary BEFORE this merge step — when zero rf-qa partitions succeeded the merge is skipped and `rf-team-lead.md:417` activates instead (Path A; violation → `R-122-guard-precedence-violation`). Branch-table interaction with the synthetic-dnsp merged set: any present synthetic-dnsp record MUST route into the **FAIL with unfixable issues** branch below (it persists into the user-presented issue list with its fixed `recommendation` literal `Manual review required — partition agent failed twice` from R-117); the **FAIL with all fixes applied** branch MUST NOT consume synthetic-dnsp records (rf-qa's in-place fix authority does not extend to them — the `recommendation` field is fixed-value invariant and silent fixes would corrupt the dedup_key identity needed for the cross-cycle composition at L682+L1085); the **PASS** branch fires only when both rf-qa's `VERDICT:` is PASS AND the merged synthetic-dnsp count is `0` (a synthetic-dnsp record in the merged set is a "gap regardless of severity" by R-126's HIGH non-overridable invariant, and the A.10 "all findings resolved" criterion mirrors A.8's at L645). The **No verdict emitted** halt branch above remains the upstream gate — the synthetic-dnsp merge step does NOT run when rf-qa's report is absent or its `VERDICT:` line is missing (control halts at end-of-A.10 before merge per the DM-005 `failure_mode: halt-A.10-before-A.10.5` lever). All rejections MUST NOT be silently coerced. Rationale: pinning A.10's merge step at the rf-qa partition output boundary (analogous to A.8's analyst+QA partition output boundary) means the validation gate sees synthetic-dnsp records out of the same merged stream as rf-qa's real structural-gate findings — no separate signalling channel between A.8 and A.10 is needed; the `fix_authorization: true` carve-out for synthetic-dnsp records prevents rf-qa from silently auto-resolving partition-exhaust signals that the operator must manually review per the R-117 contract; the explicit branch-table routing (synthetic-dnsp → FAIL-unfixable; never FAIL-fixed-applied; PASS only when count is 0) makes the validation-gate consumer logic explicit at the merge boundary, so a future A.10 branch addition cannot accidentally let synthetic-dnsp records slip through to PASS.
 
+**Handling the verdict:**
 - **PASS** → Proceed to A.10.5 (qualitative validation)
 - **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.10.5.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
@@ -1181,10 +1168,9 @@ After structural QA passes, validate that the task file would actually succeed i
 
 **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
 
-**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`##`) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`## `) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
 
 **QA prompt:**
-
 ```
 QA_PHASE: task-qualitative
 fix_authorization: true
@@ -1284,7 +1270,6 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 **Parallel partitioning for large task files:** If the task file has >15 checklist items, spawn multiple rf-qa-qualitative instances in parallel, each assigned a subset of phases via the `assigned_phases` field in the prompt. Each instance reads its assigned phases' items + the source files those items reference. After all instances complete, read all partition reports and merge findings. For cross-phase checks (downstream consumer analysis, runtime path trace), perform a brief cross-phase validation yourself after merging — the partition instances can only trace within their assigned phases.
 
 **Handling the verdict:**
-
 - **PASS** → Proceed to A.11 (present results)
 - **FAIL with all fixes applied** → QA fixed all issues in-place. Verify fixes by re-reading affected sections. Proceed to A.11.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
@@ -1295,8 +1280,8 @@ Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MIN
 
 1. **Discard cached state.** If the orchestrator memoised any of `(a)` the prior cycle's extracted "Items Reviewed" span, `(b)` the prior cycle's TB-Add-* enumeration snapshot, `(c)` the prior cycle's assembled `## Inherited Structural Verdict` block, or `(d)` the prior cycle's fully-rendered QA prompt string, it MUST drop them. No cached artifact from cycle N may participate in cycle N+1's spawn.
 2. **Re-read the producer artifact from disk.** Re-stat `${TASK_DIR}qa/qa-task-validation-report.md` (capture `mtime` and `sha256` as the freshness witness) and re-open it. If the witness equals the prior cycle's witness, the producer did not re-run between cycles — log a `stale-producer` warning but proceed; freshness is enforced by re-extraction, not by mtime comparison alone. If the witness differs, the file is confirmed fresh.
-3. **Re-extract the "Items Reviewed" span contiguously.** Apply the same single-span extraction rule from the directive above (between the `## Items Reviewed` heading and the next top-level `##` heading). Do NOT reuse the prior cycle's extraction even if the surrounding file appears unchanged — re-extract every time.
-4. **Re-enumerate the TB-Add-* catalogue (INV-010).**Re-read `rf-qa.md`'s live checklist and re-pull the TB-Add-* IDs. Do NOT reuse the prior cycle's enumeration snapshot.
+3. **Re-extract the "Items Reviewed" span contiguously.** Apply the same single-span extraction rule from the directive above (between the `## Items Reviewed` heading and the next top-level `## ` heading). Do NOT reuse the prior cycle's extraction even if the surrounding file appears unchanged — re-extract every time.
+4. **Re-enumerate the TB-Add-* catalogue (INV-010).** Re-read `rf-qa.md`'s live checklist and re-pull the TB-Add-* IDs. Do NOT reuse the prior cycle's enumeration snapshot.
 5. **Re-assemble and re-splice.** Build the new `## Inherited Structural Verdict` block from the freshly-extracted span + freshly-enumerated TB-Add-* IDs. Splice it into the spawn prompt at the API-002 wire-contract position (after TARGET FILES + PROJECT CONVENTIONS; before ADVERSARIAL STANCE / INSTRUCTIONS). The cycle N+1 spawn prompt MUST contain the cycle N+1 verdict; a byte-diff of cycle N vs. cycle N+1 at the verdict-table region MUST surface the cycle N+1 content (`grep -A` on `## Inherited Structural Verdict` returns the new span).
 6. **Stale-verdict-rejection (defense-in-depth).** Before issuing the spawn call, compute `sha256` of the new `## Inherited Structural Verdict` block and compare it to a `last_injected_verdict_sha256` ledger entry keyed by `${TASK_DIR}`. If the prior cycle wrote a verdict with a non-zero ledger entry AND the new sha256 equals the prior entry AND the producer-artifact witness in step 2 reports a NEW mtime/sha256, that combination is impossible under a correct re-extract — REJECT the spawn, log an `INV-002-stale-verdict-rejected` error with both witnesses, and re-run steps 2–5. (Equal witnesses + equal block sha256 is the legitimate no-op case when the producer truly did not change; only the contradiction case is rejected.)
 7. **Log the re-extract.** Emit a structured log line `INV-002: re-extracted verdict for ${TASK_DIR} cycle=N+1 producer_mtime=<iso> producer_sha256=<hex8> block_sha256=<hex8>` at every fix-cycle boundary. The log is the operator-visible audit-trail proving the re-extract ran.
@@ -1369,7 +1354,6 @@ failure_mode: halt-A.10-before-A.10.5
 **Versioning and migration:** `schema_version: 1.0.0` is frozen for the entire M2-through-M6 release window. Any change to the 10 fields above — including renaming, splitting, merging, or altering the wire value format — requires a major version bump to `2.0.0`, a corresponding entry in the release roadmap, and a migration note documenting the cycle in which old (`1.0.0`) producer artifacts stop being accepted by the consumer.
 
 **Cross-references:**
-
 - Runtime implementation: A.10.5 (this skill).
 - Producer prompt: A.10 (this skill) + `rf-qa.md` (task-integrity mode).
 - Consumer prompt: A.10.5 (this skill) + `rf-qa-qualitative.md`.
@@ -1441,7 +1425,6 @@ TO EXECUTE:
 ```
 
 **Overall status logic:**
-
 - **Success**: ALL tracks produced task files
 - **Partial**: Some tracks produced task files, some failed/skipped
 - **Failed**: ALL tracks failed
@@ -1581,7 +1564,6 @@ INCREMENTAL FILE WRITING PROTOCOL (MANDATORY):
    **Date:** [today]
    ---
    ```
-
 2. As you investigate each file/component, IMMEDIATELY append findings using Edit.
    Do NOT accumulate in context and one-shot at the end.
 3. When finished, update Status to "Complete" and append a summary section.
@@ -1591,14 +1573,12 @@ Every finding must cite actual file paths, line numbers, function names, class n
 No assumptions, no inferences, no guessing. If you can't verify it, mark "Unverified."
 
 STEPS:
-
 1. Create your output file FIRST (incremental writing protocol)
 2. Explore the codebase within your assigned scope
 3. Write findings incrementally to your output file
 4. When complete, update Status to "Complete" and append summary
 5. Verify file exists by reading it back
 6. Return your research file path and a brief findings summary as your final output
-
 ```
 
 **Orchestrator collection:** After all researcher agents return, Glob `${TASK_DIR}research/*.md` to confirm all expected files exist. Count files vs expected researcher count. If any are missing, check agent return values for errors.
@@ -1620,7 +1600,6 @@ The full prompt template is embedded in **A.8.5** above. Key elements:
 Spawn via `Agent` tool with `subagent_type: "rf-analyst"`, `mode: "bypassPermissions"`.
 
 ```
-
 Perform a completeness verification of all research files for [track goal].
 
 Analysis type: completeness-verification
@@ -1638,14 +1617,12 @@ Your job is to independently verify that research agents produced thorough, evid
 findings before the builder creates the task file. You are the analytical quality gate.
 
 PROCESS:
-
 1. Use Glob to find ALL research files in the research directory (*.md)
 2. Read EVERY assigned research file — do not skip any
 3. Apply the completeness verification checklist
 4. Write your report incrementally to the output path
 
 CHECKLIST:
-
 1. Source files identified with paths and exports?
 2. Output paths and formats clear or reasonably inferred?
 3. Logical breakdown of phases/steps present?
@@ -1659,13 +1636,11 @@ CHECKLIST:
 For each criterion: PASS (with evidence) or FAIL (with specific gaps).
 
 VERDICTS:
-
 - PASS: All checks pass, no critical gaps
 - FAIL: Critical gaps exist (list each with specific remediation action and severity)
 
 Write the file IMMEDIATELY with a header, then append findings incrementally.
 Be adversarial — your job is to find problems, not confirm things work.
-
 ```
 
 ### Research QA Agent Prompt (rf-qa — Research Gate)
@@ -1673,7 +1648,6 @@ Be adversarial — your job is to find problems, not confirm things work.
 Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
 
 ```
-
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 Perform QA verification of research completeness for [track goal].
@@ -1697,7 +1671,6 @@ You are the last line of defense before the builder creates the task file. Assum
 everything is wrong until you verify it.
 
 IF ANALYST REPORT EXISTS:
-
 1. Read the analyst's completeness report
 2. Verify ALL of their coverage audit claims
 3. Validate gap severity classifications
@@ -1708,7 +1681,6 @@ IF NO ANALYST REPORT:
 Apply the full 10-item checklist independently.
 
 10-ITEM CHECKLIST:
-
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — Verify EVERY claim in each file — verify file paths exist
 3. Scope coverage — every key area from scope map examined
@@ -1721,13 +1693,11 @@ Apply the full 10-item checklist independently.
 10. Incremental writing compliance — files show iterative structure, not one-shot
 
 VERDICTS:
-
 - PASS: Green light for builder
 - FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
 
 Write the file IMMEDIATELY with a header, then append findings incrementally.
 Zero tolerance — if you can't verify it, it fails.
-
 ```
 
 ### Builder Agent Prompt (rf-task-builder — Task File Creation)
@@ -2020,7 +1990,6 @@ The QA agent (A.10) validates the generated task file against these criteria:
 ## Research Quality Signals
 
 ### Strong Investigation Signals
-
 - Specific file paths with line numbers and function signatures
 - Data flow traced end-to-end (entry → processing → output)
 - Integration points mapped with API contracts
@@ -2029,7 +1998,6 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - Analyst + QA both return PASS on first attempt
 
 ### Weak Investigation Signals (Redo)
-
 - Vague descriptions without file references ("the system handles authentication")
 - Assumptions stated as facts ("this service probably calls...")
 - Missing gap analysis — no gaps found is a red flag
@@ -2038,7 +2006,6 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - Repeated gate failures (2+ rounds)
 
 ### When to Spawn Additional Agents
-
 - Critical gaps identified by analyst/QA that existing research doesn't cover
 - Contradictions between research files that need resolution
 - Scope larger than initially estimated — new subsystems discovered
@@ -2083,7 +2050,6 @@ This skill may span multiple sessions. The task folder and its contents persist 
 | Task file + validation report | A.11 (present results) |
 
 **At session end:**
-
 - All files should be on disk in the task folder
 - Note which step was reached if interrupted
 - The user can resume by re-invoking the skill with the same goal
@@ -2097,21 +2063,18 @@ This section is unique to the task-builder skill — the canonical document skil
 ### Track Determination Rules
 
 A request contains **independent work streams** when ALL of these are true:
-
 - Each track has its own distinct goal (a subset of the overall request)
 - Each track operates on different source files or concerns
 - Each track produces different output files
 - No track depends on another track's outputs
 
 **Split into multiple tracks when you see:**
-
 - Multiple unrelated deliverables: "Create docs for handlers AND add tests for services"
 - Distinct output areas: different output directories, different file types
 - Explicit enumeration of independent items where A, B, C don't depend on each other
 - Independent components: "update both the frontend and backend"
 
 **Do NOT split (keep as single track) when:**
-
 - Work items build on each other sequentially
 - All items contribute to a single cohesive output
 - Items share source context that must be understood holistically
@@ -2122,7 +2085,6 @@ A request contains **independent work streams** when ALL of these are true:
 ### Per-Track State Tracking
 
 The orchestrator maintains a per-track state map internally:
-
 ```
 Track 1: research=[pending|done], gate=[pending|pass|fail], build=[pending|done], validate=[pending|pass|fail]
 Track 2: ...
@@ -2139,7 +2101,6 @@ No shared task list needed — the orchestrator tracks state from agent return v
 ### Track Isolation
 
 Failure in one track MUST NOT prevent other tracks from completing. If a track fails:
-
 - Track quality gate fails after max gap-fill rounds → mark track as FAILED
 - Track builder returns RESEARCH_NEEDED after max rounds → mark track as FAILED with "insufficient research"
 - Track builder produces unfixable task file → present it with issues documented
