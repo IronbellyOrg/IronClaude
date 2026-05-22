@@ -93,10 +93,22 @@ _TIME_SEGMENT_FMT: str = "%H%M%SZ"
 _DATE_SEGMENT_FMT: str = "%Y-%m-%d"
 
 
-# Eval-id allowlist — the FR-SCH2 regex pinned by the schema (kept
-# defensive here so this module rejects out-of-band ids at the layout
-# boundary rather than producing path-traversal candidates).
-_EVAL_ID_RE = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+# Eval-id path-safety regex — permissive 64-char alphanumeric+underscore+dash+dot
+# guard. NOT the FR-SCH2 schema contract (see EVAL_ID_PATTERN below for that).
+# The two patterns are deliberately separate defense-in-depth layers: this one
+# rejects path-traversal candidates at the layout boundary; EVAL_ID_PATTERN
+# enforces the strict schema form at the manifest loader boundary.
+_EVAL_ID_PATH_SAFETY_PATTERN = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+"""Path-safety regex — permissive 64-char alphanumeric+underscore+dash+dot guard.
+NOT the FR-SCH2 schema (see EVAL_ID_PATTERN below for that). The two patterns
+are deliberately separate defense-in-depth layers: this one rejects
+path-traversal candidates, the other enforces schema strict-form."""
+
+
+EVAL_ID_PATTERN = re.compile(r"^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$")
+"""FR-SCH2 schema contract — see schemas/suite.schema.json. Promoted from
+loader.py per CC1 to a single source of truth. loader.EVAL_ID_REGEX is an
+import alias for backward-compat."""
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +234,7 @@ def compose_per_eval_dir(run_dir: Path | str, eval_id: str) -> Path:
     components.
     """
 
-    if not isinstance(eval_id, str) or not _EVAL_ID_RE.match(eval_id):
+    if not isinstance(eval_id, str) or not _EVAL_ID_PATH_SAFETY_PATTERN.match(eval_id):
         raise ValueError(
             f"eval_id {eval_id!r} fails the FR-SCH2 [A-Za-z0-9_.-]{{1,64}} guard"
         )

@@ -59,6 +59,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Mapping, Optional, Sequence
 
+from . import exit_codes as _exit_codes
 from .models import EvalSpec
 
 __all__ = [
@@ -74,13 +75,9 @@ __all__ = [
 ]
 
 
-COVERAGE_GATE_FAILED_EXIT_CODE: int = 2
+COVERAGE_GATE_FAILED_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Process exit code emitted when the gate reports missing coverage.
-
-Design-spec §4 maps every harness-rejection outcome (schema error,
-scratch-root violation, missing capability, missing matcher coverage,
-etc.) to exit code ``2``. Pinned here so the CLI wiring and the
-T04.14 / T05.25 tests agree on a single source of truth.
+Design-spec §4 ``2``. Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
 """
 
 
@@ -148,10 +145,22 @@ class CoverageResult:
     missing: tuple[CoverageMatcher, ...] = ()
     artifacts: Mapping[str, Path] = field(default_factory=dict)
     coverage_map: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    # H2: when the settings.json parse fails (corrupt JSON or non-Mapping
+    # top-level), the gate fails closed and surfaces the parse-error
+    # diagnostic here so operators can see why coverage could not be
+    # computed.
+    parse_error: Optional[str] = None
 
     @property
     def passed(self) -> bool:
-        """``True`` iff every checked matcher has a covering eval."""
+        """``True`` iff every checked matcher has a covering eval AND no parse_error.
+
+        H2: a non-None ``parse_error`` forces ``passed=False`` so corrupt
+        settings.json on the host fails the gate closed rather than
+        silent-green via an empty result.
+        """
+        if self.parse_error is not None:
+            return False
         return not self.missing
 
     def to_dict(self) -> dict[str, object]:
@@ -171,6 +180,7 @@ class CoverageResult:
             "coverage_map": {
                 k: list(v) for k, v in self.coverage_map.items()
             },
+            "parse_error": self.parse_error,
         }
 
 
@@ -292,14 +302,26 @@ def coverage_gate(
         callers can render the full registry alongside the verdict.
     """
     matcher_filter = matcher_filter or default_matcher_filter
+    # (a) A missing settings.json is legitimate (dev hosts without one yet) —
+    # remain SILENT-GREEN by returning the empty result with passed=True.
     if not settings_path.is_file():
         return CoverageResult()
+    # (b) H2: corrupt settings.json (OSError / JSONDecodeError) MUST fail
+    # closed so a misconfigured host does not run as if all matchers were
+    # covered. Surface the parse-error message in CoverageResult.parse_error.
     try:
         data = json.loads(settings_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return CoverageResult()
+    except (OSError, json.JSONDecodeError) as exc:
+        return CoverageResult(parse_error=str(exc))
+    # (c) H2: top-level non-Mapping JSON (e.g. a top-level list) is also a
+    # corrupt-config condition — fail closed with a diagnostic message.
     if not isinstance(data, Mapping):
-        return CoverageResult()
+        return CoverageResult(
+            parse_error=(
+                f"settings.json top-level is {type(data).__name__}, "
+                "expected Mapping"
+            )
+        )
 
     raw = extract_hook_matchers(data)
     matchers = tuple(m for m in raw if matcher_filter(m.pattern))

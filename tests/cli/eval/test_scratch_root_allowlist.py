@@ -49,11 +49,33 @@ def test_accepts_path_under_tmp_eval_runs(tmp_path: Path) -> None:
     assert resolved == target.resolve()
 
 
-def test_accepts_tmp_eval_runs_root_itself() -> None:
-    """The allowlisted prefix itself must pass (not just strict sub-paths)."""
+def test_resolve_scratch_root_rejects_bare_prefix() -> None:
+    """Spec H4 — the bare allowlist prefix itself MUST be rejected.
 
-    resolved = resolve_scratch_root("/tmp/eval-runs")
-    assert resolved == Path("/tmp/eval-runs").resolve()
+    INVERTED from the prior ``test_accepts_tmp_eval_runs_root_itself`` per
+    OQ-1 / Step 2.2: accepting the bare prefix made the AC12 check a
+    tautology (operator could point ``--output-dir`` at the allowlist root
+    and pollute it). Phase 3 Step 3.1 removes the ``resolved == prefix``
+    accept branch in ``config.py``; only strict sub-paths pass.
+    Until 3.1 lands, this test is EXPECTED to be RED.
+    """
+
+    with pytest.raises(ScratchRootViolation):
+        resolve_scratch_root("/tmp/eval-runs")
+
+
+def test_accepts_immediate_subdir_of_allowlist_root() -> None:
+    """Spec H4 acceptance criterion #2 — ``/tmp/eval-runs/x`` passes.
+
+    Positive companion to ``test_resolve_scratch_root_rejects_bare_prefix``.
+    Proves strict sub-paths are still accepted after H4's ``resolved ==
+    prefix`` removal. May be GREEN today (current ``is_relative_to`` already
+    accepts sub-paths) and MUST remain GREEN after Phase 3 Step 3.1.
+    """
+
+    target = Path("/tmp/eval-runs/x")
+    resolved = resolve_scratch_root(target)
+    assert resolved == target.resolve()
 
 
 def test_accepts_path_under_dev_eval_runs(tmp_path: Path) -> None:

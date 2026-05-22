@@ -1,0 +1,29 @@
+You are running a specialized architecture pass. The main review covers general issues; your job is to find what the main pass might miss in architecture's domain. Be deeper, more skeptical, and willing to chase indirect/long-range concerns.
+
+## Context
+
+Target: snapshot of src/superclaude/cli/eval/ (23 Python files, ~11K LOC)
+
+The cliEval module is a real-eval harness — it runs evaluation suites against the `claude` CLI, captures output, and writes reports. It has six recent landmark commits (e6368db8, dce3c3cb, 08183738, 1ca25953 and predecessors).
+
+## Specific architecture checklist
+
+1. **FR-G1 ban-import rule** — `reporter.py` MUST NOT import from `superclaude.core`, `superclaude.agents`, `superclaude.skills`, or any other "upstream" framework module. Read `reporter.py` start-to-finish and the import statements of all files in this snapshot. List any FR-G1 violations.
+2. **Layering** — the dependency arrows should be:
+   - `commands.py` → `orchestrator.py` / `runner.py` / `loader.py`
+   - `runner.py` → `claude_process.py` / `pty_driver.py` / `expect.py` / `isolation.py` / `hook_adapter.py` / `coverage.py`
+   - `reporter.py` / `run_report.py` → `models.py` / `artifact_layout.py` (pure functions)
+   - `models.py` / `config.py` — leaves (no internal deps)
+   Identify any back-edges (e.g., `models.py` importing from `runner.py`) or skip-level reaches.
+3. **God-object risk** — `commands.py` (1950L), `runner.py` (1237L), `models.py` (937L), `expect.py` (722L), `isolation.py` (696L), `loader.py` (623L). For each, assess: is this size justified by a single coherent responsibility, or has it become a junk drawer?
+4. **artifact_layout.py vs run_report.py** — these two files implement FR-G4 (artifact layout). Is the boundary clean? Or do both files know about the same path structure?
+5. **Duplicate state** — config.py, models.py, capabilities.py — do any of these define overlapping data types that should be unified?
+6. **Missing abstraction** — the 11 helpers added in e6368db8 (`_utc_iso_now`, `_new_run_id`, `_default_output_dir`, `_can_install_signal_handler`, `_resolve_executor_factory`, `_run_one_spec`, `_compute_run_stats`, `_format_run_summary_line`, plus 3 more) — should some of these be promoted out of `commands.py` (e.g., `_new_run_id` belongs next to `compose_run_id` in `artifact_layout.py:139`)?
+7. **Click CLI shape** — is `eval_run` a single 200+-line function (god-function anti-pattern), or has it been decomposed? If decomposed via helpers, are the helpers cohesive?
+8. **Configuration loading** — single source of truth check: does `config.py` own ALL config, or do other files load YAML/JSON independently?
+9. **Exit-code constants** — `RUN_CLEAN_EXIT_CODE`, `RUN_FAILURES_EXIT_CODE`, `RUN_INTERRUPTED_EXIT_CODE` — are these defined in one place and referenced consistently, or duplicated as magic numbers elsewhere?
+10. **Schema-vs-model drift** — `schemas/summary.schema.json` and `schemas/suite.schema.json` — do these align with the pydantic/dataclass models in `models.py`? Or has one drifted?
+
+## Output contract
+
+Same JSON contract as the main pass — wrap a single object in ```json ... ``` fence. Cross-cutting findings (which most architecture findings are) go in `cross_cutting_observations`. Findings anchored to a specific import statement or function signature go in `findings`.

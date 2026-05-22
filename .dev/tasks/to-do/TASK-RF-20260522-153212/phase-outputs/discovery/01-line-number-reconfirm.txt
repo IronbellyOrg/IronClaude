@@ -1,0 +1,162 @@
+--- commands.py:570-577 RUN_*_EXIT_CODE constants ---
+# handler both read the same integer.
+
+RUN_CLEAN_EXIT_CODE: int = 0
+"""Clean run: every expanded eval reached PASS / SKIPPED / XFAIL and no breach."""
+
+RUN_FAILURES_EXIT_CODE: int = 1
+"""Failing run: at least one eval ended FAIL / ERRORED / TIMEOUT / XPASS but
+the harness ran to completion."""
+
+RUN_INTERRUPTED_EXIT_CODE: int = EXIT_INTERRUPTED
+"""SIGINT / SIGTERM mid-run; cooperative cancellation drained. Re-exports
+:data:`signal_handler.EXIT_INTERRUPTED` (= 3) so the two surfaces cannot
+drift."""
+--- commands.py:1442-1446 session_id ---
+    paths = allocate_per_eval_paths(run_dir, spec.id, create=True)
+
+    home = HomeIsolation(
+        eval_id=spec.id,
+        home_root=home_root,
+        session_id=f"sess-{spec.id}",
+    )
+
+    executor = executor_factory()
+--- commands.py:1526-1539 _format_run_summary_line ---
+
+
+def _format_run_summary_line(summary: RunSummary, output_dir: Path) -> str:
+    """Return the human one-liner ``eval run --verbose`` prints to stdout.
+
+    Shape matches existing reporter conventions: ``run <id>: <P>P/<F>F/<S>S
+    in <duration>s -> <output_dir>``. Pure formatting, no I/O.
+    """
+    return (
+        f"run {summary.run_id}: "
+        f"{summary.totals.passed}P/"
+        f"{summary.totals.failed}F/"
+        f"{summary.totals.skipped}S "
+        f"in {summary.duration_sec:.2f}s "
+        f"-> {output_dir}"
+    )
+
+--- commands.py:1727-1746 H5a region ---
+        # See docs/eval/scratch-roots.md and
+        # tests/cli/eval/test_scratch_root_policy.py.
+        resolved_output = resolve_scratch_root(
+            requested_output,
+            config=base_config,
+        )
+    except ScratchRootViolation as exc:
+        click.echo(format_scratch_root_violation(exc), err=True)
+        sys.exit(SCRATCH_ROOT_VIOLATION_EXIT_CODE)
+
+    resolved_output.mkdir(parents=True, exist_ok=True)
+    home_root = resolved_output / "homes"
+    home_root.mkdir(parents=True, exist_ok=True)
+
+    # The runtime EvalConfig extends the canonical allowlist with the
+    # per-run home root + the operator-supplied output directory so
+    # downstream ``containment_guard`` calls see a stable allowlist
+    # rather than re-deriving one from scratch.
+    runtime_allowed = tuple(base_config.allowed_scratch_roots) + (
+        resolved_output,
+        home_root,
+    )
+    runtime_config = EvalConfig(
+        paths=base_config.paths,
+--- coverage.py:294-302 silent-green branch ---
+        every checked matcher has at least one covering eval. The
+        ``coverage_map`` reports the resolved eval ids per pattern so
+        callers can render the full registry alongside the verdict.
+    """
+    matcher_filter = matcher_filter or default_matcher_filter
+    if not settings_path.is_file():
+        return CoverageResult()
+    try:
+        data = json.loads(settings_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return CoverageResult()
+    if not isinstance(data, Mapping):
+        return CoverageResult()
+
+    raw = extract_hook_matchers(data)
+--- config.py:243-249 prefix-equals branch ---
+    candidate = Path(path)
+    resolved = candidate.expanduser().resolve(strict=False)
+
+    for prefix in allowed:
+        # ``is_relative_to`` catches strict sub-paths; the equality branch
+        # accepts the prefix itself (``/tmp/eval-runs`` is a valid root).
+        if resolved == prefix or resolved.is_relative_to(prefix):
+            return resolved
+
+    raise ScratchRootViolation(candidate, resolved, allowed)
+
+
+def format_scratch_root_violation(exc: ScratchRootViolation) -> str:
+--- artifact_layout.py:99 _EVAL_ID_RE ---
+
+# Eval-id allowlist — the FR-SCH2 regex pinned by the schema (kept
+# defensive here so this module rejects out-of-band ids at the layout
+# boundary rather than producing path-traversal candidates).
+_EVAL_ID_RE = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+
+
+# ---------------------------------------------------------------------------
+--- isolation.py:530-580 H5b region ---
+            )
+
+        # Ensure the scratch root exists. ``parents=True, exist_ok=True``
+        # is safe because the FR-ISO2 guard below catches any path that
+        # resolves outside the policy allowlist.
+        self.home_root.mkdir(parents=True, exist_ok=True)
+
+        home = Path(
+            tempfile.mkdtemp(prefix=f"{self.eval_id}-", dir=str(self.home_root))
+        )
+        object.__setattr__(self, "_home_path", home)
+
+        # NFR-ISO2 atomic-setup wrapper. Anything that raises beyond this
+        # line — FR-ISO2 containment_guard today, any future post-mkdtemp
+        # work (hook deploy verification, capability stamping) tomorrow —
+        # leaves the per-eval HOME on disk so ``teardown(keep=True)``
+        # preserves the directory for post-mortem inspection without a
+        # re-resolve. The ``_home_path`` slot stays populated for the
+        # same reason.
+        #
+        # Tag-write asymmetry between containment and non-containment
+        # exceptions:
+        #
+        # * :class:`HomeContainmentViolation` — NO tag is written.
+        #   Writing a file under a HOME the guard just refused would
+        #   breach the NFR-SEC3 invariants enforced in T02.10
+        #   (`test_hard_guard_real_home.py`): when ``scratch_root`` is
+        #   (or symlinks to) the real ``~/.claude/``, or when
+        #   :func:`tempfile.mkdtemp` returned a symlinked path that
+        #   resolves outside ``scratch_root``, any write under ``home``
+        #   lands inside real ``~/.claude/``. The containment exception
+        #   itself carries the full forensic payload (``check``,
+        #   ``home_path``, ``scratch_root``, ``eval_id``, ``detail``)
+        #   so the orchestrator can bucket the eval as ERRORED without
+        #   the tag.
+        # * Any other ``Exception`` — tag is written. These are
+        #   harness bugs or post-containment failures (e.g., hook deploy
+        #   verification under T02.14) where the per-eval HOME is known
+        #   to be inside the allowlisted scratch root and the tag is
+        #   safe to write. The tag write is best-effort: a secondary
+        #   failure is swallowed so the original exception surfaces
+        #   unchanged.
+        try:
+            # FR-ISO2 defense-in-depth: re-check eval_id, scratch-root
+            # allowlist, and symlink-resolved containment AFTER mkdtemp
+            # and BEFORE the hook adapter (T02.14) writes anything under
+            # the per-eval HOME.
+            containment_guard(
+                home_path=home,
+                scratch_root=self.home_root,
+                eval_id=self.eval_id,
+                config=config,
+            )
+        except HomeContainmentViolation:
+            # NFR-SEC3: no FS writes under a refused HOME. The

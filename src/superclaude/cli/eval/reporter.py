@@ -54,16 +54,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
 
-import yaml
-
 from .models import RunSummary
 from .run_report import (
     REPORTER_CONTRACT_VIOLATION_EXIT_CODE,
     ReporterContractViolation,
     _check_invariant,
+    _write_artifact_set,
     render_junit_xml,
     render_summary_json,
     render_summary_markdown,
+    render_summary_yaml,
 )
 
 __all__ = [
@@ -76,35 +76,13 @@ __all__ = [
 
 
 # ---------------------------------------------------------------------------
-# YAML renderer (the only emitter not already provided by run_report.py)
+# YAML renderer
 # ---------------------------------------------------------------------------
-
-
-def render_summary_yaml(summary: RunSummary) -> str:
-    """Return the YAML rendering of ``summary.to_dict()``.
-
-    Uses ``yaml.safe_dump`` with ``sort_keys=False`` so the output
-    preserves the DM-004 field declaration order :meth:`RunSummary.to_dict`
-    yields. ``default_flow_style=False`` keeps the result in canonical
-    block style (one key per line) which is what a human reviewer
-    expects when diffing summary YAMLs side-by-side.
-
-    The N'-vs-K invariant guard is checked *before* any serialisation so
-    a mismatched summary cannot leave a partial YAML behind.
-
-    Byte-stable for a given input: ``RunSummary`` is a frozen dataclass,
-    ``to_dict()`` returns a deterministic mapping, and PyYAML emits a
-    stable block-style serialisation for the same Python value.
-    """
-
-    _check_invariant(summary)
-    payload = summary.to_dict()
-    return yaml.safe_dump(
-        payload,
-        sort_keys=False,
-        default_flow_style=False,
-        allow_unicode=True,
-    )
+# M4: ``render_summary_yaml`` was promoted to ``run_report.py`` so it sits
+# alongside its Markdown / JSON / JUnit siblings and the consolidated
+# ``_write_artifact_set`` helper. It is re-exported above from ``reporter``
+# for backward-compatibility (any external caller importing
+# ``from .reporter import render_summary_yaml`` keeps working).
 
 
 # ---------------------------------------------------------------------------
@@ -198,33 +176,24 @@ class Reporter:
 
         Returns a mapping of artefact-name → written path. ``junit.xml``
         is only present in the mapping when :attr:`emit_junit` is True.
+
+        M4: delegates to :func:`run_report._write_artifact_set` so the
+        Reporter and the module-level :func:`write_aggregated_report` emit
+        the same artefact set from a single SoT. Renderer callables are
+        threaded through so each instance method's formatting flourishes
+        flow through the shared helper.
         """
 
         _check_invariant(self.summary)
-
-        out = Path(output_dir)
-        out.mkdir(parents=True, exist_ok=True)
-
-        md_path = out / "summary.md"
-        json_path = out / "summary.json"
-        yaml_path = out / "summary.yaml"
-
-        md_path.write_text(self.to_markdown(), encoding="utf-8")
-        json_path.write_text(self.to_json(), encoding="utf-8")
-        yaml_path.write_text(self.to_yaml(), encoding="utf-8")
-
-        written: dict[str, Path] = {
-            "summary.md": md_path,
-            "summary.json": json_path,
-            "summary.yaml": yaml_path,
-        }
-
-        if self.emit_junit:
-            junit_path = out / "junit.xml"
-            junit_path.write_text(self.to_junit(), encoding="utf-8")
-            written["junit.xml"] = junit_path
-
-        return written
+        return _write_artifact_set(
+            Path(output_dir),
+            summary=self.summary,
+            emit_junit=self.emit_junit,
+            md_renderer=lambda _s: self.to_markdown(),
+            json_renderer=lambda _s: self.to_json(),
+            yaml_renderer=lambda _s: self.to_yaml(),
+            junit_renderer=lambda _s: self.to_junit(),
+        )
 
 
 # Aliased name the roadmap row (COMP-008) and design-spec §9 use

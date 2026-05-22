@@ -236,3 +236,34 @@ def test_validate_eval_id_rejects_traversal_after_substitution() -> None:
     expanded = f"E2.{payload}"
     with pytest.raises(InvalidEvalId):
         validate_eval_id(expanded)
+
+
+# --- CC1 single-source-of-truth contract (OQ-1 synthesis) ------------------
+
+
+def test_eval_id_pattern_single_source() -> None:
+    """CC1 — EVAL_ID_PATTERN is the FR-SCH2 schema SoT in artifact_layout.py;
+    loader.EVAL_ID_REGEX is an import alias for backward-compat.
+    _EVAL_ID_PATH_SAFETY_PATTERN is a separate defense-in-depth layer — the
+    two regexes are intentionally distinct.
+    """
+
+    from superclaude.cli.eval.artifact_layout import (
+        EVAL_ID_PATTERN,
+        _EVAL_ID_PATH_SAFETY_PATTERN,
+    )
+
+    # (1) Schema SoT — loader's alias IS the same compiled object (proves
+    # the import-redirect, not a copy).
+    assert EVAL_ID_REGEX is EVAL_ID_PATTERN
+
+    # (2) Defense-in-depth separation — schema and path-safety are distinct
+    # compiled objects, deliberately.
+    assert _EVAL_ID_PATH_SAFETY_PATTERN is not EVAL_ID_PATTERN
+
+    # (3) Semantic invariants — strict schema rejects lowercase/underscore;
+    # path-safety accepts permissive ids but rejects traversal.
+    assert EVAL_ID_PATTERN.match("T01.13") is not None
+    assert EVAL_ID_PATTERN.match("my_eval") is None
+    assert _EVAL_ID_PATH_SAFETY_PATTERN.match("my_eval-1.0") is not None
+    assert _EVAL_ID_PATH_SAFETY_PATTERN.match("../etc/passwd") is None

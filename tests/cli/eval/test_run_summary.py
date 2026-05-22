@@ -360,3 +360,44 @@ def test_run_summary_reexported_from_package() -> None:
     assert PkgRunSummary is RunSummary
     assert PkgRunCounts is RunCounts
     assert PkgRunTotals is RunTotals
+
+
+# ---------------------------------------------------------------------------
+# T2 / H3 — _format_run_summary_line renders the full DM-012 taxonomy
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "bucket,abbreviation",
+    [
+        ("errored", "E"),
+        ("interrupted", "I"),
+        ("timeout", "T"),
+    ],
+)
+def test_format_run_summary_line_renders_errored_interrupted_timeout(
+    bucket: str, abbreviation: str
+) -> None:
+    """T2 / H3: ``_format_run_summary_line`` renders all six DM-012 buckets.
+
+    Pre-H3 the line shape was ``<P>P/<F>F/<S>S`` — eliding ERRORED,
+    INTERRUPTED, and TIMEOUT counts so an operator running ``--verbose``
+    on a run with terminated/timed-out evals saw a misleading "all clean"
+    summary. Post-H3 the format extends to ``<P>P/<F>F/<S>S/<E>E/<I>I/<T>T``
+    so every DM-012 status is visible. This test parametrises across the
+    three new buckets, sets one to 3 and the rest to 0, and asserts the
+    abbreviation+count token appears in the rendered line.
+    """
+    from pathlib import Path
+
+    from superclaude.cli.eval.commands import _format_run_summary_line
+
+    totals_kwargs = {"passed": 0, "failed": 0, "skipped": 0, "errored": 0, "interrupted": 0, "timeout": 0}
+    totals_kwargs[bucket] = 3
+    summary = _summary(totals=RunTotals(**totals_kwargs))
+
+    line = _format_run_summary_line(summary, output_dir=Path("/tmp/x"))
+
+    # H3 contract: the bucket-under-test renders as "3<abbreviation>" inside
+    # the P/F/S/E/I/T slash-separated tuple.
+    assert f"3{abbreviation}" in line

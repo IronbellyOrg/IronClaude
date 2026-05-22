@@ -258,18 +258,23 @@ class TestScratchSymlinkToHome:
 
         assert exc_info.value.check == "scratch_root_allowlist"
 
-    def test_scratch_symlink_refusal_runs_after_mkdtemp(
+    def test_scratch_symlink_refusal_runs_before_mkdtemp(
         self, tmp_path: Path
     ) -> None:
-        """The refusal observes the post-``mkdtemp`` HOME on disk.
+        """H5b: scratch-root allowlist refusal fires BEFORE ``mkdtemp``.
 
-        Even when check 2 (allowlist) is the failing check, the guard
-        is still invoked *after* :func:`tempfile.mkdtemp` materializes
-        the per-eval HOME (see ``HomeIsolation.setup`` body — mkdtemp
-        precedes ``containment_guard``). The partial HOME directory
-        ends up *inside the symlink target* and must be cleaned up by
-        the caller in a real attack, but its existence is what proves
-        the refusal lands in the canonical "after mkdtemp" window.
+        Pre-H5b this asserted ``mkdtemp`` ran before the post-mkdtemp
+        guard rejected — leaving a partial HOME observable inside the
+        symlink target. That behavior violated OPS-002 / NFR-SEC2: a
+        symlink-based scratch-root attack got to materialize a file on
+        disk before the gate fired. Post-H5b the allowlist pre-check at
+        the top of ``HomeIsolation.setup`` resolves the symlink and
+        refuses BEFORE mkdtemp — so the symlink target stays empty.
+
+        Symlink Check 3 (``home_path_escape``) — where the per-eval
+        HOME *itself* is a symlink that escapes a real scratch root —
+        still runs post-mkdtemp and still preserves the partial HOME
+        (covered by ``TestNestedSymlinkEscape`` below).
         """
 
         outside_target = tmp_path / "OUTSIDE_ALLOWLIST"
@@ -284,17 +289,12 @@ class TestScratchSymlinkToHome:
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=config)
 
-        # mkdtemp must have run before the refusal — the partial HOME
-        # is observable under the resolved scratch target (the symlink
-        # transparently forwards mkdtemp's create through to the
-        # underlying directory).
+        # H5b: ZERO per-eval HOMEs created — pre-check resolved the
+        # symlink and refused before mkdtemp could materialize anything
+        # under the outside target.
         partials = _list_partial_homes(outside_target, "Eaftermk")
-        assert len(partials) == 1
-        assert partials[0].is_dir()
-        # And the instance slot is populated so a wrapper can route
-        # teardown through ``teardown(keep=True)`` without
-        # re-resolving.
-        assert iso.is_set_up
+        assert partials == []
+        assert not iso.is_set_up
 
 
 # ---------------------------------------------------------------------------
@@ -422,15 +422,25 @@ class TestPartialHomePreservedOnSymlinkAttack:
     escape vector (check 3).
     """
 
-    def test_partial_home_preserved_after_scratch_symlink_refusal(
+    def test_no_partial_home_after_scratch_symlink_refusal(
         self, tmp_path: Path
     ) -> None:
-        """After the scratch->HOME symlink vector triggers check 2,
-        the partial per-eval HOME stays on disk under the symlink
-        target (the resolved location ``mkdtemp`` wrote to). The
-        instance's ``_home_path`` slot is populated so
-        ``teardown(keep=True)`` preserves the directory without
-        re-resolving."""
+        """H5b: scratch->outside symlink triggers the allowlist pre-check.
+
+        Pre-H5b this asserted "partial HOME preserved under symlink target
+        for forensics" — the pre-H5b mkdtemp path materialized a directory
+        under the OUTSIDE target before the post-mkdtemp guard rejected.
+        That defeated the OPS-002 / NFR-SEC2 invariant (filesystem write
+        before allowlist validation against a symlink-spoofed root).
+
+        Post-H5b: the pre-check ``Path.expanduser().resolve(strict=False)``
+        collapses the symlink to its outside target, then refuses against
+        the allowlist BEFORE ``mkdtemp`` runs. Nothing lands on disk —
+        ``teardown(keep=True)`` has nothing to preserve. Symlink Check 3
+        (per-eval HOME itself is a symlink escape) still preserves the
+        partial HOME — see
+        :meth:`test_partial_home_preserved_after_symlink_escape_refusal`.
+        """
 
         outside_target = tmp_path / "OUTSIDE_ALLOWLIST"
         outside_target.mkdir()
@@ -444,18 +454,14 @@ class TestPartialHomePreservedOnSymlinkAttack:
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=config)
 
-        # Partial HOME visible under the resolved target.
+        # H5b: nothing under the outside target — pre-check refused first.
         partials = _list_partial_homes(outside_target, "Epartial1")
-        assert len(partials) == 1
-        assert partials[0].is_dir()
-        # Instance slot stays populated (atomic-setup wrapper relies on
-        # this — see test_atomic_setup.py / AC1).
-        assert iso.is_set_up
-        # ``teardown(keep=True)`` preserves the partial HOME on disk
-        # without re-resolving.
-        home = iso.home_path
+        assert partials == []
+        assert not iso.is_set_up
+        # teardown(keep=True) is a benign no-op when nothing was created.
         iso.teardown(keep=True)
-        assert home.exists()
+        # Outside target remains empty — no leaked partial HOME.
+        assert list(outside_target.iterdir()) == []
 
     def test_partial_home_preserved_after_symlink_escape_refusal(
         self, scratch_root: Path, tmp_path: Path, permissive_config: EvalConfig
@@ -516,8 +522,17 @@ class TestSetupFailedTagUnderSymlinkAttack:
     def test_scratch_symlink_violation_does_not_write_tag(
         self, tmp_path: Path
     ) -> None:
-        """Scratch->HOME symlink refusal must leave the partial HOME
-        empty of the ``setup_failed`` tag (NFR-SEC3 invariant)."""
+        """H5b: scratch->outside symlink refusal blocks mkdtemp entirely,
+        so the ``setup_failed`` tag is trivially absent.
+
+        Pre-H5b: mkdtemp ran first, partial HOME materialized under the
+        outside symlink target, then the post-mkdtemp guard rejected and
+        the wrapper explicitly withheld the tag (NFR-SEC3 invariant).
+        Post-H5b: the allowlist pre-check resolves the symlink and refuses
+        before mkdtemp — no per-eval HOME exists, so the tag is absent a
+        fortiori. The NFR-SEC3 invariant (refused HOMEs do not carry a
+        tag) is satisfied by the stronger "refused HOMEs do not exist."
+        """
 
         outside_target = tmp_path / "OUTSIDE_ALLOWLIST"
         outside_target.mkdir()
@@ -531,16 +546,13 @@ class TestSetupFailedTagUnderSymlinkAttack:
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=config)
 
-        tag_path = iso.home_path / SETUP_FAILED_TAG_RELPATH
-        assert not tag_path.exists(), (
-            "scratch-symlink containment violation MUST NOT write a "
-            "setup_failed tag under the refused HOME — the violation "
-            "exception is the structured forensic signal, and a write "
-            "could land inside real ~/.claude/ when the symlink "
-            "resolves there."
+        # H5b: no per-eval HOME was created, so no tag, no .eval-meta dir
+        # under any conceivable location.
+        assert not iso.is_set_up
+        assert list(outside_target.iterdir()) == [], (
+            "scratch-symlink pre-check MUST refuse before mkdtemp — "
+            "no leaked partial HOME under the outside target."
         )
-        # Defense-in-depth: the ``.eval-meta`` parent dir is absent too.
-        assert not (iso.home_path / ".eval-meta").exists()
 
     def test_symlink_escape_violation_does_not_write_tag(
         self, scratch_root: Path, tmp_path: Path, permissive_config: EvalConfig
@@ -636,8 +648,16 @@ class TestOrderingAfterMkdtempBeforeHookDeploy:
     def test_hook_deploy_not_called_when_scratch_symlink_refused(
         self, tmp_path: Path
     ) -> None:
-        """Spy on the hook adapter while the scratch->HOME symlink
-        vector triggers the guard. The adapter MUST NOT be called."""
+        """H5b: hook_adapter still MUST NOT be called — and now mkdtemp
+        also doesn't run thanks to the allowlist pre-check.
+
+        Pre-H5b: mkdtemp ran, then containment_guard refused, then the
+        atomic-setup wrapper bubbled the exception without touching the
+        hook adapter (mkdtemp-before-hook-deploy ordering invariant).
+        Post-H5b: the allowlist pre-check refuses before mkdtemp runs,
+        so the invariant strengthens: nothing on the lifecycle path
+        (mkdtemp OR hook-deploy) fires for the scratch-symlink vector.
+        """
 
         outside_target = tmp_path / "OUTSIDE_ALLOWLIST"
         outside_target.mkdir()
@@ -655,9 +675,9 @@ class TestOrderingAfterMkdtempBeforeHookDeploy:
                 iso.setup(config=config)
 
         mock_deploy.assert_not_called()
-        # And the partial HOME was created (AFTER mkdtemp ordering).
+        # H5b: no partial HOME under the outside symlink target.
         partials = _list_partial_homes(outside_target, "Eorder1")
-        assert len(partials) == 1
+        assert partials == []
 
     def test_hook_deploy_not_called_when_symlink_escape_refused(
         self, scratch_root: Path, tmp_path: Path, permissive_config: EvalConfig

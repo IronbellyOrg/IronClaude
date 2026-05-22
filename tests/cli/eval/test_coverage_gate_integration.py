@@ -303,10 +303,19 @@ def test_run_writes_coverage_missing_artifact_under_output_dir(
         f"{COVERAGE_MISSING_ARTIFACT_PREFIX}"
         f"{sanitize_pattern_for_filename(UNCOVERED_PATTERN)}"
     )
-    artifact_path = output_dir / expected_filename
+    # H1: coverage_missing:<pattern> artifacts land under the
+    # compose_run_dir-derived run-dir, not directly under --output-dir.
+    eval_runs_root = output_dir / ".dev" / "eval-runs"
+    date_dirs = sorted(p for p in eval_runs_root.iterdir() if p.is_dir())
+    assert len(date_dirs) == 1
+    run_dirs = sorted(p for p in date_dirs[0].iterdir() if p.is_dir())
+    assert len(run_dirs) == 1
+    per_run_dir = run_dirs[0]
+
+    artifact_path = per_run_dir / expected_filename
     assert artifact_path.is_file(), (
         f"expected artifact {artifact_path} not found; "
-        f"output_dir contents = {sorted(p.name for p in output_dir.iterdir())}"
+        f"per_run_dir contents = {sorted(p.name for p in per_run_dir.iterdir())}"
     )
 
     payload = json.loads(artifact_path.read_text(encoding="utf-8"))
@@ -317,7 +326,7 @@ def test_run_writes_coverage_missing_artifact_under_output_dir(
     # 4th pattern emits a file.
     covered_artifact_names = [
         p.name
-        for p in output_dir.iterdir()
+        for p in per_run_dir.iterdir()
         if p.name.startswith(COVERAGE_MISSING_ARTIFACT_PREFIX)
     ]
     assert covered_artifact_names == [expected_filename]

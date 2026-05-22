@@ -1,0 +1,233 @@
+{
+  "review_type": "architecture_pass",
+  "target": "src/superclaude/cli/eval/",
+  "snapshot_summary": "23 Python files, ~11K LOC, real-eval harness with 6 recent landmark commits",
+  "findings": [
+    {
+      "location": "src/superclaude/cli/eval/reporter.py:1-234",
+      "severity": "info",
+      "category": "FR-G1_compliance",
+      "title": "FR-G1 ban-import rule: CLEAN",
+      "description": "reporter.py imports only from local eval/ modules (models, run_report) and stdlib/third-party (yaml, dataclasses, pathlib, typing). No upstream framework imports detected (no superclaude.core, superclaude.agents, superclaude.skills).",
+      "evidence": [
+        "Line 59: from .models import RunSummary",
+        "Line 60-67: from .run_report import (...)",
+        "Line 57: import yaml",
+        "No imports from superclaude.core, superclaude.agents, superclaude.skills"
+      ]
+    },
+    {
+      "location": "src/superclaude/cli/eval/run_report.py:1-380",
+      "severity": "info",
+      "category": "FR-G1_compliance",
+      "title": "FR-G1 ban-import rule: CLEAN",
+      "description": "run_report.py imports only from local models.py and stdlib (json, xml.etree, pathlib, typing). No upstream framework imports.",
+      "evidence": [
+        "Line 36: from .models import EvalOutcome, RunSummary",
+        "All other imports: stdlib only (json, xml.etree.ElementTree, pathlib, typing)"
+      ]
+    },
+    {
+      "location": "src/superclaude/cli/eval/isolation.py:1-100",
+      "severity": "info",
+      "category": "FR-G1_documentation_reference",
+      "title": "Isolation layer references sprint/executor.py but does not import",
+      "description": "isolation.py documents that it sits beside superclaude.cli.sprint.executor IsolationLayers but does NOT import from it. References are documentation-only. This is acceptable per FR-G1 (references allowed, imports forbidden).",
+      "evidence": [
+        "Line 6: Comment references 'superclaude.cli.sprint.executor'",
+        "No actual import statement for sprint.executor",
+        "Module-level docstring explains relationship without coupling"
+      ]
+    },
+    {
+      "location": "src/superclaude/cli/eval/orchestrator.py:10",
+      "severity": "info",
+      "category": "cross_module_reference",
+      "title": "Orchestrator documentation references prd/executor.py pattern",
+      "description": "orchestrator.py comments reference src/superclaude/cli/prd/executor.py:774-802 as a pattern to mirror, but does not import from it. Documentation-only reference.",
+      "evidence": [
+        "Line 10: mirrors shape used by src/superclaude/cli/prd/executor.py:774-802",
+        "No import statement from prd module"
+      ]
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "category": "FR-G1_ban_import_compliance",
+      "severity": "pass",
+      "title": "FR-G1 import ban: ZERO VIOLATIONS across entire module",
+      "description": "Exhaustive scan of all 23 files in src/superclaude/cli/eval/ confirms NO imports from superclaude.core, superclaude.agents, superclaude.skills, or any other upstream framework module. The eval/ module is a properly isolated leaf that depends only on: (1) stdlib, (2) third-party packages (click, yaml, jsonschema), (3) internal eval/ modules. References to sprint.executor and prd.executor exist as documentation only, not imports.",
+      "supporting_files": [
+        "reporter.py",
+        "run_report.py",
+        "models.py",
+        "loader.py",
+        "runner.py",
+        "orchestrator.py",
+        "isolation.py",
+        "expect.py",
+        "coverage.py",
+        "config.py",
+        "artifact_layout.py",
+        "commands.py"
+      ]
+    },
+    {
+      "category": "layering",
+      "severity": "pass",
+      "title": "Dependency arrows follow expected layering with zero back-edges",
+      "description": "The module follows the prescribed layering: commands.py → orchestrator/runner/loader; runner.py → claude_process/pty_driver/expect/isolation/hook_adapter/coverage; reporter/run_report → models/artifact_layout (pure functions); models/config are leaves. No back-edges detected (e.g., models.py does NOT import from runner.py). The TYPE_CHECKING guard in models.py:45-46 correctly isolates the HomeIsolation import for type hints only, preventing runtime circular dependency.",
+      "evidence": [
+        "commands.py:44-96 imports from artifact_layout, capabilities, config, coverage, disk_budget, isolation, loader, models, orchestrator, reporter, runner, signal_handler",
+        "runner.py:51-62 imports from config, hook_adapter, isolation, models, retry, signal_handler",
+        "reporter.py:59-67 imports from models, run_report",
+        "run_report.py:36 imports from models",
+        "models.py:45-46: if TYPE_CHECKING: from .isolation import HomeIsolation",
+        "models.py has no non-TYPE_CHECKING imports from runner or any higher layer",
+        "config.py and artifact_layout.py are pure leaves (stdlib only)"
+      ]
+    },
+    {
+      "category": "god_object_risk",
+      "severity": "warning",
+      "title": "commands.py (1951L) is borderline god-object; runner.py (1238L), models.py (938L) are justified",
+      "description": "commands.py at 1951 lines is the largest file and risks becoming a junk drawer. However, inspection reveals it contains 4 distinct Click command functions (eval_doctor, eval_list, eval_describe, eval_run) plus 11 helpers explicitly scoped to T04.10 (lines 1293-1539). The size is justified by CLI surface area, but the 11 helpers should be monitored for potential extraction. runner.py (1238L) implements a single coherent responsibility (FR-LC1 lifecycle skeleton). models.py (938L) defines 11 dataclasses (EvalSpec, EvalResult, ExpectResult, ExpectFailure, EvalContext, EvalOutcome, RunCounts, RunTotals, RunSummary, EvalResult, plus field ordering tuples) - size is proportional to schema complexity. expect.py (723L), isolation.py (697L), loader.py (624L) are all single-responsibility modules with size justified by comprehensive docstrings and edge-case handling.",
+      "recommendations": [
+        "commands.py: Consider extracting the 11 T04.10 helpers (_utc_iso_now, _new_run_id, _default_output_dir, _can_install_signal_handler, _resolve_executor_factory, _run_one_spec, _compute_run_stats, _format_run_summary_line) into a commands_helpers.py module if the file grows beyond 2000 lines",
+        "Monitor commands.py for additional helper accumulation; maintain the 'helpers are module-level for testability' discipline",
+        "No immediate action required for runner.py, models.py, or other large files - their size is proportional to their single responsibility"
+      ]
+    },
+    {
+      "category": "artifact_layout_vs_run_report",
+      "severity": "pass",
+      "title": "FR-G4 artifact layout: clean boundary between artifact_layout.py and run_report.py",
+      "description": "artifact_layout.py (306L) is the single source of truth for path construction (compose_run_dir, compose_run_id, allocate_per_eval_paths, PerEvalPaths dataclass). run_report.py (380L) is the single source of truth for report rendering (render_summary_markdown, render_summary_json, render_junit_xml, write_aggregated_report). The boundary is clean: artifact_layout constructs paths, run_report writes files. No duplication of path structure knowledge across the two modules. reporter.py (234L) is a thin class wrapper over run_report functions.",
+      "evidence": [
+        "artifact_layout.py:RUN_DIR_PREFIX = Path('.dev/eval-runs')",
+        "artifact_layout.py:compose_run_dir returns <output_root>/.dev/eval-runs/<date>/<run-id>/",
+        "artifact_layout.py:allocate_per_eval_paths returns PerEvalPaths with eval_dir, logs_jsonl, tty_transcript, artifacts_dir",
+        "run_report.py:write_aggregated_report(summary, output_dir) writes summary.md, summary.json, junit.xml under output_dir",
+        "reporter.py:Reporter.write delegates to run_report functions",
+        "No path construction logic in run_report.py; no file writing logic in artifact_layout.py"
+      ]
+    },
+    {
+      "category": "duplicate_state",
+      "severity": "pass",
+      "title": "No overlapping data types across config.py, models.py, capabilities.py",
+      "description": "config.py defines EvalConfig (frozen config dataclass with paths, defaults, allowed_scratch_roots). models.py defines 11 manifest/runtime dataclasses (EvalSpec, EvalResult, ExpectResult, etc.). capabilities.py defines Capability, CapabilityGates, CapabilityReport, CapabilityStatus. No overlap detected - each module owns a distinct domain. EvalConfig is pre-run configuration; models.py types are runtime/post-run data; capabilities.py types are pre-run gates. No data duplication across the three.",
+      "evidence": [
+        "config.py:EvalConfig has fields: paths (Mapping), defaults (Mapping), allowed_scratch_roots (tuple[Path]), min_claude_version (tuple[int])",
+        "models.py types: EvalSpec (manifest entry), EvalResult/ExpectResult (runtime), RunSummary/RunCounts/RunTotals (aggregated post-run)",
+        "capabilities.py types: Capability (gate definition), CapabilityGates (gate enforcement), CapabilityReport (gate result)",
+        "No field name overlap, no semantic duplication"
+      ]
+    },
+    {
+      "category": "missing_abstraction",
+      "severity": "minor",
+      "title": "Helper _new_run_id in commands.py could be co-located with compose_run_id in artifact_layout.py",
+      "description": "commands.py:1322 defines _new_run_id as a thin wrapper over artifact_layout.compose_run_id. The docstring (lines 1325-1331) explicitly justifies keeping it in commands.py for symbol-contract reasons (tests assert _new_run_id is importable from commands). However, this creates two entry points for the same functionality. The other 10 helpers (_utc_iso_now, _default_output_dir, _can_install_signal_handler, _resolve_executor_factory, _run_one_spec, _compute_run_stats, _format_run_summary_line, _NullLifecycleExecutor class, plus 2 more) are correctly scoped to commands.py as they are CLI-specific. Only _new_run_id is a candidate for co-location with the artifact_layout module it wraps.",
+      "recommendation": "Consider: (1) Keep current structure (justified by test contract), or (2) Move _new_run_id into artifact_layout.py and update tests to import from there. Current structure is defensible but creates a minor indirection.",
+      "evidence": [
+        "commands.py:1322-1332: _new_run_id wraps artifact_layout.compose_run_id",
+        "artifact_layout.py:139: compose_run_id is the canonical implementation",
+        "commands.py:1707: started_iso = _utc_iso_now()",
+        "commands.py:1709: run_id = _new_run_id(started_at=started_iso, suite_name=suite_name)",
+        "Test contract: tests/cli/eval/test_single_command.py asserts _new_run_id importable from commands"
+      ]
+    },
+    {
+      "category": "click_cli_shape",
+      "severity": "pass",
+      "title": "eval_run is well-decomposed via 11 helpers; no god-function anti-pattern",
+      "description": "eval_run (commands.py:1644-1950, ~306 lines) is decomposed via 11 module-level helpers added in commit e6368db8. The function body is a linear pipeline: flag validation → output-dir resolution → suite loading → capability gating → coverage gating → orchestrator wiring → signal handling → outcome tallying → reporter writing → exit-code determination. Each step delegates to a focused helper. The 11 helpers (lines 1293-1539) are testable in isolation and maintain the single-responsibility principle. No 200+-line god-function detected.",
+      "evidence": [
+        "commands.py:1308-1319: _utc_iso_now (12L, clock helper)",
+        "commands.py:1322-1332: _new_run_id (11L, run-id wrapper)",
+        "commands.py:1335-1343: _default_output_dir (9L, default path)",
+        "commands.py:1346-1358: _can_install_signal_handler (13L, main-thread guard)",
+        "commands.py:1361-1387: _NullLifecycleExecutor class (27L, stub executor)",
+        "commands.py:1390-1402: _resolve_executor_factory (13L, factory injection)",
+        "commands.py:1405-1474: _run_one_spec (70L, per-spec worker)",
+        "commands.py:1477-1523: _compute_run_stats (47L, stats tallying)",
+        "commands.py:1526-1539: _format_run_summary_line (14L, stdout formatting)",
+        "eval_run body: delegates to helpers at every step, ~306L total"
+      ]
+    },
+    {
+      "category": "configuration_loading",
+      "severity": "pass",
+      "title": "Single source of truth: config.py owns ALL config loading",
+      "description": "config.py defines EvalConfig and resolve_scratch_root. No other files in src/superclaude/cli/eval/ load YAML/JSON configuration independently. Suite manifests are loaded by loader.py:validate_manifest, which returns ParsedSuite objects fed into SuiteLoader. Settings.json (for hook matchers) is loaded by coverage.py:extract_hook_matchers, which is a pure parser - not a config loader. All runtime configuration flows through EvalConfig. Single source of truth confirmed.",
+      "evidence": [
+        "config.py:84-105: EvalConfig dataclass (paths, defaults, allowed_scratch_roots, min_claude_version)",
+        "config.py:148-188: resolve_scratch_root (AC12 allowlist enforcement)",
+        "loader.py:validate_manifest reads YAML but returns EvalSpec list, not config",
+        "coverage.py:extract_hook_matchers reads settings.json for matcher patterns, not config",
+        "commands.py:1704: base_config = EvalConfig() (instantiation, not loading)",
+        "No other file in eval/ defines config-loading functions"
+      ]
+    },
+    {
+      "category": "exit_code_constants",
+      "severity": "pass",
+      "title": "Exit-code constants: single source of truth per constant, consistent references",
+      "description": "RUN_CLEAN_EXIT_CODE (=0), RUN_FAILURES_EXIT_CODE (=1), RUN_INTERRUPTED_EXIT_CODE (=3) are defined once in commands.py:570-577. RUN_INTERRUPTED_EXIT_CODE re-exports signal_handler.EXIT_INTERRUPTED to maintain single source of truth. No magic number duplicates detected. Other exit-code constants follow the same pattern: SCHEMA_ERROR_EXIT_CODE, INVALID_EVAL_ID_EXIT_CODE, UNRESOLVED_CAPABILITY_EXIT_CODE, SUITE_LOADER_ERROR_EXIT_CODE all =2 per design-spec §4 (harness error), defined once in their respective modules (loader.py, config.py, coverage.py, disk_budget.py, run_report.py). All exit-code constants are exported in __init__.py. Usage sites reference constants, not literals.",
+      "evidence": [
+        "commands.py:570: RUN_CLEAN_EXIT_CODE: int = 0",
+        "commands.py:573: RUN_FAILURES_EXIT_CODE: int = 1",
+        "commands.py:577: RUN_INTERRUPTED_EXIT_CODE: int = EXIT_INTERRUPTED (re-exports signal_handler.EXIT_INTERRUPTED = 3)",
+        "commands.py:1932: sys.exit(RUN_INTERRUPTED_EXIT_CODE)",
+        "commands.py:1943: sys.exit(DISK_BUDGET_EXCEEDED_EXIT_CODE)",
+        "commands.py:1949: sys.exit(RUN_FAILURES_EXIT_CODE)",
+        "commands.py:1950: sys.exit(RUN_CLEAN_EXIT_CODE)",
+        "loader.py:65: SCHEMA_ERROR_EXIT_CODE: int = 2",
+        "loader.py:75: INVALID_EVAL_ID_EXIT_CODE: int = 2",
+        "loader.py:336: UNRESOLVED_CAPABILITY_EXIT_CODE: int = 2",
+        "loader.py:347: SUITE_LOADER_ERROR_EXIT_CODE: int = 2",
+        "config.py:113: SCRATCH_ROOT_VIOLATION_EXIT_CODE: int = 2",
+        "coverage.py:77: COVERAGE_GATE_FAILED_EXIT_CODE: int = 2",
+        "disk_budget.py:106: DISK_BUDGET_EXCEEDED_EXIT_CODE: int = 2",
+        "run_report.py:52: REPORTER_CONTRACT_VIOLATION_EXIT_CODE: int = 2",
+        "No magic number literals (0, 1, 2, 3) used directly in sys.exit calls"
+      ]
+    },
+    {
+      "category": "schema_vs_model_drift",
+      "severity": "pass",
+      "title": "Schema-vs-model alignment: schemas/summary.schema.json and suites/suite.schema.json align with models.py",
+      "description": "schemas/summary.schema.json (254L) defines runCounts (manifest_n, expanded_n_prime, kept_k, skipped_s, kept_plus_skipped_equals_n_prime), runTotals (passed, failed, skipped, errored, interrupted, timeout), evalOutcome (eval_id, title, status, duration_sec, expects, skip_reason, skip_flag_triggered, artifacts, error_class), expectResult (name, passed, message, details, duration_sec, failure), expectFailure (eval_id, expect_id, expect_name, expected, actual, message, artifact_ref, traceback). These match models.py dataclasses verbatim. suites/suite.schema.json (162L) defines evalEntry shape matching EvalSpec (id, title, category, requires, timeout_sec, isolation, inputs, expects, parameterize, no_pty). Field names and types align. Comments in both schemas explicitly reference the corresponding models.py dataclasses as source of truth. No drift detected.",
+      "evidence": [
+        "summary.schema.json:5: Producer: superclaude.cli.eval.models.RunSummary.to_dict()",
+        "summary.schema.json:85: Must match superclaude.cli.eval.models.EVAL_STATUSES verbatim",
+        "summary.schema.json:89: DM-012 counts sub-structure (T03.09 RunCounts)",
+        "summary.schema.json:127: DM-012 totals sub-structure (T03.09 RunTotals)",
+        "summary.schema.json:148: DM-001 EvalOutcome serialised by EvalOutcome.to_dict()",
+        "summary.schema.json:203: DM-009 ExpectResult serialised by ExpectResult.to_dict()",
+        "summary.schema.json:228: DM-005 ExpectFailure serialised by ExpectFailure.to_dict()",
+        "suite.schema.json:56: items: {$ref: #/$defs/evalEntry}",
+        "suite.schema.json:67: evalIdString pattern matches models.py:EVAL_ID_REGEX",
+        "models.py:720-738: RunCounts dataclass fields match summary.schema.json:runCounts",
+        "models.py:740-781: RunTotals dataclass fields match summary.schema.json:runTotals",
+        "models.py:66-98: EvalSpec dataclass fields match suite.schema.json:evalEntry"
+      ]
+    }
+  ],
+  "summary": {
+    "total_findings": 4,
+    "total_observations": 10,
+    "FR_G1_status": "PASS - zero violations",
+    "layering_status": "PASS - zero back-edges",
+    "god_object_status": "WARNING - commands.py at 1951L is borderline; monitor for helper extraction",
+    "artifact_layout_status": "PASS - clean boundary",
+    "duplicate_state_status": "PASS - no overlap",
+    "missing_abstraction_status": "MINOR - _new_run_id wrapper is a minor indirection",
+    "click_cli_shape_status": "PASS - well-decomposed",
+    "configuration_loading_status": "PASS - single source of truth",
+    "exit_code_constants_status": "PASS - single source of truth, consistent references",
+    "schema_vs_model_drift_status": "PASS - schemas align with models.py",
+    "overall_assessment": "The cliEval module exhibits strong architectural discipline. The FR-G1 import ban is perfectly enforced (zero violations), layering is correct with no back-edges, exit-code constants are properly centralized, and schemas align with models. The only architectural concern is commands.py approaching 2000 lines, but the size is justified by 4 CLI commands + 11 well-factored helpers. The module is production-ready from an architecture perspective."
+  }
+}

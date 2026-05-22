@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 20 items
+
+tests/cli/eval/test_scratch_root_allowlist.py::test_scratch_root_violation_exit_code_is_two PASSED [  5%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_accepts_path_under_tmp_eval_runs PASSED [ 10%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_resolve_scratch_root_rejects_bare_prefix PASSED [ 15%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_accepts_immediate_subdir_of_allowlist_root PASSED [ 20%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_accepts_path_under_dev_eval_runs PASSED [ 25%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_accepts_path_under_output_dir PASSED [ 30%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_output_dir_is_call_scoped_not_persistent PASSED [ 35%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_rejects_non_allowlisted_paths[/home/user/foo] PASSED [ 40%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_rejects_non_allowlisted_paths[/var/lib/eval-runs] PASSED [ 45%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_rejects_non_allowlisted_paths[/etc/passwd] PASSED [ 50%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_rejects_non_allowlisted_paths[/root/.claude] PASSED [ 55%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_rejects_non_allowlisted_paths[/usr/local/share] PASSED [ 60%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_rejects_non_allowlisted_paths[/tmp/other-runs] PASSED [ 65%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_violation_message_includes_offending_path PASSED [ 70%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_allowlist_source_is_evalconfig PASSED [ 75%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_default_config_yields_canonical_allowlist PASSED [ 80%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_accepts_str_path_input PASSED [ 85%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_relative_path_segments_cannot_escape PASSED [ 90%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_uses_expanduser_for_home_anchors PASSED [ 95%]
+tests/cli/eval/test_scratch_root_allowlist.py::test_resolve_prefix_helper_handles_relative_and_absolute PASSED [100%]
+
+============================== 20 passed in 0.17s ==============================
+EXIT_CODE=0

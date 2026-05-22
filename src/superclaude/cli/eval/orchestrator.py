@@ -83,7 +83,7 @@ from .disk_budget import DISK_BUDGET_EXCEEDED_REASON, DiskBudgetPoller
 from .models import EvalOutcome, EvalSpec
 from .signal_handler import CancellationToken
 
-__all__ = ["RunOrchestrator", "EvalWorker"]
+__all__ = ["RunOrchestrator", "EvalWorker", "allocate_session_id"]
 
 
 # A worker callable receives an :class:`EvalSpec` and returns the
@@ -91,6 +91,23 @@ __all__ = ["RunOrchestrator", "EvalWorker"]
 # ``EvalRunner.run`` with the per-spec resource allocation the
 # orchestrator deliberately does not own.
 EvalWorker = Callable[[EvalSpec], EvalOutcome]
+
+
+def allocate_session_id(*, run_id: str, eval_id: str) -> str:
+    """Return a deterministic, run-scoped session_id for one (run_id, eval_id) pair.
+
+    Per M5 — session_id identifier policy lives here (the orchestrator) rather
+    than ad-hoc at each call site. Combining the run-id (unique per ``eval run``
+    invocation via ``_new_run_id``) with the eval_id guarantees:
+
+    * Within a run, each eval gets a distinct session_id (orthogonal to eval_id).
+    * Across runs, the same eval_id never collides on session_id even if a
+      run-dir is reused (future-proofing against replay scenarios).
+    * Deterministic for a given (run_id, eval_id) pair, so reporters and
+      forensic tooling can re-derive the session_id from artifacts.
+    """
+
+    return f"sess-{run_id}-{eval_id}"
 
 
 class RunOrchestrator:
