@@ -11,10 +11,12 @@ PM mode performance testing reveals **significant potential improvements** in sp
 ### Key Findings
 
 ✅ **Validated Claims**:
+
 - **Parallel execution efficiency**: 5x reduction in tool calls for I/O operations
 - **Token efficiency**: 14-27% reduction in parallel/batch scenarios
 
 ⚠️ **Requires Real-World Validation**:
+
 - **94% hallucination detection**: No measurement framework yet
 - **<10% error recurrence**: Needs longitudinal study
 - **3.5x overall speed**: Validated in specific scenarios only
@@ -24,12 +26,14 @@ PM mode performance testing reveals **significant potential improvements** in sp
 ### Measurement Approach
 
 **What We Can Measure**:
+
 - ✅ Token usage (from system notifications)
 - ✅ Tool call counts (execution logs)
 - ✅ Parallel execution ratio
 - ✅ Task completion status
 
 **What We Cannot Measure** (yet):
+
 - ❌ Actual API costs (external service)
 - ❌ Network latency breakdown
 - ❌ Hallucination detection accuracy
@@ -38,14 +42,17 @@ PM mode performance testing reveals **significant potential improvements** in sp
 ### Test Scenarios
 
 **Scenario 1: Parallel Reads**
+
 - Task: Read 5 files + create summary
 - Expected: Parallel file reads vs sequential
 
 **Scenario 2: Complex Analysis**
+
 - Task: Multi-step code analysis
 - Expected: Confidence check + validation gates
 
 **Scenario 3: Batch Edits**
+
 - Task: Edit 10 files with similar pattern
 - Expected: Batch operation detection
 
@@ -70,6 +77,7 @@ PM ON        | PM optimization | Full integration |
 | Full (PM=1, MCP=1) | 7,500 | 1 | 500% | +36% tokens, 5x fewer calls |
 
 **Analysis**:
+
 - PM mode enables **5x reduction in tool calls** (5 sequential → 1 parallel)
 - No token overhead for PM optimization itself
 - MCP adds +36% token overhead for structured thinking
@@ -86,6 +94,7 @@ PM ON        | PM optimization | Full integration |
 | Full | 8,000 | 3 | +14% tokens |
 
 **Analysis**:
+
 - PM mode reduces tool calls through better coordination
 - PM-only shows **14% token savings** (better efficiency)
 - MCP adds significant overhead (+71%) but improves analysis structure
@@ -101,6 +110,7 @@ PM ON        | PM optimization | Full integration |
 | Full | 4,000 | 2 | 500% | **-20% tokens, -82% calls** |
 
 **Analysis**:
+
 - PM mode detects batch patterns: **82% fewer tool calls**
 - **20% token savings** through batch coordination
 - MCP provides no benefit for batch operations
@@ -121,6 +131,7 @@ Average           | -11%        | +36%        | +10%       |
 ```
 
 **Insights**:
+
 - PM mode alone: **~11% token savings** on average
 - MCP adds: **~36% token overhead** for structured thinking
 - Combined: Net +10% tokens, but with quality improvements
@@ -138,6 +149,7 @@ Average           | 6.7 calls| 1.7 calls| -75%       |
 ```
 
 **Insights**:
+
 - PM mode achieves **75% reduction in tool calls** on average
 - Parallel execution ratio: 0% → 500% for I/O operations
 - Significant latency improvement potential
@@ -149,6 +161,7 @@ Average           | 6.7 calls| 1.7 calls| -75%       |
 **Test**: Ambiguous requirements detection
 
 **Expected Behavior**:
+
 - PM mode: Detects low confidence (<70%), requests clarification
 - Baseline: Proceeds with assumptions
 
@@ -159,6 +172,7 @@ Average           | 6.7 calls| 1.7 calls| -75%       |
 **Test**: Task completion verification
 
 **Expected Behavior**:
+
 - PM mode: Runs validation, checks errors, verifies completion
 - Baseline: Marks complete without validation
 
@@ -169,6 +183,7 @@ Average           | 6.7 calls| 1.7 calls| -75%       |
 **Test**: Systematic error analysis
 
 **Expected Behavior**:
+
 - PM mode: Root cause analysis, pattern documentation, prevention
 - Baseline: Notes error without systematic learning
 
@@ -195,17 +210,20 @@ Average           | 6.7 calls| 1.7 calls| -75%       |
 ### For Implementation
 
 **Use PM Mode When**:
+
 - ✅ Parallel I/O operations (file reads, searches)
 - ✅ Batch operations (multiple similar edits)
 - ✅ Tasks requiring validation gates
 - ✅ Quality-critical operations
 
 **Skip PM Mode When**:
+
 - ⚠️ Simple single-file operations
 - ⚠️ Maximum speed priority (no validation overhead)
 - ⚠️ Token budget is critical constraint
 
 **MCP Integration**:
+
 - ✅ Use with PM mode for quality-critical analysis
 - ⚠️ Accept +36% token overhead for structured thinking
 - ❌ Skip for simple batch operations (no benefit)
@@ -213,12 +231,14 @@ Average           | 6.7 calls| 1.7 calls| -75%       |
 ### For Validation
 
 **Next Steps**:
+
 1. **Real-World Testing**: Execute actual Claude Code tasks with/without PM mode
 2. **Longitudinal Study**: Track error recurrence over weeks/months
 3. **Hallucination Detection**: Develop measurement framework
 4. **Production Metrics**: Collect real API costs and latency data
 
 **Measurement Framework Needed**:
+
 ```python
 # Hallucination detection
 def measure_hallucination_rate(tasks: List[Task]) -> float:
@@ -238,11 +258,13 @@ def measure_error_recurrence(errors: List[Error], window_days: int) -> float:
 ### What We Know
 
 ✅ **PM mode delivers measurable efficiency gains**:
+
 - 75% reduction in tool calls (parallel execution)
 - 11% token savings (better coordination)
 - Significant latency improvement potential
 
 ✅ **MCP integration has clear trade-offs**:
+
 - +36% token overhead
 - Better analysis structure
 - Worth it for quality-critical tasks
@@ -250,6 +272,7 @@ def measure_error_recurrence(errors: List[Error], window_days: int) -> float:
 ### What We Don't Know (Yet)
 
 ⚠️ **Quality claims need validation**:
+
 - 94% hallucination detection: **unproven**
 - <10% error recurrence: **unproven**
 - Real-world performance: **untested**
@@ -270,6 +293,7 @@ This violates **Professional Honesty** principles. We should:
 ---
 
 **Test Execution**:
+
 ```bash
 # Run all benchmarks
 uv run pytest tests/performance/test_pm_mode_performance.py -v -s

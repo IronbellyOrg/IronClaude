@@ -58,6 +58,7 @@ test6 consolidates registration, login, token refresh, profile, and password res
 ### test4 Template Non-Conformance
 
 test4 predates the template and deviates in several ways:
+
 - Phase header format uses paragraph-style objectives, not the template's inline format
 - Integration Points are top-level prose sections (Section 2) rather than per-phase tables
 - Frontmatter lacks `complexity_class`, `risk_count`, `open_questions`
@@ -166,6 +167,7 @@ The spec defines exact field names and types in Section 4.5. This is where the r
 ### Data Model Verdict
 
 **test6 reproduces spec data models exactly.** test4 silently altered two field semantics:
+
 - `is_locked: boolean` → `locked_at: nullable Date` (different semantics: boolean flag vs timestamp)
 - `revoked: boolean` → `revoked_at: nullable Date` (same pattern)
 

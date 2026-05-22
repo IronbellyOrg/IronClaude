@@ -66,11 +66,13 @@ reactivation signal.
 | Tier | LIGHT |
 
 **Steps:**
+
 1. **[VERIFICATION]** Read both fixtures.
 2. **[VERIFICATION]** Compare byte sequences.
 3. **[VERIFICATION]** Assert equality.
 
 **Acceptance Criteria:**
+
 - Both fixtures yield identical bytes.
 - Per-item Context fields remain the evidence venue and may carry `file:line` citations independently of the header (NFR-CONV.7 scope confinement).
 
@@ -79,4 +81,5 @@ reactivation signal.
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

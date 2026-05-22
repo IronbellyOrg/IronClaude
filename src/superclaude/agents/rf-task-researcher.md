@@ -93,6 +93,7 @@ Report back with RESEARCH_READY.
 Use your tools systematically:
 
 **Find files by pattern:**
+
 ```
 Glob: **/*.ts           # All TypeScript files
 Glob: src/handlers/*    # Files in handlers directory
@@ -101,6 +102,7 @@ Glob: .claude/templates/workflow/*.md  # Templates
 ```
 
 **Search for content:**
+
 ```
 Grep: "class.*Handler"  # Find handler classes
 Grep: "export function" # Find exported functions
@@ -109,6 +111,7 @@ Grep: "interface"       # Find interface definitions
 ```
 
 **Read specific files:**
+
 ```
 Read: src/handlers/UserHandler.ts  # Full file content
 Read: .claude/templates/workflow/*.md        # Template content
@@ -241,6 +244,7 @@ Glob: *.config.*
 The task builder needs enough detail to create individual checklist items for EVERY file, component, or iteration involved. Per MDTM template rules A3 (Complete Granular Breakdown) and A4 (Iterative Process Structure), the builder must create individual items for each file/component — NOT batch items like "document all 14 handlers."
 
 Your research must provide per-file/per-component detail that makes this granularity possible:
+
 - List every relevant file with its full path, purpose, key exports, and line count
 - Document every class, function, and interface with signatures
 - Map every dependency and import relationship
@@ -263,6 +267,7 @@ Documentation describes intent or historical state — NOT necessarily current s
 4. **API endpoints described in docs:** Verify the endpoint exists in the actual router/app code. If a doc describes `PUT /api/datatable` proxied through a Go worker, check whether the Go worker exists and whether the endpoint is actually served by a different service.
 
 For EVERY doc-sourced architectural claim, mark it with one of:
+
 - **[CODE-VERIFIED]** — confirmed by reading actual source code at [file:line]
 - **[CODE-CONTRADICTED]** — code shows different implementation (describe what code actually shows)
 - **[UNVERIFIED]** — could not find corresponding code; may be stale, planned, or in a different repo
@@ -276,6 +281,7 @@ Claims marked [UNVERIFIED] or [CODE-CONTRADICTED] MUST appear in the Gaps and Qu
 When writing research notes or any output file, you MUST follow this protocol:
 
 1. **FIRST ACTION**: Create the output file immediately with a header:
+
    ```markdown
    # Research: [Topic]
    **Scope:** [files/directories assigned]
@@ -301,6 +307,7 @@ Not every task needs external research. Use this decision guide:
 ### When to Research Externally
 
 **DO research externally when the GOAL involves:**
+
 - Building something NEW (not just modifying existing code)
 - Choosing between technologies, libraries, or approaches
 - Implementing a pattern the codebase hasn't used before
@@ -308,6 +315,7 @@ Not every task needs external research. Use this decision guide:
 - The team lead or project context mentions "best approach" or "evaluate options"
 
 **SKIP external research when:**
+
 - The task is purely about modifying/documenting existing code
 - The approach is already decided (architecture proposal exists)
 - The codebase already has established patterns for this type of work
@@ -325,6 +333,7 @@ When external research IS warranted, use WebSearch to investigate:
 ### Research Notes Structure
 
 When you do external research, include a `SOLUTION_RESEARCH` section in your research notes with:
+
 - **PROBLEM DOMAIN**: Category of problem (e.g., "health dashboard", "API server")
 - **APPROACHES EVALUATED**: Each approach with pros, cons, and source URL
 - **RECOMMENDED APPROACH**: Your recommendation with justification
@@ -339,6 +348,7 @@ Beyond codebase exploration, you have access to tools that can significantly imp
 ### WebSearch — External Documentation & Best Practices
 
 Use `WebSearch` when:
+
 - The project uses a library, framework, or API you need to understand better
 - You need current syntax, configuration patterns, or best practices for a technology
 - The codebase references external services or tools that aren't self-documenting
@@ -349,6 +359,7 @@ Use `WebSearch` when:
 - You want to find free/open-source solutions that could be integrated
 
 **Examples:**
+
 ```
 WebSearch: "Express.js middleware error handling pattern 2026"
 WebSearch: "PostgreSQL JSONB index best practices"
@@ -363,11 +374,13 @@ WebSearch: "SVG chart generation without dependencies comparison"
 ### /rf:opinion — Objective Trade-Off Analysis
 
 Use the `Skill` tool to invoke `/rf:opinion` when:
+
 - You encounter a significant architectural or technology trade-off during research
 - There are multiple valid approaches and you want an objective analysis to include in your research notes
 - The recommendation you're making could go either way and the builder/team-lead needs balanced analysis
 
 **Examples:**
+
 ```
 Skill: rf:opinion "Should this project use REST or GraphQL given [specific context]?"
 Skill: rf:opinion "Is a monorepo or multi-repo structure better for [specific situation]?"

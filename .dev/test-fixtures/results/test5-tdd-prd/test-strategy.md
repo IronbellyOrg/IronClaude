@@ -67,6 +67,7 @@ Continuous-parallel execution inside every milestone:
 ### V1: Foundation Validation (gates M1 exit)
 
 **What to test:**
+
 - **Schema validation (DM-001..004):** Apply migrations to empty Postgres 15 testcontainer; assert column types, UNIQUE on email (lowercased), partitioning declared on auth_audit_log, unique token_hash on password_reset_tokens, FK integrity.
 - **Infra smoke (DEP-001..007):** pg-pool connects with 100-size pool; Redis SET/EXPIRE=604800 verified; SendGrid sandbox send succeeds; Node 20 LTS boot; bcryptjs benchmark <500ms at cost=12 on target hardware.
 - **Security baseline (NFR-SEC-002, NFR-SEC-003):** JwtService init fails fast if alg≠RS256 or key<2048 bits; log-redaction middleware unit test asserts `password`, `accessToken`, `refreshToken`, `newPassword` never serialized; TLS 1.3 handshake via ssllabs.com grade ≥A.
@@ -81,13 +82,15 @@ Continuous-parallel execution inside every milestone:
 ### V2: Core Logic Validation (gates M2 exit)
 
 **Named test cases (from TDD §15):**
+
 - **TEST-001** Unit — Login with valid credentials returns AuthToken (AuthService + mocked PasswordHasher + TokenManager).
 - **TEST-002** Unit — Login with invalid credentials returns 401, no AuthToken issued, failed-attempt counter incremented.
 - **TEST-004** Integration — Registration persists UserProfile to testcontainer Postgres with bcrypt hash starting `$2b$12$`.
-- **TEST-DUP-EMAIL** Integration — Second register with same email returns 409, only one row; case-insensitive (E@X.com vs e@x.com).
+- **TEST-DUP-EMAIL** Integration — Second register with same email returns 409, only one row; case-insensitive (<E@X.com> vs <e@x.com>).
 - **TEST-WEAK-PWD** Integration — Passwords "short", "longpass1", "LongPass" rejected with structured error list; "LongPass1!" accepted.
 
 **What to test:**
+
 - **FR-AUTH-001/002 contract:** API-001 (/v1/auth/login) and API-002 (/v1/auth/register) Schemathesis run against OpenAPI spec; 200/201/400/401/409/423/429 all produced.
 - **SEC-003 password policy:** ≥8 chars, uppercase, digit, symbol; NIST SP 800-63B section 5.1.1.2 conformance.
 - **SEC-004 user enumeration:** Timing variance <50ms between known/unknown email paths; identical 401 envelope; dummy bcrypt.verify on unknown email.
@@ -104,6 +107,7 @@ Continuous-parallel execution inside every milestone:
 ### V3: Integration & Tokens Validation (gates M3 exit)
 
 **Named test cases:**
+
 - **TEST-003** Unit — TokenManager.refresh rotates pair; Redis GET→SET/DEL asserted; JwtService.sign called twice.
 - **TEST-005** Integration — Expired refresh token: testcontainer Redis SET TTL=1s, sleep 2s, /v1/auth/refresh returns 401 AUTH_TOKEN_EXPIRED.
 - **TEST-REVOKE** Integration — Refresh→revoke→refresh-again returns 401 AUTH_TOKEN_REVOKED.
@@ -113,6 +117,7 @@ Continuous-parallel execution inside every milestone:
 - **CORS-PREFLIGHT-TEST** Integration — OPTIONS returns 204 + Allow-Origin for app.platform.com, 403 for evil.com.
 
 **What to test:**
+
 - **FR-AUTH-003/004/005:** API-003/004/005/006 contract-tested; refresh-token cap=5 with oldest-eviction verified (OQ-PRD-2); per-user cap telemetry emitted.
 - **JwtService correctness:** RS256 asserted; alg=none/HS256 token rejected; clock-skew=5s tolerance; iss/aud claims validated.
 - **NFR-PERF-001-M3:** k6 at 50/100/250 concurrent; p95<200ms for login, refresh, me, reset-request.
@@ -132,6 +137,7 @@ Continuous-parallel execution inside every milestone:
 ### V4: Security, Compliance & Load Validation (gates M4 exit)
 
 **Named test cases (new for M4):**
+
 - **LOAD-TEST-FULL** — k6 mixed workload 60% login / 15% register / 15% refresh / 10% me at 500 concurrent for 30 min; 1000 RPS sustained; p95<200ms; error rate<0.1%; HPA scaling observed.
 - **NFR-COMP-002-RETENTION** — Insert audit record with created_at = now−400d; trigger pg_partman; assert partition pruned; 12-month retention enforced.
 - **NFR-COMP-001-CONSENT** — 100% registration records have consent=true + consent_version stored; DSAR export stub returns consent record + UserProfile.
@@ -142,6 +148,7 @@ Continuous-parallel execution inside every milestone:
 - **API-011 /v1/health** — Returns 200 with `{status, dependencies:{pst,redis,sendgrid}}`; 503 if any critical dep down; unauthenticated.
 
 **What to test:**
+
 - **OBS-001..009:** Every method emits structured log with trace_id; metrics registered; OpenTelemetry spans traceable end-to-end in Tempo/Jaeger; alert rules fire against synthetic load.
 - **OBS-ROLLBACK-TRIGGERS:** Four rollback alert rules distinct from degradation alerts; dry-run in staging; human-confirmation gate verified.
 - **SEC-005 security review:** Written report; zero High/Critical unaddressed.
@@ -152,6 +159,7 @@ Continuous-parallel execution inside every milestone:
 - **OPS-008-prep:** 48h alert shadow; false-positive rate <10%; on-call dry-run 15min ack SLA.
 
 **Compliance test category (PRD S17-derived):**
+
 - GDPR consent capture: 100% of registration rows have consent_timestamp + consent_version; DSAR stub export verified.
 - SOC2 Type II audit-log: 12-month retention enforced; all 9 event types persisted; sample review by compliance officer.
 - NIST SP 800-63B: bcrypt cost 12; no plaintext; no reversible encoding; no password hints; validated via test vectors.
@@ -164,6 +172,7 @@ Continuous-parallel execution inside every milestone:
 ### V5: Production Readiness Validation (gates GA 2026-06-09)
 
 **What to test:**
+
 - **MIG-002 10% ramp:** 1%→5%→10% staged; SLO dashboards green; rollback playbook drilled in prod-shadow mode.
 - **MIG-003 100% GA:** Legacy /auth/* returns 410 Gone with Sunset header; new service serves 100% traffic; 7-day uptime ≥99.9%.
 - **OPS-001/002 runbook dry-run:** AuthService down + token refresh failures scenarios executed in staging; on-call 15min ack SLA demonstrated.

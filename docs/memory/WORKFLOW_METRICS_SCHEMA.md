@@ -59,29 +59,34 @@ Each line is a complete JSON object representing one workflow execution.
 ## Task Type Taxonomy
 
 ### Ultra-Light Tasks
+
 - `progress_query`: "進捗教えて"
 - `status_check`: "現状確認"
 - `next_action_query`: "次のタスクは？"
 
 ### Light Tasks
+
 - `typo_fix`: README誤字修正
 - `comment_addition`: コメント追加
 - `variable_rename`: 変数名変更
 - `documentation_update`: ドキュメント更新
 
 ### Medium Tasks
+
 - `bug_fix`: バグ修正
 - `small_feature`: 小機能追加
 - `refactoring`: リファクタリング
 - `test_addition`: テスト追加
 
 ### Heavy Tasks
+
 - `feature_impl`: 新機能実装
 - `architecture_change`: アーキテクチャ変更
 - `security_audit`: セキュリティ監査
 - `integration`: 外部システム統合
 
 ### Ultra-Heavy Tasks
+
 - `system_redesign`: システム全面再設計
 - `framework_migration`: フレームワーク移行
 - `comprehensive_research`: 包括的調査
@@ -89,6 +94,7 @@ Each line is a complete JSON object representing one workflow execution.
 ## Workflow Variant Identifiers
 
 ### Progressive Loading Variants
+
 - `progressive_v3_layer1`: Ultra-light (memory files only)
 - `progressive_v3_layer2`: Light (target file only)
 - `progressive_v3_layer3`: Medium (related files 3-5)
@@ -96,6 +102,7 @@ Each line is a complete JSON object representing one workflow execution.
 - `progressive_v3_layer5`: Ultra-heavy (full + external research)
 
 ### Experimental Variants (A/B Testing)
+
 - `experimental_eager_layer3`: Always load Layer 3 for medium tasks
 - `experimental_lazy_layer2`: Minimal Layer 2 loading
 - `experimental_parallel_layer3`: Parallel file loading in Layer 3
@@ -132,6 +139,7 @@ ultra_heavy:
 ## Recording Points
 
 ### Session Start (Layer 0)
+
 ```python
 session_id = generate_session_id()
 workflow_metrics = {
@@ -143,6 +151,7 @@ workflow_metrics = {
 ```
 
 ### After Intent Classification (Layer 1)
+
 ```python
 workflow_metrics.update({
     "task_type": classify_task_type(user_request),
@@ -152,6 +161,7 @@ workflow_metrics.update({
 ```
 
 ### After Progressive Loading
+
 ```python
 workflow_metrics.update({
     "layers_used": [0, 1, 2],  # Actual layers executed
@@ -161,6 +171,7 @@ workflow_metrics.update({
 ```
 
 ### After Task Completion
+
 ```python
 workflow_metrics.update({
     "success": task_completed_successfully,
@@ -170,6 +181,7 @@ workflow_metrics.update({
 ```
 
 ### Session End
+
 ```python
 # Append to workflow_metrics.jsonl
 with open("docs/memory/workflow_metrics.jsonl", "a") as f:
@@ -179,6 +191,7 @@ with open("docs/memory/workflow_metrics.jsonl", "a") as f:
 ## Analysis Scripts
 
 ### Weekly Analysis
+
 ```bash
 # Group by task type and calculate averages
 python scripts/analyze_workflow_metrics.py --period week
@@ -192,6 +205,7 @@ python scripts/analyze_workflow_metrics.py --period week
 ```
 
 ### A/B Testing Analysis
+
 ```bash
 # Compare workflow variants
 python scripts/ab_test_workflows.py \
@@ -215,6 +229,7 @@ python scripts/ab_test_workflows.py \
 ## Usage (Continuous Optimization)
 
 ### Weekly Review Process
+
 ```yaml
 every_monday_morning:
   1. Run analysis: python scripts/analyze_workflow_metrics.py --period week
@@ -229,6 +244,7 @@ every_monday_morning:
 ```
 
 ### A/B Testing Framework
+
 ```yaml
 allocation_strategy:
   current_best: 80%  # Use best-known workflow
@@ -255,6 +271,7 @@ promotion_rules:
 ```
 
 ### Auto-Optimization Cycle
+
 ```yaml
 monthly_cleanup:
   1. Identify stale workflows:
@@ -279,6 +296,7 @@ monthly_cleanup:
 ## Visualization
 
 ### Token Usage Over Time
+
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -295,6 +313,7 @@ plt.show()
 ```
 
 ### Task Type Distribution
+
 ```python
 task_counts = df['task_type'].value_counts()
 plt.pie(task_counts, labels=task_counts.index, autopct='%1.1f%%')
@@ -303,6 +322,7 @@ plt.show()
 ```
 
 ### Workflow Efficiency Comparison
+
 ```python
 workflow_efficiency = df.groupby('workflow_id').agg({
     'tokens_used': 'mean',
@@ -315,6 +335,7 @@ print(workflow_efficiency.sort_values('tokens_used'))
 ## Expected Patterns
 
 ### Healthy Metrics (After 1 Month)
+
 ```yaml
 token_efficiency:
   ultra_light: 750-1,050 tokens (63% reduction)
@@ -336,6 +357,7 @@ user_satisfaction:
 ```
 
 ### Red Flags (Require Investigation)
+
 ```yaml
 warning_signs:
   - success_rate < 85% for any task type
@@ -348,7 +370,9 @@ warning_signs:
 ## Integration with PM Agent
 
 ### Automatic Recording
+
 PM Agent automatically records metrics at each execution point:
+
 - Session start (Layer 0)
 - Intent classification (Layer 1)
 - Progressive loading (Layers 2-5)
@@ -356,6 +380,7 @@ PM Agent automatically records metrics at each execution point:
 - Session end
 
 ### No Manual Intervention
+
 - All recording is automatic
 - No user action required
 - Transparent operation
@@ -364,12 +389,14 @@ PM Agent automatically records metrics at each execution point:
 ## Privacy and Security
 
 ### Data Retention
+
 - Local storage only (`docs/memory/`)
 - No external transmission
 - Git-manageable (optional)
 - User controls retention period
 
 ### Sensitive Data Handling
+
 - No code snippets logged
 - No user input content
 - Only metadata (tokens, timing, success)
@@ -378,6 +405,7 @@ PM Agent automatically records metrics at each execution point:
 ## Maintenance
 
 ### File Rotation
+
 ```bash
 # Archive old metrics (monthly)
 mv docs/memory/workflow_metrics.jsonl \
@@ -388,6 +416,7 @@ touch docs/memory/workflow_metrics.jsonl
 ```
 
 ### Cleanup
+
 ```bash
 # Remove metrics older than 6 months
 find docs/memory/archive/ -name "workflow_metrics_*.jsonl" \

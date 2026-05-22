@@ -9,6 +9,7 @@
 ### Markdown Files Loaded Every Session
 
 **Top Token Consumers**:
+
 ```
 pm-agent.md                    16,201 bytes  (4,050 tokens)
 rules.md (framework)           16,138 bytes  (4,034 tokens)
@@ -25,6 +26,7 @@ Total: ~164KB = ~41,000 tokens PER SESSION
 ```
 
 **Annual Cost** (200 sessions/year):
+
 - Tokens: 8,200,000 tokens/year
 - Cost: ~$20-40/year just reading docs
 
@@ -33,6 +35,7 @@ Total: ~164KB = ~41,000 tokens PER SESSION
 ### Phase 1: Validators (Already Done ✅)
 
 **Implemented**:
+
 ```python
 superclaude/validators/
 ├── security_roughcheck.py  # Hardcoded secret detection
@@ -43,6 +46,7 @@ superclaude/validators/
 ```
 
 **Benefits**:
+
 - ✅ Python enforcement (not just docs)
 - ✅ 26 tests prove correctness
 - ✅ Pre-execution validation gates
@@ -50,6 +54,7 @@ superclaude/validators/
 ### Phase 2: Mode Enforcement (Next)
 
 **Current Problem**:
+
 ```markdown
 # MODE_Orchestration.md (2,759 bytes)
 - Tool selection matrix
@@ -59,6 +64,7 @@ superclaude/validators/
 ```
 
 **Python Solution**:
+
 ```python
 # superclaude/modes/orchestration.py
 
@@ -119,6 +125,7 @@ def with_orchestration(func):
 ```
 
 **Token Savings**:
+
 - Before: 2,759 bytes (689 tokens) every session
 - After: Import only when used (~50 tokens)
 - Savings: 93%
@@ -126,6 +133,7 @@ def with_orchestration(func):
 ### Phase 3: PM Agent Python Implementation
 
 **Current**:
+
 ```markdown
 # pm-agent.md (16,201 bytes = 4,050 tokens)
 
@@ -136,6 +144,7 @@ Parallel-with-Reflection
 ```
 
 **Python**:
+
 ```python
 # superclaude/agents/pm.py
 
@@ -187,6 +196,7 @@ class PMAgent:
 ```
 
 **Token Savings**:
+
 - Before: 16,201 bytes (4,050 tokens) every session
 - After: Import only when `/sc:pm` used (~100 tokens)
 - Savings: 97%
@@ -194,6 +204,7 @@ class PMAgent:
 ### Phase 4: Skills API Migration (Future)
 
 **Lazy-Loaded Skills**:
+
 ```
 skills/pm-mode/
   SKILL.md (200 bytes)     # Title + description only
@@ -207,6 +218,7 @@ Never used: Forever 200 bytes
 ```
 
 **Token Comparison**:
+
 ```
 Current Markdown: 16,201 bytes every session = 4,050 tokens
 Python Import:    Import header only = 100 tokens
@@ -281,6 +293,7 @@ Red Zone (85%+): Essential only
 ```
 
 **Problems**:
+
 - ❌ 689 tokens every session
 - ❌ No enforcement
 - ❌ Can't test if rules followed
@@ -306,6 +319,7 @@ tool = OrchestrationMode.select_tool("ui")  # "magic_mcp" (enforced)
 ```
 
 **Benefits**:
+
 - ✅ 50 tokens on import
 - ✅ Enforced at runtime
 - ✅ Testable with pytest
@@ -351,6 +365,7 @@ def test_resource_zones():
 ### Token Efficiency
 
 **Before Migration**:
+
 ```
 Per Session:
 - Modes: 26,716 tokens
@@ -363,6 +378,7 @@ Annual (200 sessions):
 ```
 
 **After Python Migration**:
+
 ```
 Per Session:
 - Mode imports: ~500 tokens
@@ -378,6 +394,7 @@ Savings: 93% tokens, 90%+ cost
 ```
 
 **After Skills Migration**:
+
 ```
 Per Session:
 - Skill descriptions: ~300 tokens
@@ -391,12 +408,14 @@ Savings: 95%+ tokens
 ### Quality Improvements
 
 **Markdown**:
+
 - ❌ No enforcement (just documentation)
 - ❌ Can't verify compliance
 - ❌ Can't test effectiveness
 - ❌ Prone to drift
 
 **Python**:
+
 - ✅ Enforced at runtime
 - ✅ 100% testable
 - ✅ Type-safe with hints
@@ -405,12 +424,15 @@ Savings: 95%+ tokens
 ## Risks and Mitigation
 
 **Risk 1**: Breaking existing workflows
+
 - **Mitigation**: Keep Markdown as fallback docs
 
 **Risk 2**: Skills API immaturity
+
 - **Mitigation**: Python-first works now, Skills later
 
 **Risk 3**: Implementation complexity
+
 - **Mitigation**: Incremental migration (1 mode at a time)
 
 ## Conclusion

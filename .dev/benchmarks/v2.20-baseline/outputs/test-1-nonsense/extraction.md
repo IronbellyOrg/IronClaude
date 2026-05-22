@@ -1,6 +1,6 @@
 
-
 ---
+
 spec_source: nonsense-spec.md
 generated: "2026-03-09T00:00:00Z"
 generator: requirements-extraction-agent

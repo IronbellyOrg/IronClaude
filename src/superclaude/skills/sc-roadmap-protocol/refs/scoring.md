@@ -111,6 +111,7 @@ tdd_complexity_score = (requirement_count_norm * 0.20)
 **Classification thresholds**: Same as standard formula (LOW < 0.4, MEDIUM 0.4-0.7, HIGH > 0.7).
 
 **Key differences from standard formula**:
+
 - `domain_spread` denominator is 7 (not 5) — accounts for Testing and DevOps/Ops domains
 - `requirement_count` and `dependency_depth` weights reduced from 0.25 to 0.20 to make room for `api_surface` and `data_model_complexity`
 - `risk_severity` weight reduced from 0.15 to 0.10
@@ -179,11 +180,13 @@ Personas are selected based on domain distribution from the extraction. The prim
 ### Confidence Formula
 
 For each candidate persona:
+
 ```
 confidence = base_confidence * domain_weight * coverage_bonus
 ```
 
 Where:
+
 - `base_confidence`: 0.7 (default starting confidence)
 - `domain_weight`: The persona's primary domain percentage / 100 (e.g., if backend is 45%, backend persona gets 0.45)
 - `coverage_bonus`: 1.0 + (0.1 * number_of_secondary_domains_covered). Max 1.3

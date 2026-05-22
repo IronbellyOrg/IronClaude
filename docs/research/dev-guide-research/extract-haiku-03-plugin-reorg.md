@@ -16,6 +16,7 @@ The document defines a “Source of Truth” table mapping *what exists today* v
 > Agent docs (`agents/*.md`) | `SuperClaude_Plugin/agents/` | `plugins/superclaude/agents/` | Markdown instructions consumed by `/sc:*` commands.
 
 **Implications for developing custom agents:**
+
 - Agent definitions are Markdown files (`agents/*.md`).
 - They are intended to live in the framework under:
   - `plugins/superclaude/agents/`
@@ -28,6 +29,7 @@ The document defines a “Source of Truth” table mapping *what exists today* v
 > Command definitions (`commands/*.md`) | `SuperClaude_Plugin/commands/` | `plugins/superclaude/commands/` | YAML frontmatter + markdown bodies.
 
 **Implications for developing custom commands:**
+
 - Command definitions are Markdown files (`commands/*.md`).
 - Format expectation: **“YAML frontmatter + markdown bodies.”**
 - They are intended to live in the framework under:
@@ -40,6 +42,7 @@ The document defines a “Source of Truth” table mapping *what exists today* v
 > Skill source (`skills/confidence-check/`) | Divergent copies in both repos | **Single canonical copy in Framework** under `plugins/superclaude/skills/confidence-check/` | Replace plugin repo copy with build artefact.
 
 **Implications for developing custom skills:**
+
 - Skill source should have a *single canonical copy* in the framework.
 - Example skill path provided:
   - `plugins/superclaude/skills/confidence-check/`
@@ -73,12 +76,15 @@ plugins/
 ```
 
 ### Agents directory
+
 - `plugins/superclaude/agents/`
 
 ### Commands directory
+
 - `plugins/superclaude/commands/`
 
 ### Skills directory structure + contents
+
 - `plugins/superclaude/skills/`
 - Example skill package:
   - `plugins/superclaude/skills/confidence-check/`
@@ -99,6 +105,7 @@ The build workflow describes how plugin assets (including commands/skills/agents
 >    - Renders manifest templates with version/author pulled from `pyproject.toml` / git tags.
 
 **What this means for skills/commands/agents:**
+
 - There is an explicit validation step for **skill tests**.
 - All plugin assets under `plugins/superclaude/*` (which includes `agents/`, `commands/`, `skills/`) are copied into a distribution directory:
   - `dist/plugins/superclaude/.claude-plugin/...`
@@ -113,6 +120,7 @@ The build workflow describes how plugin assets (including commands/skills/agents
 >    - Cleans stale files before copy (to avoid drift).
 
 **What this means for developing custom commands/skills/agents:**
+
 - The plugin repo (`../SuperClaude_Plugin/`) should receive **generated artefacts** rather than being directly edited.
 - Stale-file cleanup before copy is explicitly called out “to avoid drift.”
 
@@ -125,6 +133,7 @@ The “Next Steps” section includes a specific guardrail relevant to command/s
 > - [ ] Strip direct edits in `SuperClaude_Plugin` by adding a readme banner (“generated – do not edit”) and optional CI guard.
 
 **Implication:**
+
 - Developers should treat `SuperClaude_Plugin` as build output, not a primary editing location.
 
 ## Notes on command expansion (roadmap)

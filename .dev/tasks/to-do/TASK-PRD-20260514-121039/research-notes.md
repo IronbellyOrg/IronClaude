@@ -48,6 +48,7 @@ All under `/config/workspace/IronClaude/.dev/releases/backlog/v3.75-RigorflowMer
 | Future: `src/superclaude/skills/sc-task-protocol/audit.py` | NEW in v3.75: audit log foundation + CriticalFailCondition dataclass | S14 tech req, S20 risk (RK-NEW-4/6) |
 
 ### Existing PRD stub or template
+
 - Template (schema): `src/superclaude/examples/prd_template.md` (28 numbered sections + Document Info + Completeness Status + Appendices)
 - **No existing PRD stub** at `.dev/releases/backlog/v3.75-RigorflowMerger-task-unified-v3/artifacts/PRD.md` — will be created fresh.
 - No existing PRD at `docs/docs-product/tech/sc-task/` (output destination per user is the release-artifacts folder, not docs/).
@@ -88,6 +89,7 @@ Post-merger /sc:task surfaces these features:
 13. **TUI improvements** (NEW, P-05 + P-02 + P-03+P-07 + P-01) — spinner, elapsed-since-phase-start Duration, width-aware truncation, OutputMonitor on per-task path.
 
 Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
+
 - TU-002 output-type axis (R3)
 - TU-005 SoT YAML (R3)
 - TU-006 skill sub-files (R3)
@@ -123,6 +125,7 @@ Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
 ## SUGGESTED_PHASES
 
 ### Phase 1: Preparation
+
 - Confirm Feature PRD scope, Lightweight tier.
 - Read prd_template.md (28-section schema).
 - Confirm RELEASE-SPEC.md, FINAL-REPORT.md, both context-*.md, TUI-ANALYSIS.md, TUI-ADVERSARIAL.md exist and are current.
@@ -131,6 +134,7 @@ Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
 ### Phase 2: Deep Investigation (3 parallel codebase agents)
 
 **R-01 — Feature inventory + user flows (Feature Analyst)**
+
 - Inputs: `artifacts/RELEASE-SPEC.md`, `artifacts/FINAL-REPORT.md`, `artifacts/context-task-current-state.md`
 - Live code: `src/superclaude/commands/task.md`, `src/superclaude/skills/sc-task-protocol/SKILL.md`, `src/superclaude/core/COMMANDS.md`, `src/superclaude/core/ORCHESTRATOR.md`
 - Produces: full feature inventory, user invocation flows for each tier (STRICT/STANDARD/LIGHT/EXEMPT/BLOCKED), invoker personas (sprint executor, cleanup-audit, end user), classification header schema, scope statement, success metrics.
@@ -138,6 +142,7 @@ Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
 - Synthesis sections: S6 JTBD, S7 Personas, S10 Assumptions, S12 Scope, S13 Open Questions, S16 UX Req, S19 Success Metrics.
 
 **R-02 — Architecture + integration surfaces (Architecture Analyst)**
+
 - Inputs: `artifacts/RELEASE-SPEC.md` §§2-3, `artifacts/FINAL-REPORT.md` §6, `artifacts/context-task-current-state.md`
 - Live code: `src/superclaude/commands/task.md`, `src/superclaude/skills/sc-task-protocol/SKILL.md`, `src/superclaude/cli/sprint/process.py`, `src/superclaude/cli/cleanup_audit/prompts.py`, future `audit.py` spec from RELEASE-SPEC §3.3
 - Produces: command-skill split, audit.py contract (CriticalFailCondition + JSONL daily-rotated), MCP requirements matrix per tier (with circuit breaker semantics), TFEP/forensic invocation flow, sprint + cleanup-audit integration surfaces, dependency graph, technology stack.
@@ -145,6 +150,7 @@ Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
 - Synthesis sections: S11 Dependencies, S14 Technical Req, S15 Tech Stack, S17 Legal/Compliance (abbreviated to audit log + data handling), S20 Risk Analysis, S21 Implementation Plan, S26 Contributors.
 
 **R-03 — Sprint runtime + TUI UX post-merger (UX Investigator)**
+
 - Inputs: `artifacts/RELEASE-SPEC.md` §1.2 SE rows + §5.4 + §7.1.1, `artifacts/TUI-ANALYSIS.md`, `artifacts/TUI-ADVERSARIAL.md`
 - Live code: `src/superclaude/cli/sprint/executor.py`, `tui.py`, `monitor.py`, `config.py`, `models.py`
 - Produces: SE-001..005 behavioral change inventory; TUI top-5 acceptance criteria + ship order; error/edge cases (empty output, missing checkpoint, TUI hang, prompt cut-off, partial result resume); user interaction patterns (RUNNING spinner, Duration column, width-aware truncation).
@@ -152,6 +158,7 @@ Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
 - Synthesis sections: S16 UX Req, S23 Error Handling & Edge Cases, S24 User Interaction & Design, S20 Risk (TUI-specific risks RK-TUI-01..05), S21 Implementation Plan (TUI sub-section).
 
 ### Phase 3: Completeness Verification (parallel: rf-analyst + rf-qa)
+
 - rf-analyst completeness check across R-01/02/03 → `qa/analyst-completeness-report.md`
 - rf-qa research-gate evidence quality check → `qa/qa-research-gate-report.md`
 - Address any blocking gaps before Phase 4.
@@ -161,15 +168,18 @@ Deferred (not in v3.75; documented in PRD as "Future / Out of scope"):
 If gaps surface during R-01..R-03 that require external context (e.g., comparison to industry CI/CD task-tiering, market context for STRICT/STANDARD verification overhead), spawn 1 web research agent. **Default: skip.**
 
 ### Phase 5: Synthesis + Analyst + QA Synthesis Gate
+
 - 3 synthesis agents (parallelizable) consume research → produce template-aligned sections.
 - rf-analyst synthesis review + rf-qa synthesis gate (parallel).
 
 ### Phase 6: Assembly
+
 - rf-assembler produces `artifacts/PRD.md` from synthesis files + prd_template.md schema.
 - rf-qa report-validation (structural).
 - rf-qa-qualitative review (content-level: scoping, flow, realism, contradictions, audience appropriateness).
 
 ### Phase 7: Present to User & Complete Task
+
 - Deliver `artifacts/PRD.md`.
 - Move task file to `.dev/tasks/done/`.
 - Offer companion docs (TDD, tech reference) per project convention.
@@ -193,6 +203,7 @@ Embed in BUILD_REQUEST: tier=Lightweight; scope=Feature PRD; output path; explic
 None — intent is clear from the user's three answers (Feature PRD post-merger, output path `.dev/releases/backlog/v3.75-RigorflowMerger-task-unified-v3/artifacts/PRD.md`, Lightweight tier). All major scope decisions are resolved upfront.
 
 **Notes (informational, not blocking):**
+
 - TU-007 canonical condition list is `[inference]` in RELEASE-SPEC §3.6 KNOWN GAP. PRD will document the placeholder six-condition list with the same `[inference]` tag.
 - TU-004 behavioral break impact "5-10% of `--compliance auto` users" is `[inference]` (no telemetry). PRD will preserve the tag.
 - Carry-over sentinel rename (Q1/Q2) is DEFER-GATED on A-005. PRD will document the carry-over and the deferral, NOT propose a rename.

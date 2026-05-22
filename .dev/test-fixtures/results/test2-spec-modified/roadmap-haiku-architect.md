@@ -9,6 +9,7 @@ primary_persona: architect
 This roadmap delivers a production-ready authentication subsystem with five scoped user-facing capabilities: `FR-AUTH.1` login, `FR-AUTH.2` registration, `FR-AUTH.3` token refresh with replay detection, `FR-AUTH.4` authenticated profile retrieval, and `FR-AUTH.5` password reset. The architecture is security-critical but bounded, with medium implementation complexity driven primarily by RS256 key management, bcrypt performance/security tradeoffs, and refresh-token state correctness.
 
 ## Architectural priorities
+
 1. **Security correctness first**
    - Implement `NFR-AUTH.3`, `RISK-1`, and `RISK-2` before broad feature rollout.
    - Treat token lifecycle correctness and secrets handling as release gates, not backlog polish.
@@ -23,7 +24,9 @@ This roadmap delivers a production-ready authentication subsystem with five scop
    - `OQ-1`, `OQ-2`, `OQ-6`, `OQ-7`, and `OQ-8` materially affect implementation and must be resolved during early phases, with explicit defaults if stakeholders do not decide in time.
 
 ## Delivery outcome
+
 By the end of this roadmap, the system will:
+
 - Authenticate users with email/password and RS256 JWTs (`FR-AUTH.1`).
 - Register users with strong validation and bcrypt hashing (`FR-AUTH.2`, `NFR-AUTH.3`).
 - Rotate refresh tokens with replay detection and full-user revocation on reuse (`FR-AUTH.3`, `SC-8`).
@@ -38,11 +41,13 @@ By the end of this roadmap, the system will:
 ## Phase 0. Architecture Finalization and Delivery Readiness
 
 ### Objectives
+
 1. Close blocking architectural questions.
 2. Lock interfaces, data model, and rollout constraints.
 3. Prevent mid-implementation churn.
 
 ### Scope
+
 - Confirm implementation order from the extraction:
   1. `password-hasher.ts`
   2. `jwt-service.ts`
@@ -52,6 +57,7 @@ By the end of this roadmap, the system will:
   6. routes + migration `003-auth-tables.ts`
 
 ### Key tasks
+
 1. Resolve open questions:
    - `OQ-1`: choose synchronous email dispatch vs async queue for `FR-AUTH.5`.
    - `OQ-2`: define maximum active refresh tokens per user.
@@ -78,11 +84,13 @@ By the end of this roadmap, the system will:
    - maintenance of bcrypt cost configurability for `RISK-3`
 
 ### Milestone
+
 - **M0: Architecture signoff complete**
   - All blocking OQs have assigned decisions or approved defaults.
   - Interface contracts and migration shape are frozen.
 
 ### Requirement coverage
+
 - `FR-AUTH.1`
 - `FR-AUTH.2`
 - `FR-AUTH.3`
@@ -94,6 +102,7 @@ By the end of this roadmap, the system will:
 - `RISK-3`
 
 ### Timeline estimate
+
 - **2–3 working days**
 
 ---
@@ -101,11 +110,13 @@ By the end of this roadmap, the system will:
 ## Phase 1. Security Foundations and Core Infrastructure
 
 ### Objectives
+
 1. Build the cryptographic and token primitives correctly.
 2. Establish secrets and configuration wiring.
 3. Create persistence foundations for auth state.
 
 ### Key tasks
+
 1. Implement `password-hasher.ts`
    - bcrypt cost factor defaulted to 12 for `NFR-AUTH.3`
    - configurable cost factor to mitigate `RISK-3`
@@ -158,12 +169,14 @@ By the end of this roadmap, the system will:
    - **Cross-Reference**: Consumed by Phase 3 rollout gating and Phase 6 operations
 
 ### Milestone
+
 - **M1: Security primitives and persistence foundation complete**
   - Cryptographic components pass unit tests.
   - Migration is reversible.
   - Secrets wiring is functional in non-production environment.
 
 ### Requirement coverage
+
 - `FR-AUTH.1 AC-1`
 - `FR-AUTH.2 AC-1`
 - `FR-AUTH.3 AC-1`
@@ -178,6 +191,7 @@ By the end of this roadmap, the system will:
 - `SC-7`
 
 ### Timeline estimate
+
 - **4–6 working days**
 
 ---
@@ -185,11 +199,13 @@ By the end of this roadmap, the system will:
 ## Phase 2. Service-Layer Orchestration and Domain Logic
 
 ### Objectives
+
 1. Centralize auth behavior in `AuthService`.
 2. Implement business rules and security responses.
 3. Keep internal components non-HTTP-facing per architectural constraint.
 
 ### Key tasks
+
 1. Implement `auth-service.ts` as the sole orchestrator
    - registration flow for `FR-AUTH.2`
    - login flow for `FR-AUTH.1`
@@ -249,11 +265,13 @@ By the end of this roadmap, the system will:
    - **Cross-Reference**: Consumed by Phase 3 route registration and Phase 5 `SC-4` validation
 
 ### Milestone
+
 - **M2: Auth domain logic complete**
   - All primary flows work through service-level tests.
   - Replay detection and reset invalidation semantics are verified.
 
 ### Requirement coverage
+
 - `FR-AUTH.1`
 - `FR-AUTH.2`
 - `FR-AUTH.3`
@@ -264,6 +282,7 @@ By the end of this roadmap, the system will:
 - `SC-8`
 
 ### Timeline estimate
+
 - **5–7 working days**
 
 ---
@@ -271,11 +290,13 @@ By the end of this roadmap, the system will:
 ## Phase 3. HTTP Surface, Middleware Integration, and Feature-Flagged Exposure
 
 ### Objectives
+
 1. Expose only the required `/auth/*` HTTP surface.
 2. Integrate with existing middleware and route registration.
 3. Preserve existing unauthenticated system behavior during phased rollout.
 
 ### Key tasks
+
 1. Implement `auth-middleware.ts`
    - Bearer token extraction and verification
    - user context resolution for `FR-AUTH.4`
@@ -333,11 +354,13 @@ By the end of this roadmap, the system will:
    - **Cross-Reference**: Consumed by Phase 5 integration/E2E validation for `FR-AUTH.1` and `FR-AUTH.3`
 
 ### Milestone
+
 - **M3: Auth API surface available behind feature flag**
   - Endpoints respond correctly in integration environment.
   - Middleware gating and response contracts are stable.
 
 ### Requirement coverage
+
 - `FR-AUTH.1`
 - `FR-AUTH.2`
 - `FR-AUTH.3`
@@ -350,6 +373,7 @@ By the end of this roadmap, the system will:
 - `SC-8`
 
 ### Timeline estimate
+
 - **3–4 working days**
 
 ---
@@ -357,11 +381,13 @@ By the end of this roadmap, the system will:
 ## Phase 4. Reliability, Performance, and Operational Hardening
 
 ### Objectives
+
 1. Prove the auth subsystem can meet non-functional targets.
 2. Establish operational controls for uptime and key hygiene.
 3. Reduce production rollout risk.
 
 ### Key tasks
+
 1. Validate performance target `NFR-AUTH.1`
    - k6 scenarios for login, refresh, and profile retrieval
    - profile p95 latency under normal load
@@ -408,10 +434,12 @@ By the end of this roadmap, the system will:
    - **Cross-Reference**: Consumed by Phase 6 operations and incident response for `RISK-1`
 
 ### Milestone
+
 - **M4: Non-functional readiness achieved**
   - Performance, availability, and key-ops controls are demonstrated in staging/pre-prod.
 
 ### Requirement coverage
+
 - `NFR-AUTH.1`
 - `NFR-AUTH.2`
 - `NFR-AUTH.3`
@@ -423,6 +451,7 @@ By the end of this roadmap, the system will:
 - `SC-3`
 
 ### Timeline estimate
+
 - **4–5 working days**
 
 ---
@@ -430,11 +459,13 @@ By the end of this roadmap, the system will:
 ## Phase 5. Verification, Security Validation, and Release Readiness
 
 ### Objectives
+
 1. Validate every functional and non-functional requirement.
 2. Prove rollback safety and release confidence.
 3. Block launch on any security regression.
 
 ### Key tasks
+
 1. Unit validation
    - bcrypt cost factor and timing
    - JWT TTLs and signing algorithm enforcement
@@ -462,12 +493,14 @@ By the end of this roadmap, the system will:
    - deferments (`OQ-4`, possibly `OQ-5`) recorded with owner and target version
 
 ### Milestone
+
 - **M5: Release approval**
   - All success criteria pass.
   - Rollback plan is verified.
   - Security signoff is complete.
 
 ### Requirement coverage
+
 - `FR-AUTH.1`
 - `FR-AUTH.2`
 - `FR-AUTH.3`
@@ -486,6 +519,7 @@ By the end of this roadmap, the system will:
 - `SC-8`
 
 ### Timeline estimate
+
 - **4–6 working days**
 
 ---
@@ -493,11 +527,13 @@ By the end of this roadmap, the system will:
 ## Phase 6. Controlled Rollout and Post-Launch Stabilization
 
 ### Objectives
+
 1. Minimize blast radius during production introduction.
 2. Detect regressions quickly.
 3. Convert operational learnings into next-scope decisions.
 
 ### Key tasks
+
 1. Enable `AUTH_SERVICE_ENABLED` in staged progression
    - internal/staging
    - limited production cohort
@@ -516,10 +552,12 @@ By the end of this roadmap, the system will:
    - assess observed concurrency issues from `OQ-8`
 
 ### Milestone
+
 - **M6: Production steady state**
   - Full rollout completed with no unresolved Sev-1/Sev-2 auth defects.
 
 ### Timeline estimate
+
 - **3–5 working days of monitored rollout/stabilization**
 
 ---
@@ -725,6 +763,7 @@ By the end of this roadmap, the system will:
    - alerting verification
 
 ## Release gates
+
 1. No open High-severity security defects.
 2. `SC-1` through `SC-8` all pass.
 3. `RISK-1` and `RISK-2` mitigations are implemented, not merely documented.
@@ -746,9 +785,11 @@ By the end of this roadmap, the system will:
 | Phase 6 | Controlled Rollout and Post-Launch Stabilization | 3–5 working days |
 
 ## Overall delivery range
+
 - **Total estimated effort**: **25–36 working days**
 
 ## Critical path
+
 1. Resolve `OQ-1`, `OQ-2`, `OQ-6`, `OQ-7`, `OQ-8`
 2. Implement Phase 1 security primitives
 3. Complete Phase 2 token rotation and replay logic
@@ -757,6 +798,7 @@ By the end of this roadmap, the system will:
 6. Pass Phase 5 release gates
 
 ## Schedule risk notes
+
 - The most likely schedule slips are:
   1. secrets manager selection and integration (`OQ-7`)
   2. email service/provider uncertainty (`OQ-1`, `OQ-6`)

@@ -2,6 +2,7 @@
 
 **Extraction date**: 2026-02-21
 **Source files**:
+
 1. `/config/workspace/SuperClaude_Framework/src/superclaude/commands/adversarial.md`
 2. `/config/workspace/SuperClaude_Framework/src/superclaude/commands/spawn.md`
 3. `/config/workspace/SuperClaude_Framework/src/superclaude/commands/task-unified.md`
@@ -91,6 +92,7 @@ version: "2.0.0"
 | `version` | No | string | Semantic version (only task-unified uses this) |
 
 **Key observations**:
+
 - `spawn` declares empty arrays for both `mcp-servers` and `personas`, signaling it is a pure orchestrator with no direct MCP dependencies.
 - `task-unified` lists the most MCP servers (6) and personas (10), reflecting its role as the framework's most comprehensive execution command.
 - `adversarial` is selective: 3 MCP servers, 3 personas -- scoped to its analysis domain.
@@ -235,6 +237,7 @@ Multi-table flag system organized by dimension:
 ```
 
 Four separate flag tables:
+
 1. **Strategy Flags** (4 options: systematic, agile, enterprise, auto)
 2. **Compliance Flags** (5 options: strict, standard, light, exempt, auto)
 3. **Execution Control Flags** (5 options: skip-compliance, force-strict, parallel, delegate, reason)
@@ -317,6 +320,7 @@ Key behaviors:
 Adversarial declares MCP servers in frontmatter (`[sequential, context7, serena]`) but has **no dedicated MCP Integration section** in the body. Server usage is implied by the frontmatter and the framework-level COMMANDS.md reference:
 
 From COMMANDS.md:
+
 ```
 - **MCP**: Sequential (debate scoring/convergence), Serena (memory persistence), Context7 (domain validation)
 ```
@@ -384,6 +388,7 @@ persona_matrix:
 Tools are declared in COMMANDS.md but not in the command file itself:
 
 From COMMANDS.md:
+
 ```
 - **Tools**: [Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task]
 - **Agents**: debate-orchestrator (coordinator), merge-executor (specialist), advocate agents (dynamic)
@@ -561,6 +566,7 @@ These are sections unique to a command's problem domain that don't fit the unive
 ### adversarial.md -- Behavioral Summary with Artifact Enumeration
 
 The Behavioral Summary names 6 specific output artifacts:
+
 ```
 diff-analysis.md, debate-transcript.md, base-selection.md,
 refactor-plan.md, merge-log.md, and the merged output
@@ -571,6 +577,7 @@ This is the only command that enumerates its output files.
 ### spawn.md -- CRITICAL BOUNDARIES + Output Specification
 
 Spawn uniquely specifies its output format and delegation model:
+
 ```markdown
 **Output**: Task breakdown document with:
 - Epic decomposition
@@ -599,16 +606,19 @@ Spawn uniquely specifies its output format and delegation model:
 ### MCP Server References
 
 **In frontmatter** (declarative):
+
 ```yaml
 mcp-servers: [sequential, context7, serena]
 ```
 
 **In MCP Integration section** (behavioral):
+
 ```markdown
 | Server | Always Active | Conditional Activation | Purpose |
 ```
 
 **In Tool Coordination** (operational):
+
 ```markdown
 | **STRICT** | TodoWrite, Read, Edit, Bash, Task, Sequential, Serena | Playwright, Magic |
 ```
@@ -616,16 +626,19 @@ mcp-servers: [sequential, context7, serena]
 ### Agent References
 
 **In frontmatter** (only adversarial references agents indirectly via personas):
+
 ```yaml
 personas: [architect, analyzer, scribe]
 ```
 
 **In COMMANDS.md** (external reference):
+
 ```markdown
 - **Agents**: debate-orchestrator (coordinator), merge-executor (specialist), advocate agents (dynamic)
 ```
 
 **In task-unified Sub-Agent Delegation Matrix**:
+
 ```markdown
 | Python code fixes | python-expert | quality-engineer |
 ```
@@ -633,11 +646,13 @@ personas: [architect, analyzer, scribe]
 ### Persona References
 
 **In frontmatter**:
+
 ```yaml
 personas: [architect, analyzer, qa, refactorer, frontend, backend, security, devops, python-expert, quality-engineer]
 ```
 
 **In persona coordination YAML**:
+
 ```yaml
 persona_matrix:
   core: [architect, analyzer, qa, refactorer]
@@ -650,6 +665,7 @@ persona_matrix:
 ### Skill References
 
 None of the three command files directly reference skills or `SKILL.md` files. The connection between commands and skills is made through:
+
 1. The `COMMANDS.md` framework file (which lists agents and tools per command)
 2. The persona system (personas activate skills implicitly)
 3. The skill installation system (`superclaude install` places skills in `.claude/skills/`)
@@ -694,6 +710,7 @@ All three commands provide examples in fenced code blocks.
 ### adversarial.md (5 examples, most detailed)
 
 Each example has a descriptive heading and shows a complete CLI invocation:
+
 ```bash
 # Mode A: Compare existing files
 /sc:adversarial --compare draft-a.md,draft-b.md --depth standard
@@ -707,6 +724,7 @@ Each example has a descriptive heading and shows a complete CLI invocation:
 ### spawn.md (3 examples with comments)
 
 Each example includes inline comments explaining the breakdown strategy:
+
 ```
 /sc:spawn "implement user authentication system"
 # Breakdown: Database design -> Backend API -> Frontend UI -> Testing
@@ -716,6 +734,7 @@ Each example includes inline comments explaining the breakdown strategy:
 ### task-unified.md (7 examples including overrides)
 
 Examples demonstrate the full flag system including escape hatches:
+
 ```bash
 /sc:task "implement user authentication system" --strategy systematic --compliance strict
 # Auto-detects: STRICT (authentication keyword, multi-file expected)

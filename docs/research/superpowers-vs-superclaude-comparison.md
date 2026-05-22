@@ -154,6 +154,7 @@
 ### 2.1 Superpowers
 
 **Pros:**
+
 - Enforced workflow discipline -- agents cannot skip steps (brainstorm -> plan -> TDD -> review -> merge)
 - Strict TDD: RED-GREEN-REFACTOR is mandatory, code written before tests is deleted
 - Multi-platform support: Claude Code, Cursor, Codex, OpenCode, Gemini CLI
@@ -166,6 +167,7 @@
 - Philosophy-driven: "systematic over ad-hoc" creates consistent outputs
 
 **Cons:**
+
 - No dedicated code analysis or security scanning capability
 - No audit system -- code review is limited to plan-compliance checking
 - Generic subagents with no persistent specialization
@@ -183,6 +185,7 @@
 ### 2.2 SuperClaude
 
 **Pros:**
+
 - 40+ specialized commands covering the full developer support spectrum
 - 3-pass evidence-gated audit system with grep-proof requirements (unique in the market)
 - 29 named specialized agents with domain-specific behavioral definitions
@@ -198,6 +201,7 @@
 - Cross-session learning via ReflexionPattern
 
 **Cons:**
+
 - Claude Code only -- no multi-platform support (no Cursor, Codex, Gemini CLI)
 - No mandatory TDD enforcement -- testing is available but not forced
 - Higher complexity: 40+ commands create a steeper learning curve

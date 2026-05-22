@@ -22,6 +22,7 @@ pipeline_diagnostics: {elapsed_seconds: 96.4, started_at: "2026-04-03T15:05:10.6
 **Description**: Authenticate users via email and password, returning JWT access token and refresh token upon successful credential verification.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.1a**: Valid email/password returns 200 with access_token (15min TTL) and refresh_token (7d TTL)
 - **FR-AUTH.1b**: Invalid credentials return 401 without revealing whether email or password was incorrect
 - **FR-AUTH.1c**: Locked account returns 403 indicating account suspension
@@ -38,6 +39,7 @@ pipeline_diagnostics: {elapsed_seconds: 96.4, started_at: "2026-04-03T15:05:10.6
 **Description**: Register new users with input validation, creating a user record with securely hashed password and returning confirmation.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.2a**: Valid registration data (email, password, display name) creates user record and returns 201 with user profile
 - **FR-AUTH.2b**: Already-registered email returns 409 conflict response
 - **FR-AUTH.2c**: Password policy enforced: minimum 8 characters, at least one uppercase, one lowercase, one digit
@@ -54,6 +56,7 @@ pipeline_diagnostics: {elapsed_seconds: 96.4, started_at: "2026-04-03T15:05:10.6
 **Description**: Issue and refresh JWT tokens, allowing clients to obtain new access tokens using valid refresh tokens without re-entering credentials.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.3a**: Valid refresh token returns new access_token and rotated refresh_token
 - **FR-AUTH.3b**: Expired refresh token returns 401, requires re-authentication
 - **FR-AUTH.3c**: Previously-rotated (revoked) refresh token triggers invalidation of all tokens for that user (replay detection)
@@ -70,6 +73,7 @@ pipeline_diagnostics: {elapsed_seconds: 96.4, started_at: "2026-04-03T15:05:10.6
 **Description**: Authenticated user profile retrieval, returning current user's profile data when presented with a valid access token.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.4a**: Valid Bearer access_token returns user profile (id, email, display_name, created_at)
 - **FR-AUTH.4b**: Expired or invalid token returns 401
 - **FR-AUTH.4c**: Sensitive fields (password_hash, refresh_token_hash) never included in profile response
@@ -85,6 +89,7 @@ pipeline_diagnostics: {elapsed_seconds: 96.4, started_at: "2026-04-03T15:05:10.6
 **Description**: Secure password reset flow allowing users to request a reset link and set a new password using a time-limited token.
 
 **Acceptance Criteria**:
+
 - **FR-AUTH.5a**: Registered email triggers password reset token (1-hour TTL) and dispatches reset email
 - **FR-AUTH.5b**: Valid reset token allows setting new password and invalidates the reset token
 - **FR-AUTH.5c**: Expired or invalid reset token returns 400 with appropriate error
@@ -185,6 +190,7 @@ The complexity is driven primarily by the security sensitivity of authentication
 10. **NIST SP 800-63B compliance**: Password policy must meet NIST guidelines (PRD constraint).
 
 **Persona-driven design requirements** (from PRD Section S7):
+
 - **Alex (End User)**: Registration must complete in under 60 seconds. Login UX must not enumerate valid emails. Session must persist across page refreshes for up to 7 days.
 - **Jordan (Platform Admin)**: Auth event logs must be queryable by date range and user ID. Account lock/unlock capability required (partially addressed by FR-AUTH.1c, but admin tooling is out of spec scope).
 - **Sam (API Consumer)**: Token refresh must work programmatically without user interaction. Error codes must be clear and documented.

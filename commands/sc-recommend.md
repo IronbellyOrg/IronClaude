@@ -78,6 +78,7 @@ def detect_language_and_translate(input_text):
 ## SuperClaude Integrated Recommendation Engine
 
 ### 1. Keyword Extraction and Persona Matching
+
 ```yaml
 keyword_extraction:
   pattern_matching:
@@ -113,6 +114,7 @@ keyword_extraction:
 ```
 
 ### 2. SuperClaude Command Map
+
 ```yaml
 category_mapping:
   ml_category:
@@ -187,6 +189,7 @@ category_mapping:
 ```
 
 ### 3. Expertise Level Detection and Customization
+
 ```yaml
 expertise_levels:
   beginner:
@@ -209,6 +212,7 @@ expertise_levels:
 ## SuperClaude Integrated Real Examples
 
 ### Example 1: Beginner Level ML Project
+
 ```bash
 User: /sc:sc:recommend "I'm new, I want to do machine learning"
 
@@ -241,6 +245,7 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
 ```
 
 ### Example 2: Web Performance Optimization
+
 ```bash
 User: /sc:sc:recommend "my site is very slow, what should I do?"
 
@@ -273,6 +278,7 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
 ```
 
 ### Example 3: Advanced API Security (English)
+
 ```bash
 User: /sc:sc:recommend "Need to secure API with authentication and authorization"
 
@@ -307,6 +313,7 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
 ```
 
 ### Example 4: React Component Development
+
 ```bash
 User: /sc:sc:recommend "I'm going to create a new user profile component"
 

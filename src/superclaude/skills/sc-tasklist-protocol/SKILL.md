@@ -49,6 +49,7 @@ Given a roadmap (unstructured or structured), produce a **canonical task list** 
 You receive exactly one input: **the roadmap text**.
 
 The roadmap may contain:
+
 - Phases, milestones, versions, epics, bullets, paragraphs
 - Requirements, features, risks, success metrics, constraints
 - Vague items ("improve performance", "harden security")
@@ -62,6 +63,7 @@ Treat the roadmap as the **only source of truth**.
 You must include **explicit artifact paths** inside the output files so execution can be logged and traced consistently.
 
 ### Tasklist Root (deterministic)
+
 Determine `TASKLIST_ROOT` using this order:
 
 1. If the roadmap text contains a substring matching `.dev/releases/current/<segment>/` (first match), set:
@@ -72,6 +74,7 @@ Determine `TASKLIST_ROOT` using this order:
    `TASKLIST_ROOT = .dev/releases/current/v0.0-unknown/`
 
 ### Standard artifact paths (must appear in output)
+
 Within `TASKLIST_ROOT`, reference these paths exactly:
 
 - **Index file:** `TASKLIST_ROOT/tasklist-index.md`
@@ -130,6 +133,7 @@ When the tasklist generator has access to TDD and/or PRD source documents (via a
 **Without source documents:** The generator works from the roadmap alone (current baseline behavior). Tasks are decomposed from roadmap item descriptions and success criteria only.
 
 **With source documents:** The generator cross-references roadmap milestones against source document sections to produce tasks with:
+
 - Exact function/class names from TDD (§10 Component Inventory, §8 API Specs)
 - Specific test case references from TDD (§15 Testing Strategy)
 - Persona-tagged acceptance criteria from PRD (§7 User Personas)
@@ -146,6 +150,7 @@ When the tasklist generator has access to TDD and/or PRD source documents (via a
 Follow these steps exactly and in order.
 
 ### 4.1 Parse Roadmap Items
+
 1. Split the roadmap into "roadmap items" by scanning top-to-bottom.
 2. A new roadmap item starts at any of:
    - A markdown heading (`#`, `##`, `###`, etc.)
@@ -154,12 +159,14 @@ Follow these steps exactly and in order.
 3. If a paragraph contains multiple distinct requirements, split it into separate roadmap items at semicolons and sentences **only when** each clause is independently actionable.
 
 **Roadmap Item IDs (deterministic):**
+
 - Assign each parsed roadmap item an ID in appearance order: `R-001`, `R-002`, ...
 - `R-###` IDs must be used later in the Traceability Matrix.
 
 ### 4.1a Supplementary TDD Context (conditional on --spec flag)
 
 If `--spec <spec-path>` was provided:
+
 1. Read the file at `<spec-path>`.
 2. Detect if the file is TDD-format (input contains `## 10. Component Inventory` heading OR YAML frontmatter `type` contains "Technical Design Document" OR 20+ section headings matching TDD numbering pattern `## N. Heading`).
 3. If TDD-format: extract the following content and store as `supplementary_context`:
@@ -175,6 +182,7 @@ If `--spec <spec-path>` was provided:
 ### 4.1b Supplementary PRD Context (conditional on --prd-file flag)
 
 If `--prd-file <prd-path>` was provided (or auto-wired from `.roadmap-state.json`):
+
 1. Read the file at `<prd-path>`.
 2. Extract the following content and store as `prd_context`:
    - `user_personas`: scan for User Personas section (S7); extract persona names, needs, and primary workflows
@@ -195,6 +203,7 @@ superclaude tasklist validate ./output   # auto-wires both files from state
 ```
 
 **Precedence rules:**
+
 - Explicit CLI flags (`--tdd-file`, `--prd-file`) always override auto-wired values
 - Auto-wired values are used only when the CLI flag was not provided
 - If the auto-wired file path no longer exists on disk, a warning is emitted and the value is left as None
@@ -202,6 +211,7 @@ superclaude tasklist validate ./output   # auto-wires both files from state
 The state file stores `tdd_file`, `prd_file`, and `input_type` alongside the existing `spec_file` and `spec_hash` fields.
 
 ### 4.2 Determine Phase Buckets
+
 Create phases from the roadmap in a deterministic way:
 
 1. If the roadmap explicitly labels phases/versions/milestones (e.g., "Phase 1", "v2.0", "Milestone A"):
@@ -213,12 +223,14 @@ Create phases from the roadmap in a deterministic way:
      - Phase 3: Stabilize
 
 ### 4.3 Fix Phase Numbering (No Gaps; Missing Phase 8 Rule)
+
 Regardless of how phases are labeled in the roadmap:
 
 - Assign output phases **sequentially by appearance**: `Phase 1`, `Phase 2`, `Phase 3`, ... with **no skipped numbers**.
 - If the roadmap includes a numbering gap (e.g., Phase 7 then Phase 9), you do **not** preserve that gap. You renumber by appearance so there is always a Phase 8 if there are at least 8 phases' worth of buckets.
 
 ### 4.4 Convert Roadmap Items into Tasks
+
 For each roadmap item, generate one or more tasks using this rule:
 
 - Create **1 task** per roadmap item by default.
@@ -244,6 +256,7 @@ Runs after standard Step 4.4; appends additional tasks to appropriate phase buck
 | `release_criteria.definition_of_done` items | `Verify DoD: [item_text truncated to 60 chars]` | EXEMPT | End of final phase |
 
 **Generation-time enrichment (when TDD source document is available):** In addition to the task patterns above, the generator MUST cross-reference existing roadmap-derived tasks against the original TDD to add specificity:
+
 - Component inventory (§10) → implementation tasks enriched with named component classes, prop types, and dependency lists from the TDD
 - Test strategy (§15) → validation tasks enriched with named test cases, exact test descriptions, and expected behaviors from the TDD
 - Migration plan (§19) → deployment tasks enriched with named rollback steps, trigger conditions, and verification procedures from the TDD
@@ -261,12 +274,14 @@ Runs after standard Step 4.4 and 4.4a; appends additional tasks to appropriate p
 | `acceptance_scenarios` entries | `Verify acceptance: [scenario]` -- add as acceptance test task | STANDARD | Same phase as journey-related feature |
 
 PRD context also enriches existing tasks generated from the roadmap:
+
 - Tasks touching user-facing flows are annotated with the persona(s) they serve (from `user_personas`)
 - Tasks with measurable outcomes are annotated with the success metric(s) they contribute to (from `success_metrics`)
 - Task priority ordering reflects `stakeholder_priorities` when multiple tasks compete for the same phase
 - Tasks must not exceed `release_strategy.in_scope` boundaries; flag violations as scope warnings
 
 **Generation-time enrichment (when PRD source document is available):** In addition to the task patterns above, the generator MUST cross-reference existing roadmap-derived tasks against the original PRD to add product context:
+
 - User personas (§7) → user-facing implementation tasks enriched with which persona is served and their specific needs
 - Acceptance scenarios (§7/§22) → verification tasks enriched with concrete acceptance criteria from PRD user stories and customer journey maps
 - Success metrics (§19) → tasks enriched with metric instrumentation subtasks (tracking code, dashboard configuration, alert thresholds)
@@ -274,6 +289,7 @@ PRD context also enriches existing tasks generated from the roadmap:
 - Scope boundaries (§12) → tasks annotated with explicit 'in scope' / 'out of scope' markers where roadmap milestones approach defined scope edges
 
 ### 4.5 Task ID, Ordering, and Naming (Deterministic)
+
 - Task IDs are zero-padded: `T<PP>.<TT>` where:
   - `PP` = phase number (2 digits)
   - `TT` = task number within the phase (2 digits)
@@ -283,6 +299,7 @@ PRD context also enriches existing tasks generated from the roadmap:
   2. If dependencies are explicit, reorder **only** to ensure dependencies appear earlier **within the same phase**. If cross-phase dependency exists, keep phase order and list dependency in the task.
 
 ### 4.6 Clarification Tasks (When Info Is Missing)
+
 If a task cannot be made executable without missing specifics (e.g., target platform, data source, auth model, SLA), you must not guess.
 
 Instead, insert a **Clarification Task** immediately before the blocked task:
@@ -294,6 +311,7 @@ Instead, insert a **Clarification Task** immediately before the blocked task:
 
 **Confidence-Triggered Clarification**
 Also insert a Clarification Task when tier classification confidence < 0.70:
+
 - Title format: `Confirm: <task title> tier classification`
 - Deliverable: Confirmed tier selection with justification
 - Acceptance: "Tier confirmed by stakeholder" and "Override reason documented if changed"
@@ -301,6 +319,7 @@ Also insert a Clarification Task when tier classification confidence < 0.70:
 Clarification Task IDs follow normal numbering.
 
 ### 4.7 Acceptance Criteria and Validation (No Vague Ranges)
+
 Every task must include:
 
 - **Deliverables:** 1-5 concrete outputs.
@@ -372,9 +391,11 @@ Checkpoint task IDs never collide with regular task IDs — they share the
 phase-scoped numbering and the generator assigns them in emission order.
 
 ### 4.9 No Policy Forks + Tier Conflict Resolution
+
 If the roadmap implies alternative approaches ("either X or Y"), you must choose deterministically:
 
 Tie-breakers in order:
+
 1. Prefer the approach explicitly named in the roadmap.
 2. Else prefer the approach that requires **no new external dependencies**.
 3. Else prefer the approach that is **reversible** (can be rolled back).
@@ -391,6 +412,7 @@ When a conflict is resolved, record in Notes:
 `"Tier conflict: [X vs Y] -> resolved to [winner] by priority rule"`
 
 ### 4.10 Verification Routing (deterministic)
+
 Each task must include a **Verification Method** based on computed tier:
 
 | Tier | Verification Method | Token Budget | Timeout |
@@ -401,10 +423,13 @@ Each task must include a **Verification Method** based on computed tier:
 | EXEMPT | Skip verification | 0 | 0s |
 
 ### 4.11 Critical Path Override (deterministic)
+
 Apply critical path override when task involves paths matching:
+
 - `auth/`, `security/`, `crypto/`, `models/`, `migrations/`
 
 When detected:
+
 - Set `Critical Path Override: Yes`
 - Always trigger CRITICAL verification regardless of computed tier
 - Log override reason in Notes
@@ -414,9 +439,11 @@ When detected:
 ## Deterministic Enrichment (Value Preservation Without Nondeterminism)
 
 ### 5.1 Deliverable Registry (mandatory, deterministic)
+
 In addition to tasks, you must produce a **Deliverable Registry** that makes outputs traceable and execution-ready.
 
 **Deliverable IDs (deterministic):**
+
 - Each task must declare **1-5 deliverables** (Section 4.7).
 - Assign each deliverable an ID in task order, then deliverable order: `D-0001`, `D-0002`, ...
 - Deliverable IDs must be referenced:
@@ -426,6 +453,7 @@ In addition to tasks, you must produce a **Deliverable Registry** that makes out
 
 **Deliverable artifact paths (placeholders, deterministic):**
 For each deliverable `D-####`, list 1+ intended artifact paths using:
+
 - `TASKLIST_ROOT/artifacts/D-####/` (directory placeholder)
 - One or more filenames as placeholders, using only these deterministic patterns:
   - `TASKLIST_ROOT/artifacts/D-####/spec.md`
@@ -458,9 +486,11 @@ Rules:
   remain linked into the Traceability Matrix.
 
 ### 5.2 Effort + Risk Labels (mandatory, deterministic mapping)
+
 Each task must include **Effort** and **Risk** labels computed deterministically from the roadmap item text (and from whether the item was split per Section 4.4). These labels are **planning metadata**, not claims about reality.
 
 #### 5.2.1 Effort mapping (deterministic)
+
 Output one of: `XS | S | M | L | XL`
 
 Compute `EFFORT_SCORE`:
@@ -474,6 +504,7 @@ Compute `EFFORT_SCORE`:
   - `+1` if text contains dependency words: `depends`, `requires`, `blocked`, `blocker`
 
 Map score -> label:
+
 - `0` -> `XS`
 - `1` -> `S`
 - `2` -> `M`
@@ -481,6 +512,7 @@ Map score -> label:
 - `4+` -> `XL`
 
 #### 5.2.2 Risk mapping (deterministic)
+
 Output one of: `Low | Medium | High`
 
 Compute `RISK_SCORE`:
@@ -495,27 +527,33 @@ Compute `RISK_SCORE`:
   - `+1` if text implies cross-cutting scope via any of: `end-to-end`, `all`, `across`, `system-wide`, `platform`, `multi-tenant`
 
 Map score -> label:
+
 - `0-1` -> `Low`
 - `2-3` -> `Medium`
 - `4+` -> `High`
 
 **Risk drivers (mandatory):**
+
 - Under each task, list the matched keyword categories as `Risk Drivers: ...` (do not add unlisted drivers).
 
 ### 5.3 Compliance Tier Classification (mandatory, deterministic)
+
 Each task must include a **Compliance Tier** computed deterministically using the `/sc:task` classification algorithm.
 
 **Priority order:** `STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)`
 
 #### 5.3.1 Compound Phrase Overrides (check first)
+
 Before keyword matching, check for compound phrases:
 
 **LIGHT overrides:**
+
 - "quick fix", "minor change", "fix typo", "small update"
 - "update comment", "refactor comment", "fix spacing", "fix lint"
 - "rename variable"
 
 **STRICT overrides** (security always wins):
+
 - "fix security", "add authentication", "update database"
 - "change api", "modify schema"
 - Any LIGHT modifier + security keyword -> STRICT
@@ -523,48 +561,59 @@ Before keyword matching, check for compound phrases:
 If compound phrase matches, use that tier with +0.15 confidence boost.
 
 #### 5.3.2 Tier Keyword Matching
+
 Scan roadmap item text for tier keywords:
 
 **STRICT keywords (+0.4 each match):**
+
 - Security: authentication, security, authorization, password, credential, token, secret, encrypt, permission, session, oauth, jwt
 - Data: database, migration, schema, model, transaction, query
 - Scope: refactor, remediate, restructure, overhaul, multi-file, system-wide, breaking change, api contract
 
 **EXEMPT keywords (+0.4 each match):**
+
 - Questions: what, how, why, explain, understand, describe, clarify
 - Exploration: explore, investigate, analyze (read-only), review, check, show
 - Planning: plan, design, brainstorm, consider, evaluate
 - Git: commit, push, pull, merge, rebase, status, diff, log
 
 **LIGHT keywords (+0.3 each match):**
+
 - Trivial: typo, spelling, grammar, format, formatting, whitespace, indent
 - Minor: comment, documentation (inline), rename (simple), lint, style
 - Modifiers: minor, small, quick, trivial, simple, tiny, brief
 
 **STANDARD keywords (+0.2 each match):**
+
 - Development: implement, add, create, update, fix, build, modify, change, edit
 - Removal: remove, delete, deprecate
 
 #### 5.3.3 Context Boosters
+
 Apply score adjustments based on task context:
 
 **File count boosters:**
+
 - Task affects >2 files: +0.3 toward STRICT
 - Task affects exactly 1 file: +0.1 toward LIGHT
 
 **Path pattern boosters:**
+
 - Paths contain `auth/`, `security/`, `crypto/`: +0.4 toward STRICT
 - Paths contain `docs/`, `*.md`: +0.5 toward EXEMPT
 - Paths contain `tests/`: +0.2 toward STANDARD
 
 **Operation boosters:**
+
 - Read-only operation: +0.4 toward EXEMPT
 - Git operation: +0.5 toward EXEMPT
 
 ### 5.4 Confidence Scoring (mandatory)
+
 Each task must include a **Confidence Score** for tier classification:
 
 **Compute CONFIDENCE_SCORE:**
+
 1. Base: `max(tier_scores)` capped at 0.95
 2. Reduce by 15% if top two tiers within 0.1 (ambiguity penalty)
 3. Boost by 15% if compound phrase matched
@@ -575,6 +624,7 @@ Each task must include a **Confidence Score** for tier classification:
 **Threshold rule:** Flag tasks with Confidence < 0.70 as `Requires Confirmation: Yes`
 
 ### 5.5 MCP Tool Requirements (mandatory)
+
 Each task must declare tool dependencies based on tier:
 
 | Tier | Required Tools | Preferred Tools | Fallback Allowed |
@@ -585,6 +635,7 @@ Each task must declare tool dependencies based on tier:
 | EXEMPT | None | None | Yes |
 
 ### 5.6 Sub-Agent Delegation (mandatory)
+
 Each task must include delegation requirements:
 
 - **Required:** STRICT tier + Risk = High
@@ -594,7 +645,9 @@ Each task must include delegation requirements:
 Agent type: `quality-engineer` for verification
 
 ### 5.7 Traceability Matrix (mandatory, minimal)
+
 Add a Traceability Matrix section that connects:
+
 - `R-###` (Roadmap Item IDs) -> `T<PP>.<TT>` (Tasks) -> `D-####` (Deliverables) -> intended artifact paths -> **Tier** -> **Confidence**
 
 This table lives in `tasklist-index.md`, not in phase files.
@@ -610,11 +663,13 @@ Your output is a **multi-file bundle** per the File Emission Rules. During gener
 The index file contains all cross-phase metadata, registries, traceability, and templates. It has this structure:
 
 #### Title
+
 `# TASKLIST INDEX -- <Roadmap Name or Short Description>`
 
 If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 
 #### Metadata & Artifact Paths
+
 `## Metadata & Artifact Paths`
 
 | Field | Value |
@@ -656,20 +711,26 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | ... | ... | ... | ... | ... |
 
 Rules:
+
 - The **File** column must contain **literal filenames** (e.g., `phase-1-tasklist.md`) -- NOT path-prefixed. The Sprint CLI regex scans the index text for these patterns.
 - "Phase Name" is derived from the roadmap bucket heading; if none, use the default names from Section 4.2.
 - "Task IDs" is a compact range like `T01.01-T01.07` (only if continuous), otherwise comma-separated.
 - "Tier Distribution" shows count per tier: `STRICT: 2, STANDARD: 5, LIGHT: 1, EXEMPT: 0`
 
 #### Source Snapshot
+
 `## Source Snapshot`
+
 - 3-6 bullets, strictly derived from roadmap text.
 
 #### Deterministic Rules Applied
+
 `## Deterministic Rules Applied`
+
 - 8-12 bullets summarizing rules you applied (phase renumbering, task ID scheme, checkpoint cadence, clarification task rule, deliverable registry, effort/risk mappings, tier classification algorithm, verification routing, MCP requirements, traceability matrix, multi-file output).
 
 #### Roadmap Item Registry
+
 `## Roadmap Item Registry`
 A markdown table with columns:
 
@@ -677,10 +738,12 @@ A markdown table with columns:
 |---|---|---|
 
 Rules:
+
 - `Roadmap Item ID` is `R-###` in appearance order (Section 4.1).
 - `Original Text` is a direct excerpt; truncate deterministically at 20 words (do not paraphrase).
 
 #### Deliverable Registry
+
 `## Deliverable Registry`
 A markdown table with columns:
 
@@ -688,11 +751,13 @@ A markdown table with columns:
 |---:|---:|---:|---|---|---|---|---|---|
 
 Rules:
+
 - `Deliverable ID` is `D-####` in global appearance order (Section 5.1).
 - `Tier` and `Verification` propagate from parent task.
 - `Intended Artifact Paths` must use `TASKLIST_ROOT/artifacts/D-####/...` patterns only (Section 5.1).
 
 #### Traceability Matrix
+
 `## Traceability Matrix`
 
 A single markdown table with columns:
@@ -701,12 +766,14 @@ A single markdown table with columns:
 |---:|---:|---:|---|---|---|
 
 Rules:
+
 - Every `R-###` must appear at least once.
 - Every task must reference at least one `R-###`.
 - Every deliverable must appear exactly once in the Deliverable Registry and at least once here.
 - Tier and Confidence enable filtering by compliance level.
 
 #### Execution Log Template
+
 `## Execution Log Template`
 
 This is a template to be filled during execution (do not fabricate entries).
@@ -719,15 +786,18 @@ Table schema:
 |---|---:|---|---:|---|---|---|---|
 
 Rules:
+
 - If no command is provided in the roadmap, set `Validation Run` to `Manual`.
 - `Evidence Path` must be under `TASKLIST_ROOT/evidence/` (placeholder paths only).
 
 #### Checkpoint Report Template
+
 `## Checkpoint Report Template`
 
 For each checkpoint created under Section 4.8, execution must produce one report using this template (do not fabricate contents).
 
 **Template:**
+
 - `# Checkpoint Report -- <Checkpoint Title>`
 - `**Checkpoint Report Path:** TASKLIST_ROOT/checkpoints/<deterministic-name>.md`
 - `**Scope:** <tasks covered>`
@@ -741,6 +811,7 @@ For each checkpoint created under Section 4.8, execution must produce one report
   - Bullet list of intended evidence paths under `TASKLIST_ROOT/evidence/`
 
 #### Feedback Collection Template
+
 `## Feedback Collection Template`
 
 Track tier classification accuracy and execution quality for calibration learning.
@@ -753,6 +824,7 @@ Table schema:
 |---:|---|---|---|---|---|---|
 
 **Field definitions:**
+
 - `Override Tier`: Leave blank if no override; else the user-selected tier
 - `Override Reason`: Brief justification (e.g., "Involved auth paths", "Actually trivial")
 - `Completion Status`: `clean | minor-issues | major-issues | failed`
@@ -760,10 +832,13 @@ Table schema:
 - `Time Variance`: `under-estimate | on-target | over-estimate`
 
 #### Glossary
+
 `## Glossary`
+
 - Include only if the roadmap explicitly defines terms. Otherwise omit this section.
 
 #### Generation Notes (Optional)
+
 `## Generation Notes` -- Lists any fallback behaviors activated during generation (e.g., default phase bucketing, missing metadata inference). This section is informational; it does not affect Sprint CLI compatibility.
 
 ---
@@ -806,14 +881,17 @@ Each task uses this format:
 | Deliverable IDs | `D-####` (comma-separated; must include at least 1) |
 
 **Artifacts (Intended Paths):**
+
 - `TASKLIST_ROOT/artifacts/D-####/spec.md`
 - `TASKLIST_ROOT/artifacts/D-####/notes.md`
 - `TASKLIST_ROOT/artifacts/D-####/evidence.md`
 
 **Deliverables:**
+
 - 1-5 concrete outputs (human-readable descriptions aligned to the deliverable IDs)
 
 **Steps:**
+
 1. **[PLANNING]** Load context and identify scope
 2. **[PLANNING]** Check dependencies and blockers
 3. **[EXECUTION]** ...
@@ -822,12 +900,14 @@ Each task uses this format:
 6. **[COMPLETION]** Documentation and evidence
 
 **Acceptance Criteria:** (exactly 4 bullets)
+
 - ...
 - ...
 - ...
 - ...
 
 **Validation:** (exactly 2 bullets)
+
 - Manual check: ...
 - Evidence: linkable artifact produced (spec/test log/screenshot/doc)
 
@@ -838,11 +918,13 @@ Each task uses this format:
 **Near-Field Completion Criterion (Required):**
 The first Acceptance Criteria bullet MUST name a specific, objectively verifiable output.
 Accepted forms:
+
 - A named file or artifact at a specific path: "File `TASKLIST_ROOT/artifacts/D-####/spec.md` exists."
 - A test command outcome: "`uv run pytest tests/sprint/` exits 0 with all tests passing."
 - An observable state: "API endpoint returns HTTP 200 for valid input with response schema matching `OpenAPISpec S3.2`."
 
 Rejected forms (fail self-check):
+
 - "Implementation is complete."
 - "The feature works correctly."
 - "Tests pass." (without specifying which tests or command)
@@ -854,6 +936,7 @@ If the roadmap provides no verifiable output signal, use:
 "Manual check: <specific observable behavior described in roadmap> verified by reviewer."
 
 **Acceptance Criteria Specificity Rules:**
+
 - At least one criterion per task MUST reference a specific artifact (file, test, endpoint, config)
 - Generic criteria ("code works", "tests pass", "properly formatted") MUST be replaced with specific equivalents ("unit tests in test_auth.py pass", "API returns 200 for valid input")
 - Tier-proportional enforcement:
@@ -1048,11 +1131,13 @@ Return **only** the generated multi-file bundle (`tasklist-index.md` + `phase-N-
 ## Appendix: Tier Classification Quick Reference
 
 ### Priority Order (Conflict Resolution)
+
 ```
 STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 ```
 
 ### Compound Phrase Overrides
+
 | Phrase | Tier | Rationale |
 |--------|------|-----------|
 | "quick fix" | LIGHT | Modifier indicates triviality |
@@ -1062,6 +1147,7 @@ STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 | "update database" | STRICT | Data integrity |
 
 ### Context Booster Summary
+
 | Signal | Tier Boost | Amount |
 |--------|------------|--------|
 | >2 files affected | STRICT | +0.3 |
@@ -1071,6 +1157,7 @@ STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 | git operation | EXEMPT | +0.5 |
 
 ### Verification Routing Summary
+
 | Tier | Method | Agent | Timeout |
 |------|--------|-------|---------|
 | STRICT | Sub-agent spawn | quality-engineer | 60s |
@@ -1110,6 +1197,7 @@ This produces **2N agents** total, all spawned via the `Task` tool (Agent) and r
 > You are a tasklist validation agent. You receive a subset of tasks from a generated phase file and the source roadmap they were derived from.
 >
 > For each task in your assigned range, check:
+>
 > 1. **Drift**: Does the task accurately reflect the roadmap requirement it traces to (via `R-###`)? Are acceptance criteria, validation commands, and deliverables faithful to the roadmap?
 > 2. **Contradictions**: Does the task contradict any roadmap statement? Does it claim capabilities, fallbacks, or behaviors the roadmap does not support?
 > 3. **Omissions**: Does the roadmap require something for this task's scope that the task does not include? Are exit criteria, test commands, or rollback requirements missing?
@@ -1117,6 +1205,7 @@ This produces **2N agents** total, all spawned via the `Task` tool (Agent) and r
 > 5. **Invented content**: Does the task introduce requirements, tests, behaviors, or constraints not present in the roadmap?
 >
 > For each finding, return a structured entry:
+>
 > - **Severity**: High | Medium | Low
 > - **Task ID**: T<PP>.<TT>
 > - **Problem**: 1-2 sentence description
@@ -1129,6 +1218,7 @@ This produces **2N agents** total, all spawned via the `Task` tool (Agent) and r
 **Orchestrator merge and deduplication**:
 
 After all 2N agents return, the orchestrator:
+
 1. Collects all findings into a single list
 2. Deduplicates: if two agents (from the same phase split boundary or adjacent phases) report the same issue on the same task, keep only one entry
 3. Sorts by severity (High first), then by phase number, then by task ID
@@ -1154,17 +1244,20 @@ Findings merged into the same consolidated findings list used by Stage 8. Standa
 **Purpose**: Transform the consolidated findings from Stage 7 into 2 actionable artifacts written to `TASKLIST_ROOT/validation/`.
 
 **Short-circuit rule**: If Stage 7 produced zero findings across all agents, write a clean `ValidationReport.md` containing:
+
 ```
 # Validation Report
 Generated: <ISO-8601 date>
 Roadmap: <roadmap path>
 Result: CLEAN — no drift detected across N phases and M tasks.
 ```
+
 Then skip Stages 9 and 10. The skill is complete.
 
 **Artifact 1: `TASKLIST_ROOT/validation/ValidationReport.md`**
 
 Structure:
+
 ```
 # Validation Report
 Generated: <ISO-8601 date>
@@ -1197,6 +1290,7 @@ Total findings: X (High: H, Medium: M, Low: L)
 **Artifact 2: `TASKLIST_ROOT/validation/PatchChecklist.md`**
 
 Structure:
+
 ```
 # Patch Checklist
 Generated: <ISO-8601 date>
@@ -1233,6 +1327,7 @@ Diff intent: <specific before/after wording>
 ```
 
 Rules:
+
 - Edits ordered by severity (High-severity file edits first)
 - Each checklist item references its finding ID (H1, M3, etc.)
 - Diff intents are specific enough to execute without ambiguity
@@ -1246,10 +1341,12 @@ Rules:
 **Purpose**: Apply all corrections from the PatchChecklist to the generated phase files.
 
 **Mechanism**: Invoke `sc:task` via the `Skill` tool with:
+
 - Input: `"Execute TASKLIST_ROOT/validation/PatchChecklist.md"` (full resolved path)
 - Compliance: `--compliance strict`
 
 The `sc:task` skill handles:
+
 - Reading the checklist
 - Applying edits to each phase file
 - Tracing changes for compliance
@@ -1266,6 +1363,7 @@ The orchestrator does NOT apply patches itself. Separation of concerns: the task
 **Mechanism**: A single verification pass (not parallelized — the finding list is typically small and each check is a targeted read):
 
 For each finding in `ValidationReport.md`:
+
 1. Read the specific section/task in the phase file that was flagged
 2. Verify the exact fix described in the finding was applied
 3. Verify no regression in surrounding context (e.g., the fix didn't break an adjacent checkpoint or acceptance criterion)
@@ -1315,6 +1413,7 @@ The skill executes in 10 stages with per-stage validation. Stage reporting uses 
 **Short-circuit gate** (Stage 8): If Stage 7 produces zero findings, Stages 9-10 are skipped. A clean ValidationReport.md is written and the skill completes at Stage 8.
 
 **Dependency chain** (Stages 7-10):
+
 - Stage 7 is blocked by Stage 6
 - Stage 8 is blocked by Stage 7
 - Stage 9 is blocked by Stage 8
@@ -1338,6 +1437,7 @@ TaskCreate: "Stage 10: Spot-Check Verification" (activeForm: "Verifying patch ap
 ```
 
 Dependencies:
+
 - Stage 2: blockedBy Stage 1
 - Stage 3: blockedBy Stage 2
 - Stage 4: blockedBy Stage 3
@@ -1349,6 +1449,7 @@ Dependencies:
 - Stage 10: blockedBy Stage 9
 
 Per-stage completion messages (in TaskUpdate description):
+
 - Stage 1: "Input Ingest: roadmap parsed, N sections identified"
 - Stage 2: "Parse + Bucketing: N phases, M roadmap items assigned"
 - Stage 3: "Task Conversion: M tasks created, IDs T01.01-TNN.MM"

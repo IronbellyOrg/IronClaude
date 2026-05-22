@@ -43,6 +43,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 ## Research Quality Signals
 
 ### Strong Investigation Signals
+
 - Findings cite specific file paths and line numbers
 - Data flow is traced end-to-end, not just entry points
 - Integration points are mapped with actual function signatures
@@ -53,6 +54,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - rf-qa research gate shows PASS
 
 ### Weak Investigation Signals (Redo)
+
 - Vague descriptions without file paths ("the system uses a plugin architecture")
 - Assumptions stated as facts ("this probably works by...")
 - Missing gap analysis (everything seems fine — unlikely for non-trivial systems)
@@ -62,6 +64,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - Data model shapes undocumented despite being in scope
 
 ### When to Spawn Additional Agents
+
 - A research agent flags a gap that's critical to the design
 - Two agents' findings contradict each other — need a tie-breaker investigation
 - The scope turns out larger than initially estimated

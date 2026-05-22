@@ -74,6 +74,7 @@ The 5 warnings are non-blocking but worth addressing: the extraction/test-strate
 **Formula**: `interleave_ratio = unique_phases_with_deliverables / total_phases`
 
 **Values**:
+
 - `total_phases` = 5 (Phase 1, Phase 2, Phase 3, Phase 4, Phase 5)
 - `unique_phases_with_deliverables` = 5 (all phases contain explicit deliverables)
 

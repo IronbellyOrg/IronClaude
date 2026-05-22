@@ -3,6 +3,7 @@
 ## Scope
 
 This matrix summarizes releases **v2.10 through v2.20** using the same evidence base as the full narrative report:
+
 - **git commit messages** as the primary source of truth
 - **high-level release specs/docs** only where explicitly mapped by the user
 - **quick, shallow parallel review** for each release section

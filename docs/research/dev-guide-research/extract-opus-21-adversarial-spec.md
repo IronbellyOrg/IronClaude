@@ -1,10 +1,12 @@
 # Extraction: Adversarial Debate Feature — Complete Command + Skill + Agent Example
 
 ## Source Files
+
 - `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.7-adversarial/SC-ADVERSARIAL-SPEC.md` (v1.1.0, 2026-02-20)
 - `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.7-adversarial/roadmap.md` (v1.7.0, 2026-02-21)
 
 ## Extraction Purpose
+
 This document captures all information relevant to developing custom commands, skills, and agents for the SuperClaude framework, using the v1.7 adversarial debate feature as a complete worked example.
 
 ---
@@ -90,11 +92,13 @@ The spec also describes how **other commands invoke sc:adversarial** (Section 7.
 The command supports two distinct invocation patterns (FR-001):
 
 **Mode A: Compare existing files**
+
 ```bash
 /sc:adversarial --compare file1.md,file2.md[,file3.md,...,file10.md]
 ```
 
 **Mode B: Generate + compare from source**
+
 ```bash
 /sc:adversarial --source source.md --generate <type> --agents <agent-spec>[,<agent-spec>,...]
 ```
@@ -133,6 +137,7 @@ The `--agents` flag uses a hybrid format:
 When invoked by another command, sc:adversarial returns a structured contract:
 
 > "sc:adversarial returns:
+>
 > - Path to the merged output file
 > - Final convergence score
 > - Path to the adversarial/ artifacts directory
@@ -197,12 +202,14 @@ The `refs/` subdirectory contains detailed reference documents that the SKILL.md
 From spec Section FR-002, the skill orchestrates these steps:
 
 **Step 1: Diff Analysis**
+
 - Input: All variant artifacts
 - Output: `diff-analysis.md`
 - Identifies: structural differences, content differences, contradictions, unique contributions
 - Delegation: analytical agent
 
 **Step 2: Adversarial Debate**
+
 - Input: All variants + diff-analysis.md
 - Output: `debate-transcript.md`
 - Process: advocate agents argue for their variant, with configurable rounds
@@ -211,18 +218,21 @@ From spec Section FR-002, the skill orchestrates these steps:
 - Delegation: debate-orchestrator coordinates, domain agents participate
 
 **Step 3: Base Selection**
+
 - Input: All variants + debate-transcript.md
 - Output: `base-selection.md`
 - Uses hybrid quantitative-qualitative scoring (50/50 weight)
 - Delegation: debate-orchestrator agent
 
 **Step 4: Refactoring Plan**
+
 - Input: Selected base + all other variants + debate-transcript.md
 - Output: `refactor-plan.md`
 - Generates actionable merge plan with integration points
 - Delegation: debate-orchestrator drafts, analytical agent reviews
 
 **Step 5: Merge Execution**
+
 - Input: Base variant + refactor-plan.md
 - Output: Unified merged artifact + `merge-log.md`
 - Maintains provenance annotations
@@ -247,6 +257,7 @@ From FR-005:
 ```
 
 Naming conventions:
+
 - Mode A: `variant-1-original.md`, `variant-2-original.md` (copies of input files)
 - Mode B: `variant-1-<model>-<persona>.md`, e.g., `variant-1-opus-architect.md`
 
@@ -261,6 +272,7 @@ From spec Section 5.1:
 > "**Purpose**: Coordinates the entire adversarial pipeline. Does NOT participate in debates - it manages the process."
 
 Responsibilities:
+
 - Parse input mode and validate parameters
 - Dispatch variant generation (Mode B) in parallel
 - Coordinate the 5-step protocol
@@ -285,6 +297,7 @@ From spec Section 5.2:
 > "**Purpose**: Executes refactoring plans to produce unified merged artifacts. Specialist in document integration."
 
 Responsibilities:
+
 - Read the base variant and refactoring plan
 - Apply each planned change methodically
 - Maintain structural integrity during merge
@@ -308,12 +321,14 @@ From spec Section 5.3:
 > "These are NOT pre-defined agents. They are instantiated dynamically from the `--agents` specification."
 
 Each advocate:
+
 - Receives their variant + all other variants + diff-analysis.md
 - Argues for their variant's strengths in the specified focus areas
 - Critiques weaknesses in other variants with evidence
 - Responds to rebuttals in subsequent rounds
 
 > "The advocate's behavior is shaped by:
+>
 > - The model specified (opus, sonnet, haiku)
 > - The persona specified (architect, security, analyzer, etc.)
 > - The custom instruction (if provided)"
@@ -337,6 +352,7 @@ From Appendix A — this is the most detailed algorithm in the spec and demonstr
 | Section Coverage | SC | 0.15 | section count / max section count across variants |
 
 Formula:
+
 ```
 quant_score = (RC * 0.30) + (IC * 0.25) + (SR * 0.15) + (DC * 0.15) + (SC * 0.15)
 ```
@@ -344,16 +360,19 @@ quant_score = (RC * 0.30) + (IC * 0.25) + (SR * 0.15) + (DC * 0.15) + (SC * 0.15
 **Qualitative Layer (50% weight)** — LLM-assessed with strict evidence requirements:
 
 Five dimensions, each with 5 binary criteria (25 total):
+
 - Completeness, Correctness, Structure, Clarity, Risk Coverage
 - Each criterion: 1 point if met, 0 if not. No partial credit.
 - Evidence citation required via Claim-Evidence-Verdict (CEV) protocol
 
 Formula:
+
 ```
 qual_score = total_criteria_met / 25
 ```
 
 **Combined**:
+
 ```
 variant_score = (0.50 * quant_score) + (0.50 * qual_score)
 ```
@@ -361,10 +380,12 @@ variant_score = (0.50 * quant_score) + (0.50 * qual_score)
 ### 5.2 Position-Bias Mitigation
 
 > "The qualitative evaluation runs twice per variant:
+>
 > - **Pass 1**: Variants evaluated in input order (A, B, C, ...)
 > - **Pass 2**: Variants evaluated in reverse order (C, B, A, ...)
 >
 > Per criterion, per variant:
+>
 > - If both passes agree -> use the agreed verdict
 > - If passes disagree -> criterion is re-evaluated with explicit comparison prompt citing both passes' evidence, and the re-evaluation verdict is final
 >
@@ -373,6 +394,7 @@ variant_score = (0.50 * quant_score) + (0.50 * qual_score)
 ### 5.3 Tiebreaker Protocol
 
 > "If the top two variants score within 5% of each other:
+>
 > 1. Debate performance breaks the tie: the variant that won more diff points in Step 2 is selected
 > 2. If debate performance is also tied: the variant with higher correctness criteria count wins
 > 3. If still tied: the variant presented first in the input order is selected (arbitrary but deterministic)"
@@ -382,6 +404,7 @@ variant_score = (0.50 * quant_score) + (0.50 * qual_score)
 > "Measured as percentage of diff points where agents agree on the superior approach. Default threshold: 80%."
 
 Depth controls how many rounds are allowed:
+
 - `quick`: 1 round (advocate statements only)
 - `standard`: 2 rounds (advocate + rebuttal)
 - `deep`: Up to 3 rounds, continuing until convergence threshold or max rounds
@@ -424,6 +447,7 @@ Circuit breaker fallback:
 From the roadmap, Implementation Strategy section:
 
 > "Each milestone produces testable artifacts. Validate each step's output quality before proceeding:
+>
 > 1. **M0**: Scaffold -> `make sync-dev` -> verify all files exist
 > 2. **M1**: Test with 2 real markdown files -> inspect diff-analysis.md quality
 > 3. **M2**: Test with diff-analysis.md from M1 -> inspect debate-transcript.md for genuine disagreement (not sycophantic)
@@ -454,6 +478,7 @@ From the roadmap, Implementation Strategy section:
 ### 8.3 Success Criteria (from Spec Section 11)
 
 **Functional**:
+
 - Mode A (compare) produces valid merged output from 2-10 input files
 - Mode B (generate) produces variants using specified agent configurations
 - All 5 protocol steps execute and produce documented artifacts
@@ -463,12 +488,14 @@ From the roadmap, Implementation Strategy section:
 - Return contract provides all required fields to calling command
 
 **Quality**:
+
 - Every decision traceable to evidence in artifacts
 - Merged output incorporates documented strengths from all variants
 - No silent conflict resolution — all contradictions addressed in artifacts
 - Provenance annotations in merged output
 
 **Performance**:
+
 - Variant generation runs in parallel (Mode B)
 - Standard depth completes in <5 minutes for typical artifacts
 - 5-10 agents supported without degradation
@@ -548,6 +575,7 @@ The spec was created through brainstorming, then reviewed by a spec panel that a
 ### 10.2 Spec Phase
 
 The spec (SC-ADVERSARIAL-SPEC.md) contains 15 sections covering:
+
 1. Executive Summary
 2. Scope (in/out)
 3. Functional Requirements (FR-001 through FR-007)
@@ -584,6 +612,7 @@ Total: 23-33 hours (~4-5 days), strictly sequential critical path.
 > "Recommended Approach: Bottom-Up with Artifact Validation"
 
 Each milestone produces testable artifacts, validated before proceeding. The roadmap explicitly identifies:
+
 - Parallel execution opportunities (T2.2, T5.2, T3.3)
 - Model selection per agent role
 - Risk mitigations per milestone
@@ -595,6 +624,7 @@ From roadmap M0 acceptance criteria:
 > "All files created, `make sync-dev` copies to `.claude/`, `make verify-sync` passes."
 
 This is the standard workflow for all SuperClaude component development:
+
 1. Edit files in `src/superclaude/` (source of truth)
 2. Run `make sync-dev` to copy to `.claude/` (where Claude Code reads them)
 3. Run `make verify-sync` to confirm sync
@@ -614,6 +644,7 @@ The orchestrator pattern is central: the debate-orchestrator coordinates but doe
 From the roadmap:
 
 > "**Parallel Execution Opportunities**:
+>
 > - M2 T2.2: Advocate statements generated in parallel (all agents simultaneously)
 > - M5 T5.2: Mode B variant generation in parallel (all agents simultaneously)
 > - M3 T3.3: Position-bias dual-pass can run in parallel (forward + reverse simultaneously)"

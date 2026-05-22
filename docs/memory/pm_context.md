@@ -8,6 +8,7 @@
 ## Project Overview
 
 SuperClaude is a comprehensive framework for Claude Code that provides:
+
 - Persona-based specialized agents (frontend, backend, security, etc.)
 - MCP server integrations (Context7, Magic, Morphllm, Sequential, etc.)
 - Slash command system for workflow automation
@@ -26,11 +27,13 @@ SuperClaude is a comprehensive framework for Claude Code that provides:
 ## Token Efficiency Architecture (2025-10-17 Redesign)
 
 ### Layer 0: Bootstrap (Always Active)
+
 - **Token Cost**: 150 tokens (95% reduction from old 2,300 tokens)
 - **Operations**: Time awareness + repo detection + session initialization
 - **Philosophy**: User Request First - NO auto-loading before understanding intent
 
 ### Intent Classification System
+
 ```yaml
 Ultra-Light (100-500 tokens):   "progress", "status", "update" → Layer 1 only
 Light (500-2K tokens):          "typo", "rename", "comment" → Layer 2 (target file)
@@ -40,6 +43,7 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
 ```
 
 ### Progressive Loading (5-Layer Strategy)
+
 - **Layer 1**: Minimal context (mindbase: 500 tokens | fallback: 800 tokens)
 - **Layer 2**: Target context (500-1K tokens)
 - **Layer 3**: Related context (mindbase: 3-4K | fallback: 4.5K)
@@ -47,12 +51,14 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
 - **Layer 5**: External research (20-50K tokens, WARNING required)
 
 ### Workflow Metrics Collection
+
 - **File**: `docs/memory/workflow_metrics.jsonl`
 - **Purpose**: Continuous A/B testing for workflow optimization
 - **Data**: task_type, complexity, workflow_id, tokens_used, time_ms, success
 - **Strategy**: ε-greedy (80% best workflow, 20% experimental)
 
 ### Error Learning & Memory Integration
+
 - **ReflexionMemory (built-in)**: Layer 1: 650 tokens | Layer 3: 3.5-4K tokens
 - **mindbase (optional)**: Layer 1: 500 tokens | Layer 3: 3-3.5K tokens (semantic search)
 - **Profile**: Requires airis-mcp-gateway "recommended" profile for mindbase
@@ -69,6 +75,7 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
 ## Recent Changes (2025-10-17)
 
 ### PM Agent Token Efficiency Redesign
+
 - **Removed**: Auto-loading 7 files on startup (2,300 tokens wasted)
 - **Added**: Layer 0 Bootstrap (150 tokens) + Intent Classification
 - **Added**: Progressive Loading (5-layer) + Workflow Metrics
@@ -78,6 +85,7 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
   - Medium tasks: 7,000 → 4,500 tokens (36% reduction)
 
 ### Research Integration
+
 - **Report**: `docs/research/llm-agent-token-efficiency-2025.md`
 - **Benchmarks**: Trajectory Reduction (99%), AgentDropout (21.6%), Vector DB (90%)
 - **Source**: Anthropic, Microsoft AutoGen v0.4, CrewAI + Mem0, LangChain

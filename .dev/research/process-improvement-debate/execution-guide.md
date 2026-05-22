@@ -17,6 +17,7 @@ output to the specified .md file in `/config/workspace/IronHands-CLI/.dev/Resear
 ### Claude Code Agent Invocation (copy-paste ready)
 
 For each agent, the orchestrating agent should:
+
 1. Read the prompt file
 2. Invoke `/sc:brainstorm` with the prompt content
 3. Write the brainstorm output to the specified output file
@@ -57,6 +58,7 @@ process-improvement-debate/
 ## Scoring Framework Reference
 
 See `scoring-framework.md` for the 4-dimension scoring system:
+
 - Implementation Complexity (20% weight, inverted)
 - Cost/Time Overhead (15% weight, inverted)
 - Likelihood of Impact (40% weight, direct)

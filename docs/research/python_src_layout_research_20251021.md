@@ -11,11 +11,13 @@
 **結論**: `src/superclaude/` の二重ネストは**正しい**が、**必須ではない**
 
 **あなたの感覚は正しい**：
+
 - リポジトリ名 = パッケージ名が一般的
 - `src/` layout自体は推奨されているが、パッケージ名の重複は避けられる
 - しかし、PyPA公式例は `src/package_name/` を使用
 
 **選択肢**：
+
 1. **標準的** (PyPA推奨): `src/superclaude/` ← 今の構造
 2. **シンプル** (可能): `src/` のみでモジュール直下に配置
 3. **フラット** (古い): リポジトリ直下に `superclaude/`
@@ -26,9 +28,10 @@
 
 ### 1. PyPA公式ガイドライン
 
-**ソース**: https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/
+**ソース**: <https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/>
 
 **公式例**:
+
 ```
 project_root/
 ├── src/
@@ -40,6 +43,7 @@ project_root/
 ```
 
 **PyPAの推奨**:
+
 - `src/` layoutは**強く推奨** ("strongly suggested")
 - 理由：
   1. ✅ インストール前に誤ったインポートを防ぐ
@@ -59,6 +63,7 @@ project_root/
 | **setuptools** | `setuptools` | ❌ フラット `setuptools/` | `setuptools` | ルート直下 |
 
 **パターン**:
+
 - すべて **リポジトリ名 = パッケージ名**
 - Clickのみ `src/` layout採用
 - FastAPI/setuptoolsはフラット構造（古いプロジェクト）
@@ -68,6 +73,7 @@ project_root/
 ### 3. なぜ二重ネストが標準なのか
 
 **PyPA公式の構造例**:
+
 ```python
 # プロジェクト: awesome_package
 awesome_package/           # リポジトリ（GitHub名）
@@ -79,6 +85,7 @@ awesome_package/           # リポジトリ（GitHub名）
 ```
 
 **理由**:
+
 1. **明確な分離**: `src/` = インストール対象、その他 = 開発用
 2. **命名規則**: パッケージ名は `import` 時に使うので、リポジトリ名と一致させる
 3. **ツール対応**: hatchling/setuptoolsの `packages = ["src/package_name"]` 設定
@@ -91,11 +98,13 @@ awesome_package/           # リポジトリ（GitHub名）
 > リポジトリ名が `superclaude` なのに、なぜ `src/superclaude/` と重複？
 
 **答え**:
+
 1. **リポジトリ名** (`superclaude`): GitHub上の名前、プロジェクト全体
 2. **パッケージ名** (`src/superclaude/`): Pythonで `import superclaude` する際の名前
 3. **重複は正常**: 同じ名前を使うのが**標準的なパターン**
 
 **モノレポとの違い**:
+
 - モノレポ: 複数パッケージを含む (`src/package1/`, `src/package2/`)
 - SuperClaude: 単一パッケージなので、リポジトリ名 = パッケージ名
 
@@ -117,11 +126,13 @@ superclaude/                 # リポジトリ
 ```
 
 **メリット**:
+
 - ✅ PyPA公式推奨に完全準拠
 - ✅ Clickなど最新プロジェクトと同じ構造
 - ✅ パッケージングツールが期待する標準形式
 
 **デメリット**:
+
 - ❌ パス が長い: `src/superclaude/pm_agent/confidence.py`
 - ❌ 一見冗長に見える
 
@@ -140,16 +151,19 @@ superclaude/                 # リポジトリ
 ```
 
 **pyproject.toml変更**:
+
 ```toml
 [tool.hatch.build.targets.wheel]
 packages = ["src"]  # ← src自体をパッケージとして扱う
 ```
 
 **メリット**:
+
 - ✅ パスが短い
 - ✅ 重複感がない
 
 **デメリット**:
+
 - ❌ **非標準**: PyPA例と異なる
 - ❌ **混乱**: `src/` がパッケージ名になる（`import src`?）
 - ❌ ツール設定が複雑
@@ -169,10 +183,12 @@ superclaude/                 # リポジトリ
 ```
 
 **メリット**:
+
 - ✅ シンプル
 - ✅ FastAPI/setuptoolsと同じ
 
 **デメリット**:
+
 - ❌ **PyPA非推奨**: 開発時にインストール版と競合リスク
 - ❌ 古いパターン（新規プロジェクトは避けるべき）
 
@@ -183,12 +199,14 @@ superclaude/                 # リポジトリ
 ### 結論: **現在の構造を維持**
 
 **理由**:
+
 1. ✅ PyPA公式推奨に準拠
 2. ✅ 最新ベストプラクティス（Click参照）
 3. ✅ パッケージングツールとの相性が良い
 4. ✅ 将来的にモノレポ化も可能
 
 **あなたの疑問への回答**:
+
 - 二重ネストは**意図的な設計**
 - リポジトリ名（プロジェクト） ≠ パッケージ名（Python importable）
 - 同じ名前を使うのが**慣例**だが、別々の概念
@@ -220,11 +238,13 @@ superclaude/                 # リポジトリ
 **推奨**: 現在の構造を維持
 
 **もし変更するなら**:
+
 - [ ] `pyproject.toml` の `packages` 設定変更
 - [ ] 全テストのインポートパス修正
 - [ ] ドキュメント更新
 
 **変更しない理由**:
+
 - ✅ 現在の構造は正しい
 - ✅ PyPA推奨に準拠
 - ✅ 変更のメリットが不明確

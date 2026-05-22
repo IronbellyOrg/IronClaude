@@ -10,6 +10,7 @@ tasklist_ready: false
 ## Deviation Report
 
 ### DEV-001 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** Roadmap adds POST `/auth/logout` endpoint (API-007) and `AuthService.logout()` method not specified anywhere in the TDD. The TDD defines exactly 4 API endpoints in Section 8.1 and 5 functional requirements (FR-AUTH-001 through FR-AUTH-005); none involve logout.
 - **Source Quote:** TDD Section 8.1: "POST `/auth/login` [...] POST `/auth/register` [...] GET `/auth/me` [...] POST `/auth/refresh`" (complete API overview — no logout endpoint listed)
@@ -18,6 +19,7 @@ tasklist_ready: false
 - **Recommended Correction:** Either update the TDD to add FR-AUTH-006 (Logout) with full API specification and acceptance criteria, or annotate the roadmap task as "PRD-sourced, pending TDD amendment."
 
 ### DEV-002 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** Roadmap adds `consentTimestamp` field to the `UserProfile` schema (DM-001, NFR-COMP-001). The TDD `UserProfile` interface defines exactly 7 fields and does not include `consentTimestamp`.
 - **Source Quote:** TDD Section 7.1: `interface UserProfile { id: string; email: string; displayName: string; createdAt: string; updatedAt: string; lastLoginAt: string; roles: string[]; }`
@@ -26,6 +28,7 @@ tasklist_ready: false
 - **Recommended Correction:** Amend TDD Section 7.1 `UserProfile` interface and field table to include `consentTimestamp: string` with constraints and description.
 
 ### DEV-003 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** Roadmap introduces four compliance-specific tasks (NFR-COMP-001 through NFR-COMP-004) referencing GDPR, SOC2 Type II, and NIST standards. The TDD mentions "security audit requirements" generally and references NIST/bcrypt but does not define NFR-COMP identifiers or GDPR/SOC2 tasks.
 - **Source Quote:** TDD Section 2.3: "Compliance requires authentication audit trails before the Q3 regulatory review." (no GDPR, SOC2, or NFR-COMP-NNN identifiers)
@@ -34,6 +37,7 @@ tasklist_ready: false
 - **Recommended Correction:** Update TDD to incorporate compliance NFRs from the PRD, or document the roadmap's PRD-sourced additions as an explicit scope extension.
 
 ### DEV-004 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD specifies 90-day audit log retention. Roadmap does not implement 90 days; instead it gates Phase 1 on stakeholder resolution of OQ-6, noting a conflict between TDD (90 days) and PRD (12 months).
 - **Source Quote:** TDD Section 7.2: "Audit log | PostgreSQL 15 | Login attempts, password resets | 90 days"
@@ -42,6 +46,7 @@ tasklist_ready: false
 - **Recommended Correction:** Resolve the TDD/PRD conflict in the TDD (amend Section 7.2 to match the PRD's 12-month requirement, or document the 90-day decision with rationale). Then update the roadmap to reference the resolved value.
 
 ### DEV-005 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD Release Checklist (Section 24.2) requires validation of a `UserProfile` data migration script. The roadmap has no corresponding task.
 - **Source Quote:** TDD Section 24.2: "UserProfile data migration script validated with production-like dataset"
@@ -50,6 +55,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add an explicit task in Phase 4 or early Phase 5 for creating and validating the `UserProfile` data migration script against a production-like dataset.
 
 ### DEV-006 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD requires TLS 1.3 enforcement on all endpoints. The roadmap has no explicit task for TLS configuration.
 - **Source Quote:** TDD Section 13: "All endpoints enforce TLS 1.3, and sensitive fields (password, tokens) are excluded from application logs."
@@ -58,6 +64,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add TLS 1.3 enforcement as an acceptance criterion to the Phase 1 infrastructure setup or the Phase 4 security review task.
 
 ### DEV-007 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD specifies that the JWT `accessToken` payload must contain `user id and roles`. The roadmap's JwtService task (COMP-003) specifies signing/verification but does not define the JWT payload structure.
 - **Source Quote:** TDD Section 7.1 AuthToken field table: "accessToken | string (JWT) | NOT NULL | Signed by `JwtService` using RS256; contains user id and roles in payload"
@@ -66,6 +73,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add to COMP-003 acceptance criteria: "JWT payload includes `sub` (user id) and `roles` claims."
 
 ### DEV-008 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD defines 5 milestones with specific date targets and groupings (M1: AuthService + login/register by 2026-04-14; M2: TokenManager + refresh/me by 2026-04-28). The roadmap restructures into 5 phases with different groupings: Phase 1 is data layer only (1 week), Phase 2 is all backend services (2 weeks), Phase 3 combines API + frontend.
 - **Source Quote:** TDD Section 23.1: "M1: Core AuthService | 2026-04-14 | AuthService, PasswordHasher, UserProfile schema, POST /auth/register, POST /auth/login [...] M2: Token Management | 2026-04-28 | TokenManager, JwtService, AuthToken model, POST /auth/refresh, GET /auth/me"
@@ -74,6 +82,7 @@ tasklist_ready: false
 - **Recommended Correction:** Document the phasing divergence rationale (e.g., "data layer isolation reduces integration risk") and provide a TDD-milestone-to-roadmap-phase mapping table.
 
 ### DEV-009 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD expects integration tests to pass at M2 completion (Phase 1 exit criteria). The roadmap defers formal integration testing to Phase 4.
 - **Source Quote:** TDD Section 23.2: "Phase 1 (M1-M2): Build AuthService core with PasswordHasher and TokenManager. Exit criteria: all unit tests pass, integration tests against PostgreSQL and Redis pass."
@@ -82,6 +91,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add integration test tasks to Phase 2 exit criteria, or explicitly justify the deferral with rationale (e.g., "Phase 4 integration testing on frozen codebase reduces flaky test noise").
 
 ### DEV-010 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** TDD requires both passwords and tokens to be excluded from application logs. The roadmap's NFR-COMP-003 only validates password exclusion.
 - **Source Quote:** TDD Section 13: "sensitive fields (password, tokens) are excluded from application logs"
@@ -90,6 +100,7 @@ tasklist_ready: false
 - **Recommended Correction:** Expand NFR-COMP-003 acceptance criteria to include: "grep confirms no token values (access or refresh) in application logs."
 
 ### DEV-011 — LOW
+
 - **Severity:** LOW
 - **Deviation:** TDD provides specific milestone target dates (M1: 2026-04-14 through M5: 2026-06-09). The roadmap uses relative durations only (Week 1, Week 3, Week 5, etc.).
 - **Source Quote:** TDD Section 23.1: "M1: Core AuthService | 2026-04-14 [...] M5: GA Release | 2026-06-09"
@@ -98,6 +109,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add a note mapping roadmap weeks to approximate calendar dates based on Phase 1 start date.
 
 ### DEV-012 — LOW
+
 - **Severity:** LOW
 - **Deviation:** Roadmap adds `auth_logout_total` to the Prometheus metrics registry. TDD Section 14 specifies exactly 4 metrics and does not include a logout counter.
 - **Source Quote:** TDD Section 14: "auth_login_total (counter), auth_login_duration_seconds (histogram), auth_token_refresh_total (counter), auth_registration_total (counter)"
@@ -106,6 +118,7 @@ tasklist_ready: false
 - **Recommended Correction:** If DEV-001 is resolved by amending the TDD, include `auth_logout_total` in TDD Section 14 as well.
 
 ### DEV-013 — LOW
+
 - **Severity:** LOW
 - **Deviation:** TDD Release Checklist requires explicit go/no-go sign-off from test-lead and eng-manager. The roadmap has no corresponding task or gate.
 - **Source Quote:** TDD Section 24.2: "Go/no-go sign-off from test-lead and eng-manager"
@@ -114,6 +127,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add an explicit go/no-go sign-off gate between Phase 4 and Phase 5.
 
 ### DEV-014 — LOW
+
 - **Severity:** LOW
 - **Deviation:** TDD Section 26 provides infrastructure cost estimates ($450/month production). The roadmap does not include cost information.
 - **Source Quote:** TDD Section 26: "Infrastructure costs for the AuthService are estimated at $450/month for production: 3 Kubernetes pods ($150), managed PostgreSQL ($200), managed Redis ($100)."
@@ -122,6 +136,7 @@ tasklist_ready: false
 - **Recommended Correction:** No action needed unless cost governance requires roadmap-level tracking.
 
 ### DEV-015 — HIGH
+
 - **Severity:** HIGH
 - **Deviation:** PRD explicitly requires that password reset invalidates all existing sessions. Neither the TDD FR-AUTH-005 nor the roadmap's password reset tasks (FR-AUTH-005 #20, API-006 #27) include session invalidation.
 - **Source Quote:** PRD User Story (AUTH-E3): "AC: Reset email sent within 60 seconds. Link expires after 1 hour. **New password invalidates all existing sessions.**" Also PRD Customer Journey: "Password is updated, **all existing sessions are invalidated**, and user is redirected to login."
@@ -130,6 +145,7 @@ tasklist_ready: false
 - **Recommended Correction:** Add to roadmap task FR-AUTH-005 (#20) and API-006 (#27) acceptance criteria: "On successful password reset, all existing refresh tokens for the user are revoked via TokenManager, invalidating all active sessions." Also amend TDD FR-AUTH-005 acceptance criteria to include this requirement.
 
 ### DEV-016 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** PRD defines Jordan (Platform Admin) persona with the acceptance criterion "Logs include user ID, event type, timestamp, IP address, and outcome. **Queryable by date range and user.**" The roadmap defers the audit log query API to v1.1, leaving Jordan's primary need partially unmet.
 - **Source Quote:** PRD User Story: "As Jordan (admin), I want to view authentication event logs so that I can investigate incidents and satisfy auditors. AC: Logs include user ID, event type, timestamp, IP address, and outcome. Queryable by date range and user."
@@ -138,6 +154,7 @@ tasklist_ready: false
 - **Recommended Correction:** The roadmap's explicit deferral with rationale is acceptable if stakeholders approve. Document the interim workaround (direct SQL queries) and ensure v1.1 planning includes the query API.
 
 ### DEV-017 — MEDIUM
+
 - **Severity:** MEDIUM
 - **Deviation:** PRD Legal & Compliance section specifies 12-month audit log retention for SOC2 Type II compliance. The roadmap does not implement this; it gates on OQ-6 stakeholder resolution due to the TDD/PRD conflict (TDD says 90 days, PRD says 12 months).
 - **Source Quote:** PRD S17: "Audit logging | SOC2 Type II | All auth events logged with user ID, timestamp, IP, and outcome. **12-month retention.**"

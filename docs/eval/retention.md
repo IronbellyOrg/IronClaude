@@ -1,6 +1,6 @@
 # Eval Artifact Retention Policy (OPS-003)
 
-**Status:** Stable as of T04.21 (Phase 4, D-0081 / R-081). Pins the
+**Status:** Stable as of T04.21 (Phase 4, D-0081 / R-081). Updated 2026-05-22 post cliEval Phase 5+6 remediation (TASK-RF-20260522-153212) — run-dir date segment changed from `<ISO>` to `<YYYY-MM-DD>` per the canonical `compose_run_dir` output; `summary.yaml` added to the always-emitted artifact set per M4 (Reporter + write_aggregated_report parity). Pins the
 operator-visible retention contract for `superclaude eval run` artifacts
 on every termination path (clean exit, per-eval FAIL/ERROR, harness
 abort on disk-budget breach, SIGINT/SIGTERM cancellation).
@@ -10,10 +10,11 @@ abort on disk-budget breach, SIGINT/SIGTERM cancellation).
 `superclaude eval run` is **biased toward preserving evidence**. The
 default behaviour is:
 
-* The **run directory** under `--output-dir` (default `.dev/eval-runs/<ISO>/<run-id>/`)
-  is **never cleaned up automatically**, regardless of exit code.
-* **Run-level summaries** (`summary.md`, `summary.json`, `junit.xml`)
-  are written before the process exits and are retained on every
+* The **run directory** under `--output-dir` (default `<cwd>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/`,
+  anchored via `compose_run_dir` per FR-G4) is **never cleaned up automatically**,
+  regardless of exit code.
+* **Run-level summaries** (`summary.md`, `summary.json`, `summary.yaml`, `junit.xml`
+  when `--junit` is set) are written before the process exits and are retained on every
   termination path — including SIGINT, harness abort, and disk-budget
   breach.
 * **Per-eval HOME directories** under the scratch root follow status:
@@ -36,13 +37,18 @@ EvalRunner._finalize keep semantics: keep = True if status != "PASS" else keep_h
 
 ## 1. Run directory: never auto-cleaned
 
-`--output-dir` (default the FR-G4 layout root `.dev/eval-runs/<ISO>/<run-id>/`)
-is treated as **append-only** by the harness. Nothing the orchestrator
-writes is ever rewound. Specifically:
+`--output-dir` (default the FR-G4 layout root `<cwd>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/`,
+anchored via `compose_run_dir`) is treated as **append-only** by the harness. Nothing
+the orchestrator writes is ever rewound. Specifically:
+
+> **H1 / FR-G4 anchor:** When `--output-dir <X>` is supplied, the FR-G4 layout is
+> layered underneath: `<X>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/`. The supplied path
+> is the OUTPUT ROOT, not the run-dir. (Post-H1 fix in cliEval Phase 5+6 remediation
+> — see [AC matrix row H1](../../.dev/tasks/to-do/TASK-RF-20260522-153212/phase-outputs/reports/06-ac-matrix.md).)
 
 * The orchestrator never deletes a previously-written run directory.
-* The Reporter writes `summary.md`, `summary.json`, and (when
-  `--junit-xml` is on) `junit.xml` *just before* the process exits on
+* The Reporter writes `summary.md`, `summary.json`, `summary.yaml`, and (when
+  `--junit` is on) `junit.xml` *just before* the process exits on
   every termination branch documented in [design-spec §4][ds-4] —
   including:
   * Clean run (exit 0)
@@ -146,16 +152,16 @@ therefore a test failure rather than a silent operator surprise.
 When the cooperative cancellation token fires (exit code 3 per
 [design-spec §4][ds-4]) the orchestrator stops accepting new submissions
 but lets in-flight workers complete naturally. Every outcome the
-runner emitted is committed to `summary.{md,json}` / `junit.xml`
+runner emitted is committed to `summary.{md,json,yaml}` / `junit.xml`
 before the process exits. The run directory is not cleaned up;
 operators can re-run with `--eval <id>` to retry the specs that were
 cancelled mid-flight (see [retry.md](retry.md)).
 
 ## 6. Summary retention matrix
 
-| Exit code | Run dir | summary.{md,json} | junit.xml | Per-eval artifacts (passed evals) | Per-eval artifacts (failed evals) | Per-eval HOMEs |
+| Exit code | Run dir | summary.{md,json,yaml} | junit.xml | Per-eval artifacts (passed evals) | Per-eval artifacts (failed evals) | Per-eval HOMEs |
 |---|---|---|---|---|---|---|
-| 0 (clean) | kept | kept | kept (when `--junit-xml`) | kept | n/a | passes follow `--keep-home`; others n/a |
+| 0 (clean) | kept | kept | kept (when `--junit`) | kept | n/a | passes follow `--keep-home`; others n/a |
 | 1 (failures) | kept | kept | kept | kept | kept | passes follow `--keep-home`; failures kept |
 | 2 (harness abort) | kept | kept (partial run, N'-vs-K preserved) | kept | kept | kept | passes follow `--keep-home`; failures + setup-fail kept; unsubmitted = SKIPPED (no HOME) |
 | 3 (interrupted) | kept | kept (partial run) | kept | kept | kept | passes follow `--keep-home`; in-flight cancelled outcomes kept |
@@ -169,7 +175,7 @@ the operator can recover with this sequence:
    exit) for the run-dir path and the recommended knobs.
 2. `cat <run-dir>/disk_budget_exceeded.json` to confirm which budget
    was breached (`usage_bytes`, `budget_bytes`, `ticked_at`).
-3. Inspect `<run-dir>/summary.md` / `summary.json` for the partial
+3. Inspect `<run-dir>/summary.md` / `summary.json` / `summary.yaml` for the partial
    run — `counts.expanded` will be < `counts.manifest_n` and
    `counts.skipped` will include the `disk_budget_exceeded` skip
    reason.

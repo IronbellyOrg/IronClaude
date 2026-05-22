@@ -7,6 +7,7 @@
 > **Scope note — S8 and S9 are N/A in this synth file.** Section 8 (Value Proposition Canvas) and Section 9 (Competitive Analysis) are platform-level concerns; this is a Feature PRD scoped to the v3.75 RigorflowMerger changes against the existing `/sc:task` surface, so per the PRD template's scope notes for feature PRDs, those sections defer to a future Platform PRD. They are not produced here.
 
 > **Verification legend used throughout this file:**
+>
 > - **[CODE-VERIFIED]** — claim observed directly in source by upstream research.
 > - **[UNVERIFIED]** — RELEASE-SPEC-designed behavior not yet present in source; flagged for S13 Open Questions.
 > - **[CODE-CONTRADICTED]** — documentation claim disagrees with source; corrected here.
@@ -61,23 +62,27 @@ The current state across the four gaps:
 ### 2.2 Why Existing Solutions Fall Short
 
 **Live v3.7 `/sc:task` (the current baseline):**
+
 - Soft-prompts at confidence <0.70 rather than halting — no audit trail of override decisions.
 - No CRITICAL FAIL enforcement for empty STRICT output or missing classification headers.
 - No completion checklist; STRICT/STANDARD tasks can return `complete` despite gaps.
 - No NFR-style universal quality principles (verifiability, completeness, correctness, consistency, clarity, anti-sycophancy) declared in the skill.
 
 **Live sprint runtime (R2 baseline):**
+
 - The per-task path uses `proc.wait()` inside `_run_task_subprocess` (executor.py:1054-1093), which blocks unconditionally with no stall watchdog — the freeform path's `config.stall_timeout` enforcement at executor.py:1303-1381 does NOT cover the per-task path [CODE-VERIFIED].
 - No stable per-task UID — the closest existing identifier is `task.task_id` (e.g. `"T01.01"`); sub-phase resume cannot key off a sortable, zero-padded UID.
 - No typed `ExecutionMode` / `GateFailureSeverity` enums; `execution_mode` is a plain string parameter (`config.py:391, :487`).
 
 **Live TUI (top-5 baseline):**
+
 - `STATUS_ICONS[PhaseStatus.RUNNING] = "[yellow]RUNNING[/]"` (tui.py:69) — static markup, no motion.
 - Duration column reads `stall_seconds` (tui.py:265-273), the *idle gap since last NDJSON event*, not phase-elapsed wall-clock.
 - Truncation is layered and width-blind: `config.py:179, 193, 203, 204` slice to `[:60]` at extraction; `tui.py:386` truncates again at `_LLM_LINE_MAX=60`; `monitor.py:121` caps assistant text at `ASSISTANT_TEXT_MAX_LEN=80`. The renderer never reads `console.width`.
 - On the per-task path, `activity_log` is always empty because no `OutputMonitor` is started; the user sees three `—` lines for the entire task.
 
 **Other prior approaches considered and explicitly rejected for v3.75 (RELEASE-SPEC §1.6):**
+
 - Full TU-002 (output-type axis) + TU-005 (SoT YAML) + TU-006 (skill sub-files) in v3.75 — REJECTED (X-001..X-003, 80% confidence).
 - Q1 + Q2 renames (sentinel + forensic caller) with telemetry-compat shim — REJECTED pending A-005 forensic-consumer investigation.
 - New `--output-type {auto|override}` CLI flag — REJECTED (C-012/X-005, 80% confidence). Flag count stays at 8.
@@ -153,6 +158,7 @@ Forward reference: **all KPIs and measurement methods are consolidated in Sectio
 ### 6.1 Primary Jobs
 
 **Job 1: Get an ambiguous task halted rather than misclassified**
+
 - **When**: I invoke `/sc:task "<ambiguous task>"` with `--compliance auto` and the classifier's max-tier score has confidence <0.70 (a tie between STRICT 0.45 and STANDARD 0.42, for example).
 - **I want to**: be halted with a BLOCKED classification header and a clear three-path override menu instead of having the agent proceed under low confidence.
 - **So I can**: make an explicit, audited decision about which tier the task belongs in — every override path writes a JSONL audit entry, so my decision is traceable.
@@ -160,6 +166,7 @@ Forward reference: **all KPIs and measurement methods are consolidated in Sectio
 - **Pain with alternatives**: An estimated **5–10%** `[inference]` of `--compliance auto` invocations sit in the <0.70-confidence range and proceed under a guess. Misclassifications are invisible until downstream verification fails (or doesn't catch the gap).
 
 **Job 2: Get STRICT tasks to fail loudly instead of completing silently**
+
 - **When**: I invoke `/sc:task "fix security vulnerability"` and one of three failure modes occurs — required MCP (Sequential or Serena) is unavailable, the task finishes after `max_turns` with empty output, or the agent never emitted the mandatory classification header.
 - **I want to**: see a CRITICAL FAIL with the specific condition recorded in the audit log instead of a soft pass.
 - **So I can**: distinguish "STRICT task succeeded" from "STRICT task ran without enforceable evidence."
@@ -167,6 +174,7 @@ Forward reference: **all KPIs and measurement methods are consolidated in Sectio
 - **Pain with alternatives**: STRICT tasks that finish empty or without a header are "likely buggy completions" `[inference]` reported as success.
 
 **Job 3: Run a sprint phase and have it fail closed on empty output**
+
 - **When**: I run `superclaude sprint run` and a phase task emits an empty result file (subprocess crash, no progress, malformed output).
 - **I want to**: get a clear `(False, 'empty output file')` failure reason rather than a soft pass.
 - **So I can**: distinguish "phase succeeded" from "phase ran with no observable output."
@@ -174,6 +182,7 @@ Forward reference: **all KPIs and measurement methods are consolidated in Sectio
 - **Pain with alternatives**: Sprints can report success on phases that produced nothing. Expected post-fix: "1-2 new failures per phase during the first week" per RELEASE-SPEC §6.5.
 
 **Job 4: Resume a crashed sprint mid-phase without re-running completed tasks**
+
 - **When**: A sprint dies after task 3 of 5 in a phase (subprocess crash, `KeyboardInterrupt`, machine reboot).
 - **I want to**: re-invoke `superclaude sprint run --start <phase>` and have it skip already-completed `task_uid`s based on a stable, sortable per-task key.
 - **So I can**: avoid the wasted compute and time of re-running tasks 1–3 from scratch.
@@ -181,6 +190,7 @@ Forward reference: **all KPIs and measurement methods are consolidated in Sectio
 - **Pain with alternatives**: Wasted compute proportional to phase size; risk of side-effect re-execution on tasks 1–3.
 
 **Job 5: Watch a sprint in the TUI and see real-time progress**
+
 - **When**: A sprint is running a phase using `### T<PP>.<TT>` headings (the per-task path, the dominant code path).
 - **I want to**: see the RUNNING spinner cycling, the Duration column ticking up monotonically, prompts truncated to my terminal width, and the activity stream populating as tools run.
 - **So I can**: distinguish "the sprint is alive and progressing" from "the sprint is hung."
@@ -304,6 +314,7 @@ Forward reference: **all KPIs and measurement methods are consolidated in Sectio
 | | P-01 — OutputMonitor wired into per-task path (keystone, ships LAST) | Must | TUI-ADVERSARIAL §1; viability 92. Mandatory `tests/sprint/test_monitor_reset_between_tasks.py` + new public `OutputMonitor.reset_for_next_task()`. |
 
 **Surface contract — what stays unchanged (RELEASE-SPEC §2.1):**
+
 - Command name `/sc:task`.
 - All 8 CLI flags (no new flag this release).
 - Strategy axis values (systematic, agile, enterprise, auto).
@@ -458,6 +469,7 @@ Consolidated single source of truth for all v3.75 KPIs. Metrics are grouped into
 **End of synthesis-01-features-ux.md.**
 
 Coverage:
+
 - S1 Executive Summary (with Key Success Metrics table) ✅
 - S2 Problem Statement (Feature-PRD scoped; "Why This Feature is Required" instead of TAM/SAM/SOM) ✅
 - S3 Background & Strategic Fit (Feature-PRD scoped) ✅
@@ -470,12 +482,3 @@ Coverage:
 - S16 UX Requirements (16.1/16.3/16.4 N/A with rationale; 16.2 = 9 core user flows F1–F9) ✅
 - S19 Success Metrics (full table covering all task-brief categories + acceptance gates + user-facing impact summary) ✅
 - S8, S9 N/A (rationale noted at file top) ✅
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,7 @@
 # Diff Analysis: Roadmap Compression Strategy Comparison
 
 ## Metadata
+
 - Generated: 2026-04-15
 - Variants compared: 3
 - Total differences found: 19
@@ -67,6 +68,7 @@
 ---
 
 ## Summary
+
 - Total structural differences: 4
 - Total content differences: 7
 - Total contradictions: 4

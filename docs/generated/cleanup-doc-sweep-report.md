@@ -3,6 +3,7 @@
 **Status**: Complete (with inferential bulk classification for very large `.dev/` corpus)
 **Date**: 2026-03-24
 **Scope**:
+
 - `/config/workspace/IronClaude/docs/**`
 - `/config/workspace/IronClaude/plugins/superclaude/**`
 - `/config/workspace/IronClaude/.dev/**`

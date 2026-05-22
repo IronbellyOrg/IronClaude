@@ -82,6 +82,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 **What**: Collapse any run of ≥3 blank lines to a single blank line and strip trailing spaces. No code fences exist, so this is fence-unconditional.
 
 **Before** (lines 27-31):
+
 ```
 **Estimated duration**: 32–45 working days (phase-specific ranges below).
 
@@ -91,6 +92,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 ```
 
 **After**:
+
 ```
 **Estimated duration**: 32–45 working days (phase-specific ranges below).
 ---
@@ -110,6 +112,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 **What**: Remove the seven `---` separator rules between phases and between the top-level sections. The YAML front-matter `---` fence pair (lines 1 and 5) must be preserved.
 
 **Before** (lines 86-88):
+
 ```
 **Timeline**: 4–5 days
 
@@ -119,6 +122,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 ```
 
 **After**:
+
 ```
 **Timeline**: 4–5 days
 ### Phase 2: Structural Checkers & Severity Engine (Days 6–12)
@@ -137,12 +141,14 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 **What**: The four labels `**Goal**:`, `**Requirements**:`, `**Gate X — Y Certified**:`, `**Timeline**:`, `**Exit criteria**:` repeat 6× (once per phase). Declare them in a conventions header and shorten the in-body forms.
 
 **Conventions header** (added once, ~180 bytes including the HTML comment):
+
 ```
 <!-- cmd-dsl v1: [G]=Goal [R]=Requirements [GATE]=Gate [EX]=Exit criteria
 [T]=Timeline [DR]=Debate resolution [AC]=Acceptance criteria -->
 ```
 
 **Before** (lines 31-38):
+
 ```
 ### Phase 1: Foundation — Parser, Data Model & Interface Verification (Days 1–5)
 
@@ -154,6 +160,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 ```
 
 **After**:
+
 ```
 ### Phase 1: Foundation — Parser, Data Model & Interface Verification (Days 1–5)
 [G]: Establish parsing infrastructure and data models every downstream component depends on. Verify interface contracts for cross-phase dependencies.
@@ -176,6 +183,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 **What**: Declare abbreviations for the highest-frequency multi-character tokens in the file via the same conventions header as Strategy 3.
 
 **Conventions header additions**:
+
 ```
 [DR]=DeviationRegistry [TL]=TurnLedger [SL]=semantic layer
 [SC*]=structural checkers [CV]=convergence [HR]=handle_regression()
@@ -183,6 +191,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 ```
 
 **Before** (lines 138-146):
+
 ```
 #### Milestone 3.1: Deviation Registry Extension (FR-6)
 - Extend existing `convergence.py` (lines 50–225) `DeviationRegistry` class
@@ -196,6 +205,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 ```
 
 **After**:
+
 ```
 #### M3.1: [DR] Extension (FR-6)
 - Extend `convergence.py` (50-225) `[DR]` class
@@ -213,6 +223,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 **Lossless**: Yes, provided header is retained and the downstream consumer is primed on `cmd-dsl v1` syntax (primer §2.1 row 4).
 
 **Risks**:
+
 - **ID collision with requirement prefixes is a real danger**. `[SC*]` is chosen precisely because `SC-1` through `SC-6` are first-class requirement IDs (line 438). Collision-safe alternatives: `[SCh]`, `[STC]`.
 - Abbreviating `DeviationRegistry` → `[DR]` collides conceptually with "Debate resolution" if both are used. Choose one: recommend `[DR]=DeviationRegistry`, spell out debate resolution in the blockquote lines (only 3 uses).
 - The conventions header must be inside an HTML comment so CommonMark parsers treat it as metadata, not body prose.
@@ -224,6 +235,7 @@ Each strategy cites its primer source. Approaches from primer §4 and categories
 **What**: The three blockquote blocks use the same verbose label pattern. Treat them as a single-category annotation.
 
 **Before** (lines 74, 155-156, 174-175):
+
 ```
 > **Note on data model timing**: The 19 canonical mismatch types are specified in the requirements document. If checker implementation in Phase 2 reveals additional types, `SEVERITY_RULES` must raise `KeyError` on unknown combinations — this is the designed failure mode, not a front-loading defect. Add new entries when discovered.
 ```
@@ -235,6 +247,7 @@ and
 ```
 
 **After**:
+
 ```
 > [NOTE] 19 canonical mismatch types are in requirements. If Phase 2 checkers reveal more, `SEVERITY_RULES` raises `KeyError` on unknown combinations — designed failure mode, not front-loading defect. Add entries when discovered.
 ```
@@ -258,6 +271,7 @@ and
 **What**: Many milestone bullets are imperative sentences like "Implement X for Y with Z" that include determiners ("the", "a", "an") and verb-prefix noise ("Implement", "Define", "Add") that are already implied by bullet-context. AST-aware milestone bullets drop imperative verbs and articles.
 
 **Before** (lines 49-57):
+
 ```
 - Implement YAML frontmatter extraction with graceful degradation (`ParseWarning` on malformed input)
 - Implement markdown table extraction keyed by heading path
@@ -270,6 +284,7 @@ and
 ```
 
 **After**:
+
 ```
 - YAML frontmatter: extract w/ graceful degradation (`ParseWarning` on malformed)
 - Markdown tables: extract keyed by heading path
@@ -286,6 +301,7 @@ and
 **Lossless**: ✅ for factual content. Bullet-context already supplies imperative mood; dropping "Implement" does not change the claim being made. Primer §4.2 transform 3 supports this transform when multi-clause bullets are "one sentence".
 
 **Risks**:
+
 - **Highest risk transform in this plan**. If applied incorrectly a bullet can lose its subject. Example: "- Run metadata includes ledger snapshot in convergence mode" → compacted to "- Run metadata: ledger snapshot [CE]" is fine, but "- Ensure checkers receive only relevant `SpecSection` objects per dimension-to-section mapping (consuming FR-5)" → "- Checkers receive relevant `SpecSection` per dimension-to-section mapping (consuming FR-5)" is safe only if "Ensure" is correctly understood as structural scaffolding, not a verification requirement.
 - Requires **human or LLM review gate** before shipping. Pure regex cannot do this safely (it must inspect each bullet). Sits in primer §4.2 territory with a manual audit.
 - Must be applied BULLETWISE with diff review; do not apply as a blind regex.
@@ -297,6 +313,7 @@ and
 **What**: Collapse pipe-table padding and abbreviate verbose cells in the four tables.
 
 **Before** (lines 359-368, Risk table excerpt):
+
 ```
 | # | Risk | Severity | Phase | Mitigation |
 |---|------|----------|-------|------------|
@@ -304,6 +321,7 @@ and
 ```
 
 **After**:
+
 ```
 |#|Risk|Sev|Phase|Mitigation|
 |-|-|-|-|-|
@@ -315,6 +333,7 @@ and
 **Lossless**: ✅ the abbreviations must be in the conventions header (primer §2.2). `H`/`M`/`L` are the same three-valued enum on every row; declaring them once is safe.
 
 **Risks**:
+
 - Two tables use the `Phase N` column as a cross-reference target; truncating to `P1` is fine if primer §2.2 header declares it.
 - Do NOT compact `SC-1` through `SC-6` in the Success Criteria table — requirement-ID preservation is contractually required.
 
@@ -325,10 +344,13 @@ and
 **What**: The Executive Summary (lines 9-26) and the Phased Implementation Plan body restate several facts: "TurnLedger consumed from sprint/models.py without modification", "convergence ≤3 runs", "legacy mode byte-identical to f4d9035", "structural checkers are pure functions". The primer explicitly names this pattern as compressible if the restated sentences are verbatim or near-verbatim.
 
 **Before** (executive-summary line 16):
+
 ```
 - TurnLedger is consumed from `sprint/models.py` without modification — cross-module import is conditional and convergence-only
 ```
+
 paired with line 228 in Phase 5:
+
 ```
 - Import `TurnLedger` from `superclaude.cli.sprint.models` (conditional, convergence-only)
 ```
@@ -340,6 +362,7 @@ paired with line 228 in Phase 5:
 **Lossless**: ⚠️ conditional. For LLM consumers running a single-pass read, the exec summary is redundant since the phase bodies contain the same assertions. For human readers doing a skim, the exec summary is load-bearing navigation. This is the classic **consumer DAG question** (primer INV-3, §2.2 amortization check) — if the consumer is always an LLM that reads the whole file, the transform is lossless; if humans skim, it is lossy.
 
 **Risks**:
+
 - **This strategy interacts with primer §5 "Roadmap" row**: the recommended target for roadmaps is 25-33% via Approach 2 AST-aware. This exec-summary dedup is the single largest Approach-2 win in this file because structural regularity (the other main lever) has already been exploited by Strategies 1-7.
 - Requires explicit consumer DAG decision before shipping.
 
@@ -350,6 +373,7 @@ paired with line 228 in Phase 5:
 **What**: Lines 384-420 ("Resource Requirements & Dependencies") is a 7-sub-section list where each line is of the form `**NAME** (path) — description. Methods: a, b, c`. Convert to a compact table.
 
 **Before** (lines 385-387):
+
 ```
 1. **TurnLedger** from `superclaude.cli.sprint.models` — budget accounting. Methods: `debit()`, `credit()`, `can_launch()`, `can_remediate()`, `reimbursement_rate`
 2. **ClaudeProcess** — LLM subprocess execution for debate agents, validation agents, patch application
@@ -357,6 +381,7 @@ paired with line 228 in Phase 5:
 ```
 
 **After** (table form):
+
 ```
 |Dep|Source|Role|API/Flag|
 |-|-|-|-|
@@ -370,6 +395,7 @@ paired with line 228 in Phase 5:
 **Lossless**: ✅ — no facts dropped; format changed from bullet to table. CommonMark parser treats both identically at the AST node-type level.
 
 **Risks**:
+
 - The sub-section headings ("External Dependencies (Consumed, Not Modified)", "Internal Dependencies (Extended)", "Future Dependencies (Probed, Not Required)") carry semantic grouping that would have to be preserved either as a column or as adjacent captions. Simplest: keep three tables, one per category, with single-row captions above each.
 - Files to Create / Modify / Delete subsections (lines 399-413) are already optimally terse; do not transform them.
 
@@ -411,6 +437,7 @@ Applied in this order to give each subsequent transform a normalized input (prim
 **Recommended (full Approach 2 stack)**: Strategies 1-9 → **~23% reduction** (~6,470 bytes). Matches the lower end of primer §5's roadmap target (25-33%). Requires review gates on Strategies 8 and 9.
 
 **Ceiling for this file**: Approximately **~25%**. This is below the primer §5 roadmap range midpoint (29%) because:
+
 - Zero code fences eliminates the "code-block dedup" opportunity
 - Zero emoji eliminates the decorative-strip opportunity
 - Tables are already tightly formatted

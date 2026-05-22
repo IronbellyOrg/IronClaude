@@ -276,11 +276,13 @@ Exact steps:
 This source file’s “context architecture” describes **Commands**, **Agents**, **Modes**, and **Core** context.
 
 What it explicitly covers:
+
 - Commands: `/sc:[command]` → `commands/sc/<command>.md`
 - Agents: `@agent-[name]` / auto-activation → `agents/<agent>.md`
 - Modes: flags/keywords → `MODE_*.md`
 
 What it does **not** define in this document:
+
 - A directory structure, metadata/frontmatter schema, activation rules, or installation workflow for **skills**.
 
 (There is no “Skills” row in the “Context File Types” table, and no “Adding New Skills” section.)

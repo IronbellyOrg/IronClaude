@@ -11,6 +11,7 @@ This roadmap delivers a v2.0 `sc:roadmap` capability that generates a determinis
 From an analyst perspective, the dominant concerns are not basic generation mechanics, but orchestration correctness, schema integrity, failure handling, and controlled degradation under partial or unavailable dependencies. The highest-value outcome is a reliable 5-wave execution pipeline that produces exactly three machine-parseable artifacts, integrates adversarial workflows safely, preserves resumability, and validates output quality without introducing downstream coupling.
 
 ## Strategic Recommendations
+
 1. **Prioritize contract stability first**:
    - Frontmatter schemas and artifact sequencing are downstream dependencies.
    - Freeze these early and test them before expanding feature breadth.
@@ -30,7 +31,9 @@ From an analyst perspective, the dominant concerns are not basic generation mech
    - Model identifier validation, plugin template tier behavior, orchestrator behavior, and chunked extraction edge cases are design blockers.
 
 ## Target Outcome
+
 A production-ready roadmap generator with:
+
 - deterministic artifact generation,
 - stable YAML contracts,
 - conditional adversarial routing,
@@ -44,9 +47,11 @@ A production-ready roadmap generator with:
 # 2. Phased Implementation Plan with Milestones
 
 ## Phase 0 — Definition, Contract Freeze, and Architecture Baseline
+
 **Goal:** Eliminate ambiguity in interfaces and establish implementation boundaries before coding deeper logic.
 
 ### Milestones
+
 1. **M0.1 — Finalize schema contracts**
    - Define final frontmatter schemas for:
      - `roadmap.md`
@@ -85,21 +90,25 @@ A production-ready roadmap generator with:
      - `src/superclaude/skills/sc-roadmap/refs/*`
 
 ### Deliverables
+
 - Interface decision record
 - Final schema definitions
 - Wave state model
 - Open-questions resolution log
 
 ### Exit Criteria
+
 - No unresolved interface blockers remain.
 - Contract tests can be written without speculative assumptions.
 
 ---
 
 ## Phase 1 — Core Wave Orchestrator and Preconditions
+
 **Goal:** Build the pipeline skeleton that enforces sequencing, prerequisites, collision handling, and state capture.
 
 ### Milestones
+
 1. **M1.1 — Wave runner implementation**
    - Implement ordered wave execution engine.
    - Support:
@@ -143,6 +152,7 @@ A production-ready roadmap generator with:
      - validation state
 
 ### Deliverables
+
 - Orchestrator runner
 - Wave 0 validator
 - Collision manager
@@ -150,15 +160,18 @@ A production-ready roadmap generator with:
 - Persistence adapter
 
 ### Exit Criteria
+
 - Dry-run can execute Waves 0-2 with structured preview.
 - Resume metadata is written at each wave boundary.
 
 ---
 
 ## Phase 2 — Extraction, Complexity Scoring, and Persona Activation
+
 **Goal:** Produce trustworthy `extraction.md` early and use it as the decision substrate for downstream roadmap generation.
 
 ### Milestones
+
 1. **M2.1 — Wave 1B extraction pipeline**
    - Load `refs/extraction-pipeline.md` and `refs/scoring.md`.
    - Parse source spec.
@@ -204,6 +217,7 @@ A production-ready roadmap generator with:
    - Permit one retry on failing chunks, then stop with error.
 
 ### Deliverables
+
 - Extraction engine
 - Scoring engine
 - Compliance classifier
@@ -211,15 +225,18 @@ A production-ready roadmap generator with:
 - Chunked extraction subsystem
 
 ### Exit Criteria
+
 - `extraction.md` is schema-valid and written deterministically.
 - Chunked and single-pass outputs are format-compatible.
 
 ---
 
 ## Phase 3 — Adversarial Integration and Planning Layer
+
 **Goal:** Safely incorporate multi-spec and multi-roadmap adversarial behaviors without compromising determinism.
 
 ### Milestones
+
 1. **M3.1 — Wave 1A multi-spec integration**
    - Invoke `sc:adversarial --compare` for `--specs`.
    - Handle statuses:
@@ -263,6 +280,7 @@ A production-ready roadmap generator with:
      - Wave 2 adversarial roadmap planning/generation path
 
 ### Deliverables
+
 - Adversarial adapter
 - Template selector
 - Milestone planner
@@ -270,15 +288,18 @@ A production-ready roadmap generator with:
 - Combined-mode router
 
 ### Exit Criteria
+
 - Planning layer can deterministically choose template-based or adversarial generation path.
 - Partial adversarial outcomes are explicitly surfaced and handled.
 
 ---
 
 ## Phase 4 — Artifact Generation and Cross-Artifact Consistency
+
 **Goal:** Generate all required artifacts with correct ordering, traceability, and evidence-backed summaries.
 
 ### Milestones
+
 1. **M4.1 — `roadmap.md` generation**
    - Produce YAML frontmatter with:
      - `spec_source` or `spec_sources`
@@ -312,21 +333,25 @@ A production-ready roadmap generator with:
    - Final output should list artifacts and advise review before tasklist generation, with no triggering or coupling.
 
 ### Deliverables
+
 - Roadmap generator
 - Test strategy generator
 - Decision summary builder
 - Dry-run preview renderer
 
 ### Exit Criteria
+
 - Exactly three artifacts are produced in normal mode.
 - Artifact ordering and cross-references are correct.
 
 ---
 
 ## Phase 5 — Validation, Revision Loop, and Operational Hardening
+
 **Goal:** Ensure generated outputs are scored, revisable, resumable, and robust under failures or degraded dependencies.
 
 ### Milestones
+
 1. **M5.1 — Wave 4 validation pipeline**
    - Dispatch:
      - quality-engineer agent
@@ -363,12 +388,14 @@ A production-ready roadmap generator with:
    - Offer resume when safe; warn on hash mismatch.
 
 ### Deliverables
+
 - Validation orchestrator
 - Revision loop controller
 - Fallback handlers
 - Resume detector
 
 ### Exit Criteria
+
 - Validation scoring is deterministic and recorded.
 - Interrupted sessions can resume safely.
 - Fallback behavior does not corrupt outputs or contracts.
@@ -376,9 +403,11 @@ A production-ready roadmap generator with:
 ---
 
 ## Phase 6 — Verification Matrix, Performance Tuning, and Release Readiness
+
 **Goal:** Prove compliance against the success criteria and ensure release-level confidence.
 
 ### Milestones
+
 1. **M6.1 — Success-criteria test matrix**
    - Map each SC-001 to SC-030 to one or more tests.
    - Prioritize:
@@ -412,12 +441,14 @@ A production-ready roadmap generator with:
      - no algorithm duplication in SKILL.md
 
 ### Deliverables
+
 - Test matrix
 - Performance report
 - Release-readiness checklist
 - Final compliance report
 
 ### Exit Criteria
+
 - All critical success criteria are demonstrably satisfied.
 - Release artifacts and documentation conform to architectural constraints.
 
@@ -428,36 +459,44 @@ A production-ready roadmap generator with:
 ## High-Priority Risks
 
 ### 1. Schema contract breakage
+
 **Why it matters:** Downstream consumers depend on frontmatter stability.
 
 **Mitigation**
+
 - Freeze schemas in Phase 0.
 - Add parser-level contract tests early.
 - Block release on frontmatter drift.
 - Version additions only; no rename/remove behavior after v2.0.
 
 ### 2. Adversarial integration quality degradation
+
 **Why it matters:** Partial results can appear valid while degrading coherence.
 
 **Mitigation**
+
 - Wrap all adversarial calls in strict status handling.
 - Enforce convergence thresholds.
 - Require artifact presence in validation.
 - Surface warnings directly in roadmap metadata where applicable.
 
 ### 3. Large-spec extraction failure or hallucinated coverage
+
 **Why it matters:** Extraction is the basis for roadmap quality.
 
 **Mitigation**
+
 - Use chunked extraction above threshold.
 - Apply 4-pass completeness verification.
 - Retry failing chunks once only.
 - Stop on unresolved completeness failure rather than continue with low trust.
 
 ### 4. Resume from stale or changed spec
+
 **Why it matters:** Resuming against changed inputs can corrupt traceability.
 
 **Mitigation**
+
 - Hash the source spec at each wave boundary.
 - Warn on mismatch before resume.
 - Require explicit user confirmation on stale resume paths.
@@ -465,30 +504,40 @@ A production-ready roadmap generator with:
 ## Medium-Priority Risks
 
 ### 5. Open design ambiguities causing rework
+
 **Mitigation**
+
 - Resolve all interface-affecting open questions in Phase 0.
 - Track each decision as a contract, not an implementation note.
 
 ### 6. Combined mode latency and operational opacity
+
 **Mitigation**
+
 - Emit explicit wave progress reporting.
 - Distinguish slow-but-expected from error states.
 - Add dry-run preview for planning transparency.
 
 ### 7. Template selection inconsistency
+
 **Mitigation**
+
 - Centralize scoring logic.
 - Log candidate scores for traceability.
 - Add deterministic tie-break rules.
 
 ### 8. Missing or unavailable dependencies
+
 **Mitigation**
+
 - Validate early in Wave 0.
 - Provide actionable abort messaging.
 - Use bounded circuit-breaker fallbacks where allowed.
 
 ### 9. Edge-case mismatch in validation milestone interleaving
+
 **Mitigation**
+
 - Define minimum viable interleave behavior for low-milestone plans.
 - Add explicit edge-case tests before release.
 
@@ -497,6 +546,7 @@ A production-ready roadmap generator with:
 # 4. Resource Requirements and Dependencies
 
 ## Engineering Roles
+
 1. **Primary implementation owner**
    - Responsible for orchestrator, state management, and artifact generation.
 
@@ -511,6 +561,7 @@ A production-ready roadmap generator with:
    - Ensures command file, SKILL.md, and refs maintain separation-of-concerns.
 
 ## Technical Dependencies
+
 1. **Internal**
    - `sc:adversarial` v1.1.0
    - `sc:save` / `sc:load`
@@ -524,6 +575,7 @@ A production-ready roadmap generator with:
    - YAML parser support
 
 ## Infrastructure/Tooling Needs
+
 - UV-based Python execution and tests
 - automated contract test suite
 - fixture set for:
@@ -535,6 +587,7 @@ A production-ready roadmap generator with:
   - stale resume scenarios
 
 ## Dependency Planning Recommendations
+
 1. **Treat `sc:adversarial` as a hard prerequisite only for adversarial modes**.
 2. **Treat Serena as optional-but-degrading**, not required for base functionality.
 3. **Treat YAML parseability as release-blocking**.
@@ -545,10 +598,13 @@ A production-ready roadmap generator with:
 # 5. Success Criteria and Validation Approach
 
 ## Validation Strategy
+
 The validation strategy should align directly with the extracted 30 success criteria and use a layered evidence model:
 
 ### Layer A — Contract Validation
+
 Validate:
+
 - artifact count = exactly 3
 - frontmatter parseability
 - required field presence
@@ -556,7 +612,9 @@ Validate:
 - correct validation metadata behavior
 
 ### Layer B — Flow Validation
+
 Validate:
+
 - correct wave sequencing
 - conditional Wave 1A
 - roadmap-before-test-strategy ordering
@@ -565,7 +623,9 @@ Validate:
 - no downstream handoff
 
 ### Layer C — Dependency and Failure Validation
+
 Validate:
+
 - missing `sc:adversarial`
 - invalid model identifiers
 - missing artifacts in adversarial modes
@@ -573,13 +633,16 @@ Validate:
 - output collision suffixing
 
 ### Layer D — Quality Validation
+
 Validate:
+
 - milestone references exist
 - interleave ratio matches complexity
 - Decision Summary is evidence-backed
 - warnings are surfaced when proceeding under partial convergence
 
 ## Recommended Success Gate Structure
+
 1. **Gate 1 — Contract complete**
    - All three artifacts parse and match schema.
 
@@ -593,6 +656,7 @@ Validate:
    - Resume, collision, and fallback behaviors function safely.
 
 ## Measurable Release Thresholds
+
 - 100% pass on schema contract tests
 - 100% pass on critical adversarial routing tests
 - 100% pass on chunked extraction verification tests
@@ -609,44 +673,55 @@ Given the complexity score of **0.82 (complex)** and the number of cross-cutting
 ## Estimated Phase Durations
 
 ### Phase 0 — Definition, Contract Freeze, and Architecture Baseline
+
 **Estimate:** 2-3 days  
 **Rationale:** High leverage; resolves blockers before expensive implementation.
 
 ### Phase 1 — Core Wave Orchestrator and Preconditions
+
 **Estimate:** 3-4 days  
 **Rationale:** Central execution backbone with persistence and progress reporting.
 
 ### Phase 2 — Extraction, Complexity Scoring, and Persona Activation
+
 **Estimate:** 4-6 days  
 **Rationale:** Includes chunked extraction and 4-pass verification, one of the higher-risk subsystems.
 
 ### Phase 3 — Adversarial Integration and Planning Layer
+
 **Estimate:** 3-5 days  
 **Rationale:** Depends on external/internal contracts and has several conditional branches.
 
 ### Phase 4 — Artifact Generation and Cross-Artifact Consistency
+
 **Estimate:** 2-4 days  
 **Rationale:** Moderate complexity, but must preserve schema integrity and ordering guarantees.
 
 ### Phase 5 — Validation, Revision Loop, and Operational Hardening
+
 **Estimate:** 3-4 days  
 **Rationale:** Validation logic, loop controls, and fallback handling are reliability-critical.
 
 ### Phase 6 — Verification Matrix, Performance Tuning, and Release Readiness
+
 **Estimate:** 3-5 days  
 **Rationale:** Needed to prove all 30 success criteria and close NFR gaps.
 
 ## Total Estimated Delivery Window
+
 **Estimate:** 20-31 working days**
 
 This range assumes:
+
 - one primary engineer,
 - no major redesign after Phase 0,
 - stable adversarial contract availability,
 - normal debugging overhead for complex orchestration logic.
 
 ## Schedule Risk Adjustments
+
 Add contingency if any of the following remain unresolved:
+
 1. adversarial return contract not finalized,
 2. model validation list remains ambiguous,
 3. plugin tier behavior remains unspecified,

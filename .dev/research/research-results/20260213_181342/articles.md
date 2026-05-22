@@ -103,6 +103,7 @@ This research identifies **proven techniques for compressing AI system prompts a
 ---
 
 ## ACTIONABLE TECHNIQUES
+
 ### Ranked by Expected Token Savings (Highest to Lowest)
 
 #### 🥇 **1. External Reference Material via RAG** (50-80% reduction)
@@ -112,6 +113,7 @@ This research identifies **proven techniques for compressing AI system prompts a
 **Applicability**: Very High
 
 **How to Implement**:
+
 ```markdown
 # Before (inline documentation):
 ## Database Schema
@@ -141,6 +143,7 @@ See: `docs/api-reference.md` (retrieved on-demand)
 **Applicability**: High
 
 **How to Implement**:
+
 1. Install LLMLingua Python library
 2. Feed markdown prompt through compression pipeline
 3. Set compression ratio (recommended: 0.5-0.8 for first pass)
@@ -288,6 +291,7 @@ user_request → confidence_check → (≥90% → implement) | (<90% → ask_que
 **Applicability**: Medium
 
 **How to Implement**:
+
 1. Track semantically similar queries via vector embeddings
 2. Cache successful prompt patterns
 3. Reuse cached compressed versions for similar contexts
@@ -360,18 +364,22 @@ but is not directly part of the instructions.
 **How to Implement**:
 
 **Phase 1: Structural Optimization** (Week 1)
+
 - Convert prose to markdown headers/tables: 20-30% reduction
 - Measure: Count tokens before/after, validate quality
 
 **Phase 2: Content Deduplication** (Week 2)  
+
 - Batch similar rules, remove repetition: +10-15% reduction
 - Measure: A/B test task success rate
 
 **Phase 3: Symbol System** (Week 3)
+
 - Apply symbols to logic flows: +5-10% reduction
 - Measure: User feedback on clarity
 
 **Phase 4: RAG Externalization** (Week 4)
+
 - Move reference docs to external files: +10-20% reduction
 - Measure: Context window usage, retrieval accuracy
 
@@ -386,6 +394,7 @@ but is not directly part of the instructions.
 ### **For SuperClaude Framework Files (CLAUDE.md, COMMANDS.md, etc.)**
 
 **Priority Techniques**:
+
 1. **Structure Over Prose** (#3) - Immediate 30-50% reduction, zero risk
 2. **Markdown Header Hierarchy** (#4) - Low effort, high clarity gain
 3. **Symbol System for Logic** (#5) - Already partially implemented, expand coverage
@@ -398,6 +407,7 @@ but is not directly part of the instructions.
 ### **For Claude Code System Prompts**
 
 **Priority Techniques**:
+
 1. **XML Tagging** (#9) - Claude-native optimization
 2. **Context Compaction** (#8) - For conversation management
 3. **Semantic Caching** (#7) - For repeated query patterns
@@ -410,6 +420,7 @@ but is not directly part of the instructions.
 ### **For Production AI Agents**
 
 **Priority Techniques**:
+
 1. **RAG Externalization** (#1) - Maximum token savings for docs
 2. **LLMLingua** (#2) - Production-grade compression with validation
 3. **Incremental Compression** (#10) - Systematic quality-assured optimization
@@ -435,6 +446,7 @@ Before deploying compressed prompts:
 ## Sources
 
 ### Tier 1 Sources (Official Documentation & Academic Research)
+
 - [Arize AI: Claude Code Optimization with Prompt Learning](https://arize.com/blog/claude-md-best-practices-learned-from-optimizing-claude-code-with-prompt-learning/)
 - [Anthropic: Effective Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
 - [Claude API Prompting Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
@@ -444,6 +456,7 @@ Before deploying compressed prompts:
 - [Factory.ai: Compressing Context](https://factory.ai/news/compressing-context)
 
 ### Tier 2 Sources (Industry Platforms & Educational Resources)
+
 - [Portkey: Optimize Token Efficiency](https://portkey.ai/blog/optimize-token-efficiency-in-prompts/)
 - [DataCamp: Prompt Compression Guide](https://www.datacamp.com/tutorial/prompt-compression)
 - [FreeCodeCamp: How to Compress Prompts](https://www.freecodecamp.org/news/how-to-compress-your-prompts-and-reduce-llm-costs/)
@@ -455,6 +468,7 @@ Before deploying compressed prompts:
 - [Medium: Prompt Compression in LLMs](https://medium.com/@sahin.samia/prompt-compression-in-large-language-models-llms-making-every-token-count-078a2d1c7e03)
 
 ### Additional Resources
+
 - [Requesty AI: Token Usage Reduction](https://www.requesty.ai/blog/savings-in-your-ai-prompts-how-we-reduced-token-usage-by-up-to-10)
 - [Lakera: Prompt Engineering Guide 2026](https://www.lakera.ai/blog/prompt-engineering-guide)
 - [10clouds: Mastering AI Token Optimization](https://10clouds.com/blog/a-i/mastering-ai-token-optimization-proven-strategies-to-cut-ai-cost/)

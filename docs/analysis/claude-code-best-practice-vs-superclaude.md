@@ -30,6 +30,7 @@ The two projects occupy fundamentally different niches. One is a reference shelf
 | **Primary artifact** | Curated documentation, tips, workflow comparisons |
 
 **Directory layout:**
+
 ```
 claude-code-best-practice/
   best-practice/         # 8 reference docs (skills, subagents, commands, MCP, settings, memory, CLI flags)
@@ -59,6 +60,7 @@ claude-code-best-practice/
 | **Test suite** | 281 test files |
 
 **Directory layout (key components):**
+
 ```
 src/superclaude/
   commands/       # 41 slash command definitions (.md)
@@ -169,6 +171,7 @@ The reference repo's extensibility is trivial -- it is just Markdown files to re
 ### claude-code-best-practice
 
 **Pros:**
+
 1. **Extreme accessibility** -- zero install, zero dependencies, immediate value from reading
 2. **Comprehensive ecosystem coverage** -- tracks features SuperClaude ignores (Channels, Voice, Scheduled Tasks, Remote Control)
 3. **Neutral position** -- catalogs competing frameworks without bias, builds trust
@@ -181,6 +184,7 @@ The reference repo's extensibility is trivial -- it is just Markdown files to re
 10. **Low commitment** -- developers can adopt one tip at a time without system lock-in
 
 **Cons:**
+
 1. **No runtime behavior** -- documentation cannot enforce quality gates, confidence checks, or automated pipelines
 2. **No execution tooling** -- no CLI, no pytest integration, no sprint management
 3. **Shallow depth per topic** -- best-practice docs are reference sheets, not behavioral protocols
@@ -193,6 +197,7 @@ The reference repo's extensibility is trivial -- it is just Markdown files to re
 ### SuperClaude
 
 **Pros:**
+
 1. **Complete lifecycle coverage** -- planning through release with executable protocols at every stage
 2. **Depth of specification** -- single skills contain thousands of lines of behavioral protocol
 3. **PM Agent meta-layer** -- ConfidenceChecker, SelfCheckProtocol, ReflexionPattern provide automated quality control
@@ -205,6 +210,7 @@ The reference repo's extensibility is trivial -- it is just Markdown files to re
 10. **Adversarial validation** -- multi-agent protocol for challenging and validating work products
 
 **Cons:**
+
 1. **High barrier to entry** -- requires Python, UV, installation, learning 41 commands
 2. **Opinionated to a fault** -- may conflict with teams' existing workflows and conventions
 3. **Community visibility gap** -- significantly lower discoverability than the reference repo
@@ -232,6 +238,7 @@ The reference repo's greatest strength is its zero-friction onboarding. SuperCla
 ### 4.2 Hooks Integration (Medium Priority)
 
 SuperClaude does not use Claude Code's native hooks system. The reference repo documents hooks extensively and the community considers them essential for:
+
 - Pre-commit quality gates (auto-format, lint)
 - Stop hooks for self-review before returning control
 - Permission routing through secondary models
@@ -242,6 +249,7 @@ SuperClaude's skills could be augmented with hook definitions to provide determi
 ### 4.3 Ecosystem Positioning (Medium Priority)
 
 The reference repo gains trust by being a neutral aggregator. SuperClaude could:
+
 - **Publish a comparison page** showing how SuperClaude maps to the reference repo's recommendations
 - **Contribute to the reference repo** by adding SuperClaude to the development-workflows comparison table
 - **Adopt shared vocabulary** -- use the same terms for concepts where possible (e.g., "orchestration workflow" rather than custom terminology)
@@ -249,6 +257,7 @@ The reference repo gains trust by being a neutral aggregator. SuperClaude could:
 ### 4.4 Community Anti-Pattern Feedback (High Priority)
 
 The community sentiment that "a long list of complex custom slash commands is an anti-pattern" is worth taking seriously. SuperClaude could:
+
 - **Surface commands progressively** -- show only contextually relevant commands based on file types, project stage, or persona
 - **Group commands into workflows** rather than presenting a flat list of 41 options
 - **Provide a `/sc:help` that adapts** to the user's experience level and current context
@@ -256,6 +265,7 @@ The community sentiment that "a long list of complex custom slash commands is an
 ### 4.5 Feature Coverage Gaps (Low Priority)
 
 The reference repo tracks Claude Code features that SuperClaude ignores:
+
 - **Channels** (external event injection into running sessions)
 - **Scheduled Tasks** (recurring prompts/polling)
 - **Voice Dictation** (push-to-talk input)
@@ -290,9 +300,9 @@ The official Claude Code plugin format (`.claude-plugin/plugin.json` with auto-d
 
 ## Sources
 
-- Repository: https://github.com/shanraisshan/claude-code-best-practice
-- Official Claude Code skills docs: https://code.claude.com/docs/en/skills
-- Community discussion: https://www.reddit.com/r/Anthropic/comments/1rrio82/
-- Hook mastery patterns: https://github.com/disler/claude-code-hooks-mastery
-- Claude Code tips collection: https://github.com/ykdojo/claude-code-tips
+- Repository: <https://github.com/shanraisshan/claude-code-best-practice>
+- Official Claude Code skills docs: <https://code.claude.com/docs/en/skills>
+- Community discussion: <https://www.reddit.com/r/Anthropic/comments/1rrio82/>
+- Hook mastery patterns: <https://github.com/disler/claude-code-hooks-mastery>
+- Claude Code tips collection: <https://github.com/ykdojo/claude-code-tips>
 - SuperClaude source: `/config/workspace/IronClaude/src/superclaude/`

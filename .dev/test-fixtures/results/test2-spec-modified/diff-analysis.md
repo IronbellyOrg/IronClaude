@@ -168,12 +168,14 @@ Both variants agree on the following:
 ## Areas Where One Variant is Clearly Stronger
 
 **Opus is stronger on:**
+
 - Early risk surfacing — recommending the bcrypt/latency benchmark in Phase 1 rather than Phase 4
 - Integration point documentation — the table format is operationally superior for dependency tracing
 - Consolidated deferral list — explicit v1.1 section is better for backlog and handoff management
 - Phase 0 realism — 3–5 days is a more credible estimate for OQ resolution involving external vendor decisions
 
 **Haiku is stronger on:**
+
 - Emergency key rotation — treating it as a v1.0 deliverable rather than a residual gap
 - Anomaly alerting for RISK-2 — closing the observability blind spot in v1.0
 - Post-launch governance — Phase 6 with explicit review criteria closes the PDCA loop

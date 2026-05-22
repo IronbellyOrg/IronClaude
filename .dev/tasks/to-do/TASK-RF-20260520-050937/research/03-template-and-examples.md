@@ -25,6 +25,7 @@
 ## Recent task folder examples (referenced)
 
 Listed under `.dev/tasks/done/`:
+
 - `TASK-RF-20260325-001/` — example with full research/qa/synthesis tree
 - `TASK-RF-20260325-cli-tdd/` — CLI test-driven task; similar shape to this task (small-scope Python edits + pytest verification)
 - `TASK-RF-20260326-e2e-modified/` — e2e modifications
@@ -58,6 +59,7 @@ Total: ~9 checklist items across 4 phases. Comfortably within Quick-tier bounds 
 ## Self-containment evidence anchors
 
 For each item that applies an edit, the Action field embeds:
+
 - The exact `old_string` to find (with enough surrounding context to disambiguate).
 - The exact `new_string` to replace it with.
 - The file path.

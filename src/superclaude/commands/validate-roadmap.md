@@ -71,6 +71,7 @@ The full behavioral specification is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Extract all requirements from spec files into a structured registry
 - Validate every requirement against the roadmap with evidence-based coverage assessment
 - Spawn parallel domain agents for independent validation
@@ -80,6 +81,7 @@ The full behavioral specification is in the protocol skill.
 - Preserve all intermediate artifacts as evidence trail
 
 **Will Not:**
+
 - Modify the roadmap or spec files
 - Execute remediation — only plans it
 - Trigger downstream commands (tasklist generation, implementation)

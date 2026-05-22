@@ -1,7 +1,9 @@
 # sc: Prefix Reference Index
+
 Generated: 2026-03-24
 
 ## Summary
+
 - Total files with sc: framework references: ~1,350+ (deduplicated across search patterns)
 - By type: DISPATCH: 12, CONFIG: 6, SKILL: 25 directories (12 src + 13 .claude), COMMAND: 83 files (41 .claude + 42 src), PATH: 138+, DOC: 88, TEST: 18, DEV/RELEASE: 1,228
 
@@ -262,6 +264,7 @@ The `.dev/releases/` tree contains the largest volume of `sc:` references across
 ## Rename Impact Assessment
 
 ### Highest Risk (code changes break functionality)
+
 1. **`src/superclaude/cli/main.py`** -- hardcoded default path `~/.claude/commands/sc`
 2. **`src/superclaude/cli/install_commands.py`** -- all install logic targets `commands/sc/`
 3. **`src/superclaude/cli/install_skills.py`** -- `sc-*` glob patterns and `/sc:` mapping
@@ -270,12 +273,14 @@ The `.dev/releases/` tree contains the largest volume of `sc:` references across
 6. **`Makefile`** -- `commands/sc` and `skills/sc-*-protocol` globs
 
 ### Medium Risk (prompts/behavior changes)
+
 7. **`src/superclaude/cli/sprint/process.py`** -- `/sc:task-unified` in prompt strings
 8. **`src/superclaude/cli/cleanup_audit/prompts.py`** -- 5 prompts with `/sc:task-unified`
 9. **`src/superclaude/cli/roadmap/validate_prompts.py`** -- `sc:tasklist` references
 10. **All agent `.md` files** (8 files, 4 pairs) -- `/sc:` command invocation references
 
 ### Lower Risk (directory renames, docs updates)
+
 11. **26 skill directories** (13 src + 13 .claude) -- all named `sc-*-protocol`
 12. **83 command files** (41 .claude/commands/sc/ + 42 src/superclaude/commands/) -- directory path
 13. **88 documentation files** -- textual references

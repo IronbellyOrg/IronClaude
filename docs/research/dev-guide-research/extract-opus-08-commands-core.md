@@ -58,6 +58,7 @@ The file defines a 5-step processing pipeline that all commands follow:
 ### Input Parsing Syntax
 
 Commands accept three input modifiers:
+
 - `@<path>` -- file or directory path references
 - `!<command>` -- sub-command invocations
 - `--<flags>` -- behavioral flags (see Section 7)
@@ -148,12 +149,14 @@ Three profiles control resource allocation and execution behavior:
 
 **`/build $ARGUMENTS`**
 > "Project builder with framework detection (wave-enabled, optimization profile)"
+
 - Auto-Persona: Frontend, Backend, Architect, Scribe
 - MCP: Magic (UI), Context7 (patterns), Sequential (logic)
 - Tools: [Read, Grep, Glob, Bash, TodoWrite, Edit, MultiEdit]
 
 **`/implement $ARGUMENTS`**
 > "Feature implementation with intelligent persona activation (wave-enabled, standard profile)"
+
 - Auto-Persona: Frontend, Backend, Architect, Security (context-dependent)
 - MCP: Magic (UI), Context7 (patterns), Sequential (complex logic)
 - Tools: [Read, Write, Edit, MultiEdit, Bash, Glob, TodoWrite, Task]
@@ -162,17 +165,20 @@ Three profiles control resource allocation and execution behavior:
 
 **`/analyze $ARGUMENTS`**
 > "Multi-dimensional code and system analysis (wave-enabled, complex profile)"
+
 - Auto-Persona: Analyzer, Architect, Security
 - MCP: Sequential (primary), Context7 (patterns), Magic (UI analysis)
 - Tools: [Read, Grep, Glob, Bash, TodoWrite]
 
 **`/troubleshoot [symptoms] [flags]`**
 > "Problem investigation"
+
 - Auto-Persona: Analyzer, QA
 - MCP: Sequential, Playwright
 
 **`/explain [topic] [flags]`**
 > "Educational explanations"
+
 - Auto-Persona: Mentor, Scribe
 - MCP: Context7, Sequential
 
@@ -180,17 +186,20 @@ Three profiles control resource allocation and execution behavior:
 
 **`/improve [target] [flags]`**
 > "Evidence-based code enhancement (wave-enabled, optimization profile)"
+
 - Auto-Persona: Refactorer, Performance, Architect, QA
 - MCP: Sequential (logic), Context7 (patterns), Magic (UI)
 - Tools: [Read, Grep, Glob, Edit, MultiEdit, Bash]
 
 **`/cleanup [target] [flags]`**
 > "Project cleanup and technical debt reduction"
+
 - Auto-Persona: Refactorer
 - MCP: Sequential
 
 **`/cleanup-audit [target] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]`**
 > "Multi-pass read-only repository audit (wave-enabled, complex profile)"
+
 - Auto-Persona: Analyzer, Architect, DevOps, QA, Refactorer
 - MCP: Sequential (cross-cutting synthesis), Serena (import chains), Context7 (framework patterns)
 - Tools: [Read, Grep, Glob, Bash(git/wc/find/du), TodoWrite, Task, Write]
@@ -198,6 +207,7 @@ Three profiles control resource allocation and execution behavior:
 
 **`/sc:adversarial [--compare files|--source file --generate type --agents specs] [--depth quick|standard|deep] [--convergence N] [--interactive] [--focus areas]`**
 > "Structured adversarial debate, comparison, and merge pipeline (wave-enabled, complex profile)"
+
 - Auto-Persona: Architect, Analyzer, Scribe
 - MCP: Sequential (debate scoring/convergence), Serena (memory persistence), Context7 (domain validation)
 - Tools: [Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task]
@@ -207,31 +217,37 @@ Three profiles control resource allocation and execution behavior:
 
 **`/document [target] [flags]`**
 > "Documentation generation"
+
 - Auto-Persona: Scribe, Mentor
 - MCP: Context7, Sequential
 
 **`/estimate [target] [flags]`**
 > "Evidence-based estimation"
+
 - Auto-Persona: Analyzer, Architect
 - MCP: Sequential, Context7
 
 **`/task [operation] [flags]`**
 > "Long-term project management"
+
 - Auto-Persona: Architect, Analyzer
 - MCP: Sequential
 
 **`/test [type] [flags]`**
 > "Testing workflows"
+
 - Auto-Persona: QA
 - MCP: Playwright, Sequential
 
 **`/git [operation] [flags]`**
 > "Git workflow assistant"
+
 - Auto-Persona: DevOps, Scribe, QA
 - MCP: Sequential
 
 **`/design [domain] [flags]`**
 > "Design orchestration"
+
 - Auto-Persona: Architect, Frontend
 - MCP: Magic, Sequential, Context7
 
@@ -239,16 +255,19 @@ Three profiles control resource allocation and execution behavior:
 
 **`/index [query] [flags]`**
 > "Command catalog browsing"
+
 - Auto-Persona: Mentor, Analyzer
 - MCP: Sequential
 
 **`/load [path] [flags]`**
 > "Project context loading"
+
 - Auto-Persona: Analyzer, Architect, Scribe
 - MCP: All servers
 
 **`/spawn [mode] [flags]`**
 > "Task orchestration"
+
 - Auto-Persona: Analyzer, Architect, DevOps
 - MCP: All servers
 

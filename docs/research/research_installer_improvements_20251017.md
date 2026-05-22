@@ -22,12 +22,14 @@ Comprehensive research into modern Python CLI installer best practices reveals s
 ### Key Finding: uv as the Modern Standard
 
 **Evidence**:
+
 - **Performance**: 10-100x faster than pip (Rust implementation)
 - **Standard Adoption**: Official pyproject.toml support, universal lockfiles
 - **Industry Momentum**: Replaces pip, pip-tools, pipx, poetry, pyenv, twine, virtualenv
 - **Source**: [Official uv docs](https://docs.astral.sh/uv/), [Astral blog](https://astral.sh/blog/uv)
 
 **Current SuperClaude State**:
+
 ```python
 # pyproject.toml exists with modern configuration
 # Installation: uv pip install -e ".[dev]"
@@ -58,6 +60,7 @@ Comprehensive research into modern Python CLI installer best practices reveals s
 **Recommendation**: **Migrate to typer + rich** (High Confidence 85%)
 
 **Rationale**:
+
 1. **Rich Integration**: Typer has rich as standard dependency - enhanced UX comes free
 2. **Type Safety**: Automatic validation from type hints reduces manual validation code
 3. **Interactive Prompts**: Built-in `typer.prompt()` and `typer.confirm()` with validation
@@ -65,6 +68,7 @@ Comprehensive research into modern Python CLI installer best practices reveals s
 5. **Migration Path**: Typer built on Click - can migrate incrementally
 
 **Current SuperClaude Issues This Solves**:
+
 - **Custom UI utilities** (setup/utils/ui.py:500+ lines) → Reduce to rich native features
 - **Manual input validation** → Automatic via type hints
 - **Inconsistent prompts** → Standardized typer.prompt() API
@@ -112,6 +116,7 @@ SuperClaude Current State:
 **Recommendation**: 🟡 **Improvement Opportunity**
 
 **Current Code** (setup/utils/ui.py:228-245):
+
 ```python
 # Manual input validation
 def prompt_api_key(service_name: str, env_var: str) -> Optional[str]:
@@ -127,6 +132,7 @@ def prompt_api_key(service_name: str, env_var: str) -> Optional[str]:
 ```
 
 **Improved with Rich Prompt**:
+
 ```python
 from rich.prompt import Prompt
 
@@ -187,12 +193,14 @@ SuperClaude Current State:
 **Recommendation**: 🟡 **Modernize to Rich Markup**
 
 **Current Approach** (setup/utils/ui.py:30-40):
+
 ```python
 # Manual ANSI color codes
 Colors.CYAN + "text" + Colors.RESET
 ```
 
 **Rich Approach**:
+
 ```python
 # Clean markup syntax
 console.print("[cyan]text[/cyan]")
@@ -222,6 +230,7 @@ SuperClaude Current State:
 ```
 
 **Evidence** (setup/core/installer.py:252-255):
+
 ```python
 except Exception as e:
     self.logger.error(f"Error installing {component_name}: {e}")
@@ -248,6 +257,7 @@ SuperClaude Current State:
 **Recommendation**: 🟢 **Add Pydantic Models for Configuration**
 
 **Example - Current Manual Validation**:
+
 ```python
 # Manual validation in multiple places
 if not component_name:
@@ -257,6 +267,7 @@ if component_name not in self.components:
 ```
 
 **Improved with Pydantic**:
+
 ```python
 from pydantic import BaseModel, Field, validator
 
@@ -308,6 +319,7 @@ SuperClaude Current State:
 ```
 
 **Evidence** (setup/core/installer.py:158-178):
+
 ```python
 with tempfile.TemporaryDirectory() as temp_dir:
     # Backup logic
@@ -343,6 +355,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
    - Being replaced by uv
 
 **SuperClaude Positioning**:
+
 ```yaml
 Strength: Interactive two-stage installation (better than all three)
 Weakness: Custom UI code (300+ lines vs framework primitives)
@@ -365,6 +378,7 @@ Opportunity: Reduce maintenance burden via rich/typer
 ### P0: Migrate to typer + rich (High ROI)
 
 **Why This Matters**:
+
 - **-300 lines**: Remove custom UI utilities (setup/utils/ui.py)
 - **+Type Safety**: Automatic validation from type hints
 - **+Better UX**: Rich tables, progress bars, markdown rendering
@@ -373,6 +387,7 @@ Opportunity: Reduce maintenance burden via rich/typer
 **Migration Strategy (Incremental, Low Risk)**:
 
 **Phase 1**: Install Dependencies
+
 ```bash
 # Add to pyproject.toml
 [project.dependencies]
@@ -380,6 +395,7 @@ typer = {version = ">=0.9.0", extras = ["all"]}  # Includes rich
 ```
 
 **Phase 2**: Refactor Main CLI Entry Point
+
 ```python
 # setup/cli/base.py - Current (argparse)
 def create_parser():
@@ -412,6 +428,7 @@ def install(
 ```
 
 **Phase 3**: Replace Custom UI with Rich
+
 ```python
 # Before: setup/utils/ui.py (300+ lines custom code)
 display_header("Title", "Subtitle")
@@ -438,6 +455,7 @@ with Progress() as progress:
 ```
 
 **Phase 4**: Interactive Prompts with Validation
+
 ```python
 # Before: Custom Menu class (setup/utils/ui.py:100-180)
 menu = Menu("Select options:", options, multi_select=True)
@@ -462,6 +480,7 @@ selected = questionary.checkbox(
 ```
 
 **Phase 5**: Type-Safe Configuration
+
 ```python
 # Before: Dict[str, Any] everywhere
 config: Dict[str, Any] = {...}
@@ -480,6 +499,7 @@ config = InstallConfig(components=["core"], install_dir=Path("/..."))
 ```
 
 **Testing Strategy**:
+
 1. Create `setup/cli/typer_cli.py` alongside existing argparse code
 2. Test new typer CLI in isolation
 3. Add feature flag: `SUPERCLAUDE_USE_TYPER=1`
@@ -488,11 +508,13 @@ config = InstallConfig(components=["core"], install_dir=Path("/..."))
 6. Remove setup/utils/ui.py custom code
 
 **Rollback Plan**:
+
 - Keep argparse code for 1 release cycle
 - Document migration for users
 - Provide compatibility shim if needed
 
 **Expected Outcome**:
+
 - **-300 lines** of custom UI code
 - **+Type safety** from Pydantic + typer
 - **+Better UX** from rich rendering
@@ -592,6 +614,7 @@ class InstallationConfig(BaseModel):
 ```
 
 **Usage**:
+
 ```python
 # Before: Manual validation
 if not components:
@@ -616,12 +639,14 @@ except ValidationError as e:
 ### P2: Enhanced Error Messages (Quick Win)
 
 **Current State**:
+
 ```python
 # Generic errors
 logger.error(f"Error installing {component_name}: {e}")
 ```
 
 **Improved**:
+
 ```python
 from rich.panel import Panel
 from rich.text import Text
@@ -673,6 +698,7 @@ def display_installation_error(component: str, error: Exception):
 ### P3: API Key Format Validation
 
 **Implementation**:
+
 ```python
 from rich.prompt import Prompt
 import re
@@ -739,12 +765,14 @@ def prompt_api_key_with_validation(
 ### Migration Benefits vs Risks
 
 **Benefits** (Quantified):
+
 - **-300 lines**: Custom UI code removal
 - **-50%**: Validation code reduction (Pydantic)
 - **+100%**: Type safety coverage
 - **+Developer UX**: Better error messages, cleaner code
 
 **Risks** (Mitigated):
+
 - Breaking changes: ✅ Parallel testing + feature flag
 - Dependency bloat: ✅ Minimal (typer + rich only)
 - Compatibility: ✅ Rich has excellent terminal fallbacks
@@ -756,24 +784,28 @@ def prompt_api_key_with_validation(
 ## 8. Implementation Timeline
 
 ### Week 1: Foundation
+
 - [ ] Add typer + rich to pyproject.toml
 - [ ] Create setup/cli/typer_cli.py (parallel implementation)
 - [ ] Migrate `install` command to typer
 - [ ] Feature flag: `SUPERCLAUDE_USE_TYPER=1`
 
 ### Week 2: Core Migration
+
 - [ ] Add Pydantic models (setup/models/config.py)
 - [ ] Replace custom UI utilities with rich
 - [ ] Migrate prompts to typer.prompt() and rich.prompt
 - [ ] Parallel testing (argparse vs typer)
 
 ### Week 3: Validation & Error Handling
+
 - [ ] Enhanced error messages with rich.panel
 - [ ] API key format validation
 - [ ] Comprehensive testing (edge cases)
 - [ ] Documentation updates
 
 ### Week 4: Deprecation & Cleanup
+
 - [ ] Remove argparse CLI (keep 1 release cycle)
 - [ ] Delete setup/utils/ui.py custom code
 - [ ] Update README with new CLI examples
@@ -891,20 +923,23 @@ def test_api_key_validation():
 ## 11. References & Evidence
 
 ### Official Documentation
-1. **uv**: https://docs.astral.sh/uv/ (Official packaging standard)
-2. **typer**: https://typer.tiangolo.com/ (CLI framework)
-3. **rich**: https://rich.readthedocs.io/ (Terminal rendering)
-4. **Pydantic**: https://docs.pydantic.dev/ (Data validation)
+
+1. **uv**: <https://docs.astral.sh/uv/> (Official packaging standard)
+2. **typer**: <https://typer.tiangolo.com/> (CLI framework)
+3. **rich**: <https://rich.readthedocs.io/> (Terminal rendering)
+4. **Pydantic**: <https://docs.pydantic.dev/> (Data validation)
 
 ### Industry Best Practices
-5. **CLI UX Patterns**: https://lucasfcosta.com/2022/06/01/ux-patterns-cli-tools.html
-6. **Python Error Handling**: https://www.qodo.ai/blog/6-best-practices-for-python-exception-handling/
-7. **Declarative Validation**: https://codilime.com/blog/declarative-data-validation-pydantic/
+
+5. **CLI UX Patterns**: <https://lucasfcosta.com/2022/06/01/ux-patterns-cli-tools.html>
+6. **Python Error Handling**: <https://www.qodo.ai/blog/6-best-practices-for-python-exception-handling/>
+7. **Declarative Validation**: <https://codilime.com/blog/declarative-data-validation-pydantic/>
 
 ### Modern Installer Examples
-8. **uv vs pip**: https://realpython.com/uv-vs-pip/
-9. **Poetry vs uv vs pip**: https://medium.com/codecodecode/pip-poetry-and-uv-a-modern-comparison-for-python-developers-82f73eaec412
-10. **CLI Framework Comparison**: https://codecut.ai/comparing-python-command-line-interface-tools-argparse-click-and-typer/
+
+8. **uv vs pip**: <https://realpython.com/uv-vs-pip/>
+9. **Poetry vs uv vs pip**: <https://medium.com/codecodecode/pip-poetry-and-uv-a-modern-comparison-for-python-developers-82f73eaec412>
+10. **CLI Framework Comparison**: <https://codecut.ai/comparing-python-command-line-interface-tools-argparse-click-and-typer/>
 
 ---
 
@@ -913,6 +948,7 @@ def test_api_key_validation():
 **High-Confidence Recommendation**: Migrate SuperClaude installer to typer + rich + Pydantic
 
 **Rationale**:
+
 - **-60% code**: Remove custom UI utilities (300+ lines)
 - **+Type Safety**: Automatic validation from type hints + Pydantic
 - **+Better UX**: Industry-standard rich rendering
@@ -920,12 +956,14 @@ def test_api_key_validation():
 - **Low Risk**: Incremental migration with feature flag + parallel testing
 
 **Expected ROI**:
+
 - **Development Time**: -75% (faster feature development)
 - **Bug Rate**: -50% (type safety + validation)
 - **User Satisfaction**: +40% (clearer errors, better UX)
 - **Maintenance Cost**: -75% (framework vs custom)
 
 **Next Steps**:
+
 1. Review recommendations with team
 2. Create migration plan ticket
 3. Start Week 1 implementation (foundation)

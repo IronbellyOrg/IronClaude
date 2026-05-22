@@ -203,6 +203,7 @@ PRD-derived categories (persona, compliance) are strongly sticky -- they amplify
 All data in this report was derived from the following phase-output files:
 
 ### Dimension Data Files
+
 | File | Description |
 |------|-------------|
 | `phase-outputs/data/dim1-extraction-quality.md` | Extraction metrics across 3 runs with spot-checks |
@@ -215,12 +216,14 @@ All data in this report was derived from the following phase-output files:
 | `phase-outputs/data/dim8-enrichment-flow.md` | Enrichment persistence across pipeline stages |
 
 ### Report Files
+
 | File | Description |
 |------|-------------|
 | `phase-outputs/reports/quality-matrix.md` | Master quality matrix with enrichment delta analysis |
 | `phase-outputs/reports/qualitative-assessment.md` | Full qualitative read of all artifacts across runs |
 
 ### Source Artifacts (Test Fixtures)
+
 | Directory | Run |
 |-----------|-----|
 | `.dev/test-fixtures/results/test3-spec-baseline/` | Run A (Spec only) |

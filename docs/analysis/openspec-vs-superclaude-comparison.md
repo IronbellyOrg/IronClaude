@@ -39,6 +39,7 @@ openspec/
 ```
 
 **Source code structure** (TypeScript):
+
 ```
 src/
   cli/                      # CLI entry points
@@ -85,6 +86,7 @@ src/superclaude/cli/roadmap/    # 24 modules, 10,729 lines
 ```
 
 **Supporting infrastructure**:
+
 - 42 slash commands (`src/superclaude/commands/`)
 - 13 skills (`src/superclaude/skills/`)
 - 29 agents (`src/superclaude/agents/`)
@@ -182,6 +184,7 @@ src/superclaude/cli/roadmap/    # 24 modules, 10,729 lines
 ### OpenSpec
 
 **Strengths**:
+
 1. **Unmatched portability**: 24 AI tools supported from a single spec workflow. Tool switching has zero cost.
 2. **Low friction entry**: 3-command core path (propose/apply/archive) is immediately productive.
 3. **Brownfield-first design**: Delta specs (ADDED/MODIFIED/REMOVED) elegantly handle changes to existing systems.
@@ -192,6 +195,7 @@ src/superclaude/cli/roadmap/    # 24 modules, 10,729 lines
 8. **Auto-detection**: `openspec init` scans for existing AI tools in the project.
 
 **Weaknesses**:
+
 1. **No validation depth**: `/opsx:verify` is advisory only. No structural, semantic, or convergence checking.
 2. **No adversarial generation**: Cannot produce competing roadmaps from different perspectives.
 3. **No obligation tracking**: Cannot detect whether scaffolding promises (mocks, stubs) are fulfilled in later phases.
@@ -204,6 +208,7 @@ src/superclaude/cli/roadmap/    # 24 modules, 10,729 lines
 ### SuperClaude
 
 **Strengths**:
+
 1. **Deep validation pipeline**: 10,700+ lines of validation logic including structural, semantic, and adversarial checks.
 2. **Adversarial roadmap generation**: Multiple agents with different personas produce competing roadmaps, then merge.
 3. **Obligation scanning**: Automatically detects undischarged scaffolding (mocks, stubs, placeholders) across phases.
@@ -215,6 +220,7 @@ src/superclaude/cli/roadmap/    # 24 modules, 10,729 lines
 9. **Evidence-gated planning**: Grep-proof citations ensure claims are traceable to source.
 
 **Weaknesses**:
+
 1. **Claude Code lock-in**: Zero portability. Entire architecture depends on Claude Code's command/skill/agent system.
 2. **High complexity barrier**: 42 commands, 13 skills, 29 agents -- steep learning curve for new users.
 3. **No brownfield-specific primitives**: Lacks OpenSpec's delta spec model for incremental changes to existing systems.
@@ -231,6 +237,7 @@ src/superclaude/cli/roadmap/    # 24 modules, 10,729 lines
 ### 5.1 Cross-Platform Strategy (Highest Priority)
 
 OpenSpec's most transferable innovation is its **command generation architecture**. The `command-generation/` module in OpenSpec's core takes a single canonical workflow definition and outputs tool-specific files for 24+ targets. Each target has:
+
 - A known directory convention (`.claude/commands/`, `.cursor/commands/`, `.github/prompts/`)
 - A known file format (`.md`, `.prompt.md`, `.toml`)
 - Known naming conventions
@@ -238,6 +245,7 @@ OpenSpec's most transferable innovation is its **command generation architecture
 **Recommendation**: SuperClaude could implement a similar generation layer. The canonical definitions already exist in `src/superclaude/commands/` as markdown files. A generator could produce simplified versions of these commands for Cursor, Copilot, Windsurf, and others. This would not replicate the deep validation pipeline (which requires Claude Code's Task/Agent capabilities) but would provide the planning scaffolding.
 
 **Concrete approach**:
+
 - Define a `tool-targets.yaml` mapping tool names to directory conventions and file formats
 - Create a `generate_for_tool(tool_name, command_dir)` function that reads SuperClaude command files and emits simplified versions
 - Start with the 5 most-used commands: roadmap, brainstorm, workflow, implement, test
@@ -247,6 +255,7 @@ OpenSpec's most transferable innovation is its **command generation architecture
 OpenSpec's `core` vs `custom` profile system is a smart solution to the complexity problem. New users get 4 commands; power users unlock the full set.
 
 **Recommendation**: SuperClaude could introduce profiles:
+
 - `core`: roadmap, brainstorm, implement, test, build (5 commands)
 - `standard`: core + workflow, analyze, review, pm, explain (10 commands)
 - `full`: all 42 commands
@@ -256,11 +265,13 @@ This would reduce the onboarding barrier without removing capability.
 ### 5.3 Delta Spec Model for Brownfield Work
 
 OpenSpec's ADDED/MODIFIED/REMOVED markers in delta specs are elegant. They make it explicit what a change does relative to existing behavior, which is valuable for:
+
 - Code review (reviewer can see exactly what behavioral contracts changed)
 - Archive (automated merge of deltas into living specs)
 - Parallel changes (delta isolation prevents merge conflicts)
 
 **Recommendation**: SuperClaude's `spec_parser.py` and `spec_patch.py` already handle spec amendments. Adding explicit delta markers would improve:
+
 - The obligation scanner (can distinguish new obligations from modified ones)
 - The convergence engine (can track per-delta convergence independently)
 - The roadmap generator (can focus attention on MODIFIED sections vs new ones)
@@ -270,6 +281,7 @@ OpenSpec's ADDED/MODIFIED/REMOVED markers in delta specs are elegant. They make 
 OpenSpec allows teams to define custom artifact sequences via `schema.yaml` without modifying source code. SuperClaude's pipeline steps are hardcoded in Python.
 
 **Recommendation**: Extract pipeline step definitions into a declarative format:
+
 ```yaml
 schema: superclaude-standard
 artifacts:
@@ -294,6 +306,7 @@ This would let teams skip or reorder steps without touching Python code.
 OpenSpec's `/opsx:onboard` provides a 15-minute guided walkthrough. SuperClaude relies on documentation files.
 
 **Recommendation**: Create `/sc:onboard` that walks a new user through:
+
 1. First brainstorm session
 2. First roadmap generation
 3. Understanding validation output
@@ -338,12 +351,12 @@ For completeness (and because understanding both directions clarifies priorities
 
 ## 8. Sources
 
-- OpenSpec GitHub repository: https://github.com/Fission-AI/OpenSpec
-- OpenSpec concepts documentation: https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md
-- OpenSpec workflows documentation: https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md
-- OpenSpec supported tools: https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md
-- OpenSpec customization: https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md
-- Augment Code comparison: https://www.augmentcode.com/tools/best-spec-driven-development-tools
+- OpenSpec GitHub repository: <https://github.com/Fission-AI/OpenSpec>
+- OpenSpec concepts documentation: <https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md>
+- OpenSpec workflows documentation: <https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md>
+- OpenSpec supported tools: <https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md>
+- OpenSpec customization: <https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md>
+- Augment Code comparison: <https://www.augmentcode.com/tools/best-spec-driven-development-tools>
 - SuperClaude source: `src/superclaude/cli/roadmap/` (24 modules, 10,729 lines)
 - SuperClaude commands: `src/superclaude/commands/` (42 command files)
 - SuperClaude skills: `src/superclaude/skills/` (13 skill packages)

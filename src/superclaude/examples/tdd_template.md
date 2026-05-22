@@ -58,12 +58,14 @@ approvers:
 > **HOW TO USE:** Engineers, architects, and technical stakeholders use this document to align on technical approach before implementation begins.
 
 Sentinel self-check (run before submitting TDD for pipeline consumption):
+
 - feature_id must not be "[FEATURE-ID]"
 - spec_type must be one of the valid enum values
 - target_release must not be "[version]"
 - complexity_score and complexity_class: computed by sc:roadmap during extraction. Provide estimated values if known; the extraction step will compute authoritative values regardless.
 
 Pipeline field consumption:
+
 - `complexity_score`, `complexity_class`: Computed by sc:roadmap during extraction (not read from frontmatter). Pre-populated values are advisory only.
 - `feature_id`, `spec_type`, `target_release`: Consumed by sc:spec-panel `--downstream roadmap` (Step 6b) when generating scoped release specs.
 - `quality_scores`: Populated by sc:spec-panel review output. Not consumed by sc:roadmap.
@@ -117,6 +119,7 @@ This TDD implements requirements from [link to Product PRD] Epics [X, Y, Z].
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [ ] Section 1: Executive Summary — **Status**
 - [ ] Section 2: Problem Statement & Context — **Status**
 - [ ] Section 3: Goals & Non-Goals — **Status**
@@ -198,6 +201,7 @@ This TDD implements requirements from [link to Product PRD] Epics [X, Y, Z].
 [2-3 paragraphs maximum. Every engineer should be able to read this and understand what this component does, why it's being built, and whether the rest of the document is relevant to them.]
 
 **Key Deliverables:**
+
 - [Deliverable 1]
 - [Deliverable 2]
 - [Deliverable 3]
@@ -215,6 +219,7 @@ This TDD implements requirements from [link to Product PRD] Epics [X, Y, Z].
 **The core problem:** [One clear sentence stating the technical problem]
 
 [Expand on the problem with specifics:]
+
 - What is broken, missing, or inadequate?
 - Who is affected (users, other systems, teams)?
 - What is the cost of not solving this?
@@ -335,6 +340,7 @@ How we will measure success:
 | Correctness | Valid responses / total responses | [e.g., 99.99%] | [e.g., 4.3 min of bad data] | [e.g., 10x in 5m] |
 
 **Error Budget Policy:**
+
 - When error budget is **> 50% remaining**: Normal development velocity
 - When error budget is **25-50% remaining**: Halt risky deployments, prioritize reliability work
 - When error budget is **< 25% remaining**: Freeze feature releases until budget recovers
@@ -409,6 +415,7 @@ graph TD
 | **Noisy Neighbor Prevention** | [Rate limiting / Resource quotas] | [e.g., per-tenant rate limits, fair-share scheduling] | [Throughput vs fairness] |
 
 **Tenant Isolation Guarantees:**
+
 - [ ] Data cannot leak across tenants (verify with integration tests)
 - [ ] One tenant's failure/load cannot degrade another tenant's experience
 - [ ] Tenant-scoped audit logging is in place
@@ -480,6 +487,7 @@ flowchart LR
 **Purpose:** [What this endpoint does]
 
 **Request:**
+
 ```http
 GET /api/v1/[resource]?param1=value&param2=value
 Authorization: Bearer {token}
@@ -492,6 +500,7 @@ Authorization: Bearer {token}
 | param2 | number | No | 10 | [Description] |
 
 **Response (200 OK):**
+
 ```json
 {
   "data": [
@@ -677,15 +686,18 @@ sequenceDiagram
 ```
 
 **Steps:**
+
 1. User [action]
 2. System [response]
 3. [Continue...]
 
 **Success Criteria:**
+
 - [Criterion 1]
 - [Criterion 2]
 
 **Error Scenarios:**
+
 - If [condition], then [behavior]
 - If [condition], then [behavior]
 
@@ -777,6 +789,7 @@ sequenceDiagram
 | Data portability | [e.g., GDPR Art. 20] | [e.g., Export API in standard format] | [e.g., Export integration test] |
 
 **Data Classification:**
+
 - [ ] All data fields classified (PII, Confidential, Internal, Public)
 - [ ] PII fields documented with legal basis for processing
 - [ ] Cross-border data transfer mechanisms identified (if applicable)
@@ -795,6 +808,7 @@ sequenceDiagram
 | Audit logs | JSON | [Destination] | [Duration] |
 
 **Log Levels:**
+
 - `ERROR`: System errors requiring immediate attention
 - `WARN`: Potential issues, degraded functionality
 - `INFO`: Key business events, state transitions
@@ -903,9 +917,6 @@ sequenceDiagram
 
 ### 16.2 Testing Tools
 
-- [Tool 1]: [Purpose]
-- [Tool 2]: [Purpose]
-- [Tool 3]: [Purpose]
 
 ---
 
@@ -1013,6 +1024,7 @@ Created → Testing → Canary (1%) → Partial (10-50%) → GA (100%) → Clean
 4. [Verification step]
 
 **Rollback Decision Criteria:**
+
 - Error rate exceeds [X]%
 - Latency p99 exceeds [X]ms
 - [Other criteria]
@@ -1038,12 +1050,14 @@ Created → Testing → Canary (1%) → Partial (10-50%) → GA (100%) → Clean
 **Description:** What happens if we do not build this? Can the problem be solved with existing systems, manual processes, or by deferring?
 
 **Pros:**
+
 - No engineering cost
 - No operational burden
 - No risk of introducing regressions
 - [Other pros of inaction]
 
 **Cons:**
+
 - [Specific cost or consequence of inaction — quantify if possible]
 - [e.g., Manual workaround costs X hours/week]
 - [e.g., User churn of Y% due to missing feature]
@@ -1057,10 +1071,12 @@ Created → Testing → Canary (1%) → Partial (10-50%) → GA (100%) → Clean
 **Description:** [Brief description of the alternative approach]
 
 **Pros:**
+
 - [Pro 1]
 - [Pro 2]
 
 **Cons:**
+
 - [Con 1]
 - [Con 2]
 
@@ -1073,10 +1089,12 @@ Created → Testing → Canary (1%) → Partial (10-50%) → GA (100%) → Clean
 **Description:** [Brief description of the alternative approach]
 
 **Pros:**
+
 - [Pro 1]
 - [Pro 2]
 
 **Cons:**
+
 - [Con 1]
 - [Con 2]
 
@@ -1111,11 +1129,13 @@ Created → Testing → Canary (1%) → Partial (10-50%) → GA (100%) → Clean
 #### Phase 1: [Phase Name] (Weeks 1-X)
 
 **Deliverables:**
+
 - [ ] [Deliverable 1]
 - [ ] [Deliverable 2]
 - [ ] [Deliverable 3]
 
 **Exit Criteria:**
+
 - [Criterion 1]
 - [Criterion 2]
 
@@ -1320,6 +1340,7 @@ Use these standardized callout formats throughout the document:
 -->
 
 > **See also:**
+>
 > - [prd_template.md](prd_template.md) — Product requirements template (defines *what* to build)
 > - [technical_reference_template.md](technical_reference_template.md) — Post-implementation reference (documents *what was built*)
 

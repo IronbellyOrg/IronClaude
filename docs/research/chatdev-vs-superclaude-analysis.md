@@ -74,6 +74,7 @@ ChatDev and SuperClaude represent two fundamentally different philosophies for a
 **Communication Pattern**: Parallel generation followed by structured adversarial comparison. Two independent agents (potentially with different model/persona combinations, e.g., `opus:architect` vs `sonnet:backend`) generate competing roadmap variants from the same spec. A neutral Debate Orchestrator coordinates comparison without participating.
 
 **Key Mechanism -- Evidence-Gated Convergence**: Every pipeline step must pass deterministic gate criteria. The spec-fidelity gate uses a convergence engine with:
+
 - Structural checkers (heading gaps, cross-references, duplicate headings, frontmatter validation)
 - Semantic layer with adversarial validation and rubric-weighted judging
 - Deviation registry tracking findings across convergence runs
@@ -240,6 +241,7 @@ The convergence engine is modular: structural checkers, semantic layer, and reme
 ### ChatDev
 
 **Strengths:**
+
 1. **End-to-end autonomy**: From natural language prompt to running software with no intermediate human steps
 2. **Low barrier to entry**: One-line prompt produces complete software project
 3. **Visual workflow design (2.0)**: Non-programmers can build multi-agent systems
@@ -250,6 +252,7 @@ The convergence engine is modular: structural checkers, semantic layer, and reme
 8. **Composability (2.0)**: Subgraph nodes, map/tree parallelism, child DAG embedding
 
 **Weaknesses:**
+
 1. **Shallow planning**: Design phase is minimal; complex architectural decisions are made implicitly
 2. **Cooperative bias**: Agents work toward consensus without adversarial challenge; flawed assumptions can propagate
 3. **Single-model limitation (1.0)**: All agents use the same LLM backend; no genuine perspective diversity
@@ -262,6 +265,7 @@ The convergence engine is modular: structural checkers, semantic layer, and reme
 ### SuperClaude
 
 **Strengths:**
+
 1. **Planning depth**: 9+ step pipeline with multi-variant adversarial generation and structured debate
 2. **Evidence gating**: Every artifact passes deterministic gate criteria with semantic checks
 3. **Adversarial validation**: Competing agents surface disagreements; debate orchestrator maintains neutrality
@@ -273,6 +277,7 @@ The convergence engine is modular: structural checkers, semantic layer, and reme
 9. **Fingerprint coverage**: Deterministic spec-to-roadmap coverage measurement
 
 **Weaknesses:**
+
 1. **No code generation**: Produces planning artifacts only; a separate execution system is needed to implement the roadmap
 2. **Higher token cost**: Adversarial generation doubles the generation cost; debate and convergence add more
 3. **Platform coupling**: Tightly bound to Claude Code and Anthropic's model ecosystem
@@ -295,6 +300,7 @@ ChatDev 2.0's YAML-based workflow definition with a drag-and-drop visual canvas 
 ### 10.2 Subgraph Composition
 
 ChatDev 2.0's `subgraph` node type allows embedding child DAGs as reusable workflow components. SuperClaude's pipeline is currently a flat sequence of steps. Introducing composable sub-pipelines would enable:
+
 - Reusable validation sequences (spec-fidelity + anti-instinct + wiring as a "validation subgraph")
 - Conditional branching (skip debate if single-agent mode)
 - Recursive refinement (convergence loop as a first-class subgraph)
@@ -306,6 +312,7 @@ ChatDev 2.0's explicit `human` node that pauses workflow execution for human inp
 ### 10.4 Fan-Out/Reduce Parallelism Patterns
 
 ChatDev 2.0's `map` (fan-out) and `tree` (fan-out + reduce) modes are general-purpose parallel execution patterns. SuperClaude currently only parallelizes the Generate-A/Generate-B pair. Generalizing this to support N-way parallel generation with configurable reduce strategies would enable:
+
 - Three or more competing roadmap variants
 - Parallel validation runs across different dimensions
 - Tree-reduce for summarizing large document sets
@@ -350,11 +357,11 @@ The most productive integration path would be to use SuperClaude's planning pipe
 
 ## Sources
 
-- ChatDev GitHub Repository: https://github.com/OpenBMB/ChatDev
-- ChatDev Paper (ACL 2024): https://aclanthology.org/2024.acl-long.810.pdf
-- ChatDev arXiv: https://arxiv.org/html/2307.07924v5
-- ChatDev 2.0 Overview: https://yuv.ai/blog/chatdev
-- IBM Tutorial on ChatChain: https://www.ibm.com/think/tutorials/chatdev-chatchain-agent-communication-watsonx-ai
-- Emergent Mind ChatDev Summary: https://www.emergentmind.com/topics/chatdev-framework
+- ChatDev GitHub Repository: <https://github.com/OpenBMB/ChatDev>
+- ChatDev Paper (ACL 2024): <https://aclanthology.org/2024.acl-long.810.pdf>
+- ChatDev arXiv: <https://arxiv.org/html/2307.07924v5>
+- ChatDev 2.0 Overview: <https://yuv.ai/blog/chatdev>
+- IBM Tutorial on ChatChain: <https://www.ibm.com/think/tutorials/chatdev-chatchain-agent-communication-watsonx-ai>
+- Emergent Mind ChatDev Summary: <https://www.emergentmind.com/topics/chatdev-framework>
 - SuperClaude source: `src/superclaude/cli/roadmap/` (executor, gates, convergence, prompts, semantic_layer, obligation_scanner)
 - SuperClaude agents: `src/superclaude/agents/` (debate-orchestrator.md, merge-executor.md, + 26 others)

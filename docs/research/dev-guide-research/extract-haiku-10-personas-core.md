@@ -29,6 +29,7 @@ Exact quotes (Core Features):
 > “- **Flag Integration**: Works with all thinking flags, MCP servers, and command categories”
 
 **Integration implication (from quotes):**
+
 - Personas integrate into the framework via **auto-activation**, **manual override flags**, and **flag integration** across command categories.
 
 ### 1.3 Persona template fields that explicitly integrate with commands
@@ -44,6 +45,7 @@ Exact quotes:
 > “- **Triggers**: Keywords and context for auto-activation”
 
 **Integration implication (from quotes):**
+
 - Each persona declares:
   - **Commands** it is optimized for (direct coupling to command system)
   - **Triggers** for auto-selection (routing/invocation coupling)

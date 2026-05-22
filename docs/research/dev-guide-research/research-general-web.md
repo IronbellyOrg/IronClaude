@@ -28,6 +28,7 @@
 **Source**: [Extend Claude with Skills - Claude Code Docs](https://code.claude.com/docs/en/skills)
 
 ### Key Insight
+
 Skills are the unified extensibility mechanism in Claude Code, replacing and subsuming the older slash commands system. A skill is a directory containing a `SKILL.md` file with YAML frontmatter and markdown instructions. Claude discovers skills automatically and uses them when relevant, or users invoke them directly with `/skill-name`.
 
 ### SKILL.md Format
@@ -140,6 +141,7 @@ Research $ARGUMENTS thoroughly:
 ```
 
 ### Practical Applicability
+
 - Skills are the primary extensibility mechanism for Claude Code
 - The `context: fork` pattern is essential for isolating heavy operations
 - Dynamic context injection (`!`command``) enables real-time data in skills
@@ -153,6 +155,7 @@ Research $ARGUMENTS thoroughly:
 **Source**: [Create Custom Subagents - Claude Code Docs](https://code.claude.com/docs/en/sub-agents)
 
 ### Key Insight
+
 Subagents are specialized AI assistants that run in their own context window with custom system prompts, specific tool access, and independent permissions. They preserve context by keeping exploration and implementation out of the main conversation, and can be routed to cheaper/faster models.
 
 ### Agent File Format
@@ -226,6 +229,7 @@ patterns, conventions, and recurring issues you discover.
 ```
 
 Memory scopes:
+
 - `user`: `~/.claude/agent-memory/<name>/` - across all projects
 - `project`: `.claude/agent-memory/<name>/` - project-specific, version-controllable
 - `local`: `.claude/agent-memory-local/<name>/` - project-specific, not version-controlled
@@ -290,6 +294,7 @@ claude --agents '{
 ### Example Agents
 
 **Code Reviewer** (read-only):
+
 ```markdown
 ---
 name: code-reviewer
@@ -319,6 +324,7 @@ Provide feedback organized by priority:
 ```
 
 **Debugger** (with edit access):
+
 ```markdown
 ---
 name: debugger
@@ -337,6 +343,7 @@ When invoked:
 ```
 
 **Database Query Validator** (with PreToolUse hook):
+
 ```markdown
 ---
 name: db-reader
@@ -355,6 +362,7 @@ Execute SELECT queries to answer questions about the data.
 ```
 
 ### Practical Applicability
+
 - Subagents keep main context clean by isolating heavy operations
 - The `model` field enables cost optimization (Haiku for research, Opus for reasoning)
 - Persistent memory (`memory` field) enables cross-session learning
@@ -369,6 +377,7 @@ Execute SELECT queries to answer questions about the data.
 **Source**: [Automate Workflows with Hooks - Claude Code Docs](https://code.claude.com/docs/en/hooks-guide)
 
 ### Key Insight
+
 Hooks are user-defined shell commands that execute at specific lifecycle points in Claude Code. They provide deterministic control over behavior, ensuring certain actions always happen rather than relying on the LLM to choose to run them.
 
 ### Hook Events
@@ -431,6 +440,7 @@ PreToolUse hooks can modify tool inputs before execution, enabling transparent s
 ### Practical Examples
 
 **Block dangerous commands**:
+
 ```json
 {
   "hooks": {
@@ -447,6 +457,7 @@ PreToolUse hooks can modify tool inputs before execution, enabling transparent s
 ```
 
 **Auto-format after edits**:
+
 ```json
 {
   "hooks": {
@@ -463,6 +474,7 @@ PreToolUse hooks can modify tool inputs before execution, enabling transparent s
 ```
 
 **Gate PR creation on passing tests**:
+
 ```json
 {
   "hooks": {
@@ -479,6 +491,7 @@ PreToolUse hooks can modify tool inputs before execution, enabling transparent s
 ```
 
 ### Practical Applicability
+
 - Hooks enable deterministic guardrails that don't depend on LLM compliance
 - PreToolUse hooks are ideal for security policies (blocking dangerous commands)
 - PostToolUse hooks enforce code quality (auto-formatting, linting)
@@ -492,14 +505,17 @@ PreToolUse hooks can modify tool inputs before execution, enabling transparent s
 **Source**: [Skill Authoring Best Practices - Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
 
 ### Key Insight
+
 The most important Skill authoring principle is **progressive disclosure**: show just enough information to help agents decide what to do next, then reveal more details as needed. Claude is already very smart -- only add context Claude doesn't already have.
 
 ### Core Principles
 
 #### 1. Concise is Key
+
 The context window is a shared resource. Only add context Claude doesn't already have. Challenge each piece of information: "Does Claude really need this explanation?"
 
 Good (approximately 50 tokens):
+
 ```markdown
 ## Extract PDF text
 Use pdfplumber for text extraction:
@@ -520,6 +536,7 @@ Bad (approximately 150 tokens): Don't explain what PDFs are or how libraries wor
 Think of it as a robot on a path: narrow bridge with cliffs = low freedom; open field = high freedom.
 
 #### 3. Test with All Models
+
 - **Haiku**: Does the Skill provide enough guidance?
 - **Sonnet**: Is the Skill clear and efficient?
 - **Opus**: Does the Skill avoid over-explaining?
@@ -527,6 +544,7 @@ Think of it as a robot on a path: narrow bridge with cliffs = low freedom; open 
 ### Progressive Disclosure Patterns
 
 **Pattern 1: High-level guide with references**
+
 ```markdown
 # PDF Processing
 
@@ -539,6 +557,7 @@ Think of it as a robot on a path: narrow bridge with cliffs = low freedom; open 
 ```
 
 **Pattern 2: Domain-specific organization**
+
 ```
 bigquery-skill/
 ├── SKILL.md (overview and navigation)
@@ -549,6 +568,7 @@ bigquery-skill/
 ```
 
 **Pattern 3: Conditional details**
+
 ```markdown
 ## Creating documents
 Use docx-js for new documents. See [DOCX-JS.md](DOCX-JS.md).
@@ -570,6 +590,7 @@ For simple edits, modify the XML directly.
 ### Naming Conventions
 
 Prefer gerund form (verb + -ing) for clarity:
+
 - Good: `processing-pdfs`, `analyzing-spreadsheets`, `managing-databases`
 - Acceptable: `pdf-processing`, `process-pdfs`
 - Avoid: `helper`, `utils`, `tools`, `documents`
@@ -577,6 +598,7 @@ Prefer gerund form (verb + -ing) for clarity:
 ### Description Writing
 
 Write in third person. Include both what the Skill does AND when to use it:
+
 ```yaml
 description: Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction.
 ```
@@ -584,6 +606,7 @@ description: Extract text and tables from PDF files, fill forms, merge documents
 ### Workflow and Feedback Loop Patterns
 
 **Checklist pattern for complex tasks**:
+
 ```markdown
 Copy this checklist and track your progress:
 
@@ -596,6 +619,7 @@ Task Progress:
 ```
 
 **Feedback loop pattern** (run validator -> fix errors -> repeat):
+
 ```markdown
 1. Make your edits
 2. Validate immediately: `python scripts/validate.py`
@@ -614,6 +638,7 @@ Task Progress:
 ### Iterative Development with Claude
 
 Use "Claude A" (expert) to create/refine Skills that "Claude B" (agent) tests:
+
 1. Complete a task without a Skill -- notice what context you repeatedly provide
 2. Ask Claude A to create a Skill capturing the pattern
 3. Review for conciseness
@@ -635,6 +660,7 @@ Use "Claude A" (expert) to create/refine Skills that "Claude B" (agent) tests:
 - [ ] Tested with multiple models
 
 ### Practical Applicability
+
 - Progressive disclosure is the most impactful pattern for skill design
 - The "concise is key" principle prevents context window bloat
 - Evaluation-driven development ensures skills solve real problems
@@ -646,10 +672,12 @@ Use "Claude A" (expert) to create/refine Skills that "Claude B" (agent) tests:
 ## 5. CLAUDE.md Configuration Best Practices
 
 **Sources**:
+
 - [Writing a Good CLAUDE.md - HumanLayer Blog](https://www.humanlayer.dev/blog/writing-a-good-claude-md)
 - [CLAUDE.md Best Practices - Arize](https://arize.com/blog/claude-md-best-practices-learned-from-optimizing-claude-code-with-prompt-learning/)
 
 ### Key Insight
+
 CLAUDE.md is a high-leverage configuration point. Organize it around three pillars: WHAT (tech stack, project structure), WHY (purpose and function), and HOW (workflows, verification commands). Keep it concise -- frontier LLMs can follow approximately 150-200 instructions with reasonable consistency, and Claude Code's system prompt already contains approximately 50 instructions.
 
 ### Three Pillars
@@ -690,6 +718,7 @@ Repository-specific CLAUDE.md optimization via Prompt Learning improved Claude C
 ```
 
 ### Practical Applicability
+
 - Keep CLAUDE.md as concise as possible -- every instruction competes for attention
 - Nested CLAUDE.md files prevent context bloat in monorepos
 - Focus on what Claude can't infer from the codebase itself
@@ -701,22 +730,27 @@ Repository-specific CLAUDE.md optimization via Prompt Learning improved Claude C
 ## 6. Prompt Engineering for Claude Code
 
 **Sources**:
+
 - [Prompting Best Practices - Claude API Docs](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
 - [Claude 4 Best Practices - Claude Docs](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices)
 - [Prompt Engineering Best Practices - DreamHost](https://www.dreamhost.com/blog/claude-prompt-engineering/)
 
 ### Key Insight
+
 Claude responds best to clear, explicit instructions with context about WHY the instruction matters. The 4-block pattern (INSTRUCTIONS / CONTEXT / TASK / OUTPUT FORMAT) produces the most consistent results. Claude Opus models tend to overengineer -- add guidance to keep solutions minimal.
 
 ### Core Techniques
 
 #### 1. Be Clear and Explicit
+
 If you want "above and beyond" behavior, explicitly request it. Don't rely on inference from vague prompts.
 
 #### 2. Provide Context and Motivation
+
 Explain WHY behavior is important to help Claude deliver more targeted responses.
 
 #### 3. Use Structured Prompts (4-Block Pattern)
+
 ```
 INSTRUCTIONS: [role, constraints, style]
 CONTEXT: [relevant background, files, decisions]
@@ -725,18 +759,23 @@ OUTPUT FORMAT: [expected structure]
 ```
 
 #### 4. Use Few-Shot Examples
+
 Examples clarify subtle requirements better than descriptions. Claude 4.x pays very close attention to example details -- ensure they align with desired behaviors.
 
 #### 5. Manage Opus Over-Engineering
+
 Claude Opus tends to create extra files, add unnecessary abstractions, or build in flexibility that wasn't requested. Add specific guidance like "keep the solution minimal" or "don't add features beyond what's requested."
 
 #### 6. Guide Risky Actions
+
 Without guidance, Claude Opus may take irreversible actions (delete files, force-push). Add prompts like "confirm before taking potentially destructive actions."
 
 #### 7. Context Window Management
+
 If using agent harnesses that compact context, tell Claude about this so it can plan accordingly rather than trying to wrap up work as the limit approaches.
 
 ### Practical Applicability
+
 - The 4-block pattern is directly applicable to skill and command design
 - Few-shot examples in SKILL.md dramatically improve output quality
 - Explicit minimal-scope instructions prevent scope creep in agents
@@ -748,6 +787,7 @@ If using agent harnesses that compact context, tell Claude about this so it can 
 ## 7. Agent Orchestration Patterns
 
 **Sources**:
+
 - [AI Agent Design Patterns - Microsoft Azure](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)
 - [Multi-Agent Patterns in ADK - Google Developers Blog](https://developers.googleblog.com/developers-guide-to-multi-agent-patterns-in-adk/)
 - [Choosing the Right Orchestration Pattern - Kore.ai](https://www.kore.ai/blog/choosing-the-right-orchestration-pattern-for-multi-agent-systems)
@@ -759,17 +799,22 @@ If using agent harnesses that compact context, tell Claude about this so it can 
 ### Key Patterns
 
 #### 1. Sequential (Pipeline)
+
 Each stage builds on the previous. Best for workflows with clear dependencies.
+
 - Agent A completes task -> passes output to Agent B -> Agent B processes -> Agent C
 - No AI orchestration needed -- just predefined flow logic
 
 #### 2. Supervisor / Centralized Command
+
 A central orchestrator receives the request, decomposes into subtasks, delegates to specialists, monitors progress, validates outputs, and synthesizes the final response.
 
 #### 3. Adaptive / Decentralized Collaboration
+
 Agents collaborate without a central coordinator. Best for dynamic, unpredictable workflows.
 
 #### 4. Event-Driven Multi-Agent
+
 Patterns include orchestrator-worker, hierarchical, blackboard, and market-based approaches.
 
 ### Claude Code Specific Patterns
@@ -777,23 +822,28 @@ Patterns include orchestrator-worker, hierarchical, blackboard, and market-based
 #### Parallel vs. Sequential Dispatch
 
 **Parallel dispatch** (all conditions must be met):
+
 - 3+ unrelated tasks or independent domains
 - No shared state between tasks
 - Clear file boundaries with no overlap
 
 **Sequential dispatch** (any condition triggers):
+
 - Tasks have dependencies (B needs A's output)
 - Shared files or state (merge conflict risk)
 - Unclear scope
 
 **Background dispatch**:
+
 - Research or analysis tasks (not file modifications)
 - Results not blocking current work
 
 #### Cost Optimization
+
 Run main session on Opus for complex reasoning, sub-agents on Sonnet for focused tasks. Both Tasks and subagents start with approximately 20,000 tokens of context loading.
 
 #### Conductor vs. Orchestrator Paradigm
+
 - **Conductor** mode: developer triggers each action and reviews output (interactive)
 - **Orchestrator** mode: system manages multiple agents autonomously
 - Both modes will coexist -- start with conductor, graduate to orchestrator
@@ -806,6 +856,7 @@ Run main session on Opus for complex reasoning, sub-agents on Sonnet for focused
 - **Start simple. Add complexity only when you encounter clear limitations.**
 
 ### Practical Applicability
+
 - The sequential pipeline pattern maps directly to multi-phase skills
 - Supervisor pattern applies to orchestrator commands that coordinate subagents
 - Parallel dispatch rules are directly applicable to `background: true` subagents
@@ -817,6 +868,7 @@ Run main session on Opus for complex reasoning, sub-agents on Sonnet for focused
 ## 8. MCP (Model Context Protocol) Integration
 
 **Sources**:
+
 - [MCP Specification (2025-11-25)](https://modelcontextprotocol.io/specification/2025-11-25)
 - [MCP Best Practices](https://modelcontextprotocol.info/docs/best-practices/)
 - [MCP Best Practice Guide](https://mcp-best-practice.github.io/mcp-best-practice/)
@@ -825,6 +877,7 @@ Run main session on Opus for complex reasoning, sub-agents on Sonnet for focused
 - [MCP Auth Updates - Auth0](https://auth0.com/blog/mcp-specs-update-all-about-auth/)
 
 ### Key Insight
+
 MCP is the universal standard for connecting AI agents to external tools, with 97M+ monthly SDK downloads and backing from Anthropic, OpenAI, Google, and Microsoft. It uses JSON-RPC 2.0 transport and follows LSP-inspired message flow patterns.
 
 ### Architecture
@@ -843,13 +896,16 @@ MCP is the universal standard for connecting AI agents to external tools, with 9
 ### Best Practices
 
 #### Efficient Tool Usage
+
 Code execution with MCP enables agents to use context more efficiently by:
+
 - Loading tools on demand
 - Filtering data before it reaches the model
 - Executing complex logic in a single step
 - Writing code to call tools instead of direct tool calls (scales better)
 
 #### Production Deployment
+
 - Emphasize simple, observable, secure designs that scale
 - Build robust consent and authorization flows
 - Implement appropriate access controls and data protections
@@ -870,6 +926,7 @@ mcpServers:
 MCP servers can be referenced by name (already configured) or defined inline in subagent frontmatter.
 
 ### Practical Applicability
+
 - MCP servers extend subagent capabilities beyond built-in tools
 - The `mcpServers` frontmatter field enables per-agent MCP scoping
 - Tool Output Schemas improve token efficiency for MCP-heavy workflows
@@ -881,6 +938,7 @@ MCP servers can be referenced by name (already configured) or defined inline in 
 ## 9. Plugin System Architecture
 
 **Sources**:
+
 - [Discover and Install Plugins - Claude Code Docs](https://code.claude.com/docs/en/discover-plugins)
 - [How to Build Claude Code Plugins - DataCamp](https://www.datacamp.com/tutorial/how-to-build-claude-code-plugins)
 - [Claude Code Plugins Guide - Morph](https://www.morphllm.com/claude-code-plugins)
@@ -888,6 +946,7 @@ MCP servers can be referenced by name (already configured) or defined inline in 
 - [Claude Plugins - Anthropic](https://claude.com/plugins)
 
 ### Key Insight
+
 Plugins are a packaging format that bundles Claude Code extensions for easy sharing and installation. The ecosystem grew from zero to 9,000+ plugins in under a year. Plugins use a simple directory-based architecture with no build step, compilation, or registry approval.
 
 ### Plugin Structure
@@ -919,6 +978,7 @@ The `name` field in `plugin.json` becomes the namespace prefix: a plugin named `
 - **CLI**: `/plugin marketplace add user-or-org/repo-name`
 
 ### Most Popular Plugins (by installs)
+
 1. Frontend Design (96K)
 2. Context7 (71K)
 3. Ralph Loop (57K)
@@ -927,6 +987,7 @@ The `name` field in `plugin.json` becomes the namespace prefix: a plugin named `
 6. Security Guidance (25K)
 
 ### Practical Applicability
+
 - Plugins are the primary distribution mechanism for Claude Code extensions
 - The namespace system prevents conflicts between plugins
 - Marketplace system enables easy discovery and installation
@@ -938,6 +999,7 @@ The `name` field in `plugin.json` becomes the namespace prefix: a plugin named `
 ## 10. Power User Tips & Advanced Techniques
 
 **Sources**:
+
 - [20+ Claude Code CLI Tricks - mlearning.substack.com](https://mlearning.substack.com/p/20-most-important-claude-code-tricks-2025-2026-cli-january-update)
 - [Claude Code Best Practices for Power Users - sidetool.co](https://www.sidetool.co/post/claude-code-best-practices-tips-power-users-2025/)
 - [32 Claude Code Tips - agenticcoding.substack.com](https://agenticcoding.substack.com/p/32-claude-code-tips-from-basics-to)
@@ -990,6 +1052,7 @@ direct_prompt: |
 ```
 
 ### Practical Applicability
+
 - Context management commands are essential for long-running sessions
 - Plan Mode (Shift+Tab) should precede complex implementations
 - Parallel development with Git Worktrees enables multi-agent workflows
@@ -1001,6 +1064,7 @@ direct_prompt: |
 ## 11. Community Guides & Tutorials
 
 **Sources**:
+
 - [Claude Code Customization Guide - alexop.dev](https://alexop.dev/posts/claude-code-customization-guide-claudemd-skills-subagents/)
 - [Mastering Agentic Coding in Claude - Medium (LM Po)](https://medium.com/@lmpo/mastering-agentic-coding-in-claude-a-guide-to-skills-sub-agents-slash-commands-and-mcp-servers-5c58e03d4a35)
 - [Claude Code Custom Agents Guide - claudefa.st](https://claudefa.st/blog/guide/agents/custom-agents)
@@ -1030,6 +1094,7 @@ direct_prompt: |
 ### Doc Freshness Pattern
 
 A recurring community pattern:
+
 1. Fetch a docs index (e.g., `llms.txt` endpoint)
 2. Fetch only the pages needed for the current task
 3. Answer/implement based on those sources
@@ -1055,12 +1120,14 @@ This works across CLAUDE.md, commands, skills, and subagents.
 ### Role-Based Agent Pipeline (from community)
 
 Give agents roles and chain them with hooks:
+
 1. **PM Agent**: Asks questions, defines requirements
 2. **Architect Agent**: Validates design, reviews approach
 3. **Implementer/Tester Agent**: Builds and tests
 4. **QA Agent**: Verifies output
 
 ### Practical Applicability
+
 - The decision matrix provides clear guidance for mechanism selection
 - The doc freshness pattern is universally applicable
 - Role-based pipelines enable multi-phase command workflows
@@ -1072,6 +1139,7 @@ Give agents roles and chain them with hooks:
 ## 12. Complete Source Index
 
 ### Official Anthropic Documentation
+
 1. [Extend Claude with Skills](https://code.claude.com/docs/en/skills) - Primary skills documentation
 2. [Create Custom Subagents](https://code.claude.com/docs/en/sub-agents) - Primary subagents documentation
 3. [Automate Workflows with Hooks](https://code.claude.com/docs/en/hooks-guide) - Primary hooks documentation
@@ -1089,6 +1157,7 @@ Give agents roles and chain them with hooks:
 15. [Claude Plugins Directory](https://claude.com/plugins) - Official plugin directory
 
 ### MCP Documentation
+
 16. [MCP Specification (2025-11-25)](https://modelcontextprotocol.io/specification/2025-11-25) - Official spec
 17. [MCP Best Practices Guide](https://modelcontextprotocol.info/docs/best-practices/) - Community best practices
 18. [MCP Best Practice (Linux Foundation)](https://mcp-best-practice.github.io/mcp-best-practice/) - Production guidance
@@ -1096,6 +1165,7 @@ Give agents roles and chain them with hooks:
 20. [MCP Enterprise Adoption Guide](https://guptadeepak.com/the-complete-guide-to-model-context-protocol-mcp-enterprise-adoption-market-trends-and-implementation-strategies/) - Enterprise guide
 
 ### Blog Posts & Tutorials
+
 21. [Claude Code Customization Guide](https://alexop.dev/posts/claude-code-customization-guide-claudemd-skills-subagents/) - alexop.dev
 22. [Writing a Good CLAUDE.md](https://www.humanlayer.dev/blog/writing-a-good-claude-md) - HumanLayer
 23. [CLAUDE.md Optimization with Prompt Learning](https://arize.com/blog/claude-md-best-practices-learned-from-optimizing-claude-code-with-prompt-learning/) - Arize
@@ -1117,6 +1187,7 @@ Give agents roles and chain them with hooks:
 39. [Claude Code Plugins Guide](https://www.morphllm.com/claude-code-plugins) - Morph
 
 ### Power User & Tips Collections
+
 40. [20+ Claude Code CLI Tricks](https://mlearning.substack.com/p/20-most-important-claude-code-tricks-2025-2026-cli-january-update) - mlearning
 41. [Claude Code Best Practices for Power Users](https://www.sidetool.co/post/claude-code-best-practices-tips-power-users-2025/) - SideTool
 42. [32 Claude Code Tips](https://agenticcoding.substack.com/p/32-claude-code-tips-from-basics-to) - Agentic Coding
@@ -1126,6 +1197,7 @@ Give agents roles and chain them with hooks:
 46. [Beyond the Chatbox: Mastering Claude Code 2026](https://medium.com/@vinayanand2/beyond-the-chatbox-a-non-technical-guide-to-mastering-claude-code-in-2026-8f7acd3a6e7d) - Medium
 
 ### Orchestration & Architecture
+
 47. [AI Agent Design Patterns - Azure](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns) - Microsoft
 48. [Multi-Agent Patterns in ADK](https://developers.googleblog.com/developers-guide-to-multi-agent-patterns-in-adk/) - Google
 49. [Choosing Orchestration Patterns](https://www.kore.ai/blog/choosing-the-right-orchestration-pattern-for-multi-agent-systems) - Kore.ai
@@ -1140,6 +1212,7 @@ Give agents roles and chain them with hooks:
 58. [Claude Prompt Engineering Tested](https://www.dreamhost.com/blog/claude-prompt-engineering/) - DreamHost
 
 ### Tutorials & Courses
+
 59. [Build a YouTube Research Agent](https://creatoreconomy.so/p/claude-code-tutorial-build-a-youtube-research-agent-in-15-min) - Creator Economy
 60. [Create Your First Claude Code Skill](https://egghead.io/create-your-first-claude-code-skill~sds93) - egghead.io
 61. [How to Build Claude Skills: Lesson Plan](https://www.codecademy.com/article/how-to-build-claude-skills) - Codecademy

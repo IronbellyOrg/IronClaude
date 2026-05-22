@@ -44,22 +44,26 @@ Before writing ANY implementation detail, you MUST read the actual source code f
 These decisions were made through adversarial debate and are FINAL. Do not re-evaluate them. Document them as settled rulings.
 
 **Decision 1: Strategy B (Synthetic MonitorState) over Strategy A (Per-Task OutputMonitor)**
+
 - The blocking subprocess architecture (`proc.start()` then `proc.wait()` at executor.py:1086-1087) makes real-time TUI updates structurally unreachable without a non-blocking rewrite not in scope.
 - Strategy B uses a PhaseAccumulator that builds MonitorState from completed TaskResult data between tasks. Same update cadence as Strategy A under blocking arch, but 45 LOC vs 103 LOC and zero downstream adaptation sites.
 - Strategy A deferred to v3.8 when non-blocking subprocess is considered.
 
 **Decision 2: Append-Mode Fix over Per-Task Output Files**
+
 - `process.py:114` opens the output file with `"w"` (truncate). In multi-task phases, each task overwrites the previous task's NDJSON. 90% of data is silently destroyed.
 - Fix: change `"w"` to `"a"` (append). 1 LOC. Preserves all tasks' NDJSON in the phase file. Zero downstream consumer changes. `count_turns_from_output()` sees all tasks.
 - Per-task output files deferred to v3.8 (requires naming convention, downstream audit, aggregation shim).
 
 **Decision 3: PhaseAccumulator.to_monitor_state() Adapter**
+
 - Shared MonitorState interface used by TUI regardless of execution path.
 - Path B populates MonitorState via OutputMonitor (live NDJSON parsing).
 - Path A populates MonitorState via PhaseAccumulator (post-task TaskResult aggregation).
 - The adapter MUST set `last_event_time = time.monotonic()` to suppress false STALLED alarms from the TUI's staleness detector.
 
 **Decision 4: R1 provides data contracts that R2 consumes (one-directional dependency)**
+
 - R1 -> R2, never reverse. R1 delivers: correct `turns_consumed` (PA-04), valid `output_path` (PA-05), `tokens_in`/`tokens_out` on TaskResult (DM-04/05), `PhaseStatus.PASS_MISSING_CHECKPOINT`, post-phase hook site, append-mode output.
 - R2 consumes these contracts for display. R2 never modifies process.py.
 
@@ -86,10 +90,10 @@ Read these files in their entirety. Your spec must reference actual line numbers
 |------|-----------|
 | `src/superclaude/cli/sprint/executor.py` | Lines 1064-1092 (_run_task_subprocess: prompt, output file, hardcoded turns=0), lines 1017-1025 (TaskResult construction missing output_path), lines 1042-1048 (per-task TUI update hook), lines 1086-1087 (blocking proc.start/wait) |
 | `src/superclaude/cli/sprint/process.py` | Lines 123-204 (build_prompt with sprint context, skill invocation), line 170 (/sc:task-unified reference) |
-| `src/superclaude/cli/sprint/monitor.py` | Lines 114-141 (count_turns_from_output), class OutputMonitor (lifecycle, _parse_event) |
+| `src/superclaude/cli/sprint/monitor.py` | Lines 114-141 (count_turns_from_output), class OutputMonitor (lifecycle,_parse_event) |
 | `src/superclaude/cli/sprint/models.py` | TaskResult (output_path field), PhaseResult, SprintResult, MonitorState, SprintConfig (gate_rollout_mode at ~line 329), PhaseStatus enum |
 | `src/superclaude/cli/sprint/tui.py` | STATUS_STYLES, STATUS_ICONS, phase table rendering, terminal panel rendering |
-| `src/superclaude/cli/sprint/config.py` | parse_tasklist(), _TASK_HEADING_RE |
+| `src/superclaude/cli/sprint/config.py` | parse_tasklist(),_TASK_HEADING_RE |
 | `src/superclaude/cli/pipeline/process.py` | Line 114 (output file open mode "w" -- the append-mode bug) |
 
 ### 1.5 Reference Documents (Read for context, not for code)
@@ -115,6 +119,7 @@ For EVERY task in both specs (PA-01 through PA-06, DM-04, DM-05, MA-03, N1-N12, 
 ### 2.1 Deep Code Reading (do this BEFORE writing)
 
 Read the actual source file. Identify:
+
 - The exact function or class being modified
 - The exact line numbers in the current code
 - What other functions CALL the code being changed (grep for callers)
@@ -127,6 +132,7 @@ Show the EXACT current code and the EXACT proposed replacement. Not pseudocode. 
 ### 2.3 Impact Analysis
 
 For each change, answer:
+
 - What functions call the changed function? List them with file:line references.
 - What tests exercise the changed code? List them with file:line references.
 - Does this change alter any function signature? If yes, what callers must be updated?
@@ -136,6 +142,7 @@ For each change, answer:
 ### 2.4 Implementation Approach Evaluation
 
 For non-trivial tasks (anything over 10 LOC), evaluate at least 2 implementation approaches:
+
 - **Approach A**: Description, LOC estimate, risk level, downstream impact
 - **Approach B**: Description, LOC estimate, risk level, downstream impact
 - **Selected**: Which and why (with reference to debate rulings where applicable)
@@ -143,6 +150,7 @@ For non-trivial tasks (anything over 10 LOC), evaluate at least 2 implementation
 ### 2.5 Unintended Consequence Analysis
 
 Think through:
+
 - Could this change cause a test to fail that is NOT testing the changed behavior? (e.g., a test that asserts on the exact prompt string would break if prompt content changes)
 - Could this change cause a runtime error in a code path not covered by tests? (e.g., Path B exercising a shared function that Path A modified)
 - Could this change interact badly with concurrent execution? (e.g., append-mode and OutputMonitor both writing/reading the same file)
@@ -150,6 +158,7 @@ Think through:
 ### 2.6 Verification Commands
 
 Provide TESTED verification commands. Not generic "run the tests." Specific commands:
+
 ```bash
 uv run pytest tests/sprint/test_executor.py::TestRunTaskSubprocess -v
 uv run pytest tests/sprint/test_checkpoints.py -v
@@ -167,33 +176,42 @@ Specific to each task. Not "revert the commit." State exactly which lines to cha
 Fill in ALL sections from the template. Here is the mapping:
 
 ### Section 1: Problem Statement
+
 - R1: Sprint pipeline has three classes of reliability defects -- hardcoded zeros in telemetry (PA-04/05/06 bugs), absent checkpoint enforcement, and naming collisions. Evidence: OntRAG R0+R1 missing Phase 3 checkpoints discovered 24h late; `turns_consumed` returns 0 for every production sprint; 3 naming variants create command resolution ambiguity.
 - R2: Sprint execution produces no real-time operator visibility. Turns, tokens, errors, and activity are invisible until log inspection. No post-phase summary. No retrospective. Evidence: operators must manually grep NDJSON after sprint completion; error detection latency is "end of phase" (could be 30+ minutes).
 
 ### Section 1.1: Evidence
+
 Provide concrete evidence table. For R1: link to executor.py:1091 (hardcoded 0), executor.py:1017-1025 (missing output_path), models.py:329 (gate default "off"), process.py:114 ("w" mode). For R2: describe current TUI limitations by reading tui.py.
 
 ### Section 1.2: Scope Boundary
+
 - R1 IN: PA-01-06, DM-04-05, MA-03, N1-N12, T01-T03 waves
 - R1 OUT: TUI rendering, MonitorState population, summarizer, retrospective, tmux
 - R2 IN: MonitorState fields, PhaseAccumulator, DM-06, F1-F10, tmux 3-pane
 - R2 OUT: Checkpoint enforcement, naming, non-blocking subprocess rewrite
 
 ### Section 2: Solution Overview
+
 Describe the layered approach. R1 is foundation (data contracts + enforcement). R2 is presentation (rendering + summaries).
 
 ### Section 2.1: Key Design Decisions
+
 Use the 4 decisions from Section 1.2 of this prompt. Format as the template's table.
 
 ### Section 2.2: Workflow / Data Flow
+
 Draw ASCII diagrams showing:
+
 - R1: Task execution flow with enriched prompt, turn counting, token extraction, gate evaluation
 - R2: Data flow from TaskResult through PhaseAccumulator to MonitorState to TUI rendering
 
 ### Section 3: Functional Requirements
+
 Each task becomes an FR. Use FR-R1.01 through FR-R1.xx for R1, FR-R2.01 through FR-R2.xx for R2. Each FR must have acceptance criteria (as checkboxes) and dependencies.
 
 ### Section 4: Architecture
+
 - 4.1 New Files: R1 creates `checkpoints.py`. R2 creates `summarizer.py`, `retrospective.py`.
 - 4.2 Modified Files: List every file with nature of change.
 - 4.3 Removed Files: R1 removes deprecated `task.md`, renames `task-unified.md`.
@@ -202,37 +220,47 @@ Each task becomes an FR. Use FR-R1.01 through FR-R1.xx for R1, FR-R2.01 through 
 - 4.6 Implementation Order: Use the phase/wave structure from Part 1 of this prompt. Show parallelization opportunities within each phase/wave. This is critical -- tasks within a phase that can be executed in parallel MUST be marked as such.
 
 ### Section 5: Interface Contracts
+
 Include CLI surface for R1 (`verify-checkpoints` subcommand). Include phase contracts for both (post-phase hook ordering).
 
 ### Section 6: Non-Functional Requirements
+
 - Performance: append-mode must not degrade I/O. SummaryWorker must not block sprint execution. Haiku calls have 30s timeout.
 - Reliability: summary failure must never affect sprint execution. All SummaryWorker exceptions caught.
 - Thread safety: `SummaryWorker._summaries` guarded by `threading.Lock`.
 
 ### Section 7: Risk Assessment
+
 Merge risk registers from the existing R1 and R2 drafts. Add risks for the new PA-01-06 and DM-04-05 tasks.
 
 ### Section 8: Test Plan
+
 For each FR, specify unit tests and integration tests. Include file paths for new test files. Include the specific pytest commands to run each test group.
 
 ### Section 9: Migration and Rollout
+
 - R1: Day 1 naming + Phase 0 bug fixes, Days 2-5 checkpoint W1+W2 (shadow mode), Days 5-10 checkpoint W3.
 - R2: Blocked until R1 validation passes. Wave 1 first (data infra), Wave 2+3 parallel, Wave 4 last.
 - Breaking changes: R1 naming change breaks `/sc:task-unified` references. R2 has no breaking changes.
 
 ### Section 10: Downstream Inputs
+
 Describe how `sc:roadmap` and `sc:tasklist` consume each spec.
 
 ### Section 11: Open Items
+
 Carry open questions from existing drafts. Resolve any that the code reading answers.
 
 ### Section 12: Brainstorm Gap Analysis
+
 Identify any gaps between what the existing planning documents specify and what the code actually shows. Flag any tasks where the planning documents reference line numbers that have drifted.
 
 ### Appendix A: Glossary
+
 Define: Path A, Path B, PhaseAccumulator, TurnLedger, NDJSON, MonitorState, shadow mode, gate rollout.
 
 ### Appendix B: Reference Documents
+
 List all source documents from Section 1.5 of this prompt with relevance descriptions.
 
 ---

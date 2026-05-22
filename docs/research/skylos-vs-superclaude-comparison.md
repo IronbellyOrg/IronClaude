@@ -85,6 +85,7 @@ Skylos and SuperClaude's audit pipeline solve overlapping problems -- dead code 
 **Evidence-gated**: Every classification must carry proof. DELETE requires zero-reference evidence (grep proof). KEEP requires reference evidence. This is the core philosophical difference -- SuperClaude treats the audit as a legal proceeding where every verdict needs evidence.
 
 **42-module Python package**: The audit pipeline is implemented as a modular Python package under `src/superclaude/cli/audit/` with specialized modules for:
+
 - `dead_code.py` -- cross-boundary dead code detection via 3-tier dependency graph
 - `dependency_graph.py` -- Tier-A (AST), Tier-B (grep), Tier-C (inference) edges
 - `credential_scanner.py` -- secret detection with placeholder exclusion
@@ -293,6 +294,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 ### 10.1 Skylos
 
 **Pros**:
+
 - Benchmarked 98.1% recall with 3x fewer false positives than Vulture
 - Comprehensive security: taint analysis, prompt injection, AI defense, supply chain, MCP security
 - Full CI/CD pipeline: GitHub Action, PR annotations, SARIF, diff-aware, baselines
@@ -307,6 +309,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 - Active community (346+ stars, Real Python featured)
 
 **Cons**:
+
 - Single-pass architecture may miss cross-file systemic patterns
 - No evidence-chain transparency (confidence score is a number, not a proof)
 - No multi-agent orchestration for large codebases
@@ -321,6 +324,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 ### 10.2 SuperClaude Audit Pipeline
 
 **Pros**:
+
 - Evidence-gated classification: every verdict requires proof
 - 3-tier dependency graph with transparent confidence semantics
 - Multi-pass progressive refinement: cheap surface -> expensive deep analysis
@@ -337,6 +341,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 - Wiring gate catches structural integrity issues (orphan modules, broken registries)
 
 **Cons**:
+
 - No CI/CD integration (no GitHub Action, no SARIF, no PR annotations)
 - No benchmarked recall/precision metrics
 - No taint analysis or flow-based security scanning
@@ -361,6 +366,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 **Current state**: SuperClaude consumes MCP servers but does not expose one.
 
 **Opportunity**: Expose the audit pipeline as an MCP server with tools like:
+
 - `audit_scan` -- run surface pass on a path
 - `evidence_check` -- verify a specific file's classification evidence
 - `dependency_graph` -- return the 3-tier graph for a path
@@ -376,6 +382,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 **Current state**: No CI/CD story at all.
 
 **Opportunity**:
+
 1. SARIF output from the classification/evidence gate results
 2. GitHub Action that runs the audit pipeline in a container
 3. PR annotations from evidence-gated findings
@@ -405,6 +412,7 @@ Skylos's single-pass approach is simpler and faster. For most projects, one pass
 **Current state**: SuperClaude consumes Serena, Context7, Sequential, and Auggie as MCP servers.
 
 **Opportunity**: Add Skylos as an additional MCP evidence source. The orchestrator could:
+
 1. Call Skylos `analyze` for dead code findings
 2. Call Skylos `security_scan` for taint analysis results
 3. Feed Skylos findings into SuperClaude's evidence gate as Tier-A evidence
@@ -449,6 +457,7 @@ Skylos is the more **complete standalone tool** -- broader security scanning, be
 SuperClaude has the more **sophisticated analysis architecture** -- 3-tier dependency graphs, evidence-gated classification, multi-pass progressive refinement, multi-agent parallelism, and principled handling of dynamic imports. It excels at large-scale codebase audits where evidentiary rigor matters more than speed.
 
 The highest-impact actions for SuperClaude are:
+
 1. **Expose an MCP server** to make the audit pipeline accessible to any AI agent
 2. **Add CI/CD integration** to make the audit pipeline enforceable
 3. **Integrate Skylos as an MCP evidence source** to combine benchmarked recall with evidentiary rigor
@@ -457,10 +466,10 @@ The highest-impact actions for SuperClaude are:
 
 ## Sources
 
-- Skylos GitHub repository: https://github.com/duriantaco/skylos
+- Skylos GitHub repository: <https://github.com/duriantaco/skylos>
 - Skylos MCP server source: `skylos_mcp/server.py` (13 tools, 3 resources)
-- Skylos benchmark blog: https://dev.to/duriantaco/python-dead-code-i-scanned-flask-fastapi-and-7-other-popular-repos-heres-what-i-found-5c1c
-- Skylos Flask case study: https://skylos.dev/blog/flask-dead-code-case-study
-- Hacker News discussion: https://news.ycombinator.com/item?id=46866141
+- Skylos benchmark blog: <https://dev.to/duriantaco/python-dead-code-i-scanned-flask-fastapi-and-7-other-popular-repos-heres-what-i-found-5c1c>
+- Skylos Flask case study: <https://skylos.dev/blog/flask-dead-code-case-study>
+- Hacker News discussion: <https://news.ycombinator.com/item?id=46866141>
 - SuperClaude audit modules: `src/superclaude/cli/audit/` (42 modules)
 - SuperClaude audit skill: `src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md`

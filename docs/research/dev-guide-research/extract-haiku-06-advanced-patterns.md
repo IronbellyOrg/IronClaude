@@ -3,6 +3,7 @@
 Source: `/config/workspace/SuperClaude_Framework/docs/reference/advanced-patterns.md`
 
 ## Scope Note
+
 This extraction includes **all information in the source file that pertains to developing or using custom commands, skills, or agents** in the SuperClaude framework context. The source document is primarily about **context usage patterns** (how to guide Claude Code via context) rather than implementation details for creating new command/skill/agent files.
 
 ---
@@ -27,6 +28,7 @@ Exact quote + code block:
 ```
 
 Key extracted guidance (verbatim):
+
 - “**Security context loaded first**”
 - “**Backend context added**”
 - “**Implementation guided by both contexts**”
@@ -49,6 +51,7 @@ Exact quote + code block:
 ```
 
 Key extracted guidance (verbatim):
+
 - “**Context layering:**”
   - “**Frontend patterns guide structure**”
   - “**Magic MCP may provide UI components (if configured)**”
@@ -71,6 +74,7 @@ Exact quote + code block:
 ```
 
 Extracted points (verbatim):
+
 - “**Manually control which contexts load**”
 - “**Only Python context, no auto-activation**”
 - “**May activate multiple agents based on keywords**”
@@ -87,6 +91,7 @@ Exact quote + code block:
 ```
 
 Extracted point (verbatim):
+
 - “**Limits context to specified agent only**”
 
 ---
@@ -112,6 +117,7 @@ Exact quote + code block:
 ```
 
 Extracted point (verbatim):
+
 - “**Each command builds on previous context within the conversation**”
 
 ### 2.2 Discovery to Implementation Pattern (end-to-end command flow)
@@ -137,6 +143,7 @@ Exact quote + code block:
 ```
 
 This includes a concrete pattern for how custom slash commands are intended to be used together:
+
 - `/sc:brainstorm` → `/sc:design` → `@agent-...` review → `/sc:implement` → `/sc:test --validate`
 
 ### 2.3 Iterative Improvement Pattern (command + agent combo)
@@ -203,6 +210,7 @@ Exact quote + code block:
 ```
 
 Extracted points (verbatim):
+
 - “**Only Magic and Context7 MCP**”
 - “**Disable all MCP**”
 - “**Pure Claude context only**”
@@ -252,6 +260,7 @@ Exact quote + code block:
 ```
 
 Extracted point (verbatim):
+
 - “**Context from both previous implementations guides this**”
 
 ### 4.3 Cross-Technology Projects (agents + documentation command)
@@ -358,6 +367,7 @@ Exact quote + code block:
 ### 7.1 What these patterns actually do
 
 Exact quotes:
+
 - “✅ **Guide Claude's Thinking**: Provide structured approaches”
 - “✅ **Combine Contexts**: Layer multiple expertise areas”
 - “✅ **Improve Output Quality**: Better code generation through better context”
@@ -366,6 +376,7 @@ Exact quotes:
 ### 7.2 What these patterns don’t do
 
 Exact quotes:
+
 - “❌ **Execute in Parallel**: Everything is sequential context loading”
 - “❌ **Coordinate Processes**: No actual process coordination”
 - “❌ **Optimize Performance**: No code runs, so no performance impact”
@@ -380,6 +391,7 @@ These are directly relevant when building/using commands/agents/skills because t
 ### 8.1 Context management
 
 Exact quotes:
+
 1. “**Layer Deliberately**: Add contexts in logical order”
 2. “**Avoid Overload**: Too many agents can dilute focus”
 3. “**Use Manual Control**: Override auto-activation when needed”
@@ -388,6 +400,7 @@ Exact quotes:
 ### 8.2 Command efficiency
 
 Exact quotes:
+
 1. “**Progress Logically**: Broad → Specific → Implementation”
 2. “**Reuse Context**: Later commands benefit from earlier context”
 3. “**Document Decisions**: Use `/sc:save` for important summaries”
@@ -396,6 +409,7 @@ Exact quotes:
 ### 8.3 Flag usage
 
 Exact quotes:
+
 1. “**Match Task Complexity**: Simple tasks don't need `--ultrathink`”
 2. “**Control Output**: Use `--uc` for concise results”
 3. “**Manage MCP**: Only activate needed servers”
@@ -406,4 +420,5 @@ Exact quotes:
 ## 9) Summary statement relevant to custom commands/agents
 
 Exact quote:
+
 - “Advanced SuperClaude patterns are about sophisticated context management and command sequencing. They help Claude Code generate better outputs by providing richer, more structured context. Remember: all "coordination" and "optimization" happens in how Claude interprets the context, not in any actual execution or parallel processing.”

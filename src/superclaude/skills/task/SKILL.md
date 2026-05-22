@@ -16,11 +16,13 @@ A skill for executing MDTM task files with the same rigor and discipline used in
 Task file execution fails when it relies on memory, skips steps, or accumulates work without writing to disk. This skill forces every action through a verified loop — read the file, find the next item, do exactly what it says, write the result, mark it done, repeat.
 
 The F1 execution loop provides three critical guarantees:
+
 1. **Progress survives context compression** — The task file on disk is the source of truth, not conversation context. Every completed step is a checked box that persists across sessions.
 2. **No steps get skipped** — The task file encodes every phase and step as a mandatory checklist item. The execution loop processes items sequentially, never jumping ahead.
 3. **Resumability** — On restart, the skill reads the task file, finds the first unchecked `- [ ]` item, and picks up exactly where it left off. Completed items' output files already exist on disk.
 
 The parallel spawning rules prevent two common failure modes:
+
 - **Unnecessary serialization** — When consecutive items are independent (e.g., multiple research agents, analyst + QA pairs), spawning them sequentially wastes time. Parallel spawning achieves depth and speed simultaneously.
 - **Context rot** — By isolating each subagent in its own context with its own output file, no single agent needs to hold excessive content. Findings are written to disk incrementally, not accumulated in memory.
 
@@ -35,15 +37,18 @@ The skill needs one piece of information:
 Under the centralized path convention, each task file lives inside its own folder: `.dev/tasks/to-do/TASK-[ID]/TASK-[ID].md`. All intermediate artifacts (research, synthesis, QA reports) go into typed subfolders within that folder. The task folder is the self-contained workspace for the entire execution.
 
 Examples of strong input:
+
 - `execute .dev/tasks/to-do/TASK-SKILL-TRANSFORM-20260308-tech-reference/TASK-SKILL-TRANSFORM-20260308-tech-reference.md`
 - `resume the tech-reference transformation task`
 - `/task .dev/tasks/to-do/TASK-SKILL-TRANSFORM-20260308-tech-reference/TASK-SKILL-TRANSFORM-20260308-tech-reference.md`
 
 Examples of weak input (skill will search for the task file):
+
 - `continue the task` — Skill will search `.dev/tasks/to-do/` for in-progress task folders (status: "🟠 Doing")
 - `run the task` — Ambiguous if multiple task files exist; skill will list candidates and ask
 
 **What to Do If No Path Is Provided:**
+
 1. Search `.dev/tasks/to-do/` for `TASK-*/` folders, read the task file inside each folder to check for status "🟠 Doing"
 2. If exactly one found, resume it
 3. If multiple found, list them and ask the user which one to execute
@@ -65,6 +70,7 @@ On invocation, determine which task file to execute:
 ### Validating the Task File
 
 Before executing, verify the task file is well-formed. The task file should be located at `TASK_DIR/TASK_ID.md` inside its own folder (e.g., `.dev/tasks/to-do/TASK-FOO-20260310/TASK-FOO-20260310.md`).
+
 - Has YAML frontmatter with at least: `id`, `title`, `status`, `created_date`
 - Has checklist items (`- [ ]` or `- [x]`)
 - Items appear to follow B2 self-contained pattern (single paragraphs, not terse bullets)
@@ -121,17 +127,20 @@ These actions are NEVER permitted during task file execution:
 When multiple consecutive items each spawn independent subagents within the same phase, you MUST spawn them in parallel using multiple Agent tool calls in a single response. This is not optional — it is how Rigorflow achieves depth and minimizes wall-clock time.
 
 **Identifying a parallel batch:**
+
 1. Read the task file and find the first unchecked `- [ ]` item
 2. Starting from that item, read forward through all consecutive unchecked items that are independent subagent spawns within the same phase step
 3. Items are "independent" if they don't depend on each other's output (they read from the same source but write to different files)
 4. All of these form a single parallel batch
 
 **Executing a parallel batch:**
+
 1. Spawn ALL agents in the batch using parallel Agent tool calls in a single message
 2. As each agent returns, mark its corresponding item `- [x]` immediately — do not wait for all to finish before checking any off. This ensures progress is captured even if the session ends mid-batch
 3. After ALL agents in the batch return, re-read the task file before proceeding to the next item or phase
 
 **Identifying non-parallel items:**
+
 - Items that read a previous item's output are NOT parallel — they must run sequentially. Example: if item 3 reads a file created by item 2, they CANNOT be parallelized even if both spawn agents.
 - Items within different phases are NOT parallel — complete one phase before starting the next
 - Items that edit the same file are NOT parallel — they must run sequentially
@@ -144,12 +153,14 @@ When multiple consecutive items each spawn independent subagents within the same
 ### Task File Modification Restrictions (F4)
 
 During execution, you MAY ONLY modify the task file to:
+
 - Check off completed items (`- [ ]` → `- [x]`)
 - Update frontmatter fields (status, updated_date, start_date, completion_date, blocker_reason)
 - Add entries to the Task Log / Notes section (Execution Log, Phase Findings, Follow-Up Items)
 - Add items within DYNAMIC CONTENT MARKER sections (if the task file includes them)
 
 You MUST NOT:
+
 - Rewrite or rephrase existing checklist items
 - Add new checklist items outside of DYNAMIC CONTENT MARKER sections
 - Delete or reorder existing items
@@ -219,6 +230,7 @@ After the LAST phase's phase-gate QA passes and BEFORE marking the task "Done," 
 **Step 1: rf-qa structural validation of complete output**
 
 Spawn `rf-qa` (subagent_type: "rf-qa", qa_phase: "report-validation", fix_authorization: true) with:
+
 - **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 - ALL output files produced across ALL phases (not just the final phase)
 - The task file path for cross-referencing against claimed outputs
@@ -228,6 +240,7 @@ Spawn `rf-qa` (subagent_type: "rf-qa", qa_phase: "report-validation", fix_author
 **Step 2: rf-qa-qualitative operational validation**
 
 After structural validation passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "task-qualitative", fix_authorization: true) with:
+
 - **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 - The task file path
 - ALL output files produced across ALL phases (the TARGET_FILE_LIST — extract every unique file path from checklist items)
@@ -241,6 +254,7 @@ After structural validation passes, spawn `rf-qa-qualitative` (subagent_type: "r
 **Parallel partitioning:** If the task produced >15 output files, spawn multiple rf-qa-qualitative instances with assigned subsets of phases/files.
 
 **Handling verdicts:**
+
 - Both PASS → proceed to mark task "Done"
 - Either FAIL with all fixes applied → verify fixes, then proceed
 - Either FAIL with unfixable issues → log issues, present to user, ask for guidance before marking done
@@ -254,6 +268,7 @@ After structural validation passes, spawn `rf-qa-qualitative` (subagent_type: "r
 This protocol applies whenever you or a subagent creates a file during execution. It is the #1 failure mode across all agents — violating it causes data loss.
 
 **The rule:** Every file creation MUST follow this pattern:
+
 1. **Create the file immediately** with header/frontmatter only using Write
 2. **Append content section by section** using Edit, one section at a time
 3. **NEVER accumulate content in context** and attempt a single large Write
@@ -276,6 +291,7 @@ If the session restarts or context compresses mid-execution:
 6. **Do not re-research completed topics** — If an item's output file exists, that work is done regardless of whether you "remember" it.
 
 **At session end:**
+
 - All output files should be written to disk
 - The task file should reflect exactly which items are checked and unchecked
 - The user should know the current state (which phase, which step, what's next)
@@ -288,7 +304,9 @@ If the session restarts or context compresses mid-execution:
 When a checklist item instructs you to spawn a subagent, follow these conventions:
 
 ### Subagent Type Selection
+
 Use the agent type specified in the checklist item. Common types:
+
 - `general-purpose` — Default for research, file analysis, code exploration
 - `rf-analyst` — For completeness verification, cross-validation, gap analysis
 - `rf-qa` — For quality gates (research-gate, synthesis-gate, report-validation) and post-completion structural validation
@@ -299,20 +317,26 @@ Use the agent type specified in the checklist item. Common types:
 - `Explore` — For quick codebase exploration
 
 ### Agent Prompt Handling
+
 The checklist item should embed the full agent prompt (per B2 self-contained pattern). Pass the entire prompt from the item to the Agent tool. Do NOT abbreviate, summarize, or modify the embedded prompt — pass it exactly as written.
 
 ### Agent Mode
+
 Unless the checklist item specifies otherwise, use `mode: "bypassPermissions"` for subagents to prevent interactive permission prompts that would block execution.
 
 ### Background vs Foreground
+
 - **Foreground (default):** Use when you need the agent's result before proceeding (most cases)
 - **Background:** Use when the item explicitly says to run in the background, or when spawning parallel agents where you can process other items while waiting
 
 ### Output Quality for Implementation Plans
+
 When a task item requests an implementation plan (from you or a subagent), ensure it includes: (1) specific files to create or modify with full paths, (2) code patterns or function signatures to follow from existing code, (3) integration points with existing systems. Generic steps like "create a service that handles X" are insufficient — they must be actionable enough that a developer or another AI agent could begin work directly.
 
 ### Agent Results
+
 When an agent returns:
+
 1. Read any output files it created to verify completion
 2. If the agent produced a report with a verdict (PASS/FAIL), note the verdict in Task Log
 3. Mark the corresponding checklist item `- [x]`
@@ -359,6 +383,7 @@ These rules apply across ALL task file executions. Violations compromise executi
 This work may span multiple sessions. The task file and output files serve as the persistent record.
 
 **At session start:**
+
 1. Check for the task file (path provided by user, or search `.dev/tasks/to-do/` for `TASK-*/` folders, reading each folder's task file to find status "🟠 Doing")
 2. If found, read it and resume from the first unchecked `- [ ]` item
 3. Read existing output files referenced in the task file for context
@@ -366,6 +391,7 @@ This work may span multiple sessions. The task file and output files serve as th
 5. Do not re-execute completed items
 
 **At session end:**
+
 - All output files should be written to disk
 - The task file should reflect exactly which items are checked and unchecked
 - Update `updated_date` in frontmatter

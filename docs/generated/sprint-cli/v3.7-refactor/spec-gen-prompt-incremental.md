@@ -93,6 +93,7 @@ All 12 mechanical rename tasks from the original spec. These are file/directory 
 ### Phases 2-4: Checkpoint Enforcement Waves 1-3
 
 Original spec tasks T01.01, T01.02, T02.01-T02.05, T03.01-T03.06, with the following modifications:
+
 - T02.04: Reframed as PRIMARY defense for Path A (add documentation note)
 - T02.05: Extended unit tests to cover Path A `TaskResult` accumulation flow
 - T04.01: Add Path A impact note (checkpoint becomes regular task in Path A loop)
@@ -167,6 +168,7 @@ uv run pytest -k "test_name_pattern" -v               # targeted validation
 **Blocks commits**: [list of task IDs that cannot be committed until this lands]
 
 **Broader impact analysis**:
+
 - Callers of modified functions: [list every function/method that calls the function you are changing, with file:line references]
 - Tests that import modified modules: [list every test file that imports from the module you are changing]
 - Downstream behavior assumptions: [does any consumer assume the old behavior? Example: "Anti-instinct gate at executor.py:826-831 assumes output_path is empty string -- after PA-05, it will be a real path, causing the gate to actually evaluate"]
@@ -180,6 +182,7 @@ uv run pytest -k "test_name_pattern" -v               # targeted validation
 
 **Selected approach**: [name]
 **Rationale**: [why this approach over the alternatives]
+
 ```
 
 ### Requirement 2: Candidate Approach Analysis (Section 2)

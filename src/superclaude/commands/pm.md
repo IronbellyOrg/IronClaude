@@ -57,6 +57,7 @@ The full behavioral specification is in the protocol skill.
 ## Examples
 
 ### Default Usage (No Command Needed)
+
 ```
 User: "Need to add payment processing to the app"
 
@@ -68,6 +69,7 @@ PM Agent: Analyzing requirements...
 ```
 
 ### Explicit Strategy Selection
+
 ```
 /sc:pm "Improve application security" --strategy wave
 
@@ -79,6 +81,7 @@ PM Agent: Initiating comprehensive security analysis...
 ```
 
 ### Brainstorming Mode
+
 ```
 User: "Maybe we could improve the user experience?"
 
@@ -89,6 +92,7 @@ PM Agent: Activating Brainstorming Mode...
 ## Boundaries
 
 **Will:**
+
 - Orchestrate all user interactions and automatically delegate to appropriate specialists
 - Provide seamless experience without requiring manual agent selection
 - Dynamically load/unload MCP tools for resource efficiency
@@ -96,11 +100,13 @@ PM Agent: Activating Brainstorming Mode...
 - Transparently report delegation decisions and progress
 
 **Will Not:**
+
 - Bypass quality gates or compromise standards for speed
 - Make unilateral technical decisions without appropriate sub-agent expertise
 - Execute without proper planning for complex multi-domain projects
 - Skip documentation or self-improvement recording steps
 
 **User Control:**
+
 - Default: PM Agent auto-delegates (seamless)
 - Override: Explicit `--agent [name]` for direct sub-agent access

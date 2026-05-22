@@ -170,6 +170,7 @@ sc:audit (code analysis, 40+ modules)
 - **Context management**: `project-context.md` acts as a "project constitution" carrying decisions forward
 
 **Workflow Characteristics**:
+
 - Linear phase progression with optional loops (course correction, retrospective)
 - Human approves/modifies artifacts at each phase boundary
 - Agents operate within strict domain boundaries
@@ -190,6 +191,7 @@ sc:audit (code analysis, 40+ modules)
 - **TurnLedger budget management**: Token budget tracking with cost constants per operation
 
 **Workflow Characteristics**:
+
 - Wave-based parallel execution (3.5x faster than sequential)
 - Evidence gates block progression (no speculation allowed)
 - Multi-agent validation with scored confidence
@@ -242,6 +244,7 @@ BMAD is significantly more portable. It works as Markdown files processable by a
 ### BMAD Planning: Breadth-First, Human-Guided
 
 BMAD's planning depth follows a traditional PM workflow:
+
 1. **Product Brief**: High-level vision and market positioning
 2. **PRD**: Functional/non-functional requirements with user personas
 3. **Architecture**: Technical decisions captured as ADRs
@@ -249,12 +252,14 @@ BMAD's planning depth follows a traditional PM workflow:
 5. **Implementation Readiness Check**: Gate before coding
 
 **Strengths**:
+
 - Comprehensive business context (market research, competitor analysis)
 - UX-aware planning (dedicated UX Designer agent)
 - Human-in-the-loop at every boundary
 - Intuitive for teams familiar with agile
 
 **Limitations**:
+
 - No formal verification of planning artifacts
 - No adversarial challenge to PRD assumptions
 - No convergence detection (how do you know the plan is stable?)
@@ -277,6 +282,7 @@ SuperClaude's planning depth applies formal methods to artifact generation:
 9. **Deterministic Tasklist**: Same input always produces same output
 
 **Strengths**:
+
 - Machine-verifiable quality (structural checksums, coverage ratios)
 - Adversarial hallucination detection
 - Convergence guarantees (provably stable output)
@@ -285,6 +291,7 @@ SuperClaude's planning depth applies formal methods to artifact generation:
 - Budget-aware execution (token cost accounting)
 
 **Limitations**:
+
 - No business context generation (market research, competitor analysis)
 - No UX-aware planning
 - Requires a pre-existing spec as input (does not help create specs)
@@ -329,6 +336,7 @@ SuperClaude Planning Depth (vertical):
 ## 6. Community and Growth
 
 ### BMAD Method
+
 - **GitHub Stars**: ~39,400 (as of March 2026)
 - **Growth Trajectory**: Explosive. Endorsed by Addy Osmani (Google), James Barrese (exec), featured in major AI development tool roundups
 - **Ecosystem**: 5 official modules (BMM, BMB, TEA, BMGD, CIS), community Discord, YouTube channel
@@ -337,6 +345,7 @@ SuperClaude Planning Depth (vertical):
 - **Content**: Multiple third-party blog posts, tutorials, and comparison articles
 
 ### SuperClaude
+
 - **Distribution**: Python package via pipx/pip
 - **Growth Trajectory**: Framework-internal, focused on depth over market reach
 - **Ecosystem**: MCP server integrations, pytest plugin, CLI pipeline
@@ -350,6 +359,7 @@ SuperClaude Planning Depth (vertical):
 ### BMAD Method
 
 **Strengths**:
+
 1. **Full SDLC coverage**: From brainstorming to retrospective, no gaps
 2. **IDE/model agnostic**: Works everywhere, with any LLM
 3. **Intuitive persona model**: Named agents (Mary, Winston, Quinn) lower the learning curve
@@ -362,6 +372,7 @@ SuperClaude Planning Depth (vertical):
 10. **Low barrier to entry**: `npx bmad-method install` and start talking to agents
 
 **Weaknesses**:
+
 1. **No formal verification**: Planning artifacts are not machine-verified
 2. **Non-deterministic**: Same input can produce different outputs across sessions
 3. **No adversarial validation**: Agents do not challenge each other's assumptions
@@ -376,6 +387,7 @@ SuperClaude Planning Depth (vertical):
 ### SuperClaude
 
 **Strengths**:
+
 1. **Adversarial validation**: Multi-model debate catches hallucinations (30%+ factual error reduction)
 2. **Convergence detection**: Provably stable outputs with budget accounting
 3. **Deterministic decomposition**: Same input always produces same output
@@ -388,6 +400,7 @@ SuperClaude Planning Depth (vertical):
 10. **MCP integration**: Deep integration with 7+ specialized servers
 
 **Weaknesses**:
+
 1. **No full SDLC coverage**: Missing ideation, market research, UX, retrospectives
 2. **Claude Code dependent**: Limited portability to other IDEs/models
 3. **Requires pre-existing specs**: Cannot help create initial specifications

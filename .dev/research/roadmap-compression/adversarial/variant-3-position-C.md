@@ -3,6 +3,7 @@
 ## Strategy
 
 Normalize both roadmaps into an identical table schema:
+
 1. **Extract** all task rows into a unified TSV/CSV format with fixed columns
 2. **Compress** acceptance criteria into keyword tags
 3. **Strip** all markdown formatting, prose sections, and narrative content
@@ -18,6 +19,7 @@ Opus columns: `# | ID | Task | Component | Dependencies | Acceptance Criteria | 
 Haiku columns: `# | ID | Task | Component | Dependencies | Acceptance Criteria | Effort | Priority`
 
 Normalized output schema:
+
 ```
 PHASE\tROW\tID\tTASK\tCOMPONENT\tDEPS\tAC_TAGS\tEFFORT\tPRIORITY\tMILESTONE
 ```
@@ -75,6 +77,7 @@ PHASE\tROW\tID\tTASK\tCOMPONENT\tDEPS\tAC_TAGS\tEFFORT\tPRIORITY
 ### Step 4: ID Normalization
 
 Haiku uses additional ID categories not in Opus:
+
 - JTBD-001, PERSONA-001, STORY-001, JOURNEY-001, ERROR-001
 - These are normalized with a `[PRD]` tag to distinguish from technical IDs
 
@@ -106,6 +109,7 @@ Haiku uses additional ID categories not in Opus:
 ## Diff Behavior
 
 The diff tool sees:
+
 - Rows that exist in one file but not the other (clear: added/removed tasks)
 - Rows with same ID but different fields (clear: changed effort, priority, deps)
 - Rows with same ID but different AC tags (visible but potentially misleading due to vocabulary mismatch)
@@ -115,6 +119,7 @@ The diff tool sees:
 ## AC Tag Vocabulary Problem
 
 The biggest challenge: when Opus says "valid creds → 200 with AuthToken" and Haiku says "Valid credentials return 200 with AuthToken", these should produce the SAME tag. But without a controlled vocabulary, the extraction might produce:
+
 - Opus: `200:authtoken:valid-creds`
 - Haiku: `200:authtoken:valid-credentials`
 

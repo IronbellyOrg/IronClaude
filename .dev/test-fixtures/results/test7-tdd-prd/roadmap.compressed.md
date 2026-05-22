@@ -494,4 +494,3 @@ AUTH-PRD-001 ──┘                     │                    │           
 |M5 Production Readiness & GA|2w (weeks 9–10)|2026-05-27|2026-06-09|Phase 1 Internal Alpha (MIG-001); Phase 2 Beta 10% (MIG-002); Phase 3 GA 100% (MIG-003); automated rollback triggers wired; runbooks OPS-001/002 published; on-call rotation live; AUTH_NEW_LOGIN removed; 99.9% uptime over first 7 days post-GA|
 
 **Total estimated duration:** 10 weeks (2026-03-31 → 2026-06-09), aligned verbatim with TDD S23.1 committed schedule end date 2026-06-09. No OQ raised for schedule overshoot because the technically-phased roadmap fits within the TDD-committed window.
-

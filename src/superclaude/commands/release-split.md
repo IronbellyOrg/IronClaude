@@ -66,27 +66,32 @@ personas: [architect, analyzer, scribe]
 ## Examples
 
 ### Analyze a Release Spec
+
 ```bash
 /sc:release-split .dev/releases/backlog/v3.1/unified-audit-gating-v1.2.1-release-spec.md
 ```
 
 ### Deep Analysis with User Checkpoints
+
 ```bash
 /sc:release-split .dev/releases/current/v4.0/spec.md --depth deep --interactive
 ```
 
 ### Resume from Prior Proposal
+
 ```bash
 /sc:release-split .dev/releases/current/v3.1/spec.md \
   --resume-from .dev/releases/current/v3.1/release-split/split-proposal-final.md
 ```
 
 ### Validate an Intact Release (No Split)
+
 ```bash
 /sc:release-split .dev/releases/current/v3.1/spec.md --no-split
 ```
 
 ### Multi-Agent Split Analysis
+
 ```bash
 /sc:release-split .dev/releases/current/v4.0/spec.md \
   --agents opus:architect,sonnet:security --depth deep
@@ -103,6 +108,7 @@ The full behavioral specification is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Analyze release artifacts for natural split points
 - Produce neutral, evidence-based split/no-split recommendations
 - Execute split decisions into concrete release specs or tasklists
@@ -111,6 +117,7 @@ The full behavioral specification is in the protocol skill.
 - Gate Release 2 planning on Release 1 real-world validation
 
 **Will Not:**
+
 - Assume splitting is correct — "do not split" is always valid
 - Produce tasklists or roadmaps directly (delegates to appropriate commands)
 - Execute the resulting release plans

@@ -5,6 +5,7 @@ This directory contains scripts for building and publishing SuperClaude to PyPI.
 ## Scripts
 
 ### `publish.sh` - Main Publishing Script
+
 Easy-to-use shell script for common publishing tasks:
 
 ```bash
@@ -28,6 +29,7 @@ Easy-to-use shell script for common publishing tasks:
 ```
 
 ### `build_and_upload.py` - Advanced Build Script
+
 Python script with detailed control over the build and upload process:
 
 ```bash
@@ -49,9 +51,10 @@ python scripts/build_and_upload.py --clean
 
 ## Prerequisites
 
-1. **PyPI Account**: Register at https://pypi.org/account/register/
-2. **API Tokens**: Generate tokens at https://pypi.org/manage/account/
+1. **PyPI Account**: Register at <https://pypi.org/account/register/>
+2. **API Tokens**: Generate tokens at <https://pypi.org/manage/account/>
 3. **Configuration**: Create `~/.pypirc`:
+
    ```ini
    [pypi]
    username = __token__
@@ -81,6 +84,7 @@ Set these in your GitHub repository settings → Secrets and variables → Actio
 ## Publishing Workflow
 
 ### 1. Development Release (TestPyPI)
+
 ```bash
 # Test the build and upload process
 ./scripts/publish.sh test
@@ -92,12 +96,14 @@ Set these in your GitHub repository settings → Secrets and variables → Actio
 ### 2. Production Release (PyPI)
 
 #### Option A: Manual
+
 ```bash
 # Upload directly (requires confirmation)
 ./scripts/publish.sh prod
 ```
 
 #### Option B: GitHub Release (Recommended)
+
 1. Update version in code
 2. Commit and push changes
 3. Create a new release on GitHub
@@ -106,6 +112,7 @@ Set these in your GitHub repository settings → Secrets and variables → Actio
 ## Version Management
 
 Before publishing, ensure version consistency across:
+
 - `pyproject.toml`
 - `superclaude/__init__.py`
 - `superclaude/__main__.py`
@@ -116,16 +123,19 @@ The build script validates version consistency automatically.
 ## Troubleshooting
 
 ### Build Failures
+
 - Check Python version compatibility (≥3.8)
 - Ensure all required files are present
 - Validate `pyproject.toml` syntax
 
 ### Upload Failures
+
 - Verify API tokens are correct
 - Check if version already exists on PyPI
 - Ensure package name is available
 
 ### Import Failures
+
 - Check package structure (`__init__.py` files)
 - Verify all dependencies are listed
 - Test local installation first

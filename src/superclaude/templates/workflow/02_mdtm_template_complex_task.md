@@ -869,12 +869,6 @@ M2. PHASE-GATE APPLICABILITY
 ################################################################################
 ################################################################################
 
-
-
-
-
-
-
 ################################################################################
 ################################################################################
 ##                                                                            ##
@@ -910,6 +904,7 @@ The following objectives MUST be achieved by this task:
 ## Prerequisites & Dependencies
 
 ### Parent Task & Dependencies
+
 - **Parent Task:** [PARENT-TASK-ID] - [Brief description of parent task]
 - **Blocking Dependencies:**
   - [DEPENDENCY-ID-1]: [What output from this task is needed]
@@ -923,6 +918,7 @@ The following objectives MUST be achieved by this task:
 **MANDATORY:** The orchestrator creating this task MUST explicitly list all relevant outputs from previous stages that serve as inputs for this task. The actual checklist items for reading these outputs appear in Phase 1, Step 1.4.
 
 **Required Previous Stage Outputs:**
+
 - **[Output Type 1]:** `[path/to/output1.md]` - [Purpose: what will be extracted/used from this file]
 - **[Output Type 2]:** `[path/to/output2.md]` - [Purpose: what will be extracted/used from this file]
 - **[Output Type 3]:** `[path/to/output3.md]` - [Purpose: what will be extracted/used from this file]
@@ -935,6 +931,7 @@ This task uses intra-task handoff patterns. Items write intermediate outputs to:
 **`.dev/tasks/TASK-NAME/phase-outputs/`**
 
 Subdirectories:
+
 - `discovery/` - Discovery scan results and inventories
 - `test-results/` - Test output and summaries
 - `reviews/` - Quality review verdicts
@@ -946,6 +943,7 @@ These files persist across all batches and session rollovers. Later items read t
 ### Frontmatter Update Protocol
 
 YOU MUST update the frontmatter at these MANDATORY checkpoints:
+
 - **Upon Task Start:** Update `status` to "🟠 Doing" and `start_date` to current date
 - **Upon Completion:** Update `status` to "🟢 Done" and `completion_date` to current date
 - **If Blocked:** Update `status` to "⚪ Blocked" and populate `blocker_reason`
@@ -1012,6 +1010,7 @@ Use the Pattern Selection Guide (Section L7) to determine which patterns each ph
      ═══════════════════════════════════════════════════════════════════════════ -->
 
 ### Phase 1: Preparation and Setup
+
 (Refer to [`[workflow_document].md#phase-1-preparation-and-setup`](path/to/workflow#phase-1-preparation-and-setup) for detailed requirements)
 
 YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark each item as complete before proceeding to the next.
@@ -1043,9 +1042,11 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
      ═══════════════════════════════════════════════════════════════════════════ -->
 
 **Step 1.1:** Update task status
+
 - [ ] Update status to "🟠 Doing" and start_date to current date in frontmatter of this file, then add a timestamped entry to the ### Execution Log in the ## Task Log / Notes section at the bottom of this task file using the format: `**[YYYY-MM-DD HH:MM]** - Task started: Updated status to "🟠 Doing" and start_date.` Once done, mark this item as complete.
 
 **Step 1.2:** Create handoff directories
+
 - [ ] Create the phase-outputs directory structure at `.dev/tasks/TASK-NAME/phase-outputs/` with subdirectories `discovery/`, `test-results/`, `reviews/`, `plans/`, and `reports/` to enable intra-task handoff between items, ensuring all directories are created successfully. If the parent directory `.dev/tasks/TASK-NAME/` does not exist, create it first. Once done, mark this item as complete.
 
 ### Task-Specific Context Files
@@ -1060,6 +1061,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 - **Previous Stage Output:** `[path/to/output.md]` - [Purpose]
 
 ### Phase 2: [Main Execution Phase Name]
+
 (Refer to workflow document for detailed requirements)
 
 <!-- ORCHESTRATOR: Use Section L handoff patterns for complex item sequences.
@@ -1102,6 +1104,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 - [ ] [TESTING ITEM -- Replace with actual test execution item following B2 pattern. Example: "Run the test suite covering the modified code by executing `[test command]` to verify all tests pass with no regressions, ensuring the test output shows 0 failures and no errors in the modified modules, then capture the results to `[output-path]`. If tests fail, read the failure output to identify the root cause, attempt to fix the failing tests or the source code causing failures, then re-run. If unable to resolve test failures, log the specific failures using the templated format in the ### Phase [N] Findings section of the ## Task Log / Notes at the bottom of this task file, then mark this item complete."]
 
 ### Phase 3: [Review and Quality Assessment]
+
 (Refer to workflow document for detailed requirements)
 
 **Step 3.1:** [Review - e.g., "Review each output against source"]
@@ -1130,18 +1133,22 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **Completion Date:** [YYYY-MM-DD]
 
 **Work Completed:**
+
 - [Key output 1]: [Brief description]
 - [Files created]: [List with paths]
 - [Files modified]: [List with paths]
 - [Handoff files created]: [List phase-outputs/ files]
 
 **Challenges Encountered:**
+
 - [Challenge]: [How addressed] OR None
 
 **Deviations from Process:**
+
 - [Deviation]: [Rationale] OR None
 
 **Blockers Logged:**
+
 - [Step X.Y]: [Description] - **Status:** [Resolved/Unresolved] OR None
 
 **Follow-Up Required:** [Yes/No] - [Description if yes]

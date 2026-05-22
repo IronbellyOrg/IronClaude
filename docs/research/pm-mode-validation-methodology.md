@@ -19,6 +19,7 @@
 **ファイル**: `tests/validation/test_hallucination_detection.py`
 
 **測定方法**:
+
 ```yaml
 定義:
   hallucination: 事実と異なる主張（存在しない関数参照、未実行タスクの「完了」報告等）
@@ -41,6 +42,7 @@
 ```
 
 **シミュレーション結果**:
+
 ```
 Baseline (PM OFF): 0% 検出率
 PM Mode (PM ON):   100% 検出率
@@ -49,6 +51,7 @@ PM Mode (PM ON):   100% 検出率
 ```
 
 **実世界で証明するには**:
+
 ```bash
 # 1. 実際のClaude Codeタスクで実行
 # 2. 人間がoutputを検証（事実と一致するか）
@@ -66,6 +69,7 @@ uv run pytest tests/validation/test_hallucination_detection.py::test_calculate_d
 **ファイル**: `tests/validation/test_error_recurrence.py`
 
 **測定方法**:
+
 ```yaml
 定義:
   error_recurrence: 同じパターンのエラーが再発すること
@@ -83,6 +87,7 @@ uv run pytest tests/validation/test_hallucination_detection.py::test_calculate_d
 ```
 
 **シミュレーション結果**:
+
 ```
 Baseline: 84.8% 再発率
 PM Mode:  83.3% 再発率
@@ -92,6 +97,7 @@ PM Mode:  83.3% 再発率
 ```
 
 **実世界で証明するには**:
+
 ```bash
 # 1. 縦断研究（Longitudinal Study）が必要
 # 2. 最低4週間のエラー追跡
@@ -121,6 +127,7 @@ if analysis.recurrence_rate < 10:
 **ファイル**: `tests/validation/test_real_world_speed.py`
 
 **測定方法**:
+
 ```yaml
 実世界タスク: 4種類
   - read_multiple_files: 10ファイル読み取り+要約
@@ -138,6 +145,7 @@ if analysis.recurrence_rate < 10:
 ```
 
 **シミュレーション結果**:
+
 ```
 Task                  Baseline  PM Mode   Speedup
 read_multiple_files   845ms     105ms     8.04x
@@ -151,6 +159,7 @@ Average speedup: 4.84x
 ```
 
 **実世界で証明するには**:
+
 ```bash
 # 1. 実際のClaude Codeタスクを選定
 # 2. 各タスクを5回以上実行（統計的有意性）
@@ -202,6 +211,7 @@ if overall_speedup >= 3.5:
 **目的**: 測定フレームワークの検証
 
 **結果**:
+
 - ✅ Hallucination detection: 100% (target: >90%)
 - ⚠️ Error recurrence: 83.3% (target: <10%, シミュレーション問題)
 - ✅ Speed improvement: 4.84x (target: >3.5x)
@@ -260,11 +270,13 @@ Quarterly assessments:
 ### 証明されたこと（シミュレーション）
 
 ✅ **測定フレームワークは機能する**
+
 - 3つの主張それぞれに対する測定方法が確立
 - 自動テストで再現可能
 - 統計的に有意な差を検出可能
 
 ✅ **理論的には効果あり**
+
 - Parallel execution: 明確な高速化
 - Validation gates: 幻覚検出に有効
 - Reflexion pattern: エラー学習の基盤
@@ -272,6 +284,7 @@ Quarterly assessments:
 ### 証明されていないこと（実世界）
 
 ⚠️ **実際のClaude Code実行での効果**
+
 - 94% hallucination detection: 実測データなし
 - <10% error recurrence: 長期研究未実施
 - 3.5x speed: 実環境での検証なし
@@ -281,6 +294,7 @@ Quarterly assessments:
 **PM modeは有望だが、主張は未検証**
 
 証拠ベースの現状:
+
 - シミュレーション: ✅ 期待通りの結果
 - 実世界データ: ❌ 測定していない
 - 主張の妥当性: ⚠️ 理論的には正しいが証明なし
@@ -292,12 +306,14 @@ Quarterly assessments:
 ### 即座に実施可能
 
 1. **Speed testの実世界実行**:
+
    ```bash
    # 実際のタスクで5回測定
    uv run pytest tests/validation/test_real_world_speed.py --real-execution
    ```
 
 2. **Hallucination detection spot check**:
+
    ```bash
    # 10タスクで人間検証
    uv run pytest tests/validation/test_hallucination_detection.py --human-verify
@@ -352,15 +368,18 @@ if result.note == "Real-world validated":
 ## 📚 References
 
 **Test Files**:
+
 - `tests/validation/test_hallucination_detection.py`
 - `tests/validation/test_error_recurrence.py`
 - `tests/validation/test_real_world_speed.py`
 
 **Performance Analysis**:
+
 - `tests/performance/test_pm_mode_performance.py`
 - `docs/research/pm-mode-performance-analysis.md`
 
 **Principles**:
+
 - RULES.md: Professional Honesty
 - PRINCIPLES.md: Evidence-based reasoning
 

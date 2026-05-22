@@ -30,6 +30,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 **Business Value:** Unblocks ~$2.4M in annual revenue from personalization features. Enables SOC2 audit trail and compliance with GDPR consent and audit logging requirements (NFR-COMP-001, NFR-COMP-002, NFR-COMP-003).
 
 **Key Deliverables:**
+
 - 5 API endpoints (POST `/auth/login`, `/auth/register`, `/auth/refresh`, GET `/auth/me`, POST `/auth/reset-request`, `/auth/reset-confirm`)
 - Stateless token-based session management with dual-token lifecycle (15-min access, 7-day refresh)
 - Password reset flow with email delivery
@@ -37,6 +38,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 - Production-ready monitoring, runbooks, and on-call support
 
 **Architecture Persona Priorities:**
+
 - Stateless API: no server-side session storage (constraint from extraction)
 - Security-first token handling: XSS mitigation via memory-only access tokens + HttpOnly refresh cookies
 - Phased rollout with automatic rollback triggers
@@ -61,6 +63,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | `AuthService` | auth-team | Facade orchestrating login, registration, profile, password reset | Integration tests: full flows, error handling, feature flag gates |
 
 **Wiring Task 1.1.1: Password Hashing Strategy Registry**
+
 - **Named Artifact:** `PasswordHasher` abstraction
 - **Wired Components:** bcryptjs implementation (cost 12); future argon2id slot reserved
 - **Owning Phase:** Phase 1
@@ -68,6 +71,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 - **Implementation Detail:** Abstraction layer in `PasswordHasher` delegates to pluggable strategy. Default: bcryptjs. Migration path to argon2id does not require API changes.
 
 **Wiring Task 1.1.2: Token Dispatch Table**
+
 - **Named Artifact:** `TokenManager` internal dispatch for token type handling
 - **Wired Components:** Access token flow → `JwtService.sign()`, refresh token flow → Redis storage
 - **Owning Phase:** Phase 1
@@ -75,6 +79,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 - **Implementation Detail:** Internal routing logic determines whether to issue new tokens or validate refresh tokens. No explicit registry; determined by request parameter inspection.
 
 **Wiring Task 1.1.3: Account Lockout Strategy**
+
 - **Named Artifact:** Lockout enforcement in `AuthService.login()`
 - **Wired Components:** Failed attempt counter (in-memory or Redis), 15-minute TTL per IP/email combination
 - **Owning Phase:** Phase 1
@@ -91,6 +96,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Route protection | frontend-team | Protected routes redirecting unauthenticated users to `LoginPage` | Routing test: protected access denied without auth, redirects to login |
 
 **Wiring Task 1.2.1: Silent Token Refresh Middleware Chain**
+
 - **Named Artifact:** `AuthProvider` refresh interceptor
 - **Wired Components:** HTTP client interceptor → detects 401 → calls POST `/auth/refresh` → retries original request → updates context
 - **Owning Phase:** Phase 1
@@ -105,6 +111,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Configure CORS | devops-team | Allow frontend origin (staging domain); disallow cross-origin token access | Staging test: CORS headers present, preflight passes |
 
 **Wiring Task 1.3.1: Rate Limiting Middleware**
+
 - **Named Artifact:** API Gateway rate limiting configuration
 - **Wired Components:** Per-endpoint limits wired to IP/user-based buckets
 - **Owning Phase:** Phase 1
@@ -119,6 +126,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | `AUTH_TOKEN_REFRESH` | OFF by default. When ON, enables POST `/auth/refresh` endpoint. When OFF, only access tokens issued. | devops-team | Staging test: refresh endpoint accessible/unavailable based on flag |
 
 **Wiring Task 1.4.1: Feature Flag Registry**
+
 - **Named Artifact:** `AUTH_NEW_LOGIN` and `AUTH_TOKEN_REFRESH` flags in feature flag service
 - **Wired Components:** `AuthService` checks `AUTH_NEW_LOGIN` at login entry point; `TokenManager` checks `AUTH_TOKEN_REFRESH` at refresh endpoint
 - **Owning Phase:** Phase 1
@@ -135,6 +143,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Grafana dashboards | devops-team | Login latency p95, error rate, concurrent requests, Redis memory usage | Staging test: dashboards load, reflect real traffic |
 
 **Wiring Task 1.5.1: Audit Log Callback Chain**
+
 - **Named Artifact:** Post-login/registration/refresh callback that writes to audit log table
 - **Wired Components:** Each `AuthService` flow end-point triggers audit log write: user_id, event_type, timestamp, IP, outcome
 - **Owning Phase:** Phase 1
@@ -159,6 +168,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Audit logging (login success) | QA | Audit log entry written with user_id, timestamp, IP, outcome | Pending |
 
 **Exit Criteria for Phase 1:**
+
 - All 5 FR-AUTH requirements pass functional tests
 - Zero P0/P1 bugs (P2 bugs allowed with mitigation)
 - Audit log retention set to 12 months (override TDD 90-day default)
@@ -179,6 +189,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Enable feature flag for 10% cohort | devops-team | `AUTH_NEW_LOGIN` enabled for 10% of traffic via feature flag store (user ID hash) | Prod validation: 10% of requests route to new service, 90% to legacy |
 
 **Wiring Task 2.1.1: Production Feature Flag Routing**
+
 - **Named Artifact:** Feature flag cohort distribution (10% sampling)
 - **Wired Components:** Request router checks user ID hash against 10% threshold, routes to `AuthService` or legacy auth
 - **Owning Phase:** Phase 2
@@ -205,6 +216,7 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Database connection pool limits | 500 concurrent login + profile requests | Connection pool not exhausted; no connection timeouts | k6 + Postgres monitoring | QA |
 
 **Success Criteria:**
+
 - NFR-PERF-001: All endpoints meet < 200ms p95 (target met)
 - NFR-PERF-002: 500 concurrent logins handled without errors
 - Error rate < 0.1% under sustained load
@@ -220,12 +232,14 @@ The User Authentication Service is a prerequisite for all Q2–Q3 2026 personali
 | Average session duration | > 30 minutes | Token refresh event analytics | product-team |
 
 **Rollback Trigger Conditions:**
+
 - p95 latency exceeds 1000ms for > 5 minutes → Trigger Phase 2 rollback
 - Error rate exceeds 5% for > 2 minutes → Trigger Phase 2 rollback
 - Redis connection failures > 10/minute → Trigger Phase 2 rollback
 - Any data corruption detected → Trigger Phase 2 rollback + restore from backup
 
 **Rollback Procedure:**
+
 1. Disable `AUTH_NEW_LOGIN` feature flag → 100% traffic routes to legacy auth
 2. Verify legacy login flow operational via smoke tests
 3. Investigate root cause in logs/traces
@@ -251,6 +265,7 @@ If load tests or beta monitoring identify bottlenecks:
 | `UserRepo` query latency | Add database index on email column (if not present); profile query plans | 2 | devops-team |
 
 **Exit Criteria for Phase 2:**
+
 - 7-day uptime 99.9% or better
 - p95 latency < 200ms on all endpoints
 - Error rate < 0.1% under sustained load
@@ -310,6 +325,7 @@ If load tests or beta monitoring identify bottlenecks:
 | Architecture decision record (ADR) | auth-team | Future maintainers | Rationale for JWT vs session storage, RS256 vs HS256, bcrypt cost 12 |
 
 **Exit Criteria for Phase 3:**
+
 - 100% traffic on new `AuthService`
 - Legacy auth fully deprecated and removed
 - On-call rotation established
@@ -356,6 +372,7 @@ If load tests or beta monitoring identify bottlenecks:
 ### Callback Chain: Audit Logging
 
 **Flow:**
+
 1. User calls POST `/auth/login`
 2. `AuthService.login()` invokes `PasswordHasher.verify()`
 3. On success/failure, `AuditLogger.log()` callback fires
@@ -363,6 +380,7 @@ If load tests or beta monitoring identify bottlenecks:
 5. Log retention policy enforced: 12 months (overrides TDD 90-day)
 
 **Implementation Detail:**
+
 - Synchronous callback; no async delay (logging should not block response)
 - One callback per auth operation: login, registration, token refresh, password reset request, password reset confirmation
 - Callback wired in `AuthService` constructor initialization
@@ -386,6 +404,7 @@ If load tests or beta monitoring identify bottlenecks:
 ### Risk Mitigation Roadmap
 
 **Immediate (Phase 1):**
+
 - R-001: CSP headers configured in API Gateway; accessToken memory storage + HttpOnly refresh cookies implemented in frontend
 - R-002: Rate limiting wired at API Gateway; account lockout logic in `AuthService`
 - R-003: Full DB backup automation set up; backup tested before Phase 1 cutover
@@ -393,11 +412,13 @@ If load tests or beta monitoring identify bottlenecks:
 - R-006: Audit log schema finalized; 12-month retention configured
 
 **Pre-Beta (End of Phase 1):**
+
 - R-002: CAPTCHA service integration tested (Recaptcha or equivalent)
 - R-004: Usability testing of `RegisterPage` with 10 users; iteration on weak spots
 - R-005: Penetration testing engagement scoped (external firm); Phase 3 timeline dependent on findings
 
 **Pre-GA (Phase 2–3):**
+
 - R-004: A/B testing results analyzed; conversion rate decision gate for Phase 3 go/no-go
 - R-005: Pentest findings remediated; security sign-off obtained
 - R-006: SOC2 auditor pre-audit review completed; any gaps addressed
@@ -458,6 +479,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-PERF-001: API Response Time (< 200ms p95)
 
 **Measurement Method:**
+
 - APM instrument: `AuthService.login()`, `TokenManager.refresh()`, `UserRepo.getById()` methods
 - Trace all HTTP requests end-to-end (API Gateway → `AuthService` → database)
 - Percentile capture: p50, p95, p99 latencies
@@ -474,10 +496,12 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-PERF-002: Concurrent Authentication (500 concurrent login requests)
 
 **Measurement Method:**
+
 - k6 load test: 500 concurrent login requests, sustained for 10 minutes
 - Measure: successful authentication rate, latency distribution, error rate, database connection pool utilization
 
 **Validation Gate:**
+
 - All 500 requests succeed (0% error rate)
 - p95 latency < 200ms
 - No database connection pool exhaustion
@@ -487,6 +511,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-REL-001: Service Availability (99.9% uptime over 30-day rolling windows)
 
 **Measurement Method:**
+
 - Health check endpoint: GET `/auth/health` returning 200 OK if `AuthService`, PostgreSQL, and Redis all healthy
 - Monitoring: Prometheus scrapes every 30 seconds; cumulative uptime tracked
 
@@ -502,10 +527,12 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-SEC-001: Password Hashing (bcrypt cost factor 12)
 
 **Measurement Method:**
+
 - Unit test: `PasswordHasher.hash()` with test password; verify bcrypt cost parameter in resulting hash
 - Benchmark test: Measure hash time with cost 12; target ~300ms per hash
 
 **Validation Gate:**
+
 - Hash function returns bcrypt hash with cost parameter = 12
 - Hash time < 500ms (tolerance for slower CI environments)
 - No plaintext passwords in logs or database
@@ -515,10 +542,12 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-SEC-002: Token Signing (RS256 with 2048-bit RSA keys)
 
 **Measurement Method:**
+
 - Unit test: `JwtService.sign()` and `JwtService.verify()` with sample payload
 - Configuration validation test: Verify 2048-bit key length via keysize property
 
 **Validation Gate:**
+
 - JWT payload signed with RS256 (header.alg = "RS256")
 - Key size verification passes (2048 bits or greater)
 - Token verification succeeds with matching public key
@@ -529,10 +558,12 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-COMP-001: GDPR Consent at Registration
 
 **Measurement Method:**
+
 - Data schema: `UserProfile` includes `consent_given` (boolean) and `consent_timestamp` (ISO 8601)
 - API test: POST `/auth/register` request includes `consent` field; response confirms consent recorded
 
 **Validation Gate:**
+
 - `UserProfile` schema includes consent fields
 - Registration form displays consent checkbox
 - Consent field required (cannot register without consent)
@@ -543,11 +574,13 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-COMP-002: SOC2 Audit Logging (12-month retention)
 
 **Measurement Method:**
+
 - Audit log schema: `audit_logs` table with columns: user_id, event_type, timestamp, ip_address, outcome, details (JSON)
 - Retention policy: PostgreSQL policy deletes records > 12 months old
 - Query validation: Auditor can query logs by user_id, date range, event type
 
 **Validation Gate:**
+
 - Audit log table created with all required columns
 - Retention policy configured (12-month TTL)
 - Sample audit logs present for all auth events (login, registration, token refresh, password reset)
@@ -558,10 +591,12 @@ If load tests or beta monitoring identify bottlenecks:
 #### NFR-COMP-003: GDPR Data Minimization
 
 **Measurement Method:**
+
 - Data schema review: `UserProfile` contains only email, hashed_password, displayName, timestamps
 - Privacy audit: No additional PII fields (phone, address, etc.)
 
 **Validation Gate:**
+
 - `UserProfile` schema review approved by compliance team
 - No additional PII collected at registration
 - Data minimization documented in privacy policy
@@ -573,6 +608,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### Registration Conversion Rate (> 60%)
 
 **Measurement Method:**
+
 - Product analytics: Track funnel from landing page → "Sign Up" click → registration form → email confirmation → first login
 - Measurement: Conversion = (confirmed accounts / landing page visits) × 100
 
@@ -588,6 +624,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### Daily Active Authenticated Users (> 1000 within 30 days of GA)
 
 **Measurement Method:**
+
 - Product analytics: Count unique users who issue at least one auth token (login or token refresh) per day
 - Measurement: DAU = count of users with ≥ 1 auth event per calendar day
 
@@ -603,6 +640,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### Failed Login Rate (< 5% of attempts)
 
 **Measurement Method:**
+
 - Auth event log analysis: Count login attempts by outcome (success, invalid credentials, account locked, etc.)
 - Measurement: Failed login rate = (failed attempts / total attempts) × 100
 
@@ -617,6 +655,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### Average Session Duration (> 30 minutes)
 
 **Measurement Method:**
+
 - Product analytics: Token refresh event timestamps; calculate time between login and last refresh (or logout)
 - Measurement: Average session duration = mean(logout_time - login_time) for all sessions
 
@@ -631,6 +670,7 @@ If load tests or beta monitoring identify bottlenecks:
 #### Password Reset Completion Rate (> 80%)
 
 **Measurement Method:**
+
 - Product analytics: Funnel tracking from reset request → email opened → link clicked → new password submitted → success
 - Measurement: Completion rate = (password resets completed / reset emails sent) × 100
 
@@ -677,6 +717,7 @@ The extraction identified 5 gaps. Resolution approach per gap:
 | GAP-005 | **Password reset endpoints not fully specified:** FR-AUTH-005 references `/auth/reset-request` and `/auth/reset-confirm` but TDD Section 8 omits detailed request/response schemas. | Medium | **Action:** Finalize schemas: POST `/auth/reset-request` (email) → 200 OK regardless of registration status. POST `/auth/reset-confirm` (token, newPassword) → 200 OK on success or 401 on expired/invalid token. Acceptance: API tests validate schemas and error cases. | Phase 1 | auth-team |
 
 **Gap Resolution Schedule:**
+
 - GAP-001 (audit retention): Configured in Phase 1; validated in Phase 2
 - GAP-002 (logout endpoint): Implemented in Phase 1.2; tested in Phase 1.6 manual testing
 - GAP-003 (admin audit API): Implemented in Phase 2; validated by auditor
@@ -714,6 +755,7 @@ Week 4 (Phase 3):   GA — Traffic migration, runbook validation, legacy depreca
 | **Critical Path Total** | **5 days** | Sequential: `PasswordHasher` → `JwtService` → `TokenManager` → `AuthService` → Test | — | — |
 
 **Critical Path Analysis:**
+
 - Critical path: `PasswordHasher` → `JwtService` → `TokenManager` → `AuthService` → gap fixes → manual testing
 - Parallel streams: Frontend (`LoginPage` → `RegisterPage` → `AuthProvider`), DevOps (monitoring setup), both can start on Day 1
 - Risk: If `PasswordHasher` or `JwtService` implementation discovers bugs, timeline extends by 1+ days
@@ -732,6 +774,7 @@ Week 4 (Phase 3):   GA — Traffic migration, runbook validation, legacy depreca
 | **Total Duration** | **14 days** | — | — | — |
 
 **Timeline Risk:**
+
 - If load testing identifies p95 > 500ms, 2–3 day tuning cycle required (serial)
 - If compliance gaps found (e.g., audit log missing columns), 1–2 day fix cycle required
 - Stability window is non-negotiable; cannot accelerate GA without 7-day clean monitoring
@@ -754,6 +797,7 @@ Week 4 (Phase 3):   GA — Traffic migration, runbook validation, legacy depreca
 ### Overall Critical Path & Slack Analysis
 
 **Sequence:**
+
 ```
 Phase 1 (5 critical days)
   → Gap fixes (2 days)
@@ -770,6 +814,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 **Total Timeline:** 4 weeks (28 calendar days) from start of Phase 1 to GA completion.
 
 **Slack & Risk Mitigation:**
+
 - Slack in Phase 1: 0.5 days (if monitoring setup completes before manual testing)
 - Slack in Phase 2: 0 days (7-day stability window is absolute; load testing runs in parallel to monitoring)
 - Slack in Phase 3: 0 days (sequential ramp; cannot compress)
@@ -791,6 +836,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 ### Phase 1 Exit Gate (End of Week 1)
 
 **Go Criteria:**
+
 - [ ] All 5 FR-AUTH requirements pass unit + integration tests
 - [ ] All 8 NFR requirements validated (performance, security, compliance)
 - [ ] Zero P0/P1 bugs; P2 bugs documented with mitigations
@@ -802,6 +848,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 - [ ] Staging environment passes smoke tests; metrics flowing
 
 **No-Go Triggers:**
+
 - P0 bug unfixed
 - Core requirement failing acceptance criteria
 - Compliance gap unresolved (audit retention, consent)
@@ -811,6 +858,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 ### Phase 2 Exit Gate (End of Week 3)
 
 **Go Criteria:**
+
 - [ ] 7-day uptime 99.9% or better
 - [ ] p95 latency < 200ms sustained
 - [ ] Error rate < 0.1% under load
@@ -823,6 +871,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 - [ ] On-call team trained and ready
 
 **No-Go Triggers:**
+
 - Uptime < 99.9% for any 24-hour window
 - p95 latency > 500ms sustained
 - Any data corruption or security incident
@@ -834,6 +883,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 ### Phase 3 Exit Gate (End of Week 4)
 
 **Go Criteria:**
+
 - [ ] 100% traffic successfully migrated from legacy auth
 - [ ] Legacy auth fully deprecated and code removed
 - [ ] On-call rotation established and acknowledged
@@ -841,6 +891,7 @@ Phase 3 (7 days: 0.5 ramp + 0.5 ramp + 6 cleanup)
 - [ ] Success metrics baseline established
 
 **No-Go Triggers:**
+
 - Any P0 incidents after traffic ramp
 - Data loss or corruption
 - On-call escalation failures

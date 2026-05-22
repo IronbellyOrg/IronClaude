@@ -127,6 +127,7 @@ different session.
 
 **Rule:** This is correct behavior (each session validates its own world view).
 But it means:
+
 - Workflow is "Read first, then Edit" for every file in every session, no
   exceptions.
 - For brand-new files (target path doesn't exist), use Bash heredocs (`cat > new <<EOF`)

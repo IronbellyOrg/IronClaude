@@ -12,6 +12,7 @@
 **Summary line:** `============================== 15 passed in 0.09s ==============================`
 
 **Critical tests required to pass (per task acceptance):**
+
 - `test_prompt_schema_matches_gate_schema` — PASSED
 - `test_prompt_conforming_output_passes_gate` — PASSED
 - `test_check_research_notes_sections` (happy-path, post Edit C) — PASSED

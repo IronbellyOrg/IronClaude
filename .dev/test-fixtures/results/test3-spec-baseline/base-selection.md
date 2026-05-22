@@ -104,7 +104,7 @@ Three factors drive this:
 
 ## 5. Specific Improvements from Variant B to Incorporate in Merge
 
-### Must incorporate:
+### Must incorporate
 
 1. **Explicit coverage targets from Phase 5**: Add Haiku's "90% line coverage, 85% branch coverage" targets as exit criteria for Opus's Phase 4 hardening gate. Don't create a separate testing phase — embed the targets into the existing gates.
 
@@ -120,13 +120,13 @@ Three factors drive this:
 
 5. **Crypto review gate**: Add a Phase 0/Phase 1 boundary gate for crypto code review (from Haiku's Phase 0 Gate) before services consume the crypto layer.
 
-### Consider incorporating:
+### Consider incorporating
 
 6. **503 for disabled feature flag (D-9)**: The debate was inconclusive. Add a note recommending 503 with `Retry-After` header for internal consumers and 404 for external/public APIs, letting the team decide based on operational maturity.
 
 7. **Async email dispatch note**: Keep Opus's sync-for-MVP decision but add Haiku's resilience argument as a documented trade-off, with the note that if queue infrastructure already exists, prefer async.
 
-### Do not incorporate:
+### Do not incorporate
 
 8. **Service-first/mock-first development** (Haiku's Phase 0-1 approach): The spec determines the schema. Mocks add maintenance cost with no design freedom benefit for this project.
 

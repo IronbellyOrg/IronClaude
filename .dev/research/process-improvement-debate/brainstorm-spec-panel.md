@@ -44,16 +44,19 @@ These are not exotic concerns. They are standard techniques from formal methods 
 The following checklist items would force examination of the missed bug classes:
 
 **Guard condition audit**:
+
 - For every conditional branch: What happens when the tested expression equals the sentinel/boundary value?
 - For every `> 0` check: What if the value is legitimately 0?
 - For every emptiness check: Can the collection be empty through a valid code path?
 
 **State tracking divergence audit**:
+
 - For every pipeline with filtering: Does the downstream consumer use the pre-filter count or post-filter count?
 - For every index/offset/cursor: What quantity drives its advancement? Is that quantity the right one?
 - For every counter: Does it count the thing it claims to count, or a proxy?
 
 **Cross-component feedback audit**:
+
 - For every interface between components: Can the callee's behavior change the caller's state assumptions?
 - For every shared mutable variable: Do all writers agree on the invariant?
 - For every callback or event: Can the handler invalidate the caller's postconditions?
@@ -83,6 +86,7 @@ This is not the same as "discussion." Discussion allows experts to volunteer obs
 Yes, but it should be framed more broadly than "state-machine analysis." The right framing is **`--mode invariant-probe`** or **`--focus correctness`** -- a mode that shifts the entire panel from document-quality review to execution-correctness review.
 
 In this mode:
+
 - Wiegers would examine each requirement for implicit state assumptions
 - Fowler would trace data flow across every interface, noting where counts diverge
 - Nygard would enumerate failure modes of every guard condition
@@ -111,6 +115,7 @@ These artifacts are valuable not because someone reads them later, but because t
 **Description**: Add a fifth focus area (`--focus correctness`) to the spec-panel's existing four (requirements, architecture, testing, compliance). This focus area specifically targets execution correctness of stateful specifications. When activated, the panel shifts from reviewing *document quality* to verifying *execution soundness*.
 
 The correctness focus activates a modified expert panel behavior:
+
 - **Wiegers**: Identifies every implicit assumption in requirements (e.g., "this collection is non-empty," "this count equals that count")
 - **Fowler**: Traces data flow across every interface, annotating where input counts can diverge from output counts
 - **Nygard**: Enumerates every guard condition and asks what happens at each boundary value, especially zero and empty
@@ -122,6 +127,7 @@ The correctness focus activates a modified expert panel behavior:
 **Expected Impact**: High. This directly addresses the root cause: the panel had no mechanism to force invariant reasoning about mutable state. Every bug in the missed class (guard bypasses, cursor stalls, counter divergence) would be examined by at least two experts under this focus area.
 
 **Implementation Sketch**:
+
 ```
 ## Correctness Focus (`--focus correctness`)
 **Expert Panel**: Nygard (lead), Fowler, Adzic, Crispin
@@ -147,6 +153,7 @@ Auto-activation heuristic: suggest `--focus correctness` when the spec introduce
 **Description**: Add a new expert persona to the panel: an **Adversarial Tester** modeled on James Whittaker's "How to Break Software" methodology and chaos engineering principles. This persona's sole objective is to find inputs, sequences, and conditions that violate the spec's stated or implied guarantees. Unlike Crispin (who designs test strategies) and Adzic (who writes behavioral examples), the Adversarial Tester actively attacks the specification.
 
 The Adversarial Tester's review protocol:
+
 1. **Zero/Empty Attack**: For every input, function argument, and collection: what if it is zero, empty, null, or negative?
 2. **Divergence Attack**: For every pipeline/transformation: what if the output count differs from the input count?
 3. **Sentinel Collision Attack**: For every guard condition: what if the variable legitimately holds the sentinel value the guard checks against?
@@ -160,12 +167,14 @@ The Adversarial Tester's review protocol:
 The existing panel correctly identified missing requirements, testability gaps, and architectural concerns. These are *quality* issues. The missed bugs were *correctness* issues -- specifications that were clearly written, architecturally sound, and testable, but that contained logical errors at state boundaries. An adversarial mindset naturally gravitates toward exactly these boundaries.
 
 **Expected Impact**: High. The adversarial tester would have directly attacked both missed bugs:
+
 - Bug 1: "What if I filter all events in a page? Cursor advances by zero. PageUp loops forever."
 - Bug 2: "What if tail_events is empty? Offset is 0. Guard `> 0` fails. Replay runs again."
 
 More broadly, the adversarial mindset catches any bug arising from degenerate inputs, boundary conditions, or unexpected legitimate states. This is a large class that includes most state-machine bugs.
 
 **Implementation Sketch**:
+
 ```yaml
 # Addition to spec-panel.md Expert Panel System
 
@@ -193,6 +202,7 @@ More broadly, the adversarial mindset catches any bug arising from degenerate in
 **Description**: Add a structural output requirement to the spec-panel: for every guard condition, threshold check, or conditional branch identified in the specification, the panel MUST produce a **boundary value table** showing the behavior at each boundary. The table is a mandatory artifact that must be completed before the panel's review is considered done.
 
 Table format:
+
 ```
 Guard: [expression]
 Location: [spec section or interface contract]
@@ -217,6 +227,7 @@ This approach is grounded in boundary value analysis, one of the most effective 
 **Expected Impact**: Medium-High. Directly catches any bug where a guard condition fails at a boundary the spec author did not consider. This includes Bug 2 (offset = 0 when tail is empty) and partially catches Bug 1 (mounted = 0 when all events are filtered, though the dimensional mismatch is better caught by Proposal 4).
 
 **Implementation Sketch**:
+
 ```
 ## Mandatory Output Artifacts
 
@@ -240,6 +251,7 @@ This approach is grounded in boundary value analysis, one of the most effective 
 **Description**: Add a mandatory review heuristic triggered whenever the spec describes a data pipeline where input count can differ from output count: **the panel must produce a quantity flow annotation showing which count is used at each downstream step, and must flag any step that uses the wrong count.**
 
 The heuristic works by:
+
 1. **Pipeline Detection**: Identify any spec section describing data flowing through stages (read -> filter -> transform -> consume)
 2. **Quantity Annotation**: At each stage, annotate the count: "N items in, M items out"
 3. **Downstream Tracing**: For every index, offset, cursor, or counter downstream of a filtering/transformation stage, ask: "Does this use the pre-stage count (N) or the post-stage count (M)?"
@@ -264,6 +276,7 @@ This heuristic is distinct from the guard condition boundary table (Proposal 3).
 **Expected Impact**: Medium. Highly targeted at a specific bug class (dimensional mismatches in pipelines) but that class is common in paginated systems, data processing pipelines, ETL workflows, scroll/viewport implementations, and any code involving filters with downstream state. Catches Bug 1 directly. Partially relevant to Bug 2 (the "quantity" is the length of tail_events, which drives the offset).
 
 **Implementation Sketch**:
+
 ```
 ## Review Heuristics
 
@@ -300,6 +313,7 @@ This is modeled on the concept of "red team / blue team" in security and on the 
 **Expected Impact**: Medium. This does not add new analytical techniques (those are covered by Proposals 1-4). What it does is ensure that existing expert perspectives are *compositionally applied* rather than operating in silos. The challenge protocol would have forced Nygard to probe Fowler's interface contracts for state-machine failure modes, which is exactly the gap that allowed both bugs to escape.
 
 **Implementation Sketch**:
+
 ```
 ## Expert Interaction Protocol
 
@@ -338,14 +352,17 @@ This is modeled on the concept of "red team / blue team" in security and on the 
 ### Recommended Implementation Order
 
 **Phase 1 -- Immediate, highest ROI**:
+
 - **Proposal 2 (Adversarial Tester Persona)**: Low cost, high impact. Adding one persona with a destructive mindset directly addresses the root cause -- the panel is entirely constructive. This is the single change most likely to catch bugs in this class.
 - **Proposal 3 (Guard Boundary Table)**: Low cost, forces the specific reasoning that catches boundary bugs. Can be added as a mandatory output artifact without changing the panel's structure.
 
 **Phase 2 -- Structural enhancement**:
+
 - **Proposal 1 (Correctness Focus Pass)**: Medium cost, but provides the structural framework for the other proposals. The correctness focus area gives the adversarial tester a home, gives the boundary table a trigger, and gives the dimensional analysis a context.
 - **Proposal 4 (Pipeline Dimensional Analysis)**: Low cost, targeted at a specific and common bug class. Natural fit within the correctness focus area.
 
 **Phase 3 -- Interaction model upgrade**:
+
 - **Proposal 5 (Cross-Expert Challenge Protocol)**: Medium cost, requires restructuring the panel workflow. Most valuable after the adversarial tester is added (giving the challenge protocol a strong challenger). Should be piloted in `--mode critique` before being generalized.
 
 ### Design Principles for All Proposals

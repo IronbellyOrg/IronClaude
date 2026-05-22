@@ -236,15 +236,19 @@ Support library for cleanup/audit-oriented analysis. The package docstring calls
 ## Contributor navigation tips
 
 ### If you need to change command registration
+
 Start with `src/superclaude/cli/main.py`.
 
 That file owns:
+
 - the root Click group
 - top-level commands
 - manual registration of `sprint`, `roadmap`, and `cleanup-audit`
 
 ### If you need to change installation behavior
+
 Read these in order:
+
 1. `src/superclaude/cli/main.py`
 2. `src/superclaude/cli/install_core.py`
 3. `src/superclaude/cli/install_commands.py`
@@ -253,15 +257,19 @@ Read these in order:
 6. `src/superclaude/cli/install_mcp.py`
 
 ### If you need to change workflow orchestration
+
 Use this split:
+
 - `sprint/`, `roadmap/`, `cleanup_audit/` for user-facing workflow CLIs
 - `pipeline/` for shared execution, gate, process, and analysis primitives
 - `audit/` for lower-level audit analysis and reporting support
 
 ### If older docs disagree with current code
+
 Prefer the current package code.
 
 Examples from the current tree:
+
 - the active console-script target is `superclaude.cli.main:main`
 - the currently registered root workflow groups are `sprint`, `roadmap`, and `cleanup-audit`
 - `pipeline/__init__.py` exports a larger shared API surface than older high-level docs usually summarize

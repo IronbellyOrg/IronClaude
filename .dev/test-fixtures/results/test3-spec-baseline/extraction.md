@@ -22,6 +22,7 @@ pipeline_diagnostics: {elapsed_seconds: 80.3, started_at: "2026-04-03T14:25:50.3
 **Description**: The system shall authenticate users via email and password, returning a valid JWT access token and a refresh token upon successful credential verification.
 
 **Acceptance Criteria**:
+
 - FR-AUTH.1a: Given valid email and password, return 200 with access_token (15min TTL) and refresh_token (7d TTL)
 - FR-AUTH.1b: Given invalid credentials, return 401 without revealing whether email or password was incorrect
 - FR-AUTH.1c: Given a locked account, return 403 indicating account suspension
@@ -38,6 +39,7 @@ pipeline_diagnostics: {elapsed_seconds: 80.3, started_at: "2026-04-03T14:25:50.3
 **Description**: The system shall register new users with input validation, creating a user record with a securely hashed password and returning confirmation of successful registration.
 
 **Acceptance Criteria**:
+
 - FR-AUTH.2a: Given valid registration data (email, password, display name), create user record and return 201 with user profile
 - FR-AUTH.2b: Given an already-registered email, return 409 conflict
 - FR-AUTH.2c: Enforce password policy: minimum 8 characters, at least one uppercase, one lowercase, one digit
@@ -54,6 +56,7 @@ pipeline_diagnostics: {elapsed_seconds: 80.3, started_at: "2026-04-03T14:25:50.3
 **Description**: The system shall issue and refresh JWT tokens, allowing clients to obtain a new access token using a valid refresh token without re-entering credentials.
 
 **Acceptance Criteria**:
+
 - FR-AUTH.3a: Given a valid refresh token, return new access_token and rotate the refresh_token
 - FR-AUTH.3b: Given an expired refresh token, return 401 and require re-authentication
 - FR-AUTH.3c: Given a previously-rotated (revoked) refresh token, invalidate all tokens for that user (replay detection)
@@ -70,6 +73,7 @@ pipeline_diagnostics: {elapsed_seconds: 80.3, started_at: "2026-04-03T14:25:50.3
 **Description**: The system shall provide authenticated user profile retrieval, returning the current user's profile data when presented with a valid access token.
 
 **Acceptance Criteria**:
+
 - FR-AUTH.4a: Given a valid Bearer access_token, return user profile (id, email, display_name, created_at)
 - FR-AUTH.4b: Given an expired or invalid token, return 401
 - FR-AUTH.4c: Never return sensitive fields (password_hash, refresh_token_hash) in profile response
@@ -85,6 +89,7 @@ pipeline_diagnostics: {elapsed_seconds: 80.3, started_at: "2026-04-03T14:25:50.3
 **Description**: The system shall support a secure password reset flow, allowing users to request a reset link and set a new password using a time-limited token.
 
 **Acceptance Criteria**:
+
 - FR-AUTH.5a: Given a registered email, generate a password reset token (1-hour TTL) and dispatch a reset email
 - FR-AUTH.5b: Given a valid reset token, allow setting a new password and invalidate the reset token
 - FR-AUTH.5c: Given an expired or invalid reset token, return 400 with appropriate error message

@@ -1,6 +1,7 @@
 # Extraction — v1.7 Adversarial Spec/Roadmap (Command/Skill/Agent Development)
 
 ## Sources (read completely)
+
 - `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.7-adversarial/SC-ADVERSARIAL-SPEC.md`
 - `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.7-adversarial/roadmap.md`
 
@@ -29,11 +30,13 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 > "The command supports two primary input modes:" (FR-001)
 
 **Mode A: compare existing files**
+
 ```bash
 /sc:adversarial --compare file1.md,file2.md[,file3.md,...,file10.md]
 ```
 
 **Mode B: generate variants from a source, then compare**
+
 ```bash
 /sc:adversarial --source source.md --generate <type> --agents <agent-spec>[,<agent-spec>,...]
 ```
@@ -177,6 +180,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 **Responsibilities**
 
 > "- Parse input mode and validate parameters
+>
 > - Dispatch variant generation (Mode B) in parallel
 > - Coordinate the 5-step protocol
 > - Track convergence scoring across debate rounds
@@ -195,6 +199,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 **Explicit non-responsibilities**
 
 > "Does NOT:
+>
 > - Generate variants (delegates to specified agents)
 > - Participate in debates (delegates to advocate agents)
 > - Execute merges (delegates to merge-executor)"
@@ -212,6 +217,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 **Responsibilities**
 
 > "- Read the base variant and refactoring plan
+>
 > - Apply each planned change methodically
 > - Maintain structural integrity during merge
 > - Add provenance annotations
@@ -229,6 +235,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 **Explicit non-responsibilities**
 
 > "Does NOT:
+>
 > - Make strategic decisions about what to merge (follows the plan)
 > - Override the refactoring plan without escalation
 > - Participate in debates or scoring"
@@ -240,12 +247,14 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 > "### 5.3 Advocate Agents (Dynamic)"
 
 > "These are NOT pre-defined agents. They are instantiated dynamically from the `--agents` specification. Each advocate:
+>
 > - Receives their variant + all other variants + diff-analysis.md
 > - Argues for their variant's strengths in the specified focus areas
 > - Critiques weaknesses in other variants with evidence
 > - Responds to rebuttals in subsequent rounds"
 
 > "The advocate's behavior is shaped by:
+>
 > - The model specified (opus, sonnet, haiku)
 > - The persona specified (architect, security, analyzer, etc.)
 > - The custom instruction (if provided)"
@@ -270,7 +279,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 
 Also (skill is a Python package directory):
 
-> "src/superclaude/skills/sc-adversarial/__init__.py           # Package marker" (File Manifest)
+> "src/superclaude/skills/sc-adversarial/**init**.py           # Package marker" (File Manifest)
 
 ---
 
@@ -297,6 +306,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 ```
 
 > "Naming conventions for variants:
+>
 > - Mode A (compare): `variant-1-original.md`, `variant-2-original.md` (copies of input files)
 > - Mode B (generate): `variant-1-<model>-<persona>.md`, e.g., `variant-1-opus-architect.md`"
 
@@ -307,6 +317,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 The spec provides concrete markdown templates for the key artifacts, intended to be used by the skill (refs/artifact-templates.md) and/or by the orchestrator logic.
 
 **`diff-analysis.md` template**
+
 ```markdown
 # Diff Analysis: <artifact-type> Comparison
 
@@ -344,6 +355,7 @@ The spec provides concrete markdown templates for the key artifacts, intended to
 ```
 
 **`debate-transcript.md` template**
+
 ```markdown
 # Adversarial Debate Transcript
 
@@ -401,6 +413,7 @@ The spec provides concrete markdown templates for the key artifacts, intended to
 The spec contains a long base-selection.md template including quantitative scoring, qualitative rubric, and combined scoring tables (see Spec §8.3).
 
 **`refactor-plan.md` template**
+
 ```markdown
 # Refactoring Plan: Merge into Base (Variant A)
 
@@ -459,16 +472,19 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 > "### 7.1 sc:roadmap v2 Integration"
 
 **Multi-spec mode**
+
 ```text
 sc:roadmap → sc:adversarial --compare spec1.md,spec2.md → unified-spec.md → roadmap generation
 ```
 
 **Multi-roadmap mode**
+
 ```text
 sc:roadmap → sc:adversarial --source spec.md --generate roadmap --agents opus,sonnet → unified-roadmap.md
 ```
 
 **Combined mode**
+
 ```text
 sc:roadmap → sc:adversarial --compare specs → unified-spec.md
            → sc:adversarial --source unified-spec.md --generate roadmap --agents → unified-roadmap.md
@@ -542,6 +558,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 > "### FR-007: Return Contract"
 
 > "When invoked by another command (e.g., sc:roadmap), sc:adversarial returns:
+>
 > - Path to the merged output file
 > - Final convergence score
 > - Path to the adversarial/ artifacts directory
@@ -595,6 +612,7 @@ The roadmap explicitly defines what content should be in each file (useful as a 
 From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.7-adversarial/SC-ADVERSARIAL-SPEC.md`:
 
 > "### Will Do
+>
 > - Compare 2-10 artifacts through structured adversarial debate
 > - Generate variant artifacts using different model/persona configurations
 > - Produce transparent, documented merge decisions
@@ -603,6 +621,7 @@ From `/config/workspace/SuperClaude_Framework/.dev/releases/archive/complete/v1.
 > - Work as a generic tool invocable by any SuperClaude command"
 
 > "### Will Not Do
+>
 > - Validate domain-specific correctness of merged output (calling command's responsibility)
 > - Execute the merged output (planning tool, not execution tool)
 > - Manage git operations or version control

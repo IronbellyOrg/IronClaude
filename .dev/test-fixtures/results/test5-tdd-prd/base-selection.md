@@ -8,6 +8,7 @@ variant_scores: "A:78 B:72"
 ## Scoring Criteria (from debate + TDD + PRD)
 
 **Debate-derived (weight 50%):**
+
 1. Schedule realism (today = 2026-04-20; M1 TDD target = 2026-04-14)
 2. Milestone decomposition / parallelization risk
 3. Rollback automation fidelity to TDD §19.4

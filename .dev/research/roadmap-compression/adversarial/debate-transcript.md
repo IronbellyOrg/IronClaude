@@ -1,6 +1,7 @@
 # Adversarial Debate Transcript
 
 ## Metadata
+
 - Depth: standard
 - Rounds completed: 2
 - Convergence achieved: 89%
@@ -21,6 +22,7 @@
 **Steelman of C:** TSV with AC keyword tags strikes the best balance. Tags preserve what "done" means for each task while still achieving 65-70% compression. If deef is token-sensitive, keyword tags maintain comparable surface forms.
 
 **Strengths claimed:**
+
 1. Highest compression ratio (75-80%). Opus: 60KBu219212-15KB. Haiku: 76KBu219215-19KB. Only position reliably clearing LLM context pressure.
 2. True independence. Each file compressed alone. No cross-file dependency (S-003).
 3. Deterministic mechanical process. No subjective judgment. Two operators produce identical output.
@@ -28,17 +30,20 @@
 5. Phase-scope divergence handled via explicit `phase` field per task.
 
 **Weaknesses identified in opponents:**
+
 1. Position B achieves only 5-10% compression on these files. ~130KB still fed to deef.
 2. Position B violates independence requirement (S-003, X-002).
 3. Position C's keyword extraction is subjective. Vocabulary drift compounds across 181+ tasks.
 4. Position C's 65-70% may be insufficient if context window is binding constraint.
 
 **Honest concessions:**
+
 - AC stripping is real information loss (X-001). Two tasks with same ID but different criteria become indistinguishable.
 - Reconstruction burden shifts to deef. Betting the LLM can infer AC from task names.
 - Dual-format (YAML + prose skeleton) adds integration complexity.
 
 **Shared Assumption Responses:**
+
 - A-002: ACCEPT. All positions assume deef tolerates non-original formats.
 - A-003: QUALIFY. Position A depends more heavily on this than B or C. But "failing on size" strongly suggests LLM-based context-window constraint.
 - A-004: ACCEPT. Explicit phase field per task mitigates better than positional approaches.
@@ -54,22 +59,26 @@
 **Steelman of C:** TSV normalization elegantly handles the Opus-vs-Haiku structural mismatch. Keyword tags are a principled middle ground between full prose and no prose.
 
 **Strengths claimed:**
+
 1. Zero information loss on preserved content. Full AC text, full risk mitigations, full narrative.
 2. Chunk-level semantic alignment. Diffs are structurally meaningful (phase-vs-phase).
 3. Content-addressable. Hash provides integrity verification.
 4. Future-proof for longitudinal comparison across roadmap versions.
 
 **Weaknesses identified in opponents:**
+
 1. Position A's AC stripping means two tasks with fundamentally different success criteria look identical.
 2. Position C's unbounded vocabulary creates systematic false-positive diffs.
 
 **Honest concessions:**
+
 - **Fatal for this use case:** Chunk overlap is <5% between different-model outputs. Realistic compression is 5-10%, not 50-70%. The original problem (files too large for deef) remains unsolved.
 - **Pre-comparison requirement** violates user's explicit constraint to compress EACH file independently BEFORE feeding to diff.
 - **Structural mismatch:** Opus has 13 chunks, Haiku has 10 chunks with different boundaries. Phase-level chunks don't align 1:1.
 - **Concedes to both A and C:** For this specific use case (different-model roadmaps, independent compression required), Position B is not viable.
 
 **Shared Assumption Responses:**
+
 - A-002: ACCEPT. ID alignment is problematic and chunk boundaries won't help.
 - A-003: ACCEPT but irrelevant. Even if deef is LLM-based, Position B doesn't solve the size problem.
 - A-004: ACCEPT. Phase scope differences make chunk alignment even worse.
@@ -85,22 +94,26 @@
 **Steelman of B:** Semantic chunking preserves highest fidelity. For same-model comparisons with high overlap, hash dedup is powerful. Only position treating documents as semantically rich.
 
 **Strengths claimed:**
+
 1. Preserves task distinguishability. AC tags retain differentiating information (e.g., `rate-limit:5` vs `rate-limit:10:exp-backoff`).
 2. Eliminates formatting noise without pre-comparison. Done independently per file.
 3. Handles structural misalignment. Fixed TSV schema accommodates both numbering schemes.
 4. LLM-friendly output. TSV is trivially parseable.
 
 **Weaknesses identified in opponents:**
+
 1. Position A creates false negatives. Genuinely different tasks appear identical (C-001).
 2. Position B violates independence constraint. 5-10% compression doesn't solve the problem.
 3. Position A's compression advantage shrinks when IDs don't align (A-002).
 
 **Honest concessions:**
+
 - Unbounded vocabulary problem is real (X-004). "Valid creds" vs "Valid credentials" produce different tags.
 - Mitigation: controlled vocabulary with canonical forms. Adds implementation complexity but is bounded for auth domain.
 - 65-70% compression is genuinely lower than A's 75-80%. If context window is extremely tight, A wins.
 
 **Shared Assumption Responses:**
+
 - A-002: ACCEPT. AC tags become the alignment signal when IDs don't match.
 - A-003: ACCEPT. Strengthens C over A u2014 keyword tags are the Goldilocks encoding for LLM consumers.
 - A-004: QUALIFY. Phase as column rather than grouping mechanism handles misalignment.
@@ -144,6 +157,7 @@ The 10% compression gap (65-70% vs 75-80%) costs approximately 4-6KB per file. I
 ### Advocate B Rebuttal
 
 **Concession:** Position B is not viable for this use case. Self-eliminated based on:
+
 1. Pre-comparison requirement violates independence constraint
 2. <5% chunk overlap for different-model outputs = negligible compression
 3. Structural mismatch between Opus and Haiku chunk boundaries

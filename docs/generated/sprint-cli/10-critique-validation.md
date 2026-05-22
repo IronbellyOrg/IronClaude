@@ -28,12 +28,14 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 ### Verdict: PARTIALLY VALID
 
 **What's correct:**
+
 - `_parse_phase_tasks` at `executor.py:1203` returns `list[TaskEntry] | None`
 - Passed directly to `execute_phase_tasks(tasks=tasks)` at `executor.py:1208`
 - The raw `tasks` list object itself is not serialized to disk
 - Execution logs (`logging_.py:91-105`) record phase-level events, not full `TaskEntry` lists
 
 **What's overstated:**
+
 - Task-derived data IS persisted indirectly:
   - `DeferredRemediationLog` entries include `step_id=task.task_id` (`executor.py:639-645`)
   - Serialized to `results/remediation.json` (`trailing_gate.py:548-570`)
@@ -48,12 +50,15 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 ### Verdict: VALID (with important context)
 
 **What's correct:**
+
 - Per-task prompt at `executor.py:1064-1068` is exactly 3 lines:
+
   ```
   Execute task {task.task_id}: {task.title}
   From phase file: {phase.file}
   Description: {task.description}
   ```
+
 - `description` is derived from `**Deliverables:**` block only (`config.py:362-380`)
 - Omitted from prompt: `dependencies`, `command`, `classifier`, acceptance criteria, steps, validation rules
 - No `@{path}` syntax (which would force-load the file)
@@ -61,6 +66,7 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 - No explicit "read this file" instruction
 
 **Critical context the claim ignores:**
+
 - The full phase file (e.g., `phase-1-tasklist.md`) contains extremely detailed task specs: metadata tables, numbered steps, acceptance criteria, validation commands, rollback instructions
 - The file path IS in the prompt (`From phase file: {path}`)
 - Claude workers with filesystem access routinely read referenced files
@@ -77,6 +83,7 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 ### Verdict: PARTIALLY VALID
 
 **What's correct:**
+
 - No task-level checkpointing during `execute_phase_tasks` loop (`executor.py:956`)
 - `TaskResult` objects accumulate in memory only (`executor.py:964-971, 1017-1025`)
 - No per-task JSONL events in sprint logger
@@ -86,6 +93,7 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 - No mechanism to skip completed tasks within a restarted phase
 
 **What's overstated:**
+
 - "No record of progress" is too absolute:
   - `execution-log.jsonl` records phase-level events (`logging_.py:91-106`)
   - Phase result files persist to disk (`executor.py:1718-1760`)
@@ -101,6 +109,7 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 ### Verdict: PARTIALLY VALID
 
 **What's correct:**
+
 - Per-task subprocess prompt (`executor.py:1064-1068`) contains NO scope-limiting language
 - No programmatic before/after diff gate per task
 - No file-change allowlist per task
@@ -109,6 +118,7 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 - Monitor tracks telemetry (`monitor.py`) but doesn't enforce scope
 
 **What's overstated:**
+
 - Phase-level prompt (`process.py:build_prompt()`) DOES include explicit scope boundaries:
   - "**Scope Boundary** ... After completing all tasks, STOP immediately."
   - "Do not read, open, or act on any subsequent phase file."
@@ -117,6 +127,7 @@ Six claims about the Sprint CLI pipeline were investigated by independent agents
 - "Orchestrator has no way to know" is too absolute — monitor tracks last task ID and file-change counts
 
 **Key distinction:** The claim conflates two execution paths:
+
 - **Phase-level freeform** (uses `build_prompt()` with scope language + `/sc:task-unified`)
 - **Per-task subprocess** (uses minimal 3-line prompt without scope language)
 
@@ -131,6 +142,7 @@ The critique is valid for per-task mode but not for phase-level mode.
 ### Verdict: PARTIALLY VALID
 
 **What's correct:**
+
 - Per-task hooks are limited to (`executor.py:1027-1036`):
   1. Exit code classification (`executor.py:999-1005`)
   2. Wiring hook — structural code analysis, not task-specific (`executor.py:450-611`)
@@ -142,6 +154,7 @@ The critique is valid for per-task mode but not for phase-level mode.
 - `empirical_gate_v1` is exit-code only (`classifiers.py:19-24`)
 
 **What's inaccurate:**
+
 - Anti-instinct is NOT merely "YAML frontmatter check":
   - `ANTI_INSTINCT_GATE` is STRICT tier (`roadmap/gates.py:1063`)
   - Includes semantic checks: `undischarged_obligations == 0`, `uncovered_contracts == 0`, `fingerprint_coverage >= 0.7` (`roadmap/gates.py:1071-1087`)
@@ -161,17 +174,20 @@ The critique is valid for per-task mode but not for phase-level mode.
 ### Verdict: PARTIALLY VALID
 
 **What's correct:**
+
 - `build_task_context()` defined at `process.py:245-307`
 - **No runtime caller** in any `src/superclaude/cli/` code
 - Not called from `execute_phase_tasks()` or `_run_task_subprocess()`
 - Dead in production execution flow
 
 **What's incorrect:**
+
 - "No caller anywhere" is false — tests call it extensively:
   - `tests/sprint/test_process.py:314, 326, 339, 361, 378, 386, 397, 410`
   - `tests/sprint/test_context_injection.py:78, 92, 100, 108, 115, ...`
 
 **What it would do if wired:**
+
 - Build `## Prior Task Context` section with per-task summaries
 - Include `### Gate Outcomes` list
 - Include `### Remediation History` for reimbursed tasks
@@ -192,6 +208,7 @@ The critique identifies **real architectural gaps** in the Sprint CLI's per-task
 4. `build_task_context()` is production-dead (valid)
 
 However, the critique consistently **overstates** findings by:
+
 - Ignoring the phase-level execution path which has stronger guarantees
 - Characterizing inference-layer controls (skills, protocols) as nonexistent
 - Using absolutes ("never", "no caller anywhere", "no record") where partial mechanisms exist
@@ -199,6 +216,7 @@ However, the critique consistently **overstates** findings by:
 - Mischaracterizing anti-instinct as "just YAML" when it has semantic checks (even if bypassed)
 
 The most actionable gaps identified:
+
 1. **Wire `build_task_context()`** — tested but unused; would significantly improve per-task context
 2. **Set `TaskResult.output_path`** — would enable anti-instinct semantic checks per-task
 3. **Add `@` file reference** to per-task prompt — would guarantee phase file loading

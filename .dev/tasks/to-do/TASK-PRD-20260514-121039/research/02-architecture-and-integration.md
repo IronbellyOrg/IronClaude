@@ -40,6 +40,7 @@ Fallback (`SKILL.md:9`): if no classification header was emitted, the skill emit
 ### 1.4 Skill metadata and package contents
 
 `SKILL.md:1-5` [CODE-VERIFIED]:
+
 - `name: sc:task-protocol`
 - `allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task`
 
@@ -201,6 +202,7 @@ Three VIOLATION-level prohibitions apply to STRICT and STANDARD tiers that run t
 3. No ad-hoc patches derived from test output.
 
 Permitted direct-fix exceptions (`SKILL.md:137-141`):
+
 - Single `ImportError`/`NameError` in test scaffolding the agent just wrote (≤2 tests).
 - Lint/formatting failures.
 - Deprecation warnings.
@@ -212,11 +214,13 @@ Pre-implementation baseline captured via `uv run pytest --collect-only -q` or di
 ### 4.3 Escalation triggers (`SKILL.md:157-168`)
 
 MUST escalate when:
+
 - Any **pre-existing test** fails (primary trigger).
 - **≥3 new tests** fail simultaneously.
 - **Runtime exceptions in implementation code** (TypeError, AttributeError, KeyError, etc.).
 
 Gradient triggers (within-TFEP, future forensic integration):
+
 - Repeated failure after fix attempt.
 - Multi-file blast radius.
 - Low-confidence RCA from adversarial debate.
@@ -242,6 +246,7 @@ Verbatim invocation pattern:
 ```
 
 Escalation budget (`SKILL.md:240-244`):
+
 - **1st trigger:** `--tier light --intent triage` (~5-8K tokens).
 - **2nd trigger:** `--tier standard` (~15-20K tokens).
 - **3rd trigger:** **FULL STOP**. Report to user. Do not attempt further fixes.
@@ -257,6 +262,7 @@ The literal string `task-unified` in `--caller task-unified` is a **lingering na
 ### 4.7 Forensic outcome handling
 
 From `SKILL.md:201-205`:
+
 - `test_is_wrong == true` → Present to user for review. **Do NOT auto-fix tests.**
 - `status == "success"` → proceed to tasklist insertion.
 - `status == "partial"` or `recommended_escalation != "none"` → increment `escalation_count`, return to Step 3.
@@ -359,6 +365,7 @@ File: `src/superclaude/cli/cleanup_audit/prompts.py`. Each function returns a st
 ### 6.2 Common pattern
 
 Every prompt:
+
 1. Starts with `/sc:task` plus a one-line description of work.
 2. Provides "Prior Context" pointing at the previous pass's output file.
 3. Specifies "Output Requirements" with YAML frontmatter (status, pass, finding counts).
@@ -554,30 +561,39 @@ Unlike sprint (which forces `--compliance strict`), cleanup-audit prompts **omit
 ## 10. Gaps and Questions
 
 ### 10.1 audit.py does not exist [UNVERIFIED]
+
 The file `src/superclaude/skills/sc-task-protocol/audit.py` referenced by RELEASE-SPEC §3.7 is not present in the working tree. All implementation details (dataclass shape, JSONL schema, rotation behavior, write lock) are spec-only. Implementation must produce this file with tests under `tests/skills/test_task_protocol_critical_fail.py` per RELEASE-SPEC §5.2.
 
 ### 10.2 SKILL.md references nonexistent config files [CODE-CONTRADICTED]
+
 `SKILL.md:359-365` references `config/tier-keywords.yaml`, `config/verification-routing.yaml`, `config/tier-acceptance-criteria.yaml`, `MCP.md`, `ORCHESTRATOR.md` under the skill. None of these exist in `sc-task-protocol/`. TU-006 DEFER (R3) means this stays broken in v3.75; documentation should at least be path-corrected (Q8 recommends path-correct in same release as Q7).
 
 ### 10.3 LIGHT/EXEMPT execution listed in SKILL.md but routing bypasses skill [CODE-CONTRADICTED — minor]
+
 `SKILL.md:100-108` documents LIGHT (4 steps) and EXEMPT (2 steps) execution. But `task.md:97-98` explicitly says LIGHT and EXEMPT "No Skill invocation needed." The skill listings appear to be defensive fallbacks if the skill is invoked anyway. Not a functional bug, but doc dissonance.
 
 ### 10.4 A-005 forensic-caller consumer enumeration unresolved
+
 Per FINAL-REPORT §10 action, implementation must enumerate `/sc:forensic` consumers of `--caller task-unified` before Q1/Q2 rename. v3.75 explicitly DEFERS rename; the work for R3 is to (a) audit consumers, (b) update SoT constant, (c) ship rename with shim.
 
 ### 10.5 Q14 enforcement mechanism for TU-003 not finalized
+
 Q14 recommendation is "(c) both" — prompt + programmatic checklist. The skill changes in RELEASE-SPEC §3.4 specify "prompt + checklist" but the checklist implementation surface (where the checklist lives, who writes it) is not pinned. Likely lives inside the verification artifact produced by the quality-engineer agent.
 
 ### 10.6 Q11 audit metering scope
+
 RELEASE-SPEC §3.7 includes `skip_compliance` boolean in the schema. The target is "<12% usage" but no consumer/dashboard is specified — metering is "(a) add metering this release" but no reporting layer is defined. Implementation likely just collects; reporting is TBD.
 
 ### 10.7 BLOCKED state UX (Q5) not pinned
+
 Q5 recommendation is "(a) CLI prompt + (b) inline header for telemetry." The header schema in §3.5 covers (b); the CLI prompt format is not specified. Implementation choice.
 
 ### 10.8 Sprint sub-phase resume not in v3.75 task-side scope
+
 SE-003 ships in the sprint-side sibling release (R2 per release-split). For v3.75 task-side (R1), sub-phase resume is out of scope but RK-15 still applies if any prompt change in sprint happens.
 
 ### 10.9 No-PII guarantee for `reason` field
+
 The `reason` free-text field could leak PII or secrets if a user pastes them in the override rationale. Documentation should warn against pasting credentials/PII into `--reason`. Not architecturally enforced.
 
 ---
@@ -585,18 +601,23 @@ The `reason` free-text field could leak PII or secrets if a user pastes them in 
 ## 11. Stale Documentation Found
 
 ### 11.1 SKILL.md "Configuration References" section [CODE-CONTRADICTED]
+
 `SKILL.md:359-365` lists five referenced config files. None exist. This has been a known gap since R7 §5 item 2 and is RK-18 in FINAL-REPORT §7.
 
 ### 11.2 task.md vs SKILL.md flag inventory split [Documentation discrepancy]
+
 `task.md:44` says "See protocol skill for full flag reference" but `SKILL.md:37-45` shows only a subset (`--compliance strict|light`, `--skip-compliance`, `--verify auto`). Full inventory lives only in `src/superclaude/core/COMMANDS.md:86-119`. This is R7 §5 item 3 and is not closed in v3.75 scope.
 
 ### 11.3 Skill LIGHT/EXEMPT execution sections
+
 As noted in §10.3, `SKILL.md:100-108` documents LIGHT/EXEMPT execution paths, but `task.md:97-98` routes those tiers away from the skill entirely. The skill listings are dead code in steady-state but serve as fallback if the skill is invoked off-protocol.
 
 ### 11.4 Tasklist-protocol keyword drift [Inferred]
+
 `sc-tasklist-protocol/SKILL.md:505-575` has wider STRICT keywords (`password, credential, secret, jwt, transaction, query`) than `task.md:69-91`. TU-005 (DEFER to R3) addresses this — v3.75 leaves the drift.
 
 ### 11.5 `<!-- SC:TASK-UNIFIED:CLASSIFICATION -->` sentinel and `--caller task-unified`
+
 Carry-over artifacts from pre-v3.7 naming. Preserved verbatim by RELEASE-SPEC §2.1 pending A-005 validation. Not stale per se — intentionally preserved.
 
 ---
@@ -616,6 +637,7 @@ The v3.75 release adds three architectural surfaces:
 TFEP gates govern test-failure handling for STRICT/STANDARD: pre-existing test failures or ≥3 new failures trigger a three-strike forensic escalation (`/sc:forensic --tier light/standard`, then FULL STOP) with `--caller task-unified` as the canonical-but-deferred-rename identifier (A-005).
 
 Integration surfaces:
+
 - **Sprint CLI** (`cli/sprint/process.py:170`) emits `/sc:task Execute all tasks in @<phase_file> --compliance strict --strategy systematic` per phase, with sprint context, execution rules, checkpoint instructions, and an `EXIT_RECOMMENDATION` result-file contract.
 - **Cleanup-audit CLI** (`cli/cleanup_audit/prompts.py`) emits five sequential `/sc:task` prompts (surface scan → structural → cross-cutting → consolidation → validation) **without `--compliance` flags**, relying on auto-classification.
 

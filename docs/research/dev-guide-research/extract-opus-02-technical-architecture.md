@@ -17,6 +17,7 @@ SuperClaude is a **Context-Oriented Configuration Framework** -- not standalone 
 ### What SuperClaude IS vs IS NOT
 
 **IS**:
+
 - Context Files: `.md` instructions for Claude Code
 - Behavioral Patterns: Workflows and approaches
 - Domain Expertise: Specialized knowledge contexts
@@ -24,6 +25,7 @@ SuperClaude is a **Context-Oriented Configuration Framework** -- not standalone 
 - Framework: Structured prompt engineering
 
 **IS NOT**:
+
 - No Execution Engine: No code runs, no processes execute
 - No Performance System: No optimization possible (it's just text)
 - No Detection Engine: Claude Code does pattern matching
@@ -258,6 +260,7 @@ Practical usage examples
 ### Command Processing Flow
 
 > When user types `/sc:implement "feature"` in Claude Code conversation:
+>
 > 1. Claude reads `commands/sc/implement.md`
 > 2. Adopts implementation workflow pattern
 > 3. May auto-activate related agents

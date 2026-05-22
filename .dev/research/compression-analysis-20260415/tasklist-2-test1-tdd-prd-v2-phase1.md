@@ -94,6 +94,7 @@ Each strategy cites the primer section that authorizes it. Order of presentation
 **What**: Collapse multiple blank lines between task blocks and sections to a single blank line; strip trailing spaces on every line.
 
 **Before** (lines 53-56):
+
 ```
 **Notes:** Critical path — all backend components depend on this schema.
 
@@ -102,6 +103,7 @@ Each strategy cites the primer section that authorizes it. Order of presentation
 ```
 
 **After**:
+
 ```
 **Notes:** Critical path — all backend components depend on this schema.
 ### T01.02 -- Provision Redis Cluster for Refresh Token Storage
@@ -122,6 +124,7 @@ Each strategy cites the primer section that authorizes it. Order of presentation
 **What**: Remove the single space after `|` and before `|` in the 432 metadata-table rows. Current rows use the form `| Field | Value |` with padded columns.
 
 **Before** (line 8-14):
+
 ```
 | Field | Value |
 |---|---|
@@ -133,6 +136,7 @@ Each strategy cites the primer section that authorizes it. Order of presentation
 ```
 
 **After** (spaces removed, pipes kept so markdown-it still parses as a GFM table):
+
 ```
 |Field|Value|
 |---|---|
@@ -158,6 +162,7 @@ Each strategy cites the primer section that authorizes it. Order of presentation
 **What**: Emit one conventions header near the top of the file and replace the 8 high-frequency 14-row-table field labels with short keys. These labels appear 27 times each (once per task).
 
 **Header** (primer §2.2 format):
+
 ```html
 <!-- cmd-dsl v1: RIID=Roadmap Item IDs | RD=Risk Drivers | VM=Verification Method
 | MCP=MCP Requirements | FA=Fallback Allowed | SAD=Sub-Agent Delegation
@@ -170,6 +175,7 @@ Each strategy cites the primer section that authorizes it. Order of presentation
 Header cost: ~340 chars one-time.
 
 **Before** (T01.01 metadata table, lines 8-22):
+
 ```
 | Field | Value |
 |---|---|
@@ -190,6 +196,7 @@ Header cost: ~340 chars one-time.
 ```
 
 **After**:
+
 ```
 |F|V|
 |---|---|
@@ -210,6 +217,7 @@ Header cost: ~340 chars one-time.
 ```
 
 **Estimated saving** (for the 15 repeated labels + 3 repeated values, aggregated from §1.3):
+
 - Label abbreviations: ~3,300 bytes (sum of the 8 label rows at 27× each, primer's >5 occurrence rule covered comfortably)
 - Value abbreviations (SQS, QE, DTE, PC, C95/C85/C80): ~1,600 bytes
 - Header cost: 340 bytes
@@ -228,16 +236,19 @@ Header cost: ~340 chars one-time.
 **What**: The literal path prefix `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-00XX/spec.md` appears **56 times** (verified by grep). Declare a base path macro.
 
 **Header addition**:
+
 ```html
 <!-- ART=.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts -->
 ```
 
 **Before** (line 25):
+
 ```
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0001/spec.md`
 ```
 
 **After**:
+
 ```
 - `$ART/D-0001/spec.md`
 ```
@@ -257,11 +268,13 @@ Header cost: ~340 chars one-time.
 **What**: The four bolded workflow markers `**[PLANNING]**`, `**[EXECUTION]**`, `**[VERIFICATION]**`, `**[COMPLETION]**` appear 36+64+27+27 = **154 times**. Drop the markdown bold and shorten to single-letter tags.
 
 **Header addition**:
+
 ```html
 <!-- [P]=PLANNING [E]=EXECUTION [V]=VERIFICATION [C]=COMPLETION -->
 ```
 
 **Before** (T01.01 Steps, lines 33-39):
+
 ```
 1. **[PLANNING]** Review TDD §7 Data Models for `UserProfile` schema ...
 2. **[PLANNING]** Verify INFRA-DB-001 dependency is resolved ...
@@ -273,6 +286,7 @@ Header cost: ~340 chars one-time.
 ```
 
 **After**:
+
 ```
 1. [P] Review TDD §7 Data Models for `UserProfile` schema ...
 2. [P] Verify INFRA-DB-001 dependency is resolved ...
@@ -284,6 +298,7 @@ Header cost: ~340 chars one-time.
 ```
 
 **Estimated saving**:
+
 - `**[PLANNING]**` (14 chars) → `[P]` (3 chars): 11 × 36 = 396
 - `**[EXECUTION]**` (15) → `[E]` (3): 12 × 64 = 768
 - `**[VERIFICATION]**` (18) → `[V]` (3): 15 × 27 = 405
@@ -313,12 +328,14 @@ Header cost: ~340 chars one-time.
 | `**Artifacts (Intended Paths):**` | `**Art:**` | 23 |
 
 **Header addition**:
+
 ```html
 <!-- D=Deliverables S=Steps AC=Acceptance Criteria Val=Validation
 Dep=Dependencies RB=Rollback Art=Artifacts (Intended Paths) -->
 ```
 
 **Before** (lines 24-32):
+
 ```
 **Artifacts (Intended Paths):**
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0001/spec.md`
@@ -332,6 +349,7 @@ Dep=Dependencies RB=Rollback Art=Artifacts (Intended Paths) -->
 ```
 
 **After**:
+
 ```
 **Art:**
 - `$ART/D-0001/spec.md`
@@ -357,6 +375,7 @@ Dep=Dependencies RB=Rollback Art=Artifacts (Intended Paths) -->
 **What**: The 6 checkpoint blocks follow an identical 4-field template (Purpose / Checkpoint Report Path / Verification / Exit Criteria). Shorten the labels using a second conventions-header line and collapse one-line bullets.
 
 **Before** (lines 238-249, T01-T05 checkpoint):
+
 ```
 ### Checkpoint: Phase 1 / Tasks 01-05
 
@@ -373,6 +392,7 @@ Dep=Dependencies RB=Rollback Art=Artifacts (Intended Paths) -->
 ```
 
 **After** (with header declaring `P=Purpose CRP=Checkpoint Report Path V=Verification EC=Exit Criteria CP=$ART/../checkpoints`):
+
 ```
 ### CP: Phase 1 / Tasks 01-05
 **P:** Verify infrastructure provisioning is complete before component implementation begins.
@@ -402,6 +422,7 @@ Dep=Dependencies RB=Rollback Art=Artifacts (Intended Paths) -->
 **What**: Several tasks restate the same fact across `Why`, `Acceptance Criteria`, and `Validation` rows. Example from T01.06 (lines 256, 285-287, 291):
 
 **Before** (fragments from T01.06):
+
 ```
 | Why | Secure password hashing via bcrypt cost factor 12 per NFR-SEC-001. ... |
 ...
@@ -435,16 +456,19 @@ The phrase "bcrypt cost factor 12 [verified/confirmed in hash output]" appears 3
 **What**: `Tier` takes only 3 values (STRICT=15, STANDARD=10, LIGHT=2). `Risk` takes 3 (High / Medium / Low). `Effort` takes 5 (XS/S/M/L/XL). These are already short — but combined with Strategy 3, the full row `| Tier | STRICT |` → `|Tier|STRICT|` benefits from pipe-collapse and can further use single-letter tier codes if header-declared.
 
 **Header addition**:
+
 ```html
 <!-- T1=STRICT T2=STANDARD T3=LIGHT -->
 ```
 
 **Before**:
+
 ```
 | Tier | STRICT |
 ```
 
 **After**:
+
 ```
 |Tier|T1|
 ```
@@ -464,11 +488,13 @@ The phrase "bcrypt cost factor 12 [verified/confirmed in hash output]" appears 3
 **What**: Task headings use the pattern `### T01.01 -- Provision PostgreSQL with UserProfile Schema and GDPR Fields`. The double-dash `--` is a humanizing separator with no semantic value. Replace with single dash, or drop entirely if task ID is followed immediately by title.
 
 **Before**:
+
 ```
 ### T01.01 -- Provision PostgreSQL with UserProfile Schema and GDPR Fields
 ```
 
 **After**:
+
 ```
 ### T01.01 Provision PostgreSQL with UserProfile Schema and GDPR Fields
 ```

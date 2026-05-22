@@ -46,6 +46,7 @@ Scoring weights:
 | Root cause identified | 15% | `root_cause_identified` |
 
 **Thresholds**:
+
 - `>= 0.9`: High confidence, proceed
 - `>= 0.7`: Medium confidence, present alternatives
 - `< 0.7`: Low confidence, ask questions
@@ -63,6 +64,7 @@ Scoring weights:
 **API**: `validate(implementation: dict) -> tuple[bool, list[str]]` (line 64)
 
 Validation dimensions:
+
 1. **Tests passing** with actual output (109-128)
 2. **Requirements coverage** (129-145)
 3. **Assumptions verified** (146-162)
@@ -80,6 +82,7 @@ No numeric score — fail-fast issue accumulation.
 ### Class: `ReflexionPattern` (line 32)
 
 **API**:
+
 - `get_solution(error_info: dict) -> Optional[dict]` (line 76)
 - `record_error(error_info: dict) -> None` (line 102)
 - `get_statistics() -> dict` (line 310)
@@ -87,11 +90,13 @@ No numeric score — fail-fast issue accumulation.
 **Storage**: `docs/memory/solutions_learned.jsonl` (line 69)
 
 **Matching logic**:
+
 1. Build signature from error type/message/test name (130-163)
 2. Search JSONL for matches (178-212)
 3. Token overlap similarity with threshold `0.7` (213-237)
 
 **Side effects**:
+
 - Appends to `solutions_learned.jsonl` (123-125)
 - Writes detailed `docs/mistakes/*.md` when root-cause/solution present (127-129, 238-309)
 
@@ -114,17 +119,20 @@ No numeric score — fail-fast issue accumulation.
 ### Hooks
 
 **`pytest_runtest_setup`** (line 136-157):
+
 - If test marked `@pytest.mark.confidence_check`:
   - Build context from test metadata
   - Run `ConfidenceChecker.assess(context)`
   - Skip test if confidence `< 0.7`
 
 **`pytest_runtest_makereport`** (line 160-185):
+
 - If test marked `@pytest.mark.reflexion` and fails:
   - Build `error_info` from exception
   - Call `ReflexionPattern.record_error(error_info)`
 
 **`pytest_collection_modifyitems`** (line 194-217):
+
 - Auto-marks tests by path: `/unit/` -> `unit`, `/integration/` -> `integration`
 
 ### Data Flow in Pytest Path
@@ -169,6 +177,7 @@ The sprint runtime achieves PM-agent-like behavior through **protocol-driven pro
 ### Execution Engine (`execution/`) Status
 
 The standalone execution subsystem provides:
+
 - `ReflectionEngine` with 3-stage confidence scoring (clarity 0.5, mistakes 0.3, context 0.2)
 - `ParallelExecutor` with dependency-wave batching
 - `SelfCorrectionEngine` with error categorization and learning persistence

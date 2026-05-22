@@ -84,6 +84,7 @@ Each strategy cites its primer section. Examples use real content from the targe
 **What**: Apply Approach 1 regex transforms to strip trailing whitespace and collapse 3+ blank lines → 1. The file uses a consistent `\n\n---\n\n### T02.xx` rhythm between tasks, so there is moderate headroom but not large.
 
 **Before** (lines 52-56):
+
 ```
 **Dependencies:** T01.02 (audit_trail fixture)
 **Rollback:** Remove construction validation tests from test file
@@ -94,6 +95,7 @@ Each strategy cites its primer section. Examples use real content from the targe
 ```
 
 **After**:
+
 ```
 **Dependencies:** T01.02 (audit_trail fixture)
 **Rollback:** Remove construction validation tests from test file
@@ -113,6 +115,7 @@ Each strategy cites its primer section. Examples use real content from the targe
 **What**: Auto-synthesize a conventions header at the top of the document declaring abbreviations for tokens with ≥5 occurrences and ≥14 chars. Apply the substitutions in the body. Primer §4.2 transform #5 is explicit: "scan for frequently-used multi-word phrases (>5 occurrences, >20 chars each) and auto-generate an abbreviation."
 
 **Proposed header**:
+
 ```markdown
 <!-- cmd-dsl v1:
   [_sf]=_subprocess_factory
@@ -130,6 +133,7 @@ Each strategy cites its primer section. Examples use real content from the targe
 ```
 
 **Before** (lines 33-38):
+
 ```
 1. **[PLANNING]** Identify constructor signatures for all 4 classes from production code
 2. **[PLANNING]** Determine required `_subprocess_factory` setup for each construction context
@@ -140,6 +144,7 @@ Each strategy cites its primer section. Examples use real content from the targe
 ```
 
 **After**:
+
 ```
 1. [PL] Identify constructor signatures for all 4 classes from production code
 2. [PL] Determine required `[_sf]` setup for each construction context
@@ -151,6 +156,7 @@ Each strategy cites its primer section. Examples use real content from the targe
 
 **Estimated saving**: ~5,500 bytes (~9.2%).
 Breakdown:
+
 - Stamp replacement `**[PLANNING]**` (16→4) × 51 = 612 bytes
 - `**[EXECUTION]**` (17→4) × 38 = 494 bytes
 - `**[VERIFICATION]**` (20→4) × 29 = 464 bytes
@@ -168,6 +174,7 @@ Net: ~5,500 bytes.
 
 **Losslessness**: Lossless (primer §2.1, "Abbreviate via conventions header ✅ if header present"). The header is a machine-reversible mapping.
 **Risk**:
+
 - A human reader must trust the header. Mitigation: the header is at the top of the file, in plain Markdown comment form.
 - Abbreviations must not collide with inline text. `[PL]`, `[EX]`, etc. are safe: they don't appear anywhere else in the source.
 
@@ -178,6 +185,7 @@ Net: ~5,500 bytes.
 **What**: Primer §4.2 transform #2: "detect repeated column values (e.g., every row has `Priority: P1`) and hoist into a caption or eliminate via default". The task metadata table is the single largest redundancy in the file. Nine of the fifteen rows almost always carry the same value. Hoist them into a single document-level "defaults" block and emit per-task tables only for fields that **deviate** from the default.
 
 **Proposed defaults block** (one per document):
+
 ```markdown
 <!-- task-defaults v1:
   Risk=Low  Risk Drivers=None  Tier=STANDARD
@@ -189,6 +197,7 @@ Net: ~5,500 bytes.
 ```
 
 **Before** (lines 9-24, T02.01 full metadata table):
+
 ```
 | Field | Value |
 |---|---|
@@ -209,6 +218,7 @@ Net: ~5,500 bytes.
 ```
 
 **After** (only fields that differ from defaults or carry unique data):
+
 ```
 | Roadmap | R-010 | Effort | M | MCP | +Context7 | Deliverable | D-0009 |
 |---|---|---|---|---|---|---|---|
@@ -224,6 +234,7 @@ Note: a handful of tasks deviate from defaults (T02.21 is STRICT tier, 90% confi
 
 **Losslessness**: Lossless if the defaults block is parsed by any downstream consumer. For a human reader, the defaults block is plain-text and scannable. An LLM consumer can recover every field from the (defaults ⊕ per-task-overrides) merge — this matches the primer's §2.1 "task-equivalent" definition of lossless.
 **Risk**:
+
 - **Highest-risk transform in this document.** If the defaults block is stripped by a downstream processor (e.g., a summarizer that drops HTML comments), every task loses metadata silently.
 - Mitigation: emit the defaults block as a visible Markdown block (e.g., inside a `> Note:` callout or a fenced `defaults` block) rather than an HTML comment, so it survives summarization.
 - Per-task exceptions must be explicit — an AST transform pass must diff every task against defaults and emit only the delta rows.
@@ -235,6 +246,7 @@ Note: a handful of tasks deviate from defaults (T02.21 is STRICT tier, 90% confi
 **What**: Primer §4.2 transform #3: "convert multi-paragraph bullets into single-line bullets when the paragraph is one sentence". Every Steps bullet and most Acceptance Criteria bullets in this file are already single-sentence; the transform here is removing the paragraph wrapping added by the tasklist generator (blank lines between bullets, redundant lead-in phrases).
 
 **Before** (lines 40-44, T02.01 Acceptance Criteria):
+
 ```
 **Acceptance Criteria:**
 - 4 tests exist in `tests/v3.3/test_wiring_points_e2e.py` covering FR-1.1 through FR-1.4
@@ -244,13 +256,15 @@ Note: a handful of tasks deviate from defaults (T02.21 is STRICT tier, 90% confi
 ```
 
 **After**:
+
 ```
 **AC:** 4 tests in `[TWP]` cover FR-1.1–1.4; each constructs via real orch (no mocks), asserts `ledger.initial_budget`/`reimbursement_rate` (FR-1.1), `persist_path` under `results_dir` (FR-1.3); all use `[_sf]` as sole injection point; all emit [JAR]s via `audit_trail` fixture.
 ```
 
-Combined with Strategy 2 aliases. The `- ` bullet marker + blank-line separator per bullet is replaced with `; ` joiners, and `**Acceptance Criteria:**` shortens to `**AC:**`.
+Combined with Strategy 2 aliases. The `-` bullet marker + blank-line separator per bullet is replaced with `;` joiners, and `**Acceptance Criteria:**` shortens to `**AC:**`.
 
 **Estimated saving**: ~2,800 bytes (~4.7%).
+
 - Label shortening `Acceptance Criteria:` (22→3) × 29 = ~550 bytes
 - Bullet-to-inline compaction: 4 bullets × 29 tasks × ~15 bytes of formatting/whitespace overhead ≈ 1,740 bytes
 - Analogous compaction of "Validation" blocks (1-2 bullets each) × 29 ≈ 510 bytes
@@ -265,6 +279,7 @@ Combined with Strategy 2 aliases. The `- ` bullet marker + blank-line separator 
 **What**: Every task has an "Artifacts (Intended Paths):" block with one-or-two bullet lines pointing to `TASKLIST_ROOT/artifacts/D-00xx/spec.md`. The D-00xx identifier already appears in the metadata table as `Deliverable IDs`. Primer §4.2 transform #4: "detect `(see Section 3.2)` repeated with same target and replace second occurrence with pure anchor."
 
 **Before** (lines 26-28):
+
 ```
 **Artifacts (Intended Paths):**
 - `TASKLIST_ROOT/artifacts/D-0009/spec.md`
@@ -286,6 +301,7 @@ Delete the block entirely; add a document-level convention "Artifact paths for d
 **What**: Every task heading is `### T02.xx -- Write N <thing> tests`. The `-- Write` prefix is decorative. Primer §4.1 transform #3 is heading normalization; a natural extension is dropping decorative fragments in headings. Borderline but legitimate under the primer's §2.1 "Remove decorative headers ✅" row.
 
 **Before**:
+
 ```
 ### T02.01 -- Write 4 construction validation E2E tests
 ### T02.02 -- Write 2 phase delegation E2E tests
@@ -293,6 +309,7 @@ Delete the block entirely; add a document-level convention "Artifact paths for d
 ```
 
 **After**:
+
 ```
 ### T02.01 4× construction validation
 ### T02.02 2× phase delegation
@@ -311,6 +328,7 @@ Delete the block entirely; add a document-level convention "Artifact paths for d
 **What**: The 6 checkpoint blocks (~L244-258, L742-755, L990-1003, etc.) follow an identical template: **Purpose**, **Checkpoint Report Path**, **Verification**, **Exit Criteria**. Apply the same row-template reduction as Strategy 3, plus bullet compaction from Strategy 4.
 
 **Before** (lines 244-257):
+
 ```
 ### Checkpoint: Phase 2 / Tasks T02.01-T02.05
 
@@ -328,6 +346,7 @@ Delete the block entirely; add a document-level convention "Artifact paths for d
 ```
 
 **After**:
+
 ```
 ### CP-P02-T01-T05
 Purpose: Verify first batch of wiring tests (construction/delegation/hooks/accumulation) pass before remaining FR-1.

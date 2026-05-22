@@ -73,23 +73,31 @@ _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state
 
 1. **SAFE** — Inspect the failed sprint phase:
    ```
+
    cat .dev/releases/current/<release>/phase-6-tasklist.md
    tail -5 .dev/releases/current/<release>/execution-log.jsonl
+
    ```
 
 2. **REVIEW** — Resume the sprint from the failed phase:
    ```
+
    superclaude sprint run .dev/releases/current/<release>/tasklist-index.md --resume
+
    ```
 
 3. **SAFE** — Validate the roadmap output:
    ```
+
    superclaude roadmap validate docs/generated/<run-slug>
+
    ```
 
 4. **REVIEW** — Move the completed PRD task out of to-do/:
    ```
+
    mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
+
    ```
 
 (commands sorted by recommended order: diagnose-then-act, lowest-risk-first)

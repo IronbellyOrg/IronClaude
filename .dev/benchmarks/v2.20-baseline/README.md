@@ -14,7 +14,7 @@
 | 2 | Adversarial Conclusion Preservation | F-003, F-006, SC-002 | Information loss rate at the adversarial→merge seam |
 | 3 | Cross-Boundary Information Cascade | F-006, Evidence Chains 2+5 | Information density degradation across all 7 pipeline stages |
 | 4 | Multi-Agent Validation Depth | F-001, F-002, validate pipeline | Whether validation catches planted structural-but-semantically-wrong defects |
-| 5 | Gate False-Negative Stress Test | F-001, _cross_refs_resolve, _has_actionable_content | Gate pass rates against adversarial inputs designed to exploit known weaknesses |
+| 5 | Gate False-Negative Stress Test | F-001, _cross_refs_resolve,_has_actionable_content | Gate pass rates against adversarial inputs designed to exploit known weaknesses |
 
 ---
 

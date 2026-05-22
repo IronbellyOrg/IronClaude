@@ -239,6 +239,7 @@ tasks[4]{id,desc,reqs,validates}:
   T3,Gate eval compat (integration: no mod to pipeline/gates.py),[FR-GATE-EVAL],[]
   T4,Pre-activation validation (provider dirs + >50.py warn),[FR-SHADOW-PRECHECK],[SC-011]
 ```
+
   </tasks>
   <task_details id="T1">
 5 checks: analysis_complete_true, zero_unwired_callables, zero_orphan_modules, zero_unwired_registries, total_findings_consistent. All conform to (content: str) -> bool.
@@ -445,7 +446,7 @@ This section contributes a **methodology artifact** for future format audits: a 
 
 | # | Benchmark / Source | Cited in report? | Methodology match to use case? | Symmetric search evidence? | Verdict |
 |---|--------------------|-------------------|--------------------------------|----------------------------|---------|
-| 1 | _(benchmark title + URL)_ | Yes / No / Partial | Strong / Moderate / Weak / Poor | Cited / Acknowledged / None | Verified / Misapplied / Cherry-picked / Unverified |
+| 1 | *(benchmark title + URL)* | Yes / No / Partial | Strong / Moderate / Weak / Poor | Cited / Acknowledged / None | Verified / Misapplied / Cherry-picked / Unverified |
 | 2 | ... | ... | ... | ... | ... |
 
 ### Column definitions
@@ -501,11 +502,13 @@ Output path: `/config/workspace/IronClaude/claudedocs/adversarial-roadmap-format
 This matrix is the single reviewability map for the adversarial merge. Variants are referenced by their blind labels throughout the body of this document; the unblinding occurs here and here only.
 
 **Variant legend**:
+
 - **V-A = opus:analyzer** (adversarial analyzer / claim auditor perspective)
 - **V-B = opus:architect** (steelman defender / architect perspective) — **selected as base**, debate score 0.870
 - **V-C = sonnet:scribe** (neutral methodological auditor perspective)
 
 **Injection ID legend**:
+
 - **A1**: D-5 Format Tax misapplication (V-A Part A row 11 / Part E item 3)
 - **A2**: D-6 arXiv 2603.03306 cherry-pick counter-finding (V-A Part A row 12 / Part E item 4)
 - **A3**: D-8 Direct composition measurement (V-A Part C)

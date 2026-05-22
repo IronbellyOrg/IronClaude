@@ -48,6 +48,7 @@ All Phase 1 tasks MUST land in a single commit. A partial rename here leaves the
 | C-017 | `src/superclaude/__version__.py` | Docstring + version bump | HIGH | Should bump to 5.0.0 to signal breaking rename. |
 
 **Phase 1 validation gate**: After committing, run:
+
 ```bash
 uv pip install -e ".[dev]"
 ironclaude --version
@@ -101,6 +102,7 @@ Phase 2 can begin only after Phase 1 is validated. These changes update referenc
 | H-036 | `scripts/publish.sh` | 4 refs | MEDIUM | Publish script brand/command references. |
 
 **Phase 2 validation gate**:
+
 ```bash
 make verify          # All checks pass with new name
 make test-plugin     # Plugin discovered as "ironclaude"
@@ -147,6 +149,7 @@ Phase 3 can begin after Phase 1 (imports fixed). Phase 2 is NOT a hard prerequis
 | M-028 | `AGENTS.md` (root) | 3 refs | LOW | Cosmetic. |
 
 **Phase 3 validation gate**:
+
 ```bash
 uv run pytest --co -q              # All tests collect successfully
 uv run pytest tests/ -x --timeout=60  # Tests pass (first failure stops)
@@ -203,6 +206,7 @@ Phase 4 (LOW: Documentation)
 ```
 
 **Hard dependencies**:
+
 - Phase 1 MUST complete before Phase 2 or Phase 3 can begin (imports must resolve)
 - Phase 2 and Phase 3 are independent of each other
 - Phase 4 is independent of everything
@@ -214,34 +218,43 @@ Phase 4 (LOW: Documentation)
 ## Rollback Plan
 
 ### Before Starting
+
 1. Create a dedicated branch: `git checkout -b rename/superclaude-to-ironclaude`
 2. Ensure `master` is clean and all tests pass: `uv run pytest`
 3. Tag the last known-good state: `git tag pre-rename-v4.2.0`
 
 ### If Phase 1 Fails
+
 Phase 1 is atomic -- if any part fails, revert the entire commit:
+
 ```bash
 git revert HEAD       # If committed
 git checkout -- .     # If uncommitted
 ```
+
 The old `src/superclaude/` directory name is restored, all imports work again.
 
 ### If Phase 2 or 3 Fails
+
 These are incremental. Fix individual files and re-commit. The package itself (Phase 1) is already working.
 
 ### If PyPI Publish Fails
+
 - The old `superclaude` package on PyPI cannot be renamed -- it stays forever
 - Publish `ironclaude` as a new package
 - Optionally publish a final `superclaude==4.2.1` that prints a deprecation warning and points to `ironclaude`
 
 ### If GitHub Org/Repo Rename Fails
+
 - GitHub supports repo renames with automatic redirects (old URL -> new URL)
 - Org renames also create redirects
 - Update all hardcoded URLs in Phase 2 after confirming the GitHub rename succeeds
 - GitHub redirects last indefinitely but should not be relied upon permanently
 
 ### Emergency: Keep Old CLI Name as Alias
+
 If users depend heavily on the `superclaude` command, add a temporary compatibility entry point in `pyproject.toml`:
+
 ```toml
 [project.scripts]
 ironclaude = "ironclaude.cli.main:main"

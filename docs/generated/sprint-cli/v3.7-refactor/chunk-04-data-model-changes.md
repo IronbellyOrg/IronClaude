@@ -19,7 +19,6 @@ The spec's new `PhaseResult.turns`, `PhaseResult.tokens_in`, and `PhaseResult.to
 
 **Verdict**: The data model changes are sound in design but require three prerequisite bug fixes and one architectural adaptation (per-task monitoring) to deliver value on Path A.
 
-
 ## The Three Bugs That Zero Out Path A's Data Model
 
 ### How the bugs interact with Section 7 changes
@@ -47,7 +46,6 @@ But all three bugs break this chain:
 | Bug 3: `gate_rollout_mode = "off"` | `models.py:329` | Mode `"off"` returns at `executor.py:814-816` before any evaluation. Even if Bugs 1-2 were fixed, the gate's credit/remediation logic never executes. |
 
 **Critical observation**: Bug 1 is the most damaging for Section 7's data model changes because even if Bug 2 were fixed (enabling the gate to read output), the reimbursement math and turn tracking would still produce zeros. And `count_turns_from_output()` in `monitor.py:114` -- a function that correctly parses NDJSON for turn counts -- exists but is **never called from any runtime code path**.
-
 
 ## Per-Change Analysis
 
@@ -131,7 +129,6 @@ The aggregate properties are pure computations on `PhaseResult` fields. They are
 
 **Recommendation**: KEEP AS-IS.
 
-
 ## Proposed New Tasks: TurnLedger Bug Fixes
 
 These three bugs must be fixed **before** the Section 7 data model changes can deliver value on Path A. They are prerequisites, not optional enhancements.
@@ -141,6 +138,7 @@ These three bugs must be fixed **before** the Section 7 data model changes can d
 **Location**: `executor.py:1091-1092`
 
 **Current code**:
+
 ```python
 # Turn counting is wired separately in T02.06
 return (exit_code if exit_code is not None else -1, 0, output_bytes)
@@ -149,6 +147,7 @@ return (exit_code if exit_code is not None else -1, 0, output_bytes)
 **Root cause**: The function `count_turns_from_output()` exists at `monitor.py:114-141` and correctly counts `"type":"assistant"` lines in NDJSON output. It is never called. The comment references `T02.06` which does not exist in any release spec.
 
 **Concrete fix**:
+
 ```python
 from superclaude.cli.sprint.monitor import count_turns_from_output
 
@@ -169,6 +168,7 @@ return (exit_code if exit_code is not None else -1, turns_consumed, output_bytes
 **Location**: `executor.py:1017-1025`
 
 **Current code**:
+
 ```python
 result = TaskResult(
     task=task,
@@ -184,6 +184,7 @@ result = TaskResult(
 **Root cause**: `output_path` is known at this point -- it is `config.output_file(phase)` (same value computed at `executor.py:1089`). It is simply not passed to the `TaskResult` constructor.
 
 **Concrete fix**:
+
 ```python
 result = TaskResult(
     task=task,
@@ -210,6 +211,7 @@ result = TaskResult(
 **Location**: `models.py:329`
 
 **Current code**:
+
 ```python
 gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "off"
 ```
@@ -217,11 +219,13 @@ gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "off"
 **Root cause**: The default `"off"` means anti-instinct gates never evaluate unless the operator explicitly passes `--shadow-gates` or `--gate-rollout-mode`. Since this is an opt-in flag that most operators do not know about, the gate system is effectively dead.
 
 **Concrete fix**:
+
 ```python
 gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "shadow"
 ```
 
 **Migration strategy**:
+
 1. Change default to `"shadow"` (evaluate + record metrics, no behavioral impact)
 2. This is safe because shadow mode has zero impact on sprint behavior -- it only records metrics via `ShadowGateMetrics`
 3. Operators who explicitly set `--gate-rollout-mode off` are unaffected (explicit overrides default)
@@ -235,12 +239,12 @@ gate_rollout_mode: Literal["off", "shadow", "soft", "full"] = "shadow"
 
 **Dependency**: This fix is most valuable when Bugs 1 and 2 are also fixed. Without Bug 2, the gate vacuously passes (no output to evaluate). Without Bug 1, reimbursement credits are zero even on PASS.
 
-
 ## Additional Proposed Field: TaskResult Token Tracking
 
 The spec adds `tokens_in` and `tokens_out` to `PhaseResult` and `MonitorState`, but there is no per-task equivalent on `TaskResult`. For Path A, where each task is a separate subprocess, token consumption is naturally per-task.
 
 **Proposed addition to `TaskResult`**:
+
 ```python
 @dataclass
 class TaskResult:
@@ -250,6 +254,7 @@ class TaskResult:
 ```
 
 **Proposed extraction function** (new, in `monitor.py`):
+
 ```python
 def extract_token_usage(output_path: Path) -> tuple[int, int]:
     """Extract cumulative token usage from subprocess NDJSON output.
@@ -266,17 +271,16 @@ This function would parse the same NDJSON output that `count_turns_from_output()
 
 **Integration point**: Called in `_run_task_subprocess()` after `proc.wait()`, alongside the Bug 1 fix for `count_turns_from_output()`.
 
-
 ## Net Changes to Spec
 
-### Fields to ADD to spec (not currently in Section 7):
+### Fields to ADD to spec (not currently in Section 7)
 
 | Model | Field | Type | Default | Rationale |
 |-------|-------|------|---------|-----------|
 | `TaskResult` | `tokens_in` | `int` | `0` | Per-task input token tracking for Path A aggregation |
 | `TaskResult` | `tokens_out` | `int` | `0` | Per-task output token tracking for Path A aggregation |
 
-### Bug fix tasks to ADD to spec (new implementation tasks):
+### Bug fix tasks to ADD to spec (new implementation tasks)
 
 | Task ID | Title | LOC | Priority |
 |---------|-------|-----|----------|
@@ -287,7 +291,7 @@ This function would parse the same NDJSON output that `count_turns_from_output()
 | NEW-DM-05 | Add `tokens_in`/`tokens_out` to `TaskResult` and wire extraction | ~5 | P1 (enables Section 7.2 on Path A) |
 | NEW-DM-06 | Add Path A aggregation logic: `TaskResult` list -> `PhaseResult` fields | ~10 | P1 (connects per-task data to phase-level) |
 
-### Fields to KEEP AS-IS in spec:
+### Fields to KEEP AS-IS in spec
 
 - All `MonitorState` fields (7.1) -- well-designed, just need upstream data
 - All `SprintResult` aggregate properties (7.3) -- pure computation, correct
@@ -296,14 +300,14 @@ This function would parse the same NDJSON output that `count_turns_from_output()
 - All new dataclasses (7.6) -- `CheckpointEntry` and `ReleaseRetrospective` are path-agnostic; `PhaseSummary` benefits from Path A data but works without it
 - `SprintTUI.latest_summary_notification` (7.7) -- UI-level, path-agnostic
 
-### Fields to EXTEND in spec (add Path A awareness):
+### Fields to EXTEND in spec (add Path A awareness)
 
 - `PhaseResult.turns` (7.2): document that Path A populates via `sum(TaskResult.turns_consumed)`, not from `MonitorState.turns`
 - `PhaseResult.tokens_in` (7.2): document that Path A populates via `sum(TaskResult.tokens_in)`, not from `MonitorState.tokens_in`
 - `PhaseResult.tokens_out` (7.2): same pattern as `tokens_in`
 - `MonitorState.completed_task_estimate` (7.1): on Path A, this is an exact count, not an estimate
 
-### Dependency ordering for implementation:
+### Dependency ordering for implementation
 
 ```
 NEW-DM-01 (fix turns)  ──┐

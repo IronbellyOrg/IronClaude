@@ -47,6 +47,7 @@ All three advocates produced opening statements with mandatory steelman of oppos
 ### Round 1 key positions
 
 **V-A (opus:analyzer)** — Quantitative claim audit
+
 - D-1: Compact Markdown DSL #1 (estimated 19.2-25% savings)
 - D-2: Rejected -35-50%; derived ceiling of -13% to -20% from direct composition measurement (25.4% tables, 47.7% bullets)
 - D-4: Verbatim Anthropic quote proves MISATTRIBUTION — 30% refers to query-at-end placement, not XML tags
@@ -56,6 +57,7 @@ All three advocates produced opening statements with mandatory steelman of oppos
 - D-10: "Deferred tokens are not saved tokens" for current whole-file consumption
 
 **V-B (opus:architect)** — Steelman of hybrid
+
 - Direct tiktoken cl100k_base measurement on Phase 2 slice (1,399 chars):
   - Original Markdown: 350 tokens (baseline)
   - Hybrid XML+TOON+prose: 308 tokens (-12.0%)
@@ -66,6 +68,7 @@ All three advocates produced opening statements with mandatory steelman of oppos
 - D-10: Reframed from headline value to "conditional future value if per-phase loading ships"
 
 **V-C (sonnet:scribe)** — Methodological audit
+
 - **D-7: Found arXiv 2601.12014 "Are LLMs Ready for TOON?"** — TOON GCS 38.9% lower than JSON, 30.9% lower than XML, 42.2% lower than YAML. Single strongest counter-benchmark missed by source.
 - D-1: XML + Markdown (no TOON) #1 based on section-extraction reliability
 - D-2: Ceiling of -25% to -32% (higher than V-A/V-B but still below -35-50%)
@@ -75,6 +78,7 @@ All three advocates produced opening statements with mandatory steelman of oppos
 ### Round 1 convergence: ~0.33
 
 Hard remaining disagreements after Round 1:
+
 - D-1: 3-way split (V-A/V-B on CMD DSL #1; V-C on XML+MD #1)
 - D-7: V-C unique contribution; V-A/V-B had not seen paper
 - D-10: V-A vs V-B split on current vs future consumption patterns
@@ -96,6 +100,7 @@ Hard remaining disagreements after Round 1:
 ### Round 2 position updates
 
 **V-A concessions**:
+
 - Withdrew "60-token conventions header reliably closes MD-JSON gap on Haiku" claim (V-C critique accepted — untested assertion)
 - Softened "most downstream agents read whole file" to likely-but-unverified
 - Narrowed claim-audit methodology: necessary but not sufficient; symmetric search required for sins of omission
@@ -103,6 +108,7 @@ Hard remaining disagreements after Round 1:
 - Demoted hybrid-with-TOON from #4 to #5 after 2601.12014 verification
 
 **V-B concessions**:
+
 - Hybrid-with-TOON drop from #2 to #3 made **permanent** (was conditional in Round 1)
 - Withdrew "rerank hybrid to #1 when per-phase loading ships" in favor of V-A's surgical `<phase id="N">` XML overlay on Compact MD DSL
 - Withdrew "3-parser cognitive load" claim as speculative-and-unmeasured
@@ -110,6 +116,7 @@ Hard remaining disagreements after Round 1:
 - Conceded asymmetric citation pattern flagged by V-C
 
 **V-C concessions** (largest position shift):
+
 - **Compact MD DSL is plausibly #1 on present evidence** — conceded after V-B's -33.4% measurement
 - XML+MD survives only as reliability-first alternative (#2), not empirically superior
 - Arithmetic ceiling moves from -25% to -32% down to -13% to -22% after adopting V-A's measured composition (25.4% tables / 47.7% bullets)
@@ -151,6 +158,7 @@ Full invariant probe artifact: inline below. Identifies 10 shared blind spots ac
 ### Net invariant-probe convergence: ~0.70
 
 The 5 priority points converged at ~0.90. The shared blind spots cap honest convergence at ~0.70 because three HIGH-severity invariants remain UNADDRESSED and cannot be resolved by further debate — they require empirical tests:
+
 1. Re-measure on Anthropic's `count_tokens` API (INV-1)
 2. Enumerate consumer DAG with read patterns (INV-3)
 3. Run Haiku-specific A/B on the three candidate formats with ≥20 retrieval prompts (INV-5)

@@ -45,6 +45,7 @@ User Session (Orchestrator, 30-40% context)
 ```
 
 **Key properties**:
+
 - 12 named agent roles, each specialized
 - Orchestrator never does heavy lifting -- only coordinates and integrates
 - Each subagent gets a curated file set, not full session context
@@ -75,6 +76,7 @@ superclaude sprint run <tasklist-index.md>
 ```
 
 **Key properties**:
+
 - Python process orchestration (subprocess per phase, not subagent per task)
 - Economic model: TurnLedger with debit/credit/reimbursement
 - Multi-layered quality gates: trailing gates, wiring gates, anti-instinct gates
@@ -152,11 +154,13 @@ GSD's core insight: **context accumulation degrades output quality**.
 - File size caps enforced to prevent context bloat
 
 **Strengths**:
+
 - Directly addresses the observed failure mode (context rot)
 - Quantified and measured (context percentage tracking)
 - Elegant simplicity: files are the persistence layer, fresh contexts are the execution layer
 
 **Weaknesses**:
+
 - Token-expensive: a single plan-phase can consume 7-9x 200K tokens across agents
 - No economic model for token cost -- relies on subscription limits
 - Context loading is curated but not verified (no gate checks that the right context was loaded)
@@ -172,12 +176,14 @@ SuperClaude's core insight: **execution quality requires economic controls and q
 - Shadow mode allows data collection without enforcement
 
 **Strengths**:
+
 - Explicit cost control (turns are a scarce resource)
 - Graduated enforcement (off -> shadow -> soft -> full)
 - Reimbursement mechanism rewards quality (successful gates get budget back)
 - Halt + resume provides clean restart boundaries
 
 **Weaknesses**:
+
 - Does not directly address context rot within a subprocess
 - Single subprocess per phase may accumulate context during long phases
 - No fresh-context-per-task isolation mechanism
@@ -303,6 +309,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 ### 9.1 GSD
 
 **Pros**:
+
 - **Context rot solution is proven and elegant**: Fresh 200K per agent genuinely preserves output quality over long sessions
 - **Multi-runtime support**: 7 platforms dramatically expands addressable market
 - **Low barrier to entry**: Single `npx` command, conversational workflow
@@ -313,6 +320,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 - **Quick mode**: `/gsd:quick` for small changes without full ceremony
 
 **Cons**:
+
 - **Token-expensive**: 7-9 fresh 200K contexts per plan-phase is costly (community reports hitting 5-hour limits in 30 minutes)
 - **No economic model**: No budget tracking or cost optimization -- relies on subscription limits
 - **Quality gates are coarse**: Binary pass/fail without graduated enforcement
@@ -325,6 +333,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 ### 9.2 SuperClaude
 
 **Pros**:
+
 - **Deep quality instrumentation**: Multi-modal gates (trailing, wiring, anti-instinct, convergence)
 - **Economic model**: TurnLedger with debit/credit/reimbursement creates real incentive alignment
 - **Graduated rollout**: off/shadow/soft/full allows safe production deployment
@@ -336,6 +345,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 - **TUI + tmux**: Real-time operational visibility during execution
 
 **Cons**:
+
 - **No context rot solution**: Single subprocess per phase can degrade over long tasks
 - **Claude Code only**: No cross-runtime support limits adoption
 - **Higher barrier to entry**: Python package installation, configuration, understanding of compliance tiers
@@ -354,6 +364,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 **Learning**: GSD's fresh-context-per-task model is the single most impactful architectural insight. The quality degradation curve (0-30% peak, 70%+ poor) is empirically validated by a 37K-star community.
 
 **Recommendation for SuperClaude**: Consider a hybrid model:
+
 - Sprint executor could spawn fresh Claude subprocesses per task (not per phase)
 - TurnLedger already tracks budget -- extend it to account for context-reset costs
 - Shadow mode could compare same-subprocess vs fresh-subprocess quality metrics
@@ -364,6 +375,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 **Learning**: GSD achieves cross-platform support through runtime-agnostic Markdown prompts with thin adapter layers. The `resolve_model_ids: "omit"` pattern for non-Claude runtimes is elegant.
 
 **Recommendation for SuperClaude**:
+
 - SuperClaude's Python process orchestration (subprocess spawning, TurnLedger) is inherently more runtime-dependent
 - A realistic path: abstract the subprocess interface to support other CLI runtimes (OpenCode, Gemini CLI)
 - The quality gate infrastructure (TrailingGateRunner, WiringGate) is already runtime-agnostic
@@ -374,6 +386,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 **Learning**: GSD's discuss phase captures implicit preferences before planning. This prevents the system from making reasonable-but-wrong defaults.
 
 **Recommendation for SuperClaude**:
+
 - ConfidenceChecker assesses readiness but does not capture preferences
 - A pre-sprint discussion step could be added to the roadmap pipeline
 - Could integrate with Serena MCP for persistent preference storage
@@ -383,6 +396,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 **Learning**: GSD's interactive UAT (walking users through testable outcomes) is excellent UX. Goal-backward verification ("what must be TRUE?") is a strong framing.
 
 **Recommendation for SuperClaude**:
+
 - Current verification is machine-driven (gates, AST analysis, KPIs)
 - A post-sprint UAT command could generate testable assertions from task specifications
 - Could leverage the existing DiagnosticCollector + ReportGenerator infrastructure
@@ -392,6 +406,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 **Learning**: GSD's community reports significant token consumption (hitting 5-hour limits in 30 minutes). No cost tracking exists.
 
 **Recommendation for SuperClaude**:
+
 - TurnLedger is already a differentiator here
 - Could expose token-cost estimates before sprint execution
 - Reimbursement rate (0.8) could be tuned based on historical sprint data
@@ -402,6 +417,7 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 **Learning**: GSD enforces plan size to ~50% context consumption with 2-3 tasks max per plan. This is based on empirical observation of quality degradation.
 
 **Recommendation for SuperClaude**:
+
 - If fresh-context-per-task is adopted, plan sizing becomes relevant
 - Task classifiers (STRICT/STANDARD/LIGHT/EXEMPT) could include a size dimension
 - The stall_timeout detection already catches phases that run too long
@@ -411,22 +427,25 @@ SuperClaude's value proposition is deeper but less viral: formal quality gating,
 ## 11. Strategic Assessment
 
 ### Where GSD Wins
+
 GSD wins on **adoption** (100x star count), **accessibility** (npx install, conversational workflow), **context management** (fresh subagent model), and **platform reach** (7 runtimes). Its philosophy of "the complexity is in the system, not in your workflow" makes it approachable for solo developers building new products.
 
 ### Where SuperClaude Wins
+
 SuperClaude wins on **quality depth** (multi-modal gates, AST analysis, graduated rollout), **operational control** (TurnLedger economics, KPI reporting, resume semantics), **programmatic rigor** (typed models, state machines, convergence engine), and **institutional reliability** (compliance tiers, deferred remediation, shadow mode). It serves teams running structured release processes where quality gates and observability matter more than ease of onboarding.
 
 ### Convergence Opportunity
+
 The most impactful improvement for SuperClaude would be adopting GSD's fresh-context-per-task execution model while retaining SuperClaude's quality infrastructure. This would combine GSD's context rot solution with SuperClaude's gating, budget tracking, and KPI observability -- creating something neither system offers alone.
 
 ---
 
 ## Sources
 
-- GSD GitHub: https://github.com/gsd-build/get-shit-done
-- GSD Docs (Multi-Agent Orchestration): https://gsd-build-get-shit-done.mintlify.app/concepts/multi-agent-orchestration
-- GSD Docs (Context Engineering): https://gsd-build-get-shit-done.mintlify.app/concepts/context-engineering
-- GSD Deep Dive (codecentric): https://www.codecentric.de/en/knowledge-hub/blog/the-anatomy-of-claude-code-workflows-turning-slash-commands-into-an-ai-development-system
+- GSD GitHub: <https://github.com/gsd-build/get-shit-done>
+- GSD Docs (Multi-Agent Orchestration): <https://gsd-build-get-shit-done.mintlify.app/concepts/multi-agent-orchestration>
+- GSD Docs (Context Engineering): <https://gsd-build-get-shit-done.mintlify.app/concepts/context-engineering>
+- GSD Deep Dive (codecentric): <https://www.codecentric.de/en/knowledge-hub/blog/the-anatomy-of-claude-code-workflows-turning-slash-commands-into-an-ai-development-system>
 - SuperClaude source: `src/superclaude/cli/sprint/` (executor.py, models.py, kpi.py)
 - SuperClaude source: `src/superclaude/cli/pipeline/trailing_gate.py`
 - SuperClaude source: `src/superclaude/cli/audit/wiring_gate.py`

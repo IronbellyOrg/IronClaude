@@ -7,11 +7,13 @@ Instructions for creating consistent, comprehensive release guides for SuperClau
 ## When to Write a Release Guide
 
 Create a release guide when:
+
 - A new CLI subcommand group ships (e.g., `superclaude roadmap`, `superclaude sprint`)
 - A new skill ships or an existing skill undergoes major refactoring (e.g., `/prd`, `/tdd`)
 - A component's architecture changes significantly enough that existing documentation is misleading
 
 Do NOT create a release guide for:
+
 - Minor bug fixes or incremental improvements
 - Internal refactors that don't change the user-facing surface
 - Components covered by inline documentation or `--help` output alone
@@ -25,6 +27,7 @@ docs/guides/[component-name]-release-guide.md
 ```
 
 Examples:
+
 - `roadmap-cli-tools-release-guide.md` — CLI tool group
 - `sprint-cli-tools-release-guide.md` — CLI tool group
 - `prd-skill-release-guide.md` — Skill
@@ -75,6 +78,7 @@ This enables staleness detection — when the component version advances past `c
 ## Authoring Rules
 
 ### Structure
+
 1. **Follow section numbering** — Use the 13-section structure from the template. Subsections within each section are flexible.
 2. **Lead with the intro paragraph** — The opening paragraph should list everything the guide covers as a bullet list.
 3. **ASCII diagrams for pipelines** — Always include a visual pipeline diagram showing step flow, parallelism, and gates.
@@ -82,6 +86,7 @@ This enables staleness detection — when the component version advances past `c
 5. **Include frontmatter** — Every guide needs the version/date metadata block.
 
 ### Content
+
 6. **Source from code, not memory** — Read the actual source files before documenting. Verify file paths exist.
 7. **Include every option** — The command reference must document all CLI options or input parameters, not just common ones.
 8. **Show full examples** — Include a "production-quality" example combining multiple options for each command.
@@ -93,6 +98,7 @@ This enables staleness detection — when the component version advances past `c
 14. **Estimate performance** — Include wall-time and resource expectations so users can plan.
 
 ### Style
+
 15. **Imperative descriptions** — "Loads a specification file" not "This command loads a specification file".
 16. **Code blocks for all commands** — Every invocation example in a fenced code block with a comment header.
 17. **Consistent heading hierarchy** — H1 for title, H2 for numbered sections, H3 for subsections, H4 for sub-subsections.
@@ -103,6 +109,7 @@ This enables staleness detection — when the component version advances past `c
 ## Adapting the Template by Component Type
 
 ### CLI Tool Groups (`superclaude <group> <subcommand>`)
+
 - Section 2: One subsection per subcommand with full `| Option | Type | Default | Description |` tables
 - Section 3: Focus on step-by-step pipeline with timeout budgets and gate tiers
 - Section 7: Include subprocess command construction, input embedding strategy, output sanitization
@@ -111,6 +118,7 @@ This enables staleness detection — when the component version advances past `c
 - Section 13: Cheat sheet organized by subcommand
 
 ### Skills (`/skill-name`)
+
 - Section 2: Single invocation method with input requirements table (not CLI options)
 - Section 3: Focus on phases with agent types and parallel execution strategy
 - Section 4: Focus on QA gates with checklist items and fix cycle limits
@@ -120,6 +128,7 @@ This enables staleness detection — when the component version advances past `c
 - Section 13: Key behaviors and quality guarantees as bullet lists
 
 ### Commands (`/sc:command-name`)
+
 - Section 2: May have flags/modes passed as arguments
 - Section 3: Focus on behavioral flow stages
 - Section 7: Simpler — often single-session execution without subprocess management
@@ -134,6 +143,7 @@ This enables staleness detection — when the component version advances past `c
 Before finalizing a release guide, verify:
 
 **Structure:**
+
 - [ ] YAML frontmatter present with component, version, date, author
 - [ ] All 13 sections present and populated
 - [ ] Opening paragraph lists all topics covered
@@ -141,6 +151,7 @@ Before finalizing a release guide, verify:
 - [ ] Consistent heading hierarchy (H1 -> H2 -> H3 -> H4)
 
 **Completeness:**
+
 - [ ] Every CLI option or input parameter documented in Section 2
 - [ ] Every output artifact listed in Section 5 with source step/phase
 - [ ] At least 6 practical use cases in Section 12
@@ -150,6 +161,7 @@ Before finalizing a release guide, verify:
 - [ ] End-to-end workflow shows upstream and downstream connections
 
 **Accuracy:**
+
 - [ ] All file paths verified against actual repo structure
 - [ ] No placeholder text (`[TODO]`, `[TBD]`, `...`)
 - [ ] Migration notes included if this replaces a prior version

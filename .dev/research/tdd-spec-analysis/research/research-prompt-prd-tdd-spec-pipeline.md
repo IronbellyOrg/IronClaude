@@ -52,6 +52,7 @@ Assuming Option 3 is confirmed correct (modify TDD template + upgrade pipeline t
 ## Output
 
 A research report that:
+
 - Corrects the analysis document with verified facts
 - Provides a precise, file-by-file implementation plan for Option 3 that a developer could execute without guessing
 

@@ -11,11 +11,13 @@ primary_persona: architect
 The User Authentication Service is a medium-complexity (0.6/1.0), security-critical feature that enables user registration, login, session persistence, and self-service account recovery. This roadmap addresses the fundamental challenge: authentication is prerequisite infrastructure for the Q2–Q3 2026 personalization roadmap ($2.4M revenue impact) and SOC2 Type II compliance (Q3 deadline).
 
 **Strategic drivers:**
+
 - Unblocks personalized experiences (40% engagement lift)
 - Enables SOC2 audit trail for compliance deadline
 - Addresses 30% QoQ churn due to lack of user accounts
 
 **Architectural priorities:**
+
 1. **Token lifecycle security** — JWT rotation with stateless refresh, replay detection, and key rotation
 2. **Audit logging as foundation** — SOC2 compliance built into Phase 1, not bolted on
 3. **Integration point design** — Explicit dispatch tables, registries, and callback chains for testability and extensibility
@@ -32,6 +34,7 @@ The User Authentication Service is a medium-complexity (0.6/1.0), security-criti
 **Objective:** Deliver user registration, login, logout, and stateless session persistence with full token lifecycle management and foundational audit logging.
 
 **Outcomes:**
+
 - Users can register with email/password and create authenticated sessions
 - Sessions persist via JWT access tokens + refresh token rotation
 - Auth event logging infrastructure ready for SOC2 validation
@@ -225,6 +228,7 @@ The User Authentication Service is a medium-complexity (0.6/1.0), security-criti
 **Objective:** Deliver profile retrieval, self-service password reset with email integration, admin audit tools, and full SOC2 compliance validation.
 
 **Outcomes:**
+
 - Users can retrieve and view profile information
 - Self-service password reset via email with 1-hour TTL reset tokens
 - Admin-facing audit log query interface (Jordan persona support)
@@ -513,6 +517,7 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
 ## Architectural Integration Points (Explicit Wiring)
 
 ### 1. Auth Service Dispatch Table
+
 - **Named Artifact:** `AuthServiceDispatchTable`
 - **Owning Phase:** Phase 1, Sec 1.2 (Day 5)
 - **Wired Components:**
@@ -528,6 +533,7 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
   - Phase 2: Password reset flows added to table
 
 ### 2. Token Manager Registry
+
 - **Named Artifact:** `TokenManager` (composite pattern)
   - `AccessTokenManager` (JWT RS256)
   - `RefreshTokenManager` (httpOnly cookie + DB storage)
@@ -542,6 +548,7 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
   - Phase 2: PasswordResetConfirmHandler (token revocation)
 
 ### 3. Auth Event Logger (Callback Chain)
+
 - **Named Artifact:** `AuthEventLogger` (event emitter pattern)
 - **Owning Phase:** Phase 1, Sec 1.4 (Day 5)
 - **Wired Components:**
@@ -552,6 +559,7 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
   - Phase 2: PasswordResetRequestHandler, PasswordResetConfirmHandler, ProfileHandler
 
 ### 4. Password Policy Registry
+
 - **Named Artifact:** `PasswordPolicyValidator`
 - **Owning Phase:** Phase 1, Sec 1.2 (Day 3)
 - **Wired Components:**
@@ -564,6 +572,7 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
   - Phase 2: PasswordResetConfirmHandler
 
 ### 5. Email Service Dispatcher
+
 - **Named Artifact:** `EmailServiceDispatcher`
 - **Owning Phase:** Phase 2, Sec 2.2 (Day 20)
 - **Wired Components:**
@@ -576,6 +585,7 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
   - Phase 2: PasswordResetRequestHandler
 
 ### 6. Rate Limiter (Redis/In-Memory)
+
 - **Named Artifact:** `RedisKeyRateLimiter` or `InMemoryRateLimiter`
 - **Owning Phase:** Phase 1, Sec 1.3 (Day 9)
 - **Configuration:**
@@ -628,12 +638,14 @@ PRODUCTION DEPLOYMENT: Week 7 (conditional on launch gate)
 ## Handoff and Next Phases
 
 ### Phase 1 Deliverable
+
 - **Working codebase:** All handlers (register, login, refresh, logout) passing E2E test suite
 - **Infrastructure:** Database schema, secrets manager, feature flag service configured
 - **Documentation:** API spec (OpenAPI/Swagger), architecture decision record, security review findings
 - **Deployment:** Staging environment ready; feature flag disabled in production
 
 ### Phase 2 Deliverable
+
 - **Working codebase:** Profile, password reset, admin audit interface operational
 - **Compliance:** SOC2 audit trail certified; GDPR consent tracking validated
 - **Deployment:** Production deployment approved; feature flag enabled in production

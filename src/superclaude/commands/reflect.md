@@ -10,17 +10,20 @@ personas: []
 # /sc:reflect - Task Reflection and Validation
 
 ## Triggers
+
 - Task completion requiring validation and quality assessment
 - Session progress analysis and reflection on work accomplished
 - Cross-session learning and insight capture for project improvement
 - Quality gates requiring comprehensive task adherence verification
 
 ## Usage
+
 ```
 /sc:reflect [--type task|session|completion] [--analyze] [--validate]
 ```
 
 ## Behavioral Flow
+
 1. **Analyze**: Examine current task state and session progress using Serena reflection tools
 2. **Validate**: Assess task adherence, completion quality, and requirement fulfillment
 3. **Reflect**: Apply deep analysis of collected information and session insights
@@ -29,11 +32,14 @@ personas: []
 6. **Optimize**: Provide recommendations for process improvement and quality enhancement
 
 Key behaviors:
+
 - Serena MCP integration for comprehensive reflection analysis and task validation
 - Bridge between TodoWrite patterns and advanced Serena analysis capabilities
 - Session lifecycle integration with cross-session persistence and learning capture
 - Performance-critical operations with <200ms core reflection and validation
+
 ## MCP Integration
+
 - **Serena MCP**: Mandatory integration for reflection analysis, task validation, and session metadata
 - **Reflection Tools**: think_about_task_adherence, think_about_collected_information, think_about_whether_you_are_done
 - **Memory Operations**: Cross-session persistence with read_memory, write_memory, list_memories
@@ -41,6 +47,7 @@ Key behaviors:
 - **Context7 MCP**: Conditional invocation during Recommendation Re-scrutiny for CLI verb precondition lookup when session-fact pass is silent.
 
 ## Tool Coordination
+
 - **TodoRead/TodoWrite**: Bridge between traditional task management and advanced reflection analysis
 - **think_about_task_adherence**: Validates current approach against project goals and session objectives
 - **think_about_collected_information**: Analyzes session work and information gathering completeness
@@ -50,6 +57,7 @@ Key behaviors:
 - **WebSearch**: Fallback CLI precondition lookup when Context7 doesn't cover the tool.
 
 ## Key Patterns
+
 - **Task Validation**: Current approach → goal alignment → deviation identification → course correction
 - **Session Analysis**: Information gathering → completeness assessment → quality evaluation → insight capture
 - **Completion Assessment**: Progress evaluation → completion criteria → remaining work → decision validation
@@ -59,6 +67,7 @@ Key behaviors:
 ## Examples
 
 ### Task Adherence Reflection
+
 ```
 /sc:reflect --type task --analyze
 # Validates current approach against project goals
@@ -66,6 +75,7 @@ Key behaviors:
 ```
 
 ### Session Progress Analysis
+
 ```
 /sc:reflect --type session --validate
 # Comprehensive analysis of session work and information gathering
@@ -73,6 +83,7 @@ Key behaviors:
 ```
 
 ### Completion Validation
+
 ```
 /sc:reflect --type completion
 # Evaluates task completion criteria against actual progress
@@ -82,6 +93,7 @@ Key behaviors:
 ## Boundaries
 
 **Will:**
+
 - Perform comprehensive task reflection and validation using Serena MCP analysis tools
 - Bridge TodoWrite patterns with advanced reflection capabilities for enhanced task management
 - Provide cross-session learning capture and session lifecycle integration
@@ -90,10 +102,10 @@ Key behaviors:
 - Annotate every cleared recommendation with the basis on which it was cleared.
 
 **Will Not:**
+
 - Operate without proper Serena MCP integration and reflection tool access
 - Override task completion decisions without proper adherence and quality validation
 - Bypass session integrity checks and cross-session persistence requirements
 - Maintain a persistent cross-session entity registry or knowledge graph; the session-fact set is ephemeral and lives only within one reflect call.
 - Block on hedge cases for LOW/MEDIUM stakes — when neither session nor external docs resolve a precondition question for a non-HIGH-stakes verb, surface the unverified status and recommend a check, but do not refuse to deliver. (HIGH-stakes verbs DO block on hedge per the design's §3.6.)
 - Validate non-executable commentary, prose analysis, or reasoning narratives — only artifacts the user is expected to act on are in scope.
-

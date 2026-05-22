@@ -275,6 +275,7 @@ def test_prompt_conforming_output_passes_gate(minimal_config: PrdConfig) -> None
 ## Summary
 
 4 atomic changes, all under `src/superclaude/cli/prd/` and `tests/cli/prd/`:
+
 - Edit A: rewrite `_RESEARCH_REQUIRED_SECTIONS` list literal at gates.py:102-110
 - Edit B: widen regex `\s+` → `[\s_]+` at gates.py:134-138 (inside `_check_suggested_phases_detail`)
 - Edit C: rewrite test_gates.py:50-86 fixture text to the new schema

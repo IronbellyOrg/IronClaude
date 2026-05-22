@@ -15,18 +15,21 @@ The orchestrator begins by analyzing every request through a multi-stage detecti
 Before routing, the orchestrator validates three dimensions:
 
 **Resource Validation**:
+>
 > - Token usage prediction based on operation complexity and scope
 > - Memory and processing requirements estimation
 > - File system permissions and available space verification
 > - MCP server availability and response time checks
 
 **Compatibility Validation**:
+>
 > - Flag combination conflict detection (e.g., `--no-mcp` with `--seq`)
 > - Persona + command compatibility verification
 > - Tool availability for requested operations
 > - Project structure requirements validation
 
 **Risk Assessment**:
+>
 > - Operation complexity scoring (0.0-1.0 scale)
 > - Failure probability based on historical patterns
 > - Resource exhaustion likelihood prediction
@@ -138,10 +141,12 @@ wave-strategies:
 ```
 
 **Wave-Enabled Commands** (two tiers):
+
 - **Tier 1**: `/analyze`, `/build`, `/implement`, `/improve`
 - **Tier 2**: `/design`, `/task`
 
 **Wave Opportunity Scoring** (how the system decides to activate waves):
+>
 > - High Complexity >0.8: +0.4
 > - Multiple Operation Types >2: +0.3
 > - Critical Quality: +0.2
@@ -153,6 +158,7 @@ wave-strategies:
 > Security -> `wave_validation` | Performance -> `progressive_waves` | Critical -> `wave_validation` | Multiple Ops -> `adaptive_waves` | Enterprise -> `enterprise_waves` | Default -> `systematic_waves`
 
 **Wave Auto-Triggers** (exact conditions):
+>
 > - complexity >0.8 AND files >20 AND operation_types >2 -> --wave-count 5
 > - domains >3 AND tokens >15K -> --adaptive-waves
 > - production_deploy OR security_audit -> --wave-validation

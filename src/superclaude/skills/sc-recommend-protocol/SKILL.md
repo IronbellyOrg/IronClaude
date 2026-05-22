@@ -11,6 +11,7 @@ allowed-tools: Read, Glob, Grep, Bash, TodoWrite, mcp__auggie-mcp__codebase-retr
 sc:recommend-protocol is invoked ONLY by the `sc:recommend` command via `Skill sc:recommend-protocol` in the `## Activation` section. It is never invoked directly by users.
 
 Activation conditions:
+
 - User runs `/sc:recommend [query]` in Claude Code
 - Any `--estimate`, `--alternatives`, `--stream`, `--community` flags are passed through
 
@@ -19,6 +20,7 @@ Do NOT invoke this skill directly. Use the `sc:recommend` command.
 ## Multi-language Support
 
 ### Language Detection
+
 - Turkish: Detect via Turkish-specific characters (ç, ğ, ı, ö, ş, ü)
 - English: Detect via common English words (the, and, is, are, etc.)
 - Default: English when uncertain
@@ -42,6 +44,7 @@ Do NOT invoke this skill directly. Use the `sc:recommend` command.
 | refactor, cleanup, improve | improve_category | refactorer, mentor |
 
 ### Context Analysis
+
 - beginner/starter → beginner_level + mentor persona
 - expert/senior → expert_level + architect persona
 - continue/resume → continuity_mode + sequential thinking
@@ -54,10 +57,12 @@ Do NOT invoke this skill directly. Use the `sc:recommend` command.
 ### Scope
 
 Verification applies to:
+
 - Every `/sc:<name>` command the mapping table proposes for this query
 - Every project skill (`sc:<name>-protocol` or similar) the mapping table proposes
 
 Verification is **exempt** for:
+
 - Built-in tools: `Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`, `TodoWrite`, `WebFetch`, `WebSearch`
 - MCP server names referenced abstractly (e.g., "use Sequential for reasoning")
 
@@ -75,6 +80,7 @@ A recommendation built from the file alone can cite the correct flag set and sti
 For each shortlisted candidate, execute BOTH steps in order.
 
 **Step 1 — Direct read (canonical interface)**:
+
 - `Glob src/superclaude/commands/<name>.md`
 - If hit: `Read` the command file. Extract:
   - Flag table from the Options section
@@ -84,6 +90,7 @@ For each shortlisted candidate, execute BOTH steps in order.
 - If the literal path misses, `Grep -r "<name>" src/superclaude/commands/` to rule out a rename before concluding the candidate is a ghost.
 
 **Step 2 — Auggie enrichment (contextual fit)** — **MANDATORY when Auggie MCP is available**:
+
 - Issue one query per shortlisted candidate, shaped by the user's original request. Example phrasing:
   - `mcp__auggie-mcp__codebase-retrieval(query="How is /sc:<name> used across this codebase? Return invocation examples, common flag combinations, related skills, known caveats, and any eval artifacts demonstrating successful or failed usage — in the context of: <user's original request>.")`
 - Use the returned context to populate the `usage_notes`, `related_skills`, `known_caveats`, and `invocation_examples` fields of the verified interface record (see below). If Auggie returns no matches for an otherwise-resolved command, note that gap — the command is new or rarely exercised, and the recommendation should say so rather than pretend to authority it lacks.
@@ -91,6 +98,7 @@ For each shortlisted candidate, execute BOTH steps in order.
 - Hard cap: **one Auggie query per shortlisted candidate, ≤3 shortlisted candidates per `/sc:recommend` invocation → ≤3 Auggie calls total**.
 
 **Step 3 — Resolution**:
+
 - Step 1 hit + Step 2 hit → full verified record; proceed.
 - Step 1 hit + Auggie unavailable or empty → degraded record; emit a one-line degradation notice in the recommendation header ("Auggie enrichment unavailable — recommendation cites verified flags but omits repo-specific usage nuance").
 - Step 1 miss + Step 2 miss → candidate is a ghost. **Drop it silently.** Do not emit. Do not warn.
@@ -173,51 +181,61 @@ Verification is **not required** for built-in tools (`Read`, `Grep`, `Glob`, `Ed
 ## Command Map by Category
 
 ### ml_category
+
 - Primary: `/sc:analyze --seq --c7`, `/sc:design --seq --ultrathink`
 - Secondary: `/sc:build --feature --tdd`, `/sc:improve --performance`
 - MCP: --c7, --seq | Flags: --think-hard, --evidence
 
 ### web_category
+
 - Primary: `/sc:build --feature --magic`, `/sc:design --api --seq`
 - Secondary: `/sc:test --coverage --e2e --pup`, `/sc:analyze --code`
 - MCP: --magic, --c7, --pup | Flags: --react, --tdd
 
 ### api_category
+
 - Primary: `/sc:design --api --ddd --seq`, `/sc:build --feature --tdd`
 - Secondary: `/sc:scan --security --owasp`, `/sc:analyze --performance`
 - MCP: --seq, --c7, --pup | Flags: --microservices, --ultrathink
 
 ### debug_category
+
 - Primary: `/sc:troubleshoot --investigate --seq`, `/sc:analyze --code --seq`
 - Secondary: `/sc:scan --security`, `/sc:improve --quality`
 - MCP: --seq, --all-mcp | Flags: --evidence, --think-hard
 
 ### performance_category
+
 - Primary: `/sc:analyze --performance --pup --profile`, `/sc:troubleshoot --seq`
 - Secondary: `/sc:improve --performance --iterate`, `/sc:build --optimize`
 - MCP: --pup, --seq | Flags: --profile, --benchmark
 
 ### security_category
+
 - Primary: `/sc:scan --security --owasp --deps`, `/sc:analyze --security --seq`
 - Secondary: `/sc:improve --security --harden`
 - MCP: --seq | Flags: --strict, --validate, --owasp
 
 ### create_category
+
 - Primary: `/sc:build --feature --tdd`, `/sc:design --seq --ultrathink`
 - Secondary: `/sc:analyze --code --c7`, `/sc:test --coverage --e2e`
 - MCP: --magic, --c7, --pup | Flags: --interactive, --plan
 
 ### test_category
+
 - Primary: `/sc:test --coverage --e2e --pup`, `/sc:scan --validate`
 - Secondary: `/sc:improve --quality`
 - MCP: --pup | Flags: --validate, --coverage
 
 ### improve_category
+
 - Primary: `/sc:improve --quality --iterate`, `/sc:cleanup --code --all`
 - Secondary: `/sc:analyze --code --seq`
 - MCP: --seq | Flags: --threshold, --iterate
 
 ### learning_category
+
 - Primary: `/sc:document --user --examples`, `/sc:analyze --code --c7`
 - Secondary: `/sc:brainstorm --interactive`
 - MCP: --c7 | Flags: --examples, --interactive
@@ -233,6 +251,7 @@ Verification is **not required** for built-in tools (`Read`, `Grep`, `Glob`, `Ed
 ## Project Context Detection
 
 ### File System Analysis
+
 - React: package.json with react, src/App.jsx → frontend commands + magic
 - Vue: package.json with vue, src/App.vue → frontend commands + magic
 - Node API: express in package.json, routes/, controllers/ → backend + security
@@ -240,6 +259,7 @@ Verification is **not required** for built-in tools (`Read`, `Grep`, `Glob`, `Ed
 - Database: schema.sql, migrations/ → backend + security
 
 ### Project Size
+
 - Small (<50 files): Direct implementation
 - Medium (50-200): Plan → analyze → implement
 - Large (>200): Comprehensive analysis → design → implement
@@ -247,11 +267,13 @@ Verification is **not required** for built-in tools (`Read`, `Grep`, `Glob`, `Ed
 ## Streaming Mode
 
 Continuous recommendation throughout project lifecycle:
+
 1. Analysis & Planning → 2. Implementation → 3. Testing → 4. Deployment
 
 ## Alternative Recommendation Engine
 
 When `--alternatives` flag:
+
 - Present primary recommendation
 - 2-3 alternative approaches with pros/cons
 - Comparison matrix
@@ -262,27 +284,32 @@ When `--alternatives` flag:
 When `--estimate` flag:
 
 ### Complexity Factors
+
 - Project type: simple component (1-3d) to enterprise (3-6mo)
 - Experience multiplier: beginner 2.0x, intermediate 1.5x, expert 1.0x
 - Scope: small 1.0x, medium 1.5x, large 2.5x, enterprise 4.0x
 
 ### Time Distribution
+
 - ML: data 20-30%, preprocessing 15-25%, training 10-20%, eval 10-15%, deploy 15-25%
 - Web: design 15-25%, frontend 30-40%, backend 25-35%, testing 10-20%, deploy 5-15%
 
 ## Smart Flag Recommendations
 
 ### Context-Based
+
 - Small project: --quick --simple
 - Medium: --plan --validate --profile
 - Large: --plan --validate --seq --ultrathink
 
 ### Security Requirements
+
 - Basic: --basic-security
 - Standard: --security --validate
 - Enterprise: --security --owasp --strict --audit
 
 ### History-Based
+
 - Previous errors: --validate --dry-run --backup
 - Security issues: --security --scan --strict
 - Performance issues: --profile --optimize --monitor
@@ -290,6 +317,7 @@ When `--estimate` flag:
 ## Response Format
 
 Standard output structure:
+
 1. Header: Project analysis, language detection, level, persona
 2. Main: 3 primary commands, additional recommendations, quick start
 3. Enhanced: Smart flags, time estimate, alternatives, community data

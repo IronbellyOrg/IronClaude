@@ -15,6 +15,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 Unified command that merges orchestration capabilities with MCP compliance enforcement. Automatically classifies tasks into compliance tiers and enforces appropriate verification.
 
 **Key Benefits**:
+
 - Single command replaces confusion between `sc:task` and `sc:task-mcp`
 - Automatic tier classification with confidence scoring
 - Appropriate verification for each task type
@@ -24,6 +25,7 @@ Unified command that merges orchestration capabilities with MCP compliance enfor
 ## Triggers
 
 Use `/sc:task` when:
+
 - Task involves code modifications with downstream impacts
 - Complexity score >0.6 with code modifications
 - Multi-file scope (>2 estimated affected files)
@@ -31,6 +33,7 @@ Use `/sc:task` when:
 - Refactoring or system-wide changes requested
 
 **Auto-Suggest Keywords**:
+
 - High confidence: "implement feature", "refactor system", "fix security", "add authentication", "update database schema"
 - Moderate confidence: "add new", "create component", "update service", "modify API"
 
@@ -51,6 +54,7 @@ Use `/sc:task` when:
 Classification was handled by the `/sc:task` command before this skill was invoked. The tier has been determined and the classification header has been emitted. Proceed directly to execution based on the classified tier.
 
 **Reference** — the tier keyword tables (for context only, do not re-classify):
+
 - **STRICT**: security, authentication, database, migration, refactor, breaking change, encrypt, token, session, oauth
 - **EXEMPT**: explain, search, commit, push, plan, discuss, brainstorm
 - **LIGHT**: typo, comment, whitespace, lint, docstring, formatting, minor
@@ -78,6 +82,7 @@ If confidence <70%, add prompt: "⚠️ Low confidence. Override with: `--compli
 Execute task according to tier requirements:
 
 **STRICT Execution**:
+
 1. Activate project (mcp__serena__activate_project)
 2. Verify git working directory clean (git status)
 3. Load codebase context (codebase-retrieval)
@@ -91,6 +96,7 @@ Execute task according to tier requirements:
 11. Answer adversarial questions
 
 **STANDARD Execution**:
+
 1. Load context via codebase-retrieval
 2. Search downstream impacts (find_referencing_symbols OR grep)
 3. Make changes
@@ -98,12 +104,14 @@ Execute task according to tier requirements:
 5. Verify basic functionality
 
 **LIGHT Execution**:
+
 1. Quick scope check (files/lines within bounds)
 2. Make changes
 3. Quick sanity check (syntax valid, no obvious errors)
 4. Proceed with judgment
 
 **EXEMPT Execution**:
+
 1. Execute immediately
 2. No verification overhead
 
@@ -135,6 +143,7 @@ These rules apply to ALL compliance tiers that run tests (STRICT, STANDARD):
 3. **VIOLATION**: Ad-hoc patches derived from test output are PROHIBITED. The agent must not read a traceback and immediately edit code to resolve it.
 
 **Permitted Exceptions** (MAY fix directly without TFEP):
+
 - Single `ImportError`/`NameError` in test scaffolding the agent just wrote, affecting <=2 tests, where the error is in the test file itself (not in implementation code).
 - Lint/formatting failures (trivially fixable, unambiguous root cause).
 - Deprecation warnings (not failures).
@@ -155,11 +164,13 @@ Before implementation begins, the agent MUST record a test baseline:
 #### Escalation Trigger Detection
 
 **MUST escalate (trigger TFEP):**
+
 - Any **pre-existing test** fails (tests in the baseline that were not modified by the agent). This is the primary trigger — regressions in existing tests indicate the implementation broke something.
 - **3 or more new tests** fail simultaneously (indicates a systemic issue, not a simple typo).
 - **Runtime exceptions in implementation code** (TypeError, AttributeError, KeyError, etc. in the code being tested, not in the test scaffolding itself).
 
 **Escalation gradient (within-TFEP, for future forensic integration):**
+
 - Repeated failure (same test cluster fails after fix attempt) → escalate from light to standard
 - Multi-file blast radius from recent changes → escalate
 - Low-confidence root cause from adversarial debate → escalate
@@ -172,37 +183,43 @@ Before implementation begins, the agent MUST record a test baseline:
 When TFEP triggers, execute the following steps:
 
 **Step 1: Halt and freeze**
+
 1. **STOP** testing immediately.
 2. **FREEZE** implementation — no further code changes permitted.
 
 **Step 2: Construct failure context**
 3. Build a `failure_context` YAML package containing:
-   - `test_names`: list of failing test function names
-   - `test_files`: list of test files containing failures
-   - `error_output`: full traceback/error output
-   - `expected_behavior`: what was expected
-   - `actual_behavior`: what actually happened
-   - `changes_made`: files changed during this task with descriptions
-   - `task_description`: current task description
-   - `test_baseline`: the pre-implementation test baseline
-   - `escalation_count`: which TFEP trigger this is (1, 2, or 3)
+
+- `test_names`: list of failing test function names
+- `test_files`: list of test files containing failures
+- `error_output`: full traceback/error output
+- `expected_behavior`: what was expected
+- `actual_behavior`: what actually happened
+- `changes_made`: files changed during this task with descriptions
+- `task_description`: current task description
+- `test_baseline`: the pre-implementation test baseline
+- `escalation_count`: which TFEP trigger this is (1, 2, or 3)
+
 4. Write context to `{output_dir}/context.yaml`.
 
 **Step 3: Invoke forensic**
 5. Determine the forensic tier based on escalation count:
-   - 1st trigger → `--tier light --intent triage`
-   - 2nd trigger → `--tier standard`
-   - 3rd trigger → **FULL STOP**. Report to user. Do not attempt further fixes.
+
+- 1st trigger → `--tier light --intent triage`
+- 2nd trigger → `--tier standard`
+- 3rd trigger → **FULL STOP**. Report to user. Do not attempt further fixes.
+
 6. Invoke: `/sc:forensic --tier {tier} --intent triage --caller task-unified --context {context_path} --output {output_dir} --depth quick`
 7. The forensic pipeline runs autonomously through all its phases and returns a structured return contract.
 
 **Step 4: Consume forensic results**
 8. Read the forensic return contract from `{output_dir}/return-contract.yaml`.
 9. Handle based on status:
-   - If `test_is_wrong == true`: Present to user for review. Do NOT auto-fix tests.
-   - If `status == "success"`: Proceed to Step 5 (tasklist insertion).
-   - If `status == "partial"` or `recommended_escalation != "none"`: Increment `escalation_count` and return to Step 3.
-   - If `status == "failed"`: Report to user, halt execution.
+
+- If `test_is_wrong == true`: Present to user for review. Do NOT auto-fix tests.
+- If `status == "success"`: Proceed to Step 5 (tasklist insertion).
+- If `status == "partial"` or `recommended_escalation != "none"`: Increment `escalation_count` and return to Step 3.
+- If `status == "failed"`: Report to user, halt execution.
 
 **Step 5: Tasklist insertion**
 10. Read `tasklist_insertion_path` from the return contract.
@@ -246,6 +263,7 @@ This report is committed to git alongside other forensic artifacts.
 ### 5. Feedback Collection
 
 After completion, collect implicit feedback:
+
 - Track if user overrode tier (implicit classification feedback)
 - Note smooth completion vs errors (quality signal)
 - Store for calibration learning
@@ -253,39 +271,46 @@ After completion, collect implicit feedback:
 ## MCP Integration
 
 **Required Servers by Tier**:
+
 - STRICT: Sequential, Serena (fallback not allowed)
 - STANDARD: Sequential, Context7 (fallback allowed)
 - LIGHT: None required (fallback allowed)
 - EXEMPT: None required
 
 **Circuit Breaker Behavior**:
+
 - If required servers unavailable for STRICT tier, block task execution
 - For other tiers, use fallbacks with noted limitations
 
 ## Tool Coordination
 
 **Planning Phase**:
+
 1. TodoWrite: Create task breakdown
 2. codebase-retrieval: Load context
 3. list_memories / read_memory: Check project state
 
 **Execution Phase**:
+
 1. Edit/MultiEdit/Write: Make changes
 2. Grep/Glob: Find references
 3. find_referencing_symbols: Trace dependencies
 
 **Verification Phase**:
+
 1. Task (quality-engineer): Spawn verification agent (STRICT only)
 2. Bash: Run tests directly (STANDARD)
 3. think_about_task_adherence: Reflect on completeness
 
 **Completion Phase**:
+
 1. write_memory: Save session state
 2. think_about_whether_you_are_done: Final check
 
 ## Examples
 
 ### STRICT Task
+
 ```
 /sc:task "implement user authentication with JWT"
 
@@ -296,6 +321,7 @@ After completion, collect implicit feedback:
 ```
 
 ### STANDARD Task
+
 ```
 /sc:task "add pagination to user list"
 
@@ -306,6 +332,7 @@ After completion, collect implicit feedback:
 ```
 
 ### LIGHT Task
+
 ```
 /sc:task "fix typo in README"
 
@@ -315,6 +342,7 @@ After completion, collect implicit feedback:
 ```
 
 ### EXEMPT Task
+
 ```
 /sc:task "explain how the auth flow works"
 
@@ -324,6 +352,7 @@ After completion, collect implicit feedback:
 ```
 
 ### Override Example
+
 ```
 /sc:task "update config file" --compliance strict
 
@@ -334,6 +363,7 @@ After completion, collect implicit feedback:
 ## Boundaries
 
 **Will:**
+
 - Classify tasks into appropriate compliance tiers
 - Enforce tier-appropriate verification requirements
 - Provide confidence scoring with rationale
@@ -341,6 +371,7 @@ After completion, collect implicit feedback:
 - Support user overrides with justification
 
 **Will Not:**
+
 - Skip safety-critical verification for STRICT tasks
 - Apply STRICT overhead to genuinely trivial changes
 - Override user's explicit compliance choice

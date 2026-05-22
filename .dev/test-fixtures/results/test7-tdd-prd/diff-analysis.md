@@ -31,91 +31,109 @@ shared_assumptions_count: 20
 ## Divergence Points
 
 ### 1. Deliverable Count and Granularity
+
 - **Opus:** 102 deliverables (17+18+24+27+16). Heavier decomposition; separate rows for every metric, trigger, and AC.
 - **Haiku:** 77 deliverables (22+13+15+22+5). Consolidates related work into broader components (e.g., COMP-026 RollbackAutomation bundles all triggers).
 - **Impact:** Opus offers finer-grained traceability and task-planning primitives; Haiku is easier to scan but risks hiding sub-work during execution.
 
 ### 2. Logout Endpoint (PRD Gap)
+
 - **Opus:** No logout endpoint or `LogoutHandler`. Silent on PRD "in-scope" logout.
 - **Haiku:** Adds API-007 POST /auth/logout + COMP-015 LogoutHandler in M3.
 - **Impact:** Haiku closes a real PRD scope gap for shared-device safety; Opus may leave a user-visible behavior missing at GA.
 
 ### 3. Password Reset UI Pages
+
 - **Opus:** Backend reset endpoints only; no dedicated frontend pages for reset flows.
 - **Haiku:** Adds COMP-016 ResetRequestPage (/forgot-password) and COMP-017 ResetConfirmPage (/reset-password) in M3.
 - **Impact:** Haiku delivers the user-facing recovery journey end-to-end; Opus implicitly assumes another team or future scope owns reset UI.
 
 ### 4. Registration-to-Login UX (OQ-CFLT-002)
+
 - **Opus:** Does not surface the PRD/TDD conflict. API-002 returns `UserProfile`; frontend chain unstated.
 - **Haiku:** Explicitly identifies conflict (PRD wants immediate login; TDD returns `UserProfile`) and resolves via COMP-002 chaining POST /register → POST /login.
 - **Impact:** Haiku reconciles contract vs UX; Opus leaves a potential onboarding friction point unaddressed.
 
 ### 5. Admin JTBD Coverage (Jordan persona)
+
 - **Opus:** JTBD-GAP-001 admin CLI over audit_log in M4 (P1), with OQ flagging v1.1 full UI deferral.
 - **Haiku:** COMP-010 `AuthEventQuery` service in M4 (queryable audit surface); OQ-JTBD-001 defers lock/unlock UI entirely.
 - **Impact:** Opus ships a usable admin surface; Haiku ships query capability only, explicitly not lock/unlock controls.
 
 ### 6. CAPTCHA Deliverable
+
 - **Opus:** COMP-CAPTCHA-001 as explicit M4 deliverable (3-failure trigger, P1).
 - **Haiku:** CAPTCHA mentioned only in R-002 risk mitigation; no deliverable row.
 - **Impact:** Opus schedules the work; Haiku relies on future escalation without a scheduled commitment.
 
 ### 7. Rollback Trigger Decomposition
+
 - **Opus:** Four distinct deliverables (OPS-ROLLBACK-T1 latency, T2 error rate, T3 Redis, T4 data corruption) with verbatim thresholds.
 - **Haiku:** Single COMP-026 RollbackAutomation deliverable enumerating all triggers in one AC bundle.
 - **Impact:** Opus eases per-trigger ownership and dry-run tracking; Haiku risks a trigger slipping during implementation.
 
 ### 8. Refresh-Token Transport Strategy
+
 - **Opus:** HttpOnly cookie only (COMP-HTTPONLY-001).
 - **Haiku:** Dual-mode — HttpOnly cookie for browsers AND request-body refreshToken for API-consumer (Sam persona).
 - **Impact:** Haiku better serves API-consumer contract; Opus is more XSS-restrictive but constrains non-browser clients.
 
 ### 9. Penetration Test Commitment
+
 - **Opus:** SEC-PENTEST-001 in M4 with external vendor, 5-business-day triage, Critical/High gate before M5.
 - **Haiku:** Pentest appears only in risk mitigation (R-PRD-002); no scheduled deliverable.
 - **Impact:** Opus makes pentest a release gate; Haiku risks soft commitment.
 
 ### 10. GDPR Article 15 Data Export
+
 - **Opus:** OPS-GDPR-EXPORT (P1) in M5 for user data export.
 - **Haiku:** No explicit GDPR export deliverable.
 - **Impact:** Opus closes a concrete compliance capability; Haiku leaves it implicit in NFR-COMPLIANCE-002.
 
 ### 11. Cost Tracking
+
 - **Opus:** OPS-COST-001 baselines $450/mo and monthly tracking.
 - **Haiku:** Mentions cost envelope in infra notes; no deliverable.
 - **Impact:** Opus treats cost as an ongoing obligation; Haiku stops at rough sizing.
 
 ### 12. Production Key Rotation Dry-Run
+
 - **Opus:** OPS-VULN-001 executes first quarterly rotation in production at M5.
 - **Haiku:** Rotation procedure only; no production-rotation deliverable.
 - **Impact:** Opus validates the runbook under real conditions; Haiku leaves first production rotation untracked.
 
 ### 13. Reset-Request Rate Limit
+
 - **Opus:** Not explicitly defined.
 - **Haiku:** OQ-RESET-RL-001 proposes 5/min/IP initial policy.
 - **Impact:** Haiku prevents a gap in abuse-resistance policy; Opus leaves a gateway config unaddressed.
 
 ### 14. Success Metric Wiring
+
 - **Opus:** Six discrete rows (SUCC-METRIC-001..006) with verbatim targets, in M4.
 - **Haiku:** Four analytics components (COMP-022..025).
 - **Impact:** Opus enumerates DAU, hash time, failed-login, and session-duration as separate measurable items; Haiku bundles more densely.
 
 ### 15. Test Pyramid Coverage
+
 - **Opus:** TEST-001..006 mapped to TDD S15.2.
 - **Haiku:** Adds TEST-007 performance/resilience suite for k6 + rollback threshold validation.
 - **Impact:** Haiku makes perf/rollback testing explicit; Opus relies on NFR-PERF-002 + OPS-ROLLBACK-T* to cover.
 
 ### 16. Compliance Deliverable Distribution
+
 - **Opus:** NFR-COMPLIANCE-001..004 distributed across M1/M2/M4 with per-milestone ACs (COMP-AUDIT-001, COMP-CONSENT-001, COMP-POLICY-001, COMP-LOGHYG-001..002).
 - **Haiku:** Compliance mostly anchored in M1 baseline + M4 verification bundles.
 - **Impact:** Opus creates milestone-local compliance traceability; Haiku reduces row count but delays verification visibility.
 
 ### 17. Decision-Precedence Framing
+
 - **Opus:** Stated rule: Non-Goals never relitigated in milestone ACs; TDD/PRD resolution logged per conflict.
 - **Haiku:** Stated rule: PRD precedence for user/compliance outcomes; TDD precedence for API shapes.
 - **Impact:** Haiku's rule is more action-guiding during execution; Opus's rule emphasizes scope protection.
 
 ### 18. Refresh-Token Per-User Ceiling (OQ-PRD-002)
+
 - **Opus:** Open; unbounded concurrent devices permitted.
 - **Haiku:** Open; sizing explicitly marked TBD-pending-OQ-PRD-002 (propagated to OPS-006).
 - **Impact:** Haiku threads the open question into capacity planning; Opus leaves implication uncaptured.
@@ -123,11 +141,13 @@ shared_assumptions_count: 20
 ## Areas Where One Variant Is Clearly Stronger
 
 **Opus clearly stronger on:**
+
 - Operational release gating (pentest, GDPR export, cost tracking, production key rotation, per-trigger rollback rows).
 - Metric/alert decomposition and release-evidence thoroughness (102 deliverables).
 - Explicit gate checklists (OPS-SIGNOFF-001, OPS-AUDIT-QA) with verification mechanics.
 
 **Haiku clearly stronger on:**
+
 - PRD scope fidelity: logout endpoint, reset UI pages, registration-immediate-login chain, reset-request rate limit.
 - Explicit identification and resolution of inter-source conflicts (OQ-CFLT-002, OQ-JTBD-001).
 - API-consumer (Sam persona) path via dual-mode refresh-token transport.

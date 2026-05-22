@@ -59,6 +59,7 @@
 **Description**: Apply Approach-1 rule-based pass to strip trailing whitespace and ensure no 3+ blank-line runs. Though this file appears reasonably tidy, a normalization sweep is free.
 
 **Before** (lines 27–29, with a 1-blank separator preserved):
+
 ```
 ...after Phase 0 completion with actual OQ resolution outcomes. Proceed to release only after Phase 5 evidence review — code-complete status is not a release gate.
 
@@ -78,6 +79,7 @@
 **Description**: The 8 `---` horizontal rules (lines 28, 85, 154, 238, 301, 345, 400, 431, 473, 501) act purely as visual phase separators between `## Phase N` headings. The ATX heading itself is the semantic boundary; the rule is decorative.
 
 **Before** (lines 83–87):
+
 ```
 - [ ] Architecture constraint verification complete against live codebase
 
@@ -87,6 +89,7 @@
 ```
 
 **After**:
+
 ```
 - [ ] Architecture constraint verification complete against live codebase
 
@@ -102,14 +105,17 @@
 ### Strategy 3 — Collapse bold-label metadata lines into a compact inline form (primer §4.2, Approach 2 transform #3 "List compaction")
 
 **Description**: Every phase begins with three bold-label lines:
+
 ```
 **Goal**: …
 **Duration estimate**: …
 **Dependencies**: …
 ```
+
 Via AST-aware transform these collapse into a single blockquote or dash list, saving repeated `**`/newlines across 6 phases.
 
 **Before** (lines 32–36):
+
 ```
 **Goal**: Establish implementation constraints, resolve deferred architecture decisions, and freeze the intended design before modifying any behavior.
 
@@ -119,6 +125,7 @@ Via AST-aware transform these collapse into a single blockquote or dash list, sa
 ```
 
 **After** (compact triple-field bullet using conventions header abbreviations `G=Goal D=Duration Dep=Dependencies`):
+
 ```
 - G: Establish implementation constraints, resolve deferred architecture decisions, and freeze the intended design before modifying any behavior.
 - D: 0.5–1.5 days
@@ -136,6 +143,7 @@ Via AST-aware transform these collapse into a single blockquote or dash list, sa
 **Description**: The primer explicitly calls out auto-generating a conventions header from phrases that occur `>5 times` and are `>20 chars`. Several qualify in this file. A single header block pays for itself after ~5 body uses (primer §2.2).
 
 **Proposed header** (inserted between YAML frontmatter and `# v2.25 Roadmap…`):
+
 ```
 <!-- cmd-dsl v1:
 [SD]=spec-deviations.md [DA]=deviation-analysis.md [SF]=spec-fidelity.md
@@ -148,6 +156,7 @@ Via AST-aware transform these collapse into a single blockquote or dash list, sa
 ```
 
 **Before** (line 196):
+
 ```
 1. Add `annotate-deviations` step in `_build_steps()` between `merge` and `test-strategy` (FR-004)
    - Inputs: `spec_file`, `roadmap.md`, `debate-transcript.md`, `diff-analysis.md`
@@ -156,6 +165,7 @@ Via AST-aware transform these collapse into a single blockquote or dash list, sa
 ```
 
 **After**:
+
 ```
 1. Add `[AD]` step in `_build_steps()` between `merge` and `test-strategy` (FR-004)
    - Inputs: `spec_file`, `[RM]`, `[DT]`, `[DIFF]`
@@ -164,6 +174,7 @@ Via AST-aware transform these collapse into a single blockquote or dash list, sa
 ```
 
 **Savings** (per-phrase × occurrence count × bytes saved):
+
 - `spec-deviations.md` → `[SD]` (−15B × ~13 occurrences ≈ 195B)
 - `deviation-analysis.md` → `[DA]` (−17B × ~10 ≈ 170B)
 - `spec-fidelity.md` → `[SF]` (−13B × ~8 ≈ 104B)
@@ -192,16 +203,19 @@ Gross savings ≈ 1,600–1,800 bytes. Header cost ≈ 380 bytes.
 **Description**: Two very long lines enumerate requirements covered per phase. Phase 1 (line 138) lists 19 FR/NFR IDs; Phase 2 (line 224) lists 44 IDs. These are primarily LLM-consumed provenance, and the same IDs also appear inline at individual bullets. The AST transform detects cross-references already cited inline and keeps only the non-redundant remainder, or replaces the full list with a terse footer.
 
 **Before** (line 138):
+
 ```
 **Requirements covered**: FR-013, FR-014, FR-015, FR-026, FR-027, FR-028, FR-029, FR-046, FR-053, FR-054, FR-056, FR-057, FR-070, FR-074, FR-079, FR-080, FR-081, FR-085, FR-086, NFR-007, NFR-021
 ```
 
 **After** (condensed-range form; same bytes-per-ID reduced ~40%):
+
 ```
 **Req**: FR-013..015,026..029,046,053,054,056,057,070,074,079..081,085,086; NFR-007,021
 ```
 
 **Savings**:
+
 - Line 138 (Phase 1): 247B → ~108B ≈ 139B saved
 - Line 224 (Phase 2): ~520B → ~215B ≈ 305B saved
 - Line 286 (Phase 3): ~260B → ~110B ≈ 150B saved
@@ -217,6 +231,7 @@ Total ≈ **~590 bytes (~1.7%)**.
 **Description**: Three risk tables (HIGH / MEDIUM / LOW) share the **exact** same 7-column schema (`ID | Risk | Severity | Probability | Phase | Mitigation | Validation Evidence`). The `Severity` column is constant within each sub-table (HIGH, MEDIUM, or LOW). That column can be hoisted into a caption and dropped from the rows.
 
 **Before** (line 408–411, partial):
+
 ```
 | ID | Risk | Severity | Probability | Phase | Mitigation | Validation Evidence |
 |----|------|----------|-------------|-------|------------|---------------------|
@@ -224,9 +239,11 @@ Total ≈ **~590 bytes (~1.7%)**.
 | R-2 | Resume/freshness corruption | HIGH | MEDIUM | 3 | Atomic `roadmap_hash` injection; … | … |
 | R-3 | Routing/frontmatter parsing fragility | MEDIUM | MEDIUM | 2 | Flat comma-separated fields only; … | … |
 ```
+
 (Note: R-3 is in the HIGH table in the source but labeled MEDIUM — a pre-existing data quirk to preserve.)
 
 **After** (hoist Severity column; three sub-tables collapse into one with explicit severity-group divider, or keep three sub-tables each with one fewer column):
+
 ```
 ### Risks (Severity=HIGH)
 | ID | Risk | Prob | Phase | Mitigation | Evidence |
@@ -236,6 +253,7 @@ Total ≈ **~590 bytes (~1.7%)**.
 ```
 
 **Savings**:
+
 - Drop one column across ~11 rows × ~12B avg = ~130B
 - Shorten column headers (`Probability` → `Prob`, `Validation Evidence` → `Evidence`): ~20B per table × 3 = ~60B
 - Table padding collapse (Approach 1 transform #6): remove intra-cell padding spaces, ~50B
@@ -254,6 +272,7 @@ Total table normalization ≈ **~330 bytes (~0.9%)**.
 **Description**: Lines 11–26 (Executive Summary) restate content that is then fully re-articulated in the per-phase sections, the Risk Assessment, and the Timeline Summary. Per primer §4.2 transform #6, when an introduction restates content found verbatim later, elide the restated sentences. The "Key architectural properties" bullet list (lines 17–22) is independently useful and should be retained.
 
 **Before** (lines 11–15):
+
 ```
 v2.25 introduces a **deviation-aware fidelity subsystem** into the roadmap pipeline, solving a systematic failure where intentional architectural improvements were misclassified as specification violations, causing pipeline halts and futile remediation cycles.
 
@@ -263,6 +282,7 @@ The solution adds two new pipeline steps (`annotate-deviations`, `deviation-anal
 ```
 
 **After** (keep delivery-strategy claim that is load-bearing and not restated verbatim downstream; drop the first two paragraphs which are covered by Phase 1–3 and the Risk Assessment):
+
 ```
 Pattern: classify → route → act. Adds 2 steps ([AD], [DAN]); modifies [SF], remediate, certify. Only [SL] reaches remediation.
 
@@ -280,6 +300,7 @@ Pattern: classify → route → act. Adds 2 steps ([AD], [DAN]); modifies [SF], 
 **Description**: Every phase ends with `- [ ]` task-list exit criteria — 6 phases × ~8–11 items. Each item is a single-sentence assertion. Multi-paragraph bullets are already absent here, but the bullets include decorative bold labels and repeated phrasing ("verified with", "passes all", "confirmed by"). An AST pass can canonicalize phrasing.
 
 **Before** (lines 141–153):
+
 ```
 - [ ] `Finding("test", deviation_class="SLIP")` constructs successfully
 - [ ] `Finding("test", deviation_class="INVALID")` raises `ValueError`
@@ -288,6 +309,7 @@ Pattern: classify → route → act. Adds 2 steps ([AD], [DAN]); modifies [SF], 
 ```
 
 **After** (strip the task-list checkbox to `-` since no machine is checking them, and canonicalize "semantic check functions" etc.):
+
 ```
 - `Finding("test", deviation_class="SLIP")` constructs
 - `Finding("test", deviation_class="INVALID")` raises ValueError
@@ -295,7 +317,7 @@ Pattern: classify → route → act. Adds 2 steps ([AD], [DAN]); modifies [SF], 
 - 9+ gates.py checks: unit tests cover missing/malformed/failing-value with distinct logs
 ```
 
-**Savings**: Dropping `[ ] ` is 4B per item × ~55 items ≈ 220B; canonicalization of recurring phrases ≈ 150B. Total ≈ **~370 bytes (~1.1%)**.
+**Savings**: Dropping `[ ]` is 4B per item × ~55 items ≈ 220B; canonicalization of recurring phrases ≈ 150B. Total ≈ **~370 bytes (~1.1%)**.
 **Lossless**: The `- [ ]` vs `-` distinction is load-bearing if the release process uses GFM task-list state. If checklists are rendered for human tracking, this strategy is **lossy** for the human workflow; task-equivalent for LLM. Must confirm via consumer DAG.
 **Risk**: GFM task-list semantics (primer §4.2 risk note on GFM plugins). Skip if release process renders task lists.
 
@@ -319,11 +341,13 @@ Pattern: classify → route → act. Adds 2 steps ([AD], [DAN]); modifies [SF], 
 **Description**: Labels like `**Requirements covered**:`, `**Goal**:`, `**Duration estimate**:` consume 4B overhead each (two pairs of `**`). With the conventions header in place, these become single-letter prefixes (`R:`, `G:`, `D:`, `Dep:`).
 
 **Before** (line 224, start):
+
 ```
 **Requirements covered**: FR-002, FR-003, …
 ```
 
 **After** (combined with Strategy 5):
+
 ```
 R: FR-002..010,012,016..025,033..038,045,055,058,073,075,078,082,083,087,089,090; NFR-002,022..024
 ```
@@ -364,6 +388,7 @@ Apply in this order per primer §5 pipeline composition rules (§5: "Always run 
 ### Why this is below the primer's 25–33% roadmap target
 
 This file is already unusually well-written:
+
 - Zero fenced code blocks (no code-comment compression)
 - Zero emoji (no decorative stripping)
 - No duplicated heading sections (no §4.2 transform #1 heading-dedup wins)

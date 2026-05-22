@@ -63,6 +63,7 @@ tasklist_ready: false
 **Formula**: `interleave_ratio = unique_phases_with_deliverables / total_phases`
 
 **Values**:
+
 - Total phases: 5 (Phase 1, Phase 2, Phase 3, Phase 4, Phase 5)
 - Phases with deliverables: 5 (all phases contain explicit deliverables)
 - `unique_phases_with_deliverables = 5`

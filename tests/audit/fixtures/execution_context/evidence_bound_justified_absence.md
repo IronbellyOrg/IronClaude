@@ -66,4 +66,5 @@ items) survives M2 header introduction.
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

@@ -68,4 +68,5 @@ evidence binding (NFR-CONV.7).
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

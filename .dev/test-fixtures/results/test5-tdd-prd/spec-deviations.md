@@ -14,6 +14,7 @@ analysis_complete: true
 # Deviation Analysis Report
 
 Total deviations analyzed: 0
+
 - SLIP: 0
 - INTENTIONAL: 0
 - PRE_APPROVED: 0

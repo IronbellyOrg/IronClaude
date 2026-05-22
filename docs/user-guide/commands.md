@@ -31,6 +31,7 @@
 This reference contains sections for **different audiences**:
 
 ### 🤖 For Claude Code (skip these if you're human)
+
 | Section | Purpose |
 |---------|---------|
 | [`📁 File Map`](#-file-map-where-to-find-information) | File paths for navigation in new sessions |
@@ -38,6 +39,7 @@ This reference contains sections for **different audiences**:
 | [`📝 Notes for Future Sessions`](#-notes-for-future-sessions) | Session start instructions |
 
 ### 👤 For Humans (learning SuperClaude)
+
 | Section | Purpose |
 |---------|---------|
 | [`🗂️ Command Categories`](#️-command-categories) | Overview of all 30 commands by category |
@@ -57,11 +59,13 @@ This reference contains sections for **different audiences**:
 This section is for quick lookups in future sessions (new context).
 
 ### ⚡ Quick Reference (read first!)
+
 ```
 PROJECT_INDEX.md         # Project quick start (3K tokens)
 ```
 
 ### Command Sources (read for implementation details)
+
 ```
 src/superclaude/commands/
 ├── pm.md              # /sc:pm - Project Manager Agent (593 lines, most detailed)
@@ -97,11 +101,13 @@ src/superclaude/commands/
 ```
 
 ### Duplicate Copies (same files)
+
 ```
 plugins/superclaude/commands/  # Copy for plugin distribution
 ```
 
 ### PM Agent Core (Python implementation)
+
 ```
 src/superclaude/pm_agent/
 ├── confidence.py      # ConfidenceChecker (pre-execution)
@@ -110,6 +116,7 @@ src/superclaude/pm_agent/
 ```
 
 ### Execution Patterns (Python)
+
 ```
 src/superclaude/execution/
 ├── parallel.py        # Wave → Checkpoint → Wave pattern
@@ -118,11 +125,13 @@ src/superclaude/execution/
 ```
 
 ### Pytest Plugin
+
 ```
 src/superclaude/pytest_plugin.py  # Fixtures: confidence_checker, self_check_protocol, etc.
 ```
 
 ### Key Documentation
+
 ```
 CLAUDE.md              # Project setup, commands overview
 PLANNING.md            # Architecture, design decisions
@@ -131,6 +140,7 @@ TASK.md                # Current tasks
 ```
 
 ### Additional Skills
+
 ```
 src/superclaude/skills/confidence-check/SKILL.md  # Confidence check skill
 ```
@@ -208,7 +218,9 @@ src/superclaude/skills/confidence-check/SKILL.md  # Confidence check skill
 ## 📊 Command Output Categories
 
 ### Document-Only Commands (STOP after output)
+
 These commands produce documents/reports and DO NOT implement:
+
 - `/sc:brainstorm` → Requirements specification
 - `/sc:workflow` → Implementation plan
 - `/sc:spawn` → Task hierarchy
@@ -221,7 +233,9 @@ These commands produce documents/reports and DO NOT implement:
 - `/sc:troubleshoot` → Diagnostic report (fixes require `--fix` flag + confirmation)
 
 ### Execution Commands (IMPLEMENT changes)
+
 These commands execute changes:
+
 - `/sc:implement` → Writes code
 - `/sc:improve` → Applies improvements (auto-fix for style, approval for architecture)
 - `/sc:cleanup` → Removes dead code (auto-fix for unused imports, approval for referenced code)
@@ -231,6 +245,7 @@ These commands execute changes:
 - `/sc:git` → Git operations
 
 ### Key Behavior Notes
+
 - **Document-only commands** stop after producing their output and suggest next steps
 - **Execution commands** have clear completion criteria
 - **`/sc:troubleshoot`** is diagnose-first by default; use `--fix` flag to apply fixes
@@ -249,12 +264,14 @@ These commands execute changes:
 **When to use:** No need to call explicitly — always running.
 
 **What it does:**
+
 - Automatically restores context from past sessions (Serena MCP)
 - Delegates tasks to personas (backend, frontend, security...)
 - Runs PDCA cycle: Plan → Do → Check → Act
 - Saves progress between sessions
 
 **Workflow:**
+
 ```
 User: "I want to add authentication"
 PM Agent:
@@ -270,6 +287,7 @@ PM Agent:
 **MCP servers:** sequential, context7, magic, playwright, morphllm, serena, tavily, chrome-devtools
 
 **Key patterns:**
+
 - Session Start Protocol (context restoration)
 - Self-Correcting Execution (root cause first!)
 - PDCA Document Structure (`docs/pdca/[feature]/`)
@@ -281,16 +299,19 @@ PM Agent:
 **When to use:** Complex task that requires breaking down into many subtasks with dependencies.
 
 **What it does:**
+
 - Breaks down Epic → Story → Task → Subtask
 - Selects strategy: sequential/parallel/adaptive
 - Coordinates dependencies between tasks
 
 **Syntax:**
+
 ```
 /sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
 ```
 
 **Examples:**
+
 ```bash
 # Monolith migration
 /sc:spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
@@ -302,6 +323,7 @@ PM Agent:
 ```
 
 **Difference from `/sc:task`:**
+
 - spawn = decomposition (breaking down)
 - task = execution (doing work)
 
@@ -312,17 +334,20 @@ PM Agent:
 **When to use:** Need to execute a specific complex task with MCP server coordination.
 
 **What it does:**
+
 - Activates needed personas (architect, security, frontend...)
 - Routes to correct MCP servers
 - Parallel execution where possible
 - Cross-session persistence via Serena
 
 **Syntax:**
+
 ```
 /sc:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
 ```
 
 **Examples:**
+
 ```bash
 # Enterprise-level feature
 /sc:task create "enterprise authentication system" --strategy systematic --parallel
@@ -342,17 +367,20 @@ PM Agent:
 **When to use:** Have a PRD/specification and need a step-by-step implementation plan.
 
 **What it does:**
+
 - Parses PRD document
 - Generates workflow with dependencies
 - Creates implementation plan by domains
 - **Does NOT implement code**, only plans
 
 **Syntax:**
+
 ```
 /sc:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 
 **Examples:**
+
 ```bash
 # From PRD file
 /sc:workflow docs/PRD/auth-feature.md --strategy systematic --depth deep
@@ -363,6 +391,7 @@ PM Agent:
 ```
 
 **Difference from `/sc:task`:**
+
 - workflow = planning (generates roadmap)
 - task = execution (actually does work)
 
@@ -373,17 +402,20 @@ PM Agent:
 **When to use:** Idea is vague, need to understand requirements through dialogue.
 
 **What it does:**
+
 - Asks Socratic questions for clarification
 - Checks feasibility
 - Generates concrete specifications
 - Creates brief for implementation
 
 **Syntax:**
+
 ```
 /sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 
 **Examples:**
+
 ```bash
 # New product
 /sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
@@ -403,17 +435,20 @@ PM Agent:
 **When to use:** Need up-to-date information from the internet.
 
 **What it does:**
+
 - Parallel web searches via Tavily
 - Multi-hop exploration (following link chains)
 - Evidence-based synthesis
 - Saves report to `claudedocs/research_*.md`
 
 **Syntax:**
+
 ```
 /sc:research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
 ```
 
 **Examples:**
+
 ```bash
 /sc:research "latest developments in quantum computing 2024" --depth deep
 /sc:research "competitive analysis of AI coding assistants" --depth exhaustive
@@ -428,17 +463,20 @@ PM Agent:
 **When to use:** Know exactly what to do, need to write code.
 
 **What it does:**
+
 - Activates needed personas (frontend/backend/security)
 - Uses Context7 for framework-specific patterns
 - Magic MCP for UI components
 - Generates code with tests
 
 **Syntax:**
+
 ```
 /sc:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
 ```
 
 **Examples:**
+
 ```bash
 # React component
 /sc:implement user profile component --type component --framework react --with-tests
@@ -459,17 +497,20 @@ PM Agent:
 **When to use:** Need to design, but not implement.
 
 **What it does:**
+
 - Architecture diagrams
 - API specifications
 - Database schemas
 - Component interfaces
 
 **Syntax:**
+
 ```
 /sc:design [target] [--type architecture|api|component|database] [--format diagram|spec|code]
 ```
 
 **Examples:**
+
 ```bash
 /sc:design user-management-system --type architecture --format diagram
 /sc:design payment-api --type api --format spec
@@ -477,6 +518,7 @@ PM Agent:
 ```
 
 **Difference from `/sc:implement`:**
+
 - design = blueprint (documentation)
 - implement = code (implementation)
 
@@ -487,17 +529,20 @@ PM Agent:
 **When to use:** Need a code audit.
 
 **What it does:**
+
 - Quality: code smells, maintainability
 - Security: vulnerabilities, OWASP
 - Performance: bottlenecks
 - Architecture: technical debt
 
 **Syntax:**
+
 ```
 /sc:analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
 ```
 
 **Examples:**
+
 ```bash
 /sc:analyze src/auth --focus security --depth deep
 /sc:analyze --focus performance --format report
@@ -511,17 +556,20 @@ PM Agent:
 **When to use:** Something is broken, need to find the cause.
 
 **What it does:**
+
 - Root cause analysis
 - Stack trace examination
 - Log analysis
 - Suggests fixes
 
 **Syntax:**
+
 ```
 /sc:troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
 ```
 
 **Examples:**
+
 ```bash
 /sc:troubleshoot "Null pointer exception in user service" --type bug --trace --fix
 /sc:troubleshoot "TypeScript compilation errors" --type build --fix
@@ -535,17 +583,20 @@ PM Agent:
 **When to use:** Code works, but want to make it better.
 
 **What it does:**
+
 - Quality refactoring
 - Performance optimization
 - Maintainability improvements
 - Technical debt reduction
 
 **Syntax:**
+
 ```
 /sc:improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]
 ```
 
 **Examples:**
+
 ```bash
 /sc:improve src/ --type quality --safe
 /sc:improve api-endpoints --type performance --interactive
@@ -561,17 +612,20 @@ PM Agent:
 **When to use:** Need to remove garbage: dead code, unused imports.
 
 **What it does:**
+
 - Dead code detection
 - Import optimization
 - Structure cleanup
 - Safety validation
 
 **Syntax:**
+
 ```
 /sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
 ```
 
 **Examples:**
+
 ```bash
 /sc:cleanup src/ --type code --safe
 /sc:cleanup --type imports --preview
@@ -587,17 +641,20 @@ PM Agent:
 **When to use:** Need to run tests.
 
 **What it does:**
+
 - Detects test runner
 - Coverage reports
 - Playwright for E2E
 - Failure analysis
 
 **Syntax:**
+
 ```
 /sc:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
 ```
 
 **Examples:**
+
 ```bash
 /sc:test
 /sc:test src/components --type unit --coverage
@@ -614,17 +671,20 @@ PM Agent:
 **When to use:** Need to build the project.
 
 **What it does:**
+
 - Compilation
 - Bundling
 - Optimization
 - Error analysis
 
 **Syntax:**
+
 ```
 /sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
 ```
 
 **Examples:**
+
 ```bash
 /sc:build
 /sc:build --type prod --clean --optimize
@@ -640,16 +700,19 @@ PM Agent:
 **When to use:** Need to understand how code works.
 
 **What it does:**
+
 - Explains code at different levels (basic/advanced)
 - Framework-specific explanations via Context7
 - Interactive examples
 
 **Syntax:**
+
 ```
 /sc:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
 ```
 
 **Examples:**
+
 ```bash
 /sc:explain authentication.js --level basic
 /sc:explain react-hooks --level intermediate --context react
@@ -665,17 +728,20 @@ PM Agent:
 **When to use:** Need to create documentation.
 
 **What it does:**
+
 - Inline comments (JSDoc)
 - API documentation
 - User guides
 - External docs
 
 **Syntax:**
+
 ```
 /sc:document [target] [--type inline|external|api|guide] [--style brief|detailed]
 ```
 
 **Examples:**
+
 ```bash
 /sc:document src/auth/login.js --type inline
 /sc:document src/api --type api --style detailed
@@ -689,16 +755,19 @@ PM Agent:
 **When to use:** Starting work with a large repository.
 
 **What it does:**
+
 - Creates `PROJECT_INDEX.md` (3KB instead of 58KB)
 - 94% token savings
 - Entry points, modules, tests, dependencies
 
 **Syntax:**
+
 ```
 /sc:index-repo [mode=update|quick]
 ```
 
 **Examples:**
+
 ```bash
 /sc:index-repo                # Full indexing
 /sc:index-repo mode=update    # Update existing
@@ -747,11 +816,13 @@ Simulates a panel discussion of renowned software engineering experts.
 | `--focus compliance` | Wiegers + Nygard | Security, audit, regulatory |
 
 **Syntax:**
+
 ```
 /sc:spec-panel [spec|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N]
 ```
 
 **Examples:**
+
 ```bash
 # API specification review
 /sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
@@ -767,6 +838,7 @@ Simulates a panel discussion of renowned software engineering experts.
 ```
 
 **Example output (critique mode):**
+
 ```
 KARL WIEGERS - Requirements Quality:
 ❌ CRITICAL: Requirement R-001 lacks acceptance criteria
@@ -813,11 +885,13 @@ Simulates a panel discussion of legendary business thinkers.
 | `--mode socratic` | Question-driven — deep questions for understanding |
 
 **Syntax:**
+
 ```
 /sc:business-panel [content|@file] [--experts "porter,christensen"] [--mode discussion|debate|socratic] [--focus domain] [--synthesis-only]
 ```
 
 **Examples:**
+
 ```bash
 # Business plan analysis
 /sc:business-panel @business_plan.md
@@ -833,6 +907,7 @@ Simulates a panel discussion of legendary business thinkers.
 ```
 
 **Example output (discussion mode):**
+
 ```
 PORTER: "The competitive position relies on cost leadership..."
 CHRISTENSEN: "But cost leadership is vulnerable to disruption from below..."
@@ -863,11 +938,13 @@ TALEB: "The real question: does this benefit from uncertainty?"
 **When to use:** Git operations with smart commit messages.
 
 **Syntax:**
+
 ```
 /sc:git [operation] [args] [--smart-commit] [--interactive]
 ```
 
 **Examples:**
+
 ```bash
 /sc:git status
 /sc:git commit --smart-commit  # Generates conventional commit message
@@ -881,11 +958,13 @@ TALEB: "The real question: does this benefit from uncertainty?"
 **When to use:** Need time/complexity estimation.
 
 **Syntax:**
+
 ```
 /sc:estimate [target] [--type time|effort|complexity] [--unit hours|days|weeks] [--breakdown]
 ```
 
 **Examples:**
+
 ```bash
 /sc:estimate "user authentication system" --type time --unit days --breakdown
 # Database design: 2 days
@@ -906,11 +985,13 @@ TALEB: "The real question: does this benefit from uncertainty?"
 **When to use:** Need to check progress and validate work.
 
 **Syntax:**
+
 ```
 /sc:reflect [--type task|session|completion] [--analyze] [--validate]
 ```
 
 **Examples:**
+
 ```bash
 /sc:reflect --type task --analyze      # Current approach validation
 /sc:reflect --type session --validate  # Session analysis
@@ -1326,6 +1407,7 @@ Phase 4: Integration (Week 3)
 ### When to Use What
 
 **[`/sc:index-repo`](#scindex-repo---repository-indexing)** — for quick session start:
+
 - Project structure overview
 - Entry points and key modules
 - Dependencies and configuration
@@ -1333,6 +1415,7 @@ Phase 4: Integration (Week 3)
 - **Savings**: 58K → 3K tokens at start
 
 **Serena MCP** — for deep code work:
+
 - `find_symbol` — find class/function by name
 - `find_referencing_symbols` — where symbol is used
 - `rename_symbol` — rename everywhere safely via LSP
@@ -1394,6 +1477,7 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 ## 🔄 Typical Workflows
 
 ### New Project (initial setup)
+
 ```
 # Option A: Via Serena (recommended)
 1. serena activate_project .         # Activate project
@@ -1406,12 +1490,15 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 ```
 
 > **Important**: Add Serena auto-activation instruction to project CLAUDE.md:
+>
 > ```
 > mcp__serena__activate_project project="."
 > ```
+>
 > Then Claude will activate Serena automatically at the start of each session.
 
 ### New Feature
+
 ```
 1. /sc:brainstorm "feature idea"     # Requirements gathering
 2. /sc:design feature --type api     # Architecture design
@@ -1419,34 +1506,42 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 4. /sc:implement step1               # Step-by-step implementation
 5. /sc:test --coverage               # Testing
 ```
+
 → See: [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery), [`/sc:design`](#scdesign---system-and-component-design), [`/sc:workflow`](#scworkflow---implementation-workflow-generator), [`/sc:implement`](#scimplement---feature-implementation), [`/sc:test`](#sctest---testing)
 
 ### Bug Fix
+
 ```
 1. /sc:troubleshoot "error" --trace  # Diagnosis (finds code via Serena)
 2. /sc:implement fix                 # Fix
 3. /sc:test                          # Verification
 ```
+
 → See: [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis), [`/sc:implement`](#scimplement---feature-implementation), [`/sc:test`](#sctest---testing)
 
 ### Refactoring
+
 ```
 1. /sc:analyze code --type quality   # Problem analysis (uses Serena)
 2. /sc:improve code --focus X        # Improvement
 3. /sc:cleanup --scope module        # Cleanup
 4. /sc:test                          # Verification
 ```
+
 → See: [`/sc:analyze`](#scanalyze---code-analysis), [`/sc:improve`](#scimprove---code-improvement), [`/sc:cleanup`](#sccleanup---code-cleanup), [`/sc:test`](#sctest---testing)
 
 ### Code Review
+
 ```
 1. /sc:analyze PR --type quality     # Code quality
 2. /sc:analyze PR --type security    # Security
 3. /sc:test --type integration       # Integration tests
 ```
+
 → See: [`/sc:analyze`](#scanalyze---code-analysis), [`/sc:test`](#sctest---testing)
 
 ### Business Idea Development (from idea to specification)
+
 ```
 1. /sc:brainstorm "idea"                    # Clarify requirements through dialogue
 2. /sc:research "market + competitors"      # Market research
@@ -1457,9 +1552,11 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 6. /sc:spec-panel @design.md --mode critique      # Specification review (Fowler, Wiegers...)
    # → Get technical recommendations
 ```
+
 → See: [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery), [`/sc:research`](#scresearch---deep-web-research), [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel), [`/sc:design`](#scdesign---system-and-component-design), [`/sc:spec-panel`](#scspec-panel---expert-specification-review)
 
 ### Improving Specification/PRD
+
 ```
 1. /sc:spec-panel @spec.md --mode socratic        # Questions to understand gaps
    # → Experts ask: "Who is primary stakeholder?"
@@ -1468,9 +1565,11 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
    # → Get: ❌ CRITICAL, ⚠️ MAJOR, priorities
 4. /sc:spec-panel @spec.md --iterations 2         # Iterative improvement
 ```
+
 → See: [`/sc:spec-panel`](#scspec-panel---expert-specification-review)
 
 ### Architecture Validation Before Implementation
+
 ```
 1. /sc:design system --type architecture    # Create architecture
 2. /sc:spec-panel @architecture.md --focus architecture --experts "fowler,newman,nygard"
@@ -1481,9 +1580,11 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 4. /sc:workflow system                      # Implementation plan
 5. /sc:implement ...                        # Implementation
 ```
+
 → See: [`/sc:design`](#scdesign---system-and-component-design), [`/sc:spec-panel`](#scspec-panel---expert-specification-review), [`/sc:workflow`](#scworkflow---implementation-workflow-generator), [`/sc:implement`](#scimplement---feature-implementation)
 
 ### Pitch/Strategy Preparation
+
 ```
 1. /sc:business-panel @pitch.md --mode discussion
    # → Porter: competitive advantage
@@ -1492,9 +1593,11 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 2. /sc:business-panel @pitch.md --mode debate     # Stress-test arguments
 3. /sc:business-panel @pitch.md --synthesis-only  # Final synthesis
 ```
+
 → See: [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel)
 
 ### Enterprise-level Feature (full cycle)
+
 ```
 1. /sc:brainstorm "enterprise feature"      # Requirements
 2. /sc:business-panel @requirements.md      # Business validation
@@ -1506,6 +1609,7 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 8. /sc:analyze feature --focus security     # Security review
 9. /sc:test --type all --coverage           # Full testing
 ```
+
 → See: [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery), [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel), [`/sc:design`](#scdesign---system-and-component-design), [`/sc:spec-panel`](#scspec-panel---expert-specification-review), [`/sc:workflow`](#scworkflow---implementation-workflow-generator), [`/sc:spawn`](#scspawn---meta-system-task-orchestration), [`/sc:task`](#sctask---enhanced-task-management), [`/sc:analyze`](#scanalyze---code-analysis), [`/sc:test`](#sctest---testing)
 
 > **Note**: SuperClaude commands automatically use Serena for symbol search,
@@ -1560,6 +1664,7 @@ serena read_memory suggested_commands.md
 ```
 
 **Available memories:**
+
 - `project_overview.md` — about the project, tech stack, architecture
 - `suggested_commands.md` — development commands (UV, pytest, make)
 - `style_conventions.md` — code styles and conventions

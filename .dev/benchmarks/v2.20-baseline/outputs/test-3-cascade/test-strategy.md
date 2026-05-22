@@ -167,12 +167,14 @@ Phase 6:  M6.1-6.6 → V-6.1 (consolidated) → EXIT GATE 6 (RELEASE)
 ### Stop-and-Fix Policy
 
 **Major issue** (any of these triggers immediate stop):
+
 - Frontmatter schema violation (Layer A failure)
 - Wave sequencing error (Layer B failure)
 - Data loss or corruption in extraction output
 - Security-sensitive flag bypass (compliance tier violation)
 
 **Minor issue** (log and continue, fix in next cycle):
+
 - Template scoring tie-break inconsistency
 - Progress reporting format deviation
 - Non-blocking warning message wording

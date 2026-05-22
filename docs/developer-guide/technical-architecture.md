@@ -237,6 +237,7 @@ Practical usage examples
 ### Command Processing
 
 When user types `/sc:implement "feature"` in Claude Code conversation:
+
 1. Claude reads `commands/sc/implement.md`
 2. Adopts implementation workflow pattern
 3. May auto-activate related agents
