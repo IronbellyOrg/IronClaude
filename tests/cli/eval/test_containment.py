@@ -584,6 +584,69 @@ class TestExitCodeTwoPath:
 
 
 # ---------------------------------------------------------------------------
+# T4b / H5b — isolation.py pre-check refuses non-allowlisted home_root
+#             BEFORE mkdir (OPS-002 ordering site 2)
+# ---------------------------------------------------------------------------
+
+
+def test_home_isolation_setup_rejects_non_allowlisted_home_root_before_mkdir(
+    tmp_path: Path,
+) -> None:
+    """T4b / H5b / OPS-002: ``HomeIsolation.setup`` refuses a non-allowlisted
+    ``home_root`` BEFORE ``self.home_root.mkdir(...)`` materializes anything.
+
+    Pre-H5b the post-mkdtemp ``containment_guard`` was the gate — meaning
+    ``self.home_root.mkdir(...)`` ran first, then ``tempfile.mkdtemp``
+    created a per-eval HOME under it, and only AFTER all that did the
+    allowlist check refuse. That violated OPS-002 because every refused
+    invocation materialized a directory tree on disk outside the
+    allowlist.
+
+    Post-H5b the pre-check at the top of ``setup`` resolves ``self.home_root``
+    and refuses against ``config.allowed_scratch_roots`` BEFORE any
+    filesystem write. This test pins both halves of the contract:
+
+    1. ``HomeContainmentViolation`` raises (with ``check == "scratch_root_allowlist"``).
+    2. No directory was created under the non-allowlisted ``home_root``.
+    """
+
+    non_allowlisted_root = tmp_path / "outside-allowlist-root"
+    # Pre-create the parent so the test can observe whether ``setup``'s
+    # internal ``home_root.mkdir`` ran (it must NOT post-H5b).
+    parent = non_allowlisted_root.parent
+
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    narrow_config = EvalConfig(allowed_scratch_roots=(allowed,))
+
+    iso = HomeIsolation(
+        eval_id="E1",
+        home_root=non_allowlisted_root,
+        session_id="sess-t4b",
+    )
+
+    parent_contents_before = sorted(p.name for p in parent.iterdir())
+
+    with pytest.raises(HomeContainmentViolation) as exc_info:
+        iso.setup(config=narrow_config)
+
+    assert exc_info.value.check == "scratch_root_allowlist"
+    # H5b: no on-disk side effect — ``home_root`` itself was never
+    # created, and certainly no per-eval HOME was mkdtemp'd under it.
+    assert not non_allowlisted_root.exists(), (
+        f"H5b violation: pre-check did NOT refuse before mkdir — "
+        f"{non_allowlisted_root} exists on disk after the refusal."
+    )
+    parent_contents_after = sorted(p.name for p in parent.iterdir())
+    assert parent_contents_before == parent_contents_after, (
+        f"H5b violation: parent directory contents changed during the "
+        f"refused setup. before={parent_contents_before} "
+        f"after={parent_contents_after}"
+    )
+    assert not iso.is_set_up
+
+
+# ---------------------------------------------------------------------------
 # Slice coverage pin — every TEST-002 AC slice has at least one test
 # ---------------------------------------------------------------------------
 

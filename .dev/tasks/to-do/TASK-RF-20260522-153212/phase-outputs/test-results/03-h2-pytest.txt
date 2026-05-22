@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 27 items
+
+tests/cli/eval/test_coverage_gate.py::test_sanitize_pattern_preserves_safe_chars PASSED [  3%]
+tests/cli/eval/test_coverage_gate.py::test_sanitize_pattern_replaces_unsafe_chars PASSED [  7%]
+tests/cli/eval/test_coverage_gate.py::test_default_matcher_filter_accepts_auggie_prefix PASSED [ 11%]
+tests/cli/eval/test_coverage_gate.py::test_default_matcher_filter_accepts_auggie_mcp_prefix PASSED [ 14%]
+tests/cli/eval/test_coverage_gate.py::test_default_matcher_filter_accepts_airis_prefix PASSED [ 18%]
+tests/cli/eval/test_coverage_gate.py::test_default_matcher_filter_rejects_non_mcp_patterns PASSED [ 22%]
+tests/cli/eval/test_coverage_gate.py::test_extract_hook_matchers_walks_every_event PASSED [ 25%]
+tests/cli/eval/test_coverage_gate.py::test_extract_hook_matchers_skips_entries_without_matcher PASSED [ 29%]
+tests/cli/eval/test_coverage_gate.py::test_extract_hook_matchers_handles_missing_hooks_key PASSED [ 33%]
+tests/cli/eval/test_coverage_gate.py::test_eval_covers_pattern_matches_prefix_regex PASSED [ 37%]
+tests/cli/eval/test_coverage_gate.py::test_eval_covers_pattern_misses_unrelated_tool_call PASSED [ 40%]
+tests/cli/eval/test_coverage_gate.py::test_eval_covers_pattern_handles_invalid_regex PASSED [ 44%]
+tests/cli/eval/test_coverage_gate.py::test_eval_covers_pattern_ignores_non_string_tool_calls PASSED [ 48%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_passes_when_settings_missing PASSED [ 51%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_fails_closed_when_settings_unreadable_json PASSED [ 55%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_passes_when_every_pattern_has_a_covering_eval PASSED [ 59%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_fails_and_writes_artifact_for_uncovered_pattern PASSED [ 62%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_fails_when_fourth_matcher_added_without_eval PASSED [ 66%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_default_filter_skips_non_mcp_matchers PASSED [ 70%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_to_dict_serialises_full_result PASSED [ 74%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_fails_on_corrupt_settings_json PASSED [ 77%]
+tests/cli/eval/test_coverage_gate.py::test_cli_doctor_check_coverage_passes_with_empty_settings PASSED [ 81%]
+tests/cli/eval/test_coverage_gate.py::test_cli_doctor_check_coverage_fails_when_uncovered_matcher_present PASSED [ 85%]
+tests/cli/eval/test_coverage_gate.py::test_cli_doctor_check_coverage_json_payload_carries_missing_list PASSED [ 88%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_gate_exit_code_pins_design_spec_value PASSED [ 92%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_result_passed_is_true_when_no_missing PASSED [ 96%]
+tests/cli/eval/test_coverage_gate.py::test_coverage_result_passed_is_false_when_missing_nonempty PASSED [100%]
+
+============================== 27 passed in 0.21s ==============================
+EXIT_CODE=0

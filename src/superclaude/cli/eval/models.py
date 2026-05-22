@@ -61,6 +61,15 @@ EvalStatus = Literal[
 # against the same authoritative set without re-deriving from the Literal.
 EVAL_STATUSES: tuple[str, ...] = get_args(EvalStatus)
 
+# DM-012 status partitions — M3: exported alongside ``EVAL_STATUSES`` so
+# commands.py:_compute_run_stats cannot drift from the canonical set when
+# new statuses land. ``PASSED_STATUSES`` includes XFAIL because expected
+# failures roll up to the passing bucket at the suite level; ``FAILED_STATUSES``
+# includes XPASS because an unexpected pass signals a stale ``xfail`` marker.
+SKIPPED_STATUSES: frozenset[str] = frozenset({"SKIPPED", "INTERRUPTED"})
+PASSED_STATUSES: frozenset[str] = frozenset({"PASS", "XFAIL"})
+FAILED_STATUSES: frozenset[str] = frozenset({"FAIL", "XPASS"})
+
 
 @dataclass(frozen=True)
 class EvalSpec:

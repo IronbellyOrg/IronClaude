@@ -1,0 +1,21 @@
+{
+  "target_mode": "snapshot",
+  "snapshot_path": "src/superclaude/cli/eval/",
+  "depth": "deep",
+  "focus": ["security","architecture","quality","tests","anti-patterns"],
+  "total_files": 28,
+  "python_files": 23,
+  "total_python_loc": 11019,
+  "review_context": "Post-sprint review after Phase 4 + Phase 5 of cliEval just completed",
+  "specific_validation": [
+    "FR-G1 (ban-import rule)",
+    "FR-G4 (artifact layout)",
+    "FR-G5 (coverage gate)",
+    "FR-ISO2 path containment",
+    "AC12 scratch-root allowlist closure from commit dce3c3cb",
+    "eval_run lifecycle: 11 helpers + 3 exit-code constants from commit e6368db8",
+    "Residual tech debt from commits e6368db8, dce3c3cb, 08183738"
+  ],
+  "recent_commits": ["08183738","dce3c3cb","e6368db8","1ca25953"],
+  "auggie_version": "0.27.2"
+}

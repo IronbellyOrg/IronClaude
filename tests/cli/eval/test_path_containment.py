@@ -445,15 +445,24 @@ class TestIntegrationWithHomeIsolationSetup:
         assert observed["existed_at_guard"] is True
         assert observed["home_path"] == iso.home_path
 
-    def test_setup_failure_preserves_partial_home(
+    def test_setup_allowlist_failure_blocks_mkdtemp(
         self, scratch_root: Path, tmp_path: Path
     ) -> None:
-        """When the guard fails AFTER mkdtemp, the per-eval HOME is
-        left on disk so the NFR-ISO2 atomic wrapper (T02.13) can tag
-        it as ``setup_failed`` for forensic inspection."""
+        """H5b: scratch-root allowlist refusal pre-checks BEFORE mkdtemp.
 
-        # Narrow config that does not include scratch_root → check 2
-        # will fail.
+        Pre-H5b this test pinned "partial HOME preserved on disk after
+        check 2 fails" — but that violated OPS-002 / NFR-SEC2 because the
+        mkdtemp happened against a non-allowlisted root. Post-H5b the
+        allowlist pre-check at the top of ``HomeIsolation.setup`` catches
+        non-allowlisted scratch roots BEFORE mkdtemp, so no per-eval HOME
+        is created. The forensic forensic_payload still carries
+        ``check == "scratch_root_allowlist"`` so reporters can still
+        bucket the eval as ERRORED. Symlink-escape (check 3) failures
+        still preserve the partial HOME — that path is unchanged.
+        """
+
+        # Narrow config that does not include scratch_root → pre-check
+        # will refuse.
         unrelated = tmp_path / "unrelated-allowlist"
         unrelated.mkdir()
         strict_config = EvalConfig(allowed_scratch_roots=(unrelated,))
@@ -467,10 +476,10 @@ class TestIntegrationWithHomeIsolationSetup:
             iso.setup(config=strict_config)
 
         assert exc_info.value.check == "scratch_root_allowlist"
-        # Partial HOME directory still on disk for forensic capture.
+        # H5b: NO per-eval HOME created — pre-check blocked mkdtemp.
         remaining = [p for p in scratch_root.iterdir() if p.name.startswith("E1-")]
-        assert len(remaining) == 1
-        assert remaining[0].is_dir()
+        assert remaining == []
+        assert not iso.is_set_up
 
     def test_setup_requires_explicit_config(self, scratch_root: Path) -> None:
         """:meth:`HomeIsolation.setup` MUST refuse to synthesize a

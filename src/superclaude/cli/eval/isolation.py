@@ -100,7 +100,11 @@ import traceback
 from dataclasses import dataclass
 from pathlib import Path
 
-from .config import EvalConfig, ScratchRootViolation, resolve_scratch_root
+from .config import (
+    EvalConfig,
+    ScratchRootViolation,
+    _resolve_prefix,
+)
 from .loader import InvalidEvalId, validate_eval_id
 
 __all__ = [
@@ -304,18 +308,34 @@ def containment_guard(
             detail=str(exc),
         ) from exc
 
-    # Check 2: scratch-root allowlist (symlink-aware via resolve_scratch_root).
+    # Check 2: scratch-root allowlist (symlink-aware layered re-check).
     # ``config`` is required: see docstring rationale (NFR-SEC2 bypass close).
-    try:
-        resolved_scratch = resolve_scratch_root(scratch_root, config=config)
-    except ScratchRootViolation as exc:
-        raise HomeContainmentViolation(
-            check="scratch_root_allowlist",
-            home_path=home_path,
-            scratch_root=scratch_root,
-            eval_id=eval_id,
-            detail=str(exc),
-        ) from exc
+    #
+    # This is a LAYERED RE-CHECK that runs after operator-input validation
+    # has already accepted ``scratch_root`` upstream. The H4 strict-subpath
+    # rule in ``resolve_scratch_root`` applies ONLY to operator-supplied
+    # paths at the first gate; here we accept equal-or-subpath because the
+    # scratch_root MAY itself be a bare allowlist entry by construction
+    # (e.g. tests injecting tmp_path/scratch into ``allowed_scratch_roots``).
+    resolved_scratch = scratch_root.expanduser().resolve(strict=False)
+    _allowed_prefixes = [_resolve_prefix(p) for p in config.allowed_scratch_roots]
+    if not any(
+        resolved_scratch == prefix or resolved_scratch.is_relative_to(prefix)
+        for prefix in _allowed_prefixes
+    ):
+        _scratch_violation = ScratchRootViolation(
+            scratch_root, resolved_scratch, _allowed_prefixes
+        )
+        try:
+            raise _scratch_violation
+        except ScratchRootViolation as exc:
+            raise HomeContainmentViolation(
+                check="scratch_root_allowlist",
+                home_path=home_path,
+                scratch_root=scratch_root,
+                eval_id=eval_id,
+                detail=str(exc),
+            ) from exc
 
     # Check 3: post-mkdtemp symlink resolution + containment under
     # scratch_root. strict=True asserts the HOME exists (i.e., mkdtemp
@@ -527,9 +547,42 @@ class HomeIsolation:
                 f"HomeIsolation.setup() already called for eval_id={self.eval_id!r}"
             )
 
+        # H5b (OPS-002 ordering site 2): containment PRE-CHECK BEFORE mkdir.
+        # The post-mkdtemp ``containment_guard`` below runs the full FR-ISO2
+        # three-check (eval_id regex + scratch-root allowlist + symlink-
+        # resolved containment) — but only AFTER a per-eval HOME has been
+        # created on disk. The pre-check here mirrors Check 2 of
+        # ``containment_guard`` (equal-or-subpath allowlist membership)
+        # against the scratch root itself, so any non-allowlisted path
+        # raises HomeContainmentViolation BEFORE any filesystem write occurs.
+        # The exception type matches the post-mkdtemp guard's so callers
+        # branch on a single ``HomeContainmentViolation`` to catch both
+        # gates (NFR-SEC2 "hard refusal before side effects").
+        _resolved_root = self.home_root.expanduser().resolve(strict=False)
+        _config_prefixes = [
+            _resolve_prefix(p) for p in config.allowed_scratch_roots
+        ]
+        if not any(
+            _resolved_root == prefix or _resolved_root.is_relative_to(prefix)
+            for prefix in _config_prefixes
+        ):
+            _scratch_violation = ScratchRootViolation(
+                self.home_root, _resolved_root, _config_prefixes
+            )
+            try:
+                raise _scratch_violation
+            except ScratchRootViolation as exc:
+                raise HomeContainmentViolation(
+                    check="scratch_root_allowlist",
+                    home_path=self.home_root,
+                    scratch_root=self.home_root,
+                    eval_id=self.eval_id,
+                    detail=str(exc),
+                ) from exc
+
         # Ensure the scratch root exists. ``parents=True, exist_ok=True``
-        # is safe because the FR-ISO2 guard below catches any path that
-        # resolves outside the policy allowlist.
+        # is safe because the H5b pre-check above + the FR-ISO2 guard below
+        # together catch any path that resolves outside the policy allowlist.
         self.home_root.mkdir(parents=True, exist_ok=True)
 
         home = Path(

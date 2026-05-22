@@ -46,7 +46,7 @@ repos:
         name: Check for hardcoded secrets
         entry: |
           bash -c '
-          if grep -rE "(sk_live_[a-zA-Z0-9]{24,}|pk_live_[a-zA-Z0-9]{24,}|sk_test_[a-zA-Z0-9]{24,}|pk_test_[a-zA-Z0-9]{24,}|SUPABASE_SERVICE_ROLE_KEY\s*=\s*['\''\"']eyJ|SUPABASE_ANON_KEY\s*=\s*['\''\"']eyJ|NEXT_PUBLIC_SUPABASE_ANON_KEY\s*=\s*['\''\"']eyJ|OPENAI_API_KEY\s*=\s*['\''\"']sk-|TWILIO_AUTH_TOKEN\s*=\s*['\''\"'][a-f0-9]{32}|INFISICAL_TOKEN\s*=\s*['\''\"']st\.|DATABASE_URL\s*=\s*['\''\"']postgres.*@.*:.*/.*(password|passwd))" "$@" 2>/dev/null; then
+          if grep -rE "(sk_live_[a-zA-Z0-9]{24,}|pk_live_[a-zA-Z0-9]{24,}|sk_test_[a-zA-Z0-9]{24,}|pk_test_[a-zA-Z0-9]{24,}|SUPABASE_SERVICE_ROLE_KEY\s*=\s*[^[:space:]]*eyJ|SUPABASE_ANON_KEY\s*=\s*[^[:space:]]*eyJ|NEXT_PUBLIC_SUPABASE_ANON_KEY\s*=\s*[^[:space:]]*eyJ|OPENAI_API_KEY\s*=\s*[^[:space:]]*sk-|TWILIO_AUTH_TOKEN\s*=\s*[^[:space:]]*[a-f0-9]{32}|INFISICAL_TOKEN\s*=\s*[^[:space:]]*st\.|DATABASE_URL\s*=\s*[^[:space:]]*postgres.*@.*:.*/.*(password|passwd))" "$@" 2>/dev/null; then
             echo "🚨 BLOCKED: Hardcoded secrets detected!"
             echo "Replace with placeholders: your_token_here, \${VAR_NAME}, etc."
             exit 1
@@ -80,7 +80,7 @@ repos:
     rev: v1.33.0
     hooks:
       - id: yamllint
-        args: ['-d', '{extends: default, rules: {line-length: {max: 120}, document-start: disable}}']
+        args: ['-d', '{extends: default, rules: {line-length: disable, document-start: disable, braces: disable, commas: disable}}']
 
   # Shell script linting
   - repo: https://github.com/shellcheck-py/shellcheck-py

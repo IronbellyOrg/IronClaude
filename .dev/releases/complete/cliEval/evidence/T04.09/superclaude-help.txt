@@ -1,0 +1,25 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Usage: superclaude [OPTIONS] COMMAND [ARGS]...
+
+  SuperClaude - AI-enhanced development framework for Claude Code
+
+  A pytest plugin providing PM Agent capabilities and optional skills system.
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  cleanup-audit  Multi-pass read-only repository audit with...
+  cli-portify    Port inference-based SuperClaude workflows into...
+  doctor         Check SuperClaude installation health
+  eval           Run and inspect the cliEval real-eval harness.
+  install        Install SuperClaude to Claude Code
+  install-skill  Install a SuperClaude skill to Claude Code
+  mcp            Install and manage MCP servers for Claude Code
+  prd            Generate Product Requirements Documents via multi-step...
+  roadmap        Generate project roadmaps from specification files.
+  sprint         Orchestrate multi-phase Claude Code sprint execution.
+  tasklist       Tasklist validation commands.
+  update         Update SuperClaude to latest version
+  version        Show SuperClaude version

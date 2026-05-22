@@ -121,27 +121,42 @@ class TestPartialHomePreservedOnException:
     per-eval HOME on disk so the orchestrator (and post-mortem operators)
     can inspect it."""
 
-    def test_containment_violation_preserves_home(
+    def test_allowlist_violation_blocks_mkdtemp_before_partial_home(
         self, scratch_root: Path, restrictive_config: EvalConfig
     ) -> None:
-        iso = _build(scratch_root)
-        with pytest.raises(HomeContainmentViolation):
-            iso.setup(config=restrictive_config)
-        partials = _list_partial_homes(scratch_root, "E1")
-        assert len(partials) == 1
-        assert partials[0].is_dir()
+        """H5b: allowlist violations now raise BEFORE ``mkdtemp`` runs.
 
-    def test_partial_home_recorded_on_instance_slot(
-        self, scratch_root: Path, restrictive_config: EvalConfig
-    ) -> None:
+        Pre-H5b this asserted "partial HOME preserved on disk for forensics"
+        (mkdtemp ran first, then containment_guard refused). Post-H5b the
+        scratch-root allowlist pre-check at the top of ``HomeIsolation.setup``
+        catches non-allowlisted paths BEFORE any filesystem write, satisfying
+        OPS-002 / NFR-SEC2 "no filesystem write before allowlist validation".
+        Non-allowlist post-mkdtemp exceptions (Check 3 symlink escape, harness
+        bugs) still preserve the partial HOME — that path is unchanged.
+        """
         iso = _build(scratch_root)
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=restrictive_config)
-        # The slot stays populated so ``teardown(keep=True)`` can preserve
-        # the partial HOME without re-resolving from disk.
-        assert iso.is_set_up
         partials = _list_partial_homes(scratch_root, "E1")
-        assert iso.home_path == partials[0]
+        assert partials == []
+        assert not iso.is_set_up
+
+    def test_allowlist_violation_leaves_instance_slot_unset(
+        self, scratch_root: Path, restrictive_config: EvalConfig
+    ) -> None:
+        """H5b: pre-check refusal happens before ``_home_path`` is set.
+
+        Pre-H5b ``is_set_up`` flipped True after mkdtemp ran. Post-H5b the
+        slot remains ``None`` because the pre-check refused before mkdtemp.
+        ``teardown(keep=True)`` therefore has nothing to preserve and the
+        orchestrator's failure branch is a no-op for this failure mode.
+        """
+        iso = _build(scratch_root)
+        with pytest.raises(HomeContainmentViolation):
+            iso.setup(config=restrictive_config)
+        assert not iso.is_set_up
+        with pytest.raises(RuntimeError, match="setup\\(\\) must be called"):
+            _ = iso.home_path
 
     def test_injected_exception_preserves_home(
         self,
@@ -293,41 +308,62 @@ class TestContainmentViolationDoesNotWriteTag:
     def test_no_tag_after_containment_violation(
         self, scratch_root: Path, restrictive_config: EvalConfig
     ) -> None:
+        """H5b: allowlist refusal happens BEFORE mkdtemp, so there is no
+        per-eval HOME under which a tag could even be written.
+
+        Pre-H5b checked ``not tag_path.exists()`` under the preserved partial
+        HOME. Post-H5b: the partial HOME never exists (pre-check blocks
+        mkdtemp), so the tag is trivially absent. The NFR-SEC3 no-writes
+        invariant is satisfied a fortiori.
+        """
         iso = _build(scratch_root)
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=restrictive_config)
-
-        tag_path = iso.home_path / SETUP_FAILED_TAG_RELPATH
-        assert not tag_path.exists(), (
-            "containment violation MUST NOT write a tag under the refused HOME "
-            "— that would breach the NFR-SEC3 no-writes invariant when the "
-            "scratch root or mkdtemp result symlinks into real ~/.claude/."
-        )
+        # No partial HOME exists, so listing the scratch root shows no
+        # per-eval directory and certainly no tag.
+        partials = _list_partial_homes(scratch_root, "E1")
+        assert partials == []
+        assert not (scratch_root / ".eval-meta" / "setup_failed").exists()
 
     def test_eval_meta_dir_not_created_after_containment_violation(
         self, scratch_root: Path, restrictive_config: EvalConfig
     ) -> None:
+        """H5b: no per-eval HOME means no ``.eval-meta`` directory either.
+
+        Pre-H5b this checked ``not eval_meta_dir.exists()`` under
+        ``iso.home_path``. Post-H5b there is no home_path at all (the slot
+        is unset), and no eval-meta directory anywhere under scratch_root.
+        """
         iso = _build(scratch_root)
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=restrictive_config)
-
-        eval_meta_dir = iso.home_path / ".eval-meta"
-        # Stronger: not just the tag, but the parent dir must be absent
-        # so listing the refused HOME shows zero post-mkdtemp writes.
-        assert not eval_meta_dir.exists()
+        partials = _list_partial_homes(scratch_root, "E1")
+        assert partials == []
+        # Scratch root may or may not exist depending on whether the
+        # caller pre-created it — but no per-eval ``.eval-meta`` lives
+        # under it either way.
+        assert not (scratch_root / ".eval-meta").exists()
 
     def test_containment_violation_carries_forensic_payload(
         self, scratch_root: Path, restrictive_config: EvalConfig
     ) -> None:
         """The HomeContainmentViolation is the structured signal — it
-        carries everything a reporter would have read from a tag."""
+        carries everything a reporter would have read from a tag.
+
+        H5b: pre-check refusal sets ``exc.home_path == iso.home_root`` (the
+        declared scratch root) because no per-eval HOME was ever created.
+        Other forensic fields (check, scratch_root, eval_id, detail) are
+        populated identically to the post-mkdtemp path.
+        """
 
         iso = _build(scratch_root)
         try:
             iso.setup(config=restrictive_config)
         except HomeContainmentViolation as exc:
-            assert exc.check  # short identifier (e.g. 'scratch_root_allowlist')
-            assert exc.home_path == iso.home_path
+            assert exc.check == "scratch_root_allowlist"
+            # H5b: pre-check refusal — exc.home_path == iso.home_root
+            # because no per-eval HOME was created.
+            assert exc.home_path == iso.home_root
             assert exc.scratch_root == iso.home_root
             assert exc.eval_id == iso.eval_id
             assert exc.detail  # human-readable detail
@@ -383,9 +419,14 @@ class _MockEvalRunner:
         except Exception as exc:
             # The exception itself is sufficient to bucket as ERRORED —
             # this mirrors how production EvalRunner will handle
-            # non-FAIL outcomes.
-            tag_path = iso.home_path / SETUP_FAILED_TAG_RELPATH
-            self.tag_present = tag_path.exists()
+            # non-FAIL outcomes. H5b: when setup() refuses at the allowlist
+            # pre-check (before mkdtemp), no home_path was ever set on the
+            # instance; the tag is trivially absent in that case.
+            if iso.is_set_up:
+                tag_path = iso.home_path / SETUP_FAILED_TAG_RELPATH
+                self.tag_present = tag_path.exists()
+            else:
+                self.tag_present = False
             self.status = "ERRORED"
             self.error_class = type(exc).__name__
             iso.teardown(keep=True)
@@ -485,18 +526,25 @@ class TestTeardownKeepTruePreservesPartialHome:
     """The orchestrator's failure branch — ``teardown(keep=True)`` after
     a failed ``setup`` — preserves the partial HOME on disk."""
 
-    def test_teardown_keep_true_preserves_home_after_containment_violation(
+    def test_teardown_keep_true_is_noop_after_allowlist_violation(
         self, scratch_root: Path, restrictive_config: EvalConfig
     ) -> None:
+        """H5b: allowlist refusal blocks mkdtemp, so teardown has no HOME to preserve.
+
+        Pre-H5b: ``iso.home_path`` resolved to the mkdtemp'd HOME and
+        ``teardown(keep=True)`` preserved it on disk for forensics.
+        Post-H5b: ``iso.is_set_up is False`` and ``teardown(keep=True)``
+        is a benign no-op — the orchestrator's failure-branch can still
+        call it unconditionally without an attribute error.
+        """
         iso = _build(scratch_root)
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=restrictive_config)
-        home = iso.home_path
-        tag_path = home / SETUP_FAILED_TAG_RELPATH
+        assert not iso.is_set_up
+        # teardown(keep=True) is a no-op when nothing was created.
         iso.teardown(keep=True)
-        assert home.exists()
-        # Containment violations do not write the tag.
-        assert not tag_path.exists()
+        partials = _list_partial_homes(scratch_root, "E1")
+        assert partials == []
 
     def test_teardown_keep_true_preserves_home_and_tag_after_injected_exception(
         self,
@@ -519,12 +567,15 @@ class TestTeardownKeepTruePreservesPartialHome:
         first_line = tag_path.read_text(encoding="utf-8").splitlines()[0]
         assert first_line == "RuntimeError"
 
-    def test_teardown_keep_false_after_failure_removes_home(
+    def test_teardown_keep_false_after_allowlist_violation_is_noop(
         self, scratch_root: Path, restrictive_config: EvalConfig
     ) -> None:
+        """H5b: ``teardown(keep=False)`` is a benign no-op for the
+        pre-mkdtemp allowlist refusal — nothing to remove."""
         iso = _build(scratch_root)
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=restrictive_config)
-        home = iso.home_path
+        assert not iso.is_set_up
         iso.teardown(keep=False)
-        assert not home.exists()
+        partials = _list_partial_homes(scratch_root, "E1")
+        assert partials == []

@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 4 items
+
+tests/cli/eval/test_exit_codes.py::test_exit_code_0_clean_run PASSED     [ 25%]
+tests/cli/eval/test_exit_codes.py::test_exit_code_1_failing_run SKIPPEDe_spec ships with expect_callables=() so this test cannot
+exercise the FAIL path. Un-skips when the resolver lands.)               [ 50%]
+tests/cli/eval/test_exit_codes.py::test_exit_code_2_harness_error PASSED [ 75%]
+tests/cli/eval/test_exit_codes.py::test_exit_code_3_interrupted_run SKIPPEDr + PtyDriver) not yet landed;
+_NullLifecycleExecutor returns canned PASS instantly so this test cannot
+exercise the SIGINT cancellation path. Un-skips when the production
+executor replaces the null stub.)                                        [100%]
+
+========================= 2 passed, 2 skipped in 0.66s =========================
+EXIT_CODE=0

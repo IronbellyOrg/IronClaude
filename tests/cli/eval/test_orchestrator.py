@@ -30,7 +30,7 @@ from typing import Callable
 import pytest
 
 from superclaude.cli.eval.models import EvalOutcome, EvalSpec
-from superclaude.cli.eval.orchestrator import RunOrchestrator
+from superclaude.cli.eval.orchestrator import RunOrchestrator, allocate_session_id
 from superclaude.cli.eval.signal_handler import CancellationToken
 
 
@@ -355,3 +355,45 @@ class TestConstructorGuards:
         # Construction succeeds without a token; cancellation simply
         # never fires.
         RunOrchestrator(run_one=worker)
+
+
+# ---------------------------------------------------------------------------
+# M5: orchestrator owns session_id allocation
+# ---------------------------------------------------------------------------
+
+
+def test_orchestrator_allocates_unique_session_id_per_run() -> None:
+    """M5 — session_id identifier policy lives in the orchestrator.
+
+    Two invocations with the same eval_id but different run_ids MUST produce
+    different session_ids; the same (run_id, eval_id) pair MUST be stable.
+    """
+
+    sid_a = allocate_session_id(run_id="20260522T120000Z-deadbeef", eval_id="E1")
+    sid_b = allocate_session_id(run_id="20260522T130000Z-cafebabe", eval_id="E1")
+    sid_a_repeat = allocate_session_id(
+        run_id="20260522T120000Z-deadbeef", eval_id="E1"
+    )
+
+    assert sid_a != sid_b, "different run_ids must produce different session_ids"
+    assert sid_a == sid_a_repeat, "same (run_id, eval_id) must be stable"
+    assert "E1" in sid_a, "session_id must carry the eval_id for traceability"
+
+
+def test_run_one_spec_uses_orchestrator_allocate_session_id() -> None:
+    """M5 / T7 — the production callsite uses orchestrator.allocate_session_id,
+    not an ad-hoc f-string.
+    """
+
+    import inspect
+
+    from superclaude.cli.eval import commands as _commands
+
+    source = inspect.getsource(_commands._run_one_spec)
+    assert "allocate_session_id(" in source, (
+        "_run_one_spec must call orchestrator.allocate_session_id, not "
+        "construct session_id ad-hoc"
+    )
+    assert 'sess-{spec.id}' not in source, (
+        "_run_one_spec must not embed the old ad-hoc f-string"
+    )

@@ -31,8 +31,11 @@ from __future__ import annotations
 import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Mapping
+from typing import Callable, Mapping
 
+import yaml
+
+from . import exit_codes as _exit_codes
 from .models import EvalOutcome, RunSummary
 
 __all__ = [
@@ -49,7 +52,8 @@ __all__ = [
 # meaningful run-result classification map to exit code 2. The reporter
 # contract violation is in that class — the orchestrator and the
 # reporter disagree on the row count, so the run itself is suspect.
-REPORTER_CONTRACT_VIOLATION_EXIT_CODE: int = 2
+# Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
+REPORTER_CONTRACT_VIOLATION_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 
 
 # Statuses that count as failure for the markdown headline. Mirrors the
@@ -332,6 +336,80 @@ def render_junit_xml(summary: RunSummary) -> str:
 # ---------------------------------------------------------------------------
 
 
+def render_summary_yaml(summary: RunSummary) -> str:
+    """Return the YAML rendering of ``summary.to_dict()``.
+
+    M4: promoted from ``reporter.py`` so the YAML renderer sits alongside
+    its Markdown / JSON / JUnit siblings and the consolidated
+    :func:`_write_artifact_set` helper can emit ``summary.yaml`` from a
+    single SoT without a circular import. ``Reporter.to_yaml`` re-exports
+    from here for backward-compatibility.
+
+    Uses ``yaml.safe_dump`` with ``sort_keys=False`` so the output
+    preserves the DM-004 field declaration order :meth:`RunSummary.to_dict`
+    yields. ``default_flow_style=False`` keeps the result in canonical
+    block style (one key per line). The N'-vs-K invariant guard fires
+    before serialisation so a mismatched summary cannot leave a partial
+    YAML behind.
+    """
+
+    _check_invariant(summary)
+    payload = summary.to_dict()
+    return yaml.safe_dump(
+        payload,
+        sort_keys=False,
+        default_flow_style=False,
+        allow_unicode=True,
+    )
+
+
+def _write_artifact_set(
+    out: Path,
+    *,
+    summary: RunSummary,
+    emit_junit: bool,
+    md_renderer: Callable[[RunSummary], str] = render_summary_markdown,
+    json_renderer: Callable[[RunSummary], str] = render_summary_json,
+    yaml_renderer: Callable[[RunSummary], str] = render_summary_yaml,
+    junit_renderer: Callable[[RunSummary], str] = render_junit_xml,
+) -> dict[str, Path]:
+    """M4: consolidated artifact-set writer used by both ``Reporter.write``
+    and :func:`write_aggregated_report`.
+
+    Always writes ``summary.md``, ``summary.json``, ``summary.yaml``.
+    Writes ``junit.xml`` only when ``emit_junit`` is True. Returns the
+    artefact-name → written-path mapping. The N'-vs-K invariant must
+    have already been checked by the caller — this helper is the
+    file-emit layer only.
+
+    Renderer callables are injected so :class:`Reporter` can plug in its
+    instance methods (which add formatting flourishes on top of the
+    module-level renderers) without going through a second class shape.
+    """
+    out.mkdir(parents=True, exist_ok=True)
+
+    md_path = out / "summary.md"
+    json_path = out / "summary.json"
+    yaml_path = out / "summary.yaml"
+
+    md_path.write_text(md_renderer(summary), encoding="utf-8")
+    json_path.write_text(json_renderer(summary), encoding="utf-8")
+    yaml_path.write_text(yaml_renderer(summary), encoding="utf-8")
+
+    written: dict[str, Path] = {
+        "summary.md": md_path,
+        "summary.json": json_path,
+        "summary.yaml": yaml_path,
+    }
+
+    if emit_junit:
+        junit_path = out / "junit.xml"
+        junit_path.write_text(junit_renderer(summary), encoding="utf-8")
+        written["junit.xml"] = junit_path
+
+    return written
+
+
 def write_aggregated_report(
     summary: RunSummary,
     output_dir: Path | str,
@@ -344,6 +422,8 @@ def write_aggregated_report(
 
     * ``<output_dir>/summary.md``
     * ``<output_dir>/summary.json``
+    * ``<output_dir>/summary.yaml`` (M4: now unconditional, closing the
+      +1 yaml divergence with :meth:`Reporter.write`)
     * ``<output_dir>/junit.xml`` (only when ``emit_junit=True``)
 
     The N'-vs-K invariant is checked *before* any file is written; a
@@ -356,24 +436,6 @@ def write_aggregated_report(
     """
 
     _check_invariant(summary)
-
-    out = Path(output_dir)
-    out.mkdir(parents=True, exist_ok=True)
-
-    md_path = out / "summary.md"
-    json_path = out / "summary.json"
-
-    md_path.write_text(render_summary_markdown(summary), encoding="utf-8")
-    json_path.write_text(render_summary_json(summary), encoding="utf-8")
-
-    written: dict[str, Path] = {
-        "summary.md": md_path,
-        "summary.json": json_path,
-    }
-
-    if emit_junit:
-        junit_path = out / "junit.xml"
-        junit_path.write_text(render_junit_xml(summary), encoding="utf-8")
-        written["junit.xml"] = junit_path
-
-    return written
+    return _write_artifact_set(
+        Path(output_dir), summary=summary, emit_junit=emit_junit
+    )

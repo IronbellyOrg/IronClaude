@@ -1,0 +1,303 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# frontier_vs_cheap_combo — one-off baseline cliEval suite.
+#
+# Purpose: Directly test the hypothesis "1× expensive frontier model can
+# be matched by N× cheaper models merged via /sc:adversarial". For each
+# eval, two adversarial pipelines run back-to-back against the SAME
+# seeded source task:
+#
+#   RUN A (frontier-only) : --agents opus,opus,opus      → frontier/base-selection.md
+#   RUN B (cheap-combo)   : --agents sonnet,haiku,sonnet → combo/base-selection.md
+#
+# Then Claude reads both base-selection.md artifacts and emits a
+# comparison report at comparison.md summarizing each side's
+# quant_score, qual_score, and final base-selection rationale.
+#
+# Model alias resolution (from operator's ~/.bashrc):
+#   opus   → claude-opus-4-7[1m]  (frontier, expensive)
+#   sonnet → glm-5.1              (cheap; currently aliased to sonnet)
+#   haiku  → gpt-5.5              (cheap)
+#
+# Cadence: ON-DEMAND ONLY (not part of any nightly/PR/release gate).
+# Run manually when cost/quality hypothesis validation is needed.
+# Each eval drives TWO full adversarial pipelines (5-step protocol
+# each), so timeout_sec is set high (3000s) and the suite is NOT
+# intended for unattended automation.
+#
+# PTY: every eval drives `claude` through the PTY harness, so
+# --no-pty skips the entire suite (no_pty: skip on every entry).
+#
+# Schema: /config/workspace/IronClaude/src/superclaude/cli/eval/suites/suite.schema.json
+name: frontier_vs_cheap_combo
+version: "1.0"
+description: "On-demand cost/quality A/B: 3× opus vs 3× cheap aliased models merged via /sc:adversarial. Compares quant_score + qual_score on 4 task categories."
+
+defaults:
+  per_eval_timeout_sec: 3000
+  per_eval_memory_mb: 1024
+  capture_tty: true
+  keep_home_on_success: true
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: FC1
+    title: "PLANNING — frontier vs cheap-combo on a small roadmap task"
+    category: cost-quality-ab
+    requires: []
+    timeout_sec: 3000
+    no_pty: skip
+    # FC1 — small roadmap planning task. The seeded source spec
+    # describes a tiny notifications feature (5 requirements, 1 NFR).
+    # Two adversarial pipelines generate 3 roadmap variants each and
+    # select a base; the comparison prompt reads both base-selection.md
+    # files and emits comparison.md.
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source-task.md
+          content: |
+            # Notifications Service — Mini Spec
+
+            ## Requirements
+            - FR-001: Users can subscribe to channels via REST POST /subscribe.
+            - FR-002: Service fans out events to subscribers within 2 seconds.
+            - FR-003: Subscribers can be email, webhook, or in-app session.
+            - FR-004: Failed deliveries retry with exponential backoff (3 attempts).
+            - FR-005: Per-user rate limit: 100 notifications/hour.
+
+            ## Non-Functional
+            - NFR-001: 99.5% delivery success rate over a 30-day window.
+
+            ## Constraints
+            - Stack: Python 3.11, FastAPI, PostgreSQL, Redis.
+            - Single region deployment; multi-region is out of scope.
+
+            ## Out of Scope
+            - SMS delivery channel.
+            - End-user notification preferences UI.
+    inputs:
+      - prompt: "/sc:adversarial --source source-task.md --generate roadmap --agents opus,opus,opus --depth standard --output frontier/"
+      - prompt: "/sc:adversarial --source source-task.md --generate roadmap --agents sonnet,haiku,sonnet --depth standard --output combo/"
+      - prompt: "Read frontier/base-selection.md and combo/base-selection.md. Extract from each: quant_score, qual_score, combined variant_score, and the selection rationale paragraph. Write a comparison report to comparison.md with three sections: (1) Frontier (3× opus) scores + rationale, (2) Cheap-Combo (sonnet,haiku,sonnet) scores + rationale, (3) Verdict — which pipeline produced the higher-scoring base and by what margin. Include both quant_score and qual_score values verbatim."
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: frontier/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: combo/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "qual_score"
+      - exit_code:
+          equals: 0
+
+  - id: FC2
+    title: "ARCHITECTURE — frontier vs cheap-combo on a small component design"
+    category: cost-quality-ab
+    requires: []
+    timeout_sec: 3000
+    no_pty: skip
+    # FC2 — small architecture / component design task. The seeded
+    # source brief asks for the design of a single component (rate
+    # limiter). Two adversarial pipelines generate 3 design variants
+    # each via --generate design, then base-select. Comparison report
+    # extracts scores from both base-selection.md files.
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source-task.md
+          content: |
+            # Rate Limiter Component — Design Brief
+
+            ## Context
+            Internal HTTP service receives ~10K requests/second across 200 tenants.
+            Need a per-tenant rate-limiting component to prevent noisy-neighbor problems.
+
+            ## Functional Requirements
+            - FR-001: Enforce per-tenant request quotas (configurable per tenant).
+            - FR-002: Support burst allowance using token bucket algorithm.
+            - FR-003: Return HTTP 429 with Retry-After header when limit exceeded.
+            - FR-004: Expose Prometheus metrics: requests_total, denied_total, tokens_remaining.
+
+            ## Non-Functional Requirements
+            - NFR-001: Add no more than 2ms p99 latency to request path.
+            - NFR-002: Survive Redis outage by failing-open with local fallback.
+
+            ## Constraints
+            - Language: Go 1.22.
+            - Distributed state in Redis 7.
+            - Deployed as a sidecar to existing services.
+    inputs:
+      - prompt: "/sc:adversarial --source source-task.md --generate design --agents opus,opus,opus --depth standard --output frontier/"
+      - prompt: "/sc:adversarial --source source-task.md --generate design --agents sonnet,haiku,sonnet --depth standard --output combo/"
+      - prompt: "Read frontier/base-selection.md and combo/base-selection.md. Extract from each: quant_score, qual_score, combined variant_score, and the selection rationale. Write comparison.md with three sections: (1) Frontier scores + rationale, (2) Cheap-Combo scores + rationale, (3) Verdict — which pipeline's selected base scored higher and by what margin. Include all four score values (quant_score and qual_score for both sides) verbatim."
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: frontier/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: combo/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "qual_score"
+      - exit_code:
+          equals: 0
+
+  - id: FC3
+    title: "CODE_QUALITY — frontier vs cheap-combo on a refactor task"
+    category: cost-quality-ab
+    requires: []
+    timeout_sec: 3000
+    no_pty: skip
+    # FC3 — code-quality refactor task. The seeded source describes a
+    # legacy Python function with three named issues (unbounded
+    # recursion, duplicate logic, no input validation). Both pipelines
+    # generate a refactor plan via --generate spec (planning artifact,
+    # not raw code) so the adversarial scoring rubric applies cleanly.
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source-task.md
+          content: |
+            # Refactor Brief — flatten_tree() in legacy/tree_utils.py
+
+            ## Current Code (verbatim)
+            ```python
+            def flatten_tree(node, result=None):
+                if result is None:
+                    result = []
+                result.append(node['value'])
+                for child in node.get('children', []):
+                    flatten_tree(child, result)
+                for c in node.get('children', []):
+                    if c.get('children'):
+                        flatten_tree(c, result)
+                return result
+            ```
+
+            ## Known Issues
+            - ISSUE-001: Children are traversed twice (lines 5-6 and 7-9), producing duplicates.
+            - ISSUE-002: Recursion is unbounded; deep trees (>1000 levels) blow the stack.
+            - ISSUE-003: No input validation; `node` may be None or missing the 'value' key.
+
+            ## Requirements for the Refactor Plan
+            - FR-001: Eliminate the duplicate traversal (fix ISSUE-001).
+            - FR-002: Convert to iterative traversal using an explicit stack (fix ISSUE-002).
+            - FR-003: Validate input and raise TypeError on malformed nodes (fix ISSUE-003).
+            - FR-004: Preserve the existing function signature and return type.
+            - FR-005: Include unit-test outline covering at least 4 cases (empty, single, deep, malformed).
+    inputs:
+      - prompt: "/sc:adversarial --source source-task.md --generate spec --agents opus,opus,opus --depth standard --output frontier/"
+      - prompt: "/sc:adversarial --source source-task.md --generate spec --agents sonnet,haiku,sonnet --depth standard --output combo/"
+      - prompt: "Read frontier/base-selection.md and combo/base-selection.md. Extract from each: quant_score, qual_score, combined variant_score, and the selection rationale. Write comparison.md with three sections: (1) Frontier (3× opus) scores + rationale, (2) Cheap-Combo (sonnet,haiku,sonnet) scores + rationale, (3) Verdict — which pipeline produced a higher-scoring refactor plan and by what margin. Include all score values verbatim."
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: frontier/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: combo/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "qual_score"
+      - exit_code:
+          equals: 0
+
+  - id: FC4
+    title: "QA_DEBUGGING — frontier vs cheap-combo on bug-finding"
+    category: cost-quality-ab
+    requires: []
+    timeout_sec: 3000
+    no_pty: skip
+    # FC4 — QA / debugging task. The seeded source contains a Python
+    # snippet with multiple seeded bugs and asks for a structured bug
+    # report. Both pipelines generate via --generate spec (the bug
+    # report is structured Markdown), then base-select; comparison
+    # extracts and contrasts scores.
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source-task.md
+          content: |
+            # Bug-Finding Brief — process_orders() in billing/orders.py
+
+            ## Code Under Review (verbatim)
+            ```python
+            def process_orders(orders, discount_rate=0.1):
+                total = 0
+                for i in range(len(orders) - 1):
+                    order = orders[i]
+                    if order['status'] = 'pending':
+                        continue
+                    price = order['price']
+                    if order.get('discount'):
+                        price = price * discount_rate
+                    total += price
+                return total / len(orders)
+            ```
+
+            ## Task
+            Produce a structured bug report identifying every defect.
+
+            ## Required Report Sections
+            - BR-001: Summary count of bugs found.
+            - BR-002: One subsection per bug with: ID, severity, line number, root cause, suggested fix.
+            - BR-003: Edge cases the function fails to handle (empty list, None entries, etc.).
+            - BR-004: Proposed test cases (minimum 5) covering each identified bug.
+            - BR-005: Estimate of how the bugs interact (e.g., off-by-one + division-by-zero compounding).
+    inputs:
+      - prompt: "/sc:adversarial --source source-task.md --generate spec --agents opus,opus,opus --depth standard --output frontier/"
+      - prompt: "/sc:adversarial --source source-task.md --generate spec --agents sonnet,haiku,sonnet --depth standard --output combo/"
+      - prompt: "Read frontier/base-selection.md and combo/base-selection.md. Extract from each: quant_score, qual_score, combined variant_score, and the selection rationale. Write comparison.md with three sections: (1) Frontier (3× opus) scores + rationale, (2) Cheap-Combo (sonnet,haiku,sonnet) scores + rationale, (3) Verdict — which pipeline produced a higher-scoring bug report and by what margin. Include all score values verbatim."
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: frontier/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: combo/base-selection.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "quant_score"
+      - file:
+          path: comparison.md
+          exists: true
+          contains: "qual_score"
+      - exit_code:
+          equals: 0

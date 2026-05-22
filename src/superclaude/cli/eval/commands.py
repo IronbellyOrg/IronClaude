@@ -20,7 +20,7 @@ rows are flagged with ``skipped_by_flag=True``. ``--check-coverage`` is
 accepted now and wired through the JSON payload + human checklist as a
 deferred marker; the actual FR-G5 coverage gate lands in M4 T04.14.
 
-Doctor fails closed (``sys.exit(2)``) when any HARD row is missing and
+Doctor fails closed with ``HARD_FAIL_EXIT_CODE`` when any HARD row is missing and
 prints a HARD-failure artifact identifying every offending capability to
 ``stderr`` so CI logs capture a stable diagnostic line per failure.
 """
@@ -41,6 +41,7 @@ from typing import Any, Callable, Iterable, Optional, Sequence
 import click
 import yaml
 
+from . import exit_codes as _exit_codes
 from .artifact_layout import (
     allocate_per_eval_paths,
     compose_run_dir,
@@ -79,13 +80,16 @@ from .loader import (
 )
 from .models import (
     EVAL_STATUSES,
+    FAILED_STATUSES,
+    PASSED_STATUSES,
+    SKIPPED_STATUSES,
     EvalOutcome,
     EvalSpec,
     RunCounts,
     RunSummary,
     RunTotals,
 )
-from .orchestrator import RunOrchestrator
+from .orchestrator import RunOrchestrator, allocate_session_id
 from .reporter import Reporter
 from .runner import EvalRunner, ExecutorContext, LifecycleExecutor, ObservedRun
 from .signal_handler import (
@@ -555,7 +559,10 @@ def doctor_payload(
     return payload
 
 
-HARD_FAIL_EXIT_CODE = 2
+HARD_FAIL_EXIT_CODE: int = _exit_codes.USAGE_ERROR
+"""Process exit code for harness contract failures reaching the ``eval`` CLI.
+Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -563,21 +570,22 @@ HARD_FAIL_EXIT_CODE = 2
 # ---------------------------------------------------------------------------
 #
 # Pinned by tests/cli/eval/test_exit_codes.py (TEST-008 / T04.19 / D-0079).
-# The interrupted code is re-exported from ``signal_handler.EXIT_INTERRUPTED``
-# so the value has exactly one source of truth — operators and the signal
-# handler both read the same integer.
+# Per CC2 / OQ-2 — every cliEval exit code re-exports from ``exit_codes.py``.
+# RUN_INTERRUPTED_EXIT_CODE preserves its existing alias to
+# ``signal_handler.EXIT_INTERRUPTED`` because that constant predates this
+# consolidation; both point at the same integer (3) so no drift is possible.
 
-RUN_CLEAN_EXIT_CODE: int = 0
+RUN_CLEAN_EXIT_CODE: int = _exit_codes.SUCCESS
 """Clean run: every expanded eval reached PASS / SKIPPED / XFAIL and no breach."""
 
-RUN_FAILURES_EXIT_CODE: int = 1
+RUN_FAILURES_EXIT_CODE: int = _exit_codes.FAILURES
 """Failing run: at least one eval ended FAIL / ERRORED / TIMEOUT / XPASS but
 the harness ran to completion."""
 
 RUN_INTERRUPTED_EXIT_CODE: int = EXIT_INTERRUPTED
 """SIGINT / SIGTERM mid-run; cooperative cancellation drained. Re-exports
 :data:`signal_handler.EXIT_INTERRUPTED` (= 3) so the two surfaces cannot
-drift."""
+drift. Mirrors ``exit_codes.INTERRUPTED`` (= 3) by construction."""
 
 
 # ---------------------------------------------------------------------------
@@ -781,7 +789,7 @@ def eval_group() -> None:
 @click.option(
     "--output-dir",
     "output_dir",
-    type=click.Path(path_type=Path),
+    type=click.Path(file_okay=False, path_type=Path),
     default=None,
     help=(
         "Validate <path> against the OPS-002 / AC12 scratch-root policy. "
@@ -972,20 +980,16 @@ def eval_list(as_json: bool, suites_dir: Optional[Path]) -> None:
 # ---------------------------------------------------------------------------
 
 
-SUITE_NOT_FOUND_EXIT_CODE: int = 2
+SUITE_NOT_FOUND_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Process exit code emitted when :class:`SuiteNotFound` reaches the CLI.
-
-Mirrors :data:`SUITE_LOADER_ERROR_EXIT_CODE` so operators see a single
-"harness rejected the describe request" outcome regardless of which gate
-fired (schema, id regex, capability, or missing suite name).
+Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2). Mirrors
+:data:`SUITE_LOADER_ERROR_EXIT_CODE` for operator-visible parity.
 """
 
 
-EVAL_NOT_FOUND_EXIT_CODE: int = 2
+EVAL_NOT_FOUND_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Process exit code emitted when :class:`EvalNotFound` reaches the CLI.
-
-FR-CLI3 AC: ``--eval <id>`` with no matching expanded eval id exits 2
-with the typed ``EvalNotFound`` class name on stderr.
+Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
 """
 
 
@@ -1394,17 +1398,25 @@ def _resolve_executor_factory() -> Callable[..., LifecycleExecutor]:
     with the vendored PTY harness (M5 / M6). Until then this factory
     returns the :class:`_NullLifecycleExecutor` documented above. Tests
     monkeypatch this function to inject canned executors.
+
+    The returned factory is tagged with ``produces_null_executor = True``
+    so the one-shot WARNING probe in ``run_eval`` can classify it
+    without instantiating an executor. Constructor side-effects in
+    future real executors (PTY descriptors, helper threads, scratch
+    dirs) would otherwise leak resources before orchestration starts.
     """
 
     def factory(**_kwargs: Any) -> LifecycleExecutor:
         return _NullLifecycleExecutor()  # type: ignore[return-value]
 
+    factory.produces_null_executor = True  # type: ignore[attr-defined]
     return factory
 
 
 def _run_one_spec(
     spec: EvalSpec,
     *,
+    run_id: str,
     run_dir: Path,
     home_root: Path,
     config: EvalConfig,
@@ -1421,9 +1433,9 @@ def _run_one_spec(
     1. Allocates the per-eval subtree under ``run_dir`` via
        :func:`allocate_per_eval_paths` (FR-G4 layout invariants).
     2. Constructs a fresh :class:`HomeIsolation` rooted at ``home_root``.
-       ``session_id`` is derived from ``spec.id`` so re-runs of the
-       same eval against the same run-dir are observably the same run
-       to ``claude``'s session telemetry (FR-G2).
+       ``session_id`` is allocated by :func:`orchestrator.allocate_session_id`
+       per M5 — identifier policy lives in the orchestrator so the value is
+       (run_id, eval_id)-deterministic and orthogonal across runs.
     3. Wires the executor + an empty ``expect_callables`` tuple. The
        expects resolver (manifest ``expects:`` row → callable) lands in
        a follow-up; for now every spec that survives the ``--no-pty``
@@ -1442,7 +1454,7 @@ def _run_one_spec(
     home = HomeIsolation(
         eval_id=spec.id,
         home_root=home_root,
-        session_id=f"sess-{spec.id}",
+        session_id=allocate_session_id(run_id=run_id, eval_id=spec.id),
     )
 
     executor = executor_factory()
@@ -1493,16 +1505,16 @@ def _compute_run_stats(
     * ``XPASS`` → ``failed`` (unexpected pass signals stale ``xfail`` markers).
     """
     expanded = len(outcomes)
-    # DM-012 categorization derived from the EVAL_STATUSES SoT
-    # (models.py:62). SKIPPED + INTERRUPTED are non-terminal; everything
-    # else in EVAL_STATUSES is a terminal "kept" outcome. Deriving rather
-    # than hardcoding ensures that adding a new EvalStatus value cannot
-    # silently drift this tally out of sync with the canonical set.
-    skipped_statuses = frozenset({"SKIPPED", "INTERRUPTED"})
-    kept_statuses = frozenset(EVAL_STATUSES) - skipped_statuses
+    # M3: DM-012 partitions derived from the EVAL_STATUSES SoT (models.py:62)
+    # via the SKIPPED_STATUSES / PASSED_STATUSES / FAILED_STATUSES constants.
+    # Deriving rather than hardcoding ensures that adding a new EvalStatus
+    # value cannot silently drift this tally out of sync with the canonical
+    # set. ``kept_statuses`` is everything in EVAL_STATUSES minus the
+    # non-terminal SKIPPED + INTERRUPTED buckets.
+    kept_statuses = frozenset(EVAL_STATUSES) - SKIPPED_STATUSES
 
     kept = sum(1 for o in outcomes if o.status in kept_statuses)
-    skipped = sum(1 for o in outcomes if o.status in skipped_statuses)
+    skipped = sum(1 for o in outcomes if o.status in SKIPPED_STATUSES)
 
     counts = RunCounts(
         manifest_n=manifest_n,
@@ -1513,8 +1525,8 @@ def _compute_run_stats(
     )
 
     totals = RunTotals(
-        passed=sum(1 for o in outcomes if o.status in {"PASS", "XFAIL"}),
-        failed=sum(1 for o in outcomes if o.status in {"FAIL", "XPASS"}),
+        passed=sum(1 for o in outcomes if o.status in PASSED_STATUSES),
+        failed=sum(1 for o in outcomes if o.status in FAILED_STATUSES),
         skipped=sum(1 for o in outcomes if o.status == "SKIPPED"),
         errored=sum(1 for o in outcomes if o.status == "ERRORED"),
         interrupted=sum(1 for o in outcomes if o.status == "INTERRUPTED"),
@@ -1526,14 +1538,21 @@ def _compute_run_stats(
 def _format_run_summary_line(summary: RunSummary, output_dir: Path) -> str:
     """Return the human one-liner ``eval run --verbose`` prints to stdout.
 
-    Shape matches existing reporter conventions: ``run <id>: <P>P/<F>F/<S>S
-    in <duration>s -> <output_dir>``. Pure formatting, no I/O.
+    H3: shape covers the full DM-012 status taxonomy — ``run <id>:
+    <P>P/<F>F/<S>S/<E>E/<I>I/<T>T in <duration>s -> <output_dir>``. The
+    six buckets cover all 8 EvalStatus literals (XFAIL rolls into
+    ``passed``; XPASS rolls into ``failed`` per the RunTotals docstring).
+    Pure formatting, no I/O.
     """
+    totals = summary.totals
     return (
         f"run {summary.run_id}: "
-        f"{summary.totals.passed}P/"
-        f"{summary.totals.failed}F/"
-        f"{summary.totals.skipped}S "
+        f"{totals.passed}P/"
+        f"{totals.failed}F/"
+        f"{totals.skipped}S/"
+        f"{totals.errored}E/"
+        f"{totals.interrupted}I/"
+        f"{totals.timeout}T "
         f"in {summary.duration_sec:.2f}s "
         f"-> {output_dir}"
     )
@@ -1707,41 +1726,55 @@ def eval_run(
     started_iso = _utc_iso_now()
     suite_name = str(suite)
     run_id = _new_run_id(started_at=started_iso, suite_name=suite_name)
-    requested_output = (
-        output_dir
-        if output_dir is not None
-        else _default_output_dir(started_at=started_iso, suite_name=suite_name)
-    )
-
+    # H1: --output-dir is the OUTPUT ROOT, not the run-dir. The run-dir is
+    # uniformly composed via ``compose_run_dir`` (FR-G4 layout
+    # ``<root>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/``) so artifacts land at
+    # the same shape whether the operator supplies a root or the default
+    # cwd-anchored root is used. The flat-layout branch (--output-dir
+    # treated as the run-dir directly) is deleted per the H1 spec.
     try:
-        # OPS-002 / AC12: the operator-supplied --output-dir is itself the
-        # candidate being validated. Do NOT pass it back through the
-        # ``output_dir=`` kwarg — that kwarg exists for layered helpers
-        # (HomeIsolation.containment_guard, FR-ISO2) that re-check a path
-        # that has *already* been validated against the allowlist. Passing
-        # the operator input as both the candidate AND the extension makes
-        # the gate a tautology and lets a malicious / mistyped path (e.g.
-        # /etc/foo, /root/.claude) escape the OPS-002 allowlist.
-        # See docs/eval/scratch-roots.md and
-        # tests/cli/eval/test_scratch_root_policy.py.
-        resolved_output = resolve_scratch_root(
-            requested_output,
-            config=base_config,
-        )
+        if output_dir is not None:
+            # OPS-002 / AC12: validate the operator-supplied root, then
+            # derive the run-dir uniformly via compose_run_dir.
+            resolved_output_root = resolve_scratch_root(
+                output_dir,
+                config=base_config,
+            )
+            resolved_run_dir = compose_run_dir(
+                resolved_output_root, started_iso, suite_name
+            )
+        else:
+            # Default flow: ``_default_output_dir`` already returns the
+            # FR-G4 run-dir anchored at ``Path.cwd()`` via ``compose_run_dir``
+            # so a second wrap is unnecessary. The output root is the
+            # canonical ``<cwd>/.dev/eval-runs`` prefix; resolve_scratch_root
+            # validates the run-dir lives under the default allowlist.
+            default_run_dir = _default_output_dir(
+                started_at=started_iso, suite_name=suite_name
+            )
+            resolved_run_dir = resolve_scratch_root(
+                default_run_dir, config=base_config
+            )
+            resolved_output_root = resolved_run_dir
     except ScratchRootViolation as exc:
         click.echo(format_scratch_root_violation(exc), err=True)
         sys.exit(SCRATCH_ROOT_VIOLATION_EXIT_CODE)
 
-    resolved_output.mkdir(parents=True, exist_ok=True)
-    home_root = resolved_output / "homes"
-    home_root.mkdir(parents=True, exist_ok=True)
+    resolved_run_dir.mkdir(parents=True, exist_ok=True)
+    home_root = resolved_run_dir / "homes"
 
     # The runtime EvalConfig extends the canonical allowlist with the
-    # per-run home root + the operator-supplied output directory so
-    # downstream ``containment_guard`` calls see a stable allowlist
-    # rather than re-deriving one from scratch.
+    # per-run run-dir + home root + the operator-supplied output root so
+    # downstream ``containment_guard`` calls see a stable allowlist rather
+    # than re-deriving one from scratch.
+    #
+    # H5a (OPS-002 ordering site 1): allowlist extension happens BEFORE the
+    # ``home_root.mkdir`` below so the path is in the allowlist at the
+    # moment of any filesystem write. No mkdir of home_root has happened
+    # yet at this line.
     runtime_allowed = tuple(base_config.allowed_scratch_roots) + (
-        resolved_output,
+        resolved_output_root,
+        resolved_run_dir,
         home_root,
     )
     runtime_config = EvalConfig(
@@ -1750,6 +1783,11 @@ def eval_run(
         allowed_scratch_roots=runtime_allowed,
         min_claude_version=base_config.min_claude_version,
     )
+
+    # H5a (OPS-002 ordering site 1): mkdir home_root NOW, AFTER allowlist
+    # extension. Restores OPS-002 invariant "no filesystem write before
+    # allowlist validation".
+    home_root.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # Suite resolution + parse + post-expansion filter
@@ -1787,14 +1825,14 @@ def eval_run(
     # ------------------------------------------------------------------
     # Runs BEFORE any worker dispatch so a missing-coverage breach
     # short-circuits the run without touching a per-eval HOME. Artifacts
-    # land inside ``resolved_output`` so the run directory still owns the
+    # land inside ``resolved_run_dir`` so the run directory still owns the
     # full forensic trail (FR-G4 contract). A missing or unreadable
     # ``settings.json`` is treated as the empty matcher set so dev hosts
     # without one stay green.
     coverage = coverage_gate(
         settings_path=Path.home() / ".claude" / "settings.json",
         suite=specs,
-        output_dir=resolved_output,
+        output_dir=resolved_run_dir,
     )
     if not coverage.passed:
         click.echo(_format_coverage_missing_roster(coverage), err=True)
@@ -1818,7 +1856,7 @@ def eval_run(
     # Disk-budget poller, cancellation token, signal handler
     # ------------------------------------------------------------------
     poller = DiskBudgetPoller(
-        resolved_output,
+        resolved_run_dir,
         max_disk_mb=max_disk_mb,
         ensure_output_dir=True,
     )
@@ -1828,6 +1866,33 @@ def eval_run(
     # Per-eval worker closure
     # ------------------------------------------------------------------
     executor_factory = _resolve_executor_factory()
+
+    # M2: emit a one-shot stderr WARNING when the resolved factory returns
+    # ``_NullLifecycleExecutor`` so operators cannot mistake null-runner
+    # results for authoritative ones. Sampling once at orchestrator startup
+    # (NOT inside ``_run_one_spec``) means the WARNING fires even when every
+    # eval is SKIPPED via ``--no-pty``-and-``no_pty:skip`` short-circuit, and
+    # a future test that monkeypatches ``_resolve_executor_factory`` to inject
+    # a real executor will correctly NOT see the WARNING. The ``--json``
+    # guard keeps machine-readable stdout clean — CliRunner mixes stderr
+    # into stdout by default and downstream tools parsing the JSON payload
+    # cannot tolerate the WARNING prefix.
+    # We classify by inspecting the ``produces_null_executor`` attribute the
+    # factory carries (set in ``_resolve_executor_factory``) rather than by
+    # calling ``executor_factory()`` and discarding the result. When M5 / M6
+    # lands ``ClaudeProcessAdapter + PtyDriver`` the real executor's
+    # constructor will allocate PTY descriptors / helper threads / scratch
+    # dirs; instantiating-and-discarding here would leak those resources
+    # before per-spec orchestration even starts. Test monkeypatches that
+    # inject real executors simply won't set the attribute, so the WARNING
+    # correctly suppresses.
+    if getattr(executor_factory, "produces_null_executor", False) and not as_json:
+        click.echo(
+            "eval run: WARNING: _NullLifecycleExecutor active — "
+            "non-production executor selected; run results MUST NOT be "
+            "treated as authoritative.",
+            err=True,
+        )
 
     def run_one(spec: EvalSpec) -> EvalOutcome:
         # DOC-OQ3 / R-077 / D-0077: honor the per-eval ``no_pty: skip``
@@ -1850,7 +1915,8 @@ def eval_run(
             )
         return _run_one_spec(
             spec,
-            run_dir=resolved_output,
+            run_id=run_id,
+            run_dir=resolved_run_dir,
             home_root=home_root,
             config=runtime_config,
             timeout_mult=timeout_mult,
@@ -1915,7 +1981,7 @@ def eval_run(
         artifacts=artifacts,
     )
 
-    Reporter(summary=summary, emit_junit=junit).write(resolved_output)
+    Reporter(summary=summary, emit_junit=junit).write(resolved_run_dir)
 
     # ------------------------------------------------------------------
     # Operator-facing stdout
@@ -1923,7 +1989,7 @@ def eval_run(
     if as_json:
         click.echo(json.dumps(summary.to_dict(), indent=2, sort_keys=False, default=str))
     elif verbose:
-        click.echo(_format_run_summary_line(summary, resolved_output))
+        click.echo(_format_run_summary_line(summary, resolved_run_dir))
 
     # ------------------------------------------------------------------
     # Exit code (design-spec §4)
