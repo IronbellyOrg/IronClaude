@@ -31,7 +31,6 @@ What this module is **not** responsible for:
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Protocol, runtime_checkable
@@ -40,6 +39,8 @@ import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
+from . import exit_codes as _exit_codes
+from .artifact_layout import EVAL_ID_PATTERN as EVAL_ID_REGEX
 from .models import EvalSpec
 from .suites import SCHEMA_PATH
 
@@ -62,31 +63,24 @@ __all__ = [
 ]
 
 
-SCHEMA_ERROR_EXIT_CODE: int = 2
+SCHEMA_ERROR_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Process exit code emitted when :class:`SchemaError` reaches the CLI boundary.
-
-Matches the design-spec §4 exit-code table: ``2`` = "Harness error
-(manifest invalid, claude binary missing, etc.)". The constant is exported
-so CLI callers and tests can assert against a single source of truth
-without duplicating the literal.
+Design-spec §4 ``2``. Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
 """
 
 
-INVALID_EVAL_ID_EXIT_CODE: int = 2
+INVALID_EVAL_ID_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Process exit code emitted when :class:`InvalidEvalId` reaches the CLI boundary.
-
-FR-SCH2 / NFR-SEC1 maps every malformed eval id to the same exit code as
-:data:`SCHEMA_ERROR_EXIT_CODE` (= 2) because both are surfaces of the same
-"harness rejected the manifest before any filesystem write" outcome from
-the operator's point of view. The constants are kept separate so call
-sites can branch on intent without coupling the two failure classes.
+FR-SCH2 / NFR-SEC1 ``2``. Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
 """
 
 
-EVAL_ID_REGEX: re.Pattern[str] = re.compile(
-    r"^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$"
-)
 """Compiled FR-SCH2 eval-id regex (single source of truth for the runtime guard).
+
+Per CC1 / OQ-1, the canonical declaration lives in
+``artifact_layout.EVAL_ID_PATTERN``; :data:`EVAL_ID_REGEX` is an import alias
+preserved for backward-compat with ``tests/cli/eval/test_eval_id_regex.py``
+and any external callers that imported from ``loader``.
 
 Matches the literal regex declared in design-spec §5 and mirrored by the
 ``evalIdString`` ``pattern`` inside ``suite.schema.json`` (T01.02). The
@@ -99,9 +93,9 @@ parameterize-expanded ids (``E2.1``, ``E2.10``) while rejecting:
 * Template tokens that leaked past parameterize expansion
   (``{{prefix}}``, ``${var}``).
 
-The pattern is compiled at module import so the loader hot path (one
-:func:`validate_eval_id` call per eval, plus one per parameterize-
-expanded id) avoids re-parsing on every check.
+The pattern is compiled at module import (in ``artifact_layout``) so the
+loader hot path (one :func:`validate_eval_id` call per eval, plus one per
+parameterize-expanded id) avoids re-parsing on every check.
 """
 
 
@@ -333,18 +327,14 @@ def validate_manifest(path: Path | str) -> list[EvalSpec]:
 # ---------------------------------------------------------------------------
 
 
-UNRESOLVED_CAPABILITY_EXIT_CODE: int = 2
+UNRESOLVED_CAPABILITY_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Process exit code emitted when :class:`UnresolvedCapability` reaches the CLI.
-
-The third member of the SuiteLoader error trio (alongside
-:data:`SCHEMA_ERROR_EXIT_CODE` and :data:`INVALID_EVAL_ID_EXIT_CODE`). All
-three map to ``2`` per the design-spec §4 exit-code table so operators see
-a single "harness rejected the manifest before any filesystem write"
-outcome regardless of which gate fired.
+Third member of the SuiteLoader error trio. Canonical value:
+``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
 """
 
 
-SUITE_LOADER_ERROR_EXIT_CODE: int = 2
+SUITE_LOADER_ERROR_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Single canonical exit code for every :class:`SuiteLoaderError` subclass.
 
 ``SuiteLoader`` only ever exits with ``2`` because every loader-layer

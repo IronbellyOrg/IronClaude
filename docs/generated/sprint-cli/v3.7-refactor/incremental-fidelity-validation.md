@@ -125,6 +125,7 @@ Both deferred tasks are self-contained and can be added to any future release wi
 ### Tension 1: Sec 5 (Cross-Domain Dependencies) — Documentation in Both Specs
 
 **Resolution**: SPLIT THE DOCUMENTATION.
+
 - R1 spec adds: Section 5.6 "Path A <-> Checkpoint Enforcement" (how PA-01/02/03 enriched prompts interact with checkpoint instructions) and Section 5.7 "Path A <-> TurnLedger" (how PA-04/05/06 fix the gate evaluation chain).
 - R2 spec adds: Updated Section 5.1 "Path A <-> TUI Data Flow" (how TaskResult fields from R1 feed into MonitorState adapter and TUI rendering).
 - No code split needed. Documentation-only. **No escalation required.**
@@ -132,6 +133,7 @@ Both deferred tasks are self-contained and can be added to any future release wi
 ### Tension 2: Sec 6.4 (Post-Phase Hook Ordering) — Insertion in Both Specs
 
 **Resolution**: R1 ESTABLISHES, R2 EXTENDS.
+
 - R1 spec defines the hook insertion site in Path A block (executor.py:1222-1233) and inserts `_verify_checkpoints()` as the first hook.
 - R2 spec appends `summary_worker.submit()` after `_verify_checkpoints()` at the same site.
 - The ordering contract (checkpoint before summary before manifest) is documented in BOTH specs.

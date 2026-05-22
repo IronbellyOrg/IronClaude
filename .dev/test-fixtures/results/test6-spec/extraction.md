@@ -18,9 +18,11 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 ## Functional Requirements
 
 ### FR-AUTH.1: User Login
+
 **Endpoint**: `POST /auth/login`
 **Description**: Authenticate users via email and password, returning JWT access token and refresh token upon successful credential verification.
 **Acceptance Criteria**:
+
 - Valid credentials → 200 with access_token (15min TTL) and refresh_token (7d TTL)
 - Invalid credentials → 401 without revealing whether email or password was incorrect
 - Locked account → 403 indicating account suspension
@@ -28,9 +30,11 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 **Dependencies**: PasswordHasher, TokenManager, User database table
 
 ### FR-AUTH.2: User Registration
+
 **Endpoint**: `POST /auth/register` (inferred from `/auth/*` route group)
 **Description**: Register new users with input validation, creating a user record with securely hashed password.
 **Acceptance Criteria**:
+
 - Valid data (email, password, display name) → 201 with user profile
 - Already-registered email → 409 conflict
 - Password policy: minimum 8 characters, at least one uppercase, one lowercase, one digit
@@ -38,9 +42,11 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 **Dependencies**: PasswordHasher, User database table
 
 ### FR-AUTH.3: Token Refresh
+
 **Endpoint**: `POST /auth/refresh` (inferred from `/auth/*` route group)
 **Description**: Issue and refresh JWT tokens using valid refresh token without re-entering credentials.
 **Acceptance Criteria**:
+
 - Valid refresh token → new access_token and rotated refresh_token
 - Expired refresh token → 401 (re-authentication required)
 - Previously-rotated (revoked) refresh token → invalidate all tokens for user (replay detection)
@@ -48,18 +54,22 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 **Dependencies**: TokenManager, JwtService, RefreshToken database table
 
 ### FR-AUTH.4: Profile Retrieval
+
 **Endpoint**: `GET /auth/me`
 **Description**: Provide authenticated user profile retrieval when presented with valid access token.
 **Acceptance Criteria**:
+
 - Valid Bearer access_token → user profile (id, email, display_name, created_at)
 - Expired or invalid token → 401
 - Must not return sensitive fields (password_hash, refresh_token_hash)
 **Dependencies**: TokenManager, User database table
 
 ### FR-AUTH.5: Password Reset
+
 **Endpoint**: `POST /auth/password-reset` (inferred from `/auth/*` route group)
 **Description**: Support secure password reset flow with time-limited reset tokens.
 **Acceptance Criteria**:
+
 - Registered email → generate password reset token (1-hour TTL) and dispatch reset email
 - Valid reset token → allow setting new password and invalidate reset token
 - Expired or invalid reset token → 400 with appropriate error message
@@ -69,16 +79,19 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 ## Non-Functional Requirements
 
 ### NFR-AUTH.1: Authentication Endpoint Response Time
+
 **Target**: < 200ms p95 under normal load
 **Measurement**: Load testing with k6; monitor p95 latency in production APM
 **Domain**: Performance
 
 ### NFR-AUTH.2: Service Availability
+
 **Target**: 99.9% uptime (< 8.76 hours downtime/year)
 **Measurement**: Uptime monitoring via health check endpoint; PagerDuty alerting
 **Domain**: Reliability
 
 ### NFR-AUTH.3: Password Hashing Security
+
 **Target**: bcrypt cost factor 12 (approx. 250ms per hash)
 **Measurement**: Unit test verifying cost factor; benchmark test for hash timing
 **Domain**: Security
@@ -89,6 +102,7 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 **complexity_class**: MEDIUM
 
 **Scoring Rationale**:
+
 - **Scope (0.6)**: 5 functional requirements spanning registration, login, refresh, profile, reset — moderate surface area
 - **Security sensitivity (0.8)**: Cryptographic primitives (bcrypt, RS256 JWT), key management, replay detection
 - **Component count (0.5)**: 4 new modules + 3 modified files + 2 database tables
@@ -134,6 +148,7 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 ### Data Model Field Details
 
 **DM-001 UserRecord**:
+
 - `id: string` (UUID v4)
 - `email: string` (Unique, indexed)
 - `display_name: string`
@@ -143,6 +158,7 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 - `updated_at: Date`
 
 **DM-002 RefreshTokenRecord**:
+
 - `id: string` (UUID v4)
 - `user_id: string` (FK to UserRecord.id)
 - `token_hash: string` (SHA-256 hash of refresh token)
@@ -151,6 +167,7 @@ pipeline_diagnostics: {elapsed_seconds: 68.0, started_at: "2026-04-20T20:29:35.1
 - `created_at: Date`
 
 **DM-003 AuthTokenPair**:
+
 - `access_token: string` (JWT, 15-minute TTL)
 - `refresh_token: string` (Opaque token, 7-day TTL)
 

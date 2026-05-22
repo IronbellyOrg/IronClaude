@@ -591,3 +591,117 @@ def test_setup_never_touches_real_home(
 
     assert os.path.commonpath([str(home), str(fake_home)]) != str(fake_home)
     assert not any(fake_home.iterdir())
+
+
+# ---------------------------------------------------------------------------
+# T4a / H5a — commands.eval_run extends allowlist BEFORE home_root.mkdir
+# ---------------------------------------------------------------------------
+
+
+def test_eval_run_extends_allowlist_before_mkdir(
+    allowlisted_output_dir: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """T4a / H5a / OPS-002: the runtime ``EvalConfig`` extension precedes
+    the ``home_root.mkdir`` filesystem write inside ``eval_run``.
+
+    Pre-H5a the ``commands.py`` ``eval_run`` body called
+    ``home_root.mkdir(...)`` BEFORE building ``runtime_config`` with the
+    extended ``allowed_scratch_roots`` tuple. That violated the OPS-002
+    invariant "no filesystem write before allowlist validation": a path
+    crash between the mkdir and the runtime_config construction would
+    leave a directory on disk that the allowlist had not validated.
+
+    Post-H5a the ordering is reversed: ``runtime_config = EvalConfig(...)``
+    is built first, then ``home_root.mkdir(...)`` runs. This test spies
+    on ``EvalConfig.__init__`` and ``pathlib.Path.mkdir`` to record their
+    invocation order, then asserts ``EvalConfig`` (with the extended
+    allowlist) was constructed before ``home_root.mkdir`` fired.
+    """
+    from click.testing import CliRunner
+
+    import superclaude.cli.eval.commands as commands_module
+    from superclaude.cli.eval.commands import RUN_CLEAN_EXIT_CODE, eval_group
+    from superclaude.cli.eval.suites import SCHEMA_PATH
+
+    real_suite_path = SCHEMA_PATH.parent / "real.yaml"
+    output_dir = allowlisted_output_dir / "t4a-ordering"
+
+    event_log: list[tuple[str, object]] = []
+
+    real_evalconfig_init = commands_module.EvalConfig.__init__
+
+    def spy_evalconfig_init(self, *args, **kwargs):
+        # Only record the runtime EvalConfig (the one with the extended
+        # allowlist) — the base_config build at eval_run start uses
+        # default ``allowed_scratch_roots`` and would otherwise pollute
+        # the log. The runtime instance always has a longer allowlist
+        # than the default (extended with output_root + run_dir + home_root).
+        result = real_evalconfig_init(self, *args, **kwargs)
+        if len(self.allowed_scratch_roots) > 2:
+            event_log.append(("EvalConfig.__init__", tuple(self.allowed_scratch_roots)))
+        return result
+
+    monkeypatch.setattr(commands_module.EvalConfig, "__init__", spy_evalconfig_init)
+
+    real_path_mkdir = Path.mkdir
+
+    def spy_path_mkdir(self, *args, **kwargs):
+        # Record only the ``home_root`` mkdir — its directory name is
+        # the literal ``"homes"`` (see ``commands.py:home_root = resolved_run_dir / "homes"``).
+        if self.name == "homes":
+            event_log.append(("home_root.mkdir", str(self)))
+        return real_path_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", spy_path_mkdir)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        eval_group,
+        [
+            "run",
+            "--suite",
+            str(real_suite_path),
+            "--eval",
+            "E1",
+            "--no-pty",
+            "--output-dir",
+            str(output_dir),
+            "--parallel",
+            "1",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
+        result.stdout + (result.stderr or "")
+    )
+
+    config_idx = next(
+        (i for i, (kind, _) in enumerate(event_log) if kind == "EvalConfig.__init__"),
+        None,
+    )
+    mkdir_idx = next(
+        (i for i, (kind, _) in enumerate(event_log) if kind == "home_root.mkdir"),
+        None,
+    )
+
+    assert config_idx is not None, (
+        f"No EvalConfig.__init__ with extended allowlist was recorded; "
+        f"event_log={event_log}"
+    )
+    assert mkdir_idx is not None, (
+        f"No home_root.mkdir was recorded; event_log={event_log}"
+    )
+    assert config_idx < mkdir_idx, (
+        f"H5a ordering violation: home_root.mkdir at index {mkdir_idx} "
+        f"preceded EvalConfig allowlist extension at index {config_idx}. "
+        f"event_log={event_log}"
+    )
+
+    # Defense-in-depth: the recorded extended allowlist contains a path
+    # ending in ``homes`` — the OPS-002 contract is that home_root is in
+    # the allowlist at the moment of its mkdir.
+    _, allowed = event_log[config_idx]
+    assert any(str(p).endswith("homes") for p in allowed), (  # type: ignore[arg-type]
+        f"Extended allowlist did not contain home_root: allowed={allowed}"
+    )

@@ -8,12 +8,14 @@ A project can have multiple of these in flight simultaneously. Do not assume a s
 
 **Created by:** `task-builder` skill, `/sc:pm`, or manual.
 **Layout:**
+
 ```
 .dev/tasks/to-do/TASK-PRD-<timestamp>/
 ├── TASK-PRD-<timestamp>.md       # MDTM task file with checklist + frontmatter
 ├── BUILD-REQUEST*.md             # original prompt
 └── research/                     # optional, parallel research notes
 ```
+
 **Status signal:** YAML frontmatter `status:` field. Values: `🟢 Done`, `🟡 InProgress`, `🔴 Blocked`, `⚪ ToDo`.
 **Recovery:** if `status: 🟡 InProgress`, re-invoke the `task` skill on the same file. It picks up at the first unchecked item.
 
@@ -24,6 +26,7 @@ A project can have multiple of these in flight simultaneously. Do not assume a s
 ```
 
 If `status: 🟢 Done` but file is still in `to-do/`, the only thing left is the move:
+
 ```bash
 mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 ```
@@ -39,6 +42,7 @@ mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 
 **Created by:** `tech-research`, `tech-reference`, or various sc commands.
 **Layout:**
+
 - `.dev/research/<topic-slug>/` — multi-file research bundles, often with `00-extraction.md`, `01-...`, etc.
 - `claudedocs/` — finished tech references and analyses
 - `.dev/research/research-results/` — aggregated results
@@ -49,6 +53,7 @@ mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 
 **Created by:** `superclaude roadmap run <spec.md>` CLI.
 **Layout:**
+
 ```
 docs/generated/<run-slug>/        # or .dev/research/roadmap-*/
 ├── .roadmap-state.json           # AUTHORITATIVE state — step-by-step progress
@@ -59,15 +64,19 @@ docs/generated/<run-slug>/        # or .dev/research/roadmap-*/
 ├── verification.md
 └── *.err / *.log                 # per-step error logs if a step failed
 ```
+
 **Status signal:** `.roadmap-state.json` is the ground truth. Each step has a `status: pass | fail | pending` and an `attempts` counter. The CLI retries failed steps up to a limit, so `attempts >= max` means it gave up.
 **Recovery:**
+
 ```bash
 # Resumes from the first non-pass step.
 superclaude roadmap run <original-spec.md> --output <same-output-dir> --resume
 ```
+
 If a step is stuck failing with `attempts >= max`, inspect the `*.err` file for that step — usually a sub-agent silently producing nothing (e.g. haiku-architect captured a "no tools, summary only" instruction and never wrote the variant file).
 
 **Validate after resume:**
+
 ```bash
 superclaude roadmap validate <output-dir>
 ```
@@ -76,6 +85,7 @@ superclaude roadmap validate <output-dir>
 
 **Created by:** `superclaude tasklist` from a roadmap.
 **Layout:**
+
 ```
 .dev/releases/current/<release-slug>/
 ├── tasklist-index.md             # entry point — lists all phase files
@@ -85,6 +95,7 @@ superclaude roadmap validate <output-dir>
 └── TASKLIST_ROOT/                # generated structure for sprint to consume
     └── checkpoints/              # CP-P01-END.md, CP-P02-END.md, ... (often missing)
 ```
+
 **Status signal:** existence of phase files and checkpoint files. The presence of `tasklist-index.md` means generation succeeded; missing checkpoint files mean the sprint hasn't run yet (or got recovered from a different source).
 **Recovery:** regenerate from the source roadmap if phase files are incomplete. The pipeline is deterministic given the same roadmap.
 
@@ -92,6 +103,7 @@ superclaude roadmap validate <output-dir>
 
 **Created by:** `superclaude sprint run <tasklist-index.md>` CLI — executes the multi-phase tasklist.
 **Layout:**
+
 ```
 .dev/releases/current/<release-slug>/
 ├── manifest.json                 # checkpoint manifest, summary of expected files
@@ -100,8 +112,10 @@ superclaude roadmap validate <output-dir>
 ├── .sprint-exitcode              # last exit code (single number)
 └── (the tasklist files above)
 ```
+
 **Status signal:** `execution-log.jsonl` is authoritative. Tail it for the last event. Each `phase_complete` event has `status: pass | error` and `exit_code`. `.sprint-exitcode` mirrors the overall last sprint exit.
 **Recovery:**
+
 ```bash
 # Resume from the failed phase (sprint detects via execution-log).
 superclaude sprint run <release>/tasklist-index.md --resume
@@ -109,16 +123,19 @@ superclaude sprint run <release>/tasklist-index.md --resume
 # Or replay just one phase:
 superclaude sprint run <release>/tasklist-index.md --phase 6
 ```
+
 When a phase shows `status: error`, read the corresponding `phase-N-tasklist.md` to understand what was being attempted, and look for stderr in the JSONL `output_bytes` / `error_bytes` fields.
 
 ## Task (MDTM) — individual task files
 
 **Created by:** `task-builder`, `tdd`, `prd`, or any of the *_TASK_ skills.
 **Layout:**
+
 - `.dev/tasks/to-do/<TASK-ID>.md` or `.dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md`
 - `.dev/tasks/done/<TASK-ID>.md` for completed
 **Status signal:** YAML frontmatter `status:`. Checklist items use `- [ ]` (open), `- [x]` (done), `- [-]` (skipped).
 **Recovery:**
+
 ```bash
 # task skill picks up at first unchecked item
 /sc:task .dev/tasks/to-do/<TASK-ID>.md

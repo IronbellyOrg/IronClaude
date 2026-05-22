@@ -121,18 +121,21 @@ Authentication unblocks approximately $2.4M in projected annual revenue from per
 ## User Personas
 
 ### Alex the End User
+
 - **Role:** Platform user who needs an account for personalized features
 - **Goals:** Quick registration, fast login, seamless session persistence across devices
 - **Pain Points:** Forced re-login on browser close; no password recovery; inconsistent sessions
 - **JTBD:** "When I visit the platform, I want to create an account quickly so I can start using personalized features"
 
 ### Jordan the Platform Admin
+
 - **Role:** Internal admin who manages user accounts and monitors auth health
 - **Goals:** Visibility into failed logins, account lock/unlock, compliance audit trail
 - **Pain Points:** No centralized user management; no audit logs; manual DB operations
 - **JTBD:** "When a security incident occurs, I want to see who attempted access and lock compromised accounts"
 
 ### Sam the API Consumer
+
 - **Role:** Developer building integrations against the platform API
 - **Goals:** Programmatic token management, stable auth contracts, clear error codes
 - **Pain Points:** No standardized auth mechanism; ad-hoc API keys; no refresh capability
@@ -155,11 +158,13 @@ Authentication unblocks approximately $2.4M in projected annual revenue from per
 ## Assumptions and Constraints
 
 **Assumptions:**
+
 - Email delivery infrastructure (SendGrid or equivalent) is available before development begins.
 - PostgreSQL 15+ is provisioned and accessible to the engineering team.
 - The frontend supports client-side routing and token-based authentication.
 
 **Constraints:**
+
 - Email/password only in v1.0 -- no social login providers.
 - No multi-factor authentication in v1.0 -- planned for a future release.
 - Password policy must comply with NIST SP 800-63B guidelines.
@@ -334,24 +339,28 @@ Authentication unblocks approximately $2.4M in projected annual revenue from per
 ## Customer Journey Map
 
 ### Journey: First-Time Signup
+
 1. User lands on platform and sees a prominent "Sign Up" CTA above the fold.
 2. User clicks "Sign Up" and fills in email, password, and display name with inline validation feedback.
 3. User submits the form. Account is created, session is started, and user is redirected to the dashboard within 2 seconds.
 4. (Optional) User opens verification email and clicks the link to confirm their address.
 
 ### Journey: Returning User Login
+
 1. User visits platform and clicks "Log In". Login form loads in under 1 second.
 2. User enters email and password and submits. Credentials are validated and tokens issued; login completes in < 200ms (p95).
 3. User navigates the platform across multiple page loads. Tokens refresh silently in the background with no re-login prompts.
 4. User returns after 7+ days of inactivity. Refresh token has expired; a clear message explains the session expiration and prompts login.
 
 ### Journey: Password Reset
+
 1. User clicks "Forgot Password" on the login page. Reset form is rendered.
 2. User enters email and submits. A confirmation message is shown regardless of whether the email is registered (prevents enumeration).
 3. User opens the reset email (delivered within 60 seconds) and clicks the link (1-hour TTL).
 4. User enters a new password and submits. Password is updated, all existing sessions are invalidated, and user is redirected to login.
 
 ### Journey: Profile Management
+
 1. Authenticated user navigates to their profile page. Page renders in under 1 second.
 2. User views display name, email, and account creation date. Data matches what was provided at registration.
 

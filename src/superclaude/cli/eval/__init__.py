@@ -64,6 +64,9 @@ from .loader import (
 )
 from .models import (
     EVAL_STATUSES,
+    FAILED_STATUSES,
+    PASSED_STATUSES,
+    SKIPPED_STATUSES,
     EvalContext,
     EvalOutcome,
     EvalResult,
@@ -132,6 +135,7 @@ __all__ = [
     "DEFAULT_PROMPT_READY_PATTERN",
     "EVAL_STATUSES",
     "EXIT_INTERRUPTED",
+    "FAILED_STATUSES",
     "EvalConfig",
     "EvalContext",
     "EvalOutcome",
@@ -153,6 +157,7 @@ __all__ = [
     "LifecycleExecutor",
     "NON_LINUX_REFUSAL_TEMPLATE",
     "ObservedRun",
+    "PASSED_STATUSES",
     "PRIMITIVE_NAMES",
     "ParsedSuite",
     "PermissiveCapabilityResolver",
@@ -174,6 +179,7 @@ __all__ = [
     "SCRATCH_ROOT_POLICY",
     "SCRATCH_ROOT_VIOLATION_EXIT_CODE",
     "SETUP_FAILED_TAG_RELPATH",
+    "SKIPPED_STATUSES",
     "SUITE_LOADER_ERROR_EXIT_CODE",
     "SchemaError",
     "ScratchRootViolation",

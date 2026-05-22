@@ -33,6 +33,7 @@
 ### S-Tier (80-100): Implement Immediately
 
 **AD-2: Consensus Assumption Extraction Step** (82.5)
+
 - The only S-Tier proposal. Fixes the most fundamental structural flaw: diff-based analysis ignores areas of agreement, which is exactly where shared blind spots hide.
 - Low complexity (sub-step in existing Step 1), low overhead (5-10%), high generalizability (applies to any comparative analysis).
 - Both v0.04 bugs lived in areas of implicit agreement across all variants. This proposal would have surfaced the unstated assumptions that enabled them.
@@ -42,17 +43,20 @@
 13 proposals scored A-Tier, ranging from 65.0 to 79.5. They are subdivided by implementation priority:
 
 **Immediate Priority** (4 proposals, < 1 week total):
+
 - RM-2 (79.5): Negative ACs via algorithmic transforms -- high impact, universal applicability
 - SP-2 (78.0): Adversarial tester persona -- low cost, high impact, adds destructive mindset to constructive panel
 - AD-5 (77.5): Debate taxonomy -- structural guarantee against skipping state mechanics
 - RM-5 (72.5): Risk categories -- trivial to implement, forces STATE/XCOMP consideration
 
 **Next Cycle** (3 proposals, 1-2 weeks total):
+
 - RM-1 (76.5): State invariant table in roadmap template -- forcing function for invariant enumeration
 - SP-3 (75.5): Guard boundary table -- forcing function for boundary value reasoning
 - AD-1 (72.5): Invariant probe round with convergence gate -- structural teeth for consensus probing
 
 **Future** (6 proposals, after validation of prior waves):
+
 - SP-1 (70.5): Correctness focus pass -- comprehensive but higher cost
 - SP-4 (68.5): Pipeline dimensional analysis -- high precision, narrow scope
 - RM-3 (68.5): Cross-component state flow -- visibility for interaction boundaries
@@ -62,10 +66,12 @@
 ### B-Tier (50-64): Defer or Redesign
 
 **SP-5: Cross-Expert Challenge Protocol** (57.5)
+
 - Value is multiplicative with SP-2 (adversarial tester). Implement only after SP-2 proves effective.
 - High overhead (20-30%) for an amplifier that does not add new analytical techniques.
 
 **AD-4: Post-Merge Interaction Stress Test** (57.5)
+
 - Targets a real problem (merge-emergent bugs) but narrow scope and high cost.
 - Defer unless merge-emergent bugs become a recurrent pattern. SP-4 and RM-3 catch many of the same bugs at lower cost.
 

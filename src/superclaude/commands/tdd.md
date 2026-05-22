@@ -11,6 +11,7 @@ personas: [architect, analyzer, backend]
 # /sc:tdd - Technical Design Document Creator
 
 ## Required Input
+
 - **Component** (mandatory): The component, service, or system to design (positional argument or description)
 - **PRD reference** (optional): A Product Requirements Document to translate into engineering specs
 - **Focus areas** (optional): Specific directories, plugins, or subsystems to investigate
@@ -66,33 +67,39 @@ Creates comprehensive Technical Design Documents by researching the actual codeb
 ## Examples
 
 ### Create a Standard TDD for a Service
+
 ```bash
 /sc:tdd "agent orchestration system" --focus backend/app/agents/,backend/app/services/
 ```
 
 ### Translate a PRD into Engineering Specs
+
 ```bash
 /sc:tdd "canvas roadmap" --from-prd docs/product/PRD_ROADMAP_CANVAS.md \
   --tier standard --focus frontend/app/roadmap/
 ```
 
 ### Heavyweight TDD for a New System
+
 ```bash
 /sc:tdd "shared GPU pool infrastructure" --tier heavyweight \
   --focus ue_manager/,infrastructure/ --output docs/design/TDD_GPU_POOL.md
 ```
 
 ### Lightweight TDD for a Small Feature
+
 ```bash
 /sc:tdd "notification service" --tier lightweight --focus src/services/notifications/
 ```
 
 ### Resume an Interrupted TDD Session
+
 ```bash
 /sc:tdd --resume .dev/tasks/to-do/TASK-TDD-20260401-143022/TASK-TDD-20260401-143022.md
 ```
 
 ### TDD from PRD with Custom Output Location
+
 ```bash
 /sc:tdd "wizard state management" --prd docs/product/PRD_WIZARD.md \
   --tier heavyweight --output docs/wizard/TDD_WIZARD_STATE.md
@@ -103,6 +110,7 @@ Creates comprehensive Technical Design Documents by researching the actual codeb
 The quality of your prompt directly affects output quality. Providing all four inputs (component, PRD, focus areas, output) produces the most focused, actionable TDD.
 
 **Strong — all four pieces present:**
+
 ```bash
 /sc:tdd "agent orchestration system" \
   --from-prd docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md \
@@ -111,6 +119,7 @@ The quality of your prompt directly affects output quality. Providing all four i
 ```
 
 **Strong — clear scope + PRD + output type:**
+
 ```bash
 /sc:tdd "canvas roadmap" \
   --from-prd docs/docs-product/tech/canvas/PRD_ROADMAP_CANVAS.md \
@@ -118,17 +127,20 @@ The quality of your prompt directly affects output quality. Providing all four i
 ```
 
 **Strong — design from scratch with clear scope:**
+
 ```bash
 /sc:tdd "shared GPU pool" --tier heavyweight \
   --focus ue_manager/,infrastructure/,backend/app/services/streaming_service.py
 ```
 
 **Weak — topic only (will work but produces broader, less focused results):**
+
 ```bash
 /sc:tdd "wizard"
 ```
 
 **Weak — no context (agents won't know what to focus on):**
+
 ```bash
 /sc:tdd
 ```
@@ -144,6 +156,7 @@ The full behavioral specification, tier logic, and execution pipeline are define
 ## Boundaries
 
 **Will:**
+
 - Research actual codebase to produce evidence-based technical designs
 - Translate PRD requirements into traceable engineering specifications
 - Create template-conformant TDD documents at three depth tiers
@@ -152,6 +165,7 @@ The full behavioral specification, tier logic, and execution pipeline are define
 - Verify architectural claims through source code analysis
 
 **Will Not:**
+
 - Implement the designed system (use `/sc:implement` for implementation)
 - Create product requirements (use `/sc:prd` for PRD creation)
 - Make architectural decisions without codebase evidence

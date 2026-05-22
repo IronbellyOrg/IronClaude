@@ -385,6 +385,7 @@ Default (non-interactive): All decisions auto-resolved with rationale documented
 ```
 
 **Naming conventions**:
+
 - Mode A: `variant-N-original.md` (copies of input files)
 - Mode B: `variant-N-<model>-<persona>.md`
 
@@ -461,6 +462,7 @@ return_contract:
 ## Agent Delegation
 
 ### debate-orchestrator Agent
+
 - **Role**: Coordinates the entire pipeline without participating in debates
 - **Model**: Highest-capability (opus preferred)
 - **Tools**: Task, Read, Write, Glob, Grep, Bash
@@ -468,6 +470,7 @@ return_contract:
 - **Does NOT**: Generate variants, participate in debates, execute merges
 
 ### merge-executor Agent
+
 - **Role**: Executes refactoring plans to produce unified merged artifacts
 - **Model**: High-capability (opus or sonnet)
 - **Tools**: Read, Write, Edit, Grep
@@ -475,6 +478,7 @@ return_contract:
 - **Does NOT**: Make strategic decisions, override plan, participate in debates
 
 ### Advocate Agents (Dynamic)
+
 - **Role**: Argue for their variant's strengths in structured debate
 - **Instantiation**: Dynamic from `--agents` specification
 - **Behavior**: Shaped by model + persona + instruction; steelman opposing positions before critiquing
@@ -494,12 +498,14 @@ return_contract:
 Default tier: **STRICT** — adversarial debate involves multi-file operations, multi-agent coordination, and complex scoring.
 
 Automatic escalation triggers:
+
 - Always STRICT when operating (multi-file by nature)
 - Multi-agent delegation inherently complex
 
 ## Boundaries
 
 ### Will Do
+
 - Compare 2-10 artifacts through structured adversarial debate
 - Generate variant artifacts using different model/persona configurations
 - Produce transparent, documented merge decisions
@@ -508,6 +514,7 @@ Automatic escalation triggers:
 - Work as a generic tool invocable by any SuperClaude command
 
 ### Will Not Do
+
 - Validate domain-specific correctness of merged output (calling command's responsibility)
 - Execute the merged output (planning tool, not execution tool)
 - Manage git operations or version control

@@ -43,6 +43,7 @@ All 10 research-gate checks pass. All 5 critical spot-checks verified against ac
 | `SKILL.md:265-310` EXISTING_FILES schema as "A.4" upstream source | `Read SKILL.md offset=260 limit=60` — line 263 has `### A.4: Write Research Notes File (MANDATORY)`; lines 280-304 contain the 7-section schema (`## EXISTING_FILES`, `## PATTERNS_AND_CONVENTIONS`, `## FEATURE_ANALYSIS`, `## RECOMMENDED_OUTPUTS`, `## SUGGESTED_PHASES`, `## TEMPLATE_NOTES`, `## AMBIGUITIES_FOR_USER`) | MATCH — upstream is correct; gate's 7-name list is the divergent one |
 
 **Additional independent corroboration:**
+
 - File sizes match research claims exactly: gates.py (16384 B claimed, 16384 B actual), prompts.py (38730 B claimed, 38730 B actual), SKILL.md (32079 B claimed, 32079 B actual).
 - Line counts match: gates.py 506, prompts.py 1176, test_gates.py 219, SKILL.md 454.
 - Grep for "Product Capabilities|User Flows|Gap Analysis" in SKILL.md returns **zero** matches — confirms research claim that the OLD names are NOT in upstream, supporting the "gate was wrong, not upstream" verdict.
@@ -83,6 +84,7 @@ None — fix_authorization is false. No modifications made to any files.
 **Proceed to A.9 (rf-task-builder spawn).** Research is dense, accurate, and self-contained. The builder has verbatim `old_string`/`new_string` text for all 4 edits embedded in 01-file-inventory.md, plus full file content for the new round-trip test. No further research or clarification needed before task-file build.
 
 The builder should:
+
 1. Use Template 02 (Complex Task) per 03-template-and-examples.md.
 2. Plan ~9 items across 4 phases: Preparation → Source edits to gates.py → Test edits/creation → Verification.
 3. Embed verbatim edit strings per B2 self-containment (do not reference research file line numbers from Action fields).
@@ -93,6 +95,7 @@ The builder should:
 ## Confidence Gate
 
 **Per-item categorization:**
+
 - VERIFIED [x]: 10/10 (every check backed by a specific tool call cited above)
 - UNVERIFIABLE [?]: 0
 - UNCHECKED [ ]: 0

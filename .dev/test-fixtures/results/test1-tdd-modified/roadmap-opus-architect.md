@@ -235,16 +235,19 @@ All nine requirements (FR-AUTH-001 through FR-AUTH-005, NFR-PERF-001, NFR-PERF-0
 #### 4.5 Three-Phase Rollout
 
 **Phase 4a — Internal Alpha (1 week):**
+
 - [ ] Deploy to staging behind `AUTH_NEW_LOGIN` flag (OFF for public)
 - [ ] auth-team and QA manually test all FR-AUTH-001 through FR-AUTH-005
 - [ ] Gate: Zero P0/P1 bugs before proceeding
 
 **Phase 4b — Beta 10% (2 weeks):**
+
 - [ ] Enable `AUTH_NEW_LOGIN` for 10% of traffic
 - [ ] Monitor: p95 latency < 200ms, error rate < 0.1%, no Redis connection failures from `TokenManager`
 - [ ] Gate: All metrics within thresholds for full 2-week period
 
 **Phase 4c — General Availability (1 week):**
+
 - [ ] Remove `AUTH_NEW_LOGIN` feature flag — 100% traffic to new `AuthService`
 - [ ] Deprecate legacy auth system
 - [ ] Enable `AUTH_TOKEN_REFRESH` for all users
@@ -364,6 +367,7 @@ All nine requirements (FR-AUTH-001 through FR-AUTH-005, NFR-PERF-001, NFR-PERF-0
 **Critical path:** Infrastructure (Phase 1) → `AuthService` + endpoints (Phase 2) → Frontend + E2E (Phase 3) → Rollout (Phase 4). SendGrid integration (FR-AUTH-005) is off critical path and can proceed in parallel during Phase 2.
 
 **Parallelization opportunities:**
+
 - Phase 1: `PasswordHasher` and `JwtService` can be developed in parallel
 - Phase 2: Login/register endpoints vs. password reset endpoints
 - Phase 3: Frontend components (parallel across `LoginPage`, `RegisterPage`, `ProfilePage`) while observability setup begins

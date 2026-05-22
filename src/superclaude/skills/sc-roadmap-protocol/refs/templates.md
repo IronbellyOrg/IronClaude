@@ -60,6 +60,7 @@ milestone_count_range: [<min>, <max>]
 ## Version Resolution Rules
 
 When multiple template files match the same `type`:
+
 1. Filter: exclude templates where `min_version` > current sc:roadmap version
 2. Score: apply template compatibility scoring (see `refs/scoring.md`)
 3. Select: highest-scoring template wins
@@ -70,6 +71,7 @@ When multiple template files match the same `type`:
 ## Matching Criteria
 
 A template is considered a **candidate** if:
+
 1. Its `type` field matches the spec's dominant requirement type OR the user's `--template` flag value
 2. Its `min_version` is <= current sc:roadmap version
 3. It has valid YAML frontmatter with required fields
@@ -91,6 +93,7 @@ When no template scores >= 0.6 (or no templates exist), generate the milestone s
 | HIGH (> 0.7) | 8-12 | Complex scope, many dependencies |
 
 **Exact count within range**: `base + floor(domain_count / 2)`
+
 - LOW: base = 3
 - MEDIUM: base = 5
 - HIGH: base = 8
@@ -116,6 +119,7 @@ Each domain detected with >= 10% representation generates at least one dedicated
 4. **Validation milestone**: Final milestone for end-to-end validation and acceptance testing. Type: TEST. Priority: P1.
 
 **Validation milestone interleaving**: Based on interleave ratio from complexity class (see `refs/scoring.md`):
+
 - LOW (1:3): Insert validation milestone after every 3 work milestones
 - MEDIUM (1:2): Insert validation milestone after every 2 work milestones
 - HIGH (1:1): Insert validation milestone after every work milestone
@@ -340,6 +344,7 @@ All 3 output artifacts include YAML frontmatter as a versioned contract for down
 ### Mutual Exclusion Rule
 
 **Exactly one** of `spec_source` or `spec_sources` must be present in each artifact's frontmatter:
+
 - **Single-spec mode**: `spec_source: <path>` (scalar string)
 - **Multi-spec mode**: `spec_sources: [<path1>, <path2>, ...]` (list)
 - Never include both fields. Never omit both fields.

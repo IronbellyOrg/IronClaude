@@ -1,6 +1,6 @@
 
-
 ---
+
 spec_source: nonsense-spec.md
 complexity_score: 0.1
 adversarial: true
@@ -36,6 +36,7 @@ This is the only phase in this roadmap. No subsequent phases exist because there
 **Objective**: Formally determine that the current specification cannot proceed to engineering.
 
 **Actions**:
+
 1. Review extracted requirements and classify each as invalid, fictional dependency, non-measurable, or physically impossible
 2. Produce a decision memo documenting why implementation is blocked, which requirements must be rewritten, and what minimum information is needed to continue
 3. Obtain stakeholder acknowledgment that the current spec is unusable for delivery planning
@@ -49,6 +50,7 @@ This is the only phase in this roadmap. No subsequent phases exist because there
 **Objective**: Replace fictional statements with real business and technical requirements.
 
 **Actions**:
+
 1. Conduct stakeholder workshops to identify intended real-world needs behind the satirical requirements
 2. Map each fictional requirement to its real-world counterpart:
    - FR-001 (quantum banana auth) → **Authentication system** (OAuth2/OIDC)
@@ -68,6 +70,7 @@ This is the only phase in this roadmap. No subsequent phases exist because there
 **Objective**: Validate that rewritten requirements are implementable and identify realistic solution directions.
 
 **Actions**:
+
 1. Map recovered requirements to real technical domains (identity/access management, database architecture, CI/CD automation, API management, observability)
 2. Evaluate feasible technology options for each domain
 3. Replace fictional dependencies with validated candidates
@@ -83,6 +86,7 @@ This is the only phase in this roadmap. No subsequent phases exist because there
 **Objective**: Convert approved requirements into an executable implementation plan.
 
 **Actions**:
+
 1. Break requirements into epics and stories
 2. Define milestones for each domain (authentication, data layer, CI/CD, gateway/services, testing/hardening)
 3. Establish delivery sequence based on dependency order
@@ -142,6 +146,7 @@ Cannot be estimated. Staffing depends entirely on what the replacement specifica
 ### Current State: All Invalid
 
 All four named technologies are fictional and unusable:
+
 1. Quantum Python 4.0
 2. TelepathDB
 3. React.dimensions
@@ -160,6 +165,7 @@ All four named technologies are fictional and unusable:
 ### Planning Prerequisites
 
 Before implementation can begin, the project requires:
+
 1. Validated requirements with measurable acceptance criteria
 2. Measurable non-functional targets
 3. Approved architecture direction with real technology selections
@@ -185,6 +191,7 @@ Before implementation can begin, the project requires:
 ### Original Success Criteria (All Invalid)
 
 None of the four original success criteria are usable:
+
 - "Zero bugs by ignoring reports" — measures nothing
 - "100% coverage of nonexistent features" — logically impossible
 - "Infinite developer satisfaction" — not a number

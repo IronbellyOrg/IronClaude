@@ -34,6 +34,7 @@ This roadmap covers the implementation of a JWT-based authentication service for
 **Critical Path**: Open Question resolution (Phase 0) → Security contracts + Database schema + core services (Phase 0) → Registration + Login (Phase 1) → Token refresh + Profile (Phase 2) → Password reset (Phase 3) → NFR hardening (Phase 4) → Validation + OQ closure + Deploy (Phase 5).
 
 **Key Risks**:
+
 - The bcrypt latency (~250ms at cost 12) exceeds the 200ms p95 target — architectural resolution required before Phase 1
 - Email service interface is undefined, blocking FR-AUTH.5 completion
 - No account lockout policy leaves distributed brute-force attack surface open
@@ -187,6 +188,7 @@ This roadmap uses the Opus-architect variant (score: 81.6) as its structural fou
 **Purpose**: Catch integration issues between Phases 1 and 2 before building password reset on top. This is an advisory checkpoint, not a blocking gate — work on Phase 3 may begin if the email service interface (OQ-7) was resolved in Phase 0.
 
 **Review Checklist**:
+
 - Registration → Login → Profile → Refresh lifecycle executes end-to-end in integration environment
 - Replay detection correctly triggers full session revocation
 - AuthMiddlewareChain correctly distinguishes public vs protected routes

@@ -84,6 +84,7 @@ The architecture is a layered TypeScript service using RS256 JWT signing (4096-b
 **Exit Criteria**: All units pass. Crypto review signed off. Benchmark confirms ~250ms bcrypt timing and <50ms JWT sign/verify. Migrations run up and down cleanly. DI container wires correctly.
 
 **Integration Points**:
+
 - **DI Container**: Registers `PasswordHasher`, `JwtService`, database connection pool
 - **Cross-Reference**: Phase 2 adds `TokenManager`, `AuthService`; Phase 3 adds middleware and routes
 
@@ -128,6 +129,7 @@ The architecture is a layered TypeScript service using RS256 JWT signing (4096-b
 **Exit Criteria**: All unit tests pass for `TokenManager` and `AuthService`. Replay detection works against real database. SC-5 (all 4 services tested).
 
 **Integration Points**:
+
 - **DI Container (updated)**: Adds `TokenManager` (depends on `JwtService`, database), `AuthService` (depends on `TokenManager`, `PasswordHasher`, database)
 - **Rate Limiter Middleware**: In-memory store, 5 req/min/IP
 - **Feature Flag Gate**: Environment variable reader, route registration conditional
@@ -174,6 +176,7 @@ The architecture is a layered TypeScript service using RS256 JWT signing (4096-b
 **Exit Criteria**: All integration tests pass. E2E lifecycle completes. SC-6, SC-7, SC-8 validated.
 
 **Integration Points**:
+
 - **Route Table**: 6 route handlers gated by `AUTH_SERVICE_ENABLED`
 - **Middleware Chain**: Bearer token verification on protected routes; rate limiter on `/auth/login`
 

@@ -53,15 +53,18 @@
 | Deliverable IDs | {{SC_PLACEHOLDER:D_NNNN_comma_separated}} |
 
 **Artifacts (Intended Paths):**
+
 - `TASKLIST_ROOT/artifacts/{{SC_PLACEHOLDER:D_NNNN}}/spec.md`
 - `TASKLIST_ROOT/artifacts/{{SC_PLACEHOLDER:D_NNNN}}/notes.md`
 - `TASKLIST_ROOT/artifacts/{{SC_PLACEHOLDER:D_NNNN}}/evidence.md`
 
 **Deliverables:**
+
 - {{SC_PLACEHOLDER:deliverable_1_concrete_output}}
 - {{SC_PLACEHOLDER:deliverable_2_concrete_output}}
 
 **Steps:**
+
 1. **[PLANNING]** {{SC_PLACEHOLDER:load_context_identify_scope}}
 2. **[PLANNING]** {{SC_PLACEHOLDER:check_dependencies_blockers}}
 3. **[EXECUTION]** {{SC_PLACEHOLDER:execution_step_1}}
@@ -83,6 +86,7 @@
      Rejected forms: "Implementation is complete.", "Tests pass.", "Documented." -->
 
 **Acceptance Criteria:**
+
 - {{SC_PLACEHOLDER:near_field_verifiable_criterion}}
 - {{SC_PLACEHOLDER:criterion_2}}
 - {{SC_PLACEHOLDER:criterion_3}}
@@ -91,6 +95,7 @@
 <!-- VALIDATION: Exactly 2 bullets. -->
 
 **Validation:**
+
 - Manual check: {{SC_PLACEHOLDER:specific_observable_behavior}}
 - Evidence: {{SC_PLACEHOLDER:linkable_artifact_produced}}
 
@@ -111,11 +116,13 @@
 **Checkpoint Report Path:** `TASKLIST_ROOT/checkpoints/CP-P{{SC_PLACEHOLDER:PP}}-T{{SC_PLACEHOLDER:start}}-T{{SC_PLACEHOLDER:end}}.md`
 
 **Verification:** (exactly 3 bullets)
+
 - {{SC_PLACEHOLDER:verification_1}}
 - {{SC_PLACEHOLDER:verification_2}}
 - {{SC_PLACEHOLDER:verification_3}}
 
 **Exit Criteria:** (exactly 3 bullets)
+
 - {{SC_PLACEHOLDER:exit_1}}
 - {{SC_PLACEHOLDER:exit_2}}
 - {{SC_PLACEHOLDER:exit_3}}
@@ -132,11 +139,13 @@
 **Checkpoint Report Path:** `TASKLIST_ROOT/checkpoints/CP-P{{SC_PLACEHOLDER:PP}}-END.md`
 
 **Verification:** (exactly 3 bullets)
+
 - {{SC_PLACEHOLDER:verification_1}}
 - {{SC_PLACEHOLDER:verification_2}}
 - {{SC_PLACEHOLDER:verification_3}}
 
 **Exit Criteria:** (exactly 3 bullets)
+
 - {{SC_PLACEHOLDER:exit_1}}
 - {{SC_PLACEHOLDER:exit_2}}
 - {{SC_PLACEHOLDER:exit_3}}

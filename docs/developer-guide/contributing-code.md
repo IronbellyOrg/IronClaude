@@ -19,12 +19,14 @@ Welcome to SuperClaude Framework development! This guide provides everything you
 ### Prerequisites
 
 **Required:**
+
 - Python 3.8+ with pip
 - Git for version control
 - Claude Code installed and working
 - Node.js 16+ (for MCP server configuration)
 
 **Environment Setup:**
+
 ```bash
 # Fork SuperClaude_Framework on GitHub first
 git clone https://github.com/YOUR_USERNAME/SuperClaude_Framework.git
@@ -38,6 +40,7 @@ PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components 
 ```
 
 **Validation Check:**
+
 ```bash
 # Verify Python version
 python3 --version  # Should be 3.8+
@@ -69,6 +72,7 @@ SuperClaude_Framework/
 ```
 
 **Key Concepts:**
+
 - **Context Files**: .md instruction files that guide Claude Code behavior
 - **Agents**: Domain specialists (e.g., security-engineer.md, python-expert.md)
 - **Commands**: Workflow patterns (e.g., implement.md, analyze.md)
@@ -92,18 +96,21 @@ User Input → Claude Code → Reads SuperClaude Context → Modified Behavior �
 ### File Organization
 
 **Context Files (`.md`):**
+
 - Write clear, actionable instructions for Claude Code
 - Use frontmatter metadata for configuration
 - Follow existing patterns and naming conventions
 - Test instructions produce expected behaviors
 
 **Installation Scripts (`.py`):**
+
 - Follow PEP 8 style guidelines
 - Include docstrings for functions and classes
 - Add type hints where beneficial
 - Focus on file copying and configuration
 
 **Example Agent Structure:**
+
 ```markdown
 ---
 name: new-specialist
@@ -132,12 +139,14 @@ Core philosophy and approach
 ### Context File Standards
 
 **Structure Requirements:**
+
 - Clear, actionable instructions for Claude Code
 - Specific triggers and activation patterns
 - Examples demonstrating usage
 - Boundaries defining scope
 
 **Quality Standards:**
+
 - Instructions are testable in Claude Code conversations
 - Examples produce expected behavioral changes
 - Clear activation triggers and context patterns
@@ -148,6 +157,7 @@ Core philosophy and approach
 ### Git Workflow
 
 1. **Fork and Clone:**
+
    ```bash
    # Fork on GitHub, then:
    git clone https://github.com/YOUR_USERNAME/SuperClaude_Framework.git
@@ -156,6 +166,7 @@ Core philosophy and approach
    ```
 
 2. **Create Feature Branch:**
+
    ```bash
    git checkout -b feature/your-feature-name
    # Work on your changes
@@ -164,6 +175,7 @@ Core philosophy and approach
    ```
 
 3. **Submit Pull Request:**
+
    ```bash
    git push origin feature/your-feature-name
    # Create PR on GitHub
@@ -196,6 +208,7 @@ Brief description of context file changes
 ### Code Review Process
 
 **Manual Review:**
+
 - Context file clarity and effectiveness
 - Agent/command logic and triggers
 - Documentation accuracy and completeness
@@ -207,6 +220,7 @@ Brief description of context file changes
 ### Adding New Agents
 
 **Agent Development Process:**
+
 1. Identify domain expertise gap
 2. Create agent file in `superclaude/Agents/`
 3. Define triggers, behaviors, and boundaries
@@ -214,6 +228,7 @@ Brief description of context file changes
 5. Document usage patterns and examples
 
 **Agent Template:**
+
 ```markdown
 ---
 name: agent-name
@@ -249,6 +264,7 @@ tools: Read, Write, Edit, Bash
 ### Adding New Commands
 
 **Command Structure:**
+
 ```markdown
 ---
 name: command-name
@@ -268,7 +284,9 @@ personas: [architect, engineer]
 ## Usage
 Type in Claude Code conversation:
 ```
+
 /sc:command-name [target] [--options]
+
 ```
 **Note**: This is a context trigger pattern, not a terminal command.
 
@@ -284,6 +302,7 @@ Practical usage examples
 ### Adding New Modes
 
 **Mode Development:**
+
 - Define activation triggers
 - Specify behavioral modifications
 - Create interaction patterns
@@ -294,6 +313,7 @@ Practical usage examples
 ### Context File Validation
 
 **Manual Validation Process:**
+
 1. Install development version in Claude Code
 2. Test agent/command activation triggers in Claude Code conversations
 3. Verify behavioral modifications occur as expected
@@ -301,6 +321,7 @@ Practical usage examples
 5. Test edge cases and error conditions
 
 **Validation Checklist:**
+
 - [ ] Context files use valid markdown syntax
 - [ ] Triggers activate correctly in Claude Code
 - [ ] Behavior matches documentation
@@ -325,15 +346,18 @@ grep "@import" ~/.claude/CLAUDE.md
 ### Development Support
 
 **Documentation:**
+
 - [Technical Architecture](technical-architecture.md) - System design details
 - [Verification Guide](testing-debugging.md) - File validation procedures
 
 **Community Channels:**
+
 - GitHub Issues: Bug reports and feature requests
 - GitHub Discussions: Development questions and ideas
 - Pull Request Reviews: Context file feedback and collaboration
 
 **Code Review Guidelines:**
+
 - Provide constructive, specific feedback
 - Test changes locally when possible
 - Focus on maintainability and clarity
@@ -342,12 +366,14 @@ grep "@import" ~/.claude/CLAUDE.md
 ### Issue Reporting
 
 **Bug Reports:**
+
 1. Describe expected vs actual behavior in Claude Code
 2. Provide steps to reproduce with context triggers
 3. Include environment details and file versions
 4. Share relevant context file configurations
 
 **Feature Requests:**
+
 1. Explain the behavioral enhancement being proposed
 2. Describe how users would benefit
 3. Consider integration with existing context patterns
@@ -356,6 +382,7 @@ grep "@import" ~/.claude/CLAUDE.md
 ## Contributing Guidelines Summary
 
 ### Do's
+
 ✅ **Follow existing patterns and conventions**
 ✅ **Test context files thoroughly with Claude Code**
 ✅ **Write clear, actionable behavioral instructions**
@@ -364,6 +391,7 @@ grep "@import" ~/.claude/CLAUDE.md
 ✅ **Coordinate with related components**
 
 ### Don'ts
+
 ❌ **Don't break existing functionality**
 ❌ **Don't add untested context modifications**
 ❌ **Don't ignore style guidelines**
@@ -373,12 +401,14 @@ grep "@import" ~/.claude/CLAUDE.md
 ### Quality Standards
 
 **Context Files:**
+
 - Clear activation triggers
 - Specific behavioral instructions
 - Practical examples
 - Defined scope boundaries
 
 **Documentation:**
+
 - Accurate and up-to-date
 - Working context examples
 - Clear navigation structure

@@ -13,6 +13,7 @@
 The TDD extraction path works correctly end-to-end. The spec extraction path remains unbroken. No cross-contamination between paths was detected. Both pipelines halt at the pre-existing anti-instinct gate issue, which prevents test-strategy and spec-fidelity steps from running. This is NOT caused by our TDD changes.
 
 **Key results:**
+
 - TDD auto-detection: WORKS (score >= 5 threshold)
 - TDD extraction: 14 sections, 6 TDD-specific fields — all present
 - Spec extraction: 8 sections, 0 TDD fields — complete isolation

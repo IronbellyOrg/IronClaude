@@ -254,18 +254,32 @@ def test_single_command_local_runnability(tmp_path: Path) -> None:
         f"stderr:\n{completed.stderr}"
     )
 
+    # H1: artifacts land under the compose_run_dir-derived run-dir
+    # (output_dir is the OUTPUT ROOT; the FR-G4 run-dir is at
+    # ``<output_dir>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/``).
+    eval_runs_root = output_dir / ".dev" / "eval-runs"
+    assert eval_runs_root.is_dir(), (
+        f"FR-G4 layout root missing: {eval_runs_root}\n"
+        f"stdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
+    )
+    date_dirs = sorted(p for p in eval_runs_root.iterdir() if p.is_dir())
+    assert len(date_dirs) == 1
+    run_dirs = sorted(p for p in date_dirs[0].iterdir() if p.is_dir())
+    assert len(run_dirs) == 1
+    per_run_dir = run_dirs[0]
+
     for filename in SUMMARY_FILES:
-        artifact = output_dir / filename
+        artifact = per_run_dir / filename
         assert artifact.is_file(), (
             f"FR-G6 AC: {filename!r} missing under per-run dir "
-            f"{output_dir}; stdout:\n{completed.stdout}\n"
+            f"{per_run_dir}; stdout:\n{completed.stdout}\n"
             f"stderr:\n{completed.stderr}"
         )
         assert artifact.stat().st_size > 0, (
-            f"FR-G6 AC: {filename!r} present but empty under {output_dir}."
+            f"FR-G6 AC: {filename!r} present but empty under {per_run_dir}."
         )
 
-    summary_json = output_dir / "summary.json"
+    summary_json = per_run_dir / "summary.json"
     payload = json.loads(summary_json.read_text(encoding="utf-8"))
     assert isinstance(payload, dict), (
         f"FR-G6 AC: summary.json should be a JSON object; got "

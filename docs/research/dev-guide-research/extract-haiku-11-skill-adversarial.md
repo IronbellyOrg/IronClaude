@@ -1,6 +1,7 @@
 # Extraction — Developing Custom Skills Pattern (sc-adversarial)
 
 **Sources (read completely):**
+
 - `/config/workspace/SuperClaude_Framework/src/superclaude/skills/sc-adversarial/SKILL.md`
 - `/config/workspace/SuperClaude_Framework/src/superclaude/skills/sc-adversarial/refs/agent-specs.md`
 - `/config/workspace/SuperClaude_Framework/src/superclaude/skills/sc-adversarial/refs/scoring-protocol.md`
@@ -24,6 +25,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 ```
 
 **Reusable pattern:**
+
 - Every custom skill should start with `---` frontmatter containing at least:
   - `name:` (slash command name)
   - `description:` (short, user-facing summary)
@@ -47,6 +49,7 @@ personas: [architect, analyzer, scribe]
 ```
 
 **Reusable pattern:**
+
 - Use an HTML comment to store extended descriptors (category, complexity, MCP servers, personas). Treat as documentation only.
 
 ---
@@ -58,14 +61,17 @@ A skill should clearly declare its scope, why it exists, and what it will/won’
 ### 2.1 Purpose and “Core Objective”
 
 From `SKILL.md`:
+
 - Purpose statement explains the command is a reusable pipeline.
 - It explicitly calls out a correctness goal and anti-hallucination goal.
 
 Key quotes:
+
 - > “Generic, reusable command implementing a structured adversarial debate, comparison, and merge pipeline.”
 - > “**Core Objective**: Verify and validate accuracy of statements in generated artifacts, weeding out hallucinations and sycophantic agreement through structured adversarial pressure using steelman debate strategy.”
 
 **Reusable pattern:**
+
 - Put a short Purpose section near the top.
 - If the skill is designed as a framework primitive, explicitly state that (e.g., “invocable by any SuperClaude command”).
 
@@ -86,6 +92,7 @@ From `SKILL.md` (verbatim headings and examples):
 ```
 
 **Reusable pattern:**
+
 - Include explicit boundaries to prevent scope creep.
 - If correctness validation is delegated to the caller, say so.
 
@@ -107,11 +114,13 @@ The skill documents both syntaxes:
 ```
 
 **Reusable pattern:**
+
 - If a skill supports multiple input modes, enforce mutual exclusivity and document it early.
 
 ### 3.2 Dual input mode pattern (Mode A vs Mode B)
 
 From `SKILL.md`:
+
 - **Mode A: Compare Existing Files (FR-001)**
   - Accepts “2-10 existing files”
   - Copies them into a standardized output structure
@@ -120,9 +129,11 @@ From `SKILL.md`:
   - Agent spec format: `"<model>[:persona[:\"instruction\"]]"`
 
 Quote:
+
 - > “Agent count: 2-10 (minimum 2 required for adversarial comparison)”
 
 **Reusable pattern:**
+
 - Provide both user-facing usage examples and hard constraints (min/max counts).
 - If you generate derived artifacts, define deterministic naming and output paths.
 
@@ -141,6 +152,7 @@ Quote:
 ```
 
 **Reusable pattern:**
+
 - Document flags as a table: flag, default, range, and effect.
 
 ### 3.4 Input parsing protocol (stop/warn rules + error messages)
@@ -183,6 +195,7 @@ Mode B validation includes STOP for unknown model and missing quotes:
 ```
 
 **Reusable pattern:**
+
 - Document parsing as a structured YAML “protocol” with:
   - detection logic
   - validation rules
@@ -212,10 +225,12 @@ From `SKILL.md`:
 ```
 
 Naming conventions are also explicitly spelled out:
+
 - > “Mode A: `variant-N-original.md` (copies of input files)”
 - > “Mode B: `variant-N-<model>-<persona>.md`”
 
 **Reusable pattern:**
+
 - Define an “artifact output structure” section for the skill.
 - Use deterministic paths and filenames so other commands can integrate reliably.
 
@@ -252,6 +267,7 @@ return_contract:
 ```
 
 **Reusable pattern:**
+
 - If the skill is meant to be a framework primitive, define a return contract that other commands can consume.
 
 ---
@@ -265,26 +281,32 @@ A key SuperClaude custom skill pattern in these sources is **delegating sub-step
 From `SKILL.md`:
 
 **debate-orchestrator** (verbatim):
+
 - > “Coordinates the entire pipeline without participating in debates”
 - > “Does NOT: Generate variants, participate in debates, execute merges”
 
 **merge-executor** (verbatim):
+
 - > “Executes refactoring plans to produce unified merged artifacts”
 - > “Does NOT: Make strategic decisions, override plan, participate in debates”
 
 **Reusable pattern:**
+
 - In skill docs, define sub-agents and their “Does / Does NOT” boundaries to avoid conflating responsibilities.
 
 ### 5.2 Task-based advocate instantiation (dynamic agents)
 
 From `/refs/agent-specs.md`:
+
 - > “Advocate agents are NOT pre-defined. They are instantiated dynamically from the `--agents` specification for each adversarial debate session.”
 
 From `SKILL.md` Step 2:
+
 - > “advocate_instantiation: Parse model[:persona[:\"instruction\"]] spec for each variant”
 - > “Parallel Task calls — all advocates run simultaneously”
 
 **Reusable pattern:**
+
 - Skills can create *dynamic agents* per run, based on CLI flags.
 - When parallel work is safe, specify “true parallel” dispatch.
 
@@ -307,6 +329,7 @@ Verbatim:
 ### 6.2 Supported models + personas (and what they imply)
 
 Models table (verbatim rows):
+
 - `opus` “Highest capability”
 - `sonnet` “Balanced capability”
 - `haiku` “Fast, efficient”
@@ -318,9 +341,11 @@ architect, security, analyzer, frontend, backend, performance, qa, scribe
 ```
 
 The file also states:
+
 - > “Model aliases configured in the environment are also supported.”
 
 **Reusable pattern:**
+
 - If your skill takes agent parameters, define:
   - the grammar
   - the allowed values (including environment aliases)
@@ -345,6 +370,7 @@ agent_spec_parsing:
 ```
 
 **Reusable pattern:**
+
 - Explicitly document error-handling behavior for malformed agent specs.
 
 ---
@@ -379,6 +405,7 @@ steelman_protocol:
 ```
 
 **Reusable pattern:**
+
 - If your skill needs adversarial or evaluative behavior, specify:
   - a mandatory “steelman” step
   - evidence requirements
@@ -428,6 +455,7 @@ Output format (verbatim):
 ```
 
 **Reusable pattern:**
+
 - When delegating to Task agents, embed a strict template in the skill spec so outputs are parseable and consistent.
 
 ---
@@ -435,12 +463,14 @@ Output format (verbatim):
 ## 8) Stepwise pipeline pattern (sequential steps + artifacts)
 
 The skill defines a “5-Step Adversarial Protocol (FR-002)” where each step has:
+
 - inputs
 - delegation/agent responsible
 - process as structured YAML
 - output artifact name + template reference
 
 Quote:
+
 - > “The core pipeline executes 5 sequential steps. Each step produces a documented artifact.”
 
 ### 8.1 Step YAML is used as “implementation spec”
@@ -461,6 +491,7 @@ diff_analysis:
 ```
 
 **Reusable pattern:**
+
 - Write each step as a protocol object (YAML) that can serve as an executable blueprint for implementation.
 
 ---
@@ -491,6 +522,7 @@ error_handling:
 ```
 
 **Reusable pattern:**
+
 - Declare failures, detection conditions, and recovery behavior.
 - Include minimum viability constraints (e.g., “Minimum 2 variants required”).
 
@@ -503,6 +535,7 @@ The `/refs/scoring-protocol.md` provides a full scoring algorithm that is applic
 ### 10.1 Deterministic quantitative layer (no LLM judgment)
 
 Verbatim:
+
 - > “All quantitative metrics are computed deterministically from artifact text. No LLM judgment is involved in this layer.”
 
 Metrics table and formula (verbatim):
@@ -522,6 +555,7 @@ requirement_coverage:
 ```
 
 **Reusable pattern:**
+
 - If a skill needs scoring, split into:
   - deterministic text metrics (repeatable)
   - qualitative rubric with evidence
@@ -542,9 +576,11 @@ VERDICT:  MET (1 point) | NOT MET (0 points)
 ```
 
 Key rule (verbatim):
+
 - > “If the evaluator cannot cite specific evidence for a MET verdict, the criterion defaults to NOT MET”
 
 **Reusable pattern:**
+
 - For any LLM-based evaluation, require evidence citations and default to “NOT MET” if evidence is missing.
 
 ### 10.3 Combined scoring + tiebreakers
@@ -556,9 +592,11 @@ variant_score = (0.50 × quant_score) + (0.50 × qual_score)
 ```
 
 Tiebreaker protocol is explicitly deterministic:
+
 - > “If still tied, the variant presented first in input order is selected (arbitrary but deterministic)”
 
 **Reusable pattern:**
+
 - Include deterministic tie resolution so repeated runs are reproducible.
 
 ### 10.4 Position-bias mitigation (dual-pass evaluation)
@@ -579,6 +617,7 @@ Verbatim excerpt:
 ```
 
 **Reusable pattern:**
+
 - When using an LLM as judge, run dual-pass evaluation to mitigate ordering bias.
 
 ---
@@ -611,6 +650,7 @@ sequential:
 ```
 
 **Reusable pattern:**
+
 - Document which MCP servers are used for which steps.
 - Include a circuit breaker: thresholds, timeouts, and a degraded-mode fallback behavior.
 
@@ -634,9 +674,11 @@ interactive_checkpoints:
 ```
 
 Later, the checkpoints are expanded as “pause_action” prompts:
+
 - > “Present … to user via AskUserQuestion”
 
 **Reusable pattern:**
+
 - For skills that can operate autonomously but benefit from user judgment, define explicit interactive gates with default actions.
 
 ---
@@ -662,6 +704,7 @@ provenance_system:
 ```
 
 **Reusable pattern:**
+
 - If a skill produces a merged artifact, include provenance annotations to preserve traceability.
 
 ### 13.2 Post-merge validation checks
@@ -682,6 +725,7 @@ post_merge_validation:
 ```
 
 **Reusable pattern:**
+
 - Build minimal, objective validation gates into the skill output phase (structure, reference resolution, contradiction rescan).
 
 ---
@@ -711,6 +755,7 @@ framework_registration:
 ```
 
 **Reusable pattern:**
+
 - When adding a new skill that should be discoverable/routable, define:
   - a command catalog entry (for `COMMANDS.md`-style docs)
   - a router pattern entry (for `ORCHESTRATOR.md`-style routing)
@@ -788,10 +833,12 @@ personas: [<architect>, <analyzer>, ...]
 ## 16) References inside the skill (how sc-adversarial organizes its sub-specs)
 
 This skill uses a `refs/` folder to store reusable protocols:
+
 - `/refs/agent-specs.md` — agent spec grammar, advocate behavior, instantiation protocol
 - `/refs/scoring-protocol.md` — scoring algorithm for base selection
 
 **Reusable pattern:**
+
 - For complex skills, split the skill spec into:
   - a high-level SKILL.md
   - supporting reference docs for stable protocols (agent specs, scoring, templates)

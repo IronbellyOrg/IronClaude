@@ -68,6 +68,7 @@ All acceptance criteria satisfied. All three target files compile, pass ruff, an
 **Tool engagement:** Read: 4 | Grep: 3 | Glob: 0 | Bash: 8
 
 Every check is backed by a specific tool call:
+
 - Direct file reads of all three target files (full contents)
 - `git diff` on both modified files to confirm scope confinement
 - `ast.parse()` on all three to confirm valid Python
@@ -95,6 +96,7 @@ None required — all acceptance criteria satisfied on first pass.
 ## Adversarial Probe Notes
 
 I specifically attempted to find issues by:
+
 1. **Diff scope check** — verified via `git diff --stat` that exactly the right line ranges changed (24 insertions / 24 deletions per file, all within the in-scope class / elif branch). No accidental edits elsewhere.
 2. **Schema ordering** — confirmed the 7 headings in test_gates.py happy-path appear in the exact order specified (EXISTING_FILES → ... → AMBIGUITIES_FOR_USER), not just present-in-any-order.
 3. **Functional cross-check** — ran the round-trip test live to confirm that build_research_notes_prompt's actual emitted schema matches `_RESEARCH_REQUIRED_SECTIONS`. If prompts.py and gates.py had silently drifted, this test would have failed. It passed, proving the schema is genuinely aligned.

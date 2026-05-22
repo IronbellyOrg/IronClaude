@@ -73,11 +73,13 @@ Validate tier classification behavior against YAML test specifications.
 Reference: `skills/sc-validate-tests-protocol/classification-algorithm.yaml`
 
 ### Priority Order
+
 ```
 STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 ```
 
 ### Phases
+
 1. **Compound Phrases**: Check multi-word patterns first
 2. **Keywords**: Match against tier keyword lists
 3. **Context Boosters**: Apply file/path/operation adjustments
@@ -116,11 +118,13 @@ The full behavioral specification is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Validate tier classification behavior against YAML test specifications
 - Apply the tier classification algorithm to test inputs and compare against expected results
 - Generate summary reports with pass/fail counts and failure details
 
 **Will Not:**
+
 - Modify test specification files
 - Change the classification algorithm itself
 - Skip test categories without explicit user request

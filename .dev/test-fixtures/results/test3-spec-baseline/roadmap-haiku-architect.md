@@ -11,6 +11,7 @@ primary_persona: architect
 This roadmap implements a stateless JWT-based authentication system with secure password hashing (bcrypt), refresh token rotation with replay detection, and comprehensive security controls. The implementation spans 6 phases over an estimated 6-8 weeks, with a critical path focused on cryptographic foundations, token management, and database persistence.
 
 **Key Architectural Decisions**:
+
 - **Stateless JWT** with RS256 asymmetric signing for scalability and key separation
 - **Hybrid token strategy**: Access tokens in memory (XSS protection), refresh tokens in httpOnly cookies (CSRF-proof)
 - **Refresh token rotation** with hash-based revocation for replay attack mitigation
@@ -24,9 +25,11 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ## Phased Implementation Plan
 
 ### Phase 0: Cryptographic Foundations (Weeks 1-1.5)
+
 **Objective**: Establish secure crypto library layer with no business logic dependencies.
 
 #### Phase 0.1: JWT Service Implementation
+
 - **Component**: `src/services/jwt-service.ts`
 - **Deliverables**:
   - RS256 asymmetric key pair generation/management
@@ -42,6 +45,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (foundation module, no consumers yet)
 
 #### Phase 0.2: Password Hasher Implementation
+
 - **Component**: `src/services/password-hasher.ts`
 - **Deliverables**:
   - Bcrypt hashing function: `hash(password: string, costFactor?: number): Promise<string>` (default costFactor=12)
@@ -58,6 +62,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (foundation module, no consumers yet)
 
 #### Phase 0 Gate: Cryptographic Validation
+
 - **Gate Activities**:
   - Code review by security engineer: RS256 implementation, key handling, bcrypt configuration
   - Cryptographic audit: verify no keys in logs, secrets manager integration design
@@ -67,9 +72,11 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ---
 
 ### Phase 1: Core Service Layer (Weeks 1.5-3)
+
 **Objective**: Build stateful token management (refresh token rotation/revocation) and unified auth service orchestration.
 
 #### Phase 1.1: Token Manager Service
+
 - **Component**: `src/services/token-manager.ts`
 - **Deliverables**:
   - Issue access token: `issueAccessToken(userId: string): string` — calls `jwt-service.sign()` with 15min TTL
@@ -91,9 +98,10 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 1.2 (AuthService consumes), Phase 2.1 (routes consume), Phase 3.1 (database integration)
 
 #### Phase 1.2: Auth Service Implementation
+
 - **Component**: `src/services/auth-service.ts`
 - **Deliverables**:
-  - Login: `login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfile }>` 
+  - Login: `login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfile }>`
     - Validate email format
     - Query user by email
     - Compare password with bcrypt (FR-AUTH.1b — no information leakage on invalid credential)
@@ -128,6 +136,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 2.1 (auth routes consume), Phase 3.1 (database integration), Phase 4.1 (password reset flow)
 
 #### Phase 1 Gate: Service Integration Readiness
+
 - **Gate Activities**:
   - Architecture review: token-manager rotation logic, auth-service orchestration, dependency injection patterns
   - Integration testing: confirm Phase 1 modules can be composed without Phase 2 or Phase 3
@@ -137,16 +146,18 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ---
 
 ### Phase 2: API Route & Middleware Integration (Weeks 3-4)
+
 **Objective**: Wire services into HTTP routes and middleware; implement rate limiting and error responses.
 
 #### Phase 2.1: Authentication Routes
+
 - **Component**: `src/routes/auth-routes.ts`
 - **Deliverables**:
   - `POST /auth/login` — calls `auth-service.login()`, returns 200 with access_token + refresh_token (as JSON body; cookie handling in middleware Phase 2.2)
   - `POST /auth/register` — calls `auth-service.register()`, returns 201 with user profile
   - `POST /auth/refresh` — extracts refresh token from httpOnly cookie (Phase 2.2), calls `token-manager.rotateRefreshToken()`, returns new access_token + rotated refresh_token
   - `GET /auth/profile` — extracts Bearer token from Authorization header (Phase 2.2), calls `auth-service.validateAccessToken()`, calls `auth-service.getProfile()`, returns user profile (sans sensitive fields)
-  - Error responses: 
+  - Error responses:
     - 401 on invalid/expired access token (FR-AUTH.1b, FR-AUTH.4b)
     - 403 on locked account (FR-AUTH.1c)
     - 409 on duplicate email (FR-AUTH.2b)
@@ -166,6 +177,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 3.1 (database integration into AuthService), Phase 5 (route integration tests)
 
 #### Phase 2.2: Auth Middleware
+
 - **Component**: `src/middleware/auth-middleware.ts` (extend existing if present; create if not)
 - **Deliverables**:
   - Bearer token extraction: `req.headers.authorization` → parse "Bearer <token>"
@@ -187,6 +199,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 5 (integration tests verify middleware blocks unauthenticated requests)
 
 #### Phase 2.3: Rate Limiting & Error Handling
+
 - **Component**: `src/middleware/rate-limit-middleware.ts`, `src/middleware/error-handler.ts`
 - **Deliverables**:
   - Rate limiter: 5 login attempts per minute per IP (FR-AUTH.1d)
@@ -210,6 +223,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 5 (integration tests verify rate limit behavior)
 
 #### Phase 2 Gate: Route & Middleware Readiness
+
 - **Gate Activities**:
   - Integration testing: confirm auth routes return correct HTTP status codes with mocked services
   - Middleware integration testing: confirm Bearer extraction, cookie handling, error responses work end-to-end
@@ -220,9 +234,11 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ---
 
 ### Phase 3: Data Persistence & Database Integration (Weeks 4-5)
+
 **Objective**: Implement database schema, migrations, and service-layer database integration.
 
 #### Phase 3.1: Database Schema & Migrations
+
 - **Component**: `src/db/migrations/001_create_users_table.sql`, `002_create_refresh_tokens_table.sql`
 - **Deliverables**:
   - Users table (Migration 001):
@@ -252,6 +268,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (pure schema; no application code wiring)
 
 #### Phase 3.2: AuthService Database Integration
+
 - **Component**: Update `src/services/auth-service.ts` to use real database
 - **Deliverables**:
   - Inject database connection (constructor injection) into AuthService
@@ -275,6 +292,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 3.3 (dependency injection container setup), Phase 5 (integration tests)
 
 #### Phase 3.3: TokenManager Database Integration
+
 - **Component**: Update `src/services/token-manager.ts` to use real database
 - **Deliverables**:
   - Inject database connection into TokenManager
@@ -298,6 +316,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 3.4 (dependency injection container), Phase 5 (concurrency tests)
 
 #### Phase 3.4: Dependency Injection Container Setup
+
 - **Component**: `src/di/container.ts` (or use existing DI framework)
 - **Deliverables**:
   - Service registration:
@@ -322,6 +341,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 2 (routes use container to get services), Phase 5 (tests inject mocks via container)
 
 #### Phase 3 Gate: Persistence Readiness
+
 - **Gate Activities**:
   - Database schema review: confirm tables match service expectations, indexes are appropriate
   - Migration testing: run migrations forward and backward; confirm schema changes are reversible (FR-AUTH.1-IMPL-5)
@@ -332,9 +352,11 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ---
 
 ### Phase 4: Advanced Features & External Integration (Weeks 5-6)
+
 **Objective**: Implement password reset flow (external email service), feature flag gating, and advanced configurations.
 
 #### Phase 4.1: Password Reset Flow
+
 - **Component**: `src/services/password-reset-service.ts`, `src/routes/auth-routes.ts` (extend)
 - **Deliverables**:
   - Request password reset: `POST /auth/password-reset/request`
@@ -368,6 +390,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 3.4 (DI container registration), Phase 5 (integration tests with mock email)
 
 #### Phase 4.2: Feature Flag Implementation
+
 - **Component**: `src/config/feature-flags.ts`, middleware integration
 - **Deliverables**:
   - `AUTH_SERVICE_ENABLED` flag (FR-AUTH.1-IMPL-4) — gates entire /auth/* route group
@@ -389,6 +412,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
   - **Cross-Reference**: Phase 5 (tests verify flag behavior), Phase 6 (deployment uses flag for gradual rollout)
 
 #### Phase 4.3: Advanced Configuration & Customization
+
 - **Component**: `src/config/auth-config.ts`
 - **Deliverables**:
   - Configurable parameters (all with secure defaults):
@@ -409,6 +433,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (config is read-only after startup)
 
 #### Phase 4 Gate: Feature Completeness
+
 - **Gate Activities**:
   - Password reset flow testing: end-to-end with real/mock email service
   - Feature flag testing: confirm flag gates routes correctly and fallback behavior works
@@ -419,9 +444,11 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ---
 
 ### Phase 5: Comprehensive Testing & Validation (Weeks 6-7)
+
 **Objective**: Implement full test suite covering units, integration, e2e, security, and performance.
 
 #### Phase 5.1: Unit Tests (Foundation Modules & Services)
+
 - **Coverage**: Phase 0-1-2 modules
 - **Deliverables**:
   - `tests/unit/jwt-service.test.ts`: signing, verification, expiration, tampering, key rotation
@@ -437,6 +464,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (tests verify individual modules)
 
 #### Phase 5.2: Integration Tests (Service Composition & Database)
+
 - **Coverage**: Phase 3 database integration, Phase 2 routes with real services
 - **Deliverables**:
   - `tests/integration/auth-flow.test.ts`:
@@ -457,6 +485,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (tests verify integration)
 
 #### Phase 5.3: E2E Lifecycle Tests (Full User Journeys)
+
 - **Coverage**: SC-7 requirement — end-to-end scenarios
 - **Deliverables**:
   - `tests/e2e/user-lifecycle.test.ts`:
@@ -483,6 +512,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (tests verify end-to-end flow)
 
 #### Phase 5.4: Security & Compliance Testing
+
 - **Coverage**: Risk mitigation validation, OWASP top 10 prevention
 - **Deliverables**:
   - `tests/security/password-policy.test.ts`: enforce FR-AUTH.2c policy (8+ chars, 1 upper, 1 lower, 1 digit)
@@ -498,6 +528,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (tests verify security properties)
 
 #### Phase 5.5: Performance & Load Testing
+
 - **Coverage**: NFR-AUTH.1 (p95 latency < 200ms)
 - **Deliverables**:
   - `tests/performance/load-test.k6.js` (using k6 tool per spec):
@@ -514,6 +545,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (tests verify performance)
 
 #### Phase 5 Gate: Test Coverage & Readiness
+
 - **Gate Activities**:
   - Coverage report review: confirm 90%+ coverage on units, 95%+ on critical paths
   - Test quality review: tests are independent, deterministic, maintainable
@@ -525,9 +557,11 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 ---
 
 ### Phase 6: Deployment, Monitoring & Documentation (Weeks 7-8)
+
 **Objective**: Production readiness, deployment, monitoring, and documentation.
 
 #### Phase 6.1: Production Configuration & Secrets Management
+
 - **Component**: Production environment setup
 - **Deliverables**:
   - Secrets manager integration (e.g., AWS Secrets Manager, HashiCorp Vault):
@@ -551,6 +585,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (infrastructure setup)
 
 #### Phase 6.2: Monitoring & Alerting
+
 - **Component**: Observability setup
 - **Deliverables**:
   - Application metrics:
@@ -585,6 +620,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (infrastructure setup)
 
 #### Phase 6.3: Deployment Pipeline & Rollout Strategy
+
 - **Component**: CI/CD configuration
 - **Deliverables**:
   - CI pipeline (GitHub Actions, GitLab CI, or equivalent):
@@ -611,6 +647,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (CI/CD configuration)
 
 #### Phase 6.4: Documentation & Runbooks
+
 - **Component**: Documentation deliverables
 - **Deliverables**:
   - **API Documentation**:
@@ -645,6 +682,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (documentation artifacts)
 
 #### Phase 6.5: Post-Deployment Validation & Optimization
+
 - **Component**: Production verification
 - **Deliverables**:
   - Initial deployment validation (first 24 hours):
@@ -668,6 +706,7 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 - **Wiring Artifacts**: None (operational activity)
 
 #### Phase 6 Gate: Production Readiness
+
 - **Gate Activities**:
   - Secrets manager integration verified; keys secured and rotated
   - Monitoring and alerting configured; dashboards populated
@@ -796,11 +835,13 @@ This roadmap implements a stateless JWT-based authentication system with secure 
 **Critical Path**: Phase 0 → Phase 1 → Phase 3 (database integration) → Phase 6 (deployment) = 5.5 weeks minimum
 
 **Parallel Opportunities**:
+
 - Phase 2 (Routes) can start during Phase 1 (Services) once interface contracts are defined (~Week 1.5)
 - Phase 5 (Testing) can start during Phase 2-3 (begin with unit tests in Phase 0-1)
 - Phase 6 (Deployment setup) can start during Phase 4-5 (early infrastructure provisioning)
 
 **Optimized Timeline with Parallelization**:
+
 - Weeks 0-1.5: Phase 0 (Crypto) + early Phase 1 (Service contracts)
 - Weeks 1.5-3: Phase 1 (Services) + Phase 2 (Routes in parallel) + Phase 5.1 (Unit tests start)
 - Weeks 3-5.5: Phase 3 (Database) + Phase 5.2 (Integration tests) + Phase 6 infrastructure planning

@@ -6,6 +6,7 @@
 ## Test Setup
 
 ### Before (Current State)
+
 ```
 ~/.claude/superclaude/agents/pm-agent.md  # 1,927 words ≈ 2,500 tokens
 ~/.claude/superclaude/modules/*.md        # Always loaded
@@ -14,6 +15,7 @@ Claude Code startup: Reads all files automatically
 ```
 
 ### After (Skills Migration)
+
 ```
 ~/.claude/skills/pm/
 ├── SKILL.md              # ~50 tokens (description only)
@@ -26,17 +28,20 @@ Claude Code startup: Reads SKILL.md only (if at all)
 ## Expected Results
 
 ### Startup Tokens
+
 - Before: ~2,500 tokens (pm-agent.md always loaded)
 - After: 0 tokens (skills not loaded at startup)
 - **Savings**: 100%
 
 ### When Using /sc:pm
+
 - Load skill description: ~50 tokens
 - Load implementation: ~2,500 tokens
 - **Total**: ~2,550 tokens (first time)
 - **Subsequent**: Cached
 
 ### Net Benefit
+
 - Sessions WITHOUT /sc:pm: 2,500 tokens saved
 - Sessions WITH /sc:pm: 50 tokens overhead (2% increase)
 - **Break-even**: If >2% of sessions don't use PM, net positive
@@ -44,11 +49,13 @@ Claude Code startup: Reads SKILL.md only (if at all)
 ## Test Procedure
 
 ### 1. Backup Current State
+
 ```bash
 cp -r ~/.claude/superclaude ~/.claude/superclaude.backup
 ```
 
 ### 2. Create Skills Structure
+
 ```bash
 mkdir -p ~/.claude/skills/pm
 # Files already created:
@@ -58,12 +65,14 @@ mkdir -p ~/.claude/skills/pm
 ```
 
 ### 3. Update Slash Command
+
 ```bash
 # plugins/superclaude/commands/pm.md
 # Updated to reference skill: pm
 ```
 
 ### 4. Test Execution
+
 ```bash
 # Test 1: Startup without /sc:pm
 # - Verify no PM agent loaded
@@ -101,6 +110,7 @@ mkdir -p ~/.claude/skills/pm
 ## Rollback Plan
 
 If skills migration fails:
+
 ```bash
 # Restore backup
 rm -rf ~/.claude/skills/pm
@@ -113,6 +123,7 @@ git checkout plugins/superclaude/commands/pm.md
 ## Next Steps
 
 If successful:
+
 1. Migrate remaining agents (task, research, etc.)
 2. Migrate modes (orchestration, brainstorming, etc.)
 3. Remove ~/.claude/superclaude/ entirely

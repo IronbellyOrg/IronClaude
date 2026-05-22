@@ -323,6 +323,7 @@ Pre-debate naive convergence count (diff points where all 3 variants align on th
 The bulk of the debate surface is not "left vs right" disagreement — it is "one variant found evidence the others did not." Round 1 steelman cross-exposure should close several of these quickly (e.g., V-A + V-B will accept V-C's arXiv 2601.12014 once they see it; V-C will adjust Haiku weighting once it sees V-A's conventions-header argument).
 
 The HARD remaining disagreements after evidence cross-exposure will likely be:
+
 1. **D-1**: Compact MD DSL vs XML+MD as #1 (requires invariant probe on correctness risk)
 2. **D-10**: Selective-loading value (requires evidence on actual consumer behavior)
 3. **D-9**: Haiku weighting fairness (requires invariant probe on format-switching load)

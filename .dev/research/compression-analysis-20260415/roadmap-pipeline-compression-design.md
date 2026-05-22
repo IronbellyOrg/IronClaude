@@ -107,6 +107,7 @@ compression/
 ```
 
 The three strategies are named after the primer's three approaches (§4 of primer):
+
 - `Approach1RuleBased` — textual, regex-driven, whitespace/decorative/preamble stripping. Deterministic. ~12-18% ceiling.
 - `Approach2ASTAware` — parses via `markdown-it-py`, operates on the token stream, handles tables/lists/code-fences semantically. Deterministic. ~25-33% ceiling (matches V-B's measured -33.4%).
 - `Approach3LLMAssisted` — calls an auditor agent with a "rewrite for minimum tokens, preserve all assertions" prompt. Non-deterministic. ~35-50% ceiling. **Requires a fidelity auditor pass** before being accepted.
@@ -134,6 +135,7 @@ def decompress(compressed: Path, conventions: ConventionsHeader) -> str:
 ```
 
 `CompressionResult` includes:
+
 - `output_path`, `strategy_used`, `conventions_header_tokens`
 - `tokens_before`, `tokens_after`, `delta_pct` (measured via `tiktoken` **and** `anthropic.messages.count_tokens` when available — see INV-1 in §8)
 - `fidelity_report` (always attached)
@@ -260,6 +262,7 @@ eff_road_b  = out / f"roadmap-{agent_b.id}.cmd.md" if config.compress_variants e
 ```
 
 Then:
+
 - `extract` reads `eff_spec`, `eff_tdd`, `eff_prd`
 - `generate-*` read `extraction` (unchanged — extraction output is re-authored by the model)
 - `diff`/`debate`/`score`/`merge` read `eff_road_a`, `eff_road_b`
@@ -315,6 +318,7 @@ This avoids overloading existing semantics of `retry_limit` or `fail_hard`.
 ### 5.4 Claim-sample fidelity check
 
 The strongest gate check. For a compressed document:
+
 1. Parse the original into sentences/bullets/table rows → sample N assertions (default 20, stratified across sections)
 2. For each assertion, ask a **separate auditor LLM call** (fast model, no context pollution): "Is this assertion preserved in the compressed text?" with both documents attached
 3. Require ≥95% preservation rate (configurable)
@@ -386,6 +390,7 @@ The adversarial validation flagged 3 HIGH-severity blind spots that this refacto
 **Risk to this design**: Compressed Markdown DSL has not been A/B-tested on Haiku 4.5 specifically. If Haiku accuracy drops >3pp on compact-form roadmaps, compressing variants before any Haiku-consumed step would silently degrade quality.
 **Prerequisite**: Run a Haiku-specific A/B against `Approach1RuleBased` and `Approach2ASTAware` outputs using ≥20 retrieval prompts on the same Phase 2 slice. Block Haiku path adoption if accuracy drops >3pp below plain Markdown.
 **Enforcement in this design**:
+
 - `compression_target_model` defaults to `opus`
 - If `--compression-target-model=haiku` is passed **and** the A/B report is missing (`claudedocs/haiku-compression-ab-results.md` not present), the CLI **refuses to apply compression to Haiku-consumed Steps** and logs a clear error: `Haiku compression path is gated until INV-5 A/B completes. See claudedocs/roadmap-pipeline-compression-design.md §8.`
 - Since the default `RoadmapConfig.agents` is `[opus:architect, haiku:architect]`, enabling `--compress-variants` with the default agent set will **only compress the opus variant** and leave the haiku variant uncompressed until INV-5 clears. The diff/debate/score/merge Steps then read a mixed pair, and the manifest explicitly records this asymmetry.
@@ -397,6 +402,7 @@ The adversarial validation flagged 3 HIGH-severity blind spots that this refacto
 Shipped in 4 phases. Each phase is independently revertible.
 
 ### Phase 0 — Scaffolding (no behavior change)
+
 - Create `compression/` module skeleton with stubs that raise `NotImplementedError`
 - Add `RoadmapConfig` fields with defaults `False`
 - Add CLI flags as inert options
@@ -404,18 +410,21 @@ Shipped in 4 phases. Each phase is independently revertible.
 - Acceptance: `superclaude roadmap run spec.md` runs identically to before
 
 ### Phase 1 — Approach 1 only, C1 only
+
 - Implement `Approach1RuleBased` (whitespace + decorative + preamble stripping)
 - Wire C1 Step behind `--compress-ingest`
 - Enforce spec-fidelity firebreak
 - Acceptance: on a golden spec, `diff roadmap.md roadmap-uncompressed.md` is empty (within stochastic noise); extract + generate token count drops ~10%
 
 ### Phase 2 — Approach 2, C1 + C2
+
 - Implement `Approach2ASTAware` using `markdown-it-py`
 - Wire C2 Step behind `--compress-variants`
 - Implement claim-sample fidelity gate
 - Acceptance: measured variant compression ≥25% on 3 reference roadmaps; no `spec-fidelity` regressions across 5 test pipelines; rollback path exercised in tests
 
 ### Phase 3 — C3 + consumer-DAG routing + INV carry-forward
+
 - Implement C3 (emit both raw and compressed)
 - Populate `claudedocs/roadmap-consumer-dag.md` (closes INV-3)
 - Wire `anthropic.messages.count_tokens` into manifest (closes INV-1 measurement side)
@@ -423,6 +432,7 @@ Shipped in 4 phases. Each phase is independently revertible.
 - Acceptance: `superclaude roadmap run spec.md --compress-all` produces raw + compressed artifacts with fidelity gate passing, rollback paths tested, manifest shows both tokenizer measurements
 
 ### Phase 4 — Approach 3 (LLM-assisted) — optional, PRD-only
+
 - Only if Phase 3 is stable
 - Restricted to PRD compression; never applied to spec or roadmap variants
 - Mandatory claim-sample gate with 0.99 floor

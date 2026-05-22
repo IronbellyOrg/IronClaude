@@ -251,12 +251,14 @@ From the document's "Best Practices" section:
 The document explicitly states what integration patterns do and do not provide:
 
 **What patterns DO**:
+>
 > - Provide structured approaches to development tasks
 > - Combine commands and agents effectively
 > - Suggest appropriate tools and frameworks
 > - Guide Claude to generate better code
 
 **What patterns DON'T do**:
+>
 > - Execute code or measure performance
 > - Run tests or deploy applications
 > - Optimize actual execution speed

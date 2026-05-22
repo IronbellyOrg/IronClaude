@@ -54,6 +54,7 @@ result = pm_session_start()
 ```
 
 **4-Phase Execution** (enforced):
+
 ```python
 agent = get_pm_agent()
 result = agent.execute_with_validation(task)
@@ -68,6 +69,7 @@ result = agent.execute_with_validation(task)
 **Implementation**: `superclaude/agents/pm_agent.py`
 **Tests**: `tests/agents/test_pm_agent.py`
 **Token Savings**: 97% (4,050 → 100 tokens)
+
 ```
 
 #### 1.2 How the command calls into Python
@@ -112,6 +114,7 @@ result = agent.execute_with_validation(task)
 > "Intelligent orchestration with automatic optimization"
 
 > "Intelligent behaviors:
+>
 > - Auto-checks index freshness
 > - Updates index only when needed
 > - Pre-execution confidence check
@@ -281,6 +284,7 @@ The agent’s index behavior defines decision logic and calls an indexer script.
 **Quote (decision logic)**:
 
 > "Decision logic:
+>
 > - No index: needs_update=True
 > - >7 days: needs_update=True
 > - Recent git activity (>20 files): needs_update=True
@@ -427,6 +431,7 @@ This section explains why skills are structured with a small SKILL.md plus heavi
 **Exact quotes**:
 
 > "**Token Cost**:
+>
 > - Description only: ~50 tokens
 > - Full load (when used): ~2,000 tokens
 > - Never used: Forever 50 tokens"
@@ -497,6 +502,7 @@ def should_delegate(complexity: Dict[str, Any]) -> bool:
 **Quote (files to create)**:
 
 > "**Files to create**:
+>
 > - `superclaude/modes/brainstorming.py` (533 tokens → 50)
 > - `superclaude/modes/introspection.py` (465 tokens → 50)
 > - `superclaude/modes/task_management.py` (893 tokens → 50)
@@ -602,6 +608,7 @@ These targets are relevant when adding skills and custom command systems.
 **Exact quotes**:
 
 > "**Update all docs**:
+>
 > - README.md - Skills説明追加
 > - CONTRIBUTING.md - Skills開発ガイド
 > - docs/user-guide/skills.md - ユーザーガイド"
@@ -611,6 +618,7 @@ These targets are relevant when adding skills and custom command systems.
 **Exact quote**:
 
 > "**Cleanup**:
+>
 > - Markdownファイルをarchive/に移動（削除しない）
 > - Python実装をメイン化
 > - Skills実装を推奨パスに"
@@ -620,13 +628,16 @@ These targets are relevant when adding skills and custom command systems.
 **Exact quotes**:
 
 > "**Risk 1**: Breaking changes
+>
 > - Keep Markdown in archive/ for fallback
 > - Gradual rollout (PM → Modes → Skills)"
 
 > "**Risk 2**: Skills API instability
+>
 > - Python-first works independently
 > - Skills as optional enhancement"
 
 > "**Risk 3**: Performance regression
+>
 > - Comprehensive benchmarks before/after
 > - Rollback plan if <80% savings"

@@ -20,6 +20,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 **Complexity**: MEDIUM (0.6) — driven by cryptographic token lifecycle (RS256 + refresh rotation with replay detection) and compliance requirements (GDPR, SOC2, NIST SP 800-63B), offset by modest architectural scope (2 core tables, 4 new files, 3 modified files).
 
 **Architectural priorities** (synthesized from adversarial debate):
+
 1. **Token lifecycle security** — RS256 signing, SHA-256 refresh token hashing (debate-resolved D3), single-use rotation with replay detection
 2. **Audit logging as foundation** — SOC2 compliance built into Phase 1, not bolted on
 3. **Requirement traceability** — every deliverable tagged to FR/NFR spec IDs with per-phase wiring tables
@@ -44,6 +45,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 #### 2.1 Deliverables
 
 **1. PostgreSQL schema migration (003)**
+
 - `users` table: `id`, `email` (unique index), `password_hash`, `display_name`, `created_at`, `consent_timestamp`, `locked_at`, `deleted_at`
 - `refresh_tokens` table: `id`, `user_id` (FK → users.id, ON DELETE CASCADE), `token_hash`, `rotated_from_id` (self-referential FK for rotation chain auditing), `expires_at`, `revoked_at`, `created_at`
 - Index: `refresh_tokens(user_id, revoked_at)` for replay detection queries
@@ -55,6 +57,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 3 days | **Owner**: Backend
 
 **2. PasswordHasher module** (`password-hasher.ts`)
+
 - bcrypt with cost factor 12 (NFR-AUTH.3, NIST SP 800-63B)
 - Password policy validation: min 8 chars, uppercase, lowercase, digit (FR-AUTH.2c)
 - Dependency: `bcrypt` NPM package (Dependency #2)
@@ -62,6 +65,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 2 days | **Owner**: Backend
 
 **3. JwtService module** (`jwt-service.ts`)
+
 - RS256 asymmetric signing with configurable key pair
 - Access token generation (15min TTL) and verification
 - Dependency: `jsonwebtoken` NPM package (Dependency #1)
@@ -70,10 +74,12 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 2 days | **Owner**: Backend
 
 **4. Feature flag**: `AUTH_SERVICE_ENABLED` routing gate wired into request pipeline (Architectural Constraint #8)
+
 - If disabled, returns 503 with rollback messaging
 - **Effort**: 0.5 days | **Owner**: Backend/DevOps
 
 **5. Audit logging infrastructure** (NFR-AUTH.5)
+
 - Structured auth event logger: `user_id`, `event_type`, `timestamp`, `ip_address`, `user_agent`, `outcome`, `error_message`
 - Event types: `LoginAttempt`, `RegistrationAttempt`, `TokenRefreshed`, `LogoutEvent`, `PasswordResetRequested`, `PasswordResetConfirmed`
 - Async, non-blocking dispatch pattern
@@ -81,6 +87,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 3 days | **Owner**: Backend
 
 **6. Project configuration**
+
 - RSA key pair generation and secrets manager integration (90-day rotation policy documented)
 - Environment configuration for token TTLs, bcrypt cost factor, rate limit thresholds
 - **Effort**: 2 days | **Owner**: DevOps
@@ -118,11 +125,13 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 #### 2.5 Deliverables
 
 **1. AuthService module** (`auth-service.ts`)
+
 - Orchestrates PasswordHasher, TokenManager, User repository
 - Layered architecture per Constraint #6: AuthService → TokenManager → JwtService
 - **Effort**: 2 days | **Owner**: Backend
 
 **2. FR-AUTH.1: User Login endpoint** (`POST /auth/login`)
+
 - FR-AUTH.1a: Valid credentials → 200 with `access_token` (15min) + `refresh_token` (7d)
 - FR-AUTH.1b: Invalid credentials → 401 with generic error (no email enumeration — Alex persona)
 - FR-AUTH.1c: Locked account → 403
@@ -131,6 +140,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 4 days | **Owner**: Backend
 
 **3. FR-AUTH.2: User Registration endpoint** (`POST /auth/register`)
+
 - FR-AUTH.2a: Valid data → 201 with user profile
 - FR-AUTH.2b: Duplicate email → 409
 - FR-AUTH.2c: Password policy enforcement (NIST SP 800-63B)
@@ -142,12 +152,14 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 4 days | **Owner**: Backend
 
 **4. TokenManager module** (`token-manager.ts`)
+
 - Issues access + refresh token pairs
 - Refresh tokens hashed with **SHA-256** before storage (debate-resolved D3 — SHA-256 is appropriate for randomly-generated tokens; bcrypt's dictionary-attack resistance is irrelevant and its 250ms cost degrades hot-path performance)
 - Coordinates with JwtService for signing
 - **Effort**: 3 days | **Owner**: Backend
 
 **5. FR-AUTH.3: Token Refresh endpoint** (`POST /auth/token/refresh`)
+
 - FR-AUTH.3a: Valid refresh token → new `access_token` + rotated `refresh_token`
 - FR-AUTH.3b: Expired refresh token → 401
 - FR-AUTH.3c: **Replay detection** — reuse of revoked refresh token invalidates ALL user tokens; `rotated_from_id` chain traced for forensic analysis
@@ -158,6 +170,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 4 days | **Owner**: Backend
 
 **6. Logout endpoint** (`POST /auth/logout`) — debate-resolved D2
+
 - Revoke refresh token, clear httpOnly cookie, return 200
 - Audit log: `LOGOUT` event
 - Scope: single-session logout only; `LogoutAllDevices` deferred to v1.1
@@ -165,18 +178,21 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 1 day | **Owner**: Backend
 
 **7. Silent token refresh** (frontend) — debate-resolved D8
+
 - Client-side interceptor: detect 401 → queue pending requests → refresh token → replay queued requests
 - No page redirect or re-login prompt unless refresh token also expired
 - Explicit deliverable, not assumed — the debate confirmed this is non-trivial (request queuing, race conditions, error cascading)
 - **Effort**: 3 days | **Owner**: Frontend
 
 **8. Rate limiting middleware**
+
 - Per-IP rate limiting for login endpoint (FR-AUTH.1d)
 - Wired into request pipeline behind `AUTH_SERVICE_ENABLED` flag
 - Dual-key (IP+email) approach documented as Phase 4 hardening item (debate-resolved D5)
 - **Effort**: 2 days | **Owner**: Backend
 
 **9. Token storage strategy** (frontend)
+
 - Access token: in-memory only (Constraint #3)
 - Refresh token: httpOnly, Secure, SameSite=Strict cookie (Constraint #3)
 - No localStorage or sessionStorage
@@ -187,6 +203,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 **Duration**: 1 day, scheduled at Phase 1/2 boundary (after core token infrastructure, before password reset builds on top)
 
 **Scope**:
+
 - Review cryptographic primitives: bcrypt usage, SHA-256 refresh token hashing, RS256 signing
 - Review token lifecycle: rotation logic, replay detection, revocation paths
 - Static analysis (SAST) for hardcoded secrets, weak cryptography
@@ -232,6 +249,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 #### 2.10 Deliverables
 
 **1. FR-AUTH.4: Profile Retrieval endpoint** (`GET /auth/profile`)
+
 - FR-AUTH.4a: Valid Bearer token → user profile (`id`, `email`, `display_name`, `created_at`)
 - FR-AUTH.4b: Expired/invalid token → 401
 - FR-AUTH.4c: `password_hash` and `refresh_token_hash` NEVER included in response
@@ -239,6 +257,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 1 day | **Owner**: Backend
 
 **2. FR-AUTH.5: Password Reset flow**
+
 - FR-AUTH.5a: `POST /auth/password-reset/request` — generates reset token (1-hour TTL), dispatches email asynchronously
 - FR-AUTH.5b: `POST /auth/password-reset/confirm` — validates token, sets new password, invalidates token
 - FR-AUTH.5c: Expired/invalid reset token → 400
@@ -250,6 +269,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 6 days | **Owner**: Backend
 
 **3. Email service integration with retry strategy** — debate-resolved D13
+
 - Async dispatch via message queue (recommended resolution for OQ-1 — async avoids blocking the reset endpoint on email service latency; improves p95 response time and resilience)
 - Exponential backoff retry: max 5 attempts
 - SendGrid delivery monitoring via event webhook; alert on > 10% failure rate
@@ -257,11 +277,13 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 3 days | **Owner**: Backend + DevOps
 
 **4. Password reset token cleanup job** — incorporated from Variant B
+
 - Scheduled daily: delete expired `password_reset_tokens` where `expires_at < now()`
 - Prevents database bloat
 - **Effort**: 1 day | **Owner**: Backend/DevOps
 
 **5. Frontend auth pages** (Dependency #6: frontend routing framework)
+
 - Login page with generic error messaging
 - Registration page with inline validation (password policy, email format)
 - Password reset request and confirmation pages
@@ -270,6 +292,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 5 days | **Owner**: Frontend
 
 **6. Email enumeration prevention**
+
 - Password reset request returns identical response for registered and unregistered emails
 - Consistent with login error messaging (FR-AUTH.1b)
 
@@ -305,18 +328,21 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 #### 2.14 Deliverables
 
 **1. Performance validation** (NFR-AUTH.1)
+
 - k6 load tests: login, registration, token refresh, profile, password reset at 500 concurrent requests
 - p95 response time < 200ms confirmed (PRD S19: login response time target)
 - Benchmark bcrypt at cost factor 12 under load
 - **Effort**: 3 days | **Owner**: QA + Backend
 
 **2. Availability validation** (NFR-AUTH.2)
+
 - Health check endpoint wired into monitoring
 - PagerDuty alerting configured
 - 99.9% uptime target baselined (PRD S19)
 - **Effort**: 2 days | **Owner**: DevOps
 
 **3. Security review and penetration testing** (Risk #5)
+
 - Dedicated security review of all auth endpoints
 - Penetration testing: credential stuffing, token replay, injection attacks
 - JWT key rotation procedure validated (Risk #1: 90-day rotation)
@@ -324,6 +350,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 5 days | **Owner**: Security
 
 **4. Compliance validation**
+
 - NFR-AUTH.4 (GDPR consent): verify `consent_timestamp` recorded for all registrations
 - NFR-AUTH.5 (SOC2 audit logging): validate all auth events logged with required fields; verify 12-month retention; generate 100-event audit trail sample for external auditor
 - NFR-AUTH.6 (GDPR data minimization): schema audit confirms no additional PII
@@ -331,12 +358,14 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 2 days | **Owner**: Backend + Compliance
 
 **5. Rate limiting hardening** — debate-resolved D5
+
 - Evaluate and implement dual-key rate limiting (IP+email) as documented Phase 2 hardening item
 - If implemented: mitigates distributed credential stuffing attacks
 - If deferred: document risk acceptance with rationale
 - **Effort**: 2 days | **Owner**: Backend
 
 **6. Post-launch monitoring thresholds** — incorporated from Variant B
+
 - p95 latency alert at 250ms (20% above target)
 - Availability alert at 99.8% (rolling 30-day)
 - Failed login rate alert at 10% (2× the 5% target)
@@ -346,23 +375,27 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - **Effort**: 2 days | **Owner**: DevOps
 
 **7. Email delivery monitoring** (Risk #7)
+
 - SendGrid delivery rate dashboard live
 - Fallback support channel documented for account recovery
 - **Effort**: 1 day | **Owner**: DevOps
 
 **8. Registration UX validation** (Risk #4)
+
 - Usability testing: registration completion under 60 seconds (PRD customer journey)
 - Funnel analytics instrumented: landing → register → confirmed
 - PRD success target: > 60% registration conversion rate (S19)
 - **Effort**: 2 days | **Owner**: Product + QA
 
 **9. E2E test suite** (Success Criterion #7)
+
 - Full user lifecycle: register → login → refresh → profile → logout → reset → re-login
 - Scenario coverage per PRD: Alex signup, Alex session persistence, Alex password reset, Sam token refresh, rate limiting, replay detection
 - All steps return expected status codes per Spec Section 8.3
 - **Effort**: 4 days | **Owner**: QA
 
 **10. Feature flag rollout plan**
+
 - Staged rollout via `AUTH_SERVICE_ENABLED`
 - Rollback procedure documented and tested
 - **Effort**: 1 day | **Owner**: DevOps
@@ -507,6 +540,7 @@ P4              ·         ·         ▐█████████████
 ### Compressed Alternative (for stakeholder discussion — debate D1)
 
 If the Q3 SOC2 deadline requires faster delivery, the 4-phase plan can be compressed to ~8 weeks by:
+
 1. Parallelizing Phase 1 and early Phase 2 work (backend + infra concurrent from Week 1)
 2. Reducing Phase 4 to 1.5 weeks (pentest + load test overlap)
 3. Adding a 1-week buffer (total: 8 weeks vs. Variant B's 6-week proposal)

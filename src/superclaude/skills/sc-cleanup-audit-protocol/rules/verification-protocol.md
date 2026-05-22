@@ -1,6 +1,7 @@
 # Universal Verification Protocol
 
 ## Purpose
+
 Defines evidence requirements for every recommendation type and the cross-reference checklist used by all audit passes.
 
 ## Unified Classification Taxonomy (Priority-Ordered)
@@ -17,12 +18,14 @@ Defines evidence requirements for every recommendation type and the cross-refere
 ## Evidence Requirements by Recommendation Type
 
 ### DELETE (4 checklist items)
+
 - [ ] Grep confirms zero active references (cite the grep command and results with pattern + count)
 - [ ] File is not dynamically loaded (check all 5 patterns from dynamic-use-checklist.md)
 - [ ] No CI/CD pipeline references it (check workflows, Makefile, package.json, Dockerfile)
 - [ ] A successor/replacement exists, OR the functionality is no longer needed, OR the file is a transient artifact (cache/log/tmp/demo) — transient type eliminates the successor requirement
 
 ### KEEP (5 checklist items)
+
 - [ ] At least one active reference found (cite file + line number)
 - [ ] File is in a sensible location for its type
 - [ ] File naming follows project conventions
@@ -30,17 +33,20 @@ Defines evidence requirements for every recommendation type and the cross-refere
 - [ ] For tests: in a test-runner-discovered path with proper patterns
 
 ### CONSOLIDATE (3 checklist items)
+
 - [ ] Both files identified with full paths
 - [ ] Overlap quantified (% identical, key differences listed)
 - [ ] Recommendation for which to keep and what unique parts to merge
 
 ### FLAG (4 checklist items)
+
 - [ ] The issue is clearly described
 - [ ] The required action is specific enough to execute
 - [ ] Impact scope is estimated (which files/systems affected)
 - [ ] A minimal verification checklist states: "what evidence would settle this?"
 
 ### MOVE (2 checklist items)
+
 - [ ] Clear target location rationale
 - [ ] List of references to update
 
@@ -59,6 +65,7 @@ Every file audit must check these reference sources:
 ## Documentation Claim Verification
 
 For documentation files, verify 3-5 technical claims against actual implementation:
+
 - Check that referenced file paths exist
 - Check that described API endpoints are current
 - Check that configuration values match actual defaults

@@ -1,0 +1,51 @@
+You are running a specialized QA / test-coverage pass. The main review covers general issues; your job is to find missing tests, weak tests, and untested edge cases.
+
+## Context
+
+Target: snapshot of src/superclaude/cli/eval/ (23 Python files, ~11K LOC).
+
+Test directory: `tests/cli/eval/` — use codebase retrieval to inspect these test files. Do NOT review test files directly as part of the snapshot; cross-reference them.
+
+## Recent additions requiring test coverage
+
+Commit **e6368db8** ("implement missing eval_run helpers + exit codes") added to `src/superclaude/cli/eval/commands.py`:
+
+- `_utc_iso_now()` at L1308
+- `_new_run_id(started_at, suite_name)` at L1322
+- `_default_output_dir()` at L1335
+- `_can_install_signal_handler()` at L1346
+- `_resolve_executor_factory(name)` at L1390
+- `_run_one_spec(...)` at L1405
+- `_compute_run_stats(specs, results)` at L1477
+- `_format_run_summary_line(...)` at L1526
+- Three more helpers (find them by reading `commands.py` start-to-finish)
+- Three exit-code constants: `RUN_CLEAN_EXIT_CODE` (L570), `RUN_FAILURES_EXIT_CODE` (L573), `RUN_INTERRUPTED_EXIT_CODE` (L577)
+
+Commit **dce3c3cb** added the scratch-root allowlist closure in `isolation.py` (find the function; previously had a tautology).
+
+Commit **08183738** removed Click `mix_stderr=` calls and the T04.09 skeleton.
+
+## Specific QA checklist
+
+1. **Helper-level unit tests** — for each of the 11 helpers + 3 constants, is there a direct unit test in `tests/cli/eval/`? Report each with-test / without-test status.
+2. **Edge cases worth testing** — for each helper, what edge case would fail silently in production?
+   - `_new_run_id` — collision when called twice in the same microsecond?
+   - `_resolve_executor_factory` — unknown factory name → what exit code?
+   - `_compute_run_stats` — empty list / all-failed / all-passed?
+   - `_format_run_summary_line` — Unicode in suite name?
+   - signal handler — SIGINT during run → exit 130 (`RUN_INTERRUPTED_EXIT_CODE`)?
+3. **Allowlist enforcement tests (FR-ISO2 / AC12)** — does the test suite exercise:
+   - `..` traversal rejected
+   - absolute paths outside scratch_root rejected
+   - symlink pointing outside rejected
+   - relative path that resolves outside (e.g., `subdir/../../../etc/passwd`) rejected
+   - allowlist tautology regression test
+4. **Click integration tests** — `CliRunner()` is now zero-arg (Click 8.3.2 dropped `mix_stderr`). Are the integration tests checking stderr/stdout correctly under the new API?
+5. **Coverage gate tests (FR-G5)** — `coverage.py` enforces a coverage gate. Are there tests for: pass case, fail case, missing coverage data, malformed coverage data?
+6. **Reporter ban-import test (FR-G1)** — is there a static or runtime test that imports `reporter.py` and asserts no banned modules are loaded?
+7. **Artifact-layout tests (FR-G4)** — are the path-shape functions in `artifact_layout.py` tested for all suite/run/spec combinations?
+8. **Mocks vs integration** — find tests that mock isolation.py or claude_process.py instead of integration-testing them. Mocks of the core security boundary are red flags.
+
+## Output contract
+
+Same JSON contract. Findings about missing tests go in `findings` (with `file` pointing to the SRC file that lacks coverage, and `cross_references` listing the closest existing test). Cross-cutting test-strategy concerns go in `cross_cutting_observations`. Wrap in ```json ... ``` fence.

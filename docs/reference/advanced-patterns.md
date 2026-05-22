@@ -7,11 +7,13 @@
 ## Table of Contents
 
 ### Context Combination Patterns
+
 - [Multi-Agent Context Patterns](#multi-agent-context-patterns) - Combining multiple specialist contexts
 - [Command Sequencing Patterns](#command-sequencing-patterns) - Effective command combinations
 - [Flag Combination Strategies](#flag-combination-strategies) - Advanced flag usage
 
 ### Workflow Patterns
+
 - [Complex Project Patterns](#complex-project-patterns) - Large project approaches
 - [Migration Patterns](#migration-patterns) - Legacy system modernization
 - [Review and Audit Patterns](#review-and-audit-patterns) - Comprehensive analysis
@@ -21,6 +23,7 @@
 ### Combining Specialist Contexts
 
 **Security + Backend Pattern:**
+
 ```bash
 # Security-focused backend development
 @agent-security "define authentication requirements"
@@ -35,6 +38,7 @@
 ```
 
 **Frontend + UX + Accessibility Pattern:**
+
 ```bash
 # Comprehensive frontend development
 @agent-frontend-architect "design component architecture"
@@ -50,6 +54,7 @@
 ### Manual vs Automatic Agent Selection
 
 **Explicit Control Pattern:**
+
 ```bash
 # Manually control which contexts load
 @agent-python-expert "implement data pipeline"
@@ -61,6 +66,7 @@
 ```
 
 **Override Auto-Selection:**
+
 ```bash
 # Prevent unwanted agent activation
 /sc:implement "simple utility" --no-mcp

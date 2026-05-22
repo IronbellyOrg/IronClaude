@@ -11,6 +11,7 @@ generator: superclaude-anti-instinct-audit
 ---
 
 ## Anti-Instinct Audit Report
+
 ### Obligation Scanner
 
 - Total obligations detected: 1
@@ -24,6 +25,7 @@ generator: superclaude-anti-instinct-audit
 - Uncovered: 3
 
 **Uncovered contracts:**
+
 - IC-004: middleware_chain: | `src/middleware/auth-middleware.ts` | Add Bearer token extraction and verification | Integrate token validation into request pipeline | (line 158)
 - IC-005: middleware_chain: auth-middleware.ts (line 165)
 - IC-006: middleware_chain: 4. auth-middleware.ts      -- depends on token-manager (line 212)
@@ -35,6 +37,7 @@ generator: superclaude-anti-instinct-audit
 - Coverage ratio: 0.67
 
 **Missing fingerprints** (6):
+
 - `AUTH_SERVICE_ENABLED`
 - `JIRA`
 - `RBAC`

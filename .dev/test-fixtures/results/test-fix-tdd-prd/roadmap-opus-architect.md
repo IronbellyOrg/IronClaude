@@ -21,6 +21,7 @@ This roadmap defines a five-phase implementation plan for the User Authenticatio
 **Critical path:** Data layer (Phase 1) → Backend services with security hardening (Phase 2) → API surface and frontend (Phase 3) → Testing and compliance validation (Phase 4) → Migration rollout (Phase 5).
 
 **Key architectural decisions:**
+
 - Stateless JWT with refresh tokens (server-side sessions rejected)
 - RS256 signing with quarterly key rotation
 - bcrypt cost factor 12 via PasswordHasher abstraction
@@ -28,6 +29,7 @@ This roadmap defines a five-phase implementation plan for the User Authenticatio
 - 12-month audit log retention (PRD overrides TDD's 90-day specification)
 
 **Open risks requiring resolution before Phase 2:**
+
 - Audit log retention conflict (OQ-6) — must be resolved to 12 months per PRD
 - Logout endpoint gap (OQ-7) — PRD requires it but TDD omits it
 - GDPR consent field missing from UserProfile schema (OQ-9)
@@ -253,6 +255,7 @@ This roadmap defines a five-phase implementation plan for the User Authenticatio
 | OQ-10 | Password reset endpoint specs? | Before Phase 3 (API-005, API-006) | Endpoints built from inferred specs |
 
 **Recommendation:** OQ-6, OQ-7, and OQ-9 are blocking. Resolve before Phase 1 begins. This roadmap assumes:
+
 - OQ-6: 12-month retention (PRD wins)
 - OQ-9: consentTimestamp added to UserProfile (included in DM-001)
 - OQ-7: Logout endpoint must be scoped — if added, it requires a new API endpoint task and AuthProvider.logout() wiring

@@ -107,6 +107,7 @@ EXIT_RECOMMENDATION: CONTINUE
 **Caller**: `executor.py:1457-1468`
 **Location**: `results/phase-{N}-diagnostic.md`
 **Format**: Markdown bundle with:
+
 - Failure category classification
 - Evidence from monitor state
 - Output/error tail excerpts
@@ -119,6 +120,7 @@ EXIT_RECOMMENDATION: CONTINUE
 **Caller**: `executor.py:1510-1518`
 **Location**: `results/gate-kpi-report.md`
 **Sections**:
+
 - Gate Evaluation metrics
 - Remediation summary
 - Conflict Review results
@@ -204,11 +206,13 @@ Output root determined by `--output` flag (default: parent of input file).
 ## Template Files
 
 ### Examples (`src/superclaude/examples/`)
+
 - `prd_template.md` — PRD structure template
 - `tdd_template.md` — TDD structure template
 - `release-spec-template.md` — Release spec template
 
 ### Skill Templates (`src/superclaude/skills/`)
+
 - `sc-tasklist-protocol/templates/index-template.md` — Tasklist index
 - `sc-tasklist-protocol/templates/phase-template.md` — Phase file
 - `sc-cleanup-audit-protocol/templates/final-report.md` — Audit report
@@ -218,6 +222,7 @@ Output root determined by `--output` flag (default: parent of input file).
 ## Output Routing Policy
 
 From `CLAUDE.md` and source analysis:
+
 - `docs/generated/` is documented as a roadmap pipeline artifact directory, not a general sink
 - Sprint writes to `release_dir` (from `--release-dir` or auto-resolved from index path)
 - Roadmap writes to `--output` dir (default: parent of input file)

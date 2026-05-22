@@ -31,6 +31,7 @@ Superpowers and SuperClaude represent two fundamentally different philosophies f
 **Architecture**: Each skill is a single `SKILL.md` file (plus optional supporting refs). Skills are pure Markdown with YAML frontmatter. The `using-superpowers` meta-skill bootstraps at session start and forces the agent to check skill applicability before every action.
 
 **Auto-triggering mechanism**:
+
 - The bootstrap skill (`using-superpowers`) runs at conversation start
 - Before any action, the agent must ask: "Could any skill apply here?"
 - Threshold is extremely low: even 1% relevance triggers skill loading
@@ -38,6 +39,7 @@ Superpowers and SuperClaude represent two fundamentally different philosophies f
 - Skills announce themselves: "I'm using the X skill to..."
 
 **Composability model**: Skills chain in a fixed pipeline:
+
 ```
 brainstorming --> writing-plans --> [subagent-driven-development | executing-plans]
                                           |
@@ -47,12 +49,14 @@ brainstorming --> writing-plans --> [subagent-driven-development | executing-pla
 ```
 
 **Strengths**:
+
 - Zero-code installation; pure Markdown is universally portable
 - Auto-triggering removes the burden of remembering commands
 - Fixed pipeline prevents agents from skipping steps
 - Each skill is self-contained and readable
 
 **Weaknesses**:
+
 - No programmatic enforcement; relies entirely on the LLM following instructions
 - No telemetry, metrics, or machine-readable gates
 - Pipeline is rigid; no compliance tiering for trivial tasks
@@ -63,12 +67,14 @@ brainstorming --> writing-plans --> [subagent-driven-development | executing-pla
 **Architecture**: Skills are directories containing `SKILL.md` plus supporting subdirectories (`refs/`, `rules/`, `templates/`, `scripts/`, `evals/`). Skills are backed by Python CLI modules that provide programmatic execution.
 
 **Invocation model**:
+
 - Explicit command invocation: `/sc:task`, `/sc:roadmap`, `/sc:brainstorm`
 - Commands classify intent and invoke the appropriate skill protocol
 - The `sc-task-unified-protocol` auto-classifies tasks into compliance tiers (STRICT/STANDARD/LIGHT/EXEMPT)
 - Keywords and path patterns drive classification with confidence scoring
 
 **Composability model**: Skills are independent protocols, not a fixed pipeline. The unified task command routes to the appropriate depth:
+
 ```
 /sc:task "description"
     |
@@ -83,6 +89,7 @@ brainstorming --> writing-plans --> [subagent-driven-development | executing-pla
 ```
 
 **Strengths**:
+
 - Programmatic enforcement via Python gates, not just LLM compliance
 - Compliance tiering prevents over-engineering trivial changes
 - Machine-readable telemetry (classification headers, KPI tracking)
@@ -90,6 +97,7 @@ brainstorming --> writing-plans --> [subagent-driven-development | executing-pla
 - Sprint executor with TUI, tmux integration, real-time monitoring
 
 **Weaknesses**:
+
 - Explicit invocation means users must remember commands
 - Higher installation complexity (`pipx install` + `superclaude install`)
 - Markdown+Python dual nature increases maintenance burden
@@ -110,11 +118,13 @@ Superpowers enforces strict RED-GREEN-REFACTOR on every task:
 5. **Completion checklist**: Every function must have a test that was seen failing first
 
 **Exceptions** require explicit human approval:
+
 - Throwaway prototypes
 - Generated code
 - Configuration files
 
 **Red flags** that trigger a full stop and restart:
+
 - Code before test
 - Tests written after implementation
 - Test passes immediately
@@ -133,12 +143,14 @@ SuperClaude takes a graduated approach:
 | EXEMPT | No | None | 0 |
 
 **Key differentiator**: The Test Failure Escalation Protocol (TFEP) provides formal semantics for what happens when tests fail:
+
 - Pre-existing test failures trigger mandatory escalation
 - 3+ simultaneous new test failures trigger escalation
 - Ad-hoc fixes without TFEP workflow are PROHIBITED
 - Test baseline snapshots track pre-existing vs new tests
 
 **SuperClaude also provides**:
+
 - `ConfidenceChecker`: Pre-implementation assessment (>=90% proceed, 70-89% present options, <70% stop)
 - `SelfCheckProtocol`: Post-implementation evidence-based validation
 - `ReflexionPattern`: Cross-session error learning and prevention
@@ -171,6 +183,7 @@ SuperClaude takes a graduated approach:
 | Gemini CLI | Extension system | `gemini extensions install` |
 
 **Adaptation strategy**:
+
 - Core skills are Markdown, universally portable
 - Platform-specific directories (`.claude-plugin/`, `.codex/`, `.cursor-plugin/`, `.opencode/`)
 - Tool substitution system maps platform-specific equivalents (e.g., `TodoWrite` vs `update_plan` for Codex)
@@ -182,6 +195,7 @@ SuperClaude takes a graduated approach:
 ### 4.2 SuperClaude: Claude Code Deep Integration
 
 SuperClaude is exclusively built for Claude Code:
+
 - Skills reference Claude Code-specific tools (`Task`, `Skill`, `TodoWrite`)
 - CLI pipeline requires `claude` binary for sprint execution
 - MCP server integration (Serena, Auggie, Tavily, Context7) assumes Claude Code environment
@@ -189,6 +203,7 @@ SuperClaude is exclusively built for Claude Code:
 - Plugin system targets `~/.claude/` directory structure
 
 **Why single-platform**:
+
 - Deep Python integration (pytest plugin, CLI tools) requires a specific runtime
 - Compliance gates and sprint execution are programmatic, not behavioral
 - MCP server orchestration is Claude Code-native
@@ -225,6 +240,7 @@ Controller (holds plan)
 ```
 
 **Isolation rules**:
+
 - Each subagent starts with zero context except what the controller provides
 - Controller passes only task text and necessary context
 - Subagents do not read the plan file directly
@@ -232,6 +248,7 @@ Controller (holds plan)
 - Prevents context drift that causes quality degradation in long sessions
 
 **Parallel dispatch** (separate skill):
+
 - One agent per independent problem domain
 - No shared state between parallel agents
 - Post-completion merge with conflict checking
@@ -249,12 +266,14 @@ Controller (holds plan)
 ```
 
 **Key components**:
+
 - `ParallelGroup`: Tasks with no inter-dependencies execute concurrently
 - `Task.can_execute()`: Checks dependency satisfaction before launch
 - `ThreadPoolExecutor`: Concurrent execution within the Python runtime
 - Sprint executor: Orchestrates multi-task execution with TUI monitoring
 
 **Sprint execution model**:
+
 - `SprintConfig` defines task list and execution parameters
 - `TurnLedger` tracks per-turn metrics and gate outcomes
 - `TrailingGatePolicy` enforces quality gates with deferred remediation
@@ -443,12 +462,14 @@ The most powerful system would combine:
 ## 10. Risk Assessment
 
 ### 10.1 Superpowers Risks
+
 - **LLM compliance fragility**: Skills only work if the LLM follows instructions. Model updates or different models may degrade compliance
 - **Rigidity for experienced users**: No way to opt out of TDD for known-good patterns without human override
 - **No telemetry**: Cannot measure whether skills are actually followed or how often they prevent errors
 - **Platform dependency**: Relies on platform plugin systems that can change without notice
 
 ### 10.2 SuperClaude Risks
+
 - **Platform lock-in**: Claude Code only limits total addressable market
 - **Complexity barrier**: Python + Markdown + CLI + MCP integration is harder to maintain and contribute to
 - **Over-engineering potential**: 4 compliance tiers + TFEP + adversarial protocol + forensic QA may be more ceremony than most tasks need

@@ -3,6 +3,7 @@
 **Purpose**: Hierarchical task organization with persistent memory for complex multi-step operations
 
 ## Activation Triggers
+
 - Operations with >3 steps requiring coordination
 - Multiple file/directory scope (>2 directories OR >3 files)
 - Complex dependencies requiring phases
@@ -19,6 +20,7 @@
 ## Memory Operations
 
 ### Session Start
+
 ```
 1. list_memories() → Show existing task state
 2. read_memory("current_plan") → Resume context
@@ -26,6 +28,7 @@
 ```
 
 ### During Execution
+
 ```
 1. write_memory("task_2.1", "completed: auth middleware")
 2. think_about_task_adherence() → Verify on track
@@ -34,6 +37,7 @@
 ```
 
 ### Session End
+
 ```
 1. think_about_whether_you_are_done() → Assess completion
 2. write_memory("session_summary", outcomes)
@@ -74,6 +78,7 @@ decisions: Key architectural/design choices made
 ## Examples
 
 ### Session 1: Start Authentication Task
+
 ```
 list_memories() → Empty
 write_memory("plan_auth", "Implement JWT authentication system")
@@ -84,6 +89,7 @@ Execute task 1.1 → write_memory("task_1.1", "completed: Found 3 patterns")
 ```
 
 ### Session 2: Resume After Interruption
+
 ```
 list_memories() → Shows plan_auth, phase_1, task_1.1
 read_memory("plan_auth") → "Implement JWT authentication system"
@@ -94,6 +100,7 @@ Continue with implementation tasks...
 ```
 
 ### Session 3: Completion Check
+
 ```
 think_about_whether_you_are_done() → "Testing phase remains incomplete"
 Complete remaining testing tasks

@@ -1,12 +1,15 @@
 # Pass 2: Structural Audit Rules
 
 ## Goal
+
 Validate placement, staleness, broken references, and structural issues — things that "look fine" but aren't. Requires per-file proof.
 
 ## Guiding Question
+
 **"Is this file in the right place, correctly documented, and structurally sound?"**
 
 ## Scope Limitation
+
 **Only files marked KEEP or REVIEW from Pass 1.** Files classified as DELETE in Pass 1 are excluded.
 
 ## Finding Types (Diagnostic)
@@ -50,23 +53,27 @@ A profile is considered missing if any of the 8 fields is absent or contains onl
 ## Extra Rules by File Type
 
 ### Tests
+
 - Check test runner discovery: Is the file in a test-discovered path?
 - Check test patterns: pytest conventions, Jest patterns, Go test naming
 - Verify the test would actually run (not orphaned outside test discovery)
 - Check if test targets still exist (testing dead code = dead test)
 
 ### Scripts
+
 - Check if functionality is handled by a canonical script elsewhere
 - Verify schema/field names reference current data structures
 - Check if script is referenced in package.json, Makefile, or CI workflows
 
 ### Documentation
+
 - **Verify 3-5 technical claims** against actual implementation
 - Check referenced files/paths actually exist
 - Highest-value finding: "this README/doc describes things that don't exist"
 - Check version numbers, API endpoints, configuration values against actual state
 
 ### Config
+
 - Compare with similar configs in other directories
 - Check if values match current architecture (ports, paths, feature flags)
 - Verify config is loaded by at least one runtime/build/CI system

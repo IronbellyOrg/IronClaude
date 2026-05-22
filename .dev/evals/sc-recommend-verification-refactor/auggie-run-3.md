@@ -120,6 +120,7 @@ Every flag above was cross-checked against the Options table in `src/superclaude
 ### Expertise-Level Note
 
 The prompt above targets an intermediate user. For a beginner-friendly variant:
+
 - Drop the third (contingent) agent — two sides is easier to read.
 - Use `--depth standard` instead of `deep`.
 - Add `--interactive` for a human checkpoint before the merge.
@@ -138,6 +139,7 @@ Trade: faster to review, but the universal quantifier may survive on symmetric c
 **Protocol requirement:** Step 2 (`mcp__auggie-mcp__codebase-retrieval`) must be issued once per shortlisted candidate (≤3 total per run).
 
 **Actual state this run:** Auggie MCP tool was **not exposed to this agent's tool set**, despite being:
+
 1. Declared in the skill's `allowed-tools` frontmatter (`src/superclaude/skills/sc-recommend-protocol/SKILL.md` line 4).
 2. Registered at project scope in `/config/workspace/IronClaude/.mcp.json` (stdio, `npx -y auggie-mcp`).
 
@@ -159,6 +161,7 @@ The protocol specifies the query shape: "shaped by the user's original request, 
 ### What this gap changed in the output
 
 Because Step 2 could not run, the following fields in the verified-interface records for all three candidates were filled with the graceful-degradation sentinel "unavailable":
+
 - `usage_notes` — I have no repo-grounded data on which flag combinations are load-bearing in practice vs. theoretically correct.
 - `related_skills` — I inferred `sc:reflect` as a follow-up candidate from the command map only, not from observed repo co-usage.
 - `known_caveats` — No eval-history lessons were pulled in. If there is a known pitfall about e.g. `--blind` interacting weirdly with Mode B agent specs, I would not have surfaced it.

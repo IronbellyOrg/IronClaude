@@ -448,3 +448,63 @@ def test_exit_code_3_interrupted_run(allowlisted_output_dir: Path) -> None:
         f"got {proc.returncode}\n"
         f"--- stdout ---\n{stdout}\n--- stderr ---\n{stderr}"
     )
+
+
+# --- T9 / CC2: No magic exit codes outside exit_codes.py -------------------
+
+
+def test_no_magic_exit_code_literals_in_eval_module() -> None:
+    """CC2 — exit_codes.py is the sole declaration site for exit-code integer
+    values. All consumers re-export via descriptive local names. Per OQ-2
+    4-canonical-value contract.
+    """
+
+    import re as _re
+
+    eval_dir = Path(__file__).resolve().parents[3] / "src" / "superclaude" / "cli" / "eval"
+    assert eval_dir.is_dir(), f"eval module dir not found: {eval_dir}"
+
+    sysexit_pattern = _re.compile(
+        r"sys\.exit\([0-9]+\)|click\.exceptions\.Exit\([0-9]+\)"
+    )
+    decl_pattern = _re.compile(
+        r"^\s*[A-Z_]+_EXIT_CODE\s*:?\s*int\s*=\s*[0-9]+\s*$",
+        _re.MULTILINE,
+    )
+    canonical_pattern = _re.compile(
+        r"^[A-Z_]+\s*:\s*int\s*=\s*[0-9]+(\s*#.*)?\s*$",
+        _re.MULTILINE,
+    )
+
+    sysexit_hits: list[tuple[Path, str]] = []
+    declaration_hits: list[Path] = []
+    for path in eval_dir.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        for m in sysexit_pattern.finditer(text):
+            sysexit_hits.append((path, m.group(0)))
+        if decl_pattern.search(text):
+            declaration_hits.append(path)
+
+    # (1) No literal sys.exit(N) / click.exceptions.Exit(N) anywhere.
+    assert sysexit_hits == [], (
+        "sys.exit(<literal>) / click.exceptions.Exit(<literal>) calls found "
+        f"in eval module: {sysexit_hits}"
+    )
+
+    # (2) No *_EXIT_CODE: int = <literal-int> declarations outside exit_codes.py.
+    assert all(p.name == "exit_codes.py" for p in declaration_hits), (
+        f"*_EXIT_CODE literal declarations found outside exit_codes.py: "
+        f"{[str(p) for p in declaration_hits if p.name != 'exit_codes.py']}"
+    )
+
+    # (3) exit_codes.py contains exactly 4 canonical-value declarations.
+    canonical_lines = [
+        line
+        for line in (eval_dir / "exit_codes.py").read_text(encoding="utf-8").splitlines()
+        if canonical_pattern.match(line)
+    ]
+    assert len(canonical_lines) == 4, (
+        f"exit_codes.py must declare exactly 4 canonical values (SUCCESS, "
+        f"FAILURES, USAGE_ERROR, INTERRUPTED); found {len(canonical_lines)}: "
+        f"{canonical_lines}"
+    )

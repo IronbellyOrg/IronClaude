@@ -10,7 +10,7 @@ drift-review policy for the `ptytest` sources vendored under
 
 | Field | Value |
 |-------|-------|
-| Upstream repository | https://github.com/brandon-fryslie/ptytest |
+| Upstream repository | <https://github.com/brandon-fryslie/ptytest> |
 | Upstream license | MIT (verbatim copy retained at `src/superclaude/cli/eval/pty/LICENSE`) |
 | Fork posture | Vendored + owned; no upstream pull-back path (per D-1) |
 

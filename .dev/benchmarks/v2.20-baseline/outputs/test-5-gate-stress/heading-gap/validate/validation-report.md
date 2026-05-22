@@ -69,6 +69,7 @@ The 4 warnings identify compound deliverables that sc:tasklist will likely need 
 **Formula**: `interleave_ratio = unique_phases_with_deliverables / total_phases`
 
 **Values**:
+
 - `unique_phases_with_deliverables` = 5 (Phases 1, 2, 3, 4, 5 all contain explicit deliverables)
 - `total_phases` = 5
 

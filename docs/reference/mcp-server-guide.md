@@ -9,6 +9,7 @@
 ### Available MCP Servers
 
 **Core MCP Servers:**
+
 - **Context7**: Official documentation lookup and framework patterns
 - **Sequential**: Multi-step reasoning and complex analysis
 - **Magic**: Modern UI component generation from 21st.dev patterns
@@ -17,6 +18,7 @@
 - **Serena**: Semantic code understanding and project memory
 
 **Server Requirements:**
+
 - Node.js 16.0.0 or higher
 - npm or yarn package manager
 - Stable network connection for some servers
@@ -27,21 +29,25 @@
 ### Node.js and npm Problems
 
 #### Issue: Node.js Version Incompatibility
+
 **Error Message**: `ERROR: MCP servers require Node.js 16+ but found Node.js 14.x`
 
 **Diagnosis**:
+
 ```bash
 node --version
 npm --version
 ```
 
 **Solution 1**: Update Node.js (Linux/Ubuntu)
+
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 
 **Solution 2**: Use Node Version Manager (nvm)
+
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 source ~/.bashrc
@@ -50,16 +56,19 @@ nvm use node
 ```
 
 **Solution 3**: Manual Node.js installation
-- Download from https://nodejs.org/
+
+- Download from <https://nodejs.org/>
 - Follow platform-specific installation instructions
 
 **Verification**:
+
 ```bash
 node --version  # Should be 16.0.0+
 npm --version   # Should be 8.0.0+
 ```
 
 **Issue: npm Permission Problems**
+
 ```bash
 # Error message
 ERROR: EACCES: permission denied, access '/usr/local/lib/node_modules'
@@ -84,6 +93,7 @@ npm config get prefix
 ### MCP Server Installation Failures
 
 **Issue: Context7 MCP Server Installation Failed**
+
 ```bash
 # Error message
 ERROR: Failed to install @context7/mcp-server
@@ -109,6 +119,7 @@ node -e "console.log('Context7 installation test')"
 ```
 
 **Issue: Sequential MCP Server Dependencies Missing**
+
 ```bash
 # Error message
 ERROR: Sequential MCP server missing required dependencies
@@ -134,6 +145,7 @@ npm list -g @sequential/mcp-server
 ```
 
 **Issue: Magic UI Generator Installation Problems**
+
 ```bash
 # Error message
 ERROR: @magic/ui-generator installation failed - build dependencies missing
@@ -160,6 +172,7 @@ npm list -g @magic/ui-generator
 ### MCP Server Connection Failures
 
 **Issue: Context7 Server Not Connecting**
+
 ```bash
 # Error message
 ERROR: MCP server 'context7' failed to connect
@@ -192,6 +205,7 @@ curl -I https://context7-api.example.com/health  # Health check
 ```
 
 **Issue: MCP Server Communication Timeout**
+
 ```bash
 # Error message
 ERROR: MCP server request timeout after 30 seconds
@@ -223,6 +237,7 @@ free -h
 ```
 
 **Issue: Multiple MCP Servers Conflicting**
+
 ```bash
 # Error message
 ERROR: MCP server port conflicts detected
@@ -250,6 +265,7 @@ netstat -tlnp | grep -E "8000|8001|8002"  # Check port assignments
 ### Context7 Documentation Server
 
 **Issue: Context7 Not Finding Documentation**
+
 ```bash
 # Symptoms: Context7 activated but returns no documentation
 
@@ -275,6 +291,7 @@ curl -I https://docs.react.dev/  # Example API test
 ```
 
 **Issue: Context7 Returning Outdated Information**
+
 ```bash
 # Symptoms: Context7 returns old documentation versions
 
@@ -296,6 +313,7 @@ rm -rf ~/.context7/  # Clear cache if exists
 ### Sequential Reasoning Server
 
 **Issue: Sequential Server Internal Errors**
+
 ```bash
 # Error message
 ERROR: Sequential reasoning server encountered internal error
@@ -326,6 +344,7 @@ free -h  # Ensure sufficient memory for complex reasoning
 ```
 
 **Issue: Sequential Server Memory Overload**
+
 ```bash
 # Symptoms: Sequential server crashes or becomes unresponsive
 
@@ -349,6 +368,7 @@ ps aux | grep sequential  # Check process status
 ### Magic UI Generator
 
 **Issue: Magic Not Generating UI Components**
+
 ```bash
 # Symptoms: UI component requests not producing expected output
 
@@ -375,6 +395,7 @@ node -e "const magic = require('@magic/ui-generator'); console.log('Magic loaded
 ```
 
 **Issue: Magic Components Not Framework-Compliant**
+
 ```bash
 # Symptoms: Generated components don't match framework patterns
 
@@ -394,6 +415,7 @@ npm update -g @magic/ui-generator
 ### Playwright Browser Automation
 
 **Issue: Playwright Browser Installation Failures**
+
 ```bash
 # Error message
 ERROR: Playwright browser automation failed - browser not installed
@@ -420,6 +442,7 @@ ls ~/.cache/ms-playwright/  # Check browser installations
 ```
 
 **Issue: Playwright Browser Launch Failures**
+
 ```bash
 # Error message
 ERROR: Browser launch failed - display not available
@@ -446,6 +469,7 @@ docker run -it --rm playwright:latest
 ### Morphllm Pattern Editor
 
 **Issue: Morphllm Pattern Application Failures**
+
 ```bash
 # Symptoms: Pattern-based edits not applying correctly
 
@@ -468,6 +492,7 @@ ls -la target-files/  # Ensure write permissions
 ### Serena Project Memory
 
 **Issue: Serena Session Persistence Failures**
+
 ```bash
 # Symptoms: Project context not persisting between sessions
 
@@ -499,6 +524,7 @@ claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena 
 ### MCP Server Performance Issues
 
 **Issue: Slow MCP Server Response Times**
+
 ```bash
 # Symptoms: MCP server operations causing delays
 
@@ -525,6 +551,7 @@ time node -e "console.log('Node.js speed test')"
 ```
 
 **Issue: MCP Server Memory Leaks**
+
 ```bash
 # Symptoms: Increasing memory usage over time
 
@@ -548,6 +575,7 @@ free -h  # Monitor memory usage trends
 ### Resource Management
 
 **Issue: Multiple MCP Servers Competing for Resources**
+
 ```bash
 # Symptoms: System slowdown when multiple servers active
 
@@ -576,6 +604,7 @@ top  # Monitor resource usage during operations
 ### Custom MCP Server Configuration
 
 **Issue: Default MCP Configuration Not Optimal**
+
 ```bash
 # Symptoms: MCP servers not performing optimally for specific use cases
 
@@ -597,6 +626,7 @@ export MCP_SEQUENTIAL_MEMORY_LIMIT=2048
 ```
 
 **Issue: MCP Server Load Balancing**
+
 ```bash
 # Symptoms: Uneven load distribution across MCP servers
 
@@ -618,6 +648,7 @@ export MCP_SEQUENTIAL_MEMORY_LIMIT=2048
 ### MCP Server Health Monitoring
 
 **Comprehensive MCP Health Check:**
+
 ```bash
 # MCP Server System Diagnostics
 echo "=== MCP Server Health Check ==="
@@ -645,6 +676,7 @@ ping -c 1 8.8.8.8 > /dev/null && echo "✅ Network OK" || echo "❌ Network Issu
 ```
 
 **MCP Server Functionality Test:**
+
 ```bash
 # Test each MCP server individually
 echo "=== MCP Server Functionality Test ==="
@@ -681,6 +713,7 @@ fi
 ### MCP Server Log Analysis
 
 **Log Collection and Analysis:**
+
 ```bash
 # Collect MCP server logs
 echo "=== MCP Server Logs ==="
@@ -703,6 +736,7 @@ journalctl -u node* --since "1 hour ago" 2>/dev/null | tail -10
 ### Complete MCP Reset
 
 **Full MCP Server Reset Procedure:**
+
 ```bash
 # Emergency MCP Reset
 echo "=== Emergency MCP Server Reset ==="
@@ -732,16 +766,19 @@ echo "Test MCP servers in Claude Code after restart"
 ## Related Resources
 
 ### MCP-Specific Documentation
+
 - **Core SuperClaude Guide**: [../user-guide/mcp-servers.md](../user-guide/mcp-servers.md) - MCP server overview and usage
 - **Common Issues**: [common-issues.md](./common-issues.md) - General troubleshooting procedures
 - **Diagnostic Reference**: [diagnostic-reference.md](./diagnostic-reference.md) - Advanced diagnostic procedures
 
 ### External Resources
+
 - **Node.js Official**: [https://nodejs.org/](https://nodejs.org/) - Node.js installation and documentation
 - **npm Documentation**: [https://docs.npmjs.com/](https://docs.npmjs.com/) - Package manager documentation
 - **Playwright Guide**: [https://playwright.dev/](https://playwright.dev/) - Browser automation documentation
 
 ### Support Channels
+
 - **GitHub Issues**: [MCP-specific problems](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
 - **GitHub Discussions**: [MCP server community support](https://github.com/SuperClaude-Org/SuperClaude_Framework/discussions)
 
@@ -750,6 +787,7 @@ echo "Test MCP servers in Claude Code after restart"
 **MCP Server Priority**: When troubleshooting, address servers in order of dependency: Node.js → npm → individual servers → Claude Code integration. Most MCP issues resolve with proper Node.js setup and server reinstallation.
 
 **Verification Pattern**: After MCP solutions, always verify with:
+
 - ✅ `node --version` - Should be 16.0.0+
 - ✅ `npm list -g | grep mcp` - Should show installed servers
 - ✅ Test server functionality in Claude Code - Should respond without errors

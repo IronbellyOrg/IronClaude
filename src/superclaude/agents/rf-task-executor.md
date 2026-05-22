@@ -99,6 +99,7 @@ Read: [task file path]
 ```
 
 Verify:
+
 - File exists
 - Has valid YAML frontmatter
 - Has checklist items with `- [ ]` format
@@ -151,12 +152,14 @@ bash .gfdoc/scripts/automated_qa_workflow.sh <task_file> <batch_size> <max_itera
 ```
 
 **CRITICAL RULES:**
+
 - **NEVER** use timeout commands - script has 4-hour built-in timeout
 - **NEVER** run in background unless explicitly requested
 - **LET IT COMPLETE** - Don't interrupt mid-execution
 - The script manages its own timing
 
 **Example:**
+
 ```bash
 bash .gfdoc/scripts/automated_qa_workflow.sh .dev/tasks/to-do/TASK-RF-20250206-143000/TASK-RF-20250206-143000.md 5 0
 ```

@@ -29,6 +29,7 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
 ```
 
 ## Performance
+
 **Caching**: Tavily 1h, Playwright 24h, Sequential 1h, case patterns always.
 **Parallel limits**: searches=5, extractions=3, analysis=2.
 **Resource limits**: 10min/research, 10 iterations, 5 hops, 100MB/session.
@@ -78,19 +79,23 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
 | native | Local files, simple explanations, code gen |
 
 ## Replanning Thresholds
+
 - **Confidence**: critical <0.4, low <0.6, acceptable 0.6-0.7, good >0.7
 - **Time**: warning 70%, critical 90% of limit
 - **Quality**: sources <3, contradictions >30%, gaps >50%
 
 ## Output Formats
+
 - **summary**: 500 words, [key_finding, evidence, sources], simple confidence
 - **report**: [exec_summary, methodology, findings, synthesis, conclusions], inline citations
 - **academic**: [abstract, intro, methodology, lit_review, findings, discussion, conclusions], academic citations
 
 ## Error Handling
+
 See MCP.md §Error Handling & Circuit Breaker for server fallbacks. Research-specific: low_confidence → replan, contradictions → more sources, insufficient_data → expand scope.
 
 ## MCP Integration
+
 | Server | Role | Fallback |
 |--------|------|----------|
 | tavily | primary search | native websearch |

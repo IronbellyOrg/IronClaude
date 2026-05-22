@@ -5,7 +5,6 @@
 
 ---
 
-
 ## Agent Prompt Templates
 
 These templates are provided to the task builder (in the BUILD_REQUEST) so it can embed them in the task file's self-contained checklist items. The builder should customize each instance with the specific product area, files, and output path.
@@ -42,6 +41,7 @@ You MUST follow this protocol exactly. Violation results in data loss.
 4. When finished, update the Status line from "In Progress" to "Complete" and append a summary section.
 
 Research Protocol:
+
 1. Read the actual source files — understand what each file does, what capabilities it provides, what user value it delivers
 2. Trace user flows — how does the user interact with this part of the product? What is the experience?
 3. Document the product interface — what features, settings, capabilities, and user touchpoints exist?
@@ -64,6 +64,7 @@ When you encounter documentation that describes a product capability, feature, s
 4. **API endpoints described in docs:** Verify route definitions exist in the actual codebase. If a doc describes an endpoint at `/api/v1/sessions` but the route handler doesn't exist, the endpoint is STALE.
 
 For EVERY doc-sourced claim, mark it with one of:
+
 - **[CODE-VERIFIED]** — confirmed by reading actual source code at [file:line]
 - **[CODE-CONTRADICTED]** — code shows different implementation (describe what code actually shows)
 - **[UNVERIFIED]** — could not find corresponding code; may be stale, planned, or in a different repo
@@ -71,29 +72,36 @@ For EVERY doc-sourced claim, mark it with one of:
 Claims marked [UNVERIFIED] or [CODE-CONTRADICTED] MUST appear in the Gaps and Questions section.
 
 Output Format:
+
 - Use descriptive headers for each file or logical group
 - Include actual feature capabilities, user flows, configuration options, and technology choices (not reproduced code blocks — summaries with key capabilities)
 - Note any anomalies, tech debt, or surprising behavior
 - End each section with a "Key Takeaways" bullet list
 - End the file with:
-  ## Gaps and Questions
+
+## Gaps and Questions
+
   - [things that need further investigation or are unclear]
   - [all UNVERIFIED and CODE-CONTRADICTED claims from docs]
 
-  ## Stale Documentation Found
+## Stale Documentation Found
+
   - [list any docs that describe features/capabilities that no longer exist in code]
 
-  ## Summary
+## Summary
+
   [3-5 sentence summary of what you found]
 
 Be thorough. Be specific. Only document what you verified in the source. Do not guess or infer.
 Documentation is NOT verification — reading a doc that says "X exists" does not verify X exists.
 Only reading the actual source code of X verifies X exists.
+
 ```
 
 ### Web Research Agent Prompt
 
 ```
+
 Research this topic externally and write findings to [output-path].
 
 Topic: [specific external research topic]
@@ -101,11 +109,13 @@ What we already know from codebase: [brief summary of relevant codebase findings
 Product context: [the overall product being documented]
 
 CRITICAL — Incremental File Writing Protocol:
+
 1. FIRST ACTION: Create your output file with a header including topic, date, and status
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
 
 Research Protocol:
+
 1. Search for market data, industry reports, and competitive landscape information
 2. Search for comparable products and their feature sets
 3. Search for industry best practices and standards relevant to this product area
@@ -118,17 +128,22 @@ Research Protocol:
 6. Rate source reliability (official reports > industry publications > well-maintained repos > blog posts > forum answers)
 
 Output Format:
+
 - Use descriptive headers for each research area
 - Always include source URLs
 - Mark relevance: HIGH / MEDIUM / LOW for each finding
 - End with:
-  ## Key External Findings
+
+## Key External Findings
+
   [Bullet list of the most important discoveries]
 
-  ## Recommendations from External Research
+## Recommendations from External Research
+
   [How external findings should influence the PRD — market positioning, feature gaps, competitive threats]
 
 IMPORTANT: Our codebase is the source of truth for current capabilities. External research adds market context and competitive intelligence but does not override verified product behavior. If you find a discrepancy, note it explicitly.
+
 ```
 
 Common web research topics for PRDs:
@@ -142,6 +157,7 @@ Common web research topics for PRDs:
 ### Synthesis Agent Prompt
 
 ```
+
 Read the research files listed below and synthesize them into template-aligned sections for a Product Requirements Document (PRD).
 
 Research files to read: [list of paths]
@@ -151,6 +167,7 @@ Template reference: .claude/templates/workflow/05_prd_template.md
 
 Rules:
 0. **Read the template first.** Before synthesizing anything, read the PRD template to understand each section's expected content, format, and depth.
+
 1. Follow the template structure exactly — use the same headers, tables, and section format
 2. Every fact must come from the research files — do not invent or assume
 3. Use tables over prose for multi-item data (feature lists, competitive comparisons, KPI tables, requirements)
@@ -165,6 +182,7 @@ Rules:
 
 CRITICAL — Incremental File Writing:
 You MUST write to your output file incrementally as you synthesize each section. Do NOT read all research files into context and attempt a single large write at the end. The process is:
+
 1. Create the output file with a header and your first synthesized section
 2. After completing each subsequent section, append it to the output file immediately using Edit
 3. Never rewrite the entire file from memory — always append or do targeted edits
@@ -172,11 +190,13 @@ You MUST write to your output file incrementally as you synthesize each section.
 This prevents data loss from context limits and ensures partial results survive if the agent is interrupted.
 
 Write the sections in the exact format they should appear in the final document, including all table structures and headers from the template.
+
 ```
 
 ### Research Analyst Agent Prompt (rf-analyst — Completeness Verification)
 
 ```
+
 Perform a completeness verification of all research files for [product name] PRD.
 
 Analysis type: completeness-verification
@@ -189,6 +209,7 @@ Your job is to independently verify that research agents produced thorough, evid
 before downstream synthesis begins. You are the analytical quality gate — be rigorous.
 
 PROCESS:
+
 1. Read the research-notes.md file to understand the planned scope (EXISTING_FILES, SUGGESTED_PHASES)
 2. Use Glob to find ALL research files in the research directory (files matching [NN]-*.md)
 3. Read EVERY research file — do not skip any
@@ -196,6 +217,7 @@ PROCESS:
 5. Write your report to [output-path]
 
 CHECKLIST:
+
 1. Coverage audit — every key product area from scope covered by at least one research file
 2. Evidence quality — claims cite specific file paths, feature names, capability descriptions
 3. Documentation staleness — all doc-sourced claims tagged [CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED]
@@ -206,16 +228,19 @@ CHECKLIST:
 8. Depth assessment — investigation depth matches the stated tier (stakeholder segments identified, user journeys documented, feature scope mapped, competitive landscape analyzed)
 
 VERDICTS:
+
 - PASS: All checks pass, no critical gaps
 - FAIL: Critical gaps exist (list each with specific remediation action)
 
 Use the full output format from your agent definition (tables for coverage, evidence quality, staleness, completeness).
 Be adversarial — your job is to find problems, not confirm things work.
+
 ```
 
 ### Research QA Agent Prompt (rf-qa — Research Gate)
 
 ```
+
 Perform QA verification of research completeness for [product name] PRD.
 
 QA phase: research-gate
@@ -228,6 +253,7 @@ Output path: [output-path]
 You are the last line of defense before synthesis begins. Assume everything is wrong until you verify it.
 
 IF ANALYST REPORT EXISTS:
+
 1. Read the analyst's completeness report
 2. Spot-check 3-5 of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
@@ -238,6 +264,7 @@ IF NO ANALYST REPORT:
 Apply the full 10-item Research Gate checklist from your agent definition independently.
 
 11-ITEM CHECKLIST:
+
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — sample 3-5 claims per file, verify file paths exist
 3. Scope coverage — every key product area from research-notes EXISTING_FILES examined
@@ -251,16 +278,19 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
 11. Incremental writing compliance — files show iterative structure, not one-shot
 
 VERDICTS:
+
 - PASS: Green light for synthesis
 - FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
 
 Use the full QA report output format from your agent definition.
 Zero tolerance — if you can't verify it, it fails.
+
 ```
 
 ### Synthesis QA Agent Prompt (rf-qa — Synthesis Gate)
 
 ```
+
 Perform QA verification of synthesis files for [product name] PRD.
 
 QA phase: synthesis-gate
@@ -272,6 +302,7 @@ You are verifying that synthesis files are ready for assembly into the final PRD
 If fix_authorization is true, you can fix issues in-place using Edit.
 
 PROCESS:
+
 1. Use Glob to find ALL synth files (synth-*.md) in the synthesis directory
 2. Read EVERY synth file completely
 3. Apply the 12-item Synthesis Gate checklist from your agent definition
@@ -282,6 +313,7 @@ PROCESS:
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
+
 1. Section headers match PRD template structure (.claude/templates/workflow/05_prd_template.md)
 2. Table column structures correct (competitive matrix, requirements table, KPI table, etc.)
 3. No fabrication (sample 5 claims per file, trace to research files)
@@ -296,13 +328,16 @@ PROCESS:
 12. No hallucinated file paths (verify parent directories exist)
 
 VERDICTS:
+
 - PASS: All synth files meet quality standards
 - FAIL: Issues found (list with specific fixes, note which were fixed in-place)
+
 ```
 
 ### Report Validation QA Agent Prompt (rf-qa — Report Validation)
 
 ```
+
 Perform final QA validation of the assembled PRD for [product name].
 
 QA phase: report-validation
@@ -315,12 +350,14 @@ Fix authorization: true (always authorized for report validation)
 This is the final quality check before presenting to the user. You can and should fix issues in-place.
 
 PROCESS:
+
 1. Read the ENTIRE PRD
 2. Apply the 18-item Validation Checklist + 4 Content Quality Checks
 3. For each issue: document it, fix it in-place with Edit, verify the fix
 4. Write your QA report to [output-path]
 
 18-ITEM VALIDATION CHECKLIST:
+
 1. All template sections present (or explicitly marked as N/A with rationale)
 2. Frontmatter has all required fields from the template
 3. Total line count within tier budget (Lightweight: 400-800, Standard: 800-1500, Heavyweight: 1500-2500)
@@ -347,11 +384,13 @@ CONTENT QUALITY CHECKS:
 22. Actionability (product team could begin planning from this PRD alone)
 
 Fix every issue you find. Report honestly.
+
 ```
 
 ### Assembly Agent Prompt (rf-assembler — PRD Assembly)
 
 ```
+
 Assemble the final Product Requirements Document (PRD) for [product name] from synthesis files.
 
 Component files (in order):
@@ -374,6 +413,7 @@ You MUST follow this protocol exactly. Violation results in data loss.
 3. After each Edit, the file grows. This is correct behavior. Never rewrite from scratch.
 
 Assembly procedure:
+
 1. Write the frontmatter and HOW TO USE blockquote
 2. Write the Document Information table (Product Name, Product Owner, Engineering Lead, Design Lead, Stakeholders, Status, Target Release, Last Updated, Review Cadence)
 3. Assemble sections in template order — read each synth file and write its content into the correct position. Sections not covered by synth files get written directly during assembly from patterns observed in the synth files.
@@ -383,6 +423,7 @@ Assembly procedure:
 7. Add Document Provenance — if the PRD was created by consolidating existing docs, document the source materials and creation method. Zero content loss: every piece of metadata from source documents must appear somewhere in the normalized PRD.
 
 Assembly rules:
+
 1. Write the header first, then sections in template order, then ToC
 2. Write each section to disk immediately after composing it — do NOT one-shot
 3. Cross-check internal consistency:
@@ -398,6 +439,7 @@ Assembly rules:
 7. No full source code reproductions — summarize with key capabilities and technology choices
 
 Content rules (non-negotiable):
+
 - Tables over prose whenever presenting multi-item data
 - Product vision: concise statement with 1-2 paragraph expansion
 - User personas: structured attribute tables with representative quotes
@@ -413,10 +455,12 @@ Do NOT attempt full content validation — that is the QA agent's job. Focus on 
 integrity: correct ordering, internal consistency, no placeholders, all components included.
 
 Consolidation protocol (when consolidating existing docs into this PRD):
+
 1. Read each source document listed in the task's "Source Files to Consolidate" section
 2. Map each source document's content to the corresponding template section(s)
 3. Where source docs overlap, merge by keeping the most specific/recent information and noting conflicts
 4. Add an Appendix: Document Provenance subsection listing each source doc with its path, original purpose, and which sections it contributed to
 5. Zero content loss — every metadata piece and unique finding from source docs must appear in the final output or be explicitly noted as superseded
 6. After assembly, the source docs should be candidates for archival (the PRD replaces them)
+
 ```

@@ -45,6 +45,57 @@ Concretely:
   `RunOrchestrator.run()` so NTP slew, system clock changes, and DST
   transitions cannot move the budget under the harness's feet.
 
+## Operator-visible runtime warnings (post Phase 5+6 remediation)
+
+### `_NullLifecycleExecutor` stderr WARNING (M2 / CC3)
+
+Until the production lifecycle executor ships, `eval run` is wired to a null
+executor and emits the following WARNING to **stderr** at the start of every
+run:
+
+```text
+eval run: WARNING: _NullLifecycleExecutor active — non-production executor selected; run results MUST NOT be treated as authoritative.
+```
+
+Run results from the null executor MUST NOT be treated as authoritative for
+production gating. The warning will stop firing once the production executor
+replaces the null stub. Pinned in `commands.py` at the call site (see AC matrix
+row **M2** at `.dev/tasks/to-do/TASK-RF-20260522-153212/phase-outputs/reports/06-ac-matrix.md`)
+and exercised by `tests/cli/eval/test_eval_run.py::test_run_emits_warning_when_null_lifecycle_executor_active`.
+
+### Verbose summary line — full DM-012 taxonomy (H3)
+
+When `--verbose` is set, `eval run` prints a single line to stdout post-run
+that renders the **full DM-012 status taxonomy** (P/F/S/E/I/T):
+
+```text
+run <run-id>: <P>P/<F>F/<S>S/<E>E/<I>I/<T>T in <duration>s -> <output_dir>
+```
+
+| Letter | Bucket | DM-012 statuses included |
+|---|---|---|
+| `P` | passed | `PASS`, `XFAIL` |
+| `F` | failed | `FAIL`, `XPASS` |
+| `S` | skipped | `SKIPPED` |
+| `E` | errored | `ERRORED` |
+| `I` | interrupted | `INTERRUPTED` |
+| `T` | timeout | `TIMEOUT` |
+
+The partitions are pinned in `src/superclaude/cli/eval/models.py`
+(`EVAL_STATUSES`, `PASSED_STATUSES`, `FAILED_STATUSES`, `SKIPPED_STATUSES`) so the
+summary line cannot drift from the canonical set (M3). Test:
+`tests/cli/eval/test_run_summary.py::test_format_run_summary_line_renders_errored_interrupted_timeout`.
+
+### `--output-dir <X>` is the OUTPUT ROOT, not the run-dir (H1 / FR-G4)
+
+When `--output-dir <X>` is supplied, the FR-G4 layout is layered underneath:
+`<X>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/`. The path supplied is the OUTPUT
+ROOT — `compose_run_dir` anchors the date-stamped run-dir under it. See
+[`docs/eval/retention.md`](retention.md) §1 for the full retention contract under
+this layout, and AC matrix row **H1** for the spec finding.
+
+---
+
 ## Re-running a subset — the `--eval` flag
 
 After a run completes, the Reporter writes `summary.{md,json}` to the
@@ -54,14 +105,17 @@ runtime when only one or two need a second look:
 
 ```bash
 # Full baseline run (15 evals at the design default)
-superclaude eval run suites/full.yaml --parallel 8
+superclaude eval run --suite real --parallel 8
 
 # Re-run only the failing ids after diagnosis (any number of --eval)
-superclaude eval run suites/full.yaml --eval E03 --eval E07
+superclaude eval run --suite real --eval E3 --eval E7
 
-# Quick smoke (3-4 evals); same flag, different subset
-superclaude eval run suites/quick.yaml --eval E01 --eval E02
+# Quick smoke via subset filter (quick.yaml deferred per DOC-OQ6;
+# --eval is the v1 subset escape hatch)
+superclaude eval run --suite real --eval E1 --eval E2
 ```
+
+> **CLI shape note (post cliEval Phase 5+6 remediation):** `eval run` takes the suite via the `--suite <token>` flag (not a positional argument). The token resolves as filesystem path → filename stem → `name:` field (see `superclaude/cli/eval/commands.py` `_resolve_suite`). The canonical suite is `real.yaml`; `quick.yaml` is **deferred per DOC-OQ6** (see `src/superclaude/cli/eval/suites/README.md`). Eval ids follow the strict FR-SCH2 regex `[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?` — use `E1`, `E2.1`, `E15`, not zero-padded forms like `E01`.
 
 Notes mirror [`docs/eval/retry.md`](retry.md) — the `--eval` subset
 flag is the same one the bounded-retry policy directs operators to for

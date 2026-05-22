@@ -67,6 +67,7 @@ tasklist_ready: false
 **Formula**: `interleave_ratio = unique_phases_with_deliverables / total_phases`
 
 **Values**:
+
 - Phases with deliverables: Phase 1, Phase 2, Phase 3, Phase 4, Phase 5 → **5 unique phases**
 - Total phases: **5**
 - Test activity distribution: Phase 1 (unit tests), Phase 2 (smoke tests), Phase 3 (integration tests), Phase 4 (CLI integration tests), Phase 5 (E2E + architecture tests)

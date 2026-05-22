@@ -74,6 +74,7 @@ task_type: "static"
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [ ] Section 1 documented - **To Do**
 - [ ] Section 2 documented - **To Do**
 - [ ] Section 3 documented - **To Do**
@@ -112,6 +113,7 @@ task_type: "static"
 ### Subsection 1.1
 
 **Key Points:**
+
 - Bullet point 1
 - Bullet point 2
 - Bullet point 3
@@ -130,6 +132,7 @@ task_type: "static"
 | Data 4   | Data 5   | Data 6   |
 
 **Example Code Block** (if applicable):
+
 ```javascript
 // Code example with syntax highlighting
 function example() {
@@ -152,11 +155,13 @@ function example() {
 ### Framework or Methodology
 
 **Step 1: [Action]**
+
 - Detail 1
 - Detail 2
 - Detail 3
 
 **Step 2: [Action]**
+
 - Detail 1
 - Detail 2
 - Detail 3
@@ -184,11 +189,13 @@ function example() {
 ### Decision Criteria
 
 **When to choose Option A:**
+
 1. Condition 1
 2. Condition 2
 3. Condition 3
 
 **When to choose Option B:**
+
 1. Condition 1
 2. Condition 2
 3. Condition 3
@@ -200,11 +207,13 @@ function example() {
 ### Best Practices
 
 **DO:**
+
 - ✅ Best practice 1 with explanation
 - ✅ Best practice 2 with explanation
 - ✅ Best practice 3 with explanation
 
 **DON'T:**
+
 - ❌ Anti-pattern 1 with explanation of why it's bad
 - ❌ Anti-pattern 2 with explanation of why it's bad
 - ❌ Anti-pattern 3 with explanation of why it's bad
@@ -242,6 +251,7 @@ When implementing [this topic], follow this checklist:
 ### Monitoring and Alerts
 
 **Key Indicators to Watch:**
+
 - **Indicator 1**: What to watch, what threshold triggers concern
 - **Indicator 2**: What to watch, what threshold triggers concern
 - **Indicator 3**: What to watch, what threshold triggers concern
@@ -249,11 +259,13 @@ When implementing [this topic], follow this checklist:
 ### Continuous Improvement
 
 **Regular Review Activities:**
+
 1. **[Frequency]**: [What to review and why]
 2. **[Frequency]**: [What to review and why]
 3. **[Frequency]**: [What to review and why]
 
 **Experiment Ideas:**
+
 - [ ] **Hypothesis 1**: [If we change X, then Y will improve because Z]
 - [ ] **Hypothesis 2**: [If we change X, then Y will improve because Z]
 - [ ] **Hypothesis 3**: [If we change X, then Y will improve because Z]
@@ -272,10 +284,12 @@ When implementing [this topic], follow this checklist:
 ### Resources and References
 
 **Internal Resources:**
+
 - [Link to internal doc](path/to/doc.md) - Brief description
 - [Link to internal tool](path/to/tool.md) - Brief description
 
 **External Resources:**
+
 - [External article title](https://url.com) - Brief description
 - [Industry research](https://url.com) - Brief description
 
@@ -303,9 +317,11 @@ A: [Clear, concise answer with context]
 ## Appendices *(if applicable — Lightweight tier may omit)*
 
 ### Appendix A: [Topic]
+
 [Supplementary content]
 
 ### Appendix B: Document Provenance *(if applicable)*
+
 [Include when doc was generated from/merged from other sources]
 
 ---
@@ -319,6 +335,7 @@ A: [Clear, concise answer with context]
 ---
 
 > **See also:**
+>
 > - [parent-doc.md](../path/to/parent.md) - Brief description of what this doc contains
 > - [related-doc-1.md](path/to/related-1.md) - Brief description of relevance
 > - [related-doc-2.md](path/to/related-2.md) - Brief description of relevance

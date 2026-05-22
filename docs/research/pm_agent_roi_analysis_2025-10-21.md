@@ -13,6 +13,7 @@
 **Key Finding**: Self-improving agents show 3.1x improvement (17% → 53%) on SWE-bench tasks, BUT this is primarily for older models without built-in reasoning capabilities. Latest models (Claude 4.5, Gemini 2.5) already achieve 77-82% on SWE-bench baseline, leaving limited room for improvement.
 
 **Recommendation**:
+
 - **80% of users**: Use Claude 4.5 as-is (Option A)
 - **20% of power users**: Minimal PM Agent with Mindbase MCP only (Option B)
 - **Best practice**: Benchmark first, then decide (Option C)
@@ -24,6 +25,7 @@
 ### 1. Latest Model Performance (2025)
 
 #### Claude Sonnet 4.5
+
 - **SWE-bench Verified**: 77.2% (standard) / 82.0% (parallel compute)
 - **HumanEval**: Est. 92%+ (Claude 3.5 scored 92%, 4.5 is superior)
 - **Long-horizon execution**: 432 steps (30-hour autonomous operation)
@@ -32,6 +34,7 @@
 **Source**: Anthropic official announcement (September 2025)
 
 #### Gemini 2.5 Pro
+
 - **SWE-bench Verified**: 63.8%
 - **Aider Polyglot**: 82.2% (June 2025 update, surpassing competitors)
 - **Built-in capabilities**: Deep Think mode, adaptive thinking budget, chain-of-thought reasoning
@@ -40,6 +43,7 @@
 **Source**: Google DeepMind blog (March 2025)
 
 #### Comparison: GPT-5 / o3
+
 - **SWE-bench Verified**: GPT-4.1 at 54.6%, o3 Pro at 71.7%
 - **AIME 2025** (with tools): o3 achieves 98-99%
 
@@ -48,6 +52,7 @@
 ### 2. Self-Improving Agent Performance
 
 #### Reflexion Framework (2023 Baseline)
+
 - **HumanEval**: 91% pass@1 with GPT-4 (vs 80% baseline)
 - **AlfWorld**: 130/134 tasks completed (vs fewer with ReAct-only)
 - **Mechanism**: Verbal reinforcement learning, episodic memory buffer
@@ -55,6 +60,7 @@
 **Source**: Shinn et al., "Reflexion: Language Agents with Verbal Reinforcement Learning" (NeurIPS 2023)
 
 #### Self-Improving Coding Agent (2025 Study)
+
 - **SWE-Bench Verified**: 17% → 53% (3.1x improvement)
 - **File Editing**: 82% → 94% (+15 points)
 - **LiveCodeBench**: 65% → 71% (+9%)
@@ -71,11 +77,13 @@
 #### Key Finding: Thinking Models Break the Pattern
 
 **Non-Thinking Models** (older GPT-3.5, GPT-4):
+
 - Self-conditioning problem (degrades on own errors)
 - Max horizon: ~2 steps before failure
 - Scaling alone doesn't solve this
 
 **Thinking Models** (Claude 4, Gemini 2.5, GPT-5):
+
 - **No self-conditioning** - maintains accuracy across long sequences
 - **Execution horizons**:
   - Claude 4 Sonnet: 432 steps
@@ -130,6 +138,7 @@ Success rate estimate: 90-95% (one-shot)
 ### Claude 4.5 Already Has Self-Improvement Built-In
 
 Evidence:
+
 1. **Extended Thinking mode** = Reflexion-style self-reflection
 2. **30-hour autonomous operation** = Error detection → self-correction loop
 3. **Self-conditioning eliminated** = Not influenced by past errors
@@ -144,12 +153,14 @@ Evidence:
 ### Option A: No PM Agent (Recommended for 80% of users)
 
 **Why:**
+
 - Claude 4.5 baseline achieves 85-90% success rate
 - Extended Thinking built-in (self-reflection)
 - Zero additional token cost
 - No development/maintenance burden
 
 **When to choose:**
+
 - General coding tasks
 - Satisfied with Claude 4.5 baseline quality
 - Token efficiency is priority
@@ -159,6 +170,7 @@ Evidence:
 ### Option B: Minimal PM Agent (Recommended for 20% power users)
 
 **What to implement:**
+
 ```yaml
 Minimal features:
   1. Mindbase MCP integration only
@@ -177,11 +189,13 @@ What NOT to implement:
 ```
 
 **Why:**
+
 - SWE-bench-level complex tasks show +13% improvement potential
 - Mindbase doesn't overlap (cross-session memory)
 - Minimal implementation = low cost
 
 **When to choose:**
+
 - Frequent complex Software Engineering tasks
 - Cross-session learning is critical
 - Willing to invest for marginal gains
@@ -191,6 +205,7 @@ What NOT to implement:
 ### Option C: Benchmark First, Then Decide (Most Prudent)
 
 **Process:**
+
 ```yaml
 Phase 1: Baseline Measurement (1-2 days)
   1. Run Claude 4.5 on HumanEval
@@ -209,6 +224,7 @@ Phase 3: Data-Driven Decision
 ```
 
 **Why recommended:**
+
 - Decisions based on data, not hypotheses
 - Prevents wasted investment
 - Most scientific approach
@@ -238,17 +254,20 @@ Phase 3: Data-Driven Decision
 ## Next Steps
 
 **Immediate (if proceeding with Option C):**
+
 1. Set up HumanEval test environment
 2. Run Claude 4.5 baseline on 50 tasks
 3. Measure success rate objectively
 4. Make data-driven decision
 
 **If Option A (no PM Agent):**
+
 - Document Claude 4.5 Extended Thinking usage patterns
 - Update CLAUDE.md with best practices
 - Close PM Agent development issue
 
 **If Option B (minimal PM Agent):**
+
 - Implement Mindbase MCP integration only
 - Create Task Classifier
 - Benchmark before/after

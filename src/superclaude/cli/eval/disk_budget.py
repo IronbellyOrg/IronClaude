@@ -87,6 +87,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping, Optional
 
+from . import exit_codes as _exit_codes
+
 __all__ = [
     "DISK_BUDGET_EXCEEDED_ARTIFACT_NAME",
     "DISK_BUDGET_EXCEEDED_EXIT_CODE",
@@ -103,7 +105,8 @@ __all__ = [
 # table: ``2`` = harness error. The disk-budget breach is a harness-
 # enforced abort, not a per-eval failure, so it uses the same code as
 # the loader / scratch-root / reporter-contract violations.
-DISK_BUDGET_EXCEEDED_EXIT_CODE: int = 2
+# Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
+DISK_BUDGET_EXCEEDED_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 
 # Filename the poller writes when a breach is detected. Pinned here so
 # the orchestrator, Reporter, and integration tests all reference one

@@ -132,15 +132,20 @@ These gate-related components are confirmed live:
 ## Recommended Actions
 
 ### Wire or remove the cli_portify gate layer
+
 The `GATE_REGISTRY` + 10 `gate_*()` functions + `get_gate_criteria()` accessor form a complete but disconnected abstraction. Either:
+
 - **Wire:** Refactor `cli_portify/executor.py` to call `get_gate_criteria()` → `gate_passed()` instead of inline checks
 - **Remove:** Delete `cli_portify/gates.py:447-651` and `cli_portify/steps/gates.py:51-110`
 
 ### Wire or remove audit gate modules
+
 `evidence_gate.py` and `manifest_gate.py` define gate functions with zero callers. Either integrate into the audit executor pipeline or remove.
 
 ### Wire or remove SprintGatePolicy
+
 `SprintGatePolicy` implements `TrailingGatePolicy` but is never instantiated. Either wire it into sprint executor or remove along with the dead `resolve_gate_mode()` / `GateScope` chain.
 
 ### Clean up phantom callable params
+
 The 7 `process_runner` params in `cli_portify/executor.py` and the `step_runner` param represent a testing injection pattern that was never used. Either add tests that use them or remove the params to reduce API surface noise.

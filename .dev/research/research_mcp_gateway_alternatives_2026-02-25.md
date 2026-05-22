@@ -22,6 +22,7 @@ For your use case (central server accessible from multiple Coder dev containers)
 ## Tier 1: Full Gateway/Aggregators (AIRIS-like)
 
 ### 1. MetaMCP
+
 **What it is**: All-in-one MCP Aggregator/Orchestrator/Middleware/Gateway in a single Docker Compose stack. Web UI for managing servers, namespacing, tool-level enable/disable, middleware hooks.
 
 | Factor | Details |
@@ -40,6 +41,7 @@ For your use case (central server accessible from multiple Coder dev containers)
 - [MetaMCP Quick Start Docs](https://docs.metamcp.com/en/quickstart)
 
 ### 2. Docker MCP Gateway (Docker MCP Toolkit)
+
 **What it is**: Docker's official MCP gateway. Part of the Docker MCP Catalog & Toolkit. Runs MCP servers as Docker containers behind a single gateway endpoint. First-class Claude Code integration via `docker mcp client connect claude-code`.
 
 | Factor | Details |
@@ -59,6 +61,7 @@ For your use case (central server accessible from multiple Coder dev containers)
 - [Docker MCP CLI Reference](https://docs.docker.com/ai/mcp-catalog-and-toolkit/cli/)
 
 ### 3. MCP Hub (ravitemer/mcp-hub)
+
 **What it is**: Central coordinator between MCP clients and multiple servers. Supports local STDIO servers and remote SSE/streamable-http servers. JSON config, auto-detects server type.
 
 | Factor | Details |
@@ -75,6 +78,7 @@ For your use case (central server accessible from multiple Coder dev containers)
 - [GitHub: ravitemer/mcp-hub](https://github.com/ravitemer/mcp-hub)
 
 ### 4. Gatekit
+
 **What it is**: "Hackable" MCP gateway with plugin architecture. Tool management/filtering, PII/secrets checks, audit logging, token usage tracking.
 
 | Factor | Details |
@@ -96,6 +100,7 @@ For your use case (central server accessible from multiple Coder dev containers)
 These are lighter-weight — they don't aggregate servers, but they let you **run an MCP server on one machine and access it from another** by bridging transports.
 
 ### 5. Supergateway (supercorp-ai)
+
 **What it is**: One-command bridge that converts stdio ↔ SSE (and Streamable HTTP). Run a stdio MCP server, expose it as an SSE endpoint. Or consume an SSE endpoint as stdio.
 
 | Factor | Details |
@@ -110,16 +115,19 @@ These are lighter-weight — they don't aggregate servers, but they let you **ru
 - [GitHub: supercorp-ai/supergateway](https://github.com/supercorp-ai/supergateway)
 
 ### 6. mcp-proxy (sparfenyuk, Python)
+
 **What it is**: Bidirectional MCP proxy for stdio ↔ SSE transport conversion.
 
 - [Model Context Protocol listing](https://model-context-protocol.com/servers/mcp-server-sse-stdio-proxy-connector)
 
 ### 7. mcp-proxy (stephenlacy, Rust)
+
 **What it is**: High-performance bidirectional proxy with SSE + Streamable HTTP + OAuth support.
 
 - [GitHub: stephenlacy/mcp-proxy](https://github.com/stephenlacy/mcp-proxy)
 
 ### 8. mcp_bridge (geosp, Python)
+
 **What it is**: "Universal transport bridge" for stdio clients ↔ remote HTTP/SSE servers.
 
 - [GitHub: geosp/mcp_bridge](https://github.com/geosp/mcp_bridge)
@@ -129,6 +137,7 @@ These are lighter-weight — they don't aggregate servers, but they let you **ru
 ## Tier 3: Enterprise/Infrastructure Gateways
 
 ### 9. Envoy AI Gateway
+
 **What it is**: MCP routing built into the Envoy proxy ecosystem. Kubernetes-native with CRDs (`MCPRoute`), OAuth, rate limiting, load balancing, observability.
 
 | Factor | Details |
@@ -144,17 +153,20 @@ These are lighter-weight — they don't aggregate servers, but they let you **ru
 - [Envoy AI Gateway Installation](https://aigateway.envoyproxy.io/docs/getting-started/installation)
 
 ### 10. Microsoft mcp-gateway
+
 **What it is**: Reverse proxy + management layer for MCP servers with session-aware routing. Kubernetes-focused.
 
 - [GitHub: microsoft/mcp-gateway](https://github.com/microsoft/mcp-gateway)
 - [Microsoft MCP Gateway Docs](https://microsoft.github.io/mcp-gateway/sample-servers/mcp-proxy/)
 
 ### 11. IBM MCP Context Forge
+
 **What it is**: MCP gateway, proxy, and registry. Federates MCP + REST, with security, rate limiting, observability, virtual servers, admin UI.
 
 - [IBM MCP Context Forge](https://ibm.github.io/mcp-context-forge/)
 
 ### 12. AWS MCP Proxy
+
 **What it is**: Client-side proxy for connecting to AWS-hosted MCP servers with SigV4 auth, read-only mode, logging.
 
 - [AWS MCP Proxy Announcement](https://aws.amazon.com/about-aws/whats-new/2025/10/model-context-protocol-proxy-available/)
@@ -181,23 +193,27 @@ These are lighter-weight — they don't aggregate servers, but they let you **ru
 **Context**: Coder dev containers, need central server accessible from multiple environments.
 
 ### Top Pick: MetaMCP
+
 - Docker Compose on a dedicated host (VM, local machine, cloud instance)
 - Web UI for managing which MCP servers are active
 - Exposes SSE endpoint that all your Coder workspaces connect to
 - Closest to AIRIS in concept and capability
 
 ### Runner-up: Docker MCP Gateway
+
 - If you have a machine with Docker, this is the most "official" option
 - First-class Claude Code support
 - Profile system for different tool sets
 
 ### Lightweight Alternative: Supergateway + Reverse Proxy
+
 - Run individual MCP servers with Supergateway wrapping each one
 - Put Nginx/Caddy in front for routing and auth
 - Maximum flexibility, minimum overhead per server
 - DIY but very transparent
 
 ### If You Have Kubernetes: Envoy AI Gateway
+
 - Production-grade, but requires K8s infrastructure
 - Best for teams/orgs with existing K8s
 

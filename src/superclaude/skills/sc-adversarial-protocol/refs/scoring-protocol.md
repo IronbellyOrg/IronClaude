@@ -106,6 +106,7 @@ Uses an additive binary rubric with mandatory evidence citation (Claim-Evidence-
 ### Dimensions and Criteria
 
 #### Completeness (5 criteria)
+
 1. Covers all explicit requirements from source input
 2. Addresses edge cases and failure scenarios
 3. Includes dependencies and prerequisites
@@ -113,6 +114,7 @@ Uses an additive binary rubric with mandatory evidence citation (Claim-Evidence-
 5. Specifies what is explicitly out of scope
 
 #### Correctness (5 criteria)
+
 1. No factual errors or hallucinated claims
 2. Technical approaches are feasible with stated constraints
 3. Terminology used consistently and accurately throughout
@@ -120,6 +122,7 @@ Uses an additive binary rubric with mandatory evidence citation (Claim-Evidence-
 5. Claims supported by evidence or rationale within the document
 
 #### Structure (5 criteria)
+
 1. Logical section ordering (prerequisites before dependents)
 2. Consistent hierarchy depth (no orphaned subsections)
 3. Clear separation of concerns between sections
@@ -127,6 +130,7 @@ Uses an additive binary rubric with mandatory evidence citation (Claim-Evidence-
 5. Follows conventions of the artifact type
 
 #### Clarity (5 criteria)
+
 1. Unambiguous language (no "should consider", "might", "as appropriate")
 2. Concrete rather than abstract (specific actions, not general principles)
 3. Each section has a clear purpose statement or can be summarized in one sentence
@@ -134,6 +138,7 @@ Uses an additive binary rubric with mandatory evidence citation (Claim-Evidence-
 5. Actionable next steps or decision points clearly identified
 
 #### Risk Coverage (5 criteria)
+
 1. Identifies at least 3 risks with probability and impact assessment
 2. Provides mitigation strategy for each identified risk
 3. Addresses failure modes and recovery procedures
@@ -141,6 +146,7 @@ Uses an additive binary rubric with mandatory evidence citation (Claim-Evidence-
 5. Includes monitoring or validation mechanism for risk detection
 
 #### Invariant & Edge Case Coverage (5 criteria)
+
 1. Addresses boundary conditions for collections (empty, single-element, maximum size)
 2. Handles state variable interactions across component boundaries
 3. Identifies guard condition gaps (missing validation, unguarded type assumptions)
@@ -161,6 +167,7 @@ VERDICT:  MET (1 point) | NOT MET (0 points)
 ```
 
 **Rules**:
+
 - No partial credit: Each criterion is 1 point (met) or 0 points (not met)
 - If the evaluator cannot cite specific evidence for a MET verdict, the criterion defaults to NOT MET
 - This prevents hallucinated quality assessments
@@ -203,6 +210,7 @@ The qualitative evaluation runs twice per variant:
 - **Pass 2**: Variants evaluated in reverse order (C, B, A, ...)
 
 Per criterion, per variant:
+
 - **Both passes agree** → Use the agreed verdict
 - **Passes disagree** → Criterion is re-evaluated with explicit comparison prompt citing both passes' evidence; the re-evaluation verdict is final
 

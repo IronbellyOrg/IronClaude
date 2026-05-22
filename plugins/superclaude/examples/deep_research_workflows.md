@@ -3,14 +3,17 @@
 ## Example 1: Planning-Only Strategy
 
 ### Scenario
+
 Clear research question: "Latest TensorFlow 3.0 features"
 
 ### Execution
+
 ```bash
 /sc:research "Latest TensorFlow 3.0 features" --strategy planning-only --depth standard
 ```
 
 ### Workflow
+
 ```yaml
 1. Planning (Immediate):
    - Decompose: Official docs, changelog, tutorials
@@ -30,14 +33,17 @@ Clear research question: "Latest TensorFlow 3.0 features"
 ## Example 2: Intent-to-Planning Strategy
 
 ### Scenario
+
 Ambiguous request: "AI safety"
 
 ### Execution
+
 ```bash
 /sc:research "AI safety" --strategy intent-planning --depth deep
 ```
 
 ### Workflow
+
 ```yaml
 1. Intent Clarification:
    Questions:
@@ -68,14 +74,17 @@ Ambiguous request: "AI safety"
 ## Example 3: Unified Intent-Planning with Replanning
 
 ### Scenario
+
 Complex research: "Build AI startup competitive analysis"
 
 ### Execution
+
 ```bash
 /sc:research "Build AI startup competitive analysis" --strategy unified --hops 5
 ```
 
 ### Workflow
+
 ```yaml
 1. Initial Plan Presentation:
    Proposed Research Areas:
@@ -111,14 +120,17 @@ Complex research: "Build AI startup competitive analysis"
 ## Example 4: Case-Based Research with Learning
 
 ### Scenario
+
 Similar to previous research: "Rust async runtime comparison"
 
 ### Execution
+
 ```bash
 /sc:research "Rust async runtime comparison" --memory enabled
 ```
 
 ### Workflow
+
 ```yaml
 1. Case Retrieval:
    Found Similar Case:
@@ -149,14 +161,17 @@ Similar to previous research: "Rust async runtime comparison"
 ## Example 5: Self-Reflective Refinement Loop
 
 ### Scenario
+
 Evolving research: "Quantum computing for optimization"
 
 ### Execution
+
 ```bash
 /sc:research "Quantum computing for optimization" --confidence 0.8 --depth exhaustive
 ```
 
 ### Workflow
+
 ```yaml
 1. Initial Research Phase:
    - Academic papers collected
@@ -188,14 +203,17 @@ Evolving research: "Quantum computing for optimization"
 ## Example 6: Technical Documentation Research with Playwright
 
 ### Scenario
+
 Research the latest Next.js 14 App Router features
 
 ### Execution
+
 ```bash
 /sc:research "Next.js 14 App Router complete guide" --depth deep --scrape selective --screenshots
 ```
 
 ### Workflow
+
 ```yaml
 1. Tavily Search:
    - Find official docs, tutorials, blog posts
@@ -225,14 +243,17 @@ Research the latest Next.js 14 App Router features
 ## Example 7: Competitive Intelligence with Visual Documentation
 
 ### Scenario
+
 Analyze competitor pricing and features
 
 ### Execution
+
 ```bash
 /sc:research "AI writing assistant tools pricing features 2024" --scrape all --screenshots --interactive
 ```
 
 ### Workflow
+
 ```yaml
 1. Market Discovery:
    - Tavily finds: Jasper, Copy.ai, Writesonic, etc.
@@ -263,14 +284,17 @@ Analyze competitor pricing and features
 ## Example 8: Academic Research with Authentication
 
 ### Scenario
+
 Research latest machine learning papers
 
 ### Execution
+
 ```bash
 /sc:research "transformer architecture improvements 2024" --depth exhaustive --auth --scrape auto
 ```
 
 ### Workflow
+
 ```yaml
 1. Academic Search:
    - Tavily finds papers on arXiv, IEEE, ACM
@@ -301,14 +325,17 @@ Research latest machine learning papers
 ## Example 9: Real-time Market Data Research
 
 ### Scenario
+
 Gather current cryptocurrency market analysis
 
 ### Execution
+
 ```bash
 /sc:research "cryptocurrency market analysis BTC ETH 2024" --scrape all --interactive --screenshots
 ```
 
 ### Workflow
+
 ```yaml
 1. Market Discovery:
    - Find: CoinMarketCap, CoinGecko, TradingView
@@ -340,14 +367,17 @@ Gather current cryptocurrency market analysis
 ## Example 10: Multi-Domain Research with Parallel Execution
 
 ### Scenario
+
 Comprehensive analysis of "AI in healthcare 2024"
 
 ### Execution
+
 ```bash
 /sc:research "AI in healthcare applications 2024" --depth exhaustive --hops 5 --parallel
 ```
 
 ### Workflow
+
 ```yaml
 1. Domain Decomposition:
    Parallel Searches:
@@ -387,6 +417,7 @@ Comprehensive analysis of "AI in healthcare 2024"
 ## Advanced Workflow Patterns
 
 ### Pattern 1: Iterative Deepening
+
 ```yaml
 Round_1:
   - Broad search for landscape
@@ -406,6 +437,7 @@ Round_4:
 ```
 
 ### Pattern 2: Source Triangulation
+
 ```yaml
 Primary_Sources:
   - Official documentation
@@ -426,6 +458,7 @@ Synthesis:
 ```
 
 ### Pattern 3: Temporal Analysis
+
 ```yaml
 Historical_Context:
   - Past developments
@@ -448,6 +481,7 @@ Synthesis:
 ## Performance Optimization Tips
 
 ### Query Optimization
+
 1. Start with specific terms
 2. Use domain filters early
 3. Batch similar searches
@@ -455,6 +489,7 @@ Synthesis:
 5. Reuse successful patterns
 
 ### Extraction Efficiency
+
 1. Assess complexity first
 2. Use appropriate tool per source
 3. Parallelize when possible
@@ -462,6 +497,7 @@ Synthesis:
 5. Handle errors gracefully
 
 ### Synthesis Strategy
+
 1. Organize findings early
 2. Identify patterns quickly
 3. Resolve conflicts systematically
@@ -471,24 +507,28 @@ Synthesis:
 ## Quality Validation Checklist
 
 ### Planning Phase
+
 - [ ] Clear objectives defined
 - [ ] Appropriate strategy selected
 - [ ] Resources estimated correctly
 - [ ] Success criteria established
 
 ### Execution Phase
+
 - [ ] All planned searches completed
 - [ ] Extraction methods appropriate
 - [ ] Multi-hop chains logical
 - [ ] Confidence scores calculated
 
 ### Synthesis Phase
+
 - [ ] All findings integrated
 - [ ] Contradictions resolved
 - [ ] Evidence chains complete
 - [ ] Narrative coherent
 
 ### Delivery Phase
+
 - [ ] Format appropriate for audience
 - [ ] Citations complete and accurate
 - [ ] Visual evidence included

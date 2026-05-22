@@ -315,20 +315,21 @@ class TestRealHomeAsScratchRoot:
                 f"{leaked_prefix!r} prefix are accepted as test leaks."
             )
 
-    def test_per_eval_home_is_empty_when_setup_refuses(
+    def test_per_eval_home_is_not_created_when_setup_refuses(
         self,
         real_claude_dir: Path,
         cleanup_leaked_eval_homes: None,  # noqa: ARG002 (fixture side effect)
     ) -> None:
-        """The guard fires BEFORE the hook adapter (T02.14) writes
-        anything under the per-eval HOME. When ``setup()`` refuses on
-        the real ``~/.claude/`` case, the leaked per-eval HOME MUST be
-        empty (no nested files, no nested directories, no symlinks).
+        """H5b: the allowlist pre-check fires BEFORE ``mkdtemp`` runs, so
+        no per-eval HOME is ever created under ``real_claude_dir``.
 
-        This is the second half of NFR-SEC3's "refusal-before-side-
-        effects" guarantee: the first half (real ``~/.claude/`` direct
-        children) is asserted by the snapshot test above; this half
-        asserts the per-eval HOME itself.
+        Pre-H5b this test pinned "exactly one empty leaked HOME on disk"
+        (the partial-HOME preservation contract — mkdtemp ran before the
+        post-mkdtemp guard rejected). Post-H5b is strictly stronger: the
+        allowlist pre-check refuses the non-allowlisted scratch root
+        BEFORE mkdtemp, so ZERO leaked HOMEs exist. This is the OPS-002
+        / NFR-SEC2 ideal — "no filesystem write before allowlist
+        validation" — applied to the real ``~/.claude/`` attack matrix.
         """
 
         iso = HomeIsolation(
@@ -340,30 +341,19 @@ class TestRealHomeAsScratchRoot:
         with pytest.raises(HomeContainmentViolation):
             iso.setup(config=EvalConfig())
 
-        # Find the leaked per-eval HOME (mkdtemp prefix + suffix).
+        # H5b: NO per-eval HOME is created — pre-check blocked mkdtemp.
         leaked_prefix = f"{_EVAL_ID}-"
         leaks = [
             child
             for child in real_claude_dir.iterdir()
             if child.name.startswith(leaked_prefix)
         ]
-        # There MUST be exactly one leak: a single mkdtemp ran before
-        # the guard rejected. Zero would mean the implementation
-        # silently dropped the mkdtemp (regression in the partial-HOME
-        # preservation contract); >1 would mean the test fixture was
-        # not isolated.
-        assert len(leaks) == 1, (
-            f"Expected exactly one leaked per-eval HOME under {real_claude_dir}, "
+        assert leaks == [], (
+            f"Expected ZERO leaked per-eval HOMEs under {real_claude_dir} "
+            f"(H5b allowlist pre-check refuses before mkdtemp), "
             f"found {len(leaks)}: {[str(p) for p in leaks]}"
         )
-        leaked_home = leaks[0]
-        assert leaked_home.is_dir() and not leaked_home.is_symlink()
-        # The per-eval HOME MUST be empty — the guard ran before any
-        # hook adapter or eval-state writer could touch it.
-        assert list(leaked_home.iterdir()) == [], (
-            f"Per-eval HOME {leaked_home} is not empty after refused setup; "
-            f"the guard ran AFTER a child write — NFR-SEC3 invariant violated."
-        )
+        assert not iso.is_set_up
 
     def test_setup_refuses_real_dot_claude_with_permissive_config_does_not_help(
         self,

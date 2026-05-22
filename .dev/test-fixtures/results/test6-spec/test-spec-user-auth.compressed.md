@@ -86,6 +86,7 @@ Client                    AuthService              TokenManager           Databa
 **Description**: The system shall authenticate users via email and password, returning a valid JWT access token and a refresh token upon successful credential verification.
 
 **Acceptance Criteria**:
+
 - [ ] Given valid email and password, the system shall return a 200 response with access_token (15min TTL) and refresh_token (7d TTL)
 - [ ] Given invalid credentials, the system shall return a 401 response with error message and not reveal whether email or password was incorrect
 - [ ] Given a locked account, the system shall return a 403 response indicating account suspension
@@ -98,6 +99,7 @@ Client                    AuthService              TokenManager           Databa
 **Description**: The system shall register new users with input validation, creating a user record with a securely hashed password and returning confirmation of successful registration.
 
 **Acceptance Criteria**:
+
 - [ ] Given valid registration data (email, password, display name), the system shall create a user record and return 201 with user profile
 - [ ] Given an already-registered email, the system shall return a 409 conflict response
 - [ ] The system shall enforce password policy: minimum 8 characters, at least one uppercase, one lowercase, one digit
@@ -110,6 +112,7 @@ Client                    AuthService              TokenManager           Databa
 **Description**: The system shall issue and refresh JWT tokens, allowing clients to obtain a new access token using a valid refresh token without re-entering credentials.
 
 **Acceptance Criteria**:
+
 - [ ] Given a valid refresh token, the system shall return a new access_token and rotate the refresh_token
 - [ ] Given an expired refresh token, the system shall return 401 and require re-authentication
 - [ ] Given a previously-rotated (revoked) refresh token, the system shall invalidate all tokens for that user (replay detection)
@@ -122,6 +125,7 @@ Client                    AuthService              TokenManager           Databa
 **Description**: The system shall provide authenticated user profile retrieval, returning the current user's profile data when presented with a valid access token.
 
 **Acceptance Criteria**:
+
 - [ ] Given a valid Bearer access_token, the system shall return the user profile (id, email, display_name, created_at)
 - [ ] Given an expired or invalid token, the system shall return 401
 - [ ] The system shall not return sensitive fields (password_hash, refresh_token_hash) in the profile response
@@ -133,6 +137,7 @@ Client                    AuthService              TokenManager           Databa
 **Description**: The system shall support a secure password reset flow, allowing users to request a reset link and set a new password using a time-limited token.
 
 **Acceptance Criteria**:
+
 - [ ] Given a registered email, the system shall generate a password reset token (1-hour TTL) and dispatch a reset email
 - [ ] Given a valid reset token, the system shall allow setting a new password and invalidate the reset token
 - [ ] Given an expired or invalid reset token, the system shall return 400 with an appropriate error message
@@ -270,9 +275,11 @@ The authentication service does not expose a CLI interface. All interactions occ
 ## 10. Downstream Inputs
 
 ### For sc:roadmap
+
 The authentication service introduces a single theme ("Secure User Authentication") spanning two milestones: (1) Core Auth Infrastructure (password hashing, JWT signing, token management) and (2) Auth API Endpoints (login, register, refresh, profile, reset). Each milestone maps directly to the implementation order in Section 4.6.
 
 ### For sc:tasklist
+
 Tasks should be generated per functional requirement (FR-AUTH.1 through FR-AUTH.5), with sub-tasks for unit tests, integration tests, and documentation. The `PasswordHasher` and `JwtService` tasks have no dependencies and can be parallelized. `AuthService` tasks depend on both utility modules completing first.
 
 ## 11. Open Items
@@ -291,7 +298,6 @@ Tasks should be generated per functional requirement (FR-AUTH.1 through FR-AUTH.
 |GAP-3|Token revocation on user deletion not addressed|Medium|Section 3 (FR-AUTH.3)|architect|
 
 The gap analysis identifies three areas for future iteration. GAP-1 (account lockout) is partially addressed by the rate-limiting criterion in FR-AUTH.1 but should be expanded to include progressive lockout. GAP-2 and GAP-3 are deferred to v1.1 as they do not affect core authentication functionality.
-
 
 ## Appendix A: Glossary
 

@@ -71,6 +71,7 @@ Extracted verbatim via frequency count (primer §2.2 — conventions header cand
 All strategies are grounded in the primer. Per primer §5 row 3 and §4.1, **Approach 1 (rule-based textual compression)** is the only approach permitted on specs — Approach 2 (AST) and Approach 3 (LLM rewriting) are explicitly excluded because "the fidelity cost of AST/LLM transforms on normative language is too high" (primer §5 "Compression pipeline composition rules", rule 5).
 
 Every strategy below is therefore a rule-based transform and is mapped to:
+
 - a specific Approach-1 transform from primer §4.1 (numbered 1-10), **or**
 - a specific §2.3 redundancy category.
 
@@ -81,17 +82,21 @@ Every strategy below is therefore a rule-based transform and is mapped to:
 **Target in this file**: 274 blank lines (19.1% of the file). Spot check of the actual file shows almost no runs of 3+ blank lines (author already uses single blanks between paragraphs), so the conservative §4.1 form will save little; the tightened "all inter-block blank runs → 1" variant is needed to capture meaningful savings.
 
 **Before** (lines 22-24, 38-40):
+
 ```
 ```
+
 (line 21)
 
 ## 1. Problem Statement
 
 The sprint TUI...
+
 ```
 
 **After** (same region with single-blank normalization — identical rendering):
 ```
+
 ```
 (line 21)
 ## 1. Problem Statement
@@ -129,6 +134,7 @@ Wait — removing the blank before a heading can affect some strict CommonMark p
 **Target**: 1 HR at line 1395 (between §12 Brainstorm Gap Analysis and "## Appendix A"). It is not adjacent to YAML front matter. It is purely visual.
 
 **Before**:
+
 ```
 
 ---
@@ -137,6 +143,7 @@ Wait — removing the blank before a heading can affect some strict CommonMark p
 ```
 
 **After**:
+
 ```
 
 ## Appendix A: Glossary
@@ -161,11 +168,13 @@ Wait — removing the blank before a heading can affect some strict CommonMark p
 **Target**: 184 table rows across ~12 tables. Spot check of §1.2 Evidence table (lines 31-38), §8.1 Unit Tests table (~70 rows, lines 1256-1326), and Appendix C Integration Points (lines 1425-1436).
 
 **Before** (line 1258, representative, showing inter-cell padding):
+
 ```
 | 1  | `test_phase_accumulator_init_defaults`                            | `tests/sprint/test_phase_accumulator.py` | PhaseAccumulator fields initialize to correct defaults |
 ```
 
 **After** (collapsed padding — visually identical for an LLM; humans lose column alignment):
+
 ```
 |1|`test_phase_accumulator_init_defaults`|`tests/sprint/test_phase_accumulator.py`|PhaseAccumulator fields initialize to correct defaults|
 ```
@@ -175,6 +184,7 @@ Wait — removing the blank before a heading can affect some strict CommonMark p
 **Lossless?** Yes for an LLM consumer (primer §2.1 table explicitly lists this as ✅). CommonMark parses `|a|b|` and `| a | b |` identically.
 
 **Risks on this file**:
+
 1. **Human audit friction** — Specs are frequently re-read by humans (primer §5 "Human-audit frequency"); tight pipe tables are harder to scan. This is a fidelity-adjacent concern, not a correctness concern.
 2. **One table contains backticked code identifiers** containing pipes? Spot-check confirms **none** — all backticks in tables wrap single identifiers (`test_phase_accumulator_init_defaults`, `tests/sprint/test_phase_accumulator.py`), none contain `|`. Safe.
 3. **Risk Assessment table row lengths** (§7, lines 1243-1250) are ~400+ chars on one logical row; removing pad saves ~30 bytes but makes the row unreadable in a plain editor. Acceptable for compressed output; the human-readable form lives in git.
@@ -218,6 +228,7 @@ Wait — removing the blank before a heading can affect some strict CommonMark p
 | `**Path A adaptation**:` | `[PA]` | 8 | ~18 chars |
 
 **Conventions header** (~40-60 tokens, per primer §2.2):
+
 ```
 <!-- cmd-dsl v1 (labels only): [AC]=Acceptance Criteria [VC]=Verification contract
 [CB]=Commit boundary [RB]=Rollback plan [Dep]=Dependencies [CC]=Current code
@@ -226,6 +237,7 @@ and normative language are verbatim. -->
 ```
 
 **Before** (lines 206-216, verbatim):
+
 ```markdown
 **Acceptance Criteria**:
 - [ ] `PhaseAccumulator` dataclass exists in `models.py` after `MonitorState` (after line 544)
@@ -235,6 +247,7 @@ and normative language are verbatim. -->
 ```
 
 **After** (identical semantics with header present):
+
 ```markdown
 [AC]
 - [ ] `PhaseAccumulator` dataclass exists in `models.py` after `MonitorState` (after line 544)
@@ -244,6 +257,7 @@ and normative language are verbatim. -->
 ```
 
 **Estimated savings**:
+
 - Labels: (17+17+17+18+18+17+8) × avg ~16 chars = 112 × 16 ≈ **1.79 KB** gross
 - Header cost: ~220 bytes (one-time)
 - **Net savings**: ~1.57 KB (**~1.9%**)
@@ -253,6 +267,7 @@ and normative language are verbatim. -->
 **Amortization check** (primer §5 composition rule 7): The conventions header costs ~220 bytes; each label save is ~16 bytes. Break-even: **14 label uses**. This file has **112 uses** → amortizes 8× over. Safe even under INV-3 uncertainty (the document is read ≥1 time for the LLM to parse it, and 112 > 5 internal repetitions so the header "pays for itself" within a single read).
 
 **Risks on this file**:
+
 1. **Fidelity creep**: if the set is ever widened to include identifiers (`PhaseAccumulator`, `MonitorState`), the strategy degrades into lossy rephrasing. Must be enforced by a linter on the abbreviation table.
 2. **Downstream consumer gap (INV-3)**: if some consumer of the spec does not strip/expand the header, it sees raw `[AC]` tags. Acceptable — `[AC]` is still readable by any LLM as "AC section marker"; the loss is human-audit friction, not semantic.
 3. **Bold-markdown loss**: removing `**…**` strips bold styling. For a spec that is read by LLMs, this is irrelevant. For human review, this is a real downgrade. Mitigation: keep the label bolded in the output (`**[AC]**:`), giving up ~4 chars per hit. Recommended for this file to preserve audit ergonomics.

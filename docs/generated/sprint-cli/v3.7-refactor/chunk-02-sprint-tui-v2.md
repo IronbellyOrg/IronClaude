@@ -75,11 +75,13 @@ The v3.7 TUI v2 spec defines 10 features (F1-F10) that depend on NDJSON parsing 
 - **Data source difference**: Path B populates `PhaseResult` fields from `OutputMonitor` state (turns counted from NDJSON, etc.). Path A must aggregate from per-task results.
 - **Recommendation**: WORKS FOR BOTH (with data wiring)
 - **Adaptation needed**: After `execute_phase_tasks()` returns, compute:
+
   ```python
   phase_result.turns = sum(r.turns_consumed for r in task_results)
   phase_result.output_bytes = sum(r.output_bytes for r in task_results)
   phase_result.files_changed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
   ```
+
   `tokens_in`/`tokens_out` require NDJSON parsing (not available from Path A's current data model). Either: (a) add token counting to `_run_task_subprocess` by scanning the output file post-completion, or (b) defer token display for Path A phases. Note: `turns_consumed` is currently 0 (Deficiency 2), so the TurnLedger fix is a prerequisite.
 
 ### F7: Sprint Name in Title

@@ -20,6 +20,7 @@ Two categories of broken paths found across active skill files (excluding `.dev/
 ## Category 1: `docs/docs-product/templates/` (does not exist)
 
 ### PRD Skill — src/superclaude/skills/prd/SKILL.md (10 occurrences)
+
 | Line | Context |
 |------|---------|
 | 12 | `docs/docs-product/templates/prd_template.md` — description |
@@ -34,6 +35,7 @@ Two categories of broken paths found across active skill files (excluding `.dev/
 | 1135 | Template section headers validation |
 
 ### PRD Skill — src/superclaude/skills/prd/refs/agent-prompts.md (4 occurrences)
+
 | Line | Context |
 |------|---------|
 | 150 | Template reference |
@@ -42,33 +44,39 @@ Two categories of broken paths found across active skill files (excluding `.dev/
 | 362 | Template reference |
 
 ### PRD Skill — src/superclaude/skills/prd/refs/synthesis-mapping.md (1 occurrence)
+
 | Line | Context |
 |------|---------|
 | 12 | Final PRD template reference |
 
 ### PRD Skill — src/superclaude/skills/prd/refs/validation-checklists.md (1 occurrence)
+
 | Line | Context |
 |------|---------|
 | 15 | Template section headers match validation |
 
 ### PRD Skill — src/superclaude/examples/prd_template.md (1 occurrence)
+
 | Line | Context |
 |------|---------|
 | 1318 | `template_schema_doc` self-reference |
 
 ### TDD Skill — src/superclaude/skills/tdd/SKILL.md (2 occurrences)
+
 | Line | Context |
 |------|---------|
 | 12 | `docs/docs-product/templates/tdd_template.md` — description |
 | 125 | Template schema table row |
 
 ### TDD Skill — src/superclaude/skills/tdd/refs/build-request-template.md (2 occurrences)
+
 | Line | Context |
 |------|---------|
 | 80 | "Read the TDD template at..." |
 | 114 | BUILD_REQUEST template reference |
 
 ### TDD Skill — src/superclaude/skills/tdd/refs/agent-prompts.md (4 occurrences)
+
 | Line | Context |
 |------|---------|
 | 150 | Template reference |
@@ -77,21 +85,25 @@ Two categories of broken paths found across active skill files (excluding `.dev/
 | 361 | Template reference |
 
 ### TDD Skill — src/superclaude/skills/tdd/refs/synthesis-mapping.md (1 occurrence)
+
 | Line | Context |
 |------|---------|
 | 5 | Final TDD template reference |
 
 ### TDD Skill — src/superclaude/skills/tdd/refs/validation-checklists.md (1 occurrence)
+
 | Line | Context |
 |------|---------|
 | 9 | Template section headers match validation |
 
 ### TDD Skill — src/superclaude/skills/tdd/refs/operational-guidance.md (1 occurrence)
+
 | Line | Context |
 |------|---------|
 | 82 | Template schema table row |
 
 ### Release Guides (docs/guides/) — informational, non-runtime (2 occurrences)
+
 | File | Line | Context |
 |------|------|---------|
 | docs/guides/prd-skill-release-guide.md | 73 | Template conformance description |
@@ -103,18 +115,21 @@ Two categories of broken paths found across active skill files (excluding `.dev/
 ## Category 2: `.gfdoc/templates/` (does not exist)
 
 ### PRD Skill — src/superclaude/skills/prd/SKILL.md (2 occurrences)
+
 | Line | Context |
 |------|---------|
 | 520 | MDTM complex task template reference |
 | 521 | MDTM generic task template reference |
 
 ### TDD Skill — src/superclaude/skills/tdd/refs/build-request-template.md (2 occurrences)
+
 | Line | Context |
 |------|---------|
 | 133 | MDTM complex task template reference |
 | 134 | MDTM generic task template reference |
 
 ### Tech-Research Skill — .claude/skills/tech-research/SKILL.md (2 occurrences)
+
 | Line | Context |
 |------|---------|
 | 438 | MDTM complex task template reference |
@@ -142,6 +157,7 @@ These are exact mirrors of the src/ files above. They do NOT need separate fixes
 ## Files explicitly EXCLUDED from fix scope
 
 These are historical/artifact files that reference the broken paths but are not runtime-affecting:
+
 - `docs/generated/qa-tdd-skill-refactor.md` — QA report (documents the issue)
 - `.dev/releases/**` — release pipeline artifacts
 - `.dev/tasks/**` — research notes and task files

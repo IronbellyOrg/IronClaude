@@ -119,12 +119,14 @@ SuperClaude install
 <td width="40%">
 
 **✅ Advantages:**
+
 - Isolated environment
 - No dependency conflicts
 - Clean uninstall
 - Automatic PATH setup
 
 **📍 Best for:**
+
 - Linux/macOS users
 - Clean system installs
 - Multiple Python projects
@@ -154,11 +156,13 @@ SuperClaude install
 <td width="40%">
 
 **✅ Advantages:**
+
 - Works everywhere
 - Familiar to Python users
 - Direct installation
 
 **📍 Best for:**
+
 - Windows users
 - Virtual environments
 - Quick setup
@@ -185,11 +189,13 @@ superclaude install
 <td width="40%">
 
 **✅ Advantages:**
+
 - Cross-platform
 - NPM ecosystem
 - JavaScript familiar
 
 **📍 Best for:**
+
 - Node.js developers
 - NPM users
 - Cross-platform needs
@@ -223,12 +229,14 @@ SuperClaude install --dry-run
 <td width="40%">
 
 **✅ Advantages:**
+
 - Latest features
 - Contribute to project
 - Full source access
 - Fast installation (uv)
 
 **📍 Best for:**
+
 - Contributors
 - Custom modifications
 - Testing new features
@@ -433,18 +441,21 @@ pipx install SuperClaude
 <summary><b>❌ Missing Python or pip</b></summary>
 
 **Linux (Ubuntu/Debian):**
+
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip python3-venv
 ```
 
 **macOS:**
+
 ```bash
 # Install Homebrew first if needed
 brew install python3
 ```
 
 **Windows:**
+
 - Download from [python.org](https://python.org)
 - Check "Add Python to PATH" during installation
 - Restart terminal after installation
@@ -469,6 +480,7 @@ brew install python3
 <td valign="top">
 
 **First Week:**
+
 - [Quick Start Guide](quick-start.md)
 - [Commands Reference](../user-guide/commands.md)
 - Try `/sc:brainstorm`
@@ -477,6 +489,7 @@ brew install python3
 <td valign="top">
 
 **Week 2-3:**
+
 - [Behavioral Modes](../user-guide/modes.md)
 - [Agents Guide](../user-guide/agents.md)
 - [Examples Cookbook](../reference/examples-cookbook.md)
@@ -485,6 +498,7 @@ brew install python3
 <td valign="top">
 
 **Advanced:**
+
 - [MCP Servers](../user-guide/mcp-servers.md)
 - [Context Freshness Hooks](../user-guide/freshness-hooks.md) (v4.3+)
 - [Technical Architecture](../developer-guide/technical-architecture.md)

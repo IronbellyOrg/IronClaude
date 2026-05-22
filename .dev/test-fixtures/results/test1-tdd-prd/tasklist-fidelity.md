@@ -13,6 +13,7 @@ tasklist_ready: false
 ## Deviation Report
 
 ### DEV-001
+
 - **ID**: DEV-001
 - **Severity**: HIGH
 - **Deviation**: No tasklist artifact exists in the output directory. The roadmap pipeline produced extraction, diff-analysis, debate-transcript, base-selection, two roadmap variants, a merged roadmap, anti-instinct-audit, and wiring-verification — but no tasklist was generated. The entire roadmap — 4 phases (Phase 0 through Phase 3), 5 functional requirements (FR-AUTH-001 through FR-AUTH-005), 9 non-functional requirements, 4 compliance mandates (NFR-COMP-001 through NFR-COMP-004), 7 risks (R-001 through R-007), 10 success criteria, 5 integration points, 6 rate-limiting rules, 2 feature flags (AUTH_NEW_LOGIN, AUTH_TOKEN_REFRESH), and explicit rollback criteria — has zero corresponding tasks downstream.

@@ -27,6 +27,7 @@
 ### Summary of Part A
 
 Of 12 cited sources:
+
 - **2** are high-quality, directly applicable benchmarks (webmaster-ramos for Claude accuracy, arXiv 2603.03306 for TOON vs JSON)
 - **3** are vendor/promotional sources (TOON official benchmarks, fromjsontotoon.com, Anthropic docs)
 - **3** are mismatched by tokenizer, task, or model (Medium tiktoken, arXiv 2411.10541 on GPT-3.5, CuriouslyChase micro-example)
@@ -43,6 +44,7 @@ The following sources were available at the time of writing (January-April 2026)
 ### B1. arXiv 2601.12014 -- "Are LLMs Ready for TOON?"
 
 **Why it matters**: This is the most direct counter-benchmark to the report's TOON claims. Key findings:
+
 - TOON structural correctness (GCS) is **38.9% lower than JSON, 30.9% lower than XML, and 42.2% lower than YAML**.
 - TOON achieves token savings of 26.4% vs JSON and 49.4% vs XML, but the correctness penalty is substantial.
 - With balanced scoring (gamma=0.5 weighting correctness vs efficiency), **baseline formats still rank higher than TOON overall**.
@@ -59,6 +61,7 @@ The report cites this paper but does not integrate its central finding: **closed
 ### B3. "A Comparison of Data Formats for LLMs: Why Markdown Is King" (Medium, April 2026)
 
 This benchmark tests 11 formats for LLM comprehension and finds:
+
 - Markdown-KV is ~16 percentage points better than CSV for comprehension.
 - XML/HTML use 40-45% more tokens than Markdown for equivalent data.
 - JSON is described as a weak default for text-heavy content.
@@ -117,6 +120,7 @@ The Haiku concern becomes dispositive in these scenarios:
 ### Fair Treatment Would Be
 
 The report should have:
+
 - Provided an estimated hybrid-format accuracy on Haiku (even if inferred)
 - Acknowledged that the hybrid format has no direct accuracy benchmark
 - Made the Haiku recommendation conditional on actual measurement: "For Haiku pipelines, validate the hybrid format against JSON in your specific deployment before adopting"
@@ -143,9 +147,10 @@ Tracing the claim to its sources:
 1. TOON achieves -50% to -62% on flat tables (vendor benchmark).
 2. The roadmap file is ~62% prose + ~38% structured data (report's own characterization).
 3. The hybrid format uses TOON for the structured portions only.
-4. Therefore, savings = (0.38 * -56%) + (0.62 * -10% to -15% for XML scaffolding) = approximately -25% to -31%.
+4. Therefore, savings = (0.38 *-56%) + (0.62* -10% to -15% for XML scaffolding) = approximately -25% to -31%.
 
 **The math does not work out to -35% to -50%.** Even with generous assumptions:
+
 - If TOON saves 60% on the 38% that is tabular: 0.38 * 0.60 = 22.8%
 - If XML scaffolding + Markdown compaction saves 15% on the 62% that is prose: 0.62 * 0.15 = 9.3%
 - Total: ~32.1%
@@ -163,11 +168,13 @@ This only reaches -35% with optimistic assumptions on every parameter. It reache
 ### E1. The Report "Sounds Too Clean" in Its Recommendation
 
 The hybrid recommendation combines three formats and claims the best properties of each:
+
 - XML's trained priors (from Anthropic docs)
 - TOON's tabular compression (from vendor benchmarks)
 - Markdown's prose handling (from common knowledge)
 
 This is a "best of all worlds" argument. Real engineering tradeoffs rarely resolve this cleanly. The report does not adequately address:
+
 - The cognitive load of format-switching within a single document (XML -> TOON -> Markdown -> XML -> TOON)
 - The overhead of teaching agents three format conventions simultaneously
 - The fragility of a format that requires all three parsers to be correct
@@ -202,6 +209,7 @@ The specificity of "1,600-2,300 tokens" creates a false precision. These are est
 ### E3. Where Hedges Are Missing
 
 The report hedges individual format analyses well (each format gets a "Failure modes" row) but drops hedging at the recommendation level:
+
 - No "limitations of this analysis" section
 - No "what would change our recommendation" section
 - No "confidence level" for the -35% to -50% claim
@@ -211,6 +219,7 @@ The report hedges individual format analyses well (each format gets a "Failure m
 ### E4. Structural Bias in Format Ordering
 
 The report presents formats in an order that builds toward the hybrid recommendation:
+
 1. Compact Markdown (modest savings, familiar)
 2. YAML (worse on tokens)
 3. JSON (best raw savings but terrible prose)
@@ -252,6 +261,7 @@ The report's strongest unbiased finding is that XML is Claude's recommended stru
 ### When the Source Report's Recommendation Is Correct
 
 The source report's "Hybrid XML + TOON + Markdown" recommendation is appropriate when:
+
 - All consuming agents are Sonnet 4.6+ or Opus 4.6+ (no Haiku)
 - The team has capacity to validate TOON parsing correctness in their specific pipeline
 - Token costs are a dominant concern over correctness risk

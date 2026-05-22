@@ -1,0 +1,390 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# model_capability_matrix — nightly drift watch suite.
+#
+# PURPOSE: Compare LLM capability across 8 categories by spawning multiple
+# models on the same seeded source task and scoring the variants through
+# the /sc:adversarial standardized hybrid quant+qual scoring model
+# (50% quantitative, 50% qualitative; see
+# .claude/skills/sc-adversarial-protocol/refs/scoring-protocol.md).
+#
+# Each eval seeds a tiny source artifact into the per-eval HOME, then
+# invokes `/sc:adversarial --source <seeded_path> --generate <type>
+# --agents opus,sonnet,haiku --output <dir> --depth standard`. The
+# expectation is that the pipeline produces the 6 canonical artifacts
+# (diff-analysis.md, debate-transcript.md, base-selection.md,
+# refactor-plan.md, merge-log.md, and the merged output), and that
+# base-selection.md contains the `quant_score` keyword (from the
+# Combined Scoring table per scoring-protocol.md §A.3).
+#
+# CADENCE: RECURRING — nightly drift watch. The matrix is meant to be
+# re-run on a schedule so capability deltas between opus / sonnet / haiku
+# (and any aliased gateway models) surface over time. Output artifacts
+# under .dev/eval-workspaces/model_capability_matrix/<date>/ form the
+# longitudinal record; downstream tooling diffs nightly base-selection.md
+# files to detect capability regressions or alias drift (e.g., sonnet
+# alias swapped from glm-5.1 to a weaker model).
+#
+# MODEL ENVIRONMENT (from operator ~/.bashrc):
+#   opus   -> claude-opus-4-7[1m] (frontier reference)
+#   sonnet -> glm-5.1 (cheaper, currently aliased)
+#   haiku  -> gpt-5.5 (cheaper)
+# Additional gateway-resolved models (kimi-k2.5, qwen3-coder-plus,
+# deepseek-reasoner, etc.) can be substituted via --agents at runtime.
+#
+# CATEGORIES (8 evals, MC1..MC8): planning, architecture, code execution,
+# QA/debugging, bug fixing, refactoring, doc writing, test design.
+
+name: model_capability_matrix
+version: "1.0"
+description: "Nightly drift-watch comparing LLM capability across 8 categories via /sc:adversarial standardized hybrid scoring."
+
+defaults:
+  per_eval_timeout_sec: 1800
+  per_eval_memory_mb: 1024
+  capture_tty: true
+  keep_home_on_success: true
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: MC1
+    title: "PLANNING — roadmap generation from tiny spec"
+    category: capability-planning
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/spec.md
+          content: |
+            # Spec: Lightweight URL Shortener Service
+
+            ## Goals
+            - FR-001: Accept long URL via POST /shorten, return short code (6 chars).
+            - FR-002: Redirect GET /<code> to original URL (HTTP 302).
+            - FR-003: Per-user rate limit: 100 shortens/hour.
+            - FR-004: Persist mappings in SQLite (single-node, no replication).
+            - NFR-001: P95 latency < 50ms for redirects.
+            - NFR-002: Zero data loss on graceful shutdown.
+
+            ## Out of Scope
+            - Custom vanity codes
+            - Analytics dashboard
+            - Multi-region deployment
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/spec.md --generate roadmap --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC2
+    title: "ARCHITECTURE — system component design from requirements"
+    category: capability-architecture
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/requirements.md
+          content: |
+            # Requirements: Async Job Queue Component
+
+            ## Functional
+            - FR-001: Enqueue jobs with priority (high/normal/low).
+            - FR-002: Workers pull from queue and execute idempotent handlers.
+            - FR-003: Failed jobs retry with exponential backoff (max 3 retries).
+            - FR-004: Dead-letter queue for permanently failed jobs.
+
+            ## Non-Functional
+            - NFR-001: Throughput >= 1000 jobs/sec at steady state.
+            - NFR-002: At-least-once delivery semantics.
+            - NFR-003: Horizontally scalable workers.
+
+            ## Constraints
+            - Must run on existing Postgres infrastructure (no Redis/Kafka).
+            - Python 3.11+ workers.
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/requirements.md --generate design --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC3
+    title: "CODE_EXECUTION — implement function from signature + tests"
+    category: capability-code-execution
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/task.md
+          content: |
+            # Task: Implement `parse_duration`
+
+            ## Signature
+            ```python
+            def parse_duration(s: str) -> int:
+                """Parse a human duration string into seconds.
+
+                Examples:
+                    "1h30m"   -> 5400
+                    "45s"     -> 45
+                    "2d"      -> 172800
+                    "1h"      -> 3600
+                """
+            ```
+
+            ## Tests (must pass)
+            - parse_duration("1h30m") == 5400
+            - parse_duration("45s") == 45
+            - parse_duration("2d") == 172800
+            - parse_duration("") raises ValueError
+            - parse_duration("abc") raises ValueError
+
+            Supported units: d (days), h (hours), m (minutes), s (seconds).
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/task.md --generate code --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC4
+    title: "QA_DEBUGGING — find bugs in given code snippet"
+    category: capability-qa-debugging
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/snippet.md
+          content: |
+            # Code Review Task: Identify Bugs
+
+            Review the following function and identify ALL bugs, including
+            edge cases, concurrency issues, and logic errors.
+
+            ```python
+            import threading
+
+            _cache = {}
+            _lock = threading.Lock()
+
+            def get_or_compute(key, compute_fn):
+                if key in _cache:
+                    return _cache[key]
+                with _lock:
+                    value = compute_fn()
+                    _cache[key] = value
+                return value
+
+            def average(nums):
+                total = 0
+                for n in nums:
+                    total += n
+                return total / len(nums)
+            ```
+
+            Produce a bug report with severity, location, and reproduction.
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/snippet.md --generate bug-report --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC5
+    title: "BUG_FIXING — produce fix patch for known-broken file"
+    category: capability-bug-fixing
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/broken.md
+          content: |
+            # Bug Fix Task
+
+            ## Symptom
+            `safe_divide(10, 0)` returns `inf` instead of raising
+            `ZeroDivisionError`, and `safe_divide("10", 2)` crashes with
+            TypeError instead of returning 5.0.
+
+            ## Broken Code
+            ```python
+            def safe_divide(a, b):
+                try:
+                    return a / b
+                except Exception:
+                    return float('inf')
+                return None
+            ```
+
+            ## Required Behavior
+            - safe_divide(10, 2)   -> 5.0
+            - safe_divide("10", 2) -> 5.0   (coerce numeric strings)
+            - safe_divide(10, 0)   -> raises ZeroDivisionError
+            - safe_divide("x", 2)  -> raises ValueError
+
+            Produce a fix patch with rationale.
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/broken.md --generate patch --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC6
+    title: "REFACTORING — improve working-but-ugly code"
+    category: capability-refactoring
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/ugly.md
+          content: |
+            # Refactoring Task
+
+            The following code works correctly but is hard to read,
+            duplicative, and resistant to extension. Refactor for clarity,
+            DRY, and testability while preserving behavior.
+
+            ```python
+            def process(orders):
+                r = []
+                for o in orders:
+                    if o['type'] == 'A':
+                        t = o['price'] * o['qty'] * 1.1
+                        r.append({'id': o['id'], 'total': t, 'tax': t - o['price'] * o['qty']})
+                    elif o['type'] == 'B':
+                        t = o['price'] * o['qty'] * 1.05
+                        r.append({'id': o['id'], 'total': t, 'tax': t - o['price'] * o['qty']})
+                    elif o['type'] == 'C':
+                        t = o['price'] * o['qty']
+                        r.append({'id': o['id'], 'total': t, 'tax': 0})
+                return r
+            ```
+
+            Produce refactored code + brief rationale.
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/ugly.md --generate refactor --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC7
+    title: "DOC_WRITING — user-facing docs from tech spec"
+    category: capability-doc-writing
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/tech-spec.md
+          content: |
+            # Tech Spec: Rate Limiter Middleware
+
+            ## API
+            - Class: `RateLimiter(capacity: int, refill_per_sec: float)`
+            - Method: `try_acquire(key: str, tokens: int = 1) -> bool`
+              Returns True if tokens were granted, False if rate-limited.
+            - Method: `reset(key: str) -> None`
+              Clears the bucket for the given key.
+
+            ## Algorithm
+            Token-bucket; refill on read; per-key bucket stored in-memory
+            dict; thread-safe via per-key locks.
+
+            ## Defaults
+            - capacity: 100
+            - refill_per_sec: 10.0
+
+            Write user-facing documentation: overview, installation,
+            quickstart with examples, API reference, and troubleshooting.
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/tech-spec.md --generate docs --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }
+
+  - id: MC8
+    title: "TEST_DESIGN — test cases from function signature"
+    category: capability-test-design
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: source/signature.md
+          content: |
+            # Test Design Task
+
+            Produce a comprehensive pytest test suite (happy path, edge
+            cases, error cases, property-based candidates) for:
+
+            ```python
+            def merge_intervals(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]:
+                """Merge overlapping intervals.
+
+                Input is a list of (start, end) tuples where start <= end.
+                Output is the minimal list of non-overlapping intervals
+                covering the same range, sorted by start.
+
+                Examples:
+                    [(1, 3), (2, 6), (8, 10)] -> [(1, 6), (8, 10)]
+                    [(1, 4), (4, 5)]           -> [(1, 5)]
+                    []                         -> []
+                """
+            ```
+
+            Cover: empty input, single interval, fully nested, touching
+            boundaries, reverse-order input, large input, negative values,
+            invalid input (start > end).
+    no_pty: skip
+    inputs:
+      - prompt: "/sc:adversarial --source source/signature.md --generate tests --agents opus,sonnet,haiku --output output/ --depth standard"
+    expects:
+      - file: { path: output/diff-analysis.md,     exists: true }
+      - file: { path: output/debate-transcript.md, exists: true }
+      - file: { path: output/base-selection.md,    exists: true, contains: "quant_score" }
+      - file: { path: output/refactor-plan.md,     exists: true }
+      - file: { path: output/merge-log.md,         exists: true }
+      - exit_code: { equals: 0 }

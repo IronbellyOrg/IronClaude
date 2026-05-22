@@ -9,6 +9,7 @@ author: "Claude Opus 4.6"
 # PRD Skill — Release Guide
 
 This guide covers the `/prd` skill for Product Requirements Document generation, including:
+
 - what the skill does and how it works,
 - when to use it,
 - how to invoke it,
@@ -27,6 +28,7 @@ This guide covers the `/prd` skill for Product Requirements Document generation,
 ## 1) Release Summary (What is included)
 
 ### Core capability
+
 The `/prd` skill creates comprehensive Product Requirements Documents by orchestrating a multi-agent investigation, synthesis, and assembly pipeline. It uses Rigorflow's MDTM task file system for persistent progress tracking — every phase and step is encoded as checklist items in a task file that survives context compression and session restarts.
 
 ### Migration notes (refactored decomposition)
@@ -39,13 +41,16 @@ This release refactors the PRD skill from a monolithic SKILL.md into a decompose
 - **What was removed**: Duplicate content that now lives in `refs/` files. The SKILL.md still contains the full behavioral protocol; only reference material was extracted.
 
 ### Architecture overview
+
 The PRD skill operates in two stages:
+
 - **Stage A** — Scope Discovery & Task File Creation: Maps the product space, plans research assignments, and spawns `rf-task-builder` to create an MDTM task file encoding all phases.
 - **Stage B** — Task File Execution: Delegates to the `/task` skill, which runs the F1 execution loop over the task file's checklist items, spawning parallel subagents as specified.
 
 The pipeline uses **parallel multi-agent investigation** to achieve deep coverage: multiple specialized agents (Feature Analyst, Doc Analyst, Integration Mapper, UX Investigator, Architecture Analyst) explore the codebase simultaneously, writing incremental findings to disk. QA gates at three critical points prevent quality drift.
 
 ### Skill file structure
+
 ```
 src/superclaude/skills/prd/
 ├── SKILL.md                        # Full skill definition and behavioral protocol
@@ -65,6 +70,7 @@ src/superclaude/skills/prd/
 ```
 
 ### Key design decisions
+
 - **MDTM task file as execution contract**: The task file on disk is the source of truth, not conversation context. Progress survives context compression and session restarts.
 - **Incremental file writing**: All agents follow the Incremental File Writing Protocol — create file immediately, append findings as discovered. Never accumulate in context and one-shot.
 - **Documentation staleness protocol**: Every doc-sourced claim is tagged `[CODE-VERIFIED]`, `[CODE-CONTRADICTED]`, or `[UNVERIFIED]`. Only code-verified claims appear as current product capabilities.
@@ -80,9 +86,11 @@ src/superclaude/skills/prd/
 ### `/prd`
 
 #### What it does
+
 Performs scope discovery on a product area, creates an MDTM task file encoding the full investigation/synthesis/assembly pipeline, then delegates execution to `/task` for multi-agent parallel execution with QA gates.
 
 #### Use when
+
 - You need a comprehensive PRD for a product, feature, or platform capability.
 - You want evidence-based documentation grounded in actual codebase state.
 - You want multi-agent parallel investigation for deep coverage.
@@ -90,6 +98,7 @@ Performs scope discovery on a product area, creates an MDTM task file encoding t
 - You want to feed the PRD into downstream `/tdd` or `/sc:roadmap` workflows.
 
 #### Syntax
+
 ```
 /prd [description of what to document]
 ```
@@ -201,6 +210,7 @@ Match the tier to product scope. **Default to Standard** unless the product is c
 | **Heavyweight** | Platform-level PRD, 20+ user stories, multiple product areas, 20+ files | 6-10+ | 2-4 | 1,500-2,500 |
 
 ### Tier selection rules
+
 - If in doubt, pick **Standard**
 - If the user says "detailed", "comprehensive", "thorough" — always **Heavyweight**
 - Only use **Lightweight** for genuinely narrow products (<5 files, single concern)
@@ -224,6 +234,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Agents**: rf-analyst (completeness-verification) + rf-qa (research-gate), run in parallel.
 
 **rf-analyst checklist (8 items)**:
+
 1. Coverage audit — every key product area covered by at least one research file
 2. Evidence quality — claims cite specific file paths and feature names
 3. Documentation staleness — all doc-sourced claims tagged `[CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED]`
@@ -234,6 +245,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 8. Depth assessment — investigation depth matches stated tier
 
 **rf-qa checklist (11 items)**:
+
 1. File inventory — all research files exist with Status: Complete
 2. Evidence density — sample 3-5 claims per file, verify file paths exist
 3. Scope coverage — every key product area from research notes examined
@@ -255,6 +267,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Agents**: rf-analyst (synthesis-review) + rf-qa (synthesis-gate, fix_authorization: true), run in parallel.
 
 **Synthesis QA checklist (12 items)**:
+
 1. Section headers match PRD template structure
 2. Table column structures correct
 3. No fabrication (trace claims to research files)
@@ -279,6 +292,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Validation checklist (18 structural + 4 content quality)**:
 
 **Structural completeness:**
+
 - All 32 template sections present (or N/A with rationale)
 - Frontmatter has all required fields
 - Total line count within tier budget
@@ -287,6 +301,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 - Numbered Table of Contents
 
 **Content quality:**
+
 - User stories with testable acceptance criteria
 - Feature prioritization with RICE/MoSCoW
 - Competitive analysis with comparison matrix
@@ -296,6 +311,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 - Web research findings include source URLs
 
 **Content quality checks:**
+
 - Table of Contents accuracy
 - Internal consistency (no contradictions)
 - Readability (scannable)
@@ -306,6 +322,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Agent**: rf-qa-qualitative (prd-qualitative, fix_authorization: true).
 
 Verifies the PRD makes sense from product and engineering perspectives:
+
 - Correct scoping (feature vs platform content)
 - Logical flow between sections
 - Realistic requirements
@@ -410,6 +427,7 @@ These rules come from the PRD template and apply to every generated PRD.
 ### 8.2 Stage B: Task file execution
 
 Delegated entirely to the `/task` skill:
+
 1. `/task` reads the MDTM task file and processes each checklist item via the F1 loop (READ -> IDENTIFY -> EXECUTE -> UPDATE -> REPEAT).
 2. Subagents are spawned as specified in B2 self-contained items.
 3. Phase-gate QA runs after each phase (Phase 2+).
@@ -418,6 +436,7 @@ Delegated entirely to the `/task` skill:
 ### 8.3 Resumability
 
 The MDTM task file provides automatic resume:
+
 - Every completed step is a checked `[x]` box on disk.
 - On restart, the skill finds the first unchecked `[ ]` item and resumes there.
 - Research files written incrementally persist even if the agent is interrupted mid-investigation.
@@ -444,33 +463,43 @@ The MDTM task file provides automatic resume:
 The PRD skill is the starting point of the full product development pipeline.
 
 ### Stage A: PRD (product requirements) <- **This skill**
+
 ```
 /prd Create a PRD for [product area]
 ```
+
 Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].md` with research artifacts in `.dev/tasks/to-do/TASK-PRD-*/`.
 
 ### Stage B: TDD (technical design)
+
 ```
 /tdd Create a TDD based on the PRD at docs/docs-product/tech/[feature]/PRD_[FEATURE].md
 ```
+
 The PRD skill offers to invoke `/tdd` automatically after completion. Research files from the PRD investigation feed into the TDD.
 
 ### Stage C: Roadmap (adversarial generation)
+
 ```bash
 superclaude roadmap run spec.md --depth standard
 ```
+
 Generates a merged, adversarially validated roadmap from a specification. See `docs/guides/roadmap-cli-tools-release-guide.md`.
 
 ### Stage D: Tasklist (execution plan)
+
 ```
 /sc:tasklist
 ```
+
 Generates Sprint CLI-compatible phase files from the roadmap.
 
 ### Stage E: Sprint execution
+
 ```bash
 superclaude sprint run .dev/releases/current/tasklist-index.md
 ```
+
 Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli-tools-release-guide.md`.
 
 ---
@@ -486,6 +515,7 @@ Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli
 | **Heavyweight** | 30-60 minutes | 20-35+ (6-10+ research + 2-4 web + 9 synth + QA with partitioning) | Platform-level PRDs. Multiple QA partitions. |
 
 ### Token consumption
+
 - **Stage A (scope discovery + task file creation)**: ~5,000-15,000 tokens in the main session
 - **Phase 2 (deep investigation)**: Largest consumer. Each codebase agent uses ~10,000-30,000 tokens depending on code complexity. Heavyweight tier with 10 agents: ~200,000-300,000 tokens total across all agents.
 - **Phase 3 (research QA)**: ~10,000-20,000 tokens per analyst/QA instance
@@ -495,6 +525,7 @@ Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli
 - **Rough total**: Lightweight ~100K-200K, Standard ~300K-500K, Heavyweight ~500K-1M+ tokens
 
 ### Resource requirements
+
 - **Disk space**: Task artifacts typically 500KB-2MB (research files + synthesis + QA reports)
 - **Network**: Web research agents require internet access for market data (Phase 4). Codebase-only runs skip Phase 4.
 - **Session stability**: Long-running Heavyweight PRDs benefit from stable sessions. The MDTM task file provides resilience against interruptions, but frequent restarts add overhead from re-reading context.
@@ -504,31 +535,37 @@ Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli
 ## 11) Known Limitations & Gotchas
 
 ### Vague prompts produce broad, less actionable PRDs
+
 **Symptom**: PRD covers too much surface area without depth in any single area.
 **Cause**: When only the product name is provided (Scenario B), the skill does broad discovery and can't prioritize what matters for your specific decision.
 **Workaround**: Always provide at minimum WHAT + WHY. Specifying WHERE (directories) dramatically focuses the investigation.
 
 ### Feature PRD vs Product PRD misclassification
+
 **Symptom**: A feature PRD includes full TAM/SAM/SOM market sizing, or a product PRD skips competitive analysis.
 **Cause**: The scope classification (Product PRD vs Feature PRD) is inferred from the request. Ambiguous requests may be misclassified.
 **Workaround**: Explicitly state in your prompt: "This is a feature PRD for [X] within the [Y] platform" or "This is a standalone product PRD for [X]".
 
 ### Context compression during Heavyweight runs
+
 **Symptom**: Phase 5 or 6 agents produce thinner output than Phase 2 agents.
 **Cause**: Long Heavyweight runs may approach context limits. The task file ensures no steps are skipped, but agents spawned later in the session have less main-session context.
 **Workaround**: The skill is designed to handle this — each agent is self-contained with full instructions. If quality degrades, restart the session; the skill resumes from the task file.
 
 ### Existing docs treated as ground truth
+
 **Symptom**: PRD contains product capabilities that no longer exist in the codebase.
 **Cause**: Despite the Documentation Staleness Protocol, Doc Analyst agents may miss stale claims if the original documentation is internally consistent but outdated.
 **Workaround**: After PRD completion, review the `gaps-and-questions.md` file for `[UNVERIFIED]` tags. Cross-check any surprising product claims against the actual code.
 
 ### Web research agents blocked by network restrictions
+
 **Symptom**: Phase 4 web research files are empty or contain only error messages.
 **Cause**: Corporate networks, VPNs, or air-gapped environments may block web search.
 **Workaround**: The skill continues without web research (Phase 4 is not a hard gate). Market data sections will be thinner. You can manually populate competitive analysis and market sizing data after PRD generation.
 
 ### Task file not found on resume
+
 **Symptom**: Starting a new PRD for a product that already has a completed task file.
 **Cause**: If all items in the existing task file are checked, the skill reports the PRD is already complete rather than starting a new one.
 **Workaround**: If you need a fresh PRD, specify a different output path or rename/archive the existing `TASK-PRD-*` folder.
@@ -555,58 +592,74 @@ Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli
 ## 13) Practical Use Cases
 
 ### Use case 1: Standard product PRD
+
 ```
 /prd Create a PRD for the GameFrame AI multi-agent system for engineering planning.
 Focus on backend/app/agents/ and backend/app/services/.
 ```
+
 Standard tier, 4-6 codebase agents + 1-2 web agents. All 32 template sections populated.
 
 ### Use case 2: Feature-scoped PRD
+
 ```
 /prd Create a PRD for the wizard configuration system. We want to add new stages
 and need to document current vs planned capabilities. Key areas: frontend/app/wizard/.
 ```
+
 Feature PRD — sections S5, S8, S9, S16-S18 abbreviated or N/A. References Platform PRD.
 
 ### Use case 3: Comprehensive platform PRD
+
 ```
 /prd Create a detailed, comprehensive PRD for the entire platform. We need this for
 Series A investor materials. Include full market analysis and competitive positioning.
 ```
+
 Heavyweight tier (user said "detailed, comprehensive"), 6-10+ codebase agents, 2-4 web agents, 1500-2500 lines.
 
 ### Use case 4: PRD from existing documentation
+
 ```
 /prd Create a PRD for pixel streaming by consolidating the existing docs at
 docs/docs-product/tech/streaming/. Need a single source of truth.
 ```
+
 Consolidation mode — Doc Analyst agents cross-validate existing docs against code. Document Provenance appendix added.
 
 ### Use case 5: Resume interrupted PRD
+
 ```
 /prd Create a PRD for the task management system.
 ```
+
 If a `TASK-PRD-*` folder exists for "task management", the skill reads the task file and resumes from the first unchecked item.
 
 ### Use case 6: PRD feeding into TDD
+
 ```
 /prd Create a PRD for the canvas roadmap feature. After completion, I want to create
 a technical design document from it.
 ```
+
 After PRD completion, Phase 7 offers to invoke `/tdd` with the PRD and research artifacts as input.
 
 ### Use case 7: Investor-focused PRD with market emphasis
+
 ```
 /prd Create a PRD for the AI assistant product. This is for our Series A deck —
 emphasize market sizing, competitive positioning, and value proposition.
 ```
+
 Product PRD with emphasis on S5 (Business Context), S8 (Value Proposition), S9 (Competitive Analysis). Web research agents focus on TAM/SAM/SOM data and competitive landscape.
 
 ### Use case 8: Narrow feature with no web research needed
+
 ```
 /prd Create a PRD for the notification preference system. Engineering-only — no market
 context needed. Focus on frontend/src/notifications/ and backend/api/preferences/.
 ```
+
 Lightweight tier. Web research agents skipped (0 web agents). Fast execution focused on codebase evidence only.
 
 ---
@@ -614,27 +667,32 @@ Lightweight tier. Web research agents skipped (0 web agents). Fast execution foc
 ## 14) Quick Reference
 
 ### Invocation
+
 ```
 /prd [description]
 ```
 
 ### Key behaviors
+
 - Automatically selects tier (Lightweight/Standard/Heavyweight) based on scope
 - Resumes from existing task files if found
 - Asks for clarification only when genuine ambiguity exists
 - Offers downstream TDD creation after completion
 
 ### Output locations
+
 - Task artifacts: `.dev/tasks/to-do/TASK-PRD-YYYYMMDD-HHMMSS/`
 - Final PRD: `docs/docs-product/tech/[feature-name]/PRD_[FEATURE-NAME].md`
 
 ### Quality guarantees
+
 - 3 independent QA gates (research, synthesis, assembly)
 - Documentation staleness cross-validation
 - Template conformance checking
 - Zero-trust verification (assume wrong until proven correct)
 
 ### Failure modes prevented
+
 - **Context rot** — isolated agents with incremental file writing
 - **Shallow coverage** — parallel deep-dive investigation agents
 - **Hallucinated requirements** — separated research/synthesis/assembly with verification

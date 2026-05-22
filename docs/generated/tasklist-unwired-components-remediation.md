@@ -47,9 +47,11 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 ### Task P1.3: Verify P1 changes
 
 - **Action:** Run full test suite for affected modules
+
   ```bash
   uv run pytest tests/roadmap/ tests/cli_portify/ -v --tb=short
   ```
+
 - **Expected:** All tests pass. No test references `halt_fn` or `kill_fn`.
 
 ---
@@ -75,10 +77,12 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 ### Task P2.2: Verify test seam usage is current
 
 - **Action:** Confirm the test seams are still actively used
+
   ```bash
   uv run pytest tests/cli_portify/test_executor.py -v --tb=short
   uv run pytest tests/audit/test_spot_check.py -v --tb=short
   ```
+
 - **Expected:** Tests pass and actively exercise `step_runner` and `reclassify_fn` injection.
 
 ---
@@ -97,21 +101,27 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
   2. Each of these is a local import: `from superclaude.cli.audit.evidence_gate import check_delete_evidence` or `check_keep_evidence`
   3. Replace each usage with inline assertions against `ClassificationResult` fields directly:
      - **AC4 (DELETE evidence):** Replace `gate = check_delete_evidence(result); assert gate.passed` with:
+
        ```python
        assert result.action == V2Action.DELETE
        has_zero_ref = any("zero" in e.lower() and "ref" in e.lower() for e in result.evidence)
        assert has_zero_ref, f"AC4: DELETE for {result.file_path} lacks zero-reference evidence"
        ```
+
      - **AC5 (KEEP evidence):** Replace `gate = check_keep_evidence(result); assert gate.passed` with:
+
        ```python
        has_ref = any("ref" in e.lower() for e in result.evidence)
        assert has_ref, f"AC5: KEEP for {result.file_path} lacks reference evidence"
        ```
+
        **Important:** Do NOT wrap in an `if` guard. Each test method already constructs a KEEP/TIER_1 fixture — an `if` guard would silently pass when evidence is missing, defeating the test. For `test_keep_tier1_without_imports_fails`, the replacement becomes:
+
        ```python
        has_ref = any("ref" in e.lower() for e in result.evidence)
        assert not has_ref  # AC5: KEEP without reference evidence should fail
        ```
+
        (The original `check_keep_evidence` returned `passed=False` for this case — the replacement must assert the negative.)
   4. Remove all `from superclaude.cli.audit.evidence_gate import ...` lines
   5. Ensure `ClassificationResult`, `V2Action`, `V2Tier` are imported from `audit/classification.py` (likely already imported)
@@ -120,13 +130,16 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 ### Task P4.2: Delete source and test files
 
 - **Action:** Delete these four files:
+
   ```bash
   rm src/superclaude/cli/audit/evidence_gate.py
   rm src/superclaude/cli/audit/manifest_gate.py
   rm tests/audit/test_evidence_gate.py
   rm tests/audit/test_manifest_gate.py
   ```
+
 - **Verify:** No remaining imports reference these files:
+
   ```bash
   uv run python -c "from superclaude.cli.audit import evidence_gate" 2>&1 | grep -q "ModuleNotFoundError" && echo "OK: evidence_gate removed"
   uv run python -c "from superclaude.cli.audit import manifest_gate" 2>&1 | grep -q "ModuleNotFoundError" && echo "OK: manifest_gate removed"
@@ -135,9 +148,11 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 ### Task P4.3: Check for any other imports of deleted modules
 
 - **Action:** Search entire codebase for remaining references:
+
   ```bash
   grep -r "evidence_gate\|manifest_gate" src/ tests/ --include="*.py" -l
   ```
+
 - **Expected:** Zero results (or only this tasklist/docs). If any source/test files still import, fix them before proceeding.
 
 ### Task P4.4: Create resurrection contract
@@ -152,9 +167,11 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 ### Task P4.5: Run audit module tests
 
 - **Action:**
+
   ```bash
   uv run pytest tests/audit/ -v --tb=short
   ```
+
 - **Expected:** All remaining audit tests pass. No import errors from deleted modules.
 
 ---
@@ -202,6 +219,7 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
   1. Read the current file, find the end of `GATE_REGISTRY` and `get_gate_criteria()`
   2. Add `from superclaude.cli.cli_portify.models import PortifyGateMode` to imports (safe — `gates.py` does not import from `models.py` currently, and `models.py` does not import from `gates.py` at runtime)
   3. After `get_gate_criteria()`, add the `GATE_MIN_ENFORCE` dictionary:
+
      ```python
      GATE_MIN_ENFORCE: dict[str, PortifyGateMode] = {
          "validate-config": PortifyGateMode.FULL,
@@ -210,6 +228,7 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
          "models-gates-design": PortifyGateMode.SOFT,
      }
      ```
+
   4. STRICT gates are intentionally omitted (default to SHADOW via `.get()` in executor)
 - **Verify:** `uv run python -c "from superclaude.cli.cli_portify.gates import GATE_MIN_ENFORCE; print(GATE_MIN_ENFORCE)"`
 
@@ -256,12 +275,14 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
   1. Read the file, find the `PortifyTUI` class (line 281)
   2. Add `from rich.console import Console` to the file's imports (it's already imported at line 17 inside a try/except block — verify and add to the same block if needed)
   3. Add method to `PortifyTUI`:
+
      ```python
      def gate_warning(self, step_id: str, reason: str | None) -> None:
          """Emit a visible warning for a soft-mode gate failure."""
          console = Console(stderr=True)
          console.print(f"[yellow]GATE WARNING[/yellow] {step_id}: {reason or 'unknown'}")
      ```
+
      Using a local `Console(stderr=True)` is consistent with how `TuiDashboard.__init__` creates its own console. Stderr ensures warnings appear even when stdout is redirected.
 - **Verify:** `uv run python -c "from superclaude.cli.cli_portify.tui import PortifyTUI; t = PortifyTUI(); t.gate_warning('test-step', 'test reason')"`
 
@@ -271,6 +292,7 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 - **Action:**
   1. Read the file, find the portify Click command definition
   2. Add option:
+
      ```python
      @click.option(
          "--gate-mode",
@@ -279,6 +301,7 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
          help="Gate enforcement mode: shadow (log only), soft (warn), full (block).",
      )
      ```
+
   3. Add `gate_mode` parameter to the command function signature
   4. Set `config.gate_mode = gate_mode` when constructing `PortifyConfig` (the field was added in P3.3a)
   5. Do NOT convert to enum here — `run_portify()` handles the conversion (P3.4a)
@@ -289,9 +312,11 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 - **File:** `src/superclaude/cli/cli_portify/models.py`
 - **Status:** PRE-RESOLVED. `PortifyStatus.HALT = "halt"` confirmed at models.py:146. No action needed.
 - **Action:** Verification only — confirm the enum member exists:
+
   ```bash
   uv run python -c "from superclaude.cli.cli_portify.models import PortifyStatus; print(PortifyStatus.HALT)"
   ```
+
 - **Expected:** Prints `PortifyStatus.HALT`. If this fails, add `HALT = "halt"` to the enum.
 
 ### Task P3.8: Write gate policy unit tests
@@ -311,9 +336,11 @@ Four priority items from the CLI unwired components audit. P1 and P2 are direct 
 ### Task P3.9: Run full cli_portify test suite
 
 - **Action:**
+
   ```bash
   uv run pytest tests/cli_portify/ -v --tb=short
   ```
+
 - **Expected:** All existing tests pass (step_runner seam untouched) + new gate policy tests pass.
 
 ---

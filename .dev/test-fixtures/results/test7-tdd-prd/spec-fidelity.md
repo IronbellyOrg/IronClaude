@@ -10,6 +10,7 @@ tasklist_ready: true
 ## Deviation Report
 
 ### DEV-001
+
 - **ID**: DEV-001
 - **Severity**: MEDIUM
 - **Deviation**: Audit log retention conflict between TDD (90 days) and PRD (12 months) resolved in favor of PRD value, but the TDD's explicit 90-day commitment is silently overridden rather than flagged as a TDD source change request.
@@ -20,6 +21,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add an explicit task or note in M1 deliverables to update TDD S7.2 audit-log retention from 90 days to 12 months for documentation consistency, or flag TDD update as part of OPS-AUDIT-QA in M5.
 
 ### DEV-002
+
 - **ID**: DEV-002
 - **Severity**: MEDIUM
 - **Deviation**: Logout endpoint and `LogoutHandler` are added to roadmap (API-007 / COMP-015) based solely on PRD scope, but TDD S8 explicitly enumerates only 4 endpoints (`/auth/login`, `/auth/register`, `/auth/me`, `/auth/refresh`) and does not include logout.
@@ -30,6 +32,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add a roadmap task to update TDD S8 to include the logout endpoint specification, or document this as a known TDD gap in OQ-CONFLICT registry.
 
 ### DEV-003
+
 - **ID**: DEV-003
 - **Severity**: MEDIUM
 - **Deviation**: Reset request rate limit (5 req/min/IP) is introduced in roadmap as OQ-RESET-RL-001 with no source basis in either TDD S8 (which lists only 4 endpoints with rate limits) or PRD (which is silent on rate limits).
@@ -39,15 +42,17 @@ tasklist_ready: true
 - **Recommended Correction**: Either explicitly mark the 5 req/min/IP value as roadmap-proposed pending TDD update, or add a task to update TDD S8.1 with the reset endpoint rate limits.
 
 ### DEV-004
+
 - **ID**: DEV-004
 - **Severity**: MEDIUM
 - **Deviation**: TDD S8.2 specifies refresh token transport in request body (`{"refreshToken": "..."}`), but roadmap commits to HttpOnly cookie-only transport via COMP-HTTPONLY-001 and treats request-body transport as deferred (OQ-REFRESH-TRANSPORT-001).
-- **Source Quote (TDD)**: "POST `/auth/refresh` ... **Request:** ```json { \"refreshToken\": \"dGhpcyBpcyBhIHJlZnJlc2g...\" } ```"
+- **Source Quote (TDD)**: "POST `/auth/refresh` ... **Request:** ```json { \"refreshToken\": \"dGhpcyBpcyBhIHJlZnJlc2g...\" }```"
 - **Roadmap Quote**: "Request: {refreshToken} from HttpOnly cookie (per COMP-HTTPONLY-001) ... dual-mode request-body refresh not shipped in v1.0 pending OQ-REFRESH-TRANSPORT-001"
 - **Impact**: The roadmap unilaterally narrows the TDD's stated contract for security reasons (R-001 XSS), which is defensible but contradicts the documented TDD API spec. Sam (API consumer persona) explicitly cannot use cookies, and the PRD JTBD #4 names programmatic refresh as a requirement.
 - **Recommended Correction**: Resolve OQ-REFRESH-TRANSPORT-001 before M3 with explicit product/security sign-off; if cookie-only is the final answer, add a task to update TDD S8.2 to reflect the HttpOnly cookie contract and document Sam persona's required path (e.g., separate API consumer flow).
 
 ### DEV-005
+
 - **ID**: DEV-005
 - **Severity**: LOW
 - **Deviation**: Roadmap adds a 5th and 6th frontend page (`ResetRequestPage`, `ResetConfirmPage`) not enumerated in TDD S10.1 page/route table, derived from PRD recovery journey.
@@ -58,6 +63,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add task to backfill TDD S10.1 with the two reset pages; minor doc correction.
 
 ### DEV-006
+
 - **ID**: DEV-006
 - **Severity**: LOW
 - **Deviation**: Roadmap milestone structure (5 technical-layer milestones) differs from TDD S23.1 milestone structure (5 feature-based milestones), acknowledged via OQ-CONFLICT-002 with mapping table.
@@ -67,6 +73,7 @@ tasklist_ready: true
 - **Recommended Correction**: None; mapping table is sufficient.
 
 ### DEV-007
+
 - **ID**: DEV-007
 - **Severity**: LOW
 - **Deviation**: Admin audit-log view (JTBD-GAP-001) is shipped as CLI in v1.0 to address Jordan persona, but neither TDD nor PRD specifies an admin interface form factor.

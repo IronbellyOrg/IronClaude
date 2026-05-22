@@ -9,6 +9,7 @@ scope: pyproject.toml, cli/main.py, cli/sprint/commands.py, cli/sprint/config.py
 ## 1. Package Entry Point
 
 **`pyproject.toml:63-64`**:
+
 ```toml
 [project.scripts]
 superclaude = "superclaude.cli.main:main"
@@ -17,11 +18,13 @@ superclaude = "superclaude.cli.main:main"
 ## 2. Root CLI Registration
 
 **`src/superclaude/cli/main.py`**:
+
 - Line 18-20: Root Click group `def main()`
 - Line 354: `from superclaude.cli.sprint import sprint_group`
 - Line 356: `main.add_command(sprint_group, name="sprint")`
 
 **`src/superclaude/cli/sprint/__init__.py:3`**:
+
 ```python
 from .commands import sprint_group
 ```
@@ -99,6 +102,7 @@ run(index_path, start_phase, end_phase, ...)
 ### Release Directory Resolution (`_resolve_release_dir` — line 163)
 
 Walks up from index path looking for release root pattern:
+
 - If index is under `tasklist/tasklists/tasks`, grandparent is release dir
 
 ### Config Assembly (`load_sprint_config` — line 202)
@@ -114,6 +118,7 @@ Walks up from index path looking for release root pattern:
 ### Task Parsing (`parse_tasklist` — line 306)
 
 Parses phase markdown into `TaskEntry` objects:
+
 - Extracts headings as task boundaries
 - Parses dependency annotations (342-349, 389-394)
 - Extracts command field (for python-mode enforcement, 382-387)

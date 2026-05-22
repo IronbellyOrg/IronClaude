@@ -134,6 +134,7 @@ personas: []
 ```
 
 ## Behavioral Flow
+
 1. Greet the user by name (or "World" if no name provided)
 2. Display a summary of available SuperClaude commands
 
@@ -147,11 +148,14 @@ personas: []
 ## Boundaries
 
 **Will:**
+
 - Greet the user and list available commands
 
 **Will Not:**
+
 - Execute any code or modify files
 - Access external services
+
 ```
 
 ### 2.2 Create a Minimal Agent
@@ -309,6 +313,7 @@ Commands that decompose work and delegate to sub-agents without directly executi
 - **Key pattern**: Explicit "STOP AFTER" boundary preventing the command from executing what it plans
 
 Example from `/sc:spawn`:
+
 ```
 ## CRITICAL BOUNDARIES
 - STOP AFTER TASK DECOMPOSITION
@@ -755,6 +760,7 @@ Use this checklist when creating or refactoring a skill:
 ### 6.1 Wave System
 
 The wave system enables multi-stage command execution for complex operations. Waves auto-activate when:
+
 - Complexity score >= 0.7
 - File count > 20
 - Operation types > 2
@@ -1078,6 +1084,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.1 Command Design
 
 **Do**:
+
 - Start with clear "Required Input" or "Triggers" section
 - Define explicit "Will / Will Not" boundaries
 - Include 3-5 copy-paste examples covering common use cases
@@ -1085,6 +1092,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Use the existing command archetypes as starting points
 
 **Do not**:
+
 - Create commands that do everything (single responsibility principle)
 - Skip the Boundaries section (leads to scope creep)
 - Hardcode file paths (use arguments and `@<path>` references)
@@ -1093,12 +1101,14 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.2 Agent Design
 
 **Do**:
+
 - Write a concise Behavioral Mindset (1-3 sentences)
 - List tools with explanations of WHY each tool is needed
 - Include explicit "Does NOT" constraints
 - Define concrete output artifact names and formats
 
 **Do not**:
+
 - Create agents that can do anything (constrain the scope)
 - Skip the Triggers section (makes auto-activation unreliable)
 - Allow agents to both orchestrate AND execute (pick one role)
@@ -1107,6 +1117,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.3 Skill Design
 
 **Do**:
+
 - **Create a thin command layer** (`commands/<name>.md`, ~80-150 lines) for every skill — flags, usage, examples, boundaries, and an `## Activation` section that invokes the skill. No exceptions, including when refactoring existing skills.
 - Keep SKILL.md under 500 lines (behavioral intent only)
 - Move algorithms and templates to `refs/` for lazy loading
@@ -1116,6 +1127,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Declare per-wave ref loading instructions
 
 **Do not**:
+
 - Ship a skill without a command in front of it (the command is the user-facing interface; the skill is the behavioral engine)
 - Put flags, usage examples, or CLI interface concerns in SKILL.md (belongs in the command)
 - Pre-load all refs at skill invocation (violates lazy loading)
@@ -1132,6 +1144,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Commands: ~80-150 lines loaded on invocation
 
 **Optimization strategies**:
+
 - Use `--uc` (ultra-compressed) mode when context pressure is high
 - Skills with refs/ should never load more than 2-3 refs at a time
 - Use the progressive disclosure pattern: name/description first, full content on demand
@@ -1245,13 +1258,16 @@ personas: [analyzer]
 ## Boundaries
 
 **Will:**
+
 - Read project files to generate summary statistics
 - Identify languages, frameworks, and project structure
 
 **Will Not:**
+
 - Modify any files
 - Access external services or APIs
 - Execute project code or tests
+
 ```
 
 **File**: `src/superclaude/agents/summary-reporter.md`
@@ -1352,6 +1368,7 @@ personas: [analyzer, qa, security]
 5. Generate review report with findings and recommendations
 
 ## MCP Integration
+
 - **Sequential**: Multi-step analysis for STRICT tier
 - **Context7**: Framework best practices for pattern validation
 
@@ -1366,14 +1383,17 @@ personas: [analyzer, qa, security]
 ## Boundaries
 
 **Will:**
+
 - Analyze code changes and identify potential issues
 - Provide actionable review comments with evidence
 - Scale review depth based on compliance tier
 
 **Will Not:**
+
 - Modify any code or auto-fix issues
 - Approve or reject the PR (advisory only)
 - Access external PR systems or APIs
+
 ```
 
 **File**: `src/superclaude/skills/sc-pr-review/SKILL.md`
@@ -1470,14 +1490,17 @@ security_paths: <boolean>
 ```
 
 ## Will Do
+
 - Analyze code changes for security, quality, and style issues
 - Scale analysis depth to risk level of changes
 - Provide evidence-based findings with file:line references
 
 ## Will Not Do
+
 - Modify any code or apply fixes
 - Access external PR platforms
 - Make approval/rejection decisions
+
 ```
 
 ---
@@ -1530,6 +1553,7 @@ personas: [architect, analyzer, scribe]
 ## Behavioral Summary
 
 Executes a 5-step protocol producing 6 artifacts:
+
 1. **Diff Analysis**: Structural and content comparison across all variants
 2. **Adversarial Debate**: Steelman debate with per-point scoring
 3. **Base Selection**: Hybrid quantitative-qualitative scoring with position-bias mitigation
@@ -1539,14 +1563,17 @@ Executes a 5-step protocol producing 6 artifacts:
 ## Boundaries
 
 **Will:**
+
 - Compare 2-10 artifacts through structured adversarial debate
 - Apply hybrid scoring with position-bias mitigation
 - Produce documented merge with full provenance
 
 **Will Not:**
+
 - Participate in debates (delegates to advocate agents)
 - Override scoring without documented justification
 - Skip protocol steps
+
 ```
 
 **File**: `src/superclaude/skills/sc-adversarial/SKILL.md`
@@ -1707,7 +1734,9 @@ If top variants score within 5% of each other:
 ## Agent Spec Format
 
 ```
+
 <model>[:persona[:"instruction"]]
+
 ```
 
 ### Examples
@@ -1720,21 +1749,28 @@ If top variants score within 5% of each other:
 When instantiating an advocate agent for variant N:
 
 ```
+
 You are Advocate for Variant {N}: "{variant_name}"
 
 Your role: Argue FOR this variant using steelman strategy.
 
 Rules:
+
 1. Present the STRONGEST possible case for your variant
 2. Address weaknesses honestly but show how they can be mitigated
 3. Use specific evidence (quotes, section references) from the variant
 4. Never fabricate evidence or misrepresent the variant's content
 
 Output format:
+
 ## Strengths (with evidence)
+
 ## Weaknesses (with mitigation)
+
 ## Unique Contributions
+
 ## Response to Opposing Arguments
+
 ```
 
 ## Advocate Output Format
@@ -1757,6 +1793,7 @@ Each advocate produces a structured argument:
 ### Response to Opposing Arguments
 - Re: [opposing point]: [steelman response]
 ```
+
 ```
 
 **File**: `src/superclaude/agents/debate-orchestrator.md`
@@ -1980,11 +2017,13 @@ personas: [<personas>]
 | `--flag` | `-f` | `value` | <description> |
 
 ## Behavioral Flow
+
 1. <Step 1>
 2. <Step 2>
 3. <Step 3>
 
 ## MCP Integration
+
 - **<Server>**: <How it is used>
 
 ## Examples
@@ -1997,10 +2036,13 @@ personas: [<personas>]
 ## Boundaries
 
 **Will:**
+
 - <capability>
 
 **Will Not:**
+
 - <constraint>
+
 ```
 
 ## Appendix C: Agent Template

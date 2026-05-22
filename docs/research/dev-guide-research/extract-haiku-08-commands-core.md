@@ -13,6 +13,7 @@ Exact quote:
 > "Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|false), `performance-profile` (optimization|standard|complex)."
 
 Implications for custom command development:
+
 - A custom command definition should include:
   - `command`
   - `category`
@@ -37,6 +38,7 @@ Exact quotes:
 > "5. **Quality Gates**: Validation checkpoints and error handling"
 
 Implications for custom command development:
+
 - Your command should be designed to accept argument patterns compatible with the system:
   - `$ARGUMENTS`
   - `@<path>` (path-style inputs)
@@ -62,6 +64,7 @@ Exact quotes:
 > "- **Wave System**: Multi-stage orchestration for complex operations"
 
 Implications for custom commands/agents/skills:
+
 - Custom commands should be compatible with Claude Code slash-command semantics.
 - Commands can rely on:
   - persona auto-activation
@@ -79,6 +82,7 @@ Exact quote:
 > "**Wave Orchestration Engine**: Multi-stage command execution with compound intelligence. Auto-activates on complexity ≥0.7 + files >20 + operation_types >2."
 
 Implications for custom command development:
+
 - If your command can operate over many files/operations, it should be designed to support wave-style execution.
 - Wave activation is driven by:
   - complexity ≥ 0.7
@@ -116,6 +120,7 @@ Exact quotes (execution context):
 > "- **Tools**: [Read, Grep, Glob, Bash, TodoWrite, Edit, MultiEdit]"
 
 Implications for custom commands:
+
 - A custom development command can specify:
   - an auto-persona set
   - which MCP servers are expected
@@ -137,6 +142,7 @@ Exact quotes (execution context):
 > "- **Tools**: [Read, Write, Edit, MultiEdit, Bash, Glob, TodoWrite, Task]"
 
 Implications for custom commands:
+
 - Implementation-oriented commands may:
   - use `Write` and `Edit` tooling
   - include `Task` for sub-agent or multi-step orchestration
@@ -173,6 +179,7 @@ Exact quote:
 > "**`/explain [topic] [flags]`** - Educational explanations | Auto-Persona: Mentor, Scribe | MCP: Context7, Sequential"
 
 Implications for custom agents/skills:
+
 - Troubleshooting and explanation flows are explicitly tied to personas and MCP servers.
 - If creating agents/skills that support these flows, they should align with:
   - `Analyzer` + `QA` + `Sequential/Playwright` for troubleshooting
@@ -219,6 +226,7 @@ Exact quotes (execution context):
 > "- **Subagents**: audit-scanner (Haiku), audit-analyzer (Sonnet), audit-comparator (Sonnet), audit-consolidator (Sonnet), audit-validator (Sonnet)"
 
 Implications for custom agents:
+
 - The framework supports explicit sub-agent roles for large audits.
 - This section provides a concrete example naming convention and division of labor:
   - scanner/analyzer/comparator/consolidator/validator

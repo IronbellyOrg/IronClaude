@@ -91,6 +91,7 @@ This is a **Heavyweight** platform PRD (28 sections + appendices). All sections 
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [x] Section 1: Executive Summary -- Complete
 - [x] Sections 2-5: Problem, Background, Vision, Business Context -- Complete
 - [x] Sections 6-9: JTBD, Personas, Value Proposition, Competitive Analysis -- Complete
@@ -149,6 +150,7 @@ This is a **Heavyweight** platform PRD (28 sections + appendices). All sections 
 28. [Maintenance & Ownership](#28-maintenance--ownership)
 
 **Appendices:**
+
 - [Appendix A: Glossary](#appendix-a-glossary)
 - [Appendix B: Acronyms](#appendix-b-acronyms)
 - [Appendix C: Technical Architecture Diagrams](#appendix-c-technical-architecture-diagrams)
@@ -199,6 +201,7 @@ The entire task management capability matrix (Backend DB, Service Layer, API Rou
 ### 2.2 Why Existing Solutions Fall Short
 
 **General-Purpose PM Tools** (Jira, Linear, Asana, Monday.com):
+
 - Not designed for AI-agent-as-primary-operator (95%+ machine operations)
 - No GDLC integration (7 phases, 9 areas, gate checklists)
 - No token-efficient response formats (zoom levels, field projection, compact IDs)
@@ -206,12 +209,14 @@ The entire task management capability matrix (Backend DB, Service Layer, API Rou
 - Tool call overhead: generic APIs require multiple round-trips where domain-specific bulk operations need one
 
 **No-Code Game Development Platforms** (GDevelop, Construct 3, Ludo.ai):
+
 - Target 2D/casual development, not professional 3D/UE5.6+
 - No multi-agent orchestration (LangGraph Swarm with 8 specialists)
 - No structured task management -- focus on asset creation and visual scripting
 - No GDLC-aware lifecycle management
 
 **File-Based MDTM (Current State)**:
+
 - Works for single-task execution but cannot aggregate across 500+ tasks
 - No filtering, pagination, or compound queries
 - No concurrent access control (file locks do not work across agent sessions)
@@ -271,6 +276,7 @@ The system is built for AI agents first and human users second -- not because hu
 The task management system is **required platform infrastructure** — without it, AI agents cannot persist state, track progress, audit decisions, or learn across projects. It is the structural backbone that enables every revenue-generating interaction on the platform.
 
 **Business justification:**
+
 - **Enables platform stickiness:** Projects with persistent task trees and audit trails create switching costs. Competitors without structured AI memory cannot replicate cross-project learning.
 - **Unlocks Enterprise tier:** Enterprise buyers require audit trails, compliance-grade data handling, and multi-tenant isolation — all delivered by this system's core architecture.
 - **Reduces support costs:** Persistent task state and audit trails eliminate the #1 category of support tickets ("what happened to my project?" / "what did the AI change?").
@@ -289,6 +295,7 @@ The task management system is **required platform infrastructure** — without i
 ### 6.1 Primary Jobs
 
 **Job 1: Navigate Project Complexity (AI Agent Operator)**
+
 - **When**: I am an AI agent assigned to a GDLC project with 500+ tasks across 7 phases and 9 areas
 - **I want to**: progressively drill down from project summary to specific task detail, with each step costing a predictable number of tokens
 - **So I can**: find and execute my next action without exceeding my context window or wasting tokens on irrelevant data
@@ -296,6 +303,7 @@ The task management system is **required platform infrastructure** — without i
 - **Pain with alternatives**: Context rot degrades accuracy; no filtering or pagination; 500 individual file reads = ~100K-150K tokens in overhead alone
 
 **Job 2: Execute Bulk Task Operations (AI Agent Operator)**
+
 - **When**: I need to initialize a project (~500 tasks), pass a gate (mark 45+ tasks done), or resolve a dependency chain
 - **I want to**: perform these operations in a single tool call with partial-success semantics
 - **So I can**: minimize tool call overhead (~200-300 tokens/call) and complete routine operations in seconds, not minutes
@@ -303,6 +311,7 @@ The task management system is **required platform infrastructure** — without i
 - **Pain with alternatives**: No task API currently exists targeting PostgreSQL for task management; agents have zero tools for bulk operations
 
 **Job 3: Ship a Game Without Deep Technical Skills (Solo Indie Dev)**
+
 - **When**: I have a game design vision but lack expertise across all 9 GDLC areas
 - **I want to**: describe what I want in natural language and have specialized AI agents handle implementation, tracking their own progress
 - **So I can**: focus on creative decisions while reducing development time by 10x
@@ -310,6 +319,7 @@ The task management system is **required platform infrastructure** — without i
 - **Pain with alternatives**: Solo dev cannot master 9 specialties; freelancer quality is inconsistent; templates do not produce a truly custom game
 
 **Job 4: Track Project Health at a Glance (Studio Lead, Enterprise Producer)**
+
 - **When**: I am managing one or more game development projects
 - **I want to**: see aggregate status across all GDLC phases and areas in a single view -- task counts by status, overdue items, next gate readiness
 - **So I can**: identify bottlenecks, allocate resources, and make go/no-go decisions without drilling into individual tasks
@@ -317,6 +327,7 @@ The task management system is **required platform infrastructure** — without i
 - **Pain with alternatives**: No persistence, no filtering across projects, manual data entry
 
 **Job 5: Maintain Institutional Memory Across Projects (Enterprise Producer)**
+
 - **When**: my studio has completed multiple projects and is starting a new one
 - **I want to**: semantically search completed tasks from past projects to find relevant solutions, common blockers, and proven approaches
 - **So I can**: ensure new projects benefit from accumulated knowledge and teams do not repeat past mistakes
@@ -932,6 +943,7 @@ AI agents interact with the task management system through ~5 Domain Facade tool
 | **Usage metrics** (API calls, token consumption, streaming hours) | Billing, capacity planning, cost optimization | 7 years (financial records retention). Aggregated/anonymized after 1 year. | Access. Aggregated data not subject to deletion requests. |
 
 **Task-specific compliance notes:**
+
 - Organization-based RLS ensures tenant data isolation at the database level (relevant to SOC 2, GDPR data segregation)
 - Audit event retention must comply with platform-level retention policies
 - Semantic embeddings in Pinecone must be deleted when source task is deleted (GDPR right to deletion)
@@ -1062,7 +1074,6 @@ AI agents interact with the task management system through ~5 Domain Facade tool
 
 ### 21.1 Epics, Features & Stories
 
-
 > **Format:** Each epic contains user stories in the format: "As a [persona], I want [goal] so that [benefit]"
 >
 > **Personas referenced:** Solo Indie Dev (Alex), Small Studio Lead (Jordan), AI Agent Operator (primary), Enterprise Producer (Morgan), Educator (Dr. Reyes)
@@ -1085,11 +1096,13 @@ AI agents interact with the task management system through ~5 Domain Facade tool
 **Description:** Foundational task data model including hierarchical task tree, MDTM-compatible fields, state machine, checklist items, dependencies, and template system. This epic provides the database layer that all other epics build upon.
 
 **US-1.1: Create Hierarchical Task Tree**
+
 - **As a** AI Agent Operator
 - **I want** to create a hierarchical task tree with variable depth (up to 6 levels) using parent-child relationships and a `hierarchy_path` for efficient subtree queries
 - **So that** I can organize game development work from project-level epics down to individual checklist items, navigating the full hierarchy with prefix-match queries in <100ms for 500 nodes.
 
 **Acceptance Criteria:**
+
 - AC1: Tasks support self-referential `parent_task_id` FK with `depth` integer column (0 = root)
 - AC2: `hierarchy_path` TEXT column enables subtree queries via `WHERE hierarchy_path LIKE 'path.%'` with B-tree index
 - AC3: Configurable `max_depth` (default 6) enforced on task creation -- rejection with actionable error if exceeded
@@ -1097,12 +1110,14 @@ AI agents interact with the task management system through ~5 Domain Facade tool
 - AC5: Subtree rollup queries complete in <100ms for a project with 500 task nodes
 
 **Success Metrics:**
+
 - Subtree query p95 latency: <100ms for 500 nodes
 - Hierarchy creation success rate: >99.9%
 
 ---
 
 **US-1.2: Enforce Task Status State Machine**
+
 - **As a** AI Agent Operator
 - **I want** task status transitions enforced by a 5-state machine (To Do, Doing, Done, Blocked, Cancelled) with automatic side-effect field updates, terminal states, and permission-gated cancellation
 - **So that** agents can rely on "done means done" and "cancelled means cancelled" invariants for planning, dependency resolution, and gate readiness — and invalid transitions are rejected with actionable error codes including valid alternatives and suggested actions.
@@ -1120,6 +1135,7 @@ AI agents interact with the task management system through ~5 Domain Facade tool
 A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions, 11 forbidden, 1 idempotent.
 
 **Key product decisions:**
+
 - **Done is terminal.** No outbound transitions. Completed work is historical fact. Rework is handled by creating a new task with `metadata.recreated_from` link — not by reopening. (Admin-only `reopen_task` action may be specified as a future extension.)
 - **Cancelled is terminal.** No outbound transitions (except idempotent Cancelled->Cancelled for retry safety). Revival is handled by creating a new task with `metadata.recreated_from` link.
 - **Cancellation is permission-gated.** Only orchestrator agent and human operators with `task:cancel` permission can cancel tasks. Specialist agents cannot cancel — prevents rogue local-optimization cancellations.
@@ -1127,6 +1143,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - **Cancelled tasks excluded from active counts.** Dashboard, list queries (by default), gate readiness denominator, and MDTM export all exclude cancelled tasks. Direct-by-ID queries and audit trail include them.
 
 **Acceptance Criteria:**
+
 - AC1: 5x5 state transition matrix enforced per the matrix above — 9 allowed (2 unconditional, 7 conditional), 11 forbidden, 1 idempotent no-op. Done and Cancelled are terminal with zero outbound transitions.
 - AC2: `cancelled` state with defined lifecycle: entry from To Do, Doing, Blocked (requires `cancellation_reason` min 10 chars + `task:cancel` permission); terminal exit; visibility rules (excluded from dashboard active counts, default list queries, gate readiness, MDTM export; included in direct-by-ID queries and audit trail). MDTM files remain 4-state.
 - AC3: Side effects auto-applied for all 9 allowed transitions. Key: To Do->Doing sets `start_date`; Doing->Done sets `completion_date`; entry to Blocked requires `blocker_reason` (min 3 chars); exit from Blocked clears `blocker_reason`; entry to Cancelled sets `cancellation_reason`, `cancelled_at`, `cancelled_by`. All side effects atomic within same DB transaction. `updated_date` and `stream_version` updated on every transition.
@@ -1139,6 +1156,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC10: Database CHECK constraints enforce state-field invariants (blocked requires blocker_reason, cancelled requires all 3 cancellation fields, done requires completion_date, doing requires start_date, stream_version >= 1).
 
 **Success Metrics:**
+
 - Invalid transition rejection rate: 100% (no invalid states reachable)
 - Auto-field accuracy: 100% of side-effect fields correctly set on transition
 - Exhaustive test coverage: all 25 state pairs tested (21 transitions + 4 identity rejections)
@@ -1148,11 +1166,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 ---
 
 **US-1.3: Track Checklist Items as Independent Rows**
+
 - **As a** AI Agent Operator
 - **I want** each checklist item stored as an independent database row with `is_checked`, `checked_at`, `checked_by`, `blocker_reason`, and `completion_type` fields
 - **So that** I can query, filter, and batch-update individual items without parsing markdown, and distinguish success-completed items from blocker-logged items.
 
 **Acceptance Criteria:**
+
 - AC1: `task_instance_items` table with FK to `task_instances`, `is_checked` boolean, `checked_at` timestamp, `checked_by` string
 - AC2: `completion_type` enum: success, blocker_logged, skipped
 - AC3: `fillfactor=70` for HOT-eligible single-row checkbox updates (bypasses index maintenance)
@@ -1161,17 +1181,20 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC6: Progress computation (checked/total) available as computed field
 
 **Success Metrics:**
+
 - Single checkbox update latency: <10ms (HOT-eligible)
 - Progress computation accuracy: 100%
 
 ---
 
 **US-1.4: Manage Inter-Task Dependencies**
+
 - **As a** Small Studio Lead (Jordan)
 - **I want** to define dependencies between tasks (blocks, parent_child, phase_gate types) with automatic successor unblocking when predecessors complete
 - **So that** my team's work proceeds in the correct order and blocked tasks automatically become available when their dependencies are satisfied.
 
 **Acceptance Criteria:**
+
 - AC1: `task_dependencies` table with `dependent_task_id`, `required_task_id`, `dependency_type` enum
 - AC2: Composite unique constraint prevents duplicate dependencies
 - AC3: DAG validation prevents circular dependencies
@@ -1179,17 +1202,20 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: `resolve_dependencies` bulk operation cascades unblocking across dependency chains
 
 **Success Metrics:**
+
 - Auto-unblock latency: <500ms after predecessor completion
 - Circular dependency detection: 100%
 
 ---
 
 **US-1.5: Instantiate Projects from GDLC Templates**
+
 - **As a** Solo Indie Dev (Alex)
 - **I want** to create a complete project task tree (~500 tasks with hierarchy, dependencies, and checklist items) from GDLC templates in a single operation
 - **So that** I start every project with a structured game development lifecycle scaffold without manually creating hundreds of tasks.
 
 **Acceptance Criteria:**
+
 - AC1: `task_templates` table with SemVer versioning, `content_snapshot` JSONB, and `template_group_id`
 - AC2: `task_template_items` table for individual checklist items within templates
 - AC3: Copy-on-create: template fully duplicated at instantiation; instances are independent
@@ -1199,6 +1225,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC7: Template seeder with stable slug-based IDs and `ON CONFLICT` idempotency
 
 **Success Metrics:**
+
 - Template instantiation time: <5 seconds for ~500 tasks
 - Genre-conditional accuracy: 100% correct inclusion/exclusion based on wizard output
 
@@ -1209,11 +1236,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 **Description:** Deep integration of the task management system with the 7-phase, 9-area Game Development Lifecycle framework. Maps tasks to GDLC taxonomy, implements gate decision workflows, and ensures the Phase Focus Matrix drives task organization.
 
 **US-2.1: Map Tasks to GDLC Phases and Areas**
+
 - **As a** Small Studio Lead (Jordan)
 - **I want** every task to carry `gdlc_phase` (Integer, 1-7) and `area_id` (String, 9 stable IDs: vf, cs, pe, mls, ms, nar, art, le, aud) columns
 - **So that** I can filter and aggregate tasks by phase and area to understand progress across all 63 cells of the Phase Focus Matrix.
 
 **Acceptance Criteria:**
+
 - AC1: `gdlc_phase` Integer column (1-7) on `task_instances`
 - AC2: `area_id` String(10) column using 9 stable AreaIds from `frontend/app/roadmap/types/gdlc.ts`
 - AC3: Phase/area compound filters on all list endpoints (`?phase=2&area=cs,pe`)
@@ -1221,17 +1250,20 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: Template seeder seeds from code values (`gdlc.ts`), not documentation (which has 16+ discrepancies)
 
 **Success Metrics:**
+
 - Filter query p95 latency: <100ms for compound phase+area filters
 - Phase/area coverage: 100% of seeded templates carry valid phase and area values
 
 ---
 
 **US-2.2: Evaluate GDLC Gate Readiness**
+
 - **As a** AI Agent Operator
 - **I want** a `check_gate_readiness` operation that aggregates gate checklist completion across a full phase subtree and returns blocking items inline
 - **So that** I can determine whether a GDLC phase gate can be passed and identify exactly which items remain incomplete, in a single tool call (~300-500 tokens).
 
 **Acceptance Criteria:**
+
 - AC1: `check_gate_readiness` accepts `project_id` and `phase` parameters
 - AC2: Aggregates completion status across all gate checklist items for the specified phase
 - AC3: Returns readiness outcome: Go (100% complete), No-Go (<80% complete), Conditional Pass (>=80% with documented exceptions), Not Evaluable (0 gate items in phase — phase has no tasks yet). Threshold is configurable per-phase with default 80%.
@@ -1240,40 +1272,47 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: Response fits within ~300-500 tokens
 
 **Success Metrics:**
+
 - Gate readiness query latency: <200ms
 - Blocking item completeness: 100% of incomplete items listed in response
 
 ---
 
 **US-2.3: Record Gate Decisions**
+
 - **As a** Enterprise Producer (Morgan)
 - **I want** every GDLC gate decision (Go, No-Go, Conditional Pass) recorded as an immutable audit event with decision rationale
 - **So that** I have a compliance-ready record of every phase transition decision, including who approved it and what conditions were attached.
 
 **Acceptance Criteria:**
+
 - AC1: `gate.decision` event type in audit_events table
 - AC2: Event captures: phase, decision (Go/No-Go/Conditional Pass), rationale text, deciding actor (human or agent), conditions (if Conditional Pass)
 - AC3: Gate decisions are immutable -- cannot be modified after recording
 - AC4: Queryable by phase and project via `query_audit_trail` tool
 
 **Success Metrics:**
+
 - Gate decision recording: 100% of gate transitions produce audit events
 - Decision traceability: every gate event links to the specific checklist items that were evaluated
 
 ---
 
 **US-2.4: Handle Phase 7 Live Ops Continuous Review**
+
 - **As a** AI Agent Operator
 - **I want** Phase 7 (Live Ops) to use a continuous Health Check model (Green/Yellow/Red) instead of a one-time gate decision
 - **So that** ongoing live operations are monitored with a recurring health assessment rather than a binary pass/fail.
 
 **Acceptance Criteria:**
+
 - AC1: Phase 7 supports Health Check status enum: Green, Yellow, Red
 - AC2: Health Check can be re-evaluated at any time (not a one-shot gate)
 - AC3: Template seeder handles missing Phase 7 work order gracefully (placeholder items)
 - AC4: Health Check history stored in audit events for trend analysis
 
 **Success Metrics:**
+
 - Phase 7 Health Check recording: all evaluations persisted
 - Graceful handling: system does not error when Phase 7 work order is empty
 
@@ -1284,11 +1323,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 **Description:** The primary consumer interface for the task management system. Consolidates ~60 granular operations into ~5 Domain Facade tools with zoom-level responses, bulk operations, cursor pagination, and actionable error handling -- all optimized for LLM token efficiency.
 
 **US-3.1: Query Tasks with Zoom-Level Response Control**
+
 - **As a** AI Agent Operator
 - **I want** a `query_tasks` tool that accepts a `detail` parameter (dashboard, list, detail, full) controlling response density from ~120 tokens (project overview) to ~10K tokens (full export)
 - **So that** I can navigate from project overview to specific task detail with predictable token cost at each step, never wasting context window on irrelevant data.
 
 **Acceptance Criteria:**
+
 - AC1: `detail` parameter accepts: dashboard, list, detail, full
 - AC2: L0 Dashboard: aggregate counts by status/phase, ~120-180 tokens total, no individual tasks
 - AC3: L1 List: id, title, status, priority, phase, area, assigned_to, progress, due_date, blocked flag (~40-55 tokens/task)
@@ -1298,6 +1339,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC7: `max_tokens` parameter (default 2000) with truncation and `continuation_cursor`
 
 **Success Metrics:**
+
 - Token budget accuracy: actual response within 20% of documented budget per zoom level
 - Dashboard query latency: <50ms (from materialized view)
 - List query latency: <100ms
@@ -1305,11 +1347,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 ---
 
 **US-3.2: Execute Bulk Task Operations**
+
 - **As a** AI Agent Operator
 - **I want** five bulk operations (`create_task_tree`, `batch_update_status`, `batch_check_items`, `resolve_dependencies`, `check_gate_readiness`) each executable in a single tool call with partial-success semantics
 - **So that** I can initialize a project (~500 tasks), complete a phase (45+ tasks), or resolve dependency chains without the ~100K-150K token overhead of individual calls.
 
 **Acceptance Criteria:**
+
 - AC1: `create_task_tree` instantiates ~500 tasks from template in single transaction, returns counts only (~150 tokens)
 - AC2: `batch_update_status` accepts ID lists or scope-based filters, reports side effects (unblocked tasks, gate changes), ~100-200 tokens
 - AC3: `batch_check_items` marks multiple checklist items complete, returns progress + next unchecked, ~100 tokens
@@ -1319,6 +1363,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC7: Bulk operations create parent + child audit events linked via `parent_event_id`
 
 **Success Metrics:**
+
 - `create_task_tree` execution time: <5 seconds for ~500 tasks
 - Batch status update: <200ms for 50 tasks
 - Token savings vs. individual calls: >95% reduction for project initialization
@@ -1326,11 +1371,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 ---
 
 **US-3.3: Page Through Large Result Sets with Cursor Pagination**
+
 - **As a** AI Agent Operator
 - **I want** cursor-based pagination via `(sort_col, id)` keyset encoding that is stable across concurrent inserts and deletes
 - **So that** I can page through 500+ tasks without losing items to offset drift, with compound filters narrowing results precisely.
 
 **Acceptance Criteria:**
+
 - AC1: Cursor encodes `{"sort_key": <value>, "id": <uuid>}` as Base64
 - AC2: Keyset pagination: `(sort_col, id) > (:cursor_sort_val, :cursor_id)` -- stable across concurrent mutations
 - AC3: Parameters: `cursor` (null = first page), `limit` (1-500, default 25), `sort_by` (updated_date, created_date, priority, status, due_date, phase), `sort_order` (asc/desc)
@@ -1340,17 +1387,20 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC7: `max_pages` safety limit (default 5) in LangGraph integration state
 
 **Success Metrics:**
+
 - Pagination stability: zero duplicates or gaps across 200 tasks with concurrent modifications
 - Filter response accuracy: 100% of returned items match all applied filters
 
 ---
 
 **US-3.4: Receive Actionable Error Responses**
+
 - **As a** AI Agent Operator
 - **I want** every error response to include a structured `error_code`, `error_message`, and `context` object with valid alternatives and suggested next action
 - **So that** I can act on errors programmatically without additional tool calls or human intervention, enabling self-correcting behavior.
 
 **Acceptance Criteria:**
+
 - AC1: 8 enumerated error codes: INVALID_STATUS_TRANSITION, DEPENDENCY_NOT_MET, TASK_NOT_FOUND, PERMISSION_DENIED, GATE_NOT_READY, CONCURRENT_MODIFICATION, IDEMPOTENT_DUPLICATE, VALIDATION_ERROR
 - AC2: Each error includes `context` with action-specific guidance (e.g., INVALID_STATUS_TRANSITION includes `valid_transitions` array)
 - AC3: IDEMPOTENT_DUPLICATE returns original result (no action needed)
@@ -1358,17 +1408,20 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: No interactive confirmation flow -- agents decide or escalate via LangGraph interrupt
 
 **Success Metrics:**
+
 - Error actionability: 100% of error responses include programmatic next-action guidance
 - Agent self-recovery rate: >80% of CONCURRENT_MODIFICATION errors resolved on first retry
 
 ---
 
 **US-3.5: Access Task Operations Through Shared Service Layer**
+
 - **As a** Small Studio Lead (Jordan)
 - **I want** both the AI agent tools and human REST API endpoints to call the same `TaskService` class
 - **So that** task operations are consistent regardless of whether an AI agent or a human performs them, and there is no divergence between interfaces.
 
 **Acceptance Criteria:**
+
 - AC1: Single `TaskService` class called by both agent tools and REST API routes
 - AC2: Agent tools inject session context from `AgentState` (session_id, project_id, user_id)
 - AC3: Human API routes use JWT via `Depends(get_current_user_id)`
@@ -1377,6 +1430,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC6: REST endpoints use standard HTTP verbs and response codes alongside agent tools
 
 **Success Metrics:**
+
 - Interface parity: 100% of operations available through both agent tools and REST API
 - No data divergence: agent-created and human-created tasks indistinguishable in queries
 
@@ -1387,11 +1441,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 **Description:** Append-only audit event system that records every task mutation with before/after diffs, actor identification, and session traceability. Provides the accountability layer for AI-operated task management and enables compliance, debugging, and agent improvement.
 
 **US-4.1: Record Every Task Mutation as an Audit Event**
+
 - **As a** Enterprise Producer (Morgan)
 - **I want** every task mutation (create, update, status change, checklist check, dependency change, gate decision) recorded as an immutable event with before/after state diffs
 - **So that** I have a complete, tamper-proof record of every change for compliance, debugging, and knowledge transfer -- with zero manual documentation effort.
 
 **Acceptance Criteria:**
+
 - AC1: `audit_events` table in dedicated `audit` schema with BIGSERIAL id, transaction_id, entity_type, entity_id, agent_id, action, before_state/after_state/diff JSONB
 - AC2: 14 event types: task.created, task.status_changed, task.field_updated, item.checked, item.blocked, item.added, dependency.added, dependency.resolved, gate.decision, assignment.changed, bulk.status_update, bulk.tree_created, bulk.items_checked, task.deleted
 - AC3: Diffs use RFC 6902 JSON Patch format
@@ -1400,6 +1456,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC6: Failed mutations do NOT create events
 
 **Success Metrics:**
+
 - Event coverage: 100% of mutations produce corresponding audit events
 - Event write throughput: >1000 events/sec sustained
 - Zero orphaned events: no events exist for mutations that were rolled back
@@ -1407,11 +1464,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 ---
 
 **US-4.2: Handle Concurrent Agent Writes Safely**
+
 - **As a** AI Agent Operator
 - **I want** optimistic concurrency control via `stream_version` column with per-operation conflict resolution policies
 - **So that** multiple specialist agents working on the same project simultaneously do not corrupt data or silently lose each other's changes.
 
 **Acceptance Criteria:**
+
 - AC1: `stream_version` column per entity, incremented on every mutation
 - AC2: Concurrent writes detected via `WHERE stream_version = :expected` clause
 - AC3: Per-operation policies: checklist items = no conflict (independent rows), status = last-write-wins (state machine validates), field updates = optimistic lock + retry once, bulk ops = advisory locks
@@ -1419,17 +1478,20 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: `idempotency_key` (unique, nullable) prevents duplicate operations on retry
 
 **Success Metrics:**
+
 - Data corruption incidents: zero
 - Concurrent conflict resolution: >95% resolved without human intervention
 
 ---
 
 **US-4.3: Manage Audit Event Retention**
+
 - **As a** Enterprise Producer (Morgan)
 - **I want** audit events partitioned monthly with configurable retention tiers (Hot 0-90d, Warm 90-365d, Cold 1-3y, Archive 3y+)
 - **So that** recent events are fast to query, old events do not degrade performance, and storage costs are controlled while maintaining compliance-ready archives.
 
 **Acceptance Criteria:**
+
 - AC1: `audit_events` PARTITION BY RANGE (created_at) with monthly partitions via pg_partman
 - AC2: `p_premake => 3` creates partitions 3 months ahead
 - AC3: Hot retention (0-90 days): full retention, all indexes active
@@ -1439,6 +1501,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC7: Old partitions detached and archived without affecting query performance on recent data
 
 **Success Metrics:**
+
 - Partition creation: automated, zero manual intervention
 - Hot query performance: unaffected by cold data volume
 - Archive reliability: 100% of cold partitions successfully archived
@@ -1446,11 +1509,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 ---
 
 **US-4.4: Query Audit Trail for Agent Actions**
+
 - **As a** Educator (Dr. Reyes)
 - **I want** a `query_audit_trail` tool that lets me search event history by task_id, actor_id, event_type, and time range
 - **So that** I can review student decision-making processes -- which design decisions they made, when, and why -- for grading based on process quality rather than just final output.
 
 **Acceptance Criteria:**
+
 - AC1: `query_audit_trail` tool with filters: task_id, actor_id, event_type, since, limit (default 20)
 - AC2: Response includes: timestamp, event_type, actor, task_id, task_title, changes (before/after), reason
 - AC3: Cursor-based pagination for long histories
@@ -1458,6 +1523,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: Bulk operation events traceable via `parent_event_id`
 
 **Success Metrics:**
+
 - Audit query latency: <200ms for recent 90-day window
 - Query coverage: all 6 query patterns executable with acceptable performance
 
@@ -1468,11 +1534,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 **Description:** Cross-project institutional memory via vectorization of completed tasks into Pinecone and semantic search capabilities for AI agents. Enables learning from past projects.
 
 **US-5.1: Vectorize Completed Tasks Automatically**
+
 - **As a** Enterprise Producer (Morgan)
 - **I want** every task that transitions to "done" to be automatically vectorized and stored in Pinecone with rich metadata
 - **So that** completed work becomes searchable institutional knowledge without any manual effort, building a cross-project knowledge base that grows with every completed task.
 
 **Acceptance Criteria:**
+
 - AC1: Triggered by `task.status_changed` event when status becomes "done"
 - AC2: Async pipeline: publish to Redis Stream, background worker consumes and processes
 - AC3: Embedding text constructed from 9 high-signal fields: title, description, tags, area+phase, type, blocker_reason, task summary, follow-up items, first 5 checklist item texts (truncated to 200 chars each)
@@ -1483,6 +1551,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC8: Feature-flagged via `TASK_MEMORY_ENABLED`
 
 **Success Metrics:**
+
 - Vectorization latency: <30 seconds from task completion to searchable vector
 - Vectorization success rate: >99.5%
 - Zero impact on status transition latency
@@ -1490,11 +1559,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 ---
 
 **US-5.2: Search Institutional Memory Across Projects**
+
 - **As a** AI Agent Operator
 - **I want** a `search_task_memory` tool that performs semantic search across completed tasks from all projects in my organization
 - **So that** I can find relevant solutions, common blockers, and proven approaches from past projects to inform current work.
 
 **Acceptance Criteria:**
+
 - AC1: Input: natural language query, metadata filters (area, phase, genre, organization), top_k (default 5), include_task_detail flag
 - AC2: Response: task_id, project_name, title, similarity_score, summary_excerpt, completion_date, area, phase (~150-300 tokens for 5 results)
 - AC3: When `include_task_detail: true`, each result includes Level 2 detail (~500-2000 tokens per result)
@@ -1502,23 +1573,27 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: Organization-level isolation via Pinecone namespace
 
 **Success Metrics:**
+
 - Search relevance: top-5 results contain at least 1 relevant match for domain-specific queries
 - Search latency: <500ms for semantic query + metadata filter
 
 ---
 
 **US-5.3: Calibrate Estimates from Historical Data**
+
 - **As a** Small Studio Lead (Jordan)
 - **I want** to query past task completion data (duration, blockers, phase) for similar tasks across previous projects
 - **So that** I can provide more accurate time estimates for new projects based on actual historical performance rather than guesswork.
 
 **Acceptance Criteria:**
+
 - AC1: Semantic search returns completion_date and start_date (enabling duration calculation)
 - AC2: Blocker_reason field included in vectorized metadata for pattern analysis
 - AC3: Phase and area filters allow scoping to specific GDLC context
 - AC4: Batch re-vectorization script available for backfilling pre-existing completed tasks (idempotent, batch of 50)
 
 **Success Metrics:**
+
 - Historical query coverage: >90% of completed tasks vectorized and searchable
 - Duration data availability: start_date and completion_date present in >95% of search results
 
@@ -1529,11 +1604,13 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 **Description:** Organization-level tenant isolation, row-level security, and schema design for future partitioning and horizontal scaling. Built into Phase 1 from day one to avoid costly retrofitting.
 
 **US-6.1: Enforce Organization-Level Data Isolation**
+
 - **As a** Enterprise Producer (Morgan)
 - **I want** every task table to have `organization_id UUID NOT NULL` with PostgreSQL Row-Level Security policies enforcing tenant isolation at the database level
 - **So that** there is zero possibility of cross-tenant data leakage, even if application-level checks have bugs.
 
 **Acceptance Criteria:**
+
 - AC1: `organization_id UUID NOT NULL` FK on every task table (task_instances, task_instance_items, task_dependencies, task_templates, audit_events)
 - AC2: `ENABLE ROW LEVEL SECURITY` + `org_isolation` policy on all task tables
 - AC3: FastAPI middleware sets `SET LOCAL app.organization_id` per request, extracted from JWT
@@ -1541,48 +1618,53 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - AC5: RLS is defense-in-depth alongside application-level `WHERE organization_id = :org_id` checks
 
 **Success Metrics:**
+
 - Cross-tenant leakage: zero (verified by integration tests with multiple organizations)
 - RLS overhead: <5ms per query
 
 ---
 
 **US-6.2: Design Schema for Future Partitioning**
+
 - **As a** AI Agent Operator
 - **I want** composite primary keys (`(organization_id, id)`) and `fillfactor` tuning on hot tables from day one
 - **So that** partitioning can be activated later without schema migration when tables exceed ~100GB.
 
 **Acceptance Criteria:**
+
 - AC1: Composite PK `(organization_id, id)` on `task_instances` for future hash partitioning readiness
 - AC2: `fillfactor=70` on `task_instance_items` (frequent checkbox updates)
 - AC3: Aggressive autovacuum (`scale_factor=0.001`) on frequently-updated tables
 - AC4: Compound indexes: `(project_id, status, priority)` on tasks, `(task_instance_id, is_checked)` on items, `(hierarchy_path, status)` for rollups
 
 **Success Metrics:**
+
 - Schema migration for partitioning: zero required when activating partitioning
 - Autovacuum efficiency: table bloat <20% under sustained update load
 
 ---
 
 **US-6.3: Support Scaling Progression**
+
 - **As a** Enterprise Producer (Morgan)
 - **I want** the system to support a clear scaling progression (single PG -> PgBouncer + read replicas -> native partitioning -> distributed PG/Citus) without architectural changes at each step
 - **So that** the platform grows from 100 to 100,000+ concurrent users without requiring a rewrite.
 
 **Acceptance Criteria:**
+
 - AC1: PgBouncer configuration ready: `NullPool` + `statement_cache_size=0` in SQLAlchemy config, feature-flagged via `PGBOUNCER_ENABLED`
 - AC2: Read-only queries (list, dashboard, audit trail) separable to read replicas
 - AC3: Volume targets documented: per project ~500 tasks, per org ~50K tasks, platform ~50M tasks
 - AC4: Performance targets: API <200ms p95, dashboard <50ms, list <100ms, audit write >1000 events/sec
 
 **Success Metrics:**
+
 - Single-instance: supports 1000 concurrent users with target latencies
 - Documented scaling path: each transition step validated in architecture docs
 
 ---
 
-
 ### 21.2 Product Requirements
-
 
 #### 21.2.1 Core Features
 
@@ -1596,6 +1678,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | PostgreSQL 15, Alembic migrations, Auth service (JWT), Project service |
 
 **Acceptance Criteria:**
+
 - All 22 MDTM frontmatter fields represented as database columns or JSONB
 - State machine enforces valid transitions with actionable errors
 - Checklist items as independent rows with HOT-eligible updates
@@ -1603,6 +1686,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - Template instantiation creates ~500 tasks in <5 seconds
 
 **Success Metrics:**
+
 - Schema completeness: 22/22 MDTM fields represented
 - State machine coverage: 100% invalid transitions rejected
 
@@ -1618,6 +1702,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | Feature 1 (Task Data Model), Agent system (base_agent.py), Session context |
 
 **Acceptance Criteria:**
+
 - Tool definitions total <2K tokens (83% reduction from ~12K for ~60 granular tools)
 - 4 zoom levels with documented token budgets
 - 5 bulk operations with partial-success semantics
@@ -1625,6 +1710,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - 8 enumerated error codes with agent-action guidance
 
 **Success Metrics:**
+
 - Token efficiency: 85%+ reduction vs. granular tool pattern
 - Agent task completion rate: >95% of operations succeed on first tool call
 
@@ -1640,6 +1726,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | Feature 1 (Task Data Model), pg_partman extension |
 
 **Acceptance Criteria:**
+
 - 14 event types covering all task mutations
 - Co-transactional: event + mutation in same transaction
 - Optimistic concurrency via stream_version
@@ -1647,6 +1734,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - Queryable via agent tool with 6 index-backed query patterns
 
 **Success Metrics:**
+
 - Event write throughput: >1000 events/sec
 - Audit completeness: 100% of mutations produce events
 
@@ -1662,6 +1750,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | Feature 1 (Task Data Model), Feature 3 (Audit Events for trigger), Pinecone, OpenAI Embedding API |
 
 **Acceptance Criteria:**
+
 - Async vectorization on task completion (<30s to searchable)
 - 9 high-signal fields embedded per task
 - Organization-level namespace isolation in Pinecone
@@ -1669,6 +1758,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - Feature-flagged for gradual rollout
 
 **Success Metrics:**
+
 - Vectorization coverage: >99.5% of completed tasks vectorized
 - Search relevance: top-5 contains relevant match for domain queries
 
@@ -1684,12 +1774,14 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | PostgreSQL 15, Organization model (must be created), Auth service (JWT with org claim) |
 
 **Acceptance Criteria:**
+
 - `organization_id` on every task table from day one
 - RLS policies active on all task tables
 - Middleware automatically sets tenant context per request
 - Platform admin role bypasses RLS for operational needs
 
 **Success Metrics:**
+
 - Cross-tenant leakage: zero
 - RLS overhead: <5ms per query
 
@@ -1705,6 +1797,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | Feature 1 (Task Data Model), GDLC docs/code (gdlc.ts authoritative) |
 
 **Acceptance Criteria:**
+
 - Parses all 7 phases (handles missing Phase 7 work order gracefully)
 - Seeds from code values, not documentation (16+ discrepancies known)
 - Stable slug-based IDs with `ON CONFLICT` idempotency
@@ -1712,6 +1805,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - Idempotent: re-running produces identical results
 
 **Success Metrics:**
+
 - Template item count: ~791 items seeded (500 base + 291 genre-conditional)
 - Idempotency: re-seed produces zero new records or errors
 
@@ -1727,6 +1821,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | **Dependencies** | Feature 1 (Task Data Model), Feature 2 (Shared TaskService), Auth service |
 
 **Acceptance Criteria:**
+
 - Standard CRUD endpoints: POST/GET/PUT/DELETE for tasks
 - List endpoint with compound filters (phase, area, status, priority, assignee)
 - Offset pagination for backward compatibility with existing frontend patterns
@@ -1734,6 +1829,7 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 - Same TaskService as agent tools -- no separate implementation
 
 **Success Metrics:**
+
 - API response time: <200ms p95
 - Endpoint coverage: all task operations accessible via REST
 
@@ -1759,17 +1855,18 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | F7: Human REST API | 5000 | 2 | 90% | 2 | 4500 | P1 |
 
 **RICE Score Interpretation:**
+
 - **>5000:** P0 -- Must have for MVP. Build in Phase 1-2.
 - **2000-5000:** P1 -- Should have. Build in Phase 2-3.
 - **<2000:** P2 -- Could have. Defer to Phase 4+.
 
 **Notes on scoring:**
+
 - Reach for all features is high because AI agents (primary operators) interact with every feature. F3 and F7 score lower reach because they primarily serve human personas (subset of total users).
 - F5 (Multi-Tenant RLS) has the highest RICE score because it has very high reach, massive impact (security), high confidence (well-understood pattern), and low effort (schema-level addition during Phase 1).
 - F4 (Semantic Memory) has lowest confidence because it depends on Pinecone integration and embedding quality -- both untested with task data.
 
 ---
-
 
 ### 21.3 Implementation Phasing
 
@@ -1784,7 +1881,6 @@ A=Allowed, C=Conditional, F=Forbidden, I=Idempotent no-op. 9 allowed transitions
 | Phase 5: Integration | 2-3 weeks | GDLC template seeder, agent tool registration, swarm keyword routing, Prometheus dashboards, end-to-end testing |
 
 ### 21.4 Release Criteria & Definition of Done
-
 
 #### 21.4.1 Phase Release Criteria
 
@@ -1877,9 +1973,7 @@ A feature is considered "Done" when ALL of the following are satisfied:
 
 ---
 
-
 ### 21.5 Timeline & Milestones
-
 
 #### 21.5.1 High-Level Timeline
 
@@ -1931,6 +2025,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 **Focus:** Establish the relational schema, multi-tenant isolation, and migration infrastructure that all subsequent phases build upon.
 
 **Deliverables:**
+
 - [ ] 6-7 relational tables (`task_templates`, `task_template_items`, `task_instances`, `task_instance_items`, `task_dependencies`, `task_comments`, `audit_events` shell)
 - [ ] Standalone Alembic migration (independent of existing chain)
 - [ ] RLS policies on all task tables with `organization_id` enforcement
@@ -1940,6 +2035,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 - [ ] `fillfactor=70` on `task_instance_items` for HOT-eligible updates
 
 **Success Criteria:**
+
 - Migration runs cleanly on fresh database AND on database with existing data
 - RLS isolation test passes: zero cross-tenant data leakage
 - All indexes confirmed via `EXPLAIN ANALYZE` on representative queries
@@ -1956,6 +2052,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 **Focus:** Build the primary interface for AI agents -- the Domain Facade tools, TaskService, zoom levels, bulk operations, and cursor pagination. This is the longest single phase and the critical path.
 
 **Deliverables:**
+
 - [ ] `TaskService` with full CRUD, zoom-level responses (4 levels), and state machine enforcement
 - [ ] 5 Domain Facade tools: `query_tasks`, `mutate_tasks`, `bulk_operations`, `search_task_memory` (stub), `query_audit_trail` (stub)
 - [ ] `create_task_tree` bulk operation (~500 tasks in single transaction, < 5s)
@@ -1967,6 +2064,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 - [ ] Pydantic schemas: `TaskCreate`, `TaskUpdate`, `TaskResponse`, `TaskListResponse`
 
 **Success Criteria:**
+
 - All 5 tools callable from test agent session
 - Tool definition budget < 2K tokens total
 - Latency targets: CRUD < 200ms, dashboard < 50ms, list < 100ms, bulk tree < 5s (p95)
@@ -1984,6 +2082,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 **Focus:** Add immutable audit trail for all task mutations. Append-only `audit_events` table with RFC 6902 diffs, monthly partitioning, projection worker, and agent self-reflection tool.
 
 **Deliverables:**
+
 - [ ] `audit_events` table in separate `audit` schema with monthly range partitions (pg_partman)
 - [ ] Co-transactional event recording (entity mutation + event write in same transaction)
 - [ ] 14 event types with `before_state`/`after_state`/`diff` JSONB
@@ -1994,6 +2093,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 - [ ] `query_audit_trail` tool (replacing Phase 2 stub)
 
 **Success Criteria:**
+
 - Every mutation type generates correct audit event (14 event types verified)
 - Failed mutations produce zero audit events
 - Bulk operations create linked parent + child events
@@ -2012,6 +2112,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 **Focus:** Cross-project institutional memory via completed task vectorization and semantic search.
 
 **Deliverables:**
+
 - [ ] Async vectorization pipeline: task completion -> background worker -> Pinecone upsert
 - [ ] 9 high-signal fields for embedding text construction
 - [ ] `vectorized` boolean + `vector_id` + `vectorized_at` columns on `TaskInstance`
@@ -2021,6 +2122,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 - [ ] Feature flag `TASK_MEMORY_ENABLED`
 
 **Success Criteria:**
+
 - Vectorization completes within 30s of task completion
 - Status transition latency unaffected by vectorization (< 200ms regardless)
 - Semantic search returns relevant results for natural language queries
@@ -2038,6 +2140,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 **Focus:** End-to-end validation across all phases. Agent tool registration, GDLC template seeder, performance benchmarks, monitoring, and compliance documentation groundwork.
 
 **Deliverables:**
+
 - [ ] Task tools registered in all 8 agents with permission-scoped access
 - [ ] Swarm orchestrator keyword routing for task-related intents
 - [ ] GDLC template seeder: ~608 gate + ~98 work order items with stable slug IDs, idempotent
@@ -2050,6 +2153,7 @@ Deferred Workstreams (post-Phase 5) ──────── W14+
 - [ ] Compliance groundwork: AI transparency metadata on all agent-created tasks, ROPA update for task data processing
 
 **Success Criteria:**
+
 - All 28 integration checklist verification points pass (IC-1 through IC-28)
 - All Phase 2 latency targets hold under combined workload
 - Template seeder is idempotent (run twice, no duplicates)
@@ -2187,6 +2291,7 @@ The platform uses an established multi-library design system. Task management UI
 - [x] Animation/motion guidelines -- Framer Motion for transitions and animations
 
 **Task-specific design considerations:**
+
 - **Checklist interactions**: Checkbox components from Ant Design; optimistic UI update via Zustand with server rollback on rejection
 - **Status badges**: Color-coded status indicators following existing badge patterns (`frontend/src/components/ui/badge`)
 - **Priority indicators**: Visual weight hierarchy (P0 red/urgent through P2 subtle)
@@ -2214,6 +2319,7 @@ The platform uses an established multi-library design system. Task management UI
 ### 25.1 `task.create` -- Create a Task
 
 **Agent Tool Call:**
+
 ```json
 {
   "tool": "mutate_tasks",
@@ -2236,6 +2342,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -2253,6 +2360,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Error -- Validation):**
+
 ```json
 {
   "success": false,
@@ -2273,6 +2381,7 @@ The platform uses an established multi-library design system. Task management UI
 ### 25.2 `task.query` -- Query Tasks with Zoom Levels
 
 **Zoom Level 0 (Dashboard -- ~120-180 tokens total):**
+
 ```json
 {
   "tool": "query_tasks",
@@ -2285,6 +2394,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2302,6 +2412,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Zoom Level 1 (List -- ~40-55 tokens/task):**
+
 ```json
 {
   "tool": "query_tasks",
@@ -2322,6 +2433,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2359,6 +2471,7 @@ The platform uses an established multi-library design system. Task management UI
 ### 25.3 `task.update` -- Update with Concurrency Control
 
 **Agent Tool Call (Status Transition):**
+
 ```json
 {
   "tool": "mutate_tasks",
@@ -2372,6 +2485,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Success -- with side effects):**
+
 ```json
 {
   "success": true,
@@ -2392,6 +2506,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Error -- Concurrency Conflict):**
+
 ```json
 {
   "success": false,
@@ -2408,6 +2523,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Error -- Invalid Transition):**
+
 ```json
 {
   "success": false,
@@ -2427,6 +2543,7 @@ The platform uses an established multi-library design system. Task management UI
 ### 25.4 `checklist.batch_update` -- Batch Checklist Item Operations
 
 **Agent Tool Call:**
+
 ```json
 {
   "tool": "bulk_operations",
@@ -2443,6 +2560,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -2467,6 +2585,7 @@ The platform uses an established multi-library design system. Task management UI
 ```
 
 **Response (Partial Failure):**
+
 ```json
 {
   "success": true,

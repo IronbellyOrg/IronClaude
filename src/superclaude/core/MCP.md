@@ -5,6 +5,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 ## Server Selection Algorithm
 
 **Priority Matrix**:
+
 1. Task-Server Affinity: Match tasks to optimal servers based on capability matrix
 2. Performance Metrics: Server response time, success rate, resource utilization
 3. Context Awareness: Current persona, command depth, session state
@@ -17,12 +18,14 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 
 **Purpose**: Official library documentation, code examples, best practices, localization standards
 
-**Activation Patterns**: 
+**Activation Patterns**:
+
 - Automatic: External library imports detected, framework-specific questions, scribe persona active
 - Manual: `--c7`, `--context7` flags
 - Smart: Commands detect need for official documentation patterns
 
 **Workflow Process**:
+
 1. Library Detection: Scan imports, dependencies, package.json for library references
 2. ID Resolution: Use `resolve-library-id` to find Context7-compatible library ID
 3. Documentation Retrieval: Call `get-library-docs` with specific topic focus
@@ -34,6 +37,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **Integration Commands**: `/build`, `/analyze`, `/improve`, `/design`, `/document`, `/explain`, `/git`
 
 **Error Recovery**:
+
 - Library not found → WebSearch for alternatives → Manual implementation
 - Documentation timeout → Use cached knowledge → Note limitations
 - Invalid library ID → Retry with broader search terms → Fallback to WebSearch
@@ -45,11 +49,13 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **Purpose**: Multi-step problem solving, architectural analysis, systematic debugging
 
 **Activation Patterns**:
+
 - Automatic: Complex debugging scenarios, system design questions, `--think` flags
 - Manual: `--seq`, `--sequential` flags
 - Smart: Multi-step problems requiring systematic analysis
 
 **Workflow Process**:
+
 1. Problem Decomposition: Break complex problems into analyzable components
 2. Server Coordination: Coordinate with Context7 for documentation, Magic for UI insights, Playwright for testing
 3. Systematic Analysis: Apply structured thinking to each component
@@ -61,11 +67,13 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 9. Validation: Check reasoning for logical consistency
 
 **Integration with Thinking Modes**:
+
 - `--think` (4K): Module-level analysis with context awareness
 - `--think-hard` (10K): System-wide analysis with architectural focus
 - `--ultrathink` (32K): Critical system analysis with comprehensive coverage
 
 **Use Cases**:
+
 - Root cause analysis for complex bugs
 - Performance bottleneck identification
 - Architecture review and improvement planning
@@ -79,11 +87,13 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **Purpose**: Modern UI component generation, design system integration, responsive design
 
 **Activation Patterns**:
+
 - Automatic: UI component requests, design system queries
 - Manual: `--magic` flag
 - Smart: Frontend persona active, component-related queries
 
 **Workflow Process**:
+
 1. Requirement Parsing: Extract component specifications and design system requirements
 2. Pattern Search: Find similar components and design patterns from 21st.dev database
 3. Framework Detection: Identify target framework (React, Vue, Angular) and version
@@ -96,6 +106,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 10. Quality Assurance: Validate against design system and accessibility standards
 
 **Component Categories**:
+
 - Interactive: Buttons, forms, modals, dropdowns, navigation, search components
 - Layout: Grids, containers, cards, panels, sidebars, headers, footers
 - Display: Typography, images, icons, charts, tables, lists, media
@@ -105,6 +116,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 - Data: Tables, grids, lists, cards, infinite scroll, virtualization
 
 **Framework Support**:
+
 - React: Hooks, TypeScript, modern patterns, Context API, state management
 - Vue: Composition API, TypeScript, reactive patterns, Pinia integration
 - Angular: Component architecture, TypeScript, reactive forms, services
@@ -115,11 +127,13 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **Purpose**: Cross-browser E2E testing, performance monitoring, automation, visual testing
 
 **Activation Patterns**:
+
 - Automatic: Testing workflows, performance monitoring requests, E2E test generation
 - Manual: `--play`, `--playwright` flags
 - Smart: QA persona active, browser interaction needed
 
 **Workflow Process**:
+
 1. Browser Connection: Connect to Chrome, Firefox, Safari, or Edge instances
 2. Environment Setup: Configure viewport, user agent, network conditions, device emulation
 3. Navigation: Navigate to target URLs with proper waiting and error handling
@@ -132,6 +146,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 10. Cleanup: Properly close browser connections and clean up resources
 
 **Capabilities**:
+
 - Multi-Browser Support: Chrome, Firefox, Safari, Edge with consistent API
 - Visual Testing: Screenshot capture, visual regression detection, responsive testing
 - Performance Metrics: Load times, rendering performance, resource usage, Core Web Vitals
@@ -141,6 +156,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 - Parallel Execution: Run tests across multiple browsers simultaneously
 
 **Integration Patterns**:
+
 - Test Generation: Create E2E tests based on user workflows and critical paths
 - Performance Monitoring: Continuous performance measurement with threshold alerting
 - Visual Validation: Screenshot-based testing and regression detection
@@ -152,11 +168,13 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **Purpose**: Semantic codebase retrieval, project structure understanding, code-aware context loading
 
 **Activation Patterns**:
+
 - Automatic: Code-related brainstorm topics, task execution (STRICT/STANDARD tiers), implementation planning
 - Manual: `--auggie` flag
 - Smart: Commands detect need for codebase awareness before code-related operations
 
 **Workflow Process**:
+
 1. Topic Analysis: Determine if codebase context would be valuable for the current operation
 2. Query Formulation: Create natural language queries from task/topic context
 3. Retrieval: Call `codebase-retrieval` with project `directory_path` (current working directory)
@@ -164,6 +182,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 5. Integration: Feed context into downstream reasoning, dialogue, or implementation
 
 **Query Patterns**:
+
 - Topic-Specific: `"{topic} - find relevant code, existing implementations, related components"`
 - Architecture Scan: `"Project architecture, structure, patterns related to {domain_area}"`
 - Pre-Edit Context: `"All symbols, classes, and methods involved in {change_description}"`
@@ -171,6 +190,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **Integration Commands**: `/brainstorm`, `/task`, `/implement`, `/analyze`, `/troubleshoot`
 
 **Error Recovery**:
+
 - Server unavailable → Fallback to Serena symbol search (`get_symbols_overview`) + Grep/Glob for basic codebase awareness
 - No relevant results → Proceed without codebase context, note limitation to user
 - Timeout → Use partial results if available, otherwise skip with warning
@@ -180,40 +200,48 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 ## MCP Server Use Cases by Command Category
 
 **Development Commands**:
+
 - Context7: Framework patterns, library documentation
 - Magic: UI component generation
 - Sequential: Complex setup workflows
 - Auggie: Pre-implementation codebase context
 
 **Analysis Commands**:
+
 - Context7: Best practices, patterns
 - Sequential: Deep analysis, systematic review
 - Playwright: Issue reproduction, visual testing
 - Auggie: Codebase context and pattern discovery
 
 **Quality Commands**:
+
 - Context7: Security patterns, improvement patterns
 - Sequential: Code analysis, cleanup strategies
 
 **Testing Commands**:
+
 - Sequential: Test strategy development
 - Playwright: E2E test execution, visual regression
 
 **Documentation Commands**:
+
 - Context7: Documentation patterns, style guides, localization standards
 - Sequential: Content analysis, structured writing, multilingual documentation workflows
 - Scribe Persona: Professional writing with cultural adaptation and language-specific conventions
 
 **Planning Commands**:
+
 - Context7: Benchmarks and patterns
 - Sequential: Complex planning and estimation
 - Auggie: Existing implementation awareness
 
 **Deployment Commands**:
+
 - Sequential: Deployment planning
 - Playwright: Deployment validation
 
 **Meta Commands**:
+
 - Sequential: Search intelligence, task orchestration, iterative improvement analysis
 - All MCP: Comprehensive analysis and orchestration
 - Loop Command: Iterative workflows with Sequential (primary) and Context7 (patterns)
@@ -221,6 +249,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 ## Server Orchestration Patterns
 
 **Multi-Server Coordination**:
+
 - Task Distribution: Intelligent task splitting across servers based on capabilities
 - Dependency Management: Handle inter-server dependencies and data flow
 - Synchronization: Coordinate server responses for unified solutions
@@ -228,6 +257,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 - Failover Management: Automatic failover to backup servers during outages
 
 **Caching Strategies**:
+
 - Context7 Cache: Documentation lookups with version-aware caching
 - Sequential Cache: Analysis results with pattern matching
 - Magic Cache: Component patterns with design system versioning
@@ -245,6 +275,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 **State Transitions**: failures ≥ threshold → OPEN | timeout elapsed → HALF_OPEN | test succeeds → CLOSED | test fails → OPEN (extend timeout)
 
 ### Per-Server Settings & Fallbacks
+
 | Server | Threshold | Timeout | Fallback | Impact |
 |--------|-----------|---------|----------|--------|
 | Sequential | 3 failures | 30s | Native Claude reasoning | Reduced analysis depth |
@@ -255,6 +286,7 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 | Auggie | 3 failures | 45s | Serena + Grep/Glob | Reduced codebase awareness |
 
 ### Task Command Circuit Integration
+
 | Compliance Tier | Required Servers | Fallback Allowed | Behavior |
 |-----------------|-----------------|------------------|----------|
 | STRICT | Sequential, Serena | No | Block if unavailable |
@@ -263,10 +295,10 @@ MCP (Model Context Protocol) server integration and orchestration system for Cla
 | EXEMPT | — | Yes | No MCP dependency |
 
 **Integration Patterns**:
+
 - Minimal Start: Start with minimal MCP usage and expand based on needs
 - Progressive Enhancement: Progressively enhance with additional servers
 - Result Combination: Combine MCP results for comprehensive solutions
 - Graceful Fallback: Fallback gracefully when servers unavailable
 - Loop Integration: Sequential for iterative analysis, Context7 for improvement patterns
 - Dependency Orchestration: Manage inter-server dependencies and data flow
-

@@ -26,6 +26,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Mapping
 
+from . import exit_codes as _exit_codes
+
 __all__ = [
     "DEFAULT_MIN_CLAUDE_VERSION",
     "EvalConfig",
@@ -110,13 +112,9 @@ class EvalConfig:
 # ---------------------------------------------------------------------------
 
 
-SCRATCH_ROOT_VIOLATION_EXIT_CODE: int = 2
+SCRATCH_ROOT_VIOLATION_EXIT_CODE: int = _exit_codes.USAGE_ERROR
 """Exit code mapped to :class:`ScratchRootViolation` at the CLI boundary.
-
-Matches the loader-error trio (``SCHEMA_ERROR_EXIT_CODE``,
-``INVALID_EVAL_ID_EXIT_CODE``, ``UNRESOLVED_CAPABILITY_EXIT_CODE``) so every
-"harness refused to operate before any filesystem write" outcome surfaces
-as a single ``2`` from the operator's point of view.
+Design-spec §4 ``2``. Canonical value: ``exit_codes.USAGE_ERROR`` (CC2 / OQ-2).
 """
 
 
@@ -241,9 +239,10 @@ def resolve_scratch_root(
     resolved = candidate.expanduser().resolve(strict=False)
 
     for prefix in allowed:
-        # ``is_relative_to`` catches strict sub-paths; the equality branch
-        # accepts the prefix itself (``/tmp/eval-runs`` is a valid root).
-        if resolved == prefix or resolved.is_relative_to(prefix):
+        # H4: reject bare allowlist prefix — only strict sub-paths accepted
+        # (prevents AC12 tautology when an operator passes a path equal to
+        # an allowlist entry by construction).
+        if resolved.is_relative_to(prefix) and resolved != prefix:
             return resolved
 
     raise ScratchRootViolation(candidate, resolved, allowed)

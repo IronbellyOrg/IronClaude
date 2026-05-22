@@ -80,6 +80,7 @@ SP-5 (Challenge                                   RM-4 (Boundary Agent)
 ```
 
 **Key Dependencies**:
+
 1. **SP-2 enables SP-5**: The cross-expert challenge protocol is most valuable when the adversarial tester is available as a challenger.
 2. **AD-2 feeds AD-1**: Shared assumptions surface the input for invariant probing.
 3. **SP-3 feeds RM-1**: Guard boundary tables from spec review should propagate to roadmap state invariant analysis.
@@ -156,6 +157,7 @@ Complete implementation with all proposals and inter-stage artifact propagation.
 Given the dependencies and synergies, the optimal cross-command implementation order is:
 
 **Wave 1 (Immediate, < 1 week)**:
+
 1. RM-5: Risk Register Categories (template change, minutes to implement)
 2. SP-2: Adversarial Tester Persona (persona definition, 1-2 hours)
 3. AD-5: Debate Topic Taxonomy (taxonomy + gate, 2-4 hours)

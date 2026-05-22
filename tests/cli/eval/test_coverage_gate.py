@@ -157,12 +157,20 @@ def test_coverage_gate_passes_when_settings_missing(tmp_path: Path) -> None:
     assert result.matchers == ()
 
 
-def test_coverage_gate_passes_when_settings_unreadable_json(tmp_path: Path) -> None:
-    """Malformed settings.json is treated as the empty matcher set."""
+def test_coverage_gate_fails_closed_when_settings_unreadable_json(tmp_path: Path) -> None:
+    """H2: malformed settings.json fails the gate closed (FR-G5).
+
+    Pre-H2 this test asserted ``passed is True`` (silent-green on corrupt
+    JSON). The remediation flipped the invariant: a corrupt settings.json
+    means coverage cannot be computed, so a misconfigured host MUST NOT
+    run as if all matchers were covered. The parse-error diagnostic is
+    surfaced via ``CoverageResult.parse_error``.
+    """
     bad = tmp_path / "settings.json"
     bad.write_text("{not json", encoding="utf-8")
     result = coverage_gate(settings_path=bad, suite=())
-    assert result.passed is True
+    assert result.passed is False
+    assert result.parse_error is not None
 
 
 def test_coverage_gate_passes_when_every_pattern_has_a_covering_eval(
@@ -315,6 +323,21 @@ def test_coverage_gate_to_dict_serialises_full_result(tmp_path: Path) -> None:
         {"event": "PreToolUse", "pattern": "mcp__auggie__.*"}
     ]
     assert payload["coverage_map"] == {"mcp__auggie__.*": ["E1"]}
+
+
+def test_coverage_gate_fails_on_corrupt_settings_json(tmp_path: Path) -> None:
+    """FR-G5 / spec H2 — corrupt settings.json MUST fail closed.
+
+    Today's behavior (PRE-H2) returns ``CoverageResult(passed=True)`` on
+    ``json.JSONDecodeError``, which silently green-lights every run on hosts
+    with a broken settings.json. Phase 3 Step 3.2 (H2) flips this to
+    ``passed=False`` with a ``parse_error`` field. Until that edit lands,
+    this test is EXPECTED to be RED — it pins the FR-G5 fail-closed invariant.
+    """
+    bad = tmp_path / "settings.json"
+    bad.write_text("{not json", encoding="utf-8")
+    result = coverage_gate(settings_path=bad, suite=())
+    assert result.passed is False
 
 
 # ---------------------------------------------------------------------------

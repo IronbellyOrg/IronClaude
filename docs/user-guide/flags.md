@@ -5,6 +5,7 @@
 ## Essential Auto-Activation Flags (90% of Use Cases)
 
 ### Core Analysis Flags
+
 | Flag | When Activated | What It Does |
 |------|---------------|--------------|
 | `--think` | 5+ files OR complex analysis | Standard structured analysis (~4K tokens) |
@@ -12,6 +13,7 @@
 | `--ultrathink` | Critical system redesign, legacy modernization | Maximum depth analysis (~32K tokens) with all tools |
 
 ### MCP Server Flags
+
 | Flag | Server | Purpose | Auto-Triggers |
 |------|---------|---------|---------------|
 | `--c7` / `--context7` | Context7 | Official docs, framework patterns | Library imports, framework questions |
@@ -24,6 +26,7 @@
 | `--serena` | Serena | Project memory, symbol operations | Symbol operations, large codebases |
 
 ### Behavioral Mode Flags
+
 | Flag | When Activated | What It Does |
 |------|---------------|--------------|
 | `--brainstorm` | Vague requests, exploration keywords | Collaborative discovery mindset |
@@ -33,6 +36,7 @@
 | `--token-efficient` / `--uc` | Context >75%, efficiency needs | Symbol-enhanced communication, 30-50% reduction |
 
 ### Execution Control Flags
+
 | Flag | When Activated | What It Does |
 |------|---------------|--------------|
 | `--loop` | "improve", "polish", "refine" keywords | Iterative enhancement cycles |
@@ -43,6 +47,7 @@
 ## Command-Specific Flags
 
 ### Analysis Command Flags (`/sc:analyze`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--focus` | Target specific domain | `security`, `performance`, `quality`, `architecture` |
@@ -50,6 +55,7 @@
 | `--format` | Output format | `text`, `json`, `report` |
 
 ### Build Command Flags (`/sc:build`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Build configuration | `dev`, `prod`, `test` |
@@ -58,12 +64,14 @@
 | `--verbose` | Detailed output | Boolean |
 
 ### Design Command Flags (`/sc:design`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Design target | `architecture`, `api`, `component`, `database` |
 | `--format` | Output format | `diagram`, `spec`, `code` |
 
 ### Explain Command Flags (`/sc:explain`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--level` | Complexity level | `basic`, `intermediate`, `advanced` |
@@ -71,6 +79,7 @@
 | `--context` | Domain context | Any domain (e.g., `react`, `security`) |
 
 ### Improve Command Flags (`/sc:improve`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Improvement focus | `quality`, `performance`, `maintainability`, `style`, `security` |
@@ -79,6 +88,7 @@
 | `--preview` | Show without executing | Boolean |
 
 ### Task Command Flags (`/sc:task`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--strategy` | Task approach | `systematic`, `agile`, `enterprise` |
@@ -86,6 +96,7 @@
 | `--delegate` | Sub-agent coordination | Boolean |
 
 ### Workflow Command Flags (`/sc:workflow`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--strategy` | Workflow approach | `systematic`, `agile`, `enterprise` |
@@ -93,6 +104,7 @@
 | `--parallel` | Parallel coordination | Boolean |
 
 ### Troubleshoot Command Flags (`/sc:troubleshoot`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Issue category | `bug`, `build`, `performance`, `deployment` |
@@ -100,6 +112,7 @@
 | `--fix` | Apply fixes | Boolean |
 
 ### Cleanup Command Flags (`/sc:cleanup`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Cleanup target | `code`, `imports`, `files`, `all` |
@@ -108,6 +121,7 @@
 | `--preview` | Show without executing | Boolean |
 
 ### Estimate Command Flags (`/sc:estimate`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Estimate focus | `time`, `effort`, `complexity` |
@@ -115,12 +129,14 @@
 | `--breakdown` | Detailed breakdown | Boolean |
 
 ### Index Command Flags (`/sc:index`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Index target | `docs`, `api`, `structure`, `readme` |
 | `--format` | Output format | `md`, `json`, `yaml` |
 
 ### Reflect Command Flags (`/sc:reflect`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Reflection scope | `task`, `session`, `completion` |
@@ -128,24 +144,28 @@
 | `--validate` | Validate completeness | Boolean |
 
 ### Spawn Command Flags (`/sc:spawn`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--strategy` | Coordination approach | `sequential`, `parallel`, `adaptive` |
 | `--depth` | Analysis depth | `normal`, `deep` |
 
 ### Git Command Flags (`/sc:git`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--smart-commit` | Generate commit message | Boolean |
 | `--interactive` | Guided operations | Boolean |
 
 ### Select-Tool Command Flags (`/sc:select-tool`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--analyze` | Tool analysis | Boolean |
 | `--explain` | Explain selection | Boolean |
 
 ### Test Command Flags (`/sc:test`)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--coverage` | Include coverage | Boolean |
@@ -155,12 +175,14 @@
 ## Advanced Control Flags
 
 ### Scope and Focus
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--scope` | Analysis boundary | `file`, `module`, `project`, `system` |
 | `--focus` | Domain targeting | `performance`, `security`, `quality`, `architecture`, `accessibility`, `testing` |
 
 ### Execution Control
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--concurrency [n]` | Control parallel ops | 1-15 |
@@ -170,6 +192,7 @@
 | `--frontend-verify` | UI testing, frontend debugging, layout validation | Enable Playwright + Chrome DevTools + Serena |
 
 ### System Flags (SuperClaude Installation)
+
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--verbose` / `-v` | Verbose logging | Boolean |
@@ -185,6 +208,7 @@
 ## Common Usage Patterns
 
 ### Frontend Development
+
 ```bash
 /sc:implement "responsive dashboard" --magic --c7
 /sc:design component-library --type component --format code
@@ -193,6 +217,7 @@
 ```
 
 ### Backend Development
+
 ```bash
 /sc:analyze api/ --focus performance --seq --think
 /sc:design payment-api --type api --format spec
@@ -201,6 +226,7 @@
 ```
 
 ### Large Projects
+
 ```bash
 /sc:analyze . --ultrathink --all-mcp --safe-mode
 /sc:workflow enterprise-system --strategy enterprise --depth deep
@@ -209,6 +235,7 @@
 ```
 
 ### Quality & Maintenance
+
 ```bash
 /sc:improve src/ --type quality --safe --interactive
 /sc:cleanup imports --type imports --preview
@@ -219,6 +246,7 @@
 ## Flag Interactions
 
 ### Compatible Combinations
+
 - `--think` + `--c7`: Analysis with documentation
 - `--magic` + `--play`: UI generation with testing
 - `--serena` + `--morph`: Project memory with transformations
@@ -226,12 +254,14 @@
 - `--loop` + `--validate`: Iterative improvement with validation
 
 ### Conflicting Flags
+
 - `--all-mcp` vs individual MCP flags (use one or the other)
 - `--no-mcp` vs any MCP flags (--no-mcp wins)
 - `--safe` vs `--aggressive` (cleanup intensity)
 - `--quiet` vs `--verbose` (output level)
 
 ### Auto-Enabling Relationships
+
 - `--safe-mode` auto-enables `--uc` and `--validate`
 - `--ultrathink` auto-enables all MCP servers
 - `--think-hard` auto-enables `--seq` + `--c7`
@@ -240,12 +270,14 @@
 ## Troubleshooting Flags
 
 ### Common Issues
+
 - **Too many tools**: Use `--no-mcp` to test with native tools only
 - **Operation too slow**: Add `--uc` to compress output
 - **Validation blocking**: Use `--validate` instead of `--safe-mode` in development
 - **Context pressure**: Auto-activates `--token-efficient` at >75% usage
 
 ### Debug Flags
+
 ```bash
 /sc:analyze . --verbose                      # Shows decision logic and flag activation
 /sc:select-tool "operation" --explain        # Explains tool selection process
@@ -253,6 +285,7 @@
 ```
 
 ### Quick Fixes
+
 ```bash
 /sc:analyze . --help                         # Shows available flags for command
 /sc:analyze . --no-mcp                       # Native execution only
@@ -268,6 +301,7 @@
 5. **Scope Precedence**: system > project > module > file
 
 ## Related Resources
+
 - [Commands Guide](commands.md) - Commands that use these flags
 - [MCP Servers Guide](mcp-servers.md) - Understanding MCP flag activation
 - [Session Management](session-management.md) - Using flags with persistent sessions

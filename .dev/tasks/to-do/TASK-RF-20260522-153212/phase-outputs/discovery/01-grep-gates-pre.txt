@@ -1,0 +1,41 @@
+=== H1: run_dir=resolved_output ===
+src/superclaude/cli/eval/commands.py:1853:            run_dir=resolved_output,
+=== H5: home_root.mkdir ===
+src/superclaude/cli/eval/commands.py:1737:    home_root.mkdir(parents=True, exist_ok=True)
+src/superclaude/cli/eval/isolation.py:533:        self.home_root.mkdir(parents=True, exist_ok=True)
+=== CC1: re.compile ===
+src/superclaude/cli/eval/coverage.py:120:            this string with :func:`re.compile`; an unparseable pattern
+src/superclaude/cli/eval/coverage.py:255:        regex = re.compile(pattern)
+src/superclaude/cli/eval/artifact_layout.py:99:_EVAL_ID_RE = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+src/superclaude/cli/eval/pty_stream.py:94:ANSI_ESCAPE_RE: Pattern[str] = re.compile(
+src/superclaude/cli/eval/expect.py:203:        compiled = re.compile(regex) if regex is not None else None
+src/superclaude/cli/eval/expect.py:682:    compiled = re.compile(regex) if regex is not None else None
+src/superclaude/cli/eval/loader.py:86:EVAL_ID_REGEX: re.Pattern[str] = re.compile(
+src/superclaude/cli/eval/pty_driver.py:152:            self._prompt_ready_pattern: Pattern[str] = re.compile(prompt_ready_pattern)
+src/superclaude/cli/eval/commands.py:100:_VERSION_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)")
+=== CC2: sys.exit(N)|Exit(N) ===
+src/superclaude/cli/eval/commands.py:23:Doctor fails closed (``sys.exit(2)``) when any HARD row is missing and
+=== CC2: *_EXIT_CODE = 2 ===
+src/superclaude/cli/eval/coverage.py:77:COVERAGE_GATE_FAILED_EXIT_CODE: int = 2
+src/superclaude/cli/eval/loader.py:65:SCHEMA_ERROR_EXIT_CODE: int = 2
+src/superclaude/cli/eval/loader.py:75:INVALID_EVAL_ID_EXIT_CODE: int = 2
+src/superclaude/cli/eval/loader.py:79::data:`SCHEMA_ERROR_EXIT_CODE` (= 2) because both are surfaces of the same
+src/superclaude/cli/eval/loader.py:163:            :data:`INVALID_EVAL_ID_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/loader.py:193:    :data:`SCHEMA_ERROR_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/loader.py:323:            this to :data:`SCHEMA_ERROR_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/loader.py:336:UNRESOLVED_CAPABILITY_EXIT_CODE: int = 2
+src/superclaude/cli/eval/loader.py:347:SUITE_LOADER_ERROR_EXIT_CODE: int = 2
+src/superclaude/cli/eval/loader.py:367:    :data:`UNRESOLVED_CAPABILITY_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/loader.py:487:    callers map it to :data:`SUITE_LOADER_ERROR_EXIT_CODE` (= 2) and
+src/superclaude/cli/eval/config.py:113:SCRATCH_ROOT_VIOLATION_EXIT_CODE: int = 2
+src/superclaude/cli/eval/config.py:226:            :data:`SCRATCH_ROOT_VIOLATION_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/disk_budget.py:106:DISK_BUDGET_EXCEEDED_EXIT_CODE: int = 2
+src/superclaude/cli/eval/run_report.py:52:REPORTER_CONTRACT_VIOLATION_EXIT_CODE: int = 2
+src/superclaude/cli/eval/run_report.py:74:    :data:`REPORTER_CONTRACT_VIOLATION_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/commands.py:558:HARD_FAIL_EXIT_CODE = 2
+src/superclaude/cli/eval/commands.py:714:    :data:`SUITE_LOADER_ERROR_EXIT_CODE` (= 2). The loader is injectable
+src/superclaude/cli/eval/commands.py:975:SUITE_NOT_FOUND_EXIT_CODE: int = 2
+src/superclaude/cli/eval/commands.py:984:EVAL_NOT_FOUND_EXIT_CODE: int = 2
+src/superclaude/cli/eval/commands.py:997:    :data:`SUITE_NOT_FOUND_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/commands.py:1013:    MUST map this to :data:`EVAL_NOT_FOUND_EXIT_CODE` (= 2).
+src/superclaude/cli/eval/commands.py:1102:            callers map this to :data:`SUITE_NOT_FOUND_EXIT_CODE` (= 2).

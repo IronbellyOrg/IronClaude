@@ -11,6 +11,7 @@
 | Section Coverage (SC) | 0.15 | 0.85 (covers all sections) | 0.70 (missing non-table handling) | 1.00 (most complete coverage) |
 
 **Quantitative scores:**
+
 - Position A: (0.85u00d70.30) + (1.00u00d70.25) + (0.90u00d70.15) + (0.95u00d70.15) + (0.85u00d70.15) = 0.255 + 0.250 + 0.135 + 0.143 + 0.128 = **0.911**
 - Position B: (0.40u00d70.30) + (0.60u00d70.25) + (0.70u00d70.15) + (0.50u00d70.15) + (0.70u00d70.15) = 0.120 + 0.150 + 0.105 + 0.075 + 0.105 = **0.555**
 - Position C: (0.90u00d70.30) + (0.90u00d70.25) + (0.85u00d70.15) + (0.90u00d70.15) + (1.00u00d70.15) = 0.270 + 0.225 + 0.128 + 0.135 + 0.150 = **0.908**
@@ -18,6 +19,7 @@
 ## Qualitative Scoring (50% weight) u2014 30-Criterion Rubric
 
 ### Completeness (5 criteria)
+
 | Criterion | A | C | Evidence |
 |-----------|---|---|----------|
 | Covers all explicit requirements | MET | MET | Both handle independence, compression, ID preservation |
@@ -28,6 +30,7 @@
 | **Subtotal** | **3/5** | **5/5** | |
 
 ### Correctness (5 criteria)
+
 | Criterion | A | C | Evidence |
 |-----------|---|---|----------|
 | No factual errors | MET | MET | Both compression ratio estimates verifiable |
@@ -38,6 +41,7 @@
 | **Subtotal** | **5/5** | **5/5** | |
 
 ### Structure (5 criteria)
+
 | Criterion | A | C | Evidence |
 |-----------|---|---|----------|
 | Logical ordering | MET | MET | Both follow extract-transform-output |
@@ -48,6 +52,7 @@
 | **Subtotal** | **4/5** | **5/5** | |
 
 ### Clarity (5 criteria)
+
 | Criterion | A | C | Evidence |
 |-----------|---|---|----------|
 | Unambiguous language | MET | MET | Both use concrete terms |
@@ -58,6 +63,7 @@
 | **Subtotal** | **5/5** | **5/5** | |
 
 ### Risk Coverage (5 criteria)
+
 | Criterion | A | C | Evidence |
 |-----------|---|---|----------|
 | Identifies 3+ risks | MET | MET | A: AC loss, LLM dependency, dual format. C: vocabulary, lower compression, domain specificity |
@@ -68,6 +74,7 @@
 | **Subtotal** | **2/5** | **5/5** | |
 
 ### Invariant & Edge Case Coverage (5 criteria)
+
 | Criterion | A | C | Evidence |
 |-----------|---|---|----------|
 | Collection boundary conditions | NOT MET | MET | C handles empty AC (tag: `none`); A just drops it |
@@ -78,6 +85,7 @@
 | **Subtotal** | **1/5** | **4/5** | |
 
 ### Qualitative Summary
+
 | Dimension | Position A | Position C |
 |-----------|-----------|------------|
 | Completeness | 3/5 | 5/5 |
@@ -91,6 +99,7 @@
 **Qualitative scores:** A = 0.667, B = (eliminated), C = 0.967
 
 ### Edge Case Floor Check
+
 - Position A: 1/5 u2014 PASSES floor (threshold: 1/5)
 - Position C: 4/5 u2014 PASSES
 
@@ -113,16 +122,19 @@
 3. **Risk mitigation completeness** u2014 C addresses its own vocabulary problem with a bounded solution
 
 **Strengths to preserve from base (C):**
+
 - TSV schema normalization with fixed columns
 - AC keyword tag extraction with controlled vocabulary
 - Metadata header for non-table content
 - Integration points as structured rows
 
 **Strengths to incorporate from Position A:**
+
 - YAML/JSON machine-readable output format (instead of TSV) for programmatic consumption
 - One-line prose summaries for narrative sections (supplement metadata header)
 - Critical path notation as a single compressed line
 - Explicit phase field per task (rather than phase as grouping)
 
 **From Position B (constructive contribution):**
+
 - Post-compression hash fingerprinting as an optional enhancement layer

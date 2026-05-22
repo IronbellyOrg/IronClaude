@@ -11,6 +11,7 @@ generator: superclaude-anti-instinct-audit
 ---
 
 ## Anti-Instinct Audit Report
+
 ### Obligation Scanner
 
 - Total obligations detected: 5
@@ -18,6 +19,7 @@ generator: superclaude-anti-instinct-audit
 - Undischarged (gate-relevant): 5
 
 **Undischarged obligations:**
+
 - Line 88: `skeleton` in Phase 1 — Core Infrastructure, Persistence, and Security Primitives (tokenmanager)
 - Line 96: `skeleton` in Phase 1 — Core Infrastructure, Persistence, and Security Primitives (tokenmanager)
 - Line 96: `skeleton` in Phase 1 — Core Infrastructure, Persistence, and Security Primitives (jwtservice)
@@ -31,6 +33,7 @@ generator: superclaude-anti-instinct-audit
 - Uncovered: 4
 
 **Uncovered contracts:**
+
 - IC-001: strategy_pattern: - [x] Section 15: Testing Strategy — Complete (line 136)
 - IC-002: strategy_pattern: 15. [Testing Strategy](#15-testing-strategy) (line 181)
 - IC-006: strategy_pattern: ## 15. Testing Strategy (line 644)
@@ -43,6 +46,7 @@ generator: superclaude-anti-instinct-audit
 - Coverage ratio: 0.76
 
 **Missing fingerprints** (11):
+
 - `complexity_class`
 - `feature_id`
 - `spec_type`

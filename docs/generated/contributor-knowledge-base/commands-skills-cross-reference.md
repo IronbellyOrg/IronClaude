@@ -5,6 +5,7 @@
 This document gives contributors a current, repository-grounded map of how SuperClaude commands, skills, and Python implementation layers relate.
 
 Source of truth for this document:
+
 - `src/superclaude/commands/`
 - `src/superclaude/skills/`
 - `src/superclaude/cli/`
@@ -151,6 +152,7 @@ This view is useful when deciding where a new behavior belongs.
 ### 2. Roadmap and tasklist pipeline overlap
 
 `/sc:roadmap` and `/sc:tasklist` are adjacent pipeline stages. Contributors should keep these aligned:
+
 - `sc-roadmap-protocol` owns roadmap generation behavior.
 - `sc-tasklist-protocol` owns deterministic roadmap-to-tasklist emission.
 - If roadmap output structure changes, tasklist parsing assumptions may also need updates.
@@ -178,6 +180,7 @@ Contributor implication: if you are extending forensic QA behavior, first decide
 The batch installer documents an intent to skip skills that are already served by `/sc:` commands. However, the current implementation checks directory names by stripping `sc-` and comparing the remainder to command filenames.
 
 Examples from the current tree:
+
 - `sc-roadmap-protocol` maps to `roadmap-protocol`, but the command file is `roadmap.md`
 - `sc-tasklist-protocol` maps to `tasklist-protocol`, but the command file is `tasklist.md`
 
@@ -188,6 +191,7 @@ Contributor takeaway: the naming convention for protocol skills does not current
 ### Update the command file when the change is about user-facing invocation
 
 Use `src/superclaude/commands/<name>.md` when changing:
+
 - command name, flags, examples, required inputs
 - top-level scope and boundaries
 - when a command should call a skill
@@ -197,6 +201,7 @@ Use `src/superclaude/commands/<name>.md` when changing:
 ### Update the skill package when the change is about reusable execution protocol
 
 Use `src/superclaude/skills/<skill>/...` when changing:
+
 - multi-step execution logic
 - reusable protocol rules
 - templates, reference docs, decision tables
@@ -204,6 +209,7 @@ Use `src/superclaude/skills/<skill>/...` when changing:
 - internal workflow details that should stay shared across entry points
 
 Typical examples:
+
 - scoring rules for adversarial review
 - roadmap extraction pipeline details
 - cleanup-audit pass definitions
@@ -212,6 +218,7 @@ Typical examples:
 ### Update Python implementation when the change affects actual package behavior
 
 Use Python modules under `src/superclaude/` when changing:
+
 - installation and discovery behavior
 - how commands/skills are copied to `~/.claude/`
 - validation logic implemented in code rather than markdown
@@ -219,6 +226,7 @@ Use Python modules under `src/superclaude/` when changing:
 - tests for install/discovery or package semantics
 
 Primary files for this area:
+
 - `src/superclaude/cli/main.py`
 - `src/superclaude/cli/install_commands.py`
 - `src/superclaude/cli/install_skill.py`

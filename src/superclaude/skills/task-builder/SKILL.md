@@ -16,6 +16,7 @@ This skill stops after task file creation. There is no Stage B — the user revi
 Task files go wrong when built from memory, shallow exploration, or unverified assumptions. This skill forces every task item through evidence-based codebase research — parallel agents read actual source files, trace actual dependencies, and document actual behavior with file paths and line numbers.
 
 The multi-phase structure (scope discovery → parallel research → **analyst verification** → **QA gate** → builder → **task file validation** → **qualitative review**) prevents four common failure modes:
+
 - **Context rot** — By isolating each research topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one topic slice from the scope map), the research goes deep on every aspect simultaneously rather than skimming across everything sequentially. Minimum 3 researchers per track, scaling to 8 for complex scopes.
 - **Hallucinated content** — By separating research (what exists) from task file creation (what to do about it), each phase can be verified independently. The builder only works from verified research files, not from memory or inference. Research claims are evidence-based with file paths and line numbers.
@@ -70,6 +71,7 @@ Proceed once you have at least #1 answered clearly. Items #2-4 improve quality b
 ### Request Triage
 
 The skill triages requests into two scenarios that affect scope discovery depth:
+
 - **Scenario A (Explicit)** — User provided most details: goal, output paths, source locations, format. Researchers confirm and fill minor gaps.
 - **Scenario B (Vague)** — User provided a goal but few specifics. Researchers do broad exploration to figure out what exists and determine reasonable defaults.
 
@@ -94,6 +96,7 @@ Match the tier to request complexity. **Default to Standard** unless the scope i
 | **Deep** | Complex scope, 20+ files, multiple subsystems, multi-track | 6-8 | 1-2 | Thorough research for ambitious tasks |
 
 **Tier selection rules:**
+
 - If in doubt, pick Standard
 - If the user says "thorough", "comprehensive", or "deep dive" — always Deep
 - Only use Quick for genuinely small tasks (<5 files, single concern, no discovery needed)
@@ -107,6 +110,7 @@ Match the tier to request complexity. **Default to Standard** unless the scope i
 All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-RF-YYYYMMDD-HHMMSS/`.
 
 **Variable reference block:**
+
 ```
 TASK_ID:     TASK-RF-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
@@ -141,6 +145,7 @@ Check for existing task folders matching `TASK-RF-*` in `.dev/tasks/to-do/` befo
 This skill operates in a single stage (Stage A only). Unlike the canonical document skills which have Stage A (create task file) + Stage B (delegate to `/task` for execution), this skill stops after task file creation. The user reviews the task file and executes it with `/task [path]` when ready.
 
 **Stage A — Scope Discovery, Research, Quality Gate, Task File Creation:**
+
 1. Check for an existing task folder or research directory (A.1)
 2. Parse the user's request — triage into Scenario A vs B, determine track count (1-5), select MDTM template per track (A.2)
 3. Perform scope discovery — map relevant files/directories, plan researcher assignments from 8 topic types (A.3)
@@ -156,6 +161,7 @@ This skill operates in a single stage (Stage A only). Unlike the canonical docum
 13. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
 
 If a task folder already exists for this request (from a previous session), skip to the appropriate step based on artifact state:
+
 - Research files complete but no QA reports → skip to A.8 (quality gate)
 - QA reports pass but no task file → skip to A.9 (spawn builder)
 - Task file exists but no validation report → skip to A.10 (structural validation)
@@ -207,17 +213,20 @@ Example: "Build a task to document the handlers"
 Analyze whether the request contains **independent work streams** that can be executed in parallel.
 
 Independent means ALL of these are true:
+
 - Each track has its own distinct goal (a subset of the overall request)
 - Each track operates on different source files or concerns
 - Each track produces different output files
 - No track depends on another track's outputs
 
 **SPLIT into multiple tracks when you see:**
+
 - Multiple unrelated deliverables: "Create docs for handlers AND add tests for services"
 - Distinct output areas: different output directories, different file types
 - Explicit enumeration of independent items: "do these three things: A, B, C" (where A, B, C don't depend on each other)
 
 **DO NOT SPLIT (keep as single track) when:**
+
 - Work items build on each other sequentially
 - All items contribute to a single cohesive output
 - Items share source context that must be understood holistically
@@ -241,6 +250,7 @@ Independent means ALL of these are true:
 Use Glob, Grep, and codebase-retrieval to map the problem space. This must happen BEFORE spawning researchers so each researcher gets a focused assignment from the scope map.
 
 **Adjust depth by scenario:**
+
 - **Scenario A**: Focused discovery — verify files/directories exist, scan for related code, identify gaps.
 - **Scenario B**: Broad discovery — scan the full codebase for anything related, map all relevant subsystems, count files.
 
@@ -267,12 +277,14 @@ Use Glob, Grep, and codebase-retrieval to map the problem space. This must happe
 | **Test & Verification** | Existing tests, test patterns, verification approaches | When the task involves testing or has quality gates |
 
 **Assignment planning rules:**
+
 - **Minimum 3 researchers per track**: File Inventory + Patterns & Conventions + Template & Examples
 - **Scale up based on scope map complexity**: high complexity = 6-8 researchers; medium = 4-5; low = 3
 - **Each researcher gets specific directories/files** from the scope map — no overlapping file assignments
 - **Every researcher is told what OTHER researchers cover** — prevents duplication
 
 **Example assignment for "Document all 14 API handlers":**
+
 ```
 Researcher 1 (File Inventory): Scan backend/app/api/v1/ — catalog all handler files, classes, methods, line counts
 Researcher 2 (Patterns & Conventions): Read 3-4 handlers in detail — extract naming, error handling, response patterns
@@ -282,6 +294,7 @@ Researcher 5 (Template & Examples): Read MDTM templates + check .dev/tasks/to-do
 ```
 
 **Example assignment for "Build a new feature with tests":**
+
 ```
 Researcher 1 (File Inventory): Scan directories where feature will live — catalog existing files, identify insertion points
 Researcher 2 (Patterns & Conventions): Study similar features already implemented — extract patterns to follow
@@ -293,6 +306,7 @@ Researcher 7 (Data Flow Tracer): Trace how data flows through related subsystems
 ```
 
 3. **Produce per-track scope map:**
+
 ```
 TRACK [T] SCOPE MAP:
   Relevant directories: [list]
@@ -365,6 +379,7 @@ Read `${TASK_DIR}research-notes.md` and evaluate:
 **If sufficient** → proceed to A.6 (template triage).
 
 **If insufficient** → either:
+
 - Do additional scope discovery yourself and update the research notes file, OR
 - Spawn a general-purpose research subagent with specific feedback about what's missing, then re-review
 
@@ -377,6 +392,7 @@ Do NOT proceed to the researchers with incomplete research notes. The researcher
 Determine which MDTM template the task builder should use for each track:
 
 **Use Template 02 (Complex Task) when the work involves:**
+
 - Discovery before building (investigating unknown areas)
 - Parallel subagent spawning
 - Multiple phases with different activities (research, build, test, review)
@@ -384,6 +400,7 @@ Determine which MDTM template the task builder should use for each track:
 - Quality gates or verification steps
 
 **Use Template 01 (Generic Task) when the work involves:**
+
 - Simple, sequential file creation
 - Straightforward execution with no discovery
 - Single-pass operations with known inputs and outputs
@@ -395,6 +412,7 @@ Determine which MDTM template the task builder should use for each track:
 Spawn parallel researcher agents via the Agent tool. Each researcher gets a focused topic from the scope map and writes findings to its own file in `${TASK_DIR}research/`.
 
 **Spawning pattern:**
+
 - Use Agent tool with `subagent_type: "general-purpose"`, `mode: "bypassPermissions"`
 - Each researcher returns its research file path as output
 - ALL researchers for a track spawned in the SAME message for parallel execution
@@ -472,6 +490,7 @@ Agent:
 Include the matching block in each researcher's prompt based on their assigned topic type:
 
 **File Inventory:**
+
 ```
 For every relevant file in your assigned directories:
 - Full relative path from project root
@@ -484,6 +503,7 @@ item per file from this inventory.
 ```
 
 **Patterns & Conventions:**
+
 ```
 Read 3-5 representative files in the relevant area and extract:
 - Naming conventions (files, classes, functions, variables)
@@ -496,6 +516,7 @@ Document with specific examples from actual code (file:line references).
 ```
 
 **Integration Points:**
+
 ```
 For the subsystems involved in this track's goal:
 - Map all imports/dependencies between modules
@@ -506,6 +527,7 @@ For the subsystems involved in this track's goal:
 ```
 
 **Doc Cross-Validator:**
+
 ```
 CRITICAL — Documentation Staleness Protocol:
 Documentation describes intent or historical state, NOT necessarily current state.
@@ -525,6 +547,7 @@ based on architecture that no longer exists.
 ```
 
 **Solution Research:**
+
 ```
 Use WebSearch to investigate:
 1. Problem domain patterns — established approaches, expert recommendations
@@ -538,6 +561,7 @@ supplements but never overrides verified code findings.
 ```
 
 **Template & Examples:**
+
 ```
 1. Read the MDTM template specified for this track:
    - If template 02: .claude/templates/workflow/02_mdtm_template_complex_task.md
@@ -550,6 +574,7 @@ supplements but never overrides verified code findings.
 ```
 
 **Data Flow Tracer:**
+
 ```
 Trace how data enters, transforms, and exits the relevant subsystem:
 - Entry points (API endpoints, event handlers, scheduled tasks)
@@ -560,6 +585,7 @@ Document with actual function signatures and file:line references.
 ```
 
 **Test & Verification:**
+
 ```
 Investigate testing infrastructure for the relevant area:
 - Existing test files and what they cover
@@ -645,6 +671,7 @@ Agent 2:
 **Gate evaluation:** Read both analyst and QA reports. Gate PASSES when both verdicts are PASS with ALL findings resolved regardless of severity.
 
 **Gap-fill cycle:** If the gate fails:
+
 1. Compile all CRITICAL, IMPORTANT, and MINOR issues from analyst + QA reports into a structured gap list
 2. Spawn targeted gap-fill researcher(s) via Agent tool (`subagent_type: "general-purpose"`) with specific gaps to fill
 3. After gap-fill, re-run analyst + QA on the NEW research files only
@@ -670,6 +697,7 @@ Then the orchestrator **merges with the remaining N-1 partition agents' findings
 **Dedup key (composition with PR-02 Retry Monotonicity, INV-012).** Two synthetic findings emitted across consecutive retry cycles for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` collapse into ONE finding annotated `found N times`. This prevents the dedup case from reading as a regression to the PR-02 monotonicity guard (the same partition failed the same way twice is dedup, not regression). Two synthetics with DIFFERENT escalation_ladder_exhaust_points (e.g., partition A failed via WebSearch exhaustion at cycle N, then via /rf:opinion timeout at cycle N+1) are DISTINCT findings.
 
 This protocol applies symmetrically to:
+
 - A.8 research-gate partition spawns of rf-analyst + rf-qa
 - A.10 task-integrity partition spawns of rf-qa (when partitioning is invoked)
 - A.10.5 qualitative partition spawns of rf-qa-qualitative
@@ -677,6 +705,7 @@ This protocol applies symmetrically to:
 ### A.8.5: Optional Web Research
 
 **Skip this step unless BOTH conditions are true:**
+
 1. The tier allows web agents (Standard: 0-1, Deep: 1-2, Quick: 0)
 2. The quality gate's analyst/QA reports identified **external knowledge gaps** that codebase research cannot fill (e.g., best practices for a technology, library API documentation, design pattern recommendations, MDTM template conventions from external sources)
 
@@ -685,6 +714,7 @@ If neither condition is met, proceed directly to A.9.
 **Spawning:** Use the Agent tool with `subagent_type: "general-purpose"`, `mode: "bypassPermissions"`. Spawn 1-2 web research agents in parallel, each investigating a specific gap identified by the quality gate.
 
 **Prompt format:**
+
 ```
 Research this topic externally and write findings to ${TASK_DIR}research/web-[NN]-[topic-slug].md
 
@@ -1044,6 +1074,7 @@ The em-dash `—` (U+2014) in the regression message and the literal pipe charac
 **F-set definition (item identity = dedup-key, cardinality post-dedup):**
 
 `F_n` is the SET (not multiset) of FAIL-verdict items at the end of fix cycle `n`. Set membership is determined by the dedup-key:
+
 - For ordinary checklist items: dedup-key = item ID (e.g., `3.2`).
 - For synthetic-dnsp findings (PR-03): dedup-key = `(assigned_files_range, escalation_ladder_exhaust_point)`.
 
@@ -1085,6 +1116,7 @@ After the builder returns a task file path, validate the task file before presen
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 **QA prompt:**
+
 ```
 QA_MODE: task-integrity
 fix_authorization: true
@@ -1133,6 +1165,7 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 ```
 
 **Handling the verdict:**
+
 - **PASS** → Proceed to A.10.5 (qualitative validation)
 - **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.10.5.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
@@ -1148,9 +1181,10 @@ After structural QA passes, validate that the task file would actually succeed i
 
 **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
 
-**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`## `) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`##`) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
 
 **QA prompt:**
+
 ```
 QA_PHASE: task-qualitative
 fix_authorization: true
@@ -1250,6 +1284,7 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
 **Parallel partitioning for large task files:** If the task file has >15 checklist items, spawn multiple rf-qa-qualitative instances in parallel, each assigned a subset of phases via the `assigned_phases` field in the prompt. Each instance reads its assigned phases' items + the source files those items reference. After all instances complete, read all partition reports and merge findings. For cross-phase checks (downstream consumer analysis, runtime path trace), perform a brief cross-phase validation yourself after merging — the partition instances can only trace within their assigned phases.
 
 **Handling the verdict:**
+
 - **PASS** → Proceed to A.11 (present results)
 - **FAIL with all fixes applied** → QA fixed all issues in-place. Verify fixes by re-reading affected sections. Proceed to A.11.
 - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
@@ -1260,8 +1295,8 @@ Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MIN
 
 1. **Discard cached state.** If the orchestrator memoised any of `(a)` the prior cycle's extracted "Items Reviewed" span, `(b)` the prior cycle's TB-Add-* enumeration snapshot, `(c)` the prior cycle's assembled `## Inherited Structural Verdict` block, or `(d)` the prior cycle's fully-rendered QA prompt string, it MUST drop them. No cached artifact from cycle N may participate in cycle N+1's spawn.
 2. **Re-read the producer artifact from disk.** Re-stat `${TASK_DIR}qa/qa-task-validation-report.md` (capture `mtime` and `sha256` as the freshness witness) and re-open it. If the witness equals the prior cycle's witness, the producer did not re-run between cycles — log a `stale-producer` warning but proceed; freshness is enforced by re-extraction, not by mtime comparison alone. If the witness differs, the file is confirmed fresh.
-3. **Re-extract the "Items Reviewed" span contiguously.** Apply the same single-span extraction rule from the directive above (between the `## Items Reviewed` heading and the next top-level `## ` heading). Do NOT reuse the prior cycle's extraction even if the surrounding file appears unchanged — re-extract every time.
-4. **Re-enumerate the TB-Add-* catalogue (INV-010).** Re-read `rf-qa.md`'s live checklist and re-pull the TB-Add-* IDs. Do NOT reuse the prior cycle's enumeration snapshot.
+3. **Re-extract the "Items Reviewed" span contiguously.** Apply the same single-span extraction rule from the directive above (between the `## Items Reviewed` heading and the next top-level `##` heading). Do NOT reuse the prior cycle's extraction even if the surrounding file appears unchanged — re-extract every time.
+4. **Re-enumerate the TB-Add-* catalogue (INV-010).**Re-read `rf-qa.md`'s live checklist and re-pull the TB-Add-* IDs. Do NOT reuse the prior cycle's enumeration snapshot.
 5. **Re-assemble and re-splice.** Build the new `## Inherited Structural Verdict` block from the freshly-extracted span + freshly-enumerated TB-Add-* IDs. Splice it into the spawn prompt at the API-002 wire-contract position (after TARGET FILES + PROJECT CONVENTIONS; before ADVERSARIAL STANCE / INSTRUCTIONS). The cycle N+1 spawn prompt MUST contain the cycle N+1 verdict; a byte-diff of cycle N vs. cycle N+1 at the verdict-table region MUST surface the cycle N+1 content (`grep -A` on `## Inherited Structural Verdict` returns the new span).
 6. **Stale-verdict-rejection (defense-in-depth).** Before issuing the spawn call, compute `sha256` of the new `## Inherited Structural Verdict` block and compare it to a `last_injected_verdict_sha256` ledger entry keyed by `${TASK_DIR}`. If the prior cycle wrote a verdict with a non-zero ledger entry AND the new sha256 equals the prior entry AND the producer-artifact witness in step 2 reports a NEW mtime/sha256, that combination is impossible under a correct re-extract — REJECT the spawn, log an `INV-002-stale-verdict-rejected` error with both witnesses, and re-run steps 2–5. (Equal witnesses + equal block sha256 is the legitimate no-op case when the producer truly did not change; only the contradiction case is rejected.)
 7. **Log the re-extract.** Emit a structured log line `INV-002: re-extracted verdict for ${TASK_DIR} cycle=N+1 producer_mtime=<iso> producer_sha256=<hex8> block_sha256=<hex8>` at every fix-cycle boundary. The log is the operator-visible audit-trail proving the re-extract ran.
@@ -1334,6 +1369,7 @@ failure_mode: halt-A.10-before-A.10.5
 **Versioning and migration:** `schema_version: 1.0.0` is frozen for the entire M2-through-M6 release window. Any change to the 10 fields above — including renaming, splitting, merging, or altering the wire value format — requires a major version bump to `2.0.0`, a corresponding entry in the release roadmap, and a migration note documenting the cycle in which old (`1.0.0`) producer artifacts stop being accepted by the consumer.
 
 **Cross-references:**
+
 - Runtime implementation: A.10.5 (this skill).
 - Producer prompt: A.10 (this skill) + `rf-qa.md` (task-integrity mode).
 - Consumer prompt: A.10.5 (this skill) + `rf-qa-qualitative.md`.
@@ -1405,6 +1441,7 @@ TO EXECUTE:
 ```
 
 **Overall status logic:**
+
 - **Success**: ALL tracks produced task files
 - **Partial**: Some tracks produced task files, some failed/skipped
 - **Failed**: ALL tracks failed
@@ -1544,6 +1581,7 @@ INCREMENTAL FILE WRITING PROTOCOL (MANDATORY):
    **Date:** [today]
    ---
    ```
+
 2. As you investigate each file/component, IMMEDIATELY append findings using Edit.
    Do NOT accumulate in context and one-shot at the end.
 3. When finished, update Status to "Complete" and append a summary section.
@@ -1553,12 +1591,14 @@ Every finding must cite actual file paths, line numbers, function names, class n
 No assumptions, no inferences, no guessing. If you can't verify it, mark "Unverified."
 
 STEPS:
+
 1. Create your output file FIRST (incremental writing protocol)
 2. Explore the codebase within your assigned scope
 3. Write findings incrementally to your output file
 4. When complete, update Status to "Complete" and append summary
 5. Verify file exists by reading it back
 6. Return your research file path and a brief findings summary as your final output
+
 ```
 
 **Orchestrator collection:** After all researcher agents return, Glob `${TASK_DIR}research/*.md` to confirm all expected files exist. Count files vs expected researcher count. If any are missing, check agent return values for errors.
@@ -1580,6 +1620,7 @@ The full prompt template is embedded in **A.8.5** above. Key elements:
 Spawn via `Agent` tool with `subagent_type: "rf-analyst"`, `mode: "bypassPermissions"`.
 
 ```
+
 Perform a completeness verification of all research files for [track goal].
 
 Analysis type: completeness-verification
@@ -1597,12 +1638,14 @@ Your job is to independently verify that research agents produced thorough, evid
 findings before the builder creates the task file. You are the analytical quality gate.
 
 PROCESS:
+
 1. Use Glob to find ALL research files in the research directory (*.md)
 2. Read EVERY assigned research file — do not skip any
 3. Apply the completeness verification checklist
 4. Write your report incrementally to the output path
 
 CHECKLIST:
+
 1. Source files identified with paths and exports?
 2. Output paths and formats clear or reasonably inferred?
 3. Logical breakdown of phases/steps present?
@@ -1616,11 +1659,13 @@ CHECKLIST:
 For each criterion: PASS (with evidence) or FAIL (with specific gaps).
 
 VERDICTS:
+
 - PASS: All checks pass, no critical gaps
 - FAIL: Critical gaps exist (list each with specific remediation action and severity)
 
 Write the file IMMEDIATELY with a header, then append findings incrementally.
 Be adversarial — your job is to find problems, not confirm things work.
+
 ```
 
 ### Research QA Agent Prompt (rf-qa — Research Gate)
@@ -1628,6 +1673,7 @@ Be adversarial — your job is to find problems, not confirm things work.
 Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
 
 ```
+
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 Perform QA verification of research completeness for [track goal].
@@ -1651,6 +1697,7 @@ You are the last line of defense before the builder creates the task file. Assum
 everything is wrong until you verify it.
 
 IF ANALYST REPORT EXISTS:
+
 1. Read the analyst's completeness report
 2. Verify ALL of their coverage audit claims
 3. Validate gap severity classifications
@@ -1661,6 +1708,7 @@ IF NO ANALYST REPORT:
 Apply the full 10-item checklist independently.
 
 10-ITEM CHECKLIST:
+
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — Verify EVERY claim in each file — verify file paths exist
 3. Scope coverage — every key area from scope map examined
@@ -1673,11 +1721,13 @@ Apply the full 10-item checklist independently.
 10. Incremental writing compliance — files show iterative structure, not one-shot
 
 VERDICTS:
+
 - PASS: Green light for builder
 - FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
 
 Write the file IMMEDIATELY with a header, then append findings incrementally.
 Zero tolerance — if you can't verify it, it fails.
+
 ```
 
 ### Builder Agent Prompt (rf-task-builder — Task File Creation)
@@ -1970,6 +2020,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 ## Research Quality Signals
 
 ### Strong Investigation Signals
+
 - Specific file paths with line numbers and function signatures
 - Data flow traced end-to-end (entry → processing → output)
 - Integration points mapped with API contracts
@@ -1978,6 +2029,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - Analyst + QA both return PASS on first attempt
 
 ### Weak Investigation Signals (Redo)
+
 - Vague descriptions without file references ("the system handles authentication")
 - Assumptions stated as facts ("this service probably calls...")
 - Missing gap analysis — no gaps found is a red flag
@@ -1986,6 +2038,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - Repeated gate failures (2+ rounds)
 
 ### When to Spawn Additional Agents
+
 - Critical gaps identified by analyst/QA that existing research doesn't cover
 - Contradictions between research files that need resolution
 - Scope larger than initially estimated — new subsystems discovered
@@ -2030,6 +2083,7 @@ This skill may span multiple sessions. The task folder and its contents persist 
 | Task file + validation report | A.11 (present results) |
 
 **At session end:**
+
 - All files should be on disk in the task folder
 - Note which step was reached if interrupted
 - The user can resume by re-invoking the skill with the same goal
@@ -2043,18 +2097,21 @@ This section is unique to the task-builder skill — the canonical document skil
 ### Track Determination Rules
 
 A request contains **independent work streams** when ALL of these are true:
+
 - Each track has its own distinct goal (a subset of the overall request)
 - Each track operates on different source files or concerns
 - Each track produces different output files
 - No track depends on another track's outputs
 
 **Split into multiple tracks when you see:**
+
 - Multiple unrelated deliverables: "Create docs for handlers AND add tests for services"
 - Distinct output areas: different output directories, different file types
 - Explicit enumeration of independent items where A, B, C don't depend on each other
 - Independent components: "update both the frontend and backend"
 
 **Do NOT split (keep as single track) when:**
+
 - Work items build on each other sequentially
 - All items contribute to a single cohesive output
 - Items share source context that must be understood holistically
@@ -2065,6 +2122,7 @@ A request contains **independent work streams** when ALL of these are true:
 ### Per-Track State Tracking
 
 The orchestrator maintains a per-track state map internally:
+
 ```
 Track 1: research=[pending|done], gate=[pending|pass|fail], build=[pending|done], validate=[pending|pass|fail]
 Track 2: ...
@@ -2081,6 +2139,7 @@ No shared task list needed — the orchestrator tracks state from agent return v
 ### Track Isolation
 
 Failure in one track MUST NOT prevent other tracks from completing. If a track fails:
+
 - Track quality gate fails after max gap-fill rounds → mark track as FAILED
 - Track builder returns RESEARCH_NEEDED after max rounds → mark track as FAILED with "insufficient research"
 - Track builder produces unfixable task file → present it with issues documented

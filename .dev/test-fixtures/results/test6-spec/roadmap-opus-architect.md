@@ -420,4 +420,3 @@ M5 (Release)
 |M5|2 weeks|Week 10|Week 11|SC-1..SC-8 validated; security sign-off; staged flag-flip in prod; rollback rehearsed|
 
 **Total estimated duration:** 11 weeks (Weeks 1–11).
-

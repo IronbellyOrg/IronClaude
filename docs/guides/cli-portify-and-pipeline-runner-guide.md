@@ -63,6 +63,7 @@ The core value proposition: **repeatability and reliability**. An inference-base
 ### Layer 1: Slash Command (`src/superclaude/commands/cli-portify.md`)
 
 The command definition handles:
+
 - Input validation (workflow path, ambiguity, output writability)
 - CLI name derivation (strips `sc-` and `-protocol`)
 - Activating the skill protocol
@@ -79,6 +80,7 @@ A 4-phase process that produces a reviewed release specification:
 | 4 | Spec Panel Review | Reviewed spec + `panel-report.md` — convergence loop until score >= 7.0 |
 
 Key reference files:
+
 - `refs/analysis-protocol.md` — discovery rules, step decomposition, programmatic spectrum
 - `refs/pipeline-spec.md` — gate tiers, prompt patterns, executor design, resume semantics
 
@@ -155,6 +157,7 @@ STRICT   → + semantic checks (custom Python functions)
 ```
 
 Gate validation is **pure Python** — no LLM invocation. It reads the output file and checks:
+
 1. File exists and is non-empty
 2. Line count meets minimum
 3. Required YAML frontmatter fields present
@@ -176,6 +179,7 @@ def execute_pipeline(
 ```
 
 The executor handles:
+
 - **Sequential steps**: Execute one at a time, halt on failure
 - **Parallel groups**: `list[Step]` items run concurrently via threads, cross-cancel on failure
 - **Retry logic**: On gate failure, retry up to `retry_limit` times
@@ -203,6 +207,7 @@ class ClaudeProcess:
 ```
 
 Key design decisions:
+
 - `--no-session-persistence` — each step is isolated
 - `--output-format text` — plain text for gate-compatible output
 - `stdout` → output file, `stderr` → error file
@@ -239,6 +244,7 @@ src/superclaude/cli/<runner>/
 ### Step-by-Step: How to Build a Runner
 
 **1. Define your Config** (`models.py`):
+
 ```python
 from ..pipeline.models import PipelineConfig
 
@@ -250,6 +256,7 @@ class MyConfig(PipelineConfig):
 ```
 
 **2. Write your Prompts** (`prompts.py`):
+
 ```python
 def build_step_one_prompt(input_file: Path) -> str:
     return (
@@ -264,6 +271,7 @@ def build_step_one_prompt(input_file: Path) -> str:
 ```
 
 **3. Define your Gates** (`gates.py`):
+
 ```python
 from ..pipeline.models import GateCriteria, SemanticCheck
 
@@ -286,6 +294,7 @@ MY_GATE = GateCriteria(
 ```
 
 **4. Build the Step Graph and StepRunner** (`executor.py`):
+
 ```python
 from ..pipeline.executor import execute_pipeline
 from ..pipeline.models import Step, StepResult, StepStatus, PipelineConfig
@@ -344,6 +353,7 @@ def execute_my_pipeline(config: MyConfig) -> bool:
 ```
 
 **5. Wire up the CLI** (`commands.py`):
+
 ```python
 import click
 
@@ -377,6 +387,7 @@ def run(input_file, output_dir, model, max_turns, dry_run, debug):
 ```
 
 **6. Register in `main.py`**:
+
 ```python
 from superclaude.cli.my_runner.commands import my_group
 main.add_command(my_group, name="my-runner")
@@ -403,6 +414,7 @@ extract → [generate-A, generate-B] → diff → debate → score → merge
 - **8 prompt builders** in `prompts.py`
 
 CLI surface:
+
 ```bash
 superclaude roadmap run spec.md
 superclaude roadmap run spec.md --agents opus:architect,haiku:security
@@ -426,6 +438,7 @@ tasklist-fidelity (STRICT gate)
 - **Exit code**: 0 = no HIGH severity, 1 = HIGH severity found
 
 CLI surface:
+
 ```bash
 superclaude tasklist validate ./output
 superclaude tasklist validate ./output --roadmap-file roadmap.md
@@ -532,6 +545,7 @@ superclaude cli-portify run sc:tasklist \
 ```
 
 This will:
+
 1. Discover the `sc-tasklist-protocol` skill, its templates, rules, and referenced agents
 2. Analyze the workflow into discrete steps on the programmatic spectrum
 3. Design a pipeline spec with step graph, gates, and prompts
@@ -545,6 +559,7 @@ cat docs/generated/portify-tasklist/portify-release-spec.md
 ```
 
 The spec will identify steps like:
+
 - **Validate roadmap input** (programmatic — Python)
 - **Generate phase files** from roadmap items (Claude subprocess)
 - **Generate index file** from phase files (Claude subprocess)

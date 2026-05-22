@@ -425,12 +425,14 @@ Change the default back to `"off"` at models.py:329. Single-line revert.
 It is never called from any runtime code path. Wiring it into Path A's `execute_phase_tasks` loop would inject inter-task context into subsequent task prompts.
 
 **Arguments for wiring**:
+
 - Later tasks can see what earlier tasks produced, avoiding re-work
 - Gate outcomes from prior tasks inform quality expectations
 - Git diff context helps workers understand what changed
 - The function already handles progressive compression (compress_threshold=3), keeping token cost manageable
 
 **Arguments against wiring**:
+
 - Adds inter-task prompt coupling where none exists today
 - Token cost grows with task count (though compression mitigates)
 - Workers already have filesystem access to see prior task outputs
@@ -584,9 +586,11 @@ PA-07 (wire build_task_context)
 ```
 
 **Independent entry points** (can start in parallel):
+
 - PA-01 and PA-04 and PA-05 have no mutual dependencies
 
 **Sequential chains**:
+
 - PA-01 must complete before PA-02, PA-03, PA-08
 - PA-04 + PA-05 must complete before PA-06
 - PA-01 + PA-04 + PA-05 must complete before PA-07

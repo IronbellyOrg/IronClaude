@@ -1,0 +1,7 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+run 205926Z-ee3ed770: 0P/0F/1S in 0.00s -> /tmp/eval-runs/t04_10_manual
+exit=0
+homes
+summary.json
+summary.md
+summary.yaml

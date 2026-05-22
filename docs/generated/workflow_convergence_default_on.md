@@ -16,6 +16,7 @@ The roadmap pipeline's `spec-fidelity` step runs as a single-shot LLM check. On 
 ## Phase 1: Flip the Default
 
 ### Task 1.1 — Change `convergence_enabled` default to `True`
+
 - **File**: `src/superclaude/cli/roadmap/models.py:112`
 - **Action**: Change `convergence_enabled: bool = False` to `convergence_enabled: bool = True`
 - **Rationale**: The convergence engine code is complete; the single-shot path is the broken UX
@@ -27,9 +28,11 @@ The roadmap pipeline's `spec-fidelity` step runs as a single-shot LLM check. On 
 ## Phase 2: Add `--no-convergence` CLI Flag
 
 ### Task 2.1 — Add Click option decorator
+
 - **File**: `src/superclaude/cli/roadmap/commands.py`
 - **Insert after**: `--allow-regeneration` option block (line ~94)
 - **Code**:
+
   ```python
   @click.option(
       "--no-convergence",
@@ -40,10 +43,12 @@ The roadmap pipeline's `spec-fidelity` step runs as a single-shot LLM check. On 
   ```
 
 ### Task 2.2 — Add parameter to `run()` function signature
+
 - **File**: `src/superclaude/cli/roadmap/commands.py:134-151`
 - **Action**: Add `no_convergence: bool` parameter after `allow_regeneration`
 
 ### Task 2.3 — Wire flag into `config_kwargs`
+
 - **File**: `src/superclaude/cli/roadmap/commands.py:210-223`
 - **Action**: Add `"convergence_enabled": not no_convergence` to `config_kwargs` dict
 - **Checkpoint**: `uv run pytest tests/roadmap/test_cli_contract.py -v` should still pass (existing CLI contract tests unaffected)
@@ -53,16 +58,19 @@ The roadmap pipeline's `spec-fidelity` step runs as a single-shot LLM check. On 
 ## Phase 3: Update Tests
 
 ### Task 3.1 — Update default assertion test
+
 - **File**: `tests/roadmap/test_remediation.py:15-18`
 - **Action**: Rename `test_convergence_enabled_default_false` to `test_convergence_enabled_default_true`, change assertion from `assert field.default is False` to `assert field.default is True`
 - **Checkpoint**: `uv run pytest tests/roadmap/test_remediation.py -v` passes
 
 ### Task 3.2 — Verify existing convergence dispatch tests still pass
+
 - **File**: `tests/roadmap/test_convergence.py:935-993`
 - **Action**: Read-only verification. Both `test_convergence_gate_none_when_enabled` and `test_legacy_gate_when_disabled` pass explicit `convergence_enabled` values, so they should be unaffected by the default change.
 - **Checkpoint**: `uv run pytest tests/roadmap/test_convergence.py::TestDispatch -v` passes
 
 ### Task 3.3 — Add `--no-convergence` CLI integration test
+
 - **File**: `tests/roadmap/test_convergence_wiring.py` (append new test class)
 - **Tests to add**:
   1. `test_default_config_convergence_enabled` — `RoadmapConfig()` has `convergence_enabled=True`
@@ -76,10 +84,12 @@ The roadmap pipeline's `spec-fidelity` step runs as a single-shot LLM check. On 
 ## Phase 4: Full Suite Verification
 
 ### Task 4.1 — Run full roadmap test suite
+
 - **Command**: `uv run pytest tests/roadmap/ -v`
 - **Expected**: All tests green. Any failures indicate tests that implicitly depended on `convergence_enabled=False` default and need explicit `convergence_enabled=False` added.
 
 ### Task 4.2 — Scan for implicit default dependencies
+
 - **Action**: If Task 4.1 surfaces failures, grep for `RoadmapConfig()` constructions in test files that don't set `convergence_enabled` explicitly, and assess whether they need the old behavior.
 - **Fix pattern**: Add `convergence_enabled=False` to test configs that test non-convergence behavior.
 
@@ -88,6 +98,7 @@ The roadmap pipeline's `spec-fidelity` step runs as a single-shot LLM check. On 
 ## Phase 5: Reflection
 
 ### Task 5.1 — Run `/sc:reflect --type session --validate`
+
 - **Action**: Execute session reflection to validate the implementation
 - **Checkpoint**: Reflection passes with no critical findings
 

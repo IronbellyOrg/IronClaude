@@ -1,0 +1,112 @@
+You are reviewing files at the workspace root in their current state. There is no diff baseline — every line is in scope.
+
+## Context
+
+Target: snapshot of src/superclaude/cli/eval/ (the cliEval real-eval harness)
+Files to review (23 Python files, 11019 LOC + 3 schema/README/__init__ files):
+
+- src/superclaude/cli/eval/__init__.py (207L)
+- src/superclaude/cli/eval/artifact_layout.py (305L)
+- src/superclaude/cli/eval/capabilities.py (409L)
+- src/superclaude/cli/eval/claude_process.py (369L)
+- src/superclaude/cli/eval/commands.py (1950L) — Click CLI surface (eval run, list, doctor)
+- src/superclaude/cli/eval/config.py (278L)
+- src/superclaude/cli/eval/coverage.py (348L)
+- src/superclaude/cli/eval/disk_budget.py (492L)
+- src/superclaude/cli/eval/expect.py (722L) — Expect primitives
+- src/superclaude/cli/eval/hook_adapter.py (269L)
+- src/superclaude/cli/eval/isolation.py (696L) — FR-ISO2 path containment + scratch-root allowlist
+- src/superclaude/cli/eval/loader.py (623L)
+- src/superclaude/cli/eval/models.py (937L)
+- src/superclaude/cli/eval/orchestrator.py (373L)
+- src/superclaude/cli/eval/pty_driver.py (426L)
+- src/superclaude/cli/eval/pty_stream.py (288L)
+- src/superclaude/cli/eval/reporter.py (233L) — FR-G1 ban-import rule
+- src/superclaude/cli/eval/retry.py (165L)
+- src/superclaude/cli/eval/runner.py (1237L)
+- src/superclaude/cli/eval/run_report.py (379L) — FR-G4 artifact layout
+- src/superclaude/cli/eval/coverage.py (348L) — FR-G5 coverage gate
+- src/superclaude/cli/eval/signal_handler.py (254L)
+- src/superclaude/cli/eval/schemas/summary.schema.json
+- src/superclaude/cli/eval/suites/suite.schema.json
+
+Read these files via your file tools, then use your indexed codebase context to investigate.
+
+## Post-sprint review focus
+
+This snapshot reflects state after Phase 4 (Expect Primitives + CLI Surface) and Phase 5 (Eval Bodies Coverage Gate Rollout) completed. Specifically validate:
+
+1. **Reporter contracts**
+   - FR-G1 (ban-import rule) in `reporter.py` — verify no banned upstream imports from `superclaude` core/agents/skills.
+   - FR-G4 (artifact layout) in `run_report.py` + `artifact_layout.py` — verify the per-run/per-spec directory contract.
+   - FR-G5 (coverage gate) in `coverage.py` — verify gate enforcement is robust.
+2. **Security surfaces**
+   - FR-ISO2 path containment in `isolation.py` — every path that escapes scratch_root must be rejected.
+   - AC12 scratch-root allowlist closure (commit dce3c3cb fixed a tautology). Verify the fix is sound (no remaining tautology, allowlist is enforced, default-deny posture).
+3. **Test coverage**
+   - `eval_run` lifecycle in `commands.py`: 11 helpers (`_utc_iso_now`, `_new_run_id`, `_default_output_dir`, `_can_install_signal_handler`, `_resolve_executor_factory`, `_run_one_spec`, `_compute_run_stats`, `_format_run_summary_line`, plus 3 more) + 3 exit-code constants (`RUN_CLEAN_EXIT_CODE`, `RUN_FAILURES_EXIT_CODE`, `RUN_INTERRUPTED_EXIT_CODE`) landed in commit e6368db8 — find missing test coverage in tests/cli/eval/.
+4. **Residual tech debt**
+   - F401/F821 cleanup verification (commit 08183738) — confirm no remaining unused imports or undefined names.
+   - Click 8.3.2 `mix_stderr` migration (commit 08183738) — confirm no `mix_stderr=` kwargs remain (Click 8.3.2 removed it).
+   - Deleted T04.09 skeleton (commit 08183738) — confirm no orphan references.
+5. **Architecture / Anti-patterns** — apply standard checks across the module.
+
+## Focus areas
+
+You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible. Use your codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
+
+- **security**: Look for: hardcoded secrets, weak crypto, SQL/XSS injection sinks, deserialization sinks, authz/authn bypasses, path traversal, SSRF, missing rate-limits, sensitive data in logs, race conditions, missing input validation at trust boundaries, TOCTOU, symlink traversal, command injection (especially subprocess + shell=True), insecure tempfile usage. **Pay special attention to isolation.py** — every public function that takes a path and resolves it within scratch_root must reject `..` traversal, absolute paths outside scratch_root, and symlinks pointing outside. Cross-reference: are similar patterns hardened elsewhere?
+
+- **architecture**: Look for: layering violations (a module reaching across boundaries the repo conventions don't allow — especially reporter.py importing from `superclaude.core` / `superclaude.agents` / `superclaude.skills` which is the FR-G1 ban), business logic in transport layers, missing abstractions, god-objects (commands.py at 1950L, runner.py at 1237L, models.py at 937L), leaky abstractions, modules with too many responsibilities. Cross-reference: how is artifact layout abstracted between `artifact_layout.py` and `run_report.py`? Is there duplication?
+
+- **quality**: Look for: off-by-one errors, null-deref / unwrap-on-None, untyped function boundaries, dead code, **unused imports (F401)**, **undefined names (F821)**, swallowed exceptions, broad `except:` clauses, copy-pasted code, magic numbers, misleading names, comments that contradict code, lingering `mix_stderr=` Click kwargs, residual references to deleted T04.09 skeleton constants. Cross-reference: do similar helpers exist that the new code should reuse?
+
+- **tests**: This is **snapshot mode for src/ only** — but you must cross-reference test files at `tests/cli/eval/` (use codebase retrieval to inspect them). Look for: the 11 `eval_run` helpers + 3 exit-code constants from commit e6368db8 lacking direct unit-test coverage; missing edge-case tests for `_new_run_id` collision, `_resolve_executor_factory` with invalid factory name, `_compute_run_stats` with empty/all-failed inputs, signal-handler interruption path (exit 130). Tests that mock instead of integration-testing the real Click CLI. Tests for `isolation.py` that assert containment but don't exercise symlink/`..` edge cases.
+
+- **anti-patterns**: Look for: god functions (> 100 lines — especially in commands.py `eval_run`), god classes, feature envy, primitive obsession (passing dict-of-str around instead of typed models), shotgun surgery, message chains, middle-man classes, premature abstraction, dead code, deprecated-but-still-imported helpers. Cross-reference: does the diff (commits e6368db8, dce3c3cb, 08183738) make an existing smell worse?
+
+## Output contract (STRICT)
+
+Respond with a single JSON object wrapped in a ```json ... ``` fence. The shape is:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style>",
+      "severity_hint": "<critical | high | medium | low | nit>",
+      "file": "<repo-relative path>",
+      "line": <integer>,
+      "line_range_end": <integer or null>,
+      "in_diff": false,
+      "evidence": "<exact code excerpt at the cited lines, verbatim>",
+      "why": "<2-4 sentences>",
+      "recommendation": "<1-3 sentences, concrete change>",
+      "cross_references": ["<repo-relative path:line>"],
+      "confidence": "<high | medium | low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "...",
+      "category": "...",
+      "severity_hint": "...",
+      "affected_files": ["..."],
+      "why": "...",
+      "recommendation": "...",
+      "confidence": "..."
+    }
+  ],
+  "notes_for_orchestrator": "<chunking signals, indexing concerns, scope you could not cover>"
+}
+
+## Quality bar
+
+- Every finding must cite a real file:line. If you cannot verify the file:line, set `confidence: "low"` — the orchestrator will validate every citation.
+- Do not invent file paths.
+- For each focus area, aim for the highest-signal findings, not exhaustive lists. The orchestrator will dedupe.
+- Returning zero findings in a focus area is allowed if it is genuinely clean.
+- For higher-level findings (architecture, layering, anti-patterns spanning files), put them in `cross_cutting_observations`.
+- This is a Python project using UV, Click, and pytest. Conventions: typed function signatures via Python 3.10+ type hints; pathlib not os.path; `subprocess.run(..., check=False, shell=False)` not shell strings.
+
+Return only the JSON object wrapped in a single ```json ... ``` fence. No additional prose.

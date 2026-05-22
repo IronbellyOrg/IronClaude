@@ -226,18 +226,25 @@ def test_skipped_rows_present_in_evals_with_skip_reason(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_writer_emits_markdown_and_json(tmp_path: Path) -> None:
-    """Acceptance: writer emits summary.md + summary.json by default."""
+def test_writer_emits_markdown_json_and_yaml(tmp_path: Path) -> None:
+    """Acceptance: writer emits summary.md + summary.json + summary.yaml by default.
+
+    M4: ``summary.yaml`` is now unconditional, closing the +1 yaml divergence
+    between ``write_aggregated_report`` and :meth:`Reporter.write`. Both
+    surfaces delegate to the shared :func:`_write_artifact_set` helper.
+    """
 
     summary = _summary(evals=(_pass_outcome("E1"), _skipped_outcome("E2")))
     written = write_aggregated_report(summary, tmp_path)
 
     assert (tmp_path / "summary.md").is_file()
     assert (tmp_path / "summary.json").is_file()
+    assert (tmp_path / "summary.yaml").is_file()
     assert not (tmp_path / "junit.xml").exists()
     assert written == {
         "summary.md": tmp_path / "summary.md",
         "summary.json": tmp_path / "summary.json",
+        "summary.yaml": tmp_path / "summary.yaml",
     }
 
 

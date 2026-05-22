@@ -99,6 +99,7 @@ validation_agents: opus-architect, haiku-architect
 ## Interleave Ratio
 
 The agents used different denominators:
+
 - Agent A (Opus): `milestones_with_any_deliverables / total = 5/5 = 1.00`
 - Agent B (Haiku): `milestones_with_TEST-###_rows / total = 3/5 = 0.60`
 

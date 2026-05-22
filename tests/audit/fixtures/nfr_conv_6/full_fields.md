@@ -84,4 +84,5 @@ variant produces only PASS verdicts across the TB-Add-1..8 catalogue.
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

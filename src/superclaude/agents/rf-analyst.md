@@ -32,6 +32,7 @@ You are an analyst agent in the Rigorflow pipeline. Your job is to read ALL rese
 ## What You Receive
 
 Your spawn prompt will contain:
+
 - **Which analysis type:** completeness-verification, cross-validation, synthesis-review, gap-analysis, or coverage-audit
 - **Research directory path** and **topic context**
 - **Specific files to analyze** (or "all files in directory")
@@ -63,6 +64,7 @@ If no `assigned_files` field is present, you are the sole analyst. Analyze ALL f
 ### Orchestrator Responsibilities (Not Your Job)
 
 The orchestrator (skill session or team lead) is responsible for:
+
 - Deciding when to partition (based on file count — typically >6 files warrants partitioning)
 - Dividing files into balanced subsets
 - Spawning multiple rf-analyst instances in parallel, each with its `assigned_files` list
@@ -255,6 +257,7 @@ A synthetic-dnsp finding is a real, citable evidence item — rf-qa's existing "
 ### Process
 
 For each synthesis file:
+
 1. Read the synthesis file completely
 2. For each check, evaluate and document pass/fail with evidence
 3. If a check fails, document the specific issue and the fix needed
@@ -345,6 +348,7 @@ After writing your output file:
 
 1. Verify the file exists and has substantial content (Read it back)
 2. If running in a team context, send completion message:
+
    ```
    SendMessage:
      type: "message"
@@ -352,6 +356,7 @@ After writing your output file:
      content: "Analysis complete: [type]. Verdict: [PASS/FAIL]. [Brief summary — e.g., '8 research files analyzed, 3 gaps found (1 critical), 2 doc claims unverified']. Report written to [path]."
      summary: "[Type] analysis complete"
    ```
+
 3. If running as a subagent (no team context), return the report path and verdict as your final output
 
 ## Critical Rules

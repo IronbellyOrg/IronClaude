@@ -25,6 +25,7 @@ This research synthesizes the latest best practices (2024-2025) for LLM agent to
 **Concept**: Compress trial-and-error history into succinct summaries, keeping only successful paths.
 
 **Implementation**:
+
 ```yaml
 Before (Full Trajectory):
   docs/pdca/auth/do.md:
@@ -50,6 +51,7 @@ After (Compressed):
 **Concept**: Dynamically exclude unnecessary agents based on task complexity.
 
 **Classification**:
+
 ```yaml
 Ultra-Light Tasks (e.g., "show progress"):
   → PM Agent handles directly (no sub-agents)
@@ -73,6 +75,7 @@ Heavy Tasks (e.g., "system redesign"):
 **Concept**: Use relevance scoring to prune irrelevant context.
 
 **Example**:
+
 ```yaml
 Task: "Fix authentication bug"
 
@@ -117,11 +120,13 @@ Worker (Sub-Agents):
 ### 2.2 Real-world Performance
 
 **Anthropic Implementation**:
+
 - **39% token reduction** with orchestrator pattern
 - **70% latency improvement** through parallel execution
 - Production deployment with multi-agent systems
 
 **Microsoft AutoGen v0.4**:
+
 - Orchestrator-worker as default pattern
 - Progressive context generation
 - "3 Amigo" pattern: Orchestrator + Worker + Observer
@@ -133,6 +138,7 @@ Worker (Sub-Agents):
 ### 3.1 Vector Database Integration
 
 **Architecture**:
+
 ```yaml
 Tier 1 - Vector DB (Highest Efficiency):
   Tool: mindbase, Mem0, Letta, Zep
@@ -151,11 +157,13 @@ Tier 3 - Manual Loading (Low Efficiency):
 ### 3.2 Real-world Metrics
 
 **CrewAI + Mem0**:
+
 - **90% token reduction** with vector DB
 - **75-90% cost reduction** in production
 - Semantic search vs full context loading
 
 **LangChain + Zep**:
+
 - Short-term memory: Recent conversation (500 tokens)
 - Long-term memory: Summarized history (1,000 tokens)
 - Total: 1,500 tokens vs 50,000 tokens (97% reduction)
@@ -220,6 +228,7 @@ Layer 4 - External Research (New Features Only):
 ### 5.1 Workflow Experimentation Framework
 
 **Data Collection**:
+
 ```jsonl
 // docs/memory/workflow_metrics.jsonl
 {"timestamp":"2025-10-17T01:54:21+09:00","task_type":"typo_fix","workflow":"minimal_v2","tokens":450,"time_ms":1800,"success":true}
@@ -227,6 +236,7 @@ Layer 4 - External Research (New Features Only):
 ```
 
 **Analysis**:
+
 - Identify best workflow per task type
 - Statistical significance testing (t-test)
 - Promote to best practice
@@ -234,6 +244,7 @@ Layer 4 - External Research (New Features Only):
 ### 5.2 Multi-Armed Bandit Optimization
 
 **Algorithm**:
+
 ```yaml
 ε-greedy Strategy:
   80% → Current best workflow
@@ -252,6 +263,7 @@ Auto-deprecation:
 ### 5.3 Real-world Results
 
 **Anthropic**:
+
 - **62% cost reduction** through workflow optimization
 - Continuous A/B testing in production
 - Automated best practice adoption
@@ -265,6 +277,7 @@ Auto-deprecation:
 **Problem**: Current PM Agent loads 2,300 tokens on every startup
 
 **Solution**:
+
 ```yaml
 Current (Bad):
   Session Start → Auto-load 7 files → 2,300 tokens
@@ -276,6 +289,7 @@ Improved (Good):
 ```
 
 **Expected Effect**:
+
 - Ultra-light tasks: 2,300 → 650 tokens (72% reduction)
 - Light tasks: 3,500 → 1,200 tokens (66% reduction)
 - Medium tasks: 7,000 → 4,500 tokens (36% reduction)
@@ -283,23 +297,27 @@ Improved (Good):
 ### 6.2 Phase 2: Enhanced Error Learning (ReflexionMemory + Optional mindbase)
 
 **Features**:
+
 - Semantic search for past solutions
 - Trajectory compression
 - 90% token reduction (CrewAI benchmark)
 
 **Fallback**:
+
 - Works without mindbase (grep-based)
 - Vector DB = optimization, not requirement
 
 ### 6.3 Phase 3: Continuous Improvement
 
 **Features**:
+
 - Workflow metrics collection
 - A/B testing framework
 - AgentDropout for simple tasks
 - Auto-optimization
 
 **Expected Effect**:
+
 - 60% overall token reduction (industry standard)
 - Continuous improvement over time
 
@@ -339,22 +357,26 @@ Improved (Good):
 ## 8. References
 
 ### Academic Papers
+
 1. "Trajectory Reduction in LLM Agents" (2024)
 2. "AgentDropout: Efficient Multi-Agent Systems" (2024)
 3. "Dynamic Context Pruning for LLMs" (2024)
 
 ### Industry Documentation
+
 4. Microsoft AutoGen v0.4 - Orchestrator-Worker Pattern
 5. Anthropic - Production Agent Optimization (39% improvement)
 6. LangChain - Memory Management Best Practices
 7. CrewAI + Mem0 - 90% Token Reduction Case Study
 
 ### Production Systems
+
 8. Letta (formerly MemGPT) - External Memory Architecture
 9. Zep - Short/Long-term Memory Management
 10. Mem0 - Vector Database for Agents
 
 ### Benchmarking
+
 11. AutoGen Benchmarks - Multi-agent Performance
 12. LangChain Production Metrics
 13. CrewAI Case Studies - Token Optimization

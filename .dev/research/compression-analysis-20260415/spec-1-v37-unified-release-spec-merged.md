@@ -28,7 +28,7 @@
 | Headings (`^#…`) | 115 | 6.5% | 1 H1, 15 H2 sections, 60+ H3/H4 task entries |
 | Horizontal rules (`^---$`) | 23 | 1.3% | Section dividers, all redundant with `## N.` heading resets |
 | HTML provenance comments (`<!-- Source: … -->`) | 26 | 1.5% | Adversarial-merge provenance; not semantically load-bearing to readers |
-| Bullet lines (`^- `) | 109 | 6.2% | |
+| Bullet lines (`^-`) | 109 | 6.2% | |
 | Prose / step bodies / bold-intro / misc | ~397 | ~22.5% | Remainder — Steps, Rollback, Source footers, bold field intros |
 | Code fences (`^````) | 18 markers | — | **9 fenced blocks**: 3 ASCII diagrams (Appendix B UI layouts), 2 ASCII callgraphs (Appendix C), 1 JSON event example, 1 python helper, 1 prompt snippet, 1 architecture diagram |
 
@@ -65,6 +65,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 **What**: Wherever the file contains 2 or 3 consecutive blank lines (outside fenced code), collapse to a single blank line.
 
 **Before** (lines 33–36):
+
 ```
 15. [Appendices](#15-appendices)
 
@@ -74,6 +75,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 ```
 
 **After**:
+
 ```
 15. [Appendices](#15-appendices)
 
@@ -94,6 +96,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 **What**: The file uses `\n---\n` as a section divider between every numbered H2 section. Since `## 1.`, `## 2.`, ... already semantically terminate the prior section in Markdown, the HRs are redundant decoration.
 
 **Before** (lines 63–67):
+
 ```
 
 **Source**: `analysis-checkpoint-enforcement.md` Section 1; `analysis-sprint-tui-v2.md` Section 1; `analysis-naming-context.md` Section 1
@@ -105,6 +108,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 ```
 
 **After**:
+
 ```
 
 **Source**: `analysis-checkpoint-enforcement.md` Section 1; `analysis-sprint-tui-v2.md` Section 1; `analysis-naming-context.md` Section 1
@@ -126,6 +130,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 **What**: The file contains 26 `<!-- Source: ... -->` / `<!-- Provenance: ... -->` / `<!-- Base: ... -->` / `<!-- Merge date: ... -->` comments that annotate the adversarial-merge history. These are artifacts of the rf-assembler pipeline, not spec content. An LLM reading the spec does not need "Change #1 renumbers sections 6+ to 7+".
 
 **Before** (lines 1–4 + 36):
+
 ```
 <!-- Provenance: This document was produced by /sc:adversarial -->
 <!-- Base: Variant B ("Assembled", rf-assembler output) -->
@@ -138,6 +143,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 ```
 
 **After**:
+
 ```
 ## 1. Release Overview
 ```
@@ -155,6 +161,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 **What**: The 612 table rows use generous column padding for human readability: e.g. `| # | Cause                                       | File                                     | Evidence                                |`. Collapsing to `|#|Cause|File|Evidence|` is parse-equivalent in CommonMark GFM tables and in every Markdown renderer that Claude has been trained on.
 
 **Before** (lines 77–80, task metadata table from §2.1):
+
 ```
 | # | Cause | File | Evidence |
 |---|-------|------|----------|
@@ -162,6 +169,7 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 ```
 
 **After** (illustrative — most padding in this file is already moderate; bigger wins come from the heavily-padded comparison tables):
+
 ```
 |#|Cause|File|Evidence|
 |---|---|---|---|
@@ -181,15 +189,19 @@ Every strategy below is grounded in primer §2 (categories), §4.1 (rule-based),
 **What**: The file has **22 `**Source**:` footers**, 16 of which cite one or more of three analysis files (`analysis-checkpoint-enforcement.md`, `analysis-sprint-tui-v2.md`, `analysis-naming-context.md`) plus section numbers. Because these are **traceability footers** (contract-bearing for a spec — they anchor normative claims to their source analysis), we cannot delete them. But a **rule-based transform** can shorten them via the primer's §4.1 transform #8 pattern: "Drop trailing X / repeated Y blocks".
 
 **Before** (e.g., line 102):
+
 ```
 **Source**: `troubleshoot-missing-p03-checkpoint.md` Sections 1-4; `analysis-checkpoint-enforcement.md` Section 2
 ```
 
 **After** (conservative — add reference-style link shortcuts at the bottom of the file):
+
 ```
 **Source**: [troubleshoot-p03] §1-4; [a-checkpoint] §2
 ```
+
 with footer:
+
 ```
 [troubleshoot-p03]: troubleshoot-missing-p03-checkpoint.md
 [a-checkpoint]: analysis-checkpoint-enforcement.md
@@ -262,6 +274,7 @@ with footer:
 **Loss profile**: **LOSSLESS per primer §2.1 when the conventions header is present**, BUT:
 
 **Why this is flagged DO-NOT-APPLY for this spec**:
+
 1. **Primer §5 SPEC row explicitly caps at 10–15% with Approach 1 only.** S10 is an abbreviation substitution which primer §4.1 #9 places in Approach 1, so it is *technically* in-scope — but it violates the **semantic principle** behind the spec row: *"Compression must be reversible and auditable; AST transforms introduce risk of semantic drift on normative language"*. Replacing `PASS_MISSING_CHECKPOINT` (a load-bearing Python enum identifier) with `[PMC]` introduces a **non-code token that looks like a Python identifier in some contexts**, risking misinterpretation by a downstream code-gen agent.
 2. **Cross-file symbol integrity**: `executor.py`, `process.py`, `checkpoints.py`, `PASS_MISSING_CHECKPOINT`, `src/superclaude/` are all **grep targets** for humans and for downstream agents reading the spec to plan implementation. Abbreviating them breaks grep-search workflows across the repository. This is a consumer-DAG concern that primer §2.2 explicitly flags (INV-3).
 3. **Primer §5 cross-observation**: *"Spec compression is a trap."*
@@ -274,6 +287,7 @@ with footer:
 ### Strategy S11 — Inline bold-field table flattening (primer §4.1 #1–#4 union, marginal)
 
 **What**: The 16 task blocks use a repetitive pattern:
+
 ```
 | Field | Value |
 |---|---|
@@ -283,6 +297,7 @@ with footer:
 | Risk | Very Low |
 ...
 ```
+
 A rule-based transform could replace the `| Field | Value |` header row (which carries no information — every task table has the identical header) with nothing and keep only data rows. CommonMark GFM still parses a headerless pipe table if the first line is a separator — however **this is NOT a safe transform** because CommonMark GFM requires a header row.
 
 **Saving**: 16 tables × 2 rows removed × ~15 B = **~480 B, ~0.5%**.
@@ -296,6 +311,7 @@ A rule-based transform could replace the `| Field | Value |` header row (which c
 ### Strategy S12 — Scope-boundary of compression: preserve all fenced blocks (primer §5 compression pipeline rule #2 "Code fences are sacrosanct")
 
 **What**: Explicit non-transform. The 9 fenced blocks in this file are:
+
 1. Architecture diagram (§3.1 three-layer defense, ASCII)
 2. JSON event example (§T02.03)
 3. Prompt snippet (§T01.01 checkpoint instructions)
@@ -340,6 +356,7 @@ Per primer §5 spec row, the ceiling is **10–15% with Approach 1 only**. The s
 ### 3.3 Rationale for under-compressing vs ceiling
 
 This spec sits closer to 8% than 15% because:
+
 1. The file has already been partially normalized (zero trailing whitespace, ATX headings, no emoji, consistent bullets) — S6–S9 yield zero.
 2. The document is **table-dominated** (39% of lines are tables); S4 is the single biggest lever and it is inherently bounded.
 3. Prose restatement is relatively low — the document is already information-dense because it is the adversarially-merged output of two variants.
@@ -376,6 +393,7 @@ This spec sits closer to 8% than 15% because:
 ### 4.4 Consumer-DAG note (INV-3 carry-forward)
 
 Per primer §2.2 and §6 INV-3, the amortization math for any conventions header depends on read counts. This spec file is:
+
 - Read once by a roadmap generator (`superclaude roadmap`)
 - Read once by a tasklist generator (`superclaude tasklist`)
 - Read potentially 0–N times by human reviewers

@@ -15,6 +15,7 @@
 **Usage Pattern**: Copy → Adapt → Execute → Learn from results
 
 **Key Features**:
+
 - Examples demonstrate core SuperClaude functionality
 - Clear patterns for immediate application  
 - Single-focus examples for clear learning
@@ -25,120 +26,152 @@
 ### Core Development Commands
 
 #### Command: /sc:brainstorm
+
 **Purpose**: Interactive project discovery and requirements gathering
 **Syntax**: `/sc:brainstorm "project description"`
 **Example**:
+
 ```bash
 /sc:brainstorm "mobile app for fitness tracking"
 # Expected: Socratic dialogue, requirement elicitation, feasibility analysis
 ```
+
 **Behavior**: Triggers interactive discovery dialogue and requirements analysis
 
 #### Command: /sc:analyze
+
 **Purpose**: Analyze existing codebase for issues and improvements
 **Syntax**: `/sc:analyze [target] --focus [domain]`
 **Example**:
+
 ```bash
 /sc:analyze src/ --focus security
 # Expected: Comprehensive security audit, vulnerability report, improvement suggestions
 ```
+
 **Behavior**: Provides comprehensive security analysis and improvement recommendations
 
 #### Command: /sc:implement
+
 **Purpose**: Implement a complete feature with best practices
 **Syntax**: `/sc:implement "feature description with requirements"`
 **Example**:
+
 ```bash
 /sc:implement "user authentication with JWT and rate limiting"
 # Expected: Complete auth implementation, security validation, tests included
 ```
+
 **Behavior**: Delivers complete implementation following security and quality standards
 
 #### Command: /sc:troubleshoot
+
 **Purpose**: Troubleshoot and fix a problem systematically
 **Syntax**: `/sc:troubleshoot "problem description"`
 **Example**:
+
 ```bash
 /sc:troubleshoot "API returns 500 error on user login"
 # Expected: Step-by-step diagnosis, root cause identification, solution ranking
 ```
+
 **Verification**: Activates root-cause-analyst + Sequential reasoning + systematic debugging
 
 #### Command: /sc:test
+
 **Purpose**: Generate comprehensive tests for existing code
 **Syntax**: `/sc:test [target] --focus [domain]`
 **Example**:
+
 ```bash
 /sc:test --focus quality
 # Expected: Test suite, quality metrics, coverage reporting
 ```
+
 **Verification**: Activates quality-engineer + test automation
 
 ### Quick Analysis Commands
 
 #### Command: /sc:analyze (Quality Focus)
+
 **Purpose**: Project structure and quality overview
 **Syntax**: `/sc:analyze [target] --focus quality`
 **Example**:
+
 ```bash
 /sc:analyze . --focus quality
 ```
-**Verification**: 
+
+**Verification**:
 
 #### Command: /sc:analyze (Security Focus)
+
 **Purpose**: Security-focused code review
 **Syntax**: `/sc:analyze [target] --focus security [--think]`
 **Example**:
+
 ```bash
 /sc:analyze src/ --focus security --think
 ```
-**Verification**: 
+
+**Verification**:
 
 #### Command: /sc:analyze (Performance Focus)
+
 **Purpose**: Performance bottleneck identification
 **Syntax**: `/sc:analyze [target] --focus performance`
 **Example**:
+
 ```bash
 /sc:analyze api/ --focus performance
 ```
-**Verification**: 
+
+**Verification**:
 
 #### Command: /sc:analyze (Architecture Focus)
+
 **Purpose**: Architecture assessment for refactoring
 **Syntax**: `/sc:analyze [target] --focus architecture [--serena]`
 **Example**:
+
 ```bash
 /sc:analyze . --focus architecture --serena
 ```
-**Verification**: 
+
+**Verification**:
 
 ## Manual Agent Invocation Examples
 
 ### Direct Specialist Activation
 
 #### Pattern: @agent-[specialist]
+
 **Purpose**: Manually invoke specific domain experts instead of auto-activation
 **Syntax**: `@agent-[specialist] "task or question"`
 
 #### Python Expert
+
 ```bash
 @agent-python-expert "optimize this data processing pipeline for performance"
 # Expected: Python-specific optimizations, async patterns, memory management
 ```
 
 #### Security Engineer
+
 ```bash
 @agent-security "review this authentication system for vulnerabilities"
 # Expected: OWASP compliance check, vulnerability assessment, secure coding recommendations
 ```
 
 #### Frontend Architect
+
 ```bash
 @agent-frontend-architect "design a responsive component architecture"
 # Expected: Component patterns, state management, accessibility considerations
 ```
 
 #### Quality Engineer
+
 ```bash
 @agent-quality-engineer "create comprehensive test coverage for payment module"
 # Expected: Test strategy, unit/integration/e2e tests, edge cases
@@ -147,6 +180,7 @@
 ### Combining Auto and Manual Patterns
 
 #### Pattern: Command + Manual Override
+
 ```bash
 # Step 1: Use command with auto-activation
 /sc:implement "user profile management system"
@@ -162,6 +196,7 @@
 ```
 
 #### Pattern: Sequential Specialist Chain
+
 ```bash
 # Design phase
 @agent-system-architect "design microservices architecture for e-commerce"
@@ -179,6 +214,7 @@
 ## Basic Usage Patterns
 
 ### Discovery → Implementation Pattern
+
 ```bash
 # Step 1: Explore and understand requirements
 /sc:brainstorm "web dashboard for project management"
@@ -194,6 +230,7 @@
 ```
 
 ### Development → Quality Pattern
+
 ```bash
 # Step 1: Build the feature
 /sc:implement "user registration with email verification"
@@ -209,6 +246,7 @@
 ```
 
 ### Problem → Solution Pattern
+
 ```bash
 # Step 1: Understand the problem
 /sc:troubleshoot "slow database queries on user dashboard"
@@ -226,6 +264,7 @@
 ## Getting Started Examples
 
 ### Your First Project Analysis
+
 ```bash
 # Complete project understanding workflow
 /sc:load . && /sc:analyze --focus quality
@@ -247,6 +286,7 @@
 ```
 
 ### Interactive Requirements Discovery
+
 ```bash
 # Transform vague ideas into concrete requirements
 /sc:brainstorm "productivity app for remote teams"
@@ -266,6 +306,7 @@
 ```
 
 ### Simple Feature Implementation
+
 ```bash
 # Complete authentication system
 /sc:implement "user login with JWT tokens and password hashing"
@@ -289,6 +330,7 @@
 ## Common Development Tasks
 
 ### API Development Basics
+
 ```bash
 # REST API with CRUD operations
 /sc:implement "Express.js REST API for blog posts with validation"
@@ -307,6 +349,7 @@
 ```
 
 ### Frontend Component Development
+
 ```bash
 # React component with modern patterns
 /sc:implement "React user profile component with form validation and image upload"
@@ -326,6 +369,7 @@
 ```
 
 ### Database Integration
+
 ```bash
 # Database setup with ORM
 /sc:implement "PostgreSQL integration with Prisma ORM and migrations"
@@ -346,6 +390,7 @@
 ## Basic Troubleshooting Examples
 
 ### Common API Issues
+
 ```bash
 # Performance problems
 /sc:troubleshoot "API response time increased from 200ms to 2 seconds"
@@ -362,6 +407,7 @@
 ```
 
 ### Frontend Debugging
+
 ```bash
 # React rendering issues
 /sc:troubleshoot "React components not updating when data changes"
@@ -377,6 +423,7 @@
 ```
 
 ### Development Environment Issues
+
 ```bash
 # Setup problems
 /sc:troubleshoot "Node.js application not starting after npm install"
@@ -394,6 +441,7 @@
 ## Copy-Paste Quick Solutions
 
 ### Immediate Project Setup
+
 ```bash
 # New React project with TypeScript
 /sc:implement "React TypeScript project with routing, state management, and testing setup"
@@ -413,6 +461,7 @@
 ```
 
 ### Quick Quality Improvements
+
 ```bash
 # Code quality enhancement
 /sc:analyze . --focus quality && /sc:implement "code quality improvements"
@@ -426,6 +475,7 @@
 ```
 
 ### Common Feature Implementations
+
 ```bash
 # User authentication system
 /sc:implement "complete user authentication with registration, login, and password reset"
@@ -446,6 +496,7 @@
 ## Basic Flag Examples
 
 ### Analysis Depth Control
+
 ```bash
 # Quick analysis
 /sc:analyze src/ --scope file
@@ -459,6 +510,7 @@
 ```
 
 ### Focus Area Selection
+
 ```bash
 # Security-focused analysis
 /sc:analyze . --focus security
@@ -474,6 +526,7 @@
 ```
 
 ### Tool Integration
+
 ```bash
 # Use Context7 for official patterns
 /sc:implement "React hooks implementation" --c7
@@ -491,6 +544,7 @@
 ## Learning Progression Workflow
 
 ### Week 1: Foundation
+
 ```bash
 # Day 1-2: Basic commands
 /sc:analyze . --focus quality
@@ -508,6 +562,7 @@
 ```
 
 ### Week 2: Patterns
+
 ```bash
 # Workflow patterns
 /sc:brainstorm → /sc:analyze → /sc:implement → /sc:test
@@ -520,6 +575,7 @@
 ```
 
 ### Week 3-4: Integration
+
 ```bash
 # Multi-step projects
 /sc:brainstorm "larger project"
@@ -532,17 +588,20 @@
 ## Next Steps
 
 ### Ready for Intermediate?
+
 - Comfortable with all basic commands
 - Can complete simple workflows independently
 - Understanding of agent activation and tool selection
 - Ready for multi-step projects
 
-### Continue Learning:
+### Continue Learning
+
 - **Advanced Workflows**: Complex orchestration and multi-agent coordination
 - **Integration Patterns**: Framework integration and cross-tool coordination
 - **Best Practices Guide**: Optimization strategies and expert techniques
 
-### Success Indicators:
+### Success Indicators
+
 - Can solve common development problems independently
 - Understands when to use different flags and focuses
 - Can adapt examples to specific project needs

@@ -94,6 +94,7 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 **Applies because**: Tables account for 39.8% of bytes (30,352), dominating every other category. Most rows use padded pipes with column alignment whitespace.
 
 **Before** (lines 32-33 from §1.1 Evidence table):
+
 ```
 | Evidence | Source | Impact |
 |----------|--------|--------|
@@ -101,6 +102,7 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 ```
 
 **After**:
+
 ```
 |Evidence|Source|Impact|
 |-|-|-|
@@ -112,6 +114,7 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 **Lossy?**: **Lossless**. CommonMark/GFM treats `|a|b|` and `| a | b |` as structurally identical. The separator row requires at least one `-` per column; `|-|-|-|` is valid GFM.
 
 **Risks specific to this file**:
+
 - The Interface Contracts table at lines 968-978 contains bolded text and code spans. Collapse must not eat spacing inside code spans (regex must be fence- and code-span-aware).
 - The Gap Analysis table at line 1127 has a very wide Description column with inline commas and escaped pipes — pathological rows can confuse naive regex. Use a fence-aware rule that only collapses padding adjacent to pipes, not inside code spans.
 - Human review of the table-heavy sections (Section 5, Section 8) will be harder. Acceptable for LLM consumption per §2.1 "task-equivalent lossless".
@@ -123,6 +126,7 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 **Applies because**: The file uses 17 `---` horizontal rules. One (line 1) is the YAML front-matter terminator (KEEP). The other 16 are decorative separators between FR subsections. FR subsections already have `###` headings — the `---` adds zero semantic signal.
 
 **Before** (lines 231-234):
+
 ```
 **Dependencies**: None. Independent foundation task.
 
@@ -132,6 +136,7 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 ```
 
 **After**:
+
 ```
 **Dependencies**: None. Independent foundation task.
 
@@ -165,6 +170,7 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 **Applies because**: The token frequency table in Section 1 shows 10+ symbols repeating ≥10 times each. These are not prose restatement (which is Approach 3 territory) but **literal token substitution** — pure lookup-table replacement, which the primer explicitly authorizes under Approach 1 when the header is declared.
 
 **Proposed conventions header** (added to YAML front-matter region):
+
 ```
 <!-- cmd-dsl v1:
  [EX]=executor.py [MO]=models.py [MN]=monitor.py [CF]=config.py [PR]=process.py
@@ -175,11 +181,13 @@ Every strategy below is anchored in the primer. Because this is a SPEC, the prim
 Header cost: ~50 tokens / ~260 bytes.
 
 **Before** (line 33):
+
 ```
 | `turns_consumed` hardcoded to `0` at `executor.py:1092` ... | `executor.py:1091-1092` | TurnLedger reimbursement math ...
 ```
 
 **After**:
+
 ```
 | `turns_consumed` hardcoded to `0` at `[EX]:1092` ... | `[EX]:1091-1092` | TurnLedger reimbursement math ...
 ```
@@ -320,10 +328,12 @@ The remaining compressible mass is concentrated in **tables** (S1) and **repeate
 ### Respecting the spec-fidelity floor
 
 Every strategy in the recommended stack is either:
+
 1. **Pure whitespace/formatting** (S2, S3, S5-S10) — primer §2.1 rates these as Lossless unconditionally, or
 2. **Deterministic textual substitution with a declared reverse mapping** (S1 table-padding, S4 conventions header) — primer §2.1 rates these as Lossless when the header is present, and primer §4.1 item 9 explicitly authorizes them under Approach 1.
 
 No strategy in the stack touches:
+
 - **Code fence content** (sacrosanct per primer §4.2 rule #2 and §4.1 risk #1)
 - **Table row semantics** (rows kept intact; only padding collapses)
 - **Prose rephrasing** (forbidden by spec row; would be Approach 3)
@@ -342,16 +352,18 @@ The stack is therefore **inside the primer's "near-lossless" spec-fidelity floor
 
 **Risk**: A naive regex transform that is not fence-aware will destroy the visual alignment of these diagrams. The dependency-graph uses `─│┌┐└┘` box-drawing characters whose visual positioning depends on exact column counts. Any blank-line collapse, padding strip, or substitution that crosses the fence boundary is **lossy for LLM comprehension** because the spatial relationships encode the data flow.
 
-**Mitigation**: The rule-based transformer **MUST** track fence state (toggle on each `^```` line) and skip all lines where `in_code == True`. This is primer §4.1 risk #1 verbatim, and it is non-negotiable for this file. S1, S3, S4 all need this guard.
+**Mitigation**: The rule-based transformer **MUST** track fence state (toggle on each `^```` line) and skip all lines where`in_code == True`. This is primer §4.1 risk #1 verbatim, and it is non-negotiable for this file. S1, S3, S4 all need this guard.
 
 ### R-2 — Inline Python code spans referencing symbols
 
 **Where**: Every `**Current code**` and `**After code**` subsection under each FR (FR-37A.01 through FR-37A.09), and the Data Models section 4.5.
 
 **Risk**: If S4's substitution regex fires inside a fenced Python block, it will replace `count_turns_from_output` with `[CT]` in code like:
+
 ```python
 from superclaude.cli.sprint.monitor import count_turns_from_output
 ```
+
 turning it into a non-runnable `[CT]`. Downstream LLM agents reading the spec might then treat the abbreviation as a real Python identifier or try to complete the import path against it.
 
 **Mitigation**: S4 applies **only outside fenced code blocks**. Inline single-backtick spans (e.g., `` `executor.py:1064` ``) are safe to substitute — they are inline code, not executable Python — but the regex should still preserve the backticks around the abbreviation to keep visual marker.
@@ -391,6 +403,7 @@ turning it into a non-runnable `[CT]`. Downstream LLM agents reading the spec mi
 ### R-7 — Append-mode documentation inside ASCII diagrams
 
 **Where**: Lines 158-161 inside Diagram B:
+
 ```
   Output: phase-1-output.txt opened in "a" mode [MA-03: process.py:114]
     Task 1 NDJSON ... (PRESERVED)
@@ -407,6 +420,7 @@ turning it into a non-runnable `[CT]`. Downstream LLM agents reading the spec mi
 **Where**: Primer §6, applies to every compression in this repo.
 
 **Caveats**:
+
 - **INV-1 (tokenizer generalization)**: the -5.8-7.4% projection uses byte counts, not Claude-native tokens. Actual token savings may drift ±2-8 percentage points per primer §6. A 6% byte reduction is not guaranteed to be a 6% token reduction.
 - **INV-3 (consumer DAG unmapped)**: S4's conventions header amortizes over reads. If this spec is read once and discarded (e.g., only consumed at roadmap-generation time), the ~260-byte header cost is dead weight and S4 should be dropped; net saving collapses by ~260 bytes. If read ≥5 times, S4 is the win it projects to be.
 - **INV-5 (Haiku untested)**: if any consumer in the DAG is Haiku 4.5, primer §6 says "Haiku paths must default to uncompressed Markdown". None of this analysis applies to Haiku consumers until the Haiku A/B test runs.

@@ -1,6 +1,6 @@
 
-
 ---
+
 base_variant: A
 variant_scores: "A:81 B:74"
 ---
@@ -32,10 +32,12 @@ The debate surfaced four key divergences. I derive six scoring criteria from the
 ## Overall Scores
 
 **Variant A (Opus Architect): 81/100**
+
 - Strengths: Disciplined refusal to speculate, strong requirement traceability, zero internal contradictions
 - Weaknesses: Recovery plan lacks operational granularity, no named risk for complexity misinterpretation
 
 **Variant B (Haiku Analyst): 74/100**
+
 - Strengths: Excellent recovery decomposition, comprehensive risk register, consistent professional tone
 - Weaknesses: Includes speculative phases that contradict its own recommendation, weaker requirement mapping
 

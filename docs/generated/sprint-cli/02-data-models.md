@@ -40,6 +40,7 @@ class StepStatus(Enum):
 ```
 
 Helpers:
+
 - `is_terminal` (line 27): PASS, FAIL, TIMEOUT, CANCELLED, SKIPPED
 - `is_success` (line 37): PASS only
 - `is_failure` (line 41): FAIL or TIMEOUT
@@ -74,6 +75,7 @@ class GateCriteria:
 ```
 
 Enforcement tier progression: `EXEMPT < LIGHT < STANDARD < STRICT`
+
 - EXEMPT: always pass
 - LIGHT: file exists + non-empty
 - STANDARD: + min line count + required frontmatter
@@ -185,6 +187,7 @@ class GateDisplayState(Enum):
 ### PhaseStatus (line 212)
 
 Extended status enum with multiple pass/fail variants:
+
 - `PENDING`, `RUNNING`
 - `PASS`, `PASS_RECOVERED` (via checkpoint), `PASS_FREEFORM`
 - `FAIL`, `INCOMPLETE`, `HALT`, `TIMEOUT`, `ERROR`, `SKIPPED`
@@ -245,12 +248,14 @@ class Phase:
 ### SprintConfig (line 297, extends PipelineConfig)
 
 Key fields beyond base:
+
 - `index_path`, `release_dir`, `phases: list[Phase]`
 - `start_phase`, `end_phase`, `stall_timeout`, `stall_action`
 - `shadow_gates`, `wiring_gate_enabled`, `wiring_gate_grace_period`
 - `force_fidelity_fail`, `tmux_session_name`
 
 Computed properties:
+
 - `results_dir` (392): `release_dir / "results"`
 - `execution_log_jsonl` (396): `release_dir / "execution-log.jsonl"`
 - `execution_log_md` (400): `release_dir / "execution-log.md"`
@@ -292,16 +297,19 @@ class SprintResult:
 ### Economy Models
 
 **TurnLedger (line 546)**: Budget management
+
 - Fields: `budget`, `spent`, `wiring_budget`, `wiring_spent`, `reimbursed`
 - Methods: `debit()`, `credit()`, `debit_wiring()`, `credit_wiring()`
 - Guards: `can_launch()`, `can_remediate()`, `can_run_wiring_gate()`
 - Rejects negative values
 
 **ShadowGateMetrics (line 690)**: Gate telemetry
+
 - Fields: `total_evaluated`, `passed`, `failed`, `latency_ms: list[float]`
 - Properties: `pass_rate`, `p50_latency_ms`, `p95_latency_ms`
 
 **MonitorState (line 500)**: Live monitoring
+
 - Real-time telemetry: task progress, stall detection, output sizes
 
 ## Roadmap Models (`cli/roadmap/models.py`)
@@ -309,6 +317,7 @@ class SprintResult:
 ### Finding (line 22)
 
 Rich domain model for roadmap findings:
+
 - Identity: `id`, `stable_id`, `rule_id`
 - Classification: `severity`, `dimension`, `deviation_class`, `source_layer`
 - Content: `description`, `evidence`, `fix_guidance`, `spec_quote`, `roadmap_quote`

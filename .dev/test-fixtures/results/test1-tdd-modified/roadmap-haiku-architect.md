@@ -9,6 +9,7 @@ primary_persona: architect
 This roadmap delivers a medium-complexity authentication platform centered on `AuthService`, `TokenManager`, `JwtService`, `PasswordHasher`, `UserRepo`, and the frontend `AuthProvider`/page flows. The architecture should prioritize security hardening and operational correctness before broad rollout because the highest-risk areas are token lifecycle, brute-force protection, migration safety, and key management.
 
 ### Primary architectural objectives
+
 1. Deliver the core user-facing flows required by:
    - `FR-AUTH-001`
    - `FR-AUTH-002`
@@ -30,6 +31,7 @@ This roadmap delivers a medium-complexity authentication platform centered on `A
 4. Preserve rollback safety for `R-003` by keeping legacy auth available until GA acceptance is met.
 
 ### Architectural priorities
+
 1. **Security-first implementation**
    - Land `AC-001`, `AC-003`, `AC-008`, and `AC-010` before public traffic.
    - Treat refresh token storage and revocation as a critical-path subsystem for `FR-AUTH-003`.
@@ -47,12 +49,15 @@ This roadmap delivers a medium-complexity authentication platform centered on `A
 ## 2. Phased implementation plan with milestones
 
 ## Phase 0 — Architecture baseline and delivery controls
+
 **Timeline:** 3-5 working days
 
 ### Goals
+
 Establish the delivery foundation, finalize unresolved architecture decisions, and lock the interfaces needed by downstream phases.
 
 ### Scope
+
 1. Confirm API contract and versioning:
    - `/v1/auth/login`
    - `/v1/auth/register`
@@ -74,6 +79,7 @@ Establish the delivery foundation, finalize unresolved architecture decisions, a
    - `OQ-006`
 
 ### Deliverables
+
 1. Architecture decision record covering:
    - RS256 key lifecycle for `AC-001`
    - bcrypt abstraction boundary for `AC-003`
@@ -85,22 +91,27 @@ Establish the delivery foundation, finalize unresolved architecture decisions, a
    - production readiness checklist
 
 ### Requirements addressed
+
 - `AC-001` to `AC-010`
 - planning dependencies for `FR-AUTH-001` to `FR-AUTH-005`
 - planning dependencies for `NFR-PERF-001`, `NFR-PERF-002`, `NFR-REL-001`, `NFR-SEC-001`, `NFR-SEC-002`
 
 ### Milestone
+
 **M0:** Architecture and interface freeze approved by auth-team, platform-team, and QA.
 
 ---
 
 ## Phase 1 — Core infrastructure, persistence, and security primitives
+
 **Timeline:** 1-1.5 weeks
 
 ### Goals
+
 Stand up the runtime, persistence, secrets, and foundational services required for secure auth flows.
 
 ### Scope
+
 1. Provision and configure:
    - Node.js 20 LTS runtime per `AC-006`
    - PostgreSQL 15+ per `AC-004`
@@ -121,6 +132,7 @@ Stand up the runtime, persistence, secrets, and foundational services required f
    - timestamps and audit retention policies
 
 ### Deliverables
+
 1. PostgreSQL schema for:
    - `UserProfile`
    - password hashes
@@ -134,6 +146,7 @@ Stand up the runtime, persistence, secrets, and foundational services required f
    - JWT signing/verifying viability under expected load
 
 ### Requirements addressed
+
 - `FR-AUTH-002`
 - `FR-AUTH-003`
 - `FR-AUTH-005`
@@ -146,17 +159,21 @@ Stand up the runtime, persistence, secrets, and foundational services required f
 - `AC-006`
 
 ### Milestone
+
 **M1:** Security primitives and storage layers validated in isolation.
 
 ---
 
 ## Phase 2 — Backend auth domain services and API surface
+
 **Timeline:** 1.5-2 weeks
 
 ### Goals
+
 Implement the full backend authentication behavior and expose the API contract.
 
 ### Scope
+
 1. Implement `UserRepo`
    - create/read/update `UserProfile`
    - last-login updates
@@ -184,12 +201,14 @@ Implement the full backend authentication behavior and expose the API contract.
    - password reset request/confirm
 
 ### Deliverables
+
 1. Production backend endpoints for all required auth flows.
 2. Auth error taxonomy mapped to status codes.
 3. Refresh-token revocation semantics.
 4. Account lockout and unlock policy.
 
 ### Requirements addressed
+
 - `FR-AUTH-001`
 - `FR-AUTH-002`
 - `FR-AUTH-003`
@@ -201,17 +220,21 @@ Implement the full backend authentication behavior and expose the API contract.
 - `AC-010`
 
 ### Milestone
+
 **M2:** Backend API is functionally complete and internally testable.
 
 ---
 
 ## Phase 3 — Frontend auth integration and UX hardening
+
 **Timeline:** 1-1.5 weeks
 
 ### Goals
+
 Integrate the frontend auth experience without compromising token security or introducing usability regressions.
 
 ### Scope
+
 1. Implement `AuthProvider`
    - in-memory access-token handling to mitigate `R-001`
    - refresh-token exchange behavior
@@ -232,11 +255,13 @@ Integrate the frontend auth experience without compromising token security or in
    - CAPTCHA hook after repeated failures as contingency path for `R-002`
 
 ### Deliverables
+
 1. End-to-end browser-auth flows.
 2. Secure frontend token handling model.
 3. Error-state UX aligned with API semantics.
 
 ### Requirements addressed
+
 - `FR-AUTH-001`
 - `FR-AUTH-002`
 - `FR-AUTH-003`
@@ -245,17 +270,21 @@ Integrate the frontend auth experience without compromising token security or in
 - mitigation support for `R-001` and `R-002`
 
 ### Milestone
+
 **M3:** Full user journey works in staging with secure client behavior.
 
 ---
 
 ## Phase 4 — Observability, performance, reliability, and operational readiness
+
 **Timeline:** 1 week
 
 ### Goals
+
 Ensure the system can be safely operated and validated against NFRs before external rollout.
 
 ### Scope
+
 1. Implement metrics and tracing:
    - `auth_login_total`
    - `auth_login_duration_seconds`
@@ -280,32 +309,39 @@ Ensure the system can be safely operated and validated against NFRs before exter
    - feature-flag rollback verification
 
 ### Deliverables
+
 1. Dashboard set for auth traffic and latency.
 2. Alerting configuration.
 3. Load-test results showing behavior at 500 concurrent logins.
 4. Operational runbooks for outage and refresh-failure scenarios.
 
 ### Requirements addressed
+
 - `NFR-PERF-001`
 - `NFR-PERF-002`
 - `NFR-REL-001`
 - operational support for `R-001`, `R-002`, `R-003`
 
 ### Milestone
+
 **M4:** System is operationally ready for limited production exposure.
 
 ---
 
 ## Phase 5 — Migration, staged rollout, and GA cutover
+
 **Timeline:** 4 weeks total
+
 - Internal Alpha: 1 week
 - Beta 10%: 2 weeks
 - GA: 1 week
 
 ### Goals
+
 Migrate safely from legacy auth to the new system using phased exposure and measurable gates.
 
 ### Scope
+
 1. Execute migration plan for `R-003`
    - idempotent upsert migration
    - schema mapping and dry-run validation for `OQ-006`
@@ -326,17 +362,20 @@ Migrate safely from legacy auth to the new system using phased exposure and meas
    - remove `AUTH_TOKEN_REFRESH` after stabilization window
 
 ### Deliverables
+
 1. Migration execution report.
 2. Rollout gate evidence by phase.
 3. Legacy deprecation plan and cleanup tasks.
 
 ### Requirements addressed
+
 - all `FR-AUTH-*`
 - all `NFR-*`
 - `R-003`
 - rollout requirements in the migration plan
 
 ### Milestones
+
 1. **M5A:** Internal Alpha passes manual and automated acceptance.
 2. **M5B:** Beta meets p95 latency, error-rate, and Redis stability gates.
 3. **M5C:** GA completes with 99.9% uptime across the initial validation window.
@@ -348,6 +387,7 @@ Migrate safely from legacy auth to the new system using phased exposure and meas
 The following mechanisms require explicit wiring ownership rather than implicit implementation sequencing.
 
 ### 3.1 Dependency injection and service composition
+
 1. **Named Artifact:** `AuthService` constructor dependency graph  
    - **Wired Components:** `PasswordHasher`, `TokenManager`, `UserRepo`  
    - **Owning Phase:** Phase 2  
@@ -364,6 +404,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
    - **Cross-Reference:** Consumed by Phase 2 `AuthService` operations and Phase 5 migration
 
 ### 3.2 Middleware and request pipeline wiring
+
 1. **Named Artifact:** Bearer-auth middleware chain for `/v1/auth/me`  
    - **Wired Components:** token extraction, `JwtService` verification, clock-skew handling per `AC-010`, user-context injection  
    - **Owning Phase:** Phase 2  
@@ -380,6 +421,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
    - **Cross-Reference:** Consumed by Phase 5 rollout protection and `R-002` mitigation
 
 ### 3.3 Frontend callback and event wiring
+
 1. **Named Artifact:** `AuthProvider` auth-state event bindings  
    - **Wired Components:** login success handler, logout handler, silent refresh scheduler, token-expiry handler, tab-close token cleanup  
    - **Owning Phase:** Phase 3  
@@ -396,6 +438,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
    - **Cross-Reference:** Consumed by `FR-AUTH-002` and registration conversion measurement
 
 ### 3.4 Feature-flag and rollout wiring
+
 1. **Named Artifact:** `AUTH_NEW_LOGIN` feature flag  
    - **Wired Components:** `LoginPage`, new auth backend routing, rollout cohort control  
    - **Owning Phase:** Phase 5  
@@ -407,6 +450,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
    - **Cross-Reference:** Consumed by Beta monitoring and post-GA stabilization
 
 ### 3.5 Strategy and abstraction wiring
+
 1. **Named Artifact:** `PasswordHasher` algorithm abstraction  
    - **Wired Components:** bcrypt implementation at cost 12, future migration seam for argon2id per `AC-003`  
    - **Owning Phase:** Phase 1  
@@ -422,9 +466,11 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 ## 4. Risk assessment and mitigation strategies
 
 ## Risk `R-001` — Token theft via XSS allows session hijacking
+
 **Architectural significance:** Highest-impact client-side risk because it undermines all authenticated flows.
 
 ### Mitigation
+
 1. Keep access tokens in memory only.
 2. Use HttpOnly cookies for refresh tokens.
 3. Minimize access-token lifetime to 15 minutes per `FR-AUTH-003`.
@@ -432,11 +478,13 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 5. Review frontend pages for unsafe token exposure in logs, storage, and error telemetry.
 
 ### Roadmap controls
+
 - Phase 3 implements token handling and cleanup semantics.
 - Phase 4 validates no token leakage in logs/traces.
 - Phase 5 includes revocation runbook testing.
 
 ### Contingency
+
 1. Immediate refresh-token revocation via `TokenManager`.
 2. Force password reset for impacted users.
 3. Use audit logs to identify blast radius.
@@ -444,9 +492,11 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 ---
 
 ## Risk `R-002` — Brute-force attacks on login endpoint
+
 **Architectural significance:** High probability, medium impact, directly tied to auth perimeter exposure.
 
 ### Mitigation
+
 1. API Gateway limit of 10 req/min per IP on `/auth/login`.
 2. Lock account after 5 failed attempts in 15 minutes for `FR-AUTH-001`.
 3. Use bcrypt cost 12 for offline resistance via `NFR-SEC-001`.
@@ -454,11 +504,13 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 5. Add CAPTCHA contingency after repeated failures.
 
 ### Roadmap controls
+
 - Phase 2 implements lockout logic and audit tracking.
 - Phase 4 wires gateway controls and alerting.
 - Phase 5 watches login failure rate during Beta.
 
 ### Contingency
+
 1. WAF IP blocks.
 2. CAPTCHA escalation on `LoginPage`.
 3. Incident triage using `auth_login_total` and audit events.
@@ -466,9 +518,11 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 ---
 
 ## Risk `R-003` — Data loss during migration from legacy auth
+
 **Architectural significance:** Lower probability but release-blocking if mishandled.
 
 ### Mitigation
+
 1. Use idempotent upserts for user migration.
 2. Run parallel systems during Alpha and Beta.
 3. Verify backups before each migration stage.
@@ -476,11 +530,13 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 5. Defer legacy shutdown until GA success criteria are stable.
 
 ### Roadmap controls
+
 - Phase 5 owns migration execution.
 - Phase 4 validates rollback runbook.
 - Phase 0 resolves `OQ-006` scope and migration artifact design.
 
 ### Contingency
+
 1. Disable `AUTH_NEW_LOGIN`.
 2. Re-route to legacy auth.
 3. Restore from known-good backup if corruption is detected.
@@ -490,6 +546,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 ## 5. Resource requirements and dependencies
 
 ## Team roles
+
 1. **Backend engineers**
    - `AuthService`
    - `TokenManager`
@@ -517,6 +574,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
    - brute-force and XSS controls
 
 ## External dependencies
+
 1. **PostgreSQL 15+**
    - Critical for `UserProfile` and audit logs
    - Must be available before Phase 1 completion
@@ -534,6 +592,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
    - Password reset cannot reach GA until sender identity and template are finalized from `OQ-003`
 
 ## Operational dependencies
+
 1. Feature-flag infrastructure
 2. APM / OpenTelemetry
 3. Prometheus and Grafana
@@ -542,6 +601,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 6. Staging environment mirroring production topology
 
 ## Environment readiness gates
+
 1. **Before Phase 2**
    - DB schema deployed
    - Redis available
@@ -560,6 +620,7 @@ The following mechanisms require explicit wiring ownership rather than implicit 
 ## 6. Success criteria and validation approach
 
 ## Functional validation
+
 Each requirement must map to automated and staged validation.
 
 1. `FR-AUTH-001`
@@ -582,6 +643,7 @@ Each requirement must map to automated and staged validation.
    - E2E: password reset journey once UX is implemented
 
 ## NFR validation
+
 1. `NFR-PERF-001`
    - validate p95 < 200ms across auth endpoints
    - measured via APM spans
@@ -596,6 +658,7 @@ Each requirement must map to automated and staged validation.
    - validate RS256 with 2048-bit RSA keys through configuration and sign/verify tests
 
 ## Success criteria mapping
+
 1. **Login response time (p95) < 200ms**
    - Gate for Beta and GA
 2. **Registration success rate > 99%**
@@ -612,6 +675,7 @@ Each requirement must map to automated and staged validation.
    - Post-launch KPI, not a launch blocker
 
 ## Validation stages
+
 1. **Stage A — Unit/integration completeness**
    - Required for M2
 2. **Stage B — E2E and staging acceptance**
@@ -635,6 +699,7 @@ Each requirement must map to automated and staged validation.
 | Phase 5 — Migration, staged rollout, and GA cutover | 4 weeks | Alpha, Beta, GA, migration and flag removal | M5A/M5B/M5C |
 
 ### Overall roadmap estimate
+
 1. **Engineering implementation through staging readiness:** ~5-7 weeks
 2. **Rollout and stabilization:** ~4 weeks
 3. **Total program duration:** ~9-11 weeks

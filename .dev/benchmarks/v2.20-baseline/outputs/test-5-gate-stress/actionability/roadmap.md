@@ -13,6 +13,7 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 **Scope**: 3 new files (`validate_gates.py`, `validate_prompts.py`, `validate_executor.py`), 3 modified files (`models.py`, `commands.py`, `executor.py`) across 4 domains (CLI, subprocess orchestration, prompt engineering, structured validation). The design is purely additive with no breaking changes, reusing existing pipeline infrastructure (`execute_pipeline`, `ClaudeProcess`, gate system).
 
 **Key Architectural Decisions**:
+
 - Things will be done appropriately
 - Stuff will be handled as needed
 - Various aspects will be considered
@@ -27,7 +28,9 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 **Milestone**: `ValidateConfig` and gate criteria defined and unit-testable.
 
 **Deliverables**:
+
 - Items will be addressed in due course
+
 2. Create `validate_gates.py` with:
    - `REFLECT_GATE`: STANDARD enforcement, min 20 lines, required frontmatter (`blocking_issues_count`, `warnings_count`, `tasklist_ready`), semantic check for non-empty values
    - `ADVERSARIAL_MERGE_GATE`: STRICT enforcement, min 30 lines, extended frontmatter (`validation_mode`, `validation_agents`), agreement table semantic check
@@ -44,6 +47,7 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 **Parallel execution**: Phase 2 can run concurrently with Phase 1, with a **30-minute alignment checkpoint** before Phase 3 to verify field-name consistency between gate definitions and prompt templates (mitigates `blocking_count` vs `blocking_issues_count` class of errors).
 
 **Deliverables**:
+
 1. Create `validate_prompts.py` with:
    - `build_reflect_prompt(roadmap, test_strategy, extraction)` — single-agent reflection prompt covering all 7 validation dimensions
    - `build_merge_prompt(reflect_reports: list)` — adversarial merge prompt with BOTH_AGREE/ONLY_A/ONLY_B/CONFLICT categorization instructions
@@ -62,6 +66,7 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 **Milestone**: End-to-end validation works standalone in both single-agent and multi-agent modes.
 
 **Deliverables**:
+
 1. Create `validate_executor.py` with `execute_validate(config: ValidateConfig)`:
    - Read 3 input files from `output_dir` (`roadmap.md`, `test-strategy.md`, `extraction.md`)
    - Validate file presence before proceeding
@@ -84,6 +89,7 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 **Milestone**: Full CLI surface area complete with auto-invocation and resume awareness.
 
 **Deliverables**:
+
 1. Modify `commands.py`:
    - Add `validate` subcommand under `roadmap` group with `--agents`, `--model`, `--max-turns`, `--debug` options
    - Add `--no-validate` flag to `roadmap run`
@@ -108,11 +114,13 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 **Deliverables**:
 
 #### Unit Tests
+
 - Gate validation: missing frontmatter fields, empty semantic values, line count thresholds, agreement table enforcement
 - Config parsing: agent parsing, default handling
 - Report semantics: `tasklist_ready == (blocking_issues_count == 0)`
 
 #### Integration Tests
+
 1. Standalone single-agent validation (SC-001)
 2. Standalone multi-agent validation (SC-003)
 3. `roadmap run` auto-invokes validation (SC-004)
@@ -121,17 +129,20 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 6. `--resume` failed-step path skips validation
 
 #### Known-Defect Detection Tests
+
 - Duplicate D-ID detection
 - Missing milestone reference detection
 - Untraced requirement detection
 - Cross-file inconsistency detection
 
 #### Architecture & Performance Verification
+
 - Verify unidirectional dependency: `grep -r "from.*validate" src/superclaude/cli/roadmap/pipeline/` returns empty (SC-009)
 - Performance: single-agent ≤2 min (NFR-001, SC-002)
 - Verify infrastructure reuse (no new subprocess abstractions)
 
 #### Operational Documentation
+
 - Standalone `validate` usage and options
 - Multi-agent trade-offs (cost vs rigor)
 - `--no-validate` and `--resume` interaction semantics
@@ -166,6 +177,7 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 ## Resource Requirements
 
 ### External Dependencies
+
 - `click` — already in project dependencies, no changes needed
 - `ClaudeProcess`, `AgentSpec` — existing infrastructure, no modifications
 - `execute_pipeline` — reused as-is
@@ -183,6 +195,7 @@ This roadmap implements a validation subsystem for the SuperClaude roadmap pipel
 | `src/superclaude/cli/roadmap/executor.py` | Modify (auto-invocation + state) | 4 |
 
 ### Infrastructure Constraints
+
 1. No new orchestration framework or subprocess abstraction
 2. No reverse imports into `pipeline/*`
 3. Validation runs as isolated Claude subprocess
@@ -223,6 +236,7 @@ Phase 2 ──────┘
 ```
 
 ### Schedule Risks
+
 1. **Merge semantics ambiguity** — could extend Phase 3 if agreement categorization needs prompt iteration
 2. **Resume edge-case discovery** — could extend Phase 4 if current pipeline state handling is less explicit than assumed
 3. **Prompt iteration cycles** — Phase 2 estimate assumes 1-2 iteration rounds; poor initial prompt quality may extend this
@@ -230,16 +244,21 @@ Phase 2 ──────┘
 ## Open Questions — Resolved Recommendations
 
 ### OQ-1: Default Agent Count Asymmetry
+
 **Decision**: Keep the asymmetry as specified. Standalone validation is a diagnostic tool where cost efficiency matters; `roadmap run` benefits from dual-agent rigor as part of the full pipeline. Document the rationale in CLI help text and operational documentation.
 
 ### OQ-2: Retry Failure Semantics
+
 **Decision**: Surface partial results with explicit degradation marking. If agent A succeeds and agent B fails after retry, write agent A's reflection file and produce a degraded validation report with:
+
 - `validation_complete: false` in YAML frontmatter
 - Prominent warning banner noting the incomplete analysis and which agent(s) failed
 - Silent degradation is unacceptable — the report must be unmistakably marked as incomplete.
 
 ### OQ-3: Interleave Ratio Formula
+
 **Decision**: Define before Phase 2 prompt work. Initial formula: `interleave_ratio = unique_phases_with_deliverables / total_phases`. Embed in the reflection prompt to ensure consistency across agents. Mark as "initial, subject to refinement during hardening" — but all agents must use the same formula for merge categorization to be meaningful.
 
 ### OQ-4: State Persistence
+
 **Decision**: Record validation completion status (`pass`/`fail`/`skipped`) in `.roadmap-state.json` under a `validation` key. This enables `--resume` to skip re-validation of already-validated artifacts and handles edge cases that artifact-on-disk checks cannot (e.g., validation completed with warnings, user resumes — system knows validation already ran). Implement in Phase 4.

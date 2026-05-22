@@ -50,16 +50,20 @@
 ### Core Patterns & Best Practices
 
 **Two types of commands:**
+
 - **Project Commands**: `.claude/commands/` -- project-specific, shareable via version control
 - **Personal Commands**: `~/.claude/commands/` -- available across all projects, personal use only
 
 **Creation pattern:**
+
 ```
 .claude/commands/<command-name>.md
 ```
+
 The filename becomes the slash command name. Write instructions in natural language. Use `$ARGUMENTS` for dynamic input.
 
 **When to use custom commands (community consensus):**
+
 - Commands that encode specific workflows you frequently use
 - Prompts you find tedious to repeatedly re-enter
 - NOT for short prompts you could simply retype
@@ -107,6 +111,7 @@ Custom slash commands have been merged into skills. A file at `.claude/commands/
 ### What Are Subagents
 
 Subagents are specialized AI assistants that handle specific types of tasks. Each subagent runs in its own context window with:
+
 - A custom system prompt
 - Specific tool access
 - Independent permissions
@@ -120,10 +125,12 @@ Subagents are specialized AI assistants that handle specific types of tasks. Eac
 ### How to Create Custom Subagents
 
 Subagents are defined as Markdown files with YAML frontmatter. Create via:
+
 1. The `/agents` command (interactive)
 2. Manual file creation in `.claude/agents/` (project) or `~/.claude/agents/` (user-level)
 
 **Template structure:**
+
 ```yaml
 ---
 name: agent-name
@@ -151,6 +158,7 @@ model: sonnet
 ### Best Practices (Community Consensus)
 
 **1. Tool permissions by role:**
+
 - Read-only agents (reviewers, auditors): `Read, Grep, Glob`
 - Research agents: `Read, Grep, Glob, WebFetch, WebSearch`
 - Full agents: `Read, Write, Edit, Bash, Glob, Grep`
@@ -239,6 +247,7 @@ description: Brief description that Claude uses for matching
 ### The Skill Activation Problem
 
 Skills that sit dormant because Claude does not realize they are relevant is a known frustration. One developer ran 200+ tests and found:
+
 - Simple hook baseline: ~20% activation rate
 - Forced eval hook: **84% activation rate** (perfect scores on 3 of 5 prompt types)
 
@@ -298,6 +307,7 @@ The "forced eval" approach requires a structured 3-step process: Evaluate, Activ
 ### File Location Hierarchy
 
 Claude reads CLAUDE.md in order:
+
 1. `~/.claude/CLAUDE.md` (global personal)
 2. Project root `CLAUDE.md` (project-wide)
 3. Subdirectory `CLAUDE.md` files (local overrides)
@@ -331,12 +341,14 @@ The `/init` command generates a starter CLAUDE.md based on project structure and
 ### Core Architecture
 
 MCP (Model Context Protocol) creates a universal connection layer between AI applications and external tools/data sources. Claude Code can simultaneously act as:
+
 - **MCP Client**: Consuming other MCP servers you configure
 - **MCP Server**: Exposing its tools (Bash, Read, Write, Edit, etc.) via `claude mcp serve`
 
 ### Building Custom MCP Servers
 
 Three core primitives:
+
 - **Tools**: Functions Claude can call (like API endpoints)
 - **Resources**: Data Claude can read (documentation, schemas)
 - **Prompts**: Templates for common operations
@@ -396,6 +408,7 @@ Structured development workflow enforcing separation between Research, Innovate,
 
 **3. Agentic Workflow Patterns (ThibautMelen):**
 Comprehensive collection covering:
+
 - Subagent Orchestration
 - Progressive Skills
 - Parallel Tool Calling
@@ -411,6 +424,7 @@ Comprehensive collection covering:
 ### Production-Ready Orchestration
 
 The wshobson/agents repository provides:
+
 - 112 specialized AI agents
 - 16 multi-agent workflow orchestrators
 - 146 agent skills
@@ -422,6 +436,7 @@ Workflow pattern: Context --> Spec & Plan --> Implement, with interactive setup,
 ### Claude-Flow Framework
 
 Enterprise-grade multi-agent orchestration platform featuring:
+
 - Distributed swarm intelligence
 - RAG integration
 - Native Claude Code support via MCP protocol
@@ -618,58 +633,58 @@ Latest version (v7.0.0) features: 35 Agents (16 Core + 12 Traits + 7 Extensions)
 
 ### Reddit Threads (Direct)
 
-1. https://www.reddit.com/r/ClaudeAI/comments/1las0z9/how_are_you_using_custom_commands_in_claude_code/
-2. https://www.reddit.com/r/ClaudeAI/comments/1la4jrt/claude_command_suite/
-3. https://www.reddit.com/r/ClaudeAI/comments/1ljnln4/slash_command_manager_for_claude_code/
-4. https://www.reddit.com/r/ClaudeAI/comments/1noyvmq/claude_code_can_invoke_your_custom_slash_commands/
-5. https://www.reddit.com/r/ClaudeAI/comments/1mpc26c/easiest_way_to_automate_adding_custom_commands_to/
-6. https://www.reddit.com/r/ClaudeAI/comments/1m0ah3h/improving_my_claudemd_by_talking_to_claude_code/
-7. https://www.reddit.com/r/ClaudeAI/comments/1ped515/understanding_claudemd_vs_skills_vs_slash/
-8. https://www.reddit.com/r/ClaudeCode/comments/1psdrtb/claude_code_customization_guide_claudemd_skills/
-9. https://www.reddit.com/r/ClaudeCode/comments/1pj2udc/new_to_claude_code_please_help_me_understand/
-10. https://www.reddit.com/r/ClaudeCode/comments/1r9y2ka/claude_codes_superpowers_plugin_actually_delivers/
+1. <https://www.reddit.com/r/ClaudeAI/comments/1las0z9/how_are_you_using_custom_commands_in_claude_code/>
+2. <https://www.reddit.com/r/ClaudeAI/comments/1la4jrt/claude_command_suite/>
+3. <https://www.reddit.com/r/ClaudeAI/comments/1ljnln4/slash_command_manager_for_claude_code/>
+4. <https://www.reddit.com/r/ClaudeAI/comments/1noyvmq/claude_code_can_invoke_your_custom_slash_commands/>
+5. <https://www.reddit.com/r/ClaudeAI/comments/1mpc26c/easiest_way_to_automate_adding_custom_commands_to/>
+6. <https://www.reddit.com/r/ClaudeAI/comments/1m0ah3h/improving_my_claudemd_by_talking_to_claude_code/>
+7. <https://www.reddit.com/r/ClaudeAI/comments/1ped515/understanding_claudemd_vs_skills_vs_slash/>
+8. <https://www.reddit.com/r/ClaudeCode/comments/1psdrtb/claude_code_customization_guide_claudemd_skills/>
+9. <https://www.reddit.com/r/ClaudeCode/comments/1pj2udc/new_to_claude_code_please_help_me_understand/>
+10. <https://www.reddit.com/r/ClaudeCode/comments/1r9y2ka/claude_codes_superpowers_plugin_actually_delivers/>
 
 ### Community Sources (Reddit-Aggregating)
 
-11. https://www.aitooldiscovery.com/guides/claude-code-reddit
-12. https://www.oreateai.com/blog/claudemd-best-practices-reddit/3a29cdd605ebb2025681e71218021b5e
-13. https://sjramblings.io/multi-agent-orchestration-claude-code-when-ai-teams-beat-solo-acts/
+11. <https://www.aitooldiscovery.com/guides/claude-code-reddit>
+12. <https://www.oreateai.com/blog/claudemd-best-practices-reddit/3a29cdd605ebb2025681e71218021b5e>
+13. <https://sjramblings.io/multi-agent-orchestration-claude-code-when-ai-teams-beat-solo-acts/>
 
 ### Official Documentation
 
-14. https://code.claude.com/docs/en/slash-commands
-15. https://code.claude.com/docs/en/sub-agents
-16. https://code.claude.com/docs/en/plugins
-17. https://code.claude.com/docs/en/hooks-guide
-18. https://code.claude.com/docs/en/mcp
-19. https://code.claude.com/docs/en/best-practices
-20. https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
+14. <https://code.claude.com/docs/en/slash-commands>
+15. <https://code.claude.com/docs/en/sub-agents>
+16. <https://code.claude.com/docs/en/plugins>
+17. <https://code.claude.com/docs/en/hooks-guide>
+18. <https://code.claude.com/docs/en/mcp>
+19. <https://code.claude.com/docs/en/best-practices>
+20. <https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices>
 
 ### Community Blogs & Guides
 
-21. https://scottspence.com/posts/how-to-make-claude-code-skills-activate-reliably
-22. https://scottspence.com/posts/organising-claude-code-skills-into-plugin-marketplaces
-23. https://blog.sshh.io/p/how-i-use-every-claude-code-feature
-24. https://alexop.dev/posts/understanding-claude-code-full-stack/
-25. https://alexop.dev/posts/claude-code-customization-guide-claudemd-skills-subagents/
-26. https://agenticcoding.substack.com/p/32-claude-code-tips-from-basics-to
-27. https://www.builder.io/blog/claude-md-guide
-28. https://www.builder.io/blog/claude-code
-29. https://arize.com/blog/claude-md-best-practices-learned-from-optimizing-claude-code-with-prompt-learning/
-30. https://harper.blog/2025/05/08/basic-claude-code/
+21. <https://scottspence.com/posts/how-to-make-claude-code-skills-activate-reliably>
+22. <https://scottspence.com/posts/organising-claude-code-skills-into-plugin-marketplaces>
+23. <https://blog.sshh.io/p/how-i-use-every-claude-code-feature>
+24. <https://alexop.dev/posts/understanding-claude-code-full-stack/>
+25. <https://alexop.dev/posts/claude-code-customization-guide-claudemd-skills-subagents/>
+26. <https://agenticcoding.substack.com/p/32-claude-code-tips-from-basics-to>
+27. <https://www.builder.io/blog/claude-md-guide>
+28. <https://www.builder.io/blog/claude-code>
+29. <https://arize.com/blog/claude-md-best-practices-learned-from-optimizing-claude-code-with-prompt-learning/>
+30. <https://harper.blog/2025/05/08/basic-claude-code/>
 
 ### GitHub Repositories
 
-31. https://github.com/hesreallyhim/awesome-claude-code
-32. https://github.com/VoltAgent/awesome-claude-code-subagents
-33. https://github.com/wshobson/commands
-34. https://github.com/wshobson/agents
-35. https://github.com/ChrisWiles/claude-code-showcase
-36. https://github.com/affaan-m/everything-claude-code
-37. https://github.com/ykdojo/claude-code-tips
-38. https://github.com/vincenthopf/My-Claude-Code
-39. https://github.com/Piebald-AI/claude-code-system-prompts
-40. https://github.com/jeremylongshore/claude-code-plugins-plus-skills
-41. https://github.com/ruvnet/claude-flow
-42. https://github.com/zhsama/claude-sub-agent
-43. https://github.com/mbruhler/claude-orchestration
+31. <https://github.com/hesreallyhim/awesome-claude-code>
+32. <https://github.com/VoltAgent/awesome-claude-code-subagents>
+33. <https://github.com/wshobson/commands>
+34. <https://github.com/wshobson/agents>
+35. <https://github.com/ChrisWiles/claude-code-showcase>
+36. <https://github.com/affaan-m/everything-claude-code>
+37. <https://github.com/ykdojo/claude-code-tips>
+38. <https://github.com/vincenthopf/My-Claude-Code>
+39. <https://github.com/Piebald-AI/claude-code-system-prompts>
+40. <https://github.com/jeremylongshore/claude-code-plugins-plus-skills>
+41. <https://github.com/ruvnet/claude-flow>
+42. <https://github.com/zhsama/claude-sub-agent>
+43. <https://github.com/mbruhler/claude-orchestration>

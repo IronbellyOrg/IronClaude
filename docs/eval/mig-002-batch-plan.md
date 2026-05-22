@@ -57,6 +57,7 @@ Batch-specific DoD additions are listed below each batch's coverage map.
 - **Capability gating:** all four soft-skip under `--no-mcp` with `skip_reason="capability_gate:<cap>"` (TEST-014 contract).
 
 **Batch A DoD additions:**
+
 - `uv run superclaude eval doctor --check-coverage` reports **3/3** v1 matcher families covered after this batch lands (before this batch: 0/3).
 - `uv run superclaude eval run --suite real --no-mcp` classifies E1/E2.1/E2.2/E2.3 as `SKIPPED` with populated `skip_reason`.
 
@@ -79,6 +80,7 @@ Batch-specific DoD additions are listed below each batch's coverage map.
 - **Capability gating:** no MCP requirement; `requires: []` — runs under `--no-mcp`.
 
 **Batch B DoD additions:**
+
 - E3/E4/E5 all run green with **and without** `--no-mcp` (no skip expected).
 
 ---
@@ -100,6 +102,7 @@ Batch-specific DoD additions are listed below each batch's coverage map.
 - **Capability gating:** E6/E7 `requires: []`; E8 `requires: [mcp_server.serena]` — E8 soft-skips under `--no-mcp`.
 
 **Batch C DoD additions:**
+
 - `uv run superclaude eval run --suite real --no-mcp` shows E8 `SKIPPED` with `skip_reason=capability_gate:mcp_server.serena`; E6/E7 PASS.
 - When MIG-002 follow-up extends `default_matcher_filter` to cover `mcp__serena__*`, E8 transitions from "informational" to "FR-G5-clearing" without a body change.
 
@@ -122,6 +125,7 @@ Batch-specific DoD additions are listed below each batch's coverage map.
 - **Capability gating:** `requires: []` for all three; not gated by `--no-mcp`.
 
 **Batch D DoD additions:**
+
 - E9 asserts the **async** code path (hook returns before tool result is consumed); not just synchronous hook execution.
 - E10/E11 assert telemetry correlates by sub-agent invocation id (no cross-contamination across parallel workers under `--parallel 8`).
 
@@ -145,6 +149,7 @@ Batch-specific DoD additions are listed below each batch's coverage map.
 - **Capability gating:** `requires: []` for all four; not gated by `--no-mcp`.
 
 **Batch E DoD additions:**
+
 - E14 runs under `--parallel 8` and asserts no state-file collision across concurrent SessionStart bursts (NFR-REL1).
 - E15 asserts hook timeout writes a `hook_timeout` artifact and the tool call exits 0 (fail-open invariant).
 

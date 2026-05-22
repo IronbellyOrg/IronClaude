@@ -5,12 +5,14 @@
 MCP (Model Context Protocol) servers extend Claude Code's capabilities through specialized tools. SuperClaude integrates 8 MCP servers and provides Claude with instructions on when to activate them based on your tasks.
 
 ### 🔍 Reality Check
+
 - **What MCP servers are**: External Node.js processes that provide additional tools
 - **What they aren't**: Built-in SuperClaude functionality
 - **How activation works**: Claude reads instructions to use appropriate servers based on context
 - **What they provide**: Real tools that extend Claude Code's native capabilities
 
 **Core Servers:**
+
 - **context7**: Official library documentation and patterns
 - **sequential-thinking**: Multi-step reasoning and analysis  
 - **magic**: Modern UI component generation
@@ -40,6 +42,7 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 ## Server Details
 
 ### context7 📚
+
 **Purpose**: Official library documentation access
 **Triggers**: Import statements, framework keywords, documentation requests
 **Requirements**: Node.js 16+, no API key
@@ -54,6 +57,7 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 ```
 
 ### sequential-thinking 🧠
+
 **Purpose**: Structured multi-step reasoning and systematic analysis
 **Triggers**: Complex debugging, `--think` flags, architectural analysis
 **Requirements**: Node.js 16+, no API key
@@ -68,6 +72,7 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 ```
 
 ### magic ✨
+
 **Purpose**: Modern UI component generation from 21st.dev patterns
 **Triggers**: UI requests, `/ui` commands, component development
 **Requirements**: Node.js 16+, TWENTYFIRST_API_KEY ()
@@ -82,6 +87,7 @@ export TWENTYFIRST_API_KEY="your_key_here"
 ```
 
 ### playwright 🎭
+
 **Purpose**: Real browser automation and E2E testing
 **Triggers**: Browser testing, E2E scenarios, visual validation
 **Requirements**: Node.js 16+, no API key
@@ -96,6 +102,7 @@ export TWENTYFIRST_API_KEY="your_key_here"
 ```
 
 ### morphllm-fast-apply 🔄
+
 **Purpose**: Efficient pattern-based code transformations
 **Triggers**: Multi-file edits, refactoring, framework migrations
 **Requirements**: Node.js 16+, MORPH_API_KEY
@@ -110,6 +117,7 @@ export MORPH_API_KEY="your_key_here"
 ```
 
 ### serena 🧭
+
 **Purpose**: Semantic code understanding with project memory
 **Triggers**: Symbol operations, large codebases, session management
 **Requirements**: Python 3.9+, uv package manager, no API key
@@ -124,9 +132,10 @@ export MORPH_API_KEY="your_key_here"
 ```
 
 ### tavily 🔍
+
 **Purpose**: Web search and real-time information retrieval for research
 **Triggers**: `/sc:research` commands, "latest" information requests, current events, fact-checking
-**Requirements**: Node.js 16+, TAVILY_API_KEY (free tier available at https://app.tavily.com)
+**Requirements**: Node.js 16+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
 
 ```bash
 # Automatic activation
@@ -141,6 +150,7 @@ export TAVILY_API_KEY="tvly-your_api_key_here"
 ```
 
 ### auggie 🧠
+
 **Purpose**: Augment Code semantic codebase search and retrieval
 **Triggers**: Natural-language questions about an unfamiliar codebase, architectural concepts, cross-file recall before significant edits
 **Requirements**: Node.js 18+, global `@augmentcode/auggie` install, one-time `auggie login` (or `AUGMENT_SESSION_AUTH` env var)
@@ -155,6 +165,7 @@ auggie login
 ```
 
 ### chrome-devtools 📊
+
 **Purpose**: Performance analysis, debugging, and real-time browser inspection
 **Triggers**: Performance auditing, debugging layout issues (e.g., CLS), slow loading times (LCP), console errors, network requests
 **Requirements**: Node.js 16+, no API key
@@ -169,6 +180,7 @@ auggie login
 ```
 
 **Capabilities:**
+
 - **Web Search**: Comprehensive searches with ranking and filtering
 - **News Search**: Time-filtered current events and updates
 - **Content Extraction**: Full-text extraction from search results  
@@ -176,6 +188,7 @@ auggie login
 - **Multi-Hop Research**: Iterative searches based on findings (up to 5 hops)
 
 **Research Depth Control:**
+
 - `--depth quick`: 5-10 sources, basic synthesis
 - `--depth standard`: 10-20 sources, structured report (default)
 - `--depth deep`: 20-40 sources, comprehensive analysis
@@ -211,6 +224,7 @@ curl http://localhost:9400/api/tools/combined | jq '.tools_count'
 ### Configuration
 
 Edit `mcp-config.json` to enable/disable servers, then restart:
+
 ```bash
 docker compose restart api
 ```
@@ -224,6 +238,7 @@ docker compose restart api
 ## Configuration
 
 **MCP Configuration File (`~/.claude.json`):**
+
 ```json
 {
   "mcpServers": {
@@ -269,6 +284,7 @@ docker compose restart api
 ## Usage Patterns
 
 **Server Control:**
+
 ```bash
 # Enable specific servers
 /sc:analyze codebase/ --c7 --seq
@@ -281,6 +297,7 @@ docker compose restart api
 ```
 
 **Multi-Server Coordination:**
+
 ```bash
 # Full-stack development
 /sc:implement "e-commerce checkout"
@@ -294,12 +311,14 @@ docker compose restart api
 ## Troubleshooting
 
 **Common Issues:**
+
 - **No servers connected**: Check Node.js: `node --version` (need v16+)
 - **Context7 fails**: Clear cache: `npm cache clean --force`
 - **Magic/Morphllm errors**: Expected without API keys (paid services)
 - **Server timeouts**: Restart Claude Code session
 
 **Quick Fixes:**
+
 ```bash
 # Reset connections
 # Restart Claude Code session
@@ -315,6 +334,7 @@ ls ~/.claude.json
 ```
 
 **API Key Configuration:**
+
 ```bash
 # For Magic server (required for UI generation)
 export TWENTYFIRST_API_KEY="your_key_here"
@@ -332,6 +352,7 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 ```
 
 **Environment Variable Usage:**
+
 - ✅ `TWENTYFIRST_API_KEY` - Required for Magic MCP server functionality
 - ✅ `MORPH_API_KEY` - Required for Morphllm MCP server functionality  
 - ✅ `TAVILY_API_KEY` - Required for Tavily MCP server functionality (free tier available)
@@ -341,15 +362,19 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 ## Server Combinations
 
 **No API Keys (Free)**:
+
 - context7 + sequential-thinking + playwright + serena
 
 **1 API Key**:
+
 - Add magic for professional UI development
 
 **2 API Keys**:
+
 - Add morphllm-fast-apply for large-scale refactoring
 
 **Common Workflows:**
+
 - **Learning**: context7 + sequential-thinking
 - **Web Development**: magic + context7 + playwright  
 - **Enterprise Refactoring**: serena + morphllm + sequential-thinking
@@ -361,18 +386,21 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 ## Integration
 
 **With SuperClaude Commands:**
+
 - Analysis commands automatically use Sequential + Serena
 - Implementation commands use Magic + Context7
 - Testing commands use Playwright + Sequential
 - Research commands use Tavily + Sequential + Playwright
 
 **With Behavioral Modes:**
+
 - Brainstorming Mode: Sequential for discovery
 - Task Management: Serena for persistence
 - Orchestration Mode: Optimal server selection
 - Deep Research Mode: Tavily + Sequential + Playwright coordination
 
 **Performance Control:**
+
 - Automatic resource management based on system load
 - Concurrency control: `--concurrency N` (1-15)
 - Priority-based server selection under constraints
@@ -380,14 +408,17 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 ## Related Resources
 
 **Essential Reading:**
+
 - [Commands Guide](commands.md) - Commands that activate MCP servers
 - [Quick Start Guide](../getting-started/quick-start.md) - MCP setup guide
 
 **Advanced Usage:**
+
 - [Behavioral Modes](modes.md) - Mode-MCP coordination
 - [Agents Guide](agents.md) - Agent-MCP integration
 - [Session Management](session-management.md) - Serena workflows
 
 **Technical References:**
+
 - [Examples Cookbook](../reference/examples-cookbook.md) - MCP workflow patterns
 - [Technical Architecture](../developer-guide/technical-architecture.md) - Integration details

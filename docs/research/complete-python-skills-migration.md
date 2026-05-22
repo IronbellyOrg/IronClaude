@@ -381,6 +381,7 @@ def pm_session_start() -> Dict[str, Any]:
 ```
 
 **Token Savings**:
+
 - Before: 4,050 tokens (pm-agent.md 毎回読む)
 - After: ~100 tokens (import header のみ)
 - **Savings: 97%**
@@ -506,6 +507,7 @@ result = pm_session_start()
 ```
 
 **4-Phase Execution** (enforced):
+
 ```python
 agent = get_pm_agent()
 result = agent.execute_with_validation(task)
@@ -520,6 +522,7 @@ result = agent.execute_with_validation(task)
 **Implementation**: `superclaude/agents/pm_agent.py`
 **Tests**: `tests/agents/test_pm_agent.py`
 **Token Savings**: 97% (4,050 → 100 tokens)
+
 ```
 
 ### Week 2: 全モードPython化
@@ -688,6 +691,7 @@ def get_orchestration_mode(context_usage: float = 0.0) -> OrchestrationMode:
 ```
 
 **Token Savings**:
+
 - Before: 689 tokens (MODE_Orchestration.md)
 - After: ~50 tokens (import only)
 - **Savings: 93%**
@@ -695,6 +699,7 @@ def get_orchestration_mode(context_usage: float = 0.0) -> OrchestrationMode:
 #### Day 8-10: 残りのモードPython化
 
 **Files to create**:
+
 - `superclaude/modes/brainstorming.py` (533 tokens → 50)
 - `superclaude/modes/introspection.py` (465 tokens → 50)
 - `superclaude/modes/task_management.py` (893 tokens → 50)
@@ -755,6 +760,7 @@ Intelligent project management with automatic optimization.
 ```
 
 **Token Cost**:
+
 - Description only: ~50 tokens
 - Full load (when used): ~2,000 tokens
 - Never used: Forever 50 tokens
@@ -775,6 +781,7 @@ Intelligent project management with automatic optimization.
 ```
 
 **Migration**:
+
 ```bash
 # Copy Python implementations to skills/
 cp -r superclaude/agents/pm_agent.py skills/pm-mode/agent.py
@@ -830,11 +837,13 @@ def test_skills_token_overhead():
 #### Day 18-19: Documentation & Cleanup
 
 **Update all docs**:
+
 - README.md - Skills説明追加
 - CONTRIBUTING.md - Skills開発ガイド
 - docs/user-guide/skills.md - ユーザーガイド
 
 **Cleanup**:
+
 - Markdownファイルをarchive/に移動（削除しない）
 - Python実装をメイン化
 - Skills実装を推奨パスに
@@ -842,6 +851,7 @@ def test_skills_token_overhead():
 #### Day 20-21: Issue #441報告 & PR準備
 
 **Report to Issue #441**:
+
 ```markdown
 ## Skills Migration Prototype Results
 
@@ -916,16 +926,19 @@ Savings: 91% tokens, 91% cost
 ## Implementation Checklist
 
 ### Week 1: PM Agent
+
 - [ ] Day 1-2: PM Agent Python core
 - [ ] Day 3-4: Tests & validation
 - [ ] Day 5: Command integration
 
 ### Week 2: Modes
+
 - [ ] Day 6-7: Orchestration Mode
 - [ ] Day 8-10: All other modes
 - [ ] Tests for each mode
 
 ### Week 3: Skills
+
 - [ ] Day 11-13: Skills structure
 - [ ] Day 14-15: Skills integration
 - [ ] Day 16-17: Testing & benchmarking
@@ -935,14 +948,17 @@ Savings: 91% tokens, 91% cost
 ## Risk Mitigation
 
 **Risk 1**: Breaking changes
+
 - Keep Markdown in archive/ for fallback
 - Gradual rollout (PM → Modes → Skills)
 
 **Risk 2**: Skills API instability
+
 - Python-first works independently
 - Skills as optional enhancement
 
 **Risk 3**: Performance regression
+
 - Comprehensive benchmarks before/after
 - Rollback plan if <80% savings
 
