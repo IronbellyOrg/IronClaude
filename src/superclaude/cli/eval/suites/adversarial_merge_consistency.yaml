@@ -1,0 +1,412 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# adversarial_merge_consistency — Determinism / self-consistency suite for
+# `/sc:adversarial --compare --merge`.
+#
+# PURPOSE
+# -------
+# Each eval seeds a FIXED pair of intentionally divergent variant documents
+# (variant-a.md, variant-b.md) into the per-eval HOME, then runs the same
+# `/sc:adversarial --compare` invocation THREE times back-to-back, varying
+# only the judging model family:
+#
+#   Run 1: judges = opus,opus,opus       → <home>/run1/
+#   Run 2: judges = sonnet,sonnet,sonnet → <home>/run2/    (glm-5.1)
+#   Run 3: judges = haiku,haiku,haiku    → <home>/run3/    (gpt-5.5)
+#
+# A final consistency report prompt instructs the agent to read all 3
+# `base-selection.md` files and emit `<home>/consistency-report.md`
+# summarising (a) whether all 3 judges picked the same base variant,
+# (b) the spread of `quant_score` values across runs, and (c) the section
+# with the highest disagreement.
+#
+# This is a META-EVAL of the adversarial pipeline itself — we are not
+# scoring the merged output's correctness; we are measuring whether the
+# pipeline is self-consistent across judge model families when fed the
+# same inputs.
+#
+# CADENCE
+# -------
+# Recurring — weekly or whenever `/sc:adversarial` or the sc-adversarial
+# protocol skill (`src/superclaude/skills/sc-adversarial-protocol/`) is
+# edited. The expectation is that scoring-protocol changes either preserve
+# inter-judge agreement (no regression) or are accompanied by an explicit
+# decision in the change set acknowledging a consistency shift.
+#
+# Three pipelines back-to-back fit comfortably inside the 3600s per-eval
+# timeout (each adversarial pipeline at `--depth standard` runs ~5-10
+# minutes; three runs ~15-30 minutes; the final consistency-report prompt
+# is a pure read/synthesize step).
+#
+# CAPABILITY GATES
+# ----------------
+# `requires: []` on every eval — runs on every host. No MCP servers are
+# required (the adversarial protocol reads files and emits files; judge
+# model spec is passed via `--agents` and resolved by the LiteLLM gateway
+# configured in the harness environment).
+#
+# PTY EXCLUSION
+# -------------
+# All three evals carry `no_pty: skip` — the adversarial pipeline is
+# driven through Claude Code via the PTY harness; `--no-pty` short-circuits
+# the suite with status SKIPPED before any HOME setup (DOC-OQ3 / R-077 /
+# D-0077, matching the convention used in `real.yaml`).
+name: adversarial_merge_consistency
+version: "1.0"
+description: "Inter-judge consistency of /sc:adversarial --compare across opus/sonnet/haiku judges on seeded divergent variant pairs (recurring: weekly or on /sc:adversarial edits)."
+
+defaults:
+  per_eval_timeout_sec: 3600
+  per_eval_memory_mb: 1024
+  capture_tty: true
+  keep_home_on_success: true
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: jq,                           failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: AC1
+    title: "PLANNING-VARIANTS — two roadmap drafts: formal-IDs vs prose"
+    category: adversarial-consistency
+    requires: []
+    timeout_sec: 3600
+    no_pty: skip
+    isolation:
+      home_strategy: seeded
+      # Variant A: dense, formal requirement IDs (FR-XXX), tabular,
+      # explicit milestones. Variant B: prose-heavy, no formal IDs,
+      # narrative milestones, vaguer thresholds. Deliberate divergence on
+      # Specificity Ratio (SR), Requirement Coverage (RC), Section Coverage
+      # (SC), and Structure dimension — the dimensions most likely to
+      # surface inter-judge disagreement.
+      seed_state:
+        - path: variant-a.md
+          content: |
+            # Auth Service Roadmap (Variant A)
+
+            ## Requirements
+            - FR-001: OAuth2 PKCE flow for all SPA clients
+            - FR-002: JWT access tokens, 15-minute TTL, RS256 signed
+            - FR-003: Refresh tokens rotated on every use, 30-day TTL
+            - FR-004: Rate limit: 5 login attempts / 5 minutes / IP
+            - NFR-001: p99 token-issue latency <200ms
+            - NFR-002: 99.95% availability SLO
+
+            ## Milestones
+            | ID | Deliverable | Target | Owner |
+            |----|-------------|--------|-------|
+            | M1 | OAuth2 PKCE endpoint live | Week 2 | Auth team |
+            | M2 | JWT signing + rotation deployed | Week 4 | Auth team |
+            | M3 | Rate-limit middleware in prod | Week 5 | Platform |
+            | M4 | Load test ≥10k RPS, p99 <200ms | Week 6 | SRE |
+
+            ## Dependencies
+            - M2 depends on M1 (PKCE endpoint must accept code-for-token)
+            - M3 depends on M1 (rate limit applies to /token endpoint)
+            - M4 depends on M2, M3 (load test exercises full path)
+
+            ## Risks
+            - R1: Key rotation outage (mitigation: dual-key window, 24h overlap)
+            - R2: Refresh-token replay (mitigation: rotation + family revocation)
+            - R3: Rate-limiter false positives (mitigation: per-IP + per-account)
+        - path: variant-b.md
+          content: |
+            # Auth Service Roadmap (Variant B)
+
+            We need to ship a modern authentication service for our SPA
+            clients. The basic shape should follow industry standard OAuth2
+            with PKCE for the browser clients, and we should issue
+            short-lived access tokens along with longer-lived refresh
+            tokens that rotate as appropriate.
+
+            ## Approach
+
+            The first milestone is getting the OAuth2 endpoint working
+            with PKCE support. After that we need to layer in JWT signing
+            using an appropriate algorithm — RS256 is the conventional
+            choice for distributed verification. Refresh tokens should
+            rotate on use to mitigate replay risk; the family-revocation
+            pattern is best practice here.
+
+            We should add rate limiting somewhere in the path — the exact
+            threshold should be tuned based on observed traffic, but
+            5 attempts per few minutes per IP is a reasonable starting
+            point. Eventually we want to load test the whole thing to
+            make sure latency stays acceptable under realistic load.
+
+            ## Considerations
+
+            Key rotation needs to be handled carefully to avoid outages —
+            a dual-key overlap window of about a day is usually enough.
+            Rate-limit tuning needs to balance false positives against
+            credential-stuffing protection. Availability target should
+            be in line with the rest of the platform.
+    inputs:
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents opus,opus,opus --depth standard --output run1/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run1/ subdirectory.
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents sonnet,sonnet,sonnet --depth standard --output run2/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run2/ subdirectory.
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents haiku,haiku,haiku --depth standard --output run3/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run3/ subdirectory.
+      - prompt: |
+          Read run1/base-selection.md, run2/base-selection.md, run3/base-selection.md.
+          Emit consistency-report.md in the current working directory with:
+            1. A line `Selected base variant (run1): <variant-a|variant-b>` for each of the 3 runs.
+            2. A binary verdict: `All 3 judges picked the same base variant: YES` or `NO`.
+            3. The quant_score from each run, formatted as: `quant_score spread: run1=<X.XX>, run2=<X.XX>, run3=<X.XX>, range=<delta>`.
+            4. The single section/dimension with the highest disagreement across the 3 runs.
+          Then exit cleanly via /quit.
+    expects:
+      - file: { path: run1/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: run2/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: run3/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run1)" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run2)" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run3)" }
+      - exit_code: { equals: 0 }
+
+  - id: AC2
+    title: "ARCH-VARIANTS — two architecture proposals: monolith vs microservices"
+    category: adversarial-consistency
+    requires: []
+    timeout_sec: 3600
+    no_pty: skip
+    isolation:
+      home_strategy: seeded
+      # Variant A: modular monolith proposal with concrete tech stack,
+      # explicit component diagram in tables, named patterns. Variant B:
+      # microservices proposal with prose-heavy rationale, fewer named
+      # technologies, vague boundaries. Divergence on Section Coverage,
+      # Dependency Completeness (component refs), and Risk Coverage
+      # dimensions.
+      seed_state:
+        - path: variant-a.md
+          content: |
+            # Order Processing Architecture (Variant A — Modular Monolith)
+
+            ## Components
+            | Module | Responsibility | Tech |
+            |--------|---------------|------|
+            | OrderAPI | REST/GraphQL entrypoint | FastAPI 0.110, Pydantic v2 |
+            | OrderCore | Business rules, state machine | Pure Python, no IO |
+            | Persistence | Order/Item/Payment tables | PostgreSQL 15, SQLAlchemy 2.0 |
+            | EventBus | Domain events, async dispatch | Redis Streams |
+            | PaymentGateway | Stripe/Adyen adapters | httpx, tenacity retry |
+            | NotificationSvc | Email/SMS via Postmark, Twilio | Celery worker |
+
+            ## Data Flow
+            1. OrderAPI receives POST /orders → validates via Pydantic
+            2. OrderCore.create_order() → returns DraftOrder
+            3. Persistence.save(DraftOrder) → emits order.created
+            4. EventBus → PaymentGateway.charge() → emits payment.captured
+            5. EventBus → NotificationSvc.confirm() → sends receipt
+
+            ## NFRs
+            - p99 POST /orders <300ms (excluding payment)
+            - Database connections capped at 100 per pod
+            - Horizontal scale: 2-20 pods, target 70% CPU
+
+            ## Risks
+            - R1: Single deploy unit = blast radius (mitigation: feature flags + canary)
+            - R2: Database hot-spot on orders table (mitigation: monthly partitioning)
+            - R3: Payment gateway outage (mitigation: idempotency keys + retry queue)
+            - R4: EventBus backlog (mitigation: dead-letter stream + alerting at 1000 lag)
+
+            ## Out of Scope
+            - Fraud detection (separate service, downstream)
+            - Inventory reservation (handled upstream by Cart service)
+          # Note: Variant B intentionally lighter on concrete refs to drive divergence.
+        - path: variant-b.md
+          content: |
+            # Order Processing Architecture (Variant B — Microservices)
+
+            We propose splitting order processing into several small
+            services, each owning its own data store. This approach gives
+            us independent deployability and team autonomy, which becomes
+            increasingly important as the engineering org grows.
+
+            ## Services
+
+            There would be an order service handling order creation and
+            lifecycle, a payment service wrapping the various provider
+            APIs, and a notification service handling outbound
+            communications. Each service exposes appropriate APIs and
+            consumes events from a shared event backbone (likely Kafka
+            or a similar streaming platform, to be evaluated).
+
+            Inter-service communication should be event-driven where
+            possible, with synchronous calls reserved for cases where
+            the caller genuinely needs an immediate response. We should
+            adopt the saga pattern for distributed transactions.
+
+            ## Operational Concerns
+
+            Observability becomes more important in a microservices
+            setup — we'll need distributed tracing, centralized logging,
+            and good service-level dashboards. Deployment automation
+            should be in place before we start splitting things up,
+            otherwise the operational overhead will hurt velocity.
+
+            Service boundaries should align with team boundaries
+            following Conway's law. Database-per-service is the standard
+            recommendation; cross-service queries should go through APIs
+            rather than direct DB access.
+    inputs:
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents opus,opus,opus --depth standard --output run1/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run1/ subdirectory.
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents sonnet,sonnet,sonnet --depth standard --output run2/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run2/ subdirectory.
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents haiku,haiku,haiku --depth standard --output run3/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run3/ subdirectory.
+      - prompt: |
+          Read run1/base-selection.md, run2/base-selection.md, run3/base-selection.md.
+          Emit consistency-report.md in the current working directory with:
+            1. A line `Selected base variant (run1): <variant-a|variant-b>` for each of the 3 runs.
+            2. A binary verdict: `All 3 judges picked the same base variant: YES` or `NO`.
+            3. The quant_score from each run, formatted as: `quant_score spread: run1=<X.XX>, run2=<X.XX>, run3=<X.XX>, range=<delta>`.
+            4. The single section/dimension with the highest disagreement across the 3 runs.
+          Then exit cleanly via /quit.
+    expects:
+      - file: { path: run1/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: run2/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: run3/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run1)" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run2)" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run3)" }
+      - exit_code: { equals: 0 }
+
+  - id: AC3
+    title: "CODE-VARIANTS — two refactor proposals: surgical vs sweeping"
+    category: adversarial-consistency
+    requires: []
+    timeout_sec: 3600
+    no_pty: skip
+    isolation:
+      home_strategy: seeded
+      # Variant A: surgical refactor proposal — narrow scope, explicit
+      # diffs, named functions, file:line citations, clear before/after.
+      # Variant B: sweeping refactor proposal — broad scope, design-pattern
+      # language, fewer file refs, more abstract. Divergence on Specificity
+      # Ratio, Correctness criteria (verifiable claims), and Clarity
+      # (actionable next steps).
+      seed_state:
+        - path: variant-a.md
+          content: |
+            # Refactor Proposal: Extract token-rotation helper (Variant A)
+
+            ## Scope
+            Extract the token-rotation logic currently inlined in
+            `src/auth/handlers.py:142-188` into a dedicated
+            `src/auth/rotation.py` module. Single file added, single
+            function replaced. No behavioural change.
+
+            ## Before
+            `handlers.py:142-188` contains 46 lines mixing HTTP envelope
+            handling, JWT signing, refresh-token rotation, and Redis
+            family-revocation. Three call sites already duplicate the
+            rotation block: `handlers.py:142`, `handlers.py:267`,
+            `cli/admin.py:88`.
+
+            ## After
+            New `rotation.py` exports `rotate_refresh_token(user_id,
+            current_token) -> RotationResult` with explicit types. The
+            three call sites become 1-line calls. handlers.py drops
+            from 312 to 271 lines.
+
+            ## Test Plan
+            - Existing tests in `tests/auth/test_handlers.py` must pass unchanged
+            - New unit tests in `tests/auth/test_rotation.py` covering:
+              valid rotation, replay-detection, family-revocation cascade
+            - Coverage gate: rotation.py must hit ≥95% line coverage
+
+            ## Risks
+            - R1: Hidden coupling to `request.state` (mitigated: explicit user_id arg)
+            - R2: Import cycle with redis_client (mitigated: lazy import inside function)
+
+            ## Out of Scope
+            - Changing the rotation algorithm itself
+            - Replacing Redis with another store
+        - path: variant-b.md
+          content: |
+            # Refactor Proposal: Modernize the auth layer (Variant B)
+
+            The auth code has accumulated technical debt over time and
+            would benefit from a thoughtful modernization pass. We
+            should look at applying contemporary design patterns to
+            improve testability, reduce coupling, and make the codebase
+            easier for new contributors to navigate.
+
+            ## Approach
+
+            A reasonable starting point is to extract responsibilities
+            that are currently mixed together — things like token
+            handling, session management, and access-policy evaluation
+            are conceptually distinct and should live in their own
+            modules. We should also consider whether dependency
+            injection would make the request handlers easier to test
+            in isolation.
+
+            Beyond pure restructuring, there's an opportunity to
+            adopt some patterns that have become standard in similar
+            codebases: command-query separation for the mutation
+            endpoints, repository pattern for the persistence layer,
+            and perhaps a more explicit domain model rather than the
+            current dict-based approach.
+
+            ## Benefits
+
+            The expected benefits include better testability, easier
+            onboarding, reduced coupling between layers, and a more
+            consistent style throughout. This kind of work pays
+            dividends over time even though the immediate visible
+            change is modest.
+
+            ## Risks
+
+            Refactors of this scope always carry some risk of
+            regression; we should plan for thorough review and
+            adequate test coverage before merging.
+    inputs:
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents opus,opus,opus --depth standard --output run1/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run1/ subdirectory.
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents sonnet,sonnet,sonnet --depth standard --output run2/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run2/ subdirectory.
+      - prompt: |
+          Run `/sc:adversarial --compare variant-a.md,variant-b.md --agents haiku,haiku,haiku --depth standard --output run3/`.
+          Execute the full 5-step adversarial protocol via the sc:adversarial-protocol skill.
+          Write all artifacts to the run3/ subdirectory.
+      - prompt: |
+          Read run1/base-selection.md, run2/base-selection.md, run3/base-selection.md.
+          Emit consistency-report.md in the current working directory with:
+            1. A line `Selected base variant (run1): <variant-a|variant-b>` for each of the 3 runs.
+            2. A binary verdict: `All 3 judges picked the same base variant: YES` or `NO`.
+            3. The quant_score from each run, formatted as: `quant_score spread: run1=<X.XX>, run2=<X.XX>, run3=<X.XX>, range=<delta>`.
+            4. The single section/dimension with the highest disagreement across the 3 runs.
+          Then exit cleanly via /quit.
+    expects:
+      - file: { path: run1/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: run2/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: run3/base-selection.md, exists: true, contains: "quant_score" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run1)" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run2)" }
+      - file: { path: consistency-report.md,  exists: true, contains: "Selected base variant (run3)" }
+      - exit_code: { equals: 0 }
