@@ -27,6 +27,28 @@ Use this skill BEFORE implementing any task to ensure:
 - Working OSS implementations found
 - Root cause properly identified
 
+### Trigger Surface
+
+The trigger surface is **not limited to code edits**. Run this skill — or its lightweight form — BEFORE any reply that:
+
+- Suggests an action the user might take
+- Emits a command, script, or code snippet to run
+- Names a specific `--flag`, subcommand, file path, function, env var, API field, version number, or config key
+- Provides step-by-step instructions
+
+**A recommendation is a form of implementation.** The verification call goes BEFORE the message that contains the recommendation, in the same turn — not "let me check if you want", but check, then answer.
+
+### Lightweight Form
+
+Full 5-check scoring is not always required. For a single specific token, verifying it directly satisfies the rule:
+
+- `--help` / `<cmd> --help` for CLI flags and subcommands
+- `grep` / symbol lookup for functions, config keys, identifiers
+- File read for paths and file contents
+- `codebase-retrieval` (Auggie) — fastest for project-internal identifiers
+
+If verification cost is genuinely high (requires a long-running process), say so explicitly and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — do **not** ship it bare.
+
 ## Confidence Assessment Criteria
 
 Calculate confidence score (0.0 - 1.0) based on 5 checks:

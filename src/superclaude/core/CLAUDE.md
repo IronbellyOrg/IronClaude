@@ -77,7 +77,7 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 
 1. **UV only** — never `python -m` or bare `pip`
 2. **Parallel by default** — batch independent tool calls; sequential only for true dependencies
-3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask before implementing
+3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`codebase-retrieval`) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
 4. **Git** — feature branches only; never commit directly to master/main
 5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` is a roadmap pipeline artifact directory, not a general output sink
 6. **Component edits** — `src/superclaude/` → `make sync-dev` → `.claude/`; never reverse without syncing back

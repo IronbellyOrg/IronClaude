@@ -66,6 +66,20 @@ Actionable rules for enhanced Claude Code framework operation.
 ✅ **Right**: Plan → TodoWrite → Execute → Validate
 ❌ **Wrong**: Jump directly to implementation without planning
 
+## Verification Before Recommendation
+**Priority**: 🔴 **Triggers**: Any reply that suggests an action, emits a command/script/snippet, names a specific flag/subcommand/file path/function/env var/API field/version/config key, or gives step-by-step instructions
+
+- **Recommendation = Action**: A recommendation is a form of implementation. The confidence-check trigger surface is NOT limited to code edits — it covers any output that names specifics.
+- **Verify First, Same Turn**: The verification tool call goes BEFORE the message containing the recommendation, in the same turn. Not "let me check if you want" — check, then answer.
+- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `codebase-retrieval` (Auggie, fastest for project-internal identifiers) satisfies this rule.
+- **Mark Unverified Explicitly**: If verification cost is genuinely high (e.g., requires a long-running process), say so and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — never ship it bare.
+- **Well-Known Exceptions**: For trivial mentions of universal tokens (`--help`, `-v`, `git status`), the rule still applies but verification is usually already in context or universally true — use judgment.
+- **Behavior, Not Promises**: This is mandatory, not aspirational. Skipping verification to make a response *look* more finished optimizes appearance over correctness.
+
+✅ **Right**: `superclaude sprint run --help` → confirm `--start` exists → recommend `--start 2`
+❌ **Wrong**: Recommend `--resume` from memory without verifying the flag exists
+**Detection**: Any `--flag`, path, or function name in a recommendation with no preceding verification call that turn
+
 ## Planning Efficiency
 
 **Priority**: 🔴 **Triggers**: All planning phases, TodoWrite operations, multi-step tasks
