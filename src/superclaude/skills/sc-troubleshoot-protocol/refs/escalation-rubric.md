@@ -1,8 +1,8 @@
 # Escalation Rubric
 
-Used in Wave 1 (to calibrate the Tier 1 hypothesis confidence) and in Wave 2 (to decide whether to escalate to Tier 2).
+Used in Wave 1.7 (to calibrate the Tier 1 hypothesis confidence) and in Wave 2 (to decide whether to escalate to Tier 2).
 
-## Confidence calibration (Wave 1)
+## Confidence calibration (Wave 1.7)
 
 The `root-cause-analyst` returns a self-reported confidence. The skill **re-grades** it against this rubric — agent confidence is not trusted directly.
 

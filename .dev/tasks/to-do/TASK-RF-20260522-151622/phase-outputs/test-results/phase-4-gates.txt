@@ -1,0 +1,9 @@
+Phase 4 grep gate results
+=========================
+BIH-FIELD OK
+DCCP-FIELD OK
+DERIVATION-RULE OK
+ALIGNED-REF OK
+MUSTNOT-CLAUSE OK
+
+ALL 5 CHECKS PASS

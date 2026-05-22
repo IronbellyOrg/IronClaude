@@ -1,0 +1,8 @@
+Phase 2 grep gate results
+=========================
+OPTIONS-ROW OK
+ARGUMENT-HINT OK
+WILL-BULLET OK
+WILLNOT-BULLET OK
+
+ALL 4 CHECKS PASS

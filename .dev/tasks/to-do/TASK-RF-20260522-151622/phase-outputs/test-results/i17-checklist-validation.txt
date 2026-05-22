@@ -1,0 +1,2 @@
+3
+I17 CHECKLIST VALIDATION: PASS — unchecked count = 3 (this Step 12.1 + Step 12.2 + Step 12.3)

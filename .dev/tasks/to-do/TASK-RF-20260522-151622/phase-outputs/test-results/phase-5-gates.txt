@@ -1,0 +1,10 @@
+Phase 5 grep gate results
+=========================
+WAVE15-MENTIONS OK (count=2)
+WAVE15-HEADER OK
+FANOUT-PHRASE OK
+BRANCH-PATH OK
+DCCP-MENTIONS OK (count=6)
+EXIT-EMIT OK
+
+ALL 6 CHECKS PASS
