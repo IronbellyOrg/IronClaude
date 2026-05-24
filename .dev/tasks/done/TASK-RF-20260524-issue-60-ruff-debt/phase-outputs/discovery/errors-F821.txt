@@ -1,0 +1,5 @@
+src/superclaude/cli/roadmap/convergence.py:436:20: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/convergence.py:437:23: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/convergence.py:438:28: F821 Undefined name `Callable`
+tests/sprint/test_preflight.py:483:65: F821 Undefined name `SprintConfig`
+tests/sprint/test_preflight.py:914:7: F821 Undefined name `SprintConfig`

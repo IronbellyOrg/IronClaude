@@ -1,0 +1,117 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# freshness_blocks_unread_edit — PreToolUse(Edit-class) freshness gate coverage.
+#
+# Target: src/superclaude/hooks/scripts/freshness-pre-edit.sh
+# Hook contract (verified at lines 76-87, 122-140):
+#   - existing file + no prior Read in this session → DECISION="block",
+#     REASON="no_prior_read", stderr begins with "FRESHNESS BLOCK", exit 2.
+#   - target path does NOT yet exist (Write/Edit is a create) → DECISION="allow",
+#     REASON="create_allowed", exit 0 (NFR-3 fail-open).
+#   - prior Read of the same path in the same session → DECISION="allow",
+#     REASON="recent_read", exit 0.
+# Telemetry: every invocation appends one JSONL row to
+#   $HOME/.claude/logs/freshness-hook.jsonl
+# with fields {event:"PreToolUse", decision, reason, path, ...}.
+#
+# Every eval in this suite drives a Claude Code PTY subprocess; --no-pty
+# short-circuits each eval with status SKIPPED (per DOC-OQ3 / R-077 / D-0077).
+# No MCP servers required — pure hook test, runs on any host with claude + jq.
+name: freshness_blocks_unread_edit
+version: "1.0"
+description: "PreToolUse freshness gate: existing-file Edit without prior Read is BLOCKED (exit 2, stderr 'FRESHNESS BLOCK', telemetry decision=block/reason=no_prior_read); new-file Write is ALLOWED (create_allowed); Read-then-Edit on the same path is ALLOWED (recent_read)."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: E1
+    title: "Existing file Edit without prior Read is blocked (no_prior_read)"
+    category: hook-freshness
+    timeout_sec: 90
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: workspace/seeded.txt
+          content: "line one\nline two\nline three\n"
+    no_pty: skip
+    # Hook contract — freshness-pre-edit.sh:76-87, 122-140:
+    #   target exists (seeded), no entry for $TARGET in $HOME/.claude/state/reads.jsonl
+    #   → DECISION="block", REASON="no_prior_read", exit 2, stderr "FRESHNESS BLOCK".
+    # Telemetry row appended to logs/freshness-hook.jsonl with
+    #   {"decision":"block","reason":"no_prior_read"} (line 117).
+    inputs:
+      - prompt: "Edit workspace/seeded.txt and change 'line two' to 'line TWO'. Do not Read the file first — just call the Edit tool directly."
+        expect_tool_call: Edit
+    expects:
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"decision":"block"'
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"reason":"no_prior_read"'
+
+  - id: E2
+    title: "Write to a non-existent path is allowed (create_allowed)"
+    category: hook-freshness
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # Hook contract — freshness-pre-edit.sh:76-87:
+    #   no prior Read AND target does not exist on disk
+    #   → DECISION="allow", REASON="create_allowed", exit 0 (NFR-3 fail-open).
+    # Telemetry row {"decision":"allow","reason":"create_allowed"} appended
+    # to logs/freshness-hook.jsonl.
+    inputs:
+      - prompt: "Create a brand-new file at workspace/created.txt containing the single line 'hello from create_allowed'. Use the Write tool. The file does not exist yet — do not Read first."
+        expect_tool_call: Write
+    expects:
+      - file:
+          path: workspace/created.txt
+          exists: true
+          contains: "hello from create_allowed"
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"reason":"create_allowed"'
+      - exit_code:
+          equals: 0
+
+  - id: E3
+    title: "Edit after Read on the same path is allowed (recent_read)"
+    category: hook-freshness
+    timeout_sec: 90
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: workspace/seeded2.txt
+          content: "alpha\nbravo\ncharlie\n"
+    no_pty: skip
+    # Hook contract — freshness-pre-edit.sh:64-70, 88-106:
+    #   reads.jsonl contains a recent entry for $TARGET in this session →
+    #   DELTA ≤ FRESH_HORIZON (1800s) AND no external_change row →
+    #   DECISION="allow", REASON="recent_read", exit 0.
+    # Telemetry row {"decision":"allow","reason":"recent_read"} appended
+    # to logs/freshness-hook.jsonl on the Edit tool call.
+    inputs:
+      - prompt: "First Read the file workspace/seeded2.txt. Then Edit it to replace 'bravo' with 'BRAVO'."
+        expect_tool_call: Edit
+    expects:
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"reason":"recent_read"'
+      - exit_code:
+          equals: 0

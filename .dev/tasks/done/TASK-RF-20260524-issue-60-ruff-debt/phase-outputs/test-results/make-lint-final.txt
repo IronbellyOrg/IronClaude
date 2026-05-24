@@ -1,0 +1,4 @@
+Running linter...
+uv run ruff check .
+All checks passed!
+EXIT_CODE: 0

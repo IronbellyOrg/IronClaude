@@ -1,0 +1,111 @@
+# /sc:adversarial return contract
+# Pipeline: Mode B (Generate + Compare from Source)
+# Invocation: --source merged-prd-tdd-user-auth.md --generate roadmap --agents opus,sonnet --depth standard
+
+merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run1/merged-output.md"
+
+convergence_score: 0.806  # 29 resolved diff points / 36 total (S+C+X+A); above 0.80 threshold
+
+artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run1/adversarial/"
+
+status: "partial"
+# Reason for partial: diff-point convergence reached 0.806 (above 0.80 threshold), but Round 2.5
+# invariant probe identified 7 HIGH-severity UNADDRESSED items that blocked strict-gate convergence.
+# All 7 HIGH items were addressed in the refactor plan (Changes #8-#14) and applied in merge execution.
+# The "partial" status reflects that the merged output was produced under invariant-probe-gate-blocked
+# convergence (per protocol invariant_probe_gate.algorithm), not a merge or validation failure.
+
+base_variant: "opus:architect"
+# Selected per base-selection.md:
+# - Combined score 0.850 vs V2's 0.8125 (V1 wins by 0.0375 margin)
+# - V2 ineligible per edge_case_floor rule (V2 scored 0/5 on Invariant & Edge Case Coverage; V1 scored 2/5)
+# - Tiebreaker Level 1 (debate points won): V1 19 vs V2 10
+
+unresolved_conflicts: 7
+# 7 unresolved diff points that remained TIE or QUALIFIED after debate:
+# - S-002 (milestone count: both have 5)
+# - S-004 (per-milestone subsections: complementary, not exclusive)
+# - X-002 (M2 date: 4-day difference, both feasible)
+# - X-003 (M3 date: 3-day difference, both feasible)
+# - X-004 (M4 date: 3-day difference, both feasible)
+# - C-002 (Reset milestone placement: V2's dedicated M3 vs V1's M4-with-hardening — merged plan keeps V1's M4)
+# - A-001 (GA date firmness: both QUALIFIED in advocate responses)
+
+fallback_mode: false
+# No fallback paths invoked. All 5 protocol steps + R2.5 invariant probe executed cleanly.
+# Mode B variant generation: 2/2 agents succeeded.
+# Debate: R1 (parallel) + R2 (sequential) + R2.5 (fault-finder) all completed.
+# Scoring: dual-pass position-bias mitigation completed with 0 disagreements.
+# Merge: 14/14 planned changes APPLIED; 0 SKIPPED; 0 FAILED.
+
+failure_stage: null
+# No failure occurred. Status "partial" is set by design per protocol when HIGH-severity
+# UNADDRESSED invariants are found, even though all pipeline steps completed.
+
+invocation_method: "skill-direct"
+# Invoked via Skill tool with sc-adversarial-protocol from /sc:adversarial command file.
+
+unaddressed_invariants:
+  - id: "INV-001"
+    category: "state_variables"
+    assumption: "Frontend team capacity exists when V1 M3 + V2 M4 demand it; consensus has no resolution of A-003"
+    severity: "HIGH"
+    addressed_in_merge: "Change #8 — added D1.7 frontend-team capacity confirmation as M1 precondition"
+  - id: "INV-002"
+    category: "state_variables"
+    assumption: "SOC2 compliance reviewer available for M4 audit-log control-mapping sign-off"
+    severity: "HIGH"
+    addressed_in_merge: "Change #9 — D4.5 acquires reviewer-naming + calendar-hold obligation"
+  - id: "INV-004"
+    category: "guard_conditions"
+    assumption: "Email+IP composite lockout prevents distributed DoS; IP-rotating attackers bypass FR-AUTH-001 AC4"
+    severity: "HIGH"
+    addressed_in_merge: "Change #10 — D4.4 dual-counter design (composite + per-email aggregate)"
+  - id: "INV-005"
+    category: "guard_conditions"
+    assumption: "Refresh-token rotation is atomic; flagged as risk note but not gated by test"
+    severity: "HIGH"
+    addressed_in_merge: "Change #11 — D3.2 Exit Criteria adds atomic-rotation integration test"
+  - id: "INV-007"
+    category: "count_divergence"
+    assumption: "11-day M5 window accommodates pen-test + remediation + 4-stage rollout + 2-day buffer (infeasible)"
+    severity: "HIGH"
+    addressed_in_merge: "Change #12 — pen-test resequenced to M4/M5 boundary; 7-day remediation runway"
+  - id: "INV-011"
+    category: "interaction_effects"
+    assumption: "bcrypt + audit-log INSERT contend on pg-pool; horizontal scaling multiplies clients past PG cap (200)"
+    severity: "HIGH"
+    addressed_in_merge: "Change #13 — D1.1 pool resized to PG cap; new D1.8 PgBouncer deployment"
+  - id: "INV-013"
+    category: "interaction_effects"
+    assumption: "Rollback 'honors refresh tokens' contradicts password-reset revokeAll semantics"
+    severity: "HIGH"
+    addressed_in_merge: "Change #14 — rollback contract is now forward-only; pre-revokeAll tokens flushed both services"
+
+# All 7 HIGH items have been addressed in the merged output. The unaddressed_invariants list above
+# reflects the items as identified by the R2.5 fault-finder (their original UNADDRESSED status
+# in the V1/V2 source variants), with documentation of how each was resolved during merge.
+# In the merged document itself (merged-output.md), all 7 items are now ADDRESSED.
+
+# Additional context
+medium_severity_invariants:
+  count: 5
+  ids: ["INV-003", "INV-006", "INV-008", "INV-009", "INV-012"]
+  treatment: "Documented as warnings; not promoted to required changes per protocol gate (gate filters HIGH only)"
+
+low_severity_invariants:
+  count: 1
+  ids: ["INV-010"]
+  treatment: "Acknowledged; left for implementation phase to handle"
+
+artifact_inventory:
+  - "adversarial/variant-1-opus-architect.md (4841 words)"
+  - "adversarial/variant-2-sonnet-analyzer.md (3191 words)"
+  - "adversarial/diff-analysis.md (1356 words)"
+  - "adversarial/debate-transcript.md (3010 words, includes R1+R2+R2.5 summary)"
+  - "adversarial/invariant-probe.md (994 words)"
+  - "adversarial/base-selection.md (2294 words)"
+  - "adversarial/refactor-plan.md (2116 words)"
+  - "adversarial/merge-log.md (3059 words)"
+  - "merged-output.md (8083 words) — the unified roadmap"
+  - "return-contract.yaml (this file)"

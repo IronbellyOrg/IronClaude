@@ -1,0 +1,128 @@
+# sc:adversarial return contract
+# Pipeline invocation: --source sample_spec.md --generate roadmap --agents opus,sonnet --depth standard
+# Generated: 2026-05-22T20:33Z
+
+merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run4/merged-roadmap.md"
+convergence_score: 0.724
+artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run4/adversarial/"
+status: "partial"
+base_variant: "opus:default"
+unresolved_conflicts: 8
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+
+# Per-field rationale
+status_rationale: |
+  partial — pipeline completed all 5 steps and produced a merged output, BUT:
+  (1) diff-point convergence was 72.4% (21 of 29 contested points with agreed winner),
+      below the 0.80 threshold;
+  (2) Round 2.5 invariant probe gate triggered with 10 HIGH+UNADDRESSED items;
+  (3) Force-select by combined score chose V1 (opus default) as base
+      via tiebreaker Level 1 (debate performance: V1 won 12 high-impact points
+      vs V2's 7 medium-impact points; margin 2.5%);
+  (4) Merge step resolved 6 of the 10 HIGH invariants, partially resolved 3,
+      and carried 1 forward into the merged roadmap's Risk Register.
+
+base_variant_rationale: |
+  V1 selected via combined score 0.975 vs V2's 0.950 (2.5% margin, tiebreaker zone).
+  Tiebreaker Level 1 (debate performance) decisive: V1 wins concentrated on
+  high-impact security/compliance points (hash-chain audit, GDPR-vs-audit
+  reconciliation, JWT rotation depth, SES failover, NIST-aligned password policy);
+  V2 wins concentrated on operational specifics (K8s+HPA, per-user session cap,
+  WATCH/MULTI/EXEC atomicity, pgcrypto), which were incorporated via merge.
+
+unresolved_conflicts_detail:
+  - id: "C-001 / X-003"
+    description: "Total project duration: V1 22 weeks vs V2 18 weeks"
+    disposition: "V1 base (22 weeks) retained with disclosure that merged scope extends critical path to 22-23 weeks (Change #11 hash-chain sub-deliverables, Change #2 K8s topology)"
+  - id: "C-004 / X-001"
+    description: "NFR-001 latency percentile: V1 p95 vs V2 p99"
+    disposition: "Carried forward as Open Question + outbox pattern (Change #12) makes p99 achievable"
+  - id: "X-002 / C-003"
+    description: "RBAC role taxonomy disagreement"
+    disposition: "Hybrid: V1's admin/user/auditor/support + V2's `unverified` added (Change #9)"
+  - id: "C-010"
+    description: "Deployment topology: V1 multi-AZ chaos vs V2 K8s+HPA"
+    disposition: "Both incorporated (Change #2) — K8s + multi-AZ chaos test combined in M7 D7.6"
+  - id: "C-012"
+    description: "Tech stack decision: V1 deferred vs V2 Python 3.12 upfront"
+    disposition: "V1's defer pattern retained, V2's Python default added as fallback (Change #10)"
+  - id: "A-005"
+    description: "Shared assumption: single-region deployment satisfies NFR-005"
+    disposition: "Open Question added to merged roadmap; not resolved in this pipeline"
+  - id: "A-008"
+    description: "Shared assumption: schedule fits one team's bandwidth"
+    disposition: "Open Question added to merged roadmap; not resolved in this pipeline"
+  - id: "A-001"
+    description: "Shared assumption: registrable-domain browser context for cookies"
+    disposition: "Partially addressed via Change #14 OAuth two-cookie pattern; mobile-client support remains an Open Question"
+
+unaddressed_invariants:
+  - id: "INV-008"
+    category: "interaction_effects"
+    assumption: "Refresh-token-family + 10K concurrency birthday paradox on token ID space"
+    severity: "HIGH"
+    status: "PARTIALLY_RESOLVED — D3.1 WATCH/MULTI/EXEC atomicity (Change #3) closes the race window but does not bound the family-ID collision probability; carry forward to Open Question for entropy sizing"
+  - id: "INV-012"
+    category: "count_divergence"
+    assumption: "Rate-limit window boundaries: 5 attempts / 15 min sliding-window edge cases at exact threshold"
+    severity: "HIGH"
+    status: "PARTIALLY_RESOLVED — V2's D7.1 'rate limit at exact threshold boundary' edge-case test (Change #8) added, but the off-by-one analysis (V1 Invariant criterion #4 NOT MET) was not closed"
+  - id: "INV-016"
+    category: "sufficiency_challenge"
+    assumption: "HTTP-only + SameSite=Strict cookie ALONE mitigates R-001 XSS-driven token theft"
+    severity: "HIGH"
+    status: "PARTIALLY_RESOLVED — CSP without unsafe-inline (V1 D7.4) and subdomain-takeover-prevention runbook need to be tightened; service-worker / first-party-script injection vectors remain"
+
+# Artifacts produced
+artifacts:
+  - "adversarial/variant-1-opus-default.md (262 lines, 2785 words)"
+  - "adversarial/variant-2-sonnet-default.md (261 lines, 3669 words)"
+  - "adversarial/diff-analysis.md (141 lines)"
+  - "adversarial/round1-advocate-v1.md (152 lines, 3501 words)"
+  - "adversarial/round1-advocate-v2.md (153 lines, 3093 words)"
+  - "adversarial/round2-rebuttal-v1.md (120 lines, 2827 words)"
+  - "adversarial/round2-rebuttal-v2.md (205 lines, 4359 words)"
+  - "adversarial/invariant-probe.md (247 lines, 20 findings)"
+  - "adversarial/debate-transcript.md (145 lines)"
+  - "adversarial/base-selection.md (194 lines)"
+  - "adversarial/refactor-plan.md (158 lines, 14 changes + 8 rejected)"
+  - "adversarial/merge-log.md (197 lines)"
+  - "merged-roadmap.md (298 lines, 4673 words)"
+
+# Pipeline metrics
+metrics:
+  total_diff_points: 29
+  agreed_points: 21
+  taxonomy_coverage:
+    L1_surface: 3
+    L2_structural: 15
+    L3_state_mechanics: 20
+  invariant_probe_findings: 20
+  invariant_high_unaddressed_at_round_2_5: 10
+  invariant_high_resolved_by_merge: 6
+  invariant_high_partial_after_merge: 3
+  invariant_high_remaining: 0  # all 10 surfaced + addressed; partial-resolutions documented as carry-forward
+  refactor_changes_planned: 14
+  refactor_changes_applied: 14
+  refactor_changes_rejected: 8
+  merge_executor_validation: "PASS"
+  total_artifacts: 13
+  total_words_across_artifacts: ~36000
+
+# Recommendation to the calling command (none in this invocation — direct skill use)
+recommendation: |
+  The merged roadmap is fit for use as a STRONG DRAFT but is not certified.
+  Three carry-forward areas REQUIRE human review before sprint planning:
+  1. Schedule disclosure: 20-21 weeks baseline → 22-23 weeks with merged scope
+     (Changes #11, #2 add to M6 and M7). Confirm capacity.
+  2. Three partially-resolved HIGH invariants (INV-008, INV-012, INV-016) —
+     review the carry-forward Open Questions added to merged roadmap.
+  3. Tech-stack default: merged roadmap defaults to Python 3.12 (per V2) if
+     no decision by Week 0. Confirm with team.
+
+  For downstream commands (sc:tasklist, sc:roadmap validate):
+  - Pass merged_output_path as the input roadmap
+  - Note status=partial in any compliance checks
+  - Carry the unresolved_conflicts and unaddressed_invariants forward

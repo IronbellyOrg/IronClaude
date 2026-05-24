@@ -1,0 +1,187 @@
+[WARNING] Unstaged files detected.
+[INFO] Stashing unstaged files to /config/.cache/pre-commit/patch1779585590-1647391.
+[WARNING] top-level `default_stages` uses deprecated stage names (commit) which will be removed in a future version.  run: `pre-commit migrate-config` to automatically fix this.
+trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check yaml...........................................(no files to check)Skipped
+check json...............................................................Passed
+check toml...........................................(no files to check)Skipped
+check for added large files..............................................Passed
+check for merge conflicts................................................Passed
+check for case conflicts.................................................Passed
+mixed line ending........................................................Passed
+Detect secrets...........................................................Failed
+- hook id: detect-secrets
+- exit code: 1
+
+ERROR: Potential secrets about to be committed to git repo!
+
+Secret Type: Hex High Entropy String
+Location:    tests/audit/test_severity_floor_unweakened.py:51
+
+Possible mitigations:
+  - For information about putting your secrets in a safer place, please ask in
+    #security
+  - Mark false positives with an inline `pragma: allowlist secret` comment
+
+If a secret has already been committed, visit
+https://help.github.com/articles/removing-sensitive-data-from-a-repository
+
+detect private key.......................................................Passed
+Check for hardcoded secrets..........................(no files to check)Skipped
+markdownlint.............................................................Passed
+yamllint.............................................(no files to check)Skipped
+shellcheck...........................................(no files to check)Skipped
+Verify src/superclaude/ ↔ .claude/ sync (AC11)...........................Failed
+- hook id: verify-sync
+- exit code: 2
+
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ✅ confidence-check
+  ✅ prd
+  ✅ sc-adversarial-protocol
+  ✅ sc-auggie-review-protocol
+  ✅ sc-cleanup-audit-protocol
+  ✅ sc-cli-portify-protocol
+  ✅ sc-crash-recovery
+  ✅ sc-pm-protocol
+  ✅ sc-recommend-protocol
+  ✅ sc-release-split-protocol
+  ✅ sc-review-translation-protocol
+  ✅ sc-roadmap-protocol
+  ✅ sc-tasklist-protocol
+  ✅ sc-task-protocol
+  ✅ sc-troubleshoot-protocol
+  ✅ sc-validate-roadmap-protocol
+  ✅ sc-validate-tests-protocol
+  ✅ task
+  ✅ task-builder
+  ✅ tdd
+  ✅ tech-reference
+  ✅ tech-research
+
+=== Agents ===
+  ✅ audit-analyzer.md
+  ✅ audit-comparator.md
+  ✅ audit-consolidator.md
+  ✅ audit-scanner.md
+  ✅ audit-validator.md
+  ✅ auggie-reviewer.md
+  ✅ backend-architect.md
+  ✅ business-panel-experts.md
+  ✅ confidence-calibrator.md
+  ✅ debate-orchestrator.md
+  ⚠️  DIFFERS: deep-research-agent.md
+  ⚠️  DIFFERS: deep-research.md
+  ✅ devops-architect.md
+  ✅ evidence-validator.md
+  ✅ frontend-architect.md
+  ✅ learning-guide.md
+  ✅ merge-executor.md
+  ✅ performance-engineer.md
+  ✅ pm-agent.md
+  ✅ python-expert.md
+  ✅ quality-engineer.md
+  ✅ refactoring-expert.md
+  ✅ repo-index.md
+  ✅ requirements-analyst.md
+  ⚠️  DIFFERS: rf-analyst.md
+  ⚠️  DIFFERS: rf-assembler.md
+  ⚠️  DIFFERS: rf-qa.md
+  ⚠️  DIFFERS: rf-qa-qualitative.md
+  ⚠️  DIFFERS: rf-task-builder.md
+  ⚠️  DIFFERS: rf-task-executor.md
+  ⚠️  DIFFERS: rf-task-researcher.md
+  ✅ rf-team-lead.md
+  ✅ root-cause-analyst.md
+  ✅ security-engineer.md
+  ✅ self-review.md
+  ✅ socratic-mentor.md
+  ✅ system-architect.md
+  ✅ technical-writer.md
+
+=== Commands ===
+  ✅ adversarial.md
+  ✅ agent.md
+  ✅ analyze.md
+  ✅ auggie-review.md
+  ✅ brainstorm.md
+  ✅ build.md
+  ✅ business-panel.md
+  ✅ cleanup-audit.md
+  ✅ cleanup.md
+  ✅ cli-portify.md
+  ✅ design.md
+  ✅ document.md
+  ✅ estimate.md
+  ✅ explain.md
+  ✅ git.md
+  ✅ help.md
+  ✅ implement.md
+  ✅ improve.md
+  ✅ index.md
+  ✅ index-repo.md
+  ✅ load.md
+  ✅ pm.md
+  ✅ recommend.md
+  ✅ reflect.md
+  ✅ release-split.md
+  ✅ research.md
+  ✅ review-translation.md
+  ✅ roadmap.md
+  ✅ save.md
+  ✅ sc.md
+  ✅ select-tool.md
+  ✅ spawn.md
+  ✅ spec-panel.md
+  ✅ tasklist.md
+  ✅ task.md
+  ✅ tdd.md
+  ✅ test.md
+  ⚠️  DIFFERS: troubleshoot.md
+  ✅ validate-roadmap.md
+  ✅ validate-tests.md
+  ✅ workflow.md
+
+=== Hooks ===
+  ✅ auggie-flag-clear.sh
+  ✅ freshness-file-changed.sh
+  ✅ freshness-post-read.sh
+  ✅ freshness-pre-edit.sh
+  ✅ freshness-session-start.sh
+  ✅ freshness-subagent-start.sh
+  ✅ freshness-subagent-stop.sh
+  ✅ freshness-user-prompt.sh
+  ✅ offer-pr-review.sh
+  ✅ reject-workspace-writes.sh
+
+=== Templates ===
+  ✅ workflow/05_prd_template.md
+  ✅ workflow/03_project_plan_template.md
+  ✅ workflow/06_architecture_proposal_template.md
+  ✅ workflow/02_mdtm_template_complex_task.md
+  ✅ workflow/04_feature_brief_template.md
+  ✅ workflow/changelog_template.md
+  ✅ workflow/01_mdtm_template_generic_task.md
+  ✅ workflow/99_mdtm_template_generic_task_old.md
+  ✅ documents/operational_guide_template.md
+  ✅ documents/GFxAI_Master_Documentation_Template.md
+  ✅ documents/supplemental-doc-creation-checklist.md
+  ✅ documents/release-spec-template.md
+  ✅ documents/supplemental_doc_template.md
+  ✅ documents/technical_reference_template.md
+  ✅ documents/readme_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+make: *** [Makefile:168: verify-sync] Error 1
+
+[INFO] Restored changes from /config/.cache/pre-commit/patch1779585590-1647391.
+EXIT=1

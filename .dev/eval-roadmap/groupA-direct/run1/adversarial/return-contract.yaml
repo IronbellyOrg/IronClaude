@@ -1,0 +1,75 @@
+# /sc:adversarial return contract
+# Pipeline: Mode B (--source + --generate roadmap + --agents opus,sonnet)
+# Depth: standard (Round 1 parallel + Round 2 sequential + Round 2.5 invariant probe; Round 3 skipped)
+# Generated: 2026-05-22T16:55:00Z
+
+merged_output_path: /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run1/merged-output.md
+convergence_score: 0.836
+artifacts_dir: /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run1/adversarial
+status: partial
+base_variant: opus:default
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants:
+  - id: INV-001
+    category: state_variables
+    assumption: "auth_events schema migration during M2/M3 cutover with INSERT-only DB role"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B1"
+  - id: INV-002
+    category: state_variables
+    assumption: "JWKS / RS256 public-key cache invalidation lag during key rotation overlap window"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B2"
+  - id: INV-004
+    category: guard_conditions
+    assumption: "OAuth account linking by verified email — case sensitivity / Unicode normalization unspecified"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B3"
+  - id: INV-008
+    category: count_divergence
+    assumption: "Rate-limit clock skew across multi-node Redis (Cluster mode at >10K sessions)"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B4"
+  - id: INV-009
+    category: count_divergence
+    assumption: "10K concurrent sessions ambiguity — refresh tokens vs access tokens vs connected clients"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B5"
+  - id: INV-013
+    category: interaction_effects
+    assumption: "OAuth completion + 2FA enrollment — TOTP prompt after OAuth login unpinned"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B6"
+  - id: INV-014
+    category: interaction_effects
+    assumption: "Deactivation race — access token issued just before deactivate used after; bloom-filter-disabled path"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B7"
+  - id: INV-016
+    category: sufficiency_challenge
+    assumption: "OWASP Top 10 compliance claim from ZAP + pentest alone — no scan-result-to-claim gate enumerated"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B8"
+  - id: INV-017
+    category: sufficiency_challenge
+    assumption: "Audit event-type enumeration misses role-change, deactivation, OAuth-link events"
+    severity: HIGH
+    resolved_by_refactor_plan: "#B9"
+
+# Notes on `status: partial`:
+# - Per-point convergence (0.836) exceeded the 0.80 threshold.
+# - Taxonomy coverage across L1/L2/L3 was satisfied.
+# - 9 HIGH-severity UNADDRESSED invariants from Round 2.5 BLOCKED formal convergence per
+#   the invariant-probe gate, triggering status=partial rather than success.
+# - Each HIGH UNADDRESSED invariant was folded into the merged roadmap as an explicit
+#   clarification deliverable via refactor-plan items #B1–#B9. The merged-output.md
+#   therefore addresses every HIGH UNADDRESSED item; the contract still surfaces them
+#   in `unaddressed_invariants` for caller transparency.
+
+# Notes on `unresolved_conflicts: 0`:
+# - Two diff-points were split-decision (X-002 refresh TTL; X-004 RBAC architecture).
+# - Both were resolved in the merged output via compromise design (refactor-plan #A7, #A8)
+#   rather than being left unresolved.

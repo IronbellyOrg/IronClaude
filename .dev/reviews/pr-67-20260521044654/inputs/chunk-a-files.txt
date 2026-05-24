@@ -1,0 +1,15 @@
+src/superclaude/cli/install_agents.py
+src/superclaude/cli/install_commands.py
+src/superclaude/cli/install_core.py
+src/superclaude/cli/install_hooks.py
+src/superclaude/cli/install_templates.py
+src/superclaude/cli/main.py
+src/superclaude/cli/prd/config.py
+src/superclaude/cli/prd/gates.py
+src/superclaude/cli/prd/models.py
+tests/cli/prd/test_e2e.py
+tests/cli/prd/test_gates.py
+tests/cli/prd/test_path_resolution.py
+tests/cli/prd/test_prompts.py
+tests/cli/prd/test_research_notes_roundtrip.py
+tests/cli/test_install_failures.py

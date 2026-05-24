@@ -1,0 +1,237 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+   Building superclaude @ file:///config/workspace/IronClaude
+      Built superclaude @ file:///config/workspace/IronClaude
+Uninstalled 1 package in 8ms
+Installed 1 package in 4ms
+scripts/check-ref-staleness.py:96:5: F841 Local variable `gc_fields` is assigned to but never used
+scripts/check-ref-staleness.py:128:5: F841 Local variable `sc_fields` is assigned to but never used
+scripts/eval_1.py:13:8: F401 [*] `os` imported but unused
+scripts/eval_1.py:284:20: E741 Ambiguous variable name: `l`
+scripts/eval_1.py:292:72: E741 Ambiguous variable name: `l`
+scripts/eval_runner.py:16:8: F401 [*] `tempfile` imported but unused
+scripts/sync_from_framework.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+src/superclaude/cli/audit/dependency_graph.py:116:1: E402 Module level import not at top of file
+src/superclaude/cli/audit/dependency_graph.py:117:1: E402 Module level import not at top of file
+src/superclaude/cli/cleanup_audit/gates.py:14:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cleanup_audit/gates.py:14:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/executor.py:26:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:28:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:35:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:36:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:37:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:42:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:43:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:56:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:57:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:58:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:59:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/gates.py:34:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/gates.py:34:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:21:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:21:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:150:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:193:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:38:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:43:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/steps/validate_config.py:43:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:168:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/main.py:400:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:404:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:408:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:412:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:416:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:420:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:424:1: E402 Module level import not at top of file
+src/superclaude/cli/roadmap/convergence.py:38:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/convergence.py:436:20: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/convergence.py:437:23: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/convergence.py:438:28: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:27:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:36:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1014:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1015:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1015:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1325:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:3060:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:3285:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/gates.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/gates.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/gates.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/models.py:13:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/obligation_scanner.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/obligation_scanner.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/prompts.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/remediate_executor.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/remediate_executor.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:22:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_gates.py:11:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_gates.py:11:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/sprint/kpi.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/sprint/kpi.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/sprint/kpi.py:18:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/commands.py:114:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/models.py:11:1: TID252 Prefer absolute imports over relative imports from parent modules
+tests/audit/test_evidence_bound_tb_add_8.py:97:13: F841 Local variable `current_item_line` is assigned to but never used
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:1:1: N999 Invalid module name: 'test_invariant_preservation_NFR_6_through_10'
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:177:7: N801 Class name `TestInvariant1_SelfContainedItem` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:222:7: N801 Class name `TestInvariant2_EvidenceBoundItem` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:265:7: N801 Class name `TestInvariant3_PersistentArtifact` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:350:7: N801 Class name `TestInvariant4_ZeroTrustQA` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:391:7: N801 Class name `TestInvariant5_ParallelResearch` should use CapWords convention
+tests/audit/test_monotonicity_halt_F_5_5_5.py:1:1: N999 Invalid module name: 'test_monotonicity_halt_F_5_5_5'
+tests/audit/test_nfr_conv_9_zero_trust.py:221:7: N801 Class name `TestPartA_OneLowFindingFailsGate` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:256:7: N801 Class name `TestPartA_ZeroFindingsBaselinePasses` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:315:7: N801 Class name `TestPartB_InheritedVerdictWithoutSemanticIsInflation` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:362:7: N801 Class name `TestPartB_InheritedVerdictWithSemanticIsClean` should use CapWords convention
+tests/audit/test_sequencing_PR06_before_PR04.py:1:1: N999 Invalid module name: 'test_sequencing_PR06_before_PR04'
+tests/cli/eval/test_artifact_layout.py:19:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_artifact_reproducibility.py:49:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_atomic_setup.py:30:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_ban_import_rule.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_capability_classifications.py:47:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_capability_classifications.py:66:5: F401 [*] `superclaude.cli.eval.commands.build_doctor_report` imported but unused
+tests/cli/eval/test_capability_gates.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_capability_gates.py:23:20: F401 [*] `typing.Iterable` imported but unused
+tests/cli/eval/test_capability_gates.py:31:5: F401 [*] `superclaude.cli.eval.capabilities.CapabilityStatus` imported but unused
+tests/cli/eval/test_containment.py:48:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_coverage_gate.py:10:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_coverage_gate_integration.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_defense_in_depth.py:43:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_context.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_id_regex.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_id_regex.py:251:5: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_lifecycle.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_exit_codes.py:47:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_duration.py:27:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_exit_code.py:17:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_exit_code.py:20:20: F401 [*] `typing.Mapping` imported but unused
+tests/cli/eval/test_expect_file.py:15:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_jsonl.py:22:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_primitives.py:19:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_settings_json.py:17:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_stdio.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_home_isolation.py:41:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_home_isolation.py:403:9: N806 Variable `N` in function should be lowercase
+tests/cli/eval/test_isolation_layers_probe.py:25:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_no_mcp_skip.py:43:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_no_pty_exclusion.py:34:41: F401 [*] `superclaude.cli.eval.loader.SchemaError` imported but unused
+tests/cli/eval/test_orchestrator.py:24:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_parallel_15.py:52:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_path_containment.py:29:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_path_traversal.py:39:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_perf_home_setup.py:59:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_perf_resource_bounds.py:62:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_phase_report_probe.py:24:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_pty_driver.py:22:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_pty_lifecycle.py:31:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_pty_lifecycle.py:37:8: F401 [*] `threading` imported but unused
+tests/cli/eval/test_pty_stream.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_reporter.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_reporter.py:23:8: F401 [*] `json` imported but unused
+tests/cli/eval/test_reporter_contract.py:42:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_retention_policy.py:46:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_retention_policy.py:48:8: F401 [*] `json` imported but unused
+tests/cli/eval/test_retry_policy.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_run_report.py:22:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_run_summary.py:354:5: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_runner_class.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_schema_load.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_scratch_root_allowlist.py:17:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_scratch_root_policy.py:27:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_signal_handling.py:28:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_signal_handling.py:662:5: F841 Local variable `pexpect` is assigned to but never used
+tests/cli/eval/test_single_command.py:40:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_suite_runtime.py:60:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_summary_schema.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/test_cli_registration.py:21:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli_portify/test_failures.py:377:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:343:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:345:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:349:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:354:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:357:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:360:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:472:1: E402 Module level import not at top of file
+tests/roadmap/test_inline_fallback.py:141:17: E731 Do not assign a `lambda` expression, use a `def`
+tests/roadmap/test_inline_fallback.py:144:17: E731 Do not assign a `lambda` expression, use a `def`
+tests/roadmap/test_models.py:206:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_instrumentation.py:45:5: E731 Do not assign a `lambda` expression, use a `def`
+tests/sprint/diagnostic/test_level_0.py:13:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_1.py:12:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_2.py:12:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_2.py:18:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_3.py:13:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_3.py:19:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_negative.py:16:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_negative.py:23:1: E402 Module level import not at top of file
+tests/sprint/test_preflight.py:483:65: F821 Undefined name `SprintConfig`
+tests/sprint/test_preflight.py:914:7: F821 Undefined name `SprintConfig`
+Found 227 errors.
+[*] 61 fixable with the `--fix` option (108 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+Found 227 errors.
+[*] 61 fixable with the `--fix` option (108 hidden fixes can be enabled with the `--unsafe-fixes` option).

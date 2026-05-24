@@ -1,0 +1,70 @@
+You are reviewing a code change for the repository at the workspace root. Report problems as structured JSON.
+
+## Context
+
+Target: PR #67. THIS CHUNK = skills, agent definitions, command definitions, templates (markdown / JSON / refs).
+PR title: chore: archive working-tree backlog
+Diff range: master...77a5d00626eabb3e254dc90a5729bc931068af09
+
+Files in this chunk (36):
+.claude/skills/prd/SKILL.md
+.claude/skills/prd/refs/agent-prompts.md
+.claude/skills/prd/refs/build-request-template.md
+.claude/skills/prd/refs/operational-guidance.md
+.claude/skills/prd/refs/synthesis-mapping.md
+.claude/skills/prd/refs/validation-checklists.md
+.claude/templates/workflow/05_prd_template.legacy-rf-project.md
+.claude/templates/workflow/05_prd_template.md
+src/superclaude/agents/auggie-reviewer.md
+src/superclaude/commands/auggie-review.md
+src/superclaude/skills/prd/SKILL.md
+src/superclaude/skills/prd/refs/agent-prompts.md
+src/superclaude/skills/prd/refs/build-request-template.md
+src/superclaude/skills/prd/refs/operational-guidance.md
+src/superclaude/skills/prd/refs/synthesis-mapping.md
+src/superclaude/skills/prd/refs/validation-checklists.md
+src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json
+src/superclaude/skills/sc-auggie-review-protocol/refs/auggie-prompts.md
+src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md
+src/superclaude/templates/documents/GFxAI_Master_Documentation_Template.md
+src/superclaude/templates/documents/operational_guide_template.md
+src/superclaude/templates/documents/readme_template.md
+src/superclaude/templates/documents/release-spec-template.md
+src/superclaude/templates/documents/supplemental-doc-creation-checklist.md
+src/superclaude/templates/documents/supplemental_doc_template.md
+src/superclaude/templates/documents/technical_reference_template.md
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+src/superclaude/templates/workflow/03_project_plan_template.md
+src/superclaude/templates/workflow/04_feature_brief_template.md
+src/superclaude/templates/workflow/05_prd_template.md
+src/superclaude/templates/workflow/06_architecture_proposal_template.md
+src/superclaude/templates/workflow/99_mdtm_template_generic_task_old.md
+src/superclaude/templates/workflow/changelog_template.md
+
+Diff at: /config/workspace/IronClaude/.dev/reviews/pr-67-20260521044654/inputs/diff-code.patch
+
+## Focus areas
+
+- security: any prompt-injection vectors introduced in skill instructions; any skill ref that asks the agent to run unsafe commands (curl|sh patterns, eval, sudo); any agent definition with overly broad tool access vs the skill's scope; any leaked credentials.
+
+- correctness in skill behavior: skill specs that contradict themselves; commands referenced in skills that don't exist; refs that cite functions/paths that don't exist; eval/test fixtures that won't match actual behavior.
+
+- architecture: skill organization drift (multiple SKILL.md drifting from each other src/ vs .claude/ unsync'd); template duplication; refs that should be DRY'd; commands in src/superclaude/commands/ not synced to .claude/commands/.
+
+- anti-patterns in prompt design: vague instructions, missing output contracts, contradicting earlier rules, scope creep within a skill.
+
+- docs: stale references, broken internal links between SKILL.md and refs/.
+
+- the auggie-review-protocol skill itself is in this chunk — be especially careful about self-referential drift (e.g., the skill telling the agent to call functions that don't exist).
+
+## Output contract (STRICT)
+
+Same JSON object as prior:
+{ "findings": [...], "cross_cutting_observations": [...], "notes_for_orchestrator": "..." }
+
+Each finding: title, category, severity_hint, file, line, line_range_end, in_diff, evidence, why, recommendation, cross_references, confidence.
+
+Return only JSON.

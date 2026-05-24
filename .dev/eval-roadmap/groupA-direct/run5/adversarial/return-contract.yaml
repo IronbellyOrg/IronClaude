@@ -1,0 +1,67 @@
+# /sc:adversarial Return Contract
+# Run: groupA-direct/run5
+# Mode B: --source sample_spec.md --generate roadmap --agents opus,sonnet --depth standard
+
+merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run5/merged-output.md"
+
+convergence_score: 1.0
+# Diff-point debate fully converged (56 of 56 points resolved with agreed winner or merged-best outcome).
+# V2 advocate explicitly conceded base selection in R2.
+# Invariant probe initially BLOCKED convergence with 6 HIGH unaddressed items;
+# all 6 are concretely resolved in the merged output via Mandatory Changes #M1–#M6.
+
+artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run5/adversarial/"
+
+status: "success"
+# All 5 steps completed. Post-merge validation passed:
+# - Structural integrity: PASS
+# - Internal references: PASS (all D{M}.{N}, FR-NNN, NFR-NNN, R-NNN, M-N citations resolve)
+# - Contradiction re-scan: 0 new contradictions introduced
+# - All 6 HIGH-severity invariant findings concretely addressed in merged output (not deferred)
+
+base_variant: "opus:default"
+# Variant 1 (opus, no persona) won base selection by combined score 0.908 vs 0.884 (margin 2.4%)
+# Tiebreaker Level 1 (debate performance) confirmed: V1 won ~28 of 56 diff points; V2 won ~11; ~5 merged-best.
+# V2 advocate explicit concession: "V1 should be the merge base."
+
+unresolved_conflicts: 0
+# All 56 diff points reached agreed resolution.
+
+fallback_mode: false
+# Pipeline followed canonical Mode B path; no fallback triggered.
+
+failure_stage: null
+# Pipeline completed all 5 steps successfully.
+
+invocation_method: "skill-direct"
+# Invoked via /sc:adversarial → Skill sc:adversarial-protocol
+
+unaddressed_invariants: []
+# All 6 HIGH-severity items from invariant probe were surfaced and resolved in merged output:
+# - INV-001 (pending-email state): resolved via Mandatory #M1 (pending_email + pending_email_token_hash schema)
+# - INV-003 (admin promotion 2FA): resolved via Mandatory #M2 (pending_2fa_enrollment flag + bootstrap CLI)
+# - INV-010 (encrypted email + unique btree): resolved via Mandatory #M3 (email_blind_index HMAC column)
+# - INV-011 (S3 object-lock vs GDPR): resolved via Mandatory #M4 (PII-redacted metadata_jsonb + Art. 17(3)(b) basis)
+# - INV-013 (NFR-001 sufficiency): resolved via Mandatory #M5 (Argon2id ADR + cache pre-warm + cold/warm gate split)
+# - INV-015 (NFR-005 sufficiency): resolved via Mandatory #M6 (SLO scope + dependency exclusion + MTBF/MTTR doc)
+#
+# 8 MEDIUM and 2 LOW invariant findings documented in merged output's "Known Limitations" section
+# with explicit accept-the-risk rationale; none blocked merge.
+
+# Run-specific metadata
+metadata:
+  pipeline_invocation: "/sc:adversarial --source /config/workspace/IronClaude/tests/sc-roadmap/fixtures/sample_spec.md --generate roadmap --agents opus,sonnet --depth standard --output /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run5"
+  rounds_executed: ["R1 (parallel)", "R2 (sequential)", "R2.5 (invariant probe)"]
+  rounds_skipped: ["R3 (--depth standard; convergence ≥ threshold)"]
+  taxonomy_coverage:
+    L1_surface: "covered (S-004, C-018, C-020)"
+    L2_structural: "covered (S-001, S-002, C-002, C-009, C-016)"
+    L3_state_mechanics: "covered (C-013, C-001, C-004, C-012, A-007)"
+  position_bias_check: "0 disagreements across 60 criterion-variant pairs"
+  edge_case_floor: "Both variants ≥ 1/5 (V1=2/5, V2=2/5); floor not suspended"
+  total_diff_points: 56
+  v1_won_outright: 28
+  v2_won_outright: 11
+  merged_best_or_tie: 17
+  merged_output_lines: 386
+  v1_baseline_lines: 277

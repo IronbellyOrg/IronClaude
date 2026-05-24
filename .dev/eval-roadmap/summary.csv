@@ -1,0 +1,11 @@
+group,run,status,convergence_score,base_variant,winner,unresolved_conflicts,fallback_mode,failure_stage,opus_persona,sonnet_persona,opus_variant_kb,sonnet_variant_kb,has_debate_transcript,has_per_round_files,has_base_selection,has_refactor_plan,has_invariant_probe,has_merge_log,merged_output_kb
+A,1,partial,0.836,opus:default,opus,0,false,null,default,default,29,27,True,True,True,True,True,True,45
+A,2,partial,0.78,opus:default,opus,4,false,null,default,default,17,26,True,False,True,True,True,True,0
+A,3,partial,0.357,opus:default,opus,5,false,null,default,default,36,50,True,False,True,True,True,True,0
+A,4,PARTIALLY_RESOLVED — CSP without unsafe-inline (V1 D7.4) and subdomain-takeover-prevention runbook need to be tightened; service-worker / first-party-script injection vectors remain,0.724,opus:default,opus,8,false,null,default,default,19,26,True,False,True,True,True,True,0
+A,5,success,1.0,opus:default,opus,0,false,null,default,default,26,27,True,False,True,True,True,True,49
+B,1,partial,0.806,opus:architect,opus,7,false,null,architect,analyzer,34,20,True,False,True,True,True,True,54
+B,2,partial,0.92,sonnet-architect,sonnet,2,false,null,architect,architect,36,46,True,False,True,True,True,True,58
+B,3,failed,null,null,unknown,0,false,transport,default,default,50,67,False,False,False,False,True,False,0
+B,4,MISSING_DIR,,,,,,,,,,,,,,,,,
+B,5,success,0.543,opus,opus,0,false,null,default,default,50,54,True,False,True,True,True,True,0

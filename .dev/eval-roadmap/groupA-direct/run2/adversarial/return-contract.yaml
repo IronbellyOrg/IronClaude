@@ -1,0 +1,94 @@
+# sc:adversarial return contract — pipeline completion record
+# Schema per sc-adversarial-protocol Return Contract specification
+
+merged_output_path: /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run2/merged-roadmap.md
+convergence_score: 0.78
+artifacts_dir: /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run2/adversarial/
+status: partial
+base_variant: "opus:default"
+unresolved_conflicts: 4
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
+
+# Explanation fields (for human/caller consumption)
+status_rationale: |
+  Status is "partial" because:
+  - Raw debate convergence was 0.78, below the 0.80 threshold (43 agreed / 55 substantive points after Round 2 + invariant probe).
+  - Round 2.5 invariant probe surfaced 9 HIGH UNADDRESSED items that initially BLOCKED convergence.
+  - The refactor plan addressed all 9 HIGH items via patches P-1..P-9 (with P-6 jointly with P-4); the merge applied them in full.
+  - Post-merge HIGH-unaddressed-invariant count is 0 (per merge-executor validation).
+  - 4 MEDIUM-severity invariants remain unaddressed (INV-014 session-eviction user notification, INV-017 KMS-rotation expanded surface budget, INV-018 Sentinel/AOF/LRU consistency, INV-019 audit-chain DBA dead-end repair latency); these are documented but not patched in the merged roadmap (carried forward as known limits).
+  - The merged roadmap is structurally valid, internal references all resolve (179/179 per merge-executor), and no NEW contradictions were introduced versus the source variants.
+
+unresolved_conflicts_detail:
+  - id: INV-014
+    category: collection_boundaries
+    severity: MEDIUM
+    note: 50-session eviction silently breaks long-running mobile sessions; no user-visible signal specified
+  - id: INV-017
+    category: interaction_effects
+    severity: MEDIUM
+    note: KMS DEK rotation runbook "<10 min in staging" not re-validated against expanded encrypted-column inventory (now includes user_consents, pending_email_changes, mfa_secrets)
+  - id: INV-018
+    category: interaction_effects
+    severity: MEDIUM
+    note: Redis Sentinel + AOF persistence + session-eviction LRU consistency under failover not exhaustively specified
+  - id: INV-019
+    category: interaction_effects
+    severity: MEDIUM
+    note: DB GRANT prevents app from repairing hash-chain corruption; runbook delegates to DBA but recovery SLA may exceed 1 hour under load (operational risk noted, not patched in roadmap)
+
+run_metadata:
+  pipeline_mode: ModeB
+  source_spec: /config/workspace/IronClaude/tests/sc-roadmap/fixtures/sample_spec.md
+  generation_type: roadmap
+  agents_spec: ["opus", "sonnet"]
+  variant_count: 2
+  depth: standard
+  convergence_threshold: 0.80
+  blind: false
+  interactive: false
+  output_dir: /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run2
+  pipeline_start: 2026-05-22T17:58:00Z
+  pipeline_end: 2026-05-22T18:31:00Z
+
+artifacts:
+  variant_files:
+    - adversarial/variant-1-opus-default.md          # 369 lines
+    - adversarial/variant-2-sonnet-default.md        # 378 lines
+  step_outputs:
+    diff_analysis: adversarial/diff-analysis.md      # 180 lines (S/C/X/U/A inventory)
+    debate_transcript: adversarial/debate-transcript.md  # 268 lines (Round 1 + Round 2 summary + scoring matrix)
+    invariant_probe: adversarial/invariant-probe.md  # 68 lines (24 findings, 9 HIGH, 9 MEDIUM, 6 LOW)
+    base_selection: adversarial/base-selection.md    # 255 lines (quant + qual + tiebreaker)
+    refactor_plan: adversarial/refactor-plan.md      # 342 lines (15 additive + 9 invariant patches + 8 additional)
+    merge_log: adversarial/merge-log.md              # 168 lines
+  merged_output: merged-roadmap.md                   # 781 lines
+
+scoring_summary:
+  variant_1_opus:
+    quant: 0.9415
+    qual: 0.9667
+    combined: 0.9543
+    rank: 1
+  variant_2_sonnet:
+    quant: 0.9510
+    qual: 0.9000
+    combined: 0.9255
+    rank: 2
+  margin: 0.0288  # 2.88% — within 5%; tiebreaker (Level 1 debate performance) decided for V1
+  tiebreaker_applied: Level_1_debate_performance
+
+debate_summary:
+  rounds_completed: 2_plus_invariant_probe  # Round 3 skipped (depth=standard)
+  total_diff_points: 76  # S=22, C=25, X=14, U=30, A=15
+  agreed_points: 43
+  hybrid_resolved: 10
+  shared_assumptions_addressed: 15  # 15/15 by both advocates
+  high_severity_contradictions:
+    variant_1_wins: 4   # X-005 encryption, X-009 HA, X-013 revocation, X-014 DPIA
+    variant_2_wins: 0
+    hybrid: 1           # X-001 session storage (V1 denylist + V2 PG token-family)
+  invariant_probe_outcome: blocked_by_high_items_then_patched_in_merge

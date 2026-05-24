@@ -1,0 +1,28 @@
+You are reviewing a code change for the repository at the workspace root. Report problems as structured JSON.
+
+## Context
+
+Target: PR #67. THIS CHUNK = top-level config files.
+Diff range: master...77a5d00626eabb3e254dc90a5729bc931068af09
+
+Files in this chunk (5):
+.claude/settings.json
+.gitignore
+CLAUDE.md
+Makefile
+src/superclaude/hooks/scripts/offer-pr-review.sh
+
+Diff at: /config/workspace/IronClaude/.dev/reviews/pr-67-20260521044654/inputs/diff-code.patch
+
+## Focus areas
+
+- security: hooks scripts (offer-pr-review.sh) — shell-injection risks, unquoted variable expansions, unsafe gh/git invocations, secrets in environment.
+- correctness: Makefile target changes (shadowed targets, broken dependencies, unsafe rm commands without trailing slashes); .gitignore changes (accidentally ignoring tracked files, overly broad ignores covering production code); .claude/settings.json schema correctness (hook patterns, permission grants).
+- architecture: CLAUDE.md drift relative to repo conventions; settings.json permission/hook patterns that broaden trust beyond what's intended.
+- docs: CLAUDE.md sections that contradict each other or contradict source-of-truth (src/superclaude/).
+
+## Output contract (STRICT)
+
+Same JSON object: { "findings": [...], "cross_cutting_observations": [...], "notes_for_orchestrator": "..." }
+
+Return only JSON.

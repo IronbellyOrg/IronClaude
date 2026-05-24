@@ -78,8 +78,9 @@ The following objectives MUST be achieved by this task. Each maps to one or more
 ## Prerequisites & Dependencies
 
 ### Parent Task & Dependencies
+
 - **Parent Task:** None (first phase of cliEval release; no upstream task).
-- **Blocking Dependencies:** None at task-start — the design-spec and decisions log are already published; the upstream ptytest repo at https://github.com/brandon-fryslie/ptytest is publicly reachable.
+- **Blocking Dependencies:** None at task-start — the design-spec and decisions log are already published; the upstream ptytest repo at <https://github.com/brandon-fryslie/ptytest> is publicly reachable.
 - **This task blocks:** cliEval Phase 2 (loader.py + models.py + expect.py + eval describe/list), Phase 3 (orchestrator.py + runner.py + reporter.py + eval run), Phase 4 (wire into cli/main.py + Makefile + .gitignore), and Phase 5 (eval body implementations E1-E15).
 
 ### Required Inputs (read in Phase 1)
@@ -92,7 +93,7 @@ The Stage A-equivalent (design + decisions + BUILD_REQUEST) has already produced
 - **Existing primitive (READ-ONLY reference):** `src/superclaude/cli/sprint/executor.py:107-182` `IsolationLayers` — Purpose: D-3 composition target. MUST NOT be modified by this task.
 - **Existing primitive (reference, ANALOGOUS pattern):** `src/superclaude/cli/pipeline/process.py:24-150` `ClaudeProcess` — Purpose: subprocess driver scaffolding pattern; PtyDriver is the PTY equivalent.
 - **Existing primitive (CALLED FROM HomeIsolation.setup):** `src/superclaude/cli/install_hooks.py:install_hooks` — Purpose: deploys the 9-script hook set + settings.json + seed files into per-eval HOMEs.
-- **Existing sub-package layout to mirror:** `src/superclaude/cli/prd/` — Purpose: Click group export pattern (commands.py + __init__.py re-export).
+- **Existing sub-package layout to mirror:** `src/superclaude/cli/prd/` — Purpose: Click group export pattern (commands.py + **init**.py re-export).
 - **Upstream to fork:** `https://github.com/brandon-fryslie/ptytest` (MIT, Python 3.8+) — Purpose: vendor under `src/superclaude/cli/eval/pty/`. Preserve LICENSE verbatim.
 
 ### Handoff File Convention
@@ -112,6 +113,7 @@ These files persist across all batches and session rollovers. Later items read t
 ### Frontmatter Update Protocol
 
 YOU MUST update the frontmatter at these MANDATORY checkpoints:
+
 - **Upon Task Start:** Update `status` to "🟠 Doing" and `start_date` to current date (Phase 1 Step 1.1).
 - **Upon Completion:** Update `status` to "🟢 Done" and `completion_date` to current date (Phase 8 final step).
 - **If Blocked:** Update `status` to "⚪ Blocked" and populate `blocker_reason`.
@@ -236,15 +238,15 @@ After the subagent returns, read `phase-outputs/reviews/PG-1-rf-qa-report.md` an
 
 **Step 2.2:** Create `src/superclaude/cli/eval/__init__.py` (L2 Build-from-Discovery)
 
-- [ ] Create the file `src/superclaude/cli/eval/__init__.py` mirroring the pattern from `src/superclaude/cli/prd/__init__.py` (read it first if not already read in Phase 1) — the file MUST contain a module docstring describing the cliEval CLI sub-package, then exactly two import lines `from .commands import eval_group` and `# Note: HomeIsolation, capability_gates land in P1; other components in P2/P3`, then `__all__ = ["eval_group"]`. The file MUST be ≤15 lines total. Ensure no functions or runtime code beyond imports + __all__, no fabricated exports, and the docstring exactly mentions Phase 1 scope ("Phase 1: vendored pty/, HomeIsolation, capability gates, eval doctor subcommand. Phase 2/3/4 add loader, models, expect, runner, orchestrator, reporter."). If unable to create the file due to filesystem issues, log the specific blocker using the templated format in the `### Phase 2 Findings` section of the `## Task Log / Notes`, then mark this item complete. Once done, mark this item as complete.
+- [ ] Create the file `src/superclaude/cli/eval/__init__.py` mirroring the pattern from `src/superclaude/cli/prd/__init__.py` (read it first if not already read in Phase 1) — the file MUST contain a module docstring describing the cliEval CLI sub-package, then exactly two import lines `from .commands import eval_group` and `# Note: HomeIsolation, capability_gates land in P1; other components in P2/P3`, then `__all__ = ["eval_group"]`. The file MUST be ≤15 lines total. Ensure no functions or runtime code beyond imports + **all**, no fabricated exports, and the docstring exactly mentions Phase 1 scope ("Phase 1: vendored pty/, HomeIsolation, capability gates, eval doctor subcommand. Phase 2/3/4 add loader, models, expect, runner, orchestrator, reporter."). If unable to create the file due to filesystem issues, log the specific blocker using the templated format in the `### Phase 2 Findings` section of the `## Task Log / Notes`, then mark this item complete. Once done, mark this item as complete.
 
 **Step 2.3:** Create `src/superclaude/cli/eval/pty/__init__.py` (L2 Build-from-Discovery)
 
-- [ ] Create the file `src/superclaude/cli/eval/pty/__init__.py` containing a module docstring describing the vendored ptytest fork (one sentence: "Vendored fork of brandon-fryslie/ptytest. See PROVENANCE.md for fork SHA and diff list."), then `from .driver import PtyDriver` and `from .stream import strip_ansi, line_buffer`, then `__all__ = ["PtyDriver", "strip_ansi", "line_buffer"]`. The file MUST be ≤10 lines total. Ensure no runtime code beyond imports + __all__, and no fabricated symbol names — `strip_ansi` and `line_buffer` are exports from `stream.py` written in Step 2.5. If unable to create the file, log the specific blocker in `### Phase 2 Findings`, then mark this item complete. Once done, mark this item as complete.
+- [ ] Create the file `src/superclaude/cli/eval/pty/__init__.py` containing a module docstring describing the vendored ptytest fork (one sentence: "Vendored fork of brandon-fryslie/ptytest. See PROVENANCE.md for fork SHA and diff list."), then `from .driver import PtyDriver` and `from .stream import strip_ansi, line_buffer`, then `__all__ = ["PtyDriver", "strip_ansi", "line_buffer"]`. The file MUST be ≤10 lines total. Ensure no runtime code beyond imports + **all**, and no fabricated symbol names — `strip_ansi` and `line_buffer` are exports from `stream.py` written in Step 2.5. If unable to create the file, log the specific blocker in `### Phase 2 Findings`, then mark this item complete. Once done, mark this item as complete.
 
 **Step 2.4:** Create `src/superclaude/cli/eval/pty/driver.py` — `PtyDriver` class (L2 Build-from-Discovery)
 
-- [ ] Read the upstream `/tmp/cliEval-P1-ptytest-upstream/ptytest/__init__.py` (or the `PtySession` class wherever upstream places it; use `grep -rn "class PtySession" /tmp/cliEval-P1-ptytest-upstream` to find it) and adapt it into the new file `src/superclaude/cli/eval/pty/driver.py` exporting the `PtyDriver` class (renamed from upstream `PtySession`), preserving the core `pexpect.spawn` mechanics intact, REMOVING any pytest-fixture autoloader / `@pytest.fixture` decorator / `conftest.py`-integration code, ADDING two new methods `expect_prompt_ready(self, timeout: int = 30) -> bool` (uses the primary regex heuristic + fallback idle-timeout decided in Phase 1 Step 1.8 — encode both heuristics; return True if matched within timeout, False on timeout) and `inject_prompt(self, text: str) -> None` (writes `text + "\r\n"` to stdin and flushes), TIGHTENING the pexpect dependency assumption to `>=4.9` (add an `import pexpect; assert pexpect.__version__ >= "4.9"` guard at module import or at PtyDriver.__init__), and APPLYING aggressive ANSI strip via the `strip_ansi` helper from `stream.py` (Step 2.5) on all bytes read from the child. The class MUST expose at minimum: `spawn(self, cmd: str, env: dict[str, str]) -> "PtyDriver"`, `read_until(self, pattern: str | re.Pattern, timeout: int) -> str`, `terminate(self) -> int` (return exit code), plus the two new methods above and `expect_prompt_ready`/`inject_prompt`. Total file ≤200 LOC (per design-spec §17 "~150 LOC adapted" budget plus ~50 LOC overhead for the new methods). Ensure every method has a docstring, no fabricated upstream code is preserved beyond what `/tmp/cliEval-P1-ptytest-upstream` actually contains, and the file ends with a comment `# Provenance: see PROVENANCE.md for fork SHA and full diff list.`. If the upstream source cannot be located in `/tmp/cliEval-P1-ptytest-upstream`, log the blocker in `### Phase 2 Findings`. Once done, mark this item as complete.
+- [ ] Read the upstream `/tmp/cliEval-P1-ptytest-upstream/ptytest/__init__.py` (or the `PtySession` class wherever upstream places it; use `grep -rn "class PtySession" /tmp/cliEval-P1-ptytest-upstream` to find it) and adapt it into the new file `src/superclaude/cli/eval/pty/driver.py` exporting the `PtyDriver` class (renamed from upstream `PtySession`), preserving the core `pexpect.spawn` mechanics intact, REMOVING any pytest-fixture autoloader / `@pytest.fixture` decorator / `conftest.py`-integration code, ADDING two new methods `expect_prompt_ready(self, timeout: int = 30) -> bool` (uses the primary regex heuristic + fallback idle-timeout decided in Phase 1 Step 1.8 — encode both heuristics; return True if matched within timeout, False on timeout) and `inject_prompt(self, text: str) -> None` (writes `text + "\r\n"` to stdin and flushes), TIGHTENING the pexpect dependency assumption to `>=4.9` (add an `import pexpect; assert pexpect.__version__ >= "4.9"` guard at module import or at PtyDriver.**init**), and APPLYING aggressive ANSI strip via the `strip_ansi` helper from `stream.py` (Step 2.5) on all bytes read from the child. The class MUST expose at minimum: `spawn(self, cmd: str, env: dict[str, str]) -> "PtyDriver"`, `read_until(self, pattern: str | re.Pattern, timeout: int) -> str`, `terminate(self) -> int` (return exit code), plus the two new methods above and `expect_prompt_ready`/`inject_prompt`. Total file ≤200 LOC (per design-spec §17 "~150 LOC adapted" budget plus ~50 LOC overhead for the new methods). Ensure every method has a docstring, no fabricated upstream code is preserved beyond what `/tmp/cliEval-P1-ptytest-upstream` actually contains, and the file ends with a comment `# Provenance: see PROVENANCE.md for fork SHA and full diff list.`. If the upstream source cannot be located in `/tmp/cliEval-P1-ptytest-upstream`, log the blocker in `### Phase 2 Findings`. Once done, mark this item as complete.
 
 **Step 2.5:** Create `src/superclaude/cli/eval/pty/stream.py` — ANSI strip + line buffering (L2 Build-from-Discovery)
 
@@ -612,14 +614,17 @@ After the subagent returns, read `phase-outputs/reviews/PG-FINAL-rf-qa-composite
 This section documents unresolved ambiguities surfaced by the BUILD_REQUEST and by execution. Each entry follows the OQ disposition pattern. Entries are appended during Phase 1 (Steps 1.6, 1.7, 1.8) for the BUILD_REQUEST's original 3 Qs, and during Phase 8 (Step 8.3) for any unresolved gate failures.
 
 **OQ-1:** _BUILD_REQUEST Q1 verbatim — "Confirm `pexpect>=4.9` is acceptable as a new runtime dep (it's transitively pulled by some existing packages but not directly required). If not, the vendored ptytest needs to vendor pexpect too."_
+
 - **Disposition:** [TO-BE-FILLED in Phase 1 Step 1.6 — one of ACCEPTABLE / CONDITIONAL / DEFERRED-TO-VENDOR based on `uv pip list` and pyproject.toml inspection]
 - **Evidence:** `phase-outputs/discovery/03-pexpect-acceptability.md`
 
 **OQ-2:** _BUILD_REQUEST Q2 verbatim — "Verify upstream ptytest's MIT license and ensure NOTICE/LICENSE handling matches IronClaude's existing conventions."_
+
 - **Disposition:** [TO-BE-FILLED in Phase 1 Step 1.7 — confirm MIT identifier and verify NOTICE requirement]
 - **Evidence:** `phase-outputs/discovery/04-ptytest-license-and-sha.md`
 
 **OQ-3:** _BUILD_REQUEST Q3 verbatim — "Verify Claude Code's TTY behavior on Linux (the target platform) — specifically, does it emit a deterministic prompt-ready signal that `expect_prompt_ready` can match? If not, document the heuristic chosen (e.g., regex for `^> $` or `^\$ $` or idle-stdout-for-N-seconds)."_
+
 - **Disposition:** [TO-BE-FILLED in Phase 1 Step 1.8 — primary regex + fallback idle-timeout chosen; surfaced for verification during AC-P1.3 testing]
 - **Evidence:** `phase-outputs/discovery/05-prompt-ready-heuristic.md`
 
@@ -645,25 +650,33 @@ This section documents unresolved ambiguities surfaced by the BUILD_REQUEST and 
 ```
 
 ### Phase 2 Findings
+
 [Same template as Phase 1 Findings]
 
 ### Phase 3 Findings
+
 [Same template]
 
 ### Phase 4 Findings
+
 [Same template]
 
 ### Phase 5 Findings
+
 [Same template]
 
 ### Phase 6 Findings
+
 [Same template]
 
 ### Phase 7 Findings
+
 [Same template]
 
 ### Phase 8 Findings
+
 [Same template]
 
 ### Follow-Up Items
+
 [Items discovered during execution that need separate tasks — e.g., a verify-sync rule update if Step 7.2 surfaces one, the P2 wiring of seed_state in HomeIsolation.setup per Step 3.3 TODO marker]

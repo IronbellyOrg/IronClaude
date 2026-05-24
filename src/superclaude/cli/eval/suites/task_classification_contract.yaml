@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# task_classification_contract — verify the mandatory-first-output
+# classification contract enforced by /sc:task (.claude/commands/sc/task.md
+# §"Classification (MANDATORY FIRST OUTPUT)", lines 50-69 and 71-93).
+#
+# Contract under test:
+#   1. The first output of /sc:task <prompt> MUST be the exact HTML
+#      comment block: <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
+#      ... TIER: [STRICT|STANDARD|LIGHT|EXEMPT] ...
+#      <!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
+#   2. The TIER value must be one of four enum members (no inventions
+#      like "ITERATIVE", "IMPLEMENT", "SIMPLE").
+#   3. No tool invocations are allowed BEFORE the classification block
+#      is emitted (text-only first output, per task.md:54).
+#
+# Two evals cover two distinct tier-selection branches:
+#   * E1 — STRICT (security/auth keywords, priority 1 rule).
+#   * E2 — EXEMPT (read-only "explain how" pattern, priority 2 rule).
+#
+# Both evals capture PTY stdout via the FR-EXP1 Expect.stdout primitive
+# (expect.py:572-585) so the assertion runs against ANSI-stripped
+# transcript content. PTY capture is mandatory: --no-pty short-circuits
+# both evals to SKIPPED via the per-eval ``no_pty: skip`` tag.
+#
+# Determinism (FR-ISO2): each eval runs under home_strategy=ephemeral,
+# so each /sc:task spawn writes its classification header on a clean
+# per-eval HOME. The header content is fully determined by the prompt
+# (no timestamps, no session ids), so the same stdout substring asserts
+# pass/fail identically across runs on the same Claude Code version.
+
+name: task_classification_contract
+version: "1.0"
+description: "Verify /sc:task emits the mandatory first-output classification HTML block with a valid TIER enum (STRICT vs EXEMPT branches)."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: E1
+    title: "/sc:task STRICT — security/auth prompt classified STRICT"
+    category: command-contract
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # Priority-1 STRICT rule (task.md:73-77): keywords "security",
+    # "vulnerability", "auth" all trigger STRICT independently; their
+    # co-occurrence in this prompt makes the classification unambiguous
+    # (task.md:108-118 ships this exact prompt as the canonical STRICT
+    # example). The classification header MUST appear before any tool
+    # invocation (task.md:54).
+    inputs:
+      - prompt: '/sc:task "fix security vulnerability in auth module"'
+    expects:
+      - stdout:
+          contains: "<!-- SC:TASK-UNIFIED:CLASSIFICATION -->"
+      - stdout:
+          contains: "TIER: STRICT"
+      - stdout:
+          contains: "<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->"
+      - exit_code:
+          equals: 0
+
+  - id: E2
+    title: "/sc:task EXEMPT — read-only explain prompt classified EXEMPT"
+    category: command-contract
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # Priority-2 EXEMPT rule (task.md:79-82): "explain" keyword + "how"
+    # pattern start + is_read_only booster combine to make EXEMPT the
+    # only valid tier. task.md:120-130 ships the sibling
+    # "explain how the routing middleware works" prompt as the canonical
+    # EXEMPT example; the proposal-issued "explain how routing works"
+    # prompt is the same shape (explain + how + read-only) and binds to
+    # the same priority-2 branch.
+    inputs:
+      - prompt: '/sc:task "explain how routing works"'
+    expects:
+      - stdout:
+          contains: "<!-- SC:TASK-UNIFIED:CLASSIFICATION -->"
+      - stdout:
+          contains: "TIER: EXEMPT"
+      - stdout:
+          contains: "<!-- /SC:TASK-UNIFIED:CLASSIFICATION -->"
+      - exit_code:
+          equals: 0

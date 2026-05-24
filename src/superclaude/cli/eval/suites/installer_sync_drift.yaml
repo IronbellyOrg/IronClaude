@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# installer_sync_drift — recurring drift / registration gate suite.
+#
+# CADENCE (operator-facing metadata; not enforced by the eval framework):
+#   - On every PR touching src/superclaude/{skills,agents,commands,templates}
+#     or src/superclaude/hooks/scripts/ or src/superclaude/cli/install_hooks.py.
+#   - Nightly via CI scheduled job on the integration branch.
+#
+# WHAT THIS SUITE GUARDS (evidence: CLAUDE.md:112-128, Makefile:307-345):
+#   1. `src/superclaude/` (source of truth) and `.claude/` (generated mirror)
+#      stay aligned — file content + presence parity across skills, agents,
+#      commands, templates.
+#   2. Hook registration list (`_FRESHNESS_SCRIPTS` in
+#      src/superclaude/cli/install_hooks.py) tracks the actual scripts shipped
+#      in src/superclaude/hooks/scripts/*.sh — no MISSING (script present in
+#      src/, not registered → end-user `superclaude install` skips it) and no
+#      STALE (registered, missing from src/ → install crashes).
+#   3. Cross-consistency between hooks.json PostToolUse matcher prefixes and
+#      auggie-flag-clear.sh case-body prefixes.
+#
+# WHY home_strategy=shared:
+#   `make verify-sync` MUST run against the actual repository tree — an
+#   ephemeral $HOME would mask drift (no src/ tree to compare), and a seeded
+#   HOME would duplicate the very state we are validating. The verify-sync
+#   target reads working-tree files only; it does not write to $HOME, so
+#   sharing HOME is safe (no cross-eval contamination).
+#
+# WHY no_pty=skip:
+#   The PTY harness drives a Claude Code subprocess; matching the rest of the
+#   eval inventory keeps `--no-pty` semantics uniform across suites.
+name: installer_sync_drift
+version: "1.0"
+description: "Recurring drift + hook-registration gate between src/superclaude/ (canonical) and .claude/ (generated); runs make verify-sync. Cadence: on-PR + nightly via CI."
+
+defaults:
+  per_eval_timeout_sec: 180
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: make,                          failure_mode: hard }
+  - { name: uv,                            failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: S1
+    title: "make verify-sync — src/ vs .claude/ parity + installer registration"
+    category: installer-sync
+    timeout_sec: 180
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # Drives Claude Code through the PTY harness to invoke `make verify-sync`,
+    # which composes three drift checks (Makefile:255-345):
+    #   - Skills/Agents/Commands/Templates: directory-tree diff between
+    #     src/superclaude/<kind>/ and .claude/<kind>/ (rsync-style parity).
+    #   - Installer Registration: _FRESHNESS_SCRIPTS list vs.
+    #     src/superclaude/hooks/scripts/*.sh — flags MISSING + STALE entries.
+    #   - Hooks Cross-Consistency: hooks.json PostToolUse matcher prefixes
+    #     vs. auggie-flag-clear.sh case-body prefixes.
+    #
+    # On clean tree the target prints "✅ All components in sync." and exits 0.
+    # On drift it prints "❌ DRIFT" / "MISSING from _FRESHNESS_SCRIPTS" /
+    # "STALE in _FRESHNESS_SCRIPTS" markers and exits 1.
+    #
+    # Assertion strategy:
+    #   - exit_code == 0 is the primary contract.
+    #   - stdout_negative checks ("drift detected", "MISSING", "STALE",
+    #     "DRIFT") catch the case where the Makefile recipe regresses and
+    #     prints drift markers while still exiting 0 (defence-in-depth).
+    inputs:
+      - prompt: "Run `make verify-sync` from the repository root via the Bash tool and report the exit code plus the full stdout. Do not modify any files; this is a read-only verification."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          not_contains: "drift detected"
+      - stdout:
+          not_contains: "MISSING from _FRESHNESS_SCRIPTS"
+      - stdout:
+          not_contains: "STALE in _FRESHNESS_SCRIPTS"
+      - stdout:
+          not_contains: "❌ DRIFT"

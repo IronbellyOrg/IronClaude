@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# audit_wiring_guard — DELETE-guard contract for live-wired Python files.
+#
+# Targets the audit-* agent chain (audit-scanner, audit-analyzer,
+# audit-validator, audit-consolidator) invoked via /sc:cleanup-audit.
+# The wiring-indicator rules in audit-scanner.md:91-113 require that a
+# Python file containing any of:
+#   - Optional[Callable] / Callable | None parameter with `= None` default,
+#   - module-level *_REGISTRY / *_DISPATCH / *_HANDLERS / *_ROUTER /
+#     *_BUILDERS dictionary,
+#   - membership in a provider directory (steps/ handlers/ validators/ checks/),
+# be escalated to REVIEW:wiring rather than KEEP-then-DELETE. The
+# audit-analyzer.md:78-101 contract then mandates a 9th "Wiring path"
+# field (Declaration → Registration → Invocation) on every REVIEW:wiring
+# profile. The audit-validator.md:97-124 Check 5a DELETE+Live-Wiring
+# Guard requires a CRITICAL FAIL when any DELETE recommendation lands on
+# a file with live wiring connections (live imports, registry key
+# references, or injectable callable consumers).
+#
+# Hypothesis under test: a seeded fixture repo containing a provider
+# directory + dispatch registry + Optional[Callable] consumer with a
+# live import chain MUST be classified as REVIEW:wiring (NOT DELETE) by
+# the audit pipeline, and the consolidated report MUST include the
+# required Wiring path field for the analyzer profile.
+#
+# Every eval drives a Claude Code PTY subprocess; --no-pty short-circuits
+# each eval with status SKIPPED (per DOC-OQ3 / R-077 / D-0077). No MCP
+# servers are required — the audit agents use grep / Read against the
+# seeded fixture inside the per-eval HOME, so the suite runs on any host
+# with claude + grep + git.
+name: audit_wiring_guard
+version: "1.0"
+description: "Audit-pipeline DELETE-guard contract: a live-wired Python file (provider dir + *_REGISTRY + Optional[Callable]=None + live import) MUST be classified REVIEW:wiring (not DELETE), and the analyzer profile MUST include the 9th 'Wiring path' field."
+
+defaults:
+  per_eval_timeout_sec: 300
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: grep,                          failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: E1
+    title: "Live-wired provider file is escalated to REVIEW:wiring (no DELETE)"
+    category: agent-audit-wiring
+    timeout_sec: 300
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: workspace/fixture/handlers/__init__.py
+          content: ""
+        - path: workspace/fixture/handlers/json_handler.py
+          content: |
+            """Provider-directory handler with Optional[Callable] injection point."""
+            from typing import Callable, Optional
+
+
+            def handle(payload: dict, post_hook: Optional[Callable] = None) -> dict:
+                result = {"kind": "json", "payload": payload}
+                if post_hook is not None:
+                    post_hook(result)
+                return result
+        - path: workspace/fixture/registry.py
+          content: |
+            """Dispatch registry wiring the json handler into the live import chain."""
+            from workspace.fixture.handlers.json_handler import handle as _json_handle
+
+            HANDLER_REGISTRY = {
+                "json": _json_handle,
+            }
+
+
+            def dispatch(kind: str, payload: dict) -> dict:
+                return HANDLER_REGISTRY[kind](payload)
+        - path: workspace/fixture/app.py
+          content: |
+            """Live consumer importing through the registry."""
+            from workspace.fixture.registry import dispatch
+
+
+            def main() -> dict:
+                return dispatch("json", {"hello": "world"})
+        - path: workspace/fixture/.gitkeep
+          content: ""
+    no_pty: skip
+    # Contract under test (audit-scanner.md:89-113):
+    #   handlers/json_handler.py matches all three wiring triggers
+    #   (provider dir membership, Optional[Callable]=None parameter,
+    #   imported by registry.py which is itself imported by app.py).
+    #   The scanner MUST classify it as REVIEW:wiring, NOT DELETE.
+    # Audit reports are written to .claude-audit/ inside the per-eval
+    # HOME (see /sc:cleanup-audit.md:96-100). The assertions below pin:
+    #   - the report exists and references the wired file by name,
+    #   - it carries the [wiring] / REVIEW:wiring tag (audit-scanner.md:108-113),
+    #   - it does NOT classify the wired file as DELETE.
+    inputs:
+      - prompt: "Run /sc:cleanup-audit on workspace/fixture/ with --pass surface. Use the audit-scanner agent contract: classify every .py file as DELETE / REVIEW / KEEP, and apply the wiring-indicator rules (Optional[Callable]=None, *_REGISTRY dict, provider directory membership). Write the Pass 1 surface scan report to .claude-audit/pass1-summary.md. The file workspace/fixture/handlers/json_handler.py lives in a provider directory, has an Optional[Callable]=None parameter, and is imported (transitively) by workspace/fixture/app.py via workspace/fixture/registry.py — it MUST be classified REVIEW:wiring, not DELETE."
+    expects:
+      - file:
+          path: .claude-audit/pass1-summary.md
+          exists: true
+          contains: "json_handler.py"
+      - file:
+          path: .claude-audit/pass1-summary.md
+          exists: true
+          contains: "wiring"
+      - exit_code:
+          equals: 0
+
+  - id: E2
+    title: "Analyzer profile for REVIEW:wiring file includes 9th Wiring path field"
+    category: agent-audit-wiring
+    timeout_sec: 300
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: workspace/fixture/handlers/__init__.py
+          content: ""
+        - path: workspace/fixture/handlers/json_handler.py
+          content: |
+            """Provider-directory handler with Optional[Callable] injection point."""
+            from typing import Callable, Optional
+
+
+            def handle(payload: dict, post_hook: Optional[Callable] = None) -> dict:
+                result = {"kind": "json", "payload": payload}
+                if post_hook is not None:
+                    post_hook(result)
+                return result
+        - path: workspace/fixture/registry.py
+          content: |
+            """Dispatch registry wiring the json handler into the live import chain."""
+            from workspace.fixture.handlers.json_handler import handle as _json_handle
+
+            HANDLER_REGISTRY = {
+                "json": _json_handle,
+            }
+
+
+            def dispatch(kind: str, payload: dict) -> dict:
+                return HANDLER_REGISTRY[kind](payload)
+        - path: workspace/fixture/app.py
+          content: |
+            """Live consumer importing through the registry."""
+            from workspace.fixture.registry import dispatch
+
+
+            def main() -> dict:
+                return dispatch("json", {"hello": "world"})
+    no_pty: skip
+    # Contract under test (audit-analyzer.md:78-101):
+    #   For REVIEW:wiring files, the per-file analyzer profile is
+    #   extended to 9 fields; the 9th field is "Wiring path", structured
+    #   as Declaration → Registration → Invocation with each link
+    #   citing file:line or explicitly marked MISSING.
+    # The validator (audit-validator.md:97-124) Check 5a then enforces
+    # the DELETE+Live-Wiring Guard: any DELETE recommendation on a file
+    # with a live import chain is a CRITICAL FAIL.
+    # Assertions pin the analyzer profile section to .claude-audit/
+    # and require the Wiring path label + at least one of the three
+    # link nouns (Declaration / Registration / Invocation) to appear.
+    inputs:
+      - prompt: "Run /sc:cleanup-audit on workspace/fixture/ with --pass structural. Use the audit-analyzer agent contract: produce 9-field profiles for every REVIEW:wiring file, where the 9th field is 'Wiring path' tracing Declaration → Registration → Invocation. Then run the audit-validator Check 5a DELETE+Live-Wiring Guard. Write the Pass 2 structural report to .claude-audit/pass2-summary.md. The file workspace/fixture/handlers/json_handler.py has its Optional[Callable]=None declaration on the `handle` function, is registered in HANDLER_REGISTRY inside workspace/fixture/registry.py, and is invoked via dispatch() from workspace/fixture/app.py — the Wiring path field MUST cite all three links."
+    expects:
+      - file:
+          path: .claude-audit/pass2-summary.md
+          exists: true
+          contains: "Wiring path"
+      - file:
+          path: .claude-audit/pass2-summary.md
+          exists: true
+          contains: "json_handler.py"
+      - exit_code:
+          equals: 0

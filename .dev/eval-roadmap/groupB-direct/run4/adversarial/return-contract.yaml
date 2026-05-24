@@ -1,0 +1,120 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run4/merged-roadmap.md"
+  convergence_score: 0.591
+  artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run4/adversarial/"
+  status: "partial"
+  base_variant: "opus:default"
+  unresolved_conflicts: 18
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "state_variables"
+      assumption: "Lockout counter (failed-attempt count + window timestamp) persists in Redis with TTL >= 15 min and survives Redis evictions / failovers"
+      severity: "HIGH"
+    - id: "INV-002"
+      category: "state_variables"
+      assumption: "Audit log writes are durable BEFORE the auth response returns (no lost audits on app-pod crash mid-response)"
+      severity: "HIGH"
+    - id: "INV-004"
+      category: "guard_conditions"
+      assumption: "refreshToken payload is validated as non-null, well-formed JWT BEFORE Redis hash lookup (else lookup of SHA256(null) collides across users)"
+      severity: "HIGH"
+    - id: "INV-007"
+      category: "count_divergence"
+      assumption: "5 failed attempts in 15 min: is the 5th attempt locked, or does lockout trigger on the 6th attempt? Off-by-one across variants"
+      severity: "HIGH"
+    - id: "INV-010"
+      category: "collection_boundaries"
+      assumption: "Refresh-token cap (5 vs 10): what happens at exactly cap (5th/10th token issued)? Is the existing oldest evicted, or is issuance blocked?"
+      severity: "HIGH"
+    - id: "INV-013"
+      category: "interaction_effects"
+      assumption: "Account lockout + concurrent multi-device login: device-A wrong password 5x; device-B (already logged in) session behavior + new login behavior on device-B"
+      severity: "HIGH"
+    - id: "INV-016"
+      category: "interaction_effects"
+      assumption: "Feature-flag flip mid-session (legacy -> new auth path): what happens to in-flight requests carrying legacy session cookies during flip?"
+      severity: "HIGH"
+    - id: "INV-017"
+      category: "interaction_effects"
+      assumption: "Redis-down event during active lockout window: lockout counter lost; attacker at 4/5 fails gets reset budget"
+      severity: "HIGH"
+    - id: "INV-018"
+      category: "sufficiency_challenge"
+      assumption: "A-003 'p95 < 200ms achievable on bcrypt-12 + RS256 + PG/Redis' — no pre-implementation sensitivity test for PG pool exhaustion, audit-log fsync contention, or RS256 dual-key rotation overhead"
+      severity: "HIGH"
+    - id: "INV-019"
+      category: "sufficiency_challenge"
+      assumption: "A-006 '5-fail lockout doesn't enable per-account DoS' — both advocates REJECTED in Round 1 yet no concrete mitigation lands in consensus"
+      severity: "HIGH"
+    - id: "INV-020"
+      category: "sufficiency_challenge"
+      assumption: "A-008 'legacy auth path is viable rollback throughout Beta+GA' — rollback target without operational owner / schema-drift check / cookie-honor verification"
+      severity: "HIGH"
+
+metadata:
+  protocol_version: "sc:adversarial v1.0.0"
+  invocation:
+    mode: "B"
+    source: "/config/workspace/IronClaude/.dev/eval-roadmap/inputs/merged-prd-tdd-user-auth.md"
+    generate: "roadmap"
+    agents: ["opus:default", "sonnet:default"]
+    depth: "standard"
+    convergence_threshold: 0.80
+    blind: false
+  execution_date: "2026-05-22"
+  steps_completed:
+    - "Prerequisites validation"
+    - "Step 1: Diff analysis"
+    - "Step 2: Adversarial debate (Round 1 parallel + Round 2 sequential + Round 2.5 invariant probe)"
+    - "Step 3: Hybrid scoring & base selection"
+    - "Step 4: Refactoring plan"
+    - "Step 5: Merge execution"
+  base_selection:
+    winner: "Variant 1 (opus:default)"
+    combined_score: 0.988
+    runner_up: "Variant 2 (sonnet:default)"
+    runner_up_score: 0.853
+    margin_pct: 13.7
+    tiebreaker_applied: false
+  debate:
+    diff_points_total: 44
+    diff_points_resolved: 26
+    diff_points_unresolved: 18
+    convergence_pct: 59.1
+    taxonomy_coverage: "all three levels (L1/L2/L3) covered"
+    invariant_probe:
+      total_findings: 22
+      addressed: 2
+      unaddressed_high: 11
+      unaddressed_medium: 7
+      unaddressed_low: 2
+    convergence_status: "BLOCKED_BY_INVARIANTS"
+    convergence_block_reason: "11 HIGH-severity UNADDRESSED invariant findings exceed the AD-1 gate threshold"
+  merge:
+    changes_planned: 16
+    changes_applied: 16
+    changes_failed: 0
+    changes_skipped: 0
+    structural_integrity: "pass"
+    internal_references_resolved: "27/27"
+    new_contradictions_introduced: 0
+  artifacts:
+    variants:
+      - "variant-1-opus-default.md"
+      - "variant-2-sonnet-default.md"
+    pipeline:
+      - "diff-analysis.md"
+      - "round1-variant1-advocate.md"
+      - "round1-variant2-advocate.md"
+      - "round2-variant1-rebuttal.md"
+      - "round2-variant2-rebuttal.md"
+      - "invariant-probe.md"
+      - "debate-transcript.md"
+      - "base-selection.md"
+      - "refactor-plan.md"
+      - "merge-log.md"
+      - "return-contract.yaml"
+    merged_output: "merged-roadmap.md"

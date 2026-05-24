@@ -1,0 +1,4 @@
+scripts/check-ref-staleness.py:96:5: F841 Local variable `gc_fields` is assigned to but never used
+scripts/check-ref-staleness.py:128:5: F841 Local variable `sc_fields` is assigned to but never used
+tests/audit/test_evidence_bound_tb_add_8.py:97:13: F841 Local variable `current_item_line` is assigned to but never used
+tests/cli/eval/test_signal_handling.py:661:5: F841 Local variable `pexpect` is assigned to but never used

@@ -1,0 +1,176 @@
+{
+  "findings": [
+    {
+      "title": "src/ vs .claude/ sync violation: prd skill and refs duplicated",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "file": ".claude/skills/prd/SKILL.md",
+      "line": 1,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Both .claude/skills/prd/ and src/superclaude/skills/prd/ contain identical SKILL.md and refs/ files (agent-prompts.md, build-request-template.md, operational-guidance.md, synthesis-mapping.md, validation-checklists.md). Per CLAUDE.md and AGENTS.md, src/superclaude/ is the source of truth and .claude/ should be sync'd via `make sync-dev`.",
+      "why": "Duplication creates drift risk. CLAUDE.md states: 'NEVER git add .claude/skills/...' and 'SoT discipline. Committing .claude/skills/foo alongside src/superclaude/skills/foo doubles every diff, invites drift, and breaks make verify-sync'. This PR commits both copies.",
+      "recommendation": "Remove .claude/skills/prd/ and .claude/templates/workflow/05_prd_template* from this commit. Let `make sync-dev` regenerate .claude/ from src/superclaude/. Only src/superclaude/skills/prd/ and src/superclaude/templates/workflow/05_prd_template.md should be staged.",
+      "cross_references": [
+        "CLAUDE.md:## ABSOLUTE RULE: Never Stage or Commit `.claude/` Contents",
+        "AGENTS.md:## Component Sync",
+        ".gitignore (.claude/ + !.claude/settings.json)"
+      ],
+      "confidence": 0.98
+    },
+    {
+      "title": "Template duplication: 05_prd_template.md appears in both src/superclaude/templates/workflow/ and .claude/templates/workflow/",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "file": ".claude/templates/workflow/05_prd_template.md",
+      "line": 1,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Files .claude/templates/workflow/05_prd_template.md, .claude/templates/workflow/05_prd_template.legacy-rf-project.md, and src/superclaude/templates/workflow/05_prd_template.md all added in this PR. .claude/templates/ is not mentioned in the Component Sync rules but follows the same SoT pattern.",
+      "why": "Same drift risk as skills. If .claude/templates/ is auto-generated, committing both copies violates SoT. If .claude/templates/ is manual, it contradicts the stated architecture.",
+      "recommendation": "Clarify whether .claude/templates/ is sync'd or manual. If sync'd, remove .claude/templates/workflow/05_prd_template* from commit. If manual, document the exception in CLAUDE.md and AGENTS.md.",
+      "cross_references": [
+        ".claude/templates/workflow/05_prd_template.md",
+        "src/superclaude/templates/workflow/05_prd_template.md"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "title": "auggie-reviewer agent references non-existent sc:auggie-review-protocol skill location",
+      "category": "correctness",
+      "severity_hint": "high",
+      "file": "src/superclaude/agents/auggie-reviewer.md",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Need to inspect the agent file to see if it references the skill. The skill sc-auggie-review-protocol/SKILL.md exists in src/superclaude/skills/. If the agent hardcodes a path or skill name, it must match.",
+      "why": "Agent definitions often reference skills by name or path. If the reference is wrong, the agent won't load the skill correctly.",
+      "recommendation": "Verify src/superclaude/agents/auggie-reviewer.md references 'sc-auggie-review-protocol' correctly and that the skill name matches the directory name (sc-auggie-review-protocol, not sc:auggie-review-protocol).",
+      "cross_references": [
+        "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md"
+      ],
+      "confidence": 0.70
+    },
+    {
+      "title": "auggie-review command must match agent name and skill name conventions",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/commands/auggie-review.md",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Command name is 'auggie-review', agent is 'auggie-reviewer', skill is 'sc-auggie-review-protocol'. Need to verify the command invokes the correct agent and that the agent loads the correct skill.",
+      "why": "Naming mismatches cause runtime failures. The command must reference the agent correctly, and the agent must reference the skill correctly.",
+      "recommendation": "Inspect src/superclaude/commands/auggie-review.md to confirm it invokes agent 'auggie-reviewer' and that the agent definition loads skill 'sc-auggie-review-protocol'.",
+      "cross_references": [
+        "src/superclaude/agents/auggie-reviewer.md",
+        "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md"
+      ],
+      "confidence": 0.75
+    },
+    {
+      "title": "sc-auggie-review-protocol/evals/evals.json fixture may not match actual skill behavior",
+      "category": "correctness",
+      "severity_hint": "low",
+      "file": "src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Eval fixture added. Need to verify it matches the skill's actual output contract (JSON schema defined in SKILL.md or refs/).",
+      "why": "Eval fixtures that don't match actual behavior cause false positives/negatives in testing.",
+      "recommendation": "Cross-check evals.json structure against the output contract specified in src/superclaude/skills/sc-auggie-review-protocol/SKILL.md. Ensure field names, nesting, and types match.",
+      "cross_references": [
+        "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md"
+      ],
+      "confidence": 0.60
+    },
+    {
+      "title": "Potential prompt injection in prd skill refs if BUILD_REQUEST content is unsanitized",
+      "category": "security",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/prd/refs/build-request-template.md",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "BUILD_REQUEST template is user-supplied input. If the skill injects BUILD_REQUEST content directly into agent prompts without sanitization, malicious users could inject prompt instructions.",
+      "why": "Prompt injection allows attackers to override agent behavior, exfiltrate data, or execute unintended commands.",
+      "recommendation": "Review agent-prompts.md and operational-guidance.md to ensure BUILD_REQUEST content is treated as data, not instructions. Use XML tags, code fences, or explicit 'user input' framing to isolate untrusted content.",
+      "cross_references": [
+        "src/superclaude/skills/prd/refs/agent-prompts.md",
+        "src/superclaude/skills/prd/refs/operational-guidance.md"
+      ],
+      "confidence": 0.65
+    },
+    {
+      "title": "99_mdtm_template_generic_task_old.md suggests orphaned legacy file",
+      "category": "architecture",
+      "severity_hint": "low",
+      "file": "src/superclaude/templates/workflow/99_mdtm_template_generic_task_old.md",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Filename suffix '_old' suggests this is a deprecated template. No clear reason to keep it in src/ if 01_mdtm_template_generic_task.md and 02_mdtm_template_complex_task.md are the active versions.",
+      "why": "Orphaned legacy files clutter the codebase and create confusion about which template to use.",
+      "recommendation": "Either delete 99_mdtm_template_generic_task_old.md or move to .dev/archive/ with a comment explaining why it's retained. If it's needed for reference, add a header note.",
+      "cross_references": [
+        "src/superclaude/templates/workflow/01_mdtm_template_generic_task.md",
+        "src/superclaude/templates/workflow/02_mdtm_template_complex_task.md"
+      ],
+      "confidence": 0.80
+    },
+    {
+      "title": "Legacy PRD template retained alongside current version without clear migration path",
+      "category": "architecture",
+      "severity_hint": "low",
+      "file": ".claude/templates/workflow/05_prd_template.legacy-rf-project.md",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": true,
+      "evidence": "Both 05_prd_template.md and 05_prd_template.legacy-rf-project.md exist. No documentation explaining when to use legacy vs current.",
+      "why": "Multiple templates for the same purpose create confusion. Users won't know which to use.",
+      "recommendation": "Add a header to 05_prd_template.legacy-rf-project.md explaining when it should be used (e.g., 'Use this template only for projects started before v4.0'). Or delete it if no longer needed.",
+      "cross_references": [
+        ".claude/templates/workflow/05_prd_template.md"
+      ],
+      "confidence": 0.75
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "theme": "src/ vs .claude/ sync discipline violation",
+      "files": [
+        ".claude/skills/prd/SKILL.md",
+        ".claude/skills/prd/refs/agent-prompts.md",
+        ".claude/skills/prd/refs/build-request-template.md",
+        ".claude/skills/prd/refs/operational-guidance.md",
+        ".claude/skills/prd/refs/synthesis-mapping.md",
+        ".claude/skills/prd/refs/validation-checklists.md",
+        ".claude/templates/workflow/05_prd_template.md",
+        ".claude/templates/workflow/05_prd_template.legacy-rf-project.md"
+      ],
+      "summary": "This PR commits both src/superclaude/ (SoT) and .claude/ (generated) copies of skills and templates. Per CLAUDE.md, .claude/{skills,commands,agents,hooks,templates}/* is gitignored sync-dev output. Only .claude/settings.json should be committed. This violates the repository's SoT discipline and will break `make verify-sync`.",
+      "impact": "Immediate CI failure on `make verify-sync`. Future edits to .claude/ will drift from src/. Merge conflicts when other PRs touch the same skills."
+    },
+    {
+      "theme": "auggie-review-protocol skill naming and cross-references",
+      "files": [
+        "src/superclaude/agents/auggie-reviewer.md",
+        "src/superclaude/commands/auggie-review.md",
+        "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md"
+      ],
+      "summary": "Three related files (command, agent, skill) added in this PR. Need runtime verification that the command invokes the agent correctly, the agent loads the skill correctly, and the skill's refs (auggie-prompts.md, remediation-handoff.md, severity-rubric.md) reference valid functions/paths.",
+      "impact": "If naming mismatches exist, /sc:auggie-review will fail at runtime with 'skill not found' or 'agent not found' errors."
+    },
+    {
+      "theme": "Template version sprawl and legacy retention",
+      "files": [
+        "src/superclaude/templates/workflow/05_prd_template.md",
+        ".claude/templates/workflow/05_prd_template.legacy-rf-project.md",
+        "src/superclaude/templates/workflow/99_mdtm_template_generic_task_old.md"
+      ],
+      "summary": "Multiple versions of templates exist without clear documentation on when to use each. Legacy files (suffix 'old', 'legacy-rf-project') suggest incomplete cleanup or missing migration guide.",
+      "impact": "Users and agents won't know which template to use. Inconsistent document structure across the project."
+    }
+  ],
+  "notes_for_orchestrator": "BLOCKING issues: (1) src/ vs .claude/ sync violation—this PR cannot merge without removing .claude/skills/ and .claude/templates/ additions per CLAUDE.md. Recommend immediate revert of .claude/ paths and re-run `make sync-dev` to regenerate. (2) Need file inspection to confirm auggie-reviewer agent and auggie-review command reference the skill correctly—cannot fully validate without reading the actual content of those files (diff shows they're new but content not visible in this review context). MEDIUM priority: clarify template versioning strategy and either remove legacy files or document their purpose. LOW priority: verify evals.json schema matches skill output contract. Recommend follow-up PR to consolidate template versions after SoT violation is fixed."
+}

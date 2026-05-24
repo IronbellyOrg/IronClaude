@@ -44,7 +44,7 @@ superclaude cleanup-audit run . --output ./audit-results
 
 ## Step Graph
 
-```
+```text
 G-001 Surface Scan (LIGHT)
   │
   ├─► G-002 Structural Analysis (STANDARD)
@@ -63,11 +63,11 @@ G-001 Surface Scan (LIGHT)
 
 ## Known Limitations
 
-1. **No async support**: Pipeline uses synchronous `ThreadPoolExecutor` (by design — sprint pattern compliance)
-2. **Single-machine only**: No distributed execution support
-3. **Claude binary required**: Must have `claude` CLI installed and in PATH
-4. **File discovery**: Relies on `rglob` which may be slow for very large repos (>100k files)
-5. **Batch parallelism**: Currently sequential step execution; batch parallelism within steps is supported but not yet wired
+1. __No async support__: Pipeline uses synchronous `ThreadPoolExecutor` (by design — sprint pattern compliance)
+2. __Single-machine only__: No distributed execution support
+3. __Claude binary required__: Must have `claude` CLI installed and in PATH
+4. __File discovery__: Relies on `rglob` which may be slow for very large repos (>100k files)
+5. __Batch parallelism__: Currently sequential step execution; batch parallelism within steps is supported but not yet wired
 
 ## Resume Command Template
 

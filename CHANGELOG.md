@@ -4,6 +4,39 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### cliEval — Phase 5+6 remediation (TASK-RF-20260522-153212)
+
+#### Added (cliEval)
+
+- `src/superclaude/cli/eval/exit_codes.py` with exactly 4 canonical exit codes (`SUCCESS=0`, `FAILURES=1`, `USAGE_ERROR=2`, `INTERRUPTED=3`). All 11 `*_EXIT_CODE` constants in the eval module re-export from here via top-of-file `from . import exit_codes as _exit_codes` + local `NAME: int = _exit_codes.VALUE` assignments (CC2 / OQ-2).
+- `orchestrator.allocate_session_id(*, run_id, eval_id)` helper — the canonical session-id allocator; `commands.py::_run_one_spec` now threads `run_id` through and calls the helper instead of constructing `f"sess-{spec.id}"` ad-hoc (M5).
+- `eval doctor --output-dir` Click option now carries `file_okay=False`, symmetric with `eval run --output-dir` (M6).
+- Stderr WARNING emitted at the `_NullLifecycleExecutor` call site on every `eval run` until the production executor lands (M2 / CC3): `eval run: WARNING: _NullLifecycleExecutor active — non-production executor selected; run results MUST NOT be treated as authoritative.`
+- User-facing operator guide at `docs/user-guide/eval-pipeline.md` covering all four subcommands, exit codes, output layout, and the AC12 scratch-root policy.
+
+#### Changed (cliEval)
+
+- `eval run --output-dir <X>` is now the OUTPUT ROOT: artifacts land at `<X>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/` (anchored via `compose_run_dir`) instead of a flat layout under `<X>` (H1 / FR-G4).
+- `_format_run_summary_line` renders the full DM-012 taxonomy `P/F/S/E/I/T` (passed/failed/skipped/errored/interrupted/timeout) instead of eliding `ERRORED`/`INTERRUPTED`/`TIMEOUT` (H3).
+- FR-G5 coverage gate now fails closed (`CoverageResult(passed=False, parse_error=...)`) on corrupt `~/.claude/settings.json` instead of silently passing (H2).
+- `resolve_scratch_root("/tmp/eval-runs")` (bare allowlist prefix with no sub-path) now raises `ScratchRootViolation`; only strict sub-paths are accepted (H4 / AC12). Closes the AC12 tautology where the check would silently accept the prefix as a "match" of itself.
+- Runtime allowlist extension now happens **before** any `mkdir(parents=True)` at both `commands.py::eval_run` and `isolation.py::HomeIsolation.setup` call sites (H5a, H5b / OPS-002 / NFR-SEC2). No filesystem write before allowlist validation.
+- `EVAL_ID_PATTERN` (the FR-SCH2 schema regex) is now the single source of truth in `artifact_layout.py`; `loader.EVAL_ID_REGEX` is preserved as an import alias for backward-compat. The previously-private `_EVAL_ID_RE` (the path-safety regex) was renamed to `_EVAL_ID_PATH_SAFETY_PATTERN` to disambiguate the defense-in-depth layers (CC1 / OQ-1).
+- Both `Reporter.write` and `write_aggregated_report` now emit `summary.yaml` alongside `summary.md` / `summary.json` via the shared `_write_artifact_set` helper (M4 — closes the previous +1 yaml divergence between the two writers).
+- `RunTotals` keys derived from `EVAL_STATUSES` partitions in `models.py` (no hardcoded literals). New module-level constants: `PASSED_STATUSES`, `FAILED_STATUSES`, `SKIPPED_STATUSES` (M3).
+
+#### Fixed (cliEval)
+
+- The previously-blocking `NameError: '_new_run_id' is not defined` from `eval run` was already closed at PR #66 (`dce3c3cb`); the Phase 5+6 remediation confirmed the helpers (`_new_run_id` at `commands.py:1326`, `_default_output_dir` at `:1339`) are present and layered the canonical exit-code module, `orchestrator.allocate_session_id`, and the FR-G4 `compose_run_dir` anchoring on top. **B1 follow-up resolved.**
+- Documentation drift across `docs/eval/{validation-commands,release-checklist,retention,runtime,retry,scratch-roots}.md` corrected per `.dev/audit-reports/docs-audit-2026-05-22.md`.
+
+#### Notes (cliEval)
+
+- `INTERRUPTED` canonical exit code is **`3`** (matches `signal_handler.EXIT_INTERRUPTED` + `tests/cli/eval/test_exit_codes.py` design-spec §4 docstring), not the POSIX `signal+128 = 130` convention. CI scripts keying off the SIGINT exit code should match `3` exactly. Rationale documented inline in `exit_codes.py`.
+- AC matrix at `.dev/tasks/to-do/TASK-RF-20260522-153212/phase-outputs/reports/06-ac-matrix.md` maps every H/M/CC finding ID to its remediation step, test, and verification evidence. PG-FINAL composite task-integrity gate verdict: PASS at cycle 1 (22/22 spec rows + 6/6 auxiliary VALIDATION_REQUIREMENTS checks).
+
+---
+
 ### Added
 
 - **Context Freshness System** (`src/superclaude/hooks/scripts/freshness-*.sh`) — seven active shell hooks plus `install_hooks.py` that:

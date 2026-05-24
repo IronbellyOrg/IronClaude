@@ -1,0 +1,12 @@
+{
+  "mode": "snapshot",
+  "target_path": "src/superclaude/cli/eval/",
+  "source_branch": "origin/cliEval",
+  "source_pr": "#66",
+  "file_count": 29,
+  "python_loc": 10746,
+  "depth": "quick",
+  "focus": ["anti-patterns", "architecture", "quality"],
+  "chunking": "single-call",
+  "rationale": "29 files, ~10.7k LoC; quick depth; Auggie does indexed retrieval not raw-content scan, so single call suffices"
+}

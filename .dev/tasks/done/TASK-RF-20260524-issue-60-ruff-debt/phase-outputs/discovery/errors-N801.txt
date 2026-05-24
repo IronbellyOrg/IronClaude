@@ -1,0 +1,9 @@
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:177:7: N801 Class name `TestInvariant1_SelfContainedItem` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:222:7: N801 Class name `TestInvariant2_EvidenceBoundItem` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:265:7: N801 Class name `TestInvariant3_PersistentArtifact` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:350:7: N801 Class name `TestInvariant4_ZeroTrustQA` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:391:7: N801 Class name `TestInvariant5_ParallelResearch` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:221:7: N801 Class name `TestPartA_OneLowFindingFailsGate` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:256:7: N801 Class name `TestPartA_ZeroFindingsBaselinePasses` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:315:7: N801 Class name `TestPartB_InheritedVerdictWithoutSemanticIsInflation` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:362:7: N801 Class name `TestPartB_InheritedVerdictWithSemanticIsClean` should use CapWords convention

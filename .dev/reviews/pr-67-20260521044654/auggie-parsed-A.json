@@ -1,0 +1,207 @@
+{
+  "findings": [
+    {
+      "title": "shell=True subprocess call with shlex.quote may still permit injection via environment variables",
+      "category": "security",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/install_mcp.py",
+      "line": 136,
+      "line_range_end": 141,
+      "in_diff": false,
+      "evidence": "cmd_str = \" \".join(shlex.quote(str(arg)) for arg in cmd)\nuser_shell = os.environ.get(\"SHELL\", \"/bin/bash\")\nreturn subprocess.run(\n    cmd_str, shell=True, env=os.environ, executable=user_shell, **kwargs\n)",
+      "why": "While `shlex.quote` protects against command injection in argv, `shell=True` with `env=os.environ` passes the full environment (including potentially attacker-controlled vars like BASH_ENV, ENV, LD_PRELOAD) to the shell. An attacker who can control environment variables can potentially achieve code execution. The code also reads SHELL from os.environ without validation, allowing shell binary override.",
+      "recommendation": "Either: (a) use `shell=False` with list-form argv (preferred), (b) explicitly filter `os.environ` to remove dangerous vars (BASH_ENV, ENV, LD_PRELOAD, etc.), or (c) hardcode `executable` to `/bin/bash` rather than trusting `os.environ.get('SHELL')`.",
+      "cross_references": [
+        "src/superclaude/cli/install_mcp.py:113"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Broad exception handler swallows all errors during file copy, potentially masking security issues",
+      "category": "error-handling",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/install_templates.py",
+      "line": 78,
+      "line_range_end": 79,
+      "in_diff": true,
+      "evidence": "except Exception as exc:  # noqa: BLE001 — surface any IO failure\n    failed.append(f\"{rel}: {exc}\")",
+      "why": "The bare `except Exception` catches all exceptions including PermissionError, which could mask security issues like unauthorized file access or directory traversal attempts. While the noqa comment claims 'surface any IO failure', the handler appends to `failed` but returns `success = len(failed) == 0`, potentially hiding partial installation failures.",
+      "recommendation": "Narrow to `except OSError` (covers IOError, PermissionError, FileNotFoundError) rather than all Exception subclasses. This follows the pattern in install_core.py line 58 which uses bare except but at least doesn't claim to only handle IO failures.",
+      "cross_references": [
+        "src/superclaude/cli/install_core.py:58",
+        "src/superclaude/cli/install_skill.py:54"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Path traversal via unvalidated rel.parts in _PROTECTED_TARGET_SUBDIRS check",
+      "category": "security",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/install_templates.py",
+      "line": 67,
+      "line_range_end": 68,
+      "in_diff": true,
+      "evidence": "if any(p in _PROTECTED_TARGET_SUBDIRS for p in rel.parts):\n    continue",
+      "why": "The protection check uses `in` operator on path parts, which only checks for exact string equality. A malicious source template at `src/superclaude/templates/agent-memory-backup/foo.md` would bypass the check (parts = ['agent-memory-backup', 'foo.md']) because 'agent-memory' != 'agent-memory-backup'. Additionally, symbolic links in the source tree are not validated before `shutil.copy2`, potentially allowing writes outside the target via symlink dereferencing.",
+      "recommendation": "Use `if 'agent-memory' in rel.parts:` or better, check `if any(part.startswith('agent-memory') for part in rel.parts):`. Also add `if src_file.is_symlink(): continue` before the copy operation to prevent symlink-based directory traversal.",
+      "cross_references": [
+        "src/superclaude/cli/install_templates.py:27"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Regex pattern in _check_suggested_phases_detail fails to match underscored section name SUGGESTED_PHASES",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/prd/gates.py",
+      "line": 135,
+      "line_range_end": 137,
+      "in_diff": true,
+      "evidence": "phases_match = re.search(\n    r\"(?:^|\\n)\\s*#{1,4}\\s+.*(?:Suggested[\\s_]+)?Phases\",\n    content,\n    re.IGNORECASE,\n)",
+      "why": "The pattern `Suggested[\\s_]+` requires at least one space or underscore between 'Suggested' and 'Phases', but the pattern match after the optional group `(?:...)?` means headings like `## SUGGESTED_PHASES` (all-caps underscore form) will NOT match because the `[\\s_]+` is inside the optional group. The correct pattern should be `(?:Suggested[\\s_]+)?` or match `SUGGESTED_PHASES` as a single token.",
+      "recommendation": "Change regex to `r\"(?:^|\\n)\\s*#{1,4}\\s+.*(?:Suggested[\\s_]+Phases|SUGGESTED_PHASES)\"` to explicitly handle both forms, or change to `r\"(?:^|\\n)\\s*#{1,4}\\s+.*Suggested[\\s_]*Phases\"` with `[\\s_]*` (zero-or-more) instead of `[\\s_]+` (one-or-more).",
+      "cross_references": [
+        ".dev/tasks/to-do/TASK-RF-20260520-050937/research-notes.md:18"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "_check_task_phases_present only requires 2 matches of 'Phase \\d', allows non-sequential or duplicate phase numbers",
+      "category": "quality",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/prd/gates.py",
+      "line": 154,
+      "line_range_end": 158,
+      "in_diff": true,
+      "evidence": "phase_headings = re.findall(\n    r\"(?:^|\\n)\\s*#{1,4}\\s+.*Phase\\s+\\d\", content, re.IGNORECASE\n)\nif len(phase_headings) < 2:\n    return f\"Expected multiple phase headings, found {len(phase_headings)}\"",
+      "why": "The check only verifies presence of at least 2 headings containing 'Phase' followed by any digit. It does NOT validate sequential numbering (Phase 1, Phase 2...), does not enforce minimum phase count beyond 2, and would accept 'Phase 1' and 'Phase 99' or even 'Phase 1' twice. Cross-reference: a task with headings '## Phase 1.5' and '## phase 99' passes.",
+      "recommendation": "Strengthen to: (a) extract phase numbers via `re.findall(r'Phase\\s+(\\d+)', content, re.IGNORECASE)`, (b) convert to ints and verify sequential ordering starts at 1, or (c) if non-sequential is acceptable, at least verify phase numbers are unique.",
+      "cross_references": [
+        ".dev/eval-workspaces/prd-cli-audit/findings/agent-B-gates.md:385"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Missing test coverage for _PROTECTED_TARGET_SUBDIRS bypass via symlinks or prefix variants",
+      "category": "tests",
+      "severity_hint": "medium",
+      "file": "tests/cli/test_install_failures.py",
+      "line": 108,
+      "line_range_end": 108,
+      "in_diff": true,
+      "evidence": "Total lines in file: 108",
+      "why": "test_install_failures.py only tests PermissionError during copy, not the _PROTECTED_TARGET_SUBDIRS defense. No test verifies that (a) files with 'agent-memory' in rel.parts are skipped, (b) symlinks are handled safely, or (c) prefix variants like 'agent-memory-backup' are caught. This is a critical gap since install_templates.py:67 is defensive code that may have correctness bugs (see finding on line 67).",
+      "recommendation": "Add test cases: (1) source file at `templates/agent-memory/secret.md` is skipped, (2) symlink at `templates/workflow/link.md -> /etc/passwd` is skipped or resolved safely, (3) edge case `agent-memory-backup` is either skipped or explicitly allowed based on design intent.",
+      "cross_references": [
+        "src/superclaude/cli/install_templates.py:67",
+        "src/superclaude/cli/install_templates.py:27"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Regex in _check_b2_self_contained uses inefficient backtracking pattern on large task files",
+      "category": "performance",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/prd/gates.py",
+      "line": 169,
+      "line_range_end": 170,
+      "in_diff": true,
+      "evidence": "for match in re.finditer(r\"^\\s*-\\s+\\[[ x]\\]\\s+(.+)$\", content, re.MULTILINE):\n    item_text = match.group(1)",
+      "why": "The regex `(.+)$` is greedy and matches to end-of-line, which is fine. However, the outer loop `for match in re.finditer(...)` combined with inner loop at line 171+ that checks multiple violation patterns means this is O(N*M) where N=checklist items and M=violation patterns. For a 400-line task file (min_lines gate threshold), this becomes 400 regex scans * 3-5 violation patterns each.",
+      "recommendation": "Compile violation patterns once outside the loop and combine into a single regex with alternation: `re.compile(r'\\b(see above|as mentioned|refer to)\\b', re.IGNORECASE)`. Check all patterns in one pass per item_text.",
+      "cross_references": [
+        "src/superclaude/cli/prd/gates.py:359"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "update command does not install templates or hooks, contradicts docstring 'Re-installs core framework files'",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/main.py",
+      "line": 266,
+      "line_range_end": 310,
+      "in_diff": true,
+      "evidence": "def update(target: str):\n    \"\"\"Update SuperClaude to latest version\n    Re-installs core framework files and slash commands to match\n    the current package version. Equivalent to 'install --force'.\n    ...\n    # Missing: install_templates(force=True)\n    # Missing: install_hooks(force=True)",
+      "why": "The `update` command claims to be 'Equivalent to install --force' but only calls install_core_files, install_commands, install_agents, and install_all_skills. It does NOT call install_templates or install_hooks, which are part of the standard install workflow. This means templates and hooks will become stale after `superclaude update`, contradicting the docstring promise.",
+      "recommendation": "Add `install_templates(force=True)` and `install_hooks(force=True)` calls after line 308, or revise docstring to explicitly state 'Re-installs core files, commands, agents, and skills (excluding templates and hooks)'.",
+      "cross_references": [
+        "src/superclaude/cli/main.py:160"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Path resolution helpers return home-anchored path on miss, but docstring claims this is for 'clearer error messages'",
+      "category": "docs",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/prd/models.py",
+      "line": 49,
+      "line_range_end": 52,
+      "in_diff": true,
+      "evidence": "When no candidate exists, the home-anchored absolute path is\nreturned so any resulting ``FileNotFoundError`` cites an absolute\npath (clearer to diagnose than a relative-path error).",
+      "why": "While the docstring claims this design is for 'clearer error messages', the implementation at line 63 `return candidates[1]` (home path) may mislead users into thinking the file SHOULD exist at ~/.claude/ when in reality they may have intended to use a project-local override. A FileNotFoundError citing ~/.claude/... when the user expected ./.claude/... to be used is NOT clearer.",
+      "recommendation": "Revise docstring to acknowledge the tradeoff: 'Returns the home-anchored path as a stable fallback location. Callers should check `.is_dir()` or `.is_file()` before use to provide context-specific error messages.' or change implementation to raise ValueError immediately when no candidate exists.",
+      "cross_references": [
+        "tests/cli/prd/test_path_resolution.py:113"
+      ],
+      "confidence": "low"
+    },
+    {
+      "title": "_slugify uses naive regex that collapses multiple consecutive non-alphanumeric chars into single dash, may conflict with kebab-case expectations",
+      "category": "correctness",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/prd/config.py",
+      "line": 152,
+      "line_range_end": 156,
+      "in_diff": true,
+      "evidence": "def _slugify(name: str) -> str:\n    slug = name.lower().strip()\n    slug = re.sub(r\"[^a-z0-9]+\", \"-\", slug)\n    return slug.strip(\"-\")",
+      "why": "The pattern `[^a-z0-9]+` replaces one-or-more non-alphanumeric chars with a single dash, which means 'Foo & Bar' becomes 'foo-bar' (correct) but 'Foo--Bar' also becomes 'foo-bar' (loses intentional double-dash). Additionally, no length validation means extremely long product names produce extremely long directory names.",
+      "recommendation": "Add length cap: `slug = slug[:50]` after the regex, and document that consecutive special chars collapse to single dash. If preserving double-dash is required, use `re.sub(r'[^a-z0-9-]+', '-', slug)` to allow dashes in the input.",
+      "cross_references": [],
+      "confidence": "low"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Inconsistent exception handling patterns across install_* modules",
+      "category": "error-handling",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/install_templates.py",
+        "src/superclaude/cli/install_core.py",
+        "src/superclaude/cli/install_agents.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_skills.py"
+      ],
+      "why": "All install_* modules use bare `except Exception` during file copy operations, but with varying noqa comments and justifications. install_templates.py claims 'surface any IO failure' (BLE001), install_core.py uses bare except with no noqa, install_skill.py returns generic 'Failed to install skill: {e}'. This inconsistency makes it unclear whether broad exception handling is intentional design or technical debt.",
+      "recommendation": "Establish project-wide convention: either (a) use `except OSError` for file operations across all installers, or (b) document in CONTRIBUTING.md that bare `except Exception` in install paths is intentional to surface all errors (including KeyboardInterrupt, MemoryError, etc.) and requires BLE001 noqa.",
+      "confidence": "medium"
+    },
+    {
+      "title": "No test coverage for .claude/hooks/ installation or settings.json merging introduced in this PR",
+      "category": "tests",
+      "severity_hint": "high",
+      "affected_files": [
+        ".claude/settings.json",
+        "src/superclaude/cli/install_hooks.py"
+      ],
+      "why": "The diff adds a new PostToolUse hook entry in .claude/settings.json (lines 10-22 of the diff) which references a script .claude/hooks/offer-pr-review.sh. However, tests/cli/ contains no tests for install_hooks.py or settings.json merging. install_hooks.py:88-157 shows complex merging logic (_merge_settings, _copy_scripts) that is completely untested in this PR's test files.",
+      "recommendation": "Add tests/cli/test_install_hooks.py with test cases for: (1) fresh settings.json creation, (2) merging hooks into existing settings.json without collisions, (3) collision detection when force=False, (4) script copy with force=True overwrite, (5) _PROTECTED_TARGET_SUBDIRS enforcement during hook script copy.",
+      "confidence": "high"
+    },
+    {
+      "title": "PRD skill template path migration from src/superclaude/examples to .claude/templates is incomplete",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "affected_files": [
+        ".claude/skills/prd/SKILL.md",
+        ".claude/skills/prd/refs/agent-prompts.md",
+        ".claude/skills/prd/refs/build-request-template.md"
+      ],
+      "why": "The diff changes 7 references from `src/superclaude/examples/prd_template.md` to `.claude/templates/workflow/05_prd_template.md` across PRD skill files. However, this is only updating .claude/ copies (which are gitignored). The canonical source at src/superclaude/skills/prd/ must also be updated, but that is not shown in this diff. If src/ was updated in a separate commit, this PR's diff is misleading; if src/ was NOT updated, the next `make sync-dev` will revert these .claude/ edits.",
+      "recommendation": "Verify that src/superclaude/skills/prd/SKILL.md and src/superclaude/skills/prd/refs/*.md were updated in the same PR. If not, revert .claude/ changes and edit src/ first, then run `make sync-dev`. The PR description claims 'zero production code' but these .md file changes ARE production code if they live in src/.",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "This review focused on the Python source + tests subset of PR #67. The PR is labeled 'archive only' but contains real code changes (install_templates.py defensive subdirs, install_hooks.py, main.py update command, PRD path resolution, gates.py regex patterns). Key risks: (1) shell=True in install_mcp.py without env sanitization, (2) _PROTECTED_TARGET_SUBDIRS may not block symlinks or prefix variants, (3) update command missing template/hooks install contradicts docstring, (4) no test coverage for hooks installation. Cross-cutting: inconsistent exception handling across install_* modules, PRD template path migration may revert on next sync-dev if src/ not updated."
+}
