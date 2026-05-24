@@ -1898,6 +1898,7 @@ def build_certify_step(
     config: RoadmapConfig,
     findings: list | None = None,
     context_sections: dict[str, str] | None = None,
+    remediation_summary: list[str] | None = None,
 ) -> Step:
     """Build a certify Step for execution via execute_pipeline().
 
@@ -1912,6 +1913,13 @@ def build_certify_step(
         List of Finding objects to certify. If None, an empty prompt is built.
     context_sections:
         Pre-extracted context sections per finding location (NFR-011).
+    remediation_summary:
+        Optional list of cosmetic-remediation transform descriptions accumulated
+        from prior pipeline steps' ``StepResult.remediations``. When present,
+        certify gets a "Pipeline Remediations Applied" section that nudges the
+        LLM toward ``certified-with-caveats`` when the remediation rate is high.
+        Callers should pass the union of ``r.remediations`` across all PASS
+        results with ``r.remediated == True``.
     """
 
     out = config.output_dir
@@ -1920,6 +1928,7 @@ def build_certify_step(
     prompt = build_certification_prompt(
         findings=findings or [],
         context_sections=context_sections or {},
+        remediation_summary=remediation_summary,
     )
 
     return Step(
@@ -2241,6 +2250,19 @@ def _format_halt_output(results: list[StepResult], config: RoadmapConfig) -> str
 
     if skipped_ids:
         lines.append(f"Skipped steps:   {', '.join(skipped_ids)}")
+
+    # Surface any cosmetic auto-remediations that succeeded earlier in the
+    # pipeline so the operator investigating the halt sees what got fixed
+    # automatically (and can decide whether the cosmetic fixes mask a deeper
+    # drift that warrants a manual review of prior outputs).
+    remediated_results = [r for r in passed if r.remediated]
+    if remediated_results:
+        lines.append("")
+        lines.append("Cosmetic remediations applied earlier in pipeline:")
+        for r in remediated_results:
+            lines.append(f"  {r.step.id}:")
+            for t in r.remediations:
+                lines.append(f"    - {t}")
 
     lines.extend(
         [
@@ -3060,6 +3082,42 @@ def execute_roadmap(
         from ..pipeline.gates import gate_passed
 
         steps = _apply_resume(steps, config, gate_passed)
+
+    # Wire the cosmetic-failure remediator into the generic pipeline executor.
+    # The roadmap module owns the heading-shape / dash-variant / whitespace
+    # transforms; the generic executor only sees a Protocol-typed callable.
+    # See cli/roadmap/cosmetic_remediator.py for the C1-C10 scope.
+    if config.allow_cosmetic_remediation and config.cosmetic_remediator is None:
+        from .cosmetic_remediator import (
+            apply_cosmetic_remediations,
+            classify_gate_failure,
+        )
+
+        def _roadmap_cosmetic_remediator(
+            output_file: Path,
+            gate_name: str,
+            failure_reason: str,
+            *,
+            step_id: str,
+        ) -> tuple[bool, list[str]]:
+            try:
+                content = output_file.read_text(encoding="utf-8")
+            except OSError:
+                return (False, [])
+            classification = classify_gate_failure(
+                content, gate_name, failure_reason, step_id=step_id
+            )
+            if not classification.is_pure_cosmetic:
+                return (False, [])
+            new_content, transforms = apply_cosmetic_remediations(
+                content, classification
+            )
+            if not transforms:
+                return (False, [])
+            output_file.write_text(new_content, encoding="utf-8")
+            return (True, transforms)
+
+        config.cosmetic_remediator = _roadmap_cosmetic_remediator
 
     # Execute pipeline
     results = execute_pipeline(
