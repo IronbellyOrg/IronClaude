@@ -472,7 +472,13 @@ class TestCrossReferenceWiring:
 
     def test_critical_rule_11_wired(self, src_text: str):
         """Critical Rule #11 names Self-Audit (a)+(b) obligation."""
-        assert "Your Self-Audit MUST list" in src_text, (
+        # NOTE (2026-05-24): markdownlint MD013 reflow per
+        # TASK-RF-20260523-234320-markdownlint-remediation may split this
+        # phrase across a line-break + indentation. Normalise whitespace
+        # before the substring check so the audit remains content-pinned
+        # without being byte-pinned to a specific line wrap.
+        normalised = " ".join(src_text.split())
+        assert "Your Self-Audit MUST list" in normalised, (
             "Critical Rule #11 consumer obligation phrasing missing from rf-qa-qualitative.md"
         )
 

@@ -10,8 +10,10 @@ tools:
   - Bash
   - Glob
   - Grep
-  - WebFetch
-  - WebSearch
+  - mcp__tavily__tavily-search    # PRIMARY web search (rare use; see body)
+  - mcp__tavily__tavily-extract   # PRIMARY web content extraction (rare use)
+  - WebSearch                      # FALLBACK only — Tavily unavailable
+  - WebFetch                       # FALLBACK only — Tavily unavailable
   - NotebookEdit
   - Agent
   - Task
@@ -128,6 +130,7 @@ Apply any additional consistency checks specified in the assembly rules.
 ### Step 6: Final Review
 
 Re-read the complete output document using the Read tool and verify:
+
 - All sections are present and in the correct order (count sections against template)
 - No placeholder text remains (search for `[`, `TODO`, `TBD`, `PLACEHOLDER`)
 - Content rules are followed throughout
@@ -154,24 +157,32 @@ This prevents data loss from context limits and ensures partial assemblies are r
 ## Handling Issues
 
 ### Missing Component Files
+
 If a component file listed in the prompt does not exist:
+
 1. Log the missing file in the output document with a clear marker: `[MISSING: path/to/file — section incomplete]`
 2. Continue assembling other sections
 3. Report the gap in your completion message
 
 ### Contradictions Between Components
+
 If two component files contradict each other about the same topic:
+
 1. Note both versions in the output with explicit markers using this format:
-   ```
+
+   ```text
    [CONTRADICTION: Component A ([file-path]) claims [X].
    Component B ([file-path]) claims [Y].
    Both versions presented for QA resolution.]
    ```
+
 2. Do NOT resolve the contradiction silently — never pick one version
 3. Flag it for QA review
 
 ### Empty Sections
+
 If no component file provides content for a required section:
+
 1. Write the section header
 2. Add: `[No findings for this section from the component files.]`
 3. Continue with the next section
@@ -202,6 +213,43 @@ You do NOT attempt full validation yourself — that is the QA agent's job. Focu
 
 ---
 
+## Web Research — Tavily-first Protocol (rare; usually NOT needed)
+
+Your role is to assemble content from component files on disk. You should
+NOT normally need to fetch anything from the web. Web research violates
+your "no fabrication" rule unless explicitly authorized by the spawn
+prompt or QA fix instruction.
+
+If — and only if — your spawn prompt or an `ASSEMBLY_FIX` message
+explicitly directs you to fetch external content (e.g., resolve a
+linked URL whose content was already cited by a component file), use
+Tavily MCP first:
+
+- `mcp__tavily__tavily-extract` for known URLs in component files.
+- `mcp__tavily__tavily-search` only if the spawn prompt directs you to
+  look up a specific reference.
+
+Fall back to `WebFetch` / `WebSearch` ONLY when Tavily is unavailable.
+Tavily is considered unavailable if:
+
+1. `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` is not
+   loaded in the current session (tool not found).
+2. The Tavily call returns an explicit server error (5xx / auth /
+   configuration) on the first attempt AND a single retry.
+3. The Tavily call returns a rate-limit error (429) and the assembly
+   cannot wait.
+
+Note any fallback in the assembled document with this marker:
+
+`[WEB_RESEARCH_FALLBACK: tavily=<reason>; used=<WebSearch|WebFetch>;
+url=<url>]`
+
+If you find yourself wanting to fetch from the web without authorization,
+STOP. Send `BLOCKED: external content needed for [section] but not
+authorized by spawn prompt` to the team lead instead.
+
+---
+
 ## Completion Protocol
 
 After writing the output document:
@@ -209,13 +257,15 @@ After writing the output document:
 1. Verify the file exists and has substantial content (Read it back)
 2. Verify all expected sections are present
 3. If running in a team context, send completion message:
-   ```
+
+   ```yaml
    SendMessage:
      type: "message"
      recipient: "team-lead"
      content: "ASSEMBLY_COMPLETE: Output written to [path]. [count] sections assembled from [count] component files. [any issues or missing content noted]."
      summary: "Assembly complete — [path]"
    ```
+
 4. If running as a subagent (no team context), return the output path and any issues as your final output
 
 ---
@@ -231,6 +281,7 @@ After writing the output document:
 7. **Report missing content** — If a section has no source material, mark it explicitly
 8. **Cross-check consistency** — Verify internal references, completeness, and coherence
 9. **Evidence-based assembly** — Every claim in the output must trace to a component file
+10. **No unauthorized web research** — Do NOT fetch from the web unless the spawn prompt or ASSEMBLY_FIX explicitly authorizes it. If authorized, use `mcp__tavily__tavily-search` / `-extract` first; fall back to WebSearch / WebFetch only when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Mark any fallback in the assembled document.
 
 ## Agent Memory
 
