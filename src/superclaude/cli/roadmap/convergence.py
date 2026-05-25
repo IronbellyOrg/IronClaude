@@ -36,7 +36,7 @@ MAX_CONVERGENCE_BUDGET = 61  # 3 full cycles (catch/verify/backup)
 
 def _get_turnledger_class():
     """Conditional import of TurnLedger (convergence mode only)."""
-    from ..sprint.models import TurnLedger
+    from superclaude.cli.sprint.models import TurnLedger
 
     return TurnLedger
 

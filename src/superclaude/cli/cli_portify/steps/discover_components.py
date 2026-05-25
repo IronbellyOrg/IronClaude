@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from ..models import (
+from superclaude.cli.cli_portify.models import (
     WARN_MISSING_AGENTS,
     AgentEntry,
     CommandEntry,
@@ -35,7 +35,7 @@ from ..models import (
     ResolvedTarget,
     SkillEntry,
 )
-from ..utils import count_lines
+from superclaude.cli.cli_portify.utils import count_lines
 
 log = logging.getLogger(__name__)
 

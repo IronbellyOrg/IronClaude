@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from ..pipeline.models import PipelineConfig
+from superclaude.cli.pipeline.models import PipelineConfig
 
 VALID_FINDING_STATUSES = frozenset({"PENDING", "ACTIVE", "FIXED", "FAILED", "SKIPPED"})
 VALID_DEVIATION_CLASSES = frozenset(

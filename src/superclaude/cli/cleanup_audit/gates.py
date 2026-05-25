@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from ..pipeline.models import GateCriteria, SemanticCheck
+from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
 
 # --- Semantic Check Functions ---
 # Pure functions: Callable[[str], bool]  (content: str) -> bool

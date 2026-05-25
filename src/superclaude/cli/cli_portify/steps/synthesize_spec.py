@@ -16,13 +16,13 @@ import time
 from pathlib import Path
 from typing import Optional, Union
 
-from ..models import (
+from superclaude.cli.cli_portify.models import (
     FailureClassification,
     PortifyConfig,
     PortifyStatus,
     PortifyStepResult,
 )
-from ..process import PortifyProcess, ProcessResult
+from superclaude.cli.cli_portify.process import PortifyProcess, ProcessResult
 
 log = logging.getLogger(__name__)
 

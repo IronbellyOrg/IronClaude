@@ -203,7 +203,7 @@ class TestFindingDeviationClass:
 # BF-1: ACTIVE status support in Finding
 # ═══════════════════════════════════════════════════════════════
 
-from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES  # noqa: E402  # late import for BF-1 section grouping
+from superclaude.cli.roadmap.models import VALID_FINDING_STATUSES  # noqa: E402,I001  # late import for BF-1 section grouping
 
 
 def test_active_status_in_valid_set():

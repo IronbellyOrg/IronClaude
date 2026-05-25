@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from ..models import (
+from superclaude.cli.cli_portify.models import (
     ERR_BROKEN_ACTIVATION,
     WARN_MISSING_AGENTS,
     PortifyConfig,
@@ -40,7 +40,7 @@ PHASE = 1
 GATE_TIER = "EXEMPT"
 
 # Steps that support --start resume — canonical source is resume.py
-from ..resume import get_resumable_step_names  # noqa: E402  # intentional: deferred to avoid circular import with resume module
+from superclaude.cli.cli_portify.resume import get_resumable_step_names  # noqa: E402,I001  # intentional: deferred to avoid circular import with resume module
 
 _RESUMABLE_STEPS = get_resumable_step_names()
 
@@ -165,7 +165,7 @@ def run_validate_config(
 
     if cli_name_kebab:
         # Use the same collision check as validate_portify_config
-        from ..config import _check_collision
+        from superclaude.cli.cli_portify.config import _check_collision
 
         collision_errors = _check_collision(cli_name_kebab, config)
         for msg in collision_errors:

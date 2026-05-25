@@ -21,11 +21,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from ...compression import compress_file
-from ..audit.wiring_gate import WIRING_GATE
-from ..pipeline.deliverables import decompose_deliverables
-from ..pipeline.executor import execute_pipeline
-from ..pipeline.models import (
+from superclaude.cli.audit.wiring_gate import WIRING_GATE
+from superclaude.cli.pipeline.deliverables import decompose_deliverables
+from superclaude.cli.pipeline.executor import execute_pipeline
+from superclaude.cli.pipeline.models import (
     Deliverable,
     GateMode,
     PipelineConfig,
@@ -33,7 +32,9 @@ from ..pipeline.models import (
     StepResult,
     StepStatus,
 )
-from ..pipeline.process import ClaudeProcess
+from superclaude.cli.pipeline.process import ClaudeProcess
+from superclaude.compression import compress_file
+
 from .certify_prompts import build_certification_prompt
 from .gates import (
     ANTI_INSTINCT_GATE,
@@ -1011,8 +1012,8 @@ def roadmap_run_step(
     # Returns PASS unconditionally; gate evaluation is handled separately by
     # the trailing gate runner (section 5.7.1).
     if step.id == "wiring-verification":
-        from ..audit.wiring_config import WiringConfig
-        from ..audit.wiring_gate import emit_report, run_wiring_analysis
+        from superclaude.cli.audit.wiring_config import WiringConfig
+        from superclaude.cli.audit.wiring_gate import emit_report, run_wiring_analysis
 
         wiring_config = WiringConfig(rollout_mode="soft")
         source_dir = (
@@ -1322,7 +1323,8 @@ def _run_convergence_spec_fidelity(
 
     # Get TurnLedger from sprint models
     try:
-        from ..sprint.models import TurnLedger
+        from superclaude.cli.sprint.models import TurnLedger
+
         from .convergence import CHECKER_COST, MAX_CONVERGENCE_BUDGET, REMEDIATION_COST
 
         ledger = TurnLedger(
@@ -3057,7 +3059,7 @@ def execute_roadmap(
 
     # --resume: check which steps already pass their gates
     if resume:
-        from ..pipeline.gates import gate_passed
+        from superclaude.cli.pipeline.gates import gate_passed
 
         steps = _apply_resume(steps, config, gate_passed)
 
@@ -3282,7 +3284,7 @@ def _apply_resume_after_spec_patch(
     steps = _build_steps(config)
 
     # Step 6: Apply resume with post-write state
-    from ..pipeline.gates import gate_passed
+    from superclaude.cli.pipeline.gates import gate_passed
 
     steps = _apply_resume(steps, config, gate_passed)
 

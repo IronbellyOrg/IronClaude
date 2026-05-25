@@ -19,9 +19,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from ..pipeline.executor import execute_pipeline
-from ..pipeline.models import PipelineConfig, Step, StepResult, StepStatus
-from ..pipeline.process import ClaudeProcess
+from superclaude.cli.pipeline.executor import execute_pipeline
+from superclaude.cli.pipeline.models import PipelineConfig, Step, StepResult, StepStatus
+from superclaude.cli.pipeline.process import ClaudeProcess
+
 from .executor import read_state
 from .models import ValidateConfig
 from .validate_gates import ADVERSARIAL_MERGE_GATE, REFLECT_GATE
