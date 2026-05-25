@@ -12,7 +12,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
-from ..vocabulary import build_prompt_constraint_block
+from superclaude.cli.vocabulary import build_prompt_constraint_block
+
 from .models import AgentSpec
 
 _DEPTH_INSTRUCTIONS = {

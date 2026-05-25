@@ -12,13 +12,13 @@ import logging
 import time
 from pathlib import Path
 
-from ..models import (
+from superclaude.cli.cli_portify.models import (
     FailureClassification,
     PortifyConfig,
     PortifyStatus,
     PortifyStepResult,
 )
-from ..process import PortifyProcess, ProcessResult
+from superclaude.cli.cli_portify.process import PortifyProcess, ProcessResult
 
 log = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ def run_analyze_workflow(config: PortifyConfig) -> PortifyStepResult:
 
 def _check_gate(content: str) -> PortifyStatus:
     """SC-003: All 5 required sections must be present."""
-    from ..utils import parse_frontmatter
+    from superclaude.cli.cli_portify.utils import parse_frontmatter
 
     _, body = parse_frontmatter(content)
     for section in REQUIRED_SECTIONS:

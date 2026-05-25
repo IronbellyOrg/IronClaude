@@ -353,7 +353,11 @@ def test_run_totals_to_dict_is_json_serialisable() -> None:
 def test_run_summary_reexported_from_package() -> None:
     from superclaude.cli.eval import (
         RunCounts as PkgRunCounts,
+    )
+    from superclaude.cli.eval import (
         RunSummary as PkgRunSummary,
+    )
+    from superclaude.cli.eval import (
         RunTotals as PkgRunTotals,
     )
 

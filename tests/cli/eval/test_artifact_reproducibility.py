@@ -77,7 +77,6 @@ from superclaude.cli.eval.models import (
 )
 from superclaude.cli.eval.reporter import Reporter
 
-
 # ---------------------------------------------------------------------------
 # Layout pattern constants (kept identical to artifact_layout's pins so a
 # rename there breaks here intentionally).

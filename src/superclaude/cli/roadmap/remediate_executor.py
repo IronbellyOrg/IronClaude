@@ -22,8 +22,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..pipeline.models import PipelineConfig
-from ..pipeline.process import ClaudeProcess
+from superclaude.cli.pipeline.models import PipelineConfig
+from superclaude.cli.pipeline.process import ClaudeProcess
+
 from .models import Finding
 from .remediate_prompts import build_remediation_prompt
 

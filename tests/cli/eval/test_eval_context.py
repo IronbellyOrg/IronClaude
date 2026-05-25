@@ -31,11 +31,10 @@ import pytest
 from superclaude.cli.eval.config import EvalConfig
 from superclaude.cli.eval.isolation import HomeIsolation
 from superclaude.cli.eval.models import (
+    _EVAL_CONTEXT_FIELDS,
     EvalContext,
     EvalSpec,
-    _EVAL_CONTEXT_FIELDS,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

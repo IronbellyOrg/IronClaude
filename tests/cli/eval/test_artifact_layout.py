@@ -27,17 +27,16 @@ from superclaude.cli.eval.artifact_layout import (
     ARTIFACTS_SUBDIR_NAME,
     LOGS_JSONL_NAME,
     PER_EVAL_DIRNAME,
-    PerEvalPaths,
     RUN_DIR_PREFIX,
-    RunDirComponents,
     TTY_TRANSCRIPT_NAME,
+    PerEvalPaths,
+    RunDirComponents,
     allocate_per_eval_paths,
     compose_per_eval_dir,
     compose_run_dir,
     compose_run_id,
     parse_run_dir_components,
 )
-
 
 # ---------------------------------------------------------------------------
 # compose_run_id — determinism + variation

@@ -15,6 +15,8 @@ Graph output: adjacency list with edge attributes
 
 from __future__ import annotations
 
+import os
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -111,10 +113,6 @@ class DependencyGraph:
             "edges": [e.to_dict() for e in self.edges],
             "stats": self.stats,
         }
-
-
-import os
-import re
 
 
 def _resolve_import_target(

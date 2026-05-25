@@ -8,7 +8,8 @@ Imports from roadmap/gates.py only (unidirectional dependency preserved).
 
 from __future__ import annotations
 
-from ..pipeline.models import GateCriteria, SemanticCheck
+from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
+
 from .gates import _frontmatter_values_non_empty
 
 

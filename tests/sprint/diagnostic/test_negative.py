@@ -11,8 +11,6 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_negative]
-
 from superclaude.cli.sprint.diagnostics import (
     DiagnosticBundle,
     DiagnosticCollector,
@@ -26,6 +24,8 @@ from superclaude.cli.sprint.models import (
     PhaseResult,
     PhaseStatus,
 )
+
+pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_negative]
 
 
 def _make_result(phase, **kwargs):

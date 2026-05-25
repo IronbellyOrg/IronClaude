@@ -55,20 +55,18 @@ from click.testing import CliRunner
 
 from superclaude.cli.eval import commands as doctor_module
 from superclaude.cli.eval.capabilities import (
+    _DEFAULT_CAPABILITY_SPECS,
     CapabilityGates,
     CapabilityReport,
     CapabilityStatus,
     _CapabilitySpec,
-    _DEFAULT_CAPABILITY_SPECS,
 )
 from superclaude.cli.eval.commands import (
     HARD_FAIL_EXIT_CODE,
-    build_doctor_report,
     eval_group,
     render_checklist,
     render_hard_failure_artifact,
 )
-
 
 # ---------------------------------------------------------------------------
 # Shared fixtures: simulate hosts that exercise each classification cleanly.

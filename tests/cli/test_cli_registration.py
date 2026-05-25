@@ -25,7 +25,6 @@ from click.testing import CliRunner
 
 from superclaude.cli.main import main
 
-
 # Pre-existing top-level commands as of the moment the `eval` group landed.
 # The set is intentionally a frozen snapshot — adding or removing a top-level
 # command should force a deliberate test update.

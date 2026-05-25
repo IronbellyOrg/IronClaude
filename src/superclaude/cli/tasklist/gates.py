@@ -14,8 +14,11 @@ roadmap/validate_gates.py.
 
 from __future__ import annotations
 
-from ..pipeline.models import GateCriteria, SemanticCheck
-from ..roadmap.gates import _high_severity_count_zero, _tasklist_ready_consistent
+from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
+from superclaude.cli.roadmap.gates import (
+    _high_severity_count_zero,
+    _tasklist_ready_consistent,
+)
 
 TASKLIST_FIDELITY_GATE = GateCriteria(
     required_frontmatter_fields=[

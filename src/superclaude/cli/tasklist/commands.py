@@ -111,7 +111,7 @@ def validate(
     )
 
     # Auto-wire tdd_file and prd_file from .roadmap-state.json if not explicitly passed
-    from ..roadmap.executor import read_state
+    from superclaude.cli.roadmap.executor import read_state
 
     state = read_state(resolved_output / ".roadmap-state.json") or {}
     if tdd_file is None:

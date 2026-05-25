@@ -12,10 +12,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from ..pipeline.trailing_gate import DeferredRemediationLog, TrailingGateResult
+from superclaude.cli.pipeline.trailing_gate import (
+    DeferredRemediationLog,
+    TrailingGateResult,
+)
 
 if TYPE_CHECKING:
-    from ..audit.wiring_gate import WiringReport
+    from superclaude.cli.audit.wiring_gate import WiringReport
+
     from .models import TurnLedger
 
 

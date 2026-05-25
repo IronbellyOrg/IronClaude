@@ -20,7 +20,6 @@ criteria from the roadmap row:
 from __future__ import annotations
 
 import hashlib
-import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -43,7 +42,6 @@ from superclaude.cli.eval.run_report import (
     REPORTER_CONTRACT_VIOLATION_EXIT_CODE,
     ReporterContractViolation,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures (mirror tests/cli/eval/test_run_report.py shape)
