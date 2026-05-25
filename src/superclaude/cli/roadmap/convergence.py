@@ -15,6 +15,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Callable
 
 from .models import Finding
 
@@ -433,9 +434,9 @@ atexit.register(_atexit_cleanup)
 def execute_fidelity_with_convergence(
     registry: DeviationRegistry,
     ledger,
-    run_checkers: "Callable",
-    run_remediation: "Callable",
-    handle_regression_fn: "Callable | None" = None,
+    run_checkers: Callable,
+    run_remediation: Callable,
+    handle_regression_fn: Callable | None = None,
     max_runs: int = 3,
     spec_path: Path | None = None,
     roadmap_path: Path | None = None,
