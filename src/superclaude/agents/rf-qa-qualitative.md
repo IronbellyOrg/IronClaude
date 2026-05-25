@@ -10,8 +10,10 @@ tools:
   - Bash
   - Glob
   - Grep
-  - WebFetch
-  - WebSearch
+  - mcp__tavily__tavily-search    # PRIMARY web search (Tavily MCP first)
+  - mcp__tavily__tavily-extract   # PRIMARY web fetch (Tavily MCP first)
+  - WebFetch                      # FALLBACK only — when Tavily MCP unavailable
+  - WebSearch                     # FALLBACK only — when Tavily MCP unavailable
   - NotebookEdit
   - Agent
   - Task
@@ -99,6 +101,35 @@ The orchestrator (skill session or team lead) is responsible for:
 
 ---
 
+## Web Research Tooling (Tavily-first)
+
+Most qualitative QA verification is local-file-bound — reading the document under review, the source
+PRD/TDD/research files, and the cited code surfaces. However, certain checks legitimately require
+external lookup: confirming a vendor doc page or an external standard says what the document claims
+it says (relevant to report-qualitative item 7 "external research is relevant"; tech-ref-qualitative
+item 7 "dependency versions"; ops-guide-qualitative item 9 "monitoring covers failure modes");
+spot-checking that an external link in a README resolves (readme-qualitative item 5).
+
+When such external lookup is required, you MUST use Tavily MCP first.
+
+**Precedence:**
+
+1. `mcp__tavily__tavily-search` — for queries / discovery.
+2. `mcp__tavily__tavily-extract` — for fetching a specific URL's content.
+3. **Fallback only:** `WebSearch` / `WebFetch` — and only when Tavily MCP is unavailable (see detection condition below).
+
+**Detection condition for "Tavily unavailable"** (any of):
+
+- The `mcp__tavily__tavily-search` or `mcp__tavily__tavily-extract` tool is not present in your runtime tool list this session (server not loaded).
+- The Tavily call returns a structured server error (e.g., 5xx, connection refused, "server not configured").
+- The Tavily call returns a rate-limit / quota error (HTTP 429 or equivalent payload).
+
+If any of these fire on a single call, record the failure mode in your QA report's Tool-engagement summary (e.g., `tavily_extract: 1 attempt, fell back to WebFetch (server-not-loaded)`), then issue the equivalent WebSearch/WebFetch call. **Silent fallback is forbidden** — the fallback condition and reason MUST appear in the report.
+
+**What this does NOT change:** rf-qa-qualitative remains adversarial-reader-first. Web research is supplementary; it never replaces reading the actual document or the actual source files. The five Adversarial Axes (AX-1..AX-5) and the closed-set Axis-column vocabulary remain unchanged.
+
+---
+
 ## QA Phase: PRD Qualitative Review (prd-qualitative)
 
 **When:** After rf-qa structural verification passes (report-validation phase), before presenting to user.
@@ -112,7 +143,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 #### Checklist (23 items)
 
-**Scope Appropriateness (Feature vs Platform)**
+##### Scope Appropriateness (Feature vs Platform)
 
 1. **Platform content in feature PRDs** — If the document is a Feature PRD, scan for content that belongs in a Platform PRD:
    - Market sizing (TAM/SAM/SOM) or revenue projections in any section
@@ -131,7 +162,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 3. **N/A sections have rationale** — Sections marked N/A must explain WHY and reference where the content lives (e.g., "See Platform PRD").
 
-**Content Quality**
+##### Content Quality
 
 4. **Executive summary is self-contained** — A reader should understand the product/feature, its value, and key decisions from S1 alone, without reading the rest of the document. It should state decisions, not re-evaluate options.
 
@@ -147,7 +178,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 10. **Timeline is realistic for scope** — Does the amount of work in each phase match the stated timeline? A phase with 15 features in 2 weeks is a red flag. A phase with 1 feature over 6 weeks is also a flag.
 
-**Logical Consistency**
+##### Logical Consistency
 
 11. **Numbers match across sections** — If S1 says "5 phases, 11-15 weeks" and the timeline section shows 4 phases totaling 8 weeks, that's a contradiction. Check: phase counts, timeline durations, feature counts, taxonomy numbers, user counts.
 
@@ -159,7 +190,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 15. **Open questions don't have answers elsewhere** — If an open question is actually answered in another section, it should be marked resolved. Stale open questions erode trust.
 
-**Red Flags**
+##### Red Flags — PRD Qualitative
 
 16. **Scope creep indicators** — Look for features that don't connect to the stated problem or JTBD. If the problem is "AI agents need task persistence" but there's a section on "social collaboration features," that's scope creep.
 
@@ -190,6 +221,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict
 
@@ -240,6 +272,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (report-qualitative)
 
@@ -261,7 +294,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 #### Checklist (14 items)
 
-**PRD-to-TDD Fidelity**
+##### PRD-to-TDD Fidelity
 
 1. **Architecture decisions match PRD requirements** — Every functional requirement in the PRD should have a corresponding architectural component or design decision. If the PRD says "support offline mode," there must be an offline architecture somewhere in the TDD. Missing mappings = requirements that won't get built.
 
@@ -271,7 +304,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 4. **Performance targets match PRD targets** — If the PRD specifies "API response < 200ms at p95" and the TDD says "< 500ms," that's a contradiction. Check all quantitative targets across both documents.
 
-**Internal Consistency**
+##### Internal Consistency
 
 5. **API contracts are internally consistent** — Request/response schemas in one section must match how they're referenced in other sections. If the auth endpoint returns `{ token, expires_at }` in the API section but the auth flow diagram shows `{ access_token, refresh_token }`, that's a contradiction.
 
@@ -281,7 +314,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 8. **Dependency graph is acyclic and complete** — Services that depend on each other should be explicitly documented. Circular dependencies are a red flag. Missing dependencies (service A calls service B but B isn't listed as a dependency) will break deployment ordering.
 
-**Specificity and Actionability**
+##### Specificity and Actionability
 
 9. **Implementation details are specific enough to code from** — A developer reading the TDD should know what to build without guessing. "Use a queue for async processing" is too vague. "Use Redis Streams with consumer groups, 3 consumers per service instance, ACK after processing" is actionable.
 
@@ -289,7 +322,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 11. **Migration plan covers data and schema** — If the TDD changes data models, there must be a migration strategy that addresses: schema changes (ALTER TABLE), data backfill, rollback procedures, and zero-downtime requirements.
 
-**Red Flags**
+##### Red Flags — TDD Qualitative
 
 12. **Technology choices are justified** — If the TDD introduces a new technology (database, framework, library), there should be rationale. Unjustified technology additions create maintenance burden and onboarding friction.
 
@@ -310,6 +343,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (tdd-qualitative)
 
@@ -331,7 +365,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 #### Checklist (12 items — tech-ref-qualitative)
 
-**Code-to-Document Fidelity**
+##### Code-to-Document Fidelity
 
 1. **Documented behavior matches actual code** — The tech reference describes what the code does NOW, not what it was planned to do or what it used to do. If the document describes a feature, that feature must exist in the codebase. If the document describes an API endpoint, that endpoint must be implemented and callable.
 
@@ -341,7 +375,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 4. **No planned features described as current** — This is the most common tech reference failure. If a feature is in a PRD or TDD but not yet implemented, it must NOT appear in the tech reference as if it exists. Use explicit markers: "Planned for Phase 2" or omit entirely.
 
-**Structural Accuracy**
+##### Structural Accuracy
 
 5. **Architecture diagrams match actual file/module structure** — If the diagram shows `services/auth/` containing `handler.py`, `middleware.py`, `tokens.py`, those files must exist at those paths. Diagrams that show a different structure than the code create false mental models.
 
@@ -349,7 +383,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 7. **Dependency versions match actual usage** — If the tech reference says "PostgreSQL 15" but the docker-compose uses PostgreSQL 14, that's wrong. Check package.json, requirements.txt, docker-compose.yml, and Dockerfiles against what the document claims.
 
-**Completeness**
+##### Completeness — Tech Reference Qualitative
 
 8. **Error handling documented for all failure modes** — Each component should document what happens when things go wrong: connection failures, invalid input, timeout scenarios, resource exhaustion. "The service handles errors" is not documentation.
 
@@ -357,7 +391,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 10. **Edge cases and limitations acknowledged** — Known limitations, unsupported scenarios, and performance boundaries should be explicitly stated. A tech reference that only describes the happy path is incomplete.
 
-**Red Flags**
+##### Red Flags — Tech Reference Qualitative
 
 11. **No marketing language** — Tech references are for engineers. "Revolutionary AI-powered platform" belongs in a landing page, not a tech reference. Technical descriptions should be precise and neutral.
 
@@ -376,6 +410,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (tech-ref-qualitative)
 
@@ -397,7 +432,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 #### Checklist (14 items — ops-guide-qualitative)
 
-**Procedural Correctness**
+##### Procedural Correctness
 
 1. **Steps are in correct order** — No step should depend on a later step. If step 5 requires a database that step 8 creates, the guide will fail at step 5. Walk through the entire procedure mentally and verify each step's prerequisites are satisfied by earlier steps.
 
@@ -409,7 +444,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 5. **Verification steps after critical operations** — After creating a database, the guide should show how to verify it exists. After deploying a service, it should show how to verify it's running. Operations without verification leave the operator guessing whether they succeeded.
 
-**Environment and Configuration**
+##### Environment and Configuration
 
 6. **Environment-specific values are parameterized** — No hardcoded IP addresses, passwords, API keys, or environment-specific paths. All environment-specific values should use placeholders (e.g., `${DATABASE_HOST}`) with a clear mapping of what to substitute.
 
@@ -417,7 +452,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 8. **Environment matrix is complete** — If the guide applies to multiple environments (dev, staging, prod), differences between environments must be explicitly documented. Same-for-all steps and environment-specific steps should be clearly distinguished.
 
-**Monitoring and Recovery**
+##### Monitoring and Recovery
 
 9. **Monitoring/alerting covers all failure modes described** — If the guide's troubleshooting section lists "database connection timeout" as a failure mode, the monitoring section should include a check or alert for that failure. Unmonitored failure modes are invisible failures.
 
@@ -425,7 +460,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 11. **Emergency procedures are accessible under stress** — If the guide includes incident response procedures, they should be scannable under pressure — numbered steps, bold key actions, no prose paragraphs that bury critical commands. An operator at 3 AM during an outage should find what they need in seconds.
 
-**Operational Hygiene**
+##### Operational Hygiene
 
 12. **No steps assume undocumented tribal knowledge** — Phrases like "configure it the usual way," "use the standard process," or "set up as before" are failures. Every step must be self-contained. A new team member following this guide for the first time should succeed without asking anyone.
 
@@ -446,6 +481,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (ops-guide-qualitative)
 
@@ -467,7 +503,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 #### Checklist (12 items — readme-qualitative)
 
-**Getting Started Experience**
+##### Getting Started Experience
 
 1. **Getting started instructions actually work** — Walk through every step mentally. Does the README tell you what to install, how to install it, how to configure it, and how to verify it worked? Missing any of these steps means a developer will get stuck. Common omissions: system dependencies (Node version, Python version), package manager commands, initial database setup.
 
@@ -477,7 +513,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 4. **First-run experience is smooth** — From clone to running, the happy path should have no unexpected errors. If there are known first-run issues (e.g., "you need to run migrations first"), they should be part of the getting started flow, not buried in troubleshooting.
 
-**Navigation and Links**
+##### Navigation and Links
 
 5. **Links point to real resources** — Every internal link (to other docs, source files, directories) and external link (to documentation sites, tools) must resolve. Dead links are the most common README failure and the easiest to prevent.
 
@@ -485,7 +521,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 7. **Deeper documentation is linked, not duplicated** — The README is a map, not the territory. Architecture details belong in tech references, setup procedures in operational guides, API details in API docs. The README should link to these, not reproduce them. Duplicated content diverges over time.
 
-**Audience Appropriateness**
+##### Audience Appropriateness
 
 8. **No internal jargon unexplained** — Project-specific terms, acronyms, and conventions must be defined on first use or linked to a glossary. A new developer shouldn't need to ask "what does GDLC mean?" or "what's the wizard system?" — the README should tell them.
 
@@ -493,7 +529,7 @@ Read the **entire document** end to end. Then apply the checklist below.
 
 10. **Tone is welcoming to newcomers** — The README is often the first thing a new developer reads. Hostile, dismissive, or overly terse language discourages contribution. This doesn't mean being verbose — it means being clear and helpful.
 
-**Completeness and Freshness**
+##### Completeness and Freshness
 
 11. **Key sections are not empty or placeholder** — Sections like "Contributing," "Testing," or "Architecture" that exist as headers with no content (or with "TODO" placeholder text) should either be populated or removed. Empty sections are worse than missing ones — they promise content they don't deliver.
 
@@ -512,6 +548,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (readme-qualitative)
 
@@ -544,23 +581,85 @@ Read the **entire task file** end to end. Then for each checklist item that modi
 
 These axes are NOT new checks — they are adversarial lenses that sharpen the existing 15-item checklist. For every finding you record, annotate which axis fired in the Items Reviewed table (`axis: drift | contradictions | omissions | weakened-criteria | invented-content`). Pick the most-specific axis; record multiple only when each is independently load-bearing. Contradictions remain IMPORTANT or CRITICAL by default (cf. Critical Rule #6 below).
 
-- **AX-1 Drift** (kebab alias: `drift`) — Has the task content drifted from BUILD_REQUEST.GOAL through paraphrasing, OR has a cited fact (file path, line number, signature, count, config value) drifted out of sync with current source? Look for paraphrases that substitute weaker verbs ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope. **Drift-baseline requirement:** before applying the drift axis, you MUST capture the BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this review; annotate `drift-axis-inactive` in the report and proceed with the other four axes. **Finding example (stale citation pattern):** task item cites `rf-qa-qualitative.md:528 — "Five Adversarial Axes" header`, but an upstream insertion shifted the header to line 530; the cited line number no longer matches current source. Annotate `axis: AX-1`.
-- **AX-2 Contradictions** (kebab alias: `contradictions`) — Do two items in the task (or two artifacts, or two sections of one artifact) assert mutually incompatible facts about the same subject? One says "use A", another implies "must not use A"? Do frontmatter fields contradict body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT (cf. Critical Rule #6). **Finding example (return-type mismatch pattern):** Section A states `build_axis_overlay()` returns `dict[str, Axis]`, while Section B's call site unpacks the same function's return value as `list[Axis]` (`for ax in build_axis_overlay(): ...`). Two artifacts assert incompatible return types for the same callable. Annotate `axis: AX-2` with severity ≥ IMPORTANT.
-- **AX-3 Omissions** (kebab alias: `omissions`) — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left unaddressed? More broadly: is a required touchpoint, consumer, dependency, or step absent from the plan? **Finding example (missing-signature-update pattern):** an item passes a new `axis` kwarg to `build_axis_overlay()`, but no earlier item updates the function's signature to accept it; the kwarg is supplied to a callable that never declared it, so the new argument is silently dropped or raises `TypeError` at runtime. Annotate `axis: AX-3`.
-- **AX-4 Weakened criteria** (kebab alias: `weakened-criteria`) — Are acceptance criteria phrased more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits, "may" verbs, optional clauses, conditional language ("if applicable") where the source materials are unconditional. Has an acceptance/verification condition been softened to something unobservable or trivially satisfiable? An item is "weakened" only when BUILD_REQUEST or research evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count (anti-inflation alignment with rule #11). **Finding example (trivially-passing-test pattern):** a verification step writes the 6-character placeholder `# Test` into a fixture file and then asserts that the file is non-empty (or contains the substring `Test`); the assertion passes for the placeholder itself and exercises none of the feature under review. Annotate `axis: AX-4`.
-- **AX-5 Invented content** (kebab alias: `invented-content`) — Does the task reference files, modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual codebase? Cross-check every named artifact against the research files and the filesystem. More broadly: does the artifact introduce a requirement, feature, or capability not present in its upstream source (BUILD_REQUEST, PRD, TDD, research evidence)? This axis is itself evidence-bound — it requires you to read the research files, not just assert "I don't see it documented." **Finding example (scope-inflation pattern):** the task introduces a Redis caching layer in front of `build_axis_overlay()` to memoise per-task results, but no upstream source — BUILD_REQUEST, PRD §2 FR-CONV.4, TDD §8.5, or `research/*.md` — mentions caching, memoisation, or Redis; the caching layer is an invention that inflates scope beyond what was authorised (mirrors TDD §8.5 row 941's canonical "TDD adds a caching layer the PRD never specified" example). Annotate `axis: AX-5`.
+- **AX-1 Drift** (kebab alias: `drift`) — Has the task content drifted from BUILD_REQUEST.GOAL
+  through paraphrasing, OR has a cited fact (file path, line number, signature, count, config value)
+  drifted out of sync with current source? Look for paraphrases that substitute weaker verbs
+  ("review" instead of "validate", "consider" instead of "implement") or quietly narrowed scope.
+  **Drift-baseline requirement:** before applying the drift axis, you MUST capture the
+  BUILD_REQUEST.GOAL verbatim somewhere in your review notes — typically as part of your initial
+  Read of the task file or the spawn prompt. If no GOAL verbatim is available (e.g., the spawn
+  prompt elided it and the task file does not reproduce it), drift axis is INACTIVE for this
+  review; annotate `drift-axis-inactive` in the report and proceed with the other four axes.
+  **Finding example (stale citation pattern):** task item cites
+  `rf-qa-qualitative.md:528 — "Five Adversarial Axes" header`, but an upstream insertion shifted
+  the header to line 530; the cited line number no longer matches current source.
+  Annotate `axis: AX-1`.
+- **AX-2 Contradictions** (kebab alias: `contradictions`) — Do two items in the task (or two
+  artifacts, or two sections of one artifact) assert mutually incompatible facts about the same
+  subject? One says "use A", another implies "must not use A"? Do frontmatter fields contradict
+  body content? Do Acceptance Criteria contradict Open Questions? Severity floor: IMPORTANT
+  (cf. Critical Rule #6). **Finding example (return-type mismatch pattern):** Section A states
+  `build_axis_overlay()` returns `dict[str, Axis]`, while Section B's call site unpacks the same
+  function's return value as `list[Axis]` (`for ax in build_axis_overlay(): ...`). Two artifacts
+  assert incompatible return types for the same callable. Annotate `axis: AX-2` with severity
+  ≥ IMPORTANT.
+- **AX-3 Omissions** (kebab alias: `omissions`) — Are any BUILD_REQUEST `QA_GATE_REQUIREMENTS`,
+  `VALIDATION_REQUIREMENTS`, or `TESTING_REQUIREMENTS` (SKILL.md rules #16/#17/#18) missing from
+  the task as checklist items? Are any rf-qa FAIL items from the Inherited Structural Verdict left
+  unaddressed? More broadly: is a required touchpoint, consumer, dependency, or step absent from
+  the plan? **Finding example (missing-signature-update pattern):** an item passes a new `axis`
+  kwarg to `build_axis_overlay()`, but no earlier item updates the function's signature to accept
+  it; the kwarg is supplied to a callable that never declared it, so the new argument is silently
+  dropped or raises `TypeError` at runtime. Annotate `axis: AX-3`.
+- **AX-4 Weakened criteria** (kebab alias: `weakened-criteria`) — Are acceptance criteria phrased
+  more permissively than BUILD_REQUEST or the research findings warrant? Look for "or" splits,
+  "may" verbs, optional clauses, conditional language ("if applicable") where the source materials
+  are unconditional. Has an acceptance/verification condition been softened to something
+  unobservable or trivially satisfiable? An item is "weakened" only when BUILD_REQUEST or research
+  evidence demands stronger phrasing — speculation about absent stronger phrasing does NOT count
+  (anti-inflation alignment with rule #11). **Finding example (trivially-passing-test pattern):**
+  a verification step writes the 6-character placeholder `# Test` into a fixture file and then
+  asserts that the file is non-empty (or contains the substring `Test`); the assertion passes for
+  the placeholder itself and exercises none of the feature under review. Annotate `axis: AX-4`.
+- **AX-5 Invented content** (kebab alias: `invented-content`) — Does the task reference files,
+  modules, interfaces, or commands NOT present in `research/*.md` evidence files or the actual
+  codebase? Cross-check every named artifact against the research files and the filesystem. More
+  broadly: does the artifact introduce a requirement, feature, or capability not present in its
+  upstream source (BUILD_REQUEST, PRD, TDD, research evidence)? This axis is itself evidence-bound
+  — it requires you to read the research files, not just assert "I don't see it documented."
+  **Finding example (scope-inflation pattern):** the task introduces a Redis caching layer in
+  front of `build_axis_overlay()` to memoise per-task results, but no upstream source —
+  BUILD_REQUEST, PRD §2 FR-CONV.4, TDD §8.5, or `research/*.md` — mentions caching, memoisation,
+  or Redis; the caching layer is an invention that inflates scope beyond what was authorised
+  (mirrors TDD §8.5 row 941's canonical "TDD adds a caching layer the PRD never specified"
+  example). Annotate `axis: AX-5`.
 
 ##### Canonical annotation rules (PR-07 — `none` sentinel + `drift-axis-inactive`)
 
 The canonical Axis-column vocabulary for the task-qualitative phase is the closed set `{AX-1, AX-2, AX-3, AX-4, AX-5, none}` (kebab aliases `{drift, contradictions, omissions, weakened-criteria, invented-content, none}`). These are the only values that may appear in the `axis` column for a task-qualitative review row.
 
-- **`none` sentinel — passing check that surfaced nothing.** Use `none` when the check at this row PASSED and the five-axis lens surfaced no finding. `none` is a positive statement that all five axes were applied and none fired; it is NOT an `N/A` escape, and it is NOT a permission to skip the axis lens for that row. A row with Result = `PASS` and Axis = `none` means: "I ran every axis against this check and recorded no axis-attributable finding." A row with Result = `FAIL` MUST carry one of `AX-1..AX-5` (the most-specific axis that fired) — `none` on a FAIL row is invalid.
+- **`none` sentinel — passing check that surfaced nothing.** Use `none` when the check at this row
+  PASSED and the five-axis lens surfaced no finding. `none` is a positive statement that all five
+  axes were applied and none fired; it is NOT an `N/A` escape, and it is NOT a permission to skip
+  the axis lens for that row. A row with Result = `PASS` and Axis = `none` means: "I ran every
+  axis against this check and recorded no axis-attributable finding." A row with Result = `FAIL`
+  MUST carry one of `AX-1..AX-5` (the most-specific axis that fired) — `none` on a FAIL row is
+  invalid.
 - **`N/A` is forbidden in the Axis column for task-qualitative phase.** Do not write `N/A`, `n/a`, `—`, blank, or any other escape value in the Axis column when running task-qualitative. The Axis column is only present for task-qualitative reviews (see comment under Items Reviewed); other phases omit the column entirely rather than filling it with `N/A`.
-- **`drift-axis-inactive` Summary-block annotation — drift baseline absent.** If no BUILD_REQUEST.GOAL verbatim is available for this review (the spawn prompt elided it AND the task file does not reproduce it), the AX-1 Drift axis is INACTIVE for the entire review. In that case you MUST emit the literal annotation `drift-axis-inactive` on its own line inside the **Summary** block of the QA report (not in Recommendations, not as an Axis-column cell value), then proceed to apply the remaining four axes (AX-2..AX-5) normally. Individual Axis-column cells continue to carry `none` on passing checks and `AX-2..AX-5` on failing checks; AX-1 is simply unavailable. The `drift-axis-inactive` Summary-block annotation is the canonical signal that drift was lens-disabled — it MUST NOT be encoded as `Axis = N/A`, `Axis = drift-axis-inactive`, or any cell-level placeholder.
+- **`drift-axis-inactive` Summary-block annotation — drift baseline absent.** If no
+  BUILD_REQUEST.GOAL verbatim is available for this review (the spawn prompt elided it AND the
+  task file does not reproduce it), the AX-1 Drift axis is INACTIVE for the entire review. In that
+  case you MUST emit the literal annotation `drift-axis-inactive` on its own line inside the
+  **Summary** block of the QA report (not in Recommendations, not as an Axis-column cell value),
+  then proceed to apply the remaining four axes (AX-2..AX-5) normally. Individual Axis-column
+  cells continue to carry `none` on passing checks and `AX-2..AX-5` on failing checks; AX-1 is
+  simply unavailable. The `drift-axis-inactive` Summary-block annotation is the canonical signal
+  that drift was lens-disabled — it MUST NOT be encoded as `Axis = N/A`,
+  `Axis = drift-axis-inactive`, or any cell-level placeholder.
 
 #### Checklist (15 items)
 
-**Operational Simulation**
+##### Operational Simulation
 
 1. **Gate/command dry-run** — For every shell command, make target, or gate referenced in checklist items (`make verify-sync`, `make sync-dev`, `pytest`, grep checks, etc.), reason through whether it would succeed given the current repo state. Check preconditions: does the directory exist? Does the file the command operates on exist? Would the command's assertions pass? If a gate will always fail given the current state, that's CRITICAL — the task will halt at that point.
 
@@ -568,7 +667,7 @@ The canonical Axis-column vocabulary for the task-qualitative phase is the close
 
 3. **Intra-phase execution order simulation** — Mentally execute each phase's items in order. At each item, ask: "do I have everything I need from previous items?" If item N reads a file that item N+2 creates, the phase will fail at item N. This goes beyond rf-qa's structural ordering check — it requires understanding what each item actually does, not just what files it references.
 
-**Code Compatibility**
+##### Code Compatibility
 
 4. **Function signature verification** — For each item that modifies a function, read the actual function in the target source file. Verify: (a) the function exists at the described location, (b) the described modification is compatible with the actual signature (parameter names, types, return type), (c) the function's call sites won't break from the change. If the item says "add a conditional when TDD content is present" but the function never receives TDD content, the item is wrong.
 
@@ -576,13 +675,13 @@ The canonical Axis-column vocabulary for the task-qualitative phase is the close
 
 6. **Downstream consumer analysis** — For each item that changes an output format, schema, or return value, trace all consumers of that output. If extraction adds 6 new fields but the generation step doesn't know about them, the new fields are extracted and then ignored — the change is incomplete. Check: "who reads the output of this change, and are they updated too?"
 
-**Test and Verification Quality**
+##### Test and Verification Quality
 
 7. **Test validity** — Verification steps must test the actual artifact with representative input, not stubs. A test that writes `# Test` to a file and asserts against that 6-character placeholder is structurally present but operationally useless — it doesn't test the feature being built. Check: does the test exercise the real behavior with realistic input that would expose bugs?
 
 8. **Test coverage of primary use case** — The task's tests should cover the primary use case end-to-end, not just individual functions in isolation. If the task builds a TDD extraction pipeline, at least one test should feed a real (or realistic) TDD file through the full pipeline and verify the output. Unit tests of individual functions are necessary but not sufficient.
 
-**Failure Mode Analysis**
+##### Failure Mode Analysis
 
 9. **Error path coverage** — For each new user-facing flag, input type, or configuration option, verify the task includes validation and meaningful error messages for misuse. What happens if the user passes the wrong file type? What happens if a required field is missing? Silent garbage output from bad input is worse than a crash — it produces plausible-looking wrong results.
 
@@ -628,6 +727,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (task-qualitative)
 
@@ -665,6 +765,7 @@ Before issuing your verdict, answer these questions in your report:
 1. How many factual claims did you independently verify against source code?
 2. What specific files did you read to verify claims?
 3. If you found 0 issues, why should the user trust that you checked thoroughly?
+4. If any web research was performed during this review, did you attempt Tavily MCP first, and is the tool used (Tavily vs fallback) recorded in your report's Tool-engagement summary?
 
 ### Verdict (doc-qualitative)
 
@@ -695,6 +796,7 @@ Before issuing your verdict, answer these questions in your report:
 
 - Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions. ALL findings regardless of severity must be resolved.
 - Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
+- **Tavily-first for any external lookup** — When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
 
 ### Fixing Issues (When Authorized)
 
@@ -876,7 +978,20 @@ For qualitative checks that involve judgment calls (e.g., "is the audience appro
 8. **Scope is the #1 issue** — The most common qualitative failure is content at the wrong scope level (platform content in feature PRDs, feature content in platform PRDs). Check this first and thoroughly.
 9. **Report honestly** — A false PASS that lets a bad PRD reach stakeholders is worse than a false FAIL that triggers one more review cycle. When in doubt, fail it and explain why.
 10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
-11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section numbers, cross-references, evidence citations, template conformance, the TB-Add-* structural-gate additions). You check whether the content makes sense. Don't re-verify what rf-qa already checks — the verdict is delivered to you via the `## Inherited Structural Verdict` section in your spawn prompt (PR-04 Gate Results Passthrough). PASS items in that section are machine-verified; skip the structural re-check. FAIL items are machine-verified defects; flag them HIGH. Focus your own tool engagement on semantic quality (scope, audience, logical flow, contradictions, evidence sufficiency). When the Inherited Structural Verdict is missing or malformed, fall back to your standalone behavior. **Anti-inflation:** reliance ≠ verification (cf. Confidence Gate Protocol). For every PASS item you skip, you must still independently verify a corresponding semantic check (e.g., rf-qa verifies the section number; you verify the section content quality). Your Self-Audit MUST list (a) which Inherited PASS items you relied on and (b) at least one semantic check where rf-qa PASS was insufficient and your own tool work was required.
+11. **You complement rf-qa, not replace it** — rf-qa checks structural correctness (section
+    numbers, cross-references, evidence citations, template conformance, the TB-Add-*
+    structural-gate additions). You check whether the content makes sense. Don't re-verify what
+    rf-qa already checks — the verdict is delivered to you via the
+    `## Inherited Structural Verdict` section in your spawn prompt (PR-04 Gate Results
+    Passthrough). PASS items in that section are machine-verified; skip the structural re-check.
+    FAIL items are machine-verified defects; flag them HIGH. Focus your own tool engagement on
+    semantic quality (scope, audience, logical flow, contradictions, evidence sufficiency). When
+    the Inherited Structural Verdict is missing or malformed, fall back to your standalone
+    behavior. **Anti-inflation:** reliance ≠ verification (cf. Confidence Gate Protocol). For
+    every PASS item you skip, you must still independently verify a corresponding semantic check
+    (e.g., rf-qa verifies the section number; you verify the section content quality). Your
+    Self-Audit MUST list (a) which Inherited PASS items you relied on and (b) at least one
+    semantic check where rf-qa PASS was insufficient and your own tool work was required.
 
 ---
 

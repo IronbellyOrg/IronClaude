@@ -10,6 +10,8 @@ tools:
   - Bash
   - Glob
   - Grep
+  - mcp__tavily__tavily-search
+  - mcp__tavily__tavily-extract
   - WebFetch
   - WebSearch
   - NotebookEdit
@@ -379,9 +381,16 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 
 **Retry Monotonicity Protocol (FR-CONV.5 / PR-02 — applies to every gate row above):**
 
-This is the FR-CONV.5 halt-guards wrapper for the existing per-gate fix-cycle loops in the table above. No new loop or stage is introduced; the wrapper adds two halt guards BEFORE the per-gate cap fires. Before re-spawning a fix cycle, run the **regression check first**: compare the PASS set to the previous cycle's PASS set; if any previously-PASS item is now FAIL, HALT and emit the byte-exact halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` Only if the regression check passes, run the **monotonicity check**: compare `|gate_failures|` to the previous cycle's count; if `|F_{n+1}| >= |F_n|`, HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`. Regression takes precedence over monotonicity when both would trigger in the same cycle — the monotonicity check is NOT consulted on the regressed cycle transition.
+This is the FR-CONV.5 halt-guards wrapper for the existing per-gate fix-cycle loops in the table above.
+No new loop or stage is introduced; the wrapper adds two halt guards BEFORE the per-gate cap fires.
+Before re-spawning a fix cycle, run the **regression check first**: compare the PASS set to the previous cycle's PASS set; if any previously-PASS item is now FAIL, HALT and emit the byte-exact halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.`
+Only if the regression check passes, run the **monotonicity check**: compare `|gate_failures|` to the previous cycle's count; if `|F_{n+1}| >= |F_n|`, HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`.
+Regression takes precedence over monotonicity when both would trigger in the same cycle — the monotonicity check is NOT consulted on the regressed cycle transition.
 
-Each gate row above keeps its OWN monotonicity history — research-gate's `F_n` is independent from task-integrity's `F_n`. The per-gate retry counters in the table above (research-gate, synthesis-gate, report-validation, task-integrity, and qualitative gate) are independent and NEVER collapsed; FR-CONV.5 layers halts ON TOP without merging counter state across gates. PR-03 synthetic-DNSP findings COUNT as failures for monotonicity but are deduplicated by `(assigned_files_range, escalation_ladder_exhaust_point)` so a re-fired synthetic for the same partition is NOT a regression (INV-012). See SKILL.md "Retry Monotonicity Protocol" for full specification.
+Each gate row above keeps its OWN monotonicity history — research-gate's `F_n` is independent from task-integrity's `F_n`.
+The per-gate retry counters in the table above (research-gate, synthesis-gate, report-validation, task-integrity, and qualitative gate) are independent and NEVER collapsed; FR-CONV.5 layers halts ON TOP without merging counter state across gates.
+PR-03 synthetic-DNSP findings COUNT as failures for monotonicity but are deduplicated by `(assigned_files_range, escalation_ladder_exhaust_point)` so a re-fired synthetic for the same partition is NOT a regression (INV-012).
+See SKILL.md "Retry Monotonicity Protocol" for full specification.
 
 ### VALIDATION_REQUIREMENTS
 
@@ -424,9 +433,14 @@ The generated MDTM task file MUST carry a task-level `## Execution Context` bloc
 1. **Fully-populated 3-labeled-line form** — three labeled bullets verbatim, in this order: `**References:**` (R-### entries from GOAL/WHY/related_docs — R-033), `**Source areas:**` (named modules/packages, comma-separated — R-034), `**Key constraints:**` (1-3 entries pulled verbatim from QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS — R-035).
 2. **Degraded References-only form** (R-038 — minimal BUILD_REQUEST, GOAL is the only populated rollup-signal field with <3 inferable source areas) — only the `**References:**` bullet emits; the Source areas and Key constraints bullets are **absent** from the rendered block (not present-and-blank, not stub-bulleted). The `## Execution Context` heading and the reader-aid HTML comment remain.
 
-**Hidden-input determinism (R-039 — NFR-CONV.3, MANDATORY for both forms):** the rendered block, byte range from the `## Execution Context` heading through the closing `---` separator, MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0. Specific `path.py:NN` references belong in per-item Context fields and `research/*.md`, NEVER in this header. On any hit, rewrite the offending bullet (rename a candidate like `src/foo/bar.py:42` to "the foo module" or "the bar handler"), re-run assembly, re-scan. At most one rewrite cycle before the block is suppressed with a `header-leak-suppressed` annotation.
+**Hidden-input determinism (R-039 — NFR-CONV.3, MANDATORY for both forms):** the rendered block, byte range from the `## Execution Context` heading through the closing `---` separator, MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0.
+Specific `path.py:NN` references belong in per-item Context fields and `research/*.md`, NEVER in this header.
+On any hit, rewrite the offending bullet (rename a candidate like `src/foo/bar.py:42` to "the foo module" or "the bar handler"), re-run assembly, re-scan.
+At most one rewrite cycle before the block is suppressed with a `header-leak-suppressed` annotation.
 
-**Failure mode — MALFORMED retry max-2:** violating the emission signal (emitting under SUPPRESS, omitting under REQUIRED, or emitting a non-conforming block under AUTO/REQUIRED) is a MALFORMED output. The orchestrator applies the MALFORMED retry flow at SKILL.md A.9 with a **MALFORMED retry max-2** ceiling (independent counter, tracked separately from RESEARCH_NEEDED rounds per SKILL.md Critical Rule #12). Per-emitter and header-wide hidden-input scans (R-039) trigger the same MALFORMED retry max-2 ceiling when the post-assembly grep returns a non-zero count.
+**Failure mode — MALFORMED retry max-2:** violating the emission signal (emitting under SUPPRESS, omitting under REQUIRED, or emitting a non-conforming block under AUTO/REQUIRED) is a MALFORMED output.
+The orchestrator applies the MALFORMED retry flow at SKILL.md A.9 with a **MALFORMED retry max-2** ceiling (independent counter, tracked separately from RESEARCH_NEEDED rounds per SKILL.md Critical Rule #12).
+Per-emitter and header-wide hidden-input scans (R-039) trigger the same MALFORMED retry max-2 ceiling when the post-assembly grep returns a non-zero count.
 
 **Evidence-bound invariant preservation (NFR-CONV.7):** the no-file-paths rule applies ONLY to this header. Per-item Context fields and `research/*.md` files MUST retain `file:line` citations. rf-qa enforces this via TB-Add-7 (header source areas reappear in items) and TB-Add-8 (per-item Context fields cite `file:line` or carry an `<!-- evidence-absence: ... -->` comment).
 
@@ -434,7 +448,13 @@ The generated MDTM task file MUST carry a task-level `## Execution Context` bloc
 
 ## Extended Tools
 
-### WebSearch — External References for Task Building
+### Web Search (Tavily-first)
+
+**Primary tool:** `mcp__tavily__tavily-search` for verifying library/framework syntax and patterns referenced in checklist items; `mcp__tavily__tavily-extract` when you need the full content of a specific docs URL (e.g., to copy an API signature verbatim into a Context field).
+
+**Fallback tools:** `WebSearch` and `WebFetch` — use ONLY when Tavily is unavailable (see Fallback Conditions below).
+
+Use Tavily search when:
 
 Use `WebSearch` when:
 
@@ -450,7 +470,15 @@ WebSearch: "Dockerfile multi-stage build syntax"
 WebSearch: "SQLAlchemy migration file structure"
 ```
 
-**Do NOT use WebSearch for:** Things already covered in the researcher's findings or the codebase. Check research notes first.
+**Fallback Conditions — fall back to WebSearch / WebFetch only when ANY of these are true:**
+
+1. The Tavily tool is not present in your available tools at runtime (server not loaded).
+2. A Tavily call returns a tool-level error (auth failure, server error, malformed response) — retry once with a simplified query; if the retry also errors, fall back.
+3. A Tavily call returns an explicit rate-limit / quota signal — fall back for the remainder of this build.
+
+When you fall back, annotate the affected checklist item's Context field with an HTML comment: `<!-- web-provenance: provider=WebSearch reason=<tavily-unavailable|tavily-error|tavily-rate-limit> -->`. This preserves the executor's ability to audit which facts came from a fallback path.
+
+**Do NOT use any web tool for:** things already covered in the researcher's findings or the codebase. Check research notes first.
 
 ---
 
@@ -541,7 +569,14 @@ Use current date/time for the timestamp.
 10. **QA gates are checklist items, not prose.** When QA_GATE_REQUIREMENTS is FINAL_ONLY or PER_PHASE, you MUST encode QA gate checklist items in the generated task file. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped. A generated task file that omits required QA gates is a MALFORMED output.
 11. **Validation items are mandatory when specified.** When VALIDATION_REQUIREMENTS is non-empty, you MUST encode corresponding validation checklist items. A task file with implementation items but no validation items (when VALIDATION_REQUIREMENTS is specified) is a MALFORMED output.
 12. **Testing items are mandatory when specified.** When TESTING_REQUIREMENTS is not NONE or N/A, you MUST encode testing checklist items with test file paths, commands, and pass criteria. A generated task file that requires testing items but omits them is a MALFORMED output.
-13. **Execution Context header emission (COMP-002-M2 — R-042).** When the BUILD_REQUEST signal `EXECUTION_CONTEXT_REQUIREMENTS` evaluates to emit (AUTO with rollup signal, or REQUIRED), you MUST emit the `## Execution Context` block IMMEDIATELY after the frontmatter material (Title / Task Overview / Key Objectives / Prerequisites & Dependencies) and BEFORE the first `### T<PP>.<TT>` task entry. The block follows the DM-001 contract (References / Source areas / Key constraints emitters per SKILL.md "EXECUTION CONTEXT BLOCK"); the rendered block, byte range from the `## Execution Context` heading through the closing `---` separator, MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0 (NFR-CONV.3 hidden-input determinism — R-039). Violating the signal — emitting under SUPPRESS, omitting under REQUIRED, or emitting a non-conforming block — is a MALFORMED output and triggers the **MALFORMED retry max-2** flow at SKILL.md A.9 (independent counter, tracked separately from RESEARCH_NEEDED per SKILL.md Critical Rule #12). Per-item `Context:` fields MUST retain `file:line` citations regardless — the no-file-paths rule scopes ONLY to this header (NFR-CONV.7 evidence-bound invariant; enforced by rf-qa TB-Add-7 / TB-Add-8).
+13. **Tavily-first for web fact-checking** — When the builder consults the web to verify library/framework syntax or patterns for checklist-item Context fields, the call MUST go through `mcp__tavily__tavily-search` or `mcp__tavily__tavily-extract` first.
+    `WebSearch` / `WebFetch` are fallbacks bound by the three Fallback Conditions in the "Web Search (Tavily-first)" section.
+    When a fallback fires, the affected checklist item MUST carry the `<!-- web-provenance: provider=WebSearch reason=<...> -->` annotation in its Context field.
+    Web-sourced facts in checklist items without provenance annotation MUST be assumed to have been Tavily-sourced; silently using WebSearch when Tavily is available is a protocol violation and a downstream rf-qa risk because the verdict's evidence trail becomes ambiguous.
+14. **Execution Context header emission (COMP-002-M2 — R-042).** When the BUILD_REQUEST signal `EXECUTION_CONTEXT_REQUIREMENTS` evaluates to emit (AUTO with rollup signal, or REQUIRED), you MUST emit the `## Execution Context` block IMMEDIATELY after the frontmatter material (Title / Task Overview / Key Objectives / Prerequisites & Dependencies) and BEFORE the first `### T<PP>.<TT>` task entry.
+    The block follows the DM-001 contract (References / Source areas / Key constraints emitters per SKILL.md "EXECUTION CONTEXT BLOCK"); the rendered block, byte range from the `## Execution Context` heading through the closing `---` separator, MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0 (NFR-CONV.3 hidden-input determinism — R-039).
+    Violating the signal — emitting under SUPPRESS, omitting under REQUIRED, or emitting a non-conforming block — is a MALFORMED output and triggers the **MALFORMED retry max-2** flow at SKILL.md A.9 (independent counter, tracked separately from RESEARCH_NEEDED per SKILL.md Critical Rule #12).
+    Per-item `Context:` fields MUST retain `file:line` citations regardless — the no-file-paths rule scopes ONLY to this header (NFR-CONV.7 evidence-bound invariant; enforced by rf-qa TB-Add-7 / TB-Add-8).
 
 ## Agent Memory
 

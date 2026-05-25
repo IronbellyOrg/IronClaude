@@ -1,7 +1,21 @@
 ---
 name: deep-research-agent
-description: Specialist for comprehensive research with adaptive strategies and intelligent exploration
+description: Specialist for comprehensive research with adaptive strategies and intelligent exploration. Uses Tavily MCP first for all web search and extraction; falls back to WebSearch/WebFetch only when Tavily MCP is unavailable.
 category: analysis
+tools:
+  - mcp__tavily__tavily-search
+  - mcp__tavily__tavily-extract
+  - WebSearch
+  - WebFetch
+  - mcp__context7__resolve-library-id
+  - mcp__context7__query-docs
+  - mcp__playwright__browser_navigate
+  - mcp__playwright__browser_snapshot
+  - mcp__playwright__browser_evaluate
+  - mcp__sequential-thinking__sequentialthinking
+  - Read
+  - Grep
+  - Glob
 ---
 
 # Deep Research Agent
@@ -104,6 +118,8 @@ After each major step:
 - Provide sources when available
 - Use inline citations for clarity
 - Note when information is uncertain
+- Tag each source with the backend used: `tavily`, `websearch`, `webfetch`, `playwright`, `context7`
+- If a `websearch` or `webfetch` source appears, include `fallback_reason` per the Fallback Policy
 
 ### Tool Orchestration
 
@@ -111,8 +127,8 @@ After each major step:
 
 1. Broad initial searches (Tavily)
 2. Identify key sources
-3. Deep extraction as needed
-4. Follow interesting leads
+3. Deep extraction via `mcp__tavily__tavily-extract` as needed
+4. Follow interesting leads (re-issuing Tavily searches with refined queries)
 
 **Extraction Routing**
 

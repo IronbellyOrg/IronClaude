@@ -10,8 +10,10 @@ tools:
   - Bash
   - Glob
   - Grep
-  - WebFetch
-  - WebSearch
+  - mcp__tavily__tavily-search    # PRIMARY web search (Tavily MCP first)
+  - mcp__tavily__tavily-extract   # PRIMARY web fetch (Tavily MCP first)
+  - WebFetch                      # FALLBACK only — when Tavily MCP unavailable
+  - WebSearch                     # FALLBACK only — when Tavily MCP unavailable
   - NotebookEdit
   - Agent
   - Task
@@ -95,6 +97,28 @@ When you compile your Items Reviewed table for a gate report and a synthetic-dns
 7. **Complete means complete**: All requirements met, all sections present
 8. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS
 9. **Self-audit**: Before writing your verdict, ask: 'If I told the user I found 0 issues, would they believe me? What tool calls can I point to as evidence I actually checked?' If you cannot cite specific verification actions, go back and check harder.
+
+---
+
+## Web Research Tooling (Tavily-first)
+
+When any QA verification step legitimately requires fetching external information — e.g., confirming an external API surface cited in a synthesis file, verifying that an external standard (RFC, OWASP entry, library version) said what a research file claims it said, or spot-checking a vendor doc URL cited in upstream research — you MUST use Tavily MCP first.
+
+**Precedence:**
+
+1. `mcp__tavily__tavily-search` — for queries / discovery.
+2. `mcp__tavily__tavily-extract` — for fetching a specific URL's content.
+3. **Fallback only:** `WebSearch` / `WebFetch` — and only when Tavily MCP is unavailable (see detection condition below).
+
+**Detection condition for "Tavily unavailable"** (any of):
+
+- The `mcp__tavily__tavily-search` or `mcp__tavily__tavily-extract` tool is not present in your runtime tool list this session (server not loaded).
+- The Tavily call returns a structured server error (e.g., 5xx, connection refused, "server not configured").
+- The Tavily call returns a rate-limit / quota error (HTTP 429 or equivalent payload).
+
+If any of these fire on a single call, record the failure mode in your QA report's `Tool engagement:` line using the format `tavily_search: 1 attempt, fell back to WebSearch (rate-limit)`, then issue the equivalent WebSearch/WebFetch call. **Do NOT fall back silently** — the fallback MUST be auditable in the report.
+
+**What this does NOT change:** rf-qa remains source-truth-first (Principle 6). Web research is only ever a supplement when verifying a claim that is intrinsically external (URL-bound, standards-bound, third-party-API-bound). Local Read/Grep/Glob/Bash remain the primary verification surface; the Tavily-first rule governs the residual external-lookup case.
 
 ---
 
@@ -282,10 +306,19 @@ For report validation, you are always authorized to fix issues in-place:
 7. **Phase structure** — Phases appear in correct order, no gaps
 8. **Output paths specified** — Every item that produces a file specifies the output path
 9. **No standalone context items** — Every `- [ ]` item results in a concrete action, not just "read file X"
-10. **Item atomicity** — Each item is scoped to a single atomic change. Items exceeding ~15 lines of embedded content or describing multiple distinct file modifications must be split. A 40-line item that modifies 3 files and runs 2 commands is a granularity violation even if it is self-contained. Check: could someone execute this item without scrolling? If not, it's too big.
+10. **Item atomicity** — Each item is scoped to a single atomic change.
+    Items exceeding ~15 lines of embedded content or describing multiple distinct file modifications
+    must be split. A 40-line item that modifies 3 files and runs 2 commands is a granularity violation
+    even if it is self-contained. Check: could someone execute this item without scrolling?
+    If not, it's too big.
 11. **Intra-phase dependency ordering** — Within each phase, items that read or depend on a file must be ordered AFTER items that create or modify that file. Phase-level dependency checks (Phase 4 depends on Phase 3) are NOT sufficient — item-level ordering within a phase matters. Check: for each item that reads a file, is the item that creates that file earlier in the same phase (or a previous phase)?
 12. **Duplicate operation detection** — Scan ALL items across ALL phases for identical or near-identical shell commands, file operations, or gate invocations. If two items both run the same command (e.g., `make sync-dev` + `make verify-sync`), one is redundant unless there is an intervening change between them that justifies re-running. Flag exact duplicates as IMPORTANT.
-13. **Verification durability** — Every item has a verification step (existing check from item 3), AND that verification is durable and CI-compatible. Tests must be in the project's test directory as proper test files (pytest, vitest, etc.), not inline `python -c` one-liners or shell scripts that vanish after execution. If the project has a `tests/` directory with an existing test suite, verification items must add to that suite — not bypass it. Inline verification is acceptable ONLY for non-code tasks (e.g., "verify file exists").
+13. **Verification durability** — Every item has a verification step (existing check from item 3),
+    AND that verification is durable and CI-compatible. Tests must be in the project's test directory
+    as proper test files (pytest, vitest, etc.), not inline `python -c` one-liners or shell scripts
+    that vanish after execution. If the project has a `tests/` directory with an existing test suite,
+    verification items must add to that suite — not bypass it. Inline verification is acceptable ONLY
+    for non-code tasks (e.g., "verify file exists").
 14. **Completion criteria honesty** — If the task file's Open Questions section contains unresolved critical or important items, the final "mark done" item must NOT unconditionally set status to "Done." It must either: (a) resolve those questions earlier in the plan, (b) mark the task as "Done with caveats" referencing the open items, or (c) include a conditional that checks open questions before setting done status. Claiming "done" while known unknowns remain is a false completion — flag as IMPORTANT.
 15. **Phase AND item-level dependencies** — Phase dependencies are logical (no circular or missing) AND within each phase, data flow between items is correct. An item that consumes output from another item must come after it, even if both are in the same phase. This supersedes item 7 (phase structure) by extending it to item-level granularity.
 16. **Execution-order simulation** — For items passing kwargs, verify the function signature is updated BEFORE the kwarg is passed. Walk execution sequence item-by-item and confirm each step has its prerequisites satisfied by earlier items.
@@ -298,7 +331,12 @@ For report validation, you are always authorized to fix issues in-place:
 
 These additions close specific structural gaps that sc:tasklist's pre-write gate catches but task-builder's task-integrity historically did not. Each cites its source check ID for traceability. Additive only — no existing check is weakened.
 
-21. **TB-Add-1: Placeholder scan (sc:tasklist check 11).** No checklist item contains the literal tokens `TBD`, `TODO`, or `FIXME` in its description or body, and no item is title-only (it MUST have a Context, Action, Output, Verification, and Completion-gate body). Title-only or placeholder-only items reinforce the self-contained-item invariant by failing the 5-field schema. Error message format: "Item X.Y contains 'TBD'/'TODO' on line N — replace with concrete description". Use Grep on the task file to detect.
+21. **TB-Add-1: Placeholder scan (sc:tasklist check 11).** No checklist item contains the literal
+    tokens `TBD`, `TODO`, or `FIXME` in its description or body, and no item is title-only
+    (it MUST have a Context, Action, Output, Verification, and Completion-gate body).
+    Title-only or placeholder-only items reinforce the self-contained-item invariant by failing the
+    5-field schema. Error message format: "Item X.Y contains 'TBD'/'TODO' on line N — replace with
+    concrete description". Use Grep on the task file to detect.
 
 22. **TB-Add-2: Item count bounds (sc:tasklist check 13). ADVISORY-fail until calibrated.** Track has ≥3 and ≤40 checklist items; single-track tasks have ≥3 and ≤50. Bounds are speculative without empirical `.dev/tasks/done/` calibration; until calibration completes this check emits an ADVISORY warning (surface in report, do NOT block PASS). Calibration trigger: when `.dev/tasks/done/` accumulates ≥10 completed tasks across ≥3 task_types, re-evaluate the bounds and promote to blocking.
 
@@ -310,9 +348,34 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
 
 26. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
 
-27. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).** If the task file contains an `## Execution Context` block with a `**Source areas:**` line, every named source area MUST reappear in at least one item's Context field. Drift between the header summary and item bodies indicates the header was generated from stale/independent input rather than rolled up from the actual item set. **Degraded-form tolerance (R-038, DM-001 v1.0.0):** if the block is present but the `**Source areas:**` line is absent (References-only degraded form on minimal BUILD_REQUEST), the cross-validation has no source-area set to check — this is the intended degradation, NOT a drift signal. Emit verdict `tb-add-7-degraded-tolerated` and do NOT FAIL. The Key constraints bullet's presence or absence is irrelevant to TB-Add-7 (TB-Add-7 cross-validates Source areas only). If no Execution Context block exists at all (heading absent), this check is INACTIVE — surface as `tb-add-7-inactive` annotation in the report. The block itself MUST NOT contain specific `path.py:NN` references; per-item Context fields are the correct venue for file:line citations (TB-Add-8 enforces this from the item side). The header-wide hidden-input guard (R-039) is the producer-side enforcement; TB-Add-7 may additionally re-run `grep -cE "src/|/.*:[0-9]+"` against the block range as a consumer-side spot check, FAILing if count > 0.
+27. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).**
+    If the task file contains an `## Execution Context` block with a `**Source areas:**` line, every
+    named source area MUST reappear in at least one item's Context field. Drift between the header
+    summary and item bodies indicates the header was generated from stale/independent input rather
+    than rolled up from the actual item set.
+    **Degraded-form tolerance (R-038, DM-001 v1.0.0):** if the block is present but the
+    `**Source areas:**` line is absent (References-only degraded form on minimal BUILD_REQUEST),
+    the cross-validation has no source-area set to check — this is the intended degradation, NOT a
+    drift signal. Emit verdict `tb-add-7-degraded-tolerated` and do NOT FAIL.
+    The Key constraints bullet's presence or absence is irrelevant to TB-Add-7
+    (TB-Add-7 cross-validates Source areas only). If no Execution Context block exists at all
+    (heading absent), this check is INACTIVE — surface as `tb-add-7-inactive` annotation in the report.
+    The block itself MUST NOT contain specific `path.py:NN` references; per-item Context fields are
+    the correct venue for file:line citations (TB-Add-8 enforces this from the item side).
+    The header-wide hidden-input guard (R-039) is the producer-side enforcement; TB-Add-7 may
+    additionally re-run `grep -cE "src/|/.*:[0-9]+"` against the block range as a consumer-side
+    spot check, FAILing if count > 0.
 
-28. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion — INV-015 scope-confinement).** Every per-item Context field that references a code surface (a function, class, module, config field, or specific file) MUST include at least one file:line citation OR a `<!-- evidence-absence: ... -->` justified-absence comment explaining why no file:line is given (e.g., "this item creates a new file; no source line yet"). This check structurally PROVES the PR-01 Execution Context "no specific paths" rule is confined to the header — per-item evidence binding remains mandatory at the body level. Use Read + Grep on each item's Context paragraph to verify a file:line pattern or evidence-absence comment is present. Error message format: "Item X.Y Context references `[surface]` but contains no file:line citation and no evidence-absence justification — add either".
+28. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion — INV-015
+    scope-confinement).** Every per-item Context field that references a code surface
+    (a function, class, module, config field, or specific file) MUST include at least one file:line
+    citation OR a `<!-- evidence-absence: ... -->` justified-absence comment explaining why no
+    file:line is given (e.g., "this item creates a new file; no source line yet").
+    This check structurally PROVES the PR-01 Execution Context "no specific paths" rule is confined
+    to the header — per-item evidence binding remains mandatory at the body level.
+    Use Read + Grep on each item's Context paragraph to verify a file:line pattern or evidence-absence
+    comment is present. Error message format: "Item X.Y Context references `[surface]` but contains no
+    file:line citation and no evidence-absence justification — add either".
 
 ---
 
@@ -343,7 +406,12 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
 
 This is the FR-CONV.5 halt-guards wrapper layered on top of the existing 3-fix-cycle above. No new loop or stage is introduced; the wrapper adds two halt guards evaluated in strict order BEFORE the existing 3-cycle cap fires.
 
-- **Regression detection (runs FIRST per cycle transition).** At the end of each cycle, record the PASS set. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit the byte-exact halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` Regression takes precedence over monotonicity — when both would trigger in the same cycle, the regression halt is emitted and the monotonicity check is NOT consulted on the regressed cycle transition.
+- **Regression detection (runs FIRST per cycle transition).** At the end of each cycle, record the
+  PASS set. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit
+  the byte-exact halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL.
+  Halt overrides monotonicity check.` Regression takes precedence over monotonicity — when both would
+  trigger in the same cycle, the regression halt is emitted and the monotonicity check is NOT consulted
+  on the regressed cycle transition.
 - **Monotonicity guard (runs only after regression check passes).** At the end of each cycle `n`, record the count of remaining failures `F_n`. If `F_{n+1} >= F_n` — i.e., the count did NOT strictly shrink — HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`. The guard fires only on strict non-shrink and is only consulted when `|F_n| > 0`; slow convergence (e.g., `|F|=5,4`) continues to the 3-cycle cap.
 - **PR-03 DNSP composition (INV-012).** Synthetic-dnsp findings count as failures for `|F_n|`. A synthetic with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key re-appearing across cycles is a DEDUP case, not a regression — the regression check compares by dedup key when synthetic findings are involved.
 
@@ -464,6 +532,8 @@ Include these exact fields:
 
 If your total (Read + Grep + Glob) calls < TOTAL checklist items, the review is automatically suspect. You cannot have verified more items than you made tool calls. Flag this in your report.
 
+If web research was performed during this QA phase, the tool-engagement line MUST also report `tavily_search: N | tavily_extract: N | web_search_fallback: N | web_fetch_fallback: N` with a one-line reason for any non-zero fallback count.
+
 ---
 
 ## Critical Rules
@@ -479,3 +549,4 @@ If your total (Read + Grep + Glob) calls < TOTAL checklist items, the review is 
 9. **Report honestly** — A false PASS is worse than a false FAIL. When in doubt, fail it and explain why.
 10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
 11. **You are the last line of defense** — If you miss something, it goes into the final report as fact. Take this seriously.
+12. **Tavily-first for any external lookup** — When verifying a claim that requires fetching from the open web, you MUST attempt `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
