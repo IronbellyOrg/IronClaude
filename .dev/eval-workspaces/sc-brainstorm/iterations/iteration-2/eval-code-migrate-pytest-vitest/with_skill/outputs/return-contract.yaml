@@ -1,0 +1,43 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/merged-requirements.md
+convergence_score: 0.84
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/adversarial/
+domain: code
+strategy: systematic
+depth: quick
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_2
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Test co-location vs centralized tree — deferred to follow-up"
+  - "Long-term coverage provider (istanbul vs v8) — deferred ≥1 month post-cutover"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 40
+  wave_1: 2900
+  wave_2a: 1400
+  wave_2b: 500
+  wave_3: 18000
+  wave_4: 300
+token_usage:
+  wave_0: 180
+  wave_1: 6400
+  wave_2a: 900
+  wave_2b: 320
+  wave_3: 22000
+  wave_4: 220
+agent_spec: "sonnet:refactorer:'focus on minimal-risk transformation and existing-asset reuse',haiku:qa:'focus on equivalence gates, drift detection, and regression risk'"
+enrichment_artifact_sizes:
+  codebase-context.md: 1620
+  research-light.md: 0
+  research-deep.md: 0

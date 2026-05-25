@@ -1,0 +1,25 @@
+{
+  "eval_id": 1,
+  "eval_name": "code-add-rate-limiting",
+  "prompt": "Brainstorm how to add rate limiting to public API endpoints. --depth quick --proposals 2",
+  "topic": "add rate limiting to public API endpoints",
+  "expected": {
+    "domain": "code",
+    "strategy": "systematic",
+    "proposal_count": 2,
+    "enrichment_expected": ["codebase"]
+  },
+  "assertions": [
+    {"text": "seed_brief.md exists in output dir", "type": "file_exists", "target": "with_skill/outputs/seed-brief.md"},
+    {"text": "merged-requirements.md exists in output dir", "type": "file_exists", "target": "with_skill/outputs/merged-requirements.md"},
+    {"text": "seed-brief frontmatter declares domain: code", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "domain", "expected": "code"},
+    {"text": "seed-brief frontmatter declares strategy: systematic", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "strategy", "expected": "systematic"},
+    {"text": "merged-requirements has Acceptance Criteria section with ≥4 enumerated items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Acceptance Criteria", "min_items": 4},
+    {"text": "merged-requirements has Open Questions section with ≥2 items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Open Questions", "min_items": 2},
+    {"text": "return-contract.yaml has contract_version field = 1.0", "type": "yaml_field", "target": "with_skill/outputs/return-contract.yaml", "field": "contract_version", "expected": "1.0"},
+    {"text": "return-contract.yaml convergence_score ≥ 0.50", "type": "yaml_field_min", "target": "with_skill/outputs/return-contract.yaml", "field": "convergence_score", "min_value": 0.50},
+    {"text": "adversarial dir contains ≥2 proposal files + debate-transcript", "type": "dir_count", "target": "with_skill/outputs/adversarial/", "min_files": 3},
+    {"text": "v1 baseline: requirements.md exists", "type": "file_exists", "target": "old_skill/outputs/requirements.md"},
+    {"text": "v1 baseline: requirements.md has Acceptance Criteria section", "type": "section_present", "target": "old_skill/outputs/requirements.md", "section_pattern": "Acceptance Criteria"}
+  ]
+}

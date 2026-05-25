@@ -1,0 +1,33 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: ./seed-brief.md
+merged_output_path: ./merged-requirements.md
+convergence_score: 0.72
+adversarial_artifacts_dir: ./adversarial/
+domain: incident
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "blast-radius depth scope for staging-only events (data-plane corruption check thoroughness)"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 50
+  wave_1: 800
+  wave_2a: 20
+  wave_2b: 60
+  wave_3: 1500
+  wave_4: 30
+token_usage:
+  wave_0: 200
+  wave_1: 2500
+  wave_2a: 100
+  wave_2b: 300
+  wave_3: 18000
+  wave_4: 200
+agent_spec: "opus:analyzer,sonnet:security"
+enrichment_artifact_sizes: {}

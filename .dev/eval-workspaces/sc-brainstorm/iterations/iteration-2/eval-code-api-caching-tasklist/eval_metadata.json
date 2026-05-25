@@ -1,0 +1,202 @@
+{
+  "eval_id": 8,
+  "eval_name": "code-api-caching-tasklist",
+  "prompt": "Brainstorm: add caching to the API layer. --depth standard --proposals 3 --handoff tasklist",
+  "topic": "add caching to the API layer",
+  "expected": {
+    "domain": "code",
+    "strategy": "systematic",
+    "depth": "standard",
+    "proposal_count": 3,
+    "enrichment_expected": [
+      "codebase"
+    ],
+    "handoff": "tasklist"
+  },
+  "assertions": [
+    {
+      "text": "seed-brief.md exists in output dir",
+      "type": "file_exists",
+      "target": "with_skill/outputs/seed-brief.md"
+    },
+    {
+      "text": "merged-requirements.md exists in output dir",
+      "type": "file_exists",
+      "target": "with_skill/outputs/merged-requirements.md"
+    },
+    {
+      "text": "return-contract.yaml exists in output dir",
+      "type": "file_exists",
+      "target": "with_skill/outputs/return-contract.yaml"
+    },
+    {
+      "text": "enrichment/codebase-context.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/enrichment/codebase-context.md"
+    },
+    {
+      "text": "handoff/tasklist-index.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/handoff/tasklist-index.md"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: code",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "domain",
+      "expected": "code"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: systematic",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "strategy",
+      "expected": "systematic"
+    },
+    {
+      "text": "seed-brief frontmatter declares depth: standard",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "depth",
+      "expected": "standard"
+    },
+    {
+      "text": "seed-brief frontmatter declares proposal_count: 3",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "proposal_count",
+      "expected": "3"
+    },
+    {
+      "text": "merged-requirements has Functional Requirements section with \u22655 enumerated items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Functional Requirements",
+      "min_items": 5
+    },
+    {
+      "text": "merged-requirements has Non-Functional Requirements section with \u22653 enumerated items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Non-Functional Requirements",
+      "min_items": 3
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Acceptance Criteria",
+      "min_items": 4
+    },
+    {
+      "text": "merged-requirements has Risks section with \u22653 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Risks",
+      "min_items": 3
+    },
+    {
+      "text": "merged-requirements has Open Questions section with \u22652 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Open Questions",
+      "min_items": 2
+    },
+    {
+      "text": "merged-requirements has Provenance section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Provenance"
+    },
+    {
+      "text": "return-contract.yaml has contract_version field = 1.0",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "contract_version",
+      "expected": "1.0"
+    },
+    {
+      "text": "return-contract.yaml status = success",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "status",
+      "expected": "success"
+    },
+    {
+      "text": "return-contract.yaml domain = code",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "domain",
+      "expected": "code"
+    },
+    {
+      "text": "return-contract.yaml proposal_count = 3",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "proposal_count",
+      "expected": 3
+    },
+    {
+      "text": "return-contract.yaml handoff_action = tasklist",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "handoff_action",
+      "expected": "tasklist"
+    },
+    {
+      "text": "return-contract.yaml handoff_output_path points to tasklist-index",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "handoff_output_path",
+      "substring_any": [
+        "tasklist-index"
+      ]
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "type": "yaml_field_min",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "convergence_score",
+      "min_value": 0.5
+    },
+    {
+      "text": "agent_spec mentions architect or refactorer persona",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "architect",
+        "refactorer",
+        "performance"
+      ]
+    },
+    {
+      "text": "agent_spec mentions at least two model aliases",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "opus",
+        "sonnet",
+        "haiku"
+      ]
+    },
+    {
+      "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+      "type": "dir_count",
+      "target": "with_skill/outputs/adversarial/",
+      "min_files": 4
+    },
+    {
+      "text": "v1 baseline: requirements.md exists",
+      "type": "file_exists",
+      "target": "old_skill/outputs/requirements.md"
+    },
+    {
+      "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+      "type": "section_present",
+      "target": "old_skill/outputs/requirements.md",
+      "section_pattern": "Acceptance Criteria"
+    }
+  ]
+}

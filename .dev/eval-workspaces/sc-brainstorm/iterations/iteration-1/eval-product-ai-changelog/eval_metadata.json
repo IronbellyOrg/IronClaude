@@ -1,0 +1,26 @@
+{
+  "eval_id": 3,
+  "eval_name": "product-ai-changelog",
+  "prompt": "Brainstorm product requirements for an AI-powered changelog summarizer feature. --depth quick --proposals 2 --strategy agile",
+  "topic": "AI-powered changelog summarizer feature",
+  "expected": {
+    "domain": "product",
+    "strategy": "agile",
+    "proposal_count": 2,
+    "enrichment_expected": ["research-light"]
+  },
+  "assertions": [
+    {"text": "seed_brief.md exists", "type": "file_exists", "target": "with_skill/outputs/seed-brief.md"},
+    {"text": "merged-requirements.md exists", "type": "file_exists", "target": "with_skill/outputs/merged-requirements.md"},
+    {"text": "enrichment/research-light.md exists", "type": "file_exists", "target": "with_skill/outputs/enrichment/research-light.md"},
+    {"text": "seed-brief frontmatter declares domain: product", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "domain", "expected": "product"},
+    {"text": "seed-brief frontmatter declares strategy: agile", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "strategy", "expected": "agile"},
+    {"text": "merged-requirements has User Personas section", "type": "section_present", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "User Personas"},
+    {"text": "merged-requirements has Functional Requirements ≥5 items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Functional Requirements", "min_items": 5},
+    {"text": "merged-requirements has Success Metrics section", "type": "section_present", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Success Metrics"},
+    {"text": "merged-requirements has Open Questions ≥2 items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Open Questions", "min_items": 2},
+    {"text": "return-contract.yaml contract_version = 1.0", "type": "yaml_field", "target": "with_skill/outputs/return-contract.yaml", "field": "contract_version", "expected": "1.0"},
+    {"text": "return-contract.yaml convergence_score ≥ 0.50", "type": "yaml_field_min", "target": "with_skill/outputs/return-contract.yaml", "field": "convergence_score", "min_value": 0.50},
+    {"text": "v1 baseline: requirements.md exists", "type": "file_exists", "target": "old_skill/outputs/requirements.md"}
+  ]
+}

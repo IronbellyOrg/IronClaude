@@ -1,0 +1,43 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/merged-requirements.md
+convergence_score: 0.72
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/adversarial/
+domain: research
+strategy: systematic
+depth: standard
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "OQ1: WebSocket-gateway-as-pilot vs lower-blast-radius-first — analyzer and architect disagree; deferred to leadership"
+  - "OQ2: node-rdkafka allowlist exclusion vs alternative driver — pending dep status at pilot start"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 60
+  wave_1: 5400
+  wave_2a: 0
+  wave_2b: 3200
+  wave_3: 36000
+  wave_4: 500
+token_usage:
+  wave_0: 220
+  wave_1: 10200
+  wave_2a: 0
+  wave_2b: 4800
+  wave_3: 52000
+  wave_4: 400
+agent_spec: "opus:architect:'prioritize platform fit, long-term maintainability, and runtime governance',sonnet:analyzer:'focus on benchmarks, evidence quality, and risk decomposition',haiku:scribe:'focus on policy clarity, decision documentation, and stakeholder framing'"
+enrichment_artifact_sizes:
+  research-deep.md: 2400
+  codebase-context.md: 0
+  research-light.md: 0

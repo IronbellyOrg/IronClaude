@@ -1,0 +1,1895 @@
+{
+  "metadata": {
+    "skill_name": "sc-brainstorm-protocol",
+    "skill_path": "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md",
+    "executor_model": "claude-opus-4-7[1m]",
+    "analyzer_model": "claude-opus-4-7[1m]",
+    "timestamp": "2026-05-25T18:54:26.104605Z",
+    "evals_run": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "code-add-rate-limiting",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 175.9,
+        "tokens": 81342,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (18381 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "incident-staging-deploy-3am",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 1,
+        "failed": 0,
+        "total": 1,
+        "time_seconds": 177.6,
+        "tokens": 72113,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (24044 bytes)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "product-ai-changelog",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 1,
+        "failed": 0,
+        "total": 1,
+        "time_seconds": 173.5,
+        "tokens": 80322,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (22969 bytes)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "code-migrate-pytest-vitest",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 96.4,
+        "tokens": 21850,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (4607 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "architecture-worker-pool-errors",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 168.9,
+        "tokens": 42180,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (6540 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "process-contributor-onboarding",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 84.7,
+        "tokens": 18540,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (5050 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "eval_name": "research-bun-vs-node",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 162.8,
+        "tokens": 74180,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (4787 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "code-api-caching-tasklist",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 168.3,
+        "tokens": 79520,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (4886 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "eval_name": "code-feature-flag-task",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 171.9,
+        "tokens": 75600,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (1241 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 10,
+      "eval_name": "incident-payment-webhook-q1",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 218.5,
+        "tokens": 96218,
+        "tool_calls": 8,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (8605 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "eval_name": "code-duplicate-auth-blind",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 234.5,
+        "tokens": 102488,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (8277 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 12,
+      "eval_name": "architecture-graphql-public-api",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 142.9,
+        "tokens": 62115,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "v1 baseline: requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at old_skill/outputs/requirements.md (5959 bytes)"
+        },
+        {
+          "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+          "passed": true,
+          "evidence": "Section matching 'Acceptance Criteria' found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "code-add-rate-limiting",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 419.6,
+        "tokens": 112026,
+        "tool_calls": 19,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed_brief.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (8376 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (12249 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: code",
+          "passed": true,
+          "evidence": "Frontmatter field domain=code matches expected code"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Open Questions section with \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "return-contract.yaml has contract_version field = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.78 >= 0.5"
+        },
+        {
+          "text": "adversarial dir contains \u22652 proposal files + debate-transcript",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 3)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "incident-staging-deploy-3am",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 373.2,
+        "tokens": 98178,
+        "tool_calls": 14,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed_brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (5269 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (15970 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: incident",
+          "passed": true,
+          "evidence": "Frontmatter field domain=incident matches expected incident"
+        },
+        {
+          "text": "merged-requirements has Post-Mortem Framework or Required Investigation Steps section",
+          "passed": true,
+          "evidence": "Section matching '(Post-Mortem|Investigation)' found"
+        },
+        {
+          "text": "merged-requirements has Open Questions \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "return-contract.yaml contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.78 >= 0.5"
+        },
+        {
+          "text": "adversarial dir has \u22652 proposals + debate-transcript",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 3)"
+        },
+        {
+          "text": "agent-spec in return-contract uses analyzer + security personas",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'analyzer'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "product-ai-changelog",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 11,
+        "failed": 0,
+        "total": 11,
+        "time_seconds": 457.7,
+        "tokens": 113819,
+        "tool_calls": 19,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed_brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (8384 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (18307 bytes)"
+        },
+        {
+          "text": "enrichment/research-light.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/research-light.md (9329 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: product",
+          "passed": true,
+          "evidence": "Frontmatter field domain=product matches expected product"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: agile",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=agile matches expected agile"
+        },
+        {
+          "text": "merged-requirements has User Personas section",
+          "passed": true,
+          "evidence": "Section matching 'User Personas' found"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements \u22655 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 10 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Success Metrics section",
+          "passed": true,
+          "evidence": "Section matching 'Success Metrics' found"
+        },
+        {
+          "text": "merged-requirements has Open Questions \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "return-contract.yaml contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.78 >= 0.5"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "code-migrate-pytest-vitest",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 26,
+        "failed": 0,
+        "total": 26,
+        "time_seconds": 184.4,
+        "tokens": 38420,
+        "tool_calls": 11,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (5542 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (8784 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (1482 bytes)"
+        },
+        {
+          "text": "codebase enrichment artifact exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/codebase-context.md (2759 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: code",
+          "passed": true,
+          "evidence": "Frontmatter field domain=code matches expected code"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: quick",
+          "passed": true,
+          "evidence": "Frontmatter field depth=quick matches expected quick"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 2",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=2 matches expected 2"
+        },
+        {
+          "text": "merged-requirements frontmatter has spec_type",
+          "passed": true,
+          "evidence": "Frontmatter field spec_type=requirements matches expected requirements"
+        },
+        {
+          "text": "merged-requirements frontmatter has adversarial_status",
+          "passed": true,
+          "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+        },
+        {
+          "text": "merged-requirements frontmatter has proposal_count: 2",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=2 matches expected 2"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements section with \u22653 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements section with \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section with \u22653 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Risks section with \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Risks' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Open Questions section with \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "return-contract.yaml has contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.84 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml domain = code",
+          "passed": true,
+          "evidence": "YAML field domain=code matches expected code"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 2",
+          "passed": true,
+          "evidence": "YAML field proposal_count=2 matches expected 2"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = none",
+          "passed": true,
+          "evidence": "YAML field handoff_action=none matches expected none"
+        },
+        {
+          "text": "return-contract.yaml agent_spec mentions \u22652 personas",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'refactorer'"
+        },
+        {
+          "text": "return-contract.yaml agent_spec mentions \u22652 model aliases",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'sonnet'"
+        },
+        {
+          "text": "adversarial dir has \u22653 files (\u22652 proposals + debate-transcript)",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 3 files (>= 3)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "architecture-worker-pool-errors",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 27,
+        "failed": 0,
+        "total": 27,
+        "time_seconds": 612.8,
+        "tokens": 178420,
+        "tool_calls": 26,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (10711 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (14071 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (1719 bytes)"
+        },
+        {
+          "text": "codebase enrichment artifact exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/codebase-context.md (3588 bytes)"
+        },
+        {
+          "text": "research-deep enrichment artifact exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/research-deep.md (4963 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: architecture",
+          "passed": true,
+          "evidence": "Frontmatter field domain=architecture matches expected architecture"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: enterprise",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=enterprise matches expected enterprise"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: deep",
+          "passed": true,
+          "evidence": "Frontmatter field depth=deep matches expected deep"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 5",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "merged-requirements frontmatter has spec_type",
+          "passed": true,
+          "evidence": "Frontmatter field spec_type=requirements matches expected requirements"
+        },
+        {
+          "text": "merged-requirements frontmatter has adversarial_status",
+          "passed": true,
+          "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+        },
+        {
+          "text": "merged-requirements frontmatter has proposal_count: 5",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements section \u22655 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 10 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements section \u22653 items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 6 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section \u22655 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 8 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Risks section \u22653 items",
+          "passed": true,
+          "evidence": "Section 'Risks' has 7 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Open Questions section \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "return-contract.yaml contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.71 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml domain = architecture",
+          "passed": true,
+          "evidence": "YAML field domain=architecture matches expected architecture"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 5",
+          "passed": true,
+          "evidence": "YAML field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = none",
+          "passed": true,
+          "evidence": "YAML field handoff_action=none matches expected none"
+        },
+        {
+          "text": "return-contract.yaml agent_spec mentions \u22652 personas (architect, devops, qa, security, performance)",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'architect'"
+        },
+        {
+          "text": "return-contract.yaml agent_spec mentions \u22652 model aliases",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'opus'"
+        },
+        {
+          "text": "adversarial dir has \u22656 files (\u22655 proposals + debate-transcript)",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 6 files (>= 6)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "process-contributor-onboarding",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 25,
+        "failed": 0,
+        "total": 25,
+        "time_seconds": 298.7,
+        "tokens": 71240,
+        "tool_calls": 14,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (7002 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (9947 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (1614 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: process",
+          "passed": true,
+          "evidence": "Frontmatter field domain=process matches expected process"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: agile",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=agile matches expected agile"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: standard",
+          "passed": true,
+          "evidence": "Frontmatter field depth=standard matches expected standard"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 3",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "merged-requirements frontmatter has spec_type",
+          "passed": true,
+          "evidence": "Frontmatter field spec_type=requirements matches expected requirements"
+        },
+        {
+          "text": "merged-requirements frontmatter has adversarial_status",
+          "passed": true,
+          "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+        },
+        {
+          "text": "merged-requirements frontmatter has proposal_count: 3",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements section \u22654 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements section \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section \u22654 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 7 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Risks section \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Risks' has 5 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Open Questions section \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "return-contract.yaml contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.86 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml domain = process",
+          "passed": true,
+          "evidence": "YAML field domain=process matches expected process"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 3",
+          "passed": true,
+          "evidence": "YAML field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = none",
+          "passed": true,
+          "evidence": "YAML field handoff_action=none matches expected none"
+        },
+        {
+          "text": "return-contract.yaml agent_spec mentions \u22652 personas (scribe, mentor, refactorer, pm)",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'scribe'"
+        },
+        {
+          "text": "return-contract.yaml agent_spec mentions \u22652 model aliases",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'sonnet'"
+        },
+        {
+          "text": "adversarial dir has \u22654 files (\u22653 proposals + debate-transcript)",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 4)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "eval_name": "research-bun-vs-node",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 23,
+        "failed": 0,
+        "total": 23,
+        "time_seconds": 487.3,
+        "tokens": 138420,
+        "tool_calls": 22,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (9408 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (11004 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (1641 bytes)"
+        },
+        {
+          "text": "enrichment/research-deep.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/research-deep.md (8313 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: research",
+          "passed": true,
+          "evidence": "Frontmatter field domain=research matches expected research"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: standard",
+          "passed": true,
+          "evidence": "Frontmatter field depth=standard matches expected standard"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 3",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements section with \u22654 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements section with \u22653 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 5 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Risks section with \u22653 items",
+          "passed": true,
+          "evidence": "Section 'Risks' has 5 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Open Questions section with \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "return-contract.yaml has contract_version field = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml domain = research",
+          "passed": true,
+          "evidence": "YAML field domain=research matches expected research"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 3",
+          "passed": true,
+          "evidence": "YAML field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = none",
+          "passed": true,
+          "evidence": "YAML field handoff_action=none matches expected none"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.72 >= 0.5"
+        },
+        {
+          "text": "agent_spec mentions at least one of analyzer/architect/scribe",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'analyzer'"
+        },
+        {
+          "text": "agent_spec mentions at least two model aliases",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'opus'"
+        },
+        {
+          "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 4)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "code-api-caching-tasklist",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 25,
+        "failed": 0,
+        "total": 25,
+        "time_seconds": 442.2,
+        "tokens": 124880,
+        "tool_calls": 21,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (8160 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (12301 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (1775 bytes)"
+        },
+        {
+          "text": "enrichment/codebase-context.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/codebase-context.md (3354 bytes)"
+        },
+        {
+          "text": "handoff/tasklist-index.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/handoff/tasklist-index.md (3862 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: code",
+          "passed": true,
+          "evidence": "Frontmatter field domain=code matches expected code"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: standard",
+          "passed": true,
+          "evidence": "Frontmatter field depth=standard matches expected standard"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 3",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements section with \u22655 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 9 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements section with \u22653 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 5 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Risks section with \u22653 items",
+          "passed": true,
+          "evidence": "Section 'Risks' has 5 enumerated items (>= 3)"
+        },
+        {
+          "text": "merged-requirements has Open Questions section with \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "return-contract.yaml has contract_version field = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml domain = code",
+          "passed": true,
+          "evidence": "YAML field domain=code matches expected code"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 3",
+          "passed": true,
+          "evidence": "YAML field proposal_count=3 matches expected 3"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = tasklist",
+          "passed": true,
+          "evidence": "YAML field handoff_action=tasklist matches expected tasklist"
+        },
+        {
+          "text": "return-contract.yaml handoff_output_path points to tasklist-index",
+          "passed": true,
+          "evidence": "YAML field handoff_output_path contains substring 'tasklist-index'"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.81 >= 0.5"
+        },
+        {
+          "text": "agent_spec mentions architect or refactorer persona",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'architect'"
+        },
+        {
+          "text": "agent_spec mentions at least two model aliases",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'opus'"
+        },
+        {
+          "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 4)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "eval_name": "code-feature-flag-task",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 12,
+        "failed": 0,
+        "total": 12,
+        "time_seconds": 404.2,
+        "tokens": 104880,
+        "tool_calls": 18,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed_brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (1073 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (3656 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: code",
+          "passed": true,
+          "evidence": "Frontmatter field domain=code matches expected code"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria section with \u22655 items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Risks section with \u22653 items",
+          "passed": true,
+          "evidence": "Section 'Risks' has 4 enumerated items (>= 3)"
+        },
+        {
+          "text": "return-contract.yaml contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.76 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = task",
+          "passed": true,
+          "evidence": "YAML field handoff_action=task matches expected task"
+        },
+        {
+          "text": "handoff task artifact exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/handoff/task.md (816 bytes)"
+        },
+        {
+          "text": "agent_spec includes architect/refactorer/security",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'architect'"
+        },
+        {
+          "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 4)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 10,
+      "eval_name": "incident-payment-webhook-q1",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 28,
+        "failed": 0,
+        "total": 28,
+        "time_seconds": 612.5,
+        "tokens": 187432,
+        "tool_calls": 27,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (11541 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (13053 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists in output dir",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (2066 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: incident",
+          "passed": true,
+          "evidence": "Frontmatter field domain=incident matches expected incident"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: enterprise",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=enterprise matches expected enterprise"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: deep",
+          "passed": true,
+          "evidence": "Frontmatter field depth=deep matches expected deep"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 5",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "seed-brief explicitly tags simulated interactive mode",
+          "passed": true,
+          "evidence": "YAML field interactive_mode contains substring 'simulated'"
+        },
+        {
+          "text": "merged-requirements has Post-Mortem Framework or Investigation Steps section",
+          "passed": true,
+          "evidence": "Section matching '(Post-Mortem|Investigation)' found"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements \u22658 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 12 enumerated items (>= 8)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 7 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria \u22656 items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 10 enumerated items (>= 6)"
+        },
+        {
+          "text": "merged-requirements has Risks section",
+          "passed": true,
+          "evidence": "Section matching 'Risks' found"
+        },
+        {
+          "text": "merged-requirements has Open Questions \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "merged-requirements frontmatter has adversarial_status: pass",
+          "passed": true,
+          "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+        },
+        {
+          "text": "merged-requirements frontmatter has proposal_count: 5",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "return-contract.yaml has contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.74 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml domain = incident",
+          "passed": true,
+          "evidence": "YAML field domain=incident matches expected incident"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 5",
+          "passed": true,
+          "evidence": "YAML field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = none",
+          "passed": true,
+          "evidence": "YAML field handoff_action=none matches expected none"
+        },
+        {
+          "text": "agent_spec mentions analyzer persona",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'analyzer'"
+        },
+        {
+          "text": "agent_spec mentions security persona",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'security'"
+        },
+        {
+          "text": "agent_spec mentions devops persona",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'devops'"
+        },
+        {
+          "text": "agent_spec uses \u22652 model aliases (opus/sonnet/haiku)",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'opus'"
+        },
+        {
+          "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 6 files (>= 6)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "eval_name": "code-duplicate-auth-blind",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 27,
+        "failed": 0,
+        "total": 27,
+        "time_seconds": 689.1,
+        "tokens": 198715,
+        "tool_calls": 31,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (11423 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (13477 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (2333 bytes)"
+        },
+        {
+          "text": "enrichment/codebase-context.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/codebase-context.md (4518 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: code",
+          "passed": true,
+          "evidence": "Frontmatter field domain=code matches expected code"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: deep",
+          "passed": true,
+          "evidence": "Frontmatter field depth=deep matches expected deep"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 5",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "seed-brief frontmatter declares blind_mode: true",
+          "passed": true,
+          "evidence": "Frontmatter field blind_mode=true matches expected true"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements \u226510 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 13 enumerated items (>= 10)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 7 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria \u22656 items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 11 enumerated items (>= 6)"
+        },
+        {
+          "text": "merged-requirements has Risks section",
+          "passed": true,
+          "evidence": "Section matching 'Risks' found"
+        },
+        {
+          "text": "merged-requirements has Open Questions \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "merged-requirements frontmatter has adversarial_status: pass",
+          "passed": true,
+          "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+        },
+        {
+          "text": "merged-requirements frontmatter declares blind_mode: true",
+          "passed": true,
+          "evidence": "Frontmatter field blind_mode=true matches expected true"
+        },
+        {
+          "text": "return-contract.yaml has contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.71 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml domain = code",
+          "passed": true,
+          "evidence": "YAML field domain=code matches expected code"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 5",
+          "passed": true,
+          "evidence": "YAML field proposal_count=5 matches expected 5"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = none",
+          "passed": true,
+          "evidence": "YAML field handoff_action=none matches expected none"
+        },
+        {
+          "text": "agent_spec uses blind/anonymized labels (Agent A-E) \u2014 validates --blind mode",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'Agent A'"
+        },
+        {
+          "text": "agent_spec mentions \u22652 personas across blind labels",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'architect'"
+        },
+        {
+          "text": "debate transcript uses anonymized agent labels (not model aliases)",
+          "passed": true,
+          "evidence": "YAML field blind_labels contains substring 'Agent A'"
+        },
+        {
+          "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 6 files (>= 6)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 12,
+      "eval_name": "architecture-graphql-public-api",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 29,
+        "failed": 0,
+        "total": 29,
+        "time_seconds": 287.6,
+        "tokens": 89432,
+        "tool_calls": 14,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "seed-brief.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/seed-brief.md (8130 bytes)"
+        },
+        {
+          "text": "merged-requirements.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/merged-requirements.md (10397 bytes)"
+        },
+        {
+          "text": "return-contract.yaml exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/return-contract.yaml (1806 bytes)"
+        },
+        {
+          "text": "enrichment/research-light.md exists",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/enrichment/research-light.md (7838 bytes)"
+        },
+        {
+          "text": "handoff/design-brief.md exists (handoff: design)",
+          "passed": true,
+          "evidence": "File exists at with_skill/outputs/handoff/design-brief.md (6804 bytes)"
+        },
+        {
+          "text": "seed-brief frontmatter declares domain: architecture",
+          "passed": true,
+          "evidence": "Frontmatter field domain=architecture matches expected architecture"
+        },
+        {
+          "text": "seed-brief frontmatter declares strategy: systematic",
+          "passed": true,
+          "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+        },
+        {
+          "text": "seed-brief frontmatter declares depth: quick",
+          "passed": true,
+          "evidence": "Frontmatter field depth=quick matches expected quick"
+        },
+        {
+          "text": "seed-brief frontmatter declares proposal_count: 2",
+          "passed": true,
+          "evidence": "Frontmatter field proposal_count=2 matches expected 2"
+        },
+        {
+          "text": "seed-brief frontmatter declares handoff_target: design",
+          "passed": true,
+          "evidence": "Frontmatter field handoff_target=design matches expected design"
+        },
+        {
+          "text": "merged-requirements has Functional Requirements \u22655 items",
+          "passed": true,
+          "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 5)"
+        },
+        {
+          "text": "merged-requirements has Non-Functional Requirements \u22654 items",
+          "passed": true,
+          "evidence": "Section 'Non-Functional Requirements' has 6 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Acceptance Criteria \u22654 items",
+          "passed": true,
+          "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 4)"
+        },
+        {
+          "text": "merged-requirements has Risks section",
+          "passed": true,
+          "evidence": "Section matching 'Risks' found"
+        },
+        {
+          "text": "merged-requirements has Open Questions \u22652 items",
+          "passed": true,
+          "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+        },
+        {
+          "text": "merged-requirements has Provenance section",
+          "passed": true,
+          "evidence": "Section matching 'Provenance' found"
+        },
+        {
+          "text": "merged-requirements frontmatter has adversarial_status: pass",
+          "passed": true,
+          "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+        },
+        {
+          "text": "merged-requirements frontmatter declares handoff_target: design",
+          "passed": true,
+          "evidence": "Frontmatter field handoff_target=design matches expected design"
+        },
+        {
+          "text": "return-contract.yaml has contract_version = 1.0",
+          "passed": true,
+          "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+        },
+        {
+          "text": "return-contract.yaml status = success",
+          "passed": true,
+          "evidence": "YAML field status=success matches expected success"
+        },
+        {
+          "text": "return-contract.yaml convergence_score \u2265 0.50",
+          "passed": true,
+          "evidence": "YAML field convergence_score=0.62 >= 0.5"
+        },
+        {
+          "text": "return-contract.yaml domain = architecture",
+          "passed": true,
+          "evidence": "YAML field domain=architecture matches expected architecture"
+        },
+        {
+          "text": "return-contract.yaml proposal_count = 2",
+          "passed": true,
+          "evidence": "YAML field proposal_count=2 matches expected 2"
+        },
+        {
+          "text": "return-contract.yaml handoff_action = design",
+          "passed": true,
+          "evidence": "YAML field handoff_action=design matches expected design"
+        },
+        {
+          "text": "return-contract.yaml handoff_output_path present and non-null (design handoff exists)",
+          "passed": true,
+          "evidence": "YAML field handoff_output_path contains substring 'design-brief.md'"
+        },
+        {
+          "text": "agent_spec mentions architect persona",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'architect'"
+        },
+        {
+          "text": "agent_spec mentions backend persona",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'backend'"
+        },
+        {
+          "text": "agent_spec uses \u22652 model aliases (opus/sonnet/haiku)",
+          "passed": true,
+          "evidence": "YAML field agent_spec contains substring 'opus'"
+        },
+        {
+          "text": "adversarial dir has \u22653 files (2 proposals + debate-transcript)",
+          "passed": true,
+          "evidence": "Directory with_skill/outputs/adversarial/ has 3 files (>= 3)"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "count": 12
+      },
+      "time_seconds": {
+        "mean": 164.65833333333333,
+        "stddev": 40.58112160297637,
+        "count": 12
+      },
+      "tokens": {
+        "mean": 67205.66666666667,
+        "stddev": 25545.622626761105,
+        "count": 12
+      },
+      "tool_calls": {
+        "mean": 4.666666666666667,
+        "stddev": 2.094967514996089,
+        "count": 12
+      },
+      "errors": 0
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "count": 12
+      },
+      "time_seconds": {
+        "mean": 439.10833333333335,
+        "stddev": 141.09560268563376,
+        "count": 12
+      },
+      "tokens": {
+        "mean": 121321.83333333333,
+        "stddev": 45891.18131847943,
+        "count": 12
+      },
+      "tool_calls": {
+        "mean": 19.666666666666668,
+        "stddev": 5.807083796728115,
+        "count": 12
+      },
+      "errors": 0
+    }
+  }
+}
