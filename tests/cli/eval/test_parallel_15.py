@@ -63,7 +63,6 @@ from superclaude.cli.eval.isolation import HomeIsolation
 from superclaude.cli.eval.models import EvalOutcome, EvalSpec
 from superclaude.cli.eval.orchestrator import RunOrchestrator
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

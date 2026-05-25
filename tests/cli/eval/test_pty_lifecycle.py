@@ -34,7 +34,6 @@ import shutil
 import subprocess
 import sys
 import textwrap
-import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -55,7 +54,6 @@ from superclaude.cli.eval.runner import (
     LifecycleExecutor,
     ObservedRun,
 )
-
 
 # ---------------------------------------------------------------------------
 # Stub builders (shared shape with test_pty_driver.py, kept local so the

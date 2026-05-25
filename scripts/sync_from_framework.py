@@ -17,19 +17,19 @@ Options:
     --output-report PATH    Save sync report to file
 """
 
-import sys
 import argparse
-import tempfile
-import shutil
 import hashlib
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional
 import json
-import re
-import subprocess
-from dataclasses import dataclass, asdict
-from datetime import datetime
 import logging
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(

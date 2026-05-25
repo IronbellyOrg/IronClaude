@@ -33,7 +33,6 @@ from superclaude.cli.eval.models import EvalOutcome, EvalSpec
 from superclaude.cli.eval.orchestrator import RunOrchestrator, allocate_session_id
 from superclaude.cli.eval.signal_handler import CancellationToken
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

@@ -31,7 +31,7 @@ from superclaude.cli.eval.commands import (
     describe_suite,
     eval_group,
 )
-from superclaude.cli.eval.loader import SchemaError, SuiteLoader, validate_manifest
+from superclaude.cli.eval.loader import SuiteLoader, validate_manifest
 from superclaude.cli.eval.models import EvalOutcome, EvalSpec
 from superclaude.cli.eval.suites import SCHEMA_PATH
 

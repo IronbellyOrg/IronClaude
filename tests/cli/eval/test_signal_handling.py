@@ -56,7 +56,6 @@ from superclaude.cli.eval.signal_handler import (
     SignalHandlerInstaller,
 )
 
-
 # ---------------------------------------------------------------------------
 # CancellationToken unit tests
 # ---------------------------------------------------------------------------

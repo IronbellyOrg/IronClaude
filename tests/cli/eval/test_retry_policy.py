@@ -41,7 +41,6 @@ from superclaude.cli.eval.runner import (
     ObservedRun,
 )
 
-
 # ---------------------------------------------------------------------------
 # FakeHome — duck-typed stand-in mirroring test_runner_class.py's surface
 # ---------------------------------------------------------------------------

@@ -45,14 +45,12 @@ breach — all run today.
 
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
-
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DOC_PATH = REPO_ROOT / "docs" / "eval" / "retention.md"

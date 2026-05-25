@@ -43,7 +43,6 @@ from superclaude.cli.eval import (
 )
 from superclaude.cli.eval import commands as doctor_module
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRATCH_ROOTS_DOC = REPO_ROOT / "docs" / "eval" / "scratch-roots.md"
 
