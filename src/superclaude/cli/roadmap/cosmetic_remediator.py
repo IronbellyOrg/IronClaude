@@ -201,13 +201,42 @@ def _current_milestone_id(lines: list[str], idx: int) -> str | None:
     return None
 
 
-def _is_in_fenced_block(lines: list[str], idx: int) -> bool:
-    """Return True if line ``idx`` is inside a ``` ... ``` fenced code block."""
+def _compute_fenced_indices(lines: list[str]) -> set[int]:
+    """Return the set of line indices that fall inside a ``` ... ``` fenced block.
+
+    Single O(N) walk producing the same truth function as a per-line call to
+    ``_is_in_fenced_block``. Used by detectors/transforms to replace per-line
+    O(idx) fence-counting with O(1) set-membership, eliminating quadratic cost
+    on long roadmap artifacts.
+
+    Semantics (preserves ``_is_in_fenced_block`` bit-for-bit): the opener
+    delimiter line is EXCLUDED from the set; the closer delimiter line is
+    INCLUDED. This is the test-before-increment form — at line ``i`` we test
+    the fence count over ``lines[0:i]`` (i.e. before ``i``) and include
+    ``i`` iff that count is odd, then bump the count if ``i`` itself is a
+    delimiter.
+    """
+    result: set[int] = set()
     fence_count = 0
-    for i in range(idx):
-        if lines[i].lstrip().startswith("```"):
+    for i, line in enumerate(lines):
+        if fence_count % 2 == 1:
+            result.add(i)
+        if line.lstrip().startswith("```"):
             fence_count += 1
-    return fence_count % 2 == 1
+    return result
+
+
+def _is_in_fenced_block(lines: list[str], idx: int) -> bool:
+    """Return True if line ``idx`` is inside a ``` ... ``` fenced code block.
+
+    Thin wrapper around ``_compute_fenced_indices`` retained as an
+    equivalence oracle (see ``test_compute_fenced_indices_matches_is_in_fenced_block``)
+    and for any caller that needs a single-line query. Hot loops should call
+    ``_compute_fenced_indices`` once and use ``idx in fenced_indices``
+    instead — see callers in ``_detect_cosmetic_violations`` and the
+    ``_apply_*`` helpers.
+    """
+    return idx in _compute_fenced_indices(lines)
 
 
 # --- Classification -------------------------------------------------------
@@ -247,10 +276,11 @@ def _detect_cosmetic_violations(content: str) -> list[CosmeticViolation]:
     """
     violations: list[CosmeticViolation] = []
     lines = content.splitlines()
+    fenced_indices = _compute_fenced_indices(lines)
 
     for idx, line in enumerate(lines):
         line_no = idx + 1
-        in_fenced = _is_in_fenced_block(lines, idx)
+        in_fenced = idx in fenced_indices
 
         # C5 trailing whitespace on header lines
         stripped = line.rstrip()
@@ -443,7 +473,7 @@ def _detect_cosmetic_violations(content: str) -> list[CosmeticViolation]:
             continue
         if not line.startswith("### "):
             continue
-        if _is_in_fenced_block(lines, idx):
+        if idx in fenced_indices:
             continue
         h3_body = _strip_section_numbering(line[4:]).strip().lower()
         # Already canonical? Skip.
@@ -521,6 +551,7 @@ def _apply_milestone_h3_rewrites(content: str) -> tuple[str, list[str]]:
     """
     transforms: list[str] = []
     lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
     h2_re = re.compile(r"^##\s+M(\d+)\s*:", re.IGNORECASE)
     current_mid: str | None = None
 
@@ -535,7 +566,7 @@ def _apply_milestone_h3_rewrites(content: str) -> tuple[str, list[str]]:
             continue
         if current_mid is None:
             continue
-        if _is_in_fenced_block(lines, idx):
+        if idx in fenced_indices:
             continue
 
         # Match any ##/####/### with a recognized stem fragment. The heading
@@ -578,9 +609,10 @@ def _apply_trailing_whitespace_fix(content: str) -> tuple[str, list[str]]:
     """Strip trailing whitespace from every non-fenced line. Idempotent."""
     transforms: list[str] = []
     lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
     changed_lines: list[int] = []
     for idx, line in enumerate(lines):
-        if _is_in_fenced_block(lines, idx):
+        if idx in fenced_indices:
             continue
         # Preserve final newline if present.
         if line.endswith("\n"):
@@ -611,9 +643,10 @@ def _apply_smart_quote_fold(content: str) -> tuple[str, list[str]]:
     """Fold curly quotes to straight. Skips fenced code blocks."""
     transforms: list[str] = []
     lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
     changes = 0
     for idx, line in enumerate(lines):
-        if _is_in_fenced_block(lines, idx):
+        if idx in fenced_indices:
             continue
         folded = line.translate(_SMART_QUOTE_MAP)
         if folded != line:
@@ -633,11 +666,12 @@ def _apply_table_padding_fix(content: str) -> tuple[str, list[str]]:
     """
     transforms: list[str] = []
     lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
     changes = 0
     for idx, line in enumerate(lines):
         if not line.startswith("|"):
             continue
-        if _is_in_fenced_block(lines, idx):
+        if idx in fenced_indices:
             continue
         # Split into cells; strip outer empty caused by leading/trailing pipes
         raw = line.rstrip("\n")
@@ -696,6 +730,7 @@ def _apply_resource_subsection_rewrites(content: str) -> tuple[str, list[str]]:
     """
     transforms: list[str] = []
     lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
     h2_re = re.compile(r"^##\s+(.+?)\s*$")
     in_resource = False
     for idx, line in enumerate(lines):
@@ -709,7 +744,7 @@ def _apply_resource_subsection_rewrites(content: str) -> tuple[str, list[str]]:
             continue
         if not in_resource or not line.startswith("### "):
             continue
-        if _is_in_fenced_block(lines, idx):
+        if idx in fenced_indices:
             continue
         h3_body = _strip_section_numbering(line[4:]).strip()
         h3_lower = h3_body.lower()

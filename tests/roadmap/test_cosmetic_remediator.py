@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from superclaude.cli.roadmap.cosmetic_remediator import (
     Classification,
+    _compute_fenced_indices,
+    _is_in_fenced_block,
     apply_cosmetic_remediations,
     classify_gate_failure,
 )
@@ -355,3 +357,71 @@ class TestClassificationDataclass:
         assert isinstance(cl, Classification)
         assert cl.gate_name == _GATE
         assert cl.step_id == "generate-opus-architect"
+
+
+class TestComputeFencedIndices:
+    """M1: precomputed fenced-block index set replaces O(N²) per-line walk.
+
+    The new ``_compute_fenced_indices`` set must satisfy
+    ``(idx in fenced_indices) == _is_in_fenced_block(lines, idx)`` for every
+    line index, including delimiter lines. The existing helper counts fence
+    markers in ``range(idx)``, which means the opener-marker line is
+    EXCLUDED (count == 0 → False) and the closer-marker line is INCLUDED
+    (count == 1 → True). The precompute MUST preserve this asymmetric truth
+    function bit-for-bit — this is a performance refactor, not a behavior
+    change.
+    """
+
+    def test_matches_is_in_fenced_block_on_mixed_sample(self):
+        # Four fenced regions with text before / after / between them. Includes
+        # a length-1 region (single line between adjacent fences) to exercise
+        # the closer-immediately-after-opener edge.
+        sample = (
+            "intro line A\n"
+            "intro line B\n"
+            "```\n"          # opener of region 1 (idx=2) → EXCLUDED
+            "inside 1a\n"    # idx=3 → INCLUDED
+            "inside 1b\n"    # idx=4 → INCLUDED
+            "```\n"          # closer of region 1 (idx=5) → INCLUDED
+            "between A\n"    # idx=6 → EXCLUDED
+            "```py\n"        # opener of region 2 (idx=7, with info string)
+            "inside 2\n"     # idx=8 → INCLUDED
+            "```\n"          # closer of region 2 (idx=9) → INCLUDED
+            "between B\n"    # idx=10 → EXCLUDED
+            "```\n"          # opener of region 3 (idx=11)
+            "```\n"          # closer of region 3 (idx=12) — length-1 region
+            "between C\n"    # idx=13 → EXCLUDED
+            "  ```\n"        # opener of region 4, indented (idx=14)
+            "inside 4\n"     # idx=15 → INCLUDED
+            "```\n"          # closer of region 4 (idx=16) → INCLUDED
+            "trailing\n"     # idx=17 → EXCLUDED
+        )
+        lines = sample.splitlines(keepends=True)
+        fenced_indices = _compute_fenced_indices(lines)
+        # Equivalence with the oracle helper across every index.
+        for idx in range(len(lines)):
+            assert (idx in fenced_indices) == _is_in_fenced_block(lines, idx), (
+                f"semantic divergence at idx={idx!r}: "
+                f"set={idx in fenced_indices} "
+                f"helper={_is_in_fenced_block(lines, idx)}"
+            )
+
+    def test_empty_input(self):
+        assert _compute_fenced_indices([]) == set()
+
+    def test_no_fences(self):
+        lines = ["plain line 1\n", "plain line 2\n", "plain line 3\n"]
+        assert _compute_fenced_indices(lines) == set()
+        for idx in range(len(lines)):
+            assert not _is_in_fenced_block(lines, idx)
+
+    def test_unclosed_fence_preserves_oracle_semantics(self):
+        # Pathological case: opener with no closer. Whatever the helper
+        # returns for trailing lines, the set must match — preserves
+        # bit-for-bit equivalence even on malformed input.
+        lines = "before\n```\nstill inside\nnever closes\n".splitlines(
+            keepends=True
+        )
+        fenced_indices = _compute_fenced_indices(lines)
+        for idx in range(len(lines)):
+            assert (idx in fenced_indices) == _is_in_fenced_block(lines, idx)
