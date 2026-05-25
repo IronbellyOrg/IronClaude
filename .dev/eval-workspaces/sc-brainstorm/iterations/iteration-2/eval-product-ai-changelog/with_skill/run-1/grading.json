@@ -1,0 +1,65 @@
+{
+  "expectations": [
+    {
+      "text": "seed_brief.md exists",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/seed-brief.md (8384 bytes)"
+    },
+    {
+      "text": "merged-requirements.md exists",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/merged-requirements.md (18307 bytes)"
+    },
+    {
+      "text": "enrichment/research-light.md exists",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/enrichment/research-light.md (9329 bytes)"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: product",
+      "passed": true,
+      "evidence": "Frontmatter field domain=product matches expected product"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: agile",
+      "passed": true,
+      "evidence": "Frontmatter field strategy=agile matches expected agile"
+    },
+    {
+      "text": "merged-requirements has User Personas section",
+      "passed": true,
+      "evidence": "Section matching 'User Personas' found"
+    },
+    {
+      "text": "merged-requirements has Functional Requirements \u22655 items",
+      "passed": true,
+      "evidence": "Section 'Functional Requirements' has 10 enumerated items (>= 5)"
+    },
+    {
+      "text": "merged-requirements has Success Metrics section",
+      "passed": true,
+      "evidence": "Section matching 'Success Metrics' found"
+    },
+    {
+      "text": "merged-requirements has Open Questions \u22652 items",
+      "passed": true,
+      "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+    },
+    {
+      "text": "return-contract.yaml contract_version = 1.0",
+      "passed": true,
+      "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "passed": true,
+      "evidence": "YAML field convergence_score=0.78 >= 0.5"
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 0,
+    "total": 11,
+    "pass_rate": 1.0
+  }
+}

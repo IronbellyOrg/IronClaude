@@ -1,0 +1,29 @@
+{
+  "eval_id": 9,
+  "eval_name": "code-feature-flag-task",
+  "prompt": "Brainstorm how to implement a feature flag system. --depth standard --proposals 3 --handoff task",
+  "topic": "implement feature flag system",
+  "expected": {
+    "domain": "code",
+    "strategy": "systematic",
+    "proposal_count": 3,
+    "handoff": "task",
+    "enrichment_expected": ["codebase"]
+  },
+  "assertions": [
+    {"text": "seed_brief.md exists", "type": "file_exists", "target": "with_skill/outputs/seed-brief.md"},
+    {"text": "merged-requirements.md exists", "type": "file_exists", "target": "with_skill/outputs/merged-requirements.md"},
+    {"text": "seed-brief frontmatter declares domain: code", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "domain", "expected": "code"},
+    {"text": "seed-brief frontmatter declares strategy: systematic", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "strategy", "expected": "systematic"},
+    {"text": "merged-requirements has Acceptance Criteria section with ≥5 items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Acceptance Criteria", "min_items": 5},
+    {"text": "merged-requirements has Risks section with ≥3 items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Risks", "min_items": 3},
+    {"text": "return-contract.yaml contract_version = 1.0", "type": "yaml_field", "target": "with_skill/outputs/return-contract.yaml", "field": "contract_version", "expected": "1.0"},
+    {"text": "return-contract.yaml convergence_score ≥ 0.50", "type": "yaml_field_min", "target": "with_skill/outputs/return-contract.yaml", "field": "convergence_score", "min_value": 0.50},
+    {"text": "return-contract.yaml handoff_action = task", "type": "yaml_field", "target": "with_skill/outputs/return-contract.yaml", "field": "handoff_action", "expected": "task"},
+    {"text": "handoff task artifact exists", "type": "file_exists", "target": "with_skill/outputs/handoff/task.md"},
+    {"text": "agent_spec includes architect/refactorer/security", "type": "yaml_substring", "target": "with_skill/outputs/return-contract.yaml", "field": "agent_spec", "substring_any": ["architect", "refactorer", "security"]},
+    {"text": "adversarial dir contains ≥3 proposal files + debate-transcript", "type": "dir_count", "target": "with_skill/outputs/adversarial/", "min_files": 4},
+    {"text": "v1 baseline: requirements.md exists", "type": "file_exists", "target": "old_skill/outputs/requirements.md"},
+    {"text": "v1 baseline: requirements.md has Acceptance Criteria section", "type": "section_present", "target": "old_skill/outputs/requirements.md", "section_pattern": "Acceptance Criteria"}
+  ]
+}

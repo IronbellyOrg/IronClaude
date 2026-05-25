@@ -1,0 +1,226 @@
+{
+  "eval_id": 10,
+  "eval_name": "incident-payment-webhook-q1",
+  "prompt": "Brainstorm Q1 incident: payment webhook delivery failures. --strategy enterprise --depth deep --proposals 5 --interactive",
+  "topic": "Q1 incident: payment webhook delivery failures",
+  "expected": {
+    "domain": "incident",
+    "strategy": "enterprise",
+    "depth": "deep",
+    "proposal_count": 5,
+    "handoff": "none",
+    "interactive": "simulated",
+    "enrichment_expected": []
+  },
+  "assertions": [
+    {
+      "text": "seed-brief.md exists in output dir",
+      "type": "file_exists",
+      "target": "with_skill/outputs/seed-brief.md"
+    },
+    {
+      "text": "merged-requirements.md exists in output dir",
+      "type": "file_exists",
+      "target": "with_skill/outputs/merged-requirements.md"
+    },
+    {
+      "text": "return-contract.yaml exists in output dir",
+      "type": "file_exists",
+      "target": "with_skill/outputs/return-contract.yaml"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: incident",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "domain",
+      "expected": "incident"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: enterprise",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "strategy",
+      "expected": "enterprise"
+    },
+    {
+      "text": "seed-brief frontmatter declares depth: deep",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "depth",
+      "expected": "deep"
+    },
+    {
+      "text": "seed-brief frontmatter declares proposal_count: 5",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "proposal_count",
+      "expected": "5"
+    },
+    {
+      "text": "seed-brief explicitly tags simulated interactive mode",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "interactive_mode",
+      "substring_any": [
+        "simulated"
+      ]
+    },
+    {
+      "text": "merged-requirements has Post-Mortem Framework or Investigation Steps section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "(Post-Mortem|Investigation)"
+    },
+    {
+      "text": "merged-requirements has Functional Requirements \u22658 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Functional Requirements",
+      "min_items": 8
+    },
+    {
+      "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Non-Functional Requirements",
+      "min_items": 5
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria \u22656 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Acceptance Criteria",
+      "min_items": 6
+    },
+    {
+      "text": "merged-requirements has Risks section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Risks"
+    },
+    {
+      "text": "merged-requirements has Open Questions \u22652 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Open Questions",
+      "min_items": 2
+    },
+    {
+      "text": "merged-requirements has Provenance section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Provenance"
+    },
+    {
+      "text": "merged-requirements frontmatter has adversarial_status: pass",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "field": "adversarial_status",
+      "expected": "pass"
+    },
+    {
+      "text": "merged-requirements frontmatter has proposal_count: 5",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "field": "proposal_count",
+      "expected": "5"
+    },
+    {
+      "text": "return-contract.yaml has contract_version = 1.0",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "contract_version",
+      "expected": "1.0"
+    },
+    {
+      "text": "return-contract.yaml status = success",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "status",
+      "expected": "success"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "type": "yaml_field_min",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "convergence_score",
+      "min_value": 0.5
+    },
+    {
+      "text": "return-contract.yaml domain = incident",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "domain",
+      "expected": "incident"
+    },
+    {
+      "text": "return-contract.yaml proposal_count = 5",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "proposal_count",
+      "expected": 5
+    },
+    {
+      "text": "return-contract.yaml handoff_action = none",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "handoff_action",
+      "expected": "none"
+    },
+    {
+      "text": "agent_spec mentions analyzer persona",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "analyzer"
+      ]
+    },
+    {
+      "text": "agent_spec mentions security persona",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "security"
+      ]
+    },
+    {
+      "text": "agent_spec mentions devops persona",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "devops"
+      ]
+    },
+    {
+      "text": "agent_spec uses \u22652 model aliases (opus/sonnet/haiku)",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "opus",
+        "sonnet",
+        "haiku"
+      ]
+    },
+    {
+      "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+      "type": "dir_count",
+      "target": "with_skill/outputs/adversarial/",
+      "min_files": 6
+    },
+    {
+      "text": "v1 baseline: requirements.md exists",
+      "type": "file_exists",
+      "target": "old_skill/outputs/requirements.md"
+    },
+    {
+      "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+      "type": "section_present",
+      "target": "old_skill/outputs/requirements.md",
+      "section_pattern": "Acceptance Criteria"
+    }
+  ]
+}

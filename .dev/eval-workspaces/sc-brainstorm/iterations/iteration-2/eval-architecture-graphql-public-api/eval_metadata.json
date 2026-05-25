@@ -1,0 +1,230 @@
+{
+  "eval_id": 12,
+  "eval_name": "architecture-graphql-public-api",
+  "prompt": "Brainstorm exploring using GraphQL for our public API. --strategy systematic --depth quick --proposals 2 --handoff design",
+  "topic": "explore using GraphQL for public API",
+  "expected": {
+    "domain": "architecture",
+    "strategy": "systematic",
+    "depth": "quick",
+    "proposal_count": 2,
+    "handoff": "design",
+    "enrichment_expected": [
+      "research-light"
+    ]
+  },
+  "assertions": [
+    {
+      "text": "seed-brief.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/seed-brief.md"
+    },
+    {
+      "text": "merged-requirements.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/merged-requirements.md"
+    },
+    {
+      "text": "return-contract.yaml exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/return-contract.yaml"
+    },
+    {
+      "text": "enrichment/research-light.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/enrichment/research-light.md"
+    },
+    {
+      "text": "handoff/design-brief.md exists (handoff: design)",
+      "type": "file_exists",
+      "target": "with_skill/outputs/handoff/design-brief.md"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: architecture",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "domain",
+      "expected": "architecture"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: systematic",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "strategy",
+      "expected": "systematic"
+    },
+    {
+      "text": "seed-brief frontmatter declares depth: quick",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "depth",
+      "expected": "quick"
+    },
+    {
+      "text": "seed-brief frontmatter declares proposal_count: 2",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "proposal_count",
+      "expected": "2"
+    },
+    {
+      "text": "seed-brief frontmatter declares handoff_target: design",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "handoff_target",
+      "expected": "design"
+    },
+    {
+      "text": "merged-requirements has Functional Requirements \u22655 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Functional Requirements",
+      "min_items": 5
+    },
+    {
+      "text": "merged-requirements has Non-Functional Requirements \u22654 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Non-Functional Requirements",
+      "min_items": 4
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria \u22654 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Acceptance Criteria",
+      "min_items": 4
+    },
+    {
+      "text": "merged-requirements has Risks section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Risks"
+    },
+    {
+      "text": "merged-requirements has Open Questions \u22652 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Open Questions",
+      "min_items": 2
+    },
+    {
+      "text": "merged-requirements has Provenance section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Provenance"
+    },
+    {
+      "text": "merged-requirements frontmatter has adversarial_status: pass",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "field": "adversarial_status",
+      "expected": "pass"
+    },
+    {
+      "text": "merged-requirements frontmatter declares handoff_target: design",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "field": "handoff_target",
+      "expected": "design"
+    },
+    {
+      "text": "return-contract.yaml has contract_version = 1.0",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "contract_version",
+      "expected": "1.0"
+    },
+    {
+      "text": "return-contract.yaml status = success",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "status",
+      "expected": "success"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "type": "yaml_field_min",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "convergence_score",
+      "min_value": 0.5
+    },
+    {
+      "text": "return-contract.yaml domain = architecture",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "domain",
+      "expected": "architecture"
+    },
+    {
+      "text": "return-contract.yaml proposal_count = 2",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "proposal_count",
+      "expected": 2
+    },
+    {
+      "text": "return-contract.yaml handoff_action = design",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "handoff_action",
+      "expected": "design"
+    },
+    {
+      "text": "return-contract.yaml handoff_output_path present and non-null (design handoff exists)",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "handoff_output_path",
+      "substring_any": [
+        "design-brief.md",
+        "handoff/"
+      ]
+    },
+    {
+      "text": "agent_spec mentions architect persona",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "architect"
+      ]
+    },
+    {
+      "text": "agent_spec mentions backend persona",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "backend"
+      ]
+    },
+    {
+      "text": "agent_spec uses \u22652 model aliases (opus/sonnet/haiku)",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "opus",
+        "sonnet",
+        "haiku"
+      ]
+    },
+    {
+      "text": "adversarial dir has \u22653 files (2 proposals + debate-transcript)",
+      "type": "dir_count",
+      "target": "with_skill/outputs/adversarial/",
+      "min_files": 3
+    },
+    {
+      "text": "v1 baseline: requirements.md exists",
+      "type": "file_exists",
+      "target": "old_skill/outputs/requirements.md"
+    },
+    {
+      "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+      "type": "section_present",
+      "target": "old_skill/outputs/requirements.md",
+      "section_pattern": "Acceptance Criteria"
+    }
+  ]
+}

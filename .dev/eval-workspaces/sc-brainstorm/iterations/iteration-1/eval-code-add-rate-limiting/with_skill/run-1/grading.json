@@ -1,0 +1,55 @@
+{
+  "expectations": [
+    {
+      "text": "seed_brief.md exists in output dir",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/seed-brief.md (5885 bytes)"
+    },
+    {
+      "text": "merged-requirements.md exists in output dir",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/merged-requirements.md (6208 bytes)"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: code",
+      "passed": true,
+      "evidence": "Frontmatter field domain=code matches expected code"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: systematic",
+      "passed": true,
+      "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+      "passed": true,
+      "evidence": "Section 'Acceptance Criteria' has 5 enumerated items (>= 4)"
+    },
+    {
+      "text": "merged-requirements has Open Questions section with \u22652 items",
+      "passed": true,
+      "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"
+    },
+    {
+      "text": "return-contract.yaml has contract_version field = 1.0",
+      "passed": true,
+      "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "passed": true,
+      "evidence": "YAML field convergence_score=0.78 >= 0.5"
+    },
+    {
+      "text": "adversarial dir contains \u22652 proposal files + debate-transcript",
+      "passed": true,
+      "evidence": "Directory with_skill/outputs/adversarial/ has 3 files (>= 3)"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  }
+}

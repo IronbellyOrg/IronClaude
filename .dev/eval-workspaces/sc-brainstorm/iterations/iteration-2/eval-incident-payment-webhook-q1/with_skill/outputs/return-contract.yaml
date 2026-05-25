@@ -1,0 +1,45 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/merged-requirements.md
+convergence_score: 0.74
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/adversarial/
+domain: incident
+strategy: enterprise
+depth: deep
+proposal_count: 5
+interactive_mode: simulated
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "DLQ retention: 18-month signed chain (Tier-1) vs 7-day TTL with audit (Tier-2/3) — base policy merged, per-merchant negotiation carried forward"
+  - "Per-merchant bulkhead within Tier-1 deferred to Q2-Q3 incident data review"
+  - "Authentication-rotation contract: heuristic pilot Q2, decide Q3"
+  - "Cross-region failover posture: out-of-scope for this remediation, flagged for platform planning"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 250
+  wave_1: 9800
+  wave_2a: 0
+  wave_2b: 0
+  wave_3: 71500
+  wave_4: 600
+token_usage:
+  wave_0: 400
+  wave_1: 18500
+  wave_2a: 0
+  wave_2b: 0
+  wave_3: 86000
+  wave_4: 500
+agent_spec: "opus:analyzer:'cross-incident pattern detection and evidence-based root-cause discipline',sonnet:analyzer:'alternative root-cause framing — architectural amplification across retry tiers',opus:security:'PCI-DSS scope, credential handling, audit-evidence chain integrity',sonnet:security:'conservative defense-in-depth with trust-tiered rollout sequencing',haiku:devops:'SLO contracts, runbook discipline, on-call readiness, rollout safety'"
+enrichment_artifact_sizes: {}
+personas_used: ["analyzer", "security", "devops"]
+model_aliases_used: ["opus", "sonnet", "haiku"]

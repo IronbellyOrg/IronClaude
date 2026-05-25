@@ -1,0 +1,40 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md
+convergence_score: 0.78
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/adversarial/
+domain: product
+strategy: agile
+depth: standard
+proposal_count: 3
+enrichment_used:
+  - source: research-light
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# Telemetry block (non-stable)
+telemetry:
+  wave_durations_ms:
+    wave_0: 60
+    wave_1: 350
+    wave_2a: 600
+    wave_2b: 120
+    wave_3: 4200
+    wave_4: 40
+  token_usage:
+    wave_0: 220
+    wave_1: 2400
+    wave_2a: 2800
+    wave_2b: 500
+    wave_3: 32000
+    wave_4: 220
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for product domain',sonnet:frontend:'focus on user experience, accessibility, error states, and responsive behavior',haiku:scribe:'focus on documentation clarity, decision rationale, and audit trail'"
+  enrichment_artifact_sizes:
+    research-light.md: 7100
+  personas: [architect, frontend, scribe]
+  models: [opus, sonnet, haiku]
+  simulated: true
+  notes: "Eval iter-2 simulation — Standard depth, 3 proposals, agile strategy. Adversarial Wave 3 outputs hand-authored to reflect architect/frontend/scribe debate over trust-contract enforcement, BYO-vs-hosted, GitHub App vs CLI, persona-tuning v1 inclusion, and citation hard-block vs nudge. Trust contract elevated to feature-blocking per scribe stance with compromise resolutions captured in debate-transcript.md."

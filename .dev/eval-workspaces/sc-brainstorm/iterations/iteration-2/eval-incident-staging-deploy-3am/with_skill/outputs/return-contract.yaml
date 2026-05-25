@@ -1,0 +1,40 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md
+convergence_score: 0.78
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/adversarial/
+domain: incident
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Deploy-window policy aggressiveness (no-deploys-after-hours vs. business-hours-default vs. attended-only) — team-lead resolution required"
+  - "Sequencing of pipeline hardening vs. investigation depth — proposed weekly checkpoint, team-lead confirmation needed"
+  - "Two-person rule scope: uniform across environments vs. graduated (staging single + audit, prod live two-person)"
+  - "Architectural fitness function ongoing-maintenance ownership"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 200
+  wave_1: 1500
+  wave_2a: 0
+  wave_2b: 300
+  wave_3: 3500
+  wave_4: 100
+token_usage:
+  wave_0: 300
+  wave_1: 2400
+  wave_2a: 0
+  wave_2b: 400
+  wave_3: 18000
+  wave_4: 200
+agent_spec: "opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',sonnet:security:'focus on OWASP Top 10, supply-chain risks, and least-privilege; assume hostile environment',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery'"
+enrichment_artifact_sizes: {}

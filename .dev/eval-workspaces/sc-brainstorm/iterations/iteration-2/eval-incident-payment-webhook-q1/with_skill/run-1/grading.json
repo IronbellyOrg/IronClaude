@@ -1,0 +1,150 @@
+{
+  "expectations": [
+    {
+      "text": "seed-brief.md exists in output dir",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/seed-brief.md (11541 bytes)"
+    },
+    {
+      "text": "merged-requirements.md exists in output dir",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/merged-requirements.md (13053 bytes)"
+    },
+    {
+      "text": "return-contract.yaml exists in output dir",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/return-contract.yaml (2066 bytes)"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: incident",
+      "passed": true,
+      "evidence": "Frontmatter field domain=incident matches expected incident"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: enterprise",
+      "passed": true,
+      "evidence": "Frontmatter field strategy=enterprise matches expected enterprise"
+    },
+    {
+      "text": "seed-brief frontmatter declares depth: deep",
+      "passed": true,
+      "evidence": "Frontmatter field depth=deep matches expected deep"
+    },
+    {
+      "text": "seed-brief frontmatter declares proposal_count: 5",
+      "passed": true,
+      "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+    },
+    {
+      "text": "seed-brief explicitly tags simulated interactive mode",
+      "passed": true,
+      "evidence": "YAML field interactive_mode contains substring 'simulated'"
+    },
+    {
+      "text": "merged-requirements has Post-Mortem Framework or Investigation Steps section",
+      "passed": true,
+      "evidence": "Section matching '(Post-Mortem|Investigation)' found"
+    },
+    {
+      "text": "merged-requirements has Functional Requirements \u22658 items",
+      "passed": true,
+      "evidence": "Section 'Functional Requirements' has 12 enumerated items (>= 8)"
+    },
+    {
+      "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+      "passed": true,
+      "evidence": "Section 'Non-Functional Requirements' has 7 enumerated items (>= 5)"
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria \u22656 items",
+      "passed": true,
+      "evidence": "Section 'Acceptance Criteria' has 10 enumerated items (>= 6)"
+    },
+    {
+      "text": "merged-requirements has Risks section",
+      "passed": true,
+      "evidence": "Section matching 'Risks' found"
+    },
+    {
+      "text": "merged-requirements has Open Questions \u22652 items",
+      "passed": true,
+      "evidence": "Section 'Open Questions' has 4 enumerated items (>= 2)"
+    },
+    {
+      "text": "merged-requirements has Provenance section",
+      "passed": true,
+      "evidence": "Section matching 'Provenance' found"
+    },
+    {
+      "text": "merged-requirements frontmatter has adversarial_status: pass",
+      "passed": true,
+      "evidence": "Frontmatter field adversarial_status=pass matches expected pass"
+    },
+    {
+      "text": "merged-requirements frontmatter has proposal_count: 5",
+      "passed": true,
+      "evidence": "Frontmatter field proposal_count=5 matches expected 5"
+    },
+    {
+      "text": "return-contract.yaml has contract_version = 1.0",
+      "passed": true,
+      "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+    },
+    {
+      "text": "return-contract.yaml status = success",
+      "passed": true,
+      "evidence": "YAML field status=success matches expected success"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "passed": true,
+      "evidence": "YAML field convergence_score=0.74 >= 0.5"
+    },
+    {
+      "text": "return-contract.yaml domain = incident",
+      "passed": true,
+      "evidence": "YAML field domain=incident matches expected incident"
+    },
+    {
+      "text": "return-contract.yaml proposal_count = 5",
+      "passed": true,
+      "evidence": "YAML field proposal_count=5 matches expected 5"
+    },
+    {
+      "text": "return-contract.yaml handoff_action = none",
+      "passed": true,
+      "evidence": "YAML field handoff_action=none matches expected none"
+    },
+    {
+      "text": "agent_spec mentions analyzer persona",
+      "passed": true,
+      "evidence": "YAML field agent_spec contains substring 'analyzer'"
+    },
+    {
+      "text": "agent_spec mentions security persona",
+      "passed": true,
+      "evidence": "YAML field agent_spec contains substring 'security'"
+    },
+    {
+      "text": "agent_spec mentions devops persona",
+      "passed": true,
+      "evidence": "YAML field agent_spec contains substring 'devops'"
+    },
+    {
+      "text": "agent_spec uses \u22652 model aliases (opus/sonnet/haiku)",
+      "passed": true,
+      "evidence": "YAML field agent_spec contains substring 'opus'"
+    },
+    {
+      "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+      "passed": true,
+      "evidence": "Directory with_skill/outputs/adversarial/ has 6 files (>= 6)"
+    }
+  ],
+  "summary": {
+    "passed": 28,
+    "failed": 0,
+    "total": 28,
+    "pass_rate": 1.0
+  }
+}

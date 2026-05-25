@@ -1,0 +1,38 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md
+convergence_score: 0.81
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/adversarial/
+domain: product
+strategy: agile
+depth: quick
+proposal_count: 2
+enrichment_used:
+  - source: research-light
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# Telemetry block (non-stable)
+telemetry:
+  wave_durations_ms:
+    wave_0: 50
+    wave_1: 200
+    wave_2a: 400
+    wave_2b: 80
+    wave_3: 2500
+    wave_4: 30
+  token_usage:
+    wave_0: 200
+    wave_1: 1200
+    wave_2a: 1800
+    wave_2b: 400
+    wave_3: 18000
+    wave_4: 200
+  agent_spec: "opus:architect,sonnet:frontend"
+  enrichment_artifact_sizes:
+    research-light.md: 4200
+  simulated: true
+  notes: "Eval simulation — adversarial Wave 3 outputs hand-authored to reflect expected architect-vs-frontend tension for product-domain MVP brainstorm."

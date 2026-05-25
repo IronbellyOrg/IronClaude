@@ -1,0 +1,222 @@
+{
+  "eval_id": 11,
+  "eval_name": "code-duplicate-auth-blind",
+  "prompt": "Brainstorm how to consolidate three duplicate auth modules. --strategy systematic --depth deep --proposals 5 --blind",
+  "topic": "consolidate three duplicate auth modules",
+  "expected": {
+    "domain": "code",
+    "strategy": "systematic",
+    "depth": "deep",
+    "proposal_count": 5,
+    "handoff": "none",
+    "blind": true,
+    "enrichment_expected": [
+      "codebase"
+    ]
+  },
+  "assertions": [
+    {
+      "text": "seed-brief.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/seed-brief.md"
+    },
+    {
+      "text": "merged-requirements.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/merged-requirements.md"
+    },
+    {
+      "text": "return-contract.yaml exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/return-contract.yaml"
+    },
+    {
+      "text": "enrichment/codebase-context.md exists",
+      "type": "file_exists",
+      "target": "with_skill/outputs/enrichment/codebase-context.md"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: code",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "domain",
+      "expected": "code"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: systematic",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "strategy",
+      "expected": "systematic"
+    },
+    {
+      "text": "seed-brief frontmatter declares depth: deep",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "depth",
+      "expected": "deep"
+    },
+    {
+      "text": "seed-brief frontmatter declares proposal_count: 5",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "proposal_count",
+      "expected": "5"
+    },
+    {
+      "text": "seed-brief frontmatter declares blind_mode: true",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/seed-brief.md",
+      "field": "blind_mode",
+      "expected": "true"
+    },
+    {
+      "text": "merged-requirements has Functional Requirements \u226510 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Functional Requirements",
+      "min_items": 10
+    },
+    {
+      "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Non-Functional Requirements",
+      "min_items": 5
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria \u22656 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Acceptance Criteria",
+      "min_items": 6
+    },
+    {
+      "text": "merged-requirements has Risks section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Risks"
+    },
+    {
+      "text": "merged-requirements has Open Questions \u22652 items",
+      "type": "section_enumerated",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Open Questions",
+      "min_items": 2
+    },
+    {
+      "text": "merged-requirements has Provenance section",
+      "type": "section_present",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "section_pattern": "Provenance"
+    },
+    {
+      "text": "merged-requirements frontmatter has adversarial_status: pass",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "field": "adversarial_status",
+      "expected": "pass"
+    },
+    {
+      "text": "merged-requirements frontmatter declares blind_mode: true",
+      "type": "frontmatter_field",
+      "target": "with_skill/outputs/merged-requirements.md",
+      "field": "blind_mode",
+      "expected": "true"
+    },
+    {
+      "text": "return-contract.yaml has contract_version = 1.0",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "contract_version",
+      "expected": "1.0"
+    },
+    {
+      "text": "return-contract.yaml status = success",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "status",
+      "expected": "success"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "type": "yaml_field_min",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "convergence_score",
+      "min_value": 0.5
+    },
+    {
+      "text": "return-contract.yaml domain = code",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "domain",
+      "expected": "code"
+    },
+    {
+      "text": "return-contract.yaml proposal_count = 5",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "proposal_count",
+      "expected": 5
+    },
+    {
+      "text": "return-contract.yaml handoff_action = none",
+      "type": "yaml_field",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "handoff_action",
+      "expected": "none"
+    },
+    {
+      "text": "agent_spec uses blind/anonymized labels (Agent A-E) \u2014 validates --blind mode",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "Agent A",
+        "blind:Agent",
+        "anonymized"
+      ]
+    },
+    {
+      "text": "agent_spec mentions \u22652 personas across blind labels",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/return-contract.yaml",
+      "field": "agent_spec",
+      "substring_any": [
+        "architect",
+        "refactorer",
+        "security",
+        "qa",
+        "devops"
+      ]
+    },
+    {
+      "text": "debate transcript uses anonymized agent labels (not model aliases)",
+      "type": "yaml_substring",
+      "target": "with_skill/outputs/adversarial/debate-transcript.md",
+      "field": "blind_labels",
+      "substring_any": [
+        "Agent A",
+        "Agent B",
+        "Agent C"
+      ]
+    },
+    {
+      "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+      "type": "dir_count",
+      "target": "with_skill/outputs/adversarial/",
+      "min_files": 6
+    },
+    {
+      "text": "v1 baseline: requirements.md exists",
+      "type": "file_exists",
+      "target": "old_skill/outputs/requirements.md"
+    },
+    {
+      "text": "v1 baseline: requirements.md has Acceptance Criteria section",
+      "type": "section_present",
+      "target": "old_skill/outputs/requirements.md",
+      "section_pattern": "Acceptance Criteria"
+    }
+  ]
+}

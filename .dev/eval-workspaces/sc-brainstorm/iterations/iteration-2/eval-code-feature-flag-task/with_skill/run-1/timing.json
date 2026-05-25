@@ -1,0 +1,7 @@
+{
+  "total_tokens": 104880,
+  "duration_ms": 404200,
+  "total_duration_seconds": 404.2,
+  "tool_uses": 18,
+  "agent_id": "v2-eval9-with-skill-7f91c2"
+}

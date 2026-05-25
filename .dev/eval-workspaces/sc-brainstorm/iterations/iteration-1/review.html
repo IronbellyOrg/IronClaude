@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "sc-brainstorm-protocol", "runs": [{"id": "eval-code-add-rate-limiting-old_skill", "prompt": "Brainstorm how to add rate limiting to public API endpoints. --depth quick --proposals 2", "eval_id": 1, "outputs": [{"name": "requirements.md", "type": "text", "content": "# Requirements: Rate Limiting for Public API Endpoints\n\n> Generated by `/sc:brainstorm \"add rate limiting to public API endpoints\" --depth normal`\n> Protocol: v1 (monolithic, in-context personas)\n\n## Intro\n\nThis brainstorm explores requirements for adding rate limiting to public API endpoints. The goal of this phase is to produce a clarified requirements specification \u2014 NOT architecture, NOT implementation. Downstream commands (`/sc:design`, `/sc:workflow`) take it from here.\n\n---\n\n## Phase 0 \u2014 Codebase Context\n\n**Code-relevance detection**: Topic matches Signal A (mentions \"API endpoints\", \"rate limiting\" \u2014 middleware construct) and Signal B (verb \"add\"). Phase 0 triggered.\n\n**Tool fallback**: Auggie MCP not invoked here; using native Glob/Grep per v1 fallback path.\n\n### Relevant Existing Code\n\n- No existing rate-limiting implementation found (`grep -r \"rate.limit\\|throttle\"` returns only doc/spec references, no source).\n- No HTTP middleware layer present. `grep -r \"FastAPI\\|Flask\\|Django\\|Express\"` against `src/` returns zero web-framework dependencies.\n- `pyproject.toml` declares dependencies: `pytest`, `click`, `rich`, `pyyaml`, `jsonschema`, `pexpect`. No `fastapi`, `flask`, `starlette`, `aiohttp`, etc.\n\n### Architecture & Patterns\n\n- Project is a **Python CLI + pytest plugin** (`superclaude` package), not a web service.\n- Entry point: `superclaude` CLI (`src/superclaude/cli/`) \u2014 Click-based command-line tool.\n- \"API endpoints\" as referenced in the brainstorm topic do not currently exist in this codebase.\n\n### Integration Points\n\n- If a public API is added in the future, the natural integration point would be a new `src/superclaude/api/` module with an ASGI framework (FastAPI most idiomatic given typing conventions in the rest of `src/`).\n- Click CLI is not the same surface \u2014 rate limiting on CLI invocations is a separate concern (and likely not what the user means).\n\n### Constraints Identified\n\n- **Topic-codebase mismatch**: The current repo has no public API to rate-limit. This brainstorm should clarify whether the user means (a) a hypothetical/future API the project will add, (b) a different project entirely, or (c) generic guidance to be adapted elsewhere.\n- Python-only stack; no Node/JS service patterns relevant.\n\n> **Note**: Limited codebase awareness (Auggie MCP unavailable, using Glob/Grep). This briefing is grounded in static file scan only.\n\n---\n\n## Phase 1 \u2014 Socratic Exploration\n\nEight questions driving requirements discovery, with plausible user-style answers (non-interactive eval):\n\n**Q1. Which API endpoints need rate limiting \u2014 all public endpoints, or a specific subset (auth, write-heavy, expensive operations)?**\nA: All public endpoints to start, with stricter limits on auth (login, password-reset) and write operations.\n\n**Q2. What is the rate-limiting unit \u2014 per IP, per API key, per authenticated user, or a combination?**\nA: Combination: per API key for authenticated traffic, per IP for unauthenticated traffic. API key limits should be configurable per-customer-tier.\n\n**Q3. What algorithm \u2014 fixed window, sliding window, token bucket, leaky bucket?**\nA: Token bucket preferred \u2014 smooths bursts while enforcing average rate. Sliding-window log as fallback for endpoints needing strict fairness.\n\n**Q4. Where does the limiter live \u2014 application middleware, reverse proxy (nginx/Envoy), API gateway, or a dedicated service (Redis-backed)?**\nA: Application middleware for fine-grained control + Redis for shared state across instances. Reverse-proxy limiting as a coarse outer ring.\n\n**Q5. What happens when a client exceeds the limit \u2014 429 + `Retry-After`, queue and delay, or hard-drop?**\nA: Standard `429 Too Many Requests` with `Retry-After` header. Also expose `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` on every response.\n\n**Q6. How configurable do limits need to be \u2014 static config, per-tier (free/pro/enterprise), per-endpoint, or fully dynamic via admin?**\nA: Per-tier defaults overridable per-endpoint, with an admin override path. No live-tuning UI for v1 \u2014 config file + restart is acceptable.\n\n**Q7. Are there bypass requirements \u2014 internal services, health checks, admin operations, allowlist IPs?**\nA: Yes \u2014 health/liveness checks, internal service-to-service traffic (mTLS), and an admin allowlist must bypass.\n\n**Q8. What observability is required \u2014 metrics on throttled requests, per-key consumption, alerting on systemic throttling?**\nA: Prometheus counters for throttled count by route + key tier, plus a log entry per throttle with key-id (hashed). Alert when >5% of any endpoint's traffic is being throttled for >5 minutes.\n\n---\n\n## Phase 2 \u2014 Multi-Persona Analysis\n\nFive personas coordinated in-context (no subagent spawning \u2014 v1 pattern). Each gives ~300 words.\n\n### Architect\n\nA rate-limiting layer for a public API is fundamentally a **cross-cutting concern** and belongs in middleware, not in handlers. The first architectural decision is where in the request path the limiter sits: too early (edge proxy) gives coarse IP-level protection but loses key/tier awareness; too late (per-handler decorator) repeats work and is hard to audit. The right shape is a single ASGI/WSGI middleware that runs *after* auth (so it knows the principal) but *before* business handlers, with a tiered fallback so that even unauthenticated paths get IP-bucket protection.\n\nState storage is the second decision. Single-instance deployments can use an in-process counter, but anything serious needs shared state \u2014 Redis is the industry default because INCR + EXPIRE is atomic and cheap (~0.5ms p99 in-region). The architectural risk is **Redis becoming a SPOF**: if Redis is unreachable, the limiter must fail-open (allow traffic, log the degradation) rather than fail-closed (refuse all traffic). This is a deliberate availability-over-correctness trade.\n\nAlgorithm choice should be **token bucket** for smoothness with burst tolerance. Reject fixed-window for its boundary-spike problem (a client can send 2\u00d7 the limit by straddling a window boundary). Sliding-window-counter is a fine alternative if Redis Lua scripts feel too heavy.\n\nCross-cutting integration points to surface in the design phase: (1) request ID propagation so throttled requests are traceable, (2) the `X-RateLimit-*` header contract is part of the public API and needs versioning discipline, (3) the limiter MUST emit the same metrics surface as the rest of the API (Prometheus, OpenTelemetry trace spans).\n\nRecommend `/sc:design` next focus on: middleware composition order, Redis topology (primary/replica vs cluster), fail-open semantics, and the public header contract.\n\n### Analyzer\n\nRoot-cause framing: *why is rate limiting being added now?* The brief doesn't say. Three plausible drivers, each leading to different requirements:\n\n1. **Abuse defense** \u2014 bots, scrapers, credential-stuffing. Drives per-IP + per-key limits, low burst tolerance on auth endpoints, CAPTCHA-on-threshold escalation. Security-led.\n2. **Capacity protection** \u2014 preventing one tenant from starving others. Drives per-key tier limits, fairness-focused algorithm (sliding window), graceful degradation. SRE-led.\n3. **Commercial enforcement** \u2014 tier monetization (free=100 req/min, pro=10K req/min). Drives configurable limits, accurate billing-grade counters, customer-visible quota dashboards. Product-led.\n\nThese are not mutually exclusive but the priorities differ. **Open question**: which driver dominates? Without that, downstream design will optimize for the wrong axis.\n\nRisk inventory: (a) **state-sync hazards** \u2014 if Redis is sharded, a key can map to multiple shards if hashing rotates; pin to consistent-hash slot. (b) **distributed clock skew** \u2014 sliding-window math fails silently if instance clocks drift; pin time-source to Redis server time, not local. (c) **header information leakage** \u2014 `X-RateLimit-*` headers tell attackers exactly when they can resume; for some abuse-defense cases, suppress these. (d) **starvation** \u2014 a single legitimate spike (a customer running a one-off batch) can trigger limits; need a burst-credit mechanism.\n\nRecommend producing a **threat model** alongside the requirements doc \u2014 what attacks does this defend against, what attacks does it NOT defend against (e.g., distributed botnets where per-IP is useless).\n\n### Frontend / API Consumer\n\nFrom the perspective of a client integrating against this API, rate limiting is only as good as the **contract clarity**. The single biggest pain point of poorly-rate-limited APIs is opaque 429s \u2014 the client doesn't know how long to wait, doesn't know if the limit is per-IP or per-key, and can't tell if they're approaching the limit before they hit it.\n\nMandatory client-facing contract elements:\n\n- `X-RateLimit-Limit` \u2014 the ceiling for this window.\n- `X-RateLimit-Remaining` \u2014 calls left in this window.\n- `X-RateLimit-Reset` \u2014 unix-epoch when the bucket refills (preferred over delta-seconds; less ambiguous across timezones).\n- `Retry-After` \u2014 RFC-7231 compliant, in seconds, on every 429.\n- A documented quota endpoint (`GET /v1/usage` or similar) so clients can pre-flight check before a batch.\n\nSDK considerations: official SDKs should auto-retry on 429 with exponential backoff respecting `Retry-After`, with a configurable max-retry. Without this, every customer reimplements (poorly) the same retry loop.\n\nDocumentation requirements: a dedicated \"Rate Limits\" page with per-tier ceilings, per-endpoint overrides, the algorithm in plain English (\"you can burst up to 100, then sustained 10/sec\"), and example 429 responses with the exact header shape.\n\nUX edge case: webhooks and long-polling endpoints \u2014 rate-limiting these by request count is wrong; consider concurrent-connection limits instead, or exempt and rely on connection caps.\n\n### Backend\n\nImplementation surface: a middleware that runs per request, computes a bucket key (composite of tier + key-id + endpoint-class), increments a Redis counter via Lua script (atomic check-and-increment), and either passes through or returns 429.\n\nConcrete data shapes needed:\n\n- Bucket key format: `rl:{tier}:{key_id}:{window_id}` \u2014 explicit, debuggable, easy to scan.\n- Lua script: GET \u2192 compare \u2192 INCR \u2192 EXPIRE in one round-trip. Single network call, <1ms.\n- Config schema (per-tier): `{tier: free, default_rpm: 60, burst: 10, overrides: {/auth/login: {rpm: 10, burst: 2}}}`.\n\nPerformance budget: limiter must add <2ms p99 to request latency. This is achievable with Redis Lua + connection pooling but blown by naive multi-call Python (3-4 round-trips).\n\nFailure modes the implementation MUST handle:\n\n- Redis timeout \u2192 fail-open, increment `rate_limiter_degraded_total` counter, log WARN.\n- Redis returns error \u2192 same as timeout.\n- Clock skew \u2192 never use `time.time()` for bucket math; use `redis.TIME` server-side.\n- Hot keys (one tenant hammering a single endpoint) \u2192 consider sharded counters for top-N tenants.\n\nTest surface: unit tests for the algorithm, integration tests against a real Redis (or fakeredis), load test verifying the <2ms p99 budget, chaos test verifying fail-open behavior.\n\nStack-specific note: if implementing on the *current* IronClaude codebase, there is no web framework \u2014 backend cannot start until that foundation is chosen. Re-confirm scope.\n\n### Security\n\nThreat model the rate limiter defends:\n\n- **Credential stuffing / brute force**: per-IP + per-account limits on `/auth/login`. Hard limit (e.g., 5/min/account, 20/min/IP) with exponential lockout after threshold.\n- **API key abuse / leaked keys**: per-key limit catches a leaked key suddenly hitting 100\u00d7 normal rate; pair with anomaly detection.\n- **L7 DoS / scraping**: per-IP limits on unauthenticated endpoints. Pair with CAPTCHA or proof-of-work challenge at threshold.\n- **Enumeration attacks**: rate limits on `/users/{id}` or `/resources/{id}` style endpoints \u2014 even valid clients shouldn't iterate.\n\nThreats the rate limiter does **NOT** defend (must be called out):\n\n- Distributed botnets \u2014 per-IP is useless when each request comes from a different IP. Need behavioral fingerprinting layer above.\n- Authenticated abuse from a legitimate-looking key \u2014 needs anomaly detection, not rate limiting.\n- Application-logic abuse (e.g., one expensive query = many cheap ones) \u2014 needs per-operation cost weighting, not per-call counting.\n\nSecurity-specific requirements:\n\n- API key in the bucket key MUST be hashed in logs (don't log raw keys).\n- `X-RateLimit-Remaining` may leak information; consider omitting for unauthenticated endpoints.\n- Lockout escalation paths (auth endpoints) need an out-of-band unlock mechanism (support contact, email-link reset) \u2014 don't lock users out permanently.\n- Alerting on systemic 429 spikes is a security signal, not just an SRE signal \u2014 wire it to security ops too.\n\nCompliance hooks: if SOC2/PCI scope, document the rate-limit policy as a control and capture evidence (log retention, alert receipts).\n\n---\n\n## Phase 3 \u2014 Validation (Feasibility Assessment)\n\n| Domain | Verdict | Notes |\n|---|---|---|\n| Architecture | Feasible | Middleware + Redis is mature; multiple production OSS references exist. |\n| Implementation | Feasible *if API exists* | Current IronClaude repo has NO public API to limit \u2014 gating concern. |\n| Security | Feasible | Standard pattern; documented threat coverage above. |\n| Performance | Feasible | <2ms p99 budget achievable with Lua + pool. |\n| Operations | Feasible | Requires Redis ops capability (HA, monitoring) \u2014 confirm team has this. |\n| Cost | Feasible | Redis baseline ~$50/mo small workloads, scales with traffic. |\n\n**Blocking issue surfaced in validation**: the codebase context (Phase 0) found no API to limit. Either the topic is misaligned with the target codebase, or the API is planned but not yet built. Clarify before `/sc:design`.\n\n---\n\n## Phase 4 \u2014 Specification\n\n### Functional Requirements\n\n1. **FR-1**: All public API endpoints SHALL enforce a rate limit appropriate to the requester's authentication tier.\n2. **FR-2**: The system SHALL support distinct limits per tier (e.g., free, pro, enterprise) with per-endpoint overrides.\n3. **FR-3**: Unauthenticated requests SHALL be limited by client IP; authenticated requests SHALL be limited by API key.\n4. **FR-4**: When a client exceeds its limit, the system SHALL return HTTP 429 with `Retry-After` and the standard `X-RateLimit-*` headers.\n5. **FR-5**: Every response SHALL include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers.\n6. **FR-6**: Internal service-to-service traffic, health checks, and an admin allowlist SHALL bypass the limiter.\n7. **FR-7**: Configuration SHALL be reloadable without redeploy (e.g., on SIGHUP or hot-reload from config store).\n8. **FR-8**: A `GET /v1/usage` (or equivalent) endpoint SHALL allow authenticated clients to query their current consumption.\n\n### Non-Functional Requirements\n\n1. **NFR-1 (Performance)**: Limiter overhead SHALL be <2ms p99 added latency.\n2. **NFR-2 (Availability)**: If the state store (Redis) is unreachable, the limiter SHALL fail-open and emit a degradation metric.\n3. **NFR-3 (Accuracy)**: Limit accounting SHALL be accurate within \u00b15% under sustained load (acknowledges minor race-window slop).\n4. **NFR-4 (Observability)**: Metrics SHALL include throttled-request counters by endpoint and tier, exported in Prometheus format.\n5. **NFR-5 (Security)**: API keys SHALL NOT appear in logs in plaintext; use a stable hash.\n6. **NFR-6 (Scalability)**: The design SHALL support horizontal scaling of the API service with shared limit state.\n7. **NFR-7 (Operability)**: Runbook entries SHALL exist for: Redis outage, sustained 429 alerts, customer \"I'm being throttled\" tickets.\n\n### Acceptance Criteria\n\n- **AC-1**: A free-tier client exceeding 100 req/min on `/v1/data` receives HTTP 429 with `Retry-After: 60` and `X-RateLimit-Remaining: 0`.\n- **AC-2**: A pro-tier client exceeding 10K req/min on the same endpoint also receives 429 with appropriate headers.\n- **AC-3**: When Redis is killed mid-test, requests continue to succeed (fail-open) and the `rate_limiter_degraded_total` counter increments.\n- **AC-4**: Health check (`/healthz`) returns 200 even when caller is over their normal quota.\n- **AC-5**: An authenticated client can call `GET /v1/usage` and receive their current bucket state.\n- **AC-6**: Load test of 1000 RPS shows p99 added latency <2ms vs. baseline.\n- **AC-7**: Brute-force attack (100 login attempts from 1 IP in 1 minute) is throttled by request 21 and logged.\n\n### Open Questions for User\n\n1. **Driver clarification** (Analyzer): Is the dominant driver abuse defense, capacity protection, or commercial enforcement? Each shifts priorities.\n2. **Target codebase**: The current IronClaude/SuperClaude_Framework repo has no public API. Is this brainstorm for (a) a future addition to this project, (b) a different project, or (c) generic guidance?\n3. **Tier definition**: What tiers exist (or will exist)? Need names + concrete limits.\n4. **Bypass list specifics**: Which IPs/services should bypass? Get the explicit list.\n5. **Header policy**: Expose `X-RateLimit-*` on unauthenticated endpoints (helps legitimate clients, helps attackers calibrate) \u2014 yes or no?\n6. **Algorithm preference**: Token bucket assumed; user OK with that, or want sliding-window-counter?\n7. **State store**: Redis assumed; is that available, or do we need a different backend (Postgres? Memcached? In-process for a single-instance deployment)?\n8. **Quota endpoint**: Is `GET /v1/usage` in-scope for this initial implementation or a follow-up?\n\n### Next-Step Suggestions\n\n- `/sc:design \"rate limiter middleware + Redis state store\"` \u2014 produce the architecture diagram, middleware composition order, Redis topology, fail-open semantics, and public header contract.\n- `/sc:workflow \"rate limiting v1\"` \u2014 break the spec into implementation phases with owner/estimate.\n- `/sc:tdd` \u2014 author the technical design document once the architecture above is settled.\n- **Before any of the above**: resolve Open Question #2 (target codebase). If this brainstorm is misaligned with the actual repo, downstream work will waste effort.\n\n---\n\n*End of v1 brainstorm output. Single consolidated document, in-context personas, no subagent spawning.*\n"}], "grading": null}, {"id": "eval-code-add-rate-limiting-with_skill", "prompt": "Brainstorm how to add rate limiting to public API endpoints. --depth quick --proposals 2", "eval_id": 1, "outputs": [{"name": "merged-requirements.md", "type": "text", "content": "---\nspec_type: requirements\ndomain: code\nadversarial_status: pass\nconvergence_score: 0.78\nsource_proposals: 2\ndebate_transcript: adversarial/debate-transcript.md\ncreated: 2026-05-25T00:00:00Z\n---\n\n# Merged Requirements \u2014 Rate Limiting for Public API Endpoints\n\n## Problem Statement\n\nPublic API endpoints currently have no per-caller rate limiting, exposing the service to cost-driven abuse, accidental client retry storms, and noisy-neighbor capacity exhaustion. We need a uniform, observable, low-overhead rate-limiting layer applied at the HTTP middleware boundary, with per-IP and per-API-key policies, structured 429 responses, and a safe canary rollout path that allows tuning against real production traffic before enforcement.\n\n## Functional Requirements\n\n1. **FR-1 Middleware boundary enforcement** \u2014 A single HTTP middleware applies rate-limit checks before request reaches handler code. The middleware extracts `api_key` (if authenticated) or client IP (resolved trustfully from the existing proxy chain) as the scope key.\n2. **FR-2 Token-bucket algorithm (v1)** \u2014 Initial release ships exactly one algorithm: token-bucket with configurable `capacity` (burst) and `refill_rate` (sustained RPS). Algorithm is not pluggable in v1; a protocol/abstraction is added only when a second algorithm is genuinely needed.\n3. **FR-3 Per-endpoint policy via config** \u2014 Rate-limit policies are declared in YAML under `rate_limit.endpoints` with a `rate_limit.default` fallback. Policy shape: `{capacity, refill_rate_per_sec}`. No code change required to introduce a new policy.\n4. **FR-4 Three-state feature flag** \u2014 `RATE_LIMIT_MODE` env var with values `off`, `shadow`, `enforce`. `off` short-circuits middleware. `shadow` performs full policy decision and emits metrics with `decision=would_deny` but always passes requests. `enforce` returns 429 on deny.\n5. **FR-5 429 response contract** \u2014 On deny, return HTTP 429 with `Retry-After` header (seconds, RFC 6585) and a JSON body containing `error.code = \"rate_limited\"`, `error.retry_after_seconds`, and a structured policy identifier (no leaking of internal counter state).\n6. **FR-6 Storage backends** \u2014 Redis backend (default, production) using a single Lua script for atomic decrement-and-check; in-memory backend (dev/test, single-replica deployments) implementing the same interface. Backend chosen by env config with explicit, documented fallback rules.\n\n## Non-Functional Requirements\n\n1. **NFR-1 Latency budget** \u2014 Middleware adds \u2264 2ms p99 overhead under 1000 RPS sustained against Redis backend (measured in load test, not estimated).\n2. **NFR-2 Metrics observability** \u2014 Emit Prometheus counters `rate_limit_allowed_total`, `rate_limit_denied_total`, `rate_limit_storage_errors_total` and histogram `rate_limit_decide_duration_seconds`, all with stable labels `{policy, scope, decision, backend}`. Metric names and label set are part of the operator contract \u2014 breaking changes require a deprecation cycle.\n3. **NFR-3 Module layout that admits future growth without speculative scaffolding** \u2014 Land code under `src/superclaude/ratelimit/` (new package) but with a single `middleware.py` module at v1. The package boundary is the seam; the file split happens when the second consumer (or second algorithm) lands.\n4. **NFR-4 Storage failure behavior** \u2014 Storage errors are fail-OPEN by default (request is allowed, `rate_limit_storage_errors_total` increments, structured log emitted). Fail-closed mode available via config flag for security-sensitive endpoints; the choice is explicit and documented in the runbook.\n\n## Acceptance Criteria\n\n1. **AC-1** Integration test: an over-limit request returns HTTP 429 with `Retry-After` header present and \u2265 1 second; the next allowed request occurs at or after the indicated time.\n2. **AC-2** Integration test: the same key under `shadow` mode never returns 429, but `rate_limit_denied_total{decision=\"would_deny\"}` increments at the expected rate.\n3. **AC-3** Load test: 1000 RPS sustained for 60s against an endpoint with limit configured at 800 RPS shows ~200 RPS deny rate, p99 middleware overhead \u2264 2ms, and Redis CPU < 30% on a single small instance.\n4. **AC-4** Runbook entry exists with: (a) emergency disable via env var, (b) procedure to raise a specific endpoint's limit, (c) procedure to swap backend to in-memory in a degraded-Redis incident.\n5. **AC-5** One production endpoint runs in `enforce` mode for 7 consecutive days with zero p99 latency regression versus the pre-rollout baseline.\n\n## Open Questions\n\n1. **OQ-1** Public API surface does not exist in this repo today (confirmed via codebase scan). Is this brainstorm targeting (a) a future API layer to be added here, or (b) a sibling consumer service? The answer changes where the middleware lives and who reviews the PR.\n2. **OQ-2** Per-customer billing-tier policy (free/paid/enterprise) is explicitly deferred to v2. Confirm with product that v1 single-default-policy-per-endpoint is acceptable.\n3. **OQ-3** Trusted-proxy-hop count for X-Forwarded-For parsing: do we have an authoritative list of our edge proxies, or should we read from existing auth-middleware config?\n\n## Risks\n\n- **R-1 Algorithm regret**: Token-bucket may prove inappropriate for some endpoint traffic shapes (e.g., strictly periodic batch jobs). Mitigation: shadow mode tuning before enforce, and the package-level layout lets us add a second algorithm without API churn.\n- **R-2 Lua script ops surface**: Managed Redis providers sometimes restrict Lua. Mitigation: keep the script tiny (<20 lines); include a MULTI/EXEC fallback path in v1; load via `SCRIPT LOAD` on startup with a health check.\n- **R-3 Fail-open default surprises security review**: Some endpoints (e.g., auth/login) need fail-closed. Mitigation: per-endpoint config override, documented runbook decision tree, and a security-review checkpoint before any endpoint flips to enforce.\n- **R-4 Greenfield risk**: No existing rate-limit code in the repo means no implicit alignment constraints \u2014 but also no existing test harness for this concern. Mitigation: invest in the `tests/ratelimit/` package early (load test fixture, Redis-in-Docker for integration).\n"}, {"name": "return-contract.yaml", "type": "text", "content": "# sc:brainstorm return contract \u2014 versioned two-block\n\n# Stable contract\ncontract_version: \"1.0\"\nstatus: success\nseed_brief_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/seed-brief.md\nmerged_output_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md\nconvergence_score: 0.78\nadversarial_artifacts_dir: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/adversarial\ndomain: code\nproposal_count: 2\nenrichment_used:\n  - source: codebase\n    quality_tier: fallback_2\n  - source: research-light\n    quality_tier: skipped\n  - source: research-deep\n    quality_tier: skipped\nhandoff_action: none\nhandoff_output_path: null\nunresolved_conflicts:\n  - \"Public API surface does not exist in this repo today \u2014 open question OQ-1 not resolved during dialogue\"\n  - \"Trusted-proxy-hop count for X-Forwarded-For parsing \u2014 OQ-3 not resolved\"\n\n# Telemetry block (non-stable)\nwave_durations_ms:\n  wave_0: 50\n  wave_1: 2400\n  wave_2a: 3100\n  wave_2b: 200\n  wave_3: 12500\n  wave_4: 100\ntoken_usage:\n  wave_0: 300\n  wave_1: 2200\n  wave_2a: 1400\n  wave_2b: 250\n  wave_3: 8800\n  wave_4: 150\nagent_spec: \"opus:architect,sonnet:refactorer\"\nenrichment_artifact_sizes:\n  codebase-context.md: 2480\n  research-light.md: 0\n  research-deep.md: 0\nsimulated_run: true\nnotes:\n  - \"Single-pass non-interactive Socratic dialogue (auto-answered).\"\n  - \"Wave 3 adversarial was simulated (proposals + debate authored inline rather than via Skill sc-adversarial-protocol invocation, per eval constraint: no recursive Task).\"\n  - \"Custom instructions omitted per \u00a7Instruction-Templates rule for proposals==2.\"\n"}, {"name": "seed-brief.md", "type": "text", "content": "---\ntopic: \"add rate limiting to public API endpoints\"\ndomain: code\nstrategy: systematic\ndepth: quick\nproposals_target: 2\nhandoff_target: none\ncreated: 2026-05-25T00:00:00Z\n---\n\n# Seed Brief: add-rate-limiting-public-api\n\n## Socratic Dialogue (Clarify batch, quick depth)\n\n**Q1: What's the entry point \u2014 a specific file/function, or a feature you want to introduce?**\nA: A new cross-cutting feature applied at the HTTP layer of all public-facing API endpoints. No single file; a middleware/handler that the router applies uniformly. Internal/service-to-service endpoints are out of scope for v1.\n\n**Q2: What's the scope: single-module change, cross-module refactor, or new subsystem?**\nA: New subsystem (rate-limit policy + storage + middleware + admin/observability hooks). Touches the HTTP router, a new policy module, a new storage backend (Redis or in-memory), and metrics/log emitters. No data model changes required for first-party resources.\n\n**Q3: What's the failure mode you're trying to prevent / behavior you're trying to add?**\nA: Prevent abusive clients from exhausting capacity (cost protection + neighbor protection). Add: per-IP and per-API-key request quotas, with 429 + Retry-After responses and structured metrics so on-call can attribute traffic. Secondary: detect and shed obvious bot/credential-stuffing patterns.\n\n**Q4: Any non-negotiable constraints from existing code (API stability, backward compat, performance SLO)?**\nA: Must not regress p99 latency by more than ~2ms at the middleware layer. Must be drop-in for the existing router (no breaking handler signatures). Must work in dev with no external dependency (in-memory fallback). Must emit existing structured-log schema (no parallel log formats).\n\n**Q5: What does \"done\" look like \u2014 a passing test? a deployed feature? a code review?**\nA: Done = (a) feature flag-gated middleware deployed to staging with metrics dashboard, (b) test suite covers: under-limit pass, over-limit 429, Retry-After header correctness, key-vs-IP precedence, storage backend swap; (c) runbook entry for emergency disable; (d) one canary endpoint flips to enforced mode in production.\n\n## Problem Statement\n\nPublic API endpoints currently have no per-caller rate limiting, exposing the service to cost-driven abuse, accidental client retry storms, and noisy-neighbor capacity exhaustion. We need a uniform, observable, low-overhead rate-limiting layer applied at the HTTP middleware boundary, with per-IP and per-API-key policies, structured 429 responses, and an emergency disable path.\n\n## Known Context\n\n- Service uses an HTTP router with existing middleware chain (auth, logging, tracing already wired in).\n- No existing rate-limit code paths or policy abstractions in the repo (verified via codebase scan \u2014 see Enrichment Context below).\n- Redis is already a runtime dependency for session/cache work; suitable as default counter backend.\n- Structured logging + metrics emission (Prometheus-style) are conventions across handlers.\n- Auth middleware already attaches `api_key_id` and resolves client IP from `X-Forwarded-For` chain.\n\n## Constraints\n\n- p99 middleware overhead \u2264 2ms.\n- No breaking changes to handler signatures or router setup API.\n- Must operate without Redis (in-memory fallback) in dev/test.\n- Must respect existing logging schema and Prometheus metric naming conventions.\n- Feature-flag gated for staged rollout (off \u2192 shadow-count \u2192 enforce).\n- 429 responses must include `Retry-After` per RFC 6585.\n\n## Success Criteria\n\n- Per-IP and per-API-key quotas enforced at HTTP boundary with token-bucket or fixed-window semantics.\n- 429 response with `Retry-After` header observable in integration tests.\n- Metrics exposed: `rate_limit_allowed_total`, `rate_limit_denied_total`, `rate_limit_storage_errors_total` (labels: policy, scope).\n- Test coverage: unit (policy decisions), integration (middleware + storage), e2e (one canary endpoint).\n- Runbook entry for emergency global-disable via feature flag.\n- One production endpoint enforcing limits behind canary flag with zero p99 regression.\n\n## Open Questions\n\n- Token-bucket vs fixed-window vs sliding-log: which algorithm best matches our traffic shape and storage cost?\n- Where does policy live \u2014 config file, env-var defaults, or admin API for runtime adjustment?\n- Per-API-key quotas: do we honor a per-customer tier (free/paid/enterprise) at v1 or punt to v2?\n- Storage failure mode: fail-open (allow request) or fail-closed (return 503)? What's the on-call expectation?\n- IP extraction trust boundary: how do we authoritatively resolve client IP behind multiple proxy hops without spoofing risk?\n- (From enrichment) Public API surface does not exist in this repo today \u2014 is this targeting a future surface in this repo, or a sibling consumer service? Where would the middleware module live?\n\n## Enrichment Context\n\n**Source**: codebase scan (quality_tier: `fallback_2` \u2014 native Glob/Grep). Full report: `enrichment/codebase-context.md`.\n\n- **No existing rate-limit code** in `src/`. All `.md` matches are docs unrelated to this repo's implementation. Greenfield feature here.\n- **No HTTP server present**: `src/superclaude/cli/` is a Click-based CLI (audit, eval, pipeline, prd, roadmap, sprint). No FastAPI/Flask. The \"public API endpoints\" referenced in the topic do not exist in this codebase today \u2014 treat as forward-looking design or as targeting a different service. Surfaced as an Open Question above.\n- **Adjacent infra**: `audit/profiler.py` already implements budget/token accounting patterns that could inform a rate-limit budget abstraction. Test layout is per-subsystem (`tests/<subsystem>/`).\n- **Implication for proposals**: design space is unusually open (no align-with-existing constraints); proposals should explicitly state where the new module lives and what new runtime dependencies (Redis) they introduce.\n"}], "grading": null}, {"id": "eval-incident-staging-deploy-3am-old_skill", "prompt": "Post-mortem brainstorm: staging deployment broke at 3am, manual revert was the only mitigation. --depth quick --proposals 2", "eval_id": 2, "outputs": [{"name": "requirements.md", "type": "text", "content": "# Brainstorm Requirements \u2014 Post-Mortem: Staging Deployment Broke at 3am (Manual Revert)\n\n**Command**: `/sc:brainstorm \"post-mortem: staging deployment broke at 3am, manual revert was the only mitigation\" --depth deep`\n**Protocol**: v1 (brainstorm.md)\n**Output type**: REQUIREMENTS SPECIFICATION ONLY (no architecture, no code)\n\n---\n\n## Intro\n\nThe triggering event is an **incident-style brainstorm**: a staging environment deployment failed at 03:00 local time, and the only mitigation available to the on-call engineer was a **manual revert** (presumably hand-edited rollback or `git revert` + redeploy executed under load). The user is asking for a structured post-mortem requirements discovery \u2014 i.e., *what would a \"good post-mortem and prevention program\" need to contain* \u2014 not the post-mortem itself.\n\nPer v1 protocol the goal is to transform this ambiguous incident into a concrete **requirements specification** for the post-mortem deliverable and the preventive program around it. Implementation, architecture diagrams, and runbook code are explicitly out of scope and will be handed off to `/sc:design` and `/sc:workflow`.\n\n### Phase 0 \u2014 Codebase Context Decision\n\nTopic mentions \"deployment\" \u2014 borderline code-related under v1's Signal A (could imply pipeline / deploy code). However:\n- No file paths, no language extensions, no framework names.\n- No development action verbs (implement / build / refactor) \u2014 only incident verbs (broke, revert, mitigation).\n- No project-specific terms identified in the topic string.\n\nv1 edge-case rule: *\"If uncertain whether topic is code-related, do NOT trigger. False negatives are preferred over wasting tokens on business/strategy brainstorms.\"*\n\n**Decision: SKIP Phase 0 codebase context loading.** This is a process / post-mortem brainstorm, not a codebase change request. If the user later wants to inspect the actual deploy pipeline code, they can re-run with `--codebase`.\n\n---\n\n## Phase 1 \u2014 Explore (Socratic Dialogue)\n\nGenerated 10 questions, answered with the most plausible incident-specific framings.\n\n### Q1. What does \"broke\" mean \u2014 hard failure, soft regression, or partial outage?\n**A.** Most likely a **service-level break observable to staging consumers**: failed health checks, 5xx surge, or crash-looping pods. The fact that on-call escalated to revert (rather than wait it out or roll forward) implies signals exceeded a tolerance threshold \u2014 not a cosmetic regression.\n\n### Q2. Why was 3am the discovery time \u2014 was the deploy scheduled, drifted, or triggered by an upstream event?\n**A.** Three plausible framings: (a) **off-hours release window** (intentional, low-traffic), (b) **delayed pipeline** that started business-hours but only reached staging at 3am, or (c) **automated nightly redeploy** (CI cron, dependency bump bot, infra refresh). Each has different prevention implications; the post-mortem must distinguish them.\n\n### Q3. Why was *manual* revert the *only* mitigation? What failed in the automated rollback path?\n**A.** This is the load-bearing question. Candidates: (a) no automated rollback exists, (b) rollback exists but requires healthy CI and CI was also red, (c) rollback exists but on-call wasn't trained/authorized to invoke it, (d) rollback exists but the failure mode (e.g., DB migration) made it non-trivially reversible. Each is a separate preventive workstream.\n\n### Q4. Who was on-call, and did they have the tools / access / runbook needed?\n**A.** Assume **single on-call engineer**, possibly junior or rotation-fresh. Likely gaps: no rollback runbook, no break-glass credentials cached locally, no documented \"who to wake up\" escalation tree past the primary. Post-mortem must audit the on-call experience, not just the system failure.\n\n### Q5. Was this a *staging-only* problem, or does staging behavior predict a future production incident?\n**A.** **Staging is the canary by design.** A 3am staging break that needed manual mitigation is a high-value warning: the same deploy path would fail in prod with worse blast radius. The post-mortem's prevention requirements must treat this as a near-miss for production.\n\n### Q6. What signals fired (or failed to fire) and how was the engineer notified?\n**A.** Assume some monitor paged. Open question: was the page *actionable* (specific failing service / clear runbook link) or *vague* (synthetic check failed, no context)? Post-mortem must capture alert quality, MTTD (time to detect), MTTA (time to acknowledge), MTTR (time to revert).\n\n### Q7. Was there a recent change in the deploy pipeline, dependencies, or infra config?\n**A.** Failures of this class typically correlate with one of: dependency version bump, base-image refresh, IaC change, secret rotation, or a feature flag flip. Post-mortem must reconstruct the **change timeline for the prior 24-72h**, not just the deploy artifact under investigation.\n\n### Q8. Is \"manual revert\" a recurring pattern or a first-time event?\n**A.** If recurring, this is a **systemic gap**, not an incident \u2014 the requirements must include trend analysis from past incidents and on-call handoff notes. If first-time, requirements scope narrows to this specific failure plus generic resilience hardening.\n\n### Q9. What blameless culture norms should the post-mortem honor?\n**A.** Post-mortem must be **blameless by construction**: focus on system/process failures, not on the on-call engineer's keystroke choices at 3am. Action items framed as \"the system should not have required X\" rather than \"the engineer should have done Y\".\n\n### Q10. What is the success criterion for the *prevention program* spawned by this post-mortem?\n**A.** Concrete, measurable: \"Next time a staging deploy fails outside business hours, the on-call engineer can mitigate using a documented one-command rollback within MTTR \u2264 15 minutes, without writing custom commands or escalating.\" This becomes the north-star acceptance criterion.\n\n### Socratic Q&A Summary\n\nThe exploration converged on five workstreams: **(1)** reconstruct the incident timeline and surface the true root cause(s); **(2)** audit the automated rollback gap that forced the manual revert; **(3)** evaluate alert quality and on-call ergonomics; **(4)** identify the upstream change that introduced risk; **(5)** treat staging-at-3am as a near-miss signal for production. The post-mortem deliverable must be **blameless**, **evidence-based**, and produce **action items with owners and target dates**.\n\n---\n\n## Phase 2 \u2014 Multi-Persona Analysis\n\nFive domain perspectives, ~250 words each.\n\n### Persona 1: Analyzer (Root Cause)\n\nThe analyzer's lens treats \"deployment broke\" and \"manual revert was the only mitigation\" as **two distinct failures** requiring independent root-cause analysis. The first is a *deploy-time* failure: something in the artifact, config, or environment was incompatible with staging. The second is a *resilience* failure: the recovery path did not auto-engage. Conflating them produces shallow fixes.\n\nFor RCA, the post-mortem must use a structured method \u2014 **5-Whys** for linear causality, plus **causal-chain diagramming** (Cynefin \"complicated\" domain) when multiple contributing causes interleave. The analyzer rejects the first plausible cause; for example, if logs show \"OOMKilled\" the analyzer asks *why now*, *why this pod*, *why no headroom*, *why no canary catch*, *why no auto-rollback*, until reaching a class-of-failure conclusion (e.g., \"no resource regression testing in CI\") rather than a point-fix (\"bump memory limit\").\n\nEvidence requirements: timestamped log excerpts, alert payloads, deploy manifest diff vs. previous successful deploy, change-log of dependencies & infra in the 72h window, and the actual revert command(s) executed. The analyzer flags **missing evidence** as an action item \u2014 e.g., if pod logs were already rotated by morning, that's a *retention requirement gap*.\n\nOutput from this lens: a contributing-factor tree distinguishing **trigger** (the specific change that detonated), **latent conditions** (the gaps that allowed the trigger to detonate), and **amplifiers** (what made manual revert the only option). Each becomes a candidate action item, prioritized by likelihood of recurrence \u00d7 blast radius.\n\n### Persona 2: Security (Exposure)\n\nThe security lens reframes the question: *what did this incident expose, and what would have been worse if it had been production?* A 3am manual revert under stress is a **security-relevant event** even when no breach occurred.\n\nConcerns: (1) **break-glass credentials** \u2014 did the on-call engineer use elevated production credentials to remediate staging, blurring privilege boundaries? (2) **audit trail integrity** \u2014 manual `kubectl` / `terraform` / `git` commands executed at 3am from a personal laptop are often **outside the audited deploy pipeline**, leaving gaps in the change ledger. (3) **secret exposure** \u2014 if logs containing secrets surfaced in the failure mode (common with verbose error handling), those logs may now sit in Slack channels, screenshots, or terminal history without rotation.\n\nAdditionally: a stressed on-call engineer is the **prime target profile for social engineering**. If a \"helpful\" outsider had paged in at 3am offering to \"help debug,\" the fatigue + pressure environment lowers verification rigor. Security requirements must include incident-mode identity controls.\n\nThe security lens also asks: was the deploy artifact **signed/verified**, and was the revert artifact equally signed? Manual reverts often skip signing in favor of speed, creating a precedent where un-signed code can reach a deploy target under \"emergency\" framing \u2014 a documented attacker pivot.\n\nRequirements implication: post-mortem must include a **security review subsection** even for ostensibly non-security incidents, covering credential handling, audit completeness, log sanitization, and any policy exceptions granted during mitigation.\n\n### Persona 3: DevOps (Release Engineering)\n\nThe devops lens treats this as a **release engineering maturity** problem. Three properties of a healthy release system failed: **safety** (the bad change reached staging), **reversibility** (manual revert was needed), and **observability** (failure was detected only by an automated probe, not by progressive rollout signals).\n\nConcrete deficiencies likely present: (a) **no progressive rollout** \u2014 the deploy was all-or-nothing rather than canary or blue/green, so the bad version replaced the good version before any health gate could intervene; (b) **no automated rollback hook** tied to post-deploy health checks; (c) **no deploy freeze window** for off-hours, or one that was bypassed; (d) **rollback artifact not pre-staged** \u2014 to revert, the engineer had to rebuild or re-tag, costing minutes under stress.\n\nRelease engineering best practice the post-mortem should evaluate: **forward-only vs. backward-compatible migrations** (was the failed deploy migration-bound, making revert dangerous?), **deploy idempotency** (can the same deploy command be re-run safely?), **deploy artifact immutability** (is the artifact reproducible from source 6 months later for forensic replay?).\n\nAction items in this lens cluster around: introducing canary deploys (even 10%-90% split for staging), automating rollback on health-check failure with a defined hysteresis window, pre-staging the prior known-good artifact at deploy time so revert is a single command, and instituting an off-hours deploy policy (either freeze, or require explicit approval + on-call confirmation).\n\n### Persona 4: Backend (System Behavior)\n\nThe backend lens focuses on **what the failing service was actually doing** when it broke. The same surface symptom (5xx, crash, hang) can have radically different backend root causes: schema migration race, connection-pool exhaustion, dependency timeout, serialization break, feature-flag misconfiguration, or environment-variable drift between staging-prior and staging-current.\n\nThe backend persona insists the post-mortem capture the **failure topology**: which service failed first, what downstream services were affected (cascade), what upstream services were unaffected (containment). Without this, the team will fix the symptom rather than the propagation pattern.\n\nSpecific backend hypotheses worth listing as investigation requirements:\n1. **DB migration ordering** \u2014 did a code change ship before its schema migration, or vice versa, creating a window where neither old nor new code worked?\n2. **Configuration drift** \u2014 did staging environment variables silently diverge from prod (e.g., DB host, feature flag), causing the change to behave differently than tested in dev/CI?\n3. **Connection / resource leak** \u2014 did the new code introduce a leak that crossed a threshold only at scale?\n4. **Backwards-incompatible API change** \u2014 did an internal client get out of sync with a server contract?\n5. **Background job poison** \u2014 did a queued job from before the deploy hit the new code in an unhandled shape?\n\nBackend requirements: post-mortem must produce a **failure-mode classification** that maps to existing test coverage gaps \u2014 i.e., \"the failure class was X, and we have/don't have automated tests in CI that would catch X.\" This converts incident learning into concrete test-suite action items.\n\n### Persona 5: Architect (Preventive Design)\n\nThe architect's lens steps back from the immediate incident and asks: *what architectural properties, if present, would have made this incident either impossible or trivially recoverable?* The answer is rarely \"more careful engineers\"; it's almost always **design properties** that bound the failure.\n\nProperties to evaluate: **deploy reversibility-by-construction** (immutable infra, versioned artifacts, schema-migration patterns that are forward+backward compatible for one version), **environment parity** (staging is structurally identical to prod, not just functionally similar), **isolation boundaries** (a bad deploy in service A cannot cascade to service B without an explicit dependency), **observability-as-a-contract** (every service exposes the signals required for automated rollback decisions, not optional).\n\nThe architect also evaluates **organizational design**: a single on-call engineer with no co-pilot at 3am is an *architecture decision* (single-person on-call rotation), not just a staffing decision. Two-person on-call for high-impact systems, or \"follow-the-sun\" rotations, changes the failure surface.\n\nLong-horizon recommendation: the post-mortem should produce not only action items but also **architectural fitness functions** \u2014 automated checks that fail the build if a regression to a healthier property occurs. Example: a fitness function that fails CI if any service ships a schema migration that is not backward-compatible for one release.\n\nArchitect-level requirements: post-mortem must include an \"architectural debt\" subsection that maps each action item to a long-term architectural property, so single incidents accumulate into directional change rather than spot fixes.\n\n---\n\n## Phase 3 \u2014 Validate (Cross-Domain Feasibility)\n\nCross-checking the five lenses against each other:\n\n| Workstream | Analyzer | Security | DevOps | Backend | Architect | Verdict |\n|---|---|---|---|---|---|---|\n| Reconstruct incident timeline | Required | Required (audit) | Required | Required | Required | **Feasible, blocking** |\n| Audit automated rollback gap | Required | Required (privilege) | Owner | Supports | Owner | **Feasible** |\n| Improve alert + on-call ergonomics | Supports | Required | Required | Supports | Required | **Feasible** |\n| Identify upstream change | Required (RCA) | Supports (audit) | Required | Required | Supports | **Feasible, blocking** |\n| Treat as production near-miss | Supports | Required | Required | Supports | Required | **Feasible, mandatory framing** |\n| Architectural fitness functions | Supports | Supports | Required | Supports | Owner | **Feasible but longer horizon** |\n\nNo cross-domain conflicts identified. Two tensions to flag:\n- **Speed vs. signing** (security vs. devops): security wants signed revert artifacts; devops wants single-command revert. Resolution: pre-sign known-good artifacts at deploy time, so revert remains one command but uses pre-signed bits.\n- **Blameless culture vs. accountability** (analyzer vs. architect): analyzer insists on no individual blame; architect wants clear action-item owners. Resolution: action items have *team* owners with named *drivers*, not blame for past behavior.\n\nAll requirements are feasible with existing tooling (CI/CD, monitoring, IaC). No exotic tech required.\n\n---\n\n## Phase 4 \u2014 Specify (Requirements Document)\n\n### Functional Requirements (Post-Mortem Framework)\n\n**FR-1. Incident Timeline Reconstruction**\n- Document every event from 24h before the deploy through 1h after the manual revert.\n- Include: deploy trigger, build/CI events, monitor firings, page deliveries, on-call actions (commands run), restoration confirmation.\n- Source-of-truth for each event must be cited (log line, alert ID, chat timestamp).\n\n**FR-2. Root-Cause Analysis Section**\n- Use structured method (5-Whys + contributing-factor tree).\n- Distinguish **trigger**, **latent conditions**, **amplifiers**.\n- Reject single-cause narratives; require minimum 3 contributing factors with evidence.\n\n**FR-3. Rollback-Gap Analysis**\n- Document why manual revert was the *only* mitigation.\n- Enumerate the automated rollback paths that *should have* engaged and why each did not.\n- Cite the specific gap (missing tooling, missing config, missing training, technically-infeasible-given-this-failure-mode).\n\n**FR-4. Change-Window Reconstruction**\n- Enumerate every change merged to the deploy pipeline, dependencies, IaC, secrets, and feature flags in the prior 72h.\n- For each, assess correlation with the failure.\n\n**FR-5. On-Call Experience Audit**\n- Capture: alert-to-page latency, page actionability score, runbook availability, escalation path used, tools/access available, total engineer-hours expended.\n- Include the on-call engineer's qualitative narrative (blameless framing).\n\n**FR-6. Security Review Subsection**\n- Credential usage during mitigation (any production credentials touched).\n- Audit-trail completeness (commands executed outside the audited pipeline).\n- Log sanitization (any secrets surfaced in failure output).\n- Policy exceptions granted during mitigation.\n\n**FR-7. Failure-Mode Classification**\n- Map the failure to a named class (e.g., \"migration ordering\", \"config drift\", \"resource exhaustion\", \"API contract drift\").\n- Assess whether existing test suites cover the class; if not, log a test-coverage gap.\n\n**FR-8. Production-Impact Assessment**\n- Treat staging incident as production near-miss.\n- Estimate: blast radius if same deploy had reached production, MTTR if same failure occurred in production, customer-facing impact.\n\n**FR-9. Action Items with Owners and Dates**\n- Every action item has: description, owning team, named driver, target date, success criterion.\n- Categorize by horizon: hotfix (\u22641 week), short-term (\u22641 month), architectural (\u22641 quarter).\n\n**FR-10. Blameless Framing Throughout**\n- Action items framed as system/process changes, never as \"engineer should have\u2026\".\n- Post-mortem reviewed by an uninvolved party for blameless tone before publication.\n\n### Non-Functional Requirements (Prevention Program)\n\n**NFR-1. Time-to-Mitigate (off-hours)**\n- Target: \u226415 minutes from page to mitigation for a failed staging deploy, using documented one-command tooling.\n\n**NFR-2. Rollback Automation Coverage**\n- Target: \u226590% of deploys have an automated rollback path that engages on health-check failure within 5 minutes.\n\n**NFR-3. Deploy Reversibility-by-Construction**\n- All schema migrations backward-compatible for one release.\n- All deploy artifacts immutable and reproducible for \u22656 months.\n\n**NFR-4. Alert Actionability**\n- Every page links to a runbook within \u22642 clicks.\n- Alert payload includes failing service, failing check, last-known-good version, and one-command mitigation hint.\n\n**NFR-5. Audit Completeness**\n- 100% of mitigation commands captured in an immutable audit log, including off-pipeline manual interventions.\n\n**NFR-6. On-Call Ergonomics**\n- Off-hours pages for any team capped per-engineer-per-quarter; breach triggers a structural review.\n- Two-person on-call (primary + secondary) for systems with production blast radius.\n\n**NFR-7. Log Retention**\n- Minimum 30-day retention for pod/service logs, sufficient to forensically reconstruct any incident discovered \u226430 days later.\n\n**NFR-8. Staging-Production Parity**\n- Staging environment variables, infrastructure topology, and resource limits structurally derived from prod (not hand-maintained).\n\n### Acceptance Criteria\n\n**AC-1.** The post-mortem document exists, follows FR-1 through FR-10, and is reviewed by an uninvolved party for blameless tone before publication.\n\n**AC-2.** A named driver is identified for each action item, with a target date and a success criterion.\n\n**AC-3.** The rollback-gap action items (FR-3) include at least one item that, when complete, would have allowed the original 3am incident to mitigate without manual intervention.\n\n**AC-4.** The change-window reconstruction (FR-4) identifies the specific change(s) correlated with the failure, OR documents a process gap that prevented identification.\n\n**AC-5.** A fire-drill exercise is scheduled within 30 days to validate the rollback path identified in FR-3 actually works end-to-end.\n\n**AC-6.** The next deploy after the post-mortem is published runs through the new gating (whatever is added) and either deploys successfully or rolls back automatically without manual intervention.\n\n**AC-7.** A trend-tracking metric is added to the team's monthly review: count of incidents-requiring-manual-mitigation per month, target trending downward.\n\n### Open Questions\n\n1. **Was this the first manual revert, or one of many?** Determines whether scope is \"this incident\" or \"systemic gap.\"\n2. **Was the deploy intentional at 3am, or did the pipeline drift?** Determines whether the prevention program needs deploy-window controls or pipeline-latency controls.\n3. **Who owns the deploy pipeline itself** \u2014 platform team, the application team, or shared? Owner gap is a common contributing factor.\n4. **Are there compliance / regulatory implications?** (E.g., SOC2 change-management requirements may be triggered by un-audited manual interventions, even on staging.)\n5. **What is the team's appetite for canary / progressive rollout** vs. the simplicity of all-or-nothing deploys? This is a values question, not just a technical one.\n6. **Does the on-call engineer have psychological-safety support** after a stressful 3am incident? Post-mortems often surface burnout signals that need HR-aware handling.\n7. **Is there a customer-facing trust dimension?** Staging is internal, but if customers were notified of a \"scheduled maintenance\" that was actually this incident, the communications policy is in scope.\n\n### Next-Step Suggestions\n\n- **`/sc:design`** \u2014 Architect the rollback automation (FR-3) and deploy-gating system (NFR-2) once requirements are signed off.\n- **`/sc:workflow`** \u2014 Generate the implementation workflow for the top 3 action items (rollback automation, canary deploys, alert-payload improvement).\n- **`/sc:research`** \u2014 Investigate industry post-mortem templates (Google SRE book, Etsy \"morgue\", PagerDuty post-mortem guide) for additional structural requirements not covered here.\n- **`/sc:brainstorm \"on-call rotation health and burnout indicators\" --depth normal`** \u2014 Spin off the on-call ergonomics workstream (NFR-6) as its own discovery.\n\n---\n\n**Protocol compliance**: This document is a REQUIREMENTS SPECIFICATION ONLY (per v1 CRITICAL BOUNDARIES). No architecture diagrams, no implementation code, no schema designs were produced. Hand off to `/sc:design` for architecture and `/sc:workflow` for implementation planning.\n"}], "grading": null}, {"id": "eval-incident-staging-deploy-3am-with_skill", "prompt": "Post-mortem brainstorm: staging deployment broke at 3am, manual revert was the only mitigation. --depth quick --proposals 2", "eval_id": 2, "outputs": [{"name": "merged-requirements.md", "type": "text", "content": "---\nspec_type: requirements\ndomain: incident\nstrategy: systematic\nadversarial_status: pass\nconvergence_score: 0.72\nproposal_count: 2\nsource_seed: ../seed-brief.md\nagents: [opus:analyzer, sonnet:security]\ncreated: 2026-05-25T00:00:00Z\n---\n\n# Merged Requirements \u2014 Staging 3am Deploy Post-Mortem\n\n## Problem Statement\n\nA staging deployment at ~03:00 broke the staging environment, with\nmanual revert by the on-caller as the only effective mitigation. The\npost-mortem must (a) reconstruct an evidence-based timeline, (b) name\na single counterfactual root cause plus contributing factors, (c)\ninventory blast radius across data / credential / network / identity\nplanes, and (d) produce leverage-rated prevention items that close\nboth the bug-class gap and the response-control gap. Two control\nloops failed \u2014 the deploy-gate loop (broken build shipped) and the\nmitigation loop (no automated rollback). The post-mortem must treat\nboth as first-class outputs.\n\n## Post-Mortem Framework\n\n1. **Blameless framing.** Names omitted; roles named. No \"should\n   have\" language; only \"the system as-built did X; the system as\n   desired would do Y.\"\n2. **Evidence-cited timeline.** Every event has \u22652 independent\n   sources (deploy audit log, application logs, infra metrics). Single-\n   witness events flagged as evidence gaps and assigned a follow-up.\n3. **Root cause + contributing factors, separately documented.**\n   Root cause = smallest counterfactual change. Contributing factors\n   = conditions that turned the root cause into an outage (missing\n   control, off-hours deploy, slow detection, etc.).\n4. **Parallel investigation tracks.** Causal track (analyzer-led) and\n   hardening track (security-led) run concurrently, not sequentially.\n   Hardening does not wait on root cause; root cause does not wait on\n   exposure-window closure.\n\n## Required Investigation Steps\n\n1. **Reconstruct timeline.** Pull deploy audit log, app logs, infra\n   metrics. Build minute-level event sequence with \u22652 sources per\n   event. Output: timestamped event table.\n2. **Diff the deploy artifact.** Enumerate change surface across\n   code commits, config changes, dependency bumps, IaC changes, and\n   secret/credential rotations between known-good and broken builds.\n   This is the candidate-cause pool \u2014 exclude anything outside it.\n3. **Inventory blast radius across four planes.** For data,\n   credential, network, and identity planes: confirm \"clean with\n   evidence\" or \"dirty with remediation plan.\" Includes checking for\n   half-written transactions, leaked debug endpoints, drifted\n   network rules, and rotated/exposed access grants.\n4. **Hypothesis testing.** Form 2-3 competing causal hypotheses;\n   list supporting and refuting evidence for each; run cheap\n   refutations first; document rejected hypotheses to avoid re-\n   debating later.\n5. **Quantify exposure window.** First-failure to revert-verified, in\n   minutes. If >30m, escalate as separate finding against the\n   staging-availability expectation.\n\n## Prevention Acceptance Criteria\n\n1. **One counterfactual root cause named.** Phrased as \"had X not\n   changed, the incident would not have occurred.\"\n2. **Contributing factors enumerated separately**, each with\n   prevention leverage rated as class-level (catches the category)\n   or case-level (catches this specific bug). Class-level items get\n   priority funding.\n3. **Four control-gap prevention items named, each with owner and\n   due date:** automated rollback on health-check failure; deploy\n   gating with smoke tests; off-hours deploy guardrail; paging on\n   staging-only failure.\n4. **Detection improvements documented separately from prevention\n   improvements** \u2014 these are different control loops and must not\n   be collapsed.\n5. **Pattern check completed:** has any post-mortem in the last 90\n   days named a similar root-cause category or a similar control-gap\n   category? If yes, escalate as a recurring systemic issue.\n\n## Open Questions\n\n1. What is the actual blast-radius depth for a staging-only event \u2014\n   how thorough must the data-plane corruption check be when no\n   end-user traffic was involved? (Residual tension from debate;\n   convergence not reached on this scope question.)\n2. Why did the deploy happen at 03:00 \u2014 scheduled automation,\n   accidental trigger, or chasing a previous failed deploy? This\n   determines whether the off-hours-guardrail prevention item is\n   targeting a recurring pattern or a one-off.\n\n## Communication Plan\n\n- **Internal eng audience:** post-mortem document published within 5\n  business days; reviewed in next eng-wide post-mortem forum.\n- **Affected teams (QA, integration test consumers):** direct ping\n  on the staging-availability channel with revert ETA during the\n  incident and link to the post-mortem doc when published.\n- **Engineering leadership:** summary surfaces (a) the root cause\n  category, (b) the four control gaps with owners and due dates, and\n  (c) the pattern-check result. No customer comms required \u2014 staging\n  scope.\n- **Follow-up cadence:** prevention items tracked in a single epic\n  with weekly status until all four control-gap items are closed.\n"}, {"name": "return-contract.yaml", "type": "text", "content": "contract_version: \"1.0\"\nstatus: success\nseed_brief_path: ./seed-brief.md\nmerged_output_path: ./merged-requirements.md\nconvergence_score: 0.72\nadversarial_artifacts_dir: ./adversarial/\ndomain: incident\nproposal_count: 2\nenrichment_used:\n  - source: codebase\n    quality_tier: skipped\nhandoff_action: none\nhandoff_output_path: null\nunresolved_conflicts:\n  - \"blast-radius depth scope for staging-only events (data-plane corruption check thoroughness)\"\n\n# Telemetry block (non-stable)\nwave_durations_ms:\n  wave_0: 50\n  wave_1: 800\n  wave_2a: 20\n  wave_2b: 60\n  wave_3: 1500\n  wave_4: 30\ntoken_usage:\n  wave_0: 200\n  wave_1: 2500\n  wave_2a: 100\n  wave_2b: 300\n  wave_3: 18000\n  wave_4: 200\nagent_spec: \"opus:analyzer,sonnet:security\"\nenrichment_artifact_sizes: {}\n"}, {"name": "seed-brief.md", "type": "text", "content": "---\ntopic: \"post-mortem: staging deployment broke at 3am, manual revert was the only mitigation\"\ndomain: incident\nstrategy: systematic\ndepth: quick\nproposals_target: 2\nhandoff_target: none\ncreated: 2026-05-25T00:00:00Z\n---\n\n# Seed Brief: post-mortem-staging-deploy-3am\n\n## Problem Statement\n\nA staging deployment at approximately 03:00 local time broke the staging\nenvironment. The only effective mitigation was a manual revert performed\nby the on-caller. This post-mortem must reconstruct the timeline,\nidentify the root cause and contributing factors, and surface the\ndetection and recovery gaps that turned an off-hours deploy into a\nhand-rolled rollback.\n\n## Known Context\n\n- Failure occurred in the staging environment during an off-hours\n  (~03:00) deployment window.\n- Detection-to-mitigation path depended on a human operator; no\n  automated rollback path was exercised.\n- Manual revert succeeded, indicating the previous build was known-good\n  and reachable.\n- Scope of impact (which services, downstream consumers, data writes)\n  is not yet established and is an Open Question.\n\n## Socratic Dialogue Answers (incident \u2014 Clarify batch, quick tier)\n\n1. **When did it start? When was it detected? When was it resolved?**\n   Started at ~03:00 with the deploy. Detection time is uncertain\n   (likely several minutes to tens of minutes after the deploy completed\n   based on the on-call lag). Resolution followed the manual revert,\n   which is plausibly 30-90 minutes after first failure.\n2. **What's the user-visible impact?**\n   Staging-only \u2014 no end-user impact, but blocked the staging gate for\n   any team relying on it for verification (QA, integration test\n   suites, downstream service contract checks).\n3. **Was this a single event or a pattern?**\n   Treated as a single event for this post-mortem, but recurrence risk\n   is explicitly an Open Question \u2014 similar revert-only mitigations in\n   prior deploys would escalate priority of structural prevention.\n\n## Constraints\n\n- Staging-environment scope means lower urgency for customer comms but\n  high urgency for engineering velocity (other teams blocked).\n- Manual revert as the only known mitigation indicates an\n  automated-rollback gap that must be addressed.\n- Post-mortem must be blameless and produce actionable prevention items,\n  not just narrative.\n\n## Success Criteria\n\n- Timeline reconstructed with timestamps for: deploy start, first\n  failure signal, detection, on-caller engagement, revert initiation,\n  revert completion, all-clear.\n- Root cause identified with supporting evidence (logs, metrics, diff\n  of the deployed change vs. last-known-good).\n- At least one detection gap and one automated-recovery gap named with\n  owner + due date.\n- Prevention items prioritized by leverage (catches future incidents of\n  the same class, not just this one bug).\n\n## Open Questions\n\n- What changed in the deploy \u2014 code, config, infra, or dependency?\n- What was the blast radius (which services / data writes) and is any\n  staging data corrupted or merely unavailable?\n- Was the failure deterministic or load/timing-dependent?\n- Has this category of failure (revert-only mitigation) happened before\n  in the last 90 days?\n- Why did the deploy happen at 03:00 \u2014 scheduled, accidental trigger,\n  or chasing a previous failed deploy?\n\n## Enrichment Context\n\n`enrichment_used: [{source: codebase, quality_tier: skipped}]` \u2014 the\nincident topic is hypothetical for this run; there is no concrete\ncodebase artifact to scan against. Codebase enrichment intentionally\nskipped per Wave 2A routing matrix (no `--codebase` force flag, no\nreal incident artifacts to ingest).\n"}], "grading": null}, {"id": "eval-product-ai-changelog-old_skill", "prompt": "Brainstorm product requirements for an AI-powered changelog summarizer feature. --depth quick --proposals 2 --strategy agile", "eval_id": 3, "outputs": [{"name": "requirements.md", "type": "text", "content": "# Requirements: AI-Powered Changelog Summarizer Feature\n\n**Command invocation**: `/sc:brainstorm \"AI-powered changelog summarizer feature\" --strategy agile --depth normal`\n**Protocol**: v1 (legacy `brainstorm.md`)\n**Output type**: Requirements specification only (per CRITICAL BOUNDARIES \u2014 no architecture, no implementation)\n\n---\n\n## Introduction\n\nThis document captures the outcome of an Agile-flavored brainstorm session for an AI-powered changelog summarizer. The goal is to convert a one-line idea into a working set of requirements that a product team can prioritize into a backlog. The session followed Phase 0 \u2192 Phase 4 of the v1 protocol: a codebase-context probe, a Socratic exploration, a multi-persona analysis, cross-functional validation, and a final specification.\n\nThe output is deliberately scoped to *requirements* \u2014 user goals, functional behavior, non-functional constraints, acceptance criteria, and open questions. Architecture and implementation choices are explicitly deferred to `/sc:design` and `/sc:workflow`, per the v1 boundary.\n\n---\n\n## Phase 0 \u2014 Codebase Context Detection\n\n**Detection signals evaluated:**\n\n- **Signal A (Code Entity References):** None. Topic mentions no file paths, extensions, classes, modules, endpoints, or schemas. \"Changelog\" and \"summarizer\" are product nouns, not code constructs in this phrasing.\n- **Signal B (Development Action Verbs):** None. No \"implement\", \"refactor\", \"extend\", \"migrate\", etc. The phrasing is \"feature\", which is product-level framing.\n- **Signal C (Project-Specific Terms):** None. No package names, languages, or directory names from the host project are referenced.\n\n**Decision:** `signal_A=false, signal_B=false, signal_C=false \u2192 SKIP Phase 0`.\n\nThe v1 edge-case rule is explicit: *\"If uncertain whether topic is code-related, do NOT trigger. False negatives are preferred over wasting tokens on business/strategy brainstorms.\"* The topic reads as a product-feature exploration, so codebase retrieval is skipped. No Auggie / Serena / Glob queries were run. Briefing block omitted intentionally.\n\nIf the user later wants this grounded in an existing repository (e.g., a docs site, an existing release-notes pipeline), they should re-invoke with `--codebase` and a host-project context.\n\n---\n\n## Phase 1 \u2014 Socratic Exploration\n\nThe agile depth-normal strategy targets 8\u201312 questions, framed to surface user, value, and delivery-slice assumptions. Below are the questions and the working answers used to drive the analysis.\n\n**Q1. Who is the primary audience for the summarized changelog?**\nA: Two audiences in priority order \u2014 (a) end-users / customers of the product whose changelog this summarizes, (b) internal stakeholders (support, sales, customer success) who need talking points. Developers are a tertiary audience; they already read the raw changelog.\n\n**Q2. What is the \"raw input\" the summarizer consumes?**\nA: A structured or semi-structured changelog. Realistic sources: Markdown `CHANGELOG.md` (Keep-a-Changelog format), GitHub release notes, merged PR titles + bodies, or a hybrid of all three. Out of scope for v1: arbitrary commit logs without PR context.\n\n**Q3. What format(s) does the summary need to land in?**\nA: At minimum, a short-form Markdown blurb (3\u20135 bullets) suitable for an email, an in-app modal, and a release-blog teaser. Stretch: tonal variants (formal, casual, marketing).\n\n**Q4. How frequently is the summarizer invoked?**\nA: Event-driven per release. Typical cadence: weekly to monthly. Manual \"preview\" runs from a maintainer are explicitly supported.\n\n**Q5. What does \"AI-powered\" buy the user vs. a deterministic template?**\nA: Three things \u2014 (1) grouping by user-visible theme (vs. by PR), (2) translation of internal jargon into customer language, (3) prioritization (what's headline-worthy vs. footnote-worthy).\n\n**Q6. Who reviews / approves the AI output before it ships?**\nA: A human-in-the-loop is required for v1. A maintainer or release manager must approve, edit, or reject. No \"auto-publish to customers\" mode in v1.\n\n**Q7. What's the smallest valuable agile slice (MVP)?**\nA: A CLI/web action that takes one release's worth of merged PRs and returns a 3\u20135 bullet customer-facing summary in Markdown, with a one-click \"regenerate\" and an \"edit before publish\" affordance.\n\n**Q8. What does success look like 90 days post-launch?**\nA: (a) \u226560% of releases use the summarizer to draft their public notes, (b) \u226540% reduction in median time-to-publish-release-notes, (c) qualitative: customer support reports fewer \"what does this change do?\" tickets.\n\n**Q9. What's explicitly out of scope for v1?**\nA: Multi-language translation, voice/video summary, automatic publishing to social channels, deep semantic diff of code (we summarize PR titles + bodies, not diffs).\n\n**Q10. What sensitive content might appear in the raw input that must NOT leak to the summary?**\nA: Internal-only PRs (tagged `internal`), security-fix details before coordinated disclosure, customer names in PR descriptions, employee names. Need a redaction / filter layer.\n\n**Q11. What's the tolerance for hallucination?**\nA: Low. Every bullet must be traceable to an input PR or changelog entry. A \"show sources\" affordance is required.\n\n**Q12. How does this integrate with existing release workflow?**\nA: Loosely. v1 is a standalone tool a maintainer invokes; deeper integration (GitHub Action, Slack bot) is a v2 roadmap item.\n\n---\n\n## Phase 2 \u2014 Multi-Persona Analysis\n\n### Architect (system fit, ~250 words)\n\nThe summarizer is best modeled as a small, stateless \"input-fan-in / single-LLM-call / output-fan-out\" pipeline rather than a service. The architect's lens flags three structural concerns. First, the input adapter layer must be plural from day one: a single hardcoded GitHub-Releases parser will not scale to teams that maintain a hand-written `CHANGELOG.md`. The abstraction is \"a normalized release-event object\" with fields like `version`, `date`, `entries[]`, `tags[]`, `internal_only[]`. Second, the LLM call itself must be deterministic enough to be replayable \u2014 temperature low, prompt versioned, output schema constrained (Markdown bullets with a sidecar JSON of source IDs). Third, the human-in-the-loop edit surface argues for the system to produce *drafts*, not *artifacts*: the consumer (a UI, a PR comment, an email composer) owns the final state. The architect would push back on any roadmap item that implies the summarizer \"owns\" published release notes. The summarizer is a transformer, not a system of record. Storage requirements are minimal \u2014 a cache of `release_id \u2192 draft_summary` keyed by input hash is sufficient and bounds LLM cost. From a deployment perspective, this is a serverless-friendly workload (cold-start tolerant, single-call, bounded input size). The architect's primary concern for v1: enforce input-size limits early so a 500-PR release does not silently truncate. Recommend a chunk-and-merge fallback documented in the spec, even if not built in v1.\n\n### Frontend (UX surface, ~250 words)\n\nThe frontend lens treats this as a \"draft-review-publish\" interaction loop, not a \"click-to-summarize\" magic button. Three UX pillars matter. (1) **Trust through traceability**: each generated bullet must show its source PRs on hover/click \u2014 without this, reviewers will not trust the output enough to ship it. (2) **Edit-in-place, not regenerate-only**: maintainers will tweak phrasing. A regenerate-only loop creates friction; an inline Markdown editor with the AI draft pre-populated is the right primitive. (3) **Tone selector as a top-level control, not a buried setting**: customer-facing release notes have a tone (e.g., \"Linear-style minimal\" vs. \"Stripe-style narrative\") and forcing the user to re-prompt the AI to get a different tone burns trust. The frontend should expose 2\u20133 tone presets in v1. Secondary UX concerns: a clear \"internal-only\" badge on PRs that were filtered out so the reviewer can confirm nothing leaked; a side-by-side \"raw changelog vs. AI summary\" view for the first 2\u20133 uses (onboarding); a \"diff from last summary\" view for incremental releases. Accessibility: the editor must be keyboard-navigable, the regenerate button must announce its loading state, and the source-PR tooltip must be reachable via focus, not just hover. For agile delivery, the frontend slice for sprint 1 is: paste-in-changelog \u2192 see-draft \u2192 edit \u2192 copy-to-clipboard. No persistence required for the first slice.\n\n### Backend (data pipeline for changelog generation, ~250 words)\n\nThe backend persona owns the input ingestion, redaction, prompt construction, LLM call, and output validation. The first design question is **the boundary of \"one summarization request\"** \u2014 the answer is \"one release\", defined by either a semver tag, a date range, or an explicit PR list. The backend must normalize all three into the canonical release object. The ingestion path needs three real adapters in v1: (a) GitHub Releases API, (b) `CHANGELOG.md` parser (Keep-a-Changelog format), (c) raw merged-PR list via GitHub search API. Each adapter must emit the same normalized shape; downstream code must not branch on source. The redaction step is non-optional: a configurable allowlist/denylist of PR labels (default deny `internal`, `security-embargo`, `wip`), a regex-based name redactor for customer/employee names (configurable patterns), and a hard cap on the number of PRs forwarded to the LLM (default 100, surfaced as a warning if hit). Prompt construction must include the tone preset, the schema constraint, and the explicit instruction to cite every bullet by PR number. The LLM call should be made via a provider abstraction (no direct OpenAI/Anthropic lock-in at the call site). Output validation: parse the response, verify every cited PR number exists in the input, drop or flag bullets that cite nothing. Logging: store input hash, prompt version, model, response, and validation result for every run \u2014 this is the audit trail that makes \"low hallucination tolerance\" enforceable. No PII in logs.\n\n### Analyzer (competitive landscape, ~250 words)\n\nThe analyzer persona surveys the adjacent space to validate that the slice is differentiated. Five reference points anchor the analysis. (1) **GitHub's own auto-generated release notes** are the closest free competitor \u2014 they group PRs by label and list contributors but make zero effort to translate into customer language. Our differentiation: tone, theming, and customer-language translation. (2) **Linear / Height changelog tooling** is hand-written and curated; we are not competing with the curation philosophy, we are *accelerating* it. The risk is that the AI draft is *worse* than the maintainer's hand-written copy \u2014 mitigated by treating output as a draft, not a final. (3) **General-purpose LLM use** (engineer pastes PRs into ChatGPT) is the realistic baseline behavior today. Our value-add over that workflow is: redaction, source traceability, tone presets, and integration with the source-of-truth changelog. (4) **Conventional-Changelog tooling** (semantic-release, changesets) is deterministic and engineer-flavored; complementary, not competitive \u2014 we can consume their output as one of the input adapters. (5) **Knock / Productboard release-comms tooling** is multi-channel publishing; we are upstream of that \u2014 they are a downstream integration target, not a competitor. The analyzer's primary risk flag: trust collapse on a single hallucinated bullet shipped to customers. The mitigation is structural (traceability, redaction, human approval) and must be in v1, not deferred. The differentiation story is defensible if and only if the trust controls ship in the MVP.\n\n### Project Manager (delivery plan, ~250 words)\n\nThe PM lens converts the above into an agile delivery slice plan with explicit decision points. Sprint 0 (1 week): finalize the prompt contract, the normalized release schema, the redaction-rule defaults, and the success metrics. Sprint 1 (2 weeks): build the smallest end-to-end slice \u2014 paste-in `CHANGELOG.md` \u2192 AI draft \u2192 editable Markdown \u2192 copy to clipboard. Single tone preset. Internal-only flag respected. Source PR list shown beside each bullet. Demo to 3 internal release managers. Sprint 2 (2 weeks): add GitHub Releases adapter, second tone preset, regenerate, and the \"diff from last summary\" view. Beta with 2 friendly external teams. Sprint 3 (2 weeks): add the merged-PR-list adapter, third tone preset, audit log surface, and the input-size warning. GA gate. Risks the PM tracks: (1) trust failure if a hallucinated bullet ships \u2014 mitigation: traceability must be feature-blocking in sprint 1; (2) LLM cost overrun if input PR count is unbounded \u2014 mitigation: the cap is a sprint-1 deliverable; (3) tone preset bikeshedding \u2014 mitigation: ship two presets, defer the third until beta feedback. Out of v1 (explicitly): GitHub Action, Slack bot, multi-language, voice/video, auto-publish. The PM owns the \"no\" list and revisits it after GA. Definition of done for each story: traceability verified, redaction unit-tested, human-in-the-loop affordance reachable, audit-log entry created. Story-point estimate envelope: 21 points in sprint 1, 18 in sprint 2, 18 in sprint 3.\n\n---\n\n## Phase 3 \u2014 Cross-Functional Validation (Feasibility)\n\n| Dimension | Verdict | Notes |\n|---|---|---|\n| Technical feasibility | High | Single-call LLM workload; standard adapters; no novel ML required. |\n| UX feasibility | High | Draft-review-publish is a well-understood pattern; tone presets reduce decision fatigue. |\n| Data / privacy feasibility | Medium | Redaction layer is non-trivial; PII regexes are error-prone; needs explicit test fixtures for v1. |\n| Cost feasibility | Medium | Bounded by input cap; per-release cost should be < $0.50 at typical PR counts. Needs monitoring. |\n| Trust feasibility | High *if* traceability is feature-blocking; Low otherwise. |\n| Time-to-MVP | 5\u20137 weeks across 3 agile sprints, assuming a single eng + part-time PM + design partner. |\n| Adoption feasibility | Medium-High | Depends on whether release managers integrate it into existing workflow; mitigated by clipboard-first UX. |\n\n**Cross-cutting validation outcomes:**\n\n- **Redaction + traceability must ship together in sprint 1.** Either alone is insufficient; together they form the trust contract.\n- **The tone preset count must be capped at 2 for sprint 1.** More choices delay shipping without measurable upside.\n- **The LLM provider must be abstracted from day 1**, not as a v2 refactor. Lock-in here is a strategic risk because release-comms tooling is heavily AI-dependent and provider economics shift quarterly.\n- **The audit log is a v1 requirement, not a v2 addition.** It is the only mechanism that makes \"low hallucination tolerance\" enforceable after the fact.\n\n---\n\n## Functional Requirements\n\n**FR-1.** The system shall accept a release definition as input via at least one of: (a) a Markdown `CHANGELOG.md` excerpt, (b) a GitHub Releases tag, (c) an explicit list of merged PR numbers.\n\n**FR-2.** The system shall normalize all input variants into a single internal release-object shape before summarization.\n\n**FR-3.** The system shall apply a configurable redaction layer that filters PRs by label (default deny: `internal`, `security-embargo`, `wip`) and redacts configurable name patterns from PR titles/bodies.\n\n**FR-4.** The system shall produce a customer-facing Markdown summary of 3\u20135 bullets per release.\n\n**FR-5.** The system shall provide at least 2 selectable tone presets in v1 (e.g., \"minimal\" and \"narrative\").\n\n**FR-6.** The system shall annotate every generated bullet with the set of source PR numbers it derived from, visible to the reviewer.\n\n**FR-7.** The system shall provide an inline editor that lets a reviewer modify the AI draft before publishing or copying.\n\n**FR-8.** The system shall expose a \"regenerate\" action that re-runs the summarization with the same inputs.\n\n**FR-9.** The system shall log every generation run with input hash, prompt version, model identifier, output, and validation result.\n\n**FR-10.** The system shall enforce a configurable input cap (default: 100 PRs per release) and surface a clear warning when the cap is reached.\n\n**FR-11.** The system shall validate that every bullet's cited PR set exists in the input and shall flag (not silently drop) any unverifiable bullet.\n\n**FR-12.** The system shall not auto-publish; the output is always a draft until a human action moves it forward.\n\n---\n\n## Non-Functional Requirements\n\n**NFR-1 (Performance).** Median end-to-end generation time \u2264 15 seconds for a 50-PR release; \u2264 30 seconds at the 100-PR cap.\n\n**NFR-2 (Cost).** Per-release LLM cost \u2264 $0.50 at the default cap, with cost telemetry surfaced in the audit log.\n\n**NFR-3 (Reliability).** The summarizer must degrade to a clear error message (not a partial / hallucinated output) if the LLM call fails or returns malformed output.\n\n**NFR-4 (Privacy).** No customer or employee name patterns matching the configured redaction rules shall appear in the LLM request payload or in the audit log.\n\n**NFR-5 (Provider Independence).** The LLM call shall be made through an abstraction that allows swapping providers without changes to the input/output contracts.\n\n**NFR-6 (Accessibility).** The reviewer-facing UI (if surfaced as a UI) shall meet WCAG 2.1 AA for the editor, regenerate action, and source-PR affordances.\n\n**NFR-7 (Auditability).** Every generation run shall be reconstructable from the audit log entry (input hash, prompt version, model, response) for at least 90 days.\n\n**NFR-8 (Determinism boundary).** The same input + prompt version + tone preset must produce stable output to within minor phrasing variation; structural fields (bullet count, source citations) must be exactly stable across reruns.\n\n**NFR-9 (Security).** Inputs labeled `security-embargo` shall never reach the LLM request body, even if the user attempts to override the redaction rules without an explicit secondary confirmation.\n\n---\n\n## Acceptance Criteria\n\n**AC-1 (Trust contract).** Given a release with 20 merged PRs, when the user runs the summarizer, then every bullet in the output is annotated with at least one source PR number and clicking the annotation reveals the source PR titles.\n\n**AC-2 (Redaction).** Given a release containing 3 PRs labeled `internal`, when the user runs the summarizer, then none of the 3 internal PR titles or bodies appear in the generated output or the LLM request payload.\n\n**AC-3 (Tone presets).** Given the same input, when the user toggles between the \"minimal\" and \"narrative\" tone presets and regenerates, then the structural output (bullet count, source citations) is preserved and the phrasing is observably different.\n\n**AC-4 (Human-in-the-loop).** Given a generated draft, when the user edits a bullet inline and copies the result, then the copied content reflects the edit, not the original AI draft.\n\n**AC-5 (Input cap).** Given a release with 150 PRs, when the user runs the summarizer with the default cap of 100, then the user receives a warning identifying which PRs were excluded, and the summarization proceeds on the included subset.\n\n**AC-6 (Audit trail).** Given any generation run, when an administrator queries the audit log within 90 days, then the input hash, prompt version, model identifier, output, and validation result are all retrievable.\n\n**AC-7 (Failure mode).** Given an LLM call that returns malformed output, when the system attempts to validate it, then the system surfaces an explicit failure (not a partial draft) and logs the failure to the audit log.\n\n**AC-8 (No auto-publish).** Given a generated draft, when no human action is taken, then no external publication, message, or notification is emitted.\n\n---\n\n## Open Questions\n\n**OQ-1.** Should tone presets be project-scoped or user-scoped defaults? (Decision needed before sprint 1 to lock the data model.)\n\n**OQ-2.** What is the canonical \"approval\" affordance \u2014 a button, a PR comment, a Slack message? (Likely deferred to sprint 2 with design partner feedback.)\n\n**OQ-3.** How do we treat releases that include both `feat` and `fix` PRs \u2014 one combined summary, or two distinct sections? (Recommendation: one combined summary in v1, themed bullets handle the distinction.)\n\n**OQ-4.** Is the audit log a separate datastore or a structured log stream? (Affects retention guarantees in NFR-7.)\n\n**OQ-5.** Should the input cap be a hard rejection or a soft truncation? (Recommendation: soft truncation with an explicit warning per AC-5; revisit if hallucination rate climbs.)\n\n**OQ-6.** Do we need a \"rerun against the same prompt version\" affordance for audit replays, or is the recorded output sufficient? (Likely deferred until first audit request from a customer.)\n\n**OQ-7.** What is the rollback affordance if a bad summary is published downstream? (Out of v1 scope; document the gap for v2.)\n\n---\n\n## Success Metrics\n\n**SM-1 (Adoption).** \u2265 60% of eligible releases use the summarizer to draft customer notes within 90 days of GA.\n\n**SM-2 (Time-to-publish).** Median time from release tag to published customer notes drops by \u2265 40% in teams using the summarizer.\n\n**SM-3 (Trust).** \u2264 1% of shipped summaries contain an unverifiable claim (measured by post-publish audit of source citations).\n\n**SM-4 (Edit rate).** Median reviewer edit distance per bullet is between 5% and 40% \u2014 too low suggests reviewers are rubber-stamping (trust risk); too high suggests the draft quality is insufficient.\n\n**SM-5 (Cost discipline).** 95th-percentile per-release cost remains \u2264 $0.50 over rolling 30-day window.\n\n**SM-6 (Support deflection).** \u2265 10% reduction in \"what does this change do?\" support tickets within 90 days of GA, attributed by release-notes attribution analysis.\n\n---\n\n## Next-Step Suggestions\n\n1. **`/sc:design`** to produce the system-design and prompt-contract specification for the pipeline described in the Architect persona section. Pre-condition: lock OQ-1 and OQ-4 before invoking.\n2. **`/sc:workflow`** to convert the sprint 1 acceptance criteria (AC-1 through AC-4 plus AC-5) into a sequenced implementation plan.\n3. **`/sc:research`** on competitive baseline measurement \u2014 specifically the gap between GitHub's auto-generated notes and hand-curated Linear/Height-style notes, to quantify the differentiation hypothesis surfaced in the Analyzer persona.\n4. **`/sc:brainstorm --codebase`** if the host project has an existing release-notes pipeline; the v1 protocol intentionally skipped Phase 0 for this product-flavored topic, and a follow-up codebase-grounded session would surface integration constraints not visible here.\n5. **Defer to v2 roadmap (do NOT start in v1):** GitHub Action, Slack bot, multi-language, voice/video, auto-publish. These are listed here so they remain visible as a \"no\" list during sprint planning.\n"}], "grading": null}, {"id": "eval-product-ai-changelog-with_skill", "prompt": "Brainstorm product requirements for an AI-powered changelog summarizer feature. --depth quick --proposals 2 --strategy agile", "eval_id": 3, "outputs": [{"name": "merged-requirements.md", "type": "text", "content": "---\nspec_type: requirements\nsource: seed-brief.md\ndomain: product\nstrategy: agile\ndepth: quick\nadversarial_status: pass\nconvergence_score: 0.81\nproposal_count: 2\ncreated: 2026-05-25T00:00:00Z\n---\n\n# Merged Requirements: AI-Powered Changelog Summarizer (MVP)\n\n## Problem Statement\n\nRelease managers and engineering leads at mid-market SaaS companies spend 30\u201360 minutes per release converting raw git PRs, commits, and ticket references into a customer-readable changelog. The work is repetitive, format-inconsistent across teams, and delays release announcements. Existing tools either solve only the per-PR summarization step (What The Diff), require heavy editorial workflow (Release.com), or aren't AI-powered at all (GitHub's native release notes). There is a wedge for a tool that combines themed grouping, fast editorial finalization, persona tuning, BYO-key privacy, and inline cost transparency, shipped via a low-friction GitHub App.\n\n## User Personas\n\n1. **Release Manager (primary)** \u2014 engineering lead or release coordinator at a 50\u2013500-engineer SaaS company. Owns the weekly or biweekly release process. Currently spends 30\u201360 min hand-editing changelog drafts. Cares about: speed, predictable format, no per-seat pricing, ability to ship without legal/privacy lift.\n2. **Engineering Manager (secondary, dogfood)** \u2014 uses the tool ad-hoc for internal release summaries to staff. Cares about: ability to switch tone to \"internal-engineering\" persona, low cost.\n3. **Customer Success / PM consumer (downstream, non-user)** \u2014 reads the final changelog. Cares about: clarity, customer-relevant grouping, no internal jargon. Their needs shape the persona-tuning requirement even though they don't operate the tool.\n\n## Functional Requirements\n\n1. **GitHub App integration**: install per-repo via GitHub App OAuth; subscribe to release-creation events; auto-post a draft changelog as a comment on the new GitHub release within 60 seconds of release creation.\n2. **Two-pass LLM pipeline**: (a) per-PR structured extraction using a cheap model (Haiku-class) emitting JSON `{type, scope, summary, customer_visible, breaking}`; (b) aggregate themed-narrative pass using a stronger model (Sonnet-class) over validated extractions. Failed per-PR extractions retry once then fall back to PR title verbatim.\n3. **Themed grouping in output**: drafts MUST group entries into at least three themes \u2014 Features, Fixes, Breaking/Deprecations. Entries marked `customer_visible=false` excluded from the customer-facing draft.\n4. **Minimal web editor**: three-column theme view, drag-to-regroup between themes, per-entry retone button (developer-facing / business-facing / executive), per-entry exclude toggle, live Markdown preview, \"Publish to GitHub release\" terminal action.\n5. **BYO-key flow**: user pastes an Anthropic or OpenAI API key during onboarding; key stored encrypted per-repo; all inference proxied through user's key. No hosted inference in MVP.\n6. **Cost telemetry**: every generated draft shows token counts + dollar cost (computed from the user's vendor pricing), surfaced inline in the GitHub comment AND as a status-bar element in the web editor.\n7. **Markdown export**: every draft and finalized output available as raw Markdown via copy button and \"Publish to GitHub release\" action.\n\n## Non-Functional Requirements\n\n1. **Performance**: draft generation completes in \u226460 seconds for a release with up to 50 PRs; web editor first-paint in \u22642 seconds.\n2. **Cost ceiling**: typical 50-PR release MUST cost \u2264$1 in vendor inference fees (achieved via two-pass split + prompt caching on system prompt across per-PR calls).\n3. **Privacy**: BYO-key required for private repos; per-repo opt-in toggle for any third-party inference; no PR content stored beyond 7 days post-generation.\n4. **Accessibility**: web editor MUST support full keyboard navigation including drag-and-drop (arrow keys + space-to-pick-up); screen-reader labels on theme columns and per-entry actions; WCAG 2.1 AA compliance for color contrast and focus indicators.\n5. **Reliability**: extraction-pass failures degrade gracefully (PR title fallback) rather than blocking the aggregate pass; the GitHub comment always lands even if some entries are stubs.\n\n## Acceptance Criteria\n\n1. A release manager can install the GitHub App, complete BYO-key onboarding, and receive a draft on a real release in under 10 minutes end-to-end.\n2. Draft generation for a 50-PR release completes in \u226460 seconds and costs \u2264$1 in inference fees (measured + asserted by integration tests against vendor-pricing fixtures).\n3. Across a 10-release sample of dogfooded internal releases, \u226570% of finalized changelogs ship with \u226430% line-diff from the AI-generated draft.\n4. Web editor passes WCAG 2.1 AA automated checks (axe-core) and keyboard-only user-journey test (install \u2192 edit \u2192 publish without mouse).\n5. Private-repo enforcement: attempting to generate a draft on a private repo without a configured BYO-key returns a clear actionable error AND does not transmit any PR content to any LLM vendor (verified by a network-mock integration test).\n\n## Success Metrics\n\n1. **Weekly active release managers** (north-star): \u226510 distinct release managers actively generating drafts weekly within 8 weeks of GA.\n2. **Draft-shipped-without-rewrite rate**: \u226570% of finalized changelogs ship with \u226430% line-diff from draft (per AC #3).\n3. **Cost-per-release p95**: \u2264$0.75 at p95 across all generated drafts (validates the two-pass + caching architecture).\n\n## Open Questions\n\n1. **Hosted-inference upgrade timing**: when (if ever) do we add hosted inference as a paid tier? Requires SOC2 + DPA \u2014 meaningful enterprise lift. Defer until \u22655 enterprise prospects explicitly ask.\n2. **Multi-source ingestion** (Jira, Linear, GitLab): adapter pattern is designed-in but only GitHub PR adapter ships in MVP. Trigger for second adapter = \u22653 dogfood users explicitly request a specific source.\n\n## MVP Scope\n\n**In scope**:\n- GitHub App with auto-post on release creation.\n- BYO-key onboarding (Anthropic + OpenAI).\n- Two-pass LLM pipeline with structured extraction + themed-narrative aggregate.\n- Minimal web editor: three-column theme view, drag-to-regroup, per-entry retone (3 personas), per-entry exclude, Markdown preview, \"Publish to GitHub release\".\n- Cost telemetry inline in GitHub comment + editor status bar.\n- Markdown-only output.\n- Persona tuning behind a feature flag (off by default for v1; turn on after dogfood).\n\n**Out of scope (deferred)**:\n- Web standalone UI (without GitHub App). Reason: GitHub App is the wedge.\n- CLI / GitHub Action. Reason: data shows demand first.\n- Jira / Linear / GitLab adapters. Reason: GitHub is 80% of target market.\n- Hosted inference. Reason: SOC2 lift not justified pre-product-market-fit.\n- Mobile editor. Reason: desktop release-manager workflow only.\n- Custom-section editing in the web editor. Reason: structured-only is the differentiator.\n- Multi-repo aggregated changelogs. Reason: per-repo is the unit users think in.\n"}, {"name": "return-contract.yaml", "type": "text", "content": "contract_version: \"1.0\"\nstatus: success\nseed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/seed-brief.md\nmerged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md\nconvergence_score: 0.81\nadversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/adversarial/\ndomain: product\nstrategy: agile\ndepth: quick\nproposal_count: 2\nenrichment_used:\n  - source: research-light\n    quality_tier: primary\nhandoff_action: none\nhandoff_output_path: null\nunresolved_conflicts: []\n\n# Telemetry block (non-stable)\ntelemetry:\n  wave_durations_ms:\n    wave_0: 50\n    wave_1: 200\n    wave_2a: 400\n    wave_2b: 80\n    wave_3: 2500\n    wave_4: 30\n  token_usage:\n    wave_0: 200\n    wave_1: 1200\n    wave_2a: 1800\n    wave_2b: 400\n    wave_3: 18000\n    wave_4: 200\n  agent_spec: \"opus:architect,sonnet:frontend\"\n  enrichment_artifact_sizes:\n    research-light.md: 4200\n  simulated: true\n  notes: \"Eval simulation \u2014 adversarial Wave 3 outputs hand-authored to reflect expected architect-vs-frontend tension for product-domain MVP brainstorm.\"\n"}, {"name": "seed-brief.md", "type": "text", "content": "---\ntopic: \"AI-powered changelog summarizer feature\"\ndomain: product\nstrategy: agile\ndepth: quick\nproposals_target: 2\nhandoff_target: none\ncreated: 2026-05-25T00:00:00Z\n---\n\n# Seed Brief: ai-powered-changelog-summarizer\n\n## Problem Statement\n\nRelease managers and engineering leads spend hours per release converting raw git commits, PR titles, and Jira tickets into customer-readable changelog entries. The translation is repetitive, format-inconsistent across teams, and routinely delays release announcements. An AI-powered summarizer would take structured change inputs (PRs, commits, ticket links) and emit grouped, persona-tuned changelog drafts ready for editorial review.\n\n## Known Context\n\n- Primary user persona: Release manager / engineering lead at mid-market SaaS companies (50-500 eng).\n- Job-to-be-done: turn raw change feed into a customer-facing changelog grouped by theme (features / fixes / breaking) with optional persona tuning (developer-facing vs. business-facing).\n- Success metric: \u226570% of generated summaries shipped without manual rewrite; weekly active usage by release managers.\n- Strategy: agile \u2014 MVP-first, ship a thin end-to-end slice, learn from real release cycles.\n- Depth: quick \u2014 keep scope tight; defer monetization and multi-tenant concerns to follow-ups.\n\n## Constraints\n\n- LLM cost per release must stay under a reasonable per-release budget (target: < $1 for a typical 50-PR release).\n- Must accept GitHub PRs as the primary input source for MVP; Jira/Linear are deferred.\n- Output must be editable Markdown \u2014 no proprietary format lock-in.\n- Privacy: must not leak private PR titles to third-party LLMs without explicit per-repo opt-in.\n- Time-to-MVP: 2 sprints (~4 weeks) for an internal-dogfood release.\n\n## Success Criteria\n\n- A release manager can paste/connect a GitHub release range and receive a draft changelog in under 60 seconds.\n- Draft groups entries into \u22653 themes (features, fixes, breaking/deprecations) using structured extraction, not free-form rewriting.\n- Editorial diff (final vs. generated) \u226430% lines changed across a 10-release sample.\n- Cost telemetry visible per generation so a release manager can see \"this draft cost $X\".\n\n## Open Questions\n\n- Build-vs-buy: do existing tools (Release.com, What The Diff, GitHub's native auto-notes) cover 80% of this need, or is there a real wedge?\n- In-product placement: standalone tool, GitHub App, or embedded in the existing release tooling?\n- Persona tuning: is \"developer-facing vs. business-facing\" a meaningful axis, or premature segmentation?\n- Privacy posture for private repos: BYO-key (user provides OpenAI/Anthropic key) vs. hosted (we pay for inference)?\n\n## Enrichment Context\n\n**Source**: `enrichment/research-light.md` (quality_tier: primary, simulated)\n\n**Key findings**:\n- Existing tools: What The Diff (per-PR, per-seat $19+, GitHub-app), Release.com (editorial, per-release pricing), GitHub native release notes (free, label-driven, not LLM-powered \u2014 this is the \"good enough\" baseline to beat).\n- Design pattern: two-pass LLM (cheap per-PR structured extraction \u2192 stronger aggregate model for themed narrative). Cost ~$0.10\u2013$0.50 per 50-PR release.\n- Structured extraction (JSON schema per PR) consistently beats free-form rewriting on grouping quality and editorial reviewability.\n- Privacy posture: BYO-key + per-repo opt-in is the safe MVP path; hosted inference requires SOC2 + DPA for enterprise.\n- Pricing: per-release or BYO-key + platform fee aligns with release-manager usage cadence; per-seat is poor fit.\n- Plausible MVP wedge: GitHub App + themed grouping + persona tuning + cost-transparent telemetry. Full artifact in `enrichment/research-light.md`.\n"}], "grading": null}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "sc-brainstorm-protocol", "skill_path": "<path/to/skill>", "executor_model": "<model-name>", "analyzer_model": "<model-name>", "timestamp": "2026-05-25T15:43:06Z", "evals_run": [1, 2, 3], "runs_per_configuration": 3}, "runs": [{"eval_id": 1, "configuration": "old_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 2, "failed": 0, "total": 2, "time_seconds": 175.9, "tokens": 81342, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "v1 baseline: requirements.md exists", "passed": true, "evidence": "File exists at old_skill/outputs/requirements.md (18381 bytes)"}, {"text": "v1 baseline: requirements.md has Acceptance Criteria section", "passed": true, "evidence": "Section matching 'Acceptance Criteria' found"}], "notes": []}, {"eval_id": 2, "configuration": "old_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 1, "failed": 0, "total": 1, "time_seconds": 177.6, "tokens": 72113, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "v1 baseline: requirements.md exists", "passed": true, "evidence": "File exists at old_skill/outputs/requirements.md (24044 bytes)"}], "notes": []}, {"eval_id": 3, "configuration": "old_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 1, "failed": 0, "total": 1, "time_seconds": 173.5, "tokens": 80322, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "v1 baseline: requirements.md exists", "passed": true, "evidence": "File exists at old_skill/outputs/requirements.md (22969 bytes)"}], "notes": []}, {"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 9, "failed": 0, "total": 9, "time_seconds": 440.8, "tokens": 105474, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "seed_brief.md exists in output dir", "passed": true, "evidence": "File exists at with_skill/outputs/seed-brief.md (5885 bytes)"}, {"text": "merged-requirements.md exists in output dir", "passed": true, "evidence": "File exists at with_skill/outputs/merged-requirements.md (6208 bytes)"}, {"text": "seed-brief frontmatter declares domain: code", "passed": true, "evidence": "Frontmatter field domain=code matches expected code"}, {"text": "seed-brief frontmatter declares strategy: systematic", "passed": true, "evidence": "Frontmatter field strategy=systematic matches expected systematic"}, {"text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items", "passed": true, "evidence": "Section 'Acceptance Criteria' has 5 enumerated items (>= 4)"}, {"text": "merged-requirements has Open Questions section with \u22652 items", "passed": true, "evidence": "Section 'Open Questions' has 3 enumerated items (>= 2)"}, {"text": "return-contract.yaml has contract_version field = 1.0", "passed": true, "evidence": "YAML field contract_version=1.0 matches expected 1.0"}, {"text": "return-contract.yaml convergence_score \u2265 0.50", "passed": true, "evidence": "YAML field convergence_score=0.78 >= 0.5"}, {"text": "adversarial dir contains \u22652 proposal files + debate-transcript", "passed": true, "evidence": "Directory with_skill/outputs/adversarial/ has 3 files (>= 3)"}], "notes": []}, {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 9, "failed": 0, "total": 9, "time_seconds": 184.4, "tokens": 89071, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "seed_brief.md exists", "passed": true, "evidence": "File exists at with_skill/outputs/seed-brief.md (3645 bytes)"}, {"text": "merged-requirements.md exists", "passed": true, "evidence": "File exists at with_skill/outputs/merged-requirements.md (5157 bytes)"}, {"text": "seed-brief frontmatter declares domain: incident", "passed": true, "evidence": "Frontmatter field domain=incident matches expected incident"}, {"text": "merged-requirements has Post-Mortem Framework or Required Investigation Steps section", "passed": true, "evidence": "Section matching '(Post-Mortem|Investigation)' found"}, {"text": "merged-requirements has Open Questions \u22652 items", "passed": true, "evidence": "Section 'Open Questions' has 2 enumerated items (>= 2)"}, {"text": "return-contract.yaml contract_version = 1.0", "passed": true, "evidence": "YAML field contract_version=1.0 matches expected 1.0"}, {"text": "return-contract.yaml convergence_score \u2265 0.50", "passed": true, "evidence": "YAML field convergence_score=0.72 >= 0.5"}, {"text": "adversarial dir has \u22652 proposals + debate-transcript", "passed": true, "evidence": "Directory with_skill/outputs/adversarial/ has 3 files (>= 3)"}, {"text": "agent-spec in return-contract uses analyzer + security personas", "passed": true, "evidence": "YAML field agent_spec contains substring 'analyzer'"}], "notes": []}, {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 11, "failed": 0, "total": 11, "time_seconds": 414.3, "tokens": 109108, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "seed_brief.md exists", "passed": true, "evidence": "File exists at with_skill/outputs/seed-brief.md (3711 bytes)"}, {"text": "merged-requirements.md exists", "passed": true, "evidence": "File exists at with_skill/outputs/merged-requirements.md (7064 bytes)"}, {"text": "enrichment/research-light.md exists", "passed": true, "evidence": "File exists at with_skill/outputs/enrichment/research-light.md (4324 bytes)"}, {"text": "seed-brief frontmatter declares domain: product", "passed": true, "evidence": "Frontmatter field domain=product matches expected product"}, {"text": "seed-brief frontmatter declares strategy: agile", "passed": true, "evidence": "Frontmatter field strategy=agile matches expected agile"}, {"text": "merged-requirements has User Personas section", "passed": true, "evidence": "Section matching 'User Personas' found"}, {"text": "merged-requirements has Functional Requirements \u22655 items", "passed": true, "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 5)"}, {"text": "merged-requirements has Success Metrics section", "passed": true, "evidence": "Section matching 'Success Metrics' found"}, {"text": "merged-requirements has Open Questions \u22652 items", "passed": true, "evidence": "Section 'Open Questions' has 2 enumerated items (>= 2)"}, {"text": "return-contract.yaml contract_version = 1.0", "passed": true, "evidence": "YAML field contract_version=1.0 matches expected 1.0"}, {"text": "return-contract.yaml convergence_score \u2265 0.50", "passed": true, "evidence": "YAML field convergence_score=0.81 >= 0.5"}], "notes": []}], "run_summary": {"old_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 175.6667, "stddev": 2.0599, "min": 173.5, "max": 177.6}, "tokens": {"mean": 77925.6667, "stddev": 5059.6858, "min": 72113, "max": 81342}}, "with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 346.5, "stddev": 141.0066, "min": 184.4, "max": 440.8}, "tokens": {"mean": 101217.6667, "stddev": 10675.0936, "min": 89071, "max": 109108}}, "delta": {"pass_rate": "+0.00", "time_seconds": "-170.8", "tokens": "-23292"}}, "notes": []}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>
