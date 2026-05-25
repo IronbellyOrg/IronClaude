@@ -149,6 +149,28 @@ def roadmap_group():
         "LLM-consumed content; deterministic steps always read originals."
     ),
 )
+@click.option(
+    "--allow-cosmetic-remediation/--no-allow-cosmetic-remediation",
+    "allow_cosmetic_remediation",
+    default=True,
+    help=(
+        "Auto-fix pure-cosmetic gate failures (heading shape, dash variants, "
+        "whitespace, smart-quotes, table padding) before halting the pipeline. "
+        "Semantic failures (missing milestones, placeholder leaks, OQ-xxx in "
+        "deliverables) always halt. Default: on."
+    ),
+)
+@click.option(
+    "--strict-no-remediation",
+    "strict_no_remediation",
+    is_flag=True,
+    default=False,
+    help=(
+        "Disable cosmetic-failure auto-remediation entirely. Equivalent to "
+        "--no-allow-cosmetic-remediation; explicit alias for high-stakes runs "
+        "where any drift should halt for human review."
+    ),
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -169,6 +191,8 @@ def run(
     tdd_file: Path | None,
     prd_file: Path | None,
     no_compress: bool,
+    allow_cosmetic_remediation: bool,
+    strict_no_remediation: bool,
 ) -> None:
     """Run the roadmap generation pipeline on INPUT_FILES.
 
@@ -226,6 +250,11 @@ def run(
             )
             retro_path = None
 
+    # --strict-no-remediation overrides --allow-cosmetic-remediation when
+    # both are provided. The strict alias exists so high-stakes invocations
+    # can be self-evidently strict without inverting a default-on flag.
+    cosmetic_remediation_on = allow_cosmetic_remediation and not strict_no_remediation
+
     # Build config kwargs — only include agents/depth when explicitly provided,
     # so RoadmapConfig's own defaults apply when user omitted them.
     config_kwargs: dict = {
@@ -243,6 +272,7 @@ def run(
         "tdd_file": routing["tdd_file"].resolve() if routing["tdd_file"] else None,
         "prd_file": routing["prd_file"].resolve() if routing["prd_file"] else None,
         "compress_enabled": not no_compress,
+        "allow_cosmetic_remediation": cosmetic_remediation_on,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs

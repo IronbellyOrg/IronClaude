@@ -11,7 +11,30 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Literal, Optional
+from typing import Callable, Literal, Optional, Protocol
+
+
+class CosmeticRemediator(Protocol):
+    """Pluggable cosmetic-failure remediator (see cli/roadmap/cosmetic_remediator.py).
+
+    Consumers of the generic pipeline executor may inject one via
+    ``PipelineConfig.cosmetic_remediator``. The executor calls it after a gate
+    fails to ask "can this be auto-fixed?" When the callable rewrites the file
+    on disk such that the gate now passes, it returns ``(True, transforms)``
+    and the executor records the step as PASS with ``remediated=True``.
+    Returning ``(False, [])`` lets the executor proceed to FAIL/retry as
+    before. Implementations MUST be idempotent (calling twice on the same
+    rewritten artifact is a no-op).
+    """
+
+    def __call__(
+        self,
+        output_file: Path,
+        gate_name: str,
+        failure_reason: str,
+        *,
+        step_id: str,
+    ) -> tuple[bool, list[str]]: ...
 
 
 class StepStatus(Enum):
@@ -101,7 +124,15 @@ class Step:
 
 @dataclass
 class StepResult:
-    """Outcome of executing a single pipeline step."""
+    """Outcome of executing a single pipeline step.
+
+    ``remediated`` and ``remediations`` are populated when the cosmetic-failure
+    auto-remediation lane (see ``cli/roadmap/cosmetic_remediator.py``) rewrote
+    a gate-failing output into a gate-passing one. The step's ``status`` stays
+    ``PASS`` so existing pattern-matching keeps working; downstream consumers
+    that care about remediation (audit log, halt formatter, certify prompt)
+    read these fields explicitly.
+    """
 
     step: Optional[Step] = None
     status: StepStatus = StepStatus.PENDING
@@ -109,6 +140,8 @@ class StepResult:
     gate_failure_reason: str | None = None
     started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     finished_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    remediated: bool = False
+    remediations: list[str] = field(default_factory=list)
 
     @property
     def duration_seconds(self) -> float:
@@ -178,7 +211,17 @@ class Deliverable:
 
 @dataclass
 class PipelineConfig:
-    """Configuration shared by both sprint and roadmap pipelines."""
+    """Configuration shared by both sprint and roadmap pipelines.
+
+    ``allow_cosmetic_remediation`` enables the cosmetic-failure auto-remediation
+    lane in the generic executor: when a gate fails and the failure can be
+    classified as purely cosmetic (heading shape, dash variant, whitespace,
+    etc. -- see ``cli/roadmap/cosmetic_remediator.py``), the output is
+    deterministically rewritten and re-checked before the step is marked FAIL.
+    Defaults True for user-friendly behavior; set False (or pass
+    ``--strict-no-remediation`` on the CLI) to preserve strict halt-on-any-
+    failure for high-stakes runs.
+    """
 
     work_dir: Path = field(default_factory=lambda: Path("."))
     dry_run: bool = False
@@ -187,3 +230,5 @@ class PipelineConfig:
     permission_flag: str = "--dangerously-skip-permissions"
     debug: bool = False
     grace_period: int = 0
+    allow_cosmetic_remediation: bool = True
+    cosmetic_remediator: Optional[CosmeticRemediator] = None

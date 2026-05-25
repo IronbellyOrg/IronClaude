@@ -5,13 +5,17 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
+    GateCriteria,
     GateMode,
+    PipelineConfig,
+    SemanticCheck,
     Step,
     StepResult,
     StepStatus,
@@ -982,9 +986,19 @@ class TestT4bDeviationAnalysisOutput:
     def _read_outputs(tmp_path):
         out = tmp_path / "spec-deviations.md"
         records = [
-            {"stable_id": "DEV-001", "deviation_class": "UNCLASSIFIED", "description": "a", "location": "l1"},
+            {
+                "stable_id": "DEV-001",
+                "deviation_class": "UNCLASSIFIED",
+                "description": "a",
+                "location": "l1",
+            },
             {"stable_id": "DEV-002", "description": "b", "location": "l2"},
-            {"stable_id": "DEV-003", "deviation_class": "UNCLASSIFIED", "description": "c", "location": "l3"},
+            {
+                "stable_id": "DEV-003",
+                "deviation_class": "UNCLASSIFIED",
+                "description": "c",
+                "location": "l3",
+            },
         ]
         _write_deviation_analysis_output(
             out,
@@ -1011,7 +1025,9 @@ class TestT4bDeviationAnalysisOutput:
             "ambiguous_count",
             "ambiguous_deviations",
         ):
-            assert f"{suppressed}:" not in fm_block, f"{suppressed} should be suppressed"
+            assert f"{suppressed}:" not in fm_block, (
+                f"{suppressed} should be suppressed"
+            )
             assert suppressed not in sidecar, f"sidecar should not carry {suppressed}"
 
     def test_frontmatter_carries_unclassified_count(self, tmp_path):
@@ -1148,3 +1164,112 @@ class TestT1bConsistencyCheck:
             "cross-field consistency check failed" in record.getMessage()
             for record in caplog.records
         ), "T1b: pure-UNCLASSIFIED registry must not trip the consistency check"
+
+
+class TestCosmeticRemediatorExceptionFallthrough:
+    """M2: an unexpected exception inside the cosmetic remediator (or its
+    post-remediation recheck) MUST fall through to the existing FAIL
+    StepResult path instead of crashing the pipeline executor.
+
+    The remediation lane is a defense-in-depth layer over the gate-failure
+    flow. A regex compile error, an IndexError in the lines walker, or any
+    other internal exception inside ``classify_gate_failure`` /
+    ``apply_cosmetic_remediations`` must not replace a clean halt-with-
+    diagnostic with an opaque traceback. ``gate_failure_reason`` must
+    remain the original gate-failure reason, and a WARNING must be logged
+    naming the exception class.
+    """
+
+    def test_raising_remediator_yields_fail_not_crash(self, tmp_path, caplog):
+        # Step writes content that fails its semantic_check, triggering the
+        # cosmetic-remediation lane. The injected remediator then raises.
+        output_file = tmp_path / "step-output.md"
+
+        def writes_failing_output(step, cfg, cancel_check):
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            output_file.write_text(
+                "---\nspec_source: x\n---\n# Body\n" + "line\n" * 50
+            )
+            return StepResult(
+                step=step,
+                status=StepStatus.PASS,
+                attempt=1,
+                started_at=datetime.now(timezone.utc),
+                finished_at=datetime.now(timezone.utc),
+            )
+
+        original_reason = "missing canonical heading"
+
+        def always_fails_semantic(content: str) -> bool | str:
+            # Return the failure reason as a string -- the gate treats any
+            # non-True/non-empty return as a failure with that message.
+            return original_reason
+
+        def raising_remediator(path, gate_name, reason, *, step_id):
+            raise RuntimeError("test-injected remediator failure")
+
+        step = Step(
+            id="m2-fallthrough-step",
+            prompt="(unused)",
+            output_file=output_file,
+            gate=GateCriteria(
+                required_frontmatter_fields=["spec_source"],
+                min_lines=10,
+                enforcement_tier="STRICT",  # required for semantic_checks to run
+                semantic_checks=[
+                    SemanticCheck(
+                        name="canonical-heading-present",
+                        check_fn=always_fails_semantic,
+                        failure_message="canonical heading missing",
+                    )
+                ],
+            ),
+            timeout_seconds=10,
+            retry_limit=1,
+            gate_mode=GateMode.BLOCKING,
+        )
+
+        config = PipelineConfig(
+            work_dir=tmp_path,
+            allow_cosmetic_remediation=True,
+            cosmetic_remediator=raising_remediator,
+        )
+
+        with caplog.at_level(
+            logging.WARNING, logger="superclaude.pipeline.executor"
+        ):
+            results = execute_pipeline(
+                steps=[step],
+                config=config,
+                run_step=writes_failing_output,
+            )
+
+        # 1. No crash, no propagated exception -- we got a StepResult back.
+        assert len(results) == 1
+        res = results[0]
+        # 2. The step is FAIL (not PASS, not anything else).
+        assert res.status == StepStatus.FAIL, (
+            f"expected FAIL, got {res.status!r} -- the M2 try/except must "
+            f"fall through to the existing FAIL path"
+        )
+        # 3. The original gate failure reason is preserved -- the remediator's
+        #    exception text is NOT what the operator sees as the failure reason.
+        assert res.gate_failure_reason is not None
+        assert "test-injected remediator failure" not in (
+            res.gate_failure_reason or ""
+        ), "remediator exception text must NOT leak into gate_failure_reason"
+        # 4. A WARNING was emitted from the pipeline executor logger naming
+        #    the exception class.
+        warning_messages = [
+            r.getMessage()
+            for r in caplog.records
+            if r.levelno == logging.WARNING
+            and r.name == "superclaude.pipeline.executor"
+        ]
+        assert any(
+            "RuntimeError" in msg and "m2-fallthrough-step" in msg
+            for msg in warning_messages
+        ), (
+            f"expected WARNING naming RuntimeError + step id; got "
+            f"{warning_messages!r}"
+        )

@@ -21,12 +21,18 @@ from .models import Finding
 def build_certification_prompt(
     findings: list[Finding],
     context_sections: dict[str, str],
+    remediation_summary: list[str] | None = None,
 ) -> str:
     """Build a certification agent prompt per spec section 2.4.2 template.
 
     Produces prompt with:
     - Header: "You are a certification specialist..."
-    - Per-finding verification checklist (original issue, fix applied, check instruction)
+    - (Optional) Pipeline Remediations Applied section, populated when prior
+      pipeline steps required cosmetic auto-remediation (heading shape, dash
+      variants, whitespace, etc. -- see cli/roadmap/cosmetic_remediator.py).
+      Pass the union of ``StepResult.remediations`` from prior PASS results.
+    - Per-finding verification checklist (original issue, fix applied, check
+      instruction)
     - Output format: PASS/FAIL per finding with one-line justification
 
     Accepts pre-extracted context sections (not full file content) per NFR-011.
@@ -43,6 +49,27 @@ def build_certification_prompt(
         "file was modified."
     )
     lines.append("")
+
+    # Pipeline Remediations Applied (cosmetic auto-fix lane)
+    if remediation_summary:
+        lines.append("## Pipeline Remediations Applied")
+        lines.append("")
+        lines.append(
+            "The following cosmetic auto-fixes were applied earlier in this "
+            "pipeline run. Each is a deterministic transform (no LLM involved) "
+            "and was re-checked against the failing gate before the pipeline "
+            "continued. Use this list as a pipeline-quality signal: a high "
+            "remediation rate (more than ~2 steps remediated or more than ~5 "
+            "transforms in total) suggests upstream prompt or template drift "
+            "and MAY warrant downgrading the certify verdict from `certified` "
+            "to `certified-with-caveats`. The transforms themselves are not "
+            "expected to introduce defects; surface them in your final report "
+            "so reviewers know which steps required auto-fix."
+        )
+        lines.append("")
+        for entry in remediation_summary:
+            lines.append(f"- {entry}")
+        lines.append("")
 
     # Context sections
     if context_sections:

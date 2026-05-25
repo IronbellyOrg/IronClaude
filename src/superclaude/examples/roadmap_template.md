@@ -35,7 +35,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 ---
 ```
 
-# {{SC_PLACEHOLDER:project_name}} u2014 Project Roadmap
+# {{SC_PLACEHOLDER:project_name}} -- Project Roadmap
 
 ## Executive Summary
 
@@ -43,7 +43,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 **Business Impact:** {{SC_PLACEHOLDER:business_impact}}
 
-**Complexity:** {{SC_PLACEHOLDER:complexity_class}} ({{SC_PLACEHOLDER:score}}) u2014 {{SC_PLACEHOLDER:complexity_rationale}}
+**Complexity:** {{SC_PLACEHOLDER:complexity_class}} ({{SC_PLACEHOLDER:score}}) -- {{SC_PLACEHOLDER:complexity_rationale}}
 
 **Critical path:** {{SC_PLACEHOLDER:critical_path_description}}
 
@@ -84,21 +84,21 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 |---|---|---|---|---|---|---|---|---|
 | {{SC_PLACEHOLDER:row_num}} | {{SC_PLACEHOLDER:id}} | {{SC_PLACEHOLDER:title}} | {{SC_PLACEHOLDER:description}} | {{SC_PLACEHOLDER:component}} | {{SC_PLACEHOLDER:deps}} | {{SC_PLACEHOLDER:criteria}} | {{SC_PLACEHOLDER:effort}} | {{SC_PLACEHOLDER:priority}} |
 
-### Integration Points u2014 M{{SC_PLACEHOLDER:N}}
+### Integration Points -- M{{SC_PLACEHOLDER:N}}
 
 | Artifact | Type | Wired | Milestone | Consumed By |
 |---|---|---|---|---|
 | {{SC_PLACEHOLDER:artifact}} | {{SC_PLACEHOLDER:type}} | {{SC_PLACEHOLDER:wired}} | {{SC_PLACEHOLDER:owner}} | {{SC_PLACEHOLDER:consumers}} |
 
-### Milestone Dependencies u2014 M{{SC_PLACEHOLDER:N}}
+### Milestone Dependencies -- M{{SC_PLACEHOLDER:N}}
 
 - {{SC_PLACEHOLDER:dependency_or_none}}
 
-### Open Questions u2014 M{{SC_PLACEHOLDER:N}}
+### Open Questions -- M{{SC_PLACEHOLDER:N}}
 
 <!-- Omit this entire subsection when the milestone has zero open questions.
      Each OQ whose resolution blocks this milestone's exit criteria appears as one row.
-     OQ-xxx IDs must NEVER appear as rows in the 9-column deliverable table above u2014
+     OQ-xxx IDs must NEVER appear as rows in the 9-column deliverable table above --
      they are decisions, not deliverables. OQ-xxx MAY appear in the Deps column of
      deliverable rows that wait on the decision. -->
 
@@ -106,7 +106,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 |---|---|---|---|---|---|
 | {{SC_PLACEHOLDER:oq_num}} | {{SC_PLACEHOLDER:oq_id}} | {{SC_PLACEHOLDER:question}} | {{SC_PLACEHOLDER:impact}} | {{SC_PLACEHOLDER:owner}} | {{SC_PLACEHOLDER:target}} |
 
-### Risk Assessment and Mitigation u2014 M{{SC_PLACEHOLDER:N}}
+### Risk Assessment and Mitigation -- M{{SC_PLACEHOLDER:N}}
 
 <!-- Per-milestone risks scoped to this milestone only. Every risk row here
      must also appear in the global `## Risk Register` at the end of the file,
@@ -132,7 +132,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 <!-- Aggregated view of every risk across the roadmap. Each row consolidates a
      risk that appears in one or more per-milestone `### Risk Assessment and
-     Mitigation u2014 M{N}` subsections. Use R-### IDs (stable across revisions)
+     Mitigation -- M{N}` subsections. Use R-### IDs (stable across revisions)
      and list every milestone the risk affects in the `Affected Milestones`
      column (comma-separated). Owner is a persona or role. -->
 
@@ -148,7 +148,7 @@ convergence_score: {{SC_PLACEHOLDER:0.0_to_1.0_or_none}}
 
 ## Decision Summary
 
-<!-- Every row must cite the specific data point that drove the decision u2014 no subjective justifications. -->
+<!-- Every row must cite the specific data point that drove the decision -- no subjective justifications. -->
 
 | Decision | Chosen | Alternatives Considered | Rationale |
 |----------|--------|------------------------|----------|
