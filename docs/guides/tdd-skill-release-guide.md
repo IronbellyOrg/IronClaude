@@ -9,6 +9,7 @@ author: "Claude Opus 4.6"
 # TDD Skill — Release Guide
 
 This guide covers the `/tdd` skill for Technical Design Document generation, including:
+
 - what the skill does and how it works,
 - when to use it,
 - how to invoke it,
@@ -44,6 +45,7 @@ This release refactors the TDD skill from a monolithic SKILL.md into a decompose
 ### Architecture overview
 
 The TDD skill operates in two stages:
+
 - **Stage A** — Scope Discovery & Task File Creation: Maps the component architecture, plans research assignments, and spawns `rf-task-builder` to create an MDTM task file encoding all phases.
 - **Stage B** — Task File Execution: Delegates to the `/task` skill, which runs the F1 execution loop over the task file's checklist items, spawning parallel subagents as specified.
 
@@ -243,6 +245,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Agents**: rf-analyst (completeness-verification) + rf-qa (research-gate), run in parallel.
 
 **rf-analyst checklist (8 items)**:
+
 1. Coverage audit — every key file/subsystem from scope covered by at least one research file
 2. Evidence quality — claims cite specific file paths, line numbers, function names
 3. Documentation staleness — all doc-sourced claims tagged `[CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED]`
@@ -253,6 +256,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 8. Depth assessment — investigation depth matches the stated tier (data models documented, API surfaces mapped, architecture patterns identified)
 
 **rf-qa checklist (10 items)**:
+
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — sample 3-5 claims per file, verify file paths exist
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
@@ -273,6 +277,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Agents**: rf-analyst (synthesis-review) + rf-qa (synthesis-gate, fix_authorization: true), run in parallel.
 
 **rf-analyst synthesis review (9 items)**:
+
 1. Template section headers match the TDD template exactly
 2. Tables use the correct column structure (FR/NFR ID numbering, entity tables, SLO/SLI/Error Budget tables)
 3. No content was fabricated beyond what research files contain
@@ -300,6 +305,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Validation checklist (15 structural + 5 content quality)**:
 
 **Structural completeness:**
+
 1. All 28 template sections present (or explicitly marked as N/A with rationale per tier)
 2. Frontmatter has all required fields (id, title, status, created_date, parent_doc, depends_on, tags)
 3. Total line count within tier budget (Lightweight: 300-600, Standard: 800-1,400, Heavyweight: 1,400-2,200)
@@ -328,6 +334,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 **Agent**: rf-qa-qualitative (tdd-qualitative, fix_authorization: true).
 
 Verifies the TDD makes sense from product and engineering perspectives:
+
 - Architecture decisions match PRD requirements (if PRD provided)
 - API contracts are internally consistent
 - Implementation details are specific enough to code from
@@ -441,6 +448,7 @@ These rules come from the TDD template and apply to every generated TDD.
 ### 8.2 Stage B: Task file execution
 
 Delegated entirely to the `/task` skill:
+
 1. `/task` reads the MDTM task file and processes each checklist item via the F1 loop (READ -> IDENTIFY -> EXECUTE -> UPDATE -> REPEAT).
 2. Subagents are spawned as specified in B2 self-contained items.
 3. Phase-gate QA runs after each phase (Phase 2+).
@@ -450,6 +458,7 @@ Delegated entirely to the `/task` skill:
 ### 8.3 Resumability
 
 The MDTM task file provides automatic resume:
+
 - Every completed step is a checked `[x]` box on disk.
 - On restart, the skill finds the first unchecked `[ ]` item and resumes there.
 - Research files written incrementally persist even if the agent is interrupted mid-investigation.
@@ -476,38 +485,49 @@ The MDTM task file provides automatic resume:
 The TDD skill sits at the second stage of the full product development pipeline, translating product requirements into engineering specifications.
 
 ### Stage A: PRD (product requirements)
+
 ```
 /prd Create a PRD for [product area]
 ```
+
 Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].md` with research artifacts. See `docs/guides/prd-skill-release-guide.md`.
 
 ### Stage B: TDD (technical design) <- **This skill**
+
 ```
 /tdd Create a TDD based on the PRD at docs/docs-product/tech/[feature]/PRD_[FEATURE].md
 ```
+
 The PRD skill offers to invoke `/tdd` automatically after completion. Research files from the PRD investigation provide requirements context for the TDD. The TDD extracts epics, user stories, acceptance criteria, and technical requirements from the PRD.
 
 ### Stage C: Roadmap (adversarial generation)
+
 ```bash
 superclaude roadmap run spec.md --depth standard
 ```
+
 Generates a merged, adversarially validated roadmap from a specification. See `docs/guides/roadmap-cli-tools-release-guide.md`.
 
 ### Stage D: Tasklist (execution plan)
+
 ```
 /sc:tasklist
 ```
+
 Generates Sprint CLI-compatible phase files from the roadmap.
 
 ### Stage E: Sprint execution
+
 ```bash
 superclaude sprint run .dev/releases/current/tasklist-index.md
 ```
+
 Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli-tools-release-guide.md`.
 
 ### PRD-to-TDD Traceability
 
 When a PRD is provided, the TDD pipeline adds:
+
 1. **PRD Extraction** — reads the PRD and extracts requirements into `research/00-prd-extraction.md`
 2. **Requirements Traceability** — every FR in TDD Section 5 traces back to a PRD epic/user story
 3. **Success Metrics Alignment** — TDD Section 4 includes engineering proxy metrics for PRD business KPIs
@@ -547,31 +567,37 @@ When a PRD is provided, the TDD pipeline adds:
 ## 11) Known Limitations & Gotchas
 
 ### Vague prompts produce broad, less focused TDDs
+
 **Symptom**: TDD covers too much surface area without depth in any architecture area.
 **Cause**: When only the component name is provided (Scenario B), the skill does broad discovery and can't prioritize what matters for your specific design decision.
 **Workaround**: Always provide at minimum WHAT + WHERE. Specifying directories dramatically focuses the investigation.
 
 ### Missing PRD reduces requirements traceability
+
 **Symptom**: TDD Section 5 (Technical Requirements) has FRs marked `[NO PRD TRACE]` and Section 4 (Success Metrics) lacks business KPI alignment.
 **Cause**: No PRD was provided, so the skill derives requirements from feature description and codebase research alone.
 **Workaround**: Create a PRD first using `/prd`, then feed it into the TDD. The PRD-to-TDD pipeline produces significantly stronger requirements traceability.
 
 ### Context compression during Heavyweight runs
+
 **Symptom**: Phase 5 or 6 agents produce thinner output than Phase 2 agents.
 **Cause**: Long Heavyweight runs may approach context limits.
 **Workaround**: Each agent is self-contained with full instructions. If quality degrades, restart the session; the skill resumes from the task file.
 
 ### Existing docs treated as ground truth
+
 **Symptom**: TDD describes architecture that no longer exists in the codebase.
 **Cause**: Despite the Documentation Staleness Protocol, Doc Analyst agents may miss stale claims if the original documentation is internally consistent but outdated.
 **Workaround**: After TDD completion, review `gaps-and-questions.md` for `[UNVERIFIED]` tags. Cross-check surprising architectural claims against actual code.
 
 ### Web research agents blocked by network restrictions
+
 **Symptom**: Phase 4 web research files are empty or contain only error messages.
 **Cause**: Corporate networks, VPNs, or air-gapped environments may block web search.
 **Workaround**: The skill continues without web research (Phase 4 is not a hard gate). Design pattern and security best practice sections will be thinner. Populate them manually after TDD generation.
 
 ### Backend component generates frontend-specific sections
+
 **Symptom**: TDD includes State Management (Section 9) and Component Inventory (Section 10) for a backend service.
 **Cause**: Scope classification didn't identify the component as backend-only. The synthesis mapping table allows skipping these sections for backend components, but the tier/scope classifier may miss edge cases.
 **Workaround**: These sections should be marked N/A. If populated incorrectly, the rf-qa-qualitative agent typically catches this. If it persists, manually remove.
@@ -599,61 +625,77 @@ When a PRD is provided, the TDD pipeline adds:
 ## 13) Practical Use Cases
 
 ### Use case 1: Standard TDD from PRD
+
 ```
 /tdd Create a TDD for the agent orchestration system. The PRD is at
 docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md. Focus on backend/app/agents/
 and backend/app/services/.
 ```
+
 Standard tier, 4-6 codebase agents + 1-2 web agents. Full PRD-to-TDD traceability. All 28 template sections populated.
 
 ### Use case 2: Heavyweight new system design
+
 ```
 /tdd Design the technical architecture for a shared GPU pool to replace per-session
 VMs. Scope: ue_manager/, infrastructure/, backend/app/services/streaming_service.py.
 This is a Heavyweight TDD — new system, cross-team impact.
 ```
+
 Heavyweight tier, 6-10+ agents. Web research targets GPU pooling patterns, infrastructure scaling, and security best practices.
 
 ### Use case 3: Lightweight config change
+
 ```
 /tdd Create a TDD for the notification preference system. Focus on
 backend/api/preferences/notification_prefs.py — it's a small feature.
 ```
+
 Lightweight tier, 2-3 agents, 300-600 lines. Quick turnaround for a narrow design scope.
 
 ### Use case 4: PRD translation (downstream from /prd)
+
 ```
 /tdd Turn the canvas roadmap PRD into a TDD. The PRD is at
 docs/docs-product/tech/canvas/PRD_ROADMAP_CANVAS.md. Standard-tier covering
 the React canvas system and node type architecture. Focus on frontend/app/roadmap/.
 ```
+
 PRD extraction produces `00-prd-extraction.md`. FRs trace to PRD epics. Engineering proxy metrics generated for each business KPI.
 
 ### Use case 5: Resume interrupted TDD
+
 ```
 /tdd Create a TDD for the wizard state management system.
 ```
+
 If a `TASK-TDD-*` folder exists for "wizard state management", the skill reads the task file and resumes from the first unchecked item. No explicit resume flag needed.
 
 ### Use case 6: TDD feeding into roadmap
+
 ```
 /tdd Create a TDD for the payment processing pipeline. After completion, we'll
 generate a roadmap from the design specifications.
 ```
+
 After TDD completion, Phase 7 offers to create implementation tasks. The TDD and its research artifacts feed into `superclaude roadmap run` for execution planning.
 
 ### Use case 7: TDD from existing documentation consolidation
+
 ```
 /tdd Create a TDD for pixel streaming infrastructure by consolidating the existing
 architecture docs at docs/streaming/. Need a single source of truth for the design.
 ```
+
 Consolidation mode — Doc Analyst agents cross-validate existing docs against code. Document Provenance appendix tracks which source doc contributed to which section.
 
 ### Use case 8: Explicit output location with existing stub
+
 ```
 /tdd Populate the TDD stub at docs/agents/TDD_AGENT_ORCHESTRATION.md. The PRD is at
 docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md. Heavyweight — cross-team system.
 ```
+
 Writes to the specified stub location rather than the default path. Preserves any existing content in the stub's scope section.
 
 ---

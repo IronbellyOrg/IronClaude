@@ -61,6 +61,7 @@ The user copies `src/superclaude/examples/release-spec-template.md`, fills in al
 ## What the IronClaude Spec Does Well That PRD/TDD Do Not
 
 ### 1. YAML frontmatter — *not currently consumed by sc:roadmap*
+
 The spec template has machine-readable fields (`spec_type`, `complexity_score`, `complexity_class`, `quality_scores`) that are intended for pipeline consumption, but **sc:roadmap does not read these field values**. The pipeline validates that the YAML parses correctly (malformed YAML aborts the run), but no extraction step, scoring formula, or template selection algorithm consumes the values.
 
 - `spec_type` — sc:roadmap does NOT use this field for template selection. Template type is computed entirely from body-text domain keyword analysis using a 5-domain keyword dictionary. Adding `spec_type` to the TDD or spec frontmatter has zero effect on the current pipeline.
@@ -70,12 +71,15 @@ The spec template has machine-readable fields (`spec_type`, `complexity_score`, 
 **The frontmatter advantage does not exist in either path.** Even when a spec is manually created from the template with all frontmatter fields fully populated (Path A), sc:roadmap ignores those values and computes everything from scratch. The argument for adding these fields to the TDD is forward-looking: they should be used, and adding them now enables future pipeline upgrades to read them without changing the document structure.
 
 ### 2. Sentinel system with quality gate
+
 The `{{SC_PLACEHOLDER:*}}` sentinel pattern enforces completeness — `grep -c '{{SC_PLACEHOLDER:'` must return 0 before the spec is considered done. sc:spec-panel is explicitly named as the quality gate in the template header. Nothing equivalent exists in the TDD.
 
 ### 3. Scope boundary in pipeline-parseable format
+
 The spec's "In scope / Out of scope" is a two-field section extraction can directly parse. The TDD's non-goals table is richer but not in the same format.
 
 ### 4. Concise, release-scoped document
+
 The spec is scoped to a single increment. It's fast to write and fast to parse. The TDD describes the entire feature — passing it whole to sc:roadmap would work but is architecturally heavier than needed for a single release.
 
 ---
@@ -146,9 +150,11 @@ parent_prd: [path or null]
 ```
 
 ### Sentinel system
+
 `{{SC_PLACEHOLDER:*}}` pattern for unfilled fields, with sentinel self-check as a quality gate.
 
 ### Quality gate note
+
 Explicit instruction to run `/sc:spec-panel --focus correctness,architecture` before feeding the TDD to sc:roadmap.
 
 ---
@@ -156,11 +162,13 @@ Explicit instruction to run `/sc:spec-panel --focus correctness,architecture` be
 ## The Three Options
 
 ### Option 1: TDD → Spec via sc:spec-panel
+
 Generate a release spec FROM the TDD using sc:spec-panel. Note: spec-panel does not currently output in spec template format — it produces a structured review/analysis document in one of three defined formats (`--format standard`, `--format structured`, `--format detailed`). Under `--focus correctness`, three artifact tables are mandatory hard gates. The output is always a review document, not a standalone revised spec file. This option would require wiring spec-panel to output in spec template format first.
 
 **Pros:** Pipeline untouched. Spec template's sentinel system stays intact.
 
 **Cons:**
+
 - Two documents to maintain per feature that can drift (TDD is source of truth but spec feeds the pipeline)
 - Content loss risk — spec-panel has no instruction to preserve TDD content depth
 - sc:spec-panel doesn't know the spec template exists; needs explicit wiring
@@ -168,11 +176,13 @@ Generate a release spec FROM the TDD using sc:spec-panel. Note: spec-panel does 
 - Per-release spec still gets abandoned after the release
 
 ### Option 2: Modify the TDD template only (minimal)
+
 Add the spec's YAML frontmatter fields to the TDD. Note: sc:roadmap does not currently read these field values — it validates YAML syntax and computes all values from scratch. Adding the fields to the TDD has no effect on current pipeline behavior. This option only becomes meaningful if pipeline changes are made simultaneously to actually consume those fields.
 
 **Pros:** Single source of truth. Establishes frontmatter schema for future pipeline upgrades. Lower scope than Option 3.
 
 **Cons:**
+
 - Adding frontmatter fields alone produces no pipeline benefit without the corresponding sc:roadmap changes to read them
 - The pipeline still only uses a fraction of what the TDD contains
 - Roadmap complexity scoring, milestone planning, and task generation remain as shallow as they are today
@@ -184,6 +194,7 @@ Add the spec's YAML frontmatter fields to the TDD. Note: sc:roadmap does not cur
 Add frontmatter to the TDD AND upgrade sc:roadmap, sc:spec-panel, and sc:tasklist to actively consume the TDD's rich sections. The TDD becomes the single source of truth for the entire pipeline.
 
 **Pros:**
+
 - Single source of truth — no duplication, no drift
 - No content loss
 - Dramatically richer roadmaps: complexity scoring uses data model + API surface + component count, not just requirement count
@@ -293,6 +304,7 @@ The tasklist currently generates tasks from roadmap items only (headings, bullet
 ```
 
 For follow-on releases of the same feature:
+
 ```
 TDD updated with new sections/requirements    ← living document, not abandoned
   → /sc:spec-panel @tdd.md --focus [changed sections]

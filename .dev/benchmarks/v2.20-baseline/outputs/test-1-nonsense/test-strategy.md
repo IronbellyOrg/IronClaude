@@ -1,6 +1,6 @@
 
-
 ---
+
 validation_milestones: 5
 interleave_ratio: '1:1'
 ---
@@ -115,6 +115,7 @@ Ordered by severity of consequence if the check fails:
 ## 5. Acceptance Criteria per Milestone
 
 ### M1: Specification Rejection Confirmed
+
 - [ ] Decision memo document exists and is version-controlled
 - [ ] All 4 FRs classified as "not implementable" with rationale
 - [ ] All 3 NFRs classified as "violates known physics" or "not measurable"
@@ -124,6 +125,7 @@ Ordered by severity of consequence if the check fails:
 - [ ] Zero engineering tasks created against the original specification
 
 ### M2: Requirements Recovery Complete
+
 - [ ] FR-001 replacement: authentication requirement with protocol specified (OAuth2/OIDC or equivalent)
 - [ ] FR-002 replacement: database requirement with measurable performance target (ops/sec, latency percentile)
 - [ ] FR-003 replacement: CI/CD requirement with concrete pipeline stages and quality gates
@@ -133,6 +135,7 @@ Ordered by severity of consequence if the check fails:
 - [ ] Traceability matrix maps every original requirement to its replacement
 
 ### M3: Architecture Validated
+
 - [ ] Every dependency in the shortlist has: name, version, license, support status, URL
 - [ ] Architecture decision records exist for: auth model, data platform, deployment model, API gateway pattern
 - [ ] Each ADR follows the template (context, decision, consequences, status)
@@ -140,6 +143,7 @@ Ordered by severity of consequence if the check fails:
 - [ ] Feasibility confirmed: at least one team member has prior experience with each core dependency, or a spike is scheduled
 
 ### M4: Backlog Ready for Implementation
+
 - [ ] Every revised requirement maps to at least one backlog story
 - [ ] Every story has: description, acceptance criteria, owner, size estimate
 - [ ] Stories are sequenced by dependency order (no story depends on an unscheduled story)
@@ -147,6 +151,7 @@ Ordered by severity of consequence if the check fails:
 - [ ] Complexity re-scored; new score reflects actual implementation scope (expected range: 0.4–0.8)
 
 ### M5: Implementation Planning Approved
+
 - [ ] Business owner, architect, engineering lead, and QA lead have all signed off
 - [ ] Timeline produced from real estimates (not carried over from original spec)
 - [ ] Team roles identified and staffing plan created
@@ -167,6 +172,7 @@ Ordered by severity of consequence if the check fails:
 ### Gate Failure Protocol
 
 If any gate fails:
+
 1. Document the specific failure (which test, what was found)
 2. Return to the sub-phase that produced the failing artifact
 3. Rework the artifact to address the failure

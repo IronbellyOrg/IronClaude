@@ -12,6 +12,7 @@ Prevents wrong-direction execution by assessing confidence **BEFORE** starting i
 **Requirement**: ≥90% confidence to proceed with implementation.
 
 **Test Results** (2025-10-21):
+
 - Precision: 1.000 (no false positives)
 - Recall: 1.000 (no false negatives)
 - 8/8 test cases passed
@@ -19,11 +20,34 @@ Prevents wrong-direction execution by assessing confidence **BEFORE** starting i
 ## When to Use
 
 Use this skill BEFORE implementing any task to ensure:
+
 - No duplicate implementations exist
 - Architecture compliance verified
 - Official documentation reviewed
 - Working OSS implementations found
 - Root cause properly identified
+
+### Trigger Surface
+
+The trigger surface is **not limited to code edits**. Run this skill — or its lightweight form — BEFORE any reply that:
+
+- Suggests an action the user might take
+- Emits a command, script, or code snippet to run
+- Names a specific `--flag`, subcommand, file path, function, env var, API field, version number, or config key
+- Provides step-by-step instructions
+
+**A recommendation is a form of implementation.** The verification call goes BEFORE the message that contains the recommendation, in the same turn — not "let me check if you want", but check, then answer.
+
+### Lightweight Form
+
+Full 5-check scoring is not always required. For a single specific token, verifying it directly satisfies the rule:
+
+- `--help` / `<cmd> --help` for CLI flags and subcommands
+- `grep` / symbol lookup for functions, config keys, identifiers
+- File read for paths and file contents
+- `codebase-retrieval` (Auggie) — fastest for project-internal identifiers
+
+If verification cost is genuinely high (requires a long-running process), say so explicitly and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — do **not** ship it bare.
 
 ## Confidence Assessment Criteria
 

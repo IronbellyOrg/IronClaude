@@ -66,24 +66,30 @@ Step 3 — Read the generated artifacts in the output dir
 ### Additional (Secondary) Recommendations
 
 1. **Multi-perspective generation first** (optional upgrade, if the user wants more than two voices before debating):
+
    ```
    /sc:adversarial --source claim-brief.md --generate position-paper \
      --agents opus:architect,opus:analyzer,sonnet:backend \
      --depth deep --blind \
      --output .dev/adversarial/microservices-vs-monolith/
    ```
+
    Use when the user wants three model/persona variants instead of two hand-written files.
 
 2. **Pre-debate research pass** to harden both position artifacts with citations:
+
    ```
    /sc:research "microservices vs monolith startup outcomes" --depth deep
    ```
+
    Feed the findings into `pro-microservices.md` and `pro-monolith.md` before `--compare`.
 
 3. **Post-debate validation** of the merged verdict:
+
    ```
    /sc:reflect --on .dev/adversarial/microservices-vs-monolith/merge-log.md
    ```
+
    Confirms the base-selection rationale holds up on re-read.
 
 ### Quick Start (minimum viable flow)
@@ -115,6 +121,7 @@ Step 3 — Read the generated artifacts in the output dir
 | `--auto-stop-plateau` | *(optional)* | Useful only if this becomes a pipeline; leave off for single compare |
 
 Flags NOT recommended (and why):
+
 - `--pipeline` / `--pipeline-parallel` / `--pipeline-resume` / `--pipeline-on-error`: single-compare scenario, no DAG needed.
 - `--source` / `--generate` / `--agents`: only if the user opts into the Mode B upgrade above.
 

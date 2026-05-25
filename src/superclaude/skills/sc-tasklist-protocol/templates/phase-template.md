@@ -41,14 +41,17 @@ Each phase file is a **self-contained execution unit**. It contains only the tas
 | Deliverable IDs | `D-####` (comma-separated; must include at least 1) |
 
 **Artifacts (Intended Paths):**
+
 - `TASKLIST_ROOT/artifacts/D-####/spec.md`
 - `TASKLIST_ROOT/artifacts/D-####/notes.md`
 - `TASKLIST_ROOT/artifacts/D-####/evidence.md`
 
 **Deliverables:**
+
 - 1-5 concrete outputs
 
 **Steps:**
+
 1. **[PLANNING]** Load context and identify scope
 2. **[PLANNING]** Check dependencies and blockers
 3. **[EXECUTION]** ...
@@ -57,12 +60,14 @@ Each phase file is a **self-contained execution unit**. It contains only the tas
 6. **[COMPLETION]** Documentation and evidence
 
 **Acceptance Criteria:** (exactly 4 bullets)
+
 - Functional completion (MUST name specific, verifiable output)
 - Quality/safety criterion
 - Determinism/repeatability criterion
 - Documentation/traceability criterion
 
 **Validation:** (exactly 2 bullets)
+
 - Manual check: ...
 - Evidence: linkable artifact produced
 
@@ -75,17 +80,20 @@ Each phase file is a **self-contained execution unit**. It contains only the tas
 The first Acceptance Criteria bullet MUST name a specific, objectively verifiable output.
 
 **Accepted forms:**
+
 - A named file or artifact at a specific path
 - A test command outcome with specific test suite
 - An observable state with measurable criteria
 
 **Rejected forms (fail self-check):**
+
 - "Implementation is complete."
 - "The feature works correctly."
 - "Tests pass." (without specifying which tests)
 - "Documented." (without specifying what document)
 
 ### Acceptance Criteria Specificity Rules
+
 - STRICT tasks: ALL criteria must be artifact-referencing
 - STANDARD tasks: >=1 criterion must be artifact-referencing
 - LIGHT and EXEMPT tasks: no minimum
@@ -102,6 +110,7 @@ The first Acceptance Criteria bullet MUST name a specific, objectively verifiabl
 **Exit Criteria:** (exactly 3 bullets)
 
 Deterministic name format:
+
 - Range checkpoints: `CP-P<PP>-T<start>-T<end>.md`
 - End-of-phase: `CP-P<PP>-END.md`
 

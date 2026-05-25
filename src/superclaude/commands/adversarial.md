@@ -11,6 +11,7 @@ personas: [architect, analyzer, scribe]
 # /sc:adversarial - Adversarial Debate & Merge Pipeline
 
 ## Required Input
+
 - Mode A: `--compare file1,file2[,...,fileN]` (2-10 existing files)
 - Mode B: `--source <file> --generate <type> --agents <spec>[,...]` (generate + compare)
 - Pipeline: `--pipeline "<shorthand>"` or `--pipeline @pipeline.yaml` (multi-phase DAG)
@@ -34,14 +35,17 @@ personas: [architect, analyzer, scribe]
 ### Arguments
 
 **Mode A (Compare)**:
+
 - `--compare`: Comma-separated file paths (2-10 existing files)
 
 **Mode B (Generate + Compare)**:
+
 - `--source`: Source file for variant generation
 - `--generate`: Type of artifact to generate (roadmap, spec, design, etc.)
 - `--agents`: Agent specifications in `model[:persona[:"instruction"]]` format
 
 **Pipeline Mode (Multi-Phase DAG)**:
+
 - `--pipeline`: Inline shorthand or `@path.yaml` file defining a multi-phase pipeline
   - Shorthand syntax: `generate:agents -> compare` with `|` for parallel, `->` for sequential
   - YAML syntax: Array of phase definitions with `type`, `agents`, `depends_on`, `config`
@@ -74,11 +78,13 @@ personas: [architect, analyzer, scribe]
 ## Examples
 
 ### Compare Two Roadmap Drafts
+
 ```bash
 /sc:adversarial --compare draft-a.md,draft-b.md --depth standard
 ```
 
 ### Generate 3 Variants with Different Personas
+
 ```bash
 /sc:adversarial --source auth-spec.md --generate roadmap \
   --agents opus:architect,sonnet:security,opus:analyzer \
@@ -86,18 +92,21 @@ personas: [architect, analyzer, scribe]
 ```
 
 ### Compare 5 Specs with Interactive Mode
+
 ```bash
 /sc:adversarial --compare spec1.md,spec2.md,spec3.md,spec4.md,spec5.md \
   --interactive --depth deep
 ```
 
 ### Quick Comparison with Focused Debate
+
 ```bash
 /sc:adversarial --compare plan-a.md,plan-b.md \
   --depth quick --focus structure,completeness
 ```
 
 ### Full Mode B with Custom Output
+
 ```bash
 /sc:adversarial --source migration-plan.md --generate roadmap \
   --agents opus:architect:"prioritize backward compatibility",sonnet:security:"zero-trust" \
@@ -105,24 +114,28 @@ personas: [architect, analyzer, scribe]
 ```
 
 ### Blind Multi-Model Comparison
+
 ```bash
 /sc:adversarial --source spec.md --generate roadmap \
   --agents opus:architect,haiku:analyzer --blind --depth deep
 ```
 
 ### Pipeline: Parallel Generate + Compare (Inline Shorthand)
+
 ```bash
 /sc:adversarial --pipeline "generate:opus:architect,haiku:architect | generate:opus:security,haiku:security -> compare" \
   --source spec.md --depth deep --blind
 ```
 
 ### Pipeline: Multi-Phase from YAML
+
 ```bash
 /sc:adversarial --pipeline @pipeline-definition.yaml \
   --pipeline-parallel 2 --pipeline-on-error continue --interactive
 ```
 
 ### Pipeline: Resume After Failure
+
 ```bash
 /sc:adversarial --pipeline @pipeline-definition.yaml --pipeline-resume
 ```
@@ -138,6 +151,7 @@ The full behavioral specification is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Compare 2-10 artifacts through structured adversarial debate
 - Generate variant artifacts using different model/persona configurations
 - Produce transparent, documented merge decisions with full scoring breakdown
@@ -149,6 +163,7 @@ The full behavioral specification is in the protocol skill.
 - Work as a generic tool invocable by any SuperClaude command
 
 **Will Not:**
+
 - Validate domain-specific correctness of merged output (calling command's responsibility)
 - Execute the merged output (planning/merge tool, not execution tool)
 - Manage git operations or version control

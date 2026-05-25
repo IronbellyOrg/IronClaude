@@ -24,6 +24,7 @@ Both documents MUST follow the template structure at `src/superclaude/examples/r
 Before writing any specification text, you MUST read the following source files in order. Do not paraphrase from memory. Open each file, read the relevant lines, and cite line numbers in your spec where applicable.
 
 **Source code files (read these FIRST -- they are ground truth)**:
+
 - `src/superclaude/cli/sprint/executor.py` -- lines 956-1100 (Path A loop), lines 1201-1254 (path branching), lines 1017-1025 (TaskResult construction), line 1091 (turns_consumed bug)
 - `src/superclaude/cli/sprint/process.py` -- line 114 (file open mode "w"), lines 123-204 (build_prompt), lines 245-307 (build_task_context)
 - `src/superclaude/cli/sprint/models.py` -- line 176 (output_path default), line 329 (gate_rollout_mode default), TaskResult dataclass, PhaseResult dataclass, MonitorState class
@@ -32,6 +33,7 @@ Before writing any specification text, you MUST read the following source files 
 - `src/superclaude/cli/sprint/tui.py` -- line 107-108 (monitor_state binding)
 
 **Analysis documents (read these SECOND -- they provide validated design decisions)**:
+
 - `docs/generated/sprint-cli/v3.7-refactor/context-01-path-a-deficiencies.md` -- 7 validated deficiencies
 - `docs/generated/sprint-cli/v3.7-refactor/context-02-debate-rulings.md` -- 5 adversarial debate rulings
 - `docs/generated/sprint-cli/v3.7-refactor/context-03-v37-spec-gap-analysis.md` -- gap analysis
@@ -59,6 +61,7 @@ Before including ANY verification command in the spec (e.g., `uv run pytest ...`
 For each spec, populate the YAML frontmatter completely. Use these values:
 
 **R1 frontmatter**:
+
 - title: "v3.7a -- Pipeline Reliability & Naming Consolidation"
 - spec_type: refactoring
 - complexity_score: 0.45
@@ -67,6 +70,7 @@ For each spec, populate the YAML frontmatter completely. Use these values:
 - feature_id: FR-37A
 
 **R2 frontmatter**:
+
 - title: "v3.7b -- Sprint TUI v2"
 - spec_type: new_feature
 - complexity_score: 0.70
@@ -77,6 +81,7 @@ For each spec, populate the YAML frontmatter completely. Use these values:
 For Section 1 (Problem Statement), cite specific line numbers and actual code from the source files you read. Do not describe problems abstractly. Show the code that is broken.
 
 For Section 1.1 (Evidence), every row must have:
+
 - A file path and line number
 - The actual current behavior (not what you think it does -- read it)
 - The measured or observable impact
@@ -88,6 +93,7 @@ For Section 1.1 (Evidence), every row must have:
 For EACH functional requirement in Section 3, you must include the following sub-sections beyond what the template requires:
 
 #### 2a. Standard requirement fields (from template)
+
 - Description, Acceptance Criteria, Dependencies
 
 #### 2b. Verification Contract (REQUIRED for every FR)
@@ -118,6 +124,7 @@ For each FR, add a `**Verification:**` block containing:
 Include these task groups with full verification contracts:
 
 **Phase 0 (Foundation -- all parallelizable)**:
+
 - **FR-37A.1**: PA-04 -- Fix `turns_consumed` at `executor.py:1091`. Currently hardcoded to 0. Must call `count_turns_from_output()` from `monitor.py:114-141`.
   - Test: What does `count_turns_from_output()` return on an empty file? On a file with 0 assistant events? On a file with 500 events?
   - Failure mode: If the output file was overwritten (process.py:114 "w" mode), `count_turns_from_output()` sees only the last task's output. How does this interact with the append-mode fix (MA-03)?
@@ -157,6 +164,7 @@ Include these task groups with full verification contracts:
   - Failure mode: Import statement references old name -- causes ImportError at runtime. Test suite references old name -- tests pass (because they import old name which still resolves due to Python caching) but production fails.
 
 **Phases 1-4 (Checkpoint Enforcement W1-W3)**:
+
 - For each checkpoint task (T01.01 through T04.03), include verification contracts. Key verification focus:
   - T02.04: The gate fires for BOTH Path A and Path B post-phase flows. Write a test that simulates a Path A phase (multiple TaskResult objects) and verifies the gate evaluates.
   - T04.01: Checkpoint normalization -- when a `### Checkpoint:` heading is renormalized to `### T<PP>.<NN> -- Checkpoint:`, does `parse_tasklist()` now parse it as a regular task? If yes, it executes as a subprocess in Path A's loop. Test this.
@@ -166,6 +174,7 @@ Include these task groups with full verification contracts:
 Include these with full verification contracts:
 
 **Wave 1 (Data Model)**:
+
 - **FR-37B.1**: MonitorState 8 new fields. For each field: what is its default value? What populates it under Path A? Under Path B? What happens if it is read before population?
 - **FR-37B.2**: PhaseResult extensions. Test that `SprintResult` aggregate properties still compute correctly when `PhaseResult` has the new fields.
 - **FR-37B.3**: SprintResult aggregate properties. Test with 0 phases, 1 phase, 10 phases. Test with a phase that has 0 turns and 0 tokens (edge case: division by zero in averages?).
@@ -174,6 +183,7 @@ Include these with full verification contracts:
   - Test with empty TaskResult list. Test with TaskResults where all `turns_consumed` are 0 (PA-04 not yet fixed). Test with mixed success/failure TaskResults.
 
 **Wave 2 (TUI Features F1-F7 with Path A adaptations)**:
+
 - **FR-37B.6**: F1 Activity stream with synthetic entries for Path A.
   - Test: Synthetic entry format matches what TUI rendering expects. 0 tasks produces 0 entries. 50 tasks produces 50 entries (does the 3-line FIFO correctly show only the last 3?).
   - Manual test: Run a sprint with a 3-task phase and visually confirm activity stream updates between tasks.
@@ -193,6 +203,7 @@ Include these with full verification contracts:
 - **FR-37B.12**: F7 Sprint name in TUI title. Path-agnostic. Test with sprint names containing special characters (quotes, ampersands, unicode).
 
 **Wave 3**:
+
 - **FR-37B.13**: F8 PhaseSummarizer with dual input.
   - MUST accept `list[TaskResult]` (Path A) OR NDJSON file path (Path B).
   - Test: Path A input with 0 TaskResults. Path A input with 1 TaskResult that has empty output. Path B input with NDJSON file that does not exist. Path B input with NDJSON file that is 0 bytes.
@@ -203,6 +214,7 @@ Include these with full verification contracts:
   - Test: Sprint with 0 phases (edge case -- should not happen but what if it does?). Sprint with 1 phase. Sprint where F8 failed for some phases (missing summary files).
 
 **Wave 4**:
+
 - **FR-37B.15**: F9 tmux summary pane. Display-only, consumes F8 output.
   - Manual test: Verify pane renders correctly in tmux. Verify graceful degradation when not running in tmux.
   - Failure mode: tmux not installed. tmux session not found. Pane creation fails silently vs crashes.
@@ -216,6 +228,7 @@ For Section 4 (Architecture), include:
 **4.1 New Files**: List every new file with its purpose and which tests cover it.
 
 **4.2 Modified Files**: For each modified file, list:
+
 - Exact line ranges being changed
 - What existing tests cover those line ranges (run `uv run pytest --co -q` to list test names, then grep for the file being modified)
 - Whether the change is additive (new code) or mutative (changing existing behavior)
@@ -223,6 +236,7 @@ For Section 4 (Architecture), include:
 **4.3 Removed Files** (R1 only -- refactoring type): List any deprecated names/aliases being removed by N1-N12.
 
 **4.6 Implementation Order**: Must respect these validated dependency chains:
+
 - R1: PA-04, PA-05, PA-01 are all parallelizable (Phase 0). PA-02 and PA-03 depend on PA-01. PA-06 depends on PA-04 + PA-05. DM-05 depends on DM-04. N1-N12 can start with Phase 0.
 - R2: Wave 1 (data model) must complete before Wave 2 (TUI features). DM-06 depends on PA-04 + PA-05 + DM-05 (all R1). F8 depends on correctly populated TaskResult (R1 prereqs). F9 depends on F8. F10 depends on F8.
 
@@ -289,6 +303,7 @@ For EACH risk, you MUST provide all four columns plus these additional sub-items
 ```
 
 **R1 Mandatory Risks** (include at minimum):
+
 1. Append-mode phase restart double-counting (MA-03 + PA-04 interaction)
 2. Shadow gate default exposing latent bugs in gate evaluation code
 3. `_extract_task_block()` regex failing on edge-case markdown formatting
@@ -296,6 +311,7 @@ For EACH risk, you MUST provide all four columns plus these additional sub-items
 5. `count_turns_from_output()` returning incorrect count on malformed NDJSON
 
 **R2 Mandatory Risks** (include at minimum):
+
 1. stall_status false alarm in MonitorState adapter (user kills healthy process)
 2. PhaseSummarizer Haiku API failure mid-sprint
 3. TUI rendering crash with unexpected MonitorState field values (None, negative, overflow)
@@ -312,12 +328,14 @@ This is the most critical section. Structure it as follows:
 #### 8.1 Unit Tests
 
 For EVERY task in both specs, provide at least 2 unit tests with:
+
 - Test function name (e.g., `test_extract_task_block_single_task`)
 - File location (e.g., `tests/cli/sprint/test_executor.py`)
 - What it asserts (specific condition, not "it works")
 - Setup requirements (fixtures, mocks, test data)
 
 Minimum unit test counts:
+
 - R1: At least 25 unit tests across all tasks
 - R2: At least 40 unit tests across all tasks
 
@@ -326,6 +344,7 @@ Minimum unit test counts:
 For each wave/phase, provide integration tests that verify multiple components working together:
 
 **R1 integration tests**:
+
 - `test_phase0_bug_fixes_enable_turnledger()` -- After PA-04 + PA-05 + MA-03, run a 3-task phase and verify TurnLedger receives non-zero turn data and output_path is valid.
 - `test_prompt_enrichment_end_to_end()` -- After PA-01 + PA-02 + PA-03, run a single task and verify the prompt contains task block, scope boundary, and sprint context.
 - `test_shadow_gate_evaluates_without_crash()` -- With PA-06 default, run a phase and verify gate evaluation completes (even if gate result is logged, not enforced).
@@ -333,6 +352,7 @@ For each wave/phase, provide integration tests that verify multiple components w
 - `test_append_mode_phase_restart_safety()` -- Run a phase, simulate failure at task 5, restart phase, verify output file contains only the retry's data (not stale + retry).
 
 **R2 integration tests**:
+
 - `test_tui_renders_path_a_phase()` -- Run a 5-task phase through Path A with TUI enabled, verify all F1-F7 features display non-default data.
 - `test_phase_summarizer_dual_input()` -- Feed PhaseSummarizer a `list[TaskResult]` and separately an NDJSON file, verify both produce summaries.
 - `test_monitor_state_adapter_no_stall_false_alarm()` -- Create adapter, wait 180 seconds (simulated), verify `stall_status` does not show "STALLED".
@@ -352,6 +372,7 @@ For each wave/phase, provide integration tests that verify multiple components w
 #### 8.4 Regression Test Matrix
 
 List every existing test file that touches files modified by R1 or R2. For each:
+
 - File path
 - Number of tests
 - Expected impact (none / needs update / will break)
@@ -364,11 +385,13 @@ Run `uv run pytest --co -q 2>/dev/null | grep "test_" | wc -l` to get total test
 ### STEP 8: Migration & Rollout (Section 9)
 
 **R1 Migration**:
+
 - Breaking changes: `gate_rollout_mode` default changes from "off" to "shadow". Any CI/CD pipeline or script that relies on gates being off by default will now see shadow evaluation. Document the `--gate-mode off` escape hatch.
 - Append mode: `process.py:114` change from "w" to "a" means output files grow within a phase. Document the phase-start truncation mechanism.
 - Naming: Old names must have deprecation aliases OR all references must be updated atomically.
 
 **R2 Migration**:
+
 - No breaking changes expected -- TUI features are additive.
 - `--no-tui` flag must continue to work identically to pre-R2 behavior.
 
@@ -435,10 +458,12 @@ For each spec, describe what downstream consumers need:
 ### OUTPUT
 
 Write the two specs to:
+
 - R1: `docs/generated/sprint-cli/v3.7-refactor/release-spec-v37a-pipeline-reliability.md`
 - R2: `docs/generated/sprint-cli/v3.7-refactor/release-spec-v37b-sprint-tui-v2.md`
 
 After writing both specs, run these self-checks:
+
 1. `grep -c '{{SC_PLACEHOLDER:' <each-file>` -- must return 0
 2. Verify every FR has a `**Verification:**` block
 3. Verify Section 8 has at least 25 unit tests for R1 and 40 for R2

@@ -19,6 +19,8 @@ following roots. Anything else is rejected before any filesystem write.
 | 2 | `<repo>/.dev/eval-runs/`      | Repo-relative scratch root for sessions that want their artifacts on the same filesystem as the source tree. Anchors against process CWD via `Path.resolve()`.        |
 | 3 | `--output-dir <path>`         | Operator-supplied path passed on the command line. Extends the allowlist **for the current invocation only**; never mutates `EvalConfig.allowed_scratch_roots`.       |
 
+> **H4 / strict-sub-path rule (post cliEval Phase 5+6 remediation):** A **bare allowlist prefix** (e.g. `resolve_scratch_root("/tmp/eval-runs")` with no sub-path) now **raises `ScratchRootViolation`**. Only **strict sub-paths** of one of the three allowed roots are accepted — `/tmp/eval-runs/<run-id>/` is fine, but `/tmp/eval-runs` itself is **not**. This closes the AC12 tautology where the allowlist check would silently accept the prefix as a "match" of itself. The `resolved == prefix` accept branch was removed from `resolve_scratch_root` (`src/superclaude/cli/eval/config.py`). Test pinning: `tests/cli/eval/test_scratch_root_allowlist.py::test_resolve_scratch_root_rejects_bare_prefix` + `test_accepts_immediate_subdir_of_allowlist_root`. AC matrix row **H4**.
+
 The canonical policy text emitted by `superclaude eval doctor` and every
 other CLI boundary is the `SCRATCH_ROOT_POLICY` constant in
 `src/superclaude/cli/eval/config.py` — that constant and this document
@@ -45,7 +47,7 @@ The same allowlist powers four layered defenses:
    be accepted, and quotes the policy verbatim when it will not.
 3. **HomeIsolation containment** (`containment_guard`, T02.08) re-applies
    the check after `mkdtemp` so a symlink swap between loader-time and
-   setup-time is still caught.
+   setup-time is still caught. **H5 ordering invariant (post Phase 5+6 remediation):** the runtime allowlist is extended with the resolved `--output-dir` (and the derived `home_root`) **before** the corresponding `mkdir(parents=True)` runs at BOTH call sites — `commands.py::eval_run` (H5a, AC matrix) and `isolation.py::HomeIsolation.setup` (H5b, AC matrix). A non-allowlisted path raises `ScratchRootViolation` **before** any on-disk side effect (OPS-002 / NFR-SEC2). Tests: `tests/cli/eval/test_home_isolation_extend.py::test_eval_run_extends_allowlist_before_mkdir` and `tests/cli/eval/test_containment.py::test_home_isolation_setup_rejects_non_allowlisted_home_root_before_mkdir`.
 4. **Atomic setup wrapper** (T02.13) preserves the partial HOME with a
    `setup_failed` artifact tag when any of the above refuse, so
    forensics survive even when the harness aborts mid-setup.
@@ -98,14 +100,18 @@ extends the allowlist for the call only (see
 
 ## Updating the policy
 
-Any change to the allowed roots **must** land in three places in one
+Any change to the allowed roots **must** land in four places in one
 commit:
 
 1. `_default_allowed_scratch_roots()` in `src/superclaude/cli/eval/config.py`.
 2. `SCRATCH_ROOT_POLICY` in the same module.
 3. The "The 3 allowed roots" table above.
+4. `tests/cli/eval/test_scratch_root_allowlist.py` and
+   `tests/cli/eval/test_containment.py` also pin the H4/H5 invariants
+   described above (bare-prefix rejection + write-before-validate ordering);
+   any allowlist change must update them too.
 
-`tests/cli/eval/test_scratch_root_policy.py` reads all three locations
+`tests/cli/eval/test_scratch_root_policy.py` reads the first three locations
 and refuses to pass if they disagree, so a drift-introducing PR fails
 fast in CI.
 

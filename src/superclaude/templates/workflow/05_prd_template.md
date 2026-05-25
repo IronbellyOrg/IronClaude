@@ -92,6 +92,7 @@ task_type: "static"
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [ ] Section 1: Executive Summary — **Status**
 - [ ] Sections 2-5: Problem, Background, Vision, Business Context — **Status**
 - [ ] Sections 6-9: JTBD, Personas, Value Proposition, Competitive Analysis — **Status**
@@ -156,6 +157,7 @@ task_type: "static"
 [2-3 paragraph summary of the product, its purpose, and key value proposition]
 
 **Key Success Metrics:**
+
 - [Metric 1]: [Target value]
 - [Metric 2]: [Target value]
 - [Metric 3]: [Target value]
@@ -174,6 +176,7 @@ task_type: "static"
 **[One sentence stating the core problem]**
 
 [Detailed explanation of the problem, including:]
+
 - What is the current state?
 - Who is affected?
 - What is the impact/cost of not solving this?
@@ -182,16 +185,19 @@ task_type: "static"
 ### 2.2 Why Existing Solutions Fall Short
 
 **[Solution Category 1]** (e.g., Existing tools, competitors):
+
 - [Limitation 1]
 - [Limitation 2]
 - [Limitation 3]
 
 **[Solution Category 2]**:
+
 - [Limitation 1]
 - [Limitation 2]
 - [Limitation 3]
 
 **[Solution Category 3]**:
+
 - [Limitation 1]
 - [Limitation 2]
 - [Limitation 3]
@@ -268,6 +274,7 @@ task_type: "static"
 4. **Retention**: [Target]
 
 **Revenue Milestones:**
+
 - Year 1: $[X] ARR
 - Year 2: $[X] ARR
 - Year 3: $[X] ARR
@@ -295,6 +302,7 @@ task_type: "static"
 ### 6.1 Primary Jobs
 
 **Job 1: [Job Name]**
+
 - **When**: [Situation/trigger]
 - **I want to**: [Motivation/action]
 - **So I can**: [Expected outcome/benefit]
@@ -302,6 +310,7 @@ task_type: "static"
 - **Pain with alternatives**: [Why current solutions are inadequate]
 
 **Job 2: [Job Name]**
+
 - **When**: [Situation/trigger]
 - **I want to**: [Motivation/action]
 - **So I can**: [Expected outcome/benefit]
@@ -309,6 +318,7 @@ task_type: "static"
 - **Pain with alternatives**: [Why current solutions are inadequate]
 
 **Job 3: [Job Name]**
+
 - **When**: [Situation/trigger]
 - **I want to**: [Motivation/action]
 - **So I can**: [Expected outcome/benefit]
@@ -390,6 +400,7 @@ task_type: "static"
 ### 8.1 Customer Profile: [Primary Persona]
 
 **Customer Jobs:**
+
 1. [Functional job 1]
 2. [Functional job 2]
 3. [Social job]
@@ -466,6 +477,7 @@ task_type: "static"
 ### 9.3 Competitive Positioning
 
 **Our Unique Differentiation:**
+
 1. [Differentiator 1]: [Why this matters]
 2. [Differentiator 2]: [Why this matters]
 3. [Differentiator 3]: [Why this matters]
@@ -632,8 +644,6 @@ task_type: "static"
 | [Business metrics] | [Specific metrics] | [Purpose] | [Duration] |
 
 **Analytics Tools:**
-- [Tool 1]: [Purpose]
-- [Tool 2]: [Purpose]
 
 ---
 
@@ -874,34 +884,37 @@ task_type: "static"
 **Description:** [Brief description of epic scope and purpose]
 
 **US-1.1: [Story Title]**
+
 - **As a** [persona]
 - **I want** [goal/desire]
 - **So that** [benefit/value]
 
 **Acceptance Criteria:**
+
 - ✅ [Criterion 1]
 - ✅ [Criterion 2]
 - ✅ [Criterion 3]
 
 **Success Metrics:**
+
 - [Metric 1]: [Target]
 - [Metric 2]: [Target]
 
 ---
 
 **US-1.2: [Story Title]**
+
 - **As a** [persona]
 - **I want** [goal/desire]
 - **So that** [benefit/value]
 
 **Acceptance Criteria:**
+
 - ✅ [Criterion 1]
 - ✅ [Criterion 2]
 - ✅ [Criterion 3]
 
 **Success Metrics:**
-- [Metric 1]: [Target]
-- [Metric 2]: [Target]
 
 ---
 
@@ -925,12 +938,12 @@ task_type: "static"
 | **Dependencies** | [What this depends on] |
 
 **Acceptance Criteria:**
+
 - [Criterion 1]
 - [Criterion 2]
 - [Criterion 3]
 
 **Success Metrics:**
-- [Metric]: [Target]
 
 ---
 
@@ -982,6 +995,7 @@ task_type: "static"
 #### 21.4.2 Definition of Done (Feature Level)
 
 A feature is considered "Done" when:
+
 - [ ] All acceptance criteria met
 - [ ] Unit tests written and passing (coverage > [X]%)
 - [ ] Integration tests passing
@@ -1029,11 +1043,13 @@ A feature is considered "Done" when:
 **Focus:** [What this phase accomplishes]
 
 **Deliverables:**
+
 - [ ] [Deliverable 1]
 - [ ] [Deliverable 2]
 - [ ] [Deliverable 3]
 
 **Success Criteria:**
+
 - [Criterion 1]
 - [Criterion 2]
 
@@ -1135,6 +1151,7 @@ A feature is considered "Done" when:
 #### [Endpoint 1]: [Purpose]
 
 **Request:**
+
 ```http
 [METHOD] /api/v1/[endpoint]
 Content-Type: application/json
@@ -1147,6 +1164,7 @@ Authorization: Bearer {token}
 ```
 
 **Response (Success):**
+
 ```json
 {
   "status": "success",
@@ -1158,6 +1176,7 @@ Authorization: Bearer {token}
 ```
 
 **Response (Error):**
+
 ```json
 {
   "status": "error",
@@ -1375,6 +1394,7 @@ CALLOUT CONVENTIONS:
 -->
 
 > **See also:**
+>
 > - [TDD Template](tdd_template.md) — For component/system-level Technical Design Documents
 > - [Technical Reference Template](technical_reference_template.md) — For documenting implemented features and systems
 > - [Operational Guide Template](operational_guide_template.md) — For installation, setup, and deployment guides

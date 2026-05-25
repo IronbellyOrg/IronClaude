@@ -22,6 +22,7 @@ The v3.7 unified spec was split into R1 (Pipeline Reliability & Naming, ~480 LOC
 ### Key Arguments
 
 **A1. The split boundary holds under Path A introduction.** The split seam is "data contract vs presentation layer." Path A work decomposes along the same axis:
+
 - **R1 scope**: PA-01/02/03 (prompt enrichment -- pipeline behavior), PA-04/05/06 (TurnLedger bug fixes -- data integrity), PA-06 (gate default -- enforcement policy), NEW-DM-04/05 (token extraction -- data model).
 - **R2 scope**: TUI adaptation of F1-F4/F6/F8 for Path A data sources, MonitorState population hooks, PhaseSummarizer dual-input, NEW-DM-06 (aggregation logic for TUI consumption).
 
@@ -92,6 +93,7 @@ This is NOT a forced fit. Prompt enrichment IS pipeline reliability. TUI adaptat
 **C2. Preserves the validated split boundary.** The R1/R2 split at 0.83 convergence with 1.00 fidelity is NOT discarded. It remains the organizing frame. The new Path A tasks are partitioned INTO this frame, not used to generate a new one.
 
 **C3. The partitioning step is straightforward.** The merged recommendation already classifies every task by domain (prompt enrichment, TurnLedger, data model, TUI adaptation). The mapping to R1/R2 follows directly from the boundary rationale:
+
 - R1 absorbs: PA-01/02/03 (prompt enrichment = pipeline reliability), PA-04/05/06 (TurnLedger = data contract fixes), PA-06 (gate default = enforcement policy), NEW-DM-04/05 (token extraction = data model foundation).
 - R2 absorbs: F1-F4/F6/F8 Path A adaptations (TUI = presentation), NEW-DM-06 (aggregation = feeds TUI), MonitorState population hooks, PhaseSummarizer dual-input.
 - PA-07/PA-08 are P2/optional and can land in either release or be deferred.

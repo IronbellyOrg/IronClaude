@@ -230,7 +230,7 @@ Both variants agree on the following foundational elements:
 
 ## 3. Areas Where One Variant Is Clearly Stronger
 
-### Opus is stronger in:
+### Opus is stronger in
 
 - **Deployment completeness**: Full staging → production → monitoring pipeline with explicit tasks. Haiku stops at validation.
 - **Resource planning**: FTE allocations and external dependency tables with delay-risk assessment are directly usable for project planning.
@@ -239,7 +239,7 @@ Both variants agree on the following foundational elements:
 - **Test co-location**: Tests alongside implementation reduces feedback latency and catches issues earlier.
 - **Spec ID preservation**: 55 extracted + 37 derived IDs maintain clear lineage to the source spec.
 
-### Haiku is stronger in:
+### Haiku is stronger in
 
 - **Architectural rigor**: Contract-first approach, named integration artifacts, explicit DI bindings, and wiring tasks make the architecture more visible and auditable.
 - **Early safety nets**: Feature flag in Phase 1 (not Phase 5) provides rollback capability throughout development.

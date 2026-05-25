@@ -118,6 +118,7 @@ Iterates tasks in **input order** (line 956). For each task:
 ### Base Process (`cli/pipeline/process.py`)
 
 **`build_command()`** (line 71-91) constructs:
+
 ```bash
 claude --print --verbose \
   [--model <model>] \
@@ -133,11 +134,14 @@ Lifecycle: `start()` (110) -> `wait()` (153) -> `terminate()` (195)
 ### Sprint Process (`cli/sprint/process.py:88`)
 
 `ClaudeProcess` extends base with:
+
 - Sprint-specific prompt injection (lines 88-121)
 - `build_prompt()` (line 123) generates:
+
   ```
   /sc:task-unified Execute all tasks in @<phase_file> --compliance strict --strategy systematic
   ```
+
 - Includes phase-scope rules and result-file contract (lines 170-204)
 
 ## Preflight Execution
@@ -159,6 +163,7 @@ Handles `python`-mode phases before the main loop:
 ### `_determine_phase_status()` (line 1765)
 
 Decision tree:
+
 ```
 exit_code == 0?
   YES -> PASS
@@ -205,12 +210,15 @@ Searches for `checkpoints/CP-P{phase:02d}-END.md` and looks for PASS tokens. If 
 ## Error Handling & Recovery
 
 ### Timeout Detection
+
 - `exit_code == 124` -> `PhaseStatus.TIMEOUT` (executor.py:1786-1787)
 
 ### Context Exhaustion
+
 - `detect_prompt_too_long(output)` in monitor.py:63 -> `INCOMPLETE`
 
 ### Stall Detection
+
 - Configurable via `--stall-timeout` and `--stall-action`
 - Monitor tracks last activity timestamp
 - On stall: warn (TUI update) or kill (process termination)
@@ -222,6 +230,7 @@ Searches for `checkpoints/CP-P{phase:02d}-END.md` and looks for PASS tokens. If 
 **Pipeline executor** (`pipeline/executor.py`): Generic retry up to `retry_limit + 1` attempts per step (line 192). Gate failures trigger retry; exhausted retries return FAIL.
 
 ### Diagnostic Collection
+
 - `DiagnosticCollector` (diagnostics.py:72): Gathers failure evidence
 - `FailureClassifier` (diagnostics.py:157): Categorizes failure mode
 - `ReportGenerator` (diagnostics.py:235): Writes diagnostic markdown

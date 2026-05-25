@@ -216,7 +216,7 @@ After all phases are appended, add the `## Task Log / Notes` section with the ex
 
 Create a task in the shared task list and broadcast:
 
-```yaml
+```text
 TaskCreate:
   subject: "exec:TASK-RF-[timestamp]"
   description: "Execute Rigorflow task"
@@ -369,12 +369,7 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 
 **Fix cycle limits per gate type (from I16):**
 
-**Halt-precedence rule (COMP-002-M5 — applies to every row in the table below).**
-Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed` (per FR-CONV.5 / API-004).
-On every cycle transition `n → n+1` within a gate, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires.
-The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead.md:417`).
-Per-gate counters are independent and NEVER collapsed across gates — research-gate's `F_n` is independent from task-integrity's `F_n`.
-The full operational specification is in the Retry Monotonicity Protocol below.
+**Halt-precedence rule (COMP-002-M5 — applies to every row in the table below).** Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed` (per FR-CONV.5 / API-004). On every cycle transition `n → n+1` within a gate, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires. The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead's Fix Cycles rule`). Per-gate counters are independent and NEVER collapsed across gates — research-gate's `F_n` is independent from task-integrity's `F_n`. The full operational specification is in the Retry Monotonicity Protocol below.
 
 | Gate Type | Max Cycles | After Max |
 |-----------|-----------|-----------|
@@ -461,16 +456,18 @@ Per-emitter and header-wide hidden-input scans (R-039) trigger the same MALFORME
 
 Use Tavily search when:
 
+Use `WebSearch` when:
+
 - Building task items for a technology, framework, or library you're not deeply familiar with
 - You need correct syntax, API patterns, or configuration formats to write accurate checklist items
 - The research notes reference external tools or services and you need more detail to write specific verification criteria
 
-**Examples (use Tavily by default):**
+**Examples:**
 
 ```text
-mcp__tavily__tavily-search: query="Jest test file naming conventions and structure"
-mcp__tavily__tavily-search: query="Dockerfile multi-stage build syntax"
-mcp__tavily__tavily-extract: urls=["https://docs.sqlalchemy.org/en/20/core/migrations.html"]
+WebSearch: "Jest test file naming conventions and structure"
+WebSearch: "Dockerfile multi-stage build syntax"
+WebSearch: "SQLAlchemy migration file structure"
 ```
 
 **Fallback Conditions — fall back to WebSearch / WebFetch only when ANY of these are true:**

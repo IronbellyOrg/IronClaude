@@ -22,6 +22,7 @@ generator: superclaude-roadmap-executor
 | COSMETIC | Backlog | No gate impact |
 
 **Classification examples specific to this project**:
+
 - CRITICAL: JWT signing produces invalid tokens; refresh token stored in plaintext; replay detection fails to revoke sessions; password_hash leaked in API response
 - MAJOR: Rate limiter off by one (6 instead of 5); bcrypt cost factor not configurable; enumeration timing variance > 10ms; migration down script leaves orphaned indexes
 - MINOR: Error message wording inconsistent across endpoints; display_name trim behavior undefined; health check response schema not documented

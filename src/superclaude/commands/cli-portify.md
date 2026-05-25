@@ -37,6 +37,7 @@ Both `@file` syntax and explicit file paths are supported for `--workflow`.
 ### Name Derivation
 
 When `--name` is not provided, derive from the workflow:
+
 1. Strip `sc-` prefix if present
 2. Strip `-protocol` suffix if present
 3. Convert to kebab-case for CLI, snake_case for Python modules
@@ -46,6 +47,7 @@ When `--name` is not provided, derive from the workflow:
 Before invoking the skill, validate all inputs. On any validation failure, emit an error and exit without invoking the skill.
 
 **Error format:**
+
 ```
 error_code: <ERROR_CODE>
 message: <human-readable description with corrective action>
@@ -79,6 +81,7 @@ message: <human-readable description with corrective action>
 > Skill sc:cli-portify-protocol
 
 Pass the following context:
+
 - Workflow path: resolved path to the skill directory
 - CLI name: resolved name (derived or from --name)
 - Output directory: resolved output path
@@ -106,6 +109,7 @@ The full portification protocol is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Parse and validate input arguments
 - Derive CLI name from workflow name
 - Resolve workflow path to a skill directory
@@ -113,6 +117,7 @@ The full portification protocol is in the protocol skill.
 - Report generated file paths on completion
 
 **Will Not:**
+
 - Execute the portification protocol (that is the skill's job)
 - Modify source skill files
 - Run the generated CLI pipeline

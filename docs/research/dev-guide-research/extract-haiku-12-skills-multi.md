@@ -1,6 +1,7 @@
 # Skill development extraction (custom skills) — Haiku-12
 
 ## Sources (read completely)
+
 - `/config/workspace/SuperClaude_Framework/src/superclaude/skills/sc-task-unified/SKILL.md`
 - `/config/workspace/SuperClaude_Framework/src/superclaude/skills/sc-cleanup-audit/SKILL.md`
 - `/config/workspace/SuperClaude_Framework/src/superclaude/skills/confidence-check/SKILL.md`
@@ -14,6 +15,7 @@ All three skills are specified as a single `SKILL.md` document, typically with *
 ### 1.1 Front matter fields (observed)
 
 **Minimal pattern (from `sc-task-unified`)**:
+
 ```yaml
 ---
 name: sc-task-unified
@@ -23,6 +25,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 ```
 
 **High-complexity utility skill pattern (from `sc-cleanup-audit`)**:
+
 ```yaml
 ---
 name: cleanup-audit
@@ -37,6 +40,7 @@ argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--b
 ```
 
 **No-tools listed pattern (from `confidence-check`)**:
+
 ```yaml
 ---
 name: Confidence Check
@@ -45,6 +49,7 @@ description: Pre-implementation confidence assessment (≥90% required). Use bef
 ```
 
 **Reusable patterns from these fields**
+
 - `name`: user-facing identifier (must be stable; used as the skill/command name).
 - `description`: should be explicit about intent + safety constraints + success criteria.
 - `allowed-tools`: enforce capability boundaries (e.g., read-only skills should not list `Edit`).
@@ -58,6 +63,7 @@ description: Pre-implementation confidence assessment (≥90% required). Use bef
 ## 2) Pattern: tool allowlisting as the primary safety boundary
 
 ### 2.1 Principle
+
 Skills explicitly declare which tools can be used. This is a concrete mechanism to keep a skill within scope.
 
 - `sc-task-unified` allows editing and orchestration tools:
@@ -77,10 +83,12 @@ Skills explicitly declare which tools can be used. This is a concrete mechanism 
 `sc-task-unified` hard-requires a machine-readable header *as the first output*, regardless of whether the skill will ask clarifying questions.
 
 ### 3.1 The exact header format (required)
+
 Quote:
 > **"⚠️ MANDATORY FIRST OUTPUT**: You MUST output the classification header block below as your VERY FIRST output, before ANY text, questions, or analysis. This is NON-NEGOTIABLE for telemetry."*
 
 Exact block:
+
 ```md
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: [STRICT|STANDARD|LIGHT|EXEMPT]
@@ -92,6 +100,7 @@ RATIONALE: [one-line reason]
 ```
 
 ### 3.2 Behavioral rules for mandatory headers
+
 Quote (rules list):
 > "1. Output this header IMMEDIATELY as your first action"
 > "2. Output it BEFORE asking clarifying questions"
@@ -109,12 +118,14 @@ Quote (rules list):
 `sc-task-unified` encodes a full compliance tiering system and a deterministic priority order:
 
 ### 4.1 Tier priority
+
 Quote:
 > "Classify task into compliance tier using priority order: STRICT > EXEMPT > LIGHT > STANDARD"
 
 ### 4.2 Tier definitions and triggers (quoted)
 
 **STRICT** (Priority 1):
+
 - Quote:
   > "Security, data integrity, system-wide changes"
 - Quote (keywords):
@@ -124,12 +135,14 @@ Quote:
   > "Compound phrases: \"fix security\", \"add authentication\", \"update database\", \"change api\""
 
 **EXEMPT** (Priority 2):
+
 - Quote:
   > "Read-only, documentation, git operations"
 - Quote (patterns):
   > "Patterns: \"^what (is|are|does)\", \"^how (do|does|can|should)\", \"^explain\""
 
 **LIGHT** (Priority 3):
+
 - Quote:
   > "Trivial changes, formatting"
 - Quote:
@@ -138,11 +151,14 @@ Quote:
   > "\"quick fix\", \"minor change\", \"fix typo\", \"refactor comment\""
 
 **STANDARD** (Priority 4):
+
 - Quote:
   > "Default for typical development"
 
 ### 4.3 Human-readable tier display pattern
+
 After the mandatory header, `sc-task-unified` specifies a compact explanation block:
+
 ```md
 **Tier: STANDARD** [████████░░] 80%
 
@@ -153,6 +169,7 @@ Classified as STANDARD:
 ```
 
 Low-confidence UX requirement:
+
 - Quote:
   > "If confidence <70%, add prompt: \"⚠️ Low confidence. Override with: `--compliance [strict|standard|light|exempt]`\""
 
@@ -165,6 +182,7 @@ Low-confidence UX requirement:
 `sc-task-unified` prescribes tier-specific workflows. This is an explicit skill authoring pattern: **write the skill as a state machine**.
 
 ### 5.1 STRICT execution workflow (quoted steps)
+
 Quote:
 > "STRICT Execution:"
 > "1. Activate project (mcp__serena__activate_project)"
@@ -180,6 +198,7 @@ Quote:
 > "11. Answer adversarial questions"
 
 ### 5.2 STANDARD / LIGHT / EXEMPT execution workflow (quoted)
+
 Quote:
 > "STANDARD Execution:"
 > "1. Load context via codebase-retrieval"
@@ -209,6 +228,7 @@ Quote:
 `sc-task-unified` includes a verification table and *override rules* that supersede tier selection.
 
 ### 6.1 Verification routing table (exact)
+
 ```md
 | Compliance Tier | Verification Method | Token Cost | Timeout |
 |-----------------|---------------------|------------|---------|
@@ -219,6 +239,7 @@ Quote:
 ```
 
 ### 6.2 Critical path overrides (quoted)
+
 Quote:
 > "Critical Path Override: Paths matching `auth/`, `security/`, `crypto/`, `models/`, `migrations/` always trigger CRITICAL verification regardless of compliance tier."
 
@@ -232,6 +253,7 @@ Quote:
 ## 7) Pattern: MCP integration declared as part of the skill contract
 
 ### 7.1 Required servers by tier (sc-task-unified)
+
 Quote:
 > "Required Servers by Tier:"
 > "- STRICT: Sequential, Serena (fallback not allowed)"
@@ -240,16 +262,19 @@ Quote:
 > "- EXEMPT: None required"
 
 ### 7.2 Circuit breaker behavior (sc-task-unified)
+
 Quote:
 > "If required servers unavailable for STRICT tier, block task execution"
 
 ### 7.3 MCP role partitioning (cleanup-audit)
+
 `cleanup-audit` declares MCP usage *and* a critical operational limitation about subagents:
 
 Quote:
 > "MCP Constraint: MCP tools are unavailable to background subagents — all MCP-dependent work (ultrathink synthesis, import chain tracing) executes in the orchestrator only"
 
 **Reusable pattern**:
+
 - Declare MCP server dependencies explicitly.
 - State fallback policy per tier.
 - If using subagents, explicitly document which work must remain in the orchestrator due to tool availability constraints.
@@ -261,6 +286,7 @@ Quote:
 `cleanup-audit` is a full example of an orchestrated, high-complexity skill with batching, specialized subagents, checkpointing, and consolidation.
 
 ### 8.1 Multi-pass “pipeline” design
+
 Quote:
 > "Multi-pass read-only repository audit"
 
@@ -268,6 +294,7 @@ Quote (pass selection):
 > "--pass: Audit pass to run (`surface` = Pass 1, `structural` = Pass 2, `cross-cutting` = Pass 3, `all` = sequential 3-pass)"
 
 ### 8.2 Behavioral flow (the five-stage orchestrator loop)
+
 Quote:
 > "1. **Discover**: Enumerate repository files via shell preprocessing and `repo-inventory.sh`. Build file inventory with domain grouping, type distribution, and batch assignments. Compute total scope and coverage targets."
 > "2. **Configure**: Parse `$ARGUMENTS` for pass selection and focus area. Load pass-specific rules from `rules/` supporting files. Create TodoWrite tasks for each batch. Initialize output directory at `.claude-audit/`."
@@ -276,26 +303,32 @@ Quote:
 > "5. **Report**: Spawn `audit-consolidator` to merge batch reports into pass summaries. For `--pass all`, produce final report with executive summary, prioritized action items, cross-cutting findings, and discovered issues registry. Apply ultrathink synthesis for cross-pass pattern extraction."
 
 ### 8.3 Cost-aware model routing (Haiku-first)
+
 Quote:
 > "Haiku-first cost optimization: Pass 1 uses Haiku agents for 50-70% cost reduction; Sonnet reserved for deep analysis in Passes 2-3"
 
 ### 8.4 Evidence gates as a design primitive
+
 Quote:
 > "Evidence-gated classification: Every DELETE requires grep proof; every KEEP requires reference citation; every CONSOLIDATE requires overlap quantification"
 
 ### 8.5 Checkpointing/resumability
+
 Quote:
 > "Incremental checkpointing: Agents save after every 5-10 files; progress.json enables resume-from-checkpoint on session interruption"
 
 ### 8.6 Conservative escalation (avoid false deletions)
+
 Quote:
 > "Conservative escalation: When uncertain, agents classify as REVIEW/FLAG rather than DELETE — false negatives are cheaper than false positives"
 
 ### 8.7 Fan-out / fan-in as the default scaling architecture
+
 Quote:
 > "Fan-out/fan-in orchestration: Orchestrator divides work → spawns N parallel agents → agents write to disk → orchestrator reads and merges"
 
 **Reusable pattern**: For complex custom skills, explicitly specify:
+
 - batching strategy (`--batch-size`), concurrency strategy (waves), agent roles
 - what each role outputs and where
 - validation/spot-check stage with objective criteria
@@ -310,6 +343,7 @@ Both `sc-task-unified` and `cleanup-audit` define boundaries. `cleanup-audit` is
 ### 9.1 “Will / Will Not” contract sections
 
 `sc-task-unified` boundaries (quoted):
+
 - Will:
   > "Classify tasks into appropriate compliance tiers"
   > "Enforce tier-appropriate verification requirements"
@@ -323,12 +357,14 @@ Both `sc-task-unified` and `cleanup-audit` define boundaries. `cleanup-audit` is
   > "Proceed with <70% confidence without user confirmation"
 
 `cleanup-audit` boundaries (quoted):
+
 - Will Not:
   > "Modify, delete, move, or rename any repository file during the audit"
   > "Make assumptions from filenames alone — every classification requires reading content and tracing references"
   > "Mark files as DELETE without grep proof of zero references and confirmed absence of dynamic loading"
 
 ### 9.2 “CRITICAL BOUNDARIES” for read-only skills
+
 Quote:
 > "READ-ONLY AUDIT — NO REPOSITORY MODIFICATIONS"
 
@@ -357,6 +393,7 @@ Quote:
 > "- progress.json (checkpoint state for resume capability)"
 
 **Reusable pattern**: For any skill that writes files, define:
+
 - a single output root directory
 - a list of expected artifacts (for predictability)
 - the rule that non-output directories are not modified
@@ -366,17 +403,20 @@ Quote:
 ## 11) Pattern: argument design for skills (flags, defaults, discoverability)
 
 `cleanup-audit` demonstrates a strong CLI-like interface design:
+
 - single positional scope argument: `target-path` with `.` default
 - enums via flags: `--pass surface|structural|cross-cutting|all`
 - tunable `--batch-size`
 - domain filters via `--focus infrastructure|frontend|backend|all`
 
 Quote (usage line):
+
 ```md
 /sc:cleanup-audit [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]
 ```
 
 `sc-task-unified` demonstrates override flags and “escape hatch” design:
+
 ```bash
 /sc:task-unified [description] --compliance strict
 /sc:task-unified [description] --skip-compliance
@@ -384,6 +424,7 @@ Quote (usage line):
 ```
 
 **Reusable patterns**:
+
 - Provide explicit enumerated values in usage docs.
 - Provide safe defaults.
 - Include override/escape hatch flags, but document when they should be used.
@@ -413,14 +454,17 @@ Also “Target Scope” probes:
 The `confidence-check` skill is a reusable “pre-flight checklist” intended to run **before** implementation.
 
 ### 13.1 Hard threshold rule
+
 Quote:
 > "Requirement: ≥90% confidence to proceed with implementation."
 
 ### 13.2 Scoring rubric (weights and checks)
+
 Quote:
 > "Calculate confidence score (0.0 - 1.0) based on 5 checks:"
 
 Weights and checks (quoted headings):
+
 - "### 1. No Duplicate Implementations? (25%)"
 - "### 2. Architecture Compliance? (25%)"
 - "### 3. Official Documentation Verified? (20%)"
@@ -428,6 +472,7 @@ Weights and checks (quoted headings):
 - "### 5. Root Cause Identified? (15%)"
 
 Confidence computation (exact):
+
 ```md
 Total = Check1 (25%) + Check2 (25%) + Check3 (20%) + Check4 (15%) + Check5 (15%)
 
@@ -437,35 +482,43 @@ If Total < 0.70:   ❌ STOP - Request more context
 ```
 
 ### 13.3 Tool guidance embedded in the rubric
+
 Duplicate search suggests codebase discovery tooling:
+
 ```bash
 # Use Grep to search for similar functions
 # Use Glob to find related modules
 ```
 
 Architecture compliance requires reading local governance docs:
+
 - Quote:
   > "Read `CLAUDE.md`, `PLANNING.md`"
 
 Official docs verification suggests MCP usage:
+
 - Quote:
   > "Use Context7 MCP for official docs"
   > "Use WebFetch for documentation URLs"
   > "Verify API compatibility"
 
 OSS reference suggests web search:
+
 - Quote:
   > "Use Tavily MCP or WebSearch"
   > "Search GitHub for examples"
 
 Root cause requires evidence:
+
 - Quote:
   > "Analyze error messages"
   > "Check logs and stack traces"
   > "Identify underlying issue"
 
 ### 13.4 Output format standardization
+
 Exact output format:
+
 ```md
 📋 Confidence Checks:
    ✅ No duplicate implementations found
@@ -479,6 +532,7 @@ Exact output format:
 ```
 
 ### 13.5 “Implementation details” references (skill-to-code linkage)
+
 Quote:
 > "The TypeScript implementation is available in `confidence.ts` for reference, containing:"
 > "- `confidenceCheck(context)` - Main assessment function"
@@ -494,6 +548,7 @@ Quote:
 Both `sc-task-unified` and `cleanup-audit` provide example invocations tied to their behavior.
 
 Examples from `sc-task-unified`:
+
 ```md
 /sc:task "implement user authentication with JWT"
 
@@ -512,6 +567,7 @@ Examples from `sc-task-unified`:
 ```
 
 Examples from `cleanup-audit`:
+
 ```md
 /sc:cleanup-audit src/ --pass structural --batch-size 25
 ```
@@ -523,18 +579,23 @@ Examples from `cleanup-audit`:
 ## 15) Complexity-level patterns (how to design skills that scale)
 
 ### 15.1 LIGHT / EXEMPT skills (low process overhead)
+
 Derived from `sc-task-unified`:
+
 - LIGHT is constrained by scope:
   - Quote: "Context: <=2 files, <=50 lines"
 - EXEMPT is designed for read-only/no-verification interactions.
 
 **Design recipe**:
+
 - Minimal toolset (often `Read`, `Grep`, `Glob`)
 - Minimal output structure
 - Minimal/no verification gates
 
 ### 15.2 STANDARD skills (default development)
+
 Derived from `sc-task-unified` STANDARD execution:
+
 - Must load context before editing:
   - Quote: "Load context via codebase-retrieval"
 - Must check downstream impacts:
@@ -542,22 +603,28 @@ Derived from `sc-task-unified` STANDARD execution:
 - Must test or document verification.
 
 **Design recipe**:
+
 - Declarative “execution phase” steps
 - At least one validation step
 - Clear stopping conditions
 
 ### 15.3 STRICT skills (safety-critical)
+
 Derived from `sc-task-unified` STRICT workflow and server requirements:
+
 - Must validate git state, load context, check memories, update imports, spawn verification agent, run comprehensive tests.
 - Must not proceed without required MCP servers.
 
 **Design recipe**:
+
 - Deterministic checklist
 - Hard gates when prerequisites not met
 - Explicit verification routing table
 
 ### 15.4 High-complexity orchestrators (batching + subagents)
+
 Derived from `cleanup-audit`:
+
 - Multi-pass pipeline
 - Wave-based parallel Task usage
 - Checkpointing to disk
@@ -565,6 +632,7 @@ Derived from `cleanup-audit`:
 - Evidence-gated findings
 
 **Design recipe**:
+
 - Fan-out/fan-in architecture
 - Batch size knobs
 - Dedicated output directory with resumability artifacts

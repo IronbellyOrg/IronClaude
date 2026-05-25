@@ -2,7 +2,7 @@
 
 **Owner:** RyanW
 **Task:** T06.13 (Phase 6, Roadmap R-114, Deliverable D-0115)
-**Status:** Partial — the four-quadrant attestation surface (ADRs, success criteria, OPS-004 commands, follow-ups) is wired and audit-grade; release ships **conditional on B1 + B2** closure for the end-to-end command (see [§7 Follow-ups](#7-follow-ups)).
+**Status:** Partial — the four-quadrant attestation surface (ADRs, success criteria, OPS-004 commands, follow-ups) is wired and audit-grade; release ships **conditional on B2** closure for the end-to-end command (B1 closed at PR #66 / `dce3c3cb`; see [§7 Follow-ups](#7-follow-ups)).
 
 This document assembles the v1 release evidence for the `superclaude eval` harness on Linux. It is the **single walk-through** an operator (or release-gate reviewer) executes to confirm every M6 exit-gate prerequisite has landed and to record the residual follow-up plan that v1 ships against.
 
@@ -80,11 +80,11 @@ OPS-004 fixes the order, surface, and exit-code expectation of four release-time
 | 5.1 | `uv run pytest tests/cli/eval/test_describe.py tests/cli/eval/test_doctor.py -v` | Smoke | exit 0 | **0 (73 passed)** ✅ | [`evidence/T06.11/01-targeted-pytest.log`](../../.dev/releases/current/cliEval/evidence/T06.11/01-targeted-pytest.log) |
 | 5.2 | `make verify-sync` | Source-of-truth | exit 0 | **0 (All in sync)** ✅ | [`evidence/T06.11/02-make-verify-sync.log`](../../.dev/releases/current/cliEval/evidence/T06.11/02-make-verify-sync.log) |
 | 5.3 | `uv run superclaude eval doctor` | Capability | exit 0 | **0 (all HARD satisfied)** ✅ | [`evidence/T06.11/03-eval-doctor.log`](../../.dev/releases/current/cliEval/evidence/T06.11/03-eval-doctor.log) |
-| 5.4 | `uv run superclaude eval run --suite real --eval E1` | End-to-end | exit 0 | **1 (NameError)** ❌ → [B1/B2](#7-follow-ups) | [`evidence/T06.11/04-eval-run-E1.log`](../../.dev/releases/current/cliEval/evidence/T06.11/04-eval-run-E1.log) |
+| 5.4 | `uv run superclaude eval run --suite real --eval E1` | End-to-end | exit 0 | **B1 (NameError) closed at PR #66 / `dce3c3cb`; B2 (ptytest vendoring) still open — see [§7.1](#7-follow-ups)** | [`evidence/T06.11/04-eval-run-E1.log`](../../.dev/releases/current/cliEval/evidence/T06.11/04-eval-run-E1.log) (capture fresh post-PR #66 evidence to replace 2026-05-20 line) |
 
 **OPS-004 audit test:** `uv run pytest tests/cli/eval/test_validation_commands.py -v` — 23 passed; see [`evidence/T06.11/05-test-validation-commands.log`](../../.dev/releases/current/cliEval/evidence/T06.11/05-test-validation-commands.log).
 
-**Verdict (5.x rows):** **3 of 4 PASS, 1 BLOCKED** by pre-existing implementation gaps in `cli/eval/commands.py` (B1) and missing ptytest vendoring (B2). The partial path is authorised by `Fallback Allowed: Yes` on T06.11 and rolled forward into this checklist with the same waiver shape. Full attestation requires B1 + B2 closure — see [§7 Follow-ups](#7-follow-ups) and OPS-004 §5 "Closure path".
+**Verdict (5.x rows):** **B1 closed at PR #66 / `dce3c3cb`; B2 (ptytest vendoring) remains the only open blocker.** Commands 1–3 attest GREEN; command 4's NameError gate is cleared and the only outstanding gate is B2's `_NullLifecycleExecutor` short-circuit. Partial-attestation waiver under `Fallback Allowed: Yes` on T06.11 continues to apply until B2 closes — see [§7.1 Follow-ups](#71-p0--ops-004-command-4-closure) and OPS-004 §5 "Closure path".
 
 **Re-run shortcut:** OPS-004 [`docs/eval/validation-commands.md` §6 Reproducibility](validation-commands.md#6-reproducibility) carries the verbatim shell pipeline that re-captures all four evidence logs (with trailing `EXIT_CODE=<n>` markers).
 
@@ -113,7 +113,7 @@ Every item below is **out of v1 scope but named** with a successor task and an o
 
 | ID | Symptom | Successor task | Owner |
 |----|---------|----------------|-------|
-| **B1** | `uv run superclaude eval run --suite real --eval E1` exits with `NameError: name '_new_run_id' is not defined` at [`src/superclaude/cli/eval/commands.py:1467`](../../src/superclaude/cli/eval/commands.py); a second undefined `_default_output_dir` is referenced at line 1469. T04.10 full body landed past the T04.09 deferral skeleton without the supporting private helpers. | **T06.11-FU01** — Land `_new_run_id` + `_default_output_dir` helpers in `cli/eval/commands.py`. Minimum scope: `_new_run_id()` wraps [`compose_run_id`](../../src/superclaude/cli/eval/artifact_layout.py) with a UTC `datetime.now` seed; `_default_output_dir(run_id)` returns `Path(".dev/eval-runs") / run_id`. | RyanW |
+| **B1** (closed 2026-05-22) | The previously-missing `_new_run_id` and `_default_output_dir` helpers landed at PR #66 (`1ca25953`) and were remediated for the PR review in `dce3c3cb`. They now live at [`commands.py:1326`](../../src/superclaude/cli/eval/commands.py) (`_new_run_id`) and `:1339` (`_default_output_dir`). The cliEval Phase 5+6 remediation (TASK-RF-20260522-153212) layered the canonical exit-code module, `orchestrator.allocate_session_id`, and the FR-G4 `compose_run_dir` anchoring on top. **T06.11-FU01 is RESOLVED.** | resolved at PR #66 / `dce3c3cb` | RyanW |
 | **B2** | `eval doctor` reports `vendored.ptytest (SOFT-SKIP) — src/superclaude/cli/eval/pty/__init__.py not found`. Closure of B1 alone is insufficient: every E1..E15 row in `real.yaml` carries `no_pty: skip`, so without vendored ptytest command-4 will short-circuit to SKIPPED. | **T06.11-FU02** — Land M2 ptytest vendoring under `src/superclaude/cli/eval/pty/` per D-1 / R5 ADR. | RyanW (M2 owner) |
 
 **Closure path:** Once B1 + B2 close, re-execute OPS-004 §6 reproduction pipeline, replace `04-eval-run-E1.log`, flip §5 row 5.4 to ✅, flip §6 row 6.6 to PASS, and update `decisions.md` OPS-004 + OPS-005 entries to `status: resolved`.
@@ -146,9 +146,9 @@ Every item below is **out of v1 scope but named** with a successor task and an o
 |------|------|------|----------|
 | Architect | RyanW | 2026-05-20 | ADRs D-1..D-10 signed off (SC1, R5). |
 | Architect | RyanW | 2026-05-20 | SC2, SC3, SC4, SC5 closure entries signed off (see §4). |
-| Release-gate reviewer | _pending_ | _pending_ | OPS-005 walk-through confirmed; **conditional GO** pending B1 + B2 closure (§7.1). Sign here when the walk-through is re-performed. |
+| Release-gate reviewer | _pending_ | _pending_ | OPS-005 walk-through confirmed; **conditional GO** pending B2 closure (§7.1) — B1 closed at PR #66 / `dce3c3cb`. Sign here when the walk-through is re-performed against the B2-closed tree. |
 
-**Conditional-GO authority:** Per `Fallback Allowed: Yes` on T06.11 and T06.13, the v1 release MAY ship with §5 row 5.4 marked PARTIAL provided §7.1 names successor tasks with owners (which it does). Full unconditional-GO is reached after T06.11-FU01 + T06.11-FU02 close and §5 row 5.4 / §6 row 6.6 are re-attested.
+**Conditional-GO authority:** Per `Fallback Allowed: Yes` on T06.11 and T06.13, the v1 release MAY ship with §5 row 5.4 marked PARTIAL provided §7.1 names successor tasks with owners (which it does). **As of 2026-05-22, T06.11-FU01 (B1) is RESOLVED at PR #66 / `dce3c3cb`; only T06.11-FU02 (B2 ptytest vendoring) gates unconditional-GO.** Full unconditional-GO is reached after T06.11-FU02 closes and §5 row 5.4 / §6 row 6.6 are re-attested.
 
 ---
 

@@ -12,6 +12,7 @@
 The CLI port is **not a 1:1 translation** of the skill — it is a significantly evolved, opinionated reimplementation. The skill defines a 5-wave LLM-orchestrated pipeline using Claude Code tools (Skill, Task, Read, Write). The CLI port replaces that with a deterministic Python subprocess pipeline with 12-14 steps, adversarial dual-agent generation, structural checkers, semantic debate layers, convergence engines, and remediation loops.
 
 The divergences fall into 5 categories:
+
 1. **Missing from CLI** — Skill features with no CLI equivalent
 2. **Reimagined in CLI** — Same concept, fundamentally different implementation
 3. **CLI-only additions** — Features in CLI with no skill equivalent
@@ -31,6 +32,7 @@ These are features explicitly defined in SKILL.md + refs/ that have **zero imple
 **CLI**: The `--specs` flag does not exist in `commands.py`. The CLI accepts 1-3 positional `INPUT_FILES` but routes them via `_route_input_files()` into `spec_file` / `tdd_file` / `prd_file` slots — this is **supplementary input classification**, not spec consolidation.
 
 **Fix**: Either:
+
 - (a) Add `--specs` flag that invokes an adversarial consolidation step before extraction, OR
 - (b) Document that multi-spec consolidation is skill-only and out of CLI scope, remove from any CLI-facing docs
 
@@ -47,6 +49,7 @@ These are features explicitly defined in SKILL.md + refs/ that have **zero imple
 **Key difference**: The skill delegates to a separate skill (sc:adversarial) which handles F1-F5 stages. The CLI inlines a 5-step adversarial cycle (generate → diff → debate → score → merge) with its own prompts and gates.
 
 **Fix**: This is an intentional architectural decision (CLI must work without skill system). Document the equivalence mapping:
+
 - Skill's `sc:adversarial F1` (variant generation) ≈ CLI's `generate-A` + `generate-B` parallel steps
 - Skill's `sc:adversarial F2/F3` (diff + debate) ≈ CLI's `diff` + `debate` steps
 - Skill's `sc:adversarial F4/F5` (base selection + merge) ≈ CLI's `score` + `merge` steps
@@ -70,11 +73,13 @@ These are features explicitly defined in SKILL.md + refs/ that have **zero imple
 ### D-004: 5-factor complexity scoring formula — NOT PORTED
 
 **Skill** (`refs/scoring.md`): Defines an explicit formula:
+
 ```
 complexity_score = (req_count_norm * 0.25) + (dep_depth_norm * 0.25)
                  + (domain_spread_norm * 0.20) + (risk_severity_norm * 0.15)
                  + (scope_size_norm * 0.15)
 ```
+
 With normalization functions: `min(count/50, 1.0)`, `min(depth/8, 1.0)`, etc.
 
 **CLI**: No deterministic complexity scoring function exists. The `build_extract_prompt()` asks the LLM to produce `complexity_class` and `complexity_score` in frontmatter, but there is no Python function computing the score. The LLM infers it.
@@ -112,10 +117,12 @@ def compute_complexity_score(req_count, dep_depth, domain_count, risk_weights, s
 ### D-006: Template compatibility scoring (4-factor) — NOT PORTED
 
 **Skill** (`refs/scoring.md`): 4-factor template scoring:
+
 ```
 template_score = (domain_match * 0.40) + (complexity_alignment * 0.30)
                + (type_match * 0.20) + (version_compat * 0.10)
 ```
+
 With Jaccard similarity for domain_match, lookup table for type_match.
 
 **CLI**: `templates.py` has `get_template_path(name)` which resolves Jinja2 templates via `importlib.resources`. No compatibility scoring. Templates are hardcoded (`roadmap.md.j2`, `tasklist-index.md.j2`, `tasklist-phase.md.j2`).
@@ -141,9 +148,11 @@ With Jaccard similarity for domain_match, lookup table for type_match.
 ### D-008: Persona confidence calculation — NOT PORTED
 
 **Skill** (`refs/scoring.md`): Formula:
+
 ```
 confidence = base_confidence(0.7) * domain_weight * coverage_bonus
 ```
+
 With 6 persona-domain mappings and min thresholds (primary >= 0.3, consulting >= 0.2).
 
 **CLI**: No persona confidence calculation. The `AgentSpec` dataclass has `model` + `persona` fields, but persona is user-specified or defaults to `"architect"`. No auto-detection from domain distribution.
@@ -209,6 +218,7 @@ With 6 persona-domain mappings and min thresholds (primary >= 0.3, consulting >=
 **CLI**: Validation uses `validate_prompts.build_reflect_prompt()` which dispatches N agents with identical reflection prompts, then merges via `build_merge_prompt()` with agreement categorization (BOTH_AGREE/ONLY_A/ONLY_B/CONFLICT). No weighted score aggregation.
 
 **Fix**: The CLI's approach (agreement-based merge) is arguably more robust than the skill's weighted average. However, the specific agent roles (quality-engineer checks vs self-review 4-question protocol) are lost. Consider:
+
 - (a) Make one agent use the quality-engineer prompt (completeness, consistency, traceability, test-strategy) and the other use the self-review prompt (faithfulness, achievability, risk quality, test actionability)
 - (b) Add score aggregation with PASS >= 85% / REVISE 70-84% / REJECT < 70% thresholds
 
@@ -365,6 +375,7 @@ These are significant features in the CLI with **no skill equivalent**.
 ### D-026: Structural checkers (5 dimensions)
 
 The CLI has `structural_checkers.py` with 5 deterministic (no-LLM) checkers:
+
 - `check_signatures()` — phantom IDs, missing functions, param arity/type mismatches
 - `check_data_models()` — missing files, path prefix mismatches, uncovered enums/fields
 - `check_gates()` — missing frontmatter fields, step params, ordering violations
@@ -378,6 +389,7 @@ The CLI has `structural_checkers.py` with 5 deterministic (no-LLM) checkers:
 ### D-027: Semantic debate layer
 
 The CLI has `semantic_layer.py` with prosecutor/defender adversarial debate for HIGH findings:
+
 - Rubric scoring (evidence_quality, impact_specificity, logical_coherence, concession_handling)
 - Verdict thresholds (margin > 0.15 for CONFIRM/DOWNGRADE)
 - Full debate transcript recording
@@ -389,6 +401,7 @@ The CLI has `semantic_layer.py` with prosecutor/defender adversarial debate for 
 ### D-028: Convergence engine with budget system
 
 The CLI has `convergence.py` with:
+
 - DeviationRegistry (file-backed, stable finding IDs)
 - TurnLedger (budget tracking: checker=10, remediation=8, regression_validation=15)
 - Up to 3 convergence runs (catch/verify/backup)
@@ -402,6 +415,7 @@ The CLI has `convergence.py` with:
 ### D-029: Anti-instinct detection (3 modules)
 
 The CLI has a 3-module anti-instinct system:
+
 1. `obligation_scanner.py` — detects scaffold terms (mock, stub, placeholder, skeleton, etc.)
 2. `integration_contracts.py` — detects integration wiring patterns (dispatch tables, registries, DI, etc.)
 3. `fingerprint.py` — code identifier coverage check (min 0.7 ratio)
@@ -413,6 +427,7 @@ The CLI has a 3-module anti-instinct system:
 ### D-030: Remediation subsystem (4 files)
 
 `remediate.py`, `remediate_prompts.py`, `remediate_parser.py`, `remediate_executor.py` — complete remediation pipeline with:
+
 - Snapshot/rollback safety
 - File allowlist enforcement
 - Diff-size guard (30% threshold)
@@ -539,6 +554,7 @@ Prioritized by impact and effort.
 ### D-039: Validation prompt vs refs/validation.md agent prompts
 
 **Skill**: Two distinct agent prompts:
+
 - Quality-engineer: 4 weighted dimensions (completeness 0.35, consistency 0.30, traceability 0.20, test-strategy 0.15)
 - Self-review: 4 weighted questions (faithfulness 0.30, achievability 0.25, risk quality 0.25, test actionability 0.20)
 

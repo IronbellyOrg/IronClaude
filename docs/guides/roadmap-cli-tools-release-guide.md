@@ -1,6 +1,7 @@
 # Roadmap CLI Tools — Release Guide
 
 This guide covers the `superclaude roadmap` CLI tooling, including:
+
 - what each component does,
 - when to use it,
 - how to run it,
@@ -15,13 +16,17 @@ This guide covers the `superclaude roadmap` CLI tooling, including:
 ## 1) Release Summary (What is included)
 
 ### Core command surface
+
 The `superclaude roadmap` command group provides 3 subcommands:
+
 1. `run` — Execute the 11-step adversarial roadmap generation pipeline
 2. `validate` — Validate pipeline outputs against 7 structural and semantic dimensions
 3. `accept-spec-change` — Update stored spec hash after accepted deviation records
 
 ### Architecture overview
+
 The roadmap CLI orchestrates an **adversarial dual-agent pipeline** that:
+
 - Extracts requirements from a specification file
 - Generates two independent roadmap variants via different agent personas
 - Produces a structured diff analysis of divergences
@@ -34,6 +39,7 @@ The roadmap CLI orchestrates an **adversarial dual-agent pipeline** that:
 - Runs wiring verification in shadow/trailing mode
 
 ### Module structure
+
 ```
 src/superclaude/cli/roadmap/
 ├── __init__.py               # Exports roadmap_group
@@ -65,7 +71,9 @@ src/superclaude/cli/audit/
 ```
 
 ### Shared pipeline dependency
+
 The roadmap CLI builds on the shared `pipeline/` module:
+
 - `pipeline/models.py` — Step, StepResult, StepStatus, GateCriteria, GateMode, PipelineConfig, Deliverable
 - `pipeline/executor.py` — Generic step sequencer with retry, gates, parallel dispatch
 - `pipeline/process.py` — ClaudeProcess subprocess management
@@ -73,6 +81,7 @@ The roadmap CLI builds on the shared `pipeline/` module:
 - `pipeline/deliverables.py` — Deliverable decomposition
 
 ### Key design decisions
+
 - **Context isolation**: Each subprocess receives only its prompt and `--file` inputs. No `--continue`, `--session`, or `--resume` flags are passed (FR-003, FR-023)
 - **Inline embedding**: Input files are embedded directly into prompts up to ~120KB (kernel `MAX_ARG_STRLEN` minus template overhead); larger inputs fall back to `--file` flags
 - **Atomic writes**: State files and sanitized outputs use `tmp + os.replace()` for crash safety
@@ -88,22 +97,26 @@ The roadmap CLI builds on the shared `pipeline/` module:
 ## `superclaude roadmap run`
 
 ### What it does
+
 Loads a specification file, builds an 11-step adversarial pipeline, validates outputs through gate criteria at each step, and produces a final merged roadmap with test strategy, spec-fidelity report, and structural audits.
 
 Pre-flight: creates the output directory if it doesn't exist.
 
 ### Use when
+
 - You have a specification document (markdown) ready for roadmap generation.
 - You want adversarial quality: two independent agent perspectives debated and merged.
 - You want deterministic, gate-validated pipeline execution with resume capability.
 - You want to plug into the downstream `spec → roadmap → tasklist → sprint` workflow.
 
 ### Syntax
+
 ```bash
 superclaude roadmap run <SPEC_FILE> [options]
 ```
 
 ### Positional arguments
+
 | Argument | Required | Description |
 |----------|----------|-------------|
 | `SPEC_FILE` | Yes | Path to a specification markdown file. Must exist on disk. |
@@ -125,6 +138,7 @@ superclaude roadmap run <SPEC_FILE> [options]
 | `--retrospective` | Path | None | Path to a retrospective file from a prior release cycle. Content is framed as advisory "areas to watch" in extraction. Missing file is not an error. |
 
 ### Agent spec format
+
 The `--agents` flag accepts a comma-separated list of agent specifications:
 
 ```
@@ -139,6 +153,7 @@ model[:persona]
 The model value is passed directly to `claude --model` (no resolution needed — the Claude CLI accepts shorthand names natively).
 
 **Parsing rules**:
+
 - `"opus:architect"` → model=`opus`, persona=`architect`
 - `"haiku"` → model=`haiku`, persona=`architect` (default persona)
 - `"sonnet:security"` → model=`sonnet`, persona=`security`
@@ -198,22 +213,26 @@ superclaude roadmap run .dev/releases/current/v2.20/spec.md \
 ## `superclaude roadmap validate`
 
 ### What it does
+
 Validates the outputs of a prior `roadmap run` across 7 structural and semantic dimensions. Reads `roadmap.md`, `test-strategy.md`, and `extraction.md` from a completed pipeline output directory, runs one or more agent reflections, and produces a `validate/validation-report.md` with severity-classified findings.
 
 **Auto-invocation**: `roadmap run` automatically invokes validation after a successful pipeline (unless `--no-validate` is passed). You only need to call `validate` explicitly to re-run validation on a previously completed output directory, or to run with different agents/options.
 
 ### Use when
+
 - Checking whether a generated `roadmap.md` is ready for tasklist generation.
 - Re-running validation after manually editing roadmap artifacts.
 - Running with different agents than the auto-invoked defaults.
 - CI/CD gate: confirm no BLOCKING issues before proceeding to `/sc:tasklist`.
 
 ### Syntax
+
 ```bash
 superclaude roadmap validate <OUTPUT_DIR> [options]
 ```
 
 ### Positional arguments
+
 | Argument | Required | Description |
 |----------|----------|-------------|
 | `OUTPUT_DIR` | Yes | Path to a directory produced by `roadmap run`. Must contain `roadmap.md`, `test-strategy.md`, and `extraction.md`. |
@@ -228,6 +247,7 @@ superclaude roadmap validate <OUTPUT_DIR> [options]
 | `--debug` | Flag | Off | Enable debug logging. |
 
 ### Exit behavior
+
 Always exits 0 (NFR-006). Blocking issues are surfaced as yellow CLI warnings; the caller decides whether to treat them as hard failures.
 
 ### Examples
@@ -252,18 +272,22 @@ superclaude roadmap validate ./output --agents sonnet:architect,haiku:security
 ## `superclaude roadmap accept-spec-change`
 
 ### What it does
+
 Updates the stored `spec_hash` in `.roadmap-state.json` after an accepted deviation record (documentation sync, not a functional change). This allows `--resume` to proceed without triggering a full cascade re-run.
 
 ### Use when
+
 - The spec file was edited to formalize an accepted deviation.
 - You want `--resume` to continue from where it left off without re-running extraction.
 
 ### Syntax
+
 ```bash
 superclaude roadmap accept-spec-change <OUTPUT_DIR>
 ```
 
 ### Requirements
+
 - At least one `dev-*-accepted-deviation.md` file with `disposition: ACCEPTED` and `spec_update_required: true` must exist as evidence.
 - `.roadmap-state.json` must exist in the output directory.
 - **Exclusive write access**: do not run concurrent roadmap operations on the same output directory.
@@ -392,6 +416,7 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
 ### Per-step gate criteria
 
 #### Extract gate (STRICT)
+
 - **Min lines**: 50
 - **Required frontmatter** (13 fields):
   - `spec_source`, `generated`, `generator`
@@ -404,6 +429,7 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
   - `extraction_mode_valid` — Must be `standard` or start with `chunked`
 
 #### Generate gates A & B (STRICT)
+
 - **Min lines**: 100
 - **Required frontmatter**: `spec_source`, `complexity_score`, `primary_persona`
 - **Semantic checks**:
@@ -411,20 +437,24 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
   - `has_actionable_content` — At least one numbered or bulleted list item
 
 #### Diff gate (STANDARD)
+
 - **Min lines**: 30
 - **Required frontmatter**: `total_diff_points`, `shared_assumptions_count`
 
 #### Debate gate (STRICT)
+
 - **Min lines**: 50
 - **Required frontmatter**: `convergence_score`, `rounds_completed`
 - **Semantic checks**:
   - `convergence_score_valid` — Must parse as float in [0.0, 1.0]
 
 #### Score gate (STANDARD)
+
 - **Min lines**: 20
 - **Required frontmatter**: `base_variant`, `variant_scores`
 
 #### Merge gate (STRICT)
+
 - **Min lines**: 150
 - **Required frontmatter**: `spec_source`, `complexity_score`, `adversarial`
 - **Semantic checks**:
@@ -433,6 +463,7 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
   - `no_duplicate_headings` — No duplicate H2 or H3 heading text
 
 #### Anti-instinct gate (STRICT)
+
 - **Min lines**: 10
 - **Required frontmatter**: `undischarged_obligations`, `uncovered_contracts`, `fingerprint_coverage`
 - **Semantic checks**:
@@ -441,6 +472,7 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
   - `fingerprint_coverage_check` — `fingerprint_coverage` must be >= 0.7
 
 #### Test strategy gate (STRICT)
+
 - **Min lines**: 40
 - **Required frontmatter** (9 fields):
   - `spec_source`, `generated`, `generator`
@@ -455,6 +487,7 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
   - `major_issue_policy_correct` — Must be exactly `stop-and-fix`
 
 #### Spec fidelity gate (STRICT)
+
 - **Min lines**: 20
 - **Required frontmatter** (6 fields):
   - `high_severity_count`, `medium_severity_count`, `low_severity_count`
@@ -464,6 +497,7 @@ Every pipeline step has a gate that validates the output before proceeding. Gate
   - `tasklist_ready_consistent` — `tasklist_ready=true` requires `high_severity_count=0` AND `validation_complete=true`
 
 #### Wiring verification gate (STRICT, TRAILING mode)
+
 - **Min lines**: 10
 - **Required frontmatter** (16 fields):
   - `gate`, `target_dir`, `files_analyzed`, `rollout_mode`
@@ -489,7 +523,9 @@ These gates are defined in `gates.py` for use by convergence/remediation subsyst
 | `DEVIATION_ANALYSIS_GATE` | Validates deviation analysis: no ambiguous deviations, routing IDs valid, counts reconciled |
 
 ### Retry behavior
+
 Each step has `retry_limit=1` (2 total attempts) except:
+
 - `anti-instinct` — `retry_limit=0` (deterministic, no retry needed)
 - `wiring-verification` — `retry_limit=0` (trailing gate, no retry)
 
@@ -553,11 +589,13 @@ All artifacts are written to `<OUTPUT_DIR>/validate/`.
 ### Gate criteria
 
 #### REFLECT_GATE (STRICT)
+
 - **Min lines**: 20
 - **Required frontmatter**: `blocking_issues_count`, `warnings_count`, `tasklist_ready`
 - **Semantic checks**: `frontmatter_values_non_empty`
 
 #### ADVERSARIAL_MERGE_GATE (STRICT, multi-agent only)
+
 - **Min lines**: 30
 - **Required frontmatter**: `blocking_issues_count`, `warnings_count`, `tasklist_ready`, `validation_mode`, `validation_agents`
 - **Semantic checks**: `frontmatter_values_non_empty`, `agreement_table_present` (requires a markdown table with "agree"/"agreement" column header)
@@ -588,15 +626,18 @@ Info: 3                                   ← only if info > 0
 ### Auto-invocation from `roadmap run`
 
 After a successful pipeline, `execute_roadmap()` automatically calls `_auto_invoke_validate()`. It:
+
 - Inherits `--model`, `--max-turns`, `--debug` from the parent `roadmap run` invocation.
 - Uses the first 2 agents from `--agents` for dual-agent rigor (or 1 agent if only 1 was specified).
 - Saves validation status (`pass`/`fail`/`skipped`) to `.roadmap-state.json`.
 - Prints `[roadmap] Auto-invoking validation...` before running.
 
 To skip auto-validation:
+
 ```bash
 superclaude roadmap run spec.md --no-validate
 ```
+
 Note: `--no-validate` skips the post-pipeline validation subsystem only. It does **not** skip the spec-fidelity step (FR-010, AC-005).
 
 ### Degraded mode (multi-agent partial failure)
@@ -610,11 +651,13 @@ If some (but not all) reflect steps fail in multi-agent mode, the executor write
 ### 5.1 `superclaude roadmap run` call path
 
 When you run:
+
 ```bash
 superclaude roadmap run <SPEC_FILE> [flags]
 ```
 
 the CLI flow is:
+
 1. `commands.py::run()` parses Click options and positional argument.
 2. `ctx.get_parameter_source()` detects whether `--agents` and `--depth` were explicitly provided (important for `--resume`).
 3. `AgentSpec.parse()` parses each comma-separated agent spec string.
@@ -647,6 +690,7 @@ claude \
 ```
 
 Important details:
+
 - `--no-session-persistence` ensures step isolation (no context leakage between steps).
 - `--output-format text` is used (vs `stream-json` for sprint) for gate-compatible plain text output.
 - `CLAUDECODE` and `CLAUDE_CODE_ENTRYPOINT` environment variables are stripped from the child process to prevent nested session detection.
@@ -679,6 +723,7 @@ The sanitization is atomic: it writes to a `.tmp` file then uses `os.replace()` 
 ### 5.5 Pipeline diagnostics injection (FR-033)
 
 For the `extract` step only, the executor injects `pipeline_diagnostics` into the YAML frontmatter after the subprocess completes. This includes:
+
 - `elapsed_seconds` — wall-clock duration of the extraction step
 - `started_at` — ISO-8601 start timestamp
 - `finished_at` — ISO-8601 completion timestamp
@@ -688,6 +733,7 @@ The LLM cannot reliably produce execution timing, so the executor injects these 
 ### 5.6 Parallel execution (steps 2a + 2b)
 
 The generate steps run concurrently via Python threading:
+
 - Each step runs in a daemon thread with its own `ClaudeProcess`.
 - A shared `threading.Event` provides cross-cancellation: if one step fails, the other is terminated.
 - Both steps must PASS before the pipeline proceeds to the diff step.
@@ -721,6 +767,7 @@ After pipeline execution (success or failure), `.roadmap-state.json` is written 
 ```
 
 State also tracks:
+
 - Validation status (`pass`/`fail`/`skipped`)
 - Remediation metadata (when convergence is enabled)
 - Certification metadata
@@ -729,6 +776,7 @@ State also tracks:
 ### 5.8 Resume behavior
 
 When `--resume` is passed:
+
 1. The executor reads `.roadmap-state.json` from the output directory.
 2. If `--agents` or `--depth` were omitted from the command, their values are restored from the state file.
 3. The spec file's SHA-256 hash is compared against `spec_hash` in the state file.
@@ -768,11 +816,13 @@ To inspect the failing output:
 The `--depth` flag controls how many rounds of adversarial debate occur in step 4:
 
 ### `quick` (1 round)
+
 Each perspective states its position on the key divergence points, then a convergence assessment is provided.
 
 **Use when**: Rapid iteration, small specs, or when variants are expected to be similar.
 
 ### `standard` (2 rounds) — Default
+
 - **Round 1**: Each perspective states initial positions on divergence points.
 - **Round 2**: Each perspective rebuts the other's key claims.
 - Then a convergence assessment is provided.
@@ -780,6 +830,7 @@ Each perspective states its position on the key divergence points, then a conver
 **Use when**: Most specifications. Provides good coverage without excessive token consumption.
 
 ### `deep` (3 rounds)
+
 - **Round 1**: Each perspective states initial positions on divergence points.
 - **Round 2**: Each perspective rebuts the other's key claims.
 - **Round 3**: Final synthesis — each perspective identifies concessions and remaining disagreements.
@@ -792,6 +843,7 @@ Each perspective states its position on the key divergence points, then a conver
 ## 7) Data Models Reference
 
 ### AgentSpec
+
 ```python
 @dataclass
 class AgentSpec:
@@ -809,6 +861,7 @@ class AgentSpec:
 ```
 
 ### Finding
+
 ```python
 @dataclass
 class Finding:
@@ -904,21 +957,25 @@ class GateMode(Enum):
 The anti-instinct step is unique: it is **fully deterministic** (no LLM subprocess). It runs three Python-based coverage analyses against the spec and merged roadmap:
 
 ### Obligation Scanner (`obligation_scanner.py`)
+
 Scans roadmap content for scaffold/setup obligations (e.g., "set up X", "configure Y") and checks whether they are discharged (fulfilled) in later phases.
 
 **Gate requirement**: `undischarged_obligations == 0`
 
 ### Integration Contracts (`integration_contracts.py`)
+
 Extracts integration/wiring contracts from the spec (e.g., "module A calls module B") and checks whether the roadmap includes explicit wiring tasks for each contract.
 
 **Gate requirement**: `uncovered_contracts == 0`
 
 ### Fingerprint Coverage (`fingerprint.py`)
+
 Extracts code-level identifiers (function names, class names, variable names) from the spec and checks what fraction appear in the roadmap.
 
 **Gate requirement**: `fingerprint_coverage >= 0.7`
 
 ### Output: `anti-instinct-audit.md`
+
 ```yaml
 ---
 undischarged_obligations: 0
@@ -934,14 +991,18 @@ fingerprint_coverage: 0.85
 These subsystems support run-to-run fidelity tracking and are activated when `convergence_enabled=True`.
 
 ### Deviation Registry (`convergence.py`)
+
 Persistent storage for fidelity findings across pipeline runs:
+
 - Stable IDs for cross-run finding identity
 - Structural vs semantic HIGH tracking
 - Run metadata and convergence budgeting
 - `DeviationRegistry.load_or_create()` / `.save()` for persistence
 
 ### Structural Checkers (`structural_checkers.py`)
+
 Deterministic mismatch detection across 5 categories:
+
 - `check_signatures()` — Function/method signatures
 - `check_data_models()` — Data structures and schemas
 - `check_gates()` — Gate definitions and criteria
@@ -949,13 +1010,17 @@ Deterministic mismatch detection across 5 categories:
 - `check_nfrs()` — Non-functional requirements
 
 ### Semantic Layer (`semantic_layer.py`)
+
 Prompt-budgeted semantic checking:
+
 - Adversarial debate over severity decisions
 - Rubric-based scoring of arguments
 - Strict prompt-size budget enforcement
 
 ### Spec Parser (`spec_parser.py`)
+
 Rich markdown parsing for structured fidelity analysis:
+
 - `ParseResult` with sections, tables, code blocks, function signatures, threshold expressions
 - `parse_document()` entry point
 
@@ -966,12 +1031,14 @@ Rich markdown parsing for structured fidelity analysis:
 These are not exposed as top-level CLI subcommands but are used internally by the convergence engine and can be invoked programmatically.
 
 ### Remediation (`remediate.py` + `remediate_executor.py`)
+
 - **Scope**: Only editable files: `roadmap.md`, `extraction.md`, `test-strategy.md`
 - **Workflow**: snapshot → apply patches → verify → rollback on failure
 - **Guards**: Patch size limits, allowlist enforcement
 - **Parser**: `remediate_parser.py` extracts `Finding` objects from validation reports
 
 ### Certification (`certify_prompts.py`)
+
 - Builds prompts for post-remediation certification
 - Gate requires per-finding results table and `certified=true`
 
@@ -982,42 +1049,53 @@ These are not exposed as top-level CLI subcommands but are used internally by th
 The roadmap CLI is Stage B in the full release pipeline.
 
 ### Stage A: Spec (requirements source)
+
 Create a specification markdown file with project requirements, constraints, and acceptance criteria.
 
 ### Stage B: Roadmap (adversarial generation) ← **This tool**
+
 ```bash
 superclaude roadmap run spec.md --depth standard
 ```
+
 Produces `roadmap.md` (merged, adversarially validated) + `test-strategy.md` + `spec-fidelity.md` + `anti-instinct-audit.md`.
 Automatically invokes validation on success (unless `--no-validate`).
 
 ### Stage B2: Validate (quality gate) ← **This tool**
+
 ```bash
 # Automatic after roadmap run (unless --no-validate)
 # To re-run manually:
 superclaude roadmap validate ./output --agents opus:architect,haiku:qa
 ```
+
 Produces `validate/validation-report.md`. Check `tasklist_ready: true` before proceeding.
 
 ### Stage B3: Accept spec changes (optional) ← **This tool**
+
 ```bash
 # After formalizing an accepted deviation in the spec:
 superclaude roadmap accept-spec-change ./output
 ```
 
 ### Stage C: Tasklist (execution plan)
+
 ```bash
 # Use /sc:tasklist to generate Sprint CLI-compatible phase files from the roadmap
 ```
+
 Produces `tasklist-index.md` + phase files.
 
 ### Stage D: Sprint execution
+
 ```bash
 superclaude sprint run .dev/releases/current/tasklist-index.md
 ```
+
 Executes the phases with supervised Claude sessions.
 
 ### Stage E: Resume on halt
+
 ```bash
 # Roadmap level
 superclaude roadmap run spec.md --resume
@@ -1033,11 +1111,14 @@ superclaude sprint run .dev/releases/current/tasklist-index.md --start <halt_pha
 Each pipeline step uses a specialized prompt builder (defined in `prompts.py`). All prompt functions are **pure** — they accept concrete values, return strings, and perform no I/O (NFR-004).
 
 ### Common output format block
+
 All prompts include a critical output format instruction:
+
 ```
 CRITICAL: Your response MUST begin with YAML frontmatter (--- delimited block).
 Do NOT include any text, preamble, or commentary before the opening ---.
 ```
+
 This ensures gate validation can parse the output correctly.
 
 ### Prompt builders
@@ -1060,7 +1141,9 @@ This ensures gate validation can parse the output correctly.
 ## 13) Error Handling and Process Management
 
 ### Process lifecycle
+
 Each step uses `ClaudeProcess` from the shared pipeline module:
+
 - Subprocess is launched with `subprocess.Popen` and process group isolation (`os.setpgrp` on Unix).
 - The executor polls for cancellation every 1 second while the subprocess runs.
 - Timeout detection: `exit_code == 124` maps to `StepStatus.TIMEOUT`.
@@ -1068,17 +1151,21 @@ Each step uses `ClaudeProcess` from the shared pipeline module:
 - Success: maps to `StepStatus.PASS` (gate check runs next).
 
 ### Cancellation
+
 - External cancellation is supported via a `cancel_check` callback.
 - For parallel steps, cross-cancellation ensures if one step fails, the other is terminated.
 
 ### Graceful shutdown
+
 `ClaudeProcess.terminate()` follows an escalation path:
+
 1. SIGTERM to process group (or process on non-Unix)
 2. Wait 10 seconds
 3. SIGKILL if still alive
 4. Wait 5 seconds for final cleanup
 
 ### Non-Unix portability
+
 - Process group operations (`os.setpgrp`, `os.killpg`) are guarded with `hasattr()` checks.
 - Fallback uses `process.terminate()` / `process.kill()` on non-Unix environments.
 
@@ -1089,12 +1176,15 @@ Each step uses `ClaudeProcess` from the shared pipeline module:
 The roadmap CLI has two integration surfaces:
 
 ### Python CLI (this tool)
+
 ```bash
 superclaude roadmap run spec.md [options]
 ```
+
 Deterministic, programmatic pipeline execution with subprocess orchestration.
 
 ### Slash command `/sc:roadmap`
+
 The `/sc:roadmap` slash command (defined in `src/superclaude/commands/roadmap.md`) invokes the `sc-roadmap-protocol` skill for inference-based roadmap generation within a Claude Code session. This is the interactive counterpart to the CLI tool.
 
 **Key differences**:
@@ -1110,60 +1200,79 @@ The `/sc:roadmap` slash command (defined in `src/superclaude/commands/roadmap.md
 ## 15) Practical Use Cases
 
 ### Use case 1: Standard roadmap generation
+
 ```bash
 superclaude roadmap run .dev/releases/current/v2.20/spec.md
 ```
+
 Runs the full 11-step pipeline with default agents (`opus:architect` + `haiku:architect`) and standard depth (2 debate rounds). Artifacts written to the spec's parent directory.
 
 ### Use case 2: Security-focused roadmap
+
 ```bash
 superclaude roadmap run spec.md --agents opus:architect,sonnet:security --depth deep
 ```
+
 Uses a security persona for the second variant. Deep debate ensures thorough adversarial review of security concerns.
 
 ### Use case 3: Quick iteration roadmap
+
 ```bash
 superclaude roadmap run spec.md --agents haiku:architect,haiku:qa --depth quick
 ```
+
 Uses faster (cheaper) models with a single debate round for rapid prototype roadmaps.
 
 ### Use case 4: Validate pipeline plan before execution
+
 ```bash
 superclaude roadmap run spec.md --dry-run
 ```
+
 Prints the step plan with gate criteria and timeout budgets. No subprocesses are launched. Use this to verify configuration before committing to a full run.
 
 ### Use case 5: Resume after failure
+
 ```bash
 superclaude roadmap run spec.md --resume
 ```
+
 Skips steps whose outputs already pass their gates. Re-runs from the first failing step. Detects spec changes and forces re-extraction if the spec has been modified.
 
 ### Use case 6: Custom output directory for release management
+
 ```bash
 superclaude roadmap run spec.md --output .dev/releases/current/v2.20-feature/
 ```
+
 All artifacts are written to the specified directory, keeping releases organized.
 
 ### Use case 7: Override model globally
+
 ```bash
 superclaude roadmap run spec.md --model claude-sonnet-4-20250514
 ```
+
 Forces all steps (not just generate steps) to use the specified model. Useful for testing with a specific model version.
 
 ### Use case 8: Debug a failing pipeline
+
 ```bash
 superclaude roadmap run spec.md --debug --max-turns 200
 ```
+
 Enables debug logging to `<output_dir>/roadmap-debug.log` and increases max turns for steps that might need more interaction. Inspect `.err` files for subprocess stderr output.
 
 ### Use case 9: With retrospective context
+
 ```bash
 superclaude roadmap run spec.md --retrospective .dev/releases/v2.19/retrospective.md
 ```
+
 Feeds prior release lessons into extraction as advisory "areas to watch".
 
 ### Use case 10: Accept spec deviation and resume
+
 ```bash
 # After editing spec to formalize an accepted deviation:
 superclaude roadmap accept-spec-change ./output
@@ -1248,12 +1357,14 @@ superclaude roadmap accept-spec-change ./output
 ## 17) Troubleshooting Checklist
 
 ### Before running
+
 - [ ] Spec file exists and is readable markdown
 - [ ] Output directory is writable (or will be created)
 - [ ] `claude` binary is in `PATH`
 - [ ] Agent model names are valid (opus, sonnet, haiku, or full model IDs)
 
 ### After a failure
+
 - [ ] Check the halt diagnostic output for the failing step and gate reason
 - [ ] Inspect the `.err` file for the failing step (subprocess stderr)
 - [ ] Inspect the output file — is the YAML frontmatter present and correct?

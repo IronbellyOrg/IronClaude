@@ -1,6 +1,6 @@
 
-
 ---
+
 spec_source: nonsense-spec.md
 complexity_score: 0.1
 primary_persona: architect
@@ -19,6 +19,7 @@ From an architect's perspective, the correct action is to **reject this specific
 ### What This Roadmap Covers Instead
 
 Since no implementation roadmap is possible, this document provides:
+
 1. A structured assessment of why implementation cannot proceed
 2. A recovery plan for producing a legitimate specification
 3. Guidance on what a replacement specification should contain
@@ -85,6 +86,7 @@ Cannot be estimated. Resource requirements depend entirely on what the replaceme
 There are **zero real dependencies** to plan around. All four named technologies (Quantum Python 4.0, TelepathDB, React.dimensions, CloudKarma) are fictional.
 
 A replacement specification would likely depend on real technologies such as:
+
 - An actual authentication provider (Auth0, Keycloak, AWS Cognito)
 - An actual database (PostgreSQL, MySQL, MongoDB)
 - An actual frontend framework (React, Vue, Angular)
@@ -106,6 +108,7 @@ A replacement specification would likely depend on real technologies such as:
 ### From the Original Spec (All Invalid)
 
 None of the four original success criteria are usable:
+
 - "Zero bugs by ignoring reports" — measures nothing
 - "100% coverage of nonexistent features" — logically impossible
 - "Infinite developer satisfaction" — not a number

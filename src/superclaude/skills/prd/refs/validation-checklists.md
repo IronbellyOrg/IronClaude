@@ -74,6 +74,7 @@ Before presenting to the user, validate:
 ### Step 10: Present to User
 
 Notify the user:
+
 - Where the final document was written
 - Line count and tier classification
 - Number of sections populated vs skipped
@@ -83,6 +84,7 @@ Notify the user:
 ### Step 11: Clean Up Consolidation Sources
 
 If the PRD was created by consolidating existing docs:
+
 - Do NOT delete the source docs automatically
 - Present the source docs to the user and confirm they can be archived
 - Archive approved sources to `docs/archive/[appropriate-subdir]/`

@@ -146,6 +146,7 @@ npx -y @upstash/context7-mcp@latest --help 2>/dev/null && echo "✅ Context7 ava
 **Symptom**: `/sc:` context triggers don't produce expected Claude Code behavior
 
 **Verification**:
+
 ```bash
 # Check if command file exists
 ls ~/.claude/commands/implement.md
@@ -157,6 +158,7 @@ head -20 ~/.claude/commands/implement.md
 ```
 
 **Solution**:
+
 ```bash
 # Reinstall commands component
 PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components commands --force
@@ -167,6 +169,7 @@ PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components 
 **Symptom**: `@agent-` invocations don't work in Claude Code
 
 **Verification**:
+
 ```bash
 # List all agents
 ls ~/.claude/agents/
@@ -176,6 +179,7 @@ cat ~/.claude/agents/python-expert.md | head -20
 ```
 
 **Solution**:
+
 ```bash
 # Reinstall agents
 PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components agents --force
@@ -186,6 +190,7 @@ PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components 
 **Symptom**: Claude Code doesn't seem to read SuperClaude context
 
 **Verification**:
+
 ```bash
 # Check CLAUDE.md is in correct location
 ls -la ~/.claude/CLAUDE.md
@@ -195,6 +200,7 @@ ls -la ~/.claude/CLAUDE.md
 ```
 
 **Solution**:
+
 1. Restart Claude Code
 2. Ensure you're in a project directory
 3. Check file permissions: `chmod 644 ~/.claude/*.md`
@@ -204,6 +210,7 @@ ls -la ~/.claude/CLAUDE.md
 **Symptom**: MCP features unavailable
 
 **Verification**:
+
 ```bash
 # Check Node.js installation
 which node
@@ -213,6 +220,7 @@ python3 -c "import json; json.load(open('$HOME/.claude.json'))" && echo "✅ Val
 ```
 
 **Solution**:
+
 ```bash
 # Install Node.js if missing
 # Ubuntu: sudo apt install nodejs npm

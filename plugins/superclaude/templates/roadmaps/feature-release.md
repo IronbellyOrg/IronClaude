@@ -9,6 +9,7 @@ estimated-milestones: 4-6
 # Feature Release Roadmap Template
 
 ## Template Overview
+
 Use this template for new feature development, capability enhancements, and functional expansions.
 
 ---
@@ -16,10 +17,12 @@ Use this template for new feature development, capability enhancements, and func
 ## Phase 1: Analysis & Design
 
 ### Milestone 1.1: Requirements Gathering
+
 **Objective**: Capture and validate all functional and non-functional requirements
 **Type**: FEATURE
 **Priority**: P0-Critical
 **Deliverables**:
+
 - D1.1.1: Requirements document with FR/NFR classification
 - D1.1.2: Stakeholder sign-off checklist
 **Dependencies**: None
@@ -30,10 +33,12 @@ Use this template for new feature development, capability enhancements, and func
 **Files_Affected**: TBD
 
 ### Milestone 1.2: Architecture Design
+
 **Objective**: Design system architecture and component interactions
 **Type**: FEATURE
 **Priority**: P0-Critical
 **Deliverables**:
+
 - D1.2.1: Architecture decision records (ADRs)
 - D1.2.2: Component diagram
 - D1.2.3: API contract specifications
@@ -49,10 +54,12 @@ Use this template for new feature development, capability enhancements, and func
 ## Phase 2: Implementation
 
 ### Milestone 2.1: Core Development
+
 **Objective**: Implement core feature functionality
 **Type**: FEATURE
 **Priority**: P0-Critical
 **Deliverables**:
+
 - D2.1.1: Core feature implementation
 - D2.1.2: Unit test coverage (≥80%)
 - D2.1.3: API endpoints/interfaces
@@ -65,10 +72,12 @@ Use this template for new feature development, capability enhancements, and func
 **Files_Affected**: TBD
 
 ### Milestone 2.2: Integration
+
 **Objective**: Integrate with existing systems and dependencies
 **Type**: FEATURE
 **Priority**: P1-High
 **Deliverables**:
+
 - D2.2.1: Integration layer implementation
 - D2.2.2: Integration test suite
 - D2.2.3: Dependency documentation
@@ -84,10 +93,12 @@ Use this template for new feature development, capability enhancements, and func
 ## Phase 3: Testing & Validation
 
 ### Milestone 3.1: Unit & Integration Tests
+
 **Objective**: Comprehensive test coverage for all components
 **Type**: TEST
 **Priority**: P1-High
 **Deliverables**:
+
 - D3.1.1: Complete unit test suite
 - D3.1.2: Integration test suite
 - D3.1.3: Test coverage report
@@ -100,10 +111,12 @@ Use this template for new feature development, capability enhancements, and func
 **Files_Affected**: TBD
 
 ### Milestone 3.2: E2E Validation
+
 **Objective**: End-to-end validation of feature workflows
 **Type**: TEST
 **Priority**: P1-High
 **Deliverables**:
+
 - D3.2.1: E2E test scenarios
 - D3.2.2: User acceptance test plan
 - D3.2.3: Performance validation report
@@ -119,10 +132,12 @@ Use this template for new feature development, capability enhancements, and func
 ## Phase 4: Release & Documentation
 
 ### Milestone 4.1: Documentation
+
 **Objective**: Complete technical and user documentation
 **Type**: DOC
 **Priority**: P2-Medium
 **Deliverables**:
+
 - D4.1.1: API documentation
 - D4.1.2: User guide
 - D4.1.3: Developer documentation
@@ -134,10 +149,12 @@ Use this template for new feature development, capability enhancements, and func
 **Files_Affected**: TBD
 
 ### Milestone 4.2: Release Preparation
+
 **Objective**: Prepare feature for production deployment
 **Type**: FEATURE
 **Priority**: P1-High
 **Deliverables**:
+
 - D4.2.1: Release notes
 - D4.2.2: Migration guide (if applicable)
 - D4.2.3: Rollback plan
@@ -151,6 +168,7 @@ Use this template for new feature development, capability enhancements, and func
 ---
 
 ## Success Criteria Checklist
+
 - [ ] All functional requirements implemented and tested
 - [ ] All non-functional requirements verified
 - [ ] Documentation complete and reviewed

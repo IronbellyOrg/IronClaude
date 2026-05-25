@@ -22,11 +22,13 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 **Critical Path**: Password Hasher + JWT Service → Token Manager → Auth Service → Middleware + Routes → Integration Testing → Load Testing → Deploy behind feature flag.
 
 **Key Constraints**:
+
 - RS256 asymmetric signing (not HS256) — requires secrets manager integration before any JWT work
 - bcrypt cost factor 12 (~250ms/hash) consumes most of the 200ms p95 latency budget for login
 - 8 open questions, 3 of which block implementation (OQ-1, OQ-6, OQ-7)
 
 **Blocking Decisions Required Before Phase 2**:
+
 1. Secrets manager platform selection (OQ-7) — blocks `jwt-service.ts`
 2. Email service provider and interface contract (OQ-1, OQ-6) — blocks FR-AUTH.5
 3. Maximum active refresh tokens per user (OQ-2) — blocks FR-AUTH.3 table design
@@ -36,10 +38,12 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 ## 2. Phased Implementation Plan
 
 ### Phase 0: Foundation & Decision Resolution
+
 **Duration**: 3–5 days  
 **Goal**: Resolve blocking open questions, establish infrastructure prerequisites, finalize database schema.
 
 #### Milestone 0.1: Blocking Decisions Resolved
+
 - [ ] **OQ-7**: Select secrets manager platform (AWS Secrets Manager / HashiCorp Vault / GCP Secret Manager)
   - Decision determines key injection mechanism for `jwt-service.ts` and deployment pipeline
 - [ ] **OQ-1 / OQ-6**: Select email service provider; define interface contract, retry policy, SLA, and failure behavior for FR-AUTH.5
@@ -52,6 +56,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
   - Decide: idempotency window vs. accepted false-positive invalidation vs. deferred to v1.1
 
 #### Milestone 0.2: Infrastructure Prerequisites
+
 - [ ] Generate RS256 key pair; store private key in selected secrets manager
 - [ ] Configure key rotation automation (90-day period per deployment constraint)
 - [ ] Provision or configure email service credentials
@@ -64,12 +69,14 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 ---
 
 ### Phase 1: Core Components (No External Dependencies)
+
 **Duration**: 5–7 days  
 **Goal**: Implement and unit-test the foundational components that have no inter-component dependencies.
 
 **Implementation order follows the spec's hard dependency chain (items 1–2).**
 
 #### Milestone 1.1: Password Hasher — `password-hasher.ts`
+
 **Covers**: Component dependency for FR-AUTH.1, FR-AUTH.2, FR-AUTH.5; NFR-AUTH.3
 
 - [ ] Implement `PasswordHasher` with bcrypt, cost factor 12
@@ -81,6 +88,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
   - Password policy enforcement: min 8 chars, ≥1 uppercase, ≥1 lowercase, ≥1 digit (FR-AUTH.2 AC-3)
 
 #### Milestone 1.2: JWT Service — `jwt-service.ts` (parallel with 1.3)
+
 **Covers**: Component dependency for FR-AUTH.3, FR-AUTH.4; NFR-AUTH.1
 
 - [ ] Implement `JwtService` with RS256 signing using key from secrets manager (decision from OQ-7)
@@ -94,6 +102,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
   - RS256 signature verification with public key
 
 #### Milestone 1.3: Token Manager — `token-manager.ts` (parallel with 1.2)
+
 **Covers**: FR-AUTH.3 (refresh token lifecycle); component dependency for FR-AUTH.1, FR-AUTH.4, FR-AUTH.5
 
 - [ ] Implement `TokenManager` for refresh token issuance, rotation, and revocation
@@ -114,12 +123,14 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 ---
 
 ### Phase 2: Service Layer & API Surface
+
 **Duration**: 7–10 days  
 **Goal**: Compose core components into `AuthService`, implement middleware, wire routes, and pass integration tests for all 5 functional requirements.
 
 **Implementation order follows spec dependency chain (items 3–5).**
 
 #### Milestone 2.1: Auth Service — `auth-service.ts`
+
 **Covers**: FR-AUTH.1, FR-AUTH.2, FR-AUTH.3, FR-AUTH.5
 
 - [ ] Implement `AuthService` as the sole external-facing orchestrator
@@ -148,6 +159,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
   - Session invalidation on successful reset (FR-AUTH.5 AC-4)
 
 #### Milestone 2.2: Auth Middleware — `auth-middleware.ts`
+
 **Covers**: FR-AUTH.4; integration into existing middleware chain
 
 - [ ] Implement Bearer token extraction and verification via `TokenManager`
@@ -156,6 +168,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 - [ ] Integrate into existing `src/middleware/auth-middleware.ts` — no new middleware framework
 
 #### Milestone 2.3: Routes & Database Migration
+
 **Covers**: All FR-AUTH requirements; deployment infrastructure
 
 - [ ] Register routes under `/auth/*` group in `src/routes/index.ts`:
@@ -182,6 +195,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 | **Email service adapter** | Email provider client wired into `AuthService` for FR-AUTH.5 | Phase 2.1 | Phase 2.1 (password reset dispatch) |
 
 #### Integration Tests (Phase 2 exit gate)
+
 - [ ] Login: valid credentials → 200 + tokens (FR-AUTH.1 AC-1)
 - [ ] Login: invalid credentials → 401 generic error (FR-AUTH.1 AC-2)
 - [ ] Login: locked account → 403 (FR-AUTH.1 AC-3)
@@ -204,10 +218,12 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 ---
 
 ### Phase 3: Non-Functional Validation & Hardening
+
 **Duration**: 4–6 days  
 **Goal**: Validate NFR targets, execute security review, and confirm all success criteria.
 
 #### Milestone 3.1: Performance Validation
+
 - [ ] k6 load test: login endpoint p95 < 200ms under normal load (NFR-AUTH.1, SC-1)
   - Profile the full login code path: bcrypt (~250ms) is the dominant contributor — the 200ms p95 target is tight
   - If target not met: evaluate bcrypt cost factor tuning, connection pooling, or async optimizations
@@ -216,6 +232,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 - [ ] Set up APM dashboard for production latency monitoring
 
 #### Milestone 3.2: Security Hardening
+
 - [ ] Verify RS256 key is loaded only from secrets manager, never from env vars or source (RISK-1 mitigation)
 - [ ] Verify 90-day key rotation automation is functional
 - [ ] Pen test: attempt to extract sensitive fields from profile endpoint (FR-AUTH.4 AC-3)
@@ -225,6 +242,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 - [ ] Confirm refresh token replay detection under concurrent load (RISK-2, SC-8)
 
 #### Milestone 3.3: Availability & Observability
+
 - [ ] Health check endpoint operational for uptime monitoring (NFR-AUTH.2, SC-2)
 - [ ] PagerDuty alerting configured for auth service degradation
 - [ ] Confirm OQ-4 decision: if audit logging deferred to v1.1, document the gap explicitly
@@ -234,16 +252,19 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 ---
 
 ### Phase 4: Deployment & Rollout
+
 **Duration**: 2–3 days  
 **Goal**: Deploy behind feature flag, execute phased rollout, confirm production behavior.
 
 #### Milestone 4.1: Staged Deployment
+
 - [ ] Deploy with `AUTH_SERVICE_ENABLED=false` — verify existing endpoints unaffected
 - [ ] Enable for internal/canary traffic; monitor APM for latency regression
 - [ ] Enable for 10% → 50% → 100% of production traffic
 - [ ] Verify 99.9% uptime target during rollout window (NFR-AUTH.2)
 
 #### Milestone 4.2: Post-Deployment Verification
+
 - [ ] Confirm production p95 latency matches load test results (SC-1)
 - [ ] Verify key rotation schedule is active (90-day period)
 - [ ] Confirm down-migration rollback procedure is documented and tested
@@ -264,6 +285,7 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 | **RISK-5**: Token state on user deletion | Medium | Phase 0 (scope decision OQ-5) | If v1.0: deletion hook with cascade revocation; if v1.1: document 7-day TTL gap | Depends on whether user deletion is a v1.0 use case |
 
 **Architect's Risk Prioritization**:
+
 1. RISK-1 and RISK-2 are the highest-priority items because they enable session hijacking. Both are addressed in the critical path.
 2. The NFR-AUTH.1 latency target (< 200ms p95) is at tension with the bcrypt cost factor 12 (~250ms). This is a **known constraint conflict** — Phase 3.1 must profile the full code path early enough to course-correct if needed.
 3. The email service dependency (OQ-6) is a **schedule risk** — if provider selection slips, FR-AUTH.5 cannot begin.
@@ -285,11 +307,13 @@ This roadmap delivers a JWT-based authentication service comprising 5 functional
 | 7 | k6 + APM tooling | Available | Phase 3.1 | Confirm k6 installed; APM dashboard provisioned |
 
 ### Staffing Estimate
+
 - **1 backend engineer** (primary): 3–4 weeks for Phases 1–3
 - **1 security reviewer** (part-time): 2–3 days in Phase 3.2
 - **1 DevOps engineer** (part-time): 2–3 days for secrets manager, key rotation, feature flag, deployment pipeline (Phases 0, 4)
 
 ### Parallel Work Opportunities
+
 - Phase 1.2 (`jwt-service.ts`) and Phase 1.3 (`token-manager.ts`) can be developed in parallel once interfaces are defined
 - Phase 3.1 (performance) and Phase 3.2 (security) can overlap
 - Phase 0 decision resolution and infrastructure provisioning can proceed concurrently
@@ -335,6 +359,7 @@ All 8 success criteria map to specific phases and test types:
 ## 7. Items Deferred to v1.1 (Confirmed Out of Scope)
 
 Per spec and gap analysis:
+
 - OAuth2/OIDC federation
 - Multi-factor authentication
 - Role-based access control (RBAC)

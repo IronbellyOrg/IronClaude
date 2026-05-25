@@ -86,10 +86,12 @@ export MORPH_API_KEY="your-api-key-here"
 Before installing MCP servers, ensure you have the following tools installed:
 
 ### Required
+
 - **Claude CLI**: Required for all MCP server management
 - **Node.js 18+**: Required for npm-based MCP servers (most servers)
 
 ### Optional
+
 - **uv**: Required only for Serena MCP server
 
 Check prerequisites:
@@ -108,6 +110,7 @@ uv --version
 ## Installation Process
 
 1. **Check Available Servers**
+
    ```bash
    superclaude mcp --list
    ```
@@ -115,16 +118,19 @@ uv --version
 2. **Install Servers**
 
    Interactive mode (recommended):
+
    ```bash
    superclaude mcp
    ```
 
    Or specify servers directly:
+
    ```bash
    superclaude mcp --servers tavily context7
    ```
 
 3. **Verify Installation**
+
    ```bash
    claude mcp list
    ```
@@ -178,16 +184,19 @@ superclaude mcp --list
 If a server isn't working:
 
 1. Check if the API key is set:
+
    ```bash
    echo $TAVILY_API_KEY
    ```
 
 2. Verify the server is installed:
+
    ```bash
    claude mcp list
    ```
 
 3. Check server status in Claude Code:
+
    ```
    /mcp
    ```
@@ -195,17 +204,20 @@ If a server isn't working:
 ### Installation Fails
 
 1. **Check prerequisites**:
+
    ```bash
    claude --version
    node --version
    ```
 
 2. **Check Node.js version** (must be 18+):
+
    ```bash
    node --version
    ```
 
 3. **Try with verbose output**:
+
    ```bash
    superclaude mcp --servers tavily 2>&1 | tee install.log
    ```

@@ -26,9 +26,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0057/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0057 `frontend/src/pages/LoginPage.tsx` + test + styles; posts to /auth/login and routes to /profile on success.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm frontend framework is React + Vite per repo convention.
 2. **[EXECUTION]** Implement form with React Hook Form + Zod.
 3. **[EXECUTION]** Handle 200, 401, 423 responses with localized strings.
@@ -37,12 +39,14 @@
 6. **[COMPLETION]** Update router registration.
 
 **Acceptance Criteria:**
+
 - Happy path navigates to /profile on 200.
 - 401 surfaces generic error; 423 surfaces lockout copy.
 - No password retained in component state after submit.
 - Access token stored in memory only.
 
 **Validation:**
+
 - Manual check: component test suite covering all status codes.
 - Evidence: linkable artifact produced (vitest run log).
 
@@ -72,9 +76,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0058/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0058 `frontend/src/pages/RegisterPage.tsx` with ToS + consent checkbox and 409 handling.
 
 **Steps:**
+
 1. **[PLANNING]** Align copy with Legal for consent text.
 2. **[EXECUTION]** Implement form + Zod schema including consent_flag.
 3. **[EXECUTION]** Submit to /auth/register; on 201 redirect /login.
@@ -82,12 +88,14 @@
 5. **[VERIFICATION]** Component + integration tests (T04.13, T04.16).
 
 **Acceptance Criteria:**
+
 - 201 response triggers redirect to /login.
 - 409 displays inline email error.
 - Consent checkbox mandatory; 400 if unchecked.
 - No tokens stored on register.
 
 **Validation:**
+
 - Manual check: run component tests.
 - Evidence: linkable artifact produced (vitest log).
 
@@ -117,20 +125,24 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0059/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0059 `frontend/src/pages/ProfilePage.tsx` with display_name edit, save button, success toast.
 
 **Steps:**
+
 1. **[PLANNING]** Fetch profile on mount with auth interceptor.
 2. **[EXECUTION]** Implement display_name edit + save.
 3. **[VERIFICATION]** Component test loading/empty/error states.
 
 **Acceptance Criteria:**
+
 - Loads profile on mount when authenticated.
 - Save persists display_name.
 - Error toast on 4xx.
 - 401 triggers silent refresh via T04.09.
 
 **Validation:**
+
 - Manual check: component test suite.
 - Evidence: linkable artifact produced (vitest log).
 
@@ -160,21 +172,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0060/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0060 `frontend/src/components/PasswordChangeForm.tsx` with strength meter and logout redirect on success.
 
 **Steps:**
+
 1. **[PLANNING]** Align complexity rules with backend validator.
 2. **[EXECUTION]** Implement form with strength indicator.
 3. **[EXECUTION]** On 204 redirect to /login (because tokens revoked).
 4. **[VERIFICATION]** Component tests.
 
 **Acceptance Criteria:**
+
 - Success triggers redirect to login.
 - Weak-password path surfaces inline error.
 - Old password required.
 - Component test suite green.
 
 **Validation:**
+
 - Manual check: component tests.
 - Evidence: linkable artifact produced (vitest log).
 
@@ -204,20 +220,24 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0061/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0061 `frontend/src/pages/PasswordResetFlow.tsx` + token-in-query detection.
 
 **Steps:**
+
 1. **[PLANNING]** Two routes /auth/reset and /auth/reset/confirm?token=...
 2. **[EXECUTION]** Request form posts email; confirm form reads query token.
 3. **[VERIFICATION]** Component tests for both steps.
 
 **Acceptance Criteria:**
+
 - Reset-request step returns generic success copy.
 - Confirm step posts token + new password; on 204 redirect /login.
 - Invalid token shows contextual error copy.
 - Flow is a11y-audited by T04.12.
 
 **Validation:**
+
 - Manual check: component tests for both steps.
 - Evidence: linkable artifact produced (vitest log).
 
@@ -261,21 +281,25 @@ Checkpoint: Phase 4 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0062/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0062 `frontend/src/router/AuthGuard.tsx` wrapping routes and redirecting to /login when no session.
 
 **Steps:**
+
 1. **[PLANNING]** Define session predicate (memory access token presence).
 2. **[EXECUTION]** Wrap protected routes in <AuthGuard>.
 3. **[EXECUTION]** Redirect to /login preserving returnTo query.
 4. **[VERIFICATION]** Component + integration tests.
 
 **Acceptance Criteria:**
+
 - Protected routes redirect to /login when unauthenticated.
 - returnTo query preserved across redirect.
 - Authenticated users not redirected on refresh.
 - Component tests cover guard + silent refresh path.
 
 **Validation:**
+
 - Manual check: protected route without token -> /login.
 - Evidence: linkable artifact produced (test log).
 
@@ -305,21 +329,25 @@ Checkpoint: Phase 4 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0063/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0063 Backend /auth/login and /auth/refresh set `refresh_token` HttpOnly; SameSite=Strict; Secure; Path=/auth/refresh.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm cookie domain and path strategy.
 2. **[EXECUTION]** Issue cookie on /auth/login response.
 3. **[EXECUTION]** Verify cookie used on /auth/refresh; reject body-only refresh in v1.
 4. **[VERIFICATION]** Integration test asserts cookie flags.
 
 **Acceptance Criteria:**
+
 - Cookie flags HttpOnly, Secure, SameSite=Strict, Path=/auth/refresh.
 - Refresh handler reads from cookie.
 - Cookie cleared on logout.
 - Integration test asserts presence via Set-Cookie header.
 
 **Validation:**
+
 - Manual check: inspect Set-Cookie on /auth/login.
 - Evidence: linkable artifact produced (integration log).
 
@@ -349,20 +377,24 @@ Checkpoint: Phase 4 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0064/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0064 `frontend/src/auth/token-store.ts` module-private access token with getter/setter and no persistence.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm no localStorage or sessionStorage usage.
 2. **[EXECUTION]** Implement module-scope variable with getters.
 3. **[VERIFICATION]** Test asserts token undefined after page reload.
 
 **Acceptance Criteria:**
+
 - Access token never written to storage APIs.
 - Reload clears memory store.
 - Clear on logout.
 - No token leaked to Redux devtools logs.
 
 **Validation:**
+
 - Manual check: reload and inspect storage.
 - Evidence: linkable artifact produced (browser capture).
 
@@ -392,21 +424,25 @@ Checkpoint: Phase 4 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0065/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0065 `frontend/src/auth/silent-refresh.ts` timer scheduler refreshing access token at 80% TTL.
 
 **Steps:**
+
 1. **[PLANNING]** Decode token expiry without storing claims.
 2. **[EXECUTION]** Schedule setTimeout at exp - 180s.
 3. **[EXECUTION]** On fire, POST /auth/refresh; update in-memory token.
 4. **[VERIFICATION]** Playwright scenario T04.14 proves seamless refresh.
 
 **Acceptance Criteria:**
+
 - Refresh fires before expiry every session.
 - Failed refresh clears token and redirects to /login.
 - No duplicate refresh under concurrency.
 - Covered by E2E-REFRESH.
 
 **Validation:**
+
 - Manual check: observe network tab for /auth/refresh before 15m.
 - Evidence: linkable artifact produced (Playwright trace).
 
@@ -436,20 +472,24 @@ Checkpoint: Phase 4 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0066/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0066 `frontend/src/api/client.ts` axios interceptor retrying once after refresh.
 
 **Steps:**
+
 1. **[PLANNING]** Ensure interceptor avoids infinite retry loop.
 2. **[EXECUTION]** On 401, pause request queue, attempt refresh, resume or reject.
 3. **[VERIFICATION]** Unit test interceptor retry behavior.
 
 **Acceptance Criteria:**
+
 - 401 triggers refresh once and retries original request.
 - Second 401 after refresh logs user out.
 - Concurrent 401s share single refresh call.
 - Unit tests cover success/failure.
 
 **Validation:**
+
 - Manual check: simulate 401 via mock server.
 - Evidence: linkable artifact produced (vitest log).
 
@@ -493,21 +533,25 @@ Checkpoint: Phase 4 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0067/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0067 `frontend/src/ui/ErrorBoundary.tsx` + `toast.ts` helpers; wired into root App.
 
 **Steps:**
+
 1. **[PLANNING]** Align with existing design system.
 2. **[EXECUTION]** Implement boundary with fallback copy and reload CTA.
 3. **[EXECUTION]** Toast helper dispatches global events.
 4. **[VERIFICATION]** Storybook + component tests.
 
 **Acceptance Criteria:**
+
 - Uncaught render error shows fallback UI.
 - Toast helper emits assertive role for a11y.
 - Toasts dismissible via keyboard.
 - Storybook entries included.
 
 **Validation:**
+
 - Manual check: run Storybook + component tests.
 - Evidence: linkable artifact produced (vitest + SB build log).
 
@@ -537,21 +581,25 @@ Checkpoint: Phase 4 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0068/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0068 axe-core + Playwright a11y audit report with zero serious/critical findings.
 
 **Steps:**
+
 1. **[PLANNING]** Identify target pages (login, register, profile, password, reset).
 2. **[EXECUTION]** Run axe-core through Playwright.
 3. **[EXECUTION]** Fix flagged issues.
 4. **[VERIFICATION]** Re-run and capture report.
 
 **Acceptance Criteria:**
+
 - Zero serious/critical axe findings.
 - Keyboard tab order matches visual order.
 - Color contrast >=4.5:1 on primary text.
 - Report committed at evidence path.
 
 **Validation:**
+
 - Manual check: run axe-core CLI against staging.
 - Evidence: linkable artifact produced (a11y report html).
 
@@ -581,20 +629,24 @@ Checkpoint: Phase 4 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0069/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0069 Component tests for LoginPage, RegisterPage, ProfilePage, PasswordChangeForm, PasswordResetFlow, AuthGuard, LogoutControl.
 
 **Steps:**
+
 1. **[PLANNING]** Enumerate per-component test matrix.
 2. **[EXECUTION]** Author tests with Testing Library semantic queries.
 3. **[VERIFICATION]** Coverage threshold >=80% enforced.
 
 **Acceptance Criteria:**
+
 - Coverage >=80% for auth namespace.
 - Error + loading + happy path tested per component.
 - CI enforces threshold.
 - Report path recorded.
 
 **Validation:**
+
 - Manual check: run `vitest --coverage`.
 - Evidence: linkable artifact produced (coverage report).
 
@@ -624,20 +676,24 @@ Checkpoint: Phase 4 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0070/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0070 `frontend/e2e/refresh.spec.ts` Playwright scenario observing at least one /auth/refresh round-trip in 20m.
 
 **Steps:**
+
 1. **[PLANNING]** Use time-travel helper to fast-forward clock.
 2. **[EXECUTION]** Login, idle 14m, observe refresh, continue navigation.
 3. **[VERIFICATION]** Assert /auth/refresh response 200.
 
 **Acceptance Criteria:**
+
 - Scenario green with recorded refresh request.
 - No unexpected logout observed.
 - Network HAR file captured at evidence path.
 - Test runtime < 10 min in CI.
 
 **Validation:**
+
 - Manual check: `playwright test refresh.spec.ts`.
 - Evidence: linkable artifact produced (Playwright trace).
 
@@ -667,21 +723,25 @@ Checkpoint: Phase 4 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0071/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0071 `frontend/e2e/logout.spec.ts` asserting cookie + memory token cleared on logout.
 
 **Steps:**
+
 1. **[PLANNING]** Seed user; login via UI.
 2. **[EXECUTION]** Click LogoutControl; verify redirect to /login.
 3. **[EXECUTION]** Assert refresh cookie cleared via response headers.
 4. **[VERIFICATION]** Attempt reload and confirm /login remains.
 
 **Acceptance Criteria:**
+
 - Logout button visible post-login.
 - Click triggers POST /auth/logout 204.
 - Refresh cookie expired on response.
 - Reload stays on /login.
 
 **Validation:**
+
 - Manual check: `playwright test logout.spec.ts`.
 - Evidence: linkable artifact produced (Playwright trace).
 
@@ -725,20 +785,24 @@ Checkpoint: Phase 4 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0072/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0072 Analytics events emitted at RegisterPage lifecycle; consent-gated per GDPR.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm analytics SDK and consent check.
 2. **[EXECUTION]** Emit events with user-less props only.
 3. **[VERIFICATION]** Test fires events through mocked SDK.
 
 **Acceptance Criteria:**
+
 - Four events emitted: started, submitted, succeeded, failed.
 - No PII in event payload.
 - Events suppressed if consent not granted.
 - Event names documented in notes.md.
 
 **Validation:**
+
 - Manual check: unit test verifies emission sequence.
 - Evidence: linkable artifact produced (unit log).
 
@@ -768,21 +832,25 @@ Checkpoint: Phase 4 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0073/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0073 `/auth/logout` handler revoking refresh token and clearing cookie; 204 on success.
 
 **Steps:**
+
 1. **[PLANNING]** Decide all-sessions vs single-session default (committed default: single session).
 2. **[EXECUTION]** Read refresh token from cookie; revoke via TokenManager.revokeByFamily.
 3. **[EXECUTION]** Clear Set-Cookie with expired date.
 4. **[VERIFICATION]** Contract test 204.
 
 **Acceptance Criteria:**
+
 - 204 on success.
 - Refresh cookie cleared via Set-Cookie.
 - Redis entry revoked.
 - Audit event logout emitted.
 
 **Validation:**
+
 - Manual check: run contract test.
 - Evidence: linkable artifact produced (contract log).
 
@@ -812,21 +880,25 @@ Checkpoint: Phase 4 / Tasks 11-15
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0074/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0074 `frontend/src/components/LogoutControl.tsx` with accessible label and keyboard support.
 
 **Steps:**
+
 1. **[PLANNING]** Ensure consistent copy with header component.
 2. **[EXECUTION]** Implement button posting to /auth/logout + token clearing.
 3. **[EXECUTION]** Redirect to /login on success.
 4. **[VERIFICATION]** Component test covers keyboard activation.
 
 **Acceptance Criteria:**
+
 - Accessible label "Log out".
 - Keyboard Enter/Space triggers action.
 - On success redirect to /login.
 - 5xx shows toast + retries manually.
 
 **Validation:**
+
 - Manual check: component test + a11y audit.
 - Evidence: linkable artifact produced (vitest log).
 

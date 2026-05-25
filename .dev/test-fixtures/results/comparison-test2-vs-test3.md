@@ -28,6 +28,7 @@ All 9 artifacts demonstrate structural equivalence between Test 2 (spec in modif
 | wiring-verification.md | 16 | 16 | YES | 7 | 7 | YES | MATCH |
 
 Legend:
+
 - \* Test 3 has 4 additional subsections under Dependency Inventory (cosmetic organization difference)
 - \** Test 2 has 7 additional metadata fields (generated, generator, counts); core 3 fields match
 - \*** Test 3 has more granular subsections within phases (expected Haiku verbosity variation)
@@ -65,6 +66,7 @@ No structural differences were identified that cannot be explained by LLM non-de
 ## TDD Content Check
 
 Both runs were executed against the same non-TDD user-auth spec. Neither Test 2 nor Test 3 contains any TDD-specific content such as:
+
 - Data Models
 - API Specifications
 - Service Contracts
@@ -89,6 +91,7 @@ Both runs produced identical wiring-verification results (166 files analyzed, 7 
 ## Final Overall Verdict: PASS
 
 No unexpected structural differences found across any of the 9 artifacts. All differences are attributable to:
+
 1. LLM non-determinism in content and formatting (expected)
 2. Downstream cascading from different LLM choices in upstream artifacts (expected)
 3. Deterministic equivalence for codebase-derived artifacts (confirmed)

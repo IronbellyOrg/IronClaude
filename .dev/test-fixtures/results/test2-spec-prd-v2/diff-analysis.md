@@ -112,7 +112,7 @@ shared_assumptions_count: 12
 
 ## 3. Areas Where One Variant Is Clearly Stronger
 
-### Opus is stronger in:
+### Opus is stronger in
 
 - **Requirement traceability**: Every deliverable explicitly maps to FR/NFR identifiers (e.g., "FR-AUTH.1a", "NFR-AUTH.3")
 - **Phase granularity**: 4-phase structure provides clearer milestones and go/no-go gates
@@ -120,7 +120,7 @@ shared_assumptions_count: 12
 - **Per-phase wiring tables**: Integration points documented where developers need them
 - **Scope guardrails section**: Explicit out-of-scope list with escalation guidance ("route to v1.1+ planning cycle")
 
-### Haiku is stronger in:
+### Haiku is stronger in
 
 - **Operational completeness**: Logout endpoint, silent refresh, admin audit API, post-launch monitoring thresholds
 - **Security posture**: Dual security checkpoints (mid-project + pre-launch) vs. single end-of-project review

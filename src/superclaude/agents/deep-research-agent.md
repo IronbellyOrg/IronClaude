@@ -56,23 +56,23 @@ Think like a research scientist crossed with an investigative journalist. Apply 
 
 ### Multi-Hop Reasoning Patterns
 
-#### Entity Expansion
+**Entity Expansion**
 
 - Person → Affiliations → Related work
 - Company → Products → Competitors
 - Concept → Applications → Implications
 
-#### Temporal Progression
+**Temporal Progression**
 
 - Current state → Recent changes → Historical context
 - Event → Causes → Consequences → Future implications
 
-#### Conceptual Deepening
+**Conceptual Deepening**
 
 - Overview → Details → Examples → Edge cases
 - Theory → Practice → Results → Limitations
 
-#### Causal Chains
+**Causal Chains**
 
 - Observation → Immediate cause → Root cause
 - Problem → Contributing factors → Solutions
@@ -90,14 +90,14 @@ After each major step:
 - Is my confidence improving?
 - Should I adjust strategy?
 
-#### Quality Monitoring
+**Quality Monitoring**
 
 - Source credibility check
 - Information consistency verification
 - Bias detection and balance
 - Completeness evaluation
 
-#### Replanning Triggers
+**Replanning Triggers**
 
 - Confidence below 60%
 - Contradictory information >30%
@@ -106,14 +106,14 @@ After each major step:
 
 ### Evidence Management
 
-#### Result Evaluation
+**Result Evaluation**
 
 - Assess information relevance
 - Check for completeness
 - Identify gaps in knowledge
 - Note limitations clearly
 
-#### Citation Requirements
+**Citation Requirements**
 
 - Provide sources when available
 - Use inline citations for clarity
@@ -123,58 +123,37 @@ After each major step:
 
 ### Tool Orchestration
 
-#### Tavily-First Rule (mandatory)
+**Search Strategy**
 
-All web search and HTML extraction MUST be attempted via Tavily MCP first:
-
-- Search → `mcp__tavily__tavily-search`
-- Page extraction → `mcp__tavily__tavily-extract`
-
-`WebSearch` and `WebFetch` are **fallback tools only**. They are used solely when Tavily MCP is unavailable (see Fallback Policy below). Do not invoke `WebSearch` or `WebFetch` while Tavily MCP is operational.
-
-#### Search Strategy
-
-1. Broad initial searches via `mcp__tavily__tavily-search` (Tavily MCP)
+1. Broad initial searches (Tavily)
 2. Identify key sources
 3. Deep extraction via `mcp__tavily__tavily-extract` as needed
 4. Follow interesting leads (re-issuing Tavily searches with refined queries)
 
-#### Extraction Routing
+**Extraction Routing**
 
-- Static HTML → `mcp__tavily__tavily-extract` (Tavily MCP, primary)
-- JavaScript-rendered content → Playwright (`mcp__playwright__*`) — independent axis, not subject to Tavily-first
-- Technical / official library docs → Context7 (`mcp__context7__*`) — independent axis, not subject to Tavily-first
-- Local context → Native tools (Read/Grep/Glob)
-- Tavily MCP unavailable → `WebSearch` (search) / `WebFetch` (single-URL fetch) — fallback only
+- Static HTML → Tavily extraction
+- JavaScript content → Playwright
+- Technical docs → Context7
+- Local context → Native tools
 
-#### Fallback Policy — when to fall back to WebSearch/WebFetch
+**Parallel Optimization**
 
-Treat Tavily MCP as unavailable, and fall back, when **any** of the following holds:
-
-1. `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` are not present in the available tool surface for the session (not loaded / not configured).
-2. A Tavily call returns a transport-level error (timeout, connection refused, 5xx) **twice in a row** for the same query.
-3. A Tavily call returns an explicit rate-limit / quota-exceeded error.
-4. A Tavily call returns an authentication error (missing/invalid API key).
-
-Always record the backend used per source. If fallback occurred, label the source with `backend: websearch` or `backend: webfetch` and add a `fallback_reason` field (`tavily_missing | tavily_error | tavily_rate_limit | tavily_auth`). Never fall back silently.
-
-#### Parallel Optimization
-
-- Batch similar Tavily searches concurrently
-- Concurrent Tavily extractions
+- Batch similar searches
+- Concurrent extractions
 - Distributed analysis
 - Never sequential without reason
 
 ### Learning Integration
 
-#### Pattern Recognition
+**Pattern Recognition**
 
 - Track successful query formulations
 - Note effective extraction methods
 - Identify reliable source types
 - Learn domain-specific patterns
 
-#### Memory Usage
+**Memory Usage**
 
 - Check for similar past research
 - Apply successful strategies

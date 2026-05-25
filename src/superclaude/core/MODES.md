@@ -15,6 +15,7 @@ Three primary modes for optimal performance:
 # Task Management Mode
 
 ## Core Principles
+
 - Evidence-Based Progress: Measurable outcomes
 - Single Focus Protocol: One active task at a time
 - Real-Time Updates: Immediate status changes
@@ -23,31 +24,37 @@ Three primary modes for optimal performance:
 ## Architecture Layers
 
 ### Layer 1: TodoRead/TodoWrite (Session Tasks)
+
 - **Scope**: Current Claude Code session
 - **States**: pending, in_progress, completed, blocked
 - **Capacity**: 3-20 tasks per session
 
 ### Layer 2: /task Command (Project Management)
+
 - **Scope**: Multi-session features (days to weeks)
 - **Structure**: Hierarchical (Epic → Story → Task)
 - **Persistence**: Cross-session state management
 
 ### Layer 3: /spawn Command (Meta-Orchestration)
+
 - **Scope**: Complex multi-domain operations
 - **Features**: Parallel/sequential coordination, tool management
 
 ### Layer 4: /loop Command (Iterative Enhancement)
+
 - **Scope**: Progressive refinement workflows
 - **Features**: Iteration cycles with validation
 
 ## Task Detection and Creation
 
 ### Automatic Triggers
+
 - Multi-step operations (3+ steps)
 - Keywords: build, implement, create, fix, optimize, refactor
 - Scope indicators: system, feature, comprehensive, complete
 
 ### Task State Management
+
 - **pending** 📋: Ready for execution
 - **in_progress** 🔄: Currently active (ONE per session)
 - **blocked** 🚧: Waiting on dependency
@@ -76,10 +83,12 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 ## Activation
 
 ### Manual Activation
+
 - **Primary Flag**: `--introspect` or `--introspection`
 - **Context**: User-initiated framework analysis and troubleshooting
 
 ### Automatic Activation
+
 1. **Self-Analysis Requests**: Direct requests to analyze reasoning or decision-making
 2. **Complex Problem Solving**: Multi-step problems requiring meta-cognitive oversight
 3. **Error Recovery**: When outcomes don't match expectations or errors occur
@@ -100,22 +109,26 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 | 💡 | Retrospective Insight | Success/failure analysis | Outcome assessment, learnings |
 
 ## Communication Style
+
 - **Analytical**: Self-reflective, evidence-based, transparent, systematic
 - **Meta-Cognitive**: Process-aware, pattern-recognizing, learning-oriented, honestly self-assessing
 
 ## Common Issues & Troubleshooting
 
 ### Performance Issues
+
 - **Symptoms**: Slow execution, high resource usage, suboptimal outcomes
 - **Analysis**: Tool selection patterns, persona activation, MCP coordination
 - **Solutions**: Optimize tool combinations, enable automation, implement parallel processing
 
 ### Quality Issues
+
 - **Symptoms**: Incomplete validation, missing evidence, poor outcomes
 - **Analysis**: Quality gate compliance, validation cycle completion, evidence collection
 - **Solutions**: Enforce validation cycle, implement testing, ensure documentation
 
 ### Framework Confusion
+
 - **Symptoms**: Unclear usage patterns, suboptimal configuration, poor integration
 - **Analysis**: Framework knowledge gaps, pattern inconsistencies, configuration effectiveness
 - **Solutions**: Provide education, demonstrate patterns, guide improvements
@@ -131,6 +144,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 **Primary Directive**: "Evidence-based efficiency | Adaptive intelligence | Performance within quality bounds"
 
 **Enhanced Principles**:
+
 - **Intelligent Adaptation**: Context-aware compression based on task complexity, persona domain, and user familiarity
 - **Evidence-Based Optimization**: All compression techniques validated with metrics and effectiveness tracking
 - **Quality Preservation**: ≥95% information preservation with <100ms processing time
@@ -140,6 +154,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 ## Symbol System
 
 ### Core Logic & Flow
+
 | Symbol | Meaning | Example |
 |--------|---------|----------|
 | → | leads to, implies | `auth.js:45 → security risk` |
@@ -157,6 +172,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 | ≠ | not equal | `actual ≠ expected` |
 
 ### Status & Progress
+
 | Symbol | Meaning | Action |
 |--------|---------|--------|
 | ✅ | completed, passed | None |
@@ -171,6 +187,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 | 💡 | insight, learning | Apply |
 
 ### Technical Domains
+
 | Symbol | Domain | Usage |
 |--------|---------|-------|
 | ⚡ | Performance | Speed, optimization |
@@ -187,6 +204,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 ## Abbreviations
 
 ### System & Architecture
+
 - `cfg` configuration, settings
 - `impl` implementation, code structure
 - `arch` architecture, system design
@@ -195,6 +213,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 - `env` environment, runtime context
 
 ### Development Process
+
 - `req` requirements, dependencies
 - `deps` dependencies, packages
 - `val` validation, verification
@@ -203,6 +222,7 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 - `std` standards, conventions
 
 ### Quality & Analysis
+
 - `qual` quality, maintainability
 - `sec` security, safety measures
 - `err` error, exception handling
@@ -215,12 +235,14 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 **Evidence-based compression engine** achieving 30-50% realistic token reduction with framework integration.
 
 ### Activation Strategy
+
 - **Manual**: `--uc` flag, user requests brevity
 - **Automatic**: Dynamic thresholds based on persona and context
 - **Progressive**: Adaptive compression levels (minimal → emergency)
 - **Quality-Gated**: Validation against information preservation targets
 
 ### Enhanced Techniques
+
 - **Persona-Aware Symbols**: Domain-specific symbol selection based on active persona
 - **Context-Sensitive Abbreviations**: Intelligent abbreviation based on user familiarity and technical domain
 - **Structural Optimization**: Advanced formatting for token efficiency
@@ -230,7 +252,9 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 ## Advanced Token Management
 
 ### Intelligent Compression Strategies
+
 **Adaptive Compression Levels**:
+
 1. **Minimal** (0-40%): Full detail, persona-optimized clarity
 2. **Efficient** (40-70%): Balanced compression with domain awareness
 3. **Compressed** (70-85%): Aggressive optimization with quality gates
@@ -238,12 +262,14 @@ Meta-cognitive analysis mode that enables Claude Code to step outside normal ope
 5. **Emergency** (95%+): Ultra-compression with information validation
 
 ### Framework Integration
+
 - **Wave Coordination**: Real-time token monitoring with <100ms decisions
 - **Persona Intelligence**: Domain-specific compression strategies (architect: clarity-focused, performance: efficiency-focused)
 - **Quality Gates**: Steps 2.5 & 7.5 compression validation in 10-step cycle
 - **Evidence Tracking**: Compression effectiveness metrics and continuous improvement
 
 ### MCP Optimization & Caching
+
 See MCP.md §Caching Strategies for per-server caching details. Target: 30-50% token reduction, ≥95% information preservation, <100ms decision time.
 
 ---

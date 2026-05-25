@@ -103,6 +103,7 @@ The FCE identifies high-risk code by finding where multiple independent analysis
 ### 3.1 TheAuditor
 
 Three detection methods:
+
 1. **Isolated modules**: Files with no import edges in the module graph
 2. **Dead symbols**: Functions/classes with zero callers in the call graph
 3. **Ghost imports**: Imported symbols that are never referenced after import
@@ -114,6 +115,7 @@ Confidence levels: HIGH, MEDIUM, LOW. Notes that manual review is needed for ent
 ### 3.2 SuperClaude
 
 Detection via `dead_code.py` using the 3-tier dependency graph:
+
 1. Files with exports that have **zero Tier-A importers** AND **zero Tier-B references**
 2. Exclusions for entry points (16 patterns: `__main__`, `app.py`, `manage.py`, etc.)
 3. Exclusions for framework hooks (12 patterns: `pytest_`, `middleware`, `celery`, etc.)
@@ -139,6 +141,7 @@ Detection via `dead_code.py` using the 3-tier dependency graph:
 ### 4.1 TheAuditor (Has It)
 
 Full taint analysis engine with:
+
 - **Algorithm**: IFDS backward worklist with predecessor resolution (dual direction)
 - **Field sensitivity**: Access path tracking
 - **Vulnerability classes**: 18+ including SQL injection, command injection, XSS, path traversal
@@ -151,6 +154,7 @@ Full taint analysis engine with:
 ### 4.2 SuperClaude (Does Not Have It)
 
 SuperClaude has no taint analysis capability. The closest analogs are:
+
 - **Credential scanner** (`credential_scanner.py`): Pattern-based detection of hardcoded secrets (10 patterns: AWS keys, GitHub tokens, Slack tokens, Stripe keys, private keys, generic passwords/tokens)
 - **Placeholder exclusion**: Distinguishes real secrets from `${VAR}`, `<YOUR_KEY>`, `os.environ.get()` patterns
 
@@ -159,6 +163,7 @@ This is secret detection, not data flow taint analysis. It cannot track how untr
 ### 4.3 Gap Analysis
 
 SuperClaude lacks:
+
 - Source-to-sink data flow tracking
 - Interprocedural taint propagation
 - Sanitizer detection
@@ -215,6 +220,7 @@ This is the single largest capability gap between the two systems.
 ### 6.1 TheAuditor
 
 Designed explicitly as a tool for AI agents:
+
 - **Slash commands**: `/onboard`, `/theauditor:planning`, `/theauditor:security`, `/theauditor:impact`
 - **Deterministic queries**: `aud query --symbol authenticate --show-callers` returns exact database results
 - **Token efficiency**: Targeted queries instead of broad file reading
@@ -224,6 +230,7 @@ Designed explicitly as a tool for AI agents:
 ### 6.2 SuperClaude
 
 Built as part of an AI agent framework:
+
 - **CLI pipeline**: `superclaude audit` orchestrates the full pipeline
 - **Sub-agent dispatch**: Haiku and Sonnet agents dispatched per batch
 - **Slash commands**: Part of the broader SuperClaude command system
@@ -289,6 +296,7 @@ TheAuditor produces richer, more varied output formats (NDJSON journals, ML mode
 ### 9.1 TheAuditor
 
 **Pros**:
+
 1. **Database-first architecture** enables arbitrary post-hoc queries; analysis facts persist beyond the current session
 2. **Four-vector convergence** provides mathematically grounded risk scoring with no subjective weighting
 3. **Full taint analysis** with IFDS algorithm, 18+ vulnerability classes, sanitizer detection
@@ -301,6 +309,7 @@ TheAuditor produces richer, more varied output formats (NDJSON journals, ML mode
 10. **Impact analysis** with blast radius calculation before changes
 
 **Cons**:
+
 1. **Heavy setup overhead**: Initial `aud full` takes 1-10 minutes; not suited for quick one-off scans
 2. **Large database sizes**: 50-500MB+ for `repo_index.db` alone
 3. **Python 3.14+ requirement** limits adoption (PEP 649 dependency for taint annotations)
@@ -315,6 +324,7 @@ TheAuditor produces richer, more varied output formats (NDJSON journals, ML mode
 ### 9.2 SuperClaude Audit Pipeline
 
 **Pros**:
+
 1. **Evidence-gated classifications** prevent false positives; every DELETE requires zero-reference proof
 2. **Multi-agent architecture** leverages LLM capabilities (Haiku for speed, Sonnet for depth) without custom ML training
 3. **Dynamic import safety** explicitly protects dynamically-loaded files from false DELETE
@@ -329,6 +339,7 @@ TheAuditor produces richer, more varied output formats (NDJSON journals, ML mode
 12. **Budget-aware execution** with token cost management
 
 **Cons**:
+
 1. **No taint analysis**: Cannot track untrusted data flow through function calls
 2. **File-level granularity only**: Dead code detection operates on files, not symbols
 3. **Shallow parsing**: Default analyzer is line-based pattern matching, not AST-based
@@ -351,6 +362,7 @@ TheAuditor produces richer, more varied output formats (NDJSON journals, ML mode
 **What TheAuditor does**: Every analysis result is stored in SQLite tables. Post-analysis, any question can be answered with a SQL query without re-scanning.
 
 **What SuperClaude should adopt**:
+
 - Replace or supplement in-memory dataclasses with a lightweight SQLite layer
 - Store `FileAnalysis`, `ClassificationResult`, `DependencyEdge`, `DeadCodeCandidate` in tables
 - Enable ad-hoc queries: "show me all files classified DELETE with confidence < 0.80"
@@ -358,6 +370,7 @@ TheAuditor produces richer, more varied output formats (NDJSON journals, ML mode
 - Use recursive CTEs for transitive dependency queries instead of Python graph traversal
 
 **Implementation sketch**: Add a `storage.py` module with:
+
 ```python
 class AuditDatabase:
     """SQLite-backed persistent storage for audit results."""
@@ -381,12 +394,14 @@ class AuditDatabase:
 **What TheAuditor does**: IFDS backward worklist algorithm tracking untrusted data from sources (user input, HTTP params) to sinks (SQL queries, shell commands, file writes) with sanitizer detection.
 
 **What SuperClaude should adopt**:
+
 - Start with a simplified version: regex-based source/sink detection per file
 - Phase 2: Interprocedural taint tracking using the existing dependency graph
 - Phase 3: Framework-aware strategies (Django ORM, Flask routes, Express middleware)
 - Integrate with existing credential scanner as the "secret source" detection layer
 
 **Minimum viable taint**:
+
 1. Define source patterns (request params, user input, file reads)
 2. Define sink patterns (SQL execution, subprocess calls, file writes)
 3. Flag files containing both sources and sinks as TAINT:investigate
@@ -397,6 +412,7 @@ class AuditDatabase:
 **What TheAuditor does**: Combines STATIC + STRUCTURAL + PROCESS + FLOW vectors, scoring density as `vectors_present / 4`.
 
 **What SuperClaude can adapt**:
+
 - SuperClaude already has elements of 3 vectors:
   - STATIC: credential scanning, pattern matching
   - STRUCTURAL: 8-field profiles (complexity, coupling)
@@ -433,16 +449,19 @@ class AuditDatabase:
 ## 11. Strategic Recommendations
 
 ### Short-term (Next Release)
+
 1. Add SQLite persistence layer for audit results
 2. Integrate Ruff as a static analysis vector
 3. Add convergence scoring across existing analysis dimensions
 
 ### Medium-term (2-3 Releases)
+
 4. Implement basic taint analysis (source/sink pattern matching)
 5. Extend dead code detection to symbol level for Python
 6. Add manifest/receipt verification for pipeline integrity
 
 ### Long-term (Future)
+
 7. Interprocedural taint analysis with framework strategies
 8. Impact analysis with blast radius calculation
 9. ML feature extraction from accumulated audit data
@@ -453,9 +472,9 @@ class AuditDatabase:
 
 | Source | Type | URL |
 |--------|------|-----|
-| TheAuditor GitHub README | Primary | https://github.com/TheAuditorTool/Auditor |
-| TheAuditor Architecture.md | Primary | https://github.com/TheAuditorTool/Auditor/blob/main/Architecture.md |
-| HN Discussion | Secondary | https://news.ycombinator.com/item?id=45165897 |
+| TheAuditor GitHub README | Primary | <https://github.com/TheAuditorTool/Auditor> |
+| TheAuditor Architecture.md | Primary | <https://github.com/TheAuditorTool/Auditor/blob/main/Architecture.md> |
+| HN Discussion | Secondary | <https://news.ycombinator.com/item?id=45165897> |
 | SuperClaude `cli/audit/` source | Primary | Local codebase: `src/superclaude/cli/audit/` (43 modules) |
 | SuperClaude `classification.py` | Primary | Local: evidence-gated two-tier classification |
 | SuperClaude `dependency_graph.py` | Primary | Local: 3-tier dependency graph |

@@ -81,6 +81,7 @@ verified_against_code:
 ### Living Document Contract
 
 This document MUST be updated when:
+
 - A component is added, removed, or significantly refactored
 - A subsystem's behavior, data flow, or interface changes
 - New conventions or patterns are introduced to the feature
@@ -92,6 +93,7 @@ This document MUST be updated when:
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [ ] Section 1: Overview — **Status**
 - [ ] Section 2: Architecture — **Status**
 - [ ] Section 3: Directory Structure — **Status**
@@ -265,6 +267,7 @@ flowchart LR
 > **This is the core of the Technical Reference.** Each subsystem gets its own subsection with enough detail that a developer or AI agent can understand it without reading every source file.
 >
 > **For each subsystem, document:**
+>
 > - What it does (purpose)
 > - How it works (mechanism)
 > - Where the code lives (files)
@@ -697,6 +700,7 @@ Setting | Purpose | Default | Impact. Reference the actual file path for the com
 -->
 
 > **See also:**
+>
 > - [prd_template.md](prd_template.md) — Product requirements template
 > - [tdd_template.md](tdd_template.md) — Technical design specifications template
 

@@ -10,6 +10,7 @@ tasklist_ready: true
 ## Deviation Report
 
 ### DEV-001
+
 - **Severity**: MEDIUM
 - **Deviation**: Roadmap milestone structure diverges from spec's downstream guidance of two milestones.
 - **Source Quote**: "The authentication service introduces a single theme ('Secure User Authentication') spanning two milestones: (1) Core Auth Infrastructure (password hashing, JWT signing, token management) and (2) Auth API Endpoints (login, register, refresh, profile, reset). Each milestone maps directly to the implementation order in Section 4.6."
@@ -18,6 +19,7 @@ tasklist_ready: true
 - **Recommended Correction**: Either consolidate M1/M2 and M4/M5 into the two-milestone structure per spec guidance, or document in roadmap rationale why a five-milestone expansion was preferred (risk front-loading, NFR/release gating).
 
 ### DEV-002
+
 - **Severity**: MEDIUM
 - **Deviation**: Spec's two-phase rollout (opt-in then mandatory) is not mapped to roadmap tasks.
 - **Source Quote**: "Authentication will be opt-in during phase 1, required for protected endpoints in phase 2."
@@ -26,6 +28,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add explicit tasks (or split FF-001) for Phase 1 opt-in enablement and Phase 2 enforcement of authentication on protected endpoints, with acceptance criteria keyed to those two states.
 
 ### DEV-003
+
 - **Severity**: MEDIUM
 - **Deviation**: bcrypt cost factor verification timing band widened beyond spec's stated target.
 - **Source Quote**: "bcrypt cost factor 12 (approx. 250ms per hash) | Unit test verifying cost factor; benchmark test for hash timing"
@@ -34,6 +37,7 @@ tasklist_ready: true
 - **Recommended Correction**: Tighten SEC-001 acceptance criterion to center on ~250ms (e.g., 225-275ms) or document the rationale for the wider band and explicitly gate on NFR-AUTH.3 compliance.
 
 ### DEV-004
+
 - **Severity**: LOW
 - **Deviation**: Module dependency graph in spec places `auth-middleware` above `auth-service`, implying middleware consumes service directly; roadmap places middleware consuming only TokenManager.
 - **Source Quote**: "auth-middleware.ts | v | auth-service.ts | / \\ | token-manager.ts   password-hasher.ts"
@@ -42,6 +46,7 @@ tasklist_ready: true
 - **Recommended Correction**: Either update COMP-005 to depend on COMP-001 (AuthService) per spec diagram, or amend roadmap rationale documenting that middleware consumes TokenManager directly for token verification (a reasonable optimization).
 
 ### DEV-005
+
 - **Severity**: LOW
 - **Deviation**: Spec explicitly states no CLI surface; roadmap does not restate this constraint.
 - **Source Quote**: "The authentication service does not expose a CLI interface. All interactions occur through the REST API endpoints defined in the functional requirements."
@@ -50,6 +55,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add a one-line note in Decision Summary or M3 scope clarifying that no CLI surface is produced; all interfaces are REST.
 
 ### DEV-006
+
 - **Severity**: LOW
 - **Deviation**: Spec data flow diagram shows TokenManager invoking JwtService for both access and refresh token signing; roadmap's CRYPTO-002 stores refresh tokens as SHA-256 hashes (opaque), not JWT-signed.
 - **Source Quote**: "TokenManager | -- sign JWT --> | <--- access_token --- | -- sign refresh ----> | <--- refresh_token ---"
@@ -58,6 +64,7 @@ tasklist_ready: true
 - **Recommended Correction**: No roadmap change required; flag the spec diagram inconsistency for spec-level correction in a future revision (refresh is opaque, not JWT).
 
 ### DEV-007
+
 - **Severity**: LOW
 - **Deviation**: Spec RISK-3 mitigation lists three specific items; roadmap risk register condenses them.
 - **Source Quote**: "Make cost factor configurable; review annually against OWASP recommendations; migration path to Argon2id if needed"

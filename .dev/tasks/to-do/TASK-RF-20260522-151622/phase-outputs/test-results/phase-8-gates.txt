@@ -1,0 +1,8 @@
+Phase 8 grep gate results
+=========================
+FIELD-PRESENT OK
+SNAKE-CASE-REF FAIL (informational — expected: human-titled field is sufficient; SKILL.md uses the snake_case identifier)
+ADJACENT OK
+
+Required checks (1) and (3) PASS.
+Check (2) is informational only per task spec; the human-titled `**Consistency with docs**` field with enum values is sufficient.

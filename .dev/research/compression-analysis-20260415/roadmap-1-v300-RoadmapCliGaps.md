@@ -23,7 +23,7 @@
 | Code fence delimiters (```` ``` ````) | 70 (→ 35 code blocks) |
 | Code block content bytes | 18,214 (24.9% of bytes) |
 | Horizontal-rule lines (`^---$`) | 18 |
-| Bullet lines (`^[-*] `) | 84 |
+| Bullet lines (`^[-*]`) | 84 |
 | Trailing-whitespace lines | 0 (already clean) |
 | Triple-blank runs | 0 (already normalized) |
 | Emoji in headings | 0 |
@@ -104,6 +104,7 @@ Each strategy is numbered, cites the primer, shows a real before/after snippet f
 **Lossless**: Yes (pure whitespace inside pipe cells).
 
 **Before** (lines 8-12):
+
 ```
 | Location | Enum Values | Role |
 |----------|-------------|------|
@@ -112,6 +113,7 @@ Each strategy is numbered, cites the primer, shows a real before/after snippet f
 ```
 
 **After** (column separators tightened, rule row shrunk):
+
 ```
 |Location|Enum Values|Role|
 |-|-|-|
@@ -132,6 +134,7 @@ Each strategy is numbered, cites the primer, shows a real before/after snippet f
 **Lossless**: Yes (headings already delimit the sections; rules are purely visual).
 
 **Before** (lines 432-435):
+
 ```
 ...change 2. The semantic check in Change 2 provides a regression safety net.
 
@@ -141,6 +144,7 @@ Each strategy is numbered, cites the primer, shows a real before/after snippet f
 ```
 
 **After**:
+
 ```
 ...change 2. The semantic check in Change 2 provides a regression safety net.
 
@@ -160,21 +164,25 @@ Each strategy is numbered, cites the primer, shows a real before/after snippet f
 **Lossless**: Yes (reversible via header).
 
 **Proposed header** (one line, ~200 bytes, amortizes across hundreds of body uses):
+
 ```markdown
 <!-- cmd-dsl v1: [cc]=complexity_class [fm]=frontmatter [em]=extraction_mode [dd]=domains_detected [ir]=interleave_ratio [vm]=validation_milestones [wm]=work_milestones [vp]=validation_philosophy [mip]=major_issue_policy [EG]=EXTRACT_GATE [TSG]=TEST_STRATEGY_GATE [SC]=SemanticCheck [CLI/]=src/superclaude/cli/roadmap/ [T/]=tests/roadmap/ [P/]=src/superclaude/skills/sc-roadmap-protocol/refs/ -->
 ```
 
 **Before** (line 14):
+
 ```
 The source protocol's milestone count table maps `LOW`, `MEDIUM`, `HIGH` to specific milestone ranges (3-4, 5-7, 8-12). When the CLI prompt tells the LLM to emit `simple`, `moderate`, `complex`, or `enterprise`, no downstream code or template logic can match those values to the protocol's decision tables. The gate (`EXTRACT_GATE` in `gates.py`) only checks that `complexity_class` is present in frontmatter -- it does not validate the value itself.
 ```
 
 **After** (with abbreviations applied):
+
 ```
 The source protocol's milestone count table maps `LOW`, `MEDIUM`, `HIGH` to specific milestone ranges (3-4, 5-7, 8-12). When the CLI prompt tells the LLM to emit `simple`, `moderate`, `complex`, or `enterprise`, no downstream code or template logic can match those values to the protocol's decision tables. The gate ([EG] in CLI/gates.py) only checks that [cc] is present in [fm] -- it does not validate the value itself.
 ```
 
 **Estimated saving for this file**:
+
 - `complexity_class` (79×) → `[cc]` saves (16−4)×79 ≈ 948 bytes
 - `frontmatter` (74×) → `[fm]` saves (11−4)×74 ≈ 518 bytes
 - `extraction_mode` (35×) → `[em]` saves (15−4)×35 ≈ 385 bytes
@@ -192,6 +200,7 @@ The source protocol's milestone count table maps `LOW`, `MEDIUM`, `HIGH` to spec
 **Gross body savings**: ~4,485 bytes. **Header cost**: ~200 bytes. **Net**: ~**4,285 bytes (~5.9%)**. This is the single largest lever for this file.
 
 **Risks**:
+
 - Many occurrences are inside **code fences** (e.g., `_parse_frontmatter`, field names in YAML examples). The primer is explicit (§5 rule 2, §4.1 risks): code fences are sacrosanct. The substitution must only apply to prose regions. A rule-based pass cannot safely do this; only an AST-aware pass (Approach 2) can fence-gate the substitution. **This strategy is strictly Approach 2, not Approach 1.**
 - `_parse_frontmatter` is function identifier inside Python fences — excluded from substitution.
 - Abbreviation collisions: `[SC]` vs literal SuperClaude abbreviation — mitigated by using bracketed forms that do not appear in the source.
@@ -206,16 +215,20 @@ The source protocol's milestone count table maps `LOW`, `MEDIUM`, `HIGH` to spec
 **Lossless**: Yes for intra-document anchors; lossy-to-humans for cross-file line references (see Risks).
 
 **Before** — The same line references are stated in the proposal and then re-stated verbatim in the Validation Result. Example: lines 88, 213:
+
 ```
 Line 88 of prompts.py:
 "- complexity_class: (string) one of: simple, moderate, complex, enterprise\n"
 ```
+
 ...then in the validation section (line 213):
+
 ```
 - `prompts.py:88` -- confirmed: `"- complexity_class: (string) one of: simple, moderate, complex, enterprise\n"`
 ```
 
 **After** — in the validation section, collapse the re-quoted code to an anchor reference:
+
 ```
 - `prompts.py:88` -- confirmed (matches Change 1 Before block)
 ```
@@ -223,6 +236,7 @@ Line 88 of prompts.py:
 **Estimated saving for this file**: Each of the 5 gaps has a Validation Result section that re-quotes code/line references already shown in the body. Rough count: ~15 re-quoted snippets × ~90 bytes each ≈ **~1,350 bytes (~1.8%)**.
 
 **Risks**:
+
 - Human readers lose the convenience of "self-contained validation section". For a validated-and-archived doc this is acceptable; for an in-flight proposal it is lossy-to-workflow.
 - Anchors must be stable (heading IDs) — the primer flags this as a "can break navigation for humans" risk.
 
@@ -235,6 +249,7 @@ Line 88 of prompts.py:
 **Lossless**: Yes.
 
 Each `### Change N` block uses the same boilerplate pattern:
+
 ```
 **File**: `src/superclaude/cli/roadmap/prompts.py`
 **Line**: 88
@@ -243,44 +258,55 @@ Replace:
 ```python
 <snippet>
 ```
+
 With:
+
 ```python
 <snippet>
 ```
 
 **Risk**: LOW. This only changes the LLM instruction...
+
 ```
 
 Counted: `**File**:` 14×, `**Line**:` 3×, `**Risk**:` 4×, `**Rationale**:` 2×, plus repeated `Replace:`/`With:` structural labels.
 
 **Before** (lines 84-98):
 ```
+
 ### Change 1: Fix the extract prompt enum (prompts.py:88)
 
 **File**: `src/superclaude/cli/roadmap/prompts.py`
 **Line**: 88
 
 Replace:
+
 ```python
 "- complexity_class: (string) one of: simple, moderate, complex, enterprise\n"
 ```
+
 With:
+
 ```python
 "- complexity_class: (string) one of: LOW, MEDIUM, HIGH\n"
 ```
 
 **Risk**: LOW. This only changes the LLM instruction.
+
 ```
 
 **After** (single-line header collapses file+line; diff-style code block collapses replace/with):
 ```
+
 ### Change 1: Fix extract prompt enum — CLI/prompts.py:88
 
 ```diff
 -"- complexity_class: (string) one of: simple, moderate, complex, enterprise\n"
 +"- complexity_class: (string) one of: LOW, MEDIUM, HIGH\n"
 ```
+
 Risk: LOW. Only changes the LLM instruction.
+
 ```
 
 **Estimated saving for this file**: ~15 Change sub-sections × ~70 bytes of boilerplate elision ≈ **~1,050 bytes (~1.4%)**.
@@ -299,18 +325,23 @@ Risk: LOW. Only changes the LLM instruction.
 
 **Before** (lines 70-81):
 ```
+
 **The protocol's `LOW|MEDIUM|HIGH` must win.** Rationale:
 
 1. **Source of truth**: `templates.md` is the canonical reference document loaded during Waves 2-3. It defines the decision tables that consume `complexity_class`.
 
 2. **Downstream coupling**: Milestone count selection, interleave ratios, and effort estimation all key on `LOW|MEDIUM|HIGH`. The CLI's `simple|moderate|complex|enterprise` set has zero downstream consumers.
+
 ```
 
 **After** (blank-line separators between list items removed):
 ```
+
 **The protocol's `LOW|MEDIUM|HIGH` must win.** Rationale:
+
 1. **Source of truth**: `templates.md` is the canonical reference document loaded during Waves 2-3. It defines the decision tables that consume `complexity_class`.
 2. **Downstream coupling**: Milestone count selection, interleave ratios, and effort estimation all key on `LOW|MEDIUM|HIGH`. The CLI's `simple|moderate|complex|enterprise` set has zero downstream consumers.
+
 ```
 
 **Estimated saving for this file**: The file has many numbered/bulleted lists with blank-line separators. Rough count: 84 bullets + ~60 enumerated list items, of which ~90 are immediately preceded by a blank line that is semantically redundant. ~90 × ~1 byte + normalization of paragraph structure ≈ **~250 bytes (~0.3%)**.
@@ -331,6 +362,7 @@ Every gap proposal has a ~40-80 line `## Validation Result` section that restate
 
 **Before** (lines 205-249, 44 lines of Validation Result for Gap #1):
 ```
+
 ## Validation Result
 
 **Reviewed**: 2026-03-18 | **Verdict**: PASS with minor clarifications noted below.
@@ -344,13 +376,16 @@ All line numbers verified against current source:
 - `release-spec-template.md:28` -- confirmed: `complexity_class: {{SC_PLACEHOLDER:simple_or_moderate_or_high}}`
 - `tests/roadmap/test_pipeline_integration.py:86` -- confirmed: `"complexity_class": "moderate"`
 ...
+
 ### Completeness Assessment
 
 The change set is **complete**. Exhaustive codebase search for `complexity_class` in `src/superclaude/` found exactly the touchpoints listed in the proposal...
+
 ```
 
 **After** (collapse to a single verification table + bullet list of clarifications):
 ```
+
 ## Validation (2026-03-18, PASS)
 
 Line refs verified: prompts.py:88, gates.py:523-541, release-spec-template.md:28, T/test_pipeline_integration.py:86, T/test_executor.py:102, T/test_integration_v5_pipeline.py:91.
@@ -358,9 +393,11 @@ Line refs verified: prompts.py:88, gates.py:523-541, release-spec-template.md:28
 Completeness: exhaustive `complexity_class` search in CLI/ matches proposal touchpoints; no additional Python consumers.
 
 Clarifications (non-blocking):
+
 1. Change 5 must import `_complexity_class_valid` in T/test_gates_data.py
 2. Add `test_generate_gates_have_semantic_checks`-analogue for EG
 3. Coordinate with Gap-4 to share `_complexity_class_valid` definition
+
 ```
 
 **Estimated saving for this file**: Across the 5 Validation Result sections (roughly 44+55+60+10+40 = ~210 lines of narrative), compaction to fact-dense bullet form removes ~60-65% of the prose. ~210 lines × 49 bytes × 0.62 ≈ **~6,380 bytes (~8.7%)**.
@@ -382,16 +419,20 @@ The file has 5 copies of `## Problem Statement`, 4 of `## Risk Assessment`, 5 of
 
 **Before** (H1 at line 1, H2 at line 3):
 ```
+
 # Gap #1: `complexity_class` Enum Mismatch -- Implementation Proposal
 
 ## Problem Statement
+
 ```
 
 **After**:
 ```
+
 # Gap #1: `complexity_class` Enum Mismatch
 
 ## Problem
+
 ```
 
 **Estimated saving for this file**: Removing `-- Implementation Proposal` suffix from 5 H1s (~25 bytes each = 125 bytes), shortening `Problem Statement` → `Problem` (5× saves 50 bytes), `Risk Assessment` → `Risk` (4× saves 44 bytes), `Validation Result` → `Validation` (5× saves 35 bytes), `Proposed Changes` → `Changes` (2× saves 18 bytes), `Implementation Plan` → `Plan` (6× saves 90 bytes), `Files Modified` / `Files to Modify` / `Files Changed` → `Files` (5× saves 45 bytes). Total: **~400 bytes (~0.55%)**.
@@ -410,12 +451,16 @@ The file has multiple verbose equivalents:
 
 **Before** (line 273):
 ```
+
 - **`chunked`**: Multi-chunk extraction activated when the spec exceeds 500 lines. The value includes chunk count metadata, e.g., `chunked (4 chunks)` (per `extraction-pipeline.md` L357).
+
 ```
 
 **After**:
 ```
+
 - `chunked`: activated when spec >500 lines; value carries chunk count, e.g. `chunked (4 chunks)` (extraction-pipeline.md:357)
+
 ```
 
 **Estimated saving for this file**: ~25-40 sentences similarly rewritable, ~30 bytes each ≈ **~900-1,200 bytes (~1.3-1.6%)**.
@@ -442,14 +487,17 @@ Each gap's "Files Modified" / "Test fixtures" section re-lists these 3 file path
 
 **Before** (Gap #1 Change 4 + Gap #2 Correction 1 + Gap #3 Change 3 — all list the same 3 files):
 ```
+
 - `tests/roadmap/test_pipeline_integration.py:86` -- `"complexity_class": "moderate"`
 - `tests/roadmap/test_executor.py:102` -- `"complexity_class": "moderate"`
 - `tests/roadmap/test_integration_v5_pipeline.py:91` -- `"complexity_class": "moderate"`
+
 ```
 (...and the same three file-paths show up in Gap #2 and Gap #3 with different field changes.)
 
 **After** (hoist a shared fixture table once near the top, reference by field per gap):
 ```
+
 ## Shared Test-Fixture Touchpoints
 
 | File | L86-91 | L102-107 | L87-96 |
@@ -459,6 +507,7 @@ Each gap's "Files Modified" / "Test fixtures" section re-lists these 3 file path
 | test_integration_v5_pipeline.py | cc | em | dd |
 
 (cc=complexity_class "moderate"→"MEDIUM"; em=extraction_mode "full"→"standard"; dd=domains_detected int→list)
+
 ```
 
 Then each gap's "Files Modified" section just says "see Shared Test-Fixture Touchpoints table".
@@ -493,18 +542,24 @@ Included only to document that the rule-based freebies are exhausted. Any downst
 
 Each of the 5 Validation Results has a preamble pattern like:
 ```
+
 **Reviewed**: 2026-03-18 | **Verdict**: PASS with minor clarifications noted below.
+
 ```
 or
 ```
+
 **Status: PASS WITH CORRECTIONS**
 
 Independent review validated the proposal on 2026-03-18 against the actual codebase. The analysis is sound, the line number references are accurate, and the proposed changes are correct...
+
 ```
 
 **After**:
 ```
+
 Verdict: PASS (2026-03-18, minor clarifications)
+
 ```
 
 **Estimated saving for this file**: 5 preambles × ~100-200 bytes of narrative ≈ **~750 bytes (~1.0%)**. Overlaps with Strategy 7 (which folds this transform inside the broader Validation-narrative compaction). Cite once, count once.

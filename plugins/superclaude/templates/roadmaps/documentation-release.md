@@ -9,6 +9,7 @@ estimated-milestones: 3-4
 # Documentation Release Roadmap Template
 
 ## Template Overview
+
 Use this template for documentation initiatives, user guides, API references, and knowledge base creation.
 
 ---
@@ -16,10 +17,12 @@ Use this template for documentation initiatives, user guides, API references, an
 ## Phase 1: Planning & Analysis
 
 ### Milestone 1.1: Documentation Audit
+
 **Objective**: Assess current documentation state and identify gaps
 **Type**: DOC
 **Priority**: P0-Critical
 **Deliverables**:
+
 - D1.1.1: Documentation inventory
 - D1.1.2: Gap analysis report
 - D1.1.3: Audience analysis
@@ -32,10 +35,12 @@ Use this template for documentation initiatives, user guides, API references, an
 **Files_Affected**: TBD
 
 ### Milestone 1.2: Documentation Strategy
+
 **Objective**: Define documentation structure and standards
 **Type**: DOC
 **Priority**: P0-Critical
 **Deliverables**:
+
 - D1.2.1: Information architecture
 - D1.2.2: Style guide and standards
 - D1.2.3: Content plan with timeline
@@ -52,10 +57,12 @@ Use this template for documentation initiatives, user guides, API references, an
 ## Phase 2: Content Creation
 
 ### Milestone 2.1: Core Documentation
+
 **Objective**: Create essential documentation content
 **Type**: DOC
 **Priority**: P0-Critical
 **Deliverables**:
+
 - D2.1.1: Getting started guide
 - D2.1.2: API/CLI reference documentation
 - D2.1.3: Configuration documentation
@@ -68,10 +75,12 @@ Use this template for documentation initiatives, user guides, API references, an
 **Files_Affected**: TBD
 
 ### Milestone 2.2: Advanced Documentation
+
 **Objective**: Create in-depth guides and references
 **Type**: DOC
 **Priority**: P1-High
 **Deliverables**:
+
 - D2.2.1: Advanced usage guides
 - D2.2.2: Troubleshooting documentation
 - D2.2.3: Best practices documentation
@@ -88,10 +97,12 @@ Use this template for documentation initiatives, user guides, API references, an
 ## Phase 3: Review & Publication
 
 ### Milestone 3.1: Review & Validation
+
 **Objective**: Technical review and user validation of documentation
 **Type**: DOC
 **Priority**: P1-High
 **Deliverables**:
+
 - D3.1.1: Technical accuracy review
 - D3.1.2: User feedback collection
 - D3.1.3: Editorial review
@@ -104,10 +115,12 @@ Use this template for documentation initiatives, user guides, API references, an
 **Files_Affected**: TBD
 
 ### Milestone 3.2: Publication & Maintenance
+
 **Objective**: Publish documentation and establish maintenance process
 **Type**: DOC
 **Priority**: P1-High
 **Deliverables**:
+
 - D3.2.1: Published documentation
 - D3.2.2: Maintenance process documentation
 - D3.2.3: Feedback collection system
@@ -122,6 +135,7 @@ Use this template for documentation initiatives, user guides, API references, an
 ---
 
 ## Success Criteria Checklist
+
 - [ ] All identified documentation gaps filled
 - [ ] Style guide followed consistently
 - [ ] Technical accuracy verified

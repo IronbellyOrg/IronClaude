@@ -121,6 +121,7 @@ This document validates that all sprint pipeline components are connected and fu
 ### Gap 1: Shadow Gates — Config Present, Runtime Missing
 
 **Evidence**:
+
 - Defined in models: `sprint/models.py:322`
 - CLI option: `commands.py:145-149`
 - Config propagation: `config.py:213, 263`
@@ -131,6 +132,7 @@ This document validates that all sprint pipeline components are connected and fu
 ### Gap 2: Task Dependencies — Parsed but Not Enforced
 
 **Evidence**:
+
 - Parsing: `config.py:342-349, 389-394` extracts `TaskEntry.dependencies`
 - Execution: `executor.py:956` iterates tasks in **input order only**
 - **No topological sort** or dependency check before task execution
@@ -140,6 +142,7 @@ This document validates that all sprint pipeline components are connected and fu
 ### Gap 3: Per-Task Turn Counting — Stub
 
 **Evidence**:
+
 - `_run_task_subprocess()` returns `(exit_code, 0, output_bytes)` at line 1091-1092
 - Comment: "Turn counting wired separately"
 - **Actual turn count always 0**
@@ -149,6 +152,7 @@ This document validates that all sprint pipeline components are connected and fu
 ### Gap 4: PM Agent — Not Runtime-Wired to Sprint
 
 **Evidence**:
+
 - `pm_agent/confidence.py`, `self_check.py`, `reflexion.py` exist with full implementations
 - **No import** of `pm_agent` in any `cli/sprint/` file
 - Confidence behavior achieved via prompt protocol only (`task-unified.md:91`)
@@ -158,6 +162,7 @@ This document validates that all sprint pipeline components are connected and fu
 ### Gap 5: Execution Engine — Not Wired to Sprint
 
 **Evidence**:
+
 - `execution/parallel.py`, `reflection.py`, `self_correction.py` implement wave-based execution
 - `execution/__init__.py:41` exposes `intelligent_execute()`
 - **No caller** from `cli/sprint/` to any `execution/` module

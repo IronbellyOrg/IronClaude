@@ -10,6 +10,7 @@ tasklist_ready: true
 ## Deviation Report
 
 ### DEV-001
+
 - **Severity**: MEDIUM
 - **Deviation**: Audit log retention period conflicts between TDD (90 days) and roadmap (12 months), resolved in favor of PRD requirement.
 - **Source Quote** (TDD §7.2): "Audit log | PostgreSQL 15 | Login attempts, password resets | 90 days"
@@ -18,6 +19,7 @@ tasklist_ready: true
 - **Recommended Correction**: Update TDD §7.2 to reflect 12-month retention to eliminate the documented conflict; alternatively, accept as resolved via OQ-CONFLICT-1.
 
 ### DEV-002
+
 - **Severity**: MEDIUM
 - **Deviation**: Roadmap adds admin lock/unlock endpoints (API-009, API-010) and admin audit query endpoint (ADMIN-001) that are not specified in the TDD.
 - **Source Quote** (TDD §8.1): Lists only POST `/auth/login`, POST `/auth/register`, GET `/auth/me`, POST `/auth/refresh` — no admin endpoints.
@@ -26,6 +28,7 @@ tasklist_ready: true
 - **Recommended Correction**: Update TDD to include admin endpoints, or document this as an approved scope augmentation driven by PRD persona requirements.
 
 ### DEV-003
+
 - **Severity**: MEDIUM
 - **Deviation**: Roadmap adds logout endpoint (POST /v1/auth/logout) not present in TDD §8.
 - **Source Quote** (TDD §8.1): Does not include `/auth/logout` endpoint.
@@ -34,6 +37,7 @@ tasklist_ready: true
 - **Recommended Correction**: Update TDD §8 to include POST /auth/logout endpoint contract to align with PRD.
 
 ### DEV-004
+
 - **Severity**: MEDIUM
 - **Deviation**: Roadmap adds PasswordResetToken data model (DM-004) not explicitly defined in TDD §7.
 - **Source Quote** (TDD §7.1): Defines only `UserProfile` and `AuthToken` interfaces; no PasswordResetToken schema.
@@ -42,6 +46,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add PasswordResetToken data model to TDD §7.1 with fields matching DM-004.
 
 ### DEV-005
+
 - **Severity**: LOW
 - **Deviation**: Roadmap specifies API versioning (`/v1/auth/*`) as a committed deliverable; TDD §8.4 mentions versioning is via URL prefix "in production" without explicit M1 commitment.
 - **Source Quote** (TDD §8.4): "The authentication API is versioned via URL prefix (`/v1/auth/*` in production)."
@@ -50,6 +55,7 @@ tasklist_ready: true
 - **Recommended Correction**: None required; roadmap appropriately concretizes TDD intent.
 
 ### DEV-006
+
 - **Severity**: LOW
 - **Deviation**: Roadmap adds /v1/health endpoint (API-011) as first-class deliverable; TDD §25 mentions health check monitoring but does not specify dedicated /health endpoint contract.
 - **Source Quote** (TDD §4.1): "Service availability | 99.9% uptime | Health check monitoring over 30-day windows"
@@ -58,6 +64,7 @@ tasklist_ready: true
 - **Recommended Correction**: Add /v1/health endpoint to TDD §8 with response contract.
 
 ### DEV-007
+
 - **Severity**: LOW
 - **Deviation**: Roadmap enforces per-user refresh token cap (5 tokens with oldest-eviction); TDD does not specify a cap.
 - **Source Quote** (TDD §7.1 AuthToken, §8.2 /auth/refresh): No mention of per-user refresh token limit.

@@ -22,6 +22,7 @@ generator: superclaude-roadmap-executor
 | COSMETIC | Backlog | No gate impact |
 
 **Examples specific to this project**:
+
 - CRITICAL: Plaintext password stored in DB, JWT signed with wrong algorithm, replay detection fails to revoke tokens
 - MAJOR: Rate limiter allows 6th request, sensitive field leaked in profile response, cookie missing `HttpOnly` flag
 - MINOR: Error message wording inconsistent across endpoints, bcrypt timing 310ms instead of ~250ms
@@ -164,6 +165,7 @@ Phase 5 (Prod Readiness) ─── build ───┐
 ```
 
 **Continuous testing within phases** (not gated, but executed during development):
+
 - Unit tests run on every commit during Phases 1–2
 - Integration tests run on every PR merge during Phases 3–4
 - Security and performance tests run nightly from Phase 3 onward

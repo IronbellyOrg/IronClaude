@@ -49,6 +49,7 @@ Tests ship in the same PR as their target code; no milestone exits with test deb
 Priority derived from Risk Register impact×probability:
 
 **P0 (highest) — security & data loss:**
+
 - R-001 key compromise → TEST-M2-002 alg whitelist; key-rotation drill
 - R-002 refresh replay → TEST-M2-005 + TEST-M3-003 (SC-7)
 - R-007 irreversible migration → TEST-M1-003 up/down/up CI gate
@@ -56,12 +57,14 @@ Priority derived from Risk Register impact×probability:
 - R-017 rollback failure → OPS-006 staging drill
 
 **P1 — latency & availability:**
+
 - R-014 p95 > 200ms → OPS-004 k6 pre-GA (SC-1)
 - R-008 secrets cold-start → chaos test in V3
 - R-015 false-green health → synthetic login probe in V3
 - R-012 email outage → mocked failure + retry assertions in TEST-M3-005
 
 **P2 — enumeration / state sharing:**
+
 - R-011 user enumeration → TEST-M3-006
 - R-013 rate-limit state sharing → multi-instance integration test
 

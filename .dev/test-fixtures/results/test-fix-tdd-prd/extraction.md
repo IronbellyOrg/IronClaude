@@ -285,10 +285,12 @@ pipeline_diagnostics: {elapsed_seconds: 344.1, started_at: "2026-04-04T01:04:12.
 | roles | string[] | NOT NULL, DEFAULT ["user"] | Authorization roles; enforcement is downstream |
 
 **Relationships:**
+
 - One-to-many with refresh tokens (stored in Redis, keyed by user id)
 - One-to-many with audit log entries
 
 **Missing fields identified (from PRD compliance):**
+
 - `consentTimestamp` — required by NFR-COMP-001 (GDPR consent at registration)
 - `passwordHash` — implied by `PasswordHasher` but not in the `UserProfile` interface (likely intentional separation; stored in same DB row but not exposed via API)
 

@@ -37,12 +37,14 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 **Business Value**: Unblocks personalization feature development and establishes identity foundation.
 
 **Functional Scope**:
+
 - FR-AUTH.1: User Login (email/password → access + refresh tokens)
 - FR-AUTH.2: User Registration (account creation with validation)
 - FR-AUTH.3: Token Refresh (refresh token → new access token)
 - FR-AUTH.4: Profile Retrieval (authenticated user profile access)
 
 **Non-Functional Scope**:
+
 - NFR-AUTH.1: Login response time < 200ms (p95)
 - NFR-AUTH.3: Password hashing with bcrypt cost factor 12
 - NFR-AUTH.6: NIST-compliant password storage (no plaintext)
@@ -50,6 +52,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 #### Phase 1 Milestones
 
 **Week 1: Infrastructure & Schema**
+
 - Database schema design and migration generation:
   - `users` table: id, email (unique), password_hash, display_name, created_at, updated_at
   - `refresh_tokens` table: id, user_id, token_hash, expires_at, revoked_at, created_at
@@ -58,6 +61,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 - Database migration 003 created and validated in staging environment
 
 **Week 2: Core Service Implementation**
+
 - JWT service (token generation and verification via `jsonwebtoken` + RS256 keys)
 - Password hasher (bcrypt cost factor 12, ~250ms per hash per NFR-AUTH.3)
 - Token manager (token issuance, expiration enforcement, refresh token rotation)
@@ -65,6 +69,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 - User repository (database access layer with prepared statements to prevent SQL injection)
 
 **Week 3: API & Middleware**
+
 - Auth middleware (Bearer token extraction, validation, context injection into request)
 - Auth controller with endpoints:
   - `POST /auth/register` — FR-AUTH.2 (registration with inline validation)
@@ -75,6 +80,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 - Route registration in main route index
 
 **Week 4: Testing & Security Hardening**
+
 - Unit tests: password hashing, JWT signing/verification, token rotation
 - Integration tests: full login/register/refresh flows
 - Security tests:
@@ -85,6 +91,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 - Security code review focused on cryptographic operations and token handling
 
 **Phase 1 Exit Gate**:
+
 - All FR-AUTH.1, FR-AUTH.2, FR-AUTH.3, FR-AUTH.4 acceptance criteria pass
 - NFR-AUTH.1 (< 200ms p95) verified under load
 - NFR-AUTH.3 (bcrypt cost 12) verified in unit tests
@@ -100,9 +107,11 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 **Business Value**: Enables self-service account recovery (reduces support burden), establishes SOC2 compliance foundation, and hardens token security against replay attacks.
 
 **Functional Scope**:
+
 - FR-AUTH.5: Password Reset (email-driven recovery flow)
 
 **Non-Functional Scope**:
+
 - NFR-AUTH.2: 99.9% availability (infrastructure & monitoring)
 - NFR-AUTH.4: GDPR consent at registration
 - NFR-AUTH.5: SOC2 audit logging (per PRD compliance deadline Q3 2026)
@@ -113,6 +122,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 #### Phase 2 Milestones
 
 **Week 5: Password Reset & Email Integration**
+
 - Password reset token generation and storage (1-hour TTL, one-time use)
 - Password reset controller:
   - `POST /auth/forgot-password` — Request reset token via email
@@ -126,6 +136,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 - Session invalidation on successful password reset (all user tokens revoked)
 
 **Week 6: Compliance & Audit Logging**
+
 - Audit logging schema design:
   - `auth_events` table: id, user_id, event_type (login, register, logout, token_refresh, password_reset, account_locked), timestamp, ip_address, user_agent, outcome (success/failure), error_code
   - 12-month retention policy via TTL or archival job
@@ -146,6 +157,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
   - Document that no extraneous PII is collected
 
 **Week 7: Security Hardening & Monitoring**
+
 - Refresh token replay detection hardening:
   - On refresh token use, check if token was previously rotated (in revocation log)
   - If token is replayed (used after rotation), revoke all user tokens (FR-AUTH.3c)
@@ -163,6 +175,7 @@ The User Authentication Service is a **medium-complexity, security-critical feat
 - Health check endpoint for availability monitoring (NFR-AUTH.2)
 
 **Phase 2 Exit Gate**:
+
 - All FR-AUTH.5 acceptance criteria pass
 - NFR-AUTH.2 (99.9% availability) infrastructure in place and monitored
 - NFR-AUTH.4 (GDPR consent) recorded at registration
@@ -199,6 +212,7 @@ Request → Auth Middleware → Auth Service → {Token Manager, Password Hasher
 | **Account Lock Registry** | State machine | Failed login counter, lock expiration timestamp | Phase 2 | Login endpoint (Phase 2 hardening) |
 
 **Critical Wiring Decision (Phase 1/2 Boundary)**:
+
 - The password hasher and token manager must be wired into the auth service in Phase 1 and remain stable through Phase 2 (no breaking changes).
 - Email service wiring is deferred to Phase 2 (password reset). Auth service must support dependency injection of EmailService to avoid coupling in Phase 1.
 - Audit logger wiring is deferred to Phase 2. All auth endpoints must support audit event emission but logging can be conditional (no-op in Phase 1, active in Phase 2).
@@ -291,6 +305,7 @@ Request → Auth Middleware → Auth Service → {Token Manager, Password Hasher
 ### Validation Gates Per Phase
 
 **Phase 1 Exit Gate** (Week 4):
+
 - ✓ All FR-AUTH.1, FR-AUTH.2, FR-AUTH.3, FR-AUTH.4 acceptance criteria pass (integration tests)
 - ✓ NFR-AUTH.1 verified: login endpoint < 200ms p95 under 500 concurrent load (k6)
 - ✓ NFR-AUTH.3 verified: bcrypt cost factor 12 confirmed in unit tests (~250ms hash time)
@@ -300,6 +315,7 @@ Request → Auth Middleware → Auth Service → {Token Manager, Password Hasher
 - ✓ All open questions (OQ1-8) resolved; scope confirmed with product
 
 **Phase 2 Exit Gate** (Week 7):
+
 - ✓ All FR-AUTH.5 acceptance criteria pass (password reset flow)
 - ✓ NFR-AUTH.2 infrastructure in place: health check endpoint configured; 99.9% availability monitoring active
 - ✓ NFR-AUTH.4 verified: GDPR consent checkbox recorded at registration with timestamp

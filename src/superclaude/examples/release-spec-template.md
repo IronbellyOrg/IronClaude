@@ -5,6 +5,7 @@
 > **Spec types supported**: New feature, refactoring, portification, infrastructure
 >
 > **Conditional sections by spec type**:
+>
 > - **Portification**: Include Section 9 (Migration & Rollout), Section 5 (Interface Contracts)
 > - **Refactoring**: Include Section 4.3 (Removed Files), Section 9 (Migration & Rollout)
 > - **New feature**: Include Section 4.5 (Data Models), Section 5.1 (CLI Surface)
@@ -91,6 +92,7 @@ quality_scores:
 **Description**: {{SC_PLACEHOLDER:what_it_does}}
 
 **Acceptance Criteria**:
+
 - [ ] {{SC_PLACEHOLDER:criterion_1}}
 - [ ] {{SC_PLACEHOLDER:criterion_2}}
 
@@ -226,9 +228,11 @@ quality_scores:
 > What this spec feeds into. How downstream consumers (sc:roadmap, sc:tasklist, etc.) use the output.
 
 ### For sc:roadmap
+
 {{SC_PLACEHOLDER:themes_and_milestones}}
 
 ### For sc:tasklist
+
 {{SC_PLACEHOLDER:task_breakdown_guidance}}
 
 ## 11. Open Items

@@ -1,9 +1,11 @@
 # Pass 1: Surface Scan Rules
 
 ## Goal
+
 Quickly identify obvious waste — test artifacts, runtime files committed by accident, empty placeholders, files nothing references.
 
 ## Guiding Question
+
 **"Is this file junk?"**
 
 ## Classification Taxonomy (3-Tier)
@@ -52,6 +54,7 @@ For each file in the batch:
 ## Binary Asset Handling
 
 Binary files (images, fonts, videos, compiled assets) receive grep-only audits:
+
 - **DO**: Check if filename is referenced in code, docs, configs
 - **DO NOT**: Attempt to read binary content
 - **Classify**: KEEP if referenced, REVIEW if unreferenced but in expected asset directory, DELETE only if in unexpected location AND zero references
@@ -59,6 +62,7 @@ Binary files (images, fonts, videos, compiled assets) receive grep-only audits:
 ## "Zero References" Evidence Standard
 
 Every DELETE classification must embed:
+
 1. **Grep pattern used**: The exact command (e.g., `grep -r "filename" --exclude-dir=.git`)
 2. **Match count**: Number of matches found (must be 0 for DELETE)
 3. **Zero-result confirmation**: Explicit statement "0 matches found across N files searched"

@@ -153,6 +153,7 @@ pipeline_diagnostics: {elapsed_seconds: 139.0, started_at: "2026-03-09T02:21:55.
 | **Total** | | | | **0.823** |
 
 Key complexity drivers:
+
 - Multi-mode operation (single, multi-spec, multi-roadmap, combined) with conditional wave execution
 - Deep sc:adversarial integration with return contract handling and convergence-based routing
 - Chunked extraction protocol with 4-pass completeness verification

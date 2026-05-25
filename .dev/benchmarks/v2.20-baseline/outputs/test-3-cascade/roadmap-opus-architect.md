@@ -1,6 +1,6 @@
 
-
 ---
+
 spec_source: SC-ROADMAP-V2-SPEC.md
 complexity_score: 0.82
 primary_persona: architect
@@ -17,6 +17,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Scope**: 58 requirements (46 functional, 12 non-functional), 7 domains, 8 dependencies, 9 risks.
 
 **Key architectural decisions**:
+
 - Lean SKILL.md (≤500 lines) with 5 refs/ files for algorithms
 - On-demand ref loading (max 2-3 at any point) to prevent context bloat
 - Versioned frontmatter schema as a contract for downstream consumers
@@ -31,6 +32,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Duration estimate**: 3-5 days
 
 ### Milestone 1.1: File Structure & Command Skeleton
+
 - Create `src/superclaude/commands/roadmap.md` (~80 lines) with trigger definitions, flag declarations, and behavioral summary
 - Create `src/superclaude/skills/sc-roadmap/SKILL.md` skeleton (behavioral instructions only)
 - Create `refs/` directory with 5 empty stub files: `extraction-pipeline.md`, `scoring.md`, `validation.md`, `templates.md`, `adversarial-integration.md`
@@ -38,6 +40,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-024, SC-025, FR-043
 
 ### Milestone 1.2: Wave 0 — Prerequisites & Validation
+
 - Implement spec file existence/readability check
 - Implement output directory writability check with collision detection (append `-N` suffix per FR-015)
 - Implement `--dry-run`, `--compliance`, `--depth`, `--persona`, `--output`, `--no-validate` flag parsing
@@ -46,6 +49,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-011, SC-020, FR-014, FR-015
 
 ### Milestone 1.3: Wave 1B — Extraction Pipeline (Single-Pass)
+
 - Author `refs/extraction-pipeline.md` with the full extraction algorithm
 - Author `refs/scoring.md` with complexity scoring formula and domain classification
 - Implement spec parsing, requirement extraction, complexity scoring, domain classification
@@ -55,6 +59,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-001 (partial), SC-009, SC-013 (partial), FR-006, FR-018, FR-019, FR-033
 
 ### Milestone 1.4: Wave 1B — Chunked Extraction
+
 - Implement 500-line threshold detection and automatic activation
 - Implement section indexing, chunk assembly (~400 lines, max 600), per-chunk extraction with global ID counters
 - Implement structural merge and deduplication (ID collision, normalized match, substring >0.8)
@@ -64,6 +69,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-018, FR-034, FR-035, NFR-012
 
 ### Phase 1 Exit Criteria
+
 1. Single-spec invocation produces valid `extraction.md` with parseable YAML frontmatter
 2. Chunked extraction activates for specs >500 lines and passes 4-pass verification
 3. Output collision detection appends `-N` suffix correctly
@@ -79,6 +85,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Duration estimate**: 3-5 days
 
 ### Milestone 2.1: Wave 2 — Template Discovery & Selection
+
 - Author `refs/templates.md` with template format specification and compatibility scoring algorithm
 - Implement 4-tier template discovery: local (`.dev/templates/roadmap/`) → user (`~/.claude/templates/roadmap/`) → plugin (no-op stub) → inline generation fallback
 - Implement compatibility scoring with correct weights: domain (0.40), complexity (0.30), type (0.20), version (0.10)
@@ -88,6 +95,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-022, SC-023, FR-020, FR-040, FR-041, NFR-009
 
 ### Milestone 2.2: Wave 3 — Roadmap Generation
+
 - Implement `roadmap.md` generation with full YAML frontmatter:
   - `spec_source` (scalar, single-spec mode)
   - `milestone_index` with per-milestone structured metadata
@@ -97,6 +105,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-001 (partial), SC-028, SC-030, FR-001, FR-002, FR-003, FR-004, FR-022, FR-023, NFR-003, NFR-004, NFR-008
 
 ### Milestone 2.3: Wave 3 — Test Strategy Generation
+
 - Implement `test-strategy.md` generation with YAML frontmatter:
   - `validation_philosophy: continuous-parallel`
   - `interleave_ratio` computed from complexity (LOW→1:3, MEDIUM→1:2, HIGH→1:1)
@@ -106,11 +115,13 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-001, SC-029, FR-001, FR-007, FR-028, FR-029
 
 ### Milestone 2.4: Dry Run Mode
+
 - Implement `--dry-run` flag: execute Waves 0-2, output structured console preview (spec, complexity, persona, template, milestone structure, domain distribution, estimated counts)
 - Ensure no files are written and no validation agents dispatched
 - **Validates**: SC-019, FR-036
 
 ### Phase 2 Exit Criteria
+
 1. Single-spec invocation produces all 3 artifacts with valid YAML frontmatter
 2. Template discovery searches all 4 tiers with correct scoring weights
 3. Interleave ratio computed correctly for all complexity classes
@@ -127,6 +138,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Duration estimate**: 2-3 days
 
 ### Milestone 3.1: Wave 4 — Quality Validation
+
 - Author `refs/validation.md` with validation algorithms, scoring formulas, and agent prompts
 - Implement quality-engineer agent dispatch: completeness, consistency, traceability checks
 - Implement test-strategy validation: interleave ratio matches complexity class, validation milestones reference real work milestones, continuous parallel philosophy encoded, stop-and-fix thresholds defined
@@ -135,18 +147,21 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-006, FR-024, FR-025
 
 ### Milestone 3.2: REVISE Loop
+
 - Implement REVISE loop: re-run Wave 3 → Wave 4, up to 2 iterations
 - After 2 failed iterations, accept with `validation_status: PASS_WITH_WARNINGS`
 - Store `validation_score` and `validation_status` in frontmatter
 - **Validates**: SC-007, FR-027
 
 ### Milestone 3.3: Validation Bypass & Compliance Tiers
+
 - Implement `--no-validate`: skip Wave 4, set `validation_score: 0.0`, `validation_status: SKIPPED`
 - Implement `--compliance light`: reduced extraction, inline templates only, skip Wave 4, set `validation_status: LIGHT`
 - Implement `--compliance strict`: full extraction + 4-pass verification even <500 lines, all template tiers, full Wave 4
 - **Validates**: SC-012, SC-021, FR-038, FR-042
 
 ### Phase 3 Exit Criteria
+
 1. Wave 4 produces correct PASS/REVISE/REJECT classification
 2. REVISE loop re-runs correctly and terminates after 2 iterations with PASS_WITH_WARNINGS
 3. `--no-validate` and `--compliance light` correctly bypass validation
@@ -163,6 +178,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Dependency**: sc:adversarial v1.1.0 must be installed and functional (DEP-001).
 
 ### Milestone 4.1: Adversarial Availability & Agent Validation
+
 - Complete Wave 0 adversarial checks: if `--specs` or `--multi-roadmap` present but sc:adversarial not installed, abort with actionable error
 - Implement model identifier validation in Wave 0 for `--agents` flag
 - Implement agent spec parsing: split on `,` for list, then `:` per agent (max 3 segments)
@@ -171,6 +187,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-014, SC-015, FR-011, FR-012, FR-032
 
 ### Milestone 4.2: Wave 1A — Multi-Spec Consolidation
+
 - Author `refs/adversarial-integration.md` with adversarial return contract handling and convergence routing
 - Implement `--specs spec1.md,spec2.md[,...,specN.md]` flag
 - Invoke `sc:adversarial --compare` and handle return contract:
@@ -182,6 +199,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-002, SC-008, FR-008, FR-016, FR-017
 
 ### Milestone 4.3: Wave 2 — Multi-Roadmap Adversarial Generation
+
 - Implement `--multi-roadmap --agents <agent-spec>[,...]` flag
 - Invoke `sc:adversarial --source --generate roadmap --agents` replacing template-based generation
 - Implement `roadmap.md` frontmatter `adversarial` block (mode, agents, convergence_score, base_variant, artifacts_dir)
@@ -189,17 +207,20 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-003, SC-005, FR-005, FR-009, FR-021, FR-031
 
 ### Milestone 4.4: Combined Mode
+
 - Implement `--specs` + `--multi-roadmap` combined: chain spec consolidation (Wave 1A) then roadmap adversarial generation (Wave 2) sequentially
 - Implement `--interactive` propagation to adversarial invocations
 - Implement `--dry-run` with adversarial execution (FR-037)
 - **Validates**: SC-004, SC-005, FR-010, FR-037
 
 ### Milestone 4.5: Adversarial Validation in Wave 4
+
 - Implement adversarial artifact checks: missing artifacts when adversarial mode used → REJECT; missing convergence score → REVISE
 - Implement frontmatter `spec_sources` (list) for multi-spec mode, with mutual exclusion against `spec_source`
 - **Validates**: SC-028, FR-003, FR-026
 
 ### Phase 4 Exit Criteria
+
 1. `--specs` invokes sc:adversarial and produces unified spec with correct convergence routing
 2. `--multi-roadmap --agents` produces adversarial roadmap with correct frontmatter
 3. Combined mode chains both adversarial passes correctly
@@ -218,11 +239,13 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Dependency**: Serena MCP server (DEP-003), sc:save/sc:load (DEP-002).
 
 ### Milestone 5.1: Session Save Protocol
+
 - Implement sc:save trigger at each wave boundary
 - Store: spec_source, output_dir, flags, last_completed_wave, extraction state, complexity, persona, template, milestone count, adversarial results, validation score
 - **Validates**: SC-016, FR-045
 
 ### Milestone 5.2: Resume Protocol
+
 - Detect matching Serena memory session (same spec path + output dir)
 - Prompt user to resume from last completed wave
 - Implement spec file hash comparison; warn if spec changed since last session
@@ -230,6 +253,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-017, FR-046, NFR-011
 
 ### Phase 5 Exit Criteria
+
 1. Session state saved at each wave boundary
 2. Resume correctly offered and restores state from the last completed wave
 3. Spec hash mismatch produces clear warning
@@ -244,6 +268,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 **Duration estimate**: 2-3 days
 
 ### Milestone 6.1: On-Demand Ref Loading Enforcement
+
 - Verify wave-to-ref mapping matches FR-044 exactly:
   - Wave 0: none
   - Wave 1A: adversarial-integration (if --specs)
@@ -256,12 +281,14 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-026, SC-027, FR-044, NFR-006
 
 ### Milestone 6.2: MCP Circuit Breakers
+
 - Implement Sequential fallback: unavailable → native Claude reasoning with reduced depth
 - Implement Context7 fallback: unavailable → WebSearch
 - Implement Serena fallback: unavailable → proceed without persistence with user warning
 - **Validates**: NFR-011
 
 ### Milestone 6.3: Schema Stability & NFR Compliance
+
 - Validate SKILL.md ≤500 lines (NFR-002)
 - Validate no YAML pseudocode in SKILL.md (NFR-002)
 - Validate command file ~80 lines (NFR-007)
@@ -271,6 +298,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-024, NFR-001, NFR-002, NFR-003, NFR-007, NFR-008
 
 ### Milestone 6.4: Edge Case Handling
+
 - Interleave ratio edge case: when milestone count is too low for the ratio, floor to minimum 1 validation milestone
 - Agent persona inheritance: model-only agents inherit auto-detected primary persona from Wave 1B
 - `--persona` propagation to model-only agents in `--agents`
@@ -278,6 +306,7 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 - **Validates**: SC-013, FR-011, FR-029, FR-039
 
 ### Phase 6 Exit Criteria
+
 1. All NFRs verified
 2. Circuit breaker fallbacks tested for all 3 MCP servers
 3. Ref loading discipline verified per wave
@@ -312,18 +341,21 @@ This roadmap covers the implementation of `sc:roadmap` v2.0, a 5-wave roadmap ge
 ## Resource Requirements & Dependencies
 
 ### Internal Dependencies (Must exist before implementation)
+
 1. **sc:adversarial v1.1.0** (DEP-001) — Required for Phase 4. Must support `--compare`, `--source --generate roadmap --agents`, return contract with status/convergence_score/artifacts_dir. **Risk**: If not finalized, Phase 4 is blocked.
 2. **sc:save / sc:load** (DEP-002) — Required for Phase 5. Must support key-value persistence and retrieval.
 3. **Downstream tasklist generator** (DEP-007) — Not a blocker. sc:roadmap defines the frontmatter contract; the consumer builds against it later.
 4. **v5.0 plugin marketplace** (DEP-008) — Not a blocker. Template discovery tier 3 is a no-op stub.
 
 ### External Dependencies
+
 1. **Serena MCP** (DEP-003) — Phase 5. Circuit breaker fallback available.
 2. **Sequential MCP** (DEP-004) — Phases 1-3. Circuit breaker fallback to native reasoning.
 3. **Context7 MCP** (DEP-005) — Phases 1-2. Circuit breaker fallback to WebSearch.
 4. **Standard YAML parser** (DEP-006) — All phases. No risk; widely available.
 
 ### Critical Path
+
 ```
 Phase 1 (Foundation) → Phase 2 (Generation) → Phase 3 (Validation) → Phase 6 (Hardening)
                                                                     ↗

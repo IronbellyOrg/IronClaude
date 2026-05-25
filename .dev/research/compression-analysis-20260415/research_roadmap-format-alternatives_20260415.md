@@ -43,7 +43,7 @@ Sections: 6 phases + 4 reference sections (risks, deps, open questions, traceabi
 | Category | % of Tokens | Description |
 |----------|------------|-------------|
 | Semantic content | ~62% | Task descriptions, requirement details, rationale |
-| Requirement IDs | ~11% | 76x FR-* refs + 31x SC-* refs, often repeated |
+| Requirement IDs | ~11% | 76x FR-*refs + 31x SC-* refs, often repeated |
 | Table scaffolding | ~9% | 56 rows, 240 pipe chars, separator rows |
 | Markdown syntax | ~9% | 31 headings, 11 HRs, 390 backticks, bold spans |
 | Structural repetition | ~9% | Repeated section headers (Goal/Milestone/Tasks/Validation/Files Touched) |
@@ -63,6 +63,7 @@ Sections: 6 phases + 4 reference sections (risks, deps, open questions, traceabi
 ### Approach
 
 Retain Markdown but apply declared conventions:
+
 - Single-char severity/priority markers
 - Inline metadata instead of sub-sections
 - Abbreviation header at top (~60 tokens) that defines shorthands
@@ -73,6 +74,7 @@ Retain Markdown but apply declared conventions:
 ### Example Conversion (Phase 2, original = ~290 tokens)
 
 **Original** (lines 79-108 of source):
+
 ```markdown
 ## Phase 2: Gate Definition & Pipeline Compatibility
 
@@ -110,6 +112,7 @@ modification to the pipeline infrastructure.
 ```
 
 **Compact Markdown DSL** (~185 tokens, ~36% reduction):
+
 ```markdown
 ## P2: Gate Definition & Pipeline Compat | dep:P1 | files: audit/wiring_gate.py(M)
 Gate: WIRING_GATE passes gate_passed() without modifying pipeline infra.
@@ -415,6 +418,7 @@ On flat uniform tabular data, TOON achieves up to -58.8% vs JSON and -48.3% vs Y
 ### Why Pure TOON Fails for Roadmaps
 
 Roadmaps are the **worst case** for TOON:
+
 - Mixed prose (goals, milestones, rationale) + structured data (tasks, reqs, risks)
 - Nested/heterogeneous schemas (each phase has different task counts and structures)
 - No native way to interleave narrative context with task definitions
@@ -617,6 +621,7 @@ L |                      [TOML]
 ### Primary Recommendation: Hybrid XML + TOON + Markdown Prose
 
 **Adopt the hybrid format** as the standard for roadmaps consumed by Sonnet/Opus-class agents:
+
 - **35-50% token reduction** (saving ~1,600-2,300 tokens per roadmap ingest)
 - **XML scaffolding** leverages Claude's trained structural priors — Anthropic's own recommended approach
 - **TOON tables** capture near-optimal compression on the densest sections (risks, traceability, tasks)
@@ -652,6 +657,7 @@ The webmaster-ramos benchmark showed Markdown accuracy on Haiku 4.5 dropped to 6
 ## Sources
 
 ### Primary (TOON + XML + Claude-specific)
+
 - **Anthropic — "Use XML tags"** (official Claude prompt engineering guidance)
 - **Anthropic — Claude 4.6 prompt engineering best practices** (XML as recommended structuring)
 - **Anthropic — Long context prompting tips** (up to 30% quality gain with XML + query placement)
@@ -661,6 +667,7 @@ The webmaster-ramos benchmark showed Markdown accuracy on Haiku 4.5 dropped to 6
 - **fromjsontotoon.com** — TOON vs JSON performance analysis
 
 ### Secondary (general format efficiency)
+
 - Workman 2025 — "YAML vs JSON: The Hidden Token Tax" (Claude tokenizer, 6-10% YAML premium)
 - Syntax & Empathy 2025 — "Designer's Guide to Markup Languages" (MD 11,612 / YAML 12,333 / TOML 12,503 / JSON 13,869 tokens)
 - CuriouslyChase 2025 — "YAML vs JSON Token Efficiency" (minified JSON 41 vs 133 YAML tokens)

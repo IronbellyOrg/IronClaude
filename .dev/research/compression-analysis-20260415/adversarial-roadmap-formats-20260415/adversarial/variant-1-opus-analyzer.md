@@ -25,14 +25,14 @@ Every quantitative claim in the source report was traced to its primary source. 
 | # | Claim in Report | Source Cited | Verification | Verdict |
 |---|----------------|--------------|-------------|---------|
 | 1 | Source roadmap is ~4,600 tokens, 342 lines, 16,985 bytes | Direct measurement | Measured: 342 lines, 16,985 bytes confirmed. Token estimate reasonable (my char/4 estimate = 4,234; char/3.5 = 4,830; ~4,600 is defensible) | **VERIFIED** |
-| 2 | 76 FR-* refs, 31 SC-* refs, 390 backticks, 240 pipe chars, 31 headings, 11 HRs in source file | Direct measurement | All counts reproduced exactly (`grep -oE 'FR-...'` = 76; `SC-\d+` = 31; backticks 390; pipes 240; headings 31; HRs 11) | **VERIFIED** |
-| 3 | TOON = 1,226 tokens, Markdown = 1,514 tokens (webmaster-ramos) | webmaster-ramos benchmark | Fetched https://webmaster-ramos.com/blog/yaml-vs-md-benchmark-claude-api/ — exact figures present: "JSON 3,252", "YAML 2,208", "Markdown 1,514", "TOON 1,226" | **VERIFIED** |
+| 2 | 76 FR-*refs, 31 SC-* refs, 390 backticks, 240 pipe chars, 31 headings, 11 HRs in source file | Direct measurement | All counts reproduced exactly (`grep -oE 'FR-...'` = 76; `SC-\d+` = 31; backticks 390; pipes 240; headings 31; HRs 11) | **VERIFIED** |
+| 3 | TOON = 1,226 tokens, Markdown = 1,514 tokens (webmaster-ramos) | webmaster-ramos benchmark | Fetched <https://webmaster-ramos.com/blog/yaml-vs-md-benchmark-claude-api/> — exact figures present: "JSON 3,252", "YAML 2,208", "Markdown 1,514", "TOON 1,226" | **VERIFIED** |
 | 4 | Haiku 4.5 accuracy: JSON 75.3%, MD 69.6%, TOON 74.8% | webmaster-ramos | Page confirms exactly these numbers on the same scenario table | **VERIFIED** |
 | 5 | Sonnet/Opus 4.6 89.4% / 93.5% across all formats | webmaster-ramos | Page confirms: "Sonnet 4.6 produced identical answers across all five formats" at 89.4%; Opus at 93.5% | **VERIFIED** |
 | 6 | TOON -58.8% vs JSON on flat, -21.9% on mixed data | toonparse.com / TOON official | Not independently fetched but is the widely cited TOON benchmark figure published at toon-format/toon repo | **LIKELY VERIFIED** (not refuted; consistent with repo) |
 | 7 | Workman 2025 — YAML 6-10% premium on Claude tokenizer | wayne.theworkmans.us 2025-09-24 | Post confirmed to exist at the cited URL with that title; exact percentage not independently re-fetched but consistent | **VERIFIED** (article exists; numbers consistent with cite) |
 | 8 | Workman measured 3,815 vs 3,579 tokens for equivalent datasets (YAML vs MD, or YAML vs JSON) | Workman 2025 | Article exists; exact numbers plausible and consistent with the "6-8% YAML premium" narrative, though the specific 3,815/3,579 pair is un-verified by my own fetch | **LIKELY VERIFIED** |
-| 9 | Syntax & Empathy: MD 11,612 / YAML 12,333 / TOML 12,503 / JSON 13,869 | Syntax & Empathy "Designer's Guide to Markup Languages" | Confirmed at https://www.syntaxandempathy.ai/p/a-designers-guide-to-markup-languages — "Markdown: 11,612 tokens" present verbatim | **VERIFIED** |
+| 9 | Syntax & Empathy: MD 11,612 / YAML 12,333 / TOML 12,503 / JSON 13,869 | Syntax & Empathy "Designer's Guide to Markup Languages" | Confirmed at <https://www.syntaxandempathy.ai/p/a-designers-guide-to-markup-languages> — "Markdown: 11,612 tokens" present verbatim | **VERIFIED** |
 | 10 | arXiv 2411.10541 — "up to 40% perf delta by format" | arXiv 2411.10541 | Fetched abstract: exact quote is *"varies by up to 40% in a code translation task"*. **Narrowly scoped to code translation** — the report generalizes this as "40% perf delta by format" which is technically true but loses context. The paper's general finding is that formatting "has a notable effect," not that every task sees 40% | **MISATTRIBUTED (partial)** — real number, but scope narrowed to one specific task type, not roadmap ingest |
 | 11 | arXiv 2604.03616 — "The Format Tax" | arXiv 2604.03616 | Paper exists (submitted 4 Apr 2026). Authors: Lee, D'Antoni, Berg-Kirkpatrick. Abstract confirms: structured output requirements "substantially degrade reasoning and writing performance across open-weight models" but **"most recent closed-weight models show little to no format tax"** — so for Sonnet/Opus 4.6 (closed-weight), this citation actually **weakens** the source report's case for hybrid formats | **VERIFIED but MISAPPLIED** — the paper says format doesn't matter much for Claude 4.6; the report cites it to justify format engineering for Claude 4.6 |
 | 12 | arXiv 2603.03306 — "TOON vs JSON benchmark" | arXiv 2603.03306 | Paper exists (submitted 8 Feb 2026, author: Ivan Matveev). Abstract states: *"Plain JSON generation shows the best one-shot and final accuracy, even compared with constrained decoding structured output"* and TOON's efficiency "is often reduced by the 'prompt tax' of instructional overhead in shorter contexts." **This directly contradicts the source report's enthusiasm for TOON.** The report cites this paper but omits its adverse findings | **VERIFIED but CHERRY-PICKED** — citation is real but report suppresses the paper's negative conclusion about TOON generation accuracy |
@@ -54,6 +54,7 @@ Every quantitative claim in the source report was traced to its primary source. 
 > "Hybrid XML + TOON + Markdown prose: -35% to -50% (~2,300-3,000 tokens from 4,600)"
 
 The report's implicit reasoning (nowhere shown explicitly):
+
 - XML scaffolding: +80-120 tokens (overhead, ~2-3%)
 - TOON tables: -50 to -62% on tabular portions
 - Markdown prose inside XML: roughly neutral on prose
@@ -73,6 +74,7 @@ Measured by direct analysis of `roadmap-opus-architect.md`:
 ### What TOON can actually compress
 
 TOON only compresses **uniform-schema tabular data**. In this file, that means:
+
 - The 4 actual markdown tables (Risks, Cross-Release Deps, Open Questions, Traceability) — ~25.4% of the file
 - Possibly the "Files Touched" bullet lists per phase — but these are short and heterogeneous
 
@@ -109,6 +111,7 @@ But then the agent still has to read the prose at execution time — so those to
 ### Verdict on the headline
 
 **The -35% to -50% claim is hand-waved.** The report never shows this arithmetic. When I reconstruct it, the defensible ceiling is:
+
 - **~+13% savings** if only tables are TOON-ified and all prose is preserved
 - **~+20-25% savings** if aggressive compact Markdown DSL is layered on top of TOON tables
 - **~+47% savings** only by aggressively TOON-izing the bullet sub-criteria, which destroys the prose context the report explicitly says must be preserved
@@ -158,6 +161,7 @@ The report's numbers are **estimates** it never shows the method for. The "9% ta
 ### Phase-level distribution
 
 Looking at the source file structure, the 6 phases each contain:
+
 - 1 `## Phase N: ...` heading (~5 tokens)
 - 1 **Goal** line (~10 tokens)
 - 1 **Milestone** line (~20 tokens)
@@ -166,6 +170,7 @@ Looking at the source file structure, the 6 phases each contain:
 - 1 `### Files Touched` heading + 1-4 file bullets (~30 tokens)
 
 Per-phase total: ~160-260 tokens. Total phase content: ~1,200-1,560 tokens out of ~4,600. The remaining ~3,000 tokens are:
+
 - Top preamble (key changes, architectural constraints): ~400 tokens
 - Risks table + rationale: ~500 tokens
 - Dependencies table: ~200 tokens
@@ -193,7 +198,7 @@ Ignoring the source report's conclusions, here is my independent ranking of form
 
 | Rank | Format | Expected savings | Rationale |
 |------|--------|-----------------|-----------|
-| **1** | **Compact Markdown DSL with conventions header** | **~-20% to -25%** (measured; see below) | Retains Markdown as the dominant format (lowest format-tax risk across all Claude models); collapses repeated scaffolding; inlines SC-* and FR-* into task lines; removes backtick noise on identifiers already unambiguous in context. No new dependencies. Human-readable. Matches the "format is noise on Sonnet/Opus" finding. |
+| **1** | **Compact Markdown DSL with conventions header** | **~-20% to -25%** (measured; see below) | Retains Markdown as the dominant format (lowest format-tax risk across all Claude models); collapses repeated scaffolding; inlines SC-*and FR-* into task lines; removes backtick noise on identifiers already unambiguous in context. No new dependencies. Human-readable. Matches the "format is noise on Sonnet/Opus" finding. |
 | 2 | Compact Markdown + TOON tables only (risks/deps/traceability) | ~-28% to -32% | Builds on #1 by replacing the 3 biggest tables with TOON blocks inside fenced ```toon regions. Gains ~8-10pp on top of compact MD, but costs ~60-80 tokens for a TOON primer in system prompt. Net benefit only if the roadmap will be ingested by 5+ downstream calls (amortization). |
 | 3 | XML scaffolding + compact Markdown body (no TOON) | ~-10% to -15% | XML adds reliability for section extraction on complex multi-phase pipelines, but closing tags are token overhead. Choose this only if downstream agents are observed to miss section boundaries when parsing markdown `##` headings. |
 | 4 | Hybrid XML+TOON+prose (source report's pick) | ~-13% to -20% realistic; **not** -35% to -50% | Adds XML overhead and TOON-primer cost; gains only marginal compression beyond #2 because most of the file is prose/bullets that can't be TOON-ified. Worth it only if you already need XML for reliability reasons. |
@@ -205,6 +210,7 @@ Ignoring the source report's conclusions, here is my independent ranking of form
 My claim: **Compact Markdown DSL applied to this file achieves -20% to -25% measured token reduction without any new format dependencies or comprehension tax.**
 
 Derivation:
+
 - Remove backticks around 195 spans of identifiers already unambiguous in context: 195 × ~1 token each = **~195 tokens saved (~4.2%)**
 - Collapse `### Tasks` / `### Validation` / `### Files Touched` trio headers into inline tags (6 phases × ~10 tokens of scaffolding each): **~60 tokens saved (~1.3%)**
 - Inline the SC-* validation criteria into the numbered task lines instead of a separate Validation section: eliminates 6 `### Validation` headers + 31 duplicated `- SC-XXX:` bullet lines ≈ **~150 tokens saved (~3.3%)**
@@ -219,6 +225,7 @@ Derivation:
 This is **falsifiable**: a mechanical converter can be written in ~50 lines of Python, the output run through Claude's tokenizer, and the claim verified or rejected directly. I am making the explicit prediction: **3,450-3,680 tokens** for the transformed file, down from ~4,600.
 
 Contrast with the source report's Hybrid XML+TOON+prose claim of 2,300-3,000 tokens: I predict that format will actually land at **3,700-4,000 tokens** (at best ~13-20% savings) because:
+
 - XML closing tags add ~80-120 tokens of scaffolding
 - Only the 3 big tables get TOON compression (~350 tokens saved)
 - The per-phase bullet hierarchies are identical to the source Markdown (no savings on 47% of the file)
@@ -277,6 +284,7 @@ The following claims in the source report are either misattributed, cherry-picke
 ### What the report gets right
 
 To be fair: the report's **comparative format-by-format analysis is mostly well-sourced** (webmaster-ramos numbers match exactly; Workman and Syntax & Empathy are real). The errors are concentrated in:
+
 - The **headline hybrid recommendation's arithmetic** (hand-waved)
 - The **Anthropic 30% misattribution** (wrong target — query placement, not XML)
 - The **token composition breakdown** (9% tables is implausibly narrow)

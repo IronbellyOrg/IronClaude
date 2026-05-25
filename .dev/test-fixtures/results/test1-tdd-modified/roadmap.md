@@ -340,6 +340,7 @@ Phase 0 is retained from the base variant because six open questions (OQ-001–0
 **Phase gate (M4 → Phase 5):** Metrics ingestion confirmed. Alerts routed and tested. Load-test results at target. Rollback rehearsed. Migration dry run complete. Staging acceptance green.
 
 **Environment readiness gate before Phase 5:**
+
 - Rollback rehearsed and documented
 - Migration dry run complete against staging data
 - Staging acceptance green on all M3 criteria
@@ -429,6 +430,7 @@ The following mechanisms require explicit wiring ownership. Developers get per-p
 **Architectural significance:** Highest-impact client-side risk; undermines all authenticated flows.
 
 **Mitigation:**
+
 1. Keep access tokens in memory only — never localStorage.
 2. Use HttpOnly cookies for refresh tokens.
 3. Minimize access-token lifetime to 15 minutes per FR-AUTH-003.
@@ -446,6 +448,7 @@ The following mechanisms require explicit wiring ownership. Developers get per-p
 **Architectural significance:** High probability, medium impact; directly tied to auth perimeter exposure.
 
 **Mitigation:**
+
 1. API Gateway limit of 10 req/min per IP on `/auth/login` (Phase 4).
 2. Account lockout after 5 failed attempts in 15 minutes for FR-AUTH-001 (Phase 2).
 3. bcrypt cost 12 for offline resistance via NFR-SEC-001.
@@ -463,6 +466,7 @@ The following mechanisms require explicit wiring ownership. Developers get per-p
 **Architectural significance:** Lower probability but release-blocking if mishandled.
 
 **Mitigation:**
+
 1. Idempotent upserts for user migration.
 2. Parallel systems during Alpha and Beta.
 3. Verified backups before each migration stage.
@@ -480,6 +484,7 @@ The following mechanisms require explicit wiring ownership. Developers get per-p
 **Architectural significance:** Medium. A compromised private key invalidates all active sessions and allows arbitrary token forgery; an unplanned key rotation without dual-key support causes immediate auth outage.
 
 **Mitigation:**
+
 1. Store RSA private key in secrets manager, never on filesystem.
 2. Document manual rotation procedure with dual-key window during transition — OQ-004.
 3. Load public key from configurable path to allow zero-downtime key rollover.
@@ -496,6 +501,7 @@ The following mechanisms require explicit wiring ownership. Developers get per-p
 **Architectural significance:** Medium. Redis unavailability terminates all active refresh token flows; users must re-authenticate. At scale this becomes a wide-impact session outage.
 
 **Mitigation:**
+
 1. Degrade gracefully: Redis unavailability surfaces as "session expired, please re-login" rather than a hard error.
 2. Monitor Redis health with dedicated P1 alert on connection failure rate.
 3. Evaluate Redis Sentinel or Cluster for high-availability during Phase 4 infrastructure planning.
@@ -511,6 +517,7 @@ The following mechanisms require explicit wiring ownership. Developers get per-p
 **Architectural significance:** Low. FR-AUTH-005 is the only consumer. Login, registration, and token refresh are unaffected.
 
 **Mitigation:**
+
 1. Queue reset emails for retry on SendGrid API failure.
 2. Alert on SendGrid API failures with dedicated non-P1 alert.
 3. Resolve OQ-003 (sender identity verification, 2–5 day lead time) before Phase 2 begins.

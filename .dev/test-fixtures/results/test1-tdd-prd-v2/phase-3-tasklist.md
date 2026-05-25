@@ -22,12 +22,15 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0040 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0040/spec.md`
 
 **Deliverables:**
+
 1. Penetration test report: XSS token theft, brute force, user enumeration, password reset token security, NIST SP 800-63B compliance, HttpOnly cookie verification. Zero unresolved critical/high findings.
 
 **Steps:**
+
 1. **[PLANNING]** Scope pentest: focus areas per roadmap 3.1 (R-001, R-002, enumeration, reset tokens)
 2. **[EXECUTION]** Engage external firm for penetration testing
 3. **[EXECUTION]** Security review of code changed since Phase 1 checkpoint (token refresh production, password reset, admin API)
@@ -37,12 +40,14 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 7. **[COMPLETION]** File pentest report with security sign-off
 
 **Acceptance Criteria:**
+
 - Penetration test complete with zero unresolved critical or high findings
 - NIST SP 800-63B compliance confirmed
 - NFR-COMP-003 validated: only email, hashed password, displayName collected
 - HttpOnly cookie confirmed across all supported browsers
 
 **Validation:**
+
 - Manual check: Pentest report shows zero critical/high findings after remediation
 - Evidence: `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0040/spec.md`
 
@@ -69,12 +74,15 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0041 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0041/spec.md`
 
 **Deliverables:**
+
 1. GA traffic ramp: 50% stable for 8 hours → 100% stable for 1 hour → AUTH_TOKEN_REFRESH enabled → smoke tests pass
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.2 for ramp schedule and acceptance criteria
 2. **[EXECUTION]** Increase AUTH_NEW_LOGIN to 50%; monitor for 8 hours
 3. **[EXECUTION]** Increase AUTH_NEW_LOGIN to 100%; smoke test passes, zero errors for 1 hour
@@ -83,12 +91,14 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 6. **[COMPLETION]** Document ramp results
 
 **Acceptance Criteria:**
+
 - 50% traffic stable for 8 hours (no alerts triggered)
 - 100% traffic stable for 1 hour (smoke test passes, zero errors)
 - AUTH_TOKEN_REFRESH enabled, POST /auth/refresh success rate > 99%
 - All success metrics from PRD S19 tracked during ramp
 
 **Validation:**
+
 - Manual check: Grafana dashboards show stable metrics throughout ramp
 - Evidence: `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0041/evidence.md`
 
@@ -115,12 +125,15 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0042 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0042/spec.md`
 
 **Deliverables:**
+
 1. Legacy auth deprecated: public announcement, 301 redirect from /v0/auth/login → /v1/auth/login, legacy code removed (code review approved)
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.3 for deprecation steps and timeline
 2. **[EXECUTION]** Announce deprecation: legacy endpoints deprecated after 30 days
 3. **[EXECUTION]** Configure 301 redirect from legacy /v0/auth/login → /v1/auth/login
@@ -129,12 +142,14 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 6. **[COMPLETION]** Document deprecation and removal
 
 **Acceptance Criteria:**
+
 - Public deprecation announcement issued with 30-day notice
 - Legacy endpoints return 301 redirect to new endpoints
 - Legacy code fully removed from codebase
 - Code review approved for removal
 
 **Validation:**
+
 - Manual check: GET /v0/auth/login → 301 redirect to /v1/auth/login
 - Evidence: `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0042/evidence.md`
 
@@ -161,24 +176,29 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0043 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0043/spec.md`
 
 **Deliverables:**
+
 1. AUTH_NEW_LOGIN flag removed; AUTH_TOKEN_REFRESH removal scheduled for GA + 2 weeks
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.4 for cleanup schedule
 2. **[EXECUTION]** Remove AUTH_NEW_LOGIN flag and all code references
 3. **[EXECUTION]** Schedule AUTH_TOKEN_REFRESH removal for GA + 2 weeks
 4. **[COMPLETION]** Document flag removal
 
 **Acceptance Criteria:**
+
 - AUTH_NEW_LOGIN fully removed from codebase
 - AUTH_TOKEN_REFRESH removal scheduled
 - No dead code referencing removed flags
 - Tests still pass after flag removal
 
 **Validation:**
+
 - Evidence: `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0043/spec.md`
 
 **Dependencies:** T03.02 (GA traffic ramp complete)
@@ -204,14 +224,17 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0044, D-0045 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0044/spec.md`
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0045/spec.md`
 
 **Deliverables:**
+
 1. Runbook validation report: dry-run AuthService down, token refresh failures, Redis down — all completed < 15 min
 2. On-call rotation schedule: 24/7 for first 2 weeks post-GA, auth-team confirmed, escalation paths clear
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.5 for runbook scenarios and on-call requirements
 2. **[EXECUTION]** Dry-run: AuthService down scenario → runbook executable, completion < 15 min
 3. **[EXECUTION]** Dry-run: token refresh failure → runbook executable, completion < 15 min
@@ -221,12 +244,14 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 7. **[COMPLETION]** File validation report and on-call schedule
 
 **Acceptance Criteria:**
+
 - All 3 runbook dry-runs completed in < 15 minutes each
 - On-call rotation confirmed by auth-team for first 2 weeks post-GA
 - Escalation paths clear and documented
 - Capacity planning verified: pod count, pool sizes, Redis memory handle peak projections
 
 **Validation:**
+
 - Manual check: Runbook completion times documented; on-call schedule published
 - Evidence: `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0044/evidence.md`
 
@@ -238,6 +263,7 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 **Purpose:** Verify security, GA traffic, legacy deprecation, flag cleanup, and operational readiness before success metrics and documentation.
 **Checkpoint Report Path:** `.dev/test-fixtures/results/test1-tdd-prd-v2/checkpoints/CP-P03-T01-T05.md`
 **Verification:**
+
 - Pentest complete with zero critical/high findings
 - 100% traffic on new AuthService for at least 24 hours
 - Legacy auth deprecated with 301 redirect active
@@ -266,24 +292,29 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0046 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0046/spec.md`
 
 **Deliverables:**
+
 1. Success metrics baseline report: DAU target > 1000 (30 days), registration conversion > 60% (30 days), login p95 < 200ms (sustained), availability 99.9% (30-day rolling), failed login < 5% (14 days), reset completion > 80% (14 days), session > 30 min (7 days)
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.6 for metric definitions and targets from PRD S19
 2. **[EXECUTION]** Record Day 1 baselines from production dashboards for all 7 metrics
 3. **[EXECUTION]** Configure dashboards with target overlays for tracking over time
 4. **[COMPLETION]** File baseline report
 
 **Acceptance Criteria:**
+
 - All 7 PRD S19 success metrics have recorded Day 1 baselines
 - Dashboard target overlays configured for each metric
 - Targets match PRD: DAU > 1000, conversion > 60%, p95 < 200ms, 99.9% availability, failed login < 5%, reset > 80%, session > 30 min
 - Measurement methods per roadmap (APM, funnel analysis, event logs, Prometheus)
 
 **Validation:**
+
 - Evidence: Baseline report at `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0046/spec.md`
 
 **Dependencies:** T03.02 (GA traffic)
@@ -309,18 +340,21 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0047, D-0048, D-0049, D-0050 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0047/spec.md`
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0048/spec.md`
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0049/spec.md`
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0050/spec.md`
 
 **Deliverables:**
+
 1. Operations runbook for on-call engineers
 2. API documentation (OpenAPI spec) for developers and persona Sam (API consumers)
 3. Troubleshooting guide for support team
 4. Architecture decision record (ADR) for future maintainers
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.7 for deliverable specifications and audiences
 2. **[EXECUTION]** Write operations runbook covering all incident scenarios
 3. **[EXECUTION]** Generate OpenAPI spec from API endpoint definitions
@@ -330,12 +364,14 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 7. **[COMPLETION]** Knowledge transfer sessions scheduled
 
 **Acceptance Criteria:**
+
 - Operations runbook covers all incident scenarios from T03.05 dry-runs
 - OpenAPI spec covers all 8 API endpoints (7 auth + 1 admin audit) — serves persona Sam
 - Troubleshooting guide addresses common issues from Phase 2 beta
 - ADR documents all key architectural decisions
 
 **Validation:**
+
 - Manual check: All 4 documents exist and have been reviewed by target audiences
 - Evidence: Documents at `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0047/` through `D-0050/`
 
@@ -362,14 +398,17 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 | Deliverable IDs | D-0051, D-0052 |
 
 **Artifacts (Intended Paths):**
+
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0051/spec.md`
 - `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0052/spec.md`
 
 **Deliverables:**
+
 1. Stabilization report: 99.9% uptime over 7 consecutive days (NFR-REL-001), all dashboard and alert thresholds finalized
 2. Post-mortem document (if P0/P1 incidents occurred) or "no incidents" confirmation
 
 **Steps:**
+
 1. **[PLANNING]** Review roadmap 3.8 for stabilization requirements
 2. **[EXECUTION]** Maintain 24/7 on-call rotation for auth-team
 3. **[EXECUTION]** Continuously validate metrics against success criteria from PRD S19
@@ -379,6 +418,7 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 7. **[COMPLETION]** File stabilization report and post-mortem (if applicable)
 
 **Acceptance Criteria:**
+
 - 99.9% uptime over 7 consecutive days confirmed
 - AUTH_TOKEN_REFRESH removed at GA + 2 weeks
 - Post-mortem filed if any P0/P1 incidents occurred
@@ -386,6 +426,7 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 - 48-hour post-GA window: zero P0 incidents
 
 **Validation:**
+
 - Manual check: Prometheus uptime metric shows 99.9% for 7 consecutive days
 - Evidence: Stabilization report at `.dev/test-fixtures/results/test1-tdd-prd-v2/artifacts/D-0051/spec.md`
 
@@ -397,6 +438,7 @@ Ramp to 100% production traffic. Execute pre-GA penetration testing (dual securi
 **Purpose:** Final gate. All roadmap exit criteria met. Project complete.
 **Checkpoint Report Path:** `.dev/test-fixtures/results/test1-tdd-prd-v2/checkpoints/CP-P03-END.md`
 **Verification:**
+
 - Penetration test complete with no unresolved critical/high findings
 - 100% traffic on new AuthService for 7+ days
 - 99.9% uptime validated over 7 consecutive days

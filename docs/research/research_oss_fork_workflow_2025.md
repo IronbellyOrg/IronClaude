@@ -11,6 +11,7 @@
 2025年のOSS貢献における標準フォークワークフローは、**個人フォークのmainブランチを絶対に汚さない**ことが大原則。upstream同期にはmergeではなく**rebase**を使用し、PR前には**rebase -i**でコミット履歴を整理することで、クリーンな差分のみを提出する。
 
 **推奨ブランチ戦略**:
+
 ```
 master (or main): upstream mirror（同期専用、直接コミット禁止）
 feature/*: 機能開発ブランチ（upstream/masterから派生）
@@ -29,6 +30,7 @@ origin: kazukinakai/SuperClaude_Framework ← 個人フォーク
 ```
 
 **Current Branches**:
+
 - `master`: upstream追跡用
 - `dev`: 作業ブランチ（❌ 役割不明確）
 - `feature/*`: 機能ブランチ
@@ -85,6 +87,7 @@ git checkout -b feature/clean-docs upstream/master
 ```
 
 **命名規則**:
+
 - `feature/xxx`: 新機能
 - `fix/xxx`: バグ修正
 - `docs/xxx`: ドキュメント
@@ -107,6 +110,7 @@ git commit -m "docs: update PM Agent documentation"
 ```
 
 **Atomic Commits**:
+
 - 1コミット = 1つの論理的変更
 - コミットメッセージは具体的に（"fix typo"ではなく"fix: correct variable name in auth.js:45"）
 
@@ -126,6 +130,7 @@ git rebase -i master
 ```
 
 **Rebase Operations**:
+
 - `pick`: コミットを残す
 - `squash`: 前のコミットに統合
 - `reword`: コミットメッセージを変更
@@ -279,6 +284,7 @@ git checkout -b feature/new-feature master
 ```
 
 **利点**:
+
 - シンプルで迷わない
 - upstream同期が明確
 - PRのbaseが常にmaster（一貫性）
@@ -305,15 +311,18 @@ git merge feature/xxx  # 統合テスト用にマージ
 ```
 
 **利点**:
+
 - 統合テスト用ブランチとして明確な役割
 - 複数機能の組み合わせテストが可能
 
 **欠点**:
+
 - 個人開発では通常不要（OSSでは使わない）
 
 ### 推奨: Option 1（"dev"廃止）
 
 理由:
+
 - OSSコントリビューションでは"dev"は標準ではない
 - シンプルな方が混乱しない
 - upstream/master → feature/* → PR が最も一般的
@@ -380,16 +389,19 @@ gh pr create --repo SuperClaude-Org/SuperClaude_Framework
 ## 📖 References
 
 ### Official Documentation
+
 - [GitHub: Syncing a Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)
 - [Atlassian: Merging vs. Rebasing](https://www.atlassian.com/git/tutorials/merging-vs-rebasing)
 - [Atlassian: Forking Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow)
 
 ### 2025 Best Practices
+
 - [DataCamp: Git Merge vs Rebase (June 2025)](https://www.datacamp.com/blog/git-merge-vs-git-rebase)
 - [Mergify: Rebase vs Merge Tips (April 2025)](https://articles.mergify.com/rebase-git-vs-merge/)
 - [Zapier: Git Rebase vs Merge (May 2025)](https://zapier.com/blog/git-rebase-vs-merge/)
 
 ### Community Resources
+
 - [GitHub Gist: Standard Fork & Pull Request Workflow](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
 - [Medium: Git Fork Development Workflow](https://medium.com/@abhijit838/git-fork-development-workflow-and-best-practices-fb5b3573ab74)
 - [Stack Overflow: Keeping Fork in Sync](https://stackoverflow.com/questions/55501551/what-is-the-standard-way-of-keeping-a-fork-in-sync-with-upstream-on-collaborativ)

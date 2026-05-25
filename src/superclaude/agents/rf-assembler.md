@@ -258,7 +258,7 @@ After writing the output document:
 2. Verify all expected sections are present
 3. If running in a team context, send completion message:
 
-   ```yaml
+   ```text
    SendMessage:
      type: "message"
      recipient: "team-lead"

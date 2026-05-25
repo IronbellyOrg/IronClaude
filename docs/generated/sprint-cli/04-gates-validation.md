@@ -33,6 +33,7 @@ def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | 
 ```
 
 Evaluation flow:
+
 1. EXEMPT tier -> `(True, None)` immediately
 2. LIGHT tier -> check file exists and is non-empty
 3. STANDARD tier -> + min line count + `_check_frontmatter()` for required keys
@@ -169,18 +170,21 @@ extract
 ## Validation Points Across Pipeline
 
 ### Pre-Execution
+
 - Binary check: `claude` exists in PATH (executor.py:1123)
 - Config validation: file existence, phase gaps (config.py:237-247)
 - Input type detection: PRD/TDD/spec (roadmap/executor.py:62)
 - Input routing: arity/type/conflict guards (roadmap/executor.py:187)
 
 ### Mid-Pipeline
+
 - Output sanitization before gate checks (roadmap executor:355, validate:49, tasklist:63)
 - Anti-instinct audit: deterministic scaffold/mock detection (roadmap executor:535)
 - Deviation analysis: deterministic spec-vs-roadmap comparison (roadmap executor:1027)
 - Wiring verification: trailing mode gate (roadmap executor:1465)
 
 ### Post-Execution
+
 - Result file classification: parse agent-written result for status (sprint executor:1555-1590)
 - Checkpoint recovery: non-zero exit + PASS checkpoint = PASS_RECOVERED (executor:1592-1603)
 - Resume freshness checks: hash-based staleness detection (roadmap executor:1645+)

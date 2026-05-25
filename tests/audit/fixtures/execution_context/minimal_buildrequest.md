@@ -55,12 +55,14 @@ Frozen MDTM fixture mirroring the R-038 degraded form of the `## Execution Conte
 | Tier | LIGHT |
 
 **Steps:**
+
 1. **[VERIFICATION]** Extract the byte range between the `## Execution Context` heading and the closing `---`.
 2. **[VERIFICATION]** Confirm a `**References:**` bullet line is present in that range.
 3. **[VERIFICATION]** Confirm no `Source areas:` bullet line is present in that range.
 4. **[VERIFICATION]** Confirm no `Key constraints:` bullet line is present in that range.
 
 **Acceptance Criteria:**
+
 - Header range contains exactly one labeled bullet (`**References:**`).
 - `Source areas:` and `Key constraints:` literal substrings are absent from the header range.
 
@@ -69,4 +71,5 @@ Frozen MDTM fixture mirroring the R-038 degraded form of the `## Execution Conte
 ## Task Log / Notes
 
 ### Execution Log
+
 (none — frozen fixture)

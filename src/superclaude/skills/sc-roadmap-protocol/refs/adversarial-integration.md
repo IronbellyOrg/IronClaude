@@ -17,6 +17,7 @@ sc:roadmap supports three adversarial modes. Mode is determined by flag presence
 | Combined | `--specs` AND `--multi-roadmap --agents` | Wave 1A then Wave 2 | Both pipelines sequentially |
 
 **Detection logic**:
+
 1. If `--specs` flag present AND `--multi-roadmap` flag present → Combined mode
 2. If `--specs` flag present (without `--multi-roadmap`) → Multi-spec consolidation
 3. If `--multi-roadmap` flag present (without `--specs`) → Multi-roadmap generation
@@ -53,6 +54,7 @@ The `--agents` flag accepts a comma-separated list of agent specifications. Each
 ### Mixed Format Example
 
 `--agents opus:architect,sonnet,gpt52:security` parses to:
+
 - Agent 1: model=opus, persona=architect
 - Agent 2: model=sonnet, persona=(inherited)
 - Agent 3: model=gpt52, persona=security
@@ -66,6 +68,7 @@ The `--agents` flag accepts a comma-separated list of agent specifications. Each
 ### Orchestrator Addition
 
 When agent count ≥ 3, sc:roadmap automatically adds an orchestrator agent to coordinate adversarial debate rounds and prevent combinatorial explosion. The orchestrator:
+
 - Groups similar variants
 - Runs elimination rounds before final merge
 - Is not counted toward the 2-10 agent limit (it's infrastructure, not a competing agent)
@@ -79,11 +82,13 @@ All invocations use the `Skill` tool (per Execution Vocabulary). Arguments are p
 ### Multi-Spec Consolidation (Wave 1A)
 
 **Invocation format**:
+
 ```
 Skill sc:adversarial-protocol args: "--compare <spec-files> --depth <roadmap-depth> --output <roadmap-output-dir> [--interactive]"
 ```
 
 **Parameter mapping**:
+
 - `<spec-files>`: Value of sc:roadmap's `--specs` flag (comma-separated paths)
 - `<roadmap-depth>`: Value of sc:roadmap's `--depth` flag (maps directly: quick→quick, standard→standard, deep→deep)
 - `<roadmap-output-dir>`: sc:roadmap's resolved output directory
@@ -97,6 +102,7 @@ Skill sc:adversarial-protocol args: "--compare <spec-files> --depth <roadmap-dep
 | deep | deep | 3 |
 
 **Example invocations**:
+
 ```
 # Standard depth, 3 specs
 Skill sc:adversarial-protocol args: "--compare spec1.md,spec2.md,spec3.md --depth standard --output .dev/releases/current/auth-system/"
@@ -108,11 +114,13 @@ Skill sc:adversarial-protocol args: "--compare spec1.md,spec2.md --depth deep --
 ### Multi-Roadmap Generation (Wave 2)
 
 **Invocation format**:
+
 ```
 Skill sc:adversarial-protocol args: "--source <spec-or-unified-spec> --generate roadmap --agents <expanded-agent-specs> --depth <roadmap-depth> --output <roadmap-output-dir> [--interactive]"
 ```
 
 **Parameter mapping**:
+
 - `<spec-or-unified-spec>`: Single spec file path, or unified spec from Wave 1A (if combined mode)
 - `--generate roadmap`: Fixed value — tells sc:adversarial what artifact type to generate
 - `<expanded-agent-specs>`: Agent specs after expansion (model-only agents filled with primary persona)
@@ -121,6 +129,7 @@ Skill sc:adversarial-protocol args: "--source <spec-or-unified-spec> --generate 
 - `--interactive`: Present only when sc:roadmap's `--interactive` flag is set
 
 **Example invocations**:
+
 ```
 # 3 agents, standard depth (after persona expansion to "security")
 Skill sc:adversarial-protocol args: "--source spec.md --generate roadmap --agents opus:security,sonnet:security,gpt52:security --depth standard --output .dev/releases/current/auth-system/"
@@ -132,6 +141,7 @@ Skill sc:adversarial-protocol args: "--source spec.md --generate roadmap --agent
 ### Combined Mode
 
 When both `--specs` and `--multi-roadmap --agents` are present:
+
 1. Wave 1A: Invoke Skill `sc:adversarial-protocol` for multi-spec consolidation → produces unified spec
 2. Wave 1B: Extract from unified spec (standard pipeline)
 3. Wave 2: Invoke Skill `sc:adversarial-protocol` for multi-roadmap generation with unified spec as `--source`
@@ -147,6 +157,7 @@ The `--resume-from` flag allows sc:roadmap to bypass sc:adversarial Skill invoca
 ### Flag Validation Rules
 
 Validated in Wave 0 (step 7):
+
 1. **Requires adversarial mode**: `--specs` or `--multi-roadmap` must also be present. If neither: abort with `"--resume-from requires --specs or --multi-roadmap."`
 2. **Incompatible with --dry-run**: If `--dry-run` present: abort with `"--resume-from is incompatible with --dry-run."`
 3. **Directory must exist**: Specified path must be a valid directory. If not: abort with `"--resume-from directory not found: <path>"`
@@ -155,6 +166,7 @@ Validated in Wave 0 (step 7):
 ### Consumption Path
 
 When `--resume-from` is active, the return contract is consumed via the **file-fallback path** (same as line 164 of this document). Specifically:
+
 - **Wave 1A** (if `--specs` present): Skip steps 2a-2d (Skill invocation). Read `<resume-from-dir>/return-contract.yaml` via Read tool. Proceed to step 2e with file-based contract.
 - **Wave 2** (if `--multi-roadmap` present): Skip steps 3a-3d. Read `<resume-from-dir>/return-contract.yaml` via Read tool. Proceed to step 3e with file-based contract.
 
@@ -253,6 +265,7 @@ status == "failed"
 ### Fallback Mode Warning
 
 When `fallback_mode == true` (regardless of status), emit a differentiated warning:
+
 ```
 > **Warning**: Adversarial result was produced via fallback path (not primary Skill invocation).
 > Quality may be reduced. Review the merged output manually before proceeding.
@@ -263,6 +276,7 @@ This warning is additional to any status-based handling and is logged in extract
 ### Unresolved Conflicts Handling
 
 When `unresolved_conflicts > 0` (regardless of status), log warning in extraction.md:
+
 ```
 > **Warning**: Adversarial consolidation produced N unresolved conflicts.
 > Review artifacts at <artifacts_dir> for conflict details.
@@ -305,6 +319,7 @@ return_contract:
 **Trigger**: convergence_score < 50% (regardless of status)
 
 **Action**: Emit warning message:
+
 ```
 "Specifications may be too divergent for meaningful consolidation.
 Consider running separate roadmaps or using --interactive for manual conflict resolution."
@@ -330,6 +345,7 @@ adversarial:
 ```
 
 **Population rules**:
+
 - `mode`: Set based on mode detection logic (see above)
 - `agents`: List of expanded agent specs (after model-only expansion). For multi-spec mode, this is the implicit agents used by sc:adversarial (typically 2 advocate agents)
 - `convergence_score`: Direct copy from return contract
@@ -347,6 +363,7 @@ adversarial:
 **Condition**: `--specs` or `--multi-roadmap` flag present, but `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` not found.
 
 **Action**: Abort in Wave 0 with:
+
 ```
 "sc:adversarial skill not installed. Required for --specs/--multi-roadmap flags.
 Install via: superclaude install"
@@ -357,6 +374,7 @@ Install via: superclaude install"
 **Condition**: `--multi-roadmap` flag present, and a model identifier in `--agents` is not recognized.
 
 **Action**: Abort in Wave 0 with:
+
 ```
 "Unknown model '<model>' in --agents. Available models: opus, sonnet, haiku, gpt52, gemini, ..."
 ```
@@ -366,6 +384,7 @@ Install via: superclaude install"
 **Condition**: Agent list has fewer than 2 or more than 10 entries.
 
 **Action**: Abort in Wave 0 with:
+
 ```
 "Agent count must be 2-10. Provided: N"
 ```
@@ -375,6 +394,7 @@ Install via: superclaude install"
 **Condition**: sc:adversarial invocation fails (not a status response, but a skill-level failure).
 
 **Action**: Abort with:
+
 ```
 "sc:adversarial invocation failed. Check that the skill is properly installed and configured."
 ```
@@ -392,6 +412,7 @@ The `--interactive` flag on sc:roadmap propagates to sc:adversarial invocations 
 | Combined mode | `--interactive` appended to both invocations |
 
 **Behavioral impact**:
+
 - When `--interactive` is set: sc:adversarial prompts for user approval at decision points; sc:roadmap prompts at convergence <60% threshold
 - When `--interactive` is NOT set: sc:adversarial uses auto-resolution; sc:roadmap aborts at convergence <60% threshold
 

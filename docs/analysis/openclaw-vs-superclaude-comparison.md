@@ -309,6 +309,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 ### OpenClaw
 
 **Pros:**
+
 1. Massive community (328K stars, 6,100+ contributors) creating network effects
 2. Platform-agnostic: any OS, any messaging channel, any LLM provider
 3. Always-on background service with scheduled tasks and autonomous execution
@@ -321,6 +322,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 10. Flexible persona system lets users create deeply personal AI identities
 
 **Cons:**
+
 1. Serious security risks: malicious skills, prompt injection attacks, broad system access
 2. Quality control is reactive (VirusTotal scanning after publication, not before)
 3. Developer-specific skills are a small fraction of the ecosystem and vary wildly in quality
@@ -335,6 +337,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 ### SuperClaude
 
 **Pros:**
+
 1. 42-module evidence-gated audit pipeline with no equivalent in the market
 2. Confidence-first development prevents wrong-direction work (25-250x token ROI)
 3. 29 specialized agents with automatic context-driven activation
@@ -347,6 +350,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 10. Deep MCP integration (10 servers) for evidence-based development
 
 **Cons:**
+
 1. Claude Code only -- no platform reach beyond terminal sessions
 2. Claude models only -- no model flexibility
 3. No community marketplace or contribution model
@@ -367,6 +371,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 **OpenClaw's model**: Anyone can publish a SKILL.md; ClawHub indexes and makes discoverable; community curates via awesome-lists and Reddit threads; Claw Mart enables paid skills.
 
 **Lesson for SuperClaude**: The 12-skill internal model does not scale. Consider:
+
 - **Curated skill registry**: Not an open marketplace (which invites security problems), but a curated registry where vetted contributors can submit skills that pass the existing audit pipeline
 - **Skill templates**: Publish the SKILL.md + refs/ + rules/ + templates/ structure as a documented standard so external developers can build skills that meet SuperClaude's quality bar
 - **Progressive disclosure**: Adopt OpenClaw's efficient loading pattern -- only load skill names/descriptions at boot, full content on demand (SuperClaude already does this at ~50 tokens)
@@ -376,6 +381,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 **OpenClaw's model**: Gateway runs as a background service; agents execute scheduled tasks; results delivered via messaging channels.
 
 **Lesson for SuperClaude**: The session-based model is limiting. Consider:
+
 - **Background audit service**: Run audit pipeline as a CI/CD integration that reports results via GitHub PR comments or Slack
 - **Channel output**: Even without full multi-channel support, outputting results to webhook endpoints would extend reach significantly
 - **Scheduled execution**: Sprint runs and roadmap validation could execute on schedules rather than requiring manual invocation
@@ -385,6 +391,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 **OpenClaw's model**: SOUL.md lets users define deeply personal agent identities; hooks enable dynamic persona switching; community creates persona skills.
 
 **Lesson for SuperClaude**: The 9 auto-activated personas are powerful but impersonal. Consider:
+
 - **User-configurable persona weights**: Let users adjust which personas activate and how strongly they influence behavior
 - **SOUL.md equivalent**: A configuration file where users define their preferred communication style, technical level, and interaction preferences
 - **Per-project personas**: Different persona configurations for different codebases
@@ -394,6 +401,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 **OpenClaw's model**: Works with any LLM provider -- Claude, GPT, DeepSeek, Gemini, local models.
 
 **Lesson for SuperClaude**: Claude-only dependency is a strategic risk. Consider:
+
 - **Abstraction layer**: Design skills and agents to be model-agnostic where possible
 - **Multi-model adversarial**: The adversarial protocol could use different models for different debate positions (already conceptually aligned with the framework's design)
 
@@ -402,6 +410,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 **OpenClaw's model**: freeCodeCamp course, DigitalOcean articles, DataCamp guides, YouTube tutorials with millions of views.
 
 **Lesson for SuperClaude**: Even sophisticated tools need accessible onboarding. Consider:
+
 - **Interactive onboarding**: A guided first-run experience (like OpenClaw's onboarding wizard)
 - **Example workflows**: Published examples of complete sprint cycles, roadmap generations, and audit runs
 - **Documentation site**: Public-facing documentation that shows the framework's capabilities
@@ -411,6 +420,7 @@ SuperClaude's audit system is on a completely different level. OpenClaw's audit 
 **OpenClaw's model**: Claw Mart enables paid skills ($9-$39); creates economic incentive for authors to maintain quality.
 
 **Lesson for SuperClaude**: If a community model is pursued, economic incentives matter. Consider:
+
 - **Quality tiers**: Free community skills (audited), premium skills (with support/updates), enterprise skills (with SLAs)
 - **Audit-as-a-service**: The 42-module audit pipeline is itself a valuable service that could be offered to the broader developer community
 

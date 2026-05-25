@@ -9,6 +9,7 @@ When analyzing a target workflow, locate and read these components in order:
 ### 1. Find the Command
 
 Look in `src/superclaude/commands/` for the matching command file. Extract:
+
 - Frontmatter: category, complexity, mcp-servers, personas
 - Behavioral Flow section: the high-level step sequence
 - Arguments and options
@@ -17,6 +18,7 @@ Look in `src/superclaude/commands/` for the matching command file. Extract:
 ### 2. Find the Skill
 
 Look in `src/superclaude/skills/` for the matching skill directory. Read:
+
 - `SKILL.md`: The full protocol with step-by-step behavioral flow
 - `refs/`: All reference files (algorithms, templates, scoring protocols)
 - `rules/`: Validation rules and classification taxonomies
@@ -27,6 +29,7 @@ Look in `src/superclaude/skills/` for the matching skill directory. Read:
 ### 3. Find the Agents
 
 Search for agents referenced in the skill:
+
 - Look in `src/superclaude/agents/` for `.md` files
 - Note each agent's: triggers, tools, responsibilities, boundaries
 - Identify delegation patterns: parallel vs sequential, orchestrator vs worker
@@ -34,6 +37,7 @@ Search for agents referenced in the skill:
 ### 4. Map the Data Flow
 
 Trace how data moves through the workflow:
+
 - What inputs does each step consume?
 - What artifacts does each step produce?
 - Which artifacts feed into downstream steps?
@@ -46,6 +50,7 @@ For each discrete operation in the workflow:
 ### Identify Step Boundaries
 
 A new Step starts when:
+
 - A new artifact is produced
 - A different agent takes over
 - The execution mode changes (sequential → parallel)
@@ -141,6 +146,7 @@ complexity: simple|moderate|high
 ## Data Flow Diagram
 
 ```
+
 [input] → step-1 → [artifact-1]
                          ↓
                     ┌─step-2─┐
@@ -150,6 +156,7 @@ complexity: simple|moderate|high
                [artifact-2, artifact-3]
                          ↓
                     step-4 → [final-output]
+
 ```
 
 ## Classification Summary
@@ -172,9 +179,11 @@ complexity: simple|moderate|high
 ## Common Workflow Patterns
 
 ### Pattern: Multi-Agent Debate
+
 Found in: adversarial, spec-panel
 
 Steps:
+
 1. Parse inputs and validate (programmatic)
 2. Generate variants in parallel (Claude, parallel group)
 3. Diff analysis (Claude, single step with strict gate)
@@ -184,9 +193,11 @@ Steps:
 7. Execute merge (Claude, strict gate with post-validation)
 
 ### Pattern: Multi-Pass Audit
+
 Found in: cleanup-audit
 
 Steps:
+
 1. Discover files (programmatic)
 2. Surface scan with batching (Claude, batched parallel)
 3. Deep analysis per file (Claude, batched parallel)
@@ -195,9 +206,11 @@ Steps:
 6. Validate claims (Claude, sampling with standard gate)
 
 ### Pattern: Extract-Transform-Validate
+
 Found in: roadmap, tasklist
 
 Steps:
+
 1. Extract requirements (Claude, strict gate on frontmatter)
 2. Generate artifacts (Claude, parallel for multiple agents)
 3. Compare/analyze (Claude, standard gate)
@@ -205,9 +218,11 @@ Steps:
 5. Validate structure (programmatic)
 
 ### Pattern: Iterative Refinement
+
 Found in: implement, improve
 
 Steps:
+
 1. Analyze current state (Claude, standard gate)
 2. Generate plan (Claude, standard gate)
 3. Execute changes (Claude, strict gate)

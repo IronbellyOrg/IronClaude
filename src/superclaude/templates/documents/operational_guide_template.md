@@ -74,6 +74,7 @@ task_type: "static"
 ## Completeness Status
 
 **Completeness Checklist:**
+
 - [ ] Section 1: Overview — **Status**
 - [ ] Section 2: Prerequisites — **Status**
 - [ ] Section 3-5: Phases — **Status**
@@ -138,6 +139,7 @@ task_type: "static"
 ### 1.3 What You Will Accomplish
 
 By the end of this guide you will have:
+
 - [Outcome 1]
 - [Outcome 2]
 - [Outcome 3]
@@ -199,6 +201,7 @@ By the end of this guide you will have:
 ```
 
 > **Expected Output:**
+>
 > ```
 > [What the user should see if the command succeeds]
 > ```
@@ -582,6 +585,7 @@ Use these standardized callout formats throughout the document:
 -->
 
 > **See also:**
+>
 > - [Technical Reference Template](technical_reference_template.md) — For documenting implemented features and systems
 > - [Supplemental Doc Template](supplemental_doc_template.md) — For process standards and reference documents
 > - [PRD Template](prd_template.md) — For product requirements and feature specifications

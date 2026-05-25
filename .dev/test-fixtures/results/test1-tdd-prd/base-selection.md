@@ -23,6 +23,7 @@ The debate surfaced 10 dimensions. I weight them by impact on successful deliver
 | C10 | Business value delivery speed | 12% | PRD S19, debate Topic 4 |
 
 **PRD-derived dimensions** (weighted into existing criteria):
+
 - Business value delivery → folded into C10
 - Persona coverage → evaluated across C2, C5, C6
 - Compliance alignment → folded into C9

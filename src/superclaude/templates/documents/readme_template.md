@@ -398,16 +398,19 @@ For deployment instructions, see [link to deployment docs].
 For Heavyweight projects, this is one of the most important sections — it prevents readers from getting lost. -->
 
 ### For Users
+
 - [User Guide / Getting Started](link)
 - [API Reference](link)
 - [FAQ / Troubleshooting](#15-faq--troubleshooting)
 
 ### For Contributors
+
 - [Contributing Guide](CONTRIBUTING.md)
 - [Development Setup](#9-development-setup)
 - [Architecture / Technical Reference](link)
 
 ### For Operators
+
 - [Deployment Guide](link)
 - [Configuration Reference](link)
 - [Monitoring / Observability](link)
@@ -500,9 +503,11 @@ Keep it brief. -->
 ## Appendices *(if applicable — Lightweight tier may omit)*
 
 ### Appendix A: [Topic]
+
 [Supplementary content that supports the README but would break the flow if inline.]
 
 ### Appendix B: Document Provenance *(if applicable)*
+
 [Include when README was generated from or merged from other sources.]
 
 ---
@@ -516,6 +521,7 @@ Keep it brief. -->
 ---
 
 > **See also:**
+>
 > - [related-doc-1.md](path) — Brief description
 > - [related-doc-2.md](path) — Brief description
 

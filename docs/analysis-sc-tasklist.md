@@ -80,6 +80,7 @@ Generation is handled by the **skill protocol** (LLM-driven inference). Validati
 ### What It Does
 
 The slash command is a **thin dispatcher**. It:
+
 1. Parses `<roadmap-path>`, `--spec`, and `--output` arguments
 2. Validates all inputs exist and are readable
 3. Derives `TASKLIST_ROOT` (the output directory) if not explicitly provided
@@ -189,20 +190,24 @@ CLI invocation
 ### Key Components
 
 **`models.py`** — `TasklistValidateConfig` extends `PipelineConfig` with:
+
 - `output_dir`, `roadmap_file`, `tasklist_dir`
 - `tdd_file` (optional), `prd_file` (optional)
 
 **`gates.py`** — `TASKLIST_FIDELITY_GATE` defines pass criteria:
+
 - Required frontmatter fields: `high_severity_count`, `medium_severity_count`, `low_severity_count`, `total_deviations`, `validation_complete`, `tasklist_ready`
 - Semantic checks: `high_severity_count` must be 0, `tasklist_ready` must be consistent
 - Enforcement tier: STRICT
 - Minimum report length: 20 lines
 
 **`prompts.py`** — Two prompt builders:
+
 - `build_tasklist_fidelity_prompt()` — for CLI validation (roadmap→tasklist fidelity)
 - `build_tasklist_generate_prompt()` — for skill-based generation (not used by CLI)
 
 **`executor.py`** — Orchestrates the validation pipeline:
+
 - Collects tasklist markdown files
 - Embeds all inputs (roadmap + tasklists + optional TDD/PRD) inline in the prompt
 - Spawns a `ClaudeProcess` subprocess
@@ -315,6 +320,7 @@ Every task gets:
 ### Policy Fork Resolution (Tie-Breakers)
 
 When roadmap implies alternatives, choose deterministically:
+
 1. Prefer explicitly named approach
 2. Prefer no new external dependencies
 3. Prefer reversible approach
@@ -329,6 +335,7 @@ When roadmap implies alternatives, choose deterministically:
 ### Clarification Tasks
 
 When info is missing or tier confidence < 0.70:
+
 - Inserted before the blocked task
 - Title: `Clarify: <missing detail>` or `Confirm: <task> tier classification`
 - Must include decision artifact deliverable
@@ -487,6 +494,7 @@ Validation checks whether a generated tasklist faithfully represents its source 
 ### Fidelity Gate
 
 The `TASKLIST_FIDELITY_GATE` enforces:
+
 - `high_severity_count` must be **0**
 - `validation_complete` must be **true**
 - `tasklist_ready` must be consistent with the above
@@ -539,6 +547,7 @@ Explicit CLI flags always override auto-wired values.
 ### TDD Enrichment
 
 When a TDD is provided, the generator extracts:
+
 - **§10 Component Inventory** → implementation tasks with named classes and props
 - **§8 API Specifications** → endpoint tasks with schemas and status codes
 - **§15 Testing Strategy** → test tasks with exact test names and expected behaviors
@@ -548,6 +557,7 @@ When a TDD is provided, the generator extracts:
 ### PRD Enrichment
 
 When a PRD is provided, the generator:
+
 - Annotates user-facing tasks with persona(s) served (from §7)
 - Maps acceptance scenarios to verification tasks (from §12, §22)
 - Adds metric instrumentation subtasks (from §19)

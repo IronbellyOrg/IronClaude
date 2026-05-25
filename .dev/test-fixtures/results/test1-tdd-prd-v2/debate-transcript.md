@@ -150,6 +150,7 @@ SOC2 pre-audit reviews happen months before the formal audit. If the query API i
 ### Merge Recommendation
 
 The optimal roadmap would combine:
+
 - **Opus's phasing logic** with a compressed **6-week timeline** (not 9, not 4)
 - **Haiku's wiring documentation** (consolidated summary + cross-references)
 - **Haiku's critical path analysis** (task durations, slack, risk-adjusted estimates)

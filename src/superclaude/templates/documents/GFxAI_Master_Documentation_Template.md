@@ -47,6 +47,7 @@ task_type: "static"
 ---
 
 ## Table of Contents
+
 - [Executive Summary & Vision](#executive-summary--vision)
 - [Audience & Doc Modes](#audience--doc-modes)
 - [Use Cases, Demos & Case Studies](#use-cases-demos--case-studies)
@@ -80,6 +81,7 @@ WHY: Aligns investors, partners, and the team on the “why” and “where we�
 <!-- 2–3 sentences describing GFxAI at a glance (problem, solution, outcome). -->
 
 ## Goals & Success Metrics
+
 - **Primary goals:** <!-- e.g., reduce time-to-first-playable < 1 hr; enable NL→safe changes; ship demo #1 -->
 - **KPIs/SLOs:** <!-- business (signups, activation %), product (task success rate), tech (latency, success rate of applied plans) -->
 
@@ -87,6 +89,7 @@ WHY: Aligns investors, partners, and the team on the “why” and “where we�
 <!-- Bullet list of unique advantages vs point tools, engines, or generic AI assistants (e.g., UE-integrated changes with diffs/rollback, wizard seeding, verifiable DT edits). -->
 
 ## Vision (12–36 months)
+
 - **North Star:** <!-- long-term state -->
 - **Milestones:** <!-- YYYY-Q# checkpoints; keep to one line each -->
 
@@ -111,14 +114,17 @@ WHAT: Top 3–5 jobs-to-be-done, with demo scripts and measurable outcomes.
 WHY: Focuses the product and supports sales/marketing with repeatable narratives.
 -->
 ## Top Use Cases
+
 - <!-- e.g., “Prototype a shooter loop in 1 hour” → metrics and proof points -->
 - <!-- e.g., “Balance sprint/jump/reload across 3 classes” -->
 
 ## Demo Scripts
+
 - **Script ID, Time, Assets, Steps, Expected Output, Rollback Plan**  
   <!-- Provide copy-pasteable demo flows with seeded projects for reliability. -->
 
 ## Case Studies
+
 - **Problem → Approach → Outcome (metrics) → Quote**  
   <!-- Populate as real results arrive. -->
 
@@ -153,11 +159,13 @@ WHAT: Audience/problem/solution, core features, and concise roadmap.
 WHY: The spine for sales decks, landing pages, and internal alignment.
 -->
 ## Target Users & Use Cases
+
 | Persona | Needs | Primary Flows | Success Criteria |
 |---|---|---|---|
 | <!-- e.g., Solo Indie, Producer, UE Engineer --> |  |  |  |
 
 ## Market Positioning
+
 - **Category:** <!-- e.g., AI-assisted game creation platform -->
 - **Competitive Set:** <!-- who users compare us with; why we win -->
 
@@ -165,6 +173,7 @@ WHY: The spine for sales decks, landing pages, and internal alignment.
 <!-- Map feature → benefit → metric (proof). Keep bullets terse. -->
 
 ## Product Roadmap (concise)
+
 | Quarter | Initiative | Owner | Status | Notes |
 |---|---|---|---|---|
 
@@ -178,19 +187,23 @@ WHY: Turns vision into an executable backlog and keeps PM/Eng in lockstep.
 > **How to use:** maintain this table as the **source of truth**. Export/filter to generate epics/features/stories in your PM tool.
 
 ### Feature Catalog (Authoritative)
+
 | ID | Epic | Feature | User Value (1-2 lines) | Priority (R/M/C) | MoSCoW | OKR/Metric | Dependencies | Risks/Notes | Status |
 |---|---|---|---|:---:|:---:|---|---|---|:---:|
 | FEAT-001 | Onboarding | Wizard: genre/camera/art seed | Guided project seeding for non-experts | R | M | Time-to-setup | Backend `/session` | – | Planned |
 | … | … | … | … | … | … | … | … | … | … |
 
 **Taxonomy & Export Rules**
+
 - **Epic** → **Feature** → **User Story** → **Task**  
 - **User Story template:**  
+
   ```
   As a <persona>, I want <capability>, so that <value>. 
   Acceptance: Given/When/Then…
   NFRs: perf, security, telemetry.
   ```
+
 - **Export mapping:**  
   - **Epic** = group by `Epic`  
   - **Feature** = rows grouped under epic  
@@ -208,11 +221,13 @@ WHY: Prevents integration drift; informs security, scale, and staffing.
 -->
 
 ## High-level Diagrams
+
 ```
 [Diagram Placeholder: System Context (C4 Level 1): FE ↔ BE ↔ UE Manager ↔ UE Project]
 ```
 
 ## Components & Dependencies
+
 - **GFxAI Agents & Orchestrator:** <!-- coordination (e.g., LangGraph), queues, memory classes -->
 - **Data Layer:** <!-- Postgres/Redis/vector/object storage, retention -->
 - **UE Manager:** <!-- launch/attach/PIE, DataTable read/write, script exec -->
@@ -220,6 +235,7 @@ WHY: Prevents integration drift; informs security, scale, and staffing.
 - **External Services:** <!-- e.g., PlayFab/EOS/Steam; note what’s current vs future -->
 
 ## Scalability, Performance, Security
+
 - **Perf Targets:** <!-- p95 plan latency, apply success %, editor uptime -->
 - **Scale Plan:** <!-- horizontal workers, shard keys, GPU pools -->
 - **Security Model:** <!-- authN/Z boundaries, token flows, secrets handling, PII map -->
@@ -235,16 +251,20 @@ WHY: Makes AI behavior inspectable, testable, and safe. Note: If you are not usi
 -->
 
 ## AI System Overview
+
 - **Current Integration:** <!-- LLM provider(s), invocation patterns, streaming, retries -->
 - **Agents & Orchestration:** <!-- roles, tool interfaces, handoffs, decision graph -->
 - **Memory Strategy:** <!-- what we remember (per project/session), expiration, scoping -->
 
 ## (Optional) Retrieval / RAG
+
 - **Status:** <!-- “Not used currently” OR “Pilot” OR “In production” -->
 - **If used:** sources, chunking, embeddings (model/dims), index schema, filter strategy.
 
 ## Prompting & Models
+
 - **Prompt Templates (by agent/tool):**
+
   ```text
   <system>
   Role: Movement Specialist
@@ -254,16 +274,19 @@ WHY: Makes AI behavior inspectable, testable, and safe. Note: If you are not usi
   Success = verified change + diff + rollback token
   </system>
   ```
+
 - **Model Selection Matrix**
   | Use Case | Model | Context Window | Latency Target | Fallback |
   |---|---|---|---|---|
 
 ## Evaluation & Safety
+
 - **Eval Suite:** <!-- pass@k on known tasks, factuality checks, plan/apply success -->
 - **Risk Controls:** <!-- dry-run, schema clamps, range guards, human confirm -->
 - **Failure Modes & Recovery:** <!-- timeouts, degraded mode, mock provider -->
 
 ## Sample NL → Engine Modification Pipeline
+
 1. **User:** “Increase player sprint speed by 20%.”
 2. **Parse/Plan:** intent → field mapping → safety bounds.
 3. **Act:** DT update or UE script; bounded timeout.
@@ -282,14 +305,17 @@ WHY: Keeps FE/BE contracts explicit and UX reproducible.
 <!-- performance, progressive disclosure, a11y, error recovery -->
 
 ## Onboarding Flows & UI States
+
 ```
 [Diagram Placeholder: Wizard steps, guards, resume rules, persistence]
 ```
 
 ## Key Screens & Journeys
+
 - Chat/Console • Project Setup Wizard • Agent Activity/Logs • Data Table Editor • Live Preview
 
 ## API Contracts with Backend
+
 | Endpoint | Method | Request | Response | Errors | Notes |
 |---|---|---|---|---|---|
 | /api/session | POST | <!-- JSON --> | <!-- JSON --> | <!-- codes --> | idempotency rules |
@@ -297,6 +323,7 @@ WHY: Keeps FE/BE contracts explicit and UX reproducible.
 | /api/act  | POST |  |  |  |  |
 
 ## Frontend Tech Notes
+
 - **Stack:** <!-- Next.js/SSR, state mgmt, query -->
 - **Env Vars:** <!-- NEXT_PUBLIC_* -->
 - **Performance:** <!-- budgets, code-split -->
@@ -311,9 +338,11 @@ WHY: Ensures contracts are stable and operable.
 -->
 
 ## Service Overview
+
 - **Auth/AuthZ**, **Orchestration**, **UE Manager Integration**, **WebSockets/Events**
 
 ## API Endpoints & Schemas
+
 ```yaml
 openapi: 3.0.3
 info: { title: GFxAI API, version: 0.1.0 }
@@ -324,11 +353,13 @@ paths:
 ```
 
 ## Data Persistence
+
 - **Relational:** <!-- schemas, migrations -->
 - **Vector (if used):** <!-- index names, dims -->
 - **Artifacts:** <!-- diffs, logs, bundles; retention -->
 
 ## Logging, Monitoring, Error Handling
+
 - **Logs:** JSON with correlation IDs
 - **Metrics:** plan latency, apply success, editor uptime
 - **Errors:** taxonomy, retries, DLQs
@@ -343,7 +374,9 @@ WHY: Future-proofs the project and accelerates onboarding.
 -->
 
 ## Architecture Decision Records (ADR)
+
 **Template**
+
 ```
 # ADR: <short title>
 Date: YYYY-MM-DD  |  Status: Proposed|Accepted|Deprecated|Rejected  |  Owners: <names>
@@ -364,6 +397,7 @@ Date: YYYY-MM-DD  |  Status: Proposed|Accepted|Deprecated|Rejected  |  Owners: <
 <!-- Keep running log; prune quarterly. -->
 
 ## Open Questions
+
 | Question | Owner | By When | Notes |
 |---|---|---|---|
 
@@ -376,6 +410,7 @@ WHY: Prevents regressions and builds trust in AI-driven changes.
 -->
 
 ## Test Strategy
+
 | Level | Scope | Tools | Gate |
 |---|---|---|---|
 | Unit | functions/modules | <!-- pytest, vitest, gtest --> | required |
@@ -384,15 +419,18 @@ WHY: Prevents regressions and builds trust in AI-driven changes.
 | AI Evals | prompts/tools/safety |  | weekly |
 
 ## Coverage Targets
+
 - **Code:** <!-- % per repo -->
 - **Prompts/Agents:** <!-- pass@k, accuracy -->
 
 ## Unreal-specific Testing
+
 - **PIE Automation:** <!-- scripts + expected outputs -->
 - **Data Table Validation:** <!-- schema + range checks -->
 - **Determinism:** <!-- seeds; replay plans in CI -->
 
 ## QA Scripts & Acceptance Criteria
+
 ```
 [Checklist Placeholder per feature with Given/When/Then steps]
 ```
@@ -406,6 +444,7 @@ WHY: Ensures reliability and predictable releases.
 -->
 
 ## Environments
+
 | Env | Purpose | URLs | Data Sources | Notes |
 |---|---|---|---|---|
 | Dev |  |  |  |  |
@@ -413,16 +452,19 @@ WHY: Ensures reliability and predictable releases.
 | Prod |  |  |  |  |
 
 ## Setup Guides
+
 - **UE Projects:** <!-- engine version, paths, plugins -->
 - **Orchestration:** <!-- containers/K8s/Helm -->
 - **(Optional) Retrieval/Index:** <!-- creation, ingestion jobs -->
 
 ## CI/CD Pipelines
+
 - **Build:** lint, test, package
 - **Security Gates:** SAST/DAST, SBOM
 - **Promotion:** staging → prod; approvals
 
 ## Monitoring, Logging, Alerting
+
 - **Dashboards:** <!-- link placeholders -->
 - **Runbooks:** <!-- common incidents; step-by-step remediation -->
 - **SLOs:** <!-- error budget policy and review cadence -->
@@ -436,14 +478,17 @@ WHY: Protects users and unlocks funding/enterprise deals.
 -->
 
 ## Data Privacy & User Data Handling
+
 - **Data Map:** where PII lives; retention & access controls
 - **RBAC/Least Privilege:** roles and boundaries
 
 ## Model Safety & Bias Mitigation
+
 - **Safety Filters:** input/output guardrails
 - **Red Teaming:** cadence, scenarios, results
 
 ## Regulatory/Program Compliance
+
 - **SR&ED / CTMM Artifacts:** how evidence is collected (specs, experiments, failed approaches, learnings), time & cost mapping
 - **Licensing:** OSS/3rd-party obligations
 
@@ -456,6 +501,7 @@ WHY: Prevents rot and maintains trust.
 -->
 
 ## Versioning & Changelog
+
 ```
 ## [x.y.z] - YYYY-MM-DD
 ### Added
@@ -465,10 +511,12 @@ WHY: Prevents rot and maintains trust.
 ```
 
 ## Update Guidelines
+
 - **DoD includes docs** (PRs must update relevant sections).
 - **Doc Linting in CI:** markdownlint + broken-link checks.
 
 ## Ownership & Contribution Model
+
 - **Doc Owners:** by area
 - **Change Process:** labels, reviewers, SLAs
 
@@ -478,13 +526,17 @@ WHY: Prevents rot and maintains trust.
 <!-- Reusable templates that teams copy/paste. -->
 
 ## Templates
+
 - **User Story**
+
   ```
   As a <persona>, I want <capability>, so that <value>.
   Acceptance: Given/When/Then…
   NFRs: perf, security, telemetry.
   ```
+
 - **API Spec (per endpoint)**
+
   ```
   ## <METHOD> /api/<path>
   Summary, Auth, Idempotency
@@ -492,7 +544,9 @@ WHY: Prevents rot and maintains trust.
   Response 200: example JSON
   Errors: 400/401/409/5xx (client actions)
   ```
+
 - **AI Agent Card**
+
   ```
   # Agent: <Name>
   Role • Inputs • Tools • Outputs • Policies
@@ -502,6 +556,7 @@ WHY: Prevents rot and maintains trust.
   ```
 
 ## Glossary
+
 | Term | Definition |
 |---|---|
 | GFxAI | AI control plane for UE projects |

@@ -62,14 +62,26 @@ re-run only those evals:
 
 ```bash
 # Full suite run (deterministic single pass)
-superclaude eval run suites/full.yaml --parallel 8
+superclaude eval run --suite real --parallel 8
 
 # Re-run only the failing ids after diagnosis (any number of --eval)
-superclaude eval run suites/full.yaml --eval E03 --eval E07
+superclaude eval run --suite real --eval E3 --eval E7
 
-# Quick smoke (3-4 evals); same flag, different subset
-superclaude eval run suites/quick.yaml --eval E01 --eval E02
+# Quick smoke via subset filter (quick.yaml deferred per DOC-OQ6;
+# --eval is the v1 subset escape hatch)
+superclaude eval run --suite real --eval E1 --eval E2
 ```
+
+> **CLI shape note (post cliEval Phase 5+6 remediation):** `eval run` takes the suite via the `--suite <token>` flag, not a positional argument. The canonical suite is `real.yaml`; `quick.yaml` is **deferred per DOC-OQ6**. Eval ids follow the strict FR-SCH2 regex — use `E1`, `E2.1`, `E15`, not zero-padded forms like `E01`.
+
+> **Subset-run runtime warnings (post Phase 5+6 remediation):** A subset re-run
+> writes the same `summary.{md,json,yaml}` artifact set under its own run-dir
+> (independent of the original run). With `--verbose`, the post-run stdout line
+> renders the full P/F/S/E/I/T DM-012 taxonomy (see [`docs/eval/runtime.md`](runtime.md)
+> §"Verbose summary line" and [`docs/user-guide/eval-pipeline.md`](../user-guide/eval-pipeline.md)
+> §"Reading the verbose summary line"). Subset runs against the current code path
+> emit the same `_NullLifecycleExecutor` WARNING on stderr as full runs (M2 / CC3 —
+> see [`docs/eval/runtime.md`](runtime.md) §"Operator-visible runtime warnings").
 
 Notes:
 
@@ -153,6 +165,13 @@ empirically against the M5 test surface; see
 `.dev/releases/current/cliEval/artifacts/D-0101/notes.md`.
 
 ## Operator-facing invariants
+
+> **`RUN_INTERRUPTED_EXIT_CODE = 3` (not 130).** The cliEval process boundary pins
+> exit code `3` for SIGINT/SIGTERM cooperative cancellation, NOT the POSIX
+> `signal+128 = 130` convention some shells expose. CI scripts keying off the
+> exit code should match `3` exactly. Canonical declaration:
+> `src/superclaude/cli/eval/exit_codes.py::INTERRUPTED` (= 3) with the rationale
+> documented inline. Test: `tests/cli/eval/test_exit_codes.py::test_exit_code_3_interrupted_run`.
 
 * `EvalRunner.DEFAULT_RETRY_COUNT` is the canonical pin for the
   NFR-REL2 contract. Reading it from a script (e.g. CI safety check)

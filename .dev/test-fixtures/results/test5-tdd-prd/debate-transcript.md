@@ -68,6 +68,7 @@ rounds_completed: 2
 **Narrow disputes (resolvable with clarification):** Health endpoint shape (both deliver it, Haiku makes it explicit via `API-011`), refresh token quota (both need a number, Haiku committed, Opus deferred), registration auto-login conflict (both resolve to TDD contract, only Haiku documents it). These would converge trivially in a joint review.
 
 **Genuine strategic disputes (require stakeholder decision):**
+
 - **Admin APIs pre-GA vs v1.1:** Depends on whether SOC2 Type II audit and Jordan persona support are GA-blocking. Executive/compliance decision.
 - **Automated rollback vs drilled runbook:** Engineering cost vs MTTR tradeoff. SRE/platform decision.
 - **OQ closure policy:** Organizational preference for decision velocity vs stakeholder alignment.
@@ -75,6 +76,7 @@ rounds_completed: 2
 - **Schedule documentation style:** Whether to print the slip (Opus) or manage it operationally (Haiku).
 
 **Areas where one variant is clearly stronger:**
+
 - Opus wins on: schedule realism, rollback automation fidelity to TDD §19.4, success-criteria traceability (`SUCC-SLO-BOARD`), early load testing, risk register depth (13 vs 10 risks with explicit schedule + key rotation entries).
 - Haiku wins on: PRD capability completeness (logout + admin APIs), open-question closure rate, explicit conflict surfacing, earlier compliance wiring, clearer operator runbooks per component.
 

@@ -36,12 +36,14 @@
 Systemic findings detected across multiple batches:
 
 ### Pattern 1: {Name}
+
 - **Observed in**: Batches {list}
 - **Description**: {what the pattern is}
 - **Impact**: {scope of the pattern}
 - **Recommendation**: {suggested action}
 
 ### Pattern 2: {Name}
+
 - **Observed in**: Batches {list}
 - **Description**: {what the pattern is}
 

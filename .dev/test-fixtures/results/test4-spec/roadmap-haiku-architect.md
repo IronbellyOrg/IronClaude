@@ -38,6 +38,7 @@ This roadmap delivers a medium-complexity authentication subsystem centered on s
 ## Phase 1 — Architecture, data model, and security foundations
 
 ### Milestone
+
 Establish the auth subsystem foundation: schema, cryptographic services, secrets integration, route skeletons, middleware entry points, and explicit wiring mechanisms.
 
 ### Phase objectives
@@ -122,6 +123,7 @@ Establish the auth subsystem foundation: schema, cryptographic services, secrets
 ## Phase 2 — Core authentication feature implementation
 
 ### Milestone
+
 Deliver functional registration, login, refresh, profile retrieval, and password reset flows on the established security and persistence foundation.
 
 ### Phase objectives
@@ -205,6 +207,7 @@ Deliver functional registration, login, refresh, profile retrieval, and password
 ## Phase 3 — Validation, resilience, and release hardening
 
 ### Milestone
+
 Prove the auth subsystem against all functional, non-functional, migration, rollback, and operational success criteria.
 
 ### Phase objectives
@@ -445,6 +448,7 @@ Release only when all are true:
 # 6. Timeline estimates per phase
 
 ## Phase 1 — Architecture, data model, and security foundations
+
 - **Estimate**: 1.5–2 weeks
 - **Exit criteria**:
   1. schema and migration design complete
@@ -453,6 +457,7 @@ Release only when all are true:
   4. key architecture decisions closed or escalated
 
 ## Phase 2 — Core authentication feature implementation
+
 - **Estimate**: 2–2.5 weeks
 - **Exit criteria**:
   1. all FR flows implemented
@@ -461,6 +466,7 @@ Release only when all are true:
   4. cookie, TTL, and revocation controls active
 
 ## Phase 3 — Validation, resilience, and release hardening
+
 - **Estimate**: 2–2.5 weeks
 - **Exit criteria**:
   1. SC-1 through SC-14 validated
@@ -469,6 +475,7 @@ Release only when all are true:
   4. open questions resolved or formally deferred
 
 ## Overall roadmap estimate
+
 - **Total**: approximately **5.5–7 weeks**
 
 ## Suggested milestone checkpoints

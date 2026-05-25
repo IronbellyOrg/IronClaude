@@ -5,7 +5,7 @@ category: analysis
 complexity: advanced
 mcp-servers: [auggie, serena, context7, tavily, sequential]
 personas: [analyzer, performance, security, qa, refactorer, devops]
-argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-mcp]"
+argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp]"
 ---
 
 # /sc:troubleshoot - Tiered Issue Diagnosis
@@ -54,6 +54,7 @@ The trigger is intentionally pushy because the most common reason users skip a d
 | `--fix` | `false` | After diagnosis, offer the Tier 3 remediation chain (`task-builder` → `/sc:reflect --type task --analyze` → user runs `/task` → `/sc:reflect --type task --validate`). Code changes never auto-apply; the user runs `/task`. |
 | `--models` | (agent defaults) | Per-tier model override, e.g. `tier1:sonnet,hypothesis:opus`. |
 | `--output-dir` | `.dev/troubleshoot/<slug>-<timestamp>/` | Where REPORT.md, hypothesis cards, fix proposals, adversarial artifacts, and audit log are written. |
+| `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions). Useful when the codebase has no formal docs or the user has already grounded the symptom externally; the resulting diagnosis is NOT weighted against documented behavior and the report records the skip in Grounding Gaps. |
 | `--no-mcp` | `false` | Run in native-tools-only mode (skip auggie/serena/context7/tavily). Tier 1 quality degrades; surfaced in the report. |
 
 ## Behavioral Summary
@@ -82,7 +83,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## MCP Integration
 
-- **Auggie** (primary, free retrieval): Tier 1 + Tier 2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
+- **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
 - **Serena**: Tier 1 + Tier 2 symbol-level navigation via `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`. Critical when the issue names a specific function or class.
 - **Context7**: Tier 2 only, when the symptom mentions a framework or library by name or the stack trace ends in third-party code.
 - **Tavily**: Tier 2 only, rate-limited to ≤ 2 queries per invocation. Used for `<exact error string> github issue` and `<library> <version> <symptom>` lookups.
@@ -103,6 +104,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ## Examples
 
 ### Quick Tier 1 diagnosis (most common)
+
 ```
 /sc:troubleshoot "NameError: name 'Path' is not defined at eval_run.py:142"
 # - Auto-detects --type bug
@@ -113,6 +115,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ```
 
 ### Tier 2 auto-escalation on intermittent symptom
+
 ```
 /sc:troubleshoot "flaky CI test, passes locally, fails ~1/5 runs since session-pool refactor"
 # - Tier 1 produces a hypothesis but the "intermittent" keyword forces escalation
@@ -123,6 +126,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ```
 
 ### Force deep pass + remediation offer
+
 ```
 /sc:troubleshoot "scratch-root allowlist accepts /etc/foo" --type security --depth deep --fix
 # - --depth deep forces Tier 2 regardless of Tier 1 confidence
@@ -133,6 +137,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ```
 
 ### Suppress escalation (quick second opinion)
+
 ```
 /sc:troubleshoot "off-by-one in pagination" --no-escalate
 # - Caps at Tier 1; never fans out to Tier 2 even if rubric would have escalated
@@ -140,6 +145,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ```
 
 ### Native-tools-only mode
+
 ```
 /sc:troubleshoot "something's wrong with the worker" --no-mcp
 # - Skip auggie/serena/context7/tavily; use Read/Grep/Glob/Bash only
@@ -155,6 +161,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Auto-escalate to Tier 2 only when the rubric in `refs/escalation-rubric.md` says so, or when `--depth deep` is set
 - Fan out 2-4 specialist agents in parallel in Tier 2 (capped at 4 by signal mix)
 - Use auggie + serena every tier for in-repo grounding; use context7 + tavily only in Tier 2 and only when the symptom suggests external knowledge
+- Run Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions) before any fix is proposed, unless `--no-doc-discovery` is set
 - Invoke `sc:adversarial-protocol` only when Tier 2 produces 2-3 competing strong fixes (skip on consensus — that wastes the debate)
 - Run `evidence-validator` in Wave 5 to drop any unfounded `file:line` citations before REPORT.md ships
 - Run `confidence-calibrator` after every hypothesis card to defeat self-grading anchoring bias
@@ -163,6 +170,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 **Will Not:**
 
 - Apply code changes without `--fix` AND explicit user confirmation
+- Recommend a code change for a symptom whose observed behavior matches the documented behavior (the documented contract is the source of truth — fix the docs or open a stakeholder discussion, never silently regress the contract)
 - Skip Tier 1 and jump straight to Tier 2 (even with `--depth deep`, Tier 1 still runs first and its output feeds Tier 2)
 - Spawn Tier 2 hypothesis agents on consensus single-domain Tier 1 results
 - Spawn more than 4 hypothesis agents in Tier 2 (token waste; signal already saturated)

@@ -1,4 +1,5 @@
 # Serena MCP Research Report
+
 **Date**: 2025-01-16
 **Research Depth**: Deep
 **Confidence Level**: High (90%)
@@ -15,9 +16,10 @@ PM Agent documentation references Serena MCP for memory management, but the actu
 
 ### 1.1 Core Components
 
-**Official Repository**: https://github.com/oraios/serena (9.8k stars, MIT license)
+**Official Repository**: <https://github.com/oraios/serena> (9.8k stars, MIT license)
 
 **Purpose**: Semantic code analysis toolkit with LSP integration, providing:
+
 - Symbol-level code comprehension
 - Multi-language support (25+ languages)
 - Project-specific memory management
@@ -26,6 +28,7 @@ PM Agent documentation references Serena MCP for memory management, but the actu
 ### 1.2 MCP Server Capabilities
 
 **Tools Exposed** (25+ tools):
+
 ```yaml
 Memory Management:
   - write_memory(memory_name, content, max_answer_chars=200000)
@@ -51,6 +54,7 @@ Project Management:
 ```
 
 **Resources Exposed**: **NONE**
+
 - Serena provides tools only
 - No MCP resource URIs available
 - Cannot use ReadMcpResourceTool with Serena
@@ -72,6 +76,7 @@ Project Management:
 ### 2.1 Session Persistence Pattern (Official)
 
 **Recommended Workflow**:
+
 ```yaml
 Session End:
   1. Create comprehensive summary:
@@ -100,12 +105,14 @@ Session Start (New Conversation):
 **Problem**: "Broken code when starting a new session" after continuous iterations
 
 **Root Causes**:
+
 - Context degradation across sessions
 - Type confusion in multi-file changes
 - Duplicate code generation
 - Memory overload from reading too much content
 
 **Workarounds**:
+
 1. **Compilation Check First**: Always run build/type-check before starting work
 2. **Read Before Write**: Examine complete file content before modifications
 3. **Type-First Development**: Define TypeScript interfaces before implementation
@@ -115,14 +122,17 @@ Session Start (New Conversation):
 ### 2.3 General MCP Memory Best Practices
 
 **Duplicate Prevention**:
+
 - Require verification before writing
 - Check existing memories first
 
 **Session Management**:
+
 - Read memory after session breaks
 - Write comprehensive summaries before ending
 
 **Storage Strategy**:
+
 - Short-term state: Token-passing
 - Persistent memory: External storage (Serena, Redis, SQLite)
 
@@ -133,6 +143,7 @@ Session Start (New Conversation):
 ### 3.1 Documentation vs Reality
 
 **Documentation Says** (pm.md lines 34-57):
+
 ```yaml
 Session Start Protocol:
   1. Context Restoration:
@@ -144,6 +155,7 @@ Session Start Protocol:
 ```
 
 **Reality** (Actual Implementation):
+
 ```yaml
 Session Start Protocol:
   1. Repository Detection:
@@ -165,6 +177,7 @@ Session Start Protocol:
 **Location**: `docs/memory/` (repository-scoped local files)
 
 **File Organization**:
+
 ```yaml
 docs/memory/
   # Session State
@@ -224,6 +237,7 @@ docs/pdca/[feature]/
 ### Option A: Actually Use Serena MCP Tools
 
 **Implementation**:
+
 ```yaml
 Replace:
   - Read docs/memory/pm_context.md
@@ -247,12 +261,14 @@ Add:
 ```
 
 **Benefits**:
+
 - Leverage Serena's semantic code understanding
 - Automatic project onboarding
 - Symbol-level context awareness
 - Consistent with documentation
 
 **Drawbacks**:
+
 - Depends on Serena MCP server availability
 - Memories stored in `.serena/` (less visible)
 - Requires airis-mcp-gateway integration
@@ -265,6 +281,7 @@ Add:
 ### Option B: Remove Serena References (Clarify Reality)
 
 **Implementation**:
+
 ```yaml
 Update pm.md:
   - Remove lines 15, 119, 127-191 (Serena references)
@@ -280,12 +297,14 @@ Benefits Already in Place:
 ```
 
 **Benefits**:
+
 - Documentation matches reality
 - No dependency on external services
 - Transparent and auditable
 - Simple implementation
 
 **Drawbacks**:
+
 - Loses semantic understanding capabilities
 - No automatic onboarding
 - Manual context management
@@ -298,6 +317,7 @@ Benefits Already in Place:
 ### Option C: Hybrid Approach (Best of Both Worlds)
 
 **Implementation**:
+
 ```yaml
 Primary Storage: Local files (docs/memory/)
   - Always works, no dependencies
@@ -319,12 +339,14 @@ Benefits:
 ```
 
 **Benefits**:
+
 - Works with or without Serena
 - Leverages semantic understanding when available
 - Maintains transparency
 - Progressive enhancement
 
 **Drawbacks**:
+
 - More complex implementation
 - Dual storage system
 - Synchronization considerations
@@ -339,6 +361,7 @@ Benefits:
 ### Immediate Action: **Option B - Clarify Reality** ⭐⭐⭐⭐⭐
 
 **Rationale**:
+
 - Documentation-reality mismatch is causing confusion
 - Current file-based approach works well
 - No evidence Serena MCP is actually being used
@@ -347,6 +370,7 @@ Benefits:
 **Implementation Steps**:
 
 1. **Update `plugins/superclaude/commands/pm.md`**:
+
    ```diff
    - ## Session Lifecycle (Serena MCP Memory Integration)
    + ## Session Lifecycle (Repository-Scoped Local Memory)
@@ -364,6 +388,7 @@ Benefits:
    - Update: Never attempt `ReadMcpResourceTool` with "serena://memories"
 
 3. **Clarify MCP Integration Section**:
+
    ```markdown
    ### MCP Integration (Optional Enhancement)
 
@@ -382,6 +407,7 @@ Benefits:
 **When**: After Option B is implemented and stable
 
 **Rationale**:
+
 - Provides progressive enhancement
 - Leverages Serena when available
 - Maintains core functionality without dependencies
@@ -393,20 +419,23 @@ Benefits:
 ## 7. Evidence Sources
 
 ### Official Documentation
-- **Serena GitHub**: https://github.com/oraios/serena
-- **Serena MCP Registry**: https://mcp.so/server/serena/oraios
-- **Tool Documentation**: https://glama.ai/mcp/servers/@oraios/serena/schema
-- **Memory Discussion**: https://github.com/oraios/serena/discussions/297
+
+- **Serena GitHub**: <https://github.com/oraios/serena>
+- **Serena MCP Registry**: <https://mcp.so/server/serena/oraios>
+- **Tool Documentation**: <https://glama.ai/mcp/servers/@oraios/serena/schema>
+- **Memory Discussion**: <https://github.com/oraios/serena/discussions/297>
 
 ### Best Practices
-- **MCP Memory Integration**: https://www.byteplus.com/en/topic/541419
-- **Memory Management**: https://research.aimultiple.com/memory-mcp/
-- **MCP Resources vs Tools**: https://medium.com/@laurentkubaski/mcp-resources-explained-096f9d15f767
+
+- **MCP Memory Integration**: <https://www.byteplus.com/en/topic/541419>
+- **Memory Management**: <https://research.aimultiple.com/memory-mcp/>
+- **MCP Resources vs Tools**: <https://medium.com/@laurentkubaski/mcp-resources-explained-096f9d15f767>
 
 ### Community Insights
-- **Serena Deep Dive**: https://skywork.ai/skypage/en/Serena MCP Server: A Deep Dive for AI Engineers/1970677982547734528
-- **Implementation Guide**: https://apidog.com/blog/serena-mcp-server/
-- **Usage Examples**: https://lobehub.com/mcp/oraios-serena
+
+- **Serena Deep Dive**: <https://skywork.ai/skypage/en/Serena> MCP Server: A Deep Dive for AI Engineers/1970677982547734528
+- **Implementation Guide**: <https://apidog.com/blog/serena-mcp-server/>
+- **Usage Examples**: <https://lobehub.com/mcp/oraios-serena>
 
 ---
 

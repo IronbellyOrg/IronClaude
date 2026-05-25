@@ -3,6 +3,7 @@
 ## Basic Usage Examples
 
 ### Example 1: Strategic Plan Analysis
+
 ```bash
 /sc:business-panel @strategy_doc.pdf
 
@@ -12,6 +13,7 @@
 ```
 
 ### Example 2: Innovation Assessment  
+
 ```bash
 /sc:business-panel "We're developing AI-powered customer service" --experts "christensen,drucker,godin"
 
@@ -20,6 +22,7 @@
 ```
 
 ### Example 3: Risk Analysis with Debate
+
 ```bash
 /sc:business-panel @risk_assessment.md --mode debate
 
@@ -28,6 +31,7 @@
 ```
 
 ### Example 4: Strategic Learning Session
+
 ```bash
 /sc:business-panel "Help me understand competitive strategy" --mode socratic
 
@@ -38,6 +42,7 @@
 ## Advanced Usage Patterns
 
 ### Multi-Document Analysis
+
 ```bash
 /sc:business-panel @market_research.pdf @competitor_analysis.xlsx @financial_projections.csv --synthesis-only
 
@@ -45,6 +50,7 @@
 ```
 
 ### Domain-Specific Analysis
+
 ```bash
 /sc:business-panel @product_strategy.md --focus "innovation" --experts "christensen,drucker,meadows"
 
@@ -52,6 +58,7 @@
 ```
 
 ### Structured Communication Focus
+
 ```bash
 /sc:business-panel @exec_presentation.pptx --focus "communication" --structured
 
@@ -61,6 +68,7 @@
 ## Integration with SuperClaude Commands
 
 ### Combined with /analyze
+
 ```bash
 /analyze @business_model.md --business-panel
 
@@ -68,6 +76,7 @@
 ```
 
 ### Combined with /improve  
+
 ```bash
 /improve @strategy_doc.md --business-panel --iterative
 
@@ -75,6 +84,7 @@
 ```
 
 ### Combined with /design
+
 ```bash
 /design business-model --business-panel --experts "drucker,porter,kim_mauborgne"
 
@@ -84,6 +94,7 @@
 ## Expert Selection Strategies
 
 ### By Business Domain
+
 ```yaml
 strategy_planning:
   experts: ['porter', 'kim_mauborgne', 'collins', 'meadows']
@@ -111,6 +122,7 @@ business_model_design:
 ```
 
 ### By Analysis Type
+
 ```yaml
 comprehensive_audit:
   experts: "all"
@@ -133,6 +145,7 @@ quick_assessment:
 ## Output Format Variations
 
 ### Executive Summary Format
+
 ```bash
 /sc:business-panel @doc.pdf --structured --synthesis-only
 
@@ -146,6 +159,7 @@ quick_assessment:
 ```
 
 ### Framework-by-Framework Format  
+
 ```bash
 /sc:business-panel @doc.pdf --verbose
 
@@ -161,6 +175,7 @@ quick_assessment:
 ```
 
 ### Question-Driven Format
+
 ```bash
 /sc:business-panel @doc.pdf --questions
 
@@ -179,6 +194,7 @@ quick_assessment:
 ## Integration Workflows
 
 ### Business Strategy Development
+
 ```yaml
 workflow_stages:
   stage_1: "/sc:business-panel @market_research.pdf --mode discussion"
@@ -188,6 +204,7 @@ workflow_stages:
 ```
 
 ### Innovation Pipeline Assessment
+
 ```yaml
 workflow_stages:
   stage_1: "/sc:business-panel @innovation_portfolio.xlsx --focus innovation"
@@ -196,6 +213,7 @@ workflow_stages:
 ```
 
 ### Risk Management Review
+
 ```yaml  
 workflow_stages:
   stage_1: "/sc:business-panel @risk_register.pdf --experts 'taleb,meadows,porter'"
@@ -206,6 +224,7 @@ workflow_stages:
 ## Customization Options
 
 ### Expert Behavior Modification
+
 ```bash
 # Focus specific expert on particular aspect
 /sc:business-panel @doc.pdf --christensen-focus "disruption-potential"
@@ -217,6 +236,7 @@ workflow_stages:
 ```
 
 ### Output Customization
+
 ```bash
 # Symbol density control
 /sc:business-panel @doc.pdf --symbols minimal  # reduce symbol usage
@@ -228,6 +248,7 @@ workflow_stages:
 ```
 
 ### Time and Resource Management
+
 ```bash
 # Quick analysis for time constraints
 /sc:business-panel @doc.pdf --quick --experts-max 3
@@ -242,6 +263,7 @@ workflow_stages:
 ## Quality Validation
 
 ### Analysis Quality Checks
+
 ```yaml
 authenticity_validation:
   voice_consistency: "Each expert maintains characteristic style"
@@ -260,6 +282,7 @@ integration_quality:
 ```
 
 ### Performance Standards
+
 ```yaml
 response_time:
   simple_analysis: "< 30 seconds"

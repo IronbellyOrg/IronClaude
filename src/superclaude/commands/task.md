@@ -50,12 +50,14 @@ Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--for
 ## Classification (MANDATORY FIRST OUTPUT)
 
 **CRITICAL RULES:**
+
 1. **TEXT-ONLY**: Do NOT invoke ANY tools (Skill, Read, Grep, etc.) for classification. Tool invocation begins AFTER classification.
 2. **EXACT FORMAT**: Use the HTML comment block below EXACTLY. Do NOT use `**CLASSIFICATION: ...**` or any other format.
 3. **VALID TIERS ONLY**: The ONLY valid TIER values are: `STRICT`, `STANDARD`, `LIGHT`, `EXEMPT`. Values like "ITERATIVE", "SIMPLE", "IMPLEMENT", "COMPLEX" are INVALID and MUST NOT be used.
 4. **FIRST OUTPUT**: This header MUST be your very first output, before any other text.
 
 Emit this EXACT header format (replace bracketed values only):
+
 ```
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: [STRICT|STANDARD|LIGHT|EXEMPT]
@@ -104,6 +106,7 @@ After emitting the classification header as text, proceed based on tier:
 **The ONLY valid tier values are: STRICT, STANDARD, LIGHT, EXEMPT. Do NOT invent other labels (e.g., "ITERATIVE", "IMPLEMENT", "SIMPLE" are INVALID).**
 
 For `/sc:task "fix security vulnerability in auth module"`:
+
 ```
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: STRICT
@@ -115,6 +118,7 @@ RATIONALE: Security-critical change in authentication module
 ```
 
 For `/sc:task "explain how the routing middleware works"`:
+
 ```
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: EXEMPT
@@ -126,6 +130,7 @@ RATIONALE: Read-only explanation request, no code changes
 ```
 
 For `/sc:task "fix typo in error message"`:
+
 ```
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: LIGHT
@@ -137,6 +142,7 @@ RATIONALE: Trivial single-string correction
 ```
 
 For `/sc:task "add pagination to user list endpoint"`:
+
 ```
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: STANDARD
@@ -150,6 +156,7 @@ RATIONALE: Typical feature addition, moderate scope
 ## Boundaries
 
 **Will:**
+
 - Classify tasks into appropriate compliance tiers with confidence scoring
 - Enforce tier-appropriate verification requirements
 - Spawn verification agents for STRICT tier tasks
@@ -157,10 +164,12 @@ RATIONALE: Typical feature addition, moderate scope
 - Coordinate MCP servers based on tier requirements
 
 **Will:**
+
 - Enforce TFEP (Test Failure Escalation Protocol) when test failures meet escalation thresholds
 - Block ad-hoc fixes when pre-existing tests fail during task execution
 
 **Will Not:**
+
 - Skip safety-critical verification for STRICT tasks
 - Apply STRICT overhead to genuinely trivial changes
 - Override user's explicit compliance choice

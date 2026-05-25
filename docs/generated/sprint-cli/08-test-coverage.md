@@ -129,6 +129,7 @@ scope: tests/sprint/, tests/pipeline/, tests/roadmap/, tests/integration/
 Key files requested:
 
 **`test_convergence_wiring.py`**: Integration-heavy convergence wiring tests
+
 - Registry construction, structural vs semantic merge tagging
 - Remediation dict contract, constants sanity
 - Pass/fail E2E scenarios
@@ -136,17 +137,20 @@ Key files requested:
 - Fixtures: `audit_trail`, `tmp_path`
 
 **`test_gates_data.py`**: Exhaustive gate criteria validation
+
 - All gate definitions, strictness levels
 - Frontmatter/line/semantic requirements
 - Fixtures: `tmp_path`
 
 **`test_spec_fidelity.py`**: Spec fidelity pipeline/state/report coverage
+
 - Severity definitions, quoting requirements
 - YAML frontmatter contract, step timeout/retry/output
 - Fidelity status derivation
 - Fixtures: `tmp_path`
 
 **`test_validate_defects.py`**: Known-defect detection
+
 - Duplicate headings, missing frontmatter/schema defects
 - Strict gate rejection paths
 
@@ -161,6 +165,7 @@ Key files requested:
 ### PM Agent Tests (scattered)
 
 No dedicated `tests/pm_agent/` directory. Tests found in:
+
 - `tests/unit/test_confidence.py` — ConfidenceChecker
 - `tests/unit/test_reflexion.py` — ReflexionPattern
 - `tests/unit/test_self_check.py` — SelfCheckProtocol

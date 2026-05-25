@@ -14,6 +14,7 @@ Follow the canonical Agent Specification Parsing algorithm defined in
 sc:adversarial-protocol SKILL.md under "Dual Input Modes > Mode B".
 
 The format is `model[:persona[:"instruction"]]`:
+
 - Split `--agents` value on `,` for individual specs
 - Per agent: split on `:` (max 3 segments) → model, persona, instruction
 - Quoted second segment = instruction (no persona)
@@ -32,6 +33,7 @@ When `--agents` is not provided:
 | 2 | haiku | analyzer | Risk assessment, cost-benefit analysis, validation feasibility, coordination overhead |
 
 These defaults are chosen because:
+
 - **opus:architect** brings deep structural reasoning — it excels at identifying
   natural seams in complex systems and evaluating dependency chains
 - **haiku:analyzer** brings fast, focused risk analysis — it challenges assumptions
@@ -116,6 +118,7 @@ Thresholds aligned with sc:roadmap for cross-skill consistency:
 ## Fallback Mode Warning
 
 When `fallback_mode == true` (regardless of status), emit:
+
 ```
 > **Warning**: Adversarial result produced via fallback path (not primary Skill invocation).
 > Quality may be reduced. Review the merged output manually before proceeding.

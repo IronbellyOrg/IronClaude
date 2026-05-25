@@ -26,9 +26,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0044/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0044 `src/routes/profile/get.ts` returning `{user_id, email, display_name, consent_flag, created_at}`; excludes password_hash.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm profile DTO schema.
 2. **[EXECUTION]** Implement handler using UserRepo.findById.
 3. **[EXECUTION]** Enforce 401 via AuthMiddleware when token absent.
@@ -36,12 +38,14 @@
 5. **[COMPLETION]** Update OpenAPI.
 
 **Acceptance Criteria:**
+
 - 200 response includes non-sensitive fields only.
 - 401 returned if no bearer token.
 - Response excludes password_hash and any PII beyond roadmap schema.
 - Route documented in docs/openapi/auth.yaml.
 
 **Validation:**
+
 - Manual check: curl GET /profile with/without token.
 - Evidence: linkable artifact produced (contract log).
 
@@ -71,21 +75,25 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0045/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0045 `src/routes/profile/put.ts` accepting only display_name, returning 200 updated profile.
 
 **Steps:**
+
 1. **[PLANNING]** Schema: reject fields outside display_name.
 2. **[EXECUTION]** Implement handler invoking UserRepo.updateProfile.
 3. **[EXECUTION]** Emit audit event `profile_updated`.
 4. **[VERIFICATION]** Contract test for valid / invalid field cases.
 
 **Acceptance Criteria:**
+
 - Only display_name accepted; extra fields rejected 400.
 - 200 response returns updated profile summary.
 - Audit event recorded.
 - 401 when token missing.
 
 **Validation:**
+
 - Manual check: PUT /profile with extra fields returns 400.
 - Evidence: linkable artifact produced (contract log).
 
@@ -115,9 +123,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0046/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0046 AuthService.changePassword + handler wiring verifying old password, updating hash, calling TokenManager.revokeAll(userId).
 
 **Steps:**
+
 1. **[PLANNING]** Confirm revoke-all semantics (purge all families).
 2. **[EXECUTION]** Verify old password then hash new password.
 3. **[EXECUTION]** Call TokenManager.revokeAll and emit password_changed audit event.
@@ -126,12 +136,14 @@
 6. **[COMPLETION]** Document flow in runbook.
 
 **Acceptance Criteria:**
+
 - Old password required and verified.
 - New password hashed at cost 12.
 - All existing refresh tokens revoked.
 - password_changed audit event emitted.
 
 **Validation:**
+
 - Manual check: after change, replay old refresh token returns 401.
 - Evidence: linkable artifact produced (integration log).
 
@@ -161,9 +173,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0047/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0047 AuthService.requestReset generating SHA-256-hashed reset token, persisting via DM-RESET, enqueuing email; returns 200 regardless.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm token TTL 15m and single-use.
 2. **[EXECUTION]** Generate high-entropy token; hash with SHA-256; store in DM-RESET.
 3. **[EXECUTION]** Enqueue email via COMP-EMAILQ (T03.07).
@@ -171,12 +185,14 @@
 5. **[VERIFICATION]** Integration test compares response time for known/unknown email (timing-safe).
 
 **Acceptance Criteria:**
+
 - Response shape and latency identical for known/unknown email.
 - Only hashed token persisted.
 - Audit event `password_reset_requested` emitted.
 - Email enqueued only when user exists (but response is indistinguishable).
 
 **Validation:**
+
 - Manual check: POST for known + unknown email and diff response.
 - Evidence: linkable artifact produced (timing + response log).
 
@@ -206,9 +222,11 @@
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0048/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0048 AuthService.confirmReset validating hashed reset token, replacing password hash, calling TokenManager.revokeAll.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm hash compare is constant-time.
 2. **[EXECUTION]** Lookup reset token by SHA-256 hash; check TTL + not-used.
 3. **[EXECUTION]** Hash new password and update UserProfile.
@@ -216,12 +234,14 @@
 5. **[VERIFICATION]** Integration test TEST-RESET.
 
 **Acceptance Criteria:**
+
 - Invalid/expired token -> 400 envelope.
 - Valid token single-use -> 204 No Content.
 - All existing refresh tokens revoked.
 - Audit events password_reset_confirmed + token_family_revoked emitted.
 
 **Validation:**
+
 - Manual check: rerun with consumed token returns 400.
 - Evidence: linkable artifact produced (integration log).
 
@@ -265,21 +285,25 @@ Checkpoint: Phase 3 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0049/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0049 Migration creating `password_reset_tokens` (token_hash PK, user_id, expires_at, consumed_at) + cron cleanup script.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm cleanup frequency (hourly).
 2. **[EXECUTION]** Write migration with indices (user_id, expires_at).
 3. **[EXECUTION]** Commit cron job `scripts/cleanup-reset-tokens.sql`.
 4. **[VERIFICATION]** Integration test cleans expired tokens.
 
 **Acceptance Criteria:**
+
 - Schema matches TDD; PK is token_hash.
 - Cleanup removes rows where expires_at < now() - 7 days.
 - Down migration reverses schema.
 - Cleanup runnable via cron.
 
 **Validation:**
+
 - Manual check: insert expired tokens and run cleanup job.
 - Evidence: linkable artifact produced (cleanup log).
 
@@ -309,21 +333,25 @@ Checkpoint: Phase 3 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0050/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0050 `src/email/email-queue.ts` BullMQ worker + send API with template rendering and retry policy.
 
 **Steps:**
+
 1. **[PLANNING]** Confirm BullMQ + Redis capacity; align with refresh-token Redis keyspace.
 2. **[EXECUTION]** Implement queue + worker with 3x retry exponential backoff.
 3. **[EXECUTION]** Render reset email template with token link.
 4. **[VERIFICATION]** Integration test enqueue + process stub.
 
 **Acceptance Criteria:**
+
 - Queue accepts reset email jobs.
 - Retries up to 3 times on SMTP failure.
 - Template renders user-specific link.
 - Metric emitted for queue depth.
 
 **Validation:**
+
 - Manual check: drop SMTP; confirm retries.
 - Evidence: linkable artifact produced (queue worker log).
 
@@ -353,20 +381,24 @@ Checkpoint: Phase 3 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0051/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0051 OpenAPI entries for GET and PUT /profile including error envelope schema.
 
 **Steps:**
+
 1. **[PLANNING]** Reuse component schemas from /auth/login.
 2. **[EXECUTION]** Author OpenAPI snippets and register in docs/openapi/auth.yaml.
 3. **[VERIFICATION]** Run OpenAPI linter + contract tests.
 
 **Acceptance Criteria:**
+
 - Both endpoints documented with 200/400/401 cases.
 - Schema references unified error envelope.
 - Linter passes with no warnings.
 - docs/openapi/auth.yaml version bumped.
 
 **Validation:**
+
 - Manual check: `npx @redocly/cli lint docs/openapi/auth.yaml` clean.
 - Evidence: linkable artifact produced (lint log).
 
@@ -396,21 +428,25 @@ Checkpoint: Phase 3 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0052/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0052 `/auth/password/change` route + contract test 204 on success, 400 on weak password, 401 on missing token.
 
 **Steps:**
+
 1. **[PLANNING]** Align request body schema (old_password, new_password).
 2. **[EXECUTION]** Add validator for password complexity.
 3. **[EXECUTION]** Wire AuthService.changePassword.
 4. **[VERIFICATION]** Contract test suite.
 
 **Acceptance Criteria:**
+
 - 204 on success.
 - 400 on weak new password.
 - 401 on missing/expired bearer.
 - Audit event emitted once.
 
 **Validation:**
+
 - Manual check: run contract tests.
 - Evidence: linkable artifact produced (contract log).
 
@@ -440,20 +476,24 @@ Checkpoint: Phase 3 / Tasks 1-5
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0053/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0053 /auth/password/reset-request route returning 200 for all inputs, with rate-limit and enumeration safeguards.
 
 **Steps:**
+
 1. **[PLANNING]** Align response envelope.
 2. **[EXECUTION]** Bind handler + rate limiter (3/hour per email + 10/hour per IP).
 3. **[VERIFICATION]** Contract test + timing equality.
 
 **Acceptance Criteria:**
+
 - 200 response for every request.
 - Identical response latency profile for known/unknown email.
 - 429 after 3 requests per email per hour or 10 requests per IP per hour.
 - OpenAPI updated.
 
 **Validation:**
+
 - Manual check: curl with known + unknown email, diff response.
 - Evidence: linkable artifact produced (timing log).
 
@@ -497,20 +537,24 @@ Checkpoint: Phase 3 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0054/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0054 /auth/password/reset-confirm route; 204 on success, 400 on invalid/expired token.
 
 **Steps:**
+
 1. **[PLANNING]** Align request body (token, new_password).
 2. **[EXECUTION]** Bind handler invoking AuthService.confirmReset.
 3. **[VERIFICATION]** Contract tests for success/expired/used paths.
 
 **Acceptance Criteria:**
+
 - 204 on success (no body).
 - 400 on invalid, expired, or consumed token.
 - Audit event emitted once.
 - Sessions revoked post-confirm.
 
 **Validation:**
+
 - Manual check: confirm with consumed token returns 400.
 - Evidence: linkable artifact produced (contract log).
 
@@ -540,20 +584,24 @@ Checkpoint: Phase 3 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0055/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0055 `tests/integration/profile.e2e.spec.ts` exercising register + login + GET/PUT /profile.
 
 **Steps:**
+
 1. **[PLANNING]** Seed fresh user.
 2. **[EXECUTION]** Register -> login -> call GET -> PUT display_name -> GET.
 3. **[VERIFICATION]** Assert display_name persisted.
 
 **Acceptance Criteria:**
+
 - Full flow green.
 - Audit events present.
 - No secrets in logs.
 - Test file path recorded.
 
 **Validation:**
+
 - Manual check: run E2E suite.
 - Evidence: linkable artifact produced (E2E log).
 
@@ -583,21 +631,25 @@ Checkpoint: Phase 3 / Tasks 6-10
 - **Artifacts:** TASKLIST_ROOT/artifacts/D-0056/spec.md, notes.md, evidence.md
 
 **Deliverables:**
+
 1. D-0056 `tests/integration/password-reset.e2e.spec.ts` covering request -> confirm -> reuse-token rejection.
 
 **Steps:**
+
 1. **[PLANNING]** Stub email worker to capture token.
 2. **[EXECUTION]** Call reset-request then reset-confirm with captured token.
 3. **[EXECUTION]** Retry confirm with same token -> expect 400.
 4. **[VERIFICATION]** Assert old refresh tokens invalid.
 
 **Acceptance Criteria:**
+
 - Reset flow succeeds once.
 - Second confirm with same token returns 400.
 - Old refresh tokens rejected post-reset.
 - Audit entries for request + confirm + family_revoked present.
 
 **Validation:**
+
 - Manual check: run E2E suite.
 - Evidence: linkable artifact produced (E2E log).
 

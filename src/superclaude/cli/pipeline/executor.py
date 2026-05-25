@@ -263,7 +263,8 @@ def _execute_single_step(
 
         # BLOCKING mode: run gate check synchronously against the compressed
         # sidecar when present; fall back to the original output otherwise.
-        passed, reason = gate_passed(_gate_target(step.output_file), step.gate)
+        gate_target = _gate_target(step.output_file)
+        passed, reason = gate_passed(gate_target, step.gate)
         if passed:
             result = StepResult(
                 step=step,
@@ -275,6 +276,90 @@ def _execute_single_step(
             )
             on_step_complete(step, result)
             return result
+
+        # Cosmetic-failure auto-remediation lane (see
+        # cli/roadmap/cosmetic_remediator.py). Activated when the consumer
+        # registered a remediator via PipelineConfig and the flag is on.
+        # The remediator rewrites the file in place; we re-check the gate
+        # against the rewritten content. On success we record PASS with
+        # remediated=True so audit/halt/certify can surface what was fixed.
+        if (
+            config.allow_cosmetic_remediation
+            and config.cosmetic_remediator is not None
+            and step.gate is not None
+        ):
+            # M2: any internal failure inside the remediator (or the recheck
+            # against the rewritten file) MUST fall through to the existing
+            # FAIL StepResult below, not propagate up and crash the pipeline.
+            # The remediation lane is a defense-in-depth layer; an exception
+            # inside it should never replace a clean halt-with-diagnostic
+            # with an opaque traceback. ``reason`` is preserved as-is so the
+            # operator still sees the original gate failure.
+            try:
+                gate_name = ""
+                if step.gate.semantic_checks:
+                    # First failing semantic check determines the gate name
+                    # passed to the classifier. ``gate_passed`` already
+                    # short-circuits on the first failure, so this is the
+                    # right check to report.
+                    for sc in step.gate.semantic_checks:
+                        sc_result = sc.check_fn(gate_target.read_text(encoding="utf-8"))
+                        sc_ok = (
+                            sc_result if isinstance(sc_result, bool) else bool(sc_result)
+                        )
+                        if not sc_ok:
+                            gate_name = sc.name
+                            break
+                if not gate_name:
+                    # Frontmatter / line-count failures don't map onto the
+                    # cosmetic remediator's surface; fall through to normal
+                    # FAIL handling.
+                    gate_name = "non_semantic_gate"
+
+                remediated_ok, transforms = config.cosmetic_remediator(
+                    gate_target,
+                    gate_name,
+                    reason or "",
+                    step_id=step.id,
+                )
+                if remediated_ok:
+                    # Re-check post-remediation to confirm the fix held.
+                    recheck_passed, recheck_reason = gate_passed(gate_target, step.gate)
+                    if recheck_passed:
+                        _log.info(
+                            "Cosmetic remediation succeeded for step '%s' "
+                            "(attempt %d/%d): %d transform(s) applied",
+                            step.id,
+                            attempt,
+                            max_attempts,
+                            len(transforms),
+                        )
+                        result = StepResult(
+                            step=step,
+                            status=StepStatus.PASS,
+                            attempt=attempt,
+                            gate_failure_reason=None,
+                            started_at=result.started_at,
+                            finished_at=result.finished_at,
+                            remediated=True,
+                            remediations=list(transforms),
+                        )
+                        on_step_complete(step, result)
+                        return result
+                    # Remediator claimed success but gate still fails -- fall
+                    # through to the original FAIL path so the operator sees
+                    # the real reason.
+                    reason = recheck_reason or reason
+            except Exception as exc:  # noqa: BLE001 - intentional broad catch
+                # The remediator and its recheck are defense-in-depth; they
+                # MUST NOT crash the pipeline. Log + fall through to FAIL
+                # with the original reason intact.
+                _log.warning(
+                    "Cosmetic remediator raised %s for step '%s'; "
+                    "falling through to FAIL",
+                    exc.__class__.__name__,
+                    step.id,
+                )
 
         # Gate failed
         _log.info(

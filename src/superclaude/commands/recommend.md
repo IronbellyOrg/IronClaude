@@ -48,6 +48,7 @@ The full behavioral specification is in the protocol skill.
 ## Examples
 
 ### Basic Recommendation
+
 ```bash
 /sc:recommend "I want to build a React component"
 
@@ -59,6 +60,7 @@ The full behavioral specification is in the protocol skill.
 ```
 
 ### With Estimation
+
 ```bash
 /sc:recommend "need to secure my API" --estimate
 
@@ -66,6 +68,7 @@ The full behavioral specification is in the protocol skill.
 ```
 
 ### With Alternatives
+
 ```bash
 /sc:recommend "new blog site" --alternatives
 
@@ -73,6 +76,7 @@ The full behavioral specification is in the protocol skill.
 ```
 
 ### Streaming Mode
+
 ```bash
 /sc:recommend --stream "building e-commerce site"
 
@@ -82,6 +86,7 @@ The full behavioral specification is in the protocol skill.
 ## Boundaries
 
 **Will:**
+
 - Analyze user requests in multiple languages and recommend optimal command sequences
 - Detect project context from file system analysis
 - Provide time and budget estimations when requested
@@ -90,6 +95,7 @@ The full behavioral specification is in the protocol skill.
 - Verify every candidate `/sc:*` command and project skill against its authoritative source file before emitting it
 
 **Will Not:**
+
 - Execute recommended commands automatically (user must invoke)
 - Make assumptions about project type without evidence
 - Provide fake metrics or community data

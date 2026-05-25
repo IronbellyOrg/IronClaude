@@ -155,6 +155,7 @@ Sourced from research file `02-architecture-and-integration.md` §2.2 and §2.3.
 | TFEP escalation telemetry | escalation_count (int 1→2→FULL STOP); forensic outcome (success/partial/failed) | Skip rate <12%, regression prevention ≥85%, STRICT overhead <25% per SKILL.md:349-357 | Audit log JSONL; tfep-incident-report.md committed to git alongside forensic artifacts |
 
 **Analytics Tools:**
+
 - Audit log JSONL daily files — primary analytics surface
 - Reporting/dashboard layer — TBD per research §10.6 (Q11 metering "collects but no consumer/dashboard specified")
 

@@ -448,11 +448,13 @@ This section describes cross-stage integration requirements for this task. The o
 
 **Previous Stage Inputs Required:**
 [Orchestrator must specify exact inputs from previous stages]
+
 - Analysis reports from Stage X: [exact paths and purpose]
 - Verified outputs from Stage Y: [exact paths and purpose]
 - Required context files: [exact paths and purpose]
 
 **What will be verified in Phase 1:**
+
 - All previous stage outputs will be read and reviewed
 - Required inputs will be validated for completeness and accuracy
 - Cross-references will be prepared for current stage execution
@@ -469,9 +471,10 @@ This section describes cross-stage integration requirements for this task. The o
 
 **CRITICAL:** YOU MUST complete EVERY item in EVERY checklist and phase in EXACT sequential order. NO checklist item, step, or sub-item may be skipped or completed out of order. Work MUST NOT proceed to any subsequent item until ALL preceding items are fully completed and marked with checkmarks. This requirement is ABSOLUTE and applies to ALL sections of this task.
 
-**CRITICAL:** This task MUST be executed following the Five-Step Execution Pattern defined in `ib_agent_core.md` under "Standard Directives for AI-Executed Tasks". 
+**CRITICAL:** This task MUST be executed following the Five-Step Execution Pattern defined in `ib_agent_core.md` under "Standard Directives for AI-Executed Tasks".
 
-### The Five-Step Pattern (NON-NEGOTIABLE):
+### The Five-Step Pattern (NON-NEGOTIABLE)
+
 ```
 READ → IDENTIFY → EXECUTE → UPDATE → REPEAT
 ```
@@ -484,7 +487,8 @@ READ → IDENTIFY → EXECUTE → UPDATE → REPEAT
 
 **VIOLATIONS OF THIS PATTERN WILL REQUIRE TASK RE-EXECUTION**
 
-### Prohibited Actions:
+### Prohibited Actions
+
 - ❌ Working from memory of previous task state
 - ❌ Executing multiple checklist items at once
 - ❌ Skipping ahead to later phases
@@ -506,6 +510,7 @@ The following requirements are **MANDATORY** and apply to **ALL** aspects of thi
 When creating ANY task, the `orchestrator` MUST include the following repeated reminders throughout the task document:
 
 ### 1. **Sequential Completion Reminders**
+
 After EVERY checklist section (every 3-5 checklist items), include this EXACT reminder:
 
 ```markdown
@@ -513,6 +518,7 @@ After EVERY checklist section (every 3-5 checklist items), include this EXACT re
 ```
 
 ### 2. **Workflow Adherence Reminders**
+
 After EVERY major phase section, include this EXACT reminder:
 
 ```markdown
@@ -520,7 +526,9 @@ After EVERY major phase section, include this EXACT reminder:
 ```
 
 ### 3. **Mandatory Reminder Placement**
+
 The `orchestrator` MUST place these reminders:
+
 - After the completion of each phase
 - After every 3-5 checklist items within a phase
 - Before any major transition or file creation step
@@ -530,12 +538,14 @@ The `orchestrator` MUST place these reminders:
 **CRITICAL:** These reminders are NOT optional - they MUST be included in every task to ensure proper agent execution.
 
 ### 4. **Reminder Formatting Requirements**
+
 - All reminders MUST be in bold formatting: `**REMINDER:**`
 - All reminders MUST be prominent and easily visible
 - All reminders MUST use directive language: "YOU MUST"
 - Workflow reminders MUST include the specific workflow document path
 
 ### 5. **Example Reminder Pattern for Tasks**
+
 ```markdown
 **Step 2.1:** Complete first action
 - [ ] First checklist item completed
@@ -555,7 +565,9 @@ The `orchestrator` MUST place these reminders:
 ```
 
 ### 6. **Failure to Include Reminders**
+
 Tasks created without these repeated reminders will result in:
+
 - Agents forgetting to mark items complete
 - Agents skipping ahead or working out of order
 - Agents deviating from workflow requirements
@@ -579,6 +591,7 @@ The following requirements are **MANDATORY** and apply to **ALL** aspects of thi
 ## TASK FILE MODIFICATION RESTRICTIONS
 
 **MANDATORY:** You MAY NOT modify this task file except to:
+
 1. Check off completed checklist items by changing [ ] to [x]
 2. Update frontmatter fields as specified in the Frontmatter Update Protocol
 3. Add entries to the Task Log / Notes section
@@ -597,14 +610,15 @@ The following objectives MUST be achieved by this task:
 3. **[Objective 3]:** [Specific, concrete outcome that must be produced]
 
 ## Prerequisites & Dependencies
- 
+
 ### Parent Task & Dependencies
+
 - **Parent Task:** [PARENT-TASK-ID] - [Brief description of parent task]
 - **Blocking Dependencies:**
   - [DEPENDENCY-ID-1]: [What output from this task is needed]
   - [DEPENDENCY-ID-2]: [What output from this task is needed]
 - **This task blocks:** [List any tasks waiting for this task's outputs]
- 
+
 ### Previous Stage Outputs (MANDATORY INPUTS)
 
 **INFORMATIONAL ONLY - NO CHECKLIST ITEMS HERE**
@@ -612,20 +626,22 @@ The following objectives MUST be achieved by this task:
 **MANDATORY:** The orchestrator creating this task MUST explicitly list all relevant outputs from previous stages that serve as inputs for this task. The actual checklist items for reading these outputs appear in Phase 1, Step 1.4.
 
 **Required Previous Stage Outputs:**
+
 - **[Output Type 1]:** `[path/to/output1.md]` - [Purpose: what will be extracted/used from this file]
 - **[Output Type 2]:** `[path/to/output2.md]` - [Purpose: what will be extracted/used from this file]
 - **[Output Type 3]:** `[path/to/output3.md]` - [Purpose: what will be extracted/used from this file]
 
 <!-- ORCHESTRATOR: Add all previous stage outputs that this task depends on. These will be read in Phase 1, Step 1.4. -->
- 
+
 ### Frontmatter Update Protocol
- 
+
 YOU MUST update the frontmatter at these MANDATORY checkpoints:
+
 - **Upon Task Start:** Update `status` to "🟠 Doing" and `start_date` to current date
 - **Upon Completion:** Update `status` to "🟢 Done" and `completion_date` to current date
 - **If Blocked:** Update `status` to "⚪ Blocked" and populate `blocker_reason`
 - **After Each Work Session:** Update `updated_date` to current date
- 
+
 DO NOT modify any other frontmatter fields unless explicitly directed by the user.
 
 ## Detailed Task Instructions
@@ -636,6 +652,7 @@ DO NOT modify any other frontmatter fields unless explicitly directed by the use
 When creating checklists, NEVER put parent/summary checkboxes before their component items. Components must be completed FIRST, summaries LAST. Use descriptive headers without checkboxes to group related items. Any summary checkbox must appear at the END of its component sequence.
 
 **CRITICAL REQUIREMENTS FOR ALL CHECKLIST ITEMS:**
+
 1. **File Specificity**: Every checklist item MUST include the specific filename and full file path being worked on
 2. **Evidence Requirement**: Every checklist item MUST specify evidence via one of:
    - "and log to task notes: [what to log]"
@@ -647,46 +664,55 @@ When creating checklists, NEVER put parent/summary checkboxes before their compo
 **CHECKLIST ITEM FORMAT PATTERNS (from Section 9B):**
 
 **Pattern A - File Reading:**
+
 ```markdown
 - [ ] Read file [filename.ext] at [full/path/to/file.ext] and log to task notes in ### [Phase Name] Findings: [specific information to extract], then mark this item complete
 ```
 
 **Pattern B - File Creation/Modification:**
+
 ```markdown
 - [ ] [Action verb] file [filename.ext] at path: [full/path] and log to task notes in ### [Phase Name] Findings: [what was done], then mark this item complete
 ```
 
 **Pattern C - Verification:**
+
 ```markdown
 - [ ] Re-read file [filename.ext] at [full/path] and log to task notes in ### [Phase Name] Findings: [what you verified], then mark this item complete
 ```
 
 **Pattern D - Existence Check:**
+
 ```markdown
 - [ ] Check if file [filename.ext] exists at path: [full/path] and log to task notes in ### [Phase Name] Findings: [status]. If [filename.ext] does not exist, [action to take], then mark this item complete
 ```
 
 **Pattern E - Content Creation with Source Reference:**
+
 ```markdown
 - [ ] Read file [source-document.ext] at [path/to/source-document.ext] to extract [specific information needed], then Read file [template.ext] at [path/to/template.ext] section "[Section Name]" to see the exact format, then [Action verb] in file [output-file.ext] at [path/to/output-file.ext] using the format from [template.ext] and content from [source-document.ext], and log to task notes in ### [Phase Name] Findings: [what was created/added], then mark this item complete
 ```
 
 **CRITICAL:** When creating content for a document, EVERY checklist item must reference:
+
 1. The SOURCE document (where to get the content/information)
 2. The TEMPLATE document (where to see the format)
 3. The OUTPUT document (where to create/add the content)
 
 **Example - Creating documentation from research:**
+
 ```markdown
 - [ ] Read file `research-findings.md` at `path/to/research-findings.md` to understand user activation strategies, then Read file `supplemental_doc_template.md` at `.claude/templates/documents/supplemental_doc_template.md` section "## Section 1: [Section Title]" to see the exact format, then Create "## Activation Framework" section in file `user-activation.md` at `Docs_product/product/user-activation.md` using the format from the template and information from `research-findings.md`, and log to task notes in ### Phase 2 Findings: Activation Framework section created with [key points added], then mark this item complete
 ```
- 
+
 ### Phase 1: Preparation and Setup
+
 (Refer to [`[workflow_document].md#phase-1-preparation-and-setup`](path/to/workflow#phase-1-preparation-and-setup) for detailed requirements)
 
 YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark each item as complete before proceeding to the next.
 
 **Step 1.1:** Update task status to "🟠 Doing" in the frontmatter of this file
+
 - [ ] Update status to "🟠 Doing" in frontmatter of this file, then mark this item complete
 - [ ] Update start_date to current date in frontmatter of this file, then mark this item complete
 
@@ -703,18 +729,23 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **Step 1.2:** Read Framework Context Files (ALWAYS REQUIRED)
 
 **Core Execution Rules:** `.gfdoc/rules/core/ib_agent_core.md`
+
 - [ ] Read file `ib_agent_core.md` at `.gfdoc/rules/core/ib_agent_core.md` and log to task notes in ### Phase 1 Findings: Five-step execution pattern (READ→IDENTIFY→EXECUTE→UPDATE→REPEAT), prohibited behaviors, mandatory protocols, and task completion rules, then mark this item complete
 
 **Quality Standards:** `.gfdoc/rules/core/quality_gates.md`
+
 - [ ] Read file `quality_gates.md` at `.gfdoc/rules/core/quality_gates.md` and log to task notes in ### Phase 1 Findings: Task completion criteria, quality requirements, evidence requirements, validation standards, and error severity levels, then mark this item complete
 
 **Anti-Hallucination Protocol:** `.gfdoc/rules/core/anti_hallucination_task_completion_rules.md`
+
 - [ ] Read file `anti_hallucination_task_completion_rules.md` at `.gfdoc/rules/core/anti_hallucination_task_completion_rules.md` and log to task notes in ### Phase 1 Findings: Zero-tolerance accuracy policy, evidence format requirements, verification workflow, and penalties for forgery, then mark this item complete
 
 **Anti-Sycophancy Protocol:** `.gfdoc/rules/core/anti_sycophancy.md`
+
 - [ ] Read file `anti_sycophancy.md` at `.gfdoc/rules/core/anti_sycophancy.md` and log to task notes in ### Phase 1 Findings: Professional objectivity requirements, opinion validation standards, and disagreement protocols, then mark this item complete
 
 **File Conventions:** `.gfdoc/rules/core/file_conventions.md`
+
 - [ ] Read file `file_conventions.md` at `.gfdoc/rules/core/file_conventions.md` and log to task notes in ### Phase 1 Findings: Naming conventions, YAML frontmatter requirements, directory structures, and file organization standards, then mark this item complete
 
 **REMINDER:** YOU MUST actually complete the work associated with each checkbox and then mark each checkbox with [x] as you complete it before proceeding to the next item. Work MUST be completed in EXACT sequential order. DO NOT skip ahead.
@@ -724,12 +755,15 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **MANDATORY:** The orchestrator creating this task MUST specify at least ONE task-specific context file below. These provide domain knowledge, technical specifications, or workflow requirements specific to this task.
 
 **[PLACEHOLDER: Workflow/Process Document]:** `[path/to/workflow_document.md]`
+
 - [ ] Read file `[workflow_document.md]` at `[path/to/workflow_document.md]` and log to task notes in ### Phase 1 Findings: [Specific phases, steps, and requirements from workflow], [Critical quality criteria], and [Any mandatory deliverables specified], then mark this item complete
 
 **[PLACEHOLDER: Domain/Technical Documentation]:** `[path/to/technical_doc.md]`
+
 - [ ] Read file `[technical_doc.md]` at `[path/to/technical_doc.md]` and log to task notes in ### Phase 1 Findings: [Key technical concepts needed], [Domain-specific requirements], and [Integration requirements or constraints], then mark this item complete
 
 **[PLACEHOLDER: Template/Example]:** `[path/to/template.md]`
+
 - [ ] Read file `[template.md]` at `[path/to/template.md]` and log to task notes in ### Phase 1 Findings: [Template structure and required sections], [Frontmatter requirements], and [Content formatting requirements], then mark this item complete
 
 <!-- ORCHESTRATOR: Add additional task-specific context files as needed following the same pattern -->
@@ -743,12 +777,15 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **ORCHESTRATOR:** If this task has NO previous stage dependencies, DELETE this entire Step 1.4 section. If this task DOES have previous stage dependencies, ADD a checklist item for EACH output file listed in the "Previous Stage Outputs" section, following the pattern below:
 
 **[Output Type 1]:** `[path/to/output1.md]`
+
 - [ ] Read file `[output1.md]` at `[path/to/output1.md]` and log to task notes in ### Phase 1 Findings: [Specific content or data to utilize from this file - e.g., key findings, requirements extracted, data points needed], then mark this item complete
 
 **[Output Type 2]:** `[path/to/output2.md]`
+
 - [ ] Read file `[output2.md]` at `[path/to/output2.md]` and log to task notes in ### Phase 1 Findings: [Specific content or data to utilize from this file - e.g., verified outputs, analysis results, configuration values], then mark this item complete
 
 **[Output Type 3]:** `[path/to/output3.md]`
+
 - [ ] Read file `[output3.md]` at `[path/to/output3.md]` and log to task notes in ### Phase 1 Findings: [Specific content or data to utilize from this file - e.g., integration requirements, technical specifications], then mark this item complete
 
 <!-- ORCHESTRATOR: Add checklist item for EACH previous stage output listed in Prerequisites section -->
@@ -761,7 +798,8 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 
 ## 🛠️ Tool Orchestration Guidance for This Task
 
-### Tool Selection Matrix:
+### Tool Selection Matrix
+
 | Operation Type | Primary Tool | Alternative | Execution Mode |
 |----------------|--------------|-------------|----------------|
 | File Discovery | Glob | Bash (ls/find) | Parallel OK |
@@ -772,23 +810,28 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 | Command Execution | Bash | - | Parallel if independent |
 | Verification | Read | Bash (cat/ls) | Parallel OK |
 
-### Execution Strategy for This Task:
+### Execution Strategy for This Task
+
 **Phase 2 - Discovery (if applicable):**
+
 - Use Glob to find files matching patterns
 - Use Grep to search specific content
 - Batch Read operations for efficiency
 
 **Phase 2+ - Implementation:**
+
 - Execute changes in dependency order (sequential where needed)
 - Use Write for new files, Edit for modifications
 - Validate after each major change
 
 **Final Phases - Validation:**
+
 - Batch Read operations to verify changes
 - Run independent tests in parallel where possible
 - Collect and analyze results
 
-### Performance Optimization Hints:
+### Performance Optimization Hints
+
 - **Batch Operations:** Group similar tool calls (e.g., Read 5 files in one message)
 - **Parallel Execution:** Run independent operations simultaneously
 - **Sequential Where Required:** File Write → Read same file must be sequential
@@ -797,6 +840,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **For detailed tool selection guidance, see:** `.gfdoc/rules/core/tool_selection.md` (read as part of Step 1.2 above)
 
 **Confirm Understanding:**
+
 - [ ] Review tool orchestration guidance above and log to task notes in ### Phase 1 Findings: Tool selection strategy understood - [briefly note key tools you'll use: e.g., "Will use Glob for file discovery, Read in parallel for context files, Write/Edit sequentially for modifications, Bash for verification"], then mark this item complete
 
 **REMINDER:** YOU MUST actually complete the work associated with each checkbox and then mark each checkbox with [x] as you complete it before proceeding to the next item. Work MUST be completed in EXACT sequential order. DO NOT skip ahead.
@@ -804,6 +848,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **ALL** context files, previous stage outputs, and execution strategies are **MANDATORY**. Every file listed above MUST be read and understood, and the tool orchestration strategy MUST be reviewed before proceeding with task execution.
 
 ### Phase 2: [Main Execution Phase Name]
+
 (Refer to [`[workflow_document].md#phase-2-main-execution-phase-name`](path/to/workflow#phase-2-main-execution-phase-name) for detailed requirements)
 
 **CRITICAL:** DO NOT assume, hallucinate, or make up any information. These [items] are of the highest importance and MUST be 100% TRUE based on the [source] information.
@@ -811,6 +856,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 
 **MANDATORY INPUTS from Previous Phase:**
 [Doc-commander must specify exact inputs from previous phases, e.g., analysis reports, verified outputs, etc.]
+
 - **[Input Type 1]:** `[path/to/output1.md]`
 - [ ] Read file `[output1.md]` at `[path/to/output1.md]` and log to task notes in ### Phase 2 Findings: [Specific content or data to utilize from this file], then mark this item complete
 - **[Input Type 2]:** `[path/to/output2.md]`
@@ -821,6 +867,7 @@ Continue working through this checklist systematically. As you create or modify 
 **Step 2.1:** [Specific action - e.g., "Create initial file structure"]. **HIGHEST CRITICAL:** ALL output created below align with, conform to, and fulfill the requires in `[governing_workflow].md`
 
 Create file at: `[exact/path/to/file.md]`
+
 - [ ] Create directory `[directory/path]` if it doesn't exist and log to task notes in ### Phase 2 Findings: Directory creation status, then mark this item complete
 - [ ] Create file `[file.md]` at `[exact/path/to/file.md]` with proper extension and log to task notes in ### Phase 2 Findings: File created, then mark this item complete
 - [ ] Read file `[template.md]` at `[path/to/template.md]` section "Frontmatter" (approximately lines X-Y) to see required frontmatter format, then Read file `[source-content.md]` at `[path/to/source-content.md]` to extract metadata (title, description, tags, etc.), then Add ALL mandatory frontmatter fields to file `[file.md]` at `[exact/path/to/file.md]` using the format from `[template.md]` and metadata from `[source-content.md]` per `file_conventions.md` and log to task notes in ### Phase 2 Findings: Frontmatter fields added [list them], then mark this item complete
@@ -857,6 +904,7 @@ Create file at: `[exact/path/to/file.md]`
 **Use this pattern when processing multiple known files (not for dynamic discovery):**
 
 #### File: [filename1.ext] at [full/path/to/filename1.ext]
+
 - [ ] Check if file [filename1.ext] exists at path: [full/path]. If file exists log to task notes in ### Phase [N] Findings: File existence status (exists/needs creation), [other status checks], [Specific information to extract from this file]. If [filename1.ext] does not exist, create it, then mark this item complete
 - [ ] Read file `[template.md]` at `[path/to/template.md]` section "[Section Name]" to see format for [what you're adding], then Read file `[source-data.md]` at `[path/to/source-data.md]` to extract [specific content for filename1], then [Action verb] file [filename1.ext] at path: [full/path] using format from `[template.md]` and content from `[source-data.md]` and log to task notes in ### Phase [N] Findings: [What was done - be specific with content added], then mark this item complete
 - [ ] Re-read file [filename1.ext] at [full/path] and log to task notes in ### Phase [N] Findings: [Verification checklist - confirm specific changes made match template format and source content], then mark this item complete
@@ -864,6 +912,7 @@ Create file at: `[exact/path/to/file.md]`
 **REMINDER:** YOU MUST complete the work associated with each checkbox, and mark each checkbox with [x] as you complete it before proceeding to the next item. Work MUST be completed in EXACT sequential order. DO NOT skip ahead.
 
 #### File: [filename2.ext] at [full/path/to/filename2.ext]
+
 - [ ] Check if file [filename2.ext] exists at path: [full/path]. If file exists log to task notes in ### Phase [N] Findings: File existence status (exists/needs creation), [other status checks], [Specific information to extract from this file]. If [filename2.ext] does not exist, create it, then mark this item complete
 - [ ] Read file `[template.md]` at `[path/to/template.md]` section "[Section Name]" to see format for [what you're adding], then Read file `[source-data.md]` at `[path/to/source-data.md]` to extract [specific content for filename2], then [Action verb] file [filename2.ext] at path: [full/path] using format from `[template.md]` and content from `[source-data.md]` and log to task notes in ### Phase [N] Findings: [What was done - be specific with content added], then mark this item complete
 - [ ] Re-read file [filename2.ext] at [full/path] and log to task notes in ### Phase [N] Findings: [Verification checklist - confirm specific changes made match template format and source content], then mark this item complete
@@ -873,6 +922,7 @@ Create file at: `[exact/path/to/file.md]`
 [Repeat for each file to process]
 
 **Benefits of this pattern:**
+
 - Clear file-by-file organization with headers showing exactly which file is being worked on
 - Each file gets complete processing (check → read → modify → verify) before moving to next
 - File name and full path repeated in every checklist item for absolute clarity
@@ -884,14 +934,16 @@ Create file at: `[exact/path/to/file.md]`
 **CRITICAL:** The orchestrator agent creating this task file MUST identify and enumerate ALL items that need processing during task setup. The worker agent MUST NEVER dynamically add checklist items - all items must be listed by the orchestrator before the worker begins.
 
 **Instructions for Orchestrator (creating task):**
-1.  **Identify Items:** Use appropriate tools (e.g., `list_files`, `search_files`) to identify all individual items that need processing in this phase.
-2.  **Add Checklist Items:** For EACH identified item, YOU MUST add a new checklist item below, following the specified format.
-3.  **Process Iteratively:** YOU MUST process each item one by one, marking its checkbox with [x] ONLY after its processing is fully complete and its output (e.g., update to a log file) is verified.
-4.  **Incremental Updates:** As you process each item, YOU MUST update the relevant output file (e.g., raw analysis log) incrementally. DO NOT wait until all items are processed to update the output file.
+
+1. **Identify Items:** Use appropriate tools (e.g., `list_files`, `search_files`) to identify all individual items that need processing in this phase.
+2. **Add Checklist Items:** For EACH identified item, YOU MUST add a new checklist item below, following the specified format.
+3. **Process Iteratively:** YOU MUST process each item one by one, marking its checkbox with [x] ONLY after its processing is fully complete and its output (e.g., update to a log file) is verified.
+4. **Incremental Updates:** As you process each item, YOU MUST update the relevant output file (e.g., raw analysis log) incrementally. DO NOT wait until all items are processed to update the output file.
 
 **Pattern for each item (orchestrator creates these):**
 
 #### File: [filename1.ext] at [full/path/to/filename1.ext]
+
 - [ ] Check if file [filename1.ext] exists at path: [full/path]. If file exists log to task notes in ### Phase [N] Findings: File existence status (exists/needs creation), [other status checks], [Specific information to extract from this file]. If [filename1.ext] does not exist, create it, then mark this item complete
 - [ ] Read file `[template.md]` at `[path/to/template.md]` section "[Section Name]" to see format, then Read file `[source-data.md]` at `[path/to/source-data.md]` to extract [specific content for filename1], then [Action verb] file [filename1.ext] at path: [full/path] using format from `[template.md]` and content from `[source-data.md]` and log to task notes in ### Phase [N] Findings: [What was done - be specific with content added], then mark this item complete
 - [ ] Re-read file [filename1.ext] at [full/path] and log to task notes in ### Phase [N] Findings: [Verification checklist - confirm specific changes made match template and source], then mark this item complete
@@ -899,6 +951,7 @@ Create file at: `[exact/path/to/file.md]`
 **REMINDER:** YOU MUST complete the work associated with each checkbox, and mark each checkbox with [x] as you complete it before proceeding to the next item. Work MUST be completed in EXACT sequential order. DO NOT skip ahead.
 
 #### File: [filename2.ext] at [full/path/to/filename2.ext]
+
 - [ ] Check if file [filename2.ext] exists at path: [full/path]. If file exists log to task notes in ### Phase [N] Findings: File existence status, [other checks], [info to extract]. If [filename2.ext] does not exist, create it, then mark this item complete
 - [ ] Read file `[template.md]` at `[path/to/template.md]` section "[Section Name]" to see format, then Read file `[source-data.md]` at `[path/to/source-data.md]` to extract [specific content for filename2], then [Action verb] file [filename2.ext] at path: [full/path] using format from `[template.md]` and content from `[source-data.md]` and log to task notes in ### Phase [N] Findings: [What was done with content added], then mark this item complete
 - [ ] Re-read file [filename2.ext] at [full/path] and log to task notes in ### Phase [N] Findings: [Verification checklist - confirm changes match template and source], then mark this item complete
@@ -908,17 +961,20 @@ Create file at: `[exact/path/to/file.md]`
 <!-- Orchestrator continues this pattern for ALL items identified -->
 
 **Final Phase Verification:** For EVERY file created or modified in this phase:
+
 - [ ] Re-read file [filename.ext] at [full/path] and log to task notes in ### Phase [N] Findings: Confirmed ALL mandatory frontmatter fields included, ALL required content sections present, content accurate to source materials, cross-references and links functional, NO "TODO" or "FIXME" markers remain, then mark this item complete
 
 **WORKFLOW ADHERENCE REMINDER:** Before proceeding to the next phase, YOU MUST review the corresponding section of [`[workflow_document].md`](path/to/workflow) to ensure you are following ALL requirements exactly as specified in the governing workflow.
 
 ### Phase 3: [Additional Phase if Needed]
+
 (Refer to [`[workflow_document].md#phase-3-additional-phase-if-needed`](path/to/workflow#phase-3-additional-phase-if-needed) for detailed requirements)
 
 **HIGHEST CRITICAL:** ALL output created below align with, conform to, and fulfill the requires in `[governing_workflow].md`
 
 **MANDATORY INPUTS from Previous Phase:**
 [Doc-commander must specify exact inputs from previous phases, e.g., analysis reports, verified outputs, etc.]
+
 - **[Input Type 1]:** `[path/to/output1.md]`
 - [ ] Read file `[output1.md]` at `[path/to/output1.md]` and log to task notes in ### Phase 2 Findings: [Specific content or data to utilize from this file], then mark this item complete
 - **[Input Type 2]:** `[path/to/output2.md]`
@@ -940,10 +996,12 @@ Continue working through this checklist systematically. As you create or modify 
 **WORKFLOW ADHERENCE REMINDER:** Before proceeding to the next phase, YOU MUST review the corresponding section of [`[workflow_document].md`](path/to/workflow) to ensure you are following ALL requirements exactly as specified in the governing workflow.
 
 ### Phase 4: Logging and Reporting
+
 (Refer to [`[workflow_document].md#phase-4-logging-and-reporting`](path/to/workflow#phase-4-logging-and-reporting) for detailed requirements)
 
 **MANDATORY INPUTS from Previous Phase:**
 [Doc-commander must specify exact inputs from previous phases, e.g., analysis reports, verified outputs, etc.]
+
 - **[Input Type 1]:** `[path/to/output1.md]`
 - [ ] Read file `[output1.md]` at `[path/to/output1.md]` and log to task notes in ### Phase 2 Findings: [Specific content or data to utilize from this file], then mark this item complete
 - **[Input Type 2]:** `[path/to/output2.md]`
@@ -952,9 +1010,11 @@ Continue working through this checklist systematically. As you create or modify 
 Per [governing workflow document], YOU MUST log the following:
 
 **Step 4.1:** In this task's "Task Log / Notes" section below, add entry with:
+
 - [ ] Add entry to task notes in ### Phase 4 Findings with: Timestamp of completion, summary of all files created/modified with paths, any deviations from expected process, and required logging per [workflow section X.X], then mark this item complete
 
 **Step 4.2:** If follow-up actions identified, log using required prefix:
+
 - [ ] If follow-up actions identified, log to task notes in ### Follow-Up Items Identified using required prefix from [workflow document] for [type of follow-up] and include all context needed for follow-up task creation, then mark this item complete
 
 **REMINDER:** YOU MUST mark each checkbox with [x] as you complete it before proceeding to the next item. Work MUST be completed in EXACT sequential order. DO NOT skip ahead.
@@ -966,14 +1026,17 @@ Per [governing workflow document], YOU MUST log the following:
 Capture broader insights and identify gaps.
 
 **Step 5.1:** Log all discovered [insight type] to `[insights_file]` in accordance with `[insights_process].md`
+
 - [ ] Confirm that YOU MUST use the standardized four-field format: `Insight`, `Source/Context`, `Implication/Suggestion`, `Logged by`, and YOU MUST categorize insights appropriately [category examples], then Log all [Insight type] in the ### Phase 5 - [Phase Name] Findings log, and then mark this item complete.
 - [ ] Re-read and ensure that all requirements in `[governing_workflow].md` and `[insights_process].md` have been completely fulfilled for the [insight type]. If they have, note such in the ### Phase 5 - [Phase Name] Findings log. If they have not, make the appropriate changes and then note such in the ### Phase 5 - [Phase Name] Findings log, and then mark this item complete.
 
 **Step 5.2:** Propose new [terminology] in `[insights_file]` in accordance with `[terminology_process].md`
+
 - [ ] Confirm that YOU MUST use the standardized format: `Proposed Term`, `Proposed Definition`, `Context/Source File(s)`, `Proposed by`, `Rationale`, then Log all [Terminology] proposed in the ### Phase 5 - [Phase Name] Findings log, and then mark this item complete.
 - [ ] Re-read and ensure that all requirements in `[governing_workflow].md` and `[terminology_process].md` have been completely fulfilled for the [terminology]. If they have, note such in the ### Phase 5 - [Phase Name] Findings log. If they have not, make the appropriate changes and then note such in the ### Phase 5 - [Phase Name] Findings log, and then mark this item complete.
 
 **Step 5.3:** Document any critical asset blockers.
+
 - [ ] Confirm that YOU MUST include: Type, Asset/File, Required Information, Impact, Workaround, Priority, and then list any Critical asset blockers documented (if any) in the ### Phase 5 - [Phase Name] Findings log, and then mark this item complete.
 
 **REMINDER:** YOU MUST mark each checkbox with [x] as you complete it before proceeding to the next item.
@@ -1005,6 +1068,7 @@ The following outputs MUST be produced by this task:
    - Must include: [list what must be logged in task notes]
 
 **CRITICAL:** Every output must be verifiable by QA through:
+
 - File existence at specified exact path
 - File contents matching required format and elements
 - Task log entries providing evidence of completion
@@ -1012,6 +1076,7 @@ The following outputs MUST be produced by this task:
 ### Success Criteria
 
 This task is considered complete when:
+
 - ALL checklist items are marked complete
 - ALL required outputs exist at specified locations
 - ALL files contain required content and structure
@@ -1025,9 +1090,11 @@ This task is considered complete when:
 **MANDATORY:** Before marking this task as "🟢 Done", YOU MUST verify **ALL** of the following:
 
 **Output Verification:**
+
 - [ ] Verify that all files have been created at exact paths specified, All files contain ALL mandatory frontmatter fields, All files follow required templates, and No placeholder content remains (unless explicitly allowed or as instructed). Log your findings in the ### Execution Log, and then mark this as done.
 
 **Process Compliance:**
+
 - [ ] Verify that All workflow requirements from [parent workflow] have been satisfied, All logging completed per requirements, and Any identified follow-ups properly logged with correct prefixes. Log your findings in the ### Execution Log, and then mark this as done.
 
 **REMINDER:** YOU MUST mark each checkbox with [x] as you complete it before proceeding to the next item. Work MUST be completed in EXACT sequential order. DO NOT skip ahead.
@@ -1037,14 +1104,17 @@ This task is considered complete when:
 If errors occur during task execution:
 
 ### File Access Issues
+
 - If unable to access required files: Mark task as "⚪ Blocked" and set `blocker_reason` in frontmatter
 - Log specific files that cannot be accessed in Task Log
 
 ### Process Uncertainties
+
 - If workflow requirements are unclear: Add note in Task Log with prefix per [workflow document]
 - DO NOT make assumptions - escalation required per [process document section X]
 
 ### Quality Gate Failures
+
 - If outputs fail quality gates: DO NOT mark task complete
 - Document specific failures in Task Log
 - Follow correction procedure from [workflow document]
@@ -1063,6 +1133,7 @@ After all verification complete:
 **CRITICAL:** Task completion follows the automated QA workflow process described in `ib_agent_core.md`.
 
 **For QA Workflow Integration:**
+
 - When using the automated QA workflow script (`/rf:task`), the Worker-QA cycle handles task completion automatically
 - The Worker completes checklist items sequentially, marking each as done
 - When all items in the current batch are complete, QA review is automatically triggered
@@ -1071,6 +1142,7 @@ After all verification complete:
 - If QA fails, specific items are unmarked for Worker correction
 
 **CRITICAL COMPLETION REQUIREMENTS:**
+
 - All checklist items MUST be actually completed, not just marked
 - All outputs MUST pass quality gates defined in `quality_gates.md`
 - Task Log MUST contain complete execution summary

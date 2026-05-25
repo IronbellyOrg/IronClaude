@@ -45,11 +45,13 @@
 ### Smart Flag Recommendations
 
 **Context-based (medium complexity, expert user, architecture domain):**
+
 - `--plan --validate --seq --ultrathink`
 - `--evidence` (required for claim validation)
 - `--think-hard` (multi-perspective tradeoff reasoning)
 
 **Debate-specific (adversarial command enhancers):**
+
 - `--rounds 3` (opening / rebuttal / closing)
 - `--steelman` (strongest pro-microservices case before attacking it)
 - `--red-team` (explicit adversary role)
@@ -58,11 +60,13 @@
 - `--persona-architect` primary, `--persona-analyzer` as judge
 
 **Quality / safety:**
+
 - `--strict` (reject hand-waved claims)
 - `--validate` (post-hoc check of conclusions against evidence)
 - `--dry-run` (preview prompt before committing)
 
 **Do NOT use:**
+
 - `--magic` (no UI component output)
 - `--pup` / `--play` (no browser automation)
 - `--quick --simple` (this is not a small task)

@@ -41,6 +41,7 @@ Constitution --> [ Specify --> Plan --> Tasks ] (repeatable per feature)
 | Implement | `/speckit.implement` | Tasks + plan | Code | LLM executes tasks sequentially |
 
 **File Topology** (per feature):
+
 ```
 .specify/
   memory/
@@ -69,6 +70,7 @@ specs/{feature-branch}/
 ```
 
 **Key Design Decisions**:
+
 - Artifacts are all Markdown, version-controlled alongside code
 - Checklists embedded in files serve as "definition of done" for each phase
 - Constitution is a powerful rules file consulted at every phase
@@ -115,6 +117,7 @@ Spec File
 | **Total** | **106** | Python modules across 4 subsystems |
 
 **Key Design Decisions**:
+
 - Multi-agent generation (e.g., `opus:architect` + `haiku:architect`) with adversarial diff/debate
 - Deterministic structural checkers: no LLM needed for 5 dimensions (signatures, data_models, gates, cli, nfrs)
 - Residual semantic layer: LLM handles only what structural checkers cannot
@@ -394,10 +397,10 @@ Spec Kit generates structured artifacts. SuperClaude validates them with determi
 
 ## Sources
 
-- GitHub Spec Kit repository: https://github.com/github/spec-kit
-- Spec Kit spec-driven.md manifesto: https://github.com/github/spec-kit/blob/main/spec-driven.md
-- GitHub Blog announcement: https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/
-- Microsoft Developer Blog deep dive: https://developer.microsoft.com/blog/spec-driven-development-spec-kit
-- Martin Fowler SDD analysis: https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html
-- Tessl analysis: https://tessl.io/blog/a-look-at-spec-kit-githubs-spec-driven-software-development-toolkit/
+- GitHub Spec Kit repository: <https://github.com/github/spec-kit>
+- Spec Kit spec-driven.md manifesto: <https://github.com/github/spec-kit/blob/main/spec-driven.md>
+- GitHub Blog announcement: <https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/>
+- Microsoft Developer Blog deep dive: <https://developer.microsoft.com/blog/spec-driven-development-spec-kit>
+- Martin Fowler SDD analysis: <https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html>
+- Tessl analysis: <https://tessl.io/blog/a-look-at-spec-kit-githubs-spec-driven-software-development-toolkit/>
 - SuperClaude source code: `src/superclaude/cli/roadmap/`, `src/superclaude/cli/pipeline/`, `src/superclaude/cli/audit/`, `src/superclaude/cli/sprint/`

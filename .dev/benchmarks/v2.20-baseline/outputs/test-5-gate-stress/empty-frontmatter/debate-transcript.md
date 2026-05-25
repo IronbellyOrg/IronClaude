@@ -120,6 +120,7 @@ rounds_completed: 3
 ### Recommended Merge Strategy
 
 The strongest roadmap combines:
+
 - **Variant A's** parallelization approach, timeline realism for implementation scope, state persistence design, and early open-question resolution
 - **Variant B's** test specificity, risk tiering, documentation deliverable, vertical slice delivery order, and failure-mode focus
 

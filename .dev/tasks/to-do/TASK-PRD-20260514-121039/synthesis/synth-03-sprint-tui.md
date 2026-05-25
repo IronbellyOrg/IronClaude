@@ -45,28 +45,33 @@ The 13 v3.75 features map into **4 epics**:
 ---
 
 **US-1.1: Fail-closed empty-output gate**
+
 - **As a** sprint owner running phase-by-phase Claude sub-agents
 - **I want** an empty output file to deterministically fail with the literal reason `'empty output file'`
 - **So that** runs that previously "succeeded with no output" surface as failures I can investigate, instead of soft-passing
 
 **Acceptance Criteria:**
+
 - ✅ `gate_passed()` in `src/superclaude/cli/pipeline/gates.py` (currently lines 20–39) returns `(False, 'empty output file')` on zero-byte output files [CODE-VERIFIED current literal is `f"File empty (0 bytes): {output_file}"` at line 39 — must change to spec literal]
 - ✅ The soft-pass surface elsewhere in `src/superclaude/cli/sprint/executor.py` is found and closed (likely candidates: `_classify_from_result_file` at line 1683, `_determine_phase_status` at line 1976, or the anti-instinct hook short-circuit at line 828 — exact site to be confirmed during PR scoping) [inference]
 - ✅ `tests/sprint/test_gate_passed_empty_output.py::test_empty_output_returns_false` is authored and passes [CODE-VERIFIED file does not yet exist]
 - ✅ Sprint suite delta is at most +1 to +2 new failures per phase during the first week (per RELEASE-SPEC.md:554 user-impact estimate)
 
 **Success Metrics:**
+
 - New-failure surfacing rate: 1–2 net-new failures per phase during the first week of R2 release [CODE-VERIFIED RELEASE-SPEC §6.5]
 - Zero regressions in the existing 921-passed sprint baseline (RELEASE-SPEC.md:473–474)
 
 ---
 
 **US-1.2: Per-task stable UID**
+
 - **As a** sprint executor (the system, on behalf of the user)
 - **I want** each per-task launch to compute and persist a stable UID of the form `f"{phase_id}-{task_index:04d}"` into the result file
 - **So that** sub-phase resume (US-1.3) and downstream parsers have a phase-scoped, zero-padded, sortable identifier separate from `TaskEntry.task_id`
 
 **Acceptance Criteria:**
+
 - ✅ `execute_phase_tasks` in `src/superclaude/cli/sprint/executor.py:913–1051` writes `task_uid = f"{phase_id}-{task_index:04d}"` into each `TaskResult`
 - ✅ The UID is **distinct from** `TaskEntry.task_id` (which is the user-facing `"T01.01"` form) — both are persisted [CODE-VERIFIED no `task_uid` symbol exists in `src/superclaude/cli/sprint/` today]
 - ✅ Legacy result files without `task_uid` are accepted without error (graceful fallback per RELEASE-SPEC Q10 (a))
@@ -74,17 +79,20 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ Lands **after** SE-004 ExecutionMode per RELEASE-SPEC.md:607 dependency
 
 **Success Metrics:**
+
 - 100% of new result files contain `task_uid` field
 - Zero legacy-result-file load failures in regression suite
 
 ---
 
 **US-1.3: Sub-phase resume via task_uid**
+
 - **As a** sprint owner re-invoking a sprint with `--start <phase>` after a partial run
 - **I want** completed tasks (identified by `task_uid` in the result file) to be skipped automatically
 - **So that** I don't re-pay token cost or rerun deterministic work on resumption
 
 **Acceptance Criteria:**
+
 - ✅ On re-invocation, the executor reads the result file, builds the set of completed `task_uid`s, and skips them
 - ✅ Mid-task crash (subprocess crash, `KeyboardInterrupt`) leaves the partial Nth task entry without a finish timestamp — resume logic treats it as not-done and re-launches [behavior implied by RELEASE-SPEC §2.2; mitigation captured in S23]
 - ✅ Tasklist-drift edge case (user inserts a task at position 3 between runs, shifting indices) — escalated to S23 / Open Questions per research file G3 [inference] — minimum bar: resume produces a clearly-logged warning OR forces full re-run; resume MUST NOT silently skip the wrong task
@@ -92,6 +100,7 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ Wave-4 checkpoint-heading-parser tests (RK-15, +3 tests in `tests/sprint/test_checkpoint_parser.py::test_wave4_*` per RELEASE-SPEC.md:480) all pass; if not present in repo, MUST be authored as part of this PR
 
 **Success Metrics:**
+
 - Resume time delta: re-run of an already-completed phase short-circuits to "0 tasks executed, N skipped" within seconds (no LLM cost)
 - Zero false-skips on the regression suite (tasklist-drift detection must catch all reshuffles)
 
@@ -104,11 +113,13 @@ The 13 v3.75 features map into **4 epics**:
 ---
 
 **US-2.1: ExecutionMode enum**
+
 - **As a** sprint codebase author
 - **I want** the current `execution_mode: str` parameter (default `"claude"`, used at `src/superclaude/cli/sprint/config.py:391` and `:487`) replaced by a typed `ExecutionMode` enum
 - **So that** SE-002+SE-003's per-task UID logic and the wider Wave-4 codepath have a typed contract instead of a string
 
 **Acceptance Criteria:**
+
 - ✅ A new `ExecutionMode` enum is defined with three values [CODE-VERIFIED test name `test_three_values_present`; exact member names are spec-deferred per research G6 — to be enumerated in the PR]
 - ✅ All existing `execution_mode="claude"` call sites in `src/superclaude/cli/sprint/config.py` and downstream consumers continue to work (backward-compat string→enum coercion at entry points)
 - ✅ `tests/sprint/test_execution_mode_enum.py::test_three_values_present` passes
@@ -116,23 +127,27 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ Zero behavior change observable from outside the codebase
 
 **Success Metrics:**
+
 - Sprint baseline remains 921 passed / 57 failed (or better) after PR merge [CODE-VERIFIED RELEASE-SPEC.md:473–474]
 - No new public API surface visible to end users
 
 ---
 
 **US-2.2: GateFailureSeverity enum + TFEP mapping**
+
 - **As a** downstream reporting/audit-log consumer (audit.py, dashboards, telemetry)
 - **I want** a typed `GateFailureSeverity` enum that bidirectionally maps from existing TFEP (Trailing Fail-Escape Path) outcomes
 - **So that** failure taxonomy can be switched on without parsing free-text gate-reason strings
 
 **Acceptance Criteria:**
+
 - ✅ A new `GateFailureSeverity` enum is defined with three values [CODE-VERIFIED test name `test_three_values_present`; member names spec-deferred — research G6]
 - ✅ Bidirectional mapping `TFEP outcome ↔ GateFailureSeverity` is implemented and tested (`test_tfep_maps_to_severity`, `test_severity_maps_to_tfep` per RELEASE-SPEC.md:387–389)
 - ✅ The existing `TrailingGateResult` surface in `src/superclaude/cli/pipeline/trailing_gate.py` (called from `src/superclaude/cli/sprint/executor.py:1035–1037`) is **decorated**, not replaced — operational gate behavior is unchanged per RELEASE-SPEC §3.3 ("reporting taxonomy only") [CODE-VERIFIED no `GateFailureSeverity` symbol exists today]
 - ✅ `tests/sprint/test_gate_failure_severity_enum.py` is authored and passes
 
 **Success Metrics:**
+
 - Zero behavior change in TFEP gate evaluation (regression suite confirms)
 - audit.py (separate work, synth-02) can switch on enum value when logging gate failures
 
@@ -145,11 +160,13 @@ The 13 v3.75 features map into **4 epics**:
 ---
 
 **US-3.1: Spinner on RUNNING + active-panel title (P-05) — ships first**
+
 - **As a** sprint user watching the TUI dashboard
 - **I want** the RUNNING status cell and the active-panel title to show a cycling Rich spinner glyph
 - **So that** I have continuous "the dashboard is alive" feedback even when the per-task path is silent (pre-P-01) or the executor is in a slow phase (PreFlight, between-phase transitions)
 
 **Acceptance Criteria:**
+
 - ✅ `from rich.spinner import Spinner` is imported in `src/superclaude/cli/sprint/tui.py` (currently absent per CODE-VERIFIED grep at research §4.2)
 - ✅ In `_build_phase_table` (currently `src/superclaude/cli/sprint/tui.py:221`), when `status == PhaseStatus.RUNNING`, the cell uses `Spinner("dots", text="RUNNING", style="yellow")` instead of the static `STATUS_ICONS[PhaseStatus.RUNNING]` markup at line 69
 - ✅ In `_build_active_panel` (currently `src/superclaude/cli/sprint/tui.py:360`), a `Spinner("dots2")` is prepended to the panel title (currently `f"[bold yellow]ACTIVE: Phase {self.current_phase.number}[/]"` at lines 408–412)
@@ -158,17 +175,20 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ TUI Waves 1-2 + tmux + summarizer + retrospective tests remain at 125/125 pass after snapshot rebaseline [CODE-VERIFIED RELEASE-SPEC.md:475]
 
 **Success Metrics:**
+
 - Time-to-first-motion after sprint start: ≤2 s (smoke-test)
 - Zero false-success: spinner cycling does NOT correlate with subprocess liveness pre-P-01 (documented as known limitation; P-10 heartbeat is the follow-on mitigation per research §4.2 risk ¶a)
 
 ---
 
 **US-3.2: Monotonic Duration column (P-02)**
+
 - **As a** sprint user reading the phase table
 - **I want** the Duration column for a RUNNING phase to show wall-clock elapsed time since the phase started (monotonically increasing)
 - **So that** I can read Duration as "how long has this phase been running" instead of the current erratic idle-gap-since-last-event value
 
 **Acceptance Criteria:**
+
 - ✅ `src/superclaude/cli/sprint/tui.py:265–273` Duration cell expression for RUNNING phases changes from `f"{int(self.monitor_state.stall_seconds)}s"` (line 269) to `f"{int(time.monotonic() - self.monitor_state.phase_started_at)}s"` [CODE-VERIFIED `phase_started_at: float = field(default_factory=time.monotonic)` already exists at `src/superclaude/cli/sprint/models.py:610`]
 - ✅ Optional `m:ss` formatting when elapsed ≥ 60 s [inference — research §4.3 marks as "optional"]
 - ✅ Smoke test: Duration ticks up monotonically every second for the running phase; never decreases; matches wall-clock ±1 s after phase ends
@@ -176,20 +196,23 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ INV-002 dual-writer hazard surfaced as a paired risk with P-01 (research §4.3 risk ¶a, §6.5): until P-01 lands, the per-task path constructs fresh empty `MonitorState()` at `src/superclaude/cli/sprint/executor.py:981, 1045` each with a brand-new `phase_started_at`, so Duration reads ~0 throughout per-task work. Mitigation: pair P-02 with P-01 OR wire `phase_started_at` from TUI-side `time.monotonic()` captured at first observation of a `current_phase` change
 
 **Success Metrics:**
+
 - User-reported "Duration is confusing" issues drop to zero post-merge [inference]
 - 125/125 TUI Waves 1-2 baseline preserved
 
 ---
 
 **US-3.3: Width-aware truncation (P-03 + P-07 combined PR)**
+
 - **As a** sprint user on a wide terminal (>80 columns)
 - **I want** the Prompt: and Agent: lines, error messages, and activity-stream descriptions to fit my terminal width rather than be hard-capped at 60 or 80 characters
 - **So that** I can read full prompts without manually checking source files
 
 **Acceptance Criteria:**
+
 - ✅ **P-03 changes:**
   - Extraction-time `[:60]` slices in `src/superclaude/cli/sprint/config.py:179, 193, 203, 204` (inside `_extract_phase_prompt_preview` at lines 167–204) raised to `[:240]` or removed entirely
-  - `_build_active_panel` computes `avail = max(40, self.console.width - 14)` (panel-border + `Prompt:  ` prefix budget) and passes to `_truncate`
+  - `_build_active_panel` computes `avail = max(40, self.console.width - 14)` (panel-border + `Prompt:` prefix budget) and passes to `_truncate`
   - Same width-aware truncation applied to Agent: line, error messages (currently 80-char cap at `src/superclaude/cli/sprint/tui.py:459, 539`), and activity-stream descriptions (currently 50-char cap at `src/superclaude/cli/sprint/tui.py:424`)
 - ✅ **P-07 changes:**
   - `ASSISTANT_TEXT_MAX_LEN = 80` constant at `src/superclaude/cli/sprint/monitor.py:121` is removed or raised to 400 chars (a 4 KB monitor-memory budget)
@@ -201,6 +224,7 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ Smoke test on at least two terminal widths {80, 200}-column (research §8.3)
 
 **Success Metrics:**
+
 - Wider-terminal acceptance criterion validated at 200-column smoke test (Prompt: line >60 chars rendered)
 - Zero panel-height flicker reports
 - 125/125 TUI baseline preserved after snapshot rebaseline
@@ -214,11 +238,13 @@ The 13 v3.75 features map into **4 epics**:
 ---
 
 **US-4.1: OutputMonitor on per-task path (P-01) — fireworks landing**
+
 - **As a** sprint user watching a per-task phase (the dominant modern code path)
 - **I want** the activity log, Tasks bar, growth rate, and Duration column to populate in real time during each per-task subprocess execution
 - **So that** the dashboard transitions from "two updates per task with a frozen middle" to "continuously animated" — when this ships, the spinner is alive (already), bars advance (newly), Duration ticks (newly), prompt/agent lines are full-width (already), and the activity stream populates (newly), all at once
 
 **Acceptance Criteria:**
+
 - ✅ `OutputMonitor` is instantiated once per phase before the per-task for-loop in `execute_phase_tasks` (`src/superclaude/cli/sprint/executor.py:913–1051`), analogous to the freeform path's pattern at `src/superclaude/cli/sprint/executor.py:1276–1277`
 - ✅ Per-task iteration calls a NEW public method `OutputMonitor.reset_for_next_task()` (NOT `monitor.reset(output_path)` — that discards `total_tasks_in_phase`)
 - ✅ Per-task `proc.wait()` is replaced by a poll loop: `while proc._process.poll() is None: tui.update(sprint_result, monitor.state, phase); time.sleep(0.5)` (or equivalent via a new `ClaudeProcess.is_running()` public method to remove the underscore-coupling per research §4.1 risk ¶c)
@@ -237,6 +263,7 @@ The 13 v3.75 features map into **4 epics**:
 - ✅ **Per-task stall watchdog:** confirm during PR scoping whether the freeform-path stall watchdog at `src/superclaude/cli/sprint/executor.py:1330–1364` is ported to the per-task path now that `proc.wait()` is replaced with a poll loop (research G5 [inference] — currently no per-task stall enforcement exists)
 
 **Success Metrics:**
+
 - "Fireworks landing" experience: all five dashboard transitions (spinner alive, bars alive, Duration ticks, full-width prompts, activity stream live) visible in a single demo session
 - NDJSON-to-TUI event-count invariant holds across at least 5 sample sprints (within ±1)
 - Sprint baseline 921 passed / 57 failed preserved (no net-new failures attributable to threading-model change)
@@ -405,6 +432,7 @@ The v3.75 release is split into **two sibling release streams** per RELEASE-SPEC
 | **R3 (deferred — future release)** | TU-005, TU-006, SE-006, `task-unified` rename (Q1/Q2 after A-005 consumer enumeration) | Closed candidate set per A-002. Not in v3.75. |
 
 **Within-R2 PR sequencing:**
+
 - Sprint PRs: **SE-001 → SE-004 → SE-005 → SE-002+SE-003 paired** [CODE-VERIFIED RELEASE-SPEC.md:604–607]
 - TUI PRs: **P-05 (day 1) → P-02 (day 1–2) → P-03+P-07 paired (day 2–2.5) → P-01 (days 3–5)** [CODE-VERIFIED RELEASE-SPEC.md:610–613, FINAL-REPORT.md:858, TUI-ADVERSARIAL sequencing block]
 - The two PR streams can run in parallel; only the P-01 ship date is the synchronization point ("fireworks landing")
@@ -432,7 +460,8 @@ The v3.75 release is split into **two sibling release streams** per RELEASE-SPEC
 
 #### S21.4.2 Definition of Done (Feature Level)
 
-A feature in R2 (SE-* or P-*) is "Done" when:
+A feature in R2 (SE-*or P-*) is "Done" when:
+
 - [ ] All acceptance criteria in the corresponding user story (S21.1) are met
 - [ ] Unit tests written and passing (per-feature acceptance test file per RELEASE-SPEC §5)
 - [ ] Sprint baseline 921/57 not regressed (or net-new failures classified)
@@ -488,12 +517,14 @@ R2 Release Gate: all sprint + TUI PRs merged, baselines (921/57, 125/125, 16/16)
 **Focus:** Harden sprint-side failure surface; add typed taxonomy; enable sub-phase resume.
 
 **Deliverables:**
+
 - [ ] SE-001 fail-closed empty-output PR merged (S [inference])
 - [ ] SE-004 ExecutionMode enum PR merged (S [inference])
 - [ ] SE-005 GateFailureSeverity enum PR merged (S [inference])
 - [ ] SE-002 + SE-003 paired PR merged with Wave-4 +3 checkpoint-parser tests (M [inference])
 
 **Success Criteria:**
+
 - Sprint baseline 921/57 preserved or improved
 - Resume on a partially-completed phase short-circuits to "0 tasks executed, N skipped" within seconds
 - `tests/sprint/test_process.py` 16/16 preserved
@@ -507,12 +538,14 @@ R2 Release Gate: all sprint + TUI PRs merged, baselines (921/57, 125/125, 16/16)
 **Focus:** Transform the dashboard from "two updates per task with frozen middle" to "continuously animated" — fireworks landing.
 
 **Deliverables:**
+
 - [ ] P-05 spinner PR merged (S [inference]) — Day 1
 - [ ] P-02 Duration PR merged (S [inference]) — Day 1–2
 - [ ] P-03 + P-07 paired truncation PR merged + INV-004 audit doc (S [inference]) — Day 2–2.5
 - [ ] P-01 OutputMonitor keystone PR merged + `tests/sprint/test_monitor_reset_between_tasks.py` (M [inference]) — Days 3–5
 
 **Success Criteria:**
+
 - TUI 125/125 baseline preserved
 - All five dashboard transitions visible in a single demo session on Day 5 ("fireworks landing")
 - NDJSON event-count matches TUI-displayed count within ±1 across phase boundaries
@@ -526,6 +559,7 @@ R2 Release Gate: all sprint + TUI PRs merged, baselines (921/57, 125/125, 16/16)
 **Focus:** Both streams merged; release criteria validated.
 
 **Deliverables:**
+
 - [ ] R2 release notes published
 - [ ] CHANGELOG updated with SE-001 first-week failure-rate note and P-02 sub-second-phase note
 - [ ] `make verify-sync` clean

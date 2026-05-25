@@ -20,6 +20,7 @@ version: 2.0.0
 sc-validate-roadmap-protocol is invoked ONLY by the `sc:validate-roadmap` command via `Skill sc-validate-roadmap-protocol` in its `## Activation` section. It is never invoked directly by users.
 
 Activation conditions:
+
 - User runs `/sc:validate-roadmap <roadmap-path> --specs <spec-paths>` in Claude Code
 - All flags are passed through from the command
 
@@ -239,6 +240,7 @@ After building the requirement universe, scan it for code references that would 
 5. **Bail-out rule**: If 5 consecutive Auggie queries return no relevant file paths, stop querying and proceed. Remaining requirements get no `codebase_context` annotation.
 
 **Constraints**:
+
 - `codebase_context` is **advisory only** — no new requirements generated, no changes to requirement universe count, no changes to coverage calculations.
 - Token cost acknowledgment: ~200-500 tokens per annotated requirement.
 - Orchestrator-only: agents spawned in Phase 2 do NOT call Auggie.
@@ -308,6 +310,7 @@ Symbols found: {N} / {N} attempted
 5. **Failure handling**: If Serena is unavailable or no symbols are found, skip entirely — write no artifact. This is non-blocking.
 
 **Constraints**:
+
 - Does NOT modify requirement records or generate derived sub-requirements.
 - Does NOT affect coverage scoring or agent assignments.
 - Referenced as **background reading** in Phase 4 adversarial review only.
@@ -471,6 +474,7 @@ Read every file matching `{OUTPUT_DIR}/01-agent-*.md`. Verify each agent complet
 Extract all file path references from agent reports and `00-requirement-universe.md`. Verify existence against the project filesystem. Write an informational annotation block at the top of the coverage matrix (Step 3.2 output).
 
 **Depth gating**:
+
 - `quick`: Skip file path verification entirely.
 - `standard`: Verify file paths (exact match only via `Bash` `test -f`).
 - `deep`: Verify file paths with relocation search via `Glob` `**/{basename}`.
@@ -500,6 +504,7 @@ Extract all file path references from agent reports and `00-requirement-universe
 #### Step 3.2 — Build Unified Coverage Matrix
 
 Merge all agent coverage assessments. Conflict resolution:
+
 - Domain agent assessment overrides cross-cutting agent for the same requirement (unless cross-cutting found something domain missed).
 - Two domain agents conflicting on same requirement: flag for adversarial review.
 
@@ -508,6 +513,7 @@ Write artifact: `{OUTPUT_DIR}/02-unified-coverage-matrix.md`
 #### Step 3.3 — Deduplicate and Consolidate Findings
 
 Merge findings from all agents into a unified gap registry:
+
 1. Same spec evidence pointing to same gap from different agents → merge, keep strongest evidence, cite both agents.
 2. Different aspects of the same underlying issue → keep separate but link them.
 3. Contradictory findings (one says COVERED, another says MISSING) → escalate to adversarial pass.
@@ -529,6 +535,7 @@ For each consolidated finding, assign a verdict:
 | NEEDS-SPEC-DECISION | Spec is ambiguous or contradictory — cannot validate until spec clarifies | Escalate to spec owner |
 
 **Adjudication rules**:
+
 - LOW confidence findings → re-verify evidence. If evidence doesn't hold, REJECT.
 - IMPLICIT coverage → default to VALID-MEDIUM unless the implicit chain is documented in the roadmap.
 - Contradictory findings → re-read both cited locations; text on disk is authoritative.
@@ -536,6 +543,7 @@ For each consolidated finding, assign a verdict:
 #### Step 3.5 — Freshness Verification
 
 For every finding rated VALID-HIGH or VALID-CRITICAL:
+
 1. Re-read the cited spec lines. Confirm the requirement text matches the quote.
 2. Re-read the cited roadmap lines (if any). Confirm the text matches.
 3. If either quote is stale, downgrade to STALE and note discrepancy.
@@ -545,6 +553,7 @@ This prevents the fix-and-fail loop where remediation targets stale findings.
 #### Step 3.6 — Cross-Cutting Concern Validation
 
 For each cross-cutting concern from the matrix (Step 1.3):
+
 1. Verify primary agent validated the core requirement.
 2. Verify secondary agents validated their domain's portion.
 3. If any portion is uncovered, add a gap.
@@ -704,6 +713,7 @@ Read the original spec(s) and roadmap again. Do NOT rely on agent reports for th
 #### Step 4.2 — Challenge Every COVERED Assessment
 
 For each requirement marked COVERED by the parallel agents, ask:
+
 - Does the roadmap task actually produce the deliverable the spec requires?
 - Is the roadmap's acceptance criterion as strict as the spec's?
 - Could a developer execute the roadmap task and still NOT satisfy the spec requirement?
@@ -734,6 +744,7 @@ For each match: check against the requirement universe. If not already captured,
 #### Step 4.4 — Search for Orphan Roadmap Tasks
 
 Tasks in the roadmap with no spec traceability. Report for awareness:
+
 - Scope creep (roadmap adds work not in spec)
 - Missing spec requirements (roadmap author added needed work the spec omitted)
 - Implementation details that don't need tracing
@@ -784,6 +795,7 @@ For each new finding not already in the gap registry:
 #### Step 4.9 — Update Consolidated Report
 
 If adversarial pass finds new gaps:
+
 1. Add them to gap registry with `[ADV]` prefix.
 2. Recalculate coverage scores.
 3. Update verdict if severity thresholds change.
@@ -845,6 +857,7 @@ Before generating the patch checklist, enrich CRITICAL and HIGH remediation entr
 ```
 
 **Constraints**:
+
 - Codebase context is **advisory** — existing heuristic effort levels (TRIVIAL/SMALL/MEDIUM/LARGE) remain unchanged.
 - No backward flow into Phase 3 metrics (R11 compliance).
 - Orchestrator-only: no agent-level Auggie access.
@@ -1070,6 +1083,7 @@ These rules govern all phases. Violations produce incorrect results.
 ## 8. Boundaries
 
 **Will:**
+
 - Extract all requirements from spec files into a structured registry
 - Validate every requirement against the roadmap with cited evidence
 - Spawn parallel domain agents for independent, thorough validation
@@ -1079,6 +1093,7 @@ These rules govern all phases. Violations produce incorrect results.
 - Preserve all intermediate artifacts as evidence trail
 
 **Will Not:**
+
 - Modify the roadmap or spec files (read-only audit)
 - Execute remediation — only plans it
 - Trigger downstream commands automatically

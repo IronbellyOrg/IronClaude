@@ -3,9 +3,10 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 ## Findings
 
 ### 1. **BigBlue Academy - Death of Prompt Engineering (2026)**
-- **URL**: https://bigblue.academy/en/the-death-of-prompt-engineering
+
+- **URL**: <https://bigblue.academy/en/the-death-of-prompt-engineering>
 - **Author/Publication**: BigBlue Academy
-- **Key Insights**: 
+- **Key Insights**:
   - Treat prompt optimization as a cost-reduction exercise as much as performance enhancement
   - Master "the art of compression: extracting maximum guidance from minimum tokens"
   - Every word must justify existence through measurable impact on output quality
@@ -15,7 +16,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2 (Industry blog)
 
 ### 2. **Sparkco.ai - Token Usage Optimization (2025)**
-- **URL**: https://sparkco.ai/blog/optimizing-token-usage-for-ai-efficiency-in-2025
+
+- **URL**: <https://sparkco.ai/blog/optimizing-token-usage-for-ai-efficiency-in-2025>
 - **Author/Publication**: Sparkco
 - **Key Insights**:
   - Concise prompt engineering saves **30-50% in token costs**
@@ -26,7 +28,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 3. **Prompts.ai - Tokenization Optimization Best Practices**
-- **URL**: https://www.prompts.ai/blog/tokenization-optimization-best-practices-for-llms
+
+- **URL**: <https://www.prompts.ai/blog/tokenization-optimization-best-practices-for-llms>
 - **Author/Publication**: Prompts.ai
 - **Key Insights**:
   - Streamline prompts: simplify instructions to reduce token usage
@@ -37,7 +40,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 4. **Medium - 4 Research Backed Prompt Optimization Techniques**
-- **URL**: https://medium.com/@koyelac/4-research-backed-prompt-optimization-techniques
+
+- **URL**: <https://medium.com/@koyelac/4-research-backed-prompt-optimization-techniques>
 - **Author/Publication**: Koyela Chakrabarti
 - **Key Insights**:
   - **50% compression** achievable with LLMLingua-2 compressor
@@ -48,7 +52,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 5. **LinkedIn - Token-Per-Task Economics**
-- **URL**: https://www.linkedin.com/pulse/token-per-task-economics-6-techniques-cut-llm-spend-50-ercin-dedeoglu
+
+- **URL**: <https://www.linkedin.com/pulse/token-per-task-economics-6-techniques-cut-llm-spend-50-ercin-dedeoglu>
 - **Author/Publication**: Ercin Dedeoglu
 - **Key Insights**:
   - **Technique 1: Prompt Caching** - Save **20%+**
@@ -60,7 +65,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 6. **Machine Learning Mastery - Prompt Compression**
-- **URL**: https://machinelearningmastery.com/prompt-compression-for-llm-generation-optimization
+
+- **URL**: <https://machinelearningmastery.com/prompt-compression-for-llm-generation-optimization>
 - **Key Insights**:
   - **5 compression techniques**: Semantic summarization, structured (JSON) prompting, relevance filtering, instruction referencing, template abstraction
   - Structured prompting (JSON/bullet points) reduces tokens vs. flowing text
@@ -69,7 +75,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 1 (Technical education platform)
 
 ### 7. **OpenAI Community - Markdown 15% More Token Efficient Than JSON**
-- **URL**: https://community.openai.com/t/markdown-is-15-more-token-efficient-than-json
+
+- **URL**: <https://community.openai.com/t/markdown-is-15-more-token-efficient-than-json>
 - **Key Insights**:
   - **JSON**: 13,869 tokens
   - **TOML**: 12,503 tokens (10% reduction)
@@ -80,7 +87,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 1 (Official OpenAI community)
 
 ### 8. **Webex Developer Blog - LLM-Friendly Content in Markdown**
-- **URL**: https://developer.webex.com/blog/boosting-ai-performance-markdown
+
+- **URL**: <https://developer.webex.com/blog/boosting-ai-performance-markdown>
 - **Key Insights**:
   - **Markdown preferred** for readability, simplicity, and **token efficiency**
   - Clear, human-friendly structure without unnecessary verbosity
@@ -91,7 +99,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 1 (Official tech company blog)
 
 ### 9. **Medium - Token Efficiency Traps**
-- **URL**: https://medium.com/@johnmunn/token-efficiency-traps
+
+- **URL**: <https://medium.com/@johnmunn/token-efficiency-traps>
 - **Key Insights**:
   - **Format comparison**:
     - JSON: ~22 tokens
@@ -103,7 +112,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 10. **Claude Code Best Practices**
-- **URL**: https://code.claude.com/docs/en/best-practices
+
+- **URL**: <https://code.claude.com/docs/en/best-practices>
 - **Key Insights**:
   - **Ruthlessly prune** CLAUDE.md files
   - If Claude already does something correctly without instruction, delete it
@@ -114,7 +124,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 1 (Official documentation)
 
 ### 11. **GitHub - Claude Code Performance Optimization**
-- **URL**: https://github.com/RiyaParikh0112/claude-code-playbook
+
+- **URL**: <https://github.com/RiyaParikh0112/claude-code-playbook>
 - **Key Insights**:
   - **CLAUDE.md Optimization strategies**:
     - Remove outdated/irrelevant information
@@ -126,7 +137,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 12. **Factory.ai - Context Compression Evaluation**
-- **URL**: https://factory.ai/news/evaluating-compression
+
+- **URL**: <https://factory.ai/news/evaluating-compression>
 - **Key Insights**:
   - **OpenAI compression**: 99.3% (0.7% retention)
   - **Anthropic compression**: 98.7% (1.3% retention)
@@ -137,7 +149,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 1 (Research lab)
 
 ### 13. **Sand Garden - Prompt Compression Science**
-- **URL**: https://www.sandgarden.com/learn/prompt-compression
+
+- **URL**: <https://www.sandgarden.com/learn/prompt-compression>
 - **Key Insights**:
   - **PromptOptMe**: **2.37× token reduction** without quality loss
   - Makes LLM-based metrics more accessible
@@ -147,7 +160,8 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 - **Source Credibility**: Tier 2
 
 ### 14. **DataCamp - Prompt Compression Guide**
-- **URL**: https://www.datacamp.com/tutorial/prompt-compression
+
+- **URL**: <https://www.datacamp.com/tutorial/prompt-compression>
 - **Key Insights**:
   - Compression crucial for staying within token limits
   - Reduces processing time and costs
@@ -163,6 +177,7 @@ Based on my comprehensive search across multiple sources, here's a detailed rese
 Ranked by expected token savings with implementation notes:
 
 ### 1. **Format Conversion: Use Markdown Over JSON/XML** (15-41% savings)
+
 - **Expected Savings**: 15-41%
 - **Implementation**:
   - Replace JSON structures with markdown lists
@@ -173,6 +188,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Easy - straightforward conversion
 
 ### 2. **Aggressive Pruning & Ruthless Elimination** (30-50% savings)
+
 - **Expected Savings**: 30-50%
 - **Implementation**:
   - Every word must justify existence through measurable impact
@@ -184,6 +200,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Medium - requires judgment on what's essential
 
 ### 3. **Structured Bullet Points vs. Prose** (20-30% savings)
+
 - **Expected Savings**: 20-30%
 - **Implementation**:
   - Convert paragraphs to bullet lists
@@ -194,6 +211,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Easy
 
 ### 4. **Hierarchical Organization with External References** (10-20% savings)
+
 - **Expected Savings**: 10-20%
 - **Implementation**:
   - Reference external files instead of including full content
@@ -204,6 +222,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Medium - requires restructuring
 
 ### 5. **Abbreviations & Shorthand** (10-15% savings)
+
 - **Expected Savings**: 10-15%
 - **Implementation**:
   - Create consistent abbreviation system
@@ -214,6 +233,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Easy
 
 ### 6. **Semantic Summarization of Context** (40-60% savings for long context)
+
 - **Expected Savings**: 40-60% for context sections
 - **Implementation**:
   - Summarize verbose explanations to core meaning
@@ -224,6 +244,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Medium-Hard
 
 ### 7. **Template Abstraction & Pattern Reuse** (15-25% savings)
+
 - **Expected Savings**: 15-25%
 - **Implementation**:
   - Define templates once, reference them
@@ -234,6 +255,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Medium
 
 ### 8. **Prompt Caching for Repeated Content** (20%+ savings at API level)
+
 - **Expected Savings**: 20%+ (API cost, not file size)
 - **Implementation**:
   - Identify static prompt sections (system instructions, tool descriptions)
@@ -244,6 +266,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Medium - requires API integration
 
 ### 9. **Instruction Referencing vs. Repeating** (10-20% savings)
+
 - **Expected Savings**: 10-20%
 - **Implementation**:
   - Define instruction patterns once at top
@@ -254,6 +277,7 @@ Ranked by expected token savings with implementation notes:
 - **Difficulty**: Easy-Medium
 
 ### 10. **Symbol System for Common Concepts** (5-10% savings)
+
 - **Expected Savings**: 5-10%
 - **Implementation**:
   - Use symbols for frequent status indicators: ✅ ❌ ⚠️

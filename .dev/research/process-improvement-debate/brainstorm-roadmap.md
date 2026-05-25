@@ -15,6 +15,7 @@ This document proposes 5 improvements to the roadmap protocol that would increas
 **Current state**: The risk register (refs/templates.md, roadmap.md body template) has columns for Risk, Probability, Impact, Mitigation, and Owner. Risk identification is free-form -- the generator identifies risks based on whatever it considers important. In v0.04, all 8 risks (R-001 through R-008) were environmental or API-level: scroll API limitations, SDK compatibility, event interleaving. None addressed internal state-machine invariants.
 
 **Gap analysis**: The risk identification process has no prompting or checklist that forces the generator to consider:
+
 - What assumptions does this design make about the relationship between input counts and output counts?
 - What happens when a variable used as a guard can legitimately hold its sentinel/default value?
 - Where do state variables flow across component boundaries, and what invariants must hold at each crossing?
@@ -34,6 +35,7 @@ This document proposes 5 improvements to the roadmap protocol that would increas
 **Current state**: Deliverables have acceptance criteria derived from the spec. These are overwhelmingly positive ("feature X works when Y"). The v0.04 roadmap had 21 success criteria, all positive assertions. None tested what happens when invariants break.
 
 **Gap analysis**: The two bugs were both cases where a positive acceptance criterion passed but a negative one would have caught the issue:
+
 - Bug 1: "AC-5: Page Up loads 200 more events" passes, but "cursor advances past filtered events" was never tested.
 - Bug 2: "AC-12: all existing tests pass" passes, but "replay guard fires even when tail is empty" was never tested.
 
@@ -76,6 +78,7 @@ This document proposes 5 improvements to the roadmap protocol that would increas
 This addresses the root cause: the roadmap protocol optimizes for *completeness of feature coverage* but has zero structural pressure to analyze *correctness of state management*. Adding the section creates that pressure at the lowest-cost intervention point (template change, not algorithmic change).
 
 **Expected Impact**:
+
 - High probability of catching guard-condition-completeness bugs (Bug 2 class): the generator would be forced to list `_replayed_event_offset` as a state variable, note that `> 0` is used as a guard, and identify `len(tail_events) == 0` as a boundary value.
 - Medium probability of catching filter-divergence bugs (Bug 1 class): the generator would list `_loaded_start_index` and note that its decrement assumes `mounted == events_consumed`, prompting boundary analysis.
 - Low overhead: one additional section per roadmap, ~200-500 tokens.
@@ -108,12 +111,14 @@ For each state variable introduced or modified by this roadmap's milestones:
 **Description**: Extend the deliverable acceptance criteria generation in Wave 1B/Wave 3 to require "negative acceptance criteria" (NAC) for any deliverable that introduces a guard condition, filter operation, or state transition. NACs are derived algorithmically from positive ACs by applying a set of boundary-probing transforms.
 
 **Rationale**: The v0.04 roadmap had 21 positive acceptance criteria and zero negative ones. Both bugs would have been caught by simple negations:
+
 - Bug 1 NAC: "When `_create_replay_widget()` returns None for some events, `_loaded_start_index` still advances past those events."
 - Bug 2 NAC: "When condensation is the last event and `tail_events` is empty, the replay guard still prevents duplicate replay."
 
 Positive ACs verify that the happy path works. NACs verify that failure modes are handled. The absence of NACs is a systematic blind spot, not a one-off oversight.
 
 **Expected Impact**:
+
 - High probability of catching zero-is-valid bugs (Bug 2 class): the transform "what if the count is zero?" applied to any deliverable involving a count-based guard would generate the relevant NAC.
 - High probability of catching filter-divergence bugs (Bug 1 class): the transform "what if the filter removes some/all items?" applied to any deliverable involving a filter would generate the relevant NAC.
 - Medium overhead: 1-3 NACs per deliverable with guard/filter/transition characteristics, ~50-150 tokens each.
@@ -157,6 +162,7 @@ NAC Transform Set:
 This is a general problem: specs define interfaces between components, but interfaces abstract away the feedback loops and side-channel dependencies that cause bugs. The roadmap should de-abstract these at the state variable level.
 
 **Expected Impact**:
+
 - High probability of catching cross-component feedback bugs (Bug 1 class): tracing `_loaded_start_index` across the runner-visualizer boundary would reveal that the visualizer's filtering affects the runner's cursor advancement.
 - Medium probability of catching guard condition bugs that span components: if a guard in component A depends on output from component B, the trace would identify this dependency.
 - Medium overhead: one analysis per pair of interacting components, ~300-600 tokens per pair.
@@ -192,6 +198,7 @@ The v0.04 validation was skipped (`--no-validate`), but even if it had run, neit
 This is the highest-impact change because it adds a fundamentally different validation dimension: not "does the roadmap match the spec?" but "does the design in the roadmap handle edge cases?"
 
 **Expected Impact**:
+
 - High probability of catching all three bug classes (state-machine edge cases, guard condition completeness, filter interaction effects): the agent's explicit purpose is to generate boundary inputs and trace them through the design.
 - Higher cost than other proposals: adds a third parallel validation agent, ~3-5K additional tokens per validation run.
 - May produce false positives for designs where edge cases are intentionally deferred. The agent prompt should include guidance for distinguishing "not handled" from "intentionally out of scope."
@@ -281,6 +288,7 @@ OUTPUT FORMAT:
 Mandatory categories act as a checklist. Checklists are proven to reduce omission errors in complex processes (Gawande, "The Checklist Manifesto"). The key insight is that the generator needs to be *forced* to think about each risk category, even if it concludes there are no risks in that category. The act of considering and dismissing is itself valuable.
 
 **Expected Impact**:
+
 - Medium-high probability of catching state management risks (Bug 2 class): the "State Management/Invariants" category would force the generator to consider whether any state variables have boundary conditions.
 - Medium probability of catching cross-component risks (Bug 1 class): the "Cross-Component Interaction" category would force consideration of feedback loops between components.
 - Very low overhead: adds a category column to the existing Risk Register table and requires explicit coverage of each category. ~100-200 additional tokens.

@@ -19,6 +19,7 @@ Key distinction: **Compact MD DSL is not TOON, not XML, not a binary format.** I
 ### Why it exists
 
 The prior research validation found:
+
 - Hybrid XML+TOON+Markdown's claimed -35% to -50% savings was arithmetically unsupported (defensible ceiling: -12% to -22%)
 - arXiv 2601.12014 found TOON has a 30-42% GCS correctness penalty on open-weight models (Claude untested, but the penalty is a live risk)
 - Closed-weight frontier models (Opus 4.6, Sonnet 4.6) show "little to no format tax" per arXiv 2604.03616 — meaning format engineering's primary value is **token reduction, not accuracy improvement** at the frontier tier
@@ -77,12 +78,12 @@ Compact MD DSL organizes redundancy into categories:
 
 ### 3.1 Primary-source research
 
-- **arXiv 2601.12014** — *Are LLMs Ready for TOON? Benchmarking Structural Correctness-Sustainability Trade-offs in Novel Structured Output Formats* (Masciari et al., Jan 2026). The TOON correctness counter-benchmark. https://arxiv.org/abs/2601.12014
-- **arXiv 2604.03616** — *The Format Tax* (2026). Closed-weight frontier model format-independence finding. https://arxiv.org/abs/2604.03616
-- **arXiv 2603.03306** — TOON vs JSON comparative study (2026). https://arxiv.org/abs/2603.03306
-- **arXiv 2411.10541** — Format performance delta measurement (2024). https://arxiv.org/abs/2411.10541
-- **Anthropic long-context tips** — XML tagging and query-at-end placement recommendations. https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/long-context-tips
-- **Anthropic use-XML-tags** — Official XML tag guidance with explicit "no canonical best tags" disclaimer. https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags
+- **arXiv 2601.12014** — *Are LLMs Ready for TOON? Benchmarking Structural Correctness-Sustainability Trade-offs in Novel Structured Output Formats* (Masciari et al., Jan 2026). The TOON correctness counter-benchmark. <https://arxiv.org/abs/2601.12014>
+- **arXiv 2604.03616** — *The Format Tax* (2026). Closed-weight frontier model format-independence finding. <https://arxiv.org/abs/2604.03616>
+- **arXiv 2603.03306** — TOON vs JSON comparative study (2026). <https://arxiv.org/abs/2603.03306>
+- **arXiv 2411.10541** — Format performance delta measurement (2024). <https://arxiv.org/abs/2411.10541>
+- **Anthropic long-context tips** — XML tagging and query-at-end placement recommendations. <https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/long-context-tips>
+- **Anthropic use-XML-tags** — Official XML tag guidance with explicit "no canonical best tags" disclaimer. <https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags>
 
 ### 3.2 Prior IronClaude adversarial validation
 
@@ -93,12 +94,12 @@ Compact MD DSL organizes redundancy into categories:
 
 ### 3.3 Measurement & tooling
 
-- **`tiktoken`** (OpenAI) — cl100k_base encoder, the pragmatic standard for relative format comparison. **Caveat**: not Claude's native tokenizer (INV-1). https://github.com/openai/tiktoken
-- **Anthropic `messages.count_tokens`** — Claude-native token counting endpoint. Required for INV-1 resolution. https://docs.anthropic.com/en/api/messages-count-tokens
-- **`markdown-it-py`** — CommonMark-compliant Markdown parser with AST access. Basis for Approach 2 below. https://github.com/executablebooks/markdown-it-py
-- **`mdformat`** — opinionated Markdown formatter; useful for normalization pre-compression. https://github.com/executablebooks/mdformat
-- **`remark` / `unified`** (JS) — equivalent AST pipeline in JavaScript. https://github.com/remarkjs/remark
-- **`pandoc`** — universal document AST; overkill for compression but useful for cross-format experiments. https://pandoc.org/
+- **`tiktoken`** (OpenAI) — cl100k_base encoder, the pragmatic standard for relative format comparison. **Caveat**: not Claude's native tokenizer (INV-1). <https://github.com/openai/tiktoken>
+- **Anthropic `messages.count_tokens`** — Claude-native token counting endpoint. Required for INV-1 resolution. <https://docs.anthropic.com/en/api/messages-count-tokens>
+- **`markdown-it-py`** — CommonMark-compliant Markdown parser with AST access. Basis for Approach 2 below. <https://github.com/executablebooks/markdown-it-py>
+- **`mdformat`** — opinionated Markdown formatter; useful for normalization pre-compression. <https://github.com/executablebooks/mdformat>
+- **`remark` / `unified`** (JS) — equivalent AST pipeline in JavaScript. <https://github.com/remarkjs/remark>
+- **`pandoc`** — universal document AST; overkill for compression but useful for cross-format experiments. <https://pandoc.org/>
 
 ---
 
@@ -111,6 +112,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 **What it does**: Apply a fixed set of regex/line-based transforms to the raw Markdown source. No parsing, no AST, no LLM.
 
 **Transforms applied**:
+
 1. Collapse 3+ blank lines → 2 blank lines (outside code fences)
 2. Strip trailing whitespace on every line
 3. Normalize heading underline syntax (`=====` / `-----`) → ATX (`#` / `##`)
@@ -131,6 +133,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 **Fidelity**: ★★★★★ — pure text transforms; content is structurally preserved. Safe for PRDs, specs, TDDs.
 
 **Risks**:
+
 - Regex inside code fences can corrupt examples if fence-awareness isn't implemented
 - Emoji stripping can confuse visually-designed section anchors
 - Pipe-table padding collapse can break pathological tables (rare)
@@ -144,6 +147,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 **What it does**: Parse the Markdown into a CommonMark AST (via `markdown-it-py`), apply semantic-aware transforms to the tree, then serialize back to Markdown.
 
 **Transforms applied** (in addition to Approach 1):
+
 1. **Heading deduplication**: detect `## Phase 2` appearing twice and merge second occurrence into an anchor reference
 2. **Table normalization**: detect repeated column values (e.g., every row has `Priority: P1`) and hoist into a caption or eliminate via default
 3. **List compaction**: convert multi-paragraph bullets into single-line bullets when the paragraph is one sentence
@@ -161,6 +165,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 **Fidelity**: ★★★★☆ — semantic preservation is very strong if transforms are audited individually; cross-reference deduplication can break navigation for humans.
 
 **Risks**:
+
 - AST parser must be CommonMark-compliant; GFM extensions (tables, strikethrough, task lists) need explicit plugin support
 - Auto-generated abbreviations need a review gate — a bad substitution can corrupt meaning
 - Round-trip testing is non-trivial: parse → transform → serialize → parse must produce an isomorphic AST
@@ -174,6 +179,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 **What it does**: Use Claude itself (Haiku 4.5 for cheap-path, Sonnet 4.6 for load-bearing documents) to rewrite the source Markdown into Compact MD DSL, under a strict prompt that forbids information loss.
 
 **Prompt contract**:
+
 1. Input: source Markdown + target compression ratio (e.g., 30%)
 2. Output: compressed Markdown + a `diff` of what was removed + a `conventions-header` section
 3. Constraint: **every factual assertion in the source must be recoverable from the output** (LLM is told explicitly)
@@ -182,6 +188,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 6. Validation: a second LLM call ("auditor pass") checks the compressed output against the original and fails if any assertion is missing
 
 **Transforms it can do that rule/AST approaches cannot**:
+
 1. **Prose rephrasing**: "The system should be able to process requests in under 200ms" → "200ms request SLA"
 2. **Semantic-dedup across distant sections**: detect that `## Non-Functional Requirements` and `## Performance Targets` overlap and merge
 3. **Bulletization of narrative**: transform a paragraph of prose into a bulleted list
@@ -197,6 +204,7 @@ Three programmatic approaches, from least to most aggressive. Each comes with tr
 **Fidelity**: ★★★☆☆ — high-risk. Without the auditor pass, information loss is plausible. With the auditor pass, fidelity approaches Approach 2 but at higher cost.
 
 **Risks**:
+
 - **Hallucinated facts**: LLM may "smooth over" inconsistencies in the source by making up a coherent version
 - **Prompt cost**: every compression costs 2× the compressed-document tokens (compression pass + audit pass)
 - **Loss of voice**: human reviewers may find LLM-rewritten text harder to audit

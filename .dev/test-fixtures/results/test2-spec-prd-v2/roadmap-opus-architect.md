@@ -76,6 +76,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 | DI container bindings | Dependency injection | PasswordHasher, JwtService registered as injectable singletons | Phase 1 | Phase 2 (AuthService, TokenManager receive injected instances) |
 
 #### Milestone: Foundation Ready
+
 - [ ] Migration 003 applied to dev database
 - [ ] PasswordHasher unit tests pass with bcrypt cost factor 12
 - [ ] JwtService signs and verifies RS256 tokens
@@ -83,6 +84,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - [ ] Feature flag toggles auth routes on/off
 
 #### Open Questions to Resolve Before Phase 2
+
 - **OQ-2**: Maximum active refresh tokens per user (affects `refresh_tokens` table indexing strategy)
 - **OQ-3**: Account lockout policy after N failed attempts (affects `users.locked_at` logic in Phase 2)
 - **OQ-6**: Exact SOC2 auth events to log (affects logger event_type enum)
@@ -151,6 +153,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 | Auth route registrations | Route registry | `/auth/login`, `/auth/register`, `/auth/token/refresh` | Phase 2 | Guarded by `AUTH_SERVICE_ENABLED` from Phase 1 |
 
 #### Milestone: Core Auth Complete
+
 - [ ] Login returns JWT pair for valid credentials, 401 for invalid, 403 for locked
 - [ ] Registration creates user with hashed password and consent timestamp
 - [ ] Token refresh rotates tokens; replay triggers full user token revocation
@@ -159,6 +162,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - [ ] Integration tests cover the full login→refresh→re-login lifecycle
 
 #### Success Criteria Checkpoints
+
 - Success Criterion #1: Login p95 < 200ms (initial benchmark with k6)
 - Success Criterion #7: Login + refresh E2E scenario returns expected status codes
 
@@ -208,6 +212,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 | Bulk token revocation | TokenManager method | Called by password reset success handler; reuses replay-detection revocation from Phase 2 | Phase 2 (method), Phase 3 (caller) | Phase 3 |
 
 #### Milestone: Full Feature Complete
+
 - [ ] Profile endpoint returns correct fields, excludes sensitive data
 - [ ] Password reset email dispatched within 60s of request
 - [ ] Reset token expires after 1 hour
@@ -216,6 +221,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
 - [ ] E2E: register → login → view profile → reset password → login with new password
 
 #### Open Question Resolution Required
+
 - **OQ-1**: Synchronous vs. async email dispatch — must be decided before implementing FR-AUTH.5a
 - **OQ-7**: Headless/API-only auth flows — confirm FR-AUTH.3 is sufficient for Sam persona or if additional endpoints needed
 
@@ -266,6 +272,7 @@ This roadmap defines a four-phase implementation plan for the User Authenticatio
    - Rollback procedure documented and tested
 
 #### Milestone: Production Launch
+
 - [ ] k6 load test: p95 < 200ms at 500 concurrent (Success Criterion #1)
 - [ ] Security review and pentest complete with no critical findings
 - [ ] SOC2 audit log query returns complete auth event records (Success Criterion #6 proxy)

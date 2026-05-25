@@ -9,6 +9,7 @@ Integration policy and usage guidelines for MCP (Model Context Protocol) servers
 #### Memory & Error Learning
 
 **ReflexionMemory (Built-in, Always Available)**
+
 ```yaml
 Name: ReflexionMemory
 Purpose: Error history storage and learning
@@ -31,6 +32,7 @@ Note: This is an internal implementation, not an external MCP server
 ```
 
 **Mindbase MCP (Optional Enhancement via airis-mcp-gateway)**
+
 ```yaml
 Name: mindbase
 Purpose: Semantic search across all conversation history
@@ -66,6 +68,7 @@ Note: Optional enhancement. SuperClaude works fully with ReflexionMemory alone.
 ```
 
 #### Serena MCP
+
 ```yaml
 Name: serena
 Purpose: コードベース理解のためのシンボル管理
@@ -110,6 +113,7 @@ Example:
 ```
 
 #### Sequential MCP
+
 ```yaml
 Name: sequential-thinking
 Purpose: 複雑な推論と段階的分析
@@ -153,6 +157,7 @@ Example:
 ```
 
 #### Context7 MCP
+
 ```yaml
 Name: context7
 Purpose: 公式ドキュメントとライブラリパターン参照
@@ -196,6 +201,7 @@ Example:
 ```
 
 #### Tavily MCP
+
 ```yaml
 Name: tavily
 Purpose: Web検索とリアルタイム情報取得

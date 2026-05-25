@@ -37,6 +37,7 @@ This documentation is organized for **progressive learning** with multiple entry
 ## Recommended Learning Paths
 
 ### New Users (Week 1 Foundation)
+
 **Goal**: Establish confident SuperClaude usage with essential workflows
 
 ```
@@ -51,6 +52,7 @@ Day 5-7: common-issues.md
 **Success Metrics**: Can execute basic commands, manage sessions, resolve common issues independently.
 
 ### Intermediate Users (Week 2-3 Enhancement)
+
 **Goal**: Master coordination patterns and technical depth
 
 ```
@@ -63,6 +65,7 @@ Week 3: mcp-server-guide.md + advanced-workflows.md
 **Success Metrics**: Can orchestrate complex workflows, optimize performance, configure MCP servers.
 
 ### Expert Users (Advanced Mastery)
+
 **Goal**: Complete framework mastery and complex system integration
 
 ```
@@ -77,6 +80,7 @@ Phase 3: diagnostic-reference.md
 **Success Metrics**: Can design custom workflows, integrate with any framework, diagnose complex issues.
 
 ### Problem-Solving Path (As Needed)
+
 **Goal**: Immediate issue resolution and diagnostic guidance
 
 ```
@@ -127,6 +131,7 @@ Advanced Analysis: diagnostic-reference.md
 ## Framework Integration Quick Start
 
 ### React/Next.js Projects
+
 ```bash
 # Initialize with React patterns
 --c7 --magic "implement Next.js authentication with TypeScript"
@@ -136,6 +141,7 @@ Advanced Analysis: diagnostic-reference.md
 ```
 
 ### Node.js/Express Backend
+
 ```bash
 # API development with best practices
 --c7 --seq "design RESTful API with Express and MongoDB"
@@ -145,6 +151,7 @@ Advanced Analysis: diagnostic-reference.md
 ```
 
 ### Full-Stack Development
+
 ```bash
 # Complete application workflow
 --task-manage --all-mcp "build full-stack e-commerce platform"
@@ -158,16 +165,19 @@ Advanced Analysis: diagnostic-reference.md
 ## Problem-Solving Quick Reference
 
 ### Immediate Issues
+
 - **Command not working**: Check [common-issues.md](./common-issues.md) → Common SuperClaude Problems
 - **Session lost**: Use `/sc:load` → See [Session Management](../user-guide/session-management.md)
 - **Flag confusion**: Check [basic-examples.md](./basic-examples.md) → Flag Usage Examples
 
 ### Development Blockers
+
 - **Performance slow**: See [Advanced Workflows](./advanced-workflows.md) → Performance Patterns
 - **Complex debugging**: Use [troubleshooting.md](./troubleshooting.md) → Systematic Debugging
 - **Integration issues**: Check [integration-patterns.md](./integration-patterns.md) → Framework Patterns
 
 ### System-Level Issues
+
 - **Architecture problems**: Use [advanced-workflows.md](./advanced-workflows.md) → System Design
 - **Expert debugging**: Apply [diagnostic-reference.md](./diagnostic-reference.md) → Advanced Analysis
 - **Custom workflow needs**: Study [advanced-patterns.md](./advanced-patterns.md) → Custom Orchestration [advanced-patterns.md](./advanced-patterns.md) → Custom Orchestration
@@ -177,18 +187,21 @@ Advanced Analysis: diagnostic-reference.md
 ## Documentation Health & Verification
 
 ### Quality Assurance
+
 - ✅ **Commands Tested**: All examples tested and functional
 - ✅ **Patterns Proven**: Real-world usage validation in production environments  
 - ✅ **Cross-References**: Internal links verified and maintained
 - ✅ **Regular Updates**: Documentation synchronized with framework evolution
 
 ### Accuracy Standards
+
 - **Command Syntax**: Verified against latest SuperClaude implementation
 - **Flag Behavior**: Tested in multiple scenarios and environments
 - **MCP Integration**: Confirmed compatibility with current MCP server versions
 - **Performance Claims**: Benchmarked and measured in realistic conditions
 
 ### Reporting Issues
+
 Found outdated information or broken examples?
 
 1. **Quick Fixes**: Check [common-issues.md](./common-issues.md) first
@@ -201,18 +214,21 @@ Found outdated information or broken examples?
 ## Expert Tips for Maximum Productivity
 
 ### Daily Workflow Optimization
+
 1. **Session Management**: Always start with `/sc:load`, end with `/sc:save`
 2. **Flag Combinations**: Combine complementary flags: `--think --c7` for documented analysis
 3. **Progressive Complexity**: Start simple, add sophistication incrementally
 4. **Tool Specialization**: Match tools to tasks: Magic for UI, Sequential for analysis
 
 ### Learning Acceleration
+
 1. **Follow the Paths**: Use recommended learning sequences for structured growth
 2. **Practice Patterns**: Repeat common workflows until they become intuitive
 3. **Experiment Safely**: Use feature branches and checkpoints for exploration
 4. **Community Learning**: Share discoveries and learn from others' approaches
 
 ### Troubleshooting Mastery
+
 1. **Systematic Approach**: Always start with [common-issues.md](./common-issues.md)
 2. **Evidence Gathering**: Use `--think` for complex problem analysis
 3. **Root Cause Focus**: Address underlying issues, not just symptoms
@@ -223,18 +239,21 @@ Found outdated information or broken examples?
 ## Advanced Resources & Integration
 
 ### Framework-Specific Guides
+
 - **React/Next.js**: See [integration-patterns.md](./integration-patterns.md) → React Integration
 - **Vue/Nuxt**: See [integration-patterns.md](./integration-patterns.md) → Vue Ecosystem  
 - **Node.js/Express**: See [integration-patterns.md](./integration-patterns.md) → Backend Patterns
 - **Python/Django**: See [integration-patterns.md](./integration-patterns.md) → Python Workflows
 
 ### Specialized Workflows
+
 - **DevOps Integration**: [advanced-workflows.md](./advanced-workflows.md) → CI/CD Patterns
 - **Testing Strategies**: [advanced-patterns.md](./advanced-patterns.md) → Testing Orchestration
 - **Performance Engineering**: [Advanced Patterns](./advanced-patterns.md) → Complex Coordination
 - **Security Implementation**: [integration-patterns.md](./integration-patterns.md) → Security Patterns
 
 ### Community & Support
+
 - **Best Practices**: Continuously updated based on community feedback
 - **Pattern Library**: Growing collection of proven workflow patterns
 - **Expert Network**: Connect with experienced SuperClaude practitioners

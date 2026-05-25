@@ -58,6 +58,7 @@ permissionMode: plan
 ```
 
 The extended frontmatter adds:
+
 - `tools`: Explicit tool allowlist (comma-separated). Restricts what the agent can use.
 - `model`: Target model tier (`haiku`, `sonnet`, `opus`). Determines cost/capability trade-off.
 - `maxTurns`: Maximum conversation turns allowed. Prevents runaway execution.
@@ -133,6 +134,7 @@ Some agents add specialized sections depending on complexity. Here is the full u
 The `debate-orchestrator` and `merge-executor` list tools in a dedicated `## Tools` section with per-tool purpose annotations:
 
 **debate-orchestrator:**
+
 ```markdown
 ## Tools
 - **Task**: Delegate to advocate agents and merge-executor
@@ -144,6 +146,7 @@ The `debate-orchestrator` and `merge-executor` list tools in a dedicated `## Too
 ```
 
 **merge-executor:**
+
 ```markdown
 ## Tools
 - **Read**: Load base variant and refactoring plan
@@ -167,6 +170,7 @@ This is a hard constraint. The agent cannot use Write, Edit, Bash, or Task tools
 The `deep-research-agent` and `pm-agent` do not have a `## Tools` section. Instead, tool usage is embedded within workflow descriptions:
 
 **deep-research-agent** — tools appear in `## Tool Orchestration`:
+
 ```markdown
 ### Tool Orchestration
 
@@ -184,6 +188,7 @@ The `deep-research-agent` and `pm-agent` do not have a `## Tools` section. Inste
 ```
 
 **pm-agent** — tools appear in `## Memory Operations Reference` and workflow YAML blocks:
+
 ```yaml
 Session Start (MANDATORY):
   - list_memories() → Check what memories exist
@@ -191,6 +196,7 @@ Session Start (MANDATORY):
 ```
 
 And throughout PDCA cycle descriptions:
+
 ```yaml
 Do Phase:
   Actions:
@@ -291,16 +297,19 @@ Pattern: Explicitly states parent agent dependency. Activated by another agent, 
 Each agent defines a `## Behavioral Mindset` section that establishes the agent's operational personality. These are exact quotes:
 
 ### debate-orchestrator
+>
 > Coordinate the adversarial pipeline with strict neutrality. Never participate in debates or advocate for any variant. Focus on process integrity, fair scoring, and comprehensive documentation of all decisions with evidence.
 
 Key traits: **Neutrality**, **process integrity**, **evidence documentation**.
 
 ### pm-agent
+>
 > Think like a continuous learning system that transforms experiences into knowledge. After every significant implementation, immediately document what was learned. When mistakes occur, stop and analyze root causes before continuing. Monthly, prune and optimize documentation to maintain high signal-to-noise ratio.
 
 Key traits: **Continuous learning**, **immediate documentation**, **root cause analysis**, **knowledge pruning**.
 
 Additional **Core Philosophy** elaboration:
+
 ```markdown
 - **Experience → Knowledge**: Every implementation generates learnings
 - **Immediate Documentation**: Record insights while context is fresh
@@ -310,17 +319,20 @@ Additional **Core Philosophy** elaboration:
 ```
 
 ### deep-research-agent
+>
 > Think like a research scientist crossed with an investigative journalist. Apply systematic methodology, follow evidence chains, question sources critically, and synthesize findings coherently. Adapt your approach based on query complexity and information availability.
 
 Key traits: **Systematic methodology**, **critical source evaluation**, **adaptive approach**.
 
 ### audit-scanner
+
 Does not have a `## Behavioral Mindset` section. Instead uses `## Role`:
 > You are a read-only surface scanner for repository audits. Your job is to quickly classify files as DELETE, REVIEW, or KEEP based on evidence from reading file content and grepping for references.
 
 Key traits: **Read-only**, **classification-focused**, **evidence-based**.
 
 ### merge-executor
+>
 > Follow the refactoring plan precisely and methodically. Focus on structural integrity, accurate provenance tracking, and producing a unified document that faithfully incorporates planned changes without introducing new content or making strategic decisions.
 
 Key traits: **Plan fidelity**, **structural integrity**, **no autonomous decision-making**.
@@ -386,6 +398,7 @@ Key traits: **Plan fidelity**, **structural integrity**, **no autonomous decisio
 ```
 
 pm-agent also has a `## Key Actions` section with 5 numbered action workflows:
+
 1. Post-Implementation Recording
 2. Immediate Mistake Documentation
 3. Pattern Extraction
@@ -397,12 +410,14 @@ Each contains YAML-formatted procedural instructions.
 ### deep-research-agent — Implicit Focus via Capabilities and Workflow
 
 No explicit `## Focus Areas`. Instead organized as:
+
 - `## Core Capabilities` (6 subsections: Adaptive Planning, Multi-Hop Reasoning, Self-Reflective Mechanisms, Evidence Management, Tool Orchestration, Learning Integration)
 - `## Research Workflow` (4 phases: Discovery, Investigation, Synthesis, Reporting)
 
 ### audit-scanner — Implicit Focus via Methodology
 
 No explicit `## Focus Areas`. Operational focus defined through:
+
 - `## Methodology` (4-step per-file process)
 - `## Classification Taxonomy` (DELETE/REVIEW/KEEP criteria)
 - `## Conservative Bias` rule
@@ -426,16 +441,20 @@ No explicit `## Focus Areas`. Operational focus defined through:
 ### Command Integration Patterns
 
 **Direct command binding:**
+
 - `debate-orchestrator` is the execution engine for `/sc:adversarial`
 - `deep-research-agent` is activated by `/sc:research`
 - `pm-agent` is activated by `/sc:pm` and auto-activates on session lifecycle events
 
 **Indirect invocation (delegation chain):**
+
 - `/sc:adversarial` → `debate-orchestrator` → (Task tool) → `merge-executor`
 - `/cleanup-audit` → parent orchestrator → (Task tool) → `audit-scanner`
 
 **Meta-layer integration:**
+
 - `pm-agent` operates as a meta-layer above all specialist agents. It auto-activates after any agent completes work:
+
 ```yaml
 Task Execution Flow:
   1. User Request → Auto-activation selects specialist agent
@@ -448,6 +467,7 @@ Task Execution Flow:
 The `debate-orchestrator` demonstrates the most complex agent coordination:
 
 **Delegation pattern:**
+
 ```markdown
 ## Does NOT
 - **Generate variants**: Delegates to specified agents via Task tool (Mode B)
@@ -456,6 +476,7 @@ The `debate-orchestrator` demonstrates the most complex agent coordination:
 ```
 
 **Return contract pattern** (debate-orchestrator output to calling command):
+
 ```markdown
 - **Return contract**: Status, paths, convergence score, unresolved conflicts
 ```
@@ -463,6 +484,7 @@ The `debate-orchestrator` demonstrates the most complex agent coordination:
 ### MCP Server Integration
 
 **pm-agent** integrates deeply with Serena MCP for session persistence:
+
 ```yaml
 Session Start (MANDATORY):
   - list_memories() → Check what memories exist
@@ -474,6 +496,7 @@ During Work (Checkpoints):
 ```
 
 **deep-research-agent** routes to multiple MCP servers based on content type:
+
 ```markdown
 **Extraction Routing**
 - Static HTML → Tavily extraction
@@ -528,6 +551,7 @@ permissionMode: plan
 ```
 
 Characteristics:
+
 - Extended frontmatter with hard constraints (tools, model, maxTurns, permissionMode)
 - Second-person voice ("You are...")
 - Prescriptive methodology with exact steps
@@ -592,6 +616,7 @@ category: analysis|quality|development
 ```
 
 Characteristics:
+
 - Minimal frontmatter (name, description, category)
 - Third-person or imperative voice
 - Behavioral Mindset establishes personality
@@ -652,6 +677,7 @@ category: analysis
 ```
 
 Characteristics:
+
 - Minimal frontmatter but maximum body complexity
 - Behavioral Mindset emphasizes neutrality and process
 - Responsibilities are the core — numbered, detailed, sequential
@@ -735,6 +761,7 @@ category: meta
 ```
 
 Characteristics:
+
 - Minimal frontmatter despite being the most complex agent
 - Heaviest use of YAML code blocks for structured procedures
 - Session lifecycle management with mandatory protocols
@@ -785,12 +812,14 @@ Characteristics:
 **3. Boundary Enforcement Mechanisms**
 
 - **Hard constraints** (sub-agents): Frontmatter tool restrictions + safety constraints with explicit failure consequences.
+
   ```markdown
   ## Safety Constraint
   **DO NOT modify, edit, delete, move, or rename ANY existing file. Violation = task failure.**
   ```
 
 - **Soft constraints** (specialists/orchestrators): Behavioral guidance via "Does NOT" and "Boundaries" sections.
+
   ```markdown
   ## Does NOT
   - **Generate variants**: Delegates to specified agents via Task tool (Mode B)
@@ -798,6 +827,7 @@ Characteristics:
   ```
 
 - **Philosophical constraints** (meta agents): Core philosophy and quality standards guide behavior.
+
   ```markdown
   **Will Not:**
   - Skip documentation due to time pressure or urgency
@@ -807,6 +837,7 @@ Characteristics:
 **4. Output Specificity**
 
 - **Sub-agents**: Exact output template with markdown structure specified line-by-line.
+
   ```markdown
   ## Output Format
   Write your report following this structure:
@@ -817,6 +848,7 @@ Characteristics:
   ```
 
 - **Orchestrators**: Named artifact list with content descriptions but not exact templates.
+
   ```markdown
   ## Outputs
   - **diff-analysis.md**: Structural differences, content differences, contradictions, unique contributions
@@ -824,6 +856,7 @@ Characteristics:
   ```
 
 - **Meta agents**: Output categories with sub-items but flexible format.
+
   ```markdown
   ## Outputs
   ### Implementation Documentation
@@ -840,6 +873,7 @@ Characteristics:
 Use when: You need a cost-effective, parallelizable batch processor with safety guarantees.
 
 Template signals:
+
 - Extended frontmatter with `tools`, `model`, `maxTurns`, `permissionMode`
 - `## Role` instead of `## Behavioral Mindset`
 - `## Safety Constraint` with explicit failure consequence
@@ -855,6 +889,7 @@ Template signals:
 Use when: You need an autonomous agent that adapts its strategy to the problem.
 
 Template signals:
+
 - Minimal frontmatter
 - Rich `## Behavioral Mindset` with personality metaphor
 - `## Core Capabilities` with multiple strategy options
@@ -869,6 +904,7 @@ Template signals:
 Use when: You need multi-agent coordination with strict process adherence.
 
 Template signals:
+
 - Minimal frontmatter
 - `## Behavioral Mindset` emphasizing neutrality
 - `## Model Preference` requesting highest tier
@@ -884,6 +920,7 @@ Template signals:
 Use when: You need cross-session knowledge management and lifecycle persistence.
 
 Template signals:
+
 - Minimal frontmatter with `category: meta`
 - Multi-type trigger list (mandatory, event, keyword, scheduled, manual)
 - `## Session Lifecycle` with Start/During/End protocols

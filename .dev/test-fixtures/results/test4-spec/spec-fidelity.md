@@ -10,6 +10,7 @@ tasklist_ready: false
 ## Deviation Report
 
 ### DEV-001
+
 - **ID**: DEV-001
 - **Severity**: HIGH
 - **Deviation**: The `UserRecord` data model in the spec defines an `updated_at: Date` field. The roadmap's database schema task (DM-001) omits this field entirely.
@@ -21,6 +22,7 @@ tasklist_ready: false
 ---
 
 ### DEV-002
+
 - **ID**: DEV-002
 - **Severity**: HIGH
 - **Deviation**: The spec defines `src/auth/auth-service.ts` as a new file and the central orchestrator in the module dependency graph. The roadmap creates explicit COMP tasks for every other new file (COMP-001 through COMP-007) but has no COMP task for `AuthService`. Endpoint handlers (FR-AUTH.1, FR-AUTH.2, etc.) appear to absorb orchestration logic directly.
@@ -32,6 +34,7 @@ tasklist_ready: false
 ---
 
 ### DEV-003
+
 - **ID**: DEV-003
 - **Severity**: MEDIUM
 - **Deviation**: The spec's workflow diagram uses the endpoint path `GET /auth/me` for authenticated profile retrieval. The roadmap uses `GET /auth/profile` throughout.
@@ -43,6 +46,7 @@ tasklist_ready: false
 ---
 
 ### DEV-004
+
 - **ID**: DEV-004
 - **Severity**: MEDIUM
 - **Deviation**: The spec defines `UserRecord.is_locked` as a `boolean` field. The roadmap's schema (DM-001) uses `locked_at (nullable)` — a nullable timestamp — which changes the field's type and semantics.
@@ -54,6 +58,7 @@ tasklist_ready: false
 ---
 
 ### DEV-005
+
 - **ID**: DEV-005
 - **Severity**: MEDIUM
 - **Deviation**: The spec defines `RefreshTokenRecord.revoked` as a `boolean` field. The roadmap's schema (DM-002) uses `revoked_at (nullable)` — a nullable timestamp.
@@ -65,6 +70,7 @@ tasklist_ready: false
 ---
 
 ### DEV-006
+
 - **ID**: DEV-006
 - **Severity**: MEDIUM
 - **Deviation**: The spec's test plan (Section 8.1) lists a dedicated unit test for `TokenManager`: "TokenManager issues token pairs and rotates refresh tokens" in file `tests/auth/token-manager.test.ts`. The roadmap Phase 0 milestone claims "TokenManager pass unit tests" but no TEST task in any phase creates TokenManager unit tests. The closest test (TEST-005) is an integration test for the refresh flow, not a unit test for the TokenManager class.
@@ -76,6 +82,7 @@ tasklist_ready: false
 ---
 
 ### DEV-007
+
 - **ID**: DEV-007
 - **Severity**: MEDIUM
 - **Deviation**: The spec's test plan (Section 8.1) lists two unit tests for the `AuthService` class: `AuthService.login` and `AuthService.register`, both in `tests/auth/auth-service.test.ts`. The roadmap has no unit test tasks for AuthService — only integration tests (TEST-003, TEST-004) that verify the same flows through the HTTP layer.
@@ -87,6 +94,7 @@ tasklist_ready: false
 ---
 
 ### DEV-008
+
 - **ID**: DEV-008
 - **Severity**: LOW
 - **Deviation**: The spec defines an `AuthTokenPair` TypeScript interface (Section 4.5) with `access_token` and `refresh_token` fields. The roadmap does not explicitly define or reference this interface as a named artifact.
@@ -98,6 +106,7 @@ tasklist_ready: false
 ---
 
 ### DEV-009
+
 - **ID**: DEV-009
 - **Severity**: LOW
 - **Deviation**: The spec's implementation order (Section 4.6) places "routes + migrations" as step 5 (last), after `auth-service.ts`. The roadmap places database migrations (MIG-001, MIG-002) in Phase 0, before any service implementation tasks.
