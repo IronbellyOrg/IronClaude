@@ -40,7 +40,7 @@ PHASE = 1
 GATE_TIER = "EXEMPT"
 
 # Steps that support --start resume — canonical source is resume.py
-from ..resume import get_resumable_step_names
+from ..resume import get_resumable_step_names  # noqa: E402  # intentional: deferred to avoid circular import with resume module
 
 _RESUMABLE_STEPS = get_resumable_step_names()
 

@@ -340,24 +340,24 @@ class TestFullFlowIntegration:
 # Anti-instinct gate full pipeline flow tests
 # ---------------------------------------------------------------------------
 
-from unittest.mock import patch
+from unittest.mock import patch  # noqa: E402  # late import for test section grouping (anti-instinct gate suite)
 
-from superclaude.cli.sprint.executor import (
+from superclaude.cli.sprint.executor import (  # noqa: E402  # late import for test section grouping
     execute_phase_tasks,
     run_post_task_anti_instinct_hook,
 )
-from superclaude.cli.sprint.models import (
+from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
     GateOutcome,
     Phase,
     ShadowGateMetrics,
 )
-from superclaude.cli.sprint.models import (
+from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
     TaskEntry as SprintTaskEntry,
 )
-from superclaude.cli.sprint.models import (
+from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
     TaskResult as SprintTaskResult,
 )
-from superclaude.cli.sprint.models import (
+from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
     TaskStatus as SprintTaskStatus,
 )
 
@@ -469,7 +469,7 @@ class TestAntiInstinctFullFlow:
 # Wiring budget scenario integration tests (T04.02, D-0022)
 # ---------------------------------------------------------------------------
 
-from superclaude.cli.sprint.executor import run_post_task_wiring_hook
+from superclaude.cli.sprint.executor import run_post_task_wiring_hook  # noqa: E402  # late import for wiring section grouping
 
 
 def _make_wiring_sprint_config(

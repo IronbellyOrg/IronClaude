@@ -21,8 +21,6 @@ import signal
 from pathlib import Path
 from typing import Any, Callable, Optional, TypeVar
 
-_T = TypeVar("_T")
-
 import yaml
 
 from superclaude.cli.cli_portify.contract import (
@@ -57,6 +55,8 @@ from superclaude.cli.cli_portify.monitor import OutputMonitor, TimingCapture
 from superclaude.cli.cli_portify.steps import get_step_dispatch
 from superclaude.cli.cli_portify.tui import PortifyTUI
 from superclaude.cli.pipeline.gates import gate_passed
+
+_T = TypeVar("_T")
 
 # ---------------------------------------------------------------------------
 # Constants

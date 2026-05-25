@@ -280,7 +280,7 @@ def phase_a_pipeline_integration(output_dir: Path, spec_file: Path, eval_start_t
     )
 
     # 13. Artifact content integrity checks
-    lines = [l for l in content.splitlines() if l.strip()]
+    lines = [line for line in content.splitlines() if line.strip()]
     result.assertions.append(
         assert_check(
             "content_min_10_lines",
@@ -288,7 +288,7 @@ def phase_a_pipeline_integration(output_dir: Path, spec_file: Path, eval_start_t
             f"Non-empty lines: {len(lines)}",
         )
     )
-    has_headings = any(l.startswith("## ") or l.startswith("### ") for l in content.splitlines())
+    has_headings = any(line.startswith("## ") or line.startswith("### ") for line in content.splitlines())
     result.assertions.append(
         assert_check(
             "content_has_section_headings",

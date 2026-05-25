@@ -397,31 +397,31 @@ def version():
     click.echo(f"SuperClaude version {__version__}")
 
 
-from superclaude.cli.sprint import sprint_group
+from superclaude.cli.sprint import sprint_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(sprint_group, name="sprint")
 
-from superclaude.cli.roadmap import roadmap_group
+from superclaude.cli.roadmap import roadmap_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(roadmap_group, name="roadmap")
 
-from superclaude.cli.cleanup_audit import cleanup_audit_group
+from superclaude.cli.cleanup_audit import cleanup_audit_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(cleanup_audit_group, name="cleanup-audit")
 
-from superclaude.cli.tasklist import tasklist_group
+from superclaude.cli.tasklist import tasklist_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(tasklist_group, name="tasklist")
 
-from superclaude.cli.cli_portify.commands import cli_portify_group
+from superclaude.cli.cli_portify.commands import cli_portify_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(cli_portify_group)
 
-from superclaude.cli.prd.commands import prd_group
+from superclaude.cli.prd.commands import prd_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(prd_group, name="prd")
 
-from superclaude.cli.eval.commands import eval_group
+from superclaude.cli.eval.commands import eval_group  # noqa: E402  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(eval_group, name="eval")
 
