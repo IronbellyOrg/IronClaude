@@ -89,7 +89,7 @@ Stop and broadcast: `BLOCKED: Template not found at [expected path]`
 
 You'll receive from rf-team-lead:
 
-```
+```text
 BUILD_REQUEST:
 ==============
 GOAL: [What needs to be accomplished]
@@ -105,7 +105,7 @@ RESEARCH_CONTEXT: [Initial findings from researcher, if any]
 
 Read the template specified in BUILD_REQUEST:
 
-```
+```text
 If TEMPLATE: 02 → Read: .claude/templates/workflow/02_mdtm_template_complex_task.md
 If TEMPLATE: 01 or not specified → Read: .claude/templates/workflow/01_mdtm_template_generic_task.md
 ```
@@ -127,7 +127,7 @@ If RESEARCH_CONTEXT was provided, use it.
 **Option B: Request more research**
 If you need more context, message rf-task-researcher:
 
-```
+```text
 RESEARCH_NEEDED:
 ================
 I'm building a task for: [goal]
@@ -145,7 +145,7 @@ Wait for `RESEARCH_READY` response before proceeding.
 **Option C: Ask user for clarification**
 If you need user input, broadcast:
 
-```
+```text
 NEED_USER_INPUT:
 ================
 To build this task, I need clarification:
@@ -179,7 +179,7 @@ Based on context, determine:
 
 **5a. Create the file immediately with frontmatter + header:**
 
-```
+```text
 Write the file at the target path containing ONLY:
 - YAML frontmatter (---, NOT +++)
 - # Title
@@ -214,7 +214,7 @@ After all phases are appended, add the `## Task Log / Notes` section with the ex
 
 Create a task in the shared task list and broadcast:
 
-```
+```text
 TaskCreate:
   subject: "exec:TASK-RF-[timestamp]"
   description: "Execute Rigorflow task"
@@ -227,7 +227,7 @@ TaskCreate:
 
 Then broadcast:
 
-```
+```text
 TASK_READY:
 ===========
 PATH: .dev/tasks/to-do/TASK-RF-[timestamp]/TASK-RF-[timestamp].md
@@ -255,7 +255,7 @@ Every checklist item MUST be ONE paragraph containing:
 
 **Pattern:**
 
-```
+```text
 - [ ] Read the file `[source.md]` at `[path/to/source.md]` to extract [specific content needed] for [why this is needed], then read the file `[template.md]` at `[path/to/template.md]` to understand the required format, then create the file `[output.md]` at `[path/to/output.md]` containing [specific content derived from source], ensuring [verification criteria], no content is fabricated beyond what sources explicitly state, and no placeholder text remains. If unable to complete due to missing information, file access issues, or unclear requirements, log the specific blocker using the templated format in the ### Phase [N] Findings section of the ## Task Log / Notes at the bottom of this task file, then mark this item complete. Once done, mark this item as complete.
 ```
 
@@ -340,7 +340,7 @@ When using template 02, you have access to 6 handoff patterns from Section L. Th
 
 When building a template 02 task, include Step 1.2 (create handoff directories) and structure phases using the patterns:
 
-```
+```text
 Phase 1: Setup (status update + create phase-outputs directories)
 Phase 2: Discovery + Build (L1 discovery → L2 build items)
 Phase 3: Test + Assess (L3 test → L5 conditional)
@@ -367,7 +367,7 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 
 **Fix cycle limits per gate type (from I16):**
 
-**Halt-precedence rule (COMP-002-M5 — applies to every row in the table below).** Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed` (per FR-CONV.5 / API-004). On every cycle transition `n → n+1` within a gate, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires. The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead.md:417`). Per-gate counters are independent and NEVER collapsed across gates — research-gate's `F_n` is independent from task-integrity's `F_n`. The full operational specification is in the Retry Monotonicity Protocol below.
+**Halt-precedence rule (COMP-002-M5 — applies to every row in the table below).** Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed` (per FR-CONV.5 / API-004). On every cycle transition `n → n+1` within a gate, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires. The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead's Fix Cycles rule`). Per-gate counters are independent and NEVER collapsed across gates — research-gate's `F_n` is independent from task-integrity's `F_n`. The full operational specification is in the Retry Monotonicity Protocol below.
 
 | Gate Type | Max Cycles | After Max |
 |-----------|-----------|-----------|
@@ -444,7 +444,7 @@ Use `WebSearch` when:
 
 **Examples:**
 
-```
+```text
 WebSearch: "Jest test file naming conventions and structure"
 WebSearch: "Dockerfile multi-stage build syntax"
 WebSearch: "SQLAlchemy migration file structure"
@@ -458,7 +458,7 @@ WebSearch: "SQLAlchemy migration file structure"
 
 ### To Researcher
 
-```
+```text
 Hey rf-task-researcher, I'm building a documentation task.
 
 RESEARCH_NEEDED:
@@ -473,7 +473,7 @@ Report RESEARCH_READY when done.
 
 ### From Researcher
 
-```
+```text
 RESEARCH_READY:
 ===============
 Found 5 handler files in src/handlers/:
@@ -488,7 +488,7 @@ Pattern: All handlers extend BaseHandler
 
 ### To Team Lead (need user input)
 
-```
+```text
 NEED_USER_INPUT:
 ================
 The user asked for "documentation" but I need to know:
@@ -504,7 +504,7 @@ CONTEXT_GATHERED:
 
 ### Broadcast (task ready)
 
-```
+```text
 TASK_READY:
 ===========
 PATH: .dev/tasks/to-do/TASK-RF-20250206-143000/TASK-RF-20250206-143000.md

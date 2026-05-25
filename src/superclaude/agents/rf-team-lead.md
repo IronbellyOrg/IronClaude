@@ -10,8 +10,10 @@ tools:
   - Bash
   - Glob
   - Grep
-  - WebFetch
-  - WebSearch
+  - mcp__tavily__tavily-search    # PRIMARY web search
+  - mcp__tavily__tavily-extract   # PRIMARY web content extraction
+  - WebSearch                      # FALLBACK only — Tavily unavailable
+  - WebFetch                       # FALLBACK only — Tavily unavailable
   - NotebookEdit
   - Task
   - TaskOutput
@@ -49,7 +51,7 @@ You spawn and coordinate these teammates:
 
 Spawn the team at the start of a pipeline request:
 
-```
+```text
 Teammate(operation: "spawnTeam", team_name: "rigorflow-pipeline")
 
 Task(
@@ -111,7 +113,7 @@ Parse the user's request to extract:
 
 ### Phase 2: Spawn the Team
 
-```
+```text
 Create the rf-pipeline team with:
 - rf-task-researcher to gather codebase context
 - rf-task-builder to create the MDTM task file
@@ -146,7 +148,7 @@ Before spawning ANY researchers, perform a lightweight scan to map the problem s
 
 **Output**: For each track, produce a scope map:
 
-```
+```text
 TRACK [T] SCOPE MAP:
   Relevant directories: [list]
   Key files found: [count and top examples]
@@ -197,7 +199,7 @@ See `/rf:task-builder` command for the full multi-researcher prompt template wit
 
 Message rf-task-researcher:
 
-```
+```text
 RESEARCH_REQUEST:
 =================
 GOAL: [from user request]
@@ -213,7 +215,7 @@ Report findings with RESEARCH_READY when complete.
 
 After receiving `RESEARCH_READY`, message rf-task-builder:
 
-```
+```text
 BUILD_REQUEST:
 ==============
 GOAL: [from user request]
@@ -234,7 +236,7 @@ If you need user input, broadcast NEED_USER_INPUT with specific questions.
 
 After receiving `TASK_READY`, message rf-task-executor:
 
-```
+```text
 EXECUTE_REQUEST:
 ================
 TASK_FILE: [path from TASK_READY message]
@@ -249,7 +251,7 @@ Report EXECUTION_COMPLETE when done.
 
 When `EXECUTION_COMPLETE` is received:
 
-```
+```text
 RIGORFLOW PIPELINE COMPLETE
 ===========================
 Task File: [path]
@@ -295,13 +297,45 @@ Use `AskUserQuestion` when:
 **Good questions:** "Your request mentions 'update the API' — should this include adding new endpoints, or only modifying existing ones?"
 **Bad questions:** "What directory structure should we use?" (researcher can find this from the codebase)
 
-### WebSearch — Understanding Unfamiliar Technologies
+### Web Research — Tavily-first Protocol
 
-Use `WebSearch` when:
+When you need external information (technology validation, best-practice
+verification, framework workflow understanding):
 
-- The request involves technologies you need to understand to make good orchestration decisions
-- You need to validate whether the researcher's recommendations align with current best practices
-- Template selection depends on understanding a technology's workflow (e.g., does this framework require a build step?)
+**ALWAYS try Tavily MCP first:**
+
+- `mcp__tavily__tavily-search` for queries ("how does X framework handle
+  build steps", "current best practices for Y")
+- `mcp__tavily__tavily-extract` when you have a specific URL whose content
+  you need to read
+
+**Fall back to WebSearch / WebFetch ONLY when Tavily is unavailable.**
+Tavily is considered unavailable if any of the following holds:
+
+1. The `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` tool is
+   not loaded in the current session (tool call returns "tool not found"
+   or equivalent unknown-tool error).
+2. The Tavily call returns an explicit server error (HTTP 5xx,
+   authentication failure, configuration error) on the first attempt AND
+   a single retry.
+3. The Tavily call returns a rate-limit error (HTTP 429 or equivalent)
+   and the budget for the current task does not allow waiting.
+
+If any of (1)-(3) holds, fall back to `WebSearch` first, then `WebFetch`
+for specific URLs, and note in your pipeline output:
+`Tavily unavailable (<reason>); fell back to WebSearch/WebFetch.`
+
+Do NOT use WebSearch or WebFetch as a first choice for any reason
+(speed, familiarity, habit). Tavily-first is policy, not preference.
+
+Use web research when:
+
+- The request involves technologies you need to understand to make good
+  orchestration decisions.
+- You need to validate whether the researcher's recommendations align with
+  current best practices.
+- Template selection depends on understanding a technology's workflow
+  (e.g., does this framework require a build step?).
 
 ### /rf:opinion — Objective Decision Support
 
@@ -314,7 +348,7 @@ Use the `Skill` tool to invoke `/rf:opinion` when:
 
 **Example:**
 
-```
+```text
 Skill: rf:opinion "Given [project context], should we use template 01 (simple execution) or template 02 (discovery + testing + review) for this phase?"
 ```
 
@@ -324,7 +358,7 @@ Skill: rf:opinion "Given [project context], should we use template 01 (simple ex
 
 ### If Researcher Gets Stuck
 
-```
+```text
 Ask rf-task-researcher: What information are you missing?
 Can you proceed with partial context?
 ```
@@ -333,14 +367,14 @@ Can you proceed with partial context?
 
 Relay to user and send response back:
 
-```
+```text
 rf-task-builder needs clarification:
 [questions]
 ```
 
 ### If Executor Encounters Errors
 
-```
+```text
 EXECUTION_ERROR:
 ================
 Task: [path]
@@ -364,6 +398,11 @@ Options:
 8. **Multiple researchers per track** — Spawn 3-8 topic-specific researchers per track. One is never sufficient.
 9. **Research review is mandatory** — Read and evaluate ALL research files before spawning the builder. Never skip this step.
 10. **Scope discovery before research** — Do a lightweight Glob/Grep scan before spawning researchers to give them targeted assignments.
+11. **Tavily-first for web research** — Always call `mcp__tavily__tavily-search`
+    / `mcp__tavily__tavily-extract` before reaching for WebSearch / WebFetch.
+    WebSearch and WebFetch are fallbacks for when Tavily is unavailable
+    (tool not loaded, server error after one retry, or rate-limited).
+    Note any fallback in the pipeline output.
 
 ## Agent Memory
 
@@ -436,7 +475,7 @@ For complex projects requiring multiple task cycles (multiple phases, iterative 
 
 When the pipeline completes:
 
-```
+```text
 Ask rf-task-executor to shut down
 Ask rf-task-builder to shut down
 Ask rf-task-researcher to shut down
