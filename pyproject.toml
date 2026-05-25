@@ -178,7 +178,9 @@ extend-exclude = '''
 line-length = 88
 target-version = "py310"
 exclude = ["docs/"]
+# .dev/ contains non-distributable artifacts (release archives, eval workspaces, research scratch, sprint state) — analogous to docs/, never shipped, never imported by src/
 extend-exclude = [
+    ".dev/",
     "tests/audit/fixtures/syntax_error.py",  # deliberate bad-syntax fixture for graceful-degradation tests
 ]
 
