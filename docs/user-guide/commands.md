@@ -397,36 +397,53 @@ PM Agent:
 
 ---
 
-### `/sc:brainstorm` - Interactive Requirements Discovery
+### `/sc:brainstorm` - Orchestrated Multi-Agent Brainstorm
 
-**When to use:** Idea is vague, need to understand requirements through dialogue.
+**When to use:** Topic is ambiguous and needs perspectives surfaced via parallel proposals and adversarial merge — not just Socratic dialogue.
 
 **What it does:**
 
-- Asks Socratic questions for clarification
-- Checks feasibility
-- Generates concrete specifications
-- Creates brief for implementation
+- Runs a depth-tiered Socratic dialogue → `seed-brief.md`
+- Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
+- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas
+- Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
+- Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder`
 
 **Syntax:**
 
 ```
-/sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+/sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
+  [--strategy systematic|agile|enterprise|auto] \
+  [--codebase|--no-codebase] [--research light|deep|none] \
+  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
+  [--blind] [--convergence FLOAT] [--interactive] \
+  [--handoff none|design|tasklist|task] [--output DIR] \
+  [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
 **Examples:**
 
 ```bash
-# New product
-/sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
-# Claude: What problems should it solve? For what team? Integrations?
-# Result: Clear requirements document
+# Codebase feature discovery (auto: Auggie enrichment + 3 proposals)
+/sc:brainstorm "add rate limiting to public API endpoints" --depth standard
 
-# Feature
-/sc:brainstorm "real-time collaboration features" --strategy agile --parallel
+# Deep incident post-mortem
+/sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
+
+# Product idea with research + full handoff to sprint planning
+/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff tasklist
+
+# Blind multi-model comparison (strips model identity before scoring)
+/sc:brainstorm "consolidate three duplicate auth modules" --depth deep --blind --proposals 4
+
+# Dry-run: preview composed agent-spec without spending tokens on adversarial
+/sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
 ```
 
-**MCP servers:** sequential, context7, magic, playwright, morphllm, serena
+**MCP servers:** sequential, serena, auggie-mcp, tavily  
+**Personas:** architect, analyzer, scribe (auto-selected per detected domain)
+
+→ Full guide: [brainstorm.md](brainstorm.md)
 
 ---
 
