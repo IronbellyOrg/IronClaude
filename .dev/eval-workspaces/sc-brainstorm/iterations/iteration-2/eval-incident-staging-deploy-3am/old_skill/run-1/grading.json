@@ -1,0 +1,15 @@
+{
+  "expectations": [
+    {
+      "text": "v1 baseline: requirements.md exists",
+      "passed": true,
+      "evidence": "File exists at old_skill/outputs/requirements.md (24044 bytes)"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 0,
+    "total": 1,
+    "pass_rate": 1.0
+  }
+}

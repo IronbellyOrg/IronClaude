@@ -1,3 +1,4 @@
+# ruff: noqa: N999  # intentional: filename encodes |F|=5,5,5 monotonicity counter sequence for R-104 / FR-CONV.5 cross-reference
 """TEST-015 — monotonicity halt on |F|=5,5,5 fixture (R-104 / FR-CONV.5 PR-02).
 
 Phase-5 / T05.13 deliverable (D-0064). Codifies the canonical

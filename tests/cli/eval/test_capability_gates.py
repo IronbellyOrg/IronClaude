@@ -20,17 +20,15 @@ the override hook the M2 patch will use.
 from __future__ import annotations
 
 import shutil
-from typing import Iterable
 
 import pytest
 
 from superclaude.cli.eval.capabilities import (
+    _DEFAULT_CAPABILITY_SPECS,
     Capability,
     CapabilityGates,
     CapabilityReport,
-    CapabilityStatus,
     _CapabilitySpec,
-    _DEFAULT_CAPABILITY_SPECS,
 )
 
 

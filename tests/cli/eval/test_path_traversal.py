@@ -51,7 +51,6 @@ from superclaude.cli.eval import (
     validate_eval_id,
 )
 
-
 # ---------------------------------------------------------------------------
 # NFR-SEC1 named-case checklist (one test per AC bullet)
 # ---------------------------------------------------------------------------

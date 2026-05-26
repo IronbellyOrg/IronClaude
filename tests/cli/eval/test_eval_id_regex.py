@@ -31,7 +31,6 @@ from superclaude.cli.eval import (
 )
 from superclaude.cli.eval.loader import EVAL_ID_REGEX
 
-
 # --- regex sanity ----------------------------------------------------------
 
 
@@ -249,8 +248,8 @@ def test_eval_id_pattern_single_source() -> None:
     """
 
     from superclaude.cli.eval.artifact_layout import (
-        EVAL_ID_PATTERN,
         _EVAL_ID_PATH_SAFETY_PATTERN,
+        EVAL_ID_PATTERN,
     )
 
     # (1) Schema SoT — loader's alias IS the same compiled object (proves

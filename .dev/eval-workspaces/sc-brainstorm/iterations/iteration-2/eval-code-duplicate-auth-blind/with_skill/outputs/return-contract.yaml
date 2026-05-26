@@ -1,0 +1,50 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/merged-requirements.md
+convergence_score: 0.71
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/adversarial/
+domain: code
+strategy: systematic
+depth: deep
+proposal_count: 5
+blind_mode: true
+blind_labels: ["Agent A", "Agent B", "Agent C", "Agent D", "Agent E"]
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_2
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Plugin-framework vs policy-only architecture: merged-leaning-B with two A concessions; revisit in 12 months if SAML/OIDC need emerges"
+  - "Override-registry sign-off authority: 'security review' to be operationalized in Phase 0"
+  - "Shadow-mode corpus augmentation strategy if production traffic insufficient"
+  - "Pentest cadence beyond initial 4 engagements"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 200
+  wave_1: 6300
+  wave_2a: 2400
+  wave_2b: 0
+  wave_3: 58000
+  wave_4: 500
+token_usage:
+  wave_0: 300
+  wave_1: 13800
+  wave_2a: 1800
+  wave_2b: 0
+  wave_3: 71500
+  wave_4: 400
+# In --blind mode, agent_spec discloses anonymization without revealing mapping.
+# Mapping file blind-mapping.yaml exists at workspace root, used only post-scoring.
+agent_spec: "blind:Agent A:architect:'long-term system fit, extensibility, structural correctness',blind:Agent B:refactorer:'smallest-blast-radius, minimum viable consolidation',blind:Agent C:security:'STRIDE on migration itself, compliance evidence, threat model under shadow/canary',blind:Agent D:qa:'test surface scoping, shadow-mode delta detection, pentest gates',blind:Agent E:devops:'rollout operations, feature-flag granularity, dashboards-before-code, on-call readiness'"
+enrichment_artifact_sizes:
+  codebase-context.md: 2100
+  research-light.md: 0
+personas_used: ["architect", "refactorer", "security", "qa", "devops"]
+model_aliases_used: ["anonymized"]

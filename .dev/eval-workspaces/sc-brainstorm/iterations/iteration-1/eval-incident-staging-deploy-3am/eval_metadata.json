@@ -1,0 +1,24 @@
+{
+  "eval_id": 2,
+  "eval_name": "incident-staging-deploy-3am",
+  "prompt": "Post-mortem brainstorm: staging deployment broke at 3am, manual revert was the only mitigation. --depth quick --proposals 2",
+  "topic": "post-mortem: staging deployment broke at 3am, manual revert was the only mitigation",
+  "expected": {
+    "domain": "incident",
+    "strategy": "systematic",
+    "proposal_count": 2,
+    "enrichment_expected": []
+  },
+  "assertions": [
+    {"text": "seed_brief.md exists", "type": "file_exists", "target": "with_skill/outputs/seed-brief.md"},
+    {"text": "merged-requirements.md exists", "type": "file_exists", "target": "with_skill/outputs/merged-requirements.md"},
+    {"text": "seed-brief frontmatter declares domain: incident", "type": "frontmatter_field", "target": "with_skill/outputs/seed-brief.md", "field": "domain", "expected": "incident"},
+    {"text": "merged-requirements has Post-Mortem Framework or Required Investigation Steps section", "type": "section_present", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "(Post-Mortem|Investigation)"},
+    {"text": "merged-requirements has Open Questions ≥2 items", "type": "section_enumerated", "target": "with_skill/outputs/merged-requirements.md", "section_pattern": "Open Questions", "min_items": 2},
+    {"text": "return-contract.yaml contract_version = 1.0", "type": "yaml_field", "target": "with_skill/outputs/return-contract.yaml", "field": "contract_version", "expected": "1.0"},
+    {"text": "return-contract.yaml convergence_score ≥ 0.50", "type": "yaml_field_min", "target": "with_skill/outputs/return-contract.yaml", "field": "convergence_score", "min_value": 0.50},
+    {"text": "adversarial dir has ≥2 proposals + debate-transcript", "type": "dir_count", "target": "with_skill/outputs/adversarial/", "min_files": 3},
+    {"text": "agent-spec in return-contract uses analyzer + security personas", "type": "yaml_substring", "target": "with_skill/outputs/return-contract.yaml", "field": "agent_spec", "substring_any": ["analyzer", "security"]},
+    {"text": "v1 baseline: requirements.md exists", "type": "file_exists", "target": "old_skill/outputs/requirements.md"}
+  ]
+}

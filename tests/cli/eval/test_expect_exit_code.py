@@ -17,7 +17,6 @@ default, iterable ``in_set`` inputs, and combining ``not_equals`` with
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Mapping
 
 import pytest
 
@@ -30,7 +29,6 @@ from superclaude.cli.eval.models import (
     ExpectFailure,
     ExpectResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

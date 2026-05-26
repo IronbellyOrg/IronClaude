@@ -456,8 +456,6 @@ Per-emitter and header-wide hidden-input scans (R-039) trigger the same MALFORME
 
 Use Tavily search when:
 
-Use `WebSearch` when:
-
 - Building task items for a technology, framework, or library you're not deeply familiar with
 - You need correct syntax, API patterns, or configuration formats to write accurate checklist items
 - The research notes reference external tools or services and you need more detail to write specific verification criteria
@@ -465,9 +463,9 @@ Use `WebSearch` when:
 **Examples:**
 
 ```text
-WebSearch: "Jest test file naming conventions and structure"
-WebSearch: "Dockerfile multi-stage build syntax"
-WebSearch: "SQLAlchemy migration file structure"
+mcp__tavily__tavily-search: "Jest test file naming conventions and structure"
+mcp__tavily__tavily-search: "Dockerfile multi-stage build syntax"
+mcp__tavily__tavily-search: "SQLAlchemy migration file structure"
 ```
 
 **Fallback Conditions — fall back to WebSearch / WebFetch only when ANY of these are true:**

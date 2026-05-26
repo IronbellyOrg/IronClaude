@@ -56,7 +56,6 @@ from superclaude.cli.eval.signal_handler import (
     SignalHandlerInstaller,
 )
 
-
 # ---------------------------------------------------------------------------
 # CancellationToken unit tests
 # ---------------------------------------------------------------------------
@@ -659,7 +658,7 @@ def test_pty_driver_terminate_kills_real_subprocess(tmp_path: Path) -> None:
     would fail. Skipped automatically when ``pexpect`` is not installed.
     """
 
-    pexpect = pytest.importorskip("pexpect")
+    _pexpect = pytest.importorskip("pexpect")  # noqa: F841  # importorskip used for skip side-effect
     from superclaude.cli.eval.pty_driver import PtyDriver
 
     driver = PtyDriver(command=["/bin/sh", "-c", "sleep 30"])

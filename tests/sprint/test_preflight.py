@@ -7,6 +7,7 @@ Covers roadmap items R-008 through R-013.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 import pytest
@@ -16,6 +17,9 @@ from superclaude.cli.sprint.config import (
     parse_tasklist,
 )
 from superclaude.cli.sprint.models import Phase, PhaseStatus, TaskEntry
+
+if TYPE_CHECKING:
+    from superclaude.cli.sprint.models import SprintConfig
 
 # ---------------------------------------------------------------------------
 # T01.07 — Unit tests (R-008 through R-012)
@@ -480,7 +484,7 @@ class TestClassifierRegistry:
 # ---------------------------------------------------------------------------
 
 
-def _make_python_config(tmp_path: Path, tasks_content: str) -> "SprintConfig":
+def _make_python_config(tmp_path: Path, tasks_content: str) -> SprintConfig:
     """Build a minimal SprintConfig for a single python-mode phase."""
     from superclaude.cli.sprint.models import Phase, SprintConfig
 
@@ -910,8 +914,8 @@ class TestResultFileCompatibility:
 
 def _make_mixed_config(
     tmp_path: Path,
-    phases: "list[tuple[int, str, str]]",
-) -> "SprintConfig":
+    phases: list[tuple[int, str, str]],
+) -> SprintConfig:
     """Build a SprintConfig with multiple phases of mixed execution modes.
 
     Args:

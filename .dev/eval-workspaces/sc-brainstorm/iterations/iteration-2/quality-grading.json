@@ -1,0 +1,249 @@
+{
+  "rubric_version": "2.0-strict-10pt",
+  "graded_at": "2026-05-25T00:00:00Z",
+  "grader_model": "claude-opus-4-7[1m]",
+  "iteration": 2,
+  "notes": "Strict re-grade after v1 5-point rubric produced implausible perfect scores. Blind-style neutral copies were graded with hostile-reviewer objections, critique-first scoring, penalty arithmetic, and 1-10 bin anchors. A1/B1/C1 map to alpha blind inputs; A2/B2/C2 map to beta blind inputs.",
+  "blind_inputs": {
+    "rate_limit_alpha": ".dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-rate-limit-output-alpha.md",
+    "rate_limit_beta": ".dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-rate-limit-output-beta.md",
+    "incident_alpha": ".dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-incident-output-alpha.md",
+    "incident_beta": ".dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-incident-output-beta.md",
+    "changelog_alpha": ".dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-changelog-output-alpha.md",
+    "changelog_beta": ".dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-changelog-output-beta.md"
+  },
+  "outputs": {
+    "A1": {
+      "topic": "add rate limiting to public API endpoints",
+      "blind_input_id": "rate_limit_alpha",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md",
+      "scores": {
+        "concreteness": 9,
+        "adversarial_diversity": 8,
+        "coverage": 9,
+        "actionability": 9,
+        "provenance": 9
+      },
+      "total": 44,
+      "objections": [
+        "Trusted-proxy chain is referenced but not enumerated.",
+        "Burst allowance remains partly unresolved with a default already embedded.",
+        "False-positive rate lacks an operational definition of legitimate request blocked.",
+        "Canary success criterion of zero customer-filed false-block tickets is binary and gameable.",
+        "ADR reference is dangling in the deliverable."
+      ],
+      "penalties": {
+        "concreteness": ["Unresolved OQ around burst shape", "Trusted upstream proxy chain not enumerated"],
+        "adversarial_diversity": ["Only three agents", "No dedicated security perspective despite bypass-key/IP-spoofing risks"],
+        "coverage": ["Missing user-persona/JTBD framing", "No decommission strategy"],
+        "actionability": ["Gameable canary criterion", "Role owners but no named owners"],
+        "provenance": ["Some enrichment citations are vague", "Iter-1 grader gap citation is not externally verifiable"]
+      },
+      "evidence": [
+        "Concrete tiers: free=60 req/min, pro=600, enterprise=6000.",
+        "NFR includes p99 <= 2ms and replica reset agreement within 1 second.",
+        "Provenance table maps requirements to debate tensions and QA failure modes."
+      ]
+    },
+    "A2": {
+      "topic": "add rate limiting to public API endpoints",
+      "blind_input_id": "rate_limit_beta",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/old_skill/outputs/requirements.md",
+      "scores": {
+        "concreteness": 6,
+        "adversarial_diversity": 7,
+        "coverage": 7,
+        "actionability": 6,
+        "provenance": 4
+      },
+      "total": 30,
+      "objections": [
+        "Phase 0 says there is no API to rate-limit but the document proceeds generically.",
+        "Token bucket versus sliding window tension is not resolved.",
+        "FR-1 uses undefined appropriate-to-tier language.",
+        "Eight open questions indicate weak convergence.",
+        "No frontmatter or provenance table."
+      ],
+      "penalties": {
+        "concreteness": ["No concrete tier numbers in FRs", "No concrete file paths", "Accuracy metric lacks measurement window"],
+        "adversarial_diversity": ["Personas listed in parallel without real debate", "Tensions surfaced but not resolved"],
+        "coverage": ["Algorithm choice unresolved", "Out-of-scope section absent"],
+        "actionability": ["No test count thresholds or canary plan", "No owner assignments"],
+        "provenance": ["No provenance table", "Missing frontmatter", "No seed/debate references"]
+      },
+      "evidence": [
+        "Phase 0 notes no FastAPI/Flask/Django API server in pyproject.toml.",
+        "Security persona lists threats not defended.",
+        "Eight open questions remain."
+      ]
+    },
+    "B1": {
+      "topic": "post-mortem staging deploy failure at 3am",
+      "blind_input_id": "incident_alpha",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md",
+      "scores": {
+        "concreteness": 9,
+        "adversarial_diversity": 8,
+        "coverage": 9,
+        "actionability": 9,
+        "provenance": 9
+      },
+      "total": 44,
+      "objections": [
+        "Framework section says five principles but lists seven.",
+        "Sequencing open question is partly answered inside the open question itself.",
+        "Owners are placeholder roles, not named people.",
+        "Signed-revert requirement lacks an AC proving paired down-migration works.",
+        "Confidence threshold of 0.8 lacks rationale."
+      ],
+      "penalties": {
+        "concreteness": ["Arbitrary confidence threshold", "Role-only owners"],
+        "adversarial_diversity": ["Only three agents", "No customer-impact lens"],
+        "coverage": ["No success metrics over time", "Principles count mismatch"],
+        "actionability": ["Some +45d actions lack interim milestones", "Role-only owners"],
+        "provenance": ["No line-level citations into source proposals"]
+      },
+      "evidence": [
+        "Prevention actions include owners, due dates, and enforcement mechanisms.",
+        "Detection actions include target latencies under 3 and 5 minutes.",
+        "Provenance table traces requirements to named agents and debate tensions."
+      ]
+    },
+    "B2": {
+      "topic": "post-mortem staging deploy failure at 3am",
+      "blind_input_id": "incident_beta",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/old_skill/outputs/requirements.md",
+      "scores": {
+        "concreteness": 6,
+        "adversarial_diversity": 7,
+        "coverage": 7,
+        "actionability": 6,
+        "provenance": 4
+      },
+      "total": 30,
+      "objections": [
+        "No frontmatter or convergence metadata.",
+        "Five personas are listed but there is no substantive debate resolution.",
+        "Action items have no owners or due dates.",
+        "MTTR target lacks baseline.",
+        "Rollback coverage target lacks measurement denominator."
+      ],
+      "penalties": {
+        "concreteness": ["Targets lack baselines", "Page cap unspecified", "Phase 0 skipped"],
+        "adversarial_diversity": ["Parallel persona list", "Shallow tension resolution"],
+        "coverage": ["No out-of-scope section", "No program success metrics"],
+        "actionability": ["No owners", "Fire drill lacks success criterion"],
+        "provenance": ["No provenance table", "Missing frontmatter", "No debate transcript reference"]
+      },
+      "evidence": [
+        "Phase 0 explicitly skipped.",
+        "Five personas are present but not merged through a debate artifact.",
+        "No provenance section exists."
+      ]
+    },
+    "C1": {
+      "topic": "AI-powered changelog summarizer feature",
+      "blind_input_id": "changelog_alpha",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md",
+      "scores": {
+        "concreteness": 9,
+        "adversarial_diversity": 8,
+        "coverage": 9,
+        "actionability": 9,
+        "provenance": 9
+      },
+      "total": 44,
+      "objections": [
+        "Five enterprise prospects trigger is fuzzy.",
+        "Validator false-positive mitigation lacks a target false-positive rate.",
+        "Validator-failure rate lacks a precise failure definition.",
+        "Zero confirmed hallucinated breaking-change incidents lacks confirmation process.",
+        "Persona-tuning trigger is vague."
+      ],
+      "penalties": {
+        "concreteness": ["Enterprise prospect qualifier undefined", "Validator failure definition missing"],
+        "adversarial_diversity": ["Only three agents", "No security/backend/QA lens"],
+        "coverage": ["No retraction strategy for published changelogs", "Persona tuning trigger vague"],
+        "actionability": ["Owner names absent", "Some metric definitions underspecified"],
+        "provenance": ["No line-level citations into proposals"]
+      },
+      "evidence": [
+        "Trust Contract has citation, redaction, audit, and decision-record components.",
+        "Audit log fields are enumerated.",
+        "Provenance table maps requirements and risks to proposal authors and debate tensions."
+      ]
+    },
+    "C2": {
+      "topic": "AI-powered changelog summarizer feature",
+      "blind_input_id": "changelog_beta",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/old_skill/outputs/requirements.md",
+      "scores": {
+        "concreteness": 6,
+        "adversarial_diversity": 7,
+        "coverage": 7,
+        "actionability": 6,
+        "provenance": 4
+      },
+      "total": 30,
+      "objections": [
+        "No frontmatter or convergence metadata.",
+        "Five personas are parallel lists rather than debate with resolution.",
+        "Security embargo override clause is ambiguous.",
+        "Redaction layer lacks built-in matcher detail.",
+        "No audit-log field schema."
+      ],
+      "penalties": {
+        "concreteness": ["Generic redaction matchers", "No audit schema", "Arbitrary edit-rate window"],
+        "adversarial_diversity": ["No buyer/security-review persona", "No real debate"],
+        "coverage": ["No decision-record artifact", "No threat-model deliverable", "Buyer-veto framing absent"],
+        "actionability": ["Redaction corpus unspecified", "No owners", "Malformed-output detection unspecified"],
+        "provenance": ["No provenance table", "Missing frontmatter", "No proposal/debate references"]
+      },
+      "evidence": [
+        "Competitive landscape is useful but not converted into traceable decisions.",
+        "No provenance table exists.",
+        "Phase 0 explicitly skipped."
+      ]
+    }
+  },
+  "case_comparisons": {
+    "A": {
+      "winner": "A1",
+      "delta_total": 14,
+      "rationale": "A1 wins on concrete tier numbers, file paths, latency budgets, provenance mapping, test counts, and canary plan. A2 has broader persona count but leaves algorithm selection and eight open questions unresolved."
+    },
+    "B": {
+      "winner": "B1",
+      "delta_total": 14,
+      "rationale": "B1 wins on owner/due-date/enforcement specificity, two-control-loop discipline, and provenance. B2 has breadth but lacks owners, due dates, real debate, and traceability."
+    },
+    "C": {
+      "winner": "C1",
+      "delta_total": 14,
+      "rationale": "C1 wins through the Trust Contract structure, buyer-veto framing, audit field schemas, decision-record concept, and provenance table. C2 is competent but generic and lacks debate convergence."
+    }
+  },
+  "aggregate_totals": {
+    "A1_plus_B1_plus_C1": 132,
+    "A2_plus_B2_plus_C2": 90,
+    "delta": 42,
+    "mean_v2": 44.0,
+    "mean_v1": 30.0,
+    "mean_delta": 14.0
+  },
+  "decision_threshold_check": {
+    "quality_delta_required": 12.0,
+    "quality_delta_actual": 14.0,
+    "quality_gate": "pass",
+    "per_case_regression_guard": "pass",
+    "calibration_status": "not_run",
+    "notes": "Strict rubric quality delta passes the updated threshold, but SPEC §11.2 calibration remains required before treating bulk deltas as final."
+  },
+  "strict_rubric_flags": [
+    "All three beta outputs lack frontmatter metadata blocks.",
+    "All three beta outputs follow a parallel-persona-list pattern without real debate convergence.",
+    "All three alpha outputs include per-row provenance tables.",
+    "All three alpha outputs quantify thresholds more consistently than beta outputs.",
+    "Beta rate-limit output leaves eight open questions, indicating weak convergence."
+  ]
+}

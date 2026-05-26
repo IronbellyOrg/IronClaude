@@ -1,10 +1,91 @@
 # Adversarial Integration Reference
 
-Reference document for sc:adversarial integration within sc:roadmap. Contains mode detection, invocation patterns, return contract consumption, error handling, agent specification parsing, frontmatter population, and divergent-specs heuristic.
+Reference document for the adversarial-debate behavior within sc:roadmap. Documents the canonical CLI **inline debate prompt flow** built by `build_debate_prompt` with depth control via `_DEPTH_INSTRUCTIONS`, plus the inference-only `Skill sc:adversarial-protocol` delegation mode (mode detection, agent-spec parsing, invocation patterns, return-contract consumption, frontmatter population, divergent-specs heuristic, and error handling) retained for skill-mode operators.
 
 **Loaded in**: Wave 1A (when `--specs` present) and Wave 2 (when `--multi-roadmap` present).
 
 ---
+
+## CLI Canonical Debate Prompt Flow (B-8, VERIFIED)
+
+> **CLI parity.** The roadmap CLI does **not** delegate to a separate `sc:adversarial-protocol` skill. The "adversarial debate" inside `superclaude roadmap run` is a single LLM step built by `build_debate_prompt`, embedded as one entry in the flat 14-step pipeline. There is no Skill-to-skill invocation, no return contract YAML on disk, no separate consolidation pass, and no separate `--compare` / `--generate roadmap` sub-skill. Source: `src/superclaude/cli/roadmap/prompts.py:878-902` (`build_debate_prompt`), `:18-37` (`_DEPTH_INSTRUCTIONS`), `src/superclaude/cli/roadmap/executor.py:2076-2084` (Step wiring), `src/superclaude/cli/roadmap/gates.py:1155-1166` (`DEBATE_GATE`).
+
+### CLI prompt builder
+
+| Builder | Source | Signature |
+|---|---|---|
+| `build_debate_prompt` | `src/superclaude/cli/roadmap/prompts.py:878-902` | `build_debate_prompt(diff_path: Path, variant_a_path: Path, variant_b_path: Path, depth: Literal["quick", "standard", "deep"]) -> str` |
+
+The builder returns one prompt string. It opens with `"You are a structured debate facilitator."`, instructs the LLM to read the diff analysis and both roadmap variants, then embeds the depth-specific debate-round instructions from `_DEPTH_INSTRUCTIONS`. There is no `Skill sc:adversarial-protocol` invocation, no sub-agent dispatch, and no protocol forwarding.
+
+### Depth control via `_DEPTH_INSTRUCTIONS`
+
+`_DEPTH_INSTRUCTIONS` is a module-level dict at `src/superclaude/cli/roadmap/prompts.py:18-37` keyed by the same `--depth` values exposed on the CLI:
+
+| `--depth` | Rounds | `_DEPTH_INSTRUCTIONS` content (summary) |
+|---|---|---|
+| `quick` | 1 | "Conduct a single focused debate round. Each perspective states its position on the key divergence points, then provide a convergence assessment." |
+| `standard` | 2 | "Conduct two debate rounds: Round 1 initial positions; Round 2 rebuttals. Then provide a convergence assessment." |
+| `deep` | 3 | "Conduct three debate rounds: Round 1 initial positions; Round 2 rebuttals; Round 3 final synthesis (concessions + remaining disagreements). Then provide a convergence assessment." |
+
+The selected depth string is interpolated directly into the prompt template at the `Debate format:\n{depth_instruction}` slot. The CLI does not run separate Python rounds — the entire debate, including all rounds, is one LLM call against one prompt with one output file.
+
+### Single-step pipeline wiring
+
+`cli/roadmap/executor.py:2076-2084` constructs **one** `Step(id="debate", ...)` that fires after the `diff` step and before the `score` step:
+
+```python
+Step(
+    id="debate",
+    prompt=build_debate_prompt(diff_file, roadmap_a, roadmap_b, config.depth),
+    output_file=debate_file,                  # out / "debate-transcript.md"
+    gate=DEBATE_GATE,
+    timeout_seconds=600,
+    inputs=[diff_file] + _llm_inputs_for(config, roadmap_a, roadmap_b),
+    retry_limit=1,
+)
+```
+
+The `debate_file` is `<output_dir>/debate-transcript.md` (`executor.py:1962`). The single transport-level `retry_limit=1` is **not** a per-round retry — the entire embedded debate (whatever round count `_DEPTH_INSTRUCTIONS` produced) is treated as one LLM call.
+
+### `DEBATE_GATE` — only mechanical validation
+
+`cli/roadmap/gates.py:1155-1166`:
+
+| Property | Value |
+|---|---|
+| `required_frontmatter_fields` | `convergence_score`, `rounds_completed` |
+| `min_lines` | `50` |
+| `enforcement_tier` | `STRICT` |
+| Semantic checks | `convergence_score_valid` — `convergence_score` must parse as `float ∈ [0.0, 1.0]` (`_convergence_score_valid` in `gates.py`). |
+
+There is **no** PASS/PARTIAL/FAIL routing on `convergence_score` inside the CLI debate gate — the gate only validates that the field is a valid float in `[0.0, 1.0]`. Threshold-based routing (`≥ 0.6 PASS`, `≥ 0.5 PARTIAL`, `< 0.5 FAIL`) described elsewhere in this skill is **inference-only**; the canonical CLI consumes the score downstream (in `score` / `merge` / `certify` steps) without imposing a binary cutoff at `debate`.
+
+### Surrounding chain (canonical CLI flow)
+
+The debate step sits in the four-step run of the 14-step pipeline that together perform the adversarial-merge behavior the skill calls "Wave 2 multi-roadmap generation":
+
+| CLI Step | Builder | Gate | Output File | Source |
+|---|---|---|---|---|
+| `diff` | `build_diff_prompt` | `DIFF_GATE` | `<out>/diff-analysis.md` | `executor.py:2066-2074` |
+| `debate` | `build_debate_prompt` | `DEBATE_GATE` | `<out>/debate-transcript.md` | `executor.py:2076-2084` |
+| `score` | `build_score_prompt` | `SCORE_GATE` | `<out>/base-selection.md` | `executor.py:2086-2103` |
+| `merge` | `build_merge_prompt` | `MERGE_GATE` | `<out>/roadmap.md` | `executor.py:2104-2126` |
+
+Each step is one LLM call wired into the same flat pipeline as `extract`, `generate-{a}`, `generate-{b}`, `anti-instinct`, `test-strategy`, `spec-fidelity`, `wiring-verification`, `deviation-analysis`, `remediate`, and `certify` (see `_get_all_step_ids` at `executor.py:2281-2300`). No sub-skill, no `Task(...)` dispatch, no return-contract YAML on disk.
+
+### What this means for skill behavior
+
+- The skill's Wave 2 sub-step `3d` ("Invoke Skill `sc:adversarial-protocol` directly") describes an **inference-only delegation path** that has no CLI counterpart. In CLI-faithful terms the equivalent is the four-step `diff → debate → score → merge` chain above.
+- The skill's "Return Contract Consumption" model (status / convergence_score routing / merged_output_path / fallback_mode etc.) describes a **Skill-mode contract** that is not produced by the CLI. The CLI emits per-step output files (`diff-analysis.md`, `debate-transcript.md`, `base-selection.md`, `roadmap.md`) gated by `GateCriteria`, not a unified `return-contract.yaml`.
+- The skill's `--resume-from` interaction (consuming a `return-contract.yaml` from a fixture directory) is a **skill-mode resumability path**. The CLI offers its own `--resume` flag in `superclaude roadmap run` (different semantics — resumes the pipeline from a previously written step output file, not from a sub-skill contract).
+- Skill prose referencing `Skill sc:adversarial-protocol args: "..."`, `--compare`, `--generate roadmap`, `--agents` (passed through to a sub-skill), `--interactive` propagation to a sub-skill, divergent-specs heuristics on a sub-skill convergence score, or fallback-mode warnings on a sub-skill return value describes **inference-only** behavior that is not implemented in the CLI today. See "Inference-Only Skill-Delegation Mode" below for the demoted material.
+
+---
+
+## Inference-Only Skill-Delegation Mode
+
+> **Scope.** The following material describes an inference-only Skill-to-skill delegation model in which `sc:roadmap-protocol` invokes `Skill sc:adversarial-protocol` directly (the SKILL-DIRECT path per D-0001 reversal) and consumes a structured return contract. This model is **not** implemented by the canonical CLI debate flow above. It is retained as guidance for skill-mode operators running the protocol manually (or under a future CLI that adds protocol forwarding); anything in this section is out of canonical CLI scope and must not be cited as CLI behavior. Where this section's content overlaps the canonical CLI flow above, the canonical flow wins.
 
 ## Mode Detection
 
@@ -83,7 +164,7 @@ All invocations use the `Skill` tool (per Execution Vocabulary). Arguments are p
 
 **Invocation format**:
 
-```
+```text
 Skill sc:adversarial-protocol args: "--compare <spec-files> --depth <roadmap-depth> --output <roadmap-output-dir> [--interactive]"
 ```
 
@@ -103,7 +184,7 @@ Skill sc:adversarial-protocol args: "--compare <spec-files> --depth <roadmap-dep
 
 **Example invocations**:
 
-```
+```text
 # Standard depth, 3 specs
 Skill sc:adversarial-protocol args: "--compare spec1.md,spec2.md,spec3.md --depth standard --output .dev/releases/current/auth-system/"
 
@@ -115,7 +196,7 @@ Skill sc:adversarial-protocol args: "--compare spec1.md,spec2.md --depth deep --
 
 **Invocation format**:
 
-```
+```text
 Skill sc:adversarial-protocol args: "--source <spec-or-unified-spec> --generate roadmap --agents <expanded-agent-specs> --depth <roadmap-depth> --output <roadmap-output-dir> [--interactive]"
 ```
 
@@ -130,7 +211,7 @@ Skill sc:adversarial-protocol args: "--source <spec-or-unified-spec> --generate 
 
 **Example invocations**:
 
-```
+```text
 # 3 agents, standard depth (after persona expansion to "security")
 Skill sc:adversarial-protocol args: "--source spec.md --generate roadmap --agents opus:security,sonnet:security,gpt52:security --depth standard --output .dev/releases/current/auth-system/"
 
@@ -230,7 +311,7 @@ sc:adversarial returns a structured result as an inline Skill response. sc:roadm
 
 ### Status Routing
 
-```
+```text
 status == "success"
   → Use merged_output_path as input for subsequent waves
   → Record convergence_score, artifacts_dir, base_variant in frontmatter
@@ -266,7 +347,7 @@ status == "failed"
 
 When `fallback_mode == true` (regardless of status), emit a differentiated warning:
 
-```
+```text
 > **Warning**: Adversarial result was produced via fallback path (not primary Skill invocation).
 > Quality may be reduced. Review the merged output manually before proceeding.
 ```
@@ -277,7 +358,7 @@ This warning is additional to any status-based handling and is logged in extract
 
 When `unresolved_conflicts > 0` (regardless of status), log warning in extraction.md:
 
-```
+```text
 > **Warning**: Adversarial consolidation produced N unresolved conflicts.
 > Review artifacts at <artifacts_dir> for conflict details.
 ```
@@ -320,7 +401,7 @@ return_contract:
 
 **Action**: Emit warning message:
 
-```
+```text
 "Specifications may be too divergent for meaningful consolidation.
 Consider running separate roadmaps or using --interactive for manual conflict resolution."
 ```
@@ -364,7 +445,7 @@ adversarial:
 
 **Action**: Abort in Wave 0 with:
 
-```
+```text
 "sc:adversarial skill not installed. Required for --specs/--multi-roadmap flags.
 Install via: superclaude install"
 ```
@@ -375,7 +456,7 @@ Install via: superclaude install"
 
 **Action**: Abort in Wave 0 with:
 
-```
+```text
 "Unknown model '<model>' in --agents. Available models: opus, sonnet, haiku, gpt52, gemini, ..."
 ```
 
@@ -385,7 +466,7 @@ Install via: superclaude install"
 
 **Action**: Abort in Wave 0 with:
 
-```
+```text
 "Agent count must be 2-10. Provided: N"
 ```
 
@@ -395,7 +476,7 @@ Install via: superclaude install"
 
 **Action**: Abort with:
 
-```
+```text
 "sc:adversarial invocation failed. Check that the skill is properly installed and configured."
 ```
 
@@ -420,4 +501,6 @@ The `--interactive` flag on sc:roadmap propagates to sc:adversarial invocations 
 
 ---
 
-*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 1A and/or Wave 2*
+*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 1A and/or Wave 2.*
+
+*CLI parity baseline (B-8, VERIFIED): the canonical debate behavior is the inline `Step(id="debate", ...)` built by `build_debate_prompt` (`src/superclaude/cli/roadmap/prompts.py:878-902`) with depth control via `_DEPTH_INSTRUCTIONS` (`prompts.py:18-37`), wired at `src/superclaude/cli/roadmap/executor.py:2076-2084` and gated by `DEBATE_GATE` (`src/superclaude/cli/roadmap/gates.py:1155-1166`). The Skill-delegation material from "Mode Detection" through "--interactive Flag Propagation" describes the inference-only delegation mode (SKILL-DIRECT per D-0001 reversal) and is not implemented by the canonical CLI.*

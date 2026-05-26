@@ -21,8 +21,8 @@ GateCriteria instances.
 
 from __future__ import annotations
 
-from ..audit.wiring_gate import WIRING_GATE
-from ..pipeline.models import GateCriteria, SemanticCheck
+from superclaude.cli.audit.wiring_gate import WIRING_GATE
+from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
 
 # --- Semantic check functions (pure: content -> bool) ---
 

@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l3]
-
 from superclaude.cli.sprint.diagnostics import (
     DiagnosticCollector,
     FailureCategory,
@@ -17,6 +15,8 @@ from superclaude.cli.sprint.diagnostics import (
     ReportGenerator,
 )
 from superclaude.cli.sprint.models import MonitorState, PhaseStatus
+
+pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l3]
 
 
 class TestFullDiagnosticScenarios:

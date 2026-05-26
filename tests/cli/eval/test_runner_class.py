@@ -39,7 +39,6 @@ from superclaude.cli.eval.runner import (
     ObservedRun,
 )
 
-
 # ---------------------------------------------------------------------------
 # FakeHome — same duck-typed surface used by test_eval_lifecycle.py
 # ---------------------------------------------------------------------------

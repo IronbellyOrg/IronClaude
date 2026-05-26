@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "seed_brief.md exists",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/seed-brief.md (1073 bytes)"
+    },
+    {
+      "text": "merged-requirements.md exists",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/merged-requirements.md (3656 bytes)"
+    },
+    {
+      "text": "seed-brief frontmatter declares domain: code",
+      "passed": true,
+      "evidence": "Frontmatter field domain=code matches expected code"
+    },
+    {
+      "text": "seed-brief frontmatter declares strategy: systematic",
+      "passed": true,
+      "evidence": "Frontmatter field strategy=systematic matches expected systematic"
+    },
+    {
+      "text": "merged-requirements has Acceptance Criteria section with \u22655 items",
+      "passed": true,
+      "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 5)"
+    },
+    {
+      "text": "merged-requirements has Risks section with \u22653 items",
+      "passed": true,
+      "evidence": "Section 'Risks' has 4 enumerated items (>= 3)"
+    },
+    {
+      "text": "return-contract.yaml contract_version = 1.0",
+      "passed": true,
+      "evidence": "YAML field contract_version=1.0 matches expected 1.0"
+    },
+    {
+      "text": "return-contract.yaml convergence_score \u2265 0.50",
+      "passed": true,
+      "evidence": "YAML field convergence_score=0.76 >= 0.5"
+    },
+    {
+      "text": "return-contract.yaml handoff_action = task",
+      "passed": true,
+      "evidence": "YAML field handoff_action=task matches expected task"
+    },
+    {
+      "text": "handoff task artifact exists",
+      "passed": true,
+      "evidence": "File exists at with_skill/outputs/handoff/task.md (816 bytes)"
+    },
+    {
+      "text": "agent_spec includes architect/refactorer/security",
+      "passed": true,
+      "evidence": "YAML field agent_spec contains substring 'architect'"
+    },
+    {
+      "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+      "passed": true,
+      "evidence": "Directory with_skill/outputs/adversarial/ has 4 files (>= 4)"
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 0,
+    "total": 12,
+    "pass_rate": 1.0
+  }
+}

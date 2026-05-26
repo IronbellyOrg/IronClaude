@@ -96,17 +96,17 @@ repos:
         args: ['--severity=warning']
 
   # AC11 / R-017 / T01.20 — source-of-truth discipline gate
-  # Rejects commits that edit `.claude/` without a matching `src/superclaude/`
-  # change (or vice versa). Triggers only when files in the synced scope change,
-  # then runs `make verify-sync`. See `.dev/releases/current/cliEval/artifacts/D-0017/spec.md`.
+  # Rejects generated `.claude/` mirrors on the commit path. Full mirror drift
+  # remains available via `make verify-sync`, but pre-commit must not require
+  # staging generated mirrors when this repository edits its own src/ sources.
   - repo: local
     hooks:
-      - id: verify-sync
-        name: Verify src/superclaude/ ↔ .claude/ sync (AC11)
-        entry: make verify-sync
-        language: system
+      - id: block-claude-generated-mirrors
+        name: Block generated .claude mirror commits (AC11)
+        entry: scripts/precommit_block_claude_mirrors.sh
+        language: script
         pass_filenames: false
-        files: '^(src/superclaude/(skills|agents|commands|hooks)|\.claude/(skills|agents|commands|hooks))/'
+        files: '^\.claude/(skills|agents|commands|hooks|templates)/'
 
 # Global settings
 default_stages: [commit]

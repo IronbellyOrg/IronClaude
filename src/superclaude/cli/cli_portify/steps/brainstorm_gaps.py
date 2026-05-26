@@ -17,13 +17,13 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..models import (
+from superclaude.cli.cli_portify.models import (
     FailureClassification,
     PortifyConfig,
     PortifyStatus,
     PortifyStepResult,
 )
-from ..process import PortifyProcess, ProcessResult
+from superclaude.cli.cli_portify.process import PortifyProcess, ProcessResult
 
 log = logging.getLogger(__name__)
 

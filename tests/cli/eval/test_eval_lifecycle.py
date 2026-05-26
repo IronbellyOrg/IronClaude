@@ -45,7 +45,6 @@ from superclaude.cli.eval.runner import (
     run_eval,
 )
 
-
 # ---------------------------------------------------------------------------
 # FakeHome — duck-typed HomeIsolation double
 # ---------------------------------------------------------------------------

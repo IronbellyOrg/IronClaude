@@ -15,6 +15,45 @@ personas: [analyzer, architect, qa]
 version: 2.0.0
 -->
 
+## Relationship to CLI
+
+**This skill is an inference-only deep-validation protocol.** It is NOT a behavioural mirror of the `superclaude roadmap validate` CLI command, and it is not invoked by that CLI. Treat the two surfaces as **complementary, not equivalent**:
+
+- **Use this skill** for thorough investigative validation — when a human reviewer wants a multi-phase coverage matrix, gap registry, adversarial review, and remediation plan grounded in Auggie/Serena enrichment. This is the right tool when the goal is to *understand* roadmap quality and decide whether the roadmap is ready for tasklist generation.
+- **Use the CLI** (`superclaude roadmap validate`) for **automated CI/CD gating**. The CLI runs a simpler **reflect + adversarial-merge** flow: it builds reflect/merge prompts (`src/superclaude/cli/roadmap/validate_prompts.py:7,68`), executes the pipeline, and parses report counts to emit a pass/fail verdict against a fixed set of validation dimensions. It is fast, deterministic, and non-interactive — appropriate for pre-merge or pre-tasklist hooks, not for human investigation.
+
+The deep protocol below (phases, CC-agents, GO / CONDITIONAL_GO / NO_GO verdict matrix, Auggie/Serena enrichment) is preserved intentionally: it carries inference value that the single-pass CLI flow does not attempt to reproduce. The CLI does **not** delegate into this skill, and this skill does **not** wrap the CLI; they are two separate validation surfaces operating at different levels of rigour and automation.
+
+### CLI validation dimensions (crosswalk)
+
+The CLI's reflect prompt validates the roadmap against **7 baseline dimensions** when no original input documents (spec/TDD/PRD) are supplied, expanding to **9 input-aware dimensions** when source inputs resolve. The dimensions are emitted directly by `build_reflect_prompt` (`src/superclaude/cli/roadmap/validate_prompts.py:74-127`) and are reproduced below for crosswalk against this skill's phases.
+
+| # (baseline) | # (input-aware) | Dimension | Severity | Active when |
+|---|---|---|---|---|
+| 1 | 1 | **Schema** — YAML frontmatter fields present, non-empty, correctly typed | BLOCKING | Always |
+| 2 | 2 | **Structure** — milestone DAG acyclic, refs resolve, no duplicate deliverable IDs, valid heading hierarchy | BLOCKING | Always |
+| 3 | 3 | **Traceability** — every deliverable ↔ requirement; report untraced items | BLOCKING | Always |
+| 4 | 4 | **Cross-file consistency** — test-strategy milestone refs match roadmap milestones exactly | BLOCKING | Always |
+| 5 | 5 | **Parseability** — content parseable by sc:tasklist's splitter via headings/bullets/numbered lists | BLOCKING | Always |
+| — | 6 | **Coverage** — every input FR/NFR/DM/API/COMP/TEST/MIG/OPS entity has a corresponding roadmap task row | BLOCKING | Only when spec/TDD/PRD input is provided |
+| — | 7 | **Proportionality** — input entity count vs. roadmap task row count must be proportional to input detail level | BLOCKING | Only when spec/TDD/PRD input is provided |
+| 6 | 8 | **Interleave** — `interleave_ratio` in [0.1, 1.0]; test activities not back-loaded into the final milestone | WARNING | Always |
+| 7 | 9 | **Decomposition** — flag compound deliverables (multiple outputs joined by "and"/"or") needing sc:tasklist splitting | WARNING | Always |
+
+**Skill ↔ CLI phase crosswalk (overlap, not equivalence):**
+
+| Skill phase | Closest CLI dimensions | Notes |
+|---|---|---|
+| Phase 1 — Extraction & taxonomy | Coverage (#6, input-aware) | Skill extracts requirements via Auggie/Serena enrichment; CLI relies on caller-supplied input files. |
+| Phase 2 — Coverage matrix | Traceability (#3), Coverage (#6) | Skill builds an explicit matrix; CLI emits findings against the dimensions but does not persist a matrix artifact. |
+| Phase 3 — Gap registry | Traceability (#3), Coverage (#6), Proportionality (#7) | Skill itemises and severity-sorts gaps; CLI returns BLOCKING/WARNING findings with `file:line` citations. |
+| Phase 4 — Adversarial review | (none direct) | Skill runs CC1–CC4 adversarial agents; CLI runs a single-shot `build_merge_prompt` adversarial merge pass. |
+| Phase 5 — Remediation planning | (none) | Skill-only; CLI gates rather than remediates. |
+| Phase 0 / 6 — Schema, parseability, structural checks | Schema (#1), Structure (#2), Cross-file consistency (#4), Parseability (#5) | Both surfaces converge on the structural BLOCKING dimensions, but the skill's structural checks are interleaved with semantic phases. |
+| Interleave / Decomposition heuristics | Interleave (#8), Decomposition (#9) | Skill treats these as inference heuristics; CLI codifies them as explicit WARNING dimensions. |
+
+**Bottom line:** if a downstream pipeline needs a deterministic pass/fail signal, run the CLI. If a human needs to understand *why* a roadmap is or is not ready, run this skill.
+
 ## Triggers
 
 sc-validate-roadmap-protocol is invoked ONLY by the `sc:validate-roadmap` command via `Skill sc-validate-roadmap-protocol` in its `## Activation` section. It is never invoked directly by users.
@@ -42,7 +81,7 @@ The validation is a **read-only audit**. It never modifies the roadmap or specs.
 
 **MANDATORY**: A roadmap file path AND one or more spec file paths.
 
-```
+```bash
 /sc:validate-roadmap <roadmap-path> --specs <spec1.md,spec2.md,...>
 ```
 
@@ -325,7 +364,7 @@ Symbols found: {N} / {N} attempted
 
 For each domain from Step 0.4, create one agent spec. **All agents use the `haiku` model** (see Spawn Protocol).
 
-```
+```yaml
 AGENT-D{N}:
   - domain: {name}
   - requirements: [REQ-xxx, ...]
@@ -370,7 +409,7 @@ Write artifact: `{OUTPUT_DIR}/00-decomposition-plan.md`
 
 Each domain agent receives this prompt template (populated by orchestrator):
 
-```
+```text
 You are Agent D{N}, validating the "{DOMAIN}" domain.
 
 INPUTS:
@@ -563,7 +602,7 @@ For each cross-cutting concern from the matrix (Step 1.3):
 
 For every integration point in the requirement universe or roadmap:
 
-```
+```yaml
 INTEGRATION-{N}:
   - system_a: {component/service}
   - system_b: {component/service}
@@ -730,7 +769,7 @@ Requirements that exist in the spec but were not extracted in Phase 0 — buried
 
 Default patterns:
 
-```
+```text
 1. Modal requirements:     (shall|must|required to|needs to) [^.]{10,80}
 2. Negation requirements:  (must not|shall not|never|prohibited|forbidden) [^.]{10,80}
 3. Quantitative NFRs:      (at least|at most|within|maximum|minimum) \d+
@@ -763,7 +802,7 @@ Tasks in the roadmap with no spec traceability. Report for awareness:
 
 **Enhancement 4.6a — Systematic Assumption Detection**: Run `Grep` against the roadmap with these patterns:
 
-```
+```text
 1. Explicit assumptions:  (assumes|assuming|given that|prerequisite|depends on)
 2. Implicit state refs:   (existing|current|already|previously) .{5,40} (service|system|API|database|table|endpoint)
 ```
@@ -816,7 +855,7 @@ If verdict is GO, write brief summary stating no remediation needed and skip to 
 
 Fixes ordered by dependency chain, not severity alone:
 
-```
+```text
 Phase R1: Spec-internal contradictions (fix source of truth first)
 Phase R2: Roadmap-internal contradictions (fix self-consistency)
 Phase R3: Missing coverage — CRITICAL + HIGH (add missing tasks)
@@ -879,7 +918,7 @@ Effort levels: TRIVIAL (wording fix) | SMALL (add task/criterion) | MEDIUM (rest
 
 #### Step 5.3 — Compute Remediation Impact
 
-```
+```text
 If all remediations are applied:
   - Projected coverage: {new_%}%
   - Projected findings: {count} (target: 0 CRITICAL, 0 HIGH)

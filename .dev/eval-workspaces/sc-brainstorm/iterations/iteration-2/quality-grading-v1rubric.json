@@ -1,0 +1,171 @@
+{
+  "rubric_version": "1.0",
+  "graded_at": "2026-05-25T00:00:00Z",
+  "grader_model": "claude-opus-4-7[1m]",
+  "iteration": 2,
+  "notes": "Outputs A1/B1/C1 are FRESH RUNS at higher budget than iter-1; A2/B2/C2 are the SAME V1 baselines from iter-1 (unchanged content). Scores assigned independently and consistently against the same 5-dimension rubric.",
+  "outputs": {
+    "A1": {
+      "topic": "add rate limiting to public API endpoints",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md",
+      "scores": {
+        "concreteness": 5,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 5,
+        "provenance": 5
+      },
+      "total": 25,
+      "evidence": {
+        "concreteness": "Every requirement carries hard numbers: 'free=60 req/min, pro=600, enterprise=6000', 'IP fallback 30 req/min', 'p99 <= 2ms, p99.9 <= 5ms', 'sustained 1000 req/s rejection, CPU <80%', 'X-RateLimit-Reset agree within 1 second across replicas', '>=30 unit cases, >=10 integration cases', '1-week canary at 5%'.",
+        "adversarial_diversity": "Frontmatter declares three named agents (architect, refactorer, qa) with distinct positions; reconciliations are explicit — Tension 5 (config: code vs YAML) split into tier-defs-in-code + limits-in-YAML; Tension 4 (botnet scope) shows refactorer+QA defeating architect; Tension 3 expanded fail_mode default policy compromise.",
+        "coverage": "Functional (8 FRs incl. headers, JSON body, config split, telemetry) + Non-functional (latency, accuracy, consistency, backpressure, docs) + 6 ACs (unit/integration/E2E/chaos/canary/runbook) + 5 risks with severity + 3 open questions + explicit Out-of-Scope list (botnet, WAF, quota, cross-region) all present.",
+        "actionability": "AC4 specifies 'kill Redis mid-test, per-endpoint fail_mode policy is honored'; AC5 'zero customer-filed false-block tickets'; AC6 names file path 'docs/runbooks/rate-limiting.md' with three named procedures; risk mitigations are concrete ('extend the auth middleware principal cache to include plan_tier, ~1 day extra').",
+        "provenance": "Every FR/NFR/AC/R/OQ has parenthetical origin ('seed brief Q4', 'debate Tension 5', 'QA failure mode 6'); dedicated Provenance table at end maps 19 line items to source proposal or debate tension; convergence_score and proposal_count in frontmatter."
+      },
+      "overall_observation": "Exceptionally tight spec: every requirement is measurable, traced to a debate tension or seed-brief question, and supported by concrete file paths and ACs. The Provenance table is rare and authoritative."
+    },
+    "A2": {
+      "topic": "add rate limiting to public API endpoints",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/old_skill/outputs/requirements.md",
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 4,
+        "coverage": 5,
+        "actionability": 4,
+        "provenance": 4
+      },
+      "total": 21,
+      "evidence": {
+        "concreteness": "Has many concrete details (X-RateLimit-* header set, '<2ms p99', '±5% accuracy', bucket-key format 'rl:{tier}:{key_id}:{window_id}', '5/min/account, 20/min/IP' for brute-force) but some FRs hedge ('appropriate to the requester's tier') and several remain shape-only without thresholds.",
+        "adversarial_diversity": "Five distinct personas (Architect, Analyzer, Frontend, Backend, Security) surface real tensions — fail-open vs fail-closed, exposing X-RateLimit-* vs hiding it, per-IP vs distributed-botnet limits — each persona pushes back on different framings.",
+        "coverage": "Comprehensive — threat model, header contract, SDK retry guidance, compliance hooks (SOC2/PCI), webhook/long-poll edge cases, three driver framings (abuse/capacity/commercial) all explicitly enumerated; codebase-mismatch finding included.",
+        "actionability": "AC list is solid (rates, headers, fail-open under killed-Redis) but 8 Open Questions remain unresolved at the end (driver, target codebase, tier definitions, header policy) meaning a reader cannot start work without another conversation.",
+        "provenance": "Codebase scan documented in Phase 0 (no FastAPI/Flask/etc., no existing rate-limit code); open questions explicitly tie back to the 'codebase mismatch' finding; every persona references prior context, but no explicit debate transcript or per-requirement origin table."
+      },
+      "overall_observation": "Encyclopedic and well-structured but the breadth keeps eight decisions open at the end; reads as a discovery document rather than a finalized spec, so actionability lags despite rich coverage."
+    },
+    "B1": {
+      "topic": "post-mortem: staging deployment broke at 3am, manual revert was the only mitigation",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md",
+      "scores": {
+        "concreteness": 5,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 5,
+        "provenance": 5
+      },
+      "total": 25,
+      "evidence": {
+        "concreteness": "Hard numbers and named entities: '02:47 UTC paged 03:02 mitigated 03:41', 'minimum three independent evidence sources before a hypothesis is promoted', 'confidence >=0.8 across >=3 evidence sources', 'detection latency <3 minutes', 'pages 0 per quarter; current 3 per 6 weeks', '+14d/+21d/+30d/+45d due-dates', named hypotheses H1-H5 with predicted evidence.",
+        "adversarial_diversity": "Frontmatter declares 3 named source proposals (analyzer, security, devops) with debate-transcript; tensions reconciled explicitly — security signed-revert vs devops single-command-revert resolved via async audit logging; two-person-rule scope (uniform vs graduated) flagged as residual; four open questions tagged to specific persona pairings.",
+        "coverage": "Seven-principle framework + investigation (8 steps) + prevention (7 ACs with owners/dates/enforcement) + detection (5 items with latency targets) + on-call ergonomics + communication plan + open questions + provenance table. Includes failure-mode hypotheses, dependency-diff, credential/audit dimensions.",
+        "actionability": "Every prevention item has 'Owner: X. Due: +Nd. Enforcement: Y' triplet; CI fitness functions named ('rejects non-nullable column without paired backfill'); break-glass CLI wrapper specified; weekly-checkpoint and +45d follow-up review scheduled — engineer can start tomorrow.",
+        "provenance": "Frontmatter lists three source proposals + debate transcript; final Provenance table maps 17 requirement clusters to specific personas or persona pairs and to debate-tension resolutions; residual tensions explicitly tagged as 'unresolved tension from debate'."
+      },
+      "overall_observation": "Senior-SRE-impressive post-mortem spec: every finding has owner+due+enforcement, two-control-loop discipline is consistently applied, and the human-cost (ergonomics) is treated as a first-class workstream with metrics."
+    },
+    "B2": {
+      "topic": "post-mortem: staging deployment broke at 3am, manual revert was the only mitigation",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/old_skill/outputs/requirements.md",
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 4,
+        "provenance": 3
+      },
+      "total": 21,
+      "evidence": {
+        "concreteness": "Strong measurable NFRs ('MTTR <= 15 min off-hours', '>= 90% deploys with automated rollback engaging in 5 min', '30-day log retention', 'input cap default 100 PRs'); but some FRs remain procedural ('use structured method', 'enumerate every change').",
+        "adversarial_diversity": "Five fully-fleshed personas (Analyzer, Security, DevOps, Backend, Architect) each take genuinely different stances — security on signed-revert vs devops on single-command-revert reconciled with 'pre-sign known-good artifacts at deploy time'; blameless vs accountability tension also reconciled.",
+        "coverage": "Comprehensive — failure-mode taxonomy, on-call ergonomics with burnout/HR support, audit-trail/credential review, architectural fitness functions, communications, compliance (SOC2), psychological safety — all enumerated.",
+        "actionability": "AC-1 through AC-7 are testable, NFR targets are numeric, sprint cadence implied via 'hotfix/short-term/architectural' horizons; but 7 open questions remain unresolved, so 'immediately start work' is gated.",
+        "provenance": "Each persona traces to a documented question in Phase 1, and the feasibility matrix shows cross-persona derivation; lacks an explicit debate transcript, convergence score, or per-requirement origin table — provenance is internal narrative rather than artifacted."
+      },
+      "overall_observation": "Wide-coverage discovery doc with strongly differentiated persona voices and reconciled tensions; would benefit from compressing open questions into decisions and adding traceable per-requirement origin before handing off to design."
+    },
+    "C1": {
+      "topic": "AI-powered changelog summarizer feature",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md",
+      "scores": {
+        "concreteness": 5,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 5,
+        "provenance": 5
+      },
+      "total": 25,
+      "evidence": {
+        "concreteness": "Hard numbers and named contracts everywhere: '50-PR release in <=60s, <=$1, p95 <=$0.75', '>=70% finalized changelogs ship with <=30% line-diff', 'WCAG 2.1 AA + axe-core CI gate', '13-month audit retention', '100% block-severity match + >=95% redact-severity on 100-PR test corpus', strict_trust auto-set rule, named config files '.changelog/redaction.yaml', '.changelog/decisions/{release_id}.md'.",
+        "adversarial_diversity": "Three named source proposals (architect, frontend, scribe) with 5 explicit debate tensions reconciled: Tension 1 (trust contract sprint cost), Tension 2 (BYO-key vs hosted), Tension 4 (persona tuning default), Tension 5 (strict_trust per-repo toggle as compromise). Buyer-veto persona elevated as feature-blocking.",
+        "coverage": "3 personas + Trust Contract (4 sub-contracts: citation, redaction, audit log, decision record) + 10 FRs + 6 NFRs + 8 ACs + 5 Success Metrics + MVP in/out lists + 5 Risks + 4 Open Questions + Provenance table. Trust contract elevated to feature-blocking with documentation deliverables timetabled.",
+        "actionability": "Every contract has named event fields (e.g., 'generation_id, user_id, repo_id, release_range, model_name, prompt_hash...'), test corpora ('100 synthetic PR bodies'), pricing fixtures, and concrete file paths. MVP in/out lists are explicit; open questions have explicit trigger thresholds ('>=5 enterprise prospects', '>=3 dogfood users').",
+        "provenance": "Frontmatter cites source proposals + convergence score; each FR ends with '(Provenance: ...)' tag; Trust Contract sub-sections cite scribe proposal-3; final Provenance table maps 15+ line items to source proposals and debate tensions."
+      },
+      "overall_observation": "Senior-PM-impressive: trust contract is concretely operationalized (validator + redaction + audit log + decision record), every requirement is traceable to a proposal or debate tension, and the in/out scope lists with deferral triggers are immediately usable for sprint planning."
+    },
+    "C2": {
+      "topic": "AI-powered changelog summarizer feature",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/old_skill/outputs/requirements.md",
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 4,
+        "provenance": 4
+      },
+      "total": 22,
+      "evidence": {
+        "concreteness": "Many measurable targets ('3-5 bullets', '100-PR cap', '<=15s median for 50 PRs', '<=$0.50/release', '>=60% releases', '<=1% unverifiable claims', '5-40% edit distance window'); some are still hedged ('observably different phrasing').",
+        "adversarial_diversity": "Five distinct personas (Architect, Frontend, Backend, Analyzer, PM) with genuinely different framings — Architect 'transformer, not system of record', Frontend 'trust through traceability', Analyzer surveys 5 competitors and flags trust-collapse as existential risk.",
+        "coverage": "Comprehensive — input adapters (3), redaction with allowlist/denylist, traceability/source citations, tone presets, audit log with 90-day retention, provider abstraction, accessibility, security-embargo carve-out, success metrics including edit-distance window.",
+        "actionability": "Strong sprint-by-sprint plan (Sprint 0/1/2/3 with story points) and 12 FRs + 9 NFRs + 8 ACs that are testable; but 7 open questions are flagged for sprint-1 decision so immediate-start is gated by those.",
+        "provenance": "Phase 0 reasoning explicit ('signal_A=false, signal_B=false, signal_C=false -> SKIP'); analyzer cites 5 competitor reference points; Phase 3 feasibility matrix derives the 'redaction + traceability ship together' decision from cross-persona pressure; no per-requirement origin table."
+      },
+      "overall_observation": "Thorough discovery doc; trust contract (traceability + redaction) elevated to feature-blocking with strong rationale; sprint plan and persona reasoning are top-tier, though open questions remain and lack of explicit per-requirement provenance reduces traceability."
+    }
+  },
+  "topic_comparisons": {
+    "A": {
+      "winner": "A1",
+      "delta_total": 4,
+      "rationale": "A1 (25) substantially exceeds A2 (21) on every dimension. A1 matches A2's breadth (threat-model and header coverage now present) while adding hard thresholds, named file paths, a dedicated Provenance table mapping 19 items to debate tensions, and tight open-question scoping. A2's eight Open Questions (driver, target codebase, tier defs, header policy) keep it as discovery rather than spec."
+    },
+    "B": {
+      "winner": "B1",
+      "delta_total": 4,
+      "rationale": "B1 (25) beats B2 (21) on actionability and provenance most clearly. B1's seven-principle framework + 7 prevention items each with Owner/Due/Enforcement triplet + 5 detection items with latency targets + final Provenance table is rare maturity. B2 is comprehensive but procedural ('use structured method', 'enumerate every change') and 7 open questions gate immediate start; no debate-transcript or origin table."
+    },
+    "C": {
+      "winner": "C1",
+      "delta_total": 3,
+      "rationale": "C1 (25) edges C2 (22) on concreteness, actionability, and provenance. C1 operationalizes the trust contract into 4 named sub-contracts with explicit event-field schemas, file paths, test corpora, and deferral triggers; C2 is excellent on persona reasoning and sprint planning but stops at the conceptual layer for the trust contract and leaves 7 open questions for sprint-1. Both have strong adversarial diversity and coverage; C1 wins on operational specificity."
+    }
+  },
+  "aggregate_totals": {
+    "A1_plus_B1_plus_C1": 75,
+    "A2_plus_B2_plus_C2": 64,
+    "delta": 11
+  },
+  "iter1_vs_iter2_comparison": {
+    "iter1_v2_total": 63,
+    "iter1_v1_total": 64,
+    "iter2_v2_total": 75,
+    "iter2_v1_total": 64,
+    "v2_iter1_to_iter2_delta": 12,
+    "v1_iter1_to_iter2_delta": 0,
+    "observation": "V2 iter-2 scores substantially higher than V2 iter-1 (75 vs 63, +12 points). V1 baselines are identical to iter-1 (same content). The higher-budget V2 runs cleared the actionability and provenance ceilings that capped iter-1 V2 (every requirement now has measurable thresholds AND traceable origin). Most variant dimensions across the six outputs are provenance (3-5) and actionability (4-5) — these are exactly where the V2 iter-2 budget purchased the gains."
+  },
+  "most_variant_dimension": {
+    "dimension": "provenance",
+    "range": "3-5",
+    "rationale": "Provenance varied most: V2 iter-2 outputs all include frontmatter source-proposal lists + per-requirement origin tags + a dedicated Provenance table mapping requirements to debate tensions (all 5/5). V1 baselines range 3-4 — narrative provenance through persona text without per-requirement origin tables. Concreteness was second-most-variant (4-5)."
+  },
+  "flags": [
+    "All three V2 iter-2 outputs (A1, B1, C1) include explicit Provenance tables mapping individual requirements to source proposals or debate-tension resolutions — a structural feature absent from all three V1 baselines.",
+    "V1 baselines retain unresolved Open Questions counts (8, 7, 7) that gate immediate work; V2 iter-2 outputs compress to (3, 4, 4) with explicit trigger thresholds for deferred items.",
+    "V2 iter-2 outputs consistently use frontmatter (convergence_score, source_proposals, debate_transcript path) — V1 baselines have no frontmatter.",
+    "No quality regression on the V1 side: V1 totals (21/21/22) match iter-1 exactly, confirming the baseline is stable and the V2 delta is real."
+  ]
+}

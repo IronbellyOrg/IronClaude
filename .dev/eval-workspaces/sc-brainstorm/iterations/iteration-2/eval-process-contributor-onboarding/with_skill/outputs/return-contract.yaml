@@ -1,0 +1,44 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/merged-requirements.md
+convergence_score: 0.86
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/adversarial/
+domain: process
+strategy: agile
+depth: standard
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Shepherd scorecard metric scope (third explicit metric vs derived) — OQ1"
+  - "Reviewer training (written rubric vs 15-min video) — OQ2, deferred to retro"
+  - "Discord channel deprecation depth — OQ3, deferred to post-deadline retro"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 50
+  wave_1: 4800
+  wave_2a: 1600
+  wave_2b: 550
+  wave_3: 41000
+  wave_4: 380
+token_usage:
+  wave_0: 220
+  wave_1: 8900
+  wave_2a: 1100
+  wave_2b: 420
+  wave_3: 56000
+  wave_4: 280
+agent_spec: "sonnet:scribe:'documentation clarity and information architecture',sonnet:pm:'workflow design, throughput metrics, and ownership',haiku:mentor:'sustained engagement and contributor experience'"
+enrichment_artifact_sizes:
+  codebase-context.md: 0
+  research-light.md: 0
+  research-deep.md: 0

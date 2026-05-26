@@ -136,12 +136,13 @@ class TestInlineEmbedFallbackWhenFileBroken:
             input_file.write_text("S" * (embed_limit + 2048))
             step = _make_step(tmp_path, inputs=[input_file])
 
+            def cancel_check():
+                return False
+
             if executor_name == "validate_executor":
                 run_fn = module.validate_run_step
-                cancel_check = lambda: False
             else:
                 run_fn = module.tasklist_run_step
-                cancel_check = lambda: False
 
             with patch(f"{module_path}.ClaudeProcess") as mock_proc:
                 instance = MagicMock()

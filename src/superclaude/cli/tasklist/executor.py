@@ -20,9 +20,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from ..pipeline.executor import execute_pipeline
-from ..pipeline.models import PipelineConfig, Step, StepResult, StepStatus
-from ..pipeline.process import ClaudeProcess
+from superclaude.cli.pipeline.executor import execute_pipeline
+from superclaude.cli.pipeline.models import PipelineConfig, Step, StepResult, StepStatus
+from superclaude.cli.pipeline.process import ClaudeProcess
+
 from .gates import TASKLIST_FIDELITY_GATE
 from .models import TasklistValidateConfig
 from .prompts import build_tasklist_fidelity_prompt

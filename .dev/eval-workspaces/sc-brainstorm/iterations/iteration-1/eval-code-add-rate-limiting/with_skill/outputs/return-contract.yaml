@@ -1,0 +1,49 @@
+# sc:brainstorm return contract — versioned two-block
+
+# Stable contract
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md
+convergence_score: 0.78
+adversarial_artifacts_dir: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/adversarial
+domain: code
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_2
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Public API surface does not exist in this repo today — open question OQ-1 not resolved during dialogue"
+  - "Trusted-proxy-hop count for X-Forwarded-For parsing — OQ-3 not resolved"
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: 50
+  wave_1: 2400
+  wave_2a: 3100
+  wave_2b: 200
+  wave_3: 12500
+  wave_4: 100
+token_usage:
+  wave_0: 300
+  wave_1: 2200
+  wave_2a: 1400
+  wave_2b: 250
+  wave_3: 8800
+  wave_4: 150
+agent_spec: "opus:architect,sonnet:refactorer"
+enrichment_artifact_sizes:
+  codebase-context.md: 2480
+  research-light.md: 0
+  research-deep.md: 0
+simulated_run: true
+notes:
+  - "Single-pass non-interactive Socratic dialogue (auto-answered)."
+  - "Wave 3 adversarial was simulated (proposals + debate authored inline rather than via Skill sc-adversarial-protocol invocation, per eval constraint: no recursive Task)."
+  - "Custom instructions omitted per §Instruction-Templates rule for proposals==2."

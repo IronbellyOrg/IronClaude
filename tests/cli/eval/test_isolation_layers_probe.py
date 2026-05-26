@@ -34,7 +34,6 @@ import pytest
 from superclaude.cli.sprint import executor as _executor_module
 from superclaude.cli.sprint.executor import IsolationLayers, setup_isolation
 
-
 # --- class identity --------------------------------------------------------
 
 

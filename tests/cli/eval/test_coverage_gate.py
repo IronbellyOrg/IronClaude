@@ -31,7 +31,6 @@ from superclaude.cli.eval.coverage import (
 )
 from superclaude.cli.eval.models import EvalSpec
 
-
 # ---------------------------------------------------------------------------
 # Helpers — pattern sanitisation + default matcher filter
 # ---------------------------------------------------------------------------

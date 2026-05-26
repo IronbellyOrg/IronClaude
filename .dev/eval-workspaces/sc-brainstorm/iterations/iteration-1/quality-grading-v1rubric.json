@@ -1,0 +1,150 @@
+{
+  "rubric_version": "1.0",
+  "graded_at": "2026-05-25T00:00:00Z",
+  "grader_model": "claude-opus-4-7[1m]",
+  "outputs": {
+    "A1": {
+      "topic": "add rate limiting to public API endpoints",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md",
+      "file_size_bytes": 6208,
+      "scores": {
+        "concreteness": 5,
+        "adversarial_diversity": 4,
+        "coverage": 4,
+        "actionability": 5,
+        "provenance": 4
+      },
+      "total": 22,
+      "evidence": {
+        "concreteness": "Every requirement carries hard numbers: '<= 2ms p99 overhead under 1000 RPS', '~200 RPS deny rate, Redis CPU < 30%', three-state flag with named values 'off/shadow/enforce', explicit Lua-script size '<20 lines'.",
+        "adversarial_diversity": "Frontmatter notes 'source_proposals: 2' and 'debate-transcript'; the text reconciles tensions (fail-open default vs. security-sensitive endpoints, monolithic v1 module vs. future growth) with named rationale rather than averaging.",
+        "coverage": "Functional + non-functional + acceptance + open-questions + risks all present and tight; misses some adjacent concerns (client-facing headers like X-RateLimit-*, tiered billing limits, threat-model breadth) that the alternative output covers.",
+        "actionability": "AC-5 reads 'one production endpoint runs in enforce mode for 7 consecutive days with zero p99 regression' — concrete done-ness; runbook contents (emergency disable, raise specific limit, swap backend) are itemized so an engineer can start tomorrow.",
+        "provenance": "Frontmatter cites convergence_score and debate transcript; OQ-1 explicitly references 'confirmed via codebase scan'; R-4 cites 'greenfield risk - no existing rate-limit code in the repo' as constraint-derived rationale."
+      },
+      "overall_observation": "Crisp, opinionated, decision-forward spec with explicit constraints traced to debate and codebase scan; scope is narrower than A2 but every claim is measurable and immediately implementable."
+    },
+    "A2": {
+      "topic": "add rate limiting to public API endpoints",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/old_skill/outputs/requirements.md",
+      "file_size_bytes": 18381,
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 4,
+        "coverage": 5,
+        "actionability": 4,
+        "provenance": 4
+      },
+      "total": 21,
+      "evidence": {
+        "concreteness": "Has many concrete details (X-RateLimit-* header set, '<2ms p99', '±5% accuracy', bucket-key format 'rl:{tier}:{key_id}:{window_id}') but some NFRs hedge ('appropriate to the requester's tier') and several requirements remain shape-only without thresholds.",
+        "adversarial_diversity": "Five distinct personas (Architect, Analyzer, Frontend, Backend, Security) surface real tensions — fail-open vs. fail-closed, exposing X-RateLimit-* vs. hiding it from attackers, per-IP vs. distributed-botnet limits — and each persona pushes back on different framings.",
+        "coverage": "Most comprehensive of the two — threat model, header contract, SDK retry guidance, compliance hooks (SOC2/PCI), webhook/long-poll edge cases, three driver framings (abuse/capacity/commercial) all explicitly enumerated.",
+        "actionability": "AC list is solid (rates, headers, fail-open under killed-Redis) but 'Open Questions' remain unresolved at the end (driver, tier definitions, header policy) meaning a reader cannot start work without another conversation.",
+        "provenance": "Codebase scan documented in Phase 0 (no FastAPI/Flask/etc., no existing rate-limit code); open questions explicitly tie back to the 'codebase mismatch' finding; every persona references prior context."
+      },
+      "overall_observation": "Encyclopedic and well-structured but the breadth keeps several decisions open at the end; reads as a discovery document rather than a finalized spec, so actionability lags despite richer coverage."
+    },
+    "B1": {
+      "topic": "post-mortem: staging deployment broke at 3am, manual revert was the only mitigation",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md",
+      "file_size_bytes": 5157,
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 4,
+        "coverage": 3,
+        "actionability": 4,
+        "provenance": 4
+      },
+      "total": 19,
+      "evidence": {
+        "concreteness": "Specific thresholds where they matter: 'every event has >=2 independent sources', 'exposure window >30m escalate as separate finding', 'four control-gap prevention items: automated rollback, deploy gating, off-hours guardrail, paging on staging-only failure'.",
+        "adversarial_diversity": "Frontmatter declares 'agents: [opus:analyzer, sonnet:security]' and the body explicitly splits 'two control loops failed — deploy-gate loop and mitigation loop' with parallel investigation tracks; an unresolved tension on blast-radius depth is flagged rather than papered over.",
+        "coverage": "Solid on framework + investigation + prevention + communication; thinner than B2 on backend failure-mode taxonomy, on-call ergonomics, security audit-trail specifics, and architectural fitness functions — those workstreams are mostly compressed into single bullets.",
+        "actionability": "Investigation steps are numbered and orderable; prevention items have named owners-and-due-dates as an acceptance criterion; weekly status epic provides cadence so a reader can immediately schedule the next step.",
+        "provenance": "Frontmatter cites 'convergence_score: 0.72' and a debate transcript path; OQ-1 explicitly notes 'residual tension from debate; convergence not reached'; control-loop framing is presented as derived from the parallel-track analysis rather than asserted."
+      },
+      "overall_observation": "Disciplined, leverage-focused post-mortem spec that names two control loops and forces class-vs-case rating; concise to a fault — coverage of backend/security/architect lenses present in B2 is compressed."
+    },
+    "B2": {
+      "topic": "post-mortem: staging deployment broke at 3am, manual revert was the only mitigation",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/old_skill/outputs/requirements.md",
+      "file_size_bytes": 24044,
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 4,
+        "provenance": 3
+      },
+      "total": 21,
+      "evidence": {
+        "concreteness": "Strong measurable NFRs ('MTTR <= 15 min off-hours', '>= 90% deploys with automated rollback engaging in 5 min', '30-day log retention'); but some FRs remain procedural ('use structured method', 'enumerate every change').",
+        "adversarial_diversity": "Five fully fleshed personas (Analyzer, Security, DevOps, Backend, Architect) each take genuinely different stances — security on signed-revert vs devops on single-command-revert is reconciled with 'pre-sign known-good artifacts at deploy time'.",
+        "coverage": "Most comprehensive of the two — failure-mode taxonomy, on-call ergonomics with burnout/HR support, audit-trail/credential review, architectural fitness functions, communications, compliance (SOC2), psychological safety — all enumerated.",
+        "actionability": "AC-1 through AC-7 are testable, NFR targets are numeric, sprint cadence implied via 'hotfix/short-term/architectural' horizons; but 7 open questions remain unresolved, so 'immediately start work' is gated.",
+        "provenance": "Each persona traces to a documented question in Phase 1, and the feasibility matrix shows cross-persona derivation; lacks an explicit debate transcript or convergence score — provenance is internal narrative rather than artifacted."
+      },
+      "overall_observation": "Wide-coverage discovery doc with strongly differentiated persona voices and reconciled tensions; would benefit from compressing open questions into decisions before handing off to design."
+    },
+    "C1": {
+      "topic": "AI-powered changelog summarizer feature",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md",
+      "file_size_bytes": 7064,
+      "scores": {
+        "concreteness": 5,
+        "adversarial_diversity": 4,
+        "coverage": 4,
+        "actionability": 5,
+        "provenance": 4
+      },
+      "total": 22,
+      "evidence": {
+        "concreteness": "Hard numbers everywhere: '50-PR release in <=60s', '<=$1 inference cost', '>=70% finalized changelogs ship with <=30% line-diff', 'p95 cost <=$0.75', WCAG 2.1 AA with axe-core checks, '7-day retention'.",
+        "adversarial_diversity": "Frontmatter shows 'proposal_count: 2' and convergence; the spec names competitor wedges (What The Diff, Release.com, GitHub native) and resolves tensions (BYO-key vs hosted, persona-tuning on/off via flag, GitHub App vs CLI/Action) with explicit deferral rationale.",
+        "coverage": "Strong on personas + FRs + NFRs + AC + success metrics + MVP scope with explicit out-of-scope list; lighter on traceability/hallucination mitigation, redaction layer, and audit logging that C2 makes feature-blocking.",
+        "actionability": "MVP scope with 7 explicit in-scope and 7 explicit out-of-scope items, each with reason ('Reason: GitHub App is the wedge'); AC integration-test assertions cite axe-core, network-mock, and vendor-pricing fixtures — engineer can scaffold the test plan today.",
+        "provenance": "Competitor analysis (What The Diff, Release.com, GitHub) cited as the source of the wedge framing; deferral triggers explicit ('>=5 enterprise prospects', '>=3 dogfood users'); convergence_score documented in frontmatter."
+      },
+      "overall_observation": "Tight, market-aware MVP spec with measurable thresholds and explicit no-list; under-indexes on traceability/redaction/audit trail relative to the trust-risk that C2 prioritizes as feature-blocking."
+    },
+    "C2": {
+      "topic": "AI-powered changelog summarizer feature",
+      "file_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/old_skill/outputs/requirements.md",
+      "file_size_bytes": 22969,
+      "scores": {
+        "concreteness": 4,
+        "adversarial_diversity": 5,
+        "coverage": 5,
+        "actionability": 4,
+        "provenance": 4
+      },
+      "total": 22,
+      "evidence": {
+        "concreteness": "Many measurable targets ('3-5 bullets', '100-PR cap', '<=15s median for 50 PRs', '<=$0.50/release', '>=60% releases', '<=1% unverifiable claims', '5-40% edit distance window'); some are still hedged ('observably different phrasing').",
+        "adversarial_diversity": "Five distinct personas (Architect, Frontend, Backend, Analyzer, PM) with genuinely different framings — Architect pushes 'transformer, not system of record', Frontend pushes 'trust through traceability', Analyzer surveys 5 competitors and flags trust-collapse as the existential risk.",
+        "coverage": "Most comprehensive — input adapters (3), redaction with allowlist/denylist, traceability/source citations, tone presets, audit log with 90-day retention, provider abstraction, accessibility, security-embargo carve-out, success metrics including edit-distance window.",
+        "actionability": "Strong sprint-by-sprint plan (Sprint 0/1/2/3 with story points) and 12 FRs + 9 NFRs + 8 ACs that are testable; but 7 open questions are flagged for sprint-1 decision so immediate-start is gated by those.",
+        "provenance": "Phase 0 reasoning explicit ('signal_A=false, signal_B=false, signal_C=false -> SKIP'); analyzer cites 5 competitor reference points; Phase 3 feasibility matrix derives the 'redaction + traceability ship together' decision from cross-persona pressure."
+      },
+      "overall_observation": "Most thorough of the six; trust contract (traceability + redaction) elevated to feature-blocking with strong rationale; sprint plan and persona reasoning are top-tier, though open questions remain and length impacts immediate-start usability."
+    }
+  },
+  "topic_comparisons": {
+    "A": {
+      "winner": "A1",
+      "delta_total": 1,
+      "rationale": "A1 edges A2 (22 vs 21) on actionability and concreteness — every requirement in A1 has a measurable threshold and the open questions are bounded so an engineer could start the integration test and runbook today, while A2's broader coverage leaves the dominant driver (abuse/capacity/commercial), tier definitions, and header policy explicitly open. A2 wins coverage by a clear margin (threat model, SDK guidance, compliance hooks) but pays for it with less decision-forward output."
+    },
+    "B": {
+      "winner": "B2",
+      "delta_total": 2,
+      "rationale": "B2 (21) edges B1 (19) primarily on coverage and adversarial diversity — five fully-fleshed personas surface tensions (signed-revert vs single-command-revert reconciled via pre-signing) and the spec spans failure-mode taxonomy, on-call ergonomics including psychological safety, audit-trail completeness, and architectural fitness functions. B1's strength is its two-control-loop discipline and class-vs-case prevention rating, but it compresses the backend/security/architect lenses into single bullets."
+    },
+    "C": {
+      "winner": "tie",
+      "delta_total": 0,
+      "rationale": "C1 and C2 both score 22 with very different shapes: C1 wins concreteness and actionability via market-positioned MVP scope with explicit in/out lists and named competitor wedges, while C2 wins adversarial diversity and coverage via five distinct personas and a trust-contract framing (traceability + redaction feature-blocking) that C1 under-indexes on. A team prioritizing speed-to-build would pick C1; a team prioritizing trust/hallucination risk would pick C2."
+    }
+  }
+}

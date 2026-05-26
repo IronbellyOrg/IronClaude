@@ -1,0 +1,160 @@
+{
+  "skill_name": "sc-brainstorm-protocol",
+  "iteration": 2,
+  "scope": "expanded-12-cases-depth-mixed",
+  "notes": "Iteration 2 includes the original 3 pilot cases plus deferred cases 4-12 from SPEC.md §11.1. Cases cover code, incident, product, architecture, process, and research domains; quick, standard, and deep depths; handoff none/design/tasklist/task; blind mode; and simulated interactive mode.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "code-add-rate-limiting",
+      "prompt": "Brainstorm how to add rate limiting to public API endpoints in this codebase. Use --depth standard. Use 3 proposals. No handoff. Auto-detect codebase enrichment.",
+      "topic": "add rate limiting to public API endpoints",
+      "expected_domain": "code",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 3,
+      "handoff": "none",
+      "special": "Codebase enrichment expected"
+    },
+    {
+      "id": 2,
+      "name": "incident-staging-deploy-3am",
+      "prompt": "Brainstorm a post-mortem framing for this incident: staging deployment broke at 3am, root cause unclear, mitigation was a manual revert. Use --depth standard. Use 3 proposals.",
+      "topic": "post-mortem: staging deployment broke at 3am, manual revert was the only mitigation",
+      "expected_domain": "incident",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 3,
+      "handoff": "none",
+      "special": "Analyzer/security/devops perspectives"
+    },
+    {
+      "id": 3,
+      "name": "product-ai-changelog",
+      "prompt": "Brainstorm the product requirements for an AI-powered changelog summarizer feature. Use --depth standard. Use 3 proposals. Strategy agile.",
+      "topic": "AI-powered changelog summarizer feature",
+      "expected_domain": "product",
+      "expected_strategy": "agile",
+      "expected_proposal_count": 3,
+      "handoff": "none",
+      "special": "Light research expected"
+    },
+    {
+      "id": 4,
+      "name": "code-migrate-pytest-vitest",
+      "prompt": "Brainstorm migration of a test suite from pytest to vitest. Use --depth quick. Use 2 proposals.",
+      "topic": "migrate test suite from pytest to vitest",
+      "expected_domain": "code",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 2,
+      "handoff": "none",
+      "special": "2-proposal cap, quick depth"
+    },
+    {
+      "id": 5,
+      "name": "architecture-worker-pool-errors",
+      "prompt": "Brainstorm redesigning error handling across the worker pool. Use --depth deep. Use 5 proposals. Strategy enterprise.",
+      "topic": "redesign error handling across the worker pool",
+      "expected_domain": "architecture",
+      "expected_strategy": "enterprise",
+      "expected_proposal_count": 5,
+      "handoff": "none",
+      "special": "Codebase + research enrichment expected"
+    },
+    {
+      "id": 6,
+      "name": "process-contributor-onboarding",
+      "prompt": "Brainstorm improving onboarding workflow for new contributors. Use --depth standard. Strategy agile.",
+      "topic": "improve onboarding workflow for new contributors",
+      "expected_domain": "process",
+      "expected_strategy": "agile",
+      "expected_proposal_count": 3,
+      "handoff": "none",
+      "special": "No codebase or research auto-enrichment expected"
+    },
+    {
+      "id": 7,
+      "name": "research-bun-vs-node",
+      "prompt": "Brainstorm evaluating Bun vs Node for backend services. Use --depth standard. Research deep. No codebase enrichment.",
+      "topic": "evaluate Bun vs Node for our backend services",
+      "expected_domain": "research",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 3,
+      "handoff": "none",
+      "special": "Deep research expected, no codebase"
+    },
+    {
+      "id": 8,
+      "name": "code-api-caching-tasklist",
+      "prompt": "Brainstorm adding caching to the API layer. Use --depth standard. Handoff tasklist.",
+      "topic": "add caching to the API layer",
+      "expected_domain": "code",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 3,
+      "handoff": "tasklist",
+      "special": "Validates --handoff tasklist"
+    },
+    {
+      "id": 9,
+      "name": "code-feature-flag-task",
+      "prompt": "Brainstorm implementing a feature flag system. Use --depth standard. Handoff task.",
+      "topic": "implement feature flag system",
+      "expected_domain": "code",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 3,
+      "handoff": "task",
+      "special": "Validates --handoff task"
+    },
+    {
+      "id": 10,
+      "name": "incident-payment-webhook-q1",
+      "prompt": "Brainstorm Q1 incident response for payment webhook delivery failures. Use --depth deep. Strategy enterprise. Simulate interactive dialogue.",
+      "topic": "Q1 incident: payment webhook delivery failures",
+      "expected_domain": "incident",
+      "expected_strategy": "enterprise",
+      "expected_proposal_count": 5,
+      "handoff": "none",
+      "special": "Interactive simulated, deep dialogue"
+    },
+    {
+      "id": 11,
+      "name": "code-duplicate-auth-blind",
+      "prompt": "Brainstorm consolidating three duplicate auth modules. Use --depth deep. Use blind mode.",
+      "topic": "consolidate three duplicate auth modules",
+      "expected_domain": "code",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 5,
+      "handoff": "none",
+      "special": "Validates --blind mode"
+    },
+    {
+      "id": 12,
+      "name": "architecture-graphql-public-api",
+      "prompt": "Brainstorm using GraphQL for public API. Use --depth quick. Handoff design.",
+      "topic": "explore using GraphQL for public API",
+      "expected_domain": "architecture",
+      "expected_strategy": "systematic",
+      "expected_proposal_count": 2,
+      "handoff": "design",
+      "special": "Validates --handoff design"
+    }
+  ],
+  "deferred_after_iter_2": [
+    "Cases 13-15 from SPEC.md §11.1: v1-compat regression cases and trivial edge case",
+    "Additional edge flows: --resume-from, --dry-run, adversarial FAIL routing, token-budget hard-kill"
+  ],
+  "assertions_v2": [
+    "seed_brief_exists",
+    "merged_requirements_exists",
+    "seed_brief_frontmatter_has_domain",
+    "seed_brief_frontmatter_has_strategy",
+    "merged_requirements_has_acceptance_criteria",
+    "merged_requirements_has_open_questions_section",
+    "convergence_score_meets_threshold",
+    "agent_spec_uses_multiple_models",
+    "enrichment_artifact_present_when_expected",
+    "handoff_output_present_when_expected",
+    "no_silent_pass_on_empty_adversarial",
+    "wall_clock_within_budget",
+    "token_usage_within_budget",
+    "return_contract_has_contract_version"
+  ]
+}

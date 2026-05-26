@@ -356,8 +356,6 @@ Beyond codebase exploration, you have access to tools that can significantly imp
 
 Use Tavily search when:
 
-Use `WebSearch` when:
-
 - The project uses a library, framework, or API you need to understand better
 - You need current syntax, configuration patterns, or best practices for a technology
 - The codebase references external services or tools that aren't self-documenting
@@ -370,12 +368,12 @@ Use `WebSearch` when:
 **Examples:**
 
 ```text
-WebSearch: "Express.js middleware error handling pattern 2026"
-WebSearch: "PostgreSQL JSONB index best practices"
-WebSearch: "React Server Components file structure conventions"
-WebSearch: "best practices building project health dashboard Python 2026"
-WebSearch: "Python stdlib alternatives to pandas for data analysis"
-WebSearch: "SVG chart generation without dependencies comparison"
+mcp__tavily__tavily-search: "Express.js middleware error handling pattern 2026"
+mcp__tavily__tavily-search: "PostgreSQL JSONB index best practices"
+mcp__tavily__tavily-search: "React Server Components file structure conventions"
+mcp__tavily__tavily-search: "best practices building project health dashboard Python 2026"
+mcp__tavily__tavily-search: "Python stdlib alternatives to pandas for data analysis"
+mcp__tavily__tavily-search: "SVG chart generation without dependencies comparison"
 ```
 
 **Fallback Conditions — fall back to WebSearch / WebFetch only when ANY of these are true:**

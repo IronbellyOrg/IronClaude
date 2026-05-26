@@ -1,88 +1,58 @@
 # Templates Reference
 
-Reference document for Wave 2 (Planning & Template Selection) and Wave 3 (Generation). Contains template discovery, milestone planning, effort estimation, body templates for roadmap.md and test-strategy.md, and YAML frontmatter schemas.
+Reference document for Wave 2 (Planning & Template Selection) and Wave 3 (Generation). Documents the canonical CLI **single-template resolver** behavior, plus the milestone-structure heuristics, body templates, and YAML frontmatter schemas used when filling in that template.
 
 ---
 
-## 4-Tier Template Discovery
+## Single-Template Resolver (CLI Canonical Behavior)
 
-Templates are discovered in priority order. The first tier to produce a match is used; lower tiers are not searched.
+> **CLI parity (B-5, VERIFIED).** The roadmap CLI does **not** perform multi-tier template discovery. It resolves a single bundled template file by name via `get_template_path()` in `src/superclaude/cli/roadmap/templates.py`. There is no Tier 1 (local), Tier 2 (user), Tier 3 (plugin marketplace), or Tier 4 (inline fallback) selection path in the CLI today.
 
-### Tier 1: Local (Project-Level)
+### Named template constants
 
-**Search path**: `.dev/templates/roadmap/` in the current project directory.
+The CLI exposes three named template constants (`src/superclaude/cli/roadmap/templates.py:14-16`):
 
-**Discovery**: Glob for `*.md` and `*.yaml` files in this directory. Each file must contain YAML frontmatter with at least `name`, `type`, and `domains` fields to be considered a valid template.
+| Constant | Value | Used by |
+|---|---|---|
+| `ROADMAP_TEMPLATE` | `"roadmap_template.compressed.md"` | sc:roadmap (Wave 3 roadmap.md generation) |
+| `TASKLIST_INDEX_TEMPLATE` | `"tasklist_index_template.md"` | sc:tasklist (index file generation) |
+| `TASKLIST_PHASE_TEMPLATE` | `"tasklist_phase_template.md"` | sc:tasklist (per-phase file generation) |
 
-### Tier 2: User (User-Level)
+### Resolution algorithm
 
-**Search path**: `~/.claude/templates/roadmap/`
+`get_template_path(name: str) -> Path` (`src/superclaude/cli/roadmap/templates.py:21-71`) resolves a template filename to an absolute path in two ordered steps:
 
-**Discovery**: Same glob and validation rules as Tier 1.
+1. **Installed-package lookup.** Try `importlib.resources.files("superclaude.examples").joinpath(name)`. If the resolved path exists, return it.
+2. **Src-relative fallback.** Otherwise compute `<repo>/src/superclaude/examples/<name>` from `__file__` and return it if it exists.
+3. **Failure.** If neither method finds the file, raise `FileNotFoundError` naming both searched locations.
 
-### Tier 3: Plugin (Marketplace)
+This is a single-template resolver — it accepts a known constant name and returns one path. It does **not** glob a directory, validate user-supplied YAML frontmatter, score multiple candidates, or fall back to inline generation.
 
-**Status**: `[future: v5.0 plugin marketplace — plumb in here when available]`
+### What this means for skill behavior
 
-**Search path**: Will be defined when the plugin marketplace is implemented. Expected pattern: `~/.claude/plugins/*/templates/roadmap/`
-
-**Current behavior**: This tier is always a no-op. Skip to Tier 4.
-
-### Tier 4: Inline Generation (Fallback)
-
-**Trigger**: No template found in Tiers 1-3, OR no template scores >= 0.6 in compatibility scoring, OR `--template` flag specifies a type with no matching file.
-
-**Behavior**: Generate a milestone structure directly from the extraction data using the milestone count selection and domain-specific mapping rules below.
-
----
-
-## Template File Format
-
-Templates discovered in Tiers 1-3 must follow this format:
-
-```yaml
----
-name: <template-name>
-type: <feature|quality|docs|security|performance|migration>
-domains: [<domain1>, <domain2>]
-target_complexity: <0.0-1.0>
-min_version: "<semver>"
-milestone_count_range: [<min>, <max>]
----
-# Template body with milestone structure
-```
-
-**Required fields**: `name`, `type`, `domains`
-**Optional fields**: `target_complexity` (default 0.5), `min_version` (default "1.0.0"), `milestone_count_range` (default from complexity class)
+- The skill's Wave 2 "template selection" step is, in CLI terms, "resolve `ROADMAP_TEMPLATE` via `get_template_path()` and load it." There is no user/project/plugin override surface.
+- The bundled template file (`src/superclaude/examples/roadmap_template.compressed.md`) is the only canonical input that shapes roadmap.md output structure. Customizing roadmap output today means editing that bundled file inside the source tree.
+- Skill prose referencing "Tier 1 local templates," "Tier 2 user templates," or "Tier 3 plugin marketplace" describes **inference-only** behavior that is not implemented in the CLI. See "Non-canonical multi-tier discovery (inference-only)" below for the demoted material.
 
 ---
 
-## Version Resolution Rules
+## Non-canonical multi-tier discovery (inference-only)
 
-When multiple template files match the same `type`:
+> **Scope.** The following material describes a multi-tier discovery model that is **not** implemented by the current CLI. It is retained as inference-only guidance for skill-mode operators who want to layer project- or user-level template overrides on top of `get_template_path()` manually. Anything in this section is out of canonical CLI scope and must not be cited as CLI behavior.
 
-1. Filter: exclude templates where `min_version` > current sc:roadmap version
-2. Score: apply template compatibility scoring (see `refs/scoring.md`)
-3. Select: highest-scoring template wins
-4. Tie-break: if scores are equal, prefer Tier 1 over Tier 2 (local project customization wins)
+A skill-mode operator who wants project/user template overrides can manually:
 
----
+1. Maintain candidate templates under `.dev/templates/roadmap/` (project) or `~/.claude/templates/roadmap/` (user) with YAML frontmatter (`name`, `type`, `domains`, optional `target_complexity`, `min_version`, `milestone_count_range`).
+2. Select a candidate using the compatibility-scoring formula in `refs/scoring.md` (filter by `min_version`, score, require ≥ 0.6, tie-break by location).
+3. Use the selected file's body in place of `ROADMAP_TEMPLATE` for that single run.
 
-## Matching Criteria
-
-A template is considered a **candidate** if:
-
-1. Its `type` field matches the spec's dominant requirement type OR the user's `--template` flag value
-2. Its `min_version` is <= current sc:roadmap version
-3. It has valid YAML frontmatter with required fields
-
-Candidates are then scored using the template compatibility formula from `refs/scoring.md`. Only templates scoring >= 0.6 are selected.
+A future plugin marketplace (`~/.claude/plugins/*/templates/roadmap/`) is design-vision only; no CLI runway is currently implemented. If/when multi-tier discovery is added to the CLI, this section should be promoted back to canonical and the single-template-resolver section above should be updated accordingly.
 
 ---
 
-## Inline Template Generation Fallback
+## Milestone Structure Heuristics
 
-When no template scores >= 0.6 (or no templates exist), generate the milestone structure algorithmically.
+The bundled `ROADMAP_TEMPLATE` carries the structural prompt that the LLM consumes during Wave 3. The heuristics below describe how the LLM is expected to fill in that structure given the extraction.md output. They are not a separate "inline fallback" path — they are the milestone-generation guidance embedded in the single bundled template.
 
 ### Milestone Count Selection
 
@@ -422,7 +392,7 @@ pipeline_diagnostics:
     spec_validated: true                               # Wave 0: spec file(s) exist and readable
     output_collision_resolved: false                    # Wave 0: collision suffix applied
     adversarial_skill_present: true|na                  # Wave 0: sc:adversarial SKILL.md exists (na if not needed)
-    tier1_templates_found: 0                            # Wave 2: count of Tier 1 template matches
+    tier1_templates_found: 0                            # Wave 2: inference-only counter for non-canonical multi-tier discovery; CLI single-template resolver always emits 0 (see B-5)
   contract_validation:                                  # Present only if adversarial mode used; omit if not
     fields_received: 9                                  # Count of non-null fields in return contract
     fields_defaulted: []                                # List of field names where consumer defaults applied
@@ -453,4 +423,4 @@ complexity_class: <LOW|MEDIUM|HIGH>
 
 ---
 
-*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 2, available through Wave 3*
+*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 2, available through Wave 3. CLI parity baseline: single-template resolver via `get_template_path()` over `ROADMAP_TEMPLATE = "roadmap_template.compressed.md"` (`src/superclaude/cli/roadmap/templates.py:14-71`). Multi-tier discovery is inference-only and out of canonical CLI scope (B-5).*

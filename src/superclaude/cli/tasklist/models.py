@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..pipeline.models import PipelineConfig
+from superclaude.cli.pipeline.models import PipelineConfig
 
 
 @dataclass
