@@ -55,7 +55,7 @@ All artifacts include YAML frontmatter for machine parseability.
 
 **MANDATORY**: A specification file path OR `--specs` flag with multiple paths.
 
-```
+```bash
 /sc:roadmap <spec-file-path>
 /sc:roadmap --specs <spec1.md,spec2.md,...>
 ```
@@ -103,6 +103,56 @@ Every verb used in Waves 0–4 maps to exactly one Claude Code tool. Never use b
 **Rule**: Never use bare "Invoke" without specifying the tool. All verbs in wave instructions MUST resolve to an entry in this glossary.
 
 sc:roadmap executes in 5 waves (0-4). Each wave has entry criteria, behavioral instructions, and exit criteria. Refs are loaded **on-demand per wave** to prevent context bloat.
+
+### CLI Step Crosswalk
+
+> **Relationship to CLI**: `sc:roadmap-protocol` is the inference-layer skill; the deterministic counterpart is the `superclaude roadmap run` CLI (`src/superclaude/cli/roadmap/executor.py`). The Waves below organize behavioral instructions for orchestrators reading this skill; the CLI executes a flat 14-step pipeline. Both surfaces converge on the same artifacts (`roadmap.md`, `extraction.md`, `test-strategy.md`, plus CLI-only validation/certification outputs), but threshold semantics differ — see the inference-only note below.
+
+The CLI emits the following 14 step IDs in pipeline order (see `_get_all_step_ids` at `cli/roadmap/executor.py:2281-2300`):
+
+1. `extract`
+2. `generate-{agent_a.id}` (e.g. `generate-opus-architect`)
+3. `generate-{agent_b.id}` (e.g. `generate-haiku-architect`)
+4. `diff`
+5. `debate`
+6. `score`
+7. `merge`
+8. `anti-instinct`
+9. `test-strategy`
+10. `spec-fidelity`
+11. `wiring-verification`
+12. `deviation-analysis`
+13. `remediate`
+14. `certify`
+
+**Wave ↔ CLI step mapping** (each Wave below corresponds to one or more CLI steps; Waves are pedagogical/orchestration units, CLI steps are atomic gate-bounded executions):
+
+| Wave | CLI Steps Covered | Notes |
+|------|-------------------|-------|
+| Wave 0 (Prerequisites) | (none) | Skill-only — CLI performs equivalent input validation via `_validate_input_files` and config parsing. |
+| Wave 1A (Spec Consolidation) | (none in roadmap CLI) | Multi-spec consolidation is a skill-side `Skill sc:adversarial-protocol` invocation. The roadmap CLI does not perform multi-spec consolidation as a pipeline step. |
+| Wave 1B (Detection & Analysis) | `extract` | CLI emits a single-pass `extract` step using `build_extract_prompt` / `build_extract_prompt_tdd` (see B-7). |
+| Wave 2 (Planning & Template Selection) | `generate-{a}`, `generate-{b}`, `diff`, `debate`, `score`, `merge` | CLI generates variants in parallel, then runs the structured-debate prompt flow inline (`build_debate_prompt`, `_DEPTH_INSTRUCTIONS`); skill mode invokes `Skill sc:adversarial-protocol`. The CLI does NOT delegate to a separate `sc:adversarial-protocol` skill (see B-8). |
+| Wave 3 (Generation) | `anti-instinct`, `test-strategy` | CLI's `anti-instinct` and `test-strategy` steps produce post-merge guard-rail and strategy artifacts. |
+| Wave 4 (Validation) | `spec-fidelity`, `wiring-verification`, `deviation-analysis`, `remediate`, `certify` | CLI uses gate criteria (`SPEC_FIDELITY_GATE`, `WIRING_GATE`, `DEVIATION_ANALYSIS_GATE`, `REMEDIATE_GATE`) — NOT `quality-engineer` / `self-review` sub-agent dispatch (see B-6). The skill's quality-engineer and self-review dispatch in Wave 4 is inference-only and non-canonical for CLI parity. |
+| Post-Wave (Completion) | (none) | Skill-only session-persistence and final-message steps. |
+
+### Inference-Only Thresholds
+
+The following thresholds in this skill are **inference heuristics**, NOT CLI gate behavior. When operating against the CLI directly, treat these as documentation-only heuristics and prefer the CLI gate criteria as the canonical pass/fail mechanism.
+
+- **Convergence routing (Wave 1A Step 2e, Wave 2 Step 3e)**: `convergence_score >= 0.6 → PASS`, `>= 0.5 → PARTIAL`, `< 0.5 → FAIL`. The CLI's gate criteria only validate `convergence_score ∈ [0.0, 1.0]` as a validity check; pass/fail routing on this score is a skill-layer decision. See `cli/roadmap/validate_gates.py` for the actual CLI gate criteria.
+- **Validation aggregate thresholds (Wave 4, `refs/validation.md`)**: `PASS ≥ 85%`, `REVISE 70-84%`, `REJECT < 70%`. The CLI does not compute an aggregate validation score and does not run a `REVISE` loop; it uses per-gate boolean criteria from `validate_gates.py` (`REFLECT_GATE`, `ADVERSARIAL_MERGE_GATE`).
+- **Agent count range (Section 5)**: `2-10 agents`. The CLI's `roadmap run` defaults to `opus:architect,haiku:architect` (2) and does not enforce a 2-10 bound; `roadmap validate` defaults to a single agent. The 2-10 range is an inference recommendation for the skill surface.
+
+### Cosmetic-Gate Auto-Remediation Lane
+
+The CLI exposes a **cosmetic-failure auto-remediation lane** controlled by three flags on `superclaude roadmap run` (see `cli/roadmap/commands.py:153-170` and `cli/roadmap/cosmetic_remediator.py`):
+
+- `--allow-cosmetic-remediation` / `--no-allow-cosmetic-remediation` (default: enabled): auto-fix pure-cosmetic gate failures (heading shape, dash variants, etc.) and continue the pipeline.
+- `--strict-no-remediation`: explicit alias for `--no-allow-cosmetic-remediation` for high-stakes runs; disables the auto-remediation lane entirely so any gate failure is terminal.
+
+When this lane is active and a gate failure classifies as `is_pure_cosmetic=True` (via `apply_cosmetic_remediations`), the CLI rewrites the offending output, marks the step result as `remediated`, and surfaces the applied transforms in the HALT report (`executor.py:2254-2266`). Pipelines orchestrated via this skill SHOULD preserve the same cosmetic-vs-semantic distinction at the orchestrator level rather than re-running expensive LLM steps for purely cosmetic gate violations.
 
 ### Wave 0: Prerequisites
 
@@ -307,7 +357,9 @@ Both flags → Wave 1A consolidates specs → Wave 1B extracts → Wave 2 genera
 
 ### Depth Mapping
 
-`--depth quick` → 1 debate round | `--depth standard` → 2 rounds | `--depth deep` → 3 rounds
+`--depth quick` → 1 debate round | `--depth standard` → 2 rounds | `--depth deep` → 3 rounds.
+
+**CLI canonical mechanism (B-8, VERIFIED).** In CLI-faithful terms the round count is encoded directly inside the debate-step prompt via the `_DEPTH_INSTRUCTIONS` dict at `src/superclaude/cli/roadmap/prompts.py:18-37`, which `build_debate_prompt` (`prompts.py:878-902`) interpolates into a single LLM call gated by `DEBATE_GATE` (`gates.py:1155-1166`). The CLI does not invoke `Skill sc:adversarial-protocol`; the `--depth` flag selects the `_DEPTH_INSTRUCTIONS` entry that produces a 1-, 2-, or 3-round debate inside the single `debate` step. The threshold-based PASS/PARTIAL/FAIL routing on `convergence_score` described elsewhere in this skill is inference-only — the canonical CLI `DEBATE_GATE` only validates that `convergence_score` is a float in `[0.0, 1.0]`.
 
 ## 6. Output Artifacts
 
@@ -437,14 +489,17 @@ invocation_method: "skill-direct"  # Default method
 
 ## Agent Delegation
 
-sc:roadmap-protocol delegates to sc:adversarial-protocol via direct Skill invocation (SKILL-DIRECT per D-0001 reversal):
+> **CLI parity (B-8, VERIFIED).** Direct `Skill sc:adversarial-protocol` delegation is **inference-only** — the canonical `superclaude roadmap run` CLI performs adversarial-merge work as an inline four-step chain (`diff → debate → score → merge`) inside its flat 14-step pipeline, with the debate round count encoded by `_DEPTH_INSTRUCTIONS` (`src/superclaude/cli/roadmap/prompts.py:18-37`) and the debate prompt built by `build_debate_prompt` (`prompts.py:878-902`). The D-0001 reversal established that **SKILL-DIRECT is available** (Skill-to-skill invocation does not require a Task agent wrapper); it did **not** make SKILL-DIRECT the canonical CLI debate mechanism. The CLI's canonical mechanism remains the inline debate step. See `refs/adversarial-integration.md` "CLI Canonical Debate Prompt Flow (B-8, VERIFIED)" for full source citations.
 
-| Delegation Point | Target Skill | Invocation Method | Output Contract |
-|-----------------|--------------|-------------------|-----------------|
-| Wave 1A Step 2 (multi-spec) | sc:adversarial-protocol | `Invoke Skill sc:adversarial-protocol --compare <specs>` | Inline Skill return value |
-| Wave 2 Step 3d (multi-roadmap) | sc:adversarial-protocol | `Invoke Skill sc:adversarial-protocol --source <spec> --generate roadmap --agents <list>` | Inline Skill return value |
+When operating in skill-mode (no CLI), sc:roadmap-protocol uses the SKILL-DIRECT path described below. When operating against the CLI, the table below describes the inference-layer mapping — each "delegation point" resolves to the CLI's inline chain (no actual sub-skill invocation occurs):
 
-**SKILL-DIRECT**: Direct `Skill` tool invocation is the primary method. Skill-to-skill invocation is confirmed available (AVAILABLE per D-0001 reversal). No Task agent wrapper required.
+| Delegation Point | Mode | Invocation Method | Output Contract |
+|-----------------|------|-------------------|-----------------|
+| Wave 1A Step 2 (multi-spec) | Skill-mode | `Invoke Skill sc:adversarial-protocol --compare <specs>` | Inline Skill return value (no CLI counterpart — multi-spec consolidation is not in the CLI pipeline today) |
+| Wave 2 Step 3d (multi-roadmap) | Skill-mode | `Invoke Skill sc:adversarial-protocol --source <spec> --generate roadmap --agents <list>` | Inline Skill return value |
+| Wave 2 Step 3d (multi-roadmap) | CLI-canonical | Inline `Step(id="debate", prompt=build_debate_prompt(...), gate=DEBATE_GATE)` at `cli/roadmap/executor.py:2076-2084`, embedded in the `diff → debate → score → merge` chain | Per-step output files (`diff-analysis.md`, `debate-transcript.md`, `base-selection.md`, `roadmap.md`) gated by `DIFF_GATE`, `DEBATE_GATE`, `SCORE_GATE`, `MERGE_GATE` |
+
+**SKILL-DIRECT (inference-only)**: Direct `Skill` tool invocation is available per D-0001 reversal (Skill-to-skill invocation does not require a Task agent wrapper). When this skill is run without the CLI, the SKILL-DIRECT path is used. The canonical CLI does not exercise this path — it executes the inline debate step instead.
 
 ## Error Handling
 

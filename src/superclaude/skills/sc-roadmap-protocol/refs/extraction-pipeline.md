@@ -1,20 +1,50 @@
 # Extraction Pipeline Reference
 
-Reference document for Wave 1B: Detection & Analysis. Contains the 8-step extraction pipeline, domain keyword dictionaries, ID assignment rules, chunked extraction protocol, and 4-pass completeness verification.
+Reference document for Wave 1B (Detection & Analysis). Documents the canonical CLI **single-pass extraction step** built by `build_extract_prompt` / `build_extract_prompt_tdd`, the eight aspects the single prompt instructs the LLM to cover, the additional TDD aspects emitted by the TDD-specific builder, the PRD/TDD supplementary context blocks, the LLM-advisory domain keyword dictionaries, and the inference-only chunked-extraction algorithm and 4-pass completeness verification.
 
 ---
 
-## 8-Step Extraction Pipeline
+## Single-Pass Extraction (CLI Canonical Behavior)
 
-Process the specification file in 8 sequential steps. Each step produces structured output that feeds into subsequent steps.
+> **CLI parity (B-7, VERIFIED).** The roadmap CLI executes extraction as a **single `Step(id="extract", ...)`** built by one of two prompt-builder functions. There is **no** sequential 8-step pipeline in the CLI today, no per-aspect retry, no chained intermediate outputs between aspects, and no inter-aspect ordering gate. The eight subsections below capture the **aspects the single prompt instructs the LLM to cover**, not chained phases.
 
-### Step 1: Title & Overview Extraction
+### CLI prompt builders
+
+| Builder | Source | When used |
+|---|---|---|
+| `build_extract_prompt` | `src/superclaude/cli/roadmap/prompts.py:180` | Default extraction path (`config.input_type` is `spec`, or omitted). Produces the 8 standard body sections described below. |
+| `build_extract_prompt_tdd` | `src/superclaude/cli/roadmap/prompts.py:328` | Selected when `--input-type tdd` is passed (the CLI uses an **explicit flag**, not the 4-signal inference heuristic in `scoring.md`). Produces the 8 standard body sections plus 6 TDD-specific aspects (see "TDD-Extended Aspects" below). |
+
+Both functions return one prompt string. The executor wires it into a single step at `src/superclaude/cli/roadmap/executor.py:2001-2025`:
+
+```python
+Step(
+    id="extract",
+    prompt=(
+        build_extract_prompt_tdd(...) if config.input_type == "tdd"
+        else build_extract_prompt(...)
+    ),
+    output_file=extraction,
+    gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
+    timeout_seconds=1800 if config.input_type == "tdd" else 300,
+    inputs=...,
+    retry_limit=1,
+)
+```
+
+The LLM receives one prompt and writes one `extraction.md` file with YAML frontmatter plus eight standard body sections (fourteen in the TDD path). The only mechanical gate is `EXTRACT_GATE` (or `EXTRACT_TDD_GATE`) against the single emitted file; there is no per-aspect validation, no inter-aspect handoff, and the single step has `retry_limit=1` for transport-level retry only.
+
+### Eight-aspect coverage inside the single prompt
+
+The eight aspects below capture **what the single CLI prompt instructs the LLM to extract**. They are *coverage rationale*, not a required execution sequence — the LLM is free to address them in any order that produces the required body sections of `extraction.md`. ID assignment (Aspect 8) is a coordination concern that runs implicitly as the LLM emits each section. The CLI prompt instructs the LLM to **preserve spec/TDD requirement identifiers verbatim** (e.g., `FR-EVAL-001.1` stays `FR-EVAL-001.1`) rather than re-numbering as `FR-001, FR-002, ...`; the synthetic numbering described in Aspect 8 is the fallback path when the source document has no identifiers of its own (`prompts.py:219-227`, `:386-393`).
+
+### Aspect 1: Title & Overview Extraction
 
 Extract the project title, version, and high-level summary from the spec's opening sections (typically H1 heading, metadata block, and executive summary).
 
 **Output**: `project_title`, `project_version`, `summary` (1-3 sentences)
 
-### Step 2: Functional Requirements (FRs)
+### Aspect 2: Functional Requirements (FRs)
 
 Scan the spec for functional requirements. Look for:
 
@@ -26,9 +56,9 @@ Scan the spec for functional requirements. Look for:
 For each FR, extract:
 | Field | Description |
 |-------|-------------|
-| `id` | Assigned in Step 8 |
+| `id` | Source-document ID verbatim; falls back to `FR-NNN` per Aspect 8 |
 | `description` | Clear statement of the requirement |
-| `domain` | Classified in Step 4 |
+| `domain` | Classified per Aspect 4 |
 | `priority` | P0 (must-have), P1 (should-have), P2 (nice-to-have), P3 (future) |
 | `source_lines` | Line range in original spec (e.g., L12-L18) |
 
@@ -40,7 +70,7 @@ For each FR, extract:
 - "future", "planned", "roadmap", "v2", "later" → P3
 - No explicit signal → P1 (default)
 
-### Step 3: Non-Functional Requirements (NFRs)
+### Aspect 3: Non-Functional Requirements (NFRs)
 
 Scan for non-functional requirements:
 
@@ -53,13 +83,13 @@ Scan for non-functional requirements:
 For each NFR, extract:
 | Field | Description |
 |-------|-------------|
-| `id` | Assigned in Step 8 |
+| `id` | Source-document ID verbatim; falls back to `NFR-NNN` per Aspect 8 |
 | `description` | Clear statement |
 | `category` | performance, security, scalability, reliability, maintainability |
 | `constraint` | Measurable threshold (e.g., "<200ms response time") |
 | `source_lines` | Line range in original spec |
 
-### Step 4: Scope & Domain Classification
+### Aspect 4: Scope & Domain Classification
 
 Classify every extracted requirement into one or more domains using the domain keyword dictionaries (see below). Compute domain distribution as percentages.
 
@@ -72,7 +102,7 @@ Classify every extracted requirement into one or more domains using the domain k
 5. If multiple domains score within 15% of each other, assign to all qualifying domains (split attribution)
 6. Compute domain distribution: `domain_percentage = (weighted_requirements_in_domain / total_weighted_requirements) * 100`
 
-### Step 5: Dependency Extraction
+### Aspect 5: Dependency Extraction
 
 Identify dependencies between requirements and external dependencies:
 
@@ -83,13 +113,13 @@ Identify dependencies between requirements and external dependencies:
 For each dependency:
 | Field | Description |
 |-------|-------------|
-| `id` | Assigned in Step 8 |
+| `id` | `DEP-NNN` synthetic; see Aspect 8 |
 | `description` | What depends on what |
 | `type` | `internal` (between requirements) or `external` (third-party) |
 | `affected_requirements` | List of requirement IDs affected |
 | `source_lines` | Line range in original spec |
 
-### Step 6: Success Criteria Extraction
+### Aspect 6: Success Criteria Extraction
 
 Extract measurable success criteria from the spec:
 
@@ -100,13 +130,13 @@ Extract measurable success criteria from the spec:
 For each criterion:
 | Field | Description |
 |-------|-------------|
-| `id` | Assigned in Step 8 |
+| `id` | `SC-NNN` synthetic; see Aspect 8 |
 | `description` | Measurable criterion |
 | `derived_from` | Requirement IDs this criterion validates |
 | `measurable` | Yes/No — is it objectively testable? |
 | `source_lines` | Line range in original spec |
 
-### Step 7: Risk Identification
+### Aspect 7: Risk Identification
 
 Extract risks mentioned in the spec and infer risks from requirement complexity:
 
@@ -122,16 +152,18 @@ Extract risks mentioned in the spec and infer risks from requirement complexity:
 For each risk:
 | Field | Description |
 |-------|-------------|
-| `id` | Assigned in Step 8 |
+| `id` | `RISK-NNN` synthetic; see Aspect 8 |
 | `description` | Risk statement |
 | `probability` | Low, Medium, High |
 | `impact` | Low, Medium, High |
 | `affected_requirements` | List of requirement IDs |
 | `source_lines` | Line range (or "inferred" if generated) |
 
-### Step 8: ID Assignment
+### Aspect 8: ID Assignment
 
-Assign deterministic IDs to all extracted items:
+> **CLI parity note.** The CLI prompt instructs the LLM to **preserve source-document identifiers verbatim** (`prompts.py:219-227`, `:386-393`). The synthetic `FR-NNN` / `NFR-NNN` numbering below is the **fallback** path when the source document has no identifiers; do not renumber existing IDs.
+
+Assign deterministic IDs to extracted items that lack source-document identifiers:
 
 | Entity | Format | Sequence |
 |--------|--------|----------|
@@ -147,15 +179,26 @@ Assign deterministic IDs to all extracted items:
 
 ---
 
-## TDD-Specific Extraction Steps (Steps 9-15)
+## TDD-Extended Aspects (covered by `build_extract_prompt_tdd`)
 
-**Conditional gate**: Steps 9-15 execute ONLY when TDD-format input is detected. Detection uses a 4-signal weighted scoring system (threshold ≥ 5): numbered headings (≥20 = +3, ≥15 = +2, ≥10 = +1), TDD-exclusive frontmatter fields `parent_doc`/`coordinator` (+2 each), TDD-specific section names like "Data Models", "API Specifications", "Component Inventory" (+1 each), and "Technical Design Document" in first 1000 chars (+2). See `scoring.md` TDD-Format Detection Rule for full details.
+When `--input-type tdd` is passed, the executor swaps `build_extract_prompt` for `build_extract_prompt_tdd` (`prompts.py:328`). The TDD-specific prompt still produces one `extraction.md` file in one step, but instructs the LLM to cover six additional aspects on top of the eight standard ones, for **fourteen body sections total** (`prompts.py:383-466`). The CLI's `--input-type` flag is an **explicit operator choice**; the 4-signal inference scoring described in `scoring.md` is an inference-only heuristic and is **not** what the CLI dispatches on.
 
-When TDD-format is NOT detected, Steps 9-15 are skipped entirely. The standard 8-step extraction pipeline runs unchanged.
+**CLI canonical TDD body sections** (`prompts.py:411-465`):
 
-Each step stores `null` for its storage key if the corresponding TDD section is absent or empty.
+| CLI section | Source line | Frontmatter counter |
+|---|---|---|
+| Data Models and Interfaces | `prompts.py:411` | `data_models_identified` |
+| API Specifications | `prompts.py:420` | `api_surfaces_identified` |
+| Component Inventory | `prompts.py:429` | `components_identified` |
+| Testing Strategy | `prompts.py:437` | `test_artifacts_identified` |
+| Migration and Rollout Plan | `prompts.py:445` | `migration_items_identified` |
+| Operational Readiness | `prompts.py:454` | `operational_items_identified` |
 
-### Step 9: Component Inventory Extraction
+> **CLI parity (B-7, partial).** The seven sub-aspects below (originally labelled Steps 9-15) describe an **inference-only TDD aspect taxonomy** that is finer-grained than the six CLI body sections above. Aspects 11 (Release Criteria) and 12 (Observability) split out into the CLI's "Operational Readiness" and may overlap with "Success Criteria" / "Open Questions" in the standard 8. Use the table above for **what the CLI prompt actually instructs**; treat the sub-aspects below as advisory coverage notes that the LLM may consult while filling those six CLI sections.
+
+Each aspect stores `null` for its storage key if the corresponding TDD section is absent or empty.
+
+### Aspect 9: Component Inventory Extraction
 
 Extract new/modified/deleted component tables from `## 10. Component Inventory`.
 
@@ -163,7 +206,7 @@ Extract new/modified/deleted component tables from `## 10. Component Inventory`.
 |-------------|-----------|
 | `component_inventory` | `{ new: [{name, purpose}], modified: [{name, change}], deleted: [{name, migration_target}] }` |
 
-### Step 10: Migration Phase Extraction
+### Aspect 10: Migration Phase Extraction
 
 Extract rollout stage table from §19.3 and rollback steps from §19.4.
 
@@ -171,15 +214,15 @@ Extract rollout stage table from §19.3 and rollback steps from §19.4.
 |-------------|-----------|
 | `migration_phases` | `{ stages: [{stage, environment, criteria, rollback_trigger}], rollback_steps: [string] }` |
 
-### Step 11: Release Criteria Extraction
+### Aspect 11: Release Criteria Extraction
 
-Extract Definition of Done checklist from §24.1 and release checklist from §24.2. Runs independently from Step 6 (Success Criteria) — Step 6 captures behavioral success criteria from spec language; Step 11 captures structured checklists from TDD sections.
+Extract Definition of Done checklist from §24.1 and release checklist from §24.2. Independent of Aspect 6 (Success Criteria) — Aspect 6 captures behavioral success criteria from spec language; Aspect 11 captures structured checklists from TDD sections.
 
 | Storage Key | Structure |
 |-------------|-----------|
 | `release_criteria` | `{ definition_of_done: [string], release_checklist: [string] }` |
 
-### Step 12: Observability Extraction
+### Aspect 12: Observability Extraction
 
 Extract metrics table from §14.2, alerts table from §14.4, and dashboard names/links from §14.5.
 
@@ -187,7 +230,7 @@ Extract metrics table from §14.2, alerts table from §14.4, and dashboard names
 |-------------|-----------|
 | `observability` | `{ metrics: [{name, description, type, target}], alerts: [{name, condition, severity}], dashboards: [{name, link}] }` |
 
-### Step 13: Testing Strategy Extraction
+### Aspect 13: Testing Strategy Extraction
 
 Extract test pyramid from §15.1, unit/integration/E2E test case tables from §15.2, and environments from §15.3.
 
@@ -195,7 +238,7 @@ Extract test pyramid from §15.1, unit/integration/E2E test case tables from §1
 |-------------|-----------|
 | `testing_strategy` | `{ test_pyramid: [{level, coverage_target, tools}], unit_tests: [...], integration_tests: [...], e2e_tests: [...], environments: [...] }` |
 
-### Step 14: API Surface Extraction
+### Aspect 14: API Surface Extraction
 
 Extract endpoint count from the endpoint summary table in `## 8. API Specifications` §8.1 (API Overview).
 
@@ -203,7 +246,7 @@ Extract endpoint count from the endpoint summary table in `## 8. API Specificati
 |-------------|-----------|
 | `api_surface` | `{ endpoint_count: N }` |
 
-### Step 15: Data Model Complexity Extraction
+### Aspect 15: Data Model Complexity Extraction
 
 Extract entity count and relationship count from `## 7. Data Models` §7.1 Data Entities.
 
@@ -237,7 +280,9 @@ These keys are advisory -- they inform prioritization, scope validation, and tes
 
 ---
 
-## Domain Keyword Dictionaries
+## Domain Keyword Dictionaries (LLM-advisory)
+
+> **Scope.** These dictionaries are **advisory inputs for the LLM** classifying requirements into the `domains_detected` frontmatter list (`prompts.py:213`, `:362`). The CLI does not tokenise the spec, does not apply the weights, and does not enforce the classification algorithm — the LLM does whatever its prompt asks. Reframed under B-7: dictionaries below remain useful as a vocabulary cheat-sheet for the LLM but are not canonical CLI behaviour.
 
 Seven domain dictionaries for requirement classification. Each keyword has a weight: **primary** (2.0) keywords are strong domain indicators, **secondary** (1.0) keywords are weaker signals.
 
@@ -285,13 +330,13 @@ Seven domain dictionaries for requirement classification. Each keyword has a wei
 
 ---
 
-## Chunked Extraction Protocol
+## Chunked Extraction Protocol (Non-Canonical — Inference-Only)
 
-Activated when a specification file exceeds 500 lines. Processes the spec in multiple passes with full completeness verification.
+> **Scope.** The CLI represents chunking only as an **LLM-populated frontmatter flag** — `extraction_mode: (string) one of: standard, chunked` (`prompts.py:217`, `:366`). The CLI does **not** build a section index, does not assemble multi-section chunks, does not run a per-chunk extraction loop, does not perform deduplication merges, and does not execute the 4-pass completeness verification described below. The single `Step(id="extract", ...)` runs the single prompt regardless of spec length; chunking, if it happens, happens entirely inside the LLM's own reasoning over the one prompt. The protocol below is **inference-only guidance** for a skill-mode operator orchestrating extraction by hand, kept here for historical continuity and so the bullet rationale (section index, deduplication, cross-reference resolution, 4-pass verification) is not lost. None of this section should be cited as CLI behaviour.
 
 ### Activation
 
-**Threshold**: 500 lines. Below this, use standard single-pass extraction (the 8-step pipeline above).
+**Threshold**: 500 lines. Below this, use the single-pass extraction described in the canonical section above (no inference-side chunking needed).
 
 ### Algorithm
 
@@ -341,11 +386,11 @@ Group sections into chunks targeting ~400 lines per chunk (hard maximum 600 line
 
 #### 3. Per-Chunk Extraction
 
-Process each chunk through the 8-step extraction pipeline (Steps 1-7 only; Step 8 is deferred to global ID assignment).
+Process each chunk through the eight standard aspects (Aspects 1-7 only; Aspect 8 ID assignment is deferred to the post-merge global pass).
 
 **Per-chunk template**:
 
-```
+```text
 Chunk {chunk_id} of {total_chunks}
 Line range: L{start}-L{end}
 Sections: {section_list}
@@ -398,13 +443,15 @@ After merge, scan for unresolved references (e.g., a dependency referencing a re
 
 #### 7. Global ID Assignment
 
-Apply Step 8 (ID Assignment) to the merged, deduplicated, cross-referenced result:
+Apply Aspect 8 (ID Assignment) to the merged, deduplicated, cross-referenced result:
 
 - IDs that were explicitly assigned during per-chunk extraction are preserved
 - Items without explicit IDs (implicit items) are assigned sequential IDs ordered by `source_lines`
 - This produces the final, deterministic ID scheme for the entire extraction
 
-### 4-Pass Completeness Verification
+### 4-Pass Completeness Verification (Inference-Only)
+
+> **CLI parity reminder.** The CLI's only mechanical extraction validation is `EXTRACT_GATE` / `EXTRACT_TDD_GATE` against the single `extraction.md` file emitted by the single step. The four passes below — source coverage, anti-hallucination, section coverage, count reconciliation — are not run by the CLI and have no `cli/roadmap/*` implementation. They remain here as inference-side guidance for a skill-mode operator who is orchestrating chunked extraction by hand.
 
 After merge and ID assignment, run 4 verification passes:
 
@@ -479,4 +526,6 @@ After merge and ID assignment, run 4 verification passes:
 
 ---
 
-*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 1B*
+*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 1B.*
+
+*CLI parity baseline (B-7, VERIFIED): single-pass extraction via `build_extract_prompt` (`src/superclaude/cli/roadmap/prompts.py:180`) or `build_extract_prompt_tdd` (`:328`), wired by `src/superclaude/cli/roadmap/executor.py:2001-2025`, gated by `EXTRACT_GATE` / `EXTRACT_TDD_GATE`. Eight-aspect coverage (Aspects 1-8) is the body-section taxonomy the single prompt instructs the LLM to fill; TDD-extended aspects (9-15) are an inference-only finer-grained taxonomy that overlaps the CLI's six TDD body sections. Domain keyword dictionaries are LLM-advisory; the chunked-extraction protocol and 4-pass completeness verification are non-canonical inference-only and have no CLI implementation.*
