@@ -1,0 +1,630 @@
+diff --git a/src/superclaude/cli/prd/commands.py b/src/superclaude/cli/prd/commands.py
+index e82958bc..745d4b36 100644
+--- a/src/superclaude/cli/prd/commands.py
++++ b/src/superclaude/cli/prd/commands.py
+@@ -134,6 +134,24 @@ def run(
+ 
+ @prd_group.command()
+ @click.argument("step_id")
++@click.option(
++    "--product",
++    "-p",
++    default=None,
++    help="Product name (must match the original run).",
++)
++@click.option(
++    "--output",
++    "-o",
++    default=None,
++    help="Output path (must match the original run).",
++)
++@click.option(
++    "--tier",
++    type=click.Choice(["lightweight", "standard", "heavyweight"], case_sensitive=False),
++    default="standard",
++    help="Pipeline tier (must match original run, default: standard).",
++)
+ @click.option(
+     "--max-turns",
+     type=int,
+@@ -152,6 +170,9 @@ def run(
+ )
+ def resume(
+     step_id: str,
++    product: str | None,
++    output: str | None,
++    tier: str,
+     max_turns: int,
+     model: str,
+     debug: bool,
+@@ -174,6 +195,9 @@ def resume(
+     try:
+         config = resolve_config(
+             request="",
++            product=product,
++            output=output,
++            tier=tier,
+             max_turns=max_turns,
+             model=model,
+             debug=debug,
+diff --git a/src/superclaude/cli/prd/executor.py b/src/superclaude/cli/prd/executor.py
+index fe4e229a..6a8cd401 100644
+--- a/src/superclaude/cli/prd/executor.py
++++ b/src/superclaude/cli/prd/executor.py
+@@ -248,6 +248,12 @@ def _strip_json_fencing(text: str) -> str:
+     "scope-discovery": "scope-discovery-raw.md",
+     "research-notes": "research-notes.md",
+     "sufficiency-review": "sufficiency-review.md",
++    # QA steps write their report to qa/; the NDJSON stdout only holds
++    # commentary, so gate evaluation must read the report file on disk.
++    "research-qa": "qa/qa-research-gate-report.md",
++    "synthesis-qa": "qa/qa-synthesis-gate-report.md",
++    "structural-qa": "qa/qa-report-validation.md",
++    "qualitative-qa": "qa/qa-qualitative-review.md",
+ }
+ 
+ 
+@@ -291,6 +297,34 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
+             return best_content
+         # Fall through to NDJSON fallback if no task file found.
+ 
++    # Special-case: assembly writes the final PRD to a dynamic path under
++    # results/ (or output_path). The NDJSON stdout only holds commentary,
++    # so the gate (min_lines=800 + section checks) must read the PRD file.
++    if step_id == "assembly":
++        best_content = ""
++        search_dirs = [task_dir / "results", task_dir, task_dir.parent]
++        for d in search_dirs:
++            if not d.is_dir():
++                continue
++            for match in d.glob("*.md"):
++                if "-output.txt" in match.name:
++                    continue
++                try:
++                    content = match.read_text(encoding="utf-8", errors="replace")
++                except OSError:
++                    continue
++                looks_like_prd = (
++                    "prd" in match.name.lower()
++                    or "# " in content[:200]
++                )
++                if looks_like_prd and len(content) > len(best_content):
++                    best_content = content
++            if best_content:
++                break
++        if best_content.strip():
++            return best_content
++        # Fall through to NDJSON if nothing found.
++
+     artifact_name = _STEP_ARTIFACT_FILES.get(step_id)
+     if not artifact_name:
+         return ndjson_text
+@@ -395,7 +429,26 @@ def run(self) -> PrdPipelineResult:
+             self._tui.start()
+ 
+             # Stage A: Sequential steps 1-9
+-            for step_id, step_name, builder_name, _ in _STAGE_A_STEPS:
++            # Honor resume_from: if set, skip steps before it (their artifacts
++            # are assumed present from the prior run). Stage B targets skip
++            # all of Stage A.
++            resume_from = getattr(self._config, "resume_from", None)
++            skip_until_idx = 0
++            _stage_a_ids = {s[0] for s in _STAGE_A_STEPS}
++            if resume_from:
++                if resume_from in _stage_a_ids:
++                    for i, (sid, _sn, _b, _p) in enumerate(_STAGE_A_STEPS):
++                        if sid == resume_from:
++                            skip_until_idx = i
++                            break
++                else:
++                    skip_until_idx = len(_STAGE_A_STEPS)
++            for idx, (step_id, step_name, builder_name, _) in enumerate(_STAGE_A_STEPS):
++                if idx < skip_until_idx:
++                    self._context_summaries[step_id] = (
++                        f"{step_id}: skipped (resumed from {resume_from})"
++                    )
++                    continue
+                 if self._signal_handler.shutdown_requested:
+                     self._handle_shutdown(result)
+                     return result
+@@ -510,7 +563,7 @@ def _run_subprocess_step(
+         self._ledger.allocate(turns_needed)
+ 
+         # Build prompt
+-        prompt = self._build_prompt(builder_name)
++        prompt = self._build_prompt(builder_name, step_id=step_id)
+ 
+         # Create output files
+         output_file = self._config.task_dir / f"{step_id}-output.txt"
+@@ -659,15 +712,48 @@ def _execute_stage_b(self, result: PrdPipelineResult) -> None:
+         if self._signal_handler.shutdown_requested:
+             return
+ 
+-        # Step 10: Investigation (parallel)
+-        investigation_steps = self._build_investigation_steps()
++        # Resume support: when resuming, skip Stage B sub-stages whose
++        # output artifacts already exist on disk. Honors config.resume_from.
++        resume_from = getattr(self._config, "resume_from", None)
++        _STAGE_B_ORDER = [
++            "investigation", "research-qa", "web-research",
++            "synthesis", "synthesis-qa", "assembly",
++            "structural-qa", "qualitative-qa",
++        ]
++        resume_idx = 0
++        if resume_from in _STAGE_B_ORDER:
++            resume_idx = _STAGE_B_ORDER.index(resume_from)
+ 
+-        if investigation_steps:
+-            self._execute_parallel_steps(investigation_steps, result, "investigation")
+-            result.research_agent_count = len(investigation_steps)
++        def _should_run(substage: str) -> bool:
++            return _STAGE_B_ORDER.index(substage) >= resume_idx
++
++        research_dir = self._config.research_dir
++        synthesis_dir = self._config.synthesis_dir
++        have_investigation = research_dir.is_dir() and any(
++            p.name[:2].isdigit() for p in research_dir.glob("*.md")
++        )
++        have_web = research_dir.is_dir() and any(
++            research_dir.glob("web-*.md")
++        )
++        have_synthesis = synthesis_dir.is_dir() and any(
++            synthesis_dir.glob("synth-*.md")
++        )
++
++        # Step 10: Investigation (parallel)
++        if _should_run("investigation") and not have_investigation:
++            investigation_steps = self._build_investigation_steps()
++            if investigation_steps:
++                self._execute_parallel_steps(
++                    investigation_steps, result, "investigation"
++                )
++                result.research_agent_count = len(investigation_steps)
+ 
+         # Step 11: Research QA + fix cycle
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("research-qa")
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             self._execute_qa_fix_cycle(
+                 result,
+                 qa_step_id="research-qa",
+@@ -677,21 +763,35 @@ def _execute_stage_b(self, result: PrdPipelineResult) -> None:
+             )
+ 
+         # Step 12: Web research (parallel, if needed)
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("web-research")
++            and not have_web
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             web_steps = self._build_web_research_steps()
+             if web_steps:
+                 self._execute_parallel_steps(web_steps, result, "web-research")
+                 result.web_agent_count = len(web_steps)
+ 
+         # Step 13a: Synthesis (parallel)
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("synthesis")
++            and not have_synthesis
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             synth_steps = self._build_synthesis_steps()
+             if synth_steps:
+                 self._execute_parallel_steps(synth_steps, result, "synthesis")
+                 result.synthesis_agent_count = len(synth_steps)
+ 
+         # Step 13b: Synthesis QA + fix cycle
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("synthesis-qa")
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             self._execute_qa_fix_cycle(
+                 result,
+                 qa_step_id="synthesis-qa",
+@@ -701,7 +801,11 @@ def _execute_stage_b(self, result: PrdPipelineResult) -> None:
+             )
+ 
+         # Step 14a: Assembly
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("assembly")
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             assembly_result = self._execute_step(
+                 "assembly", "Assembly", "build_assembly_prompt"
+             )
+@@ -716,7 +820,11 @@ def _execute_stage_b(self, result: PrdPipelineResult) -> None:
+                     return
+ 
+         # Step 14b: Structural QA
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("structural-qa")
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             struct_qa = self._execute_step(
+                 "structural-qa", "Structural QA", "build_structural_qa_prompt"
+             )
+@@ -724,7 +832,11 @@ def _execute_stage_b(self, result: PrdPipelineResult) -> None:
+             result.step_results.append(struct_qa)
+ 
+         # Step 14c: Qualitative QA
+-        if result.outcome != "halt" and not self._signal_handler.shutdown_requested:
++        if (
++            _should_run("qualitative-qa")
++            and result.outcome != "halt"
++            and not self._signal_handler.shutdown_requested
++        ):
+             qual_qa = self._execute_step(
+                 "qualitative-qa", "Qualitative QA", "build_qualitative_qa_prompt"
+             )
+@@ -953,7 +1065,7 @@ def _run_template_triage(self) -> PrdStepResult:
+     # Prompt building
+     # -------------------------------------------------------------------
+ 
+-    def _build_prompt(self, builder_name: str) -> str:
++    def _build_prompt(self, builder_name: str, step_id: str | None = None) -> str:
+         """Build a prompt by calling the named builder function.
+ 
+         NFR-PRD.11/GAP-004: Injects context summaries from prior steps.
+@@ -968,14 +1080,25 @@ def _build_prompt(self, builder_name: str) -> str:
+         # Collect context summaries from prior steps
+         summaries = list(self._context_summaries.values())
+ 
++        try:
++            return builder_fn(
++                self._config,
++                context_summaries=summaries if summaries else None,
++                step_id=step_id,
++            )
++        except TypeError:
++            pass
+         try:
+             return builder_fn(
+                 self._config,
+                 context_summaries=summaries if summaries else None,
+             )
+         except TypeError:
+-            # Builder doesn't accept context_summaries
++            pass
++        try:
+             return builder_fn(self._config)
++        except TypeError:
++            return f"Execute step using builder {builder_name} (step={step_id})"
+ 
+     # -------------------------------------------------------------------
+     # Shutdown handling (NFR-PRD.9)
+diff --git a/src/superclaude/cli/prd/gates.py b/src/superclaude/cli/prd/gates.py
+index ef27ed1c..c408b41d 100644
+--- a/src/superclaude/cli/prd/gates.py
++++ b/src/superclaude/cli/prd/gates.py
+@@ -43,9 +43,11 @@ def _check_verdict_field(content: str) -> bool | str:
+     json_match = re.search(r'"verdict"\s*:\s*"(PASS|FAIL)"', content)
+     if json_match:
+         return True
+-    # Markdown format (case-insensitive key, case-sensitive value)
++    # Markdown format (case-insensitive key, case-sensitive value).
++    # Accepts all common bold/colon orderings:
++    #   Verdict: PASS   |   **Verdict**: PASS   |   **Verdict:** PASS
+     md_match = re.search(
+-        r"(?:^|\n)\s*\*{0,2}[Vv]erdict\*{0,2}\s*:\s*(PASS|FAIL)",
++        r"(?:^|\n)\s*\*{0,2}[Vv]erdict[*:\s]*(PASS|FAIL)",
+         content,
+     )
+     if md_match:
+diff --git a/src/superclaude/cli/prd/prompts.py b/src/superclaude/cli/prd/prompts.py
+index b3c66738..fd264436 100644
+--- a/src/superclaude/cli/prd/prompts.py
++++ b/src/superclaude/cli/prd/prompts.py
+@@ -332,11 +332,38 @@ def build_task_file_prompt(
+             f"- {s}" for s in context_summaries
+         )
+ 
++    existing_task_file = (
++        config.task_dir / ("TASK-PRD-" + config.product_slug + ".md")
++    )
++    existing_note = ""
++    if existing_task_file.is_file():
++        try:
++            existing_text = existing_task_file.read_text(encoding="utf-8")
++            existing_lines = len(existing_text.splitlines())
++        except OSError:
++            existing_lines = 0
++        if existing_lines >= 400:
++            existing_note = (
++                "\n\nPRE-EXISTING TASK FILE DETECTED:\n"
++                f"The task file at {existing_task_file} already exists "
++                f"({existing_lines} lines, >=400 line threshold).\n"
++                "IF AND ONLY IF that file:\n"
++                "  - has valid YAML frontmatter "
++                "(id, title, status, complexity, created_date)\n"
++                "  - contains multiple '### Phase N:' headings\n"
++                "  - has no 'see above'/'as mentioned'/'refer to' in checklist items\n"
++                "  - each phase >=2 (including '### Phase N - Findings' placeholders) "
++                "contains at least one of: parallel, concurrent, simultaneously, batch\n"
++                "THEN do NOT modify the file. Read it to confirm, "
++                "then emit 'EXIT_RECOMMENDATION: CONTINUE' and stop.\n"
++                "Only rebuild the file if it fails one of those checks.\n"
++            )
++
+     return f"""Build an MDTM task file for the PRD pipeline.
+ 
+ You are the task builder. Your job is to create a self-contained task file that
+ encodes the complete PRD creation workflow as a checklist.
+-
++{existing_note}
+ Research Notes:
+ ---
+ {notes}
+@@ -505,14 +532,96 @@ def build_preparation_prompt(
+ # ---------------------------------------------------------------------------
+ 
+ 
+-def build_investigation_prompt(
++def _parse_agent_block(notes: str, agent_idx: int) -> dict:
++    """Extract Agent N block from research-notes.md."""
++    import re
++
++    header_pat = re.compile(
++        rf"###\s+Agent\s+{agent_idx}\b[^\n]*\n(.*?)(?=\n###\s+Agent\s+\d|\Z)",
++        re.DOTALL,
++    )
++    m = header_pat.search(notes)
++    if not m:
++        return {}
++    block = m.group(0)
++    title_m = re.search(rf"###\s+Agent\s+{agent_idx}\s*[—\-:]?\s*([^\n]+)", block)
++    title = title_m.group(1).strip() if title_m else f"Agent {agent_idx}"
++    topic_m = re.search(r"\*\*Topic\*\*\s*[:\-]\s*([^\n]+)", block)
++    topic = topic_m.group(1).strip() if topic_m else title
++    agent_type_m = re.search(r"\*\*Agent type\*\*\s*[:\-]\s*([^\n]+)", block)
++    agent_type = agent_type_m.group(1).strip() if agent_type_m else "Investigator"
++    files_section = re.search(r"\*\*Files\*\*\s*[:\-]?\s*\n((?:\s*[-*]\s*[^\n]+\n?)+)", block)
++    files: list[str] = []
++    if files_section:
++        for line in files_section.group(1).splitlines():
++            line = line.strip()
++            if line.startswith("-") or line.startswith("*"):
++                files.append(line.lstrip("-* ").strip().rstrip("`").lstrip("`"))
++    return {"title": title, "topic": topic, "agent_type": agent_type, "files": files}
++
++
++def _slugify_agent_title(title: str) -> str:
++    """Make a filename-safe slug for an agent title."""
++    import re
++
++    slug = title.lower()
++    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
++    return slug[:60] or "agent"
++
++
++def build_investigation_prompt(  # type: ignore[no-redef]
++    *args,
++    **kwargs,
++) -> str:
++    """Step 10 (dynamic): Per-agent codebase research prompt.
++
++    Dual-mode: accepts EITHER the legacy positional args
++    (topic, agent_type, files, product_root, output_path) OR the executor's
++    convention (config, *, context_summaries=None, step_id=None).
++    """
++    config = args[0] if args else kwargs.get("config")
++    if config is not None and hasattr(config, "task_dir"):
++        step_id = kwargs.get("step_id") or ""
++        import re as _re
++
++        idx_m = _re.search(r"investigation-(\d+)", step_id or "")
++        agent_idx = int(idx_m.group(1)) if idx_m else 1
++        notes_path = config.task_dir / "research-notes.md"
++        notes = notes_path.read_text(encoding="utf-8") if notes_path.is_file() else ""
++        agent = _parse_agent_block(notes, agent_idx) or {
++            "title": f"Agent {agent_idx}",
++            "topic": f"Investigation topic {agent_idx} (research-notes did not "
++                     f"contain an Agent {agent_idx} block — investigate broadly "
++                     f"using the planning inputs).",
++            "agent_type": "Investigator",
++            "files": [],
++        }
++        slug = _slugify_agent_title(agent["title"])
++        output_path = config.research_dir / f"{agent_idx:02d}-{slug}.md"
++        config.research_dir.mkdir(parents=True, exist_ok=True)
++        product_root = str(config.work_dir)
++        files_list = agent["files"] or [str(p) for p in (config.where or [])]
++        return _render_investigation_prompt(
++            topic=agent["topic"],
++            agent_type=agent["agent_type"],
++            files=files_list,
++            product_root=product_root,
++            output_path=output_path,
++        )
++    return _render_investigation_prompt(*args, **{
++        k: v for k, v in kwargs.items()
++        if k in {"topic", "agent_type", "files", "product_root", "output_path"}
++    })
++
++
++def _render_investigation_prompt(
+     topic: str,
+     agent_type: str,
+     files: list[str],
+     product_root: str,
+     output_path: Path,
+ ) -> str:
+-    """Step 10 (dynamic): Per-agent codebase research prompt."""
++    """Render the actual investigation prompt text."""
+     files_list = "\n".join(f"- {f}" for f in files)
+ 
+     return f"""Research this aspect of the product and write findings to {output_path}:
+@@ -580,13 +689,58 @@ def build_investigation_prompt(
+ """
+ 
+ 
+-def build_web_research_prompt(
++def build_web_research_prompt(  # type: ignore[no-redef]
++    *args,
++    **kwargs,
++) -> str:
++    """Step 12 (dynamic): Per-topic web research prompt.
++
++    Dual-mode: accepts EITHER the legacy positional args
++    (topic, context, product, output_path) OR the executor convention
++    (config, *, context_summaries=None, step_id=None).
++    """
++    config = args[0] if args else kwargs.get("config")
++    if config is not None and hasattr(config, "task_dir"):
++        step_id = kwargs.get("step_id") or ""
++        import re as _re
++
++        idx_m = _re.search(r"web-research-(\d+)", step_id or "")
++        web_idx = int(idx_m.group(1)) if idx_m else 1
++        agent_idx = 6 + web_idx
++        notes_path = config.task_dir / "research-notes.md"
++        notes = notes_path.read_text(encoding="utf-8") if notes_path.is_file() else ""
++        agent = _parse_agent_block(notes, agent_idx) or {
++            "title": f"Web research topic {web_idx}",
++            "topic": f"External market and ecosystem research for topic {web_idx} "
++                     f"related to the product.",
++            "agent_type": "Web Analyst",
++            "files": [],
++        }
++        slug = _slugify_agent_title(agent["title"])
++        output_path = config.research_dir / f"web-{web_idx:02d}-{slug}.md"
++        config.research_dir.mkdir(parents=True, exist_ok=True)
++        scope_path = config.task_dir / "scope-discovery-raw.md"
++        codebase_context = scope_path.read_text(encoding="utf-8")[:2000] \
++            if scope_path.is_file() else ""
++        return _render_web_research_prompt(
++            topic=agent["topic"],
++            context=codebase_context,
++            product=config.product_name or config.product_slug,
++            output_path=output_path,
++        )
++    return _render_web_research_prompt(*args, **{
++        k: v for k, v in kwargs.items()
++        if k in {"topic", "context", "product", "output_path"}
++    })
++
++
++def _render_web_research_prompt(
+     topic: str,
+     context: str,
+     product: str,
+     output_path: Path,
+ ) -> str:
+-    """Step 12 (dynamic): Per-topic web research prompt."""
++    """Render the actual web research prompt text."""
+     return f"""Research this topic externally and write findings to {output_path}.
+ 
+ Topic: {topic}
+@@ -744,13 +898,55 @@ def build_qa_research_gate_prompt(
+ """
+ 
+ 
+-def build_synthesis_prompt(
++def build_synthesis_prompt(  # type: ignore[no-redef]
++    *args,
++    **kwargs,
++) -> str:
++    """Step 13a (dynamic): Per-synth-file synthesis prompt.
++
++    Dual-mode: accepts EITHER the legacy positional args
++    (research_files, template_sections, output_path, template_path) OR the
++    executor convention (config, *, context_summaries=None, step_id=None).
++    """
++    config = args[0] if args else kwargs.get("config")
++    if config is not None and hasattr(config, "task_dir"):
++        from superclaude.cli.prd.filtering import load_synthesis_mapping
++
++        step_id = kwargs.get("step_id") or ""
++        import re as _re
++
++        idx_m = _re.search(r"synthesis-(\d+)", step_id or "")
++        synth_idx = int(idx_m.group(1)) if idx_m else 1
++        mapping = load_synthesis_mapping(config.skill_refs_dir)
++        if 1 <= synth_idx <= len(mapping):
++            entry = mapping[synth_idx - 1]
++        else:
++            entry = mapping[0]
++        synthesis_dir = config.synthesis_dir
++        synthesis_dir.mkdir(parents=True, exist_ok=True)
++        output_path = synthesis_dir / entry["synth_file"]
++        research_files: list[Path] = []
++        if config.research_dir.is_dir():
++            research_files = sorted(config.research_dir.glob("*.md"))
++        return _render_synthesis_prompt(
++            research_files=research_files,
++            template_sections=entry["sections"],
++            output_path=output_path,
++            template_path=config.template_path,
++        )
++    return _render_synthesis_prompt(*args, **{
++        k: v for k, v in kwargs.items()
++        if k in {"research_files", "template_sections", "output_path", "template_path"}
++    })
++
++
++def _render_synthesis_prompt(
+     research_files: list[Path],
+     template_sections: list[str],
+     output_path: Path,
+     template_path: Path,
+ ) -> str:
+-    """Step 13a (dynamic): Per-synth-file synthesis prompt."""
++    """Render the actual synthesis prompt text."""
+     files_list = "\n".join(f"- {f}" for f in research_files)
+     sections_list = "\n".join(f"- {s}" for s in template_sections)
+ 
+@@ -911,8 +1107,41 @@ def build_assembly_prompt(
+             f"- {s}" for s in context_summaries
+         )
+ 
+-    return f"""Assemble the final Product Requirements Document from synthesis files.
++    # Resume support: detect a pre-existing assembled PRD so a resumed
++    # run can validate-in-place instead of a costly full rebuild.
++    existing_note = ""
++    results_dir = config.task_dir / "results"
++    if results_dir.is_dir():
++        prd_candidates = [
++            p for p in results_dir.glob("*.md")
++            if "prd" in p.name.lower()
++        ]
++        for cand in prd_candidates:
++            try:
++                txt = cand.read_text(encoding="utf-8")
++            except OSError:
++                continue
++            if len(txt.splitlines()) >= 800:
++                existing_note = (
++                    "\n\nPRE-EXISTING ASSEMBLED PRD DETECTED:\n"
++                    f"A PRD already exists at {cand} "
++                    f"({len(txt.splitlines())} lines).\n"
++                    "IF AND ONLY IF that file:\n"
++                    "  - has valid YAML frontmatter (id, title, status, "
++                    "created_date, tags)\n"
++                    "  - contains the sections Executive Summary, Problem "
++                    "Statement, Technical Requirements, Implementation Plan, "
++                    "Success Metrics\n"
++                    "  - contains NO placeholder text (no standalone TODO, "
++                    "TBD, PLACEHOLDER, [INSERT...], [FILL...])\n"
++                    "THEN do NOT rebuild it. Read it to confirm, then emit "
++                    "'EXIT_RECOMMENDATION: CONTINUE' and stop.\n"
++                    "Only rebuild if it fails one of those checks.\n"
++                )
++                break
+ 
++    return f"""Assemble the final Product Requirements Document from synthesis files.
++{existing_note}
+ Component files (in order):
+ {files_list}
+ 

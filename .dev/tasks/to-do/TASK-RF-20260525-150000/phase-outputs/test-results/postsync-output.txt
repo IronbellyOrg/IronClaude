@@ -1,0 +1,5 @@
+ M src/superclaude/cli/roadmap/integration_contracts.py
+ M tests/roadmap/test_integration_contracts.py
+
+---
+Refactor scope confirmed: only 2 files modified by THIS task — src/superclaude/cli/roadmap/integration_contracts.py and tests/roadmap/test_integration_contracts.py. The 136 .claude/ paths showing as modified are PRE-EXISTING working-tree state inherited from master (captured in branch-baseline.md); they were not created or modified by this task's refactor. Per CLAUDE.md ABSOLUTE rule, .claude/ paths are gitignored sync-dev output and will NOT be staged in the commit for this task.

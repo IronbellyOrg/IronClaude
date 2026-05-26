@@ -1,0 +1,41 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 28 items
+
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category1_dispatch_table PASSED [  3%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category2_plugin_registry PASSED [  7%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category3_callback_injection PASSED [ 10%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category4_strategy_pattern PASSED [ 14%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category5_middleware_chain PASSED [ 17%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category6_event_binding PASSED [ 21%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category7_di_container PASSED [ 25%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_all_categories_detected PASSED [ 28%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_covered_roadmap_passes PASSED [ 32%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_uncovered_roadmap_fails PASSED [ 35%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_empty_contracts_passes PASSED [ 39%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_coverage_evidence_recorded PASSED [ 42%]
+tests/roadmap/test_integration_contracts.py::TestDeduplication::test_duplicate_lines_deduplicated PASSED [ 46%]
+tests/roadmap/test_integration_contracts.py::TestDeduplication::test_sequential_id_assignment PASSED [ 50%]
+tests/roadmap/test_integration_contracts.py::TestNamedMechanismMatching::test_upper_snake_case_detected PASSED [ 53%]
+tests/roadmap/test_integration_contracts.py::TestNamedMechanismMatching::test_named_mechanism_in_roadmap_coverage PASSED [ 57%]
+tests/roadmap/test_integration_contracts.py::TestCliPortifyRegression::test_detects_programmatic_runners_without_wiring PASSED [ 60%]
+tests/roadmap/test_integration_contracts.py::TestCliPortifyRegression::test_total_contracts_detected PASSED [ 64%]
+tests/roadmap/test_integration_contracts.py::TestIntegrationAuditResult::test_all_covered_true_when_zero_uncovered PASSED [ 67%]
+tests/roadmap/test_integration_contracts.py::TestIntegrationAuditResult::test_all_covered_false_when_uncovered PASSED [ 71%]
+tests/roadmap/test_integration_contracts.py::TestIntegrationAuditResult::test_empty_result_is_covered PASSED [ 75%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t1_one_contract_per_hub_mechanism PASSED [ 78%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t2_class_priority_dispatch_covers_hub PASSED [ 82%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t3_prose_dispatch_not_extracted_alone PASSED [ 85%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t4_existing_dispatch_table_test_still_passes PASSED [ 89%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t5_cli_portify_regression_still_blocks PASSED [ 92%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t6_stem_fallback_with_ident_overlap_covers PASSED [ 96%]
+tests/roadmap/test_integration_contracts.py::TestHubDispatchRegression::test_t7_stem_fallback_without_ident_overlap_uncovers PASSED [100%]
+
+============================== 28 passed in 0.15s ==============================

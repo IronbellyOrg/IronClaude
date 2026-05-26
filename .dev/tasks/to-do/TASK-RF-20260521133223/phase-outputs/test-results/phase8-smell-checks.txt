@@ -1,0 +1,8 @@
+=== (a) except TypeError in executor.py (expect <=1) ===
+0
+=== (b) p.name[:2].isdigit() in executor.py (expect 0) ===
+0
+=== (c) [*:\s] in gates.py (expect 0) ===
+0
+=== (d) resume --help heavyweight+output (expect >=1) ===
+1

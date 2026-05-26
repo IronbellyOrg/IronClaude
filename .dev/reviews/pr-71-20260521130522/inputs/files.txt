@@ -1,0 +1,4 @@
+src/superclaude/cli/prd/commands.py
+src/superclaude/cli/prd/executor.py
+src/superclaude/cli/prd/gates.py
+src/superclaude/cli/prd/prompts.py

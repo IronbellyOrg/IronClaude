@@ -1,0 +1,32 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Usage: superclaude prd resume [OPTIONS] STEP_ID
+
+  Resume a previously interrupted PRD pipeline from a specific step.
+
+  STEP_ID is the pipeline step to resume from (e.g. parse-request,
+  investigation-3, qa-synthesis-gate).
+
+  The command reads saved state from the task directory to reconstruct
+  pipeline context, then continues execution from the specified step.
+
+  When the original run used a non-default --output, the resume MUST pass the
+  same --output (and matching --product / --tier) so the resumed pipeline
+  reads from the same task directory.
+
+  Examples:     superclaude prd resume parse-request     superclaude prd
+  resume investigation-3 --max-turns 500     superclaude prd resume assembly
+  --product foo --tier heavyweight --output docs/scp-pipeline/PRD_FOO.md
+  superclaude prd resume structural-qa --product foo --tier heavyweight
+  --output docs/scp-pipeline/PRD_FOO.md
+
+Options:
+  -p, --product TEXT              Product name (must match the original run).
+  -o, --output TEXT               Output path (must match the original run).
+  --tier [lightweight|standard|heavyweight]
+                                  Pipeline tier (must match original run,
+                                  default: standard).
+  --max-turns INTEGER             Turn budget for subprocesses (default: 300).
+  --model TEXT                    Claude model to use (default: env
+                                  CLAUDE_MODEL or claude default).
+  --debug                         Enable debug logging.
+  --help                          Show this message and exit.
