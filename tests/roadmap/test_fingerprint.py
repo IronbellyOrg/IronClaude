@@ -398,3 +398,29 @@ Builder creates MDTM task file. MUST follow these rules.
         texts = {fp.text for fp in fps}
         for word in ["MANDATORY", "WHAT", "MDTM", "MUST", "SKILL"]:
             assert word not in texts, f"'{word}' should not be a fingerprint"
+
+    def test_prose_dsl_keywords_excluded(self):
+        """BEGIN/FROM/OPEN/IMMEDIATE/PERMANENT appear in spec prose
+        contexts (SQL/Docker keywords, open-issue markers, scope markers)
+        but are not code-level identifiers an LLM-generated roadmap could
+        plausibly cover. Empirically observed inflating the denominator on
+        the TUIBBS-scp v1-MVP epics.md anti-instinct run (43/66=0.652;
+        43/61=0.705 after excluding these 5).
+        """
+        for word in ["BEGIN", "FROM", "OPEN", "IMMEDIATE", "PERMANENT"]:
+            assert word in _EXCLUDED_CONSTANTS, f"'{word}' should be excluded"
+
+    def test_prose_dsl_keywords_not_extracted(self):
+        """Verify the exclusion holds end-to-end against representative spec
+        contexts that previously surfaced these tokens as fingerprints.
+        """
+        spec = """\
+The migration runs `BEGIN IMMEDIATE` to acquire a write lock.
+Container builds use `FROM scratch` for a minimal base image.
+[OPEN -- FR-X-04 spec gap deferred to next milestone]
+The configuration is (PERMANENT OUT) for the V1 release scope.
+"""
+        fps = extract_code_fingerprints(spec)
+        texts = {fp.text for fp in fps}
+        for word in ["BEGIN", "FROM", "OPEN", "IMMEDIATE", "PERMANENT"]:
+            assert word not in texts, f"'{word}' should not be a fingerprint"

@@ -71,6 +71,18 @@ _EXCLUDED_CONSTANTS = frozenset(
         # Short domain acronyms (not code constants)
         "MDTM",
         "SKILL",
+        # Prose / DSL keywords that appear in spec language but are not
+        # code-level identifiers an LLM-generated roadmap could plausibly
+        # cover. Empirically observed inflating the denominator on the
+        # TUIBBS-scp v1-MVP epics.md anti-instinct run (extracted as
+        # fingerprints in contexts like ``BEGIN IMMEDIATE`` (SQLite),
+        # ``FROM scratch`` (Dockerfile), ``[OPEN -- FR-X-04 ...]``
+        # (open-issue marker), ``(PERMANENT OUT)`` (scope marker)).
+        "BEGIN",
+        "FROM",
+        "OPEN",
+        "IMMEDIATE",
+        "PERMANENT",
     }
 )
 
