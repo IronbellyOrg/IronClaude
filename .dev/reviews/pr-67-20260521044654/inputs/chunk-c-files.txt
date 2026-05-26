@@ -1,0 +1,5 @@
+.claude/settings.json
+.gitignore
+CLAUDE.md
+Makefile
+src/superclaude/hooks/scripts/offer-pr-review.sh

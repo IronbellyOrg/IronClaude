@@ -1,0 +1,95 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "category": "correctness",
+      "severity": "high",
+      "file": "src/superclaude/hooks/hooks.json",
+      "location": "N/A (missing PostToolUse entry)",
+      "title": "offer-pr-review.sh registered in .claude/settings.json but missing from src/superclaude/hooks/hooks.json",
+      "description": "The PostToolUse hook registration for offer-pr-review.sh exists only in .claude/settings.json (lines 16-28) but is missing from the canonical source-of-truth src/superclaude/hooks/hooks.json. Per CLAUDE.md line 18 and the _FRESHNESS_SCRIPTS comment at install_hooks.py:55-66, src/superclaude/ is the canonical location; .claude/ is a dev convenience mirror. The hooks.json file already has a PostToolUse array (lines 47-69) but does not include an entry for the Bash matcher with offer-pr-review.sh.",
+      "evidence": [
+        ".claude/settings.json lines 16-28 register matcher:Bash → $CLAUDE_PROJECT_DIR/.claude/hooks/offer-pr-review.sh",
+        "src/superclaude/hooks/hooks.json lines 47-69 show PostToolUse array with only Read and auggie matchers",
+        "install_hooks.py:67-75 documents offer-pr-review.sh as project-local with same pattern as reject-workspace-writes.sh"
+      ],
+      "recommendation": "Add the offer-pr-review.sh registration to src/superclaude/hooks/hooks.json PostToolUse array. Since this is project-local and uses $CLAUDE_PROJECT_DIR (not ~/.claude/hooks/), the registration should mirror the pattern in .claude/settings.json. Then run make sync-dev to mirror the hooks.json change to .claude/ if needed (though .claude/settings.json is manually curated per CLAUDE.md line 29).",
+      "impact": "End-users running 'superclaude install' will get offer-pr-review.sh script deployed to ~/.claude/hooks/ (via _FRESHNESS_SCRIPTS inclusion at install_hooks.py:75) but will not get the PostToolUse registration in their ~/.claude/settings.json, leaving the script dormant. This is the same harmless-but-incomplete pattern as reject-workspace-writes.sh (install_hooks.py:55-66 comment acknowledges this). However, the drift between src/ and .claude/ violates the source-of-truth discipline documented in CLAUDE.md lines 16-31."
+    },
+    {
+      "id": "F002",
+      "category": "security",
+      "severity": "low",
+      "file": "src/superclaude/hooks/scripts/offer-pr-review.sh",
+      "location": "lines 27, 43-44",
+      "title": "Unquoted variable expansion in jq path arguments (defensive coding)",
+      "description": "Lines 27 and 43-44 use printf '%s' \"$INPUT\" | jq -r '...' without quoting $INPUT in the printf argument. While $INPUT is read from stdin (line 17) and is not user-controlled in the shell argument sense, best practice for defensive shell scripting is to quote all variable expansions. The existing code is safe because $INPUT cannot contain shell metacharacters that would be interpreted by printf's format string (it's passed as a positional argument, not a format), but explicit quoting would make the safety invariant self-evident.",
+      "evidence": [
+        "Line 27: CMD=\"$(printf '%s' \"$INPUT\" | jq -r '.tool_input.command // empty' 2>/dev/null)\"",
+        "Line 43: TOOL_STDOUT=\"$(printf '%s' \"$INPUT\" | jq -r '.tool_response.stdout // .tool_response.output // empty' 2>/dev/null)\"",
+        "Contrast with freshness-pre-edit.sh line 41 and reject-workspace-writes.sh line 20 which both use the same printf '%s' \"$INPUT\" pattern consistently"
+      ],
+      "recommendation": "No change required. The pattern printf '%s' \"$INPUT\" is consistent across all hook scripts (freshness-pre-edit.sh:41, reject-workspace-writes.sh:20, auggie-flag-clear.sh, etc.) and is safe by construction since $INPUT comes from stdin and printf uses it as a positional argument to the %s format (not as part of the format string itself). If a security hardening pass is ever undertaken, wrap in quotes for clarity, but this is cosmetic.",
+      "impact": "None. The code is safe and consistent with existing hook patterns."
+    },
+    {
+      "id": "F003",
+      "category": "security",
+      "severity": "low",
+      "file": "src/superclaude/hooks/scripts/offer-pr-review.sh",
+      "location": "line 33",
+      "title": "Bash regex without quoting (safe but worth documenting)",
+      "description": "Line 33's regex [[ \"$CMD\" =~ (^|[[:space:]\\;\\&\\|])gh([[:space:]]+-[^[:space:]]+)*[[:space:]]+pr[[:space:]]+create([[:space:]]|$) ]] uses an unquoted right-hand side, which is correct for bash =~ (quoting would make it a literal string match). However, the pattern is complex enough that a comment explaining the intended match cases would aid review. The regex is safe from injection because $CMD is extracted from JSON via jq (line 27) and never executed; it's only pattern-matched.",
+      "evidence": [
+        "Line 33: if ! [[ \"$CMD\" =~ (^|[[:space:]\\;\\&\\|])gh([[:space:]]+-[^[:space:]]+)*[[:space:]]+pr[[:space:]]+create([[:space:]]|$) ]]; then",
+        "Comment on lines 30-32 explains the intent but does not give concrete examples",
+        "The regex anchors ensure 'gh pr create' is a command invocation, not a substring in an argument"
+      ],
+      "recommendation": "Add a comment above line 33 with concrete match examples (e.g., 'matches: gh pr create ..., gh -R foo/bar pr create ..., does NOT match: echo \"gh pr create\" or gh pr view') to make the security property (command-position match only) explicit. Alternatively, reference the comment block at lines 30-32 as sufficient documentation.",
+      "impact": "None. The code is safe. This is a documentation/maintainability observation."
+    },
+    {
+      "id": "F004",
+      "category": "architecture",
+      "severity": "medium",
+      "file": ".claude/settings.json",
+      "location": "lines 16-28",
+      "title": "PostToolUse hook registration only in .claude/settings.json violates source-of-truth discipline",
+      "description": "CLAUDE.md lines 16-31 establish src/superclaude/ as the canonical source-of-truth for distributable components, with .claude/ as a dev convenience mirror synced via make sync-dev. The PostToolUse hook for offer-pr-review.sh exists in .claude/settings.json but not in src/superclaude/hooks/hooks.json. Per CLAUDE.md line 29, 'The ONLY tracked file under .claude/ is .claude/settings.json (project hook + permission registrations, not auto-generated).' This creates ambiguity: is the offer-pr-review.sh registration intentionally project-local-only (like reject-workspace-writes.sh, which also lives only in .claude/settings.json per the PreToolUse entry at lines 3-14), or should it also be in hooks.json for distribution via superclaude install?",
+      "evidence": [
+        "CLAUDE.md line 18: '.claude/{skills,commands,agents,hooks,templates}/* is gitignored sync-dev output of src/superclaude/.'",
+        "CLAUDE.md line 29: 'Exceptions: ONLY .claude/settings.json.'",
+        ".claude/settings.json lines 3-14 show PreToolUse reject-workspace-writes.sh is project-local-only (not in hooks.json)",
+        ".claude/settings.json lines 16-28 show PostToolUse offer-pr-review.sh is also project-local-only (not in hooks.json)",
+        "install_hooks.py:67-75 comment explicitly states offer-pr-review.sh uses the same project-local pattern as reject-workspace-writes.sh"
+      ],
+      "recommendation": "Clarify the intended scope in documentation or comments. If offer-pr-review.sh is intentionally project-local-only (meaning users who clone IronClaude get the hook, but users who run 'superclaude install' in unrelated projects do not get the PostToolUse registration), then the current state is correct and should be documented in a comment at .claude/settings.json line 19. If the hook should be distributed to all SuperClaude users, add the registration to src/superclaude/hooks/hooks.json (see F001).",
+      "impact": "Ambiguity in intended distribution scope. The code works correctly for project-local use (IronClaude repo sessions will have the hook active). No functional defect, but the source-of-truth model is unclear."
+    },
+    {
+      "id": "F005",
+      "category": "correctness",
+      "severity": "low",
+      "file": "Makefile",
+      "location": "lines 161-163",
+      "title": "sync-dev target does not sync .claude/settings.json → src/ (asymmetric sync)",
+      "description": "The make sync-dev target (lines 109-163) copies src/superclaude/{skills,agents,commands,hooks,templates} → .claude/ but does not have a reciprocal path for .claude/settings.json → src/. CLAUDE.md line 124 instructs 'If you edited .claude/ directly ...: 1. Copy your changes to src/superclaude/ manually'. For skills/agents/templates this is straightforward, but .claude/settings.json has no src/ counterpart (it's the only tracked .claude/ file per CLAUDE.md line 29). This means hook registrations added to .claude/settings.json (like the offer-pr-review.sh PostToolUse block at lines 16-28) have no 'sync back to src/' mechanism, creating a one-way street.",
+      "evidence": [
+        "Makefile lines 109-163: sync-dev copies src/ → .claude/ only",
+        "CLAUDE.md line 124: 'If you edited .claude/ directly ... copy your changes to src/superclaude/ manually'",
+        "CLAUDE.md line 29: '.claude/settings.json is the ONLY tracked file under .claude/'",
+        "No src/superclaude/settings.json or equivalent exists"
+      ],
+      "recommendation": "Document in CLAUDE.md or Makefile comments that .claude/settings.json hook registrations (PreToolUse/PostToolUse entries) which are project-local should be manually mirrored into src/superclaude/hooks/hooks.json if they are intended for distribution. The verify-sync target already checks hooks.json completeness (Makefile:254-267) but does not cross-check .claude/settings.json because it's user-editable. Consider adding a verify-sync check that warns (non-blocking) if .claude/settings.json contains hook commands referencing scripts in _FRESHNESS_SCRIPTS that are not also registered in src/superclaude/hooks/hooks.json.",
+      "impact": "Process friction. Developers iterating on hooks in .claude/settings.json may forget to backport the registration to src/superclaude/hooks/hooks.json, leading to the drift seen in F001."
+    }
+  ],
+  "cross_cutting_observations": [
+    "The offer-pr-review.sh script follows the project's established hook patterns (fail-open exit 0, jq-based JSON parsing, set -u, case-based prefilters) and is consistent with existing hooks like reject-workspace-writes.sh and auggie-flag-clear.sh in coding style and safety practices.",
+    "The PR adds a PostToolUse hook registration to .claude/settings.json but does not add it to src/superclaude/hooks/hooks.json. This is the same project-local-only pattern used by reject-workspace-writes.sh (PreToolUse, .claude/settings.json lines 3-14). If this is intentional, it should be documented; if not, see F001.",
+    "The script's security posture is sound: $INPUT is read from stdin (not argv), jq does the parsing, extracted strings ($CMD, $PR_URL, $PR_NUM) are never eval'd or exec'd, and the regex match on line 33 is positional (not substring-based). No shell injection vectors identified.",
+    "The .gitignore changes (lines 117-118 in diff) add '.claude/' + '!.claude/settings.json' which aligns with CLAUDE.md line 18 ('only .claude/settings.json is tracked'). No overly broad ignores or accidental exclusions of production code detected.",
+    "The Makefile sync-dev and verify-sync changes (not shown in this diff chunk) would need review to confirm they handle offer-pr-review.sh correctly. Based on the _FRESHNESS_SCRIPTS inclusion at install_hooks.py:75, make verify-sync's 'Installer Registration' check (Makefile:307-326) will pass for offer-pr-review.sh."
+  ],
+  "notes_for_orchestrator": "This chunk adds a PostToolUse hook (offer-pr-review.sh) for surfacing /sc:auggie-review offers after gh pr create. The script is well-formed and follows project hook conventions. Primary issue is source-of-truth drift: the hook is registered in .claude/settings.json (project-local, tracked) but not in src/superclaude/hooks/hooks.json (distributable source-of-truth). If project-local-only is intended (same as reject-workspace-writes.sh), the current state is correct but should be documented. If distribution to all SuperClaude users is intended, hooks.json needs an update (F001). No security vulnerabilities found; shell scripting is defensive and consistent with existing hook patterns. The _FRESHNESS_SCRIPTS inclusion ensures make verify-sync will pass for script deployment, but does not gate the hooks.json registration gap."
+}

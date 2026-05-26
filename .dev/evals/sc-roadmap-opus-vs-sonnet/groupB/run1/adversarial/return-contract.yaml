@@ -1,0 +1,19 @@
+return_contract:
+  status: success
+  convergence_score: 0.78
+  merged_output_path: /config/workspace/IronClaude/.dev/eval-roadmap/groupB/run1/adversarial/merged-output.md
+  artifacts_dir: /config/workspace/IronClaude/.dev/eval-roadmap/groupB/run1/adversarial/
+  base_variant: opus:architect
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+metadata:
+  mode: multi-roadmap
+  agents:
+    - opus:architect
+    - sonnet:architect
+  depth: standard
+  debate_rounds: 2
+  orchestrator_added: false  # agent_count (2) < 3 threshold
+  generated: 2026-05-22T16:30:00Z

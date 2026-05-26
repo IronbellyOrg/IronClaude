@@ -1,0 +1,447 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+.dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:19:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:26:20: F401 [*] `typing.Optional` imported but unused
+.dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:347:11: F541 [*] f-string without any placeholders
+.dev/eval-workspaces/sc-release-split-protocol/fidelity_checker.py:369:11: F541 [*] f-string without any placeholders
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:31:8: F401 [*] `os` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:34:8: F401 [*] `secrets` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:39:22: F401 [*] `datetime.datetime` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:39:32: F401 [*] `datetime.timezone` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:41:55: F401 [*] `typing.Sequence` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:70:24: F401 [*] `.isolation.HomeContainmentViolation` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:70:50: F401 [*] `.isolation.HomeIsolation` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:80:5: F401 [*] `.models.RunCounts` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:82:5: F401 [*] `.models.RunTotals` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:86:21: F401 [*] `.runner.EvalRunner` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:86:33: F401 [*] `.runner.LifecycleExecutor` imported but unused
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1467:14: F821 Undefined name `_new_run_id`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1469:51: F821 Undefined name `_default_output_dir`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1577:24: F821 Undefined name `_resolve_executor_factory`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1598:16: F821 Undefined name `_run_one_spec`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1612:19: F821 Undefined name `_utc_iso_now`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1624:51: F821 Undefined name `_can_install_signal_handler`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1636:20: F821 Undefined name `_utc_iso_now`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1642:22: F821 Undefined name `_compute_run_stats`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1671:20: F821 Undefined name `_format_run_summary_line`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1677:18: F821 Undefined name `RUN_INTERRUPTED_EXIT_CODE`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1694:18: F821 Undefined name `RUN_FAILURES_EXIT_CODE`
+.dev/eval-workspaces/sc-troubleshoot/evals/fixtures/real-bug-scratch-root/commands.py:1695:14: F821 Undefined name `RUN_CLEAN_EXIT_CODE`
+.dev/eval-workspaces/sc-troubleshoot/iteration-3/eval-tier1-missing-import-via-dispatch/with_skill/outputs/fixtures/payments/refund_handler.py:7:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/eval-workspaces/sc-troubleshoot/iteration-3/eval-tier1-missing-import-via-dispatch/with_skill/outputs/fixtures/payments/refund_handler.py:47:31: F821 Undefined name `datetime`
+.dev/releases/complete/cross-framework-deep-analysis/artifacts/D-0038/validate_backlog.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/cross-framework-deep-analysis/artifacts/D-0038/validate_backlog.py:108:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:19:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:21:8: F401 [*] `json` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:23:8: F401 [*] `threading` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:26:27: F401 [*] `unittest.mock.patch` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:30:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:33:5: F401 [*] `superclaude.cli.sprint.models.TaskResult` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:35:5: F401 [*] `superclaude.cli.sprint.models.GateOutcome` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:38:5: F401 [*] `superclaude.cli.sprint.models.build_resume_output` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:43:5: F401 [*] `superclaude.cli.sprint.executor.check_budget_guard` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:47:5: F401 [*] `superclaude.cli.pipeline.trailing_gate.GateResultQueue` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:48:5: F401 [*] `superclaude.cli.pipeline.trailing_gate.TrailingGateResult` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:49:5: F401 [*] `superclaude.cli.pipeline.trailing_gate.GateScope` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:50:5: F401 [*] `superclaude.cli.pipeline.trailing_gate.resolve_gate_mode` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:57:44: F401 [*] `superclaude.cli.pipeline.gates.gate_passed` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:133:9: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:162:13: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:340:9: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:347:9: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:393:26: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:395:26: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:425:9: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:430:13: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_integration_test.py:433:13: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:16:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:17:8: F401 [*] `json` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:27:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:39:5: F401 [*] `superclaude.cli.pipeline.trailing_gate.DeferredRemediationLog` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:40:5: F401 [*] `superclaude.cli.pipeline.trailing_gate.TrailingGateResult` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:47:5: F401 [*] `superclaude.cli.pipeline.models.SemanticCheck` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:49:5: F401 [*] `superclaude.cli.pipeline.models.PipelineConfig` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:100:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:101:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:102:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:103:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:143:19: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:150:33: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:175:33: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:189:32: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:226:27: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:235:29: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:259:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:277:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:340:5: N806 Variable `NUM_CONCURRENT` in function should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:400:15: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/realworld_turnledger_simulation.py:402:15: F541 [*] f-string without any placeholders
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_backward_compatibility.py:16:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_backward_compatibility.py:21:27: F401 [*] `unittest.mock.MagicMock` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_backward_compatibility.py:23:8: F401 [*] `pytest` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_error_max_turns_detection.py:14:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_error_max_turns_detection.py:19:8: F401 [*] `pytest` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:14:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:16:8: F401 [*] `tempfile` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:22:8: F401 [*] `pytest` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:24:59: F401 [*] `superclaude.cli.pipeline.models.GateMode` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_trailing_gate_async.py:423:9: F841 Local variable `results` is assigned to but never used
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/functional/test_turnledger_economics.py:11:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_gate_scope_safety.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:16:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:34:9: N802 Function name `test_import_StepStatus` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:37:9: N802 Function name `test_import_GateMode` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:40:9: N802 Function name `test_import_SemanticCheck` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:43:9: N802 Function name `test_import_GateCriteria` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:46:9: N802 Function name `test_import_Step` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:49:9: N802 Function name `test_import_StepResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:52:9: N802 Function name `test_import_DeliverableKind` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:55:9: N802 Function name `test_import_Deliverable` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:58:9: N802 Function name `test_import_PipelineConfig` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:68:9: N802 Function name `test_import_TrailingGateResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:69:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:71:9: N802 Function name `test_import_GateResultQueue` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:74:9: N802 Function name `test_import_TrailingGateRunner` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:75:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:77:9: N802 Function name `test_import_DeferredRemediationLog` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:78:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:80:9: N802 Function name `test_import_RemediationEntry` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:81:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:83:9: N802 Function name `test_import_RemediationStatus` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:84:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:86:9: N802 Function name `test_import_RemediationRetryStatus` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:87:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:89:9: N802 Function name `test_import_RemediationRetryResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:90:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:92:9: N802 Function name `test_import_TrailingGatePolicy` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:93:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:96:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:99:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:101:9: N802 Function name `test_import_GateScope` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:105:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:114:9: N802 Function name `test_import_ConflictAction` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:115:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:117:9: N802 Function name `test_import_ConflictReviewResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:118:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:121:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:124:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:133:9: N802 Function name `test_import_DiagnosticStage` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:134:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:136:9: N802 Function name `test_import_StageResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:139:9: N802 Function name `test_import_DiagnosticReport` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:140:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:143:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:152:9: N802 Function name `test_import_TurnLedger` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:155:9: N802 Function name `test_import_TaskResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:158:9: N802 Function name `test_import_TaskEntry` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:161:9: N802 Function name `test_import_TaskStatus` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:164:9: N802 Function name `test_import_GateDisplayState` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:167:9: N802 Function name `test_import_GateOutcome` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:170:9: N802 Function name `test_import_ShadowGateMetrics` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:186:9: N802 Function name `test_import_GateKPIReport` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:202:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:214:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:230:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:262:9: N802 Function name `test_StepStatus_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:272:9: N802 Function name `test_StepStatus_properties` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:280:9: N802 Function name `test_GateMode_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:286:9: N802 Function name `test_DeliverableKind_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:296:9: N802 Function name `test_DeliverableKind_from_str` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:303:9: N802 Function name `test_ConflictAction_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:309:9: N802 Function name `test_DiagnosticStage_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:317:9: N802 Function name `test_RemediationStatus_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:324:9: N802 Function name `test_RemediationRetryStatus_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:332:9: N802 Function name `test_GateScope_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:339:9: N802 Function name `test_TaskStatus_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:349:9: N802 Function name `test_GateOutcome_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:358:9: N802 Function name `test_GateDisplayState_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:369:9: N802 Function name `test_GateDisplayState_properties` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:378:9: N802 Function name `test_GateDisplayState_valid_transitions` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:397:9: N802 Function name `test_SprintOutcome_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:405:9: N802 Function name `test_PhaseStatus_values` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:425:9: N802 Function name `test_SemanticCheck` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:432:9: N802 Function name `test_GateCriteria` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:439:9: N802 Function name `test_Step` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:440:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:453:9: N802 Function name `test_StepResult_defaults` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:462:9: N802 Function name `test_Deliverable` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:474:9: N802 Function name `test_PipelineConfig_defaults` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:486:9: N802 Function name `test_TrailingGateResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:494:9: N802 Function name `test_GateResultQueue` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:509:9: N802 Function name `test_TrailingGateRunner` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:517:9: N802 Function name `test_TrailingGateRunner_with_custom_queue` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:528:9: N802 Function name `test_RemediationEntry` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:545:9: N802 Function name `test_DeferredRemediationLog_in_memory` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:569:9: N802 Function name `test_DeferredRemediationLog_serialization` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:588:9: N802 Function name `test_RemediationRetryResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:602:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:607:65: F401 [*] `superclaude.cli.pipeline.models.GateMode` imported but unused
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:617:9: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:648:9: N802 Function name `test_ConflictReviewResult_no_conflict` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:657:9: N802 Function name `test_ConflictReviewResult_with_conflict` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:713:9: N802 Function name `test_StageResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:723:9: N802 Function name `test_DiagnosticReport_empty` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:768:9: N802 Function name `test_TaskEntry` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:775:9: N802 Function name `test_TaskResult` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:784:9: N802 Function name `test_TaskResult_context_summary` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:794:9: N802 Function name `test_TurnLedger` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:810:9: N802 Function name `test_TurnLedger_debit_validation` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:819:9: N802 Function name `test_ShadowGateMetrics` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:835:9: N802 Function name `test_GateDisplayState_all_states_have_display_properties` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:843:9: N802 Function name `test_Phase` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:850:9: N802 Function name `test_Phase_auto_name` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:856:9: N802 Function name `test_SprintConfig` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:890:9: N802 Function name `test_GateKPIReport_empty` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:901:9: N802 Function name `test_GateKPIReport_format_report` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:961:9: N802 Function name `test_TrailingGatePolicy_is_runtime_checkable` should be lowercase
+.dev/releases/complete/unified-audit-gating-v1.2.1/test-evidence/smoke/test_import_smoke.py:974:9: N802 Function name `test_non_conforming_is_not_TrailingGatePolicy` should be lowercase
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/api_classifier.py:37:12: TID251 `anthropic` is banned: FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver (cli/eval/pty_driver.py) or ClaudeProcessAdapter (cli/eval/claude_process.py).
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/api_classifier.py:112:13: TID251 `anthropic.AsyncAnthropic` is banned: FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver or ClaudeProcessAdapter.
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/api_classifier.py:204:13: TID251 `anthropic.AsyncAnthropic` is banned: FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver or ClaudeProcessAdapter.
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/api_classifier.py:243:13: TID251 `anthropic.AsyncAnthropic` is banned: FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver or ClaudeProcessAdapter.
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/api_classifier.py:444:14: TID251 `anthropic.AsyncAnthropic` is banned: FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver or ClaudeProcessAdapter.
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:15:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:18:8: F401 [*] `os` imported but unused
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:27:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:375:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:376:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/orchestrator.py:377:11: F541 [*] f-string without any placeholders
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/runner.py:8:8: F401 [*] `subprocess` imported but unused
+.dev/releases/complete/v2.01-Architecture-Refactor/v2.01-release-validation-debates/scorer.py:7:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/v2.09-adversarial-v2/v2.09-adversarial-v2-tests/__init__.py:1:1: N999 Invalid module name: 'v2.09-adversarial-v2-tests'
+.dev/releases/complete/v2.09-adversarial-v2/v2.09-adversarial-v2-tests/test_success_criteria.py:13:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/releases/complete/v2.09-adversarial-v2/v2.09-adversarial-v2-tests/test_success_criteria.py:239:5: F841 Local variable `invariant_categories` is assigned to but never used
+.dev/research/process-improvement-debate/orchestrate.py:29:8: F401 [*] `os` imported but unused
+.dev/research/roadmap-compression/compress_roadmap.py:13:1: I001 [*] Import block is un-sorted or un-formatted
+.dev/research/roadmap-compression/compress_roadmap.py:197:30: E741 Ambiguous variable name: `l`
+scripts/check-ref-staleness.py:96:5: F841 Local variable `gc_fields` is assigned to but never used
+scripts/check-ref-staleness.py:128:5: F841 Local variable `sc_fields` is assigned to but never used
+scripts/eval_1.py:13:8: F401 [*] `os` imported but unused
+scripts/eval_1.py:284:20: E741 Ambiguous variable name: `l`
+scripts/eval_1.py:292:72: E741 Ambiguous variable name: `l`
+scripts/eval_runner.py:16:8: F401 [*] `tempfile` imported but unused
+scripts/sync_from_framework.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+src/superclaude/cli/audit/dependency_graph.py:116:1: E402 Module level import not at top of file
+src/superclaude/cli/audit/dependency_graph.py:117:1: E402 Module level import not at top of file
+src/superclaude/cli/cleanup_audit/gates.py:14:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cleanup_audit/gates.py:14:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/executor.py:26:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:28:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:35:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:36:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:37:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:42:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:43:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:56:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:57:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:58:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/executor.py:59:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/gates.py:34:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/gates.py:34:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:21:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:21:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/analyze_workflow.py:150:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:20:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/design_pipeline.py:193:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/discover_components.py:38:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:19:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/synthesize_spec.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:43:1: E402 Module level import not at top of file
+src/superclaude/cli/cli_portify/steps/validate_config.py:43:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/cli_portify/steps/validate_config.py:168:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/main.py:400:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:404:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:408:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:412:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:416:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:420:1: E402 Module level import not at top of file
+src/superclaude/cli/main.py:424:1: E402 Module level import not at top of file
+src/superclaude/cli/roadmap/convergence.py:38:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/convergence.py:436:20: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/convergence.py:437:23: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/convergence.py:438:28: F821 Undefined name `Callable`
+src/superclaude/cli/roadmap/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:27:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:28:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:36:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1014:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1015:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1015:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:1325:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:3060:9: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/executor.py:3285:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/gates.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/gates.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/gates.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/models.py:13:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/obligation_scanner.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/obligation_scanner.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/prompts.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/remediate_executor.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/remediate_executor.py:26:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:22:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_gates.py:11:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/roadmap/validate_gates.py:11:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/sprint/kpi.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/sprint/kpi.py:15:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/sprint/kpi.py:18:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/commands.py:114:5: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:23:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:24:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/executor.py:25:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:17:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/gates.py:18:1: TID252 Prefer absolute imports over relative imports from parent modules
+src/superclaude/cli/tasklist/models.py:11:1: TID252 Prefer absolute imports over relative imports from parent modules
+tests/audit/test_evidence_bound_tb_add_8.py:97:13: F841 Local variable `current_item_line` is assigned to but never used
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:1:1: N999 Invalid module name: 'test_invariant_preservation_NFR_6_through_10'
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:177:7: N801 Class name `TestInvariant1_SelfContainedItem` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:222:7: N801 Class name `TestInvariant2_EvidenceBoundItem` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:265:7: N801 Class name `TestInvariant3_PersistentArtifact` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:350:7: N801 Class name `TestInvariant4_ZeroTrustQA` should use CapWords convention
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:391:7: N801 Class name `TestInvariant5_ParallelResearch` should use CapWords convention
+tests/audit/test_monotonicity_halt_F_5_5_5.py:1:1: N999 Invalid module name: 'test_monotonicity_halt_F_5_5_5'
+tests/audit/test_nfr_conv_9_zero_trust.py:221:7: N801 Class name `TestPartA_OneLowFindingFailsGate` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:256:7: N801 Class name `TestPartA_ZeroFindingsBaselinePasses` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:315:7: N801 Class name `TestPartB_InheritedVerdictWithoutSemanticIsInflation` should use CapWords convention
+tests/audit/test_nfr_conv_9_zero_trust.py:362:7: N801 Class name `TestPartB_InheritedVerdictWithSemanticIsClean` should use CapWords convention
+tests/audit/test_sequencing_PR06_before_PR04.py:1:1: N999 Invalid module name: 'test_sequencing_PR06_before_PR04'
+tests/cli/eval/test_artifact_layout.py:19:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_artifact_reproducibility.py:49:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_atomic_setup.py:30:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_ban_import_rule.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_capability_classifications.py:47:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_capability_classifications.py:66:5: F401 [*] `superclaude.cli.eval.commands.build_doctor_report` imported but unused
+tests/cli/eval/test_capability_gates.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_capability_gates.py:23:20: F401 [*] `typing.Iterable` imported but unused
+tests/cli/eval/test_capability_gates.py:31:5: F401 [*] `superclaude.cli.eval.capabilities.CapabilityStatus` imported but unused
+tests/cli/eval/test_containment.py:48:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_coverage_gate.py:10:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_coverage_gate_integration.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_defense_in_depth.py:43:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_context.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_id_regex.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_id_regex.py:251:5: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_eval_lifecycle.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_exit_codes.py:47:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_duration.py:27:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_exit_code.py:17:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_exit_code.py:20:20: F401 [*] `typing.Mapping` imported but unused
+tests/cli/eval/test_expect_file.py:15:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_jsonl.py:22:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_primitives.py:19:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_settings_json.py:17:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_expect_stdio.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_home_isolation.py:41:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_home_isolation.py:403:9: N806 Variable `N` in function should be lowercase
+tests/cli/eval/test_isolation_layers_probe.py:25:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_no_mcp_skip.py:43:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_no_pty_exclusion.py:34:41: F401 [*] `superclaude.cli.eval.loader.SchemaError` imported but unused
+tests/cli/eval/test_orchestrator.py:24:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_parallel_15.py:52:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_path_containment.py:29:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_path_traversal.py:39:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_perf_home_setup.py:59:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_perf_resource_bounds.py:62:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_phase_report_probe.py:24:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_pty_driver.py:22:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_pty_lifecycle.py:31:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_pty_lifecycle.py:37:8: F401 [*] `threading` imported but unused
+tests/cli/eval/test_pty_stream.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_reporter.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_reporter.py:23:8: F401 [*] `json` imported but unused
+tests/cli/eval/test_reporter_contract.py:42:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_retention_policy.py:46:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_retention_policy.py:48:8: F401 [*] `json` imported but unused
+tests/cli/eval/test_retry_policy.py:23:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_run_report.py:22:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_run_summary.py:354:5: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_runner_class.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_schema_load.py:18:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_scratch_root_allowlist.py:17:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_scratch_root_policy.py:27:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_signal_handling.py:28:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_signal_handling.py:662:5: F841 Local variable `pexpect` is assigned to but never used
+tests/cli/eval/test_single_command.py:40:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_suite_runtime.py:60:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/eval/test_summary_schema.py:20:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli/test_cli_registration.py:21:1: I001 [*] Import block is un-sorted or un-formatted
+tests/cli_portify/test_failures.py:377:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:343:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:345:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:349:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:354:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:357:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:360:1: E402 Module level import not at top of file
+tests/pipeline/test_full_flow.py:472:1: E402 Module level import not at top of file
+tests/roadmap/test_inline_fallback.py:141:17: E731 Do not assign a `lambda` expression, use a `def`
+tests/roadmap/test_inline_fallback.py:144:17: E731 Do not assign a `lambda` expression, use a `def`
+tests/roadmap/test_models.py:206:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_instrumentation.py:45:5: E731 Do not assign a `lambda` expression, use a `def`
+tests/sprint/diagnostic/test_level_0.py:13:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_1.py:12:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_2.py:12:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_2.py:18:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_3.py:13:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_level_3.py:19:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_negative.py:16:1: E402 Module level import not at top of file
+tests/sprint/diagnostic/test_negative.py:23:1: E402 Module level import not at top of file
+tests/sprint/test_preflight.py:483:65: F821 Undefined name `SprintConfig`
+tests/sprint/test_preflight.py:914:7: F821 Undefined name `SprintConfig`
+Found 441 errors.
+[*] 171 fixable with the `--fix` option (110 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+Found 441 errors.
+[*] 171 fixable with the `--fix` option (110 hidden fixes can be enabled with the `--unsafe-fixes` option).

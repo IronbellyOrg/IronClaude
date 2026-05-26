@@ -79,9 +79,11 @@ Brainstorming Approach:
 - [ ] Maintains collaborative tone throughout discovery process
 - [ ] Produces structured requirements or technical brief as outcome
 
-**Verify:** `/sc:brainstorm "web app"` should ask about users, features, technology  
+**Verify:** `/sc:brainstorm "web app"` should ask about users, features, technology, then produce a `seed-brief.md` and a `merged-requirements.md` (v2 — see [brainstorm.md](brainstorm.md))  
 **Test:** Vague requests should trigger discovery questions, not assumptions  
 **Check:** Mode should persist across follow-up questions in same conversation
+
+> **Note**: The `--brainstorm` flag activates Brainstorming **mode** (a behavioral overlay applied to any command). The `/sc:brainstorm` **command** is the full v2 orchestrator that delegates parallel proposals and adversarial merge — see the [Brainstorm guide](brainstorm.md) for the command's flags and output artifacts.
 
 **Works Best With:**
 

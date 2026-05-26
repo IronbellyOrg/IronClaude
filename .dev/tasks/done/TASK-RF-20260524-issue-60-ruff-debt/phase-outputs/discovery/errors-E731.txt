@@ -1,0 +1,3 @@
+tests/roadmap/test_inline_fallback.py:141:17: E731 Do not assign a `lambda` expression, use a `def`
+tests/roadmap/test_inline_fallback.py:144:17: E731 Do not assign a `lambda` expression, use a `def`
+tests/sprint/diagnostic/test_instrumentation.py:45:5: E731 Do not assign a `lambda` expression, use a `def`

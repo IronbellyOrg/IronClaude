@@ -1,0 +1,92 @@
+You are reviewing a code change for the repository at the workspace root. Your job is to identify problems — both narrow bugs and higher-level concerns — and report them as structured JSON.
+
+## Context
+
+Target: GitHub PR #68 in IronbellyOrg/IronClaude
+PR title: fix(cliEval): PR #66 review remediation — NameError in eval_run + scratch-root allowlist tautology
+PR description (summary):
+  Follow-up remediation for two medium-severity findings on PR #66 (now merged to master).
+  - M1 (HIGH): eval_run referenced 8 helpers/constants that were not defined or imported. Closed by commit e6368db, which adds 11 module-private symbols to commands.py (8 helpers + 3 exit-code constants), including a _NullLifecycleExecutor as a deliberate M5/M6-gated placeholder.
+  - M2 (MEDIUM): resolve_scratch_root(path, output_dir=path) self-referential kwarg made the AC12 allowlist check a tautology. Closed by commit 5a65c62 — drops the self-referential kwarg, tightens the docstring, adds 2 regression tests.
+  Commit 163a7ba adds a shared allowlisted_output_dir fixture in tests/cli/eval/conftest.py, switches 6 tests to use it, and gates 3 tests on documented follow-ups (K002/K004/K005).
+  Both fixes went through an adversarial-debate pipeline that INVERTED the M2 solution (eval_run was the bug, doctor was right) and CORRECTED 3 load-bearing details of M1 (exit code value 3 not 130; default-output-dir formula via artifact_layout.compose_run_dir; run-id via FR-G4 compose_run_id).
+  Deferred: 5 follow-up tasks (K001 expects-resolver, K002 production LifecycleExecutor, K003 RunSummary.run_dir, K004 test fix --suites-dir wrong subcommand, K005 test fix Click Command source-inspection).
+
+Diff range: master...fix/pr66-eval-run-nameerror-and-scratch-root-tautology
+Head SHA: 163a7bae98b3f15ee063e1d045f1edf1fa115dfc
+
+Files changed (9):
+  src/superclaude/cli/eval/commands.py (+298 / -6)
+  src/superclaude/cli/eval/config.py (+18 / -4)
+  tests/cli/eval/conftest.py (+39 / -0)
+  tests/cli/eval/test_coverage_gate_integration.py (+4 / -4)
+  tests/cli/eval/test_exit_codes.py (+38 / -4)
+  tests/cli/eval/test_no_mcp_skip.py (+16 / -2)
+  tests/cli/eval/test_no_pty_exclusion.py (+16 / -2)
+  tests/cli/eval/test_retention_policy.py (+25 / -5)
+  tests/cli/eval/test_scratch_root_policy.py (+60 / -0)
+
+The full diff is available at: .dev/reviews/pr-68-20260521044708/inputs/diff.patch
+Read it with the `view` tool, then use your indexed codebase context to investigate.
+
+## Focus areas
+
+You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible in the diff. Use your codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
+
+- **security**: Look for: hardcoded secrets, weak crypto, SQL/XSS injection sinks, deserialization sinks, authz/authn bypasses, path traversal, SSRF, missing rate-limits, sensitive data in logs, race conditions in auth paths, missing input validation at trust boundaries. Cross-reference: are similar patterns hardened elsewhere in the repo? Is the new code re-using a known-good helper or rolling its own? In particular: validate the scratch-root allowlist fix in src/superclaude/cli/eval/commands.py against the call pattern used by `eval doctor` and any other caller of resolve_scratch_root in src/superclaude/cli/eval/config.py — is the tautology actually closed? Are there other callers passing a self-referential kwarg?
+
+- **architecture**: Look for: layering violations, business logic in transport/presentation layers, missing abstractions, god-objects, leaky abstractions, modules with too many responsibilities. Cross-reference: how do other modules solve the same problem? In particular: the _NullLifecycleExecutor / _resolve_executor_factory pair (around commands.py L1311+) is a deliberate M5/M6-gated placeholder — verify the seam is correct, the placeholder fails-closed safely, and the future production executor can drop in without contortion. Also: the 8 new module-private helpers — are they cohesive, or do they belong in a separate module (e.g., a runner_helpers.py)?
+
+- **quality**: Look for: off-by-one, null-deref, untyped boundaries, dead code, unused vars/imports, swallowed exceptions, broad except clauses, copy-pasted code, magic numbers, misleading names, comments contradicting code. Cross-reference: do similar helpers exist that the new code should reuse? In particular: verify the exit-code constants (L552-578 area) — is `RUN_INTERRUPTED_EXIT_CODE` correctly re-exported from `signal_handler.EXIT_INTERRUPTED` as the PR claims, or hardcoded? Are the 3 constants used consistently?
+
+- **tests**: Look for: tests asserting trivial things, missing edge-case tests, tests with hardcoded credentials, tests gated on documented follow-ups (verify the gate rationale is real — does `inspect.getsource()` on a Click Command really raise TypeError? does `eval run --suites-dir` really not exist?). Cross-reference: are the 3 newly-skipped tests legitimately blocked, or is the skip masking a real regression? Also check the new allowlisted_output_dir fixture in tests/cli/eval/conftest.py — does it correctly model the allowlist contract, and do the 6 tests that adopted it actually need it?
+
+- **anti-patterns**: Look for: god functions, god classes, copy-pasted code, primitive obsession, shotgun surgery, refused bequest. In particular: did the M1 fix (adding 205 LOC of helpers) push commands.py past a reasonable size, and should any of it move to a sibling module?
+
+- **docs**: Look for: new helpers/classes without docstrings, docstring claims that contradict code, missing migration notes. In particular: verify the resolve_scratch_root docstring tightening in src/superclaude/cli/eval/config.py (around L192-216) actually names the legitimate caller and accurately describes when the output_dir kwarg should and should not be passed.
+
+## Output contract (STRICT — your response must match this exactly)
+
+Respond with a single JSON object. Even when the prompt asks for no markdown fences, Auggie in practice wraps the JSON in a ```json ...``` fence — that is fine and the orchestrator strips it before parsing. Do not include explanatory prose **outside** the fence. The shape is:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<one of: security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style>",
+      "severity_hint": "<one of: critical | high | medium | low | nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line number in the file at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<the exact code excerpt at the cited line(s), verbatim>",
+      "why": "<2-4 sentences explaining the concern in concrete terms>",
+      "recommendation": "<1-3 sentences with a concrete change>",
+      "cross_references": ["<repo-relative path:line of related code>"],
+      "confidence": "<high | medium | low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<for findings that span multiple files>",
+      "category": "<as above>",
+      "severity_hint": "<as above>",
+      "affected_files": ["<repo-relative path>", "..."],
+      "why": "<as above>",
+      "recommendation": "<as above>",
+      "confidence": "<as above>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional free-form notes>"
+}
+
+## Quality bar
+
+- Every finding must cite a real file:line. If you can't verify the file:line, set confidence to "low" and the orchestrator will validate.
+- Do not invent file paths. If you remember a file existing but can't read it, leave it out.
+- For each focus area, aim for the highest-signal 3-5 findings, not an exhaustive list.
+- It is OK to return zero findings in a focus area if the area is genuinely clean. Do not pad.
+- Prefer findings whose cited line is inside the diff (`in_diff: true`).
+- For higher-level findings, put them in `cross_cutting_observations`, not `findings`.
+
+Return only the JSON object. No additional text.

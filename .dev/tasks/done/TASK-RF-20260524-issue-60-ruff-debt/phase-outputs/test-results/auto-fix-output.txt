@@ -1,0 +1,60 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Found 61 errors (61 fixed, 0 remaining).
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+## Changed Files Stats
+ scripts/eval_1.py                                 |  1 -
+ scripts/eval_runner.py                            |  1 -
+ scripts/sync_from_framework.py                    | 14 +++++++-------
+ tests/cli/eval/test_artifact_layout.py            |  5 ++---
+ tests/cli/eval/test_artifact_reproducibility.py   |  1 -
+ tests/cli/eval/test_atomic_setup.py               |  1 -
+ tests/cli/eval/test_ban_import_rule.py            |  1 -
+ tests/cli/eval/test_capability_classifications.py |  4 +---
+ tests/cli/eval/test_capability_gates.py           |  4 +---
+ tests/cli/eval/test_containment.py                |  1 -
+ tests/cli/eval/test_coverage_gate.py              |  1 -
+ tests/cli/eval/test_coverage_gate_integration.py  |  1 -
+ tests/cli/eval/test_defense_in_depth.py           |  1 -
+ tests/cli/eval/test_eval_context.py               |  3 +--
+ tests/cli/eval/test_eval_id_regex.py              |  3 +--
+ tests/cli/eval/test_eval_lifecycle.py             |  1 -
+ tests/cli/eval/test_exit_codes.py                 |  1 -
+ tests/cli/eval/test_expect_duration.py            |  1 -
+ tests/cli/eval/test_expect_exit_code.py           |  2 --
+ tests/cli/eval/test_expect_file.py                |  1 -
+ tests/cli/eval/test_expect_jsonl.py               |  1 -
+ tests/cli/eval/test_expect_primitives.py          |  1 -
+ tests/cli/eval/test_expect_settings_json.py       |  1 -
+ tests/cli/eval/test_expect_stdio.py               |  1 -
+ tests/cli/eval/test_home_isolation.py             |  1 -
+ tests/cli/eval/test_isolation_layers_probe.py     |  1 -
+ tests/cli/eval/test_no_mcp_skip.py                |  2 +-
+ tests/cli/eval/test_no_pty_exclusion.py           |  2 +-
+ tests/cli/eval/test_orchestrator.py               |  1 -
+ tests/cli/eval/test_parallel_15.py                |  1 -
+ tests/cli/eval/test_path_containment.py           |  1 -
+ tests/cli/eval/test_path_traversal.py             |  1 -
+ tests/cli/eval/test_perf_home_setup.py            |  1 -
+ tests/cli/eval/test_perf_resource_bounds.py       |  1 -
+ tests/cli/eval/test_phase_report_probe.py         |  1 -
+ tests/cli/eval/test_pty_driver.py                 |  1 -
+ tests/cli/eval/test_pty_lifecycle.py              |  2 --
+ tests/cli/eval/test_pty_stream.py                 |  1 -
+ tests/cli/eval/test_reporter.py                   |  2 --
+ tests/cli/eval/test_reporter_contract.py          |  1 -
+ tests/cli/eval/test_retention_policy.py           |  2 --
+ tests/cli/eval/test_retry_policy.py               |  1 -
+ tests/cli/eval/test_run_report.py                 |  1 -
+ tests/cli/eval/test_run_summary.py                |  4 ++++
+ tests/cli/eval/test_runner_class.py               |  1 -
+ tests/cli/eval/test_schema_load.py                |  1 -
+ tests/cli/eval/test_scratch_root_allowlist.py     |  1 -
+ tests/cli/eval/test_scratch_root_policy.py        |  1 -
+ tests/cli/eval/test_signal_handling.py            |  1 -
+ tests/cli/eval/test_single_command.py             |  1 -
+ tests/cli/eval/test_suite_runtime.py              |  1 -
+ tests/cli/eval/test_summary_schema.py             |  1 -
+ tests/cli/test_cli_registration.py                |  1 -
+ 53 files changed, 19 insertions(+), 70 deletions(-)

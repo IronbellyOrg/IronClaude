@@ -1,0 +1,59 @@
+# sc:adversarial Return Contract
+# Mode B (generate + compare)
+# Source: /config/workspace/IronClaude/.dev/eval-roadmap/inputs/merged-prd-tdd-user-auth.md
+# Agents: opus, sonnet
+# Depth: standard
+
+merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run2/merged-output.md"
+convergence_score: 0.92
+artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run2/adversarial"
+status: "partial"
+base_variant: "sonnet-architect"
+unresolved_conflicts: 2
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+
+# Status rationale:
+#   - All 5 steps completed (variant generation, diff analysis, debate R1+R2+R2.5, scoring/base selection, refactor plan + merge execution)
+#   - Convergence gate BLOCKED_BY_INVARIANTS at end of debate (8 HIGH UNADDRESSED items)
+#   - Refactor plan promoted all 8 HIGH items to must-address changes
+#   - Merge execution applied 18 of 18 planned changes; post-merge validation reports all 8 HIGH invariants resolved in merged-output.md
+#   - "partial" reflects the multi-step state: debate did not naturally converge under standard depth, but invariant probe + refactor plan + merge resolved the blocking items
+#   - 2 unresolved diff points carried (A-003 sliding-vs-fixed lockout window; A-007 legacy definition) — both documented in merged-output Open Questions
+
+# Tiebreaker:
+#   - V1 combined score: 0.918, V2 combined score: 0.876, margin 4.2% (within 5% threshold)
+#   - Level 1 tiebreaker (debate performance): V2 = 12.5 wins vs V1 = 11.5 wins (counting hybrid/resolved as 0.5 each)
+#   - Base = V2 (sonnet-architect)
+
+# Unresolved conflicts:
+#   - A-003: Sliding-window vs fixed-window lockout semantics (merged adopts fixed-window with explicit timing-parity AC for v1.0; sliding-window deferred to v1.1)
+#   - A-007: Legacy auth definition for rollback drill (merged adds explicit branch handling in M6 D6.5 — verify deployment topology at M6 Phase 1 Alpha kickoff)
+
+unaddressed_invariants: []
+# All 8 HIGH-severity UNADDRESSED items from Round 2.5 invariant probe were addressed by refactor plan and applied in merge:
+#   - INV-001 (dummy hash provisioning) — fixed in M2 D2.1 via Change #12 (build-time config constant)
+#   - INV-002 (audit-log schema before OQ-7 resolution) — fixed in M1 D1.2 via Change #4 (soc2_relevant BOOLEAN flag)
+#   - INV-004 (admin endpoint without RBAC) — fixed in M1+M3+M4 via Change #9 (minimal isAdmin column + JWT claim)
+#   - INV-005 (window-boundary timing oracle) — fixed in M2 D2.1 via Change #13 (lockout-rejected response time matches dummy-verify)
+#   - INV-007 (admin endpoint = enumeration oracle via audit absence) — fixed in M4 D4.5 via Change #10 (worker emits audit row for dropped requests)
+#   - INV-009 (C3 conceded but C-001 unresolved) — fixed via Change #5 (atomic-UPDATE SQL pattern in M2 D2.1)
+#   - INV-012 (single-Redis cascade) — fixed in M1 D1.5 via Change #11 (Redis isolation for BullMQ queue)
+#   - INV-013 (lockout key strategy) — fixed via Change #5 + Change #8 (atomic per-email counter + per-IP secondary)
+#   - INV-014 (constant-time defense self-contradicts) — fixed in M2 D2.1 via Change #2 + Change #13
+
+# 6 MEDIUM-severity items: 1 fixed (INV-011 pagination ordering via Change #18); 5 noted for v1.1 (INV-003, INV-006, INV-008, INV-015, INV-016)
+
+# Pipeline summary:
+pipeline_metadata:
+  variants_generated: 2
+  diff_points_total: 24  # S=4, C=8, X=5, A=7
+  diff_points_agreed: 22
+  invariant_probe_findings: 16  # HIGH=8, MEDIUM=6, LOW=1, ADDRESSED=1
+  invariant_probe_high_resolved_by_merge: 8
+  refactor_changes_planned: 18
+  refactor_changes_applied: 18
+  refactor_changes_rejected_for_transparency: 4
+  merged_output_line_count: 546
+  total_artifacts: 8

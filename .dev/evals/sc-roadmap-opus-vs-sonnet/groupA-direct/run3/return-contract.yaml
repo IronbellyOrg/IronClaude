@@ -1,0 +1,99 @@
+# sc:adversarial Return Contract
+# Pipeline: Mode B (--source + --generate + --agents)
+# Invoked: 2026-05-22
+
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run3/roadmap.md"
+  convergence_score: 0.357
+  artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run3/adversarial/"
+  status: "partial"
+  base_variant: "opus:default"
+  unresolved_conflicts: 5
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+
+# Contextual notes for the consumer (non-contract)
+notes:
+  why_status_partial: |
+    Debate did not reach the convergence threshold (0.357 < 0.80). The R2.5 invariant
+    probe BLOCKED convergence with 9-10 HIGH-severity UNADDRESSED findings. At
+    --depth standard no R3 is available, so force-selection by combined score was
+    used (per FR-006 no_convergence clause). Status = "partial" per protocol:
+    "Steps completed but validation failures OR non-convergence OR skipped debate."
+
+  invariant_remediation_summary: |
+    All 10 HIGH-severity UNADDRESSED invariants identified at R2.5 were addressed
+    in Step 5 merge execution:
+    - INV-001, INV-004, INV-010: OBVIATED by retaining V1's RBAC-before-OAuth
+      sequencing (V2's parallel-with-default-role-hook was rejected as merge approach).
+    - INV-002: REMEDIATED (nullable email + synthetic email fallback for null-email
+      OAuth providers like GitHub; see D-M5.4 in merged roadmap).
+    - INV-005: REMEDIATED (per-device refresh token family with 30s concurrent
+      refresh grace window; see D-M3.1).
+    - INV-006: REMEDIATED (Argon2id tuned to m=32768/t=2/p=4 targeting ~80ms;
+      explicit NFR-001 budget breakdown 80+60+20+40 = 200ms p95 in D-M2.x).
+    - INV-008: REMEDIATED (per-user DEK keyed by user_id; user_encryption_keys
+      table replaces global DEK in D-M1.2).
+    - INV-009: MITIGATED (90-day soft-delete-before-hard-drop grace window for
+      audit partitions).
+    - INV-014: REMEDIATED (Merkle-chain tamper-evidence scope explicitly
+      documented in D-M6.4; replication-bypass + OS-level tampering routed to
+      M7 runbooks as separate detective controls).
+    - INV-015: REMEDIATED (combined per-user DEK destruction for cryptographic
+      erasure + audit row pseudonymization to anonymized_<uuid> after grace
+      period; satisfies stricter GDPR Article 17 interpretation).
+    Hence unaddressed_invariants: [] in the contract.
+
+    The 3 MEDIUM-UNADDRESSED items (INV-003 15-min JWT validation window, INV-011
+    SendGrid user-facing degradation, INV-012 emergency key-compromise runbook)
+    remain DOCUMENTED with mitigations rather than fully remediated. These are
+    accepted design trade-offs, not contract-blocking gaps.
+
+  unresolved_conflicts_enumerated: |
+    5 architectural conflicts where merge force-selected V1's approach over V2's
+    legitimate alternative (per refactor-plan.md "Changes NOT Being Made"):
+    1. Retention duration: V1 7-year (configurable downward) chosen over V2 2-year.
+    2. M0 dedicated milestone: V1 dedicated foundations chosen over V2 distributed.
+    3. RBAC sequencing: V1 RBAC-before-OAuth chosen over V2 parallel.
+    4. Erasure approach: V1 cryptographic erasure chosen over V2 anonymization
+       (V2's anonymization layered on top per INV-015 remediation).
+    5. Tamper-evidence approach: V1 Merkle chain chosen over V2 role-permission-only.
+
+  variant_scores:
+    v1_opus_default: 0.763
+    v2_sonnet_default: 0.707
+    margin: 0.056
+    tiebreaker_applied: false  # margin > 0.05
+
+  edge_case_floor_status: "SUSPENDED"
+  edge_case_floor_reason: |
+    Both variants scored 0/5 on Dimension 6 (Invariant & Edge Case Coverage).
+    Per protocol: "When all variants score 0/5, suspend floor with warning:
+    'Edge case floor suspended: no variant meets minimum coverage'."
+    The 9-10 HIGH-UNADDRESSED invariants from R2.5 confirmed this gap.
+    Selection proceeded despite formal ineligibility (force-selection clause).
+
+  invocation_context:
+    skill: "sc-adversarial-protocol"
+    args: "--source /config/workspace/IronClaude/tests/sc-roadmap/fixtures/sample_spec.md --generate roadmap --agents opus,sonnet --depth standard --output /config/workspace/IronClaude/.dev/eval-roadmap/groupA-direct/run3"
+    source_spec: "/config/workspace/IronClaude/tests/sc-roadmap/fixtures/sample_spec.md"
+    generation_type: "roadmap"
+    agents: ["opus", "sonnet"]
+    depth: "standard"
+    convergence_threshold: 0.80
+    interactive: false
+    blind_mode: false
+    pipeline_mode: false
+
+  artifacts:
+    - variant-1-opus-default.md      # 618 lines, 37481 bytes (Mode B output)
+    - variant-2-sonnet-default.md    # 723 lines, 51443 bytes (Mode B output)
+    - diff-analysis.md               # 55 findings (S:12 C:18 X:7 U:13 A:5)
+    - debate-transcript.md           # R1+R2+R2.5, scoring matrix, convergence assessment
+    - invariant-probe.md             # R2.5 fault-finder; 15 findings, 10 HIGH-UNADDRESSED
+    - base-selection.md              # quantitative + qualitative + position-bias + selection
+    - refactor-plan.md               # 16 planned changes (T1:9 T2:4 T3:3), 7 rejected
+    - merge-log.md                   # 16/16 applied, structural PASS, 0 broken refs
+    - roadmap.md                     # final merged output (691 lines, 65954 bytes)

@@ -1,0 +1,175 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# tasklist_deterministic_shape — /sc:tasklist canonical-shape contract.
+#
+# Target skill: sc-tasklist-protocol (invoked via /sc:tasklist).
+# Evidence:
+#   .claude/skills/sc-tasklist-protocol/SKILL.md:31-43
+#     ("Deterministic / Decision-free / Phase-consistent / Multi-file"
+#      objective list — same roadmap MUST yield canonical Sprint-compatible
+#      tasklist shape).
+#   .claude/skills/sc-tasklist-protocol/SKILL.md:88-120
+#     ("File Emission Rules" — exactly N+1 files per phase, phase files
+#      MUST use `phase-N-tasklist.md` canonical naming, index "Phase Files"
+#      table MUST contain literal filenames so the Sprint CLI regex can
+#      discover them, target directory layout under TASKLIST_ROOT).
+#   .claude/skills/sc-tasklist-protocol/SKILL.md:215-219
+#     ("Fix Phase Numbering — No Gaps; Missing Phase 8 Rule" — roadmap
+#      gaps like "Phase 1 then Phase 3" MUST be renumbered by appearance
+#      so the output emits sequential Phase 1, Phase 2 with no gaps).
+#
+# Hypothesis under test: a roadmap with a deliberate numbering gap
+# (Phase 1 + Phase 3, no Phase 2) yields a canonical bundle whose
+# files are `tasklist-index.md`, `phase-1-tasklist.md`,
+# `phase-2-tasklist.md` (the renumbered second bucket — NOT
+# `phase-3-tasklist.md`), with the index referencing the literal phase
+# filenames and every phase file ending in the "Checkpoint: End of Phase"
+# block per SKILL.md:93 inline-checkpoint contract.
+#
+# Isolation: home_strategy=seeded plants a tiny two-phase roadmap at
+# `.dev/releases/current/v1.2.3/roadmap.md` under the per-eval HOME.
+# The seeded path matches the SKILL.md §"Tasklist Root" rule 1 substring
+# (`.dev/releases/current/<segment>/`) so the deterministic
+# TASKLIST_ROOT derivation lands on `.dev/releases/current/v1.2.3/`
+# and the output files are written into the same directory as the
+# seeded roadmap.
+#
+# PTY-driven (drives Claude Code through the vendored PTY harness so the
+# `/sc:tasklist` slash command resolves to the sc-tasklist-protocol skill
+# invocation). `no_pty: skip` short-circuits under --no-pty per
+# DOC-OQ3 / R-077 / D-0077.
+name: tasklist_deterministic_shape
+version: "1.0"
+description: "/sc:tasklist canonical-shape contract: same roadmap yields the canonical Sprint-compatible bundle (tasklist-index.md + sequentially-numbered phase-N-tasklist.md files with no phase-number gaps, even when the source roadmap has a numbering gap), and every phase file carries the inline 'Checkpoint: End of Phase' marker."
+
+defaults:
+  per_eval_timeout_sec: 600
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: E1
+    title: "Roadmap with phase-number gap yields canonical sequentially-numbered tasklist bundle"
+    category: skill-determinism
+    timeout_sec: 600
+    isolation:
+      home_strategy: seeded
+      seed_state:
+        - path: .dev/releases/current/v1.2.3/roadmap.md
+          content: |
+            # Release v1.2.3 Roadmap
+
+            Two-bucket roadmap with a deliberate numbering gap so the
+            canonical "No Gaps" renumbering rule (SKILL.md §4.3) is
+            exercised: the second bucket is labeled Phase 3 in the
+            source but MUST be emitted as phase-2-tasklist.md in the
+            generated bundle.
+
+            ## Phase 1 — Foundations
+
+            - R-001: Initialize project scaffolding (directory layout,
+              package manifest, baseline configuration).
+            - R-002: Wire continuous integration entry-point so test
+              runs are reproducible on every push.
+
+            ## Phase 3 — Stabilize
+
+            - R-003: Add smoke test suite covering the scaffolding from
+              Phase 1 and the CI entry-point.
+            - R-004: Document the release checklist so a fresh
+              contributor can ship a follow-up patch unaided.
+    no_pty: skip
+    # Body shape:
+    #   - inputs[0]: invoke /sc:tasklist against the seeded roadmap
+    #     using the explicit path (per command file lines 22-26, both
+    #     @file syntax and explicit paths are supported). The roadmap
+    #     contains the `.dev/releases/current/v1.2.3/` substring so
+    #     the TASKLIST_ROOT auto-derivation (SKILL.md §"Tasklist Root"
+    #     rule 1) lands on `.dev/releases/current/v1.2.3/`, i.e. the
+    #     same directory as the seeded roadmap. Generated files are
+    #     therefore written to `<per-eval-HOME>/.dev/releases/current/v1.2.3/`
+    #     which is where the file assertions resolve via
+    #     ctx.home_path (expect.py:79-91).
+    #   - inputs[1]: prompt "/quit" — clean session exit so the PTY
+    #     teardown delivers exit_code 0 (sibling pattern E3 / E4 / E5
+    #     / E6 / E7 / E8 / E9 in real.yaml).
+    #   - expects[0]: file.exists(.dev/releases/current/v1.2.3/tasklist-index.md)
+    #     — the canonical index file required by SKILL.md §"File Emission
+    #     Rules" item 1 (must always be present, contains metadata +
+    #     artifact paths + Phase Files table).
+    #   - expects[1]: same index file contains the literal
+    #     `phase-1-tasklist.md` filename — SKILL.md:99 mandates the index
+    #     "Phase Files" table holds literal filenames (not path-prefixed)
+    #     so the Sprint CLI regex can discover them. Proves Phase 1
+    #     landed in the index.
+    #   - expects[2]: same index file contains the literal
+    #     `phase-2-tasklist.md` filename — proves the renumbering rule
+    #     (SKILL.md §4.3) fired: the source roadmap's second bucket
+    #     labeled "Phase 3" was emitted as Phase 2 (sequential, no
+    #     gap). If the generator preserved the source numbering, the
+    #     index would reference `phase-3-tasklist.md` instead and this
+    #     assertion would fail.
+    #   - expects[3]: file.exists(.dev/releases/current/v1.2.3/phase-1-tasklist.md)
+    #     — proves the Phase 1 file was actually emitted, matching the
+    #     index reference (SKILL.md §"File Emission Rules" item 2).
+    #   - expects[4]: phase-1-tasklist.md contains the
+    #     `Checkpoint: End of Phase` marker per SKILL.md:93 inline
+    #     checkpoints / end-of-phase checkpoint contract.
+    #   - expects[5]: file.exists(.dev/releases/current/v1.2.3/phase-2-tasklist.md)
+    #     — proves the renumbered second phase file was actually
+    #     emitted at the canonical filename (not phase-3-tasklist.md).
+    #   - expects[6]: phase-2-tasklist.md contains the
+    #     `Checkpoint: End of Phase` marker (same inline-checkpoint
+    #     contract as expects[4]).
+    #   - expects[7]: exit_code.equals(0) — clean session exit on /quit
+    #     after successful skill invocation. Skill aborts non-zero on
+    #     validation failures (command file lines 49-67); exit 0 proves
+    #     the generation + post-generation validation stages (Stages 1-10
+    #     of SKILL.md) all completed without aborting.
+    #
+    # Determinism: the seeded roadmap is byte-identical across runs;
+    # the SKILL's §"Deterministic Generation Algorithm" §4.1-4.4 maps
+    # each roadmap item to tasks in appearance order with no
+    # discretionary choices; the asserted substrings (`phase-1-tasklist.md`,
+    # `phase-2-tasklist.md`, `Checkpoint: End of Phase`) are invariant
+    # across runs per SKILL.md §"Objective" bullet 1 ("Deterministic:
+    # same input -> same output"). Three consecutive runs yield
+    # identical EvalOutcome statuses.
+    inputs:
+      - prompt: "/sc:tasklist .dev/releases/current/v1.2.3/roadmap.md"
+      - prompt: "/quit"
+    expects:
+      - file:
+          path: .dev/releases/current/v1.2.3/tasklist-index.md
+          exists: true
+      - file:
+          path: .dev/releases/current/v1.2.3/tasklist-index.md
+          exists: true
+          contains: "phase-1-tasklist.md"
+      - file:
+          path: .dev/releases/current/v1.2.3/tasklist-index.md
+          exists: true
+          contains: "phase-2-tasklist.md"
+      - file:
+          path: .dev/releases/current/v1.2.3/phase-1-tasklist.md
+          exists: true
+      - file:
+          path: .dev/releases/current/v1.2.3/phase-1-tasklist.md
+          exists: true
+          contains: "Checkpoint: End of Phase"
+      - file:
+          path: .dev/releases/current/v1.2.3/phase-2-tasklist.md
+          exists: true
+      - file:
+          path: .dev/releases/current/v1.2.3/phase-2-tasklist.md
+          exists: true
+          contains: "Checkpoint: End of Phase"
+      - exit_code:
+          equals: 0
