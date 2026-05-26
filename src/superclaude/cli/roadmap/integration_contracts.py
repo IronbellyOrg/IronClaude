@@ -193,7 +193,7 @@ def extract_integration_contracts(spec_text: str) -> list[IntegrationContract]:
             context = "\n".join(lines[context_start:context_end])
 
             mechanism = _classify_mechanism(match.group(0))
-            idents = frozenset(_extract_identifiers(context))
+            idents = _canonicalize_identifiers(context)
             signature = (mechanism, idents)
 
             # Signature-based dedup — collapse contracts whose
@@ -352,7 +352,8 @@ def check_roadmap_coverage(
                             window_start = max(0, j - 2)
                             window_end = min(len(roadmap_lines), j + 3)
                             window_text = " ".join(roadmap_lines[window_start:window_end])
-                            if not any(ident in window_text for ident in contract_idents):
+                            window_upper = window_text.upper()
+                            if not any(ident in window_upper for ident in contract_idents):
                                 continue
                         covered = True
                         evidence = rline.strip()
@@ -439,3 +440,30 @@ def _signature_subsumed(
         if idents == sidents:
             return True
     return False
+
+
+def _canonicalize_identifiers(text: str) -> frozenset[str]:
+    """Extract identifier-tokens from text into a canonical frozenset.
+
+    Invariants:
+      1. All tokens are uppercase (callers may match case-insensitively
+         against any source by .upper()-ing both sides at the gate).
+      2. Hyphenated requirement IDs (e.g. FR-S10-02) are emitted as ONE
+         token, not split on hyphens. Underlying UPPER_SNAKE fragments
+         (e.g. S10) are ALSO emitted alongside to preserve backward
+         compatibility with existing assertions.
+      3. Empty input yields an empty frozenset — callers MUST treat this
+         as "no identifier evidence", never as "wildcard match".
+    """
+    base_tokens = _extract_identifiers(text)
+    # Per OQ-1 fix-cycle 1: digit-lookahead `(?=\S*\d)` restricts the
+    # hyphen pattern to requirement-style IDs (FR-S10-02, NFR-123-A) and
+    # excludes prose kebab-case (class-priority, message-class,
+    # severity-keyed). Fragments are extracted from the uppercased hyphen
+    # tokens rather than the uppercased entire input — honors invariant 2
+    # without polluting the identifier set with common English words from
+    # natural prose contexts.
+    hyphen_pattern = re.compile(r"\b(?=\S*\d)(?:[A-Z][A-Z0-9]*-)+[A-Z0-9]+\b", re.IGNORECASE)
+    hyphen_tokens = hyphen_pattern.findall(text)
+    hyphen_fragments = _extract_identifiers(" ".join(t.upper() for t in hyphen_tokens))
+    return frozenset(t.upper() for t in (base_tokens + hyphen_tokens + hyphen_fragments))
