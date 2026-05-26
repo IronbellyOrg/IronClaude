@@ -1,0 +1,47 @@
+# Fix A Retention — Adversarial Debate
+
+**Subject:** Should the Fix A roadmap edit at `/config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/roadmap.md` line 396 (COMP-007) be KEPT or REVERTED now that Fix B (gate-side refactor on branch `fix/integration-contracts-mechanism-signature` in `src/superclaude/cli/roadmap/integration_contracts.py`) has landed?
+
+## Frame
+
+- **Fix A (content edit, applied earlier this session):** COMP-007 description rewritten from `"Single goroutine message broker with class-priority dispatch in internal/hub/"` to `"Single goroutine message broker that at init populates the dispatch table with class-priority runners (Interactive/Coalescible/Bulk) in internal/hub/"`. AC line gained `"dispatch table populated with one runner per message class at init"`. Verified on disk at roadmap.md line 396.
+- **Fix B (gate refactor, working tree only, not pushed):** `integration_contracts.py` rewritten — bare `dispatch` no longer over-extracted, dedupe by `(mechanism, identifier-set)` signature, 3-layer matcher (literal → dispatch-family regex → stem-fallback with identifier-overlap guard). Executor verified: against the *post-Fix-A* roadmap+epics, the new gate yields `total=5 uncovered=0`.
+- **Established (per diagnosis Phase 4):** Fix B *alone* (without Fix A) is also sufficient — the executor stated the live re-check would still pass even if Fix A were reverted. The two fixes are independently sufficient and currently both active.
+- **Decision boundary:** Should the roadmap return to verbatim LLM-merged output, or stay augmented?
+
+## Side A — KEEP Fix A (steelman)
+
+1. **Content-faithful, not a lie.** `internal/hub/` *does* populate a dispatch table at init — that is exactly what a single-goroutine class-priority broker with three runners (Interactive/Coalescible/Bulk) must do. Fix A made an implicit mechanism explicit; it did not invent behavior. A reader of the post-Fix-A roadmap learns something true about the design.
+2. **Defense in depth against gate regression.** Fix B lives in a single file (`integration_contracts.py`) and a single branch not yet merged. A future refactor — a contributor tightening the matcher to reduce false positives, a revert of branch `fix/integration-contracts-mechanism-signature`, a v5 rewrite — could silently re-tighten the regex. Keeping Fix A means the roadmap content is *already* gate-friendly in the way the LLM merge step would naturally produce after the §7 follow-up lands. Cost of keeping: zero. Cost of regression if reverted: another diagnostic loop.
+3. **Documentation value for human readers.** "Populates the dispatch table with class-priority runners at init" is more informative than "class-priority dispatch". An engineer scanning the roadmap learns the wiring pattern (table populated at init, runner-per-class), not just the policy (class priority). The AC line "dispatch table populated with one runner per message class at init" is a *checkable* completion criterion; the pre-Fix-A AC was not.
+4. **Zero downstream cost.** No spec-fidelity gate has flagged the edit. No other pipeline stage depends on the verbatim LLM output. The TUIBBS-scp run is unblocked and downstream artifacts (tasklist generation, sprint planning) consume the post-Fix-A roadmap with no friction.
+5. **Symmetric to the §7 follow-up.** The follow-up will eventually direct the AI merge step to emit explicit wiring tasks. Keeping Fix A is just pre-applying the output of that future fix to this one run. Reverting now means we will hand-edit this exact same line again the next time §7's prompt directive produces it — wasted motion.
+
+## Side B — REVERT Fix A (steelman)
+
+1. **Reproducibility violation.** `superclaude roadmap run` is a deterministic pipeline; the roadmap.md is its primary artifact. Post-merge hand-edits make this run non-reproducible: re-running `superclaude roadmap run` against the same epics.md will produce a *different* roadmap.md, and a future reviewer comparing the artifact to the generator's output will see drift with no recorded provenance. Fix A is a one-shot patch that does not survive re-runs anyway — it is fundamentally ephemeral, masquerading as content.
+2. **Fix B makes Fix A dead weight.** Once Fix B lands on master, Fix A's only function (greening the gate) is performed by the gate itself. Dead code in source is bad; dead patches in *artifacts* are worse because they look like intentional design decisions. A future maintainer reading "dispatch table populated at init" cannot tell whether the LLM merger generated that phrasing, an architect mandated it, or a troubleshooter inserted it to placate a regex. That confusion is the cost.
+3. **Asymmetric coupling = silent fragility.** Fix A only matters if Fix B is reverted. Fix B only matters if Fix A is reverted. Both active means one is redundant — and which one is redundant flips depending on which is removed first. This is the textbook shape of a coupling that breeds maintenance bugs: the system works for reasons no single contributor fully understands.
+4. **Spec-fidelity boundary.** The diagnosis report itself notes that spec-fidelity could eventually flag discrepancies between AI-merged content and post-edit content. We do not have a spec-fidelity check running on COMP-007 today, but if one is added, the post-Fix-A line "at init populates the dispatch table" must trace back to epics.md or an upstream spec. It does not — it traces back to a troubleshooting session. That provenance gap is a latent failure.
+5. **Right fix in the right layer.** The bug was in the gate, not the artifact. Fix B fixes the bug. Keeping Fix A endorses the anti-pattern of "patch the artifact to satisfy the validator" — exactly the kind of behavior the anti-instinct gate exists to *prevent*. Reverting Fix A is consistent with the principle that drove building Fix B in the first place.
+
+## Adversarial Probes
+
+**Probe Side A — hidden assumptions:**
+- *Assumes Fix B will land and not regress.* It is on a working tree on a feature branch; it has not been pushed or merged. A force-push, branch deletion, or contributor abandoning the branch would lose Fix B and leave only Fix A. Counter: this is exactly the defense-in-depth argument — Side A *wants* this exposure to be covered.
+- *Assumes the roadmap is human-readable documentation.* If the roadmap is treated strictly as a pipeline intermediate (input to tasklist generator), the "documentation value" argument collapses to zero. The TUIBBS-scp pipeline does treat it as a build artifact, not a design document.
+- *Counterfactual cost if Side A is wrong:* a single line of provenance noise. Low.
+
+**Probe Side B — hidden assumptions:**
+- *Assumes reproducibility is the dominant value.* If the pipeline is re-run with a different LLM seed/model/prompt, the roadmap will change anyway — bit-for-bit reproducibility is not actually guaranteed across re-runs. The "Fix A breaks reproducibility" argument is partially true but overstated.
+- *Assumes someone will read the diff and be confused.* In practice, the post-Fix-A line reads as normal LLM output; no maintainer would suspect it was patched without seeing the troubleshoot session.
+- *Counterfactual cost if Side B is wrong:* a future gate regression that nobody catches because the roadmap content silently masked it. Higher than Side A's failure cost.
+
+**Third option neither side fully developed:** **Revert Fix A in this run AND land Fix B AND complete the §7 follow-up (merge-step prompt directive teaching the LLM to emit explicit wiring tasks).** This is the only option that (a) restores artifact provenance, (b) keeps the gate honest, (c) ensures future runs naturally produce gate-friendly content, and (d) breaks the asymmetric coupling.
+
+## Synthesis
+
+1. **Recommendation: REVERT Fix A, contingent on (i) Fix B landing on master and (ii) the §7 follow-up being scheduled.** If either contingency slips, keep Fix A as a temporary backstop and revert once both land. The third option (revert + Fix B + §7 prompt directive) is strictly dominant in steady state.
+2. **Trade-off in one sentence:** Reverting trades a small, immediate regression-protection benefit for restored artifact provenance and broken coupling — worth it once Fix B is on master and §7 is on the roadmap.
+3. **Biggest risk under REVERT + mitigation:** Fix B regresses (someone tightens the matcher in `integration_contracts.py`) and no Fix A safety net catches it. **Mitigation:** add a unit test in IronClaude's test suite that runs the new gate against a fixture epics.md+roadmap.md derived from TUIBBS-scp's current state and asserts `uncovered=0`. That test pins Fix B's behavior the way Fix A pins the content — but in the right layer.
+4. **Does §7 change the calculus?** Yes, decisively. Without §7, reverting Fix A means the next `superclaude roadmap run` against the same epics will regenerate the under-specified COMP-007 description, and the cycle (gate is now lenient enough — but only barely) becomes a fragile equilibrium. With §7's merge-step prompt directive instructing the LLM to emit explicit wiring tasks, the LLM itself will produce content like "populates the dispatch table at init" naturally, with proper provenance. §7 is what makes the revert sustainable rather than just clean-on-paper. Recommend gating the revert on §7 being scheduled (not necessarily completed), so the team commits to the long-term path before discarding the short-term backstop.

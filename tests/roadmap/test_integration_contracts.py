@@ -11,6 +11,7 @@ All tests use real content fixtures, no mocks.
 
 from superclaude.cli.roadmap.integration_contracts import (
     IntegrationAuditResult,
+    _canonicalize_identifiers,
     check_roadmap_coverage,
     extract_integration_contracts,
 )
@@ -124,6 +125,52 @@ Milestone M2: Sequential pipeline runs end-to-end with mocked steps.
 ## Phase 3: CLI Polish
 
 Add rich output formatting and progress display.
+"""
+
+# Synthetic fixture per RQ-1 Option A: TUIBBS-scp-inspired prose with shared
+# hyphenated requirement-ID token `FR-S10-02` (canonicalized via
+# `_canonicalize_identifiers` — see helper docstring for invariants) in every
+# hub-dispatch context window so `_signature_subsumed` fires deterministically.
+TUIBBS_HUB_SPEC = """\
+## S10. Message Hub
+
+Goal: Route messages through the hub with strict priority semantics.
+
+Requirements:
+- FR-S10-02 specifies the dispatch order.
+- The message hub uses class-priority dispatch — Interactive > Coalescible > Bulk.
+
+Interactive messages are processed first, then Coalescible, then Bulk.
+
+The hub dispatch table maps message-class to handler. See FR-S10-02
+for the canonical ordering. Interactive class-priority dispatch order
+is strict; subsequent classes wait their turn.
+
+For severity-keyed dispatch see the related severity table. FR-S10-02
+defines the priority lattice. Severity-keyed dispatch for hub messages
+is layered on top of class-priority.
+
+Default class-priority dispatch falls back to Bulk when no overrides
+apply. FR-S10-02 governs the fallback semantics. The hub maintains
+a single dispatch table keyed by class-priority.
+"""
+
+# Roadmap excerpt mimicking TUIBBS-scp v1-MVP roadmap.md hub block.
+# Includes Layer 1 (class-priority dispatch), Layer 2 (populate the
+# dispatch table — exercises new `populate` impl_verb), and Layer 3
+# (FR-S10-02 identifier for overlap-guard) coverage paths.
+TUIBBS_HUB_ROADMAP = """\
+## Phase 1: Foundation
+
+Set up the project structure.
+
+## Phase 5: Message Hub
+
+Implement the message hub with typed class-priority dispatch.
+
+The executor populates the dispatch table for message routing.
+
+FR-S10-02 messages take priority over later classes.
 """
 
 
@@ -274,3 +321,89 @@ class TestIntegrationAuditResult:
     def test_empty_result_is_covered(self):
         result = IntegrationAuditResult()
         assert result.all_covered
+
+
+class TestHubDispatchRegression:
+    """Anti-instinct gate must produce 1 hub-dispatch contract, not 4, AND must find it covered in the roadmap."""
+
+    def test_t1_one_contract_per_hub_mechanism(self):
+        """4 epic lines mentioning hub dispatch → 1 IntegrationContract."""
+        contracts = extract_integration_contracts(TUIBBS_HUB_SPEC)
+        hub_contracts = [
+            c for c in contracts
+            if c.mechanism == "dispatch_table"
+            and "FR-S10-02" in c.mechanism_signature[1]
+        ]
+        assert len(hub_contracts) == 1
+
+    def test_t2_class_priority_dispatch_covers_hub(self):
+        """Roadmap phrase 'class-priority dispatch' covers hub contract."""
+        contracts = extract_integration_contracts(TUIBBS_HUB_SPEC)
+        result = check_roadmap_coverage(contracts, TUIBBS_HUB_ROADMAP)
+        assert result.uncovered_count == 0
+
+    def test_t3_prose_dispatch_not_extracted_alone(self):
+        """'priority dispatch cannot be undermined' in isolation yields ≤1 contract."""
+        prose = "So that priority dispatch cannot be undermined by mis-tagged messages."
+        contracts = extract_integration_contracts(prose)
+        assert len(contracts) <= 1
+
+    def test_t4_existing_dispatch_table_test_still_passes(self):
+        """DISPATCH_TABLE_SPEC still yields a dispatch_table contract."""
+        contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
+        assert any(c.mechanism == "dispatch_table" for c in contracts)
+
+    def test_t5_cli_portify_regression_still_blocks(self):
+        """SC-003 regression: PROGRAMMATIC_RUNNERS without wiring still uncovered."""
+        contracts = extract_integration_contracts(CLI_PORTIFY_SPEC)
+        result = check_roadmap_coverage(contracts, CLI_PORTIFY_BAD_ROADMAP)
+        assert result.uncovered_count >= 1
+
+    def test_t6_stem_fallback_with_ident_overlap_covers(self):
+        """Roadmap with 'Implement ... class-priority dispatch' + FR-S10-02 in window covers hub contract."""
+        spec = (
+            "The hub uses class-priority dispatch — FR-S10-02 is the relevant requirement.\n"
+            "Default dispatch order is strict.\n"
+        )
+        roadmap = (
+            "## M5\n"
+            "Implement the message hub with typed class-priority dispatch.\n"
+            "FR-S10-02 messages take priority over others.\n"
+        )
+        contracts = extract_integration_contracts(spec)
+        result = check_roadmap_coverage(contracts, roadmap)
+        assert result.uncovered_count == 0
+
+    def test_t7_stem_fallback_without_ident_overlap_uncovers(self):
+        """'Implement priority dispatch for logging' must NOT cover hub contract because no identifier overlap with the contract's signature."""
+        spec = (
+            "The hub uses class-priority dispatch — FR-S10-02 is the relevant requirement.\n"
+        )
+        roadmap = (
+            "## M5\n"
+            "Implement priority dispatch for logging events.\n"
+            "Configure debug log levels and rotation.\n"
+        )
+        contracts = extract_integration_contracts(spec)
+        result = check_roadmap_coverage(contracts, roadmap)
+        # No FR-S10-02 in the roadmap → stem-fallback identifier-overlap guard rejects the match → contract uncovered.
+        assert result.uncovered_count >= 1
+
+
+class TestExtractIdentifiersInvariants:
+    """Behavior-pin tests asserting exact set equality. These are red→green acceptance signals for the canonicalization fix. Substring-based downstream assertions silently green-bar regardless of fix correctness; these pin tests close that gap."""
+
+    def test_hyphenated_requirement_id_emits_full_token(self):
+        assert _canonicalize_identifiers("FR-S10-02") == frozenset({"FR-S10-02", "S10"})
+
+    def test_mixed_case_canonicalized_via_helper(self):
+        assert _canonicalize_identifiers("fr-s10-02") == frozenset({"FR-S10-02", "S10"})
+
+    def test_pascal_case_uppercases_consistently(self):
+        # INV-003 guard: PascalCase tokens must survive .upper() AND
+        # Layer-3 window-upper. This pin test would FAIL if either side
+        # of the canonicalization chain regresses.
+        assert _canonicalize_identifiers("ConcreteStrategy") == frozenset({"CONCRETESTRATEGY"})
+
+    def test_empty_text_yields_empty_frozenset(self):
+        assert _canonicalize_identifiers("") == frozenset()

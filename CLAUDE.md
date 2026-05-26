@@ -32,6 +32,33 @@ In the event where context pressure would otherwise have the agent take shortcut
 
 See also: memory `feedback_claude_dir_gitignored.md`.
 
+## ABSOLUTE RULE: PR Target = Fork (`IronbellyOrg/IronClaude`), NEVER Upstream
+
+This repository is a **fork**. `origin` = `IronbellyOrg/IronClaude` (the user's private fork). `upstream` = `SuperClaude-Org/SuperClaude_Framework` (the public parent).
+
+**NEVER**, under any circumstance:
+
+- Run a bare `gh pr create` without `--repo IronbellyOrg/IronClaude`. The GitHub CLI defaults `gh pr create` to the **parent repo of a fork**, which means PRs silently land on the public upstream — exposing private fork work and misrouting reviews.
+- Open PRs against `SuperClaude-Org/SuperClaude_Framework` without explicit user authorization in the same session. Treat that target as forbidden.
+- Push to `upstream` (the `upstream` remote name above). The `origin` remote is the correct push target.
+- Assume the upstream is the right target because gh's interactive flow suggests it. The interactive flow is the trap.
+
+**The mandatory command shape:**
+
+```bash
+gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "..." --body "..."
+```
+
+**Pre-PR checks (mandatory):**
+
+1. `git remote -v` — confirm `origin` = `IronbellyOrg/IronClaude.git`.
+2. `git fetch origin && git log master..origin/master` — if the fork's master is ahead of the local master, **rebase the branch onto `origin/master`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between master and <branch>".
+3. After PR creation, **verify the returned URL points at `https://github.com/IronbellyOrg/IronClaude/pull/N`**, not `SuperClaude-Org`. If it shows the wrong owner, close it immediately and reopen with `--repo IronbellyOrg/IronClaude`.
+
+**Exceptions:** Contributing back to upstream is explicit, separate, deliberate user authorization in the same session — never a default behavior. Without that explicit instruction, every PR goes on the fork.
+
+**Rationale:** This rule exists because gh's default-to-upstream behavior burned the user on 2026-05-25 (PR #558 on SuperClaude-Org instead of IronbellyOrg #86). The mechanical gates (gh's defaults, `git push` targeting) do NOT enforce the right outcome — only this CLAUDE.md rule + explicit `--repo` on every invocation does. See also: memory `feedback_pr_target_fork_only.md` and `reference_repo_remotes_IronClaude.md`.
+
 ### Required Commands
 
 ```bash

@@ -1,0 +1,64 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 51 items
+
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category1_dispatch_table PASSED [  1%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category2_plugin_registry PASSED [  3%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category3_callback_injection PASSED [  5%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category4_strategy_pattern PASSED [  7%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category5_middleware_chain PASSED [  9%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category6_event_binding PASSED [ 11%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_category7_di_container PASSED [ 13%]
+tests/roadmap/test_integration_contracts.py::TestDispatchPatternDetection::test_all_categories_detected PASSED [ 15%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_covered_roadmap_passes PASSED [ 17%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_uncovered_roadmap_fails PASSED [ 19%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_empty_contracts_passes PASSED [ 21%]
+tests/roadmap/test_integration_contracts.py::TestWiringCoverage::test_coverage_evidence_recorded PASSED [ 23%]
+tests/roadmap/test_integration_contracts.py::TestDeduplication::test_duplicate_lines_deduplicated PASSED [ 25%]
+tests/roadmap/test_integration_contracts.py::TestDeduplication::test_sequential_id_assignment PASSED [ 27%]
+tests/roadmap/test_integration_contracts.py::TestNamedMechanismMatching::test_upper_snake_case_detected PASSED [ 29%]
+tests/roadmap/test_integration_contracts.py::TestNamedMechanismMatching::test_named_mechanism_in_roadmap_coverage PASSED [ 31%]
+tests/roadmap/test_integration_contracts.py::TestCliPortifyRegression::test_detects_programmatic_runners_without_wiring PASSED [ 33%]
+tests/roadmap/test_integration_contracts.py::TestCliPortifyRegression::test_total_contracts_detected PASSED [ 35%]
+tests/roadmap/test_integration_contracts.py::TestIntegrationAuditResult::test_all_covered_true_when_zero_uncovered PASSED [ 37%]
+tests/roadmap/test_integration_contracts.py::TestIntegrationAuditResult::test_all_covered_false_when_uncovered PASSED [ 39%]
+tests/roadmap/test_integration_contracts.py::TestIntegrationAuditResult::test_empty_result_is_covered PASSED [ 41%]
+tests/roadmap/test_anti_instinct_integration.py::TestAntiInstinctInPipeline::test_anti_instinct_step_exists_in_build_steps PASSED [ 43%]
+tests/roadmap/test_anti_instinct_integration.py::TestAntiInstinctInPipeline::test_anti_instinct_positioned_between_merge_and_test_strategy PASSED [ 45%]
+tests/roadmap/test_anti_instinct_integration.py::TestAntiInstinctInPipeline::test_anti_instinct_gate_is_strict PASSED [ 47%]
+tests/roadmap/test_anti_instinct_integration.py::TestAntiInstinctInPipeline::test_anti_instinct_step_metadata PASSED [ 49%]
+tests/roadmap/test_anti_instinct_integration.py::TestAntiInstinctInPipeline::test_anti_instinct_in_all_gates PASSED [ 50%]
+tests/roadmap/test_anti_instinct_integration.py::TestSC001RegressionBlocks::test_obligation_scanner_finds_undischarged PASSED [ 52%]
+tests/roadmap/test_anti_instinct_integration.py::TestSC001RegressionBlocks::test_integration_contracts_find_uncovered PASSED [ 54%]
+tests/roadmap/test_anti_instinct_integration.py::TestSC001RegressionBlocks::test_fingerprint_coverage_low PASSED [ 56%]
+tests/roadmap/test_anti_instinct_integration.py::TestSC001RegressionBlocks::test_anti_instinct_gate_blocks_bad_roadmap PASSED [ 58%]
+tests/roadmap/test_anti_instinct_integration.py::TestSC001RegressionBlocks::test_all_three_semantic_checks_triggered PASSED [ 60%]
+tests/roadmap/test_anti_instinct_integration.py::TestGatePassesGoodRoadmap::test_gate_passes_clean_roadmap PASSED [ 62%]
+tests/roadmap/test_anti_instinct_integration.py::TestGatePassesGoodRoadmap::test_audit_frontmatter_correct_on_pass PASSED [ 64%]
+tests/roadmap/test_anti_instinct_integration.py::TestStructuralAuditWarningOnly::test_structural_audit_does_not_raise PASSED [ 66%]
+tests/roadmap/test_anti_instinct_integration.py::TestStructuralAuditWarningOnly::test_structural_audit_handles_missing_files PASSED [ 68%]
+tests/roadmap/test_anti_instinct_integration.py::TestStructuralAuditWarningOnly::test_structural_audit_handles_no_frontmatter PASSED [ 70%]
+tests/roadmap/test_anti_instinct_integration.py::TestAuditOutputFormat::test_output_has_yaml_frontmatter PASSED [ 72%]
+tests/roadmap/test_anti_instinct_integration.py::TestAuditOutputFormat::test_output_has_required_frontmatter_fields PASSED [ 74%]
+tests/roadmap/test_anti_instinct_integration.py::TestAuditOutputFormat::test_output_has_markdown_sections PASSED [ 76%]
+tests/roadmap/test_anti_instinct_integration.py::TestAuditOutputFormat::test_output_has_sufficient_lines_for_gate PASSED [ 78%]
+tests/roadmap/test_anti_instinct_integration.py::TestAuditOutputFormat::test_output_frontmatter_values_are_numeric PASSED [ 80%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_no_undischarged_obligations_passes_on_zero PASSED [ 82%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_no_undischarged_obligations_fails_on_nonzero PASSED [ 84%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_no_undischarged_obligations_fails_on_missing PASSED [ 86%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_integration_contracts_covered_passes_on_zero PASSED [ 88%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_integration_contracts_covered_fails_on_nonzero PASSED [ 90%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_fingerprint_coverage_passes_above_threshold PASSED [ 92%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_fingerprint_coverage_passes_at_threshold PASSED [ 94%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_fingerprint_coverage_fails_below_threshold PASSED [ 96%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_fingerprint_coverage_fails_on_missing PASSED [ 98%]
+tests/roadmap/test_anti_instinct_integration.py::TestSemanticCheckFunctions::test_all_checks_fail_on_no_frontmatter PASSED [100%]
+
+============================== 51 passed in 0.20s ==============================
