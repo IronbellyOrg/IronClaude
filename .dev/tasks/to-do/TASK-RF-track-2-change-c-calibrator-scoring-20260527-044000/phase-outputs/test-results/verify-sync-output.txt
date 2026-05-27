@@ -1,0 +1,23 @@
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  [23 skills all ✅]
+=== Agents ===
+  [38 agents all ✅, including confidence-calibrator.md]
+=== Commands ===
+  [41 commands all ✅]
+=== Hooks ===
+  [10 hooks all ✅]
+=== Templates ===
+  [16 templates all ✅]
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+EXIT=0
+
+No MISSING or DIFFERS lines observed in output.
