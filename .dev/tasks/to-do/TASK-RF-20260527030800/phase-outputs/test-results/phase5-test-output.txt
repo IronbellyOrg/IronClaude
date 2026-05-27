@@ -1,0 +1,50 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 34 items
+
+tests/roadmap/test_cosmetic_remediator.py::TestClassifierBasics::test_non_roadmap_gate_classifies_as_non_cosmetic PASSED [  2%]
+tests/roadmap/test_cosmetic_remediator.py::TestClassifierBasics::test_placeholder_sentinel_is_semantic PASSED [  5%]
+tests/roadmap/test_cosmetic_remediator.py::TestClassifierBasics::test_oq_in_deliverable_id_is_semantic PASSED [  8%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c1_stem_alias_classified_and_fixed PASSED [ 11%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c2_missing_milestone_suffix_fixed PASSED [ 14%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c3_u2014_literal_dash_variant_fixed PASSED [ 17%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c3_em_dash_normalized_to_double_hyphen PASSED [ 20%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_full_tuibbs_failure_shape_remediated PASSED [ 23%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c5_c6_trailing_whitespace_stripped PASSED [ 26%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c7_blank_line_collapse PASSED [ 29%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c8_smart_quotes_folded PASSED [ 32%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c10_frontmatter_trailing_whitespace_stripped PASSED [ 35%]
+tests/roadmap/test_cosmetic_remediator.py::TestC12H2Parenthetical::test_c12_detector_emits_violation_for_required_h2_with_parenthetical PASSED [ 38%]
+tests/roadmap/test_cosmetic_remediator.py::TestC12H2Parenthetical::test_c12_transform_rewrites_h2_to_canonical_form PASSED [ 41%]
+tests/roadmap/test_cosmetic_remediator.py::TestC12H2Parenthetical::test_c12_is_idempotent PASSED [ 44%]
+tests/roadmap/test_cosmetic_remediator.py::TestC12H2Parenthetical::test_c12_safety_gate_refuses_non_required_h2_parenthetical PASSED [ 47%]
+tests/roadmap/test_cosmetic_remediator.py::TestC12H2Parenthetical::test_c12_skips_h2_inside_fenced_block PASSED [ 50%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_canonical_input_classifies_as_not_cosmetic PASSED [ 52%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_remediation_is_idempotent PASSED [ 55%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_c11_resource_subsection_alias_fixed PASSED [ 58%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_mixed_cosmetic_and_semantic_refuses_to_remediate PASSED [ 61%]
+tests/roadmap/test_cosmetic_remediator.py::TestC13GapDrivenH3Repair::test_c13_detector_emits_violation_for_renameable_h3 PASSED [ 64%]
+tests/roadmap/test_cosmetic_remediator.py::TestC13GapDrivenH3Repair::test_c13_transform_renames_h3_to_canonical PASSED [ 67%]
+tests/roadmap/test_cosmetic_remediator.py::TestC13GapDrivenH3Repair::test_c13_is_idempotent PASSED [ 70%]
+tests/roadmap/test_cosmetic_remediator.py::TestC13GapDrivenH3Repair::test_c13_cardinality_safety_refuses_on_ambiguity PASSED [ 73%]
+tests/roadmap/test_cosmetic_remediator.py::TestC13GapDrivenH3Repair::test_c13_skips_h3_inside_fenced_block PASSED [ 76%]
+tests/roadmap/test_cosmetic_remediator.py::TestClassificationDataclass::test_step_id_and_gate_name_round_trip PASSED [ 79%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_matches_is_in_fenced_block_on_mixed_sample PASSED [ 82%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_empty_input PASSED [ 85%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_no_fences PASSED [ 88%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_unclosed_fence_preserves_oracle_semantics PASSED [ 91%]
+tests/roadmap/test_cosmetic_remediator.py::TestPostRemediationGatePasses::test_c12_c13_post_remediation_gate_passes_on_tuibbs_shape PASSED [ 94%]
+tests/roadmap/test_cosmetic_remediator.py::TestPostRemediationGatePasses::test_c12_alone_unblocks_template_sections_gate PASSED [ 97%]
+tests/roadmap/test_cosmetic_remediator.py::TestPostRemediationGatePasses::test_c13_alone_unblocks_template_sections_gate PASSED [100%]
+
+============================== 34 passed in 0.20s ==============================
+--- ruff check ---
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
