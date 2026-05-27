@@ -756,6 +756,90 @@ class TestThreeRunSimulation:
         # Same finding should have same stable ID across runs
         assert ids_run1 == ids_run2
 
+    def test_flatline_halt_emits_structural_verdict(self, tmp_path):
+        """Regression test for the TUIBBS-shape flatline halt.
+
+        Pre-fix: spec enumerating D1..D54 (canonical forms) vs roadmap
+        enumerating D01..D54 (zero-padded forms) produced 54 raw
+        set-difference phantom_id findings every run — the registry's active
+        HIGH count never reached 0, the convergence loop flatlined for 3
+        runs, and the pipeline halted with "Convergence not reached after
+        3 runs. Remaining active HIGHs: 54".
+
+        Post-fix: the canonicalized comparator collapses each D0N to DN,
+        matches against the spec, and emits MEDIUM id_schema_drift findings
+        for the surface-form mismatches instead of HIGH phantom_id. The
+        convergence loop's pass predicate (active_high_count == 0 at
+        convergence.py:539) is satisfied on Run 1.
+
+        This test invokes check_signatures directly on the TUIBBS shape and
+        verifies the post-fix counts — equivalent to "Run 1 passes" because
+        the loop's pass condition depends only on what check_signatures
+        emits via the structural source_layer.
+        """
+        from superclaude.cli.roadmap.structural_checkers import check_signatures
+
+        # TUIBBS-shape fixture:
+        #   spec  IDs: D1, D2, ..., D54  (canonical forms)
+        #   road  IDs: D01, D02, ..., D54 (zero-padded forms; D10+ have no padding)
+        # Note: D10..D54 are identical between spec and roadmap (no leading zero
+        # to strip), so only D01..D09 produce drift findings. The remaining
+        # D10..D54 match exactly — no finding.
+        spec_path = tmp_path / "spec.md"
+        roadmap_path = tmp_path / "roadmap.md"
+        spec_ids = ", ".join(f"D{n}" for n in range(1, 55))
+        roadmap_ids = ", ".join(f"D{n:02d}" for n in range(1, 55))
+        spec_path.write_text(
+            "---\ntitle: TUIBBS Spec\n---\n\n# Spec\n\n## Decisions\n\n"
+            f"Reference: {spec_ids}.\n",
+            encoding="utf-8",
+        )
+        roadmap_path.write_text(
+            "---\ntitle: TUIBBS Roadmap\n---\n\n# Roadmap\n\n## Decisions\n\n"
+            f"References: {roadmap_ids}.\n",
+            encoding="utf-8",
+        )
+
+        findings = check_signatures(str(spec_path), str(roadmap_path))
+
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [
+            f
+            for f in findings
+            if f.rule_id == "id_schema_drift" and f.severity == "MEDIUM"
+        ]
+
+        # Push the structural findings into a registry and confirm the
+        # convergence-loop pass predicate is satisfied on Run 1.
+        reg = DeviationRegistry(
+            path=tmp_path / "registry.json",
+            release_id="tuibbs",
+            spec_hash="abc",
+        )
+        reg.begin_run("road1")
+        reg.merge_findings(findings, [], run_number=1)
+
+        assert reg.get_active_high_count() == 0, (
+            f"Expected 0 active HIGHs after canonicalized comparator; got "
+            f"{reg.get_active_high_count()}; HIGH phantoms="
+            f"{[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert len(high_phantoms) == 0
+        # Surface-form drift: D01..D09 differ from D1..D9 in spec → 9 drift.
+        # D10..D54 are identical surface forms → no findings.
+        # (The merged-fix-spec's "54 MEDIUMs" claim assumed roadmap forms
+        # D01..D54 all differ from spec — that holds only for D01..D09; the
+        # rest are byte-equal. This test verifies the MECHANISM end-to-end
+        # and locks the active HIGH count == 0 invariant, which is what the
+        # convergence loop's pass predicate actually checks.)
+        assert len(drift) == 9, (
+            f"Expected 9 MEDIUM id_schema_drift findings (D01..D09 ↔ "
+            f"D1..D9); got {len(drift)}: "
+            f"{sorted((f.roadmap_quote, f.spec_quote) for f in drift)}"
+        )
+
 
 # --- T05.01: TurnLedger Integration and Budget Guards ---
 

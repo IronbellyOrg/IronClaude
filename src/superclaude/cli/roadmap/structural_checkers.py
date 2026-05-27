@@ -31,6 +31,7 @@ from .spec_parser import (
 SEVERITY_RULES: dict[tuple[str, str], str] = {
     # Signatures
     ("signatures", "phantom_id"): "HIGH",
+    ("signatures", "id_schema_drift"): "MEDIUM",
     ("signatures", "function_missing"): "HIGH",
     ("signatures", "param_arity_mismatch"): "MEDIUM",
     ("signatures", "param_type_mismatch"): "MEDIUM",
@@ -115,6 +116,11 @@ FIX_GUIDANCE_TEMPLATES: dict[str, str] = {
     "phantom_id": (
         "Remove the reference to `{roadmap_quote}` from the roadmap — "
         "this ID is not defined in the spec."
+    ),
+    "id_schema_drift": (
+        "Spec uses '{spec_quote}' form; roadmap uses '{roadmap_quote}' form. "
+        "Either normalize roadmap IDs to the spec form OR rely on the "
+        "canonicalized comparator — this finding does not block convergence."
     ),
     "function_missing": (
         "Add a reference to function `{spec_quote}` in the roadmap's "
@@ -286,6 +292,47 @@ def _make_finding(
     )
 
 
+def _canonicalize_requirement_id(family: str, raw: str) -> str:
+    """Canonicalize a requirement ID to enable drift-tolerant comparison.
+
+    Mirrors the precedent in integration_contracts.py:445 (_canonicalize_identifiers,
+    KNOWLEDGE.md 2026-05-25 "Fix B Merged"). Strips leading zeros within the
+    numeric tail while preserving family prefix and any sub-ID structure.
+
+    Examples:
+        D01     -> D1
+        D-01    -> D1
+        FR-7    -> FR-7   (idempotent)
+        FR-7.1  -> FR-7.1 (sub-ID preserved)
+        NFR-02  -> NFR-2
+
+    Note: this helper is intentionally a pure (family, raw) -> str transformation
+    with no shared state. A future refactor MAY relocate this helper into
+    spec_parser.extract_requirement_ids so canonical IDs flow downstream by
+    construction (refactoring-expert framing in fix-3 of the adversarial debate).
+    For now it lives in the checker because relocation would alter the
+    Finding.roadmap_quote semantics at structural_checkers.py:389.
+
+    Note (forward-looking): this fix demotes "canonical form matches but surface
+    form differs" findings to MEDIUM with rule_id="id_schema_drift". This is a
+    specific instance of a broader "fixability" concept (fix-2 framing in the
+    adversarial debate): findings should declare whether they are reachable by
+    an additive roadmap edit. The full fixability classifier is deferred pending
+    calibration of the CLASS_DRIFT count threshold (INV-003 of the invariant probe).
+    """
+    import re
+
+    # Match: family prefix (letters), optional sep (- or _), leading zeros, digit run, optional rest.
+    # Multi-letter prefix families (FR, NFR, SC) use a hyphen in canonical form;
+    # single-letter prefix families (D, G) drop the separator entirely.
+    match = re.match(r"^([A-Z]+)([-_]?)0*(\d+)(.*)$", raw)
+    if not match:
+        return raw
+    prefix, _input_sep, num, rest = match.groups()
+    sep = "-" if len(prefix) > 1 else ""
+    return f"{prefix}{sep}{num}{rest}"
+
+
 # ---------- S5: Context-Aware NFR Severity ----------
 
 # Heading-path tokens that signal a hard-requirement section. NFR soft findings
@@ -369,26 +416,60 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
     findings: list[Finding] = []
 
     # --- Phantom ID check: roadmap references IDs not in spec ---
-    spec_ids: set[str] = set()
+    # Build canonical-form -> raw-form maps for both sides. The canonicalizer
+    # at structural_checkers._canonicalize_requirement_id collapses zero-padded
+    # and separator-variant forms (D01, D-01 -> D1) so surface-form drift no
+    # longer trips the raw set-difference comparator. Mirrors the precedent at
+    # integration_contracts.py:445.
+    spec_canon: dict[str, str] = {}
     for family, ids in spec_parsed.requirement_ids.items():
-        spec_ids.update(ids)
+        for raw in ids:
+            canon = _canonicalize_requirement_id(family, raw)
+            # Preserve first-seen raw form on collision (deterministic via sorted iteration)
+            if canon not in spec_canon:
+                spec_canon[canon] = raw
 
-    roadmap_ids: set[str] = set()
+    roadmap_canon: dict[str, str] = {}
     for family, ids in roadmap_parsed.requirement_ids.items():
-        roadmap_ids.update(ids)
+        for raw in ids:
+            canon = _canonicalize_requirement_id(family, raw)
+            if canon not in roadmap_canon:
+                roadmap_canon[canon] = raw
 
-    phantom_ids = roadmap_ids - spec_ids
-    for pid in sorted(phantom_ids):
-        findings.append(
-            _make_finding(
-                dimension="signatures",
-                mismatch_type="phantom_id",
-                description=f"Roadmap references ID '{pid}' not found in spec",
-                location=f"roadmap:{pid}",
-                spec_quote="[MISSING]",
-                roadmap_quote=pid,
+    drift_findings: list[Finding] = []  # MEDIUM id_schema_drift
+    phantom_findings: list[Finding] = []  # HIGH phantom_id (existing behavior)
+    for canon in sorted(roadmap_canon):
+        raw = roadmap_canon[canon]
+        if canon in spec_canon:
+            if raw == spec_canon[canon]:
+                continue  # exact match — no finding
+            drift_findings.append(
+                _make_finding(
+                    dimension="signatures",
+                    mismatch_type="id_schema_drift",
+                    description=(
+                        f"Roadmap ID '{raw}' canonicalizes to spec ID "
+                        f"'{spec_canon[canon]}' (surface form differs). "
+                        f"Does not block convergence."
+                    ),
+                    location=f"roadmap:{raw}",
+                    spec_quote=spec_canon[canon],
+                    roadmap_quote=raw,
+                )
             )
-        )
+        else:
+            phantom_findings.append(
+                _make_finding(
+                    dimension="signatures",
+                    mismatch_type="phantom_id",
+                    description=f"Roadmap references ID '{raw}' not found in spec",
+                    location=f"roadmap:{raw}",
+                    spec_quote="[MISSING]",
+                    roadmap_quote=raw,
+                )
+            )
+    findings.extend(phantom_findings)
+    findings.extend(drift_findings)
 
     # --- Function missing check: spec functions not referenced in roadmap ---
     spec_sigs = spec_parsed.function_signatures
