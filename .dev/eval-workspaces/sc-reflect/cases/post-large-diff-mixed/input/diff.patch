@@ -1,0 +1,47 @@
+# STUB — iteration-1 follow-up fleshes out content. Spec §12.3 row 3.
+# 15-file diff with deliberately mixed deviation classes:
+#   - 1 regression (Task 5 — quietly changes existing public API contract)
+#   - 2 drift     (Task 7 + Task 9 — implementation deviates from tasklist intent)
+#   - 1 necessary (Task 11 — extra change required to make Task 11 actually work)
+#   - 1 authorized (Task 14 — extra change pre-authorized in task notes)
+# Remaining 10 tasks have clean diffs.
+
+diff --git a/src/feature/api/v1/users.py b/src/feature/api/v1/users.py
+@@ -1,5 +1,8 @@
++"""Users API — list/create/update/delete user records."""
++
+ def list_users():
+-    return _all_users()
++    # REGRESSION: changes return shape from list -> paginated dict without bumping API version
++    return {"page": 1, "items": _all_users()}
+
+diff --git a/src/feature/queue/dispatcher.py b/src/feature/queue/dispatcher.py
+@@ -10,3 +10,5 @@ def dispatch(job):
+-    return worker.run(job)
++    # DRIFT: tasklist asked for thread-pool dispatch; this is a process-pool implementation
++    return process_pool.apply_async(worker.run, (job,)).get()
+
+diff --git a/src/feature/cache/lru.py b/src/feature/cache/lru.py
+@@ -5,3 +5,5 @@ class LRUCache:
+-        self.capacity = 128
++        # DRIFT: tasklist specified default capacity = 128; bumped to 512 unilaterally
++        self.capacity = 512
+
+diff --git a/src/feature/auth/oauth.py b/src/feature/auth/oauth.py
+@@ -20,4 +20,7 @@ def exchange_code(code):
++    # NECESSARY: Task 11 required this; without exchanging the PKCE verifier the
++    # tasklist-prescribed flow does not actually complete. Pre-disclosed in
++    # the task notes as a necessary scope expansion.
+     verifier = _get_pkce_verifier()
+     return _token_exchange(code, verifier=verifier)
+
+diff --git a/src/feature/metrics/emit.py b/src/feature/metrics/emit.py
+@@ -1,2 +1,4 @@
++# AUTHORIZED: Task 14 notes explicitly permitted adding StatsD as an additional
++# emitter alongside Prometheus. Both registered.
+ def emit(name, value):
+-    prometheus_registry.observe(name, value)
++    prometheus_registry.observe(name, value)
++    statsd_client.gauge(name, value)
+
+# … 10 more clean-pass file changes elided for stub brevity …

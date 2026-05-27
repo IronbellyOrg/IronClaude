@@ -1,0 +1,12 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 11.
+# Operator passed --no-promote → action: skipped; skip_reason: user-flag.
+# Gate evaluation is NOT performed because the user-flag short-circuits Wave 7.
+id: promotion-no-promote-flag
+status: stub-iteration-1-follow-up
+description: "Operator passed --no-promote; Wave 7 short-circuits with action: skipped, skip_reason: user-flag."
+spec_ref: "§14.5.7 bullet 11"
+expected_action: skipped
+expected_skip_reason: user-flag
+override_flag: --no-promote
+gate_evaluation_skipped: true             # entire 9-condition gate is not evaluated
+adapter: task

@@ -1,0 +1,3 @@
+Makefile baseline targets verified: sync-dev (line 109), verify-sync (line 166), lint-architecture (line 362), eval-skill (line 482), lint (line 48), test (line 13) all present.
+
+Baseline `make verify-sync` exited 0 after one-time `make sync-dev` was run to clear pre-existing fork-state drift (worktree had been created without prior sync). All ✅ rows: 23 skills, 38 agents, 41 commands, 11 hooks, 16 templates, installer registration, hooks cross-consistency. See baseline-verify-sync.txt for full output.

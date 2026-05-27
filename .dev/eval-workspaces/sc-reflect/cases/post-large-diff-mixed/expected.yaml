@@ -1,0 +1,30 @@
+# STUB — iteration-1 follow-up fleshes out content. Spec §12.3 row 3.
+# Expected outcomes for post-large-diff-mixed fixture (UC-2).
+mode: post
+use_case: UC-2
+deviation_counts:
+  authorized: 1   # Task 14 StatsD addition
+  necessary: 1    # Task 11 PKCE verifier expansion
+  drift: 2        # Task 7 process-pool vs thread-pool; Task 9 capacity 512 vs 128
+  regression: 1   # Task 5 changes public API return shape silently
+tier_reached: 3   # Regression class triggers unconditional Tier 3 per §10.4
+escalation_reason: regression_present
+calibrated_confidence_min: 0.80
+regression_recall_min: 0.85
+per_task_verdicts:
+  - task_id: 5
+    verdict: regression
+    hunk_id: users-list-shape
+  - task_id: 7
+    verdict: drift
+    hunk_id: dispatcher-process-pool
+  - task_id: 9
+    verdict: drift
+    hunk_id: lru-capacity-bump
+  - task_id: 11
+    verdict: necessary
+    hunk_id: oauth-pkce-verifier
+  - task_id: 14
+    verdict: authorized
+    hunk_id: metrics-statsd-add
+remediation_recommendation: required  # regression presence forces opt-in remediation offer

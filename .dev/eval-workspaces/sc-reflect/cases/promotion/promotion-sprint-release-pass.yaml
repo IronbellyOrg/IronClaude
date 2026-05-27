@@ -1,0 +1,29 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 8.
+# Sprint-release adapter exercised:
+#   source:      .dev/releases/current/<release-id>/
+#   destination: .dev/releases/complete/<release-id>/
+# Parent destination directory auto-created if absent.
+id: promotion-sprint-release-pass
+status: stub-iteration-1-follow-up
+description: Sprint-release adapter selected; source moves from .dev/releases/current/ to .dev/releases/complete/.
+spec_ref: "§14.5.7 bullet 8"
+expected_action: moved
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: []
+expected_gate_passed: true
+adapter: sprint-release
+source_path: .dev/releases/current/<release-id>/
+destination_path: .dev/releases/complete/<release-id>/
+parent_auto_created: true

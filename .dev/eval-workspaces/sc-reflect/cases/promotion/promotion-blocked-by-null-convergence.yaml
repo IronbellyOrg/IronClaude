@@ -1,0 +1,26 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 6.
+# T2 was reached but sc-adversarial returned convergence_score=null (per §8 null-convergence handling).
+# adversarial_result_present condition fails.
+id: promotion-blocked-by-null-convergence
+status: stub-iteration-1-follow-up
+description: T2 reached and convergence_score is null — adversarial_result_present condition fails per §8.
+spec_ref: "§14.5.7 bullet 6"
+expected_action: rejected
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: fail           # cond 9 — T2 ran but convergence_score is null (F3 path)
+expected_gate_evaluation_failures: [adversarial_result_present]
+expected_gate_passed: false
+adapter: task
+tier_reached: 2
+convergence_score: null

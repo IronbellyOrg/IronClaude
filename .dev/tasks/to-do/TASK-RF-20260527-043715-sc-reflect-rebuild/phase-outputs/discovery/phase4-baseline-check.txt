@@ -1,0 +1,6 @@
+Frozen baseline survived Phase 1: both files exist, line counts match (111 each), byte-identical.
+
+Verified 2026-05-27:
+- .dev/eval-workspaces/sc-reflect/skill-snapshot/reflect-v1.md: 111 lines
+- src/superclaude/commands/reflect.md: 111 lines
+- diff -q: no output (byte-identical)

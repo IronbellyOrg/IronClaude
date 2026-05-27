@@ -1,0 +1,31 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 15.
+# Crash between step 7.4 (promotion-log pre-write) and step 7.6 (commit).
+# On next invocation, reconciliation reads the pre-written promotion-log and completes,
+# guaranteeing the mutation is recorded even if the wrap-up step crashed.
+id: promotion-log-pre-write-survives-crash
+status: stub-iteration-1-follow-up
+description: Crash between step 7.4 and step 7.6; next invocation reconciles from the pre-written promotion-log per §14.5.6.
+spec_ref: "§14.5.7 bullet 15"
+expected_action: moved                       # SKILL.md §14.5.5 L1181: pre-write reconciliation flips the entry to pending: false / move-complete; the final emitted `action` is `moved` with a one-line audit warning. (`reconciled-from-log` is NOT in the L1207 action enum.)
+expected_audit_warning_emitted: true         # operator-readable one-liner per L1181
+crash_state: between-7.4-and-7.6
+pre_written_promotion_log_present: true
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  # NOTE: reconciliation runs in the next reflect invocation — gate state is the state captured at original-run checkpoint write time.
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: []
+expected_gate_passed: true
+expected_pending_flag_flipped_from_true_to_false: true  # SKILL.md L1181 + §14.5.6 L1227
+adapter: task
+expected_audit_checkpoint: promotion_log_pre_write_reconciliation

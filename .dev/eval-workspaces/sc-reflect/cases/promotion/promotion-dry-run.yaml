@@ -1,0 +1,28 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 13.
+# --promote-dry-run → print mv command + per-condition gate evaluation; NO filesystem mutation; promotion-log NOT written to its persistent destination (only emitted to stdout).
+id: promotion-dry-run
+status: stub-iteration-1-follow-up
+description: --promote-dry-run prints intended mv command + 9-condition gate evaluation; no mutation, no persistent promotion-log write.
+spec_ref: "§14.5.7 bullet 13"
+expected_action: dry-run
+override_flag: --promote-dry-run
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: []
+expected_gate_passed: true
+expected_skip_reason: dry-run                # SKILL.md §14.5.6 L1230 root-level field — `dry-run` value per L1207 action enum
+adapter: task
+mutation_performed: false
+promotion_log_persisted: false           # only stdout-emitted in dry-run
+destination_path_after_run_must_be_absent: true

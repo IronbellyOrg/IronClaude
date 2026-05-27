@@ -5,6 +5,8 @@ version: 1.0.0
 allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily-search, mcp__sequential-thinking__sequentialthinking
 ---
 
+<!-- markdownlint-disable MD013 MD040 -->
+
 <!-- Provenance: This document was produced by /sc:adversarial via /sc:brainstorm -->
 <!-- Base: Variant 2 -->
 <!-- Merge date: 2026-05-26T23:02:22Z -->
@@ -21,8 +23,6 @@ supersedes: src/superclaude/commands/reflect.md (legacy think_about_* surface)
 -->
 
 # Reflect Protocol
-
-<!-- Source: Base (V2, original) — §1 Purpose & Core Thesis preserved verbatim -->
 
 ## 1. Purpose & Core Thesis
 
@@ -42,8 +42,6 @@ This protocol is built around three structural mechanisms that single-model self
 **Hallucination contract.** Every claim in the final report is either (a) **Grounded** — backed by a real `file:line` citation, a real diagnostic output, or a real document section that survives evidence-validator re-Read; or (b) **Inferred** — explicitly tagged `[INFERRED]` with a citation chain that the report admits is non-load-bearing. There is no third bucket. Findings that cannot be tagged either way are *dropped*.
 
 ---
-
-<!-- Source: Base (V2, original) — §2 Triggers preserved verbatim -->
 
 ## 2. Triggers
 
@@ -65,8 +63,6 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
 
 ### 3.1 Inputs
 
-<!-- Source: Base (V2, original) — input flag enumeration preserved verbatim -->
-
 - `--mode pre | post` — explicit mode (RECOMMENDED for non-interactive callers; eliminates auto-detect ambiguity)
 - `--spec <path>` — driving spec/PRD/objectives doc (required for UC-1; recommended for UC-2)
 - `--tasklist <path>` — tasklist file (required for UC-2; recommended for UC-1 if a tasklist already exists)
@@ -86,11 +82,11 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
   - `--promote-anyway` — override `status: partial` gate condition (all other 7 conditions still apply). No effect on `status: failed`.
   - `--promote-dry-run` — print the `mv` command + gate evaluation; perform no mutation.
   - `--promote-mode auto|task|sprint-release|none` — force a specific promotion adapter or disable selection. Default `auto`.
-  - `--promote-resume <checkpoint-path>` — resume an interrupted cross-filesystem promotion from a `promotion-checkpoint.yaml`. See §14.5.5 for partial-state recovery semantics. <!-- spec-panel fix (CRITICAL): C2 -->
+  - `--promote-resume <checkpoint-path>` — resume an interrupted cross-filesystem promotion from a `promotion-checkpoint.yaml`. See §14.5.5 for partial-state recovery semantics.
+
+(See `refs/input-resolution.md` for per-flag expanded semantics and worked examples.)
 
 ### 3.2 Mode selection (6-rule first-match order)
-
-<!-- Source: V1 §3 — merged per Change #6 (replaces V2's 4-priority table with V1's 6-ordered-rules first-match) -->
 
 Applied in order, first match wins:
 
@@ -101,9 +97,9 @@ Applied in order, first match wins:
 5. `--spec` AND `--tasklist` present with no diff / no done-marker artifacts → **UC-1 (pre)**. If only `--spec` is present → UC-1 with a coverage-only pass.
 6. None of the above resolve → **STOP** with: `"Reflect requires --mode pre|post OR a resolvable input combination. See refs/input-resolution.md."`
 
-### 3.3 Hard STOP conditions
+(See `refs/input-resolution.md` for worked examples of each rule.)
 
-<!-- Source: Base (V2, original) — preserved verbatim -->
+### 3.3 Hard STOP conditions
 
 - Neither `--spec`, `--tasklist`, nor `--diff` provided.
 - `--mode pre` with no `--spec` (pre-execution reflection has nothing to reflect against).
@@ -113,20 +109,17 @@ Applied in order, first match wins:
 
 ### 3.4 Environment Prerequisites
 
-<!-- Source: V1 R2-A1 + R3 A-002 consensus — merged per Change #14 (env-var fallback Required-Input subsection) -->
-
 The skill resolves model aliases from environment at Wave 0:
 
 - `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`.
 
 Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table in §4 Wave 0). Missing aliases **do not abort the skill**; they degrade reviewer topology per the §4 Wave 0 routing table (0/1/2/3+ alias rows). The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
 
+(See `refs/input-resolution.md` "Env routing table" for the 4-row alias→tier routing matrix and grader assertions.)
+
 ---
 
 ## 4. Wave / Tier Architecture
-
-<!-- Source: Base (V2, original) — 7-wave structure preserved per Change #21 (irreducible disagreement on wave count resolved at median = V2's 7) -->
-<!-- Source: R3 §Top 3 — per-step audit emit added per Change #22 (compensates V1/V4 9-wave audit-budget concern) -->
 
 **Per-step audit emit convention.** Every numbered step within every wave emits one row to `<output>/audit.log` with shape: `{wave: <N>, step: <M>, timestamp: <ISO-8601>, outcome: ok|warn|fail|skip, evidence_ref: <path-or-null>}`. This is the audit-granularity unit that resolves the 9-wave vs 7-wave structural disagreement: each step (not each wave) is the audit row.
 
@@ -160,7 +153,7 @@ Wave 6:   Tier 3 — Remediation Handoff (conditional, opt-in)
 Wave 7:   Promotion Mutation (UC-2 only — §14.5 strict gate; default-on, --no-promote to suppress)
           —— SRP boundary: Waves 0-6 are read-only review (write only to <output>/);
               Wave 7 is the SOLE wave that mutates repository state outside <output>/.
-              Architecturally a SIBLING phase to the review waves, not an extension.  <!-- spec-panel fix (MAJOR): F-1 — rename Wave 7 "Promotion" → "Promotion Mutation"; surface the SRP boundary loudly so the 7-wave count is read as "6 review waves + 1 mutation wave" -->
+              Architecturally a SIBLING phase to the review waves, not an extension.
             7.1 Resolve adapter (task | sprint-release | none)
             7.2 Re-verify all 9 gate conditions (pre-mutation validation sub-step; NOT a mutation)
                   — re-Read cited files if Wave 6 ran
@@ -174,18 +167,11 @@ Wave 7:   Promotion Mutation (UC-2 only — §14.5 strict gate; default-on, --no
             7.7 Update return-contract promotion_* fields (output-dir write only)
 ```
 
-Each wave has explicit entry/exit. Refs are loaded on-demand per wave, never pre-loaded. **The 7-wave count is structurally "6 review waves (0-6, all read-only outside `<output>/`) + 1 mutation wave (7)."** Wave 7's SRP boundary is intentional: every mutation-related concern (atomicity, rollback, partial-state recovery, forensic log) is concentrated in §14.5, NOT distributed across the review waves. Implementations MAY ship Wave 7 as a separate code path with its own entry/exit; reflect's contract guarantees that Waves 0-6 never mutate outside `<output>/` regardless. <!-- spec-panel fix (MAJOR): F-1 — SRP boundary explicit at architecture-narrative level -->
+Each wave has explicit entry/exit. Refs are loaded on-demand per wave, never pre-loaded. **The 7-wave count is structurally "6 review waves (0-6, all read-only outside `<output>/`) + 1 mutation wave (7)."** Wave 7's SRP boundary is intentional: every mutation-related concern (atomicity, rollback, partial-state recovery, forensic log) is concentrated in §14.5, NOT distributed across the review waves. Implementations MAY ship Wave 7 as a separate code path with its own entry/exit; reflect's contract guarantees that Waves 0-6 never mutate outside `<output>/` regardless.
 
 ### 4.0 Wave 0 — Detailed step additions
 
-<!-- Source: R3 INV-001 — merged per Change #10 (input_sha256 snapshot) -->
-
-**Step 0.4 (input_sha256 tree-snapshot).** <!-- spec-panel fix (MAJOR): N-2 — extend input_sha256 from single-file hash to tree-hash covering every file the run treats as input; single-file hash missed mid-run mutations of linked attachments (e.g., files inside a TASK-NNN/ directory referenced by the tasklist) --> Compute a **tree-hash** over every file the run treats as input. The tree consists of:
-
-1. The `tasklist_path` itself (always present in UC-2).
-2. The `spec_path` (when `--spec` provided).
-3. Every file referenced by relative or absolute path from the tasklist body (link-following with depth = 1; do NOT recurse into linked-link chains for v1).
-4. For UC-2 tasklist inputs that resolve under a work-unit directory (e.g., `.dev/tasks/to-do/TASK-NNN/`), every file under that directory tree (`find <work-unit-dir> -type f`).
+**Step 0.4 (input_sha256 tree-snapshot).** Compute a **tree-hash** over every file the run treats as input. The tree consists of: (1) the `tasklist_path` itself (always present in UC-2); (2) the `spec_path` (when `--spec` provided); (3) every file referenced by relative or absolute path from the tasklist body (link-following with depth = 1; do NOT recurse into linked-link chains for v1); (4) for UC-2 tasklist inputs that resolve under a work-unit directory (e.g., `.dev/tasks/to-do/TASK-NNN/`), every file under that directory tree (`find <work-unit-dir> -type f`).
 
 The tree-hash is computed as:
 
@@ -201,50 +187,32 @@ input_tree_sha256: <hex>
 file_list:
   - path: <rel-path>
     sha256: <hex>
-  - path: <rel-path>
-    sha256: <hex>
-  ...
 file_count: <int>
 ```
 
-Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input tree and recompute `input_tree_sha256`. If it differs (any file added, removed, modified, or renamed), STOP with `input_drift` flag, emit BOTH SHAs and the per-file diff (which files changed) into the return contract, and route to `status: partial`. The tree-hash detects:
-
-- A file inside `.dev/tasks/to-do/TASK-NNN/` mutated externally between Wave 0 and Wave 5 (single-file hash on tasklist.md alone would have missed it).
-- A linked attachment removed mid-run.
-- A new file added to the work-unit directory mid-run (which the synthesis would otherwise not know about).
+Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input tree and recompute `input_tree_sha256`. If it differs (any file added, removed, modified, or renamed), STOP with `input_drift` flag, emit BOTH SHAs and the per-file diff into the return contract, and route to `status: partial`.
 
 **Backward-compat with v1.0-pre contract.** The legacy `input_sha256: {tasklist: <hex>, spec: <hex>}` field in §9.1 is preserved as a derivable subset (first two entries of `file_list`); both fields are emitted in v1.0. The Wave 5 drift guard uses `input_tree_sha256` as the authoritative invariant; the legacy field is recording for backward-compat consumers per §9.4 evolution policy.
-
-<!-- Source: V1 R2-A1 + R3 A-002 + R3 INV-011 — merged per Change #14 and Change #13 (env-var alias resolution + 0/1/2/3+ routing table) -->
 
 **Step 0.5 (env-var alias resolution + 0/1/2/3+ alias routing).** Resolve the three `ANTHROPIC_DEFAULT_*_MODEL` env vars into an alias-set. Apply this routing table to decide Tier 2 reviewer count:
 
 | Aliases resolved | `--tier` flag | Routing | Telemetry |
 |------------------|---------------|---------|-----------|
 | 0 | (any except `--tier 2`) | T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
-| 0 | `--tier 2` explicit override | **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` <!-- spec-panel fix (MAJOR): Guard 3 / N-6 — zero aliases + --tier 2 hard override conflict resolved with STOP --> |
+| 0 | `--tier 2` explicit override | **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
 | 1 | (any) | T1-only path; WARN "T2 requires ≥2 model classes" | `t2_model_class_diversity: degraded` |
 | 2 | (any) | T2 with 2 reviewers (degraded) | `t2_model_class_diversity: degraded` |
 | ≥3 | (any) | T2 with 3 reviewers (full diversity) | `t2_model_class_diversity: full` |
 
-Grader assertion: `yaml_field` asserts `t2_model_class_diversity` is one of `{full, degraded}` when the skill ran to completion (non-STOP). <!-- spec-panel fix (MAJOR): W-A2 — renamed t2_diversity → t2_model_class_diversity to disambiguate model-class axis from vendor axis; see also derived t2_effective_diversity field in §9.1 -->
+Grader assertion: `yaml_field` asserts `t2_model_class_diversity` is one of `{full, degraded}` when the skill ran to completion (non-STOP).
 
 The zero-aliases + `--tier 2` row is the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
 
-<!-- Source: R3 INV-021 + Cat-6 Gate 2 — merged per Change #18 (vendor heterogeneity warn-only telemetry) -->
+(See `refs/input-resolution.md` "Env routing table" for the full 4-row matrix with grader-assertion column.)
 
-**Step 0.6 (vendor heterogeneity check).** For each resolved alias, extract the vendor (Anthropic / Qwen / Kimi / DeepSeek / OpenAI-compat / etc.) by alias-name heuristic. Emit one of:
+**Step 0.6 (vendor heterogeneity check).** For each resolved alias, extract the vendor (Anthropic / Qwen / Kimi / DeepSeek / OpenAI-compat / etc.) by alias-name heuristic. Emit one of `t2_vendor_diversity: multi` (≥2 vendors among resolved aliases) or `t2_vendor_diversity: single` (all aliases share one vendor). When `single`, emit a WARN with the suggested env-var override (full message body lives in `refs/ops-integration.md`). This is **warn-only in v1**; behaviour does not block. See §11.0 and the v1.1 deferred-hardening notes in §19.
 
-- `t2_vendor_diversity: multi` (≥2 vendors among resolved aliases)
-- `t2_vendor_diversity: single` (all aliases share one vendor)
-
-When `single`, emit a WARN with the suggested env-var override (full message body lives in `refs/ops-integration.md`). This is **warn-only in v1**; behaviour does not block. See §11.0 (sufficiency-conditional preamble) and the v1.1 deferred-hardening notes in §19.
-
-<!-- Source: P5 (budget-awareness handshake) — caller-side budget pre-flight against §15 cost profile -->
-
-**Step 0.9 (budget pre-flight, P5).** When `--budget-remaining N` is provided, route per this table against the §15 Token Cost Profile (Claude-side band midpoints). **Boundaries are stated with explicit inclusive/exclusive operators** to remove ambiguity at integer boundary values (e.g., N=5, N=6, N=52). <!-- spec-panel fix (MAJOR): Guard 4 / W-2 — boundary semantics disambiguated; T1-midpoint=6 and T2-midpoint=52 anchored numerically; inclusive on lower bound, exclusive on upper -->
-
-The numeric anchors are: **T1-midpoint = 6 turns**, **T2-midpoint = 52 turns**, computed from §15's "T1 only ~3-8k Claude" and "T2 ~35-70k Claude" bands via the conversion `1 turn ≈ 1k claude-orchestration tokens at the band midpoint`. The conversion is stated explicitly in §15.
+**Step 0.9 (budget pre-flight, P5).** When `--budget-remaining N` is provided, route per this table against the §15 Token Cost Profile (Claude-side band midpoints). Boundaries are stated with explicit inclusive/exclusive operators to remove ambiguity at integer boundary values. The numeric anchors are **T1-midpoint = 6 turns**, **T2-midpoint = 52 turns**, computed from §15's "T1 only ~3-8k Claude" and "T2 ~35-70k Claude" bands via the conversion `1 turn ≈ 1k claude-orchestration tokens at the band midpoint`.
 
 | Budget remaining (N) | Routing | Telemetry |
 |---------------------|---------|-----------|
@@ -254,21 +222,13 @@ The numeric anchors are: **T1-midpoint = 6 turns**, **T2-midpoint = 52 turns**, 
 | `N ≥ 65` (inclusive — T2-midpoint × 1.25 floor) | No constraint; run as rubric directs | `budget_forced_tier_downgrade: false` |
 | `--budget-remaining` unset | Skip; emit `budget_check_skipped: true` | none |
 
-**Boundary clarifications.** N=5 is the T1-only floor (the second row only; T2 cannot fire at N=5 regardless of rubric). N=6 is the first value that enters the third row (T2 conditionally allowed). N=52 is the first value at which T2 has no downgrade pressure unless the 1.25× kill threshold (N=65) is also crossed. The `≤` vs `<` operators in this table are the authoritative source for boundary classification.
-
-The 1.25× multiplier on the T2 threshold mirrors the hard-kill rule in §15. This step runs AFTER step 0.5 (env-var alias resolution) — alias-degraded routing takes precedence over budget routing for tier selection, but budget routing can still STOP a degraded T1 path if `N < 5`.
+**Boundary clarifications.** N=5 is the T1-only floor (the second row only; T2 cannot fire at N=5 regardless of rubric). N=6 is the first value that enters the third row. N=52 is the first value at which T2 has no downgrade pressure unless the 1.25× kill threshold (N=65) is also crossed. The `≤` vs `<` operators in this table are the authoritative source for boundary classification. This step runs AFTER step 0.5 — alias-degraded routing takes precedence over budget routing for tier selection, but budget routing can still STOP a degraded T1 path if `N < 5`.
 
 ### 4.1 Wave 1 — Detailed step additions
 
-<!-- Source: R3 INV-005 — merged per Change #12 (zero-task guard) -->
-
 **Step 1B.1 (zero-task guard, UC-1).** Before any coverage-pct computation: if the parsed tasklist contains `total_tasks == 0` and mode is UC-1, STOP with `empty_input` flag and `status: partial`, return `coverage_pct: null` with `coverage_undefined: true` in the contract. Do NOT proceed to T1/T2.
 
-<!-- Source: R3 INV-007 — merged per Change #11 (coverage_undefined route for zero-ID specs) -->
-
 **Step 1B.2 (coverage_undefined route).** If the spec/tasklist parse produces zero requirement IDs (no `T-NNN`, no checklist items, no headings to map), set `coverage_undefined: true`, route directly to T2 (no T1 stop possible), and surface in the report header. `coverage_pct` is not computed. The 0.90 T1 floor cannot pass vacuously (0/0 ≠ PASS).
-
-<!-- Source: P3 (cross-task interaction-effects scan) — central value-add of end-of-tasklist reflect vs N per-task reflects -->
 
 **Step 1B.3 (cross-task interaction-effects scan, UC-2 tasklist-scope only).** When mode is UC-2 AND the tasklist contains ≥3 completed tasks, run the symbol-overlap scan:
 
@@ -276,25 +236,17 @@ The 1.25× multiplier on the T2 threshold mirrors the hard-kill rule in §15. Th
 2. Build a symbol-overlap graph: nodes = symbols, edges = "touched by task X and task Y." Cap at top-30 most-touched symbols (heuristic; full enumeration is bounded at 30 to control cost).
 3. For each overlap edge, query `mcp__serena__find_referencing_symbols` to determine whether the symbol is genuinely shared or just transiently named the same.
 4. For each confirmed interaction, check whether either task description explicitly cites the other (textual match on task ID). If neither cites the other, **flag as a cross-task interaction risk**.
-5. Each risk becomes a synthetic invariant probe entry tagged `category: cross_task` (in addition to the existing 6 categories — see §11.2 / R2.5 invariant probe). Severity scales with the symbol's call-site count: HIGH if >5 referencing call sites, MEDIUM if 2-5, LOW if 1.
+5. Each risk becomes a synthetic invariant probe entry tagged `category: cross_task` (in addition to the existing 6 categories — see §11.2). Severity scales with the symbol's call-site count: HIGH if >5 referencing call sites, MEDIUM if 2-5, LOW if 1.
 
-Emit `interaction_effects_scanned: true` in the contract when this step runs; `interaction_effects_scanned: false` when skipped (tasklist < 3 tasks OR mode == UC-1). This is the differentiating value of end-of-tasklist reflect — per the §1 thesis, single-scope review misses interaction effects, and this is where reflect catches them. Scan-skip transparency matters: a `false` value is a legitimate outcome, not a failure.
+Emit `interaction_effects_scanned: true` in the contract when this step runs; `interaction_effects_scanned: false` when skipped (tasklist < 3 tasks OR mode == UC-1). This is the differentiating value of end-of-tasklist reflect — single-scope review misses interaction effects, and this is where reflect catches them.
 
 ### 4.3 Wave 3 — Detailed step addition
 
-<!-- Source: V1 §4 Wave 4 — merged per Change #7 (reviewer-brief packaging) -->
+**Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, materialize one brief per reviewer at `<output>/reviewer-briefs/reviewer-<N>.md` containing: (a) T1 reflection card slice (the section relevant to this reviewer's persona); (b) reviewer-scoped grounding hunks (file:line excerpts from Wave 1A); (c) coverage-matrix slice (only the rows the reviewer is responsible for). Each brief is self-contained, so reviewers run truly in parallel without orchestrator round-trips.
 
-**Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, materialize one brief per reviewer at `<output>/reviewer-briefs/reviewer-<N>.md` containing:
-
-- (a) T1 reflection card slice (the section relevant to this reviewer's persona)
-- (b) reviewer-scoped grounding hunks (file:line excerpts from Wave 1A)
-- (c) coverage-matrix slice (only the rows the reviewer is responsible for)
-
-Each brief is self-contained, so reviewers run truly in parallel without orchestrator round-trips. Brief file shape is testable via the `yaml_field` grader assertion.
+(See `refs/reviewer-spec.md` for the brief template and worked examples.)
 
 ### 4.5 Wave 5 — Detailed step addition
-
-<!-- Source: V1 R2-A1 + R3 INV-016 — merged per Change #15 (sc-adversarial F1/F2/F3 fallback + pre-invocation probe) -->
 
 **Step 5.0 (sc-adversarial pre-invocation probe and F1/F2/F3 fallback).** Before calling `Skill sc-adversarial-protocol`, probe its existence via `mcp__serena__list_memories` for the skill's existence indicator OR a no-op `Skill('sc-adversarial-protocol', args='--help')`. If the probe returns `skill not found`:
 
@@ -307,8 +259,6 @@ The fallback path is **loud, never silent**: every F-step writes to audit.log; t
 ---
 
 ## 5. Tier-Decision Rubric (Wave 2)
-
-<!-- Source: Base (V2, original) — V2's priority-rule logic preserved as deterministic spine -->
 
 The rubric routes work to T1 or T2 by combining a calibrated confidence score with three structural signals. Numeric thresholds are concrete and documented; the rubric is the source of truth for escalation.
 
@@ -336,6 +286,8 @@ Structural signals from Wave 1B:
 - `S_domains` — distinct domains touched (code, infra, docs, tests, config — counted from file paths)
 - `S_dev_density` — for UC-2 only: ratio of unmapped diff hunks to total hunks; for UC-1: ratio of unmapped spec requirements to total requirements
 
+(See `refs/reflection-rubric.md` for full dimension definitions, scoring criteria, and the calibrator-selection algorithm with disjoint-set rule.)
+
 ### 5.3 Decision logic (applied in order; first match wins)
 
 | # | Condition | Decision |
@@ -349,11 +301,9 @@ Structural signals from Wave 1B:
 | 7 | `--strategy enterprise` set on caller | ESCALATE (enterprise default per sc-brainstorm convention) |
 | 8 | Default | STOP at T1 |
 
-Default `<coverage-floor>` is **0.90** per R3 X-001 / C-002 consensus. `--coverage-floor 0.95` is an optional high-safety override.
+Default `<coverage-floor>` is **0.90**. `--coverage-floor 0.95` is an optional high-safety override.
 
 ### 5.4 tier_decision.yaml audit artifact (composite-score recording)
-
-<!-- Source: V5 §3 + R3 C-001 majority-win compromise — merged per Change #9 (5-signal composite recorded as audit artifact) -->
 
 V2's priority-rule logic (§5.3) is the deciding mechanism. V5's 5-signal composite_score is recorded in `<output>/artifacts/tier_decision.yaml` for audit visibility:
 
@@ -399,9 +349,7 @@ escalation_decision:
 
 ## 6. Modern Serena Tool Usage
 
-<!-- Source: Base (V2, original) — §6 preserved verbatim; think_about_* policy = mandatory scripted nudges, NOT load-bearing -->
-
-The protocol replaces every `think_about_*` invocation with a concrete symbol-anchored evidence chain. The `think_about_*` triad is *current* (not deprecated per Topic 1 research) but is positioned here as scripted mandatory checkpoints, not the load-bearing reflection mechanism.
+The protocol replaces every `think_about_*` invocation with a concrete symbol-anchored evidence chain. The `think_about_*` triad is *current* (not deprecated) but is positioned here as scripted mandatory checkpoints, not the load-bearing reflection mechanism.
 
 ### 6.1 Mandatory evidence-gathering chain (Wave 1A)
 
@@ -436,7 +384,7 @@ Retention rule: keep last 20 entries per key; expire >90 days. Project slug deri
 
 ### 6.4 `think_about_*` as scripted checkpoints (not load-bearing)
 
-Per Topic 1 research, the `think_about_*` tools are cheap meta-cognition prompts. They are wired in as *mandatory scripted nudges*, with their output recorded in the audit log but never used as the load-bearing signal:
+The `think_about_*` tools are cheap meta-cognition prompts. They are wired in as *mandatory scripted nudges*, with their output recorded in the audit log but never used as the load-bearing signal:
 
 | When | Tool | Purpose |
 |------|------|---------|
@@ -444,7 +392,7 @@ Per Topic 1 research, the `think_about_*` tools are cheap meta-cognition prompts
 | End of Wave 1C | `think_about_task_adherence` | UC-1 mode only — cheap nudge before calibration |
 | End of Wave 5 (after evidence-validator) | `think_about_whether_you_are_done` | Final completion nudge; result logged but does NOT gate ship (evidence-validator gates ship) |
 
-These are scripted, not optional. Their output is captured to `<output>/serena-checkpoints.log` for audit. They are not the reflection — they are a free 200-token nudge layered on top. **They are NOT listed in frontmatter `allowed-tools`** (per R3 C-007 consensus — declaring them as protocol surface would overweight their role).
+These are scripted, not optional. Their output is captured to `<output>/serena-checkpoints.log` for audit. They are not the reflection — they are a free 200-token nudge layered on top. **They are NOT listed in frontmatter `allowed-tools`** (declaring them as protocol surface would overweight their role).
 
 ### 6.5 Fail-open policy
 
@@ -453,8 +401,6 @@ Every Serena call is fail-open per `sc-validate-roadmap-protocol` convention. Mi
 ---
 
 ## 7. Agent Delegation Map
-
-<!-- Source: Base (V2, original) — §7 preserved verbatim -->
 
 Every reusable agent is mapped to a wave; no agent is duplicated inline.
 
@@ -471,11 +417,13 @@ Every reusable agent is mapped to a wave; no agent is duplicated inline.
 | `task-builder` (skill, not agent) | 6 | UC-2 (post-execution remediation) | Generate corrective MDTM task file from reflection findings | None; surface findings without remediation |
 | `socratic-mentor` | 1C | UC-1 (deep) | Optional probing pass for `--depth deep` UC-1 when spec is ambiguous | Skip |
 
+(See `refs/reviewer-spec.md` for the brief template and reviewer composition rotation details.)
+
 ### 7.1 Reviewer composition rules (Wave 3A)
 
-Reviewers are heterogeneous by model class AND by persona, to maximise representational diversity (per Topic 2 research, Wisdom of Silicon Crowd, LLM-TOPLA). Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
+Reviewers are heterogeneous by model class AND by persona, to maximise representational diversity (Wisdom of Silicon Crowd, LLM-TOPLA). Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
 
-**Executor-class exclusion rule (anti-self-confirmation, structural).** <!-- spec-panel fix (MAJOR): C-2 — executor model class MUST be excluded from reviewer pool to preserve §1 anti-representational-bias guarantee (Mehta 2026, Khan ICML 2024 Oral) --> The *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b (a new sub-step inserted between alias resolution and reviewer composition) from `--executor-model <class>` flag, the `EXECUTOR_MODEL_CLASS` env var, or — if neither is set — from the most-recent commit-author hint in the task log (heuristic; emit `executor_class_source: flag | env | log-heuristic | unknown` to telemetry). When the executor's class is in the candidate rotation, it is **removed** from the rotation; if removal drops reviewer count below the gate floor (N=2 minimum for T2), reflect emits `executor_exclusion_degraded: true` and degrades to T1 with WARN: `"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."` This rule extends the §11.3 disjoint-set principle (calibrator class disjoint from reviewer classes) to also separate **executor class from reviewer classes** — the three classes (executor, reviewers, calibrator) form a partition where collisions weaken the structural anti-self-confirmation guarantee.
+**Executor-class exclusion rule (anti-self-confirmation, structural).** The *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b (a new sub-step inserted between alias resolution and reviewer composition) from `--executor-model <class>` flag, the `EXECUTOR_MODEL_CLASS` env var, or — if neither is set — from the most-recent commit-author hint in the task log (heuristic; emit `executor_class_source: flag | env | log-heuristic | unknown` to telemetry). When the executor's class is in the candidate rotation, it is **removed** from the rotation; if removal drops reviewer count below the gate floor (N=2 minimum for T2), reflect emits `executor_exclusion_degraded: true` and degrades to T1 with WARN: `"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."` This rule extends the §11.3 disjoint-set principle (calibrator class disjoint from reviewer classes) to also separate **executor class from reviewer classes** — the three classes (executor, reviewers, calibrator) form a partition where collisions weaken the structural anti-self-confirmation guarantee.
 
 When `executor_class_source == unknown` (no flag, no env var, no log hint), reflect proceeds with the standard rotation and emits `executor_class_resolved: false` + WARN: `"executor class not resolved — anti-self-confirmation guarantee weakened; pass --executor-model to enforce."` This is fail-open by design: missing executor identity is not a STOP condition, but the weakened guarantee is logged loudly.
 
@@ -485,13 +433,13 @@ When `executor_class_source == unknown` (no flag, no env var, no log hint), refl
 | 3 (default) | sonnet, haiku, (qwen \| kimi \| deepseek if alias available; else opus) | analyzer, qa, refactorer |
 | 3 with `--strategy enterprise` | sonnet, haiku, opus | analyzer, qa, architect |
 
-Post-removal: if the executor is `sonnet`, the N=3 default rotation becomes `haiku, (qwen|kimi|deepseek|opus)` and reflect adds the next-available class from the resolved alias set to restore N=3, or degrades to N=2 if no replacement is available. The N=2 minimum is hard — below it, T2 cannot fire (see executor-exclusion-degraded path above).
+Post-removal: if the executor is `sonnet`, the N=3 default rotation becomes `haiku, (qwen|kimi|deepseek|opus)` and reflect adds the next-available class from the resolved alias set to restore N=3, or degrades to N=2 if no replacement is available. The N=2 minimum is hard — below it, T2 cannot fire.
 
 The merge judge in Wave 4 is `sc-adversarial-protocol`'s internal scoring; per Khan et al. ICML 2024 Oral, the judge being a *different* class than the debaters is the right default. The protocol does not pin a judge model — sc-adversarial owns that selection.
 
 ### 7.2 No new agents required
 
-The four hypothetical new agents discussed in `enrichment/codebase-context.md` §3.9 (`coverage-mapper`, `deviation-classifier`, `tasklist-vs-diff-comparator`, `reflection-synthesizer`) are *deliberately not introduced* in this variant. Their work is absorbed:
+The four hypothetical new agents discussed in enrichment notes (`coverage-mapper`, `deviation-classifier`, `tasklist-vs-diff-comparator`, `reflection-synthesizer`) are *deliberately not introduced* in this variant. Their work is absorbed:
 
 - Coverage-mapping work → `requirements-analyst` agent (UC-1) + inline Wave 1B logic (UC-2).
 - Deviation classification → driven by `refs/deviation-taxonomy.md` and applied by `root-cause-analyst` per-card; the taxonomy *is* the classifier.
@@ -503,8 +451,6 @@ Rationale: keeping the SKILL.md within the sc-troubleshoot/sc-brainstorm band re
 ---
 
 ## 8. Cross-Skill Integration
-
-<!-- Source: Base (V2, original) — §8 preserved verbatim -->
 
 | Skill | When | Why |
 |-------|------|-----|
@@ -525,9 +471,11 @@ Skill sc-adversarial-protocol with \
   --output <output>/adversarial/
 ```
 
-Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-protocol/SKILL.md:280-285` — no synthetic 0.5 fallback; FAIL if response is unparseable or merged_output_path file does not exist on disk. Convergence routing: ≥0.75 PASS, ≥0.60 PARTIAL, <0.60 FAIL (V2 canonical, R3 X-003 consensus 100%).
+Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-protocol/SKILL.md:280-285` — no synthetic 0.5 fallback; FAIL if response is unparseable or merged_output_path file does not exist on disk. Convergence routing: ≥0.75 PASS, ≥0.60 PARTIAL, <0.60 FAIL.
 
-**Null `convergence_score` handling (F3 path / adversarial-unavailable).** <!-- spec-panel fix (MAJOR): Guard 2 / W-A3 — null convergence_score routing for downstream consumers and promotion gate --> When `adversarial_unavailable: true` (Wave 5 step 5.0 F3 path), `convergence_score: null` enters the return contract. Downstream consumers (sprint, sc-troubleshoot, task) and the §14.5.2 promotion gate MUST treat `null` as a distinct state, NOT silently route as `< 0.60` or `≥ 0.75`:
+**Consumer-side field-name remap (`artifacts_dir` → `adversarial_artifacts_dir`).** When reflect Wave 4 consumes sc-adversarial-protocol's output, the producer emits its result-directory path under the field name `artifacts_dir` (sourced from `sc-adversarial-protocol/SKILL.md:435,453,2097`). Reflect's own return contract, however, exposes that same path under the field name `adversarial_artifacts_dir` (per §9.1 stable contract). Reflect MUST perform a mechanical key-rename at the parse boundary: read `artifacts_dir` from the sc-adversarial JSON, then write `adversarial_artifacts_dir` into the merged return contract. This is a concrete consumer-side remap, NOT an open question or a producer-side rename request — sc-adversarial's emitted field name is the source-of-truth and reflect adapts to it.
+
+**Null `convergence_score` handling (F3 path / adversarial-unavailable).** When `adversarial_unavailable: true` (Wave 5 step 5.0 F3 path), `convergence_score: null` enters the return contract. Downstream consumers (sprint, sc-troubleshoot, task) and the §14.5.2 promotion gate MUST treat `null` as a distinct state, NOT silently route as `< 0.60` or `≥ 0.75`:
 
 - The contract requires consumers to route on `merge_method` FIRST: if `merge_method == single-reviewer-fallback`, treat `convergence_score` as inapplicable and use the single-reviewer verdict's calibrated confidence as the routing input instead.
 - A null comparison (`null < 0.60`, `null ≥ 0.75`, etc.) is undefined behavior — implementations MUST guard against it explicitly.
@@ -538,10 +486,7 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 ## 9. Output Contract (Versioned)
 
-<!-- Source: Base (V2, original) — §9 spine preserved -->
-<!-- Source: V1 §5 — asymmetric_flags union merged per Change #5 -->
-
-Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline.
+Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
 ### 9.1 Stable contract (contract_version: 1.0)
 
@@ -557,7 +502,7 @@ escalation_rule_matched: <int 1-8> | null
 
 # UC-1 specific
 coverage_pct: <float 0.0-1.0> | null
-coverage_undefined: <bool>           # true when no parseable requirement IDs (Change #11)
+coverage_undefined: <bool>           # true when no parseable requirement IDs
 unmapped_requirements: [<list>]
 best_practice_grade: <int 0-5> | null
 
@@ -569,53 +514,52 @@ deviation_count_by_class:
   drift: <int>
   regression: <int>
 deviation_register_path: <abs path> | null
-grounding_gaps_path: <abs path> | null    # parallel artifact for evidence-insufficient findings (Change #19)
+grounding_gaps_path: <abs path> | null    # parallel artifact for evidence-insufficient findings
 
 # Input integrity
-input_sha256:                         # Change #10; legacy single-file hashes preserved for backward-compat (see §4.0 step 0.4)
+input_sha256:                         # legacy single-file hashes preserved for backward-compat
   tasklist: <hex>
   spec: <hex> | null
-input_tree_sha256: <hex>              # AUTHORITATIVE: tree-hash over every input file (tasklist + spec + linked attachments + work-unit-dir tree); see §4.0 step 0.4  <!-- spec-panel fix (MAJOR): N-2 -->
-input_tree_file_count: <int>          # number of files in the tree-hash; 1 for spec-only UC-1, 1+linked for UC-2
-input_tree_snapshot_path: <abs path>  # <output>/artifacts/input-snapshot.yaml — full file list with per-file sha256
+input_tree_sha256: <hex>              # AUTHORITATIVE: tree-hash over every input file
+input_tree_file_count: <int>          # number of files in the tree-hash; 1 for spec-only UC-1
+input_tree_snapshot_path: <abs path>  # <output>/artifacts/input-snapshot.yaml
 input_drift_detected: <bool>          # true if input_tree_sha256 mismatch at Wave 5 OR Wave 7 step 7.2
-input_drift_diff: [<list of {path, old_sha, new_sha, change_kind: added|removed|modified}>] | null  # populated when input_drift_detected == true
+input_drift_diff: [<list of {path, old_sha, new_sha, change_kind: added|removed|modified}>] | null
 
 # Hallucination guard
 citations_total: <int>
-citations_revalidated: <int>  # M; size of the re-Read subset; equals citations_total in full_reread mode  <!-- spec-panel fix (MAJOR): H-2 -->
-citations_dropped: <int>      # >0 forces status: partial; in sampled mode this is the SAMPLE COUNT (see §11.5)
-citations_dropped_extrapolated: <int>  # population projection in sampled mode; recording-only, does NOT gate promotion  <!-- spec-panel fix (MAJOR): Guard 6 row 4 -->
-citations_inferred: <int>     # [INFERRED]-tagged; does not force partial
-citation_budget_policy: full_reread | sampled    # (Change #8)
+citations_revalidated: <int>          # M; size of the re-Read subset; equals citations_total in full_reread mode
+citations_dropped: <int>              # >0 forces status: partial; in sampled mode this is the SAMPLE COUNT (§11.5)
+citations_dropped_extrapolated: <int> # population projection in sampled mode; recording-only, does NOT gate promotion
+citations_inferred: <int>             # [INFERRED]-tagged; does not force partial
+citation_budget_policy: full_reread | sampled
 evidence_validator_ran: bool
-citation_revalidation_at_promotion: bool   # true when Wave 7 step 7.2 re-Read cited files (Wave 6 ran); see §14.5.2  <!-- spec-panel fix (MAJOR): W-A4 -->
+citation_revalidation_at_promotion: bool   # true when Wave 7 step 7.2 re-Read cited files (Wave 6 ran)
 
 # Tier 2 artifacts
 reviewer_cards: [<list of paths>] | []
-adversarial_artifacts_dir: <path> | null
+adversarial_artifacts_dir: <path> | null   # consumer-side remap from sc-adversarial's `artifacts_dir` field (see §8)
 adversarial_convergence_score: <float> | null
-adversarial_unavailable: <bool>      # F3 path (Change #15)
+adversarial_unavailable: <bool>      # F3 path
 merge_method: adversarial | single-reviewer-fallback   # F2 path
-t2_model_class_diversity: full | degraded   # (Change #13; renamed from t2_diversity per spec-panel W-A2 — model-class axis explicitly)  <!-- spec-panel fix (MAJOR): W-A2 -->
-t2_vendor_diversity: multi | single   # (Change #18, warn-only)
-t2_effective_diversity: full | model-only | vendor-only | none   # derived: combines t2_model_class_diversity and t2_vendor_diversity; "full" = both axes diverse; "model-only" = ≥2 classes but 1 vendor; "vendor-only" = ≥2 vendors but 1 class (rare); "none" = 1 class AND 1 vendor (T2 cannot fire — see Wave 0 step 0.5)  <!-- spec-panel fix (MAJOR): W-A2 — derived effective-diversity field clarifies anti-bias guarantee strength -->
-calibrator_diversity: full | degraded # (Change #16)
+t2_model_class_diversity: full | degraded
+t2_vendor_diversity: multi | single   # warn-only in v1.0
+t2_effective_diversity: full | model-only | vendor-only | none   # derived; combines both diversity axes
+calibrator_diversity: full | degraded
 
 # Tier 3
 remediation_offered: bool
 remediation_accepted: bool | null
 task_file_path: <path> | null
 
-# Asymmetric-cost flags (V2 base + V1 union — Change #5)
-# Downstream automation must respect these.
-cannot_validate_without_user_input: bool   # V2 base
-regression_present: bool                   # V2 base
-unauthorized_deviation_present: bool       # V2 base
-blocked_by_low_confidence: bool            # V1 union: every actionable rec gated to <0.70 by confidence-check
-spec_is_wrong: bool                        # V1 union: UC-2 — code is correct, spec contradicts on-disk reality
-user_decision_required: bool               # V1 union: convergence < threshold AND no auto-route applies
-needs_human_decision: bool                 # Change #19: grounding-gaps.yaml non-empty
+# Asymmetric-cost flags (downstream automation must respect these)
+cannot_validate_without_user_input: bool
+regression_present: bool
+unauthorized_deviation_present: bool
+blocked_by_low_confidence: bool            # every actionable rec gated to <0.70 by confidence-check
+spec_is_wrong: bool                        # UC-2 — code is correct, spec contradicts on-disk reality
+user_decision_required: bool               # convergence < threshold AND no auto-route applies
+needs_human_decision: bool                 # grounding-gaps.yaml non-empty
 
 # Per-task verdict array (P1 + P2) — populated when UC-2 input is a multi-task tasklist
 per_task_verdicts:                       # empty list for UC-1 or single-task UC-2
@@ -631,13 +575,13 @@ interaction_effects_scanned: bool         # true when Wave 1B.3 ran; false when 
 interaction_effects_findings: <int>       # count of cross_task invariant probe entries (sum of HIGH+MEDIUM+LOW)
 
 # Budget pre-flight (P5)
-budget_forced_tier_downgrade: bool        # true when --budget-remaining triggered tier downgrade per §4.0 step 0.9
-budget_forced_stop: bool                  # true when --budget-remaining < 5 (below TurnLedger.minimum_allocation)
+budget_forced_tier_downgrade: bool        # true when --budget-remaining triggered tier downgrade
+budget_forced_stop: bool                  # true when --budget-remaining < 5
 budget_check_skipped: bool                # true when --budget-remaining was not provided
 forced_tier: 1 | 2 | null                 # populated when budget_forced_tier_downgrade == true
 
 # Promotion (UC-2 only — §14.5)
-promotion_action: moved | skipped | rejected | failed | already-promoted | resumed | dry-run | not-applicable  # "resumed" added per §14.5.5 partial-state recovery  <!-- spec-panel fix (CRITICAL): C2 -->
+promotion_action: moved | skipped | rejected | failed | already-promoted | resumed | dry-run | not-applicable
 promotion_adapter: task | sprint-release | none | null
 promotion_source: <abs path> | null
 promotion_destination: <abs path> | null
@@ -647,12 +591,12 @@ promotion_skip_reason: user-flag | gate-failed | adapter-unresolved | dry-run | 
 promotion_fail_reason: source_disappeared | destination_collision | mv_error | sha_mismatch | null
 promotion_override_used: --promote-anyway | --promote-resume | null
 promotion_rollback_command: <string> | null   # only set on promotion_action: moved or resumed
-promotion_checkpoint_path: <abs path> | null   # set when cross-fs move occurred; see §14.5.5  <!-- spec-panel fix (CRITICAL): C2 -->
+promotion_checkpoint_path: <abs path> | null  # set when cross-fs move occurred; see §14.5.5
 promotion_cross_fs: bool                       # true when source and destination on different filesystems
-promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); ONLY ever true in a crashed-mid-run log entry  <!-- spec-panel fix (MAJOR): W-A6 -->
+promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/return-contract.md`. Contract version is `v1.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.0`.
 
 ### 9.2 Telemetry (non-stable)
 
@@ -665,17 +609,15 @@ reviewer_vendors: [<list>]
 serena_checkpoints_path: <path>
 degraded_components: [<list>]   # e.g. ["auggie", "evidence-validator", "env-aliases"]
 fallback_path: null | F1 | F2 | F3
-executor_class_source: flag | env | log-heuristic | unknown   # see §7.1 executor-class exclusion  <!-- spec-panel fix (MAJOR): C-2 -->
+executor_class_source: flag | env | log-heuristic | unknown
 executor_class_resolved: bool                                  # false → §7.1 anti-self-confirmation WARN emitted
 executor_exclusion_degraded: bool                              # true when executor class collision dropped reviewer count below N=2 → T1 fallback
 citations_dropped_extrapolated: <int>   # sampled-mode telemetry (recording, not deciding) — see §11.5
-memory_hits: <int>                       # serena read_memory hits in Wave 0 (see §6.3)
-memory_misses: <int>                     # serena read_memory misses
+memory_hits: <int>                       # serena read_memory hits in Wave 0
+memory_misses: <int>
 ```
 
 ### 9.3 Consumer Field Map
-
-<!-- spec-panel fix (MAJOR): F-2 — explicit consumer→field map; lifts implicit coupling out of integration-analysis.md into the maintained contract -->
 
 The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small, named subset; this table lifts that subset out into the maintained contract so changes to consumer-side load-bearing fields are visible in the spec, not buried in integration code. **Adding a field to a consumer's load-bearing row requires a contract version bump** per §9.4 evolution rules.
 
@@ -695,8 +637,6 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 
 ### 9.4 Contract Evolution
 
-<!-- spec-panel fix (MAJOR): N-4 — contract evolution strategy; versioning rule + deprecation policy + consumer migration window -->
-
 The return contract is versioned via `contract_version: "<major>.<minor>"`. Changes are governed by:
 
 **Versioning rule.**
@@ -709,45 +649,28 @@ The return contract is versioned via `contract_version: "<major>.<minor>"`. Chan
 
 When a field is to be removed in a future major bump, it is first marked deprecated in the producing minor release:
 
-- The deprecated field continues to be emitted with its old semantics for **one full minor release cycle** (typically 4-8 weeks; concretely, ≥1 sc:reflect release after the deprecation announcement).
-- Telemetry emits `deprecated_fields: ["field_name_1", "field_name_2", ...]` listing every field that will be removed in the next major version.
-- The deprecation notice MUST also appear in §9.3's Consumer Field Map row for every consumer that reads the field (table updated in lockstep with the deprecation).
-- During the deprecation window, the producing side MAY emit both the deprecated field AND its replacement (when there is one) so consumers can migrate independently.
+- The deprecated field continues to be emitted with its old semantics for **one full minor release cycle** (≥1 sc:reflect release after the deprecation announcement).
+- Telemetry emits `deprecated_fields: ["field_name_1", ...]` listing every field that will be removed in the next major version.
+- The deprecation notice MUST also appear in §9.3's Consumer Field Map row for every consumer that reads the field.
+- During the deprecation window, the producing side MAY emit both the deprecated field AND its replacement.
 
 **Consumer migration window.**
 
 - Consumers in §9.3 are granted at least **one minor release cycle** to update before the next major version ships.
 - The migration window starts when `deprecated_fields` first appears in telemetry; it ends when the next major release ships.
 - A consumer that does not update within the window is responsible for the failure mode (no forward-compat guarantee on major).
-- For consumers that depend on multiple deprecated fields, the producing side documents a recommended migration order in the release notes.
 
-**Unknown-field tolerance (forward-compat).**
-
-All consumers MUST treat unknown top-level fields as read-and-ignore. A consumer that fails on an unknown field is non-conforming and breaks the minor-release additive guarantee. (This is the rule that makes minor releases safe to ship without coordinated consumer updates.)
-
-**Examples of allowed minor bumps (additive):**
-
-- New top-level field `interaction_effects_findings_v2` (deferred §19 hardening).
-- New per-task verdict sub-field (e.g., `per_task_verdicts[].auto_fix_offered: bool`).
-- New telemetry field (telemetry block is non-stable by §9.2 design, but documented additions still warrant a minor bump for clarity).
-
-**Examples requiring major bump (breaking):**
-
-- Renaming `t2_diversity` → `t2_model_class_diversity` (this very change is mechanically a major bump; the W-A2 rename happens before v1.0 ships, so no consumers are broken — but post-v1.0 such renames would be major). <!-- spec-panel fix (MAJOR): W-A2 — historical note: this rename pre-v1.0 is free; post-v1.0 it would require major bump -->
-- Changing `convergence_score` from `float | null` to `float` (sentinel removal — would break null-handling consumers per §8).
-- Tightening the 9-condition promotion gate (e.g., adding a 10th condition) — consumer semantics change even if no field shape changes.
+**Unknown-field tolerance (forward-compat).** All consumers MUST treat unknown top-level fields as read-and-ignore. A consumer that fails on an unknown field is non-conforming and breaks the minor-release additive guarantee.
 
 ---
 
 ## 10. Deviation Taxonomy
 
-<!-- Source: Base (V2, original) — §10.1-§10.5 preserved verbatim; §10.6 added per Change #19 -->
+Reflection's defining contribution beyond a generic verification protocol is *classifying* every divergence between expected and actual work into a concrete, decision-driving category. The literature-gap claim from research is filled here with a **4-category taxonomy** (not 5 — evidence-insufficient findings route to `grounding-gaps.yaml` per §10.6). The gold-standard reference source for "what was expected" is the **driving spec/tasklist** (the artifact the agent was instructed to fulfil) — not the executor's commit message, which is reviewer-side narrative.
 
-Reflection's defining contribution beyond a generic verification protocol is *classifying* every divergence between expected and actual work into a concrete, decision-driving category. The literature gap noted in `research-deep.md` Topic 4.4 is filled here with a **4-category taxonomy** (not 5 — per R3 X-009 / INV-015 resolution, evidence-insufficient findings route to `grounding-gaps.yaml`, see §10.6). The gold-standard reference source for "what was expected" is the **driving spec/tasklist** (the artifact the agent was instructed to fulfil) — not the executor's commit message, which is reviewer-side narrative.
+Each category has detection signals, a gold-standard reference, and a default remediation posture. (See `refs/deviation-taxonomy.md` for the full per-category signal catalog and the aggregation-rule implementation.)
 
-Each category has detection signals, a gold-standard reference, and a default remediation posture.
-
-**Scaling at large diff sizes (>100 hunks).** <!-- spec-panel fix (MAJOR): Guard 7 — >100 hunk aggregation rule --> When the diff under audit contains **more than 100 hunks**, taxonomy classification runs on **aggregated-by-file summaries** (one deviation entry per file) rather than per-hunk. The per-file summary is computed by union: a file's deviation_class is the highest-precedence class observed across its hunks under §10.5 precedence (Regression > Drift > Necessary > Authorized). Per-hunk evidence is preserved in `<output>/per-hunk-evidence.yaml` (auxiliary artifact, not consumed by the gate) so the operator can drill down. Emit `deviation_aggregation_mode: per-file | per-hunk` in telemetry; per-file mode emits `hunk_count: <int>` so the operator knows the aggregation fired. The aggregation rule and the per-hunk-evidence artifact shape are defined formally in `refs/deviation-taxonomy.md`. The 100-hunk threshold is a heuristic to keep `deviation-ledger.yaml` bounded; it is NOT a budget-policy decision and does not interact with §11.5 citation budget.
+**Scaling at large diff sizes (>100 hunks).** When the diff under audit contains **more than 100 hunks**, taxonomy classification runs on **aggregated-by-file summaries** (one deviation entry per file) rather than per-hunk. The per-file summary is computed by union: a file's deviation_class is the highest-precedence class observed across its hunks under §10.5 precedence (Regression > Drift > Necessary > Authorized). Per-hunk evidence is preserved in `<output>/per-hunk-evidence.yaml` (auxiliary artifact, not consumed by the gate) so the operator can drill down. Emit `deviation_aggregation_mode: per-file | per-hunk` in telemetry; per-file mode emits `hunk_count: <int>`. The 100-hunk threshold is a heuristic to keep `deviation-ledger.yaml` bounded; it does not interact with §11.5 citation budget.
 
 ### 10.1 Authorized expansion
 
@@ -812,8 +735,6 @@ When multiple signals match, precedence is **Regression > Drift > Necessary > Au
 
 ### 10.6 Grounding Gaps (parallel artifact for evidence-insufficient findings)
 
-<!-- Source: R3 INV-015 / X-009 — merged per Change #19 (grounding-gaps.yaml parallel artifact) -->
-
 The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class. When a hunk cannot be classified due to **insufficient evidence** (distinct from multi-signal ambiguity), the orchestrator does NOT add it to `deviation-ledger.yaml`. Instead, it writes a row to `<output>/grounding-gaps.yaml` with these **required fields**:
 
 ```yaml
@@ -831,7 +752,7 @@ When `grounding-gaps.yaml` is non-empty:
 - `needs_human_decision: true` is emitted to the return contract.
 - The REPORT.md Grounding Gaps section enumerates each row with the missing-evidence rationale.
 
-This is **structurally separate** from the 4-category ledger (V4's `unknown` semantics absorbed as a separate artifact with V4's required-field rigor; V2's Grounding Gap mechanism preserved as the routing target). See §17.7 Kill List for why a 5th deviation category was rejected.
+This is **structurally separate** from the 4-category ledger. See §17.7 Kill List for why a 5th deviation category was rejected.
 
 ### 10.7 Reporting
 
@@ -841,21 +762,17 @@ Every deviation in REPORT.md is rendered with: file:line, mapped tasklist item (
 
 ## 11. Hallucination Guardrails
 
-<!-- Source: R3 INV-023 — sufficiency-conditional preamble added per Change #20 -->
-
 ### 11.0 Sufficiency claim is conditional
 
 The protocol's anti-confirmation guarantee — "tier escalation catches self-confirmation bias" — is **CONDITIONAL**, not unconditional. It holds when, and only when, all three of these gates are operative:
 
-1. **calibrator-model ≠ reviewer-model class** (see §11.3 disjoint-set rule, Change #16).
-2. **≥2 vendors among reviewer aliases when possible** (see §4 Wave 0 step 0.6 vendor heterogeneity check, Change #18; warn-only in v1).
-3. **sycophantic-convergence eval cases pass** (see §12 dimension "tier-escalation-anti-confirmation" + the `T2-convergence-wrong-answer` falsifier case, Change #17).
+1. **calibrator-model ≠ reviewer-model class** (see §11.3 disjoint-set rule).
+2. **≥2 vendors among reviewer aliases when possible** (see §4 Wave 0 step 0.6 vendor heterogeneity check; warn-only in v1).
+3. **sycophantic-convergence eval cases pass** (see §12 dimension "tier-escalation-anti-confirmation" + the `T2-convergence-wrong-answer` falsifier case).
 
-When any gate degrades, the protocol surfaces `calibrator_diversity: degraded`, `t2_vendor_diversity: single`, or fails the falsifier eval; in those cases the anti-confirmation claim weakens to "ensemble pressure applied" rather than "self-confirmation neutralised." See §19 v1.1 deferred-hardening notes for the path to unconditional sufficiency.
+When any gate degrades, the protocol surfaces `calibrator_diversity: degraded`, `t2_vendor_diversity: single`, or fails the falsifier eval; in those cases the anti-confirmation claim weakens to "ensemble pressure applied" rather than "self-confirmation neutralised." See §19 v1.1 deferred-hardening for the path to unconditional sufficiency.
 
-<!-- Source: Base (V2, original) — §11.1-§11.6 preserved with §11.3, §11.5 extensions -->
-
-The protocol exists specifically to *not* confirm its own conclusions. Five structural guards work in concert.
+The protocol exists specifically to *not* confirm its own conclusions. Five structural guards work in concert (§11.1-§11.5) plus one inferred-claim audit (§11.6).
 
 ### 11.1 Grounded vs Inferred (the binary)
 
@@ -872,7 +789,7 @@ There is no third bucket. Findings the reviewer could not tag either way are *dr
 
 The orchestrator interprets validator output as:
 
-- `citations_total == 0 AND mode == post` → **`status: partial`** with a "vacuous-success" diagnostic in the report header. A UC-2 post-execution verdict that cites zero files cannot have meaningfully verified anything; the citation-grounding contract requires at least one citation to anchor the claim. The verdict is not allowed to silently pass. This rule does NOT apply to UC-1 (`mode == pre`), where a verdict citing zero files is legitimate (the verdict is about spec coverage, not file evidence) — UC-1 may emit `status: success` with `citations_total == 0`. <!-- spec-panel fix (MAJOR): Guard 6 row 1 — zero-citation report in UC-2 is vacuous success → status: partial; UC-1 unaffected -->
+- `citations_total == 0 AND mode == post` → **`status: partial`** with a "vacuous-success" diagnostic in the report header. A UC-2 post-execution verdict that cites zero files cannot have meaningfully verified anything. This rule does NOT apply to UC-1 (`mode == pre`), where a verdict citing zero files is legitimate (the verdict is about spec coverage, not file evidence) — UC-1 may emit `status: success` with `citations_total == 0`.
 - `citations_total > 0 AND 0 dropped` → `status: success`, but **audit-log a `zero-drop-flag: true` marker** so meta-eval can spot-check.
 - `≥1 dropped` → `status: partial`; the report's "Grounding Gaps" section enumerates dropped citations and the original claim text.
 - Validator subprocess crash → fall back to inline citation re-Read, mark `evidence_validator_ran: false`, force `status: partial`.
@@ -880,8 +797,6 @@ The orchestrator interprets validator output as:
 The `--no-evidence-validator` flag exists for debugging only; using it forces `status: partial` and emits a loud WARN in chat.
 
 ### 11.3 Blind calibration (anti-anchoring) — disjoint-set rule
-
-<!-- Source: R3 INV-020 + Cat-6 Gate 1 — merged per Change #16 (calibrator-model ≠ reviewer-model disjoint-set rule) -->
 
 `confidence-calibrator` per `src/superclaude/agents/confidence-calibrator.md` is deliberately stripped of formation context. The card itself is its only input; the upstream investigative trail is not provided. This reduces (does not eliminate) the anchoring bias where the reviewer's own self-reported confidence inflates the next stage's verdict. Calibrated scores, not self-reports, feed the rubric in §5.
 
@@ -899,17 +814,17 @@ IF disjoint set is empty (all available classes are reviewers):
 
 Telemetry field `calibrator_diversity: full | degraded` is emitted into `reflection-card.yaml`. The §12 eval rubric dimension "calibration discipline" includes the assertion: `calibrator_model_class NOT IN reviewer_model_classes`.
 
-**Three-way partition (executor / reviewers / calibrator).** <!-- spec-panel fix (MAJOR): C-2 — extend disjoint-set rule to the executor partition; reviewer pool and calibrator pool are BOTH disjoint from executor class --> The disjoint-set principle is extended from "calibrator ≠ reviewers" to a three-way partition: `executor_class`, `reviewer_classes`, and `calibrator_class` SHOULD be pairwise disjoint. §7.1's executor-class exclusion rule enforces `executor_class ∉ reviewer_classes` at Wave 3A reviewer composition; §11.3 enforces `calibrator_class ∉ reviewer_classes` at Wave 1D/3C. When all three pools cannot be made pairwise disjoint (e.g., only Anthropic aliases available AND executor was sonnet), the partition degrades and the affected pool emits its `*_diversity: degraded` telemetry. The grader assertion is extended: `executor_model_class NOT IN reviewer_model_classes` is asserted whenever `executor_class_resolved == true`.
+**Three-way partition (executor / reviewers / calibrator).** The disjoint-set principle is extended from "calibrator ≠ reviewers" to a three-way partition: `executor_class`, `reviewer_classes`, and `calibrator_class` SHOULD be pairwise disjoint. §7.1's executor-class exclusion rule enforces `executor_class ∉ reviewer_classes` at Wave 3A reviewer composition; §11.3 enforces `calibrator_class ∉ reviewer_classes` at Wave 1D/3C. When all three pools cannot be made pairwise disjoint, the partition degrades and the affected pool emits its `*_diversity: degraded` telemetry. The grader assertion `executor_model_class NOT IN reviewer_model_classes` is asserted whenever `executor_class_resolved == true`.
 
 For Tier 2, *every* reviewer card is calibrated by an independent calibrator instance in parallel (Wave 3C). Cards are passed to Wave 4 with calibrated scores attached; sc-adversarial-protocol's debate is weighted by calibrated confidence, not self-reported.
+
+(See `refs/reflection-rubric.md` for the full calibrator selection pseudocode, the 5-dimension scoring inputs, and worked examples.)
 
 ### 11.4 Heterogeneous reviewer ensemble (anti-representational-bias)
 
 Single-model self-review reproduces its own representational bias. Per §7.1, Tier 2 reviewers are heterogeneous by model class. The merge judge is a different class than the debaters (Khan ICML 2024 Oral, Kenton NeurIPS 2024). When the haiku reviewer and the sonnet reviewer agree on a finding, the cross-class agreement is itself evidence that the finding survives at least one representational frame change.
 
 ### 11.5 Citation re-Read window (anti-staleness) + budget policy
-
-<!-- Source: V1 §4 Wave 6 citation re-grounding budget — merged per Change #8 -->
 
 Per CLAUDE.md "Context freshness discipline": every `file:line` quoted in the draft report MUST have been Read within the last 5 tool calls before the quote enters context. The orchestrator enforces this explicitly by inserting a final re-Read pass immediately before evidence-validator hands off. Stale citations from earlier waves are re-validated against current file state, not against a possibly-modified mid-wave snapshot.
 
@@ -919,10 +834,10 @@ Per CLAUDE.md "Context freshness discipline": every `file:line` quoted in the dr
 - If citations >20: sample 100% of HIGH-stakes citations (those tied to `regression`, `security`, or any asymmetric flag) + 30% of remaining citations + 10% audit-validator spot-check on the rest.
 - Emit `citation_budget_policy: full_reread | sampled` in telemetry.
 
-**Sampled-mode drop accounting.** <!-- spec-panel fix (MAJOR): H-2 / Guard 6 row 4 — sampled-mode drop semantics: sample-count gates promotion; extrapolated is telemetry only --> When `citation_budget_policy: sampled`:
+**Sampled-mode drop accounting.** When `citation_budget_policy: sampled`:
 
 - `citations_dropped` is the **COUNT in the sample** — drops observed among the re-Read subset only, NOT extrapolated. This is the field consumed by §14.5.2 condition 6a's strict `citations_dropped == 0` promotion check. Gate semantics intentionally use the sample-count rather than the extrapolated projection so that the promotion gate is strict against the actual evidence the validator examined.
-- `citations_dropped_extrapolated` is an additional telemetry field emitted in `9.2 telemetry` that estimates the population-level drop count: `citations_dropped_extrapolated = round(citations_dropped × (citations_total / citations_revalidated))`. Recording, not deciding.
+- `citations_dropped_extrapolated` is an additional telemetry field that estimates the population-level drop count: `citations_dropped_extrapolated = round(citations_dropped × (citations_total / citations_revalidated))`. Recording, not deciding.
 - `citations_revalidated: M` is emitted to clarify the size of the re-Read sample (`M ≤ citations_total`). In `full_reread` mode, `citations_revalidated == citations_total`.
 
 The implication: a sampled-mode run with `citations_dropped == 0` passes the promotion gate even if `citations_dropped_extrapolated > 0`. This is deliberate — the operator can inspect the extrapolated field for meta-eval analysis, but the gate refuses to block on a projection. A `citations_dropped_extrapolated > 0` value SHOULD prompt a follow-up `--depth deep` run that forces `full_reread`.
@@ -935,18 +850,11 @@ The report header surfaces `citations_inferred: N`. A reviewer that produces a r
 
 ## 12. Eval Rubric
 
-<!-- Source: Base (V2, original) — 5-dimension rubric preserved (R3 X-011 majority-win) -->
-<!-- Source: V4 §11 — citation_resolves implementation referenced via refs/grader-extensions.md per Change #3 -->
-<!-- Source: R3 INV-022 — falsifier eval case T2-convergence-wrong-answer added per Change #17 -->
-<!-- Source: R3 INV-021 — T2 vendor heterogeneity eval dimension added per Change #18 -->
-
 Eval workspace: **`.dev/eval-workspaces/sc-reflect/`** (NEVER `.claude/skills/sc-reflect-protocol-workspace/`, per CLAUDE.md plugin override).
 
-Modeled on `.dev/eval-workspaces/sc-brainstorm/`. Same layout: `SPEC.md`, `evals/evals.json`, `iterations/iteration-N/`, `grader.py`, `aggregate_iteration.py`, `skill-snapshot/reflect-v1.md` (frozen baseline = current `src/superclaude/commands/reflect.md`).
+Modeled on `.dev/eval-workspaces/sc-brainstorm/`. Same layout: `SPEC.md`, `evals/evals.json`, `iterations/iteration-N/`, `grader.py`, `aggregate_iteration.py`, `skill-snapshot/reflect-v1.md` (frozen baseline = pre-rewrite `src/superclaude/commands/reflect.md`).
 
 ### 12.1 Six grading dimensions (0-5 scale per arxiv 2601.03444)
-
-<!-- spec-panel fix (MAJOR): L-1 — added dim #6 Regression Recall; the existing 5-dim rubric scored false-positive rate asymmetrically (dim #5) but had no symmetric false-negative coverage for the highest-stakes deviation class — a reflection that misses a regression is far worse than one that mis-classifies an authorized expansion as drift (per §10.4 asymmetric cost) -->
 
 | # | Dimension | Definition | Acceptance threshold |
 |---|-----------|------------|----------------------|
@@ -955,18 +863,18 @@ Modeled on `.dev/eval-workspaces/sc-brainstorm/`. Same layout: `SPEC.md`, `evals
 | 3 | **Deviation-classification precision** | % of deviations whose class matches the gold-standard annotation in the eval fixture | T1 ≥0.75, T2 ≥0.85 |
 | 4 | **Recommendation actionability** | Each recommendation passes the "file + change + verifier" check: names a file, names a concrete change, names how to verify | ≥0.80 (binary per recommendation, ratio across all) |
 | 5 | **False-positive rate** | Findings flagged as Drift/Regression that the gold standard says are Authorized/Necessary | ≤0.10 (T1), ≤0.05 (T2) |
-| 6 | **Regression Recall** <!-- spec-panel fix (MAJOR): L-1 --> | Fraction of true regressions detected from a held-out positive-case set. Operational definition: `recall = true_positives / (true_positives + false_negatives)` where the population is the eval fixture's annotated regressions (Class = §10.4 Regression). A held-out positive-case set is curated separately from the iteration-2 training matrix and grown each iteration (≥5 fixtures by iteration-3); each fixture has a known regression that the eval verifies reflect detected. | T1 ≥0.95, T2 = 1.00 (near-perfect at T2 — missing a regression auto-fails the iteration). A regression detected as "drift" still counts as a true positive for recall (the class confusion is captured by dim #3); regression missed entirely (classified as `none` OR not surfaced as a finding) is a false negative. |
+| 6 | **Regression Recall** | Fraction of true regressions detected from a held-out positive-case set. Operational definition: `recall = true_positives / (true_positives + false_negatives)` where the population is the eval fixture's annotated regressions (Class = §10.4 Regression). A held-out positive-case set is curated separately from the iteration-2 training matrix and grown each iteration (≥5 fixtures by iteration-3); each fixture has a known regression that the eval verifies reflect detected. | T1 ≥0.95, T2 = 1.00 (near-perfect at T2 — missing a regression auto-fails the iteration). A regression detected as "drift" still counts as a true positive for recall (the class confusion is captured by dim #3); regression missed entirely (classified as `none` OR not surfaced as a finding) is a false negative. |
 
 **Why dim #6 is asymmetric with dim #5.** Dim #5 caps false-positives (Drift/Regression flagged when gold says Authorized/Necessary). Dim #6 caps **false-negatives on the Regression class specifically** — the highest-stakes class per §10.4. The asymmetric thresholds (T2 = 1.00 vs T1 ≥0.95) reflect §10.4's "asymmetric cost" principle: shipping a missed regression is unrecoverable in many cases; spending T2 tokens to catch every regression in the held-out set is the correct trade. A single missed regression in the held-out set at T2 auto-fails the iteration regardless of all other dim scores.
 
 ### 12.2 Additional rubric dimensions (sub-criteria, not weighted separately)
 
-The six top-level dimensions absorb four sub-criteria as inline assertions (per R3 X-011 — keep top-level rubric scannable; dim #6 Regression Recall added per spec-panel L-1):  <!-- spec-panel fix (MAJOR): L-1 — updated count from five → six top-level dimensions -->
+The six top-level dimensions absorb four sub-criteria as inline assertions:
 
 - **Tier-routing correctness** (under dim #4 — actionability): eval cases route to expected tier per the §5.3 priority table; `yaml_field` assertion on `tier_decision.yaml`.
-- **Calibration discipline** (under dim #1 — citation accuracy, since miscalibration drives bad citations): `calibrator_model_class NOT IN reviewer_model_classes` assertion. Eval cases that fail this auto-fail the iteration (Change #16).
-- **Tier-escalation-anti-confirmation** (under dim #5 — false-positive rate, since sycophantic convergence IS the high-cost false positive): includes the `T2-convergence-wrong-answer` case (see §12.5). AUTO-FAIL if `convergence_score ≥ 0.75 AND verdict != regression_present`.
-- **T2 vendor heterogeneity** (under dim #4 — actionability, since recommendations from a single-vendor ensemble are at higher risk): graded with `≥2 vendors → +1.0; 1 vendor → 0.5; warn-only`, sourced from `t2_vendor_diversity` telemetry field (Change #18).
+- **Calibration discipline** (under dim #1 — citation accuracy): `calibrator_model_class NOT IN reviewer_model_classes` assertion. Eval cases that fail this auto-fail the iteration.
+- **Tier-escalation-anti-confirmation** (under dim #5 — false-positive rate): includes the `T2-convergence-wrong-answer` case (see §12.5). AUTO-FAIL if `convergence_score ≥ 0.75 AND verdict != regression_present`.
+- **T2 vendor heterogeneity** (under dim #4 — actionability): graded with `≥2 vendors → +1.0; 1 vendor → 0.5; warn-only`, sourced from `t2_vendor_diversity` telemetry field.
 
 ### 12.3 Iteration harness
 
@@ -982,8 +890,6 @@ Convergence rule: ship iteration N when N+1 vs N shows <5% absolute improvement 
 
 ### 12.4 Grader DSL extensions
 
-<!-- Source: V4 §11 — extracted to refs/grader-extensions.md per Change #3 -->
-
 `grader.py` from sc-brainstorm provides 8 syntactic types. Reflect adds these **semantic** types, fully implemented (including Python sketch with fixture-root remapping) in `refs/grader-extensions.md`:
 
 - `citation_resolves` — given a file:line citation in the report, re-Read the file and verify the cited snippet matches the actual content at that line (±5 lines); supports fixture-root remapping for synthetic eval diffs.
@@ -992,13 +898,12 @@ Convergence rule: ship iteration N when N+1 vs N shows <5% absolute improvement 
 - `matrix_covers_items` — verify coverage matrix covers ≥ threshold of source-fixture items.
 - `checkpoint_logged` — verify `audit.log` includes a row for a named checkpoint (scripted Serena think-checkpoints, audit-emit per-step).
 - `deviation_class_matches` — given an annotated deviation in the eval fixture, verify the report's deviation register tags the same diff hunk with the same class.
+- `path_exists` / `path_does_not_exist` — Wave 7 promotion-assertion types added per §14.5.7; verify source/destination paths after a promotion mutation step (or that they DON'T exist when the mutation is supposed to have moved them).
+- `falsifier_skeleton_present` — verifies that `falsifier-suite/<case>.yaml` exists, parses, and either has `status: skeleton-pending-iteration-3-fixture` (emitting `skeleton_present: true`) OR `status: active` (meeting the canonical assertion). See §12.5.
 
 All semantic types live in `.dev/eval-workspaces/sc-reflect/grader.py` (copy from sc-brainstorm's `grader.py` and extend per `refs/grader-extensions.md`).
 
 ### 12.5 Iteration-3 hardening: falsifier eval case T2-convergence-wrong-answer
-
-<!-- Source: R3 INV-022 — merged per Change #17 (sufficiency-falsifier eval fixture) -->
-<!-- spec-panel fix (MAJOR): W-A8 — pre-seed the falsifier-suite skeleton in v1 (not v1.1 iteration-3) so the eval-workspace runway is in place from day-1 + specify the mechanical delivery of the pre-seeding -->
 
 The falsifier suite skeleton ships in **v1.0** under `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/`, even though the iteration-3 hardening case below is finalized only after iteration-2 evidence lands. Shipping the skeleton in v1 ensures the eval-workspace has the directory shape and grader hooks in place — iteration-3 only needs to fill in fixture content, not invent infrastructure.
 
@@ -1029,7 +934,7 @@ setup: |
   All three reviewers are sonnet-class (seeded ensemble).
   Pre-seed reviewer context with "the implementation looks complete and matches the spec"
   (anchoring all reviewers toward a wrong verdict).
-pre_seeding_mechanism:    # how the seed is mechanically delivered (was missing in earlier draft; W-A8)  <!-- spec-panel fix (MAJOR): W-A8 -->
+pre_seeding_mechanism:    # how the seed is mechanically delivered
   delivery_channel: reviewer_brief   # one of: reviewer_brief | system_prompt | synthetic_prior_turn
   injection_point: reviewer-briefs/reviewer-{N}.md
   injection_section: "## Prior reviewer assessment (synthetic prior — for falsifier eval only)"
@@ -1040,9 +945,7 @@ pre_seeding_mechanism:    # how the seed is mechanically delivered (was missing 
   rationale: |
     The synthetic prior is injected into Step 3B.0 reviewer-brief materialization
     (§4.3) so it arrives in the same context window as the legitimate brief content,
-    NOT as a system-prompt override (which would be more easily detected as an
-    artificial seed) and NOT as a synthetic earlier turn (which the orchestrator
-    does not emit per the §6 single-pass-per-reviewer architecture).
+    NOT as a system-prompt override and NOT as a synthetic earlier turn.
   uniformity: |
     All N reviewers receive the same injection payload. The falsifier hypothesis is
     "convergence on a wrong answer is achievable when all reviewers receive the
@@ -1058,28 +961,24 @@ severity: AUTO-FAIL if convergence ≥ 0.75 AND verdict != regression_present
   (this is the falsifier: high agreement on a wrong call = the sufficiency claim fails)
 ```
 
-**v1.0 grader hooks (shipped in skeleton):**
-
-The grader-extensions `falsifier_skeleton_present` assertion verifies that `falsifier-suite/T2-converges-on-wrong.yaml` exists, parses, and either:
+**v1.0 grader hooks (shipped in skeleton):** The grader-extensions `falsifier_skeleton_present` assertion verifies that `falsifier-suite/T2-converges-on-wrong.yaml` exists, parses, and either:
 
 1. Has `status: skeleton-pending-iteration-3-fixture` AND emits `skeleton_present: true` telemetry, OR
 2. Has `status: active` AND meets the canonical assertion above.
 
 The skeleton-pending state is acceptable in iteration-1 and iteration-2 grading; iteration-3 grading requires `status: active`.
 
-This case is the **sufficiency-claim test** for "tier escalation catches self-confirmation bias." Without it, the central claim is unfalsifiable. It is the operationalisation of §11.0's conditional language. **Pre-seeding the skeleton in v1.0** ensures the eval-workspace has the falsifier infrastructure in place from day-1, so iteration-3 only needs to author the fixture content. See also §19.2 v1.1 deferred hardening for the path from iteration-3 active-case to v1.1 sufficiency tightening.
+This case is the **sufficiency-claim test** for "tier escalation catches self-confirmation bias." Without it, the central claim is unfalsifiable. It is the operationalisation of §11.0's conditional language. See also §19.2 for the path from iteration-3 active-case to v1.1 sufficiency tightening.
 
 ### 12.6 Grader model
 
 Per Topic 5 research (Arize, Galileo, Evidently): the grader runs on a *different, more capable* model class than the skill-under-test. Default grader: `opus`. The grader is NOT one of the Tier 2 reviewer models, to avoid self-enhancement bias.
 
-For final ship-acceptance, an optional 3-model LLM jury (opus + sonnet + qwen) aggregated by majority across the 5 dimensions. Activated by `--jury` on the eval runner.
+For final ship-acceptance, an optional 3-model LLM jury (opus + sonnet + qwen) aggregated by majority across the 6 dimensions. Activated by `--jury` on the eval runner.
 
 ---
 
 ## 13. Build Path Decision
-
-<!-- Source: Base (V2, original) — §13 preserved verbatim (hybrid pick consensus 100%) -->
 
 **Pick: hybrid — skill-creator plugin for the draft/iterate loop, then local `grader.py` for deterministic assertions, then sprint CLI only after the skill ships.**
 
@@ -1115,16 +1014,14 @@ Three concrete forces shape the pick:
 
 ## 14. Error Handling Matrix
 
-<!-- Source: Base (V2, original) — §14 preserved + Change #15 (F1/F2/F3 rows) added -->
-
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | No `--mode` AND no resolvable input combination | STOP at Wave 0 with usage hint | None |
 | `--mode pre` with no `--spec` | STOP | None |
 | `--mode post` with no `--diff` AND no `--task-log` | STOP | None |
 | `--output` under `.claude/skills`/`.claude/agents`/`.claude/commands` | STOP (CLAUDE.md ABSOLUTE RULE violation) | None |
-| `sc-adversarial-protocol` skill missing (probe fails) | F3: surface `adversarial_unavailable: true`, fall back to single-reviewer highest-confidence verdict, Tier 3 only if user opts in (Change #15) | F2/F3 paths |
-| `sc-adversarial-protocol` returns empty | F1: retry once with reduced depth (Change #15) | F2 if retry fails |
+| `sc-adversarial-protocol` skill missing (probe fails) | F3: surface `adversarial_unavailable: true`, fall back to single-reviewer highest-confidence verdict, Tier 3 only if user opts in | F2/F3 paths |
+| `sc-adversarial-protocol` returns empty | F1: retry once with reduced depth | F2 if retry fails |
 | `sc-adversarial-protocol` partial-parse / missing-file | F2: single-reviewer highest-confidence verdict; `merge_method: single-reviewer-fallback` | F3 |
 | `task-builder` skill missing in Tier 3 | Surface findings without remediation; do NOT silently downgrade | None |
 | `confidence-calibrator` agent fails | Inline orchestrator calibration; mark `calibration: inline-fallback` in audit | Continue |
@@ -1133,14 +1030,14 @@ Three concrete forces shape the pick:
 | `rf-qa` / `rf-qa-qualitative` fails in Wave 3 | Continue with remaining reviewers; if <2 reviewers complete, downgrade to T1 result with WARN | None |
 | All Tier 2 reviewers fail | Downgrade to T1 result; `status: partial`; recommend re-run | None |
 | `merged_output_path` from sc-adversarial does not exist on disk | FAIL Wave 4 (missing-file guard before status routing) | F2 |
-| `input_drift` detected (Change #10) — input SHA changed mid-run | STOP at Wave 5 pre-synthesis; emit SHA pair; `status: partial` | None |
-| `empty_input` — zero-task tasklist in UC-1 (Change #12) | STOP at Wave 1; `coverage_undefined: true`; `status: partial` | None |
-| `coverage_undefined` — zero parseable IDs (Change #11) | Route directly to T2; no T1 stop possible; surface in report header | Continue |
-| Zero env-var aliases resolved (Change #13/#14) | T1-only path; WARN; `degraded_components: ["env-aliases"]` | None |
-| 1 env-var alias resolved (Change #13) | T1-only path; WARN "T2 requires ≥2 model classes" | None |
-| 2 env-var aliases resolved (Change #13) | T2 with 2 reviewers; `t2_model_class_diversity: degraded` | Continue |
-| Single-vendor T2 ensemble (Change #18) | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |
-| Calibrator class collides with all reviewer classes (Change #16) | Continue with highest-cap calibrator not used by most reviewers; `calibrator_diversity: degraded` | None |
+| `input_drift` detected — input SHA changed mid-run | STOP at Wave 5 pre-synthesis; emit SHA pair; `status: partial` | None |
+| `empty_input` — zero-task tasklist in UC-1 | STOP at Wave 1; `coverage_undefined: true`; `status: partial` | None |
+| `coverage_undefined` — zero parseable IDs | Route directly to T2; no T1 stop possible; surface in report header | Continue |
+| Zero env-var aliases resolved | T1-only path; WARN; `degraded_components: ["env-aliases"]` | None |
+| 1 env-var alias resolved | T1-only path; WARN "T2 requires ≥2 model classes" | None |
+| 2 env-var aliases resolved | T2 with 2 reviewers; `t2_model_class_diversity: degraded` | Continue |
+| Single-vendor T2 ensemble | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |
+| Calibrator class collides with all reviewer classes | Continue with highest-cap calibrator not used by most reviewers; `calibrator_diversity: degraded` | None |
 | Auggie unavailable | Fall back to Grep/Glob in Wave 1A; mark `degraded: ["auggie"]` | Continue |
 | Serena unavailable | Fall back to Grep/Glob; skip `get_diagnostics_for_file`; mark `degraded: ["serena"]` | Continue |
 | Context7 unavailable in `--depth deep` UC-1 | Skip best-practice external lookup; mark `degraded: ["context7"]` | Continue |
@@ -1152,10 +1049,10 @@ Three concrete forces shape the pick:
 | Topic / spec contains adversarial-flag-like chars | Sanitize before passing to sc-adversarial (per sc-brainstorm Wave 2B pattern) | Continue |
 | Output dir collision | Append `-N` suffix, cap at 99 with STOP, WARN at N≥10 | None |
 | PreToolUse hook blocks write to `.claude/skills/*-workspace/**` | Redirect to `.dev/eval-workspaces/sc-reflect/`; never bypass the hook | None |
-| `--budget-remaining N` with N < 5 (P5) | STOP at Wave 0 step 0.9 with `"budget too low for reflect"`; emit `budget_forced_stop: true` | None |
-| `--budget-remaining N` triggers tier downgrade (P5) | Run T1 only; emit `budget_forced_tier_downgrade: true`, `forced_tier: 1`; WARN | Continue with T1 only |
-| Wave 1B.3 cross-task interaction scan exceeds top-30 symbol cap (P3) | Truncate scan at 30; emit `interaction_effects_truncated: true` in audit; symbols beyond cap not analyzed | Continue with truncated scan |
-| Wave 1B.3 `find_referencing_symbols` fails for one or more symbols (P3) | Skip just that symbol; record per-symbol skip in audit; do NOT abort entire scan | Continue |
+| `--budget-remaining N` with N < 5 | STOP at Wave 0 step 0.9 with `"budget too low for reflect"`; emit `budget_forced_stop: true` | None |
+| `--budget-remaining N` triggers tier downgrade | Run T1 only; emit `budget_forced_tier_downgrade: true`, `forced_tier: 1`; WARN | Continue with T1 only |
+| Wave 1B.3 cross-task interaction scan exceeds top-30 symbol cap | Truncate scan at 30; emit `interaction_effects_truncated: true` in audit; symbols beyond cap not analyzed | Continue with truncated scan |
+| Wave 1B.3 `find_referencing_symbols` fails for one or more symbols | Skip just that symbol; record per-symbol skip in audit; do NOT abort entire scan | Continue |
 | Wave 7 source path no longer exists (external mutation) | `promotion_action: failed`, `promotion_fail_reason: source_disappeared`; verdict unaffected | None |
 | Wave 7 destination collision, non-identical content (§14.5.5) | `promotion_action: rejected`; diff captured in promotion-log; source untouched | None |
 | Wave 7 destination collision, identical content (idempotent re-run) | `promotion_action: already-promoted`; remove source after second SHA verification | None |
@@ -1165,18 +1062,17 @@ Three concrete forces shape the pick:
 | Wave 7 `--no-promote` set | `promotion_action: skipped`, `promotion_skip_reason: user-flag` | None |
 | Wave 7 `--promote-anyway` used on `status: failed` | Override has NO effect; promotion still skipped with gate-failed | None |
 | Wave 7 cross-filesystem mv required | Allowed via copy + remove + fsync; emit `cross_fs_promotion: true`; SHA-verify after copy | None |
-| Env-var alias set re-resolves differently between Wave 0 and Wave 3 (race: user changed `ANTHROPIC_DEFAULT_*_MODEL` env vars mid-run) <!-- spec-panel fix (MAJOR): N-3 — env-var alias race row --> | STOP at Wave 3A reviewer composition; emit `alias_set_changed_mid_run: true` with old/new alias sets in audit; `status: partial`; recommend re-run with stable env. The Wave 0 alias set is the canonical one — Wave 3 reviewers MUST match what the rubric routed against. | None |
-| All Tier 2 reviewers AND calibrator fail (compound failure — extends the "All Tier 2 reviewers fail" row above) <!-- spec-panel fix (MAJOR): N-3 — compound T2+calibrator failure row (Nygard §2.5) — F2 fallback requires ≥1 calibrated reviewer card; this row covers the case where F2's precondition is also unsatisfied --> | F3: cannot continue with zero calibrated cards; emit `status: failed` with `failure_reason: "T2_full_collapse"`; do NOT silently emit `status: partial` (the partial-result rule requires SOME calibrated evidence). Tier 3 remediation handoff disabled (no findings to feed task-builder). | None |
-| Serena `write_memory` fails at Wave 5 (disk full, permission denied, serena down) <!-- spec-panel fix (MAJOR): N-3 — serena memory write failure row --> | Continue: report still ships; emit `memory_persist_failed: true` in telemetry; emit WARN in chat: `"deviation-pattern memory not persisted — next reflect run will not benefit from this run's findings."` Memory persistence is best-effort, not load-bearing for the current run. | None |
-| `<output>/audit.log` write failure (filesystem full, permission denied) <!-- spec-panel fix (MAJOR): N-3 — audit-log write failure row --> | Attempt fallback: write to `/tmp/sc-reflect-audit-<pid>.log` AND emit chat WARN with the fallback path. If the fallback ALSO fails, continue silently for that step but emit `audit_log_partial: true` in the return contract. Audit-log failure does NOT block the report from shipping (forensic completeness < report delivery), but DOES force `status: partial` and blocks Wave 7 promotion (audit completeness is a promotion precondition; missing rows mean the gate cannot be re-evaluated forensically). | Fallback path |
-| Post-Wave-5 evidence-validator returns partial result (validator subprocess emitted SOME findings then crashed) <!-- spec-panel fix (MAJOR): N-3 — evidence-validator partial-result row; distinct from "subprocess crash" above which falls back to inline re-Read --> | Distinct from the full-crash row (which falls back to inline re-Read of all citations). Here the validator processed K of N citations and then crashed. Behavior: accept the K processed results; for the remaining N-K, fall back to inline re-Read; emit `evidence_validator_partial: true` with `evidence_validator_processed_count: K` in telemetry; force `status: partial`; add Grounding Gap entry naming which citations were inline-revalidated. | Inline re-Read for the unprocessed N-K |
+| Env-var alias set re-resolves differently between Wave 0 and Wave 3 (race) | STOP at Wave 3A reviewer composition; emit `alias_set_changed_mid_run: true` with old/new alias sets in audit; `status: partial`; recommend re-run with stable env. Wave 0 alias set is canonical. | None |
+| All Tier 2 reviewers AND calibrator fail (compound failure) | F3: cannot continue with zero calibrated cards; emit `status: failed` with `failure_reason: "T2_full_collapse"`; do NOT silently emit `status: partial`. Tier 3 remediation handoff disabled. | None |
+| Serena `write_memory` fails at Wave 5 (disk full, permission denied, serena down) | Continue: report still ships; emit `memory_persist_failed: true` in telemetry; emit WARN: `"deviation-pattern memory not persisted — next reflect run will not benefit from this run's findings."` Memory persistence is best-effort. | None |
+| `<output>/audit.log` write failure (filesystem full, permission denied) | Attempt fallback: write to `/tmp/sc-reflect-audit-<pid>.log` AND emit chat WARN. If fallback also fails, continue silently for that step but emit `audit_log_partial: true` in the return contract. Audit-log failure does NOT block the report from shipping but DOES force `status: partial` and blocks Wave 7 promotion. | Fallback path |
+| Post-Wave-5 evidence-validator returns partial result (subprocess emitted SOME findings then crashed) | Distinct from full-crash row (which falls back to inline re-Read of all citations). Here the validator processed K of N citations and then crashed. Accept the K processed results; for the remaining N-K, fall back to inline re-Read; emit `evidence_validator_partial: true` with `evidence_validator_processed_count: K`; force `status: partial`; add Grounding Gap entry. | Inline re-Read for the unprocessed N-K |
+
+(See `refs/ops-integration.md` for the operator-facing WARN-message catalog and `refs/promotion-adapters.md` for the full Wave 7 collision-rules table.)
 
 ---
 
 ## 14.5 Post-Verdict Promotion Mutation (UC-2 only — Wave 7)
-
-<!-- Source: User directive (2026-05-27) — connect /sc:reflect to /task pipeline (task-builder + task) as final QA gate and to sprint CLI release pipeline. -->
-<!-- spec-panel fix (MAJOR): F-1 — Wave 7 renamed "Promotion Mutation" (was "Promotion") to surface the SRP boundary; this section is the ONLY mutation-phase spec in the skill; Waves 0-6 are read-only outside <output>/ -->
 
 Reflect is the **final QA gate** between the executor and the archive. When UC-2 verification passes strictly, the validated work-unit folder moves from its in-progress location to its completed location, closing the loop with `/task-builder` → `/task` → `/sc:reflect` → archive and the analogous loop for `superclaude sprint run`.
 
@@ -1193,46 +1089,44 @@ Adapter selection is deterministic from the resolved input path; if both apply o
 
 ### 14.5.2 Default-on with strict 9-condition gate
 
-<!-- spec-panel fix (MAJOR): W-1 — split frontmatter into 4a/4b to make 9 conditions map 1:1 onto §14.5.6 gate_evaluation fields -->
-
 Promotion fires only when ALL of the following hold:
 
 1. **`mode == post`** — UC-1 has no completed work to promote. *(maps to `gate_evaluation.mode_post`)*
 2. **`status == success`** — `partial` or `failed` blocks promotion. (Conditional-CONVERGED per §11.0 is NOT eligible.) *(maps to `gate_evaluation.status_success`)*
 3. **`tasklist_completion_pct == 1.0`** — every checklist item independently verified done by reflect (not just frontmatter-declared). *(maps to `gate_evaluation.tasklist_completion_pct_1_0`)*
-4. **`deviation_count_by_class.drift == 0` AND `deviation_count_by_class.regression == 0`** — Authorized expansion and Necessary deviation are non-blocking; Drift and Regression block. **Exception**: if the only Drift signal is the frontmatter-mismatch from condition 5b AND that mismatch is classifiable as §10.2 Necessary deviation (e.g., frontmatter carries an inline rationale that does not contradict any spec acceptance criterion), it is NOT counted as Drift here — but condition 5b still independently gates promotion. *(maps to `gate_evaluation.no_drift_no_regression`)* <!-- spec-panel fix (MAJOR): C-1 — §10.5 precedence: Necessary may absorb a frontmatter mismatch carrying inline rationale; cond 5b still enforces frontmatter agreement -->
+4. **`deviation_count_by_class.drift == 0` AND `deviation_count_by_class.regression == 0`** — Authorized expansion and Necessary deviation are non-blocking; Drift and Regression block. **Exception**: if the only Drift signal is the frontmatter-mismatch from condition 5b AND that mismatch is classifiable as §10.2 Necessary deviation (e.g., frontmatter carries an inline rationale that does not contradict any spec acceptance criterion), it is NOT counted as Drift here — but condition 5b still independently gates promotion. *(maps to `gate_evaluation.no_drift_no_regression`)*
 5. **Frontmatter agreement** — split into two independent sub-conditions:
    - **5a. Frontmatter is present and parseable** — the tasklist file MUST have a `status` field (or equivalent completion marker per the adapter's frontmatter schema). Missing/unparseable frontmatter fails 5a regardless of value. *(maps to `gate_evaluation.frontmatter_present`)*
-   - **5b. Frontmatter status agrees with reflect's verdict** — `status: done` (or equivalent terminal value) MUST be declared. Any other value (including `in-progress`, `partial`, blank, etc.) fails 5b. Disagreement is recorded as Drift (§10.3) in the deviation register regardless of promotion outcome, but does not redundantly increment cond 4 (see cond 4 exception). *(maps to `gate_evaluation.frontmatter_status_matches`)* <!-- spec-panel fix (MAJOR): W-1 — split frontmatter_agrees → frontmatter_present + frontmatter_status_matches for 1:1 §14.5.6 mapping -->
-6. **`citations_dropped == 0` AND grounding-gaps.yaml is empty** — evidence-validator gate clean. **Empty** is defined precisely (single canonical definition consumed by both §10.6 and §14.5.2): the file is "empty" if and only if (i) `grounding_gaps_path == null` (file was never created), OR (ii) the file exists and parses to a zero-element YAML list (i.e., `findings: []` or a top-level empty document), OR (iii) the file exists with zero non-comment, non-blank lines. Interpretations (a) "empty path string", (b) "zero-byte file alone", or (c) "header-only with no rows but file >0 bytes" are NOT sufficient by themselves — the YAML-parse check (ii) is the authoritative interpretation; (i) and (iii) are accepted only when the YAML parser would also return zero elements. This same definition is referenced by §10.6's "non-empty" predicate (which forces `needs_human_decision: true` and `status: partial`). The two MUST agree on the same file by construction. *(maps to `gate_evaluation.no_citations_dropped` for the `citations_dropped == 0` half, and `gate_evaluation.no_grounding_gaps` for the empty-grounding-gaps half — these are two separate fields in §14.5.6, see conditions 6a/6b below)* <!-- spec-panel fix (CRITICAL): C1 / W-A1 — define "empty" precisely with canonical YAML-parse semantics; cross-reference §10.6 -->
+   - **5b. Frontmatter status agrees with reflect's verdict** — `status: done` (or equivalent terminal value) MUST be declared. Any other value (including `in-progress`, `partial`, blank, etc.) fails 5b. Disagreement is recorded as Drift (§10.3) in the deviation register regardless of promotion outcome, but does not redundantly increment cond 4 (see cond 4 exception). *(maps to `gate_evaluation.frontmatter_status_matches`)*
+6. **`citations_dropped == 0` AND grounding-gaps.yaml is empty** — evidence-validator gate clean. **Empty** is defined precisely (single canonical definition consumed by both §10.6 and §14.5.2): the file is "empty" if and only if (i) `grounding_gaps_path == null` (file was never created), OR (ii) the file exists and parses to a zero-element YAML list (i.e., `findings: []` or a top-level empty document), OR (iii) the file exists with zero non-comment, non-blank lines. Interpretations (a) "empty path string", (b) "zero-byte file alone", or (c) "header-only with no rows but file >0 bytes" are NOT sufficient by themselves — the YAML-parse check (ii) is the authoritative interpretation; (i) and (iii) are accepted only when the YAML parser would also return zero elements. This same definition is referenced by §10.6's "non-empty" predicate (which forces `needs_human_decision: true` and `status: partial`). The two MUST agree on the same file by construction.
 
    For clarity in the 1:1 mapping, condition 6 is treated as two atomic sub-conditions:
-   - **6a. `citations_dropped == 0`** *(maps to `gate_evaluation.no_citations_dropped`)*. In `citation_budget_policy: sampled` mode, this check uses the **sample-count** (`citations_dropped` as defined in §9.1, the COUNT of drops observed in the re-Read sample), NOT the extrapolated projection (`citations_dropped_extrapolated`). The extrapolated field is recorded for telemetry only and does not gate promotion. <!-- spec-panel fix (MAJOR): H-2 / Guard 6 row 4 — sampled-mode drop accounting clarified -->
+   - **6a. `citations_dropped == 0`** *(maps to `gate_evaluation.no_citations_dropped`)*. In `citation_budget_policy: sampled` mode, this check uses the **sample-count** (`citations_dropped` as defined in §9.1, the COUNT of drops observed in the re-Read sample), NOT the extrapolated projection (`citations_dropped_extrapolated`). The extrapolated field is recorded for telemetry only and does not gate promotion.
    - **6b. grounding-gaps.yaml is empty** per the canonical "empty" definition above *(maps to `gate_evaluation.no_grounding_gaps`)*.
 7. **`input_drift_detected == false`** — input SHA stable across the run (§4.0 Step 0.4). *(maps to `gate_evaluation.no_input_drift`)*
 8. **`needs_human_decision == false` AND `user_decision_required == false`** — no flagged ambiguity. *(maps to `gate_evaluation.no_user_decision_pending`)*
-9. **`convergence_score` not null when Tier 2 ran** — if `tier_reached == 2` AND `adversarial_unavailable == true` (F3 path, `convergence_score: null`), promotion is blocked regardless of other conditions. Tier-1-only runs satisfy this vacuously (`convergence_score` is null by construction at T1, but `tier_reached == 1` means the gate's adversarial-result clause does not apply). Equivalently: a Tier 2 run with no merged adversarial verdict MUST NOT promote. *(maps to `gate_evaluation.adversarial_result_present`)* <!-- spec-panel fix (MAJOR): Guard 2 / W-A3 — convergence_score null routing for promotion gate; T2 + F3 path blocks promotion -->
+9. **`convergence_score` not null when Tier 2 ran** — if `tier_reached == 2` AND `adversarial_unavailable == true` (F3 path, `convergence_score: null`), promotion is blocked regardless of other conditions. Tier-1-only runs satisfy this vacuously (`convergence_score` is null by construction at T1, but `tier_reached == 1` means the gate's adversarial-result clause does not apply). Equivalently: a Tier 2 run with no merged adversarial verdict MUST NOT promote. *(maps to `gate_evaluation.adversarial_result_present`)*
 
 When all 9 hold and `--no-promote` is unset, Wave 7 executes. When conditions 1, 3-9 hold but `status == partial`, `--promote-anyway` can override condition 2 only (conditions 1, 3-9 still apply unmodified).
 
-**Citation revalidation when Wave 6 ran.** If Wave 6 (remediation handoff) executed between Wave 5 and Wave 7, condition 6a's `citations_dropped == 0` check at Wave 7 step 7.2 MUST re-Read every cited file:line via the §11.2 evidence-validator (not trust the Wave 5 result). Wave 6 may have mutated cited files, invalidating the Wave 5 citation invariance. A new telemetry field `citation_revalidation_at_promotion: bool` is emitted: `true` if revalidation ran at 7.2, `false` if it was skipped (only legitimate when Wave 6 did not run). <!-- spec-panel fix (MAJOR): W-A4 — Wave 6 file mutation invalidates Wave 5 citations; re-validate at 7.2 -->
+**Citation revalidation when Wave 6 ran.** If Wave 6 (remediation handoff) executed between Wave 5 and Wave 7, condition 6a's `citations_dropped == 0` check at Wave 7 step 7.2 MUST re-Read every cited file:line via the §11.2 evidence-validator (not trust the Wave 5 result). Wave 6 may have mutated cited files, invalidating the Wave 5 citation invariance. A new telemetry field `citation_revalidation_at_promotion: bool` is emitted: `true` if revalidation ran at 7.2, `false` if it was skipped (only legitimate when Wave 6 did not run).
 
 ### 14.5.3 Wave 7 — execution
 
 ```
-Wave 7:   Promotion Mutation (UC-2 only, conditional on §14.5.2 gate)  <!-- spec-panel fix (MAJOR): F-1 — name consistency with §4 wave-list -->
+Wave 7:   Promotion Mutation (UC-2 only, conditional on §14.5.2 gate)
           —— SRP boundary: the SOLE mutation phase outside <output>/
             7.1 Resolve adapter (task | sprint-release | none) from source path
             7.2 Re-verify all 9 gate conditions immediately before mutation. If Wave 6
                   ran, re-Read every cited file:line via evidence-validator and
                   recompute citations_dropped against current file state (NOT the
                   Wave 5 result); emit `citation_revalidation_at_promotion: true`.
-                  See §14.5.2 cond 6a.  <!-- spec-panel fix (MAJOR): W-A4 -->
+                  See §14.5.2 cond 6a.
             7.3 Re-verify destination collision rules (§14.5.5)
             7.3.5 If cross-filesystem move required, write promotion-checkpoint.yaml
-                  with state=pending; see §14.5.5 partial-state recovery.  <!-- spec-panel fix (CRITICAL): C2 -->
+                  with state=pending; see §14.5.5 partial-state recovery.
             7.3.6 Append promotion-log entry with pending=true (BEFORE the mv);
-                  see §14.5.5 promotion-log pre-write.  <!-- spec-panel fix (MAJOR): W-A6 -->
+                  see §14.5.5 promotion-log pre-write.
             7.4 Perform move (§14.5.5 mechanics — atomic on same-fs, copy+verify+remove
                   on cross-fs with checkpoint state transitions pending → copy-complete
                   → move-complete)
@@ -1249,16 +1143,16 @@ The mutation step (7.4) is the only filesystem write reflect performs outside `<
 | Flag | Default | Effect |
 |------|---------|--------|
 | `--no-promote` | unset | Suppress Wave 7 entirely; `promotion_action: skipped`, `promotion_skip_reason: user-flag`. |
-| `--promote-anyway` | unset | Override gate condition 2 for `status: partial`. **Conditions 1, 3-9 still apply** (including the new condition 9 on `convergence_score` and the split conditions 5a/5b/6a/6b). No effect on `status: failed`. |
+| `--promote-anyway` | unset | Override gate condition 2 for `status: partial`. **Conditions 1, 3-9 still apply** (including condition 9 on `convergence_score` and the split conditions 5a/5b/6a/6b). No effect on `status: failed`. |
 | `--promote-dry-run` | unset | Print the exact `mv` command + gate evaluation; perform no mutation. |
 | `--promote-mode <auto\|task\|sprint-release\|none>` | `auto` | Force a specific adapter or disable selection. |
-| `--promote-resume <checkpoint-path>` | unset | Resume an interrupted cross-fs promotion from `<output>/promotion-checkpoint.yaml`. Mutually exclusive with `--no-promote`, `--promote-anyway`, `--promote-dry-run`. Does NOT re-run the verdict pipeline or re-evaluate the 9-condition gate. See §14.5.5 partial-state recovery. <!-- spec-panel fix (CRITICAL): C2 --> |
+| `--promote-resume <checkpoint-path>` | unset | Resume an interrupted cross-fs promotion from `<output>/promotion-checkpoint.yaml`. Mutually exclusive with `--no-promote`, `--promote-anyway`, `--promote-dry-run`. Does NOT re-run the verdict pipeline or re-evaluate the 9-condition gate. See §14.5.5 partial-state recovery. |
 
 ### 14.5.5 Mutation mechanics + collision rules
 
-**Move semantics (atomicity is filesystem-dependent).** <!-- spec-panel fix (CRITICAL): C3 / N-1 — atomic-mv claim was overstated for cross-fs; reword honestly --> Use `mv <source> <destination>`. **Atomicity holds where the filesystem permits**: on same-filesystem moves, POSIX `rename(2)` is atomic — the destination either appears in full or not at all, and the source disappears in the same syscall. **On cross-filesystem moves**, the operation is implemented as copy + verify + remove + fsync, which is **NOT atomic**: there is a window between the copy completing and the source removal during which BOTH source and destination exist on disk. NOT `rsync` (non-atomic and not what `mv` invokes). Cross-fs moves emit `cross_fs_promotion: true` into the promotion-log and are gated by the checkpoint mechanism specified below.
+**Move semantics (atomicity is filesystem-dependent).** Use `mv <source> <destination>`. **Atomicity holds where the filesystem permits**: on same-filesystem moves, POSIX `rename(2)` is atomic — the destination either appears in full or not at all, and the source disappears in the same syscall. **On cross-filesystem moves**, the operation is implemented as copy + verify + remove + fsync, which is **NOT atomic**: there is a window between the copy completing and the source removal during which BOTH source and destination exist on disk. NOT `rsync` (non-atomic and not what `mv` invokes). Cross-fs moves emit `cross_fs_promotion: true` into the promotion-log and are gated by the checkpoint mechanism specified below.
 
-**Pre-mutation checkpoint and partial-state recovery (cross-filesystem).** <!-- spec-panel fix (CRITICAL): C2 / W-A7 — cross-fs partial-state recovery with checkpoint file + --promote-resume flag --> Because cross-fs moves have a non-atomic copy window, Wave 7 step 7.3.5 (inserted between 7.3 collision-check and 7.4 mv) MUST write `<output>/promotion-checkpoint.yaml` BEFORE invoking the copy. The checkpoint shape is:
+**Pre-mutation checkpoint and partial-state recovery (cross-filesystem).** Because cross-fs moves have a non-atomic copy window, Wave 7 step 7.3.5 (inserted between 7.3 collision-check and 7.4 mv) MUST write `<output>/promotion-checkpoint.yaml` BEFORE invoking the copy. The checkpoint shape is:
 
 ```yaml
 checkpoint_version: "1.0"
@@ -1284,7 +1178,7 @@ On normal completion, the checkpoint's `state` field transitions `pending` → `
 
 **`--promote-resume` flag.** When invoked with `--promote-resume <promotion-checkpoint-path>`, reflect reads the checkpoint and performs ONLY the recovery action above — it does NOT re-run the verdict pipeline or re-evaluate the 9-condition gate (the gate was satisfied when the checkpoint was written; re-evaluating could fail if Wave 6 or external mutation has since changed state, leaving the operator with no resolution path). `--promote-resume` is mutually exclusive with `--no-promote`, `--promote-anyway`, and `--promote-dry-run`.
 
-**Promotion-log pre-write (atomicity of the forensic record).** <!-- spec-panel fix (MAJOR): W-A6 — promotion-log write atomicity; pre-write with pending=true before mv --> Step 7.6 (append promotion-log) MUST be split: a `pending: true` log entry is written BEFORE step 7.4 (the mv), and is flipped to `pending: false` after step 7.5 (post-move SHA verification). This ensures that if 7.4 succeeds but the 7.6 finalization write fails (disk full, permission denied, process crash), the forensic record still exists with `pending: true` — the next reflect invocation MUST detect a `pending: true` log entry whose `destination` path now exists and `source` path does not, treat it as a `move-complete` state, and emit a one-line warning to the audit log so the operator can reconcile.
+**Promotion-log pre-write (atomicity of the forensic record).** Step 7.6 (append promotion-log) MUST be split: a `pending: true` log entry is written BEFORE step 7.4 (the mv), and is flipped to `pending: false` after step 7.5 (post-move SHA verification). This ensures that if 7.4 succeeds but the 7.6 finalization write fails (disk full, permission denied, process crash), the forensic record still exists with `pending: true` — the next reflect invocation MUST detect a `pending: true` log entry whose `destination` path now exists and `source` path does not, treat it as a `move-complete` state, and emit a one-line warning to the audit log so the operator can reconcile.
 
 **Destination collision rules.**
 
@@ -1310,7 +1204,7 @@ Written every time Wave 7 runs (even on reject/skip/dry-run):
 promotion_log_version: "1.0"
 adapter: task | sprint-release | none
 mode: auto | forced-task | forced-sprint-release | forced-none
-action: moved | skipped | rejected | failed | already-promoted | resumed | dry-run   # "resumed" added per §14.5.5 partial-state recovery  <!-- spec-panel fix (CRITICAL): C2 -->
+action: moved | skipped | rejected | failed | already-promoted | resumed | dry-run
 source: <abs path>
 destination: <abs path> | null
 source_sha256_before: <hex>        # tree-hash via find + xargs sha256sum, sorted
@@ -1321,17 +1215,18 @@ gate_evaluation:                       # 11 atomic fields, 1:1 with the 9 number
   status_success: pass | fail                       # cond 2
   tasklist_completion_pct_1_0: pass | fail          # cond 3
   no_drift_no_regression: pass | fail               # cond 4
-  frontmatter_present: pass | fail                  # cond 5a  <!-- spec-panel fix (MAJOR): W-1 — split frontmatter_agrees into _present + _status_matches -->
+  frontmatter_present: pass | fail                  # cond 5a
   frontmatter_status_matches: pass | fail           # cond 5b
   no_citations_dropped: pass | fail                 # cond 6a
   no_grounding_gaps: pass | fail                    # cond 6b
   no_input_drift: pass | fail                       # cond 7
   no_user_decision_pending: pass | fail             # cond 8
-  adversarial_result_present: pass | fail | n/a     # cond 9; "n/a" when tier_reached == 1  <!-- spec-panel fix (MAJOR): Guard 2 / W-A3 -->
+  adversarial_result_present: pass | fail | n/a     # cond 9; "n/a" when tier_reached == 1
+gate_evaluation_failures: [<list>]     # derived convenience: names of `gate_evaluation` keys whose value is `fail`. Empty list when `gate_passed: true`. The eval-workspace `yaml_list_contains` assertions consume this; emitted byte-1:1 with the `gate_evaluation` map so the two cannot drift.
 gate_passed: bool
-citation_revalidation_at_promotion: bool   # true when Wave 6 ran AND step 7.2 re-Read cited files; see §14.5.2 cond 6a  <!-- spec-panel fix (MAJOR): W-A4 -->
-pending: bool                              # true between step 7.4 start and step 7.5 SHA verification; false after; see §14.5.5 promotion-log pre-write  <!-- spec-panel fix (MAJOR): W-A6 -->
-cross_fs_promotion: bool                   # true when source and destination are on different filesystems; see §14.5.5 partial-state recovery  <!-- spec-panel fix (CRITICAL): C2 -->
+citation_revalidation_at_promotion: bool   # true when Wave 6 ran AND step 7.2 re-Read cited files; see §14.5.2 cond 6a
+pending: bool                              # true between step 7.4 start and step 7.5 SHA verification; false after; see §14.5.5 promotion-log pre-write
+cross_fs_promotion: bool                   # true when source and destination are on different filesystems; see §14.5.5 partial-state recovery
 checkpoint_path: <abs path> | null         # path to promotion-checkpoint.yaml when cross_fs_promotion is true; null otherwise
 skip_reason: user-flag | gate-failed | adapter-unresolved | dry-run | null
 fail_reason: source_disappeared | destination_collision | mv_error | sha_mismatch | null
@@ -1346,19 +1241,19 @@ Wired into `.dev/eval-workspaces/sc-reflect/evals/`:
 
 - **promotion-task-strict-pass**: complete `.dev/tasks/to-do/TASK-EVAL-001/`, all 9 gates pass → `action: moved`, destination exists, source removed.
 - **promotion-blocked-by-drift**: 1 Drift entry → `action: rejected`, `no_drift_no_regression: fail`.
-- **promotion-blocked-by-frontmatter-missing**: tasklist has no `status` frontmatter field → `action: rejected`, `frontmatter_present: fail`. <!-- spec-panel fix (MAJOR): W-1 — exercise the split 5a/5b conditions -->
+- **promotion-blocked-by-frontmatter-missing**: tasklist has no `status` frontmatter field → `action: rejected`, `frontmatter_present: fail`.
 - **promotion-blocked-by-frontmatter-mismatch**: reflect verifies done but frontmatter says `in-progress` → `action: rejected`, `frontmatter_status_matches: fail`, Drift entry logged.
-- **promotion-blocked-by-grounding-gaps-empty-list**: grounding-gaps.yaml exists with `findings: []` → `action: moved` (the canonical "empty" definition treats this as empty); separately, with `findings: [{...}]` → `action: rejected`, `no_grounding_gaps: fail`. <!-- spec-panel fix (CRITICAL): C1 — exercise the "empty" definition both ways -->
-- **promotion-blocked-by-null-convergence**: `tier_reached == 2 AND convergence_score == null` (F3 path simulated) → `action: rejected`, `adversarial_result_present: fail`. <!-- spec-panel fix (MAJOR): Guard 2 / W-A3 -->
-- **promotion-citation-revalidation-after-remediation**: Wave 6 modifies a cited file between Wave 5 and Wave 7 → step 7.2 re-runs evidence-validator and `citations_dropped` is recomputed against current file state; if recomputed `citations_dropped > 0`, `action: rejected`, `no_citations_dropped: fail`, `citation_revalidation_at_promotion: true`. <!-- spec-panel fix (MAJOR): W-A4 -->
+- **promotion-blocked-by-grounding-gaps-empty-list**: grounding-gaps.yaml exists with `findings: []` → `action: moved` (canonical "empty" definition); separately, with `findings: [{...}]` → `action: rejected`, `no_grounding_gaps: fail`.
+- **promotion-blocked-by-null-convergence**: `tier_reached == 2 AND convergence_score == null` (F3 path simulated) → `action: rejected`, `adversarial_result_present: fail`.
+- **promotion-citation-revalidation-after-remediation**: Wave 6 modifies a cited file between Wave 5 and Wave 7 → step 7.2 re-runs evidence-validator and `citations_dropped` is recomputed against current file state; if recomputed `citations_dropped > 0`, `action: rejected`, `no_citations_dropped: fail`, `citation_revalidation_at_promotion: true`.
 - **promotion-sprint-release-pass**: `.dev/releases/current/release-X/results/` → destination is `.dev/releases/complete/release-X/`, parent created.
 - **promotion-collision-non-identical**: differing destination → `action: rejected`, source untouched, diff captured.
 - **promotion-collision-identical**: idempotent re-run → `action: already-promoted`, source removed.
 - **promotion-no-promote-flag**: `--no-promote` → `action: skipped`, `skip_reason: user-flag`.
 - **promotion-promote-anyway-on-partial**: `status: partial` + `--promote-anyway` → `action: moved`, `override_used: --promote-anyway`.
 - **promotion-dry-run**: `--promote-dry-run` → `action: dry-run`, no mutation, mv command printed.
-- **promotion-cross-fs-crash-recovery**: simulate process death between step 7.4 copy and step 7.4 remove on cross-fs path → re-invoke with `--promote-resume <checkpoint>` → `action: resumed`, source removed, destination intact, log entry flipped to `pending: false`. <!-- spec-panel fix (CRITICAL): C2 -->
-- **promotion-log-pre-write-survives-crash**: simulate crash between step 7.4 (move success) and step 7.6 (finalize) → next invocation detects `pending: true` log entry with destination-exists and source-missing → emit reconciliation warning, flip to `pending: false`, no double-move. <!-- spec-panel fix (MAJOR): W-A6 -->
+- **promotion-cross-fs-crash-recovery**: simulate process death between step 7.4 copy and step 7.4 remove on cross-fs path → re-invoke with `--promote-resume <checkpoint>` → `action: resumed`, source removed, destination intact, log entry flipped to `pending: false`.
+- **promotion-log-pre-write-survives-crash**: simulate crash between step 7.4 (move success) and step 7.6 (finalize) → next invocation detects `pending: true` log entry with destination-exists and source-missing → emit reconciliation warning, flip to `pending: false`, no double-move.
 
 New grader assertion types required (in addition to the 8 inherited): `path_exists` and `path_does_not_exist`. Both are short Python additions to `grader.py` per §17.5.
 
@@ -1370,8 +1265,6 @@ Frontmatter-vs-verdict mismatch (gate condition 5b) is a first-class **Drift** s
 
 ## 15. Token Cost Profile
 
-<!-- Source: Base (V2, original) — §15 preserved verbatim -->
-
 | Path | Auggie (offloaded) | Claude (orchestration + agents) | Wall clock | Turn-budget midpoint |
 |------|-------------------|---------------------------------|------------|----------------------|
 | T1 only | ~2-5k | ~3-8k | 1-3 min | ~6 turns (`T1-midpoint`) |
@@ -1380,11 +1273,9 @@ Frontmatter-vs-verdict mismatch (gate condition 5b) is a first-class **Drift** s
 
 Targets, not caps. Hard kill at 1.25× estimate per sc-brainstorm convention.
 
-**Token-to-turn conversion (consumed by §4.0 Step 0.9 budget routing).** <!-- spec-panel fix (MAJOR): W-2 — explicit token→turn conversion for budget routing reproducibility --> The midpoint values are derived as: `turns ≈ claude_tokens_midpoint / 1000`, i.e., `1 turn ≈ 1k claude-orchestration tokens` at the band midpoint. This conversion is the load-bearing assumption behind §4.0 Step 0.9's `T1-midpoint = 6` and `T2-midpoint = 52` integer anchors. The conversion is approximate (real turn-to-token ratios vary with prompt complexity, tool-call density, and per-call overhead), but is fixed for the purpose of budget-routing arithmetic — callers should NOT recompute it. If §15 band midpoints change, §4.0 Step 0.9 anchors MUST be updated in lockstep.
+**Token-to-turn conversion (consumed by §4.0 Step 0.9 budget routing).** The midpoint values are derived as: `turns ≈ claude_tokens_midpoint / 1000`, i.e., `1 turn ≈ 1k claude-orchestration tokens` at the band midpoint. This conversion is the load-bearing assumption behind §4.0 Step 0.9's `T1-midpoint = 6` and `T2-midpoint = 52` integer anchors. The conversion is approximate (real turn-to-token ratios vary with prompt complexity, tool-call density, and per-call overhead), but is fixed for the purpose of budget-routing arithmetic — callers should NOT recompute it. If §15 band midpoints change, §4.0 Step 0.9 anchors MUST be updated in lockstep. (The machine-readable mirror of this table is `refs/cost-profile.yaml`, regenerated via `make sync-cost-profile`.)
 
 ### 15.1 Metrics Export
-
-<!-- spec-panel fix (MAJOR): K-1 — operational observability via metrics.json; stable schema for Prometheus/Grafana/StatsD ingestion; downstream meta-eval consumer per §9.3 -->
 
 Reflect emits a structured metrics file at `<output>/metrics.json` (and appends a one-line summary to a global `.dev/reflect/runs.jsonl` for cross-run aggregation per the §9.3 meta-eval consumer row). The metrics file is **separate from the return contract** — the contract is the per-run verdict surface; metrics are the cross-run operational signal.
 
@@ -1495,8 +1386,6 @@ The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
 
 ## 16. Refs (loaded on-demand per wave)
 
-<!-- Source: Base (V2, original) §16 — extended with 2 new refs per Change #1 (ops-integration.md) and Change #3 (grader-extensions.md) -->
-
 | File | Wave | Purpose |
 |------|------|---------|
 | `refs/input-resolution.md` | Wave 0 | Mode auto-detection rules, STOP conditions, slug generation |
@@ -1517,8 +1406,6 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 
 ## 17. Boundaries
 
-<!-- Source: Base (V2, original) — §17 Will / Will Not preserved verbatim -->
-
 ### Will
 
 - Run T1 always; respect "quick first" contract.
@@ -1533,8 +1420,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Fail-open on missing MCPs (auggie, serena, context7, tavily) — fall back to native tools and mark degraded.
 - Persist deviation patterns to per-project Serena memory with 90-day expiry.
 - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
-- **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.<!-- spec-panel followup: stale 8→9 condition ref + F-1 SRP rename "Promotion" → "Promotion Mutation" + C3 atomic-mv honest reword carried to §17 boundaries -->
-
+- **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.
 - Write a `promotion-log.yaml` every time Wave 7 runs (even on skip/reject/fail/dry-run) for forensic transparency.
 - Refuse promotion on destination-collision with non-identical content (no auto-suffix, no overwrite); record the diff for human resolution.
 - **Emit per-task verdicts** (P1+P2) in the contract when UC-2 input is a multi-task tasklist, including `per_task_validation_strength` (calibrated 0.0-1.0) suitable for downstream credit-allocation logic.
@@ -1570,8 +1456,6 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 
 ## 17.5 Ops Integration
 
-<!-- Source: V5 §9 — merged per Change #1 (heavy ops content extracted to refs/ops-integration.md; ~30 lines kept inline) -->
-
 This section codifies the build/CI/hook discipline that surrounds the skill. Detailed Makefile target tables, full CI cadence, and the full vendor-heterogeneity WARN body live in `refs/ops-integration.md` (load on-demand at build time).
 
 **The `-f` rule (CLAUDE.md ABSOLUTE).** If `git add` requires `-f` on any `.claude/` path (except `.claude/settings.json`), that `-f` is the violation siren. STOP. Move the change to `src/superclaude/`, run `make sync-dev`, stage only the `src/` side. See memory `feedback_claude_dir_gitignored.md`.
@@ -1592,45 +1476,44 @@ This section codifies the build/CI/hook discipline that surrounds the skill. Det
 
 ## 17.6 Testability Map
 
-<!-- Source: V4 §16 — merged per Change #2 (testability map as protocol-decision-to-eval-assertion manifest) -->
-
 Every load-bearing protocol decision maps to at least one deterministic or qualitative eval assertion. Rows where no mapping is feasible should be simplified or removed.
 
 | Protocol decision | Eval assertion type | Target artifact / field |
 |-------------------|---------------------|-------------------------|
 | Output-dir guard rejects `.claude/{skills,commands,agents}/` | `regex_absent` in audit + STOP fixture | `audit.log` |
 | §3.2 mode auto-detection (6-rule first-match) | `yaml_field` | `return-contract.yaml mode` |
-| §4 Wave 0 input_sha256 snapshot (Change #10) | `yaml_field` | `input-snapshot.yaml input_sha256.tasklist` |
-| §4 Wave 0 input_drift guard (Change #10) | `yaml_field` | `return-contract.yaml input_drift_detected` |
-| §4 Wave 0 alias-routing 0/1/2/3+ (Change #13/#14) | `yaml_field` | `tier_decision.yaml t2_model_class_diversity ∈ {full, degraded}` |
-| §4 Wave 0 vendor heterogeneity (Change #18) | `yaml_field` | `return-contract.yaml t2_vendor_diversity ∈ {multi, single}` |
-| §4 Wave 1 zero-task guard (Change #12) | `yaml_field` | `return-contract.yaml coverage_undefined == true` |
-| §4 Wave 1 coverage_undefined route (Change #11) | `yaml_field` | `return-contract.yaml coverage_pct == null AND tier_reached == 2` |
-| §4 Wave 3 reviewer-brief packaging (Change #7) | `dir_count` | `<output>/reviewer-briefs/ min_files=N` |
-| §4 Wave 5 sc-adversarial pre-invocation probe (Change #15) | `yaml_field` | `return-contract.yaml adversarial_unavailable` |
-| §4 per-step audit emit (Change #22) | `yaml_list_contains` | `audit.log step rows` |
-| §5.3 tier rubric rule fired (V2 priority) | `yaml_field` | `tier_decision.yaml fired_rule_number` |
-| §5.4 composite_score recording (Change #9) | `yaml_field` | `tier_decision.yaml composite_score AND per_signal_breakdown` |
+| §4 Wave 0 input_sha256 snapshot | `yaml_field` | `input-snapshot.yaml input_sha256.tasklist` |
+| §4 Wave 0 input_drift guard | `yaml_field` | `return-contract.yaml input_drift_detected` |
+| §4 Wave 0 alias-routing 0/1/2/3+ | `yaml_field` | `tier_decision.yaml t2_model_class_diversity ∈ {full, degraded}` |
+| §4 Wave 0 vendor heterogeneity | `yaml_field` | `return-contract.yaml t2_vendor_diversity ∈ {multi, single}` |
+| §4 Wave 1 zero-task guard | `yaml_field` | `return-contract.yaml coverage_undefined == true` |
+| §4 Wave 1 coverage_undefined route | `yaml_field` | `return-contract.yaml coverage_pct == null AND tier_reached == 2` |
+| §4 Wave 3 reviewer-brief packaging | `dir_count` | `<output>/reviewer-briefs/ min_files=N` |
+| §4 Wave 5 sc-adversarial pre-invocation probe | `yaml_field` | `return-contract.yaml adversarial_unavailable` |
+| §4 per-step audit emit | `yaml_list_contains` | `audit.log step rows` |
+| §5.3 tier rubric rule fired | `yaml_field` | `tier_decision.yaml fired_rule_number` |
+| §5.4 composite_score recording | `yaml_field` | `tier_decision.yaml composite_score AND per_signal_breakdown` |
 | §6.4 Serena scripted checkpoints | `checkpoint_logged` | `audit.log checkpoint=<name>` |
 | §10 deviation taxonomy = 4 categories | `yaml_list_contains` | `deviation-ledger.yaml deviation_class ∈ {authorized, necessary, drift, regression}` |
-| §10.6 grounding-gaps parallel artifact (Change #19) | `file_exists` + `yaml_field` | `grounding-gaps.yaml hunk_ref AND needs_human_decision` |
-| §11.0 sufficiency-conditional gates (Change #20) | (eval composition) | dimensions #1 / #4 / #5 sub-criteria |
-| §11.3 calibrator disjoint-set (Change #16) | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
-| §11.5 citation-budget policy (Change #8) | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
-| §12.5 falsifier T2-convergence-wrong-answer (Change #17) | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
+| §10.6 grounding-gaps parallel artifact | `file_exists` + `yaml_field` | `grounding-gaps.yaml hunk_ref AND needs_human_decision` |
+| §11.0 sufficiency-conditional gates | (eval composition) | dimensions #1 / #4 / #5 sub-criteria |
+| §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
+| §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
+| §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
 | §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.0"` |
+| §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
+| §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
+| §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |
 | Adversarial delegation artifacts | `dir_count` | `<output>/adversarial/ min_files=6` |
 | Citation grounding (final report) | `citation_resolves` | `REPORT.md` |
 | Recommendation actionability | `yaml_list_contains` | `recommendation-scrutiny.yaml decision` |
 | Memory write optionality | `yaml_substring` | `telemetry memory_status` |
 
-A protocol step that cannot map to at least one row here should be simplified or removed. The Testability Map is the manifest the eval workspace consumes; the merge-executor verified every row references a real protocol decision in §3-§14 (no orphan rows, no orphan decisions).
+A protocol step that cannot map to at least one row here should be simplified or removed. The Testability Map is the manifest the eval workspace consumes; every row references a real protocol decision in §3-§14.5 (no orphan rows, no orphan decisions).
 
 ---
 
 ## 17.7 Kill List — Features Deliberately Excluded
-
-<!-- Source: V3 §13 — merged per Change #4 (5 entries verbatim + 1 row for `unknown` deviation category per INV-015) -->
 
 Features considered and rejected, each with a why-rejected line and a what-replaces-it pointer.
 
@@ -1644,21 +1527,17 @@ Features considered and rejected, each with a why-rejected line and a what-repla
 
 5. **Multi-model fan-out in T1** — T1 is intentionally single-agent and cheap. Heterogeneous multi-model review is a T2/T3 feature. Running parallel models at T1 would violate the "quick first" contract that makes sc:troubleshoot's T1 effective. *Replaces with:* §5 rubric escalation path to T2.
 
-6. **5th `unknown` deviation category in deviation-ledger** *(INV-015 resolution)* — V4 proposed `unknown` as a 5th class for evidence-insufficient findings. Rejected because per R3 X-009 / INV-015, structural cleanliness requires the 4-category ledger to remain pure; insufficient-evidence findings route to a *separate* artifact (`grounding-gaps.yaml`) with V4's required-field rigor. *Replaces with:* §10.6 Grounding Gaps parallel artifact (Change #19).
+6. **5th `unknown` deviation category in deviation-ledger** — Rejected because structural cleanliness requires the 4-category ledger to remain pure; insufficient-evidence findings route to a *separate* artifact (`grounding-gaps.yaml`) with required-field rigor. *Replaces with:* §10.6 Grounding Gaps parallel artifact.
 
 ---
 
 ## 18. Spec Reference
-
-<!-- Source: Base (V2, original) — §18 (now §18 in this merge; spec ref preserved verbatim) -->
 
 Full spec at `.dev/eval-workspaces/sc-reflect/SPEC.md` (authored alongside SKILL.md per skill-creator iteration-1). This SKILL.md is the working protocol; SPEC.md is the design rationale + acceptance criteria + iteration history.
 
 ---
 
 ## 19. v1.1 Deferred Hardening (INV-021 + INV-023)
-
-<!-- Source: R3 INV-021 + INV-023 — PARTIALLY-ADDRESSED items carried as v1.1 deferred hardening per Change #18 + Change #20 -->
 
 Two HIGH invariants are deliberately deferred to a future v1.1 release. They are surfaced here so downstream consumers and meta-eval can track the gap.
 
@@ -1672,7 +1551,7 @@ Two HIGH invariants are deliberately deferred to a future v1.1 release. They are
 
 ### 19.2 INV-023 — Sufficiency claim v1.1 hardening
 
-**v1.0 posture:** the §11.0 sufficiency claim is **CONDITIONAL** on three gates (calibrator disjoint-set §11.3, ≥2 vendors §4 Wave 0 step 0.6, falsifier eval §12.5). The falsifier eval case ships in iteration-3 hardening; the conditional language is in §11.0. The **falsifier-suite skeleton ships in v1.0** (§12.5) — directory layout, grader hooks, and YAML shape are present from day-1; iteration-3 only populates the fixture content and promotes `status: skeleton-pending-iteration-3-fixture` → `status: active`. <!-- spec-panel fix (MAJOR): W-A8 — v1.0 pre-seeds the skeleton so iteration-3 has runway -->
+**v1.0 posture:** the §11.0 sufficiency claim is **CONDITIONAL** on three gates (calibrator disjoint-set §11.3, ≥2 vendors §4 Wave 0 step 0.6, falsifier eval §12.5). The falsifier eval case ships in iteration-3 hardening; the conditional language is in §11.0. The **falsifier-suite skeleton ships in v1.0** (§12.5) — directory layout, grader hooks, and YAML shape are present from day-1; iteration-3 only populates the fixture content and promotes `status: skeleton-pending-iteration-3-fixture` → `status: active`.
 
 **v1.1 candidate hardening:** based on first-run results of the `T2-convergence-wrong-answer` case across real eval runs:
 

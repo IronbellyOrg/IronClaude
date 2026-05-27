@@ -1,0 +1,518 @@
+{
+  "skill_name": "sc-reflect-protocol",
+  "iteration": 1,
+  "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton",
+  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm).",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pre-trivial-coverage-gap",
+      "case_dir": "cases/pre-trivial-coverage-gap/",
+      "mode": "pre",
+      "use_case": "UC-1",
+      "spec_ref": "§12.3 row 1 (line 973)",
+      "description": "8-requirement spec with tasklist missing 2/8 requirements → expected coverage_pct=0.75, missing_requirements=[R-007, R-008], tier_reached=1.",
+      "inputs": {
+        "spec": "input/spec.md",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "file_exists",
+          "target": "with_skill/outputs/REPORT.md",
+          "text": "REPORT.md is produced"
+        },
+        {
+          "type": "matrix_covers_items",
+          "matrix": "with_skill/outputs/coverage-matrix.yaml",
+          "source": "input/spec.md",
+          "threshold": 0.75,
+          "text": "Coverage matrix reports coverage_pct >= 0.75"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/REPORT.md",
+          "pattern": "R-00[78]",
+          "text": "REPORT identifies the missing R-007 / R-008 requirements"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "post-small-diff-clean",
+      "case_dir": "cases/post-small-diff-clean/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "§12.3 row 2 (line 977)",
+      "description": "3-file clean diff with no deviations → expected deviations=[], tier_reached=1, regression_recall=1.0.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "file_exists",
+          "target": "with_skill/outputs/REPORT.md",
+          "text": "REPORT.md is produced"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "tier_reached",
+          "expected": "1",
+          "text": "Tier 1 reached on a clean small diff"
+        },
+        {
+          "type": "regex_absent",
+          "target": "with_skill/outputs/REPORT.md",
+          "pattern": "deviation_class:\\s*(drift|regression)",
+          "text": "No drift/regression deviations falsely emitted on a clean diff"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "post-large-diff-mixed",
+      "case_dir": "cases/post-large-diff-mixed/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "§12.3 row 3 (line 981)",
+      "description": "15-file diff with mixed deviation classes (1 regression + 2 drift + 1 necessary + 1 authorized) → expected tier_reached=3 (regression triggers unconditional Tier 3 per §10.4) and per-task verdict shape.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "file_exists",
+          "target": "with_skill/outputs/REPORT.md",
+          "text": "REPORT.md is produced"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/deviation-ledger.yaml",
+          "field_path": "deviation_classes",
+          "value": "regression",
+          "text": "Deviation ledger contains a regression class entry"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "tier_reached",
+          "expected": "3",
+          "text": "Tier 3 reached because a regression deviation was found (§10.4)"
+        },
+        {
+          "type": "citation_resolves",
+          "report": "with_skill/outputs/REPORT.md",
+          "fixture_root": "input/",
+          "text": "All file:line citations in REPORT.md resolve against the fixture input/"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "promotion-task-strict-pass",
+      "case_file": "cases/promotion/promotion-task-strict-pass.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 1",
+      "description": "All 9 gate conditions pass → action: moved.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "moved",
+          "text": "promotion-log records action: moved"
+        },
+        {
+          "type": "path_exists",
+          "target": "with_skill/outputs/post-move/done-destination/",
+          "text": "destination path exists after move"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "promotion-blocked-by-drift",
+      "case_file": "cases/promotion/promotion-blocked-by-drift.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 2",
+      "description": "1 drift deviation present → action: rejected (drift fails the §14.5.2 gate).",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "rejected",
+          "text": "promotion-log records action: rejected"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field_path": "gate_evaluation_failures",
+          "value": "no_drift_no_regression",
+          "text": "promotion-log identifies no_drift_no_regression as the failing condition (cond 4 — §14.5.2/§14.5.6)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "promotion-blocked-by-frontmatter-missing",
+      "case_file": "cases/promotion/promotion-blocked-by-frontmatter-missing.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 3",
+      "description": "Frontmatter `status` field absent → frontmatter_present: fail.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "rejected",
+          "text": "promotion-log records action: rejected"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field_path": "gate_evaluation_failures",
+          "value": "frontmatter_present",
+          "text": "promotion-log identifies frontmatter_present as the failing condition"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "promotion-blocked-by-frontmatter-mismatch",
+      "case_file": "cases/promotion/promotion-blocked-by-frontmatter-mismatch.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 4",
+      "description": "reflect says status=done but frontmatter says status=in-progress → frontmatter_status_matches: fail.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "rejected",
+          "text": "promotion-log records action: rejected"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field_path": "gate_evaluation_failures",
+          "value": "frontmatter_status_matches",
+          "text": "promotion-log identifies frontmatter_status_matches as the failing condition"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "promotion-blocked-by-grounding-gaps-empty-list",
+      "case_file": "cases/promotion/promotion-blocked-by-grounding-gaps-empty-list.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 5",
+      "description": "Grounding-gaps list is empty (both empty-list AND missing-list are treated as 'empty' per §14.5.2 canonical definition) → grounding_gaps_resolved: fail.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "rejected",
+          "text": "promotion-log records action: rejected"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field_path": "gate_evaluation_failures",
+          "value": "no_grounding_gaps",
+          "text": "promotion-log identifies no_grounding_gaps as the failing condition (cond 6b — §14.5.2/§14.5.6)"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "promotion-blocked-by-null-convergence",
+      "case_file": "cases/promotion/promotion-blocked-by-null-convergence.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 6",
+      "description": "T2 reached + convergence=null (per spec §8 null-convergence handling) → adversarial_result_present: fail.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "rejected",
+          "text": "promotion-log records action: rejected"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field_path": "gate_evaluation_failures",
+          "value": "adversarial_result_present",
+          "text": "promotion-log identifies adversarial_result_present as the failing condition"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "promotion-citation-revalidation-after-remediation",
+      "case_file": "cases/promotion/promotion-citation-revalidation-after-remediation.yaml",
+      "use_case": "UC-2 + Wave 6 → Wave 7",
+      "spec_ref": "§14.5.7 bullet 7",
+      "description": "Wave 6 task-builder remediation mutated a cited file → step 7.2 recomputes citations_dropped against the post-remediation tree; if revalidation passes, action: moved.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "moved",
+          "text": "promotion-log records action: moved after successful citation revalidation"
+        },
+        {
+          "type": "checkpoint_logged",
+          "audit_log": "with_skill/outputs/audit.log",
+          "checkpoint_name": "citation_revalidation_after_remediation",
+          "text": "audit.log records the citation_revalidation_after_remediation checkpoint"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "promotion-sprint-release-pass",
+      "case_file": "cases/promotion/promotion-sprint-release-pass.yaml",
+      "use_case": "UC-2 + Wave 7 (sprint-release adapter)",
+      "spec_ref": "§14.5.7 bullet 8",
+      "description": "sprint-release adapter exercised: source .dev/releases/current/<release>/ → destination .dev/releases/complete/<release>/. Parent destination directory auto-created.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "moved",
+          "text": "promotion-log records action: moved"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "adapter",
+          "expected": "sprint-release",
+          "text": "promotion-log records the sprint-release adapter was selected"
+        },
+        {
+          "type": "path_exists",
+          "target": "with_skill/outputs/post-move/releases-complete/",
+          "text": "destination .dev/releases/complete/<release>/ exists after move"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "promotion-collision-non-identical",
+      "case_file": "cases/promotion/promotion-collision-non-identical.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 9",
+      "description": "Destination already exists with NON-identical content → action: rejected; diff captured per §14.5.5 7-row collision-rules table.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "rejected",
+          "text": "promotion-log records action: rejected on collision"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "pattern": "collision_kind:\\s*non-identical",
+          "text": "promotion-log identifies collision_kind: non-identical"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "promotion-collision-identical",
+      "case_file": "cases/promotion/promotion-collision-identical.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 10",
+      "description": "Destination already exists with IDENTICAL content → idempotent already-promoted return; no mutation, no error.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "already-promoted",
+          "text": "promotion-log records action: already-promoted (idempotent)"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "promotion-no-promote-flag",
+      "case_file": "cases/promotion/promotion-no-promote-flag.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 11",
+      "description": "--no-promote flag set by user → action: skipped; skip_reason: user-flag (per §14.5.4 flag semantics).",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "skipped",
+          "text": "promotion-log records action: skipped"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "skip_reason",
+          "expected": "user-flag",
+          "text": "promotion-log records skip_reason: user-flag"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "promotion-promote-anyway-on-partial",
+      "case_file": "cases/promotion/promotion-promote-anyway-on-partial.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 12",
+      "description": "status: partial + --promote-anyway flag → action: moved (override flag bypasses partial-status gate; all other 7 conditions still apply).",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "moved",
+          "text": "promotion-log records action: moved under --promote-anyway"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "pattern": "override_flag:\\s*--promote-anyway",
+          "text": "promotion-log records override_flag: --promote-anyway"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "promotion-dry-run",
+      "case_file": "cases/promotion/promotion-dry-run.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 13",
+      "description": "--promote-dry-run flag → action: dry-run; mv command printed but NO filesystem mutation occurs; promotion-log NOT written.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "dry-run",
+          "text": "promotion-log records action: dry-run"
+        },
+        {
+          "type": "path_does_not_exist",
+          "target": "with_skill/outputs/post-move/done-destination/",
+          "text": "destination path was NOT mutated during dry-run"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "promotion-cross-fs-crash-recovery",
+      "case_file": "cases/promotion/promotion-cross-fs-crash-recovery.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 14",
+      "description": "Cross-filesystem mv crashed mid-copy + --promote-resume <checkpoint> → action: resumed per §14.5.5 mutation-mechanics 4-state recovery table.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "resumed",
+          "text": "promotion-log records action: resumed"
+        },
+        {
+          "type": "checkpoint_logged",
+          "audit_log": "with_skill/outputs/audit.log",
+          "checkpoint_name": "cross_fs_recovery_from_checkpoint",
+          "text": "audit.log records the cross_fs_recovery_from_checkpoint checkpoint"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "promotion-log-pre-write-survives-crash",
+      "case_file": "cases/promotion/promotion-log-pre-write-survives-crash.yaml",
+      "use_case": "UC-2 + Wave 7",
+      "spec_ref": "§14.5.7 bullet 15",
+      "description": "Crash between step 7.4 (promotion-log pre-write) and step 7.6 (commit) → on next invocation, reconciliation reads the pre-written promotion-log and completes per §14.5.6 promotion-log pre-write semantics.",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/promotion-log.yaml",
+          "field": "action",
+          "expected": "reconciled-from-log",
+          "text": "promotion-log records action: reconciled-from-log"
+        },
+        {
+          "type": "checkpoint_logged",
+          "audit_log": "with_skill/outputs/audit.log",
+          "checkpoint_name": "promotion_log_pre_write_reconciliation",
+          "text": "audit.log records the promotion_log_pre_write_reconciliation checkpoint"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "T2-converges-on-wrong",
+      "case_file": "cases/falsifier-suite/T2-converges-on-wrong.yaml",
+      "use_case": "Falsifier-suite (Tier 2 ensemble convergence on wrong answer)",
+      "spec_ref": "§12.5 lines 1018-1059",
+      "status": "skeleton-pending-iteration-3-fixture",
+      "description": "Falsifier SKELETON: T2 heterogeneous reviewer ensemble must NOT converge on the wrong answer when fed a fixture with deliberate misclassification. Iteration-3 follow-up promotes status: active and authors the placeholder fixture content at fixtures/spec-with-deliberate-misclassification.md.",
+      "assertions": [
+        {
+          "type": "falsifier_skeleton_present",
+          "case_yaml": "cases/falsifier-suite/T2-converges-on-wrong.yaml",
+          "text": "Falsifier skeleton T2-converges-on-wrong is present and well-formed"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "T2-judge-class-collision",
+      "case_file": "cases/falsifier-suite/T2-judge-class-collision.yaml",
+      "use_case": "Falsifier-suite (Khan ICML 2024 disjoint-set rule)",
+      "spec_ref": "§12.5 line 1011",
+      "status": "skeleton-pending-iteration-3-fixture",
+      "description": "Falsifier SKELETON: reviewer-seating algorithm in refs/reviewer-spec.md MUST refuse to seat a reviewer whose model class matches the calibrator's model class (Khan ICML 2024 weak-judge-strong-debaters disjoint-set rule). Iteration-3 follow-up promotes status: active and authors the full case fixture.",
+      "assertions": [
+        {
+          "type": "falsifier_skeleton_present",
+          "case_yaml": "cases/falsifier-suite/T2-judge-class-collision.yaml",
+          "text": "Falsifier skeleton T2-judge-class-collision is present and well-formed"
+        }
+      ]
+    }
+  ],
+  "grading_criteria": [
+    "file_exists",
+    "frontmatter_field",
+    "section_present",
+    "section_enumerated",
+    "yaml_field",
+    "yaml_field_min",
+    "yaml_substring",
+    "dir_count",
+    "citation_resolves",
+    "regex_present",
+    "regex_absent",
+    "yaml_list_contains",
+    "matrix_covers_items",
+    "checkpoint_logged",
+    "deviation_class_matches",
+    "path_exists",
+    "path_does_not_exist",
+    "falsifier_skeleton_present"
+  ]
+}
