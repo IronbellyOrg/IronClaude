@@ -5,28 +5,49 @@ Installs all SuperClaude skills to ~/.claude/skills/ directory.
 Wraps the single-skill installer for batch operation during `superclaude install`.
 
 Skills whose directory name starts with "sc-" and have a corresponding
-slash command (e.g. sc-roadmap → commands/roadmap.md) are served via
-/sc:<name> commands and are NOT installed as separate skills to avoid
-duplicate autocomplete entries.
+slash command (e.g. sc-roadmap → commands/roadmap.md, or
+sc-roadmap-protocol → commands/roadmap.md) are served via /sc:<name>
+commands and are NOT installed as separate skills to avoid duplicate
+autocomplete entries.
 """
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from .install_skill import install_skill_command, list_available_skills
 
 
-def _has_corresponding_command(skill_name: str) -> bool:
-    """Check if an sc-* skill has a matching slash command.
+def _command_name_for_skill(skill_name: str) -> Optional[str]:
+    """Return the slash command name for an ``sc-*`` skill, or ``None``.
 
-    For example, skill "sc-roadmap" has a command if
-    src/superclaude/commands/roadmap.md exists.
+    Mapping rules:
+
+    * ``sc-<cmd>`` → ``commands/<cmd>.md`` if it exists.
+    * ``sc-<cmd>-protocol`` → ``commands/<cmd>.md`` if it exists. This handles
+      protocol-skill directories that back a thin command file.
+
+    Non-``sc-*`` skills always return ``None``.
     """
     if not skill_name.startswith("sc-"):
-        return False
-    cmd_name = skill_name[3:]  # strip "sc-" prefix
+        return None
     package_root = Path(__file__).resolve().parent.parent
-    return (package_root / "commands" / f"{cmd_name}.md").exists()
+    stripped = skill_name[3:]
+    if (package_root / "commands" / f"{stripped}.md").exists():
+        return stripped
+    if stripped.endswith("-protocol"):
+        base = stripped[: -len("-protocol")]
+        if base and (package_root / "commands" / f"{base}.md").exists():
+            return base
+    return None
+
+
+def _has_corresponding_command(skill_name: str) -> bool:
+    """Check if an ``sc-*`` skill has a matching slash command.
+
+    Both ``sc-<cmd>`` and ``sc-<cmd>-protocol`` are recognised; either form
+    is considered command-backed when ``commands/<cmd>.md`` exists.
+    """
+    return _command_name_for_skill(skill_name) is not None
 
 
 def install_all_skills(
@@ -96,7 +117,7 @@ def install_all_skills(
             f"\n⏭️  {len(served_by_command)} skills served by /sc: commands (not installed as skills):"
         )
         for name in served_by_command:
-            cmd_name = name[3:]  # strip "sc-" prefix
+            cmd_name = _command_name_for_skill(name) or name[3:]
             messages.append(f"   - {name} → /sc:{cmd_name}")
 
     if skipped:
