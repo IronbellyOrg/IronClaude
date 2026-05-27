@@ -52,9 +52,9 @@ topic (user)
    ↓
    ├── seed-brief.md (Socratic dialogue output)
    ↓
-   ├── /sc:adversarial --source seed-brief.md --generate requirements --agents <built-spec>
+   ├── /sc:adversarial --source seed-brief.md --generate spec --agents <built-spec>
    ↓
-   ├── merged-requirements.md  + 6 adversarial artifacts
+   ├── merged-requirements.md  + 6 adversarial artifacts   # spec-shaped per §10
    ↓
    └── --handoff:
         ├── none      → STOP (default)
@@ -261,7 +261,7 @@ Spawn enrichment tasks in parallel via `Task` tool, based on domain + flags:
 1. Build adversarial invocation arguments:
    ```
    --source <output>/seed-brief.md
-   --generate requirements           # New generate type, see §10
+   --generate spec                   # Reframed as "spec-style requirements" per §10
    --agents <composed-spec>
    --depth <passthrough>
    --convergence <passthrough, default 0.75>

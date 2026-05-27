@@ -45,23 +45,37 @@ EXCLUDED_CASE_REASON = (
 def _validate_evals_sync(evals_data: dict[str, Any]) -> None:
     """Confirm `evals.json`'s remediation acceptance scope matches this script's CASE_IDS.
 
-    Prints a warning to stderr if they diverge. This script does NOT silently
-    redefine the acceptance scope from `evals.json`; sync is enforced at the
-    metadata level so a future evals.json change cannot accidentally broaden or
-    narrow the compared case set without a matching edit here.
+    Prints a warning to stderr if the keys are absent OR present-and-different.
+    Missing keys are treated as a sync FAILURE (not a silent pass) so the docstring
+    contract about metadata-level enforcement holds even when evals.json is edited
+    by someone who doesn't know these keys exist. A `None` sentinel distinguishes
+    "absent" from "present-but-empty".
     """
-    declared = set(evals_data.get("remediation_acceptance_scope", []))
-    deferred = set(evals_data.get("remediation_deferred_cases", []))
-    if declared and declared != CASE_IDS:
+    raw_declared = evals_data.get("remediation_acceptance_scope")
+    raw_deferred = evals_data.get("remediation_deferred_cases")
+    if raw_declared is None:
         print(
-            f"WARNING: evals.json remediation_acceptance_scope={sorted(declared)} "
+            "WARNING: evals.json is missing key `remediation_acceptance_scope`. "
+            f"Add it as a list matching compare_live_runs.py CASE_IDS={sorted(CASE_IDS)} "
+            "so future scope edits stay in sync.",
+            file=sys.stderr,
+        )
+    elif set(raw_declared) != CASE_IDS:
+        print(
+            f"WARNING: evals.json remediation_acceptance_scope={sorted(set(raw_declared))} "
             f"differs from compare_live_runs.py CASE_IDS={sorted(CASE_IDS)}. "
             "Update one to match the other before relying on this comparison.",
             file=sys.stderr,
         )
-    if deferred and deferred != EXCLUDED_CASE_IDS:
+    if raw_deferred is None:
         print(
-            f"WARNING: evals.json remediation_deferred_cases={sorted(deferred)} "
+            "WARNING: evals.json is missing key `remediation_deferred_cases`. "
+            f"Add it as a list matching compare_live_runs.py EXCLUDED_CASE_IDS={sorted(EXCLUDED_CASE_IDS)}.",
+            file=sys.stderr,
+        )
+    elif set(raw_deferred) != EXCLUDED_CASE_IDS:
+        print(
+            f"WARNING: evals.json remediation_deferred_cases={sorted(set(raw_deferred))} "
             f"differs from compare_live_runs.py EXCLUDED_CASE_IDS={sorted(EXCLUDED_CASE_IDS)}. "
             "Resolve the discrepancy before relying on this comparison.",
             file=sys.stderr,

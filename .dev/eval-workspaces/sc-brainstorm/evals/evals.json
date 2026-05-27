@@ -3,6 +3,8 @@
   "iteration": 2,
   "scope": "expanded-12-cases-depth-mixed",
   "notes": "Iteration 2 includes the original 3 pilot cases plus deferred cases 4-12 from SPEC.md §11.1. Cases cover code, incident, product, architecture, process, and research domains; quick, standard, and deep depths; handoff none/design/tasklist/task; blind mode; and simulated interactive mode.",
+  "remediation_acceptance_scope": [4, 5, 6, 7, 8, 9, 10, 11],
+  "remediation_deferred_cases": [12],
   "evals": [
     {
       "id": 1,
