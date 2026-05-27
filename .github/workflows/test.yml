@@ -43,6 +43,14 @@ jobs:
           python -c "import superclaude; print(f'SuperClaude {superclaude.__version__} installed')"
           python -c "import pytest_cov; print('pytest-cov is installed')"
 
+      - name: Sync src/superclaude/ → .claude/ mirrors
+        # Required: several audit tests assert byte-identical parity between
+        # src/superclaude/{skills,agents,commands,hooks,templates} and the
+        # .claude/ mirrors. Mirrors are gitignored, so CI must materialise them
+        # before pytest runs.
+        run: |
+          make sync-dev
+
       - name: Run tests
         run: |
           pytest -v --tb=short --color=yes

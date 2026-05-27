@@ -82,7 +82,7 @@ CANONICAL_LOG_SHRINKING = (
     REPO_ROOT
     / ".dev"
     / "releases"
-    / "current"
+    / "complete"
     / "task-builder-merge"
     / "artifacts"
     / "D-0059"
@@ -93,7 +93,7 @@ CANONICAL_LOG_NON_SHRINKING = (
     REPO_ROOT
     / ".dev"
     / "releases"
-    / "current"
+    / "complete"
     / "task-builder-merge"
     / "artifacts"
     / "D-0059"

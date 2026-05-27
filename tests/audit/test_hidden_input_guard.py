@@ -73,12 +73,12 @@ RELEASE_SPEC_PATH = (
     REPO_ROOT
     / ".dev"
     / "releases"
-    / "current"
+    / "complete"
     / "task-builder-merge"
     / "release-spec.md"
 )
 ROADMAP_PATH = (
-    REPO_ROOT / ".dev" / "releases" / "current" / "task-builder-merge" / "roadmap.md"
+    REPO_ROOT / ".dev" / "releases" / "complete" / "task-builder-merge" / "roadmap.md"
 )
 
 EC_HEADING = "## Execution Context"
