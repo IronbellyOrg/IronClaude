@@ -13,6 +13,22 @@ A hypothesis card is **one** proposed cause-and-fix, not a list. If the agent ha
 **Tier**: <1|2>
 **Timestamp**: <ISO 8601>
 **Cause class**: <from triage-checklist.md, e.g. "Missing/wrong import">
+**Claim class**: `static_defect` | `runtime_behavior` | `environment_dependent` | `config_value` | `doc_contract` | `mixed`
+  — `static_defect`: source-reading alone is sufficient evidence (typos, missing imports, regex literals, syntax errors)
+  — `runtime_behavior`: claim depends on dynamic control flow, side effects, executed semantics, or library call dispatch
+  — `environment_dependent`: claim depends on OS / runtime / feature-flag / network / data state
+  — `config_value`: claim depends on configuration / settings / env vars
+  — `doc_contract`: claim depends on a documented contract (RFC, spec, README)
+  — `mixed`: spans more than one class
+**Evidence class**: `runtime_repro` | `runtime_trace` | `log_evidence` | `source_static` | `doc_static` | `none`
+  — `runtime_repro`: executed reproducer with captured stdout/stderr
+  — `runtime_trace`: live execution trace, debugger output, instrumentation log
+  — `log_evidence`: post-hoc log excerpt from the failing run
+  — `source_static`: source file Read + cited line (no execution)
+  — `doc_static`: documentation citation (no execution, no source)
+  — `none`: prose only / no evidence
+**Verdict direction**: `AFFIRM` | `REFUTE` | `REJECT`
+  — REFUTE/REJECT verdicts on `runtime_behavior` claims face a higher calibration bar (see escalation-rubric § Verdict-direction modifier).
 **Consistency with docs**: <aligned | conflicts | not_applicable | no_docs_found>
 
 ## Claim
@@ -47,6 +63,7 @@ The skill will re-grade this against the rubric. The agent's score is a signal, 
 
 Per-dimension self-assessment:
 - Evidence grounding: <0.0|0.5|1.0> — <one-line reason>
+- Runtime check: <0.0|0.5|1.0> — <derived from (claim_class, evidence_class) cross-tab; cite the executed-reproducer command + captured output, OR cite a runtime-asserting test by name + its execution state. For claim_class=static_defect, mark "inherits Evidence grounding" with no further evidence required.>
 - Symptom coverage: <0.0|0.5|1.0> — <one-line reason>
 - Reproducibility fit: <0.0|0.5|1.0> — <one-line reason>
 - Fix directness: <0.0|0.5|1.0> — <one-line reason>
@@ -59,6 +76,33 @@ What breaks if this fix is wrong, or if the fix introduces a regression elsewher
 ## If I'm wrong, it's probably because...
 
 One sentence. The agent's best guess at the next-most-likely explanation if this hypothesis is wrong. This is what the Tier 2 fan-out uses to choose complementary agents.
+
+## Falsification standard
+
+One sentence. What concrete evidence — an executable command and expected output, a named test outcome, a log assertion, or a measurable observation — would prove this hypothesis WRONG? "Re-reading the source differently" is NOT a falsification standard. If you cannot name a falsification standard, the claim_class is `runtime_behavior` and Runtime check self-scores ≤ 0.5.
+
+## Evidence classification [V2 merged]
+
+- **Claim class**: <one of the seven above> — <one-line reason>
+- **Evidence class**: <one of the six above> — <one-line reason>
+- **Runtime check performed?**: yes | no — <if no, one-line reason why not>
+- **If REFUTE verdict, coverage statement**: <which paths/files/conditions were inspected; explicitly name anything not inspected that could flip the verdict>
+
+Filling rule: an empty or "Not applicable" value on `evidence_class` is a defect; cards with `claim_class: runtime_behavior` AND `evidence_class ∈ {source_static, doc_static, none}` MUST self-cap their confidence at 0.65 in the per-dimension self-assessment and state the cap in the rationale.
+
+## Recommended evidence shape (v2.0 preview)
+
+For new cards, the recommended evidence shape is a typed table that makes each item's evidence kind explicit:
+
+| # | Kind | Source | Content |
+|---|------|--------|---------|
+| E1 | `source_citation` | `path/to/file.py:142` | (verified snippet) |
+| E2 | `executed_reproducer` | `uv run python -c "..."` | (captured stdout/stderr) |
+| E3 | `test_assertion` | `tests/.../test_x::test_y` | (execution state: fails / passes / not-run) |
+
+Kinds: `source_citation`, `executed_reproducer`, `test_assertion`, `documentation`, `log_artifact`.
+
+This shape is **OPTIONAL in v1.5** — the existing bulleted-list evidence shape remains valid. The typed table will become **MANDATORY in v2.0** (target: follow-up commit after pin-test corpus in `calibrator-eval-cases.md` confirms v1.5 stability).
 
 ## Alternatives considered
 
