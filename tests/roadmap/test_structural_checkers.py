@@ -306,6 +306,133 @@ class TestSignaturesChecker:
             assert f.location
             assert f.stable_id
 
+    # ---------- Canonicalization regression tests ----------
+    # Lock the spec-fidelity-canonicalizer fix: zero-padded / separator-variant
+    # forms collapse to the spec's canonical form and emit MEDIUM
+    # id_schema_drift, not HIGH phantom_id. Genuine phantoms (no canonical
+    # match in spec) keep HIGH severity.
+
+    @staticmethod
+    def _write_id_fixture(
+        tmp_path: Path, spec_ids: str, roadmap_ids: str
+    ) -> tuple[str, str]:
+        """Build a minimal spec + roadmap pair carrying the given requirement-id
+        literals so check_signatures only sees those IDs."""
+        spec = tmp_path / "spec.md"
+        roadmap = tmp_path / "roadmap.md"
+        spec.write_text(
+            f"---\ntitle: Test Spec\n---\n\n# Spec\n\n## Requirements\n\n{spec_ids}\n",
+            encoding="utf-8",
+        )
+        roadmap.write_text(
+            "---\ntitle: Test Roadmap\n---\n\n# Roadmap\n\n## Implementation\n\n"
+            f"{roadmap_ids}\n",
+            encoding="utf-8",
+        )
+        return str(spec), str(roadmap)
+
+    def test_phantom_id_canonicalizes_zero_padded_d_ids(self, tmp_path: Path) -> None:
+        """Spec {D1, D3, D5} vs roadmap {D01, D03, D05} → 0 HIGH, 3 MEDIUM drift."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="Items: D1, D3, D5.",
+            roadmap_ids="Items: D01, D03, D05.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [f for f in findings if f.rule_id == "id_schema_drift"]
+        assert len(high_phantoms) == 0, (
+            f"Expected 0 HIGH phantom_id; got {len(high_phantoms)}: "
+            f"{[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert len(drift) == 3, f"Expected 3 MEDIUM id_schema_drift; got {len(drift)}"
+        for f in drift:
+            assert f.severity == "MEDIUM"
+
+    def test_phantom_id_genuine_phantom_still_emits_high(self, tmp_path: Path) -> None:
+        """Spec {D1, D3} vs roadmap {D01, D99} → 1 HIGH (D99) + 1 MEDIUM (D01↔D1)."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="Items: D1, D3.",
+            roadmap_ids="Items: D01, D99.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [f for f in findings if f.rule_id == "id_schema_drift"]
+        assert len(high_phantoms) == 1, (
+            f"Expected exactly 1 HIGH phantom_id (D99); "
+            f"got {[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert high_phantoms[0].roadmap_quote == "D99"
+        assert len(drift) == 1, (
+            f"Expected exactly 1 MEDIUM id_schema_drift (D01↔D1); got {len(drift)}"
+        )
+        assert drift[0].roadmap_quote == "D01"
+        assert drift[0].spec_quote == "D1"
+
+    def test_phantom_id_canonicalizes_fr_subids(self, tmp_path: Path) -> None:
+        """FR-7.1 idempotent; FR-07.1 → FR-7.1 drift."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="See FR-7.1 and FR-8.",
+            roadmap_ids="Refs FR-7.1 and FR-07.1.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [f for f in findings if f.rule_id == "id_schema_drift"]
+        assert len(high_phantoms) == 0, (
+            f"Expected 0 HIGH phantom_id; got "
+            f"{[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert len(drift) == 1, (
+            f"Expected exactly 1 MEDIUM id_schema_drift for FR-07.1↔FR-7.1; "
+            f"got {len(drift)}"
+        )
+        assert drift[0].roadmap_quote == "FR-07.1"
+        assert drift[0].spec_quote == "FR-7.1"
+
+    def test_phantom_id_canonicalizes_nfr_padding(self, tmp_path: Path) -> None:
+        """NFR-02 ↔ NFR-2, NFR-04 ↔ NFR-4 → 2 MEDIUM drift findings."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="Refs NFR-2, NFR-4.",
+            roadmap_ids="Refs NFR-02, NFR-04.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [f for f in findings if f.rule_id == "id_schema_drift"]
+        assert len(high_phantoms) == 0, (
+            f"Expected 0 HIGH phantom_id; got "
+            f"{[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert len(drift) == 2, (
+            f"Expected exactly 2 MEDIUM id_schema_drift; got {len(drift)}"
+        )
+
+    def test_phantom_id_idempotent_on_unpadded(self, tmp_path: Path) -> None:
+        """Canonicalizer is idempotent: identical D1/D3/D5 → 0 findings."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="Items D1, D3, D5.",
+            roadmap_ids="Items D1, D3, D5.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        phantom_or_drift = [
+            f for f in findings if f.rule_id in ("phantom_id", "id_schema_drift")
+        ]
+        assert len(phantom_or_drift) == 0, (
+            f"Expected 0 phantom_id / id_schema_drift findings; "
+            f"got {[(f.rule_id, f.roadmap_quote) for f in phantom_or_drift]}"
+        )
+
 
 class TestDataModelsChecker:
     """T02.02: Data Models checker with machine keys."""
@@ -454,20 +581,24 @@ class TestNFRsChecker:
 class TestSeverityRules:
     """T02.04: Complete severity rule table (FR-3)."""
 
-    def test_exactly_19_rules(self) -> None:
-        assert len(SEVERITY_RULES) == 19
+    def test_exactly_20_rules(self) -> None:
+        # 19 original rules + 1 new ("signatures", "id_schema_drift") added by
+        # the spec-fidelity-canonicalizer fix.
+        assert len(SEVERITY_RULES) == 20
 
     def test_8_high_rules(self) -> None:
         high_rules = {k for k, v in SEVERITY_RULES.items() if v == "HIGH"}
         assert len(high_rules) == 8
 
-    def test_11_medium_rules(self) -> None:
+    def test_12_medium_rules(self) -> None:
+        # 11 original MEDIUM rules + 1 new ("signatures", "id_schema_drift").
         medium_rules = {k for k, v in SEVERITY_RULES.items() if v == "MEDIUM"}
-        assert len(medium_rules) == 11
+        assert len(medium_rules) == 12
 
     def test_all_canonical_rules_present(self) -> None:
         expected = {
             ("signatures", "phantom_id"),
+            ("signatures", "id_schema_drift"),
             ("signatures", "function_missing"),
             ("signatures", "param_arity_mismatch"),
             ("signatures", "param_type_mismatch"),
