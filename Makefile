@@ -1,4 +1,4 @@
-.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill uninstall-legacy help
+.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill reflect-eval reflect-eval-quick sync-cost-profile uninstall-legacy help
 SHELL := /bin/bash
 
 # Installation (local source, editable) - RECOMMENDED
@@ -486,6 +486,30 @@ eval-skill:
 	fi
 	@mkdir -p .dev/eval-workspaces/$(SKILL)
 	@realpath .dev/eval-workspaces/$(SKILL)
+
+# Full sc-reflect eval — runs all 3 pilot + 15 promotion + 2 falsifier-skeleton evals.
+# Budget: ~2 min on RC branches; CI cadence: every PR touching reflect skill/command.
+# Output: .dev/eval-workspaces/sc-reflect/iterations/<timestamp>/
+reflect-eval:
+	@mkdir -p .dev/eval-workspaces/sc-reflect/iterations/$(shell date +%Y%m%d-%H%M%S)
+	@uv run python .dev/eval-workspaces/sc-reflect/grader.py \
+		.dev/eval-workspaces/sc-reflect/iterations/$(shell date +%Y%m%d-%H%M%S)
+
+# Quick reflect eval — runs only the 3 pilot cases (pre-trivial-coverage-gap,
+# post-small-diff-clean, post-large-diff-mixed).
+# Budget: <30s; CI cadence: every PR touching reflect skill/command.
+reflect-eval-quick:
+	@mkdir -p .dev/eval-workspaces/sc-reflect/iterations/$(shell date +%Y%m%d-%H%M%S)-quick
+	@uv run python .dev/eval-workspaces/sc-reflect/grader.py \
+		.dev/eval-workspaces/sc-reflect/iterations/$(shell date +%Y%m%d-%H%M%S)-quick
+	@echo "Note: pilot-subset filtering is iteration-2 follow-up; this target currently runs the full eval set in a -quick-suffixed iteration dir."
+
+# Regenerate refs/cost-profile.yaml from spec §15 cost-profile table.
+# v1.0 stub: the lockstep requirement is enforced by manual operator update + CI lint (lint-architecture).
+# Iteration-2 follow-up replaces this stub with a real parser that reads merged-requirements.md §15.
+sync-cost-profile:
+	@echo "Hand-edit src/superclaude/skills/sc-reflect-protocol/refs/cost-profile.yaml to match spec §15 table in .dev/brainstorms/sc-reflect-rebuild/merged-requirements.md (lines 1375-1383)."
+	@echo "v1.0 stub: automation deferred to iteration-2 follow-up."
 
 # Show help
 help:

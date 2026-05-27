@@ -1,0 +1,70 @@
+# sc-reflect-protocol cost profile
+# ---------------------------------------------------------------------------
+# Mirrors §15 of the merged requirements spec (single source of truth).
+# Consumed PRE-INVOCATION by callers (sprint TurnLedger, CI) to pre-flight
+# budget before invoking reflect. Reflect itself never reads this at runtime.
+#
+# Schema (top-level keys, all REQUIRED):
+#   - cost_profile_version       semver string for downstream consumer pinning
+#   - sync_source                pointer back to the spec section this mirrors
+#   - sync_method                make target that regenerates this file
+#   - token_to_turn_conversion   load-bearing 1-turn ≈ 1k-claude-tokens anchor
+#   - tiers                      T1 / T2 / T3_added cost bands
+#   - hard_kill_multiplier       abort threshold per sc-brainstorm convention
+#
+# Units:
+#   - *_tokens_*                 integer tokens
+#   - wall_clock_*_seconds       integer seconds (spec gives minutes; converted)
+#   - turn_budget_*              integer turns (derived via the conversion above)
+# ---------------------------------------------------------------------------
+
+cost_profile_version: "1.0.0"
+sync_source: ".dev/brainstorms/sc-reflect-rebuild/merged-requirements.md §15"
+sync_method: "make sync-cost-profile"   # see refs/ops-integration.md
+
+# Token-to-turn conversion (consumed by §4.0 Step 0.9 budget routing).
+# Per spec §15 line 1383: 1 turn ≈ 1k claude-orchestration tokens at band midpoint.
+token_to_turn_conversion:
+  claude_tokens_per_turn: 1000
+  notes: "Approximate; fixed for budget-routing arithmetic. Callers MUST NOT recompute. If §15 band midpoints change, §4.0 Step 0.9 anchors MUST be updated in lockstep."
+
+# Tier cost bands — derived from §15 table (lines 1375-1379).
+# Wall-clock minutes converted to seconds: 1-3 min → 60-180s, 8-15 min → 480-900s, +5-10 min → +300-600s.
+tiers:
+  T1:
+    description: "T1 only (root-cause-analyst + self-review)"
+    auggie_tokens_min: 2000
+    auggie_tokens_max: 5000
+    claude_tokens_min: 3000
+    claude_tokens_max: 8000
+    wall_clock_min_seconds: 60
+    wall_clock_max_seconds: 180
+    # Turn-budget midpoint per spec §15 line 1383 (1 turn ≈ 1k claude tokens).
+    turn_budget_midpoint: 6
+    turn_budget_label: "T1-midpoint"
+
+  T2:
+    description: "T2 (2-3 reviewers + adversarial debate)"
+    auggie_tokens_min: 10000
+    auggie_tokens_max: 25000
+    claude_tokens_min: 35000
+    claude_tokens_max: 70000
+    wall_clock_min_seconds: 480
+    wall_clock_max_seconds: 900
+    # Turn-budget midpoint per spec §15 line 1383 (1 turn ≈ 1k claude tokens).
+    turn_budget_midpoint: 52
+    turn_budget_label: "T2-midpoint"
+
+  T3_added:
+    description: "T3 added (incremental cost on top of T2)"
+    auggie_tokens_delta: 0
+    claude_tokens_min_delta: 20000
+    claude_tokens_max_delta: 40000
+    wall_clock_min_delta_seconds: 300
+    wall_clock_max_delta_seconds: 600
+    # Incremental turn budget per spec §15 line 1383.
+    turn_budget_delta: 30
+
+# Hard-kill multiplier per sc-brainstorm convention (spec §15 line 1381).
+# Callers MUST abort runs that exceed 1.25× the midpoint estimate.
+hard_kill_multiplier: 1.25

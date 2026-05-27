@@ -1,0 +1,29 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 7.
+# Wave 6 task-builder remediation mutated a cited file. Step 7.2 recomputes
+# citations_dropped against the post-remediation tree. If the recomputed count
+# is still within tolerance and no Grounded citation broke, gate passes.
+id: promotion-citation-revalidation-after-remediation
+status: stub-iteration-1-follow-up
+description: Wave 6 remediation mutated a cited file; step 7.2 citation revalidation passes; promotion proceeds.
+spec_ref: "§14.5.7 bullet 7"
+expected_action: moved
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a — revalidated post-Wave 6 against current file state per §14.5.2 cond 6a + L1112 revalidation rule
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: []
+expected_gate_passed: true
+expected_citation_revalidation_at_promotion: true    # SKILL.md §14.5.6 L1226 — emitted at log root, NOT inside gate_evaluation
+adapter: task
+post_wave6_citation_recheck: pass
+citations_dropped_after_remediation: 0   # SKILL.md L1247 acceptance: recomputed `citations_dropped` must be 0 for pass; non-zero → action: rejected
+expected_audit_checkpoint: citation_revalidation_after_remediation

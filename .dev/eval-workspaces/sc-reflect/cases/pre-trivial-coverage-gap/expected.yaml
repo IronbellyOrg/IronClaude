@@ -1,0 +1,17 @@
+# STUB — iteration-1 follow-up fleshes out content. Spec §12.3 row 1.
+# Expected outcomes for pre-trivial-coverage-gap fixture (UC-1).
+mode: pre
+use_case: UC-1
+coverage_pct: 0.75
+total_requirements: 8
+covered_requirements: 6
+missing_requirements:
+  - R-007
+  - R-008
+tier_reached: 1
+escalation_reason: null  # UC-1 sub-threshold gap; no Tier 2 escalation needed
+calibrated_confidence_min: 0.85
+report_must_mention:
+  - R-007
+  - R-008
+  - "coverage_pct"

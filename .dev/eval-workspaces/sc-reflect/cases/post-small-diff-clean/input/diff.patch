@@ -1,0 +1,38 @@
+# STUB — iteration-1 follow-up fleshes out content. Spec §12.3 row 2.
+# 3-file clean diff: docstring updates only, no deviations from tasklist.
+
+diff --git a/src/example/auth.py b/src/example/auth.py
+index abc1234..def5678 100644
+--- a/src/example/auth.py
++++ b/src/example/auth.py
+@@ -1,3 +1,5 @@
++"""Authentication module — handles login, logout, and session tokens.
++
++Updated docstring per Task 1.
++"""
+ def login(username, password):
+     pass
+
+diff --git a/src/example/billing.py b/src/example/billing.py
+index 1111111..2222222 100644
+--- a/src/example/billing.py
++++ b/src/example/billing.py
+@@ -1,3 +1,5 @@
++"""Billing module — invoices, line items, and payment processing.
++
++Updated docstring per Task 2.
++"""
+ def charge(account_id, amount):
+     pass
+
+diff --git a/src/example/notifications.py b/src/example/notifications.py
+index 3333333..4444444 100644
+--- a/src/example/notifications.py
++++ b/src/example/notifications.py
+@@ -1,3 +1,5 @@
++"""Notifications module — email and SMS dispatch.
++
++Updated docstring per Task 3.
++"""
+ def notify(user_id, message):
+     pass

@@ -145,13 +145,15 @@ The quality of your prompt directly affects output quality. Providing all four i
 /sc:tdd
 ```
 
-## Activation
+## Skill Invocation
 
 **MANDATORY**: Before executing any protocol steps, invoke:
 > Skill tdd
 
 Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification, tier logic, and execution pipeline are defined in the skill.
+
+(Heading uses `Skill Invocation` rather than `Activation` because the paired skill directory is named `tdd` — predating the `sc-<name>-protocol` naming convention enforced by `make lint-architecture` Check 1. Renaming the skill would break tests at `tests/cli/test_tdd_extract_prompt.py`, `tests/roadmap/test_prd_prompts.py`, and downstream task files; the runtime directive still works.)
 
 ## Boundaries
 

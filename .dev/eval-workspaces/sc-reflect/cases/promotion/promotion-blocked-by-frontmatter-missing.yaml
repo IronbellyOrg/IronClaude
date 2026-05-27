@@ -1,0 +1,22 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 3.
+id: promotion-blocked-by-frontmatter-missing
+status: stub-iteration-1-follow-up
+description: Work-unit frontmatter lacks the required `status` field — frontmatter_present condition fails.
+spec_ref: "§14.5.7 bullet 3"
+expected_action: rejected
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: fail                  # cond 5a — missing status field
+  frontmatter_status_matches: fail           # cond 5b — vacuous fail when 5a fails
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: [frontmatter_present, frontmatter_status_matches]
+expected_gate_passed: false
+adapter: task

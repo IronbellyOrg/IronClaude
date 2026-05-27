@@ -15,7 +15,7 @@ version: "2.0.0"
 
 A unified command with **orthogonal dimensions** that merges orchestration capabilities with MCP compliance enforcement:
 
-```
+```text
 /sc:task [operation] --strategy [systematic|agile|enterprise] --compliance [strict|standard|light|exempt]
 ```
 
@@ -58,7 +58,7 @@ Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--for
 
 Emit this EXACT header format (replace bracketed values only):
 
-```
+```text
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: [STRICT|STANDARD|LIGHT|EXEMPT]
 CONFIDENCE: [0.00-1.00]
@@ -107,7 +107,7 @@ After emitting the classification header as text, proceed based on tier:
 
 For `/sc:task "fix security vulnerability in auth module"`:
 
-```
+```text
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: STRICT
 CONFIDENCE: 0.95
@@ -119,7 +119,7 @@ RATIONALE: Security-critical change in authentication module
 
 For `/sc:task "explain how the routing middleware works"`:
 
-```
+```text
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: EXEMPT
 CONFIDENCE: 0.92
@@ -131,7 +131,7 @@ RATIONALE: Read-only explanation request, no code changes
 
 For `/sc:task "fix typo in error message"`:
 
-```
+```text
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: LIGHT
 CONFIDENCE: 0.95
@@ -143,7 +143,7 @@ RATIONALE: Trivial single-string correction
 
 For `/sc:task "add pagination to user list endpoint"`:
 
-```
+```text
 <!-- SC:TASK-UNIFIED:CLASSIFICATION -->
 TIER: STANDARD
 CONFIDENCE: 0.85
@@ -152,6 +152,13 @@ OVERRIDE: false
 RATIONALE: Typical feature addition, moderate scope
 <!-- /SC:TASK-UNIFIED:CLASSIFICATION -->
 ```
+
+## Activation
+
+**MANDATORY**: Before executing any protocol steps, invoke:
+> Skill sc:task-protocol
+
+Do NOT proceed with protocol execution using only this command file. The full behavioral specification — classification rubric, tier logic, TFEP escalation protocol, sub-agent delegation, MCP compliance enforcement — is defined in the protocol skill at `src/superclaude/skills/sc-task-protocol/SKILL.md`.
 
 ## Boundaries
 

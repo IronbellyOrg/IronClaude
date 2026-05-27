@@ -1,0 +1,41 @@
+# Promotion-fixture template (re-usable schema for Steps 5.10-5.24).
+# Source-of-truth: spec §14.5.2 (9-condition strict gate) and §14.5.6 (promotion-log YAML shape).
+# Each promotion fixture stub MUST conform to this schema.
+
+# Required top-level fields
+id: <fixture-id>                          # e.g., "promotion-task-strict-pass"
+status: stub-iteration-1-follow-up        # v1.0 ships stubs; iteration-1 follow-up fleshes out
+description: <one-line description>       # spec-grounded description of the scenario
+spec_ref: <e.g., "§14.5.7 bullet N">
+
+# Expected outcome (top-level)
+expected_action: <moved | rejected | already-promoted | skipped | dry-run | resumed | reconciled-from-log>
+expected_skip_reason: <user-flag | partial-status | other>  # required when action == skipped
+
+# Expected gate evaluation per §14.5.6 (11 conditions; condition 5 and 6 split a/b)
+# Each condition must be either "pass" or "fail"; only one condition may fail for action=rejected
+expected_gate_evaluation:
+  status_terminal: <pass|fail>            # condition 1: reflect.status is `done` (or override)
+  no_drift_deviations: <pass|fail>        # condition 2: no §10.3 drift deviations in ledger
+  no_regression_deviations: <pass|fail>   # condition 3: no §10.4 regression deviations
+  frontmatter_present: <pass|fail>        # condition 4: task/work-unit frontmatter has required fields
+  frontmatter_status_matches: <pass|fail> # condition 5a: frontmatter status matches reflect.status
+  grounding_gaps_resolved: <pass|fail>    # condition 5b: §10.6 grounding_gaps list is empty/missing
+  adversarial_result_present: <pass|fail> # condition 6a: when T2 reached, sc-adversarial returned a result
+  convergence_score_non_null: <pass|fail> # condition 6b: convergence_score is non-null when T2 reached
+  evidence_validator_passed: <pass|fail>  # condition 7: §11.2 evidence-validator gate
+  citation_revalidation_ok: <pass|fail>   # condition 8: post-Wave-6 citation re-Read (when applicable)
+  no_destination_collision: <pass|fail>   # condition 9: destination path is absent or identical (idempotent)
+
+# Override flags exercised (optional, per §14.5.4)
+override_flag: <null | --no-promote | --promote-anyway | --promote-dry-run | --promote-resume>
+
+# Adapter selection (optional, per §14.5.1)
+adapter: <auto | task | sprint-release | none>
+
+# Collision metadata (optional, per §14.5.5 7-row collision-rules table)
+collision_kind: <null | non-identical | identical | parent-missing>
+
+# Crash/recovery state (optional, per §14.5.5 4-state recovery table + §14.5.6 pre-write)
+crash_state: <null | pre-mv | mid-copy | between-7.4-and-7.6 | post-mv>
+checkpoint_path: <null | path/to/promotion-checkpoint.yaml>

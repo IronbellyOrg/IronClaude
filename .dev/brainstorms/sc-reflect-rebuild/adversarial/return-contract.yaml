@@ -1,0 +1,81 @@
+# sc-adversarial-protocol return contract (Wave 3 output)
+# Consumed by sc-brainstorm-protocol Wave 3 routing logic.
+
+contract_version: "1.0"
+merged_output_path: ".dev/brainstorms/sc-reflect-rebuild/merged-requirements.md"
+convergence_score: 0.941
+artifacts_dir: ".dev/brainstorms/sc-reflect-rebuild/adversarial/"
+status: "partial"
+base_variant: "opus:analyzer"
+unresolved_conflicts: 2
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants:
+  - id: "INV-021"
+    category: "interaction_effects"
+    assumption: "Heterogeneous T2 ensemble means model-class diversity not vendor diversity — env aliases could all map to same vendor"
+    severity: "HIGH"
+    resolution_status: "PARTIAL — telemetry-only in v1, deferred-hardening §19.1"
+  - id: "INV-023"
+    category: "sufficiency_challenge"
+    assumption: "Tier escalation catches self-confirmation bias — no falsifier eval case designed proves T1-wrong+T2-agrees-wrong is detectable"
+    severity: "HIGH"
+    resolution_status: "PARTIAL — Cat-6 Gate 3 falsifier eval designed but not yet implemented, deferred-hardening §19.2"
+
+# Telemetry block (non-stable)
+telemetry:
+  diff_analysis:
+    total_diff_points: 51
+    by_category:
+      S: 12
+      C: 20
+      X: 14
+      A: 5
+    U_unique_contributions: 15  # not in convergence denominator
+  debate:
+    rounds_executed: 3.5  # R1 + R2 + R2.5 + R3
+    compression_deviations:
+      - "R2: 5 parallel rebuttals (instead of 5 sequential) — latency budget"
+      - "R3: 1 consensus synthesizer (instead of 5 sequential final arguments) — platform-level invariants"
+    convergence_progression:
+      after_r1: "~0.30 (initial spread)"
+      after_r2: "~0.78 (think_about_* off frontmatter, ops adopted, testability adopted, 4-cat adopted, env-fallback adopted, convergence threshold at 0.75)"
+      after_r3: "0.941 (48/51 agreed)"
+    taxonomy_coverage: "L1+L2+L3 all addressed"
+    invariant_probe:
+      total_findings: 24
+      addressed_at_probe_time: 0
+      unaddressed_at_probe_time:
+        total: 24
+        high: 10
+        medium: 13
+        low: 1
+      post_r3:
+        addressed: 22
+        partially_addressed: 2  # INV-021, INV-023
+        deferred: 0
+  scoring:
+    variants:
+      V1: {model: opus, persona: architect, quant: 0.93, qual: 0.97, combined: 0.949, rank: 2}
+      V2: {model: opus, persona: analyzer, quant: 0.94, qual: 0.97, combined: 0.952, rank: 1, base: true}
+      V3: {model: sonnet, persona: refactorer, quant: 0.82, qual: 0.83, combined: 0.826, rank: 5}
+      V4: {model: haiku, persona: quality-engineer, quant: 0.82, qual: 0.84, combined: 0.830, rank: 4}
+      V5: {model: sonnet, persona: devops, quant: 0.85, qual: 0.87, combined: 0.859, rank: 3}
+    floor_check: "All 5 variants pass 1/5 Invariant & Edge Case floor"
+    position_bias: "Dual-pass with reverse order, 2 disagreements found, 0 net score change"
+    tiebreaker: "L1 applied (V2 vs V1 within 0.3% < 5%); V2 won 7 debate points vs V1's 5"
+  merge:
+    planned_changes: 22
+    applied: 22
+    failed: 0
+    skipped: 0
+    rejected_alternatives_documented: 10
+    structural_integrity: "PASS"
+    internal_refs: "211/212 resolved (1 external preserved verbatim)"
+    new_contradictions: 0
+    final_line_count: 1063  # target was 800-900, +18% over upper bound
+  unresolved_diff_points:
+    - {id: "S-004", title: "Wave count (6 vs 7 vs 9)", resolution: "merge adopted V2's wave count; V1/V4's 9-wave audit-budget retained as alternative in deferred-hardening"}
+    - {id: "X-007", title: "Tier-rubric structure (named-signal table vs additive formula vs composite-score)", resolution: "V2's named-signal table adopted; alternatives noted"}
+    - {id: "X-009", title: "Deviation taxonomy ledger vocabulary (4-cat axiom vs unknown 5th)", resolution: "V2's 4-cat preserved; V4's `unknown` use case routed via Grounding Gaps + status:partial"}
