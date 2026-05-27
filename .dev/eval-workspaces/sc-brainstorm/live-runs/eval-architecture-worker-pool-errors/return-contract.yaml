@@ -1,0 +1,74 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/seed-brief.md"
+seed_schema_version: "1.0"
+merged_output_path: "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/merged-requirements.md"
+merged_requirements_schema_version: "1.0"
+convergence_score: 0.72
+adversarial_artifacts_dir: "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/adversarial"
+domain: architecture
+proposal_count: 5
+context_anchors_count: 12
+fit_to_intent: pass
+fit_to_intent_issues: []
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-deep
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Durable persistence backend for failure envelopes deferred to /sc:design — both relational and append-only log-store options remain viable depending on incident-replay volume."
+blind_mode: false
+source_of_truth_paths:
+  skill: "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md"
+  refs:
+    - "src/superclaude/skills/sc-brainstorm-protocol/refs/socratic-templates.md"
+    - "src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md"
+    - "src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md"
+agent_spec:
+  raw: "opus:architect:'long-term system fit and extensibility',sonnet:devops:'rollout sequencing and operational surface',haiku:qa:'failure-mode coverage and gate enforcement',sonnet:security:'data exposure and replay safety',sonnet:performance:'latency budget and throughput'"
+  personas:
+    - architect
+    - devops
+    - qa
+    - security
+    - performance
+  models:
+    - opus
+    - sonnet
+    - haiku
+telemetry:
+  command_skill_invoked: "sc:brainstorm"
+  adversarial_skill_invoked: "sc-adversarial-protocol"
+  generated_at: "2026-05-27T00:00:00Z"
+  invocation_mode: "live-eval-rerun (non-interactive, single-agent execution for Phase-2 schema remediation; reuses prior adversarial artifacts which already match Phase-2 contract)"
+  wave_durations_ms:
+    wave_0: null
+    wave_1: null
+    wave_2a: null
+    wave_2b: null
+    wave_3: null
+    wave_4: null
+  token_usage:
+    wave_0: null
+    wave_1: null
+    wave_2a: null
+    wave_2b: null
+    wave_3: null
+    wave_4: null
+  enrichment_artifact_sizes:
+    codebase-context.md: 2752
+    research-deep.md: 2392
+  defaults_applied:
+    depth: "deep (from --depth deep flag)"
+    proposals_target: "5 (from explicit 5-proposals request)"
+    strategy: "enterprise (from explicit strategy flag; also implies depth=deep per Wave 0 step 10)"
+    domain: "architecture (auto-classified — cross-executor redesign of error semantics)"
+    handoff_target: "none (not specified by user)"
+    personas: "enterprise default set (Wave 2B step 1): architect, devops, qa, security, performance"
+    model_rotation: "opus on architect (deep-tier preference per Wave 2B step 2); sonnet on devops/security/performance; haiku on qa"
+    enrichment_codebase: "auto-invoked (domain=architecture)"
+    enrichment_research_deep: "auto-invoked (strategy=enterprise + novel cross-cutting topic)"
+    source_confidence: "high (topic + flags fully specified; both enrichments primary tier)"

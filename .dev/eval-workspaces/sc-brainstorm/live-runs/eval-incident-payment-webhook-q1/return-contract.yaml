@@ -1,0 +1,65 @@
+contract_version: "1.0"
+schema_version: "1.0"
+seed_schema_version: "1.0"
+merged_requirements_schema_version: "1.0"
+status: success
+seed_brief_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/seed-brief.md"
+merged_output_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/merged-requirements.md"
+convergence_score: 0.79
+adversarial_artifacts_dir: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/adversarial"
+domain: incident
+strategy: enterprise
+depth: deep
+proposal_count: 5
+interactive_mode: true
+blind_mode: false
+context_anchors_count: 8
+fit_to_intent: pass
+source_of_truth_paths:
+  - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md"
+  - "src/superclaude/skills/sc-brainstorm-protocol/refs/socratic-templates.md"
+  - "src/superclaude/skills/sc-brainstorm-protocol/refs/seed-brief-schema.md"
+  - "src/superclaude/skills/sc-brainstorm-protocol/refs/return-contract-schema.md"
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: primary
+  - source: research-deep
+    quality_tier: skipped
+agent_spec:
+  personas:
+    - analyzer
+    - architect
+    - security
+    - devops
+    - scribe
+  models:
+    - opus
+    - opus
+    - sonnet
+    - haiku
+    - sonnet
+  composed_spec: "opus:analyzer:'lead RCA; insist on evidence before remediation',opus:architect:'design durable controls; integrate with Q2 multi-region work',sonnet:security:'PCI + SOC 2 scope mapping + evidence collection',haiku:devops:'stabilization-first; PCI emergency-change discipline',sonnet:scribe:'artifact spine + single-comms-channel cadence'"
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "D1: HPA pin-up permanence (4-week temporary vs. permanent) — deferred to Q2 planning"
+  - "D2: Key-id-in-header opt-in vs. transparent dual-acceptance — deferred to PCI secure-change-review board scoping"
+wave_durations_ms:
+  wave_0: 800
+  wave_1: 4500
+  wave_2a: 1200
+  wave_2b: 700
+  wave_3: 14000
+  wave_4: 200
+token_usage:
+  wave_0: 400
+  wave_1: 3200
+  wave_2a: 600
+  wave_2b: 700
+  wave_3: 13500
+  wave_4: 150
+enrichment_artifact_sizes:
+  codebase-context.md: 2728
+  research-light.md: 0

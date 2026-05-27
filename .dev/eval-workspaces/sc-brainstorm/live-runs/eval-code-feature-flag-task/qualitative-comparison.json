@@ -1,0 +1,122 @@
+{
+  "eval_name": "code-feature-flag-task",
+  "winner": "live",
+  "baseline_total": 46,
+  "live_total": 47,
+  "dimensions": {
+    "concreteness": {
+      "baseline": {
+        "score": 8,
+        "penalties": [
+          "-1: Strong registry/evaluator/test-vector specificity, but less concrete about the actual CLI surface expected by this run.",
+          "-1: Mentions task handoff artifact but does not include concrete CLI command verbs or override-storage behavior."
+        ]
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1: Concrete command verbs, metadata fields, precedence reporting, and .claude mirror constraints are specified.",
+          "-1: Leaves storage decision and exact override precedence open, reducing implementer precision."
+        ]
+      }
+    },
+    "coverage": {
+      "baseline": {
+        "score": 7,
+        "penalties": [
+          "-1: Covers evaluator safety, rollout determinism, expiry, privacy, observability, and CI.",
+          "-1: Does not cover CLI management commands beyond a generic task handoff.",
+          "-1: Does not address local/project overrides or generated .claude mirror source-of-truth constraints."
+        ]
+      },
+      "live": {
+        "score": 9,
+        "penalties": [
+          "-1: Covers CLI command group, registry, overrides, precedence, validation, tests, lifecycle, and generated mirror avoidance.",
+          "No major penalty: intentionally excludes remote services, network calls, dynamic loading, and feature-specific implementation."
+        ]
+      }
+    },
+    "actionability": {
+      "baseline": {
+        "score": 8,
+        "penalties": [
+          "-1: Acceptance criteria are testable, including counts for evaluator and PII tests plus CI-failure proofs.",
+          "-1: Implementation path is less actionable for a CLI feature because the command set, storage model, and output behavior are underspecified."
+        ]
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1: Gives implementable CLI verbs and acceptance criteria for defaults, overrides, unknown keys, duplicate keys, expired flags, malformed override files, precedence, and UV tests.",
+          "-1: Open questions around tracked vs ignored project overrides and environment precedence block fully deterministic task decomposition."
+        ]
+      }
+    },
+    "provenance": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Includes explicit frontmatter with adversarial_status, convergence_score, proposal_count, debate_transcript, and a requirement-to-source provenance table.",
+          "No larger penalty: provenance is structured and auditable, though it does not quote proposal evidence inline."
+        ]
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-1: Frontmatter includes run identity, convergence_score, handoff, domain, and status.",
+          "-1: HTML comments identify sc:adversarial provenance and base variant.",
+          "-2: No dedicated Provenance section or requirement-to-source mapping, causing the structural checker to fail the Provenance expectation.",
+          "-1: Does not name specific tension resolutions or convergence decisions per requirement."
+        ]
+      }
+    },
+    "adversarial_synthesis": {
+      "baseline": {
+        "score": 8,
+        "penalties": [
+          "-1: Explicitly maps requirements to Architect, Refactorer, Security, and tension resolutions.",
+          "-1: The merged result is compact but gives limited rationale for tradeoffs like typed variants versus simpler v1 scope."
+        ]
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-1: States it used Security as base while incorporating registry framing and minimal v1 scope, showing real synthesis.",
+          "-1: Does not preserve a debate transcript pointer in merged frontmatter.",
+          "-1: The document does not expose enough tension-resolution rationale for why boolean-only v1 won over typed variants."
+        ]
+      }
+    },
+    "fit_to_eval_intent": {
+      "baseline": {
+        "score": 6,
+        "penalties": [
+          "-1: Fits a generic feature-flag-system task with evaluator, safety, and rollout requirements.",
+          "-2: Poorer fit for the live artifact topic, which is feature flag management in the SuperClaude CLI.",
+          "-1: Includes percentage rollout and PII targeting requirements that may be overbuilt or misaligned for CLI-local feature flags."
+        ]
+      },
+      "live": {
+        "score": 9,
+        "penalties": [
+          "-1: Directly targets SuperClaude CLI feature flag management, source-backed registry, command verbs, local overrides, CI validation, UV tests, and generated-mirror avoidance.",
+          "No larger penalty: remaining open questions are appropriate design decisions rather than a failure to meet the eval intent."
+        ]
+      }
+    }
+  },
+  "top_regressions": [
+    "Live loses explicit structured provenance: baseline has adversarial_status/proposal_count/debate_transcript frontmatter and a Provenance table; live only has frontmatter plus HTML comments and no Provenance section.",
+    "Live weakens adversarial traceability: it names a base variant and two modifications but does not map individual requirements to proposals or debate tension resolutions.",
+    "Live leaves key implementation choices unresolved, especially override storage and environment/project/user precedence, while baseline has more closed-form evaluator acceptance tests."
+  ],
+  "top_improvements": [
+    "Live is much better aligned to CLI feature flag management, specifying list/show/enable/disable/unset/validate/effective behavior rather than a generic runtime evaluator.",
+    "Live adds repository-specific source-of-truth safeguards by forbidding writes to generated .claude mirrors and requiring implementation under src/superclaude conventions.",
+    "Live improves product coverage with user stories, explicit scope/out-of-scope boundaries, fail-closed malformed override behavior, precedence reporting, and machine-readable output guidance."
+  ],
+  "structural_failure_interpretation": "Mostly metadata/parameter mismatch with one real quality regression. The structural comparison reports 11/12 live assertions passing and only fails the Risks expectation because it did not count the 'Risks and Mitigations' table as risk items, even though the live artifact has five risk rows. That specific failure is a parser/section-shape mismatch rather than a substantive risk omission. However, the missing dedicated Provenance section is a real quality regression versus baseline even though it was not one of the 12 checks for this case.",
+  "adversarial_warranted": false,
+  "adversarial_reason": "Not warranted. The live artifact wins narrowly on qualitative fit and coverage despite provenance regressions. There is no unresolved tie, contradictory evidence, or high-stakes ambiguity requiring /sc:adversarial --depth quick; the needed follow-up is a straightforward provenance/section-format fix, not another debate."
+}

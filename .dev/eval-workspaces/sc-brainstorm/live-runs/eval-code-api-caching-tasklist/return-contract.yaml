@@ -1,0 +1,63 @@
+schema_version: "1.0"
+contract_version: "1.0"
+status: success
+case_id: 8
+case_name: code-api-caching-tasklist
+topic: "adding caching to the API layer"
+domain: code
+strategy: systematic
+depth: standard
+proposal_count: 3
+convergence_score: 0.82
+blind_mode: false
+interactive: false
+handoff_action: tasklist
+fit_to_intent: pass
+created: "2026-05-27"
+
+# Phase-2 schema versions
+seed_schema_version: "1.0"
+merged_requirements_schema_version: "1.0"
+
+# Context anchors (must be >= 1)
+context_anchors_count: 7
+
+# Artifact paths
+seed_brief_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/seed-brief.md"
+merged_output_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/merged-requirements.md"
+adversarial_artifacts_dir: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/adversarial"
+handoff_output_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/handoff/tasklist-index.md"
+
+# Source of truth — references sc-brainstorm-protocol
+source_of_truth_paths:
+  - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md"
+  - "src/superclaude/skills/sc-adversarial-protocol/SKILL.md"
+  - ".claude/skills/sc-brainstorm-protocol/SKILL.md"
+
+enrichment_used:
+  - path: ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/enrichment/codebase-context.md"
+    quality_tier: light
+
+agent_spec:
+  personas:
+    - architect
+    - backend
+    - security
+  models:
+    - opus
+    - sonnet
+    - haiku
+  rotation:
+    - {variant: 1, persona: architect, model: opus}
+    - {variant: 2, persona: backend,   model: sonnet}
+    - {variant: 3, persona: security,  model: haiku}
+
+telemetry:
+  waves_executed: [0, 1, 2A, 2B, 3, 4]
+  wave1_mode: non-interactive
+  rounds_completed: 2
+  convergence_threshold: 0.75
+  convergence_achieved: 0.82
+  converged: true
+  adversarial_status: converged
+  unresolved_conflicts: 0

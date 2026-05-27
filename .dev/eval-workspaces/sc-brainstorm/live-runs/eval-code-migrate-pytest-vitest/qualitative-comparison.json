@@ -1,0 +1,123 @@
+{
+  "eval_name": "code-migrate-pytest-vitest",
+  "winner": "baseline",
+  "baseline_total": 56,
+  "live_total": 38,
+  "dimensions": {
+    "concreteness": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Some implementation helper sizes are asserted approximately, but most details are concrete and scoped to actual frontend migration artifacts."
+        ],
+        "notes": "Names exact test slice, file paths, batch order, CI targets, coverage paths, package additions, and bridge deletion gates."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-2: Reverts to generic pytest-to-Vitest inventory language rather than the known frontend/tests slice.",
+          "-1: Avoids concrete package/config choices requested by the original eval scenario.",
+          "-1: Many requirements are conceptual categories rather than concrete migration steps."
+        ],
+        "notes": "Concrete around runtime categories and coexistence gates, but not concrete to the React+TS/Vite/frontend-fixture scenario."
+      }
+    },
+    "coverage": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Backend pytest-retention is implicit rather than repeatedly emphasized, though the slice boundary is clear."
+        ],
+        "notes": "Covers CI, coverage merge, Storybook fixtures, Playwright out-of-scope, rollback, batch migration, isolation, snapshots, and deletion gates."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-2: Misses the eval's concrete frontend slice facts: ~400 React+TS tests, pytest-shell-playwright bridge, Storybook fixture imports, LCOV merge path, and p95 wall-clock target.",
+          "-1: Leaves central scope questions unresolved that the baseline seed had already answered."
+        ],
+        "notes": "Broadly covers generic migration risks: runtime eligibility, parity matrix, fixture conversion, markers, CI coexistence, rollback, dependency governance."
+      }
+    },
+    "actionability": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Some scripts are specified as new approximate LOC without proving exact command syntax."
+        ],
+        "notes": "Clear PR batching, gate criteria, files to add/remove, metrics, and decision timing."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-2: Requires an inventory and multiple decisions before design/tasklist, but does not translate the already-known frontend scenario into a migration plan.",
+          "-1: No batch order, exact config location decision, coverage provider choice, or bridge-deletion sequence.",
+          "-1: Acceptance criteria are process-level rather than directly executable for this eval."
+        ],
+        "notes": "Actionable as a discovery checklist for an unknown repo migration, less actionable for the known frontend-slice migration."
+      }
+    },
+    "provenance": {
+      "baseline": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Frontmatter, source proposals, debate transcript pointer, source seed pointer, inline origin tags, and a requirement-origin table are all present."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-2: Missing an explicit Provenance section according to structural comparison assertions.",
+          "-1: Source comments are present but coarse and not mapped requirement-by-requirement.",
+          "-1: Frontmatter lacks the baseline's spec_type/adversarial_status/proposal_count schema expected by the evaluator."
+        ],
+        "notes": "Has useful HTML source comments and merge notes, but provenance is weaker and structurally incompatible with the baseline contract."
+      }
+    },
+    "adversarial_synthesis": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Uses only two proposal perspectives, so breadth is narrower than live's three-perspective setup."
+        ],
+        "notes": "Captures concrete debate tensions and resolutions: bridge deletion gate, config location, provider choice, isolation, snapshots."
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1: Some synthesis preserves generic open questions rather than resolving them using known seed facts.",
+          "-1: Merge rationale is visible in comments but less auditable than the baseline's tension-by-tension provenance."
+        ],
+        "notes": "Strong improvement in conceptual adversarial framing: runtime eligibility gate plus rollout controls plus QA parity concerns."
+      }
+    },
+    "fit_to_eval_intent": {
+      "baseline": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Directly answers the eval's clarified frontend-slice scenario and success criteria."
+      },
+      "live": {
+        "score": 5,
+        "penalties": [
+          "-3: Treats the task as an unknown whole-suite/runtime migration, while the original baseline seed had already clarified that only frontend/tests React+TS component tests migrate.",
+          "-1: Defers package manager, coverage, and retirement decisions that were either known or intentionally constrained in the eval.",
+          "-1: Next-step advice shifts to /sc:design only after broad open questions, which undercuts the quick requirements-eval intent."
+        ],
+        "notes": "Useful if the prompt were ambiguous, but materially misfit to this eval's specific migration facts."
+      }
+    }
+  },
+  "top_regressions": [
+    "Live loses the specific frontend-slice grounding: ~400 React+TS component tests under frontend/tests, pytest-shell-playwright bridge, Playwright integration out-of-scope, Storybook fixture resolution, and concrete LCOV merge constraints.",
+    "Live is less actionable: it replaces the baseline's batch order, package/config/provider decisions, CI metrics, and bridge deletion sequence with generic inventory and decision requirements.",
+    "Live has weaker evaluator-compatible provenance and metadata: structural comparison reports missing spec_type, adversarial_status, proposal_count, and an explicit Provenance section in merged-requirements.md."
+  ],
+  "top_improvements": [
+    "Live adds a strong runtime-eligibility guard that prevents invalid mechanical conversion of Python-only pytest tests to Vitest.",
+    "Live covers broader pytest semantic preservation: fixtures, parametrization, markers, custom hooks/plugins, monkeypatching, filesystem effects, subprocesses, async behavior, and category selection.",
+    "Live uses three synthesized perspectives and explicitly includes toolchain, dependency governance, branch-protection, environment parity, and rollback criteria."
+  ],
+  "structural_failure_interpretation": "Mixed, but mostly real quality regression for this eval. The proposal_count=3 versus expected 2 and seed depth=standard versus expected quick are parameter/metadata mismatches from the live run using a broader run configuration. However, missing merged-requirements spec_type/adversarial_status/proposal_count and missing explicit Provenance section are not merely cosmetic: they reduce auditability and break the evaluator contract. More importantly, the content-level broadening away from the known frontend slice is a real fit/actionability regression.",
+  "adversarial_warranted": false,
+  "adversarial_reason": "No unresolved tie or high-stakes ambiguity remains after qualitative review: baseline is clearly superior for the eval's specific intent despite live's useful runtime-boundary insight. A quick adversarial rerun would be warranted only if the evaluation goal changed to a generic pytest-to-Vitest migration across an unknown Python-first repository."
+}

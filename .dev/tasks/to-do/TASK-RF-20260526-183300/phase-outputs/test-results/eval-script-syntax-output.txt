@@ -1,0 +1,4 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+PASS  .dev/eval-workspaces/sc-brainstorm/grader.py
+PASS  .dev/eval-workspaces/sc-brainstorm/compare_live_runs.py
+VERDICT: PASS
