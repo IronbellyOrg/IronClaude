@@ -17,6 +17,8 @@ Prevents wrong-direction execution by assessing confidence **BEFORE** starting i
 - Recall: 1.000 (no false negatives)
 - 8/8 test cases passed
 
+**Scope of this metric**: These numbers describe the confidence-check skill's trigger-surface classifier — whether the skill correctly recognises "this user request needs a confidence check" — measured against 8 hand-built test cases. They do NOT describe the `confidence-calibrator` agent in `sc-troubleshoot-protocol/`, which scores hypothesis cards on a different rubric (Evidence grounding, Runtime check, Symptom coverage, Reproducibility fit, Fix directness, Domain coherence). 8 cases is a sparse fixture, not a saturating test; for calibration scoring, the saturating pin-test corpus lives at `src/superclaude/skills/sc-troubleshoot-protocol/refs/calibrator-eval-cases.md`.
+
 ## When to Use
 
 Use this skill BEFORE implementing any task to ensure:
@@ -111,7 +113,7 @@ Calculate confidence score (0.0 - 1.0) based on 5 checks:
 
 ## Confidence Score Calculation
 
-```
+```text
 Total = Check1 (25%) + Check2 (25%) + Check3 (20%) + Check4 (15%) + Check5 (15%)
 
 If Total >= 0.90:  ✅ Proceed with implementation
@@ -121,7 +123,7 @@ If Total < 0.70:   ❌ STOP - Request more context
 
 ## Output Format
 
-```
+```text
 📋 Confidence Checks:
    ✅ No duplicate implementations found
    ✅ Uses existing tech stack
