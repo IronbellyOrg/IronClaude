@@ -1,0 +1,68 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/task-rf-20260525-194356/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/task-rf-20260525-194356
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 56 items
+
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[0-0] PASSED [  1%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[1-1] PASSED [  3%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[3-1] PASSED [  5%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[4-1] PASSED [  7%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[5-2] PASSED [  8%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[7-2] PASSED [ 10%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[8-2] PASSED [ 12%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_of_bytes_over_four[4001-1001] PASSED [ 14%]
+tests/cli/test_init_lite.py::test_estimate_tokens_rejects_negative PASSED [ 16%]
+tests/cli/test_init_lite.py::test_classify_token_estimate_thresholds[0-low] PASSED [ 17%]
+tests/cli/test_init_lite.py::test_classify_token_estimate_thresholds[999-low] PASSED [ 19%]
+tests/cli/test_init_lite.py::test_classify_token_estimate_thresholds[1000-medium] PASSED [ 21%]
+tests/cli/test_init_lite.py::test_classify_token_estimate_thresholds[4000-medium] PASSED [ 23%]
+tests/cli/test_init_lite.py::test_classify_token_estimate_thresholds[4001-high] PASSED [ 25%]
+tests/cli/test_init_lite.py::test_discover_surfaces_finds_all_supported_categories PASSED [ 26%]
+tests/cli/test_init_lite.py::test_discover_surfaces_empty_project_returns_no_surfaces PASSED [ 28%]
+tests/cli/test_init_lite.py::test_discover_surfaces_skips_unrelated_files PASSED [ 30%]
+tests/cli/test_init_lite.py::test_help_lists_required_flags PASSED       [ 32%]
+tests/cli/test_init_lite.py::test_missing_context_optimized_is_usage_error PASSED [ 33%]
+tests/cli/test_init_lite.py::test_dry_run_writes_nothing PASSED          [ 35%]
+tests/cli/test_init_lite.py::test_default_run_writes_report_with_marker_and_no_scaffold PASSED [ 37%]
+tests/cli/test_init_lite.py::test_custom_output_flag_used PASSED         [ 39%]
+tests/cli/test_init_lite.py::test_scaffold_creates_only_advisory_files PASSED [ 41%]
+tests/cli/test_init_lite.py::test_second_scaffold_run_is_idempotent PASSED [ 42%]
+tests/cli/test_init_lite.py::test_claude_md_bytes_preserved_across_all_modes PASSED [ 44%]
+tests/cli/test_init_lite.py::test_second_default_run_overwrites_marked_report PASSED [ 46%]
+tests/cli/test_init_lite.py::test_refuses_to_overwrite_non_marker_output_without_force PASSED [ 48%]
+tests/cli/test_init_lite.py::test_no_writes_under_claude_when_present PASSED [ 50%]
+tests/cli/test_init_lite.py::test_no_claude_dir_created_when_absent PASSED [ 51%]
+tests/cli/test_init_lite.py::test_installer_maps_sc_init_lite_protocol_to_init_lite_command PASSED [ 53%]
+tests/cli/test_init_lite.py::test_installer_keeps_existing_sc_prefix_mapping PASSED [ 55%]
+tests/cli/test_init_lite.py::test_installer_rejects_non_sc_prefix PASSED [ 57%]
+tests/cli/test_init_lite.py::test_installer_rejects_sc_skill_without_matching_command PASSED [ 58%]
+tests/cli/test_init_lite.py::test_installer_rejects_protocol_skill_without_matching_command PASSED [ 60%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-CLAUDE.md] PASSED [ 62%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-.mcp.json] PASSED [ 64%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-.claude/settings.json] PASSED [ 66%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-.claude/commands/sc/foo.md] PASSED [ 67%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-.claude/skills/foo/SKILL.md] PASSED [ 69%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-.claude/agents/foo.md] PASSED [ 71%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[False-.claude/hooks.json] PASSED [ 73%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-CLAUDE.md] PASSED [ 75%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-.mcp.json] PASSED [ 76%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-.claude/settings.json] PASSED [ 78%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-.claude/commands/sc/foo.md] PASSED [ 80%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-.claude/skills/foo/SKILL.md] PASSED [ 82%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-.claude/agents/foo.md] PASSED [ 83%]
+tests/cli/test_init_lite.py::test_output_to_protected_path_is_refused[True-.claude/hooks.json] PASSED [ 85%]
+tests/cli/test_init_lite.py::test_is_protected_target_path_unit PASSED   [ 87%]
+tests/cli/test_cli_registration.py::test_top_level_help_lists_eval_group PASSED [ 89%]
+tests/cli/test_cli_registration.py::test_top_level_command_roster_unchanged PASSED [ 91%]
+tests/cli/test_cli_registration.py::test_eval_group_help_lists_m1_subcommands PASSED [ 92%]
+tests/cli/test_cli_registration.py::test_eval_group_registers_m1_subcommands_in_click PASSED [ 94%]
+tests/cli/test_cli_registration.py::test_top_level_help_lists_init_lite PASSED [ 96%]
+tests/cli/test_cli_registration.py::test_init_lite_help_lists_required_flags PASSED [ 98%]
+tests/cli/test_cli_registration.py::test_pre_existing_command_help_still_invokable PASSED [100%]
+
+============================== 56 passed in 0.24s ==============================
