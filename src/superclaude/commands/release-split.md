@@ -42,7 +42,7 @@ personas: [architect, analyzer, scribe]
 
 # With custom instructions per agent
 /sc:release-split path/to/release-spec.md \
-  --agents opus:architect:"Focus on dependency isolation",haiku:analyzer:"Prioritize testability"
+  --agents opus:architect:"Focus on dependency isolation",sonnet:analyzer:"Prioritize testability"
 ```
 
 ## Options
@@ -57,7 +57,7 @@ personas: [architect, analyzer, scribe]
 | `--no-split` | | No | `false` | Skip split analysis; produce single-release validation only |
 | `--r1-scope` | | No | `fidelity-schema` | Release 1 default scope bias: fidelity-schema, minimal-viable, custom |
 | `--smoke-gate` | | No | `r2` | Default smoke gate placement: r1, r2 |
-| `--agents` | `-a` | No | `opus:architect,haiku:analyzer` | Agent specs for variant generation in Part 2. Format: `model[:persona[:"instruction"]]`, comma-separated. Minimum 2 agents. |
+| `--agents` | `-a` | No | `opus:architect,sonnet:analyzer` | Agent specs for variant generation in Part 2. Format: `model[:persona[:"instruction"]]`, comma-separated. Minimum 2 agents. |
 
 ## Behavioral Summary
 

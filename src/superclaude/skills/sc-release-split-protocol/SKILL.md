@@ -70,7 +70,7 @@ These constraints apply across ALL four parts of the protocol. They are non-nego
 
 **MANDATORY**: A release artifact file path. The artifact must contain identifiable requirements, deliverables, or scope items.
 
-```
+```text
 /sc:release-split <spec-file-path> [options]
 ```
 
@@ -89,7 +89,7 @@ These constraints apply across ALL four parts of the protocol. They are non-nego
 
 **`--agents` handling**: Optional. Comma-separated agent specs in `model[:persona[:"instruction"]]` format.
 
-- Default: `opus:architect,haiku:analyzer`
+- Default: `opus:architect,sonnet:analyzer`
 - Minimum 2 agents, maximum 10
 - When present, Part 2 uses sc:adversarial Mode B (generate + compare) instead of Mode A (compare)
 - Agent spec parsing follows the canonical algorithm defined in sc:adversarial-protocol SKILL.md "Dual Input Modes > Mode B" section
@@ -98,7 +98,7 @@ These constraints apply across ALL four parts of the protocol. They are non-nego
 
 The protocol executes 4 sequential parts. Each part has entry criteria, delegates to an appropriate command/skill, and produces documented artifacts. Parts execute sequentially because each depends on the previous output.
 
-```
+```text
 Prerequisites: Validate inputs           → (inline)
 Part 1: Discovery & Proposal             → /sc:brainstorm
 Part 2: Adversarial Variant Generation   → /sc:adversarial (Mode B)
@@ -191,7 +191,7 @@ Part 4: Fidelity Verification            → /sc:analyze
 
 **Refs Loaded**: Read `refs/phase-templates.md` for debate structure guidance. Read `refs/adversarial-integration.md` for invocation pattern and return contract consumption.
 
-**Agent Default**: If `--agents` not provided, use `opus:architect,haiku:analyzer`.
+**Agent Default**: If `--agents` not provided, use `opus:architect,sonnet:analyzer`.
 
 **Behavioral Instructions**:
 

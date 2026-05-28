@@ -21,7 +21,7 @@ def roadmap_group():
 
     Examples:
         superclaude roadmap run spec.md
-        superclaude roadmap run spec.md --agents sonnet:security,haiku:qa
+        superclaude roadmap run spec.md --agents sonnet:security,sonnet:qa
         superclaude roadmap run spec.md --depth deep
         superclaude roadmap run spec.md --dry-run
         superclaude roadmap run spec.md --resume
@@ -38,7 +38,7 @@ def roadmap_group():
     default=None,
     help=(
         "Comma-separated agent specs: model[:persona]. "
-        "Default: opus:architect,haiku:architect"
+        "Default: opus:architect,sonnet:architect"
     ),
 )
 @click.option(
@@ -364,7 +364,7 @@ def validate(
 
     Examples:
         superclaude roadmap validate ./output
-        superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+        superclaude roadmap validate ./output --agents opus:architect,sonnet:qa
     """
     from .models import AgentSpec, ValidateConfig
     from .validate_executor import execute_validate
