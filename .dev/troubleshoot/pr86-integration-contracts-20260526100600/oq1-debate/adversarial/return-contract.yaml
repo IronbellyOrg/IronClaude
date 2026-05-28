@@ -1,0 +1,10 @@
+merged_output_path: "/config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/oq1-debate/adversarial/merge-log.md"
+convergence_score: 1.00
+artifacts_dir: "/config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/oq1-debate/adversarial/"
+status: "success"
+base_variant: "Variant 2 — Option B (Helper Uppercases Input)"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []  # Round 2.5 skipped per depth=quick

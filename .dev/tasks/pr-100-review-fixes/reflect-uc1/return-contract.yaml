@@ -1,0 +1,98 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/tasks/pr-100-review-fixes/reflect-uc1/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/tasks/pr-100-review-fixes/reflect-uc1/audit.log
+confidence_calibrated: 0.95
+escalation_rule_matched: 1
+
+coverage_pct: 1.00
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 5
+
+tasklist_completion_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+
+input_sha256:
+  tasklist: in-context-authored-this-turn
+  spec: in-context-authored-this-turn
+input_tree_sha256: in-context-authored-this-turn
+input_tree_file_count: 2
+input_tree_snapshot_path: null
+input_drift_detected: false
+input_drift_diff: null
+
+citations_total: 17
+citations_revalidated: 17
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+citation_revalidation_at_promotion: false
+
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: null
+t2_model_class_diversity: null
+t2_vendor_diversity: null
+t2_effective_diversity: null
+calibrator_diversity: null
+
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Recommendations (optional patches surfaced in REPORT.md §Recommendations)
+optional_patches:
+  - id: R1
+    target_step: "Step 3.3"
+    rationale: "Halt if grader invocation produces zero grading.json files (avoid vacuous PASS)"
+  - id: R2
+    target_step: "Step 3.4"
+    rationale: "Prefer /tmp scratch over in-worktree iteration-2 modification"
+  - id: R3
+    target_step: "Step 4.3"
+    rationale: "If --body-file is used, write under reflect-uc1/ to avoid accidental staging"

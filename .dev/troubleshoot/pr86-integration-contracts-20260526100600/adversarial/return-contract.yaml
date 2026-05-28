@@ -1,0 +1,11 @@
+# sc:adversarial-protocol return contract — written on every invocation per skill spec
+merged_output_path: "/config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/adversarial/merged-output.md"
+convergence_score: 0.81
+artifacts_dir: "/config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/adversarial/"
+status: "success"
+base_variant: "HYBRID (V1+V2+V3 + INV-002 amendment) — no single variant survived unmodified; see base-selection.md"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []  # 3 HIGH items at probe time, all resolved by mandatory window-upper amendment in merged-output.md Step 4
