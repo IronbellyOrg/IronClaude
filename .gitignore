@@ -224,3 +224,7 @@ uv.lock
 # Sprint runner transient state directory (post-FU-001 default). Holds
 # .sprint-exitcode and other ephemeral per-run state; never tracked.
 .dev/sprint-state/
+# Sprint runner per-task stdout/stderr dumps. Routinely exceed the 1 MB
+# pre-commit large-file threshold; the manifest, execution-log, tasklists,
+# and verification artifacts in the same release directory remain tracked.
+.dev/releases/**/results/phase-*-task-*-output.txt
