@@ -64,6 +64,7 @@ Documentation = "https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/m
 # ⭐ CLI commands (hatchling format)
 [project.scripts]
 superclaude = "superclaude.cli.main:main"
+ic = "superclaude.cli.ic:main"
 
 # ⭐ pytest plugin auto-discovery (most important!)
 [project.entry-points.pytest11]

@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# ic — launch claude with --dangerously-skip-permissions and configurable model aliases
+#
+# Usage:
+#   ic                          # source ~/.aienv defaults, launch claude
+#   ic <alias-or-model>         # override haiku slot (positional shortcut)
+#   ic -p <preset>              # apply a named preset (all 3 slots)
+#   ic -H <m> -S <m> -O <m>     # per-slot overrides (haiku/sonnet/opus)
+#   ic --haiku <m> --sonnet <m> --opus <m>
+#   ic --no-yolo                # launch claude WITHOUT --dangerously-skip-permissions
+#   ic <alias> -- <claude-args> # forward args after -- to claude
+#
+# Resolution: each model value is looked up in $IC_ALIASES (declared in ~/.aienv);
+# if no alias matches, the literal value is passed through to claude.
+#
+# ~/.aienv should define (in addition to existing exports):
+#   export kimi=kimi-k2.6
+#   export qwen=qwen3.6-plus
+#   ...
+#   export IC_PRESET_coding="opus=claude-opus-4-7 sonnet=gpt-codex haiku=kimi-k2.6"
+#   export IC_PRESET_fast="opus=claude-opus-4-7 sonnet=claude-sonnet haiku=glm-5-turbo"
+
+set -euo pipefail
+
+AIENV="${AIENV:-$HOME/.aienv}"
+if [[ -f "$AIENV" ]]; then
+  # shellcheck disable=SC1090
+  source "$AIENV"
+else
+  echo "ic: warning: $AIENV not found; proceeding without defaults" >&2
+fi
+
+# Resolve a token through ~/.aienv exports; fall back to literal value.
+# Looks up $<key> via indirect expansion — e.g. resolve kimi → $kimi → kimi-k2.6.
+# Only treats the env var as an alias if its name is a "safe" shape (avoids
+# accidentally resolving PATH, HOME, etc. if a user passes those literally).
+resolve() {
+  local key="$1"
+  # Only attempt indirect expansion if key is a valid bash identifier
+  # (literal model IDs like "qwen3.6-plus" contain "." / "-" and fall through).
+  if [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]] && [[ -n "${!key:-}" ]]; then
+    printf '%s' "${!key}"
+  else
+    printf '%s' "$key"
+  fi
+}
+
+apply_preset() {
+  local name="$1"
+  local var="IC_PRESET_${name}"
+  if [[ -z "${!var:-}" ]]; then
+    echo "ic: unknown preset '$name' (expected \$$var in ~/.aienv)" >&2
+    exit 2
+  fi
+  # Preset format: "opus=<m> sonnet=<m> haiku=<m>" (any subset, space-separated)
+  local pair slot value
+  for pair in ${!var}; do
+    slot="${pair%%=*}"
+    value="${pair#*=}"
+    case "$slot" in
+      opus)   ANTHROPIC_DEFAULT_OPUS_MODEL="$(resolve "$value")" ;;
+      sonnet) ANTHROPIC_DEFAULT_SONNET_MODEL="$(resolve "$value")" ;;
+      haiku)  ANTHROPIC_DEFAULT_HAIKU_MODEL="$(resolve "$value")" ;;
+      *) echo "ic: unknown slot '$slot' in \$$var" >&2; exit 2 ;;
+    esac
+  done
+}
+
+# Parse args. Stop at `--`; everything after is forwarded to claude.
+claude_args=()
+yolo=1   # default: launch with --dangerously-skip-permissions
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--preset)   apply_preset "$2"; shift 2 ;;
+    -H|--haiku)    ANTHROPIC_DEFAULT_HAIKU_MODEL="$(resolve "$2")";  shift 2 ;;
+    -S|--sonnet)   ANTHROPIC_DEFAULT_SONNET_MODEL="$(resolve "$2")"; shift 2 ;;
+    -O|--opus)     ANTHROPIC_DEFAULT_OPUS_MODEL="$(resolve "$2")";   shift 2 ;;
+    --no-yolo)     yolo=0; shift ;;
+    --)            shift; claude_args+=("$@"); break ;;
+    -h|--help)
+      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    -*)
+      # Unknown flag — forward to claude.
+      claude_args+=("$1"); shift ;;
+    *)
+      # First bare positional = haiku shortcut; later bare positionals forwarded.
+      if [[ -z "${HAIKU_SET:-}" ]]; then
+        ANTHROPIC_DEFAULT_HAIKU_MODEL="$(resolve "$1")"
+        HAIKU_SET=1
+      else
+        claude_args+=("$1")
+      fi
+      shift ;;
+  esac
+done
+
+export ANTHROPIC_DEFAULT_HAIKU_MODEL ANTHROPIC_DEFAULT_SONNET_MODEL ANTHROPIC_DEFAULT_OPUS_MODEL
+
+if [[ -t 2 ]]; then
+  printf 'ic: opus=%s  sonnet=%s  haiku=%s\n' \
+    "${ANTHROPIC_DEFAULT_OPUS_MODEL:-<unset>}" \
+    "${ANTHROPIC_DEFAULT_SONNET_MODEL:-<unset>}" \
+    "${ANTHROPIC_DEFAULT_HAIKU_MODEL:-<unset>}" >&2
+fi
+
+if [[ "$yolo" == 1 ]]; then
+  exec claude --dangerously-skip-permissions "${claude_args[@]}"
+else
+  exec claude "${claude_args[@]}"
+fi
